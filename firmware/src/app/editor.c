@@ -325,8 +325,37 @@ static void ed_handle(const uint8_t *f, uint32_t n)
 #if X0X_BLE
     case ED_BT_TEST: {
         uint32_t op = na > 0u ? a[0] : 0u;
-        if (op > 4u)
+        if (op > 6u)
             return;
+        if (op >= 5u) {     /* attempt 52, 5: core 1's full fault record (fm1_irq.h fm1_c1x) and its live
+                             * stack limit bank (EMU_CON, EMU_MSG, the 4 limit words); 6: peek RAM, args
+                             * address (5 x 7 bits) and words (up to 64), 0x01C00000..0x01C80000 only */
+            uint32_t k, v, ad = 0, nw = 0;
+            if (op == 6u) {
+                if (na < 7u)
+                    return;
+                for (k = 0; k < 5u; k++)
+                    ad |= (uint32_t)a[1 + k] << (7u * k);
+                nw = a[6] > 64u ? 64u : a[6];
+                ad &= ~3u;
+                if (ad < 0x01C00000u || ad + nw * 4u > 0x01C80000u)
+                    return;
+            } else
+                nw = sizeof fm1_c1x / 4u + 6u;
+            ed_b(op);
+            ed_b(nw);
+            for (k = 0; k < nw; k++) {
+                v = op == 6u ? fm1_peek32(ad + 4u * k)
+                    : k < sizeof fm1_c1x / 4u ? ((const uint32_t *)&fm1_c1x)[k]
+                    : fm1_c1_emu_word(k - sizeof fm1_c1x / 4u);
+                ed_b(v);
+                ed_b(v >> 7);
+                ed_b(v >> 14);
+                ed_b(v >> 21);
+                ed_b(v >> 28);
+            }
+            break;
+        }
         if (op >= 3u) {     /* 3: the timer 5 frame watch (fm1_guard.h), last boot's, then hits now;
                              * 4: core 1's records (fm1_cpu1.h): core 0 seen stopping, the RAM canary */
             const uint32_t *t = op == 3u ? (const uint32_t *)&fm1_t5w_prev : (const uint32_t *)&fm1_c0_dead;

@@ -16,7 +16,14 @@ A software restart is not a power cycle: .noinit RAM (the start guard, the crash
 and the radio's analog and power (P33) state may stay too. Confirm a result with a real power
 cycle at the end.
 
-Usage: tools/ble_autotest.py [-n ROUNDS] [--hold S] [--log FILE] [--diag-only]
+Attempt 52: every round also reads core 1's full fault record (ED_BT_TEST op 5: the whole frame
+with usp/ssp/reti/rete/retx/psr/icfg, core 1's EMU_MSG, 16 words from usp, the live stack-limit
+window) and, with --syms (a JSON made by --make-syms from ble/ctl/out/symbols.txt), peeks the
+image's RAM (op 6): cur, idle_ctx, both task records with their saved frames and stack words, the
+switch ring, the timers, the queue/semaphore counters and the mailbox (the HCI rings).
+
+Usage: tools/ble_autotest.py [-n ROUNDS] [--hold S] [--log FILE] [--diag-only] [--syms FILE]
+       tools/ble_autotest.py --make-syms ble/ctl/out/symbols.txt OUT.json
 Needs mido with python-rtmidi. Exit 0 = every round READY and stayed up.
 """
 import argparse
@@ -24,7 +31,10 @@ import json
 import sys
 import time
 
-import mido
+try:
+    import mido
+except ImportError:                                # --make-syms needs no MIDI
+    mido = None
 
 HDR = [0x7D, 0x46, 0x4C]
 ED_DIAG, ED_BT_TEST = 33, 34
@@ -198,6 +208,109 @@ def h(v):
     return f"0x{v:08X}"
 
 
+# ---- attempt 52: core 1's full fault record and the image's RAM ----
+FRAME = [f"r{i}" for i in range(16)] + ["reti", "rete", "retx", "stub", "psr", "icfg", "usp", "ssp", "sp", "rets"]
+EMU_BITS = {0: "misaligned", 1: "illegal instruction", 2: "divide by zero", 3: "STACK LIMIT (sp outside the window)",
+            4: "privilege", 5: "bus/address"}
+SYMS = ["cur", "idle_ctx", "in_run_once", "ctl_sw_n", "ctl_sw_ring", "tasks", "timers", "ctl_q_full",
+        "ctl_d_post", "ctl_d_pend", "ctl_d_ran", "heap_first", "ctl_mb", "ctl_bp", "ctl_d_timers"]
+
+
+def make_syms(src, out):
+    """objdump -t text (ble/ctl/out/symbols.txt) -> {name: [address, size]} for --syms"""
+    d = {}
+    for line in open(src):
+        f = line.split()
+        if len(f) >= 5 and len(f[0]) == 8:
+            try:
+                d[f[-1]] = [int(f[0], 16), int(f[-2], 16)]
+            except ValueError:
+                pass
+    json.dump({k: d[k] for k in SYMS + ["__ctl_isr_stack_lo", "__ctl_isr_stack_hi", "__ctl_heap_start",
+                                        "__ctl_heap_end", "ctl_port_ctx_switch", "ctl_asm_ctx_switch"] if k in d},
+              open(out, "w"), indent=1)
+
+
+def peek(addr, n):
+    w = []
+    while n > 0:
+        k = min(n, 64)
+        a = addr + 4 * len(w)
+        r = ask(ED_BT_TEST, [6] + [(a >> (7 * i)) & 0x7F for i in range(5)] + [k])
+        if not r or r[0] != 6:
+            return w or None
+        for j in range(r[1]):
+            b = r[2 + 5 * j:7 + 5 * j]
+            w.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
+        n -= k
+    return w
+
+
+def c1x():
+    w = bt_words(5)
+    if not w or len(w) < 50:
+        return None
+    return {"magic": w[0], "emu": w[1], "frame": dict(zip(FRAME, w[2:28])), "usp_words": w[28:44],
+            "live": dict(zip(["emu_con", "emu_msg", "lim0_hi", "lim0_lo", "lim1_hi", "lim1_lo"], w[44:50]))}
+
+
+def c1x_text(x, syms=None):
+    if not x:
+        return "no reply (older firmware)"
+    lv = x["live"]
+    win = f"live limit window {h(lv['lim0_lo'])}..{h(lv['lim0_hi'])} / {h(lv['lim1_lo'])}..{h(lv['lim1_hi'])}, EMU_CON {h(lv['emu_con'])}"
+    if x["magic"] != 0xC1F4A052:
+        return "no core 1 fault record; " + win
+    f, e = x["frame"], x["emu"]
+    bits = ", ".join(v for b, v in EMU_BITS.items() if e >> b & 1) or "none"
+    out = (f"core 1 frame: reti {h(f['reti'])} rete {h(f['rete'])} retx {h(f['retx'])} rets {h(f['rets'])} "
+           f"psr {h(f['psr'])} icfg {h(f['icfg'])} usp {h(f['usp'])} ssp {h(f['ssp'])} sp {h(f['sp'])}; "
+           f"EMU_MSG {h(e)} ({bits}); " + win)
+    lo, hi = min(lv["lim0_lo"], lv["lim1_lo"]), max(lv["lim0_hi"], lv["lim1_hi"])
+    if lv["lim0_hi"] and not (lv["lim0_lo"] <= f["usp"] <= lv["lim0_hi"]):
+        out += f"; usp OUTSIDE the window"
+    out += "; r0-r15 " + " ".join(f"{f[f'r{i}']:08X}" for i in range(16))
+    out += "; [usp] " + " ".join(f"{v:08X}" for v in x["usp_words"])
+    return out
+
+
+def ram_dump(syms):
+    """the image's scheduler state by address (op 6)"""
+    out = {}
+    g = lambda n, k=None: peek(syms[n][0], k or max(1, (syms[n][1] + 3) // 4)) if n in syms else None
+    for n in ("cur", "idle_ctx", "in_run_once", "ctl_sw_n", "ctl_q_full", "ctl_d_post", "ctl_d_pend", "ctl_d_ran",
+              "heap_first", "ctl_mb", "ctl_d_timers"):
+        v = g(n)
+        if v:
+            out[n] = v[0]
+    ring = g("ctl_sw_ring")
+    if ring and "ctl_sw_n" in out:
+        n = out["ctl_sw_n"]
+        ent = [(ring[i], ring[i + 1]) for i in range(0, 16, 2)]
+        order = [(n - 2 - 2 * j) % 16 // 2 for j in range(min(n // 2, 8))]
+        out["switches"] = [f"task {ent[i][0] >> 28} poll {ent[i][0] & 0xFFFFFFF} sp {h(ent[i][1])}" for i in order]
+    if "idle_ctx" in out and 0x01C00000 <= out["idle_ctx"] < 0x01C80000:
+        out["idle_frame"] = [h(v) for v in peek(out["idle_ctx"], 16) or []]
+    t = g("tasks")
+    if t:
+        sz = len(t) // 2
+        out["tasks"] = []
+        for i in range(2):
+            r = t[i * sz:(i + 1) * sz]
+            k = {"name_p": h(r[0]), "fn": h(r[1]), "sp": h(r[3]), "stack": h(r[4]), "wake_ms": r[5],
+                 "used": r[6] & 0xFF, "waiting": r[6] >> 8 & 0xFF, "qhead": r[6] >> 16, "qtail": r[7] & 0xFFFF,
+                 "q": r[8:24]}
+            if 0x01C00000 <= r[3] < 0x01C80000:
+                k["saved"] = [h(v) for v in peek(r[3], 24) or []]   # rets/pc, r4..r15 order as pushed, then callers
+            out["tasks"].append(k)
+    tm = g("timers")
+    if tm:
+        out["timers_raw"] = [h(v) for v in tm]
+    if out.get("ctl_mb") and 0x01C00000 <= out["ctl_mb"] < 0x01C80000:
+        out["mailbox_raw"] = [h(v) for v in peek(out["ctl_mb"], 192) or []]   # rings h2c/c2h, dbg words, hx
+    return out
+
+
 def live_words(took, gave):
     """attempt 45 DIAG words after READY (ctl_main.c d_live), also kept in FAILED and after a reset"""
     return (f"took {took & 0xFF} frames, {took >> 8 & 0xFF} host events (last 0x{took >> 16 & 0xFF:02X}), "
@@ -264,7 +377,13 @@ def main():
     ap.add_argument("--hold", type=float, default=20.0, help="seconds READY must stay up (default 20)")
     ap.add_argument("--log", help="append each round as one JSON line")
     ap.add_argument("--diag-only", action="store_true", help="read and print DIAG only")
+    ap.add_argument("--syms", help="image symbols JSON (--make-syms) for the RAM dump")
+    ap.add_argument("--make-syms", nargs=2, metavar=("SYMBOLS_TXT", "OUT_JSON"))
     a = ap.parse_args()
+    if a.make_syms:
+        make_syms(*a.make_syms)
+        return 0
+    syms = json.load(open(a.syms)) if a.syms else None
     if not ports():
         sys.exit("ble_autotest: no X0X USB MIDI port")
     if a.diag_only:
@@ -273,7 +392,15 @@ def main():
             sys.exit("ble_autotest: no DIAG reply")
         out = summary(d, d)
         out["t5w"] = t5w_text(t5w())
+        x = c1x()
+        out["core1"] = c1x_text(x)
+        out["core1_raw"] = x
+        if syms:
+            out["ram"] = ram_dump(syms)
         print(json.dumps(out, indent=1))
+        if a.log:
+            with open(a.log, "a") as f:
+                f.write(json.dumps({**out, "diag": d}) + "\n")
         return 0
     ok = 0
     for rnd in range(1, a.n + 1):
@@ -305,14 +432,17 @@ def main():
         ok += up
         t = t5w()
         s["t5w"] = t5w_text(t)
+        x = c1x()
+        s["core1"] = c1x_text(x)
+        ram = ram_dump(syms) if syms else None
         s["round"], s["seconds"] = rnd, round(time.time() - t0, 1)
         print(f"--- round {rnd} ({s['seconds']} s)")
-        for k in ("status", "hold", "guard", "start", "last_start", "hci", "alive", "rails", "reset", "crash", "t5w"):
+        for k in ("status", "hold", "guard", "start", "last_start", "hci", "alive", "rails", "reset", "crash", "core1", "t5w"):
             if k in s:
                 print(f"  {k:7} {s[k]}")
         if a.log:
             with open(a.log, "a") as f:
-                f.write(json.dumps({**s, "diag": d, "t5w_raw": t}) + "\n")
+                f.write(json.dumps({**s, "diag": d, "t5w_raw": t, "core1_raw": x, "ram": ram}) + "\n")
     print(f"=== {ok} of {a.n} rounds READY and stayed up")
     return 0 if ok == a.n else 1
 

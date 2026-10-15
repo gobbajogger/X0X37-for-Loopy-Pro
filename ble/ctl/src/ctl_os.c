@@ -258,6 +258,10 @@ __attribute__((noinline, section(".bt_stack_code.d51"))) static void d_check(str
         ctl_mb->dbg[XB_DBG_STALL] = 0x51000000u | (u32)i << 20 | (ctl_mb->polls & 0xFFFFFu);
     if (sp < lo || sp + 13 > hi) d_stop(0x5120u + (u32)i, (u32)(uintptr_t)sp, sp >= lo && sp < hi ? sp[0] : 0);
 }
+/* attempt 52 DIAG: the last 8 switches into a task, each {task << 28 | poll count, its saved sp};
+ * tools/ble_autotest.py reads it (and idle_ctx, tasks, cur) by address from ctl.elf */
+__attribute__((used, section(".ctl_ram2.sw"))) volatile u32 ctl_sw_ring[16];
+__attribute__((used)) volatile u32 ctl_sw_n;
 int ctl_os_run_once(void)
 {
     int ran = 0;
@@ -273,6 +277,9 @@ int ctl_os_run_once(void)
         if (t->waiting) continue;
         t->wake_ms = 0;
         d_check(t, i);
+        ctl_sw_ring[ctl_sw_n & 14u] = (u32)i << 28 | (ctl_mb->polls & 0xFFFFFFFu);
+        ctl_sw_ring[(ctl_sw_n & 14u) + 1u] = (u32)(uintptr_t)t->ctx.sp;
+        ctl_sw_n += 2u;
         cur = t;
         ctl_port_ctx_switch(&idle_ctx, &t->ctx);
         cur = NULL;

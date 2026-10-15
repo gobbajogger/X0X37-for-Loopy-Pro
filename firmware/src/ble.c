@@ -181,7 +181,7 @@ static void ble_prepare(int on)
         return;
     }
     ble_boot_on = 1;
-    fm1_cpu1_ble_stacks(h->isr_stack_hi, h->ram_lo);
+    fm1_cpu1_ble_stacks(h->isr_stack_hi, h->ram_lo, (uint32_t)(uintptr_t)ble_heap2 + BLE_HEAP2 - 1u);
     fm1_guard_xip_hi = h->p2_size ? XB_FLASH2_XIP + XB_FLASH2_SIZE - 1u : XB_FLASH_XIP + XB_FLASH_SIZE - 1u;
     fm1_guard_ram_hi = h->ram_hi;
 }
