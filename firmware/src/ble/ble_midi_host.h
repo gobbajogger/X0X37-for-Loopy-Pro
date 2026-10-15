@@ -24,6 +24,7 @@
 #define BLEH_MTU 23u
 #define BLEH_NAME_MAX 20u
 #define BLEH_MIDIQ 32u
+#define BLEH_INQ 64u                         /* attempt 32: MIDI in (iPhone colour bursts); a power of 2 */
 #define BLEH_SYSEX_MAX 64u               /* the longest SysEx bleh_sysex_send takes */
 
 enum { BLEH_H4_CMD = 1, BLEH_H4_ACL = 2, BLEH_H4_EVT = 4 };
@@ -57,7 +58,7 @@ typedef struct {
     uint16_t rx_cid;
     bleh_msg_t q[BLEH_MIDIQ];
     uint8_t q_r, q_w;
-    bleh_msg_t in_q[BLEH_MIDIQ];
+    bleh_msg_t in_q[BLEH_INQ];
     uint8_t in_r, in_w, in_running, in_sysex;
     uint8_t sx[BLEH_SYSEX_MAX];          /* outgoing SysEx: data bytes between F0 and F7 */
     uint8_t sx_len, sx_pos, sx_on;

@@ -207,6 +207,15 @@ static void t_host(void)
     /* a cut message: the rest of the packet is dropped */
     { const uint8_t d[] = {0x80, 0x81, 0x90, 1}; midi_w(&h, d, sizeof d); }
     CHECK(!bleh_midi_next(&h, &m));
+    /* attempt 32: a burst of 60 notes (12 packets of 5) all arrive */
+    { int k, j, got = 0;
+      for (k = 0; k < 12; k++) {
+          uint8_t d[17] = {0x80, 0x81, 0x90, 0, 1};
+          for (j = 0; j < 4; j++) { d[5 + 3 * j] = 0x81; d[6 + 3 * j] = (uint8_t)(k * 5 + j + 1); d[7 + 3 * j] = 1; }
+          d[3] = (uint8_t)(k * 5); midi_w(&h, d, sizeof d);
+      }
+      while (bleh_midi_next(&h, &m)) { if (m.b[0] == 0x90 && m.b[1] == got) got++; }
+      CHECK(got == 60); }
     /* a bad header: ignored */
     { const uint8_t d[] = {0x00, 0x81, 0x90, 1, 2}; midi_w(&h, d, sizeof d); }
     CHECK(!bleh_midi_next(&h, &m));

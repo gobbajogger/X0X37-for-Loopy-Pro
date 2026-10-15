@@ -24,12 +24,14 @@ typedef struct {
     bleh_t h;
     xb_boot_t boot;
     uint8_t fr[XB_FRAME_MAX];                   /* one frame from the controller */
-    uint32_t oq[BLE_OQ];
     volatile uint32_t ow, orr;
     uint32_t sysex_drops;
     char nm[9];                                 /* the name it advertises */
 } ble_ram_t;
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
+/* attempt 32: the MIDI out mirror in the pool (zeroed at boot), so BLERAM has room for a 64-message
+ * MIDI in queue. Written by the audio ISR and read by ble_service, both on core 0. */
+static uint32_t ble_oq[BLE_OQ] __attribute__((section(".pool")));
 static uint32_t ble_rx_last[2];             /* the last frame from the controller (DIAG) */
 /* core 0's last Bluetooth tick (ms since boot) and core 1's poll count then. In .ble_ram (not
  * cleared): after a watchdog reset, DIAG shows when core 0 stopped and if core 1 still ran. */
@@ -286,7 +288,7 @@ static void ble_record(void)
 static void ble_out(uint32_t pkt)
 {
     if (ble_host_on && bleh_notifying(&ble_r.h) && ble_r.ow - ble_r.orr < BLE_OQ) {
-        ble_r.oq[ble_r.ow % BLE_OQ] = pkt;
+        ble_oq[ble_r.ow % BLE_OQ] = pkt;
         RING_PUBLISH();
         ble_r.ow++;
     }
@@ -343,7 +345,7 @@ static void ble_service(void)
     }
     while (ble_r.orr != ble_r.ow) {             /* MIDI out, mirrored */
         uint8_t b[3];
-        uint32_t len = ble_msg_of_usb(ble_r.oq[ble_r.orr % BLE_OQ], b);
+        uint32_t len = ble_msg_of_usb(ble_oq[ble_r.orr % BLE_OQ], b);
         if (len && bleh_notifying(h) && bleh_midi_send(h, b, (uint8_t)len, (uint16_t)(fm1_ms & 0x1FFFu)) == -2)
             break;                              /* the host's queue is full: next tick */
         ble_r.orr++;

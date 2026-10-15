@@ -138,8 +138,8 @@ static void att_err(bleh_t *h, unsigned op, unsigned hd, unsigned code)
  * may come inside SysEx, after a timestamp. */
 static void in_put(bleh_t *h, const bleh_msg_t *m)
 {
-    if ((uint8_t)(h->in_w - h->in_r) < BLEH_MIDIQ)
-        h->in_q[h->in_w++ % BLEH_MIDIQ] = *m;
+    if ((uint8_t)(h->in_w - h->in_r) < BLEH_INQ)
+        h->in_q[h->in_w++ % BLEH_INQ] = *m;
     else
         h->drops_in++;
 }
@@ -500,7 +500,7 @@ int bleh_sysex_send(bleh_t *h, const uint8_t *m, uint32_t len, uint16_t ts)
 int bleh_midi_next(bleh_t *h, bleh_msg_t *m)
 {
     if (h->in_r == h->in_w) return 0;
-    *m = h->in_q[h->in_r++ % BLEH_MIDIQ];
+    *m = h->in_q[h->in_r++ % BLEH_INQ];
     return 1;
 }
 
