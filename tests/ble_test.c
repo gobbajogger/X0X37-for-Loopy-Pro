@@ -140,24 +140,26 @@ static void connect(bleh_t *h)
 {
     static const uint8_t uaddr[6] = {1, 2, 3, 4, 5, 6};
     static const uint8_t cmplt[21] = {0x3E, 19, 0x01, 0x00, 0x40, 0x00, 0x01};
-    unsigned ops[] = {0x0C03, 0x2002, 0x2005, 0x2006, 0x2008, 0x2009};
+    unsigned ops[] = {0x0C03, 0x0C01, 0x2001, 0x2002, 0x2005, 0x2006, 0x2008, 0x2009};
     int i;
     nsent = 0;
     bleh_init(h, fake_send, 0, "X0X-ABCD", uaddr);
     bleh_set_sysex(h, sx_cb);
     bleh_start(h);
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 8; i++) {
         CHECK(nsent == i + 1 && sent[i].t == BLEH_H4_CMD && op_of(i) == ops[i]);
-        if (i == 2) CHECK(sent[i].b[3] == 1 && sent[i].b[8] == (6 | 0xC0));   /* the random static address */
-        if (i == 3) CHECK(sent[i].b[3 + 5] == 1);                            /* own address type: random */
+        if (i == 1) CHECK(sent[i].b[10] & 0x20);                             /* LE meta (bit 61) */
+        if (i == 2) CHECK(sent[i].b[3] & 1);                                 /* LE connection complete */
+        if (i == 4) CHECK(sent[i].b[3] == 1 && sent[i].b[8] == (6 | 0xC0));   /* the random static address */
+        if (i == 5) CHECK(sent[i].b[3 + 5] == 1);                            /* own address type: random */
         cc(h, ops[i], 0, 4);
     }
     CHECK(h->state == BLEH_ADVERTISING);
     bleh_poll(h);                                  /* advertising on */
-    CHECK(nsent == 7 && op_of(6) == 0x200A && sent[6].b[3] == 1);
+    CHECK(nsent == 9 && op_of(8) == 0x200A && sent[8].b[3] == 1);
     cc(h, 0x200A, 0, 0);
     bleh_poll(h);
-    CHECK(nsent == 7);
+    CHECK(nsent == 9);
     bleh_rx(h, BLEH_H4_EVT, cmplt, 21);
     CHECK(bleh_connected(h) && h->conn == 0x40);
 }

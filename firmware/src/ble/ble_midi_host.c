@@ -3,9 +3,9 @@
  * X0X changes: Copyright (C) 2026 M. Geisler (genkigenki/makkuro) */
 #include "ble_midi_host.h"
 
-enum { OP_DISC = 0x0406, OP_RESET = 0x0C03, OP_LE_BUF = 0x2002, OP_RAND = 0x2005, OP_ADV_PARAM = 0x2006,
+enum { OP_DISC = 0x0406, OP_EVMASK = 0x0C01, OP_RESET = 0x0C03, OP_LE_EVMASK = 0x2001, OP_LE_BUF = 0x2002, OP_RAND = 0x2005, OP_ADV_PARAM = 0x2006,
        OP_ADV_DATA = 0x2008, OP_SCAN_RSP = 0x2009, OP_ADV_EN = 0x200A };
-enum { ST_RESET, ST_BUF, ST_RAND, ST_PARAM, ST_DATA, ST_SCAN, ST_DONE };
+enum { ST_RESET, ST_EVMASK, ST_LE_EVMASK, ST_BUF, ST_RAND, ST_PARAM, ST_DATA, ST_SCAN, ST_DONE };
 enum { H_GAP = 1, H_NAME_DECL, H_NAME, H_MIDI_SVC, H_MIDI_DECL, H_MIDI, H_CCCD, H_LAST = H_CCCD };
 enum { A_ERR = 1, A_MTU = 2, A_MTU_R = 3, A_INFO = 4, A_INFO_R = 5, A_FVAL = 6, A_FVAL_R = 7, A_RTYPE = 8, A_RTYPE_R = 9,
        A_READ = 10, A_READ_R = 11, A_GROUP = 16, A_GROUP_R = 17, A_WRITE = 18, A_WRITE_R = 19, A_NOTIFY = 27,
@@ -72,6 +72,16 @@ static void next_cmd(bleh_t *h)
     unsigned i, n;
     switch (h->step) {
     case ST_RESET: cmd(h, OP_RESET, 0, 0); break;
+    case ST_EVMASK:                                 /* attempt 28: the events, with LE meta (bit 61) */
+        for (i = 0; i < 8; i++) b[i] = 0xFF;
+        b[7] = 0x3F;
+        cmd(h, OP_EVMASK, b, 8);
+        break;
+    case ST_LE_EVMASK:                              /* the LE events: connection complete, update, ... */
+        for (i = 0; i < 8; i++) b[i] = 0;
+        b[0] = 0xFF; b[1] = 0x0F;
+        cmd(h, OP_LE_EVMASK, b, 8);
+        break;
     case ST_BUF: cmd(h, OP_LE_BUF, 0, 0); break;
     case ST_RAND: cmd(h, OP_RAND, h->addr, 6); break;
     case ST_PARAM:                                  /* 40..80 ms, ADV_IND, random address, all 3 channels, no filter */

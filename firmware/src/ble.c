@@ -287,10 +287,12 @@ static void ble_service(void)
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
         if (n == 0)
             break;
-        if (n > 0) {
+        if (n > 0 && !(t == 4u && ble_r.fr[0] == 0x0Eu)) {   /* attempt 28: the last frame that is not a command complete */
             ble_rx_last[0] = t | (uint32_t)n << 8 | (uint32_t)ble_r.fr[0] << 16 | (uint32_t)ble_r.fr[1] << 24;
             ble_rx_last[1] = ble_r.fr[2] | (uint32_t)ble_r.fr[3] << 8 | (uint32_t)ble_r.fr[4] << 16 |
                              (uint32_t)ble_r.fr[5] << 24;
+        }
+        if (n > 0) {
             bleh_rx(h, t, ble_r.fr, (uint16_t)n);
         }
     }
