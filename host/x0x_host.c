@@ -30,6 +30,7 @@
  *                                to the simulated flash and booted, as if it had been made here
  */
 #define X0X_HOST 1
+#define _POSIX_C_SOURCE 200809L                 /* clock_gettime, CLOCK_MONOTONIC (glibc <time.h>) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
