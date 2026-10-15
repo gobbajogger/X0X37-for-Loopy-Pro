@@ -207,8 +207,6 @@ static void smk_apc_burst_close(void)
     }
 }
 #define SMK_APC40_LAYOUT_SETTLE_MS 250u
-/* Lowest pad level for the brightest channel of a lit clip colour (0..255 scale). */
-#define SMK_APC40_PAD_FLOOR 48u
 static const uint32_t APC40_RGB[128] = {
     0x000000,0x1E1E1E,0x7F7F7F,0xFFFFFF,0xFF4C4C,0xFF0000,0x590000,0x190000,
     0xFFBD6C,0xFF5400,0x591D00,0x271B00,0xFFFF4C,0xFFFF00,0x595900,0x191900,
@@ -572,20 +570,10 @@ static void smk_pads(void)
             uint8_t queued = note < SMK_APC40_CLIP_COUNT &&
                              (apc_cell_flags[note] & SMK_APC40_CELL_QUEUED) ? 1u : 0u;
             uint8_t brightness = v ? smk_apc_led_brightness(channel, queued) : 0u;
-            uint32_t rr = rgb >> 16, gg = (rgb >> 8) & 0xFFu, bb = rgb & 0xFFu;
-            uint32_t m = rr > gg ? rr : gg, num = brightness, den = 510u;
-            if (bb > m)
-                m = bb;
-            /* Dark idle colours from Loopy are almost not visible at half level.
-             * Lift the brightest channel to SMK_APC40_PAD_FLOOR. The hue stays the same.
-             * Bright colours do not change. Brightness 0 (blink off phase) keeps the pad off. */
-            if (m && m * 255u < SMK_APC40_PAD_FLOOR * 510u) {
-                num = (uint32_t)brightness * SMK_APC40_PAD_FLOOR;
-                den = m * 255u;
-            }
             /* Loopy row zero maps to the SMK's lower physical pad row. */
-            if (v) padled_set(pad, (uint8_t)(rr * num / den), (uint8_t)(gg * num / den),
-                              (uint8_t)(bb * num / den));
+            if (v) padled_set(pad, (uint8_t)(((rgb >> 16) * brightness) / 510u),
+                              (uint8_t)((((rgb >> 8) & 0xFFu) * brightness) / 510u),
+                              (uint8_t)(((rgb & 0xFFu) * brightness) / 510u));
             else padled_set(pad, 0, 0, 0);
         }
         padled_flush();

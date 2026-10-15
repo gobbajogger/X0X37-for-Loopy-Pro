@@ -98,7 +98,9 @@ assert "smk_apc_usb_tick();" in usb and "smk_apc40_cells_age(" not in main.split
 assert "smk_apc_host_is_active" not in engine and "smk_apc_host_is_active" not in main
 assert "uint8_t owned = clip_grid_mode;" in main   # APC notes drop only in clip mode
 assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
-assert "SMK_APC40_PAD_FLOOR 48u" in main and "m * 255u < SMK_APC40_PAD_FLOOR * 510u" in main
+assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
+assert "((rgb >> 16) * brightness) / 510u" in main
+assert "SMK_CLIP_LCD_FLOOR 128u" in main and "SMK_CLIP_LCD_FLOOR + mx * (255u - SMK_CLIP_LCD_FLOOR) / 255u" in main
 assert "smk_apc_host_seen();" in usb and "smk_apc_host_lost();" in usb
 assert "BOARD_SMK37 && !defined(FELUCCA_LOADER)" in usb
 assert "clip_state[16]" not in main and "smk_clip_state_set" not in engine
