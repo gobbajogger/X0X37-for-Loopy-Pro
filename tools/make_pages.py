@@ -4,8 +4,9 @@
 
   index.html                  what X0X is, and the three ways in: install, manual, source
   emu/                        X0X in the browser (web/emu: build/emu, from web/emu/build.sh)
-  install/index.html          the web installer (web/x0x_installer.html, with fm1pkg.js, fm1ota.js
-                              and the package's metadata inlined; Chrome or Edge, Web MIDI)
+  install/index.html          the web installer (web/x0x_installer.html, with fm1pkg.js, fm1ota.js,
+                              x0x_breaks.js (the slots kept over an install) and the package's
+                              metadata inlined; Chrome or Edge, Web MIDI)
   breaks/index.html           your own break loops onto the FM-1 (web/x0x_breaks.html with
                               x0x_breaks.js inlined; Chrome or Edge, Web MIDI)
   manual/index.html, img/     the manual (tools/manual_html.py, from docs/MANUAL.md)
@@ -131,8 +132,8 @@ def main(pkg, version, out):
         # recovery/stock controls through meta.stock in the generated page.
         page = page.replace("FM-1", model)
         page = page.replace(f"https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/{model}.fwsc", STOCK_URL)
-    lib = strip_module((SRC / "web" / "fm1pkg.js").read_text(encoding="utf-8")) + "\n" + \
-        strip_module((SRC / "web" / "fm1ota.js").read_text(encoding="utf-8"))
+    lib = "\n".join(strip_module((SRC / "web" / f).read_text(encoding="utf-8"))
+                    for f in ("fm1pkg.js", "fm1ota.js", "x0x_breaks.js"))   # x0x_breaks.js: the slots kept over an install
     meta = json.dumps({"version": version, "product": product, "pkg": "../firmware/" + name, "stock": is_fm1})
     for mark in ("/*LIB*/", "/*META*/"):
         if page.count(mark) != 1:

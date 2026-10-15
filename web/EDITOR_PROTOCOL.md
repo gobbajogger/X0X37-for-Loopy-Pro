@@ -52,7 +52,7 @@ after an engine change.
 | 12 SMP_WRITE | slot, offset (3 × 7 bit, LSB first), pack7 data (≤ 256 bytes) | slot, offset, rc: 0 ok, 1 arguments, 2 erase, 3 write, 4 slot in use (send SMP_BEGIN first). Offset ≥ 512 and a multiple of 256; writes go in increasing order (a write at a 4 KiB boundary erases that sector) |
 | 13 SMP_END | slot, pack7 header (480 bytes) | slot, rc: 0 ok, 1 size, 2 header, 3 data CRC, 4 flash, 5 zones |
 | 14 SMP_ERASE | slot | slot, rc (erases the whole slot, ~1 s) |
-| 15 SMP_INFO | — | slots, slot KiB, then per slot: zone count (0 = empty), name string, data KiB |
+| 15 SMP_INFO | — | slots, slot KiB (the smallest slot, at most 127), then per slot: zone count (0 = empty), name string, data KiB (at most 127); then (X0X with the SMK-37 flash layout 2) the extension `58 01` and per slot three 14-bit values, low 7 bits first: flash offset in 4 KiB sectors, slot size in 4 KiB sectors, data KiB. A reader without the extension ignores these bytes. A reply without them has equal slots of the one size |
 | 16 SMP_READ (X0X) | slot, offset (3 × 7 bits, from the slot's start, header included), count in pairs (7 bits) | slot, offset (3 × 7 bits), up to 224 bytes packed 7 to 8 as SMP_WRITE takes them |
 | 16 UP_LIST | start, count (1..16) | start, count, total slots, then per slot: used (0/1), engine, name string ("" if unused) |
 | 17 UP_GET | slot | slot, used, engine, name, P_COUNT × v14, 16 × (note, flags) |

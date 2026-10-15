@@ -107,9 +107,11 @@ const $ = (id) => document.getElementById(id);
 const HDR = [0x7D, 0x46, 0x4C];
 const KB = (b) => `${(b / 1024).toFixed(0)} KB`;
 let link = null, busy = false, readOk = false;
-// the device's slots (SMP_INFO): their count and size; nothing here assumes 2 or 3 slots of 80 KB
+// the device's slots (SMP_INFO): their count and sizes (one size each with X0X's extension, e.g. 80, 120 and
+// 44 KB on the SMK-37); nothing here assumes 2 or 3 slots of 80 KB
 let lay = { count: 0, size: SLOT_SIZE, slots: [] };
-const nslot = () => lay.count, slotMax = () => lay.size - SLOT_DATA_OFF, cap = () => nslot() * slotMax();
+const nslot = () => lay.count, slotMax = (k) => slotSize(lay, k) - SLOT_DATA_OFF;
+const cap = () => Array.from({ length: nslot() }, (_, k) => slotMax(k)).reduce((a, b) => a + b, 0);
 
 // the loops in order, as the FM-1 numbers them: {adpcm, n, s, file, isNew} (adpcm, n: as stored, adpcm null for a
 // new one until it's encoded; s: the samples, for the picture), and the slots as read ({hdr, data} or null)
@@ -145,7 +147,7 @@ function render() {
   const used = loops.reduce((a, l) => a + bytesOf(l), 0), plan = packLoops();
   $("fill").style.width = `${cap() ? Math.min(100, used / cap() * 100) : 0}%`;
   $("room").className = plan ? "" : "bad";
-  $("room").textContent = !readOk ? "" : plan ? `${loops.length} loop${loops.length === 1 ? "" : "s"}, ${KB(used)} of ${KB(cap())} (${nslot()} slots).`
+  $("room").textContent = !readOk ? "" : plan ? `${loops.length} loop${loops.length === 1 ? "" : "s"}, ${KB(used)} of ${KB(cap())} (${nslot()} slots: ${lay.slots.map((_, k) => KB(slotSize(lay, k))).join(", ")}).`
     : `Too much: ${KB(used)} of ${KB(cap())}. Remove a loop, or use shorter ones.`;
   const changed = readOk && plan && changedSlots(plan).length > 0;
   $("send").disabled = busy || !changed;
@@ -174,28 +176,28 @@ function wave(cv, s, colour) {
 }
 
 // ---- the list -> the device's slots ---------------------------------------------------
-// in order, a slot filled before the next (16 loops or the slot size a slot); null if it doesn't all fit
+// in order, a slot filled before the next (16 loops or the slot's size a slot); a loop that does not fit
+// goes into the next slot that can take it (a smaller slot between stays empty); null if it doesn't all fit
 function packLoops() {
-  const slots = [[]];
-  let used = 0;
+  if (!nslot()) return loops.length ? null : [];
+  const slots = Array.from({ length: nslot() }, () => []);
+  let cur = 0, used = 0;
   for (const l of loops) {
     const b = bytesOf(l);
-    if (used + b > slotMax() || slots[slots.length - 1].length >= SLOT_ZONES) {
-      slots.push([]);
-      used = 0;
-    }
-    if (slots.length > nslot() || b > slotMax()) return null;
-    slots[slots.length - 1].push(l);
+    let j = cur;
+    while (j < nslot() && !((j === cur ? used : 0) + b <= slotMax(j) && slots[j].length < SLOT_ZONES)) j++;
+    if (j >= nslot()) return null;
+    if (j !== cur) { cur = j; used = 0; }
+    slots[cur].push(l);
     used += b;
   }
-  while (slots.length < nslot()) slots.push([]);
   return slots;
 }
 
 function image(k, ls) {
   if (!ls.length) return null;
   for (const l of ls) if (!l.adpcm) l.adpcm = imaEncode(l.s);
-  return userSlotRaw(`BR${k + 1}`, ls.map((l) => ({ adpcm: l.adpcm, n: l.n, rate: l.rate })), lay.size);
+  return userSlotRaw(`BR${k + 1}`, ls.map((l) => ({ adpcm: l.adpcm, n: l.n, rate: l.rate })), slotSize(lay, k));
 }
 
 function same(a, b) {
@@ -360,11 +362,11 @@ async function writeImage(k, img, onPart) {
   const data = img.subarray(SLOT_DATA_OFF);
   for (let off = 0; off < data.length; off += 256) {
     const adr = SLOT_DATA_OFF + off;
-    const r = await link.retry(12, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, ...pack7(data.subarray(off, off + 256))], 3000);
+    const r = await link.retry(12, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, ...pack78(data.subarray(off, off + 256))], 3000);
     if (r[4]) throw new Error("Writing to the FM-1 failed.");
     if (onPart) onPart(Math.min(256, data.length - off));
   }
-  const e = await link.req(13, [k, ...pack7(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  const e = await link.req(13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
   if (e[1]) throw new Error("The FM-1 didn't accept the loops.");
 }
 

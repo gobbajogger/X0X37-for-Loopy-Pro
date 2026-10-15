@@ -3,10 +3,10 @@
 // byte for byte, whole and cut to one bar, at 44.1 kHz stereo 16-bit and 48 kHz mono 24-bit.
 //   node web/test_breaks.mjs
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readWav, cut, pack, userSlot, DRY_SLOTS, RATE, RATE_HALF, imaDecode, trimSilence, parseSlot, parseInfo, makeArchive, readArchive,
+import { readWav, cut, pack, userSlot, DRY_SLOT_KB, RATE, RATE_HALF, imaDecode, trimSilence, parseSlot, parseInfo, makeArchive, readArchive,
   planRestore } from "./x0x_breaks.js";
 
 const dir = mkdtempSync(join(tmpdir(), "x0x-breaks-"));
@@ -43,14 +43,17 @@ const files = [
 ];
 for (const f of files) wav(...f);
 
-// the defaults (44.1 kHz, no trim, 2 x 80 KB), 22.05 kHz on request, trim on request, another layout
+// the defaults (44.1 kHz, no trim, the SMK-37's 80 / 120 / 44 KB), 22.05 kHz on request, trim on request,
+// other layouts (equal slots; the older 2 x 80 KB)
+const D = DRY_SLOT_KB;
 const cases = [
-  { what: "whole, 44.1 kHz", bars: false, rate: RATE, trim: false, nslots: DRY_SLOTS, kb: 80, args: [] },
-  { what: "one bar, 44.1 kHz", bars: true, rate: RATE, trim: false, nslots: DRY_SLOTS, kb: 80, args: ["--bars"] },
-  { what: "whole, 22.05 kHz", bars: false, rate: RATE_HALF, trim: false, nslots: DRY_SLOTS, kb: 80, args: ["--rate", "22050"] },
-  { what: "one bar, trimmed", bars: true, rate: RATE, trim: true, nslots: DRY_SLOTS, kb: 80, args: ["--bars", "--trim"] },
-  { what: "shot, trimmed", bars: false, rate: RATE, trim: true, nslots: DRY_SLOTS, kb: 80, args: ["--trim"], only: [3] },
-  { what: "whole, 3 x 120 KB", bars: false, rate: RATE, trim: false, nslots: 3, kb: 120, args: ["--nslots", "3", "--slot-kb", "120"] },
+  { what: "whole, 44.1 kHz", bars: false, rate: RATE, trim: false, kb: D, args: [] },
+  { what: "one bar, 44.1 kHz", bars: true, rate: RATE, trim: false, kb: D, args: ["--bars"] },
+  { what: "whole, 22.05 kHz", bars: false, rate: RATE_HALF, trim: false, kb: D, args: ["--rate", "22050"] },
+  { what: "one bar, trimmed", bars: true, rate: RATE, trim: true, kb: D, args: ["--bars", "--trim"] },
+  { what: "shot, trimmed", bars: false, rate: RATE, trim: true, kb: D, args: ["--trim"], only: [3] },
+  { what: "whole, 3 x 120 KB", bars: false, rate: RATE, trim: false, kb: [120, 120, 120], args: ["--nslots", "3", "--slot-kb", "120"] },
+  { what: "whole, 2 x 80 KB", bars: false, rate: RATE, trim: false, kb: [80, 80], args: ["--slot-kb", "80,80"] },
 ];
 for (const c of cases) {
   const out = join(dir, c.what.replace(/[^a-z0-9]/gi, "_"));
@@ -60,9 +63,15 @@ for (const c of cases) {
     const { rate, x } = readWav(readFileSync(f[0]));
     return { label: f[0], s: cut(x, rate, c.bars, c.rate, c.trim) };
   });
-  const { slots } = pack(loops, c.nslots, c.kb * 1024 - 512);
+  const { slots } = pack(loops, c.kb.length, c.kb.map((k) => k * 1024 - 512));
   slots.forEach((sl, i) => {
-    const img = userSlot(`BR${i + 1}`, sl.map((l) => l.s), c.rate, c.kb * 1024);
+    if (!sl.length) {                                  // an empty slot: upload_breaks.py writes no files for it
+      const none = !existsSync(join(out, `slot${i + 1}.hdr`));
+      console.log(`  ${none ? "ok" : "FAIL"} ${c.what}, slot ${i + 1}: empty`);
+      if (!none) bad++;
+      return;
+    }
+    const img = userSlot(`BR${i + 1}`, sl.map((l) => l.s), c.rate, c.kb[i] * 1024);
     const hdr = readFileSync(join(out, `slot${i + 1}.hdr`)), bin = readFileSync(join(out, `slot${i + 1}.bin`));
     const same = Buffer.compare(Buffer.from(img.hdr), hdr) === 0 && Buffer.compare(Buffer.from(img.data), bin) === 0;
     console.log(`  ${same ? "ok" : "FAIL"} ${c.what}, slot ${i + 1}: ${sl.length} loop(s), ${img.data.length} B`);
@@ -104,13 +113,30 @@ img = h.ljust(512, bytes([255])) + d
 info = [3, 120, 2, 66, 82, 49, 0, 49, 0, 0, 0, 0, 0, 0]
 lay = xs.parse_info(info)
 open(sys.argv[1], "wb").write(xs.make_archive(lay, [img, None, None], created="2026-10-15T12:00:00"))
-print(json.dumps({"info": info, "img": list(img)}))
+ext = [3, 44, 2, 66, 82, 49, 0, 49, 0, 0, 0, 0, 0, 0, 88, 1]     # the SMK-37: 80 / 120 / 44 KiB, with the X0X extension
+for off, size, used in ((0xC2000, 0x14000, 49), (0xD6000, 0x1E000, 0), (0xB0000, 0xB000, 0)):
+    for v in (off >> 12, size >> 12, used):
+        ext += [v & 0x7F, v >> 7]
+open(sys.argv[1] + ".ext", "wb").write(xs.make_archive(xs.parse_info(ext), [img, None, None], created="2026-10-15T12:00:00"))
+print(json.dumps({"info": info, "ext": ext, "img": list(img)}))
 `, out]).toString());
   const py = new Uint8Array(readFileSync(out)), lay = parseInfo(info.info), img = new Uint8Array(info.img);
   const js = makeArchive(lay, [img, null, null], "2026-10-15T12:00:00");
   const same = Buffer.compare(Buffer.from(js), Buffer.from(py)) === 0;
   console.log(`  ${same ? "ok" : "FAIL"} backup archive: same bytes as x0x_slots.py (${js.length} B)`);
   if (!same) bad++;
+  {
+    const pe = new Uint8Array(readFileSync(out + ".ext")), le = parseInfo(info.ext);
+    const je = makeArchive(le, [img, null, null], "2026-10-15T12:00:00"), m = readArchive(je).meta;
+    const same = Buffer.compare(Buffer.from(je), Buffer.from(pe)) === 0 && le.ext && m.slots.map((e) => e.size).join() === "81920,122880,45056"
+      && m.slots[2].flash === 0xB0000;
+    console.log(`  ${same ? "ok" : "FAIL"} backup archive, SMP_INFO extension (80 / 120 / 44 KB): same bytes as x0x_slots.py`);
+    if (!same) bad++;
+    const pl = planRestore(le, [img, img, img]);
+    const pok = pl.todo.length === 3 && planRestore(le, [null, null, new Uint8Array(50000)]).skipped.length === 1;
+    console.log(`  ${pok ? "ok" : "FAIL"} restore plan: per-slot sizes (50000 B do not fit the 44 KB slot 3)`);
+    if (!pok) bad++;
+  }
   const { meta, images } = readArchive(py);
   const ok = lay.count === 3 && lay.size === 120 * 1024 && meta.slots[0].rates.join() === "44100,44100" &&
     meta.slots[0].name === "BR1" && images[0].length === img.length && images[1] === null;

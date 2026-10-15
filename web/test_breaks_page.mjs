@@ -7,7 +7,7 @@
 //   node web/test_breaks_page.mjs
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { crc32, parseHeader, readArchive, pack7 } from "./x0x_breaks.js";
+import { crc32, parseHeader, readArchive, pack78 } from "./x0x_breaks.js";
 
 let bad = 0;
 const check = (c, what) => { console.log(`  ${c ? "ok  " : "FAIL"} ${what}`); if (!c) bad++; };
@@ -29,15 +29,17 @@ function unpack7(a) {
   for (let i = 0; i < a.length;) { const m = a[i++]; for (let j = 0; j < 7 && i < a.length; j++) out.push(a[i++] | ((m >> j) & 1) << 7); }
   return new Uint8Array(out);
 }
+// sizes: per slot (X0X's SMP_INFO extension, with flash offsets offs); without it count slots of one size
 class Device {
-  constructor(count, size) {
-    this.count = count; this.size = size; this.log = [];
-    this.flash = Array.from({ length: count }, () => new Uint8Array(size).fill(0xFF));
-    this.nz = new Array(count).fill(0);
+  constructor(count, size, sizes = null, offs = null) {
+    this.sizes = sizes || new Array(count).fill(size);
+    this.count = this.sizes.length; this.size = Math.min(...this.sizes); this.offs = offs; this.log = [];
+    this.flash = this.sizes.map((n) => new Uint8Array(n).fill(0xFF));
+    this.nz = new Array(this.count).fill(0);
   }
   scan(k) {
     const h = parseHeader(this.flash[k].subarray(0, HDR_LEN));
-    this.nz[k] = h && h.dataLen <= this.size - DATA_OFF && crc32(this.flash[k].subarray(DATA_OFF, DATA_OFF + h.dataLen)) === h.crc ? h.nz : 0;
+    this.nz[k] = h && h.dataLen <= this.sizes[k] - DATA_OFF && crc32(this.flash[k].subarray(DATA_OFF, DATA_OFF + h.dataLen)) === h.crc ? h.nz : 0;
   }
   program(k, off, b) { for (let i = 0; i < b.length; i++) this.flash[k][off + i] &= b[i]; }
   erase(k, off) { this.flash[k].fill(0xFF, off, off + 0x1000); }
@@ -51,30 +53,35 @@ class Device {
     this.log.push(cmd);
     if (cmd === 1) return [0];
     if (cmd === 15) {
-      const r = [this.count, (this.size / 1024) & 0x7F];
+      const r = [this.count, Math.min(127, this.size / 1024)], used = [];
       for (let k = 0; k < this.count; k++) {
         const dl = new DataView(this.flash[k].buffer).getUint32(16, true);
+        used.push(this.nz[k] ? (dl + 1023) >> 10 : 0);
         r.push(this.nz[k]);
         if (this.nz[k]) for (let i = 8; i < 16 && this.flash[k][i]; i++) r.push(this.flash[k][i] & 0x7F);
-        r.push(0, this.nz[k] ? ((dl + 1023) >> 10) & 0x7F : 0);
+        r.push(0, Math.min(127, used[k]));
+      }
+      if (this.offs) {
+        r.push(0x58, 1);
+        for (let k = 0; k < this.count; k++) for (const v of [this.offs[k] >> 12, this.sizes[k] >> 12, used[k]]) r.push(v & 0x7F, v >> 7);
       }
       return r;
     }
     const k = a[0];
     if (k >= this.count) return null;
     if (cmd === 16) {
-      const off = a[1] | a[2] << 7 | a[3] << 14, n = Math.min(a[4] > 112 ? 224 : a[4] * 2, this.size - off);
-      return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, ...pack7(this.flash[k].subarray(off, off + n))];
+      const off = a[1] | a[2] << 7 | a[3] << 14, n = Math.min(a[4] > 112 ? 224 : a[4] * 2, this.sizes[k] - off);
+      return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, ...pack78(this.flash[k].subarray(off, off + n))];
     }
     if (cmd === 11 || cmd === 14) {
       this.nz[k] = 0;
-      for (let s = 0; s < (cmd === 14 ? this.size / 0x1000 : 1); s++) this.erase(k, s * 0x1000);
+      for (let s = 0; s < (cmd === 14 ? this.sizes[k] / 0x1000 : 1); s++) this.erase(k, s * 0x1000);
       return [k, 0];
     }
     if (cmd === 12) {
       const off = a[1] | a[2] << 7 | a[3] << 14, b = unpack7(a.slice(4));
       let rc = 0;
-      if (off < DATA_OFF || off & 0xFF || !b.length || b.length > 256 || off + b.length > this.size) rc = 1;
+      if (off < DATA_OFF || off & 0xFF || !b.length || b.length > 256 || off + b.length > this.sizes[k]) rc = 1;
       else if (this.nz[k]) rc = 4;
       else { if (!(off & 0xFFF)) this.erase(k, off); this.program(k, off, b); }
       return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, rc];
@@ -82,7 +89,7 @@ class Device {
     if (cmd === 13) {
       const h = unpack7(a.slice(1)), p = parseHeader(h);
       if (h.length !== HDR_LEN) return [k, 1];
-      if (!p || p.dataLen > this.size - DATA_OFF) return [k, 2];
+      if (!p || p.dataLen > this.sizes[k] - DATA_OFF) return [k, 2];
       if (crc32(this.flash[k].subarray(DATA_OFF, DATA_OFF + p.dataLen)) !== p.crc) return [k, 3];
       this.program(k, 0, h);
       this.scan(k);
@@ -223,6 +230,26 @@ h0 = parseHeader(device.flash[0].subarray(0, 480));
 check(h0 && h0.nz === 4 && h0.zones.map((z) => z.rate).join() === "44100,44100,44100,22050",
   `Send with "22 kHz": rates ${h0 && h0.zones.map((z) => z.rate).join()} (read-back loops keep theirs)`);
 $("half").checked = false;
+
+// ---- 5. the SMK-37 layout (80 / 120 / 44 KB, SMP_INFO extension): sizes per slot; a loop too long for slot 1 ----
+device = new Device(0, 0, [0x14000, 0x1E000, 0xB000], [0xC2000, 0xD6000, 0xB0000]);
+device.load(1, img1);
+await $("connect").onclick();
+await idle();
+check(/3 slots: 80 KB, 120 KB, 44 KB/.test($("room").textContent) && /243 KB/.test($("room").textContent),
+  `SMK-37 layout: "${$("room").textContent}"`);
+await $("backup").onclick();
+const m5 = readArchive(new Uint8Array(await blobs[blobs.length - 1].arrayBuffer()));
+check(m5.meta.slots.map((e) => e.size).join() === "81920,122880,45056" && m5.meta.slots[2].flash === 0xB0000 && m5.images[1] !== null,
+  "SMK-37 layout: the backup records each slot's size and flash offset");
+$("bars").checked = false;
+$("files").onchange({ target: { files: [wavFile("long.wav", 3.8)], value: "" } });   // about 82 KB: more than slot 1 holds
+await new Promise((r) => setTimeout(r, 500));
+await $("send").onclick();
+await idle(/Done|failed|didn't|Too much/);
+const h5 = [0, 1, 2].map((k) => parseHeader(device.flash[k].subarray(0, 480)));
+check(device.nz[0] && h5[0].nz === 2 && device.nz[1] && h5[1].nz === 1 && h5[1].dataLen > 80 * 1024 - 512,
+  `SMK-37 layout: the two loops read back go into slot 1, the long new one into the 120 KB slot 2 (${h5[1] && h5[1].dataLen} B; "${$("status").textContent}")`);
 
 console.log(bad ? "BREAKS PAGE FAILED" : "breaks page: connect, backup, restore, send ok against the mocked device");
 process.exit(bad ? 1 : 0);

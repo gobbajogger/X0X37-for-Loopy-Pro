@@ -2,7 +2,8 @@
 <!-- SPDX-License-Identifier: GPL-3.0-only
      Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
      X0X installer for FM-1 and SMK-37 family release packages, English first, no editor.
-     tools/make_pages.py inlines fm1pkg.js and fm1ota.js and the package's metadata. -->
+     tools/make_pages.py inlines fm1pkg.js, fm1ota.js, x0x_breaks.js (the sample slots: an install that
+     changes the slot map saves them to a file first and writes them back after) and the package's metadata. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -104,6 +105,15 @@ const TEXT = {
     mismatch: "書き込みは終わりましたが、FM-1 が別のバージョンを報告しています: ",
     badpkg: "インストールするファイルが壊れています。ページを再読み込みしてください。",
     leave: "書き込み中です。ページを閉じないでください。",
+    slotsave: "新しいファームウェアではスロットのサンプルが消えます（スロット ",
+    slotsave2: "）。先に全スロットをファイルに保存します。",
+    slotsaved: "スロットを保存しました（ダウンロード）: ",
+    slotback: "スロットを書き戻しています",
+    slotsdone: "完了。スロットを書き戻して確認しました。",
+    slotskip: " 書き戻せなかったスロット（入りきらない）: ",
+    slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
+    slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
+    slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
     license: "GPL-3.0、無保証。ソース:",
   },
   en: {
@@ -139,6 +149,15 @@ const TEXT = {
     mismatch: "Written, but the FM-1 reports another version: ",
     badpkg: "The file to install is damaged. Reload the page.",
     leave: "Writing. Do not close the page.",
+    slotsave: "The new firmware does not keep the samples in slot ",
+    slotsave2: ". Saving every slot to a file first.",
+    slotsaved: "Slots saved (downloaded): ",
+    slotback: "Writing the slots back",
+    slotsdone: "Done. The slots were written back and checked.",
+    slotskip: " Not written back (no room): ",
+    slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
+    slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
+    slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
     license: "GPL-3.0, no warranty. Source:",
   },
 };
@@ -219,7 +238,28 @@ async function run(img, product, isStock) {
       ota.link.close();
       sayK((await up.resume(img, step, product)) ? (isStock ? "stockdone" : "done") : "stopped");
     } else {
-      await up.install(img, product, step);
+      /* the sample slots: saved to a file first when the new firmware would lose them, written back after */
+      const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
+      const r = await installKeepingSlots(up, img, product, board, {
+        step, sameKeyboard,
+        say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
+        progress: (f) => { $("bar").value = Math.min(100, f * 100); },
+        save: (file, name) => {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+          log(t("slotsaved") + name);
+        },
+      });
+      if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
+      else if (r.move) {
+        $("bar").value = 100;
+        sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
+      }
     }
   } catch (e) {
     if (isStock && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }   /* stock names itself its own way */

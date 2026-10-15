@@ -11,7 +11,7 @@ export const SLOT_HDR_LEN = 32 + SLOT_ZONES * 28;
 export const SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF;
 export const ROOT_BASE = 36;              // loop i is zone root 36 + i: the slot sorts its zones by root
 export const RATE = 44100, RATE_HALF = 22050;   // 44.1 kHz by default; 22.05 kHz only when asked for
-export const DRY_SLOTS = 2;               // upload_breaks.py --dry-run's default layout: 2 x 80 KB (the SMK-37)
+export const DRY_SLOT_KB = [80, 120, 44]; // upload_breaks.py --dry-run's default layout: the SMK-37's slots (KiB)
 
 const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
   97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658,
@@ -214,27 +214,29 @@ export function userSlotRaw(name, parts, slotSize = SLOT_SIZE) {
   return { hdr, data };
 }
 
-// upload_breaks.pack: loops [{label, s}] in order into at most nslots slots of cap ADPCM bytes; -> {slots, skipped}
+// upload_breaks.pack: loops [{label, s}] in order into at most nslots slots; cap: ADPCM bytes a slot, one
+// number or one per slot -> {slots: one list per slot (empty ones included, none after the last used one),
+// skipped}. A loop goes into the current slot if it fits, else into the next slot that can take it.
 export function pack(loops, nslots, cap = SLOT_MAX_DATA) {
-  const slots = [], skipped = [];
-  let cur = [], used = 0;
+  const caps = Array.isArray(cap) ? cap : new Array(nslots).fill(cap);
+  const slots = Array.from({ length: nslots }, () => []), skipped = [];
+  let cur = 0, used = 0;
   for (const l of loops) {
     const need = (l.s.length + 1) >> 1;
-    if (need > cap) { skipped.push(l.label); continue; }
-    if (used + need > cap || cur.length >= SLOT_ZONES) {
-      if (cur.length) slots.push(cur);
-      cur = []; used = 0;
-    }
-    if (slots.length >= nslots) { skipped.push(l.label); continue; }
-    cur.push(l);
+    let j = cur;
+    while (j < nslots && !((j === cur ? used : 0) + need <= caps[j] && slots[j].length < SLOT_ZONES)) j++;
+    if (j >= nslots) { skipped.push(l.label); continue; }
+    if (j !== cur) { cur = j; used = 0; }
+    slots[cur].push(l);
     used += need;
   }
-  if (cur.length) slots.push(cur);
+  while (slots.length && !slots[slots.length - 1].length) slots.pop();
   return { slots, skipped };
 }
 
-// fm1_sample_upload.pack7: groups of up to 7 bytes, each preceded by their top bits
-export function pack7(b) {
+// fm1_sample_upload.pack7: groups of up to 7 bytes, each preceded by their top bits (7 to 8: the slot
+// commands' packing; fm1ota.js's pack7 is the update protocol's bit stream, another thing)
+export function pack78(b) {
   const out = [];
   for (let i = 0; i < b.length; i += 7) {
     const g = b.slice(i, i + 7);
@@ -298,16 +300,26 @@ export function asciiName(b) {
   return s;
 }
 
-// SMP_INFO reply (the bytes after the command) -> {count, size, slots: [{nz, name, kb}]} (x0x_slots.parse_info)
+// SMP_INFO reply (the bytes after the command) -> {count, size, ext, slots: [{nz, name, kb, size, off, used}]}
+// (x0x_slots.parse_info). size: the reply's one size (KiB, 7 bits: the smallest slot). Per slot size, flash
+// offset (null if unknown) and used KiB come from X0X's extension ('X', 1, then per slot offset and size in
+// 4 KiB sectors and used KiB, 14 bits each); without it every slot has the one size.
 export function parseInfo(r) {
   if (r.length < 2) throw new Error("short SMP_INFO reply");
   const count = r[0], size = r[1] * 1024, slots = [];
-  for (let k = 0, i = 2; k < count; k++) {
+  let i = 2;
+  for (let k = 0; k < count; k++) {
     const nz = r[i], j = r.indexOf(0, i + 1);
-    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1] });
+    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1], size, off: null, used: r[j + 1] });
     i = j + 2;
   }
-  return { count, size, slots };
+  const ext = r.length >= i + 2 + 6 * count && r[i] === 0x58 && r[i + 1] === 1;
+  if (ext)
+    slots.forEach((sl, k) => {
+      const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
+      Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
+    });
+  return { count, size, ext, slots };
 }
 
 // a slot's first 480 bytes -> {nz, name, dataLen, crc, zones: [{off, n, rate}]} or null (x0x_slots.parse_header)
@@ -331,7 +343,9 @@ export function makeArchive(layout, images, created) {
   const entries = [], blobs = [];
   let off = 0;
   images.forEach((img, k) => {
-    const e = { slot: k + 1, size: layout.size, empty: img === null };
+    const sl = layout.slots[k] || {};
+    const e = { slot: k + 1, size: sl.size ?? layout.size, empty: img === null };
+    if (sl.off !== null && sl.off !== undefined) e.flash = sl.off;
     if (img !== null) {
       const h = parseHeader(img);
       Object.assign(e, { name: h.name, zones: h.nz, samples: h.zones.map((z) => z.n), rates: h.zones.map((z) => z.rate),
@@ -375,13 +389,230 @@ export function readArchive(b) {
   return { meta, images };
 }
 
+// a slot's size on a device with this layout (per slot with X0X's SMP_INFO extension)
+export const slotSize = (layout, k) => (layout.slots[k] && layout.slots[k].size) || layout.size;
+
 // which archive slots go where on a device with this layout -> {todo: [{k, img}], skipped: [text]}
 export function planRestore(layout, images) {
   const todo = [], skipped = [];
   images.forEach((img, k) => {
     if (k >= layout.count) skipped.push(`slot ${k + 1}: this device has ${layout.count} slots`);
-    else if (img !== null && img.length > layout.size) skipped.push(`slot ${k + 1}: too large for this device's slots`);
+    else if (img !== null && img.length > slotSize(layout, k)) skipped.push(`slot ${k + 1}: too large for this device's slot ${k + 1}`);
     else todo.push({ k, img });
   });
   return { todo, skipped };
+}
+
+// ---- an install that changes the slot map (tools/x0x_slots.py and tools/fm1_install.py, the same rules) ----
+// A slot keeps its data over an install when the new firmware has a slot at the same flash offset that is
+// large enough: no install writes the slots. The others are saved first and written back after.
+export const LEGACY_BASE = { smk: 0xC2000, fm1: 0xA0000 };   // X0X before the SMP_INFO extension: equal slots
+const SLOTMAP_MAGIC = "X0X-SLOTMAP-1\0\0\0", LOADER_MARK = "FELUCCA-LOADER-1";
+
+function findBytes(b, text) {
+  const t = [...text].map((c) => c.charCodeAt(0));
+  outer: for (let i = b.indexOf(t[0]); i >= 0 && i + t.length <= b.length; i = b.indexOf(t[0], i + 1)) {
+    for (let j = 1; j < t.length; j++) if (b[i + j] !== t[j]) continue outer;
+    return i;
+  }
+  return -1;
+}
+
+// [{off, size}] per slot of a parseInfo() layout (x0x_slots.flash_map)
+export function flashMap(layout, board = "smk") {
+  if (layout.ext) return layout.slots.map((sl) => ({ off: sl.off, size: sl.size }));
+  return layout.slots.map((_, k) => ({ off: LEGACY_BASE[board] + k * layout.size, size: layout.size }));
+}
+
+// the slot map of a package's logical image (fm1pkg_make.slotmap_of): its slot map record; for an older X0X
+// (Felucca loader, no record) the equal 80 KiB slots of that time; [] for any other package (stock firmware)
+export function packageSlotMap(image, board = "smk") {
+  const i = findBytes(image, SLOTMAP_MAGIC);
+  if (i >= 0 && i + 24 <= image.length) {
+    const v = new DataView(image.buffer, image.byteOffset, image.byteLength), n = v.getUint32(i + 16, true);
+    const end = i + 20 + 8 * n;
+    if (n <= 16 && end + 4 <= image.length && v.getUint32(end, true) === crc32(image.subarray(i, end))) {
+      const m = [];
+      for (let k = 0; k < n; k++) m.push({ off: v.getUint32(i + 20 + 8 * k, true), size: v.getUint32(i + 24 + 8 * k, true) });
+      return m;
+    }
+  }
+  if (findBytes(image, LOADER_MARK) < 0) return [];
+  return Array.from({ length: board === "smk" ? 2 : 3 }, (_, k) => ({ off: LEGACY_BASE[board] + k * 0x14000, size: 0x14000 }));
+}
+
+// slot indexes that hold samples and that the new map does not keep (x0x_slots.at_risk)
+export function atRisk(layout, oldMap, newMap) {
+  const risk = [];
+  layout.slots.forEach((sl, k) => {
+    if (!sl.nz) return;
+    const off = oldMap[k].off, need = SLOT_HDR_AREA + sl.used * 1024;
+    if (!newMap.some((m) => m.off === off && m.size >= need)) risk.push(k);
+  });
+  return risk;
+}
+
+// -> {todo: [{k: old slot, j: new slot}], skipped: [text]} (x0x_slots.plan_migration): a slot at risk goes back
+// to the slot with its number if it fits there, else to the first other slot that is empty, not kept and large enough
+export function planMigration(images, risk, oldMap, newLayout, newMap) {
+  const kept = new Set();
+  newMap.forEach((m, j) => oldMap.forEach((o, k) => { if (images[k] !== null && !risk.includes(k) && o.off === m.off) kept.add(j); }));
+  const taken = new Set(kept), todo = [], skipped = [];
+  for (const k of risk) {
+    const img = images[k], order = (k < newMap.length ? [k] : []).concat(newMap.map((_, j) => j).filter((j) => j !== k));
+    const j = order.find((j) => !taken.has(j) && img.length <= newMap[j].size && !newLayout.slots[j].nz);
+    if (j === undefined) skipped.push(`slot ${k + 1} (${img.length} B): no free slot of that size on the new firmware`);
+    else { todo.push({ k, j }); taken.add(j); }
+  }
+  return { todo, skipped };
+}
+
+// ---- the slot commands over a link with send / read / drain (fm1ota.js's Link): SysEx F0 7D 46 4C cmd .. F7 ----
+const ED = [0xF0, 0x7D, 0x46, 0x4C];
+
+export function unpack78(a) {
+  const out = [];
+  for (let i = 0; i < a.length;) {
+    const m = a[i++];
+    for (let j = 0; j < 7 && i < a.length; j++) out.push(a[i++] | ((m >> j) & 1) << 7);
+  }
+  return new Uint8Array(out);
+}
+
+// one command -> the reply's bytes after the command; a lost frame is sent again (every slot command is safe to repeat)
+export async function slotReq(link, cmd, args, ms = 3000, tries = 3) {
+  for (let t = 0; t < tries; t++) {
+    link.drain();
+    if (!link.send([...ED, cmd, ...args, 0xF7])) throw new Error("The USB connection was lost.");
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      const p = await link.read(end - Date.now());
+      if (!p) break;
+      if (p.length > 5 && p[1] === ED[1] && p[2] === ED[2] && p[3] === ED[3] && p[4] === cmd) return p.slice(5, p.length - 1);
+    }
+  }
+  throw new Error(`The keyboard did not answer (slot command ${cmd}).`);
+}
+
+export async function readSlotLayout(link, ms = 3000, tries = 3) { return parseInfo(await slotReq(link, 15, [], ms, tries)); }
+
+async function readSlotBytes(link, k, off, n, onPart) {
+  const out = new Uint8Array(n);
+  for (let at = 0; at < n;) {
+    const want = Math.min(224, n - at), adr = off + at;
+    const b = unpack78((await slotReq(link, 16, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])).slice(4));
+    if (!b.length) throw new Error(`slot ${k + 1}: no data`);
+    out.set(b.subarray(0, Math.min(b.length, n - at)), at);
+    at += Math.min(b.length, n - at);
+    if (onPart) onPart(at, n);
+  }
+  return out;
+}
+
+// slot k as an image (the 512-byte header area, then the data), or null if it is empty. Reads only.
+export async function readSlotImage(link, k, nz, onPart) {
+  if (!nz) return null;
+  const area = await readSlotBytes(link, k, 0, SLOT_HDR_AREA), h = parseHeader(area.subarray(0, SLOT_HDR_LEN));
+  if (!h) return null;
+  const data = await readSlotBytes(link, k, SLOT_HDR_AREA, h.dataLen, onPart);
+  if (crc32(data) !== h.crc) throw new Error(`slot ${k + 1}: the data read back does not match its CRC`);
+  const img = new Uint8Array(SLOT_HDR_AREA + data.length);
+  img.set(area);
+  img.set(data, SLOT_HDR_AREA);
+  return img;
+}
+
+// every slot -> {layout, images} (x0x_slots.backup): SMP_INFO and SMP_READ only
+export async function backupSlots(link, onPart) {
+  const layout = await readSlotLayout(link), images = [];
+  for (let k = 0; k < layout.count; k++)
+    images.push(await readSlotImage(link, k, layout.slots[k].nz, onPart && ((d, n) => onPart(k, d, n))));
+  return { layout, images };
+}
+
+// erase slot k and write the image (null: erase only); throws on a device error (x0x_slots.write_slot)
+export async function writeSlotImage(link, k, img, onPart) {
+  if (!img) {
+    if ((await slotReq(link, 14, [k], 30000))[1]) throw new Error(`slot ${k + 1}: erase failed`);
+    return;
+  }
+  if ((await slotReq(link, 11, [k], 10000))[1]) throw new Error(`slot ${k + 1}: begin (erase) failed`);
+  const data = img.subarray(SLOT_HDR_AREA);
+  for (let off = 0; off < data.length; off += 256) {
+    const adr = SLOT_HDR_AREA + off;
+    const r = await slotReq(link, 12, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, ...pack78(data.subarray(off, off + 256))]);
+    if (r[4]) throw new Error(`slot ${k + 1}: write at 0x${adr.toString(16)} failed (${r[4]})`);
+    if (onPart) onPart(Math.min(off + 256, data.length), data.length);
+  }
+  const e = await slotReq(link, 13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  if (e[1]) throw new Error(`slot ${k + 1}: the keyboard refused the header (${e[1]})`);
+}
+
+// write images[k] into new slot j for each {k, j}, then read each back and compare (x0x_slots.restore_mapped)
+export async function restoreMapped(link, todo, images, onPart) {
+  for (const { k, j } of todo) await writeSlotImage(link, j, images[k], onPart && ((d, n) => onPart(j, d, n)));
+  const after = await readSlotLayout(link);
+  for (const { k, j } of todo) {
+    const got = await readSlotImage(link, j, after.slots[j].nz);
+    if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]))
+      throw new Error(`slot ${j + 1}: read back differs from the backup of slot ${k + 1}`);
+  }
+}
+
+// an archive file name for now: x0x-slots-before-install-YYYYMMDD-HHMMSS.x0xslots, and its "created" text
+export function archiveStamp(t = new Date()) {
+  const p = (v) => String(v).padStart(2, "0");
+  const created = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
+  return { created, name: `x0x-slots-before-install-${created.replace(/[-:]/g, "").replace("T", "-")}.x0xslots` };
+}
+
+// The install with the slots kept (fm1_install.py's flow, for the installer page). up: fm1ota.js's Updater;
+// hooks: {step(k, a) for up.install, say(key, detail), save(bytes, name) (the download), progress(f),
+// sameKeyboard(model, packageModel) (fm1ota.js's: the slots are read only when the install can go ahead)}.
+// 1. If a slot holds samples the new firmware does not keep: read every slot into an .x0xslots archive and
+//    save it. 2. Install. 3. Reconnect to the new firmware, write the slots back into its map, read them back.
+// Throws the install's errors as they are; a failure in step 3 throws code "slots" (the archive is saved).
+// -> {product, move: null or {risk, todo, skipped, name}}
+export async function installKeepingSlots(up, image, product, board, hooks) {
+  const h = Object.assign({ step() {}, say() {}, save() {}, progress() {}, sameKeyboard: () => true }, hooks);
+  const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
+  let move = null;
+  const dev = await up.find((id) => !/^ota-/i.test(id.model));
+  if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
+  else if (dev) {
+    try {
+      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
+      if (layout && layout.slots.some((sl) => sl.nz)) {
+        const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
+        const risk = atRisk(layout, oldMap, newMap);
+        if (risk.length) {
+          h.say("slotsave", risk.map((k) => k + 1).join(", "));
+          let saved;
+          try {
+            saved = await backupSlots(dev.link, (k, d, n) => h.progress((k + d / n) / layout.count));
+          } catch (e) { throw fail("slotbackup", e.message); }
+          const st = archiveStamp(), file = makeArchive(saved.layout, saved.images, st.created);
+          readArchive(file);                                  // what was saved reads back
+          h.save(file, st.name);
+          move = { risk, oldMap, newMap, images: saved.images, name: st.name, todo: [], skipped: [] };
+        }
+      }
+    } finally { dev.link.close(); }
+  }
+  const ran = await up.install(image, product, h.step);
+  if (!move || !move.newMap.length) return { product: ran, move };
+  h.say("slotback");
+  const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
+  if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
+  try {
+    const layout = await readSlotLayout(back.link);
+    const plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    move.todo = plan.todo;
+    move.skipped = plan.skipped;
+    const total = plan.todo.length || 1;
+    await restoreMapped(back.link, plan.todo, move.images, (j, d, n) => h.progress(d / n / total));
+  } catch (e) {
+    throw fail("slots", e.message, move.name);
+  } finally { back.link.close(); }
+  return { product: ran, move };
 }
