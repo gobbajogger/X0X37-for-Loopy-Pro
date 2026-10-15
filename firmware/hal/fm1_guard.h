@@ -120,6 +120,24 @@ static void fm1_guard_lock_top(void)
     fm1__dbg_lock();
 }
 
+/* core 0's stacks (_ustack_lo.._sstack_top) closed to writes from core 1 and from the
+ * peripherals (DMA): write limit 3. A write raises DBG_MSG bit 11 (core 1) or bit 2 (a
+ * peripheral; PRP_WR_LIMIT_ID names it). Core 0 is not limited by it (C0 enable bit 3 stays 0).
+ * For the Bluetooth start (src/ble.c): a return address on core 0's interrupt stack lost bits
+ * while core 1 ran the controller. */
+#define FM1_C1_WR_LIMIT_EN FM1_X2(0x34Cu)
+#define FM1_PRP_WR_LIMIT_EN FM1_X2(0x350u)
+static void fm1_guard_watch_c0_stacks(void)
+{
+    fm1__dbg_unlock();
+    FM1_DBG_MSG_CLR = 0xFFFFFFFFu;
+    FM1_WR_LIMIT_L(3) = (uint32_t)(uintptr_t)_ustack_lo;
+    FM1_WR_LIMIT_H(3) = (uint32_t)(uintptr_t)_sstack_top - 1u;
+    FM1_C1_WR_LIMIT_EN |= 8u;
+    FM1_PRP_WR_LIMIT_EN |= 8u;
+    fm1__dbg_lock();
+}
+
 /* the reserved top of RAM is write-protected now (fm1_guard_lock_top) */
 static int fm1_guard_top_locked(void) { return (FM1_C0_WR_LIMIT_EN & 4u) != 0; }
 
