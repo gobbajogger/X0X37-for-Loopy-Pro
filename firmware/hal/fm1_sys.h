@@ -100,21 +100,6 @@ static uint32_t fm1_rails_read(void)
     return (uint32_t)fm1_p33_read(FM1_P3_ANA_CON5) | (uint32_t)fm1_p33_read(FM1_P3_ANA_CON6) << 8 |
            (uint32_t)fm1_p33_read(FM1_P3_ANA_CON9) << 16;
 }
-/* SYSVDD up by `steps`, no higher than `cap`, one step at a time with 200 us between */
-static void fm1_sysvdd_raise(uint32_t steps, uint32_t cap)
-{
-    uint32_t v = fm1_p33_read(FM1_P3_ANA_CON9);
-    uint32_t sel = v & 0x0Fu, want = sel + steps;
-    if (want > cap)
-        want = cap;
-    while (sel < want) {
-        sel++;
-        fm1_p33_write(FM1_P3_ANA_CON9, (uint8_t)((v & 0xF0u) | sel));
-        for (volatile uint32_t i = 0; i < 20000u; i++)
-            ;
-    }
-}
-
 static void fm1_wdt_feed(void) { fm1_p33_or(FM1_P3_WDT_CON, 0x40); }
 static void fm1_wdt_stop(void) { fm1_p33_write(FM1_P3_WDT_CON, 0); }
 
