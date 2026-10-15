@@ -430,6 +430,8 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
             h->q_r = h->q_w;
             h->sx_on = 0;
             link_reset(h);
+        } else if (h->state == BLEH_ADVERTISING) {
+            h->want_adv = 0;                        /* attempt 28: a link the host did not see ended: advertise again */
         }
     } else if (code == 0x13 && pl >= 1) {           /* number of completed packets: all handles, then all counts */
         unsigned i, c = p[0];
