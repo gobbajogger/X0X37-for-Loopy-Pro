@@ -188,7 +188,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         w[nw++] = bootguard.failed;
         w[nw++] = bootguard.pending;
 #if X0X_BLE
-        nw += ble_diag(w + nw, 66u - nw);
+        nw += ble_diag(w + nw, (uint32_t)(sizeof w / 4u) - nw);
 #endif
         ed_b(nw);
         for (k = 0; k < nw; k++) {
