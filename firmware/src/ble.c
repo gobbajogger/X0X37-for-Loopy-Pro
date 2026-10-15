@@ -36,6 +36,27 @@ static uint32_t ble_ok_at;                      /* fm1_ms when the controller be
 /* the start guard (ble_glue.h): survives a reset, so a start that crashes or freezes the unit is not
  * tried again at the next power-on */
 ble_guard_t ble_guard __attribute__((section(".noinit")));
+extern uint32_t _ram_sink[], _ram_sink_end[];   /* app.ld: 1 KiB at 0x01C00000 that nothing uses */
+#define BLE_SINK_FILL(i) (0x5A17C0DEu ^ ((i) * 0x01010101u))
+static void ble_sink_fill(void)
+{
+    uint32_t i, n = (uint32_t)(_ram_sink_end - _ram_sink);
+    for (i = 0; i < n; i++)
+        _ram_sink[i] = BLE_SINK_FILL(i);
+}
+/* how many words of the sink changed since ble_sink_fill: a write by the radio (or its DMA) */
+static void ble_sink_check(void)
+{
+    uint32_t i, n = (uint32_t)(_ram_sink_end - _ram_sink), bad = 0;
+    for (i = 0; i < n; i++)
+        if (_ram_sink[i] != BLE_SINK_FILL(i)) {
+            if (!bad++) {
+                ble_guard.sink_at = (uint32_t)(uintptr_t)&_ram_sink[i];
+                ble_guard.sink_val = _ram_sink[i];
+            }
+        }
+    ble_guard.sink_n = bad;
+}
 
 static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
 {
@@ -59,6 +80,8 @@ static void ble_prepare(int on)
     if (ble_guard.magic == BLE_GUARD_MAGIC && ble_guard.trying) {
         if (ble_r.mb.magic == XB_MBOX_MAGIC)
             ble_record();                       /* the start that reset the unit: its mailbox (BLERAM) */
+        ble_sink_check();                       /* (the boot may have used that RAM too) */
+        ble_guard.sink_n |= 0x80000000u;        /* bit 31: checked at the next boot, not after the init */
         ble_guard.reset = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* what reset it */
     }
     if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
@@ -114,6 +137,8 @@ static void ble_start(void)
     bleh_set_sysex(&ble_r.h, ble_sysex_in);
     fm1_ble_sync();
     ble_guard.start_ms = fm1_ms;
+    ble_guard.sink_n = ble_guard.sink_at = ble_guard.sink_val = 0;
+    ble_sink_fill();
     bus = fm1_guard_bus_pause();                /* JieLi's RF code: not for the bus-invalid checks */
     fm1_wdt_feed();                             /* init may take FM1_BLE_INIT_MS of the 8 s */
     {
@@ -125,6 +150,7 @@ static void ble_start(void)
     }
     fm1_wdt_feed();
     ble_record();
+    ble_sink_check();
     ble_guard_started(&ble_guard, rc, rc == 0 && mb->state == XB_ST_READY);
     if (rc != 0) {                              /* it did not come back: one core from now on (-3: no tick) */
         fm1_cpu1_hold();

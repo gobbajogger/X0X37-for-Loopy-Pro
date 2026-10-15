@@ -124,6 +124,7 @@ typedef struct {
     uint32_t start_ms, init_ms, mb_state, mb_err;  /* the last start: its time, how long init took, the mailbox */
     uint32_t dbg[6];                               /* the image's own record of the last start (xb_mbox_t dbg) */
     uint32_t reset;                                /* BLE_WHY_RESET: P3 reset source | RST_SRC << 8 of that reset */
+    uint32_t sink_n, sink_at, sink_val;            /* the RAM sink after the start: words changed, the first */
 } ble_guard_t;
 
 /* power-on: 1 = start the controller now */
