@@ -203,9 +203,18 @@ int os_mutex_pend(void *m, int timeout) { return os_sem_pend(m, timeout); }
 int os_mutex_post(void *m) { return os_sem_post(m); }
 int os_mutex_del(void *m, int force) { (void)m; (void)force; return OS_NO_ERR; }
 
+static u8 in_run_once;                 /* attempt 43: ctl_os_run_once is on the stack */
 void os_time_dly(int ticks)
 {
     u32 end = ctl_ms() + (u32)ticks * (1000u / OS_TICKS_PER_SEC);
+    if (!cur && !in_run_once) {
+        /* attempt 43: called from the init (not a task, not a timer callback). btstack_init waits
+         * here until btctrler_task_ready(): the controller task must run meanwhile. Before, this
+         * spun, the task never ran, and the watchdog reset the unit (attempts 40 to 42). */
+        while ((s32)(ctl_ms() - end) < 0)
+            (void)ctl_os_run_once();
+        return;
+    }
     while ((s32)(ctl_ms() - end) < 0) {
         if (cur) cur->wake_ms = end;
         block_current();
@@ -220,6 +229,7 @@ int ctl_os_run_once(void)
 {
     int ran = 0;
     u32 now;
+    in_run_once = 1;
     ctl_timer_poll();
     ctl_host_poll();
     now = ctl_ms();
@@ -234,5 +244,6 @@ int ctl_os_run_once(void)
         cur = NULL;
         ran = 1;
     }
+    in_run_once = 0;
     return ran;
 }
