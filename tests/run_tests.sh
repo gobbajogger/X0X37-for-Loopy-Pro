@@ -71,7 +71,7 @@ fi
 # packages (made from the FM-1 app: only the layout matters), and the SMK build's own package if there is one
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
-run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
+run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
 run smk-apc40-map sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_apc40_map_test tests/smk_apc40_map_test.c && $OUT/smk_apc40_map_test"
 run smk-apc40 python3 tests/smk_apc40_test.py
 run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
@@ -100,7 +100,8 @@ run ble sh -c "$CC $W -Ifirmware/hal -Ifirmware/src/ble -o $OUT/ble_test tests/b
 run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops && \
     python3 tools/upload_breaks.py --rate 22050 --nslots 3 --dry-run build/test_upload build/test_loops/loop*.wav && \
     python3 tools/upload_breaks.py --dry-run build/test_upload44 build/test_loops/loop*.wav && \
-    python3 tools/upload_breaks.py --rate 22050 --slots 3 --dry-run build/test_upload44s3 build/test_loops/loop1.wav"   # 22.05 kHz (3 x 80), the 44.1 kHz default (80/120/44), slot 3
+    python3 -c \"import wave; r = wave.open('build/test_loops/loop1.wav'); w = wave.open('build/test_loops/half1.wav', 'wb'); w.setparams(r.getparams()); w.writeframes(r.readframes(r.getnframes() // 2))\" && \
+    python3 tools/upload_breaks.py --rate 22050 --slot-kb 80,120,16 --slots 3 --dry-run build/test_upload44s3 build/test_loops/half1.wav"   # 22.05 kHz (3 x 80), the 44.1 kHz default, slot 3 (16 KiB since ABI 3: half a loop)
 run upload-tools python3 tests/upload_tools_test.py   # upload_breaks.py on a mocked device; one-shot trim
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device

@@ -33,7 +33,7 @@ static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
  * ble_service, both on core 0. */
 static uint32_t ble_oq[BLE_OQ] __attribute__((section(".pool")));
 /* ABI 3: more heap for the image's host (boot parameter heap2), from the pool (zeroed at boot) */
-#define BLE_HEAP2 2048u
+#define BLE_HEAP2 3584u   /* attempt 46: the host task stack (3072 B) did not fit with 2048 */
 static uint8_t ble_heap2[BLE_HEAP2] __attribute__((section(".pool"), aligned(8)));
 /* the bond store: XB_NV_SIZE bytes in RAM 2 (the image's), saved to FL_BOND as magic, CRC, bytes */
 #define BLE_NV ((uint8_t *)(uintptr_t)XB_NV_ADDR)

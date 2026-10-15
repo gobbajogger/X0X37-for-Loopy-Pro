@@ -645,6 +645,12 @@ def with_ctl(a, product, image, out, cache=None):
     except add_ctl.PkgError as e:
         raise InstallError("badpkg", f"Bluetooth controller image: {e}")
     print(f"Bluetooth controller image: {path} (added to the package)", file=out)
+    # piece 1 is read back from the package as it will be sent (the unit checks the same CRC at boot)
+    c = add_ctl.piece1_crc(image)
+    want = struct.unpack_from("<I", ctl, 16)[0]
+    if not c or c[0] != want or c[1] != want:
+        raise InstallError("badpkg", f"Bluetooth piece 1: CRC in the package {c}, want {want:08x}")
+    print(f"Bluetooth piece 1: CRC {c[1]:08x} ok (package), piece 2: CRC {struct.unpack_from('<I', ctl, 60)[0]:08x}", file=out)
     return image
 
 

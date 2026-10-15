@@ -177,6 +177,20 @@ def _close(st):
     return bytes(lg)
 
 
+def piece1_crc(logical):
+    """(stored, computed) piece 1 CRC-32 of the controller image in the package's Bluetooth block
+    (the header CRC field; zlib CRC-32 over the image with that field read as 0), or None if empty"""
+    st = _open(logical)
+    lo = 0x120 + CODE_MAX
+    b = bytes(st["area"][lo:lo + BLE_SIZE])
+    if struct.unpack_from("<I", b, 0)[0] != HDR_MAGIC:
+        return None
+    size, crc = struct.unpack_from("<II", b, 12)
+    if not HDR_SIZE <= size <= BLE_SIZE:
+        return crc, None
+    return crc, zlib.crc32(b[:16] + b"\0\0\0\0" + b[20:size]) & 0xFFFFFFFF
+
+
 def block_free(st):
     """True if the Bluetooth block of an _open state belongs to the block: empty (0xFF), a controller image
     (X0BC header), or a package with the slot map record (7054cc5 and later: the build limits the app code)"""
