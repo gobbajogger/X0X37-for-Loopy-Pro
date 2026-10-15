@@ -147,3 +147,20 @@ Troubleshooting); otherwise recovery needs [FM-1-transporter](https://github.com
    Pages serves at <https://charlesvestal.github.io/fm1-x0x/>.
 3. `gh release create vX.Y-beta build/x0x-X.Y-beta.fwsc --prerelease` for the command-line
    download.
+4. Attach `LICENSE`, `LICENSING.md` and the `LICENSES/` folder to the release. Each package
+   contains three Apache-2.0 files from the JieLi SDK (see LICENSING.md), so
+   `LICENSES/Apache-2.0.txt` must go with each package.
+
+### SMK-37 APC40 mkII / Loopy Pro clip launcher
+
+The SMK-37 Pro and Elite builds include an APC40 mkII-compatible MIDI identity handshake, the 40-cell APC clip-note/LED protocol, and the APC velocity color palette. Clip feedback on MIDI channels 0–15 carries the same color. The firmware trims empty outer margins but preserves internal empty cells. An 8-wide layout maps the first two rows of the current Loopy viewport to the 8×2 pads; use the four direction controls to move the host viewport, with no local pages. A 4×4 layout folds onto one 8×2 view: its first two rows map to physical pads 1–4 and 9–12, while rows 3–4 map to pads 5–8 and 13–16. The pad rows are vertically flipped while columns stay left-to-right. `<` / `>` scroll horizontally, a short KNOB BANK tap scrolls up, and FADER BANK scrolls down. A long KNOB BANK hold toggles clip mode; OCTAVE− / OCTAVE+ are ignored while it is active. During host viewport refresh, the last complete pad map remains visible until the new feedback snapshot is ready. Seq PLAY and Seq REC send momentary APC40 Play and Record messages in clip mode, and their LEDs follow Loopy's Play and Record/overdub feedback. Configure the Loopy Record binding and overdub behavior there; Loopy Pro remains the source of clip state and color.
+
+After installing the JieLi toolchain and AC79 SDK listed above, build both model-specific firmware packages and two matching web installers with:
+
+```
+tools/build_smk_release.sh 0.2-apc40
+```
+
+This writes the Pro and Elite release packages plus `build/pages-smk37-pro/` and `build/pages-smk37-elite/`. Each generated installer embeds the matching model-specific firmware. Each installer ZIP must contain `LICENSE`, `LICENSING.md` and the `LICENSES/` folder, because each package contains Apache-2.0 files from the JieLi SDK (see LICENSING.md). The script does not add these files at this time. Add them to each ZIP before you publish it. For SMK packages, the installer hides the FM-1-only stock-firmware restore and recovery controls; do not use an FM-1 stock image to recover an SMK keyboard.
+
+If Pillow has no optional `libraqm` support, the font generator keeps numeric fields tabular by centering proportional digits in the widest digit cell.

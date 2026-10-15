@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-only
 """Verify the Barlow renderer's tabular-number fallback without libraqm."""
 import sys
 import tempfile
