@@ -244,16 +244,22 @@ void hx_init(void)
     u32 i;
     for (i = 0; i + 1 < sizeof hx_name && ctl_bp->name[i]; i++) hx_name[i] = ctl_bp->name[i];
     hx_name[i] = 0;
+    ctl_mark(0x311);
     le_device_db_init();
+    ctl_mark(0x312);
     sm_init();
+    ctl_mark(0x313);
     sm_set_io_capabilities(IO_NO_INPUT_NO_OUTPUT);               /* Just Works */
     sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
     sm_set_encryption_key_size_range(7, 16);
     sm_set_request_security(0);                                  /* the central decides (iOS pairs when it wants) */
     sm_event_callback_set(hx_sm);
+    ctl_mark(0x314);
     att_server_init(hx_db, hx_read, hx_write);
+    ctl_mark(0x315);
     att_server_register_packet_handler(hx_events);
     hci_event_callback_set(hx_events);
     le_l2cap_register_packet_handler(hx_events);
     ble_vendor_set_default_att_mtu(HX_MTU_MAX);
+    ctl_mark(0x316);
 }

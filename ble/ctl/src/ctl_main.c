@@ -189,6 +189,13 @@ static int boot_ok(const xb_boot_t *bp)
 }
 
 /* the start record for the app (xb_mbox_t dbg): the step and the time */
+/* attempt 41: a step inside a stage (0x300 + k in stage 3), with the heap use in place of the time */
+void ctl_mark(u32 n)
+{
+    ctl_mb->dbg[XB_DBG_STAGE] = n;
+    ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();
+    XB_SYNC();
+}
 static void stage(u32 n)
 {
     ctl_mb->dbg[XB_DBG_STAGE] = n;
@@ -231,10 +238,14 @@ static u32 ctl_init(u32 arg)
     stage(XB_STG_ENTRY);
     stage(XB_STG_OS);
     stage(XB_STG_H4);
+    ctl_mark(0x301);
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
+    ctl_mark(0x302);
 #ifdef CTL_HOST
-    hx_init();
+    hx_init();                            /* 0x310..0x31F inside */
+    ctl_mark(0x320);
     btstack_init();                       /* its task starts the controller (btctrler_task_init) */
+    ctl_mark(0x330);
 #else
     btctrler_task_init(&ctl_transport, NULL);
 #endif
