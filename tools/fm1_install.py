@@ -9,15 +9,26 @@ step 2, the loader reads the whole package and writes it. In both steps the
 device asks (SysEx read requests on the logical image) and we answer. Then
 the FM-1 restarts and the installed identity is checked.
 
-  fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force]
+  fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots]
   fm1_install.py --info [--port NAME]
 
 If the FM-1 is still in update mode (an earlier install was cut off), the
 install finishes the write. Needs mido with python-rtmidi.
 
+Sample slots: before the install, the running X0X lists its slots (SMP_INFO). If a slot holds samples
+that the package's firmware will not keep (no slot at the same flash offset with room for them: the
+package's slot map, an older X0X's 2 x 80 KiB map, or none for a package without the Felucca loader),
+the install does this by itself: (1) it reads every slot (SMP_INFO / SMP_READ only) into an .x0xslots
+archive and saves it (--backup FILE, default x0x-slots-before-install-DATE.x0xslots here); (2) it
+installs; (3) when the new firmware is back, it writes those slots into the new map (old slot N to new
+slot N if it fits, else to a free slot that is large enough; others are reported) and reads them back
+to compare; (4) if that fails, the archive stays and the message says how to restore it with
+tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flash: no install writes them.
+
 Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
-loader / no restart), 6 wrong model, or another identity after the install.
+loader / no restart), 6 wrong model, or another identity after the install,
+7 installed, but the slots were not written back (the backup file stays).
 
 Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
 v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
@@ -29,7 +40,11 @@ import queue
 import re
 import sys
 import time
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fm1pkg_make  # noqa: E402  (the package's slot map)
+import x0x_slots as xs  # noqa: E402
 HS_QUERY = bytes([0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7])
 UPGRADE = bytes([0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7])
 FINISH_CHECK, FINISH_WRITE = 0xE0000000, 0xF0000000
@@ -45,7 +60,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
          "wait_loader": 30.0, "wait_reboot": 40.0}
 
 EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
-        "noloader": 5, "noreturn": 5, "mismatch": 6}
+        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7}
 
 
 class InstallError(Exception):
@@ -442,6 +457,106 @@ class Updater:
         return self.verify(product, step)
 
 
+# ---------------------------------------------------------- sample slots ---
+
+ED_HDR = bytes([0xF0, 0x7D, 0x46, 0x4C])           # X0X's editor SysEx (web/EDITOR_PROTOCOL.md)
+SLOT_PROBE = {"timeout": 1.0, "tries": 2}           # SMP_INFO of a firmware that may not have it (stock)
+
+
+class EditorLink:
+    """X0X's slot commands over an install link (x0x_slots.py's link.req)"""
+
+    def __init__(self, link):
+        self.link = link
+
+    def req(self, cmd, args, timeout=3.0):
+        self.link.drain()
+        if not self.link.send(ED_HDR + bytes([cmd]) + bytes(args) + b"\xF7"):
+            raise TimeoutError(f"no reply to cmd {cmd} (port lost)")
+        end = time.monotonic() + timeout
+        while (left := end - time.monotonic()) > 0:
+            p = self.link.read(left)
+            if p is None:
+                break
+            if p[:5] == ED_HDR + bytes([cmd]) and p[-1] == 0xF7:
+                return list(p[5:-1])
+        raise TimeoutError(f"no reply to cmd {cmd}")
+
+
+def board_of(product):
+    return "smk" if SMK_FAMILY.fullmatch(model_of(product)) else "fm1"
+
+
+def package_slot_map(image, product):
+    """[(flash offset, size)] of the package's firmware: its slot map; for an older X0X package (Felucca
+    loader, no map) the equal 80 KiB slots of that time; [] for any other package (stock firmware)"""
+    m = fm1pkg_make.slotmap_of(image)
+    if m is not None:
+        return m
+    if LOADER_MARK not in image:
+        return []
+    board = board_of(product)
+    return [(xs.LEGACY_BASE[board] + k * 0x14000, 0x14000) for k in range(2 if board == "smk" else 3)]
+
+
+def slot_probe(link):
+    """the running firmware's slot layout (SMP_INFO), or None if it does not answer (not X0X)"""
+    try:
+        return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
+    except (TimeoutError, xs.SlotError, ValueError, IndexError):
+        return None
+
+
+class SlotMove:
+    """the slots an install would lose: backup before, restore after"""
+
+    def __init__(self, lay, old_map, new_map, risk, board):
+        self.lay, self.old_map, self.new_map, self.risk, self.board = lay, old_map, new_map, risk, board
+        self.images = self.path = None
+
+    def describe(self):
+        return ", ".join(f"slot {k + 1} ({self.lay['slots'][k]['name'] or '-'}, {self.lay['slots'][k]['used']} KiB)"
+                         for k in self.risk)
+
+    def backup(self, link, path, out):
+        lay, self.images = xs.backup(EditorLink(link))
+        self.lay = lay
+        arch = xs.make_archive(lay, self.images)
+        self.path = Path(path)
+        self.path.write_bytes(arch)
+        if xs.read_archive(self.path.read_bytes())[1] != self.images:
+            raise xs.SlotError(f"{self.path}: the saved backup does not read back")
+        print(f"slots saved: {self.path} ({len(arch)} B)", file=out)
+
+    def restore(self, link, out):
+        """-> (written [(old, new)], skipped texts); raises SlotError / TimeoutError"""
+        el = EditorLink(link)
+        new_lay = xs.layout(el)
+        new_map = xs.flash_map(new_lay, self.board)
+        todo, skipped = xs.plan_migration(self.images, self.risk, self.old_map, new_lay, new_map)
+        xs.restore_mapped(el, todo, self.images)
+        for k, j in todo:
+            print(f"slot {k + 1} written back to slot {j + 1} and read back: ok", file=out)
+        for t in skipped:
+            print(f"not written back: {t}", file=out)
+        return todo, skipped
+
+    def help(self):
+        return (f"The slots are in {self.path}. Restore them with the break loops page (Restore a backup) "
+                f"or: python3 tools/x0x_slots.py restore {self.path}")
+
+
+def plan_slots(dev, image, product):
+    """-> SlotMove if the install would lose slot data, else None"""
+    lay = slot_probe(dev.link)
+    if not lay or not any(sl["nz"] for sl in lay["slots"]):
+        return None
+    old_map = xs.flash_map(lay, board_of(dev.id.text))
+    new_map = package_slot_map(image, product)
+    risk = xs.at_risk(lay, old_map, new_map)
+    return SlotMove(lay, old_map, new_map, risk, board_of(dev.id.text)) if risk else None
+
+
 # ------------------------------------------------------------------- CLI ---
 
 def load_package(path, force):
@@ -507,15 +622,44 @@ def run(a, backend, out, ask):
         raise not_found(up)
     print(f"device:  {dev.id.text}  ({dev.name})" + ("  in update mode: the write will be finished" if dev.id.loader else ""),
           file=out)
+    move = None
+    if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
+        move = plan_slots(dev, image, product)
+        if move:
+            print(f"This install changes the sample slot map. These slots would lose their samples: {move.describe()}.",
+                  file=out)
+            print("They are saved to a file first and written back after the install." if move.new_map else
+                  "They are saved to a file first. This firmware has no X0X slots: restore them later in X0X.", file=out)
     if not a.yes and not ask("Install? Do not unplug the FM-1 while writing. [y/N] "):
         dev.link.close()
         print("cancelled", file=out)
         return 1
+    if move:
+        path = a.backup or f"x0x-slots-before-install-{time.strftime('%Y%m%d-%H%M%S')}.x0xslots"
+        try:
+            move.backup(dev.link, path, out)
+        except (xs.SlotError, TimeoutError, OSError) as e:
+            dev.link.close()
+            raise InstallError("slots", f"the slot backup failed ({e}); nothing was written. Run "
+                                        "tools/x0x_slots.py backup FILE, then install with --no-slots")
     prog = Progress(out)
     try:
         up.install(dev, image, product, prog)
     finally:
         prog.end()
+    if move and move.new_map:
+        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        try:
+            if not back:
+                raise TimeoutError("the device did not answer after the install")
+            try:
+                move.restore(back.link, out)
+            finally:
+                back.link.close()
+        except (xs.SlotError, TimeoutError, KeyError, IndexError) as e:
+            raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
+    elif move:
+        print(move.help(), file=out)
     return 0
 
 
@@ -533,6 +677,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--port", metavar="NAME", help="MIDI port to use (part of its name)")
     ap.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
+    ap.add_argument("--backup", metavar="FILE", help="where to save the slots if the install would lose them")
+    ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
     a = ap.parse_args(argv)
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")

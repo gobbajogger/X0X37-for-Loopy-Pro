@@ -23,6 +23,7 @@ import fm1_install as I  # noqa: E402
 
 I.DELAY.update(open=0, start=0.01, reply=0, loader=0.01, reboot=0.01, retry=0.02, poll=0.05, hs=0.1,
                idle_check=0.4, idle_write=0.4, wait_loader=2, wait_reboot=2)
+I.SLOT_PROBE.update(timeout=0.05, tries=1)
 failed = 0
 
 
@@ -286,19 +287,20 @@ def against_js():
     ok(I.LOADER_MARK in raw, f"{clean.name} carries the Felucca loader marker")
 
 
-wire()
-installs()
-errors()
-against_js()
-shutil.rmtree(TMP, ignore_errors=True)
-# the SMK-37 Pro, Elite and MKE-P37 are one keyboard: packages install across them, never across FM-1 / SMK
-ok(I.same_keyboard("SMK-37 Elite_016", "SMK-37 Pro_900") and I.same_keyboard("ota-MKE-P37_900", "SMK-37 Elite_900")
-   and I.same_keyboard("STARRYKEY-37 PLAY_01", "SMK-37 Pro_900") and I.same_keyboard("FM-1_015", "FM-1_900")
-   and not I.same_keyboard("FM-1_015", "SMK-37 Pro_900") and not I.same_keyboard("SMK-37 Elite_016", "FM-1_900")
-   and not I.same_keyboard("XY-9_001", "SMK-37 Pro_900"),
-   "models: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another")
-ok(all(I.PORT_RE.search(n) for n in ("SMK-37 Elite", "MKE-P37", "STARRYKEY-37 PLAY", "Snoop37", "Vox37", "Felucca",
-                                     "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update")),
-   "port names: every SMK model and every port firmware probed")
-print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
-sys.exit(1 if failed else 0)
+if __name__ == "__main__":
+    wire()
+    installs()
+    errors()
+    against_js()
+    shutil.rmtree(TMP, ignore_errors=True)
+    # the SMK-37 Pro, Elite and MKE-P37 are one keyboard: packages install across them, never across FM-1 / SMK
+    ok(I.same_keyboard("SMK-37 Elite_016", "SMK-37 Pro_900") and I.same_keyboard("ota-MKE-P37_900", "SMK-37 Elite_900")
+       and I.same_keyboard("STARRYKEY-37 PLAY_01", "SMK-37 Pro_900") and I.same_keyboard("FM-1_015", "FM-1_900")
+       and not I.same_keyboard("FM-1_015", "SMK-37 Pro_900") and not I.same_keyboard("SMK-37 Elite_016", "FM-1_900")
+       and not I.same_keyboard("XY-9_001", "SMK-37 Pro_900"),
+       "models: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another")
+    ok(all(I.PORT_RE.search(n) for n in ("SMK-37 Elite", "MKE-P37", "STARRYKEY-37 PLAY", "Snoop37", "Vox37", "Felucca",
+                                         "X0X FM-1", "FoMni SMK-37", "Makkuro37 Update")),
+       "port names: every SMK model and every port firmware probed")
+    print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
+    sys.exit(1 if failed else 0)
