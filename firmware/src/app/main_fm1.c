@@ -546,14 +546,14 @@ uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_h
     if (pressed) {
         if (!clip_grid_mode || !patch_held)
             return 0u;
-        apc_out(smk_apc40_history_packet(redo, 1u));
+        midi_out_event(smk_apc40_history_packet(redo, 1u));   /* USB only (the APC40 view) */
         sent |= bit;
         say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);
         return 1u;
     }
     if (!(sent & bit))
         return 0u;
-    apc_out(smk_apc40_history_packet(redo, 0u));
+    midi_out_event(smk_apc40_history_packet(redo, 0u));
     sent &= (uint8_t)~bit;
     return 1u;
 }
