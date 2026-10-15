@@ -48,10 +48,11 @@ static uint32_t st_crc32(const void *p, uint32_t n)   /* zlib CRC-32, 4 bits per
 }
 
 #if BOARD_SMK37
-/* SMK-37 Pro: every object in FL_DATA 0x9D000..0xBAFFF (the stock VM), A/B
+/* SMK-37 Pro: every object in FL_DATA 0x9D000..0xAFFFF (the stock VM), A/B
  * neighbours in plat.h order: settings 0x9D000, sound 0x9F000, patterns 1-8 0xA1000, patterns 9-16 0xA3000,
- * panel 0xA5000, song 0xA7000, motion 0xA9000 (..0xAAFFF); 0xAB000..0xBAFFF spare except the store owner
- * tag at 0xAF000 (st_owner_check). Never near BTIF / USRTRIM (0xC0000..0xC1FFF) or key_mac (0xFF000). */
+ * panel 0xA5000, song 0xA7000, motion 0xA9000 (..0xAAFFF); 0xAB000..0xAEFFF spare, the store owner tag at
+ * 0xAF000 (st_owner_check). 0xB0000..0xBAFFF is user sample slot 3 (app/slots.c), not the store: the
+ * owner check never clears it. Never near BTIF / USRTRIM (0xC0000..0xC1FFF) or key_mac (0xFF000). */
 #define ST_SMK_BASE 0x9D000u
 _Static_assert(ST_SMK_BASE + 2u * OBJ_NOBJ * ST_SECTOR <= 0xAF000u, "SMK store: objects past the owner tag");
 static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy A (0) / B (1) */
@@ -76,7 +77,7 @@ static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy 
 #ifndef ST_IDLE
 #define ST_IDLE() ((void)0)                     /* (x0x.c: feed the watchdog between erases) */
 #endif
-_Static_assert(ST_OWNER_SECTOR + ST_SECTOR <= 0xBB000u, "SMK store owner: past FL_DATA");
+_Static_assert(ST_OWNER_SECTOR + ST_SECTOR <= 0xB0000u, "SMK store owner: past FL_DATA (sample slot 3 follows)");
 static uint8_t st_owner_cleared;                /* (the UI says so at boot) */
 static void st_owner_check(void)
 {

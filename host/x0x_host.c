@@ -143,7 +143,7 @@ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
  *  - slotimg: a slot image exactly as tools/upload_breaks.py writes it, read by the firmware's own
  *    slots.c (the device path: what the upload tool writes is what the firmware parses);
  *  - slot: WAVs encoded here, one zone each (quick, for scenarios that do not test the format). */
-static uint8_t slot_img[3][0x14000];
+static uint8_t slot_img[3][0x1E000];               /* the largest slot (SMK-37 slot 2: 120 KiB) */
 static int slot_is_img[3];
 #define SMP_USER_XIP(k) ((const uint8_t *)slot_img[k])
 static uint32_t st_crc32(const void *p, uint32_t n)

@@ -54,11 +54,11 @@ static uint32_t ed_unpack7(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t
     return n;
 }
 static uint8_t ed_smp_buf[512] __attribute__((aligned(4)));
-static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_BASE + k * SMP_USER_SIZE; }
+static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_OFF(k); }
 static void ed_smp_inval(uint32_t k)
 {
     fm1_irq_off();
-    fl_inval(ed_smp_slot(k), SMP_USER_SIZE);
+    fl_inval(ed_smp_slot(k), SMP_USER_SIZE(k));
     fm1_irq_on();
 }
 static int ed_smp_erase(uint32_t k, uint32_t all)
@@ -67,7 +67,7 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
     int rc = 0;
     usr_nz[k] = 0;
     engine_brk_loops();                               /* nothing may read the slot now */
-    for (i = 0; i < (all ? SMP_USER_SIZE / 0x1000u : 1u) && !rc; i++) {
+    for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
         audio_silence();
         rc = fl_erase4k(ed_smp_slot(k) + i * 0x1000u, &took);
         fm1_wdt_feed();
@@ -81,7 +81,7 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
     if (ed_unpack7(a, na, ed_smp_buf, sizeof(smp_user_hdr_t)) != sizeof(smp_user_hdr_t))
         return 1;
     if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
-        h->data_len > SMP_USER_SIZE - SMP_USER_DATA)
+        h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA)
         return 2;
     ed_smp_inval(k);
     if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc)
@@ -188,7 +188,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             return;
         off = (uint32_t)a[1] | (uint32_t)a[2] << 7 | (uint32_t)a[3] << 14;
         len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
-        if (off < SMP_USER_DATA || (off & 0xFFu) || !len || off + len > SMP_USER_SIZE)
+        if (off < SMP_USER_DATA || (off & 0xFFu) || !len || off + len > SMP_USER_SIZE(a[0]))
             rc = 1;
         else if (usr_nz[a[0]])
             rc = 4;
@@ -230,10 +230,10 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             return;
         off = (uint32_t)a[1] | (uint32_t)a[2] << 7 | (uint32_t)a[3] << 14;
         n = a[4] > ED_READ_MAX / 2u ? ED_READ_MAX : a[4] * 2u;   /* the count is in pairs (7 bits) */
-        if (off >= SMP_USER_SIZE)
+        if (off >= SMP_USER_SIZE(a[0]))
             return;
-        if (n > SMP_USER_SIZE - off)
-            n = SMP_USER_SIZE - off;
+        if (n > SMP_USER_SIZE(a[0]) - off)
+            n = SMP_USER_SIZE(a[0]) - off;
         src = smp_user_xip(a[0]) + off;
         ed_b(a[0]);
         ed_b(off);
@@ -249,9 +249,17 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         }
         break;
     }
-    case ED_SMP_INFO:
+    case ED_SMP_INFO: {                              /* count, size (KiB, 7 bits: the SMALLEST slot, so an older
+                                                      * tool that takes one size for all never overfills one),
+                                                      * per slot: zones, name, used KiB (7 bits); then the X0X
+                                                      * extension 'X' 1, per slot: flash offset and size in 4 KiB
+                                                      * sectors and used KiB, 14 bits each (2 x 7, low first).
+                                                      * An older tool stops before the extension. */
+        uint32_t mn = SMP_USER_MAX;
+        for (i = 0; i < SMP_USER_SLOTS; i++)
+            mn = SMP_USER_SIZE(i) < mn ? SMP_USER_SIZE(i) : mn;
         ed_b(SMP_USER_SLOTS);
-        ed_b(SMP_USER_SIZE / 1024u);
+        ed_b(mn / 1024u > 127u ? 127u : mn / 1024u);
         for (i = 0; i < SMP_USER_SLOTS; i++) {
             const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(i);
             char nm[9] = {0};
@@ -260,9 +268,24 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             for (j = 0; usr_nz[i] && j < 8u; j++)
                 nm[j] = h->name[j] >= 32 && h->name[j] < 127 ? h->name[j] : 0;
             ed_str(nm, 8);
-            ed_b(usr_nz[i] ? (h->data_len + 1023u) / 1024u : 0u);
+            j = usr_nz[i] ? (h->data_len + 1023u) / 1024u : 0u;
+            ed_b(j > 127u ? 127u : j);
+        }
+        ed_b('X');
+        ed_b(1);
+        for (i = 0; i < SMP_USER_SLOTS; i++) {
+            const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(i);
+            uint32_t v[3], j;
+            v[0] = SMP_USER_OFF(i) / 0x1000u;
+            v[1] = SMP_USER_SIZE(i) / 0x1000u;
+            v[2] = usr_nz[i] ? (h->data_len + 1023u) / 1024u : 0u;
+            for (j = 0; j < 3u; j++) {
+                ed_b(v[j]);
+                ed_b(v[j] >> 7);
+            }
         }
         break;
+    }
     default:
         return;                                       /* not ours: no reply */
     }
