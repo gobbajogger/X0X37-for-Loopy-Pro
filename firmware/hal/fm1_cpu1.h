@@ -254,27 +254,34 @@ static inline int fm1_cpu1_wait(void)
     }
 }
 
+/* the Bluetooth init's wait looks at the mailbox every 100 us only (24 MHz TIMER4): core 0 makes
+ * no RAM traffic and no csync storm while core 1 runs the RF trim (its high current) */
+#define FM1_C1_POLL_TICKS 2400u
 /* One job with core 0 in RAM until it ends (the Bluetooth controller's start: its RF trim turns
  * the flash off). Core 0's interrupts off; call through a pointer (FL_FAR). No calls in here (RAM
  * code: tools/build.py checks). 0 = done, -1 = not in time, -2 = a wrong job. */
 #define FM1_C1_RAMFN __attribute__((section(".ram_text"), noinline, used))
 static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg, uint32_t ticks)
 {
-    uint32_t job = fm1_c1_mb.job + 1u, t0;
+    uint32_t job = fm1_c1_mb.job + 1u, t0, last;
     fm1_c1_mb.fn = fn;
     fm1_c1_mb.arg = arg;
     fm1_c1_mb.check = FM1_C1_CHECK(fn, arg, job);
     FM1_C1_SYNC();
     fm1_c1_mb.job = job;
     FM1_C1_SYNC();
-    t0 = FM1_C1_T4;
+    t0 = last = FM1_C1_T4;
     for (;;) {
+        uint32_t t = FM1_C1_T4;
+        if (t - last < FM1_C1_POLL_TICKS)       /* between looks only the timer: no RAM, no csync */
+            continue;
+        last = t;
         FM1_C1_SYNC();
         if (fm1_c1_mb.done == job)
             return 0;
         if (fm1_c1_mb.bad)
             return -2;
-        if (FM1_C1_T4 - t0 > ticks)
+        if (t - t0 > ticks)
             return -1;
     }
 }
