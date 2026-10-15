@@ -179,6 +179,18 @@ void ctl_host_poll(void)
 
 /* the controller stops for good: its interrupts off on core 1, state FAILED. The app sees it
  * and stops calling poll(). */
+#ifdef CTL_HOST
+/* health for DIAG: heap, the least free stack bytes / 16 (attempt 48: in FAILED too) */
+__attribute__((noinline, section(".bt_stack_code.d48"))) static void d_health(void)
+{
+    u32 t = ctl_os_stack_free() >> 4, r = ctl_stack_free(__ctl_run_stack_lo, __ctl_run_stack_hi) >> 4,
+        i = ctl_stack_free(__ctl_isr_stack_lo, __ctl_isr_stack_hi) >> 4;
+    ctl_mb->hx.heap = ctl_heap_stat();
+    ctl_mb->hx.stacks = (t > 255u ? 255u : t) | (r > 255u ? 255u : r) << 8 | (i > 255u ? 255u : i) << 16 |
+                        (ctl_q_full > 255u ? 255u : ctl_q_full) << 24;
+}
+#endif
+
 void ctl_fail(u32 err)
 {
     volatile u32 *cfg = (volatile u32 *)(uintptr_t)(ctl_bp ? ctl_bp->icfg_base : 0u);
@@ -193,7 +205,7 @@ void ctl_fail(u32 err)
 #ifdef CTL_HOST
         /* attempt 47: DIAG keeps took/gave (INIT_MS, MS) in FAILED too; the heap use goes to hx.heap,
          * the failing caller is in RA (P33_SYSTEM_RESET, assert) */
-        ctl_mb->hx.heap = ctl_heap_stat();
+        d_health();
         d_live();
 #else
         ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();
@@ -330,11 +342,7 @@ static u32 ctl_poll(u32 unused)
 #endif
 #ifdef CTL_HOST
     if ((ctl_mb->polls & 1023u) == 0) {    /* health for DIAG: heap, the least free stack bytes / 16 */
-        u32 t = ctl_os_stack_free() >> 4, r = ctl_stack_free(__ctl_run_stack_lo, __ctl_run_stack_hi) >> 4,
-            i = ctl_stack_free(__ctl_isr_stack_lo, __ctl_isr_stack_hi) >> 4;
-        ctl_mb->hx.heap = ctl_heap_stat();
-        ctl_mb->hx.stacks = (t > 255u ? 255u : t) | (r > 255u ? 255u : r) << 8 | (i > 255u ? 255u : i) << 16 |
-                            (ctl_q_full > 255u ? 255u : ctl_q_full) << 24;
+        d_health();
     }
 #endif
     return 0;

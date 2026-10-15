@@ -187,17 +187,22 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(0);
         break;
     case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
-        uint32_t w[70], nw = 0, k;            /* 70 x 5 B fit ed_out */
+        /* attempt 48: all words on the stack; a reply has up to 70 (70 x 5 B fit ed_out). Argument:
+         * the first word (0 when none); tools/ble_autotest.py asks again from there until a reply is short. */
+        uint32_t w[110], nw = 0, k, off = na > 0u ? a[0] : 0u, end;
         const uint32_t *c = (const uint32_t *)&fm1_crash;
-        for (k = 0; k < sizeof fm1_crash / 4u; k++)
+        for (k = 0; k < sizeof fm1_crash / 4u && nw < 110u; k++)
             w[nw++] = c[k];
         w[nw++] = bootguard.failed;
         w[nw++] = bootguard.pending;
 #if X0X_BLE
         nw += ble_diag(w + nw, (uint32_t)(sizeof w / 4u) - nw);
 #endif
-        ed_b(nw);
-        for (k = 0; k < nw; k++) {
+        if (off > nw)
+            off = nw;
+        end = nw - off > 70u ? off + 70u : nw;
+        ed_b(end - off);
+        for (k = off; k < end; k++) {
             ed_b(w[k]);
             ed_b(w[k] >> 7);
             ed_b(w[k] >> 14);

@@ -39,7 +39,8 @@ GUARD = ["g_magic", "trying", "blocked", "why", "fails", "start_ms", "init_ms", 
          "seen_stage", "seen_ms", "seen_delays", "seen_ra", "code_bad", "code_sum"]
 LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
         "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now",
-        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave", "rx0", "rx1", "alive_ms", "alive_polls", "rails0", "rails1"]
+        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave", "rx0", "rx1", "alive_ms", "alive_polls", "rails0", "rails1",
+        "hx_state", "hx_int_mtu", "hx_links", "hx_pairs", "hx_heap", "hx_stacks", "hx_nv", "hx_rx", "hx_tx", "hx_tx_drops"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
 WHY = ["-", "TIMEOUT", "WRONG JOB", "NOT READY", "RESET", "NO TICK"]
 MB = ["OFF", "INIT", "READY", "FAILED"]
@@ -81,13 +82,19 @@ def _ask(cmd, args=(), timeout=3.0):
 
 
 def diag():
-    r = ask(ED_DIAG)
-    if not r:
-        return None
-    n, w = r[0], []
-    for k in range(n):
-        b = r[1 + 5 * k:6 + 5 * k]
-        w.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
+    w = []
+    while True:                                    # attempt 48: up to 70 words a reply, the rest from an offset
+        r = ask(ED_DIAG, [len(w)] if w else [])
+        if not r:
+            if not w:
+                return None
+            break
+        n = r[0]
+        for k in range(n):
+            b = r[1 + 5 * k:6 + 5 * k]
+            w.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
+        if n < 70 or len(w) > 127:
+            break
     head = CRASH + BOOT
     d = {k: v for k, v in zip(head, w)}
     rest = w[len(head):]
@@ -213,6 +220,8 @@ def summary(d, before):
                  f"parameter request {['not sent', 'sent'][d['rx1'] >> 18 & 1]}, {['no answer', 'accepted', 'rejected', '?'][d['rx1'] >> 19 & 3]}"),
         "alive": f"core 0 last Bluetooth tick at {d['alive_ms']} ms after boot, core 1 polls then {d['alive_polls']}, now {d['polls']}",
         "rails": (lambda a, b: f"before/after the stock supply setup: SYSVDD sel {(a >> 16) & 15} -> {(b >> 16) & 15}, VDC14 sel {(a >> 8) & 7} -> {(b >> 8) & 7}, VDDIOM sel {a & 7} -> {b & 7}, CON0 0x{(a >> 24) & 255:02X} -> 0x{(b >> 24) & 255:02X} (DCDC13 {'on' if (b >> 24) & 8 else 'off'}, LDO13 {'on' if (b >> 24) & 4 else 'off'}); setup read-back {'ok' if ((b >> 24) & 0x0C) == 0x08 and (b & 0x37) == 0x34 and ((b >> 8) & 7) == 7 and ((b >> 16) & 15) == 15 else 'NOT ok'} (raw 0x{a:08X} -> 0x{b:08X})")(d.get('rails0', 0), d.get('rails1', 0)),
+        "heap": (lambda x, t: f"peak {x & 0xFFFF} B, failed allocations {x >> 16 & 0xFF}, last failed size ~{(x >> 24) * 16} B; "
+                 f"stack free: tasks {(t & 0xFF) * 16} B, run {(t >> 8 & 0xFF) * 16} B, irq {(t >> 16 & 0xFF) * 16} B; queue full {t >> 24}")(d['hx_heap'], d['hx_stacks']),
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")
