@@ -209,8 +209,8 @@ static void apc_note(uint32_t note, uint32_t vel)
     apc_out((on ? 0x09u : 0x08u) | (on ? 0x90u : 0x80u) << 8 | (note & 0x7Fu) << 16 | (on ? vel : 0x7Fu) << 24);
 }
 #include "app/smk_clip_keys.h"
-static volatile uint8_t ck_start_req, ck_off_req, ck_redraw;   /* (set in interrupts; smk_ck_poll clears them) */
-void smk_ck_midi_stop(void) { ck_off_req = 1; }
+static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
+void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint32_t knob_bank_hold_start;
 static uint8_t knob_bank_toggled;
 static volatile uint8_t apc_led_velocity[SMK_APC40_CLIP_COUNT];
@@ -387,7 +387,7 @@ void smk_apc_host_lost(void)
 {
     uint32_t i;
     apc_host_on = 0u;
-    ck_off_req = 1;                                  /* clip keys: all notes off (smk_ck_poll) */
+    smk_ck_midi_stop();                              /* clip keys: all notes off (smk_ck_poll) */
     apc_play_feedback = apc_record_feedback = 0u;
     apc_cols = SMK_APC40_SOURCE_COLS;
     apc_rows = 2u;
@@ -414,11 +414,11 @@ void smk_apc_host_lost(void)
 #define SMK_CLIP_LCD_MIN_MS 64u
 /* Lowest level (0..255) of the brightest channel of a lit clip on the LCD. */
 #define SMK_CLIP_LCD_FLOOR 128u
-void smk_clip_lcd_force(void) { ck_redraw = 1; }
+static uint8_t was_on;   /* 0: the next smk_clip_lcd_draw draws at once */
+void smk_clip_lcd_force(void) { was_on = 0u; }
 uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
 {
     static uint32_t last_ms, last_sig, last_call;
-    static uint8_t was_on;
     uint32_t sig = 2166136261u, note;
     uint8_t pad, in_view[SMK_APC40_CLIP_COUNT];
     for (note = 0; note < SMK_APC40_CLIP_COUNT; note++) {
@@ -437,14 +437,13 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
     sig = (sig ^ ((uint32_t)apc_cols | (uint32_t)apc_rows << 8 | (uint32_t)apc_origin_col << 16 |
                   (uint32_t)apc_origin_row << 24)) * 16777619u;
     sig = (sig ^ apc_view_has_clips) * 16777619u;
-    if (fm1_ms - last_call > 200u || ck_redraw)
+    if (fm1_ms - last_call > 200u)
         was_on = 0u;                                /* new entry to clip mode: draw at once */
     last_call = fm1_ms;
     if (was_on && sig == last_sig && fm1_ms - last_ms < 1000u)
         return 0u;                                  /* nothing changed (1 s refresh anyway) */
     if (was_on && fm1_ms - last_ms < SMK_CLIP_LCD_MIN_MS)
         return 0u;                                  /* rate limit */
-    ck_redraw = 0;
     was_on = 1u;
     last_sig = sig;
     last_ms = fm1_ms;
@@ -810,13 +809,15 @@ static void smk_arrows(void)
 typedef struct {
     uint8_t on, focus, fl, vel;       /* on, focus: CK_M_* bits; fl: CK_F_* bits; vel: the last key velocity */
     uint8_t arp_note, ch, btn_prev, nk;   /* arp_note: note + 1 (0 = none); ch: the channel of all notes */
-    uint8_t tick, gate_left, ext_seen, rsv;   /* nk: keys in korder */
+    uint8_t tick, gate_left, ext_seen;
+    volatile uint8_t off_req;         /* MIDI Stop, USB reset: all notes off (set in interrupts) */   /* nk: keys in korder */
     uint16_t step, last_ms;
     uint32_t acc;                     /* the internal arp clock (600000 = one tick) */
     uint32_t keys[2], snd[2];         /* bit k: key k is down / key k has notes that sound */
     uint8_t korder[8];                /* the keys of the arp, in press order (more keys: not in the arp) */
 } ck_t;
 static ck_t ck SMK_BIG;
+void smk_ck_midi_stop(void) { ck.off_req = 1; }
 /* a base register for ck (short code: no full address for each field) */
 #include "fm1_opt.h"
 #define CK_BASE ck_t *cp = &ck; FM1_BASE(cp)
@@ -1065,8 +1066,8 @@ CK_FN void smk_ck_poll(void)
     uint32_t now = fm1_ms, k, on = clip_grid_mode, ble = plat_ble_state() == PLAT_BLE_CONNECTED ? CK_F_BLE : 0u;
     uint32_t dt = (uint16_t)(now - cp->last_ms);
     cp->last_ms = (uint16_t)now;
-    if (ck_off_req || (cp->fl & ~ble & CK_F_BLE)) {          /* MIDI Stop, USB reset, Bluetooth drop: all notes off */
-        ck_off_req = 0;
+    if (cp->off_req || (cp->fl & ~ble & CK_F_BLE)) {          /* MIDI Stop, USB reset, Bluetooth drop: all notes off */
+        cp->off_req = 0;
         ck_all_off();
     }
     cp->fl = (uint8_t)((cp->fl & ~CK_F_BLE) | ble);
@@ -1081,7 +1082,7 @@ CK_FN void smk_ck_poll(void)
     } else {
         if (!(cp->fl & CK_F_ACTIVE)) {
             cp->fl |= CK_F_ACTIVE;
-            ck_redraw = 1;
+            was_on = 0u;
         }
         if (cp->ch != sp->ck_ch - 1u) {                     /* a new CLIP KEYS CH: all notes off */
             ck_all_off();                                   /* (on the old channel) */
