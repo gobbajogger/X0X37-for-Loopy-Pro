@@ -41,12 +41,15 @@ installer and the storage) and replaces the instrument on top.
 ## Your own breaks
 
 X0X doesn't ship with any recorded breaks, only two loops played by its own 909. You can load
-your own into the FM-1's three sample slots, which hold about nine one-bar loops in total.
+your own into the sample slots. Loops go in at 44.1 kHz, about 3.7 seconds per slot (one
+one-bar loop at 120 BPM); the SMK-37 has two slots, the FM-1 three. Ask for 22.05 kHz to fit twice
+as much at lower quality.
 The [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/) does it from Chrome or
 Edge (drop the files, press Upload); from the command line:
 
 ```
 tools/upload_breaks.py --bars amen.wav think.wav ...   # take one bar of each and upload them
+tools/upload_breaks.py --rate 22050 --bars ...          # half the rate: twice the room, duller
 tools/upload_breaks.py --dry-run OUTDIR ...            # see what fits, without the FM-1
 tools/x0x_slots.py backup my.x0xslots                  # save every slot (read-only)
 tools/x0x_slots.py restore my.x0xslots                 # write a backup back (asks first)

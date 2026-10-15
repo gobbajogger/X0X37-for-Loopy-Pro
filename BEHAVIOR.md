@@ -129,12 +129,14 @@ BRK-13. The generator settings (COMPLEXITY, ANCHOR, ROLL, FILL, RETRIG, PHRASE, 
 
 BRK-20. Imported samples play only in BREAK mode. This is intended. [USER] [CODE app/engine.c:952-976]
 BRK-21. The LOOP list has the built-in loops first ("909 GR", "909 FL"), then the imported loops as BR1, BR2 and so on. [MANUAL §8] [CODE app/engine.c:859-882]
-BRK-22. The factory (built-in) breaks are 2 bars long. [USER] [CODE ../../tools/gen_builtin_break.c:14-15]
+BRK-22. The factory (built-in) breaks are 2 bars long, IMA ADPCM at 44.1 kHz, without a length cut: 2 x 220,500 samples, 220,500 B of flash. [USER] [CODE ../../tools/gen_builtin_break.c:14-15] [CODE ../../tools/gen_builtin_break.c:134]
 BRK-23. Do not halve the length of a factory break. [USER]
 BRK-24. An imported loop gets a length of 1, 2, 4 or 8 bars. The firmware selects the length that puts the loop tempo nearest to 120 BPM, inside 80-180 BPM. [CODE app/engine.c:821-833]
 BRK-25. If a pattern names an empty user slot, loop A plays the first built-in loop. [CODE app/engine.c:971-972]
-BRK-26. Target format for loops: IMA ADPCM at 44.1 kHz. [USER] Current state: built-in loops and uploaded loops are IMA ADPCM at 22.05 kHz. See OQ-07. [CODE ../../tools/gen_builtin_break.c:133-134] [CODE ../../web/x0x_breaks.js:9]
-BRK-27. The firmware reads the rate of each imported zone from the slot header. Thus it can play a 44.1 kHz zone. [CODE app/slots.c:10] [CODE app/plat_fm1.c:150]
+BRK-26. Loops are IMA ADPCM at 44.1 kHz. The built-in loops, tools/upload_breaks.py, tools/import_breaks.py and the break page all use 44.1 kHz by default. 22.05 kHz is an explicit opt-in only: `--rate 22050` in the tools, or the "22 kHz (more room)" box on the page. A loop that the page reads back from the device keeps its rate. (Was OQ-07. Resolved 2026-10-15.) [USER] [CODE ../../tools/gen_builtin_break.c:134] [CODE ../../tools/upload_breaks.py:87-90] [CODE ../../web/x0x_breaks.js:13] [CODE ../../web/x0x_breaks.html:77]
+BRK-27. The firmware reads the rate of each imported zone from the slot header. Thus it can play a 44.1 kHz zone. The bar guess (BRK-24) uses the zone rate. A host test checks both (tests/host/loop_bars_test.c, tests/scenarios/upload44.x0x). [CODE app/slots.c:10] [CODE app/plat_fm1.c:150]
+BRK-28. Trim silence (sampleio.trim_silence, trimSilence in web/x0x_breaks.js): remove the samples at or below -60 dBFS (0.001) at the two ends, keep 1 ms before the first louder sample, and apply a 5 ms linear fade at the end. A file that is all silence stays unchanged. The tool and the page give the same bytes. [CODE ../../tools/sampleio.py:202] [CODE ../../web/x0x_breaks.js:78]
+BRK-29. Trim is off by default for loops (upload_breaks.py `--trim`, the page's "Trim silence" box) because it changes the loop length and thus the bar guess. Trim is on by default for one-shots (fm1_sample_upload.py; `--no-trim` turns it off). [USER] [CODE ../../tools/upload_breaks.py:91] [CODE ../../tools/fm1_sample_upload.py:94] [CODE ../../web/x0x_breaks.html:75]
 
 ## 7. Patterns
 
@@ -278,7 +280,7 @@ FLS-03. Imported-sample flash must be preserved. A space saving must not take fl
 FLS-04. The store-owner check at first start clears only 0x9D000-0xAEFFF. It does not clear the sample slots. [CODE storage.c:62-100]
 FLS-05. A slot holds a header, up to 16 zones and IMA ADPCM data at offset 512. X0X plays zone 0 of each loop as a loop. [CODE app/slots.c:1-8]
 FLS-06. The UI keeps PLAT_NSLOTS = 3 on the SMK-37. Slot 3 is always empty there. The editor refuses an upload to slot 3. [CODE app/slots.c:17-18] [CODE app/editor.c:180-229]
-FLS-07. IMA ADPCM at 44.1 kHz is the preferred sample storage format. [USER]
+FLS-07. IMA ADPCM at 44.1 kHz is the sample storage format: the 909 cymbals (DRM-11), the built-in loops (BRK-22) and the uploaded loops (BRK-26). 22.05 kHz is an opt-in for uploads only. fm1_sample_upload.py one-shots stay at 22.05 kHz (FM-1 tool, not maintained). [USER]
 FLS-08. The SMK-37 store has 7 objects with A and B copies: settings, sound, two pattern objects, panel, song and motion. [CODE storage.c:50-60]
 FLS-09. The protected ranges are head, BTIF, USRTRIM, stock USR resources and key_mac. The flash map refuses them at compile time. The flash driver refuses them again. [SMK37] [CODE ../hal/fm1_flash_map.h:56-83]
 FLS-10. Slot backup: tools/x0x_slots.py backup and the break page's "Back up all slots" read every slot with SMP_INFO (15) and SMP_READ (16) only. They do not write to the device. The archive (.x0xslots) holds the slot count and size, and for each slot the name, zone count, sample counts, rates, data length, header CRC and an image CRC. A CRC-32 covers the whole file. The tool and the page write the same bytes. [USER] [CODE ../../tools/x0x_slots.py] [CODE ../../web/x0x_breaks.js]
@@ -294,7 +296,7 @@ LIM-04. Clip mode cannot show clips outside the Loopy APC 8x5 box. Change the Lo
 LIM-05. Old-page cells stay lit after a change to a page with fewer than 3 rows or 3 columns of clips. [APC 1.0-apc40]
 LIM-06. Loopy sends its MIDI clock to the port "X0X FM-1". The APC40 mkII port gets no clock. [APC 1.5-apc40]
 LIM-07. Nobody has verified the hardware LED colours and live clip launches end-to-end on the device. [APC "Verification performed"]
-LIM-08. User sample room on the SMK-37 is about 14.8 s at 22.05 kHz (2 slots). The FM-1 has about 21 s (3 slots). [MANUAL §8] [CODE app/slots.c:15-24] (Was OQ-04. Resolved 2026-10-15: MANUAL §8 now gives both values.)
+LIM-08. User sample room at 44.1 kHz is about 3.7 s per 80 KiB slot (81,408 B of data): one one-bar loop at 120 BPM. The SMK-37 has about 7.4 s (2 slots), the FM-1 about 11 s (3 slots). With the 22.05 kHz opt-in the room is double (14.8 s on the SMK-37). [MANUAL §8] [CODE app/slots.c:15-24] (Was OQ-04. Resolved 2026-10-15. Values changed 2026-10-15 for 44.1 kHz.)
 LIM-09. tools/build_smk_release.sh builds Pro and Elite packages only. It does not build MKE-P37. [CODE ../../tools/build_smk_release.sh:17-18]
 LIM-10. The firmware does not tell MIDI clock sources apart. All Clock, Start, Stop and Continue messages go into one input queue. If two sources send clock (for example Loopy and a DAW on the USB port, or USB and TRS on the FM-1), each tick counts. The sequencer then runs at about double tempo, and a Start or Stop from either source acts. On the SMK-37 the USB port has one cable, so the firmware cannot separate two USB sources. Send clock to the port "X0X FM-1" from one source only. [CODE app/engine.c:475-478] [CODE seq/sequencer.c:520] [CODE seq/sequencer.c:397-424] [CODE usb.c:754-757] [CODE midi_uart.c:39]
 LIM-11. While X0X follows an external clock, it sends no Clock, Start or Stop (CLOCK OUT is muted), so no clock loop occurs. A MIDI Start that arrives when no clock came in the last 0.5 s starts X0X on its internal clock. CLOCK OUT is on by default (SET-08). In clip mode, X0X does not echo a MIDI Start, Continue or Stop (seq midi_req). Until the first incoming tick it can still send internal clock ticks (0xF8) to the USB host. With clip mode off, X0X sends Start (0xFA) and clock ticks back to the USB host until the first incoming tick, as before (agent-rules 10). [CODE app/engine.c:469-472] [CODE seq/sequencer.c:378-379] [CODE seq/sequencer.c:392-393] [CODE seq/sequencer.c:470] [CODE seq/sequencer.c:446-455] [CODE seq/sequencer.c:511-512]
@@ -304,6 +306,6 @@ LIM-12. Only the SMK-37 build is maintained. The FM-1 build is not maintained. I
 
 These are disagreements between the code and a source document, or behaviour that needs a user decision. Do not report them as defects. Do not fix them without a user decision.
 
-OQ-07. Sample rate target: the user confirmed the target IMA ADPCM at 44.1 kHz [USER, confirmed 2026-10-15]. This stays open until the flash and tool work is done. Current state: built-in loops and the upload tools use 22.05 kHz. DESIGN also says 22.05 kHz. [USER] vs [CODE ../../tools/gen_builtin_break.c:133-134] [CODE ../../web/x0x_breaks.js:9] [DESIGN 2026-10-03-x0x-design.md]
+No open questions remain (2026-10-15).
 
-Resolved open questions (do not reuse these IDs): OQ-01 (see GEN-40), OQ-02 (see CLP-26 and CLP-27), OQ-03 (see CLP-28), OQ-04 (see LIM-08), OQ-05 (see CLP-56, LIM-10, LIM-11), OQ-06 (see GEN-44), OQ-08 (see MID-10), OQ-09 (see CLP-21), OQ-10 (see CLP-34).
+Resolved open questions (do not reuse these IDs): OQ-01 (see GEN-40), OQ-02 (see CLP-26 and CLP-27), OQ-03 (see CLP-28), OQ-04 (see LIM-08), OQ-05 (see CLP-56, LIM-10, LIM-11), OQ-06 (see GEN-44), OQ-07 (see BRK-22, BRK-26, FLS-07; the 22.05 kHz in DESIGN 2026-10-03-x0x-design.md is the old plan), OQ-08 (see MID-10), OQ-09 (see CLP-21), OQ-10 (see CLP-34).

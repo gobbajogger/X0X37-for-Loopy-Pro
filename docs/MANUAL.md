@@ -365,8 +365,10 @@ and sends are on the mixer's PARTS page (LFO, black key 5).
 
 Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
 Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-The FM-1 has three loop slots, room for about 21 seconds in all: around nine one-bar loops.
-The SMK-37 has two slots, room for about 14.8 seconds: around six one-bar loops.
+Loops are sent at full quality, 44.1 kHz. Each slot holds about 3.7 seconds: one one-bar loop at
+120 BPM. The SMK-37 has two slots, about 7.4 seconds in all; the FM-1 has three, about 11 seconds.
+Tick **22 kHz (more room)** to send new loops at half the rate: about twice as much fits, but the
+sound is duller. Tick **Trim silence** to cut the silence at the start and end of each file first.
 
 **Back up your loops.** On the same page, **Back up all slots** saves every slot to a `.x0xslots`
 file. It only reads, it doesn't change anything. **Restore a backup** writes such a file back; it
@@ -381,7 +383,8 @@ python3 tools/upload_breaks.py --bars amen.wav think.wav funky.wav ...
 ```
 
 `--bars` keeps one bar of each file; without it, each file is sent whole. This replaces all your
-loops. `--dry-run FOLDER` shows what would fit without the FM-1. If you have schwung-breakbeat next
+loops. Loops are sent at 44.1 kHz; `--rate 22050` sends them at 22.05 kHz to fit twice as many.
+`--trim` cuts the silence at both ends first. `--dry-run FOLDER` shows what would fit without the FM-1. If you have schwung-breakbeat next
 to X0X, `--bbgen` sends BB Gen's classic breaks. To build loops into the firmware itself, see
 BUILDING.md.
 
