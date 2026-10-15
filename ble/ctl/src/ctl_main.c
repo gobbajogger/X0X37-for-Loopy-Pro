@@ -172,8 +172,9 @@ static u32 ctl_init(u32 arg)
             break;                        /* every task waits: settled */
     }
     stage(XB_STG_SETTLED);
-    ctl_port_irq_enable_core();
-    ctl_port_irq_restore(0);              /* interrupts on: the app's idle loop keeps them on from now */
+    /* The interrupts stay off until the first poll: core 0 has left its wait loop then. (Tests 8
+     * and 9: the controller came to READY with its interrupts on, and core 0 left its RAM wait
+     * loop for a bad address before it saw the end of the job.) */
     ctl_mb->dbg[XB_DBG_INIT_MS] = ctl_ms() - t_init;
     if (ctl_mb->err != XB_E_NONE) {
         ctl_mb->state = XB_ST_FAILED;
@@ -191,6 +192,8 @@ static u32 ctl_poll(u32 unused)
     (void)unused;
     if (failed)
         return 0;
+    if (!ctl_mb->polls)                   /* the first poll: interrupts on (the app's idle loop did sti) */
+        ctl_port_irq_enable_core();
     ctl_mb->polls++;
     ctl_os_run_once();
     return 0;
