@@ -319,7 +319,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     const uint32_t *g = (const uint32_t *)&ble_guard;
     for (i = 0; i < sizeof ble_guard / 4u && n < max; i++)
         w[n++] = g[i];
-    if (n + 11u > max)
+    if (n + 17u > max)
         return n;
     w[n++] = ble_img | (uint32_t)ble_boot_on << 8 | (uint32_t)ble_up << 16 | (uint32_t)ble_dead << 24;
     w[n++] = ble_want | (uint32_t)ble_host_on << 8 | (uint32_t)ble_blocked << 16 | (uint32_t)fm1_c1_on << 24;
@@ -332,5 +332,13 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_up ? ble_r.h.state : 0xFFFFFFFFu;
     w[n++] = fm1_c1_trace;
     w[n++] = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* this boot's reset */
+    if (n + 6u > max)
+        return n;
+    w[n++] = ble_r.mb.h2c.head | ble_r.mb.h2c.tail << 16;   /* the HCI rings: written, read */
+    w[n++] = ble_r.mb.c2h.head | ble_r.mb.c2h.tail << 16;
+    w[n++] = ble_r.mb.c2h_drops;
+    w[n++] = ble_r.h.step | (uint32_t)ble_r.h.cmd_wait << 8 | (uint32_t)ble_r.h.credits << 16;
+    w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_INIT_MS] : 0;     /* frames the controller took */
+    w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_MS] : 0;          /* times it could not take one */
     return n;
 }

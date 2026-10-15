@@ -38,7 +38,8 @@ GUARD = ["g_magic", "trying", "blocked", "why", "fails", "start_ms", "init_ms", 
          "sink_n", "sink_at", "sink_val", "wait_end", "xosc_pre", "xosc_post", "wait_ms",
          "seen_stage", "seen_ms", "seen_delays", "seen_ra", "code_bad", "code_sum"]
 LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
-        "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now"]
+        "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now",
+        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_busy"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
 WHY = ["-", "TIMEOUT", "WRONG JOB", "NOT READY", "RESET", "NO TICK"]
 MB = ["OFF", "INIT", "READY", "FAILED"]
@@ -97,20 +98,21 @@ def wait_port(present, timeout):
     return False
 
 
-def settle(timeout=40.0):
+def settle(timeout=30.0):
     """DIAG after the restart(s): wait until the state is not STARTING and the port stays."""
-    t, last = time.time(), None
+    t, last, any_d = time.time(), None, None
     while time.time() - t < timeout:
         if not ports():
             time.sleep(0.3)
             continue
         d = diag()
+        any_d = d or any_d
         if d and STATE[d.get("plat_state", 0) % 8] != "STARTING":
             if last and last.get("reset_now") == d.get("reset_now") and time.time() - t > 6:
                 return d
             last = d
         time.sleep(1.0)
-    return last
+    return last or any_d                           # still STARTING after the timeout: that state
 
 
 def h(v):
@@ -130,6 +132,10 @@ def summary(d, before):
         "core0": f"last look {d['wait_ms']} ms; image then: stage {d['seen_stage']} at {d['seen_ms']} ms, "
                  f"delays {d['seen_delays']}, last delay caller {h(d['seen_ra'])}; RAM code "
                  + (f"CHANGED at {d['code_bad'] & 0xFFFFF} ms (sum {h(d['code_sum'])})" if d['code_bad'] else "unchanged"),
+        "hci": f"host state {d['h_state']} step {d['h_step'] & 0xFF} wait {d['h_step'] >> 8 & 0xFF} "
+               f"credits {d['h_step'] >> 16 & 0xFF}; h2c head/tail {d['h2c'] & 0xFFFF}/{d['h2c'] >> 16} "
+               f"c2h {d['c2h'] & 0xFFFF}/{d['c2h'] >> 16} drops {d['c2h_drops']}; controller took "
+               f"{d['ctl_took']}, busy {d['ctl_busy']}; polls {d['polls']}",
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")
@@ -183,7 +189,7 @@ def main():
         ok += up
         s["round"], s["seconds"] = rnd, round(time.time() - t0, 1)
         print(f"--- round {rnd} ({s['seconds']} s)")
-        for k in ("status", "hold", "guard", "start", "core0", "xosc", "reset", "crash"):
+        for k in ("status", "hold", "guard", "start", "core0", "hci", "xosc", "reset", "crash"):
             if k in s:
                 print(f"  {k:7} {s[k]}")
         if a.log:

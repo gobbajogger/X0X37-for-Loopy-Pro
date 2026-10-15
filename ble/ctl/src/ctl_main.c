@@ -81,11 +81,15 @@ void ctl_host_poll(void)
             xb_frame_get(r, &type, rx_pkt, sizeof rx_pkt);
             return;
         }
-        if (!h4->can_send_packet_now(type))
+        if (!h4->can_send_packet_now(type)) {
+            ctl_mb->dbg[XB_DBG_MS]++;     /* after READY: frames the controller could not take yet */
             return;
+        }
         k = xb_frame_get(r, &type, rx_pkt, sizeof rx_pkt);
-        if (k > 0)
+        if (k > 0) {
+            ctl_mb->dbg[XB_DBG_INIT_MS]++; /* after READY: frames given to the controller */
             h4->send_packet(type, rx_pkt, k);
+        }
     }
 }
 
@@ -180,6 +184,8 @@ static u32 ctl_init(u32 arg)
         return ctl_mb->err;
     }
     stage(XB_STG_READY);
+    ctl_mb->dbg[XB_DBG_MS] = 0;           /* from now on: HCI counters (ctl_host_poll) */
+    ctl_mb->dbg[XB_DBG_INIT_MS] = 0;
     ctl_mb->state = XB_ST_READY;
     XB_SYNC();
     return 0;
