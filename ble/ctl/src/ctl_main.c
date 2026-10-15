@@ -97,9 +97,10 @@ const xb_header_t ctl_image_header = {
 /* attempt 45 DIAG, after READY, in the two live words (DIAG "took" and "gave"):
  *   took: bits 0-7 frames from the app, 8-15 host events, 16-23 the last event code, 24-31 timer runs
  *   gave: bits 0-7 frames to the app, 8-11 / 12-15 posts / pend returns of the controller task,
- *         16-19 / 20-23 the same for the host task, 24-25 the tasks that wait, 28-29 the tasks that ran */
+ *         16-19 / 20-23 the same for the host task, 24-25 the tasks that wait, 26-27 task_create
+ *         failures (attempt 46), 28-29 the tasks that ran */
 static u8 d_took, d_gave;
-extern u8 ctl_d_post[2], ctl_d_pend[2], ctl_d_ran, ctl_d_timers, ctl_d_ev_n, ctl_d_ev_last;
+extern u8 ctl_d_tc_fail, ctl_d_post[2], ctl_d_pend[2], ctl_d_ran, ctl_d_timers, ctl_d_ev_n, ctl_d_ev_last;
 u32 ctl_os_d_waiting(void);
 __attribute__((noinline, section(".bt_stack_code.d45"))) static void d_live(void)
 {
@@ -107,7 +108,8 @@ __attribute__((noinline, section(".bt_stack_code.d45"))) static void d_live(void
                                   (u32)ctl_d_timers << 24;
     ctl_mb->dbg[XB_DBG_MS] = d_gave | (u32)ctl_d_post[0] << 8 | (u32)ctl_d_pend[0] << 12 |
                              (u32)ctl_d_post[1] << 16 | (u32)ctl_d_pend[1] << 20 |
-                             ctl_os_d_waiting() << 24 | (u32)ctl_d_ran << 28;
+                             ctl_os_d_waiting() << 24 | (u32)(ctl_d_tc_fail > 3u ? 3u : ctl_d_tc_fail) << 26 |
+                             (u32)ctl_d_ran << 28;
 }
 /* ---- image -> app: BLE-MIDI packets and the link state (host_abi.h) ---- */
 void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)

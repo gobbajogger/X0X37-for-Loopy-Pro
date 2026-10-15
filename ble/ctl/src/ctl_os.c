@@ -31,7 +31,7 @@ static struct ctl_task tasks[CTL_MAX_TASKS];
 static struct ctl_task *cur;           /* NULL = idle context */
 u32 ctl_q_full;                        /* task queue full (DIAG) */
 /* attempt 45 DIAG: per task (0 controller, 1 host) posts and pend returns (saturate at 15), first runs */
-u8 ctl_d_post[2], ctl_d_pend[2], ctl_d_ran;
+u8 ctl_d_post[2], ctl_d_pend[2], ctl_d_ran, ctl_d_tc_fail;   /* attempt 46: task_create failures */
 __attribute__((noinline, section(".bt_stack_code.d45"))) static void d_inc(u8 *c) { if (*c < 15u) (*c)++; }
 static struct ctl_ctx idle_ctx;
 
@@ -82,7 +82,7 @@ static void task_trampoline(void)
     ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
 }
 
-int task_create(void (*fn)(void *p), void *p, const char *name)
+__attribute__((section(".bt_stack_code.d46"))) int task_create(void (*fn)(void *p), void *p, const char *name)   /* attempt 46: piece 2 (piece 1 is full) */
 {
     for (int i = 0; i < CTL_MAX_TASKS; i++) {
         struct ctl_task *t = &tasks[i];
@@ -91,7 +91,7 @@ int task_create(void (*fn)(void *p), void *p, const char *name)
         u32 words = stack_words(name);
         ctl_mark(0x340u + (u32)i * 0x10u);   /* attempt 41: a task is created (0x340, 0x350) */
         t->stack = malloc(words * 4);
-        if (!t->stack) { ctl_mark(0x34Fu); return -1; }
+        if (!t->stack) { ctl_mark(0x34Fu); d_inc(&ctl_d_tc_fail); return -1; }
         ctl_mark_v(0x344u + (u32)i * 0x10u, (u32)(uintptr_t)t->stack);   /* malloc gave this */
         memset(t->stack, 0xA5, words * 4);
         ctl_mark(0x345u + (u32)i * 0x10u);
