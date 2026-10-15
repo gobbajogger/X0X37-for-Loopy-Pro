@@ -116,7 +116,7 @@ def settle(timeout=30.0):
 
 
 T5W = ["magic", "ms", "ticks", "tag", "dbg", "c0n", "c1n", "prpn", "prpid", "hits", "h_ms", "h_tag", "h_slot",
-       "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "hits_now"]
+       "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "icfg0_3", "icfg0_5", "hits_now"]
 TAG = ["begin", "after input", "before Bluetooth", "after Bluetooth", "end"]
 SLOT = ["r3", "r2", "r1", "r0", "psr", "rets", "reti", "word above"]
 
@@ -145,7 +145,9 @@ def t5w_text(t):
         s += (f"; first at {t['h_ms']} ms, found at {TAG[t['h_tag'] % 5]}, word {SLOT[t['h_slot'] % 8]} "
               f"at 0x{t['h_sp'] + 4 * t['h_slot']:08X}: 0x{t['h_old']:08X} -> 0x{t['h_new']:08X}, "
               f"DBG_MSG 0x{t['h_dbg']:08X}, core1 errors {t['h_c1n']}, DMA errors {t['h_prpn']} id 0x{t['h_prpid']:X}")
-    return s + f"; changes this boot {t['hits_now']}"
+    if "icfg0_3" in t:
+        s += f"; core 0 ICFG 24-31 0x{t['icfg0_3']:08X} 40-47 0x{t['icfg0_5']:08X}"
+    return s + f"; changes this boot {t.get('hits_now', 0)}"
 
 
 def h(v):

@@ -153,10 +153,26 @@ typedef struct {
     uint32_t magic, ms, ticks, tag;         /* the last tick: time, count, last checkpoint reached */
     uint32_t dbg, c0n, c1n, prpn, prpid;    /* DBG_MSG, write limit errors (core 0, core 1, DMA), DMA id */
     uint32_t hits, h_ms, h_tag, h_slot, h_old, h_new, h_sp, h_dbg, h_prpid, h_c1n, h_prpn;
+    uint32_t icfg0_3, icfg0_5;              /* core 0's ICFG words for IRQ 24-31 and 40-47 (Bluetooth: 29, 31, 40-45) */
 } fm1_t5w_t;
 uint32_t fm1_t5_sp;
 static fm1_t5w_t fm1_t5w __attribute__((section(".ble_ram")));
 static uint32_t fm1_t5_snap[8], fm1_t5_snap_sp;
+/* 1 (src/ble.c, after the Bluetooth start): write limit 4 closes the 8 frame words to every
+ * writer (core 0, core 1, DMA) while the C body runs. A write raises the CPU exception, and the
+ * crash record shows the writer (DBG_MSG bit 13 core 0, 11 core 1, 2 a DMA). */
+static uint8_t fm1_t5w_arm, fm1_t5w_armed;
+static void fm1_t5w_close(void)
+{
+    if (!fm1_t5w_armed)
+        return;
+    fm1__dbg_unlock();
+    FM1_C0_WR_LIMIT_EN &= 0xFFFFFFEFu;
+    FM1_C1_WR_LIMIT_EN &= 0xFFFFFFEFu;
+    FM1_PRP_WR_LIMIT_EN &= 0xFFFFFFEFu;
+    fm1__dbg_lock();
+    fm1_t5w_armed = 0;
+}
 static void fm1_t5w_begin(void)
 {
     const uint32_t *f = (const uint32_t *)(uintptr_t)fm1_t5_sp;
@@ -165,6 +181,16 @@ static void fm1_t5w_begin(void)
     for (i = 0; i < 8u; i++)
         fm1_t5_snap[i] = f[i];
     fm1_t5w.tag = 0;
+    if (fm1_t5w_arm) {
+        fm1__dbg_unlock();
+        FM1_WR_LIMIT_L(4) = fm1_t5_sp;
+        FM1_WR_LIMIT_H(4) = fm1_t5_sp + 31u;
+        FM1_C0_WR_LIMIT_EN |= 16u;
+        FM1_C1_WR_LIMIT_EN |= 16u;
+        FM1_PRP_WR_LIMIT_EN |= 16u;
+        fm1__dbg_lock();
+        fm1_t5w_armed = 1;
+    }
 }
 static void fm1_t5w_check(uint32_t tag, uint32_t ms)
 {
@@ -175,6 +201,7 @@ static void fm1_t5w_check(uint32_t tag, uint32_t ms)
         v = f[i];
         if (v == fm1_t5_snap[i])
             continue;
+        fm1_t5w_close();                    /* the repair below is a write too */
         if (!fm1_t5w.hits) {
             fm1_t5w.h_ms = ms;
             fm1_t5w.h_tag = tag;
@@ -193,6 +220,9 @@ static void fm1_t5w_check(uint32_t tag, uint32_t ms)
 }
 static void fm1_t5w_end(uint32_t ms)
 {
+    fm1_t5w_close();                        /* before the pops and the next entry's pushes */
+    fm1_t5w.icfg0_3 = FM1_ICFG(24);
+    fm1_t5w.icfg0_5 = FM1_ICFG(40);
     fm1_t5w.dbg = FM1_DBG_MSG;
     fm1_t5w.c0n = FM1_C0_WR_LIMIT_ERR_NUM;
     fm1_t5w.c1n = FM1_C1_WR_LIMIT_ERR_NUM;
