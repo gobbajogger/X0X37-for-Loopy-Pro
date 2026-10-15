@@ -40,7 +40,7 @@ The X0X manual still applies; the SMK-37's controls map onto the FM-1's like thi
 | Faders 1..4, bank B | BREAK level, reverb return, delay return, master FILTER (middle off, left low-pass, right high-pass) |
 | Pitch wheel | on a 303 (the part on screen): its TUNE, about +-1.5 semitones, back when let go; other parts: nothing |
 | Mod wheel | on a 303: opens its CUTOFF from the saved value up to the top; other parts: nothing |
-| KNOB BANK | nothing |
+| KNOB BANK | a short press: nothing; held for more than 1 s: toggles clip mode (APC40 mkII clip launcher for Loopy Pro, see [APC40_IMPLEMENTATION.md](APC40_IMPLEMENTATION.md)) |
 | OCTAVE- + OCTAVE+ held at power-on | HARDWARE CALIBRATION: teach the buttons and knobs K2..K8 again |
 
 A fader takes over only once it moves (also after a bank change). The faders set the same values as the knobs

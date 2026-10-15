@@ -365,7 +365,8 @@ and sends are on the mixer's PARTS page (LFO, black key 5).
 
 Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
 Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-There's room for about 21 seconds in all: around nine one-bar loops.
+The FM-1 has three loop slots, room for about 21 seconds in all: around nine one-bar loops.
+The SMK-37 has two slots, room for about 14.8 seconds: around six one-bar loops.
 
 <details><summary>From the command line</summary>
 

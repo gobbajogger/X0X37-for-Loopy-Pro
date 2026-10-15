@@ -596,7 +596,7 @@ static void smk_pads(void)
 static void smk_faders(void)
 {
     if (clip_grid_mode)
-        return;                         /* FADER BANK is APC DOWN while the clip launcher is active */
+        return;                         /* clip mode: the faders and FADER BANK do nothing */
     static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
                                            {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
     static uint8_t last[4] = {0xFF, 0xFF, 0xFF, 0xFF}, held;
@@ -786,7 +786,7 @@ static void smk_frame(void)
         /* A short KNOB BANK tap does nothing in clip mode. */
         knob_bank_hold_start = 0;
         knob_bank_toggled = 0;
-        /* OCT- / OCT+ move the local view up / down by one 8x2 view. The move stays
+        /* OCT- / OCT+ move the local view down / up by one 8x2 view. The move stays
          * in the latched clip footprint. plat_buttons hides these buttons from the
          * X0X UI in clip mode, so they have no other effect. */
         {
