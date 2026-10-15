@@ -146,6 +146,22 @@ static int hx_write(u16 con, u16 h, u16 mode, u16 off, u8 *buf, u16 size)
     return 0;
 }
 
+/* Attempt 50: start the link layer use (address, advertising). The SDK's apps do this on
+ * BT_STATUS_INIT_OK (bt_event_notify, a no-op here); this host build never emits a STATE event
+ * (disassembly: le_hci_emit_event only forwards controller events, and the controller answers
+ * only commands), so EV_STATE never came and nothing ever asked the controller for anything.
+ * ctl_poll calls this until it starts: once the host task ran btstack_task_init and waits in
+ * its queue (its user command buffer is set up then). */
+extern u8 ctl_d_ran;
+u32 ctl_os_d_waiting(void);
+__attribute__((noinline, section(".bt_stack_code.d50"))) void hx_start(void)
+{
+    if (hx_started || !(ctl_d_ran & 2u) || !(ctl_os_d_waiting() & 2u)) return;
+    hx_started = 1;
+    le_controller_set_random_mac((void *)ctl_bp->addr);           /* the app's random static address */
+    ble_user_cmd_prepare(BLE_CMD_SET_HCI_CFG, 2, HCI_CFG_OWN_ADDRESS_TYPE, 1);
+    if (hx_radio) hx_adv(1);
+}
 u8 ctl_d_ev_n, ctl_d_ev_last;          /* attempt 45 DIAG: host events seen, the last event code */
 static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
 {
@@ -155,12 +171,7 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
     if (type != HCI_EVENT_PACKET || size < 2) return;
     switch (p[0]) {
     case EV_STATE:
-        if (p[2] == 2 && !hx_started) {                            /* HCI_STATE_WORKING */
-            hx_started = 1;
-            le_controller_set_random_mac((void *)ctl_bp->addr);   /* the app's random static address */
-            ble_user_cmd_prepare(BLE_CMD_SET_HCI_CFG, 2, HCI_CFG_OWN_ADDRESS_TYPE, 1);
-            if (hx_radio) hx_adv(1);
-        }
+        if (p[2] == 2) hx_start();                                 /* HCI_STATE_WORKING (if it ever comes) */
         break;
     case EV_LE_META:
         if (p[2] == 0x01 && p[3] == 0 && size >= 16) {             /* connection complete, success */

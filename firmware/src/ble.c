@@ -181,7 +181,7 @@ static void ble_prepare(int on)
         return;
     }
     ble_boot_on = 1;
-    fm1_cpu1_ble_stacks(h->isr_stack_hi, h->ram_lo);
+    fm1_cpu1_ble_stacks(h->isr_stack_hi, h->ram_lo, (uint32_t)(uintptr_t)ble_heap2 + BLE_HEAP2 - 1u);
     fm1_guard_xip_hi = h->p2_size ? XB_FLASH2_XIP + XB_FLASH2_SIZE - 1u : XB_FLASH_XIP + XB_FLASH_SIZE - 1u;
     fm1_guard_ram_hi = h->ram_hi;
 }
@@ -481,7 +481,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
         return n;
     w[n++] = ble_h_link0();                                 /* attempt 34: interval, latency in use */
     w[n++] = ble_h_link1();                                 /* MIDI in drops, request state and result */
-    if (n + 2u > max)
+    if (n + 4u > max)
         return n;
     w[n++] = ble_alive[0];
     w[n++] = ble_alive[1];

@@ -119,8 +119,24 @@ const char *os_current_task_rom(void) { return os_current_task(); }
 /* Give the CPU back to the idle loop until 'ready' says the wait is over. */
 static u8 in_run_once;                 /* ctl_os_run_once is on the stack */
 int ctl_os_run_once(void);
-static void block_current(void)
+/* Attempt 51: a50's core 1 fault was at ctl_port_ctx_switch's return (PC = RETS 0x020874F6), a
+ * switch into a context whose saved frame was not valid. A wait inside an interrupt handler would
+ * save the interrupted context on the interrupt stack, which later interrupts overwrite. So a wait
+ * in an interrupt, or a switch into a frame outside its task's stack, now stops the image (FAILED,
+ * err TASK, the unit goes on) with the culprit in DIAG:
+ *   dbg[STAGE] 0x5110  a wait in an interrupt: RA = the waiting function's caller
+ *              0x512i  task i's saved stack pointer outside its stack: DELAYS = it, RA = its word
+ * Before each switch, dbg[STALL] = 0x51000000 | task << 20 | poll count (the last switch). */
+__attribute__((noinline, section(".bt_stack_code.d51"))) static void d_stop(u32 stage, u32 v, u32 ra)
 {
+    ctl_mb->dbg[XB_DBG_STAGE] = stage;
+    ctl_mb->dbg[XB_DBG_DELAYS] = v;
+    ctl_mb->dbg[XB_DBG_RA] = ra;
+    ctl_fail(XB_E_TASK);
+}
+static void block_current(u32 ra)
+{
+    if (ctl_port_in_irq()) d_stop(0x5110u, 0, ra);
     /* Attempts 43 and 44: the init is not a task. btstack_init waits there in os_time_dly, and
      * btctrler_task_ready waits there in os_sem_pend, until the controller task answers. So the
      * init runs the tasks while it waits. A timer callback (inside ctl_os_run_once) only spins. */
@@ -177,7 +193,7 @@ int os_taskq_pend(const char *fmt, int *argv, int argc)
             return OS_TASKQ;
         }
         ctl_port_irq_restore(f);
-        block_current();
+        block_current((u32)(uintptr_t)__builtin_return_address(0));
     }
 }
 
@@ -207,7 +223,7 @@ int os_sem_pend(void *sem, int timeout)   /* timeout in ticks (10 ms), 0 = forev
         ctl_port_irq_restore(f);
         if (timeout && (s32)(ctl_ms() - end) >= 0) return OS_TIMEOUT;
         if (cur && timeout) cur->wake_ms = end;
-        block_current();
+        block_current((u32)(uintptr_t)__builtin_return_address(0));
     }
 }
 int os_sem_set(void *sem, int count) { ((struct ctl_sem *)sem)->count = count; return OS_NO_ERR; }
@@ -223,7 +239,7 @@ void os_time_dly(int ticks)
     u32 end = ctl_ms() + (u32)ticks * (1000u / OS_TICKS_PER_SEC);
     while ((s32)(ctl_ms() - end) < 0) {
         if (cur) cur->wake_ms = end;
-        block_current();
+        block_current((u32)(uintptr_t)__builtin_return_address(0));
     }
 }
 
@@ -235,6 +251,17 @@ __attribute__((noinline, section(".bt_stack_code.d45"))) u32 ctl_os_d_waiting(vo
 {
     return (tasks[0].used && tasks[0].waiting ? 1u : 0u) | (tasks[1].used && tasks[1].waiting ? 2u : 0u);
 }
+__attribute__((noinline, section(".bt_stack_code.d51"))) static void d_check(struct ctl_task *t, int i)
+{
+    u32 *sp = t->ctx.sp, *lo = t->stack, *hi = lo + stack_words(t->name);
+    if (ctl_mb->state == XB_ST_READY)
+        ctl_mb->dbg[XB_DBG_STALL] = 0x51000000u | (u32)i << 20 | (ctl_mb->polls & 0xFFFFFu);
+    if (sp < lo || sp + 13 > hi) d_stop(0x5120u + (u32)i, (u32)(uintptr_t)sp, sp >= lo && sp < hi ? sp[0] : 0);
+}
+/* attempt 52 DIAG: the last 8 switches into a task, each {task << 28 | poll count, its saved sp};
+ * tools/ble_autotest.py reads it (and idle_ctx, tasks, cur) by address from ctl.elf */
+__attribute__((used, section(".ctl_ram2.sw"))) volatile u32 ctl_sw_ring[16];
+__attribute__((used)) volatile u32 ctl_sw_n;
 int ctl_os_run_once(void)
 {
     int ran = 0;
@@ -249,6 +276,10 @@ int ctl_os_run_once(void)
         if (t->waiting && t->wake_ms && (s32)(now - t->wake_ms) >= 0) t->waiting = 0;
         if (t->waiting) continue;
         t->wake_ms = 0;
+        d_check(t, i);
+        ctl_sw_ring[ctl_sw_n & 14u] = (u32)i << 28 | (ctl_mb->polls & 0xFFFFFFFu);
+        ctl_sw_ring[(ctl_sw_n & 14u) + 1u] = (u32)(uintptr_t)t->ctx.sp;
+        ctl_sw_n += 2u;
         cur = t;
         ctl_port_ctx_switch(&idle_ctx, &t->ctx);
         cur = NULL;

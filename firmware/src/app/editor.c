@@ -187,17 +187,22 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(0);
         break;
     case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
-        uint32_t w[70], nw = 0, k;            /* 70 x 5 B fit ed_out */
+        /* attempt 48: all words on the stack; a reply has up to 70 (70 x 5 B fit ed_out). Argument:
+         * the first word (0 when none); tools/ble_autotest.py asks again from there until a reply is short. */
+        uint32_t w[110], nw = 0, k, off = na > 0u ? a[0] : 0u, end;
         const uint32_t *c = (const uint32_t *)&fm1_crash;
-        for (k = 0; k < sizeof fm1_crash / 4u; k++)
+        for (k = 0; k < sizeof fm1_crash / 4u && nw < 110u; k++)
             w[nw++] = c[k];
         w[nw++] = bootguard.failed;
         w[nw++] = bootguard.pending;
 #if X0X_BLE
         nw += ble_diag(w + nw, (uint32_t)(sizeof w / 4u) - nw);
 #endif
-        ed_b(nw);
-        for (k = 0; k < nw; k++) {
+        if (off > nw)
+            off = nw;
+        end = nw - off > 70u ? off + 70u : nw;
+        ed_b(end - off);
+        for (k = off; k < end; k++) {
             ed_b(w[k]);
             ed_b(w[k] >> 7);
             ed_b(w[k] >> 14);
@@ -320,8 +325,37 @@ static void ed_handle(const uint8_t *f, uint32_t n)
 #if X0X_BLE
     case ED_BT_TEST: {
         uint32_t op = na > 0u ? a[0] : 0u;
-        if (op > 4u)
+        if (op > 6u)
             return;
+        if (op >= 5u) {     /* attempt 52, 5: core 1's full fault record (fm1_irq.h fm1_c1x) and its live
+                             * stack limit bank (EMU_CON, EMU_MSG, the 4 limit words); 6: peek RAM, args
+                             * address (5 x 7 bits) and words (up to 64), 0x01C00000..0x01C80000 only */
+            uint32_t k, v, ad = 0, nw = 0;
+            if (op == 6u) {
+                if (na < 7u)
+                    return;
+                for (k = 0; k < 5u; k++)
+                    ad |= (uint32_t)a[1 + k] << (7u * k);
+                nw = a[6] > 64u ? 64u : a[6];
+                ad &= ~3u;
+                if (ad < 0x01C00000u || ad + nw * 4u > 0x01C80000u)
+                    return;
+            } else
+                nw = sizeof fm1_c1x / 4u + 6u;
+            ed_b(op);
+            ed_b(nw);
+            for (k = 0; k < nw; k++) {
+                v = op == 6u ? fm1_peek32(ad + 4u * k)
+                    : k < sizeof fm1_c1x / 4u ? ((const uint32_t *)&fm1_c1x)[k]
+                    : fm1_c1_emu_word(k - sizeof fm1_c1x / 4u);
+                ed_b(v);
+                ed_b(v >> 7);
+                ed_b(v >> 14);
+                ed_b(v >> 21);
+                ed_b(v >> 28);
+            }
+            break;
+        }
         if (op >= 3u) {     /* 3: the timer 5 frame watch (fm1_guard.h), last boot's, then hits now;
                              * 4: core 1's records (fm1_cpu1.h): core 0 seen stopping, the RAM canary */
             const uint32_t *t = op == 3u ? (const uint32_t *)&fm1_t5w_prev : (const uint32_t *)&fm1_c0_dead;

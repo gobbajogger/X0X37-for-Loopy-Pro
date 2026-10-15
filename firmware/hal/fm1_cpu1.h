@@ -277,11 +277,16 @@ static void fm1_cpu1_hold(void)
 
 /* before fm1_cpu1_start: core 1's interrupt stack top and the low end of its stack limit window
  * (a Bluetooth controller's RAM) */
-static void fm1_cpu1_ble_stacks(uint32_t ssp_top, uint32_t lim_lo)
+/* Attempt 52: and the high end. The host task's stack (3 KiB) comes from heap2 in the app's pool,
+ * above core 1's own stacks: a window ending at _c1_sstack_top left it out, and core 1 faulted
+ * (EMU stack limit, exception vector 1) at the first resume of that task (a50, a51: the instruction
+ * after the 13-word frame pop). On core 0 the init runs with the stack limit paused, so it ran there. */
+static void fm1_cpu1_ble_stacks(uint32_t ssp_top, uint32_t lim_lo, uint32_t lim_hi)
 {
+    uint32_t own = (uint32_t)(uintptr_t)_c1_sstack_top - 1u;
     fm1_c1_ssp = ssp_top;
     fm1_c1_lim_lo = lim_lo;
-    fm1_c1_lim_hi = (uint32_t)(uintptr_t)_c1_sstack_top - 1u;
+    fm1_c1_lim_hi = lim_hi > own ? lim_hi : own;
 }
 
 /* 0 = core 1 runs and answered; else it is held again. The top of RAM must be writable

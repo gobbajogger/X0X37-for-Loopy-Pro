@@ -8,3 +8,4 @@ void hx_to_app(unsigned char type, const unsigned char *p, unsigned n);   /* ctl
 void hx_from_app(unsigned char type, const unsigned char *p, unsigned n); /* host_app.c: from h2c */
 void hx_init(void);
 int hx_can_send(unsigned n);              /* host_app.c: room for a notification of n bytes (or no link) */                       /* host_app.c: before btstack_init */
+void hx_start(void);                      /* host_app.c: ctl_poll, until the link layer use starts (attempt 50) */
