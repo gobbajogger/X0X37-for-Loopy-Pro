@@ -80,11 +80,56 @@ static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
     (void)ctx;
     return xb_frame_put(&ble_r.mb.h2c, t, p, n);
 }
+/* attempt 29: the APC40 mkII identity and introduction over Bluetooth (Loopy Pro on a BLE port), as
+ * usb.c does on USB. Other SysEx from Bluetooth is not taken (counted). */
+extern uint8_t smk_apc_usb_event(uint32_t pkt);
+extern void smk_apc_host_seen(void);
+static uint8_t ble_sx[16], ble_sx_n, ble_sx_over, ble_sx_reply, ble_sx_ch;
 static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
 {
-    (void)p; (void)n; (void)ctx;
-    if (end)
-        ble_r.sysex_drops++;                      /* SysEx from Bluetooth: not taken (counted) */
+    (void)ctx;
+    if (!end) {
+        while (n--) {
+            if (ble_sx_n < sizeof ble_sx) ble_sx[ble_sx_n++] = *p++;
+            else ble_sx_over = 1;
+        }
+        return;
+    }
+    if (end > 0 && !ble_sx_over && ble_sx_n == 4u && ble_sx[0] == 0x7Eu && ble_sx[2] == 0x06u &&
+        ble_sx[3] == 0x01u && (ble_sx[1] <= 0x0Fu || ble_sx[1] == 0x7Fu)) {
+        ble_sx_ch = ble_sx[1];                    /* Universal Device Inquiry */
+        ble_sx_reply = 1;
+        smk_apc_host_seen();
+    } else if (end > 0 && !ble_sx_over && ble_sx_n == 10u && ble_sx[0] == 0x47u && ble_sx[1] == 0x7Fu &&
+               ble_sx[2] == 0x29u && ble_sx[3] == 0x60u && ble_sx[4] == 0x00u && ble_sx[5] == 0x04u &&
+               (ble_sx[6] == 0x40u || ble_sx[6] == 0x41u || ble_sx[6] == 0x42u)) {
+        ble_sx_reply = 2;                         /* the APC40 mkII introduction */
+        smk_apc_host_seen();
+    } else if (end)
+        ble_r.sysex_drops++;
+    ble_sx_n = 0;
+    ble_sx_over = 0;
+}
+static void ble_sx_answer(bleh_t *h)
+{
+    uint8_t m[35];
+    uint32_t i, n;
+    if (!ble_sx_reply || !bleh_notifying(h))
+        return;
+    for (i = 0; i < sizeof m; i++) m[i] = 0;
+    if (ble_sx_reply == 1u) {                     /* the same reply as usb.c apc40_device_inquiry */
+        m[0] = 0xF0; m[1] = 0x7E; m[2] = ble_sx_ch; m[3] = 0x06; m[4] = 0x02;
+        m[5] = 0x47; m[6] = 0x29; m[7] = 0x00; m[8] = 0x19;
+        m[9] = 0x01; m[10] = 0x02; m[13] = 0x7F;
+        m[34] = 0xF7;
+        n = 35u;
+    } else {                                      /* usb.c apc40_introduction_reply */
+        m[0] = 0xF0; m[1] = 0x47; m[2] = 0x7F; m[3] = 0x29; m[4] = 0x61; m[5] = 0x00; m[6] = 0x09;
+        m[16] = 0xF7;
+        n = 17u;
+    }
+    if (bleh_sysex_send(h, m, n, (uint16_t)(fm1_ms & 0x1FFFu)) != -2)
+        ble_sx_reply = 0;                         /* sent (or refused): busy only waits */
 }
 
 /* power-on, before core 1 starts (plat_cpu2_set): the image check, and with BLUETOOTH ON core 1's
@@ -303,9 +348,12 @@ static void ble_service(void)
             break;                              /* the host's queue is full: next tick */
         ble_r.orr++;
     }
+    ble_sx_answer(h);
     bleh_poll(h);
     while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
         uint32_t pkt = ble_usb_of_msg(&m);
+        if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u) && smk_apc_usb_event(pkt))
+            continue;                             /* attempt 29: APC clip and transport feedback, as on USB */
         if (pkt) {
             midi_in_q[mi_w % MQ] = pkt;
             RING_PUBLISH();
