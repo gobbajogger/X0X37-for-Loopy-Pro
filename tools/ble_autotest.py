@@ -200,7 +200,7 @@ def summary(d, before):
                f"len {d['rx0'] >> 8 & 0xFF} bytes "
                + (d['rx0'] >> 16).to_bytes(2, 'little').hex(' ') + " " + d['rx1'].to_bytes(4, 'little').hex(' '),
         "alive": f"core 0 last Bluetooth tick at {d['alive_ms']} ms after boot, core 1 polls then {d['alive_polls']}, now {d['polls']}",
-        "rails": f"SYSVDD sel {(d.get('rails0', 0) >> 16) & 15} -> {(d.get('rails1', 0) >> 16) & 15}, VDC14 sel {(d.get('rails0', 0) >> 8) & 7}, VDDIOM sel {d.get('rails0', 0) & 15} (raw 0x{d.get('rails0', 0):06X} -> 0x{d.get('rails1', 0):06X})",
+        "rails": (lambda a, b: f"before/after the stock supply setup: SYSVDD sel {(a >> 16) & 15} -> {(b >> 16) & 15}, VDC14 sel {(a >> 8) & 7} -> {(b >> 8) & 7}, VDDIOM sel {a & 7} -> {b & 7}, CON0 0x{(a >> 24) & 255:02X} -> 0x{(b >> 24) & 255:02X} (DCDC13 {'on' if (b >> 24) & 8 else 'off'}, LDO13 {'on' if (b >> 24) & 4 else 'off'}); setup read-back {'ok' if ((b >> 24) & 0x0C) == 0x08 and (b & 0x37) == 0x34 and ((b >> 8) & 7) == 7 and ((b >> 16) & 15) == 15 else 'NOT ok'} (raw 0x{a:08X} -> 0x{b:08X})")(d.get('rails0', 0), d.get('rails1', 0)),
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")

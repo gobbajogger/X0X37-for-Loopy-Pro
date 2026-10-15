@@ -12,6 +12,7 @@
  * Without an image, or with BLUETOOTH OFF at power-on, nothing of this runs and core 1 starts as
  * before. Service: the TIMER5 interrupt, next to usb_poll (2 kHz, never inside the render). */
 #include "fm1_ble.h"
+#include "fm1_supply.h"
 #include "ble/ble_midi_host.c"
 #include "ble/ble_glue.h"
 
@@ -33,7 +34,8 @@ static uint32_t ble_rx_last[2];             /* the last frame from the controlle
 /* core 0's last Bluetooth tick (ms since boot) and core 1's poll count then. In .ble_ram (not
  * cleared): after a watchdog reset, DIAG shows when core 0 stopped and if core 1 still ran. */
 static uint32_t ble_alive[2] __attribute__((section(".ble_ram")));
-static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* test 25: before, after the raise */
+static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* attempt 27: before, after the stock supply setup
+                                                                      * (CON5 | CON6 << 8 | CON9 << 16 | CON0 << 24) */
 
 static void ble_record(void);
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
@@ -166,6 +168,13 @@ static void ble_start(void)
     if (top)
         fm1_guard_unlock_top();                 /* request_irq writes the vectors */
     fm1_wdt_feed();                             /* init takes about 0.6 s of the 8 s */
+    {   /* attempt 27: the stock supply setup (DCDC13, VDC14 1.60 V, SYSVDD 1.38 V) before the RF init */
+        uint32_t f = irq_save();
+        ble_rails[0] = fm1_rails_read() | (uint32_t)fm1_p33_read(0x00u) << 24;
+        (void)fm1_supply_stock();               /* its read-back: rails[1] (DIAG) */
+        ble_rails[1] = fm1_rails_read() | (uint32_t)fm1_p33_read(0x00u) << 24;
+        irq_restore(f);
+    }
     {
         uint32_t f = irq_save(), t0 = fm1_ticks();
         stk = fm1_guard_stack_pause();          /* the image's run stack */
@@ -202,7 +211,6 @@ static void ble_attach(void)
         return;
     }
     fm1_guard_watch_c0_stacks();               /* test 21: who changes core 0's interrupt stack */
-    ble_rails[0] = ble_rails[1] = fm1_rails_read();   /* the rails (test 25 raised SYSVDD: no change, removed) */
     fm1_t5w_arm = 1;                            /* test 23: the timer 5 frame closed to all writers */
     for (uint32_t *cw = (uint32_t *)(uintptr_t)FM1_CAN_LO; cw < (uint32_t *)(uintptr_t)FM1_CAN_HI; cw++)
         *cw = 0xFFFFFFFFu;                      /* test 26: the RAM canary, core 1 watches it */
