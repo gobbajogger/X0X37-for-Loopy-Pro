@@ -56,6 +56,8 @@ static void ble_prepare(int on)
     const xb_header_t *h = FM1_BLE_HDR;
     ble_img = (uint8_t)ble_img_check(FM1_BLE_IMG, XB_FLASH_SIZE, XB_FLASH_XIP);
     ble_want = (uint8_t)(on != 0);
+    if (ble_guard.magic == BLE_GUARD_MAGIC && ble_guard.trying && ble_r.mb.magic == XB_MBOX_MAGIC)
+        ble_record();                           /* the start that reset the unit: its mailbox (BLERAM) */
     if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
         if (ble_img == BLE_IMG_OK && on && ble_guard.blocked) {
             ble_blocked = 1;                    /* the last start failed: not now (STATUS FAILED) */
