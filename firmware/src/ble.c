@@ -357,17 +357,7 @@ static void ble_service(void)
         ble_r.orr++;
     }
     ble_sx_answer(h);
-    {   /* attempt 34: 5 s after notifications go on, ask once for 15-30 ms, latency 0, 6 s (iOS rules);
-         * the central may refuse or keep its values (cpu_result) */
-        static uint32_t on_ms;
-        static uint8_t was_on;
-        uint8_t on = (uint8_t)bleh_notifying(h);
-        if (on && !was_on)
-            on_ms = fm1_ms;
-        was_on = on;
-        if (on && !h->cpu_state && fm1_ms - on_ms >= 5000u)
-            (void)bleh_conn_update(h, 12u, 24u, 0u, 600u);
-    }
+    /* attempt 37: no parameter request (test 34's, accepted by the iPhone, came with a huge MIDI delay) */
     bleh_poll(h);
     while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
         uint32_t pkt = ble_usb_of_msg(&m);
