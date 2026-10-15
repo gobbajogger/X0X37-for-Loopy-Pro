@@ -44,14 +44,14 @@ static void ima_encode(const int16_t *x, int n, uint8_t *out)
     int pred = 0, idx = 0;
     memset(out, 0, (size_t)(n + 1) / 2);
     for (int i = 0; i < n; i++) {
-        int step = BRK_IMA_STEP[idx], diff = x[i] - pred, code = 0, vd = step >> 3;
+        int step = IMA_STEP_T[idx], diff = x[i] - pred, code = 0, vd = step >> 3;
         if (diff < 0) { code = 8; diff = -diff; }
         if (diff >= step) { code |= 4; diff -= step; vd += step; }
         if (diff >= step >> 1) { code |= 2; diff -= step >> 1; vd += step >> 1; }
         if (diff >= step >> 2) { code |= 1; vd += step >> 2; }
         pred = (code & 8) ? pred - vd : pred + vd;
         pred = pred > 32767 ? 32767 : pred < -32768 ? -32768 : pred;
-        idx += BRK_IMA_IDX[code & 7];
+        idx += IMA_IDX_T[code & 7];
         idx = idx < 0 ? 0 : idx > 88 ? 88 : idx;
         out[i >> 1] |= (uint8_t)(code << ((i & 1) * 4));
     }
