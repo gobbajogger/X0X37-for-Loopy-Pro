@@ -319,10 +319,12 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (op == 3u) {                               /* the timer 5 frame watch (fm1_guard.h): last boot's, then hits now */
             const uint32_t *t = (const uint32_t *)&fm1_t5w_prev;
             uint32_t k;
+            const uint32_t *c = (const uint32_t *)&fm1_c0_dead;
+            const uint32_t nt = sizeof fm1_t5w_prev / 4u, nc = sizeof fm1_c0_dead / 4u;
             ed_b(op);
-            ed_b(sizeof fm1_t5w_prev / 4u + 1u);
-            for (k = 0; k <= sizeof fm1_t5w_prev / 4u; k++) {
-                uint32_t v = k < sizeof fm1_t5w_prev / 4u ? t[k] : fm1_t5w.hits;
+            ed_b(nt + 1u + nc);
+            for (k = 0; k < nt + 1u + nc; k++) {
+                uint32_t v = k < nt ? t[k] : k == nt ? fm1_t5w.hits : c[k - nt - 1u];
                 ed_b(v);
                 ed_b(v >> 7);
                 ed_b(v >> 14);

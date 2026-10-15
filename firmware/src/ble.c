@@ -202,6 +202,10 @@ static void ble_attach(void)
     }
     fm1_guard_watch_c0_stacks();               /* test 21: who changes core 0's interrupt stack */
     fm1_t5w_arm = 1;                            /* test 23: the timer 5 frame closed to all writers */
+    fm1_c0_dead.magic = 0;                      /* test 24: core 1 watches core 0's clock */
+    fm1_c0_dead.n = 0;
+    fm1_ble_sync();
+    fm1_c1_c0_clock = &fm1_ms;
     fm1_c1_mb.poll = (void (*)(void))(uintptr_t)h->poll;
     fm1_ble_sync();
     ble_ok_at = fm1_ms;

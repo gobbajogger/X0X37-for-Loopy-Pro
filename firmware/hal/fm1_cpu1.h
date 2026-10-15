@@ -105,6 +105,17 @@ uint32_t fm1_c1_ssp = (uint32_t)(uintptr_t)_c1_sstack_top;
 static uint32_t fm1_c1_lim_lo, fm1_c1_lim_hi;
 static uint32_t fm1_c1_park_seq;                /* core 0: the last park request's number */
 
+/* Core 0 seen from core 1 (the Bluetooth start, test 24). With a controller, core 1 watches core 0's
+ * ms counter (fm1_c1_c0_clock, set by src/ble.c). When it has not moved for 100 ms, core 1 copies
+ * core 0's ETM (its last 4 branches), DBG_MSG and EMU_MSG, 4 times 10 ms apart, into fm1_c0_dead
+ * (.ble_ram: a watchdog reset keeps it). Then it stops looking. */
+#define FM1_C0_DEAD_MAGIC 0xC0DEAD01u
+typedef struct {
+    uint32_t magic, n, t4_ms, c0_ms, dbg, emu;  /* n: samples taken */
+    uint32_t etm[4][4];                         /* 4 samples of core 0's ETM_PC0..3 */
+} fm1_c0_dead_t;
+static fm1_c0_dead_t fm1_c0_dead __attribute__((section(".ble_ram")));
+static const volatile uint32_t *volatile fm1_c1_c0_clock;
 void fm1_c1_main(void);
 void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
 {
@@ -115,6 +126,7 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
     uint32_t lo = fm1_c1_lim_lo ? fm1_c1_lim_lo : (uint32_t)(uintptr_t)_c1_ustack + 256u;
     uint32_t hi = fm1_c1_lim_hi ? fm1_c1_lim_hi : (uint32_t)(uintptr_t)_c1_sstack_top - 1u;
     uint32_t done, last_bad = 0xFFFFFFFFu, parked = 0;
+    uint32_t c0_last = 0, c0_t = 0, c0_next = 0;
     *(volatile uint32_t *)0x1EEF2D8u = hi;
     *(volatile uint32_t *)0x1EEF2DCu = lo;
     *(volatile uint32_t *)0x1EEF2E0u = hi;
@@ -156,6 +168,29 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
             dt = FM1_C1_T4 - t0;
             if (dt > fm1_c1_mb.poll_max)
                 fm1_c1_mb.poll_max = dt;
+            if (fm1_c1_c0_clock && fm1_c0_dead.n < 4u) {   /* core 0 alive? (inline: no calls) */
+                uint32_t m = *fm1_c1_c0_clock, t = FM1_C1_T4;
+                if (m != c0_last || !c0_t) {
+                    c0_last = m;
+                    c0_t = t;
+                } else if (t - c0_t > 2400000u && (int32_t)(t - c0_next) >= 0) {
+                    uint32_t k = fm1_c0_dead.n;
+                    if (!k) {
+                        fm1_c0_dead.t4_ms = t / 24000u;
+                        fm1_c0_dead.c0_ms = m;
+                        fm1_c0_dead.dbg = *(volatile uint32_t *)0x1EEE244u;
+                        fm1_c0_dead.emu = *(volatile uint32_t *)0x1EEF0D4u;
+                        fm1_c0_dead.magic = FM1_C0_DEAD_MAGIC;
+                    }
+                    fm1_c0_dead.etm[k][0] = *(volatile uint32_t *)0x1EEF1C4u;
+                    fm1_c0_dead.etm[k][1] = *(volatile uint32_t *)0x1EEF1C8u;
+                    fm1_c0_dead.etm[k][2] = *(volatile uint32_t *)0x1EEF1CCu;
+                    fm1_c0_dead.etm[k][3] = *(volatile uint32_t *)0x1EEF1D0u;
+                    fm1_c0_dead.n = k + 1u;
+                    c0_next = t + 240000u;
+                    FM1_C1_SYNC();
+                }
+            }
             continue;
         }
         if (j == done + 1u) {

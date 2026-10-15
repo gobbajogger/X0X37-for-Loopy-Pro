@@ -116,7 +116,8 @@ def settle(timeout=30.0):
 
 
 T5W = ["magic", "ms", "ticks", "tag", "dbg", "c0n", "c1n", "prpn", "prpid", "hits", "h_ms", "h_tag", "h_slot",
-       "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "icfg0_3", "icfg0_5", "hits_now"]
+       "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "icfg0_3", "icfg0_5", "hits_now",
+       "d_magic", "d_n", "d_t4_ms", "d_c0_ms", "d_dbg", "d_emu"] + [f"d_etm{i}_{j}" for i in range(4) for j in range(4)]
 TAG = ["begin", "after input", "before Bluetooth", "after Bluetooth", "end"]
 SLOT = ["r3", "r2", "r1", "r0", "psr", "rets", "reti", "word above"]
 
@@ -147,7 +148,15 @@ def t5w_text(t):
               f"DBG_MSG 0x{t['h_dbg']:08X}, core1 errors {t['h_c1n']}, DMA errors {t['h_prpn']} id 0x{t['h_prpid']:X}")
     if "icfg0_3" in t:
         s += f"; core 0 ICFG 24-31 0x{t['icfg0_3']:08X} 40-47 0x{t['icfg0_5']:08X}"
-    return s + f"; changes this boot {t.get('hits_now', 0)}"
+    s += f"; changes this boot {t.get('hits_now', 0)}"
+    if t.get("d_magic") == 0xC0DEAD01:
+        s += (f"\n          core 1 saw core 0 stop: clock stuck at {t['d_c0_ms']} ms (TIMER4 {t['d_t4_ms']} ms), "
+              f"DBG_MSG 0x{t['d_dbg']:08X} EMU_MSG 0x{t['d_emu']:08X}; core 0 ETM:")
+        for i in range(min(t["d_n"], 4)):
+            s += " [" + " ".join(f"{t[f'd_etm{i}_{j}']:08X}" for j in range(4)) + "]"
+    elif "d_magic" in t:
+        s += "; core 1 did not see core 0 stop"
+    return s
 
 
 def h(v):
