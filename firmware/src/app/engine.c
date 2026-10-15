@@ -443,12 +443,30 @@ static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_m
 
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
+#if BOARD_SMK37
+#include "app/smk_apc40.h"
+void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
+void smk_apc_transport_led_set(uint8_t note, uint8_t velocity);
+uint8_t smk_clip_mode_on(void);
+void smk_apc_clock_tick(void);
+void smk_apc_clock_start(void);
+void smk_apc_clock_position(uint32_t sixteenths);
+#endif
 
 static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
     int k, v;
+#if BOARD_SMK37
+    /* Count MIDI Clock for the clip-mode PLAY blink. The sequencer path below is unchanged. */
+    if (st == 0xF8)
+        smk_apc_clock_tick();
+    else if (st == 0xFA)
+        smk_apc_clock_start();
+    else if (st == 0xF2)
+        smk_apc_clock_position((uint32_t)d1 | (uint32_t)d2 << 7);   /* Song Position: 6 ticks per unit */
+#endif
     switch (st) {
     case 0xF8: seq_ext_clock(&seq); return;
     case 0xFA: seq_start(&seq); return;
@@ -456,6 +474,24 @@ static void midi_in(uint32_t pkt)
     case 0xFC: seq_stop(&seq); return;
     default: break;
     }
+#if BOARD_SMK37
+    /* The USB interrupt stores APC feedback at all times. Keep these notes from the
+     * sound engine only while clip mode is on. When clip mode is off, the original
+     * MIDI input path stays the same (agent rules, 10). */
+    if (ty == 0x90 || ty == 0x80) {
+        uint8_t vel = (ty == 0x80) ? 0u : d2;
+        if (d1 < SMK_APC40_CLIP_COUNT) {
+            /* The USB interrupt (smk_apc_usb_event) already stored this clip feedback.
+             * Do not store it again: a second store breaks the flash detection. */
+            if (smk_clip_mode_on())
+                return;
+        } else if (smk_apc40_transport_feedback_note(d1)) {
+            smk_apc_transport_led_set(d1, vel);
+            if (smk_clip_mode_on())
+                return;
+        }
+    }
+#endif
     if (ty == 0x90 && d2 == 0)
         ty = 0x80;
     for (k = 0; k < NKIT; k++)                          /* each part on its own channel (GLO): the drum */

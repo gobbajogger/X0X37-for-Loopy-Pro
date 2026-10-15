@@ -7,9 +7,19 @@ uint32_t plat_ms(void) { return fm1_ms; }
 uint32_t plat_buttons(void)
 {
     uint32_t raw = fm1_in.buttons, out = 0, i;
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    uint8_t clip_mode = smk_clip_mode_on();
+#endif
     for (i = 0; i < NB; i++)
-        if (raw & (1u << panel.btn[i]))
+        if (raw & (1u << panel.btn[i])) {
+#if BOARD_SMK37
+            /* APC navigation controls must not also trigger X0X page/octave actions. */
+            if (clip_mode && panel.btn[i] <= FM1_BTN_OCT_UP)
+                continue;
+#endif
             out |= 1u << i;
+        }
     return out;
 }
 

@@ -168,15 +168,416 @@ void fm1_timer5_irq(void)
 extern void isr_timer5(void);
 
 #if BOARD_SMK37
+#include "app/smk_apc40.h"
 /* ------------------------------------------------------------ SMK-37 Pro --- */
 /* What the SMK-37 Pro has beyond the FM-1's panel (smk_input.h), after the UI (ui.c) in this unity build.
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
  * bright, dim an eighth, else dark; sent between LCD transfers (lcd.c padled_flush). */
+static volatile uint8_t clip_grid_mode;   /* APC40 mkII compatibility; long KNOB BANK toggles */
+static uint32_t knob_bank_hold_start;
+static uint8_t knob_bank_toggled;
+static volatile uint8_t apc_led_velocity[SMK_APC40_CLIP_COUNT];
+static volatile uint8_t apc_cell_flags[SMK_APC40_CLIP_COUNT];   /* off pending, queued */
+static volatile uint8_t apc_led_channel[SMK_APC40_CLIP_COUNT];
+static volatile uint8_t apc_cell_tick[SMK_APC40_CLIP_COUNT];    /* 16 ms ticks */
+static volatile uint8_t apc_play_feedback, apc_record_feedback;
+static volatile uint32_t apc_clock_count, apc_clock_last_ms, apc_clock_period_ms;
+static volatile uint8_t apc_clock_seen;
+static uint8_t apc_cols = SMK_APC40_SOURCE_COLS;
+static uint8_t apc_rows = 2u;
+static uint8_t apc_origin_col, apc_origin_row;
+static uint8_t apc_view_has_clips;
+static volatile uint8_t apc_layout_locked, apc_layout_pending;
+static volatile uint32_t apc_layout_deadline;
+static uint8_t apc_view;   /* local 8x2 view of the latched footprint */
+static uint64_t apc_burst_mask;   /* cells touched by the current feedback burst */
+static uint8_t apc_burst_count;
+static volatile uint32_t apc_burst_last_ms;
+/* Close the current feedback burst. A page snapshot clears stale cells of the old
+ * Loopy page and makes the layout latch again from the new page only. */
+static void smk_apc_burst_close(void)
+{
+    if (!apc_burst_count)
+        return;
+    if (smk_apc40_burst_finish(apc_led_velocity, apc_led_channel, &apc_burst_mask,
+                               &apc_burst_count)) {
+        apc_layout_locked = 0u;
+        apc_layout_pending = 1u;
+        apc_layout_deadline = fm1_ms;
+    }
+}
+#define SMK_APC40_LAYOUT_SETTLE_MS 250u
+/* Lowest pad level for the brightest channel of a lit clip colour (0..255 scale). */
+#define SMK_APC40_PAD_FLOOR 48u
+static const uint32_t APC40_RGB[128] = {
+    0x000000,0x1E1E1E,0x7F7F7F,0xFFFFFF,0xFF4C4C,0xFF0000,0x590000,0x190000,
+    0xFFBD6C,0xFF5400,0x591D00,0x271B00,0xFFFF4C,0xFFFF00,0x595900,0x191900,
+    0x88FF4C,0x54FF00,0x1D5900,0x142B00,0x4CFF4C,0x00FF00,0x005900,0x001900,
+    0x4CFF5E,0x00FF19,0x00590D,0x001902,0x4CFF88,0x00FF55,0x00591D,0x001F12,
+    0x4CFFB7,0x00FF99,0x005935,0x001912,0x4CC3FF,0x00A9FF,0x004152,0x001019,
+    0x4C88FF,0x0055FF,0x001D59,0x000819,0x4C4CFF,0x0000FF,0x000059,0x000019,
+    0x874CFF,0x5400FF,0x190064,0x0F0030,0xFF4CFF,0xFF00FF,0x590059,0x190019,
+    0xFF4C87,0xFF0054,0x59001D,0x220013,0xFF1500,0x993500,0x795100,0x436400,
+    0x033900,0x005735,0x00547F,0x0000FF,0x00454F,0x2500CC,0x7F7F7F,0x202020,
+    0xFF0000,0xBDFF2D,0xAFED06,0x64FF09,0x108B00,0x00FF87,0x00A9FF,0x002AFF,
+    0x3F00FF,0x7A00FF,0xB21A7D,0x402100,0xFF4A00,0x88E106,0x72FF15,0x00FF00,
+    0x3BFF26,0x59FF71,0x38FFCC,0x5B8AFF,0x3151C6,0x877FE9,0xD31DFF,0xFF005D,
+    0xFF7F00,0xB9B000,0x90FF00,0x835D07,0x392B00,0x144C10,0x0D5038,0x15152A,
+    0x16205A,0x693C1C,0xA8000A,0xDE513D,0xD86A1C,0xFFE126,0x9EE12F,0x67B50F,
+    0x1E1E30,0xDCFF6B,0x80FFBD,0x9A99FF,0x8E66FF,0x404040,0x757575,0xE0FFFF,
+    0xA00000,0x350000,0x1AD000,0x074200,0xB9B000,0x3F3100,0xB35F00,0x4B1502
+};
+void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity)
+{
+    if (note >= SMK_APC40_CLIP_COUNT)
+        return;
+    if (apc_burst_count && fm1_ms - apc_burst_last_ms > SMK_APC40_BURST_GAP_MS)
+        smk_apc_burst_close();
+    apc_burst_last_ms = fm1_ms;
+    smk_apc40_burst_touch(&apc_burst_mask, &apc_burst_count, note);
+    if (smk_apc40_cell_event(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick,
+                             note, (uint8_t)(type & 0x0Fu), velocity, (uint8_t)(fm1_ms >> 4)) &&
+        !apc_layout_locked && !apc_layout_pending) {
+        /* Let the initial multi-cell feedback burst settle before we infer
+         * dimensions. Cue-state updates cannot resize a latched viewport. */
+        apc_layout_pending = 1u;
+        apc_layout_deadline = fm1_ms + SMK_APC40_LAYOUT_SETTLE_MS;
+    }
+}
+/* Called from the USB receive interrupt for each MIDI event. APC clip and transport
+ * feedback is applied here, before the 64-event input queue. A Loopy refresh is
+ * about 240 events in one burst; queue overflow dropped some of them, and old
+ * colors stayed on the pads. Return 1 when the event must not go to the queue. */
+void smk_apc_transport_led_set(uint8_t note, uint8_t velocity);
+uint8_t smk_apc_usb_event(uint32_t pkt)
+{
+    uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)((pkt >> 16) & 0x7Fu);
+    uint8_t d2 = (uint8_t)((pkt >> 24) & 0x7Fu), ty = st & 0xF0u;
+    /* Always store APC feedback. Keep it from the sound engine only while clip mode is on.
+     * When clip mode is off, the original MIDI input path stays the same (agent rules, 10). */
+    uint8_t owned = clip_grid_mode;
+    if (ty != 0x90u && ty != 0x80u)
+        return 0u;
+    if (ty == 0x80u)
+        d2 = 0u;
+    if (d1 < SMK_APC40_CLIP_COUNT) {
+        smk_apc_led_set(d1, (uint8_t)(st & 0x0Fu), d2);
+        return owned;
+    }
+    if (smk_apc40_transport_feedback_note(d1)) {
+        smk_apc_transport_led_set(d1, d2);
+        return owned;
+    }
+    return 0u;
+}
+/* MIDI Start: count clock pulses from the downbeat. */
+void smk_apc_clock_start(void)
+{
+    apc_clock_count = 0u;
+}
+/* Called for each incoming MIDI Clock pulse (24 pulses per quarter note). */
+void smk_apc_clock_position(uint32_t sixteenths)
+{
+    apc_clock_count = sixteenths * 6u;   /* the blink phase follows the song position */
+}
+void smk_apc_clock_tick(void)
+{
+    uint32_t now = fm1_ms;
+    if (apc_clock_seen) {
+        uint32_t interval = now - apc_clock_last_ms;
+        if (interval >= 4u && interval <= 250u)
+            apc_clock_period_ms = apc_clock_period_ms
+                                      ? (apc_clock_period_ms * 3u + interval) / 4u
+                                      : interval;
+        else if (interval > 250u)
+            apc_clock_period_ms = 0u;
+    }
+    apc_clock_last_ms = now;
+    apc_clock_count++;
+    apc_clock_seen = 1u;
+}
+static uint8_t smk_apc_led_brightness(uint8_t channel, uint8_t queued)
+{
+    uint32_t now = fm1_ms, period_ms = apc_clock_period_ms;
+    uint8_t clock_mode = (uint8_t)(queued || smk_apc40_is_queued(channel));
+    uint8_t phase;
+    if (!clock_mode)
+        return 255u;
+    if (!apc_clock_seen || !period_ms || now - apc_clock_last_ms > 500u)
+        return (now / 250u) & 1u ? 0u : 255u;   /* no clock: 250 ms on, 250 ms off (120 BPM beat) */
+    /* One cycle per beat (24 ticks), phase-locked to the clock count. MIDI Start
+     * resets the count, so the lit half starts on the beat. */
+    phase = smk_apc40_beat_phase(apc_clock_count);
+    return phase < 128u ? 255u : 0u;   /* half a beat on, half a beat off */
+}
+void smk_apc_transport_led_set(uint8_t note, uint8_t velocity)
+{
+    if (note == SMK_APC40_PLAY_NOTE)
+        apc_play_feedback = smk_apc40_transport_feedback_on(velocity);
+    else if (note == SMK_APC40_RECORD_NOTE)
+        apc_record_feedback = smk_apc40_transport_feedback_on(velocity);
+}
+uint8_t smk_apc_transport_led_state(uint8_t note)
+{
+    if (note == SMK_APC40_PLAY_NOTE) {
+        /* Clock is live when a tick came in the last 500 ms. MIDI Start resets the
+         * count (smk_apc_clock_start), so the blink follows the Loopy beat. */
+        uint8_t live = (uint8_t)(apc_clock_seen && fm1_ms - apc_clock_last_ms <= 500u);
+        return smk_apc40_play_led(apc_play_feedback, live, apc_clock_count);
+    }
+    if (note == SMK_APC40_RECORD_NOTE)
+        return apc_record_feedback;
+    return 0u;
+}
+uint8_t smk_clip_mode_on(void)
+{
+    return clip_grid_mode;
+}
+/* usb.c calls this when the host sends the APC40 introduction. No state is necessary:
+ * APC feedback is stored at all times. */
+void smk_apc_host_seen(void)
+{
+}
+void smk_apc_host_lost(void)
+{
+    uint32_t i;
+    apc_play_feedback = apc_record_feedback = 0u;
+    apc_cols = SMK_APC40_SOURCE_COLS;
+    apc_rows = 2u;
+    apc_origin_col = apc_origin_row = 0u;
+    apc_view_has_clips = 0u;
+    apc_layout_locked = apc_layout_pending = 0u;
+    apc_view = 0u;
+    apc_burst_mask = 0u;
+    apc_burst_count = 0u;
+    apc_clock_count = apc_clock_last_ms = apc_clock_period_ms = 0u;
+    apc_clock_seen = 0u;
+    for (i = 0; i < SMK_APC40_CLIP_COUNT; i++) {
+        apc_led_velocity[i] = 0u;
+        apc_led_channel[i] = 0u;
+        apc_cell_flags[i] = 0u;
+        apc_cell_tick[i] = 0u;
+    }
+}
+/* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
+ * cells: lit cells in the color from Loopy, unlit cells dim, queued cells with a white
+ * dot. A white frame marks each cell that is on the 16 pads now (the OCT view, or the
+ * full 4x4). It redraws when the cells or the view change, at most every 64 ms.
+ * It uses the existing canvas (gfx.c cv_px): no new RAM buffer. */
+#define SMK_CLIP_LCD_MIN_MS 64u
+uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
+{
+    static uint32_t last_ms, last_sig, last_call;
+    static uint8_t was_on;
+    uint32_t sig = 2166136261u, note;
+    uint8_t pad, in_view[SMK_APC40_CLIP_COUNT];
+    for (note = 0; note < SMK_APC40_CLIP_COUNT; note++) {
+        in_view[note] = 0u;
+        sig = (sig ^ apc_led_velocity[note]) * 16777619u;
+        sig = (sig ^ (apc_cell_flags[note] & SMK_APC40_CELL_QUEUED)) * 16777619u;
+    }
+    for (pad = 0; pad < SMK_APC40_PAD_COUNT; pad++) {
+        uint8_t n = smk_apc40_note_for_pad_view(apc_cols, apc_rows, apc_origin_col,
+                                                apc_origin_row, apc_view, pad);
+        if (n < SMK_APC40_CLIP_COUNT)
+            in_view[n] = 1u;
+    }
+    for (note = 0; note < SMK_APC40_CLIP_COUNT; note++)
+        sig = (sig ^ in_view[note]) * 16777619u;
+    sig = (sig ^ ((uint32_t)apc_cols | (uint32_t)apc_rows << 8 | (uint32_t)apc_origin_col << 16 |
+                  (uint32_t)apc_origin_row << 24)) * 16777619u;
+    sig = (sig ^ apc_view_has_clips) * 16777619u;
+    if (fm1_ms - last_call > 200u)
+        was_on = 0u;                                /* new entry to clip mode: draw at once */
+    last_call = fm1_ms;
+    if (was_on && sig == last_sig && fm1_ms - last_ms < 1000u)
+        return 0u;                                  /* nothing changed (1 s refresh anyway) */
+    if (was_on && fm1_ms - last_ms < SMK_CLIP_LCD_MIN_MS)
+        return 0u;                                  /* rate limit */
+    was_on = 1u;
+    last_sig = sig;
+    last_ms = fm1_ms;
+    cv_begin(w, h, C_BLACK);
+    cv_band(0, (int32_t)h);
+    {
+        smk_apc40_lcd_map_t m = smk_apc40_lcd_map(apc_cols, apc_rows, apc_origin_col, apc_origin_row,
+                                                  apc_view_has_clips, (uint16_t)w, (uint16_t)h);
+        int32_t p = m.pitch, gap = p >= 24 ? 3 : 2;
+        uint8_t col, row;
+        for (row = 0u; row < m.nrows; row++)
+            for (col = 0u; col < m.ncols; col++) {
+                /* The highest APC row is the top Loopy row: draw it on top. */
+                int32_t x = m.x0 + (int32_t)col * p, y = m.y0 + (int32_t)smk_apc40_lcd_screen_row(&m, (uint8_t)(m.row0 + row)) * p;
+                uint8_t n = (uint8_t)((m.row0 + row) * SMK_APC40_SOURCE_COLS + m.col0 + col);
+                uint8_t v = apc_led_velocity[n];
+                uint32_t rgb = APC40_RGB[v];
+                uint16_t c = (uint16_t)(((rgb >> 8) & 0xF800u) | ((rgb >> 5) & 0x07E0u) | ((rgb & 0xFFu) >> 3));
+                int32_t q = p / 4;
+                if (in_view[n])
+                    cv_rect(x, y, p, p, C_WHITE);
+                cv_rect(x + gap, y + gap, p - 2 * gap, p - 2 * gap, C_BLACK);
+                if (v)
+                    cv_rect(x + gap + 1, y + gap + 1, p - 2 * gap - 2, p - 2 * gap - 2, c);
+                else
+                    cv_rect(x + p / 2 - 2, y + p / 2 - 2, 4, 4, C_DIM);
+                if (apc_cell_flags[n] & SMK_APC40_CELL_QUEUED)
+                    cv_rect(x + p / 2 - q / 2, y + p / 2 - q / 2, q, q, C_WHITE);
+            }
+    }
+    return 1u;
+}
+/* Called from the USB interrupt (usb_poll, 2 kHz). The cell state and the burst
+ * state change only in this interrupt, so the main loop only reads them. */
+void smk_apc_usb_tick(void)
+{
+    static uint8_t last;
+    uint8_t now = (uint8_t)(fm1_ms >> 4);
+    if (now == last)
+        return;
+    last = now;
+    (void)smk_apc40_cells_age(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick, now);
+    if (apc_burst_count && fm1_ms - apc_burst_last_ms > SMK_APC40_BURST_GAP_MS)
+        smk_apc_burst_close();
+}
+/* Clip mode entry: latch the layout from the stored feedback at once and show view 0.
+ * Feedback is stored also outside clip mode, so the pads light on entry. */
+void smk_apc_clip_entered(void)
+{
+    apc_layout_locked = 0u;
+    apc_layout_pending = 1u;
+    apc_layout_deadline = fm1_ms;
+    apc_view = 0u;
+}
+static uint8_t smk_clip_map_refresh(void)
+{
+    uint8_t feedback[SMK_APC40_CLIP_COUNT], i, changed;
+    uint8_t old_cols = apc_cols, old_rows = apc_rows;
+    uint8_t old_origin_col = apc_origin_col, old_origin_row = apc_origin_row;
+    uint8_t old_has_clips = apc_view_has_clips;
+    uint8_t any_clip = 0u;
+
+    for (i = 0; i < SMK_APC40_CLIP_COUNT; i++)
+        if ((feedback[i] = apc_led_velocity[i]) != 0u)
+            any_clip = 1u;
+    apc_view_has_clips = any_clip;
+    if (!apc_layout_locked && apc_layout_pending && (int32_t)(fm1_ms - apc_layout_deadline) >= 0) {
+        (void)smk_apc40_latch_layout(feedback, &apc_cols, &apc_rows,
+                                     &apc_origin_col, &apc_origin_row, &apc_layout_locked);
+        apc_layout_pending = 0u;
+        apc_view = smk_apc40_view_after_move(apc_cols, apc_rows, apc_view, 0);
+    } else if (apc_layout_locked) {
+        uint8_t c, r, oc, orow, has;
+        smk_apc40_build_layout(feedback, &c, &r, &oc, &orow, &has);
+        if (has && smk_apc40_layout_grows(apc_cols, apc_rows, apc_origin_col, apc_origin_row,
+                                          c, r, oc, orow)) {
+            apc_cols = c;
+            apc_rows = r;
+            apc_origin_col = oc;
+            apc_origin_row = orow;
+            apc_view = smk_apc40_view_after_move(apc_cols, apc_rows, apc_view, 0);
+        }
+    }
+    changed = (uint8_t)(old_cols != apc_cols || old_rows != apc_rows ||
+                        old_origin_col != apc_origin_col || old_origin_row != apc_origin_row ||
+                        old_has_clips != apc_view_has_clips);
+    return changed;
+}
+/* Loopy Undo / Redo in clip mode: PATCH held + SEQ REC / SEQ PLAY. Return 1 when the
+ * button event is used here (then no APC transport note is sent). A press sends note on.
+ * The release of the same button sends note off, also if PATCH was let go first. */
+uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held)
+{
+    static uint8_t sent;   /* bit 0: undo note is on, bit 1: redo note is on */
+    uint8_t redo, bit;
+    if (button == B_REC)
+        redo = 0u;
+    else if (button == B_PLAY)
+        redo = 1u;
+    else
+        return 0u;
+    bit = (uint8_t)(1u << redo);
+    if (pressed) {
+        if (!clip_grid_mode || !patch_held)
+            return 0u;
+        plat_midi_out(smk_apc40_history_packet(redo, 1u));
+        sent |= bit;
+        say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);
+        return 1u;
+    }
+    if (!(sent & bit))
+        return 0u;
+    plat_midi_out(smk_apc40_history_packet(redo, 0u));
+    sent &= (uint8_t)~bit;
+    return 1u;
+}
+uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed)
+{
+    static uint8_t play_sent, record_sent;
+    uint8_t *sent, note, is_record, event;
+    extern void midi_send_note(uint32_t note, uint32_t vel);
+
+    if (button == B_PLAY) {
+        sent = &play_sent;
+        is_record = 0u;
+    } else if (button == B_REC) {
+        sent = &record_sent;
+        is_record = 1u;
+    } else {
+        return 0u;
+    }
+    event = smk_apc40_transport_event(sent, clip_grid_mode, pressed);
+    if (event == SMK_APC40_BUTTON_IGNORED)
+        return 0u;
+    if (event != SMK_APC40_BUTTON_ON && event != SMK_APC40_BUTTON_OFF)
+        return 1u;
+    if (event == SMK_APC40_BUTTON_ON) {
+        /* Light the LED when the button triggers. Loopy feedback can override it. */
+        if (is_record)
+            apc_record_feedback = smk_apc40_transport_led_after_press(apc_record_feedback);
+        else
+            apc_play_feedback = smk_apc40_transport_led_after_press(apc_play_feedback);
+    }
+    note = smk_apc40_transport_note(is_record);
+    midi_send_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u);
+    return 1u;
+}
 static void smk_pads(void)
 {
+    uint32_t logical, w;
+    if (clip_grid_mode) {
+        for (logical = 0; logical < SMK_APC40_PAD_COUNT; logical++) {
+            uint8_t note = smk_apc40_note_for_pad_view(apc_cols, apc_rows, apc_origin_col,
+                                                       apc_origin_row, apc_view, (uint8_t)logical);
+            uint8_t v = note < SMK_APC40_CLIP_COUNT ? apc_led_velocity[note] : 0u;
+            uint8_t channel = note < SMK_APC40_CLIP_COUNT ? apc_led_channel[note] : 0u;
+            uint32_t rgb = APC40_RGB[v];   /* the last color from Loopy, drawn as sent */
+            uint8_t white = smk_apc40_physical_pad_for_logical((uint8_t)logical);
+            uint32_t pad = SMK_PAD_OF_WHITE(white);
+            uint8_t queued = note < SMK_APC40_CLIP_COUNT &&
+                             (apc_cell_flags[note] & SMK_APC40_CELL_QUEUED) ? 1u : 0u;
+            uint8_t brightness = v ? smk_apc_led_brightness(channel, queued) : 0u;
+            uint32_t rr = rgb >> 16, gg = (rgb >> 8) & 0xFFu, bb = rgb & 0xFFu;
+            uint32_t m = rr > gg ? rr : gg, num = brightness, den = 510u;
+            if (bb > m)
+                m = bb;
+            /* Dark idle colours from Loopy are almost not visible at half level.
+             * Lift the brightest channel to SMK_APC40_PAD_FLOOR. The hue stays the same.
+             * Bright colours do not change. Brightness 0 (blink off phase) keeps the pad off. */
+            if (m && m * 255u < SMK_APC40_PAD_FLOOR * 510u) {
+                num = (uint32_t)brightness * SMK_APC40_PAD_FLOOR;
+                den = m * 255u;
+            }
+            /* Loopy row zero maps to the SMK's lower physical pad row. */
+            if (v) padled_set(pad, (uint8_t)(rr * num / den), (uint8_t)(gg * num / den),
+                              (uint8_t)(bb * num / den));
+            else padled_set(pad, 0, 0, 0);
+        }
+        padled_flush();
+        return;
+    }
     uint16_t c = PART_COL[ui.part % NPARTS];
     uint32_t r = (uint32_t)(c >> 11) * 255u / 31u, g = (uint32_t)((c >> 5) & 63u) * 255u / 63u,
-             b = (uint32_t)(c & 31u) * 255u / 31u, w;
+             b = (uint32_t)(c & 31u) * 255u / 31u;
     for (w = 0; w < SMK_NPAD; w++) {
         uint32_t k = SMK_WHITE_NOTE[w], pad = SMK_PAD_OF_WHITE(w), sh;
         sh = (smk_keys_lit >> k) & 1u ? 1u : (smk_keys_dim >> k) & 1u ? 3u : 0u;
@@ -194,6 +595,8 @@ static void smk_pads(void)
  * A fader takes over only once it moves (also after a bank change), so nothing jumps. */
 static void smk_faders(void)
 {
+    if (clip_grid_mode)
+        return;                         /* FADER BANK is APC DOWN while the clip launcher is active */
     static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
                                            {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
     static uint8_t last[4] = {0xFF, 0xFF, 0xFF, 0xFF}, held;
@@ -321,6 +724,13 @@ static void smk_arrows(void)
     uint32_t now = fm1_in.buttons & (1u << SMK_BTN_LEFT | 1u << SMK_BTN_RIGHT), id, i;
     uint32_t pressed = now & ~prev;
     prev = now;
+    /* In clip mode < and > are local only. They never move the Loopy viewport:
+     * Loopy does not report clips outside its 8x5 APC box, so a legal move cannot
+     * be known, and moves to empty areas broke the pad map. The whole APC box fits
+     * the pad window horizontally (8 columns), so there is no horizontal move. */
+    if (clip_grid_mode) {
+        return;
+    }
     if (!pressed || (plat_buttons() & (1u << B_HOME)))
         return;
     for (id = SMK_BTN_LEFT; id <= SMK_BTN_RIGHT; id++) {
@@ -341,8 +751,10 @@ static void smk_arrows(void)
 /* pads as a step grid (steps, patterns: 1-8 top row) unless they play notes (a 303's REC keyboard) */
 static void smk_grid(void)
 {
-    smk_pad_grid = (uint8_t)(ui.view == V_HOME || ui.view == V_SONG || (ui.btn & (1u << B_HOME | 1u << B_SAVE)) ||
-                             !(is_303() && ui.rec));
+    smk_pad_grid = (uint8_t)(clip_grid_mode || ui.view == V_HOME || ui.view == V_SONG ||
+                             (ui.btn & (1u << B_HOME | 1u << B_SAVE)) || !(is_303() && ui.rec));
+    if (clip_grid_mode)
+        smk_pad_piano = 0;
 }
 
 static void smk_frame(void)
@@ -350,8 +762,92 @@ static void smk_frame(void)
     while (smk_extkey_take() >= 0)
         ;
     smk_arrows();
+    (void)smk_clip_map_refresh();
     smk_faders();
     smk_wheels();
+    /* long KNOB BANK hold toggles clip-grid mode once per hold */
+    if (fm1_in.buttons & (1u << SMK_BTN_KNOB_BANK)) {
+        if (!knob_bank_hold_start) {
+            knob_bank_hold_start = fm1_ms ? fm1_ms : 1u;
+        } else if (!knob_bank_toggled && fm1_ms - knob_bank_hold_start > 1000u) {
+            clip_grid_mode ^= 1u;
+            knob_bank_toggled = 1u;
+            if (clip_grid_mode) {
+                extern void smk_clip_enter_cleanup(void);
+                smk_clip_enter_cleanup();
+                smk_apc_clip_entered();
+            }
+            if (clip_grid_mode)
+                say("LOOPY CLIPS", 0);
+            else
+                say("LP OFF", 0);
+        }
+    } else {
+        /* A short KNOB BANK tap does nothing in clip mode. */
+        knob_bank_hold_start = 0;
+        knob_bank_toggled = 0;
+        /* OCT- / OCT+ move the local view up / down by one 8x2 view. The move stays
+         * in the latched clip footprint. plat_buttons hides these buttons from the
+         * X0X UI in clip mode, so they have no other effect. */
+        {
+            static uint32_t oct_prev;
+            uint32_t oct_now = fm1_in.buttons &
+                               ((1u << panel.btn[B_OCTDN]) | (1u << panel.btn[B_OCTUP]));
+            uint32_t oct_pressed = oct_now & ~oct_prev;
+            oct_prev = oct_now;
+            if (clip_grid_mode && (oct_pressed & (1u << panel.btn[B_OCTDN])))
+                apc_view = smk_apc40_view_after_move(apc_cols, apc_rows, apc_view, -1);
+            if (clip_grid_mode && (oct_pressed & (1u << panel.btn[B_OCTUP])))
+                apc_view = smk_apc40_view_after_move(apc_cols, apc_rows, apc_view, 1);
+        }
+    }
+    /* FADER BANK does nothing in clip mode (smk_faders returns early). */
+    static uint32_t last_notes;
+    static uint8_t sent_note[SMK_APC40_PAD_COUNT];
+    static uint8_t was_on;
+    if (clip_grid_mode) {
+        smk_pad_piano = 0;   /* force direct white map, ignore piano layout */
+        /* simple pad press: send note on rising edge, note-off on falling */
+        if (!was_on) {
+            last_notes = fm1_in.pnotes;   /* suppress false rising edges from pads held at entry */
+            for (uint32_t i = 0; i < SMK_APC40_PAD_COUNT; i++)
+                sent_note[i] = 0xFFu;
+            was_on = 1u;
+        }
+        uint32_t now = fm1_in.pnotes, edge = now & ~last_notes, fall = last_notes & ~now;
+        last_notes = now;
+        for (uint32_t i = 0; i < SMK_APC40_PAD_COUNT; i++) {
+            uint32_t bit = 1u << SMK_WHITE_NOTE[i];
+            if (edge & bit) {
+                extern void midi_send_note(uint32_t note, uint32_t vel);
+                uint8_t logical = smk_apc40_logical_pad_for_physical((uint8_t)i);
+                uint8_t note = smk_apc40_note_for_pad_view(apc_cols, apc_rows, apc_origin_col,
+                                                            apc_origin_row, apc_view, logical);
+                if (note != 0xFFu && apc_led_velocity[note] != 0u) {
+                    sent_note[i] = note;
+                    midi_send_note(note, 127u);
+                }
+            }
+            if ((fall & bit) && sent_note[i] != 0xFFu) {
+                extern void midi_send_note(uint32_t note, uint32_t vel);
+                midi_send_note(sent_note[i], 0u);
+                sent_note[i] = 0xFFu;
+            }
+        }
+    } else {
+        if (was_on) {
+            /* mode exit: send note-off only for pads that received a note-on */
+            for (uint32_t i = 0; i < SMK_APC40_PAD_COUNT; i++) {
+                if (sent_note[i] != 0xFFu) {
+                    extern void midi_send_note(uint32_t note, uint32_t vel);
+                    midi_send_note(sent_note[i], 0u);
+                    sent_note[i] = 0xFFu;
+                }
+            }
+            was_on = 0;
+            last_notes = 0;
+        }
+    }
     smk_grid();
     smk_pads();
 }
@@ -575,6 +1071,12 @@ static void fm1_main(void)
         {   /* OCT- + OCT+ held 5 s: update mode (Felucca's, unchanged) */
             static uint32_t t0, shown;
             uint32_t both = (1u << panel.btn[B_OCTDN]) | (1u << panel.btn[B_OCTUP]);
+#if BOARD_SMK37
+            if (smk_clip_mode_on()) {
+                t0 = fm1_ms;
+                shown = 0;
+            } else
+#endif
             if ((fm1_in.buttons & both) != both) {
                 if (shown)
                     ui_say("UPDATE MODE CANCELLED", 0);

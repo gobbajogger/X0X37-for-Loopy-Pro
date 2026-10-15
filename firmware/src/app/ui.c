@@ -2054,8 +2054,22 @@ static void mute_track(int km, int v)                /* one drum track on / off 
     say(track_muted(km, v) ? "MUTED " : "UNMUTED ", engine_voice_name(km ? T_808 : T_909, v));
 }
 
+#if BOARD_SMK37
+void smk_clip_enter_cleanup(void)
+{
+    ui.chain_first = -1;
+    ui.hold_step = -1;
+    ui.brk_held = -1;
+}
+#endif
+
 static void key_event(int k, int down)
 {
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on() && KEY_WHITE[k] >= 0 && ((fm1_in.pnotes >> k) & 1u))
+        return;   /* clip mode owns pad input; the keybed keeps its normal behavior */
+#endif
     int w = KEY_WHITE[k], bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
     if (ui.overlay == O_ASK || ui.view == V_PERF || perf_testing())
         return;
@@ -2406,11 +2420,33 @@ static void input(void)
 {
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     int e;
+#if BOARD_SMK37
+    extern uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed);
+    extern uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held);
+#endif
     ch = btn ^ ui.btn;
     for (i = 0; i < NB; i++) {
         uint32_t m = 1u << i;
         if (!(ch & m))
             continue;
+#if BOARD_SMK37
+        if ((i == B_PLAY || i == B_REC) &&
+            smk_clip_history_button((uint8_t)i, (uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u))) {
+            if (btn & m) {
+                ui.btn_used |= m | 1u << B_HOME;   /* PATCH release does not change the X0X view */
+            } else {
+                ui.btn_used &= ~m;
+            }
+            continue;
+        }
+        if ((i == B_PLAY || i == B_REC) && smk_clip_transport_button((uint8_t)i, (uint8_t)((btn & m) != 0u))) {
+            if (btn & m)
+                ui.btn_used |= m;
+            else
+                ui.btn_used &= ~m;
+            continue;
+        }
+#endif
         if (btn & m) {
             any_button = 1;
             ui.btn_used &= ~m;
@@ -3749,6 +3785,20 @@ static void draw_main(void)
     int band, readout = ui.touched >= 0 && (int32_t)(ui.touch_until - plat_ms()) > 0 && ui.overlay == O_NONE;
     if (!readout)
         ui.touched = -1;
+#if BOARD_SMK37
+    {
+        /* Clip mode: the main area shows the clip grid (main_fm1.c smk_clip_lcd_draw).
+         * The function returns 0 when no redraw is due (rate limit). On exit, the
+         * normal view below draws the full area again at the next frame. */
+        extern uint8_t smk_clip_mode_on(void);
+        extern uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h);
+        if (smk_clip_mode_on()) {
+            if (smk_clip_lcd_draw(240u, 2u * BAND_H))
+                cv_commit_rect(1, 0, MAIN_Y);
+            return;
+        }
+    }
+#endif
     cv_begin(240, 2 * BAND_H, C_BLACK);           /* both bands, then one transfer: no tear between them */
     for (band = 0; band < 2; band++) {
         cv_band(band * BAND_H, BAND_H);
@@ -3963,10 +4013,23 @@ static void leds(void)
 {
     uint32_t b = 0, k = 0, d = 0, i;
     int blink = (ui.frame & 8u) != 0;
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    extern uint8_t smk_apc_transport_led_state(uint8_t note);
+#endif
     if (seq.playing && eng_step[TRK_DRUM] % 4 == 0)
         b |= 1u << B_PLAY;
     if (ui.rec)
         b |= 1u << B_REC;
+#if BOARD_SMK37
+    if (smk_clip_mode_on()) {
+        b &= ~((1u << B_PLAY) | (1u << B_REC));
+        if (smk_apc_transport_led_state(0x5Bu))
+            b |= 1u << B_PLAY;
+        if (smk_apc_transport_led_state(0x5Du))
+            b |= 1u << B_REC;
+    }
+#endif
     if (ui.view == V_HOME || ui.view == V_SONG || (seq.song_on && blink))
         b |= 1u << B_HOME;
     if (ui.view == V_SEQ)
