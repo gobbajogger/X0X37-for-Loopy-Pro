@@ -15,7 +15,9 @@ This section shows the current behaviour (`1.8-apc40`). The version sections bel
 - The layout latches 250 ms after the first feedback burst. It cannot shrink, so cue and play color changes cannot move pads. It grows only to complete a 4×4 fold (`smk_apc40_layout_grows` in smk_apc40.h). 8-wide layouts stay as latched. A page snapshot clears old-page cells (rules: see `0.9-apc40` and `1.0-apc40`).
 - The USB receive interrupt stores APC clip and transport feedback at all times, also before clip mode. Thus the pads show the correct colors at clip mode entry.
 - APC clip notes (0x00-0x27) and transport feedback notes go to the sound engine only when clip mode is off. In clip mode the firmware keeps them from the sound engine. Before `1.8-apc40` follow-up, the firmware also kept them from the sound engine after APC host identification.
-- Idle brightness floor: a lit pad shows the Loopy color at half level. When the brightest channel of the result is below 48 of 255, the firmware lifts it to 48 (`SMK_APC40_PAD_FLOOR`). The hue does not change. Bright playing colors do not change. The off phase of a queued blink stays fully off.
+- Pads: a lit pad shows the Loopy color at half level. There is no brightness floor on the pads. The off phase of a queued blink is fully off.
+- LCD clip map: a lit cell shows the Loopy color with the brightest channel mapped from 0-255 to 128-255 (`SMK_CLIP_LCD_FLOOR`). The hue does not change. Playing (full) colors do not change. Idle clips stay darker than playing clips. An empty cell is a small grey dot.
+- In clip mode, X0X does not echo a MIDI Start, Continue or Stop from Loopy back to the host. With clip mode off, the transport behavior does not change.
 - Preserved the normal pad row-swap and LED-chain index mapping outside clip mode.
 - Seq PLAY and Seq REC send APC40 PLAY (`0x5B`) and RECORD (`0x5D`) momentary MIDI notes while clip mode is active. Their LEDs follow Loopy feedback for playback and recording/overdub state. Outside clip mode, the original sequencer play and record behavior remains active. The active Loopy Pro Record binding controls the target and overdub behavior.
 - Extended the web installer generator to accept release identities for FM-1, SMK-37 Pro, SMK-37 Elite, and MKE-P37. Generated SMK installer pages use the target model name and hide the FM-1-only stock restore/recovery controls.
@@ -190,6 +192,15 @@ The layout assumptions follow the [Loopy Pro manual](https://loopypro.com/manual
 
 ## 1.8-apc40 follow-up (2026-10-15)
 
-- Idle brightness floor. Loopy sends dim palette shades for idle clips and empty slots (for example 0x0B). At half level these shades were almost not visible on the pads. The firmware now lifts the brightest channel of a lit pad to 48 of 255 (`SMK_APC40_PAD_FLOOR` in main_fm1.c). The ratio of the channels does not change, so the hue stays the same. Colors that are already brighter do not change. Brightness 0 (the off phase of a queued blink) keeps the pad off.
+- Idle brightness floor. Loopy sends dim palette shades for idle clips and empty slots (for example 0x0B). At half level these shades were almost not visible on the pads. The firmware now lifts the brightest channel of a lit pad to 48 of 255 (`SMK_APC40_PAD_FLOOR` in main_fm1.c). The ratio of the channels does not change, so the hue stays the same. Colors that are already brighter do not change. Brightness 0 (the off phase of a queued blink) keeps the pad off. (Removed in follow-up 2: the user reported the LCD, not the pads.)
 - Note drop only in clip mode. The USB receive interrupt still stores all APC feedback. It keeps APC notes from the sound engine only while clip mode is on. Before this change, it also kept them after APC host identification. Then host MIDI notes 0x00-0x27 (for example the GM drum notes 36-39) did not reach the X0X parts with clip mode off. Now, with clip mode off, the original MIDI input path does not change (agent rules, 10).
 - `smk_apc_host_is_active` is removed. Nothing reads the host state now. usb.c does not change: it still calls `smk_apc_host_seen` and `smk_apc_host_lost`. `smk_apc_host_lost` still clears the stored clip state.
+
+## 1.8-apc40 follow-up 2 (2026-10-15)
+
+- The user reported that the dark problem is on the LCD clip map, not on the pads. Idle clips on the LCD were too dark to identify their color.
+- Cause: the LCD drew the Loopy palette color without a change. Idle shades (for example 0x0B = 0x271B00, shown as 32,24,0) were darker than the grey dot of an empty cell (74,74,82).
+- LCD fix: the firmware maps the brightest channel from 0-255 to 128-255 (`SMK_CLIP_LCD_FLOOR` in main_fm1.c). The ratio of the channels does not change. Examples: 0x0B gives 148,101,0. 0x27 gives 0,89,139. 0x60 (playing, 0xFF7F00) does not change.
+- Pads: the pad floor of the first follow-up (`SMK_APC40_PAD_FLOOR`) is removed. The pads show the Loopy color at half level again, as in 1.4-apc40 to 1.8-apc40. The user reports that this pad brightness is good.
+- Transport echo: a Loopy Start, Continue or Stop in clip mode sets `seq.midi_req`. Then the sequencer does not send 0xFA, 0xFB or 0xFC back to the host. `seq_advance` clears the flag after each transport request. With clip mode off, the flag stays 0 and nothing changes.
+- Limit: with more than one clock source on the USB port, each tick counts (BEHAVIOR.md LIM-10). Send clock to "X0X FM-1" from one source only.

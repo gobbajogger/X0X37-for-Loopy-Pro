@@ -44,37 +44,37 @@ GEN-14. Use 44.1 kHz wherever possible. Do not halve a sample rate. [USER]
 ### 2.2 SMK-37 controls (clip mode off)
 
 GEN-20. Keys F3 to G5 (the middle 27 keys) are the 27 FM-1 keys. [SMK37]
-GEN-21. The 10 outer keys (C3 to E3, G#5 to C6) do nothing. [SMK37] [CODE app/main_fm1.c:762-763]
-GEN-22. The 16 pads are the 16 white keys as a step grid. Steps 1-8 are on the top row. Steps 9-16 are on the bottom row. On HOME and SONG, the pads are the patterns. [SMK37] [PADMAP] [CODE app/main_fm1.c:752-758]
+GEN-21. The 10 outer keys (C3 to E3, G#5 to C6) do nothing. [SMK37] [CODE app/main_fm1.c:766-767]
+GEN-22. The 16 pads are the 16 white keys as a step grid. Steps 1-8 are on the top row. Steps 9-16 are on the bottom row. On HOME and SONG, the pads are the patterns. [SMK37] [PADMAP] [CODE app/main_fm1.c:756-762]
 GEN-23. On a 303 with REC on, the pads are the 303 keyboard. Low notes are on the bottom row. [SMK37] [PADMAP]
-GEN-24. The pads show the colour of the part on the screen. A lit pad is at half level. A dim pad is at one eighth level. [SMK37] [CODE app/main_fm1.c:578-588]
+GEN-24. The pads show the colour of the part on the screen. A lit pad is at half level. A dim pad is at one eighth level. [SMK37] [CODE app/main_fm1.c:582-592]
 GEN-25. The pad LED chain order is {0,15,14,13,12,11,10,9,1,2,3,4,5,6,7,8}. Changes must not change this table or the non-grid row swap. [PADMAP]
 GEN-26. K1 is MASTER. K2, K3 and K4 are SELECT, ALGORITHM and PRESETS. K5 to K8 are KNOB 1 to KNOB 4. [SMK37] [CODE app/panel.c:28-40]
 GEN-27. FX, SCALE, CHORD, NOTE REPEAT, PARA and GLOBE are FX, SEL, ENV, LFO, EDIT and GLO. PATCH is HOME. BT is SAVE. [SMK37]
 GEN-28. ARP and SEQ are ARP and SEQ. SEQ PLAY and SEQ REC are PLAY and REC. OCTAVE- and OCTAVE+ are OCT- and OCT+. [SMK37]
-GEN-29. "<" and ">" move SELECT one step back or forward. They do nothing while HOME is held. [SMK37] [CODE app/main_fm1.c:734]
-GEN-30. FADER BANK switches the faders between bank A and bank B. The FADER BANK LED is on for bank B. [SMK37] [CODE app/main_fm1.c:603-609]
-GEN-31. Bank A faders 1-4 set the levels of the 909, the 808, 303A and 303B. [SMK37] [CODE app/main_fm1.c:624-625]
-GEN-32. Bank B faders 1-4 set the BREAK level, the reverb return, the delay return and the master FILTER. [SMK37] [CODE app/main_fm1.c:626-633]
-GEN-33. A fader has an effect only after it moves. This is also true after a bank change. [SMK37] [CODE app/main_fm1.c:617-622]
-GEN-34. A fader sets the same value as the related knob. The project keeps the value. With REC on, the fader records knob motion. [SMK37] [CODE app/main_fm1.c:637-638]
-GEN-35. The pitch wheel changes the TUNE of the 303 on the screen by about +-1.5 semitones. It goes back when you release it. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:704-708]
-GEN-36. The mod wheel opens the CUTOFF of the 303 on the screen from the saved value to the top. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:709-716]
-GEN-37. The wheels change only the sound. They do not change saved values. [SMK37] [CODE app/main_fm1.c:694-701]
+GEN-29. "<" and ">" move SELECT one step back or forward. They do nothing while HOME is held. [SMK37] [CODE app/main_fm1.c:738]
+GEN-30. FADER BANK switches the faders between bank A and bank B. The FADER BANK LED is on for bank B. [SMK37] [CODE app/main_fm1.c:607-613]
+GEN-31. Bank A faders 1-4 set the levels of the 909, the 808, 303A and 303B. [SMK37] [CODE app/main_fm1.c:628-629]
+GEN-32. Bank B faders 1-4 set the BREAK level, the reverb return, the delay return and the master FILTER. [SMK37] [CODE app/main_fm1.c:630-637]
+GEN-33. A fader has an effect only after it moves. This is also true after a bank change. [SMK37] [CODE app/main_fm1.c:621-626]
+GEN-34. A fader sets the same value as the related knob. The project keeps the value. With REC on, the fader records knob motion. [SMK37] [CODE app/main_fm1.c:641-642]
+GEN-35. The pitch wheel changes the TUNE of the 303 on the screen by about +-1.5 semitones. It goes back when you release it. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:708-712]
+GEN-36. The mod wheel opens the CUTOFF of the 303 on the screen from the saved value to the top. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:713-720]
+GEN-37. The wheels change only the sound. They do not change saved values. [SMK37] [CODE app/main_fm1.c:698-705]
 GEN-38. The keys and the pads play without velocity. [SMK37]
-GEN-39. OCTAVE- and OCTAVE+ held at power-on start HARDWARE CALIBRATION. It teaches the buttons and K2 to K8 again. K1 is not taught. [SMK37] [CODE app/main_fm1.c:1035-1037] [CODE app/panel.c:100-101]
-GEN-40. A short KNOB BANK press does nothing. A KNOB BANK hold of more than 1 s toggles clip mode (section 15). [SMK37] [CODE app/main_fm1.c:768-788] (Was OQ-01. Resolved 2026-10-15: SMK37.md now agrees with the code.)
+GEN-39. OCTAVE- and OCTAVE+ held at power-on start HARDWARE CALIBRATION. It teaches the buttons and K2 to K8 again. K1 is not taught. [SMK37] [CODE app/main_fm1.c:1039-1041] [CODE app/panel.c:100-101]
+GEN-40. A short KNOB BANK press does nothing. A KNOB BANK hold of more than 1 s toggles clip mode (section 15). [SMK37] [CODE app/main_fm1.c:772-792] (Was OQ-01. Resolved 2026-10-15: SMK37.md now agrees with the code.)
 GEN-41. The SMK-37 keybed has no LEDs. Black-key information (tracks, slices, part mutes) is on the screen only. [CODE app/plat_fm1.c:50-53]
-GEN-42. The first start of X0X on an SMK-37 clears the data of another firmware in the store area. The screen then shows "OLD DATA CLEARED". [SMK37] [CODE storage.c:62-100] [CODE app/main_fm1.c:1045-1047]
+GEN-42. The first start of X0X on an SMK-37 clears the data of another firmware in the store area. The screen then shows "OLD DATA CLEARED". [SMK37] [CODE storage.c:62-100] [CODE app/main_fm1.c:1049-1051]
 GEN-43. The firmware never writes the calibration, the Bluetooth pairing or the key areas of the flash. [SMK37] [CODE ../hal/fm1_flash_map.h:24-83]
-GEN-44. With FREE PLAY on and REC off, the keys play the 303 without writing notes, and the SMK pads stay in the step-grid layout. This is the current behaviour of the existing 303 FREE PLAY feature. The pad layout in this case is unspecified. The user accepts it. [USER] [CODE app/main_fm1.c:754-755] [CODE app/ui.c:128] (Was OQ-06. Resolved 2026-10-15.)
+GEN-44. With FREE PLAY on and REC off, the keys play the 303 without writing notes, and the SMK pads stay in the step-grid layout. This is the current behaviour of the existing 303 FREE PLAY feature. The pad layout in this case is unspecified. The user accepts it. [USER] [CODE app/main_fm1.c:758-759] [CODE app/ui.c:128] (Was OQ-06. Resolved 2026-10-15.)
 
 ### 2.3 FM-1 controls
 
 GEN-50. On the FM-1, the controls are as in the manual, section 3. [MANUAL §3]
-GEN-51. Hold OCT- and OCT+ for 5 s to go into update mode. Release them before the countdown ends to cancel. [MANUAL §17] [CODE app/main_fm1.c:1071-1094]
+GEN-51. Hold OCT- and OCT+ for 5 s to go into update mode. Release them before the countdown ends to cancel. [MANUAL §17] [CODE app/main_fm1.c:1075-1098]
 GEN-52. Hold OCT- and OCT+ at power-on for calibration. [MANUAL §17]
-GEN-53. After two crashes in a row at start, X0X starts in SAFE MODE. Safe mode has no sound, but USB works. [MANUAL §17] [CODE app/main_fm1.c:1151-1156]
+GEN-53. After two crashes in a row at start, X0X starts in SAFE MODE. Safe mode has no sound, but USB works. [MANUAL §17] [CODE app/main_fm1.c:1155-1160]
 
 ## 3. 909 and 808
 
@@ -120,17 +120,17 @@ BRK-08. Black key 9 plays reverse, key 10 half speed, key 11 stutter, while held
 BRK-09. Hold a white key and press black key 1-8: that step always plays that slice of loop A. Press the same black key again to give the step back to the generator. [MANUAL §8] [CODE app/ui.c:2176-2188]
 BRK-10. A held live slice key has priority over the slice of a step. [CODE dsp/breaks.c:536-537]
 BRK-11. The loop follows the tempo by a change of playback speed. Thus the pitch follows the tempo. PITCH shifts the pitch on top. [MANUAL §8]
-BRK-12. On MIDI, notes 36-43 on the BREAK channel play slices 1-8. [MANUAL §16] [CODE app/engine.c:515-516]
+BRK-12. On MIDI, notes 36-43 on the BREAK channel play slices 1-8. [MANUAL §16] [CODE app/engine.c:519-520]
 BRK-13. The generator settings (COMPLEXITY, ANCHOR, ROLL, FILL, RETRIG, PHRASE, A/B LENGTH, B CHANCE) and the steps, slices and loop choice are saved with the pattern. [MANUAL §8]
 
 ### 6.2 Loops and imported samples
 
-BRK-20. Imported samples play only in BREAK mode. This is intended. [USER] [CODE app/engine.c:948-972]
-BRK-21. The LOOP list has the built-in loops first ("909 GR", "909 FL"), then the imported loops as BR1, BR2 and so on. [MANUAL §8] [CODE app/engine.c:855-878]
+BRK-20. Imported samples play only in BREAK mode. This is intended. [USER] [CODE app/engine.c:952-976]
+BRK-21. The LOOP list has the built-in loops first ("909 GR", "909 FL"), then the imported loops as BR1, BR2 and so on. [MANUAL §8] [CODE app/engine.c:859-882]
 BRK-22. The factory (built-in) breaks are 2 bars long. [USER] [CODE ../../tools/gen_builtin_break.c:14-15]
 BRK-23. Do not halve the length of a factory break. [USER]
-BRK-24. An imported loop gets a length of 1, 2, 4 or 8 bars. The firmware selects the length that puts the loop tempo nearest to 120 BPM, inside 80-180 BPM. [CODE app/engine.c:817-829]
-BRK-25. If a pattern names an empty user slot, loop A plays the first built-in loop. [CODE app/engine.c:967-968]
+BRK-24. An imported loop gets a length of 1, 2, 4 or 8 bars. The firmware selects the length that puts the loop tempo nearest to 120 BPM, inside 80-180 BPM. [CODE app/engine.c:821-833]
+BRK-25. If a pattern names an empty user slot, loop A plays the first built-in loop. [CODE app/engine.c:971-972]
 BRK-26. Target format for loops: IMA ADPCM at 44.1 kHz. [USER] Current state: built-in loops and uploaded loops are IMA ADPCM at 22.05 kHz. See OQ-07. [CODE ../../tools/gen_builtin_break.c:133-134] [CODE ../../web/x0x_breaks.js:9]
 BRK-27. The firmware reads the rate of each imported zone from the slot header. Thus it can play a 44.1 kHz zone. [CODE app/slots.c:10] [CODE app/plat_fm1.c:150]
 
@@ -202,29 +202,30 @@ SET-09. An update keeps the project. [MANUAL §1]
 MID-01. Over USB, the device shows as the MIDI device "X0X FM-1". This name is the same on the SMK-37. [MANUAL §16] [CODE usb.c:304] [APC 1.5-apc40]
 MID-02. Default channels: 909 channel 10, 808 channel 11, 303A channel 2, 303B channel 3, BREAK channel 4. [MANUAL §16] [CODE seq/sequencer.c:28]
 MID-03. GLO can set each part channel to 1-16 or OFF. OFF ignores incoming notes and sends no notes for that part. [MANUAL §15]
-MID-04. 909 notes: 36 BD, 38 SD, 41/45/50 toms, 37 RS, 39 CP, 42 CH, 46 OH, 49 CR, 51 RD. 808: the same, with 56 CB and 49 CY. [MANUAL §16] [CODE app/engine.c:499-500]
-MID-05. On a 303 channel, overlapping notes slide. Velocity 100 or more is an accent. [MANUAL §16] [CODE app/engine.c:505-509]
-MID-06. X0X follows an incoming MIDI clock. Start, Stop and Continue start and stop the sequencer. [MANUAL §16] [CODE app/engine.c:470-474]
+MID-04. 909 notes: 36 BD, 38 SD, 41/45/50 toms, 37 RS, 39 CP, 42 CH, 46 OH, 49 CR, 51 RD. 808: the same, with 56 CB and 49 CY. [MANUAL §16] [CODE app/engine.c:503-504]
+MID-05. On a 303 channel, overlapping notes slide. Velocity 100 or more is an accent. [MANUAL §16] [CODE app/engine.c:509-513]
+MID-06. X0X follows an incoming MIDI clock. Start, Stop and Continue start and stop the sequencer. [MANUAL §16] [CODE app/engine.c:474-478]
 MID-07. When clip mode is off, the original sequencer and MIDI input path must stay unchanged. Firmware changes stay inside clip mode unless the user approves. [USER] (agent-rules 10)
 MID-08. USB audio is a 2-channel input at 44.1 kHz. It carries the headphone signal. [MANUAL §16] [CODE usb.c:74]
 MID-09. The firmware answers a Universal Device Inquiry as an Akai APC40 mkII (manufacturer 0x47, product 0x29). [APC] [CODE usb.c:200-216] [CODE usb.c:694-701]
 MID-10. On all boards (also the FM-1), the APC40 identity reply and the APC40 introduction reply are not gated by the board. The user accepts both. They are not defects. [USER] [CODE usb.c:694-701] [CODE usb.c:702-710] (Was OQ-08. Resolved 2026-10-15 by the user.)
-MID-11. A USB bus reset or a deconfiguration clears the stored APC clip state. [CODE usb.c:554-559] [CODE usb.c:1113-1117] [CODE app/main_fm1.c:341-361]
+MID-11. A USB bus reset or a deconfiguration clears the stored APC clip state. [CODE usb.c:554-559] [CODE usb.c:1113-1117] [CODE app/main_fm1.c:339-359]
 
 ## 15. Clip mode (APC40 mkII emulation for Loopy Pro), SMK-37 only
 
 ### 15.1 Mode
 
 CLP-01. Clip mode exists only on the SMK-37 build. [CODE app/main_fm1.c:170]
-CLP-02. A KNOB BANK hold of more than 1 s toggles clip mode. The screen shows "LOOPY CLIPS" at entry and "LP OFF" at exit. [APC] [SMK37] [PADMAP] [CODE app/main_fm1.c:768-784]
+CLP-02. A KNOB BANK hold of more than 1 s toggles clip mode. The screen shows "LOOPY CLIPS" at entry and "LP OFF" at exit. [APC] [SMK37] [PADMAP] [CODE app/main_fm1.c:772-788]
 CLP-03. Clip mode is off at power-on. [CODE app/main_fm1.c:176]
 CLP-04. In clip mode, the LCD main area shows the clip map. When clip mode stops, the normal X0X view comes back at the next frame. [APC 1.5-apc40] [CODE app/ui.c:3788-3799]
+CLP-05. LCD clip colours: a lit cell is a filled square. The firmware maps the brightest channel of the Loopy colour from 0-255 to 128-255 (SMK_CLIP_LCD_FLOOR). The hue does not change. Full (playing) colours do not change, and idle clips stay darker than playing clips. An empty cell (velocity 0) is a small grey dot. A queued cell has a white centre square. A white frame marks the cells on the pads. [USER] [CODE app/main_fm1.c:367] [CODE app/main_fm1.c:412-440]
 
 ### 15.2 Feedback from Loopy
 
-CLP-10. The firmware stores APC clip colour feedback (notes 0-39) and transport feedback (notes 91 = PLAY, 93 = RECORD) at all times, also when clip mode is off. [USER] [APC] [CODE app/main_fm1.c:252-272]
-CLP-11. While clip mode is on, incoming note-on and note-off for notes 0-39, 91 and 93 do not go to the sound engine. This applies on all MIDI channels. [USER] [CODE app/main_fm1.c:258-270] [CODE app/engine.c:477-494]
-CLP-12. While clip mode is off, these notes go to the sound engine as before. [USER] [CODE app/engine.c:477-494]
+CLP-10. The firmware stores APC clip colour feedback (notes 0-39) and transport feedback (notes 91 = PLAY, 93 = RECORD) at all times, also when clip mode is off. [USER] [APC] [CODE app/main_fm1.c:250-270]
+CLP-11. While clip mode is on, incoming note-on and note-off for notes 0-39, 91 and 93 do not go to the sound engine. This applies on all MIDI channels. [USER] [CODE app/main_fm1.c:256-268] [CODE app/engine.c:481-498]
+CLP-12. While clip mode is off, these notes go to the sound engine as before. [USER] [CODE app/engine.c:481-498]
 CLP-13. Clip colours use the 128-colour APC palette. The firmware accepts them on MIDI channels 1-16. The channel does not change the colour. [APC]
 CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is the truth. [APC 1.4-apc40]
 CLP-15. Only APC channels 11-15 (zero-based) mark a queued cell (a cell that blinks). Pulse channels (6-10) and one-shot channels (1-5) draw steady. [APC 1.1-apc40] [CODE app/smk_apc40.h:67-70]
@@ -233,39 +234,39 @@ CLP-17. A feedback burst is a page snapshot only if it touches 8 or more cells, 
 
 ### 15.3 Layout and pads
 
-CLP-20. The firmware latches the layout 250 ms after the first feedback burst. At clip mode entry it latches at once from the stored feedback. [APC] [CODE app/main_fm1.c:209] [CODE app/main_fm1.c:444-450]
+CLP-20. The firmware latches the layout 250 ms after the first feedback burst. At clip mode entry it latches at once from the stored feedback. [APC] [CODE app/main_fm1.c:209] [CODE app/main_fm1.c:458-464]
 CLP-21. A latched layout cannot shrink. It can grow only to complete a 4x4 fold. 8-wide layouts stay as latched. [APC] [APC 1.0-apc40] [PADMAP] [CODE app/smk_apc40.h:427] (Was OQ-09. Resolved 2026-10-15: APC40_IMPLEMENTATION.md now agrees with the code.)
 CLP-22. The firmware trims empty outer rows and columns. Empty cells inside the area stay in their positions. [APC]
 CLP-23. A footprint of 3 or 4 rows and 4 or fewer columns folds onto one 8x2 view. [APC 1.1-apc40] [CODE app/smk_apc40.h:277-278]
 CLP-24. 4x4 fold (1.7 mapping): source rows 0-1 go on pads 5-8 and 13-16. Source rows 2-3 go on pads 1-4 and 9-12. [APC 0.9-apc40] [APC 1.7-apc40]
 CLP-25. In clip mode, the physical pad rows are vertically flipped. Columns stay left to right. [APC]
-CLP-26. OCT- and OCT+ move the local 8x2 view down and up by 2 rows. The move stays inside the latched footprint. [APC] [PADMAP] [CODE app/main_fm1.c:789-802] (Was part of OQ-02. Resolved 2026-10-15.)
-CLP-27. In clip mode, "<", ">", a short KNOB BANK press and FADER BANK do nothing. The firmware sends no APC navigation messages. [APC] [PADMAP] [CODE app/main_fm1.c:731-733] [CODE app/main_fm1.c:598-599] (Was OQ-02. Resolved 2026-10-15: PAD_MAP.md and BUILDING.md now agree with the code.)
-CLP-28. In clip mode, the faders do nothing. [CODE app/main_fm1.c:598-599] (Was OQ-03. Resolved 2026-10-15: the code comment at app/main_fm1.c:599 now agrees.)
-CLP-29. In clip mode, the update-mode hold (OCT- and OCT+ for 5 s) is disabled. [CODE app/main_fm1.c:1074-1079]
-CLP-30. In clip mode, a pad press on a lit cell sends note-on (velocity 127) for the cell APC note on MIDI channel 1. The release sends note-off. [CODE app/main_fm1.c:819-835] [CODE usb.c:147-153]
-CLP-31. A pad press on an unlit cell sends nothing. [APC "Spatial mapping"] [CODE app/main_fm1.c:826]
-CLP-32. At clip mode exit, the firmware sends note-off for each pad note that is still on. [CODE app/main_fm1.c:837-848]
+CLP-26. OCT- and OCT+ move the local 8x2 view down and up by 2 rows. The move stays inside the latched footprint. [APC] [PADMAP] [CODE app/main_fm1.c:793-806] (Was part of OQ-02. Resolved 2026-10-15.)
+CLP-27. In clip mode, "<", ">", a short KNOB BANK press and FADER BANK do nothing. The firmware sends no APC navigation messages. [APC] [PADMAP] [CODE app/main_fm1.c:735-737] [CODE app/main_fm1.c:602-603] (Was OQ-02. Resolved 2026-10-15: PAD_MAP.md and BUILDING.md now agree with the code.)
+CLP-28. In clip mode, the faders do nothing. [CODE app/main_fm1.c:602-603] (Was OQ-03. Resolved 2026-10-15: the code comment at app/main_fm1.c:599 now agrees.)
+CLP-29. In clip mode, the update-mode hold (OCT- and OCT+ for 5 s) is disabled. [CODE app/main_fm1.c:1078-1083]
+CLP-30. In clip mode, a pad press on a lit cell sends note-on (velocity 127) for the cell APC note on MIDI channel 1. The release sends note-off. [CODE app/main_fm1.c:823-839] [CODE usb.c:147-153]
+CLP-31. A pad press on an unlit cell sends nothing. [APC "Spatial mapping"] [CODE app/main_fm1.c:830]
+CLP-32. At clip mode exit, the firmware sends note-off for each pad note that is still on. [CODE app/main_fm1.c:841-852]
 CLP-33. Pad presses in clip mode do not start X0X pad functions. The keybed keeps its normal function. [APC] [CODE app/ui.c:2068-2071]
 CLP-34. In clip mode, while a pad is held, the keybed white key that shares the same note bit is blocked. This is intended. Keep it. [USER] [CODE app/ui.c:2068-2071] (Was OQ-10. Resolved 2026-10-15.)
 
 ### 15.4 Pad brightness
 
-CLP-40. A lit pad shows the Loopy colour at half level. [APC] [CODE app/main_fm1.c:560]
-CLP-41. Idle clip pads (clips that do not play) have a minimum brightness. The brightest channel is at least 48 of 255. The hue does not change. [USER] [APC 1.8-apc40 follow-up] [CODE app/main_fm1.c:211] [CODE app/main_fm1.c:563-569]
-CLP-42. The colours of clips that play do not change. [USER] [CODE app/main_fm1.c:566]
-CLP-43. The off phase of a queued blink is fully off. [USER] [CODE app/main_fm1.c:558] [CODE app/main_fm1.c:566]
-CLP-44. A queued cell blinks once per beat (24 MIDI clock ticks), on for the first half. Without clock in the last 500 ms, it blinks 250 ms on and 250 ms off. [APC 1.5-apc40] [CODE app/main_fm1.c:299-312]
+CLP-40. A lit pad shows the Loopy colour at half level (palette value x 255 / 510). There is no brightness floor on the pads. The user reports that this pad brightness is good. [USER] [APC] [CODE app/main_fm1.c:572-577]
+CLP-41. Idle clip pads (clips that do not play) use the same half level as all lit pads. A pad floor (SMK_APC40_PAD_FLOOR) was added and then removed on 2026-10-15. It came from a misunderstanding: the dark problem was on the LCD (see CLP-05). [USER] [CODE app/main_fm1.c:574-577]
+CLP-42. The colours of clips that play do not change on the pads or on the LCD. [USER] [CODE app/main_fm1.c:574-577] [CODE app/main_fm1.c:422-427]
+CLP-43. The off phase of a queued blink is fully off. [USER] [CODE app/main_fm1.c:572] [CODE app/main_fm1.c:574-577]
+CLP-44. A queued cell blinks once per beat (24 MIDI clock ticks), on for the first half. Without clock in the last 500 ms, it blinks 250 ms on and 250 ms off. [APC 1.5-apc40] [CODE app/main_fm1.c:297-310]
 
 ### 15.5 Transport and history
 
-CLP-50. In clip mode, SEQ PLAY and SEQ REC send momentary APC PLAY (note 0x5B) and RECORD (note 0x5D). The release sends note-off. [APC] [CODE app/main_fm1.c:513-543]
+CLP-50. In clip mode, SEQ PLAY and SEQ REC send momentary APC PLAY (note 0x5B) and RECORD (note 0x5D). The release sends note-off. [APC] [CODE app/main_fm1.c:527-557]
 CLP-51. In clip mode, the PLAY and REC LEDs follow Loopy feedback. A press sets the LED at once. Later feedback replaces it. [APC 0.7-apc40] [CODE app/ui.c:4024-4031]
 CLP-52. In clip mode, PATCH held + SEQ REC sends note 0x70 on channel 16 (Loopy undo). PATCH held + SEQ PLAY sends note 0x71 on channel 16 (Loopy redo). The firmware then sends no APC transport note. [APC 1.8-apc40] [CODE app/smk_apc40.h:404-410]
 CLP-53. The release of PATCH after a Loopy undo or redo does not change the X0X view. [APC 1.8-apc40] [CODE app/ui.c:2436]
 CLP-54. With clip mode off, PATCH + SEQ REC and PATCH + SEQ PLAY are the X0X undo and redo. SEQ PLAY and SEQ REC are the X0X PLAY and REC. [APC] [MANUAL §3]
-CLP-55. MIDI clock, Start and Song Position drive the clip-mode blink phase. [APC 1.5-apc40] [CODE app/engine.c:461-469]
-CLP-56. In clip mode, MIDI Clock, Start, Stop and Continue from Loopy also go to the X0X sequencer. Thus Loopy can start and stop the X0X sequencer in clip mode. This is intended, on condition that it does not conflict with external clock sync. See LIM-10 and LIM-11 for the known risks. [USER] [CODE app/engine.c:470-474] (Was OQ-05. Resolved 2026-10-15.)
+CLP-55. MIDI clock, Start and Song Position drive the clip-mode blink phase. [APC 1.5-apc40] [CODE app/engine.c:461-473]
+CLP-56. In clip mode, MIDI Clock, Start, Stop and Continue from Loopy also go to the X0X sequencer. Thus Loopy can start and stop the X0X sequencer in clip mode. This is intended, on condition that it does not conflict with external clock sync. See LIM-10 and LIM-11 for the known risks. [USER] [CODE app/engine.c:474-478] (Was OQ-05. Resolved 2026-10-15.)
 
 ## 16. Flash and sample storage
 
@@ -290,8 +291,8 @@ LIM-06. Loopy sends its MIDI clock to the port "X0X FM-1". The APC40 mkII port g
 LIM-07. Nobody has verified the hardware LED colours and live clip launches end-to-end on the device. [APC "Verification performed"]
 LIM-08. User sample room on the SMK-37 is about 14.8 s at 22.05 kHz (2 slots). The FM-1 has about 21 s (3 slots). [MANUAL §8] [CODE app/slots.c:15-24] (Was OQ-04. Resolved 2026-10-15: MANUAL §8 now gives both values.)
 LIM-09. tools/build_smk_release.sh builds Pro and Elite packages only. It does not build MKE-P37. [CODE ../../tools/build_smk_release.sh:17-18]
-LIM-10. The firmware does not tell MIDI clock sources apart. All Clock, Start, Stop and Continue messages go into one input queue. If two sources send clock (for example Loopy and a DAW on the USB port, or USB and TRS on the FM-1), each tick counts. The sequencer then runs at about double tempo, and a Start or Stop from either source acts. On the SMK-37 the USB port has one cable, so the firmware cannot separate two USB sources. Send clock to the port "X0X FM-1" from one source only. [CODE app/engine.c:471-474] [CODE seq/sequencer.c:519] [CODE seq/sequencer.c:397-424] [CODE usb.c:754-757] [CODE midi_uart.c:39]
-LIM-11. While X0X follows an external clock, it sends no Clock, Start or Stop (CLOCK OUT is muted), so no clock loop occurs. A MIDI Start that arrives when no clock came in the last 0.5 s starts X0X on its internal clock. CLOCK OUT is on by default (SET-08). If CLOCK OUT is on, X0X then sends Start (0xFA) and clock ticks back to the USB host until the first incoming tick. A host that also listens for clock on this port can receive this echo. [CODE seq/sequencer.c:378-379] [CODE seq/sequencer.c:446-455] [CODE seq/sequencer.c:510-511]
+LIM-10. The firmware does not tell MIDI clock sources apart. All Clock, Start, Stop and Continue messages go into one input queue. If two sources send clock (for example Loopy and a DAW on the USB port, or USB and TRS on the FM-1), each tick counts. The sequencer then runs at about double tempo, and a Start or Stop from either source acts. On the SMK-37 the USB port has one cable, so the firmware cannot separate two USB sources. Send clock to the port "X0X FM-1" from one source only. [CODE app/engine.c:475-478] [CODE seq/sequencer.c:520] [CODE seq/sequencer.c:397-424] [CODE usb.c:754-757] [CODE midi_uart.c:39]
+LIM-11. While X0X follows an external clock, it sends no Clock, Start or Stop (CLOCK OUT is muted), so no clock loop occurs. A MIDI Start that arrives when no clock came in the last 0.5 s starts X0X on its internal clock. CLOCK OUT is on by default (SET-08). In clip mode, X0X does not echo a MIDI Start, Continue or Stop (seq midi_req). Until the first incoming tick it can still send internal clock ticks (0xF8) to the USB host. With clip mode off, X0X sends Start (0xFA) and clock ticks back to the USB host until the first incoming tick, as before (agent-rules 10). [CODE app/engine.c:469-472] [CODE seq/sequencer.c:378-379] [CODE seq/sequencer.c:392-393] [CODE seq/sequencer.c:470] [CODE seq/sequencer.c:446-455] [CODE seq/sequencer.c:511-512]
 
 ## 18. Open questions
 
