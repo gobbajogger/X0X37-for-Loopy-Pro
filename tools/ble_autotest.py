@@ -117,7 +117,7 @@ def settle(timeout=30.0):
 
 T5W = ["magic", "ms", "ticks", "tag", "dbg", "c0n", "c1n", "prpn", "prpid", "hits", "h_ms", "h_tag", "h_slot",
        "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "icfg0_3", "icfg0_5", "hits_now",
-       "d_magic", "d_n", "d_t4_ms", "d_c0_ms", "d_dbg", "d_emu"] + [f"d_etm{i}_{j}" for i in range(4) for j in range(4)]
+       "d_magic", "d_n", "d_t4_ms", "d_c0_ms", "d_dbg", "d_emu"] + [f"d_etm{i}_{j}" for i in range(4) for j in range(4)] + ["c_armed", "c_n", "c_scans"] + [f"c_{i}_{f}" for i in range(8) for f in ("at", "val", "ms")]
 TAG = ["begin", "after input", "before Bluetooth", "after Bluetooth", "end"]
 SLOT = ["r3", "r2", "r1", "r0", "psr", "rets", "reti", "word above"]
 
@@ -156,6 +156,10 @@ def t5w_text(t):
             s += " [" + " ".join(f"{t[f'd_etm{i}_{j}']:08X}" for j in range(4)) + "]"
     elif "d_magic" in t:
         s += "; core 1 did not see core 0 stop"
+    if t.get("c_armed") == 0xCA9A11E5:
+        s += f"\n          RAM canary 0x01C72000-0x01C74000: {t['c_n']} changed words in {t['c_scans']} full scans"
+        for i in range(min(t["c_n"], 8)):
+            s += f"; 0x{t[f'c_{i}_at']:08X}=0x{t[f'c_{i}_val']:08X} at {t[f'c_{i}_ms']} ms"
     return s
 
 

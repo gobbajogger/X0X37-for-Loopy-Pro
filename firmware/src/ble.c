@@ -206,6 +206,10 @@ static void ble_attach(void)
     fm1_sysvdd_raise(2u, 14u);                  /* 1.35 V, for the radio's start (core reads lose bit 25) */
     ble_rails[1] = fm1_rails_read();
     fm1_t5w_arm = 1;                            /* test 23: the timer 5 frame closed to all writers */
+    for (uint32_t *cw = (uint32_t *)(uintptr_t)FM1_CAN_LO; cw < (uint32_t *)(uintptr_t)FM1_CAN_HI; cw++)
+        *cw = 0xFFFFFFFFu;                      /* test 26: the RAM canary, core 1 watches it */
+    fm1_can.n = fm1_can.scans = 0;
+    fm1_can.armed = 0xCA9A11E5u;
     fm1_c0_dead.magic = 0;                      /* test 24: core 1 watches core 0's clock */
     fm1_c0_dead.n = 0;
     fm1_ble_sync();

@@ -320,11 +320,12 @@ static void ed_handle(const uint8_t *f, uint32_t n)
             const uint32_t *t = (const uint32_t *)&fm1_t5w_prev;
             uint32_t k;
             const uint32_t *c = (const uint32_t *)&fm1_c0_dead;
-            const uint32_t nt = sizeof fm1_t5w_prev / 4u, nc = sizeof fm1_c0_dead / 4u;
+            const uint32_t *g = (const uint32_t *)&fm1_can;
+            const uint32_t nt = sizeof fm1_t5w_prev / 4u, nc = sizeof fm1_c0_dead / 4u, ng = sizeof fm1_can / 4u;
             ed_b(op);
-            ed_b(nt + 1u + nc);
-            for (k = 0; k < nt + 1u + nc; k++) {
-                uint32_t v = k < nt ? t[k] : k == nt ? fm1_t5w.hits : c[k - nt - 1u];
+            ed_b(nt + 1u + nc + ng);
+            for (k = 0; k < nt + 1u + nc + ng; k++) {
+                uint32_t v = k < nt ? t[k] : k == nt ? fm1_t5w.hits : k <= nt + nc ? c[k - nt - 1u] : g[k - nt - 1u - nc];
                 ed_b(v);
                 ed_b(v >> 7);
                 ed_b(v >> 14);

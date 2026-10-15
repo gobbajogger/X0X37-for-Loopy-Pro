@@ -116,6 +116,16 @@ typedef struct {
 } fm1_c0_dead_t;
 static fm1_c0_dead_t fm1_c0_dead __attribute__((section(".ble_ram")));
 static const volatile uint32_t *volatile fm1_c1_c0_clock;
+/* RAM canary (test 26): the 8 KiB under core 0's stack guard (0x01C72000..0x01C74000, the pool's
+ * spare: tools/build.py keeps >= 8 KiB of the pool free) is set to all ones before the controller
+ * starts. Core 1 looks at 16 words per loop; a word that changed is recorded (the first 8: address,
+ * value, TIMER4 ms) and set back. Shows whether RAM loses bits with nothing writing it. */
+#define FM1_CAN_LO 0x01C72000u
+#define FM1_CAN_HI 0x01C74000u
+typedef struct {
+    uint32_t armed, n, scans, rec[8][3];
+} fm1_can_t;
+static fm1_can_t fm1_can __attribute__((section(".ble_ram")));
 void fm1_c1_main(void);
 void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
 {
@@ -127,6 +137,7 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
     uint32_t hi = fm1_c1_lim_hi ? fm1_c1_lim_hi : (uint32_t)(uintptr_t)_c1_sstack_top - 1u;
     uint32_t done, last_bad = 0xFFFFFFFFu, parked = 0;
     uint32_t c0_last = 0, c0_t = 0, c0_next = 0;
+    uint32_t can_i = 0;
     *(volatile uint32_t *)0x1EEF2D8u = hi;
     *(volatile uint32_t *)0x1EEF2DCu = lo;
     *(volatile uint32_t *)0x1EEF2E0u = hi;
@@ -168,6 +179,27 @@ void __attribute__((section(".c1_text"), noreturn, used)) fm1_c1_main(void)
             dt = FM1_C1_T4 - t0;
             if (dt > fm1_c1_mb.poll_max)
                 fm1_c1_mb.poll_max = dt;
+            if (fm1_can.armed == 0xCA9A11E5u) {          /* the RAM canary (inline: no calls) */
+                volatile uint32_t *cw = (volatile uint32_t *)(uintptr_t)FM1_CAN_LO;
+                uint32_t e = can_i + 16u;
+                for (; can_i < e; can_i++) {
+                    uint32_t v = cw[can_i];
+                    if (v != 0xFFFFFFFFu) {
+                        uint32_t k = fm1_can.n;
+                        if (k < 8u) {
+                            fm1_can.rec[k][0] = FM1_CAN_LO + 4u * can_i;
+                            fm1_can.rec[k][1] = v;
+                            fm1_can.rec[k][2] = FM1_C1_T4 / 24000u;
+                        }
+                        fm1_can.n = k + 1u;
+                        cw[can_i] = 0xFFFFFFFFu;
+                    }
+                }
+                if (can_i >= (FM1_CAN_HI - FM1_CAN_LO) / 4u) {
+                    can_i = 0;
+                    fm1_can.scans++;
+                }
+            }
             if (fm1_c1_c0_clock && fm1_c0_dead.n < 4u) {   /* core 0 alive? (inline: no calls) */
                 uint32_t m = *fm1_c1_c0_clock, t = FM1_C1_T4;
                 if (m != c0_last || !c0_t) {
