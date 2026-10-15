@@ -16,5 +16,19 @@
 	rti
 	.endm
 
-	FM1_ISR isr_timer5, fm1_timer5_irq
+/* timer 5: as FM1_ISR, and its sp after the pushes goes to fm1_t5_sp (fm1_guard.h, the frame watch) */
+	.section .text.isr_timer5,"ax",@progbits
+	.globl isr_timer5
+isr_timer5:
+	[--sp] = {psr, rets, reti}
+	[--sp] = {r3-r0}
+	r0 = fm1_t5_sp
+	r1 = sp
+	[r0 + 0] = r1
+	call fm1_timer5_irq
+	{r3-r0} = [sp++]
+	{psr, rets, reti} = [sp++]
+	csync
+	rti
+
 	FM1_ISR isr_alnk0, fm1_alnk0_irq

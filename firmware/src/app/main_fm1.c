@@ -124,10 +124,16 @@ void fm1_timer5_irq(void)
     uint32_t tt0 = fm1_ticks();
 #endif
     fm1_timer5_ack();
+#if X0X_BLE
+    fm1_t5w_begin();                                /* test 22: who changes this frame */
+#endif
     x0x_dbg.timer_irqs++;
     if (x0x_dbg.in_audio)
         x0x_dbg.nested++;
     fm1_input_tick();
+#if X0X_BLE
+    fm1_t5w_check(1u, fm1_ms);
+#endif
     /* 2 kHz: all USB SIE traffic lives here. This ISR now nests into the audio render (so the key
      * matrix keeps its rhythm, below); USB shares the MIDI queues with the audio ISR, so a poll that
      * falls inside the render waits for the first tick outside it, as it did before the nesting. */
@@ -148,7 +154,9 @@ void fm1_timer5_irq(void)
         uart_midi_poll();                           /* the TRS jack: same context, same queue */
 #endif
 #if X0X_BLE
+        fm1_t5w_check(2u, fm1_ms);
         ble_service();                              /* Bluetooth MIDI: same context, same queue */
+        fm1_t5w_check(3u, fm1_ms);
 #endif
     }
     if (++sub == 10u)
@@ -163,6 +171,10 @@ void fm1_timer5_irq(void)
             fm1_ms++;
         }
     }
+#if X0X_BLE
+    fm1_t5w_check(4u, fm1_ms);
+    fm1_t5w_end(fm1_ms);
+#endif
 #if X0X_DEBUG
     if (x0x_dbg.in_audio)
         dbg_tmr += fm1_ticks() - tt0;

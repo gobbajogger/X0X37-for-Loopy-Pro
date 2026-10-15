@@ -138,6 +138,80 @@ static void fm1_guard_watch_c0_stacks(void)
     fm1__dbg_lock();
 }
 
+/* ---- timer 5 frame watch (the Bluetooth start, test 22) ----
+ * isr_timer5 (fm1_isr.S) puts its sp after the pushes in fm1_t5_sp: sp[0..3] r3-r0, sp[4..6]
+ * psr, rets, reti, sp[7] the word above. fm1_t5w_begin copies the 8 words; fm1_t5w_check compares
+ * them, records the first change (time, checkpoint, word, old, new, error state) and writes the
+ * old word back, so core 0 lives on and DIAG can count the changes. fm1_t5w_end keeps the error
+ * state of each tick. fm1_t5w is in .ble_ram (not cleared): a watchdog reset keeps it. */
+#define FM1_C0_WR_LIMIT_ERR_NUM FM1_X2(0x360u)
+#define FM1_C1_WR_LIMIT_ERR_NUM FM1_X2(0x364u)
+#define FM1_PRP_WR_LIMIT_ERR_NUM FM1_X2(0x368u)
+#define FM1_PRP_WR_LIMIT_ID FM1_X2(0x36Cu)
+#define FM1_T5W_MAGIC 0x54355731u           /* "T5W1" */
+typedef struct {
+    uint32_t magic, ms, ticks, tag;         /* the last tick: time, count, last checkpoint reached */
+    uint32_t dbg, c0n, c1n, prpn, prpid;    /* DBG_MSG, write limit errors (core 0, core 1, DMA), DMA id */
+    uint32_t hits, h_ms, h_tag, h_slot, h_old, h_new, h_sp, h_dbg, h_prpid, h_c1n, h_prpn;
+} fm1_t5w_t;
+uint32_t fm1_t5_sp;
+static fm1_t5w_t fm1_t5w __attribute__((section(".ble_ram")));
+static uint32_t fm1_t5_snap[8], fm1_t5_snap_sp;
+static void fm1_t5w_begin(void)
+{
+    const uint32_t *f = (const uint32_t *)(uintptr_t)fm1_t5_sp;
+    uint32_t i;
+    fm1_t5_snap_sp = fm1_t5_sp;
+    for (i = 0; i < 8u; i++)
+        fm1_t5_snap[i] = f[i];
+    fm1_t5w.tag = 0;
+}
+static void fm1_t5w_check(uint32_t tag, uint32_t ms)
+{
+    uint32_t *f = (uint32_t *)(uintptr_t)fm1_t5_snap_sp;
+    uint32_t i, v;
+    fm1_t5w.tag = tag;
+    for (i = 0; i < 8u; i++) {
+        v = f[i];
+        if (v == fm1_t5_snap[i])
+            continue;
+        if (!fm1_t5w.hits) {
+            fm1_t5w.h_ms = ms;
+            fm1_t5w.h_tag = tag;
+            fm1_t5w.h_slot = i;
+            fm1_t5w.h_old = fm1_t5_snap[i];
+            fm1_t5w.h_new = v;
+            fm1_t5w.h_sp = fm1_t5_snap_sp;
+            fm1_t5w.h_dbg = FM1_DBG_MSG;
+            fm1_t5w.h_prpid = FM1_PRP_WR_LIMIT_ID;
+            fm1_t5w.h_c1n = FM1_C1_WR_LIMIT_ERR_NUM;
+            fm1_t5w.h_prpn = FM1_PRP_WR_LIMIT_ERR_NUM;
+        }
+        fm1_t5w.hits++;
+        f[i] = fm1_t5_snap[i];
+    }
+}
+static void fm1_t5w_end(uint32_t ms)
+{
+    fm1_t5w.dbg = FM1_DBG_MSG;
+    fm1_t5w.c0n = FM1_C0_WR_LIMIT_ERR_NUM;
+    fm1_t5w.c1n = FM1_C1_WR_LIMIT_ERR_NUM;
+    fm1_t5w.prpn = FM1_PRP_WR_LIMIT_ERR_NUM;
+    fm1_t5w.prpid = FM1_PRP_WR_LIMIT_ID;
+    fm1_t5w.ms = ms;
+    fm1_t5w.ticks++;
+    fm1_t5w.magic = FM1_T5W_MAGIC;
+}
+/* at power-on, before the timer starts: a new record (the old one stays for DIAG in fm1_t5w_prev) */
+static fm1_t5w_t fm1_t5w_prev __attribute__((section(".ble_ram")));
+static void fm1_t5w_boot(void)
+{
+    fm1_t5w_prev = fm1_t5w;
+    fm1_t5w.magic = 0;
+    fm1_t5w.ticks = 0;
+    fm1_t5w.hits = 0;
+}
+
 /* the reserved top of RAM is write-protected now (fm1_guard_lock_top) */
 static int fm1_guard_top_locked(void) { return (FM1_C0_WR_LIMIT_EN & 4u) != 0; }
 

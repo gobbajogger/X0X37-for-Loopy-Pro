@@ -115,6 +115,39 @@ def settle(timeout=30.0):
     return last or any_d                           # still STARTING after the timeout: that state
 
 
+T5W = ["magic", "ms", "ticks", "tag", "dbg", "c0n", "c1n", "prpn", "prpid", "hits", "h_ms", "h_tag", "h_slot",
+       "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "hits_now"]
+TAG = ["begin", "after input", "before Bluetooth", "after Bluetooth", "end"]
+SLOT = ["r3", "r2", "r1", "r0", "psr", "rets", "reti", "word above"]
+
+
+def t5w():
+    """ED_BT_TEST op 3: the timer 5 frame watch of the last boot (fm1_guard.h)"""
+    r = ask(ED_BT_TEST, [3])
+    if not r or r[0] != 3:
+        return None
+    w = []
+    for k in range(r[1]):
+        b = r[2 + 5 * k:7 + 5 * k]
+        w.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
+    return dict(zip(T5W, w))
+
+
+def t5w_text(t):
+    if not t:
+        return "no reply (older firmware)"
+    if t["magic"] != 0x54355731:
+        return f"no record of the last boot; changes now {t['hits_now']}"
+    s = (f"last boot: last tick at {t['ms']} ms (tick {t['ticks']}, checkpoint {TAG[t['tag'] % 5]}); "
+         f"DBG_MSG 0x{t['dbg']:08X}, write limit errors core0 {t['c0n']} core1 {t['c1n']} DMA {t['prpn']} "
+         f"(DMA id 0x{t['prpid']:X}); frame changes {t['hits']}")
+    if t["hits"]:
+        s += (f"; first at {t['h_ms']} ms, found at {TAG[t['h_tag'] % 5]}, word {SLOT[t['h_slot'] % 8]} "
+              f"at 0x{t['h_sp'] + 4 * t['h_slot']:08X}: 0x{t['h_old']:08X} -> 0x{t['h_new']:08X}, "
+              f"DBG_MSG 0x{t['h_dbg']:08X}, core1 errors {t['h_c1n']}, DMA errors {t['h_prpn']} id 0x{t['h_prpid']:X}")
+    return s + f"; changes this boot {t['hits_now']}"
+
+
 def h(v):
     return f"0x{v:08X}"
 
@@ -160,7 +193,9 @@ def main():
         d = diag()
         if not d:
             sys.exit("ble_autotest: no DIAG reply")
-        print(json.dumps(summary(d, d), indent=1))
+        out = summary(d, d)
+        out["t5w"] = t5w_text(t5w())
+        print(json.dumps(out, indent=1))
         return 0
     ok = 0
     for rnd in range(1, a.n + 1):
@@ -186,18 +221,20 @@ def main():
             time.sleep(a.hold)
             d2 = diag()
             up = bool(d2) and STATE[d2["plat_state"] % 8] in ("READY", "CONNECTED") and d2["polls"] > p0 \
-                and d2["reset_now"] == d["reset_now"]
+                and d2["alive_ms"] >= d["alive_ms"] + 900 * a.hold      # no reset: core 0 ticked all along
             s["hold"] = f"{a.hold:.0f} s: {'stayed up' if up else 'NOT up'}" + \
                 (f", polls {p0} -> {d2['polls']}" if d2 else ", no DIAG")
         ok += up
+        t = t5w()
+        s["t5w"] = t5w_text(t)
         s["round"], s["seconds"] = rnd, round(time.time() - t0, 1)
         print(f"--- round {rnd} ({s['seconds']} s)")
-        for k in ("status", "hold", "guard", "start", "core0", "hci", "xosc", "reset", "crash"):
+        for k in ("status", "hold", "guard", "start", "hci", "alive", "reset", "crash", "t5w"):
             if k in s:
                 print(f"  {k:7} {s[k]}")
         if a.log:
             with open(a.log, "a") as f:
-                f.write(json.dumps({**s, "diag": d}) + "\n")
+                f.write(json.dumps({**s, "diag": d, "t5w_raw": t}) + "\n")
     print(f"=== {ok} of {a.n} rounds READY and stayed up")
     return 0 if ok == a.n else 1
 

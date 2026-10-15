@@ -314,8 +314,23 @@ static void ed_handle(const uint8_t *f, uint32_t n)
 #if X0X_BLE
     case ED_BT_TEST: {
         uint32_t op = na > 0u ? a[0] : 0u;
-        if (op > 2u)
+        if (op > 3u)
             return;
+        if (op == 3u) {                               /* the timer 5 frame watch (fm1_guard.h): last boot's, then hits now */
+            const uint32_t *t = (const uint32_t *)&fm1_t5w_prev;
+            uint32_t k;
+            ed_b(op);
+            ed_b(sizeof fm1_t5w_prev / 4u + 1u);
+            for (k = 0; k <= sizeof fm1_t5w_prev / 4u; k++) {
+                uint32_t v = k < sizeof fm1_t5w_prev / 4u ? t[k] : fm1_t5w.hits;
+                ed_b(v);
+                ed_b(v >> 7);
+                ed_b(v >> 14);
+                ed_b(v >> 21);
+                ed_b(v >> 28);
+            }
+            break;
+        }
         if (op == 1u) {
             plat_ble_set(0);                          /* as BLUETOOTH OFF: the next power-on tries again */
             plat_ble_set((proj.set.bt & 1u) != 0u);   /* the setting itself does not change */

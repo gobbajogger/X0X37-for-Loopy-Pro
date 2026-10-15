@@ -89,6 +89,7 @@ static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
 static void ble_prepare(int on)
 {
     const xb_header_t *h = FM1_BLE_HDR;
+    fm1_t5w_boot();                             /* before TIMER5 starts: keep the last boot's frame watch */
     ble_img = (uint8_t)ble_img_check(FM1_BLE_IMG, XB_FLASH_SIZE, XB_FLASH_XIP);
     ble_want = (uint8_t)(on != 0);
     if (ble_guard.magic == BLE_GUARD_MAGIC && ble_guard.trying) {
