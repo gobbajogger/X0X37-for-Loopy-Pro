@@ -20,9 +20,14 @@ static int g_pass, g_fail;
 
 /* ---------------------------------------------------------------------------------------- */
 /* synthetic loop: 2 bars at 120 BPM, 22050 Hz, 16 eighths, tone j at F(j) Hz               */
+/* (run_breaks.sh builds it again with -DSRC_FS=44100 -DLOOP_N=176400: a 44.1 kHz loop)       */
 
+#ifndef SRC_FS
 #define SRC_FS 22050
+#endif
+#ifndef LOOP_N
 #define LOOP_N 88200                          /* 2 bars at 120 BPM */
+#endif
 #define EIGHTH_SRC (LOOP_N / 16.0)
 static double tone_hz(int j, int variant) { return (variant ? 250.0 : 300.0) * pow(2.0, j / 8.0); }
 
@@ -520,7 +525,7 @@ static void test_audio(float bpm)
         good += id == (k & 15);
     }
     CHECK(good == win, "%.0f BPM in order: %d/%d 8ths identified as 8th k mod 16", (double)bpm, good, win);
-    double rj = ref_jump(r * 0.5, 100.0f / 127.0f * 100.0f / 127.0f);
+    double rj = ref_jump(r * SRC_FS / 44100.0, 100.0f / 127.0f * 100.0f / 127.0f);
     double mj = max_jump(g_out, t);
     printf("  %.0f BPM in order: max |dy| %.4f, straight-playback reference %.4f\n", (double)bpm, mj, rj);
 
@@ -702,6 +707,7 @@ int main(int argc, char **argv)
     (void)argc;
     (void)argv;
     make_loops();
+    printf("source loop: %d samples at %d Hz\n", LOOP_N, SRC_FS);
     printf("sizeof(breaks_t) = %u bytes (bank %u, voice %u)\n", (unsigned)sizeof(breaks_t),
            (unsigned)sizeof(brk_bank_t), (unsigned)sizeof(brk_voice_t));
 #ifdef BRK_CLICK_CONTROL
