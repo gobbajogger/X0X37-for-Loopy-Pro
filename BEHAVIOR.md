@@ -306,6 +306,7 @@ CLP-69. A key release ends exactly the notes that the key sent. The firmware fin
 CLP-70. All notes off (a note-off for each note that sounds): at clip mode exit, when a mode turns on or off, when LATCH goes off, at MIDI Stop, at a CLIP KEYS CH change, at a USB reset and when Bluetooth disconnects. The arp list clears. [USER] [CODE app/main_fm1.c ck_all_off]
 CLP-71. NOTE REPEAT alone is the panic button. It sends all notes off and then CC 123 (All Notes Off) on the CLIP KEYS channel. [USER] [CODE app/main_fm1.c ck_controls]
 CLP-72. While a pad is held, the keybed white key that shares its note bit plays no note (CLP-34 stays). [USER] [CODE app/main_fm1.c smk_ck_poll]
+CLP-73. In clip mode with no SCALE, CHORD or ARP mode on (and no menu on the screen), knobs 2-8 send CC 48-54 on channel 1 for Loopy Pro MIDI-learn. The value is relative: 1-63 is up and 65-127 is down. Knob 1 stays MASTER. (Added 2026-10-16.) [USER] [CODE app/main_fm1.c ck_controls]
 
 ## 16. Flash and sample storage
 
