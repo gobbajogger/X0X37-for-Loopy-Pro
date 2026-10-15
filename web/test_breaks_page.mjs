@@ -3,7 +3,7 @@
 // Web MIDI mock that follows firmware/src/app/editor.c (SMP_BEGIN .. SMP_READ, 11-16; NOR flash: erase
 // sets 0xFF, a write only clears bits). Checks: Connect reads the slot layout from SMP_INFO; Back up
 // sends only SMP_INFO / SMP_READ and gives the .x0xslots archive; Restore writes it back onto another
-// device; Send uploads a new loop. Run from the repo root:
+// device; Send uploads a new loop at 44.1 kHz (22.05 kHz when asked). Run from the repo root:
 //   node web/test_breaks_page.mjs
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -111,6 +111,7 @@ globalThis.document = {
   documentElement: {}, body: {},
 };
 ids.bars = el(); ids.bars.checked = true;
+ids.half = el(); ids.trim = el();
 globalThis.getComputedStyle = () => ({ getPropertyValue: () => "#000" });
 globalThis.confirm = () => true;
 const blobs = [];
@@ -192,5 +193,36 @@ const m3 = readArchive(new Uint8Array(await blobs[blobs.length - 1].arrayBuffer(
 check(m3.meta.count === 3 && m3.meta.size === 120 * 1024 && m3.images[2] !== null && m3.images[0] === null,
   "3 x 120 KB layout: backup holds 3 slots, slot 3 used");
 
-console.log(bad ? "BREAKS PAGE FAILED" : "breaks page: connect, backup, restore ok against the mocked device");
+// ---- 4. Send: a new loop goes in at 44.1 kHz; with "22 kHz" ticked at 22.05 kHz; a loop read back keeps its rate ----
+function wavFile(name, seconds, sr = 48000) {
+  const n = Math.round(sr * seconds), b = Buffer.alloc(44 + 2 * n);
+  b.write("RIFF", 0); b.writeUInt32LE(36 + 2 * n, 4); b.write("WAVEfmt ", 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20);
+  b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(2 * sr, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34);
+  b.write("data", 36); b.writeUInt32LE(2 * n, 40);
+  for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(12000 * Math.sin(i * 0.05) * (i % 6000 < 3000 ? 1 : 0.2)), 44 + 2 * i);
+  return { name, arrayBuffer: async () => b.buffer.slice(b.byteOffset, b.byteOffset + b.length) };
+}
+device = new Device(2, 80 * 1024);
+device.load(0, img1);                                   // two 44.1 kHz loops
+await $("connect").onclick();
+await idle();
+$("bars").checked = false;
+$("files").onchange({ target: { files: [wavFile("a.wav", 0.6)], value: "" } });
+await new Promise((r) => setTimeout(r, 300));
+await $("send").onclick();
+await idle(/Done|failed|didn't/);
+let h0 = parseHeader(device.flash[0].subarray(0, 480));
+check(h0 && h0.nz === 3 && h0.zones[2].rate === 44100 && h0.zones[2].n === Math.floor(0.6 * 48000 * 44100 / 48000),
+  `Send: the new loop is zone 3 at 44.1 kHz (${h0 && h0.zones[2].n} samples)`);
+$("half").checked = true;
+$("files").onchange({ target: { files: [wavFile("b.wav", 0.6)], value: "" } });
+await new Promise((r) => setTimeout(r, 300));
+await $("send").onclick();
+await idle(/Done|failed|didn't/);
+h0 = parseHeader(device.flash[0].subarray(0, 480));
+check(h0 && h0.nz === 4 && h0.zones.map((z) => z.rate).join() === "44100,44100,44100,22050",
+  `Send with "22 kHz": rates ${h0 && h0.zones.map((z) => z.rate).join()} (read-back loops keep theirs)`);
+$("half").checked = false;
+
+console.log(bad ? "BREAKS PAGE FAILED" : "breaks page: connect, backup, restore, send ok against the mocked device");
 process.exit(bad ? 1 : 0);

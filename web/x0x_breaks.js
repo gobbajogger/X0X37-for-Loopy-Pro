@@ -6,11 +6,12 @@
 //
 // The float arithmetic follows sampleio.py's order of operations: keep it when touching these.
 
-export const SLOT_SIZE = 0x14000, SLOT_DATA_OFF = 512, SLOT_RATE = 22050, SLOT_ZONES = 16;
+export const SLOT_SIZE = 0x14000, SLOT_DATA_OFF = 512, SLOT_ZONES = 16;
 export const SLOT_HDR_LEN = 32 + SLOT_ZONES * 28;
 export const SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF;
 export const ROOT_BASE = 36;              // loop i is zone root 36 + i: the slot sorts its zones by root
-export const NSLOTS = 3;
+export const RATE = 44100, RATE_HALF = 22050;   // 44.1 kHz by default; 22.05 kHz only when asked for
+export const DRY_SLOTS = 2;               // upload_breaks.py --dry-run's default layout: 2 x 80 KB (the SMK-37)
 
 const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
   97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658,
@@ -72,13 +73,26 @@ export function toInt16(x) {
   return out;
 }
 
-// upload_breaks.cut: mono floats at their rate -> int16 at the slot's rate (one bar if bars)
-export function cut(x, sr, bars) {
+// sampleio.trim_silence: cut the silence at both ends (floor 0.001 = -60 dBFS), keep 1 ms before the
+// sound, keep 5 ms after it and fade that tail to 0
+export function trimSilence(x, sr, floor = 0.001, preMs = 1, fadeMs = 5) {
+  let first = -1, last = -1;
+  for (let i = 0; i < x.length; i++) if (Math.abs(x[i]) > floor) { if (first < 0) first = i; last = i; }
+  if (first < 0) return x;
+  const pre = Math.floor(sr * preMs / 1000), nf = Math.floor(sr * fadeMs / 1000);
+  const y = x.slice(Math.max(0, first - pre), Math.min(x.length, last + 1 + nf)), m = Math.min(nf, y.length);
+  for (let j = 0; j < m; j++) { const k = y.length - m + j; y[k] = y[k] * ((m - 1 - j) / m); }
+  return y;
+}
+
+// upload_breaks.cut: mono floats at their rate -> int16 at `rate` (one bar if bars; silence cut if trim)
+export function cut(x, sr, bars, rate = RATE, trim = false) {
+  if (trim) x = trimSilence(x, sr);
   if (bars) {
     const n = barsOf(x.length / sr)[0];
     x = x.slice(0, Math.round(x.length / n));
   }
-  const y = resample(x, sr, SLOT_RATE);
+  const y = resample(x, sr, rate);
   const pk = peak(y);
   return toInt16(y.map((v) => v * (0.95 / pk)));
 }
@@ -123,7 +137,7 @@ export function imaDecode(b, n) {
   return out;
 }
 
-// a slot header (userSlot's layout) -> {nz, name, dataLen, zones: [{off, n}]}, or null if not a slot
+// a slot header (userSlot's layout) -> {nz, name, dataLen, zones: [{off, n, rate}]}, or null if not a slot
 export function parseSlot(hdr) {
   const v = new DataView(hdr.buffer || hdr, hdr.byteOffset || 0, hdr.byteLength);
   if (hdr.byteLength < SLOT_HDR_LEN || v.getUint32(0, true) !== 0x504D5346) return null;
@@ -131,7 +145,8 @@ export function parseSlot(hdr) {
   let name = "";
   for (let i = 8; i < 16 && hdr[i]; i++) name += String.fromCharCode(hdr[i]);
   for (let i = 0; i < nz && i < SLOT_ZONES; i++)
-    zones.push({ off: v.getUint32(32 + i * 28, true), n: v.getUint32(32 + i * 28 + 4, true) });
+    zones.push({ off: v.getUint32(32 + i * 28, true), n: v.getUint32(32 + i * 28 + 4, true),
+      rate: Math.round(v.getUint32(32 + i * 28 + 16, true) * 44100 / 65536) });
   return { nz, name, dataLen: v.getUint32(16, true), zones };
 }
 
@@ -155,26 +170,26 @@ function keySplit(roots) {
   return roots.map((r, j) => [j === 0 ? 0 : ((roots[j - 1] + r) >> 1) + 1, j === n - 1 ? 127 : (r + roots[j + 1]) >> 1]);
 }
 
-// sampleio.user_slot for loops (each its own zone, roots ROOT_BASE + i): -> {hdr, data}
-export function userSlot(name, loops) {
-  return userSlotRaw(name, loops.map((s) => ({ adpcm: imaEncode(s), n: s.length })));
+// sampleio.user_slot for loops at `rate` (each its own zone, roots ROOT_BASE + i): -> {hdr, data}
+export function userSlot(name, loops, rate = RATE, slotSize = SLOT_SIZE) {
+  return userSlotRaw(name, loops.map((s) => ({ adpcm: imaEncode(s), n: s.length, rate })), slotSize);
 }
 
-// the same from loops already encoded ({adpcm, n}: the break page keeps a loop read back as it is)
-export function userSlotRaw(name, parts) {
-  const total = parts.reduce((a, p) => a + p.adpcm.length, 0);
-  if (total > SLOT_MAX_DATA) throw new Error(`too long: ${total} B of ADPCM, a slot holds ${SLOT_MAX_DATA} B`);
+// the same from loops already encoded ({adpcm, n, rate}: the break page keeps a loop read back as it is,
+// at its own rate)
+export function userSlotRaw(name, parts, slotSize = SLOT_SIZE) {
+  const total = parts.reduce((a, p) => a + p.adpcm.length, 0), max = slotSize - SLOT_DATA_OFF;
+  if (total > max) throw new Error(`too long: ${total} B of ADPCM, a slot holds ${max} B`);
   if (parts.length < 1 || parts.length > SLOT_ZONES) throw new Error(`1..${SLOT_ZONES} loops per slot`);
   const data = new Uint8Array(total);
   const zs = [];
   let off = 0;
   parts.forEach((p, i) => {
     data.set(p.adpcm, off);
-    zs.push({ off, n: p.n, root: ROOT_BASE + i });
+    zs.push({ off, n: p.n, root: ROOT_BASE + i, q16: Math.round(p.rate / 44100 * 65536) });
     off += p.adpcm.length;
   });
   const split = keySplit(zs.map((z) => z.root));
-  const rate = Math.round(SLOT_RATE / 44100 * 65536);
   const hdr = new Uint8Array(SLOT_HDR_LEN), v = new DataView(hdr.buffer);
   v.setUint32(0, 0x504D5346, true);
   v.setUint16(4, 1, true);
@@ -189,7 +204,7 @@ export function userSlotRaw(name, parts) {
     v.setUint32(o + 4, z.n, true);
     v.setUint32(o + 8, 0, true);               // loop start
     v.setUint32(o + 12, z.n - 1, true);        // loop end
-    v.setUint32(o + 16, rate, true);
+    v.setUint32(o + 16, z.q16, true);
     v.setInt16(o + 20, z.root * 16, true);
     v.setInt16(o + 22, 0, true);               // predictor and index at the loop start: from 0
     hdr[o + 24] = 0;
@@ -199,14 +214,14 @@ export function userSlotRaw(name, parts) {
   return { hdr, data };
 }
 
-// upload_breaks.pack: loops [{label, s}] in order into at most nslots slots; -> {slots, skipped}
-export function pack(loops, nslots) {
+// upload_breaks.pack: loops [{label, s}] in order into at most nslots slots of cap ADPCM bytes; -> {slots, skipped}
+export function pack(loops, nslots, cap = SLOT_MAX_DATA) {
   const slots = [], skipped = [];
   let cur = [], used = 0;
   for (const l of loops) {
     const need = (l.s.length + 1) >> 1;
-    if (need > SLOT_MAX_DATA) { skipped.push(l.label); continue; }
-    if (used + need > SLOT_MAX_DATA || cur.length >= SLOT_ZONES) {
+    if (need > cap) { skipped.push(l.label); continue; }
+    if (used + need > cap || cur.length >= SLOT_ZONES) {
       if (cur.length) slots.push(cur);
       cur = []; used = 0;
     }

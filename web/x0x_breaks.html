@@ -71,6 +71,10 @@
     <span class="small">or drop files here. Drop one on a loop to replace it.</span>
     <label title="Keeps only the first bar of each file you add (its length tells how many bars it has), so more loops fit">
       <input type="checkbox" id="bars" checked> Detect first bar</label>
+    <label title="Cuts the silence before and after the sound (below -60 dB). A loop's length sets its tempo, so this is off for loops">
+      <input type="checkbox" id="trim"> Trim silence</label>
+    <label title="Stores new loops at 22 kHz instead of 44.1 kHz: twice as many fit, but they sound duller">
+      <input type="checkbox" id="half"> 22 kHz (more room)</label>
   </div>
   <div class="full"><div id="fill"></div></div>
   <p id="room"></p>
@@ -89,7 +93,8 @@
     <span class="small">A backup is a file with every slot as it is on the device. Restore writes it back.</span>
   </div>
 
-  <p class="small" style="margin-top:32px">Loops follow the tempo by playing faster or slower, so their pitch
+  <p class="small" style="margin-top:32px">New loops are stored at 44.1 kHz. A one-bar loop at 120 BPM takes
+    about 86 KB; tick "22 kHz" to fit twice as many at a lower quality. Loops follow the tempo by playing faster or slower, so their pitch
     follows it too; the break's PITCH knob shifts it. Removing a loop renumbers the ones after it, so patterns
     that used them play the next loop instead.
     <a href="../manual/#s8" style="color:inherit">The manual's BREAK section</a> says how X0X plays a loop.</p>
@@ -124,7 +129,7 @@ function render() {
   loops.forEach((l, i) => {
     const r = document.createElement("div");
     r.className = l.isNew ? "loop new" : "loop";
-    r.innerHTML = `<div class="name">BR${i + 1}<small>${(l.n / SLOT_RATE).toFixed(1)} s${l.isNew ? " · new" : ""}</small></div>
+    r.innerHTML = `<div class="name">BR${i + 1}<small>${(l.n / l.rate).toFixed(1)} s${l.rate === RATE ? "" : " · 22k"}${l.isNew ? " · new" : ""}</small></div>
       <canvas width="900" height="80"></canvas>
       <div class="acts"><button class="link rep">Replace</button><button class="link del">Remove</button></div>`;
     if (l.file) r.title = l.file;
@@ -190,7 +195,7 @@ function packLoops() {
 function image(k, ls) {
   if (!ls.length) return null;
   for (const l of ls) if (!l.adpcm) l.adpcm = imaEncode(l.s);
-  return userSlotRaw(`BR${k + 1}`, ls.map((l) => ({ adpcm: l.adpcm, n: l.n })));
+  return userSlotRaw(`BR${k + 1}`, ls.map((l) => ({ adpcm: l.adpcm, n: l.n, rate: l.rate })), lay.size);
 }
 
 function same(a, b) {
@@ -219,15 +224,18 @@ async function decode(file) {
   return { rate: ab.sampleRate, x };
 }
 
+// the rate new loops get: 44.1 kHz, or 22.05 kHz when asked for
+const newRate = () => ($("half").checked ? RATE_HALF : RATE);
+
 async function addFiles(list, at = -1) {
   if (busy || !readOk || !list.length) return;
   const got = [], bad = [];
   for (const f of at >= 0 ? list.slice(0, 1) : list) {
     try {
-      const { rate, x } = await decode(f);
+      const { rate: srcRate, x } = await decode(f);
       if (!x.length) throw new Error("no audio");
-      const s = cut(x, rate, $("bars").checked);
-      got.push({ adpcm: null, n: s.length, s, file: f.name, isNew: true, rate, x });
+      const rate = newRate(), s = cut(x, srcRate, $("bars").checked, rate, $("trim").checked);
+      got.push({ adpcm: null, n: s.length, s, rate, file: f.name, isNew: true, srcRate, x });
     } catch (_) { bad.push(f.name); }
   }
   say(bad.length ? `Couldn't read ${bad.join(", ")}.` : "");
@@ -334,7 +342,7 @@ async function readAll() {
     if (!sl) return;
     for (const z of parseSlot(sl.hdr).zones) {
       const adpcm = sl.data.slice(z.off, z.off + ((z.n + 1) >> 1));
-      loops.push({ adpcm, n: z.n, s: imaDecode(adpcm, z.n), isNew: false });
+      loops.push({ adpcm, n: z.n, s: imaDecode(adpcm, z.n), rate: z.rate, isNew: false });
     }
   });
   readOk = true;
@@ -459,8 +467,14 @@ $("files").onchange = (ev) => { addFiles([...ev.target.files], replaceAt); ev.ta
 document.body.ondragover = (ev) => { if (readOk) { ev.preventDefault(); $("list").classList.add("over"); } };
 document.body.ondragleave = (ev) => { if (!ev.relatedTarget) $("list").classList.remove("over"); };
 document.body.ondrop = (ev) => { ev.preventDefault(); $("list").classList.remove("over"); addFiles([...ev.dataTransfer.files]); };
-$("bars").onchange = () => {                         // the new loops, cut again
-  for (const l of loops) if (l.isNew) { l.s = cut(l.x, l.rate, $("bars").checked); l.n = l.s.length; l.adpcm = null; }
+$("bars").onchange = $("trim").onchange = $("half").onchange = () => {   // the new loops, cut again
+  for (const l of loops)
+    if (l.isNew) {
+      l.rate = newRate();
+      l.s = cut(l.x, l.srcRate, $("bars").checked, l.rate, $("trim").checked);
+      l.n = l.s.length;
+      l.adpcm = null;
+    }
   render();
 };
 render();

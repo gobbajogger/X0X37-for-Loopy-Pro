@@ -6,14 +6,15 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readWav, cut, pack, userSlot, NSLOTS, imaDecode, parseSlot, parseInfo, makeArchive, readArchive,
+import { readWav, cut, pack, userSlot, DRY_SLOTS, RATE, RATE_HALF, imaDecode, trimSilence, parseSlot, parseInfo, makeArchive, readArchive,
   planRestore } from "./x0x_breaks.js";
 
 const dir = mkdtempSync(join(tmpdir(), "x0x-breaks-"));
 let bad = 0;
 
-function wav(path, rate, nch, bits, seconds, seed) {
-  const n = Math.round(rate * seconds), bps = bits >> 3, data = Buffer.alloc(n * nch * bps);
+function wav(path, rate, nch, bits, seconds, seed, pad = 0) {
+  const n = Math.round(rate * seconds), bps = bits >> 3, np = Math.round(rate * pad);
+  const data = Buffer.alloc((n + 2 * np) * nch * bps);
   let r = seed;
   for (let i = 0; i < n; i++) {
     r = (r * 1103515245 + 12345) >>> 0;
@@ -21,7 +22,7 @@ function wav(path, rate, nch, bits, seconds, seed) {
     const v = beat * Math.sin(i * 0.3) + 0.1 * ((r >>> 8) / 16777216 - 0.5) + 0.2 * Math.sin(i * 2 * Math.PI * 110 / rate);
     for (let c = 0; c < nch; c++) {
       const s = Math.max(-1, Math.min(1, c ? v * 0.7 : v));
-      const o = (i * nch + c) * bps;
+      const o = ((i + np) * nch + c) * bps;           // pad: silence before and after
       if (bits === 16) data.writeInt16LE(Math.round(s * 32767), o);
       else data.writeIntLE(Math.round(s * 8388607), o, 3);
     }
@@ -38,31 +39,49 @@ const files = [
   [join(dir, "amen.wav"), 44100, 2, 16, 4.0, 1],     // 2 s per bar at 120: --bars cuts it to 2 s
   [join(dir, "think.wav"), 48000, 1, 24, 2.1, 7],
   [join(dir, "funky.wav"), 44100, 1, 16, 1.6, 3],
+  [join(dir, "shot.wav"), 48000, 1, 16, 0.5, 5, 0.4], // 0.4 s of silence before and after: --trim cuts it
 ];
 for (const f of files) wav(...f);
 
-for (const bars of [false, true]) {
-  const out = join(dir, bars ? "py_bars" : "py_whole");
-  execFileSync("python3", ["tools/upload_breaks.py", ...(bars ? ["--bars"] : []), "--dry-run", out, ...files.map((f) => f[0])],
-    { stdio: "pipe" });
-  const loops = files.map((f) => {
+// the defaults (44.1 kHz, no trim, 2 x 80 KB), 22.05 kHz on request, trim on request, another layout
+const cases = [
+  { what: "whole, 44.1 kHz", bars: false, rate: RATE, trim: false, nslots: DRY_SLOTS, kb: 80, args: [] },
+  { what: "one bar, 44.1 kHz", bars: true, rate: RATE, trim: false, nslots: DRY_SLOTS, kb: 80, args: ["--bars"] },
+  { what: "whole, 22.05 kHz", bars: false, rate: RATE_HALF, trim: false, nslots: DRY_SLOTS, kb: 80, args: ["--rate", "22050"] },
+  { what: "one bar, trimmed", bars: true, rate: RATE, trim: true, nslots: DRY_SLOTS, kb: 80, args: ["--bars", "--trim"] },
+  { what: "shot, trimmed", bars: false, rate: RATE, trim: true, nslots: DRY_SLOTS, kb: 80, args: ["--trim"], only: [3] },
+  { what: "whole, 3 x 120 KB", bars: false, rate: RATE, trim: false, nslots: 3, kb: 120, args: ["--nslots", "3", "--slot-kb", "120"] },
+];
+for (const c of cases) {
+  const out = join(dir, c.what.replace(/[^a-z0-9]/gi, "_"));
+  const fs = c.only ? c.only.map((k) => files[k]) : files;
+  execFileSync("python3", ["tools/upload_breaks.py", ...c.args, "--dry-run", out, ...fs.map((f) => f[0])], { stdio: "pipe" });
+  const loops = fs.map((f) => {
     const { rate, x } = readWav(readFileSync(f[0]));
-    return { label: f[0], s: cut(x, rate, bars) };
+    return { label: f[0], s: cut(x, rate, c.bars, c.rate, c.trim) };
   });
-  const { slots } = pack(loops, NSLOTS);
+  const { slots } = pack(loops, c.nslots, c.kb * 1024 - 512);
   slots.forEach((sl, i) => {
-    const img = userSlot(`BR${i + 1}`, sl.map((l) => l.s));
+    const img = userSlot(`BR${i + 1}`, sl.map((l) => l.s), c.rate, c.kb * 1024);
     const hdr = readFileSync(join(out, `slot${i + 1}.hdr`)), bin = readFileSync(join(out, `slot${i + 1}.bin`));
     const same = Buffer.compare(Buffer.from(img.hdr), hdr) === 0 && Buffer.compare(Buffer.from(img.data), bin) === 0;
-    console.log(`  ${same ? "ok" : "FAIL"} ${bars ? "one bar" : "whole"}, slot ${i + 1}: ${sl.length} loop(s), ${img.data.length} B`);
+    console.log(`  ${same ? "ok" : "FAIL"} ${c.what}, slot ${i + 1}: ${sl.length} loop(s), ${img.data.length} B`);
     if (!same) bad++;
   });
 }
+// trim: the silence goes, 1 ms stays before the sound, the tail fades to 0; loops are not trimmed by default
+{
+  const { rate, x } = readWav(readFileSync(files[3][0]));
+  const y = trimSilence(x, rate), first = y.findIndex((v) => Math.abs(v) > 0.001);
+  const ok = y.length < x.length * 0.6 && first === 48 && y[y.length - 1] === 0 && cut(x, rate, false).length > cut(x, rate, false, RATE, true).length;
+  console.log(`  ${ok ? "ok" : "FAIL"} trim: ${x.length} -> ${y.length} samples, sound at ${first} (1 ms), faded end`);
+  if (!ok) bad++;
+}
 // reading back: the header parses, and the decoded loops follow what went in (ADPCM: close, not exact)
 {
-  const loops = files.map((f) => { const { rate, x } = readWav(readFileSync(f[0])); return cut(x, rate, true); });
-  const img = userSlot("BR1", loops), h = parseSlot(img.hdr);
-  let ok = h && h.nz === loops.length && h.name === "BR1" && h.dataLen === img.data.length;
+  const loops = files.map((f) => { const { rate, x } = readWav(readFileSync(f[0])); return cut(x, rate, true, RATE_HALF); });
+  const img = userSlot("BR1", loops, RATE_HALF), h = parseSlot(img.hdr);
+  let ok = h && h.nz === loops.length && h.name === "BR1" && h.dataLen === img.data.length && h.zones.every((z) => z.rate === RATE_HALF);
   loops.forEach((s, i) => {
     const z = h.zones[i], y = imaDecode(img.data.subarray(z.off, z.off + ((z.n + 1) >> 1)), z.n);
     let e = 0, p = 0;
