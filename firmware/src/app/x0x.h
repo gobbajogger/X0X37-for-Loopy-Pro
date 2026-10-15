@@ -38,6 +38,11 @@ typedef struct {
     uint8_t out_loud;                    /* 1: the output 6 dB hotter (the codec's full scale) */
     uint8_t usb_full;                    /* 1: USB audio at full level, the MASTER knob for the FM-1's own outputs */
     uint8_t bt;                          /* bit 0: Bluetooth MIDI on (SMK-37; 0 = off, also in older objects) */
+    uint8_t ck_ch;                       /* SMK-37 clip mode: the keybed MIDI channel 2-15 (0: an older object) */
+    uint8_t ck_root, ck_scale, ck_snap;  /* clip mode SCALE: root 0-11, scale; ck_snap: spare, 0 (snap is NEAR) */
+    uint8_t ck_chord;                    /* clip mode CHORD: type */
+    uint8_t ck_ord, ck_rate, ck_oct;     /* clip mode ARP: order, rate (smk_clip_keys.h), octaves 1-4 */
+    uint8_t ck_gate;                     /* clip mode ARP: gate 1-10 (10-100 %); 0: an older object (defaults) */
 } settings_t;
 
 /* the song and the motion lanes: one blob, split across OBJ_SONG and OBJ_MOTION */
