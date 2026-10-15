@@ -63,7 +63,10 @@ void ctl_fail(u32 err);           /* the controller stops for good: state FAILED
 u32 ctl_heap_stat(void);          /* heap peak and failures, for DIAG (ctl_heap.c) */
 u32 ctl_os_stack_free(void);      /* the least free bytes ever over the task stacks (ctl_os.c) */
 extern u32 ctl_q_full;
-void ctl_mark(u32 n);                     /* attempt 41: DIAG step marker (ctl_main.c) */            /* task queue messages lost (ctl_os.c) */
+void ctl_mark(u32 n);
+void ctl_mark_v(u32 n, u32 v);            /* attempt 42: a marker with a value (dbg DELAYS) */
+u32 ctl_heap_free2(void);
+u32 ctl_heap_main_size(void);                     /* attempt 41: DIAG step marker (ctl_main.c) */            /* task queue messages lost (ctl_os.c) */
 void ctl_nv_forget(void);         /* ABI 3: empty the bond store (ctl_syscfg.c) */
 u32 ctl_stack_free(const u8 *lo, const u8 *hi);   /* untouched bytes from lo (painted 0xA5) */
 

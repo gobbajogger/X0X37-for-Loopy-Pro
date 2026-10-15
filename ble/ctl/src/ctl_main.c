@@ -194,7 +194,14 @@ void ctl_mark(u32 n)
 {
     ctl_mb->dbg[XB_DBG_STAGE] = n;
     ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();
+    ctl_mb->dbg[XB_DBG_RA] = ctl_heap_main_size();
+    ctl_mb->dbg[XB_DBG_STALL] = ctl_heap_free2();
     XB_SYNC();
+}
+void ctl_mark_v(u32 n, u32 v)
+{
+    ctl_mb->dbg[XB_DBG_DELAYS] = v;
+    ctl_mark(n);
 }
 static void stage(u32 n)
 {

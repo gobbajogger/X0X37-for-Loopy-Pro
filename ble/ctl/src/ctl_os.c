@@ -72,7 +72,7 @@ static struct ctl_task *find(const char *name)
 
 static void task_trampoline(void)
 {
-    ctl_mark(0x350u + (u32)(cur - tasks));   /* attempt 41: the task runs for the first time */
+    ctl_mark(0x360u + (u32)(cur - tasks));   /* attempt 41: the task runs for the first time */
     cur->fn(cur->arg);
     cur->used = 0;                     /* task returned: free its slot */
     ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
@@ -85,12 +85,15 @@ int task_create(void (*fn)(void *p), void *p, const char *name)
         if (t->used) continue;
         memset(t, 0, sizeof(*t));
         u32 words = stack_words(name);
-        ctl_mark(0x340u + (u32)i);         /* attempt 41: a task is created */
+        ctl_mark(0x340u + (u32)i * 0x10u);   /* attempt 41: a task is created (0x340, 0x350) */
         t->stack = malloc(words * 4);
         if (!t->stack) { ctl_mark(0x34Fu); return -1; }
+        ctl_mark_v(0x344u + (u32)i * 0x10u, (u32)(uintptr_t)t->stack);   /* malloc gave this */
         memset(t->stack, 0xA5, words * 4);
+        ctl_mark(0x345u + (u32)i * 0x10u);
         t->name = name; t->fn = fn; t->arg = p; t->used = 1; t->waiting = 0;
         ctl_port_ctx_init(&t->ctx, t->stack, words * 4, task_trampoline);
+        ctl_mark(0x346u + (u32)i * 0x10u);
         return 0;
     }
     return -1;

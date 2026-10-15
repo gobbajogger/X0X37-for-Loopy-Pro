@@ -38,6 +38,19 @@ void ctl_heap_init(void)
 #endif
 }
 
+/* attempt 42 (DIAG): the free bytes in the main region (bits 0-15) and in heap2 (bits 16-31), and
+ * the main region's size */
+u32 ctl_heap_free2(void)
+{
+    u32 a = 0, b = 0, in2 = 0;
+    for (struct blk *k = heap_first; k; k = k->next) {
+        if (k->size == (8u | 1u)) { in2 = 1; continue; }        /* the end mark of the main region */
+        if (!(k->size & 1u)) { if (in2) b += k->size; else a += k->size; }
+    }
+    return (a > 0xFFFFu ? 0xFFFFu : a) | (b > 0xFFFFu ? 0xFFFFu : b) << 16;
+}
+u32 ctl_heap_main_size(void) { return (u32)(__ctl_heap_end - __ctl_heap_start); }
+
 void *malloc(size_t n)
 {
     u32 need = ((u32)n + sizeof(struct blk) + 7u) & ~7u;
