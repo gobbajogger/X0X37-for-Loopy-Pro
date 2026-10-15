@@ -75,8 +75,16 @@ def diag():
     for k in range(n):
         b = r[1 + 5 * k:6 + 5 * k]
         w.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
-    names = CRASH + BOOT + GUARD + LIVE
-    return {names[k] if k < len(names) else f"w{k}": v for k, v in enumerate(w)}
+    head = CRASH + BOOT
+    d = {k: v for k, v in zip(head, w)}
+    rest = w[len(head):]
+    if len(rest) >= len(LIVE):                     # the live words are always the last 11
+        d.update(zip(LIVE, rest[-len(LIVE):]))
+        rest = rest[:-len(LIVE)]
+    d.update(zip(GUARD, rest))                     # an older firmware sends fewer guard words
+    for k in GUARD + LIVE:
+        d.setdefault(k, 0)
+    return d
 
 
 def wait_port(present, timeout):
