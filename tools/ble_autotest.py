@@ -52,7 +52,17 @@ def ports():
     return (i[0], o[0]) if i and o else None
 
 
-def ask(cmd, args=(), timeout=3.0):
+def ask(cmd, args=(), timeout=3.0, tries=2):
+    """one request; again once if no reply (after idle the first reply can be lost: the host
+    does not read the USB IN endpoint at once, and the unit gives a SysEx reply 200 ms)"""
+    for _ in range(tries):
+        r = _ask(cmd, args, timeout)
+        if r is not None:
+            return r
+    return None
+
+
+def _ask(cmd, args=(), timeout=3.0):
     p = ports()
     if not p:
         return None
