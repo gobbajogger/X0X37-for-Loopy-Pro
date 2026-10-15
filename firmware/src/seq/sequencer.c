@@ -375,7 +375,7 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
     }
     s->clk_to_next = 0;
     s->playing = 1;
-    if (!s->ext && s->send_clock)
+    if (!s->ext && s->send_clock && !s->midi_req)
         midi(o, from_top ? 0xFA : 0xFB, 0, 0);
 }
 
@@ -389,7 +389,7 @@ static void do_stop(seq_t *s, const seq_sink_t *o)
         o->brk_stop(o->ctx);
     for (t = 0; t < NTRACKS; t++)
         s->t[t].to_next = NEVER;
-    if (!s->ext && s->send_clock)
+    if (!s->ext && s->send_clock && !s->midi_req)
         midi(o, 0xFC, 0, 0);
 }
 
@@ -467,6 +467,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         s->req_cont = 0;
         do_start(s, 0, o);
     }
+    s->midi_req = 0;                                  /* used only by the requests above */
     if (s->ext_pending)
         ext_ticks(s);
     if (!s->playing) {

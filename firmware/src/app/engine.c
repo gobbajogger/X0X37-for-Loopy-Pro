@@ -466,6 +466,10 @@ static void midi_in(uint32_t pkt)
         smk_apc_clock_start();
     else if (st == 0xF2)
         smk_apc_clock_position((uint32_t)d1 | (uint32_t)d2 << 7);   /* Song Position: 6 ticks per unit */
+    /* Clip mode: Loopy Start, Continue and Stop must not go back to the host as
+     * X0X transport (no echo). With clip mode off, nothing changes (agent rules, 10). */
+    if (st >= 0xFA && st <= 0xFC && smk_clip_mode_on())
+        seq.midi_req = 1;
 #endif
     switch (st) {
     case 0xF8: seq_ext_clock(&seq); return;
