@@ -9,7 +9,7 @@ step 2, the loader reads the whole package and writes it. In both steps the
 device asks (SysEx read requests on the logical image) and we answer. Then
 the FM-1 restarts and the installed identity is checked.
 
-  fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots]
+  fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots] [--ctl FILE | --no-ctl]
   fm1_install.py --info [--port NAME]
 
 If the FM-1 is still in update mode (an earlier install was cut off), the
@@ -30,6 +30,11 @@ Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 loader / no restart), 6 wrong model, or another identity after the install,
 7 installed, but the slots were not written back (the backup file stays).
 
+Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
+computer to the package before it is sent (tools/add_ctl.py). Every install writes the Bluetooth block,
+so without it the unit has no Bluetooth after the install. build_ctl.sh also keeps a copy in
+~/.config/x0x/ctl.img: an SMK-37 install uses that copy by itself (and says so); --no-ctl skips it.
+
 Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
 v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
 The model is checked: an FM-1 package never goes to an SMK-37 Pro, nor the other way round (the SMK-37
@@ -44,6 +49,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fm1pkg_make  # noqa: E402  (the package's slot map)
+import add_ctl  # noqa: E402  (the SMK-37 Bluetooth controller image)
 import x0x_slots as xs  # noqa: E402
 HS_QUERY = bytes([0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7])
 UPGRADE = bytes([0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7])
@@ -605,6 +611,34 @@ class Progress:
             self.line = False
 
 
+CTL_CACHE = Path.home() / ".config" / "x0x" / "ctl.img"   # ble/ctl/build_ctl.sh keeps its last image here
+
+
+def with_ctl(a, product, image, out, cache=None):
+    """the logical image with the Bluetooth controller image added (--ctl, or the cached one on an SMK-37)"""
+    cache = CTL_CACHE if cache is None else cache
+    path = getattr(a, "ctl", None)
+    smk = board_of(product) == "smk"
+    if path is None and smk and not getattr(a, "no_ctl", False) and Path(cache).is_file():
+        path = cache
+    if path is None:
+        return image
+    if not smk:
+        raise InstallError("usage", "--ctl: the Bluetooth controller image is for the SMK-37 family only")
+    try:
+        ctl = Path(path).read_bytes()
+    except OSError as e:
+        raise InstallError("badpkg", f"cannot read {path}: {e.strerror}")
+    try:
+        if (p := add_ctl.ctl_problem(ctl)):
+            raise add_ctl.PkgError(f"{path}: {p}")
+        image = add_ctl.insert(image, ctl)
+    except add_ctl.PkgError as e:
+        raise InstallError("badpkg", f"Bluetooth controller image: {e}")
+    print(f"Bluetooth controller image: {path} (added to the package)", file=out)
+    return image
+
+
 def run(a, backend, out, ask):
     up = Updater(backend, a.port)
     if a.info:
@@ -617,6 +651,7 @@ def run(a, backend, out, ask):
         return 0
     product, image = load_package(a.package, a.force)
     print(f"package: {product}  ({a.package})", file=out)
+    image = with_ctl(a, product, image, out)
     dev = up.find()
     if not dev:
         raise not_found(up)
@@ -679,6 +714,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
     ap.add_argument("--backup", metavar="FILE", help="where to save the slots if the install would lose them")
     ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
+    ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
+    ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
     a = ap.parse_args(argv)
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")

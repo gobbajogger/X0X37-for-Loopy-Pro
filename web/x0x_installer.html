@@ -52,6 +52,11 @@
   <progress id="bar" max="100" value="0"></progress>
   <p id="status"></p>
   <pre id="log"></pre>
+  <section id="ble" hidden>
+    <h2 data-t="bleh"></h2>
+    <p class="small" data-t="blewhy"></p>
+    <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
+  </section>
   <section id="stock">
     <h2 data-t="stockh"></h2>
     <p class="small" data-t="stockwhy"></p>
@@ -115,6 +120,10 @@ const TEXT = {
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
     license: "GPL-3.0、無保証。ソース:",
+    bleh: "Bluetooth MIDI（任意）",
+    blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。X0X とは別のプログラムで、X0X には含まれていません。選ばなければ Bluetooth なしでインストールします。アップデートのたびに選び直してください。",
+    ctlok: "ctl.img を確認しました。インストールに含めます。",
+    ctlbad: "この ctl.img は使えません: ",
   },
   en: {
     intro: "Connect the FM-1 by USB. (Works in Chrome or Edge.)",
@@ -159,6 +168,10 @@ const TEXT = {
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
     license: "GPL-3.0, no warranty. Source:",
+    bleh: "Bluetooth MIDI (optional)",
+    blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. It is a separate program, not part of X0X. Without it, X0X installs without Bluetooth. Select it again for each update.",
+    ctlok: "ctl.img checked: the install includes it.",
+    ctlbad: "This ctl.img cannot be used: ",
   },
 };
 let lang = "en";                                 /* X0X: English first (the manual is English); 日本語 is a click away */
@@ -179,6 +192,21 @@ let image = null;
 const meta = /*META*/;
 /* The stock restore link is specific to the FM-1; never offer it for SMK builds. */
 if (!meta.stock) { $("stock").hidden = true; $("recovery").hidden = true; }
+/* SMK-37 family: an optional Bluetooth controller image, built by the user (never served from here) */
+let ctl = null;
+if (/^(SMK|MKE)/i.test(meta.product)) $("ble").hidden = false;
+$("ctlfile").addEventListener("change", async (e) => {
+  ctl = null;
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  try {
+    const raw = new Uint8Array(await f.arrayBuffer());
+    const p = ctlProblem(raw);
+    if (p) { sayK("ctlbad", p); return; }
+    ctl = raw;
+    sayK("ctlok");
+  } catch (err) { sayK("ctlbad", err && err.message); }
+});
 
 let writing = false;
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
@@ -272,7 +300,13 @@ async function run(img, product, isStock) {
   $("stockgo").disabled = !stock;
 }
 
-$("go").addEventListener("click", () => run(image, meta.product, false));
+$("go").addEventListener("click", () => {
+  let img = image;
+  if (ctl) {
+    try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
+  }
+  run(img, meta.product, false);
+});
 $("stockgo").addEventListener("click", () => { if (stock) run(stock.image, stock.product, true); });
 </script>
 </body>
