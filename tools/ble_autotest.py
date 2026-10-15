@@ -116,22 +116,35 @@ def settle(timeout=30.0):
 
 
 T5W = ["magic", "ms", "ticks", "tag", "dbg", "c0n", "c1n", "prpn", "prpid", "hits", "h_ms", "h_tag", "h_slot",
-       "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "icfg0_3", "icfg0_5", "hits_now",
-       "d_magic", "d_n", "d_t4_ms", "d_c0_ms", "d_dbg", "d_emu"] + [f"d_etm{i}_{j}" for i in range(4) for j in range(4)] + ["c_armed", "c_n", "c_scans"] + [f"c_{i}_{f}" for i in range(8) for f in ("at", "val", "ms")]
+       "h_old", "h_new", "h_sp", "h_dbg", "h_prpid", "h_c1n", "h_prpn", "icfg0_3", "icfg0_5", "hits_now"]
+C1R = ["d_magic", "d_n", "d_t4_ms", "d_c0_ms", "d_dbg", "d_emu"] + [f"d_etm{i}_{j}" for i in range(4) for j in range(4)] + ["c_armed", "c_n", "c_scans"] + [f"c_{i}_{f}" for i in range(8) for f in ("at", "val", "ms")]
 TAG = ["begin", "after input", "before Bluetooth", "after Bluetooth", "end"]
 SLOT = ["r3", "r2", "r1", "r0", "psr", "rets", "reti", "word above"]
 
 
-def t5w():
-    """ED_BT_TEST op 3: the timer 5 frame watch of the last boot (fm1_guard.h)"""
-    r = ask(ED_BT_TEST, [3])
-    if not r or r[0] != 3:
+def bt_words(op):
+    r = ask(ED_BT_TEST, [op])
+    if not r or r[0] != op:
         return None
     w = []
     for k in range(r[1]):
         b = r[2 + 5 * k:7 + 5 * k]
+        if len(b) < 5:
+            break
         w.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
-    return dict(zip(T5W, w))
+    return w
+
+
+def t5w():
+    """ED_BT_TEST op 3: the timer 5 frame watch of the last boot (fm1_guard.h); op 4: core 1's records"""
+    w = bt_words(3)
+    if w is None:
+        return None
+    t = dict(zip(T5W, w))
+    w4 = bt_words(4)
+    if w4:
+        t.update(zip(C1R, w4))
+    return t
 
 
 def t5w_text(t):

@@ -314,18 +314,19 @@ static void ed_handle(const uint8_t *f, uint32_t n)
 #if X0X_BLE
     case ED_BT_TEST: {
         uint32_t op = na > 0u ? a[0] : 0u;
-        if (op > 3u)
+        if (op > 4u)
             return;
-        if (op == 3u) {                               /* the timer 5 frame watch (fm1_guard.h): last boot's, then hits now */
-            const uint32_t *t = (const uint32_t *)&fm1_t5w_prev;
-            uint32_t k;
-            const uint32_t *c = (const uint32_t *)&fm1_c0_dead;
+        if (op >= 3u) {     /* 3: the timer 5 frame watch (fm1_guard.h), last boot's, then hits now;
+                             * 4: core 1's records (fm1_cpu1.h): core 0 seen stopping, the RAM canary */
+            const uint32_t *t = op == 3u ? (const uint32_t *)&fm1_t5w_prev : (const uint32_t *)&fm1_c0_dead;
             const uint32_t *g = (const uint32_t *)&fm1_can;
-            const uint32_t nt = sizeof fm1_t5w_prev / 4u, nc = sizeof fm1_c0_dead / 4u, ng = sizeof fm1_can / 4u;
+            const uint32_t nt = op == 3u ? sizeof fm1_t5w_prev / 4u : sizeof fm1_c0_dead / 4u;
+            const uint32_t n = nt + (op == 3u ? 1u : sizeof fm1_can / 4u);
+            uint32_t k;
             ed_b(op);
-            ed_b(nt + 1u + nc + ng);
-            for (k = 0; k < nt + 1u + nc + ng; k++) {
-                uint32_t v = k < nt ? t[k] : k == nt ? fm1_t5w.hits : k <= nt + nc ? c[k - nt - 1u] : g[k - nt - 1u - nc];
+            ed_b(n);
+            for (k = 0; k < n; k++) {
+                uint32_t v = k < nt ? t[k] : op == 3u ? fm1_t5w.hits : g[k - nt];
                 ed_b(v);
                 ed_b(v >> 7);
                 ed_b(v >> 14);
