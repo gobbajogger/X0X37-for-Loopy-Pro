@@ -8,7 +8,11 @@
 #include "ctl_port.h"
 
 
+#ifdef CTL_HOST
+#define CTL_MAX_TASKS   3   /* btctrler, btstack, and a spare */
+#else
 #define CTL_MAX_TASKS   2
+#endif
 #define CTL_TASKQ_WORDS 64
 
 struct ctl_task {

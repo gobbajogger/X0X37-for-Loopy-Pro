@@ -18,6 +18,7 @@ typedef struct {
     void (*set_sco_config)(u16 voice, int n);
 } hci_transport_t;   /* layout from include_lib/btctrler/hci_transport.h */
 
+#ifndef CTL_HOST
 void hci_packet_handler(int type, const u8 *packet, int size);
 
 /* The H4 transport the controller gets (btctrler_task_init). In btctrler.a,
@@ -42,6 +43,10 @@ static const hci_transport_t ctl_transport = {
     .send_packet = ctl_tr_send,
 };
 extern int btctrler_task_init(const void *transport, const void *config);
+#else
+#include "../src_host/host_abi.h"
+extern void btstack_init(void);
+#endif
 extern void bt_max_pwr_set(u8 pwr, u8 pg, u8 iq, u8 ble);
 void ctl_delay_init(void);
 void ctl_port_irq_enable_core(void);
@@ -80,6 +85,29 @@ const xb_header_t ctl_image_header = {
     .irq_hi = BIT32(40) | BIT32(41) | BIT32(42) | BIT32(45),
 };
 
+#ifdef CTL_HOST
+/* ---- image -> app: BLE-MIDI packets and the link state (host_abi.h) ---- */
+void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)
+{
+    u32 f = ctl_port_irq_save();
+    if (xb_frame_put(&ctl_mb->c2h, type, p, n) != 0)
+        ctl_mb->c2h_drops++;
+    else
+        ctl_mb->dbg[XB_DBG_MS]++;
+    ctl_port_irq_restore(f);
+}
+static u8 rx_pkt[XB_FRAME_MAX];
+void ctl_host_poll(void)
+{
+    u8 type;
+    int k;
+    while ((k = xb_frame_get(&ctl_mb->h2c, &type, rx_pkt, sizeof rx_pkt)) != 0)
+        if (k > 0) {
+            ctl_mb->dbg[XB_DBG_INIT_MS]++;
+            hx_from_app(type, rx_pkt, (unsigned)k);
+        }
+}
+#else
 /* ---- controller -> app ---- */
 void hci_packet_handler(int type, const u8 *packet, int size)
 {
@@ -114,6 +142,8 @@ void ctl_host_poll(void)
         }
     }
 }
+
+#endif
 
 /* the controller stops for good: its interrupts off on core 1, state FAILED. The app sees it
  * and stops calling poll(). */
@@ -177,7 +207,12 @@ static u32 ctl_init(u32 arg)
     stage(XB_STG_OS);
     stage(XB_STG_H4);
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
+#ifdef CTL_HOST
+    hx_init();
+    btstack_init();                       /* its task starts the controller (btctrler_task_init) */
+#else
     btctrler_task_init(&ctl_transport, NULL);
+#endif
     stage(XB_STG_TASK);
     /* The RF trim runs in the controller task during the settle loop. Its inner loops are in RAM, but
      * JieLi's interrupt handlers are in the flash, and flash reads can come back wrong under the trim's
