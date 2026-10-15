@@ -83,6 +83,7 @@ static void ble_prepare(int on)
         ble_sink_check();                       /* (the boot may have used that RAM too) */
         ble_guard.sink_n |= 0x80000000u;        /* bit 31: checked at the next boot, not after the init */
         ble_guard.reset = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* what reset it */
+        ble_guard.wait_end = fm1_c1_wait_end;   /* how core 0's wait ended (RAM code) */
     }
     if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
         if (ble_img == BLE_IMG_OK && on && ble_guard.blocked) {
@@ -137,7 +138,7 @@ static void ble_start(void)
     bleh_set_sysex(&ble_r.h, ble_sysex_in);
     fm1_ble_sync();
     ble_guard.start_ms = fm1_ms;
-    ble_guard.sink_n = ble_guard.sink_at = ble_guard.sink_val = 0;
+    ble_guard.sink_n = ble_guard.sink_at = ble_guard.sink_val = ble_guard.wait_end = 0;
     ble_sink_fill();
     bus = fm1_guard_bus_pause();                /* JieLi's RF code: not for the bus-invalid checks */
     fm1_wdt_feed();                             /* init may take FM1_BLE_INIT_MS of the 8 s */
@@ -148,9 +149,10 @@ static void ble_start(void)
         ble_guard.init_ms = (fm1_ticks() - t0) / (FM1_TICKS_PER_US * 1000u);
         irq_restore(f);
     }
-    fm1_wdt_feed();
+    ble_guard.wait_end = fm1_c1_wait_end;
     ble_record();
-    ble_sink_check();
+    ble_sink_check();                           /* before the first P33 access after the start */
+    fm1_wdt_feed();
     ble_guard_started(&ble_guard, rc, rc == 0 && mb->state == XB_ST_READY);
     if (rc != 0) {                              /* it did not come back: one core from now on (-3: no tick) */
         fm1_cpu1_hold();

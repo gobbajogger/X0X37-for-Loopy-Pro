@@ -145,7 +145,17 @@ int puts(const char *s) { (void)s; return 0; }
 int putchar(int c) { return c; }
 void printf_buf(u8 *buf, u32 len) { (void)buf; (void)len; }
 void put_buf(const u8 *buf, int len) { (void)buf; (void)len; }
-void cpu_assert_debug(void) { ctl_fail(XB_E_ASSERT); }
+void cpu_assert_debug(void)
+{
+    if (ctl_mb)                           /* the caller, for DIAG (XB_DBG_INIT_MS is free when init fails) */
+        ctl_mb->dbg[XB_DBG_INIT_MS] = (u32)(uintptr_t)__builtin_return_address(0);
+    ctl_fail(XB_E_ASSERT);
+}
 
 /* ---- reset: the app owns the system. The controller stops; the app goes on without it. ---- */
-void P33_SYSTEM_RESET(void) { ctl_fail(XB_E_RESET); }
+void P33_SYSTEM_RESET(void)
+{
+    if (ctl_mb)                           /* the library's caller, for DIAG */
+        ctl_mb->dbg[XB_DBG_INIT_MS] = (u32)(uintptr_t)__builtin_return_address(0);
+    ctl_fail(XB_E_RESET);
+}

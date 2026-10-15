@@ -58,6 +58,13 @@ typedef struct {
 } fm1_c1_mb_t;
 static fm1_c1_mb_t fm1_c1_mb __attribute__((aligned(64)));
 volatile uint32_t fm1_c1_trace;                 /* breadcrumbs (fm1_cpu1.S, fm1_c1_main) */
+/* the end of the last fm1_cpu1_run_wait_ram, written from RAM code before it returns (core 0 may
+ * not reach flash code after it): FM1_C1_WAIT_MARK | TIMER4 time in 100 ms (bits 16-23) | stalls << 8
+ * | (rc & 0xFF), 0xEE = still waiting. Survives a reset. */
+#define FM1_C1_WAIT_MARK 0xC1000000u
+#define FM1_C1_WAIT_END(t, st, rc) (FM1_C1_WAIT_MARK | ((t) / 2400000u > 255u ? 255u : (t) / 2400000u) << 16 | \
+                                    (st) << 8 | ((uint32_t)(rc) & 0xFFu))
+static volatile uint32_t fm1_c1_wait_end __attribute__((section(".noinit")));
 static uint8_t fm1_c1_on;                       /* started and answering: core 0 may hand it work */
 #define FM1_C1_CHECK(fn, arg, job) ((uint32_t)(uintptr_t)(fn) ^ (arg) ^ (job) * 0x9E3779B1u)
 static uint8_t fm1_c1_gave_up;                  /* 1 = it read a wrong job, 2 = it did not finish one,
@@ -270,6 +277,7 @@ static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg
     FM1_C1_SYNC();
     fm1_c1_mb.job = job;
     FM1_C1_SYNC();
+    fm1_c1_wait_end = FM1_C1_WAIT_MARK | 0xEEu;   /* still waiting */
     t0 = last = prev = FM1_C1_T4;
     for (;;) {
         uint32_t t = FM1_C1_T4;
@@ -279,7 +287,7 @@ static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg
         } else if (++same > 1000000u) {         /* TIMER4 stands still: look now, give up after 64 */
             same = 0;
             if (++stalls > 64u)
-                return -3;
+                goto out3;
             goto look;
         }
         if (t - last < FM1_C1_POLL_TICKS)       /* between looks only the timer: no RAM, no csync */
@@ -287,13 +295,22 @@ static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg
         last = t;
     look:
         FM1_C1_SYNC();
-        if (fm1_c1_mb.done == job)
+        if (fm1_c1_mb.done == job) {
+            fm1_c1_wait_end = FM1_C1_WAIT_END(t - t0, stalls, 0);
             return 0;
-        if (fm1_c1_mb.bad)
+        }
+        if (fm1_c1_mb.bad) {
+            fm1_c1_wait_end = FM1_C1_WAIT_END(t - t0, stalls, -2);
             return -2;
-        if (t - t0 > ticks)
+        }
+        if (t - t0 > ticks) {
+            fm1_c1_wait_end = FM1_C1_WAIT_END(t - t0, stalls, -1);
             return -1;
+        }
     }
+out3:
+    fm1_c1_wait_end = FM1_C1_WAIT_END(prev - t0, 65u, -3);
+    return -3;
 }
 
 /* Park core 1 before the flash goes off (main loop only, core 0's interrupts still on): 1 = parked,

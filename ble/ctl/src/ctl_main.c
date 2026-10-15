@@ -102,6 +102,7 @@ void ctl_fail(u32 err)
             if (ctl_mb->irqs_routed[n >> 5] & (1u << (n & 31u)))
                 cfg[n >> 3] &= ~(1u << ((n & 7u) * 4u));
         ctl_mb->err = err;
+        ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();   /* the stage time is not needed now: the heap use */
         XB_SYNC();
         ctl_mb->state = XB_ST_FAILED;
         XB_SYNC();
