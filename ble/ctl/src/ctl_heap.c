@@ -51,8 +51,21 @@ u32 ctl_heap_free2(void)
 }
 u32 ctl_heap_main_size(void) { return (u32)(__ctl_heap_end - __ctl_heap_start); }
 
-void *malloc(size_t n)
+/* attempt 47: hci_controller_init (JieLi's btctrler.a) takes malloc(2560) for its HCI buffer, but
+ * gives only the first 512 bytes to lbuf_init_btctrler (disassembly: r1 = 512), and nothing else
+ * reads the buffer (its pointer, hdl+4, is used only there). So that one request gets 512 bytes:
+ * 2048 bytes more heap for the host (its le_stack_pool, malloc(1240) in btstack_task_init, failed
+ * in attempt 46). Matched by size and caller, so no other request changes. */
+#define CTL_HCI_BUF_ASKED 2560u
+#define CTL_HCI_BUF_USED  512u
+extern void hci_controller_init(void);
+
+__attribute__((noinline)) void *malloc(size_t n)
 {
+    if (n == CTL_HCI_BUF_ASKED) {
+        uintptr_t ra = (uintptr_t)__builtin_return_address(0), f0 = (uintptr_t)hci_controller_init;
+        if (ra > f0 && ra < f0 + 0x100u) n = CTL_HCI_BUF_USED;
+    }
     u32 need = ((u32)n + sizeof(struct blk) + 7u) & ~7u;
     u32 f = ctl_port_irq_save();
     for (struct blk *b = heap_first; b; b = b->next) {

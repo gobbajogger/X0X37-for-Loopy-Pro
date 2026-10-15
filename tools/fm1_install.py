@@ -651,6 +651,7 @@ def with_ctl(a, product, image, out, cache=None):
     if not c or c[0] != want or c[1] != want:
         raise InstallError("badpkg", f"Bluetooth piece 1: CRC in the package {c}, want {want:08x}")
     print(f"Bluetooth piece 1: CRC {c[1]:08x} ok (package), piece 2: CRC {struct.unpack_from('<I', ctl, 60)[0]:08x}", file=out)
+    a.ctl_p1_crc = c[1]                     # attempt 47: printed again at the end of the install
     return image
 
 
@@ -742,7 +743,7 @@ def run(a, backend, out, ask):
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
         if not back:
             raise InstallError("noreturn", "installed, but the device did not answer for Bluetooth piece 2")
-        write_ctl2(back.link, a.ctl_bytes, out)
+        a.ctl2_ok = write_ctl2(back.link, a.ctl_bytes, out)
         time.sleep(1.0)
     if move and move.new_map:
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
@@ -757,6 +758,11 @@ def run(a, backend, out, ask):
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
     elif move:
         print(move.help(), file=out)
+    if getattr(a, "ctl_p1_crc", None) is not None:   # attempt 47: the CRC lines last, where they are seen
+        p2 = struct.unpack_from("<I", a.ctl_bytes, 60)[0]
+        print(f"Bluetooth piece 1: CRC {a.ctl_p1_crc:08x} ok (package, the unit checks it at boot)", file=out)
+        if getattr(a, "ctl2_ok", False):
+            print(f"Bluetooth piece 2: CRC {p2:08x} ok (read back)", file=out)
     return 0
 
 

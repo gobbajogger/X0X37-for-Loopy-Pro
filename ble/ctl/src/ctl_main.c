@@ -190,7 +190,14 @@ void ctl_fail(u32 err)
             if (ctl_mb->irqs_routed[n >> 5] & (1u << (n & 31u)))
                 cfg[n >> 3] &= ~(1u << ((n & 7u) * 4u));
         ctl_mb->err = err;
-        ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();   /* the stage time is not needed now: the heap use */
+#ifdef CTL_HOST
+        /* attempt 47: DIAG keeps took/gave (INIT_MS, MS) in FAILED too; the heap use goes to hx.heap,
+         * the failing caller is in RA (P33_SYSTEM_RESET, assert) */
+        ctl_mb->hx.heap = ctl_heap_stat();
+        d_live();
+#else
+        ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();
+#endif
         XB_SYNC();
         ctl_mb->state = XB_ST_FAILED;
         XB_SYNC();
