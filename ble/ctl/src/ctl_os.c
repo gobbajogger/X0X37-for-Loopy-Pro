@@ -30,6 +30,9 @@ static struct ctl_task tasks[CTL_MAX_TASKS];
 #endif
 static struct ctl_task *cur;           /* NULL = idle context */
 u32 ctl_q_full;                        /* task queue full (DIAG) */
+/* attempt 45 DIAG: per task (0 controller, 1 host) posts and pend returns (saturate at 15), first runs */
+u8 ctl_d_post[2], ctl_d_pend[2], ctl_d_ran;
+__attribute__((noinline, section(".bt_stack_code.d45"))) static void d_inc(u8 *c) { if (*c < 15u) (*c)++; }
 static struct ctl_ctx idle_ctx;
 
 /* Stack size by task name, as the SDK's table: the controller 512 words; the host ("btstack") 768
@@ -73,6 +76,7 @@ static struct ctl_task *find(const char *name)
 static void task_trampoline(void)
 {
     ctl_mark(0x360u + (u32)(cur - tasks));   /* attempt 41: the task runs for the first time */
+    if (cur - tasks < 2) ctl_d_ran |= (u8)(1u << (cur - tasks));
     cur->fn(cur->arg);
     cur->used = 0;                     /* task returned: free its slot */
     ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
@@ -149,6 +153,7 @@ int os_taskq_post_type(const char *name, int type, int argc, int *argv)
     for (int i = 0; i < argc; i++) t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argv[i];
     t->qhead &= (CTL_TASKQ_WORDS - 1);
     t->waiting = 0;
+    if (t - tasks < 2) d_inc(&ctl_d_post[t - tasks]);
     ctl_port_irq_restore(f);
     return OS_NO_ERR;
 }
@@ -168,6 +173,7 @@ int os_taskq_pend(const char *fmt, int *argv, int argc)
             }
             t->qtail &= (CTL_TASKQ_WORDS - 1);
             ctl_port_irq_restore(f);
+            if (t - tasks < 2) d_inc(&ctl_d_pend[t - tasks]);
             return OS_TASKQ;
         }
         ctl_port_irq_restore(f);
@@ -225,6 +231,10 @@ void ctl_os_init(void) { memset(tasks, 0, sizeof(tasks)); cur = NULL; }
 
 /* One pass: timers and the host mailbox, then each task that may be runnable.
  * A task re-checks its own wait condition. */
+__attribute__((noinline, section(".bt_stack_code.d45"))) u32 ctl_os_d_waiting(void) /* attempt 45 DIAG: bit i = task i waits */
+{
+    return (tasks[0].used && tasks[0].waiting ? 1u : 0u) | (tasks[1].used && tasks[1].waiting ? 2u : 0u);
+}
 int ctl_os_run_once(void)
 {
     int ran = 0;

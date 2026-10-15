@@ -146,9 +146,12 @@ static int hx_write(u16 con, u16 h, u16 mode, u16 off, u8 *buf, u16 size)
     return 0;
 }
 
+u8 ctl_d_ev_n, ctl_d_ev_last;          /* attempt 45 DIAG: host events seen, the last event code */
 static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
 {
     (void)ch;
+    if (ctl_d_ev_n < 255u) ctl_d_ev_n++;
+    if (size) ctl_d_ev_last = p[0];
     if (type != HCI_EVENT_PACKET || size < 2) return;
     switch (p[0]) {
     case EV_STATE:

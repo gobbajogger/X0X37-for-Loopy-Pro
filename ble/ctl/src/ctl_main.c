@@ -94,14 +94,29 @@ const xb_header_t ctl_image_header = {
 };
 
 #ifdef CTL_HOST
+/* attempt 45 DIAG, after READY, in the two live words (DIAG "took" and "gave"):
+ *   took: bits 0-7 frames from the app, 8-15 host events, 16-23 the last event code, 24-31 timer runs
+ *   gave: bits 0-7 frames to the app, 8-11 / 12-15 posts / pend returns of the controller task,
+ *         16-19 / 20-23 the same for the host task, 24-25 the tasks that wait, 28-29 the tasks that ran */
+static u8 d_took, d_gave;
+extern u8 ctl_d_post[2], ctl_d_pend[2], ctl_d_ran, ctl_d_timers, ctl_d_ev_n, ctl_d_ev_last;
+u32 ctl_os_d_waiting(void);
+__attribute__((noinline, section(".bt_stack_code.d45"))) static void d_live(void)
+{
+    ctl_mb->dbg[XB_DBG_INIT_MS] = d_took | (u32)ctl_d_ev_n << 8 | (u32)ctl_d_ev_last << 16 |
+                                  (u32)ctl_d_timers << 24;
+    ctl_mb->dbg[XB_DBG_MS] = d_gave | (u32)ctl_d_post[0] << 8 | (u32)ctl_d_pend[0] << 12 |
+                             (u32)ctl_d_post[1] << 16 | (u32)ctl_d_pend[1] << 20 |
+                             ctl_os_d_waiting() << 24 | (u32)ctl_d_ran << 28;
+}
 /* ---- image -> app: BLE-MIDI packets and the link state (host_abi.h) ---- */
 void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)
 {
     u32 f = ctl_port_irq_save();
     if (xb_frame_put(&ctl_mb->c2h, type, p, n) != 0)
         ctl_mb->c2h_drops++;
-    else
-        ctl_mb->dbg[XB_DBG_MS]++;
+    else if (d_gave < 255u)
+        d_gave++;
     ctl_port_irq_restore(f);
 }
 static u8 rx_pkt[XB_FRAME_MAX] __attribute__((section(".ctl_ram2")));
@@ -117,7 +132,7 @@ void ctl_host_poll(void)
             break;
         k = xb_frame_get(&ctl_mb->h2c, &type, rx_pkt, sizeof rx_pkt);
         if (k > 0) {
-            ctl_mb->dbg[XB_DBG_INIT_MS]++;
+            if (d_took < 255u) d_took++;
             hx_from_app(type, rx_pkt, (unsigned)k);
         }
     }
@@ -301,6 +316,9 @@ static u32 ctl_poll(u32 unused)
     }
     ctl_mb->polls++;
     ctl_os_run_once();
+#ifdef CTL_HOST
+    d_live();
+#endif
 #ifdef CTL_HOST
     if ((ctl_mb->polls & 1023u) == 0) {    /* health for DIAG: heap, the least free stack bytes / 16 */
         u32 t = ctl_os_stack_free() >> 4, r = ctl_stack_free(__ctl_run_stack_lo, __ctl_run_stack_hi) >> 4,
