@@ -30,6 +30,9 @@ typedef struct {
 } ble_ram_t;
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
 static uint32_t ble_rx_last[2];             /* the last frame from the controller (DIAG) */
+/* core 0's last Bluetooth tick (ms since boot) and core 1's poll count then. In .ble_ram (not
+ * cleared): after a watchdog reset, DIAG shows when core 0 stopped and if core 1 still ran. */
+static uint32_t ble_alive[2] __attribute__((section(".ble_ram")));
 
 static void ble_record(void);
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
@@ -248,6 +251,8 @@ static void ble_service(void)
         ble_fail();
         return;
     }
+    ble_alive[0] = fm1_ms;
+    ble_alive[1] = ble_r.mb.polls;
     if (ble_guard.trying && fm1_ms - ble_ok_at > BLE_GUARD_OK_MS)
         ble_guard_ok(&ble_guard);               /* it ran: the next power-on starts it again */
     if (!ble_host_on) {
@@ -330,11 +335,11 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_want | (uint32_t)ble_host_on << 8 | (uint32_t)ble_blocked << 16 | (uint32_t)fm1_c1_on << 24;
     w[n++] = fm1_c1_gave_up;
     w[n++] = (uint32_t)plat_ble_state();
-    w[n++] = ble_up ? ble_r.mb.state : 0xFFFFFFFFu;
-    w[n++] = ble_up ? ble_r.mb.err : 0xFFFFFFFFu;
-    w[n++] = ble_up ? ble_r.mb.polls : 0;
+    w[n++] = ble_r.mb.state;                    /* raw: after a reset, the last start's */
+    w[n++] = ble_r.mb.err;
+    w[n++] = ble_r.mb.polls;
     w[n++] = fm1_c1_mb.poll_max;
-    w[n++] = ble_up ? ble_r.h.state : 0xFFFFFFFFu;
+    w[n++] = ble_r.h.state;
     w[n++] = fm1_c1_trace;
     w[n++] = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* this boot's reset */
     if (n + 6u > max)
@@ -343,11 +348,15 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.c2h.head | ble_r.mb.c2h.tail << 16;
     w[n++] = ble_r.mb.c2h_drops;
     w[n++] = ble_r.h.step | (uint32_t)ble_r.h.cmd_wait << 8 | (uint32_t)ble_r.h.credits << 16;
-    w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_INIT_MS] : 0;     /* frames the controller took */
-    w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_MS] : 0;          /* frames it gave to the app */
+    w[n++] = ble_r.mb.dbg[XB_DBG_INIT_MS];     /* frames the controller took */
+    w[n++] = ble_r.mb.dbg[XB_DBG_MS];          /* frames it gave to the app */
     if (n + 2u > max)
         return n;
     w[n++] = ble_rx_last[0];                                /* the last frame from it: type, length, bytes */
     w[n++] = ble_rx_last[1];
+    if (n + 2u > max)
+        return n;
+    w[n++] = ble_alive[0];
+    w[n++] = ble_alive[1];
     return n;
 }

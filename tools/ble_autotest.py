@@ -39,7 +39,7 @@ GUARD = ["g_magic", "trying", "blocked", "why", "fails", "start_ms", "init_ms", 
          "seen_stage", "seen_ms", "seen_delays", "seen_ra", "code_bad", "code_sum"]
 LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
         "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now",
-        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave", "rx0", "rx1"]
+        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave", "rx0", "rx1", "alive_ms", "alive_polls"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
 WHY = ["-", "TIMEOUT", "WRONG JOB", "NOT READY", "RESET", "NO TICK"]
 MB = ["OFF", "INIT", "READY", "FAILED"]
@@ -138,6 +138,7 @@ def summary(d, before):
                f"{d['ctl_took']}, gave {d['ctl_gave']}; polls {d['polls']}; last frame type {d['rx0'] & 0xFF} "
                f"len {d['rx0'] >> 8 & 0xFF} bytes "
                + (d['rx0'] >> 16).to_bytes(2, 'little').hex(' ') + " " + d['rx1'].to_bytes(4, 'little').hex(' '),
+        "alive": f"core 0 last Bluetooth tick at {d['alive_ms']} ms after boot, core 1 polls then {d['alive_polls']}, now {d['polls']}",
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")
