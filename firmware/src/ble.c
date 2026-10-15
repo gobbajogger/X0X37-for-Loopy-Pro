@@ -339,6 +339,6 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.c2h_drops;
     w[n++] = ble_r.h.step | (uint32_t)ble_r.h.cmd_wait << 8 | (uint32_t)ble_r.h.credits << 16;
     w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_INIT_MS] : 0;     /* frames the controller took */
-    w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_MS] : 0;          /* times it could not take one */
+    w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_MS] : 0;          /* frames it gave to the app */
     return n;
 }

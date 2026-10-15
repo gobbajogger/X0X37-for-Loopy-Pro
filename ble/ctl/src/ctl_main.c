@@ -65,6 +65,8 @@ void hci_packet_handler(int type, const u8 *packet, int size)
     u32 f = ctl_port_irq_save();
     if (size < 0 || xb_frame_put(&ctl_mb->c2h, (u8)type, packet, (u32)size) != 0)
         ctl_mb->c2h_drops++;              /* the app's flow control (credits) keeps this rare */
+    else if (ctl_mb->state == XB_ST_READY)
+        ctl_mb->dbg[XB_DBG_MS]++;         /* after READY: frames the controller gave to the app */
     ctl_port_irq_restore(f);
 }
 
@@ -81,10 +83,8 @@ void ctl_host_poll(void)
             xb_frame_get(r, &type, rx_pkt, sizeof rx_pkt);
             return;
         }
-        if (!h4->can_send_packet_now(type)) {
-            ctl_mb->dbg[XB_DBG_MS]++;     /* after READY: frames the controller could not take yet */
-            return;
-        }
+        /* No can_send_packet_now() check here: in btctrler.a, h4_controller_can_send_now always
+         * gives 0 (r0 = 0; rts). The HCI flow control is the command and ACL credits in the host. */
         k = xb_frame_get(r, &type, rx_pkt, sizeof rx_pkt);
         if (k > 0) {
             ctl_mb->dbg[XB_DBG_INIT_MS]++; /* after READY: frames given to the controller */
@@ -184,7 +184,7 @@ static u32 ctl_init(u32 arg)
         return ctl_mb->err;
     }
     stage(XB_STG_READY);
-    ctl_mb->dbg[XB_DBG_MS] = 0;           /* from now on: HCI counters (ctl_host_poll) */
+    ctl_mb->dbg[XB_DBG_MS] = 0;           /* from now on: HCI counters (ctl_host_poll, c2h) */
     ctl_mb->dbg[XB_DBG_INIT_MS] = 0;
     ctl_mb->state = XB_ST_READY;
     XB_SYNC();
