@@ -17,6 +17,8 @@ SRC = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SRC / "tools"))
 import sampleio as sio  # noqa: E402
 import x0x_slots as xs  # noqa: E402
+sys.path.insert(0, str(SRC / "tests"))
+from slot_mock import MockDevice, Flash, SMK_MAP, SMK_OLD_MAP  # noqa: E402,F401
 
 FAILS = 0
 
@@ -25,92 +27,6 @@ def check(cond, what):
     global FAILS
     print(f"  {'ok  ' if cond else 'FAIL'} {what}")
     FAILS += not cond
-
-
-class MockDevice:
-    def __init__(self, count=2, size=0x14000, drop_every=0):
-        self.count, self.size = count, size
-        self.flash = [bytearray(b"\xff" * size) for _ in range(count)]
-        self.nz = [0] * count
-        self.log = []
-        self.drop_every, self.n = drop_every, 0
-
-    def scan(self, k):
-        h = xs.parse_header(bytes(self.flash[k][:xs.HDR_LEN]))
-        ok = h and h["data_len"] <= self.size - xs.DATA_OFF and \
-            zlib.crc32(bytes(self.flash[k][xs.DATA_OFF:xs.DATA_OFF + h["data_len"]])) == h["crc"]
-        self.nz[k] = h["nz"] if ok else 0
-
-    def program(self, k, off, b):
-        for i, v in enumerate(b):
-            self.flash[k][off + i] &= v
-
-    def erase4k(self, k, off):
-        self.flash[k][off:off + 0x1000] = b"\xff" * 0x1000
-
-    def req(self, cmd, a, timeout=3.0):
-        self.log.append(cmd)
-        self.n += 1
-        if self.drop_every and self.n % self.drop_every == 0:
-            raise TimeoutError(f"no reply to cmd {cmd}")     # a lost frame
-        if cmd == xs.CMD_INFO:
-            r = [self.count, (self.size // 1024) & 0x7F]
-            for k in range(self.count):
-                nm = bytes(self.flash[k][8:16]).split(b"\0")[0] if self.nz[k] else b""
-                dl = struct.unpack_from("<I", self.flash[k], 16)[0]
-                r += [self.nz[k]] + [c & 0x7F for c in nm] + [0, ((dl + 1023) // 1024 if self.nz[k] else 0) & 0x7F]
-            return r
-        k = a[0]
-        if k >= self.count:
-            raise TimeoutError("no reply (slot out of range)")
-        if cmd == xs.CMD_READ:
-            off = a[1] | a[2] << 7 | a[3] << 14
-            n = min(xs.READ_MAX if a[4] > xs.READ_MAX // 2 else a[4] * 2, self.size - off)
-            return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F] + xs.pack7(bytes(self.flash[k][off:off + n]))
-        if cmd in (xs.CMD_BEGIN, xs.CMD_ERASE):
-            self.nz[k] = 0
-            for s in range(self.size // 0x1000 if cmd == xs.CMD_ERASE else 1):
-                self.erase4k(k, s * 0x1000)
-            return [k, 0]
-        if cmd == xs.CMD_WRITE:
-            off = a[1] | a[2] << 7 | a[3] << 14
-            b = xs.unpack7(a[4:])
-            rc = 0
-            if off < xs.DATA_OFF or off & 0xFF or not b or len(b) > 256 or off + len(b) > self.size:
-                rc = 1
-            elif self.nz[k]:
-                rc = 4
-            else:
-                if not off & 0xFFF:
-                    self.erase4k(k, off)
-                self.program(k, off, b)
-            return [k, off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, rc]
-        if cmd == xs.CMD_END:
-            h = xs.unpack7(a[1:])
-            p = xs.parse_header(h)
-            if len(h) != xs.HDR_LEN:
-                return [k, 1]
-            if not p or p["data_len"] > self.size - xs.DATA_OFF:
-                return [k, 2]
-            if zlib.crc32(bytes(self.flash[k][xs.DATA_OFF:xs.DATA_OFF + p["data_len"]])) != p["crc"]:
-                return [k, 3]
-            self.program(k, 0, h)
-            self.scan(k)
-            return [k, 0 if self.nz[k] else 5]
-        raise TimeoutError(f"no reply to cmd {cmd}")
-
-    def load(self, k, hdr, data):
-        """as an upload would leave it"""
-        self.flash[k] = bytearray(b"\xff" * self.size)
-        self.program(k, 0, hdr)
-        self.program(k, xs.DATA_OFF, data)
-        self.scan(k)
-
-    def image(self, k):
-        if not self.nz[k]:
-            return None
-        dl = struct.unpack_from("<I", self.flash[k], 16)[0]
-        return bytes(self.flash[k][:xs.DATA_OFF + dl])
 
 
 def tone(n, f, sr, seed):

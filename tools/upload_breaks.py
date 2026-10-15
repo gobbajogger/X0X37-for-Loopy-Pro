@@ -5,7 +5,7 @@ fit (each loop is one zone). On the device they follow the built-in loops in LOO
 BR2, ... (the firmware numbers the loops of every slot straight through, in order).
 
   tools/upload_breaks.py [--bars] [--rate 44100|22050] [--trim] [--slots 1,2] [--name BR] FILE.wav ...
-  tools/upload_breaks.py --dry-run OUTDIR [--nslots N] [--slot-kb K] ...   (no device)
+  tools/upload_breaks.py --dry-run OUTDIR [--nslots N] [--slot-kb K[,K...]] ...   (no device)
   tools/upload_breaks.py --bbgen [BBGEN_SAMPLES_DIR] ...    (BB Gen's classic breaks, one bar each)
 
   --bars     cut one bar from each file (bar count guessed from its length: the one that puts
@@ -17,9 +17,10 @@ BR2, ... (the firmware numbers the loops of every slot straight through, in orde
   --slots    which slots to fill (default: all the device has, from SMP_INFO)
   --bbgen    use tools/import_breaks.py's selection from BB Gen's sample folder (implies --bars)
   --dry-run  build the slot images (OUTDIR/slotN.hdr / .bin) and print the plan; no device. The
-             layout is --nslots slots of --slot-kb KiB (default 2 x 80: the SMK-37's)
+             layout is --slot-kb, one size per slot (default 80,120,44: the SMK-37's), or --nslots
+             slots of one --slot-kb size (80 if not given)
 
-The slot count and size come from the device (SMP_INFO). Files are packed in the order given,
+The slot count and the size of each slot come from the device (SMP_INFO). Files are packed in the order given,
 filling slot 1, then 2, and so on. A loop that does not fit in the remaining slots is reported and
 skipped. Uses Felucca's encoder (tools/sampleio.py) and upload protocol (tools/fm1_sample_upload.py,
 tools/x0x_slots.py)."""
@@ -35,7 +36,7 @@ ROOT_BASE = 36                                  # zone i gets root 36 + i: sampl
 
 
 RATES = (44100, 22050)
-DRY_SLOTS, DRY_SLOT_KB = 2, 80                   # --dry-run's default layout: the SMK-37's two 80 KiB slots
+DRY_SLOT_KB = [80, 120, 44]                     # --dry-run's default layout: the SMK-37's slots (KiB)
 
 
 def cut(path, bars, rate=44100, trim=False):
@@ -51,24 +52,26 @@ def cut(path, bars, rate=44100, trim=False):
 
 
 def pack(loops, nslots, cap=sio.SLOT_MAX_DATA):
-    """loops: [(label, int16 samples)] -> slots: [[(label, samples)]], skipped labels; cap: ADPCM bytes a slot"""
-    slots, cur, used, skipped = [], [], 0, []
+    """loops: [(label, int16 samples)] -> slots: [[(label, samples)]] (one list per slot, empty ones
+    included), skipped labels. cap: ADPCM bytes a slot, one value or one per slot. The loops go in
+    order: into the current slot if they fit, else into the next slot that can take them. A loop larger
+    than every slot left is skipped; a later, smaller one can still go into the current slot."""
+    caps = list(cap) if isinstance(cap, (list, tuple)) else [cap] * nslots
+    slots, cur, skipped = [[] for _ in range(nslots)], 0, []
+    used = 0
     for label, s in loops:
         need = (len(s) + 1) // 2
-        if need > cap:
+        fit = [j for j in range(cur, nslots)
+               if (used if j == cur else 0) + need <= caps[j] and len(slots[j]) < sio.SLOT_ZONES]
+        if not fit:
             skipped.append(label)
             continue
-        if used + need > cap or len(cur) >= sio.SLOT_ZONES:
-            if cur:
-                slots.append(cur)
-            cur, used = [], 0
-        if len(slots) >= nslots:                # every slot is full: the rest do not fit
-            skipped.append(label)
-            continue
-        cur.append((label, s))
+        if fit[0] != cur:
+            cur, used = fit[0], 0
+        slots[cur].append((label, s))
         used += need
-    if cur:
-        slots.append(cur)
+    while slots and not slots[-1]:
+        slots.pop()
     return slots, skipped
 
 
@@ -77,7 +80,7 @@ def main():
     if not a or a[0] in ("-h", "--help"):
         sys.exit(__doc__)
     bars = dry = slot_ids = None
-    rate, trim, nslots, slot_kb, name, files = 44100, False, DRY_SLOTS, DRY_SLOT_KB, "BR", []
+    rate, trim, nslots, slot_kb, name, files = 44100, False, None, None, "BR", []
     while a:
         o = a.pop(0)
         if o == "--bars":
@@ -93,7 +96,7 @@ def main():
         elif o == "--nslots":
             nslots = int(a.pop(0))
         elif o == "--slot-kb":
-            slot_kb = int(a.pop(0))
+            slot_kb = [int(v) for v in a.pop(0).split(",")]
         elif o == "--slots":
             slot_ids = [int(v) for v in a.pop(0).split(",")]
         elif o == "--name":
@@ -106,38 +109,47 @@ def main():
             files.append((Path(o).stem.upper()[:6], Path(o)))
     link = None
     if dry:
-        size = slot_kb * 1024
+        kb = slot_kb or ([80] * nslots if nslots else DRY_SLOT_KB)
+        sizes = [v * 1024 for v in (kb * nslots if nslots and len(kb) == 1 else kb)]
     else:                                       # the device's layout: SMP_INFO
         import fm1_sample_upload as up
         import x0x_slots as xs
         link = up.Link()
         lay = xs.layout(link)
-        nslots, size = lay["count"], lay["size"]
+        sizes = [sl["size"] for sl in lay["slots"]]
+    nslots = len(sizes)
     if slot_ids is None:
         slot_ids = list(range(1, nslots + 1))
     if any(not 1 <= k <= nslots for k in slot_ids):
         sys.exit(f"--slots: the device has slots 1..{nslots}")
-    cap = size - sio.SLOT_DATA_OFF
+    caps = [sizes[k - 1] - sio.SLOT_DATA_OFF for k in slot_ids]
     loops = [(lbl, cut(p, bars, rate, trim)) for lbl, p in files]
-    slots, skipped = pack(loops, len(slot_ids), cap)
+    slots, skipped = pack(loops, len(slot_ids), caps)
     snames = [f"{name[:2]}{slot_ids[i]}" for i in range(len(slots))]   # the device shows 3 chars + .zone
-    print(f"{len(slot_ids)} slot(s) of {size // 1024} KiB, {rate} Hz")
+    print(f"{len(slot_ids)} slot(s) of {'/'.join(str(sizes[k - 1] // 1024) for k in slot_ids)} KiB, {rate} Hz")
     for i, sl in enumerate(slots):
+        if not sl:
+            continue
         names = ", ".join(f"{snames[i]}.{z + 1}={lbl}" if len(sl) > 1 else f"{snames[i]}={lbl}" for z, (lbl, _) in enumerate(sl))
         kib = sum((len(s) + 1) // 2 for _, s in sl) / 1024
         print(f"USR{slot_ids[i]}: {len(sl)} loop(s), {kib:.1f} KiB: {names}")
     if skipped:
         print("did not fit (skipped):", ", ".join(skipped))
     images = [sio.user_slot(snames[i], [(s, ROOT_BASE + z, None, None) for z, (_, s) in enumerate(sl)],
-                            rate=rate, slot_size=size) for i, sl in enumerate(slots)]
+                            rate=rate, slot_size=sizes[slot_ids[i] - 1]) if sl else None
+              for i, sl in enumerate(slots)]
     if dry:
         dry.mkdir(parents=True, exist_ok=True)
-        for i, (hdr, data) in enumerate(images):
-            (dry / f"slot{slot_ids[i]}.hdr").write_bytes(hdr)
-            (dry / f"slot{slot_ids[i]}.bin").write_bytes(data)
+        for i, im in enumerate(images):
+            if im:
+                (dry / f"slot{slot_ids[i]}.hdr").write_bytes(im[0])
+                (dry / f"slot{slot_ids[i]}.bin").write_bytes(im[1])
         print(f"dry run: images in {dry}")
         return
-    for i, (hdr, data) in enumerate(images):
+    for i, im in enumerate(images):
+        if not im:
+            continue
+        hdr, data = im
         slot = slot_ids[i] - 1
         t0 = time.time()
         img = hdr.ljust(sio.SLOT_DATA_OFF, b"\xff") + data

@@ -9,8 +9,10 @@
   tools/x0x_slots.py extract FILE.x0xslots OUTDIR       OUTDIR/slotN.hdr / .bin (the upload_breaks.py
                                                         --dry-run and host `slotimg` format; no device)
 
-The slot count and the slot size come from the device (SMP_INFO, cmd 15); nothing here assumes 2 or 3
-slots of 80 KiB. Backup reads each slot that holds samples with SMP_READ (cmd 16): the 512-byte header
+The slot count and the slot sizes come from the device (SMP_INFO, cmd 15); nothing here assumes 2 or 3
+slots of 80 KiB. Since the SMK-37 flash layout 2 the slots differ in size (80, 120 and 44 KiB): SMP_INFO
+then ends with the X0X extension ('X' 1, per slot: flash offset, size, used KiB). An older firmware sends
+no extension: all its slots have the one size of the reply. Backup reads each slot that holds samples with SMP_READ (cmd 16): the 512-byte header
 area and the data. It sends no command that writes. Restore asks before it writes (--yes skips the
 question); for each slot it sends SMP_BEGIN, SMP_WRITE in 256-byte parts and SMP_END (the editor
 protocol, web/EDITOR_PROTOCOL.md, 11-13), or SMP_ERASE (14) for a slot that was empty. Then it reads the
@@ -18,8 +20,8 @@ slots back and compares them (--no-verify skips that).
 
 Archive (.x0xslots), all integers little-endian:
   "X0XSLOTS"  u16 version (1)  u16 0  u32 L  L bytes of JSON  the slot images, in order  u32 CRC-32
-The JSON (ASCII, no spaces) holds the slot count and size of the source device and, per slot: its
-number, size, whether it was empty, name, zone count, per-zone sample counts and rates (Hz), the data
+The JSON (ASCII, no spaces) holds the slot count and size (the smallest slot) of the source device and,
+per slot: its number, size, whether it was empty, its flash offset ("flash", if the device sent it), name, zone count, per-zone sample counts and rates (Hz), the data
 length, the header's data CRC, and the image's offset, length and CRC-32. An image is the slot from
 its start: the 512-byte header area, then the ADPCM data. The final CRC-32 (zlib) covers every byte
 before it. web/x0x_breaks.js (makeArchive, readArchive) reads and writes the same format.
@@ -71,16 +73,24 @@ def ascii_name(b):
 
 
 def parse_info(r):
-    """SMP_INFO reply -> {"count", "size", "slots": [{"nz", "name", "kb"}]}"""
+    """SMP_INFO reply -> {"count", "size", "ext", "slots": [{"nz", "name", "kb", "size", "off", "used"}]}.
+    size: the reply's one size (KiB, 7 bits: the smallest slot). Per slot size, flash offset (None if
+    unknown) and used KiB come from the X0X extension; without it every slot has the one size."""
     if len(r) < 2:
         raise SlotError("short SMP_INFO reply")
     count, size, i, slots = r[0], r[1] * 1024, 2, []
     for _ in range(count):
         nz = r[i]
         j = r.index(0, i + 1)
-        slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": r[j + 1]})
+        slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": r[j + 1], "size": size, "off": None,
+                      "used": r[j + 1]})
         i = j + 2
-    return {"count": count, "size": size, "slots": slots}
+    ext = len(r) >= i + 2 + 6 * count and r[i] == ord("X") and r[i + 1] == 1
+    if ext:
+        for k, sl in enumerate(slots):
+            v = [r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7 for m in range(3)]
+            sl.update({"off": v[0] * 0x1000, "size": v[1] * 0x1000, "used": v[2]})
+    return {"count": count, "size": size, "ext": ext, "slots": slots}
 
 
 def parse_header(b):
@@ -147,7 +157,10 @@ def make_archive(lay, images, created=None):
     """lay: parse_info(); images: per slot, bytes or None -> archive bytes"""
     entries, blobs, off = [], [], 0
     for k, img in enumerate(images):
-        e = {"slot": k + 1, "size": lay["size"], "empty": img is None}
+        sl = lay["slots"][k] if k < len(lay.get("slots", [])) else {}
+        e = {"slot": k + 1, "size": sl.get("size", lay["size"]), "empty": img is None}
+        if sl.get("off") is not None:
+            e["flash"] = sl["off"]
         if img is not None:
             h = parse_header(img)
             e.update({"name": h["name"], "zones": h["nz"], "samples": [z["n"] for z in h["zones"]],
@@ -205,8 +218,8 @@ def plan_restore(lay, meta, images, only=None):
             continue
         if k >= lay["count"]:
             skipped.append(f"slot {k + 1}: the device has {lay['count']} slot(s)")
-        elif img is not None and len(img) > lay["size"]:
-            skipped.append(f"slot {k + 1}: {len(img)} B do not fit in the device's {lay['size']} B slot")
+        elif img is not None and len(img) > lay["slots"][k]["size"]:
+            skipped.append(f"slot {k + 1}: {len(img)} B do not fit in the device's {lay['slots'][k]['size']} B slot")
         else:
             todo.append((k, img))
     return todo, skipped
@@ -251,14 +264,70 @@ def restore(link, meta, images, only=None, verify=True, progress=None):
     return skipped
 
 
+# ---- an install that changes the slot map: which slots lose their data, and where they go back ----
+# A slot keeps its data over an install when the new firmware has a slot at the same flash offset that
+# is large enough: no install writes the slots (the loader writes only the app area), so the bytes stay.
+LEGACY_BASE = {"smk": 0xC2000, "fm1": 0xA0000}      # X0X before SMP_INFO had the extension: equal slots
+
+
+def flash_map(lay, board="smk"):
+    """[(flash offset, size)] per slot of a parse_info() layout"""
+    if lay.get("ext"):
+        return [(sl["off"], sl["size"]) for sl in lay["slots"]]
+    return [(LEGACY_BASE[board] + k * lay["size"], lay["size"]) for k in range(lay["count"])]
+
+
+def at_risk(lay, old_map, new_map):
+    """slot indexes that hold samples and that the new slot map does not keep (no slot at the same
+    offset with room for the header area and the used KiB). new_map []: a firmware without X0X slots."""
+    risk = []
+    for k, sl in enumerate(lay["slots"]):
+        if not sl["nz"]:
+            continue
+        off, need = old_map[k][0], DATA_OFF + sl["used"] * 1024
+        if not any(o == off and n >= need for o, n in new_map):
+            risk.append(k)
+    return risk
+
+
+def plan_migration(images, risk, old_map, new_lay, new_map):
+    """-> ([(old slot, new slot)], [skipped text]): each slot at risk goes back to the slot with its
+    number if it fits there, else to the first other slot that is empty, not a kept slot and large enough"""
+    kept = {j for j, (o, _) in enumerate(new_map)
+            for k, (ok_, _) in enumerate(old_map) if images[k] is not None and k not in risk and ok_ == o}
+    taken, todo, skipped = set(kept), [], []
+    for k in risk:
+        img = images[k]
+        for j in ([k] if k < len(new_map) else []) + [j for j in range(len(new_map)) if j != k]:
+            if j in taken or len(img) > new_map[j][1] or new_lay["slots"][j]["nz"]:
+                continue
+            todo.append((k, j))
+            taken.add(j)
+            break
+        else:
+            skipped.append(f"slot {k + 1} ({len(img)} B): no free slot of that size on the new firmware")
+    return todo, skipped
+
+
+def restore_mapped(link, todo, images, progress=None):
+    """write images[old] into new slot j for each (old, j); then read each back and compare (SlotError)"""
+    for k, j in todo:
+        write_slot(link, j, images[k], progress=(lambda d, n, j=j: progress(j, d, n)) if progress else None)
+    after = layout(link)
+    for k, j in todo:
+        if read_slot(link, j, after["slots"][j]["nz"]) != images[k]:
+            raise SlotError(f"slot {j + 1}: read back differs from the backup of slot {k + 1}")
+
+
 def describe(meta):
-    lines = [f"{meta['count']} slot(s) of {meta['size'] // 1024} KiB, saved {meta['created']}"]
+    lines = [f"{meta['count']} slot(s), saved {meta['created']}"]
     for e in meta["slots"]:
         if e["empty"]:
-            lines.append(f"  slot {e['slot']}: empty")
+            lines.append(f"  slot {e['slot']} ({e['size'] // 1024} KiB): empty")
         else:
             rates = "/".join(str(r) for r in sorted(set(e["rates"])))
-            lines.append(f"  slot {e['slot']}: {e['name'] or '-'}, {e['zones']} zone(s), {e['data_len']} B, {rates} Hz")
+            lines.append(f"  slot {e['slot']} ({e['size'] // 1024} KiB): {e['name'] or '-'}, {e['zones']} zone(s), "
+                         f"{e['data_len']} B, {rates} Hz")
     return "\n".join(lines)
 
 
