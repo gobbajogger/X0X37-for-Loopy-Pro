@@ -451,6 +451,7 @@ uint8_t smk_clip_mode_on(void);
 void smk_apc_clock_tick(void);
 void smk_apc_clock_start(void);
 void smk_apc_clock_position(uint32_t sixteenths);
+void smk_ck_midi_stop(void);
 #endif
 
 static void midi_in(uint32_t pkt)
@@ -466,6 +467,8 @@ static void midi_in(uint32_t pkt)
         smk_apc_clock_start();
     else if (st == 0xF2)
         smk_apc_clock_position((uint32_t)d1 | (uint32_t)d2 << 7);   /* Song Position: 6 ticks per unit */
+    else if (st == 0xFC)
+        smk_ck_midi_stop();         /* clip mode keybed: the arp stops its notes (main_fm1.c) */
     /* Clip mode: Loopy Start, Continue and Stop must not go back to the host as
      * X0X transport (no echo). With clip mode off, nothing changes (agent rules, 10). */
     if (st >= 0xFA && st <= 0xFC && smk_clip_mode_on())

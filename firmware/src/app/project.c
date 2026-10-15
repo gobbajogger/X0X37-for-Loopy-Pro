@@ -32,6 +32,18 @@ typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + siz
 static void arrange_defaults(void);
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
+/* SMK-37 clip mode keybed settings (main_fm1.c): channel 2, C MAJOR NEAR, MAJ root position, ARP UP 1/16,
+ * 1 octave, gate 50 %. An older object loads without them, so they keep these values (load_settings). */
+static void project_ck_defaults(void)
+{
+    proj.set.ck_ch = 2;
+    proj.set.ck_root = proj.set.ck_scale = proj.set.ck_snap = 0;
+    proj.set.ck_chord = proj.set.ck_ord = 0;
+    proj.set.ck_rate = 9;
+    proj.set.ck_oct = 1;
+    proj.set.ck_gate = 5;
+}
+
 void project_defaults(void)
 {
     int i;
@@ -47,6 +59,7 @@ void project_defaults(void)
     proj.set.accent_q7 = 88;
     proj.set.stereo = PROJ_STEREO;
     proj.set.snd_rev = PROJ_SND_REV;
+    project_ck_defaults();
     engine_sound_defaults(&proj.sound);
     arrange_defaults();
     /* the 303 lines start empty, like the drums: OCT+ on TB-3PO (or keyboard mode) writes one */
@@ -437,6 +450,8 @@ int project_load(void)
         proj.set = set;
     else
         bad = 1;
+    if (proj.set.ck_ch - 2u > 13u || proj.set.ck_oct - 1u > 3u || proj.set.ck_gate - 1u > 9u)
+        project_ck_defaults();                        /* out of range: all as new (main_fm1.c takes the others modulo) */
     sound_ok = load_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0;
     if (!sound_ok)
         bad = 1;
