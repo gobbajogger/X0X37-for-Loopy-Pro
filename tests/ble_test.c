@@ -219,6 +219,16 @@ static void t_host(void)
     /* a bad header: ignored */
     { const uint8_t d[] = {0x00, 0x81, 0x90, 1, 2}; midi_w(&h, d, sizeof d); }
     CHECK(!bleh_midi_next(&h, &m));
+    /* attempt 34: the parameter request on demand, once; its answer */
+    nsent = 0;
+    CHECK(bleh_conn_update(&h, 12, 24, 0, 600) == 1 && nsent == 1 && sent[0].b[8] == 0x12 &&
+          sent[0].b[12] == 12 && sent[0].b[14] == 24 && sent[0].b[18] == 0x58 && sent[0].b[19] == 2);
+    CHECK(bleh_conn_update(&h, 12, 24, 0, 600) == 0);
+    { uint8_t e[] = {0x13, 5, 1, 0x40, 0, 1, 0}; bleh_rx(&h, BLEH_H4_EVT, e, sizeof e); }
+    { uint8_t r[] = {0x40, 0x20, 10, 0, 6, 0, 5, 0, 0x13, 0x31, 2, 0, 1, 0};
+      bleh_rx(&h, BLEH_H4_ACL, r, sizeof r); CHECK(h.cpu_result == 2); }
+    { uint8_t u[] = {0x3E, 10, 0x03, 0, 0x40, 0, 24, 0, 0, 0, 0x58, 2}; bleh_rx(&h, BLEH_H4_EVT, u, sizeof u);
+      CHECK(h.conn_int == 24 && h.conn_lat == 0); }
     /* MIDI out: one notification, one header, running status off by default */
     nsent = 0;
     { const uint8_t a[3] = {0x90, 60, 100}, b[3] = {0x90, 61, 100}, c[1] = {0xF8};

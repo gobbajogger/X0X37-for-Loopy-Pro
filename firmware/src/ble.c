@@ -32,7 +32,6 @@ static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
 /* attempt 32: the MIDI out mirror in the pool (zeroed at boot), so BLERAM has room for a 64-message
  * MIDI in queue. Written by the audio ISR and read by ble_service, both on core 0. */
 static uint32_t ble_oq[BLE_OQ] __attribute__((section(".pool")));
-static uint32_t ble_rx_last[2];             /* the last frame from the controller (DIAG) */
 /* core 0's last Bluetooth tick (ms since boot) and core 1's poll count then. In .ble_ram (not
  * cleared): after a watchdog reset, DIAG shows when core 0 stopped and if core 1 still ran. */
 static uint32_t ble_alive[2] __attribute__((section(".ble_ram")));
@@ -40,6 +39,18 @@ static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* attempt 
                                                                       * (CON5 | CON6 << 8 | CON9 << 16 | CON0 << 24) */
 
 static void ble_record(void);
+/* attempt 34 (DIAG): interval | end reason << 16 | pairing refusals << 24;
+ * MIDI in drops | asked MTU << 8 (10 bits) | request sent << 18 | result << 19 | latency << 21 (3) | L2CAP requests << 24 */
+static uint32_t ble_sat(uint32_t v, uint32_t m) { return v > m ? m : v; }
+static uint32_t ble_h_link0(void)
+{
+    return ble_r.h.conn_int | (uint32_t)ble_r.h.disc_reason << 16 | ble_sat(ble_r.h.smp_rejects, 255u) << 24;
+}
+static uint32_t ble_h_link1(void)
+{
+    return ble_sat(ble_r.h.drops_in, 255u) | ble_sat(ble_r.h.mtu_req, 1023u) << 8 | (uint32_t)(ble_r.h.cpu_state & 1u) << 18 |
+           (uint32_t)(ble_r.h.cpu_result & 3u) << 19 | ble_sat(ble_r.h.conn_lat, 7u) << 21 | (uint32_t)ble_r.h.sig_reqs << 24;
+}
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
 static uint32_t ble_ok_at;                      /* fm1_ms when the controller became READY */
 /* the start guard (ble_glue.h): survives a reset, so a start that crashes or freezes the unit is not
@@ -334,11 +345,6 @@ static void ble_service(void)
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
         if (n == 0)
             break;
-        if (n > 0 && !(t == 4u && ble_r.fr[0] == 0x0Eu)) {   /* attempt 28: the last frame that is not a command complete */
-            ble_rx_last[0] = t | (uint32_t)n << 8 | (uint32_t)ble_r.fr[0] << 16 | (uint32_t)ble_r.fr[1] << 24;
-            ble_rx_last[1] = ble_r.fr[2] | (uint32_t)ble_r.fr[3] << 8 | (uint32_t)ble_r.fr[4] << 16 |
-                             (uint32_t)ble_r.fr[5] << 24;
-        }
         if (n > 0) {
             bleh_rx(h, t, ble_r.fr, (uint16_t)n);
         }
@@ -351,6 +357,17 @@ static void ble_service(void)
         ble_r.orr++;
     }
     ble_sx_answer(h);
+    {   /* attempt 34: 5 s after notifications go on, ask once for 15-30 ms, latency 0, 6 s (iOS rules);
+         * the central may refuse or keep its values (cpu_result) */
+        static uint32_t on_ms;
+        static uint8_t was_on;
+        uint8_t on = (uint8_t)bleh_notifying(h);
+        if (on && !was_on)
+            on_ms = fm1_ms;
+        was_on = on;
+        if (on && !h->cpu_state && fm1_ms - on_ms >= 5000u)
+            (void)bleh_conn_update(h, 12u, 24u, 0u, 600u);
+    }
     bleh_poll(h);
     while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
         uint32_t pkt = ble_usb_of_msg(&m);
@@ -425,8 +442,8 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.dbg[XB_DBG_MS];          /* frames it gave to the app */
     if (n + 2u > max)
         return n;
-    w[n++] = ble_rx_last[0];                                /* the last frame from it: type, length, bytes */
-    w[n++] = ble_rx_last[1];
+    w[n++] = ble_h_link0();                                 /* attempt 34: interval, latency in use */
+    w[n++] = ble_h_link1();                                 /* MIDI in drops, request state and result */
     if (n + 2u > max)
         return n;
     w[n++] = ble_alive[0];

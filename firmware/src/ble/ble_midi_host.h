@@ -64,6 +64,10 @@ typedef struct {
     uint8_t sx_len, sx_pos, sx_on;
     uint16_t sx_ts;
     uint32_t drops_in, sysex_in, smp_rejects;
+    uint16_t conn_int, conn_lat;         /* attempt 34: the link's interval (1.25 ms) and latency in use */
+    uint8_t cpu_state, cpu_result;
+    uint16_t mtu_req;                    /* the MTU the central asked for (last link) */
+    uint8_t disc_reason, sig_reqs;       /* the last link's end reason; L2CAP requests from the central */       /* parameter request: 0 not sent, 1 sent; result 0 none, 1 accepted, 2 rejected */
 } bleh_t;
 
 void bleh_init(bleh_t *h, bleh_send_fn send, void *ctx, const char *name, const uint8_t addr[6]);
@@ -74,6 +78,7 @@ int bleh_midi_send(bleh_t *h, const uint8_t *msg, uint8_t len, uint16_t ts13);
 int bleh_sysex_send(bleh_t *h, const uint8_t *msg, uint32_t len, uint16_t ts13);
 int bleh_midi_next(bleh_t *h, bleh_msg_t *msg);
 void bleh_poll(bleh_t *h);
+int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16_t to);
 void bleh_radio(bleh_t *h, int on);
 static inline int bleh_connected(const bleh_t *h) { return h->state == BLEH_CONNECTED; }
 static inline int bleh_notifying(const bleh_t *h) { return h->state == BLEH_CONNECTED && (h->cccd[0] & 1u); }
