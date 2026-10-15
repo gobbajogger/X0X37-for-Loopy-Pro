@@ -360,11 +360,13 @@ void smk_apc_host_lost(void)
     }
 }
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
- * cells: lit cells in the color from Loopy, unlit cells dim, queued cells with a white
+ * cells: lit cells in the color from Loopy (dark shades lifted, see SMK_CLIP_LCD_FLOOR), unlit cells dim, queued cells with a white
  * dot. A white frame marks each cell that is on the 16 pads now (the OCT view, or the
  * full 4x4). It redraws when the cells or the view change, at most every 64 ms.
  * It uses the existing canvas (gfx.c cv_px): no new RAM buffer. */
 #define SMK_CLIP_LCD_MIN_MS 64u
+/* Lowest level (0..255) of the brightest channel of a lit clip on the LCD. */
+#define SMK_CLIP_LCD_FLOOR 128u
 uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
 {
     static uint32_t last_ms, last_sig, last_call;
@@ -411,7 +413,21 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
                 uint8_t n = (uint8_t)((m.row0 + row) * SMK_APC40_SOURCE_COLS + m.col0 + col);
                 uint8_t v = apc_led_velocity[n];
                 uint32_t rgb = APC40_RGB[v];
-                uint16_t c = (uint16_t)(((rgb >> 8) & 0xF800u) | ((rgb >> 5) & 0x07E0u) | ((rgb & 0xFFu) >> 3));
+                uint32_t rr = rgb >> 16, gg = (rgb >> 8) & 0xFFu, bb = rgb & 0xFFu;
+                uint32_t mx = rr > gg ? rr : gg;
+                uint16_t c;
+                if (bb > mx)
+                    mx = bb;
+                /* Loopy idle shades are too dark on the LCD. Map the brightest channel
+                 * from 0..255 to FLOOR..255. The hue stays the same. Playing (full)
+                 * colours do not change. Idle stays darker than playing. */
+                if (mx) {
+                    uint32_t t = SMK_CLIP_LCD_FLOOR + mx * (255u - SMK_CLIP_LCD_FLOOR) / 255u;
+                    rr = rr * t / mx;
+                    gg = gg * t / mx;
+                    bb = bb * t / mx;
+                }
+                c = (uint16_t)((rr >> 3) << 11 | (gg >> 2) << 5 | (bb >> 3));
                 int32_t q = p / 4;
                 if (in_view[n])
                     cv_rect(x, y, p, p, C_WHITE);
