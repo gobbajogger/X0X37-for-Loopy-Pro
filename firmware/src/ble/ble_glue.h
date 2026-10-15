@@ -117,11 +117,13 @@ static void ble_addr_of(const uint8_t *rec, uint32_t n, uint8_t addr[6], char na
  * controller has run BLE_GUARD_OK_MS after its start. */
 #define BLE_GUARD_MAGIC 0x44524742u              /* "BGRD" */
 #define BLE_GUARD_OK_MS 10000u
-enum { BLE_WHY_NONE = 0, BLE_WHY_TIMEOUT = 1, BLE_WHY_WRONG_JOB = 2, BLE_WHY_NOT_READY = 3, BLE_WHY_RESET = 4 };
+enum { BLE_WHY_NONE = 0, BLE_WHY_TIMEOUT = 1, BLE_WHY_WRONG_JOB = 2, BLE_WHY_NOT_READY = 3, BLE_WHY_RESET = 4,
+       BLE_WHY_NO_TICK = 5 };
 typedef struct {
     uint32_t magic, trying, blocked, why, fails;
     uint32_t start_ms, init_ms, mb_state, mb_err;  /* the last start: its time, how long init took, the mailbox */
     uint32_t dbg[6];                               /* the image's own record of the last start (xb_mbox_t dbg) */
+    uint32_t reset;                                /* BLE_WHY_RESET: P3 reset source | RST_SRC << 8 of that reset */
 } ble_guard_t;
 
 /* power-on: 1 = start the controller now */
@@ -153,7 +155,7 @@ static void ble_guard_started(ble_guard_t *g, int rc, int ready)
         return;                                  /* trying stays until ble_guard_ok */
     g->trying = 0;
     g->blocked = 1;
-    g->why = rc == -1 ? BLE_WHY_TIMEOUT : rc ? BLE_WHY_WRONG_JOB : BLE_WHY_NOT_READY;
+    g->why = rc == -1 ? BLE_WHY_TIMEOUT : rc == -3 ? BLE_WHY_NO_TICK : rc ? BLE_WHY_WRONG_JOB : BLE_WHY_NOT_READY;
     g->fails++;
 }
 /* the controller ran long enough: the start is good */

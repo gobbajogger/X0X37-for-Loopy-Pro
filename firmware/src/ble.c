@@ -56,8 +56,11 @@ static void ble_prepare(int on)
     const xb_header_t *h = FM1_BLE_HDR;
     ble_img = (uint8_t)ble_img_check(FM1_BLE_IMG, XB_FLASH_SIZE, XB_FLASH_XIP);
     ble_want = (uint8_t)(on != 0);
-    if (ble_guard.magic == BLE_GUARD_MAGIC && ble_guard.trying && ble_r.mb.magic == XB_MBOX_MAGIC)
-        ble_record();                           /* the start that reset the unit: its mailbox (BLERAM) */
+    if (ble_guard.magic == BLE_GUARD_MAGIC && ble_guard.trying) {
+        if (ble_r.mb.magic == XB_MBOX_MAGIC)
+            ble_record();                       /* the start that reset the unit: its mailbox (BLERAM) */
+        ble_guard.reset = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* what reset it */
+    }
     if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
         if (ble_img == BLE_IMG_OK && on && ble_guard.blocked) {
             ble_blocked = 1;                    /* the last start failed: not now (STATUS FAILED) */
@@ -123,7 +126,7 @@ static void ble_start(void)
     fm1_wdt_feed();
     ble_record();
     ble_guard_started(&ble_guard, rc, rc == 0 && mb->state == XB_ST_READY);
-    if (rc != 0) {                              /* it did not come back: one core from now on */
+    if (rc != 0) {                              /* it did not come back: one core from now on (-3: no tick) */
         fm1_cpu1_hold();
         fm1_c1_gave_up = 4;
         fm1_guard_bus_resume(bus);
@@ -260,7 +263,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     const uint32_t *g = (const uint32_t *)&ble_guard;
     for (i = 0; i < sizeof ble_guard / 4u && n < max; i++)
         w[n++] = g[i];
-    if (n + 10u > max)
+    if (n + 11u > max)
         return n;
     w[n++] = ble_img | (uint32_t)ble_boot_on << 8 | (uint32_t)ble_up << 16 | (uint32_t)ble_dead << 24;
     w[n++] = ble_want | (uint32_t)ble_host_on << 8 | (uint32_t)ble_blocked << 16 | (uint32_t)fm1_c1_on << 24;
@@ -272,5 +275,6 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = fm1_c1_mb.poll_max;
     w[n++] = ble_up ? ble_r.h.state : 0xFFFFFFFFu;
     w[n++] = fm1_c1_trace;
+    w[n++] = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* this boot's reset */
     return n;
 }

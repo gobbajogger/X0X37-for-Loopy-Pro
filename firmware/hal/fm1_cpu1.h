@@ -259,23 +259,33 @@ static inline int fm1_cpu1_wait(void)
 #define FM1_C1_POLL_TICKS 2400u
 /* One job with core 0 in RAM until it ends (the Bluetooth controller's start: its RF trim turns
  * the flash off). Core 0's interrupts off; call through a pointer (FL_FAR). No calls in here (RAM
- * code: tools/build.py checks). 0 = done, -1 = not in time, -2 = a wrong job. */
+ * code: tools/build.py checks). 0 = done, -1 = not in time, -2 = a wrong job, -3 = TIMER4 stopped. */
 #define FM1_C1_RAMFN __attribute__((section(".ram_text"), noinline, used))
 static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg, uint32_t ticks)
 {
-    uint32_t job = fm1_c1_mb.job + 1u, t0, last;
+    uint32_t job = fm1_c1_mb.job + 1u, t0, last, prev, same = 0, stalls = 0;
     fm1_c1_mb.fn = fn;
     fm1_c1_mb.arg = arg;
     fm1_c1_mb.check = FM1_C1_CHECK(fn, arg, job);
     FM1_C1_SYNC();
     fm1_c1_mb.job = job;
     FM1_C1_SYNC();
-    t0 = last = FM1_C1_T4;
+    t0 = last = prev = FM1_C1_T4;
     for (;;) {
         uint32_t t = FM1_C1_T4;
+        if (t != prev) {
+            prev = t;
+            same = 0;
+        } else if (++same > 1000000u) {         /* TIMER4 stands still: look now, give up after 64 */
+            same = 0;
+            if (++stalls > 64u)
+                return -3;
+            goto look;
+        }
         if (t - last < FM1_C1_POLL_TICKS)       /* between looks only the timer: no RAM, no csync */
             continue;
         last = t;
+    look:
         FM1_C1_SYNC();
         if (fm1_c1_mb.done == job)
             return 0;

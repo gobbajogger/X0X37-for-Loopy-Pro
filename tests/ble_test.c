@@ -483,6 +483,10 @@ static void t_guard(void)
     ble_guard_started(&g, 0, 0);
     CHECK(g.why == BLE_WHY_NOT_READY && g.blocked);
     g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);
+    ble_guard_started(&g, -3, 0);
+    CHECK(g.why == BLE_WHY_NO_TICK && g.blocked && !g.trying);
+    g.blocked = 0;
     CHECK(ble_guard_boot(&g, 0, 1) == 0 && !g.trying);  /* no image: no try */
     g.magic = 0;                                     /* bad magic: a clean record */
     g.trying = 1;
