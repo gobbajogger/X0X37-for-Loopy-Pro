@@ -669,36 +669,23 @@ def _unpack7(v):
 
 
 def write_ctl2(link, ctl, out):
-    """ABI 3: Bluetooth image piece 2 (plain flash 0xAB000, hole 0xAF000) over ED_CTL2, read back, CRC.
-    Returns True when written; then the unit restarts (ED_BT_TEST 2) so it checks and starts the image."""
-    p2_size, p2_crc = struct.unpack_from("<II", ctl, 56)
-    if not p2_size:
+    """ABI 3: Bluetooth image piece 2 over the MIDI port (tools/ctl2_midi.py), each block read back,
+    then the whole CRC. The install link cuts long messages, so it is closed first. Then a restart."""
+    if not struct.unpack_from("<I", ctl, 56)[0]:
         return False
-    p2 = ctl[add_ctl.BLE_SIZE:add_ctl.BLE_SIZE + p2_size]
-    hole, hole_end = add_ctl.FLASH2_HOLE, add_ctl.FLASH2_HOLE + add_ctl.FLASH2_HOLE_SIZE
-    ed = EditorLink(link)
-    o7 = lambda o: [o & 0x7F, (o >> 7) & 0x7F, (o >> 14) & 0x7F]
-    for off in range(0, p2_size, 256):
-        if hole <= off < hole_end:
-            continue
-        n = min(256, p2_size - off, (hole - off) if off < hole else 256)
-        r = ed.req(ED_CTL2_WRITE, o7(off) + list(_pack7(p2[off:off + n])), timeout=5.0)
-        if len(r) < 4 or r[3] != 0:
-            raise InstallError("noreturn", f"Bluetooth piece 2: write at {off:#x} failed ({r[3] if len(r) > 3 else '-'})")
-    got = bytearray(b"\xFF" * p2_size)
-    for off in range(0, p2_size, 224):
-        n = min(224, p2_size - off)
-        r = ed.req(ED_CTL2_READ, o7(off) + [(n + 1) // 2])
-        d = _unpack7(bytes(r[3:]))
-        got[off:off + n] = d[:n]
-    crc = zlib.crc32(bytes(got[hole_end:]), zlib.crc32(bytes(got[:hole]))) & 0xFFFFFFFF
-    if crc != p2_crc:
-        raise InstallError("noreturn", f"Bluetooth piece 2: read-back CRC {crc:08x}, want {p2_crc:08x}")
-    print(f"Bluetooth piece 2: {p2_size} B written, CRC {crc:08x} ok", file=out)
+    link.close()
+    time.sleep(1.0)
+    import ctl2_midi
+    port = ctl2_midi.Port()
     try:
-        ed.req(ED_BT_TEST, [2], timeout=1.0)    # restart: the image starts at the next power-on check
-    except TimeoutError:
-        pass
+        ctl2_midi.write(port, ctl, out)
+        if not ctl2_midi.verify(port, ctl, out):
+            raise InstallError("noreturn", "Bluetooth piece 2: the CRC does not match after the write")
+        port.o.send(ctl2_midi.mido.Message("sysex", data=ctl2_midi.HDR + [ctl2_midi.ED_BT_TEST, 2]))
+    except ctl2_midi.Ctl2Error as e:
+        raise InstallError("noreturn", f"Bluetooth piece 2: {e}")
+    finally:
+        port.close()
     return True
 
 
@@ -749,10 +736,7 @@ def run(a, backend, out, ask):
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
         if not back:
             raise InstallError("noreturn", "installed, but the device did not answer for Bluetooth piece 2")
-        try:
-            write_ctl2(back.link, a.ctl_bytes, out)
-        finally:
-            back.link.close()
+        write_ctl2(back.link, a.ctl_bytes, out)
         time.sleep(1.0)
     if move and move.new_map:
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
