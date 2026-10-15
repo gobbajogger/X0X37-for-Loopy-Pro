@@ -189,6 +189,24 @@ extern void isr_timer5(void);
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
  * bright, dim an eighth, else dark; sent between LCD transfers (lcd.c padled_flush). */
 static volatile uint8_t clip_grid_mode;   /* APC40 mkII compatibility; long KNOB BANK toggles */
+/* attempt 30: what clip mode sends to the APC40 host goes to USB and to a Bluetooth MIDI connection
+ * (Loopy Pro on the BLE port). ble_out has one producer (the audio ISR): IRQs off around it here. */
+static void apc_out(uint32_t pkt)
+{
+    midi_out_event(pkt);
+#if X0X_BLE
+    {
+        uint32_t f = irq_save();
+        ble_out(pkt);
+        irq_restore(f);
+    }
+#endif
+}
+static void apc_note(uint32_t note, uint32_t vel)
+{
+    uint32_t on = vel != 0u;
+    apc_out((on ? 0x09u : 0x08u) | (on ? 0x90u : 0x80u) << 8 | (note & 0x7Fu) << 16 | (on ? vel : 0x7Fu) << 24);
+}
 static uint32_t knob_bank_hold_start;
 static uint8_t knob_bank_toggled;
 static volatile uint8_t apc_led_velocity[SMK_APC40_CLIP_COUNT];
@@ -528,14 +546,14 @@ uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_h
     if (pressed) {
         if (!clip_grid_mode || !patch_held)
             return 0u;
-        midi_out_event(smk_apc40_history_packet(redo, 1u));   /* USB only (the APC40 view) */
+        apc_out(smk_apc40_history_packet(redo, 1u));
         sent |= bit;
         say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);
         return 1u;
     }
     if (!(sent & bit))
         return 0u;
-    midi_out_event(smk_apc40_history_packet(redo, 0u));
+    apc_out(smk_apc40_history_packet(redo, 0u));
     sent &= (uint8_t)~bit;
     return 1u;
 }
@@ -567,7 +585,7 @@ uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed)
             apc_play_feedback = smk_apc40_transport_led_after_press(apc_play_feedback);
     }
     note = smk_apc40_transport_note(is_record);
-    midi_send_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u);
+    apc_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u);
     return 1u;
 }
 static void smk_pads(void)
@@ -844,12 +862,12 @@ static void smk_frame(void)
                                                             apc_origin_row, apc_view, logical);
                 if (note != 0xFFu && apc_led_velocity[note] != 0u) {
                     sent_note[i] = note;
-                    midi_send_note(note, 127u);
+                    apc_note(note, 127u);
                 }
             }
             if ((fall & bit) && sent_note[i] != 0xFFu) {
                 extern void midi_send_note(uint32_t note, uint32_t vel);
-                midi_send_note(sent_note[i], 0u);
+                apc_note(sent_note[i], 0u);
                 sent_note[i] = 0xFFu;
             }
         }
@@ -859,7 +877,7 @@ static void smk_frame(void)
             for (uint32_t i = 0; i < SMK_APC40_PAD_COUNT; i++) {
                 if (sent_note[i] != 0xFFu) {
                     extern void midi_send_note(uint32_t note, uint32_t vel);
-                    midi_send_note(sent_note[i], 0u);
+                    apc_note(sent_note[i], 0u);
                     sent_note[i] = 0xFFu;
                 }
             }
