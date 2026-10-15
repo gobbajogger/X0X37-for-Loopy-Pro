@@ -213,7 +213,10 @@ FRAME = [f"r{i}" for i in range(16)] + ["reti", "rete", "retx", "stub", "psr", "
 EMU_BITS = {0: "misaligned", 1: "illegal instruction", 2: "divide by zero", 3: "STACK LIMIT (sp outside the window)",
             4: "privilege", 5: "bus/address"}
 SYMS = ["cur", "idle_ctx", "in_run_once", "ctl_sw_n", "ctl_sw_ring", "tasks", "timers", "ctl_q_full",
-        "ctl_d_post", "ctl_d_pend", "ctl_d_ran", "heap_first", "ctl_mb", "ctl_bp", "ctl_d_timers"]
+        "ctl_d_post", "ctl_d_pend", "ctl_d_ran", "heap_first", "ctl_mb", "ctl_bp", "ctl_d_timers",
+        # attempt 52b: the controller's advertising state (btctrler.a ll_adv_*) and the host's view
+        "adv_hdl", "ll_white_list_used", "adv_data", "scan_resp_data", "ll_error_code", "hx_started", "hx_radio",
+        "hx_conn", "hx_adv.adv", "ctl_d_ev_n", "ctl_d_ev_last"]
 
 
 def make_syms(src, out):
@@ -311,12 +314,59 @@ def ram_dump(syms):
     return out
 
 
+def adv_dump(syms):
+    """attempt 52b: is the controller advertising? (from the btctrler.a disassembly)
+    adv_hdl -> 40 B ll_adv struct: byte 0 = 1 once ll_adv_open (HCI LE Set Advertising Enable 1) succeeded,
+    word at +4 = the le_hw advertising instance (24 B, nonzero while open). ll_adv_set_params copies the
+    15 B parameters to ll_white_list_used (0x..A4) only while byte 0 is 0. adv_data / scan_resp_data: length byte first."""
+    pk = lambda n, k=None: peek(syms[n][0] & ~3, k or max(1, (syms[n][1] + (syms[n][0] & 3) + 3) // 4)) if n in syms else None
+    def by(n, ln=None):
+        w = pk(n, ((ln or syms[n][1]) + (syms[n][0] & 3) + 3) // 4) if n in syms else None
+        if not w:
+            return None
+        b = b"".join(v.to_bytes(4, "little") for v in w)
+        o = syms[n][0] & 3
+        return b[o:o + (ln or syms[n][1])]
+    out = {}
+    hp = pk("adv_hdl")
+    if hp:
+        out["adv_hdl"] = h(hp[0])
+        if 0x01C00000 <= hp[0] < 0x01C80000:
+            st = peek(hp[0], 10) or []
+            out["ll_adv_raw"] = [h(v) for v in st]
+            if st:
+                out["adv_enabled"] = bool(st[0] & 0xFF)
+                out["hw_instance"] = h(st[1])
+                if 0x01C00000 <= st[1] < 0x01C80000:
+                    out["hw_raw"] = [h(v) for v in peek(st[1], 6) or []]
+        else:
+            out["adv_enabled"] = False          # ll_adv_init never ran: nothing ever asked for advertising
+    for n, ln in (("ll_white_list_used", 16), ("adv_data", 32), ("scan_resp_data", 32), ("hx_adv.adv", 31)):
+        b = by(n, ln)
+        if b is not None:
+            out[n if n != "ll_white_list_used" else "adv_param"] = b.hex()
+    for n in ("ll_error_code", "hx_started", "hx_radio", "hx_conn", "ctl_d_ev_n", "ctl_d_ev_last"):
+        b = by(n)
+        if b is not None:
+            out[n] = int.from_bytes(b, "little")
+    if "adv_param" in out:
+        p = bytes.fromhex(out["adv_param"])[1:]   # ll_white_list_used byte, then the 15 B parameters
+        out["adv_param_text"] = (f"interval {int.from_bytes(p[0:2], 'little') * 0.625:g}..{int.from_bytes(p[2:4], 'little') * 0.625:g} ms, "
+                                 f"type {p[4]}, own addr type {p[5]}, channels 0x{p[13]:02X}, filter {p[14]}")
+    return out
+
+
 def live_words(took, gave):
-    """attempt 45 DIAG words after READY (ctl_main.c d_live), also kept in FAILED and after a reset"""
+    """attempt 45 DIAG words after READY (ctl_main.c d_live), also kept in FAILED and after a reset.
+    attempt 52b: ctl_d_post/pend are u8 counters ORed in at 4-bit fields without a mask, so once a task
+    posted or pended more than 15 times the bits 8-23 overlap (a52's 0x3399FF02 = 865730306): those
+    four counts are then only lower bounds; frames (0-7), waiting, task_create fails and ran stay exact."""
+    over = (gave >> 8 & 0xFFFF) and any((gave >> s & 15) == 15 for s in (8, 12, 16, 20))
     return (f"took {took & 0xFF} frames, {took >> 8 & 0xFF} host events (last 0x{took >> 16 & 0xFF:02X}), "
             f"{took >> 24} timer runs; gave {gave & 0xFF} frames; controller task posts {gave >> 8 & 15} "
             f"pends {gave >> 12 & 15}, host task posts {gave >> 16 & 15} pends {gave >> 20 & 15}; "
-            f"waiting {gave >> 24 & 3:02b}, task_create fails {gave >> 26 & 3}, ran {gave >> 28 & 3:02b}")
+            f"waiting {gave >> 24 & 3:02b}, task_create fails {gave >> 26 & 3}, ran {gave >> 28 & 3:02b}"
+            + ("; post/pend nibbles overflowed (counts >15 overlap, not exact)" if over else "") + f" [raw took {h(took)} gave {h(gave)}]")
 
 
 def stage_word(d):
@@ -347,8 +397,8 @@ def summary(d, before):
                  + (f"CHANGED at {d['code_bad'] & 0xFFFFF} ms (sum {h(d['code_sum'])})" if d['code_bad'] else "unchanged"),
         "hci": f"host state {d['h_state']} step {d['h_step'] & 0xFF} wait {d['h_step'] >> 8 & 0xFF} "
                f"credits {d['h_step'] >> 16 & 0xFF}; h2c head/tail {d['h2c'] & 0xFFFF}/{d['h2c'] >> 16} "
-               f"c2h {d['c2h'] & 0xFFFF}/{d['c2h'] >> 16} drops {d['c2h_drops']}; controller took "
-               f"{d['ctl_took']}, gave {d['ctl_gave']}; polls {d['polls']}",
+               f"c2h {d['c2h'] & 0xFFFF}/{d['c2h'] >> 16} drops {d['c2h_drops']}; "
+               + live_words(d['ctl_took'], d['ctl_gave']) + f"; polls {d['polls']}",
         "link": (f"interval {(d['rx0'] & 0xFFFF) * 1.25:g} ms, latency {d['rx1'] >> 21 & 7}; last end reason 0x{d['rx0'] >> 16 & 0xFF:02X}; "
                  f"pairing refused {d['rx0'] >> 24}; asked MTU {d['rx1'] >> 8 & 0x3FF}; L2CAP requests {d['rx1'] >> 24}; MIDI in drops {d['rx1'] & 0xFF}; "
                  f"parameter request {['not sent', 'sent'][d['rx1'] >> 18 & 1]}, {['no answer', 'accepted', 'rejected', '?'][d['rx1'] >> 19 & 3]}"),
@@ -397,6 +447,7 @@ def main():
         out["core1_raw"] = x
         if syms:
             out["ram"] = ram_dump(syms)
+            out["adv"] = adv_dump(syms)
         print(json.dumps(out, indent=1))
         if a.log:
             with open(a.log, "a") as f:
@@ -435,9 +486,11 @@ def main():
         x = c1x()
         s["core1"] = c1x_text(x)
         ram = ram_dump(syms) if syms else None
+        if syms:
+            s["adv"] = json.dumps(adv_dump(syms))
         s["round"], s["seconds"] = rnd, round(time.time() - t0, 1)
         print(f"--- round {rnd} ({s['seconds']} s)")
-        for k in ("status", "hold", "guard", "start", "last_start", "hci", "alive", "rails", "reset", "crash", "core1", "t5w"):
+        for k in ("status", "hold", "guard", "start", "last_start", "hci", "alive", "rails", "reset", "crash", "core1", "t5w", "adv"):
             if k in s:
                 print(f"  {k:7} {s[k]}")
         if a.log:
