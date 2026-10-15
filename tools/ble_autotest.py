@@ -39,7 +39,7 @@ GUARD = ["g_magic", "trying", "blocked", "why", "fails", "start_ms", "init_ms", 
          "seen_stage", "seen_ms", "seen_delays", "seen_ra", "code_bad", "code_sum"]
 LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
         "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now",
-        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave"]
+        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave", "rx0", "rx1"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
 WHY = ["-", "TIMEOUT", "WRONG JOB", "NOT READY", "RESET", "NO TICK"]
 MB = ["OFF", "INIT", "READY", "FAILED"]
@@ -80,7 +80,7 @@ def diag():
     head = CRASH + BOOT
     d = {k: v for k, v in zip(head, w)}
     rest = w[len(head):]
-    if len(rest) >= len(LIVE):                     # the live words are always the last 11
+    if len(rest) >= len(LIVE):                     # the live words are always the last len(LIVE)
         d.update(zip(LIVE, rest[-len(LIVE):]))
         rest = rest[:-len(LIVE)]
     d.update(zip(GUARD, rest))                     # an older firmware sends fewer guard words
@@ -135,7 +135,9 @@ def summary(d, before):
         "hci": f"host state {d['h_state']} step {d['h_step'] & 0xFF} wait {d['h_step'] >> 8 & 0xFF} "
                f"credits {d['h_step'] >> 16 & 0xFF}; h2c head/tail {d['h2c'] & 0xFFFF}/{d['h2c'] >> 16} "
                f"c2h {d['c2h'] & 0xFFFF}/{d['c2h'] >> 16} drops {d['c2h_drops']}; controller took "
-               f"{d['ctl_took']}, gave {d['ctl_gave']}; polls {d['polls']}",
+               f"{d['ctl_took']}, gave {d['ctl_gave']}; polls {d['polls']}; last frame type {d['rx0'] & 0xFF} "
+               f"len {d['rx0'] >> 8 & 0xFF} bytes "
+               + (d['rx0'] >> 16).to_bytes(2, 'little').hex(' ') + " " + d['rx1'].to_bytes(4, 'little').hex(' '),
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")

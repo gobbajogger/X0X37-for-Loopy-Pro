@@ -29,6 +29,7 @@ typedef struct {
     char nm[9];                                 /* the name it advertises */
 } ble_ram_t;
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
+static uint32_t ble_rx_last[2];             /* the last frame from the controller (DIAG) */
 
 static void ble_record(void);
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
@@ -260,8 +261,12 @@ static void ble_service(void)
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
         if (n == 0)
             break;
-        if (n > 0)
+        if (n > 0) {
+            ble_rx_last[0] = t | (uint32_t)n << 8 | (uint32_t)ble_r.fr[0] << 16 | (uint32_t)ble_r.fr[1] << 24;
+            ble_rx_last[1] = ble_r.fr[2] | (uint32_t)ble_r.fr[3] << 8 | (uint32_t)ble_r.fr[4] << 16 |
+                             (uint32_t)ble_r.fr[5] << 24;
             bleh_rx(h, t, ble_r.fr, (uint16_t)n);
+        }
     }
     while (ble_r.orr != ble_r.ow) {             /* MIDI out, mirrored */
         uint8_t b[3];
@@ -340,5 +345,9 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.h.step | (uint32_t)ble_r.h.cmd_wait << 8 | (uint32_t)ble_r.h.credits << 16;
     w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_INIT_MS] : 0;     /* frames the controller took */
     w[n++] = ble_up ? ble_r.mb.dbg[XB_DBG_MS] : 0;          /* frames it gave to the app */
+    if (n + 2u > max)
+        return n;
+    w[n++] = ble_rx_last[0];                                /* the last frame from it: type, length, bytes */
+    w[n++] = ble_rx_last[1];
     return n;
 }
