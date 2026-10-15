@@ -342,7 +342,7 @@ static u32 ctl_poll(u32 unused)
     d_live();
 #endif
 #ifdef CTL_HOST
-    if ((ctl_mb->polls & 1023u) == 0) {    /* health for DIAG: heap, the least free stack bytes / 16 */
+    if (ctl_mb->polls < 64u || (ctl_mb->polls & 1023u) == 0) {   /* health for DIAG (attempt 51: the first 64 polls too, so a reset leaves fresh values) */
         d_health();
     }
 #endif

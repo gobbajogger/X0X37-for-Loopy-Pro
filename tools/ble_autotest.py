@@ -198,6 +198,27 @@ def h(v):
     return f"0x{v:08X}"
 
 
+def live_words(took, gave):
+    """attempt 45 DIAG words after READY (ctl_main.c d_live), also kept in FAILED and after a reset"""
+    return (f"took {took & 0xFF} frames, {took >> 8 & 0xFF} host events (last 0x{took >> 16 & 0xFF:02X}), "
+            f"{took >> 24} timer runs; gave {gave & 0xFF} frames; controller task posts {gave >> 8 & 15} "
+            f"pends {gave >> 12 & 15}, host task posts {gave >> 16 & 15} pends {gave >> 20 & 15}; "
+            f"waiting {gave >> 24 & 3:02b}, task_create fails {gave >> 26 & 3}, ran {gave >> 28 & 3:02b}")
+
+
+def stage_word(d):
+    """attempt 51: the image's stop record (ctl_os.c d_stop) and its last task switch (dbg_stall)"""
+    st, v, ra, sw = d["dbg_stage"], d["dbg_delays"], d["dbg_ra"], d["dbg_stall"]
+    out = ""
+    if st == 0x5110:
+        out = f"STOP: a wait inside an interrupt, caller {h(ra)}; "
+    elif st & ~1 == 0x5120:
+        out = f"STOP: task {st & 1} saved sp {h(v)} outside its stack (word {h(ra)}); "
+    if sw >> 24 == 0x51:
+        out += f"last switch into task {sw >> 20 & 15} at poll {sw & 0xFFFFF}"
+    return out or "-"
+
+
 def summary(d, before):
     s = STATE[d["plat_state"] % 8] if "plat_state" in d else "?"
     crash_new = before is None or any(d.get(k) != before.get(k) for k in ("count", "pc", "up_ms", "rets"))
@@ -223,9 +244,16 @@ def summary(d, before):
         "heap": (lambda x, t: f"peak {x & 0xFFFF} B, failed allocations {x >> 16 & 0xFF}, last failed size ~{(x >> 24) * 16} B; "
                  f"stack free: tasks {(t & 0xFF) * 16} B, run {(t >> 8 & 0xFF) * 16} B, irq {(t >> 16 & 0xFF) * 16} B; queue full {t >> 24}")(d['hx_heap'], d['hx_stacks']),
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
+        # attempt 51: after READY (and after a reset: the guard keeps the last start's mailbox) the
+        # mailbox's MS / INIT_MS words are d_live's took/gave, not times; the stop record and switch
+        "last_start": (("before the reset that blocked it: " if d['why'] == 4 else "")
+                       + (live_words(d['dbg_init_ms'], d['dbg_ms']) if d['dbg_stage'] >= 7 else "init not done")
+                       + f"; polls {d['polls']}; {stage_word(d)}"),
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")
-                 if crash_new and d.get("magic") == 0x43525348 else "none new",
+                 if crash_new and d.get("magic") == 0x43525348 else
+                 (f"none new; last record: core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} "
+                  f"SP {h(d['sp'])} up {d['up_ms']} ms (count {d['count']})" if d.get("magic") == 0x43525348 else "none"),
     }
     return out
 
@@ -279,7 +307,7 @@ def main():
         s["t5w"] = t5w_text(t)
         s["round"], s["seconds"] = rnd, round(time.time() - t0, 1)
         print(f"--- round {rnd} ({s['seconds']} s)")
-        for k in ("status", "hold", "guard", "start", "hci", "alive", "rails", "reset", "crash", "t5w"):
+        for k in ("status", "hold", "guard", "start", "last_start", "hci", "alive", "rails", "reset", "crash", "t5w"):
             if k in s:
                 print(f"  {k:7} {s[k]}")
         if a.log:
