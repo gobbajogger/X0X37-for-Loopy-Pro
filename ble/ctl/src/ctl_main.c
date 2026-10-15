@@ -338,6 +338,7 @@ static u32 ctl_poll(u32 unused)
     ctl_mb->polls++;
     ctl_os_run_once();
 #ifdef CTL_HOST
+    hx_start();                           /* attempt 50: once the host task waits */
     d_live();
 #endif
 #ifdef CTL_HOST
