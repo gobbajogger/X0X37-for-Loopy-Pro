@@ -17,7 +17,10 @@ All integrity checks in the format are CRC16 (poly 0x1021, init 0).
   fm1pkg_make.py APP.bin OTA.bin OUT.fwsc [--board fm1|smk37] [--product FM-1_9XY] [--sdk DIR]
 
 --board smk37 (M-Vave SMK-37 Pro, same AC791N, SPL and loader) selects the SMK flash layout: PRCT
-0x9D000 and the stock v016 region table (VM, BTIF, USRTRIM, USRFLASH, USR).
+0x9D000 and the stock v016 region table (VM, BTIF, USRTRIM, USRFLASH, USR). The app code must end below
+the Bluetooth block (flash 0x8B000-0x9AFFF, 64 KiB, inside the stock APP_SLOT; firmware/hal/fm1_flash_map.h
+FL_BLE_LO): APP_CODE_MAX 0x86EE0. The SMK package also carries its sample slot map (SLOTMAP below) as plain
+bytes at flash.bin 0x9CF00, after the cfg: the installers read it to see if an install keeps the slots.
 """
 import argparse
 import os
@@ -25,6 +28,7 @@ import struct
 from pathlib import Path
 
 APP_SLOT = 0x8DFBC
+APP_CODE_MAX = 0x8DFBC
 FLASH_SIZE = 0x93000
 BOARD = "fm1"
 # the region descriptors after app.bin / cfg_tool.bin: (offset, size, flags, resvd, index, name16 or name).
@@ -42,18 +46,45 @@ REGIONS = {
               (0xC2000, 0x29000, 0x92, 0x81, 0, bytes.fromhex("555352464c41534800ffffffffffffff")), # USRFLASH
               (0xF4000, 0xA000, 0x92, 0x81, 1, "USR")],
 }
-# per board: (FLASH_SIZE = PRCT = the end of what the update loader writes, APP_SLOT, default product)
-BOARDS = {"fm1": (0x93000, 0x8DFBC, "FM-1_900"),
-          "smk37": (0x9D000, 0x97400, "SMK-37 Pro_900")}   # SMK: the stock app is 0x974B8; build.py sets app.ld XIP
+# per board: (FLASH_SIZE = PRCT = the end of what the update loader writes, APP_SLOT, default product,
+# APP_CODE_MAX = the app code limit: app.bin offset of the Bluetooth block on the SMK, else APP_SLOT)
+BOARDS = {"fm1": (0x93000, 0x8DFBC, "FM-1_900", 0x8DFBC),
+          "smk37": (0x9D000, 0x97400, "SMK-37 Pro_900", 0x86EE0)}   # SMK: the stock app is 0x974B8; build.py sets app.ld XIP
+BLE_LO, BLE_HI = 0x8B000, 0x9B000              # SMK: flash range of the Bluetooth block (FL_BLE_LO / FL_BLE_HI)
+# SMK sample slot map (firmware/src/app/slots.c SMP_USER_OFF / SMP_USER_SIZE): (flash offset, size) per slot
+SLOTMAP = {"smk37": [(0xC2000, 0x14000), (0xD6000, 0x1E000), (0xB0000, 0xB000)]}
+SLOTMAP_OFF, SLOTMAP_MAGIC = 0x9CF00, b"X0X-SLOTMAP-1\0\0\0"
+
+
+def slotmap_blob(slots):
+    """the slot map record: magic (16), u32 count, per slot u32 offset + u32 size, u32 CRC-32 of all before"""
+    import zlib
+    b = SLOTMAP_MAGIC + struct.pack("<I", len(slots)) + b"".join(struct.pack("<II", o, n) for o, n in slots)
+    return b + struct.pack("<I", zlib.crc32(b))
+
+
+def slotmap_of(logical):
+    """the slot map in a package's logical image -> [(offset, size)], or None (no map: an older package)"""
+    import zlib
+    i = bytes(logical).find(SLOTMAP_MAGIC)
+    if i < 0:
+        return None
+    n = struct.unpack_from("<I", logical, i + 16)[0]
+    if n > 16:
+        return None
+    end = i + 20 + 8 * n
+    if struct.unpack_from("<I", logical, end)[0] != zlib.crc32(bytes(logical[i:end])):
+        return None
+    return [struct.unpack_from("<II", logical, i + 20 + 8 * k) for k in range(n)]
 
 
 def set_board(board):
     """select the flash layout of a board ("fm1" default, "smk37")"""
-    global BOARD, FLASH_SIZE, APP_SLOT
+    global BOARD, FLASH_SIZE, APP_SLOT, APP_CODE_MAX
     if board not in BOARDS:
         raise SystemExit(f"fm1pkg_make: unknown board {board!r} (fm1, smk37)")
     BOARD = board
-    FLASH_SIZE, APP_SLOT, _ = BOARDS[board]
+    FLASH_SIZE, APP_SLOT, _, APP_CODE_MAX = BOARDS[board]
 KEY = 0x980F
 # flash header: JieLi SDK defaults (burner_size 544, VID "0.01", flash_size 0xFF000,
 # fs_ver 0x10, PID "AC791N_STORY"), plain, without its CRC
@@ -151,8 +182,9 @@ def flash_image(app, key):
         enc(head, o, 32)
     f[0:len(head)] = head
     # ---- app area (plain first, then SFC)
-    if len(app) > APP_SLOT:
-        raise SystemExit(f"app is {len(app)} B, the slot is {APP_SLOT} B")
+    if len(app) > APP_CODE_MAX:
+        raise SystemExit(f"app is {len(app)} B, the app code area is {APP_CODE_MAX} B"
+                         + (" (the Bluetooth block follows)" if APP_CODE_MAX < APP_SLOT else ""))
     app = app + b"\xFF" * (APP_SLOT - len(app))
     blk = 0x120 + APP_SLOT + len(cfg_tool)              # app_area_head block size
     area = bytearray(b"\xFF" * blk)
@@ -172,6 +204,11 @@ def flash_image(app, key):
     region = bytearray(area + cfg)
     sfc(region, 0, len(region), 0, key)
     f[0x4000:0x4000 + len(region)] = region
+    if BOARD in SLOTMAP:                                # plain, after the cfg: read by the installers only
+        blob = slotmap_blob(SLOTMAP[BOARD])
+        if 0x4000 + len(region) > SLOTMAP_OFF or SLOTMAP_OFF + len(blob) > FLASH_SIZE:
+            raise SystemExit("fm1pkg_make: no room for the slot map after the cfg")
+        f[SLOTMAP_OFF:SLOTMAP_OFF + len(blob)] = blob
     return bytes(f)
 
 

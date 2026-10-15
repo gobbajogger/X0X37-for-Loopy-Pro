@@ -41,6 +41,7 @@ import lz4blk  # noqa: E402
 
 APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
 APP_SLOT = fm1pkg_make.APP_SLOT
+APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX   # SMK: the app code ends below the Bluetooth block (fm1_flash_map.h FL_BLE_LO)
 LOADER_LOAD = 0x01C0A800
 LOADER_NAME = b"usb_hid_ota.bin"    # the file name the SPL looks for
 DOCKER_IMAGE = os.environ.get("JIELI_DOCKER_IMAGE", "debian:bookworm-slim")
@@ -268,12 +269,12 @@ def build_app():
     # unreferenced functions (each in its own section: -ffunction-sections) are dropped: the DSP keeps
     # mono reference paths for the host tests that the firmware no longer calls
     ld = FW / "app.ld"
-    if APP_SLOT != 0x8DFBC:          # another board's app slot (SMK-37 Pro): the same script, its XIP length
+    if APP_CODE_MAX != 0x8DFBC:      # another board's app code area (SMK-37 Pro): the same script, its XIP length
         txt = ld.read_text()
         if txt.count("LENGTH = 0x8DFBC") != 1:
             raise SystemExit("app.ld: the XIP LENGTH line was not found")
         ld = OUT / "app.ld"
-        ld.write_text(txt.replace("LENGTH = 0x8DFBC", f"LENGTH = {APP_SLOT:#X}".replace("0X", "0x")))
+        ld.write_text(txt.replace("LENGTH = 0x8DFBC", f"LENGTH = {APP_CODE_MAX:#X}".replace("0X", "0x")))
     tc("pi32v2/bin/ld", "--gc-sections", "-e", "_start", "-T", ld, *objs, "-o", elf)
     for sect in ("text.bin", "data.bin", "ramtext.bin", "c1text.bin"):
         (OUT / sect).unlink(missing_ok=True)
@@ -326,8 +327,11 @@ def check(img, syms, dis, rt):
             val = (int(v[0]) & 0xFFFFFFFF) if v[0] else int(v[1], 16) & 0xFFFFFFFF
             if 0xFFC00000 <= val < 0xFFD00000:
                 errors.append(f"reference to ROM address {val:#010x}")
-    if len(img) > APP_SLOT:
-        errors.append(f"image {len(img)} B exceeds the app slot")
+    if len(img) > APP_CODE_MAX:
+        errors.append(f"image {len(img)} B exceeds the app code area ({APP_CODE_MAX} B)")
+    else:
+        notes.append(f"app code area {APP_CODE_MAX} B, {APP_CODE_MAX - len(img)} B free"
+                     + (f" (Bluetooth block at app.bin {APP_CODE_MAX:#x})" if APP_CODE_MAX < APP_SLOT else ""))
     # X0X: the FPU is single precision; a soft-double routine in the image means a double crept in
     soft = sorted(set(re.findall(r"\s(__(?:add|sub|mul|div|neg|cmp|eq|ne|lt|le|gt|ge|un|extendsf|truncdf|fixdf|fixunsdf|floatsidf|floatunsidf|floatdidf)\w*df\w*)$", syms, re.M)))
     if soft:
@@ -393,7 +397,7 @@ def mmio_check():
 
 
 def main():
-    global PRODUCT, VERSION, BOARD, APP_SLOT, OUT, LDR
+    global PRODUCT, VERSION, BOARD, APP_SLOT, APP_CODE_MAX, OUT, LDR
     ap = argparse.ArgumentParser()
     ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_9XXYYZZ, version string X.Y[.Z]")
     ap.add_argument("--board", choices=sorted(BOARD_PREFIX), default=None,
@@ -410,6 +414,7 @@ def main():
         raise SystemExit(f"MODEL={model}: pro, elite or mke, with BOARD=smk37")
     fm1pkg_make.set_board(BOARD)
     APP_SLOT = fm1pkg_make.APP_SLOT
+    APP_CODE_MAX = fm1pkg_make.APP_CODE_MAX
     stem = "x0x" if BOARD == "fm1" else "x0x-" + BOARD
     pkg_dir = OUT                   # the package always in build/; another board's objects, app and loader in
     if BOARD != "fm1":              # build/<board>/, so the FM-1 outputs (and the tests on them) stay as they are
