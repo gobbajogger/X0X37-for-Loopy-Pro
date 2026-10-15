@@ -51,7 +51,7 @@ static int ble_img_check(const uint8_t *img, uint32_t size, uint32_t xip_base)
 
 /* ABI 3: piece 2 (plain, at XB_FLASH2_XIP, written by ED_CTL2): its size and CRC as piece 1's header
  * says, and the hole (the store owner tag) left out. p2 = piece 2 as the CPU reads it. */
-static int ble_img2_check(const xb_header_t *h, const uint8_t *p2)
+static inline int ble_img2_check(const xb_header_t *h, const uint8_t *p2)
 {
     uint32_t crc;
     if (!h->p2_size)

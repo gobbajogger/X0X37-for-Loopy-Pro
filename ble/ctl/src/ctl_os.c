@@ -113,9 +113,18 @@ const char *os_current_task(void) { return cur ? cur->name : "idle"; }
 const char *os_current_task_rom(void) { return os_current_task(); }
 
 /* Give the CPU back to the idle loop until 'ready' says the wait is over. */
+static u8 in_run_once;                 /* ctl_os_run_once is on the stack */
+int ctl_os_run_once(void);
 static void block_current(void)
 {
-    if (!cur) { ctl_port_cpu_relax(); return; }   /* idle context (a timer callback): it cannot block, it spins */
+    /* Attempts 43 and 44: the init is not a task. btstack_init waits there in os_time_dly, and
+     * btctrler_task_ready waits there in os_sem_pend, until the controller task answers. So the
+     * init runs the tasks while it waits. A timer callback (inside ctl_os_run_once) only spins. */
+    if (!cur) {
+        if (!in_run_once) (void)ctl_os_run_once();
+        else ctl_port_cpu_relax();
+        return;
+    }
     cur->waiting = 1;
     ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
 }
@@ -203,18 +212,9 @@ int os_mutex_pend(void *m, int timeout) { return os_sem_pend(m, timeout); }
 int os_mutex_post(void *m) { return os_sem_post(m); }
 int os_mutex_del(void *m, int force) { (void)m; (void)force; return OS_NO_ERR; }
 
-static u8 in_run_once;                 /* attempt 43: ctl_os_run_once is on the stack */
 void os_time_dly(int ticks)
 {
     u32 end = ctl_ms() + (u32)ticks * (1000u / OS_TICKS_PER_SEC);
-    if (!cur && !in_run_once) {
-        /* attempt 43: called from the init (not a task, not a timer callback). btstack_init waits
-         * here until btctrler_task_ready(): the controller task must run meanwhile. Before, this
-         * spun, the task never ran, and the watchdog reset the unit (attempts 40 to 42). */
-        while ((s32)(ctl_ms() - end) < 0)
-            (void)ctl_os_run_once();
-        return;
-    }
     while ((s32)(ctl_ms() - end) < 0) {
         if (cur) cur->wake_ms = end;
         block_current();
