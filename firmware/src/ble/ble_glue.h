@@ -128,6 +128,8 @@ typedef struct {
     uint32_t wait_end;                             /* fm1_c1_wait_end of the start (fm1_cpu1.h) */
     uint32_t xosc_pre, xosc_post;                  /* WLA_CON12 (crystal trim) before the start and after init */
     uint32_t wait_ms;                              /* fm1_c1_wait_ms: core 0's last look in the wait, ms */
+    uint32_t seen[4];                              /* the image's dbg[0..3] at that look (fm1_c1_wait_seen) */
+    uint32_t code_bad, code_sum;                   /* RAM code 0x01C00400..XB_RAM_LO changed: 0xBAD00000 | ms, the sum */
 } ble_guard_t;
 
 /* power-on: 1 = start the controller now */

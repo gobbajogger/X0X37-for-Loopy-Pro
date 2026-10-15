@@ -35,7 +35,8 @@ CRASH = ["magic", "count", "vec", "pc", "rets", "emu", "dbg", "sp", "psr", "icfg
 BOOT = ["bg_failed", "bg_pending"]
 GUARD = ["g_magic", "trying", "blocked", "why", "fails", "start_ms", "init_ms", "mb_state", "mb_err",
          "dbg_stage", "dbg_ms", "dbg_delays", "dbg_ra", "dbg_init_ms", "dbg_stall", "reset_prev",
-         "sink_n", "sink_at", "sink_val", "wait_end", "xosc_pre", "xosc_post", "wait_ms"]
+         "sink_n", "sink_at", "sink_val", "wait_end", "xosc_pre", "xosc_post", "wait_ms",
+         "seen_stage", "seen_ms", "seen_delays", "seen_ra", "code_bad", "code_sum"]
 LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
         "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
@@ -126,6 +127,9 @@ def summary(d, before):
                  f"delays {d['dbg_delays']} stage time {d['dbg_ms']} ms image init {d['dbg_init_ms']} ms "
                  f"core0 wait {h(d['wait_end'])} last look {d['wait_ms']} ms",
         "xosc": f"{h(d['xosc_pre'])} -> {h(d['xosc_post'])}",
+        "core0": f"last look {d['wait_ms']} ms; image then: stage {d['seen_stage']} at {d['seen_ms']} ms, "
+                 f"delays {d['seen_delays']}, last delay caller {h(d['seen_ra'])}; RAM code "
+                 + (f"CHANGED at {d['code_bad'] & 0xFFFFF} ms (sum {h(d['code_sum'])})" if d['code_bad'] else "unchanged"),
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")
@@ -179,7 +183,7 @@ def main():
         ok += up
         s["round"], s["seconds"] = rnd, round(time.time() - t0, 1)
         print(f"--- round {rnd} ({s['seconds']} s)")
-        for k in ("status", "hold", "guard", "start", "xosc", "reset", "crash"):
+        for k in ("status", "hold", "guard", "start", "core0", "xosc", "reset", "crash"):
             if k in s:
                 print(f"  {k:7} {s[k]}")
         if a.log:

@@ -45,6 +45,25 @@ static void ble_sink_fill(void)
         _ram_sink[i] = BLE_SINK_FILL(i);
 }
 /* how many words of the sink changed since ble_sink_fill: a write by the radio (or its DMA) */
+/* core 0's record of its start wait (fm1_cpu1.h), kept in the guard */
+static void ble_wait_record(void)
+{
+    uint32_t i;
+    ble_guard.wait_ms = fm1_c1_wait_ms;
+    for (i = 0; i < 4u; i++)
+        ble_guard.seen[i] = fm1_c1_wait_seen[i];
+    ble_guard.code_bad = fm1_c1_sum_bad;
+    ble_guard.code_sum = fm1_c1_sum_got;
+}
+/* the free RAM after the RAM code up to the controller's RAM: a second sink, in core 0's sum */
+extern uint32_t _rt_end[];
+static void ble_code_watch(const volatile uint32_t *mbdbg)
+{
+    uint32_t *p;
+    for (p = _rt_end; p < (uint32_t *)XB_RAM_LO; p++)
+        *p = BLE_SINK_FILL((uint32_t)(p - _rt_end));
+    fm1_cpu1_wait_checks((const void *)mbdbg, _rt_start, (const void *)XB_RAM_LO);
+}
 static void ble_sink_check(void)
 {
     uint32_t i, n = (uint32_t)(_ram_sink_end - _ram_sink), bad = 0;
@@ -84,7 +103,7 @@ static void ble_prepare(int on)
         ble_guard.sink_n |= 0x80000000u;        /* bit 31: checked at the next boot, not after the init */
         ble_guard.reset = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* what reset it */
         ble_guard.wait_end = fm1_c1_wait_end;   /* how core 0's wait ended (RAM code) */
-        ble_guard.wait_ms = fm1_c1_wait_ms;
+        ble_wait_record();
     }
     if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
         if (ble_img == BLE_IMG_OK && on && ble_guard.blocked) {
@@ -143,6 +162,7 @@ static void ble_start(void)
     ble_guard.xosc_pre = fm1_ble_xosc();
     ble_guard.xosc_post = 0;
     ble_sink_fill();
+    ble_code_watch(&mb->dbg[XB_DBG_STAGE]);
     bus = fm1_guard_bus_pause();                /* JieLi's RF code: not for the bus-invalid checks */
     fm1_wdt_feed();                             /* init may take FM1_BLE_INIT_MS of the 8 s */
     {
@@ -153,7 +173,7 @@ static void ble_start(void)
         irq_restore(f);
     }
     ble_guard.wait_end = fm1_c1_wait_end;
-    ble_guard.wait_ms = fm1_c1_wait_ms;
+    ble_wait_record();
     ble_guard.xosc_post = fm1_ble_xosc();
     ble_record();
     ble_sink_check();                           /* before the first P33 access after the start */

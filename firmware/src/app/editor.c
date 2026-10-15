@@ -17,7 +17,7 @@ enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, E
 static uint32_t ed_reboot_at;                /* fm1_ms + 1 when a restart was asked for (0: none) */
 #define ED_READ_MAX 224u                     /* X0X: SMP_READ's bytes a frame (the break page draws the slots) */
 
-static uint8_t ed_out[288];
+static uint8_t ed_out[320];
 static uint32_t ed_n;
 
 static void ed_begin(uint32_t cmd)
@@ -181,14 +181,14 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(0);
         break;
     case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
-        uint32_t w[54], nw = 0, k;            /* 54 x 5 B fit ed_out */
+        uint32_t w[60], nw = 0, k;            /* 60 x 5 B fit ed_out */
         const uint32_t *c = (const uint32_t *)&fm1_crash;
         for (k = 0; k < sizeof fm1_crash / 4u; k++)
             w[nw++] = c[k];
         w[nw++] = bootguard.failed;
         w[nw++] = bootguard.pending;
 #if X0X_BLE
-        nw += ble_diag(w + nw, 54u - nw);
+        nw += ble_diag(w + nw, 60u - nw);
 #endif
         ed_b(nw);
         for (k = 0; k < nw; k++) {
