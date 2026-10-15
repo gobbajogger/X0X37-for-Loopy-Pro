@@ -13,7 +13,8 @@
 
 #define FM1_BLE_HDR ((const xb_header_t *)XB_FLASH_XIP)
 #define FM1_BLE_IMG ((const uint8_t *)XB_FLASH_XIP)
-#define FM1_BLE_INIT_MS 1500u                   /* the longest the controller's start may take */
+#define FM1_BLE_INIT_MS 4000u                   /* the longest the controller's start may take (its RF
+                                                 * trim; the watchdog is 8 s, fed just before) */
 
 static inline void fm1_ble_sync(void) { XB_SYNC(); }   /* the two cores share the caches: order only */
 

@@ -927,7 +927,17 @@ static void safe_main(void)
         b[1] = 'C';
         b[2] = ' ';
         hexs(b + 3, fm1_crash.pc);
-        draw_text_box(0, 208, 240, &FONT_S, b, C_GRAY, 1);
+        draw_text_box(0, 200, 240, &FONT_S, b, C_GRAY, 1);
+        b[0] = fm1_crash.core == 1 ? '2' : '1';     /* the core, the vector, DBG_MSG: "1 V01 D00001000" */
+        b[1] = ' ';
+        b[2] = 'V';
+        hexs(b + 3, fm1_crash.vec);
+        b[3] = b[9];
+        b[4] = b[10];
+        b[5] = ' ';
+        b[6] = 'D';
+        hexs(b + 7, fm1_crash.dbg);
+        draw_text_box(0, 220, 240, &FONT_S, b, C_GRAY, 1);
     }
     fm1_input_init();
     panel_init();

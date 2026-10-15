@@ -116,12 +116,20 @@ static int boot_ok(const xb_boot_t *bp)
            bp->tick_addr && bp->vec_base && bp->icfg_base;
 }
 
+/* the start record for the app (xb_mbox_t dbg): the step and the time */
+static void stage(u32 n)
+{
+    ctl_mb->dbg[XB_DBG_STAGE] = n;
+    ctl_mb->dbg[XB_DBG_MS] = ctl_ms();
+    XB_SYNC();
+}
+
 /* core 1, once, as an app job, with the app's core 0 waiting in RAM: set up the RAM, the
  * controller and its interrupts, then run it until it settles (the RF trim). 0 = ready. */
 static u32 ctl_init(u32 arg)
 {
     const xb_boot_t *bp = (const xb_boot_t *)(uintptr_t)arg;
-    u32 t0, idle = 0;
+    u32 t0, t_init, idle = 0;
     memcpy(__ctl_ramtext_start, __ctl_ramtext_lma, (size_t)(__ctl_ramtext_end - __ctl_ramtext_start));
     memcpy(__ctl_data_start, __ctl_data_lma, (size_t)(__ctl_data_end - __ctl_data_start));
     memset(__ctl_bss_start, 0, (size_t)(__ctl_bss_end - __ctl_bss_start));
@@ -136,28 +144,36 @@ static u32 ctl_init(u32 arg)
     ctl_delay_init();
     ctl_os_init();
     ctl_port_tick_start(1000);
+    t_init = ctl_ms();
+    stage(XB_STG_ENTRY);
+    stage(XB_STG_OS);
     h4 = hci_transport_h4_controller_instance();
     if (!h4) {
         ctl_mb->err = XB_E_BOOT;
         ctl_mb->state = XB_ST_FAILED;
         return XB_E_BOOT;
     }
+    stage(XB_STG_H4);
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
     btctrler_task_init(h4, NULL);
+    stage(XB_STG_TASK);
     ctl_port_irq_enable_core();
     ctl_port_irq_restore(0);              /* interrupts on: the app's idle loop keeps them on from now */
     t0 = ctl_ms();
+    stage(XB_STG_SETTLE);
     while ((s32)(ctl_ms() - t0) < (s32)bp->settle_ms) {   /* the RF trim runs in the controller task */
         if (ctl_os_run_once())
             idle = 0;
         else if (++idle > 2000u && (s32)(ctl_ms() - t0) > 50)
             break;                        /* every task waits: settled */
     }
+    stage(XB_STG_SETTLED);
+    ctl_mb->dbg[XB_DBG_INIT_MS] = ctl_ms() - t_init;
     if (ctl_mb->err != XB_E_NONE) {
         ctl_mb->state = XB_ST_FAILED;
         return ctl_mb->err;
     }
-    XB_SYNC();
+    stage(XB_STG_READY);
     ctl_mb->state = XB_ST_READY;
     XB_SYNC();
     return 0;

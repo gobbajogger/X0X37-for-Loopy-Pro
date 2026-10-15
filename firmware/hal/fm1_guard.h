@@ -42,6 +42,7 @@ extern char _guard0[], _ustack_lo[], _guard1[], _sstack_lo[], _sstack_top[], _et
 extern uint32_t _rt_start[], _rt_end[];
 
 enum { FM1_GUARD_STACK = 1, FM1_GUARD_WRITE = 2, FM1_GUARD_BUS = 4, FM1_GUARD_PC = 8 };
+#define FM1_GUARD_BUS_BITS ((0x3Fu << 16) | (0x3u << 4))
 
 /* a Bluetooth controller image (src/ble.c): the PC limits reach over its flash block and its RAM
  * too (0 = no controller). Set before fm1_guard_enable(FM1_GUARD_PC). */
@@ -79,7 +80,7 @@ static void fm1_guard_enable(uint32_t which)
         FM1_C0_WR_LIMIT_EN |= 3u;
     }
     if (which & FM1_GUARD_BUS)
-        FM1_DBG_EN |= (0x3Fu << 16) | (0x3u << 4);
+        FM1_DBG_EN |= FM1_GUARD_BUS_BITS;
     if (which & FM1_GUARD_PC) {
         FM1_PC_LIMIT0_L = 0x02000120u;
         FM1_PC_LIMIT0_H = fm1_guard_xip_hi ? fm1_guard_xip_hi : (uint32_t)(uintptr_t)_etext;
@@ -121,6 +122,25 @@ static void fm1_guard_lock_top(void)
 
 /* the reserved top of RAM is write-protected now (fm1_guard_lock_top) */
 static int fm1_guard_top_locked(void) { return (FM1_C0_WR_LIMIT_EN & 4u) != 0; }
+
+/* the bus-invalid checks (FM1_GUARD_BUS) off: a Bluetooth controller (src/ble.c) runs JieLi's RF code,
+ * which the checks were not made for. The value to give back to fm1_guard_bus_resume. */
+static uint32_t fm1_guard_bus_pause(void)
+{
+    uint32_t v;
+    fm1__dbg_unlock();
+    v = FM1_DBG_EN;
+    FM1_DBG_EN = v ^ (v & FM1_GUARD_BUS_BITS);     /* (no ~mask literal: build.py's ROM-address check) */
+    fm1__dbg_lock();
+    return v & FM1_GUARD_BUS_BITS;
+}
+static void fm1_guard_bus_resume(uint32_t bits)
+{
+    fm1__dbg_unlock();
+    FM1_DBG_MSG_CLR = 0xFFFFFFFFu;
+    FM1_DBG_EN |= bits;
+    fm1__dbg_lock();
+}
 
 /* reopen the reserved top of RAM (mailbox write before a UBOOT reset) */
 static void fm1_guard_unlock_top(void)

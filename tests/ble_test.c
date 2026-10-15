@@ -455,6 +455,40 @@ static void t_park(void)
     CHECK(pk_bad_poll == 0);
 }
 
+/* the start guard (BEHAVIOR.md BLE-12) */
+static void t_guard(void)
+{
+    ble_guard_t g;
+    memset(&g, 0xA5, sizeof g);                      /* power-on RAM: no magic */
+    CHECK(ble_guard_boot(&g, 1, 1) == 1 && g.magic == BLE_GUARD_MAGIC && g.trying && !g.blocked && !g.fails);
+    ble_guard_started(&g, 0, 1);                     /* READY: still trying until ok */
+    CHECK(g.trying && !g.blocked);
+    ble_guard_ok(&g);
+    CHECK(!g.trying && !g.fails);
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);            /* a good start does not block the next one */
+    /* a crash or a hang in the start: the unit resets with trying set */
+    CHECK(ble_guard_boot(&g, 1, 1) == 0 && g.blocked && g.why == BLE_WHY_RESET && g.fails == 1 && !g.trying);
+    CHECK(ble_guard_boot(&g, 1, 1) == 0 && g.fails == 1);  /* stays blocked, no new count */
+    ble_guard_user_off(&g);                          /* BLUETOOTH OFF */
+    CHECK(!g.blocked && ble_guard_boot(&g, 1, 0) == 0 && !g.trying);
+    CHECK(ble_guard_boot(&g, 1, 1) == 1 && g.trying);  /* ON again: one new try */
+    ble_guard_started(&g, -1, 0);
+    CHECK(g.blocked && g.why == BLE_WHY_TIMEOUT && !g.trying && g.fails == 2);
+    g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);
+    ble_guard_started(&g, -2, 0);
+    CHECK(g.why == BLE_WHY_WRONG_JOB && g.blocked);
+    g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1);
+    ble_guard_started(&g, 0, 0);
+    CHECK(g.why == BLE_WHY_NOT_READY && g.blocked);
+    g.blocked = 0;
+    CHECK(ble_guard_boot(&g, 0, 1) == 0 && !g.trying);  /* no image: no try */
+    g.magic = 0;                                     /* bad magic: a clean record */
+    g.trying = 1;
+    CHECK(ble_guard_boot(&g, 1, 1) == 1 && !g.blocked && !g.fails);
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1) {                                /* ble_test ctl.img: the app's check on a real image */
@@ -472,6 +506,7 @@ int main(int argc, char **argv)
     t_host();
     t_glue();
     t_park();
+    t_guard();
     printf("ble_test: %d checks, %d failed\n", checks, fails);
     return fails != 0;
 }

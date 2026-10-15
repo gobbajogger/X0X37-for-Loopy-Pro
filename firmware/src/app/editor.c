@@ -9,7 +9,8 @@
 #define ED_HDR0 0x7D
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
-enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25 };
+enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
+       ED_DIAG = 33 };
 #define ED_READ_MAX 224u                     /* X0X: SMP_READ's bytes a frame (the break page draws the slots) */
 
 static uint8_t ed_out[288];
@@ -175,6 +176,26 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     case ED_PING:
         ed_b(0);
         break;
+    case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
+        uint32_t w[48], nw = 0, k;
+        const uint32_t *c = (const uint32_t *)&fm1_crash;
+        for (k = 0; k < sizeof fm1_crash / 4u; k++)
+            w[nw++] = c[k];
+        w[nw++] = bootguard.failed;
+        w[nw++] = bootguard.pending;
+#if X0X_BLE
+        nw += ble_diag(w + nw, 48u - nw);
+#endif
+        ed_b(nw);
+        for (k = 0; k < nw; k++) {
+            ed_b(w[k]);
+            ed_b(w[k] >> 7);
+            ed_b(w[k] >> 14);
+            ed_b(w[k] >> 21);
+            ed_b(w[k] >> 28);
+        }
+        break;
+    }
     case ED_SMP_BEGIN:
     case ED_SMP_ERASE:
         if (na < 1u || a[0] >= SMP_USER_SLOTS || !flash_ok)

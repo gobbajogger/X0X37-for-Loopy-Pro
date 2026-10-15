@@ -71,6 +71,12 @@ typedef struct {
 
 /* controller states (mbox.state, written by the image) */
 enum { XB_ST_OFF = 0, XB_ST_INIT = 1, XB_ST_READY = 2, XB_ST_FAILED = 3 };
+/* mbox.dbg: [XB_DBG_STAGE] the last init step it reached (XB_STG_*), [XB_DBG_MS] its own ms
+ * then, [XB_DBG_DELAYS] delay_us calls (the RF trim makes most of them), [XB_DBG_RA] the caller of
+ * the last delay_us, [XB_DBG_INIT_MS] how long init ran */
+enum { XB_DBG_STAGE = 0, XB_DBG_MS = 1, XB_DBG_DELAYS = 2, XB_DBG_RA = 3, XB_DBG_INIT_MS = 4 };
+enum { XB_STG_ENTRY = 1, XB_STG_OS = 2, XB_STG_H4 = 3, XB_STG_TASK = 4, XB_STG_SETTLE = 5, XB_STG_SETTLED = 6,
+       XB_STG_READY = 7 };
 /* image errors (mbox.err) */
 enum { XB_E_NONE = 0, XB_E_BOOT = 1, XB_E_HEAP = 2, XB_E_TASK = 3, XB_E_ASSERT = 4, XB_E_RESET = 5 };
 
@@ -85,7 +91,8 @@ typedef struct {
 
 typedef struct {
     uint32_t magic, abi;                  /* the app: XB_MBOX_MAGIC, XB_ABI */
-    uint32_t pad0[6];
+    volatile uint32_t dbg[6];             /* the image: its start record (XB_DBG_*), for diagnosis only.
+                                           * The app sets them to 0 before init; the layout is ABI 2. */
     volatile uint32_t state, err;         /* the image: XB_ST_*, XB_E_* */
     volatile uint32_t c2h_drops;          /* the image: frames it could not put (ring full) */
     volatile uint32_t irqs_routed[4];     /* the image: the interrupt numbers it took (bits 0-127) */

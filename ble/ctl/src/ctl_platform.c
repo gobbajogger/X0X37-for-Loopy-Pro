@@ -57,6 +57,10 @@ CTL_RAMTEXT void delay_us(unsigned int us)
 {
     volatile const u32 *t = dly_tick;
     u32 t0, span = (u32)us * dly_per_us;
+    if (ctl_mb) {                         /* the start record: how far the RF trim got */
+        ctl_mb->dbg[XB_DBG_DELAYS]++;
+        ctl_mb->dbg[XB_DBG_RA] = (u32)(uintptr_t)__builtin_return_address(0);
+    }
     if (!t) {
         for (volatile u32 n = (u32)us * 64u; n; n--) {}
         return;

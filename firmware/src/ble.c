@@ -30,7 +30,12 @@ typedef struct {
 } ble_ram_t;
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
 
-static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead;
+static void ble_record(void);
+static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
+static uint32_t ble_ok_at;                      /* fm1_ms when the controller became READY */
+/* the start guard (ble_glue.h): survives a reset, so a start that crashes or freezes the unit is not
+ * tried again at the next power-on */
+ble_guard_t ble_guard __attribute__((section(".noinit")));
 
 static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
 {
@@ -51,8 +56,13 @@ static void ble_prepare(int on)
     const xb_header_t *h = FM1_BLE_HDR;
     ble_img = (uint8_t)ble_img_check(FM1_BLE_IMG, XB_FLASH_SIZE, XB_FLASH_XIP);
     ble_want = (uint8_t)(on != 0);
-    if (ble_img != BLE_IMG_OK || !on)
+    if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
+        if (ble_img == BLE_IMG_OK && on && ble_guard.blocked) {
+            ble_blocked = 1;                    /* the last start failed: not now (STATUS FAILED) */
+            ble_dead = 1;
+        }
         return;
+    }
     ble_boot_on = 1;
     fm1_cpu1_ble_stacks(h->isr_stack_hi, h->ram_lo);
     fm1_guard_xip_hi = XB_FLASH_XIP + XB_FLASH_SIZE - 1u;
@@ -66,6 +76,7 @@ static void ble_start(void)
     const xb_header_t *h = FM1_BLE_HDR;
     xb_mbox_t *mb = &ble_r.mb;
     int rc;
+    uint32_t bus;
     uint8_t addr[6];
     {
         static const uint8_t none[1] = {0};
@@ -79,6 +90,7 @@ static void ble_start(void)
     if (!ble_boot_on)
         return;
     if (!fm1_c1_on) {                           /* one core (fm1-x0x#10): no Bluetooth */
+        ble_guard.trying = 0;                   /* not the controller's fault: no block */
         ble_dead = 1;
         return;
     }
@@ -96,26 +108,47 @@ static void ble_start(void)
     bleh_init(&ble_r.h, ble_send, 0, ble_r.nm, addr);
     bleh_set_sysex(&ble_r.h, ble_sysex_in);
     fm1_ble_sync();
+    ble_guard.start_ms = fm1_ms;
+    bus = fm1_guard_bus_pause();                /* JieLi's RF code: not for the bus-invalid checks */
+    fm1_wdt_feed();                             /* init may take FM1_BLE_INIT_MS of the 8 s */
     {
-        uint32_t f = irq_save();
+        uint32_t f = irq_save(), t0 = fm1_ticks();
         rc = FL_FAR(fm1_cpu1_run_wait_ram)((void (*)(uint32_t))(uintptr_t)h->init,
                                            (uint32_t)(uintptr_t)&ble_r.boot, 24000u * FM1_BLE_INIT_MS);
+        ble_guard.init_ms = (fm1_ticks() - t0) / (FM1_TICKS_PER_US * 1000u);
         irq_restore(f);
     }
+    fm1_wdt_feed();
+    ble_record();
+    ble_guard_started(&ble_guard, rc, rc == 0 && mb->state == XB_ST_READY);
     if (rc != 0) {                              /* it did not come back: one core from now on */
         fm1_cpu1_hold();
         fm1_c1_gave_up = 4;
+        fm1_guard_bus_resume(bus);
         ble_dead = 1;
         return;
     }
     if (mb->state != XB_ST_READY) {             /* its interrupts off on core 1, no poll */
         fm1_cpu1_irqs_off();
+        fm1_guard_bus_resume(bus);
         ble_dead = 1;
         return;
     }
     fm1_c1_mb.poll = (void (*)(void))(uintptr_t)h->poll;
     fm1_ble_sync();
-    ble_up = 1;
+    ble_ok_at = fm1_ms;
+    ble_up = 1;                                 /* the bus-invalid checks stay off while it runs */
+}
+
+/* the image's start record and the mailbox, kept in the guard (ED_DIAG reads it) */
+static void ble_record(void)
+{
+    uint32_t i;
+    fm1_ble_sync();
+    ble_guard.mb_state = ble_r.mb.state;
+    ble_guard.mb_err = ble_r.mb.err;
+    for (i = 0; i < 6u; i++)
+        ble_guard.dbg[i] = ble_r.mb.dbg[i];
 }
 
 /* the audio ISR (single producer): mirror one MIDI out packet */
@@ -130,6 +163,7 @@ static void ble_out(uint32_t pkt)
 
 static void ble_fail(void)
 {
+    fm1_guard_bus_resume(FM1_GUARD_BUS_BITS);   /* the controller stops: the app's checks again */
     fm1_c1_mb.poll = 0;                         /* core 1 stops calling it */
     fm1_ble_sync();
     fm1_cpu1_irqs_off();
@@ -148,9 +182,12 @@ static void ble_service(void)
     if (!ble_up)
         return;
     if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
+        ble_record();
         ble_fail();
         return;
     }
+    if (ble_guard.trying && fm1_ms - ble_ok_at > BLE_GUARD_OK_MS)
+        ble_guard_ok(&ble_guard);               /* it ran: the next power-on starts it again */
     if (!ble_host_on) {
         if (!ble_want)
             return;                             /* OFF since power-on: the host never starts */
@@ -202,4 +239,36 @@ int plat_ble_state(void)
     return bleh_connected(&ble_r.h) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
 }
 const char *plat_ble_name(void) { return ble_r.nm; }
-void plat_ble_set(int on) { ble_want = (uint8_t)(on != 0); }
+void plat_ble_set(int on)
+{
+    ble_want = (uint8_t)(on != 0);
+    if (!on && ble_guard.blocked) {             /* BLUETOOTH OFF: the next power-on tries again */
+        ble_guard_user_off(&ble_guard);
+        if (ble_blocked) {
+            ble_blocked = 0;
+            ble_dead = 0;                       /* nothing started this boot: OFF, then RESTART */
+        }
+    }
+}
+
+/* ED_DIAG (editor.c): the start guard and the controller's state, as 32-bit words */
+static uint32_t ble_diag(uint32_t *w, uint32_t max)
+{
+    uint32_t n = 0, i;
+    const uint32_t *g = (const uint32_t *)&ble_guard;
+    for (i = 0; i < sizeof ble_guard / 4u && n < max; i++)
+        w[n++] = g[i];
+    if (n + 10u > max)
+        return n;
+    w[n++] = ble_img | (uint32_t)ble_boot_on << 8 | (uint32_t)ble_up << 16 | (uint32_t)ble_dead << 24;
+    w[n++] = ble_want | (uint32_t)ble_host_on << 8 | (uint32_t)ble_blocked << 16 | (uint32_t)fm1_c1_on << 24;
+    w[n++] = fm1_c1_gave_up;
+    w[n++] = (uint32_t)plat_ble_state();
+    w[n++] = ble_up ? ble_r.mb.state : 0xFFFFFFFFu;
+    w[n++] = ble_up ? ble_r.mb.err : 0xFFFFFFFFu;
+    w[n++] = ble_up ? ble_r.mb.polls : 0;
+    w[n++] = fm1_c1_mb.poll_max;
+    w[n++] = ble_up ? ble_r.h.state : 0xFFFFFFFFu;
+    w[n++] = fm1_c1_trace;
+    return n;
+}

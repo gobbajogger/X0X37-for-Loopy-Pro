@@ -4,7 +4,9 @@
  *   ble_img_check()    is the flash block a controller image this app can start?
  *   ble_usb_of_msg()   a BLE-MIDI message as a USB-MIDI event packet (the queue usb.c reads)
  *   ble_msg_of_usb()   a USB-MIDI event packet as the bytes of one MIDI message
- *   ble_addr_of()      the random static address and the name from the factory record */
+ *   ble_addr_of()      the random static address and the name from the factory record
+ *   ble_guard_*()      the start guard: a controller start that failed, crashed or reset the unit
+ *                      is not tried again at the next power-on (STATUS FAILED, BEHAVIOR.md BLE-12) */
 #pragma once
 #include <stdint.h>
 #include "x0x_ble_abi.h"
@@ -105,4 +107,63 @@ static void ble_addr_of(const uint8_t *rec, uint32_t n, uint8_t addr[6], char na
     name[4] = hx[addr[1] >> 4]; name[5] = hx[addr[1] & 15u];
     name[6] = hx[addr[0] >> 4]; name[7] = hx[addr[0] & 15u];
     name[8] = 0;
+}
+
+/* ---- the start guard (src/ble.c keeps it in .noinit: it survives a reset, not a power-off) ----
+ * Before the controller's init the app sets trying. A failed start (it did not come back, a wrong
+ * job, not READY) sets blocked at once. A start that resets or freezes the unit leaves trying set:
+ * the next boot sees it and sets blocked. While blocked, the controller does not start (STATUS
+ * FAILED). BLUETOOTH OFF in GLO clears blocked: the next power-on tries again. trying ends when the
+ * controller has run BLE_GUARD_OK_MS after its start. */
+#define BLE_GUARD_MAGIC 0x44524742u              /* "BGRD" */
+#define BLE_GUARD_OK_MS 10000u
+enum { BLE_WHY_NONE = 0, BLE_WHY_TIMEOUT = 1, BLE_WHY_WRONG_JOB = 2, BLE_WHY_NOT_READY = 3, BLE_WHY_RESET = 4 };
+typedef struct {
+    uint32_t magic, trying, blocked, why, fails;
+    uint32_t start_ms, init_ms, mb_state, mb_err;  /* the last start: its time, how long init took, the mailbox */
+    uint32_t dbg[6];                               /* the image's own record of the last start (xb_mbox_t dbg) */
+} ble_guard_t;
+
+/* power-on: 1 = start the controller now */
+static int ble_guard_boot(ble_guard_t *g, int img_ok, int on)
+{
+    uint32_t i;
+    if (g->magic != BLE_GUARD_MAGIC) {
+        uint8_t *z = (uint8_t *)g;
+        for (i = 0; i < sizeof *g; i++)
+            z[i] = 0;
+        g->magic = BLE_GUARD_MAGIC;
+    }
+    if (g->trying) {                             /* the last start did not finish: a reset or a hang */
+        g->trying = 0;
+        g->blocked = 1;
+        g->why = BLE_WHY_RESET;
+        g->fails++;
+    }
+    if (!img_ok || !on || g->blocked)
+        return 0;
+    g->trying = 1;
+    return 1;
+}
+/* after the controller's init: rc of fm1_cpu1_run_wait_ram (0, -1 not in time, -2 a wrong job),
+ * ready = the mailbox says READY */
+static void ble_guard_started(ble_guard_t *g, int rc, int ready)
+{
+    if (rc == 0 && ready)
+        return;                                  /* trying stays until ble_guard_ok */
+    g->trying = 0;
+    g->blocked = 1;
+    g->why = rc == -1 ? BLE_WHY_TIMEOUT : rc ? BLE_WHY_WRONG_JOB : BLE_WHY_NOT_READY;
+    g->fails++;
+}
+/* the controller ran long enough: the start is good */
+static void ble_guard_ok(ble_guard_t *g)
+{
+    g->trying = 0;
+    g->fails = 0;
+}
+/* BLUETOOTH set OFF in GLO: the next power-on tries again */
+static void ble_guard_user_off(ble_guard_t *g)
+{
+    g->blocked = 0;
 }

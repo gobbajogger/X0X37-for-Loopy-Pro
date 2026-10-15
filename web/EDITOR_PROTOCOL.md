@@ -77,6 +77,7 @@ after an engine change.
 | --- | --- | --- |
 | 31 TRACK_PARAM | track, id (get), or track, id, v14 (set); id = `P_*` (0..P_COUNT−1) | track, id, v14 (the value after clamping, as `SET`). The selection does not change; no push about the editor's own write |
 | 32 TRACK_CHANGED (push) | — | track, id, v14: `P_LEVEL`, `P_PAN` or `P_MUTE` of a track that is not selected changed on the device (only while `WATCH` was sent with bit 1) |
+| 33 DIAG (X0X, read only) | — | count, then count 32-bit words, each 5 × 7 bits LSB first: the crash record (17 words: magic, count, vector, PC, RETS, EMU status, DBG status, SP, PSR, ICFG, uptime ms, 4 trace words, early, core), boot guard failed, pending, then on an SMK-37 with Bluetooth the start record (BEHAVIOR.md BLE-12, 15 words) and 10 live state words (firmware/src/ble.c ble_diag) |
 
 **pack7:** groups of up to 7 bytes, each preceded by one byte holding their top bits
 (bit j = bit 7 of byte j).
