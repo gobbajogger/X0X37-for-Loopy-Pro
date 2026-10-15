@@ -48,6 +48,8 @@ Edge (drop the files, press Upload); from the command line:
 ```
 tools/upload_breaks.py --bars amen.wav think.wav ...   # take one bar of each and upload them
 tools/upload_breaks.py --dry-run OUTDIR ...            # see what fits, without the FM-1
+tools/x0x_slots.py backup my.x0xslots                  # save every slot (read-only)
+tools/x0x_slots.py restore my.x0xslots                 # write a backup back (asks first)
 ```
 
 Recorded breaks belong to whoever made them and aren't covered by this project's licence.

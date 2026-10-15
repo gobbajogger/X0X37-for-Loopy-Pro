@@ -281,10 +281,13 @@ FLS-06. The UI keeps PLAT_NSLOTS = 3 on the SMK-37. Slot 3 is always empty there
 FLS-07. IMA ADPCM at 44.1 kHz is the preferred sample storage format. [USER]
 FLS-08. The SMK-37 store has 7 objects with A and B copies: settings, sound, two pattern objects, panel, song and motion. [CODE storage.c:50-60]
 FLS-09. The protected ranges are head, BTIF, USRTRIM, stock USR resources and key_mac. The flash map refuses them at compile time. The flash driver refuses them again. [SMK37] [CODE ../hal/fm1_flash_map.h:56-83]
+FLS-10. Slot backup: tools/x0x_slots.py backup and the break page's "Back up all slots" read every slot with SMP_INFO (15) and SMP_READ (16) only. They do not write to the device. The archive (.x0xslots) holds the slot count and size, and for each slot the name, zone count, sample counts, rates, data length, header CRC and an image CRC. A CRC-32 covers the whole file. The tool and the page write the same bytes. [USER] [CODE ../../tools/x0x_slots.py] [CODE ../../web/x0x_breaks.js]
+FLS-11. Slot restore writes an archive back with SMP_BEGIN, SMP_WRITE and SMP_END, or SMP_ERASE for an empty slot, after the user confirms. Then it reads the slots back and compares them. It takes the slot count and size from SMP_INFO. It skips an archive slot that the device does not have or that does not fit. [USER] [CODE ../../tools/x0x_slots.py] [CODE ../../web/x0x_breaks.html]
+FLS-12. SMP_INFO reports one slot size in KiB as one 7-bit value (maximum 127 KiB), and the same size for all slots. A layout with larger or unequal slots needs an extension of SMP_INFO. The archive already stores a size for each slot. [CODE app/editor.c:252-265]
 
 ## 17. Known limitations
 
-LIM-01. web/x0x_breaks.html has 3 slots hard-coded. The SMK-37 has 2. This is a known fault. [USER] [CODE ../../web/x0x_breaks.html:95] [CODE ../../web/x0x_breaks.js:13]
+LIM-01. Fixed 2026-10-15. web/x0x_breaks.html had 3 slots hard-coded. It now reads the slot count and size from SMP_INFO. [CODE ../../web/x0x_breaks.html]
 LIM-02. The APC protocol has no project-size data. The firmware infers the footprint from lit cells. A sparse 8-wide project with clips in 4 or fewer columns and 3-4 rows folds as a 4x4 grid. [APC 0.7-apc40] [APC "Spatial mapping"]
 LIM-03. Loopy sends the same dim shade for empty slots and for filled clips that do not play. The firmware cannot tell them apart. [APC 1.4-apc40] [APC 1.5-apc40]
 LIM-04. Clip mode cannot show clips outside the Loopy APC 8x5 box. Change the Loopy page to see them. [APC]

@@ -368,6 +368,10 @@ Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1
 The FM-1 has three loop slots, room for about 21 seconds in all: around nine one-bar loops.
 The SMK-37 has two slots, room for about 14.8 seconds: around six one-bar loops.
 
+**Back up your loops.** On the same page, **Back up all slots** saves every slot to a `.x0xslots`
+file. It only reads, it doesn't change anything. **Restore a backup** writes such a file back; it
+replaces the slots it holds. Do a backup before you update the firmware or try something new.
+
 <details><summary>From the command line</summary>
 
 With the FM-1 connected, run:
@@ -380,6 +384,9 @@ python3 tools/upload_breaks.py --bars amen.wav think.wav funky.wav ...
 loops. `--dry-run FOLDER` shows what would fit without the FM-1. If you have schwung-breakbeat next
 to X0X, `--bbgen` sends BB Gen's classic breaks. To build loops into the firmware itself, see
 BUILDING.md.
+
+`python3 tools/x0x_slots.py backup my.x0xslots` saves every slot; `python3 tools/x0x_slots.py restore
+my.x0xslots` writes them back (it asks first).
 
 </details>
 
