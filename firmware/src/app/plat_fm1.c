@@ -34,8 +34,9 @@ int32_t plat_enc(int role)
         return 0;
 #if BOARD_SMK37
     extern uint8_t smk_ck_knobs_owned(void);
-    if (role <= EN_K1 && smk_ck_knobs_owned())
-        return 0;   /* clip mode: knobs 2-5 set SCALE, CHORD or ARP (main_fm1.c); knob 1 stays MASTER */
+    uint32_t o = smk_ck_knobs_owned();
+    if (o > 1u || (o && role <= EN_K1))
+        return 0;   /* clip mode: knobs 2-5 set SCALE, CHORD or ARP, or (no mode) knobs 2-8 send CCs (main_fm1.c) */
 #endif
     return fm1_enc_take(panel.enc[role]) * panel.dir[role];
 }
