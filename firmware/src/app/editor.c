@@ -177,14 +177,14 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(0);
         break;
     case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
-        uint32_t w[48], nw = 0, k;
+        uint32_t w[54], nw = 0, k;            /* 54 x 5 B fit ed_out */
         const uint32_t *c = (const uint32_t *)&fm1_crash;
         for (k = 0; k < sizeof fm1_crash / 4u; k++)
             w[nw++] = c[k];
         w[nw++] = bootguard.failed;
         w[nw++] = bootguard.pending;
 #if X0X_BLE
-        nw += ble_diag(w + nw, 48u - nw);
+        nw += ble_diag(w + nw, 54u - nw);
 #endif
         ed_b(nw);
         for (k = 0; k < nw; k++) {

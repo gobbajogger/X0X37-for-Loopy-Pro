@@ -126,6 +126,7 @@ typedef struct {
     uint32_t reset;                                /* BLE_WHY_RESET: P3 reset source | RST_SRC << 8 of that reset */
     uint32_t sink_n, sink_at, sink_val;            /* the RAM sink after the start: words changed, the first */
     uint32_t wait_end;                             /* fm1_c1_wait_end of the start (fm1_cpu1.h) */
+    uint32_t xosc_pre, xosc_post;                  /* WLA_CON12 (crystal trim) before the start and after init */
 } ble_guard_t;
 
 /* power-on: 1 = start the controller now */

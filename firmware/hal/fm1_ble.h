@@ -16,6 +16,10 @@
 #define FM1_BLE_INIT_MS 4000u                   /* the longest the controller's start may take (its RF
                                                  * trim; the watchdog is 8 s, fed just before) */
 
+/* WLA_CON12: the 24 MHz crystal's trim, left bits 13-16, right bits 19-22. JieLi's RF init
+ * (wf_rf_common_init) writes both fields from xb_boot_t xosc[]. */
+#define FM1_BLE_XOSC_REG (*(volatile uint32_t *)0x11930u)
+static inline uint32_t fm1_ble_xosc(void) { return FM1_BLE_XOSC_REG; }
 static inline void fm1_ble_sync(void) { XB_SYNC(); }   /* the two cores share the caches: order only */
 
 /* The boot parameters. Clocks as measured on an FM-1 (docs/plans/2026-10-04-dual-core-and-clock.md:
@@ -39,8 +43,12 @@ static void fm1_ble_boot_fill(xb_boot_t *b, xb_mbox_t *mb)
     b->settle_ms = 800u;
     b->vec_base = 0x01C7FE00u;                  /* FM1_VEC: one table for both cores */
     b->icfg_base = 0x1EEF300u;                  /* core 1's interrupt bank */
-    b->xosc[0] = 0x0B;
+    b->xosc[0] = 0x0B;                          /* the SDK default (AC79 demo board) */
     b->xosc[1] = 0x0B;
+    if (FM1_BLE_XOSC_REG) {                     /* the crystal trim the boot left: the RF init writes it again */
+        b->xosc[0] = (uint8_t)((FM1_BLE_XOSC_REG >> 13) & 0xFu);
+        b->xosc[1] = (uint8_t)((FM1_BLE_XOSC_REG >> 19) & 0xFu);
+    }
     for (i = 0; i < 7u; i++)
         b->pa_trim[i] = pa[i];
     b->osc_type = 0;

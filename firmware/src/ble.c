@@ -139,6 +139,8 @@ static void ble_start(void)
     fm1_ble_sync();
     ble_guard.start_ms = fm1_ms;
     ble_guard.sink_n = ble_guard.sink_at = ble_guard.sink_val = ble_guard.wait_end = 0;
+    ble_guard.xosc_pre = fm1_ble_xosc();
+    ble_guard.xosc_post = 0;
     ble_sink_fill();
     bus = fm1_guard_bus_pause();                /* JieLi's RF code: not for the bus-invalid checks */
     fm1_wdt_feed();                             /* init may take FM1_BLE_INIT_MS of the 8 s */
@@ -150,6 +152,7 @@ static void ble_start(void)
         irq_restore(f);
     }
     ble_guard.wait_end = fm1_c1_wait_end;
+    ble_guard.xosc_post = fm1_ble_xosc();
     ble_record();
     ble_sink_check();                           /* before the first P33 access after the start */
     fm1_wdt_feed();
