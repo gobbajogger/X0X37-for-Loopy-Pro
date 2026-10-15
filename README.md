@@ -75,6 +75,13 @@ Semi Condensed and Terminus (SIL OFL 1.1).
 Felucca's own assets that aren't under its GPL (the icon set, the panel photo and the Hügelton
 drum pack) aren't part of this fork.
 
-M-VAVE and FM-1 are trademarks of their owners. TR-808, TR-909 and TB-303 are Roland trademarks,
-used here only to describe what the parts are modelled on. X0X isn't affiliated with or endorsed
-by M-VAVE, Roland or Hügelton Instruments.
+Felucca and Hügelton Instruments are names of Hügelton Instruments. M-VAVE, FM-1, SMK-37 and MKE-P37 are trademarks of their respective owners.
+TR-808, TR-909 and TB-303 are trademarks of Roland Corporation. Akai, APC40 and APC40 mkII are trademarks of inMusic
+Brands, Inc. Loopy Pro is a product of A Tasty Pixel. Novation and Launchpad are trademarks of the
+Focusrite group. All other names belong to their respective owners. X0X uses these names only to
+describe what the parts emulate and which products it can operate with. X0X is not affiliated with
+or endorsed by any of these owners.
+
+The SMK-37 firmware answers a MIDI Device Inquiry with the Akai and APC40 mkII IDs. It does this
+only for interoperability with host software such as Loopy Pro. See [LICENSING.md](LICENSING.md)
+for detail.
