@@ -20,7 +20,12 @@
  * (wf_rf_common_init) writes both fields from xb_boot_t xosc[]. */
 #define FM1_BLE_XOSC_REG (*(volatile uint32_t *)0x11930u)
 static inline uint32_t fm1_ble_xosc(void) { return FM1_BLE_XOSC_REG; }
-static inline void fm1_ble_sync(void) { XB_SYNC(); }   /* the two cores share the caches: order only */
+static inline void fm1_ble_sync(void) { XB_SYNC(); }
+/* the image's init entry, called on core 0 (it moves to the image's run stack itself) */
+static inline int fm1_ble_init_here(uint32_t init, const xb_boot_t *b)
+{
+    return ((int (*)(const xb_boot_t *))(uintptr_t)init)(b);
+}   /* the two cores share the caches: order only */
 
 /* The boot parameters. Clocks as measured on an FM-1 (docs/plans/2026-10-04-dual-core-and-clock.md:
  * system 360 MHz, HSB 180, LSB 60). RF calibration: the AC79 SDK's demo_ble board values (the unit's

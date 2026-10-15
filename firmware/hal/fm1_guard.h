@@ -134,6 +134,22 @@ static uint32_t fm1_guard_bus_pause(void)
     fm1__dbg_lock();
     return v & FM1_GUARD_BUS_BITS;
 }
+/* the EMU stack limit off: a Bluetooth controller's init runs on core 0 on the image's own stack
+ * (src/ble.c). The value to give back to fm1_guard_stack_resume. */
+static uint32_t fm1_guard_stack_pause(void)
+{
+    uint32_t v;
+    fm1__dbg_unlock();
+    v = FM1_EMU_CON & (1u << 3);
+    FM1_EMU_CON = FM1_EMU_CON ^ v;
+    fm1__dbg_lock();
+    return v;
+}
+static void fm1_guard_stack_resume(uint32_t on)
+{
+    if (on)
+        fm1_guard_enable(FM1_GUARD_STACK);
+}
 static void fm1_guard_bus_resume(uint32_t bits)
 {
     fm1__dbg_unlock();

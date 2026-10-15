@@ -7,7 +7,6 @@
 #include "ctl_port.h"
 
 /* ---- interrupts ---- */
-#define CTL_BLE_IRQ_PRIO 7   /* felucca-bsp #2 finding: BLE IRQs need priority 7 */
 void request_irq(unsigned char index, unsigned char prio, void (*handler)(void), unsigned char cpu_id)
 {
     (void)prio; (void)cpu_id;          /* this image runs on core 1: always route to it */

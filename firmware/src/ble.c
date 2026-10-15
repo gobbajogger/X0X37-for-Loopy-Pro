@@ -55,15 +55,6 @@ static void ble_wait_record(void)
     ble_guard.code_bad = fm1_c1_sum_bad;
     ble_guard.code_sum = fm1_c1_sum_got;
 }
-/* the free RAM after the RAM code up to the controller's RAM: a second sink, in core 0's sum */
-extern uint32_t _rt_end[];
-static void ble_code_watch(const volatile uint32_t *mbdbg)
-{
-    uint32_t *p;
-    for (p = _rt_end; p < (uint32_t *)XB_RAM_LO; p++)
-        *p = BLE_SINK_FILL((uint32_t)(p - _rt_end));
-    fm1_cpu1_wait_checks((const void *)mbdbg, _rt_start, (const void *)XB_RAM_LO);
-}
 static void ble_sink_check(void)
 {
     uint32_t i, n = (uint32_t)(_ram_sink_end - _ram_sink), bad = 0;
@@ -120,12 +111,17 @@ static void ble_prepare(int on)
 
 /* power-on, after core 1 started and before the audio and TIMER5: run the image's init on core 1
  * with core 0 in RAM (the controller's RF trim), then hand core 1 its poll entry */
+/* The controller's init runs on core 0 at power-on, before core 1 starts (one core runs, as in
+ * fm1-ctl). Tests 1-11 ran it on core 1 while core 0 waited in RAM: core 0 stopped about 48 ms
+ * into every start (in the TX IQ trim), with its RAM code unchanged; core 1 then went on to READY.
+ * ble_attach hands the controller to core 1 after plat_cpu2_set. */
+static uint8_t ble_c0_ready;
 static void ble_start(void)
 {
     const xb_header_t *h = FM1_BLE_HDR;
     xb_mbox_t *mb = &ble_r.mb;
     int rc;
-    uint32_t bus;
+    uint32_t bus, stk, top;
     uint8_t addr[6];
     {
         static const uint8_t none[1] = {0};
@@ -136,13 +132,9 @@ static void ble_start(void)
     }
     ble_r.ow = ble_r.orr = 0;
     ble_r.sysex_drops = 0;
+    ble_c0_ready = 0;
     if (!ble_boot_on)
         return;
-    if (!fm1_c1_on) {                           /* one core (fm1-x0x#10): no Bluetooth */
-        ble_guard.trying = 0;                   /* not the controller's fault: no block */
-        ble_dead = 1;
-        return;
-    }
     {
         uint8_t *z = (uint8_t *)mb;
         uint32_t i;
@@ -162,40 +154,51 @@ static void ble_start(void)
     ble_guard.xosc_pre = fm1_ble_xosc();
     ble_guard.xosc_post = 0;
     ble_sink_fill();
-    ble_code_watch(&mb->dbg[XB_DBG_STAGE]);
+    fm1_guard_enable(FM1_GUARD_PC);             /* the PC windows with the image's flash and RAM (ble_prepare) */
     bus = fm1_guard_bus_pause();                /* JieLi's RF code: not for the bus-invalid checks */
-    fm1_wdt_feed();                             /* init may take FM1_BLE_INIT_MS of the 8 s */
+    top = (uint32_t)fm1_guard_top_locked();
+    if (top)
+        fm1_guard_unlock_top();                 /* request_irq writes the vectors */
+    fm1_wdt_feed();                             /* init takes about 0.6 s of the 8 s */
     {
         uint32_t f = irq_save(), t0 = fm1_ticks();
-        rc = FL_FAR(fm1_cpu1_run_wait_ram)((void (*)(uint32_t))(uintptr_t)h->init,
-                                           (uint32_t)(uintptr_t)&ble_r.boot, 24000u * FM1_BLE_INIT_MS);
+        stk = fm1_guard_stack_pause();          /* the image's run stack */
+        rc = fm1_ble_init_here(h->init, &ble_r.boot);
+        fm1_guard_stack_resume(stk);
         ble_guard.init_ms = (fm1_ticks() - t0) / (FM1_TICKS_PER_US * 1000u);
         irq_restore(f);
     }
-    ble_guard.wait_end = fm1_c1_wait_end;
-    ble_wait_record();
+    if (top)
+        fm1_guard_lock_top();
+    fm1_wdt_feed();
     ble_guard.xosc_post = fm1_ble_xosc();
     ble_record();
-    ble_sink_check();                           /* before the first P33 access after the start */
-    fm1_wdt_feed();
-    ble_guard_started(&ble_guard, rc, rc == 0 && mb->state == XB_ST_READY);
-    if (rc != 0) {                              /* it did not come back: one core from now on (-3: no tick) */
-        fm1_cpu1_hold();
-        fm1_c1_gave_up = 4;
+    ble_sink_check();
+    ble_guard_started(&ble_guard, 0, rc == 0 && mb->state == XB_ST_READY);
+    if (rc != 0 || mb->state != XB_ST_READY) {
         fm1_guard_bus_resume(bus);
         ble_dead = 1;
         return;
     }
-    if (mb->state != XB_ST_READY) {             /* its interrupts off on core 1, no poll */
-        fm1_cpu1_irqs_off();
-        fm1_guard_bus_resume(bus);
+    ble_c0_ready = 1;                           /* the bus-invalid checks stay off while it runs */
+}
+
+/* after plat_cpu2_set: core 1 runs the controller from now on (its interrupts, its poll) */
+static void ble_attach(void)
+{
+    const xb_header_t *h = FM1_BLE_HDR;
+    if (!ble_c0_ready)
+        return;
+    if (!fm1_c1_on) {                           /* one core (fm1-x0x#10): no Bluetooth */
+        ble_guard.trying = 0;                   /* not the controller's fault: no block */
+        fm1_guard_bus_resume(FM1_GUARD_BUS_BITS);
         ble_dead = 1;
         return;
     }
     fm1_c1_mb.poll = (void (*)(void))(uintptr_t)h->poll;
     fm1_ble_sync();
     ble_ok_at = fm1_ms;
-    ble_up = 1;                                 /* the bus-invalid checks stay off while it runs */
+    ble_up = 1;
 }
 
 /* the image's start record and the mailbox, kept in the guard (ED_DIAG reads it) */

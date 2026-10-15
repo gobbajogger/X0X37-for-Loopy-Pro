@@ -1035,12 +1035,13 @@ static void fm1_main(void)
     engine_brk_loops();
 #if X0X_BLE
     ble_prepare(proj.set.bt & 1u);                  /* a controller image, BLUETOOTH ON: core 1 starts ready for it */
+    ble_start();                                    /* its init on core 0, before core 1 starts (about 0.6 s) */
 #endif
     plat_cpu2_set(1);                               /* the second core: at power-on, before the audio and the
                                                      * timers, as Melodee starts it (started later, it does not
                                                      * reach its entry); if it does not answer, one core */
 #if X0X_BLE
-    ble_start();                                    /* its init on core 1 (before the audio: it may take 1.5 s) */
+    ble_attach();                                   /* core 1 runs the controller from now on */
 #endif
     audio_init();
     usb_start();

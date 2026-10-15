@@ -80,7 +80,7 @@ static volatile uint32_t fm1_c1_sum_bad, fm1_c1_sum_got __attribute__((section("
 /* the sum of fm1_c1_sum_lo..hi (inline: the RAM code makes no calls) */
 static inline __attribute__((always_inline)) uint32_t fm1_c1_sum(void);
 /* set the checks of the next fm1_cpu1_run_wait_ram: watch (4 words) and the words lo..hi */
-static void fm1_cpu1_wait_checks(const void *watch, const void *lo, const void *hi)
+__attribute__((unused)) static void fm1_cpu1_wait_checks(const void *watch, const void *lo, const void *hi)
 {
     fm1_c1_sum_lo = (const volatile uint32_t *)lo;
     fm1_c1_sum_hi = (const volatile uint32_t *)hi;
