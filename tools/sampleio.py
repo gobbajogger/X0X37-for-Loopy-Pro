@@ -199,6 +199,24 @@ def onset(x, rel=0.02):
     return next((i for i, v in enumerate(x) if abs(v) > thr), 0)
 
 
+def trim_silence(x, sr, floor=0.001, pre_ms=1, fade_ms=5):
+    """cut the silence at both ends of mono floats (full scale 1.0): keep pre_ms (whole ms) before the
+    first sample above floor (0.001 = -60 dBFS), keep fade_ms after the last one and fade that tail
+    to 0 (linear; the last fade_ms of the sound if the file ends there). All silent (or empty): x
+    unchanged. web/x0x_breaks.js trimSilence gives the same floats: keep the order of operations."""
+    loud = [i for i, v in enumerate(x) if abs(v) > floor]
+    if not loud:
+        return x
+    pre, nf = sr * pre_ms // 1000, sr * fade_ms // 1000
+    a, b = max(0, loud[0] - pre), min(len(x), loud[-1] + 1 + nf)
+    y = list(x[a:b])
+    m = min(nf, len(y))
+    for j in range(m):
+        k = len(y) - m + j
+        y[k] = y[k] * ((m - 1 - j) / m)
+    return y
+
+
 def ima_encode(samples, loop_start):
     """IMA ADPCM, 4 bit, low nibble first, from predictor 0 / index 0
     -> (bytes, (predictor, index) at loop_start)"""

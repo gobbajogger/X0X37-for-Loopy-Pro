@@ -1,5 +1,5 @@
 # Uploaded loops: tools/upload_breaks.py's slot image (synthetic test loops, built by
-# tests/run_tests.sh into build/test_upload/) parsed by the firmware's own slots.c.
+# tests/run_tests.sh into build/test_upload/, 22.05 kHz) parsed by the firmware's own slots.c.
 wait 200
 expect loops 2
 slotimg 0 build/test_upload/slot1.hdr build/test_upload/slot1.bin

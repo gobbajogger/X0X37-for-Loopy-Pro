@@ -93,7 +93,9 @@ fi
 [ -f build/x0x-smk37-elite.fwsc ] && run smk-build-package-elite python3 tests/smk_pkg_test.py build/x0x-smk37-elite.fwsc "SMK-37 Elite_900"
 [ -f build/x0x-smk37-mke.fwsc ] && run smk-build-package-mke python3 tests/smk_pkg_test.py build/x0x-smk37-mke.fwsc "MKE-P37_900"
 run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops && \
-    python3 tools/upload_breaks.py --dry-run build/test_upload build/test_loops/loop*.wav"
+    python3 tools/upload_breaks.py --rate 22050 --nslots 3 --dry-run build/test_upload build/test_loops/loop*.wav && \
+    python3 tools/upload_breaks.py --dry-run build/test_upload44 build/test_loops/loop*.wav"   # 22.05 kHz (3 slots) and the 44.1 kHz default
+run upload-tools python3 tests/upload_tools_test.py   # upload_breaks.py on a mocked device; one-shot trim
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device

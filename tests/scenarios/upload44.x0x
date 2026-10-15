@@ -1,0 +1,27 @@
+# Uploaded loops at 44.1 kHz (the upload_breaks.py default): one loop per 80 KiB slot, built by
+# tests/run_tests.sh into build/test_upload44/, parsed by the firmware's own slots.c and played.
+wait 200
+expect loops 2
+slotimg 0 build/test_upload44/slot1.hdr build/test_upload44/slot1.bin
+expect loops 3
+slotimg 1 build/test_upload44/slot2.hdr build/test_upload44/slot2.bin
+expect loops 4
+# BREAK part, LOOPS page: loop A = the first uploaded loop (index 2, after the 2 built-in)
+turn ALGO 4
+expect part 4
+tap EDIT
+tap EDIT
+turn K1 2
+expect loop_a 2
+shot 31_loops_uploaded_44k.png
+tapkey w0
+tapkey w4
+tapkey w8
+tapkey w12
+wav upload44.wav
+tap PLAY
+wait 4500
+tap PLAY
+wait 300
+wavstop
+expect peak_db_min -40

@@ -5,12 +5,15 @@
 
   fm1_sample_upload.py info
   fm1_sample_upload.py load SLOT NAME file.wav[:ROOT[:LO-HI]] ...   (SLOT 1..3)
+  fm1_sample_upload.py --no-trim load|build ...                     (keep the silence at the ends)
   fm1_sample_upload.py erase SLOT
   fm1_sample_upload.py build NAME OUT_PREFIX file.wav[...] ...      (no device: writes OUT_PREFIX.hdr / .bin)
 
 Each file becomes one zone: mono, 22050 Hz, IMA ADPCM (sampleio.py, the same encoder
 as the built-in sets and the web editor). ROOT is a MIDI note (default: from the file
 name, C4 = 60, else 60); without LO-HI the zones split the keyboard between their roots.
+These are one-shots: the silence at both ends is cut first (sampleio.trim_silence: -60 dBFS, 1 ms
+kept before the sound, 5 ms fade at the end); --no-trim keeps it. For loops use upload_breaks.py.
 A slot holds 80 KiB (about 7 s at 22050 Hz). Protocol: web/EDITOR_PROTOCOL.md, cmds 11..15.
 Needs mido (and a backend such as python-rtmidi) for the device commands.
 """
@@ -68,8 +71,9 @@ class Link:
         raise TimeoutError(f"no reply to cmd {cmd}")
 
 
-def build(name, specs):
-    """specs: "file.wav[:ROOT[:LO-HI]]" -> (header, ADPCM data) for SMP_END / SMP_WRITE"""
+def build(name, specs, trim=True):
+    """specs: "file.wav[:ROOT[:LO-HI]]" -> (header, ADPCM data) for SMP_END / SMP_WRITE. trim: cut the
+    silence at both ends (one-shots)"""
     zones = []
     for spec in specs:
         parts = spec.split(":")
@@ -77,6 +81,8 @@ def build(name, specs):
         root = int(parts[1]) if len(parts) > 1 and parts[1] else sio.note_from_name(path.stem)
         lo, hi = (int(v) for v in parts[2].split("-")) if len(parts) > 2 else (None, None)
         sr, x = sio.read_any_wav(path)
+        if trim:
+            x = sio.trim_silence(x, sr)
         x = sio.resample(x, sr, sio.SLOT_RATE)
         if not x:
             raise ValueError(f"{path}: no audio")
@@ -85,6 +91,9 @@ def build(name, specs):
 
 
 def main():
+    trim = "--no-trim" not in sys.argv
+    if not trim:
+        sys.argv.remove("--no-trim")
     if len(sys.argv) < 2 or sys.argv[1] not in ("info", "load", "erase", "build"):
         sys.exit(__doc__)
     cmd = sys.argv[1]
@@ -92,7 +101,7 @@ def main():
         if len(sys.argv) < 5:
             sys.exit(__doc__)
         try:
-            hdr, data = build(sys.argv[3] if cmd == "load" else sys.argv[2], sys.argv[4:])
+            hdr, data = build(sys.argv[3] if cmd == "load" else sys.argv[2], sys.argv[4:], trim)
         except (OSError, ValueError) as e:
             sys.exit(f"cannot build the slot: {e}")
         if cmd == "build":
