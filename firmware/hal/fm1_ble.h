@@ -58,5 +58,8 @@ static void fm1_ble_boot_fill(xb_boot_t *b, xb_mbox_t *mb)
         b->pa_trim[i] = pa[i];
     b->osc_type = 0;
     b->pwr_max = 8;
-    b->pwr_ble = 11;
+    /* BLE TX level (0-11). At 11, core 0 failed about 1 s after the advertising started: a
+     * return address came back with 2 bits cleared (0x02009AC2 -> 0x00001AC2). Test with a
+     * lower level: less TX current. */
+    b->pwr_ble = 5;
 }
