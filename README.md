@@ -34,6 +34,10 @@ The factory sound is set up for big beat, so it should make noise the moment you
 Each part has its own step length (up to 64 steps) and rate, so parts can drift against each
 other. Pattern changes wait for the end of the bar, and patterns can be chained.
 
+On the SMK-37, X0X can also do Bluetooth MIDI, with a controller image that you build on your own
+computer (it cannot be shipped with X0X): see the manual's "Bluetooth MIDI" section and
+[ble/README.md](ble/README.md). Not yet tested on the keyboard.
+
 X0X is a fork of [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita (Hügelton
 Instruments). It keeps Felucca's foundations (the hardware layer, USB, the update loader, the web
 installer and the storage) and replaces the instrument on top.
@@ -76,7 +80,8 @@ X0X is tested before it reaches the FM-1.
 X0X is GPL-3.0-only, like Felucca, 9W9, 8W8 and schwung-tb3po. Open303 (by Robin Schmidt) is
 MIT. BB Gen is ported from mestela's schwung-breakbeat with the author's permission. The 909's
 hi-hat, ride and crash samples come from ER-99 (Matthew Cieplak, GPL-3.0). The fonts are Barlow
-Semi Condensed and Terminus (SIL OFL 1.1).
+Semi Condensed and Terminus (SIL OFL 1.1). The BLE-MIDI host (from felucca-bsp) and the Bluetooth
+controller interface are MPL-2.0. JieLi's Bluetooth files are never part of X0X (LICENSING.md).
 
 Felucca's own assets that aren't under its GPL (the icon set, the panel photo and the Hügelton
 drum pack) aren't part of this fork.

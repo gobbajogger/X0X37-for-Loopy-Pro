@@ -624,7 +624,8 @@ GLUE compressor and VOLUME. Turning COMP or FILTER sets their details again.
 
 ![GLOBAL](img/screen-global.png)
 
-Press GLO for these settings, in five sections (MIDI, AUDIO, KEYS AND SCREEN, PROJECT, SYSTEM):
+Press GLO for these settings, in five sections (MIDI, AUDIO, KEYS AND SCREEN, PROJECT, SYSTEM).
+The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk-37)):
 
 | Setting | What it does |
 |---|---|
@@ -643,6 +644,9 @@ Press GLO for these settings, in five sections (MIDI, AUDIO, KEYS AND SCREEN, PR
 | PERFORMANCE | Opens the performance page (below). |
 | ABOUT X0X | Shows the version, how full the memory for patterns is (MEM), and the audio load. |
 | BATTERY | The battery's charge: FULL, 2/3, 1/3 or EMPTY; USB POWER while a computer powers the FM-1. Read only. |
+| BLUETOOTH | SMK-37 only. OFF (the default) or ON: Bluetooth MIDI. Turning it ON takes effect at the next power-on ("RESTART TO TURN ON"); turning it OFF drops the connection at once. |
+| STATUS | SMK-37 only, read only. NO IMAGE (no Bluetooth controller installed), OFF, RESTART, STARTING, READY (waiting for a connection), CONNECTED, FAILED or BAD IMAGE (the installed controller is damaged or does not fit this X0X). |
+| NAME | SMK-37 only, read only. The name the keyboard shows to Bluetooth apps: X0X- and four characters of its own. |
 
 ### Saving
 
@@ -724,6 +728,30 @@ is on.
 
 While X0X follows an external clock, the tempo on the top line is averaged over about a second,
 so it doesn't flicker with every clock.
+
+### Bluetooth MIDI (SMK-37)
+
+The SMK-37 can also send and receive MIDI over Bluetooth (BLE MIDI, as iPads, Macs and most
+music apps use it). Bluetooth audio is not supported.
+
+The Bluetooth part is a separate program from Bluetooth chip maker JieLi. X0X is not allowed to
+include it, so you build it on your own computer once, and the installer adds it:
+
+1. Run `ble/ctl/build_ctl.sh` from the X0X source (needs the JieLi toolchain and Docker; see
+   BUILDING.md). It downloads JieLi's files from JieLi's own site, checks them and makes `ctl.img`.
+2. Install X0X with `tools/fm1_install.py` (it adds `ctl.img` by itself), or in the web
+   installer choose the `ctl.img` file under "Bluetooth MIDI (optional)" before you press Install.
+   Do this again for every update: an update without it removes Bluetooth.
+3. On the keyboard, set GLO > BLUETOOTH MIDI > BLUETOOTH to ON and switch it off and on again.
+
+STATUS then shows READY. Connect from your app's Bluetooth MIDI settings (on an iPad or a Mac:
+"Bluetooth MIDI" or Audio MIDI Setup), where the keyboard appears under its NAME. There is no
+pairing code. Bluetooth MIDI works like USB MIDI: the same channels, notes and clock come in,
+and what X0X sends over USB (clock and notes, as set in GLO) also goes over Bluetooth. Send clock
+from one place only (USB or Bluetooth), or the tempo doubles. SysEx is not sent or taken over
+Bluetooth.
+
+Bluetooth MIDI is new and not yet tested on the keyboard itself.
 
 ### USB audio
 

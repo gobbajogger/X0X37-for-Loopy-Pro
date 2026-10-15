@@ -18,7 +18,9 @@ recipients its complete corresponding source under the same licence.
 | TB-3PO (`seq/tb3po*`) | ported from [schwung-tb3po](https://github.com/charlesvestal/schwung-tb3po), itself a port of the Phazerville Hemisphere Suite `TB_3PO` applet (djphazer and contributors) | GPL-3.0 |
 | Break generator (`dsp/breaks*`, `tests/host/breaks_test.c`) | ported from [schwung-breakbeat](https://github.com/mestela/schwung-breakbeat) (BB Gen) by mestela, **used with the author's permission** (that repository carries no licence file; see "Break generator provenance" below) | GPL-3.0-only here, by permission |
 | The idea of a browser emulator for FM-1 firmware (`web/emu/`) | [Groove OS](https://www.groove-os.com/) by Peter Gombos, whose site runs its firmware in the browser; no code from it | credit only |
-| Everything else in `firmware/src/{app,dsp,seq}`, `host/`, `tests/` | X0X | GPL-3.0-only |
+| BLE-MIDI host (`firmware/src/ble/ble_midi_host.{c,h}`) | from [felucca-bsp](https://github.com/hugelton/felucca-bsp) `ble/ble_midi_host` (Leo Kuroshita, Hügelton Instruments), extended for X0X | MPL-2.0 (`LICENSES/MPL-2.0.txt`), compiled into the GPL app (MPL-2.0 section 3.3 allows it) |
+| The app/controller interface (`firmware/hal/x0x_ble_abi.h`) and the controller shim (`ble/ctl/`: `src/`, `ctl.ld`, the build and fetch scripts, `mkimage.py`) | X0X | MPL-2.0 |
+| Everything else in `firmware/src/{app,dsp,seq,ble}`, `host/`, `tests/` | X0X | GPL-3.0-only |
 
 No recorded breaks are in this tree or in the default firmware: the built-in break loops are
 generated at build time by X0X's own 909 code. `tools/import_breaks.py`,
@@ -76,6 +78,30 @@ You must include `LICENSES/Apache-2.0.txt` with each package that you distribute
 applies to a `.fwsc` file, a release download and an installer ZIP. Also include `LICENSE`
 (GPL-3.0) and this file.
 
+## The Bluetooth controller image (SMK-37, optional)
+
+Bluetooth MIDI on the SMK-37 needs JieLi's Bluetooth controller (`btctrler.a`, `wl_rf_common.a`,
+the crypto libraries, the newlib and compiler runtime of the JieLi toolchain). These files are
+closed or not GPL-compatible. X0X does not contain them, does not distribute them and does not
+link them into the GPL app.
+
+- `ble/ctl/build_ctl.sh` runs on **your** computer. It fetches the files from JieLi's own
+  repository (gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK, pinned to commit `d179b44`) and checks
+  each SHA-256 (`btctrler.a`: `9ef42624...`). It then links them with the MPL-2.0 shim in
+  `ble/ctl/src/` into a separate image, `ctl.img`.
+- The image is a separate program. It runs from its own flash block (0x8B000) and its own RAM.
+  The GPL app and the image share no code and call no function in each other except the image's
+  two entry points (start and poll). They exchange only standard Bluetooth HCI packets through a
+  shared-RAM mailbox, as an app processor and a separate Bluetooth chip do. The only file that
+  both sides compile is `firmware/hal/x0x_ble_abi.h` (MPL-2.0).
+- `tools/add_ctl.py`, `tools/fm1_install.py --ctl` and the web installer put your `ctl.img`
+  into a package on your computer, just before the install. The packages and installers that
+  X0X distributes never contain it.
+- The shim is MPL-2.0 so that you may link it with JieLi's files. The image that you build
+  contains JieLi's files under JieLi's terms (the SDK's `LICENSE`, fetched with them). If you
+  give that image to anyone else, those terms apply to it. X0X's GPL does not cover it.
+- BlueKitchen BTstack is not used.
+
 ## Trademarks
 
 - "Felucca" and "Hügelton Instruments" are names of Hügelton Instruments.
@@ -99,4 +125,6 @@ show that the device is an Akai product.
 
 ## Radio
 
-X0X never enables the Bluetooth / Wi-Fi radio of the hardware.
+X0X enables the Bluetooth radio only on an SMK-37 that has a user-built controller image
+(above) and only when GLOBAL > BLUETOOTH MIDI > BLUETOOTH is ON (it is OFF by default). Then it
+runs Bluetooth Low Energy (BLE MIDI) only. X0X never enables Wi-Fi or Bluetooth Classic.

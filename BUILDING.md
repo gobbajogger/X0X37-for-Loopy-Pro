@@ -102,6 +102,22 @@ before X0X reads it. Samples, calibration, Bluetooth pairing and key_mac are nev
 The tests (below) include the SMK flash map, the store, the package layout and the update path on
 SMK-layout packages, and check `build/x0x-smk37.fwsc` when it exists.
 
+## The Bluetooth controller image (SMK-37, optional)
+
+Bluetooth MIDI on the SMK-37 needs a controller image that you build yourself; X0X does not
+ship it (LICENSING.md). With the toolchain above and Docker (or on Linux x86-64 with
+`CTL_NATIVE=1`):
+
+```
+ble/ctl/build_ctl.sh        # fetches JieLi's files (pinned, SHA-256 checked), builds ble/ctl/out/ctl.img
+python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-smk37-ble.fwsc
+python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
+```
+
+`build_ctl.sh` also copies the image to `~/.config/x0x/ctl.img`; `tools/fm1_install.py` adds
+that copy to each SMK-37 install (`--ctl FILE` for another one, `--no-ctl` for none). The web
+installer has a file field for it. See ble/README.md for how the image and the app fit together.
+
 ## Tests
 
 ```
@@ -112,7 +128,8 @@ Runs, on the build machine: the maths library against libm; the sequencer and TB
 (against schwung-tb3po, from `../schwung-tb3po` or `TB3PO_REF`); each engine against its
 original (9W9, 8W8, schwung-303, BB Gen — the scripts in `tests/host/` say where they look
 for those sources); flash storage; Felucca's update-path tests against `build/x0x.fwsc`
-(the loader test needs `AC79_SDK`); and the whole app in the simulator
+(the loader test needs `AC79_SDK`); the Bluetooth mailbox, BLE-MIDI host, image check and
+package insertion (`tests/ble_test.c`, `tests/ble_pkg_test.py`); and the whole app in the simulator
 (`tests/scenarios/*.x0x`), with its screenshots and audio in `build/scenarios/`.
 
 `host/build_host.sh` builds the simulator alone; `build/host/x0x_host SCRIPT OUTDIR` runs one
