@@ -18,7 +18,29 @@ typedef struct {
     void (*set_sco_config)(u16 voice, int n);
 } hci_transport_t;   /* layout from include_lib/btctrler/hci_transport.h */
 
-extern const hci_transport_t *hci_transport_h4_controller_instance(void);
+void hci_packet_handler(int type, const u8 *packet, int size);
+
+/* The H4 transport the controller gets (btctrler_task_init). In btctrler.a,
+ * hci_controller_init calls register_packet_handler(hci_h4_download_data): that is the
+ * host -> controller entry. The controller sends its events and data with send_packet.
+ * The library's own hci_transport_h4_controller_instance() is this, but its
+ * can_send_packet_now always gives 0, and its send_packet is the controller -> host way. */
+static void (*ctl_h2c)(int type, const u8 *p, int size);
+static void ctl_tr_init(const void *cfg) { (void)cfg; }
+static int ctl_tr_open(void) { return 0; }
+static int ctl_tr_close(void) { return 0; }
+static void ctl_tr_register(void (*hd)(int type, const u8 *p, int size)) { ctl_h2c = hd; }
+static int ctl_tr_can_send(u8 type) { (void)type; return 1; }
+static int ctl_tr_send(int type, const u8 *p, int size)
+{
+    hci_packet_handler(type, p, size);
+    return 0;
+}
+static const hci_transport_t ctl_transport = {
+    .name = "x0x", .init = ctl_tr_init, .open = ctl_tr_open, .close = ctl_tr_close,
+    .register_packet_handler = ctl_tr_register, .can_send_packet_now = ctl_tr_can_send,
+    .send_packet = ctl_tr_send,
+};
 extern int btctrler_task_init(const void *transport, const void *config);
 extern void bt_max_pwr_set(u8 pwr, u8 pg, u8 iq, u8 ble);
 void ctl_delay_init(void);
@@ -34,7 +56,6 @@ extern u8 __ctl_run_stack_hi[];
 
 const xb_boot_t *ctl_bp;
 xb_mbox_t *ctl_mb;
-static const hci_transport_t *h4;
 static volatile u32 failed;
 
 static u32 ctl_init(u32 bp);
@@ -83,12 +104,13 @@ void ctl_host_poll(void)
             xb_frame_get(r, &type, rx_pkt, sizeof rx_pkt);
             return;
         }
-        /* No can_send_packet_now() check here: in btctrler.a, h4_controller_can_send_now always
-         * gives 0 (r0 = 0; rts). The HCI flow control is the command and ACL credits in the host. */
+        /* The HCI flow control is the command and ACL credits in the host. */
+        if (!ctl_h2c)
+            return;                       /* the controller did not register its entry (yet) */
         k = xb_frame_get(r, &type, rx_pkt, sizeof rx_pkt);
         if (k > 0) {
             ctl_mb->dbg[XB_DBG_INIT_MS]++; /* after READY: frames given to the controller */
-            h4->send_packet(type, rx_pkt, k);
+            ctl_h2c(type, rx_pkt, k);
         }
     }
 }
@@ -153,15 +175,9 @@ static u32 ctl_init(u32 arg)
     t_init = ctl_ms();
     stage(XB_STG_ENTRY);
     stage(XB_STG_OS);
-    h4 = hci_transport_h4_controller_instance();
-    if (!h4) {
-        ctl_mb->err = XB_E_BOOT;
-        ctl_mb->state = XB_ST_FAILED;
-        return XB_E_BOOT;
-    }
     stage(XB_STG_H4);
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
-    btctrler_task_init(h4, NULL);
+    btctrler_task_init(&ctl_transport, NULL);
     stage(XB_STG_TASK);
     /* The RF trim runs in the controller task during the settle loop. Its inner loops are in RAM, but
      * JieLi's interrupt handlers are in the flash, and flash reads can come back wrong under the trim's
