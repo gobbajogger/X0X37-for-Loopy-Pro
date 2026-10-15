@@ -6,7 +6,8 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readWav, cut, pack, userSlot, NSLOTS, imaDecode, parseSlot } from "./x0x_breaks.js";
+import { readWav, cut, pack, userSlot, NSLOTS, imaDecode, parseSlot, parseInfo, makeArchive, readArchive,
+  planRestore } from "./x0x_breaks.js";
 
 const dir = mkdtempSync(join(tmpdir(), "x0x-breaks-"));
 let bad = 0;
@@ -70,6 +71,42 @@ for (const bars of [false, true]) {
   });
   console.log(`  ${ok ? "ok" : "FAIL"} read back: header and decoded loops`);
   if (!ok) bad++;
+}
+// slot backup: the page's .x0xslots archive is tools/x0x_slots.py's, byte for byte, both ways
+{
+  const out = join(dir, "py.x0xslots");
+  const info = JSON.parse(execFileSync("python3", ["-c", `
+import json, sys
+sys.path.insert(0, "tools")
+import sampleio as sio, x0x_slots as xs
+h, d = sio.user_slot("BR1", [([int(3000 * ((i * 7) % 13 - 6)) for i in range(30001)], 36, None, None),
+                             ([int(2000 * ((i * 5) % 11 - 5)) for i in range(20000)], 37, None, None)], rate=44100)
+img = h.ljust(512, bytes([255])) + d
+info = [3, 120, 2, 66, 82, 49, 0, 49, 0, 0, 0, 0, 0, 0]
+lay = xs.parse_info(info)
+open(sys.argv[1], "wb").write(xs.make_archive(lay, [img, None, None], created="2026-10-15T12:00:00"))
+print(json.dumps({"info": info, "img": list(img)}))
+`, out]).toString());
+  const py = new Uint8Array(readFileSync(out)), lay = parseInfo(info.info), img = new Uint8Array(info.img);
+  const js = makeArchive(lay, [img, null, null], "2026-10-15T12:00:00");
+  const same = Buffer.compare(Buffer.from(js), Buffer.from(py)) === 0;
+  console.log(`  ${same ? "ok" : "FAIL"} backup archive: same bytes as x0x_slots.py (${js.length} B)`);
+  if (!same) bad++;
+  const { meta, images } = readArchive(py);
+  const ok = lay.count === 3 && lay.size === 120 * 1024 && meta.slots[0].rates.join() === "44100,44100" &&
+    meta.slots[0].name === "BR1" && images[0].length === img.length && images[1] === null;
+  console.log(`  ${ok ? "ok" : "FAIL"} backup archive: read back (3 x 120 KB layout, rates, name)`);
+  if (!ok) bad++;
+  const dmg = py.slice();
+  dmg[100] ^= 1;
+  let refused = false;
+  try { readArchive(dmg); } catch (_) { refused = true; }
+  console.log(`  ${refused ? "ok" : "FAIL"} backup archive: a damaged file is refused`);
+  if (!refused) bad++;
+  const plan = planRestore({ count: 2, size: 80 * 1024, slots: [] }, images);
+  const pok = plan.todo.length === 2 && plan.skipped.length === 1;
+  console.log(`  ${pok ? "ok" : "FAIL"} restore plan: a 3-slot backup on a 2-slot device skips slot 3`);
+  if (!pok) bad++;
 }
 console.log(bad ? "BREAKS WEB FAILED" : "breaks web: same bytes as upload_breaks.py");
 process.exit(bad ? 1 : 0);

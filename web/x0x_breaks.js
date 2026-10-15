@@ -268,3 +268,105 @@ export function readWav(buf) {
   }
   return { rate: sr, x };
 }
+
+// ---- slot backup and restore: tools/x0x_slots.py's .x0xslots archive, byte for byte ----------
+// "X0XSLOTS", u16 version 1, u16 0, u32 L, L bytes of JSON, the slot images, u32 CRC-32 of all before.
+// An image is a slot from its start: the 512-byte header area, then the ADPCM data.
+
+export const SLOT_HDR_AREA = 512;
+const ARCH_MAGIC = "X0XSLOTS";
+
+// a slot name as text: printable ASCII kept, anything else "?" (x0x_slots.ascii_name)
+export function asciiName(b) {
+  let s = "";
+  for (const c of b) s += c >= 32 && c < 127 ? String.fromCharCode(c) : "?";
+  return s;
+}
+
+// SMP_INFO reply (the bytes after the command) -> {count, size, slots: [{nz, name, kb}]} (x0x_slots.parse_info)
+export function parseInfo(r) {
+  if (r.length < 2) throw new Error("short SMP_INFO reply");
+  const count = r[0], size = r[1] * 1024, slots = [];
+  for (let k = 0, i = 2; k < count; k++) {
+    const nz = r[i], j = r.indexOf(0, i + 1);
+    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1] });
+    i = j + 2;
+  }
+  return { count, size, slots };
+}
+
+// a slot's first 480 bytes -> {nz, name, dataLen, crc, zones: [{off, n, rate}]} or null (x0x_slots.parse_header)
+export function parseHeader(b) {
+  if (b.length < SLOT_HDR_LEN) return null;
+  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  const nz = b[6];
+  if (v.getUint32(0, true) !== 0x504D5346 || v.getUint16(4, true) !== 1 || nz < 1 || nz > 16) return null;
+  let e = 8;
+  while (e < 16 && b[e]) e++;
+  const zones = [];
+  for (let z = 0; z < nz; z++) {
+    const o = 32 + z * 28, q16 = v.getUint32(o + 16, true);
+    zones.push({ off: v.getUint32(o, true), n: v.getUint32(o + 4, true), rate: Number((BigInt(q16) * 44100n + 32768n) >> 16n) });
+  }
+  return { nz, name: asciiName(b.subarray(8, e)), dataLen: v.getUint32(16, true), crc: v.getUint32(20, true), zones };
+}
+
+// layout: parseInfo(); images: per slot, Uint8Array or null -> the archive (x0x_slots.make_archive)
+export function makeArchive(layout, images, created) {
+  const entries = [], blobs = [];
+  let off = 0;
+  images.forEach((img, k) => {
+    const e = { slot: k + 1, size: layout.size, empty: img === null };
+    if (img !== null) {
+      const h = parseHeader(img);
+      Object.assign(e, { name: h.name, zones: h.nz, samples: h.zones.map((z) => z.n), rates: h.zones.map((z) => z.rate),
+        data_len: h.dataLen, data_crc32: h.crc, offset: off, length: img.length, crc32: crc32(img) });
+      blobs.push(img);
+      off += img.length;
+    }
+    entries.push(e);
+  });
+  const meta = { format: "x0xslots", version: 1, created, count: layout.count, size: layout.size, slots: entries };
+  const js = new TextEncoder().encode(JSON.stringify(meta));
+  const out = new Uint8Array(16 + js.length + off + 4), v = new DataView(out.buffer);
+  for (let i = 0; i < 8; i++) out[i] = ARCH_MAGIC.charCodeAt(i);
+  v.setUint16(8, 1, true);
+  v.setUint16(10, 0, true);
+  v.setUint32(12, js.length, true);
+  out.set(js, 16);
+  let p = 16 + js.length;
+  for (const b of blobs) { out.set(b, p); p += b.length; }
+  v.setUint32(p, crc32(out.subarray(0, p)), true);
+  return out;
+}
+
+// archive bytes -> {meta, images}; throws on any damage (x0x_slots.read_archive)
+export function readArchive(b) {
+  const bad = (m) => { throw new Error(m); };
+  if (b.length < 20 || String.fromCharCode(...b.subarray(0, 8)) !== ARCH_MAGIC) bad("This is not an .x0xslots backup.");
+  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  if (v.getUint32(b.length - 4, true) !== crc32(b.subarray(0, b.length - 4))) bad("The backup file is damaged (CRC).");
+  if (v.getUint16(8, true) !== 1) bad("This backup has a newer format.");
+  const n = v.getUint32(12, true), meta = JSON.parse(new TextDecoder().decode(b.subarray(16, 16 + n)));
+  const base = 16 + n, images = [];
+  for (const e of meta.slots) {
+    if (e.empty) { images.push(null); continue; }
+    const img = b.slice(base + e.offset, base + e.offset + e.length), h = parseHeader(img);
+    if (img.length !== e.length || crc32(img) !== e.crc32) bad(`Slot ${e.slot} in the backup is damaged.`);
+    if (!h || img.length !== SLOT_HDR_AREA + h.dataLen || crc32(img.subarray(SLOT_HDR_AREA)) !== h.crc)
+      bad(`Slot ${e.slot} in the backup is not a valid slot.`);
+    images.push(img);
+  }
+  return { meta, images };
+}
+
+// which archive slots go where on a device with this layout -> {todo: [{k, img}], skipped: [text]}
+export function planRestore(layout, images) {
+  const todo = [], skipped = [];
+  images.forEach((img, k) => {
+    if (k >= layout.count) skipped.push(`slot ${k + 1}: this device has ${layout.count} slots`);
+    else if (img !== null && img.length > layout.size) skipped.push(`slot ${k + 1}: too large for this device's slots`);
+    else todo.push({ k, img });
+  });
+  return { todo, skipped };
+}

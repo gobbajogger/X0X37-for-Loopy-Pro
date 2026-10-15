@@ -1,9 +1,10 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      X0X break loops: your loops on the FM-1 as one list, BR1, BR2 ... as LOOP A / LOOP B show them (Chrome or
-     Edge, Web MIDI). Connect reads the three sample slots back (X0X's SMP_READ, 16); add, replace and remove
-     loops; Send repacks the list in order into the slots and rewrites only the slots that changed, a loop read
-     back kept as it is (no re-encoding). The slot images are tools/upload_breaks.py's (web/x0x_breaks.js), sent
+     Edge, Web MIDI). Connect reads the sample slots back (X0X's SMP_INFO, 15, gives their count and size;
+     SMP_READ, 16); add, replace and remove loops; Send repacks the list in order into the slots and rewrites only
+     the slots that changed, a loop read back kept as it is (no re-encoding). Back up saves every slot to an
+     .x0xslots file and Restore writes one back (tools/x0x_slots.py's format). The slot images are tools/upload_breaks.py's (web/x0x_breaks.js), sent
      with Felucca's sample-slot protocol (web/EDITOR_PROTOCOL.md, 11-15). tools/make_pages.py inlines
      x0x_breaks.js at LIB. -->
 <html lang="en">
@@ -80,6 +81,13 @@
   </div>
   <progress id="progress" max="100" value="0" hidden></progress>
   <input type="file" id="files" multiple accept="audio/*,.wav,.aif,.aiff,.mp3,.flac,.m4a,.ogg">
+  <input type="file" id="archive" accept=".x0xslots">
+
+  <div class="bar" style="margin-top:24px">
+    <button class="quiet" id="backup" disabled>Back up all slots</button>
+    <button class="quiet" id="restore" disabled>Restore a backup</button>
+    <span class="small">A backup is a file with every slot as it is on the device. Restore writes it back.</span>
+  </div>
 
   <p class="small" style="margin-top:32px">Loops follow the tempo by playing faster or slower, so their pitch
     follows it too; the break's PITCH knob shifts it. Removing a loop renumbers the ones after it, so patterns
@@ -92,14 +100,15 @@
 /*LIB*/
 const $ = (id) => document.getElementById(id);
 const HDR = [0x7D, 0x46, 0x4C];
-const NSLOT = 3;
-const CAP = NSLOT * SLOT_MAX_DATA;
 const KB = (b) => `${(b / 1024).toFixed(0)} KB`;
 let link = null, busy = false, readOk = false;
+// the device's slots (SMP_INFO): their count and size; nothing here assumes 2 or 3 slots of 80 KB
+let lay = { count: 0, size: SLOT_SIZE, slots: [] };
+const nslot = () => lay.count, slotMax = () => lay.size - SLOT_DATA_OFF, cap = () => nslot() * slotMax();
 
 // the loops in order, as the FM-1 numbers them: {adpcm, n, s, file, isNew} (adpcm, n: as stored, adpcm null for a
 // new one until it's encoded; s: the samples, for the picture), and the slots as read ({hdr, data} or null)
-let loops = [], dev = [null, null, null], replaceAt = -1;
+let loops = [], dev = [], replaceAt = -1;
 
 function say(t) { $("status").textContent = t; }
 const bytesOf = (l) => (l.n + 1) >> 1;
@@ -129,16 +138,18 @@ function render() {
     wave(r.querySelector("canvas"), l.s, l.isNew ? "--accent" : "--wave");
   });
   const used = loops.reduce((a, l) => a + bytesOf(l), 0), plan = packLoops();
-  $("fill").style.width = `${Math.min(100, used / CAP * 100)}%`;
+  $("fill").style.width = `${cap() ? Math.min(100, used / cap() * 100) : 0}%`;
   $("room").className = plan ? "" : "bad";
-  $("room").textContent = !readOk ? "" : plan ? `${loops.length} loop${loops.length === 1 ? "" : "s"}, ${KB(used)} of ${KB(CAP)}.`
-    : `Too much: ${KB(used)} of ${KB(CAP)}. Remove a loop, or use shorter ones.`;
+  $("room").textContent = !readOk ? "" : plan ? `${loops.length} loop${loops.length === 1 ? "" : "s"}, ${KB(used)} of ${KB(cap())} (${nslot()} slots).`
+    : `Too much: ${KB(used)} of ${KB(cap())}. Remove a loop, or use shorter ones.`;
   const changed = readOk && plan && changedSlots(plan).length > 0;
   $("send").disabled = busy || !changed;
   $("discard").hidden = !changed;
   $("discard").disabled = busy;
   $("add").disabled = busy || !readOk;
   $("connect").disabled = busy;
+  $("backup").disabled = busy || !readOk;
+  $("restore").disabled = busy || !readOk;
 }
 
 // one loop's waveform: its peak in each pixel column
@@ -157,22 +168,22 @@ function wave(cv, s, colour) {
   }
 }
 
-// ---- the list -> the three slots ---------------------------------------------------
-// in order, a slot filled before the next (16 loops or 80 KB a slot); null if it doesn't all fit
+// ---- the list -> the device's slots ---------------------------------------------------
+// in order, a slot filled before the next (16 loops or the slot size a slot); null if it doesn't all fit
 function packLoops() {
   const slots = [[]];
   let used = 0;
   for (const l of loops) {
     const b = bytesOf(l);
-    if (used + b > SLOT_MAX_DATA || slots[slots.length - 1].length >= SLOT_ZONES) {
+    if (used + b > slotMax() || slots[slots.length - 1].length >= SLOT_ZONES) {
       slots.push([]);
       used = 0;
     }
-    if (slots.length > NSLOT || b > SLOT_MAX_DATA) return null;
+    if (slots.length > nslot() || b > slotMax()) return null;
     slots[slots.length - 1].push(l);
     used += b;
   }
-  while (slots.length < NSLOT) slots.push([]);
+  while (slots.length < nslot()) slots.push([]);
   return slots;
 }
 
@@ -289,31 +300,64 @@ async function readBytes(k, off, n, onPart) {
   return out;
 }
 
-async function readAll() {
-  const info = await link.req(15, []), nz = [];
-  for (let k = 0, i = 2; k < info[0]; k++) { nz.push(info[i]); i = info.indexOf(0, i + 1) + 2; }
-  const bar = $("progress");
+// every slot as it is on the device: {lay, dev: per slot {hdr, data, image} or null}. Reads only.
+async function readSlots() {
+  const l = parseInfo(await link.req(15, [])), d = [], bar = $("progress");
   bar.hidden = false;
-  loops = [];
-  dev = [null, null, null];
   try {
-    for (let k = 0; k < NSLOT; k++) {
-      if (!nz[k]) continue;
-      const hdr = await readBytes(k, 0, SLOT_HDR_LEN), h = parseSlot(hdr);
+    for (let k = 0; k < l.count; k++) {
+      d.push(null);
+      if (!l.slots[k].nz) continue;
+      const area = await readBytes(k, 0, SLOT_DATA_OFF), hdr = area.slice(0, SLOT_HDR_LEN), h = parseSlot(hdr);
       if (!h) continue;
-      const data = await readBytes(k, SLOT_DATA_OFF, h.dataLen, (f) => { bar.value = (k + f) / NSLOT * 100; });
-      dev[k] = { hdr, data };
-      for (const z of h.zones) {
-        const adpcm = data.slice(z.off, z.off + ((z.n + 1) >> 1));
-        loops.push({ adpcm, n: z.n, s: imaDecode(adpcm, z.n), isNew: false });
-      }
+      const data = await readBytes(k, SLOT_DATA_OFF, h.dataLen, (f) => { bar.value = (k + f) / l.count * 100; });
+      if (crc32(data) !== new DataView(hdr.buffer).getUint32(20, true)) throw new Error("crc");
+      const image = new Uint8Array(SLOT_DATA_OFF + data.length);
+      image.set(area);
+      image.set(data, SLOT_DATA_OFF);
+      d[k] = { hdr, data, image };
     }
   } catch (_) {
     bar.hidden = true;
     throw new Error("This X0X can't send its loops back to the page. Update X0X, then connect again.");
   }
   bar.hidden = true;
+  return { lay: l, dev: d };
+}
+
+async function readAll() {
+  const r = await readSlots();
+  lay = r.lay;
+  dev = r.dev;
+  loops = [];
+  dev.forEach((sl) => {
+    if (!sl) return;
+    for (const z of parseSlot(sl.hdr).zones) {
+      const adpcm = sl.data.slice(z.off, z.off + ((z.n + 1) >> 1));
+      loops.push({ adpcm, n: z.n, s: imaDecode(adpcm, z.n), isNew: false });
+    }
+  });
   readOk = true;
+}
+
+// write one slot image (the 512-byte header area + data), or null: erase it. As Send does.
+async function writeImage(k, img, onPart) {
+  if (!img) {
+    const r = await link.req(14, [k], 30000);
+    if (r[1]) throw new Error("The FM-1 couldn't clear its memory.");
+    return;
+  }
+  const b = await link.req(11, [k], 10000);
+  if (b[1]) throw new Error("The FM-1 couldn't erase its memory.");
+  const data = img.subarray(SLOT_DATA_OFF);
+  for (let off = 0; off < data.length; off += 256) {
+    const adr = SLOT_DATA_OFF + off;
+    const r = await link.retry(12, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, ...pack7(data.subarray(off, off + 256))], 3000);
+    if (r[4]) throw new Error("Writing to the FM-1 failed.");
+    if (onPart) onPart(Math.min(256, data.length - off));
+  }
+  const e = await link.req(13, [k, ...pack7(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  if (e[1]) throw new Error("The FM-1 didn't accept the loops.");
 }
 
 async function run(fn) {
@@ -347,30 +391,68 @@ $("send").onclick = () => run(async () => {
   for (const { k, im } of todo) {
     if (!im) {                                       // nothing left in this slot: clear it
       say("Clearing…");
-      const r = await link.req(14, [k], 30000);
-      if (r[1]) throw new Error("The FM-1 couldn't clear its memory.");
+      await writeImage(k, null);
       sent += 1;
       continue;
     }
-    say("Erasing…");
-    const b = await link.req(11, [k], 10000);
-    if (b[1]) throw new Error("The FM-1 couldn't erase its memory.");
     say("Sending…");
-    for (let off = 0; off < im.data.length; off += 256) {
-      const adr = SLOT_DATA_OFF + off;
-      const r = await link.retry(12, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, ...pack7(im.data.subarray(off, off + 256))], 3000);
-      if (r[4]) throw new Error("Writing to the FM-1 failed.");
-      sent += Math.min(256, im.data.length - off);
-      bar.value = sent / total * 100;
-    }
-    const e = await link.req(13, [k, ...pack7(im.hdr)], 5000);
-    if (e[1]) throw new Error("The FM-1 didn't accept the loops.");
+    const img = new Uint8Array(SLOT_DATA_OFF + im.data.length);
+    img.fill(0xFF);                                  // the header area past the header stays erased
+    img.set(im.hdr);
+    img.set(im.data, SLOT_DATA_OFF);
+    await writeImage(k, img, (n) => { sent += n; bar.value = sent / total * 100; });
   }
   bar.hidden = true;
   say("Reading back…");
   await readAll();
   say("Done. On the FM-1: BREAK, then EDIT, then LOOP A or LOOP B.");
 });
+
+$("backup").onclick = () => run(async () => {
+  say("Reading every slot…");
+  const r = await readSlots();
+  const t = new Date(), p = (v) => String(v).padStart(2, "0");
+  const stamp = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
+  const file = makeArchive(r.lay, r.dev.map((d) => (d ? d.image : null)), stamp);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
+  a.download = `x0x-slots-${stamp.replace(/[-:]/g, "").replace("T", "-")}.x0xslots`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  say(`Saved ${a.download} (${KB(file.length)}).`);
+});
+$("restore").onclick = () => $("archive").click();
+$("archive").onchange = (ev) => {
+  const f = ev.target.files[0];
+  ev.target.value = "";
+  if (!f) return;
+  run(async () => {
+    const { meta, images } = readArchive(new Uint8Array(await f.arrayBuffer()));
+    const { todo, skipped } = planRestore(lay, images);
+    const what = meta.slots.map((e) => `slot ${e.slot}: ${e.empty ? "empty" : `${e.name || "-"}, ${e.zones} loop(s)`}`).join("\n");
+    if (!todo.length) throw new Error("Nothing in this backup fits this device.");
+    if (!confirm(`Restore ${f.name} (saved ${meta.created})?\n${what}${skipped.length ? `\nSkipped: ${skipped.join("; ")}` : ""}\n\n` +
+      `This replaces slot ${todo.map((t) => t.k + 1).join(", ")} on the device. Unsent changes on this page are lost.`)) return;
+    const bar = $("progress"), total = todo.reduce((a, t) => a + (t.img ? t.img.length - SLOT_DATA_OFF : 1), 0);
+    let sent = 0;
+    bar.hidden = false;
+    for (const { k, img } of todo) {
+      say(`Restoring slot ${k + 1}…`);
+      await writeImage(k, img, (n) => { sent += n; bar.value = sent / total * 100; });
+      if (!img) sent += 1;
+    }
+    bar.hidden = true;
+    say("Reading back…");
+    const back = await readSlots();
+    for (const { k, img } of todo) {
+      const got = back.dev[k] ? back.dev[k].image : null;
+      if ((got === null) !== (img === null) || (got && (got.length !== img.length || crc32(got) !== crc32(img))))
+        throw new Error(`Slot ${k + 1} reads back different from the backup.`);
+    }
+    await readAll();
+    say(`Restored${skipped.length ? ` (skipped ${skipped.join("; ")})` : ""}.`);
+  });
+};
 
 $("add").onclick = () => { replaceAt = -1; $("files").multiple = true; $("files").click(); };
 $("files").onchange = (ev) => { addFiles([...ev.target.files], replaceAt); ev.target.value = ""; replaceAt = -1; };
