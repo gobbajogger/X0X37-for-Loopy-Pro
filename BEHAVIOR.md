@@ -88,6 +88,8 @@ DRM-07. Hold ENV and press white keys to set accents. An accent makes all drums 
 DRM-08. A pattern has a maximum of 64 steps. The white keys show 16 steps at a time. OCT+ and OCT- select the group of 16. [MANUAL §5] [CODE seq/pattern.h:13]
 DRM-09. Hold HOME and press a black key to mute a track. X0X does not save track mutes. [MANUAL §5]
 DRM-10. The 909 hats and cymbals are samples. All other drum sounds are synthesized. [MANUAL §5]
+DRM-11. The 909 hi-hat, ride and crash samples are IMA ADPCM at 44.1 kHz in flash. They use the same codec as the loops (dsp/ima_adpcm.h). Each voice decodes forward as it plays. The output is bit-identical to playback of a fully decoded buffer. The decoded samples are equal to the approved A/B study (adpcm_ab, 2026-10-15). The ADPCM error is white noise that follows the envelope (SNR 16.5-18.3 dB against the original PCM). This is intended. [USER] [CODE dsp/drum909.c:349] [CODE dsp/drum909.c:739] [CODE ../../tools/gen_drum_samples.py]
+DRM-12. Cost of the cymbal decode: one decode for each source sample played. That is 1 decode for each output sample at pitch 1, and up to 4 at pitch x4, for each sounding cymbal voice. Estimate (not measured on the device): about 20-30 cycles for each decode, so 3 cymbals at pitch 1 take about 1 % and 4 voices at pitch x4 take about 4-6 % of the 8163 cycles for each sample at 360 MHz. The 909 runs on core 0. [CODE dsp/drum909.c:739-745] [DESIGN 2026-10-04-dual-core-and-clock.md]
 
 ## 4. 303A and 303B
 

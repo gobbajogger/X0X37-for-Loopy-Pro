@@ -50,7 +50,7 @@ connections when many containers start at once.
 Build option: `X0X_CDC=1` adds Felucca's USB serial function (off by default: one plain
 MIDI interface).
 
-The build also generates `build/gen/`: the font, the 909's samples and tables
+The build also generates `build/gen/`: the font, the 909's cymbal samples (IMA ADPCM, 44.1 kHz) and tables
 (`tools/gen_drum_samples.py`), and the built-in break loops, rendered by the 909 port on the
 host (`tools/gen_builtin_break.sh`, needs a host `cc`). Opt-in, `X0X_BREAK_BANK=DIR` builds
 the break bank from one-bar WAVs instead (`tools/import_breaks.py` makes such a folder from
