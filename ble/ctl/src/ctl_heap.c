@@ -51,8 +51,41 @@ u32 ctl_heap_free2(void)
 }
 u32 ctl_heap_main_size(void) { return (u32)(__ctl_heap_end - __ctl_heap_start); }
 
-void *malloc(size_t n)
+/* attempt 49: hci_controller_init (JieLi's btctrler.a) takes malloc(2560) and memsets all of it,
+ * then hands only the first 512 B to lbuf_init_btctrler; nothing else reads the buffer (attempt 47
+ * disassembly). Attempt 47 gave it 512 B up front and the memset wiped the next block headers
+ * (attempt 48). So it gets the full 2560 B, and at the next malloc (ll_init's, after the memset and
+ * lbuf_init_btctrler) the last 2040 B go back to the heap. Matched by size and caller only. */
+#define CTL_HCI_BUF_ASKED 2560u
+#define CTL_HCI_BUF_KEEP  512u
+extern void hci_controller_init(void);
+static struct blk *hci_buf_trim;
+
+static void hci_buf_give_back(void)
 {
+    struct blk *b = hci_buf_trim;
+    u32 keep = (CTL_HCI_BUF_KEEP + sizeof(struct blk) + 7u) & ~7u;
+    u32 sz = b->size & ~1u;
+    hci_buf_trim = NULL;
+    if (!(b->size & 1u) || sz < keep + sizeof(struct blk) + 8u) return;
+    struct blk *r = (struct blk *)((u8 *)b + keep);
+    r->size = sz - keep; r->next = b->next;              /* free; malloc merges it with free neighbours */
+    b->size = keep | 1u; b->next = r;
+    heap_used -= sz - keep;
+}
+
+__attribute__((noinline)) void *malloc(size_t n)
+{
+    struct blk *mark = NULL;
+    if (hci_buf_trim) {
+        u32 f0 = ctl_port_irq_save();
+        if (hci_buf_trim) hci_buf_give_back();
+        ctl_port_irq_restore(f0);
+    }
+    if (n == CTL_HCI_BUF_ASKED) {
+        uintptr_t ra = (uintptr_t)__builtin_return_address(0), fn = (uintptr_t)hci_controller_init;
+        if (ra > fn && ra < fn + 0x100u) mark = (struct blk *)1;
+    }
     u32 need = ((u32)n + sizeof(struct blk) + 7u) & ~7u;
     u32 f = ctl_port_irq_save();
     for (struct blk *b = heap_first; b; b = b->next) {
@@ -69,6 +102,7 @@ void *malloc(size_t n)
         b->size |= 1u;
         heap_used += b->size & ~1u;
         if (heap_used > heap_peak) heap_peak = heap_used;
+        if (mark) hci_buf_trim = b;
         ctl_port_irq_restore(f);
         return b + 1;
     }
