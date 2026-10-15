@@ -67,6 +67,7 @@ GEN-40. A short KNOB BANK press does nothing. A KNOB BANK hold of more than 1 s 
 GEN-41. The SMK-37 keybed has no LEDs. Black-key information (tracks, slices, part mutes) is on the screen only. [CODE app/plat_fm1.c:50-53]
 GEN-42. The first start of X0X on an SMK-37 clears the data of another firmware in the store area. The screen then shows "OLD DATA CLEARED". [SMK37] [CODE storage.c:62-100] [CODE app/main_fm1.c:1045-1047]
 GEN-43. The firmware never writes the calibration, the Bluetooth pairing or the key areas of the flash. [SMK37] [CODE ../hal/fm1_flash_map.h:24-83]
+GEN-44. With FREE PLAY on and REC off, the keys play the 303 without writing notes, and the SMK pads stay in the step-grid layout. This is the current behaviour of the existing 303 FREE PLAY feature. The pad layout in this case is unspecified. The user accepts it. [USER] [CODE app/main_fm1.c:754-755] [CODE app/ui.c:128] (Was OQ-06. Resolved 2026-10-15.)
 
 ### 2.3 FM-1 controls
 
@@ -246,6 +247,7 @@ CLP-30. In clip mode, a pad press on a lit cell sends note-on (velocity 127) for
 CLP-31. A pad press on an unlit cell sends nothing. [APC "Spatial mapping"] [CODE app/main_fm1.c:826]
 CLP-32. At clip mode exit, the firmware sends note-off for each pad note that is still on. [CODE app/main_fm1.c:837-848]
 CLP-33. Pad presses in clip mode do not start X0X pad functions. The keybed keeps its normal function. [APC] [CODE app/ui.c:2068-2071]
+CLP-34. In clip mode, while a pad is held, the keybed white key that shares the same note bit is blocked. This is intended. Keep it. [USER] [CODE app/ui.c:2068-2071] (Was OQ-10. Resolved 2026-10-15.)
 
 ### 15.4 Pad brightness
 
@@ -263,6 +265,7 @@ CLP-52. In clip mode, PATCH held + SEQ REC sends note 0x70 on channel 16 (Loopy 
 CLP-53. The release of PATCH after a Loopy undo or redo does not change the X0X view. [APC 1.8-apc40] [CODE app/ui.c:2436]
 CLP-54. With clip mode off, PATCH + SEQ REC and PATCH + SEQ PLAY are the X0X undo and redo. SEQ PLAY and SEQ REC are the X0X PLAY and REC. [APC] [MANUAL §3]
 CLP-55. MIDI clock, Start and Song Position drive the clip-mode blink phase. [APC 1.5-apc40] [CODE app/engine.c:461-469]
+CLP-56. In clip mode, MIDI Clock, Start, Stop and Continue from Loopy also go to the X0X sequencer. Thus Loopy can start and stop the X0X sequencer in clip mode. This is intended, on condition that it does not conflict with external clock sync. See LIM-10 and LIM-11 for the known risks. [USER] [CODE app/engine.c:470-474] (Was OQ-05. Resolved 2026-10-15.)
 
 ## 16. Flash and sample storage
 
@@ -287,14 +290,13 @@ LIM-06. Loopy sends its MIDI clock to the port "X0X FM-1". The APC40 mkII port g
 LIM-07. Nobody has verified the hardware LED colours and live clip launches end-to-end on the device. [APC "Verification performed"]
 LIM-08. User sample room on the SMK-37 is about 14.8 s at 22.05 kHz (2 slots). The FM-1 has about 21 s (3 slots). [MANUAL §8] [CODE app/slots.c:15-24] (Was OQ-04. Resolved 2026-10-15: MANUAL §8 now gives both values.)
 LIM-09. tools/build_smk_release.sh builds Pro and Elite packages only. It does not build MKE-P37. [CODE ../../tools/build_smk_release.sh:17-18]
+LIM-10. The firmware does not tell MIDI clock sources apart. All Clock, Start, Stop and Continue messages go into one input queue. If two sources send clock (for example Loopy and a DAW on the USB port, or USB and TRS on the FM-1), each tick counts. The sequencer then runs at about double tempo, and a Start or Stop from either source acts. On the SMK-37 the USB port has one cable, so the firmware cannot separate two USB sources. Send clock to the port "X0X FM-1" from one source only. [CODE app/engine.c:471-474] [CODE seq/sequencer.c:519] [CODE seq/sequencer.c:397-424] [CODE usb.c:754-757] [CODE midi_uart.c:39]
+LIM-11. While X0X follows an external clock, it sends no Clock, Start or Stop (CLOCK OUT is muted), so no clock loop occurs. A MIDI Start that arrives when no clock came in the last 0.5 s starts X0X on its internal clock. CLOCK OUT is on by default (SET-08). If CLOCK OUT is on, X0X then sends Start (0xFA) and clock ticks back to the USB host until the first incoming tick. A host that also listens for clock on this port can receive this echo. [CODE seq/sequencer.c:378-379] [CODE seq/sequencer.c:446-455] [CODE seq/sequencer.c:510-511]
 
 ## 18. Open questions
 
 These are disagreements between the code and a source document, or behaviour that needs a user decision. Do not report them as defects. Do not fix them without a user decision.
 
-OQ-05. In clip mode, MIDI Clock, Start, Stop and Continue from Loopy still go to the X0X sequencer. Thus Loopy can start and stop X0X in clip mode. No document states if this is intended. [CODE app/engine.c:470-474]
-OQ-06. With FREE PLAY on (REC off), the SMK pads stay in the step-grid layout, but the keys play the 303. SMK37.md describes the pad keyboard only for REC on. [SMK37] vs [CODE app/main_fm1.c:754-755] [CODE app/ui.c:128]
-OQ-07. Sample rate target: the user target is IMA ADPCM at 44.1 kHz. Built-in loops and the upload tools use 22.05 kHz. DESIGN also says 22.05 kHz. [USER] vs [CODE ../../tools/gen_builtin_break.c:133-134] [CODE ../../web/x0x_breaks.js:9] [DESIGN 2026-10-03-x0x-design.md]
-OQ-10. In clip mode, a pad press drops the keybed white key that shares the same note bit while the pad is held. [CODE app/ui.c:2070] The documents do not cover this case.
+OQ-07. Sample rate target: the user confirmed the target IMA ADPCM at 44.1 kHz [USER, confirmed 2026-10-15]. This stays open until the flash and tool work is done. Current state: built-in loops and the upload tools use 22.05 kHz. DESIGN also says 22.05 kHz. [USER] vs [CODE ../../tools/gen_builtin_break.c:133-134] [CODE ../../web/x0x_breaks.js:9] [DESIGN 2026-10-03-x0x-design.md]
 
-Resolved open questions (do not reuse these IDs): OQ-01 (see GEN-40), OQ-02 (see CLP-26 and CLP-27), OQ-03 (see CLP-28), OQ-04 (see LIM-08), OQ-08 (see MID-10), OQ-09 (see CLP-21).
+Resolved open questions (do not reuse these IDs): OQ-01 (see GEN-40), OQ-02 (see CLP-26 and CLP-27), OQ-03 (see CLP-28), OQ-04 (see LIM-08), OQ-05 (see CLP-56, LIM-10, LIM-11), OQ-06 (see GEN-44), OQ-08 (see MID-10), OQ-09 (see CLP-21), OQ-10 (see CLP-34).
