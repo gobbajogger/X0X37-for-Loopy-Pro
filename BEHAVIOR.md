@@ -246,8 +246,8 @@ CLP-05. LCD clip colours: a lit cell is a filled square. The firmware maps the b
 ### 15.2 Feedback from Loopy
 
 CLP-10. The firmware stores APC clip colour feedback (notes 0-39) and transport feedback (notes 91 = PLAY, 93 = RECORD) at all times, also when clip mode is off. [USER] [APC] [CODE app/main_fm1.c:250-270]
-CLP-11. While clip mode is on, incoming note-on and note-off for notes 0-39, 91 and 93 do not go to the sound engine. This applies on all MIDI channels. [USER] [CODE app/main_fm1.c:256-268] [CODE app/engine.c:481-498]
-CLP-12. While clip mode is off, these notes go to the sound engine as before. [USER] [CODE app/engine.c:481-498]
+CLP-11. While clip mode is on, or after an APC40 host (Loopy Pro) did the identity handshake on USB or Bluetooth, the APC40 LED feedback does not go to the sound engine: note-on and note-off for notes 0-98 on all MIDI channels (clip colours, blink and pulse channels, track, scene and transport LEDs) and the knob ring CCs 16-31 and 48-63. The handshake state ends when the USB host is lost. [USER] [CODE app/main_fm1.c smk_apc_usb_event] (Changed 2026-10-15, test 35: was notes 0-39, 91, 93 in clip mode only.)
+CLP-12. While clip mode is off and no APC40 host did the handshake, these notes and CCs go to the sound engine as before. [USER] [CODE app/engine.c]
 CLP-13. Clip colours use the 128-colour APC palette. The firmware accepts them on MIDI channels 1-16. The channel does not change the colour. [APC]
 CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is the truth. [APC 1.4-apc40]
 CLP-15. Only APC channels 11-15 (zero-based) mark a queued cell (a cell that blinks). Pulse channels (6-10) and one-shot channels (1-5) draw steady. [APC 1.1-apc40] [CODE app/smk_apc40.h:67-70]

@@ -189,6 +189,7 @@ extern void isr_timer5(void);
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
  * bright, dim an eighth, else dark; sent between LCD transfers (lcd.c padled_flush). */
 static volatile uint8_t clip_grid_mode;   /* APC40 mkII compatibility; long KNOB BANK toggles */
+static volatile uint8_t apc_host_on;      /* attempt 35: an APC40 host did the handshake (smk_apc_host_seen) */
 /* attempt 30: what clip mode sends to the APC40 host goes to USB and to a Bluetooth MIDI connection
  * (Loopy Pro on the BLE port). ble_out has one producer (the audio ISR): IRQs off around it here. */
 static void apc_out(uint32_t pkt)
@@ -286,7 +287,9 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
     uint8_t d2 = (uint8_t)((pkt >> 24) & 0x7Fu), ty = st & 0xF0u;
     /* Always store APC feedback. Keep it from the sound engine only while clip mode is on.
      * When clip mode is off, the original MIDI input path stays the same (agent rules, 10). */
-    uint8_t owned = clip_grid_mode;
+    uint8_t owned = clip_grid_mode || apc_host_on;   /* attempt 35: or an APC40 host seen */
+    if (ty == 0xB0u)                    /* attempt 35: APC40 knob LED rings (CC 16-31, 48-63) */
+        return (uint8_t)(owned && ((d1 >= 16u && d1 <= 31u) || (d1 >= 48u && d1 <= 63u)));
     if (ty != 0x90u && ty != 0x80u)
         return 0u;
     if (ty == 0x80u)
@@ -299,6 +302,10 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
         smk_apc_transport_led_set(d1, d2);
         return owned;
     }
+    /* attempt 35: the other APC40 mkII LED notes (track, scene, device and bank buttons, notes 0-98,
+     * any channel: blink and pulse rates come on channels 2-16): kept from the sound engine in clip mode */
+    if (d1 <= 98u)
+        return owned;
     return 0u;
 }
 /* MIDI Start: count clock pulses from the downbeat. */
@@ -366,12 +373,16 @@ uint8_t smk_clip_mode_on(void)
 }
 /* usb.c calls this when the host sends the APC40 introduction. No state is necessary:
  * APC feedback is stored at all times. */
+/* attempt 35: an APC40 host answered the identity handshake (Loopy Pro, USB or Bluetooth): its LED
+ * notes stay out of the sound engine also with clip mode off, until the USB host is lost. */
 void smk_apc_host_seen(void)
 {
+    apc_host_on = 1u;
 }
 void smk_apc_host_lost(void)
 {
     uint32_t i;
+    apc_host_on = 0u;
     apc_play_feedback = apc_record_feedback = 0u;
     apc_cols = SMK_APC40_SOURCE_COLS;
     apc_rows = 2u;

@@ -747,7 +747,7 @@ static void ep1_rx(void)
                 sysex_byte(ep1rx[i + 1 + k]);
         }
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
-        else if ((cin == 8u || cin == 9u) && smk_apc_usb_event(pkt)) {
+        else if ((cin == 8u || cin == 9u || cin == 0xBu) && smk_apc_usb_event(pkt)) {
             /* APC clip feedback: applied at once, not queued (no drops in a burst) */
         }
 #endif

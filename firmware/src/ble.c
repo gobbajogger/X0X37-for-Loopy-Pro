@@ -371,7 +371,7 @@ static void ble_service(void)
     bleh_poll(h);
     while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
         uint32_t pkt = ble_usb_of_msg(&m);
-        if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u) && smk_apc_usb_event(pkt))
+        if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u || (pkt & 0xFu) == 0xBu) && smk_apc_usb_event(pkt))
             continue;                             /* attempt 29: APC clip and transport feedback, as on USB */
         if (pkt) {
             midi_in_q[mi_w % MQ] = pkt;

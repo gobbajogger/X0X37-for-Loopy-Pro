@@ -70,7 +70,8 @@ assert "smk_clip_pages" not in main
 assert "note != 0xFFu && apc_led_velocity[note] != 0u" in main
 assert "smk_apc40_physical_pad_for_logical((uint8_t)logical)" in main
 assert "smk_apc40_logical_pad_for_physical((uint8_t)i)" in main
-assert "sent_note[i] = note" in main and "midi_send_note(sent_note[i], 0u)" in main
+assert "sent_note[i] = note" in main and "apc_note(sent_note[i], 0u)" in main
+assert "if (d1 <= 98u)\n        return owned;" in main
 print("PASS origin-normalized sparse maps and single-view pad rendering")
 
 # Local 8x2 views replace Loopy viewport navigation. No navigation MIDI is sent.
@@ -96,7 +97,8 @@ print("PASS clip mode entry refreshes pad colors; page snapshots clear old-page 
 assert "smk_apc_led_set(d1, ch, vel)" not in engine   # stored once, in the USB interrupt
 assert "smk_apc_usb_tick();" in usb and "smk_apc40_cells_age(" not in main.split("static uint8_t smk_clip_map_refresh")[1].split("\n}\n")[0]
 assert "smk_apc_host_is_active" not in engine and "smk_apc_host_is_active" not in main
-assert "uint8_t owned = clip_grid_mode;" in main   # APC notes drop only in clip mode
+assert "uint8_t owned = clip_grid_mode || apc_host_on;" in main   # test 35: clip mode, or an APC40 host seen (user 2026-10-15)
+assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 63u)" in main
 assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
 assert "((rgb >> 16) * brightness) / 510u" in main
@@ -115,7 +117,7 @@ assert "smk_apc40_transport_feedback_note" in apc
 assert "smk_apc40_transport_feedback_on" in apc
 assert "smk_clip_transport_button((uint8_t)i, (uint8_t)((btn & m) != 0u))" in ui
 assert "static uint8_t play_sent, record_sent" in main
-assert "midi_send_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u)" in main
+assert "apc_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u)" in main
 assert "smk_apc40_transport_led_after_press(apc_play_feedback)" in main
 assert "smk_apc40_transport_led_after_press(apc_record_feedback)" in main
 assert "smk_apc_clock_tick();" in engine and "smk_apc_clock_start();" in engine
