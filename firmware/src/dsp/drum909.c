@@ -7,6 +7,7 @@
 #define X0X_DRUM_TABLES_DEFINE              /* the shared lookup tables live here (x0x_drum_tables.h) */
 #include "drum909.h"
 #include "x0x_drum_samples.h"
+#include "ima_adpcm.h"
 
 #define D9_VCA_VT 0.0002f
 #define D9_VCA_NORM (1.0f / (1.0f - D9_VCA_VT))
@@ -345,9 +346,9 @@ void drum909_init(drum909_t *d)
         d9_smp_rate(s);
         d9_env_set(&s->out, 0.0f);
         d9_shape_prep(&s->shape, s->drive, s->dist_type);
-        if (i == 2) { s->buf = x0x_smp_crash; s->len = X0X_SMP_CRASH_LEN; }
-        else if (i == 3) { s->buf = x0x_smp_ride; s->len = X0X_SMP_RIDE_LEN; }
-        else { s->buf = x0x_smp_hh; s->len = X0X_SMP_HH_LEN; }
+        if (i == 2) { s->adpcm = x0x_smp_crash; s->len = X0X_SMP_CRASH_LEN; }
+        else if (i == 3) { s->adpcm = x0x_smp_ride; s->len = X0X_SMP_RIDE_LEN; }
+        else { s->adpcm = x0x_smp_hh; s->len = X0X_SMP_HH_LEN; }
     }
 
     d->accent = 2.0f;
@@ -493,6 +494,9 @@ void drum909_trigger(drum909_t *d, int voice, float vel)
         d9_env_exp(&s->out, 0.00001f, s->decay * 0.001f * D9_SR);
         s->pos = 0;
         s->frac = 0;
+        s->dk = 0;                                 /* decode again from the start */
+        s->pred = s->idx = 0;
+        s->h0 = s->h1 = 0;
         s->playing = 1;
         s->mute = d9_ceil(s->decay * 0.001f * D9_SR);
         break;
@@ -727,13 +731,22 @@ static void d9_render_smp(d9_smp_t *s, const d9_bus_t *bus, int n)
     d9_env_anchor(&s->out);
     const int drive = s->drive > 0.25f;
     const float pre = 1.0f + s->drive * 0.5f;
-    const int16_t *buf = s->buf;
+    const uint8_t *adpcm = s->adpcm;
     const uint32_t len = s->len;
     for (int i = 0; i < m; ++i) {
         float v = 0.0f;
         if (s->pos < len) {
-            const float a = (float)buf[s->pos] * (1.0f / 32768.0f);
-            const float b = s->pos + 1 < len ? (float)buf[s->pos + 1] * (1.0f / 32768.0f) : 0.0f;
+            /* decode forward to sample pos + 1 (to the last sample at the end): the same values as
+             * a fully decoded buffer. pos only goes up, so each sample is decoded once (up to 4 a
+             * sample at pitch x4) */
+            const uint32_t need = s->pos + 2 < len ? s->pos + 2 : len;
+            while (s->dk < need) {
+                s->h0 = s->h1;
+                s->h1 = ima_decode(adpcm, s->dk++, &s->pred, &s->idx);
+            }
+            const int last = s->pos + 1 >= len;
+            const float a = (float)(last ? s->h1 : s->h0) * (1.0f / 32768.0f);
+            const float b = last ? 0.0f : (float)s->h1 * (1.0f / 32768.0f);
             const float fr = (float)s->frac * (1.0f / 4294967296.0f);
             v = a + (b - a) * fr;
             const uint32_t f2 = s->frac + s->incf;

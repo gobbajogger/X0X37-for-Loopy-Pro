@@ -15,6 +15,13 @@ mkdir -p "$OUT"
 
 python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h
 
+# the port plays its cymbals from IMA ADPCM (tools/gen_drum_samples.py): give the reference the same
+# decoded cymbals, so that the comparison measures the engine and not the codec (tests/host/
+# run_drum909_adpcm.sh checks the codec against the approved A/B study)
+rm -rf "$OUT/ref_src" && cp -R "$NINEW9_DIR/src" "$OUT/ref_src"
+[ -d "$OUT/ref_src/samples" ] || { echo "no samples/ in $NINEW9_DIR/src"; exit 2; }
+python3 tests/host/cymbal_ref.py --wav "$OUT/ref_src/samples"
+
 # the reference: 9W9's engine as 9W9 builds it (libm, doubles)
 "$CC" -O2 -ffp-contract=off -w -I"$NINEW9_DIR/src/dsp" -c "$NINEW9_DIR/src/dsp/er99_engine.c" -o "$OUT/er99_engine.o"
 "$CC" -O2 -ffp-contract=off -w -I"$NINEW9_DIR/src/dsp" -c tests/host/drum909_ref.c -o "$OUT/drum909_ref.o"
@@ -33,4 +40,4 @@ done
 "$CC" -O2 -ffp-contract=off $WARN -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -c tests/host/drum909_test.c -o "$OUT/drum909_test.o"
 "$CC" -o "$OUT/drum909_test" "$OUT/drum909_test.o" "$OUT/drum909.o" "$OUT/fxbus.o" "$OUT/er99_engine.o" "$OUT/drum909_ref.o" "$OUT/drum909_refd.o" -lm
 
-"$OUT/drum909_test" "$NINEW9_DIR/src" build/drum909_demo.wav
+"$OUT/drum909_test" "$OUT/ref_src" build/drum909_demo.wav

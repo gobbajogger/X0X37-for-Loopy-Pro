@@ -3,7 +3,7 @@
  * of ER-99 by Matthew Cieplak, GPL-3.0), ported to the FM-1.
  *
  * Circuit-modelled BD, SD, LT/MT/HT, RS, CP; sampled CH/OH (one buffer, choking
- * each other), CR, RD -- the same models, pot tables and defaults as 9W9. The
+ * each other), CR, RD (IMA ADPCM in flash, decoded as they play) -- the same models, pot tables and defaults as 9W9. The
  * send reverb / delay and the master stage live in fxbus.{h,c}.
  *
  * Mono, 44.1 kHz, float, no libm, no allocation. Idle voices cost nothing:
@@ -78,8 +78,11 @@ typedef struct {
     float decay, volume, pitch, drive;
     int32_t dist_type;
     d9_shape_t shape;
-    const int16_t *buf;
-    uint32_t len;
+    const uint8_t *adpcm;         /* IMA ADPCM, 44.1 kHz (ima_adpcm.h) */
+    uint32_t len;                 /* samples */
+    uint32_t dk;                  /* samples decoded so far; h0, h1 = samples dk - 2, dk - 1 */
+    int32_t pred, idx;            /* decoder state after dk samples */
+    int32_t h0, h1;
     uint32_t pos, frac;           /* 32.32 read position */
     uint32_t inc, incf;           /* 32.32 playback rate */
     int32_t playing;              /* pos is valid (9W9: pos >= 0) */
