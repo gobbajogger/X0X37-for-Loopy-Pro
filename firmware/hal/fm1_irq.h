@@ -97,7 +97,8 @@ void fm1_fault_c(uint32_t *f)
 {
     static volatile uint32_t in_fault;
     uint32_t i, count, early;
-    if (f[24] >= (uint32_t)(uintptr_t)_c1_ustack && f[24] <= (uint32_t)(uintptr_t)_c1_sstack_top) {
+    if ((f[24] >= (uint32_t)(uintptr_t)_c1_ustack && f[24] <= (uint32_t)(uintptr_t)_c1_sstack_top) ||
+        (f[24] >= 0x01C01800u && f[24] < 0x01C07F00u)) {   /* (or a Bluetooth controller's stacks: x0x_ble_abi.h) */
         /* the second core faulted (fm1_cpu1.h) and this runs on it: the record only, then it stops here.
          * The screen and the reset would be core 1's, and fm1_reboot holds core 1 first: it would hold
          * itself and the FM-1 would freeze. Core 0 gives it up when its job does not come back

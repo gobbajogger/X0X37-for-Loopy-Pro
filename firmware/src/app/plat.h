@@ -66,6 +66,15 @@ int plat_cpu2_gave_up(void);           /* why it is off: 0 no, 1 it read a wrong
 uint32_t plat_cpu2_bad(void);          /* wrong jobs it saw (0 on a unit that runs both cores) */
 uint32_t plat_xruns(void);
 
+/* Bluetooth MIDI (SMK-37, src/ble.c): the state for the GLOBAL menu, the name the unit advertises
+ * ("X0X-XXXX", "" without a controller image), and the switch (ON takes effect at once only when
+ * it was ON at power-on; OFF drops the link and stops advertising) */
+enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_BLE_READY, PLAT_BLE_CONNECTED,
+       PLAT_BLE_FAILED, PLAT_BLE_BADIMG };
+int plat_ble_state(void);
+const char *plat_ble_name(void);
+void plat_ble_set(int on);
+
 /* performance (the PERF screen; firmware/hal/fm1_perf.h): a counter for timing stages, the CPU's
  * clock cycles when its counter runs, else the 24 MHz timer; which one it is; the 24 MHz timer;
  * the highest half-buffer load since the last call, %; the stall counters (fetch, read, write:

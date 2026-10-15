@@ -209,6 +209,10 @@ int plat_cpu2_run(void (*fn)(uint32_t), uint32_t arg)
 int plat_cpu2_wait(void) { return 0; }
 int plat_cpu2_gave_up(void) { return 0; }
 uint32_t plat_cpu2_bad(void) { return 0; }
+static int ble_on;                              /* Bluetooth MIDI: no controller image on the host */
+int plat_ble_state(void) { return PLAT_BLE_NOIMG + 0 * ble_on; }
+const char *plat_ble_name(void) { return ""; }
+void plat_ble_set(int on) { ble_on = on; }
 uint32_t plat_cpu_pct(void) { return cpu_pct; }
 uint32_t plat_xruns(void) { return 0; }
 /* performance: no CPU counter here: the "cycles" are nanoseconds (plat_cycles_hz) */

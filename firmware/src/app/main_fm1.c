@@ -147,6 +147,9 @@ void fm1_timer5_irq(void)
 #if X0X_TRS
         uart_midi_poll();                           /* the TRS jack: same context, same queue */
 #endif
+#if X0X_BLE
+        ble_service();                              /* Bluetooth MIDI: same context, same queue */
+#endif
     }
     if (++sub == 10u)
         sub = 0;
@@ -513,14 +516,14 @@ uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_h
     if (pressed) {
         if (!clip_grid_mode || !patch_held)
             return 0u;
-        plat_midi_out(smk_apc40_history_packet(redo, 1u));
+        midi_out_event(smk_apc40_history_packet(redo, 1u));   /* USB only (the APC40 view) */
         sent |= bit;
         say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);
         return 1u;
     }
     if (!(sent & bit))
         return 0u;
-    plat_midi_out(smk_apc40_history_packet(redo, 0u));
+    midi_out_event(smk_apc40_history_packet(redo, 0u));
     sent &= (uint8_t)~bit;
     return 1u;
 }
@@ -1020,9 +1023,15 @@ static void fm1_main(void)
     seq.accent_q7 = proj.set.accent_q7;
     project_apply_io();                             /* clock and notes out, the MIDI channels, the output */
     engine_brk_loops();
+#if X0X_BLE
+    ble_prepare(proj.set.bt & 1u);                  /* a controller image, BLUETOOTH ON: core 1 starts ready for it */
+#endif
     plat_cpu2_set(1);                               /* the second core: at power-on, before the audio and the
                                                      * timers, as Melodee starts it (started later, it does not
                                                      * reach its entry); if it does not answer, one core */
+#if X0X_BLE
+    ble_start();                                    /* its init on core 1 (before the audio: it may take 1.5 s) */
+#endif
     audio_init();
     usb_start();
 #if X0X_TRS

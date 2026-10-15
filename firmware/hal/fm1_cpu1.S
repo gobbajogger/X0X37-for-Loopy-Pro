@@ -14,8 +14,10 @@ fm1_c1_entry:
 	[r1 + 0] = r2
 	icfg = 0
 	usp = _c1_ustack_top
-	sp = _c1_sstack_top
-	ssp = _c1_sstack_top
+	r1 = fm1_c1_ssp		/* its interrupt stack: the app's, or a Bluetooth controller's (fm1_cpu1.h) */
+	r1 = [r1 + 0]
+	sp = r1
+	ssp = r1
 	reti = fm1_c1_main
 	rti
 
@@ -25,7 +27,7 @@ fm1_c1_entry:
 _c1_ustack:			/* after rti the core runs on this one: the render's (filled with a mark at start) */
 	.space 2816
 _c1_ustack_top:
-_c1_sstack:			/* exceptions only (no interrupts on this core) */
+_c1_sstack:			/* exceptions only (no interrupts on this core without a Bluetooth controller) */
 	.space 256
 	.globl _c1_sstack_top
 _c1_sstack_top:

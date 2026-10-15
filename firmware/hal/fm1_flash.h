@@ -212,11 +212,38 @@ static void fl_plain_window_init(void)
 static inline uint32_t irq_save(void) { __asm__ volatile("cli" ::: "memory"); return 0; }
 static inline void irq_restore(uint32_t f) { (void)f; __asm__ volatile("csync\n\tsti" ::: "memory"); }
 
+/* A Bluetooth controller on core 1 runs from the flash too (fm1_cpu1.h): park core 1 in RAM
+ * around each operation that turns the flash off. Without one (or in the loader) these do nothing. */
+#ifdef FM1_CPU1_PARK
+#define FL_PARK() fm1_cpu1_park()
+#define FL_UNPARK() fm1_cpu1_unpark()
+#else
+#define FL_PARK() 0
+#define FL_UNPARK() ((void)0)
+#endif
+
 static int fl_erase4k(uint32_t off, uint32_t *took_us)
 {
-    uint32_t f = irq_save();
-    int rc = FL_FAR(fl_erase4k_ram)(off, took_us);
+    uint32_t f;
+    int rc;
+    (void)FL_PARK();
+    f = irq_save();
+    rc = FL_FAR(fl_erase4k_ram)(off, took_us);
     irq_restore(f);
+    FL_UNPARK();
+    return rc;
+}
+
+/* read through the SPI path (the XIP is off meanwhile): IRQs off for this call only */
+static inline int fl_read(uint32_t off, uint8_t *dst, uint32_t n)
+{
+    uint32_t f;
+    int rc;
+    (void)FL_PARK();
+    f = irq_save();
+    rc = FL_FAR(fl_read_ram)(off, dst, n);
+    irq_restore(f);
+    FL_UNPARK();
     return rc;
 }
 
@@ -228,9 +255,11 @@ static int fl_write(uint32_t off, const uint8_t *src_ram, uint32_t n)
         int rc;
         uint32_t f;
         if (chunk > n) chunk = n;
+        (void)FL_PARK();
         f = irq_save();
         rc = FL_FAR(fl_prog_ram)(off, src_ram, chunk, &took);
         irq_restore(f);
+        FL_UNPARK();
         if (rc) return rc;
         off += chunk; src_ram += chunk; n -= chunk;
     }

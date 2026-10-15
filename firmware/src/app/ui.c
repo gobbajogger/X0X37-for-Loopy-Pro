@@ -179,7 +179,8 @@ static void say(const char *a, const char *b)
 /* =============================================================== param refs === */
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
-       R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
+       R_BT, R_BTSTAT, R_BTNAME };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -223,6 +224,11 @@ static const x0x_param_t FREEPLAY_P = {"FREE PLAY", 1, 0, ONOFF_N};
 static const x0x_param_t SREP_P = {"REPEAT", 7, 0, 0};    /* the bar plays 1-8 times */
 static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER", "..."};
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
+static const char *const BT_N[] = {"OFF", "ON"};
+static const x0x_param_t BT_P = {"BLUETOOTH", 1, 0, BT_N};      /* Bluetooth MIDI (SMK-37) */
+static const char *const BTSTAT_N[] = {"NO IMAGE", "OFF", "RESTART", "STARTING", "READY", "CONNECTED",
+                                       "FAILED", "BAD IMAGE"};   /* PLAT_BLE_* order */
+static const x0x_param_t BTSTAT_P = {"STATUS", 7, 0, BTSTAT_N};   /* read only (plat_ble_state) */
 static const x0x_param_t SONG_P[] = {
     {"909", NPAT - 1, 0, 0}, {"808", NPAT - 1, 0, 0}, {"303A", NPAT - 1, 0, 0}, {"303B", NPAT - 1, 0, 0},
     {"BREAK", NPAT - 1, 0, 0},
@@ -287,6 +293,14 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_FREEPLAY: return &FREEPLAY_P;
     case R_SREP: return &SREP_P;
     case R_BATT: return &BATT_P;
+    case R_BT: return &BT_P;
+    case R_BTSTAT: return &BTSTAT_P;
+    case R_BTNAME: {                                   /* read only: the name it advertises */
+        static const char *nm[1];
+        static const x0x_param_t d = {"NAME", 0, 0, nm};
+        nm[0] = plat_ble_name()[0] ? plat_ble_name() : "-";
+        return &d;
+    }
     case R_SLEN: return &SONG_P[5];
     case R_STALLS: return &STALLS_P;
     case R_TAPE: {
@@ -344,6 +358,8 @@ static int pref_get(pref_t r)
     case R_FREEPLAY: return ui.freeplay[r.a];
     case R_SREP: return ui.song_sel < song()->len ? song()->bar[ui.song_sel].mute >> 5 : 0;
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
+    case R_BT: return proj.set.bt & 1u;
+    case R_BTSTAT: return plat_ble_state();
     case R_SLEN: return song()->len;
     case R_STALLS: return perf.stalls_on;
     case R_TAPE: return proj.sound.v[T_FX][1][0];       /* (kept in an engine slot nothing reads) */
@@ -417,6 +433,12 @@ static void pref_set(pref_t r, int v)
     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
+    case R_BT:
+        proj.set.bt = (uint8_t)((proj.set.bt & ~1u) | (v > 0 ? 1u : 0u));
+        plat_ble_set(v > 0);
+        if (plat_ble_state() == PLAT_BLE_RESTART)
+            say("RESTART TO TURN ON", 0);             /* the controller starts only at power-on */
+        break;
     case R_FREEPLAY:
         ui.freeplay[r.a] = (uint8_t)v;
         if (!v && kbd_held_note[r.a]) {                /* a key still down: let it go */
@@ -653,7 +675,7 @@ static void pref_value(pref_t r, char *num, char *unit) { pref_value_of(r, pref_
 #define MAXPAGES 14
 /* page groups: whose values a page holds (the SEL list's headers, the header's colour) */
 enum { GR_NONE, GR_TRACK, GR_TMIX, GR_KIT, GR_PAT, GR_SOUND, GR_MORE,
-       GR_MIDI, GR_AUDIO, GR_KEYS, GR_PROJECT, GR_SYSTEM };   /* (the last five: GLO's sections) */
+       GR_MIDI, GR_AUDIO, GR_KEYS, GR_PROJECT, GR_SYSTEM, GR_BT };   /* (the last six: GLO's sections) */
 #define MAXMORE 14
 typedef struct {
     pref_t r[MAXPAGES][4];
@@ -915,6 +937,7 @@ static void hdr_name(int g, char *t)
     case GR_KEYS: put_s(t, "KEYS AND SCREEN"); break;
     case GR_PROJECT: put_s(t, "PROJECT"); break;
     case GR_SYSTEM: put_s(t, "SYSTEM"); break;
+    case GR_BT: put_s(t, "BLUETOOTH MIDI"); break;
     default: put_s(put_s(t, PART_N[ui.part]), ": THE SOUND"); break;
     }
 }
@@ -981,6 +1004,12 @@ static void open_global(void)
     list_add(PR(R_ACT, ACT_PERF, 0, 0));
     list_add(PR(R_ACT, ACT_ABOUT, 0, 0));
     list_add(PR(R_BATT, 0, 0, 0));
+#if BOARD_SMK37
+    list_rows[ui.list_n++] = PR(R_HDR, GR_BT, 0, 0);
+    list_add(PR(R_BT, 0, 0, 0));
+    list_add(PR(R_BTSTAT, 0, 0, 0));
+    list_add(PR(R_BTNAME, 0, 0, 0));
+#endif
     put_s(list_title, "GLOBAL");
     ui.list_sel = ui.list_top = 0;
     while (list_skip(ui.list_sel))

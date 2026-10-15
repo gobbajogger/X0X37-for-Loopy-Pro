@@ -72,17 +72,20 @@ static void audio_silence(void);
 static int st_read(uint32_t off, void *dst, uint32_t n)   /* 256-byte IRQ-off windows: audio keeps up */
 {
     uint8_t *d = dst;
+    int rc = 0;
+    (void)FL_PARK();                         /* a Bluetooth controller on core 1: in RAM meanwhile */
     while (n) {
         uint32_t k = n > 256u ? 256u : n, f = irq_save();
-        int rc = FL_FAR(fl_read_ram)(off, d, k);
+        rc = FL_FAR(fl_read_ram)(off, d, k);
         irq_restore(f);
         if (rc)
-            return rc;
+            break;
         off += k;
         d += k;
         n -= k;
     }
-    return 0;
+    FL_UNPARK();
+    return rc;
 }
 static int st_erase(uint32_t off)
 {
@@ -146,6 +149,13 @@ static void ota_commit(const uint8_t *parm)
     fm1_delay_ms(30);
     fm1_enter_update(parm);
 }
+
+#ifndef X0X_BLE
+#define X0X_BLE BOARD_SMK37          /* Bluetooth MIDI through a separate controller image (src/ble.c) */
+#endif
+#if X0X_BLE
+#include "ble.c"
+#endif
 
 #include "app/slots.c"
 #include "app/x0x.h"

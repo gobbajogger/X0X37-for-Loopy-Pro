@@ -43,6 +43,10 @@ extern uint32_t _rt_start[], _rt_end[];
 
 enum { FM1_GUARD_STACK = 1, FM1_GUARD_WRITE = 2, FM1_GUARD_BUS = 4, FM1_GUARD_PC = 8 };
 
+/* a Bluetooth controller image (src/ble.c): the PC limits reach over its flash block and its RAM
+ * too (0 = no controller). Set before fm1_guard_enable(FM1_GUARD_PC). */
+static uint32_t fm1_guard_xip_hi, fm1_guard_ram_hi;
+
 static void fm1__dbg_unlock(void)
 {
     if (!(FM1_DBG_WR_EN & 1u))
@@ -78,9 +82,11 @@ static void fm1_guard_enable(uint32_t which)
         FM1_DBG_EN |= (0x3Fu << 16) | (0x3u << 4);
     if (which & FM1_GUARD_PC) {
         FM1_PC_LIMIT0_L = 0x02000120u;
-        FM1_PC_LIMIT0_H = (uint32_t)(uintptr_t)_etext;
+        FM1_PC_LIMIT0_H = fm1_guard_xip_hi ? fm1_guard_xip_hi : (uint32_t)(uintptr_t)_etext;
         {   /* RAM code (.ram_text); with none, repeat the XIP window */
             volatile uint32_t rs = (uint32_t)(uintptr_t)_rt_start, re = (uint32_t)(uintptr_t)_rt_end;
+            if (fm1_guard_ram_hi > re)
+                re = fm1_guard_ram_hi;          /* a Bluetooth controller's RAM code follows */
             FM1_PC_LIMIT1_L = re > rs ? rs : 0x02000120u;
             FM1_PC_LIMIT1_H = re > rs ? re - 1u : (uint32_t)(uintptr_t)_etext;
         }

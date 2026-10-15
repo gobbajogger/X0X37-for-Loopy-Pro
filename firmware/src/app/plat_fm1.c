@@ -129,7 +129,18 @@ int plat_midi_in(uint32_t *pkt)
     mi_r++;
     return 1;
 }
-void plat_midi_out(uint32_t pkt) { midi_out_event(pkt); }
+void plat_midi_out(uint32_t pkt)
+{
+    midi_out_event(pkt);
+#if X0X_BLE
+    ble_out(pkt);                               /* the same, to a Bluetooth MIDI connection */
+#endif
+}
+#if !X0X_BLE
+int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
+const char *plat_ble_name(void) { return ""; }
+void plat_ble_set(int on) { (void)on; }
+#endif
 
 int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -1; }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len) { return flash_ok ? st_save(obj, src, len) : -9; }
