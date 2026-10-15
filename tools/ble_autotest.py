@@ -57,6 +57,7 @@ def ask(cmd, args=(), timeout=3.0):
     if not p:
         return None
     with mido.open_input(p[0]) as i, mido.open_output(p[1]) as o:
+        time.sleep(0.3)                            # macOS drops a message sent at once after the port opens
         for _ in i.iter_pending():
             pass
         o.send(mido.Message("sysex", data=HDR + [cmd] + list(args)))
