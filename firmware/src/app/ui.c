@@ -180,7 +180,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -226,6 +226,7 @@ static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER",
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
 static const char *const BT_N[] = {"OFF", "ON"};
 static const x0x_param_t BT_P = {"BLUETOOTH", 1, 0, BT_N};      /* Bluetooth MIDI (SMK-37) */
+static const x0x_param_t CKCH_P = {"CLIP KEYS CH", 13, 0, 0};  /* clip mode keybed channel 2-15 (0 = 2) */
 static const char *const BTSTAT_N[] = {"NO IMAGE", "OFF", "RESTART", "STARTING", "READY", "CONNECTED",
                                        "FAILED", "BAD IMAGE"};   /* PLAT_BLE_* order */
 static const x0x_param_t BTSTAT_P = {"STATUS", 7, 0, BTSTAT_N};   /* read only (plat_ble_state) */
@@ -294,6 +295,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_SREP: return &SREP_P;
     case R_BATT: return &BATT_P;
     case R_BT: return &BT_P;
+    case R_CKCH: return &CKCH_P;
     case R_BTSTAT: return &BTSTAT_P;
     case R_BTNAME: {                                   /* read only: the name it advertises */
         static const char *nm[1];
@@ -359,6 +361,7 @@ static int pref_get(pref_t r)
     case R_SREP: return ui.song_sel < song()->len ? song()->bar[ui.song_sel].mute >> 5 : 0;
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
+    case R_CKCH: return proj.set.ck_ch - 2;
     case R_BTSTAT: return plat_ble_state();
     case R_SLEN: return song()->len;
     case R_STALLS: return perf.stalls_on;
@@ -433,6 +436,7 @@ static void pref_set(pref_t r, int v)
     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
+    case R_CKCH: proj.set.ck_ch = (uint8_t)(v + 2); break;   /* sounding notes end on their own channel */
     case R_BT:
         proj.set.bt = (uint8_t)((proj.set.bt & ~1u) | (v > 0 ? 1u : 0u));
         plat_ble_set(v > 0);
@@ -664,6 +668,7 @@ static void pref_value_of(pref_t r, int v, char *num, char *unit)
     case R_SBAR: put_i(num, v + 1); return;
     case R_SPAT: num[0] = 'P'; put_i(num + 1, v + 1); return;
     case R_MIDICH: if (v) put_i(num, v); else put_s(num, "OFF"); return;
+    case R_CKCH: put_i(num, v + 2); return;
     case R_SREP: num[0] = 'x'; put_i(num + 1, v + 1); return;
     case R_SLEN: put_i(num, v); put_s(unit, "bar"); return;
     default: put_i(num, v); return;
@@ -988,6 +993,9 @@ static void open_global(void)
     list_add(PR(R_NOTEOUT, 0, 0, 0));
     for (int p = 0; p < NPARTS; p++)
         list_add(PR(R_MIDICH, p, 0, 0));
+#if BOARD_SMK37
+    list_add(PR(R_CKCH, 0, 0, 0));
+#endif
     list_rows[ui.list_n++] = PR(R_HDR, GR_AUDIO, 0, 0);
     list_add(PR(R_OUTLOUD, 0, 0, 0));
     list_add(PR(R_USBFULL, 0, 0, 0));
@@ -2089,6 +2097,11 @@ void smk_clip_enter_cleanup(void)
     ui.chain_first = -1;
     ui.hold_step = -1;
     ui.brk_held = -1;
+    for (int b = 0; b < NBASS; b++)                   /* a 303 key note that still sounds: let it go */
+        if (kbd_held_note[b]) {
+            engine_bass_off(b);
+            kbd_held_note[b] = 0;
+        }
 }
 #endif
 
@@ -2096,8 +2109,8 @@ static void key_event(int k, int down)
 {
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
-    if (smk_clip_mode_on() && KEY_WHITE[k] >= 0 && ((fm1_in.pnotes >> k) & 1u))
-        return;   /* clip mode owns pad input; the keybed keeps its normal behavior */
+    if (smk_clip_mode_on())
+        return;   /* clip mode: the pads launch clips, the keybed plays MIDI to Loopy (main_fm1.c clip keys) */
 #endif
     int w = KEY_WHITE[k], bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
     if (ui.overlay == O_ASK || ui.view == V_PERF || perf_testing())
@@ -2962,6 +2975,12 @@ static void draw_header(void)
         return;
     }
     ui.msg_until = 0;
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on()) {                         /* clip mode: the mode chip reads LP (Loopy Pro) */
+        x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, "LP", C_HI) + 6;
+    } else
+#endif
     if (part_view()) {                                /* the part chip, then where we are */
         int32_t w = tw(&FONT_B, PART_N[ui.part]) + 12;
         box(0, 1, w, 17, part_col());
@@ -3821,11 +3840,14 @@ static void draw_main(void)
          * normal view below draws the full area again at the next frame. */
         extern uint8_t smk_clip_mode_on(void);
         extern uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h);
-        if (smk_clip_mode_on()) {
+        extern void smk_clip_lcd_force(void);
+        if (smk_clip_mode_on() && ui.overlay == O_NONE && !ui.help) {
             if (smk_clip_lcd_draw(240u, 2u * BAND_H))
                 cv_commit_rect(1, 0, MAIN_Y);
             return;
         }
+        if (smk_clip_mode_on())
+            smk_clip_lcd_force();   /* a menu (for example GLO) is on the screen: draw the grid again after it */
     }
 #endif
     cv_begin(240, 2 * BAND_H, C_BLACK);           /* both bands, then one transfer: no tear between them */
