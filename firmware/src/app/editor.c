@@ -10,7 +10,11 @@
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
-       ED_DIAG = 33 };
+       ED_DIAG = 33, ED_BT_TEST = 34 };
+/* ED_BT_TEST (SMK-37 with Bluetooth, for tools/ble_autotest.py): op 0 = query, 1 = clear the start
+ * block (as BLUETOOTH OFF), 2 = restart the unit (a chip reset, as fm1_reboot; never the update
+ * loader). Reply: op, BLUETOOTH setting, guard blocked, plat_ble_state(). */
+static uint32_t ed_reboot_at;                /* fm1_ms + 1 when a restart was asked for (0: none) */
 #define ED_READ_MAX 224u                     /* X0X: SMP_READ's bytes a frame (the break page draws the slots) */
 
 static uint8_t ed_out[288];
@@ -307,6 +311,24 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         }
         break;
     }
+#if X0X_BLE
+    case ED_BT_TEST: {
+        uint32_t op = na > 0u ? a[0] : 0u;
+        if (op > 2u)
+            return;
+        if (op == 1u) {
+            plat_ble_set(0);                          /* as BLUETOOTH OFF: the next power-on tries again */
+            plat_ble_set((proj.set.bt & 1u) != 0u);   /* the setting itself does not change */
+        }
+        if (op == 2u)
+            ed_reboot_at = fm1_ms + 1u;               /* after this reply is out (main loop) */
+        ed_b(op);
+        ed_b(proj.set.bt & 1u);
+        ed_b(ble_guard.blocked & 1u);
+        ed_b((uint32_t)plat_ble_state());
+        break;
+    }
+#endif
     default:
         return;                                       /* not ours: no reply */
     }

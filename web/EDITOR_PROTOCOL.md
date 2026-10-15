@@ -77,7 +77,8 @@ after an engine change.
 | --- | --- | --- |
 | 31 TRACK_PARAM | track, id (get), or track, id, v14 (set); id = `P_*` (0..P_COUNT−1) | track, id, v14 (the value after clamping, as `SET`). The selection does not change; no push about the editor's own write |
 | 32 TRACK_CHANGED (push) | — | track, id, v14: `P_LEVEL`, `P_PAN` or `P_MUTE` of a track that is not selected changed on the device (only while `WATCH` was sent with bit 1) |
-| 33 DIAG (X0X, read only) | — | count, then count 32-bit words, each 5 × 7 bits LSB first: the crash record (17 words: magic, count, vector, PC, RETS, EMU status, DBG status, SP, PSR, ICFG, uptime ms, 4 trace words, early, core), boot guard failed, pending, then on an SMK-37 with Bluetooth the start record (BEHAVIOR.md BLE-12, 15 words) and 10 live state words (firmware/src/ble.c ble_diag) |
+| 33 DIAG (X0X, read only) | — | count, then count 32-bit words, each 5 × 7 bits LSB first: the crash record (17 words: magic, count, vector, PC, RETS, EMU status, DBG status, SP, PSR, ICFG, uptime ms, 4 trace words, early, core), boot guard failed, pending, then on an SMK-37 with Bluetooth the start record (BEHAVIOR.md BLE-12 and BLE-13, 22 words) and 11 live state words (firmware/src/ble.c ble_diag); at most 54 words |
+| 34 BT_TEST (X0X SMK-37 with Bluetooth) | op: 0 query, 1 clear the Bluetooth start block (as BLUETOOTH OFF), 2 restart the unit 200 ms after the reply (chip reset, never the update loader) | op, BLUETOOTH setting (0/1), start blocked (0/1), Bluetooth state (firmware/src/app/plat.h PLAT_BLE_*) |
 
 **pack7:** groups of up to 7 bytes, each preceded by one byte holding their top bits
 (bit j = bit 7 of byte j).

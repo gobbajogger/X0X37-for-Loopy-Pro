@@ -1117,6 +1117,11 @@ static void fm1_main(void)
             }
         }
         ed_service();                               /* sample upload SysEx */
+        if (ed_reboot_at && fm1_ms - ed_reboot_at > 200u) {
+            usb_detach();                           /* ED_BT_TEST restart: the reply had 200 ms */
+            fm1_delay_ms(30);
+            fm1_reboot();
+        }
         ota_service();                              /* M-UPGRADE handshake */
         if (usb.ota_req) {
             usb.ota_req = 0;
