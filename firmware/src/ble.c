@@ -84,6 +84,7 @@ static void ble_prepare(int on)
         ble_guard.sink_n |= 0x80000000u;        /* bit 31: checked at the next boot, not after the init */
         ble_guard.reset = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* what reset it */
         ble_guard.wait_end = fm1_c1_wait_end;   /* how core 0's wait ended (RAM code) */
+        ble_guard.wait_ms = fm1_c1_wait_ms;
     }
     if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
         if (ble_img == BLE_IMG_OK && on && ble_guard.blocked) {
@@ -152,6 +153,7 @@ static void ble_start(void)
         irq_restore(f);
     }
     ble_guard.wait_end = fm1_c1_wait_end;
+    ble_guard.wait_ms = fm1_c1_wait_ms;
     ble_guard.xosc_post = fm1_ble_xosc();
     ble_record();
     ble_sink_check();                           /* before the first P33 access after the start */

@@ -65,6 +65,9 @@ volatile uint32_t fm1_c1_trace;                 /* breadcrumbs (fm1_cpu1.S, fm1_
 #define FM1_C1_WAIT_END(t, st, rc) (FM1_C1_WAIT_MARK | ((t) / 2400000u > 255u ? 255u : (t) / 2400000u) << 16 | \
                                     (st) << 8 | ((uint32_t)(rc) & 0xFFu))
 static volatile uint32_t fm1_c1_wait_end __attribute__((section(".noinit")));
+/* core 0 in that wait: TIMER4 ms since its start at its last look (every 100 us). Survives a reset:
+ * how long core 0 lived when the unit stops in the wait. */
+static volatile uint32_t fm1_c1_wait_ms __attribute__((section(".noinit")));
 static uint8_t fm1_c1_on;                       /* started and answering: core 0 may hand it work */
 #define FM1_C1_CHECK(fn, arg, job) ((uint32_t)(uintptr_t)(fn) ^ (arg) ^ (job) * 0x9E3779B1u)
 static uint8_t fm1_c1_gave_up;                  /* 1 = it read a wrong job, 2 = it did not finish one,
@@ -278,6 +281,7 @@ static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg
     fm1_c1_mb.job = job;
     FM1_C1_SYNC();
     fm1_c1_wait_end = FM1_C1_WAIT_MARK | 0xEEu;   /* still waiting */
+    fm1_c1_wait_ms = 0;
     t0 = last = prev = FM1_C1_T4;
     for (;;) {
         uint32_t t = FM1_C1_T4;
@@ -294,6 +298,7 @@ static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg
             continue;
         last = t;
     look:
+        fm1_c1_wait_ms = (t - t0) / 24000u;
         FM1_C1_SYNC();
         if (fm1_c1_mb.done == job) {
             fm1_c1_wait_end = FM1_C1_WAIT_END(t - t0, stalls, 0);

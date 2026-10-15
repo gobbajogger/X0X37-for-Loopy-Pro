@@ -127,6 +127,7 @@ typedef struct {
     uint32_t sink_n, sink_at, sink_val;            /* the RAM sink after the start: words changed, the first */
     uint32_t wait_end;                             /* fm1_c1_wait_end of the start (fm1_cpu1.h) */
     uint32_t xosc_pre, xosc_post;                  /* WLA_CON12 (crystal trim) before the start and after init */
+    uint32_t wait_ms;                              /* fm1_c1_wait_ms: core 0's last look in the wait, ms */
 } ble_guard_t;
 
 /* power-on: 1 = start the controller now */

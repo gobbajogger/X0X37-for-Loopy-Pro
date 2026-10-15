@@ -35,7 +35,7 @@ CRASH = ["magic", "count", "vec", "pc", "rets", "emu", "dbg", "sp", "psr", "icfg
 BOOT = ["bg_failed", "bg_pending"]
 GUARD = ["g_magic", "trying", "blocked", "why", "fails", "start_ms", "init_ms", "mb_state", "mb_err",
          "dbg_stage", "dbg_ms", "dbg_delays", "dbg_ra", "dbg_init_ms", "dbg_stall", "reset_prev",
-         "sink_n", "sink_at", "sink_val", "wait_end", "xosc_pre", "xosc_post"]
+         "sink_n", "sink_at", "sink_val", "wait_end", "xosc_pre", "xosc_post", "wait_ms"]
 LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
         "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
@@ -115,7 +115,8 @@ def summary(d, before):
         "status": s,
         "guard": f"blocked {d['blocked']} why {WHY[d['why'] % 6]} fails {d['fails']}",
         "start": f"mailbox {MB[d['mb_state'] % 4]} err {ERR[d['mb_err'] % 6]} stage {d['dbg_stage']} "
-                 f"delays {d['dbg_delays']} image init {d['dbg_init_ms']} ms core0 wait {h(d['wait_end'])}",
+                 f"delays {d['dbg_delays']} stage time {d['dbg_ms']} ms image init {d['dbg_init_ms']} ms "
+                 f"core0 wait {h(d['wait_end'])} last look {d['wait_ms']} ms",
         "xosc": f"{h(d['xosc_pre'])} -> {h(d['xosc_post'])}",
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
