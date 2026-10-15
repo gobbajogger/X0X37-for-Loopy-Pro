@@ -26,8 +26,10 @@ def ok(cond, what):
 raw = Path(sys.argv[1]).read_bytes()
 want_product = sys.argv[2] if len(sys.argv) > 2 else "SMK-37 Pro_900"
 image, n = I.deinterleave(raw)
-ok(n == 20 and I.product_of(raw) == want_product and not I.package_damage(image),
-   f"identity {I.product_of(raw)}, 20 blocks, CRCs ok")
+product = I.product_of(raw)
+identity_ok = product.startswith(want_product) if want_product.endswith("_") else product == want_product
+ok(n == 20 and identity_ok and not I.package_damage(image),
+   f"identity {product}, 20 blocks, CRCs ok")
 hdr = I._dec(image[:0x40])
 e0 = I._dec(image[0x40:0x90])
 off, size = struct.unpack_from("<II", e0, 8)

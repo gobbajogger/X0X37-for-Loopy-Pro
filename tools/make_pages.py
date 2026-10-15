@@ -14,8 +14,8 @@
 
   tools/make_pages.py build/x0x-0.1-beta.fwsc 0.1-beta OUT_DIR
 
-The package must be a release build (./build.sh --release X.Y-beta): its identity, FM-1_9XXYYZZ (FM-1_9XY up to 0.9), is
-what the installer checks the download against and what the FM-1 reports after the install."""
+The package must be a release build (./build.sh --release X.Y-beta): the installer accepts the matching FM-1, SMK-37 Pro,
+SMK-37 Elite or MKE-P37 identity. For SMK builds, FM-1-only stock recovery controls are hidden."""
 import html
 import json
 import re
@@ -29,6 +29,18 @@ sys.path.insert(0, str(SRC / "web"))
 from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the package format)
 
 REPO = "https://github.com/charlesvestal/fm1-x0x"
+STOCK_URL = "https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc"
+
+
+def installer_model(product):
+    """Return the exact supported target model for a release package identity."""
+    if re.fullmatch(r"FM-1_9(?:\d{2}|\d{6})", product) and product != "FM-1_900":
+        return "FM-1"
+    m = re.fullmatch(r"(SMK-37 Pro|SMK-37 Elite|MKE-P37)_9\d{6}", product)
+    if m:
+        return m.group(1)
+    raise SystemExit(f"unsupported installer identity {product!r}: use a release build for FM-1 or SMK-37")
+
 
 LANDING = """<!doctype html>
 <html lang="en">
@@ -98,8 +110,11 @@ def main(pkg, version, out):
     pkg, out = Path(pkg), Path(out)
     raw = pkg.read_bytes()
     product = product_of(raw)
-    if not re.fullmatch(r"FM-1_9(\d\d|\d{6})", product) or product == "FM-1_900":
-        raise SystemExit(f"{pkg}: identity {product!r}: make a release build (./build.sh --release X.Y-beta)")
+    try:
+        model = installer_model(product)
+    except SystemExit as e:
+        raise SystemExit(f"{pkg}: identity {product!r}: make a release build (./build.sh --release X.Y-beta)") from e
+    is_fm1 = model == "FM-1"
     if b"FELUCCA-LOADER-1" not in raw:
         raise SystemExit(f"{pkg}: no update loader in it")
     name = f"x0x-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
@@ -110,9 +125,15 @@ def main(pkg, version, out):
     shutil.copy(pkg, out / "firmware" / name)
     # the installer
     page = (SRC / "web" / "x0x_installer.html").read_text(encoding="utf-8")
+    if not is_fm1:
+        # This page's rescue package is specifically FM-1 V15. Rename user-facing device
+        # text for SMK builds, restore the literal FM-1 stock URL, and hide the FM-1-only
+        # recovery/stock controls through meta.stock in the generated page.
+        page = page.replace("FM-1", model)
+        page = page.replace(f"https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/{model}.fwsc", STOCK_URL)
     lib = strip_module((SRC / "web" / "fm1pkg.js").read_text(encoding="utf-8")) + "\n" + \
         strip_module((SRC / "web" / "fm1ota.js").read_text(encoding="utf-8"))
-    meta = json.dumps({"version": version, "product": product, "pkg": "../firmware/" + name})
+    meta = json.dumps({"version": version, "product": product, "pkg": "../firmware/" + name, "stock": is_fm1})
     for mark in ("/*LIB*/", "/*META*/"):
         if page.count(mark) != 1:
             raise SystemExit(f"x0x_installer.html must contain {mark} once")
@@ -132,12 +153,17 @@ def main(pkg, version, out):
                     str(out / "new" / "index.html")], check=True, capture_output=True)
     shutil.copytree(SRC / "docs" / "img" / "new", out / "new" / "img" / "new")
     # the landing page
-    (out / "index.html").write_text(LANDING.replace("__VERSION__", html.escape(version)).replace("__PKG__", name)
+    landing = LANDING
+    if not is_fm1:
+        landing = landing.replace('<a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed.</span></a>', "")
+        landing = landing.replace("FM-1", model)
+    (out / "index.html").write_text(landing.replace("__VERSION__", html.escape(version)).replace("__PKG__", name)
                                     .replace("__REPO__", REPO), encoding="utf-8")
     emu = SRC / "build" / "emu"
-    if not (emu / "x0x.wasm").exists():
-        raise SystemExit("no build/emu/x0x.wasm: run web/emu/build.sh (needs Emscripten)")
-    shutil.copytree(emu, out / "emu")
+    if is_fm1:
+        if not (emu / "x0x.wasm").exists():
+            raise SystemExit("no build/emu/x0x.wasm: run web/emu/build.sh (needs Emscripten)")
+        shutil.copytree(emu, out / "emu")
     (out / ".nojekyll").write_text("")
     print(f"site: {out}: index.html, install/ ({product}), manual/, firmware/{name} ({len(raw)} B)")
 

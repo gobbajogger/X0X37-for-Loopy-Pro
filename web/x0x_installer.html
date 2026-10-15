@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
-     X0X: Felucca's installer page (web/index_pkg.html), branded for X0X, English first, no editor.
+     X0X installer for FM-1 and SMK-37 family release packages, English first, no editor.
      tools/make_pages.py inlines fm1pkg.js and fm1ota.js and the package's metadata. -->
 <html lang="en">
 <head>
@@ -43,7 +43,7 @@
   <p class="small" data-t="direct"></p>
   <p class="small" data-t="untested"></p>
   <p class="small" data-t="beta"></p>
-  <p class="small"><span data-t="brick"></span>
+  <p class="small" id="recovery"><span data-t="brick"></span>
     <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
   <p class="small" data-t="back"></p>
   <p class="small"><a href="https://www.m-vave.com/download" target="_blank" rel="noopener" style="color:inherit">www.m-vave.com/download</a></p>
@@ -51,14 +51,16 @@
   <progress id="bar" max="100" value="0"></progress>
   <p id="status"></p>
   <pre id="log"></pre>
-  <h2 data-t="stockh"></h2>
-  <p class="small" data-t="stockwhy"></p>
-  <ol class="small">
-    <li><span data-t="stock1"></span> <a id="stocklink" href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" style="color:inherit">FM-1.fwsc</a></li>
-    <li><span data-t="stock2"></span><br><input type="file" id="stockfile" accept=".fwsc"></li>
-    <li data-t="stock3"></li>
-  </ol>
-  <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
+  <section id="stock">
+    <h2 data-t="stockh"></h2>
+    <p class="small" data-t="stockwhy"></p>
+    <ol class="small">
+      <li><span data-t="stock1"></span> <a id="stocklink" href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" style="color:inherit">FM-1.fwsc</a></li>
+      <li><span data-t="stock2"></span><br><input type="file" id="stockfile" accept=".fwsc"></li>
+      <li data-t="stock3"></li>
+    </ol>
+    <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
+  </section>
   <p><a href="../manual/" style="color:inherit" data-t="manual"></a></p>
   <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener" style="color:inherit">Hügelton Instruments</a>,
     with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator. The manual's Credits list them all.<br>
@@ -156,6 +158,8 @@ const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (t) => { $("log").textContent += t + "\n"; };
 let image = null;
 const meta = /*META*/;
+/* The stock restore link is specific to the FM-1; never offer it for SMK builds. */
+if (!meta.stock) { $("stock").hidden = true; $("recovery").hidden = true; }
 
 let writing = false;
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });

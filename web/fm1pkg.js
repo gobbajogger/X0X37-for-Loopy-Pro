@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
 //
-// FM-1 .fwsc packages in the browser: the package identity and the image the
-// device reads during an update.
+// X0X .fwsc packages in the browser (FM-1 and SMK-37 family): the package identity
+// and the image the device reads during an update.
 
 const BLOCKS = 20, BLK = 0x30, KEEP = 0x2F;
 
