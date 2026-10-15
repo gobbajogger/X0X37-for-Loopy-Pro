@@ -350,7 +350,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
         if (s != H_CCCD) { att_err(h, op, s, s >= 1 && s <= H_LAST ? E_WRITE : E_HANDLE); return; }
         rl = n - 3;
         if (rl != 2) { att_err(h, op, s, E_PDU); return; }
-        h->cccd[0] = p[3] & 1u; h->cccd[1] = 0;     /* notifications only */
+        h->cccd[0] = p[3] & 1u;                      /* notifications only (cccd[1]: parameter request sent) */
         r[0] = A_WRITE_R;
         att_send(h, r, 1);
     }
@@ -533,6 +533,13 @@ void bleh_poll(bleh_t *h)
         wr16(d, h->conn); d[2] = 0x13;              /* remote user terminated connection */
         cmd(h, OP_DISC, d, 3);
         return;
+    }
+    if (h->state == BLEH_CONNECTED && (h->cccd[0] & 1u) && !h->cccd[1]) {
+        /* attempt 31: ask for 15-30 ms, latency 0, 2 s timeout (Apple accessory guidelines:
+         * min a multiple of 15 ms, min + 15 ms <= max, max * (latency + 1) <= 2 s, 2-6 s timeout) */
+        static const uint8_t CPU[12] = {0x12, 0x31, 8, 0, 12, 0, 24, 0, 0, 0, 200, 0};
+        h->cccd[1] = 1;
+        l2cap_send(h, CID_SIG, CPU, 12);
     }
     if (h->state == BLEH_ADVERTISING && !h->cmd_wait && h->want_adv != !h->radio_off) {
         adv_enable(h, !h->radio_off);

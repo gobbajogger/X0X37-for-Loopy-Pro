@@ -210,6 +210,12 @@ static void t_host(void)
     /* a bad header: ignored */
     { const uint8_t d[] = {0x00, 0x81, 0x90, 1, 2}; midi_w(&h, d, sizeof d); }
     CHECK(!bleh_midi_next(&h, &m));
+    /* attempt 31: the connection parameter request (15-30 ms, 0, 2 s), once */
+    nsent = 0; bleh_poll(&h);
+    CHECK(nsent == 1 && sent[0].b[6] == 5 && sent[0].b[8] == 0x12 && sent[0].b[12] == 12 && sent[0].b[14] == 24 &&
+          sent[0].b[18] == 200);
+    nsent = 0; bleh_poll(&h); CHECK(nsent == 0);
+    { uint8_t e[] = {0x13, 5, 1, 0x40, 0, 1, 0}; bleh_rx(&h, BLEH_H4_EVT, e, sizeof e); }
     /* MIDI out: one notification, one header, running status off by default */
     nsent = 0;
     { const uint8_t a[3] = {0x90, 60, 100}, b[3] = {0x90, 61, 100}, c[1] = {0xF8};
