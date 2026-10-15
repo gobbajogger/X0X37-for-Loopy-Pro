@@ -208,20 +208,9 @@ static void apc_note(uint32_t note, uint32_t vel)
     uint32_t on = vel != 0u;
     apc_out((on ? 0x09u : 0x08u) | (on ? 0x90u : 0x80u) << 8 | (note & 0x7Fu) << 16 | (on ? vel : 0x7Fu) << 24);
 }
-/* clip mode keybed state (smk_ck_poll below); in the pool: .data+.bss is full */
 #include "app/smk_clip_keys.h"
-static struct {                       /* (the small fields first: short code to reach them) */
-    uint8_t on, focus, latch, vel;    /* on, focus: CK_M_* bits */
-    uint8_t arp_note, ch;             /* the arp note that sounds (note + 1); the channel (0-15) of all notes */
-    uint8_t btn_prev, nr_used, ble_was, active, ndown, nheld, nsent;
-    uint32_t step, tick, gate_left, acc, last_ms, ext_seen;
-    uint32_t keys[2];                 /* the keybed keys of the last poll, bit k = key k down */
-    uint8_t held[CK_HELD], owner[CK_HELD];   /* the arp list and the key of each note */
-    uint8_t sent_k[16], sent_n[16];   /* notes that sound: key and MIDI note (a shared note ends with its first key) */
-} ck SMK_BIG;
-static volatile uint32_t ck_ext_ticks;
-static volatile uint8_t ck_start_req, ck_stop_req, ck_reset_req, ck_redraw;
-void smk_ck_midi_stop(void) { ck_stop_req = 1; }
+static volatile uint8_t ck_start_req, ck_off_req, ck_redraw;   /* (set in interrupts; smk_ck_poll clears them) */
+void smk_ck_midi_stop(void) { ck_off_req = 1; }
 static uint32_t knob_bank_hold_start;
 static uint8_t knob_bank_toggled;
 static volatile uint8_t apc_led_velocity[SMK_APC40_CLIP_COUNT];
@@ -348,7 +337,6 @@ void smk_apc_clock_tick(void)
     apc_clock_last_ms = now;
     apc_clock_count++;
     apc_clock_seen = 1u;
-    ck_ext_ticks++;
 }
 static uint8_t smk_apc_led_brightness(uint8_t channel, uint8_t queued)
 {
@@ -399,7 +387,7 @@ void smk_apc_host_lost(void)
 {
     uint32_t i;
     apc_host_on = 0u;
-    ck_reset_req = 1;                                /* clip keys: all notes off (smk_ck_poll) */
+    ck_off_req = 1;                                  /* clip keys: all notes off (smk_ck_poll) */
     apc_play_feedback = apc_record_feedback = 0u;
     apc_cols = SMK_APC40_SOURCE_COLS;
     apc_rows = 2u;
@@ -815,271 +803,307 @@ static void smk_arrows(void)
 
 /* --------------------------------------------- clip mode keybed (Loopy Pro) --- */
 /* In clip mode the keybed plays MIDI notes to Loopy only: key -> SCALE -> CHORD -> ARP -> the CLIP KEYS
- * channel (GLO > MIDI) on USB and Bluetooth (apc_out). The logic is in smk_clip_keys.h. Each key keeps
- * the notes it sent and their channel, so a release ends exactly those notes (no stuck notes). */
+ * channel (GLO > MIDI) on USB and Bluetooth (apc_out). The logic is in smk_clip_keys.h.
+ * The notes of a key come from its key number and the settings (ck_key_notes). A change that changes the
+ * notes first ends the notes that sound, so a release always ends exactly the notes that its key sent.
+ * A note that two keys hold ends when the last of the two keys goes up. No table of notes: key bit maps. */
+typedef struct {
+    uint8_t on, focus, fl, vel;       /* on, focus: CK_M_* bits; fl: CK_F_* bits; vel: the last key velocity */
+    uint8_t arp_note, ch, btn_prev, nk;   /* arp_note: note + 1 (0 = none); ch: the channel of all notes */
+    uint8_t tick, gate_left, ext_seen, rsv;   /* nk: keys in korder */
+    uint16_t step, last_ms;
+    uint32_t acc;                     /* the internal arp clock (600000 = one tick) */
+    uint32_t keys[2], snd[2];         /* bit k: key k is down / key k has notes that sound */
+    uint8_t korder[8];                /* the keys of the arp, in press order (more keys: not in the arp) */
+} ck_t;
+static ck_t ck SMK_BIG;
+/* a base register for ck (short code: no full address for each field) */
+#include "fm1_opt.h"
+#define CK_BASE ck_t *cp = &ck; FM1_BASE(cp)
+#define CK_SET settings_t *sp = &proj.set
+enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
+#define CK_BIT(map, k) (((map)[(k) >> 5] >> ((k) & 31u)) & 1u)
+
 __attribute__((minsize)) static void ck_send(uint32_t st, uint32_t d1, uint32_t d2)
 {
-    apc_out((st >> 4) | st << 8 | (d1 & 0x7Fu) << 16 | (d2 & 0x7Fu) << 24);
+    apc_out((st >> 4) | st << 8 | d1 << 16 | d2 << 24);
 }
-__attribute__((minsize)) static uint32_t ck_chan(void)
+/* the notes of key k with the settings now */
+CK_FN static uint32_t ck_key_notes(uint32_t k, uint8_t *out)
 {
-    uint32_t c = proj.set.ck_ch;
-    return (c >= 2u && c <= 15u ? c : 2u) - 1u;           /* 0-based; never APC channels 1 and 16 */
-}
-__attribute__((minsize)) static uint8_t ck_ext_live(void)
-{
-    return (uint8_t)(apc_clock_seen && fm1_ms - apc_clock_last_ms <= 500u);
+    CK_BASE;
+    CK_SET;
+    uint32_t c = cp->on & CK_M_CHORD;
+    return ck_notes(CK_BASE_NOTE + k, ck_mask(sp->ck_scale, sp->ck_root), cp->on & CK_M_SCALE ? sp->ck_snap + 1u : 0u,
+                    c ? (int32_t)sp->ck_chord : -1, c ? sp->ck_inv : 0u, out);
 }
 CK_FN static void ck_arp_stop_note(void)
 {
-    if (ck.arp_note) {
-        ck_send(0x80u | ck.ch, ck.arp_note - 1u, 0u);
-        ck.arp_note = 0;
+    CK_BASE;
+    if (cp->arp_note) {
+        ck_send(0x80u | cp->ch, cp->arp_note - 1u, 0u);
+        cp->arp_note = 0;
     }
 }
-/* All notes off: each note that sounds gets one note off on its own channel. The arp list clears. */
+/* key k: note on (st 0x90), note off (0x80), or note off that keeps the notes of the other sounding keys
+ * (0x81: a key release) */
+CK_FN static void ck_key_send(uint32_t k, uint32_t st)
+{
+    CK_BASE;
+    uint8_t out[CK_MAXN];
+    uint32_t keep[4] = {0, 0, 0, 0}, n, i, q;
+    if (st & 1u)
+        for (q = 0; q < CK_NKEY; q++)
+            if (q != k && CK_BIT(cp->snd, q))
+                for (i = 0, n = ck_key_notes(q, out); i < n; i++)
+                    keep[out[i] >> 5] |= 1u << (out[i] & 31u);
+    for (i = 0, n = ck_key_notes(k, out); i < n; i++)
+        if (!CK_BIT(keep, out[i]))
+            ck_send((st & 0xF0u) | cp->ch, out[i], st & 0x10u ? cp->vel : 0u);
+}
+/* all keys that sound: note off (0x80) or on again (0x90), round a setting change */
+CK_FN static void ck_voice(uint32_t st)
+{
+    CK_BASE;
+    uint32_t k;
+    for (k = 0; k < CK_NKEY; k++)
+        if (CK_BIT(cp->snd, k))
+            ck_key_send(k, st);
+}
+/* All notes off: the keys, the arp note, the arp list */
 CK_FN static void ck_all_off(void)
 {
-    uint32_t i;
-    for (i = 0; i < ck.nsent; i++)
-        ck_send(0x80u | ck.ch, ck.sent_n[i], 0u);
-    ck.nsent = 0;
+    CK_BASE;
+    ck_voice(0x80u);
+    cp->snd[0] = cp->snd[1] = 0;
     ck_arp_stop_note();
-    ck.nheld = 0;
-    ck.step = 0;
+    cp->nk = 0;
 }
-__attribute__((minsize)) static void ck_press(uint32_t k, uint32_t vel)
+CK_FN static void ck_press(uint32_t k, uint32_t vel)
 {
-    const settings_t *s = &proj.set;
-    uint16_t mask = CK_SCALE_MASK[s->ck_scale % CK_NSCALE];
-    uint8_t out[CK_MAXN];
-    uint32_t n = 1, i;
-    int note = CK_BASE_NOTE + (int)k;
-    if (ck.on & CK_M_SCALE) {
-        note = ck_snap(note, s->ck_root, mask);
-    }
-    out[0] = (uint8_t)note;
-    if (ck.on & CK_M_CHORD)
-        n = ck_chord(note, s->ck_chord, out);
-    if (ck.on & CK_M_ARP) {
-        if (ck.latch && ck.ndown == 1u) {
-            ck_arp_stop_note();                             /* LATCH: the first key after all keys up starts a new list */
-            ck.nheld = 0;
-        }
-        if (!ck.nheld) {
-            ck.step = 0;
-            if (!ck_ext_live()) {                           /* internal clock: the first step plays now */
-                ck.tick = CK_RATE_T[s->ck_rate % CK_NRATE] - 1u;
-                ck.acc = 600000u;
-            }
-        }
-        for (i = 0; i < n && ck.nheld < CK_HELD; i++) {
-            ck.held[ck.nheld] = out[i];
-            ck.owner[ck.nheld++] = (uint8_t)k;
-        }
-        ck.vel = (uint8_t)vel;
+    CK_SET;
+    CK_BASE;
+    cp->vel = (uint8_t)(vel ? vel : 1u);
+    if (!(cp->on & CK_M_ARP)) {
+        ck_key_send(k, 0x90u);
+        cp->snd[k >> 5] |= 1u << (k & 31u);
         return;
     }
-    for (i = 0; i < n && ck.nsent < 16u; i++) {
-        ck_send(0x90u | ck.ch, out[i], vel);
-        ck.sent_k[ck.nsent] = (uint8_t)k;
-        ck.sent_n[ck.nsent++] = out[i];
+    cp->keys[k >> 5] ^= 1u << (k & 31u);                     /* (for a moment: the other keys only) */
+    if ((cp->fl & CK_F_LATCH) && !(cp->keys[0] | cp->keys[1])) {
+        ck_arp_stop_note();                                 /* LATCH: the first key after all keys up: a new list */
+        cp->nk = 0;
     }
+    cp->keys[k >> 5] ^= 1u << (k & 31u);
+    if (!cp->nk) {
+        cp->step = 0;
+        cp->tick = (uint8_t)(CK_RATE_T[sp->ck_rate] - 1u);   /* the first step plays at the next tick */
+        cp->acc = 599999u;
+    }
+    if (cp->nk < sizeof cp->korder)
+        cp->korder[cp->nk++] = (uint8_t)k;
 }
-__attribute__((minsize)) static void ck_release(uint32_t k)
+CK_FN static void ck_release(uint32_t k)
 {
-    uint32_t i, j = 0;
-    for (i = 0; i < ck.nsent; i++) {
-        if (ck.sent_k[i] == k)
-            ck_send(0x80u | ck.ch, ck.sent_n[i], 0u);   /* a shared note ends with its first key (v1) */
-        else {
-            ck.sent_k[j] = ck.sent_k[i];
-            ck.sent_n[j++] = ck.sent_n[i];
-        }
+    CK_BASE;
+    uint32_t i, j;
+    if (CK_BIT(cp->snd, k)) {
+        cp->snd[k >> 5] &= ~(1u << (k & 31u));
+        ck_key_send(k, 0x81u);
     }
-    ck.nsent = (uint8_t)j;
-    if (ck.latch)
+    if (cp->fl & CK_F_LATCH)
         return;
-    for (i = j = 0; i < ck.nheld; i++)
-        if (ck.owner[i] != k) {
-            ck.held[j] = ck.held[i];
-            ck.owner[j++] = ck.owner[i];
-        }
-    ck.nheld = (uint8_t)j;
+    for (i = j = 0; i < cp->nk; i++)
+        if (cp->korder[i] != k)
+            cp->korder[j++] = cp->korder[i];
+    cp->nk = (uint8_t)j;
     if (!j)
         ck_arp_stop_note();
 }
-/* the arp clock: incoming MIDI clock while a tick came in the last 0.5 s, else the internal tempo */
-__attribute__((minsize)) static void ck_arp(uint32_t dt)
+/* one arp step: the notes of the arp keys, sorted (not for PLAYED), then the note of this step */
+CK_FN static void ck_arp_step(uint32_t rate)
 {
-    const settings_t *s = &proj.set;
-    uint32_t rate = CK_RATE_T[s->ck_rate % CK_NRATE], e, ticks;
+    CK_BASE;
+    CK_SET;
+    uint8_t list[CK_ARPN], out[CK_MAXN];
+    uint32_t n = 0, i, j, c;
+    int note;
+    for (i = 0; i < cp->nk; i++)
+        for (j = 0, c = ck_key_notes(cp->korder[i], out); j < c && n < CK_ARPN; j++) {
+            uint32_t x = out[j], p = n++;
+            if (sp->ck_ord != CK_ORD_PLAYED)
+                for (; p && list[p - 1u] > x; p--)
+                    list[p] = list[p - 1u];
+            list[p] = (uint8_t)x;
+        }
+    ck_arp_stop_note();
+    if (!n)
+        return;
+    note = ck_arp_pick(list, n, sp->ck_ord, sp->ck_oct + 1u, cp->step++, fm1_ms * 2654435761u >> 7);
+    if (note >= 0) {
+        ck_send(0x90u | cp->ch, (uint32_t)note, cp->vel);
+        cp->arp_note = (uint8_t)(note + 1);
+        j = rate * (sp->ck_gate + 1u) / 10u;                 /* gate 10-100 % of a step, at least 1 tick */
+        cp->gate_left = (uint8_t)(j ? j : 1u);
+    }
+}
+/* the arp clock: incoming MIDI clock while a tick came in the last 0.5 s, else the internal tempo */
+CK_FN static void ck_arp(uint32_t dt)
+{
+    CK_SET;
+    CK_BASE;
+    uint32_t rate = CK_RATE_T[sp->ck_rate], ticks, e = apc_clock_count;
     if (ck_start_req) {                                     /* MIDI Start: the next tick is the downbeat */
         ck_start_req = 0;
-        ck.tick = rate - 1u;
-        ck.step = 0;
+        cp->tick = (uint8_t)(rate - 1u);
+        cp->step = 0;
     }
-    e = ck_ext_ticks;
-    if (ck_ext_live()) {
-        ticks = e - ck.ext_seen;
-        ck.acc = 0;
+    if (apc_clock_seen && fm1_ms - apc_clock_last_ms <= 500u) {
+        ticks = (uint8_t)(e - cp->ext_seen);
+        ticks = ticks > 8u ? 0u : ticks;                    /* a jump (Start, Song Position): no burst */
+        cp->acc = 0;
     } else {
-        uint32_t bpm10 = (uint32_t)(seq.bpm * 10.0f + 0.5f);
-        ck.acc += (dt < 100u ? dt : 100u) * bpm10 * 24u;    /* 600000 = one tick (ms x BPM x 10 x 24) */
-        ticks = ck.acc / 600000u;
-        ck.acc %= 600000u;
+        cp->acc += (dt < 100u ? dt : 100u) * (uint32_t)(seq.bpm * 240.0f);   /* ms x BPM x 240 */
+        for (ticks = 0; cp->acc >= 600000u; ticks++)        /* (dt <= 100 ms: at most 12 ticks) */
+            cp->acc -= 600000u;
     }
-    ck.ext_seen = e;
-    if (ticks > 8u)
-        ticks = 8u;                                         /* a long frame: catch up a little, not a burst */
+    cp->ext_seen = (uint8_t)e;
     while (ticks--) {
-        if (ck.gate_left && --ck.gate_left == 0)
+        if (cp->gate_left && !--cp->gate_left)
             ck_arp_stop_note();
-        if (++ck.tick < rate)
+        if (++cp->tick < rate)
             continue;
-        ck.tick = 0;
-        if (!(ck.on & CK_M_ARP) || !ck.nheld)
-            continue;
-        ck_arp_stop_note();
-        {
-            int n = ck_arp_pick(ck.held, ck.nheld, s->ck_ord, s->ck_oct, ck.step++);
-            if (n >= 0) {
-                ck_send(0x90u | ck.ch, (uint32_t)n, ck.vel ? ck.vel : 100u);
-                ck.arp_note = (uint8_t)(n + 1);
-                ck.gate_left = ck_gate_ticks(rate, s->ck_gate);
-            }
-        }
+        cp->tick = 0;
+        if (cp->nk)
+            ck_arp_step(rate);
     }
 }
 uint8_t smk_ck_knobs_owned(void)
 {
-    return (uint8_t)(clip_grid_mode && ck.focus && ui.overlay == O_NONE && !ui.help);
+    CK_BASE;
+    return (uint8_t)(clip_grid_mode && cp->focus && ui.overlay == O_NONE && !ui.help);
 }
-/* knobs 2-5 of each mode: the settings_t byte, the lowest and the highest value (0, 0, 0: none) */
+/* knobs 2-5 of each mode: the settings_t byte, the highest value, the name list (0: a number) */
+static const char *const CK_LISTS[] = {0, CK_ROOT_N, CK_SCALE_N, "NEAR\0FILTER", CK_CHORD_N, CK_ORD_N, CK_RATE_N};
 static const uint8_t CK_KNOB[3][4][3] = {
-    {{__builtin_offsetof(settings_t, ck_root), 0, 11}, {__builtin_offsetof(settings_t, ck_scale), 0, 10},
-     {0, 0, 0}, {0, 0, 0}},
-    {{__builtin_offsetof(settings_t, ck_chord), 0, 13}, {0, 0, 0}, {0, 0, 0},
-     {0, 0, 0}},
-    {{__builtin_offsetof(settings_t, ck_ord), 0, 4}, {__builtin_offsetof(settings_t, ck_rate), 0, 12},
-     {__builtin_offsetof(settings_t, ck_oct), 1, 4}, {__builtin_offsetof(settings_t, ck_gate), 1, 10}}};
-static const char *const CK_KNAME[3][4] = {{CK_ROOT_N, CK_SCALE_N, 0, 0}, {CK_CHORD_N, 0, 0, 0},
-                                           {CK_ORD_N, CK_RATE_N, 0, 0}};   /* 0: a number */
-static const char *const CK_KLAB[3] = {"ROOT \0SCALE ", "CHORD ", "ORDER \0RATE \0OCT \0GATE "};   /* (+ the value) */
-static const char CK_KLEG[] = "ROOT SCALE\0CHORD TYPE\0ORD RATE OCT GATE";
-static const char CK_MODE_N[] = "SCALE\0CHORD\0ARP";
+    {{__builtin_offsetof(settings_t, ck_root), 11, 1}, {__builtin_offsetof(settings_t, ck_scale), 10, 2},
+     {__builtin_offsetof(settings_t, ck_snap), 1, 3}, {0}},
+    {{__builtin_offsetof(settings_t, ck_chord), 16, 4}, {__builtin_offsetof(settings_t, ck_inv), 3, 0}, {0}, {0}},
+    {{__builtin_offsetof(settings_t, ck_ord), 5, 5}, {__builtin_offsetof(settings_t, ck_rate), 12, 6},
+     {__builtin_offsetof(settings_t, ck_oct), 3, 0}, {__builtin_offsetof(settings_t, ck_gate), 9, 0}}};
+/* the knob labels (mode x 4 + knob), then the knob lists of each mode, then the mode names */
+static const char CK_TXT[] = "ROOT \0SCALE \0SNAP \0\0CHORD \0INV \0\0\0ORDER \0RATE \0OCT \0GATE \0"
+                             "ROOT SCALE SNAP\0CHORD INV\0ORD RATE OCT GATE\0SCALE\0CHORD\0ARP";
 /* SCALE, CHORD, ARP: a press turns an off mode on and gives it the knobs. A press on a mode that is on
  * but has not the knobs gives it the knobs. A press on the mode with the knobs turns it off.
  * NOTE REPEAT + ARP: LATCH on or off. NOTE REPEAT alone: panic. */
-__attribute__((minsize)) static void ck_controls(void)
+CK_FN static void ck_controls(void)
 {
+    CK_SET;
+    CK_BASE;
     static const uint8_t ROLE[4] = {B_SEL, B_ENV, B_ARP, B_LFO};   /* SCALE, CHORD, ARP, NOTE REPEAT */
     uint32_t raw = fm1_in.buttons, i, cur = 0, press, rel;
     for (i = 0; i < 4u; i++)
         cur |= ((raw >> panel.btn[ROLE[i]]) & 1u) << i;
-    press = cur & ~(uint32_t)ck.btn_prev;
-    rel = (uint32_t)ck.btn_prev & ~cur;
-    ck.btn_prev = (uint8_t)cur;
+    press = cur & ~(uint32_t)cp->btn_prev;
+    rel = (uint32_t)cp->btn_prev & ~cur;
+    cp->btn_prev = (uint8_t)cur;
     if (press & 8u)
-        ck.nr_used = 0;
+        cp->fl &= (uint8_t)~CK_F_NRUSED;
     for (i = 0; i < 3u; i++) {
-        uint8_t m = (uint8_t)(1u << i);
+        uint32_t m = 1u << i;
         if (!(press & m))
             continue;
         if (i == 2u && (cur & 8u)) {                        /* NOTE REPEAT + ARP: LATCH */
-            ck.latch ^= 1u;
-            ck.nr_used = 1;
-            if (!ck.latch)
+            cp->fl ^= CK_F_LATCH;
+            cp->fl |= CK_F_NRUSED;
+            if (!(cp->fl & CK_F_LATCH))
                 ck_all_off();
-            ui_say("LATCH", ck.latch ? " ON" : " OFF");
-        } else if ((ck.on & m) && ck.focus != m) {
-            ck.focus = m;                                   /* the knobs go to this mode; it stays on */
-            ui_say(ck_nm(CK_KLEG, i), 0);                   /* the screen tells what the knobs do */
-        } else {
-            ck_all_off();
-            ck.on ^= m;
-            ck.focus = (uint8_t)(ck.on & m ? m : ck.on & 4u ? 4u : ck.on & 2u ? 2u : ck.on & 1u);
-            if (ck.on & m)
-                ui_say(ck_nm(CK_KLEG, i), 0);
-            else
-                ui_say(ck_nm(CK_MODE_N, i), " OFF");
+            ui_say("LATCH", cp->fl & CK_F_LATCH ? " ON" : " OFF");
+            continue;
         }
+        if (!(cp->on & m) || cp->focus == m) {
+            ck_all_off();
+            cp->on ^= (uint8_t)m;
+        }
+        cp->focus = (uint8_t)(cp->on & m ? m : cp->on & 4u ? 4u : cp->on & 2u ? 2u : cp->on & 1u);
+        ui_say(ck_nm(CK_TXT, 12u + i + (cp->on & m ? 0u : 3u)), cp->on & m ? 0 : " OFF");   /* the knob jobs */
     }
-    if ((rel & 8u) && !ck.nr_used) {                        /* NOTE REPEAT alone: panic */
+    if ((rel & 8u) && !(cp->fl & CK_F_NRUSED)) {             /* NOTE REPEAT alone: panic */
         ck_all_off();
-        ck_send(0xB0u | ck.ch, 123u, 0u);                   /* All Notes Off */
+        ck_send(0xB0u | cp->ch, 123u, 0u);                   /* All Notes Off */
         ui_say("PANIC", 0);
     }
     if (smk_ck_knobs_owned()) {
-        uint32_t f = ck.focus >> 1, j;                      /* 1, 2, 4 -> 0, 1, 2 */
-        f = f > 2u ? 2u : f;
+        uint32_t f = cp->focus >> 1, j;                      /* 1, 2, 4 -> 0, 1, 2 */
         for (j = 0; j < 4u; j++) {                          /* roles EN_SELECT..EN_K1 = knobs 2-5 */
             int32_t d = fm1_enc_take(panel.enc[j]) * panel.dir[j], v;
             const uint8_t *t = CK_KNOB[f][j];
+            const char *nm = CK_LISTS[t[2]];
+            char num[8];
             if (!d || !t[0])
                 continue;
-            v = ((uint8_t *)&proj.set)[t[0]] + d;
-            v = v < t[1] ? t[1] : v > t[2] ? t[2] : v;
-            ((uint8_t *)&proj.set)[t[0]] = (uint8_t)v;
+            v = ((uint8_t *)sp)[t[0]] + d;
+            v = v < 0 ? 0 : v > t[1] ? t[1] : v;
+            if (f < 2u)
+                ck_voice(0x80u);                            /* the notes change: end the old notes first */
+            ((uint8_t *)sp)[t[0]] = (uint8_t)v;
+            if (f < 2u)
+                ck_voice(0x90u);
             ui.act_t = plat_ms();                           /* (the autosave waits for quiet) */
-            {                                               /* for example "RATE 1/16", "GATE 50%" */
-                char num[8];
-                const char *nm = CK_KNAME[f][j];
-                if (!nm)
-                    put_s(put_i(num, j == 3u ? v * 10 : v), j == 3u ? "%" : "");
-                ui_say(ck_nm(CK_KLAB[f], j), nm ? ck_nm(nm, (uint32_t)v) : num);
-            }
+            if (!nm)
+                put_s(put_i(num, f == 1u ? v : (v + 1) * (j == 3u ? 10 : 1)), j == 3u ? "%" : "");
+            ui_say(ck_nm(CK_TXT, f * 4u + j), nm ? ck_nm(nm, (uint32_t)v) : num);   /* for example "RATE 1/16" */
         }
     }
 }
 /* every main loop pass (also between frames, for the arp timing) */
 CK_FN void smk_ck_poll(void)
 {
-    uint32_t now = fm1_ms, dt = now - ck.last_ms, k, on = clip_grid_mode;
-    uint8_t ble = (uint8_t)(plat_ble_state() == PLAT_BLE_CONNECTED);
-    ck.last_ms = now;
-    if (ck_reset_req || (ck.ble_was && !ble)) {             /* USB reset or Bluetooth drop: all notes off */
-        ck_reset_req = 0;
+    CK_SET;
+    CK_BASE;
+    uint32_t now = fm1_ms, k, on = clip_grid_mode, ble = plat_ble_state() == PLAT_BLE_CONNECTED ? CK_F_BLE : 0u;
+    uint32_t dt = (uint16_t)(now - cp->last_ms);
+    cp->last_ms = (uint16_t)now;
+    if (ck_off_req || (cp->fl & ~ble & CK_F_BLE)) {          /* MIDI Stop, USB reset, Bluetooth drop: all notes off */
+        ck_off_req = 0;
         ck_all_off();
     }
-    ck.ble_was = ble;
+    cp->fl = (uint8_t)((cp->fl & ~CK_F_BLE) | ble);
     if (!on) {
-        if (ck.active) {                                    /* clip mode exit: all notes off, the modes off */
+        if (cp->fl & CK_F_ACTIVE) {                          /* clip mode exit: all notes off, the modes off */
             ck_all_off();
-            ck.active = ck.on = ck.focus = ck.latch = 0;
+            cp->on = cp->focus = 0;
         }
-        ck.ext_seen = ck_ext_ticks;
-        ck.btn_prev = 0x0Fu;                                /* a button held at entry acts only after its release */
-        ck.nr_used = 1;
-        ck_stop_req = 0;
+        cp->fl = (uint8_t)(ble | CK_F_NRUSED);               /* (LATCH off) */
+        cp->ext_seen = (uint8_t)apc_clock_count;
+        cp->btn_prev = 0x0Fu;                                /* a button held at entry acts only after its release */
     } else {
-        if (!ck.active) {
-            ck.active = 1;
+        if (!(cp->fl & CK_F_ACTIVE)) {
+            cp->fl |= CK_F_ACTIVE;
             ck_redraw = 1;
         }
-        if (ck_stop_req || ck.ch != ck_chan()) {            /* MIDI Stop or a new CLIP KEYS CH: all notes off */
-            ck_stop_req = 0;
+        if (cp->ch != sp->ck_ch - 1u) {                     /* a new CLIP KEYS CH: all notes off */
             ck_all_off();                                   /* (on the old channel) */
-            ck.ch = (uint8_t)ck_chan();
+            cp->ch = (uint8_t)(sp->ck_ch - 1u);
         }
         ck_controls();
     }
     for (k = 0; k < CK_NKEY; k++) {                         /* (out of clip mode: keys held at entry do not play) */
-        uint32_t bit = 1u << (k & 31u), *pk = &ck.keys[k >> 5];
+        uint32_t bit = 1u << (k & 31u), *pk = &cp->keys[k >> 5];
         uint32_t d = ((const volatile uint32_t *)&fm1_in.keys)[k >> 5] & bit;
         int w;
         if (d == (*pk & bit))
             continue;
         *pk ^= bit;
+        if (!on)
+            continue;
         if (!d) {
-            ck.ndown--;
-            if (on)
-                ck_release(k);
+            ck_release(k);
             continue;
         }
-        ck.ndown++;
         w = k >= SMK_KEY_F3 && k < SMK_KEY_F3 + NKEYS ? KEY_WHITE[k - SMK_KEY_F3] : -1;
-        if (on && !(w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)))   /* a held pad blocks its white key */
+        if (!(w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)))   /* a held pad blocks its white key */
             ck_press(k, fm1_in.key_vel[k]);
     }
     if (on)
