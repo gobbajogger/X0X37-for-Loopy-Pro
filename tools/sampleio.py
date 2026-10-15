@@ -270,25 +270,27 @@ def to_int16(x):
     return [max(-32768, min(32767, int(v / pk * 30000))) for v in x]
 
 
-def user_slot(name, zones):
-    """zones: [(int16 samples at SLOT_RATE, root, lo or None, hi or None)] -> (header bytes, ADPCM data).
-    Zones without lo/hi split the keyboard between their roots."""
+def user_slot(name, zones, rate=SLOT_RATE, slot_size=SLOT_SIZE):
+    """zones: [(int16 samples at `rate`, root, lo or None, hi or None)] -> (header bytes, ADPCM data).
+    Zones without lo/hi split the keyboard between their roots. rate: 22050 or 44100 (the header
+    stores it per zone, the firmware reads it). slot_size: the device's slot size (SMP_INFO)."""
+    max_data = slot_size - SLOT_DATA_OFF
     zs, data = [], bytearray()
     for s, root, lo, hi in zones:
         adp, st = ima_encode(s, 0)
         zs.append(dict(off=len(data), n=len(s), ls=0, le=len(s) - 1, root=root, lo=lo, hi=hi, pred=st[0], idx=st[1]))
         data += adp
-    if len(data) > SLOT_MAX_DATA:
-        raise ValueError(f"too long: {len(data)} B of ADPCM, a slot holds {SLOT_MAX_DATA} B "
-                         f"({SLOT_MAX_DATA * 2 / SLOT_RATE:.1f} s in all)")
+    if len(data) > max_data:
+        raise ValueError(f"too long: {len(data)} B of ADPCM, a slot holds {max_data} B "
+                         f"({max_data * 2 / rate:.1f} s in all)")
     if not 1 <= len(zs) <= SLOT_ZONES:
         raise ValueError(f"1..{SLOT_ZONES} files per slot")
     zs.sort(key=lambda z: z["root"])
     for z, (lo, hi) in zip(zs, key_split([z["root"] for z in zs])):
         if z["lo"] is None:
             z["lo"], z["hi"] = lo, hi
-    rate = int(round(SLOT_RATE / 44100 * 65536))
-    zb = b"".join(struct.pack("<5I2h4B", z["off"], z["n"], z["ls"], z["le"], rate, z["root"] * 16, z["pred"],
+    q16 = int(round(rate / 44100 * 65536))
+    zb = b"".join(struct.pack("<5I2h4B", z["off"], z["n"], z["ls"], z["le"], q16, z["root"] * 16, z["pred"],
                               z["idx"], z["lo"], z["hi"], 0) for z in zs)
     nm = re.sub(r"[^\x20-\x7E]", "", name.upper())[:8].encode().ljust(8, b"\0")
     hdr = struct.pack("<IHBB8sII8x", 0x504D5346, 1, len(zs), 0, nm, len(data), zlib.crc32(data)) + zb
