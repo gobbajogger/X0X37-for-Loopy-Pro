@@ -10,7 +10,13 @@
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
-       ED_DIAG = 33, ED_BT_TEST = 34 };
+       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL2_WRITE = 35, ED_CTL2_READ = 36 };
+/* ED_CTL2_WRITE / ED_CTL2_READ (SMK-37 with Bluetooth, for tools/fm1_install.py): piece 2 of the
+ * Bluetooth image (x0x_ble_abi.h XB_FLASH2_*). WRITE: offset (3 x 7 bits, a multiple of 256), then up
+ * to 256 bytes packed 7 to 8. An offset at a 4 KiB boundary erases that sector first. The hole (the
+ * store owner tag) is refused. The first write stops the Bluetooth image (core 1 runs piece 2); the
+ * new piece 2 is checked at the next power-on. Reply: offset, result (0 ok, 1 bad offset or size,
+ * 2 erase, 3 write). READ: as ED_SMP_READ, from the start of piece 2. */
 /* ED_BT_TEST (SMK-37 with Bluetooth, for tools/ble_autotest.py): op 0 = query, 1 = clear the start
  * block (as BLUETOOTH OFF), 2 = restart the unit (a chip reset, as fm1_reboot; never the update
  * loader). Reply: op, BLUETOOTH setting, guard blocked, plat_ble_state(). */
@@ -345,6 +351,53 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(proj.set.bt & 1u);
         ed_b(ble_guard.blocked & 1u);
         ed_b((uint32_t)plat_ble_state());
+        break;
+    }
+    case ED_CTL2_WRITE: {
+        uint32_t off, len, rc = 0;
+        if (na < 4u || !flash_ok)
+            return;
+        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        len = ed_unpack7(a + 3, na - 3u, ed_smp_buf, 256u);
+        if ((off & 0xFFu) || !len || off + len > XB_FLASH2_SIZE ||
+            (off < XB_FLASH2_HOLE + XB_FLASH2_HOLE_SIZE && off + len > XB_FLASH2_HOLE))
+            rc = 1;
+        else {
+            ble_stop_for_ctl2();                      /* ble.c: core 1 leaves piece 2 alone */
+            if (!(off & 0xFFFu) && ble_fl_erase(XB_FLASH2_OFF + off))
+                rc = 2;
+            if (!rc && ble_fl_prog(XB_FLASH2_OFF + off, ed_smp_buf, len))
+                rc = 3;
+        }
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        ed_b(rc);
+        break;
+    }
+    case ED_CTL2_READ: {
+        uint32_t off, n, k, j;
+        const uint8_t *src;
+        if (na < 4u)
+            return;
+        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        n = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
+        if (off >= XB_FLASH2_SIZE)
+            return;
+        if (n > XB_FLASH2_SIZE - off)
+            n = XB_FLASH2_SIZE - off;
+        src = fm1_xip_ptr(XB_FLASH2_OFF) + off;
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        for (k = 0; k < n; k += 7) {
+            uint32_t m = 0;
+            for (j = 0; j < 7u && k + j < n; j++)
+                m |= (uint32_t)(src[k + j] >> 7) << j;
+            ed_b(m);
+            for (j = 0; j < 7u && k + j < n; j++)
+                ed_b(src[k + j]);
+        }
         break;
     }
 #endif

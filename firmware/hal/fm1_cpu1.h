@@ -114,7 +114,7 @@ typedef struct {
     uint32_t magic, n, t4_ms, c0_ms, dbg, emu;  /* n: samples taken */
     uint32_t etm[4][4];                         /* 4 samples of core 0's ETM_PC0..3 */
 } fm1_c0_dead_t;
-static fm1_c0_dead_t fm1_c0_dead __attribute__((section(".ble_ram")));
+static fm1_c0_dead_t fm1_c0_dead __attribute__((section(".noinit")));   /* ABI 3: BLERAM is smaller */
 static const volatile uint32_t *volatile fm1_c1_c0_clock;
 /* RAM canary (test 26): the 8 KiB under core 0's stack guard (0x01C72000..0x01C74000, the pool's
  * spare: tools/build.py keeps >= 8 KiB of the pool free) is set to all ones before the controller

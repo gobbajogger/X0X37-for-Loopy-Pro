@@ -8,11 +8,7 @@
 #include "ctl_port.h"
 
 
-#ifdef CTL_HOST
-#define CTL_MAX_TASKS   3   /* btctrler, btstack, and a spare */
-#else
-#define CTL_MAX_TASKS   2
-#endif
+#define CTL_MAX_TASKS   2   /* the controller's task; ABI 3: and the host's ("btstack") */
 #define CTL_TASKQ_WORDS 64
 
 struct ctl_task {
@@ -27,13 +23,44 @@ struct ctl_task {
     int q[CTL_TASKQ_WORDS];
 };
 
+#ifdef CTL_HOST
+static struct ctl_task tasks[CTL_MAX_TASKS] __attribute__((section(".ctl_ram2")));   /* RAM 2 (ctl.ld) */
+#else
 static struct ctl_task tasks[CTL_MAX_TASKS];
+#endif
 static struct ctl_task *cur;           /* NULL = idle context */
+u32 ctl_q_full;                        /* task queue full (DIAG) */
 static struct ctl_ctx idle_ctx;
 
-/* Stack size by task name. The SDK uses a name table; this image has
- * only the controller task, so one default is enough. */
+/* Stack size by task name, as the SDK's table: the controller 512 words; the host ("btstack") 768
+ * (the SDK's size for it). The stacks are painted (0xA5) so DIAG shows how deep they went. */
 #define CTL_TASK_STACK_WORDS 512
+static u32 stack_words(const char *name)
+{
+    const char *n = name;
+    while (n && *n) {                     /* "btstack" or "#C0btstack" */
+        if (strncmp(n, "btstack", 7) == 0 && n[7] == 0) return 768u;
+        n++;
+    }
+    return CTL_TASK_STACK_WORDS;
+}
+u32 ctl_stack_free(const u8 *lo, const u8 *hi)
+{
+    const u8 *p = lo;
+    while (p < hi && *p == 0xA5u) p++;
+    return (u32)(p - lo);
+}
+u32 ctl_os_stack_free(void)
+{
+    u32 m = 0xFFFFFFFFu;
+    for (int i = 0; i < CTL_MAX_TASKS; i++) {
+        struct ctl_task *t = &tasks[i];
+        if (!t->used || !t->stack) continue;
+        u32 f = ctl_stack_free((const u8 *)t->stack, (const u8 *)t->stack + stack_words(t->name) * 4u);
+        if (f < m) m = f;
+    }
+    return m == 0xFFFFFFFFu ? 0 : m;
+}
 
 static struct ctl_task *find(const char *name)
 {
@@ -56,10 +83,12 @@ int task_create(void (*fn)(void *p), void *p, const char *name)
         struct ctl_task *t = &tasks[i];
         if (t->used) continue;
         memset(t, 0, sizeof(*t));
-        t->stack = malloc(CTL_TASK_STACK_WORDS * 4);
+        u32 words = stack_words(name);
+        t->stack = malloc(words * 4);
         if (!t->stack) return -1;
+        memset(t->stack, 0xA5, words * 4);
         t->name = name; t->fn = fn; t->arg = p; t->used = 1; t->waiting = 0;
-        ctl_port_ctx_init(&t->ctx, t->stack, CTL_TASK_STACK_WORDS * 4, task_trampoline);
+        ctl_port_ctx_init(&t->ctx, t->stack, words * 4, task_trampoline);
         return 0;
     }
     return -1;
@@ -96,7 +125,11 @@ int os_taskq_post_type(const char *name, int type, int argc, int *argv)
     struct ctl_task *t = find(name);
     if (!t) return OS_TASK_NOT_EXIST;
     u32 f = ctl_port_irq_save();
-    if (CTL_TASKQ_WORDS - 1 - taskq_count(t) < argc + 2) { ctl_port_irq_restore(f); return OS_Q_FULL; }
+    if (CTL_TASKQ_WORDS - 1 - taskq_count(t) < argc + 2) {
+        if (ctl_q_full < 255u) ctl_q_full++;   /* DIAG: a lost message */
+        ctl_port_irq_restore(f);
+        return OS_Q_FULL;
+    }
     t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argc + 1;
     t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = type;
     for (int i = 0; i < argc; i++) t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argv[i];

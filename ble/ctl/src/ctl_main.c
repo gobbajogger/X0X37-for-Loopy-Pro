@@ -58,6 +58,10 @@ extern u8 __ctl_bss_start[], __ctl_bss_end[];
 extern u8 __ctl_ram_lo[], __ctl_ram_hi[];
 extern u8 __ctl_isr_stack_lo[], __ctl_isr_stack_hi[];
 extern u8 __ctl_run_stack_hi[];
+extern u8 __ctl_run_stack_lo[];
+#ifdef CTL_HOST
+extern u8 __ctl_ram2_lo[], __ctl_ram2_hi[];
+#endif
 
 const xb_boot_t *ctl_bp;
 xb_mbox_t *ctl_mb;
@@ -79,6 +83,10 @@ const xb_header_t ctl_image_header = {
     .poll = (u32)(uintptr_t)ctl_entry_poll,
     .isr_stack_lo = (u32)(uintptr_t)__ctl_isr_stack_lo, .isr_stack_hi = (u32)(uintptr_t)__ctl_isr_stack_hi,
     .ram_lo = (u32)(uintptr_t)__ctl_ram_lo, .ram_hi = (u32)(uintptr_t)__ctl_ram_hi,
+#ifdef CTL_HOST
+    .ram2_lo = (u32)(uintptr_t)__ctl_ram2_lo, .ram2_hi = (u32)(uintptr_t)XB_RAM2_HI,   /* the bond store too */
+    /* p2_size, p2_crc: mkimage.py */
+#endif
     /* BLE_RX 29, AES 31; BREDR 40, BT_CLKN 41, BT_DBG 42, BLE_EVENT 45 (hwi.h). No timer: the
      * clock is the app's free-running counter (ctl_timer.c). */
     .irq_lo = BIT32(29) | BIT32(31),
@@ -96,16 +104,23 @@ void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)
         ctl_mb->dbg[XB_DBG_MS]++;
     ctl_port_irq_restore(f);
 }
-static u8 rx_pkt[XB_FRAME_MAX];
+static u8 rx_pkt[XB_FRAME_MAX] __attribute__((section(".ctl_ram2")));
+/* app -> image: a MIDI packet stays in the ring while the host's send buffer has no room for it
+ * (back-pressure: the app's packer waits, nothing is dropped) */
 void ctl_host_poll(void)
 {
     u8 type;
+    u32 n;
     int k;
-    while ((k = xb_frame_get(&ctl_mb->h2c, &type, rx_pkt, sizeof rx_pkt)) != 0)
+    while ((k = xb_frame_peek(&ctl_mb->h2c, &type, &n)) != 0) {
+        if (k > 0 && type == XB_HX_MIDI && !hx_can_send(n))
+            break;
+        k = xb_frame_get(&ctl_mb->h2c, &type, rx_pkt, sizeof rx_pkt);
         if (k > 0) {
             ctl_mb->dbg[XB_DBG_INIT_MS]++;
             hx_from_app(type, rx_pkt, (unsigned)k);
         }
+    }
 }
 #else
 /* ---- controller -> app ---- */
@@ -190,6 +205,16 @@ static u32 ctl_init(u32 arg)
     memcpy(__ctl_ramtext_start, __ctl_ramtext_lma, (size_t)(__ctl_ramtext_end - __ctl_ramtext_start));
     memcpy(__ctl_data_start, __ctl_data_lma, (size_t)(__ctl_data_end - __ctl_data_start));
     memset(__ctl_bss_start, 0, (size_t)(__ctl_bss_end - __ctl_bss_start));
+#ifdef CTL_HOST
+    memset(__ctl_ram2_lo, 0, (size_t)(__ctl_ram2_hi - __ctl_ram2_lo));   /* not the bond store above it */
+    memset(__ctl_isr_stack_lo, 0xA5, (size_t)(__ctl_isr_stack_hi - __ctl_isr_stack_lo));
+    {   /* the run stack below this frame */
+        volatile u8 here;
+        u8 *top = (u8 *)((uintptr_t)&here & ~3u) - 256;
+        if (top > __ctl_run_stack_lo)
+            memset(__ctl_run_stack_lo, 0xA5, (size_t)(top - __ctl_run_stack_lo));
+    }
+#endif
     if (!boot_ok(bp))
         return XB_E_BOOT;
     (void)ctl_port_irq_save();            /* off for the whole init (it runs on core 0, before core 1 starts) */
@@ -228,6 +253,9 @@ static u32 ctl_init(u32 arg)
             break;                        /* every task waits: settled */
     }
     stage(XB_STG_SETTLED);
+#ifdef CTL_HOST
+    ctl_mb->hx.heap = ctl_heap_stat();
+#endif
     /* The interrupts stay off until the first poll on core 1. */
     ctl_mb->dbg[XB_DBG_INIT_MS] = ctl_ms() - t_init;
     if (ctl_mb->err != XB_E_NONE) {
@@ -255,6 +283,15 @@ static u32 ctl_poll(u32 unused)
     }
     ctl_mb->polls++;
     ctl_os_run_once();
+#ifdef CTL_HOST
+    if ((ctl_mb->polls & 1023u) == 0) {    /* health for DIAG: heap, the least free stack bytes / 16 */
+        u32 t = ctl_os_stack_free() >> 4, r = ctl_stack_free(__ctl_run_stack_lo, __ctl_run_stack_hi) >> 4,
+            i = ctl_stack_free(__ctl_isr_stack_lo, __ctl_isr_stack_hi) >> 4;
+        ctl_mb->hx.heap = ctl_heap_stat();
+        ctl_mb->hx.stacks = (t > 255u ? 255u : t) | (r > 255u ? 255u : r) << 8 | (i > 255u ? 255u : i) << 16 |
+                            (ctl_q_full > 255u ? 255u : ctl_q_full) << 24;
+    }
+#endif
     return 0;
 }
 

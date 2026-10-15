@@ -26,18 +26,20 @@
  *   0x00000-0x03FFF  head (SPL, isd_config)         NEVER
  *   0x04000-0x9CFFF  app area (stock PRCT end), SFC-encrypted   update loader only (FL_APP)
  *     0x04120-0x8AFFF  app code (app.bin offset 0 .. FL_APP_CODE_MAX; build.py links to it)
- *     0x8B000-0x9AFFF  Bluetooth controller block, 64 KiB, one piece (FL_BLE; XIP 0x02087000), in app.bin
+ *     0x8B000-0x9AFFF  Bluetooth image piece 1, 64 KiB (FL_BLE; XIP 0x02087000), in app.bin
  *     0x9B000-0x9CFFF  app slot end (0x9B520, APP_SLOT 0x97400 as stock), cfg_tool, region table, cfg
- *   0x9D000-0xAFFFF  VM: X0X store (storage.c: 7 objects, A/B, 0x9D000-0xAAFFF; spare 0xAB000-0xAEFFF;
- *                    owner tag 0xAF000)                                            FL_DATA
- *   0xB0000-0xBAFFF  VM: user sample slot 3 (44 KiB; app/slots.c)                 FL_SMPV
+ *   0x9D000-0xAAFFF  VM: X0X store (storage.c: 7 objects, A/B)                    FL_DATA
+ *   0xAB000-0xAEFFF  VM: Bluetooth image piece 2a, 16 KiB (XIP 0x020A7000, plain; ED_CTL2) FL_CTL2
+ *   0xAF000-0xAFFFF  VM: the store owner tag (storage.c; as in flash layout 2)       FL_OWNER
+ *   0xB0000-0xB6FFF  VM: Bluetooth image piece 2b, 28 KiB (XIP 0x020AC000)          FL_CTL2
+ *   0xB7000-0xBAFFF  VM: user sample slot 3 (16 KiB; app/slots.c)                 FL_SMPV
  *   0xBB000-0xBFFFF  VM: M-UPGRADE loader staging + update record (ota.c)          FL_OTA
  *   0xC0000-0xC0FFF  BTIF (BT pairing)              NEVER
  *   0xC1000-0xC1FFF  USRTRIM (key/pad/wheel calibration, "trimdat")   NEVER
  *   0xC2000-0xF3FFF  user sample slots 1 (80 KiB) and 2 (120 KiB; app/slots.c): stock USRFLASH
  *                    0xC2000-0xEAFFF and the unlisted 0xEB000-0xF3FFF                FL_SMP
  *   0xF4000-0xFDFFF  USR (stock resources; kept for a rollback)   NEVER
- *   0xFE000-0xFEFFF  free, unused (4 KiB: too small for a slot)
+ *   0xFE000-0xFEFFF  the Bluetooth bonds (ble.c, XB_NV_SIZE bytes; was free)      FL_BOND
  *   0xFF000-0xFFFFF  key_mac                        NEVER
  * Everything below is an explicit allow-list; the asserts keep each allowed window out of the
  * protected ranges at compile time. */
@@ -53,9 +55,15 @@
 #define FL_REC_HI       0x000C0000u
 #define FL_PLAIN_LO     0x0009D000u                /* plain XIP window from the VM start */
 #define FL_DATA_LO      0x0009D000u                /* X0X store */
-#define FL_DATA_HI      0x000B0000u
-#define FL_SMPV_LO      0x000B0000u                /* user sample slot 3 in the VM spare (app/slots.c) */
+#define FL_DATA_HI      0x000AB000u
+#define FL_CTL2_LO      0x000AB000u                /* Bluetooth image piece 2 (x0x_ble_abi.h XB_FLASH2_OFF) ... */
+#define FL_OWNER_LO     0x000AF000u                /* ... around the store owner tag (storage.c) ... */
+#define FL_OWNER_HI     0x000B0000u
+#define FL_CTL2_HI      0x000B7000u                /* ... to here */
+#define FL_SMPV_LO      0x000B7000u                /* user sample slot 3 in the VM spare (app/slots.c) */
 #define FL_SMPV_HI      0x000BB000u
+#define FL_BOND_LO      0x000FE000u                /* the Bluetooth bonds (ble.c) */
+#define FL_BOND_HI      0x000FF000u
 #define FL_OTA_LO       0x000BB000u                /* M-UPGRADE loader staging, ota.c */
 #define FL_OTA_HI       0x000C0000u
 #define FL_SMP_LO       0x000C2000u                /* user sample slots (app/slots.c) */
@@ -75,7 +83,13 @@ _Static_assert(FL_WIN_SAFE(FL_DATA_LO, FL_DATA_HI), "SMK: FL_DATA overlaps a pro
 _Static_assert(FL_WIN_SAFE(FL_OTA_LO, FL_OTA_HI), "SMK: FL_OTA overlaps a protected range");
 _Static_assert(FL_WIN_SAFE(FL_SMP_LO, FL_SMP_HI), "SMK: FL_SMP overlaps a protected range");
 _Static_assert(FL_WIN_SAFE(FL_SMPV_LO, FL_SMPV_HI), "SMK: FL_SMPV overlaps a protected range");
-_Static_assert(FL_DATA_HI <= FL_SMPV_LO && FL_SMPV_HI <= FL_OTA_LO, "SMK: FL_SMPV overlaps the store or the OTA area");
+_Static_assert(FL_WIN_SAFE(FL_CTL2_LO, FL_OWNER_LO) && FL_WIN_SAFE(FL_OWNER_HI, FL_CTL2_HI),
+               "SMK: FL_CTL2 overlaps a protected range");
+_Static_assert(FL_WIN_SAFE(FL_OWNER_LO, FL_OWNER_HI), "SMK: FL_OWNER overlaps a protected range");
+_Static_assert(FL_WIN_SAFE(FL_BOND_LO, FL_BOND_HI), "SMK: FL_BOND overlaps a protected range");
+_Static_assert(FL_DATA_HI <= FL_CTL2_LO && FL_CTL2_LO < FL_OWNER_LO && FL_OWNER_HI < FL_CTL2_HI &&
+               FL_CTL2_HI <= FL_SMPV_LO && FL_SMPV_HI <= FL_OTA_LO, "SMK: the VM windows overlap");
+_Static_assert(FL_BOND_LO >= FL_USRRES_HI && FL_BOND_HI <= FL_KEYMAC_LO, "SMK: FL_BOND must sit between USR and key_mac");
 _Static_assert(FL_BLE_LO % 0x1000u == 0u && FL_BLE_HI - FL_BLE_LO >= 0x10000u && FL_BLE_LO >= FL_APP_LO + 0x120u &&
                FL_BLE_HI <= FL_APP_SLOT_END && FL_APP_SLOT_END <= FL_APP_HI,
                "SMK: the Bluetooth block must be one 64 KiB piece inside the app slot");
@@ -86,11 +100,14 @@ _Static_assert(FL_REC_HI == FL_CAL_LO && FL_OTA_HI <= FL_REC_HI && FL_OTA_LO >= 
 _Static_assert(FL_DATA_HI <= FL_OTA_LO && FL_APP_HI <= FL_DATA_LO, "SMK: windows overlap");
 /* the update loader (loader.c): the app area, and records only in the VM below BTIF */
 #define FL_LDR_RANGE_OK(off, n) (FL_IN(off, n, FL_APP_LO, FL_APP_HI) || FL_IN(off, n, FL_REC_LO, FL_REC_HI))
-/* X0X's own store: FL_DATA and the sample slots */
+/* X0X's own store: FL_DATA, its owner tag and the sample slots */
 #define FL_STORE_OK(off, n) (FL_IN(off, n, FL_DATA_LO, FL_DATA_HI) || FL_IN(off, n, FL_SMP_LO, FL_SMP_HI) || \
-                             FL_IN(off, n, FL_SMPV_LO, FL_SMPV_HI))
+                             FL_IN(off, n, FL_SMPV_LO, FL_SMPV_HI) || FL_IN(off, n, FL_OWNER_LO, FL_OWNER_HI))
+/* the Bluetooth image's own: piece 2 (ED_CTL2) and the bonds (ble.c) */
+#define FL_BLE_OK(off, n) (FL_IN(off, n, FL_CTL2_LO, FL_OWNER_LO) || FL_IN(off, n, FL_OWNER_HI, FL_CTL2_HI) || \
+                           FL_IN(off, n, FL_BOND_LO, FL_BOND_HI))
 #ifndef FL_RANGE_OK
-#define FL_RANGE_OK(off, n) (FL_STORE_OK(off, n) || FL_IN(off, n, FL_OTA_LO, FL_OTA_HI))
+#define FL_RANGE_OK(off, n) (FL_STORE_OK(off, n) || FL_BLE_OK(off, n) || FL_IN(off, n, FL_OTA_LO, FL_OTA_HI))
 #endif
 /* second, independent net in the RAM driver: [off, off + n) touches a protected range (also when a
  * caller supplies its own FL_RANGE_OK, as the update loader does) */

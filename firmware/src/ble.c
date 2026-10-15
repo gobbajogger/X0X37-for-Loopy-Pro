@@ -6,8 +6,9 @@
  *   - checks it (header, CRC, entries, RAM window, interrupts) before anything starts it;
  *   - starts it on core 1 at power-on (its init entry, core 0 in RAM meanwhile, fm1_cpu1.h) and
  *     hands core 1's idle loop its poll entry;
- *   - talks to it only through standard HCI packets in the mailbox rings (x0x_ble_abi.h), with
- *     the BLE-MIDI host (ble/ble_midi_host.c, MPL-2.0, from felucca-bsp);
+ *   - ABI 3: the image holds JieLi's BLE host; the mailbox rings carry whole BLE-MIDI packets and
+ *     link changes (x0x_ble_abi.h XB_HX_*). ble/ble_midi_host.c (frames mode) parses and packs them;
+ *   - keeps the image's bond store (RAM, XB_NV_ADDR) in flash (FL_BOND), loads it at power-on;
  *   - puts BLE-MIDI in into the USB MIDI in queue and mirrors the MIDI out (clock, notes) to BLE.
  * Without an image, or with BLUETOOTH OFF at power-on, nothing of this runs and core 1 starts as
  * before. Service: the TIMER5 interrupt, next to usb_poll (2 kHz, never inside the render). */
@@ -23,15 +24,23 @@ typedef struct {
     xb_mbox_t mb;                               /* first: 64-byte aligned (the rings' cache lines) */
     bleh_t h;
     xb_boot_t boot;
-    uint8_t fr[XB_FRAME_MAX];                   /* one frame from the controller */
     volatile uint32_t ow, orr;
     uint32_t sysex_drops;
     char nm[9];                                 /* the name it advertises */
 } ble_ram_t;
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
-/* attempt 32: the MIDI out mirror in the pool (zeroed at boot), so BLERAM has room for a 64-message
- * MIDI in queue. Written by the audio ISR and read by ble_service, both on core 0. */
+/* attempt 32: the MIDI out mirror in the pool (zeroed at boot). Written by the audio ISR and read by
+ * ble_service, both on core 0. */
 static uint32_t ble_oq[BLE_OQ] __attribute__((section(".pool")));
+/* ABI 3: more heap for the image's host (boot parameter heap2), from the pool (zeroed at boot) */
+#define BLE_HEAP2 2048u
+static uint8_t ble_heap2[BLE_HEAP2] __attribute__((section(".pool"), aligned(8)));
+/* the bond store: XB_NV_SIZE bytes in RAM 2 (the image's), saved to FL_BOND as magic, CRC, bytes */
+#define BLE_NV ((uint8_t *)(uintptr_t)XB_NV_ADDR)
+#define BLE_NV_MAGIC 0x444E4258u                /* "XBND" */
+static uint32_t ble_nv_seen, ble_nv_at, ble_nv_saves, ble_nv_err;
+static uint8_t ble_radio_sent = 0xFFu;
+__attribute__((weak)) void plat_ble_link_lost(void) {}
 /* core 0's last Bluetooth tick (ms since boot) and core 1's poll count then. In .ble_ram (not
  * cleared): after a watchdog reset, DIAG shows when core 0 stopped and if core 1 still ran. */
 static uint32_t ble_alive[2] __attribute__((section(".ble_ram")));
@@ -152,6 +161,8 @@ static void ble_prepare(int on)
     const xb_header_t *h = FM1_BLE_HDR;
     fm1_t5w_boot();                             /* before TIMER5 starts: keep the last boot's frame watch */
     ble_img = (uint8_t)ble_img_check(FM1_BLE_IMG, XB_FLASH_SIZE, XB_FLASH_XIP);
+    if (ble_img == BLE_IMG_OK)
+        ble_img = (uint8_t)ble_img2_check(h, fm1_xip_ptr(XB_FLASH2_OFF));   /* piece 2 (ED_CTL2) */
     ble_want = (uint8_t)(on != 0);
     if (ble_guard.magic == BLE_GUARD_MAGIC && ble_guard.trying) {
         if (ble_r.mb.magic == XB_MBOX_MAGIC)
@@ -171,7 +182,7 @@ static void ble_prepare(int on)
     }
     ble_boot_on = 1;
     fm1_cpu1_ble_stacks(h->isr_stack_hi, h->ram_lo);
-    fm1_guard_xip_hi = XB_FLASH_XIP + XB_FLASH_SIZE - 1u;
+    fm1_guard_xip_hi = h->p2_size ? XB_FLASH2_XIP + XB_FLASH2_SIZE - 1u : XB_FLASH_XIP + XB_FLASH_SIZE - 1u;
     fm1_guard_ram_hi = h->ram_hi;
 }
 
@@ -212,8 +223,23 @@ static void ble_start(void)
     xb_ring_init(&mb->h2c);
     xb_ring_init(&mb->c2h);
     fm1_ble_boot_fill(&ble_r.boot, mb);
+    {
+        const uint32_t *f = (const uint32_t *)(const void *)fm1_xip_ptr(FL_BOND_LO);
+        uint32_t i;
+        for (i = 0; i < 6u; i++) ble_r.boot.addr[i] = addr[i];
+        for (i = 0; i + 1u < sizeof ble_r.boot.name && ble_r.nm[i]; i++) ble_r.boot.name[i] = ble_r.nm[i];
+        ble_r.boot.nv = XB_NV_ADDR;
+        ble_r.boot.heap2 = (uint32_t)(uintptr_t)ble_heap2;
+        ble_r.boot.heap2_size = BLE_HEAP2;
+        if (flash_ok && f[0] == BLE_NV_MAGIC && f[1] == xb_crc32(0, (const uint8_t *)(f + 2), XB_NV_SIZE))
+            for (i = 0; i < XB_NV_SIZE; i++) BLE_NV[i] = ((const uint8_t *)(f + 2))[i];
+        else
+            for (i = 0; i < XB_NV_SIZE; i++) BLE_NV[i] = 0;   /* no bonds (the image starts it empty) */
+        ble_nv_seen = 0;
+    }
     bleh_init(&ble_r.h, ble_send, 0, ble_r.nm, addr);
     bleh_set_sysex(&ble_r.h, ble_sysex_in);
+    bleh_frames_start(&ble_r.h, XB_HX_MIDI);
     fm1_ble_sync();
     ble_guard.start_ms = fm1_ms;
     ble_guard.sink_n = ble_guard.sink_at = ble_guard.sink_val = ble_guard.wait_end = 0;
@@ -316,13 +342,29 @@ static void ble_fail(void)
     ble_dead = 1;
 }
 
+/* MIDI in: the parsed messages into the USB MIDI in queue (as long as it has room) */
+static void ble_in_drain(bleh_t *h)
+{
+    bleh_msg_t m;
+    while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {
+        uint32_t pkt = ble_usb_of_msg(&m);
+        if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u || (pkt & 0xFu) == 0xBu) && smk_apc_usb_event(pkt))
+            continue;                             /* attempt 29: APC clip and transport feedback, as on USB */
+        if (pkt) {
+            midi_in_q[mi_w % MQ] = pkt;
+            RING_PUBLISH();
+            mi_w++;
+        }
+    }
+}
+
 /* TIMER5, next to usb_poll (same context: the MIDI in queue has one writer) */
 static void ble_service(void)
 {
     bleh_t *h = &ble_r.h;
     uint32_t k;
     uint8_t t;
-    bleh_msg_t m;
+    uint8_t fr[XB_FRAME_MAX];
     if (!ble_up)
         return;
     if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
@@ -338,15 +380,28 @@ static void ble_service(void)
         if (!ble_want)
             return;                             /* OFF since power-on: the host never starts */
         ble_host_on = 1;
-        bleh_start(h);
     }
-    bleh_radio(h, ble_want);
-    for (k = 0; k < 8u; k++) {                  /* events and data from the controller */
-        int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
+    if (ble_radio_sent != ble_want) {           /* radio on / off: a command to the image's host */
+        uint8_t c = ble_want;
+        if (xb_frame_put(&ble_r.mb.h2c, XB_HX_CMD, &c, 1u) == 0)
+            ble_radio_sent = ble_want;
+    }
+    for (k = 0; k < 8u; k++) {                  /* BLE-MIDI packets and link changes from the image */
+        int n;
+        ble_in_drain(h);
+        if (h->in_r != h->in_w)
+            break;                              /* the USB queue is full: the rest waits in the ring */
+        n = xb_frame_get(&ble_r.mb.c2h, &t, fr, sizeof fr);
         if (n == 0)
             break;
-        if (n > 0) {
-            bleh_rx(h, t, ble_r.fr, (uint16_t)n);
+        if (n > 0 && t == XB_HX_MIDI)
+            bleh_midi_in(h, fr, (uint16_t)n);
+        else if (n >= 8 && t == XB_HX_STATE) {
+            bleh_link(h, fr);
+            if (bleh_link_lost(h)) {
+                ble_r.ow = ble_r.orr;           /* nothing old for the next link */
+                plat_ble_link_lost();           /* the app's hook (All Notes Off) */
+            }
         }
     }
     while (ble_r.orr != ble_r.ow) {             /* MIDI out, mirrored */
@@ -358,17 +413,9 @@ static void ble_service(void)
     }
     ble_sx_answer(h);
     /* attempt 37: no parameter request (test 34's, accepted by the iPhone, came with a huge MIDI delay) */
-    bleh_poll(h);
-    while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
-        uint32_t pkt = ble_usb_of_msg(&m);
-        if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u || (pkt & 0xFu) == 0xBu) && smk_apc_usb_event(pkt))
-            continue;                             /* attempt 29: APC clip and transport feedback, as on USB */
-        if (pkt) {
-            midi_in_q[mi_w % MQ] = pkt;
-            RING_PUBLISH();
-            mi_w++;
-        }
-    }
+    if (XB_RING_SIZE - (ble_r.mb.h2c.head - ble_r.mb.h2c.tail) >= BLEH_FMTU + 16u)
+        bleh_poll(h);                           /* room for the largest packet it can make */
+    ble_in_drain(h);
 }
 
 int plat_ble_state(void)
@@ -440,5 +487,56 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_alive[1];
     w[n++] = ble_rails[0];
     w[n++] = ble_rails[1];
+    if (n + 10u > max)
+        return n;
+    w[n++] = ble_r.mb.hx.state | (uint32_t)ble_r.mb.hx.ccc << 8 | (uint32_t)ble_r.mb.hx.bonded << 16 |
+             (uint32_t)ble_r.mb.hx.reason << 24;                  /* ABI 3: the image's host */
+    w[n++] = ble_r.mb.hx.interval | (uint32_t)ble_r.mb.hx.mtu << 16;
+    w[n++] = ble_r.mb.hx.links;
+    w[n++] = ble_r.mb.hx.pairs;
+    w[n++] = ble_r.mb.hx.heap;                  /* peak, failed allocations, last size */
+    w[n++] = ble_r.mb.hx.stacks;
+    w[n++] = ble_r.mb.hx.nv_writes | ble_nv_saves << 16 | ble_nv_err << 24;
+    w[n++] = ble_r.mb.hx.rx;
+    w[n++] = ble_r.mb.hx.tx;
+    w[n++] = ble_r.mb.hx.tx_drops;
     return n;
+}
+
+/* the main loop: the image's bond store changed (a pairing, a forget) and has been still for 2 s:
+ * save it to FL_BOND. A copy first; it counts only when the store did not change meanwhile. */
+static void ble_idle(void)
+{
+    static uint8_t cp[XB_NV_SIZE] __attribute__((section(".pool"), aligned(4)));
+    uint32_t w, i, hd[2];
+    if (!ble_up)
+        return;
+    w = ble_r.mb.hx.nv_writes;
+    if (w == ble_nv_seen) {
+        ble_nv_at = fm1_ms;
+        return;
+    }
+    if (fm1_ms - ble_nv_at < 2000u)
+        return;
+    for (i = 0; i < XB_NV_SIZE; i++) cp[i] = BLE_NV[i];
+    if (ble_r.mb.hx.nv_writes != w)
+        return;                                 /* it changed while copied: again later */
+    hd[0] = BLE_NV_MAGIC;
+    hd[1] = xb_crc32(0, cp, XB_NV_SIZE);
+    if (ble_fl_erase(FL_BOND_LO) != 0 || ble_fl_prog(FL_BOND_LO, hd, 8u) != 0 ||
+        ble_fl_prog(FL_BOND_LO + 8u, cp, XB_NV_SIZE) != 0) {
+        if (ble_nv_err < 255u) ble_nv_err++;
+    } else if (ble_nv_saves < 255u)
+        ble_nv_saves++;
+    ble_nv_seen = w;
+}
+
+/* ED_CTL2_WRITE (editor.c): piece 2 changes under the image. Stop it first (as a failed start, but
+ * no block for the next power-on). */
+static void ble_stop_for_ctl2(void)
+{
+    if (!ble_up)
+        return;
+    ble_record();
+    ble_fail();
 }

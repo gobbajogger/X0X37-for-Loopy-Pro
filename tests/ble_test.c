@@ -30,9 +30,9 @@ static void t_ring(void)
     CHECK(xb_frame_put(&r, 4, p, XB_FRAME_MAX) == -2);          /* type + payload > XB_FRAME_MAX */
     CHECK(xb_frame_put(&r, 4, p, XB_FRAME_MAX - 1u) == 0);
     CHECK(xb_frame_get(&r, &t, q, sizeof q) == (int)(XB_FRAME_MAX - 1u) && t == 4 && !memcmp(p, q, XB_FRAME_MAX - 1u));
-    /* wrap many times, sizes 0..250, the ring always in step */
+    /* wrap many times, sizes 0..XB_FRAME_MAX - 1, the ring always in step */
     for (k = 0; k < 5000; k++) {
-        uint32_t len = (uint32_t)(k * 37) % 251u;
+        uint32_t len = (uint32_t)(k * 37) % XB_FRAME_MAX;
         int rc = xb_frame_put(&r, (uint8_t)(k & 7), p + (k % 50), len);
         CHECK(rc == 0);
         rc = xb_frame_get(&r, &t, q, sizeof q);
@@ -209,13 +209,20 @@ static void t_host(void)
     CHECK(!bleh_midi_next(&h, &m));
     /* attempt 32: a burst of 60 notes (12 packets of 5) all arrive */
     { int k, j, got = 0;
-      for (k = 0; k < 12; k++) {
+      for (k = 0; k < 12; k++) {                  /* ABI 3: ble.c drains the queue after each packet */
           uint8_t d[17] = {0x80, 0x81, 0x90, 0, 1};
           for (j = 0; j < 4; j++) { d[5 + 3 * j] = 0x81; d[6 + 3 * j] = (uint8_t)(k * 5 + j + 1); d[7 + 3 * j] = 1; }
           d[3] = (uint8_t)(k * 5); midi_w(&h, d, sizeof d);
+          while (bleh_midi_next(&h, &m)) { if (m.b[0] == 0x90 && m.b[1] == got) got++; }
       }
-      while (bleh_midi_next(&h, &m)) { if (m.b[0] == 0x90 && m.b[1] == got) got++; }
       CHECK(got == 60); }
+    /* ABI 3: one full MTU-64 packet with running status (30 notes) fits the MIDI in queue */
+    { uint8_t d[61]; int j, got = 0;
+      d[0] = 0x80; d[1] = 0x81; d[2] = 0x90; d[3] = 0; d[4] = 1;
+      for (j = 1; j < 29; j++) { d[3 + 2 * j] = (uint8_t)j; d[4 + 2 * j] = 1; }
+      midi_write(&h, d, 61);                      /* the frames-mode path (no 23-byte HCI limit) */
+      while (bleh_midi_next(&h, &m)) { if (m.b[0] == 0x90 && m.b[1] == got) got++; }
+      CHECK(got == 29 && h.drops_in == 0); }
     /* a bad header: ignored */
     { const uint8_t d[] = {0x00, 0x81, 0x90, 1, 2}; midi_w(&h, d, sizeof d); }
     CHECK(!bleh_midi_next(&h, &m));
@@ -514,6 +521,51 @@ static void t_guard(void)
     CHECK(ble_guard_boot(&g, 1, 1) == 1 && !g.blocked && !g.fails);
 }
 
+/* ABI 3: frames mode (the image holds the host; whole BLE-MIDI packets and link changes) */
+static uint8_t fr_pkt[80], fr_type;
+static unsigned fr_n, fr_calls;
+static int fr_full;
+static int fr_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
+{
+    (void)ctx;
+    if (fr_full) return -1;
+    fr_type = t; fr_n = n; fr_calls++;
+    memcpy(fr_pkt, p, n);
+    return 0;
+}
+static void t_frames(void)
+{
+    static bleh_t h;
+    static const uint8_t addr[6] = {1, 2, 3, 4, 5, 0xC6};
+    const uint8_t up[8] = {2, 1, 0, 0, 24, 0, 64, 0}, down[8] = {1, 0, 0, 0x13, 24, 0, 23, 0};
+    const uint8_t note[3] = {0x90, 60, 100}, in[5] = {0x80, 0x80, 0x80, 0x40, 0x7F};
+    bleh_msg_t m;
+    bleh_init(&h, fr_send, 0, "X0X", addr);
+    bleh_frames_start(&h, 0x20);
+    CHECK(h.state == BLEH_STARTING && !bleh_connected(&h));
+    bleh_link(&h, down);
+    CHECK(h.state == BLEH_ADVERTISING && !bleh_link_lost(&h));
+    bleh_link(&h, up);
+    CHECK(bleh_connected(&h) && bleh_notifying(&h) && h.mtu == 64 && h.conn_int == 24);
+    CHECK(bleh_midi_send(&h, note, 3, 0x1234) == 0);
+    bleh_poll(&h);
+    CHECK(fr_calls == 1 && fr_type == 0x20 && fr_n == 5 && fr_pkt[0] == (0x80 | ((0x1234 >> 7) & 0x3F)) &&
+          fr_pkt[1] == (0x80 | (0x1234 & 0x7F)) && fr_pkt[2] == 0x90 && fr_pkt[3] == 60 && fr_pkt[4] == 100);
+    bleh_poll(&h);
+    CHECK(fr_calls == 1);                                       /* nothing more to send */
+    bleh_midi_in(&h, in, 5);
+    CHECK(bleh_midi_next(&h, &m) && m.b[0] == 0x80 && m.b[1] == 0x40 && m.b[2] == 0x7F);
+    fr_full = 1;
+    CHECK(bleh_midi_send(&h, note, 3, 0) == 0);
+    bleh_poll(&h);
+    CHECK(h.tx_lost == 1);                                      /* ble.c checks the room first */
+    fr_full = 0;
+    bleh_link(&h, down);
+    CHECK(h.state == BLEH_ADVERTISING && h.disc_reason == 0x13 && bleh_link_lost(&h) && !bleh_link_lost(&h));
+    bleh_midi_in(&h, in, 5);
+    CHECK(!bleh_midi_next(&h, &m));                             /* no link: no MIDI in */
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1) {                                /* ble_test ctl.img: the app's check on a real image */
@@ -529,6 +581,7 @@ int main(int argc, char **argv)
     t_ring();
     t_ring_threads();
     t_host();
+    t_frames();
     t_glue();
     t_park();
     t_guard();

@@ -17,11 +17,25 @@ u32 ctl_heap_stat(void)
     return (heap_peak & 0xFFFFu) | (heap_fails > 255u ? 255u : heap_fails) << 16 | (n > 255u ? 255u : n) << 24;
 }
 
+/* the heap; ABI 3: and a second region the app lends (boot parameters heap2). A used 8-byte block
+ * ends the first region, so a merge never joins the two. */
 void ctl_heap_init(void)
 {
     heap_first = (struct blk *)(((uintptr_t)__ctl_heap_start + 7u) & ~7u);
     heap_first->size = ((u32)(__ctl_heap_end - (u8 *)heap_first)) & ~7u;
     heap_first->next = NULL;
+#ifdef CTL_HOST
+    if (ctl_bp && ctl_bp->heap2 && ctl_bp->heap2_size >= 64u && !(ctl_bp->heap2 & 7u)) {
+        struct blk *end = (struct blk *)((u8 *)heap_first + heap_first->size - 8u);
+        struct blk *r2 = (struct blk *)(uintptr_t)ctl_bp->heap2;
+        heap_first->size -= 8u;
+        heap_first->next = end;
+        end->size = 8u | 1u;              /* never free */
+        end->next = r2;
+        r2->size = ctl_bp->heap2_size & ~7u;
+        r2->next = NULL;
+    }
+#endif
 }
 
 void *malloc(size_t n)
