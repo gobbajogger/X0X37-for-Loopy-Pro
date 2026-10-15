@@ -982,7 +982,7 @@ CK_FN static void ck_arp(uint32_t dt)
 uint8_t smk_ck_knobs_owned(void)
 {
     CK_BASE;
-    return (uint8_t)(clip_grid_mode && cp->focus && ui.overlay == O_NONE && !ui.help);
+    return (uint8_t)(clip_grid_mode && ui.overlay == O_NONE && !ui.help ? (cp->focus ? 1u : 2u) : 0u);
 }
 /* knobs 2-5 of each mode: the settings_t byte, the highest value, the name list (0: a number) */
 static const char *const CK_LISTS[] = {0, CK_ROOT_N, CK_SCALE_N, "NEAR\0FILTER", CK_CHORD_N, CK_ORD_N, CK_RATE_N};
@@ -1035,7 +1035,13 @@ CK_FN static void ck_controls(void)
         ck_send(0xB0u | cp->ch, 123u, 0u);                   /* All Notes Off */
         ui_say("PANIC", 0);
     }
-    if (smk_ck_knobs_owned()) {
+    if (smk_ck_knobs_owned() == 2u)                          /* no mode: knobs 2-8 send CC 48-54 for MIDI-learn */
+        for (i = 0; i < NE; i++) {                          /* (relative: 1-63 up, 65-127 down) */
+            int32_t d = fm1_enc_take(panel.enc[i]) * panel.dir[i];
+            if (d)
+                ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);
+        }
+    if (smk_ck_knobs_owned() == 1u) {
         uint32_t f = cp->focus >> 1, j;                      /* 1, 2, 4 -> 0, 1, 2 */
         for (j = 0; j < 4u; j++) {                          /* roles EN_SELECT..EN_K1 = knobs 2-5 */
             int32_t d = fm1_enc_take(panel.enc[j]) * panel.dir[j], v;
