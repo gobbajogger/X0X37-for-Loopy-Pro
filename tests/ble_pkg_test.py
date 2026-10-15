@@ -115,25 +115,64 @@ def main():
             ok(False, "an FM-1 package is refused")
         except add_ctl.PkgError:
             pass
+    # a package with app code in the Bluetooth block (an X0X before 7054cc5, as 1.8-apc40): refused,
+    # also --remove. The same package with the slot map record (the build limits the code since then): accepted.
+    lo_blk = 0x120 + add_ctl.CODE_MAX
+    st = add_ctl._open(logical0)
+    st["area"][lo_blk:lo_blk + 38011] = bytes((i * 7 + 3) & 0xFF for i in range(38011))
+    with_map = add_ctl._close(st)
+    st = add_ctl._open(with_map)
+    st["flash"][pm.SLOTMAP_OFF:pm.SLOTMAP_OFF + 16] = b"\xFF" * 16
+    old_code = add_ctl._close(st)
+    ok(pm.slotmap_of(old_code) is None and fi.package_damage(old_code) is None, "test package: no slot map, CRCs right")
+    for what, c in (("ctl.img", ctl), ("--remove", None)):
+        try:
+            add_ctl.insert(old_code, c)
+            ok(False, f"code in the Bluetooth block: {what} refused")
+        except add_ctl.NoBlock as e:
+            ok("Bluetooth block" in str(e), f"code in the Bluetooth block: {what} refused with a clear message")
+    old_fwsc = add_ctl.fwsc_of(old_code, product)
+    try:
+        add_ctl.add(old_fwsc, ctl)
+        ok(False, "add_ctl.add refuses an old package")
+    except add_ctl.NoBlock:
+        pass
+    add_ctl.insert(with_map, ctl)            # code in the block but the slot map record: accepted (no raise)
+    add_ctl.check_block(logical0)
+    # the user's 1.8-apc40 package from the main tree, when it is there (X0X_OLD_PKG overrides the path)
+    real_old = Path(__import__("os").environ.get("X0X_OLD_PKG", SRC.parent / "x0x37" / "build" / "x0x-smk37-elite-1.8-apc40.fwsc"))
+    if real_old.is_file():
+        try:
+            add_ctl.add(real_old.read_bytes(), ctl)
+            ok(False, f"{real_old.name} refused")
+        except add_ctl.NoBlock:
+            pass
     # JavaScript: the same bytes, the same verdicts
     node = shutil.which("node")
     if node:
         with tempfile.TemporaryDirectory() as td:
             td = Path(td)
             (td / "pkg.fwsc").write_bytes(raw)
+            (td / "old.fwsc").write_bytes(old_fwsc)
+            (td / "map.fwsc").write_bytes(add_ctl.fwsc_of(with_map, product))
             (td / "ctl.img").write_bytes(ctl)
             bads = {"crc": make_ctl(badcrc=True), "irq": make_ctl(ihi=1 << 31), "ram": make_ctl(rlo=0x01C00000)}
             for k, v in bads.items():
                 (td / f"bad_{k}.img").write_bytes(v)
             js = f"""
 import {{ readFileSync, writeFileSync }} from "fs";
-import {{ logicalImage, insertCtl, ctlProblem }} from "{(SRC / 'web' / 'fm1pkg.js').as_posix()}";
+import {{ logicalImage, insertCtl, ctlProblem, CTL_NO_BLOCK }} from "{(SRC / 'web' / 'fm1pkg.js').as_posix()}";
 const d = "{td.as_posix()}";
 const pkg = new Uint8Array(readFileSync(d + "/pkg.fwsc")), ctl = new Uint8Array(readFileSync(d + "/ctl.img"));
 writeFileSync(d + "/js_with.bin", insertCtl(logicalImage(pkg), ctl));
 writeFileSync(d + "/js_without.bin", insertCtl(insertCtl(logicalImage(pkg), ctl), null));
 const v = {{ good: ctlProblem(ctl) }};
 for (const k of ["crc", "irq", "ram"]) v[k] = ctlProblem(new Uint8Array(readFileSync(d + "/bad_" + k + ".img")));
+for (const k of ["old", "map"]) {{
+  try {{ writeFileSync(d + "/js_" + k + ".bin", insertCtl(logicalImage(new Uint8Array(readFileSync(d + "/" + k + ".fwsc"))), ctl)); v[k] = null; }}
+  catch (e) {{ v[k] = e.message; }}
+}}
+v.noblock = CTL_NO_BLOCK;
 writeFileSync(d + "/js.json", JSON.stringify(v));
 """
             (td / "t.mjs").write_text(js)
@@ -144,6 +183,9 @@ writeFileSync(d + "/js.json", JSON.stringify(v));
                 ok((td / "js_without.bin").read_bytes() == bytes(logical0), "JS remove = the original")
                 v = json.loads((td / "js.json").read_text())
                 ok(v["good"] is None and all(v[k] for k in ("crc", "irq", "ram")), f"JS ctlProblem verdicts {v}")
+                ok(v["old"] == v["noblock"] == add_ctl.NO_BLOCK, f"JS insertCtl refuses code in the block: {v['old']}")
+                ok(v["map"] is None and (td / "js_map.bin").read_bytes() == add_ctl.insert(with_map, ctl),
+                   "JS insertCtl with the slot map record = Python insert")
     else:
         print("ble_pkg_test: node not found, JavaScript parity skipped")
     # fm1_install.py: --ctl, the cached image, --no-ctl, an FM-1 package
@@ -155,6 +197,19 @@ writeFileSync(d + "/js.json", JSON.stringify(v));
         cache.write_bytes(ctl)
         ok(fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf, cache=cache) == add_ctl.insert(logical0, ctl), "cached image added")
         ok("added" in buf.getvalue(), "it says so")
+        buf = io.StringIO()
+        ok(fi.with_ctl(a, "SMK-37 Elite_9010800", old_code, buf, cache=cache) == old_code
+           and "not added" in buf.getvalue() and "added to the package" not in buf.getvalue(),
+           "cached image and an old package: skipped with a warning, the package unchanged")
+        cache.write_bytes(make_ctl(badcrc=True))
+        ok(fi.with_ctl(a, "SMK-37 Elite_9010800", old_code, io.StringIO(), cache=cache) == old_code,
+           "a damaged cache and an old package: the rollback still installs")
+        cache.write_bytes(ctl)
+        try:
+            fi.with_ctl(argparse.Namespace(ctl=str(cache), no_ctl=False), "SMK-37 Elite_9010800", old_code, buf)
+            ok(False, "--ctl on an old package is refused")
+        except fi.InstallError as e:
+            ok(e.code == "badpkg" and "Bluetooth block" in str(e), "--ctl on an old package: badpkg, clear message")
         a.no_ctl = True
         ok(fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf, cache=cache) == logical0, "--no-ctl")
         ok(fi.with_ctl(argparse.Namespace(ctl=None, no_ctl=False), "FM-1_900", b"x", buf, cache=cache) == b"x",

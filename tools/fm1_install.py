@@ -620,7 +620,13 @@ def with_ctl(a, product, image, out, cache=None):
     path = getattr(a, "ctl", None)
     smk = board_of(product) == "smk"
     if path is None and smk and not getattr(a, "no_ctl", False) and Path(cache).is_file():
-        path = cache
+        # the cached image goes only into a package with a free Bluetooth block: an older X0X (a rollback)
+        # has app code there and installs without it (the cache never stops an install)
+        try:
+            add_ctl.check_block(image)
+            path = cache
+        except add_ctl.PkgError as e:
+            print(f"Bluetooth controller image: {cache} not added: {e}", file=out)
     if path is None:
         return image
     if not smk:

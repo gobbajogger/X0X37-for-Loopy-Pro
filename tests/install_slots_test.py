@@ -25,6 +25,8 @@ I = T.I
 ok = T.ok
 TMP = Path(tempfile.mkdtemp(prefix="x0x-install-slots-"))
 os.chdir(TMP)                                         # the default backup file lands here
+NO_CACHE = TMP / "no-ctl.img"
+I.CTL_CACHE = NO_CACHE                                # not the user's ~/.config/x0x/ctl.img: the packages stay as made
 PRO = "SMK-37 Pro_900"
 
 
@@ -220,6 +222,24 @@ def opt_out():
     ok(rc == 1 and not backups() and dev.upgrades == 0 and "lose" in out, "answer no: warning shown, nothing saved or sent")
 
 
+def cache_skipped():
+    """a cached ctl.img never stops a rollback: the old package has no free Bluetooth block, so it installs without it"""
+    fl = Flash()
+    a = put(fl, SMK_OLD_MAP, 0, "BR1", 120000, 3)
+    cache = TMP / "ctl.img"
+    cache.write_bytes(b"X0BC" + bytes(100))
+    I.CTL_CACHE = cache
+    try:
+        raw = package(OLD_PKG)
+        dev = FakeX0X(I.logical_image(raw), NEW_PKG, OLD_PKG, {OLD_PKG: OLD, NEW_PKG: NEW}, fl)
+        rc, out, err = T.cli([pkgfile("old.fwsc", raw), "--yes", "--no-slots"], dev)
+        ok(rc == 0 and "done:" in out and "not added" in out and "added to the package" not in out,
+           "cached ctl.img and a package without a free Bluetooth block: installed without the image, a warning")
+    finally:
+        I.CTL_CACHE = NO_CACHE
+        cache.unlink()
+
+
 def maps():
     ok(I.package_slot_map(I.logical_image(package(NEW_PKG, SMK_MAP)), NEW_PKG) == SMK_MAP
        and I.package_slot_map(I.logical_image(package(OLD_PKG)), OLD_PKG) == SMK_OLD_MAP
@@ -241,6 +261,7 @@ fails()
 backup_fails()
 stock()
 opt_out()
+cache_skipped()
 os.chdir(HERE)
 __import__("shutil").rmtree(TMP, ignore_errors=True)
 print(f"INSTALL SLOT TESTS FAILED ({T.failed})" if T.failed else "install slot tests passed")

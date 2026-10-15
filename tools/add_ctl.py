@@ -91,8 +91,12 @@ def fwsc_of(logical, product):
     return bytes(raw + logical[BLOCKS * KEEP:])
 
 
-def insert(logical, ctl):
-    """the logical image with ctl (bytes, or None for an empty block) in the Bluetooth block"""
+class NoBlock(PkgError):
+    """the package has no free Bluetooth block: its app code runs into 0x8B000 (an X0X before 7054cc5)"""
+
+
+def _open(logical):
+    """the decrypted app area of a logical image, and what _close needs to put it back"""
     lg = bytearray(logical)
     hdr = _dec(lg[0:0x40])
     if pm.crc16(hdr[2:0x40]) != struct.unpack_from("<H", hdr, 0)[0]:
@@ -130,18 +134,21 @@ def insert(logical, ctl):
         raise PkgError("no app.bin in the app area")
     if slot != SMK_SLOT:
         raise PkgError("not an SMK-37 package (the Bluetooth block is on the SMK-37 only)")
-    lo = 0x120 + CODE_MAX
-    block = bytearray(b"\xFF" * BLE_SIZE)
-    if ctl is not None:
-        block[:len(ctl)] = ctl
-    area[lo:lo + BLE_SIZE] = block
+    return dict(lg=lg, hdr=hdr, lst=lst, i=i, e=e, off=off, size=size, flash=flash, key=key, n=n, area=area,
+                blk=blk, slot=slot)
+
+
+def _close(st):
+    """the logical image of an _open state: app area and package checksums written again"""
+    area, flash, e, hdr, lst, lg = st["area"], st["flash"], st["e"], st["hdr"], st["lst"], st["lg"]
+    slot, blk, n, key, i = st["slot"], st["blk"], st["n"], st["key"], st["i"]
     struct.pack_into("<H", area, 34, pm.crc16(area[0x120:0x120 + slot]))   # app.bin dcrc, then its CRC
     struct.pack_into("<H", area, 32, pm.crc16(area[34:64]))
     struct.pack_into("<H", area, 2, pm.crc16(area[32:blk]))                # app_area_head dcrc, CRC
     struct.pack_into("<H", area, 0, pm.crc16(area[2:32]))
     pm.sfc(area, 0, n, 0, key)
     flash[0x4000:0x4000 + n] = area
-    lg[off:off + size] = flash
+    lg[st["off"]:st["off"] + st["size"]] = flash
     struct.pack_into("<H", e, 4, pm.crc16(flash))
     pm.enc(e, 0, 0x50)
     lst[i * 0x50:(i + 1) * 0x50] = e
@@ -151,6 +158,38 @@ def insert(logical, ctl):
     lg[0:0x40] = hdr
     lg[0x40:0x40 + len(lst)] = lst
     return bytes(lg)
+
+
+def block_free(st):
+    """True if the Bluetooth block of an _open state belongs to the block: empty (0xFF), a controller image
+    (X0BC header), or a package with the slot map record (7054cc5 and later: the build limits the app code)"""
+    lo = 0x120 + CODE_MAX
+    b = st["area"][lo:lo + BLE_SIZE]
+    return (b == b"\xFF" * BLE_SIZE or struct.unpack_from("<I", b, 0)[0] == HDR_MAGIC
+            or pm.slotmap_of(st["lg"]) is not None)
+
+
+NO_BLOCK = ("the app code of this package goes into the Bluetooth block (flash 0x8B000-0x9AFFF). "
+            "It is an X0X from before the block. It takes no controller image (install it without one)")
+
+
+def check_block(logical):
+    """raise NoBlock if the package cannot take a controller image (PkgError if it is not an SMK-37 package)"""
+    if not block_free(_open(logical)):
+        raise NoBlock(NO_BLOCK)
+
+
+def insert(logical, ctl):
+    """the logical image with ctl (bytes, or None for an empty block) in the Bluetooth block"""
+    st = _open(logical)
+    if not block_free(st):
+        raise NoBlock(NO_BLOCK)       # writing the block would overwrite app code: the unit would not start
+    lo = 0x120 + CODE_MAX
+    block = bytearray(b"\xFF" * BLE_SIZE)
+    if ctl is not None:
+        block[:len(ctl)] = ctl
+    st["area"][lo:lo + BLE_SIZE] = block
+    return _close(st)
 
 
 def add(raw, ctl):
