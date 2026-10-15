@@ -43,8 +43,13 @@ u8 low_power_get_osc_type(void) { return ctl_bp->osc_type; }
 int power_is_poweroff_post(void) { return 0; }
 
 /* ---- clocks and delays (RAM: the RF trim calls them while flash is off) ---- */
+/* The radio library (wf_rf_common_init) asks only for "osc": the crystal, 24 MHz on the FM-1 and the
+ * SMK-37 (fm1-ctl's shim gives 24 MHz too). Before, "osc" got the system clock (360 MHz): the radio
+ * then set its clocks for a wrong crystal, and both cores stopped in the TX IQ trim (watchdog reset). */
+#define CTL_OSC_HZ 24000000
 int clk_get(const char *name)
 {
+    if (name && name[0] == 'o') return CTL_OSC_HZ;
     if (name && name[0] == 'l') return (int)ctl_bp->lsb_clk_hz;
     if (name && name[0] == 'h') return (int)ctl_bp->hsb_clk_hz;
     return (int)ctl_bp->sys_clk_hz;
