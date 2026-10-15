@@ -358,15 +358,14 @@ def adv_dump(syms):
 
 def live_words(took, gave):
     """attempt 45 DIAG words after READY (ctl_main.c d_live), also kept in FAILED and after a reset.
-    attempt 52b: ctl_d_post/pend are u8 counters ORed in at 4-bit fields without a mask, so once a task
-    posted or pended more than 15 times the bits 8-23 overlap (a52's 0x3399FF02 = 865730306): those
-    four counts are then only lower bounds; frames (0-7), waiting, task_create fails and ran stay exact."""
+    attempt 53: ctl_d_post/pend saturate at 15 in ctl_os.c d_inc, so the 4-bit fields never spill into
+    each other (a52's 0x3399FF02 is 15, 15, 9, 9, not an overlap); 15 means "15 or more"."""
     over = (gave >> 8 & 0xFFFF) and any((gave >> s & 15) == 15 for s in (8, 12, 16, 20))
     return (f"took {took & 0xFF} frames, {took >> 8 & 0xFF} host events (last 0x{took >> 16 & 0xFF:02X}), "
             f"{took >> 24} timer runs; gave {gave & 0xFF} frames; controller task posts {gave >> 8 & 15} "
             f"pends {gave >> 12 & 15}, host task posts {gave >> 16 & 15} pends {gave >> 20 & 15}; "
             f"waiting {gave >> 24 & 3:02b}, task_create fails {gave >> 26 & 3}, ran {gave >> 28 & 3:02b}"
-            + ("; post/pend nibbles overflowed (counts >15 overlap, not exact)" if over else "") + f" [raw took {h(took)} gave {h(gave)}]")
+            + ("; a post/pend count reached 15 (saturated: 15 or more)" if over else "") + f" [raw took {h(took)} gave {h(gave)}]")
 
 
 def stage_word(d):
