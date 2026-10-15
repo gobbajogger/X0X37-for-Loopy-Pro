@@ -1118,6 +1118,7 @@ static void fm1_main(void)
         }
         ed_service();                               /* sample upload SysEx */
         if (ed_reboot_at && fm1_ms - ed_reboot_at > 200u) {
+            bootguard.pending = 0;                  /* intentional reset: not a failed boot */
             usb_detach();                           /* ED_BT_TEST restart: the reply had 200 ms */
             fm1_delay_ms(30);
             fm1_reboot();
