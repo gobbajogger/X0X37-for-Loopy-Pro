@@ -89,6 +89,32 @@ static void fm1_wdt_arm(uint8_t t)
     fm1_p33_write(FM1_P3_WDT_CON, (uint8_t)((t & 0x0Fu) | 0x40u));   /* timeout, reset mode, clear */
     fm1_p33_or(FM1_P3_WDT_CON, 0x10);                        /* enable */
 }
+/* The core and radio rails (P3_ANA_CON5 VDDIOM, CON6 VDC14 bits 0-2, CON9 SYSVDD bits 0-3:
+ * 0 = 0.93 V .. 11 = 1.26 V (the SDK's default) .. 15 = 1.38 V, 30 mV a step). Read as
+ * CON5 | CON6 << 8 | CON9 << 16. */
+#define FM1_P3_ANA_CON5 0x05u
+#define FM1_P3_ANA_CON6 0x06u
+#define FM1_P3_ANA_CON9 0x09u
+static uint32_t fm1_rails_read(void)
+{
+    return (uint32_t)fm1_p33_read(FM1_P3_ANA_CON5) | (uint32_t)fm1_p33_read(FM1_P3_ANA_CON6) << 8 |
+           (uint32_t)fm1_p33_read(FM1_P3_ANA_CON9) << 16;
+}
+/* SYSVDD up by `steps`, no higher than `cap`, one step at a time with 200 us between */
+static void fm1_sysvdd_raise(uint32_t steps, uint32_t cap)
+{
+    uint32_t v = fm1_p33_read(FM1_P3_ANA_CON9);
+    uint32_t sel = v & 0x0Fu, want = sel + steps;
+    if (want > cap)
+        want = cap;
+    while (sel < want) {
+        sel++;
+        fm1_p33_write(FM1_P3_ANA_CON9, (uint8_t)((v & 0xF0u) | sel));
+        for (volatile uint32_t i = 0; i < 20000u; i++)
+            ;
+    }
+}
+
 static void fm1_wdt_feed(void) { fm1_p33_or(FM1_P3_WDT_CON, 0x40); }
 static void fm1_wdt_stop(void) { fm1_p33_write(FM1_P3_WDT_CON, 0); }
 

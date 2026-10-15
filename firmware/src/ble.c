@@ -33,6 +33,7 @@ static uint32_t ble_rx_last[2];             /* the last frame from the controlle
 /* core 0's last Bluetooth tick (ms since boot) and core 1's poll count then. In .ble_ram (not
  * cleared): after a watchdog reset, DIAG shows when core 0 stopped and if core 1 still ran. */
 static uint32_t ble_alive[2] __attribute__((section(".ble_ram")));
+static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* test 25: before, after the raise */
 
 static void ble_record(void);
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
@@ -201,6 +202,9 @@ static void ble_attach(void)
         return;
     }
     fm1_guard_watch_c0_stacks();               /* test 21: who changes core 0's interrupt stack */
+    ble_rails[0] = fm1_rails_read();            /* test 25: the core rail 2 steps (60 mV) up, at most */
+    fm1_sysvdd_raise(2u, 14u);                  /* 1.35 V, for the radio's start (core reads lose bit 25) */
+    ble_rails[1] = fm1_rails_read();
     fm1_t5w_arm = 1;                            /* test 23: the timer 5 frame closed to all writers */
     fm1_c0_dead.magic = 0;                      /* test 24: core 1 watches core 0's clock */
     fm1_c0_dead.n = 0;
@@ -365,5 +369,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
         return n;
     w[n++] = ble_alive[0];
     w[n++] = ble_alive[1];
+    w[n++] = ble_rails[0];
+    w[n++] = ble_rails[1];
     return n;
 }

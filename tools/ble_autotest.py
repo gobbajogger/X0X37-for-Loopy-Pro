@@ -39,7 +39,7 @@ GUARD = ["g_magic", "trying", "blocked", "why", "fails", "start_ms", "init_ms", 
          "seen_stage", "seen_ms", "seen_delays", "seen_ra", "code_bad", "code_sum"]
 LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
         "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now",
-        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave", "rx0", "rx1", "alive_ms", "alive_polls"]
+        "h2c", "c2h", "c2h_drops", "h_step", "ctl_took", "ctl_gave", "rx0", "rx1", "alive_ms", "alive_polls", "rails0", "rails1"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
 WHY = ["-", "TIMEOUT", "WRONG JOB", "NOT READY", "RESET", "NO TICK"]
 MB = ["OFF", "INIT", "READY", "FAILED"]
@@ -183,6 +183,7 @@ def summary(d, before):
                f"len {d['rx0'] >> 8 & 0xFF} bytes "
                + (d['rx0'] >> 16).to_bytes(2, 'little').hex(' ') + " " + d['rx1'].to_bytes(4, 'little').hex(' '),
         "alive": f"core 0 last Bluetooth tick at {d['alive_ms']} ms after boot, core 1 polls then {d['alive_polls']}, now {d['polls']}",
+        "rails": f"SYSVDD sel {(d.get('rails0', 0) >> 16) & 15} -> {(d.get('rails1', 0) >> 16) & 15}, VDC14 sel {(d.get('rails0', 0) >> 8) & 7}, VDDIOM sel {d.get('rails0', 0) & 15} (raw 0x{d.get('rails0', 0):06X} -> 0x{d.get('rails1', 0):06X})",
         "reset": f"this boot {h(d['reset_now'])} last start {h(d['reset_prev'])}",
         "crash": (f"NEW core {d['core']} vec {d['vec']} PC {h(d['pc'])} RETS {h(d['rets'])} DBG {h(d['dbg'])} "
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")
@@ -240,7 +241,7 @@ def main():
         s["t5w"] = t5w_text(t)
         s["round"], s["seconds"] = rnd, round(time.time() - t0, 1)
         print(f"--- round {rnd} ({s['seconds']} s)")
-        for k in ("status", "hold", "guard", "start", "hci", "alive", "reset", "crash", "t5w"):
+        for k in ("status", "hold", "guard", "start", "hci", "alive", "rails", "reset", "crash", "t5w"):
             if k in s:
                 print(f"  {k:7} {s[k]}")
         if a.log:
