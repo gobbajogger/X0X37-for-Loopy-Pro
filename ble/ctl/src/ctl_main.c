@@ -157,8 +157,11 @@ static u32 ctl_init(u32 arg)
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
     btctrler_task_init(h4, NULL);
     stage(XB_STG_TASK);
-    ctl_port_irq_enable_core();
-    ctl_port_irq_restore(0);              /* interrupts on: the app's idle loop keeps them on from now */
+    /* The RF trim runs in the controller task during the settle loop. Its inner loops are in RAM, but
+     * JieLi's interrupt handlers are in the flash, and flash reads can come back wrong under the trim's
+     * high current (felucca-bsp#2). Core 1 died twice at the same place in the trim (rd_adc_peak).
+     * So the interrupts stay off until the trim has settled: no flash reads from interrupts. */
+    (void)ctl_port_irq_save();            /* off, and the tasks' critical sections keep them off */
     t0 = ctl_ms();
     stage(XB_STG_SETTLE);
     while ((s32)(ctl_ms() - t0) < (s32)bp->settle_ms) {   /* the RF trim runs in the controller task */
@@ -168,6 +171,8 @@ static u32 ctl_init(u32 arg)
             break;                        /* every task waits: settled */
     }
     stage(XB_STG_SETTLED);
+    ctl_port_irq_enable_core();
+    ctl_port_irq_restore(0);              /* interrupts on: the app's idle loop keeps them on from now */
     ctl_mb->dbg[XB_DBG_INIT_MS] = ctl_ms() - t_init;
     if (ctl_mb->err != XB_E_NONE) {
         ctl_mb->state = XB_ST_FAILED;
