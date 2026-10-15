@@ -78,10 +78,16 @@ still takes that unit's factory package; the Starrykey 37 Play uses the Pro buil
   window reaches the head (0x0-0x3FFF), BTIF / USRTRIM (0xC0000-0xC1FFF, the factory key and pad
   calibration), the stock resources (0xF4000-0xFDFFF) or key_mac (0xFF000-), plus a second guard in the
   RAM flash driver;
-- the store (`storage.c`): seven objects A/B at 0x9D000-0xAAFFF, the store owner tag at 0xAF000; the
-  update staging at 0xBB000 (`ota.c`); two user sample slots at 0xC2000-0xE9FFF (`app/slots.c`);
+- the store (`storage.c`): seven objects A/B at 0x9D000-0xAAFFF (spare to 0xAEFFF), the store owner tag at
+  0xAF000; the update staging at 0xBB000 (`ota.c`); three user sample slots (`app/slots.c`): slot 1 80 KiB at
+  0xC2000, slot 2 120 KiB at 0xD6000 (to 0xF3FFF), slot 3 44 KiB at 0xB0000 (to 0xBAFFF);
+- the Bluetooth controller block: 64 KiB at flash 0x8B000-0x9AFFF (XIP 0x02087000), at the top of the
+  encrypted app slot. The app code ends below it: `APP_CODE_MAX` 0x86EE0 (552,672 B). `build.py` links the
+  app to that length and stops when the image is larger;
 - the package layout (`tools/fm1pkg_make.py --board smk37`): PRCT 0x9D000, the stock region table, app slot
-  0x97400 (the linker script's XIP length is set per board);
+  0x97400 (the linker script's XIP length is set per board), and the slot map record at flash.bin 0x9CF00
+  ("X0X-SLOTMAP-1", per slot offset and size, CRC-32). The installers compare it with the slots on the
+  device and save and restore the slots that an install would lose;
 - the input HAL (`firmware/hal/smk_input.h`), the LCD pins and the pad LEDs (`fm1_lcd_hw.h`, `lcd.c`), and
   the control mapping (`app/panel.c`, `app/plat_fm1.c`, `app/main_fm1.c`; X0X's UI, `app/ui.c`, is unchanged);
 - no TRS MIDI IN (`X0X_TRS` is 0: PH8 is a key-matrix row on the SMK);

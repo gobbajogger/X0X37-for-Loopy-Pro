@@ -47,6 +47,14 @@ writing; when it finishes, the FM-1 restarts into X0X.
 Installing another firmware does not: it keeps its own things in the same memory, so coming back
 to X0X starts with an empty project.
 
+**Your loops and updates.** An update never writes your sample slots. If the new firmware keeps
+its slots in other places (for example an older X0X, which has fewer slots, or the stock
+firmware), the installer tells you which slots would lose their loops. It then saves every slot to a
+`.x0xslots` file in your Downloads, installs, and writes the loops back into the new slots by
+itself. If a loop does not fit anywhere, it tells you. If writing back fails, keep the file and
+restore it with **Restore a backup** on the break loops page. After the stock firmware, restore
+it when X0X is back.
+
 **Go back:** "Back to the stock firmware", at the bottom of the same page, puts M-VAVE's firmware
 back (download the FM-1 V15 file from the link there, choose it, press the button). M-VAVE's own
 updater, M-UPGRADE, works too.
@@ -63,6 +71,9 @@ install Python 3 with `pip3 install mido python-rtmidi`, and run:
 ```
 python3 tools/fm1_install.py x0x-1.0.fwsc
 ```
+
+It saves and restores your loops the same way as the web installer. `--backup FILE` chooses
+the file; `--no-slots` skips this.
 
 (The web installer on hugelton.github.io installs Felucca, not X0X.)
 
@@ -365,8 +376,12 @@ and sends are on the mixer's PARTS page (LFO, black key 5).
 
 Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
 Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-Loops are sent at full quality, 44.1 kHz. Each slot holds about 3.7 seconds: one one-bar loop at
-120 BPM. The SMK-37 has two slots, about 7.4 seconds in all; the FM-1 has three, about 11 seconds.
+Loops are sent at full quality, 44.1 kHz. The SMK-37 has three slots of different sizes: slot 1
+holds about 3.7 seconds, slot 2 about 5.5 seconds and slot 3 about 2 seconds, about 11.3 seconds
+in all. The FM-1 has three slots of about 3.7 seconds, about 11 seconds in all. A one-bar loop
+at 120 BPM takes 2 seconds. A loop must fit in one slot, so the longest loop on the SMK-37 is
+about 5.5 seconds. The page fills the slots in order and puts a loop that is too long for one
+slot into the next slot that can take it.
 Tick **22 kHz (more room)** to send new loops at half the rate: about twice as much fits, but the
 sound is duller. Tick **Trim silence** to cut the silence at the start and end of each file first.
 
