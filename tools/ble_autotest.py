@@ -10,6 +10,7 @@ Each round:
   3. Wait until the USB MIDI port goes and comes back. After a crash the unit shows the crash
      screen for 4 s and restarts once more: wait until DIAG answers and the state is stable.
   4. Read DIAG (editor command 33) and print STATUS, the start record and the crash record.
+     --diag-only also prints the inbound recorder and the pad LED output (editor command 38 INLOG).
      For READY, read DIAG again after --hold seconds: the controller must stay up (polls grow).
 
 A software restart is not a power cycle: .noinit RAM (the start guard, the crash record) stays,
@@ -25,6 +26,9 @@ import sys
 import time
 
 import mido
+
+sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parent))
+import inlog_fmt  # noqa: E402  (a76: editor command 38 INLOG)
 
 HDR = [0x7D, 0x46, 0x4C]
 ED_DIAG, ED_BT_TEST = 33, 34
@@ -237,6 +241,10 @@ def main():
         out = summary(d, d)
         out["t5w"] = t5w_text(t5w())
         print(json.dumps(out, indent=1))
+        p = inlog_fmt.parse(ask(inlog_fmt.ED_INLOG))      # a76: the inbound recorder and the pad output
+        pal = inlog_fmt.palette()
+        print("\n".join(inlog_fmt.text(p, pal)))
+        print("\n".join(inlog_fmt.pads_text(inlog_fmt.parse_pads(ask(inlog_fmt.ED_INLOG, [1])), p[2] if p else None)))
         return 0
     ok = 0
     for rnd in range(1, a.n + 1):

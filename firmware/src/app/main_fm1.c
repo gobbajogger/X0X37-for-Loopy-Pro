@@ -255,15 +255,19 @@ static const uint32_t APC40_RGB[128] = {
     0x4C88FF,0x0055FF,0x001D59,0x000819,0x4C4CFF,0x0000FF,0x000059,0x000019,
     0x994CFF,0x9900FF,0x3C0064,0x1D0030,0xFF4CFF,0xFF00FF,0x590059,0x190019,
     0xFF4C87,0xFF0054,0x59001D,0x220013,0xFF1500,0x993500,0x795100,0x436400,
-    0x033900,0x005735,0x00547F,0x0000FF,0x00454F,0x2500CC,0x7F7F7F,0x202020,
+    0x033900,0x005735,0x00547F,0x0000FF,0x00454F,0x7A00CC,0x7F7F7F,0x202020,
     0xFF0000,0xBDFF2D,0xAFED06,0x64FF09,0x108B00,0x00FF87,0x00A9FF,0x002AFF,
-    0x3F00FF,0x7A00FF,0xB21A7D,0x402100,0xFF4A00,0x88E106,0x72FF15,0x00FF00,
-    0x3BFF26,0x59FF71,0x38FFCC,0x5B8AFF,0x3151C6,0x877FE9,0xD31DFF,0xFF005D,
+    0x9900FF,0xCC00FF,0xB21A7D,0x402100,0xFF4A00,0x88E106,0x72FF15,0x00FF00,
+    0x3BFF26,0x59FF71,0x38FFCC,0x5B8AFF,0x3151C6,0xB47FE9,0xFF1DE0,0xFF005D,
     0xFF7F00,0xB9B000,0x90FF00,0x835D07,0x392B00,0x144C10,0x0D5038,0x15152A,
     0x16205A,0x693C1C,0xA8000A,0xDE513D,0xD86A1C,0xFFE126,0x9EE12F,0x67B50F,
-    0x1E1E30,0xDCFF6B,0x80FFBD,0x9A99FF,0x8E66FF,0x404040,0x757575,0xE0FFFF,
+    0x1E1E30,0xDCFF6B,0x80FFBD,0x9A99FF,0xB266FF,0x404040,0x757575,0xE0FFFF,
     0xA00000,0x350000,0x1AD000,0x074200,0xB9B000,0x3F3100,0xB35F00,0x4B1502
 };
+/* a76 (owner test VIOLET FAIL): Loopy also sends the Live clip colours (60-119). The protocol values
+ * of the Live violets and purples showed blue on the pads. 69, 80: red = 0.6 x blue (as 48-51).
+ * 81: red = 0.8 x blue. 93, 116: hue 270. 94: red over blue (pink-purple).
+ * tests/smk_apc40_violet_test.py */
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity)
 {
     if (note >= SMK_APC40_CLIP_COUNT)
@@ -312,6 +316,54 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
     if (d1 <= 98u)
         return owned;
     return 0u;
+}
+#if BOARD_SMK37
+/* a76: the inbound recorder (app/smk_inlog.h). usb.c and ble.c give it each APC40 LED message that
+ * came in. ble.c also gives it the link and notify edges. */
+#include "app/smk_inlog.h"
+static smk_inlog_t smk_inlog_g;   /* in .bss: the Elite pool keeps its 8 KiB headroom (the gate) */
+void smk_inlog(uint32_t src, uint32_t pkt)
+{
+    smk_inlog_put(&smk_inlog_g, fm1_ms, src, pkt);
+}
+static void smk_inlog_w(uint32_t v, uint32_t nb)   /* one word, nb x 7 bits, low bits first */
+{
+    while (nb--) {
+        ed_b(v);
+        v >>= 7;
+    }
+}
+/* The reply of editor command 38 INLOG (editor.c, web/EDITOR_PROTOCOL.md). Arg 1: the pad LED output
+ * (lcd.c): the colour to send and the last frame sent. Else: the entries and the stored clip cells. */
+static void smk_inlog_reply(uint32_t arg)
+{
+    uint32_t i;
+    if (arg == 1u) {
+        ed_b(1u);
+        ed_b(padled_dirty);
+        for (i = 0; i < 2u * PADLED_N; i++)
+            smk_inlog_w(i < PADLED_N ? padled_rgb[i] : padled_sent(i - PADLED_N), 4u);
+        return;
+    }
+    ed_b(smk_inlog_g.n);
+    smk_inlog_w(fm1_ms, 5u);
+    for (i = 0; i < 2u * smk_inlog_g.n; i++)
+        smk_inlog_w(smk_inlog_at(&smk_inlog_g, i), 5u);
+    for (i = 0; i < 2u * SMK_APC40_CLIP_COUNT; i++)
+        ed_b(i < SMK_APC40_CLIP_COUNT ? apc_led_velocity[i] : apc_led_channel[i - SMK_APC40_CLIP_COUNT]);
+}
+#endif
+/* a76: ble.c gives each Bluetooth note and CC here. While notify is off, a note for a clip cell
+ * (the pad colours) does not change the cell (BEHAVIOR.md CLP-18). It gets the same answer as
+ * before, so no note is dropped (rule 8). All other messages go to smk_apc_usb_event as before. */
+uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying)
+{
+    if (smk_apc40_ble_colour_unheard(pkt, notifying)) {
+        smk_inlog(3u, pkt);
+        return (uint8_t)(clip_grid_mode || apc_host_on);
+    }
+    smk_inlog(1u, pkt);
+    return smk_apc_usb_event(pkt);
 }
 /* MIDI Start: count clock pulses from the downbeat. */
 void smk_apc_clock_start(void)
@@ -410,17 +462,23 @@ void smk_apc_host_lost(void)
 }
 /* ble.c ble_service calls this after each event poll (the same interrupt context as the cell
  * stores). If the Bluetooth link ended or the central turned notify off, clear the clip feedback:
- * the pads and the LCD cells go dark and no clip blinks. Clip mode and the sequencer do not change. */
+ * the pads and the LCD cells go dark and no clip blinks. Clip mode and the sequencer do not change.
+ * a76: the clear runs again 300 ms later (smk_apc40_lost_step), and it also clears the pad colour
+ * store (lcd.c padled_rgb). tests/smk_clip_dark_test.sh */
 void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
 {
-    static uint8_t link;
-    if (!smk_apc40_link_lost(&link, connected, notifying))
+    static smk_apc40_lost_t lost;
+    uint32_t i;
+    if (!smk_apc40_lost_step(&lost, connected, notifying, fm1_ms))
         return;
     smk_apc40_cells_clear(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick);
     apc_play_feedback = apc_record_feedback = 0u;
     apc_burst_mask = 0u;
     apc_burst_count = 0u;
     apc_layout_locked = apc_layout_pending = 0u;   /* new feedback latches the layout again */
+    for (i = 0; i < PADLED_N; i++)
+        padled_rgb[i] = 0u;                        /* the next frame sends dark pads */
+    padled_dirty = 1u;
 }
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
  * cells: lit cells in the color from Loopy (dark shades lifted, see SMK_CLIP_LCD_FLOOR), unlit cells dim, queued cells with a white

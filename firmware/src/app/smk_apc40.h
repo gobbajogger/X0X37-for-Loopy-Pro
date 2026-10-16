@@ -192,6 +192,32 @@ static inline uint8_t smk_apc40_link_lost(uint8_t *prev, uint8_t connected, uint
     return lost;
 }
 
+/* a76: 1 = a Bluetooth note (a USB-MIDI event packet) that writes a clip cell (notes 0-39, the
+ * pad colours) while notify is off (Loopy does not listen). The cell does not change. */
+static inline uint8_t smk_apc40_ble_colour_unheard(uint32_t pkt, uint8_t notifying)
+{
+    return (uint8_t)(!notifying && ((pkt >> 8) & 0xE0u) == 0x80u &&
+                     ((pkt >> 16) & 0x7Fu) < SMK_APC40_CLIP_COUNT);
+}
+
+/* a76: the clear runs again SMK_APC40_RECLEAR_MS after a link loss, to remove a late write
+ * (a write that was on its way, or USB), if Loopy did not come back (link up and notify on). */
+#define SMK_APC40_RECLEAR_MS 300u
+typedef struct { uint8_t link, armed; uint32_t due; } smk_apc40_lost_t;
+/* 1 = clear the clip feedback now */
+static inline uint8_t smk_apc40_lost_step(smk_apc40_lost_t *s, uint8_t connected, uint8_t notifying, uint32_t ms)
+{
+    if (smk_apc40_link_lost(&s->link, connected, notifying)) {
+        s->armed = 1u;
+        s->due = ms + SMK_APC40_RECLEAR_MS;
+        return 1u;
+    }
+    if (!s->armed || (int32_t)(ms - s->due) < 0)
+        return 0u;
+    s->armed = 0u;
+    return (uint8_t)(s->link != 3u);
+}
+
 /* Clear all clip cells: no colour, no queued state. */
 static inline void smk_apc40_cells_clear(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
                                          volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
