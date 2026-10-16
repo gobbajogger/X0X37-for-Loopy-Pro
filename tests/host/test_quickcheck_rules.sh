@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # The rules step of tools/quickcheck.sh (checks 27 and 28b, rules = code), X0X_QUICK_ONLY=ste (no build, no tests),
 # on a temp repository with integration, smk37 (docs/rules/, docs/USER_PREFERENCES.md) and lanes on smk37.
-# Fixtures: tests/host/fixtures/rules_guard/bad-rule.md (a bad rule text), tests/host/fixtures/prefs_lint/ (rules, good.md, bad.md).
+# Fixtures: tests/host/fixtures/rules_guard/bad-rule.txt (a bad rule text), tests/host/fixtures/prefs_lint/ (rules, good.md, bad.md).
 #   rule change with "Trigger:" and "Check: <script of the tree>"      -> QUICK PASS, base = the smk37 merge base
 #   no Trigger/Check lines, or a Check that names no script            -> QUICK FAIL ... RULES: ... commit body issues
 #   "Check: manual: <reason>"                                           -> QUICK PASS
@@ -32,7 +32,7 @@ GOOD=$(lane lane/dk-rules-good smk37 docs/rules/install.md "Run each install in 
 NOTRIG=$(lane lane/dk-rules-notrig smk37 docs/rules/install.md "Run each install in the foreground." "Add a rule fact." "The rule has one more fact.")
 BADCHK=$(lane lane/dk-rules-badchk smk37 docs/rules/install.md "Run each install in the foreground." "Add a rule fact." "The rule has one more fact." $'Trigger: P9 install.\nCheck: tools/nothere.sh')
 MANUAL=$(lane lane/dk-rules-manual smk37 docs/rules/install.md "Run each install in the foreground." "Add a rule fact." "The rule has one more fact." $'Trigger: P9 install.\nCheck: manual: no script can see the screen session.')
-BADTXT=$(lane lane/dk-rules-badtxt smk37 docs/rules/install.md "$F/rules_guard/bad-rule.md" "Change rule 7." "The rule has new text." $'Trigger: P9 install.\nCheck: tools/check_x.sh')
+BADTXT=$(lane lane/dk-rules-badtxt smk37 docs/rules/install.md "$F/rules_guard/bad-rule.txt" "Change rule 7." "The rule has new text." $'Trigger: P9 install.\nCheck: tools/check_x.sh')
 BADPREF=$(lane lane/dk-rules-badpref smk37 docs/USER_PREFERENCES.md "$F/prefs_lint/bad.md" "Add the owner entries." "The file has five new entries." $'Trigger: each owner decision.\nCheck: tools/check_x.sh')
 DOCS=$(lane docs-roadmap smk37 docs/ROADMAP.md "Batch 9 is next." "Update the plan." "The plan names the next batch.")
 TIPMSG=$(lane lane/dk-rules-tip smk37 docs/ROADMAP.md "Batch 9 is next." "Fix the plan; it was changed" "The plan was changed by the tool.")
