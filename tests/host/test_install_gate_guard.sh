@@ -86,10 +86,10 @@ index "$(row 'PASS' "$TREE.md")"
 expect REFUSED "one-config result, --config rel" "$H" --fwsc "$T/good.fwsc" --config rel
 n=$((n + 1)); out=$(X0X_RESULTS_DIR="$T/res" X0X_REPO="$T/repo" bash "$G" "$H" --config beta 2>&1); rc=$?
 [ "$rc" = 2 ] && echo "ok   --config beta: exit 2" || { echo "FAIL --config beta: rc=$rc $out"; fails=$((fails + 1)); }
-# a real gate result on the box
+# a real gate result on the box. The live QUEUE.md is not part of this case (test_queue_guard.sh tests the queue).
 REAL=/workspace/x0x37-results/1d3c048d3cc356d8d8584fe1e6a85bae9235b99c.md
 if [ -f "$REAL" ] && git -C /workspace/x0x37.git cat-file -e 9a733fe 2>/dev/null; then
-    n=$((n + 1)); out=$(X0X_RESULTS_DIR=/workspace/x0x37-results X0X_REPO=/workspace/x0x37.git bash "$G" 9a733fe 2>&1); rc=$?
+    n=$((n + 1)); out=$(X0X_QUEUE_FILE="$T/no-queue.md" X0X_RESULTS_DIR=/workspace/x0x37-results X0X_REPO=/workspace/x0x37.git bash "$G" 9a733fe 2>&1); rc=$?
     case "$out" in "GATE OK 9a733fe "*) [ $rc = 0 ] && echo "ok   real gate PASS: $out" || { echo "FAIL real: rc=$rc $out"; fails=$((fails + 1)); };;
     *) echo "FAIL real gate PASS 9a733fe: rc=$rc $out"; fails=$((fails + 1));; esac
 else echo "note real gate PASS case: not on this computer (synthetic gate PASS case done)"; fi
