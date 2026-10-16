@@ -134,7 +134,7 @@ static void bass_release(seq_t *s, int b, const seq_sink_t *o)
     tr->to_off = 0;
 }
 
-static void fire_drum(seq_t *s, int k, int p, const seq_sink_t *o)
+static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o)
 {
     const dpart_t *d = dpart(s, k);
     uint32_t bit = 1u << (p & 31);
@@ -144,6 +144,14 @@ static void fire_drum(seq_t *s, int k, int p, const seq_sink_t *o)
     for (v = 0; v < NDRUM; v++) {
         if (!(d->hit[v][w] & bit) || ((s->mute | s->vmute) & (1u << (k * NDRUM + v))))
             continue;
+        if (skip >> v & 1u) {                        /* recorded live on this pass: the key sounded it */
+            if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
+                uint8_t mv = (uint8_t)(vel * 127.0f);
+                midi(o, (uint8_t)(0x90 | s->ch[k]), GM_DRUM[k][v], mv);
+                midi(o, (uint8_t)(0x80 | s->ch[k]), GM_DRUM[k][v], 0);
+            }
+            continue;
+        }
         if (!o->drum(o->ctx, k, v, vel))
             continue;                                /* its chance said no: no MIDI either */
         if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
@@ -154,7 +162,7 @@ static void fire_drum(seq_t *s, int k, int p, const seq_sink_t *o)
     }
 }
 
-static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, const seq_sink_t *o)
+static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, uint32_t skip, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
     bpart_t *bp = bpart(s, b);
@@ -172,7 +180,8 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     note = note < 0 ? 0 : note > 127 ? 127 : note;
     if (gate == G_NOTE || !tr->sounding) {
         int slide = tr->sounding && prev_slide;
-        o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide);
+        if (!skip)                                   /* (recorded live on this pass: the key sounded it) */
+            o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide);
         if (s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b];
             midi(o, (uint8_t)(0x90 | s->ch[TRK_BASS0 + b]), (uint8_t)note, (st->flags & BS_ACCENT) ? 127 : 90);
@@ -296,7 +305,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[t];
     int rate = part_rate(s, t), p, wrapped;
-    uint32_t changed = 0;
+    uint32_t changed = 0, skip;
     uint32_t L = seq_step_q8(s, rate);
     uint32_t carry = tr->to_next < 256u ? tr->to_next : 0;   /* the step was due this far into the sample: keep it */
     int bass = is_bass(t);
@@ -319,17 +328,19 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         tr->bars++;
     if (changed & 1u)                                /* the 909's new pattern: its passes from 1 again, as */
         tr->bars = 0;                                /* restart() does for the others (probability cycles) */
+    skip = (tr->rec_skip && tr->rec_skip_step == p && tr->rec_skip_pat == s->ppat[t]) ? tr->rec_skip : 0u;
+    tr->rec_skip = 0;                                /* one pass only */
     tr->pos = (uint8_t)p;
     if (o->step)                                     /* first: the step's motion and p-locks, which the hit */
         o->step(o->ctx, t, p);                       /* below must hear (a drum takes its tune as it fires) */
     if (is_drum(t))
-        fire_drum(s, t, p, o);
+        fire_drum(s, t, p, skip, o);
     else if (t == TRK_BRK) {
         if (o->brk)
             o->brk(o->ctx, p, tr->bars, (float)L / 256.0f,
                    (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)));
     } else
-        fire_bass(s, t - TRK_BASS0, p, L, carry, o);
+        fire_bass(s, t - TRK_BASS0, p, L, carry, skip, o);
     if (s->ext) {
         tr->to_next = tr->ext_due ? 0 : NEVER;       /* the clock arms the next one (a burst: at once) */
         if (tr->ext_due)
@@ -354,6 +365,7 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
         s->t[t].started = 0;
         s->t[t].to_next = s->ext ? NEVER : 0;
         s->t[t].ext_due = 0;
+        s->t[t].rec_skip = 0;
         s->t[t].ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);
         s->t[t].bars = 0;
         s->t[t].pp_dir = 1;
@@ -374,6 +386,7 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
         }
         tr->to_off = 0;
         tr->ext_due = 0;
+        tr->rec_skip = 0;
         tr->to_next = s->ext ? NEVER : 0;
         tr->ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);   /* the first clock is the downbeat */
     }
@@ -394,6 +407,7 @@ static void do_stop(seq_t *s, const seq_sink_t *o)
     for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
         s->t[t].ext_due = 0;
+        s->t[t].rec_skip = 0;
     }
     if (!s->ext && s->send_clock && !s->midi_req)
         midi(o, 0xFC, 0, 0);
@@ -581,14 +595,34 @@ void seq_cue_part(seq_t *s, int t, int p)
 }
 int seq_cue_of(const seq_t *s, int t) { return s->pcue[t] < NPAT ? s->pcue[t] : -1; }
 int seq_next_step(seq_t *s, int t, int p) { return next_pos(s, t, p, 0); }
-/* the step a live hit now records on: the step that plays. Before a part's first step after PLAY or
- * Start: its first step. */
+/* the step a live hit now records on: the nearest step. That is the step that plays, or the next one
+ * after half of the step (samples on the internal clock, ticks on an external clock; on an external
+ * clock also a next step that its tick armed and that did not play yet). Before a part's first step
+ * after PLAY or Start: its first step. */
 int seq_rec_step(seq_t *s, int t)
 {
     const seq_track_t *tr = &s->t[t];
+    int rate = part_rate(s, t), late;
     if (!tr->started)
         return (is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
-    return tr->pos;
+    if (s->ext)
+        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= TICKS_PER_STEP[rate] / 2u);
+    else
+        late = tr->to_next != NEVER && tr->to_next < seq_step_q8(s, rate) / 2u;
+    return late ? next_pos(s, t, tr->pos, 0) : tr->pos;
+}
+/* a live hit (voice v; 303: 0) recorded on step p: if p did not play yet on this pass, p does not sound
+ * that voice when it plays next (the key sounded it). Once: the next step clears it. */
+void seq_rec_skip(seq_t *s, int t, int p, int v)
+{
+    seq_track_t *tr = &s->t[t];
+    if (tr->started && p == tr->pos)                  /* it played on this pass */
+        return;
+    if (tr->rec_skip_step != p || tr->rec_skip_pat != s->ppat[t])
+        tr->rec_skip = 0;
+    tr->rec_skip_step = (uint8_t)p;
+    tr->rec_skip_pat = s->ppat[t];
+    tr->rec_skip |= (uint16_t)(1u << v);
 }
 void seq_chain(seq_t *s, int a, int b)
 {

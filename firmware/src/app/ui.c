@@ -1922,6 +1922,7 @@ static void drum_key(int v, int down)
         sm_set(cur_pat()->drum[k].hit[v], s);
         if (ui.btn & (1u << B_ENV))
             sm_set(cur_pat()->drum[k].accent, s);
+        seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
         mark_dirty();
     }
 }
@@ -2009,6 +2010,7 @@ static void bass_kbd(int key, int down)
             }
             bp->step[s].note = (uint8_t)n;
             bp->step[s].flags = f;
+            seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
             mark_dirty();
         }
     } else if (kbd_held_note[b] == n) {

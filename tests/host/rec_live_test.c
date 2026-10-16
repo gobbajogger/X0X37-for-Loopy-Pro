@@ -4,6 +4,7 @@
  *    ENV or LFO does not open the FX or MIX view, and the next keys still record (a73).
  *  - 909: after a Start with the external clock already running, a hit before the first tick goes to
  *    step 1, not to the step of the last run (a73).
+ *  - 909: a live hit records on the nearest step; just before the loop start: step 1 (a73).
  * Build: see tests/run_tests.sh (needs build/gen from host/build_host.sh). */
 #define main x0x_host_main
 #include "../../host/x0x_host.c"
@@ -198,12 +199,57 @@ static void test_start_ext_running(void)
     printf("  Start with the clock running, a hit before the first tick: step 1: checked\n");
 }
 
+/* a73 (owner OK 2026-10-16 20:11): a live drum hit records on the nearest step */
+static void test_drum_nearest(void)
+{
+    static const struct { int after, ms, v, want; } H[] = {
+        {3, 105, 2, 4},                               /* about 20 ms before step 5: step 5 */
+        {8, 20, 3, 8},                                /* 20 ms after step 9: step 9 */
+        {11, 50, 4, 11},                              /* 50 ms after step 12 (half: 62.5 ms): step 12 */
+        {12, 80, 5, 13},                              /* about 45 ms before step 14: step 14 */
+        {15, 105, 6, 0},                              /* about 20 ms before the loop start: step 1 */
+    };
+    int i, s, n;
+    ui.part = PART_909;
+    set_view(V_PART);
+    build_pages();
+    clear_909();
+    tick(700);
+    seq.bpm = 120.0f;
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    btn(B_PLAY, 1);
+    btn(B_PLAY, 0);
+    tick(20);
+    CHECK(ui.rec && seq.playing, "REC on and playing");
+    at_step(TRK_DRUM, 0, 0);
+    for (i = 0; i < 5; i++) {
+        at_step(TRK_DRUM, H[i].after, (uint32_t)H[i].ms);
+        tap_key(BLACK_K[H[i].v], 10);
+    }
+    tick(50);
+    for (i = 0; i < 5; i++) {
+        for (s = 0, n = 0; s < 64; s++)
+            n += sm_get(proj.pat[seq.ppat[0]].drum[0].hit[H[i].v], s);
+        CHECK(n == 1 && sm_get(proj.pat[seq.ppat[0]].drum[0].hit[H[i].v], H[i].want),
+              "hit %d ms after step %d: step %d set %d, steps set %d", H[i].ms, H[i].after + 1, H[i].want + 1,
+              sm_get(proj.pat[seq.ppat[0]].drum[0].hit[H[i].v], H[i].want), n);
+    }
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    btn(B_PLAY, 1);
+    btn(B_PLAY, 0);
+    tick(300);
+    printf("  909 live record: the nearest step, step 1 for a hit just before the loop start: checked\n");
+}
+
 int main(void)
 {
     boot();
     tick(300);
     test_303_live();
     test_start_ext_running();
+    test_drum_nearest();
     printf("rec_live: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }

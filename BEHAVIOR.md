@@ -157,6 +157,7 @@ REC-02. Drums: with REC on and the pattern in play, black keys record hits. [MAN
 REC-03. 303 step input: with REC on and the pattern stopped, each key fills the next step from step 1. [MANUAL §10]
 REC-04. With REC on and the pattern in play, a sound knob records knob motion. [MANUAL §10]
 REC-05. On the SMK-37 with clip mode on, SEQ REC does not toggle X0X recording. It sends APC RECORD (section 15). [APC] [CODE app/ui.c:2442-2447]
+REC-06. With REC on and the pattern in play, a drum hit or a 303 key records on the nearest step. In the first half of a step, it records on that step. After half of the step, it records on the next step. On an external clock, half of the step is half of its ticks. Before the first step after PLAY or Start, it records on the first step. If the step did not play yet on this pass, it does not sound that hit again on this pass, because the key sounded it. The next pass plays it. The MIDI note out of that step still goes out. [USER] [CODE seq/sequencer.c seq_rec_step seq_rec_skip] [CODE app/ui.c drum_key bass_kbd] (New 2026-10-16, a73. The owner approved it at 20:11. Before, a hit recorded on the step that played.)
 
 ## 9. Knob motion, p-locks and probability
 
