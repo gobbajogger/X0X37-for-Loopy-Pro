@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project.
 
-Last updated: 2026-10-16 18:15 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
+Last updated: 2026-10-16 18:50 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
 Owner: Docs Keeper (living document). Docs Keeper updates this file when an agent, a room or a rule changes.
 "TO CONFIRM" marks a fact that no project file or agent profile shows.
 
@@ -16,9 +16,9 @@ Owner: Docs Keeper (living document). Docs Keeper updates this file when an agen
 
 ### Firmware Main Builder
 - ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
-- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi work. The live BLE lane is ble-a56 (d9844a4, a63), not ble-stage3. Only agent allowed to install (with backups + CRC + pre-install heads-up).
+- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi work. The live BLE lane is ble-a65 (ca1d4d2, a65). ble-a56 (a63, a64) and ble-stage3 are history. Only agent allowed to install (with backups + CRC + pre-install heads-up).
 - Never: (none specific beyond rules). From USER_PREFERENCES.md: never write the bootloader, never install in the background, never install without a slot backup and a CRC compare.
-- Worktrees: /Users/mac/Documents/x0x37/flash_review (branch ble-a51) and /Users/mac/Documents/x0x37/wt-a55 (branch ble-a55). The newest BLE branch is ble-a56 (d9844a4, a63). The branch ble-stage3 stopped at a43425b (a47).
+- Worktrees: /Users/mac/Documents/x0x37/flash_review (branch ble-a51) and /Users/mac/Documents/x0x37/wt-a55 (branch ble-a55). The live BLE lane is ble-a65 (ca1d4d2, a65, from fb6b1b0). ble-a56 (d9844a4 to 0b80994, a63 and a64) is history. The branch ble-stage3 stopped at a43425b (a47).
 - Box copy: /workspace/x0x37-firmware-main-builder (a git repository). Commits there, then syncs the commits to the Mac repo before each install.
 - Rooms: Loopy, Integration, Feature Design, User Test.
 
@@ -77,8 +77,8 @@ Each task has one owner. Find the owner in this table. Heavy agents write code o
 | Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
 |---|---|---|---|---|
 | Orchestrator | Rule checks. Task assignment. Room order. | Build, write code or install. | Owner of the task, from this table. | Light |
-| Firmware Main Builder | Live BLE lane ble-a56 (d9844a4, a63), not ble-stage3. All firmware installs. | Edit clip-keys. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
-| Second Builder | Branch clip-keys (clip mode, scale, chord, arp, tempo). | Install. Edit flash_review or the BLE branches (ble-a56). | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
+| Firmware Main Builder | Live BLE lane ble-a65 (ca1d4d2, a65). Not ble-a56 or ble-stage3. All firmware installs. | Edit clip-keys. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
+| Second Builder | Branch clip-keys (clip mode, scale, chord, arp, tempo). | Install. Edit flash_review or the BLE branches (ble-a65). | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
 | Firmware Q&A | Answers about firmware and branches. | Commit, change code or install. | Owner of the topic, from this table. | Light |
 | Merge Integrator | Branch integration. Merges and merge conflicts. merge-monitor-log.md. | Install. Write feature code. Merge or push refs-oscuro. Push to an outside remote. | Build and Test Runner (merged commit). | Heavy |
 | Build and Test Runner | Headless builds, unit tests, size and flash-map checks. | Install. Write feature code. | Release Packager (pass). Builder of the branch (fail). | Heavy |
@@ -158,7 +158,7 @@ More rules from agent-rules.md, USER_PREFERENCES.md and merge-monitor-log.md:
 ## Current project context
 - Location: ~/Documents/x0x37
 - Base commit: 585d63c is old. Integration merges: afd20e9, 05a0349, 69ff913, 5076f12, cda4cce. At 17:34 the Mac branch integration moved to 02ae8b8 (585d63c with merges of ble-stage3 a43425b and clip-keys c2f7906). Merge Integrator rebuilt integration from ble-a56 on the order of Orchestrator, because 02ae8b8 was stale. At 17:37 it reset integration to d9844a4, and at 17:38 to c090cfe. The branch integration-stale-02ae8b8 keeps the old merges.
-- Active branches: ble-a54, ble-a55 and ble-a56 (Firmware Main Builder, BLE attempts 54 to 63). clip-keys (Second Builder, flash_review_clipkeys, c2f7906). integration (Merge Integrator, flash_review_integration, c090cfe at 17:38). fix-bass303 (9703c4f, owner TO CONFIRM). refs-oscuro (ac10280, tip babd349): the SMK-37 Oscuro reference firmware and the JieLi reference files. Not for distribution. Never merge it. Never package it (owner decision 2026-10-16 17:44). Never push it (owner decision 2026-10-16 18:09). Older BLE branches: ble-stage3 and ble-a48 to ble-a51. The live BLE lane is ble-a56 (d9844a4, a63, ledger row c090cfe).
+- Active branches: ble-a65 (Firmware Main Builder, ca1d4d2, the live BLE lane, back to the app host from fb6b1b0). History: ble-a54, ble-a55 and ble-a56 (BLE attempts 54 to 64, the CTL_HOST image host). clip-keys (Second Builder, flash_review_clipkeys, c2f7906). integration (Merge Integrator, flash_review_integration, c090cfe at 17:38). fix-bass303 (9703c4f, owner TO CONFIRM). refs-oscuro (ac10280, tip babd349): the SMK-37 Oscuro reference firmware and the JieLi reference files. Not for distribution. Never merge it. Never package it (owner decision 2026-10-16 17:44). Never push it (owner decision 2026-10-16 18:09). Older BLE branches: ble-stage3 and ble-a48 to ble-a51. The live BLE lane is ble-a56 (d9844a4, a63, ledger row c090cfe).
 - Commit 9984344 (clip keys: knobs 2-8 send CCs) is only on the integration line (merge 5076f12). It is not on clip-keys.
 - Both touch main_fm1.c (careful merge needed)
 - Logs to keep: x0x37-progress-log.md, merge-monitor-log.md, USER_PREFERENCES.md, BEHAVIOR.md, ROADMAP.md
@@ -199,3 +199,4 @@ More facts (checked 2026-10-16 01:32):
 - 2026-10-16 17:45, doc audit for Docs Keeper: owner decision 17:44. Branch refs-oscuro (ac10280) holds the SMK-37 Oscuro reference firmware. It is not for distribution. Added never-merge to Merge Integrator and never-package to Release Packager. Added refs-oscuro to the active branches.
 - 2026-10-16 18:10, doc audit for Docs Keeper: owner decisions 18:09. Never push refs-oscuro. Code stays only on the box and on the machines of the owner, with no push to GitHub or any outside remote. Added the pre-push block of Orchestrator, the JieLi-files exception for refs-oscuro (from refs/jieli/README.md in babd349) and the new never-do items for Merge Integrator and Release Packager.
 - 2026-10-16 18:15, doc audit for Docs Keeper: added the Mac pre-push hook paths (x0x37/.git/hooks/pre-push and flash_review/.git/hooks/pre-push). The GitHub origin stays for now, and no one pushes to it.
+- 2026-10-16 18:50, doc audit for Docs Keeper: the live BLE lane is now ble-a65 (ca1d4d2). ble-a56 is history. Older change log lines keep ble-a56 as it was then.
