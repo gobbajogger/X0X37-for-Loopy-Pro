@@ -9,6 +9,7 @@ No colour value is picked by hand. Each step is a rule with named constants.
 """
 import csv
 import math
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -240,6 +241,11 @@ def read_override(path):
     out = {}
     for line in Path(path).read_text().splitlines():
         f = line.split()
+        if len(f) == 2 and f[0] == "padcal_orient" and f[1] != "0":
+            # CLP-79: the owner found another pad top-left. The entries are colours by velocity, so the
+            # table does not change, but the firmware's pad order (SMK_APC40 mapping) is then wrong.
+            print(f"warning: {path}: padcal_orient {f[1]}: the pad order of the firmware is not as assumed "
+                  "(BEHAVIOR.md CLP-79)", file=sys.stderr)
         if len(f) == 6 and f[0] == "padcal" and f[5] == "ok":
             v, r, g, b = (int(x) for x in f[1:5])
             assert 0 <= v < 128 and all(0 <= c <= 255 for c in (r, g, b)), line

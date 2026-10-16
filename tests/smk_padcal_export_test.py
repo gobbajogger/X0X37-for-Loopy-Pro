@@ -18,7 +18,9 @@ import inlog_fmt  # noqa: E402
 exe = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "build/host/smk_padcal_test"
 words = {}
 for line in subprocess.run([str(exe), "export"], check=True, capture_output=True, text=True).stdout.split("\n"):
-    if line:
+    if line.startswith("tl "):
+        tl = int(line.split()[1])
+    elif line:
         e, w = (int(x) for x in line.split())
         words[e] = w
 assert sorted(words) == list(range(128))
@@ -27,12 +29,15 @@ assert sorted(words) == list(range(128))
 def reply(arg):                     # main_fm1.c smk_inlog_reply: ed_b(arg), R G B, then the ok bits, each 2 x 7 bits
     w = [words[(arg - 2) * 32 + k] for k in range(32)]
     vals = [(x >> s) & 255 for x in w for s in (0, 8, 16)]
-    vals += [sum(((w[8 * j + i] >> 24) & 1) << i for i in range(8)) for j in range(4)]
+    vals += [sum(((w[8 * j + i] >> 24) & 1) << i for i in range(8)) for j in range(4)] + [tl]
     return [arg] + [p for v in vals for p in (v & 0x7F, v >> 7)]
 
 
 fails = 0
 ents = []
+got_tl = inlog_fmt.parse_padcal_tl(reply(2))
+print(f"{'PASS' if got_tl == tl == 8 else 'FAIL'} export: the orientation correction {got_tl} (the test sets 8)")
+fails += not (got_tl == tl == 8)
 for arg in inlog_fmt.PADCAL_ARGS:
     p = inlog_fmt.parse_padcal(reply(arg), arg)
     fails += p is None
@@ -43,10 +48,13 @@ print(f"{'PASS' if sorted(ok) == [81, 127] else 'FAIL'} export: entries marked o
 fails += sorted(ok) != [81, 127]
 with tempfile.TemporaryDirectory() as td:
     f = Path(td) / "export.txt"
-    f.write_text("\n".join(inlog_fmt.padcal_lines(ents)) + "\n")
+    f.write_text("\n".join(inlog_fmt.padcal_lines(ents, got_tl)) + "\n")
     h = Path(td) / "pad.h"
-    subprocess.run([sys.executable, str(ROOT / "tools/apc_pad_colors.py"), "--pad-h", str(h), "--pad-override", str(f)],
-                   check=True)
+    r = subprocess.run([sys.executable, str(ROOT / "tools/apc_pad_colors.py"), "--pad-h", str(h), "--pad-override", str(f)],
+                       check=True, capture_output=True, text=True)
+    warned = "padcal_orient 8" in r.stderr
+    print(f"{'PASS' if warned else 'FAIL'} generator: carries the correction and warns ({r.stderr.strip()})")
+    fails += not warned
     got = [tuple(int(x) for x in t) for t in re.findall(r"\{(\d+),(\d+),(\d+)\}", h.read_text())]
 want = [m.pad_level(e) for e in m.load_source()]
 for v, rgb in ok.items():

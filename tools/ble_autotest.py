@@ -238,13 +238,15 @@ def main():
     if not ports():
         sys.exit("ble_autotest: no X0X USB MIDI port")
     if a.padcal_export:
-        ents = []
+        ents, tl = [], None
         for arg in inlog_fmt.PADCAL_ARGS:
-            e = inlog_fmt.parse_padcal(ask(inlog_fmt.ED_INLOG, [arg]), arg)
+            rr = ask(inlog_fmt.ED_INLOG, [arg])
+            e = inlog_fmt.parse_padcal(rr, arg)
+            tl = inlog_fmt.parse_padcal_tl(rr)
             if e is None:
                 sys.exit(f"ble_autotest: no pad calibration reply (arg {arg}; firmware before CLP-79?)")
             ents += e
-        open(a.padcal_export, "w").write("\n".join(inlog_fmt.padcal_lines(ents)) + "\n")
+        open(a.padcal_export, "w").write("\n".join(inlog_fmt.padcal_lines(ents, tl)) + "\n")
         print(f"{a.padcal_export}: {sum(e[4] for e in ents)} of 128 entries marked ok")
         return 0
     if a.diag_only:

@@ -51,18 +51,25 @@ check("padcal_btn & ~b & (1u << panel.btn[B_HOME] | 1u << panel.btn[B_GLO])" in 
 check("down & (1u << panel.btn[B_PLAY])" in pf and "smk_padcal_mark(&padcal)" in pf, "keys: PLAY marks ok")
 check("smk_padcal_page_step(padcal.page, -1)" in pf and "smk_padcal_page_step(padcal.page, 1)" in pf
       and "B_OCTDN" in pf and "B_OCTUP" in pf, "keys: OCT- / OCT+ change the page")
-check("p & ~padcal_pads & (1u << SMK_WHITE_NOTE[i])" in pf and "padcal.sel = (uint8_t)i" in pf, "pads: a press selects the pad")
-check("for (i = 0; i < NE; i++)" in pf and "if (d && i < 3u)" in pf and "smk_padcal_turn(&padcal, (uint8_t)i, d)" in pf,
+check("p & ~padcal_pads & (1u << SMK_WHITE_NOTE[i])" in pf and "padcal.sel = smk_padcal_phys" in pf, "pads: a press selects the pad")
+check("for (i = 0; i < NE; i++)" in pf and "else if (d && i < 3u && !padcal.orient)" in pf and "smk_padcal_turn(&padcal, (uint8_t)i, d)" in pf,
       "knobs: K2 / K3 / K4 nudge R / G / B, the other knob turns are dropped")
-check("padled_set(i, c[0] >> 1, c[1] >> 1, c[2] >> 1)" in pf and "smk_pad_grid = 1u" in pf,
-      "pads: each pad shows its entry at half level (as a lit clip pad)")
+check("padled_set(ph, c[0] >> 1, c[1] >> 1, c[2] >> 1)" in pf and "smk_pad_grid = 1u" in pf
+      and "uint8_t ph = smk_padcal_phys(padcal.tl, (uint8_t)i)" in pf,
+      "pads: each pad shows its entry at half level (as a lit clip pad), on the corrected pad")
+check("padled_set(ph, w, w, w)" in pf and "w = !i ? 127u : 0u" in pf and "padcal.sel = smk_padcal_phys(padcal.tl, (uint8_t)i)" in pf,
+      "orientation: only reading position 0 lit white; a pad press goes through the correction")
+check("if (padcal.orient)\n            padcal.orient = 0u;" in pf and "smk_padcal_orient_turn(&padcal, d)" in pf
+      and "if (d && padcal.orient && !i)" in pf, "orientation: K2 moves the light, SEQ PLAY confirms (no mark)")
 dr = body(main, "uint8_t smk_padcal_draw(uint32_t w, uint32_t h)")
+check('cv_text(4, 70, &FONT_S, "pad 1 top-left?", C_WHITE)' in dr and "padcal.orient << 4" in dr,
+      "orientation: the LCD asks 'pad 1 top-left?'")
 check("APC40_LCD565[n]" in dr and "smk_padcal_is_ok(&padcal, n)" in dr and 'put_i(put_s(t, "#"), e)' in dr,
       "LCD: the target colours, the ok dots and the entry number")
 check("static smk_padcal_t padcal;" in main and "settings" not in pf + enter, "RAM only: no settings byte, no flash save")
 rp = body(main, "static void smk_inlog_reply(uint32_t arg)")
 check("if (arg - 2u < 128u / SMK_PADCAL_CHUNK)" in rp and "padcal.rgb[(arg - 2u) * SMK_PADCAL_CHUNK]" in rp
-      and "smk_inlog_w(c[i], 2u)" in rp and "smk_inlog_w(padcal.ok[(arg - 2u) * (SMK_PADCAL_CHUNK / 8u) + i], 2u)" in rp,
+      and "smk_inlog_w(c[i], 2u)" in rp and "smk_inlog_w(padcal.tl, 2u)" in rp and "smk_inlog_w(padcal.ok[(arg - 2u) * (SMK_PADCAL_CHUNK / 8u) + i], 2u)" in rp,
       "export: INLOG args 2-5 give 32 entries each (tests/smk_padcal_export_test.py decodes them)")
 print("smk_padcal_wiring_test: " + ("ok" if not fails else f"{fails} FAIL"))
 sys.exit(1 if fails else 0)

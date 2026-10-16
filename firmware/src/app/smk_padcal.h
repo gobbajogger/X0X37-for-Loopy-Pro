@@ -14,7 +14,8 @@
 #define SMK_PADCAL_CHUNK 32u   /* entries in one export reply */
 
 typedef struct {
-    uint8_t on, page, sel;     /* sel: the selected pad (0-15, physical order: top row 0-7) */
+    uint8_t on, page, sel;     /* sel: the selected pad (0-15, reading order: top row 0-7, left to right) */
+    uint8_t orient, tl;        /* orient: the orientation page is on; tl: the pad index the owner found top-left */
     uint8_t ok[16];            /* one bit for each entry: the owner accepted it */
     uint8_t rgb[128][3];
 } smk_padcal_t;
@@ -54,8 +55,20 @@ static inline void smk_padcal_start(smk_padcal_t *c, const uint16_t lcd565[128],
     for (e = 0; e < 128u; e++)
         smk_padcal_default(c->rgb[e], lcd565[e], lut, gain, floor);
     __builtin_memset(c->ok, 0, sizeof c->ok);
-    c->page = c->sel = 0u;
-    c->on = 1u;
+    c->page = c->sel = c->tl = 0u;
+    c->on = c->orient = 1u;
+}
+/* The orientation page: the pad index 0 is lit; K2 moves the light (wrap); SEQ PLAY confirms it as top-left.
+ * The pad index of reading position i is i ^ tl (and back: the same). The model: the pad index of the
+ * firmware is a 2 x 8 grid whose row order and column order can be wrong. tl 0 = as assumed, 8 = rows
+ * swapped, 7 = each row mirrored, 15 = both (180 degrees). The other values are also one-to-one. */
+static inline uint8_t smk_padcal_phys(uint8_t tl, uint8_t i)
+{
+    return (uint8_t)((i ^ tl) & 15u);
+}
+static inline void smk_padcal_orient_turn(smk_padcal_t *c, int32_t d)
+{
+    c->tl = (uint8_t)((c->tl + (uint32_t)d) & 15u);
 }
 /* The entry of a pad on the page: page 0 pads 0-15 = entries 0-15, ..., page 7 = 112-127. */
 static inline uint8_t smk_padcal_entry(uint8_t page, uint8_t pad)

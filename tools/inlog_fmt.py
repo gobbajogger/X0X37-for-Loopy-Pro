@@ -130,9 +130,18 @@ def parse_padcal(r, arg):
             for k in range(32)]
 
 
-def padcal_lines(entries):
-    """The export file for tools/apc_pad_colors.py --pad-override: one line for each entry."""
-    return [f"padcal {v} {r} {g} {b} {'ok' if ok else '-'}" for v, r, g, b, ok in entries]
+def parse_padcal_tl(r):
+    """The orientation correction after the ok bits (CLP-79): the pad index found top-left, or None."""
+    if not r or len(r) < 1 + 2 * 101:
+        return None
+    return r[201] | r[202] << 7
+
+
+def padcal_lines(entries, tl=None):
+    """The export file for tools/apc_pad_colors.py --pad-override: one line for each entry, then the
+    orientation correction ("padcal_orient TL", 0 = the pad order as assumed)."""
+    out = [f"padcal {v} {r} {g} {b} {'ok' if ok else '-'}" for v, r, g, b, ok in entries]
+    return out + ([] if tl is None else [f"padcal_orient {tl}"])
 
 
 def rgb_of_grb(v):

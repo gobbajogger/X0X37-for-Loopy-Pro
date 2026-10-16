@@ -66,16 +66,51 @@ static void test_start_turn_mark(void)
     assert(smk_padcal_is_ok(&c, 127u) && c.ok[15] == 0x80u);
 }
 
+/* The orientation page (CLP-79): no knob turn + confirm = identity; each correction is one-to-one, and the
+ * four corrections of a 2 x 8 grid put the entries where expected. */
+static void test_orientation(void)
+{
+    static const uint8_t TL[4] = {0u, 8u, 7u, 15u};   /* as assumed, rows swapped, rows mirrored, 180 degrees */
+    uint8_t t, i;
+    smk_padcal_start(&c, APC40_LCD565, PAD_GAMMA_LUT, PAD_GAIN_Q8, PAD_FLOOR_LEVEL);
+    assert(c.orient == 1u && c.tl == 0u);
+    c.orient = 0u;                                   /* SEQ PLAY with no knob turn */
+    for (i = 0; i < 16u; i++)
+        assert(smk_padcal_phys(c.tl, i) == i);       /* identity */
+    smk_padcal_orient_turn(&c, -1);
+    assert(c.tl == 15u);                             /* K2 back from pad 1: wrap to the last pad */
+    smk_padcal_orient_turn(&c, 3);
+    assert(c.tl == 2u);
+    for (t = 0; t < 16u; t++) {
+        uint16_t seen = 0u;
+        for (i = 0; i < 16u; i++) {
+            uint8_t ph = smk_padcal_phys(t, i);
+            assert(ph < 16u && smk_padcal_phys(t, ph) == i);   /* the way back (a pad press) */
+            seen |= (uint16_t)(1u << ph);
+        }
+        assert(seen == 0xFFFFu && smk_padcal_phys(t, 0u) == t);   /* one-to-one; position 0 is the chosen pad */
+    }
+    for (t = 0; t < 4u; t++)
+        for (i = 0; i < 16u; i++) {
+            uint8_t row = i >> 3, col = i & 7u, ph = smk_padcal_phys(TL[t], i);
+            uint8_t er = (TL[t] & 8u) ? 1u - row : row, ec = (TL[t] & 7u) ? 7u - col : col;
+            assert(ph == er * 8u + ec);
+        }
+}
+
 int main(int argc, char **argv)
 {
     (void)argv;
     test_mapping();
     test_nudge();
+    test_orientation();
     test_start_turn_mark();
+    c.tl = 8u;                                       /* the export carries the correction */
     if (argc > 1) {                                  /* the state above, as the INLOG reply words */
         uint8_t e;
         for (e = 0; e < 128u; e++)
             printf("%u %lu\n", e, (unsigned long)smk_padcal_word(&c, e));
+        printf("tl %u\n", c.tl);
         return 0;
     }
     printf("smk_padcal_test: ok\n");

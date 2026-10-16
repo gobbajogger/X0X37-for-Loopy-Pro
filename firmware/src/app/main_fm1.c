@@ -353,6 +353,7 @@ static void smk_inlog_reply(uint32_t arg)
             smk_inlog_w(c[i], 2u);
         for (i = 0; i < SMK_PADCAL_CHUNK / 8u; i++)     /* then the ok bits of the 32 entries */
             smk_inlog_w(padcal.ok[(arg - 2u) * (SMK_PADCAL_CHUNK / 8u) + i], 2u);
+        smk_inlog_w(padcal.tl, 2u);                  /* the orientation correction */
         return;
     }
     if (arg == 1u) {
@@ -1518,13 +1519,18 @@ static void smk_grid(void)
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h)
 {
     uint8_t e = smk_padcal_entry(padcal.page, padcal.sel), i;
-    uint32_t sig = smk_padcal_word(&padcal, e) ^ (uint32_t)(padcal.sel | padcal.page << 4) << 25;
+    uint32_t sig = smk_padcal_word(&padcal, e) ^ (uint32_t)(padcal.sel | padcal.page << 4) << 25 ^
+                   (uint32_t)(padcal.tl | padcal.orient << 4) * 2654435761u;
     char t[16];
     if (sig == padcal_sig)                        /* only the selected entry, the pad and the page change */
         return 0u;
     padcal_sig = sig;
     cv_begin(w, h, C_BLACK);
     cv_band(0, (int32_t)h);
+    if (padcal.orient) {
+        cv_text(4, 70, &FONT_S, "pad 1 top-left?", C_WHITE);
+        return 1u;
+    }
     for (i = 0; i < SMK_PADCAL_PADS; i++) {
         int32_t x = (int32_t)(i & 7u) * 30, y = (int32_t)(i >> 3) * 30;
         uint8_t n = smk_padcal_entry(padcal.page, i);
@@ -1551,6 +1557,7 @@ void smk_padcal_enter(void)
     say("PAD COLOURS", 0);
 }
 /* The pad calibration frame (CLP-79). The UI gets no buttons, keys or knobs meanwhile (plat_fm1.c, ui.c).
+ * First the orientation page: K2 moves the white light, SEQ PLAY confirms it as top-left (smk_padcal_phys).
  * A pad selects its entry. K2 / K3 / K4 nudge R / G / B. PLAY marks ok. OCT- / OCT+ change the page.
  * PATCH or GLOBE ends it on the release, so the UI does not see that button. */
 static void smk_padcal_frame(void)
@@ -1560,24 +1567,34 @@ static void smk_padcal_frame(void)
         padcal.on = 0u;
     for (i = 0; i < SMK_PADCAL_PADS; i++)
         if (p & ~padcal_pads & (1u << SMK_WHITE_NOTE[i]))
-            padcal.sel = (uint8_t)i;
+            padcal.sel = smk_padcal_phys(padcal.tl, (uint8_t)i);
     padcal_btn = b;
     padcal_pads = p;
-    if (down & (1u << panel.btn[B_PLAY]))
-        smk_padcal_mark(&padcal);
+    if (down & (1u << panel.btn[B_PLAY])) {
+        if (padcal.orient)
+            padcal.orient = 0u;                  /* the lit pad is top-left: page 1 */
+        else
+            smk_padcal_mark(&padcal);
+    }
     if (down & (1u << panel.btn[B_OCTDN]))
         padcal.page = smk_padcal_page_step(padcal.page, -1);
     if (down & (1u << panel.btn[B_OCTUP]))
         padcal.page = smk_padcal_page_step(padcal.page, 1);
     for (i = 0; i < NE; i++) {                   /* all knobs: the others do not act after the end */
         int32_t d = fm1_enc_take(panel.enc[i]) * panel.dir[i];
-        if (d && i < 3u)
+        if (d && padcal.orient && !i)
+            smk_padcal_orient_turn(&padcal, d);
+        else if (d && i < 3u && !padcal.orient)
             smk_padcal_turn(&padcal, (uint8_t)i, d);
     }
     smk_pad_grid = 1u;
     for (i = 0; i < SMK_PADCAL_PADS; i++) {      /* level / 2: as a lit clip pad (smk_pads) */
         const uint8_t *c = padcal.rgb[smk_padcal_entry(padcal.page, (uint8_t)i)];
-        padled_set(i, c[0] >> 1, c[1] >> 1, c[2] >> 1);
+        uint8_t ph = smk_padcal_phys(padcal.tl, (uint8_t)i), w = !i ? 127u : 0u;
+        if (padcal.orient)                       /* the orientation page: only reading position 0, white */
+            padled_set(ph, w, w, w);
+        else
+            padled_set(ph, c[0] >> 1, c[1] >> 1, c[2] >> 1);
     }
     padled_flush();
 }
