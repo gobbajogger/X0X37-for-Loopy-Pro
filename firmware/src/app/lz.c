@@ -30,7 +30,11 @@ typedef struct {
     void *ctx;
 } lz_src_t;
 
+#ifdef LZ_SCRATCH                      /* the app: a main-loop scratch that it shares (4 KiB) */
+#define lz_head LZ_SCRATCH
+#else
 static uint16_t lz_head[1u << LZ_HBITS];
+#endif
 
 static uint32_t lz_hash(const uint8_t *p)
 {
