@@ -313,6 +313,42 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
         return owned;
     return 0u;
 }
+#if BOARD_SMK37
+/* a76: the inbound recorder (app/smk_inlog.h). usb.c and ble.c give it each APC40 LED message that
+ * came in. ble.c also gives it the link and notify edges. */
+#include "app/smk_inlog.h"
+static smk_inlog_t smk_inlog_g SMK_BIG;   /* in the pool (zeroed at boot): .data+.bss is full */
+void smk_inlog(uint32_t src, uint32_t pkt)
+{
+    smk_inlog_put(&smk_inlog_g, fm1_ms, src, pkt);
+}
+static void smk_inlog_w(uint32_t v, uint32_t nb)   /* one word, nb x 7 bits, low bits first */
+{
+    while (nb--) {
+        ed_b(v);
+        v >>= 7;
+    }
+}
+/* The reply of editor command 38 INLOG (editor.c, web/EDITOR_PROTOCOL.md). Arg 1: the pad LED output
+ * (lcd.c): the colour to send and the last frame sent. Else: the entries and the stored clip cells. */
+static void smk_inlog_reply(uint32_t arg)
+{
+    uint32_t i;
+    if (arg == 1u) {
+        ed_b(1u);
+        ed_b(padled_dirty);
+        for (i = 0; i < 2u * PADLED_N; i++)
+            smk_inlog_w(i < PADLED_N ? padled_rgb[i] : padled_sent(i - PADLED_N), 4u);
+        return;
+    }
+    ed_b(smk_inlog_g.n);
+    smk_inlog_w(fm1_ms, 5u);
+    for (i = 0; i < 2u * smk_inlog_g.n; i++)
+        smk_inlog_w(smk_inlog_at(&smk_inlog_g, i), 5u);
+    for (i = 0; i < 2u * SMK_APC40_CLIP_COUNT; i++)
+        ed_b(i < SMK_APC40_CLIP_COUNT ? apc_led_velocity[i] : apc_led_channel[i - SMK_APC40_CLIP_COUNT]);
+}
+#endif
 /* MIDI Start: count clock pulses from the downbeat. */
 void smk_apc_clock_start(void)
 {

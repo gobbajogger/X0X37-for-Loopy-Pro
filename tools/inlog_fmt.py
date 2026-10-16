@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-only
+"""Read the reply of editor command 38 INLOG (SMK-37, a76) and print it in plain words.
+
+The reply: the entry count, fm1_ms now, then 2 words for each entry (the oldest first), each word
+5 x 7 bits, low bits first. Then the 40 stored clip velocities and the 40 stored clip channels.
+Entry word 1 is fm1_ms. Entry word 2 is src << 24 | status << 16 | d1 << 8 | d2.
+src: 0 USB, 1 Bluetooth, 2 Bluetooth link edge (d2 bit 0 link up, bit 1 notify on), 3 Bluetooth, dropped.
+tools/ble_autotest.py --diag-only uses this module.
+"""
+import colorsys
+import re
+from pathlib import Path
+
+ED_INLOG = 38
+CELLS = 40
+SRC = ["USB", "BLE", "EDGE", "BLE DROPPED"]
+MAIN = Path(__file__).resolve().parents[1] / "firmware/src/app/main_fm1.c"
+
+
+def palette(path=MAIN):
+    """APC40_RGB[128] of the firmware (the colour that the pads draw), or None."""
+    try:
+        m = re.search(r"APC40_RGB\[128\]\s*=\s*\{(.*?)\};", Path(path).read_text(), re.S)
+    except OSError:
+        return None
+    pal = [int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{6})", m.group(1))] if m else []
+    return pal if len(pal) == 128 else None
+
+
+def colour_name(rgb):
+    r, g, b = rgb >> 16, (rgb >> 8) & 0xFF, rgb & 0xFF
+    mx, mn = max(r, g, b), min(r, g, b)
+    if mx == 0:
+        return "off"
+    dim = "dim " if mx < 0x60 else ""
+    if (mx - mn) / mx < 0.2:
+        return dim + ("white" if mx > 0xC0 else "grey")
+    h = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)[0] * 360
+    for top, name in ((15, "red"), (40, "orange"), (70, "yellow"), (100, "lime"), (150, "green"),
+                      (175, "teal"), (200, "cyan"), (225, "azure"), (255, "blue"), (275, "violet"),
+                      (295, "purple"), (320, "magenta"), (345, "pink"), (361, "red")):
+        if h < top:
+            return dim + name
+    return dim + "red"
+
+
+def mode(ch):
+    return "steady" if ch == 0 else "one-shot" if ch <= 5 else "pulse" if ch <= 10 else "blink"
+
+
+def parse(r):
+    """r: the reply bytes after the command byte. Return (now_ms, entries, velocities, channels)."""
+    if not r:
+        return None
+    c = r[0]
+    words = []
+    for k in range(1 + 2 * c):
+        b = r[1 + 5 * k:6 + 5 * k]
+        if len(b) < 5:
+            return None
+        words.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
+    cells = r[1 + 5 * (1 + 2 * c):]
+    if len(cells) < 2 * CELLS:
+        return None
+    ents = [(words[1 + 2 * i], words[2 + 2 * i]) for i in range(c)]
+    return words[0], ents, list(cells[:CELLS]), list(cells[CELLS:2 * CELLS])
+
+
+def vel_text(v, pal):
+    if v == 0:
+        return "vel 0 (off)"
+    if not pal:
+        return f"vel {v} (0x{v:02X})"
+    return f"vel {v} (0x{v:02X}, {colour_name(pal[v])}, pad table {pal[v]:06X})"
+
+
+def entry_text(now, ms, w, pal):
+    src, st, d1, d2 = w >> 24, (w >> 16) & 0xFF, (w >> 8) & 0x7F, w & 0x7F
+    d = (ms - now) & 0xFFFFFFFF                  # fm1_ms wraps at 2^32
+    if d >= 1 << 31:
+        d -= 1 << 32
+    t = f"{d / 1000:+9.3f} s"
+    if src == 2:
+        return f"{t}  EDGE         link {'up' if d2 & 1 else 'down'}, notify {'on' if d2 & 2 else 'off'}"
+    kind = "note on " if st & 0xF0 == 0x90 and d2 else "note off"
+    ch = st & 0x0F
+    where = f"cell row {d1 // 8} col {d1 % 8}" if d1 < CELLS else "LED note"
+    v = d2 if kind == "note on " else 0
+    return (f"{t}  {SRC[src % 4]:11s}  {kind} ch {ch + 1:2d} ({mode(ch)}) note {d1:3d} ({where}) "
+            + vel_text(v, pal))
+
+
+def text(p, pal=None):
+    if p is None:
+        return ["INLOG: no reply or a short reply (firmware before a76?)"]
+    now, ents, vel, ch = p
+    out = [f"INLOG: {len(ents)} entries, the oldest first (time before the read, fm1_ms now {now})"]
+    out += ["  " + entry_text(now, ms, w, pal) for ms, w in ents]
+    out.append("Stored clip cells (APC row 4 = top Loopy row; velocity/channel; '.' = off):")
+    for row in range(4, -1, -1):
+        out.append(f"  row {row}: " + " ".join(f"{vel[row * 8 + c]:3d}/{ch[row * 8 + c]:<2d}" if vel[row * 8 + c] else "   .  "
+                                             for c in range(8)))
+    lit = sorted({v for v in vel if v})
+    if lit:
+        out.append("Colours in the cells: " + "; ".join(vel_text(v, pal) for v in lit))
+    return out
+
+
+def parse_pads(r):
+    """Reply to INLOG arg 1. Return (dirty, shadow, sent): 16 GRB words each, hardware pad order."""
+    if not r or r[0] != 1 or len(r) < 2 + 4 * 32:
+        return None
+    w = [r[2 + 4 * k] | r[3 + 4 * k] << 7 | r[4 + 4 * k] << 14 | r[5 + 4 * k] << 21 for k in range(32)]
+    return r[1], w[:16], w[16:]
+
+
+def rgb_of_grb(v):
+    return ((v >> 8) & 0xFF) << 16 | ((v >> 16) & 0xFF) << 8 | (v & 0xFF)
+
+
+def pads_text(pp, cells=None):
+    if pp is None:
+        return ["PADS: no reply (firmware before a76?)"]
+    dirty, shadow, sent = pp
+    out = [f"PADS: the LED output (hardware pads 0-7 top row, 8-15 bottom row; R,G,B; "
+           f"a frame waits to go out: {'yes' if dirty else 'no'})"]
+    for p in range(16):
+        a, b = rgb_of_grb(shadow[p]), rgb_of_grb(sent[p])
+        s = f"  pad {p:2d}: to send {a >> 16:3d},{(a >> 8) & 255:3d},{a & 255:3d} ({colour_name(a)})"
+        s += f"  sent {b >> 16:3d},{(b >> 8) & 255:3d},{b & 255:3d} ({colour_name(b)})"
+        if a != b and not dirty:
+            s += "  MISMATCH: the pad shows a colour that the firmware did not ask for"
+        out.append(s)
+    lit = sum(1 for v in sent if v)
+    if cells is not None and not any(cells) and lit:
+        out.append(f"  WARNING: all clip cells are off, but {lit} pads show a colour")
+    return out
