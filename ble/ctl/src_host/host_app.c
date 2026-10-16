@@ -159,6 +159,7 @@ __attribute__((noinline, section(".bt_stack_code.d50"))) void hx_start(void)
 {
     if (hx_started || !(ctl_d_ran & 2u) || !(ctl_os_d_waiting() & 2u)) return;
     hx_started = 1;
+    hx_init();                                                    /* attempt 59: profiles/handlers after btstack_task_init (stock order), so le_hci_stack keeps hx_events */
     le_controller_set_random_mac((void *)ctl_bp->addr);           /* the app's random static address */
     ble_user_cmd_prepare(BLE_CMD_SET_HCI_CFG, 2, HCI_CFG_OWN_ADDRESS_TYPE, 1);
     if (hx_radio) hx_adv(1);

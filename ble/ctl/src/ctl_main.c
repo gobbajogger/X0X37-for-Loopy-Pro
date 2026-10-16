@@ -285,7 +285,11 @@ static u32 ctl_init(u32 arg)
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
     ctl_mark(0x302);
 #ifdef CTL_HOST
-    hx_init();                            /* 0x310..0x31F inside */
+    /* attempt 59: the host profiles/handlers are set up AFTER the stack init (hx_start, once the
+     * host task has run btstack_task_init), as the stock app does. Running hx_init here (before
+     * btstack_init) let btstack_task_init's l2cap/hci init wipe le_hci_stack and drop our
+     * hci_event_callback(hx_events): only l2cap_hci_event_handler survived, so no HCI event ever
+     * reached hx_events (ctl_d_ev_n 0, no GATT). */
     ctl_mark(0x320);
     btstack_init();                       /* its task starts the controller (btctrler_task_init) */
     ctl_mark(0x330);
