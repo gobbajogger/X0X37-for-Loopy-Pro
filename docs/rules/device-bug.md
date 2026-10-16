@@ -10,6 +10,8 @@ For a device bug, the owner first shows the bug once with INLOG on. The builder 
 
 To log a device result, see docs.md (rule 12).
 
+Test target for each fix: X0X does not drop notes, pad colour updates or the BLE connection (BEHAVIOR.md, Orchestrator 2026-10-17 00:10).
+
 ## Owner facts for a fix
 
 - Optimize without cutting features. Font size is not a feature. (owner, 2026-10-16 18:41)

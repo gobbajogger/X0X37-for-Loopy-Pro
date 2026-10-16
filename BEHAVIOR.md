@@ -2,7 +2,7 @@
 
 ## 1. Purpose and use
 
-Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is a copy of BEHAVIOR.md on lane/dk-rules-v3 8e2035b (base integration ee43f5f). The ASD-STE100 text on integration is the source, and builders edit it there.
+Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is a copy of integration 6f98adf BEHAVIOR.md. The ASD-STE100 text on integration is the source, and builders edit it there.
 
 This file is the intended-behavior specification for X0X. Review agents and bug-hunt agents use it. It tells an intended behavior from a defect.
 
