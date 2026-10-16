@@ -48,15 +48,13 @@ static void fm1_ble_boot_fill(xb_boot_t *b, xb_mbox_t *mb)
     b->settle_ms = 800u;
     b->vec_base = 0x01C7FE00u;                  /* FM1_VEC: one table for both cores */
     b->icfg_base = 0x1EEF300u;                  /* core 1's interrupt bank */
-    b->xosc[0] = 0x0B;                          /* the SDK default (AC79 demo board) */
+    /* a67: a fixed crystal trim 11/11, as the working SMK-37 Oscuro firmware (and the SDK default).
+     * Before a67 the trim came from WLA_CON12 at boot (3/3 on the user's unit). DIAG still reads WLA_CON12. */
+    b->xosc[0] = 0x0B;
     b->xosc[1] = 0x0B;
-    if (FM1_BLE_XOSC_REG) {                     /* the crystal trim the boot left: the RF init writes it again */
-        b->xosc[0] = (uint8_t)((FM1_BLE_XOSC_REG >> 13) & 0xFu);
-        b->xosc[1] = (uint8_t)((FM1_BLE_XOSC_REG >> 19) & 0xFu);
-    }
     for (i = 0; i < 7u; i++)
         b->pa_trim[i] = pa[i];
     b->osc_type = 0;
     b->pwr_max = 8;
-    b->pwr_ble = 11;                            /* BLE TX level (0-11). Level 5 did not change the core 0 failure (test 20) */
+    b->pwr_ble = 6;                             /* BLE TX level (0-11). a66: 6, as the working SMK-37 Oscuro firmware (was 11) */
 }

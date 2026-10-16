@@ -28,9 +28,6 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
         nor[off + i] &= s[i];
     return 0;
 }
-#if BOARD_SMK37
-#include "fm1_flash_map.h"                /* FL_DATA_HI, FL_OWNER_LO/HI (the SMK store windows) */
-#endif
 #include "../firmware/src/app/plat.h"     /* X0X: the object map */
 #include "../firmware/src/storage.c"
 #define OBJ_PROJECT0 OBJ_SOUND                 /* the test's three data objects: SOUND, PAT0, PAT1 */

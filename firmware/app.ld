@@ -24,9 +24,8 @@ SECTIONS
 {
     .text : { KEEP(*(.text.crt0)) *(.text*) *(.rodata*) . = ALIGN(4); _etext = .; } > XIP
     /* 1 KiB at the start of RAM that nothing uses: the Bluetooth start checks whether the radio writes
-     * there (src/ble.c ble_sink_*). The RAM code starts after it. ABI 3: 896 bytes, so that the RAM
-     * code ends below XB_RAM_LO (0x01C01480). */
-    .ram_sink (NOLOAD) : { _ram_sink = .; . += 0x380; _ram_sink_end = .; } > RAMTEXT
+     * there (src/ble.c ble_sink_*). The RAM code starts after it. */
+    .ram_sink (NOLOAD) : { _ram_sink = .; . += 0x400; _ram_sink_end = .; } > RAMTEXT
     .ram_text : { _rt_start = .; KEEP(*(.ram_text*)) . = ALIGN(4); } > RAMTEXT AT > XIP
     _rt_load = LOADADDR(.ram_text);
     .c1_text : { _c1_start = .; KEEP(*(.c1_text*)) . = ALIGN(4); _c1_end = .; } > RAMTEXT AT > XIP
@@ -37,9 +36,8 @@ SECTIONS
     .bss (NOLOAD) : { _bss_start = .; *(.bss*) *(.sbss*) *(COMMON) . = ALIGN(4); _bss_end = .; } > RAM
     .pool (NOLOAD) : { _pool_start = .; *(.pool*) . = ALIGN(4); _pool_end = .; } > POOL
     .noinit (NOLOAD) : { *(.noinit*) } > NOINIT
-    .ble_ram (NOLOAD) : { . = ALIGN(64); *(.ble_ram*) _ble_ram_end = .; } > BLERAM
-    ASSERT(_ble_ram_end <= 0x01C7CDC0, "BLERAM reaches the image's RAM 2 (x0x_ble_abi.h XB_RAM2_LO)")
-    ASSERT(_c1_end <= 0x01C01480, "RAM code reaches the Bluetooth controller RAM (XB_RAM_LO)")
+    .ble_ram (NOLOAD) : { . = ALIGN(64); *(.ble_ram*) } > BLERAM
+    ASSERT(_c1_end <= 0x01C01800, "RAM code reaches the Bluetooth controller RAM")
     _guard0 = 0x01C74000; _ustack_lo = 0x01C74100; _ustack_top = 0x01C7A000;
     _guard1 = 0x01C7A000; _sstack_lo = 0x01C7A100; _sstack_top = 0x01C7C000;
     /DISCARD/ : { *(.comment) *(.note*) }

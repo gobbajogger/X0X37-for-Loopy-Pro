@@ -48,16 +48,13 @@ static uint32_t st_crc32(const void *p, uint32_t n)   /* zlib CRC-32, 4 bits per
 }
 
 #if BOARD_SMK37
-/* SMK-37 Pro: every object in FL_DATA 0x9D000..0xAAFFF (the stock VM), A/B
+/* SMK-37 Pro: every object in FL_DATA 0x9D000..0xAFFFF (the stock VM), A/B
  * neighbours in plat.h order: settings 0x9D000, sound 0x9F000, patterns 1-8 0xA1000, patterns 9-16 0xA3000,
- * panel 0xA5000, song 0xA7000, motion 0xA9000 (..0xAAFFF); the store owner tag at 0xAF000 (st_owner_check,
- * the same place as flash layout 2). Flash layout 3: 0xAB000..0xAEFFF and 0xB0000..0xB6FFF are the
- * Bluetooth image's piece 2 (around the tag), 0xB7000..0xBAFFF is user sample slot 3 (app/slots.c). The
- * owner check clears only the objects (0x9D000..0xAAFFF): never piece 2, slot 3, BTIF / USRTRIM
- * (0xC0000..0xC1FFF) or key_mac (0xFF000). */
+ * panel 0xA5000, song 0xA7000, motion 0xA9000 (..0xAAFFF); 0xAB000..0xAEFFF spare, the store owner tag at
+ * 0xAF000 (st_owner_check). 0xB0000..0xBAFFF is user sample slot 3 (app/slots.c), not the store: the
+ * owner check never clears it. Never near BTIF / USRTRIM (0xC0000..0xC1FFF) or key_mac (0xFF000). */
 #define ST_SMK_BASE 0x9D000u
-#define ST_SMK_END (ST_SMK_BASE + 2u * OBJ_NOBJ * ST_SECTOR)   /* 0xAB000 */
-_Static_assert(ST_SMK_END <= FL_DATA_HI, "SMK store: objects past FL_DATA (piece 2 follows)");
+_Static_assert(ST_SMK_BASE + 2u * OBJ_NOBJ * ST_SECTOR <= 0xAF000u, "SMK store: objects past the owner tag");
 static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy A (0) / B (1) */
 {
     return ST_SMK_BASE + ((obj % OBJ_NOBJ) * 2u + (copy & 1u)) * ST_SECTOR;
@@ -67,7 +64,7 @@ static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy 
  * this same store area, each with its own object formats: a firmware must never parse another's data. The
  * sector 0xAF000 holds "SMK37DATA" + the firmware family (FELUCCA_DATA_FAMILY, build.py: X0X). Ours: load as
  * ever. None (erased): data of unknown origin, kept only if FELUCCA_DATA_UNTAGGED_OK (X0X: 0, cleared).
- * Another family's: clear the store objects (0x9D000..0xAAFFF; layout 2 cleared up to 0xAEFFF), the other firmware's objects
+ * Another family's: clear the whole store area below the tag (0x9D000..0xAEFFF, the other firmware's objects
  * included) and take it. Samples (FL_SMP) validate themselves. Calibration, BT pairing and key_mac are outside
  * FL_DATA: never touched. Called once at boot, before the first store read (app/main_fm1.c). */
 #ifndef FELUCCA_DATA_FAMILY
@@ -76,11 +73,11 @@ static uint32_t st_sector(uint32_t obj, uint32_t copy)  /* flash offset of copy 
 #ifndef FELUCCA_DATA_UNTAGGED_OK
 #define FELUCCA_DATA_UNTAGGED_OK 0
 #endif
-#define ST_OWNER_SECTOR FL_OWNER_LO           /* 0xAF000 */
+#define ST_OWNER_SECTOR 0xAF000u
 #ifndef ST_IDLE
 #define ST_IDLE() ((void)0)                     /* (x0x.c: feed the watchdog between erases) */
 #endif
-_Static_assert(ST_OWNER_SECTOR + ST_SECTOR <= FL_OWNER_HI, "SMK store owner: past FL_OWNER (piece 2 follows)");
+_Static_assert(ST_OWNER_SECTOR + ST_SECTOR <= 0xB0000u, "SMK store owner: past FL_DATA (sample slot 3 follows)");
 static uint8_t st_owner_cleared;                /* (the UI says so at boot) */
 static void st_owner_check(void)
 {
@@ -98,7 +95,7 @@ static void st_owner_check(void)
     if (ours)
         return;
     if (!erased || !FELUCCA_DATA_UNTAGGED_OK) {     /* another firmware's store (or unknown): clear it */
-        for (s = ST_SMK_BASE; s < ST_SMK_END; s += ST_SECTOR) {
+        for (s = ST_SMK_BASE; s < ST_OWNER_SECTOR; s += ST_SECTOR) {
             st_erase(s);
             ST_IDLE();
         }

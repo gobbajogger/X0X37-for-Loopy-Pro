@@ -15,10 +15,10 @@ typedef struct {
 #if BOARD_SMK37 || defined(X0X_HOST)
 /* SMK-37 Pro (fm1_flash_map.h; the host simulator, host/x0x_host.c, uses this map too). Slots 1 and 2 keep the flash offsets of the earlier 2 x 80 KiB layout, so
  * their data stays valid: slot 1 0xC2000-0xD5FFF (80 KiB), slot 2 0xD6000-0xF3FFF (120 KiB: it now also has
- * the free 0xEA000-0xF3FFF), both in FL_SMP. Slot 3 0xB7000-0xBAFFF (16 KiB, 0.7 s; ABI 3: Bluetooth piece 2 took 0xAB000-0xB6FFF) is the VM spare (FL_SMPV). */
+ * the free 0xEA000-0xF3FFF), both in FL_SMP. Slot 3 0xB0000-0xBAFFF (44 KiB) is the VM spare (FL_SMPV). */
 #define SMP_USER_SLOTS 3
-#define SMP_USER_OFF(k) ((k) == 0u ? 0xC2000u : (k) == 1u ? 0xD6000u : 0xB7000u)
-#define SMP_USER_SIZE(k) ((k) == 0u ? 0x14000u : (k) == 1u ? 0x1E000u : 0x4000u)
+#define SMP_USER_OFF(k) ((k) == 0u ? 0xC2000u : (k) == 1u ? 0xD6000u : 0xB0000u)
+#define SMP_USER_SIZE(k) ((k) == 0u ? 0x14000u : (k) == 1u ? 0x1E000u : 0xB000u)
 #define SMP_USER_MAX 0x1E000u                       /* the largest slot */
 #ifdef FL_SMP_LO
 _Static_assert(SMP_USER_OFF(0u) == FL_SMP_LO && SMP_USER_OFF(0u) + SMP_USER_SIZE(0u) == SMP_USER_OFF(1u) &&

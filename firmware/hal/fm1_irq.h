@@ -93,16 +93,6 @@ static void fm1_irq_enable_all(void)
  * f[0..15] r0..r15, f[16] reti, f[17] rete, f[18] retx, f[19] stub+6,
  * f[20] psr, f[21] icfg, f[22] usp, f[23] ssp, f[24] sp, f[25] interrupted rets */
 extern uint32_t _c1_ustack[], _c1_sstack_top[];  /* fm1_cpu1.S */
-/* Attempt 52: core 1's full fault record (ED_BT_TEST op 5): the whole frame f[0..25] (usp, ssp, rete,
- * retx, reti, psr, icfg), core 1's EMU_MSG (0x1EEF2D4) and 16 words from its usp. */
-#define FM1_C1X_MAGIC 0xC1F4A052u
-typedef struct {
-    uint32_t magic, emu, f[26], st[16];
-} fm1_c1x_t;
-fm1_c1x_t fm1_c1x __attribute__((section(".noinit")));
-/* ED_BT_TEST op 5/6 (editor.c): core 1's stack limit bank word k (EMU_CON, EMU_MSG, 4 limits) and a RAM word */
-static inline uint32_t fm1_c1_emu_word(uint32_t k) { return ((const volatile uint32_t *)0x1EEF2D0u)[k]; }
-static inline uint32_t fm1_peek32(uint32_t a) { return *(const volatile uint32_t *)(uintptr_t)a; }
 void fm1_fault_c(uint32_t *f)
 {
     static volatile uint32_t in_fault;
@@ -122,15 +112,8 @@ void fm1_fault_c(uint32_t *f)
         fm1_crash.sp = f[24];
         fm1_crash.psr = f[20];
         fm1_crash.dbg = FM1_DBG_MSG;
+        fm1_crash.emu = 0;
         fm1_crash.uptime_ms = *(volatile uint32_t *)0x10804u / 24000u;
-        fm1_crash.emu = *(volatile uint32_t *)0x1EEF2D4u;   /* attempt 52: core 1's own EMU_MSG */
-        fm1_crash.icfg = f[21];
-        for (i = 0; i < 26u; i++)
-            fm1_c1x.f[i] = f[i];
-        for (i = 0; i < 16u; i++)
-            fm1_c1x.st[i] = f[22] >= 0x01C00000u && f[22] < 0x01C7FFC0u ? ((const uint32_t *)(uintptr_t)f[22])[i] : 0u;
-        fm1_c1x.emu = fm1_crash.emu;
-        fm1_c1x.magic = FM1_C1X_MAGIC;
         __asm__ volatile("csync" ::: "memory");
         for (;;)
             ;

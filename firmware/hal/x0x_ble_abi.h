@@ -7,14 +7,7 @@
  * The two sides are like two chips on one board:
  *   - the image sits in its own flash block (64 KiB, XIP 0x02087000) and owns its own RAM window;
  *   - the app starts it once on core 1 (init), then calls its idle entry (poll) from core 1's idle
- *     loop, and talks to it only through frames in two byte rings.
- * ABI 3: the image holds the controller AND JieLi's BLE host (btstack.a). The frames are BLE-MIDI
- * packets and the link state (XB_HX_*), no HCI. The image has two flash pieces: piece 1 in the
- * Bluetooth block (0x8B000, in the app area, written by every install) and piece 2 at 0xAB000..0xB6FFF
- * without 0xAF000..0xAFFFF (plain flash, written by the app on the installer's request: editor command
- * CTL2). Its CRC (p2_crc) covers it without the hole. It has a
- * second RAM window at the top of the app's BLERAM (XB_RAM2_LO..HI) and a small store for its bonds
- * (XB_NV_SIZE bytes): the app keeps it in its own flash and hands it over at each start.
+ *     loop, and talks to it only through standard HCI packets (H4 types) in two byte rings.
  * Nothing else crosses: no app function is called by the image, no image function is called by
  * the app except init and poll.
  *
@@ -32,24 +25,15 @@
 #define XB_HDR_MAGIC   0x43423058u        /* "X0BC": the image header */
 #define XB_BOOT_MAGIC  0x50424C43u        /* "CLBP": the boot parameters */
 #define XB_MBOX_MAGIC  0x584D4258u        /* "XBMX": the mailbox */
-#define XB_ABI         3u                 /* this layout (header, boot parameters, mailbox) */
-#define XB_HDR_VERSION 3u
+#define XB_ABI         2u                 /* this layout (header, boot parameters, mailbox) */
+#define XB_HDR_VERSION 2u
 
 /* where the image lives (SMK-37 flash layout 2) and the RAM it may own */
 #define XB_FLASH_OFF   0x0008B000u        /* flash offset of the Bluetooth block */
 #define XB_FLASH_XIP   0x02087000u        /* its XIP address (the image is linked here) */
 #define XB_FLASH_SIZE  0x00010000u        /* 64 KiB */
-#define XB_RAM_LO      0x01C01480u        /* the image's RAM window (after the app's RAM code; ABI 3: from 0x01C01480) */
+#define XB_RAM_LO      0x01C01800u        /* the image's RAM window (after the app's RAM code) */
 #define XB_RAM_HI      0x01C07F00u        /* (0x01C07F00.. is crt0's status words) */
-#define XB_FLASH2_OFF  0x000AB000u        /* piece 2: flash offset (plain, outside the app area) */
-#define XB_FLASH2_XIP  0x020A7000u        /* its XIP address (plain window from 0x9D000: XIP = off - 0x4000) */
-#define XB_FLASH2_SIZE 0x0000C000u        /* 0xAB000..0xB6FFF, with a hole: */
-#define XB_FLASH2_HOLE 0x00004000u        /* 0xAF000..0xAFFFF (the store owner tag) is not the image's */
-#define XB_FLASH2_HOLE_SIZE 0x1000u
-#define XB_RAM2_LO     0x01C7CDC0u        /* the image's second RAM window: the top of the app's BLERAM */
-#define XB_RAM2_HI     0x01C7D400u
-#define XB_NV_SIZE     256u               /* the image's bond store (the app keeps it in flash) */
-#define XB_NV_ADDR     (XB_RAM2_HI - XB_NV_SIZE)   /* in RAM 2, not cleared by the image: the app fills it */
 
 /* the image header: the first bytes of the image. mkimage.py fills image_size and crc32. */
 typedef struct {
@@ -64,9 +48,7 @@ typedef struct {
     uint32_t isr_stack_lo, isr_stack_hi;  /* core 1's interrupt stack (its ssp) */
     uint32_t ram_lo, ram_hi;              /* all the RAM the image uses: inside XB_RAM_LO..HI */
     uint32_t irq_lo, irq_hi;              /* the interrupt numbers it may route to core 1 (bits) */
-    uint32_t p2_size, p2_crc;             /* piece 2 at XB_FLASH2_XIP: bytes from there, the hole included (0 =
-                                           * none); CRC-32 of those bytes without the hole */
-    uint32_t ram2_lo, ram2_hi;            /* the RAM it uses in XB_RAM2_LO..HI (lo == hi: none) */
+    uint32_t rsv[3];
 } xb_header_t;
 
 /* the boot parameters: the app fills them, the image reads them in init */
@@ -85,10 +67,6 @@ typedef struct {
     uint8_t osc_type;
     uint8_t mcs_dgain[20];
     uint8_t pwr_max, pwr_ble;             /* bt_max_pwr_set: the overall and the BLE level */
-    uint8_t addr[6];                      /* its random static address, little endian */
-    char name[10];                        /* the name it advertises (0-terminated) */
-    uint32_t nv;                          /* address of the bond store (XB_NV_ADDR; the app filled it) */
-    uint32_t heap2, heap2_size;           /* more heap for the image in the app's RAM (0 = none); 8-aligned */
 } xb_boot_t;
 
 /* controller states (mbox.state, written by the image) */
@@ -104,29 +82,7 @@ enum { XB_STG_ENTRY = 1, XB_STG_OS = 2, XB_STG_H4 = 3, XB_STG_TASK = 4, XB_STG_S
 /* image errors (mbox.err) */
 enum { XB_E_NONE = 0, XB_E_BOOT = 1, XB_E_HEAP = 2, XB_E_TASK = 3, XB_E_ASSERT = 4, XB_E_RESET = 5 };
 
-/* ABI 3 frames (the H4 type byte is the frame type) */
-enum { XB_HX_MIDI = 0x20,                 /* both ways: one BLE-MIDI packet (header byte first) */
-       XB_HX_STATE = 0x21,                /* image -> app: a link change (payload: xb_hx_t.link, 8 bytes) */
-       XB_HX_CMD = 0x22 };                /* app -> image: [0] 1 radio on, 0 off; [0] 2: forget the bonds */
-enum { XB_LK_IDLE = 0, XB_LK_ADV = 1, XB_LK_CONN = 2 };
-/* the link and the image's health, written by the image (DIAG reads it) */
-typedef struct {
-    volatile uint8_t state, ccc, bonded, reason;   /* XB_LK_*, notify on, encrypted with a bond, last end reason */
-    volatile uint16_t interval, mtu;      /* 1.25 ms units; the ATT MTU */
-    volatile uint32_t links, pairs;       /* connections; pairings (bits 0-15 done, 16-31 failed) */
-    volatile uint32_t heap;               /* heap peak bytes (0-15), failed allocations (16-23), size of the last
-                                           * failed one in 16-byte units (24-31) */
-    volatile uint32_t stacks;             /* the least free bytes ever / 16: tasks (0-7), run (8-15), isr (16-23) */
-    volatile uint32_t nv_writes;          /* bond store changes (the app saves when it changes) */
-    volatile uint32_t rx, tx, tx_drops;   /* BLE-MIDI packets in, notified, not sent (no room) */
-    volatile uint16_t latency, timeout;   /* a61: conn latency (events), supervision timeout (10 ms units) */
-    volatile uint32_t disc[4];            /* a61: recent disconnects: reason(0-7)|evsize(8-15)|status(16-23)|ccc(24) */
-    volatile uint32_t evlog, smlog;       /* a61: rolling last-4 LE subevent / SM event codes (newest in low byte) */
-    volatile uint32_t updates;            /* a61: conn-update-complete events seen on the current link */
-    volatile uint16_t poll_gap_max, pad_a62;  /* a62: max ms between core-1 idle passes while connected */
-} xb_hx_t;
-
-#define XB_RING_SIZE 512u                /* a power of two */
+#define XB_RING_SIZE 1024u                /* a power of two */
 typedef struct {
     volatile uint32_t head;               /* the writer's (own cache line) */
     uint32_t pad0[7];
@@ -143,12 +99,11 @@ typedef struct {
     volatile uint32_t c2h_drops;          /* the image: frames it could not put (ring full) */
     volatile uint32_t irqs_routed[4];     /* the image: the interrupt numbers it took (bits 0-127) */
     volatile uint32_t polls;              /* the image: poll calls (a heartbeat) */
-    xb_hx_t hx;                           /* the image: link and health */
-    xb_ring_t h2c;                        /* app -> image: BLE-MIDI packets to notify, commands */
-    xb_ring_t c2h;                        /* image -> app: BLE-MIDI packets written, link changes */
+    xb_ring_t h2c;                        /* app -> image: HCI commands and ACL data */
+    xb_ring_t c2h;                        /* image -> app: HCI events and ACL data */
 } xb_mbox_t;
 
-#define XB_FRAME_MAX 160u                 /* the largest frame either side writes (type + payload) */
+#define XB_FRAME_MAX 300u                 /* the largest frame either side writes (type + payload) */
 
 static inline uint32_t xb_ring_used(const xb_ring_t *r)
 {

@@ -26,10 +26,6 @@
 void *memcpy(void *d, const void *s, size_t n);
 void *memset(void *d, int c, size_t n);
 int strcmp(const char *a, const char *b);
-int strncmp(const char *a, const char *b, size_t n);
-size_t strlen(const char *s);
-int memcmp(const void *a, const void *b, size_t n);
-void *memmove(void *d, const void *s, size_t n);
 void *malloc(size_t n);
 void free(void *p);
 
@@ -61,14 +57,6 @@ void ctl_port_irq_reroute(u8 prio);   /* core 1's interrupt bank again (first po
 #define CTL_BLE_IRQ_PRIO 7             /* felucca-bsp #2 finding: BLE IRQs need priority 7 */
 void ctl_fail(u32 err);           /* the controller stops for good: state FAILED */
 u32 ctl_heap_stat(void);          /* heap peak and failures, for DIAG (ctl_heap.c) */
-u32 ctl_os_stack_free(void);      /* the least free bytes ever over the task stacks (ctl_os.c) */
-extern u32 ctl_q_full;
-void ctl_mark(u32 n);
-void ctl_mark_v(u32 n, u32 v);            /* attempt 42: a marker with a value (dbg DELAYS) */
-u32 ctl_heap_free2(void);
-u32 ctl_heap_main_size(void);                     /* attempt 41: DIAG step marker (ctl_main.c) */            /* task queue messages lost (ctl_os.c) */
-void ctl_nv_forget(void);         /* ABI 3: empty the bond store (ctl_syscfg.c) */
-u32 ctl_stack_free(const u8 *lo, const u8 *hi);   /* untouched bytes from lo (painted 0xA5) */
 
 /* ---- Port layer (pi32v2, core 1). ctl_port.c and ctl_port_asm.S ---- */
 struct ctl_ctx { void *sp; };

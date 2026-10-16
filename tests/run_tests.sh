@@ -44,12 +44,8 @@ run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/h
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
-if [ -f build/gen/x0x_drum_tables.h ]; then
-  run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
-  run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
-else
-  echo "  skip drum-pan and stereo tests (no build/gen/x0x_drum_tables.h: run ./build.sh)"
-fi
+run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
+run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
 run drum909-adpcm sh tests/host/run_drum909_adpcm.sh   # the 909 cymbals as IMA ADPCM (A/B study reference)
 for t in drum909 drum808 bass303 breaks; do
@@ -73,9 +69,10 @@ else
 fi
 # SMK-37 Pro (BOARD_SMK37): the flash map and the store, the package layout, the update path on SMK-layout
 # packages (made from the FM-1 app: only the layout matters), and the SMK build's own package if there is one
+run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings (tools/locked_settings.json)
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
-run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
+run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
 run smk-apc40-map sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_apc40_map_test tests/smk_apc40_map_test.c && $OUT/smk_apc40_map_test"
 run smk-apc40 python3 tests/smk_apc40_test.py
 run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
@@ -104,8 +101,7 @@ run ble sh -c "$CC $W -Ifirmware/hal -Ifirmware/src/ble -o $OUT/ble_test tests/b
 run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops && \
     python3 tools/upload_breaks.py --rate 22050 --nslots 3 --dry-run build/test_upload build/test_loops/loop*.wav && \
     python3 tools/upload_breaks.py --dry-run build/test_upload44 build/test_loops/loop*.wav && \
-    python3 -c \"import wave; r = wave.open('build/test_loops/loop1.wav'); w = wave.open('build/test_loops/half1.wav', 'wb'); w.setparams(r.getparams()); w.writeframes(r.readframes(r.getnframes() // 2))\" && \
-    python3 tools/upload_breaks.py --rate 22050 --slot-kb 80,120,16 --slots 3 --dry-run build/test_upload44s3 build/test_loops/half1.wav"   # 22.05 kHz (3 x 80), the 44.1 kHz default, slot 3 (16 KiB since ABI 3: half a loop)
+    python3 tools/upload_breaks.py --rate 22050 --slots 3 --dry-run build/test_upload44s3 build/test_loops/loop1.wav"   # 22.05 kHz (3 x 80), the 44.1 kHz default (80/120/44), slot 3
 run upload-tools python3 tests/upload_tools_test.py   # upload_breaks.py on a mocked device; one-shot trim
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device

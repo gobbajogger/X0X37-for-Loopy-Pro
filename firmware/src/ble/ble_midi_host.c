@@ -518,7 +518,7 @@ int bleh_midi_next(bleh_t *h, bleh_msg_t *m)
 }
 
 /* one notification of a SysEx in progress: the first has timestamp + F0, the last timestamp + F7 */
-static unsigned sysex_packet(bleh_t *h, uint8_t *r, unsigned lim)
+static unsigned sysex_packet(bleh_t *h, uint8_t *r)
 {
     unsigned len = 4, lo = (unsigned)(0x80u | (h->sx_ts & 0x7Fu));
     r[3] = (uint8_t)(0x80u | ((h->sx_ts >> 7) & 0x3Fu));
@@ -527,9 +527,9 @@ static unsigned sysex_packet(bleh_t *h, uint8_t *r, unsigned lim)
         r[len++] = 0xF0;
         h->sx_on |= 2u;                             /* F0 sent */
     }
-    while (h->sx_pos < h->sx_len && len < lim)
+    while (h->sx_pos < h->sx_len && len < BLEH_MTU)
         r[len++] = h->sx[h->sx_pos++];
-    if (h->sx_pos == h->sx_len && len + 2 <= lim) {
+    if (h->sx_pos == h->sx_len && len + 2 <= BLEH_MTU) {
         r[len++] = (uint8_t)lo;
         r[len++] = 0xF7;
         h->sx_on = 0;
@@ -548,84 +548,10 @@ int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16
     l2cap_send(h, CID_SIG, r, 12);
     return 1;
 }
-/* ---- frames mode ---- */
-static uint8_t frames_type;
-void bleh_frames_start(bleh_t *h, uint8_t midi_type)
-{
-    frames_type = midi_type;
-    h->frames = 1;
-    h->state = BLEH_STARTING;
-    h->mtu = 23;
-}
-void bleh_link(bleh_t *h, const uint8_t s[8])
-{
-    int conn = s[0] == 2u;
-    if (conn && h->state != BLEH_CONNECTED) {
-        link_reset(h);
-            h->q_r = h->q_w;                            /* no stale MIDI from before the link */
-        h->sx_on = 0;
-        h->state = BLEH_CONNECTED;
-    } else if (!conn) {
-        if (h->state == BLEH_CONNECTED) {
-            link_reset(h);
-                    h->lost = 1;                            /* the app's hook (plat_ble_link_lost) */
-        }
-        h->state = BLEH_ADVERTISING;
-    }
-    h->cccd[0] = s[1] & 1u;
-    h->bonded = s[2];
-    h->disc_reason = s[3];
-    h->conn_int = (uint16_t)(s[4] | s[5] << 8);
-    h->mtu = (uint16_t)(s[6] | s[7] << 8);
-    h->mtu_req = h->mtu;
-    if (h->mtu < 23u) h->mtu = 23u;
-    if (h->mtu > BLEH_FMTU) h->mtu = BLEH_FMTU;
-}
-void bleh_midi_in(bleh_t *h, const uint8_t *p, uint16_t n)
-{
-    if (h->state == BLEH_CONNECTED) midi_write(h, p, n);
-}
-static int frames_send(bleh_t *h, const uint8_t *r, unsigned len)
-{
-    if (len <= 3u) return 0;
-    if (h->send(frames_type, r + 3, (uint16_t)(len - 3u), h->ctx) == 0) return 0;
-    h->tx_lost++;                               /* the caller checks for room first: must not happen */
-    return -1;
-}
-static void frames_poll(bleh_t *h)
-{
-    uint8_t r[BLEH_FMTU];
-    unsigned len = 4, hi, last = 0, lim = h->mtu;
-    if (!bleh_notifying(h)) return;
-    if (h->sx_on) {
-        (void)frames_send(h, r, sysex_packet(h, r, lim));
-        return;
-    }
-    if (h->q_r == h->q_w) return;
-    hi = (h->q[h->q_r % BLEH_MIDIQ].ts >> 7) & 0x3Fu;
-    r[3] = (uint8_t)(0x80u | hi);
-    while (h->q_r != h->q_w) {
-        const bleh_msg_t *q = &h->q[h->q_r % BLEH_MIDIQ];
-        unsigned i = 0, run = h->tx_running && q->b[0] < 0xF0u && q->b[0] == last;
-        if (((q->ts >> 7) & 0x3Fu) != hi || len + 1 + q->len - run > lim) break;
-        r[len++] = (uint8_t)(0x80u | (q->ts & 0x7Fu));
-        if (run) i = 1;
-        for (; i < q->len; i++) r[len++] = q->b[i];
-        if (q->b[0] < 0xF0u) last = q->b[0];
-        else if (q->b[0] < 0xF8u) last = 0;
-        h->q_r++;
-    }
-    (void)frames_send(h, r, len);
-}
-
 void bleh_poll(bleh_t *h)
 {
     uint8_t r[BLEH_MTU];
     unsigned len = 4, hi, last = 0;
-    if (h->frames) {
-        frames_poll(h);
-        return;
-    }
     if (h->state == BLEH_CONNECTED && h->radio_off && !h->cmd_wait && h->cmd_op != OP_DISC) {
         uint8_t d[3];
         wr16(d, h->conn); d[2] = 0x13;              /* remote user terminated connection */
@@ -642,7 +568,7 @@ void bleh_poll(bleh_t *h)
     if (h->credits < (h->acl_total > 1 ? 2u : 1u)) return;                  /* keep one buffer for ATT answers */
     r[0] = A_NOTIFY; wr16(r + 1, H_MIDI);
     if (h->sx_on) {
-        att_send(h, r, sysex_packet(h, r, BLEH_MTU));
+        att_send(h, r, sysex_packet(h, r));
         return;
     }
     if (h->q_r == h->q_w) return;

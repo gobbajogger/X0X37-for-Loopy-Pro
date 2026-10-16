@@ -1,5 +1,5 @@
-# Uploaded loops at 44.1 kHz (the upload_breaks.py default) in the SMK-37 slot map (80, 120, 16 KiB, ABI 3):
-# slot 1 one loop, slot 2 (120 KiB) two loops, slot 3 (16 KiB at 0xB7000) one half-length 22.05 kHz loop. Built by
+# Uploaded loops at 44.1 kHz (the upload_breaks.py default) in the SMK-37 slot map (80, 120, 44 KiB):
+# slot 1 one loop, slot 2 (120 KiB) two loops, slot 3 (44 KiB) one 22.05 kHz loop. Built by
 # tests/run_tests.sh into build/test_upload44/ and build/test_upload44s3/, parsed by the firmware's own
 # slots.c and played.
 wait 200

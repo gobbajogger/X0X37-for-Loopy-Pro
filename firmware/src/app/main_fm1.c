@@ -1736,9 +1736,6 @@ static void fm1_main(void)
     for (;;) {
         fm1_wdt_feed();
         usb_retry(fm1_ms);
-#if X0X_BLE
-        ble_idle();                                     /* the Bluetooth bonds to flash, when they changed */
-#endif
         if (fm1_ms > 30000u && bootguard.pending) {     /* a crash or hang in the first 30 s counts */
             bootguard.pending = 0;
             bootguard.failed = 0;
