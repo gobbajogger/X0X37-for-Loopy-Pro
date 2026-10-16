@@ -397,7 +397,7 @@ static void ed_service(void)
         return;
     }
     {
-        static uint8_t f[64];
+        uint8_t f[64];                                /* (on the stack: ed_handle keeps no pointer to it) */
         uint32_t k = n > sizeof f ? sizeof f : n, i;
         for (i = 0; i < k; i++)
             f[i] = p[i];

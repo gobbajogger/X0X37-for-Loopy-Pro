@@ -32,18 +32,21 @@ typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + siz
 static void arrange_defaults(void);
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
-/* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_inv: channel 2, C MAJOR NEAR, MAJ root position,
- * ARP UP 1/16, 1 octave, gate 50 %; and the highest values. A value out of range (for example an older object):
- * all go back to the defaults. */
-static const uint8_t CK_DEF[10] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0}, CK_MAX[10] = {15, 11, 10, 1, 16, 5, 12, 3, 9, 3};
+/* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
+ * ARP UP 1/16, 1 octave, gate 50 %, no swing, human, rhythm or strum; and the highest values. A value out of
+ * range (for example an older object): all go back to the defaults. An older object without ck_x1/ck_x2 loads
+ * zeros there: the defaults. */
+static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
+                     CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
 static void project_ck_check(int force)
 {
     uint8_t *v = &proj.set.ck_ch;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 12; i++)
         force |= v[i] > CK_MAX[i];
     if (force || v[0] < 2)
-        __builtin_memcpy(v, CK_DEF, 10);
+        __builtin_memcpy(v, CK_DEF, 12);
 }
+typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
 
 void project_defaults(void)
 {
