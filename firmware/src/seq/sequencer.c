@@ -487,31 +487,96 @@ uint32_t seq_until_event(seq_t *s, uint32_t n)
     return m ? m : 1;
 }
 
+/* the external clock is gone: a new beat ring, and the internal tempo takes the last measured one */
+static void clock_lost(seq_t *s)
+{
+    s->ext_nb = s->ext_bi = s->ext_q = 0;             /* the next clock: a new beat ring */
+    if (s->ext_period) {                              /* the internal tempo takes the last measured one */
+        float b = (float)(int)(s->ext_bpm + 0.5f);   /* whole BPM, as the TEMPO knob sets it */
+        s->bpm = b < 20.0f ? 20.0f : b > 275.0f ? 275.0f : b;
+    }
+}
+
+static void to_internal(seq_t *s)
+{
+    int t;
+    s->ext = 0;
+    clock_lost(s);
+    for (t = 0; t < NTRACKS; t++)
+        if (s->playing && s->t[t].to_next == NEVER)
+            s->t[t].to_next = 0;
+}
+
+static void rephase(seq_t *s)                         /* the next tick is tick 0 of the step that plays */
+{
+    int t;
+    for (t = 0; t < NTRACKS; t++) {
+        s->t[t].to_next = NEVER;
+        s->t[t].ext_due = 0;
+        s->t[t].ext_ticks = 0xFFu;                    /* (ext_ticks adds 1 for this tick: 0) */
+    }
+}
+
+static void pause_sound(seq_t *s, const seq_sink_t *o)   /* EXTERNAL waits: the 303 notes and the break stop */
+{
+    int b;
+    if (!s->playing)
+        return;
+    for (b = 0; b < NBASS; b++)
+        bass_release(s, b, o);
+    if (o->brk_stop)
+        o->brk_stop(o->ctx);
+}
+
+/* apply a new clock source (GLO > MIDI > CLOCK SOURCE), in the audio ISR */
+static void clock_source(seq_t *s, const seq_sink_t *o)
+{
+    uint8_t m = s->clk_src;
+    if (m > SEQ_CLK_EXT)
+        m = SEQ_CLK_AUTO;
+    s->clk_cur = m;
+    s->clk_lost = 0;
+    if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
+        s->ext_pending = 0;
+        if (s->ext)
+            to_internal(s);
+    } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
+        s->ext = 1;
+        s->ext_bpm = s->bpm;                          /* no stale tempo */
+        s->ext_period = 0;
+        s->ext_nb = s->ext_bi = s->ext_q = 0;
+        s->clk_lost = 1;
+        if (s->playing)
+            rephase(s);
+        pause_sound(s, o);
+    }
+}
+
 void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 {
     int t, guard;
     uint32_t dq = k << 8;
-    s->ext_since += k;
+    if (s->clk_cur != SEQ_CLK_EXT || s->ext_since < 2u * FS)   /* (EXTERNAL waits long: no wrap) */
+        s->ext_since += k;
     s->ext_now += k;
+    if (s->clk_cur != s->clk_src)
+        clock_source(s, o);
+    if (s->clk_cur == SEQ_CLK_INT)
+        s->ext_pending = 0;
     if (s->ext_pending) {
         if (!s->ext && s->playing)                    /* playing on the internal clock: the first tick */
-            for (t = 0; t < NTRACKS; t++) {           /* is tick 0 of the step that plays (no step now) */
-                s->t[t].to_next = NEVER;
-                s->t[t].ext_due = 0;
-                s->t[t].ext_ticks = 0xFFu;            /* (ext_ticks adds 1 for this tick: 0) */
-            }
+            rephase(s);                               /* is tick 0 of the step that plays (no step now) */
         s->ext = 1;
+        s->clk_lost = 0;
     }
-    else if (s->ext && s->ext_since > FS / 2u) {    /* clock gone for 0.5 s: back to internal */
-        s->ext = 0;
-        s->ext_nb = s->ext_bi = s->ext_q = 0;         /* the next clock: a new beat ring */
-        if (s->ext_period) {                          /* the internal tempo takes the last measured one */
-            float b = (float)(int)(s->ext_bpm + 0.5f);   /* whole BPM, as the TEMPO knob sets it */
-            s->bpm = b < 20.0f ? 20.0f : b > 275.0f ? 275.0f : b;
+    else if (s->ext && s->ext_since > FS / 2u) {    /* clock gone for 0.5 s */
+        if (s->clk_cur != SEQ_CLK_EXT)
+            to_internal(s);                           /* back to internal */
+        else if (!s->clk_lost) {                      /* EXTERNAL: pause, keep the place, wait for the clock */
+            s->clk_lost = 1;
+            clock_lost(s);
+            pause_sound(s, o);
         }
-        for (t = 0; t < NTRACKS; t++)
-            if (s->playing && s->t[t].to_next == NEVER)
-                s->t[t].to_next = 0;
     }
     if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
         s->req_stop = 0;
@@ -581,6 +646,21 @@ void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start
 }
 void seq_continue(seq_t *s) { s->req_cont = 1; }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
+int seq_midi_rt(seq_t *s, uint8_t st)
+{
+    int internal = s->clk_src == SEQ_CLK_INT;
+    switch (st) {
+    case 0xF8: if (!internal) seq_ext_clock(s); return 1;
+    case 0xFA: if (!internal) seq_start(s); return 1;
+    case 0xFB: if (!internal) seq_continue(s); return 1;
+    case 0xFC: if (!internal) seq_stop(s); return 1;
+    default: return 0;
+    }
+}
+int seq_clock_waiting(const seq_t *s)
+{
+    return s->clk_cur == SEQ_CLK_EXT && s->playing && s->ext_since > FS / 2u;
+}
 void seq_cue(seq_t *s, int p)
 {
     int t;

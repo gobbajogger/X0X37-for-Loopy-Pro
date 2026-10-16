@@ -88,6 +88,11 @@ typedef struct {
 } seq_sink_t;
 
 #define SEQ_EXT_BEATS 8u              /* the tempo of an external clock: the mean over this many beats */
+/* the clock source (GLO > MIDI > CLOCK SOURCE): AUTO follows a clock when one comes in (the default),
+ * INTERNAL ignores MIDI Clock, Start, Stop and Continue, EXTERNAL plays only on the incoming clock */
+#define SEQ_CLK_AUTO 0u
+#define SEQ_CLK_INT 1u
+#define SEQ_CLK_EXT 2u
 
 typedef struct {                      /* one part's runtime */
     uint8_t pos;                      /* current step */
@@ -140,6 +145,9 @@ typedef struct {
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
+    volatile uint8_t clk_src;         /* SEQ_CLK_*: the clock source that the UI sets */
+    uint8_t clk_cur;                  /* SEQ_CLK_*: the clock source that seq_advance applied */
+    uint8_t clk_lost;                 /* EXTERNAL: no clock now, the pause (or the wait) is done */
 } seq_t;
 
 void seq_init(seq_t *s, pattern_t *patterns);
@@ -151,6 +159,8 @@ void seq_start(seq_t *s);             /* from step 1 of the current (or cued) pa
 void seq_stop(seq_t *s);
 void seq_continue(seq_t *s);
 void seq_ext_clock(seq_t *s);         /* one 24-ppqn tick (USB MIDI 0xF8) */
+int seq_midi_rt(seq_t *s, uint8_t st);  /* MIDI in 0xF8, 0xFA, 0xFB, 0xFC: 1 (INTERNAL drops them); else 0 */
+int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0.5 s (it waits) */
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);
 void seq_chain(seq_t *s, int a, int b);

@@ -474,13 +474,8 @@ static void midi_in(uint32_t pkt)
     if (st >= 0xFA && st <= 0xFC && smk_clip_mode_on())
         seq.midi_req = 1;
 #endif
-    switch (st) {
-    case 0xF8: seq_ext_clock(&seq); return;
-    case 0xFA: seq_start(&seq); return;
-    case 0xFB: seq_continue(&seq); return;
-    case 0xFC: seq_stop(&seq); return;
-    default: break;
-    }
+    if (seq_midi_rt(&seq, st))      /* Clock, Start, Continue, Stop: GLO > MIDI > CLOCK SOURCE */
+        return;
 #if BOARD_SMK37
     /* The USB interrupt stores APC feedback at all times. Keep these notes from the
      * sound engine only while clip mode is on. When clip mode is off, the original
