@@ -17,7 +17,7 @@ int main(void)
     /* encoding: src<<24 | status<<16 | d1<<8 | d2 */
     assert(smk_inlog_word(SMK_INLOG_BLE, pkt(0x90, 0x20, 0x45)) == 0x01902045u);
     assert(smk_inlog_word(SMK_INLOG_USB, pkt(0x8E, 0x21, 0x7F)) == 0x008E217Fu);
-    assert(smk_inlog_word(SMK_INLOG_DROP, pkt(0x9F, 0x27, 0x50)) == 0x039F2750u);
+    assert(smk_inlog_word(SMK_INLOG_NOCELL, pkt(0x9F, 0x27, 0x50)) == 0x039F2750u);
     assert(smk_inlog_word(SMK_INLOG_EDGE, 3u << 24) == 0x02000003u);
     printf("PASS encoding\n");
 
@@ -28,7 +28,7 @@ int main(void)
     assert(!smk_inlog_wanted(SMK_INLOG_BLE, pkt(0xB0, 0x10, 5)));   /* knob ring CC */
     assert(!smk_inlog_wanted(SMK_INLOG_USB, pkt(0xF8, 0, 0) & ~0xFu));
     assert(smk_inlog_wanted(SMK_INLOG_EDGE, 0u));
-    assert(smk_inlog_wanted(SMK_INLOG_DROP, pkt(0x90, 0x20, 0x31)));
+    assert(smk_inlog_wanted(SMK_INLOG_NOCELL, pkt(0x90, 0x20, 0x31)));
     smk_inlog_put(&g, 5u, SMK_INLOG_BLE, pkt(0xB0, 0x10, 5));
     assert(g.n == 0u && g.next == 0u && smk_inlog_copy(&g, w) == 0u);
     printf("PASS filter\n");

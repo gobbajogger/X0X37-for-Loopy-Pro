@@ -3,7 +3,7 @@
  * until Loopy is a listening host again (link up AND notify on). BEHAVIOR.md CLP-18.
  * The real BLE-MIDI host (src/ble/ble_midi_host.c), the real glue (src/ble/ble_glue.h) and the
  * real cell model (app/smk_apc40.h). service() has the order of ble.c ble_service: HCI frames,
- * then smk_apc_ble_link, then MIDI in (ble_usb_of_msg, ble_in_unheard) to the cells.
+ * then smk_apc_ble_link, then MIDI in (ble_usb_of_msg, smk_apc40_ble_colour_unheard) to the cells.
  *   cc -std=c99 -O2 -Wall -Ifirmware/src -Ifirmware/hal -Ifirmware/src/ble tests/smk_clip_ble_notify_test.c */
 #include <stdio.h>
 #include <string.h>
@@ -40,8 +40,8 @@ static void service(bleh_t *h)
     if (smk_apc40_link_lost(&link, (uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h)))
         smk_apc40_cells_clear(vel, ch, flags, tick);
     while (bleh_midi_next(h, &m)) {
-        if (ble_in_unheard(ble_usb_of_msg(&m), bleh_notifying(h)))
-            continue;                       /* ble.c: not used, recorded as source 3 */
+        if (smk_apc40_ble_colour_unheard(ble_usb_of_msg(&m), (uint8_t)bleh_notifying(h)))
+            continue;                       /* smk_apc_ble_event: no cell write, recorded as source 3 */
         if ((m.b[0] & 0xE0u) == 0x80u)
             smk_apc40_cell_event(vel, ch, flags, tick, m.b[1], m.b[0] & 0x0Fu,
                                  (m.b[0] & 0xF0u) == 0x80u ? 0u : m.b[2], now16);

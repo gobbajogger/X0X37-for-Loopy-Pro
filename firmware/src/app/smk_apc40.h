@@ -192,6 +192,14 @@ static inline uint8_t smk_apc40_link_lost(uint8_t *prev, uint8_t connected, uint
     return lost;
 }
 
+/* a76: 1 = a Bluetooth note (a USB-MIDI event packet) that writes a clip cell (notes 0-39, the
+ * pad colours) while notify is off (Loopy does not listen). The cell does not change. */
+static inline uint8_t smk_apc40_ble_colour_unheard(uint32_t pkt, uint8_t notifying)
+{
+    return (uint8_t)(!notifying && ((pkt >> 8) & 0xE0u) == 0x80u &&
+                     ((pkt >> 16) & 0x7Fu) < SMK_APC40_CLIP_COUNT);
+}
+
 /* a76: the clear runs again SMK_APC40_RECLEAR_MS after a link loss, to remove a late write
  * (a write that was on its way, or USB), if Loopy did not come back (link up and notify on). */
 #define SMK_APC40_RECLEAR_MS 300u
