@@ -296,7 +296,7 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)((pkt >> 16) & 0x7Fu);
     uint8_t d2 = (uint8_t)((pkt >> 24) & 0x7Fu), ty = st & 0xF0u;
     /* Always store APC feedback. Keep it from the sound engine only while clip mode is on.
-     * When clip mode is off, the original MIDI input path stays the same (agent rules, 10). */
+     * When clip mode is off, the original MIDI input path stays the same (agent-rules 2). */
     uint8_t owned = clip_grid_mode || apc_host_on;   /* attempt 35: or an APC40 host seen */
     if (ty == 0xB0u)                    /* attempt 35: APC40 knob LED rings (CC 16-31, 48-63) */
         return (uint8_t)(owned && ((d1 >= 16u && d1 <= 31u) || (d1 >= 48u && d1 <= 63u)));
