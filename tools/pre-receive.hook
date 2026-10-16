@@ -1,0 +1,15 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# Server-side pre-receive hook of the box repository (installed by tools/install_server_hooks.sh).
+# Git gives the push options only to this hook. It saves a "skip-quickcheck=<why>" option for the update hook
+# (tools/update.hook) in <work dir>/pushopt.<receive-pack pid>. It accepts all refs; the update hook does the checks.
+cat > /dev/null
+WD=$(git config --get x0x37.workDir 2>/dev/null || echo "$(git rev-parse --absolute-git-dir)/x0x37-quickcheck")
+find "$WD" -maxdepth 1 -name 'pushopt.*' -mmin +60 -delete 2>/dev/null
+i=0; n=${GIT_PUSH_OPTION_COUNT:-0}
+while [ "$i" -lt "$n" ]; do
+  eval "o=\${GIT_PUSH_OPTION_$i}"
+  case "$o" in skip-quickcheck=*) mkdir -p "$WD" && printf '%s\n' "$o" >> "$WD/pushopt.$PPID" || { echo "pre-receive: cannot save the push option" >&2; exit 1; };; esac
+  i=$((i + 1))
+done
+exit 0
