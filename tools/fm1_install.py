@@ -29,7 +29,13 @@ Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
 7 installed, but the slots were not written back (the backup file stays),
-8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32.
+8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32,
+9 refused by the gate guard (no install was started).
+
+Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
+tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE [--ctl FILE]. The install starts only if
+the gate script gave PASS for the exact tree of HASH and the files are the files that the gate built.
+--commit (or X0X_INSTALL_COMMIT) is necessary. --info and the mocked device of the tests do not use it.
 
 Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
 computer to the package before it is sent (tools/add_ctl.py). Every install writes the Bluetooth block,
@@ -759,6 +765,25 @@ def ask_tty(prompt):
         return False
 
 
+def gate_guard(a):
+    """tools/require_gate_pass.sh: 0 if the gate PASS of the exact tree is there, else 9 (no install)"""
+    import os
+    import subprocess
+    commit = a.commit or os.environ.get("X0X_INSTALL_COMMIT", "")
+    if not commit:
+        print("REFUSED: give --commit HASH (the gate guard needs the commit of the package)", file=sys.stderr)
+        return 9
+    guard = Path(__file__).resolve().parent / "require_gate_pass.sh"
+    cmd = ["bash", str(guard), commit, "--fwsc", a.package] + (["--ctl", a.ctl] if a.ctl else [])
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True)
+    except OSError as e:
+        print(f"REFUSED {commit}: cannot run {guard}: {e}", file=sys.stderr)
+        return 9
+    print((r.stdout + r.stderr).strip())
+    return 0 if r.returncode == 0 and r.stdout.startswith("GATE OK ") else 9
+
+
 def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("package", nargs="?", help="Felucca package (.fwsc)")
@@ -770,9 +795,14 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
+    ap.add_argument("--commit", metavar="HASH", help="the commit of the package: the gate guard needs its gate PASS")
     a = ap.parse_args(argv)
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")
+    if a.package and backend is None:       # a real device: the gate guard is the first step
+        rc = gate_guard(a)
+        if rc:
+            return rc
     try:
         if backend is None:
             try:
