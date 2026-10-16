@@ -909,6 +909,95 @@ static void test_clksrc_switch(void)
     printf("  clock source: 6 switches while playing, with and without a clock: checked\n");
 }
 
+/* ---- a74 (MID-14): the PLAY note with Loopy Pro as the clock (Toggle Clock Pause on note 0x5B) */
+static void test_play_note_with_loopy(void)
+{
+    static const int DELAY_MS[] = {5, 20, 40, 80, 120};
+    double tick = 44100.0 * 60.0 / 120.0 / 24.0, L = 6.0 * tick;
+    int d, k, i, n, prev, bad, ons, mark;
+    sink = &SINK_STEP;
+    ble_rt = 1;
+    /* X0X follows Loopy; PLAY stops X0X; Loopy pauses and sends Stop: X0X stays stopped */
+    reset();
+    S.send_clock = 1;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    ble_clock_start(120.0, 15.0, 0.5);
+    seq_midi_rt(&S, 0xFA);
+    ble_clock(120.0, 15.0, 2.0);
+    CHECK(S.playing && S.ext, "Loopy clock: X0X follows");
+    seq_stop(&S);                                             /* PLAY (the note goes to Loopy) */
+    mark = nev;
+    ble_clock(120.0, 15.0, 0.03);                             /* Loopy: its clock for 30 ms more */
+    seq_midi_rt(&S, 0xFC);                                    /* then Stop, and no clock */
+    run(44100 * 2);
+    CHECK(!S.playing && find(E_STEP, -1, mark) < 0, "PLAY stop, then Loopy Stop: X0X stays stopped");
+    CHECK(count_midi(0xFA, mark) + count_midi(0xFB, mark) + count_midi(0xFC, mark) == 0, "PLAY stop: no Start or Stop out");
+    /* Loopy paused (no clock); PLAY starts X0X; Loopy answers with Start (or Continue) and its clock */
+    for (k = 0; k < 2; k++)
+        for (d = 0; d < (int)(sizeof DELAY_MS / sizeof DELAY_MS[0]); d++) {
+            uint32_t t0, tc;
+            reset();
+            S.send_clock = 1;
+            S.bpm = 120.0f;
+            P[0].drum[0].hit[0][0] = 0xFFFFu;
+            P[0].bass[0].len = 16;
+            for (i = 0; i < 16; i++) {
+                P[0].bass[0].step[i].note = (uint8_t)(30 + i);
+                P[0].bass[0].step[i].flags = G_NOTE;
+            }
+            run(44100);
+            seq_start(&S);                                    /* PLAY: X0X plays step 1 now */
+            run(256);
+            t0 = evs[find(E_STEP, -1, 0)].t;
+            run((uint32_t)(DELAY_MS[d] * 44.1) - (now - t0));
+            seq_midi_rt(&S, k ? 0xFB : 0xFA);                 /* Loopy: Start or Continue, the first tick 1 ms later */
+            run(44);
+            tc = now;
+            ble_clock_start(120.0, 15.0, 0.9);
+            ble_clock(120.0, 15.0, 4.0);
+            {
+                uint32_t gmin = 0xFFFFFFFFu, gmax = 0, bar = t0 + (uint32_t)(15.5 * L);
+                int first = find(E_ON, 0, 0), note = first >= 0 ? evs[first].b : -1;
+                for (i = 0, prev = -1, n = 0, bad = 0; (i = find(E_STEP, -1, i)) >= 0; prev = i, i++) {
+                    if (prev >= 0) {
+                        uint32_t g = evs[i].t - evs[prev].t;
+                        bad += evs[i].a != (evs[prev].a + 1) % 16;
+                        gmin = g < gmin ? g : gmin;
+                        gmax = g > gmax ? g : gmax;
+                    }
+                    n += evs[i].a == 0 && evs[i].t < bar;
+                }
+                for (i = 0, ons = 0; i < nev && evs[i].t < bar; i++)
+                    ons += evs[i].kind == E_ON && evs[i].a == 0 && evs[i].b == note;
+                CHECK(n == 1 && bad == 0, "PLAY, then Loopy %s %d ms later: step 1 %d times in the first bar, %d steps out of order",
+                      k ? "Continue" : "Start", DELAY_MS[d], n, bad);
+                CHECK(ons == 1, "PLAY, then Loopy %s %d ms later: the 303 note of step 1 %d times in the first bar, want 1",
+                      k ? "Continue" : "Start", DELAY_MS[d], ons);
+                /* (the first tick is tick 0 of the step that plays, LIM-11: one step can be up to 2 steps long;
+                 * the clock in 15 ms events moves a step by up to one event) */
+                CHECK(gmin >= (uint32_t)(0.8 * L) && gmax <= (uint32_t)(2.25 * L),
+                      "PLAY, then Loopy %s %d ms later: steps %u to %u samples apart (a step: %.0f)", k ? "Continue" : "Start",
+                      DELAY_MS[d], gmin, gmax, L);
+                (void)tc;
+            }
+            CHECK(S.playing && S.ext, "PLAY, then Loopy: X0X follows the clock");
+        }
+    /* a Start more than one step after PLAY starts X0X again from step 1, as before */
+    reset();
+    S.bpm = 120.0f;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    seq_start(&S);
+    run(44100 / 2);
+    mark = nev;
+    seq_midi_rt(&S, 0xFA);
+    seq_midi_rt(&S, 0xF8);
+    run(256);
+    CHECK(find(E_STEP, 0, mark) >= 0, "a Start 0.5 s after PLAY: from step 1, as before");
+    ble_rt = 0;
+    sink = &SINK;
+    printf("  PLAY note: PLAY with Loopy as the clock, no second start: checked\n");
+}
+
 static void test_break_clock(void)
 {
     int i, k;
@@ -999,6 +1088,7 @@ int main(void)
     test_clksrc_internal();
     test_clksrc_external();
     test_clksrc_switch();
+    test_play_note_with_loopy();
     test_break_clock();
 #ifdef REF_TB3PO
     test_tb3po_matches_reference();
