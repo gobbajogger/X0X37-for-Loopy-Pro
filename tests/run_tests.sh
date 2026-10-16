@@ -148,6 +148,7 @@ for t in drum909 drum808 bass303 breaks; do
     [ -f "tests/host/run_$t.sh" ] && run "$t" sh "tests/host/run_$t.sh"
 done
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
+run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit (core rule 6A)
 run prepush-trim sh tests/host/test_prepush_trim.sh   # tools/prepush-check.sh: the box update hook runs the quick check, so the client does not
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository

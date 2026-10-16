@@ -17,11 +17,17 @@
 #      --config rel: a rel/build/*.fwsc line (the release build, X0X_DEV_PADCAL=0). Only a result of the gate with
 #      two configs (the line "- Config CRCs:") has rel lines. An older result (one config) counts only as dev.
 #      A CRC of the other config, or a CRC that is not in the manifest, is REFUSED.
+#   6. The queue file (core rule 6A, install rule 6: install only the full set): $X0X_RESULTS_DIR/QUEUE.md has one
+#      line for each queued change. An open line is "- [ ] <commit> <text>", a done line is "- [x] <commit> <text>".
+#      <commit> is the first word, 7 to 40 hex characters. Each open line must name <commit> itself or an ancestor
+#      of it. An open line with no commit, or with a commit that is not in the repository, is REFUSED.
+#      No QUEUE.md: no queue check. With QUEUE.md, the GATE OK line ends with "; queue: <n> open lines in <commit>".
 # Output: "GATE OK <hash> <result file>" (exit 0), or "REFUSED <hash>: <reason>" (exit 3). Bad arguments: exit 2.
 # Environment (defaults in brackets):
 #   X0X_RESULTS_DIR [/workspace/x0x37-results; if that folder is not there: $HOME/Documents/x0x37/gate-results,
 #                    the copy that tools/sync_results_to_mac.sh --unpack makes on the Mac]
 #   X0X_REPO [the git repository of the current folder, else /workspace/x0x37.git]
+#   X0X_QUEUE_FILE [$X0X_RESULTS_DIR/QUEUE.md]
 #   X0X_GATE_LOGS_MAP ["" ; "FROM=TO" replaces the prefix FROM of the logs path with TO, for a copy on another computer]
 #   If the logs folder is not there, the guard also looks in $X0X_RESULTS_DIR/logs/<logs path> (the layout of
 #   tools/sync_results_to_mac.sh).
@@ -54,6 +60,20 @@ TREE=$(git -C "$REPO" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' 
 T12=$(echo "$TREE" | cut -c1-12)
 INDEX="$RESULTS/index.md"
 [ -f "$INDEX" ] || refuse "no $INDEX"
+# 6. the queue file: each open line names <commit> or an ancestor of it
+queue_check() {
+    local Q=${X0X_QUEUE_FILE:-$RESULTS/QUEUE.md} line w qh nl=0
+    QNOTE=""; [ -f "$Q" ] || return 0
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in "- [ ] "*|"* [ ] "*) ;; *) continue ;; esac
+        nl=$((nl + 1))
+        w=$(printf '%s\n' "${line#?????}" | awk '{print $1}')
+        echo "$w" | grep -qE '^[0-9a-f]{7,40}$' || refuse "open queue line with no commit in $Q: $line"
+        qh=$(git -C "$REPO" rev-parse --verify --quiet "$w^{commit}") || refuse "open queue line, commit $w is not in $REPO ($Q)"
+        git -C "$REPO" merge-base --is-ancestor "$qh" "$H" || refuse "open queue line $w is not in the install commit $S: install only the full set ($Q)"
+    done < "$Q"
+    QNOTE="; queue: $nl open lines in $S"
+}
 crc32() { python3 -c 'import sys, zlib; print("%08x" % (zlib.crc32(open(sys.argv[1], "rb").read()) & 0xffffffff))' "$1"; }
 FCRC=""; CCRC=""
 if [ -n "$FWSC" ]; then [ -f "$FWSC" ] || refuse "no file $FWSC"; FCRC=$(crc32 "$FWSC") || refuse "cannot read $FWSC"; fi
@@ -103,7 +123,8 @@ for row in $ROWS; do
         refuse "$(basename "$FWSC") crc32 $FCRC is not a gate-built $CONFIG .fwsc of tree $T12 (CRC manifest of $F)"; fi
     if [ -n "$CCRC" ] && ! echo "$MAN" | grep -q "^ctl.img file crc32 $CCRC,"; then
         refuse "$(basename "$CTL") crc32 $CCRC is not the gate-built ctl.img of tree $T12 (CRC manifest of $F)"; fi
-    echo "GATE OK $S $RF (config $CONFIG)"
+    queue_check
+    echo "GATE OK $S $RF (config $CONFIG$QNOTE)"
     exit 0
 done
 IFS=$OLDIFS
