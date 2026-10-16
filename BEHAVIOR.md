@@ -76,6 +76,7 @@ GEN-51. Hold OCT- and OCT+ for 5 s to go into update mode. Release them before t
 GEN-52. Hold OCT- and OCT+ at power-on for calibration. [MANUAL §17]
 GEN-53. After two crashes in a row at start, X0X starts in SAFE MODE. Safe mode has no sound, but USB works. The screen shows the last crash: PC, and one more line with the core (1 or 2), the vector and the debug status word. [MANUAL §17] [CODE app/main_fm1.c safe_main] (Changed 2026-10-15: the core line.)
 GEN-54. A knob turn shows a readout box over the main area: the name on the left and the value on the right. The value uses the 23 px face. (Changed 2026-10-16: the 31 px face for numbers was removed to free 7.6 KB of flash for the clip mode screen. The user approved.) [USER] [CODE app/ui.c draw_readout]
+GEN-55. In the 12 px and 15 px faces (XS, S and B), only the lower-case letters a b d k m p r s t x z have their own glyphs. Each other lower-case letter shows as its capital letter, also in sample names. The characters ` { | } ~ show as "?". The 10 px and 23 px faces do not change. (Added 2026-10-16: 4816 B of flash. The owner approved it.) [USER] [CODE tools/gen_font.py LOWER_KEEP]
 
 ## 3. 909 and 808
 

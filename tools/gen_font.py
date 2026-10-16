@@ -175,6 +175,11 @@ def render(ttf, px, scale, pixel, first, last):
 # X0X: the characters a face is ever drawn with, where that is fewer than its range: the others are
 # empty (no width, no bitmap). M shows knob values that are words (OFF, C#3, FWD, 1/16, LP 40%).
 KEEP = {"M": " #%+-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+# X0X: the lower-case letters that the firmware's own texts use (units: Hz dB k ms bpm bar st x).
+# In XS, S and B every other lower-case letter (and `{|}~) draws with the upper-case bitmap and width,
+# as gfx.c glyph() does for a face without lower case. Identical bitmaps are stored once.
+LOWER_KEEP = set("abdkmprstxz")
+LOWER_FOLD = {"XS", "S", "B"}
 
 
 def main(out):
@@ -186,8 +191,18 @@ def main(out):
         h, glyphs = render(ttf, px, scale, pixel, first, last)
         if name in KEEP:
             glyphs = [g if chr(first + i) in KEEP[name] else (0, 0, []) for i, g in enumerate(glyphs)]
-        data, offs = [], []
+        if name in LOWER_FOLD:
+            fold = {"`": "?", "{": "?", "|": "?", "}": "?", "~": "?"}
+            glyphs = [glyphs[ord(fold.get(chr(first + i), chr(first + i).upper())) - first]
+                      if (chr(first + i).islower() and chr(first + i) not in LOWER_KEEP) or chr(first + i) in fold
+                      else g for i, g in enumerate(glyphs)]
+        data, offs, seen = [], [], {}
         for adv, bw, g in glyphs:
+            key = (bw, tuple(g))
+            if key in seen:                                # the same bitmap: store it once
+                offs.append(seen[key])
+                continue
+            seen[key] = len(data)
             offs.append(len(data))
             for y in range(h):
                 row = g[y * bw:(y + 1) * bw] + [0]
