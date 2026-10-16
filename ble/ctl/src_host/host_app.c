@@ -194,12 +194,54 @@ __attribute__((noinline, section(".bt_stack_code.d50"))) void hx_start(void)
 u8 ctl_d_ev_n, ctl_d_ev_last;          /* attempt 45 DIAG: host events seen, the last event code */
 static u8 hx_disc_i;
 static void ev_push(volatile u32 *w, u8 c) { *w = (*w << 8) | c; }
+
+/* a64 DIAG record. JieLi's btstack_task gives each HCI event to the handlers with size = parameter
+ * length + 1 (disassembly: hci_vendor.c:1009/1014 pass b[ev+1] + 1), one byte short. So a
+ * Disconnection Complete (code, length 4, status, handle, reason) arrives with size 5, but its
+ * reason is at p[5], where the SDK apps read it. The record is in the mailbox's c2h ring pads: only
+ * the image writes them, the app never uses them, and the app clears the mailbox before each start.
+ *   pad0[0]    0xA64 << 20 | disconnects << 8 | connections (both mod 256)
+ *   pad0[1..2] per connection (slot = count & 1): interval (0-11), supervision timeout (12-23),
+ *              latency (24-29, max 63), role (30, 1 = peripheral), peer address type (31, 1 = random)
+ *   pad0[3..6] per disconnect (slot = count & 1, 2 words each): the event's first 8 bytes, raw
+ *   pad1[0..1] per disconnect: size given (0-7), we asked to disconnect (8), notify on (9), setup
+ *              flags (12-15), ms from connection complete to disconnect (16-31, max 65535)
+ *   pad1[2]    the last 4 HCI event codes (newest in the low byte) */
+#define DG_MAGIC 0xA6400000u
+static u32 hx_conn_ms;
+static u8 hx_local;                 /* a64: we asked the controller to end this link */
+__attribute__((noinline, section(".ble_sm_code.a64"))) static void dg_conn(const u8 *p, u32 o)
+{
+    u32 *w = ctl_mb->c2h.pad0, h = w[0], n, lat = (u32)(p[o + 2] | (p[o + 3] << 8));
+    if ((h & 0xFFF00000u) != DG_MAGIC) h = DG_MAGIC;
+    n = h & 0xFFu;
+    w[1u + (n & 1u)] = ((u32)(p[o] | (p[o + 1] << 8)) & 0xFFFu) |
+        (((u32)(p[o + 4] | (p[o + 5] << 8)) & 0xFFFu) << 12) | ((lat > 63u ? 63u : lat) << 24) |
+        ((u32)(p[6] & 1u) << 30) | ((u32)(p[7] & 1u) << 31);
+    w[0] = (h & ~0xFFu) | ((n + 1u) & 0xFFu);
+    hx_conn_ms = ctl_ms();
+    hx_local = 0;
+}
+__attribute__((noinline, section(".ble_sm_code.a64"))) static void dg_disc(const u8 *p, u32 size, u32 flags)
+{
+    u32 *w = ctl_mb->c2h.pad0, h = w[0], n, s, d = ctl_ms() - hx_conn_ms;
+    if ((h & 0xFFF00000u) != DG_MAGIC) h = DG_MAGIC;
+    n = (h >> 8) & 0xFFu;
+    s = n & 1u;
+    w[3u + 2u * s] = (u32)p[0] | ((u32)p[1] << 8) | ((u32)p[2] << 16) | ((u32)p[3] << 24);
+    w[4u + 2u * s] = (u32)p[4] | ((u32)p[5] << 8) | ((u32)p[6] << 16) | ((u32)p[7] << 24);
+    ctl_mb->c2h.pad1[s] = (size & 0xFFu) | ((u32)(hx_local & 1u) << 8) | (flags << 9) |
+        ((d > 0xFFFFu ? 0xFFFFu : d) << 16);
+    w[0] = (h & ~0xFF00u) | (((n + 1u) & 0xFFu) << 8);
+}
+
 static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
 {
     (void)ch;
     if (ctl_d_ev_n < 255u) ctl_d_ev_n++;
     if (size) ctl_d_ev_last = p[0];
     if (type != HCI_EVENT_PACKET || size < 2) return;
+    ctl_mb->c2h.pad1[2] = (ctl_mb->c2h.pad1[2] << 8) | p[0];      /* a64: the last 4 event codes */
     switch (p[0]) {
     case EV_STATE:
         if (p[2] == 2) hx_start();                                 /* HCI_STATE_WORKING (if it ever comes) */
@@ -218,6 +260,7 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
             HX.state = XB_LK_CONN;
             HX.links++;
             hx_cp_sent = 0; hx_cp_rc = 0; hx_cp_last = 0; hx_setup_flags = 1u;   /* a63 */
+            dg_conn(p, o);                                         /* a64: raw role, interval, latency, timeout */
             SR(1); hx_cp_pack();
             ble_user_cmd_prepare(BLE_CMD_ATT_SEND_INIT, 4, hx_conn, hx_att_buf, HX_ATT_BUF, HX_MTU_MAX);
             hx_report();
@@ -229,10 +272,12 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
         }
         break;
     case EV_DISCONNECT:
-        HX.reason = size >= 3 ? p[size - 1] : 0;   /* a63: reason is the event's last byte (size 5 or 6), not fixed p[5] */
-        HX.disc[hx_disc_i & 3u] = (u32)HX.reason | ((u32)(size & 0xffu) << 8) |   /* a61/a63: reason, ev size, status, ccc-was, updates */
-            ((u32)(size >= 3 ? p[2] : 0) << 16) | ((u32)(HX.ccc & 1u) << 24) | ((u32)(HX.updates & 0x7fu) << 25);
-        hx_disc_i++; SR(7);                                       /* a63 */
+        HX.reason = p[5];                          /* a64: the reason is p[5] (size is one short, see above) */
+        HX.disc[hx_disc_i & 3u] = (u32)HX.reason | ((u32)(size & 0xffu) << 8) |   /* a61: reason, ev size, status, ccc-was, updates */
+            ((u32)p[2] << 16) | ((u32)(HX.ccc & 1u) << 24) | ((u32)(HX.updates & 0x7fu) << 25);
+        hx_disc_i++;
+        dg_disc(p, size, (HX.ccc & 1u) | ((u32)(hx_setup_flags & 0xFu) << 3));   /* a64: raw bytes, side, time */
+        SR(7);                                                    /* a63 */
         hx_conn = 0; HX.ccc = 0; hx_cp_sent = 0; hx_setup_flags = 0;
         ble_user_cmd_prepare(BLE_CMD_ATT_SEND_INIT, 4, 0, 0, 0, 0);
         if (hx_radio) hx_adv(1); else { HX.state = XB_LK_IDLE; hx_report(); }
@@ -254,7 +299,8 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
     }
 }
 
-static void hx_sm(u8 type, u16 ch, u8 *p, u16 size)
+/* a64: in piece 2b (it runs only for a pairing), so piece 1 keeps room for the a64 DIAG calls */
+__attribute__((noinline, section(".bt_stack_code.a64"))) static void hx_sm(u8 type, u16 ch, u8 *p, u16 size)
 {
     (void)ch;
     if (type != HCI_EVENT_PACKET || size < 4) return;
@@ -292,7 +338,7 @@ void hx_from_app(unsigned char type, const unsigned char *p, unsigned n)
             return;
         }
         hx_radio = p[0] & 1u;
-        if (!hx_radio && hx_conn) ble_user_cmd_prepare(BLE_CMD_DISCONNECT, 1, hx_conn);
+        if (!hx_radio && hx_conn) { hx_local = 1; ble_user_cmd_prepare(BLE_CMD_DISCONNECT, 1, hx_conn); }
         if (hx_started && !hx_conn) hx_adv(hx_radio);
     }
 }

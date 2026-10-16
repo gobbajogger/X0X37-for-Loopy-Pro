@@ -22,7 +22,13 @@ window) and, with --syms (a JSON made by --make-syms from ble/ctl/out/symbols.tx
 image's RAM (op 6): cur, idle_ctx, both task records with their saved frames and stack words, the
 switch ring, the timers, the queue/semaphore counters and the mailbox (the HCI rings).
 
-Usage: tools/ble_autotest.py [-n ROUNDS] [--hold S] [--log FILE] [--diag-only] [--syms FILE]
+Attempt 64: --diag-only also prints the link setup in plain words: the setup ring per connection
+(d_smlog), the parameter request state (d_poll_gap high bits), d_updates, the 4 disconnect words with
+the reason decoded, the poll gap, and the image's a64 record (op 6 peek of the mailbox's c2h ring
+pads: raw disconnect bytes, who ended the link, the time after the connection, the connection's
+role, interval, latency and timeout).
+
+Usage: tools/ble_autotest.py [-n ROUNDS] [--hold S] [--log FILE] [--diag-only] [--syms FILE] [--mbox ADDR]
        tools/ble_autotest.py --make-syms ble/ctl/out/symbols.txt OUT.json
 Needs mido with python-rtmidi. Exit 0 = every round READY and stayed up.
 """
@@ -384,6 +390,121 @@ def stage_word(d):
     return out or "-"
 
 
+# ---- attempt 64: the link setup words in plain words ----
+HCI_REASON = {0x00: "none (0x00: not a reason)", 0x05: "authentication failure", 0x08: "supervision timeout (link lost)",
+              0x13: "the central ended it (remote user terminated)", 0x14: "the central ended it (low resources)",
+              0x15: "the central ended it (power off)", 0x16: "we ended it (local host terminated)",
+              0x1A: "unsupported remote feature", 0x1F: "unspecified error", 0x22: "LL response timeout",
+              0x23: "LL procedure collision", 0x28: "instant passed", 0x29: "pairing with unit key not supported",
+              0x2A: "different transaction collision", 0x3B: "unacceptable connection parameters",
+              0x3D: "MIC failure (encryption)", 0x3E: "connection failed to be established (no sync)"}
+SETUP_TAG = {1: "connected", 2: "MTU exchange", 3: "first MIDI write", 4: "notify on (CCCD)",
+             5: "parameter request sent", 6: "parameters updated", 7: "disconnected"}
+MB_C2H_PAD0, MB_C2H_PAD1 = 720, 752             # x0x_ble_abi.h: offsetof(xb_mbox_t, c2h.pad0 / c2h.pad1)
+BLERAM_LO, BLERAM_HI = 0x01C7C400, 0x01C7CDC0   # firmware/app.ld BLERAM (the mailbox is in .ble_ram)
+
+
+def reason_text(r):
+    return f"0x{r:02X} {HCI_REASON.get(r, 'other')}"
+
+
+def setup_ring(w):
+    """a63 HX.smlog: 8 nibbles, newest in the low nibble; split into connections at tag 1"""
+    tags = [w >> (4 * i) & 15 for i in range(7, -1, -1)]
+    tags = [t for t in tags if t]
+    conns, cur = [], []
+    for t in tags:
+        if t == 1 and cur:
+            conns.append(cur)
+            cur = []
+        cur.append(t)
+    if cur:
+        conns.append(cur)
+    return [" -> ".join(SETUP_TAG.get(t, f"tag {t}") for t in c) for c in conns]
+
+
+def disc_word(w):
+    """a61 HX.disc: reason (0-7, the real reason from a64 on), event size (8-15), status (16-23),
+    notify on (24), parameter updates on the link (25-31)"""
+    if not w:
+        return "empty"
+    return (f"reason {reason_text(w & 0xFF)}, event size {w >> 8 & 0xFF}, status 0x{w >> 16 & 0xFF:02X}, "
+            f"notify was {'on' if w >> 24 & 1 else 'off'}, updates {w >> 25}")
+
+
+def setup_words(d):
+    """the a61..a63 link words that the earlier parser read but did not print"""
+    g = d.get("d_poll_gap", 0)
+    pad = g >> 16
+    lt = d.get("d_lat_to", 0)
+    fl = pad >> 8 & 15
+    return {
+        "setup_ring": setup_ring(d.get("d_smlog", 0)) or ["empty"],
+        "setup_ring_raw": h(d.get("d_smlog", 0)),
+        "this_link": ("setup flags: " + (" ".join(n for k, n in ((1, "connected"), (2, "MTU"), (4, "MIDI-write"), (8, "notify-on")) if fl & k) or "none")
+                      + f"; parameter request sent {pad & 15} times, last return code {pad >> 4 & 15}, "
+                      f"parameters updated {'yes' if pad >> 12 & 1 else 'no'}; update events {d.get('d_updates', 0)}"),
+        "link_params": f"latency {lt & 0xFFFF} events, supervision timeout {(lt >> 16) * 10} ms",
+        "poll_gap": f"longest gap between core 1 polls while connected: {g & 0xFFFF} ms",
+        "le_events": "last LE subevents (oldest first): " + " ".join(f"0x{d.get('d_evlog', 0) >> s & 0xFF:02X}" for s in (24, 16, 8, 0)),
+        "disconnects": [f"d_disc{i}: " + disc_word(d.get(f"d_disc{i}", 0)) for i in range(4)],
+    }
+
+
+def find_mbox():
+    """the mailbox address: XB_MBOX_MAGIC 'XBMX' and ABI 3 on a 64-byte boundary in BLERAM"""
+    a = BLERAM_LO
+    while a < BLERAM_HI:
+        n = min(64, (BLERAM_HI - a) // 4)
+        w = peek(a, n)
+        if not w:
+            return None
+        for i in range(0, len(w) - 1, 16):
+            if w[i] == 0x584D4258 and w[i + 1] == 3:
+                return a + 4 * i
+        a += 4 * n
+    return None
+
+
+def a64_record(mbox=None):
+    """attempt 64: the image's DIAG record in the c2h ring pads (host_app.c dg_conn / dg_disc)"""
+    mb = mbox or find_mbox()
+    if not mb:
+        return {"error": "mailbox not found in BLERAM"}
+    p0, p1 = peek(mb + MB_C2H_PAD0, 7), peek(mb + MB_C2H_PAD1, 7)
+    if not p0 or not p1:
+        return {"error": "no peek reply"}
+    out = {"mailbox": h(mb), "raw": [h(v) for v in p0 + p1]}
+    if p0[0] >> 20 != 0xA64:
+        out["error"] = "no a64 record (older image, or no connection since the start)"
+        return out
+    nc, nd = p0[0] & 0xFF, p0[0] >> 8 & 0xFF
+    out["counts"] = f"{nc} connections, {nd} disconnects since the start (the last 2 of each are kept)"
+    conns = []
+    for k in range(max(0, nc - 2), nc):
+        c = p0[1 + (k & 1)]
+        conns.append(f"connection {k + 1}: role {'peripheral' if c >> 30 & 1 else 'central'}, peer address "
+                     f"{'random' if c >> 31 else 'public'}, interval {(c & 0xFFF) * 1.25:g} ms, latency {c >> 24 & 63}, "
+                     f"supervision timeout {(c >> 12 & 0xFFF) * 10} ms")
+    out["connections"] = conns
+    discs = []
+    for k in range(max(0, nd - 2), nd):
+        s = k & 1
+        raw = b"".join(v.to_bytes(4, "little") for v in p0[3 + 2 * s:5 + 2 * s])
+        m = p1[s]
+        fl = m >> 12 & 15
+        side = ("we asked for it" if m >> 8 & 1 else
+                {0x13: "the central ended it", 0x16: "our controller ended it", 0x08: "nobody: the link was lost",
+                 0x3E: "nobody: the link never synced"}.get(raw[5], "see the reason"))
+        discs.append(f"disconnect {k + 1}: raw {raw.hex(' ')} (size given {m & 0xFF}); code 0x{raw[0]:02X} length {raw[1]} "
+                     f"status 0x{raw[2]:02X} handle 0x{raw[3] | raw[4] << 8:04X} reason {reason_text(raw[5])}; "
+                     f"who: {side}; {m >> 16} ms after the connection; notify {'on' if m >> 9 & 1 else 'off'}; "
+                     "setup reached: " + (" ".join(n for k, n in ((2, "MTU"), (4, "MIDI-write"), (8, "notify-on")) if fl & k) or "nothing after the connection"))
+    out["disconnects"] = discs
+    out["last_events"] = "last HCI event codes (oldest first): " + " ".join(f"0x{p1[2] >> s & 0xFF:02X}" for s in (24, 16, 8, 0))
+    return out
+
+
 def summary(d, before):
     s = STATE[d["plat_state"] % 8] if "plat_state" in d else "?"
     crash_new = before is None or any(d.get(k) != before.get(k) for k in ("count", "pc", "up_ms", "rets"))
@@ -431,6 +552,7 @@ def main():
     ap.add_argument("--diag-only", action="store_true", help="read and print DIAG only")
     ap.add_argument("--syms", help="image symbols JSON (--make-syms) for the RAM dump")
     ap.add_argument("--make-syms", nargs=2, metavar=("SYMBOLS_TXT", "OUT_JSON"))
+    ap.add_argument("--mbox", help="the mailbox address (default: found in BLERAM by its magic)")
     a = ap.parse_args()
     if a.make_syms:
         make_syms(*a.make_syms)
@@ -443,6 +565,8 @@ def main():
         if not d:
             sys.exit("ble_autotest: no DIAG reply")
         out = summary(d, d)
+        out["setup"] = setup_words(d)
+        out["a64"] = a64_record(int(a.mbox, 0) if a.mbox else None)
         out["t5w"] = t5w_text(t5w())
         x = c1x()
         out["core1"] = c1x_text(x)
