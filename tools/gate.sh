@@ -24,6 +24,8 @@
 #      The gate compares the tests that ran with the list of tests in the script. A missing test is a failure.
 #   3. the flash-map check (tools/gate_flashmap.py, with the owner tag), the budget checks for the three builds,
 #      the X0X_RAM_CANARY default (it must be 0) and a CRC manifest.
+#      The CRC manifest has a line for build/x0x-smk37-elite-ble.fwsc (tools/add_ctl.py: the Elite package and the
+#      gate's ctl.img), the BLE Elite package that is installed. If the gate cannot make it, the result is FAIL.
 # The builds and the tests use a private HOME and TMPDIR for each run (<worktree>.logs/home and tmp).
 # The gate always uses X0X_TEST_TIME_SCALE=1 (the real waits of the updater in install-slots-web), also if the
 # caller sets another value. The PASS or FAIL line and the result file give the time scale.
@@ -314,6 +316,13 @@ CORE_USED=$(echo "$CORE" | sed -n 1p); CORE_MAX=$(echo "$CORE" | sed -n 2p)
 CORE_FREE=$(( ${CORE_MAX:-0} - ${CORE_USED:-0} ))
 [ -n "$CTL_SIZE" ] && [ "$CTL_SIZE" -le 65536 ] || fail "ctl.img is not one piece of 65536 B or less"
 [ -n "$CORE_USED" ] && [ "$CORE_FREE" -ge 0 ] || fail "core RAM does not fit"
+# The BLE Elite package (the file that Firmware Main Builder installs): the Elite package with the gate's ctl.img added.
+BLEPKG=build/x0x-smk37-elite-ble.fwsc
+rm -f "$BLEPKG"
+if [ ! -f tools/add_ctl.py ]; then fail "BLE Elite package: no tools/add_ctl.py"
+elif ! python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o "$BLEPKG" > "$L/ble-package.log" 2>&1 || [ ! -s "$BLEPKG" ]; then
+    fail "BLE Elite package: add_ctl.py failed ($(tail -n1 "$L/ble-package.log"))"
+fi
 python3 - "$L/crc.txt" <<'PY' || fail "CRC manifest"
 import glob, struct, sys, zlib
 lines = []
@@ -328,6 +337,7 @@ for p in sorted(glob.glob("build/*.fwsc") + glob.glob("build/x0x.bin") + glob.gl
     lines.append(f"{p} crc32 {crc(p)}, {len(open(p, 'rb').read())} B")
 open(sys.argv[1], "w").write("\n".join(lines) + "\n")
 PY
+grep -q '^build/x0x-smk37-elite-ble\.fwsc crc32 [0-9a-f]\{8\}, [0-9]* B$' "$L/crc.txt" 2>/dev/null || fail "CRC manifest: no line for build/x0x-smk37-elite-ble.fwsc"
 T1=$(date +%s)
 R=PASS; [ -n "$REASON" ] && R=FAIL
 TMPF="$RF.tmp.$$"
