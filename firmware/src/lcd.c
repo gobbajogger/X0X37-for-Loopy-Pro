@@ -191,6 +191,16 @@ static void padled_set(uint32_t pad, uint8_t r, uint8_t g, uint8_t b)
     }
 }
 
+/* a76: the GRB colour of a hardware pad in the last frame sent (padled_buf), for ED_INLOG */
+static uint32_t padled_sent(uint32_t pad)
+{
+    const uint8_t *o = padled_buf + PADLED_LATCH + PADLED_SLOT[pad % PADLED_N] * 24u;
+    uint32_t v = 0, i;
+    for (i = 0; i < 24u; i++)
+        v = v << 1 | (o[i] == 0xF0u);
+    return v;
+}
+
 static void padled_flush(void)
 {
     uint32_t p, i;

@@ -98,6 +98,7 @@ static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
 extern void smk_apc_host_seen(void);
 extern void smk_apc_ble_link(uint8_t connected, uint8_t notifying);
+extern void smk_inlog(uint32_t src, uint32_t pkt);   /* a76: the inbound recorder (main_fm1.c) */
 static uint8_t ble_sx[16], ble_sx_n, ble_sx_over, ble_sx_reply, ble_sx_ch;
 static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
 {
@@ -368,12 +369,18 @@ static void ble_service(void)
             break;                              /* the host's queue is full: next tick */
         ble_r.orr++;
     }
+    smk_inlog(2u, (uint32_t)((bleh_connected(h) ? 1u : 0u) | (bleh_notifying(h) ? 2u : 0u)) << 24);   /* a76: edges */
     ble_sx_answer(h);
     /* attempt 37: no parameter request (test 34's, accepted by the iPhone, came with a huge MIDI delay) */
     bleh_poll(h);
     while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
         uint32_t pkt = ble_usb_of_msg(&m);
-        if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u || (pkt & 0xFu) == 0xBu) && smk_apc_usb_event(pkt))
+        if (ble_in_unheard(pkt, bleh_notifying(h))) {
+            smk_inlog(3u, pkt);                   /* a76: Loopy does not listen (notify off): not used */
+            continue;
+        }
+        if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u || (pkt & 0xFu) == 0xBu) &&
+            (smk_inlog(1u, pkt), smk_apc_usb_event(pkt)))
             continue;                             /* attempt 29: APC clip and transport feedback, as on USB */
         if (pkt) {
             midi_in_q[mi_w % MQ] = pkt;
@@ -446,7 +453,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
         return n;
     w[n++] = ble_h_link0();                                 /* attempt 34: interval, latency in use */
     w[n++] = ble_h_link1();                                 /* MIDI in drops, request state and result */
-    if (n + 2u > max)
+    if (n + 4u > max)                                       /* a76: 4 words follow (was 2: one word past w[]) */
         return n;
     w[n++] = ble_alive[0];
     w[n++] = ble_alive[1];

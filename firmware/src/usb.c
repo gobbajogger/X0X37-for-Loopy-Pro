@@ -25,6 +25,7 @@ extern void smk_apc_host_seen(void);
 extern void smk_apc_host_lost(void);
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
 extern void smk_apc_usb_tick(void);
+extern void smk_inlog(uint32_t src, uint32_t pkt);   /* a76: the inbound recorder (main_fm1.c) */
 #endif
 enum { S_FADDR = 0, S_POWER = 1, S_INTRTX1 = 2, S_INTRTX2 = 3, S_INTRRX1 = 4, S_INTRRX2 = 5, S_INTRUSB = 6,
        S_INTRTX1E = 7, S_INTRTX2E = 8, S_INTRRX1E = 9, S_INTRRX2E = 10, S_INTRUSBE = 11, S_FRAME1 = 12,
@@ -747,7 +748,7 @@ static void ep1_rx(void)
                 sysex_byte(ep1rx[i + 1 + k]);
         }
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
-        else if ((cin == 8u || cin == 9u || cin == 0xBu) && smk_apc_usb_event(pkt)) {
+        else if ((cin == 8u || cin == 9u || cin == 0xBu) && (smk_inlog(0u, pkt), smk_apc_usb_event(pkt))) {
             /* APC clip feedback: applied at once, not queued (no drops in a burst) */
         }
 #endif

@@ -10,7 +10,15 @@
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
-       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37 };
+       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38 };
+#if BOARD_SMK37
+/* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
+ * count, fm1_ms now, then 2 words for each entry (the oldest first), each word 5 x 7 bits, low bits
+ * first. Then the 40 stored clip velocities and the 40 stored clip channels (one byte each).
+ * Arg 1: 1, padled_dirty, then 16 GRB words of padled_rgb (the colour to send) and 16 GRB words of the
+ * last frame sent to the pads (padled_buf), each word 4 x 7 bits, low bits first. */
+static void smk_inlog_reply(uint32_t arg);   /* main_fm1.c */
+#endif
 /* ED_CTL_READ (SMK-37 with Bluetooth, for tools/fm1_install.py; read only): the Bluetooth block
  * (x0x_ble_abi.h XB_FLASH_OFF, XB_FLASH_SIZE = fm1_flash_map.h FL_BLE_LO..FL_BLE_HI). Offset (3 x 7 bits,
  * from the block start), count (pairs, 7 bits) -> offset, the bytes packed 7 to 8 (as ED_SMP_READ).
@@ -199,7 +207,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(0);
         break;
     case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
-        uint32_t w[70], nw = 0, k;            /* 70 x 5 B fit ed_out */
+        uint32_t w[71], nw = 0, k;            /* 71 x 5 B fit ed_out (tests/diag_size_test.py) */
         const uint32_t *c = (const uint32_t *)&fm1_crash;
         for (k = 0; k < sizeof fm1_crash / 4u; k++)
             w[nw++] = c[k];
@@ -218,6 +226,11 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         }
         break;
     }
+#if BOARD_SMK37
+    case ED_INLOG:                                    /* read only: the inbound recorder (main_fm1.c) */
+        smk_inlog_reply(na >= 1u ? a[0] : 0u);
+        break;
+#endif
     case ED_SMP_BEGIN:
     case ED_SMP_ERASE:
         if (na < 1u || a[0] >= SMP_USER_SLOTS || !flash_ok)
