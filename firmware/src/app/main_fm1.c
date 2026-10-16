@@ -488,9 +488,6 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
  * full 4x4). It redraws when the cells or the view change, at most every 64 ms.
  * It uses the existing canvas (gfx.c cv_px): no new RAM buffer. */
 #define SMK_CLIP_LCD_MIN_MS 64u
-/* Lowest level (0..255) of the brightest channel of a lit clip on the LCD. The firmware does
- * not use it: tools/apc_pad_colors.py reads it to make APC40_LCD565. Do not remove it. */
-#define SMK_CLIP_LCD_FLOOR 128u
 static uint8_t was_on;   /* 0: the next smk_clip_lcd_draw draws at once */
 static uint32_t ck_t0;   /* the time of the last SCALE / CHORD / ARP press (a tap or a hold) */
 static uint32_t ck_rpt_st;   /* < >: the next repeat and the arm bit (ck_rpt) */
