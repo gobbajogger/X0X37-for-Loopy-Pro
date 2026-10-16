@@ -57,3 +57,34 @@ app-side return path (inquiry answer / out mirror) never fired despite ccc=1 in 
 Next step: core-0 DIAG on ble_service — confirm XB_HX_STATE with ccc=1 reaches the app and
 bleh_notifying(&ble_r.h) actually flips true, and whether ble_sx_reply gets set from the
 incoming BLE inquiry. This is a distinct core-0 lane, not the (now-fixed) connection.
+
+## a60 - keyboard->host return path fixed (hx_tx 0 root cause)
+
+**Install:** app rebuilt (DIAG added to core-0 ble.c), fwsc crc32 a1115515; ctl image
+unchanged from a59 (piece1 d0bb3635, piece2 f057b4d9). Slots preserved (before/after
+backups differ only in the 6-byte header timestamp+checksum; all slot payloads identical).
+Boot: READY, advertising X0X-FFCE. All 66 host tests pass.
+
+**Root cause (NOT a firmware bug):** The Mac stress harness's latency probe wrote the
+Universal Device Inquiry as `[header, 0xF0, 0x7E, 0x7F, 0x06, 0x01, tsLow, 0xF7]` - with NO
+timestamp-low byte before 0xF0. Per the BLE-MIDI spec every message, including a SysEx start,
+must be preceded by a timestamp byte, and midi_write() (ble_midi_host.c) correctly treats the
+first byte after the header as a timestamp. So it consumed the 0xF0 as a timestamp (0x70),
+never entered SysEx, ble_sysex_in never ran, ble_sx_reply stayed 0, and ble_sx_answer never
+queued anything -> ble_send never called -> h2c never grew -> hx_tx stayed 0 on every build.
+The note pump works because it DOES prepend the timestamp; only the hand-built probe omitted it.
+
+Core-0 DIAG proved the firmware return path was correct all along: with a link up,
+cccd=1, notifying=1, h.state=CONNECTED, but sx_reply=0/sx_gate=1 (nothing to answer) and
+d_send=0. After fixing the probe to `[header, ts, 0xF0, 7E 7F 06 01, ts, 0xF7]`:
+ble_rtt n=47 (p50 570 ms, p95 692 ms), inquiries_lost 0, rx_sysex 47, hx_tx 0->47,
+h2c 0x40004->0x18b018b, d_send 47, d_sx_sent 47, 0 disconnects, pass=true.
+
+Implication for real use: the firmware's outbound path (bleh_midi_send / bleh_sysex_send,
+hx_from_app notify) builds correct BLE-MIDI, so a real keyboard sending notes and a spec-
+compliant host (Loopy Pro) get device->host MIDI. The gap was only the test probe's framing.
+
+Fixes committed (tools-only + core-0 DIAG): a60 harness sends a spec-correct probe, gives it
+priority in pump() without starving notes, and the swift+python DIAG parsers learn 4 new
+core-0 tail words (d_state_fr, d_send_sx, d_app_flags, d_mirror_n). Firmware change is DIAG
+only; the BLE-MIDI decoder was left strict (spec-correct).
