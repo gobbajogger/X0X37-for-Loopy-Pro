@@ -253,30 +253,9 @@ static void smk_apc_burst_close(void)
     }
 }
 #define SMK_APC40_LAYOUT_SETTLE_MS 250u
-/* APC40 mkII palette (protocol v1.2). Exception: the violet group 48-51 has red = 0.6 x blue
- * (the ratio of the Live violet 0x886CE4 at velocity 80). The spec values showed blue on the pads. */
-static const uint32_t APC40_RGB[128] = {
-    0x000000,0x1E1E1E,0x7F7F7F,0xFFFFFF,0xFF4C4C,0xFF0000,0x590000,0x190000,
-    0xFFBD6C,0xFF5400,0x591D00,0x271B00,0xFFFF4C,0xFFFF00,0x595900,0x191900,
-    0x88FF4C,0x54FF00,0x1D5900,0x142B00,0x4CFF4C,0x00FF00,0x005900,0x001900,
-    0x4CFF5E,0x00FF19,0x00590D,0x001902,0x4CFF88,0x00FF55,0x00591D,0x001F12,
-    0x4CFFB7,0x00FF99,0x005935,0x001912,0x4CC3FF,0x00A9FF,0x004152,0x001019,
-    0x4C88FF,0x0055FF,0x001D59,0x000819,0x4C4CFF,0x0000FF,0x000059,0x000019,
-    0x994CFF,0x9900FF,0x3C0064,0x1D0030,0xFF4CFF,0xFF00FF,0x590059,0x190019,
-    0xFF4C87,0xFF0054,0x59001D,0x220013,0xFF1500,0x993500,0x795100,0x436400,
-    0x033900,0x005735,0x00547F,0x0000FF,0x00454F,0x7A00CC,0x7F7F7F,0x202020,
-    0xFF0000,0xBDFF2D,0xAFED06,0x64FF09,0x108B00,0x00FF87,0x00A9FF,0x002AFF,
-    0x9900FF,0xCC00FF,0xB21A7D,0x402100,0xFF4A00,0x88E106,0x72FF15,0x00FF00,
-    0x3BFF26,0x59FF71,0x38FFCC,0x5B8AFF,0x3151C6,0xB47FE9,0xFF1DE0,0xFF005D,
-    0xFF7F00,0xB9B000,0x90FF00,0x835D07,0x392B00,0x144C10,0x0D5038,0x15152A,
-    0x16205A,0x693C1C,0xA8000A,0xDE513D,0xD86A1C,0xFFE126,0x9EE12F,0x67B50F,
-    0x1E1E30,0xDCFF6B,0x80FFBD,0x9A99FF,0xB266FF,0x404040,0x757575,0xE0FFFF,
-    0xA00000,0x350000,0x1AD000,0x074200,0xB9B000,0x3F3100,0xB35F00,0x4B1502
-};
-/* a76 (owner test VIOLET FAIL): Loopy also sends the Live clip colours (60-119). The protocol values
- * of the Live violets and purples showed blue on the pads. 69, 80: red = 0.6 x blue (as 48-51).
- * 81: red = 0.8 x blue. 93, 116: hue 270. 94: red over blue (pink-purple).
- * tests/smk_apc40_violet_test.py */
+/* The pad colour of each APC40 velocity: the owner-calibrated table (tools/apc_pad_colors.py --pad-name
+ * APC40_PAD_OWNER, from the owner export of 2026-10-17). Dev and release builds use it (BEHAVIOR.md CLP-13). */
+#include "app/apc40_pad_owner.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity)
 {
     if (note >= SMK_APC40_CLIP_COUNT)
@@ -714,16 +693,15 @@ static void smk_pads(void)
                                                        apc_origin_row, apc_view, (uint8_t)logical);
             uint8_t v = note < SMK_APC40_CLIP_COUNT ? apc_led_velocity[note] : 0u;
             uint8_t channel = note < SMK_APC40_CLIP_COUNT ? apc_led_channel[note] : 0u;
-            uint32_t rgb = APC40_RGB[v];   /* the last color from Loopy, drawn as sent */
+            const uint8_t *rgb = APC40_PAD_OWNER[v];   /* the last color from Loopy, owner-calibrated */
             uint8_t white = smk_apc40_physical_pad_for_logical((uint8_t)logical);
             uint32_t pad = SMK_PAD_OF_WHITE(white);
             uint8_t queued = note < SMK_APC40_CLIP_COUNT &&
                              (apc_cell_flags[note] & SMK_APC40_CELL_QUEUED) ? 1u : 0u;
             uint8_t brightness = v ? smk_apc_led_brightness(channel, queued) : 0u;
             /* Loopy row zero maps to the SMK's lower physical pad row. */
-            if (v) padled_set(pad, (uint8_t)(((rgb >> 16) * brightness) / 510u),
-                              (uint8_t)((((rgb >> 8) & 0xFFu) * brightness) / 510u),
-                              (uint8_t)(((rgb & 0xFFu) * brightness) / 510u));
+            if (v) padled_set(pad, (uint8_t)((rgb[0] * brightness) / 510u), (uint8_t)((rgb[1] * brightness) / 510u),
+                              (uint8_t)((rgb[2] * brightness) / 510u));   /* lit: level / 2, as in the calibration mode */
             else padled_set(pad, 0, 0, 0);
         }
         padled_flush();

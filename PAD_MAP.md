@@ -2,7 +2,10 @@
 
 ## Physical pad placement
 
-Status: ASSUMED. No check on hardware confirms it yet. Do the check with the PAD COLOURS orientation page (BEHAVIOR.md CLP-79).
+Status: CONFIRMED 2026-10-17, build 89f680e (x0x.bin sha256 87ce8dd35daef5f3), for the row order and the column order.
+- The owner did the check with the PAD COLOURS orientation page (BEHAVIOR.md CLP-79). The owner confirmed that pad index 0 is top-left. The correction is 0 (export tools/padcal/pads-owner-20261017.txt).
+- Limit: the orientation page lights one pad only. The check shows that pad index 0 is top-left. In the model of step 1 below, it thus excludes the corrections 8, 7 and 15.
+- The check does not examine each of the other 15 pads. It does not examine the sensor order (SMK_PADMUX).
 
 The SMK-37 pads make 2 rows of 8. The table shows the placement of the hardware pad index that the firmware assumes. You look from the top, and the keyboard is below the pads.
 
@@ -18,7 +21,7 @@ The SMK-37 pads make 2 rows of 8. The table shows the placement of the hardware 
 - Pads 0-7 are the top row, left to right. Pads 8-15 are the bottom row, left to right.
 - The LED of pad p is chain slot PADLED_SLOT[p] (firmware/src/lcd.c). The first table below gives the slots in the same layout.
 - Mux A reads the top row. Mux B reads the bottom row. Pad p is at mux address a, with SMK_PADMUX[a] = p mod 8 (firmware/hal/smk_input.h). The second table below gives the addresses in the same layout.
-- A padtest on a unit (2026-10-10) showed the rows (mux A = top, mux B = bottom). The column order and the LED order need a check on a unit.
+- A padtest on a unit (2026-10-10) showed the rows (mux A = top, mux B = bottom). The owner check of 2026-10-17 (status line) showed the LED of pad index 0 at top-left.
 
 <!-- pad-placement:led-slot -->
 ```

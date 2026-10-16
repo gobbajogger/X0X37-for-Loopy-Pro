@@ -61,8 +61,10 @@ building = (ROOT / "BUILDING.md").read_text()
 check("X0X_DEV_PADCAL=0 MODEL=elite ./build.sh --board smk37" in building and "`X0X_DEV_PADCAL=1`" in building
       and "padcal-v1" in building, "BUILDING.md: the release build command, the dev value and the tag padcal-v1")
 pad_h = (SRC / "apc40_pad_default.h").read_text()
-check("release build (X0X_DEV_PADCAL=0) uses APC40_RGB unchanged" in " ".join(pad_h.replace("*", " ").split()),
-      "app/apc40_pad_default.h (generated): until an owner export exists, the release pad table is APC40_RGB")
+owner_h = " ".join((SRC / "apc40_pad_owner.h").read_text().replace("*", " ").split())
+check("--pad-name APC40_PAD_OWNER writes the live pad table" in " ".join(pad_h.replace("*", " ").split()) and
+      "in the dev and the release build" in owner_h,
+      "app/apc40_pad_owner.h (generated): the owner-calibrated pad table is the pad table of both builds")
 BAD = re.compile(r"padcal|PAD COLOURS|pad 1 top-left|apc40_pad_gamma|ACT_PADCAL", re.I)
 for name in ("main_fm1.c", "ui.c", "plat_fm1.c"):
     text = (SRC / name).read_text()

@@ -15,16 +15,25 @@ from pathlib import Path
 ED_INLOG = 38
 CELLS = 40
 SRC = ["USB", "BLE", "EDGE", "BLE NO CELL"]
-MAIN = Path(__file__).resolve().parents[1] / "firmware/src/app/main_fm1.c"
+MAIN = Path(__file__).resolve().parents[1] / "firmware/src/app/apc40_pad_owner.h"
+
+
+def table_rgb(text):
+    """The pad table in a source text as 0xRRGGBB words: APC40_PAD_OWNER[128][3] (decimal, since 2026-10-17)
+    or APC40_RGB[128] (hex, older builds). [] if none."""
+    m = re.search(r"APC40_PAD_OWNER\[128\]\[3\]\s*=\s*\{(.*?)\};", text, re.S)
+    if m:
+        return [int(r) << 16 | int(g) << 8 | int(b) for r, g, b in re.findall(r"\{(\d+),(\d+),(\d+)\}", m.group(1))]
+    m = re.search(r"APC40_RGB\[128\]\s*=\s*\{(.*?)\};", text, re.S)
+    return [int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{6})", m.group(1))] if m else []
 
 
 def palette(path=MAIN):
-    """APC40_RGB[128] of the firmware (the colour that the pads draw), or None."""
+    """The pad table of the firmware (the colour that the pads draw, level / 2 when lit), or None."""
     try:
-        m = re.search(r"APC40_RGB\[128\]\s*=\s*\{(.*?)\};", Path(path).read_text(), re.S)
+        pal = table_rgb(Path(path).read_text())
     except OSError:
         return None
-    pal = [int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{6})", m.group(1))] if m else []
     return pal if len(pal) == 128 else None
 
 
