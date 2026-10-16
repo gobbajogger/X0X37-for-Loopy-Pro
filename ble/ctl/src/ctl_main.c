@@ -112,13 +112,34 @@ __attribute__((noinline, section(".bt_stack_code.d45"))) static void d_live(void
                              (u32)ctl_d_ran << 28;
 }
 /* ---- image -> app: BLE-MIDI packets and the link state (host_abi.h) ---- */
-void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)
+/* a62 path-4 never-drop: when c2h is momentarily full, keep one frame pending and retry it from
+ * ctl_host_poll before anything else, instead of discarding. c2h_drops only rises if a second
+ * frame arrives while one is still pending (credits/flow-control make that rare). */
+static u8 c2h_pend[72] __attribute__((section(".ctl_ram2")));   /* a62: c2h frames are BLE-MIDI (<=67) or 8-byte STATE */
+static u16 c2h_pend_n;
+static u8 c2h_pend_type, c2h_pend_busy;
+__attribute__((section(".ble_sm_code.a62"))) static void c2h_flush(void)
+{
+    if (c2h_pend_busy && xb_frame_put(&ctl_mb->c2h, c2h_pend_type, c2h_pend, c2h_pend_n) == 0)
+        c2h_pend_busy = 0;
+}
+__attribute__((section(".ble_sm_code.a62"))) void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)
 {
     u32 f = ctl_port_irq_save();
-    if (xb_frame_put(&ctl_mb->c2h, type, p, n) != 0)
+    c2h_flush();
+    if (c2h_pend_busy) {                       /* already one waiting: this is the 2-deep case */
         ctl_mb->c2h_drops++;
-    else if (d_gave < 255u)
+    } else if (xb_frame_put(&ctl_mb->c2h, type, p, n) != 0) {
+        if (n <= sizeof c2h_pend) {           /* stash and retry later: not dropped */
+            c2h_pend_type = type; c2h_pend_n = (u16)n;
+            for (u32 i = 0; i < n; i++) c2h_pend[i] = p[i];
+            c2h_pend_busy = 1;
+        } else {
+            ctl_mb->c2h_drops++;
+        }
+    } else if (d_gave < 255u) {
         d_gave++;
+    }
     ctl_port_irq_restore(f);
 }
 static u8 rx_pkt[XB_FRAME_MAX] __attribute__((section(".ctl_ram2")));
@@ -129,6 +150,7 @@ void ctl_host_poll(void)
     u8 type;
     u32 n;
     int k;
+    { u32 f = ctl_port_irq_save(); c2h_flush(); ctl_port_irq_restore(f); }   /* a62: drain any pending c2h first */
     while ((k = xb_frame_peek(&ctl_mb->h2c, &type, &n)) != 0) {
         if (k > 0 && type == XB_HX_MIDI && !hx_can_send(n))
             break;
@@ -181,7 +203,7 @@ void ctl_host_poll(void)
  * and stops calling poll(). */
 #ifdef CTL_HOST
 /* health for DIAG: heap, the least free stack bytes / 16 (attempt 48: in FAILED too) */
-__attribute__((noinline, section(".bt_stack_code.d48"))) static void d_health(void)
+__attribute__((noinline, section(".ble_sm_code.a62"))) static void d_health(void)
 {
     u32 t = ctl_os_stack_free() >> 4, r = ctl_stack_free(__ctl_run_stack_lo, __ctl_run_stack_hi) >> 4,
         i = ctl_stack_free(__ctl_isr_stack_lo, __ctl_isr_stack_hi) >> 4;
@@ -343,6 +365,16 @@ static u32 ctl_poll(u32 unused)
     ctl_os_run_once();
 #ifdef CTL_HOST
     hx_start();                           /* attempt 50: once the host task waits */
+    hx_tick();                            /* a62: Apple-compliant conn-param update ~1.5 s after CCCD */
+    {   /* a62: max gap (ms) between idle passes while connected - core-1 event-service latency */
+        static u32 last_ms;
+        u32 now2 = ctl_ms();
+        if (ctl_mb->hx.state == 2u && last_ms) {
+            u32 g = now2 - last_ms;
+            if (g > ctl_mb->hx.poll_gap_max) ctl_mb->hx.poll_gap_max = (u16)(g > 0xffffu ? 0xffffu : g);
+        }
+        last_ms = now2;
+    }
     d_live();
 #endif
 #ifdef CTL_HOST

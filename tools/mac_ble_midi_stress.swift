@@ -133,7 +133,7 @@ final class Usb {
         "hx_links", "hx_pairs", "hx_heap", "hx_stacks", "hx_nv", "hx_rx", "hx_tx", "hx_tx_drops",
         "d_state_fr", "d_send_sx", "d_app_flags", "d_mirror_n",
         "d_lat_to", "d_disc0", "d_disc1", "d_disc2", "d_disc3", "d_evlog", "d_smlog", "d_updates",
-        "d_oq_drops", "d_drops2"]
+        "d_oq_drops", "d_drops2", "d_poll_gap"]
     func diag() -> [String: Any]? {
         var w: [UInt32] = []
         while true {

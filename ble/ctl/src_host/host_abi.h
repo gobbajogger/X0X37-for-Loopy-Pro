@@ -9,3 +9,4 @@ void hx_from_app(unsigned char type, const unsigned char *p, unsigned n); /* hos
 void hx_init(void);
 int hx_can_send(unsigned n);              /* host_app.c: room for a notification of n bytes (or no link) */                       /* host_app.c: before btstack_init */
 void hx_start(void);                      /* host_app.c: ctl_poll, until the link layer use starts (attempt 50) */
+void hx_tick(void);                       /* host_app.c: ctl_poll, a62 conn-param update ~1.5s after CCCD */

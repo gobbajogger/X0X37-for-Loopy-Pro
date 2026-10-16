@@ -38,6 +38,9 @@ extern void le_l2cap_register_packet_handler(hx_ph_t h);
 extern u16 ble_vendor_set_default_att_mtu(u16 mtu);
 extern int ble_user_cmd_prepare(int cmd, int argc, ...);
 extern int le_controller_set_random_mac(void *addr);
+extern u32 ctl_ms(void);
+/* a62: stock btstack GAP conn-param update (resolved at LTO link). Apple-compliant values. */
+extern int gap_le_request_connection_parameter_update(u16 handle, u16 min, u16 max, u16 latency, u16 timeout);
 
 enum { BLE_CMD_ADV_ENABLE = 1, BLE_CMD_ADV_PARAM, BLE_CMD_ADV_DATA, BLE_CMD_RSP_DATA, BLE_CMD_DISCONNECT,
        BLE_CMD_REGIEST_THREAD, BLE_CMD_ATT_SEND_INIT, BLE_CMD_ATT_MTU_SIZE, BLE_CMD_ATT_VAILD_LEN,
@@ -82,6 +85,7 @@ static const u8 hx_db[] = {
 #define HX_ATT_BUF (188u + HX_MTU_MAX + 256u)       /* ATT_CTRL_BLOCK_SIZE + local MTU + send buffer */
 static u8 hx_att_buf[HX_ATT_BUF] __attribute__((aligned(4), section(".ctl_ram2")));
 static u16 hx_conn;
+static u32 hx_ccc_ms; static u8 hx_cp_sent;   /* a62: when CCCD went on, and whether we sent the conn-param update */
 static u8 hx_radio = 1, hx_started;
 static char hx_name[10];
 #define HX (ctl_mb->hx)
@@ -94,7 +98,7 @@ static void hx_report(void)
     hx_to_app(XB_HX_STATE, s, sizeof s);
 }
 
-static void hx_adv(int on)
+__attribute__((section(".ble_sm_code.a62"))) static void hx_adv(int on)
 {
     static u8 adv[31], rsp[31];
     static const u8 u[16] = {U_MIDI_SVC};
@@ -140,8 +144,10 @@ static int hx_write(u16 con, u16 h, u16 mode, u16 off, u8 *buf, u16 size)
         HX.rx++;
         hx_to_app(XB_HX_MIDI, buf, size);
     } else if (h == H_IO_CCC && size >= 1) {
+        u8 was = HX.ccc;
         HX.ccc = buf[0] & 1u;
         att_set_ccc_config(h, HX.ccc ? ATT_OP_NOTIFY : 0);
+        if (HX.ccc && !was) { hx_ccc_ms = ctl_ms(); hx_cp_sent = 0; }   /* a62: arm the conn-param update */
         hx_report();
     }
     return 0;
@@ -203,7 +209,7 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
         HX.disc[hx_disc_i & 3u] = (u32)HX.reason | ((u32)(size & 0xffu) << 8) |   /* a61: reason, ev size, status, ccc-was */
             ((u32)(size >= 3 ? p[2] : 0) << 16) | ((u32)(HX.ccc & 1u) << 24) | ((u32)(HX.updates & 0x7fu) << 25);
         hx_disc_i++;
-        hx_conn = 0; HX.ccc = 0;
+        hx_conn = 0; HX.ccc = 0; hx_cp_sent = 0;
         ble_user_cmd_prepare(BLE_CMD_ATT_SEND_INIT, 4, 0, 0, 0, 0);
         if (hx_radio) hx_adv(1); else { HX.state = XB_LK_IDLE; hx_report(); }
         break;
@@ -263,6 +269,19 @@ void hx_from_app(unsigned char type, const unsigned char *p, unsigned n)
         hx_radio = p[0] & 1u;
         if (!hx_radio && hx_conn) ble_user_cmd_prepare(BLE_CMD_DISCONNECT, 1, hx_conn);
         if (hx_started && !hx_conn) hx_adv(hx_radio);
+    }
+}
+
+/* a62: ~1.5 s after the central turns on notifications, ask for Apple-compliant connection
+ * parameters (15-30 ms, latency 0, supervision timeout 2000 ms). iOS is strict and our stock
+ * advertise/accept leaves the fast 7.5 ms interval it picks; a longer, stable interval with a 2 s
+ * timeout tolerates the core-1 cooperative servicing. The result shows up as a conn-update-complete
+ * (HX.interval, HX.updates). Called from ctl_poll. */
+__attribute__((section(".ble_sm_code.a62"))) void hx_tick(void)
+{
+    if (hx_conn && HX.ccc && !hx_cp_sent && (s32)(ctl_ms() - hx_ccc_ms) >= 1500) {
+        gap_le_request_connection_parameter_update(hx_conn, 12u, 24u, 0u, 200u);   /* 12*1.25=15ms .. 24*1.25=30ms; 200*10=2000ms */
+        hx_cp_sent = 1;
     }
 }
 

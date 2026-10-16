@@ -199,13 +199,6 @@ int os_taskq_post_type(const char *name, int type, int argc, int *argv)
     return OS_NO_ERR;
 }
 
-/* attempt 58 DIAG (piece 2): which messages the host task receives (event 0x400001, ACL 0x400002,
- * 0x400004 ...) and whether an LE connection-complete event arrives, in ctl_sw_ring {type, count}. */
-__attribute__((noinline)) static void d_hostmsg(int type, int n)
-{
-    u32 j = ctl_sw_n & 14u;
-    ctl_sw_ring[j] = (u32)type; ctl_sw_ring[j + 1u] = (u32)n; ctl_sw_n += 2u;
-}
 int os_taskq_pend(const char *fmt, int *argv, int argc)
 {
     (void)fmt;
@@ -220,7 +213,6 @@ int os_taskq_pend(const char *fmt, int *argv, int argc)
                 if (i < argc) argv[i] = v;
             }
             t->qtail &= (CTL_TASKQ_WORDS - 1);
-            if (t == &tasks[1] && argc >= 1) d_hostmsg(argv[0], n);
             ctl_port_irq_restore(f);
             if (t - tasks < 2) d_inc(&ctl_d_pend[t - tasks]);
             return OS_TASKQ;

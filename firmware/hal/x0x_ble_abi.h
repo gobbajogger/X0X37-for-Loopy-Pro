@@ -123,6 +123,7 @@ typedef struct {
     volatile uint32_t disc[4];            /* a61: recent disconnects: reason(0-7)|evsize(8-15)|status(16-23)|ccc(24) */
     volatile uint32_t evlog, smlog;       /* a61: rolling last-4 LE subevent / SM event codes (newest in low byte) */
     volatile uint32_t updates;            /* a61: conn-update-complete events seen on the current link */
+    volatile uint16_t poll_gap_max, pad_a62;  /* a62: max ms between core-1 idle passes while connected */
 } xb_hx_t;
 
 #define XB_RING_SIZE 512u                /* a power of two */

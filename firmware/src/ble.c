@@ -539,6 +539,9 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.oq_drops;                                /* a61: dev->host mirror drops (audio ISR) */
     w[n++] = ble_sat(ble_r.h.drops_in, 0xffu) | (ble_sat(ble_r.h.tx_lost, 0xffu) << 8) |   /* a61: in_q, h2c, sysex drops */
              (ble_sat(ble_r.sysex_drops, 0xffu) << 16);
+    if (n + 1u > max)
+        return n;
+    w[n++] = (uint32_t)ble_r.mb.hx.poll_gap_max;            /* a62: core-1 idle-pass gap (ms) while connected */
     return n;
 }
 

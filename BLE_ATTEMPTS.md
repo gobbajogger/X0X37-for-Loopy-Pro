@@ -143,3 +143,21 @@ btstack conn-param API is in LTO bitcode (no header on the box) so the symbol na
 resolved at link; the ble_user_cmd_prepare enum has no conn-param opcode.
 
 Artifacts: a61 fwsc 4b62e109, ctl.img c1518a4a (piece1 8ae382c4, piece2 12e22d7a). NOT installed.
+
+## a62 — bundled fix: free piece-1 space, Apple-compliant conn-param update, image-side c2h never-drop, core-1 latency probe (BUILT, NOT INSTALLED)
+
+Context: a61 left piece 1 full (65536/65536). a62 bundles four fixes (user prefers complete builds). NOT installed — user still live-testing.
+
+1) Free piece-1 space. Removed obsolete a58 `d_hostmsg` (ctl_os.c) + its pend call. Moved cold functions out of piece 1 into piece 2a (`.ble_sm_code.a62`): `hx_adv`, `hx_tick`, `d_health`, `hx_to_app`, `c2h_flush`. Kept a61 disc-reason ring, supervision-timeout capture and all drop counters.
+   - piece 1: 65536/65536 (0 free, a61) -> 65344/65536 (**192 B free**), crc32 6f2c7a19.
+   - piece 2: 49136-ish (a61) -> 49056/49152 (**96 B free**), crc32 964d8236. (2a 15964 B, 2b 28576 B.)
+   - This was done even while ADDING the conn-param code (which pulls l2cap signaling into the image), the latency probe and the c2h retry — net piece-1 reduction of ~192 B.
+
+2) Apple-compliant conn-param update ~1.5 s after CCCD enable. host_app.c: on CCCD 0->1 record `hx_ccc_ms=ctl_ms()`, `hx_cp_sent=0`; `hx_tick()` (called from ctl_main poll) fires once ~1.5 s later. Resolved the real stock btstack symbol by dumping the LTO bitcode archive (ble/ctl/lib/btstack.a -> l2cap.c.o strings): the exported function is **`gap_le_request_connection_parameter_update(handle, min, max, latency, timeout)`** (our earlier `gap_update_connection_parameters` did not exist -> "undefined symbols: 1"). Call uses 12/24/0/200 = **interval 15-30 ms, latency 0, supervision timeout 2000 ms** (Apple BLE guidelines). iPhone's response is logged: conn-update-complete bumps `HX.updates` and refreshes `HX.interval/latency/timeout`, surfaced in DIAG.
+
+3) Image-side never-drop, path 4 (hx_to_app c2h ring full). Added a 1-deep pending-retry: on `xb_frame_put` fail the frame is stashed (`c2h_pend[72]` in RAM2 — c2h frames are BLE-MIDI <=67 B or 8-B STATE) and re-sent first thing each `ctl_host_poll` via `c2h_flush()`, instead of discarded. `c2h_drops` now only rises in the 2-deep case (a second frame arriving while one is still pending), which credit flow-control makes rare (c2h_drops has been 0 in all live reads).
+   - Paths 5/6 (acl_copy pool dry / os_taskq_post full -> ctl_q_full/OS_Q_FULL) are inside closed btctrler/OS bitcode; the controller already re-queues on OS_Q_FULL, so our boundary cannot add a deeper retry without the RAM for a shadow ACL pool, which does not fit (CRAM is at 27160/27264 B). Documented as the remaining image-side residual.
+
+4) Core-1 event-service latency probe. ctl_main.c measures the max gap (ms) between `ctl_poll` idle passes while a link is up (`poll_gap_max`), added to `xb_hx_t` and appended as a new DIAG tail word `d_poll_gap` in both parsers (python + swift). This will show on the next live read whether core 1 is being starved near the 7.5 ms interval (the leading disconnect hypothesis); raising BT task priority / shortening slices is deferred until the probe confirms it (untestable without the device).
+
+Build/test: full app + fwsc build clean (app 552544 B, 128 B free in app code area). Host tests pass: `tests/ble_test` 25157 checks, 0 failed, including `t_noloss_flood` (20000-note flood, zero loss). Artifacts staged: /workspace/a62-ctl.img (crc32 01ff54bb, 114592 B; piece1 6f2c7a19, piece2 964d8236), /workspace/a62-x0x-smk37-elite.fwsc (crc32 ff742f30, 651396 B). NOT installed.

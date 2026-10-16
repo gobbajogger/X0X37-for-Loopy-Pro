@@ -53,7 +53,7 @@ LIVE = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state"
         "hx_state", "hx_int_mtu", "hx_links", "hx_pairs", "hx_heap", "hx_stacks", "hx_nv", "hx_rx", "hx_tx", "hx_tx_drops",
         "d_state_fr", "d_send_sx", "d_app_flags", "d_mirror_n",
         "d_lat_to", "d_disc0", "d_disc1", "d_disc2", "d_disc3", "d_evlog", "d_smlog", "d_updates",
-        "d_oq_drops", "d_drops2"]
+        "d_oq_drops", "d_drops2", "d_poll_gap"]
 STATE = ["NO IMAGE", "OFF", "RESTART TO TURN ON", "STARTING", "READY", "CONNECTED", "FAILED", "BAD IMAGE"]
 WHY = ["-", "TIMEOUT", "WRONG JOB", "NOT READY", "RESET", "NO TICK"]
 MB = ["OFF", "INIT", "READY", "FAILED"]
