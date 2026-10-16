@@ -56,6 +56,7 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
    Open: CLP-50 FAIL. X0X PLAY does not start or stop Loopy Pro (a73, owner test 20:37-20:39). Also test the a73 pads, overdub and tempo with Loopy Pro.
    Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. Fix in 9a733fe (a76), installed 22:25, device test pending.
    Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back at once. Fix in 9a733fe (a76), installed 22:25, device test pending.
+   Required before a colour fix (agent rule 11): the owner records a playing blue and a playing violet clip from Loopy with INLOG on. The builder makes a host replay test from that log.
    Open: owner test of batch 1 (9a733fe, checklist-batch1). If it fails, Firmware Main Builder installs 14fb352 again.
    Open: a74 clock source and PLAY note items are not tested yet.
    Open: BLE-16 (All Notes Off when the BLE link ends) is not in code.
@@ -70,7 +71,6 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 ## Open decisions
 
 - Whether to keep spare flash for growth, or give all of it to the loop slots.
-- Optional: capture a playing blue and a playing violet clip from Loopy to confirm which palette entries it uses.
 
 ## Not planned
 
@@ -78,4 +78,4 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 - Bluetooth audio.
 - Shipping any JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 22:39.
+Last update: 2026-10-16 23:13.
