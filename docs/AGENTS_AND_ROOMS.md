@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 19:13 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 19:40 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -156,8 +156,8 @@ Repositories:
 ## Current project context
 
 - Mac: Mac-mini.local, /Users/mac/Documents/x0x37. Main source tree: x0x37 (branch smk37, 4ffcd2d, docs commits on top).
-- BLE: live lane ble-a65 (box tip 99954d9). a65 (ca1d4d2) goes back to the app host from fb6b1b0. The keyboard runs a67 (94285b5, installed 19:00). History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51.
-- Clip keys and integration: box clip-keys = integration = ce5236e (contains 9984344, fix-bass303 9703c4f and ble-a53). The Mac clip-keys (c2f7906) is behind. Mac flash_review_integration is at ce5236e. integration-stale-02ae8b8 keeps the stale 17:34 merges.
+- BLE: live lane ble-a65 (tip 4d1608a). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. a65 (ca1d4d2) goes back to the app host from fb6b1b0. The keyboard runs a67 (94285b5, installed 19:00). History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51.
+- Clip keys and integration: clip-keys-a65 at 81f6418. integration at ceaac0a (merges of clip-keys-a65 81f6418 and ble-a65 4d1608a). Box archive/clip-keys keeps ce5236e. The Mac clip-keys (c2f7906) is old. integration-stale-02ae8b8 keeps the stale 17:34 merges.
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only, see the repository rules.
 - main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change on both BLE and clip-keys branches. Merge with care.
@@ -180,3 +180,4 @@ Repositories:
 - 2026-10-16 18:52: new agent Optimizer.
 - 2026-10-16 19:02: rule 28 (docs hold only development information). File trimmed to rule 28.
 - 2026-10-16 19:13: rules 29 to 31 (gate PASS before an install notice, tag last-good-hw, shared schwung references). Box toolchain and SDK paths.
+- 2026-10-16 19:39: branch tips (ble-a65 4d1608a, clip-keys-a65 81f6418, integration ceaac0a, side branches a68 to a71).
