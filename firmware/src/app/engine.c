@@ -443,6 +443,7 @@ static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_m
 
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
+static uint16_t ble_held;              /* BLE-16: notes from Bluetooth: bit k the 303 k, bit 8 + s the break slice s */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
@@ -458,7 +459,17 @@ static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
-    int k, v;
+    int k, v, ble = PLAT_MIDI_SRC(pkt) == 1u;
+    if (pkt == PLAT_MIDI_LINK_END) {            /* BLE-16: the Bluetooth link ended: release its notes */
+        for (k = 0; k < NBASS; k++)
+            if ((ble_held >> k) & 1u) {
+                bass303_note_off(&b303[k]);
+                bass_held[k] = 0;
+            }
+        brk.keys = (uint16_t)(brk.keys & ~(ble_held >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
+        ble_held = 0;
+        return;
+    }
     if (!seq_clk_take(&seq, st, PLAT_MIDI_SRC(pkt)))
         return;                     /* another input has the clock (MID-15) */
 #if BOARD_SMK37
@@ -511,14 +522,28 @@ static void midi_in(uint32_t pkt)
             if (ty == 0x90) {
                 bass303_note_on(&b303[k], d1, d2 >= 100, bass_held[k] != 0);
                 bass_held[k] = d1;
+                ble_held = (uint16_t)(ble ? ble_held | 1u << k : ble_held & ~(1u << k));
             } else if (ty == 0x80 && bass_held[k] == d1) {
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
+                ble_held &= (uint16_t)~(1u << k);
             }
         }
-    if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43)   /* the break's slices */
+    if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43) {   /* the break's slices */
         breaks_live(&brk, d1 - 36, ty == 0x90);
+        v = 1 << (8 + d1 - 36);
+        ble_held = (uint16_t)(ty == 0x90 && ble ? ble_held | v : ble_held & ~v);
+    }
 }
+#ifdef X0X_HOST
+int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
+{
+    int k, r = brk.keys << 8 & 0xFF00;
+    for (k = 0; k < NBASS; k++)
+        r |= b303[k].gate ? 1 << k : 0;
+    return r;
+}
+#endif
 
 /* ---------------------------------------------------------------- render --- */
 static void drain(void)

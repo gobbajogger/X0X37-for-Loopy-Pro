@@ -99,6 +99,7 @@ void plat_keys_dim(uint32_t k) { dim_keys = k; }      /* dim keys: "o" in the le
 
 #define MQ 256
 static uint32_t min_q[MQ], mi_w, mi_r;
+int engine_midi_held(void);              /* engine.c (X0X_HOST): the notes held from MIDI in */
 static FILE *midi_log;
 int plat_midi_in(uint32_t *pkt)
 {
@@ -729,6 +730,8 @@ static int expect(const char *what, const char *val)
         got = ui.view;
     else if (!strcmp(what, "tempo"))
         got = (int)(seq.bpm + 0.5f);
+    else if (!strcmp(what, "midiheld"))             /* bit k: the 303 k gate; bit 8 + s: break slice key s */
+        got = engine_midi_held();
     else if (!strcmp(what, "exttempo"))             /* the tempo measured from the external clock */
         got = (int)(seq.ext_bpm + 0.5f);
     else if (!strcmp(what, "clocks_out"))
@@ -958,6 +961,8 @@ int main(int argc, char **argv)
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */
             min_q[mi_w++ % MQ] = cin | src << 4 | s << 8 | d1 << 16 | d2 << 24;   /* SRC: 0 USB, 1 BLE, 2 TRS */
+        } else if (!strcmp(cmd, "blelinkend")) {     /* the Bluetooth link ends (ble.c ble_link_end, BLE-16) */
+            min_q[mi_w++ % MQ] = PLAT_MIDI_LINK_END;
         } else if (!strcmp(cmd, "wav")) {
             snprintf(out, sizeof out, "%s/%s", dir, a);
             wav_open(out);

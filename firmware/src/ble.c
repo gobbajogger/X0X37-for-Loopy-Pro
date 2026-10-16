@@ -329,6 +329,23 @@ static void ble_fail(void)
     ble_dead = 1;
 }
 
+/* BLE-16: when the link ends, one PLAT_MIDI_LINK_END goes into the MIDI in queue. The engine then
+ * releases the notes that came from Bluetooth. It goes after the MIDI in of this tick, so no note of the
+ * old link comes after it. If the queue is full, it goes at the next tick. */
+static __attribute__((noinline)) void ble_link_end(uint32_t connected)
+{
+    static uint8_t linked, due;
+    if (linked && !connected)
+        due = 1;
+    linked = (uint8_t)(connected != 0);
+    if (due && mi_w - mi_r < MQ) {
+        midi_in_q[mi_w % MQ] = PLAT_MIDI_LINK_END;
+        RING_PUBLISH();
+        mi_w++;
+        due = 0;
+    }
+}
+
 /* TIMER5, next to usb_poll (same context: the MIDI in queue has one writer) */
 static void ble_service(void)
 {
@@ -336,11 +353,14 @@ static void ble_service(void)
     uint32_t k;
     uint8_t t;
     bleh_msg_t m;
-    if (!ble_up)
+    if (!ble_up) {
+        ble_link_end(0);                        /* (after a failure: the release, when the queue has room) */
         return;
+    }
     if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
         ble_record();
         ble_fail();
+        ble_link_end(0);
         return;
     }
     ble_alive[0] = fm1_ms;
@@ -385,6 +405,7 @@ static void ble_service(void)
             mi_w++;
         }
     }
+    ble_link_end(bleh_connected(h));
 }
 
 int plat_ble_state(void)
