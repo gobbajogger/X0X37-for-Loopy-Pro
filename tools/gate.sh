@@ -3,10 +3,14 @@
 # Pre-install gate for the SMK-37 Elite firmware (Linux x86-64 box only). It does not touch a device.
 #   tools/gate.sh <commit or ref> [--force]
 # The gate makes its own worktree of the commit, and then it does these steps:
+#   0. it checks that each reference folder is at its pinned commit (X0X_REF_PINS),
 #   1. the Elite build, the Pro build (build/x0x-smk37.fwsc, for the package tests), the FM-1 build and
-#      the Bluetooth image build (private HOME and private /tmp),
-#   2. tests/run_tests.sh with AC79_SDK and the reference variables (parallel if the tree has X0X_TEST_JOBS),
-#   3. the flash-map check (tools/gate_flashmap.py), the budget checks and a CRC manifest.
+#      the Bluetooth image build (private /tmp),
+#   2. tests/run_tests.sh with AC79_SDK and the reference variables (parallel if the tree has X0X_TEST_JOBS).
+#      The gate compares the tests that ran with the list of tests in the script. A missing test is a failure.
+#   3. the flash-map check (tools/gate_flashmap.py, with the owner tag), the budget checks for the three builds,
+#      the X0X_RAM_CANARY default (it must be 0) and a CRC manifest.
+# The builds and the tests use a private HOME and TMPDIR for each run (<worktree>.logs/home and tmp).
 # It writes one result file per tree to $X0X_RESULTS/<tree>.md and adds a line to $X0X_RESULTS/index.md.
 # The tree is a SHA-1 of "git ls-tree -r" without the *.md files. If a result for that tree exists,
 # the gate uses it again and does not build (--force builds again).
@@ -14,6 +18,7 @@
 # Environment (defaults in brackets):
 #   X0X_REPO [/workspace/x0x37.git]  X0X_RESULTS [/workspace/x0x37-results]  X0X_REFS [/workspace/x0x37-refs/schwung]
 #   X0X_GATE_WORK [~/.cache/x0x37-gate]  X0X_TEST_JOBS [8]  JIELI_TOOLCHAIN [~/.jieli/toolchain]  AC79_SDK [~/fw-AC79_AIoT_SDK]
+#   X0X_REF_PINS ["schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d"]
 set -u
 GATE_DIR=$(cd "$(dirname "$0")" && pwd)
 REPO=${X0X_REPO:-/workspace/x0x37.git}
@@ -23,6 +28,7 @@ WORK=${X0X_GATE_WORK:-$HOME/.cache/x0x37-gate}
 JOBS=${X0X_TEST_JOBS:-8}
 TC=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain}
 SDK=${AC79_SDK:-$HOME/fw-AC79_AIoT_SDK}
+PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
 FORCE=0
 [ "${2:-}" = --force ] && FORCE=1
 [ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> [--force]" >&2; exit 2; }
@@ -30,17 +36,35 @@ FORCE=0
 H=$(git -C "$REPO" rev-parse --verify --quiet "$1^{commit}") || { echo "FAIL $1 unknown commit in $REPO"; exit 1; }
 S=${H:0:7}
 TREE=$(git -C "$REPO" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' | sha1sum | cut -c1-40)
+GTREE=$(git -C "$REPO" rev-parse "$H^{tree}")
 NOW=$(date '+%Y-%m-%d %H:%M %Z')
 mkdir -p "$RESULTS" && chmod a+rx "$RESULTS"
 INDEX="$RESULTS/index.md"
-[ -f "$INDEX" ] || printf '# x0x37 gate results: index\n\nEach line gives the commit, the tree (SHA-1 of the file list without *.md), the result and the time.\n\n| Commit | Tree | Result | Result file | Time |\n|---|---|---|---|---|\n' > "$INDEX"
+INDEX_NOTE='Each line gives the commit, the tree, the git tree, the result and the time. The key is the tree: the SHA-1 of "git ls-tree -r --full-tree" without the *.md files. The git tree is "git rev-parse <commit>^{tree}". Older rows (before the Git tree column) have no git tree. In some older rows, the Tree column has the git ^{tree} and the text "(git ^{tree})".'
+[ -f "$INDEX" ] || printf '# x0x37 gate results: index\n\n%s\n\n| Commit | Tree | Git tree | Result | Result file | Time |\n|---|---|---|---|---|---|\n' "$INDEX_NOTE" > "$INDEX"
+if ! grep -q '| Git tree |' "$INDEX"; then      # an index from an older gate: add the Git tree column to the header
+    python3 - "$INDEX" "$INDEX_NOTE" <<'PY' || { echo "FAIL $1 cannot update $INDEX"; exit 1; }
+import sys
+p, note = sys.argv[1], sys.argv[2]
+out = []
+for ln in open(p).read().split("\n"):
+    if ln.startswith("Each line gives the commit"): ln = note
+    elif ln.startswith("| Commit | Tree | Result"): ln = "| Commit | Tree | Git tree | Result | Result file | Time |"
+    elif ln.startswith("|---|---|---|---|---|") and ln.count("|") == 6: ln = "|---|---|---|---|---|---|"
+    elif ln.startswith("| ") and ln.count(" | ") == 4:   # an older row: put an empty Git tree cell after the Tree cell
+        c = ln.split(" | ")
+        ln = " | ".join(c[:2] + ["-"] + c[2:])
+    out.append(ln)
+open(p + ".tmp", "w").write("\n".join(out)); __import__("os").replace(p + ".tmp", p)
+PY
+fi
 chmod a+r "$INDEX"
 RF="$RESULTS/$TREE.md"
 
 if [ "$FORCE" = 0 ] && [ -f "$RF" ]; then
     R=$(sed -n 's/^Result: \([A-Z]*\).*/\1/p' "$RF" | head -1)
     WHY=$(sed -n 's/^Reason: //p' "$RF" | head -1)
-    echo "| $S | ${TREE:0:12} | $R (result used again) | $TREE.md | $NOW |" >> "$INDEX"
+    echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $R (result used again) | $TREE.md | $NOW |" >> "$INDEX"
     printf '\nThe gate used this result again for commit %s at %s. The tree is the same.\n' "$H" "$NOW" >> "$RF"
     if [ "$R" = PASS ]; then echo "PASS $S (result used again: tree ${TREE:0:12} has a result)"; exit 0; fi
     echo "FAIL $S ${WHY:-see $RF} (result used again: tree ${TREE:0:12})"; exit 1
@@ -48,8 +72,11 @@ fi
 
 mkdir -p "$WORK"
 [ -d "$WORK/.repo" ] || git clone -q --no-checkout "$REPO" "$WORK/.repo"
-git -C "$WORK/.repo" fetch -q --update-shallow origin '+refs/heads/*:refs/remotes/origin/*' 2>/dev/null
-git -C "$WORK/.repo" cat-file -e "$H^{commit}" 2>/dev/null || git -C "$WORK/.repo" fetch -q origin "$H"
+FE=$(git -C "$WORK/.repo" fetch -q --update-shallow origin '+refs/heads/*:refs/remotes/origin/*' 2>&1) || {
+    echo "FAIL $S git fetch from $REPO: $(echo "$FE" | grep -v '^$' | tail -n1)"; exit 1; }
+if ! git -C "$WORK/.repo" cat-file -e "$H^{commit}" 2>/dev/null; then
+    FE=$(git -C "$WORK/.repo" fetch -q origin "$H" 2>&1) || { echo "FAIL $S git fetch $H: $(echo "$FE" | grep -v '^$' | tail -n1)"; exit 1; }
+fi
 W="$WORK/$S"
 LOCK="$WORK/.lock-$S"
 mkdir "$LOCK" 2>/dev/null || { echo "FAIL $S another gate run uses $W"; exit 1; }
@@ -67,7 +94,16 @@ REASON=""
 fail() { [ -n "$REASON" ] || REASON="$1"; echo "gate: FAIL $1" >> "$LOG"; }
 
 cd "$W" || exit 1
+PH="$L/home"; PT="$L/tmp"; mkdir -p "$PH" "$PT"
+export HOME="$PH" TMPDIR="$PT"          # a private HOME and TMPDIR for all builds and tests of this run
 for d in "$REFS"/schwung-*; do [ -d "$d" ] || fail "no reference sources in $REFS"; done
+PINLOG=""
+for p in $PINS; do                      # each reference folder must be at its pinned commit
+    n=${p%%=*}; want=${p#*=}
+    got=$(git -C "$REFS/$n" rev-parse HEAD 2>/dev/null) || { fail "reference $n: not a git folder in $REFS"; PINLOG="$PINLOG $n=?"; continue; }
+    case "$got" in "$want"*) ;; *) fail "reference $n is at ${got:0:7}, pinned ${want}" ;; esac
+    PINLOG="$PINLOG $n=${got:0:7}"
+done
 ls -d "$WORK"/schwung-* >/dev/null 2>&1 && fail "../schwung-* exists next to the worktree"
 # Fallback: an older tests/host/run_drum909.sh copies the 9W9 sources with their read-only modes and then
 # writes into the copy. For such a tree, use a writable copy of the references for this run only.
@@ -84,8 +120,8 @@ export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c"
 MODEL=elite ./build.sh --board smk37 > "$L/build-elite.log" 2>&1 || fail "Elite build: $(grep -m1 -iE 'error|fail' "$L/build-elite.log")"
 ./build.sh --board smk37 > "$L/build-pro.log" 2>&1 || fail "Pro build: $(grep -m1 -iE 'error|fail' "$L/build-pro.log")"
 ./build.sh > "$L/build-fm1.log" 2>&1 || fail "FM-1 build: $(grep -m1 -iE 'error|fail' "$L/build-fm1.log")"
-PT="$L/ctl-tmp"; PH="$L/ctl-home"; mkdir -p "$PT" "$PH"
-unshare -rm sh -c "mount --bind '$PT' /tmp && env HOME='$PH' JIELI_TOOLCHAIN='$TC' SDK_LOCAL='$SDK' CTL_NATIVE=1 sh ble/ctl/build_ctl.sh" \
+PCT="$L/ctl-tmp"; mkdir -p "$PCT"
+unshare -rm sh -c "mount --bind '$PCT' /tmp && env HOME='$PH' JIELI_TOOLCHAIN='$TC' SDK_LOCAL='$SDK' CTL_NATIVE=1 sh ble/ctl/build_ctl.sh" \
     > "$L/build-ctl.log" 2>&1 || fail "ctl build: $(grep -m1 -iE 'error|fail|undefined' "$L/build-ctl.log")"
 
 # 2. tests
@@ -98,25 +134,64 @@ OK=$(grep -c '^  ok ' "$L/tests.log"); NF=$(grep -c '^  FAIL' "$L/tests.log"); N
 BLE=$(tail -n1 build/host/ble.log 2>/dev/null)
 CK=$(tail -n1 build/host/smk-clip-keys.log 2>/dev/null)
 SCEN=$(grep -c '^  ok   scenario-' "$L/tests.log")
+# The tests that the script knows. A test that does not run (and does not write a "skip" line) is a failure.
+python3 - "$L/tests.log" "$L/tests-expected.txt" <<'PY' > "$L/tests-missing.txt"
+import glob, os, re, shutil, sys
+src = [l for l in open("tests/run_tests.sh").read().split("\n") if not l.lstrip().startswith("#")]
+names = set()
+for l in src:
+    for n in re.findall(r'(?:^|[\s;&|])run "?([A-Za-z0-9_.-]+)"?\s', l + " "):
+        names.add(n)
+    m = re.match(r'\s*for t in ([^;]+); do', l)
+    if m:
+        names |= {t for t in m.group(1).split() if os.path.exists(f"tests/host/run_{t}.sh")}
+    m = re.match(r'\s*for m in ([^;]+); do', l)
+    if m:
+        names |= {f"smk-ota-entry-model{x}" for x in m.group(1).split()}
+names |= {"scenario-" + os.path.basename(s)[:-4] for s in glob.glob("tests/scenarios/*.x0x")}
+if not os.path.exists("build/x0x-smk37-mke.fwsc"): names.discard("smk-build-package-mke")   # the gate does not build MKE
+if not shutil.which("emcc"): names -= {"emu", "emu-slots"}                                  # the browser build needs emcc
+ran = set(re.findall(r"^  (?:ok|FAIL|skip) +(\S+)", open(sys.argv[1]).read(), re.M))
+open(sys.argv[2], "w").write("\n".join(sorted(names)) + "\n")
+print(" ".join(sorted(names - ran)))
+PY
+NEXP=$(grep -c . "$L/tests-expected.txt")
+MISS=$(cat "$L/tests-missing.txt")
+[ -z "$MISS" ] || fail "tests did not run: $MISS"
+for t in smk-build-package ble-package; do grep -q "^  ok   $t\$" "$L/tests.log" || fail "test $t did not pass"; done
 
 # 3. flash map, budgets, CRCs
-python3 "$GATE_DIR/gate_flashmap.py" firmware/hal/fm1_flash_map.h > "$L/flashmap.log" 2>&1 || fail "$(tail -n1 "$L/flashmap.log")"
+python3 "$GATE_DIR/gate_flashmap.py" firmware/hal/fm1_flash_map.h firmware/src/storage.c > "$L/flashmap.log" 2>&1 || fail "$(tail -n1 "$L/flashmap.log")"
 FM=$(tail -n1 "$L/flashmap.log")
 num() { grep -m1 -oE "$1" "$2" | grep -oE '[0-9]+' | sed -n "${3}p"; }
-CODE_FREE=$(num 'app code area [0-9]+ B, [0-9]+ B free' "$L/build-elite.log" 2)
-RAM_USED=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$L/build-elite.log" 1)
-RAM_MAX=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$L/build-elite.log" 2)
-POOL=$(num 'pool [0-9]+ B of [0-9]+' "$L/build-elite.log" 1)
-POOL_MAX=$(num 'pool [0-9]+ B of [0-9]+' "$L/build-elite.log" 2)
+SIZES=""
+for b in elite pro fm1; do      # code free, RAM free and pool headroom for each build: all must be in the limits
+    f="$L/build-$b.log"
+    cf=$(num 'app code area [0-9]+ B, [0-9]+ B free' "$f" 2)
+    ru=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 1); rm=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 2)
+    pu=$(num 'pool [0-9]+ B of [0-9]+' "$f" 1); pm=$(num 'pool [0-9]+ B of [0-9]+' "$f" 2)
+    rf=$(( ${rm:-0} - ${ru:-0} )); ph=$(( ${pm:-0} - ${pu:-0} ))
+    [ -n "$cf" ] && [ "$cf" -ge 0 ] || fail "$b build: app code over the limit (no 'B free' line)"
+    [ -n "$ru" ] && [ -n "$rm" ] && [ "$rf" -ge 0 ] || fail "$b build: app RAM over the limit"
+    [ -n "$pu" ] && [ "$ph" -ge 8192 ] || fail "$b build: pool headroom $ph B < 8192 B"
+    SIZES="$SIZES| $b | ${cf:-?} B | ${ru:-?} of ${rm:-?} B, $rf B free | ${pu:-?} of ${pm:-?} B, $ph B headroom |
+"
+    [ "$b" = elite ] && { CODE_FREE=$cf; RAM_USED=$ru; RAM_MAX=$rm; POOL=$pu; POOL_MAX=$pm; }
+done
+# X0X_RAM_CANARY: the default in firmware/src/ble.c must be 0, and no build may set it.
+CANARY=$(sed -n 's/^#define X0X_RAM_CANARY \([0-9][0-9]*\).*/\1/p' firmware/src/ble.c 2>/dev/null | head -1)
+if [ -z "$CANARY" ]; then CANARY_TXT="not in this tree"
+else
+    CANARY_TXT="$CANARY (default in firmware/src/ble.c)"
+    [ "$CANARY" = 0 ] || fail "X0X_RAM_CANARY default is $CANARY, expected 0"
+fi
+CSET=$(grep -lE 'X0X_RAM_CANARY=[1-9]' build.sh tools/*.py "$L"/build-*.log 2>/dev/null | tr '\n' ' ')
+[ -z "$CSET" ] || { fail "X0X_RAM_CANARY is set to a value that is not 0 in: $CSET"; CANARY_TXT="$CANARY_TXT; set in $CSET"; }
 CTL_LINE=$(grep -m1 'ctl.img: ' "$L/build-ctl.log")
 CTL_SIZE=$(echo "$CTL_LINE" | grep -oE ': [0-9]+ B of [0-9]+' | grep -oE '[0-9]+' | head -1)
 CORE=$(echo "$CTL_LINE" | grep -oE '\([0-9]+ B of [0-9]+\)' | head -1 | grep -oE '[0-9]+')
 CORE_USED=$(echo "$CORE" | sed -n 1p); CORE_MAX=$(echo "$CORE" | sed -n 2p)
-POOL_HEAD=$(( ${POOL_MAX:-0} - ${POOL:-0} )); RAM_FREE=$(( ${RAM_MAX:-0} - ${RAM_USED:-0} ))
 CORE_FREE=$(( ${CORE_MAX:-0} - ${CORE_USED:-0} ))
-[ -n "$POOL" ] && [ "$POOL_HEAD" -ge 8192 ] || fail "pool headroom ${POOL_HEAD} B < 8192 B"
-[ -n "$RAM_USED" ] && [ "$RAM_FREE" -ge 0 ] || fail "app RAM over the limit"
-[ -n "$CODE_FREE" ] || fail "app code over the limit"
 [ -n "$CTL_SIZE" ] && [ "$CTL_SIZE" -le 65536 ] || fail "ctl.img is not one piece of 65536 B or less"
 [ -n "$CORE_USED" ] && [ "$CORE_FREE" -ge 0 ] || fail "core RAM does not fit"
 python3 - "$L/crc.txt" <<'PY' || fail "CRC manifest"
@@ -146,6 +221,9 @@ echo "Result: $R"
 echo
 echo "- Commit: $H"
 echo "- Tree (SHA-1 of git ls-tree -r without *.md): $TREE"
+echo "- Git tree (git rev-parse <commit>^{tree}): $GTREE"
+echo "- References: pinned $PINS. Found:$PINLOG."
+echo "- Private HOME and TMPDIR: $PH, $PT"
 echo "- Time: $NOW. The gate took $((T1 - T0)) s."
 echo "- Worktree: $W. Logs: $L."
 echo
@@ -160,15 +238,20 @@ echo "## Sizes"
 echo
 echo "| Item | Value |"
 echo "|---|---|"
-echo "| App code free | ${CODE_FREE:-?} B |"
-echo "| App RAM (.data+.bss) | ${RAM_USED:-?} of ${RAM_MAX:-?} B, $RAM_FREE B free |"
-echo "| Pool | ${POOL:-?} of ${POOL_MAX:-?} B. Pool headroom $POOL_HEAD B. The limit is 8192 B. |"
+echo "| Build | App code free | App RAM (.data+.bss) | Pool (the headroom limit is 8192 B) |"
+echo "|---|---|---|---|"
+printf '%s' "$SIZES"
+echo
+echo "| Item | Value |"
+echo "|---|---|"
+echo "| X0X_RAM_CANARY | $CANARY_TXT |"
 echo "| ctl.img | ${CTL_SIZE:-?} of 65536 B, $(( 65536 - ${CTL_SIZE:-0} )) B free |"
 echo "| Core RAM | ${CORE_USED:-?} of ${CORE_MAX:-?} B, $CORE_FREE B free |"
 echo
 echo "## Tests"
 echo
 echo "- tests/run_tests.sh ($MODE): $OK ok, $NF FAIL, $NS skip. Exit code $TRC."
+echo "- The script knows $NEXP tests. Tests that did not run: ${MISS:-none}."
 echo "- Scenarios: $SCEN ok."
 echo "- ble_test: ${BLE:-no log}"
 echo "- smk_clip_keys_test: ${CK:-no log}"
@@ -186,7 +269,7 @@ cat "$L/crc.txt" 2>/dev/null
 echo '```'
 } > "$TMPF"
 mv "$TMPF" "$RF"; chmod a+r "$RF"
-echo "| $S | ${TREE:0:12} | $R | $TREE.md | $NOW |" >> "$INDEX"
+echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $R | $TREE.md | $NOW |" >> "$INDEX"
 cp "$RF" "$L/result.md"
 if [ "$R" = PASS ]; then echo "PASS $S"; exit 0; fi
 echo "FAIL $S $REASON"; exit 1

@@ -6,8 +6,10 @@ The check finds overlaps between the regions of the BOARD_SMK37 map.
 It also compares the map with the layout that the owner approved (a65 and later):
 one Bluetooth block of 64 KiB at 0x8B000, the store at 0x9D000-0xAFFFF (with the owner tag at 0xAF000),
 slot 3 of 44 KiB at 0xB0000-0xBAFFF, no piece 2 (FL_CTL2) and no FL_BOND.
-  tools/gate_flashmap.py firmware/hal/fm1_flash_map.h
+The owner tag (ST_OWNER_SECTOR in firmware/src/storage.c) must be at 0xAF000, in the last sector of the store.
+  tools/gate_flashmap.py firmware/hal/fm1_flash_map.h [firmware/src/storage.c]
 The last line is "flashmap: PASS" or "flashmap: FAIL <reason>". The exit code is 0 or 1."""
+import os
 import re
 import sys
 
@@ -39,6 +41,17 @@ expect = {"FL_BLE_LO": 0x8B000, "FL_BLE_HI": 0x9B000, "FL_DATA_LO": 0x9D000, "FL
 for k, v in expect.items():
     if d.get(k) != v:
         errors.append(f"{k} is {d.get(k, 0):#x}, expected {v:#x}")
+st_path = sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(sys.argv[1]), "..", "src", "storage.c")
+m = re.search(r"#define ST_OWNER_SECTOR\s+0x([0-9A-Fa-f]+)u?", open(st_path).read()) if os.path.exists(st_path) else None
+if not m:
+    errors.append(f"no ST_OWNER_SECTOR in {st_path}")
+else:
+    owner = int(m.group(1), 16)
+    print(f"owner tag (ST_OWNER_SECTOR): {owner:#x}")
+    if owner != 0xAF000:
+        errors.append(f"ST_OWNER_SECTOR is {owner:#x}, expected 0xaf000")
+    if not (d["FL_DATA_LO"] <= owner and owner + 0x1000 <= d["FL_DATA_HI"]):
+        errors.append(f"ST_OWNER_SECTOR {owner:#x} is not in the store")
 print(f"slot 3: {d['FL_SMPV_LO']:#x}-{d['FL_SMPV_HI'] - 1:#x}, {(d['FL_SMPV_HI'] - d['FL_SMPV_LO']) // 1024} KiB")
 print("flashmap: PASS" if not errors else "flashmap: FAIL " + "; ".join(errors))
 sys.exit(1 if errors else 0)
