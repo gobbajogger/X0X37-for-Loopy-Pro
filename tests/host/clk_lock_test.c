@@ -176,6 +176,38 @@ int main(void)
             CHECK(!S.ext && S.bpm == 120.0f, "AUTO: internal tempo %.2f after the stop (want 120)", (double)S.bpm);
     }
 
+    for (m = 0; m < 4; m++) {                   /* the link ends at 97 BPM: the tempo of the clock stays, not 120 */
+        uint8_t src = (m & 1) ? SEQ_CLK_EXT : SEQ_CLK_AUTO;
+        uint32_t in = (m & 2) ? USB : BLE;
+        const char *nm = (m & 1) ? "EXTERNAL" : "AUTO", *inm = (m & 2) ? "USB" : "Bluetooth";
+        reset(src);                             /* internal tempo 120 (the default) */
+        S.bpm = 120.0f;                         /* internal tempo 120, not the clock tempo */
+        msg(0xFA, in);
+        two_clocks(97.0, 6.0, in == USB, in == BLE);
+        seq_clk_drop(&S, in);                   /* the link of that input ends, no other input */
+        CHECK(S.clk_lock == 0, "%s %s: link end frees the clock", nm, inm);
+        run(44100);                             /* 1 s */
+        if (m & 1)
+            CHECK(seq_clock_waiting(&S) && S.ext_bpm >= 96.5f && S.ext_bpm <= 97.5f, "EXTERNAL %s: waits, tempo %.2f (want 97)", inm, (double)S.ext_bpm);
+        else
+            CHECK(!S.ext && S.bpm == 97.0f, "AUTO %s: internal tempo %.2f after the link end (want 97)", inm, (double)S.bpm);
+    }
+    for (m = 0; m < 2; m++) {                   /* Bluetooth to USB at 97 BPM, then the clock stops: 97 stays */
+        uint8_t src = m ? SEQ_CLK_EXT : SEQ_CLK_AUTO;
+        const char *nm = m ? "EXTERNAL" : "AUTO";
+        reset(src);
+        msg(0xFA, BLE);
+        two_clocks(97.0, 6.0, 0, 1);
+        two_clocks(97.0, 0.45, 1, 0);           /* Bluetooth stops: after 0.4 s USB gets the clock */
+        CHECK(S.clk_lock == USB + 1, "%s: USB has the clock after the change (%u)", nm, S.clk_lock);
+        two_clocks(97.0, 3.0, 1, 0);            /* about 5 beats: after 2 beats only, the measure is 97.5 (Q1 +-1) */
+        run(44100);                             /* no clock for 1 s */
+        if (m)
+            CHECK(seq_clock_waiting(&S) && S.ext_bpm >= 96.5f && S.ext_bpm <= 97.5f, "EXTERNAL: waits after the change, tempo %.2f (want 97)", (double)S.ext_bpm);
+        else
+            CHECK(!S.ext && S.bpm == 97.0f, "AUTO: internal tempo %.2f after the change and stop (want 97)", (double)S.bpm);
+    }
+
     for (m = 0; m < 2; m++) {                   /* the link of the input with the clock ends: at once free */
         uint8_t src = m ? SEQ_CLK_EXT : SEQ_CLK_AUTO;
         const char *nm = m ? "EXTERNAL" : "AUTO";
