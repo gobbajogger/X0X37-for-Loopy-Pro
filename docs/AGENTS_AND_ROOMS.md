@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 20:30 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 20:28 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -183,4 +183,4 @@ Repositories:
 - 2026-10-16 19:13: rules 29 to 31 (gate PASS before an install notice, tag last-good-hw, shared schwung references). Box toolchain and SDK paths.
 - 2026-10-16 19:39: branch tips (ble-a65 4d1608a, clip-keys-a65 81f6418, integration ceaac0a, side branches a68 to a71).
 - 2026-10-16 20:12: plain-language rule for text to the owner.
-- 2026-10-16 20:30: live BLE lane is ble-a73 (a73 installed, full owner test pending). Install rule: run the installer under nohup.
+- 2026-10-16 20:28: live BLE lane is ble-a73 (a73 installed, full owner test pending). Install rule: run the installer under nohup.
