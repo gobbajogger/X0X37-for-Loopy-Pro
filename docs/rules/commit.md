@@ -14,6 +14,6 @@ Builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict)
 ### Rule 10
 Step: P4 lane commit. Rule owner: Merge Integrator.
 
-Integration is the one working branch. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt).
+Integration is the one working branch. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt, btr, dk).
 
 Fetch and rebase before each commit. Commit and push only on your lane branch, never on integration. Change only the files of your lane. Do not change the release scripts unless the owner asks. Give other work to its task agent with SendToAgent.

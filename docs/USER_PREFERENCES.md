@@ -78,6 +78,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 6 applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
 - 2026-10-17 00:01 (Orchestrator decision, owner approved 00:00): Agent rules version 3. rules/core.md has rules 1, 2 and 4 and an index of the rule files. Read the core at the start of each task, and open each other rule file only at its step. Each rule number in this file is a version 4 number. Version 4 keeps the version 3 numbers and adds rule 6A.
 - 2026-10-17 02:32 (owner): Agent rules version 4. Apply it now.
+- 2026-10-17 02:36 (Orchestrator decision, from an owner question): The owner asked why the agents never read the rules. In the same commit, write each new owner rule also in the rule file of its step (rules/docs.md rule 12).
 - 2026-10-17 02:37 (owner): "Treat writing rules the same as writing code." Commit each rule change on a lane branch. Merge it only after the review of Orchestrator (rules/docs.md rule 12A).
 - 2026-10-16 23:36 (Orchestrator decision): From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict, rules/commit.md rule 9).
 - 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name.
@@ -157,4 +158,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 02:38.
+Last update: 2026-10-17 02:41.
