@@ -69,6 +69,7 @@ else
 fi
 # SMK-37 Pro (BOARD_SMK37): the flash map and the store, the package layout, the update path on SMK-layout
 # packages (made from the FM-1 app: only the layout matters), and the SMK build's own package if there is one
+run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings (tools/locked_settings.json)
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
 run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"

@@ -32,6 +32,15 @@ The build makes three files in `build/`:
 
 On Linux x86-64 the toolchain runs natively and Docker is not needed.
 
+## Locked settings (regression guard)
+
+`tools/locked_settings.json` lists the hardware-relevant settings (Bluetooth TX level and crystal trim,
+advertising, ATT MTU, no connection parameter request, the controller config, the RAM canary default, the pool
+limit, the sample slots and the flash map). `tools/check_locked_settings.py` compares the source with it.
+`tools/build.py`, `ble/ctl/build_ctl.sh` and `tests/run_tests.sh` run it, and a difference stops the build.
+To change a value, change the source and the JSON in one commit that names the setting, and add a
+BLE_ATTEMPTS.md row.
+
 ## Build
 
 ```
