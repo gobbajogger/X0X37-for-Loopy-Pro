@@ -76,7 +76,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
    - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Device test: pending.
    - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix (a76) is in the installed build c6bf44a. In c6bf44a, a link end clears only the clip cells of that link (30a08fc, 79de009). Device test: pending.
    - Open: the owner test of batch 10 (c6bf44a).
-   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. Firmware Main Builder bisects it. The fix goes in batch 11.
+   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. Firmware Main Builder records a knob turn on the device, then finds the cause. The fix goes in batch 11.
    - Batch 11 (owner 02:49, Second Builder): in clip mode, a tap on MODE latches the MODE UI open, and a second tap closes it. A hold works as before.
    - Open: the owner did not test the a74 clock source (MID-13) and PLAY note (MID-14) items yet.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
@@ -97,4 +97,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-17 02:56.
+Last update: 2026-10-17 02:59.
