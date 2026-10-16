@@ -47,11 +47,17 @@ git -C "$C" reset -q --hard box/smk37
 co -b lane/mb-x smk37; cp "$F/bad-rule.txt" "$C/docs/rules/install.md"; gc -am "Rule on a builder lane"; push accept "lane/mb-x push" lane/mb-x
 co smk37; git -C "$C" merge -q --no-ff --no-edit lane/mb-x; push reject "merge of lane/mb-x" smk37
 git -C "$C" reset -q --hard box/smk37
-# 7. a merge of a lane commit that is not the lane tip (the lane moved on)
+# 7. a merge of a lane commit that is not the lane tip: a commit of the lane, accepted (SCRIPT-CHECKS.md check 28)
 co lane/dk-rules-b; OLDTIP=$(git -C "$C" rev-parse HEAD); echo "Third." >> "$C/docs/rules/install.md"; gc -am "Third fact"; push accept "lane/dk-rules-b moves" lane/dk-rules-b
-co smk37; git -C "$C" merge -q --no-ff --no-edit "$OLDTIP"; push reject "merge of an old lane commit" smk37
+co smk37; git -C "$C" merge -q --no-ff --no-edit "$OLDTIP"; push accept "merge of an older commit of the lane" smk37
+# 7b. a commit that is on no lane/dk-rules-* branch (a local commit on top of the lane commit)
+co -b local-x lane/dk-rules-b; echo "Local." >> "$C/docs/rules/install.md"; gc -am "Local fact"
+co smk37; git -C "$C" merge -q --no-ff --no-edit local-x; push reject "merge of a commit that no lane has" smk37
 git -C "$C" reset -q --hard box/smk37
-# 8. fast-forward to the lane tip
+# 7c. docs/agent-rules.md directly on smk37
+echo "agent rules" > "$C/docs/agent-rules.md"; git -C "$C" add -A; gc -m "Add the agent rules"; push reject "direct docs/agent-rules.md change" smk37
+git -C "$C" reset -q --hard box/smk37
+# 8. fast-forward to a lane commit (the tip)
 co -b lane/dk-rules-c smk37; echo "Fourth." >> "$C/docs/rules/install.md"; gc -am "Fourth fact"; push accept "lane/dk-rules-c push" lane/dk-rules-c
 push accept "fast-forward smk37 to the lane tip" lane/dk-rules-c:smk37
 echo "rules guard hook: $((n - fails)) of $n ok"

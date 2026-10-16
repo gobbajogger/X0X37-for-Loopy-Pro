@@ -33,7 +33,8 @@ NOTRIG=$(lane lane/dk-rules-notrig smk37 docs/rules/install.md "Run each install
 BADCHK=$(lane lane/dk-rules-badchk smk37 docs/rules/install.md "Run each install in the foreground." "Add a rule fact." "The rule has one more fact." $'Trigger: P9 install.\nCheck: tools/nothere.sh')
 MANUAL=$(lane lane/dk-rules-manual smk37 docs/rules/install.md "Run each install in the foreground." "Add a rule fact." "The rule has one more fact." $'Trigger: P9 install.\nCheck: manual: no script can see the screen session.')
 BADTXT=$(lane lane/dk-rules-badtxt smk37 docs/rules/install.md "$F/rules_guard/bad-rule.txt" "Change rule 7." "The rule has new text." $'Trigger: P9 install.\nCheck: tools/check_x.sh')
-BADPREF=$(lane lane/dk-rules-badpref smk37 docs/USER_PREFERENCES.md "$F/prefs_lint/bad.md" "Add the owner entries." "The file has five new entries." $'Trigger: each owner decision.\nCheck: tools/check_x.sh')
+BADPREF=$(lane lane/dk-rules-badpref smk37 docs/USER_PREFERENCES.md "$F/prefs_lint/bad.md" "Add the owner entries." "The file has six new entries." $'Trigger: each owner decision.\nCheck: tools/check_x.sh')
+AGR=$(lane lane/dk-rules-agr smk37 docs/agent-rules.md "Read the core rules first." "Add the agent rules." "The file points to the core rules.")
 DOCS=$(lane docs-roadmap smk37 docs/ROADMAP.md "Batch 9 is next." "Update the plan." "The plan names the next batch.")
 TIPMSG=$(lane lane/dk-rules-tip smk37 docs/ROADMAP.md "Batch 9 is next." "Fix the plan; it was changed" "The plan was changed by the tool.")
 INTL=$(lane lane/btr-x integration a.txt "three" "Change the file." "The file has three lines.")
@@ -53,7 +54,8 @@ chk "rule change, no Trigger or Check" FAIL "RULES: 2 commit body issues" "$NOTR
 chk "rule change, Check names no script" FAIL "nothere.sh is not a script" "$BADCHK"
 chk "rule change, Check: manual" PASS "" "$MANUAL"
 chk "bad rule text, rules mode is strict" FAIL "QUICK FAIL .* STE: " "$BADTXT"
-chk "USER_PREFERENCES.md entry with no rule" FAIL "RULES: PREFS FAIL 5 of 5 entries" "$BADPREF"
+chk "USER_PREFERENCES.md entry with no rule" FAIL "RULES: PREFS FAIL 6 of 6 entries" "$BADPREF"
+chk "docs/agent-rules.md change, no Trigger or Check" FAIL "RULES: 2 commit body issues" "$AGR"
 chk "docs change, not a rule change" PASS "" "$DOCS" "changed: docs/ROADMAP.md$"
 chk "lane/dk-rules tip, bad message" FAIL "QUICK FAIL .* STE: " "$TIPMSG" "rules mode \(refs/remotes/origin/lane/dk-rules-tip\)"
 n=$((n + 1)); out=$(qc "$INTL"); base=$(git -C "$R" merge-base "$INTL" integration | cut -c1-7)

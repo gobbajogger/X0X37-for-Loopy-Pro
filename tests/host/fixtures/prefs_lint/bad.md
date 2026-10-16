@@ -10,3 +10,4 @@
 
 - 2026-10-17 02:05 (owner): Pads glow purple in the dark menu screens (agent rule 7).
 - 2026-10-17 02:10 (owner, supersedes 01:57): The owner rule 01:57 is a time, not a rule reference.
+- 2026-10-17 02:15 (owner): Never write the bootloader (rules/install.md rule 9).

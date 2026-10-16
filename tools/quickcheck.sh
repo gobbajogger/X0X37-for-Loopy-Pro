@@ -24,7 +24,7 @@
 # Rules step (checks 27 and 28b of rules v4, owner 02:37: rules = code):
 #   Docs lint: a commit that changes docs/ or USER_PREFERENCES.md, in a tree with docs/USER_PREFERENCES.md and docs/rules/,
 #   runs tools/prefs_lint.py (the copy beside this script). A "PREFS FAIL" makes "QUICK FAIL ... RULES: ...".
-#   Rules mode: the changes touch docs/rules/, docs/USER_PREFERENCES.md or USER_PREFERENCES.md, or <commit> is the tip of
+#   Rules mode: the changes touch docs/rules/, docs/agent-rules.md, docs/USER_PREFERENCES.md or USER_PREFERENCES.md, or <commit> is the tip of
 #   a lane/dk-rules-* branch. In rules mode the STE step is strict, the docs lint runs, and each commit in BASE..<commit>
 #   that changes these paths must have two body lines:
 #     "Trigger: <when the rule applies>"   (2 words or more, the "Read when" or "Step" of the rule)
@@ -89,7 +89,7 @@ CHANGED=$( { "${G[@]}" diff --name-only "$BASE" "$H"; [ -d "$1" ] && "${G[@]}" d
 echo "quickcheck ${H:0:7}, base ${BASE:0:7}, changed: $(echo $CHANGED)" >> "$LOG"
 RULES_MODE=0; DOCS_CH=0
 for f in $CHANGED; do
-    case "$f" in docs/rules/*|docs/USER_PREFERENCES.md|USER_PREFERENCES.md) RULES_MODE=1; DOCS_CH=1 ;; docs/*) DOCS_CH=1 ;; esac
+    case "$f" in docs/rules/*|docs/agent-rules.md|docs/USER_PREFERENCES.md|USER_PREFERENCES.md) RULES_MODE=1; DOCS_CH=1 ;; docs/*) DOCS_CH=1 ;; esac
 done
 [ -n "${RLANE:-}" ] && RULES_MODE=1
 [ "$RULES_MODE" = 1 ] && echo "rules mode (${RLANE:-rule files changed})" >> "$LOG"
@@ -156,7 +156,7 @@ rules_step() {
     elif [ "$DOCS_CH" = 1 ]; then echo "rules: no docs/USER_PREFERENCES.md or docs/rules/ in the tree, no docs lint" >> "$LOG"
     fi
     if [ "$RULES_MODE" = 1 ]; then
-        o=$(for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" -- docs/rules USER_PREFERENCES.md docs/USER_PREFERENCES.md 2>/dev/null); do
+        o=$(for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" -- docs/rules docs/agent-rules.md USER_PREFERENCES.md docs/USER_PREFERENCES.md 2>/dev/null); do
             QC_C=$c QC_TOOLS="$("${G[@]}" ls-tree --name-only "$H:tools" 2>/dev/null)" python3 -c '
 import os, re, subprocess, sys
 c = os.environ["QC_C"]; g = sys.argv[1:]
