@@ -1,0 +1,33 @@
+#!/bin/sh
+# The box pre-push hook (the source is tools/pre-push.hook; copy it to /workspace/x0x37.git/hooks/pre-push and to the clones).
+# 1. Block any push that sends refs-oscuro or its commits (JieLi files, not for distribution).
+# 2. A push to integration: the quick check (/workspace/x0x37-refs/gate/prepush-check.sh, a fixed path, so a change of
+#    the check needs no new copy of this hook). Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON="<why>" git push ...
+#    The skip is written to /workspace/x0x37-results/quickcheck-skips.log. It never skips the refs-oscuro check.
+z=0000000000000000000000000000000000000000
+IN=$(mktemp) || exit 1
+trap 'rm -f "$IN"' EXIT
+cat > "$IN"
+osc=$(git rev-parse -q --verify refs/heads/refs-oscuro 2>/dev/null || git rev-parse -q --verify refs/remotes/box/refs-oscuro 2>/dev/null)
+while read lref lsha rref rsha; do
+  case "$lref$rref" in *refs-oscuro*) echo "BLOCKED: refs-oscuro must never be pushed (owner rule)." >&2; exit 1;; esac
+  [ "$lsha" = "$z" ] && continue
+  [ -n "$osc" ] || continue
+  others=$(git for-each-ref --format='%(objectname)' refs/heads refs/remotes | grep -v "^$osc$")
+  uniq=$(git rev-list "$osc" --not $others 2>/dev/null)
+  [ -z "$uniq" ] && uniq=$(git rev-list -1 "$osc")
+  if [ "$rsha" = "$z" ]; then range="$lsha"; else range="$lsha ^$rsha"; fi
+  for c in $(git rev-list $range); do
+    if echo "$uniq" | grep -qx "$c"; then echo "BLOCKED: push contains refs-oscuro commit $c (owner rule)." >&2; exit 1; fi
+  done
+done < "$IN"
+QC=/workspace/x0x37-refs/gate/prepush-check.sh
+if grep -q ' refs/heads/integration ' "$IN"; then
+  if [ "${X0X_SKIP_QUICKCHECK:-0}" = 1 ]; then
+    echo "$(date '+%F %T %z') $(id -un) $PWD $1 skip: ${X0X_SKIP_REASON:-no reason}" >> /workspace/x0x37-results/quickcheck-skips.log
+    echo "pre-push: quick check SKIPPED (X0X_SKIP_QUICKCHECK=1): ${X0X_SKIP_REASON:-no reason}" >&2
+  elif [ -x "$QC" ]; then
+    "$QC" "$@" < "$IN" || { echo "BLOCKED: the quick check failed. Fix the commit. Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON=\"<why>\" git push ..." >&2; exit 1; }
+  fi
+fi
+exit 0

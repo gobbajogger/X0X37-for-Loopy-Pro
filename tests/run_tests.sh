@@ -15,6 +15,11 @@
 #     The default is X0X_TEST_TIME_SCALE=20 (dev and branch runs): in web/test_install_slots.mjs, waits of
 #     1000 ms or more take 1/20 of the time. The pre-install gate (tools/gate.sh) always uses 1.
 #     build/host/.results/*.time gives the time of each test.
+#   The install-path tests (class S and W, but not rec-live: installers, mocked devices, packages, update loaders, BLE)
+#     take a shared lock on the gate lock (flock -s on X0X_GATE_LOCK, default /workspace/x0x37-refs/gate.lock) while
+#     they run. Thus they wait while a gate holds its exclusive lock, and a gate waits for them. Dev runs can share.
+#     All other tests take no lock. The lock stays in the flock process (flock -o), so a test never holds it.
+#     The gate sets X0X_GATE_HOLDS_LOCK=1 (it holds the exclusive lock), and then the tests take no lock.
 # Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
 set -u
 [ $# -gt 0 ] && X0X_TESTS="$*"
@@ -50,13 +55,24 @@ test_class() {
 run_one() {             # key name command...: the result goes to $RES/key (and $RES/key.fail)
     k="$1"; n="$2"; shift 2
     t0=$(date +%s)
-    if "$@" > "$OUT/$n.log" 2>&1; then
+    if lk "$n" "$@" > "$OUT/$n.log" 2>&1; then
         echo "  ok   $n" > "$RES/$k"
     else
         { echo "  FAIL $n (see $OUT/$n.log)"; tail -15 "$OUT/$n.log" | sed 's/^/       /'; } > "$RES/$k"
         : > "$RES/$k.fail"
     fi
     echo "$(( $(date +%s) - t0 )) s $n" > "$RES/$k.time"
+}
+GLOCK="${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}"
+install_path() { case "$(test_class "$1")" in W) return 0 ;; S) [ "$1" != rec-live ] ;; *) return 1 ;; esac; }
+lk() {                  # name command...: start the command. An install-path test holds the shared gate lock while it runs
+    n_="$1"; shift
+    if install_path "$n_" && [ "${X0X_GATE_HOLDS_LOCK:-0}" != 1 ] && [ -w "$GLOCK" ] && command -v flock >/dev/null 2>&1; then
+        flock -s -n "$GLOCK" true || echo "  $n_ waits for the gate lock (a gate holds it): $GLOCK" >&2
+        flock -s -o "$GLOCK" "$@"
+    else
+        "$@"
+    fi
 }
 gen_lock() { until mkdir "$OUT/iso/.lock-gen" 2>/dev/null; do sleep 0.1; done; }
 gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
@@ -65,7 +81,7 @@ run() {
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
     if [ "$JOBS" -le 1 ]; then
-        if "$@" > "$OUT/$name.log" 2>&1; then
+        if lk "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
         else
             echo "  FAIL $name (see $OUT/$name.log)"
