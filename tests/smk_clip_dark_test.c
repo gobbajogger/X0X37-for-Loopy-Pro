@@ -37,6 +37,11 @@ static unsigned inlog_src3;         /* smk_inlog (in #if BOARD_SMK37, not cut ou
 void smk_inlog(uint32_t src, uint32_t pkt) { (void)pkt; inlog_src3 += src == 3u; }
 #include "apc_b.inc"
 #include "apc_c.inc"
+/* The clip keys pages (clip-keys-a65, main_fm1.c ck_page_on, ck_page_draw): the merged
+ * smk_clip_lcd_draw calls them. The real ones are static and are not cut out: no page shows.
+ * Without clip keys nothing calls them (the test builds with -w). */
+static uint32_t ck_page_on(void) { return 0u; }
+static void ck_page_draw(void) {}
 
 static unsigned pads_lit(void)      /* the LED driver data: what the pads show */
 {
