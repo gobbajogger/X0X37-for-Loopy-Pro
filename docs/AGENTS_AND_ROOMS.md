@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 21:48 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 21:55 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -98,11 +98,11 @@ Work and messages:
 - Rule 27: each task has one owner (lanes table). Do not work outside your lane. Give each task to the lightest agent that can do it. If you have no result, blocker or decision, do not send a message.
 - Rule 28: docs and logs hold only information that matters for development: behavior, decisions, rules, the attempt results that matter, open items, and how to build, install and test. Do not write chatter, repeated status, process narration or acknowledgements.
 - Rule 33: a test checklist holds only the changed items. Do not retest proven items. The owner reply has three fields: Connected, Seconds held, Loopy notes.
-- Rule 34: never log a hardware pass unless the owner names the build that was tested.
+- Rule 34: never log a hardware pass unless the owner names the build that the owner tested.
 - Rule 35: when a build is ready to test, tell Orchestrator. Orchestrator tells the owner.
 - Messages hold only results, blockers and decisions, in two sentences or fewer.
 - Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Docs, logs and commits stay in asd-ste.
-- Generic work is approved automatically (user, 2026-10-16 02:11). Only changes that the owner can see, hear or play need the approval of the owner (owner, 2026-10-16 19:25). Decide other changes and continue.
+- Generic work needs no approval (user, 2026-10-16 02:11). Only changes that the owner can see, hear or play need the approval of the owner (owner, 2026-10-16 19:25). Decide other changes and continue.
 - If the Mac does not respond, retry for 5 minutes. Report it offline only after 5 minutes.
 
 Build and install:
@@ -115,7 +115,8 @@ Build and install:
 - Commit early so the Merge Integrator has a base. Build and Test Runner checks every commit. Merge Integrator merges as soon as both sides have a commit.
 - Builders commit on the box, then sync the commits to the Mac repo with a git bundle before an install (same hashes, no patches).
 - Only Firmware Main Builder installs. Before each install: back up the sample slots, notify the user with the exact commit hash, and wait for the go from the parent agent. After the install: compare the per-slot CRCs and send the commit hash and the CRC result. Never write the bootloader. A verified build installs with no question to the user.
-- Rule 29: before an install notice, the gate must report PASS for that exact commit hash. All tests pass, with no list of known failures. The installer reads the image back from the device. Compare each per-slot CRC before and after. The CRC32 of a whole .x0xslots file is always 2144df1c (the CRC-32 residue) and proves nothing. Run the install in the foreground. A watched, named screen or tmux session is allowed. If the link drops, reattach and watch the install to the end and the read-back. Never install in the background.
+- Rule 29: before an install notice, the gate must report PASS for the exact tree of the commit. A result for the same tree (without *.md files) is valid. All tests pass, with no list of known failures. The installer reads the image back from the device. Compare each per-slot CRC before and after. The CRC32 of a whole .x0xslots file is always 2144df1c (the CRC-32 residue) and proves nothing.
+- Rule 29 (install): run the install in the foreground, or in a named screen or tmux session that an agent watches. If the link drops, reattach and watch the install to the end and the read-back. Never install in the background.
 - Rule 30: keep the tag last-good-hw on the newest build that passed a device test. After 2 failed device tests in a row, bisect from last-good-hw.
 - Rule 37: Firmware Main Builder, Second Builder and Optimizer follow the skill /home/box/agent-data/workflows/x0x37-builder-loop/SKILL.md for each change.
 - Rule 38: stop only the processes that you started, by their PIDs. Never use pkill -f or killall on shared scripts (gate, tests, installer).
@@ -129,8 +130,8 @@ Repositories:
 ## Current project context
 
 - Mac: Mac-mini.local, /Users/mac/Documents/x0x37. Main source tree: x0x37 (branch smk37). The smk37 docs/ folder holds copies of agent-rules.md, USER_PREFERENCES.md, ROADMAP.md and this file. Box smk37 and Mac smk37 stay identical (git bundle sync).
-- BLE: live lane ble-a74 (a74 firmware 14fb352, installed 21:03, ledger tip 11d81a7): clock source setting INTERNAL / EXTERNAL / AUTO and the PLAY note. Owner test 1 (21:18): violet FAIL, pad clear FAIL. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a75 (38af0a0): CLOCK SOURCE moves from settings byte 38 to bits 1-2 of the settings byte bt, so the clip-keys merge has no conflict. Gate PASS (f781938). Built, not installed. ble-pad-a76 (8d5b839, in work): fixes for the two a74 FAILs and the inbound recorder INLOG. Ledger row 76: built, not installed. ble-a73 c3ee3ef (a73 firmware 99faa0a). Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Archived: archive/ble-a65 4d1608a, archive/ble-a72 fb5d720. History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
-- Clip keys and integration: clip-keys-a65 at 81f6418. integration at 110d4c2. Box archive/clip-keys keeps ce5236e. The Mac clip-keys (c2f7906) is old.
+- BLE: live lane ble-a74 (a74 firmware 14fb352, installed 21:03, ledger tip 11d81a7): clock source setting INTERNAL / EXTERNAL / AUTO and the PLAY note. Owner test 1 (21:18): violet FAIL, pad clear FAIL. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a75 38af0a0 (in integration 110d4c2): CLOCK SOURCE in the settings byte bt. Gate PASS (f781938). Built, not installed. ble-pad-a76 c1e81a7 (in work): fixes for the two a74 FAILs and the inbound recorder INLOG. Not installed. ble-arrows-a77 59ddadd (in work): < and > step the value of the selected menu row (GEN-56, owner approved 21:20). Not installed. Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Archived: archive/ble-a73 c3ee3ef, archive/ble-a72 fb5d720, archive/ble-a65 4d1608a. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
+- Clip keys and integration: clip-keys-a65 at e7989ac (hold < or > to repeat the step on the clip keys pages; not in integration). integration at 110d4c2 (has clip-keys-a65 81f6418). Box archive/clip-keys keeps ce5236e. The Mac clip-keys (c2f7906) is old.
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only, see the repository rules.
 - main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change on both BLE and clip-keys branches. Merge with care.
@@ -161,3 +162,4 @@ Repositories:
 - 2026-10-16 21:07: rule 29 per-slot CRC note (the whole-file CRC proves nothing). Rule 37 (builder loop skill). ble-a74 installed 21:03.
 - 2026-10-16 21:42: live BLE lane is ble-a74 (owner test 1: 2 FAIL). ble-a75, ble-pad-a76, integration 110d4c2.
 - 2026-10-16 21:48: rule 38 (stop only your own PIDs). Cause: a Firmware Main Builder worker ran pkill -f x0x37_gate.sh at 21:41 and 21:43.
+- 2026-10-16 21:55: BEHAVIOR.md reference is integration (rule 22). Rule 29: gate PASS for the exact tree. Rules 5, 11, 26, 28, 29 and 34 in asd-ste. Branch tips.

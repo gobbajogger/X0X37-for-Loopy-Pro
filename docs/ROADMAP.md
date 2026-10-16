@@ -33,19 +33,19 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 | Bluetooth | iPhone connects over BLE MIDI and the link holds | 94285b5 (a67) |
 | Clip keys | Knobs 2-8 send CC 48-54 when no clip keys mode is on | 9984344 |
 
-## Where we are now (2026-10-16 21:42)
+## Where we are now (2026-10-16 21:55)
 
-- Branches: live BLE branch ble-a74 (14fb352, ledger tip 11d81a7), from ble-a73: installed 21:03. ble-a75 (38af0a0): CLOCK SOURCE moves from settings byte 38 to bits 1-2 of the settings byte bt, so the clip-keys merge has no conflict. Gate PASS (f781938). Built, not installed. ble-pad-a76 (8d5b839, in work): fixes for the two a74 FAILs and the inbound recorder INLOG. Ledger row 76: built, not installed. ble-a73 (99faa0a, tip c3ee3ef). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a65 at 4d1608a. Side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1) and ble-a70 (77fa067): built, not installed. integration 110d4c2 (merge of ble-a75 38af0a0).
+- Branches: live BLE branch ble-a74 (14fb352, installed 21:03, ledger tip 11d81a7). ble-a75 (38af0a0, in integration 110d4c2): CLOCK SOURCE moves from settings byte 38 to bits 1-2 of the settings byte bt, so the clip-keys merge has no conflict. Gate PASS (f781938). Built, not installed. ble-pad-a76 (c1e81a7, in work): fixes for the two a74 FAILs and the inbound recorder INLOG. Not installed. ble-arrows-a77 (59ddadd, in work): in a menu, < and > step the value of the selected row (GEN-56, owner approved 21:20). Not installed. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). Side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1), ble-a70 (77fa067) and ble-a71 (9ef7bc2): built, not installed. Archived: archive/ble-a73 (c3ee3ef), archive/ble-a72, archive/ble-a65. integration 110d4c2 (merge of ble-a75 38af0a0).
 - Keyboard: a74 (14fb352) installed 21:03. Owner test 1 at 21:18 (ledger 11d81a7): violet FAIL, pad clear FAIL. The other items are NOT TESTED. a74 adds to a73 the clock source setting INTERNAL / EXTERNAL / AUTO (MID-13) and the PLAY note (MID-14). Gate PASS (tree 2f1f79d2ca5c). ctl.img read back eb742dd2. Per-slot CRCs 05fb6e99 / 6bb165f0 before = after, slot 3 empty. DIAG READY. last-good-hw stays 94285b5 (a67).
 - a73 (99faa0a) installed 20:26. Owner test 20:37 to 20:39 (ledger c3ee3ef): Loopy Start starts X0X (PASS). X0X PLAY does not start or stop Loopy Pro (FAIL). Pads, overdub and tempo are not tested yet. last-good-hw stays 94285b5 (a67). a73 (branch ble-a73) adds to a67: Bluetooth MIDI clock and transport fixes (a72), clip colour and feedback fixes (a71), the installer ctl.img read-back (a69), and live recording on the nearest step (REC-06). Slots 05fb6e99 / 6bb165f0 before = after, DIAG READY.
 - a65 (ca1d4d2), installed 18:19, goes back to the BLE host in the app (from fb6b1b0, test 37), with no pairing and no bonds. The CTL_HOST host of a38 to a64 is not used. No connection parameter request (owner decision 18:18). Slots 961626d5 / 9a09fdb9 before = after. Slot 3 is empty, now 44 KiB at 0xB0000. DIAG: READY, no crash.
 - iPhone: works on a67 (owner test PASS 19:18). On a73 the link carries the Loopy clock and Start (20:37 PASS). History: a65 iPhone test 1 (18:23): the iPhone connected (interval 7.5 ms, MTU 185), then the link ended with reason 0x08 (connection timeout). a62 and a62b: the link held about 2 min at 26.25 ms with 0 connection updates, reason 0x00. a63-15 (d9844a4): iOS dropped the link before any GATT step. Oct 15: Loopy used the keyboard as its APC40 over Bluetooth (test 30). But some colour notes made sounds, some pads stayed empty and colours were slow. A connection parameter request made the iPhone drop the link (test 31) and gave a large MIDI delay (test 34).
 - Mac: the BLE GATT connection works and MIDI goes in both directions (a59 79eb477, a60). The a59 fix: the host must register its event handler after btstack_task_init, because btstack_task_init removes it.
 - Bluetooth start: the supply must be the stock values (DCDC13, VDC14 1.60 V, SYSVDD 1.38 V) before the RF init (test 27, 56a7452). The controller init runs on core 0 before core 1 starts (83cd4dc). The clock stays 360 MHz.
-- Release package 0b80994 (SMK-37 Elite only, a64 files: .fwsc CRC32 5ec8b21a, ctl.img CRC32 e9c05144). Pool free 4096 B, app code 144 B free, app RAM 0 B free. The Pro package is not built. Not pushed.
-- Clip keys: branch clip-keys-a65 at 81f6418 (box archive/clip-keys keeps ce5236e). KEYS panel and SCALE, CHORD and ARP pages. Knobs 2-8 send CC 48-54. 24 scales, 30 chords, swing, Euclid rhythm, HUMAN, strum. Static RAM 98288 of 98304 B (ce5236e). Host tests pass. Not tested on hardware.
+- Release package 0b80994 (SMK-37 Elite only, a64 files: .fwsc CRC32 5ec8b21a, ctl.img CRC32 e9c05144). Pool free 4096 B, app code 144 B free, app RAM 0 B free. The Pro package is not built. Not pushed. Test only, out of date, not for release.
+- Clip keys: branch clip-keys-a65 at e7989ac (hold < or > to repeat the step on the clip keys pages, gate PASS, not in integration). 81f6418 is in integration 110d4c2. KEYS panel and SCALE, CHORD and ARP pages. Knobs 2-8 send CC 48-54. 24 scales, 30 chords, swing, Euclid rhythm, HUMAN, strum. Merged tree with a75: RAM .data+.bss 94500 of 98304 B (ledger row 75). Host tests pass. Not tested on hardware.
 - Integration: 110d4c2 (merge of ble-a75 38af0a0). integration-stale-02ae8b8 keeps the stale 17:34 merges.
-- Pool limit: 4096 B (USER_PREFERENCES.md, 2026-10-16 17:3x). A release build must turn off the test-26 RAM canary or keep at least 8192 B of pool free.
+- Pool limit: build.sh and the gate require at least 8192 B of pool free (enforced 2026-10-16 21:53). USER_PREFERENCES.md keeps the older 4096 B owner entry.
 - Tools: tools/ble_autotest.py runs the Bluetooth test over USB with no user action. Attempt ledger: BLE_ATTEMPTS.md in the BLE branch (one row per attempt). JieLi SDK BLE design vs our host, with the step plan for the iPhone link: [ble_split/SDK_DESIGN_COMPARE.md](ble_split/SDK_DESIGN_COMPARE.md).
 
 ## Left to do
@@ -57,7 +57,7 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
    Open: a74 pad clear FAIL (owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back at once. Fix in work on ble-pad-a76.
    Open: a74 clock source and PLAY note items are not tested yet. a75 (38af0a0) is built, not installed.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
-4. Bring the BLE branch ble-a73 (99faa0a) into the main tree (x0x37, smk37), after the full owner test of a73.
+4. Bring integration (110d4c2: a74, a75 and clip keys 81f6418) into the main tree (x0x37, smk37) after an owner test PASS of an installed build.
 5. Screen clip colours: put the approved table (apc40_lcd565.h, strong fix for 0x32 / 0x33) into the firmware, add a test, update BEHAVIOR.md CLP-05, commit. Install after approval.
 6. User checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and idle clip colours on the screen. Also check that patterns and settings survived.
 7. Web installer: let the page fetch the JieLi files and build the Bluetooth image, or guide the user through it. If possible, end users need no toolchain.
@@ -74,4 +74,4 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 - Bluetooth audio.
 - Shipping any JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 21:42.
+Last update: 2026-10-16 21:55.

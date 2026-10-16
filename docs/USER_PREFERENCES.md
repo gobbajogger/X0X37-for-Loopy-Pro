@@ -1,6 +1,6 @@
 # X0X37 project: user preferences and decisions
 
-Read this file before you work on the X0X37 project. Also follow agent-rules.md. The reference for intended behaviour is x0x37/BEHAVIOR.md.
+Read this file before you work on the X0X37 project. Also follow agent-rules.md. The reference for intended behavior is BEHAVIOR.md on the branch integration. The smk37 copy x0x37/BEHAVIOR.md is synced from it.
 
 ## How to work with the user
 
@@ -22,8 +22,8 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - Before every install, back up the imported sample slots. After the install, compare the slot CRCs. The user has 5 imported loops (3 in slot 1, 2 in slot 2). Backups are in slot_backups/.
 - 2026-10-16: A verified build installs with no question to the user. Before each install, the user gets a notice with the commit hash, and the builder waits for the go from the parent agent. After the install, the user gets the commit hash and the CRC result.
 - 2026-10-16: Report UX changes at once. Some changes can affect the user experience: latency, packet or MTU size, memory margins, sample length, connection behaviour. When the builder decides on such a change, it sends a short note to the parent agent before it continues. The parent agent tells the user.
-- 2026-10-16 02:11: Generic work is approved automatically: builds, tests, commits, pushes to box, doc updates, merges on the box. Notify the user first before anything that can change how the device works or feels. Examples: installs, new behavior rules, changes that the owner can see, hear or play, flash layout changes, removed features. Safety rules do not change.
-- 2026-10-16 17:3x (owner delegated this decision to Firmware Main Builder): The pool limit is 4096 B, per the build.py rule. heap2 (3584 B) is already inside .pool. A release build must turn off the test-26 RAM canary (it writes 0xFF at 0x01C72000-0x01C74000), or keep at least 8192 B of pool free.
+- 2026-10-16 02:11: Generic work needs no approval. This is builds, tests, commits, pushes to box, doc updates and merges on the box. Notify the user first before anything that can change how the device works or feels. Examples: installs, new behavior rules, changes that the owner can see, hear or play, flash layout changes, removed features. Safety rules do not change.
+- 2026-10-16 17:3x (owner delegated this decision to Firmware Main Builder): The pool limit is 4096 B, per the build.py rule. heap2 (3584 B) is already inside .pool. A release build must turn off the test-26 RAM canary (it writes 0xFF at 0x01C72000-0x01C74000), or keep at least 8192 B of pool free. Enforced: build.sh and the gate require 8192 B pool free (2026-10-16 21:53).
 
 ## Repositories and remotes
 
@@ -44,7 +44,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 ## Hardware and targets
 
 - M-Vave SMK-37 (Pro and Elite) with a JieLi AC79 chip. The unit of the user is an Elite.
-- Only the SMK-37 build matters. The FM-1 build is not maintained. Its XIP overflow (about 650 B) is accepted (LIM-12).
+- Only the SMK-37 build matters. The FM-1 build is not maintained. The user accepts its XIP overflow (about 650 B) (LIM-12).
 - The user knows the SMK-37 port by genkigenki. This project has its own source.
 
 ## Audio and samples
@@ -61,7 +61,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - OCT- moves the clip view down. OCT+ moves the clip view up.
 - Keep the existing pad-and-key blocking behaviour (a pad blocks the keybed white key) as it is.
 - Pad brightness stays at the previous level. Do not add pad dimming or a pad brightness floor.
-- LCD clip colours: keep the exact hue when a colour becomes brighter, with no hue drift (for example, blue must not go toward purple). The user likes the current red. The approved table is the OKLCH lift with the "strong" hue fix for 0x32 (0x325D) and 0x33 (0x3A17). The table is in apc40_lcd565.h and is made by tools/apc_pad_colors.py. It must go into the firmware after the BLE test.
+- LCD clip colours: keep the exact hue when a colour becomes brighter, with no hue drift (for example, blue must not go toward purple). The user likes the current red. The approved table is the OKLCH lift with the "strong" hue fix for 0x32 (0x325D) and 0x33 (0x3A17). tools/apc_pad_colors.py makes the table in apc40_lcd565.h. It must go into the firmware after the BLE test.
 - Loopy Pro start/stop can also start the X0X sequencer, but it must not conflict with external MIDI clock sync.
 - The usb.c APC identity reply that is not gated is not a problem. Leave it.
 - FREE PLAY: keep it and document it as it is.
@@ -73,7 +73,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - The note path in clip mode is: key, then SCALE, then CHORD, then ARP, then the CLIP KEYS channel on USB and Bluetooth MIDI.
 - GLO > MIDI has CLIP KEYS CH: channel 2 to 15, default 2. Channels 1 and 16 stay free for the APC40 emulation.
 - The new settings are new bytes at the end of the settings. Older projects load the defaults. Do not use rsv_bright.
-- The arp follows the incoming MIDI clock when a tick came in the last 0.5 s. Else it uses the internal tempo. It runs when Loopy is stopped. MIDI Start resets it. The arp sends no clock.
+- The arp follows the incoming MIDI clock when a tick came in the last 0.5 s. Else it uses the internal tempo. It also runs when Loopy does not play. MIDI Start resets it. The arp sends no clock.
 - Send only the processed notes. The default scale snap is NEAR.
 - Knob 1 is always MASTER volume. (First decision: knobs 2 to 5 set the mode that has the knobs. Branch clip-keys ce5236e now uses knobs 2-8 for CC 48-54 and the SCALE, CHORD and ARP pages for the settings: BEHAVIOR.md CLP-63, CLP-73, CLP-75.)
 - GLO opens on the LCD in clip mode. The clip grid comes back when the menu closes.
@@ -88,13 +88,13 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - Keep the Bluetooth image in one contiguous flash block.
 - Bluetooth settings are in the GLOBAL menu (BLUETOOTH MIDI section). The BT buttons stay as they are, or work only in clip mode.
 - The preferred delivery is an HTML web installer that gets the needed files automatically, with no toolchain for end users if possible.
-- 2026-10-16 00:08: Bluetooth: use the BLE-only host of JieLi (fetched from the official SDK and built locally, never bundled) with SMP bonding for auto-reconnect. Strip classic BT and audio. Sample slot 3 may shrink to about 16 KiB (0.7 s) for the host (0xAB000-0xB6FFF). Bonding keys in an X0X area, never BTIF, USRTRIM, efuse or key_mac. (a38 to a64 used this host. a65 goes back to our own app host with no bonding: BEHAVIOR.md BLE-07.)
+- 2026-10-16 00:08: Bluetooth: use the BLE-only host of JieLi (fetched from the official SDK and built locally, never bundled) with SMP bonding for auto-reconnect. Strip classic BT and audio. Sample slot 3 can shrink to about 16 KiB (0.7 s) for the host (0xAB000-0xB6FFF). Bonding keys in an X0X area, never BTIF, USRTRIM, efuse or key_mac. (a38 to a64 used this host. a65 goes back to our own app host with no bonding: BEHAVIOR.md BLE-07.)
 - 2026-10-16 18:18: The keyboard sends no connection parameter request. a65 sends none (user approved 18:18). On Oct 15 the request made the iPhone link drop (test 31) and gave a large MIDI delay (test 34). This replaces the 17:41 decision.
 
 ## Where things are
 
 - Source tree: x0x37/ (branch smk37). BLE work: flash_review repo, live branch ble-a74. Clip keys: branch clip-keys (box repo).
-- Rules: agent-rules.md. Agents and lanes: AGENTS_AND_ROOMS.md. Intended behaviour: x0x37/BEHAVIOR.md. Change log: x0x37-progress-log.md. Plan: ROADMAP.md. BLE attempt ledger: BLE_ATTEMPTS.md in the BLE branch.
+- Rules: agent-rules.md. Agents and lanes: AGENTS_AND_ROOMS.md. Intended behavior: BEHAVIOR.md on integration (x0x37/BEHAVIOR.md on smk37 is a synced copy). Change log: x0x37-progress-log.md. Plan: ROADMAP.md. BLE attempt ledger: BLE_ATTEMPTS.md in the BLE branch.
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ble_split/flash_plan.md.
 
