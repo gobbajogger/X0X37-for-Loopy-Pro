@@ -106,15 +106,20 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 
 struct bootguard_s { uint32_t magic, failed, pending; };
 extern struct bootguard_s bootguard;
-/* One 4 KiB scratch for two main-loop jobs that never run at the same time: the LZ hash table of a
- * project save (lz.c) and the read buffers of an update session (ota.c). Both run only from the
- * main loop, to completion, and neither calls the other. ota.c uses 0x000-0x7FF for its session
- * buffers and 0x800-0xA7F for the decoded host message (OTA_FRAME_MAX); a save may overwrite
- * that message, which is only read in the call that decoded it. */
-_Static_assert(0x800 + 640 <= 4096, "scratch");
+/* One 4 KiB scratch for main-loop jobs that never use the same bytes at the same time:
+ *   0x000-0xFFF  the LZ hash table of a project save (lz.c);
+ *   0x000-0x7FF  the read buffers of an update session (ota.c);
+ *   0x000-0xB6F  the PERF TEST patterns and sound (ui.c, PERF_SCRATCH);
+ *   0xC00-0xE7F  the decoded host message of ota.c (OTA_FRAME_MAX), read only in the call that decoded it.
+ * A save does not run while the PERF TEST plays its patterns (seq.playing blocks it), and the test
+ * makes its patterns after the last possible save (ui.c perf_test_tick, phase 0). An update session
+ * stops the sequencer first, and the test then stops and puts the project back. */
+_Static_assert(0xC00 + 640 <= 4096, "scratch");
 static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
 #define OTA_SCRATCH ((uint8_t *)x0x_main_scratch)
+#define OTA_DEC_OFF 0xC00u
 #define LZ_SCRATCH x0x_main_scratch
+#define PERF_SCRATCH x0x_main_scratch
 #include "ota.c"
 static uint32_t ota_now_ms(void) { return fm1_ms; }
 static void ota_idle(void) { fm1_wdt_feed(); }

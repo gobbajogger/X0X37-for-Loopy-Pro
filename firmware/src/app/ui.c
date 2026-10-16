@@ -1362,8 +1362,19 @@ static void save_project(void)
  * sound, 1 s to settle and 3 s measured each, and keeps the table; then it puts back the project's
  * patterns, sound, tempo, mutes, chain and song mode. The project itself is never written. */
 static const char *const PT_N[3] = {"FACTORY LOOP", "ALL FIVE", "WORST CASE"};
+#ifdef PERF_SCRATCH       /* the app: in the main-loop scratch (x0x.c), 2928 B of static RAM less */
+typedef struct {
+    pattern_t bench[3];
+    sound_t snd;
+} perf_data_t;
+_Static_assert(sizeof(perf_data_t) <= 0xC00, "PERF TEST data overlaps the ota.c host message");
+_Static_assert(sizeof(perf_data_t) <= sizeof PERF_SCRATCH, "PERF TEST data is larger than the scratch");
+#define perf_bench (((perf_data_t *)(void *)PERF_SCRATCH)->bench)
+#define perf_snd (((perf_data_t *)(void *)PERF_SCRATCH)->snd)
+#else
 static pattern_t perf_bench[3];
 static sound_t perf_snd;
+#endif
 
 static void perf_window(int force)
 {
@@ -1476,7 +1487,6 @@ static void perf_test_start(void)
     perf.ca = seq.chain_a;
     perf.cb = seq.chain_b;
     perf.bpm = seq.bpm;
-    perf_build();
     if (seq.playing)
         seq_stop(&seq);
     perf.test = 0;
@@ -1504,6 +1514,7 @@ static void perf_test_tick(void)
     case 0:                                           /* stopped: swap in the test's patterns and sound */
         if (seq.playing || seq.req_stop)              /* (a pending stop would cancel the start below) */
             return;
+        perf_build();                                 /* here, after the last save that can run (PERF_SCRATCH) */
         for (p = 0; p < NPARTS; p++) {
             seq.ppat[p] = 0;
             seq.pcue[p] = 0xFF;
