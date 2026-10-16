@@ -30,7 +30,14 @@ Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 loader / no restart), 6 wrong model, or another identity after the install,
 7 installed, but the slots were not written back (the backup file stays),
 8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32,
-9 refused by the gate guard (no install was started).
+9 refused by the gate guard (no install was started),
+10 refused by the foreground guard or the hardware lock (no device was opened).
+
+Start guards for a real device (rules v4: checks 3 and 14), after the gate guard:
+  Foreground (rule 7): an install refuses to start when stdin is not a TTY and STY and TMUX are empty. Run it in the
+  foreground or in a named screen session (screen -S x0x-install), never with nohup or &.
+  Hardware lock (rule 3, one hardware job at a time): an install and --info take an exclusive lock on the file
+  X0X_HW_LOCK [~/.x0x37-hardware.lock] (flock, no wait) for the whole run. If another run holds it, the tool stops.
 
 Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
 tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE --config dev|rel [--ctl FILE]. The install starts
@@ -785,6 +792,47 @@ def gate_guard(a):
     return 0 if r.returncode == 0 and r.stdout.startswith("GATE OK ") else 9
 
 
+def foreground_guard(stdin=None, env=None):
+    """rule 7: 0 if the install runs in a terminal or in a screen/tmux session, else 10 (no install)"""
+    import os
+    stdin = sys.stdin if stdin is None else stdin
+    env = os.environ if env is None else env
+    try:
+        tty = stdin.isatty()
+    except (AttributeError, ValueError):
+        tty = False
+    if tty or env.get("STY") or env.get("TMUX"):
+        return 0
+    print("REFUSED: stdin is not a terminal and STY and TMUX are empty. Run the install in the foreground or in a "
+          "named screen session (screen -S x0x-install), never with nohup or & (rule 7)", file=sys.stderr)
+    return 10
+
+
+_HW_LOCK = None
+
+
+def hardware_lock():
+    """rule 3: take the hardware lock file (no wait). 0 if taken (kept until the process ends), else 10"""
+    import fcntl
+    import os
+    global _HW_LOCK
+    path = os.environ.get("X0X_HW_LOCK") or os.path.join(os.path.expanduser("~"), ".x0x37-hardware.lock")
+    try:
+        f = open(path, "a")
+    except OSError as e:
+        print(f"REFUSED: cannot open the hardware lock {path}: {e.strerror}", file=sys.stderr)
+        return 10
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        print(f"REFUSED: another install or device run holds the hardware lock {path}. "
+              "Run one hardware job at a time (rule 3)", file=sys.stderr)
+        return 10
+    _HW_LOCK = f
+    return 0
+
+
 def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("package", nargs="?", help="Felucca package (.fwsc)")
@@ -804,6 +852,13 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
         ap.error("give a PACKAGE.fwsc or --info")
     if a.package and backend is None:       # a real device: the gate guard is the first step
         rc = gate_guard(a)
+        if rc:
+            return rc
+        rc = foreground_guard()
+        if rc:
+            return rc
+    if backend is None:                     # a real device (install or --info): one hardware job at a time
+        rc = hardware_lock()
         if rc:
             return rc
     try:

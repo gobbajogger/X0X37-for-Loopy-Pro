@@ -1,0 +1,7 @@
+# Cases for the foreground guard of tools/fm1_install.py (check 3, rule 7). One case per line:
+# name|stdin is a TTY (1/0)|STY|TMUX|want (OK or REFUSED)
+nohup or background, no screen|0|||REFUSED
+agent shell, no screen|0|||REFUSED
+named screen session|0|1234.x0x-install||OK
+tmux session|0||/tmp/tmux-501/default,123,0|OK
+foreground terminal|1|||OK
