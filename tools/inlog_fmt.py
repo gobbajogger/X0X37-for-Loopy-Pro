@@ -115,6 +115,26 @@ def parse_pads(r):
     return r[1], w[:16], w[16:]
 
 
+PADCAL_ARGS = (2, 3, 4, 5)   # CLP-79: the pad calibration export, 32 entries each
+
+
+def parse_padcal(r, arg):
+    """Reply to INLOG arg 2-5: the argument, then R, G, B of 32 entries and 4 bytes of ok bits, each
+    2 x 7 bits. Return 32 (velocity, R, G, B, ok) tuples, or None."""
+    if not r or r[0] != arg or len(r) < 1 + 2 * (96 + 4):
+        return None
+    b = [r[1 + 2 * k] | r[2 + 2 * k] << 7 for k in range(100)]
+    if max(b) > 255:
+        return None
+    return [((arg - 2) * 32 + k, b[3 * k], b[3 * k + 1], b[3 * k + 2], (b[96 + k // 8] >> (k % 8)) & 1)
+            for k in range(32)]
+
+
+def padcal_lines(entries):
+    """The export file for tools/apc_pad_colors.py --pad-override: one line for each entry."""
+    return [f"padcal {v} {r} {g} {b} {'ok' if ok else '-'}" for v, r, g, b, ok in entries]
+
+
 def rgb_of_grb(v):
     return ((v >> 8) & 0xFF) << 16 | ((v >> 16) & 0xFF) << 8 | (v & 0xFF)
 

@@ -60,5 +60,9 @@ dr = body(main, "uint8_t smk_padcal_draw(uint32_t w, uint32_t h)")
 check("APC40_LCD565[n]" in dr and "smk_padcal_is_ok(&padcal, n)" in dr and 'put_i(put_s(t, "#"), e)' in dr,
       "LCD: the target colours, the ok dots and the entry number")
 check("static smk_padcal_t padcal;" in main and "settings" not in pf + enter, "RAM only: no settings byte, no flash save")
+rp = body(main, "static void smk_inlog_reply(uint32_t arg)")
+check("if (arg - 2u < 128u / SMK_PADCAL_CHUNK)" in rp and "padcal.rgb[(arg - 2u) * SMK_PADCAL_CHUNK]" in rp
+      and "smk_inlog_w(c[i], 2u)" in rp and "smk_inlog_w(padcal.ok[(arg - 2u) * (SMK_PADCAL_CHUNK / 8u) + i], 2u)" in rp,
+      "export: INLOG args 2-5 give 32 entries each (tests/smk_padcal_export_test.py decodes them)")
 print("smk_padcal_wiring_test: " + ("ok" if not fails else f"{fails} FAIL"))
 sys.exit(1 if fails else 0)

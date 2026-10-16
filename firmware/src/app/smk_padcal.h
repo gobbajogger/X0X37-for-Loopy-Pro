@@ -90,7 +90,7 @@ static inline void smk_padcal_mark(smk_padcal_t *c)
     uint8_t e = smk_padcal_entry(c->page, c->sel);
     c->ok[e >> 3] ^= (uint8_t)(1u << (e & 7u));
 }
-/* The export word of an entry: R | G << 8 | B << 16 | ok << 24 (4 x 7 bits in the reply). */
+/* One entry as a word: R | G << 8 | B << 16 | ok << 24 (the LCD redraw key; tests/smk_padcal_test.c prints it). */
 static inline uint32_t smk_padcal_word(const smk_padcal_t *c, uint8_t e)
 {
     return (uint32_t)c->rgb[e][0] | (uint32_t)c->rgb[e][1] << 8 | (uint32_t)c->rgb[e][2] << 16 |
