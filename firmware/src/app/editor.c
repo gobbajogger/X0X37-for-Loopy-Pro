@@ -10,7 +10,12 @@
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
-       ED_DIAG = 33, ED_BT_TEST = 34 };
+       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37 };
+/* ED_CTL_READ (SMK-37 with Bluetooth, for tools/fm1_install.py; read only): the Bluetooth block
+ * (x0x_ble_abi.h XB_FLASH_OFF, XB_FLASH_SIZE = fm1_flash_map.h FL_BLE_LO..FL_BLE_HI). Offset (3 x 7 bits,
+ * from the block start), count (pairs, 7 bits) -> offset, the bytes packed 7 to 8 (as ED_SMP_READ).
+ * An offset outside the block gets no reply; the count stops at the block end. 36 (ABI 3 CTL2_READ,
+ * piece 2) is not used, so an ABI 3 tool gets no reply. */
 /* ED_BT_TEST (SMK-37 with Bluetooth, for tools/ble_autotest.py): op 0 = query, 1 = clear the start
  * block (as BLUETOOTH OFF), 2 = restart the unit (a chip reset, as fm1_reboot; never the update
  * loader). Reply: op, BLUETOOTH setting, guard blocked, plat_ble_state(). */
@@ -57,6 +62,19 @@ static uint32_t ed_unpack7(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t
             out[n++] = (uint8_t)(*a++ | ((m >> j) & 1u) << 7);
     }
     return n;
+}
+/* n bytes packed 7 to 8: a byte of high bits, then up to 7 low 7-bit bytes (ED_SMP_READ, ED_CTL_READ) */
+static void ed_put7(const uint8_t *src, uint32_t n)
+{
+    uint32_t k, j;
+    for (k = 0; k < n; k += 7) {
+        uint32_t m = 0;
+        for (j = 0; j < 7u && k + j < n; j++)
+            m |= (uint32_t)(src[k + j] >> 7) << j;
+        ed_b(m);
+        for (j = 0; j < 7u && k + j < n; j++)
+            ed_b(src[k + j]);
+    }
 }
 static uint8_t ed_smp_buf[512] __attribute__((aligned(4)));
 static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_OFF(k); }
@@ -249,7 +267,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     case ED_SMP_READ: {                              /* X0X: slot, offset (3 x 7 bits, from the slot's start,
                                                       * its header included), count -> slot, offset, the bytes
                                                       * packed 7 to 8 (as WRITE takes them) */
-        uint32_t off, n, k, j;
+        uint32_t off, n;
         const uint8_t *src;
         if (na < 5u || a[0] >= SMP_USER_SLOTS)
             return;
@@ -264,14 +282,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(off);
         ed_b(off >> 7);
         ed_b(off >> 14);
-        for (k = 0; k < n; k += 7) {
-            uint32_t m = 0;
-            for (j = 0; j < 7u && k + j < n; j++)
-                m |= (uint32_t)(src[k + j] >> 7) << j;
-            ed_b(m);
-            for (j = 0; j < 7u && k + j < n; j++)
-                ed_b(src[k + j]);
-        }
+        ed_put7(src, n);
         break;
     }
     case ED_SMP_INFO: {                              /* count, size (KiB, 7 bits: the SMALLEST slot, so an older
@@ -345,6 +356,26 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(proj.set.bt & 1u);
         ed_b(ble_guard.blocked & 1u);
         ed_b((uint32_t)plat_ble_state());
+        break;
+    }
+    case ED_CTL_READ: {
+        uint32_t off, n;
+        const uint8_t *src;
+        _Static_assert(XB_FLASH_OFF == FL_BLE_LO && XB_FLASH_SIZE == FL_BLE_HI - FL_BLE_LO,
+                       "ED_CTL_READ: the Bluetooth block is FL_BLE");
+        if (na < 4u)
+            return;
+        off = (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+        n = a[3] > ED_READ_MAX / 2u ? ED_READ_MAX : a[3] * 2u;
+        if (off >= XB_FLASH_SIZE)
+            return;
+        if (n > XB_FLASH_SIZE - off)
+            n = XB_FLASH_SIZE - off;
+        src = fm1_xip_ptr(XB_FLASH_OFF) + off;     /* the app area: reads decrypted, as core 1 runs it */
+        ed_b(off);
+        ed_b(off >> 7);
+        ed_b(off >> 14);
+        ed_put7(src, n);
         break;
     }
 #endif
