@@ -34,7 +34,7 @@ The X0X manual still applies; the SMK-37's controls map onto the FM-1's like thi
 | ARP / SEQ | ARP / SEQ |
 | SEQ PLAY / SEQ REC | PLAY / REC |
 | OCTAVE- / OCTAVE+ | OCT- / OCT+ |
-| < / > | one step of SELECT back / forward (the page, a list's row); not while HOME is held |
+| < / > | no menu open: one step of SELECT back / forward for each press (the page); no repeat. A menu list open (GLO, or a page's list from SEL; also in clip mode): the value of the selected row one step down / up, as ALGORITHM. Hold to repeat (first repeat after 400 ms, then each 80 ms). The value stops at its ends. Action rows do not run. Not while HOME is held |
 | FADER BANK | switches the faders between bank A and bank B (lit on B) |
 | Faders 1..4, bank A | levels of the 909, the 808, 303 A, 303 B |
 | Faders 1..4, bank B | BREAK level, reverb return, delay return, master FILTER (middle off, left low-pass, right high-pass) |
