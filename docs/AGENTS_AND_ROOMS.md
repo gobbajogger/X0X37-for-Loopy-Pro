@@ -166,7 +166,7 @@ More facts (checked 2026-10-16 01:32):
 - Files that both branches can change: firmware/src/app/main_fm1.c, firmware/src/app/plat_fm1.c (plat_midi_out), BEHAVIOR.md item BLE-09.
 - New on clip-keys: firmware/src/app/smk_clip_keys.h, tests/smk_clip_keys_test.c.
 - Other files to keep: agent-rules.md (the 27 agent rules), x0x37/BEHAVIOR.md, flash_review/BLE_ATTEMPTS.md (live ledger, one row for each Bluetooth attempt), slot_backups/ (do not delete).
-- A second copy of this setup is at x0x37/docs/AGENTS_AND_ROOMS.md. This root file is the main copy. The second copy has a REPLACED mark (2026-10-16).
+- This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy of this file, committed on smk37. Update both together.
 
 ## How to recreate
 1. Create the nine agents above with the exact names and the purposes listed.
@@ -191,3 +191,4 @@ More facts (checked 2026-10-16 01:32):
 - 2026-10-16 17:40, doc audit for Docs Keeper: Firmware Main Builder worktrees are now flash_review (ble-a51) and wt-a55 (ble-a55). Newest BLE branch ble-a56 (d9844a4). Added the integration merges and the new branches. fix-bass303 owner TO CONFIRM. Rule count 25 changed to 27. The old copy x0x37/docs/AGENTS_AND_ROOMS.md has a REPLACED mark. Nothing was removed.
 - 2026-10-16 17:45, doc audit for Docs Keeper: new agent IDs for all nine agents. All room IDs are TO CONFIRM, because the owner recreates the rooms. The live BLE lane is ble-a56 (d9844a4, a63), not ble-stage3. Added the note that the caveman skill is missing, so room posts use short simple English. Added the integration reset (17:37 and 17:38). Test Plan Writer was already in the file. Nothing was removed.
 - 2026-10-16 17:50, doc audit for Docs Keeper: Merge Integrator did the integration reset at 17:37 and 17:38 on the order of Orchestrator. It rebuilt integration from ble-a56, because 02ae8b8 was stale. fix-bass303 owner stays TO CONFIRM.
+- 2026-10-16 17:41, doc audit for Docs Keeper: x0x37/docs/AGENTS_AND_ROOMS.md is now an exact copy of this file, committed on smk37. It has no REPLACED mark. Update both together.
