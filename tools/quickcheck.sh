@@ -15,8 +15,15 @@
 #   X0X_INTEGRATION [integration]  JIELI_TOOLCHAIN [~/.jieli/toolchain]  AC79_SDK [~/fw-AC79_AIoT_SDK]
 #   X0X_REFS [/workspace/x0x37-refs/schwung]  X0X_PREPUSH_HOOK [/workspace/x0x37.git/hooks/pre-push]
 # The quick check is a dev run: it never takes the gate lock (/workspace/x0x37-refs/gate.lock). Only the gate does.
+# STE step (tools/ste_check.py, the copy beside this script): it examines the changed *.md files and the
+# message (subject and body) of each commit in BASE..<commit>. Counted categories: long_proc, long_desc,
+# semicolon, modal, passive, contraction, no_verb. The default is warn only: "STE WARN <n> issues" and the
+# first lines come before the QUICK line, and the exit code does not change. Strict mode: the file
+# tools/ste_strict in the tree, or X0X_STE_STRICT=1. In strict mode, an issue makes "QUICK FAIL ... STE: ...".
+# X0X_QUICK_ONLY=ste: only the STE step (no build, no tests).
 set -u
 T0=$(date +%s%N)
+QCDIR=$(cd "$(dirname "$0")" && pwd)
 REPO=${X0X_REPO:-/workspace/x0x37.git}
 QW=${X0X_QC_WORK:-$HOME/.cache/x0x37-quickcheck}
 INT=${X0X_INTEGRATION:-integration}
@@ -61,6 +68,45 @@ cd "$W" || out FAIL "no worktree"
 export JIELI_TOOLCHAIN="$TC" AC79_SDK="$SDK" HOME="$L/home" TMPDIR="$L/tmp"
 export NINEW9_DIR="$REFS/schwung-9W9" EIGHTW8_DIR="$REFS/schwung-8W8" SCHWUNG303="$REFS/schwung-303"
 export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c" X0X_TEST_JOBS=8 X0X_TEST_TIME_SCALE=20
+
+# STE step (see the header). It sets STE_FAIL (1 = strict and issues) and STE_NOTE.
+ste_step() {
+    STE_FAIL=0; STE_NOTE=""
+    local d n strict=0 st="$QCDIR/ste_check.py" c f md=""
+    [ -f "$st" ] || { echo "STE: no $st, STE step skipped" >> "$LOG"; return 0; }
+    { [ -f "$W/tools/ste_strict" ] || [ "${X0X_STE_STRICT:-0}" = 1 ]; } && strict=1
+    d=$(mktemp -d "${TMPDIR:-/tmp}/qcste.XXXXXX") || return 0
+    for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" 2>/dev/null); do
+        { echo "${c:0:7}"; "${G[@]}" log -1 --format=%B "$c"; echo "@@END@@"; } > "$d/commit-${c:0:7}"
+    done
+    for f in $CHANGED; do case "$f" in *.md) [ -f "$W/$f" ] && md="$md $W/$f" ;; esac; done
+    n=$(ls "$d" | wc -l)
+    if [ "$n" -gt 0 ] || [ -n "$md" ]; then
+        STE_OUT=$(cd "$d" && python3 "$st" --json --examples 50 $(ls "$d") $md 2>&1 | QC_W="$W/" python3 -c '
+import json, os, sys
+K = ["long_proc", "long_desc", "semicolon", "modal", "passive", "contraction", "no_verb"]
+try: rs = json.load(sys.stdin)
+except Exception as e: print("0 ste_check.py output not read: %s" % e); sys.exit()
+n = sum(r["counts"][k] for r in rs for k in K); lines = []
+for r in rs:
+    name = r["file"].replace(os.environ["QC_W"], "").replace("commit-", "commit ")
+    for e in r["worst"]:
+        ks = [k for k in e["rules"] if k in K]
+        if ks: lines.append("STE  %s: [%s] %s" % (name, ",".join(ks), e["text"][:140]))
+print(n); print("\n".join(lines[:5]))')
+        n=$(echo "$STE_OUT" | head -1)
+        echo "STE ($([ $strict = 1 ] && echo strict || echo warn)): $n issues" >> "$LOG"; echo "$STE_OUT" | tail -n +2 >> "$LOG"
+        if [ "${n:-0}" -gt 0 ] 2>/dev/null; then
+            echo "STE WARN $n issues"; echo "$STE_OUT" | tail -n +2
+            STE_NOTE="; STE WARN $n issues"
+            [ $strict = 1 ] && STE_FAIL=1
+        fi
+    fi
+    rm -rf "$d"
+}
+if [ "${X0X_QUICK_ONLY:-}" = ste ]; then
+    ste_step; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"; out PASS "(STE step only${STE_NOTE})"
+fi
 
 # 1. the Elite build (incremental), with its build checks
 if ! MODEL=elite ./build.sh --board smk37 > "$L/build-elite.log" 2>&1 9>&-; then
@@ -126,6 +172,6 @@ X0X_TESTS="$SEL" sh "$RT" > "$L/tests.log" 2>&1 9>&-; TRC=$?
 cat "$L/tests.log" >> "$LOG"
 NF=$(grep -c '^  FAIL' "$L/tests.log"); NOK=$(grep -c '^  ok ' "$L/tests.log")
 MISS=""; for n in $SEL; do grep -qE "^  (ok|FAIL) +$n( |\$)" "$L/tests.log" || MISS="$MISS $n"; done
-WT=""
+WT=""; ste_step; WT="$STE_NOTE"; [ "$STE_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
 [ "$NF" = 0 ] && [ "$TRC" = 0 ] || out FAIL "tests: $NF failed ($(grep '^  FAIL' "$L/tests.log" | awk '{print $2}' | tr '\n' ' ' | sed 's/ $//'))$WT"
 out PASS "($NOK tests ok${MISS:+; not run:$MISS}$WT)"
