@@ -5,6 +5,7 @@
 # must print "GATE OK" with exit code 0. A real result (9a733fe, tree 1d3c048d...) is also checked
 # when /workspace/x0x37.git and /workspace/x0x37-results are on this computer.
 set -u
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 unset X0X_GATE_LOGS_MAP X0X_SYNC_DIR
 G="$(cd "$(dirname "$0")/../.." && pwd)/tools/require_gate_pass.sh"
 T=$(mktemp -d "${TMPDIR:-/tmp}/igg.XXXXXX"); trap 'rm -rf "$T"' EXIT

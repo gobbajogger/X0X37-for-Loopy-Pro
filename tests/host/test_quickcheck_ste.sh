@@ -5,6 +5,7 @@
 #   warn mode -> "QUICK PASS" and "STE WARN" lines. Strict mode (X0X_STE_STRICT=1, or the file tools/ste_strict
 #   in the tree) -> "QUICK FAIL ... STE: ...". A clean commit -> no STE line.
 set -u
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 unset X0X_STE_STRICT X0X_QC_BASE
 Q="$(cd "$(dirname "$0")/../.." && pwd)/tools/quickcheck.sh"
 T=$(mktemp -d "${TMPDIR:-/tmp}/qcste.XXXXXX"); trap 'rm -rf "$T"' EXIT

@@ -22,6 +22,7 @@
 #     The gate sets X0X_GATE_HOLDS_LOCK=1 (it holds the exclusive lock), and then the tests take no lock.
 # Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
 set -u
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 [ $# -gt 0 ] && X0X_TESTS="$*"
 X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
