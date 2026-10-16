@@ -406,6 +406,9 @@ def main():
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
+    # regression guard: hardware-relevant settings must match tools/locked_settings.json
+    if subprocess.run([sys.executable, str(SRC / "tools" / "check_locked_settings.py")]).returncode:
+        raise SystemExit("build.py: locked settings differ (see above); the build stops")
     BOARD = (a.board or os.environ.get("BOARD") or "fm1").lower().replace("-", "")
     if BOARD not in BOARD_PREFIX:
         raise SystemExit(f"BOARD={BOARD}: use fm1 or smk37")

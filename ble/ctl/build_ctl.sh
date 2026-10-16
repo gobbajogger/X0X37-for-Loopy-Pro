@@ -17,6 +17,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$HERE/../.." && pwd)
 TC=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain}
 [ -x "$TC/pi32v2/bin/clang" ] || { echo "No JieLi toolchain at $TC (tools/get_toolchain.sh)." >&2; exit 1; }
+python3 "$REPO/tools/check_locked_settings.py"   # regression guard (tools/locked_settings.json)
 sh "$HERE/fetch_sdk.sh"
 python3 "$HERE/gen_rf_tables.py"
 rm -f "$HERE/out/ctl.elf" "$HERE/out/ctl.img"
