@@ -30,6 +30,7 @@ static void cv_band(int32_t a, int32_t b) { (void)a; (void)b; }
 static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) { (void)x; (void)y; (void)w; (void)h; (void)c; }
 #include "padled.inc"
 #include "app/smk_apc40.h"
+#include "app/apc40_lcd565.h"     /* smk_clip_lcd_draw reads APC40_LCD565 (CLP-05) */
 #include "apc_a.inc"
 static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void) {}
