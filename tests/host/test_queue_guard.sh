@@ -5,6 +5,8 @@
 # A temp repository: A, then B on A (the install commit, with a valid gate PASS), and C on A (not in B).
 #   no QUEUE.md -> GATE OK (an install of a gated commit under the old rules still runs)
 #   open A, open B, done C -> GATE OK.   open C -> REFUSED.   open unknown commit -> REFUSED.   open, no commit -> REFUSED.
+#   fixtures/queue_guard/no-commit.txt (the form of the live QUEUE.md: open lines "- [ ] pending ..." with no commit)
+#     -> REFUSED, exit 3 (Orchestrator 03:01: lock in this behaviour).
 #   tools/sync_results_to_mac.sh copies QUEUE.md to the Mac copy, and the guard on the copy refuses open C.
 set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE
@@ -45,6 +47,8 @@ queue "- [ ] 0123456789abcdef0123 a commit that is not in the repository"
 expect REFUSED "open line with an unknown commit"
 queue "- [ ] a change with no commit"
 expect REFUSED "open line with no commit"
+cp "$(dirname "$G")/../tests/host/fixtures/queue_guard/no-commit.txt" "$T/res/QUEUE.md"
+expect REFUSED "fixture no-commit.txt: open lines with no commit (exit 3)"
 # the Mac copy: --pack takes QUEUE.md, --unpack writes it, the guard reads it there
 queue "- [ ] $C a change that is not in the install commit"; n=$((n + 1))
 if X0X_RESULTS_DIR="$T/res" X0X_SYNC_DIR="$T/sync" bash "$SY" --pack >/dev/null 2>&1 && \
