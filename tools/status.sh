@@ -7,6 +7,13 @@
 # Environment for a test (defaults = the live paths): X0X_REPO, X0X_STATUS_OUTDIR, X0X_STATUS_TMP, X0X_RESULTS_DIR, X0X_GATE_LOCK.
 # Agent output (check 12 of rules v4): the commits on the lane branches lane/<agent>-* of each agent count
 # (mb Firmware Main Builder, sb Second Builder, opt Optimizer, btr Build and Test Runner, dk Docs Keeper).
+# Check 27: the summary has the result of the docs lint (prefs_lint.py --git REPO smk37, X0X_PREFS_LINT
+#   [/workspace/x0x37-refs/gate/prefs_lint.py]). "PREFS FAIL" is the flag RULE POINTERS.
+# Check 29: ROADMAP INSTALLED MISMATCH: the installed hash of smk37:docs/ROADMAP.md (the first "Installed = batch N (<hash>)"
+#   or "The keyboard runs [integration] <hash>") is not the hash of the last row of INSTALLED.tsv.
+#   BEHAVIOR ITEM MISSING: an integration commit after the last install (INSTALLED.tsv) names an ID (for example CLP-99)
+#   with the prefix of a BEHAVIOR.md item, and integration:BEHAVIOR.md has no item line "<ID>. ..." for it.
+#   X0X_DOCS_BRANCH [smk37].
 set -u
 export TZ=Asia/Vladivostok LC_ALL=C
 REPO=${X0X_REPO:-/workspace/x0x37.git}
@@ -19,6 +26,7 @@ GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 LIVE_H=24          # live = tip commit time in the last 24 h
 STALL_MIN=45       # stall = queued work and no output for more than 45 min
 G() { git --git-dir="$REPO" "$@"; }
+SELFD=$(cd "$(dirname "$0")" && pwd)   # the folder of this script (ste_check.py is beside it)
 T0=$(date +%s.%N); NOW=$(date +%s)
 mkdir -p "$TMPD"
 TMP=$(mktemp "$TMPD/status.md.XXXXXX"); TMPL=$(mktemp "$TMPD/LIVE_BRANCHES.XXXXXX")
@@ -214,7 +222,7 @@ if [ -f "$(dirname "$0")/ste_check.py" ]; then
     { echo "${c:0:7}"; G log -1 --format=%B "$c"; echo "@@END@@"; } > "$SD/${c:0:7}"
   done
   if [ -n "$(ls "$SD")" ]; then
-    STELINE=$(cd "$SD" && timeout 10 python3 "$(cd "$(dirname "$0")" && pwd)/ste_check.py" --json --examples 20 $(ls) 2>/dev/null | GD=/workspace/x0x37.git python3 -c '
+    STELINE=$(cd "$SD" && timeout 10 python3 "$SELFD/ste_check.py" --json --examples 20 $(ls) 2>/dev/null | GD="$REPO" python3 -c '
 import json, subprocess, sys, os
 K = ["long_proc", "long_desc", "semicolon", "modal", "passive", "contraction", "no_verb"]
 try: rs = json.load(sys.stdin)
@@ -287,6 +295,28 @@ else
 fi
 
 # ================= write =================
+# ---------- check 27: docs lint; check 29: ROADMAP installed hash, BEHAVIOR items since the last install ----------
+DOCB=${X0X_DOCS_BRANCH:-smk37}
+PLINT=${X0X_PREFS_LINT:-/workspace/x0x37-refs/gate/prefs_lint.py}
+if [ -f "$PLINT" ]; then PL=$(python3 "$PLINT" --git "$REPO" "$DOCB" 2>&1 | head -1)
+  case "$PL" in "PREFS OK"*) L27="- Rule pointers (check 27): $PL.";; *) L27="- **RULE POINTERS** (check 27): ${PL:-no output} (run $PLINT --git $REPO $DOCB for the list).";; esac
+else L27="- Rule pointers (check 27): not checked (no $PLINT)."; fi
+INSTLAST=""; [ -f "$RESULTS/INSTALLED.tsv" ] && INSTLAST=$(awk -F '\t' 'NR > 1 && $2 ~ /^[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/ {h = $2} END {print h}' "$RESULTS/INSTALLED.tsv")
+RMH=$(G show "$DOCB:docs/ROADMAP.md" 2>/dev/null | grep -oiE 'installed = batch [0-9]+ \([0-9a-f]{7,40}\)|the keyboard runs (integration )?[0-9a-f]{7,40}' | head -1 | grep -oE '[0-9a-f]{7,40}' | tail -1)
+if [ -z "$INSTLAST" ]; then L29A="- ROADMAP installed (check 29): not checked (no hash row in $RESULTS/INSTALLED.tsv)."
+elif [ -z "$RMH" ]; then L29A="- **ROADMAP INSTALLED MISMATCH** (check 29): ROADMAP.md on $DOCB names no installed hash, the last INSTALLED.tsv row is ${INSTLAST:0:7}."
+elif [ "${INSTLAST#"$RMH"}" = "$INSTLAST" ]; then L29A="- **ROADMAP INSTALLED MISMATCH** (check 29): ROADMAP.md on $DOCB names $RMH, the last INSTALLED.tsv row is ${INSTLAST:0:7}."
+else L29A="- ROADMAP installed (check 29): ${INSTLAST:0:7} = the last INSTALLED.tsv row."; fi
+L29B="- BEHAVIOR items since the last install (check 29): not checked (no install hash in the repository)."
+if [ -n "$INSTLAST" ] && G cat-file -e "$INSTLAST^{commit}" 2>/dev/null; then
+  BDEF=$(G show "$INT:BEHAVIOR.md" 2>/dev/null | grep -oE '^(- )?[A-Z]{2,4}-[0-9]+[a-z]?\.' | sed 's/^- //; s/\.$//' | sort -u)
+  BPRE=$(echo "$BDEF" | cut -d- -f1 | sort -u)
+  BNAMED=$(G log --format='%s%n%b' "$INSTLAST..$INT" 2>/dev/null | grep -oE '\b[A-Z]{2,4}-[0-9]+[a-z]?\b' | sort -u | while read -r id; do echo "$BPRE" | grep -qx "${id%%-*}" && echo "$id"; done)
+  BMISS=$(for id in $BNAMED; do echo "$BDEF" | grep -qx "$id" || echo "$id"; done | paste -sd, - | sed 's/,/, /g')
+  NN=$(echo "$BNAMED" | grep -c .)
+  if [ -n "$BMISS" ]; then L29B="- **BEHAVIOR ITEM MISSING** (check 29): $BMISS (named by integration commits after the install ${INSTLAST:0:7}, no item in $INT:BEHAVIOR.md)."
+  else L29B="- BEHAVIOR items since the last install (check 29): $NN named, all in BEHAVIOR.md."; fi
+fi
 {
 echo "# x0x37 status"
 echo
@@ -308,6 +338,9 @@ if [ "$NGRN" -gt 0 ]; then echo "- **NO GATE ROW** ($NGRN): ${NGR%, }. Historica
 if [ -n "$BNOTE" ]; then echo "- BEHAVIOR diff: $BNOTE."
 elif [ -n "$BDIFF" ]; then echo "- **BEHAVIOR DIFF:** $BSRC and $INT:BEHAVIOR.md differ in $BREAL text lines (header and sync note ignored). See below."
 else echo "- BEHAVIOR diff: none. $BSRC = $INT:BEHAVIOR.md in text (header and sync note ignored; raw diff $BRAW lines)."; fi
+echo "$L27"
+echo "$L29A"
+echo "$L29B"
 STALLS=""
 echo
 echo "## Live branches (tip commit in the last ${LIVE_H} h)"

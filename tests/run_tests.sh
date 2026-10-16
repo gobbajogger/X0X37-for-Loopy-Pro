@@ -152,6 +152,7 @@ run prepush-trim sh tests/host/test_prepush_trim.sh   # tools/prepush-check.sh: 
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
 run status-lanes bash tests/host/test_status_lanes.sh   # tools/status.sh (check 12): lane/<agent>-* commits count as agent output
+run status-checks bash tests/host/test_status_checks.sh   # tools/status.sh (checks 27, 29): docs lint flag, ROADMAP installed hash, BEHAVIOR items since the last install
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)
