@@ -4,7 +4,13 @@
 # result files, file times and /proc. It writes only status.md and LIVE_BRANCHES (temp file + mv).
 # Made by Build and Test Runner for Orchestrator (audit item 4), 2026-10-16. Run time target: < 20 s.
 # Source: tools/status.sh in the box repository. Live copy: /workspace/x0x37-orchestrator/status.sh (copy it when it does not run).
-# Environment for a test (defaults = the live paths): X0X_REPO, X0X_STATUS_OUTDIR, X0X_STATUS_TMP, X0X_RESULTS_DIR, X0X_GATE_LOCK.
+# Environment for a test (defaults = the live paths): X0X_REPO, X0X_STATUS_OUT, X0X_STATUS_TMP, X0X_RESULTS_DIR, X0X_GATE_LOCK.
+# Output folder (check 30 of rules v4): "status.sh --out DIR" or X0X_STATUS_OUT=DIR (old name X0X_STATUS_OUTDIR).
+#   The default is the live folder /workspace/x0x37-orchestrator (for cron). With an output folder that is not the live
+#   folder, the temp files go to DIR/.status-tmp (X0X_STATUS_TMP sets another folder). All files that this script writes
+#   are in the output folder or in the temp folder.
+#   X0X_TEST_RUN not empty (tests/run_tests.sh sets it): the script refuses (exit 4) to write the live folder.
+#   X0X_STATUS_LIVEDIR sets the path of the live folder for this guard (only for its test).
 # Agent output (check 12 of rules v4): the commits on the lane branches lane/<agent>-* of each agent count
 # (mb Firmware Main Builder, sb Second Builder, opt Optimizer, btr Build and Test Runner, dk Docs Keeper).
 # Check 27: the summary has the result of the docs lint (prefs_lint.py --git REPO smk37, X0X_PREFS_LINT
@@ -17,10 +23,28 @@
 set -u
 export TZ=Asia/Vladivostok LC_ALL=C
 REPO=${X0X_REPO:-/workspace/x0x37.git}
-OUTDIR=${X0X_STATUS_OUTDIR:-/workspace/x0x37-orchestrator}
+LIVEDIR=${X0X_STATUS_LIVEDIR:-/workspace/x0x37-orchestrator}
+OUTDIR=${X0X_STATUS_OUT:-${X0X_STATUS_OUTDIR:-}}
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --out) [ -n "${2:-}" ] || { echo "status.sh: --out needs a folder" >&2; exit 2; }; OUTDIR=$2; shift 2;;
+    --out=*) OUTDIR=${1#--out=}; shift;;
+    *) echo "status.sh: unknown argument: $1 (use: status.sh [--out DIR])" >&2; exit 2;;
+  esac
+done
+OUTDIR=${OUTDIR:-$LIVEDIR}
+rp() { realpath -m -- "$1" 2>/dev/null || echo "$1"; }
+if [ -n "${X0X_TEST_RUN:-}" ] && [ "$(rp "$OUTDIR")" = "$(rp "$LIVEDIR")" ]; then
+  echo "status.sh: REFUSED: a test run (X0X_TEST_RUN) must not write the live folder $LIVEDIR. Use --out DIR or X0X_STATUS_OUT." >&2
+  exit 4
+fi
 OUT=$OUTDIR/status.md
 LIVEF=$OUTDIR/LIVE_BRANCHES
-TMPD=${X0X_STATUS_TMP:-/workspace/x0x37-build-and-test-runner/.status-tmp}   # same file system as OUTDIR: mv is atomic
+if [ "$(rp "$OUTDIR")" = "$(rp "$LIVEDIR")" ]; then
+  TMPD=${X0X_STATUS_TMP:-/workspace/x0x37-build-and-test-runner/.status-tmp}   # same file system as OUTDIR: mv is atomic
+else
+  TMPD=${X0X_STATUS_TMP:-$OUTDIR/.status-tmp}
+fi
 RESULTS=${X0X_RESULTS_DIR:-/workspace/x0x37-results}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 LIVE_H=24          # live = tip commit time in the last 24 h
@@ -28,7 +52,7 @@ STALL_MIN=45       # stall = queued work and no output for more than 45 min
 G() { git --git-dir="$REPO" "$@"; }
 SELFD=$(cd "$(dirname "$0")" && pwd)   # the folder of this script (ste_check.py is beside it)
 T0=$(date +%s.%N); NOW=$(date +%s)
-mkdir -p "$TMPD"
+mkdir -p "$OUTDIR" "$TMPD"
 TMP=$(mktemp "$TMPD/status.md.XXXXXX"); TMPL=$(mktemp "$TMPD/LIVE_BRANCHES.XXXXXX")
 trap 'rm -f "$TMP" "$TMPL"' EXIT
 fmt() { [ -n "${1:-}" ] && [ "$1" != 0 ] && date -d "@$1" '+%m-%d %H:%M' || echo "-"; }
