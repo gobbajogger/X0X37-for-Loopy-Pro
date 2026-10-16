@@ -340,6 +340,7 @@ static void test_ext_clock_and_midi_out(void)
 
 /* ---- MIDI clock as Bluetooth MIDI gives it: the ticks of one connection event come in one block */
 static double ble_tick, ble_ev;                               /* the next tick and the next connection event */
+static int ble_n;                                             /* the ticks given */
 static void ble_clock(double bpm, double ev_ms, double secs)
 {
     double tick = 44100.0 * 60.0 / bpm / 24.0, ev = 44100.0 * ev_ms / 1000.0, end = now + secs * 44100.0;
@@ -347,6 +348,7 @@ static void ble_clock(double bpm, double ev_ms, double secs)
         while (ble_ev <= now) {                               /* the events since the last block */
             while (ble_tick <= ble_ev) {
                 seq_ext_clock(&S);
+                ble_n++;
                 ble_tick += tick;
             }
             ble_ev += ev;
@@ -448,6 +450,55 @@ static void test_ext_transport_ble(void)
     printf("  Start, Stop, Continue with the clock in Bluetooth bursts: checked\n");
 }
 
+/* a73: one block with the ticks of two or more step boundaries (a long connection event, or a stall).
+ * Each boundary plays its step: the 909 plays a step on each step, so the steps it plays = the clock's steps. */
+static int burst_steps(int rate, double bpm, double ev_ms, double phase, double stall_ms, int *want)
+{
+    int i, n, tps = rate == RATE_32 ? 3 : 6;
+    reset();
+    P[0].drum[0].hit[0][0] = 0xFFFFFFFFu;
+    P[0].drum[0].hit[0][1] = 0xFFFFFFFFu;
+    P[0].drum[0].rate = (uint8_t)rate;
+    ble_clock_start(bpm, ev_ms, phase);
+    ble_clock(bpm, ev_ms, 1.0);                               /* the clock runs, X0X stopped */
+    seq_start(&S);
+    nev = 0;
+    ble_n = 0;
+    ble_clock(bpm, ev_ms, 2.0);
+    if (stall_ms > 0.0) {                                     /* no connection event, then all its ticks in one */
+        ble_ev += 44100.0 * stall_ms / 1000.0;
+        ble_clock(bpm, ev_ms, 2.0);
+    }
+    run(4410);                                                /* (the last block's steps) */
+    for (i = 0, n = 0; (i = find(E_DRUM, 0, i)) >= 0; i++)
+        n++;
+    *want = (ble_n + tps - 1) / tps;
+    return n;
+}
+static void test_ext_burst_steps(void)
+{
+    static const double BPM[] = {120.0, 180.0, 240.0, 280.0}, EV[] = {7.5, 15.0, 30.0, 45.0};
+    unsigned b, e, ph;
+    int r, n, want;
+    for (r = 0; r < 2; r++)
+        for (b = 0; b < sizeof BPM / sizeof BPM[0]; b++)
+            for (e = 0; e < sizeof EV / sizeof EV[0]; e++)
+                for (ph = 0; ph < 3; ph++) {
+                    n = burst_steps(r ? RATE_32 : RATE_16, BPM[b], EV[e], 0.1 + 0.3 * ph, 0.0, &want);
+                    CHECK(n == want, "%s %.0f BPM, %.1f ms events (phase %u): %d steps, the clock's %d",
+                          r ? "1/32" : "1/16", BPM[b], EV[e], ph, n, want);
+                }
+    for (r = 0; r < 2; r++)                                   /* a 400 ms stall at 120 BPM (and 220-460 ms) */
+        for (e = 0; e < 4; e++)
+            for (ph = 0; ph < 3; ph++) {
+                double st = e == 0 ? 400.0 : 100.0 + 120.0 * e;
+                n = burst_steps(r ? RATE_32 : RATE_16, 120.0, 7.5, 0.1 + 0.3 * ph, st, &want);
+                CHECK(n == want, "%s 120 BPM, 7.5 ms events, a %.0f ms stall (phase %u): %d steps, the clock's %d",
+                      r ? "1/32" : "1/16", st, ph, n, want);
+            }
+    printf("  external clock, two or more step boundaries in one block: no step lost\n");
+}
+
 static void test_break_clock(void)
 {
     int i, k;
@@ -533,6 +584,7 @@ int main(void)
     test_ext_clock_and_midi_out();
     test_ext_tempo_ble();
     test_ext_transport_ble();
+    test_ext_burst_steps();
     test_break_clock();
 #ifdef REF_TB3PO
     test_tb3po_matches_reference();
