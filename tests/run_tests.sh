@@ -5,9 +5,10 @@
 # (tests/scenarios/*.x0x: UI, patterns, persistence, MIDI clock), with screenshots and
 # audio in build/scenarios/. Needs the reference sources (see tests/host/run_*.sh).
 #   tests/run_tests.sh
-#   X0X_TEST_JOBS=8 tests/run_tests.sh    opt-in: host-only tests run 8 at a time (default 1: serial).
-#     See test_class below. Install, update, package, BLE and mocked-device tests always run serially,
-#     one at a time. Each parallel test gets its own HOME and TMPDIR (build/host/iso/<test>/).
+#   X0X_TEST_JOBS=1 tests/run_tests.sh    serial: one test at a time, in order.
+#   The default is X0X_TEST_JOBS=8: host-only tests run 8 at a time. See test_class below.
+#     Install, update, package, BLE and mocked-device tests always run serially, one at a time, after
+#     the parallel tests end. Each parallel test gets its own HOME and TMPDIR (build/host/iso/<test>/).
 #     The scenarios run serially after them. The result lines come in the serial order, after all tests end.
 #     build/host/.results/*.time gives the time of each test.
 # Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
@@ -17,17 +18,20 @@ CC="${CC:-cc}"
 FAIL=0
 OUT=build/host
 mkdir -p "$OUT" build/scenarios
-JOBS="${X0X_TEST_JOBS:-1}"
+JOBS="${X0X_TEST_JOBS:-8}"
 case "$JOBS" in ''|*[!0-9]*) JOBS=1 ;; esac
-PHASE=0                 # parallel mode: 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
+PHASE=0                 # parallel mode: W = class W, 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
 T_SEQ=0
 RES="$OUT/.results"
 # The class of a test. S: serial and alone (install, update, package, BLE, mocked device).
+# W: install-slots-web (a long node test with a temp folder and a mocked keyboard, no port): it starts with
+# phase 1 and runs beside the class P and G tests only. It ends before phase 2 starts.
 # G: host-only, shares build/gen (one at a time). C: scenario (needs host-build; serial, because the
 # simulator's CPU guard uses the host time, so a busy host changes the result). P: host-only, parallel.
 test_class() {
     case "$1" in
-    ota-entry|update-loader|installer|installer-targets|installer-slots|install-slots-web|slot-backup|upload-tools|\
+    install-slots-web) echo W ;;
+    ota-entry|update-loader|installer|installer-targets|installer-slots|slot-backup|upload-tools|\
     breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|emu|emu-slots) echo S ;;
     drum-pan|stereo|drum909-adpcm|drum909|host-build) echo G ;;
     scenario-*) echo C ;;
@@ -62,19 +66,19 @@ run() {
     fi
     key=$(printf '%04d' "$T_SEQ")
     cls=$(test_class "$name")
-    case "$PHASE$cls" in 1P|1G|2S|3C) ;; *) return ;; esac
+    case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
     if [ "$cls" = S ] || [ "$cls" = C ]; then
         run_one "$key" "$name" "$@"
         return
     fi
-    read -r _ <&3       # wait for a free job slot
+    [ "$cls" = W ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
     (
         export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
         mkdir -p "$HOME" "$TMPDIR"
         [ "$cls" = G ] && gen_lock
         run_one "$key" "$name" "$@"
         [ "$cls" = G ] && gen_unlock
-        echo >&3
+        [ "$cls" = W ] || echo >&3
     ) &
 }
 note() {                # a skip line, in the serial order
@@ -190,10 +194,10 @@ else
     rm -rf "$RES" "$OUT/iso"; mkdir -p "$RES" "$OUT/iso"
     fifo="$OUT/iso/.jobs"; mkfifo "$fifo"; exec 3<>"$fifo"; rm -f "$fifo"
     i=0; while [ $i -lt "$JOBS" ]; do echo >&3; i=$((i + 1)); done
-    for PHASE in 1 2 3; do
+    for PHASE in W 1 2 3; do      # no wait after W: class W runs beside phase 1, and the wait of phase 1 ends it
         T_SEQ=0
         tests_body
-        wait
+        [ "$PHASE" = W ] || wait
     done
     exec 3>&-
     for f in $(ls "$RES" | grep -v -e '\.fail$' -e '\.time$' | sort); do cat "$RES/$f"; done
