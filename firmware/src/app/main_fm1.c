@@ -808,11 +808,12 @@ static void smk_wheels(void)
 
 /* < and >: the route and the hold repeat are in smk_arrows.h. Not if HARDWARE CALIBRATION gave them an FM-1 label.
  * - A menu list is open (GLO, the list of a page; also in clip mode): the value of the selected row one step
- *   down / up, as ALGORITHM. A held arrow repeats. Action rows do not run. ck_controls does not read < and >.
+ *   down / up, as ALGORITHM. A held arrow repeats. Action rows do not run. ck_controls masks < and > then
+ *   (smk_ck_knobs_owned is 0), so one press gives one step (CLP-27).
  * - No menu, clip mode off: one detent of SELECT back / forward for each press (the page), as on the other
- *   SMK-37 Pro ports. Clip mode, no menu: nothing. In clip mode < and > never move the Loopy viewport: Loopy
- *   does not report clips outside its 8x5 APC box, so a legal move cannot be known, and moves to empty areas
- *   broke the pad map.
+ *   SMK-37 Pro ports. Clip mode, no menu: smk_arrows does nothing; the clip keys page takes < and > (CLP-76).
+ *   In clip mode < and > never move the Loopy viewport: Loopy does not report clips outside its 8x5 APC box,
+ *   so a legal move cannot be known, and moves to empty areas broke the pad map.
  * - HOME held (SELECT is the tempo): nothing. */
 static void smk_arrows(void)
 {

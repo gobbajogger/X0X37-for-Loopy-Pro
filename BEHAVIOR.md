@@ -52,7 +52,7 @@ GEN-25. The pad LED chain order is {0,15,14,13,12,11,10,9,1,2,3,4,5,6,7,8}. Chan
 GEN-26. K1 is MASTER. K2, K3 and K4 are SELECT, ALGORITHM and PRESETS. K5 to K8 are KNOB 1 to KNOB 4. [SMK37] [CODE app/panel.c:28-40]
 GEN-27. FX, SCALE, CHORD, NOTE REPEAT, PARA and GLOBE are FX, SEL, ENV, LFO, EDIT and GLO. PATCH is HOME. BT is SAVE. [SMK37]
 GEN-28. ARP and SEQ are ARP and SEQ. SEQ PLAY and SEQ REC are PLAY and REC. OCTAVE- and OCTAVE+ are OCT- and OCT+. [SMK37]
-GEN-29. When no menu list is open, "<" and ">" move SELECT one step back or forward for each press. A hold does not repeat. They do nothing while HOME is held. In a menu list, GEN-56 applies. [SMK37] [CODE app/main_fm1.c smk_arrows] [CODE app/smk_arrows.h]
+GEN-29. When clip mode is off and no menu list is open, "<" and ">" move SELECT one step back or forward for each press. A hold does not repeat. They do nothing while HOME is held. In a menu list, GEN-56 applies. [SMK37] [CODE app/main_fm1.c smk_arrows] [CODE app/smk_arrows.h]
 GEN-30. FADER BANK switches the faders between bank A and bank B. The FADER BANK LED is on for bank B. [SMK37] [CODE app/main_fm1.c:607-613]
 GEN-31. Bank A faders 1-4 set the levels of the 909, the 808, 303A and 303B. [SMK37] [CODE app/main_fm1.c:628-629]
 GEN-32. Bank B faders 1-4 set the BREAK level, the reverb return, the delay return and the master FILTER. [SMK37] [CODE app/main_fm1.c:630-637]

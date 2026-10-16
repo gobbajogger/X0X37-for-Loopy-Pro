@@ -126,7 +126,7 @@ arrow L tap
 expect clksrc 1
 arrow L tap
 expect clksrc 0
-# clip mode, no menu: the arrows do nothing (CLP-27)
+# clip mode, no menu: smk_arrows gives no step (the clip keys page takes < and >, CLP-76; not in the host)
 tap GLO
 expect overlay 0
 expect page 0

@@ -14,7 +14,8 @@
 #define ARW_FIRST_MS 400u
 #define ARW_NEXT_MS 80u
 
-/* where the arrows go: nothing, SELECT (one detent for each press), or the menu value (with repeat) */
+/* where the arrows go: nothing, SELECT (one detent for each press), or the menu value (with repeat).
+ * ARW_NONE in clip mode with no menu: the clip keys page takes the arrows there (ck_controls, CLP-76). */
 enum { ARW_NONE, ARW_SELECT, ARW_MENU };
 
 /* menu: a menu list that the main code owns is open (GLO or a page list, also in clip mode).

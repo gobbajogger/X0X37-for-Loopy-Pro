@@ -27,7 +27,7 @@ static void test_route(void)
 {
     assert(arw_route(1, 0, 0) == ARW_MENU);
     assert(arw_route(1, 1, 0) == ARW_MENU);       /* GLO in clip mode: the arrows step the value */
-    assert(arw_route(0, 1, 0) == ARW_NONE);       /* clip mode, no menu: nothing (CLP-27) */
+    assert(arw_route(0, 1, 0) == ARW_NONE);       /* clip mode, no menu: the clip keys page has them (CLP-76) */
     assert(arw_route(0, 0, 0) == ARW_SELECT);     /* no menu: SELECT, as before (GEN-29) */
     assert(arw_route(0, 0, 1) == ARW_NONE);       /* HOME held: nothing */
     assert(arw_route(1, 0, 1) == ARW_NONE);
