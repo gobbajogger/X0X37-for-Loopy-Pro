@@ -2,7 +2,7 @@
 
 ## 1. Purpose and use
 
-Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is an ASD-STE100 rewrite of integration e8232e7 BEHAVIOR.md. The meaning is the same as integration e8232e7, and only the words are different.
+Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is an ASD-STE100 rewrite of integration 9a0b2c2 BEHAVIOR.md. The meaning is the same as integration 9a0b2c2, and only the words are different.
 
 This file is the intended-behavior specification for X0X. Review agents and bug-hunt agents use it. It tells an intended behavior from a defect.
 
@@ -319,8 +319,10 @@ CLP-02. A KNOB BANK hold of more than 1 s toggles clip mode. The screen shows "L
 CLP-03. Clip mode is off at power-on. [CODE app/main_fm1.c:176]
 CLP-04. In clip mode, the LCD main area shows the clip map. When a menu is open (for example GLO), the LCD shows the menu. When the menu closes, the clip map comes back. The mode chip at the top left reads "LP" (Loopy Pro). Where the X0X shows the pattern, the header shows the clock of the arp: EXT (amber) or INT (CLP-67).
   - The tempo stays. While a SCALE, CHORD or ARP page is open (CLP-75), the page covers the clip map. The bottom strip shows the KEYS panel (CLP-74). (Changed 2026-10-16: the menu and LP. Changed 2026-10-16: EXT/INT, the page and the KEYS panel.) When clip mode stops, the normal X0X view comes back at the next frame. [APC 1.5-apc40] [CODE app/ui.c:3788-3799]
-CLP-05. LCD clip colours: a lit cell is a filled square. The firmware maps the brightest channel of the Loopy colour from 0-255 to 128-255 (SMK_CLIP_LCD_FLOOR). The hue does not change. Full (playing) colours do not change, and idle clips stay darker than playing clips.
-  - An empty cell (velocity 0) is a small grey dot. A queued cell has a white centre square. A white frame marks the cells on the pads. [USER] [CODE app/main_fm1.c:367] [CODE app/main_fm1.c:412-440]
+CLP-05. LCD clip colours: a lit cell is a filled square. The colour comes from the table APC40_LCD565 (one RGB565 value for each velocity 0-127). tools/apc_pad_colors.py makes the table from tools/apc40mk2_akai_protocol_v1.2.csv (the Akai APC40 Mk2 Communications Protocol v1.2, table "RGB LEDs"). Each entry is the Akai colour as plain RGB565: each channel goes to the nearest 5, 6, 5 bit level. There is no gamma, no floor, no lift and no hand-picked value.
+  - Dark Akai colours (for example 0x000019) are dark on the LCD too. Two different Akai colours give the same LCD colour: 0x001900 and 0x001902 (velocities 23 and 27, 0x00C0). The pads do not use this table.
+  - An empty cell (velocity 0) is a small grey dot. A queued cell has a white centre square. A white frame marks the cells on the pads.
+  - tests/apc40_tables_test.c makes sure that the table and the tool give the same values. tests/apc_palette_test.py examines the source, the hue order, the hue drift, the clashes and the INLOG replay. (Changed 2026-10-16: the approved table replaces the SMK_CLIP_LCD_FLOOR calculation. Changed 2026-10-16, apc-palette: plain RGB565 from the Akai source replaces the approved lifted table, Orchestrator decision 23:10, 91 entries change.) [APC] [CODE app/apc40_lcd565.h] [CODE app/main_fm1.c smk_clip_lcd_draw] [TEST tests/apc40_tables_test.c] [TEST tests/apc_palette_test.py] [TEST tests/apc40_lcd565_csv_test.py]
 
 ### 15.2 Feedback from Loopy
 
@@ -330,6 +332,8 @@ CLP-12. While clip mode is off and no APC40 host did the handshake, these notes 
 CLP-13. Clip colours use the 128-colour APC palette. The firmware accepts them on MIDI channels 1-16. The channel does not change the colour. Exception: in the violet group (velocities 48-51), red is 0.6 x blue.
   - The palette values of the protocol showed blue on the pads. The Live violets and purples have more red too. 69 and 80 have red of 0.6 x blue, and 81 has red of 0.8 x blue. 93 and 116 have hue 270, and 94 has more red than blue.
   - [APC] [CODE app/main_fm1.c APC40_RGB] [TEST tests/smk_apc40_violet_test.py] (Changed 2026-10-16, a71. Changed 2026-10-16, a76: 69, 80, 81, 93, 94, 116.) Owner test of a74 (14fb352), 2026-10-16 21:18: FAIL. A violet clip from Loopy Pro still showed blue on the pads.
+  - Akai check, 2026-10-16 (apc-palette): APC40_RGB is different from the Akai source at 10 velocities: 48-51 (a71) and 69, 80, 81, 93, 94, 116 (a76). All other entries are equal. tests/apc_pad_source_test.py replays the INLOG data and compares each velocity with the Akai source. It fails on velocity 81 (table CC00FF, Akai 7A00FF). It is not in tests/run_tests.sh, because the live pad table does not change until pad calibration data exists.
+  - The channel gives the LED state: 0 solid, 1-5 one-shot, 6-10 pulse, 11-15 blink. One-shot and pulse show a steady colour, and X0X does not use the secondary colour of the protocol. app/apc40_pad_default.h is the start point for the pad calibration (gamma, white gains, trim and floor in tools/apc_colour_model.py). [TEST tests/apc_pad_source_test.py] [CODE app/apc40_pad_default.h]
 CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is the truth. Exception: an off less than 256 ms after an on can be the first flash of a queued clip. The cell keeps its colour.
   - If no on comes in 256 ms, the cell clears. Thus a queued clip does not blink fast before it gets the queued state (CLP-16). [APC 1.4-apc40] [CODE app/smk_apc40.h smk_apc40_cell_event smk_apc40_cells_age] (Changed 2026-10-16, a71.)
 CLP-15. Only APC channels 11-15 (zero-based) mark a queued cell (a cell that blinks). Pulse channels (6-10) and one-shot channels (1-5) draw steady. [APC 1.1-apc40] [CODE app/smk_apc40.h:67-70]
@@ -430,6 +434,10 @@ CLP-76. FADER BANK pins the page that is open. With no page open, it pins the pa
 CLP-77. Page key zones (key 0 = the lowest C). A zone of many keys sets its field to the key number in the zone. A one-key zone steps its field (and wraps to the first value). SCALE: keys 0-11 ROOT C to B, 12-35 the 24 scales, 36 SNAP NEAR/FILTER.
   - CHORD: keys 0-29 the 30 types, 32-35 inversion 0-3, 36 STRUM step. ARP: keys 0-5 order, 6-9 octaves 1-4, 10 SWING step, 11 HUMAN step, 12-24 the 13 rates, 25-34 gate 10-100 %, 35 RHYTHM step, 36 LATCH. Keys with no zone do nothing. (Added 2026-10-16.) [USER] [CODE app/smk_clip_keys.h CK_ZONE]
 CLP-78. X0X saves SWING, HUMAN, RHYTHM and STRUM with the settings, in two new bytes at the end of the settings. An older project loads them as 0: OFF (swing 50 %). A value out of range sets all clip keys settings to the defaults (CLP-61). (Added 2026-10-16.) [USER] [CODE app/project.c project_ck_check] [CODE app/x0x.h]
+CLP-79. Pad calibration (GLOBAL > SYSTEM > PAD COLOURS, SMK-37, not in clip mode). The 16 pads show one page of 16 palette entries (8 pages: entries 0-127). The pads show the entries in reading order of the pad rows (pad index 0-7, then 8-15), at half level, as a lit clip pad. The LCD shows the Akai colour of each entry (APC40_LCD565) in the same layout. It also shows the entry number of the selected pad and a white frame on that pad. A white dot marks each entry with ok.
+  - A pad press selects that pad. K2 / K3 / K4 change R / G / B of the selected entry and mark it ok. The step is 1 level for each detent below 32, and 1 + level / 32 above. The value stops at 0 and 255. SEQ PLAY marks the selected entry ok or not ok. OCTAVE- / OCTAVE+ go to the previous / next page (with wrap).
+  - PATCH or GLOBE ends the mode on the release. Meanwhile the UI gets no buttons, keys or knobs. The start values come at run time from APC40_LCD565 with the gamma, gain and floor constants of app/apc40_pad_gamma.h (tools/apc_colour_model.py pad_default). The edits stay in RAM until power off: no settings byte, no flash save.
+  - Editor command 38 INLOG, args 2-5, exports the 128 entries (R, G, B, ok). The export also works after the mode ends. tools/ble_autotest.py --padcal-export FILE writes them. tools/apc_pad_colors.py --pad-h OUT --pad-override FILE puts the entries marked ok over the start values. [USER] [CODE app/smk_padcal.h] [CODE app/main_fm1.c smk_padcal_frame, smk_padcal_draw] [CODE app/ui.c open_global, run_action] [TEST tests/smk_padcal_test.c] [TEST tests/smk_padcal_wiring_test.py] [TEST tests/smk_padcal_export_test.py] (New 2026-10-16, apc-palette.)
 
 ## 16. Flash and sample storage
 
