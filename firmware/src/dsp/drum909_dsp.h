@@ -197,8 +197,7 @@ static inline float d9_tanh(float u)
     } else {
         const int32_t i = (int32_t)a;
         const float fr = a - (float)i;
-        const float t0 = (float)x0x_tanh_tab[i];
-        t = (t0 + ((float)x0x_tanh_tab[i + 1] - t0) * fr) * X0X_TANH_Q;   /* (a 16-bit table) */
+        t = x0x_tanh_tab[i] + (x0x_tanh_tab[i + 1] - x0x_tanh_tab[i]) * fr;
     }
     return u < 0.0f ? -t : t;
 }
