@@ -93,12 +93,12 @@ class FakeX0X {
     this.input = { id: "i" + id, name, state: "connected", onmidimessage: null, open: async () => {} };
     this.output = { id: "o" + id, name, state: "connected", open: async () => {}, send: (d) => {
       if (this.output.state !== "connected") throw new Error("InvalidStateError");
-      setTimeout(() => this.rx(Array.from(d)), 0);
+      setImmediate(() => this.rx(Array.from(d)));          // async as a device, without the 1 ms of setTimeout
     } };
     this.access.inputs.set(this.input.id, this.input);
     this.access.outputs.set(this.output.id, this.output);
   }
-  tx(bytes) { const i = this.input; setTimeout(() => { if (i.state === "connected" && i.onmidimessage) i.onmidimessage({ data: Uint8Array.from(bytes) }); }, 0); }
+  tx(bytes) { const i = this.input; setImmediate(() => { if (i.state === "connected" && i.onmidimessage) i.onmidimessage({ data: Uint8Array.from(bytes) }); }); }
   rx(d) {
     if (d[1] === 0x7D && d[2] === 0x46 && d[3] === 0x4C) {
       if (!this.fw) return;                                  // stock firmware or the loader: no answer
