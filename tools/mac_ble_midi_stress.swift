@@ -40,6 +40,7 @@ let seconds = Double(opt("--seconds", "600")) ?? 600
 let rounds = Int(opt("--rounds", "3")) ?? 3
 let rate = Double(opt("--rate", "800")) ?? 800            // messages per second, Mac -> keyboard
 let wantName = opt("--name", "")
+let connectTimeout = Double(opt("--connect-timeout", "30")) ?? 30   // a55: seconds per connect before it is called stalled
 let usbKeys = opt("--usb", "X0X,SMK,FM-1,Felucca").split(separator: ",").map(String.init)
 let doReset = !flag("--no-reset")
 let stamp: String = { let f = DateFormatter(); f.dateFormat = "yyyyMMdd-HHmmss"; return f.string(from: Date()) }()
@@ -184,6 +185,23 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var inqSent: Double = 0, inqOut = 0, inqLost = 0, bleRtt: [Double] = [], usbRtt: [Double] = []
     var results: [[String: Any]] = []
     var genTimer: Timer?, inqTimer: Timer?
+    // a55: connect step tracing + watchdog (the a52 run hung silently after the connect)
+    var step = "idle", tStep = 0.0, linkGen = 0, steps: [[String: Any]] = []
+    func mark(_ s: String) {
+        let t = now(); step = s; tStep = t
+        let ms = Int((t - tLink) * 1000)
+        steps.append(["step": s, "ms": ms]); log("[link] +\(ms) ms \(s)")
+    }
+    func arm() {
+        linkGen += 1; let g = linkGen
+        DispatchQueue.main.asyncAfter(deadline: .now() + connectTimeout) {
+            guard g == self.linkGen, self.step != "notify on" else { return }
+            let d = self.usb.diag()
+            log("[link] TIMEOUT: stuck at '\(self.step)' for \(Int((now() - self.tStep) * 1000)) ms; USB DIAG: \(d.map { "\($0)" } ?? "n/a")")
+            if let k = self.p { self.cm.cancelPeripheralConnection(k) }   // drop the link so the keyboard can advertise again
+            self.finish(fatal: "connect stalled at '\(self.step)' after \(Int(connectTimeout)) s")
+        }
+    }
 
     override init() { super.init(); cm = CBCentralManager(delegate: self, queue: nil) }
 
@@ -199,7 +217,7 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         connect { self.startRound() }
     }
     func connect(_ then: @escaping () -> Void) {
-        onReady = then; tLink = now()
+        onReady = then; tLink = now(); steps = []; mark("connect requested"); arm()
         if let k = p { cm.connect(k); return }
         if let k = cm.retrieveConnectedPeripherals(withServices: [midiService]).first(where: { wantName.isEmpty || ($0.name ?? "").contains(wantName) }) {
             p = k; k.delegate = self; cm.connect(k); return
@@ -211,21 +229,24 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let nm = per.name ?? (ad[CBAdvertisementDataLocalNameKey] as? String) ?? "?"
         if mode == "scan" { if seen.insert(per.identifier).inserted { emit(["name": nm, "id": per.identifier.uuidString, "rssi": rssi]) }; return }
         if !wantName.isEmpty && !nm.contains(wantName) { return }
-        c.stopScan(); p = per; per.delegate = self; c.connect(per)
+        c.stopScan(); p = per; per.delegate = self; mark("found \(nm) rssi \(rssi)"); c.connect(per)
     }
-    func centralManager(_ c: CBCentralManager, didConnect per: CBPeripheral) { per.discoverServices([midiService]) }
+    func centralManager(_ c: CBCentralManager, didConnect per: CBPeripheral) { mark("connected (LL up)"); per.discoverServices([midiService]); mark("discovering services") }
     func centralManager(_ c: CBCentralManager, didFailToConnect per: CBPeripheral, error: Error?) {
-        log("connect failed: \(error?.localizedDescription ?? "?"); retrying"); c.connect(per)
+        mark("connect failed"); log("connect failed: \(error?.localizedDescription ?? "?"); retrying"); c.connect(per)
     }
     func peripheral(_ per: CBPeripheral, didDiscoverServices e: Error?) {
+        mark("services \(per.services?.count ?? 0) err \(e?.localizedDescription ?? "none")")
         guard let s = per.services?.first(where: { $0.uuid == midiService }) else { finish(fatal: "no MIDI service"); return }
-        per.discoverCharacteristics([midiChar], for: s)
+        per.discoverCharacteristics([midiChar], for: s); mark("discovering characteristic")
     }
     func peripheral(_ per: CBPeripheral, didDiscoverCharacteristicsFor s: CBService, error e: Error?) {
+        mark("characteristics \(s.characteristics?.count ?? 0) err \(e?.localizedDescription ?? "none")")
         guard let c = s.characteristics?.first(where: { $0.uuid == midiChar }) else { finish(fatal: "no MIDI I/O characteristic"); return }
-        ch = c; per.setNotifyValue(true, for: c)
+        ch = c; per.setNotifyValue(true, for: c); mark("enabling notify (CCCD write)")
     }
     func peripheral(_ per: CBPeripheral, didUpdateNotificationStateFor c: CBCharacteristic, error e: Error?) {
+        if e == nil && c.isNotifying { mark("notify on") } else { mark("notify failed \(e?.localizedDescription ?? "?")") }
         guard e == nil, c.isNotifying else { finish(fatal: "subscribe failed: \(e?.localizedDescription ?? "?")"); return }
         let ms = Int((now() - tLink) * 1000)
         if inRound, tDisc > 0 {                       // reconnected inside a round
@@ -236,13 +257,13 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
     var lastLinkMs = 0
     func centralManager(_ c: CBCentralManager, didDisconnectPeripheral per: CBPeripheral, error e: Error?) {
-        ch = nil
-        if resetting { c.connect(per); return }
+        ch = nil; mark("disconnected: \(e?.localizedDescription ?? "no error")")
+        if resetting { arm(); c.connect(per); return }
         if inRound {
             tDisc = now()
             disc.append(["at_s": Int(now() - tGen), "reason": e?.localizedDescription ?? "?"])
             log("round \(round): disconnect (\(e?.localizedDescription ?? "?")); reconnecting")
-            c.connect(per)
+            arm(); c.connect(per)
         }
     }
 
@@ -412,7 +433,7 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let pass = fails.isEmpty
         let sum: [String: Any] = ["pass": pass, "fails": fails, "rounds": results, "reset_test": resetResult,
                                   "settings": ["seconds": seconds, "rounds": rounds, "rate": rate, "name": wantName, "reset": doReset],
-                                  "first_link_ms": lastLinkMs, "date": stamp]
+                                  "first_link_ms": lastLinkMs, "link_steps": steps, "date": stamp]
         try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
         if let j = try? JSONSerialization.data(withJSONObject: sum, options: [.sortedKeys, .prettyPrinted]) {
             try? j.write(to: URL(fileURLWithPath: outDir + "/summary.json"))
