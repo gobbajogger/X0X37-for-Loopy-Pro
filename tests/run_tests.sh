@@ -156,6 +156,7 @@ run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 2
 run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
 run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, strict STE, Trigger and Check lines
 run status-lanes bash tests/host/test_status_lanes.sh   # tools/status.sh (check 12): lane/<agent>-* commits count as agent output
+run status-checks bash tests/host/test_status_checks.sh   # tools/status.sh (checks 27, 29): docs lint flag, ROADMAP installed hash, BEHAVIOR items since the last install
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)
