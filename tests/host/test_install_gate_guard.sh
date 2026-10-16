@@ -1,0 +1,79 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+# tools/require_gate_pass.sh (the install guard) with a temp index.md and a temp results folder
+# (X0X_RESULTS_DIR). Each refusal case must print "REFUSED" with exit code 3; the gate PASS case
+# must print "GATE OK" with exit code 0. A real result (9a733fe, tree 1d3c048d...) is also checked
+# when /workspace/x0x37.git and /workspace/x0x37-results are on this computer.
+set -u
+unset X0X_GATE_LOGS_MAP X0X_SYNC_DIR
+G="$(cd "$(dirname "$0")/../.." && pwd)/tools/require_gate_pass.sh"
+T=$(mktemp -d "${TMPDIR:-/tmp}/igg.XXXXXX"); trap 'rm -rf "$T"' EXIT
+fails=0; n=0
+expect() {  # expect <REFUSED|GATE OK> <name> <args...>
+    want=$1; name=$2; shift 2; n=$((n + 1))
+    out=$(X0X_RESULTS_DIR="$T/res" X0X_REPO="$T/repo" bash "$G" "$@" 2>&1); rc=$?
+    case "$want" in REFUSED) wrc=3;; *) wrc=0;; esac
+    case "$out" in "$want "*) [ "$rc" = "$wrc" ] && { echo "ok   $name: $out"; return; };; esac
+    echo "FAIL $name: rc=$rc out=$out"; fails=$((fails + 1))
+}
+# a temp repository and its gate tree key (the same command as tools/gate.sh)
+mkdir -p "$T/repo" "$T/res" && cd "$T/repo" && git init -q . && echo a > a.c && echo doc > README.md && \
+    git add . && git -c user.name=t -c user.email=t@t commit -qm one && cd - >/dev/null || { echo "FAIL setup"; exit 1; }
+H=$(git -C "$T/repo" rev-parse HEAD); S=$(echo "$H" | cut -c1-7)
+if command -v sha1sum >/dev/null 2>&1; then SHA1=sha1sum; else SHA1="shasum -a 1"; fi
+TREE=$(git -C "$T/repo" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' | $SHA1 | cut -c1-40)
+T12=$(echo "$TREE" | cut -c1-12); OTHER=0123456789abcdef0123456789abcdef01234567
+printf 'fwsc bytes\n' > "$T/good.fwsc"; printf 'ctl bytes\n' > "$T/ctl.img"; printf 'other\n' > "$T/bad.fwsc"
+crc() { python3 -c 'import sys, zlib; print("%08x" % (zlib.crc32(open(sys.argv[1], "rb").read()) & 0xffffffff))' "$1"; }
+FC=$(crc "$T/good.fwsc"); CC=$(crc "$T/ctl.img")
+L="$T/work/$S.logs"; mkdir -p "$L"
+printf 'gate: took the gate lock after 0 s\ngate: released the gate lock; the tests took 1 s\n' > "$L/gate.log"
+printf 'ctl.img file crc32 %s, 10 B\nbuild/x0x-smk37-elite.fwsc crc32 %s, 11 B\n' "$CC" "$FC" > "$L/crc.txt"
+result() {  # result <file> <Result line> <tree>
+    { echo "# Gate result for tree $3"; echo; echo "$2"; echo; echo "- Commit: $H"
+      echo "- Tree (SHA-1 of git ls-tree -r without *.md): $3"; echo "- Worktree: $T/work/$S. Logs: $L."
+      echo; echo "## CRC manifest"; echo; echo '```'; cat "$L/crc.txt"; echo '```'; } > "$T/res/$1"; }
+index() { printf '| Commit | Tree | Git tree | Result | Result file | Time |\n|---|---|---|---|---|---|\n' > "$T/res/index.md"
+          for r in "$@"; do echo "$r" >> "$T/res/index.md"; done; }
+row() { echo "| $S | $T12 | 000000000000 | $1 | $2 | 2026-10-16 22:00 +10 |"; }
+
+index; expect REFUSED "no row" "$H"
+index "$(row 'PASS' "$TREE.md")"; expect REFUSED "manual row, no result file" "$H"
+result "$TREE.md" "Result: PASS" "$TREE"
+index "$(row 'PASS (backfill)' "$TREE.md")"; expect REFUSED "hand-written PASS text" "$H"
+result "$TREE.trial-1.md" "Result: TRIAL PASS (a trial run with --trial: not a release PASS)" "$TREE"
+index "$(row 'TRIAL PASS' "$TREE.trial-1.md")"; expect REFUSED "TRIAL PASS" "$H"
+index "$(row 'VOID (setup error: no toolchain; not a test result)' "$TREE.md")"; expect REFUSED "VOID" "$H"
+index "$(row 'FAIL' "$TREE.md")" "$(row 'KILLED' "$TREE.md")"; expect REFUSED "FAIL and KILLED" "$H"
+result "$OTHER.md" "Result: PASS" "$OTHER"
+index "$(row 'PASS' "$OTHER.md")"; expect REFUSED "PASS row, result file of another tree" "$H"
+index "$(row 'PASS' "$TREE.md")"
+mv "$L/gate.log" "$L/gate.keep"; printf 'build output only\n' > "$L/gate.log"
+expect REFUSED "gate.log without gate lines" "$H"; mv "$L/gate.keep" "$L/gate.log"
+expect REFUSED "CRC mismatch" "$H" --fwsc "$T/bad.fwsc" --ctl "$T/ctl.img"
+expect "GATE OK" "gate PASS" "$H" --fwsc "$T/good.fwsc" --ctl "$T/ctl.img"
+index "$(row 'PASS' "$TREE.md")" "$(row 'PASS (result used again)' "$TREE.md")"; expect "GATE OK" "PASS (result used again)" "$H"
+# tools/sync_results_to_mac.sh: pack on the box, unpack on the "Mac" (a temp folder), then the guard
+# uses only the copy (the original logs folder is moved away). All copied files must be read-only.
+SY="$(dirname "$G")/sync_results_to_mac.sh"; n=$((n + 1))
+p=$(X0X_RESULTS_DIR="$T/res" X0X_SYNC_DIR="$T/sync" bash "$SY" --pack 2>&1) && \
+    u=$(X0X_RESULTS_DIR="$T/mac" bash "$SY" --unpack "$T/sync/latest.tar" 2>&1) && mv "$L" "$L.away" && \
+    out=$(X0X_RESULTS_DIR="$T/mac" X0X_REPO="$T/repo" bash "$G" "$H" --fwsc "$T/good.fwsc" --ctl "$T/ctl.img" 2>&1); rc=$?
+mv "$L.away" "$L" 2>/dev/null
+rw=$(find "$T/mac" -type f -perm -u+w ! -path '*/.unpack.*' | wc -l | tr -d ' ')
+case "$out" in "GATE OK $S $T/mac/"*) if [ "$rc" = 0 ] && [ "$rw" = 0 ]; then echo "ok   sync pack + unpack, guard on the copy: $out"
+    else echo "FAIL sync: rc=$rc writable=$rw $out"; fails=$((fails + 1)); fi ;;
+*) echo "FAIL sync: rc=$rc $p $u $out"; fails=$((fails + 1)) ;; esac
+chmod -R u+w "$T/mac" 2>/dev/null
+# fm1_install.py: a real install with no --commit stops before it opens a device (exit 9)
+n=$((n + 1)); out=$(python3 "$(dirname "$G")/fm1_install.py" "$T/good.fwsc" 2>&1); rc=$?
+if [ "$rc" = 9 ] && echo "$out" | grep -q REFUSED; then echo "ok   fm1_install.py without --commit: exit 9"; else echo "FAIL fm1_install.py without --commit: rc=$rc $out"; fails=$((fails + 1)); fi
+# a real gate result on the box
+REAL=/workspace/x0x37-results/1d3c048d3cc356d8d8584fe1e6a85bae9235b99c.md
+if [ -f "$REAL" ] && git -C /workspace/x0x37.git cat-file -e 9a733fe 2>/dev/null; then
+    n=$((n + 1)); out=$(X0X_RESULTS_DIR=/workspace/x0x37-results X0X_REPO=/workspace/x0x37.git bash "$G" 9a733fe 2>&1); rc=$?
+    case "$out" in "GATE OK 9a733fe "*) [ $rc = 0 ] && echo "ok   real gate PASS: $out" || { echo "FAIL real: rc=$rc $out"; fails=$((fails + 1)); };;
+    *) echo "FAIL real gate PASS 9a733fe: rc=$rc $out"; fails=$((fails + 1));; esac
+else echo "note real gate PASS case: not on this computer (synthetic gate PASS case done)"; fi
+echo "install gate guard: $((n - fails)) of $n ok"
+[ "$fails" = 0 ]
