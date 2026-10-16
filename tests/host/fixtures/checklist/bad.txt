@@ -1,0 +1,54 @@
+# Keyboard checklist (test fixture: bad)
+
+- Build: c6bf44a (release)
+- Checked against decisions: the latest entry
+
+## Before you start
+
+- Select the keyboard in Loopy Pro.
+
+## Tasks
+
+1. Goal: "See the Loopy Pro clip colours on the keyboard."
+   - Start: Press HOME.
+
+   1. Start one clip in Loopy Pro.
+
+   - Good: The pads show the Loopy Pro colours.
+   - [ ] yes / no
+
+2. Play only the notes of a scale.
+   - Start: Press HOME.
+
+   1. Tap SCALE.
+
+   - Good: Loopy Pro gets only the notes of your scale.
+   - [ ] yes / no
+
+3. Goal: "Task 3."
+   - [ ] yes / no
+
+4. Goal: "Task 4."
+   - [ ] yes / no
+
+5. Goal: "Task 5."
+   - [ ] yes / no
+
+6. Goal: "Task 6."
+   - [ ] yes / no
+
+7. Goal: "Task 7."
+   - [ ] yes / no
+
+8. Goal: "Task 8."
+   - [ ] yes / no
+
+9. Goal: "Task 9."
+   - [ ] yes / no
+
+10. Goal: "Task 10."
+   - [ ] yes / no
+
+11. Goal: "Task 11."
+   - [ ] yes / no
+
