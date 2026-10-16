@@ -3610,12 +3610,8 @@ static void draw_readout(void)
     pref_value(r, num, unit);
     {   /* one row: the name on the left, the value (+ unit) on the right, both on the box's middle */
         const int32_t bx = 8, by = 14, bw = 224, bh = 50;
-        const felucca_font_t *vf = &FONT_L;           /* the big face has numbers only: a name in the next size */
+        const felucca_font_t *vf = &FONT_M;           /* (the 31 px face for numbers was dropped: 7.6 KB of flash) */
         int32_t ly, uw = unit[0] ? tw(&FONT_S, unit) + 3 : 0;
-        const char *q;
-        for (q = num; *q; q++)
-            if ((uint8_t)*q > '9')
-                vf = &FONT_M;
         ly = vc(vf, by, bh);
         box(bx, by, bw, bh, C_BLACK);
         frame(bx, by, bw, bh, part_col());
