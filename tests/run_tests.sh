@@ -5,6 +5,7 @@
 # (tests/scenarios/*.x0x: UI, patterns, persistence, MIDI clock), with screenshots and
 # audio in build/scenarios/. Needs the reference sources (see tests/host/run_*.sh).
 #   tests/run_tests.sh
+#   tests/run_tests.sh <name>...           only the named tests (the names of the result lines). Also X0X_TESTS="<name> ...".
 #   X0X_TEST_JOBS=1 tests/run_tests.sh    serial: one test at a time, in order.
 #   The default is X0X_TEST_JOBS=8: host-only tests run 8 at a time. See test_class below.
 #     Install, update, package, BLE and mocked-device tests always run serially, one at a time, after
@@ -16,6 +17,8 @@
 #     build/host/.results/*.time gives the time of each test.
 # Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
 set -u
+[ $# -gt 0 ] && X0X_TESTS="$*"
+X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
@@ -60,6 +63,7 @@ gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
 run() {
     name="$1"; shift
     T_SEQ=$((T_SEQ + 1))
+    if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
     if [ "$JOBS" -le 1 ]; then
         if "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
