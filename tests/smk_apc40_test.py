@@ -156,9 +156,9 @@ assert "APC40_LCD565" not in pads and "APC40_PAD_OWNER[v];" in pads    # the pad
 assert "void smk_clip_lcd_force(void) { was_on = 0u; }" in main   # mode entry and menu close: draw at once
 assert "smk_clip_lcd_force();   /* a menu" in ui_src
 lost = main.split("void smk_apc_host_lost(void)")[1].split("\n}\n")[0]
-assert "apc_led_velocity[i] = 0u;" in lost                         # USB disconnect: all cells empty
+assert "smk_apc_link_clear(0u)" in lost                            # USB disconnect: the USB cells empty (CLP-18)
 link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
-assert "smk_apc40_cells_clear(apc_led_velocity" in link            # Bluetooth disconnect: all cells empty
+assert "smk_apc_link_clear(1u)" in link                            # Bluetooth disconnect: the Bluetooth cells empty
 print("PASS LCD clip colours from APC40_LCD565; empty cells, pads, entry, menu and disconnect unchanged")
 assert "smk_apc_clock_position(" in engine and "cin == 3u && ep1rx[i + 1] == 0xF2u" in usb
 assert "apc_clock_count = sixteenths * 6u" in main
@@ -185,9 +185,21 @@ assert "smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h))
 assert ble.index("bleh_rx(h, t, ble_r.fr") < ble.index("smk_apc_ble_link((uint8_t)") < ble.index("bleh_midi_next(h, &m)")
 link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
 assert "smk_apc40_lost_step(&lost, connected, notifying, fm1_ms)" in link   # a76: and again 300 ms later
-assert "padled_rgb[i] = 0u;" in link and "padled_dirty = 1u;" in link   # a76: the pad colour store too
-assert "smk_apc40_cells_clear(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick)" in link
-assert "smk_ck" not in link and "clip_grid_mode" not in link and "seq" not in link
+clr = main.split("static uint8_t smk_apc_link_clear(uint8_t ble)")[1].split("\n}\n")[0]
+assert "padled_rgb[i] = 0u;" in clr and "padled_dirty = 1u;" in clr   # a76: the pad colour store too
+assert "smk_apc40_cells_clear_mask(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick," in clr
+assert "ble ? apc_ble_owned : ~apc_ble_owned" in clr                 # CLP-18: only the cells of the lost link
+assert "smk_apc_link_clear(1u)" in link
+for body in (link, clr):
+    assert "smk_ck" not in body and "clip_grid_mode" not in body and "seq" not in body and "apc_host_on" not in body
+# CLP-18: usb.c gives the USB link state each poll; its end clears only the USB cells (no apc_host_on change)
+assert "smk_apc_usb_link((uint8_t)(usb.config && !usb.suspended));" in usb
+ul = main.split("void smk_apc_usb_link(uint8_t up)")[1].split("\n}\n")[0]
+assert "smk_apc_link_clear(0u)" in ul and "apc_host_on" not in ul and "smk_ck" not in ul
+# CLP-18: the APC40 introduction with mode 0x40 (generic mode) clears the cells of that link
+assert "if (usb.sysex[7] == 0x40u)\n                smk_apc_host_generic(0u);" in usb
+assert "if (ble_sx[6] == 0x40u)\n            smk_apc_host_generic(1u);" in ble
+assert "(void)smk_apc_link_clear(ble);" in main.split("void smk_apc_host_generic(uint8_t ble)")[1].split("\n}\n")[0]
 print("PASS Bluetooth link end or notify off clears the clip feedback")
 # a76 rule 8: ble.c gives every Bluetooth note and CC to smk_apc_ble_event; it does not drop any.
 assert "smk_apc_ble_event(pkt, (uint8_t)bleh_notifying(h))" in ble
