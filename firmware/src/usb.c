@@ -755,7 +755,7 @@ static void ep1_rx(void)
         else if (((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
                   (cin == 3u && ep1rx[i + 1] == 0xF2u)) && mi_w - mi_r < MQ) {
             /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter */
-            midi_in_q[mi_w % MQ] = pkt;
+            midi_in_q[mi_w % MQ] = pkt & ~0xF0u;      /* cable bits: the input, 0 USB (MID-15) */
             RING_PUBLISH();
             mi_w++;
         }

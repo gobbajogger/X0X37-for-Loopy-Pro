@@ -380,7 +380,7 @@ static void ble_service(void)
             smk_apc_ble_event(pkt, (uint8_t)bleh_notifying(h)))   /* a76: notify off: no pad colour */
             continue;                             /* attempt 29: APC clip and transport feedback, as on USB */
         if (pkt) {
-            midi_in_q[mi_w % MQ] = pkt;
+            midi_in_q[mi_w % MQ] = pkt | 0x10u;     /* cable bits: the input, 1 Bluetooth (MID-15) */
             RING_PUBLISH();
             mi_w++;
         }

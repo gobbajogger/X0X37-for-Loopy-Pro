@@ -583,6 +583,8 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     s->ext_now += k;
     if (s->clk_cur != s->clk_src)
         clock_source(s, o);
+    if (s->clk_lock && s->ext_now - s->clk_lock_at > SEQ_LOCK_T)
+        s->clk_lock = 0;                              /* that input sends nothing: any input can get the clock */
     if (s->clk_cur == SEQ_CLK_INT)
         s->ext_pending = 0;
     if (s->ext_pending) {
@@ -691,6 +693,36 @@ int seq_midi_rt(seq_t *s, uint8_t st)
     case 0xFC: if (!internal) seq_stop(s); return 1;
     default: return 0;
     }
+}
+/* MID-15: Clock, Start, Continue and Stop of one input only. Called before seq_midi_rt, in the same context
+ * as seq_advance. The order of the messages decides when two inputs send at the same time. */
+int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
+{
+    uint8_t me = (uint8_t)(src + 1u);
+    if (st != 0xF8u && (st < 0xFAu || st > 0xFCu))
+        return 1;
+    if (s->clk_src == SEQ_CLK_INT) {                  /* seq_midi_rt drops them */
+        s->clk_lock = 0;
+        return 1;
+    }
+    if (s->clk_lock != me) {
+        if (s->clk_lock && !(s->clk_stop && (st == 0xFAu || st == 0xFBu) &&
+                             s->ext_now - s->clk_stop_at >= SEQ_LOCK_T))
+            return 0;                                 /* another input has the clock */
+        if (st == 0xFCu)
+            return 1;                                 /* no input has the clock: a Stop gets no clock */
+        s->clk_lock = me;
+        s->clk_stop = 0;
+    }
+    if (st == 0xFCu) {
+        s->clk_stop = 1;
+        s->clk_stop_at = s->ext_now;
+    } else {
+        if (st != 0xF8u)
+            s->clk_stop = 0;
+        s->clk_lock_at = s->ext_now;
+    }
+    return 1;
 }
 int seq_clock_waiting(const seq_t *s)
 {

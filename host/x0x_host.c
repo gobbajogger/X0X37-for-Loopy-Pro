@@ -729,6 +729,8 @@ static int expect(const char *what, const char *val)
         got = ui.view;
     else if (!strcmp(what, "tempo"))
         got = (int)(seq.bpm + 0.5f);
+    else if (!strcmp(what, "exttempo"))             /* the tempo measured from the external clock */
+        got = (int)(seq.ext_bpm + 0.5f);
     else if (!strcmp(what, "clocks_out"))
         got = (int)clock_out_count;
     else if (!strcmp(what, "transport_out"))       /* Start, Continue, Stop sent */
@@ -954,8 +956,8 @@ int main(int argc, char **argv)
             engine_brk_loops();
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
-            uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4;
-            min_q[mi_w++ % MQ] = cin | s << 8 | d1 << 16 | d2 << 24;
+            uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */
+            min_q[mi_w++ % MQ] = cin | src << 4 | s << 8 | d1 << 16 | d2 << 24;   /* SRC: 0 USB, 1 BLE, 2 TRS */
         } else if (!strcmp(cmd, "wav")) {
             snprintf(out, sizeof out, "%s/%s", dir, a);
             wav_open(out);

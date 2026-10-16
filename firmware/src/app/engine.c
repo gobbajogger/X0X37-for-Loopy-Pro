@@ -459,6 +459,8 @@ static void midi_in(uint32_t pkt)
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
     int k, v;
+    if (!seq_clk_take(&seq, st, PLAT_MIDI_SRC(pkt)))
+        return;                     /* another input has the clock (MID-15) */
 #if BOARD_SMK37
     /* Count MIDI Clock for the clip-mode PLAY blink. The sequencer path below is unchanged. */
     if (st == 0xF8)

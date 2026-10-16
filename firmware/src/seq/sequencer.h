@@ -93,6 +93,12 @@ typedef struct {
 #define SEQ_CLK_AUTO 0u
 #define SEQ_CLK_INT 1u
 #define SEQ_CLK_EXT 2u
+/* AUTO and EXTERNAL follow one clock input (BEHAVIOR.md MID-15). The input of a MIDI in packet is in byte 0,
+ * bits 4-5 (plat.h PLAT_MIDI_SRC): 0 USB, 1 Bluetooth, 2 TRS. The first input that sends Clock, Start or
+ * Continue gets the clock. It keeps the clock until it sends nothing for SEQ_LOCK_T, or until SEQ_LOCK_T
+ * after its Stop (then a Start or Continue of another input gets it). 0.4 s: more than 3 clocks at 20 BPM
+ * (125 ms each), and less than the 0.5 s after which X0X goes to its internal clock or waits (MID-12, MID-13). */
+#define SEQ_LOCK_T (FS * 2u / 5u)
 
 typedef struct {                      /* one part's runtime */
     uint8_t pos;                      /* current step */
@@ -151,6 +157,10 @@ typedef struct {
     volatile uint8_t req_rt;          /* 1 = the pending Start or Continue came from MIDI in (seq_midi_rt) */
     uint8_t start_local;              /* 1 = the last start came from PLAY (not from MIDI in) */
     uint32_t start_at;                /* ext_now at the last start */
+    uint8_t clk_lock;                 /* the input that has the clock (MID-15): 0 none, else input + 1 */
+    uint8_t clk_stop;                 /* 1: the last transport message of that input was a Stop */
+    uint32_t clk_lock_at;             /* ext_now at its last Clock, Start or Continue */
+    uint32_t clk_stop_at;             /* ext_now at its last Stop */
 } seq_t;
 
 void seq_init(seq_t *s, pattern_t *patterns);
@@ -163,6 +173,7 @@ void seq_stop(seq_t *s);
 void seq_continue(seq_t *s);
 void seq_ext_clock(seq_t *s);         /* one 24-ppqn tick (USB MIDI 0xF8) */
 int seq_midi_rt(seq_t *s, uint8_t st);  /* MIDI in 0xF8, 0xFA, 0xFB, 0xFC: 1 (INTERNAL drops them); else 0 */
+int seq_clk_take(seq_t *s, uint8_t st, uint32_t src);   /* MIDI in from input src: 0 = another input has the clock */
 int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0.5 s (it waits) */
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);

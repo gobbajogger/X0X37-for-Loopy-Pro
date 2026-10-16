@@ -37,6 +37,7 @@ void plat_play_red(int red);           /* PLAY lights green; red (its other LED)
 
 /* USB MIDI, 4-byte USB-MIDI event packets (cable 0) */
 int plat_midi_in(uint32_t *pkt);       /* 1 = got one (called from the audio ISR) */
+#define PLAT_MIDI_SRC(pkt) (((pkt) >> 4) & 3u)   /* the input of a MIDI in packet: 0 USB, 1 Bluetooth, 2 TRS */
 void plat_midi_out(uint32_t pkt);      /* queue one (audio ISR or main loop) */
 
 /* persistent storage (Felucca storage.c objects: A/B sectors, CRC, torn-write safe) */
