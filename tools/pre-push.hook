@@ -1,33 +1,79 @@
 #!/bin/sh
-# The box pre-push hook (the source is tools/pre-push.hook; copy it to /workspace/x0x37.git/hooks/pre-push and to the clones).
-# 1. Block any push that sends refs-oscuro or its commits (JieLi files, not for distribution).
-# 2. A push to integration: the quick check (/workspace/x0x37-refs/gate/prepush-check.sh, a fixed path, so a change of
-#    the check needs no new copy of this hook). Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON="<why>" git push ...
-#    The skip is written to /workspace/x0x37-results/quickcheck-skips.log. It never skips the refs-oscuro check.
+# The box pre-push hook (x0x37). Fail closed: if this check cannot read the history, it blocks the push.
+# Rollout and repair notes: /workspace/x0x37-build-and-test-runner/failclosed-hook-rollout.md
+# 1. Clone check: a shallow clone, or a git error (exit code or error text), blocks the push.
+# 2. Block any push that sends refs-oscuro or its commits (JieLi files, not for distribution).
+# 3. Quick check: a push to integration runs /workspace/x0x37-refs/gate/prepush-check.sh (fail closed; skip env only with a reason).
+# POSIX sh (also macOS /bin/sh and bash 3.2).
+set -u
 z=0000000000000000000000000000000000000000
-IN=$(mktemp) || exit 1
-trap 'rm -f "$IN"' EXIT
-cat > "$IN"
-osc=$(git rev-parse -q --verify refs/heads/refs-oscuro 2>/dev/null || git rev-parse -q --verify refs/remotes/box/refs-oscuro 2>/dev/null)
+FIX="fix the clone (see /workspace/x0x37-build-and-test-runner/failclosed-hook-rollout.md)"
+block() { echo "BLOCKED: $1" >&2; exit 1; }
+TMPD=$(mktemp -d "${TMPDIR:-/tmp}/x0x-prepush.XXXXXX") || block "pre-push check cannot make a temp folder"
+trap 'rm -rf "$TMPD"' EXIT
+PUSHED_REFS="$TMPD/refs"; ERR="$TMPD/err"
+cat > "$PUSHED_REFS" || block "pre-push check cannot read the pushed refs"
+# g <git arguments>: the output goes to G_OUT. A non-zero exit code or any error text blocks the push.
+g() {
+  if G_OUT=$(git "$@" 2>"$ERR" </dev/null) && [ ! -s "$ERR" ]; then return 0; fi
+  block "pre-push check cannot read history (git $*: $(tr '\n' ' ' < "$ERR" | cut -c1-300)); $FIX"
+}
+
+# ---------- 1. Clone check ----------
+g rev-parse --is-shallow-repository
+[ "$G_OUT" = false ] || block "shallow clone (git rev-parse --is-shallow-repository: $G_OUT). The refs-oscuro check needs the full history; $FIX"
+
+# ---------- 2. refs-oscuro ----------
+osc=$(git rev-parse -q --verify refs/heads/refs-oscuro 2>"$ERR" </dev/null || git rev-parse -q --verify refs/remotes/box/refs-oscuro 2>>"$ERR" </dev/null)
+[ ! -s "$ERR" ] || block "pre-push check cannot read history (git rev-parse refs-oscuro: $(tr '\n' ' ' < "$ERR" | cut -c1-300)); $FIX"
+[ -z "$osc" ] || g cat-file -e "$osc^{commit}"
 while read lref lsha rref rsha; do
   case "$lref$rref" in *refs-oscuro*) echo "BLOCKED: refs-oscuro must never be pushed (owner rule)." >&2; exit 1;; esac
   [ "$lsha" = "$z" ] && continue
+  git cat-file -e "$lsha^{commit}" 2>/dev/null </dev/null || block "missing object for the pushed sha $lsha ($lref); $FIX"
+  if [ "$rsha" != "$z" ]; then
+    git cat-file -e "$rsha^{commit}" 2>/dev/null </dev/null || block "missing object for the remote sha $rsha ($rref): fetch first, or $FIX"
+  fi
   [ -n "$osc" ] || continue
-  others=$(git for-each-ref --format='%(objectname)' refs/heads refs/remotes | grep -v "^$osc$")
-  uniq=$(git rev-list "$osc" --not $others 2>/dev/null)
-  [ -z "$uniq" ] && uniq=$(git rev-list -1 "$osc")
+  g for-each-ref --format='%(objectname)' refs/heads refs/remotes
+  others=$(echo "$G_OUT" | grep -v "^$osc$")
+  g rev-list "$osc" --not $others
+  uniq=$G_OUT
+  if [ -z "$uniq" ]; then g rev-list -1 "$osc"; uniq=$G_OUT; fi
   if [ "$rsha" = "$z" ]; then range="$lsha"; else range="$lsha ^$rsha"; fi
-  for c in $(git rev-list $range); do
+  g rev-list $range
+  for c in $G_OUT; do
     if echo "$uniq" | grep -qx "$c"; then echo "BLOCKED: push contains refs-oscuro commit $c (owner rule)." >&2; exit 1; fi
   done
-done < "$IN"
+done < "$PUSHED_REFS"
+
+# ---------- 3. Quick check ----------
+# Only a push to integration (not a delete). Input: "$PUSHED_REFS". The temp files go in "$TMPD" (the EXIT trap above removes them).
+# Fail closed: a missing check, an error or no QUICK PASS line blocks the push, as a QUICK FAIL does.
+# Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON="<why>" git push ... The skip goes to the skip log.
+# The refs-oscuro check and the clone check above always run. A Mac clone uses pre-push.mac (no quick check there).
 QC=/workspace/x0x37-refs/gate/prepush-check.sh
-if grep -q ' refs/heads/integration ' "$IN"; then
+QCLOG=/workspace/x0x37-results/quickcheck-skips.log
+QCSKIP="Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON=\"<why>\" git push ..."
+QCN=$(awk -v z="$z" '$3 == "refs/heads/integration" && $2 != z' "$PUSHED_REFS" | wc -l | tr -d ' ')
+if [ "$QCN" -gt 0 ]; then
   if [ "${X0X_SKIP_QUICKCHECK:-0}" = 1 ]; then
-    echo "$(date '+%F %T %z') $(id -un) $PWD $1 skip: ${X0X_SKIP_REASON:-no reason}" >> /workspace/x0x37-results/quickcheck-skips.log
-    echo "pre-push: quick check SKIPPED (X0X_SKIP_QUICKCHECK=1): ${X0X_SKIP_REASON:-no reason}" >&2
-  elif [ -x "$QC" ]; then
-    "$QC" "$@" < "$IN" || { echo "BLOCKED: the quick check failed. Fix the commit. Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON=\"<why>\" git push ..." >&2; exit 1; }
+    [ -n "${X0X_SKIP_REASON:-}" ] || block "X0X_SKIP_QUICKCHECK=1 needs X0X_SKIP_REASON=\"<why>\" (the reason goes to $QCLOG)"
+    echo "$(date '+%F %T %z') $(id -un) $PWD $1 skip: $X0X_SKIP_REASON" >> "$QCLOG" || block "cannot write the skip log $QCLOG"
+    echo "pre-push: quick check SKIPPED (X0X_SKIP_QUICKCHECK=1): $X0X_SKIP_REASON (logged in $QCLOG)" >&2
+  else
+    [ -f "$QC" ] && [ -x "$QC" ] || block "the quick check $QC is missing or not executable. Ask the Build and Test Runner. $QCSKIP"
+    [ -t 2 ] && echo "pre-push: quick check of the push to integration (about 20 s; the first run in a clone builds everything)" >&2
+    "$QC" "$@" < "$PUSHED_REFS" > "$TMPD/qc" 2>&1; QCRC=$?
+    QCPASS=$(grep -c 'QUICK PASS' "$TMPD/qc")
+    if [ "$QCRC" = 0 ] && [ "$QCPASS" -ge "$QCN" ]; then
+      [ -t 2 ] && cat "$TMPD/qc" >&2
+    else
+      cat "$TMPD/qc" >&2
+      grep -q 'QUICK FAIL' "$TMPD/qc" && block "the quick check failed (QUICK FAIL above). Fix the commit. $QCSKIP"
+      block "the quick check gave no result (exit code $QCRC, $QCPASS QUICK PASS for $QCN integration ref). Fail closed. $QCSKIP"
+    fi
   fi
 fi
+
 exit 0
