@@ -13,6 +13,13 @@ import { join } from "node:path";
 import { Updater, pack7, unpack7, sameKeyboard } from "./fm1ota.js";
 import { crc32, parseHeader, readArchive, pack78, unpack78, installKeepingSlots, packageSlotMap } from "./x0x_breaks.js";
 
+// X0X_TEST_TIME_SCALE=N (opt-in, default 1): waits of 1000 ms or more (the updater's fixed waits for a reboot
+// and its read timeouts) take 1/N of the time. The mock keyboard replies at once, so it does not use these waits.
+const TIME_SCALE = Number(process.env.X0X_TEST_TIME_SCALE || 1);
+if (TIME_SCALE > 1) {
+  const realSetTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = (f, ms = 0, ...a) => realSetTimeout(f, ms >= 1000 ? ms / TIME_SCALE : ms, ...a);
+}
 let bad = 0;
 const ok = (c, what) => { console.log(`${what.padEnd(70)} ${c ? "ok" : "FAIL"}`); if (!c) bad++; };
 const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
