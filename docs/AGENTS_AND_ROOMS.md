@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project.
 
-Last updated: 2026-10-16 18:47 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
+Last updated: 2026-10-16 18:52 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
 Owner: Docs Keeper (living document). Docs Keeper updates this file when an agent, a room or a rule changes.
 "TO CONFIRM" marks a fact that no project file or agent profile shows.
 
@@ -68,6 +68,12 @@ Owner: Docs Keeper (living document). Docs Keeper updates this file when an agen
 - Never: Installs or changes code. (TO CONFIRM: implied, not written.)
 - Rooms: User Test.
 
+### Optimizer
+- ID: TO CONFIRM
+- Purpose: Suggests optimizations that are safe for the user experience to the lane owners.
+- Never: Installs firmware. Commits to the branch of another agent.
+- Rooms: TO CONFIRM.
+
 Note: the iChord agents belong to a different project. They are not part of this setup.
 
 ## Agent identities and lanes
@@ -85,6 +91,7 @@ Each task has one owner. Find the owner in this table. Heavy agents write code o
 | Release Packager | Release packages with CRCs, slot backup paths and changelogs. | Install. Change code. Package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
 | Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. | Install. Change firmware code. | Orchestrator (rule changes). | Light |
 | Test Plan Writer | Hardware test checklists in User Test. | Install. Change code. | Firmware Main Builder (install). Docs Keeper (results). | Light |
+| Optimizer | Suggestions for optimizations that are safe for the user experience. | Install. Commit to the branch of another agent. | Owner of the lane, from this table. | Light |
 
 ## Rooms (max 6 agents each)
 
@@ -200,3 +207,4 @@ More facts (checked 2026-10-16 01:32):
 - 2026-10-16 18:10, doc audit for Docs Keeper: owner decisions 18:09. Never push refs-oscuro. Code stays only on the box and on the machines of the owner, with no push to GitHub or any outside remote. Added the pre-push block of Orchestrator, the JieLi-files exception for refs-oscuro (from refs/jieli/README.md in babd349) and the new never-do items for Merge Integrator and Release Packager.
 - 2026-10-16 18:15, doc audit for Docs Keeper: added the Mac pre-push hook paths (x0x37/.git/hooks/pre-push and flash_review/.git/hooks/pre-push). The GitHub origin stays for now, and no one pushes to it.
 - 2026-10-16 18:47, doc audit for Docs Keeper: the live BLE lane is now ble-a65 (ca1d4d2). ble-a56 is history. Older change log lines keep ble-a56 as it was then.
+- 2026-10-16 18:52, doc audit for Docs Keeper: added the agent Optimizer (light tier, ID TO CONFIRM). It suggests optimizations that are safe for the user experience to the lane owners. It never installs and never commits to the branch of another agent.
