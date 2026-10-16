@@ -11,6 +11,12 @@
 #   3. the flash-map check (tools/gate_flashmap.py, with the owner tag), the budget checks for the three builds,
 #      the X0X_RAM_CANARY default (it must be 0) and a CRC manifest.
 # The builds and the tests use a private HOME and TMPDIR for each run (<worktree>.logs/home and tmp).
+# The gate always uses X0X_TEST_TIME_SCALE=1 (the real waits of the updater in install-slots-web), also if the
+# caller sets another value. The PASS or FAIL line and the result file give the time scale.
+# The lock file is next to the read-only gate folder (/workspace/x0x37-refs/gate.lock), because the gate folder is read-only.
+# Step 2 holds a box-wide lock (flock on X0X_GATE_LOCK), so the tests of two gate runs (from any agent) never
+# run at the same time. While it waits, the gate writes "waiting for gate lock" to stderr. The builds and a
+# result that the gate uses again do not take the lock.
 # It writes one result file per tree to $X0X_RESULTS/<tree>.md and adds a line to $X0X_RESULTS/index.md.
 # The tree is a SHA-1 of "git ls-tree -r" without the *.md files. If a result for that tree exists,
 # the gate uses it again and does not build (--force builds again).
@@ -18,6 +24,7 @@
 # Environment (defaults in brackets):
 #   X0X_REPO [/workspace/x0x37.git]  X0X_RESULTS [/workspace/x0x37-results]  X0X_REFS [/workspace/x0x37-refs/schwung]
 #   X0X_GATE_WORK [~/.cache/x0x37-gate]  X0X_TEST_JOBS [8]  JIELI_TOOLCHAIN [~/.jieli/toolchain]  AC79_SDK [~/fw-AC79_AIoT_SDK]
+#   X0X_GATE_LOCK [/workspace/x0x37-refs/gate.lock]
 #   X0X_REF_PINS ["schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d"]
 set -u
 GATE_DIR=$(cd "$(dirname "$0")" && pwd)
@@ -28,6 +35,9 @@ WORK=${X0X_GATE_WORK:-$HOME/.cache/x0x37-gate}
 JOBS=${X0X_TEST_JOBS:-8}
 TC=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain}
 SDK=${AC79_SDK:-$HOME/fw-AC79_AIoT_SDK}
+SCALE=1                                 # the pre-install gate: real updater waits only
+export X0X_TEST_TIME_SCALE=$SCALE
+GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
 FORCE=0
 [ "${2:-}" = --force ] && FORCE=1
@@ -66,8 +76,9 @@ if [ "$FORCE" = 0 ] && [ -f "$RF" ]; then
     WHY=$(sed -n 's/^Reason: //p' "$RF" | head -1)
     echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $R (result used again) | $TREE.md | $NOW |" >> "$INDEX"
     printf '\nThe gate used this result again for commit %s at %s. The tree is the same.\n' "$H" "$NOW" >> "$RF"
-    if [ "$R" = PASS ]; then echo "PASS $S (result used again: tree ${TREE:0:12} has a result)"; exit 0; fi
-    echo "FAIL $S ${WHY:-see $RF} (result used again: tree ${TREE:0:12})"; exit 1
+    OSC=$(sed -n 's/^- Time scale (X0X_TEST_TIME_SCALE): \([0-9]*\).*/\1/p' "$RF" | head -1)
+    if [ "$R" = PASS ]; then echo "PASS $S (time scale ${OSC:-1}) (result used again: tree ${TREE:0:12} has a result)"; exit 0; fi
+    echo "FAIL $S (time scale ${OSC:-1}) ${WHY:-see $RF} (result used again: tree ${TREE:0:12})"; exit 1
 fi
 
 mkdir -p "$WORK"
@@ -127,7 +138,25 @@ unshare -rm sh -c "mount --bind '$PCT' /tmp && env HOME='$PH' JIELI_TOOLCHAIN='$
 # 2. tests
 MODE="X0X_TEST_JOBS=$JOBS"
 grep -q X0X_TEST_JOBS tests/run_tests.sh || MODE="serial: this tree has no parallel mode"
-X0X_TEST_JOBS="$JOBS" sh tests/run_tests.sh > "$L/tests.log" 2>&1; TRC=$?
+# The box-wide gate lock: one gate test phase at a time on this box. The lock file is writable by all users.
+[ -e "$GLOCK" ] || { ( umask 000; : >> "$GLOCK" ) && chmod a+rw "$GLOCK"; } 2>/dev/null
+LW0=$(date +%s)
+if ! exec 9>>"$GLOCK"; then
+    fail "cannot open the gate lock $GLOCK"; TRC=1; LOCK_TXT="not taken (cannot open $GLOCK)"
+else
+    if ! flock -n 9; then
+        echo "gate $S: waiting for gate lock $GLOCK" >&2
+        echo "gate: waiting for gate lock $GLOCK" >> "$LOG"
+        flock 9
+    fi
+    LW1=$(date +%s)
+    echo "gate: took the gate lock after $((LW1 - LW0)) s" >> "$LOG"
+    X0X_TEST_JOBS="$JOBS" sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?
+    flock -u 9; exec 9>&-
+    LW2=$(date +%s)
+    echo "gate: released the gate lock; the tests took $((LW2 - LW1)) s" >> "$LOG"
+    LOCK_TXT="$GLOCK: waited $((LW1 - LW0)) s, held $((LW2 - LW1)) s"
+fi
 OK=$(grep -c '^  ok ' "$L/tests.log"); NF=$(grep -c '^  FAIL' "$L/tests.log"); NS=$(grep -c '^  skip' "$L/tests.log")
 [ "$TRC" = 0 ] || fail "tests: $NF failed ($(grep -m1 '^  FAIL' "$L/tests.log" | sed 's/^  FAIL //'))"
 [ "$NS" = 0 ] || fail "tests: $NS skipped"
@@ -248,7 +277,9 @@ echo "| Core RAM | ${CORE_USED:-?} of ${CORE_MAX:-?} B, $CORE_FREE B free |"
 echo
 echo "## Tests"
 echo
+echo "- Time scale (X0X_TEST_TIME_SCALE): $SCALE. The gate always uses 1: the real waits of the updater."
 echo "- tests/run_tests.sh ($MODE): $OK ok, $NF FAIL, $NS skip. Exit code $TRC."
+echo "- Gate lock: $LOCK_TXT."
 echo "- The script knows $NEXP tests. Tests that did not run: ${MISS:-none}."
 echo "- Scenarios: $SCEN ok."
 echo "- ble_test: ${BLE:-no log}"
@@ -269,5 +300,5 @@ echo '```'
 mv "$TMPF" "$RF"; chmod a+r "$RF"
 echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $R | $TREE.md | $NOW |" >> "$INDEX"
 cp "$RF" "$L/result.md"
-if [ "$R" = PASS ]; then echo "PASS $S"; exit 0; fi
-echo "FAIL $S $REASON"; exit 1
+if [ "$R" = PASS ]; then echo "PASS $S (time scale $SCALE)"; exit 0; fi
+echo "FAIL $S (time scale $SCALE) $REASON"; exit 1
