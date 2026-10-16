@@ -8,7 +8,11 @@ selects the state only (protocol v1.2 "RGB LEDs Type": 0 solid, 1-5 one-shot, 6-
 blink), so it must not change the colour. The test also lists every table entry that is not
 the Akai colour (also velocities that are not in the log).
 Usage: tests/apc_pad_source_test.py [FIXTURE ...]   (default: tests/fixtures/inlog_*_clips.txt)
-Not in tests/run_tests.sh yet: it fails on the live table until the owner decides the pad table.
+Evidence file, not in tests/run_tests.sh: it fails on the live table (velocity 81: CC00FF, Akai 7A00FF).
+Decision 2026-10-16 23:10 (Orchestrator): the live pad table does not change. The 10 entries that are
+not the Akai colour (48-51, 69, 80, 81, 93, 94, 116) are WS2812 corrections after an owner VIOLET FAIL.
+The raw Akai colour can look blue on the pads. The pad calibration mode (GLOBAL > SYSTEM > PAD COLOURS)
+is the fix path: its export, not this test, changes the pad table.
 """
 import re
 import sys
