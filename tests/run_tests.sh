@@ -160,6 +160,7 @@ run smk-arrows-owner python3 tests/smk_arrows_owner_test.py   # one owner for ea
 run apc40-tables sh -c "python3 tools/apc_pad_colors.py --pad-h $OUT/apc40_pad_default_gen.h --lcd-h $OUT/apc40_lcd565_gen.h --gamma-h $OUT/apc40_pad_gamma_gen.h && \
     $CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -I$OUT -o $OUT/apc40_tables_test tests/apc40_tables_test.c && $OUT/apc40_tables_test"   # the LCD table and the pad calibration start point against their tool
 run smk-padcal sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_padcal_test tests/smk_padcal_test.c && $OUT/smk_padcal_test"   # CLP-79: pad calibration logic
+run smk-padcal-wiring python3 tests/smk_padcal_wiring_test.py   # CLP-79: menu row, keys, knobs, pads, LCD
 run apc-palette python3 tests/apc_palette_test.py   # one source, hue order, distinct colours, INLOG replay
 run installer-targets python3 tests/make_pages_test.py
 run diag-size python3 tests/diag_size_test.py           # a76: ED_DIAG stays in its buffers

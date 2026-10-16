@@ -32,7 +32,11 @@ static const char *const PART_S[NPARTS] = {"909", "808", "303A", "303B", "BRK"};
 /* overlays drawn over the main area */
 enum { O_NONE, O_LIST, O_ASK };
 enum { ACT_NONE, ACT_SAVE, ACT_CLEAR_PART, ACT_CLEAR_PAT, ACT_COPY, ACT_RESET, ACT_ABOUT, ACT_SONG_INS,
-       ACT_SONG_DEL, ACT_SONG_CLR, ACT_PERF, ACT_PERF_TEST };
+       ACT_SONG_DEL, ACT_SONG_CLR, ACT_PERF, ACT_PERF_TEST,
+#if BOARD_SMK37
+       ACT_PADCAL,
+#endif
+};
 
 typedef struct {
     uint8_t view, part, prev_view;
@@ -212,6 +216,9 @@ static const x0x_param_t ACT_P[] = {
     {"", 0, 0, 0}, {"SAVE PROJECT", 0, 0, 0}, {"CLEAR THIS PART", 0, 0, 0}, {"CLEAR PATTERN", 0, 0, 0},
     {"COPY PATTERN", 0, 0, 0}, {"FACTORY RESET", 0, 0, 0}, {"ABOUT X0X", 0, 0, 0}, {"INSERT BAR", 0, 0, 0},
     {"DELETE BAR", 0, 0, 0}, {"CLEAR SONG", 0, 0, 0}, {"PERFORMANCE", 0, 0, 0}, {"RUN PERF TEST", 0, 0, 0},
+#if BOARD_SMK37
+    {"PAD COLOURS", 0, 0, 0},
+#endif
 };
 static const x0x_param_t STALLS_P = {"STALLS", 1, 0, ONOFF_N};
 static const x0x_param_t MIDICH_P[NPARTS] = {   /* 0 = OFF (no notes in or out), 1-16 */
@@ -1022,6 +1029,11 @@ static void open_global(void)
     list_add(PR(R_ACT, ACT_ABOUT, 0, 0));
     list_add(PR(R_BATT, 0, 0, 0));
 #if BOARD_SMK37
+    {
+        extern uint8_t smk_clip_mode_on(void);
+        if (!smk_clip_mode_on())                  /* the pad calibration (main_fm1.c, CLP-79), not in clip mode */
+            list_add(PR(R_ACT, ACT_PADCAL, 0, 0));
+    }
     list_rows[ui.list_n++] = PR(R_HDR, GR_BT, 0, 0);
     list_add(PR(R_BT, 0, 0, 0));
     list_add(PR(R_BTSTAT, 0, 0, 0));
@@ -1660,6 +1672,14 @@ X0X_COLD static void run_action(int act, int arg)
         perf_test_start();
         say("PERF TEST: 15 SECONDS", 0);
         break;
+#if BOARD_SMK37
+    case ACT_PADCAL: {
+        extern void smk_padcal_enter(void);
+        ui.overlay = O_NONE;
+        smk_padcal_enter();
+        break;
+    }
+#endif
     case ACT_ABOUT:
         q = put_s(t, "X0X " X0X_VERSION "  MEM ");
         q = put_s(put_i(q, project_mem_pct()), "%  CPU ");
@@ -2140,7 +2160,8 @@ static void key_event(int k, int down)
 {
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
-    if (smk_clip_mode_on())
+    extern uint8_t smk_padcal_on(void);
+    if (smk_clip_mode_on() || smk_padcal_on())
         return;   /* clip mode: the pads launch clips, the keybed plays MIDI to Loopy (main_fm1.c clip keys) */
 #endif
     int w = KEY_WHITE[k], bl = KEY_BLACK[k], wp = w >= 0 ? ui.pbank * 16 + w : -1;   /* wp: a white key's pattern */
@@ -3903,6 +3924,13 @@ static void draw_main(void)
         extern uint8_t smk_clip_mode_on(void);
         extern uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h);
         extern void smk_clip_lcd_force(void);
+        extern uint8_t smk_padcal_on(void);
+        extern uint8_t smk_padcal_draw(uint32_t w, uint32_t h);
+        if (smk_padcal_on()) {                    /* the pad calibration page (main_fm1.c, CLP-79) */
+            if (smk_padcal_draw(240u, 2u * BAND_H))
+                cv_commit_rect(1, 0, MAIN_Y);
+            return;
+        }
         if (smk_clip_mode_on() && ui.overlay == O_NONE && !ui.help) {
             if (smk_clip_lcd_draw(240u, 2u * BAND_H))
                 cv_commit_rect(1, 0, MAIN_Y);
