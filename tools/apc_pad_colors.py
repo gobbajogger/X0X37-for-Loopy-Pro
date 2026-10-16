@@ -40,8 +40,7 @@ def pad_header(pad, gamma, balance, target):
 
 def lcd_header(lcd, target):
     out = [GEN.format(opt="--lcd-h") +
-           f" * LCD clip colour (RGB565) for each velocity: colour {target}, no gamma. Brightest channel to\n"
-           f" * {m.LCD_FLOOR}..255, then OKLCH lift to Y >= {m.LCD_YMIN} * (t/255)^2.2 at the hue at full brightness.\n"
+           f" * LCD clip colour (RGB565) for each velocity: colour {target} as plain RGB565 (no gamma, no lift).\n"
            " * Index 0 is not drawn (empty cell). */",
            "static const uint16_t APC40_LCD565[128] = {"]
     for i in range(0, 128, 8):

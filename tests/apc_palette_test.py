@@ -67,22 +67,34 @@ for v in band:
     check(ok, f"hue vel {v:3d} {src[v]['apc']:06X}: LCD {hl:5.1f} (blue {blue_lcd:.1f}), "
               f"pad {hp:5.1f} (blue {blue_pad:.1f}){'' if bright else ' (dim: LCD only)'}")
 # Hue order: in the blue..pink range, an entry with a larger source hue (10 degrees or more) keeps a larger hue.
+# Source hue: for the LCD (plain RGB565) the hue of the source colour, for the pads the hue at full brightness.
+def src_hue(v):
+    return m.lch(*m.split(src[v]["apc"]))[2]
+
+
 rng = [e["v"] for e in src if e["apc"] and m.full_chroma(e["apc"]) > 0.12 and 255.0 <= m.full_hue(e["apc"]) <= 345.0]
 bad = []
 for a in rng:
     for b in rng:
+        if src_hue(b) - src_hue(a) >= 10.0 and hdiff(m.lch(*m.of565(lcd[b]))[2], m.lch(*m.of565(lcd[a]))[2]) <= 0:
+            bad.append(("LCD", a, b))
         if m.full_hue(src[b]["apc"]) - m.full_hue(src[a]["apc"]) >= 10.0:
-            if hdiff(m.lch(*m.of565(lcd[b]))[2], m.lch(*m.of565(lcd[a]))[2]) <= 0:
-                bad.append(("LCD", a, b))
             if max(send[a]) > DIM and max(send[b]) > DIM and hdiff(m.led_hue(send[b])[0], m.led_hue(send[a])[0]) <= 0:
                 bad.append(("pad", a, b))
 check(not bad, f"hue order blue..pink kept on the LCD and the pads ({len(rng)} entries) {bad[:6]}")
-# LCD: no large hue drift (owner rule). The approved table keeps each hue within 10 degrees of the
-# hue at full brightness. The entries above 4 degrees come from the sRGB bias of dark values.
-dev = [(e["v"], f"{e['apc']:06X}", round(hdiff(m.lch(*m.of565(c))[2], m.full_hue(e["apc"])), 1))
-       for e, c in zip(src, lcd) if e["apc"] and m.full_chroma(e["apc"]) > 0.08]
-check(all(abs(d) <= 10.0 for _, _, d in dev), "LCD hue within 10 degrees of the hue at full brightness")
-print(f"NOTE LCD hue more than 4 degrees from the hue at full brightness: {[x for x in dev if abs(x[2]) > 4.0]}")
+# LCD: no large hue drift (owner rule). Plain RGB565 changes a hue only by its bit depth: each hue
+# within 10 degrees of the hue of the source colour. The hue at full brightness can be further away
+# (the sRGB bias of dark source values): NOTE only.
+def lcd_dev(ref):
+    return [(e["v"], f"{e['apc']:06X}", round(hdiff(m.lch(*m.of565(c))[2], ref(e["apc"])), 1))
+            for e, c in zip(src, lcd) if e["apc"] and m.full_chroma(e["apc"]) > 0.08]
+
+
+dev = lcd_dev(lambda x: m.lch(*m.split(x))[2])
+check(all(abs(d) <= 10.0 for _, _, d in dev), "LCD hue within 10 degrees of the hue of the source colour "
+      f"(largest {max(dev, key=lambda x: abs(x[2]))})")
+print(f"NOTE LCD hue more than 8 degrees from the hue at full brightness: "
+      f"{[x for x in lcd_dev(m.full_hue) if abs(x[2]) > 8.0]}")
 
 # 4. Distinct source colours stay distinct. Report the collisions that the LED bit depth makes.
 by_src = {}
@@ -100,10 +112,13 @@ print(f"NOTE source duplicates (the same colour in the Akai table): {dups}")
 for k, v in sorted(pc.items()):
     vs = [e["v"] for e in src if e["apc"] in v]
     print(f"NOTE pad collision (LED bit depth): sent {k} for source {' '.join(f'{x:06X}' for x in v)} (velocities {vs})")
+# Plain RGB565 keeps 5 bits of blue: 001900 and 001902 (velocities 23 and 27) give the same code.
+# Reported to the Orchestrator (2026-10-16). Any other LCD clash fails.
+LCD_565_CLASH = {0x00C0: [0x001900, 0x001902]}
 for k, v in sorted(lc.items()):
     vs = [e["v"] for e in src if e["apc"] in v]
-    print(f"NOTE LCD collision (approved lift rule): {k:04X} for source {' '.join(f'{x:06X}' for x in v)} (velocities {vs})")
-check(len(lc) <= 2, f"LCD: at most the 2 known collisions of the approved table ({len(lc)})")
+    print(f"NOTE LCD clash (RGB565 bit depth): {k:04X} for source {' '.join(f'{x:06X}' for x in v)} (velocities {vs})")
+check(lc == LCD_565_CLASH, f"LCD: different source colours give different RGB565, except the known 5-bit clash {lc}")
 digest = hashlib.sha256(bytes(b for s in send for b in s)).hexdigest()[:12]
 print(f"NOTE pad sent table digest {digest}")
 
