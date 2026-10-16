@@ -33,6 +33,9 @@ static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
  * ble_service, both on core 0. */
 static uint32_t ble_oq[BLE_OQ] __attribute__((section(".pool")));
 /* ABI 3: more heap for the image's host (boot parameter heap2), from the pool (zeroed at boot) */
+#ifndef X0X_RAM_CANARY
+#define X0X_RAM_CANARY 0  /* 1: arm the test-26 RAM canary (0x01C72000-0x01C74000, test builds only) */
+#endif
 #define BLE_HEAP2 3584u   /* attempt 46: the host task stack (3072 B) did not fit with 2048 */
 static uint8_t ble_heap2[BLE_HEAP2] __attribute__((section(".pool"), aligned(8)));
 /* the bond store: XB_NV_SIZE bytes in RAM 2 (the image's), saved to FL_BOND as magic, CRC, bytes */
@@ -304,10 +307,16 @@ static void ble_attach(void)
     }
     fm1_guard_watch_c0_stacks();               /* test 21: who changes core 0's interrupt stack */
     fm1_t5w_arm = 1;                            /* test 23: the timer 5 frame closed to all writers */
+#if X0X_RAM_CANARY
+    /* Test 26: the RAM canary, core 1 watches it. Test builds only: the area
+     * overlaps the end of .pool when less than 8 KiB of the pool is free. */
     for (uint32_t *cw = (uint32_t *)(uintptr_t)FM1_CAN_LO; cw < (uint32_t *)(uintptr_t)FM1_CAN_HI; cw++)
-        *cw = 0xFFFFFFFFu;                      /* test 26: the RAM canary, core 1 watches it */
+        *cw = 0xFFFFFFFFu;
     fm1_can.n = fm1_can.scans = 0;
     fm1_can.armed = 0xCA9A11E5u;
+#else
+    fm1_can.armed = 0;                          /* .ble_ram survives a reset: clear an old arm */
+#endif
     fm1_c0_dead.magic = 0;                      /* test 24: core 1 watches core 0's clock */
     fm1_c0_dead.n = 0;
     fm1_ble_sync();
