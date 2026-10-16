@@ -11,6 +11,7 @@ Each round:
      screen for 4 s and restarts once more: wait until DIAG answers and the state is stable.
   4. Read DIAG (editor command 33) and print STATUS, the start record and the crash record.
      --diag-only also prints the inbound recorder and the pad LED output (editor command 38 INLOG).
+     --padcal-export FILE reads the pad calibration (CLP-79, INLOG args 2-5) for apc_pad_colors.py --pad-override.
      For READY, read DIAG again after --hold seconds: the controller must stay up (polls grow).
 
 A software restart is not a power cycle: .noinit RAM (the start guard, the crash record) stays,
@@ -231,9 +232,21 @@ def main():
     ap.add_argument("--hold", type=float, default=20.0, help="seconds READY must stay up (default 20)")
     ap.add_argument("--log", help="append each round as one JSON line")
     ap.add_argument("--diag-only", action="store_true", help="read and print DIAG only")
+    ap.add_argument("--padcal-export", metavar="FILE",
+                    help="read the pad calibration (CLP-79, INLOG args 2-5) into FILE for apc_pad_colors.py --pad-override")
     a = ap.parse_args()
     if not ports():
         sys.exit("ble_autotest: no X0X USB MIDI port")
+    if a.padcal_export:
+        ents = []
+        for arg in inlog_fmt.PADCAL_ARGS:
+            e = inlog_fmt.parse_padcal(ask(inlog_fmt.ED_INLOG, [arg]), arg)
+            if e is None:
+                sys.exit(f"ble_autotest: no pad calibration reply (arg {arg}; firmware before CLP-79?)")
+            ents += e
+        open(a.padcal_export, "w").write("\n".join(inlog_fmt.padcal_lines(ents)) + "\n")
+        print(f"{a.padcal_export}: {sum(e[4] for e in ents)} of 128 entries marked ok")
+        return 0
     if a.diag_only:
         d = diag()
         if not d:
