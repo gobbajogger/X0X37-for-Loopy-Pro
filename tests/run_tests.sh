@@ -5,22 +5,99 @@
 # (tests/scenarios/*.x0x: UI, patterns, persistence, MIDI clock), with screenshots and
 # audio in build/scenarios/. Needs the reference sources (see tests/host/run_*.sh).
 #   tests/run_tests.sh
+#   tests/run_tests.sh <name>...           only the named tests (the names of the result lines). Also X0X_TESTS="<name> ...".
+#   X0X_TEST_JOBS=1 tests/run_tests.sh    serial: one test at a time, in order.
+#   The default is X0X_TEST_JOBS=8: host-only tests run 8 at a time. See test_class below.
+#     Install, update, package, BLE and mocked-device tests always run serially, one at a time, after
+#     the parallel tests end. Each parallel test gets its own HOME and TMPDIR (build/host/iso/<test>/).
+#     The scenarios run serially after them. The result lines come in the serial order, after all tests end.
+#   X0X_TEST_TIME_SCALE=1 tests/run_tests.sh    the real waits of the updater in install-slots-web.
+#     The default is X0X_TEST_TIME_SCALE=20 (dev and branch runs): in web/test_install_slots.mjs, waits of
+#     1000 ms or more take 1/20 of the time. The pre-install gate (tools/gate.sh) always uses 1.
+#     build/host/.results/*.time gives the time of each test.
+# Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
 set -u
+[ $# -gt 0 ] && X0X_TESTS="$*"
+X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
 OUT=build/host
 mkdir -p "$OUT" build/scenarios
+JOBS="${X0X_TEST_JOBS:-8}"
+export X0X_TEST_TIME_SCALE="${X0X_TEST_TIME_SCALE:-20}"
+case "$JOBS" in ''|*[!0-9]*) JOBS=1 ;; esac
+PHASE=0                 # parallel mode: W = class W, 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
+T_SEQ=0
+RES="$OUT/.results"
+# The class of a test. S: serial and alone (install, update, package, BLE, mocked device).
+# W: install-slots-web (a long node test with a temp folder and a mocked keyboard, no port): it starts with
+# phase 1 and runs beside the class P and G tests only. It ends before phase 2 starts.
+# G: host-only, shares build/gen (one at a time). C: scenario (needs host-build; serial, because the
+# simulator's CPU guard uses the host time, so a busy host changes the result). P: host-only, parallel.
+test_class() {
+    case "$1" in
+    install-slots-web) echo W ;;
+    ota-entry|update-loader|installer|installer-targets|installer-slots|slot-backup|upload-tools|\
+    breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|emu|emu-slots|\
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) echo S ;;
+    rec-live) echo S ;;   # it reads build/gen from host-build (phase 1), so it runs after phase 1
+    drum-pan|stereo|drum909-adpcm|drum909|host-build) echo G ;;
+    scenario-*|perf-scratch) echo C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
+    *) echo P ;;
+    esac
+}
+run_one() {             # key name command...: the result goes to $RES/key (and $RES/key.fail)
+    k="$1"; n="$2"; shift 2
+    t0=$(date +%s)
+    if "$@" > "$OUT/$n.log" 2>&1; then
+        echo "  ok   $n" > "$RES/$k"
+    else
+        { echo "  FAIL $n (see $OUT/$n.log)"; tail -15 "$OUT/$n.log" | sed 's/^/       /'; } > "$RES/$k"
+        : > "$RES/$k.fail"
+    fi
+    echo "$(( $(date +%s) - t0 )) s $n" > "$RES/$k.time"
+}
+gen_lock() { until mkdir "$OUT/iso/.lock-gen" 2>/dev/null; do sleep 0.1; done; }
+gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
 run() {
     name="$1"; shift
-    if "$@" > "$OUT/$name.log" 2>&1; then
-        echo "  ok   $name"
-    else
-        echo "  FAIL $name (see $OUT/$name.log)"
-        tail -15 "$OUT/$name.log" | sed 's/^/       /'
-        FAIL=1
+    T_SEQ=$((T_SEQ + 1))
+    if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
+    if [ "$JOBS" -le 1 ]; then
+        if "$@" > "$OUT/$name.log" 2>&1; then
+            echo "  ok   $name"
+        else
+            echo "  FAIL $name (see $OUT/$name.log)"
+            tail -15 "$OUT/$name.log" | sed 's/^/       /'
+            FAIL=1
+        fi
+        return
+    fi
+    key=$(printf '%04d' "$T_SEQ")
+    cls=$(test_class "$name")
+    case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+    if [ "$cls" = S ] || [ "$cls" = C ]; then
+        run_one "$key" "$name" "$@"
+        return
+    fi
+    [ "$cls" = W ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
+    (
+        export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
+        mkdir -p "$HOME" "$TMPDIR"
+        [ "$cls" = G ] && gen_lock
+        run_one "$key" "$name" "$@"
+        [ "$cls" = G ] && gen_unlock
+        [ "$cls" = W ] || echo >&3
+    ) &
+}
+note() {                # a skip line, in the serial order
+    T_SEQ=$((T_SEQ + 1))
+    if [ "$JOBS" -le 1 ]; then echo "$1"
+    elif [ "$PHASE" = 2 ]; then echo "$1" > "$RES/$(printf '%04d' "$T_SEQ")"
     fi
 }
+tests_body() {
 W="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
 run fastmath sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
 TB3PO_REF="${TB3PO_REF:-../schwung-tb3po/src/dsp/tb3po.c}"
@@ -58,7 +135,7 @@ run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/sto
 if [ -f build/x0x.fwsc ]; then
     run ota-entry sh -c "$CC -o $OUT/ota_test tests/ota_test.c && $OUT/ota_test build/x0x.fwsc"
     if [ -z "${AC79_SDK:-}" ]; then
-        echo "  skip update-loader (needs AC79_SDK, as the build)"
+        note "  skip update-loader (needs AC79_SDK, as the build)"
     else
     run update-loader sh -c "head -c 200000 build/x0x.bin > $OUT/old_app.bin && \
         python3 tools/fm1pkg_make.py $OUT/old_app.bin build/loader/ota.bin $OUT/old.fwsc >/dev/null && \
@@ -66,7 +143,7 @@ if [ -f build/x0x.fwsc ]; then
     fi
     run installer python3 tests/install_test.py
 else
-    echo "  skip update-path tests (no build/x0x.fwsc: run ./build.sh)"
+    note "  skip update-path tests (no build/x0x.fwsc: run ./build.sh)"
 fi
 # SMK-37 Pro (BOARD_SMK37): the flash map and the store, the package layout, the update path on SMK-layout
 # packages (made from the FM-1 app: only the layout matters), and the SMK build's own package if there is one
@@ -99,7 +176,7 @@ if [ -f build/x0x.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
         python3 tools/fm1pkg_make.py --board smk37 $OUT/old_app.bin build/loader/ota.bin $OUT/smk_old.fwsc >/dev/null && \
         $CC -DBOARD_SMK37=1 -o $OUT/ldr_test_smk tests/ldr_test.c && $OUT/ldr_test_smk $OUT/smk_old.fwsc $OUT/smk_new.fwsc"
 else
-    echo "  skip SMK-37 Pro package tests (needs build/x0x.fwsc and AC79_SDK)"
+    note "  skip SMK-37 Pro package tests (needs build/x0x.fwsc and AC79_SDK)"
 fi
 [ -f build/x0x-smk37.fwsc ] && run smk-build-package python3 tests/smk_pkg_test.py build/x0x-smk37.fwsc
 [ -f build/x0x-smk37-elite.fwsc ] && run smk-build-package-elite python3 tests/smk_pkg_test.py build/x0x-smk37-elite.fwsc "SMK-37 Elite_900"
@@ -144,5 +221,21 @@ run perf-scratch sh -c "X0X_HOST_DEFS='-include $OUT/scratch_defs.h' X0X_HOST_OU
     mkdir -p $OUT/perf-scratch && $OUT/x0x_host_scratch tests/scenarios/perf.x0x $OUT/perf-scratch && \
     $OUT/x0x_host_scratch tests/scenarios/perfsave.x0x $OUT/perf-scratch && \
     cmp $OUT/perf-scratch/perfsave.wav build/scenarios/perfsave/perfsave.wav"
+}
+if [ "$JOBS" -le 1 ]; then
+    tests_body
+else
+    rm -rf "$RES" "$OUT/iso"; mkdir -p "$RES" "$OUT/iso"
+    fifo="$OUT/iso/.jobs"; mkfifo "$fifo"; exec 3<>"$fifo"; rm -f "$fifo"
+    i=0; while [ $i -lt "$JOBS" ]; do echo >&3; i=$((i + 1)); done
+    for PHASE in W 1 2 3; do      # no wait after W: class W runs beside phase 1, and the wait of phase 1 ends it
+        T_SEQ=0
+        tests_body
+        [ "$PHASE" = W ] || wait
+    done
+    exec 3>&-
+    for f in $(ls "$RES" | grep -v -e '\.fail$' -e '\.time$' | sort); do cat "$RES/$f"; done
+    ls "$RES" | grep -q '\.fail$' && FAIL=1
+fi
 [ $FAIL -eq 0 ] && echo "all tests passed" || echo "TESTS FAILED"
 exit $FAIL
