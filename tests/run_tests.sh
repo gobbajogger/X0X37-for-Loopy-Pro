@@ -181,6 +181,7 @@ run quickcheck-devbug bash tests/host/test_quickcheck_devbug.sh   # tools/quickc
 run status-lanes bash tests/host/test_status_lanes.sh   # tools/status.sh (check 12): lane/<agent>-* commits count as agent output
 run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.sh (check 30): output folder, no write to the live orchestrator folder
 run status-checks bash tests/host/test_status_checks.sh   # tools/status.sh (checks 27, 29): docs lint flag, ROADMAP installed hash, BEHAVIOR items since the last install
+run checklist-lint sh tests/host/test_checklist_lint.sh   # tools/checklist_lint.py (check 23): checklist header lines, 10 tasks or fewer, each task starts with Goal:
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)
