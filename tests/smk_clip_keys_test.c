@@ -107,14 +107,14 @@ static uint32_t nm_count(const char *s, size_t size)
 static void test_new_scales_chords(void)
 {
     /* every chord as intervals above the root (the SC types are tested above) */
-    static const uint8_t ABS[CK_NCHORD][5] = {
+    static const uint8_t ABS[CK_NCHORD][7] = {
         {0, 4, 7}, {0, 3, 7}, {0, 3, 6}, {0, 4, 8}, {0, 2, 7}, {0, 5, 7}, {0, 4, 7, 11}, {0, 3, 7, 10},
         {0, 4, 7, 10}, {0, 3, 6, 10}, {0, 3, 6, 9}, {0, 4, 7, 11, 14}, {0, 3, 7, 10, 14}, {0, 4, 7, 10, 14},
         {0}, {0}, {0}, {0, 4, 7, 9}, {0, 3, 7, 9}, {0, 3, 7, 11}, {0, 5, 7, 10}, {0, 4, 8, 10}, {0, 4, 7, 14},
-        {0, 3, 7, 14}, {0, 7, 11, 14, 17}, {0, 3, 10, 14, 17}, {0, 7, 10, 14, 17}, {0, 4, 11, 14, 21},
-        {0, 3, 10, 14, 21}, {0, 4, 10, 14, 21}};
+        {0, 3, 7, 14}, {0, 4, 7, 11, 14, 17}, {0, 3, 7, 10, 14, 17}, {0, 4, 7, 10, 14, 17},
+        {0, 4, 7, 11, 14, 17, 21}, {0, 3, 7, 10, 14, 17, 21}, {0, 4, 7, 10, 14, 17, 21}};   /* all the tones */
     static const uint8_t SIZE[CK_NCHORD] = {3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 3, 4, 5,
-                                            4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5};
+                                            4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 7, 7, 7};
     uint8_t o[CK_MAXN];
     uint32_t t, i, c = ck_mask(0, 0);
     assert(nm_count(CK_SCALE_N, sizeof CK_SCALE_N) == CK_NSCALE);
@@ -278,6 +278,33 @@ static void test_page(void)
     assert(!(pg & 3u) && !tog);
 }
 
+static void test_human(void)
+{
+    uint32_t h, i, late, v, r, seen_max = 0;
+    for (i = 0; i < 2000; i++) {                            /* HUMAN 0: no change, no wait */
+        r = i * 2654435761u;
+        assert(ck_human(0, r, 100, &late) == 100 && late == 0);
+    }
+    for (h = 1; h <= 7; h++)
+        for (i = 0; i < 4000; i++) {
+            r = (i ^ h << 20) * 2654435761u;
+            v = ck_human(h, r, 64, &late);
+            assert(late <= 4u * h && late <= CK_LATE_MAX);
+            assert((int)v >= 64 - 4 * (int)h && (int)v <= 64 + 4 * (int)h);
+            assert(ck_human(h, r, 1, &late) >= 1u && ck_human(h, r, 127, &late) <= 127u);
+            if (h == 7 && late > seen_max)
+                seen_max = late;
+        }
+    assert(seen_max == CK_LATE_MAX);                        /* HUMAN 7 reaches 28 ms */
+    /* the queue's due test: early in the 28 ms before the time, due at the time and after it */
+    for (i = 0; i < 256; i++) {
+        uint32_t t = (i + 17u) & 255u;
+        assert(ck_q_due(t, i + 17u));
+        assert(!ck_q_due(t, i + 17u - 1u) && !ck_q_due(t, i + 17u - CK_LATE_MAX));
+        assert(ck_q_due(t, i + 17u + 1u) && ck_q_due(t, i + 17u + 200u));   /* a long pass: late, not lost */
+    }
+}
+
 int main(void)
 {
     test_scale_masks();
@@ -289,6 +316,7 @@ int main(void)
     test_rhythm();
     test_zones();
     test_page();
+    test_human();
     printf("smk_clip_keys_test: ok\n");
     return 0;
 }
