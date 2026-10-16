@@ -208,3 +208,5 @@ Build: app code area 552672 B, 144 B free. App RAM .data+.bss 98304 of 98304 B (
 Tests: tests/ble_test 25157 checks, 0 failed. tests/run_tests.sh on the box: 64 ok, 3 not run (drum909, drum808, bass303: the reference sources ../schwung-* are not on the box).
 Artifacts (Mac ~/Documents/x0x37): a64-x0x-smk37-elite.fwsc (crc32 5ec8b21a, 651396 B), a64-ctl.img (crc32 e9c05144, 114672 B; piece1 d45e7f2e, piece2 738e4296), a64.bundle. NOT installed.
 Next: install a64 and do the iPhone connect test. Read DIAG with `tools/ble_autotest.py --diag-only`. The a64 record gives the reason, the time and who ended the link.
+
+| 64 (installed) | 2026-10-16 | Installed 17:58 via Mac (a64-x0x-smk37-elite.fwsc crc32 5ec8b21a + --ctl a64-ctl.img crc32 e9c05144, commit d184a64). Installer exit 0. Piece 1 CRC d45e7f2e ok, piece 2 read back 738e4296 ok. Slots before slots-before-a64-20261016-1757 and after slots-after-a64-20261016-1759 (copies in slot_backups/): 961626d5 / 9a09fdb9 / empty, before = after. DIAG after the install: a64-diag-after-install.txt. Next: the iPhone connect test, read the a64 disconnect record. |
