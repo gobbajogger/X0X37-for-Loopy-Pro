@@ -20,8 +20,10 @@ static seq_t S;
 static pattern_t P[NPAT];
 static uint32_t ticks;                         /* clocks that the sequencer took */
 
+static double g_t, g_tu, g_tb;                   /* samples run, the next USB and Bluetooth tick (two_clocks) */
 static void run(uint32_t samples)               /* blocks of 256, as the engine */
 {
+    g_t += samples;
     while (samples) {
         uint32_t n = samples < 256u ? samples : 256u;
         seq_advance(&S, n, &SINK);
@@ -47,16 +49,22 @@ static void reset(uint8_t src)
     S.clk_src = src;
     ticks = 0;
     run(256);
+    g_t = g_tu = 0.0;
+    g_tb = 44100.0 * 60.0 / 120.0 / 24.0 / 2.0;  /* Bluetooth half a tick after USB */
 }
-/* both inputs send clock at bpm (USB and Bluetooth offset by half a tick) for secs */
+/* both inputs send clock at bpm (USB and Bluetooth offset by half a tick) for secs. The tick times
+ * continue from the last call (reset() starts them again), so short calls give the right tempo. */
 static void two_clocks(double bpm, double secs, int usb_on, int ble_on)
 {
-    double tick = 44100.0 * 60.0 / bpm / 24.0, tu = 0.0, tb = tick / 2.0, t = 0.0, end = secs * 44100.0;
-    while (t < end) {
-        while (tu <= t) { if (usb_on) msg(0xF8, USB); tu += tick; }
-        while (tb <= t) { if (ble_on) msg(0xF8, BLE); tb += tick; }
+    double tick = 44100.0 * 60.0 / bpm / 24.0, end = g_t + secs * 44100.0;
+    if (g_tu < g_t - tick)                      /* (a time with no clock: no burst of late ticks) */
+        g_tu = g_t;
+    if (g_tb < g_t - tick)
+        g_tb = g_t + tick / 2.0;
+    while (g_t < end) {
+        while (g_tu <= g_t) { if (usb_on) msg(0xF8, USB); g_tu += tick; }
+        while (g_tb <= g_t) { if (ble_on) msg(0xF8, BLE); g_tb += tick; }
         run(256);
-        t += 256.0;
     }
 }
 
@@ -135,6 +143,37 @@ int main(void)
         CHECK(S.clk_lock == USB + 1, "%s: then a USB clock: USB has it", nm);
         run_ms(410);
         CHECK(S.clk_lock == 0, "%s: 0.41 s with nothing: no input has the clock", nm);
+    }
+
+    for (m = 0; m < 2; m++) {                   /* a change of input restarts the tempo measure: no dip */
+        uint8_t src = m ? SEQ_CLK_EXT : SEQ_CLK_AUTO;
+        const char *nm = m ? "EXTERNAL" : "AUTO";
+        int k;
+        float lo = 999.0f, hi = 0.0f;
+        reset(src);
+        msg(0xFA, USB);
+        two_clocks(120.0, 6.0, 1, 1);
+        two_clocks(120.0, 0.45, 0, 1);          /* USB ends: after 0.4 s Bluetooth gets the clock */
+        CHECK(S.clk_lock == BLE + 1, "%s: Bluetooth has the clock after the change", nm);
+        two_clocks(120.0, 1.0, 0, 1);           /* 2 beats at 120 BPM */
+        for (k = 0; k < 40; k++) {              /* then 4 s: the tempo stays in 119-121 */
+            two_clocks(120.0, 0.1, 0, 1);
+            lo = S.ext_bpm < lo ? S.ext_bpm : lo;
+            hi = S.ext_bpm > hi ? S.ext_bpm : hi;
+        }
+        CHECK(lo >= 119.0f && hi <= 121.0f, "%s: tempo after the change %.2f-%.2f (want 120 +-1 after 2 beats)", nm, (double)lo, (double)hi);
+
+        reset(src);                             /* the clock stops just after a change: 120 BPM stays */
+        msg(0xFA, USB);
+        two_clocks(120.0, 6.0, 1, 1);
+        two_clocks(120.0, 0.45, 0, 1);
+        two_clocks(120.0, 0.1, 0, 1);
+        CHECK(S.ext_bpm > 119.0f && S.ext_bpm < 121.0f, "%s: tempo just after the change %.2f", nm, (double)S.ext_bpm);
+        run(44100);                             /* no clock for 1 s */
+        if (m)
+            CHECK(seq_clock_waiting(&S) && S.ext_bpm > 119.5f && S.ext_bpm < 120.5f, "EXTERNAL: waits, tempo %.2f", (double)S.ext_bpm);
+        else
+            CHECK(!S.ext && S.bpm == 120.0f, "AUTO: internal tempo %.2f after the stop (want 120)", (double)S.bpm);
     }
 
     reset(SEQ_CLK_INT);                         /* INTERNAL ignores the clock of both inputs */

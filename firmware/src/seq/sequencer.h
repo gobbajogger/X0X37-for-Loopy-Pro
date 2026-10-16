@@ -97,7 +97,8 @@ typedef struct {
  * bits 4-5 (plat.h PLAT_MIDI_SRC): 0 USB, 1 Bluetooth, 2 TRS. The first input that sends Clock, Start or
  * Continue gets the clock. It keeps the clock until it sends nothing for SEQ_LOCK_T, or until SEQ_LOCK_T
  * after its Stop (then a Start or Continue of another input gets it). 0.4 s: more than 3 clocks at 20 BPM
- * (125 ms each), and less than the 0.5 s after which X0X goes to its internal clock or waits (MID-12, MID-13). */
+ * (125 ms each), and less than the 0.5 s after which X0X goes to its internal clock or waits (MID-12, MID-13).
+ * When another input gets the clock, the tempo measure starts again from the tempo that X0X has now. */
 #define SEQ_LOCK_T (FS * 2u / 5u)
 
 typedef struct {                      /* one part's runtime */
@@ -159,6 +160,8 @@ typedef struct {
     uint32_t start_at;                /* ext_now at the last start */
     uint8_t clk_lock;                 /* the input that has the clock (MID-15): 0 none, else input + 1 */
     uint8_t clk_stop;                 /* 1: the last transport message of that input was a Stop */
+    uint8_t clk_last;                 /* the input that had the clock last (input + 1): a change restarts the tempo measure */
+    uint8_t ext_skip;                 /* 1: the next block of ticks gives no tick period (the first ticks of a new input) */
     uint32_t clk_lock_at;             /* ext_now at its last Clock, Start or Continue */
     uint32_t clk_stop_at;             /* ext_now at its last Stop */
 } seq_t;

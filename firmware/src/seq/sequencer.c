@@ -427,6 +427,10 @@ static void ext_ticks(seq_t *s)
     int t;
     uint32_t n = s->ext_pending, k = n;
     s->ext_pending = 0;
+    if (s->ext_skip) {                                /* the first ticks of a new input: no period */
+        s->ext_skip = 0;
+        s->ext_since = FS;
+    }
     for (; n; n--) {
         if (s->ext_since > 0 && s->ext_since < FS && s->ext_nb < 2u) {   /* the first beats: smoothed */
             uint32_t q = (s->ext_since << 8) / k;     /* the ticks of one block share its time */
@@ -711,7 +715,11 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
             return 0;                                 /* another input has the clock */
         if (st == 0xFCu)
             return 1;                                 /* no input has the clock: a Stop gets no clock */
-        s->clk_lock = me;
+        if (s->clk_last && s->clk_last != me) {      /* another input: the tempo measure starts again, */
+            s->ext_nb = s->ext_bi = s->ext_q = 0;     /* from the tempo now (no gap in the beat ring) */
+            s->ext_skip = 1;                          /* (the first ticks give no period) */
+        }
+        s->clk_lock = s->clk_last = me;
         s->clk_stop = 0;
     }
     if (st == 0xFCu) {
