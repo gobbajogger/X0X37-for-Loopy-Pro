@@ -7,6 +7,7 @@ table "RGB LEDs"). The rules and their named constants are in tools/apc_colour_m
 
 Usage:
   tools/apc_pad_colors.py                      # table on stdout
+  tools/apc_pad_colors.py --lcd-idle-h firmware/src/app/apc40_lcd_idle.h   # idle clip squares (CLP-05)
   tools/apc_pad_colors.py --pad-h out.h        # APC40_PAD_DEFAULT[128][3]: pad LED start levels
   tools/apc_pad_colors.py --pad-h out.h --pad-override export.txt   # the entries marked ok replace the rule
   tools/apc_pad_colors.py --pad-h firmware/src/app/apc40_pad_owner.h --pad-override tools/padcal/pads-owner-20261017.txt \\
@@ -78,6 +79,17 @@ def lcd_header(lcd, target):
     return "\n".join(out) + "\n"
 
 
+def lcd_idle_header(src, target):
+    idle = [m.lcd_idle565(src, v, target) for v in m.IDLE_SHADES]
+    out = [GEN.format(opt="--lcd-idle-h") +
+           f" * LCD colour (RGB565) of an idle clip square (BEHAVIOR.md CLP-05): for the darkest shade v of an Akai\n"
+           f" * group (v = {m.IDLE_SHADES[0]}, {m.IDLE_SHADES[1]}, ... {m.IDLE_SHADES[-1]}, v % 4 == 3), half of the full shade v - 2\n"
+           f" * (colour {target}, each 8-bit channel / 2, round half up), as RGB565. Entry i is v = {m.IDLE_SHADES[0]} + 4 i. */",
+           f"static const uint16_t APC40_LCD_IDLE565[{len(idle)}] = {{",
+           "    " + ",".join(f"0x{c:04X}" for c in idle) + ",", "};"]
+    return "\n".join(out) + "\n"
+
+
 def read_table(path, name, digits):
     t = Path(path).read_text()
     mt = re.search(name + r"\[128\]\s*=\s*\{(.*?)\};", t, re.S)
@@ -107,6 +119,7 @@ def main():
     ap.add_argument("--pad-h")
     ap.add_argument("--lcd-h")
     ap.add_argument("--gamma-h")
+    ap.add_argument("--lcd-idle-h")
     ap.add_argument("--report")
     ap.add_argument("--html")
     ap.add_argument("--pad-override")
@@ -128,6 +141,8 @@ def main():
         Path(a.pad_h).write_text(pad_header(pad, a.gamma, bal, a.target, ov, a.pad_name, a.pad_override))
     if a.lcd_h:
         Path(a.lcd_h).write_text(lcd_header(lcd, a.target))
+    if a.lcd_idle_h:
+        Path(a.lcd_idle_h).write_text(lcd_idle_header(src, a.target))
     if a.gamma_h:
         Path(a.gamma_h).write_text(gamma_header(a.gamma, bal))
     op = read_table(a.old_pad, "APC40_RGB", 6) if a.old_pad else None

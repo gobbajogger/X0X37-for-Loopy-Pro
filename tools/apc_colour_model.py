@@ -263,6 +263,17 @@ def to565(r, g, b):
     return (r * 31 + 127) // 255 << 11 | (g * 63 + 127) // 255 << 5 | (b * 31 + 127) // 255
 
 
+# CLP-05 idle squares: Loopy draws a clip that does not play (and an empty slot, LIM-03) in the darkest shade
+# of an Akai group of 4 (velocity v, v % 4 == 3). The groups are 4-59. The full shade of the group is v - 2.
+IDLE_SHADES = tuple(range(7, 60, 4))
+
+
+def lcd_idle565(src, v, mode=None):
+    """LCD colour of the idle velocity v: half of the full shade v - 2 (8-bit, round half up), as RGB565."""
+    assert v in IDLE_SHADES, v
+    return to565(*((c + 1) // 2 for c in split(target(src[v - 2], mode))))
+
+
 def of565(c):
     return ((c >> 11) * 255 / 31, ((c >> 5) & 63) * 255 / 63, (c & 31) * 255 / 31)
 

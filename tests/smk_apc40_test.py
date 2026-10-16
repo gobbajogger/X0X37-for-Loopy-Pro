@@ -147,7 +147,7 @@ print("PASS clip grid on the LCD: main loop only, rate limited, current pad view
 # CLP-05: the LCD clip colours come from the table APC40_LCD565 (tools/apc_pad_colors.py, plain RGB565).
 draw = main.split("uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)\n{")[1].split("\n}\n")[0]
 assert '#include "app/apc40_lcd565.h"' in main
-assert "uint16_t c = APC40_LCD565[v & 0x7Fu];" in draw          # velocity 0-127; a value > 127 stays in the table
+assert "uint16_t c = smk_clip_lcd565(v);" in draw          # APC40_LCD565, idle shades half of the full shade (CLP-05)
 assert "APC40_RGB" not in draw and "SMK_CLIP_LCD_FLOOR + mx" not in main   # the old floor calculation is gone
 assert "if (v)\n                    cv_rect(x + gap + 1, y + gap + 1, p - 2 * gap - 2, p - 2 * gap - 2, c);" in draw
 assert "else\n                    cv_rect(x + p / 2 - 2, y + p / 2 - 2, 4, 4, C_DIM);" in draw   # velocity 0: a dim dot

@@ -185,6 +185,8 @@ extern void isr_timer5(void);
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 #include "app/apc40_lcd565.h"   /* APC40_LCD565[128]: the LCD clip colours (tools/apc_pad_colors.py) */
+#include "app/apc40_lcd_idle.h"   /* APC40_LCD_IDLE565: the LCD idle clip squares (CLP-05) */
+#include "app/smk_clip_colour.h"
 #if X0X_DEV_PADCAL                      /* dev builds only: a release build has no pad calibration */
 #include "app/smk_padcal.h"      /* the pad calibration (CLP-79) */
 #include "app/apc40_pad_gamma.h"     /* its start rule (tools/apc_pad_colors.py --gamma-h) */
@@ -544,8 +546,8 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
                 int32_t x = m.x0 + (int32_t)col * p, y = m.y0 + (int32_t)smk_apc40_lcd_screen_row(&m, (uint8_t)(m.row0 + row)) * p;
                 uint8_t n = (uint8_t)((m.row0 + row) * SMK_APC40_SOURCE_COLS + m.col0 + col);
                 uint8_t v = apc_led_velocity[n];
-                /* The Akai colour as plain RGB565 (CLP-05). */
-                uint16_t c = APC40_LCD565[v & 0x7Fu];
+                /* The Akai colour as plain RGB565. An idle shade: half of the full shade (CLP-05). */
+                uint16_t c = smk_clip_lcd565(v);
                 int32_t q = p / 4;
                 if (in_view[n])
                     cv_rect(x, y, p, p, C_WHITE);

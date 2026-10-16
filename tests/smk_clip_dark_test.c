@@ -31,6 +31,8 @@ static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) { (v
 #include "padled.inc"
 #include "app/smk_apc40.h"
 #include "app/apc40_lcd565.h"     /* smk_clip_lcd_draw reads APC40_LCD565 (CLP-05) */
+#include "app/apc40_lcd_idle.h"   /* and APC40_LCD_IDLE565 through smk_clip_lcd565 (CLP-05) */
+#include "app/smk_clip_colour.h"
 #include "apc_a.inc"
 static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void) {}
