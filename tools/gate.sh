@@ -24,6 +24,8 @@
 # Environment (defaults in brackets):
 #   X0X_REPO [/workspace/x0x37.git]  X0X_RESULTS [/workspace/x0x37-results]  X0X_REFS [/workspace/x0x37-refs/schwung]
 #   X0X_GATE_WORK [~/.cache/x0x37-gate]  X0X_TEST_JOBS [8]  JIELI_TOOLCHAIN [~/.jieli/toolchain]  AC79_SDK [~/fw-AC79_AIoT_SDK]
+#   X0X_PREPUSH_HOOK [/workspace/x0x37.git/hooks/pre-push]: the gate copies it into its .repo clone. A failed copy is a FAIL.
+#   X0X_GATE_SETUP_ONLY [0]: 1 = make the .repo clone (hook, push URLs), print "SETUP <commit> <path>" and stop (a test of this step).
 #   X0X_GATE_LOCK [/workspace/x0x37-refs/gate.lock]
 #   X0X_REF_PINS ["schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d"]
 set -u
@@ -37,6 +39,7 @@ TC=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain}
 SDK=${AC79_SDK:-$HOME/fw-AC79_AIoT_SDK}
 SCALE=1                                 # the pre-install gate: real updater waits only
 export X0X_TEST_TIME_SCALE=$SCALE
+PREPUSH=${X0X_PREPUSH_HOOK:-/workspace/x0x37.git/hooks/pre-push}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
 FORCE=0
@@ -82,7 +85,18 @@ if [ "$FORCE" = 0 ] && [ -f "$RF" ]; then
 fi
 
 mkdir -p "$WORK"
-[ -d "$WORK/.repo" ] || git clone -q --no-checkout "$REPO" "$WORK/.repo"
+[ -d "$WORK/.repo" ] || git clone -q --no-checkout "$REPO" "$WORK/.repo" || { echo "FAIL $S git clone of $REPO failed"; exit 1; }
+# The clone gets the pre-push hook of the box repository, and no remote can push outside the box.
+# The gate does this for a new clone and also for an older clone without the hook.
+HC=$(git -C "$WORK/.repo" rev-parse --path-format=absolute --git-common-dir) && mkdir -p "$HC/hooks" &&
+    cp "$PREPUSH" "$HC/hooks/pre-push" && chmod +x "$HC/hooks/pre-push" ||
+    { echo "FAIL $S cannot copy the pre-push hook $PREPUSH into $WORK/.repo"; exit 1; }
+for rem in $(git -C "$WORK/.repo" remote); do
+    pu=$(git -C "$WORK/.repo" remote get-url --push "$rem")
+    [ "$pu" = /workspace/x0x37.git ] || git -C "$WORK/.repo" remote set-url --push "$rem" DISABLED-no-push-outside-box ||
+        { echo "FAIL $S cannot disable the push URL of remote $rem in $WORK/.repo"; exit 1; }
+done
+if [ "${X0X_GATE_SETUP_ONLY:-0}" = 1 ]; then echo "SETUP $S $WORK/.repo (clone, hook and push URLs only)"; exit 0; fi
 FE=$(git -C "$WORK/.repo" fetch -q --update-shallow origin '+refs/heads/*:refs/remotes/origin/*' 2>&1) || {
     echo "FAIL $S git fetch from $REPO: $(echo "$FE" | grep -v '^$' | tail -n1)"; exit 1; }
 if ! git -C "$WORK/.repo" cat-file -e "$H^{commit}" 2>/dev/null; then
