@@ -149,6 +149,7 @@ for t in drum909 drum808 bass303 breaks; do
 done
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time
+run install-head sh tests/host/test_install_head.sh   # tools/fm1_install.py (check 4): the package bootloader bytes = the reference read-back
 run prepush-trim sh tests/host/test_prepush_trim.sh   # tools/prepush-check.sh: the box update hook runs the quick check, so the client does not
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
