@@ -4,7 +4,8 @@
 #   prepush-check.sh <remote> <url> < <the lines of the pre-push hook: local-ref local-sha remote-ref remote-sha>
 # Only a push to refs/heads/integration is checked. For each pushed commit the script runs quickcheck.sh (next to it)
 # in a worktree of the pushing repository (<git common dir>/x0x37-quickcheck/wt, kept for incremental builds).
-# The changed files are the remote integration tip to the pushed commit. A "QUICK FAIL" stops the push (exit code 1).
+# The changed files are the remote integration tip to the pushed commit. A tree with tools/ste_strict needs an
+# installed quickcheck.sh with the STE step (install_gate.sh also installs ste_check.py), else the push stops. A "QUICK FAIL" stops the push (exit code 1).
 set -u
 QC="$(cd "$(dirname "$0")" && pwd)/quickcheck.sh"
 Z=0000000000000000000000000000000000000000
@@ -17,6 +18,10 @@ while read -r lref lsha rref rsha; do
     W="$GC/x0x37-quickcheck/wt"
     if [ -d "$W" ]; then git -C "$W" checkout -q -f --detach "$lsha" || { rc=1; continue; }
     else mkdir -p "$GC/x0x37-quickcheck"; git worktree prune; git worktree add -q --detach "$W" "$lsha" || { rc=1; continue; }; fi
+    if [ -f "$W/tools/ste_strict" ] && ! grep -q '^ste_step()' "$QC"; then
+        echo "prepush-check: QUICK FAIL ${lsha:0:7} STE: strict mode, but the installed $QC has no STE step (run tools/install_gate.sh)" >&2
+        rc=1; continue
+    fi
     BASE=""
     [ "$rsha" != "$Z" ] && git cat-file -e "$rsha^{commit}" 2>/dev/null && BASE=$rsha
     echo "prepush-check: quick check of ${lsha:0:7} for $rref (the first run in a repository also builds everything)" >&2

@@ -73,8 +73,12 @@ export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c" X0X_TEST_JOBS=8 X0X_TEST_
 ste_step() {
     STE_FAIL=0; STE_NOTE=""
     local d n strict=0 st="$QCDIR/ste_check.py" c f md=""
-    [ -f "$st" ] || { echo "STE: no $st, STE step skipped" >> "$LOG"; return 0; }
     { [ -f "$W/tools/ste_strict" ] || [ "${X0X_STE_STRICT:-0}" = 1 ]; } && strict=1
+    if [ ! -f "$st" ]; then                             # strict mode fails closed: no check is a failure
+        echo "STE: no $st, STE step skipped" >> "$LOG"
+        [ $strict = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: no $st (run tools/install_gate.sh)"; }
+        return 0
+    fi
     d=$(mktemp -d "${TMPDIR:-/tmp}/qcste.XXXXXX") || return 0
     for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" 2>/dev/null); do
         { echo "${c:0:7}"; "${G[@]}" log -1 --format=%B "$c"; echo "@@END@@"; } > "$d/commit-${c:0:7}"
