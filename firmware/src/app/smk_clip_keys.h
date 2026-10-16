@@ -219,6 +219,12 @@ CK_FN static uint32_t ck_page_btn(uint32_t pg, uint32_t press, uint32_t rel, uin
                            : (pg & 3u ? pg : pg | (f < CK_E_CHORD ? 1u : f < CK_E_ORD ? 2u : 3u)) | CK_P_PIN | CK_P_EDIT;
     return pg;
 }
+/* A stage tap (owner 2026-10-17 02:51, CLP-62): on 1 (the stage went on): its page opens and stays (pinned, as
+ * FADER BANK pins it). on 0 (the stage went off): the page closes and the pin goes off. i: 0 SCALE, 1 CHORD, 2 ARP. */
+CK_FN static uint32_t ck_page_tap(uint32_t pg, uint32_t i, uint32_t on)
+{
+    return on ? (pg & 0xF0u) | CK_P_PIN | (i + 1u) : pg & 0xF0u;
+}
 
 /* < and > on a page: a press steps the last field at once. A hold steps again after CK_RPT_DELAY ms, then
  * each CK_RPT_MS ms. Only an arrow that went down on a page with no menu steps or repeats. */

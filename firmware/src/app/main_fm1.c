@@ -1284,7 +1284,8 @@ CK_FN static void ck_key_edit(uint32_t k)
     if (z)
         ck_set(f, ck_zone_val(z, k, ck_get(f), CK_FMAX[f]));
 }
-/* SCALE, CHORD, ARP: a tap (shorter than CK_TAP_MS, no edit) turns the stage on or off. A hold shows its page,
+/* SCALE, CHORD, ARP: a tap (shorter than CK_TAP_MS, no edit) turns the stage on and pins its page, or turns it
+ * off and closes the page (ck_page_tap). A hold shows its page,
  * and the keys edit the page. The release closes the page. FADER BANK pins the page (the keys play), a second
  * press closes it; < and > step the last field (a hold repeats, no wrap). NOTE REPEAT + ARP: LATCH on or off.
  * NOTE REPEAT alone: panic. Knobs 2-8: CC 48-54 (no stage takes the knobs). */
@@ -1314,6 +1315,7 @@ CK_FN static void ck_controls(void)
         if (tog >> i & 1u) {                                /* a tap: the stage on or off */
             ck_all_off();
             cp->on ^= (uint8_t)(1u << i);
+            cp->pg = (uint8_t)ck_page_tap(cp->pg, i, cp->on >> i & 1u);   /* on: the page stays open */
             ui_say(ck_nm(CK_MODE_N, i), cp->on >> i & 1u ? " ON" : " OFF");
         }
     f = cp->pg >> 4;
