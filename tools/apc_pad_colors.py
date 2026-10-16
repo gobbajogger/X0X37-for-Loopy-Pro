@@ -34,6 +34,7 @@ def pad_header(pad, gamma, balance, target, override=None):
            f" * brightest channel sends at least {m.PAD_FLOOR_SENT}.\n"
            " * The start values of the pad calibration (GLOBAL > SYSTEM > PAD COLOURS), not the live pad\n"
            " * table (APC40_RGB in main_fm1.c). Decimal: the build's register address check. */",
+           "#include <stdint.h>",
            "static const uint8_t APC40_PAD_DEFAULT[128][3] = {"]
     for i in range(0, 128, 8):
         out.append("    " + ",".join("{%d,%d,%d}" % p for p in pad[i:i + 8]) + ",")

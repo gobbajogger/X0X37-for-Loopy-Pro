@@ -5,6 +5,7 @@
  * brightest channel sends at least 2.
  * The start values of the pad calibration (GLOBAL > SYSTEM > PAD COLOURS), not the live pad
  * table (APC40_RGB in main_fm1.c). Decimal: the build's register address check. */
+#include <stdint.h>
 static const uint8_t APC40_PAD_DEFAULT[128][3] = {
     {0,0,0},{4,4,2},{55,55,27},{255,255,125},{255,18,9},{255,0,0},{25,0,0},{4,0,0},
     {255,132,19},{255,22,0},{25,2,0},{4,2,0},{255,255,9},{255,255,0},{25,25,0},{4,4,0},
