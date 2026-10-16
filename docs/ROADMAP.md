@@ -49,7 +49,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
   - The keyboard runs integration c6bf44a (batch 10) in the release configuration. The install time is 2026-10-17 02:25 (INSTALLED.tsv). It has no PAD COLOURS page, and the owner pad colours are in the firmware.
   - The fwsc CRC32 is c48b5c6e. The ctl.img read-back is eb742dd2 (the same as the file). Slots 1 and 2 did not change, and slot 3 is empty. DIAG shows READY.
   - Free bytes of the Elite release build at c6bf44a: app code 3864 B, static RAM 5824 B, pool 8196 B.
-  - Device test: PENDING (batch 10). Tag last-good-hw stays 94285b5.
+  - Device test: PENDING (batch 10). Regression (owner 02:49): in clip mode, the knobs do nothing. Tag last-good-hw stays 94285b5.
 - iPhone:
   - The iPhone works on a67 (owner test PASS 19:18). On a73, the link carries the Loopy clock and Start (20:37 PASS).
   - History: a65 iPhone test 1 (18:23): the iPhone connected (interval 7.5 ms, MTU 185). Then the link ended with reason 0x08 (connection timeout).
@@ -76,6 +76,8 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
    - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Device test: pending.
    - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix (a76) is in the installed build c6bf44a. In c6bf44a, a link end clears only the clip cells of that link (30a08fc, 79de009). Device test: pending.
    - Open: the owner test of batch 10 (c6bf44a).
+   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. Firmware Main Builder bisects it. The fix goes in batch 11.
+   - Batch 11 (owner 02:49, Second Builder): in clip mode, a tap on MODE latches the MODE UI open, and a second tap closes it. A hold works as before.
    - Open: the owner did not test the a74 clock source (MID-13) and PLAY note (MID-14) items yet.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
 4. Bring integration (c6bf44a or later) into the main tree (x0x37, smk37) after an owner test PASS of an installed build.
@@ -95,4 +97,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-17 02:45.
+Last update: 2026-10-17 02:56.
