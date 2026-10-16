@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project.
 
-Last updated: 2026-10-16 17:50 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
+Last updated: 2026-10-16 17:45 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
 Owner: Docs Keeper (living document). Docs Keeper updates this file when an agent, a room or a rule changes.
 "TO CONFIRM" marks a fact that no project file or agent profile shows.
 
@@ -39,7 +39,7 @@ Owner: Docs Keeper (living document). Docs Keeper updates this file when an agen
 ### Merge Integrator
 - ID: 6d5025ab-17f1-4d00-abb1-a1475550e792
 - Purpose: Merges branches into an integration branch on commits. Runs build + unit tests. Surfaces conflicts early. Reports in plain English in Integration and Loopy. Keeps caches and worktrees clean.
-- Never: Installs firmware.
+- Never: Installs firmware. Never merge branch refs-oscuro (ac10280). It holds the Oscuro reference firmware and is not for distribution.
 - Worktree: /Users/mac/Documents/x0x37/flash_review_integration (branch integration).
 - Rooms: Loopy, Integration.
 
@@ -52,7 +52,7 @@ Owner: Docs Keeper (living document). Docs Keeper updates this file when an agen
 ### Release Packager
 - ID: 47f0d1b2-8691-46f3-9c06-c99fd805761c
 - Purpose: Packages passing merged builds with CRCs, slot backup paths, and plain-English changelog.
-- Never: Installs. (TO CONFIRM: implied by the profile, not written.)
+- Never: Installs. (TO CONFIRM: implied by the profile, not written.) Never package anything from branch refs-oscuro (ac10280). It is not for distribution.
 - Rooms: Integration.
 
 ### Docs Keeper
@@ -80,9 +80,9 @@ Each task has one owner. Find the owner in this table. Heavy agents write code o
 | Firmware Main Builder | Live BLE lane ble-a56 (d9844a4, a63), not ble-stage3. All firmware installs. | Edit clip-keys. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
 | Second Builder | Branch clip-keys (clip mode, scale, chord, arp, tempo). | Install. Edit flash_review or the BLE branches (ble-a56). | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
 | Firmware Q&A | Answers about firmware and branches. | Commit, change code or install. | Owner of the topic, from this table. | Light |
-| Merge Integrator | Branch integration. Merges and merge conflicts. merge-monitor-log.md. | Install. Write feature code. | Build and Test Runner (merged commit). | Heavy |
+| Merge Integrator | Branch integration. Merges and merge conflicts. merge-monitor-log.md. | Install. Write feature code. Merge refs-oscuro. | Build and Test Runner (merged commit). | Heavy |
 | Build and Test Runner | Headless builds, unit tests, size and flash-map checks. | Install. Write feature code. | Release Packager (pass). Builder of the branch (fail). | Heavy |
-| Release Packager | Release packages with CRCs, slot backup paths and changelogs. | Install. Change code. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
+| Release Packager | Release packages with CRCs, slot backup paths and changelogs. | Install. Change code. Package refs-oscuro. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
 | Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. | Install. Change firmware code. | Orchestrator (rule changes). | Light |
 | Test Plan Writer | Hardware test checklists in User Test. | Install. Change code. | Firmware Main Builder (install). Docs Keeper (results). | Light |
 
@@ -154,7 +154,7 @@ More rules from agent-rules.md, USER_PREFERENCES.md and merge-monitor-log.md:
 ## Current project context
 - Location: ~/Documents/x0x37
 - Base commit: 585d63c is old. Integration merges: afd20e9, 05a0349, 69ff913, 5076f12, cda4cce. At 17:34 the Mac branch integration moved to 02ae8b8 (585d63c with merges of ble-stage3 a43425b and clip-keys c2f7906). Merge Integrator rebuilt integration from ble-a56 on the order of Orchestrator, because 02ae8b8 was stale. At 17:37 it reset integration to d9844a4, and at 17:38 to c090cfe. The branch integration-stale-02ae8b8 keeps the old merges.
-- Active branches: ble-a54, ble-a55 and ble-a56 (Firmware Main Builder, BLE attempts 54 to 63). clip-keys (Second Builder, flash_review_clipkeys, c2f7906). integration (Merge Integrator, flash_review_integration, c090cfe at 17:38). fix-bass303 (9703c4f, owner TO CONFIRM). Older BLE branches: ble-stage3 and ble-a48 to ble-a51. The live BLE lane is ble-a56 (d9844a4, a63, ledger row c090cfe).
+- Active branches: ble-a54, ble-a55 and ble-a56 (Firmware Main Builder, BLE attempts 54 to 63). clip-keys (Second Builder, flash_review_clipkeys, c2f7906). integration (Merge Integrator, flash_review_integration, c090cfe at 17:38). fix-bass303 (9703c4f, owner TO CONFIRM). refs-oscuro (ac10280): the SMK-37 Oscuro reference firmware. Not for distribution. Never merge it. Never package it (owner decision 2026-10-16 17:44). Older BLE branches: ble-stage3 and ble-a48 to ble-a51. The live BLE lane is ble-a56 (d9844a4, a63, ledger row c090cfe).
 - Commit 9984344 (clip keys: knobs 2-8 send CCs) is only on the integration line (merge 5076f12). It is not on clip-keys.
 - Both touch main_fm1.c (careful merge needed)
 - Logs to keep: x0x37-progress-log.md, merge-monitor-log.md, USER_PREFERENCES.md, BEHAVIOR.md, ROADMAP.md
@@ -192,3 +192,4 @@ More facts (checked 2026-10-16 01:32):
 - 2026-10-16 17:45, doc audit for Docs Keeper: new agent IDs for all nine agents. All room IDs are TO CONFIRM, because the owner recreates the rooms. The live BLE lane is ble-a56 (d9844a4, a63), not ble-stage3. Added the note that the caveman skill is missing, so room posts use short simple English. Added the integration reset (17:37 and 17:38). Test Plan Writer was already in the file. Nothing was removed.
 - 2026-10-16 17:50, doc audit for Docs Keeper: Merge Integrator did the integration reset at 17:37 and 17:38 on the order of Orchestrator. It rebuilt integration from ble-a56, because 02ae8b8 was stale. fix-bass303 owner stays TO CONFIRM.
 - 2026-10-16 17:41, doc audit for Docs Keeper: x0x37/docs/AGENTS_AND_ROOMS.md is now an exact copy of this file, committed on smk37. It has no REPLACED mark. Update both together.
+- 2026-10-16 17:45, doc audit for Docs Keeper: owner decision 17:44. Branch refs-oscuro (ac10280) holds the SMK-37 Oscuro reference firmware. It is not for distribution. Added never-merge to Merge Integrator and never-package to Release Packager. Added refs-oscuro to the active branches.
