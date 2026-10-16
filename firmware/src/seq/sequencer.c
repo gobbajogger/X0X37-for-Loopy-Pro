@@ -331,7 +331,9 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     } else
         fire_bass(s, t - TRK_BASS0, p, L, carry, o);
     if (s->ext) {
-        tr->to_next = NEVER;                         /* the clock arms the next one */
+        tr->to_next = tr->ext_due ? 0 : NEVER;       /* the clock arms the next one (a burst: at once) */
+        if (tr->ext_due)
+            tr->ext_due--;
     } else {
         /* the step that follows p: swung if it is an odd one */
         int np = next_pos(s, t, p, 0);
@@ -351,6 +353,7 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
             continue;
         s->t[t].started = 0;
         s->t[t].to_next = s->ext ? NEVER : 0;
+        s->t[t].ext_due = 0;
         s->t[t].ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);
         s->t[t].bars = 0;
         s->t[t].pp_dir = 1;
@@ -370,6 +373,7 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
             tr->pp_dir = 1;
         }
         tr->to_off = 0;
+        tr->ext_due = 0;
         tr->to_next = s->ext ? NEVER : 0;
         tr->ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);   /* the first clock is the downbeat */
     }
@@ -387,8 +391,10 @@ static void do_stop(seq_t *s, const seq_sink_t *o)
         bass_release(s, b, o);
     if (o->brk_stop)
         o->brk_stop(o->ctx);
-    for (t = 0; t < NTRACKS; t++)
+    for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
+        s->t[t].ext_due = 0;
+    }
     if (!s->ext && s->send_clock && !s->midi_req)
         midi(o, 0xFC, 0, 0);
 }
@@ -436,6 +442,11 @@ static void ext_ticks(seq_t *s)
             if (++tr->ext_ticks < tps)
                 continue;
             tr->ext_ticks = 0;
+            if (tr->to_next != NEVER) {               /* the last one not played yet (one block): it too */
+                if (tr->ext_due < 255u)
+                    tr->ext_due++;
+                continue;
+            }
             {
                 int np = tr->started ? next_pos(s, t, tr->pos, 0) : 0;
                 uint32_t L = s->ext_period ? s->ext_period * (uint32_t)tps : seq_step_q8(s, rate);
@@ -472,6 +483,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         if (!s->ext && s->playing)                    /* playing on the internal clock: the first tick */
             for (t = 0; t < NTRACKS; t++) {           /* is tick 0 of the step that plays (no step now) */
                 s->t[t].to_next = NEVER;
+                s->t[t].ext_due = 0;
                 s->t[t].ext_ticks = 0xFFu;            /* (ext_ticks adds 1 for this tick: 0) */
             }
         s->ext = 1;
