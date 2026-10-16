@@ -483,7 +483,7 @@ static void midi_in(uint32_t pkt)
     else if (st == 0xFC)
         smk_ck_midi_stop();         /* clip mode keybed: the arp stops its notes (main_fm1.c) */
     /* Clip mode: Loopy Start, Continue and Stop must not go back to the host as
-     * X0X transport (no echo). With clip mode off, nothing changes (agent rules, 10). */
+     * X0X transport (no echo). With clip mode off, nothing changes (agent-rules 2). */
     if (st >= 0xFA && st <= 0xFC && smk_clip_mode_on())
         seq.midi_req = 1;
 #endif
@@ -492,7 +492,7 @@ static void midi_in(uint32_t pkt)
 #if BOARD_SMK37
     /* The USB interrupt stores APC feedback at all times. Keep these notes from the
      * sound engine only while clip mode is on. When clip mode is off, the original
-     * MIDI input path stays the same (agent rules, 10). */
+     * MIDI input path stays the same (agent-rules 2). */
     if (ty == 0x90 || ty == 0x80) {
         uint8_t vel = (ty == 0x80) ? 0u : d2;
         if (d1 < SMK_APC40_CLIP_COUNT) {
