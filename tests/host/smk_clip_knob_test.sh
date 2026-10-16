@@ -5,6 +5,8 @@
 # checks the CC that goes to the host on USB (EP1 IN) and on Bluetooth (ble_out).
 # K1-K8 pass on f9bcc46 and on each commit up to c6bf44a (bisect 2026-10-17 03:00).
 # K9: knobs 2-5 set SCALE, CHORD or ARP (CLP-62, CLP-63). K9 fails from e8b2c7f up to aa7f666.
+# K10: only the stage state gives the knobs (not a page, a pad or Loopy), the keybed notes change, knobs 6-8
+# keep no turns. K10 fails on 54f92b2 (5 fail).
 # SRC=<dir> runs it on the firmware sources of another commit (the bisect), default firmware/src.
 set -e
 cd "$(dirname "$0")/../.."
