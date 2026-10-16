@@ -14,7 +14,7 @@ Skills: asd-ste (/home/box/agent-data/workflows/asd-ste/SKILL.md), caveman (/hom
 8. Only Firmware Main Builder installs. Before the install, back up the slots and send the owner notice with the exact hash. After it, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
 9. Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background.
 10. Run hardware work and edits to one shared file one at a time. While you wait for a result, do the next task that does not need it.
-11. Log a device PASS only for the items that the owner names, with the build. Mark each other item NOT TESTED. Before a fix for a device bug, the owner shows the bug once with INLOG on, and the builder makes a host replay test from that log. Do not make a guess fix.
+11. Log a device PASS only for the items that the owner names, with the build. Mark each other item NOT TESTED. Before a fix for a device bug, the owner shows the bug once with INLOG on. The builder makes a host replay test from that log. Build a fix only when data and a host test prove the cause. If a fix does not help on the device, name the wrong assumption and get the missing data. Do not try a second guess.
 12. Never push outside the box and the machines of the owner. Never push, merge or package refs-oscuro.
 13. Stop only the processes that you started, by their PIDs. Never use pkill -f or killall on a shared script.
 14. Before an action that is hard to undo or shared, do the Decision check (x0x37-builder-loop steps 12 to 16). Send skill changes through Orchestrator.
