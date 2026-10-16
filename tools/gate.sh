@@ -69,6 +69,13 @@ fail() { [ -n "$REASON" ] || REASON="$1"; echo "gate: FAIL $1" >> "$LOG"; }
 cd "$W" || exit 1
 for d in "$REFS"/schwung-*; do [ -d "$d" ] || fail "no reference sources in $REFS"; done
 ls -d "$WORK"/schwung-* >/dev/null 2>&1 && fail "../schwung-* exists next to the worktree"
+# Fallback: an older tests/host/run_drum909.sh copies the 9W9 sources with their read-only modes and then
+# writes into the copy. For such a tree, use a writable copy of the references for this run only.
+if [ -f tests/host/run_drum909.sh ] && ! grep -q 'chmod -R u+w "$OUT/ref_src"' tests/host/run_drum909.sh; then
+    rm -rf "$L/refs"; mkdir -p "$L/refs"
+    cp -r --no-preserve=mode "$REFS"/schwung-* "$L/refs/" && chmod -R u+w "$L/refs" && REFS="$L/refs"
+    echo "gate: the tree has the old run_drum909.sh; the tests use the writable copy $REFS" >> "$LOG"
+fi
 export AC79_SDK="$SDK" JIELI_TOOLCHAIN="$TC"
 export NINEW9_DIR="$REFS/schwung-9W9" EIGHTW8_DIR="$REFS/schwung-8W8" SCHWUNG303="$REFS/schwung-303"
 export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c"
