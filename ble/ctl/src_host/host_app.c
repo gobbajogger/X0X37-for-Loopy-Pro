@@ -165,6 +165,8 @@ __attribute__((noinline, section(".bt_stack_code.d50"))) void hx_start(void)
     if (hx_radio) hx_adv(1);
 }
 u8 ctl_d_ev_n, ctl_d_ev_last;          /* attempt 45 DIAG: host events seen, the last event code */
+static u8 hx_disc_i;
+static void ev_push(volatile u32 *w, u8 c) { *w = (*w << 8) | c; }
 static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
 {
     (void)ch;
@@ -176,11 +178,15 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
         if (p[2] == 2) hx_start();                                 /* HCI_STATE_WORKING (if it ever comes) */
         break;
     case EV_LE_META:
+        ev_push(&HX.evlog, p[2]);                                  /* a61: LE subevent trace */
         if ((p[2] == 0x01 && p[3] == 0 && size >= 16) ||           /* connection complete, success */
             (p[2] == 0x0A && p[3] == 0 && size >= 28)) {           /* enhanced (+ 2 RPAs), as the SDK app */
             u32 o = p[2] == 0x0A ? 26u : 14u;
             hx_conn = (u16)(p[4] | (p[5] << 8));
             HX.interval = (u16)(p[o] | (p[o + 1] << 8));   /* sub, status, handle, role, peer type, peer address, [RPAs,] interval */
+            if (size >= o + 6u) { HX.latency = (u16)(p[o + 2] | (p[o + 3] << 8));   /* a61: latency, supervision timeout */
+                                  HX.timeout = (u16)(p[o + 4] | (p[o + 5] << 8)); }
+            HX.updates = 0;                                        /* a61: per-link update count */
             HX.ccc = 0; HX.mtu = 23; HX.bonded = 0;
             HX.state = XB_LK_CONN;
             HX.links++;
@@ -188,11 +194,15 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
             hx_report();
         } else if (p[2] == 0x03 && p[3] == 0 && size >= 8) {       /* connection update complete */
             HX.interval = (u16)(p[6] | (p[7] << 8));
+            HX.updates++;                                          /* a61 */
             hx_report();
         }
         break;
     case EV_DISCONNECT:
         HX.reason = size >= 6 ? p[5] : 0;
+        HX.disc[hx_disc_i & 3u] = (u32)HX.reason | ((u32)(size & 0xffu) << 8) |   /* a61: reason, ev size, status, ccc-was */
+            ((u32)(size >= 3 ? p[2] : 0) << 16) | ((u32)(HX.ccc & 1u) << 24) | ((u32)(HX.updates & 0x7fu) << 25);
+        hx_disc_i++;
         hx_conn = 0; HX.ccc = 0;
         ble_user_cmd_prepare(BLE_CMD_ATT_SEND_INIT, 4, 0, 0, 0, 0);
         if (hx_radio) hx_adv(1); else { HX.state = XB_LK_IDLE; hx_report(); }

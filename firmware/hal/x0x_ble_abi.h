@@ -119,6 +119,10 @@ typedef struct {
     volatile uint32_t stacks;             /* the least free bytes ever / 16: tasks (0-7), run (8-15), isr (16-23) */
     volatile uint32_t nv_writes;          /* bond store changes (the app saves when it changes) */
     volatile uint32_t rx, tx, tx_drops;   /* BLE-MIDI packets in, notified, not sent (no room) */
+    volatile uint16_t latency, timeout;   /* a61: conn latency (events), supervision timeout (10 ms units) */
+    volatile uint32_t disc[4];            /* a61: recent disconnects: reason(0-7)|evsize(8-15)|status(16-23)|ccc(24) */
+    volatile uint32_t evlog, smlog;       /* a61: rolling last-4 LE subevent / SM event codes (newest in low byte) */
+    volatile uint32_t updates;            /* a61: conn-update-complete events seen on the current link */
 } xb_hx_t;
 
 #define XB_RING_SIZE 512u                /* a power of two */

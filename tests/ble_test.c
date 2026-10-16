@@ -566,6 +566,79 @@ static void t_frames(void)
     CHECK(!bleh_midi_next(&h, &m));                             /* no link: no MIDI in */
 }
 
+
+/* a61: zero-loss flood. Prove the outbound path (bleh queue -> h2c ring) never drops a MIDI
+ * message when the caller respects back-pressure: retry on q-full (-2), and only pack into the
+ * ring (bleh_poll) when the ring has room (as ble.c does). tx_lost must stay 0 and every note
+ * sent must come out, in order. */
+static xb_ring_t nl_ring;
+static int nl_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
+{
+    (void)ctx; (void)t;
+    return xb_frame_put(&nl_ring, t, p, n);     /* -1 if full: would be a loss (must not happen) */
+}
+/* decode BLE-MIDI frames out of the ring, counting note-on messages and checking the velocity
+ * sequence (1..127 rolling); returns notes seen */
+static unsigned nl_drain_ring(unsigned *next_v, unsigned *order_err)
+{
+    uint8_t t, fr[XB_FRAME_MAX];
+    unsigned notes = 0;
+    int k;
+    while ((k = xb_frame_get(&nl_ring, &t, fr, sizeof fr)) > 0) {
+        int i = 1; uint8_t st = 0;               /* fr[0] = header (ts high) */
+        while (i < k) {
+            if (fr[i] & 0x80u) {                 /* a timestamp-low byte */
+                i++;
+                if (i < k && (fr[i] & 0x80u)) { st = fr[i]; i++; }   /* status */
+            } else if (!st) { i++; continue; }
+            /* running status or status just set: a 2-data-byte message (note) */
+            if ((st & 0xF0u) == 0x90u && i + 1 < k) {
+                unsigned v = fr[i + 1];
+                if (v != *next_v) (*order_err)++;
+                *next_v = (*next_v % 127u) + 1u;
+                notes++; i += 2;
+            } else break;
+        }
+    }
+    return notes;
+}
+static void t_noloss_flood(void)
+{
+    static bleh_t h;
+    static const uint8_t addr[6] = {1, 2, 3, 4, 5, 0xC6};
+    const uint8_t up[8] = {2, 1, 0, 0, 24, 0, 64, 0};
+    const unsigned K = 20000;                     /* far past any queue/ring capacity */
+    unsigned sent = 0, got = 0, next_v = 1, out_v = 1, order_err = 0, stalls = 0;
+    xb_ring_init(&nl_ring);
+    bleh_init(&h, nl_send, 0, "X0X", addr);
+    bleh_frames_start(&h, 0x20);
+    bleh_link(&h, up);
+    CHECK(bleh_connected(&h) && bleh_notifying(&h));
+    while (sent < K) {
+        uint8_t note[3] = {0x90, 60, (uint8_t)next_v};
+        int rc = bleh_midi_send(&h, note, 3, (uint16_t)(sent & 0x1FFFu));
+        if (rc == -2) {                           /* q full: back-pressure, drain and retry (no loss) */
+            if (xb_ring_free(&nl_ring) >= BLEH_FMTU + 16u) bleh_poll(&h);
+            got += nl_drain_ring(&out_v, &order_err);
+            stalls++;
+            continue;
+        }
+        CHECK(rc == 0);
+        next_v = (next_v % 127u) + 1u;
+        sent++;
+    }
+    /* flush the tail */
+    while (h.q_r != h.q_w || xb_ring_used(&nl_ring)) {
+        if (xb_ring_free(&nl_ring) >= BLEH_FMTU + 16u) bleh_poll(&h);
+        got += nl_drain_ring(&out_v, &order_err);
+    }
+    CHECK(sent == K);
+    CHECK(got == K);                              /* ZERO LOSS: every note came out */
+    CHECK(h.tx_lost == 0);                        /* the ring never overflowed (back-pressure held) */
+    CHECK(order_err == 0);                        /* in order */
+    CHECK(stalls > 0);                            /* the flood really did exceed capacity */
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1) {                                /* ble_test ctl.img: the app's check on a real image */
@@ -582,6 +655,7 @@ int main(int argc, char **argv)
     t_ring_threads();
     t_host();
     t_frames();
+    t_noloss_flood();
     t_glue();
     t_park();
     t_guard();

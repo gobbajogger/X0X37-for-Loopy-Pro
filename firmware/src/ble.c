@@ -19,13 +19,13 @@
 
 /* All of it in BLERAM (main RAM is full): not cleared at boot, so ble_start sets every field it
  * reads, and nothing reads them before (ble_host_on, in .bss, stays 0 until then). */
-#define BLE_OQ 64u                              /* MIDI out to mirror: USB-MIDI packets */
+#define BLE_OQ 128u                             /* a61: deeper MIDI out mirror so musical bursts never drop */
 typedef struct {
     xb_mbox_t mb;                               /* first: 64-byte aligned (the rings' cache lines) */
     bleh_t h;
     xb_boot_t boot;
     volatile uint32_t ow, orr;
-    uint32_t sysex_drops;
+    uint32_t sysex_drops, oq_drops;      /* a61: notes dropped at the audio-ISR mirror (queue full) */
     char nm[9];                                 /* the name it advertises */
 } ble_ram_t;
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
@@ -215,6 +215,7 @@ static void ble_start(void)
             ble_addr_of(none, 1u, addr, ble_r.nm);
     }
     ble_r.ow = ble_r.orr = 0;
+    ble_r.oq_drops = 0;
     ble_r.sysex_drops = 0;
     ble_c0_ready = 0;
     if (!ble_boot_on)
@@ -331,10 +332,14 @@ static void ble_record(void)
 /* the audio ISR (single producer): mirror one MIDI out packet */
 static void ble_out(uint32_t pkt)
 {
-    if (ble_host_on && bleh_notifying(&ble_r.h) && ble_r.ow - ble_r.orr < BLE_OQ) {
-        ble_oq[ble_r.ow % BLE_OQ] = pkt;
-        RING_PUBLISH();
-        ble_r.ow++;
+    if (ble_host_on && bleh_notifying(&ble_r.h)) {
+        if (ble_r.ow - ble_r.orr < BLE_OQ) {
+            ble_oq[ble_r.ow % BLE_OQ] = pkt;
+            RING_PUBLISH();
+            ble_r.ow++;
+        } else if (ble_r.oq_drops < 0xffffffffu) {
+            ble_r.oq_drops++;                   /* a61 DIAG: mirror overflow (should never happen with BLE_OQ 256) */
+        }
     }
 }
 
@@ -519,6 +524,21 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
              ((uint32_t)ble_r.h.state << 4) | ((uint32_t)ble_sx_reply << 8) |
              ((uint32_t)d_last_s1 << 16) | ((uint32_t)d_sx_gate << 24);
     w[n++] = d_mirror_n;                                    /* out-mirror sends attempted */
+    if (n + 8u > max)
+        return n;
+    w[n++] = (uint32_t)ble_r.mb.hx.latency | ((uint32_t)ble_r.mb.hx.timeout << 16);  /* a61 */
+    w[n++] = ble_r.mb.hx.disc[0];
+    w[n++] = ble_r.mb.hx.disc[1];
+    w[n++] = ble_r.mb.hx.disc[2];
+    w[n++] = ble_r.mb.hx.disc[3];
+    w[n++] = ble_r.mb.hx.evlog;
+    w[n++] = ble_r.mb.hx.smlog;
+    w[n++] = ble_r.mb.hx.updates;
+    if (n + 2u > max)
+        return n;
+    w[n++] = ble_r.oq_drops;                                /* a61: dev->host mirror drops (audio ISR) */
+    w[n++] = ble_sat(ble_r.h.drops_in, 0xffu) | (ble_sat(ble_r.h.tx_lost, 0xffu) << 8) |   /* a61: in_q, h2c, sysex drops */
+             (ble_sat(ble_r.sysex_drops, 0xffu) << 16);
     return n;
 }
 
