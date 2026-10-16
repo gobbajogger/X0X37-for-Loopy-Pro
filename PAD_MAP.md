@@ -69,18 +69,18 @@ If the orientation page gives a correction N other than 0:
 Hardware pad index → chain slot:
 {0, 15, 14, 13, 12, 11, 10, 9, 1, 2, 3, 4, 5, 6, 7, 8}
 
-Top row is reversed in the chain. Bottom row is sequential starting at slot 1.
+The top row goes in reverse order in the chain. The bottom row goes in sequence from slot 1.
 
 ## Clip-grid addition rule
-When clip-grid mode is added, it must set smk_pad_grid = 1 and use the direct index path.
+A clip-grid mode that you add must set smk_pad_grid = 1 and use the direct index path.
 It must not change the non-grid row-swap or the PADLED_SLOT table.
 
 ## APC40 mkII / Loopy Pro clip launcher (SMK-37 Pro and Elite)
 - The firmware answers Universal MIDI Device Inquiry as Akai APC40 mkII (manufacturer `0x47`, product `0x29`) and answers the APC40 introduction handshake.
 - APC logical clip pads use Note IDs `0x00..0x27` (40 pads, 8 columns × 5 rows). The firmware trims empty outer margins from the reported viewport while preserving all internal empty cells and their relative positions.
-- An 8-wide layout shows one local 8×2 view (two rows) at a time; OCTAVE− and OCTAVE+ move this view down and up by two rows, within the latched clip area. A layout of 3 or 4 rows and 4 or fewer columns folds onto one 8×2 view: source rows 0–1 (the lowest APC rows) map to physical pads 5–8 and 13–16, and source rows 2–3 map to pads 1–4 and 9–12.
-- Loopy Pro owns clip state and color. Host feedback uses APC40's velocity-indexed 128-color palette on MIDI channels 0–15; for clip cells, the channel does not change the color. A zero velocity means an empty/off cell. APC feedback has no separate project-dimensions field; the firmware maps only the current 40-cell viewport.
-- The physical pad rows are vertically flipped in clip mode. Pad columns stay left-to-right. In clip mode a short KNOB BANK tap does nothing, FADER BANK pins the SCALE / CHORD / ARP page and `<` / `>` step its last field (BEHAVIOR.md CLP-76), and the firmware sends no APC navigation messages (Loopy does not report clips outside its 8×5 APC box; change the Loopy page to reach them). Holding KNOB BANK for more than 1 s toggles clip mode.
-- The pad LED chain still uses `SMK_PAD_OF_WHITE(w)` with the mapped physical row. Normal-mode row swapping and the hardware `PADLED_SLOT` order are unchanged.
+- An 8-wide layout shows one local 8×2 view (two rows) at a time. OCTAVE− and OCTAVE+ move this view down and up by two rows, within the latched clip area. A layout of 3 or 4 rows and 4 or fewer columns folds onto one 8×2 view. Source rows 0–1 (the lowest APC rows) map to physical pads 5–8 and 13–16. Source rows 2–3 map to pads 1–4 and 9–12.
+- Loopy Pro owns clip state and color. Host feedback uses APC40's velocity-indexed 128-color palette on MIDI channels 0–15. For clip cells, the channel does not change the color. A zero velocity means an empty/off cell. APC feedback has no separate project-dimensions field. The firmware maps only the current 40-cell viewport.
+- In clip mode, the order of the physical pad rows is upside down (vertical flip). Pad columns stay left-to-right. In clip mode, a short KNOB BANK tap does nothing. FADER BANK pins the SCALE / CHORD / ARP page, and `<` / `>` step its last field (BEHAVIOR.md CLP-76). The firmware sends no APC navigation messages. Loopy does not report clips outside its 8×5 APC box. Change the Loopy page to reach them. Holding KNOB BANK for more than 1 s toggles clip mode.
+- The pad LED chain still uses `SMK_PAD_OF_WHITE(w)` with the mapped physical row. Normal-mode row swapping and the hardware `PADLED_SLOT` order do not change.
 - Seq PLAY and Seq REC act only in clip mode. They send momentary APC40 PLAY (`0x5B`) and RECORD (`0x5D`) notes on press and release. Their LEDs follow Loopy's state feedback, so Play shows transport state and Rec shows recording/overdub state. Set Loopy Pro's active Record binding to the clips you want and choose the overdub behavior there.
-- The firmware stores APC feedback as it arrives, also outside clip mode, and latches the layout 250 ms after the first feedback burst (at once on clip mode entry). The latched layout never shrinks, so clips that cue or play cannot shift pads; it grows only to complete a 4×4 fold. There is no staged feedback.
+- The firmware stores APC feedback as it arrives, also outside clip mode. It latches the layout 250 ms after the first feedback burst (at once on clip mode entry). The latched layout never shrinks, so clips that cue or play cannot shift pads. It grows only to complete a 4×4 fold. There is no staged feedback.
