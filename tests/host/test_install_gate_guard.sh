@@ -68,6 +68,23 @@ chmod -R u+w "$T/mac" 2>/dev/null
 # fm1_install.py: a real install with no --commit stops before it opens a device (exit 9)
 n=$((n + 1)); out=$(python3 "$(dirname "$G")/fm1_install.py" "$T/good.fwsc" 2>&1); rc=$?
 if [ "$rc" = 9 ] && echo "$out" | grep -q REFUSED; then echo "ok   fm1_install.py without --commit: exit 9"; else echo "FAIL fm1_install.py without --commit: rc=$rc $out"; fails=$((fails + 1)); fi
+# two configs (dev X0X_DEV_PADCAL=1, rel 0): the CRC must be in the lines of the config that --config names.
+# A result with one config (above) counts only as dev. The index row has the Configs column.
+printf 'release bytes\n' > "$T/rel.fwsc"; RC=$(crc "$T/rel.fwsc")
+printf 'ctl.img file crc32 %s, 10 B\nbuild/x0x-smk37-elite.fwsc crc32 %s, 11 B\nrel/build/x0x-smk37-elite.fwsc crc32 %s, 14 B\n' "$CC" "$FC" "$RC" > "$L/crc.txt"
+result "$TREE-2.md" "Result: PASS" "$TREE"
+awk -v c="- Config CRCs: dev elite $FC, ble -; rel elite $RC, ble -" '/^- Worktree: /{print c} {print}' "$T/res/$TREE-2.md" > "$T/r2" && mv "$T/r2" "$T/res/$TREE-2.md"
+index "| $S | $T12 | 000000000000 | PASS | $TREE-2.md | 2026-10-17 00:30 +10 | dev elite $FC; rel elite $RC |"
+expect "GATE OK" "two configs: dev fwsc, --config dev" "$H" --fwsc "$T/good.fwsc" --config dev --ctl "$T/ctl.img"
+expect "GATE OK" "two configs: dev fwsc, no --config (dev)" "$H" --fwsc "$T/good.fwsc"
+expect "GATE OK" "two configs: rel fwsc, --config rel" "$H" --fwsc "$T/rel.fwsc" --config rel
+expect REFUSED "two configs: rel fwsc, --config dev (swapped)" "$H" --fwsc "$T/rel.fwsc" --config dev
+expect REFUSED "two configs: dev fwsc, --config rel (swapped)" "$H" --fwsc "$T/good.fwsc" --config rel
+expect REFUSED "two configs: unknown CRC, --config rel" "$H" --fwsc "$T/bad.fwsc" --config rel
+index "$(row 'PASS' "$TREE.md")"
+expect REFUSED "one-config result, --config rel" "$H" --fwsc "$T/good.fwsc" --config rel
+n=$((n + 1)); out=$(X0X_RESULTS_DIR="$T/res" X0X_REPO="$T/repo" bash "$G" "$H" --config beta 2>&1); rc=$?
+[ "$rc" = 2 ] && echo "ok   --config beta: exit 2" || { echo "FAIL --config beta: rc=$rc $out"; fails=$((fails + 1)); }
 # a real gate result on the box
 REAL=/workspace/x0x37-results/1d3c048d3cc356d8d8584fe1e6a85bae9235b99c.md
 if [ -f "$REAL" ] && git -C /workspace/x0x37.git cat-file -e 9a733fe 2>/dev/null; then

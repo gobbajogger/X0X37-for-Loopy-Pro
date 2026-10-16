@@ -1,7 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
 # The install guard: an install starts only if the gate script gave PASS for the EXACT tree of the commit.
-#   tools/require_gate_pass.sh <commit> [--fwsc FILE] [--ctl FILE]
+#   tools/require_gate_pass.sh <commit> [--fwsc FILE] [--config dev|rel] [--ctl FILE]
 # Checks, in this order (the first failed check stops it):
 #   1. The tree key of <commit>, the same as tools/gate.sh: the SHA-1 of "git ls-tree -r --full-tree"
 #      without the *.md files.
@@ -12,7 +12,11 @@
 #   4. The logs folder that the result file names has gate.log with "gate:" lines (written by the gate)
 #      and crc.txt (the CRC manifest). The result file has the "## CRC manifest" section.
 #   5. With --fwsc / --ctl: the CRC32 of the file is in the CRC manifest of the result file
-#      (a build/*.fwsc line, or the "ctl.img file crc32" line).
+#      (a .fwsc line of the config, or the "ctl.img file crc32" line).
+#      --config dev [default]: a build/*.fwsc line (the dev build, X0X_DEV_PADCAL=1).
+#      --config rel: a rel/build/*.fwsc line (the release build, X0X_DEV_PADCAL=0). Only a result of the gate with
+#      two configs (the line "- Config CRCs:") has rel lines. An older result (one config) counts only as dev.
+#      A CRC of the other config, or a CRC that is not in the manifest, is REFUSED.
 # Output: "GATE OK <hash> <result file>" (exit 0), or "REFUSED <hash>: <reason>" (exit 3). Bad arguments: exit 2.
 # Environment (defaults in brackets):
 #   X0X_RESULTS_DIR [/workspace/x0x37-results; if that folder is not there: $HOME/Documents/x0x37/gate-results,
@@ -25,17 +29,19 @@
 set -u
 RESULTS=${X0X_RESULTS_DIR:-/workspace/x0x37-results}
 [ -n "${X0X_RESULTS_DIR:-}" ] || [ -d "$RESULTS" ] || RESULTS="$HOME/Documents/x0x37/gate-results"
-C=""; FWSC=""; CTL=""
+C=""; FWSC=""; CTL=""; CONFIG=dev
+USAGE="usage: $0 <commit> [--fwsc FILE] [--config dev|rel] [--ctl FILE]"
 while [ $# -gt 0 ]; do
     case "$1" in
     --fwsc) FWSC=${2:-}; shift ;;
     --ctl) CTL=${2:-}; shift ;;
-    -*) echo "usage: $0 <commit> [--fwsc FILE] [--ctl FILE]" >&2; exit 2 ;;
-    *) [ -z "$C" ] && C=$1 || { echo "usage: $0 <commit> [--fwsc FILE] [--ctl FILE]" >&2; exit 2; } ;;
+    --config) CONFIG=${2:-}; shift; case "$CONFIG" in dev|rel) ;; *) echo "$USAGE" >&2; exit 2 ;; esac ;;
+    -*) echo "$USAGE" >&2; exit 2 ;;
+    *) [ -z "$C" ] && C=$1 || { echo "$USAGE" >&2; exit 2; } ;;
     esac
     shift
 done
-[ -n "$C" ] || { echo "usage: $0 <commit> [--fwsc FILE] [--ctl FILE]" >&2; exit 2; }
+[ -n "$C" ] || { echo "$USAGE" >&2; exit 2; }
 refuse() { echo "REFUSED ${S:-$C}: $1"; exit 3; }
 if [ -n "${X0X_REPO:-}" ]; then REPO=$X0X_REPO
 elif git rev-parse --git-dir >/dev/null 2>&1; then REPO=$(git rev-parse --show-toplevel 2>/dev/null || git rev-parse --git-dir)
@@ -87,11 +93,17 @@ for row in $ROWS; do
     grep -qx '## CRC manifest' "$RF" || { [ -z "$LAST" ] && LAST="$F: no CRC manifest section"; continue; }
     # 5. the files to install
     MAN=$(sed -n '/^## CRC manifest/,/^## [^C]/p' "$RF")
-    if [ -n "$FCRC" ] && ! echo "$MAN" | grep -qE "^build/[^ ]*\.fwsc crc32 $FCRC,"; then
-        refuse "$(basename "$FWSC") crc32 $FCRC is not a gate-built .fwsc of tree $T12 (CRC manifest of $F)"; fi
+    TWO=0; grep -q '^- Config CRCs: ' "$RF" && TWO=1
+    if [ "$CONFIG" = rel ] && [ "$TWO" = 0 ]; then
+        [ -z "$LAST" ] && LAST="$F: a result with one config (dev only), no rel build"; continue; fi
+    if [ "$CONFIG" = rel ]; then PRE="rel/build/"; OPRE="build/"; OTHER=dev; else PRE="build/"; OPRE="rel/build/"; OTHER=rel; fi
+    if [ -n "$FCRC" ] && ! echo "$MAN" | grep -qE "^$PRE[^ /]*\.fwsc crc32 $FCRC,"; then
+        if [ "$TWO" = 1 ] && echo "$MAN" | grep -qE "^$OPRE[^ /]*\.fwsc crc32 $FCRC,"; then
+            refuse "$(basename "$FWSC") crc32 $FCRC is the $OTHER build, not the $CONFIG build, of tree $T12 (CRC manifest of $F)"; fi
+        refuse "$(basename "$FWSC") crc32 $FCRC is not a gate-built $CONFIG .fwsc of tree $T12 (CRC manifest of $F)"; fi
     if [ -n "$CCRC" ] && ! echo "$MAN" | grep -q "^ctl.img file crc32 $CCRC,"; then
         refuse "$(basename "$CTL") crc32 $CCRC is not the gate-built ctl.img of tree $T12 (CRC manifest of $F)"; fi
-    echo "GATE OK $S $RF"
+    echo "GATE OK $S $RF (config $CONFIG)"
     exit 0
 done
 IFS=$OLDIFS
