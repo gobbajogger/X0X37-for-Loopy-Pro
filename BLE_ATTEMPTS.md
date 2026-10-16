@@ -88,3 +88,58 @@ Fixes committed (tools-only + core-0 DIAG): a60 harness sends a spec-correct pro
 priority in pump() without starving notes, and the swift+python DIAG parsers learn 4 new
 core-0 tail words (d_state_fr, d_send_sx, d_app_flags, d_mirror_n). Firmware change is DIAG
 only; the BLE-MIDI decoder was left strict (spec-correct).
+
+## a61 - iPhone disconnect instrumentation + full drop-path audit (NOT installed)
+
+Live iPhone test (passive USB DIAG only; a60 on device). The iPhone takes several tries to
+connect, holds ~2 min, then drops; the Mac connects first try. DIAG across the attempts:
+- CONNECTS WITHOUT PAIRING: pairs 0, pairs_fail 0, bonded 0, nv 0 on every read. So this is
+  NOT a stale-bond / MITM / encryption-failure loop (SM never runs). Rules out ref item #3.
+- iOS negotiates a 7.5 ms interval (interval=6); the controller accepts it.
+- Heavy connect/disconnect churn: links climbed 41 -> 46 -> 64 -> 73 -> 74 over ~4 min.
+- Firmware HEALTHY throughout: ctl_q_full 0 (no ACL-copy/task-queue drops), hx_tx_drops 0,
+  c2h_drops 0, heap stable (12376-12424, alloc_fail 0), mb_err 0, c1_gave_up 0, stacks fine.
+- The disconnect REASON could not be captured: the a60 firmware keeps only the last reason and
+  it reads 0 across many drops. This is the key gap a61 closes.
+
+Root-cause status: the drops are at the link layer with a healthy controller - consistent with
+ref item #1/#5 (our core-1 cooperative shim gives slower LL/host servicing than iOS's strict
+timing at 7.5 ms; a supervision timeout 0x08 would not touch any of our counters). Needs the
+a61 reason ring from the next live test to confirm (expect 0x08, or 0x3E/0x22).
+
+a61 instrumentation (image, in xb_hx_t): disc[4] ring {reason|evsize|status|ccc-was},
+latency, timeout (supervision timeout, 10 ms units), evlog (rolling last-4 LE subevents),
+updates (conn-param-update count per link). DIAG parsers (python + swift) extended.
+
+Outbound BLE-MIDI encoder audited against the BLE-MIDI spec: CORRECT (header 0x80|tshi, a
+timestamp-low byte before every message incl. running-status ones). Loopy will not see
+malformed packets from us.
+
+DROP-PATH AUDIT (hard rule: nothing may ever drop). Every path, whether counted, the fix:
+  1. ble_out -> ble_oq (audio ISR, dev->host): silent drop when the 64-deep mirror was full.
+     NOW COUNTED (oq_drops) and deepened to 128. True never-drop from an ISR producer is bound
+     by queue depth; 128 covers musical bursts. [FIXED app-side + counter]
+  2. frames_poll/frames_send (dev->host, q -> h2c): q_r advances before the send; a full h2c
+     would lose them (tx_lost). ble.c pre-checks ring room before bleh_poll, so guarded; now
+     tx_lost is also surfaced in DIAG. Proven loss-free by t_noloss_flood. [OK + test]
+  3. in_put -> in_q (host->dev, 32): drops_in when the USB queue backs up. Counted; surfaced in
+     DIAG now. ble_service has partial back-pressure. [counter; deeper fix deferred]
+  4. hx_to_app -> c2h (host->dev, image): c2h_drops when the ring is full; the host already
+     consumed the ACL so it cannot back-pressure without stalling the ATT ack. [IMAGE fix
+     deferred - needs flash]
+  5. acl_copy no rx buffer (a57 copy): OS_Q_FULL -> ctl_q_full; re-post is inside closed
+     btstack bitcode, unverifiable. Currently 0. [needs more rx buffers - deferred]
+  6. os_taskq_post_type queue full: ctl_q_full; same closed-retry caveat. Currently 0.
+  7. ble_sysex_in > 16 B inbound: sysex_drops. Surfaced in DIAG now.
+  8. hx_from_app notify refused (!ccc / > mtu-3 / prepare fail): hx_tx_drops. ctl_host_poll
+     already back-pressures via hx_can_send (leaves the frame in h2c). [OK]
+New host test t_noloss_flood: 20000-note flood past all queue capacity, back-pressure respected,
+asserts got==sent, tx_lost==0, in order, and that the flood really stalled. PASSES (67 tests).
+
+BLOCKER: image piece 1 is 65536/65536 B (FULL). The remaining never-drop work (paths 4/5/6 are
+image-side) and the ref item #2 fix (send an Apple-compliant L2CAP conn-param update ~1-2 s
+after CCCD: 15-30 ms, latency 0, timeout 2000 ms) need piece-2 space or trimming first. The
+btstack conn-param API is in LTO bitcode (no header on the box) so the symbol name must be
+resolved at link; the ble_user_cmd_prepare enum has no conn-param opcode.
+
+Artifacts: a61 fwsc 4b62e109, ctl.img c1518a4a (piece1 8ae382c4, piece2 12e22d7a). NOT installed.
