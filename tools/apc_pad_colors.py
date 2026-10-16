@@ -35,8 +35,10 @@ def pad_header(pad, gamma, balance, target, override=None):
            f" * brightest channel sends at least {m.PAD_FLOOR_SENT}.\n"
            " * The pad calibration start values (the firmware makes them at run time from APC40_LCD565 and\n"
            " * app/apc40_pad_gamma.h) plus the entries marked ok in an export. The firmware does not include\n"
-           " * this file, and it is not the live pad table (APC40_RGB in main_fm1.c). Decimal: the build's\n"
-           " * register address check. */",
+           " * this file, and it is not the live pad table (APC40_RGB in main_fm1.c). With an owner export\n"
+           " * (--pad-override), this table is the source of the calibrated release pad table. No owner\n"
+           " * export exists yet: until then, the release build (X0X_DEV_PADCAL=0) uses APC40_RGB unchanged\n"
+           " * (BEHAVIOR.md CLP-79). Decimal: the build's register address check. */",
            "#include <stdint.h>",
            "static const uint8_t APC40_PAD_DEFAULT[128][3] = {"]
     for i in range(0, 128, 8):
