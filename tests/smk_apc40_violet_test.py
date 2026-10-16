@@ -3,7 +3,8 @@
 """a76 (a74 owner test 1, VIOLET FAIL): violet, purple and pink clips. Since 2026-10-17 the owner
 calibrates these colours by eye (PAD COLOURS, CLP-79), so the hue rules of a76 are information only.
 
-The pad LED bytes are APC40_PAD_OWNER[v] * 255 / 510 (main_fm1.c smk_pads). There is no gamma.
+The pad LED bytes are APC40_PAD_OWNER[v] * 255 / 510 (main_fm1.c smk_pads; the idle shade 51: * 255 / 255,
+CLP-13). There is no gamma.
 The channel (steady, blink, pulse) changes only the brightness, not the colour.
 Rule now: each violet, purple and pink velocity is the owner value of the export of 2026-10-17
 (tools/padcal/pads-owner-20261017.txt): the value marked ok, or the start value that the owner saw and kept.

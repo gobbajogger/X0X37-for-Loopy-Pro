@@ -9,6 +9,7 @@
    inputs (apc40_pad_gamma.h, apc40_lcd565.h, smk_padcal_default) are the same as at 89f680e (sha256).
 4. Render: a lit clip pad of velocity v (main_fm1.c smk_pads, brightness 255) sends the same R, G, B bytes,
    in the same order, as PAD COLOURS sent for entry v on 89f680e (level / 2, c[0] >> 1, c[1] >> 1, c[2] >> 1).
+   Exception (owner 2026-10-17 01:19): the idle shades 7-59 (v % 4 == 3) send the full level (CLP-13).
    The brightness is 255 (lit) or 0 (the off half of a blink), so no other level exists.
 """
 import hashlib
@@ -82,10 +83,12 @@ for name, data, want in (("apc40_pad_gamma.h", (APP / "apc40_pad_gamma.h").read_
 main = (APP / "main_fm1.c").read_text()
 p0 = main.index("static void smk_pads(void)")
 pads = main[p0:main.index("\n}\n", p0)]
-CLIP = ("padled_set(pad, (uint8_t)((rgb[0] * brightness) / 510u), (uint8_t)((rgb[1] * brightness) / 510u),\n"
-        "                              (uint8_t)((rgb[2] * brightness) / 510u));")
-check("const uint8_t *rgb = APC40_PAD_OWNER[v];" in pads and CLIP in pads,
-      "smk_pads: a clip pad sends APC40_PAD_OWNER[v][0..2] * brightness / 510 as R, G, B")
+CLIP = ("padled_set(pad, smk_clip_pad_level(rgb[0], v, brightness), smk_clip_pad_level(rgb[1], v, brightness),\n"
+        "                              smk_clip_pad_level(rgb[2], v, brightness));")
+helper = (APP / "smk_clip_colour.h").read_text()
+check("const uint8_t *rgb = APC40_PAD_OWNER[v];" in pads and CLIP in pads and
+      "return (uint8_t)((level * brightness) / (SMK_CLIP_IDLE_PAD_LIFT && smk_clip_idle_shade(v) ? 255u : 510u));" in helper,
+      "smk_pads: a clip pad sends APC40_PAD_OWNER[v][0..2] * brightness / 510 as R, G, B (idle shades / 255)")
 check("APC40_RGB" not in main, "main_fm1.c: no APC40_RGB (the old pad table is gone)")
 b0 = main.index("static uint8_t smk_apc_led_brightness")
 bright = main[b0:main.index("\n}\n", b0)]
@@ -93,8 +96,11 @@ levels = set(re.findall(r"\b(\d+)u;", bright)) | set(re.findall(r"\?\s*(\d+)u\s*
 check(levels <= {"0", "255"}, f"smk_apc_led_brightness returns 0 or 255 only ({sorted(levels)})")
 check("padled_set(ph, c[0] >> 1, c[1] >> 1, c[2] >> 1);" in main,
       "PAD COLOURS sends c[0] >> 1, c[1] >> 1, c[2] >> 1 (as on 89f680e)")
-bad = [v for v in range(128) for k in range(3) if owner[v][k] * 255 // 510 != exp[v][0][k] >> 1]
-check(not bad, "render: lit clip pad of velocity v == the bytes the owner saw for entry v (all 128 x R, G, B)")
+IDLE = set(range(7, 60, 4))   # CLP-13 idle shades (owner 2026-10-17 01:19): 2 x, tests/smk_clip_idle_pad_test.py
+bad = [v for v in range(128) if v not in IDLE for k in range(3) if owner[v][k] * 255 // 510 != exp[v][0][k] >> 1]
+check(not bad, "render: lit clip pad of velocity v == the bytes the owner saw for entry v (114 non-idle v x R, G, B)")
+bad = [v for v in IDLE for k in range(3) if owner[v][k] * 255 // 255 != exp[v][0][k]]
+check(not bad, "render: idle shades 7-59 send the full export level (2 x what the owner saw at half level)")
 check(all(owner[v][k] * 0 // 510 == 0 for v in range(128) for k in range(3)), "render: the off half of a blink is 0, 0, 0")
 print(f"apc40-pad-owner: {fails} fail(s)")
 sys.exit(1 if fails else 0)

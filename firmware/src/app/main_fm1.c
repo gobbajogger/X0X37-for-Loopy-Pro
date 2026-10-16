@@ -702,8 +702,8 @@ static void smk_pads(void)
                              (apc_cell_flags[note] & SMK_APC40_CELL_QUEUED) ? 1u : 0u;
             uint8_t brightness = v ? smk_apc_led_brightness(channel, queued) : 0u;
             /* Loopy row zero maps to the SMK's lower physical pad row. */
-            if (v) padled_set(pad, (uint8_t)((rgb[0] * brightness) / 510u), (uint8_t)((rgb[1] * brightness) / 510u),
-                              (uint8_t)((rgb[2] * brightness) / 510u));   /* lit: level / 2, as in the calibration mode */
+            if (v) padled_set(pad, smk_clip_pad_level(rgb[0], v, brightness), smk_clip_pad_level(rgb[1], v, brightness),
+                              smk_clip_pad_level(rgb[2], v, brightness));   /* level / 2, idle shade full level */
             else padled_set(pad, 0, 0, 0);
         }
         padled_flush();

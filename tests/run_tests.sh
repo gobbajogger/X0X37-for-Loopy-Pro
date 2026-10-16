@@ -182,6 +182,7 @@ run smk-arrows-owner python3 tests/smk_arrows_owner_test.py   # one owner for ea
 run apc40-tables sh -c "python3 tools/apc_pad_colors.py --pad-h $OUT/apc40_pad_default_gen.h --lcd-h $OUT/apc40_lcd565_gen.h --gamma-h $OUT/apc40_pad_gamma_gen.h && \
     $CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -I$OUT -o $OUT/apc40_tables_test tests/apc40_tables_test.c && $OUT/apc40_tables_test"   # the LCD table and the pad calibration start point against their tool
 run smk-clip-idle python3 tests/smk_clip_idle_test.py   # CLP-05: idle clip squares = half of the group full shade
+run smk-clip-idle-pad python3 tests/smk_clip_idle_pad_test.py   # CLP-13: idle clip pads send the full owner level
 run apc40-pad-owner python3 tests/apc40_pad_owner_test.py   # CLP-13: the owner-calibrated pad table, the export, the clip pad bytes
 run smk-padcal sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_padcal_test tests/smk_padcal_test.c && $OUT/smk_padcal_test"   # CLP-79: pad calibration logic
 run smk-padcal-export sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_padcal_export_bin tests/smk_padcal_test.c && python3 tests/smk_padcal_export_test.py $OUT/smk_padcal_export_bin"   # CLP-79: export round trip

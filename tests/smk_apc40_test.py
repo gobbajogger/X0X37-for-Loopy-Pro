@@ -103,7 +103,7 @@ assert "uint8_t owned = clip_grid_mode || apc_host_on;" in main   # test 35: cli
 assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 63u)" in main
 assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
-assert "(uint8_t)((rgb[0] * brightness) / 510u)" in main
+assert "smk_clip_pad_level(rgb[0], v, brightness)" in main
 assert "SMK_CLIP_LCD_FLOOR" not in main   # LCD_FLOOR is in tools/apc_colour_model.py now
 assert "smk_apc_host_seen();" in usb and "smk_apc_host_lost();" in usb
 assert "BOARD_SMK37 && !defined(FELUCCA_LOADER)" in usb
