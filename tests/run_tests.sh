@@ -151,6 +151,7 @@ run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/requir
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit (core rule 6A)
 run prepush-trim sh tests/host/test_prepush_trim.sh   # tools/prepush-check.sh: the box update hook runs the quick check, so the client does not
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
+run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13): the KILLED lines name the sender PID and cwd, SCRIPT CHANGED in gate.log
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
 run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 27): each owner-rule entry of USER_PREFERENCES.md names a rule that covers it
 run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
