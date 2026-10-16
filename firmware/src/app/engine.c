@@ -474,7 +474,7 @@ static void midi_in(uint32_t pkt)
         return;
     }
     if (!seq_clk_take(&seq, st, PLAT_MIDI_SRC(pkt)))
-        return;                     /* another input has the clock (MID-15) */
+        return;                     /* another input has the clock: its Clock, Start, Continue, Stop, Song Position (MID-15) */
 #if BOARD_SMK37
     /* Count MIDI Clock for the clip-mode PLAY blink. The sequencer path below is unchanged. */
     if (st == 0xF8)

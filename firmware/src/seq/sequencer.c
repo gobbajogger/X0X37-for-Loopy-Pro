@@ -698,12 +698,12 @@ int seq_midi_rt(seq_t *s, uint8_t st)
     default: return 0;
     }
 }
-/* MID-15: Clock, Start, Continue and Stop of one input only. Called before seq_midi_rt, in the same context
+/* MID-15: Clock, Start, Continue, Stop and Song Position of one input only. Called before seq_midi_rt, in the same context
  * as seq_advance. The order of the messages decides when two inputs send at the same time. */
 int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
 {
     uint8_t me = (uint8_t)(src + 1u);
-    if (st != 0xF8u && (st < 0xFAu || st > 0xFCu))
+    if (st != 0xF8u && st != 0xF2u && (st < 0xFAu || st > 0xFCu))
         return 1;
     if (s->clk_src == SEQ_CLK_INT) {                  /* seq_midi_rt drops them */
         s->clk_lock = 0;
@@ -713,8 +713,8 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
         if (s->clk_lock && !(s->clk_stop && (st == 0xFAu || st == 0xFBu) &&
                              s->ext_now - s->clk_stop_at >= SEQ_LOCK_T))
             return 0;                                 /* another input has the clock */
-        if (st == 0xFCu)
-            return 1;                                 /* no input has the clock: a Stop gets no clock */
+        if (st == 0xFCu || st == 0xF2u)
+            return 1;                                 /* no input has the clock: a Stop or a Song Position gets none */
         if (s->clk_last && s->clk_last != me) {      /* another input: the tempo measure starts again, */
             s->ext_nb = s->ext_bi = s->ext_q = 0;     /* from the tempo now (no gap in the beat ring) */
             s->ext_skip = 1;                          /* (the first ticks give no period) */
@@ -722,6 +722,8 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
         s->clk_lock = s->clk_last = me;
         s->clk_stop = 0;
     }
+    if (st == 0xF2u)
+        return 1;                                     /* Song Position of the input with the clock */
     if (st == 0xFCu) {
         s->clk_stop = 1;
         s->clk_stop_at = s->ext_now;

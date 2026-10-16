@@ -210,6 +210,30 @@ int main(void)
         CHECK(S.clk_lock == BLE + 1 && S.playing, "%s: USB unplug: a Bluetooth Start acts at once", nm);
     }
 
+    for (m = 0; m < 2; m++) {                   /* Song Position (F2) follows the input with the clock */
+        uint8_t src = m ? SEQ_CLK_EXT : SEQ_CLK_AUTO;
+        const char *nm = m ? "EXTERNAL" : "AUTO";
+        reset(src);
+        CHECK(seq_clk_take(&S, 0xF2, BLE) == 1 && S.clk_lock == 0, "%s: F2 with no clock input: passes, gets no clock", nm);
+        msg(0xF8, USB);
+        CHECK(seq_clk_take(&S, 0xF2, BLE) == 0, "%s: F2 from Bluetooth while USB has the clock: ignored", nm);
+        CHECK(seq_clk_take(&S, 0xF2, USB) == 1 && S.clk_lock == USB + 1, "%s: F2 from USB: passes", nm);
+        run_ms(300);
+        CHECK(seq_clk_take(&S, 0xF2, USB) == 1, "%s: F2 from USB after 0.3 s: passes", nm);
+        run_ms(150);                            /* F2 does not keep the clock: 0.45 s with no Clock */
+        CHECK(S.clk_lock == 0 && seq_clk_take(&S, 0xF2, BLE) == 1, "%s: F2 does not keep the clock alive", nm);
+        msg(0xF8, BLE);
+        msg(0xFC, BLE);                         /* Bluetooth stops; after 0.4 s USB F2 is still ignored */
+        run_ms(450);
+        msg(0xF8, BLE);
+        CHECK(seq_clk_take(&S, 0xF2, USB) == 0, "%s: F2 from USB after the Bluetooth Stop: ignored (only Start or Continue takes over)", nm);
+        seq_clk_drop(&S, BLE);
+        CHECK(seq_clk_take(&S, 0xF2, USB) == 1, "%s: F2 from USB after the Bluetooth link end: passes", nm);
+    }
+    reset(SEQ_CLK_INT);
+    msg(0xF8, USB);
+    CHECK(seq_clk_take(&S, 0xF2, BLE) == 1 && seq_clk_take(&S, 0xF2, USB) == 1, "INTERNAL: F2 passes from all inputs, as before");
+
     reset(SEQ_CLK_INT);                         /* INTERNAL ignores the clock of both inputs */
     msg(0xFA, USB);
     msg(0xFA, BLE);
