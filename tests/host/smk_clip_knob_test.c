@@ -169,6 +169,65 @@ static void knob(const char *what, int want_usb)   /* turn knob 2 (role 0) 3 det
     if (ble_tx_n > 200u) ble_tx_n = 0;
 }
 
+/* K9: tap a stage button (SCALE B_SEL, CHORD B_ENV, ARP B_ARP): down 50 ms, up, then 400 ms */
+static void tap(uint32_t role)
+{
+    fm1_in.buttons |= 1u << panel.btn[role];
+    run(50);
+    fm1_in.buttons &= ~(1u << panel.btn[role]);
+    run(400);
+}
+/* turn knob role r (0 = knob 2) by d detents; check that field *fld goes from its value to want, and that no
+ * knob CC goes out (want_cc 0) or that the CC goes out and the field stays (want_cc 1) */
+static void knob_edit(const char *what, uint32_t r, int32_t d, const uint8_t *fld, uint32_t want, int want_cc)
+{
+    unsigned u0 = fake_tx_n, b0 = ble_tx_n, k;
+    uint32_t was = *fld;
+    fm1_in.enc_steps[r] = (int16_t)d;
+    run(20);
+    k = cc_in(fake_tx + u0, fake_tx_n - u0, 48u + r) + cc_in(ble_tx + b0, ble_tx_n - b0, 48u + r);
+    {
+        int ok = *fld == want && (want_cc ? k != 0u : k == 0u);
+        printf("%s %s (field %u -> %u, want %u; CC %u)\n", ok ? "PASS" : "FAIL", what, was, *fld, want, k);
+        fails += !ok;
+    }
+    if (fake_tx_n > 200u) fake_tx_n = 0;
+    if (ble_tx_n > 200u) ble_tx_n = 0;
+}
+
+/* K10: press keybed key k for 20 ms; return the note-ons on the CLIP KEYS channel (ch 2) on Bluetooth, the
+ * lowest note in *lo */
+static unsigned key_notes(uint32_t k, uint32_t *lo)
+{
+    unsigned i, n = 0;
+    ble_tx_n = 0;
+    fm1_in.keys |= (uint64_t)1u << k;
+    run(20);
+    *lo = 128u;
+    for (i = 0; i < ble_tx_n; i++)
+        if (((ble_tx[i] >> 8) & 0xFFu) == 0x91u && (ble_tx[i] >> 24)) {
+            n++;
+            if (((ble_tx[i] >> 16) & 0x7Fu) < *lo)
+                *lo = (ble_tx[i] >> 16) & 0x7Fu;
+        }
+    fm1_in.keys &= ~((uint64_t)1u << k);
+    run(50);
+    ble_tx_n = 0;
+    return n;
+}
+static void fader_bank(void)        /* FADER BANK: a pinned page closes */
+{
+    fm1_in.buttons |= 1u << SMK_BTN_FADER_BANK;
+    run(30);
+    fm1_in.buttons &= ~(1u << SMK_BTN_FADER_BANK);
+    run(30);
+}
+static void check(const char *what, int ok)
+{
+    printf("%s %s\n", ok ? "PASS" : "FAIL", what);
+    fails += !ok;
+}
+#define B_SCALE_ROLE B_SEL
 int main(void)
 {
     uint32_t i;
@@ -243,6 +302,93 @@ int main(void)
         fm1_in.enc_steps[0] = fm1_in.enc_steps[3] = 0;
     }
     knob("K8 the menu and the help card closed: the knobs send again", 1);
+    /* K9 (owner 2026-10-17 03:20): in clip mode, knobs 2-5 set the SCALE, CHORD or ARP settings of the stage
+     * that was turned on last, as before e8b2c7f (CLP-62, CLP-63). With no stage on, knobs 2-8 send CC. */
+    tap(B_ARP);
+    knob_edit("K9 ARP on: knob 2 sets the ARP order", 0u, 1, &proj.set.ck_ord, 1u, 0);
+    knob_edit("K9 ARP on: knob 3 sets the ARP rate", 1u, 2, &proj.set.ck_rate, proj.set.ck_rate + 2u, 0);
+    knob_edit("K9 ARP on: knob 4 sets the ARP octaves", 2u, 1, &proj.set.ck_oct, 1u, 0);
+    knob_edit("K9 ARP on: knob 5 sets the ARP gate", 3u, 1, &proj.set.ck_gate, proj.set.ck_gate + 1u, 0);
+    tap(B_SCALE_ROLE);
+    knob_edit("K9 SCALE on: knob 2 sets the root", 0u, 2, &proj.set.ck_root, proj.set.ck_root + 2u, 0);
+    knob_edit("K9 SCALE on: knob 3 sets the scale", 1u, 1, &proj.set.ck_scale, proj.set.ck_scale + 1u, 0);
+    knob_edit("K9 SCALE on: knob 4 sets the snap", 2u, 1, &proj.set.ck_snap, 1u, 0);
+    tap(B_ENV);
+    knob_edit("K9 CHORD on: knob 2 sets the chord type", 0u, 3, &proj.set.ck_chord, proj.set.ck_chord + 3u, 0);
+    knob_edit("K9 CHORD on: knob 3 sets the inversion", 1u, 1, &proj.set.ck_inv, proj.set.ck_inv + 1u, 0);
+    tap(B_ENV);                     /* CHORD off: the knobs go to the stage that is on (ARP before SCALE) */
+    knob_edit("K9 CHORD off, ARP and SCALE on: knob 2 sets the ARP order", 0u, 1, &proj.set.ck_ord, proj.set.ck_ord + 1u, 0);
+    tap(B_ARP);
+    knob_edit("K9 ARP off, SCALE on: knob 2 sets the root", 0u, -1, &proj.set.ck_root, proj.set.ck_root - 1u, 0);
+    tap(B_SCALE_ROLE);
+    knob_edit("K9 no stage on: knob 2 sends CC 48, no setting changes", 0u, 1, &proj.set.ck_root, proj.set.ck_root, 1);
+    /* K10 (owner 2026-10-17 03:26): the knobs set the keybed stages. Only the stage state gives the knobs (the stage
+     * that a tap turned on last): not a page, not a pad, not Loopy. Knobs 6-8 do not keep turns. */
+    {
+        unsigned u0, b0, k, n0, n1;
+        uint32_t lo0, lo1;
+        tap(B_SCALE_ROLE);
+        fader_bank();
+        check("K10 SCALE on, its page closed: a page is closed", (ck.pg & 3u) == 0u);
+        knob_edit("K10 SCALE on, the page closed: knob 2 sets the root", 0u, 2, &proj.set.ck_root, proj.set.ck_root + 2u, 0);
+        tap(B_ARP);
+        knob_edit("K10 ARP on, its page open: knob 2 sets the ARP order", 0u, 1, &proj.set.ck_ord, proj.set.ck_ord + 1u, 0);
+        fader_bank();
+        knob_edit("K10 ARP on, the page closed: knob 3 sets the ARP rate", 1u, 1, &proj.set.ck_rate, proj.set.ck_rate + 1u, 0);
+        tap(B_SCALE_ROLE);          /* SCALE off: ARP keeps the knobs */
+        knob_edit("K10 SCALE off: ARP keeps the knobs", 0u, -1, &proj.set.ck_ord, proj.set.ck_ord - 1u, 0);
+        tap(B_SCALE_ROLE);          /* SCALE on again: the last stage on has the knobs, also with ARP on */
+        fader_bank();
+        knob_edit("K10 SCALE on after ARP, the page closed: knob 2 sets the root, not the ARP order", 0u, -1,
+                  &proj.set.ck_root, proj.set.ck_root - 1u, 0);
+        fm1_in.buttons |= 1u << panel.btn[B_ENV];   /* hold CHORD (off): its page opens, SCALE keeps the knobs */
+        run(400);
+        knob_edit("K10 CHORD held (its page open, CHORD off): knob 2 sets the root", 0u, 1, &proj.set.ck_root,
+                  proj.set.ck_root + 1u, 0);
+        fm1_in.buttons &= ~(1u << panel.btn[B_ENV]);
+        run(400);
+        check("K10 CHORD released after a knob turn: CHORD stays off", !(ck.on & CK_M_CHORD));
+        fm1_in.pnotes = 0x5555u;    /* clip pads held, then Loopy feedback */
+        run(20);
+        colours();
+        knob_edit("K10 clip pads held and Loopy feedback: knob 2 sets the root", 0u, 1, &proj.set.ck_root,
+                  proj.set.ck_root + 1u, 0);
+        fm1_in.pnotes = 0u;
+        run(20);
+        knob_edit("K10 clip pads released: knob 3 sets the scale", 1u, -(int32_t)proj.set.ck_scale, &proj.set.ck_scale, 0u, 0);
+        u0 = fake_tx_n;
+        b0 = ble_tx_n;
+        fm1_in.enc_steps[5] = 20;   /* knob 7 under SCALE: no CC, and none later */
+        run(20);
+        tap(B_ARP);                 /* ARP off: SCALE keeps the knobs */
+        tap(B_SCALE_ROLE);          /* SCALE off: no stage */
+        run(20);
+        k = cc_in(fake_tx + u0, fake_tx_n - u0, 53u) + cc_in(ble_tx + b0, ble_tx_n - b0, 53u);
+        check("K10 knob 7 turned under a stage: no CC 53 then or after the stage goes off", k == 0u);
+        knob_edit("K10 no stage: knob 2 sends CC 48", 0u, 1, &proj.set.ck_root, proj.set.ck_root, 1);
+        /* the knobs change what the keys play: SCALE C major, NEAR; key 1 (C#) plays C; root D: it plays C# */
+        tap(B_SCALE_ROLE);
+        fader_bank();
+        knob_edit("K10 knob 2: root C", 0u, -(int32_t)proj.set.ck_root, &proj.set.ck_root, 0u, 0);
+        knob_edit("K10 knob 3: scale major", 1u, -(int32_t)proj.set.ck_scale, &proj.set.ck_scale, 0u, 0);
+        knob_edit("K10 knob 4: snap NEAR", 2u, -(int32_t)proj.set.ck_snap, &proj.set.ck_snap, 0u, 0);
+        n0 = key_notes(1u, &lo0);
+        knob_edit("K10 knob 2: root D", 0u, 2, &proj.set.ck_root, 2u, 0);
+        n1 = key_notes(1u, &lo1);
+        printf("  (key 1: %u notes, note %u; root D: %u notes, note %u)\n", n0, lo0, n1, lo1);
+        check("K10 the root knob changes the keybed note (C# plays 48 in C major, 49 in D major)",
+              n0 == 1u && lo0 == 48u && n1 == 1u && lo1 == 49u);
+        tap(B_ENV);                 /* CHORD on: it has the knobs */
+        knob_edit("K10 knob 2: chord MAJ", 0u, -(int32_t)proj.set.ck_chord, &proj.set.ck_chord, 0u, 0);
+        knob_edit("K10 knob 3: inversion 0", 1u, -(int32_t)proj.set.ck_inv, &proj.set.ck_inv, 0u, 0);
+        n0 = key_notes(0u, &lo0);
+        knob_edit("K10 knob 2: chord MAJ7", 0u, 6, &proj.set.ck_chord, 6u, 0);
+        n1 = key_notes(0u, &lo1);
+        printf("  (key 0: MAJ %u notes, MAJ7 %u notes)\n", n0, n1);
+        check("K10 the chord knob changes the keybed notes (MAJ 3 notes, MAJ7 4 notes)", n0 == 3u && n1 == 4u);
+        tap(B_ENV);
+        tap(B_SCALE_ROLE);
+    }
     printf("%s %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails != 0;
 }

@@ -400,8 +400,11 @@ CLP-61. GLO > MIDI > CLIP KEYS CH sets the keybed channel: 2 to 15, default 2. C
 CLP-62. SCALE, CHORD and ARP are off when clip mode starts. A tap on SCALE, CHORD or ARP (shorter than 0.3 s, with no edit) turns that stage on or off. A message on the LCD tells the new state. A longer hold opens the page of the stage (CLP-75).
   - When a tap turns a stage on, the page of that stage opens and stays open (pinned, CLP-76). You do not hold the button. If another page is open, the new page replaces it. [USER 2026-10-17 02:49, 02:51] [CODE app/smk_clip_keys.h ck_page_tap] [TEST tests/smk_clip_keys_test.c test_page_latch]
   - When a tap turns a stage off, the open page closes and the pin goes off. This is also true for the page of another stage.
-  - No stage takes the knobs. (Changed 2026-10-16: before, a press gave the mode knobs 2 to 5. Changed 2026-10-16: tap and hold.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/smk_clip_keys.h ck_page_btn]
-CLP-63. In clip mode, knob 1 is always MASTER. No SCALE, CHORD or ARP setting is on a knob: the pages (CLP-75) and the keys set them. A SCALE or CHORD change while keys sound ends the old notes and plays the new notes. (Changed 2026-10-16: in clip mode, the knobs do only clip mode functions, see CLP-73.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/plat_fm1.c plat_enc]
+  - The stage that a tap turned on last has knobs 2 to 5 (CLP-63). When that stage goes off, the knobs go to a stage that is on: ARP first, then CHORD, then SCALE. A page, a pad and Loopy do not change this. (Changed 2026-10-16: tap and hold. Changed 2026-10-17: the knobs set the stages again, as before 2026-10-16.) [USER 2026-10-17 03:20, 03:26] [CODE app/main_fm1.c ck_controls] [CODE app/smk_clip_keys.h ck_page_btn]
+CLP-63. In clip mode, knob 1 is always MASTER. Knobs 2 to 5 set the keybed stage that has the knobs (CLP-62). A turn shows the new value on the LCD.
+  - SCALE: root, scale, snap. CHORD: type, inversion. ARP: order, rate, octaves, gate.
+  - Knobs 6 to 8 do nothing while a stage has the knobs. The pages (CLP-75) and the keys also set these values.
+  - A SCALE or CHORD change while keys sound ends the old notes and plays the new notes. (Changed 2026-10-16: in clip mode, the knobs do only clip mode functions, see CLP-73. Changed 2026-10-17: the knobs set the stages again.) [USER 2026-10-17 03:20, 03:26] [CODE app/main_fm1.c ck_controls] [CODE app/plat_fm1.c plat_enc] [TEST tests/host/smk_clip_knob_test.c K9]
 CLP-64. SCALE has 24 scales:
   - Major, minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian, harmonic minor.
   - Melodic minor, major pentatonic, minor pentatonic, chromatic, blues, major blues, harmonic major, Phrygian dominant.
@@ -425,8 +428,8 @@ CLP-69. A key release ends exactly the notes that the key sent. The firmware fin
 CLP-70. All notes off sends a note-off for each note that sounds. It occurs at clip mode exit, when a mode turns on or off and when LATCH goes off. It also occurs at MIDI Stop, at a CLIP KEYS CH change, at a USB reset and when Bluetooth disconnects. The arp list clears. [USER] [CODE app/main_fm1.c ck_all_off]
 CLP-71. NOTE REPEAT alone is the panic button. It sends all notes off and then CC 123 (All Notes Off) on the CLIP KEYS channel. [USER] [CODE app/main_fm1.c ck_controls]
 CLP-72. While you hold a pad, the keybed white key that shares its note bit plays no note (CLP-34 stays). [USER] [CODE app/main_fm1.c smk_ck_poll]
-CLP-73. In clip mode, knobs 2-8 always send CC 48-54 on channel 1 for Loopy Pro MIDI-learn, also when SCALE, CHORD or ARP is on. The value is relative: 1-63 is up and 65-127 is down. When a menu is on the screen (for example GLO), the knobs work the menu and send no CC. In clip mode the knobs do not change X0X values.
-  - Knob 1 stays MASTER. (Added 2026-10-16. Changed 2026-10-16: also when a mode is on.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/plat_fm1.c plat_enc]
+CLP-73. In clip mode, when no stage has the knobs (CLP-62), knobs 2-8 send CC 48-54 on channel 1 for Loopy Pro MIDI-learn. The value is relative: 1-63 is up and 65-127 is down. When a menu is on the screen (for example GLO), the knobs work the menu and send no CC. In clip mode the knobs do not change X0X values.
+  - Knob 1 stays MASTER. (Added 2026-10-16. Changed 2026-10-16: also when a mode is on. Changed 2026-10-17: only when no stage has the knobs.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/plat_fm1.c plat_enc]
 CLP-74. In clip mode with no menu, the bottom strip (82 px) is the KEYS panel. It is always on. It shows these items:
   - The SCALE, CHORD, ARP and LATCH chips. A chip shows filled when its function is on. A white bar is under the chip of the open page.
   - One octave with the scale notes lit, the root marked and the notes that sound in amber.
