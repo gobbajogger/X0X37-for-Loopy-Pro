@@ -169,6 +169,33 @@ static void knob(const char *what, int want_usb)   /* turn knob 2 (role 0) 3 det
     if (ble_tx_n > 200u) ble_tx_n = 0;
 }
 
+/* K9: tap a stage button (SCALE B_SEL, CHORD B_ENV, ARP B_ARP): down 50 ms, up, then 400 ms */
+static void tap(uint32_t role)
+{
+    fm1_in.buttons |= 1u << panel.btn[role];
+    run(50);
+    fm1_in.buttons &= ~(1u << panel.btn[role]);
+    run(400);
+}
+/* turn knob role r (0 = knob 2) by d detents; check that field *fld goes from its value to want, and that no
+ * knob CC goes out (want_cc 0) or that the CC goes out and the field stays (want_cc 1) */
+static void knob_edit(const char *what, uint32_t r, int32_t d, const uint8_t *fld, uint32_t want, int want_cc)
+{
+    unsigned u0 = fake_tx_n, b0 = ble_tx_n, k;
+    uint32_t was = *fld;
+    fm1_in.enc_steps[r] = (int16_t)d;
+    run(20);
+    k = cc_in(fake_tx + u0, fake_tx_n - u0, 48u + r) + cc_in(ble_tx + b0, ble_tx_n - b0, 48u + r);
+    {
+        int ok = *fld == want && (want_cc ? k != 0u : k == 0u);
+        printf("%s %s (field %u -> %u, want %u; CC %u)\n", ok ? "PASS" : "FAIL", what, was, *fld, want, k);
+        fails += !ok;
+    }
+    if (fake_tx_n > 200u) fake_tx_n = 0;
+    if (ble_tx_n > 200u) ble_tx_n = 0;
+}
+
+#define B_SCALE_ROLE B_SEL
 int main(void)
 {
     uint32_t i;
@@ -243,6 +270,26 @@ int main(void)
         fm1_in.enc_steps[0] = fm1_in.enc_steps[3] = 0;
     }
     knob("K8 the menu and the help card closed: the knobs send again", 1);
+    /* K9 (owner 2026-10-17 03:20): in clip mode, knobs 2-5 set the SCALE, CHORD or ARP settings of the stage
+     * that was turned on last, as before e8b2c7f (CLP-62, CLP-63). With no stage on, knobs 2-8 send CC. */
+    tap(B_ARP);
+    knob_edit("K9 ARP on: knob 2 sets the ARP order", 0u, 1, &proj.set.ck_ord, 1u, 0);
+    knob_edit("K9 ARP on: knob 3 sets the ARP rate", 1u, 2, &proj.set.ck_rate, proj.set.ck_rate + 2u, 0);
+    knob_edit("K9 ARP on: knob 4 sets the ARP octaves", 2u, 1, &proj.set.ck_oct, 1u, 0);
+    knob_edit("K9 ARP on: knob 5 sets the ARP gate", 3u, 1, &proj.set.ck_gate, proj.set.ck_gate + 1u, 0);
+    tap(B_SCALE_ROLE);
+    knob_edit("K9 SCALE on: knob 2 sets the root", 0u, 2, &proj.set.ck_root, proj.set.ck_root + 2u, 0);
+    knob_edit("K9 SCALE on: knob 3 sets the scale", 1u, 1, &proj.set.ck_scale, proj.set.ck_scale + 1u, 0);
+    knob_edit("K9 SCALE on: knob 4 sets the snap", 2u, 1, &proj.set.ck_snap, 1u, 0);
+    tap(B_ENV);
+    knob_edit("K9 CHORD on: knob 2 sets the chord type", 0u, 3, &proj.set.ck_chord, proj.set.ck_chord + 3u, 0);
+    knob_edit("K9 CHORD on: knob 3 sets the inversion", 1u, 1, &proj.set.ck_inv, proj.set.ck_inv + 1u, 0);
+    tap(B_ENV);                     /* CHORD off: the knobs go to the stage that is on (ARP before SCALE) */
+    knob_edit("K9 CHORD off, ARP and SCALE on: knob 2 sets the ARP order", 0u, 1, &proj.set.ck_ord, proj.set.ck_ord + 1u, 0);
+    tap(B_ARP);
+    knob_edit("K9 ARP off, SCALE on: knob 2 sets the root", 0u, -1, &proj.set.ck_root, proj.set.ck_root - 1u, 0);
+    tap(B_SCALE_ROLE);
+    knob_edit("K9 no stage on: knob 2 sends CC 48, no setting changes", 0u, 1, &proj.set.ck_root, proj.set.ck_root, 1);
     printf("%s %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails != 0;
 }

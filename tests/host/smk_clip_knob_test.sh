@@ -3,7 +3,8 @@
 # Runs the REAL clip keybed code of main_fm1.c (smk_ck_poll, ck_controls: knobs 2-8 send CC 48-54), the
 # REAL clip feedback code (apc_out, the CLP-18 link code) and the REAL usb.c (usb_poll, ep1_tx), and
 # checks the CC that goes to the host on USB (EP1 IN) and on Bluetooth (ble_out).
-# It passes on f9bcc46 and on each commit up to c6bf44a (bisect 2026-10-17 03:00): a guard, no fix.
+# K1-K8 pass on f9bcc46 and on each commit up to c6bf44a (bisect 2026-10-17 03:00).
+# K9: knobs 2-5 set SCALE, CHORD or ARP (CLP-62, CLP-63). K9 fails from e8b2c7f up to aa7f666.
 # SRC=<dir> runs it on the firmware sources of another commit (the bisect), default firmware/src.
 set -e
 cd "$(dirname "$0")/../.."
