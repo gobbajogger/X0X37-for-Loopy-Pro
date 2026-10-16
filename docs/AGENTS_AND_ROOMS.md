@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 22:27 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 22:28 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -21,7 +21,7 @@ Last updated: 2026-10-16 22:27 (Vladivostok, UTC+10).
 
 ### Second Builder
 - ID: d9628bfa-aaf6-4aa0-81b3-db56618755f2
-- Purpose: Builds the clip-mode keybed, scale, chord, arp and tempo carry-over features. Commits on integration (rules 4 to 6).
+- Purpose: Builds the clip-mode keybed, scale, chord, arp and tempo carry-over features. Owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). Commits on integration (rules 4 to 6). Runs an Elite build before each handoff.
 - Never: Installs. Edits the Bluetooth/JieLi lane files (Firmware Main Builder owns them).
 - Box copy: /workspace/x0x37-second-builder. Commits there on integration.
 
@@ -76,7 +76,7 @@ Each task has one task agent. Find it in this table. All lanes commit on one wor
 |---|---|---|---|---|
 | Orchestrator | Rule checks. Task assignment. Messages to and from the owner. | Build, write code or install. | Task agent, from this table. | Light |
 | Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (the batch hash with gate PASS). | Edit the clip mode lane files. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
-| Second Builder | Clip mode lane files on integration (clip mode, scale, chord, arp, tempo). | Install. Edit the Bluetooth/JieLi lane files. | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
+| Second Builder | Clip mode lane files on integration (clip mode, scale, chord, arp, tempo). The clip pad colours. The < and > buttons in all modes. An Elite build before each handoff. | Install. Edit the Bluetooth/JieLi lane files. | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
 | Firmware Q&A | Answers about firmware and branches. | Commit, change code or install. | Task agent of the topic, from this table. | Light |
 | Merge Integrator | Branch integration: branch order, merges, merge conflicts, the batch gate. merge-monitor-log.md. | Install. Write feature code. Merge or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (batch hash with gate PASS). | Heavy |
 | Build and Test Runner | Headless builds, unit tests, size and flash-map checks. | Install. Write feature code. | Release Packager (pass). Task agent (fail). | Heavy |
@@ -167,3 +167,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 22:04: rule 41 (no idle waiting, owner 22:03).
 - 2026-10-16 22:25: agent-rules.md version 2 (15 rules). Coordination rules list the 15 rules. Integration 6ee9c69, a76 and a77 merged.
 - 2026-10-16 22:27: agent sections: old worktrees removed (live: a74wt, refswt, flash_review_integration). Second Builder purpose from its profile. Optimizer: no gate, no trial merges, no push outside the box and the Mac. Lanes table: no branch names for lanes, Test Plan Writer sends checklists to Orchestrator. Release Packager and Test Plan Writer: "Never installs" confirmed from their profiles.
+- 2026-10-16 22:28: Second Builder owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). Runs an Elite build before each handoff.
