@@ -97,9 +97,13 @@ static void ble_sink_check(void)
     ble_guard.sink_n = bad;
 }
 
+/* a60: core-0 return-path DIAG (ble_service, keyboard->host). All read in ble_diag. */
+static uint32_t d_state_fr, d_send_n, d_sx_sent, d_mirror_n;
+static uint8_t d_last_s1, d_sx_gate;
 static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
 {
     (void)ctx;
+    d_send_n++;
     return xb_frame_put(&ble_r.mb.h2c, t, p, n);
 }
 /* attempt 29: the APC40 mkII identity and introduction over Bluetooth (Loopy Pro on a BLE port), as
@@ -136,8 +140,9 @@ static void ble_sx_answer(bleh_t *h)
 {
     uint8_t m[35];
     uint32_t i, n;
-    if (!ble_sx_reply || !bleh_notifying(h))
-        return;
+    if (!ble_sx_reply) { d_sx_gate = 1; return; }
+    if (!bleh_notifying(h)) { d_sx_gate = 2; return; }
+    d_sx_gate = 3;
     for (i = 0; i < sizeof m; i++) m[i] = 0;
     if (ble_sx_reply == 1u) {                     /* the same reply as usb.c apc40_device_inquiry */
         m[0] = 0xF0; m[1] = 0x7E; m[2] = ble_sx_ch; m[3] = 0x06; m[4] = 0x02;
@@ -150,8 +155,10 @@ static void ble_sx_answer(bleh_t *h)
         m[16] = 0xF7;
         n = 17u;
     }
-    if (bleh_sysex_send(h, m, n, (uint16_t)(fm1_ms & 0x1FFFu)) != -2)
-        ble_sx_reply = 0;                         /* sent (or refused): busy only waits */
+    if (bleh_sysex_send(h, m, n, (uint16_t)(fm1_ms & 0x1FFFu)) != -2) {
+        ble_sx_reply = 0;
+        d_sx_sent++;
+    }                         /* sent (or refused): busy only waits */
 }
 
 /* power-on, before core 1 starts (plat_cpu2_set): the image check, and with BLUETOOTH ON core 1's
@@ -397,6 +404,7 @@ static void ble_service(void)
         if (n > 0 && t == XB_HX_MIDI)
             bleh_midi_in(h, fr, (uint16_t)n);
         else if (n >= 8 && t == XB_HX_STATE) {
+            d_state_fr++; d_last_s1 = fr[1];
             bleh_link(h, fr);
             if (bleh_link_lost(h)) {
                 ble_r.ow = ble_r.orr;           /* nothing old for the next link */
@@ -407,8 +415,11 @@ static void ble_service(void)
     while (ble_r.orr != ble_r.ow) {             /* MIDI out, mirrored */
         uint8_t b[3];
         uint32_t len = ble_msg_of_usb(ble_oq[ble_r.orr % BLE_OQ], b);
-        if (len && bleh_notifying(h) && bleh_midi_send(h, b, (uint8_t)len, (uint16_t)(fm1_ms & 0x1FFFu)) == -2)
-            break;                              /* the host's queue is full: next tick */
+        if (len && bleh_notifying(h)) {
+            d_mirror_n++;
+            if (bleh_midi_send(h, b, (uint8_t)len, (uint16_t)(fm1_ms & 0x1FFFu)) == -2)
+                break;
+        } else if (!len) { /* unparsable */ }                              /* the host's queue is full: next tick */
         ble_r.orr++;
     }
     ble_sx_answer(h);
@@ -500,6 +511,14 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.hx.rx;
     w[n++] = ble_r.mb.hx.tx;
     w[n++] = ble_r.mb.hx.tx_drops;
+    if (n + 4u > max)
+        return n;
+    w[n++] = d_state_fr;                                    /* a60: XB_HX_STATE frames the app applied */
+    w[n++] = d_send_n | (d_sx_sent << 16);                 /* ble_send calls | inquiry answers pushed */
+    w[n++] = (uint32_t)(ble_r.h.cccd[0] & 1u) | ((uint32_t)(bleh_notifying(&ble_r.h) ? 1u : 0u) << 1) |
+             ((uint32_t)ble_r.h.state << 4) | ((uint32_t)ble_sx_reply << 8) |
+             ((uint32_t)d_last_s1 << 16) | ((uint32_t)d_sx_gate << 24);
+    w[n++] = d_mirror_n;                                    /* out-mirror sends attempted */
     return n;
 }
 
