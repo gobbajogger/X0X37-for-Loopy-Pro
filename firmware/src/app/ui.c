@@ -1998,8 +1998,17 @@ static void bass_kbd(int key, int down)
         } else if (ui.rec && seq.playing) {
             bpart_t *bp = &cur_pat()->bass[b];
             int s = rec_step(TRK_BASS0 + b);
+            uint8_t f = G_NOTE;
+            if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
+                f |= BS_ACCENT;
+                ui.btn_used |= 1u << B_ENV;
+            }
+            if (ui.btn & (1u << B_LFO)) {              /* (used: its release does not open MIX) */
+                f |= BS_SLIDE;
+                ui.btn_used |= 1u << B_LFO;
+            }
             bp->step[s].note = (uint8_t)n;
-            bp->step[s].flags = (uint8_t)(G_NOTE | ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0));
+            bp->step[s].flags = f;
             mark_dirty();
         }
     } else if (kbd_held_note[b] == n) {
