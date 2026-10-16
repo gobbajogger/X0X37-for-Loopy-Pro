@@ -243,6 +243,12 @@ CK_FN static int32_t ck_rpt(uint32_t lr, uint32_t press, uint32_t now, uint32_t 
     return lr == 2u ? 1 : -1;
 }
 
+/* The value of a field after one step st (-1 or +1, from ck_rpt) from v: 0..max, no wrap */
+CK_FN static uint32_t ck_step(uint32_t v, int32_t st, uint32_t max)
+{
+    return st > 0 ? (v < max ? v + 1u : v) : (v ? v - 1u : 0u);
+}
+
 /* HUMAN 0-7. r: a random number. Return the velocity: vel moved by up to 4 x h at random (1..127); *late: the
  * ms the note-on waits, 0 to 4 x h (CK_LATE_MAX at most). h = 0: vel, no wait. */
 #define CK_LATE_MAX 28u
