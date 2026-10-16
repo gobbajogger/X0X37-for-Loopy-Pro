@@ -7,7 +7,7 @@
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Updater, pack7, unpack7, sameKeyboard } from "./fm1ota.js";
@@ -188,6 +188,15 @@ class FakeX0X {
 }
 
 const same = (a, b) => (a === null || b === null ? a === b : eq(a, b));
+// X0X_SLOT_DUMP=<file>: write one line per install (the CRC-32 of the whole flash model and of each slot image in
+// each saved file), so that two runs of this test can be compared. Not set: no file is written.
+let dumps = 0;
+function dump(kind, flash, files) {
+  if (!process.env.X0X_SLOT_DUMP) return;
+  const h = (b) => (crc32(b) >>> 0).toString(16).padStart(8, "0");
+  const fl = files.map((b) => { const a = readArchive(b); return a ? a.images.map((im) => (im ? h(im) : "-")).join("/") : "no-archive"; });
+  appendFileSync(process.env.X0X_SLOT_DUMP, [String(++dumps).padStart(2, "0"), kind, "flash", h(flash.mem), "files", ...fl].join(" ") + "\n");
+}
 async function flow(pkg, product, from, to, firmware, fill, opts = {}) {
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
@@ -198,6 +207,7 @@ async function flow(pkg, product, from, to, firmware, fill, opts = {}) {
     res = await installKeepingSlots(new Updater(dev.access), pkg.image, product, "smk",
       { sameKeyboard, save: (b, name) => saved.push({ b, name }), say: (k, a) => said.push([k, a]) });
   } catch (e) { err = e; }
+  dump("flow", flash, saved.map((x) => x.b));
   return { flash, dev, saved, said, res, err };
 }
 
@@ -302,6 +312,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   for (let i = 0; i < 3000 && (ids.go.disabled || !ids.status.textContent); i++) await new Promise((r) => setTimeout(r, 10));
   const files = [];
   for (const d of downloads) files.push({ name: d.name, b: new Uint8Array(await blobs.get(d.href || [...blobs.keys()].pop()).arrayBuffer()) });
+  dump("page", flash, files.map((x) => x.b));
   return { status: ids.status.textContent, files, flash };
 }
 {
