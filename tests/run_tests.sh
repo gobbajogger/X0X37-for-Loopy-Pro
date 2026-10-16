@@ -15,6 +15,9 @@
 #     The default is X0X_TEST_TIME_SCALE=20 (dev and branch runs): in web/test_install_slots.mjs, waits of
 #     1000 ms or more take 1/20 of the time. The pre-install gate (tools/gate.sh) always uses 1.
 #     build/host/.results/*.time gives the time of each test.
+#   The tests in needs_gen (drum-pan, stereo, rec-live) include the headers in build/gen. host-build writes them.
+#     In parallel mode, such a test starts only after host-build ends (build/host/iso/.gen-done), and it does
+#     not hold a job slot while it waits. In serial mode, host-build runs before them.
 #   The install-path tests (class S and W, but not rec-live: installers, mocked devices, packages, update loaders, BLE)
 #     take a shared lock on the gate lock (flock -s on X0X_GATE_LOCK, default /workspace/x0x37-refs/gate.lock) while
 #     they run. Thus they wait while a gate holds its exclusive lock, and a gate waits for them. Dev runs can share.
@@ -76,6 +79,15 @@ lk() {                  # name command...: start the command. An install-path te
         "$@"
     fi
 }
+needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
+    case "$1" in drum-pan|stereo|rec-live) return 0 ;; *) return 1 ;; esac
+}
+gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
+    needs_gen "$1" || return 1
+    [ -e "$OUT/iso/.gen-done" ] && return 1
+    [ -z "$X0X_TESTS" ] && return 0
+    case " $X0X_TESTS " in *" host-build "*) return 0 ;; *) return 1 ;; esac
+}
 gen_lock() { until mkdir "$OUT/iso/.lock-gen" 2>/dev/null; do sleep 0.1; done; }
 gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
 run() {
@@ -99,13 +111,19 @@ run() {
         run_one "$key" "$name" "$@"
         return
     fi
-    [ "$cls" = W ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
+    gw=0; gen_wait "$name" && gw=1
+    [ "$cls" = W ] || [ $gw = 1 ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
     (
         export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
         mkdir -p "$HOME" "$TMPDIR"
+        if [ $gw = 1 ]; then      # wait for the end of host-build without a job slot, then take a slot
+            until [ -e "$OUT/iso/.gen-done" ]; do sleep 0.1; done
+            [ "$cls" = W ] || read -r _ <&3
+        fi
         [ "$cls" = G ] && gen_lock
         run_one "$key" "$name" "$@"
         [ "$cls" = G ] && gen_unlock
+        [ "$name" = host-build ] && : > "$OUT/iso/.gen-done"   # also after a FAIL: the waiting tests then start and report
         [ "$cls" = W ] || echo >&3
     ) &
 }
@@ -140,6 +158,7 @@ run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/h
 run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tests/host/undo_test.c && $OUT/undo_test"
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
+run host-build sh host/build_host.sh   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
 run stereo sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/stereo_test tests/host/stereo_test.c firmware/src/dsp/master.c firmware/src/dsp/fxbus.c -lm && $OUT/stereo_test"
 run master sh -c "$CC $W -Wno-double-promotion -o $OUT/master_test tests/host/master_test.c firmware/src/dsp/master.c -lm && $OUT/master_test"
@@ -156,6 +175,7 @@ run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 2
 run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
 run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, strict STE, Trigger and Check lines
 run ste-owner-msg sh tests/host/test_ste_owner_msg.sh   # tools/ste_check.py --owner-msg (check 2): the length and the content of a message to the owner (rule 13)
+run gen-order sh tests/host/test_gen_order.sh   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)
@@ -240,7 +260,6 @@ command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_s
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
-run host-build sh host/build_host.sh
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c \
