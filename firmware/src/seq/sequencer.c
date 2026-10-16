@@ -605,13 +605,26 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         if (s->playing)
             do_stop(s, o);
     }
-    if (s->req_start) {
-        s->req_start = 0;
-        do_start(s, 1, o);
-    }
-    if (s->req_cont) {
-        s->req_cont = 0;
-        do_start(s, 0, o);
+    if (s->req_start || s->req_cont) {
+        uint8_t rt = s->req_rt;
+        s->req_rt = 0;
+        /* PLAY started X0X less than one step ago, and a MIDI Start or Continue comes (the host answers the
+         * PLAY note, MID-14): X0X already plays step 1, so it does not start again (no second step 1) */
+        if (rt && s->playing && s->start_local &&
+            s->ext_now - s->start_at < (seq_step_q8(s, part_rate(s, TRK_DRUM)) >> 8))
+            s->req_start = s->req_cont = 0;
+        else {
+            if (s->req_start) {
+                s->req_start = 0;
+                do_start(s, 1, o);
+            }
+            if (s->req_cont) {
+                s->req_cont = 0;
+                do_start(s, 0, o);
+            }
+            s->start_local = (uint8_t)!rt;
+            s->start_at = s->ext_now;
+        }
     }
     s->midi_req = 0;                                  /* used only by the requests above */
     if (s->ext_pending)
@@ -673,8 +686,8 @@ int seq_midi_rt(seq_t *s, uint8_t st)
     int internal = s->clk_src == SEQ_CLK_INT;
     switch (st) {
     case 0xF8: if (!internal) seq_ext_clock(s); return 1;
-    case 0xFA: if (!internal) seq_start(s); return 1;
-    case 0xFB: if (!internal) seq_continue(s); return 1;
+    case 0xFA: if (!internal) { s->req_rt = 1; seq_start(s); } return 1;
+    case 0xFB: if (!internal) { s->req_rt = 1; seq_continue(s); } return 1;
     case 0xFC: if (!internal) seq_stop(s); return 1;
     default: return 0;
     }
