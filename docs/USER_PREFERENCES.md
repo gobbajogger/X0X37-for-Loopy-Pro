@@ -15,6 +15,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
   - Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms.
   - Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the step before the one you meant, so your recording sounds a bit early. I can make it snap to the closest step instead."
   - This rule applies only to text for the owner. Docs, logs and commits stay in asd-ste. (Extended 2026-10-16 23:11: these messages are also in ASD-STE100. See the 23:11 entry.)
+- 2026-10-17 01:45 (owner, through Orchestrator): Trust the reports and the setup of the owner. Search our code for the cause first. Never tell the owner that the owner made a setup mistake (agent rule 13).
 - 2026-10-17 00:59 (owner, supersedes 00:05): Each message to the owner, from Orchestrator and from all agents, has 1 to 3 short sentences (caveman length). Use simple ASD-STE100 words, with no shorthand, no IDs and no code references. Give only a result, a blocker or one question (agent rule 13).
 - 2026-10-17 00:05 (owner): Make each message to the owner as short as possible, and keep every fact (caveman length). Use full, simple ASD-STE100 words: no shorthand, no IDs and no hashes, unless the owner needs them (agent rule 13).
 - 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the experience of the owner.
@@ -27,7 +28,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 
 - Never touch the bootloader. Never risk a brick. Run each install in the foreground, never in the background.
 - Before each install, back up the loop slots. After the install, compare the slot CRCs. The owner has 5 imported loops (3 in slot 1, 2 in slot 2). The backups are in slot_backups/.
-- 2026-10-16: A verified build installs with no question to the owner, but only when all queued changes are complete. Never ask the owner whether to install a partial build (owner rule 01:57). Before each install, send the owner a notice. Give the commit hash and the result file of the gate PASS row for the exact tree (/workspace/x0x37-results/index.md). A "go" in a message does not replace that row (agent rule 6). After the install, give the owner the commit hash and the CRC result.
+- 2026-10-16: A verified build installs with no question to the owner, but only when all queued changes are complete. Never ask the owner whether to install a partial build (owner rule 01:57). Before each install, send the owner a notice. The 00:59 entry wins for this notice and for the report after the install: no hash, no CRC and no IDs. Write the commit hash and the result file of the gate PASS row (/workspace/x0x37-results/index.md) only in the ledger (BLE_ATTEMPTS.md). A "go" in a message does not replace that row (agent rule 6).
 - 2026-10-17 01:57 (owner, through Orchestrator): "install only when editing is done and all queued features are ready to test together; never ask the owner whether to install a partial build." (agent rules 6 and 14)
 - 2026-10-17 01:56 (owner, through Orchestrator): Do not install b8255f2 alone. The next install is batch 9 together with the pad clear fix of Firmware Main Builder. That fix covers the end of the USB link, Loopy quit on the Mac and the iPhone pads that light again.
 - 2026-10-16: Report UX changes immediately. Some changes can affect the experience of the owner: latency, packet or MTU size, memory margins, sample length and connection behavior. If the builder decides on such a change, it sends a short note to Orchestrator before it continues. Orchestrator tells the owner.
@@ -68,6 +69,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - 2026-10-16 22:03 (owner): Do not wait idle. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 3).
 - 2026-10-16 22:39 (owner): Record the bug first. Before a fix for a device bug, the owner shows the bug once with INLOG (the inbound MIDI recorder) on. The builder makes a host replay test from that log, then fixes the bug. Do not make guess fixes (agent rule 8).
 - 2026-10-16 22:59 (owner): Never build a fix before data and a host test prove that it fixes the cause. If a fix does not help on the device, go back to the start. Name the wrong assumption and get the missing data. Do not try a second guess (agent rule 8).
+- 2026-10-17 01:49 (owner, through Orchestrator): The owner can skip the INLOG step of the 22:39 entry for one bug. An example is the pad clear fix (agent rule 8).
 - 2026-10-16 23:11 (owner): Write each message to the owner in ASD-STE100, also with the plain words of the 20:12 entry. Do not describe a change to the owner before you verify it (agent rule 13, asd-ste skill).
 - 2026-10-16 23:15 (Orchestrator decision): Integration is the one working branch. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Merge Integrator moves each commit onto integration (agent rules 10 and 11).
 - 2026-10-16 23:15 (Orchestrator decision): Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (agent rule 13).
@@ -81,6 +83,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
   - Merge Integrator does the release packaging. It packages only a hash with a gate PASS and a device PASS, with the same checks as before (CRCs, loop slot backup paths).
   - Docs Keeper writes the owner test checklists and sends them to Orchestrator. A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes.
   - Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers.
+- 2026-10-17 00:15 and 00:17 (owner): Start each task of an owner test checklist with its goal, in the words of the owner. Each task starts from any screen (agent rule 12).
 
 ## Hardware and targets
 
@@ -152,4 +155,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 02:02.
+Last update: 2026-10-17 02:27.
