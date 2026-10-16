@@ -117,7 +117,11 @@ static uint32_t ota_unpack7(const uint8_t *in, uint32_t n, uint8_t *out, uint32_
 }
 
 static uint8_t ota_msg[8 + 32], ota_wire[2 + 48];
+#ifdef OTA_SCRATCH                               /* the app: after the session buffers in the scratch */
+#define ota_dec (OTA_SCRATCH + 0x800)
+#else
 static uint8_t ota_dec[OTA_FRAME_MAX];           /* decoded host message */
+#endif
 
 static int ota_send_msg(uint32_t cmd, const uint8_t *body, uint32_t n)   /* n <= 32 */
 {
@@ -156,9 +160,9 @@ static uint32_t ota_take(void)
     uint32_t n, d, s = 0, i;
     if (!ota_frame_get(&p, &n))
         return 0;
-    d = ota_unpack7(p, n, ota_dec, sizeof ota_dec);
+    d = ota_unpack7(p, n, ota_dec, OTA_FRAME_MAX);
     ota_frame_done();
-    if (d < 7u || d > sizeof ota_dec || ota_dec[0] != 0 || ota_dec[1] != 0x59 || ota_rd24(ota_dec + 3) + 7u != d)
+    if (d < 7u || d > OTA_FRAME_MAX || ota_dec[0] != 0 || ota_dec[1] != 0x59 || ota_rd24(ota_dec + 3) + 7u != d)
         return 0;
     for (i = 6; i + 1u < d; i++)
         s += ota_dec[i];
@@ -270,7 +274,11 @@ static int ota_ufw(uint8_t *hdr, uint32_t *fl_off, uint32_t *fl_len, uint32_t *o
 
 static int ota_stage(void)                       /* steps 1..6; 0 = host said success */
 {
+#ifdef OTA_SCRATCH                     /* the app: a main-loop scratch that it shares (2 KiB used) */
+    uint8_t *const hdr = OTA_SCRATCH, *const b = hdr + 0x400, *const mine = b + 512;
+#else
     static uint8_t hdr[0x400], b[512], mine[512];
+#endif
     uint32_t i, n, ota_off, ota_len, fl_off, fl_len, c, len, own, official;
     int rc;
     /* 1. UFW header + entry list */
