@@ -483,7 +483,7 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
     padled_dirty = 1u;
 }
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
- * cells: lit cells in the approved LCD colour (APC40_LCD565, dark shades lifted), unlit cells dim, queued cells with a white
+ * cells: lit cells in the LCD colour (APC40_LCD565: the Akai colour as plain RGB565), unlit cells dim, queued cells with a white
  * dot. A white frame marks each cell that is on the 16 pads now (the OCT view, or the
  * full 4x4). It redraws when the cells or the view change, at most every 64 ms.
  * It uses the existing canvas (gfx.c cv_px): no new RAM buffer. */
@@ -545,7 +545,7 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
                 int32_t x = m.x0 + (int32_t)col * p, y = m.y0 + (int32_t)smk_apc40_lcd_screen_row(&m, (uint8_t)(m.row0 + row)) * p;
                 uint8_t n = (uint8_t)((m.row0 + row) * SMK_APC40_SOURCE_COLS + m.col0 + col);
                 uint8_t v = apc_led_velocity[n];
-                /* The approved LCD colour (CLP-05). Idle shades are lifted, the hue stays. */
+                /* The Akai colour as plain RGB565 (CLP-05). */
                 uint16_t c = APC40_LCD565[v & 0x7Fu];
                 int32_t q = p / 4;
                 if (in_view[n])
