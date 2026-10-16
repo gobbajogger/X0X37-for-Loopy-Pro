@@ -52,6 +52,7 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 1. Done (a52, f0bcb28): Bluetooth starts. STATUS READY at power-on.
 2. Mac: the connection works (a59, a60). Open on the Mac: test clock and Start/Stop over Bluetooth, and check for audio dropouts. iPhone: done, the link works on a67 (94285b5, owner test 19:18).
    Open: X0X PLAY does not start or stop Loopy Pro (a73 FAIL, owner test 20:37-20:39). Also test the a73 pads, overdub and tempo with Loopy Pro.
+   Open: a74 (branch ble-a74, b95c1cb, Firmware Main Builder) adds a clock source setting INTERNAL / EXTERNAL / AUTO. The owner approved the design at 20:39. In build and test: no gate PASS, not installed.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
 4. Bring the BLE branch ble-a73 (99faa0a) into the main tree (x0x37, smk37), after the full owner test of a73.
 5. Screen clip colours: put the approved table (apc40_lcd565.h, strong fix for 0x32 / 0x33) into the firmware, add a test, update BEHAVIOR.md CLP-05, commit. Install after approval.
@@ -70,4 +71,4 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 - Bluetooth audio.
 - Shipping any JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 20:42.
+Last update: 2026-10-16 20:47.

@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 20:46 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 20:47 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -111,7 +111,7 @@ Build and install:
 - All agents share one box. Each agent uses its own box folder, /workspace/x0x37-<agent-name>. Never use the folder of another agent. Each builder works only in its own worktree.
 - Rule 31: tests read the shared reference files in /workspace/x0x37-refs/schwung.
 - Rule 32: run hardware tests (device, USB, BLE, installer) one at a time. Run them in parallel only when a plan shows that their results cannot interact.
-- Rule 36: tests use X0X_TEST_JOBS=8. Scenario tests run one at a time. Do not run tests for a tree with only .md changes. Results go to /workspace/x0x37-results/<tree>.md. Keep LIVE_BRANCHES and BUDGET.md there current. Gate: /workspace/x0x37-refs/gate/x0x37_gate.sh with the gate lock. Time scale 20 in development, 1 at the gate before an install. Give each dead branch the name archive/<name>. Optimizer gives patches to the builders.
+- Rule 36: tests use X0X_TEST_JOBS=8. Scenario tests run one at a time. Do not run tests for a tree with only .md changes. Results go to /workspace/x0x37-results/<tree>.md. Keep LIVE_BRANCHES and BUDGET.md there current. Gate: /workspace/x0x37-refs/gate/x0x37_gate.sh. Its box-wide flock on X0X_GATE_LOCK (default /workspace/x0x37-refs/gate.lock) stops two gate test runs at the same time. Its lock X0X_GATE_WORK/.lock-<hash> blocks a second run of the same commit only. X0X_TEST_TIME_SCALE: 20 in development. The gate always uses 1 and writes it in the result file. Give each dead branch the name archive/<name>. Optimizer gives patches to the builders.
 - Commit early so the Merge Integrator has a base. Build and Test Runner checks every commit. Merge Integrator merges as soon as both sides have a commit.
 - Builders commit on the box, then sync the commits to the Mac repo with a git bundle before an install (same hashes, no patches).
 - Only Firmware Main Builder installs. Before each install: back up the sample slots, notify the user with the exact commit hash, and wait for the go from the parent agent. After the install: compare the slot CRCs and send the commit hash and the CRC result. Never write the bootloader. A verified build installs with no question to the user.
@@ -127,7 +127,7 @@ Repositories:
 ## Current project context
 
 - Mac: Mac-mini.local, /Users/mac/Documents/x0x37. Main source tree: x0x37 (branch smk37). The smk37 docs/ folder holds copies of agent-rules.md, USER_PREFERENCES.md, ROADMAP.md and this file. Box smk37 and Mac smk37 stay identical (git bundle sync).
-- BLE: live lane ble-a73 (a73 firmware 99faa0a, installed, partial owner test, branch tip c3ee3ef). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a74 abb7cf5 (status not recorded). Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Archived: archive/ble-a65 4d1608a, archive/ble-a72 fb5d720. History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
+- BLE: live lane ble-a73 (a73 firmware 99faa0a, installed, partial owner test, branch tip c3ee3ef). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a74 b95c1cb (Firmware Main Builder, in build and test): clock source setting INTERNAL / EXTERNAL / AUTO, design approved by the owner 20:39. No gate PASS, not installed. Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Archived: archive/ble-a65 4d1608a, archive/ble-a72 fb5d720. History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
 - Clip keys and integration: clip-keys-a65 at 81f6418. integration at 7e44e94. Box archive/clip-keys keeps ce5236e. The Mac clip-keys (c2f7906) is old.
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only, see the repository rules.
@@ -155,3 +155,4 @@ Repositories:
 - 2026-10-16 20:28: live BLE lane is ble-a73 (a73 installed, full owner test pending).
 - 2026-10-16 20:32: install rule (foreground, watched tmux or screen session). Now in rule 29.
 - 2026-10-16 20:46: no rooms (SendToAgent, Orchestrator relays to the owner). Rules 1, 11, 26, 27 and 29 changed. Rules 32 to 36 added. Approval only for changes that the owner can see, hear or play. Orchestrator never installs (confirmed).
+- 2026-10-16 20:47: rule 36 gate locks and X0X_TEST_TIME_SCALE. ble-a74 status.

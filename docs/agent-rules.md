@@ -41,7 +41,7 @@ All agents must follow these rules.
 - Run tests with X0X_TEST_JOBS=8 (the default). Run scenario tests one at a time.
 - Do not run tests for a tree that has only .md changes.
 - Write results to /workspace/x0x37-results/<tree>.md. Keep /workspace/x0x37-results/LIVE_BRANCHES and /workspace/x0x37-results/BUDGET.md current.
-- The gate script is /workspace/x0x37-refs/gate/x0x37_gate.sh. Use the gate lock (/workspace/x0x37-refs/gate.lock).
-- Use time scale 20 in development tests. Use time scale 1 at the gate before an install.
+- The gate script is /workspace/x0x37-refs/gate/x0x37_gate.sh. It has two locks. The box-wide lock is a flock on X0X_GATE_LOCK (default /workspace/x0x37-refs/gate.lock). It stops the tests of two gate runs from any agent at the same time. The second lock, X0X_GATE_WORK/.lock-<hash>, blocks only a second gate run of the same commit.
+- Set the time scale with X0X_TEST_TIME_SCALE. Development runs use 20. The gate always uses 1 and writes the time scale in the result file.
 - Give each dead branch the name archive/<name> (see LIVE_BRANCHES).
 - Optimizer gives patches to the builders. Optimizer does not commit to their branches.
