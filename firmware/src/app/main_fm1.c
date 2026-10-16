@@ -341,10 +341,20 @@ static void smk_inlog_w(uint32_t v, uint32_t nb)   /* one word, nb x 7 bits, low
     }
 }
 /* The reply of editor command 38 INLOG (editor.c, web/EDITOR_PROTOCOL.md). Arg 1: the pad LED output
- * (lcd.c): the colour to send and the last frame sent. Else: the entries and the stored clip cells. */
+ * (lcd.c): the colour to send and the last frame sent. Args 2-5: the pad calibration export (CLP-79).
+ * Else: the entries and the stored clip cells. */
 static void smk_inlog_reply(uint32_t arg)
 {
     uint32_t i;
+    if (arg - 2u < 128u / SMK_PADCAL_CHUNK) {     /* args 2-5: the pad calibration, 32 entries each (CLP-79) */
+        const uint8_t *c = padcal.rgb[(arg - 2u) * SMK_PADCAL_CHUNK];
+        ed_b(arg);
+        for (i = 0; i < 3u * SMK_PADCAL_CHUNK; i++)     /* R, G, B of each entry, 2 x 7 bits */
+            smk_inlog_w(c[i], 2u);
+        for (i = 0; i < SMK_PADCAL_CHUNK / 8u; i++)     /* then the ok bits of the 32 entries */
+            smk_inlog_w(padcal.ok[(arg - 2u) * (SMK_PADCAL_CHUNK / 8u) + i], 2u);
+        return;
+    }
     if (arg == 1u) {
         ed_b(1u);
         ed_b(padled_dirty);
