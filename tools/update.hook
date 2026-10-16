@@ -35,7 +35,11 @@
 #   The pre-receive hook (tools/pre-receive.hook) saves the option, because git gives push options only to pre-receive.
 #   An environment variable cannot skip the check.
 # Settings (git config of the bare repository, for a scratch copy): x0x37.quickcheck, x0x37.gateLock, x0x37.gateWait,
-#   x0x37.skipLog, x0x37.workDir.
+#   x0x37.skipLog, x0x37.workDir, x0x37.hookLog.
+# Hook log (check 10 of rules v4): after each quick check of an integration push, one line goes to x0x37.hookLog
+#   (default /workspace/x0x37-results/quickcheck-hook.log): "<time> refs/heads/integration <old7>..<new7> QUICK PASS ..."
+#   (or the QUICK FAIL line). tools/status.sh flags an integration tip without a QUICK PASS line here or a skip line in
+#   the skip log. If the hook cannot write the log, it gives a warning and does not reject.
 set -u
 REF=${1:-}; OLD=${2:-}; NEW=${3:-}
 Z=0000000000000000000000000000000000000000
@@ -48,6 +52,7 @@ GLOCK=$(cfg x0x37.gateLock /workspace/x0x37-refs/gate.lock)
 GWAIT=$(cfg x0x37.gateWait 120)
 SKIPLOG=$(cfg x0x37.skipLog /workspace/x0x37-results/quickcheck-skips.log)
 WD=$(cfg x0x37.workDir "$GD/x0x37-quickcheck")
+HOOKLOG=$(cfg x0x37.hookLog /workspace/x0x37-results/quickcheck-hook.log)
 ERR=$(mktemp "${TMPDIR:-/tmp}/x0x-update.XXXXXX") || reject "cannot make a temp file"
 trap 'rm -f "$ERR"' EXIT
 g() {   # g <git args>: output in G_OUT; an exit code other than 0 or error text rejects
@@ -177,6 +182,8 @@ OUT=$(env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_OBJECT_DIRECTORY 
 QRC=$?
 echo "$OUT" | grep -E '^(STE|QUICK) ' | head -8 >&2
 LAST=$(echo "$OUT" | grep -E '^QUICK (PASS|FAIL) ' | tail -1)
+echo "$(date '+%F %T %z') $REF ${OLD:0:7}..${NEW:0:7} ${LAST:-QUICK FAIL no QUICK line (exit code $QRC)}" >> "$HOOKLOG" 2>/dev/null ||
+    echo "update hook: WARNING: cannot write the hook log $HOOKLOG" >&2
 [ "$QRC" = 0 ] && case "$LAST" in "QUICK PASS"*) true;; *) false;; esac ||
     reject "quick check: ${LAST:-no QUICK line (exit code $QRC)}. Fix the commit. Emergency only: git push -o skip-quickcheck=\"<why>\""
 exit 0

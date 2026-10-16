@@ -22,6 +22,20 @@
 #   X0X_DOCS_BRANCH [smk37].
 # Check 31 (commit.md rule 10): LANE FILES when a tracked file of integration has no lane in "Lane files" of
 #   smk37:docs/AGENTS_AND_ROOMS.md (tools/lane_files.py beside this script).
+# Check 10 (rule 11, git push only): INTEGRATION NO QUICK PASS when the hook log (X0X_HOOK_LOG
+#   [$RESULTS/quickcheck-hook.log], written by the server update hook) has no "QUICK PASS" line for the integration tip
+#   and the skip log (X0X_SKIP_LOG [$RESULTS/quickcheck-skips.log]) has no skip line for it (for example after a git
+#   update-ref that skipped the hook).
+# Check 11 (rule 11, one gate per batch): GATE TWICE when index.md has 2 or more gate runs of one commit in the last 24 h
+#   and a later run has no "(force: ...)". "PASS (result used again)" and TRIAL rows are not runs.
+# Check 13 (rule 3): STATUS SCRIPT CHANGED when the mtime of this script changed during this run, and SCRIPT CHANGED when a
+#   gate.log of the last 24 h has a "gate: SCRIPT CHANGED" line (tools/gate.sh writes it).
+# Check 15 (rule 4, hourly audit): STOP WORDS when a *.md file (depth 2) in an agent folder, changed in the last 60 min, has
+#   "probably", "should work" or "just this once" (a word in double quotes is a quote, not a hit). X0X_AGENT_DIRS sets the folders [the box folders of the Agents table].
+# Check 18 (rule 8): BISECT NEEDED when the last two rows with a result of integration:BLE_ATTEMPTS.md say "Result: FAIL".
+#   A row has a result when it has "Result: PASS" or "Result: FAIL", or its last cell is PASS or FAIL. Rows without a
+#   result are not counted.
+# X0X_GATE_LOG_ROOTS sets the folders where the gate logs are [/workspace /home/box/.cache/x0x37-gate].
 set -u
 export TZ=Asia/Vladivostok LC_ALL=C
 REPO=${X0X_REPO:-/workspace/x0x37.git}
@@ -54,6 +68,8 @@ STALL_MIN=45       # stall = queued work and no output for more than 45 min
 G() { git --git-dir="$REPO" "$@"; }
 SELFD=$(cd "$(dirname "$0")" && pwd)   # the folder of this script (ste_check.py is beside it)
 T0=$(date +%s.%N); NOW=$(date +%s)
+SELF="$SELFD/$(basename "$0")"; SM0=${X0X_STATUS_MTIME0:-$(stat -c %Y "$SELF" 2>/dev/null)}   # check 13
+GLROOTS=${X0X_GATE_LOG_ROOTS:-/workspace /home/box/.cache/x0x37-gate}
 mkdir -p "$OUTDIR" "$TMPD"
 TMP=$(mktemp "$TMPD/status.md.XXXXXX"); TMPL=$(mktemp "$TMPD/LIVE_BRANCHES.XXXXXX")
 trap 'rm -f "$TMP" "$TMPL"' EXIT
@@ -97,7 +113,7 @@ done
 while read -r lg; do
   grep -q 'KILLED' "$lg" 2>/dev/null || continue
   c=$(basename "$(dirname "$lg")" .logs); addg "$c" "KILLED (no result)" "$(date -d @"$(stat -c %Y "$lg")" '+%Y-%m-%d %H:%M')" "$lg"
-done < <(find /workspace /home/box/.cache/x0x37-gate -maxdepth 4 -path '*.logs/gate.log' 2>/dev/null)
+done < <(find $GLROOTS -maxdepth 4 -path '*.logs/gate.log' 2>/dev/null)
 
 # ---------- gate processes and lock ----------
 LOCKTXT=free; QUEUED=(); RUNC=""  # QUEUED: "agent|commit|pid"
@@ -235,7 +251,7 @@ while read -r lg; do
     RUNCHK+="| $c7 | $(dirname "$lg") | $(fmt "$m") | historical ($(hist_why "$c7")): no index row |"$'\n'
   else why="no index row"; grep -q 'KILLED' "$lg" && why="no index row (KILLED: no result by design)"
     RUNCHK+="| $c7 | $(dirname "$lg") | $(fmt "$m") | **NO GATE ROW**: $why |"$'\n'; NGRN=$((NGRN+1)); NGR+="gate run $c7 ($(dirname "$lg")), "; fi
-done < <(find /workspace /home/box/.cache/x0x37-gate -maxdepth 4 -path '*.logs/gate.log' 2>/dev/null)
+done < <(find $GLROOTS -maxdepth 4 -path '*.logs/gate.log' 2>/dev/null)
 
 # ---------- STE (last hour): commit messages of all box branches, committer time in the last hour ----------
 # ste_check.py (beside this script) on each message (subject + body), one check for each hash.
@@ -353,6 +369,48 @@ else
   *) L31="- Lane files (check 31): not checked ($(echo "$LO" | tail -1 | cut -c1-120 | esc))." ;;
   esac
 fi
+
+# ---------- checks 10, 11, 13, 15, 18 ----------
+HOOKLOG=${X0X_HOOK_LOG:-$RESULTS/quickcheck-hook.log}
+if [ -z "$INTH" ]; then L10="- Integration quick check (check 10): not checked (no integration branch)."
+elif [ ! -f "$HOOKLOG" ]; then L10="- Integration quick check (check 10): not checked (no hook log $HOOKLOG)."
+elif grep -qE "refs/heads/integration [0-9a-f]+\.\.${INTH:0:7} QUICK PASS" "$HOOKLOG"; then L10="- Integration quick check (check 10): ${INTH:0:7} has a QUICK PASS line in the hook log."
+elif grep -qE "refs/heads/integration [0-9a-f]+\.\.${INTH:0:7} skip: " "${X0X_SKIP_LOG:-$RESULTS/quickcheck-skips.log}" 2>/dev/null; then L10="- Integration quick check (check 10): ${INTH:0:7} has a skip line in the skip log (push option skip-quickcheck)."
+else L10="- **INTEGRATION NO QUICK PASS** (check 10): ${INTH:0:7} has no QUICK PASS line in $HOOKLOG (a push that skipped the server hook, for example git update-ref)."; fi
+L11="- Gate runs (check 11): one run for each commit in the last 24 h."
+if [ -f "$RESULTS/index.md" ]; then
+  G11=$(awk -F'|' -v now="$NOW" '
+    { c=$2; gsub(/ /,"",c); r=$5; t=$7 }
+    c ~ /^[0-9a-f]+$/ && length(c) >= 7 {
+      if (r ~ /result used again/ || r ~ /TRIAL/) next
+      if (!match(t, /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/)) next
+      ts = substr(t, RSTART, RLENGTH); gsub(/[-:]/, " ", ts); e = mktime(ts " 00")
+      if (now - e > 86400) next
+      k = substr(c, 1, 7); n[k]++; if (n[k] > 1 && r !~ /force:/) bad[k]++ }
+    END { for (k in bad) printf "%s (%d runs), ", k, n[k] }' "$RESULTS/index.md")
+  [ -n "$G11" ] && L11="- **GATE TWICE** (check 11): ${G11%, } (a second gate run of one commit without --force)."
+fi
+SM1=$(stat -c %Y "$SELF" 2>/dev/null)
+L13="- Script change (check 13): none."
+SC13=$(find $GLROOTS -maxdepth 4 -path '*.logs/gate.log' -mmin -1440 2>/dev/null | while read -r lg; do grep -h 'gate: SCRIPT CHANGED' "$lg" | sed "s|^gate: SCRIPT CHANGED during the run: |$(basename "$(dirname "$lg")" .logs): |"; done | head -3 | paste -sd';' - | sed 's/;/; /g')
+if [ -n "$SM0" ] && [ "$SM0" != "$SM1" ]; then L13="- **STATUS SCRIPT CHANGED** (check 13): $SELF changed during this run.${SC13:+ Gate runs: $SC13.}"
+elif [ -n "$SC13" ]; then L13="- **SCRIPT CHANGED** (check 13): a gate script changed during a gate run: $SC13."; fi
+ADIRS=${X0X_AGENT_DIRS:-/workspace/x0x37-orchestrator /workspace/x0x37-firmware-main-builder /workspace/x0x37-second-builder /workspace/x0x37-optimizer /workspace/x0x37-build-and-test-runner /workspace/x0x37-docs-keeper /workspace/x0x37-merge-integrator}
+SWF=$(for d in $ADIRS; do [ -d "$d" ] && find "$d" -maxdepth 2 -name '*.md' -mmin -60 ! -path "$OUT" -type f 2>/dev/null; done)
+SWN=$(echo "$SWF" | grep -c .)
+SWH=$(echo "$SWF" | while read -r f; do [ -n "$f" ] && grep -niE 'probably|should work|just this once' "$f" 2>/dev/null | grep -viE '"(probably|should work|just this once)"' | head -2 | sed "s|^\([0-9]*\):|$f:\1: |" | cut -c1-140; done | head -3)
+if [ -n "$SWH" ]; then L15="- **STOP WORDS** (check 15): $(echo "$SWH" | paste -sd'|' - | sed 's/|/ | /g' | esc)."
+else L15="- Stop words (check 15): none in $SWN agent *.md files changed in the last 60 min."; fi
+L18="- BLE attempts (check 18): not checked (no BLE_ATTEMPTS.md on $INT)."
+if BA=$(G show "$INT:BLE_ATTEMPTS.md" 2>/dev/null); then
+  RL=$(echo "$BA" | awk -F'|' '/^\|/ { id=$2; gsub(/^ +| +$/,"",id); r=""
+      if (match($0, /Result: (PASS|FAIL)/)) r=substr($0, RSTART+8, 4)
+      else { c=$(NF-1); gsub(/^ +| +$/,"",c); if (c=="PASS" || c=="FAIL") r=c }
+      if (r!="") print id "\t" r }')
+  LAST2=$(echo "$RL" | grep -c . ); T2=$(echo "$RL" | tail -2)
+  if [ "$LAST2" -ge 2 ] && [ "$(echo "$T2" | cut -f2 | sort -u)" = FAIL ]; then L18="- **BISECT NEEDED** (check 18): attempts $(echo "$T2" | cut -f1 | paste -sd, - | sed 's/,/ and /') FAIL in a row (rule 8: after 2 device fails, bisect)."
+  else L18="- BLE attempts (check 18): $LAST2 rows with a result, no 2 FAIL rows at the end."; fi
+fi
 {
 echo "# x0x37 status"
 echo
@@ -378,6 +436,11 @@ echo "$L27"
 echo "$L29A"
 echo "$L29B"
 echo "$L31"
+echo "$L10"
+echo "$L11"
+echo "$L13"
+echo "$L15"
+echo "$L18"
 STALLS=""
 echo
 echo "## Live branches (tip commit in the last ${LIVE_H} h)"

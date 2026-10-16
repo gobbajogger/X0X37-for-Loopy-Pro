@@ -1,0 +1,3 @@
+gate: start 1a2b3c4
+gate: SCRIPT CHANGED during the run: /workspace/x0x37-refs/gate/gate_flashmap.py 02:00:01 -> 02:00:09
+gate: PASS
