@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-16 23:27 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 23:30 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -98,7 +98,7 @@ The agent rules are in agent-rules.md (version 2, 15 rules, with a list of terms
 - 4. Put each planned change in the batch for integration. Make one commit and one host test for each change. Run only the affected tests, and use time scale 20 (X0X_TEST_TIME_SCALE) only when the code reads it. Builders follow the x0x37-builder-loop skill.
 - 5. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Fetch and rebase before each commit, and push only your lane branch, never integration. Change only the files of your lane. Give other work to its task agent with SendToAgent.
 - 6. Merge Integrator owns the branch order and moves the lane commits onto integration. At the end of the batch, it requests one gate, and Build and Test Runner runs the gate script. Split or bisect only if that gate fails.
-- 7. Install only the batch hash. The gate must report PASS for its exact tree, with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md, and the install notice quotes the result file of that row. A PASS or a "go" in a message is not evidence. Do not use a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer.
+- 7. Install only the batch hash, after a gate PASS for its exact tree with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md, and the install notice quotes the result file of that row. Do not use a PASS or a "go" in a message as evidence, or a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (install-gate-guard merged). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
 - 8. Only Firmware Main Builder installs. Before the install, back up the loop slots and send the owner notice with the exact hash. After the install, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
 - 9. Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background.
 - 10. Run hardware work and edits to one shared file one at a time. While you wait for a result, do the next task that does not need it. If you have no task, tell Orchestrator.
@@ -186,3 +186,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 23:13: Skill-use audit C1-C14: we changed rules 2, 4, 5, 6, 7, 10 and 11. Lanes push only their own branch. Build and Test Runner runs the gate, and Merge Integrator requests it. The no-rebase OK of 22:03 (Orchestrator) is void. Rule 2 now has the owner rule of 23:11.
 - 2026-10-16 23:16: Orchestrator decisions 23:15: lane branches lane/<agent>-<topic> (rule 5). Orchestrator is the only route for owner questions (rule 2). Send one decision message for each item, with "supersedes <time>" (rule 14). The x0x37-builder-loop skill became the core card (23:15, 0f296f5c), and the Decision check is steps 6 to 10.
 - 2026-10-16 23:27: We rewrote the docs in ASD-STE100 (Orchestrator 23:19). agent-rules.md has a list of terms and the caveman scope. Rule 7 names the install tool fm1_install.py --commit and the guard require_gate_pass.sh. The x0x37-builder-loop core card is now 2026-10-16 23:20 5748c74f.
+- 2026-10-16 23:30: Orchestrator decisions 23:29: rule 7 applies the install guard from batch 3. Until then, Firmware Main Builder reads the index row and the result file before the install. The web installer ban is only for team installs. New terms: colour and owner quotes. The 20:12 owner example is word for word again.

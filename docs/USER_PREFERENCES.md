@@ -13,7 +13,7 @@ Read this file before you work on the X0X37 project. Also obey agent-rules.md. T
 - 2026-10-16 18:41 (owner): Optimize without cutting features. Font size is not a feature.
 - 2026-10-16 20:12 (owner):
   - Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms.
-  - Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the previous step. Then your recording sounds a bit early. I can make it snap to the closest step."
+  - Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the step before the one you meant, so your recording sounds a bit early. I can make it snap to the closest step instead."
   - This rule applies only to text for the owner. Docs, logs and commits stay in asd-ste. (Extended 2026-10-16 23:11: these messages are also in ASD-STE100. See the 23:11 entry.)
 - 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the experience of the owner.
 - 2026-10-16 19:10 (owner, from Optimizer items C3 and B3):
@@ -69,6 +69,7 @@ Read this file before you work on the X0X37 project. Also obey agent-rules.md. T
 - 2026-10-16 23:15 (Orchestrator decision): Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (agent rule 2).
 - 2026-10-16 23:15 (Orchestrator decision): Send one decision message for each item. Give it a tag "supersedes <time>" when it replaces an earlier decision (agent rule 14).
 - 2026-10-16 23:19 (Orchestrator decision): Install only with fm1_install.py --commit and the guard require_gate_pass.sh. Never use the web installer for a team install (agent rule 7).
+- 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 7 applies from batch 3 (install-gate-guard merged). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
 
 ## Hardware and targets
 
@@ -132,4 +133,4 @@ Read this file before you work on the X0X37 project. Also obey agent-rules.md. T
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-16 23:27.
+Last update: 2026-10-16 23:30.

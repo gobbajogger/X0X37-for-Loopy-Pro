@@ -1,4 +1,4 @@
-# Agent Rules (version 2, 2026-10-16 22:25, STE edit 2026-10-16 23:21)
+# Agent Rules (version 2, 2026-10-16 22:25, STE edit 2026-10-16 23:21, terms 23:30)
 
 All agents must follow these 15 rules. This Mac root file is the main copy, and x0x37/docs/agent-rules.md on smk37 is an exact copy. The "task agent" owns a task in the lanes table (AGENTS_AND_ROOMS.md).
 
@@ -15,6 +15,8 @@ Style scope: caveman is for agent-to-agent messages, including task messages. as
 - Bluetooth (BLE): Bluetooth Low Energy MIDI. In text, write "Bluetooth". Use "BLE" only in names, for example ble-a74, BLE-16 and BLE_ATTEMPTS.md.
 - behavior: use this US spelling in all files.
 - pairing: the Bluetooth security step between two devices. It includes the bonds. Do not write "bonding".
+- colour: British spelling. Use "color" only in code names. Keep "colour" in text.
+- owner quotes: Owner quotes stay word for word inside quotation marks. Quotes are exempt from STE.
 
 ## Rules
 
@@ -24,7 +26,7 @@ Style scope: caveman is for agent-to-agent messages, including task messages. as
 4. Put each planned change in the batch for integration. Make one commit and one host test for each change. Run only the affected tests, and use time scale 20 (X0X_TEST_TIME_SCALE) only when the code reads it. Builders follow the x0x37-builder-loop skill.
 5. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Fetch and rebase before each commit, and push only your lane branch, never integration. Change only the files of your lane. Give other work to its task agent with SendToAgent.
 6. Merge Integrator owns the branch order and moves the lane commits onto integration. At the end of the batch, it requests one gate, and Build and Test Runner runs the gate script. Split or bisect only if that gate fails.
-7. Install only the batch hash. The gate must report PASS for its exact tree, with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md, and the install notice quotes the result file of that row. A PASS or a "go" in a message is not evidence. Do not use a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer.
+7. Install only the batch hash, after a gate PASS for its exact tree with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md, and the install notice quotes the result file of that row. Do not use a PASS or a "go" in a message as evidence, or a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (install-gate-guard merged). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
 8. Only Firmware Main Builder installs. Before the install, back up the loop slots and send the owner notice with the exact hash. After the install, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
 9. Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background.
 10. Run hardware work and edits to one shared file one at a time. While you wait for a result, do the next task that does not need it. If you have no task, tell Orchestrator.
