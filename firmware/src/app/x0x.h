@@ -87,3 +87,4 @@ void ui_say(const char *a, const char *b);
 /* qc trim proof: warmup */
 /* qc trim proof: A-skip */
 /* qc trim proof: B-mismatch */
+/* qc trim proof: A2-skip */
