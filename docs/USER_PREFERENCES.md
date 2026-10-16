@@ -10,15 +10,15 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - Do not change release scripts unless the owner asks.
 - In build-test mode, do not install fallback or recovery builds only to make the keyboard playable (rules/core.md rule 6A). An example is a build with no Bluetooth. Put the fix into the current set of changes, and install it with that set (owner rule 01:57). The owner tests the keyboard and does not make music with it.
 - Commits: author genkigenki <3080081+genkigenki@users.noreply.github.com>, messages in ASD-STE100 (asd-ste skill). Log each change in x0x37-progress-log.md.
-- 2026-10-16 18:41 (owner): Optimize without cutting features. Font size is not a feature.
+- 2026-10-16 18:41 (owner): Optimize without cutting features. Font size is not a feature (rules/device-bug.md rule 8).
 - 2026-10-16 20:12 (owner):
-  - Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms.
+  - Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (rules/owner-messages.md rule 13).
   - Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the step before the one you meant, so your recording sounds a bit early. I can make it snap to the closest step instead."
   - This rule applies only to text for the owner. Docs, logs and commits stay in asd-ste. (Extended 2026-10-16 23:11: these messages are also in ASD-STE100. See the 23:11 entry.)
 - 2026-10-17 01:45 (owner, through Orchestrator): Trust the reports and the setup of the owner. Search our code for the cause first. Never tell the owner that the owner made a setup mistake (agent rules 8 and 13).
 - 2026-10-17 00:59 (owner, supersedes 00:05): Each message to the owner, from Orchestrator and from all agents, has 1 to 3 short sentences (caveman length). Use simple ASD-STE100 words, with no shorthand, no IDs and no code references. Give only a result, a blocker or one question (agent rule 13).
 - 2026-10-17 00:05 (owner): Make each message to the owner as short as possible, and keep every fact (caveman length). Use full, simple ASD-STE100 words: no shorthand, no IDs and no hashes, unless the owner needs them (agent rule 13).
-- 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the experience of the owner.
+- 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the experience of the owner (rules/owner-messages.md rule 14).
 - 2026-10-16 19:10 (owner, from Optimizer items C3 and B3):
   - In the XS, S and B faces, only these lower-case letters keep their own glyphs: `a b d k m p r s t x z`. Each other lower-case letter shows as its capital letter, also in sample names.
   - The characters ` { | } ~ show as "?". Symbols outside the font show as ?. The owner approved this on 2026-10-16 at 19:25. See BEHAVIOR.md GEN-55.
@@ -30,35 +30,35 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - Before each install, back up the loop slots. After the install, compare the slot CRCs. The owner has 5 imported loops (3 in slot 1, 2 in slot 2). The backups are in slot_backups/.
 - 2026-10-16: A verified build installs with no question to the owner, but only when all queued changes are complete. Never ask the owner whether to install a partial build (owner rule 01:57). Before each install, send the owner a notice. The 00:59 entry wins for this notice and for the report after the install: no hash, no CRC and no IDs. Write the commit hash and the result file of the gate PASS row (/workspace/x0x37-results/index.md) only in the ledger (BLE_ATTEMPTS.md). A "go" in a message does not replace that row (agent rule 6).
 - 2026-10-17 01:57 (owner, through Orchestrator): "install only when editing is done and all queued features are ready to test together; never ask the owner whether to install a partial build." (agent rules 6 and 14)
-- 2026-10-17 01:56 (owner, through Orchestrator): Do not install b8255f2 alone. The next install is batch 9 together with the pad clear fix of Firmware Main Builder. That fix covers the end of the USB link, Loopy quit on the Mac and the iPhone pads that light again.
-- 2026-10-16: Report UX changes immediately. Some changes can affect the experience of the owner: latency, packet or MTU size, memory margins, sample length and connection behavior. If the builder decides on such a change, it sends a short note to Orchestrator before it continues. Orchestrator tells the owner.
+- 2026-10-17 01:56 (owner, through Orchestrator): Do not install b8255f2 alone. The next install is batch 9 together with the pad clear fix of Firmware Main Builder. That fix covers the end of the USB link, Loopy quit on the Mac and the iPhone pads that light again (rules/core.md rule 6A).
+- 2026-10-16: Report UX changes immediately. Some changes can affect the experience of the owner: latency, packet or MTU size, memory margins, sample length and connection behavior. If the builder decides on such a change, it sends a short note to Orchestrator before it continues. Orchestrator tells the owner (rules/owner-messages.md rule 14).
 - 2026-10-16 02:11:
   - Generic work needs no approval. Generic work is builds, tests, commits, pushes to the box, doc updates and merges on the box. Tell the owner first before a change that can change how the device works or feels.
   - Examples: new behavior rules, changes that the owner can see, hear or play, flash layout changes, removed features. The safety rules do not change.
   - The 19:25 entry replaces these examples. Only a change that the owner can see, hear or play needs approval. The install notice stays (agent rule 5).
 - 2026-10-16 17:3x (the owner gave this decision to Firmware Main Builder):
   - The pool limit is 4096 B, from the build.py rule. heap2 (3584 B) is already inside .pool. A release build must turn off the test-26 RAM canary (it writes 0xFF at 0x01C72000-0x01C74000), or keep at least 8192 B of free pool.
-  - Enforced: build.sh and the gate require 8192 B of free pool (2026-10-16 21:53). The 8192 B limit replaces the 4096 B limit.
+  - Enforced: build.sh and the gate require 8192 B of free pool (2026-10-16 21:53). The 8192 B limit replaces the 4096 B limit (rules/integration.md rule 11).
 
 ## Repositories and remotes
 
 - 2026-10-16 02:09: The shared bare repository on the box is /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it. Lanes push only their lane/<agent>-<topic> branch, never integration. Merge Integrator moves each commit onto integration (agent rules 10 and 11, 23:15 entry).
-- 2026-10-16 18:09: Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote. The GitHub origin of the Mac x0x37 repo stays at this time. Nobody pushes to it.
+- 2026-10-16 18:09: Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote. The GitHub origin of the Mac x0x37 repo stays at this time. Nobody pushes to it (rules/core.md rule 1).
 - Box first: build, test and analyze on the box copy. Use the Mac only for installs and device access. Copy the built files to the Mac just before an install. Sync box commits to the Mac with a git bundle (same hashes, no patches). Keep the box and Mac copies in sync (git commits and docs).
 - Keep the JieLi files on the box and on the Mac. Do not commit them. Exception: branch refs-oscuro (see below).
 - 2026-10-16 17:44 and 18:09:
   - Branch refs-oscuro (ac10280, tip babd349) is a reference. It holds the SMK-37 Oscuro reference firmware (refs/oscuro/). It also holds the JieLi Bluetooth libraries and AC79 SDK headers (refs/jieli/). It is not for distribution.
-  - Never merge it into a branch. Never package a part of it. Never push it. It stays in the local repositories.
+  - Never merge it into a branch. Never package a part of it. Never push it. It stays in the local repositories (rules/core.md rule 1).
   - The full SDK and the toolchain stay out of git. (Source: refs/jieli/README.md and refs/oscuro/README.md.)
 - Pre-push blocks for refs-oscuro: on the box /workspace/x0x37.git and the builder box folders, on the Mac x0x37/.git/hooks/pre-push and flash_review/.git/hooks/pre-push (for all flash_review worktrees). The hook blocks only a push that contains refs-oscuro or its commits.
 
 ## Team rules
 
-- 2026-10-16 02:14: If the Mac does not answer, try again for 5 minutes. Report the Mac offline only after 5 minutes with no answer.
+- 2026-10-16 02:14: If the Mac does not answer, try again for 5 minutes. Report the Mac offline only after 5 minutes with no answer (rules/shared-work.md rule 3).
 - 2026-10-16 02:28: Posts and agent messages hold only results, blockers and decisions, in two sentences or fewer. "Idle, no task" counts as a blocker: tell Orchestrator (agent rule 3).
 - 2026-10-16 02:43:
   - Docs, logs and commits obey the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents obey the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md).
-  - The caveman skill applies only to agent-to-agent messages, including task messages. If a text is in the scope of asd-ste, asd-ste wins.
+  - The caveman skill applies only to agent-to-agent messages, including task messages. If a text is in the scope of asd-ste, asd-ste wins (rules/style.md rule 15).
   - (2026-10-16 21:57, Orchestrator confirmed: messages to the owner obey the 20:12 owner entry in "How to work with the owner". From 23:11, they are also in ASD-STE100.)
 - 2026-10-16 13:03: Do not ask the owner for approval to start a helper subagent. Start it (rules/owner-messages.md rule 14).
 - 2026-10-16 22:00 (owner):
@@ -75,16 +75,16 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - 2026-10-16 23:15 (Orchestrator decision): Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (agent rule 13).
 - 2026-10-16 23:15 (Orchestrator decision): Send one decision message for each item. Give it a tag "supersedes <time>" when it replaces an earlier decision (agent rule 4B).
 - 2026-10-16 23:19 (Orchestrator decision): Install only with fm1_install.py --commit and the guard require_gate_pass.sh. Never use the web installer for a team install (agent rule 6).
-- 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 6 applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
-- 2026-10-17 00:01 (Orchestrator decision, owner approved 00:00): Agent rules version 3. rules/core.md has rules 1, 2 and 4 and an index of the rule files. Read the core at the start of each task, and open each other rule file only at its step. Each rule number in this file is a version 4 number. Version 4 keeps the version 3 numbers and adds rule 6A.
+- 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 6 applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them (rules/install.md rule 6, rules/style.md rule 15).
+- 2026-10-17 00:01 (Orchestrator decision, owner approved 00:00): Agent rules version 3. rules/core.md has rules 1, 2 and 4 and an index of the rule files. Read the core at the start of each task, and open each other rule file only at its step. Each rule number in this file is a version 4 number. Version 4 keeps the version 3 numbers and adds rule 6A (rules/docs.md rule 12).
 - 2026-10-17 02:32 (owner): Agent rules version 4. Apply it now.
 - 2026-10-17 02:36 (Orchestrator decision, from an owner question): The owner asked why the agents never read the rules. In the same commit, write each new owner rule also in the rule file of its step (rules/docs.md rule 12).
 - 2026-10-17 02:37 (owner): "Treat writing rules the same as writing code." Commit each rule change on a lane branch. Merge it only after the review of Orchestrator (rules/docs.md rule 12A).
 - 2026-10-16 23:36 (Orchestrator decision): From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict, rules/commit.md rule 9).
-- 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name.
+- 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name (rules/style.md rule 15).
 - 2026-10-16 23:32 (owner): Merge the small roles.
   - Merge Integrator does the release packaging. It packages only a hash with a gate PASS and a device PASS, with the same checks as before (CRCs, loop slot backup paths).
-  - Docs Keeper writes the owner test checklists and sends them to Orchestrator. A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes.
+  - Docs Keeper writes the owner test checklists and sends them to Orchestrator. A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes (rules/docs.md rule 12).
   - Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers.
 - 2026-10-17 00:15 and 00:17 (owner): Start each task of an owner test checklist with its goal, in the words of the owner. Each task starts from any screen (agent rule 12).
 
