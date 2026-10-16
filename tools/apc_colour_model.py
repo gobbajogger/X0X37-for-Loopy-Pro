@@ -38,6 +38,8 @@ CIE_CMF = ((0.7514, 0.3210, 0.0001),
 # A lit entry sends at least PAD_FLOOR_SENT on its brightest channel, so the dim 0x19 entries
 # still show. The floor scales all three channels: the colour ratio stays.
 PAD_FLOOR_SENT = 2
+# Step 5 (pads): a trim of each channel (R, G, B) after the white gains, for the owner's eye.
+PAD_GAIN_TRIM = (1.0, 1.0, 1.0)
 # LCD (RGB565, the ST7789V panel has its own gamma): the source colour as plain RGB565, no gamma,
 # no floor, no lift (Orchestrator decision 2026-10-16 23:10: no hand-picked values). Each channel
 # goes to the nearest 5, 6, 5 bit level (rounding: the dark violets keep their hue better than with
@@ -192,7 +194,7 @@ def pad_linear(rgb, gamma=None, balance=None):
         return lin
     d = [x * w for x, w in zip(lin, PAD_WHITE_GAIN)]
     k = max(lin) / max(d)
-    return [x * k for x in d]
+    return [x * k * t for x, t in zip(d, PAD_GAIN_TRIM)]
 
 
 def pad_level(e, mode=None, gamma=None, balance=None):
@@ -208,6 +210,19 @@ def pad_level(e, mode=None, gamma=None, balance=None):
     if mx < floor:
         d = [x * floor / mx for x in d]
     return tuple(min(255, int(round(255 * x))) for x in d)
+
+
+def read_override(path):
+    """The pad calibration export (tools/ble_autotest.py --padcal-export): lines
+    "padcal VELOCITY R G B ok" or "... -". Return {velocity: (R, G, B)} of the entries marked ok."""
+    out = {}
+    for line in Path(path).read_text().splitlines():
+        f = line.split()
+        if len(f) == 6 and f[0] == "padcal" and f[5] == "ok":
+            v, r, g, b = (int(x) for x in f[1:5])
+            assert 0 <= v < 128 and all(0 <= c <= 255 for c in (r, g, b)), line
+            out[v] = (r, g, b)
+    return out
 
 
 def pad_send(levels, bright=255):

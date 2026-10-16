@@ -10,6 +10,7 @@ Usage: tests/apc_palette_test.py [FIXTURE ...]   (default: tests/fixtures/inlog_
 """
 import csv
 import hashlib
+import re
 import sys
 from pathlib import Path
 
@@ -28,7 +29,7 @@ def check(ok, text):
 
 
 src = m.load_source()
-pad = [m.pad_level(e) for e in src]       # the calibration start point (tools/apc40_pad_default.h)
+pad = [m.pad_level(e) for e in src]       # the calibration start point (app/apc40_pad_default.h)
 send = [m.pad_send(p) for p in pad]
 lcd = [m.lcd565(e) for e in src]
 
@@ -155,6 +156,21 @@ for fx in fixtures:
               f"{'' if src[v]['live'] is None else ' (Live ' + format(src[v]['live'], '06X') + ')'}, "
               f"pad old {old[v]:06X} send {tuple(((old[v] >> s) & 255) * 255 // 510 for s in (16, 8, 0))}, "
               f"pad new send {send[v]}, LCD {lcd[v]:04X}")
+
+# 6. The calibration export overrides the rule only for the entries marked ok.
+import subprocess  # noqa: E402
+import tempfile  # noqa: E402
+with tempfile.TemporaryDirectory() as td:
+    ov = Path(td) / "export.txt"
+    ov.write_text("padcal 81 200 0 255 ok\npadcal 47 0 0 9 -\npadcal 0 1 2 3 ok\nother line\n")
+    hdr = Path(td) / "pad.h"
+    subprocess.run([sys.executable, str(ROOT / "tools/apc_pad_colors.py"), "--pad-h", str(hdr), "--pad-override", str(ov)],
+                   check=True)
+    got = [tuple(int(x) for x in t) for t in re.findall(r"\{(\d+),(\d+),(\d+)\}", hdr.read_text())]
+    want = list(pad)
+    want[81], want[0] = (200, 0, 255), (1, 2, 3)
+    check(got == want and "--pad-override (2 entries)" in hdr.read_text(),
+          "pad override: the entries marked ok replace the rule, the others stay")
 
 print("apc_palette_test: " + ("ok" if not fails else f"{fails} FAIL"))
 sys.exit(1 if fails else 0)
