@@ -75,6 +75,7 @@ GEN-50. On the FM-1, the controls are as in the manual, section 3. [MANUAL §3]
 GEN-51. Hold OCT- and OCT+ for 5 s to go into update mode. Release them before the countdown ends to cancel. [MANUAL §17] [CODE app/main_fm1.c:1075-1098]
 GEN-52. Hold OCT- and OCT+ at power-on for calibration. [MANUAL §17]
 GEN-53. After two crashes in a row at start, X0X starts in SAFE MODE. Safe mode has no sound, but USB works. [MANUAL §17] [CODE app/main_fm1.c:1155-1160]
+GEN-55. The display font has only upper-case glyphs. The display shows sample names in capitals. (Owner decision 2026-10-16 19:10. Optimizer C3/B3.) Not in code yet as of smk37 458970d and clip-keys ce5236e. At ce5236e, tools/gen_font.py makes the XS, S and B faces with characters 32-126, which include lower case. [USER] [CODE ../../tools/gen_font.py:26-41]
 
 ## 3. 909 and 808
 
