@@ -2,7 +2,7 @@
 
 ## 1. Purpose and use
 
-Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is an ASD-STE100 rewrite of integration 9a0b2c2 BEHAVIOR.md. The meaning is the same as integration 9a0b2c2, and only the words are different.
+Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is a copy of integration d6ae80d BEHAVIOR.md. The ASD-STE100 text on integration is the source, and builders edit it there.
 
 This file is the intended-behavior specification for X0X. Review agents and bug-hunt agents use it. It tells an intended behavior from a defect.
 

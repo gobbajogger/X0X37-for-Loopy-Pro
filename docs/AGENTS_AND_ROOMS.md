@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-16 23:36 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 23:39 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -115,6 +115,7 @@ Other team notes:
 - Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Write it in ASD-STE100, and describe a change only after you verify it (owner, 23:11, rule 2). Docs, logs and commits stay in asd-ste.
 - Generic work needs no approval (owner, 2026-10-16 02:11). Only a change that the owner can see, hear or play needs the approval of the owner (owner, 2026-10-16 19:25). Decide the other changes and continue.
 - If the Mac does not answer, try again for 5 minutes. Report the Mac offline only after 5 minutes.
+- From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict). (Orchestrator decision 23:36)
 - Build, test and analyze on the box copy. Use the Mac only for installs and device access.
 - Box build paths: JieLi toolchain /home/box/.jieli/toolchain, AC79 SDK /home/box/fw-AC79_AIoT_SDK (build.sh defaults).
 - All agents share one box. Each agent uses its own box folder (see the agent list). Merge Integrator uses its Mac worktree. Firmware Q&A only reads and has no folder. Never use the folder of another agent. Each builder works only in its own worktree.
@@ -193,3 +194,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 23:30: Orchestrator decisions 23:29: rule 7 applies the install guard from batch 3. Until then, Firmware Main Builder reads the index row and the result file before the install. The web installer ban is only for team installs. New terms: colour and owner quotes. The 20:12 owner example is word for word again.
 - 2026-10-16 23:33: Owner OK 23:32: Merge Integrator does the release packaging (a hash with a gate PASS and a device PASS). Docs Keeper writes the owner test checklists. Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers. Their status is "retire after batch-1 checklist answers are logged".
 - 2026-10-16 23:36: Orchestrator decision 23:36: name a batch by its number and its gated hash only. Installed = batch 1 (9a733fe). Batch 2 (e8232e7) has a gate PASS. Batch 3 is open on integration.
+- 2026-10-16 23:39: Orchestrator decision 23:36: From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
