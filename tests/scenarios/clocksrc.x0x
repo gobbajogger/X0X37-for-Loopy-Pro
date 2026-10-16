@@ -1,4 +1,4 @@
-# GLO > MIDI > CLOCK SOURCE (a74): AUTO (the default), INTERNAL, EXTERNAL. The row is the first row of MIDI.
+# GLO > MIDI > CLOCK SOURCE (a74; a75 saves it in the bt byte): AUTO (the default), INTERNAL, EXTERNAL. The row is the first row of MIDI.
 wait 300
 expect clksrc 0
 tap GLO
@@ -184,19 +184,21 @@ wait 6000
 reboot
 wait 300
 expect clksrc 1
-# an older save: the padding byte at offset 38 (payload byte 42) is 0 or 0xFF: AUTO
-storepoke 0 42 FF
+# a75: settings bt (payload byte 31) bits 1-2 hold the value, bit 3 marks it; a value of 3 loads AUTO
+expect storeset31 10
+storepoke 0 31 0E
 reboot
 wait 300
 expect clksrc 0
-storepoke 0 42 02
+storepoke 0 31 0C
 reboot
 wait 300
 expect clksrc 2
-storepoke 0 42 00
+storepoke 0 31 08
 reboot
 wait 300
 expect clksrc 0
+# older saves (a74 byte 38, a73, clip keys): tests/scenarios/clkmove.x0x
 # a project saved by X0X 0.10: AUTO
 storeload tests/fixtures/v1_store.bin
 wait 100

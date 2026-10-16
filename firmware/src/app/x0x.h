@@ -22,6 +22,12 @@
                                           * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
                                           * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
                                           * 4: the 808 BD too (REV, DLY at 7, 8; PAN moved to 9) */
+/* settings_t.bt, bits 1-2: GLO > MIDI > CLOCK SOURCE (SEQ_CLK_*). Bit 3: bits 1-2 hold it (a75 and later). Without
+ * bit 3 (a74 and older), project_load reads the a74 byte at offset 38 (padding then; ck_x1 in the clip keys). */
+#define PROJ_BT_CLK_MASK 6u
+#define PROJ_BT_CLK_IN 8u
+#define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
+#define PROJ_A74_CLK_OFF 38u
 
 typedef struct {
     uint32_t magic, format;
@@ -37,15 +43,14 @@ typedef struct {
                                           * project), 1-16, 17 = OFF */
     uint8_t out_loud;                    /* 1: the output 6 dB hotter (the codec's full scale) */
     uint8_t usb_full;                    /* 1: USB audio at full level, the MASTER knob for the FM-1's own outputs */
-    uint8_t bt;                          /* bit 0: Bluetooth MIDI on (SMK-37; 0 = off, also in older objects) */
+    uint8_t bt;                          /* bit 0: Bluetooth MIDI on (SMK-37; 0 = off, also in older objects);
+                                          * bits 1-3: CLOCK SOURCE (PROJ_BT_CLK_IN) */
     uint8_t ck_ch;                       /* SMK-37 clip mode: the keybed MIDI channel 2-15 (0: an older object) */
     uint8_t ck_root, ck_scale, ck_snap;  /* clip mode SCALE: root 0-11, scale, 0 NEAR / 1 FILTER (smk_clip_keys.h) */
     uint8_t ck_chord;                    /* clip mode CHORD: type */
     uint8_t ck_ord, ck_rate, ck_oct;     /* clip mode ARP: order, rate, octaves - 1 (0-3) */
     uint8_t ck_gate;                     /* clip mode ARP: gate / 10 % - 1 (0-9) */
     uint8_t ck_inv;                      /* clip mode CHORD: inversion 0-3 */
-    uint8_t clk_src;                     /* GLO > MIDI > CLOCK SOURCE: SEQ_CLK_* (0 AUTO; the padding byte of an
-                                          * older object: a load sets more than 2 to AUTO) */
 } settings_t;
 
 /* the song and the motion lanes: one blob, split across OBJ_SONG and OBJ_MOTION */

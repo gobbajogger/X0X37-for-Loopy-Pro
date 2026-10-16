@@ -55,7 +55,7 @@ void project_defaults(void)
     proj.set.keysound = 0;
     proj.set.autosave_off = 0;
     proj.set.clk_out = 1;
-    proj.set.clk_src = SEQ_CLK_AUTO;
+    proj.set.bt = (uint8_t)((proj.set.bt & 1u) | PROJ_BT_CLK_IN);   /* CLOCK SOURCE AUTO */
     proj.set.notes_out = 0;
     proj.set.bpm_x10 = 1250;
     proj.set.accent_q7 = 88;
@@ -440,6 +440,25 @@ static void patterns_defaults(void)
         pattern_init(&proj.pat[i], 0x3B0u + (uint32_t)i * 977u, 0x5A1u + (uint32_t)i * 613u);
 }
 
+/* CLOCK SOURCE (MID-13) is in bt bits 1-2. An object without PROJ_BT_CLK_IN comes from a74 or older. a74 kept
+ * the value 0-2 in byte 38, and byte 39 was 0. Byte 38 is ck_x1 in the clip keys (ARP SWING and HUMAN), so the
+ * value moves to bt, and byte 38 becomes 0 (no SWING, no HUMAN). Other bytes there stay, and CLOCK SOURCE is AUTO. */
+typedef char a74_clk_in_set[(PROJ_A74_CLK_OFF + 2u == sizeof(settings_t)) ? 1 : -1];
+static void project_clk_check(void)
+{
+    uint8_t *raw = (uint8_t *)&proj.set, b = proj.set.bt, v = raw[PROJ_A74_CLK_OFF];
+    if (!(b & PROJ_BT_CLK_IN)) {
+        b &= 1u;
+        if (v <= SEQ_CLK_EXT && !raw[PROJ_A74_CLK_OFF + 1u]) {
+            b |= (uint8_t)(v << 1);
+            raw[PROJ_A74_CLK_OFF] = 0;
+        }
+        b |= PROJ_BT_CLK_IN;
+    } else if (PROJ_CLK_SRC(b) > SEQ_CLK_EXT)
+        b &= (uint8_t)~PROJ_BT_CLK_MASK;
+    proj.set.bt = b;
+}
+
 /* each object is read straight into its place in proj: a load copies only a valid payload */
 int project_load(void)
 {
@@ -452,9 +471,8 @@ int project_load(void)
         proj.set = set;
     else
         bad = 1;
+    project_clk_check();                              /* (first: it can clear the a74 byte 38) */
     project_ck_check(0);                              /* (main_fm1.c trusts the clip keys settings) */
-    if (proj.set.clk_src > SEQ_CLK_EXT)                /* an older object's padding byte: AUTO */
-        proj.set.clk_src = SEQ_CLK_AUTO;
     sound_ok = load_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0;
     if (!sound_ok)
         bad = 1;
@@ -501,7 +519,7 @@ void project_apply_io(void)
     int p;
     seq.send_clock = proj.set.clk_out;
     seq.send_notes = proj.set.notes_out;
-    seq.clk_src = proj.set.clk_src;
+    seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];
         seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? SEQ_CH_OFF : v - 1);

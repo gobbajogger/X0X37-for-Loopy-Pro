@@ -365,7 +365,7 @@ static int pref_get(pref_t r)
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
     case R_CKCH: return proj.set.ck_ch - 2;
-    case R_CLKSRC: return proj.set.clk_src;
+    case R_CLKSRC: return PROJ_CLK_SRC(proj.set.bt);
     case R_BTSTAT: return plat_ble_state();
     case R_SLEN: return song()->len;
     case R_STALLS: return perf.stalls_on;
@@ -441,7 +441,9 @@ static void pref_set(pref_t r, int v)
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
     case R_CKCH: proj.set.ck_ch = (uint8_t)(v + 2); break;   /* sounding notes end on their own channel */
-    case R_CLKSRC: proj.set.clk_src = (uint8_t)v; break;      /* (ui_frame gives it to the sequencer) */
+    case R_CLKSRC:                                            /* (ui_frame gives it to the sequencer) */
+        proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_CLK_MASK) | (uint8_t)v << 1 | PROJ_BT_CLK_IN);
+        break;
     case R_BT:
         proj.set.bt = (uint8_t)((proj.set.bt & ~1u) | (v > 0 ? 1u : 0u));
         plat_ble_set(v > 0);
@@ -4274,9 +4276,9 @@ void ui_frame(void)
         uint8_t w;
 #if BOARD_SMK37
         extern uint8_t smk_clip_mode_on(void);
-        seq.clk_src = smk_clip_mode_on() ? SEQ_CLK_AUTO : proj.set.clk_src;
+        seq.clk_src = smk_clip_mode_on() ? SEQ_CLK_AUTO : PROJ_CLK_SRC(proj.set.bt);
 #else
-        seq.clk_src = proj.set.clk_src;
+        seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
 #endif
         w = (uint8_t)seq_clock_waiting(&seq);
         if (w && !waited)

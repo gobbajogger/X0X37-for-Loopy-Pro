@@ -701,7 +701,7 @@ static int expect(const char *what, const char *val)
     else if (!strcmp(what, "transport_out"))       /* Start, Continue, Stop sent */
         got = (int)transport_out_count;
     else if (!strcmp(what, "clksrc"))               /* GLO > MIDI > CLOCK SOURCE: 0 AUTO, 1 INTERNAL, 2 EXTERNAL */
-        got = proj.set.clk_src;
+        got = PROJ_CLK_SRC(proj.set.bt);
     else if (!strncmp(what, "setbyte", 7) && (unsigned)atoi(what + 7) < sizeof proj.set)   /* setbyteN: the settings */
         got = ((const uint8_t *)&proj.set)[atoi(what + 7)];
     else if (!strncmp(what, "storeset", 8) && atoi(what + 8) >= 0 && atoi(what + 8) < store_len[OBJ_SET])
