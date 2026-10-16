@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 21:42 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 21:48 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -87,7 +87,7 @@ There are no rooms. Agents send messages direct to each other with SendToAgent. 
 
 ## Coordination rules
 
-Agent rules: agent-rules.md (37 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
+Agent rules: agent-rules.md (38 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
 
 Work and messages:
 - Rule 1: commits, logs, docs and checklists follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Posts and agent messages follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). If they conflict, asd-ste wins.
@@ -118,6 +118,7 @@ Build and install:
 - Rule 29: before an install notice, the gate must report PASS for that exact commit hash. All tests pass, with no list of known failures. The installer reads the image back from the device. Compare each per-slot CRC before and after. The CRC32 of a whole .x0xslots file is always 2144df1c (the CRC-32 residue) and proves nothing. Run the install in the foreground. A watched, named screen or tmux session is allowed. If the link drops, reattach and watch the install to the end and the read-back. Never install in the background.
 - Rule 30: keep the tag last-good-hw on the newest build that passed a device test. After 2 failed device tests in a row, bisect from last-good-hw.
 - Rule 37: Firmware Main Builder, Second Builder and Optimizer follow the skill /home/box/agent-data/workflows/x0x37-builder-loop/SKILL.md for each change.
+- Rule 38: stop only the processes that you started, by their PIDs. Never use pkill -f or killall on shared scripts (gate, tests, installer).
 
 Repositories:
 - Shared bare repository on the box: /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it (user, 2026-10-16 02:09).
@@ -159,3 +160,4 @@ Repositories:
 - 2026-10-16 20:47: rule 36 gate locks and X0X_TEST_TIME_SCALE. ble-a74 status.
 - 2026-10-16 21:07: rule 29 per-slot CRC note (the whole-file CRC proves nothing). Rule 37 (builder loop skill). ble-a74 installed 21:03.
 - 2026-10-16 21:42: live BLE lane is ble-a74 (owner test 1: 2 FAIL). ble-a75, ble-pad-a76, integration 110d4c2.
+- 2026-10-16 21:48: rule 38 (stop only your own PIDs). Cause: a Firmware Main Builder worker ran pkill -f x0x37_gate.sh at 21:41 and 21:43.

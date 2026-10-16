@@ -46,3 +46,4 @@ All agents must follow these rules.
 - Give each dead branch the name archive/<name> (see LIVE_BRANCHES).
 - Optimizer gives patches to the builders. Optimizer does not commit to their branches.
 37. Firmware Main Builder, Second Builder and Optimizer follow the skill /home/box/agent-data/workflows/x0x37-builder-loop/SKILL.md for each change.
+38. All agents share one box. Stop only the processes that you started, by their PIDs. Never use pkill -f or killall on shared scripts (the gate, the tests, the installer).
