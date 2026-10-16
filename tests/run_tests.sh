@@ -82,6 +82,7 @@ run diag-size python3 tests/diag_size_test.py           # a76: ED_DIAG stays in 
 run smk-inlog sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_inlog_test tests/smk_inlog_test.c && $OUT/smk_inlog_test"   # a76: inbound recorder ring
 run inlog-tool python3 tests/inlog_tool_test.py      # a76: ED_INLOG dump text
 run smk-clip-ble-notify sh -c "$CC -std=c99 -O2 -Wall -Wextra -Wno-unused-function -Werror -Ifirmware/src -Ifirmware/hal -Ifirmware/src/ble -o $OUT/smk_clip_ble_notify_test tests/smk_clip_ble_notify_test.c && $OUT/smk_clip_ble_notify_test"   # a76: no pad colour while notify is off
+run smk-clip-dark sh tests/smk_clip_dark_test.sh   # a76: real clip and pad LED code: dark 10 s after Loopy goes away
 if [ -f build/x0x.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
     run smk-package sh -c "python3 tools/fm1pkg_make.py --board smk37 build/x0x.bin build/loader/ota.bin $OUT/smk_new.fwsc >/dev/null && \
         python3 tests/smk_pkg_test.py $OUT/smk_new.fwsc"
