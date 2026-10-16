@@ -204,6 +204,7 @@ run smk-clip-ble-notify sh -c "$CC -std=c99 -O2 -Wall -Wextra -Wno-unused-functi
 run smk-clip-dark sh tests/smk_clip_dark_test.sh   # a76: real clip and pad LED code: dark 10 s after Loopy goes away
 run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a link end clears only the cells of that link (real usb.c)
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
+run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
 if [ -f build/x0x.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
     run smk-package sh -c "python3 tools/fm1pkg_make.py --board smk37 build/x0x.bin build/loader/ota.bin $OUT/smk_new.fwsc >/dev/null && \
