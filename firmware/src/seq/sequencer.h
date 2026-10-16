@@ -95,11 +95,15 @@ typedef struct {                      /* one part's runtime */
     uint8_t started;                  /* the first step has fired since start */
     uint8_t sounding;                 /* 303: a note is held */
     uint8_t held_note;
+    uint8_t ext_due;                  /* external clock: more steps due in one block, not yet played */
     uint32_t to_next;                 /* samples to the next step (Q8 fraction) */
     uint32_t to_off;                  /* 303: samples to the gate falling, Q8; 0 = none */
     uint32_t rng;                     /* DIR_RANDOM and auto-mutate */
     uint16_t bars;                    /* wraps since the pattern started (auto-mutate) */
     uint8_t ext_ticks;                /* external clock: ticks into this step */
+    uint8_t rec_skip_step;            /* a live hit recorded on a step not played yet on this pass: */
+    uint8_t rec_skip_pat;             /* that step, its pattern, and the voices (bit v; 303: bit 0) */
+    uint16_t rec_skip;                /* that the step does not sound once (the key sounded) */
 } seq_track_t;
 
 typedef struct {
@@ -158,3 +162,5 @@ uint32_t seq_step_q8(const seq_t *s, int rate);
 float seq_tempo(const seq_t *s);      /* the tempo in effect (internal or measured) */
 int seq_part_len(const seq_t *s, int t);         /* steps in part t's pattern */
 int seq_next_step(seq_t *s, int t, int p);       /* the step after p (direction; no commit) */
+int seq_rec_step(seq_t *s, int t);               /* the step a live hit now records on: the nearest */
+void seq_rec_skip(seq_t *s, int t, int step, int voice);   /* that hit: its step does not sound it once */

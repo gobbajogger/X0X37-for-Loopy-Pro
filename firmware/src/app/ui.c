@@ -1901,7 +1901,7 @@ static void turn_ref(pref_t r, int e, int knob)
     motion_touch(r);
 }
 
-static int rec_step(int track) { return eng_step[track]; }
+static int rec_step(int track) { return seq_rec_step(&seq, track); }
 
 static void drum_key(int v, int down)
 {
@@ -1922,6 +1922,7 @@ static void drum_key(int v, int down)
         sm_set(cur_pat()->drum[k].hit[v], s);
         if (ui.btn & (1u << B_ENV))
             sm_set(cur_pat()->drum[k].accent, s);
+        seq_rec_skip(&seq, TRK_DRUM + k, s, v);      /* (the key sounded it) */
         mark_dirty();
     }
 }
@@ -1998,8 +1999,18 @@ static void bass_kbd(int key, int down)
         } else if (ui.rec && seq.playing) {
             bpart_t *bp = &cur_pat()->bass[b];
             int s = rec_step(TRK_BASS0 + b);
+            uint8_t f = G_NOTE;
+            if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
+                f |= BS_ACCENT;
+                ui.btn_used |= 1u << B_ENV;
+            }
+            if (ui.btn & (1u << B_LFO)) {              /* (used: its release does not open MIX) */
+                f |= BS_SLIDE;
+                ui.btn_used |= 1u << B_LFO;
+            }
             bp->step[s].note = (uint8_t)n;
-            bp->step[s].flags = (uint8_t)(G_NOTE | ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0));
+            bp->step[s].flags = f;
+            seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
             mark_dirty();
         }
     } else if (kbd_held_note[b] == n) {

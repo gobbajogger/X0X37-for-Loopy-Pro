@@ -340,6 +340,7 @@ static void test_ext_clock_and_midi_out(void)
 
 /* ---- MIDI clock as Bluetooth MIDI gives it: the ticks of one connection event come in one block */
 static double ble_tick, ble_ev;                               /* the next tick and the next connection event */
+static int ble_n;                                             /* the ticks given */
 static void ble_clock(double bpm, double ev_ms, double secs)
 {
     double tick = 44100.0 * 60.0 / bpm / 24.0, ev = 44100.0 * ev_ms / 1000.0, end = now + secs * 44100.0;
@@ -347,6 +348,7 @@ static void ble_clock(double bpm, double ev_ms, double secs)
         while (ble_ev <= now) {                               /* the events since the last block */
             while (ble_tick <= ble_ev) {
                 seq_ext_clock(&S);
+                ble_n++;
                 ble_tick += tick;
             }
             ble_ev += ev;
@@ -448,6 +450,191 @@ static void test_ext_transport_ble(void)
     printf("  Start, Stop, Continue with the clock in Bluetooth bursts: checked\n");
 }
 
+/* a73: one block with the ticks of two or more step boundaries (a long connection event, or a stall).
+ * Each boundary plays its step: the 909 plays a step on each step, so the steps it plays = the clock's steps. */
+static int burst_steps(int rate, double bpm, double ev_ms, double phase, double stall_ms, int *want)
+{
+    int i, n, tps = rate == RATE_32 ? 3 : 6;
+    reset();
+    P[0].drum[0].hit[0][0] = 0xFFFFFFFFu;
+    P[0].drum[0].hit[0][1] = 0xFFFFFFFFu;
+    P[0].drum[0].rate = (uint8_t)rate;
+    ble_clock_start(bpm, ev_ms, phase);
+    ble_clock(bpm, ev_ms, 1.0);                               /* the clock runs, X0X stopped */
+    seq_start(&S);
+    nev = 0;
+    ble_n = 0;
+    ble_clock(bpm, ev_ms, 2.0);
+    if (stall_ms > 0.0) {                                     /* no connection event, then all its ticks in one */
+        ble_ev += 44100.0 * stall_ms / 1000.0;
+        ble_clock(bpm, ev_ms, 2.0);
+    }
+    run(4410);                                                /* (the last block's steps) */
+    for (i = 0, n = 0; (i = find(E_DRUM, 0, i)) >= 0; i++)
+        n++;
+    *want = (ble_n + tps - 1) / tps;
+    return n;
+}
+static void test_ext_burst_steps(void)
+{
+    static const double BPM[] = {120.0, 180.0, 240.0, 280.0}, EV[] = {7.5, 15.0, 30.0, 45.0};
+    unsigned b, e, ph;
+    int r, n, want;
+    for (r = 0; r < 2; r++)
+        for (b = 0; b < sizeof BPM / sizeof BPM[0]; b++)
+            for (e = 0; e < sizeof EV / sizeof EV[0]; e++)
+                for (ph = 0; ph < 3; ph++) {
+                    n = burst_steps(r ? RATE_32 : RATE_16, BPM[b], EV[e], 0.1 + 0.3 * ph, 0.0, &want);
+                    CHECK(n == want, "%s %.0f BPM, %.1f ms events (phase %u): %d steps, the clock's %d",
+                          r ? "1/32" : "1/16", BPM[b], EV[e], ph, n, want);
+                }
+    for (r = 0; r < 2; r++)                                   /* a 400 ms stall at 120 BPM (and 220-460 ms) */
+        for (e = 0; e < 4; e++)
+            for (ph = 0; ph < 3; ph++) {
+                double st = e == 0 ? 400.0 : 100.0 + 120.0 * e;
+                n = burst_steps(r ? RATE_32 : RATE_16, 120.0, 7.5, 0.1 + 0.3 * ph, st, &want);
+                CHECK(n == want, "%s 120 BPM, 7.5 ms events, a %.0f ms stall (phase %u): %d steps, the clock's %d",
+                      r ? "1/32" : "1/16", st, ph, n, want);
+            }
+    printf("  external clock, two or more step boundaries in one block: no step lost\n");
+}
+
+/* a73 (owner OK 2026-10-16 20:11): a live hit records on the nearest step. After half of the step it goes
+ * to the next step (samples on the internal clock, ticks on an external clock). A hit on a step that did
+ * not play yet on this pass does not sound again on that pass (the key sounded it); the next pass plays it. */
+static int rec_hit(int t, int v)                              /* as ui.c drum_key and bass_kbd do */
+{
+    int st = seq_rec_step(&S, t);
+    if (t < TRK_BASS0)
+        sm_set(P[S.ppat[t]].drum[t].hit[v], st);
+    else {
+        P[S.ppat[t]].bass[t - TRK_BASS0].step[st].note = (uint8_t)v;
+        P[S.ppat[t]].bass[t - TRK_BASS0].step[st].flags = G_NOTE;
+    }
+    seq_rec_skip(&S, t, st, t < TRK_BASS0 ? v : 0);
+    return st;
+}
+static int count_ev(int kind, int a, int b, int from, int to)  /* events [from, to) of that kind (b < 0: any) */
+{
+    int i, n = 0;
+    for (i = from; i < to && i < nev; i++)
+        if (evs[i].kind == kind && evs[i].a == a && (b < 0 || evs[i].b == b))
+            n++;
+    return n;
+}
+static void test_rec_nearest(void)
+{
+    static const struct { int step, off_ms, v, want; } H[] = {
+        {4, -20, 3, 4},                                       /* early: the step it is for */
+        {8, 20, 4, 8},                                        /* late: the step that plays */
+        {12, -65, 6, 11},                                     /* 60 ms late: stays */
+        {12, -60, 5, 12},                                     /* 60 ms early (half: 62.5 ms): the next step */
+        {16, -20, 7, 0},                                      /* just before the loop start: step 1 */
+    };
+    static const int WANT[][3] = {{0, 1, 1}, {0, 1, 1}, {0, 1, 1}, {0, 1, 1}, {0, 0, 1}};   /* fires in bars 0, 1, 2 */
+    double L = 44100.0 * 60.0 / 120.0 / 4.0;
+    uint32_t t0;
+    int i, b, mark[4], st;
+    /* internal clock, 120 BPM */
+    reset();
+    S.bpm = 120.0f;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;                         /* voice 0 on each step: the step times */
+    seq_start(&S);
+    run(256);
+    i = find(E_DRUM, 0, 0);
+    CHECK(i >= 0, "internal: the first step played");
+    t0 = i >= 0 ? evs[i].t : 0;
+    mark[0] = 0;
+    for (i = 0; i < 5; i++) {
+        uint32_t at = t0 + (uint32_t)(H[i].step * L + H[i].off_ms * 44.1);
+        run(at - now);
+        st = rec_hit(TRK_DRUM, H[i].v);
+        CHECK(st == H[i].want, "internal: hit %+d ms from step %d: on step %d, want %d", H[i].off_ms, H[i].step + 1,
+              st + 1, H[i].want + 1);
+    }
+    for (b = 1; b < 4; b++) {
+        run(t0 + (uint32_t)(b * 16 * L - 441.0) - now);     /* 10 ms before the bar */
+        mark[b] = nev;
+    }
+    for (i = 0; i < 5; i++)
+        for (b = 0; b < 3; b++)
+            CHECK(count_ev(E_DRUM, H[i].v, -1, mark[b], mark[b + 1]) == WANT[i][b],
+                  "internal: voice %d (hit %+d ms from step %d) in bar %d: %d hits, want %d", H[i].v, H[i].off_ms,
+                  H[i].step + 1, b + 1, count_ev(E_DRUM, H[i].v, -1, mark[b], mark[b + 1]), WANT[i][b]);
+    for (b = 0; b < 3; b++)
+        CHECK(count_ev(E_DRUM, 0, -1, mark[b], mark[b + 1]) == 16, "internal: bar %d: voice 0 plays %d steps",
+              b + 1, count_ev(E_DRUM, 0, -1, mark[b], mark[b + 1]));
+
+    /* external clock, 120 BPM: 6 ticks for each step; hit after tick k of the step */
+    {
+        static const struct { int tick, v, want; } X[] = {
+            {4 * 6 + 2, 3, 4},                                /* 2 ticks into step 5: step 5 */
+            {6 * 6 + 3, 4, 7},                                /* 3 ticks into step 7: step 8 */
+            {15 * 6 + 4, 5, 0},                               /* 4 ticks into step 16: step 1 */
+        };
+        static const int XW[][3] = {{0, 1, 1}, {0, 1, 1}, {0, 0, 1}};
+        int k, x = 0;
+        reset();
+        P[0].drum[0].hit[0][0] = 0xFFFFu;
+        for (k = 0; k < 48; k++) {                            /* the clock runs, X0X stopped */
+            seq_ext_clock(&S);
+            run(919);
+        }
+        seq_start(&S);
+        for (k = 0; k < 4 * 96; k++) {
+            if (k % 96 == 0)
+                mark[k / 96] = nev;
+            seq_ext_clock(&S);
+            run(919);
+            if (x < 3 && X[x].tick == k) {
+                st = rec_hit(TRK_DRUM, X[x].v);
+                CHECK(st == X[x].want, "external: hit %d ticks into step %d: on step %d, want %d", k % 6, k / 6 % 16 + 1,
+                      st + 1, X[x].want + 1);
+                x++;
+            }
+        }
+        for (i = 0; i < 3; i++)
+            for (b = 0; b < 3; b++)
+                CHECK(count_ev(E_DRUM, X[i].v, -1, mark[b], mark[b + 1]) == XW[i][b],
+                      "external: voice %d (tick %d) in bar %d: %d hits, want %d", X[i].v, X[i].tick, b + 1,
+                      count_ev(E_DRUM, X[i].v, -1, mark[b], mark[b + 1]), XW[i][b]);
+    }
+
+    /* 303 A, internal clock: a key 20 ms early for step 7 (the next step), a key 20 ms late on step 10 */
+    {
+        int n7 = 40, n10 = 45, tr = P[0].bass[0].transpose - 24;
+        reset();
+        S.bpm = 120.0f;
+        P[0].drum[0].hit[0][0] = 0xFFFFu;
+        P[0].bass[0].len = 16;
+        P[0].bass[0].dir = DIR_FWD;
+        for (i = 0; i < 16; i++)
+            P[0].bass[0].step[i].flags = G_REST;
+        seq_start(&S);
+        run(256);
+        i = find(E_DRUM, 0, 0);
+        t0 = i >= 0 ? evs[i].t : 0;
+        mark[0] = 0;
+        run(t0 + (uint32_t)(6 * L - 20 * 44.1) - now);
+        st = rec_hit(TRK_BASS0, n7);
+        CHECK(st == 6, "303: key 20 ms early for step 7: on step %d", st + 1);
+        run(t0 + (uint32_t)(9 * L + 20 * 44.1) - now);
+        st = rec_hit(TRK_BASS0, n10);
+        CHECK(st == 9, "303: key 20 ms late on step 10: on step %d", st + 1);
+        for (b = 1; b < 4; b++) {
+            run(t0 + (uint32_t)(b * 16 * L - 441.0) - now);     /* 10 ms before the bar */
+            mark[b] = nev;
+        }
+        for (b = 0; b < 3; b++) {
+            CHECK(count_ev(E_ON, 0, n7 + tr, mark[b], mark[b + 1]) == (b ? 1 : 0), "303: step 7 note in bar %d: %d, want %d",
+                  b + 1, count_ev(E_ON, 0, n7 + tr, mark[b], mark[b + 1]), b ? 1 : 0);
+            CHECK(count_ev(E_ON, 0, n10 + tr, mark[b], mark[b + 1]) == (b ? 1 : 0), "303: step 10 note in bar %d: %d, want %d",
+                  b + 1, count_ev(E_ON, 0, n10 + tr, mark[b], mark[b + 1]), b ? 1 : 0);
+        }
+    }
+    printf("  live record: the nearest step, no second sound on the pass of the hit: checked\n");
+}
+
 static void test_break_clock(void)
 {
     int i, k;
@@ -533,6 +720,8 @@ int main(void)
     test_ext_clock_and_midi_out();
     test_ext_tempo_ble();
     test_ext_transport_ble();
+    test_ext_burst_steps();
+    test_rec_nearest();
     test_break_clock();
 #ifdef REF_TB3PO
     test_tb3po_matches_reference();

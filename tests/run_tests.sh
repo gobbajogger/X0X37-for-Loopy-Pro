@@ -111,6 +111,12 @@ run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py 
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 run host-build sh host/build_host.sh
+# live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
+run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
+    -o $OUT/rec_live_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c \
+    firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
+    firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
+    firmware/src/app/engine.c -lm && $OUT/rec_live_test"
 if command -v emcc >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then   # the browser build, when it can be built
     printf 'wav emu_ref.wav\nwait 500\ntapkey b0\ntapkey w0\ntapkey w8\ntap PLAY\nwait 2960\nwavstop\n' > build/host/emu_ref.x0x
     run emu sh -c "sh web/emu/build.sh >/dev/null 2>&1 && build/host/x0x_host build/host/emu_ref.x0x build/host >/dev/null && \
