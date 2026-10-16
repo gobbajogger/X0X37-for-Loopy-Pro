@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-17 00:01 (Vladivostok, UTC+10).
+Last updated: 2026-10-17 00:13 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -43,25 +43,25 @@ Last updated: 2026-10-17 00:01 (Vladivostok, UTC+10).
 - Never: Installs firmware.
 - Box folder: /workspace/x0x37-build-and-test-runner.
 
-### Release Packager
+### Release Packager (retired 2026-10-17)
 - ID: 47f0d1b2-8691-46f3-9c06-c99fd805761c
 - Purpose: Packages the merged builds that pass, with CRCs, loop slot backup paths and a changelog in plain words.
 - Never: Installs. Packages a part of refs-oscuro. Pushes refs-oscuro. Pushes to GitHub or to an outside remote.
 - Box folder: /workspace/x0x37-release-packager.
-- Status (owner OK 2026-10-16 23:32): "retire after batch-1 checklist answers are logged". From 23:32, Merge Integrator does the packaging.
+- Status: retired on 2026-10-17 (Orchestrator 00:12). Merge Integrator does the packaging (owner OK 2026-10-16 23:32).
 
 ### Docs Keeper
 - ID: ffd7fca0-6687-4102-bc74-4dda79e8604a
-- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, AGENTS_AND_ROOMS.md and the progress log in sync. Applies rule 12. Writes the owner test checklists and sends them to Orchestrator (owner OK 23:32). A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes. The templates are in /workspace/x0x37-test-plan-writer/ (checklist-batch1.md).
+- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, AGENTS_AND_ROOMS.md and the progress log in sync. Applies rule 12. Writes the owner test checklists and sends them to Orchestrator (owner OK 23:32). A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes. The old checklists, for example checklist-batch1.md, are in /workspace/x0x37-test-plan-writer/old/.
 - Never: Installs or changes firmware code.
 - Box folder: /workspace/x0x37-docs-keeper.
 
-### Test Plan Writer
+### Test Plan Writer (retired 2026-10-17)
 - ID: 64d26138-589a-454f-90c9-389404c9c990
 - Purpose: Writes short hardware test checklists, only for the changed items. Sends them to Orchestrator.
 - Never: Installs or changes code.
 - Box folder: /workspace/x0x37-test-plan-writer.
-- Status (owner OK 2026-10-16 23:32): "retire after batch-1 checklist answers are logged". From 23:32, Docs Keeper writes the checklists.
+- Status: retired on 2026-10-17 (Orchestrator 00:12). Docs Keeper writes the checklists (owner OK 2026-10-16 23:32). The old checklists stay in /workspace/x0x37-test-plan-writer/old/.
 
 ### Optimizer
 - ID: e9e30685-7138-4a21-8945-13dffc12afc9
@@ -83,9 +83,9 @@ Each task has one task agent, and this table shows it. Integration is the one wo
 | Firmware Q&A | Answers about the firmware and the branches. | Commit, change code or install. | Task agent of the topic, from this table. | Light |
 | Merge Integrator | Branch integration: branch order, merges, merge conflicts, the request for the gate of the batch. merge-monitor-log.md. Release packages (a hash with a gate PASS and a device PASS) with CRCs, loop slot backup paths and changelogs. | Install. Write feature code. Merge, package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (batch hash with a gate PASS). | Heavy |
 | Build and Test Runner | Headless builds, unit tests, size checks and flash-map checks. The gates (when Merge Integrator requests them). | Install. Write feature code. | Merge Integrator (pass). Task agent (fail). | Heavy |
-| Release Packager | Status: "retire after batch-1 checklist answers are logged". Until then: release packages with CRCs, loop slot backup paths and changelogs. | Install. Change code. Package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
+| Release Packager | Retired on 2026-10-17. Merge Integrator does the packaging. | All tasks. | Merge Integrator (packaging). | None |
 | Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. Owner test checklists, sent to Orchestrator. | Install. Change firmware code. | Orchestrator (rule changes, checklists). | Light |
-| Test Plan Writer | Status: "retire after batch-1 checklist answers are logged". Until then: hardware test checklists, sent to Orchestrator. | Install. Change code. | Orchestrator (checklists). Docs Keeper (results). | Light |
+| Test Plan Writer | Retired on 2026-10-17. Docs Keeper writes the checklists. | All tasks. | Docs Keeper (checklists). | None |
 | Optimizer | Patches for optimizations that are safe for the experience of the owner. | Install. Commit to the files of a builder lane. Run a gate or a trial merge. Push outside the box and the Mac. | Task agent of the lane, from this table. | Light |
 
 ## Messages
@@ -94,7 +94,9 @@ There are no rooms. Agents send messages directly to each other with SendToAgent
 
 ## Coordination rules
 
-The rules are in rules/core.md. The core index names the other rule files. The skills are asd-ste, caveman and x0x37-builder-loop. The x0x37-builder-loop skill is now the core card. Its version is 2026-10-16 23:20 5748c74f.
+The rules are in rules/core.md. The core index names the other rule files. The skills are asd-ste, caveman and x0x37-builder-loop. The x0x37-builder-loop skill is now the core card. Its version is 2026-10-17 00:15 3aed2483.
+
+The three skills point to the version 3 rules. Each active agent description tells the agent to read only docs/rules/core.md at the start of a task. The version 2 copies of the skills are in /workspace/x0x37-orchestrator/skills-v2-backup-0010.
 
 Other team notes:
 - Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Write it in ASD-STE100, and describe a change only after you verify it (owner, 23:11, rule 13). Docs, logs and commits stay in asd-ste.
@@ -135,7 +137,7 @@ Repositories:
 - Files to keep: agent-rules.md, rules/, USER_PREFERENCES.md, ROADMAP.md, x0x37-progress-log.md, merge-monitor-log.md, x0x37/BEHAVIOR.md and BLE_ATTEMPTS.md (the Bluetooth ledger in the Bluetooth branch). Do not delete slot_backups/.
 
 ## How to make the setup again
-1. Make the agents above with the exact names and the purposes in the list. Do not make Release Packager and Test Plan Writer (they retire).
+1. Make the agents above with the exact names and the purposes in the list. Do not make Release Packager and Test Plan Writer (they retired on 2026-10-17).
 2. Give each agent its permanent task in its prompt. There are no rooms: agents use SendToAgent.
 3. Send the coordination rules to each agent.
 4. Tell all agents to read this file and the project folder.
@@ -181,3 +183,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 23:36: Orchestrator decision 23:36: name a batch by its number and its gated hash only. Installed = batch 1 (9a733fe). Batch 2 (e8232e7) has a gate PASS. Batch 3 is open on integration.
 - 2026-10-16 23:39: Orchestrator decision 23:36: From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
 - 2026-10-17 00:01: Agent rules version 3 (owner approved, Orchestrator 00:00). rules/core.md has rules 1, 2 and 4 and an index. The 8 other rule files have the names shared-work, install, device-bug, commit, integration, docs, owner-messages and style. agent-rules.md points to rules/core.md. Merges M1 to M4 and split S2 are in. The coordination rules section is now a pointer, and the rule numbers in the docs have the version 3 numbers.
+- 2026-10-17 00:13: Orchestrator decision 00:12: Release Packager and Test Plan Writer retired on 2026-10-17. Merge Integrator does the packaging, and Docs Keeper writes the checklists. The skills point to the version 3 rules, and the core card is 2026-10-17 00:15 3aed2483. No rule file names the two agents.
