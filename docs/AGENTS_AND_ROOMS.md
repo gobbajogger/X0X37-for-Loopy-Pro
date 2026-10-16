@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 19:40 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 20:12 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -135,6 +135,7 @@ Work and posts:
 - Rule 31: tests read the shared reference files in /workspace/x0x37-refs/schwung.
 - Post only results, blockers and decisions, in two sentences or fewer.
 - Docs, logs and commits follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). The caveman skill applies to every chat post and room post. If they conflict, asd-ste wins.
+- Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Docs, logs and commits stay in asd-ste.
 - Generic work is approved automatically (user, 2026-10-16 02:11). Notify the user first before anything that changes how the device works or feels. Changes outside clip mode need the explicit approval of the user.
 - If the Mac does not respond, retry for 5 minutes. Report it offline only after 5 minutes.
 
@@ -181,3 +182,4 @@ Repositories:
 - 2026-10-16 19:02: rule 28 (docs hold only development information). File trimmed to rule 28.
 - 2026-10-16 19:13: rules 29 to 31 (gate PASS before an install notice, tag last-good-hw, shared schwung references). Box toolchain and SDK paths.
 - 2026-10-16 19:39: branch tips (ble-a65 4d1608a, clip-keys-a65 81f6418, integration ceaac0a, side branches a68 to a71).
+- 2026-10-16 20:12: plain-language rule for text to the owner.
