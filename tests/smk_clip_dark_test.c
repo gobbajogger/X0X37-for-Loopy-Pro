@@ -192,6 +192,46 @@ int main(void)
         check(pads_lit() > 0u, "7 notify on: a pad colour note lights the pad as before");
     }
 
+    /* 8. Edges (builder loop step 7). */
+    clip_grid_mode = 1;
+    link(1, 1, 50); up();
+    link(0, 0, 100); link(1, 0, 100); link(1, 1, 90); loopy_page();   /* back at 290 ms, colours at 290 ms */
+    link(1, 1, 10000);
+    check(pads_lit() > 0u, "8a notify on again inside the 300 ms window, new colours: they stay 10 s");
+
+    up();
+    link(0, 0, 100);
+    clip_grid_mode = 0; link(0, 0, 50);
+    msg(0x90u, 0u, 0x2Du); link(0, 0, 50);                          /* a late write while clip mode is off */
+    clip_grid_mode = 1; smk_apc_clip_entered(); link(0, 0, 10000);
+    check(pads_lit() == 0u && stores_lit() == 0u, "8b clip mode exit and entry inside the window, a late write: dark 10 s");
+
+    link(1, 1, 50); up();
+    {
+        unsigned n;
+        for (n = 0; n < 8u; n++)                                    /* the first half of a page burst */
+            msg(0x90u, (n / 4u) * 8u + n % 4u, 0x31u);
+        link(0, 0, 2);                                              /* the link ends in the burst */
+        for (n = 8; n < 16u; n++)                                   /* the rest of the burst comes late */
+            msg(0x90u, (n / 4u) * 8u + n % 4u, 0x31u);
+    }
+    link(0, 0, 10000);
+    check(pads_lit() == 0u && stores_lit() == 0u, "8c disconnect in a colour burst, the rest late: dark 10 s");
+
+    link(1, 1, 50);
+    msg(0x90u, 0u, 127u); link(1, 1, 1000);                         /* (the layout latches after 250 ms) */
+    check(apc_led_velocity[0] == 127u && pads_lit() == 1u, "8d colour index 127 lights its pad");
+    msg(0x90u, 0u, 0u); link(1, 1, 1000);
+    check(pads_lit() == 0u && apc_led_velocity[0] == 0u && padled_rgb[0] == 0u,
+          "8d colour index 0 clears its pad (the cell keeps only its 'last was off' flag)");
+    msg(0x90u, 0u, 127u); link(1, 1, 100); link(0, 0, 10000);
+    check(pads_lit() == 0u && stores_lit() == 0u, "8d index 127, then the link end: dark 10 s");
+    link(1, 0, 50);
+    (void)smk_apc_ble_event(9u | 0x90u << 8 | 0u << 16 | 127u << 24, 0u);
+    (void)smk_apc_ble_event(9u | 0x90u << 8 | 39u << 16 | 127u << 24, 0u);
+    link(1, 0, 100);
+    check(pads_lit() == 0u && stores_lit() == 0u, "8d notify off: index 127 on notes 0 and 39 writes no cell");
+
     printf("%s %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails ? 1 : 0;
 }
