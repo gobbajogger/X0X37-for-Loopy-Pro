@@ -7,6 +7,7 @@
 #   27:  the docs lint (X0X_PREFS_LINT, here a stand-in) fails -> "RULE POINTERS".
 # Fixtures: tests/host/fixtures/status/ (BEHAVIOR.md, ROADMAP-good.md, ROADMAP-bad.md, prefs_lint_ok.py, prefs_lint_fail.py).
 set -u
+export X0X_TEST_RUN=1   # check 30: status.sh refuses the live folder
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE
 TOP="$(cd "$(dirname "$0")/../.." && pwd)"; S="$TOP/tools/status.sh"; F="$TOP/tests/host/fixtures/status"
 T=$(mktemp -d "${TMPDIR:-/tmp}/statuschk.XXXXXX"); trap 'rm -rf "$T"' EXIT
@@ -20,7 +21,7 @@ run() {  # run <ROADMAP fixture> <lint stand-in> <integration commit subject>: t
     git -C "$C" checkout -q integration && git -C "$C" reset -q --hard "$A" && echo "$3" >> "$C/BEHAVIOR.md.log" && git -C "$C" add . && git -C "$C" commit -qm "$3"
     git -C "$C" checkout -q -B smk37 "$A" && mkdir -p "$C/docs" && sed "s/HASH/${A:0:7}/" "$F/$1" > "$C/docs/ROADMAP.md" && git -C "$C" add . && git -C "$C" commit -qm "Docs"
     git -C "$C" push -q -f "$T/box.git" integration smk37 2>/dev/null
-    X0X_REPO="$T/box.git" X0X_STATUS_OUTDIR="$T/out" X0X_STATUS_TMP="$T/tmp" X0X_RESULTS_DIR="$T/res" X0X_GATE_LOCK="$T/gate.lock" \
+    X0X_REPO="$T/box.git" X0X_STATUS_OUT="$T/out" X0X_STATUS_TMP="$T/tmp" X0X_RESULTS_DIR="$T/res" X0X_GATE_LOCK="$T/gate.lock" \
         X0X_PREFS_LINT="$F/$2" bash "$S" >/dev/null 2>&1; cat "$T/out/status.md" 2>/dev/null
 }
 chk() {  # chk <name> <yes|no> <fixed text> <status text>

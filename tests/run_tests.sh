@@ -33,6 +33,7 @@ mkdir -p "$OUT" build/scenarios
 JOBS="${X0X_TEST_JOBS:-8}"
 export X0X_TEST_TIME_SCALE="${X0X_TEST_TIME_SCALE:-20}"
 export X0X_HOST_LOAD="${X0X_HOST_LOAD:-0}"   # x0x_host: the overload guard sees 0% until a "load N" line, not the time of a busy host
+export X0X_TEST_RUN=1   # tools/status.sh (check 30): a test run never writes the live orchestrator folder
 case "$JOBS" in ''|*[!0-9]*) JOBS=1 ;; esac
 PHASE=0                 # parallel mode: W = class W, 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
 T_SEQ=0
@@ -156,6 +157,7 @@ run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 2
 run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
 run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, strict STE, Trigger and Check lines
 run status-lanes bash tests/host/test_status_lanes.sh   # tools/status.sh (check 12): lane/<agent>-* commits count as agent output
+run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.sh (check 30): output folder, no write to the live orchestrator folder
 run status-checks bash tests/host/test_status_checks.sh   # tools/status.sh (checks 27, 29): docs lint flag, ROADMAP installed hash, BEHAVIOR items since the last install
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
