@@ -388,6 +388,46 @@ static void test_ext_tempo_ble(void)
     printf("  external clock in Bluetooth bursts: tempo, tempo kept after the link end: checked\n");
 }
 
+/* Start, Stop and Continue drive the transport (clock in 7.5 ms Bluetooth events) */
+static void test_ext_transport_ble(void)
+{
+    int i, k, n;
+    reset();
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    ble_clock_start(120.0, 7.5, 0.5);
+    ble_clock(120.0, 7.5, 1.0);                               /* the clock runs, X0X stopped */
+    CHECK(!S.playing && S.ext, "stopped, the clock runs");
+    seq_start(&S);                                            /* Start */
+    nev = 0;
+    ble_clock(120.0, 7.5, 2.0);                               /* one bar at 120 */
+    CHECK(S.playing, "Start: playing");
+    for (i = 0, n = 0; (i = find(E_DRUM, 0, i)) >= 0; i++)
+        n++;
+    CHECK(n == 16, "Start: 16 steps in one bar, got %d", n);
+    seq_stop(&S);                                             /* Stop */
+    run(256);
+    CHECK(!S.playing, "Stop: stopped");
+    k = S.t[0].pos;
+    nev = 0;
+    ble_clock(120.0, 7.5, 0.25);
+    CHECK(find(E_DRUM, 0, 0) < 0, "Stop: no step while stopped");
+    seq_continue(&S);                                         /* Continue: from the next step */
+    ble_clock(120.0, 7.5, 0.05);                              /* (2 ticks: the first step only) */
+    CHECK(S.playing && S.t[0].pos == (k + 1) % 16, "Continue: step %d, want %d", S.t[0].pos, (k + 1) % 16);
+    seq_stop(&S);                                             /* Stop and Start in one burst: a restart */
+    seq_start(&S);
+    run(256);
+    CHECK(S.playing, "Stop + Start in one block: playing");
+    ble_clock(120.0, 7.5, 0.05);
+    CHECK(S.t[0].pos == 0, "Stop + Start in one block: from step 1, at step %d", S.t[0].pos + 1);
+    seq_start(&S);                                            /* Start + Stop in one burst: stopped */
+    seq_stop(&S);
+    run(256);
+    CHECK(!S.playing, "Start + Stop in one block: stopped");
+
+    printf("  Start, Stop, Continue with the clock in Bluetooth bursts: checked\n");
+}
+
 static void test_break_clock(void)
 {
     int i, k;
@@ -472,6 +512,7 @@ int main(void)
     test_song();
     test_ext_clock_and_midi_out();
     test_ext_tempo_ble();
+    test_ext_transport_ble();
     test_break_clock();
 #ifdef REF_TB3PO
     test_tb3po_matches_reference();

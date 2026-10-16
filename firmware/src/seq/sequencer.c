@@ -481,9 +481,8 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             if (s->playing && s->t[t].to_next == NEVER)
                 s->t[t].to_next = 0;
     }
-    if (s->req_stop) {
+    if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
         s->req_stop = 0;
-        s->req_start = s->req_cont = 0;
         if (s->playing)
             do_stop(s, o);
     }
@@ -543,7 +542,11 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 }
 
 void seq_start(seq_t *s) { s->req_start = 1; }
-void seq_stop(seq_t *s) { s->req_stop = 1; }
+void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start or Continue, not a later one */
+{
+    s->req_start = s->req_cont = 0;
+    s->req_stop = 1;
+}
 void seq_continue(seq_t *s) { s->req_cont = 1; }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
 void seq_cue(seq_t *s, int p)
