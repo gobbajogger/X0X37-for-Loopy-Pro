@@ -337,4 +337,15 @@ These are disagreements between the code and a source document, or behaviour tha
 OQ-11. The GLOBAL menu has no "forget pairing" row. X0X never pairs or bonds (BLE-07), so there is nothing to forget. Needs a user decision: keep it so, or add pairing (then BTIF writes and a forget row are needed). [USER task 2026-10-15] Update 2026-10-16: the user chose pairing with bonding (BLE-07, BLE-11). A forget row is still open. Update 2026-10-16 a65: a65 does not pair or bond (BLE-07).
 OQ-12. tools/fm1_install.py adds ~/.config/x0x/ctl.img to an SMK-37 install by itself when the file exists (and says so). Needs a user decision: keep this default, or add the image only with --ctl. [CODE ../../tools/fm1_install.py with_ctl]
 
-Resolved open questions (do not reuse these IDs): OQ-01 (see GEN-40), OQ-02 (see CLP-26 and CLP-27), OQ-03 (see CLP-28), OQ-04 (see LIM-08), OQ-05 (see CLP-56, LIM-10, LIM-11), OQ-06 (see GEN-44), OQ-07 (see BRK-22, BRK-26, FLS-07. The 22.05 kHz in DESIGN 2026-10-03-x0x-design.md is the old plan), OQ-08 (see MID-10), OQ-09 (see CLP-21), OQ-10 (see CLP-34).
+Resolved open questions (do not reuse these IDs):
+
+- OQ-01: see GEN-40.
+- OQ-02: see CLP-26 and CLP-27.
+- OQ-03: see CLP-28.
+- OQ-04: see LIM-08.
+- OQ-05: see CLP-56, LIM-10, LIM-11.
+- OQ-06: see GEN-44.
+- OQ-07: see BRK-22, BRK-26, FLS-07. The 22.05 kHz in DESIGN 2026-10-03-x0x-design.md is the old plan.
+- OQ-08: see MID-10.
+- OQ-09: see CLP-21.
+- OQ-10: see CLP-34.
