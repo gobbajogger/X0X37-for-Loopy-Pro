@@ -20,6 +20,20 @@ assert palette[0] == 0x000000 and palette[3] == 0xFFFFFF
 assert palette[5] == 0xFF0000 and palette[21] == 0x00FF00 and palette[127] == 0x4B1502
 print("PASS APC40 RGB palette (128 entries)")
 
+# Bug a67: Loopy violet showed blue on the pads. The pad LED value of the violet group 48-51
+# must have a violet hue (265-290 degrees), not blue (240). Blue and magenta do not change.
+def pad_hue(rgb):
+    r, g, b = ((rgb >> 16) * 255 // 510, ((rgb >> 8) & 0xFF) * 255 // 510, (rgb & 0xFF) * 255 // 510)
+    mx, mn = max(r, g, b), min(r, g, b)
+    assert mx == b and mx > mn, hex(rgb)
+    return 240.0 + 60.0 * (r - g) / (mx - mn)
+for v in range(48, 52):
+    h = pad_hue(palette[v])
+    assert 265.0 <= h <= 290.0, f"velocity {v} {palette[v]:06X}: pad hue {h:.1f} is not violet"
+assert palette[44:48] == [0x4C4CFF, 0x0000FF, 0x000059, 0x000019]
+assert palette[52:56] == [0xFF4CFF, 0xFF00FF, 0x590059, 0x190019]
+print("PASS violet palette group 48-51 shows violet on the pads")
+
 # Universal Device Inquiry returns the APC40 mkII identity and protocol version.
 assert "apc40_device_inquiry" in usb
 assert "msg[1] = 0x7E" in usb and "msg[5] = 0x47" in usb and "msg[6] = 0x29" in usb
