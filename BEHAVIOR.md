@@ -2,7 +2,7 @@
 
 ## 1. Purpose and use
 
-Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is a copy of integration 6f98adf BEHAVIOR.md. The ASD-STE100 text on integration is the source, and builders edit it there.
+Reference copy: BEHAVIOR.md on branch integration. This smk37 copy is a copy of integration 21fddf8 BEHAVIOR.md. The ASD-STE100 text on integration is the source, and builders edit it there.
 
 This file is the intended-behavior specification for X0X. Review agents and bug-hunt agents use it. It tells an intended behavior from a defect.
 
@@ -443,7 +443,7 @@ CLP-79. Pad calibration (GLOBAL > SYSTEM > PAD COLOURS, SMK-37, not in clip mode
   - A pad press selects that pad. K2 / K3 / K4 change R / G / B of the selected entry and mark it ok. The step is 1 level for each detent below 32, and 1 + level / 32 above. The value stops at 0 and 255. SEQ PLAY marks the selected entry ok or not ok. OCTAVE- / OCTAVE+ go to the previous / next page (with wrap).
   - PATCH or GLOBE ends the mode on the release. Meanwhile the UI gets no buttons, keys or knobs. The start values come at run time from APC40_LCD565 with the gamma, gain and floor constants of app/apc40_pad_gamma.h (tools/apc_colour_model.py pad_default). The edits stay in RAM until power off: no settings byte, no flash save. The edits, the ok marks and tl stay when you open PAD COLOURS again. The orientation page then lights the pad of the saved tl.
   - At power off, X0X loses the calibration. In 89f680e, X0X also lost it when PAD COLOURS opened again. Since 1a07781, the edits stay when PAD COLOURS opens again, until power off.
-  - The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development. [USER 2026-10-17 00:01] (Release requirement. The code at ee43f5f does not have X0X_DEV_PADCAL.)
+  - The mode is in dev builds only (X0X_DEV_PADCAL=1, the default). The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, no pad calibration code and no INLOG args 2-5 export. It uses the pad table that the owner calibrated. Until owner data exists, that table is the live table APC40_RGB, unchanged. [USER 2026-10-17 00:01]
   - Editor command 38 INLOG, args 2-5, exports the 128 entries (R, G, B, ok) and tl. The export also works after the mode ends. tools/ble_autotest.py --padcal-export FILE writes them. tools/apc_pad_colors.py --pad-h OUT --pad-override FILE puts the entries marked ok over the start values.
   - The export file has the line "padcal_orient TL". tools/apc_pad_colors.py --pad-override warns if TL is not 0. [USER] [CODE app/smk_padcal.h] [CODE app/main_fm1.c smk_padcal_frame, smk_padcal_draw] [CODE app/ui.c open_global, run_action] [TEST tests/smk_padcal_test.c] [TEST tests/smk_padcal_wiring_test.py] [TEST tests/smk_padcal_export_test.py] (New 2026-10-16, apc-palette.)
 
