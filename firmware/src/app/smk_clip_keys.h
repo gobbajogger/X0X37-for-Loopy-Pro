@@ -220,6 +220,28 @@ CK_FN static uint32_t ck_page_btn(uint32_t pg, uint32_t press, uint32_t rel, uin
     return pg;
 }
 
+/* < and > on a page: a press steps the last field at once. A hold steps again after CK_RPT_DELAY ms, then
+ * each CK_RPT_MS ms. */
+#define CK_RPT_DELAY 400u
+#define CK_RPT_MS 80u
+/* lr: < and > down now (bit 0 <, bit 1 >), 0 with no page or a menu; press: the bits that went down; now: ms;
+ * *t: the ms of the next repeat. Return -1 (<), +1 (>) or 0. Both held, or none: no step, and the repeat
+ * waits CK_RPT_DELAY again. */
+CK_FN static int32_t ck_rpt(uint32_t lr, uint32_t press, uint32_t now, uint16_t *t)
+{
+    if (!lr || lr == 3u) {
+        *t = (uint16_t)(now + CK_RPT_DELAY);
+        return 0;
+    }
+    if (press)
+        *t = (uint16_t)(now + CK_RPT_DELAY);
+    else if ((int16_t)(uint16_t)(now - *t) >= 0)
+        *t = (uint16_t)(now + CK_RPT_MS);
+    else
+        return 0;
+    return lr == 2u ? 1 : -1;
+}
+
 /* HUMAN 0-7. r: a random number. Return the velocity: vel moved by up to 4 x h at random (1..127); *late: the
  * ms the note-on waits, 0 to 4 x h (CK_LATE_MAX at most). h = 0: vel, no wait. */
 #define CK_LATE_MAX 28u
