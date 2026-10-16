@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 20:32 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 20:42 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -157,7 +157,7 @@ Repositories:
 ## Current project context
 
 - Mac: Mac-mini.local, /Users/mac/Documents/x0x37. Main source tree: x0x37 (branch smk37, 4ffcd2d, docs commits on top).
-- BLE: live lane ble-a73 (99faa0a, installed 20:26, full owner test pending). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a65 at 4d1608a. Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067. History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51.
+- BLE: live lane ble-a73 (99faa0a, installed, partial owner test). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a65 at 4d1608a. Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067. History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51.
 - Clip keys and integration: clip-keys-a65 at 81f6418. integration at 1fdeb58 (merge of ble-a72 bb7c11e). Box archive/clip-keys keeps ce5236e. The Mac clip-keys (c2f7906) is old.
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only, see the repository rules.
