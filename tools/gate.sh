@@ -89,6 +89,8 @@ unshare -rm sh -c "mount --bind '$PT' /tmp && env HOME='$PH' JIELI_TOOLCHAIN='$T
     > "$L/build-ctl.log" 2>&1 || fail "ctl build: $(grep -m1 -iE 'error|fail|undefined' "$L/build-ctl.log")"
 
 # 2. tests
+MODE="X0X_TEST_JOBS=$JOBS"
+grep -q X0X_TEST_JOBS tests/run_tests.sh || MODE="serial: this tree has no parallel mode"
 X0X_TEST_JOBS="$JOBS" sh tests/run_tests.sh > "$L/tests.log" 2>&1; TRC=$?
 OK=$(grep -c '^  ok ' "$L/tests.log"); NF=$(grep -c '^  FAIL' "$L/tests.log"); NS=$(grep -c '^  skip' "$L/tests.log")
 [ "$TRC" = 0 ] || fail "tests: $NF failed ($(grep -m1 '^  FAIL' "$L/tests.log" | sed 's/^  FAIL //'))"
@@ -166,7 +168,7 @@ echo "| Core RAM | ${CORE_USED:-?} of ${CORE_MAX:-?} B, $CORE_FREE B free |"
 echo
 echo "## Tests"
 echo
-echo "- tests/run_tests.sh (X0X_TEST_JOBS=$JOBS): $OK ok, $NF FAIL, $NS skip. Exit code $TRC."
+echo "- tests/run_tests.sh ($MODE): $OK ok, $NF FAIL, $NS skip. Exit code $TRC."
 echo "- Scenarios: $SCEN ok."
 echo "- ble_test: ${BLE:-no log}"
 echo "- smk_clip_keys_test: ${CK:-no log}"
