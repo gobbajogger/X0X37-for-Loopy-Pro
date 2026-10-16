@@ -979,28 +979,16 @@ CK_FN static void ck_arp(uint32_t dt)
             ck_arp_step(rate);
     }
 }
+/* 1: clip mode and no menu on the screen: knobs 2-8 send CC 48-54 (ck_controls), X0X gets no knob turns */
 uint8_t smk_ck_knobs_owned(void)
 {
-    CK_BASE;
-    return (uint8_t)(clip_grid_mode && ui.overlay == O_NONE && !ui.help ? (cp->focus ? 1u : 2u) : 0u);
+    return (uint8_t)(clip_grid_mode && ui.overlay == O_NONE && !ui.help);
 }
-/* knobs 2-5 of each mode: the settings_t byte, the highest value, the name list (0: a number) */
-static const char *const CK_LISTS[] = {0, CK_ROOT_N, CK_SCALE_N, "NEAR\0FILTER", CK_CHORD_N, CK_ORD_N, CK_RATE_N};
-static const uint8_t CK_KNOB[3][4][3] = {
-    {{__builtin_offsetof(settings_t, ck_root), 11, 1}, {__builtin_offsetof(settings_t, ck_scale), 10, 2},
-     {__builtin_offsetof(settings_t, ck_snap), 1, 3}, {0}},
-    {{__builtin_offsetof(settings_t, ck_chord), 16, 4}, {__builtin_offsetof(settings_t, ck_inv), 3, 0}, {0}, {0}},
-    {{__builtin_offsetof(settings_t, ck_ord), 5, 5}, {__builtin_offsetof(settings_t, ck_rate), 12, 6},
-     {__builtin_offsetof(settings_t, ck_oct), 3, 0}, {__builtin_offsetof(settings_t, ck_gate), 9, 0}}};
-/* the knob labels (mode x 4 + knob), then the knob lists of each mode, then the mode names */
-static const char CK_TXT[] = "ROOT \0SCALE \0SNAP \0\0CHORD \0INV \0\0\0ORDER \0RATE \0OCT \0GATE \0"
-                             "ROOT SCALE SNAP\0CHORD INV\0ORD RATE OCT GATE\0SCALE\0CHORD\0ARP";
-/* SCALE, CHORD, ARP: a press turns an off mode on and gives it the knobs. A press on a mode that is on
- * but has not the knobs gives it the knobs. A press on the mode with the knobs turns it off.
- * NOTE REPEAT + ARP: LATCH on or off. NOTE REPEAT alone: panic. */
+static const char CK_MODE_N[] = "SCALE\0CHORD\0ARP";
+/* SCALE, CHORD, ARP: a press turns the mode on or off. NOTE REPEAT + ARP: LATCH on or off.
+ * NOTE REPEAT alone: panic. Knobs 2-8: CC 48-54 (no mode takes the knobs). */
 CK_FN static void ck_controls(void)
 {
-    CK_SET;
     CK_BASE;
     static const uint8_t ROLE[4] = {B_SEL, B_ENV, B_ARP, B_LFO};   /* SCALE, CHORD, ARP, NOTE REPEAT */
     uint32_t raw = fm1_in.buttons, i, cur = 0, press, rel;
@@ -1023,46 +1011,21 @@ CK_FN static void ck_controls(void)
             ui_say("LATCH", cp->fl & CK_F_LATCH ? " ON" : " OFF");
             continue;
         }
-        if (!(cp->on & m) || cp->focus == m) {
-            ck_all_off();
-            cp->on ^= (uint8_t)m;
-        }
-        cp->focus = (uint8_t)(cp->on & m ? m : cp->on & 4u ? 4u : cp->on & 2u ? 2u : cp->on & 1u);
-        ui_say(ck_nm(CK_TXT, 12u + i + (cp->on & m ? 0u : 3u)), cp->on & m ? 0 : " OFF");   /* the knob jobs */
+        ck_all_off();
+        cp->on ^= (uint8_t)m;
+        ui_say(ck_nm(CK_MODE_N, i), cp->on & m ? " ON" : " OFF");
     }
     if ((rel & 8u) && !(cp->fl & CK_F_NRUSED)) {             /* NOTE REPEAT alone: panic */
         ck_all_off();
         ck_send(0xB0u | cp->ch, 123u, 0u);                   /* All Notes Off */
         ui_say("PANIC", 0);
     }
-    if (smk_ck_knobs_owned() == 2u)                          /* no mode: knobs 2-8 send CC 48-54 for MIDI-learn */
+    if (smk_ck_knobs_owned())                                /* knobs 2-8 send CC 48-54 for MIDI-learn */
         for (i = 0; i < NE; i++) {                          /* (relative: 1-63 up, 65-127 down) */
             int32_t d = fm1_enc_take(panel.enc[i]) * panel.dir[i];
             if (d)
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);
         }
-    if (smk_ck_knobs_owned() == 1u) {
-        uint32_t f = cp->focus >> 1, j;                      /* 1, 2, 4 -> 0, 1, 2 */
-        for (j = 0; j < 4u; j++) {                          /* roles EN_SELECT..EN_K1 = knobs 2-5 */
-            int32_t d = fm1_enc_take(panel.enc[j]) * panel.dir[j], v;
-            const uint8_t *t = CK_KNOB[f][j];
-            const char *nm = CK_LISTS[t[2]];
-            char num[8];
-            if (!d || !t[0])
-                continue;
-            v = ((uint8_t *)sp)[t[0]] + d;
-            v = v < 0 ? 0 : v > t[1] ? t[1] : v;
-            if (f < 2u)
-                ck_voice(0x80u);                            /* the notes change: end the old notes first */
-            ((uint8_t *)sp)[t[0]] = (uint8_t)v;
-            if (f < 2u)
-                ck_voice(0x90u);
-            ui.act_t = plat_ms();                           /* (the autosave waits for quiet) */
-            if (!nm)
-                put_s(put_i(num, f == 1u ? v : (v + 1) * (j == 3u ? 10 : 1)), j == 3u ? "%" : "");
-            ui_say(ck_nm(CK_TXT, f * 4u + j), nm ? ck_nm(nm, (uint32_t)v) : num);   /* for example "RATE 1/16" */
-        }
-    }
 }
 /* every main loop pass (also between frames, for the arp timing) */
 CK_FN void smk_ck_poll(void)
