@@ -254,6 +254,7 @@ CLP-14. Velocity 0 or a note-off clears the cell. The last colour from Loopy is 
 CLP-15. Only APC channels 11-15 (zero-based) mark a queued cell (a cell that blinks). Pulse channels (6-10) and one-shot channels (1-5) draw steady. [APC 1.1-apc40] [CODE app/smk_apc40.h:67-70]
 CLP-16. Two off-to-on toggles within 256 ms set the queued state. The queued state stops 384 ms after the last flash message. [APC 1.4-apc40] [CODE app/smk_apc40.h:101-102]
 CLP-17. A feedback burst is a page snapshot only if it touches 8 or more cells, has no cue state, touches at least half of the lit cells, and covers 3 or more rows and 3 or more columns. A snapshot clears the cells that it does not touch. [APC 0.9-apc40] [APC 1.0-apc40] [CODE app/smk_apc40.h:224-232]
+CLP-18. If the Bluetooth link ends or the central turns notify off (CCCD write 0), the firmware clears all clip feedback: the cell colours, the queued state, the PLAY and REC feedback and the latched layout. The pads and the LCD cells go dark. Clip mode, the keybed and the sequencer do not change. New feedback from Loopy shows the colours again. [USER] [CODE ble.c ble_service] [CODE app/main_fm1.c smk_apc_ble_link] (Added 2026-10-16, a71.)
 
 ### 15.3 Layout and pads
 

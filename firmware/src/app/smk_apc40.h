@@ -181,6 +181,28 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
     return changed;
 }
 
+/* Bluetooth link state for the clip feedback. Bit 0: the link is up. Bit 1: notify is on.
+ * Return 1 when a bit went from 1 to 0: the link ended, or the central turned notify off
+ * (CCCD write 0). Then Loopy is gone and its feedback is not true any more. */
+static inline uint8_t smk_apc40_link_lost(uint8_t *prev, uint8_t connected, uint8_t notifying)
+{
+    uint8_t now = (uint8_t)((connected ? 1u : 0u) | (notifying ? 2u : 0u));
+    uint8_t lost = (uint8_t)((*prev & (uint8_t)~now) != 0u);
+    *prev = now;
+    return lost;
+}
+
+/* Clear all clip cells: no colour, no queued state. */
+static inline void smk_apc40_cells_clear(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t flags[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t tick[SMK_APC40_CLIP_COUNT])
+{
+    uint8_t note;
+    for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++)
+        velocity[note] = channel[note] = flags[note] = tick[note] = 0u;
+}
+
 /* Beat phase 0..255 from the 24 PPQN clock count: one cycle per quarter note. */
 static inline uint8_t smk_apc40_beat_phase(uint32_t clock_count)
 {

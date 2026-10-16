@@ -408,6 +408,20 @@ void smk_apc_host_lost(void)
         apc_cell_tick[i] = 0u;
     }
 }
+/* ble.c ble_service calls this after each event poll (the same interrupt context as the cell
+ * stores). If the Bluetooth link ended or the central turned notify off, clear the clip feedback:
+ * the pads and the LCD cells go dark and no clip blinks. Clip mode and the sequencer do not change. */
+void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
+{
+    static uint8_t link;
+    if (!smk_apc40_link_lost(&link, connected, notifying))
+        return;
+    smk_apc40_cells_clear(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick);
+    apc_play_feedback = apc_record_feedback = 0u;
+    apc_burst_mask = 0u;
+    apc_burst_count = 0u;
+    apc_layout_locked = apc_layout_pending = 0u;   /* new feedback latches the layout again */
+}
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
  * cells: lit cells in the color from Loopy (dark shades lifted, see SMK_CLIP_LCD_FLOOR), unlit cells dim, queued cells with a white
  * dot. A white frame marks each cell that is on the 16 pads now (the OCT view, or the

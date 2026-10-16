@@ -167,3 +167,13 @@ assert ui_src.index("smk_clip_history_button((uint8_t)i") < ui_src.index("smk_cl
 assert "ui.btn_used |= m | 1u << B_HOME;" in ui_src
 assert "if (!clip_grid_mode || !patch_held)" in main and 'say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);' in main
 print("PASS Loopy undo/redo: PATCH + SEQ REC / SEQ PLAY in clip mode only")
+# a71: Loopy gone on Bluetooth (link end or CCCD 0): ble.c gives the link state to the clip feedback
+# after each event poll, and main_fm1.c clears the cells (tests/smk_clip_ble_clear_test.c runs the logic).
+ble = (ROOT / "firmware/src/ble.c").read_text()
+assert "smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));" in ble
+assert ble.index("bleh_rx(h, t, ble_r.fr") < ble.index("smk_apc_ble_link((uint8_t)") < ble.index("bleh_midi_next(h, &m)")
+link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
+assert "smk_apc40_link_lost(&link, connected, notifying)" in link
+assert "smk_apc40_cells_clear(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick)" in link
+assert "smk_ck" not in link and "clip_grid_mode" not in link and "seq" not in link
+print("PASS Bluetooth link end or notify off clears the clip feedback")
