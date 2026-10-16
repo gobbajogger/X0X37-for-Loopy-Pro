@@ -34,6 +34,8 @@
 # On SIGTERM, SIGINT or SIGHUP the gate stops all its builds and tests (each runs in its own process group),
 # releases the lock, writes "KILLED <commit> <signal> (no result)", writes no result file and exits with 143, 130 or 129.
 # No child gets the lock file descriptor, so a child that stays alive cannot keep the lock.
+# The install-path tests in run_tests.sh take a shared lock (flock -s) on the same file, so the gate waits for them.
+# While the gate holds its exclusive lock it sets X0X_GATE_HOLDS_LOCK=1, and its own tests do not take the shared lock.
 # The tree is a SHA-1 of "git ls-tree -r" without the *.md files.
 # Output: one line, "PASS <hash>" or "FAIL <hash> <reason>" ("TRIAL PASS" or "TRIAL FAIL" with --trial), or
 # "VOID <hash> setup: ..." (exit code 2). Exit code 0 or 1. The full log is in the worktree folder.
@@ -240,7 +242,7 @@ else
     fi
     LW1=$(date +%s)
     echo "gate: took the gate lock after $((LW1 - LW0)) s" >> "$LOG"
-    X0X_TEST_JOBS="$JOBS" child sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?
+    X0X_GATE_HOLDS_LOCK=1 X0X_TEST_JOBS="$JOBS" child sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?   # the tests do not take the shared lock
     flock -u 9; exec 9>&-
     LW2=$(date +%s)
     echo "gate: released the gate lock; the tests took $((LW2 - LW1)) s" >> "$LOG"
