@@ -15,22 +15,23 @@
 #include "apc40_pad_default_gen.h"
 #undef APC40_PAD_DEFAULT
 #include "app/apc40_lcd565.h"
-#include "apc40_pad_default.h"   /* tools/: the firmware does not use it */
+#include "app/apc40_pad_default.h"
 #include "app/smk_apc40.h"
 
 static void test_sizes(void)
 {
     assert(sizeof APC40_LCD565 == 256u);   /* 128 x RGB565 */
-    assert(sizeof APC40_PAD_DEFAULT == 512u);      /* 128 x 0xRRGGBB: the calibration start point */
+    assert(sizeof APC40_PAD_DEFAULT == 384u);      /* 128 x R, G, B: the calibration start point */
 }
 
 static void test_tool_makes_the_same_tables(void)
 {
     unsigned i, bad = 0u;
     for (i = 0u; i < 128u; i++) {
-        if (APC40_LCD565[i] != APC40_LCD565_GEN[i] || APC40_PAD_DEFAULT[i] != APC40_PAD_DEFAULT_GEN[i]) {
-            printf("velocity %u: LCD 0x%04X tool 0x%04X, pad 0x%06X tool 0x%06X\n", i, APC40_LCD565[i],
-                   APC40_LCD565_GEN[i], (unsigned)APC40_PAD_DEFAULT[i], (unsigned)APC40_PAD_DEFAULT_GEN[i]);
+        if (APC40_LCD565[i] != APC40_LCD565_GEN[i] || memcmp(APC40_PAD_DEFAULT[i], APC40_PAD_DEFAULT_GEN[i], 3u)) {
+            printf("velocity %u: LCD 0x%04X tool 0x%04X, pad %u,%u,%u tool %u,%u,%u\n", i, APC40_LCD565[i],
+                   APC40_LCD565_GEN[i], APC40_PAD_DEFAULT[i][0], APC40_PAD_DEFAULT[i][1], APC40_PAD_DEFAULT[i][2],
+                   APC40_PAD_DEFAULT_GEN[i][0], APC40_PAD_DEFAULT_GEN[i][1], APC40_PAD_DEFAULT_GEN[i][2]);
             bad++;
         }
     }
@@ -40,19 +41,19 @@ static void test_tool_makes_the_same_tables(void)
 
 /* The same lookups as main_fm1.c (tests/smk_apc40_test.py checks the firmware text). */
 static uint16_t lcd_colour(uint8_t v) { return APC40_LCD565[v & 0x7Fu]; }
-static uint8_t pad_send(uint8_t v, unsigned shift, uint8_t brightness)
+static uint8_t pad_send(uint8_t v, unsigned ch, uint8_t brightness)
 {
-    return (uint8_t)(((APC40_PAD_DEFAULT[v] >> shift) & 0xFFu) * brightness / 510u);
+    return (uint8_t)(APC40_PAD_DEFAULT[v][ch] * brightness / 510u);
 }
 
 static void test_lit_and_empty(void)
 {
     unsigned v;
-    assert(lcd_colour(0u) == 0u && APC40_PAD_DEFAULT[0] == 0u);    /* empty cell: dim dot, pad dark */
+    assert(lcd_colour(0u) == 0u && !(APC40_PAD_DEFAULT[0][0] | APC40_PAD_DEFAULT[0][1] | APC40_PAD_DEFAULT[0][2]));    /* empty cell: dim dot, pad dark */
     for (v = 1u; v < 128u; v++) {
         uint8_t mx = 0u, s;
         assert(lcd_colour((uint8_t)v) != 0u);               /* a lit cell is not black */
-        for (s = 0u; s <= 16u; s = (uint8_t)(s + 8u)) {
+        for (s = 0u; s < 3u; s++) {
             uint8_t c = pad_send((uint8_t)v, s, 255u);
             if (c > mx)
                 mx = c;
