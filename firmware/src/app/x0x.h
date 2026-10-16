@@ -15,6 +15,9 @@
 #ifndef X0X_VERSION                     /* a release build passes its own (tools/build.py --release) */
 #define X0X_VERSION "DEV"
 #endif
+#ifndef X0X_DEV_PADCAL                  /* the pad calibration (BEHAVIOR.md CLP-79): 1 dev build, 0 release build */
+#define X0X_DEV_PADCAL 1                /* (tools/build.py passes X0X_DEV_PADCAL=0 or 1 from the environment) */
+#endif
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
 #define PROJ_STEREO 2u

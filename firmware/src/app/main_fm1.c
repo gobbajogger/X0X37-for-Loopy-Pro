@@ -185,11 +185,13 @@ extern void isr_timer5(void);
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 #include "app/apc40_lcd565.h"   /* APC40_LCD565[128]: the LCD clip colours (tools/apc_pad_colors.py) */
+#if X0X_DEV_PADCAL                      /* dev builds only: a release build has no pad calibration */
 #include "app/smk_padcal.h"      /* the pad calibration (CLP-79) */
 #include "app/apc40_pad_gamma.h"     /* its start rule (tools/apc_pad_colors.py --gamma-h) */
 static smk_padcal_t padcal;           /* in .bss: RAM only, no settings byte, no flash save */
 static uint32_t padcal_btn, padcal_pads, padcal_sig;   /* the last frame: buttons, pads (edges), LCD */
 uint8_t smk_padcal_on(void) { return padcal.on; }
+#endif
 /* ------------------------------------------------------------ SMK-37 Pro --- */
 /* What the SMK-37 Pro has beyond the FM-1's panel (smk_input.h), after the UI (ui.c) in this unity build.
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
@@ -346,6 +348,7 @@ static void smk_inlog_w(uint32_t v, uint32_t nb)   /* one word, nb x 7 bits, low
 static void smk_inlog_reply(uint32_t arg)
 {
     uint32_t i;
+#if X0X_DEV_PADCAL
     if (arg - 2u < 128u / SMK_PADCAL_CHUNK) {     /* args 2-5: the pad calibration, 32 entries each (CLP-79) */
         const uint8_t *c = padcal.rgb[(arg - 2u) * SMK_PADCAL_CHUNK];
         ed_b(arg);
@@ -356,6 +359,7 @@ static void smk_inlog_reply(uint32_t arg)
         smk_inlog_w(padcal.tl, 2u);                  /* the orientation correction */
         return;
     }
+#endif
     if (arg == 1u) {
         ed_b(1u);
         ed_b(padled_dirty);
@@ -1516,6 +1520,7 @@ static void smk_grid(void)
 /* The pad calibration page on the LCD (CLP-79, ui.c draw_main): the 16 target colours (APC40_LCD565) in
  * the layout of the pads, a white frame on the selected pad, a white dot on each entry marked ok, then the
  * palette entry (velocity) of the selected pad. */
+#if X0X_DEV_PADCAL
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h)
 {
     uint8_t e = smk_padcal_entry(padcal.page, padcal.sel), i;
@@ -1598,15 +1603,18 @@ static void smk_padcal_frame(void)
     }
     padled_flush();
 }
+#endif
 
 static void smk_frame(void)
 {
     while (smk_extkey_take() >= 0)
         ;
+#if X0X_DEV_PADCAL
     if (padcal.on) {
         smk_padcal_frame();
         return;
     }
+#endif
     smk_arrows();
     (void)smk_clip_map_refresh();
     smk_faders();
