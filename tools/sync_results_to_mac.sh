@@ -7,7 +7,7 @@
 # tar file from the box to the Mac with CopyFromBox (as for the .fwsc, ctl.img and .bundle files in
 # /workspace/a65-artifacts), then runs --unpack on the Mac.
 # The tar file has (paths below "gate-results/"):
-#   index.md, the result files that index.md names (<tree>[-<stamp>].md, <tree>.trial-<stamp>.md),
+#   index.md, QUEUE.md (if it is there), the result files that index.md names (<tree>[-<stamp>].md, <tree>.trial-<stamp>.md),
 #   logs/<logs path without the first "/">/{gate.log,crc.txt,result.md} for each "Logs:" path of a
 #   result file (only these 3 files, not the worktrees), SHA256SUMS.
 # Environment (defaults in brackets):
@@ -30,6 +30,7 @@ case "${1:-}" in
     ST=$(mktemp -d "${TMPDIR:-/tmp}/x0xsync.XXXXXX"); trap 'rm -rf "$ST"' EXIT
     G="$ST/gate-results"; mkdir -p "$G/logs"
     cp "$RES/index.md" "$G/"
+    [ -f "$RES/QUEUE.md" ] && cp "$RES/QUEUE.md" "$G/"
     NR=0; NL=0
     # result files: column 6 of the index rows (first word), only plain file names
     for f in $(awk -F '|' 'NF > 6 { f=$6; gsub(/^ +| +$/, "", f); split(f, a, " "); if (a[1] ~ /^[0-9a-f]+[-.a-z0-9]*\.md$/) print a[1] }' "$RES/index.md" | sort -u); do
