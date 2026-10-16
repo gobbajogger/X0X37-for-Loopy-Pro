@@ -14,6 +14,10 @@ int main(void)
     static smk_inlog_t g;
     uint32_t w[SMK_INLOG_N * 2u], i, c;
 
+    /* the size: 64 entries (2026-10-16, before 16). The count goes in one 7-bit byte. */
+    assert(SMK_INLOG_N == 64u && SMK_INLOG_N <= 127u && sizeof g.w == 64u * 8u);
+    printf("PASS ring size %u entries\n", SMK_INLOG_N);
+
     /* encoding: src<<24 | status<<16 | d1<<8 | d2 */
     assert(smk_inlog_word(SMK_INLOG_BLE, pkt(0x90, 0x20, 0x45)) == 0x01902045u);
     assert(smk_inlog_word(SMK_INLOG_USB, pkt(0x8E, 0x21, 0x7F)) == 0x008E217Fu);
@@ -46,13 +50,21 @@ int main(void)
     assert(c == 2u && w[0] == 100u && w[1] == 0x02000003u && w[2] == 101u && w[3] == 0x01902045u);
     printf("PASS fewer than %u entries, oldest first\n", SMK_INLOG_N);
 
-    /* wrap: 2 + 40 messages, only the last N stay, oldest first */
-    for (i = 0; i < 40u; i++)
+    /* full: 2 + 62 messages fill the ring exactly; nothing is lost yet */
+    for (i = 0; i < SMK_INLOG_N - 2u; i++)
+        smk_inlog_put(&g, 200u + i, SMK_INLOG_USB, pkt(0x90, i, 1u + i));
+    c = smk_inlog_copy(&g, w);
+    assert(c == SMK_INLOG_N && g.next == 0u && w[0] == 100u && w[4] == 200u);
+    assert(w[2u * SMK_INLOG_N - 2u] == 200u + SMK_INLOG_N - 3u);
+    printf("PASS full ring: %u entries, the first one stays\n", SMK_INLOG_N);
+
+    /* wrap: 2 + 90 messages, only the last N stay, oldest first */
+    for (i = SMK_INLOG_N - 2u; i < 90u; i++)
         smk_inlog_put(&g, 200u + i, SMK_INLOG_USB, pkt(0x90, i, 1u + i));
     c = smk_inlog_copy(&g, w);
     assert(c == SMK_INLOG_N);
     for (i = 0; i < SMK_INLOG_N; i++) {
-        uint32_t k = 40u - SMK_INLOG_N + i;
+        uint32_t k = 90u - SMK_INLOG_N + i;
         assert(w[2u * i] == 200u + k);
         assert(w[2u * i + 1u] == (0x00900000u | k << 8 | (1u + k)));
     }

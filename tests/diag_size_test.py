@@ -62,5 +62,16 @@ reply = 5 + 1 + 5 * total + 1          # header with cmd, count, 5 bytes for eac
 if reply > out:
     print(f"FAIL ED_DIAG: the reply has {reply} bytes, but ed_out has {out}")
     fails += 1
-print(f"{'FAIL' if fails else 'PASS'} ED_DIAG writes stay in w[] and ed_out ({fails} fail)")
+inlog = (ROOT / "firmware/src/app/smk_inlog.h").read_text()
+n_in = int(re.search(r"#define SMK_INLOG_N (\d+)u", inlog).group(1))
+cells = int(re.search(r"#define SMK_INLOG_CELLS (\d+)u", inlog).group(1))
+reply = 5 + 1 + 5 + 5 * 2 * n_in + 2 * cells + 1   # header with cmd, count, now, 2 words for each entry, cells, F7
+print(f"INLOG reply: {n_in} entries, {reply} bytes, ed_out {out}")
+if n_in > 127:
+    print(f"FAIL ED_INLOG: {n_in} entries, but the count is one 7-bit byte")
+    fails += 1
+if reply > out:                         # ed_b keeps the last byte of ed_out for F7
+    print(f"FAIL ED_INLOG: the reply has {reply} bytes, but ed_out has {out}")
+    fails += 1
+print(f"{'FAIL' if fails else 'PASS'} ED_DIAG and ED_INLOG writes stay in w[] and ed_out ({fails} fail)")
 sys.exit(1 if fails else 0)
