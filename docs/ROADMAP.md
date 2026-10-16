@@ -76,10 +76,10 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
    - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Device test: pending.
    - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix (a76) is in the installed build c6bf44a. In c6bf44a, a link end clears only the clip cells of that link (30a08fc, 79de009). Device test: pending.
    - Open: the owner test of batch 10 (c6bf44a).
-   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. Firmware Main Builder records a knob turn on the device, then finds the cause. The fix goes in batch 11. At 03:20, the owner said "Just fix them". After the fix, knobs 2 to 8 edit ARP, CHORD and SCALE again.
+   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. Firmware Main Builder records a knob turn on the device, then finds the cause. The fix goes in batch 11. At 03:20, the owner said "Just fix them". After the fix, knobs 2 to 8 edit the keybed ARP, CHORD and SCALE again, so that Loopy Pro records the keybed (owner 03:26).
    - Batch 11 (owner 02:49, Second Builder): in clip mode, a tap on MODE latches the MODE UI open, and a second tap closes it. A hold works as before.
    - Batch 11 (owner 02:50, Second Builder): show a "waiting for Loopy Pro to connect" screen instead of the 8x5 grid.
-   - Batch 11 (owner 02:52, Second Builder): a tap on the stage latches it open, and a tap closes it. FADER BANK also closes it. The screen has no top bar, and it shows a help line at the bottom. Nobody confirmed the link to the 02:49 MODE item. Second Builder confirms it.
+   - Batch 11 (owner 02:52, Second Builder): a tap on the stage latches it open, and a tap closes it. FADER BANK also closes it. The screen has no top bar, and it shows a help line at the bottom. The stage is the MODE UI of the 02:49 item. The owner said at 02:51: "The SCALE, CHORD or ARP button" (Second Builder confirmed).
    - Open: the owner did not test the a74 clock source (MID-13) and PLAY note (MID-14) items yet.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
 4. Bring integration (c6bf44a or later) into the main tree (x0x37, smk37) after an owner test PASS of an installed build.
@@ -99,4 +99,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-17 03:24.
+Last update: 2026-10-17 03:31.
