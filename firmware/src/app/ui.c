@@ -2790,31 +2790,33 @@ static void px_blend(int32_t x, int32_t y, uint16_t c, uint32_t a)
 }
 
 /* corner coverage of a radius-r quarter circle, pixel (x, y) of the r x r corner square,
- * 4 x 4 supersampled; and of its 1-px ring (for outlines). Built once. */
+ * 4 x 4 supersampled; and of its 1-px ring (for outlines). Constant data in flash, packed: the
+ * r x r square of radius r starts at CORNER_OFF[r]. The values are those that the old start-up
+ * loop (corners_init) calculated, to the byte. */
 #define RMAX 8
-static uint8_t corner_fill[RMAX + 1][RMAX][RMAX], corner_ring[RMAX + 1][RMAX][RMAX];
-static void corners_init(void)
-{
-    int r, x, y, sx, sy;
-    for (r = 1; r <= RMAX; r++)
-        for (y = 0; y < r; y++)
-            for (x = 0; x < r; x++) {
-                int in = 0, ring = 0;
-                for (sy = 0; sy < 4; sy++)
-                    for (sx = 0; sx < 4; sx++) {
-                        float dx = (float)r - ((float)x + (sx + 0.5f) / 4.0f);
-                        float dy = (float)r - ((float)y + (sy + 0.5f) / 4.0f);
-                        float d2 = dx * dx + dy * dy;
-                        if (d2 <= (float)(r * r)) {
-                            in++;
-                            if (d2 >= (float)((r - 1) * (r - 1)))
-                                ring++;
-                        }
-                    }
-                corner_fill[r][y][x] = (uint8_t)in;
-                corner_ring[r][y][x] = (uint8_t)ring;
-            }
-}
+static const uint8_t CORNER_OFF[RMAX + 1] = {0, 0, 1, 5, 14, 30, 55, 91, 140};
+static const uint8_t CORNER_FILL[204] = {
+    13,   /* r 1 */
+    6, 15, 15, 16,   /* r 2 */
+    0, 9, 15, 9, 16, 16, 15, 16, 16,   /* r 3 */
+    0, 3, 11, 16, 3, 15, 16, 16, 11, 16, 16, 16, 16, 16, 16, 16,   /* r 4 */
+    0, 0, 5, 12, 16, 0, 10, 16, 16, 16, 5, 16, 16, 16, 16, 12, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 5 */
+    0, 0, 0, 7, 13, 16, 0, 1, 13, 16, 16, 16, 0, 13, 16, 16, 16, 16, 7, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 6 */
+    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 16, 16, 16, 0, 6, 16, 16, 16, 16, 16, 2, 15, 16, 16, 16, 16, 16, 9, 16, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 7 */
+    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 16, 16, 16, 16, 0, 1, 13, 16, 16, 16, 16, 16, 0, 9, 16, 16, 16, 16, 16, 16, 3, 16, 16, 16, 16, 16, 16, 16, 10, 16, 16, 16, 16, 16, 16, 16, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 8 */
+};
+static const uint8_t CORNER_RING[204] = {
+    13,   /* r 1 */
+    6, 15, 15, 3,   /* r 2 */
+    0, 9, 15, 9, 10, 1, 15, 1, 0,   /* r 3 */
+    0, 3, 11, 16, 3, 15, 7, 1, 11, 7, 0, 0, 16, 1, 0, 0,   /* r 4 */
+    0, 0, 5, 12, 16, 0, 10, 13, 5, 0, 5, 13, 1, 0, 0, 12, 5, 0, 0, 0, 16, 0, 0, 0, 0,   /* r 5 */
+    0, 0, 0, 7, 13, 16, 0, 1, 13, 11, 4, 0, 0, 13, 6, 0, 0, 0, 7, 11, 0, 0, 0, 0, 13, 4, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0,   /* r 6 */
+    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 9, 3, 0, 0, 6, 15, 3, 0, 0, 0, 2, 15, 3, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 13, 3, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0,   /* r 7 */
+    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 14, 7, 3, 0, 0, 1, 13, 10, 1, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 3, 14, 1, 0, 0, 0, 0, 0, 10, 7, 0, 0, 0, 0, 0, 0, 14, 3, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0,   /* r 8 */
+};
+#define corner_fill_at(r, j, i) CORNER_FILL[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
+#define corner_ring_at(r, j, i) CORNER_RING[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
 
 /* a filled rounded rectangle; r is clamped to fit */
 static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t c)
@@ -2837,7 +2839,7 @@ static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t
     cv_rect(x + w - r, y + r, r, h - 2 * r, c);
     for (j = 0; j < r; j++)
         for (i = 0; i < r; i++) {
-            uint32_t a = corner_fill[r][j][i];
+            uint32_t a = corner_fill_at(r, j, i);
             px_blend(x + i, y + j, c, a);
             px_blend(x + w - 1 - i, y + j, c, a);
             px_blend(x + i, y + h - 1 - j, c, a);
@@ -2863,7 +2865,7 @@ static void rframe(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16
     cv_rect(x + w - 1, y + r, 1, h - 2 * r, c);
     for (j = 0; j < r; j++)
         for (i = 0; i < r; i++) {
-            uint32_t a = corner_ring[r][j][i];
+            uint32_t a = corner_ring_at(r, j, i);
             px_blend(x + i, y + j, c, a);
             px_blend(x + w - 1 - i, y + j, c, a);
             px_blend(x + i, y + h - 1 - j, c, a);
@@ -4212,7 +4214,6 @@ void ui_init(void)
         if (KEY_BLACK[i] >= 0)
             BLACK_KEY[KEY_BLACK[i]] = (uint8_t)i;
     }
-    corners_init();
     ui.view = V_PART;
     ui.prev_view = V_PART;
     ui.part = PART_909;
