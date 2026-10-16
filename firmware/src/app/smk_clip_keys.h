@@ -221,22 +221,23 @@ CK_FN static uint32_t ck_page_btn(uint32_t pg, uint32_t press, uint32_t rel, uin
 }
 
 /* < and > on a page: a press steps the last field at once. A hold steps again after CK_RPT_DELAY ms, then
- * each CK_RPT_MS ms. */
+ * each CK_RPT_MS ms. Only an arrow that went down on a page with no menu steps or repeats. */
 #define CK_RPT_DELAY 400u
 #define CK_RPT_MS 80u
+#define CK_RPT_ARM 0x10000u
 /* lr: < and > down now (bit 0 <, bit 1 >), 0 with no page or a menu; press: the bits that went down; now: ms;
- * *t: the ms of the next repeat. Return -1 (<), +1 (>) or 0. Both held, or none: no step, and the repeat
- * waits CK_RPT_DELAY again. */
-CK_FN static int32_t ck_rpt(uint32_t lr, uint32_t press, uint32_t now, uint16_t *t)
+ * *s: bits 0-15 the ms of the next repeat, CK_RPT_ARM: the held arrow went down while lr allowed it.
+ * Return -1 (<), +1 (>) or 0. None or both held: no step, and the arrow that stays down needs a new press. */
+CK_FN static int32_t ck_rpt(uint32_t lr, uint32_t press, uint32_t now, uint32_t *s)
 {
     if (!lr || lr == 3u) {
-        *t = (uint16_t)(now + CK_RPT_DELAY);
+        *s = 0;
         return 0;
     }
-    if (press)
-        *t = (uint16_t)(now + CK_RPT_DELAY);
-    else if ((int16_t)(uint16_t)(now - *t) >= 0)
-        *t = (uint16_t)(now + CK_RPT_MS);
+    if (press & lr)
+        *s = CK_RPT_ARM | (uint16_t)(now + CK_RPT_DELAY);
+    else if ((*s & CK_RPT_ARM) && (int16_t)(uint16_t)(now - *s) >= 0)
+        *s = CK_RPT_ARM | (uint16_t)(now + CK_RPT_MS);
     else
         return 0;
     return lr == 2u ? 1 : -1;

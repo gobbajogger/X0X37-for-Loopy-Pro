@@ -281,7 +281,7 @@ static void test_page(void)
 /* < and > (bit 0 <, bit 1 >): a press steps at once, a hold repeats after CK_RPT_DELAY, then each CK_RPT_MS */
 static void test_rpt(void)
 {
-    uint16_t t = 0;
+    uint32_t t = 0;
     uint32_t now, n = 0;
     assert(ck_rpt(0, 0, 100, &t) == 0);                       /* nothing held: no step */
     assert(ck_rpt(2, 2, 65530, &t) == 1);                     /* > press: one step up at once (the ms wraps) */
@@ -297,11 +297,19 @@ static void test_rpt(void)
     assert(ck_rpt(1, 0, 71000u + CK_RPT_DELAY, &t) == -1);
     assert(ck_rpt(3, 2, 71500, &t) == 0);                     /* < and > held: no step */
     assert(ck_rpt(3, 0, 72500, &t) == 0);
-    assert(ck_rpt(1, 0, 72600, &t) == 0);                     /* > up: < repeats after the delay again */
-    assert(ck_rpt(1, 0, 72500u + CK_RPT_DELAY, &t) == -1);
-    assert(ck_rpt(0, 0, 80000, &t) == 0);                     /* a menu or no page (lr 0), then back: */
-    assert(ck_rpt(2, 0, 80001, &t) == 0);                     /* a key still held waits for the delay */
-    assert(ck_rpt(2, 0, 80000u + CK_RPT_DELAY, &t) == 1);
+    for (now = 72600; now < 74000; now++)                     /* > up: < does nothing until a new press */
+        assert(ck_rpt(1, 0, now, &t) == 0);
+    assert(ck_rpt(0, 0, 74000, &t) == 0 && ck_rpt(1, 1, 74100, &t) == -1);
+    /* > goes down in a menu or with no page (lr 0), and stays down when the menu closes: no step, no repeat */
+    assert(ck_rpt(0, 0, 80000, &t) == 0);
+    for (now = 80001; now < 82000; now++)
+        assert(ck_rpt(2, 0, now, &t) == 0);
+    assert(ck_rpt(0, 0, 82000, &t) == 0);                     /* release, then a new press: steps */
+    assert(ck_rpt(2, 2, 82100, &t) == 1);
+    assert(ck_rpt(2, 0, 82100u + CK_RPT_DELAY, &t) == 1);
+    assert(ck_rpt(0, 0, 83000, &t) == 0);                     /* a menu opens during a hold: stop */
+    for (now = 83001; now < 84000; now++)
+        assert(ck_rpt(2, 0, now, &t) == 0);                   /* it closes, > still down: nothing */
 }
 
 static void test_human(void)

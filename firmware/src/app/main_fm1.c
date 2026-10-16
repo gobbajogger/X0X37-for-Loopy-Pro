@@ -432,7 +432,7 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
 #define SMK_CLIP_LCD_FLOOR 128u
 static uint8_t was_on;   /* 0: the next smk_clip_lcd_draw draws at once */
 static uint32_t ck_t0;   /* the time of the last SCALE / CHORD / ARP press (a tap or a hold) */
-static uint16_t ck_rpt_ms;   /* < >: the ms of the next repeat (ck_rpt) */
+static uint32_t ck_rpt_st;   /* < >: the next repeat and the arm bit (ck_rpt) */
 void smk_clip_lcd_force(void) { was_on = 0u; }
 static uint32_t ck_page_on(void);
 static void ck_page_draw(void);
@@ -1220,7 +1220,7 @@ CK_FN static void ck_controls(void)
             ui_say(ck_nm(CK_MODE_N, i), cp->on >> i & 1u ? " ON" : " OFF");
         }
     f = cp->pg >> 4;
-    st = ck_rpt(own && ck_page_on() ? cur >> 5 & 3u : 0u, press >> 5 & 3u, fm1_ms, &ck_rpt_ms);
+    st = ck_rpt(own && ck_page_on() ? cur >> 5 & 3u : 0u, press >> 5 & 3u, fm1_ms, &ck_rpt_st);
     if (st) {                                               /* < >: the last field one step down / up */
         v = ck_get(f);
         nv = st > 0 ? (v < CK_FMAX[f] ? v + 1u : v) : (v ? v - 1u : 0u);
