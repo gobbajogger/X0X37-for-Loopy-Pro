@@ -136,5 +136,12 @@ for s in tests/scenarios/*.x0x; do
     mkdir -p "build/scenarios/$n"
     run "scenario-$n" build/host/x0x_host "$s" "build/scenarios/$n"
 done
+# the device scratch (x0x.c): the PERF TEST patterns and the LZ hash table of a save in the same 4 KiB.
+# The test must play the same sound as with its own buffers (scenario perfsave: a save just before the test).
+printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n' > $OUT/scratch_defs.h
+run perf-scratch sh -c "X0X_HOST_DEFS='-include $OUT/scratch_defs.h' X0X_HOST_OUT=$OUT/x0x_host_scratch sh host/build_host.sh 2>/dev/null && \
+    mkdir -p $OUT/perf-scratch && $OUT/x0x_host_scratch tests/scenarios/perf.x0x $OUT/perf-scratch && \
+    $OUT/x0x_host_scratch tests/scenarios/perfsave.x0x $OUT/perf-scratch && \
+    cmp $OUT/perf-scratch/perfsave.wav build/scenarios/perfsave/perfsave.wav"
 [ $FAIL -eq 0 ] && echo "all tests passed" || echo "TESTS FAILED"
 exit $FAIL

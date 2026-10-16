@@ -118,7 +118,7 @@ static uint32_t ota_unpack7(const uint8_t *in, uint32_t n, uint8_t *out, uint32_
 
 static uint8_t ota_msg[8 + 32], ota_wire[2 + 48];
 #ifdef OTA_SCRATCH                               /* the app: after the session buffers in the scratch */
-#define ota_dec (OTA_SCRATCH + 0x800)
+#define ota_dec (OTA_SCRATCH + OTA_DEC_OFF)
 #else
 static uint8_t ota_dec[OTA_FRAME_MAX];           /* decoded host message */
 #endif
