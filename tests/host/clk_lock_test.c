@@ -176,6 +176,40 @@ int main(void)
             CHECK(!S.ext && S.bpm == 120.0f, "AUTO: internal tempo %.2f after the stop (want 120)", (double)S.bpm);
     }
 
+    for (m = 0; m < 2; m++) {                   /* the link of the input with the clock ends: at once free */
+        uint8_t src = m ? SEQ_CLK_EXT : SEQ_CLK_AUTO;
+        const char *nm = m ? "EXTERNAL" : "AUTO";
+        float lo = 999.0f, hi = 0.0f;
+        int k;
+        reset(src);
+        msg(0xFA, BLE);
+        two_clocks(120.0, 6.0, 1, 1);
+        CHECK(S.clk_lock == BLE + 1, "%s: Bluetooth has the clock", nm);
+        seq_clk_drop(&S, USB);                  /* another input's link ends: no change */
+        CHECK(S.clk_lock == BLE + 1, "%s: USB link end: Bluetooth keeps the clock", nm);
+        seq_clk_drop(&S, BLE);                  /* (engine.c midi_in at PLAT_MIDI_LINK_END(1)) */
+        CHECK(S.clk_lock == 0, "%s: Bluetooth link end: no input has the clock", nm);
+        two_clocks(120.0, 0.03, 1, 0);          /* the next USB tick gets it, no 0.4 s wait */
+        CHECK(S.clk_lock == USB + 1 && S.playing && S.ext, "%s: USB gets the clock at once (%u)", nm, S.clk_lock);
+        for (k = 0; k < 30; k++) {              /* no dip at the change (the measure starts again) */
+            two_clocks(120.0, 0.1, 1, 0);
+            if (k >= 10) {
+                lo = S.ext_bpm < lo ? S.ext_bpm : lo;
+                hi = S.ext_bpm > hi ? S.ext_bpm : hi;
+            }
+        }
+        CHECK(lo >= 119.0f && hi <= 121.0f && S.playing && !seq_clock_waiting(&S), "%s: after the link end %.2f-%.2f", nm, (double)lo, (double)hi);
+        msg(0xFC, USB);                         /* the USB Stop acts: USB has the clock */
+        run(512);
+        CHECK(!S.playing, "%s: USB Stop after the change: stopped", nm);
+        reset(src);                             /* USB unplug while USB has the clock */
+        msg(0xF8, USB);
+        seq_clk_drop(&S, USB);
+        msg(0xFA, BLE);
+        run(512);
+        CHECK(S.clk_lock == BLE + 1 && S.playing, "%s: USB unplug: a Bluetooth Start acts at once", nm);
+    }
+
     reset(SEQ_CLK_INT);                         /* INTERNAL ignores the clock of both inputs */
     msg(0xFA, USB);
     msg(0xFA, BLE);

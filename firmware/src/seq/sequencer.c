@@ -732,6 +732,11 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
     }
     return 1;
 }
+void seq_clk_drop(seq_t *s, uint32_t src)
+{
+    if (s->clk_lock == src + 1u)
+        s->clk_lock = 0;                              /* its link ended: any input can get the clock now */
+}
 int seq_clock_waiting(const seq_t *s)
 {
     return s->clk_cur == SEQ_CLK_EXT && s->playing && s->ext_since > FS / 2u;

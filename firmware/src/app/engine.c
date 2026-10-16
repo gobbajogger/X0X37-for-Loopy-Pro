@@ -460,8 +460,11 @@ static void midi_in(uint32_t pkt)
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
     int k, v, ble = PLAT_MIDI_SRC(pkt) == 1u;
-    if (pkt == PLAT_MIDI_LINK_END) {            /* BLE-16: the Bluetooth link ended: release its notes */
-        for (k = 0; k < NBASS; k++)
+    if (!(pkt & ~0x30u)) {                      /* CIN 0, no message: the link of an input ended (usb.c midi_link_check) */
+        seq_clk_drop(&seq, PLAT_MIDI_SRC(pkt)); /* MID-15: another input can get the clock at once */
+        if (!ble)
+            return;
+        for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from Bluetooth */
             if ((ble_held >> k) & 1u) {
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;

@@ -177,6 +177,7 @@ void seq_continue(seq_t *s);
 void seq_ext_clock(seq_t *s);         /* one 24-ppqn tick (USB MIDI 0xF8) */
 int seq_midi_rt(seq_t *s, uint8_t st);  /* MIDI in 0xF8, 0xFA, 0xFB, 0xFC: 1 (INTERNAL drops them); else 0 */
 int seq_clk_take(seq_t *s, uint8_t st, uint32_t src);   /* MIDI in from input src: 0 = another input has the clock */
+void seq_clk_drop(seq_t *s, uint32_t src);  /* the link of input src ended: it loses the clock at once */
 int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0.5 s (it waits) */
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);

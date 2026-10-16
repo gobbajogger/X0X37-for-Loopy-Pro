@@ -728,6 +728,24 @@ static void sysex_byte(uint8_t b)
     }
 }
 
+#ifndef FELUCCA_LOADER
+/* MID-15, BLE-16: when the link of input src ends (up goes to 0), one PLAT_MIDI_LINK_END packet goes into
+ * midi_in_q, after the MIDI in of that tick. If the queue is full, it goes at a later tick.
+ * *st: bit 0 the link was up, bit 1 a packet waits. TIMER5 only (the one writer of midi_in_q). */
+static __attribute__((noinline)) void midi_link_check(uint8_t *st, uint32_t up, uint32_t src)
+{
+    uint8_t v = (uint8_t)((*st & 2u) | ((*st & 1u) && !up ? 2u : 0u));
+    if ((v & 2u) && mi_w - mi_r < MQ) {
+        midi_in_q[mi_w % MQ] = src << 4;              /* PLAT_MIDI_LINK_END(src) */
+        RING_PUBLISH();
+        mi_w++;
+        v = 0;
+    }
+    *st = (uint8_t)(v | (up ? 1u : 0u));
+}
+static uint8_t usb_link_st;
+#endif
+
 static void ep1_rx(void)
 {
     uint32_t csr, n, i;
@@ -1143,6 +1161,9 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
         ep0_service();
     if (ir & 0x02u)
         ep1_rx();
+#ifndef FELUCCA_LOADER
+    midi_link_check(&usb_link_st, usb.config && !usb.suspended, 0u);   /* unplug, host asleep, bus reset */
+#endif
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
     smk_apc_usb_tick();                                 /* APC cell aging in the same interrupt as the stores */
 #endif

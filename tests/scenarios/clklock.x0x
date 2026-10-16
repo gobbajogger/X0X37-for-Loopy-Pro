@@ -1016,6 +1016,26 @@ expect playing 0
 wait 1000
 expect tempo >116
 expect tempo <122
+# the Bluetooth link ends while Bluetooth has the clock: USB gets the clock at once (no 0.4 s wait)
+midi FA 00 00 1
+midi F8 00 00 1
+wait 20
+midi F8 00 00 1
+wait 20
+expect playing 1
+blelinkend
+midi FC 00 00 0
+wait 30
+expect playing 0
+# the USB link ends (unplug) while USB has the clock: a Bluetooth Start acts at once
+midi FA 00 00 0
+midi F8 00 00 0
+wait 20
+expect playing 1
+usblinkend
+midi FC 00 00 1
+wait 30
+expect playing 0
 # INTERNAL: X0X ignores Start and clock from both inputs
 tap GLO
 turn ALGO 1
