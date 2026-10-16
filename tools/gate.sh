@@ -81,7 +81,7 @@ while [ $# -gt 0 ]; do
 done
 set -- "$ARG"
 [ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> [--force \"<reason>\"] [--trial]" >&2; exit 2; }
-FREASON=$(echo "$FREASON" | tr '|\n' '/ ' | cut -c1-120)
+FREASON=$(printf '%s' "$FREASON" | tr '|\n' '/ ' | cut -c1-120)
 
 H=$(git -C "$REPO" rev-parse --verify --quiet "$1^{commit}") || { echo "FAIL $1 unknown commit in $REPO"; exit 1; }
 S=${H:0:7}
