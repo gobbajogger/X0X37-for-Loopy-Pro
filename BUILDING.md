@@ -1,3 +1,5 @@
+x0x37 team: do not run the gh-pages step (agent rule 12).
+
 # Building X0X
 
 The build makes three files in `build/`:
