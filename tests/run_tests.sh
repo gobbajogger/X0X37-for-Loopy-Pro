@@ -173,6 +173,7 @@ run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py
 run install-head sh tests/host/test_install_head.sh   # tools/fm1_install.py (check 4): the package bootloader bytes = the reference read-back
 run release-tree sh tests/host/test_release_tree.sh   # tools/release_tree_check.sh (check 7): no refs/jieli or refs/oscuro path, no refs-oscuro commit in a release
 run prepush-trim sh tests/host/test_prepush_trim.sh   # tools/prepush-check.sh: the box update hook runs the quick check, so the client does not
+run prepush-allow sh tests/host/test_prepush_allow.sh   # tools/pre-push.hook part 0 (check 6): push only to the box path or x0x37.allowedRemote
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
 run gate-trap bash tests/host/test_gate_trap.sh   # tools/gate.sh (checks 5, 13): the KILLED lines name the sender PID and cwd, SCRIPT CHANGED in gate.log
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
