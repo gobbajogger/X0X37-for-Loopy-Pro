@@ -321,7 +321,7 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
 /* a76: the inbound recorder (app/smk_inlog.h). usb.c and ble.c give it each APC40 LED message that
  * came in. ble.c also gives it the link and notify edges. */
 #include "app/smk_inlog.h"
-static smk_inlog_t smk_inlog_g SMK_BIG;   /* in the pool (zeroed at boot): .data+.bss is full */
+static smk_inlog_t smk_inlog_g;   /* in .bss: the Elite pool keeps its 8 KiB headroom (the gate) */
 void smk_inlog(uint32_t src, uint32_t pkt)
 {
     smk_inlog_put(&smk_inlog_g, fm1_ms, src, pkt);
