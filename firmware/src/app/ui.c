@@ -3930,6 +3930,8 @@ static void draw_main(void)
         extern uint8_t smk_clip_mode_on(void);
         extern uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h);
         extern void smk_clip_lcd_force(void);
+        extern uint8_t smk_clip_wait(void);
+        static uint8_t clip_wait_on;              /* 1: the waiting screen is on the LCD */
 #if X0X_DEV_PADCAL
         extern uint8_t smk_padcal_on(void);
         extern uint8_t smk_padcal_draw(uint32_t w, uint32_t h);
@@ -3939,6 +3941,20 @@ static void draw_main(void)
             return;
         }
 #endif
+        if (smk_clip_mode_on() && ui.overlay == O_NONE && !ui.help && smk_clip_wait()) {
+            if (!clip_wait_on) {                  /* CLP-80: no Loopy host: the waiting screen, not the grid */
+                clip_wait_on = 1u;
+                cv_begin(240, 2 * BAND_H, C_BLACK);
+                cv_band(0, 2 * BAND_H);
+                text_c(120, 34, &FONT_B, "WAITING FOR", C_WHITE);
+                text_c(120, 56, &FONT_B, "LOOPY PRO", C_WHITE);
+                text_c(120, 86, &FONT_XS, "USB OR BLUETOOTH", C_GRAY);
+                cv_commit_rect(1, 0, MAIN_Y);
+            }
+            smk_clip_lcd_force();                 /* the grid draws at once when a host comes */
+            return;
+        }
+        clip_wait_on = 0u;
         if (smk_clip_mode_on() && ui.overlay == O_NONE && !ui.help) {
             if (smk_clip_lcd_draw(240u, 2u * BAND_H))
                 cv_commit_rect(1, 0, MAIN_Y);

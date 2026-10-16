@@ -266,8 +266,10 @@ static void smk_apc_burst_close(void)
 #define APC_OWN_PLAY 40u
 static uint64_t apc_ble_owned;
 static uint8_t apc_in_ble;
+static volatile uint8_t apc_link_host;    /* CLP-80: bit 0 USB, bit 1 Bluetooth: its host sent clip feedback */
 static void apc_own(uint32_t bit)
 {
+    apc_link_host |= (uint8_t)(1u << apc_in_ble);   /* CLP-80: this link has a Loopy host */
     apc_ble_owned = (apc_ble_owned & ~((uint64_t)1u << bit)) | (uint64_t)apc_in_ble << bit;
 }
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity)
@@ -466,6 +468,7 @@ static uint8_t smk_apc_link_clear(uint8_t ble)
 {
     uint32_t i, left = 0u;
     uint64_t m = ble ? apc_ble_owned : ~apc_ble_owned;
+    apc_link_host &= (uint8_t)~(1u << ble);       /* CLP-80: this link has no Loopy host now */
     smk_apc40_cells_clear_mask(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick, m);
     if ((m >> APC_OWN_PLAY) & 1u)
         apc_play_feedback = 0u;
@@ -537,6 +540,13 @@ static uint32_t ck_t0;   /* the time of the last SCALE / CHORD / ARP press (a ta
 static uint32_t ck_rpt_st;   /* < >: the next repeat and the arm bit (ck_rpt) */
 void smk_clip_lcd_force(void) { was_on = 0u; }
 static uint32_t ck_page_on(void);
+/* CLP-80: 1 = no link has a Loopy host and no clip keys page shows: ui.c draw_main shows the waiting
+ * screen, not the clip grid. A link has a host from the first clip or PLAY / REC feedback message on it
+ * (apc_own) until smk_apc_link_clear for that link (link end, generic mode, USB host lost). */
+uint8_t smk_clip_wait(void)
+{
+    return (uint8_t)(!apc_link_host && !ck_page_on());
+}
 static void ck_page_draw(void);
 uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
 {
