@@ -9,6 +9,12 @@ Usage:
   ste_check.py --rule passive FILE        print each sentence that breaks one check
   ste_check.py --diff REPO BASE REV FILE  check only the paragraphs, list items and table rows of FILE that
                                          have a line added or changed in BASE..REV (git diff -U0; REV WORKTREE: the files on disk)
+  ste_check.py --owner-msg [FILE|-] ...   check a message to the owner (rule 13, core rule 6A). No FILE: stdin.
+                                         1 to 3 sentences, 20 words or fewer in each, no hex of 7+ characters,
+                                         no path or file name, no backticks, at most one "?", no question about
+                                         an install ("install" and "?" in one message). Output: "OWNER MSG OK"
+                                         (exit 0) or "OWNER MSG FAIL <file>: <reasons>" (exit 1). Orchestrator
+                                         runs it before each relay.
   options: --examples K (worst sentences per file), --json, --strict
 
 Checks (counted as violations, exit code 1 if any count > 0):
@@ -385,7 +391,53 @@ def commits_text(raw):
     return "\n".join(out)
 
 
+OWNER_EXT = r"md|sh|py|c|h|js|mjs|json|txt|log|tsv|csv|fwsc|img|bin|bundle|tar|hook|ld|S"
+
+
+def owner_msg(text):
+    """the reasons why a message to the owner breaks rule 13 (empty list: OK)"""
+    bad = []
+    t = text.strip()
+    if "`" in t:
+        bad.append("backticks")
+    ss = [x for x in re.split(r"(?<=[.!?])\s+", t.replace("\n", " ")) if WORD.search(x)]
+    if not ss:
+        bad.append("no sentence")
+    if len(ss) > 3:
+        bad.append("%d sentences (max 3)" % len(ss))
+    for x in ss:
+        n = len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'’-]*", x))
+        if n > 20:
+            bad.append("%d words (max 20): %s" % (n, x[:60]))
+    for h in re.findall(r"(?<![A-Za-z0-9])[0-9a-fA-F]{7,}(?![A-Za-z0-9])", t):
+        if re.search(r"[0-9]", h) and re.search(r"[a-fA-F]", h):
+            bad.append("hex " + h)
+    for m in re.finditer(r"(?<!\S)[~.]{0,2}/?[\w.-]*[A-Za-z][\w.-]*/[\w./-]*|(?<![\w/])[\w-]+\.(?:%s)\b" % OWNER_EXT, t):
+        bad.append("path " + m.group(0).rstrip(".,"))
+    q = t.count("?")
+    if q > 1:
+        bad.append("%d question marks (max 1)" % q)
+    if q and re.search(r"\binstall", t, re.I):
+        bad.append("a question about an install (core rule 6A: never ask the owner about an install)")
+    return bad
+
+
+def owner_main(files):
+    rc = 0
+    for f in files or ["-"]:
+        txt = sys.stdin.read() if f == "-" else open(f, encoding="utf-8", errors="replace").read()
+        bad = owner_msg(txt)
+        if bad:
+            print("OWNER MSG FAIL %s: %s" % ("stdin" if f == "-" else f, "; ".join(bad)))
+            rc = 1
+        else:
+            print("OWNER MSG OK %s" % ("stdin" if f == "-" else f))
+    sys.exit(rc)
+
+
 def main():
+    if "--owner-msg" in sys.argv[1:]:
+        owner_main([x for x in sys.argv[1:] if x != "--owner-msg"])
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("files", nargs="*")
     ap.add_argument("--git", nargs=3, metavar=("REPO", "REV", "N"), action="append")
