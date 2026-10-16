@@ -161,3 +161,10 @@ Context: a61 left piece 1 full (65536/65536). a62 bundles four fixes (user prefe
 4) Core-1 event-service latency probe. ctl_main.c measures the max gap (ms) between `ctl_poll` idle passes while a link is up (`poll_gap_max`), added to `xb_hx_t` and appended as a new DIAG tail word `d_poll_gap` in both parsers (python + swift). This will show on the next live read whether core 1 is being starved near the 7.5 ms interval (the leading disconnect hypothesis); raising BT task priority / shortening slices is deferred until the probe confirms it (untestable without the device).
 
 Build/test: full app + fwsc build clean (app 552544 B, 128 B free in app code area). Host tests pass: `tests/ble_test` 25157 checks, 0 failed, including `t_noloss_flood` (20000-note flood, zero loss). Artifacts staged: /workspace/a62-ctl.img (crc32 01ff54bb, 114592 B; piece1 6f2c7a19, piece2 964d8236), /workspace/a62-x0x-smk37-elite.fwsc (crc32 ff742f30, 651396 B). NOT installed.
+
+## a62b — conn-param to 7.5 ms (no latency increase), install cleared
+
+Change from a62: the conn-param update now requests **min 6 / max 12 units = 7.5-15 ms, latency 0, timeout 2000 ms** (iOS grants the min, 7.5 ms, for MIDI; Apple-valid). Only host_app.c changed, so the app/fwsc is byte-identical to a62 (fwsc crc32 ff742f30); the difference is entirely in ctl.img.
+- ctl.img crc32 **30f8f83a** (piece1 8eea30ea, piece2 b9bd1409); fwsc crc32 ff742f30. app 552544 B.
+- Tests: ble_test 25157 checks, 0 failed (incl. t_noloss_flood).
+- A/B: the a62 15-30 ms build (commit fa67f70) is kept staged as /workspace/a62-fa67f70-ctl.img (crc32 01ff54bb) + .fwsc (ff742f30) for a quick swap.

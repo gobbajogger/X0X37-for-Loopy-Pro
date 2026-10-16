@@ -280,7 +280,7 @@ void hx_from_app(unsigned char type, const unsigned char *p, unsigned n)
 __attribute__((section(".ble_sm_code.a62"))) void hx_tick(void)
 {
     if (hx_conn && HX.ccc && !hx_cp_sent && (s32)(ctl_ms() - hx_ccc_ms) >= 1500) {
-        gap_le_request_connection_parameter_update(hx_conn, 12u, 24u, 0u, 200u);   /* 12*1.25=15ms .. 24*1.25=30ms; 200*10=2000ms */
+        gap_le_request_connection_parameter_update(hx_conn, 6u, 12u, 0u, 200u);   /* a62b: 6*1.25=7.5ms .. 12*1.25=15ms, iOS prefers min (7.5) for MIDI; latency 0; 200*10=2000ms */
         hx_cp_sent = 1;
     }
 }
