@@ -468,8 +468,14 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     uint32_t dq = k << 8;
     s->ext_since += k;
     s->ext_now += k;
-    if (s->ext_pending)
+    if (s->ext_pending) {
+        if (!s->ext && s->playing)                    /* playing on the internal clock: the first tick */
+            for (t = 0; t < NTRACKS; t++) {           /* is tick 0 of the step that plays (no step now) */
+                s->t[t].to_next = NEVER;
+                s->t[t].ext_ticks = 0xFFu;            /* (ext_ticks adds 1 for this tick: 0) */
+            }
         s->ext = 1;
+    }
     else if (s->ext && s->ext_since > FS / 2u) {    /* clock gone for 0.5 s: back to internal */
         s->ext = 0;
         s->ext_nb = s->ext_bi = s->ext_q = 0;         /* the next clock: a new beat ring */

@@ -392,6 +392,8 @@ static void test_ext_tempo_ble(void)
 static void test_ext_transport_ble(void)
 {
     int i, k, n;
+    uint32_t t0;
+    double tick = 44100.0 * 60.0 / 120.0 / 24.0;
     reset();
     P[0].drum[0].hit[0][0] = 0xFFFFu;
     ble_clock_start(120.0, 7.5, 0.5);
@@ -425,6 +427,24 @@ static void test_ext_transport_ble(void)
     run(256);
     CHECK(!S.playing, "Start + Stop in one block: stopped");
 
+    /* no clock for 1 s, then Start, and the first tick one event later: no double step */
+    reset();
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    S.bpm = 120.0f;
+    seq_start(&S);
+    run(256);
+    CHECK(S.playing && !S.ext, "Start without clock: internal");
+    t0 = now;
+    ble_clock_start(120.0, 7.5, 0.0);
+    ble_tick = now + 330.0;                                   /* the first tick 7.5 ms after Start */
+    ble_ev = ble_tick;
+    ble_clock(120.0, 7.5, 2.0 - 330.0 / 44100.0);
+    for (i = 0, n = 0; (i = find(E_DRUM, 0, i)) >= 0; i++)
+        n++;
+    CHECK(n == 16, "Start, then the clock: 16 steps in one bar, got %d", n);
+    i = find(E_DRUM, 0, find(E_DRUM, 0, 0) + 1);              /* step 2: 6 ticks after the first tick */
+    CHECK(i >= 0 && evs[i].t - t0 >= (uint32_t)(330.0 + 6.0 * tick - 400.0) && evs[i].t - t0 <= (uint32_t)(330.0 + 6.0 * tick + 600.0),
+          "Start, then the clock: step 2 at +%u, want about +%.0f", i >= 0 ? evs[i].t - t0 : 0, 330.0 + 6.0 * tick);
     printf("  Start, Stop, Continue with the clock in Bluetooth bursts: checked\n");
 }
 
