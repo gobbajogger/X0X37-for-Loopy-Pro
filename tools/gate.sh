@@ -236,8 +236,6 @@ echo "- Bluetooth image: $(echo "$CTL_LINE" | sed "s|$W/||")"
 echo
 echo "## Sizes"
 echo
-echo "| Item | Value |"
-echo "|---|---|"
 echo "| Build | App code free | App RAM (.data+.bss) | Pool (the headroom limit is 8192 B) |"
 echo "|---|---|---|---|"
 printf '%s' "$SIZES"
