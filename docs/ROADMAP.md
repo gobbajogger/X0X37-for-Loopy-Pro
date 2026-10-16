@@ -96,7 +96,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 5. Screen clip colours: the approved table (apc40_lcd565.h, CLP-05) is on apc-colors-int (f175c30), the next batch. Install it after approval.
 6. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
 7. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
-8. Release: build the Pro and Elite packages, check the installer hashes, and publish (only when the owner asks).
+8. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks.
 9. Lane files: Firmware Main Builder and Second Builder agree on the split of the lane files after the batch 1 owner test.
 
 ## Open decisions
@@ -109,4 +109,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 23:27.
+Last update: 2026-10-16 23:34.

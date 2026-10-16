@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-16 23:30 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 23:33 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -33,7 +33,8 @@ Last updated: 2026-10-16 23:30 (Vladivostok, UTC+10).
 ### Merge Integrator
 - ID: 6d5025ab-17f1-4d00-abb1-a1475550e792
 - Purpose: Owns the working branch integration: the branch order, the merges and the gate of the batch (rule 6). Requests one gate at the end of each batch, and Build and Test Runner runs it. Splits or bisects the batch only if that gate fails. Reports conflicts early to Orchestrator and the builders. Keeps the caches and worktrees clean. Writes merge-monitor-log.md.
-- Never: Installs firmware. Merges or pushes refs-oscuro. Pushes to GitHub or to an outside remote.
+- Packaging (owner OK 23:32): Packages only a hash with a gate PASS and a device PASS. It uses the same checks as before: CRCs, loop slot backup paths and a changelog in plain words.
+- Never: Installs firmware. Merges, packages or pushes refs-oscuro. Pushes to GitHub or to an outside remote.
 - Worktree: /Users/mac/Documents/x0x37/flash_review_integration (branch integration).
 
 ### Build and Test Runner
@@ -47,10 +48,11 @@ Last updated: 2026-10-16 23:30 (Vladivostok, UTC+10).
 - Purpose: Packages the merged builds that pass, with CRCs, loop slot backup paths and a changelog in plain words.
 - Never: Installs. Packages a part of refs-oscuro. Pushes refs-oscuro. Pushes to GitHub or to an outside remote.
 - Box folder: /workspace/x0x37-release-packager.
+- Status (owner OK 2026-10-16 23:32): "retire after batch-1 checklist answers are logged". From 23:32, Merge Integrator does the packaging.
 
 ### Docs Keeper
 - ID: ffd7fca0-6687-4102-bc74-4dda79e8604a
-- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, AGENTS_AND_ROOMS.md and the progress log in sync. Applies rule 15.
+- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, AGENTS_AND_ROOMS.md and the progress log in sync. Applies rule 15. Writes the owner test checklists and sends them to Orchestrator (owner OK 23:32). A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes. The templates are in /workspace/x0x37-test-plan-writer/ (checklist-batch1.md).
 - Never: Installs or changes firmware code.
 - Box folder: /workspace/x0x37-docs-keeper.
 
@@ -59,6 +61,7 @@ Last updated: 2026-10-16 23:30 (Vladivostok, UTC+10).
 - Purpose: Writes short hardware test checklists, only for the changed items. Sends them to Orchestrator.
 - Never: Installs or changes code.
 - Box folder: /workspace/x0x37-test-plan-writer.
+- Status (owner OK 2026-10-16 23:32): "retire after batch-1 checklist answers are logged". From 23:32, Docs Keeper writes the checklists.
 
 ### Optimizer
 - ID: e9e30685-7138-4a21-8945-13dffc12afc9
@@ -75,14 +78,14 @@ Each task has one task agent, and this table shows it. Integration is the one wo
 | Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
 |---|---|---|---|---|
 | Orchestrator | Rule checks. Task assignment. Messages to and from the owner. | Build, write code or install. | Task agent, from this table. | Light |
-| Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (the batch hash with a gate PASS). | Edit the clip mode lane files. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
+| Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (the batch hash with a gate PASS). | Edit the clip mode lane files. Write the bootloader. | Merge Integrator (commits). Docs Keeper (install changes, logs). | Heavy |
 | Second Builder | Clip mode lane files on integration (clip mode, scale, chord, arp, tempo). The clip pad colours. The < and > buttons in all modes. An Elite build before each handoff. | Install. Edit the Bluetooth/JieLi lane files. | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
 | Firmware Q&A | Answers about the firmware and the branches. | Commit, change code or install. | Task agent of the topic, from this table. | Light |
-| Merge Integrator | Branch integration: branch order, merges, merge conflicts, the request for the gate of the batch. merge-monitor-log.md. | Install. Write feature code. Merge or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (batch hash with a gate PASS). | Heavy |
-| Build and Test Runner | Headless builds, unit tests, size checks and flash-map checks. The gates (when Merge Integrator requests them). | Install. Write feature code. | Release Packager (pass). Task agent (fail). | Heavy |
-| Release Packager | Release packages with CRCs, loop slot backup paths and changelogs. | Install. Change code. Package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
-| Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. | Install. Change firmware code. | Orchestrator (rule changes). | Light |
-| Test Plan Writer | Hardware test checklists, sent to Orchestrator. | Install. Change code. | Orchestrator (checklists). Docs Keeper (results). | Light |
+| Merge Integrator | Branch integration: branch order, merges, merge conflicts, the request for the gate of the batch. merge-monitor-log.md. Release packages (a hash with a gate PASS and a device PASS) with CRCs, loop slot backup paths and changelogs. | Install. Write feature code. Merge, package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (batch hash with a gate PASS). | Heavy |
+| Build and Test Runner | Headless builds, unit tests, size checks and flash-map checks. The gates (when Merge Integrator requests them). | Install. Write feature code. | Merge Integrator (pass). Task agent (fail). | Heavy |
+| Release Packager | Status: "retire after batch-1 checklist answers are logged". Until then: release packages with CRCs, loop slot backup paths and changelogs. | Install. Change code. Package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
+| Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. Owner test checklists, sent to Orchestrator. | Install. Change firmware code. | Orchestrator (rule changes, checklists). | Light |
+| Test Plan Writer | Status: "retire after batch-1 checklist answers are logged". Until then: hardware test checklists, sent to Orchestrator. | Install. Change code. | Orchestrator (checklists). Docs Keeper (results). | Light |
 | Optimizer | Patches for optimizations that are safe for the experience of the owner. | Install. Commit to the files of a builder lane. Run a gate or a trial merge. Push outside the box and the Mac. | Task agent of the lane, from this table. | Light |
 
 ## Messages
@@ -145,7 +148,7 @@ Repositories:
 - Files to keep: agent-rules.md, USER_PREFERENCES.md, ROADMAP.md, x0x37-progress-log.md, merge-monitor-log.md, x0x37/BEHAVIOR.md and BLE_ATTEMPTS.md (the Bluetooth ledger in the Bluetooth branch). Do not delete slot_backups/.
 
 ## How to make the setup again
-1. Make the ten agents above with the exact names and the purposes in the list.
+1. Make the agents above with the exact names and the purposes in the list. Do not make Release Packager and Test Plan Writer (they retire).
 2. Give each agent its permanent task in its prompt. There are no rooms: agents use SendToAgent.
 3. Send the coordination rules to each agent.
 4. Tell all agents to read this file and the project folder.
@@ -187,3 +190,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 23:16: Orchestrator decisions 23:15: lane branches lane/<agent>-<topic> (rule 5). Orchestrator is the only route for owner questions (rule 2). Send one decision message for each item, with "supersedes <time>" (rule 14). The x0x37-builder-loop skill became the core card (23:15, 0f296f5c), and the Decision check is steps 6 to 10.
 - 2026-10-16 23:27: We rewrote the docs in ASD-STE100 (Orchestrator 23:19). agent-rules.md has a list of terms and the caveman scope. Rule 7 names the install tool fm1_install.py --commit and the guard require_gate_pass.sh. The x0x37-builder-loop core card is now 2026-10-16 23:20 5748c74f.
 - 2026-10-16 23:30: Orchestrator decisions 23:29: rule 7 applies the install guard from batch 3. Until then, Firmware Main Builder reads the index row and the result file before the install. The web installer ban is only for team installs. New terms: colour and owner quotes. The 20:12 owner example is word for word again.
+- 2026-10-16 23:33: Owner OK 23:32: Merge Integrator does the release packaging (a hash with a gate PASS and a device PASS). Docs Keeper writes the owner test checklists. Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers. Their status is "retire after batch-1 checklist answers are logged".
