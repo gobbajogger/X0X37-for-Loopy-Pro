@@ -90,6 +90,7 @@ void sys_timer_re_run(u16 id) { struct ctl_timer *t = by_id(id); if (t) t->due =
 void sys_timer_set_user_data(u16 id, void *priv) { struct ctl_timer *t = by_id(id); if (t) t->priv = priv; }
 void *sys_timer_get_user_data(u16 id) { struct ctl_timer *t = by_id(id); return t ? t->priv : NULL; }
 
+u8 ctl_d_timers;
 void ctl_timer_poll(void)
 {
     u32 now = ctl_ms();
@@ -98,6 +99,7 @@ void ctl_timer_poll(void)
         if (!t->id || (s32)(now - t->due) < 0) continue;
         void (*fn)(void *) = t->fn; void *priv = t->priv;
         if (t->period) t->due += t->period; else t->id = 0;
+        if (ctl_d_timers < 255u) ctl_d_timers++;   /* attempt 45 DIAG */
         fn(priv);
     }
 }

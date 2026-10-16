@@ -347,8 +347,9 @@ def check(img, syms, dis, rt):
     notes.append(f"image {len(img)} B; RAM .data+.bss {bss} B of 98304; pool {pool} B of {0x54000}")
     if bss > 96 * 1024:
         errors.append("RAM region overflow")
-    if 0x54000 - pool < 8192:                     # keep >= 8 KiB of the pool spare
-        errors.append(f"pool headroom {0x54000 - pool} B < 8192 B")
+    # ABI 3: the Bluetooth image borrows up to 2 KiB of the pool as heap2, so keep >= 4 KiB
+    if 0x54000 - pool < 4096:
+        errors.append(f"pool headroom {0x54000 - pool} B < 4096 B")
     return errors, notes
 
 

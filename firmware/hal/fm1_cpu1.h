@@ -114,7 +114,7 @@ typedef struct {
     uint32_t magic, n, t4_ms, c0_ms, dbg, emu;  /* n: samples taken */
     uint32_t etm[4][4];                         /* 4 samples of core 0's ETM_PC0..3 */
 } fm1_c0_dead_t;
-static fm1_c0_dead_t fm1_c0_dead __attribute__((section(".ble_ram")));
+static fm1_c0_dead_t fm1_c0_dead __attribute__((section(".noinit")));   /* ABI 3: BLERAM is smaller */
 static const volatile uint32_t *volatile fm1_c1_c0_clock;
 /* RAM canary (test 26): the 8 KiB under core 0's stack guard (0x01C72000..0x01C74000, the pool's
  * spare: tools/build.py keeps >= 8 KiB of the pool free) is set to all ones before the controller
@@ -277,11 +277,16 @@ static void fm1_cpu1_hold(void)
 
 /* before fm1_cpu1_start: core 1's interrupt stack top and the low end of its stack limit window
  * (a Bluetooth controller's RAM) */
-static void fm1_cpu1_ble_stacks(uint32_t ssp_top, uint32_t lim_lo)
+/* Attempt 52: and the high end. The host task's stack (3 KiB) comes from heap2 in the app's pool,
+ * above core 1's own stacks: a window ending at _c1_sstack_top left it out, and core 1 faulted
+ * (EMU stack limit, exception vector 1) at the first resume of that task (a50, a51: the instruction
+ * after the 13-word frame pop). On core 0 the init runs with the stack limit paused, so it ran there. */
+static void fm1_cpu1_ble_stacks(uint32_t ssp_top, uint32_t lim_lo, uint32_t lim_hi)
 {
+    uint32_t own = (uint32_t)(uintptr_t)_c1_sstack_top - 1u;
     fm1_c1_ssp = ssp_top;
     fm1_c1_lim_lo = lim_lo;
-    fm1_c1_lim_hi = (uint32_t)(uintptr_t)_c1_sstack_top - 1u;
+    fm1_c1_lim_hi = lim_hi > own ? lim_hi : own;
 }
 
 /* 0 = core 1 runs and answered; else it is held again. The top of RAM must be writable

@@ -44,7 +44,9 @@ import argparse
 import queue
 import re
 import sys
+import struct
 import time
+import zlib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -639,10 +641,59 @@ def with_ctl(a, product, image, out, cache=None):
         if (p := add_ctl.ctl_problem(ctl)):
             raise add_ctl.PkgError(f"{path}: {p}")
         image = add_ctl.insert(image, ctl)
+        a.ctl_bytes = ctl                   # ABI 3: piece 2 goes to the unit after the install (write_ctl2)
     except add_ctl.PkgError as e:
         raise InstallError("badpkg", f"Bluetooth controller image: {e}")
     print(f"Bluetooth controller image: {path} (added to the package)", file=out)
+    # piece 1 is read back from the package as it will be sent (the unit checks the same CRC at boot)
+    c = add_ctl.piece1_crc(image)
+    want = struct.unpack_from("<I", ctl, 16)[0]
+    if not c or c[0] != want or c[1] != want:
+        raise InstallError("badpkg", f"Bluetooth piece 1: CRC in the package {c}, want {want:08x}")
+    print(f"Bluetooth piece 1: CRC {c[1]:08x} ok (package), piece 2: CRC {struct.unpack_from('<I', ctl, 60)[0]:08x}", file=out)
+    a.ctl_p1_crc = c[1]                     # attempt 47: printed again at the end of the install
     return image
+
+
+ED_CTL2_WRITE, ED_CTL2_READ, ED_BT_TEST = 35, 36, 34
+
+
+def _pack7(b):
+    out = bytearray()
+    for i in range(0, len(b), 7):
+        c = b[i:i + 7]
+        out.append(sum(((x >> 7) & 1) << j for j, x in enumerate(c)))
+        out.extend(x & 0x7F for x in c)
+    return bytes(out)
+
+
+def _unpack7(v):
+    out = bytearray()
+    for i in range(0, len(v), 8):
+        m = v[i]
+        out.extend(x | (((m >> j) & 1) << 7) for j, x in enumerate(v[i + 1:i + 8]))
+    return bytes(out)
+
+
+def write_ctl2(link, ctl, out):
+    """ABI 3: Bluetooth image piece 2 over the MIDI port (tools/ctl2_midi.py), each block read back,
+    then the whole CRC. The install link cuts long messages, so it is closed first. Then a restart."""
+    if not struct.unpack_from("<I", ctl, 56)[0]:
+        return False
+    link.close()
+    time.sleep(1.0)
+    import ctl2_midi
+    port = ctl2_midi.Port()
+    try:
+        ctl2_midi.write(port, ctl, out)
+        if not ctl2_midi.verify(port, ctl, out):
+            raise InstallError("noreturn", "Bluetooth piece 2: the CRC does not match after the write")
+        port.o.send(ctl2_midi.mido.Message("sysex", data=ctl2_midi.HDR + [ctl2_midi.ED_BT_TEST, 2]))
+    except ctl2_midi.Ctl2Error as e:
+        raise InstallError("noreturn", f"Bluetooth piece 2: {e}")
+    finally:
+        port.close()
+    return True
 
 
 def run(a, backend, out, ask):
@@ -688,6 +739,12 @@ def run(a, backend, out, ask):
         up.install(dev, image, product, prog)
     finally:
         prog.end()
+    if getattr(a, "ctl_bytes", None) and struct.unpack_from("<I", a.ctl_bytes, 56)[0]:
+        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        if not back:
+            raise InstallError("noreturn", "installed, but the device did not answer for Bluetooth piece 2")
+        a.ctl2_ok = write_ctl2(back.link, a.ctl_bytes, out)
+        time.sleep(1.0)
     if move and move.new_map:
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
         try:
@@ -701,6 +758,11 @@ def run(a, backend, out, ask):
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
     elif move:
         print(move.help(), file=out)
+    if getattr(a, "ctl_p1_crc", None) is not None:   # attempt 47: the CRC lines last, where they are seen
+        p2 = struct.unpack_from("<I", a.ctl_bytes, 60)[0]
+        print(f"Bluetooth piece 1: CRC {a.ctl_p1_crc:08x} ok (package, the unit checks it at boot)", file=out)
+        if getattr(a, "ctl2_ok", False):
+            print(f"Bluetooth piece 2: CRC {p2:08x} ok (read back)", file=out)
     return 0
 
 

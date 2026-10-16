@@ -58,6 +58,10 @@ extern u8 __ctl_bss_start[], __ctl_bss_end[];
 extern u8 __ctl_ram_lo[], __ctl_ram_hi[];
 extern u8 __ctl_isr_stack_lo[], __ctl_isr_stack_hi[];
 extern u8 __ctl_run_stack_hi[];
+extern u8 __ctl_run_stack_lo[];
+#ifdef CTL_HOST
+extern u8 __ctl_ram2_lo[], __ctl_ram2_hi[];
+#endif
 
 const xb_boot_t *ctl_bp;
 xb_mbox_t *ctl_mb;
@@ -79,6 +83,10 @@ const xb_header_t ctl_image_header = {
     .poll = (u32)(uintptr_t)ctl_entry_poll,
     .isr_stack_lo = (u32)(uintptr_t)__ctl_isr_stack_lo, .isr_stack_hi = (u32)(uintptr_t)__ctl_isr_stack_hi,
     .ram_lo = (u32)(uintptr_t)__ctl_ram_lo, .ram_hi = (u32)(uintptr_t)__ctl_ram_hi,
+#ifdef CTL_HOST
+    .ram2_lo = (u32)(uintptr_t)__ctl_ram2_lo, .ram2_hi = (u32)(uintptr_t)XB_RAM2_HI,   /* the bond store too */
+    /* p2_size, p2_crc: mkimage.py */
+#endif
     /* BLE_RX 29, AES 31; BREDR 40, BT_CLKN 41, BT_DBG 42, BLE_EVENT 45 (hwi.h). No timer: the
      * clock is the app's free-running counter (ctl_timer.c). */
     .irq_lo = BIT32(29) | BIT32(31),
@@ -86,26 +94,72 @@ const xb_header_t ctl_image_header = {
 };
 
 #ifdef CTL_HOST
+/* attempt 45 DIAG, after READY, in the two live words (DIAG "took" and "gave"):
+ *   took: bits 0-7 frames from the app, 8-15 host events, 16-23 the last event code, 24-31 timer runs
+ *   gave: bits 0-7 frames to the app, 8-11 / 12-15 posts / pend returns of the controller task,
+ *         16-19 / 20-23 the same for the host task, 24-25 the tasks that wait, 26-27 task_create
+ *         failures (attempt 46), 28-29 the tasks that ran */
+static u8 d_took, d_gave;
+extern u8 ctl_d_tc_fail, ctl_d_post[2], ctl_d_pend[2], ctl_d_ran, ctl_d_timers, ctl_d_ev_n, ctl_d_ev_last;
+u32 ctl_os_d_waiting(void);
+__attribute__((noinline, section(".bt_stack_code.d45"))) static void d_live(void)
+{
+    ctl_mb->dbg[XB_DBG_INIT_MS] = d_took | (u32)ctl_d_ev_n << 8 | (u32)ctl_d_ev_last << 16 |
+                                  (u32)ctl_d_timers << 24;
+    ctl_mb->dbg[XB_DBG_MS] = d_gave | (u32)ctl_d_post[0] << 8 | (u32)ctl_d_pend[0] << 12 |
+                             (u32)ctl_d_post[1] << 16 | (u32)ctl_d_pend[1] << 20 |
+                             ctl_os_d_waiting() << 24 | (u32)(ctl_d_tc_fail > 3u ? 3u : ctl_d_tc_fail) << 26 |
+                             (u32)ctl_d_ran << 28;
+}
 /* ---- image -> app: BLE-MIDI packets and the link state (host_abi.h) ---- */
-void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)
+/* a62 path-4 never-drop: when c2h is momentarily full, keep one frame pending and retry it from
+ * ctl_host_poll before anything else, instead of discarding. c2h_drops only rises if a second
+ * frame arrives while one is still pending (credits/flow-control make that rare). */
+static u8 c2h_pend[72] __attribute__((section(".ctl_ram2")));   /* a62: c2h frames are BLE-MIDI (<=67) or 8-byte STATE */
+static u16 c2h_pend_n;
+static u8 c2h_pend_type, c2h_pend_busy;
+__attribute__((section(".ble_sm_code.a62"))) static void c2h_flush(void)
+{
+    if (c2h_pend_busy && xb_frame_put(&ctl_mb->c2h, c2h_pend_type, c2h_pend, c2h_pend_n) == 0)
+        c2h_pend_busy = 0;
+}
+__attribute__((section(".ble_sm_code.a62"))) void hx_to_app(unsigned char type, const unsigned char *p, unsigned n)
 {
     u32 f = ctl_port_irq_save();
-    if (xb_frame_put(&ctl_mb->c2h, type, p, n) != 0)
+    c2h_flush();
+    if (c2h_pend_busy) {                       /* already one waiting: this is the 2-deep case */
         ctl_mb->c2h_drops++;
-    else
-        ctl_mb->dbg[XB_DBG_MS]++;
+    } else if (xb_frame_put(&ctl_mb->c2h, type, p, n) != 0) {
+        if (n <= sizeof c2h_pend) {           /* stash and retry later: not dropped */
+            c2h_pend_type = type; c2h_pend_n = (u16)n;
+            for (u32 i = 0; i < n; i++) c2h_pend[i] = p[i];
+            c2h_pend_busy = 1;
+        } else {
+            ctl_mb->c2h_drops++;
+        }
+    } else if (d_gave < 255u) {
+        d_gave++;
+    }
     ctl_port_irq_restore(f);
 }
-static u8 rx_pkt[XB_FRAME_MAX];
+static u8 rx_pkt[XB_FRAME_MAX] __attribute__((section(".ctl_ram2")));
+/* app -> image: a MIDI packet stays in the ring while the host's send buffer has no room for it
+ * (back-pressure: the app's packer waits, nothing is dropped) */
 void ctl_host_poll(void)
 {
     u8 type;
+    u32 n;
     int k;
-    while ((k = xb_frame_get(&ctl_mb->h2c, &type, rx_pkt, sizeof rx_pkt)) != 0)
+    { u32 f = ctl_port_irq_save(); c2h_flush(); ctl_port_irq_restore(f); }   /* a62: drain any pending c2h first */
+    while ((k = xb_frame_peek(&ctl_mb->h2c, &type, &n)) != 0) {
+        if (k > 0 && type == XB_HX_MIDI && !hx_can_send(n))
+            break;
+        k = xb_frame_get(&ctl_mb->h2c, &type, rx_pkt, sizeof rx_pkt);
         if (k > 0) {
-            ctl_mb->dbg[XB_DBG_INIT_MS]++;
+            if (d_took < 255u) d_took++;
             hx_from_app(type, rx_pkt, (unsigned)k);
         }
+    }
 }
 #else
 /* ---- controller -> app ---- */
@@ -147,6 +201,18 @@ void ctl_host_poll(void)
 
 /* the controller stops for good: its interrupts off on core 1, state FAILED. The app sees it
  * and stops calling poll(). */
+#ifdef CTL_HOST
+/* health for DIAG: heap, the least free stack bytes / 16 (attempt 48: in FAILED too) */
+__attribute__((noinline, section(".ble_sm_code.a62"))) static void d_health(void)
+{
+    u32 t = ctl_os_stack_free() >> 4, r = ctl_stack_free(__ctl_run_stack_lo, __ctl_run_stack_hi) >> 4,
+        i = ctl_stack_free(__ctl_isr_stack_lo, __ctl_isr_stack_hi) >> 4;
+    ctl_mb->hx.heap = ctl_heap_stat();
+    ctl_mb->hx.stacks = (t > 255u ? 255u : t) | (r > 255u ? 255u : r) << 8 | (i > 255u ? 255u : i) << 16 |
+                        (ctl_q_full > 255u ? 255u : ctl_q_full) << 24;
+}
+#endif
+
 void ctl_fail(u32 err)
 {
     volatile u32 *cfg = (volatile u32 *)(uintptr_t)(ctl_bp ? ctl_bp->icfg_base : 0u);
@@ -158,7 +224,14 @@ void ctl_fail(u32 err)
             if (ctl_mb->irqs_routed[n >> 5] & (1u << (n & 31u)))
                 cfg[n >> 3] &= ~(1u << ((n & 7u) * 4u));
         ctl_mb->err = err;
-        ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();   /* the stage time is not needed now: the heap use */
+#ifdef CTL_HOST
+        /* attempt 47: DIAG keeps took/gave (INIT_MS, MS) in FAILED too; the heap use goes to hx.heap,
+         * the failing caller is in RA (P33_SYSTEM_RESET, assert) */
+        d_health();
+        d_live();
+#else
+        ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();
+#endif
         XB_SYNC();
         ctl_mb->state = XB_ST_FAILED;
         XB_SYNC();
@@ -174,6 +247,20 @@ static int boot_ok(const xb_boot_t *bp)
 }
 
 /* the start record for the app (xb_mbox_t dbg): the step and the time */
+/* attempt 41: a step inside a stage (0x300 + k in stage 3), with the heap use in place of the time */
+void ctl_mark(u32 n)
+{
+    ctl_mb->dbg[XB_DBG_STAGE] = n;
+    ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();
+    ctl_mb->dbg[XB_DBG_RA] = ctl_heap_main_size();
+    ctl_mb->dbg[XB_DBG_STALL] = ctl_heap_free2();
+    XB_SYNC();
+}
+void ctl_mark_v(u32 n, u32 v)
+{
+    ctl_mb->dbg[XB_DBG_DELAYS] = v;
+    ctl_mark(n);
+}
 static void stage(u32 n)
 {
     ctl_mb->dbg[XB_DBG_STAGE] = n;
@@ -190,6 +277,16 @@ static u32 ctl_init(u32 arg)
     memcpy(__ctl_ramtext_start, __ctl_ramtext_lma, (size_t)(__ctl_ramtext_end - __ctl_ramtext_start));
     memcpy(__ctl_data_start, __ctl_data_lma, (size_t)(__ctl_data_end - __ctl_data_start));
     memset(__ctl_bss_start, 0, (size_t)(__ctl_bss_end - __ctl_bss_start));
+#ifdef CTL_HOST
+    memset(__ctl_ram2_lo, 0, (size_t)(__ctl_ram2_hi - __ctl_ram2_lo));   /* not the bond store above it */
+    memset(__ctl_isr_stack_lo, 0xA5, (size_t)(__ctl_isr_stack_hi - __ctl_isr_stack_lo));
+    {   /* the run stack below this frame */
+        volatile u8 here;
+        u8 *top = (u8 *)((uintptr_t)&here & ~3u) - 256;
+        if (top > __ctl_run_stack_lo)
+            memset(__ctl_run_stack_lo, 0xA5, (size_t)(top - __ctl_run_stack_lo));
+    }
+#endif
     if (!boot_ok(bp))
         return XB_E_BOOT;
     (void)ctl_port_irq_save();            /* off for the whole init (it runs on core 0, before core 1 starts) */
@@ -206,10 +303,18 @@ static u32 ctl_init(u32 arg)
     stage(XB_STG_ENTRY);
     stage(XB_STG_OS);
     stage(XB_STG_H4);
+    ctl_mark(0x301);
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
+    ctl_mark(0x302);
 #ifdef CTL_HOST
-    hx_init();
+    /* attempt 59: the host profiles/handlers are set up AFTER the stack init (hx_start, once the
+     * host task has run btstack_task_init), as the stock app does. Running hx_init here (before
+     * btstack_init) let btstack_task_init's l2cap/hci init wipe le_hci_stack and drop our
+     * hci_event_callback(hx_events): only l2cap_hci_event_handler survived, so no HCI event ever
+     * reached hx_events (ctl_d_ev_n 0, no GATT). */
+    ctl_mark(0x320);
     btstack_init();                       /* its task starts the controller (btctrler_task_init) */
+    ctl_mark(0x330);
 #else
     btctrler_task_init(&ctl_transport, NULL);
 #endif
@@ -228,6 +333,9 @@ static u32 ctl_init(u32 arg)
             break;                        /* every task waits: settled */
     }
     stage(XB_STG_SETTLED);
+#ifdef CTL_HOST
+    ctl_mb->hx.heap = ctl_heap_stat();
+#endif
     /* The interrupts stay off until the first poll on core 1. */
     ctl_mb->dbg[XB_DBG_INIT_MS] = ctl_ms() - t_init;
     if (ctl_mb->err != XB_E_NONE) {
@@ -255,6 +363,25 @@ static u32 ctl_poll(u32 unused)
     }
     ctl_mb->polls++;
     ctl_os_run_once();
+#ifdef CTL_HOST
+    hx_start();                           /* attempt 50: once the host task waits */
+    hx_tick();                            /* a62: Apple-compliant conn-param update ~1.5 s after CCCD */
+    {   /* a62: max gap (ms) between idle passes while connected - core-1 event-service latency */
+        static u32 last_ms;
+        u32 now2 = ctl_ms();
+        if (ctl_mb->hx.state == 2u && last_ms) {
+            u32 g = now2 - last_ms;
+            if (g > ctl_mb->hx.poll_gap_max) ctl_mb->hx.poll_gap_max = (u16)(g > 0xffffu ? 0xffffu : g);
+        }
+        last_ms = now2;
+    }
+    d_live();
+#endif
+#ifdef CTL_HOST
+    if (ctl_mb->polls < 64u || (ctl_mb->polls & 1023u) == 0) {   /* health for DIAG (attempt 51: the first 64 polls too, so a reset leaves fresh values) */
+        d_health();
+    }
+#endif
     return 0;
 }
 

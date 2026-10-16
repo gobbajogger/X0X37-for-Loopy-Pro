@@ -21,7 +21,7 @@ sh "$HERE/fetch_sdk.sh"
 python3 "$HERE/gen_rf_tables.py"
 rm -f "$HERE/out/ctl.elf" "$HERE/out/ctl.img"
 if [ "${CTL_NATIVE:-0}" = 1 ]; then
-  TC="$TC" REPO="$REPO" sh "$HERE/build_in_container.sh"
+  TC="$TC" REPO="$REPO" EXTRA_CF="${EXTRA_CF:-}" sh "$HERE/build_in_container.sh"
 else
   command -v docker >/dev/null || { echo "Docker is needed (or CTL_NATIVE=1 on Linux x86-64)." >&2; exit 1; }
   docker run --rm --platform linux/amd64 -v "$TC:/tc:ro" -v "$REPO:/w" debian:bookworm-slim \
