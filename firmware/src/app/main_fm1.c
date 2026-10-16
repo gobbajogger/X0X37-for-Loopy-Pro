@@ -1538,7 +1538,7 @@ uint8_t smk_padcal_draw(uint32_t w, uint32_t h)
             cv_rect(x, y, 30, 30, C_WHITE);
         cv_rect(x + 3, y + 3, 24, 24, APC40_LCD565[n]);
         if (smk_padcal_is_ok(&padcal, n))
-            cv_rect(x + 12, y + 12, 6, 6, C_WHITE);
+            cv_rect(x + 12, y + 12, 6, 6, smk_padcal_dot565(APC40_LCD565[n]));   /* black on a light square */
     }
     put_i(put_s(t, "#"), e);
     cv_text(4, 70, &FONT_S, t, C_WHITE);

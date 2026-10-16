@@ -63,6 +63,15 @@ static inline void smk_padcal_start(smk_padcal_t *c, const uint16_t lcd565[128],
     c->page = c->sel = 0u;
     c->on = c->orient = 1u;                        /* the orientation page lights the pad of the saved tl */
 }
+/* The colour of the ok dot on the LCD square of colour c565 (RGB565): black on a light square (luminance
+ * 128-255, Rec. 601 weights 77 / 150 / 29 of 256), white on a dark one. The difference is then always 128 or
+ * more (tests/smk_padcal_test.c test_dot_contrast). */
+static inline uint16_t smk_padcal_dot565(uint32_t c565)
+{
+    uint32_t y = 77u * ((c565 >> 11 & 31u) * 255u / 31u) + 150u * ((c565 >> 5 & 63u) * 255u / 63u) +
+                 29u * ((c565 & 31u) * 255u / 31u);
+    return (y >> 8) >= 128u ? 0x0000u : 0xFFFFu;
+}
 /* The orientation page: the pad index 0 is lit; K2 moves the light (wrap); SEQ PLAY confirms it as top-left.
  * The pad index of reading position i is i ^ tl (and back: the same). The model: the pad index of the
  * firmware is a 2 x 8 grid whose row order and column order can be wrong. tl 0 = as assumed, 8 = rows

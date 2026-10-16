@@ -126,6 +126,35 @@ static void test_reopen(void)
     }
 }
 
+/* The ok dot on the LCD (CLP-79) must contrast with its square for every entry. The luminance of an RGB565
+ * colour (Rec. 601 weights 77 / 150 / 29 of 256, each channel taken to 8 bits) is 0-255. The limit is 128,
+ * half the scale: black on white (or white on black) is 255, and a dot of one fixed colour gives 0 on a
+ * square of that colour (entry 3, white). With black on a square of luminance >= 128 and white below it,
+ * the difference is never less than 128. */
+static uint32_t luma565(uint32_t c)
+{
+    uint32_t r = (c >> 11 & 31u) * 255u / 31u, g = (c >> 5 & 63u) * 255u / 63u, b = (c & 31u) * 255u / 31u;
+    return (77u * r + 150u * g + 29u * b) >> 8;
+}
+static void test_dot_contrast(void)
+{
+    uint32_t e, bad = 0u;
+    for (e = 0; e < 128u; e++) {
+        uint32_t sq = luma565(APC40_LCD565[e]), dot = luma565(smk_padcal_dot565(APC40_LCD565[e]));
+        uint32_t diff = sq > dot ? sq - dot : dot - sq;
+        if (diff < 128u) {
+            if (bad++ < 4u)
+                printf("entry %lu: square luminance %lu, dot luminance %lu\n", (unsigned long)e, (unsigned long)sq,
+                       (unsigned long)dot);
+        }
+    }
+    if (bad) {
+        printf("%lu entries with a dot of low contrast\n", (unsigned long)bad);
+        fflush(stdout);
+    }
+    assert(bad == 0u);
+}
+
 int main(int argc, char **argv)
 {
     (void)argv;
@@ -134,6 +163,7 @@ int main(int argc, char **argv)
     test_orientation();
     test_start_turn_mark();
     test_reopen();
+    test_dot_contrast();
     c.tl = 8u;                                       /* the export carries the correction */
     c.on = 0u;                                       /* leave and open again: the export keeps the edits */
     smk_padcal_start(&c, APC40_LCD565, PAD_GAMMA_LUT, PAD_GAIN_Q8, PAD_FLOOR_LEVEL);
