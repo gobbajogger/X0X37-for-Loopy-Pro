@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-17 02:02 (Vladivostok, UTC+10).
+Last updated: 2026-10-17 03:28 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -73,7 +73,7 @@ Note: the iChord agents are part of a different project. They are not part of th
 
 ## Agent identities and lanes
 
-Each task has one task agent, and this table shows it. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Each lane pushes only its own lane branch (rules 9 to 11). A lane is a set of files. Heavy agents write code or run builds, and light agents write docs, do checks or give answers.
+Each task has one task agent, and this table shows it. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt, btr, dk), for example lane/mb-clock. Each lane pushes only its own lane branch (rules 9 to 11). A lane is a set of files. Heavy agents write code or run builds, and light agents write docs, do checks or give answers.
 
 | Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
 |---|---|---|---|---|
@@ -87,6 +87,40 @@ Each task has one task agent, and this table shows it. Integration is the one wo
 | Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. Owner test checklists, sent to Orchestrator. | Install. Change firmware code. | Orchestrator (rule changes, checklists). | Light |
 | Test Plan Writer | Retired on 2026-10-17. Docs Keeper writes the checklists. | All tasks. | Docs Keeper (checklists). | None |
 | Optimizer | Patches for optimizations that are safe for the experience of the owner. | Install. Commit to the files of a builder lane. Run a gate or a trial merge. Push outside the box and the Mac. | Task agent of the lane, from this table. | Light |
+
+## Lane files
+
+A lane changes only its own files (commit.md rule 10). This section gives the files of each lane. The sources are the lane branches in box /workspace/x0x37.git (2026-10-17 03:25), the agent descriptions above and the Orchestrator review at 03:27. The paths are on integration. The docs/** paths of Docs Keeper are on smk37 and on integration.
+
+A row in the first two tables wins over the default table. A row or a default gives the lane of each tracked file on integration. Script check 31 in SCRIPT-CHECKS.md checks this coverage.
+
+| Lane | Owns (only this lane) | Evidence |
+|---|---|---|
+| mb (Firmware Main Builder) | ble/**, firmware/src/ble.c, firmware/src/usb.c, firmware/src/app/smk_apc40.h, BLE_ATTEMPTS.md, README.md, tests/smk_clip_dark_test.c, tests/host/smk_clip_knob_*, tests/host/smk_clip_play_ports_*, tests/host/smk_clip_usb_clear_* | Bluetooth/JieLi owner (Orchestrator 03:27), lane/mb-usb-padclear, lane/mb-install-b7, lane/mb-install-b10, lane/mb-docs, lane/mb-clip-knobs-test, lane/mb-clip-knobs-fix, lane/mb-clp50-test, lane/mb-padclear-test |
+| sb (Second Builder) | firmware/src/app/ui.c, firmware/src/app/apc40_pad_default.h, firmware/src/app/apc40_pad_owner.h, firmware/src/app/apc40_pad_names.h, firmware/src/app/smk_padcal.h, firmware/src/app/smk_clip_colour.h, firmware/src/app/smk_clip_keys.h, PAD_MAP.md, docs/padcal-names.csv, tools/apc_pad_colors.py, tools/apc_colour_model.py, tools/inlog_replay_fixture.py, tools/padcal/**, tests/apc40_pad_owner_test.py, tests/apc_pad_source_test.py, tests/apc_palette_test.py, tests/padcal_*_test.py, tests/smk_padcal_wiring_test.py, tests/smk_apc40_violet_test.py, tests/smk_clip_idle_pad_test.py, tests/smk_ck_page_layout_test.py, tests/smk_clip_keys_test.c, tests/host/smk_clip_wait_test.* | lane/sb-padcal-table, lane/sb-padcal-flag, lane/sb-padcal-view, lane/sb-lcd-inactive, lane/sb-clip-wait-r2, lane/sb-mode-latch-r2, archive/lane/sb-mode-latch. ui.c: Orchestrator 03:27 |
+| opt (Optimizer) | firmware/src/dsp/master.c, firmware/src/x0x_cold.h | lane/opt-code-space. Optimizer owns no shared file. It sends patches for the files of a builder lane to that builder |
+| btr (Build and Test Runner) | tools/quickcheck.sh, tools/ste_check.py, tools/status.sh, tools/gate.sh, tools/gate_sigwrap.py, tools/install_gate.sh, tools/fm1_install.py, tools/require_gate_pass.sh, tools/sync_results_to_mac.sh, tools/pre-push.hook, tools/prepush-check.sh, tools/pre-receive.hook, tools/update.hook, tools/release_tree_check.sh, tools/checklist_lint.py, tools/prefs_lint.py, tests/host/test_*.sh, tests/host/fixtures/**, host/x0x_host.c | lane/btr-* and archive/lane/btr-* |
+| dk (Docs Keeper) | docs/** (but not docs/padcal-names.csv), web/EDITOR_PROTOCOL.md | docs.md rules 12 and 12A, lane/dk-ste-strict |
+
+Shared files can change in two or more lanes. Merge them carefully.
+
+| Shared file | Lanes | Evidence |
+|---|---|---|
+| BEHAVIOR.md | dk, mb, sb | commit.md rule 9, lane/dk-behavior, lane/mb-usb-padclear, lane/sb-padcal-view |
+| firmware/src/app/main_fm1.c | mb, sb | lane/mb-usb-padclear, lane/sb-clip-wait-r2, Current project context |
+| firmware/src/app/plat_fm1.c | mb, sb | Current project context (no lane branch changed it) |
+| tests/run_tests.sh | btr, mb, sb | lane/btr-*, lane/mb-clip-knobs-test, lane/sb-padcal-view |
+| tests/smk_apc40_test.py | mb, sb | lane/mb-usb-padclear, lane/sb-lcd-inactive |
+| tools/inlog_fmt.py | mb, sb | lane/mb-usb-padclear, lane/sb-padcal-table |
+| BUILDING.md | mb, sb | lane/mb-docs, lane/sb-padcal-flag |
+
+The default table gives the lane of each file that the two tables above do not name (Orchestrator 03:27). The owner can change a default.
+
+| Default paths | Lane |
+|---|---|
+| firmware/**, web/** | mb |
+| tools/**, tests/**, host/**, build.sh, .gitignore, .github/** | btr |
+| AGENTS.md, SMK37.md, APC40_IMPLEMENTATION.md, assets/**, LICENSE, LICENSES/**, LICENSING.md | dk |
 
 ## Messages
 
@@ -185,3 +219,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-17 00:01: Agent rules version 3 (owner approved, Orchestrator 00:00). rules/core.md has rules 1, 2 and 4 and an index. The 8 other rule files have the names shared-work, install, device-bug, commit, integration, docs, owner-messages and style. agent-rules.md points to rules/core.md. Merges M1 to M4 and split S2 are in. The coordination rules section is now a pointer, and the rule numbers in the docs have the version 3 numbers.
 - 2026-10-17 00:13: Orchestrator decision 00:12: Release Packager and Test Plan Writer retired on 2026-10-17. Merge Integrator does the packaging, and Docs Keeper writes the checklists. The skills point to the version 3 rules, and the core card is 2026-10-17 00:15 3aed2483. No rule file names the two agents.
 - 2026-10-17 02:02: Owner rule 01:57: install only when all queued changes are complete, and never ask the owner about a partial build. Firmware Main Builder installs one gated build for each finished set.
+- 2026-10-17 03:28: We added the lane files tables (owned, shared and default files of each lane). The sources are the lane branches and the Orchestrator review at 03:27. Script check 8 points to them, and script check 31 checks that they cover each tracked file.
