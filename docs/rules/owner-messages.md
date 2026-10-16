@@ -12,7 +12,7 @@ Never tell the owner that the owner made a setup mistake. Describe a change only
 ### Rule 14
 Step: P2 to P5 (before you decide a change). Rule owner: Orchestrator.
 
-Ask the owner only about a change that the owner can see, hear or play. Ask before you make the change. This includes each change to how the keyboard plays. Decide all other changes and continue. An install is not a change for this rule (core rule 6A).
+Ask the owner only about a change that the owner can see, hear or play. Ask before you make the change. This includes each change to how the keyboard plays. Decide all other changes and continue. Never ask the owner for approval to start a helper subagent. An install is not a change for this rule (core rule 6A).
 
 Some changes can affect latency, packet or MTU size, memory margins, sample length or connection behavior. Before you continue with such a change, send a short note to Orchestrator. Orchestrator tells the owner.
 

@@ -8,7 +8,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - Do the work. Ask only when a wrong choice has real results or when the owner must decide.
 - Only a change that the owner can see, hear or play needs the approval of the owner first (see the 19:25 entry). Decide the other changes and continue.
 - Do not change release scripts unless the owner asks.
-- In build-test mode, do not install fallback or recovery builds only to make the keyboard playable. An example is a build with no Bluetooth. Put the fix into the current set of changes, and install it with that set (owner rule 01:57). The owner tests the keyboard and does not make music with it.
+- In build-test mode, do not install fallback or recovery builds only to make the keyboard playable (rules/core.md rule 6A). An example is a build with no Bluetooth. Put the fix into the current set of changes, and install it with that set (owner rule 01:57). The owner tests the keyboard and does not make music with it.
 - Commits: author genkigenki <3080081+genkigenki@users.noreply.github.com>, messages in ASD-STE100 (asd-ste skill). Log each change in x0x37-progress-log.md.
 - 2026-10-16 18:41 (owner): Optimize without cutting features. Font size is not a feature.
 - 2026-10-16 20:12 (owner):
@@ -60,7 +60,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
   - Docs, logs and commits obey the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents obey the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md).
   - The caveman skill applies only to agent-to-agent messages, including task messages. If a text is in the scope of asd-ste, asd-ste wins.
   - (2026-10-16 21:57, Orchestrator confirmed: messages to the owner obey the 20:12 owner entry in "How to work with the owner". From 23:11, they are also in ASD-STE100.)
-- 2026-10-16 13:03: Do not ask the owner for approval to start a helper subagent. Start it.
+- 2026-10-16 13:03: Do not ask the owner for approval to start a helper subagent. Start it (rules/owner-messages.md rule 14).
 - 2026-10-16 22:00 (owner):
   - All planned changes go on one working branch, integration. Make one commit and one host test for each change. Run only the affected tests. Use time scale 20 only when the code reads X0X_TEST_TIME_SCALE (agent rule 9).
   - Run one gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the gate of the batch.
@@ -78,7 +78,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 6 applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
 - 2026-10-17 00:01 (Orchestrator decision, owner approved 00:00): Agent rules version 3. rules/core.md has rules 1, 2 and 4 and an index of the rule files. Read the core at the start of each task, and open each other rule file only at its step. Each rule number in this file is a version 3 number.
 - 2026-10-17 02:32 (owner): Agent rules version 4. Apply it now.
-- 2026-10-16 23:36 (Orchestrator decision): From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
+- 2026-10-16 23:36 (Orchestrator decision): From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict, rules/commit.md rule 9).
 - 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name.
 - 2026-10-16 23:32 (owner): Merge the small roles.
   - Merge Integrator does the release packaging. It packages only a hash with a gate PASS and a device PASS, with the same checks as before (CRCs, loop slot backup paths).
@@ -156,4 +156,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 02:36.
+Last update: 2026-10-17 02:37.

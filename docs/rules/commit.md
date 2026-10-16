@@ -9,6 +9,8 @@ Put each planned change in the batch for integration. Make one commit and one ho
 
 Build, test and analyze on the box copy. Use the Mac only for installs and device access. Use the commit author genkigenki <3080081+genkigenki@users.noreply.github.com>. Do not commit the JieLi files. Only the branch refs-oscuro has them. Builders follow the x0x37-builder-loop skill.
 
+Builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
+
 ### Rule 10
 Step: P4 lane commit. Rule owner: Merge Integrator.
 

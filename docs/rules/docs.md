@@ -12,4 +12,6 @@ Start each owner test checklist with these header lines:
 - Replaces: the earlier checklist, or "none".
 - Checked against decisions: the time of the latest USER_PREFERENCES.md entry that you compared with the checklist.
 
+Write each new owner rule in USER_PREFERENCES.md. In the same commit, write it in the rule file that agents open at its step. Give the file and the rule number in the USER_PREFERENCES.md entry.
+
 Put 10 tasks or fewer in an owner test checklist. Start each task with its goal, in the words of the owner. Each task starts from any screen.
