@@ -62,6 +62,18 @@ connections when many containers start at once.
 Build option: `X0X_CDC=1` adds Felucca's USB serial function (off by default: one plain
 MIDI interface).
 
+Build option: `X0X_DEV_PADCAL` (SMK-37). `1` (the default) makes a dev build with the pad calibration
+mode (BEHAVIOR.md CLP-79). `0` makes a release build without it: no PAD COLOURS row, no pad calibration
+code or RAM, and no INLOG args 2-5 export. The pads use `APC40_RGB` in the two builds. To make the release
+build, use this command:
+
+```
+X0X_DEV_PADCAL=0 MODEL=elite ./build.sh --board smk37
+```
+
+To get the calibration mode again, build with `X0X_DEV_PADCAL=1` (or with no value). The tag `padcal-v1`
+marks the complete calibration mode (CLP-79, orientation page, reopen fix, ok dot).
+
 The build also generates `build/gen/`. It contains the font and the 909's cymbal samples (IMA ADPCM,
 44.1 kHz) and tables (`tools/gen_drum_samples.py`). It also contains the built-in break loops (two 2-bar
 loops, IMA ADPCM at 44.1 kHz, 220,500 B). The 909 port renders them on the host

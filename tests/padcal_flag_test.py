@@ -57,6 +57,9 @@ check(re.search(r"#ifndef X0X_DEV_PADCAL[^\n]*\n#define X0X_DEV_PADCAL 1\b", x0x
 check('"X0X_DEV_PADCAL")' in build and 'flags.append(f"-D{flag}={v}")' in build,
       "tools/build.py: X0X_DEV_PADCAL=0 or 1 from the environment goes to the compiler")
 
+building = (ROOT / "BUILDING.md").read_text()
+check("X0X_DEV_PADCAL=0 MODEL=elite ./build.sh --board smk37" in building and "`X0X_DEV_PADCAL=1`" in building
+      and "padcal-v1" in building, "BUILDING.md: the release build command, the dev value and the tag padcal-v1")
 BAD = re.compile(r"padcal|PAD COLOURS|pad 1 top-left|apc40_pad_gamma|ACT_PADCAL", re.I)
 for name in ("main_fm1.c", "ui.c", "plat_fm1.c"):
     text = (SRC / name).read_text()
