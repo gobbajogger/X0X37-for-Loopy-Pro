@@ -35,6 +35,13 @@
 #   A missing prefs_lint.py in rules mode or with a docs change is a failure (fail closed).
 # Base for a commit on a docs lane: the merge base with X0X_DOCS_BRANCH [smk37] when it is newer than the merge base
 # with integration (a commit on X0X_DOCS_BRANCH itself: <commit>^).
+# Device bug step (checks 16 and 17 of rules v4, rule 8: record the bug first), after the tests:
+#   A commit in BASE..<commit> whose message has the words "device bug" must add a file tests/*inlog* (the replay test of
+#   the INLOG log, or its log file), unless the message has the line "INLOG skip: owner <HH:MM>" (the owner skips the
+#   INLOG step for this bug). The replay test = each run_tests.sh test (of that commit) whose command names an added
+#   tests/*inlog* file, or names a file that names it. That test must FAIL on the parent of the commit: the step runs it in
+#   a temp worktree of the parent, with the tests/ files of the commit. A test that passes there, an inlog file that no
+#   test uses, or no inlog file makes "QUICK FAIL ... DEVICE BUG: ...". X0X_QUICK_ONLY=devbug: only this step.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 set -u
 T0=$(date +%s%N)
@@ -178,6 +185,53 @@ for b in bad: print("commit %s: %s" % (c[:7], b))
     if [ -n "$msgs" ]; then RULES_FAIL=1; RULES_NOTE="RULES: $msgs"; fi
     return 0
 }
+# Device bug step (see the header). It sets DB_FAIL (1 = a failure) and DB_NOTE.
+devbug_step() {
+    DB_FAIL=0; DB_NOTE=""
+    local c msg added names wt r errs=""
+    for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" 2>/dev/null); do
+        msg=$("${G[@]}" log -1 --format=%B "$c")
+        echo "$msg" | grep -qi 'device bug' || continue
+        added=$("${G[@]}" diff-tree --no-commit-id -r --diff-filter=A --name-only "$c" | grep -E '^tests/.*inlog' || true)
+        if [ -z "$added" ]; then
+            echo "$msg" | grep -qE '^INLOG skip: owner [0-9]{1,2}:[0-9]{2}' && { echo "devbug ${c:0:7}: owner INLOG skip" >> "$LOG"; continue; }
+            errs="$errs; ${c:0:7} adds no tests/*inlog* replay test"; continue
+        fi
+        names=$("${G[@]}" show "$c:tests/run_tests.sh" 2>/dev/null | QC_ADDED="$added" QC_C="$c" python3 -c '
+import os, re, subprocess, sys
+src = sys.stdin.read().replace("\\\n", " "); added = os.environ["QC_ADDED"].split(); g = sys.argv[1:]; c = os.environ["QC_C"]
+def show(p):
+    r = subprocess.run(g + ["show", c + ":" + p], capture_output=True, text=True, errors="ignore")
+    return r.stdout if r.returncode == 0 else ""
+out = set()
+for l in src.split("\n"):
+    if l.lstrip().startswith("#"): continue
+    for m in re.finditer(r"(?:^|[\s;&|])run \"?([A-Za-z0-9_.-]+)\"?\s+(.*)", l):
+        n, cmd = m.group(1), m.group(2)
+        files = re.findall(r"tests/[\w./-]+", cmd)
+        if any(a in cmd for a in added) or any(os.path.basename(a) in show(f) for f in files for a in added): out.add(n)
+print(" ".join(sorted(out)))' "${G[@]}")
+        [ -n "$names" ] || { errs="$errs; ${c:0:7}: no run_tests.sh test uses $(echo $added)"; continue; }
+        wt=$(mktemp -d "${TMPDIR:-/tmp}/qcdevbug.XXXXXX")
+        if "${G[@]}" worktree add -q --detach "$wt/w" "$c^" >/dev/null 2>&1; then
+            "${G[@]}" diff-tree --no-commit-id -r --diff-filter=AM --name-only "$c" -- tests | while read -r f; do
+                mkdir -p "$wt/w/$(dirname "$f")"; "${G[@]}" show "$c:$f" > "$wt/w/$f"; done
+            (cd "$wt/w" && X0X_TESTS="$names" sh tests/run_tests.sh > "$wt/base.log" 2>&1); r=$?
+            cat "$wt/base.log" >> "$LOG"
+            for n in $names; do
+                grep -qE "^ *FAIL +$n( |\$)" "$wt/base.log" || errs="$errs; ${c:0:7}: the replay test $n does not fail on the parent ${c:0:7}^ (rc $r)"
+            done
+            "${G[@]}" worktree remove -f "$wt/w" >/dev/null 2>&1
+        else errs="$errs; ${c:0:7}: no worktree of the parent"; fi
+        rm -rf "$wt"
+        echo "devbug ${c:0:7}: inlog $(echo $added), tests $names" >> "$LOG"
+    done
+    [ -z "$errs" ] || { DB_FAIL=1; DB_NOTE="DEVICE BUG: ${errs#; }"; }
+    return 0
+}
+if [ "${X0X_QUICK_ONLY:-}" = devbug ]; then
+    devbug_step; [ "$DB_FAIL" = 1 ] && out FAIL "$DB_NOTE"; out PASS "(device bug step only)"
+fi
 if [ "${X0X_QUICK_ONLY:-}" = ste ]; then
     ste_step; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
     rules_step; [ "$RULES_FAIL" = 1 ] && out FAIL "$RULES_NOTE"
@@ -250,5 +304,6 @@ NF=$(grep -c '^  FAIL' "$L/tests.log"); NOK=$(grep -c '^  ok ' "$L/tests.log")
 MISS=""; for n in $SEL; do grep -qE "^  (ok|FAIL) +$n( |\$)" "$L/tests.log" || MISS="$MISS $n"; done
 WT=""; ste_step; WT="$STE_NOTE"; [ "$STE_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
 rules_step; [ "$RULES_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$RULES_NOTE"
+devbug_step; [ "$DB_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$DB_NOTE"
 [ "$NF" = 0 ] && [ "$TRC" = 0 ] || out FAIL "tests: $NF failed ($(grep '^  FAIL' "$L/tests.log" | awk '{print $2}' | tr '\n' ' ' | sed 's/ $//'))$WT"
 out PASS "($NOK tests ok${MISS:+; not run:$MISS}$WT)"

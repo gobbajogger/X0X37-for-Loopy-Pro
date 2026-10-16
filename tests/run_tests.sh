@@ -176,6 +176,7 @@ run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.h
 run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, strict STE, Trigger and Check lines
 run ste-owner-msg sh tests/host/test_ste_owner_msg.sh   # tools/ste_check.py --owner-msg (check 2): the length and the content of a message to the owner (rule 13)
 run gen-order sh tests/host/test_gen_order.sh   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
+run quickcheck-devbug bash tests/host/test_quickcheck_devbug.sh   # tools/quickcheck.sh device bug step (checks 16, 17): an INLOG replay test that fails on the parent
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)
