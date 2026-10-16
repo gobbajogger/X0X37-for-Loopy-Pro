@@ -28,12 +28,15 @@ tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flas
 Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
-7 installed, but the slots were not written back (the backup file stays).
+7 installed, but the slots were not written back (the backup file stays),
+8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32.
 
 Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
 computer to the package before it is sent (tools/add_ctl.py). Every install writes the Bluetooth block,
 so without it the unit has no Bluetooth after the install. build_ctl.sh also keeps a copy in
 ~/.config/x0x/ctl.img: an SMK-37 install uses that copy by itself (and says so); --no-ctl skips it.
+After the install, the tool reads the image back from the unit's Bluetooth block (editor command 37
+CTL_READ, read only) and prints the unit CRC32. If it is not the file CRC32, the tool stops with exit 8.
 
 Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
 v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
@@ -45,6 +48,7 @@ import queue
 import re
 import sys
 import time
+import zlib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -66,7 +70,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
          "wait_loader": 30.0, "wait_reboot": 40.0}
 
 EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
-        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7}
+        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8}
 
 
 class InstallError(Exception):
@@ -639,10 +643,45 @@ def with_ctl(a, product, image, out, cache=None):
         if (p := add_ctl.ctl_problem(ctl)):
             raise add_ctl.PkgError(f"{path}: {p}")
         image = add_ctl.insert(image, ctl)
+        a.ctl_bytes = ctl                   # read back from the unit after the install (check_ctl)
     except add_ctl.PkgError as e:
         raise InstallError("badpkg", f"Bluetooth controller image: {e}")
     print(f"Bluetooth controller image: {path} (added to the package)", file=out)
     return image
+
+
+ED_CTL_READ = 37                    # editor.c: read only, the Bluetooth block (0x8B000, 64 KiB) only
+CTL_READ_N = 224                    # bytes a reply (editor.c ED_READ_MAX)
+CTL_READ = {"timeout": 3.0, "tries": 3}   # a lost reply is asked for again (the read changes nothing)
+
+
+def read_ctl(ed, size):
+    """the first size bytes of the unit's Bluetooth block (ED_CTL_READ)"""
+    got = bytearray()
+    while len(got) < size:
+        off, n = len(got), min(CTL_READ_N, size - len(got))
+        r = xs.req(ed, ED_CTL_READ, [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, (n + 1) // 2],
+                   CTL_READ["timeout"], CTL_READ["tries"])
+        if len(r) < 3 or r[0] | r[1] << 7 | r[2] << 14 != off:
+            raise TimeoutError(f"bad ED_CTL_READ reply at {off:#x}")
+        d = xs.unpack7(r[3:])
+        if len(d) < n:
+            raise TimeoutError(f"short ED_CTL_READ reply at {off:#x} ({len(d)} of {n} B)")
+        got += d[:n]
+    return bytes(got)
+
+
+def check_ctl(link, ctl, out):
+    """read the Bluetooth controller image back from the unit; stop the install if its CRC32 is not the file's"""
+    want = zlib.crc32(ctl) & 0xFFFFFFFF
+    try:
+        got = zlib.crc32(read_ctl(EditorLink(link), len(ctl))) & 0xFFFFFFFF
+    except TimeoutError as e:
+        raise InstallError("ctlcrc", f"installed, but the Bluetooth controller image was not read back ({e})")
+    print(f"Bluetooth controller image read back: {len(ctl)} B, unit CRC32 {got:08x}, file CRC32 {want:08x}", file=out)
+    if got != want:
+        raise InstallError("ctlcrc", f"Bluetooth controller image: unit CRC32 {got:08x} is not the file CRC32 {want:08x}")
+    return got
 
 
 def run(a, backend, out, ask):
@@ -701,6 +740,15 @@ def run(a, backend, out, ask):
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
     elif move:
         print(move.help(), file=out)
+    ctl = getattr(a, "ctl_bytes", None)
+    if ctl:
+        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        if not back:
+            raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
+        try:
+            check_ctl(back.link, ctl, out)
+        finally:
+            back.link.close()
     return 0
 
 

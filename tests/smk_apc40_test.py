@@ -20,6 +20,20 @@ assert palette[0] == 0x000000 and palette[3] == 0xFFFFFF
 assert palette[5] == 0xFF0000 and palette[21] == 0x00FF00 and palette[127] == 0x4B1502
 print("PASS APC40 RGB palette (128 entries)")
 
+# Bug a67: Loopy violet showed blue on the pads. The pad LED value of the violet group 48-51
+# must have a violet hue (265-290 degrees), not blue (240). Blue and magenta do not change.
+def pad_hue(rgb):
+    r, g, b = ((rgb >> 16) * 255 // 510, ((rgb >> 8) & 0xFF) * 255 // 510, (rgb & 0xFF) * 255 // 510)
+    mx, mn = max(r, g, b), min(r, g, b)
+    assert mx == b and mx > mn, hex(rgb)
+    return 240.0 + 60.0 * (r - g) / (mx - mn)
+for v in range(48, 52):
+    h = pad_hue(palette[v])
+    assert 265.0 <= h <= 290.0, f"velocity {v} {palette[v]:06X}: pad hue {h:.1f} is not violet"
+assert palette[44:48] == [0x4C4CFF, 0x0000FF, 0x000059, 0x000019]
+assert palette[52:56] == [0xFF4CFF, 0xFF00FF, 0x590059, 0x190019]
+print("PASS violet palette group 48-51 shows violet on the pads")
+
 # Universal Device Inquiry returns the APC40 mkII identity and protocol version.
 assert "apc40_device_inquiry" in usb
 assert "msg[1] = 0x7E" in usb and "msg[5] = 0x47" in usb and "msg[6] = 0x29" in usb
@@ -153,3 +167,13 @@ assert ui_src.index("smk_clip_history_button((uint8_t)i") < ui_src.index("smk_cl
 assert "ui.btn_used |= m | 1u << B_HOME;" in ui_src
 assert "if (!clip_grid_mode || !patch_held)" in main and 'say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);' in main
 print("PASS Loopy undo/redo: PATCH + SEQ REC / SEQ PLAY in clip mode only")
+# a71: Loopy gone on Bluetooth (link end or CCCD 0): ble.c gives the link state to the clip feedback
+# after each event poll, and main_fm1.c clears the cells (tests/smk_clip_ble_clear_test.c runs the logic).
+ble = (ROOT / "firmware/src/ble.c").read_text()
+assert "smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));" in ble
+assert ble.index("bleh_rx(h, t, ble_r.fr") < ble.index("smk_apc_ble_link((uint8_t)") < ble.index("bleh_midi_next(h, &m)")
+link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
+assert "smk_apc40_link_lost(&link, connected, notifying)" in link
+assert "smk_apc40_cells_clear(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick)" in link
+assert "smk_ck" not in link and "clip_grid_mode" not in link and "seq" not in link
+print("PASS Bluetooth link end or notify off clears the clip feedback")
