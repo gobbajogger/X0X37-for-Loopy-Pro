@@ -75,17 +75,17 @@ if ! flock -s -n 8; then
 fi
 # the work clone: not bare, objects shared with the box repository (git clone --shared)
 W="$WD/srv-wt"
-wg() { env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_QUARANTINE_PATH git -C "$W" "$@"; }
+wg() { env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_QUARANTINE_PATH -u GIT_COMMON_DIR -u GIT_PREFIX -u GIT_NAMESPACE git -C "$W" "$@"; }
 if [ -d "$W/.git" ] && ! wg cat-file -e HEAD 2>/dev/null; then rm -rf "$W"; fi
 if [ ! -d "$W/.git" ]; then
-    env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_QUARANTINE_PATH git clone -q --shared --no-checkout "$GD" "$W" </dev/null >&2 ||
+    env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_QUARANTINE_PATH -u GIT_COMMON_DIR -u GIT_PREFIX -u GIT_NAMESPACE git clone -q --shared --no-checkout "$GD" "$W" </dev/null >&2 ||
         reject "cannot make the work clone $W"
     wg remote set-url --push origin DISABLED-no-push-from-hook-clone
 fi
 wg checkout -q -f --detach "$NEW" </dev/null >&2 || reject "checkout of ${NEW:0:7} in $W failed"
 if [ "$OLD" = "$Z" ]; then BASE=$(wg rev-parse "$NEW^" 2>/dev/null) || reject "no base for a new ref"; else BASE=$OLD; fi
 echo "update hook: quick check of ${NEW:0:7} (base ${BASE:0:7}) for $REF" >&2
-OUT=$(env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_QUARANTINE_PATH \
+OUT=$(env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_QUARANTINE_PATH -u GIT_COMMON_DIR -u GIT_PREFIX -u GIT_NAMESPACE \
       -u X0X_STE_STRICT -u X0X_QUICK_ONLY -u X0X_SKIP_QUICKCHECK X0X_QC_BASE="$BASE" bash "$QC" "$W" </dev/null 2>&1)
 QRC=$?
 echo "$OUT" | grep -E '^(STE|QUICK) ' | head -8 >&2

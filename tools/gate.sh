@@ -57,6 +57,7 @@
 #   X0X_GATE_LOCK [/workspace/x0x37-refs/gate.lock]
 #   X0X_REF_PINS ["schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d"]
 set -u
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 GATE_DIR=$(cd "$(dirname "$0")" && pwd)
 REPO=${X0X_REPO:-/workspace/x0x37.git}
 RESULTS=${X0X_RESULTS:-/workspace/x0x37-results}

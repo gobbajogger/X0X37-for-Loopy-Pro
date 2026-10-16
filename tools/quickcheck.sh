@@ -21,6 +21,7 @@
 # first lines come before the QUICK line, and the exit code does not change. Strict mode: the file
 # tools/ste_strict in the tree, or X0X_STE_STRICT=1. In strict mode, an issue makes "QUICK FAIL ... STE: ...".
 # X0X_QUICK_ONLY=ste: only the STE step (no build, no tests).
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 set -u
 T0=$(date +%s%N)
 QCDIR=$(cd "$(dirname "$0")" && pwd)
