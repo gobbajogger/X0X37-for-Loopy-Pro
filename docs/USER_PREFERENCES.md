@@ -98,6 +98,7 @@ Read this file before you work on the X0X37 project. Also obey agent-rules.md. T
 - LCD clip colours:
   - Keep the exact hue when a colour becomes brighter. Do not let the hue drift (for example, blue must not go toward purple). The owner likes the current red.
   - The approved table is the OKLCH lift with the "strong" hue fix for 0x32 (0x325D) and 0x33 (0x3A17). tools/apc_pad_colors.py makes the table in apc40_lcd565.h. It must go into the firmware after the Bluetooth test.
+  - Updated 2026-10-16 23:34: the LCD colours are now the plain Akai colours as RGB565, from the Akai CSV (tools/apc40mk2_akai_protocol_v1.2.csv, CLP-05). They have no lift and no hue fix, so X0X does not use the OKLCH table. The plan puts pad colour calibration (CLP-79) in batch 3.
 - Loopy Pro start/stop can also start the X0X sequencer, but it must not conflict with the external MIDI clock sync.
 - The usb.c APC identity reply has no gate check, and this is not a problem. Leave it.
 - FREE PLAY: keep it, and document it as it is.
@@ -137,4 +138,4 @@ Read this file before you work on the X0X37 project. Also obey agent-rules.md. T
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-16 23:33.
+Last update: 2026-10-16 23:35.

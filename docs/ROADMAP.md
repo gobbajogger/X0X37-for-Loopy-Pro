@@ -93,7 +93,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
    - Open: BLE-16 (All Notes Off when the Bluetooth link ends) is not in the code.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
 4. Bring integration (f357a2e or later) into the main tree (x0x37, smk37) after an owner test PASS of an installed build.
-5. Screen clip colours: the approved table (apc40_lcd565.h, CLP-05) is on apc-colors-int (f175c30), the next batch. Install it after approval.
+5. Clip colours: the LCD colours are the plain Akai colours as RGB565, from the Akai CSV (CLP-05, on integration). The plan puts pad colour calibration (CLP-79) in batch 3.
 6. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
 7. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
 8. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks.
@@ -109,4 +109,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 23:34.
+Last update: 2026-10-16 23:35.
