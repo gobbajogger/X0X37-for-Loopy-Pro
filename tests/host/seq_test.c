@@ -338,6 +338,56 @@ static void test_ext_clock_and_midi_out(void)
     printf("  external clock follow + tempo, MIDI clock out: checked\n");
 }
 
+/* ---- MIDI clock as Bluetooth MIDI gives it: the ticks of one connection event come in one block */
+static double ble_tick, ble_ev;                               /* the next tick and the next connection event */
+static void ble_clock(double bpm, double ev_ms, double secs)
+{
+    double tick = 44100.0 * 60.0 / bpm / 24.0, ev = 44100.0 * ev_ms / 1000.0, end = now + secs * 44100.0;
+    while (now < end) {
+        while (ble_ev <= now) {                               /* the events since the last block */
+            while (ble_tick <= ble_ev) {
+                seq_ext_clock(&S);
+                ble_tick += tick;
+            }
+            ble_ev += ev;
+        }
+        run(256);
+    }
+}
+static void ble_clock_start(double bpm, double ev_ms, double phase)
+{
+    ble_tick = now + phase * 44100.0 * 60.0 / bpm / 24.0;
+    ble_ev = now + (1.0 - phase) * 44100.0 * ev_ms / 1000.0;
+}
+
+/* ext 0xF8 at 120 BPM (and 93, 140) in Bluetooth bursts: the measured tempo, then the link ends:
+ * the internal tempo keeps the last external tempo */
+static void test_ext_tempo_ble(void)
+{
+    static const double EV[] = {1.0, 7.5, 11.25, 15.0, 30.0}, BPM[] = {120.0, 93.0, 140.0};
+    unsigned e, b, ph;
+    for (e = 0; e < sizeof EV / sizeof EV[0]; e++)
+        for (b = 0; b < sizeof BPM / sizeof BPM[0]; b++)
+            for (ph = 0; ph < 4; ph++) {
+                reset();
+                S.bpm = 100.0f;
+                ble_clock_start(BPM[b], EV[e], 0.1 + 0.2 * ph);
+                ble_clock(BPM[b], EV[e], 10.0);
+                CHECK(S.ext == 1, "following the clock (%.2f ms events)", EV[e]);
+                CHECK(S.ext_bpm > BPM[b] - 0.5 && S.ext_bpm < BPM[b] + 0.5 && seq_tempo(&S) == S.ext_bpm,
+                      "%.0f BPM in %.2f ms events (phase %u): measured %.2f", BPM[b], EV[e], ph, (double)S.ext_bpm);
+                run(44100);                                   /* the link ends: no tick for 1 s */
+                CHECK(S.ext == 0 && S.bpm == (float)BPM[b], "after the link end: internal %.1f, want %.0f",
+                      (double)S.bpm, BPM[b]);
+            }
+    reset();                                                  /* a tempo change: 120, then 140 */
+    ble_clock_start(120.0, 15.0, 0.5);
+    ble_clock(120.0, 15.0, 6.0);
+    ble_clock(140.0, 15.0, 6.0);
+    CHECK(S.ext_bpm > 139.5f && S.ext_bpm < 140.5f, "tempo change to 140: measured %.2f", (double)S.ext_bpm);
+    printf("  external clock in Bluetooth bursts: tempo, tempo kept after the link end: checked\n");
+}
+
 static void test_break_clock(void)
 {
     int i, k;
@@ -421,6 +471,7 @@ int main(void)
     test_part_cue();
     test_song();
     test_ext_clock_and_midi_out();
+    test_ext_tempo_ble();
     test_break_clock();
 #ifdef REF_TB3PO
     test_tb3po_matches_reference();

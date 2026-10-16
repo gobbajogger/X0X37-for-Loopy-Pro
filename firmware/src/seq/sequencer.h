@@ -87,6 +87,8 @@ typedef struct {
     void *ctx;
 } seq_sink_t;
 
+#define SEQ_EXT_BEATS 8u              /* the tempo of an external clock: the mean over this many beats */
+
 typedef struct {                      /* one part's runtime */
     uint8_t pos;                      /* current step */
     int8_t pp_dir;                    /* ping-pong direction */
@@ -126,6 +128,9 @@ typedef struct {
     uint32_t clk_to_next;             /* internal: samples to the next MIDI clock, Q8 */
     uint32_t ext_since;               /* samples since the last external clock (tempo estimate) */
     uint32_t ext_period;              /* smoothed samples per external clock, Q8 */
+    uint32_t ext_now;                 /* samples, free running: the time base of the beat ring */
+    uint32_t ext_beat[SEQ_EXT_BEATS]; /* ext_now at the last beats (24 external clocks each), a ring */
+    uint8_t ext_nb, ext_bi, ext_q;    /* beats in the ring, the next ring slot, clocks into this beat */
     volatile uint32_t ext_pending;    /* external clocks received, not yet consumed */
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */

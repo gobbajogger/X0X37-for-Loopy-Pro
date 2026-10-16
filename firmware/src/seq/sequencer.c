@@ -393,19 +393,41 @@ static void do_stop(seq_t *s, const seq_sink_t *o)
         midi(o, 0xFC, 0, 0);
 }
 
-/* external clock ticks: arm the steps they complete */
+static void ext_set_period(seq_t *s, uint32_t q)   /* samples per external clock, Q8 */
+{
+    s->ext_period = q;
+    s->ext_bpm = (float)FS * 60.0f * 256.0f / (24.0f * (float)q);
+}
+
+/* external clock ticks: the tempo, and arm the steps they complete. Bluetooth MIDI gives all the ticks
+ * of one connection event (7.5-30 ms) in one block. Thus the time between two blocks is not one tick
+ * period. The tempo is the mean tick period over the last beats in the ring (SEQ_EXT_BEATS). */
 static void ext_ticks(seq_t *s)
 {
     int t;
-    uint32_t n = s->ext_pending;
+    uint32_t n = s->ext_pending, k = n;
     s->ext_pending = 0;
     for (; n; n--) {
-        if (s->ext_since > 0 && s->ext_since < FS) {  /* tempo: smoothed tick period */
-            uint32_t q = s->ext_since << 8;
-            s->ext_period = s->ext_period ? s->ext_period - (s->ext_period >> 3) + (q >> 3) : q;
-            s->ext_bpm = (float)FS * 60.0f * 256.0f / (24.0f * (float)s->ext_period);
+        if (s->ext_since > 0 && s->ext_since < FS && s->ext_nb < 2u) {   /* the first beats: smoothed */
+            uint32_t q = (s->ext_since << 8) / k;     /* the ticks of one block share its time */
+            ext_set_period(s, s->ext_period ? s->ext_period - (s->ext_period >> 3) + (q >> 3) : q);
         }
         s->ext_since = 0;
+        if (++s->ext_q >= 24u) {                      /* a beat: the mean since the oldest beat in the ring */
+            s->ext_q = 0;
+            if (s->ext_nb) {
+                uint32_t d = s->ext_now - s->ext_beat[s->ext_nb < SEQ_EXT_BEATS ? 0u : s->ext_bi], m = 24u * s->ext_nb;
+                uint32_t w = ((d / m) << 8) + ((d % m) << 8) / m, p = s->ext_period;
+                if (s->ext_nb >= 2u && (w > p ? w - p : p - w) < (p >> 6))   /* a change under 1/64: smoothed */
+                    w = p - (p >> 2) + (w >> 2);
+                if (w)                                /* (0: all the ticks of the ring in one block) */
+                    ext_set_period(s, w);
+            }
+            s->ext_beat[s->ext_bi] = s->ext_now;
+            s->ext_bi = (uint8_t)((s->ext_bi + 1u) % SEQ_EXT_BEATS);
+            if (s->ext_nb < SEQ_EXT_BEATS)
+                s->ext_nb++;
+        }
         if (!s->playing)
             continue;
         for (t = 0; t < NTRACKS; t++) {
@@ -445,10 +467,12 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     int t, guard;
     uint32_t dq = k << 8;
     s->ext_since += k;
+    s->ext_now += k;
     if (s->ext_pending)
         s->ext = 1;
     else if (s->ext && s->ext_since > FS / 2u) {    /* clock gone for 0.5 s: back to internal */
         s->ext = 0;
+        s->ext_nb = s->ext_bi = s->ext_q = 0;         /* the next clock: a new beat ring */
         if (s->ext_period) {                          /* the internal tempo takes the last measured one */
             float b = (float)(int)(s->ext_bpm + 0.5f);   /* whole BPM, as the TEMPO knob sets it */
             s->bpm = b < 20.0f ? 20.0f : b > 275.0f ? 275.0f : b;
