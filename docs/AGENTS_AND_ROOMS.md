@@ -95,7 +95,7 @@ There are no rooms. Agents send messages direct to each other with SendToAgent. 
 Agent rules: agent-rules.md (38 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
 
 Work and messages:
-- Rule 1: commits, logs, docs and checklists follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Posts and agent messages follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). If they conflict, asd-ste wins.
+- Rule 1: commits, logs, docs and checklists follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Agent-to-agent messages follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). Messages to the owner use plain words (see "Text for the owner" below). If asd-ste and caveman conflict, asd-ste wins.
 - Rule 23: if you change intended behavior, update BEHAVIOR.md in the same task.
 - Rule 24: read USER_PREFERENCES.md before you start. Add each new lasting user decision to it.
 - Rule 25: when a step finishes or a plan changes, update ROADMAP.md.
@@ -169,3 +169,4 @@ Repositories:
 - 2026-10-16 21:48: rule 38 (stop only your own PIDs). Cause: a Firmware Main Builder worker ran pkill -f x0x37_gate.sh at 21:41 and 21:43.
 - 2026-10-16 21:55: BEHAVIOR.md reference is integration (rule 22). Rule 29: gate PASS for the exact tree. Rules 5, 11, 26, 28, 29 and 34 in asd-ste. Branch tips.
 - 2026-10-16 21:57: rule contradictions fixed (rules 1, 2, 7, 9, 11, 26, 27, 30, 33, 35, 36). "Task agent" replaces "owner of the task". Box folders for each agent.
+- 2026-10-16 21:57: rule 1: caveman only for agent-to-agent messages. Messages to the owner use plain words (Orchestrator confirmed).

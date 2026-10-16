@@ -38,7 +38,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 
 - 2026-10-16 02:14: If the Mac does not respond, retry for 5 minutes. Report the Mac as offline only after 5 minutes of no response.
 - 2026-10-16 02:28: Posts and agent messages hold only results, blockers and decisions, in two sentences or fewer.
-- 2026-10-16 02:43: Docs, logs and commits follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). The caveman skill applies to every post and agent message. If they conflict, asd-ste wins.
+- 2026-10-16 02:43: Docs, logs and commits follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). The caveman skill applies to agent-to-agent messages only. If they conflict, asd-ste wins. (2026-10-16 21:57, Orchestrator confirmed: messages to the owner follow the 20:12 owner entry in "How to work with the user".)
 - 2026-10-16 13:03: Do not ask the user for approval to start a helper subagent. Start it.
 
 ## Hardware and targets

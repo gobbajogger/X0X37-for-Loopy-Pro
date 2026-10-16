@@ -3,7 +3,7 @@
 All agents must follow these rules. This Mac root file is the main copy. x0x37/docs/agent-rules.md on smk37 is an exact copy.
 In these rules, "the owner" is the user. The "task agent" is the agent that owns a task in the lanes table (AGENTS_AND_ROOMS.md).
 
-1. Commits, logs, docs and checklists follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md, ASD-STE100). Rules 2 and 13 to 21 give its main points. Posts and agent messages follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). If they conflict, asd-ste wins.
+1. Commits, logs, docs and checklists follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md, ASD-STE100). Rules 2 and 13 to 21 give its main points. Agent-to-agent messages follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). Messages to the owner use plain words (USER_PREFERENCES.md, 2026-10-16 20:12 owner entry). If asd-ste and caveman conflict, asd-ste wins.
 2. Write one idea per sentence. Rules 14 and 15 give the sentence length limits.
 3. Use the active voice.
 4. Do not invent data. Check the source first.
