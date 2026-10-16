@@ -1,0 +1,10 @@
+# Cases for check 4 (tests/host/test_install_head.sh): name|reference|want
+# reference: "same" = the package head, "flip:OFF" = the package head with one byte changed at OFF (hex),
+#   "short" = 0x3FFF bytes, "app:OFF" = same head, then a changed byte at OFF >= 0x4000 (outside the head).
+# want: OK (exit 0), MISMATCH (exit 11, REFUSED), ERROR (exit 11, REFUSED, no compare).
+same head|same|OK
+one byte at 0x0000 (flash header)|flip:0000|MISMATCH
+one byte at 0x1234 (SPL)|flip:1234|MISMATCH
+one byte at 0x3FFF (last head byte)|flip:3FFF|MISMATCH
+a byte at 0x4000 (app area, not the head)|app:4000|OK
+short reference|short|ERROR
