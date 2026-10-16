@@ -7,12 +7,19 @@
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Updater, pack7, unpack7, sameKeyboard } from "./fm1ota.js";
 import { crc32, parseHeader, readArchive, pack78, unpack78, installKeepingSlots, packageSlotMap } from "./x0x_breaks.js";
 
+// X0X_TEST_TIME_SCALE=N (opt-in, default 1): waits of 1000 ms or more (the updater's fixed waits for a reboot
+// and its read timeouts) take 1/N of the time. The mock keyboard replies at once, so it does not use these waits.
+const TIME_SCALE = Number(process.env.X0X_TEST_TIME_SCALE || 1);
+if (TIME_SCALE > 1) {
+  const realSetTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = (f, ms = 0, ...a) => realSetTimeout(f, ms >= 1000 ? ms / TIME_SCALE : ms, ...a);
+}
 let bad = 0;
 const ok = (c, what) => { console.log(`${what.padEnd(70)} ${c ? "ok" : "FAIL"}`); if (!c) bad++; };
 const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
@@ -93,12 +100,12 @@ class FakeX0X {
     this.input = { id: "i" + id, name, state: "connected", onmidimessage: null, open: async () => {} };
     this.output = { id: "o" + id, name, state: "connected", open: async () => {}, send: (d) => {
       if (this.output.state !== "connected") throw new Error("InvalidStateError");
-      setTimeout(() => this.rx(Array.from(d)), 0);
+      setImmediate(() => this.rx(Array.from(d)));          // async as a device, without the 1 ms of setTimeout
     } };
     this.access.inputs.set(this.input.id, this.input);
     this.access.outputs.set(this.output.id, this.output);
   }
-  tx(bytes) { const i = this.input; setTimeout(() => { if (i.state === "connected" && i.onmidimessage) i.onmidimessage({ data: Uint8Array.from(bytes) }); }, 0); }
+  tx(bytes) { const i = this.input; setImmediate(() => { if (i.state === "connected" && i.onmidimessage) i.onmidimessage({ data: Uint8Array.from(bytes) }); }); }
   rx(d) {
     if (d[1] === 0x7D && d[2] === 0x46 && d[3] === 0x4C) {
       if (!this.fw) return;                                  // stock firmware or the loader: no answer
@@ -188,6 +195,15 @@ class FakeX0X {
 }
 
 const same = (a, b) => (a === null || b === null ? a === b : eq(a, b));
+// X0X_SLOT_DUMP=<file>: write one line per install (the CRC-32 of the whole flash model and of each slot image in
+// each saved file), so that two runs of this test can be compared. Not set: no file is written.
+let dumps = 0;
+function dump(kind, flash, files) {
+  if (!process.env.X0X_SLOT_DUMP) return;
+  const h = (b) => (crc32(b) >>> 0).toString(16).padStart(8, "0");
+  const fl = files.map((b) => { const a = readArchive(b); return a ? a.images.map((im) => (im ? h(im) : "-")).join("/") : "no-archive"; });
+  appendFileSync(process.env.X0X_SLOT_DUMP, [String(++dumps).padStart(2, "0"), kind, "flash", h(flash.mem), "files", ...fl].join(" ") + "\n");
+}
 async function flow(pkg, product, from, to, firmware, fill, opts = {}) {
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
@@ -198,6 +214,7 @@ async function flow(pkg, product, from, to, firmware, fill, opts = {}) {
     res = await installKeepingSlots(new Updater(dev.access), pkg.image, product, "smk",
       { sameKeyboard, save: (b, name) => saved.push({ b, name }), say: (k, a) => said.push([k, a]) });
   } catch (e) { err = e; }
+  dump("flow", flash, saved.map((x) => x.b));
   return { flash, dev, saved, said, res, err };
 }
 
@@ -302,6 +319,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   for (let i = 0; i < 3000 && (ids.go.disabled || !ids.status.textContent); i++) await new Promise((r) => setTimeout(r, 10));
   const files = [];
   for (const d of downloads) files.push({ name: d.name, b: new Uint8Array(await blobs.get(d.href || [...blobs.keys()].pop()).arrayBuffer()) });
+  dump("page", flash, files.map((x) => x.b));
   return { status: ids.status.textContent, files, flash };
 }
 {
