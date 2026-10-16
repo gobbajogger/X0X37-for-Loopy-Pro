@@ -84,3 +84,4 @@ void ui_frame(void);
 void ui_input_only(void);
 int ui_dirty(void);
 void ui_say(const char *a, const char *b);
+/* qc trim proof: warmup */
