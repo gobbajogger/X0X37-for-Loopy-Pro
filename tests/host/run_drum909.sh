@@ -18,7 +18,9 @@ python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h
 # the port plays its cymbals from IMA ADPCM (tools/gen_drum_samples.py): give the reference the same
 # decoded cymbals, so that the comparison measures the engine and not the codec (tests/host/
 # run_drum909_adpcm.sh checks the codec against the approved A/B study)
-rm -rf "$OUT/ref_src" && cp -R "$NINEW9_DIR/src" "$OUT/ref_src"
+# the reference checkout can be read-only, and cp -R keeps the modes: make each copy writable
+[ ! -e "$OUT/ref_src" ] || chmod -R u+w "$OUT/ref_src"
+rm -rf "$OUT/ref_src" && cp -R "$NINEW9_DIR/src" "$OUT/ref_src" && chmod -R u+w "$OUT/ref_src"
 [ -d "$OUT/ref_src/samples" ] || { echo "no samples/ in $NINEW9_DIR/src"; exit 2; }
 python3 tests/host/cymbal_ref.py --wav "$OUT/ref_src/samples"
 
@@ -27,7 +29,8 @@ python3 tests/host/cymbal_ref.py --wav "$OUT/ref_src/samples"
 "$CC" -O2 -ffp-contract=off -w -I"$NINEW9_DIR/src/dsp" -c tests/host/drum909_ref.c -o "$OUT/drum909_ref.o"
 
 # the same reference with its biquads in double: measures 9W9's own float noise
-rm -rf "$OUT/ref_dbl" && cp -R "$NINEW9_DIR/src/dsp" "$OUT/ref_dbl"
+[ ! -e "$OUT/ref_dbl" ] || chmod -R u+w "$OUT/ref_dbl"
+rm -rf "$OUT/ref_dbl" && cp -R "$NINEW9_DIR/src/dsp" "$OUT/ref_dbl" && chmod -R u+w "$OUT/ref_dbl"
 perl -0pi -e 's/float x1, x2, y1, y2;/double x1, x2, y1, y2;/; s/const float y = f->b0 \* _in \+ f->b1 \* f->x1 \+ f->b2 \* f->x2\s*- f->a1 \* f->y1 - f->a2 \* f->y2;/const double y = (double)f->b0 * _in + (double)f->b1 * f->x1 + (double)f->b2 * f->x2 - (double)f->a1 * f->y1 - (double)f->a2 * f->y2;/; s/f->y2 = f->y1; f->y1 = y;\n    return y;/f->y2 = f->y1; f->y1 = y;\n    return (float)y;/' "$OUT/ref_dbl/webaudio.h"
 grep -q "double x1, x2, y1, y2" "$OUT/ref_dbl/webaudio.h" && grep -q "return (float)y" "$OUT/ref_dbl/webaudio.h" || { echo "patching webaudio.h failed"; exit 2; }
 "$CC" -O2 -ffp-contract=off -w -I"$OUT/ref_dbl" -c tests/host/drum909_refd.c -o "$OUT/drum909_refd.o"
