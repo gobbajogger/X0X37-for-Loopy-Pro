@@ -3596,13 +3596,13 @@ static void draw_readout(void)
     pref_t r;
     int32_t w, x;
     const char *nm;
+    char t[24];
     if (ui.touched == 4) {
         r = PR(R_TEMPO, 0, 0, 0);
         nm = "TEMPO";
     } else {
         r = pg.r[cur_page()][ui.touched];
         nm = caps_of(pref_name(r));
-        static char t[24];
         if (track_page()) {                              /* a track's own: "BD  Tune" */
             put_s(put_s(put_s(t, engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part])), "  "), nm);
             nm = t;
