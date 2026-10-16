@@ -1,0 +1,65 @@
+# USB link end (usb.c midi_link_check: a bus reset, or 100 ms with no USB frames: unplug or Mac asleep).
+# X0X releases the notes that came from USB (the 4th field of midi: 0 USB, 1 Bluetooth). The Bluetooth notes stay.
+# midiheld: bit 0 the 303A gate, bit 1 the 303B gate, bit 8 + s the break slice key s.
+wait 300
+# nothing held: a link end changes nothing
+usblinkend
+wait 20
+expect midiheld 0
+# USB holds a 303A note and break slice 0; Bluetooth holds a 303B note and break slice 1
+midi 91 30 64 0
+midi 93 24 64 0
+midi 92 30 64 1
+midi 93 25 64 1
+wait 20
+expect midiheld 0x303
+usblinkend
+wait 20
+expect midiheld 0x202
+# the Bluetooth notes stay until their note off
+midi 82 30 00 1
+midi 83 25 00 1
+wait 20
+expect midiheld 0
+# a USB note, then a Bluetooth note on the same 303 (a slide): Bluetooth holds it, the USB link end keeps it
+midi 91 31 64 0
+midi 91 32 64 1
+wait 20
+usblinkend
+wait 20
+expect midiheld 1
+# then the Bluetooth link end releases it
+blelinkend
+wait 20
+expect midiheld 0
+# replug: new USB notes work, and a USB note off ends them
+midi 91 33 64 0
+midi 93 26 64 0
+wait 20
+expect midiheld 0x401
+midi 81 33 00 0
+midi 83 26 00 0
+wait 20
+expect midiheld 0
+# all eight slices and both 303s from USB while the sequencer plays on the USB clock
+tapkey b0
+tapkey w0
+midi FA 00 00 0
+midi F8 00 00 0
+midi 91 30 64 0
+midi 92 30 64 0
+midi 93 24 64 0
+midi 93 25 64 0
+midi 93 26 64 0
+midi 93 27 64 0
+midi 93 28 64 0
+midi 93 29 64 0
+midi 93 2A 64 0
+midi 93 2B 64 0
+wait 20
+expect midiheld 0xFF03
+usblinkend
+wait 20
+expect midiheld 0
+wait 600
+expect midiheld 0

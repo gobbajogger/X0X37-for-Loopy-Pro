@@ -443,7 +443,7 @@ static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_m
 
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
-static uint16_t ble_held;              /* BLE-16: notes from Bluetooth: bit k the 303 k, bit 8 + s the break slice s */
+static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
@@ -459,18 +459,19 @@ static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
-    int k, v, ble = PLAT_MIDI_SRC(pkt) == 1u;
+    int k, v, src = (int)PLAT_MIDI_SRC(pkt);
     if (!(pkt & ~0x30u)) {                      /* CIN 0, no message: the link of an input ended (usb.c midi_link_check) */
-        seq_clk_drop(&seq, PLAT_MIDI_SRC(pkt)); /* MID-15: another input can get the clock at once */
-        if (!ble)
+        seq_clk_drop(&seq, (uint32_t)src);      /* MID-15: another input can get the clock at once */
+        if (src > 1)
             return;
-        for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from Bluetooth */
-            if ((ble_held >> k) & 1u) {
+        v = src_held[src];
+        for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
+            if ((v >> k) & 1) {
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
             }
-        brk.keys = (uint16_t)(brk.keys & ~(ble_held >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
-        ble_held = 0;
+        brk.keys = (uint16_t)(brk.keys & ~(v >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
+        src_held[src] = 0;
         return;
     }
     if (!seq_clk_take(&seq, st, PLAT_MIDI_SRC(pkt)))
@@ -525,17 +526,25 @@ static void midi_in(uint32_t pkt)
             if (ty == 0x90) {
                 bass303_note_on(&b303[k], d1, d2 >= 100, bass_held[k] != 0);
                 bass_held[k] = d1;
-                ble_held = (uint16_t)(ble ? ble_held | 1u << k : ble_held & ~(1u << k));
+                v = 1 << k;                     /* the input of the last note-on holds the note */
+                src_held[0] &= (uint16_t)~v;
+                src_held[1] &= (uint16_t)~v;
+                if (src < 2)
+                    src_held[src] |= (uint16_t)v;
             } else if (ty == 0x80 && bass_held[k] == d1) {
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
-                ble_held &= (uint16_t)~(1u << k);
+                src_held[0] &= (uint16_t)~(1u << k);
+                src_held[1] &= (uint16_t)~(1u << k);
             }
         }
     if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43) {   /* the break's slices */
         breaks_live(&brk, d1 - 36, ty == 0x90);
         v = 1 << (8 + d1 - 36);
-        ble_held = (uint16_t)(ty == 0x90 && ble ? ble_held | v : ble_held & ~v);
+        src_held[0] &= (uint16_t)~v;
+        src_held[1] &= (uint16_t)~v;
+        if (ty == 0x90 && src < 2)
+            src_held[src] |= (uint16_t)v;
     }
 }
 #ifdef X0X_HOST
