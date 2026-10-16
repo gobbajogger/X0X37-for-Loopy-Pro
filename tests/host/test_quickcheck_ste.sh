@@ -40,5 +40,18 @@ else bad "strict file (rc=$rc)" "$out"; fi
 out=$(X0X_STE_STRICT=1 qc "$CLEAN"); rc=$?
 if [ $rc = 0 ] && echo "$out" | grep -q '^QUICK PASS ' && ! echo "$out" | grep -q 'STE WARN'; then ok "clean commit, strict: no STE line ($(echo "$out" | grep '^QUICK'))"
 else bad "clean commit (rc=$rc)" "$out"; fi
+# The no_verb rule of tools/ste_check.py: a verbless prose sentence flags; verbs, data lines and list fragments do not.
+S="$(dirname "$Q")/ste_check.py"
+nv() { printf '%b' "$1" > "$T/nv.md"; python3 "$S" --rule no_verb "$T/nv.md" | grep -c '\[no_verb\]'; }
+for c in "1|Some notes.\n\nThe second row of pads at the top of the grid on the APC40.\n" \
+         "0|Some notes.\n\nFADER BANK switches the faders between bank A and bank B.\n" \
+         "0|Some notes.\n\nINTERNAL ignores the clock of all inputs, as before.\n" \
+         "0|Rewrite BEHAVIOR.md in ASD-STE100\n" \
+         "0|The flash map:\n\n  - App code 0x04120-0x8AFFF.\n  - The STRUM time.\n  - Major, minor, Dorian, Phrygian, Lydian.\n" \
+         "0|Some notes.\n\nRates: 1/2 to 1/32T on a 24 PPQN grid.\n"; do
+    want=${c%%|*}; txt=${c#*|}; got=$(nv "$txt")
+    if [ "$got" = "$want" ]; then ok "no_verb $want: $(printf '%b' "$txt" | grep . | tail -n 1 | cut -c1-60)"
+    else bad "no_verb (want $want, got $got)" "$(printf '%b' "$txt")"; fi
+done
 echo "quickcheck STE: $((n - fails)) of $n ok"
 [ "$fails" = 0 ]
