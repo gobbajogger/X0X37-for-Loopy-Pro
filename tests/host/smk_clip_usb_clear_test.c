@@ -11,7 +11,8 @@
  * only SET_CONFIGURATION 0 and a bus reset call smk_apc_host_lost.
  * Cases X and L (owner 2026-10-17 01:46): the owner uses Loopy on the Mac (USB) and Loopy on the iPhone
  * (Bluetooth) at the same time. The link that wrote a cell last owns it. The end of a link clears only the
- * cells that it owns; the cells of the other link stay on the pads (CLP-18). */
+ * cells that it owns; the cells of the other link stay on the pads (CLP-18).
+ * Case P (owner 02:00): the PLAY and REC LED feedback follow the same rule. */
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -292,6 +293,74 @@ int main(void)
     (void)smk_apc_ble_event(9u | 0x90u << 8 | 13u << 16 | 0x31u << 24, 0u);
     run_bt(1000);
     check(apc_led_velocity[13] == 0u, "D1 a Bluetooth colour while notify is off still writes no cell");
+
+    /* P. The PLAY (note 0x5B) and REC (note 0x5D) LED feedback follow the same rule as the cells (owner 02:00):
+     *    the link that wrote it last owns it, and only the end of that link turns it off. */
+    {
+        static const uint32_t generic[4] = {
+            4u | 0xF0u << 8 | 0x47u << 16 | 0x7Fu << 24, 4u | 0x29u << 8 | 0x60u << 16 | 0x00u << 24,
+            4u | 0x04u << 8 | 0x40u << 16 | 0x00u << 24, 7u | 0x00u << 8 | 0x00u << 16 | 0xF7u << 24};
+        bt_up = bt_notify = 1u;
+        run_bt(50);
+        usb_note(SMK_APC40_PLAY_NOTE, 127u);
+        run_bt(100);
+        check(apc_play_feedback == 1u, "P0 USB PLAY feedback on: the PLAY LED is on");
+        host = 0u;
+        fake_intrusb = 0x01u;
+        run_bt(1000);
+        check(apc_play_feedback == 0u, "P1 USB owns PLAY, USB cable out: the PLAY LED goes off");
+
+        host = 1u;                       /* cable in again */
+        fake_intrusb = 0x04u;
+        run_bt(100);
+        plug();
+        bt_note(SMK_APC40_RECORD_NOTE, 127u);
+        run_bt(100);
+        host = 0u;
+        fake_intrusb = 0x01u;
+        run_bt(1000);
+        check(apc_record_feedback == 1u, "P2 Bluetooth owns REC, USB cable out: the REC LED stays on");
+        host = 1u;
+        fake_intrusb = 0x04u;            /* a bus reset (smk_apc_host_lost) */
+        run_bt(100);
+        check(apc_record_feedback == 1u, "P2 Bluetooth owns REC, USB bus reset: the REC LED stays on");
+        plug();
+
+        usb_note(SMK_APC40_PLAY_NOTE, 127u);
+        run_bt(100);
+        bt_notify = 0u;                  /* Bluetooth CCCD 0 */
+        run_bt(1000);
+        check(apc_play_feedback == 1u && apc_record_feedback == 0u,
+              "P3 USB owns PLAY, Bluetooth owns REC, Bluetooth CCCD 0: PLAY stays on, REC goes off");
+        bt_notify = 1u;
+        run_bt(50);
+        bt_note(SMK_APC40_RECORD_NOTE, 127u);
+        run_bt(100);
+        bt_up = bt_notify = 0u;          /* the Bluetooth link ends */
+        run_bt(1000);
+        check(apc_play_feedback == 1u && apc_record_feedback == 0u,
+              "P3 USB owns PLAY, Bluetooth owns REC, Bluetooth link end: PLAY stays on, REC goes off");
+
+        bt_up = bt_notify = 1u;
+        run_bt(50);
+        usb_note(SMK_APC40_RECORD_NOTE, 127u);
+        run_bt(100);
+        usb_packet(generic, 4u);         /* generic mode on USB */
+        run_bt(1000);
+        check(apc_play_feedback == 0u && apc_record_feedback == 0u,
+              "P4 USB owns PLAY and REC, USB generic-mode SysEx: both LEDs go off");
+        bt_note(SMK_APC40_RECORD_NOTE, 127u);
+        usb_note(SMK_APC40_PLAY_NOTE, 127u);
+        bt_note(SMK_APC40_PLAY_NOTE, 127u);   /* PLAY: USB first, then Bluetooth: Bluetooth owns it */
+        run_bt(100);
+        usb_packet(generic, 4u);
+        run_bt(1000);
+        check(apc_play_feedback == 1u && apc_record_feedback == 1u,
+              "P4 Bluetooth owns PLAY (last writer) and REC, USB generic-mode SysEx: both LEDs stay on");
+        (void)smk_apc_ble_event(8u | 0x80u << 8 | SMK_APC40_RECORD_NOTE << 16, 0u);   /* an off while notify is off */
+        run_bt(100);
+        check(apc_record_feedback == 0u, "P5 a Bluetooth REC off while notify is off turns the REC LED off");
+    }
 
     printf("%s %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails ? 1 : 0;

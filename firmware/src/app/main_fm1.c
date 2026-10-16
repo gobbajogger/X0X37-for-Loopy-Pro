@@ -260,15 +260,21 @@ static void smk_apc_burst_close(void)
  * APC40_PAD_OWNER, from the owner export of 2026-10-17). Dev and release builds use it (BEHAVIOR.md CLP-13). */
 #include "app/apc40_pad_owner.h"
 /* CLP-18: the link that wrote each clip cell last. Bit n set: Bluetooth wrote cell n last; bit n clear: USB.
+ * Bits 40 and 41: the same for the PLAY and REC LED feedback.
  * The last writer owns the cell: when its link ends, the cell clears, and the cells of the other link stay.
  * smk_apc_ble_event sets apc_in_ble while it stores a Bluetooth message (the same interrupt as usb.c). */
+#define APC_OWN_PLAY 40u
 static uint64_t apc_ble_owned;
 static uint8_t apc_in_ble;
+static void apc_own(uint32_t bit)
+{
+    apc_ble_owned = (apc_ble_owned & ~((uint64_t)1u << bit)) | (uint64_t)apc_in_ble << bit;
+}
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity)
 {
     if (note >= SMK_APC40_CLIP_COUNT)
         return;
-    apc_ble_owned = (apc_ble_owned & ~((uint64_t)1u << note)) | (uint64_t)apc_in_ble << note;
+    apc_own(note);
     if (apc_burst_count && fm1_ms - apc_burst_last_ms > SMK_APC40_BURST_GAP_MS)
         smk_apc_burst_close();
     apc_burst_last_ms = fm1_ms;
@@ -305,6 +311,7 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
         return owned;
     }
     if (smk_apc40_transport_feedback_note(d1)) {
+        apc_own(APC_OWN_PLAY + (d1 == SMK_APC40_RECORD_NOTE));   /* CLP-18: bit 40 PLAY, bit 41 REC */
         smk_apc_transport_led_set(d1, d2);
         return owned;
     }
@@ -451,15 +458,19 @@ void smk_apc_host_seen(void)
 {
     apc_host_on = 1u;
 }
-/* CLP-18: clear the clip cells of one link (ble 1: the cells that Bluetooth wrote last, 0: those of USB) and
- * the feedback burst. If a cell stays lit, the latched layout stays, so the pads of the other link do not move,
+/* CLP-18: clear the clip cells and the PLAY and REC LED feedback of one link (ble 1: those that Bluetooth
+ * wrote last, 0: those of USB), and the feedback burst. If a cell stays lit, the latched layout stays, so the pads of the other link do not move,
  * and the next frame draws them. If no cell stays lit, new feedback latches the layout again, and the pad
  * colour store (lcd.c padled_rgb) goes dark. Return 1 if a cell stays lit. */
 static uint8_t smk_apc_link_clear(uint8_t ble)
 {
     uint32_t i, left = 0u;
-    smk_apc40_cells_clear_mask(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick,
-                               ble ? apc_ble_owned : ~apc_ble_owned);
+    uint64_t m = ble ? apc_ble_owned : ~apc_ble_owned;
+    smk_apc40_cells_clear_mask(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick, m);
+    if ((m >> APC_OWN_PLAY) & 1u)
+        apc_play_feedback = 0u;
+    if ((m >> (APC_OWN_PLAY + 1u)) & 1u)
+        apc_record_feedback = 0u;
     apc_burst_mask = 0u;
     apc_burst_count = 0u;
     for (i = 0; i < SMK_APC40_CLIP_COUNT; i++)
@@ -476,10 +487,9 @@ void smk_apc_host_lost(void)
 {
     apc_host_on = 0u;
     smk_ck_midi_stop();                              /* clip keys: all notes off (smk_ck_poll) */
-    apc_play_feedback = apc_record_feedback = 0u;
     apc_clock_count = apc_clock_last_ms = apc_clock_period_ms = 0u;
     apc_clock_seen = 0u;
-    if (!smk_apc_link_clear(0u)) {                   /* CLP-18: only the USB cells; the Bluetooth cells stay */
+    if (!smk_apc_link_clear(0u)) {                   /* CLP-18: only the USB cells, PLAY and REC */
         apc_cols = SMK_APC40_SOURCE_COLS;
         apc_rows = 2u;
         apc_origin_col = apc_origin_row = 0u;
@@ -514,8 +524,7 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
     static smk_apc40_lost_t lost;
     if (!smk_apc40_lost_step(&lost, connected, notifying, fm1_ms))
         return;
-    apc_play_feedback = apc_record_feedback = 0u;
-    (void)smk_apc_link_clear(1u);
+    (void)smk_apc_link_clear(1u);                    /* CLP-18: only the Bluetooth cells, PLAY and REC */
 }
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
  * cells: lit cells in the LCD colour (APC40_LCD565: the Akai colour as plain RGB565), unlit cells dim, queued cells with a white
