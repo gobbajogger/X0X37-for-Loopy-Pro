@@ -15,3 +15,10 @@ Start each owner test checklist with these header lines:
 Write each new owner rule in USER_PREFERENCES.md. In the same commit, write it in the rule file that agents open at its step. Give the file and the rule number in the USER_PREFERENCES.md entry.
 
 Put 10 tasks or fewer in an owner test checklist. Start each task with its goal, in the words of the owner. Each task starts from any screen.
+
+### Rule 12A: rule changes
+Step: each change to a rule file or to agent-rules.md. Rule owner: Docs Keeper.
+
+Commit each rule change on a lane branch lane/dk-rules-<topic>, never directly on smk37. In the commit body, give the trigger step and the check of each rule change. The check is a script check number from SCRIPT-CHECKS.md, or "hourly audit". The quick check (STE and the pointer lint, script check 27) must pass. Then Orchestrator compares the meaning with the old text. After that review, Docs Keeper merges the lane into smk37 fast-forward only and syncs the Mac main copy.
+
+Log each rule break in rules-breaks.md, next to the rules folder. Give the break, the rule, why the trigger or the check missed it, and the fix.
