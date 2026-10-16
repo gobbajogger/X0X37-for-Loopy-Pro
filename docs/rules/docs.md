@@ -10,6 +10,8 @@ Do not invent data. Docs and logs hold only development information. Update BEHA
 
 NEW: Start each owner test checklist with three header lines. The "Build" line gives the batch number and the gated hash. The "Replaces" line gives the earlier checklist that this checklist replaces, or "none". The "Checked against decisions" line gives the time of the latest USER_PREFERENCES.md entry that you compared with the checklist.
 
+Put 10 tasks or fewer in an owner test checklist. Each task starts from any state. [owner 2026-10-17 00:15]
+
 ## Copies of the rules
 
 The Mac root files are the main copy: ~/Documents/x0x37/agent-rules.md and ~/Documents/x0x37/rules/. The files x0x37/docs/agent-rules.md and x0x37/docs/rules/ on smk37 are exact copies.
