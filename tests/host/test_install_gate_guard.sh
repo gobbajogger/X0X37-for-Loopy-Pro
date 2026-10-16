@@ -9,6 +9,9 @@ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OB
 unset X0X_GATE_LOGS_MAP X0X_SYNC_DIR
 G="$(cd "$(dirname "$0")/../.." && pwd)/tools/require_gate_pass.sh"
 T=$(mktemp -d "${TMPDIR:-/tmp}/igg.XXXXXX"); trap 'rm -rf "$T"' EXIT
+# commit.md rule 9 (tests use temp files): the queue file of every case is a temp file (empty: no open lines).
+# The live QUEUE.md never reaches this test. tests/host/test_queue_guard.sh tests the queue.
+X0X_QUEUE_FILE=$(mktemp "$T/queue.XXXXXX"); export X0X_QUEUE_FILE
 fails=0; n=0
 expect() {  # expect <REFUSED|GATE OK> <name> <args...>
     want=$1; name=$2; shift 2; n=$((n + 1))
@@ -86,7 +89,7 @@ index "$(row 'PASS' "$TREE.md")"
 expect REFUSED "one-config result, --config rel" "$H" --fwsc "$T/good.fwsc" --config rel
 n=$((n + 1)); out=$(X0X_RESULTS_DIR="$T/res" X0X_REPO="$T/repo" bash "$G" "$H" --config beta 2>&1); rc=$?
 [ "$rc" = 2 ] && echo "ok   --config beta: exit 2" || { echo "FAIL --config beta: rc=$rc $out"; fails=$((fails + 1)); }
-# a real gate result on the box
+# a real gate result on the box (the queue file is the temp file above, not the live QUEUE.md)
 REAL=/workspace/x0x37-results/1d3c048d3cc356d8d8584fe1e6a85bae9235b99c.md
 if [ -f "$REAL" ] && git -C /workspace/x0x37.git cat-file -e 9a733fe 2>/dev/null; then
     n=$((n + 1)); out=$(X0X_RESULTS_DIR=/workspace/x0x37-results X0X_REPO=/workspace/x0x37.git bash "$G" 9a733fe 2>&1); rc=$?
