@@ -1,5 +1,56 @@
 # X0X37 Pad and LED Index Path
 
+## Physical pad placement
+
+Status: ASSUMED. No check on hardware confirms it yet. Do the check with the PAD COLOURS orientation page (BEHAVIOR.md CLP-79).
+
+The SMK-37 pads make 2 rows of 8. The table shows the placement of the hardware pad index that the firmware assumes. You look from the top, and the keyboard is below the pads.
+
+<!-- pad-placement:index -->
+```
++----+----+----+----+----+----+----+----+
+|  0 |  1 |  2 |  3 |  4 |  5 |  6 |  7 |
++----+----+----+----+----+----+----+----+
+|  8 |  9 | 10 | 11 | 12 | 13 | 14 | 15 |
++----+----+----+----+----+----+----+----+
+```
+
+- Pads 0-7 are the top row, left to right. Pads 8-15 are the bottom row, left to right.
+- The LED of pad p is chain slot PADLED_SLOT[p] (firmware/src/lcd.c). The first table below gives the slots in the same layout.
+- Mux A reads the top row. Mux B reads the bottom row. Pad p is at mux address a, with SMK_PADMUX[a] = p mod 8 (firmware/hal/smk_input.h). The second table below gives the addresses in the same layout.
+- A padtest on a unit (2026-10-10) showed the rows (mux A = top, mux B = bottom). The column order and the LED order need a check on a unit.
+
+<!-- pad-placement:led-slot -->
+```
++----+----+----+----+----+----+----+----+
+|  0 | 15 | 14 | 13 | 12 | 11 | 10 |  9 |
++----+----+----+----+----+----+----+----+
+|  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |
++----+----+----+----+----+----+----+----+
+```
+
+<!-- pad-placement:mux-address -->
+```
++----+----+----+----+----+----+----+----+
+|  3 |  0 |  1 |  2 |  4 |  6 |  7 |  5 |
++----+----+----+----+----+----+----+----+
+|  3 |  0 |  1 |  2 |  4 |  6 |  7 |  5 |
++----+----+----+----+----+----+----+----+
+```
+
+If the orientation page gives a correction N other than 0:
+1. Read N. The lit pad that you confirmed is hardware pad N. Position i is on pad index i XOR N.
+   - N = 8: the two rows change places.
+   - N = 7: each row has the opposite direction (mirror).
+   - N = 15: the two rows change places and each row has the opposite direction (180 degrees).
+   - Other N: the error is unusual. Do not apply it as a fix. Make a padtest of all 16 pads first.
+2. The correction stays in RAM only. It goes away at power off, and it does not change the sequencer, the clip grid or the notes.
+3. To fix the placement, change the firmware pad map:
+   - Sensor order: SMK_PADMUX in firmware/hal/smk_input.h.
+   - LED order: PADLED_SLOT in firmware/src/lcd.c.
+4. Change the three tables above to the new map. Run tests/pad_placement_doc_test.py and the pad tests.
+5. Set the status to CONFIRMED, with the date and the build hash (x0x.bin sha256).
+
 ## Sequencer / grid mode (smk_pad_grid = 1)
 - White-key index w maps directly to hardware pad w.
 - Top row (pads 0-7) = steps 1-8.
