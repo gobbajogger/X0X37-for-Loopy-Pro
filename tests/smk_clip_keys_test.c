@@ -278,6 +278,32 @@ static void test_page(void)
     assert(!(pg & 3u) && !tog);
 }
 
+/* < and > (bit 0 <, bit 1 >): a press steps at once, a hold repeats after CK_RPT_DELAY, then each CK_RPT_MS */
+static void test_rpt(void)
+{
+    uint16_t t = 0;
+    uint32_t now, n = 0;
+    assert(ck_rpt(0, 0, 100, &t) == 0);                       /* nothing held: no step */
+    assert(ck_rpt(2, 2, 65530, &t) == 1);                     /* > press: one step up at once (the ms wraps) */
+    for (now = 65531; now < 65530u + CK_RPT_DELAY; now++)
+        assert(ck_rpt(2, 0, now, &t) == 0);                   /* no repeat before the delay */
+    assert(ck_rpt(2, 0, 65530u + CK_RPT_DELAY, &t) == 1);
+    for (now = 65531u + CK_RPT_DELAY; now <= 65530u + CK_RPT_DELAY + 10u * CK_RPT_MS; now++)
+        n += ck_rpt(2, 0, now, &t) == 1;
+    assert(n == 10);                                          /* then one step each CK_RPT_MS */
+    assert(ck_rpt(2, 0, now + 1000u, &t) == 1 && ck_rpt(2, 0, now + 1001u, &t) == 0);   /* a long pass: no burst */
+    assert(ck_rpt(0, 0, 70000, &t) == 0 && ck_rpt(0, 0, 70500, &t) == 0);   /* release: no step */
+    assert(ck_rpt(1, 1, 71000, &t) == -1);                    /* < press: one step down */
+    assert(ck_rpt(1, 0, 71000u + CK_RPT_DELAY, &t) == -1);
+    assert(ck_rpt(3, 2, 71500, &t) == 0);                     /* < and > held: no step */
+    assert(ck_rpt(3, 0, 72500, &t) == 0);
+    assert(ck_rpt(1, 0, 72600, &t) == 0);                     /* > up: < repeats after the delay again */
+    assert(ck_rpt(1, 0, 72500u + CK_RPT_DELAY, &t) == -1);
+    assert(ck_rpt(0, 0, 80000, &t) == 0);                     /* a menu or no page (lr 0), then back: */
+    assert(ck_rpt(2, 0, 80001, &t) == 0);                     /* a key still held waits for the delay */
+    assert(ck_rpt(2, 0, 80000u + CK_RPT_DELAY, &t) == 1);
+}
+
 static void test_human(void)
 {
     uint32_t h, i, late, v, r, seen_max = 0;
@@ -317,6 +343,7 @@ int main(void)
     test_zones();
     test_page();
     test_human();
+    test_rpt();
     printf("smk_clip_keys_test: ok\n");
     return 0;
 }
