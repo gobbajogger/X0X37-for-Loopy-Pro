@@ -702,6 +702,10 @@ static int expect(const char *what, const char *val)
         got = (int)transport_out_count;
     else if (!strcmp(what, "clksrc"))               /* GLO > MIDI > CLOCK SOURCE: 0 AUTO, 1 INTERNAL, 2 EXTERNAL */
         got = proj.set.clk_src;
+    else if (!strncmp(what, "setbyte", 7) && (unsigned)atoi(what + 7) < sizeof proj.set)   /* setbyteN: the settings */
+        got = ((const uint8_t *)&proj.set)[atoi(what + 7)];
+    else if (!strncmp(what, "storeset", 8) && atoi(what + 8) >= 0 && atoi(what + 8) < store_len[OBJ_SET])
+        got = store[OBJ_SET][atoi(what + 8)];       /* storesetN: byte N of the saved settings object (4 + offset) */
     else if (!strcmp(what, "clkext"))               /* 1: the sequencer follows (or waits for) a clock */
         got = seq.ext;
     else if (!strcmp(what, "waiting"))              /* EXTERNAL: playing, no clock */
