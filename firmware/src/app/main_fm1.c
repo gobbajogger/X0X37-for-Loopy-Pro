@@ -377,7 +377,7 @@ static void smk_inlog_reply(uint32_t arg)
 #endif
 /* a76: ble.c gives each Bluetooth note and CC here. While notify is off, a note for a clip cell
  * (the pad colours) does not change the cell (BEHAVIOR.md CLP-18). It gets the same answer as
- * before, so no note is dropped (rule 8). All other messages go to smk_apc_usb_event as before. */
+ * before, so X0X does not drop the note. All other messages go to smk_apc_usb_event as before. */
 uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying)
 {
     if (smk_apc40_ble_colour_unheard(pkt, notifying)) {
