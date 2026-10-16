@@ -6,11 +6,13 @@ Usage: checklist_lint.py FILE [FILE ...]
 
 Checks:
   Header (the lines before the first "## " heading), each line as "Label: value" or "- Label: value":
-    "Build:"                      names the batch number ("batch <N>") and the gated hash (7 to 40 hex characters)
+    "Build:"                      names the gated hash (7 to 40 hex characters). The batch number ("batch <N>") is in the
+                                  Build line or in the title line ("# Keyboard checklist: batch 10").
     "Replaces:"                   not empty (the earlier checklist, or "none")
     "Checked against decisions:"  has a time HH:MM (in the line or in its indented sub-items)
   Tasks: the top-level numbered lines ("<N>. ", no indent) in the "## Tasks" section (if the file has no "## Tasks"
-  section: in the whole file). 10 tasks or fewer. Each task text starts with "Goal:".
+  section: in the whole file). 10 tasks or fewer. The task title line is the goal: it has 2 words or more
+  (an optional "Goal:" in front is not counted). Orchestrator decision 02:55: no literal "Goal:" is necessary.
 Output: "CHECKLIST OK <n> tasks <file>" (exit 0), or "CHECKLIST FAIL <file>" and one line per issue (exit 1).
 """
 import re, sys
@@ -34,7 +36,9 @@ def lint(text):
         if not val:
             bad.append('header line "%s" is empty' % lab)
         elif lab == "Build:":
-            if not re.search(r"\bbatch \d+", val, re.I): bad.append("Build line has no batch number (batch <N>)")
+            title = " ".join(l for l in head if l.startswith("# "))
+            if not re.search(r"\bbatch \d+", val + " " + title, re.I):
+                bad.append("Build line and title have no batch number (batch <N>)")
             if not re.search(r"\b[0-9a-f]{7,40}\b", val): bad.append("Build line has no gated hash")
         elif lab == "Checked against decisions:" and not re.search(r"\b\d{1,2}:\d{2}\b", val):
             bad.append('"Checked against decisions" has no time (HH:MM)')
@@ -46,8 +50,9 @@ def lint(text):
     if len(tasks) > 10:
         bad.append("%d tasks (max 10)" % len(tasks))
     for m in tasks:
-        if not m.group(2).startswith("Goal:"):
-            bad.append('task %s does not start with "Goal:": %s' % (m.group(1), m.group(2)[:60]))
+        goal = re.sub(r"^Goal:\s*", "", m.group(2).strip()).strip(' "')
+        if len(re.findall(r"[A-Za-z0-9']+", goal)) < 2:
+            bad.append("task %s has no goal title (2 words or more): %s" % (m.group(1), m.group(2)[:60]))
     return len(tasks), bad
 
 
