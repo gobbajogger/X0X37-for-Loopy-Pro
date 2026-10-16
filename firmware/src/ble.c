@@ -446,7 +446,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
         return n;
     w[n++] = ble_h_link0();                                 /* attempt 34: interval, latency in use */
     w[n++] = ble_h_link1();                                 /* MIDI in drops, request state and result */
-    if (n + 2u > max)
+    if (n + 4u > max)                                       /* a76: 4 words follow (was 2: one word past w[]) */
         return n;
     w[n++] = ble_alive[0];
     w[n++] = ble_alive[1];

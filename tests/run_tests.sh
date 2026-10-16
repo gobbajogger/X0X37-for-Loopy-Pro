@@ -78,6 +78,7 @@ run smk-apc40 python3 tests/smk_apc40_test.py
 run smk-clip-ble-clear sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/ble -o $OUT/smk_clip_ble_clear_test tests/smk_clip_ble_clear_test.c && $OUT/smk_clip_ble_clear_test"
 run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
 run installer-targets python3 tests/make_pages_test.py
+run diag-size python3 tests/diag_size_test.py           # a76: ED_DIAG stays in its buffers
 if [ -f build/x0x.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
     run smk-package sh -c "python3 tools/fm1pkg_make.py --board smk37 build/x0x.bin build/loader/ota.bin $OUT/smk_new.fwsc >/dev/null && \
         python3 tests/smk_pkg_test.py $OUT/smk_new.fwsc"
