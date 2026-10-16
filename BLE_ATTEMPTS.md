@@ -168,3 +168,14 @@ Change from a62: the conn-param update now requests **min 6 / max 12 units = 7.5
 - ctl.img crc32 **30f8f83a** (piece1 8eea30ea, piece2 b9bd1409); fwsc crc32 ff742f30. app 552544 B.
 - Tests: ble_test 25157 checks, 0 failed (incl. t_noloss_flood).
 - A/B: the a62 15-30 ms build (commit fa67f70) is kept staged as /workspace/a62-fa67f70-ctl.img (crc32 01ff54bb) + .fwsc (ff742f30) for a quick swap.
+
+## a63 — fix the conn-param request that never fired, disc-reason capture, per-attempt setup ring (compile-time 15/7.5 pair)
+
+Root cause work (a62b DIAG showed d_updates 0, link stuck at the iPhone's 26.25 ms; disc ring reason always 0x00; those were partly masked earlier by a stale Mac parser):
+1) Conn-param never applied. The call was a one-shot (`!hx_cp_sent`) fired once ~1.5 s after CCCD; if that single L2CAP request was lost or ignored by iOS (flaky link), nothing retried and d_updates stayed 0. a63 makes hx_tick **retry up to 3 times** (first ~1.5 s after CCCD-on, then every ~1 s) until a conn-update-complete arrives, captures the call's **return code** (hx_cp_rc), and is fully observable: a per-connection **setup ring** (HX.smlog, 8 nibbles: 1 conn, 2 MTU, 3 first-ATT, 4 CCCD, 5 cp-request, 6 cp-update-complete, 7 disconnect) plus packed flags in HX.pad_a62 (cp_sent b0-3, cp_rc b4-7, setup-flags b8-11, updated b12), surfaced in DIAG d_smlog and in the high 16 bits of d_poll_gap. This tells us on the next iPhone test exactly where setup stops (e.g. CCCD never seen -> tag 4 absent -> routing bug; cp sent but no update -> iOS rejecting the values).
+2) Disc reason always 0x00. The handler read a fixed `p[5]`, but these events arrive 5 bytes long (evsize 5 in the ring), so p[5] was out of range -> 0. a63 reads **`p[size-1]`** (the reason is the event's last byte for DISCONNECTION_COMPLETE regardless of the 5/6-byte framing); evsize is still stored for verification.
+3) Per-attempt setup ring: see (1) — ordered, timestamped-by-sequence trace so failed iPhone setups are diagnosable from one DIAG read.
+4) Compile-time value pair via -DA63_CP_MIN/-DA63_CP_MAX (EXTRA_CF hook in build_ctl.sh/build_in_container.sh): **a63-15 = 12/24 (15-30 ms, default)**, **a63-7 = 6/12 (7.5-15 ms)**. Both built; piece-2 CRC differs between them (the constants live in hx_tick in piece 2a), proving the pair took.
+
+Build/test: full app + fwsc clean; ble_test 25157 checks, 0 failed (noloss flood still passes). hx_tick and hx_cp_pack live in piece 2a; piece 1 65488/65536 (48 B free).
+Artifacts: a63-15-ctl.img (crc32 b54cc796; piece1 d801750f, piece2 b3023313), a63-7-ctl.img (crc32 de06c913; piece1 55c6fab2, piece2 35f49008), a63-x0x-smk37-elite.fwsc (crc32 93b243ee). Installing a63-15 per the user.

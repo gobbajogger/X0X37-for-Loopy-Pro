@@ -541,7 +541,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
              (ble_sat(ble_r.sysex_drops, 0xffu) << 16);
     if (n + 1u > max)
         return n;
-    w[n++] = (uint32_t)ble_r.mb.hx.poll_gap_max;            /* a62: core-1 idle-pass gap (ms) while connected */
+    w[n++] = (uint32_t)ble_r.mb.hx.poll_gap_max | ((uint32_t)ble_r.mb.hx.pad_a62 << 16);  /* a62 poll gap (lo16); a63 conn-param diag (hi16): cp_sent b0-3, cp_rc b4-7, setup b8-11, updated b12 */
     return n;
 }
 

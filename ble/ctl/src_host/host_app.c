@@ -41,6 +41,14 @@ extern int le_controller_set_random_mac(void *addr);
 extern u32 ctl_ms(void);
 /* a62: stock btstack GAP conn-param update (resolved at LTO link). Apple-compliant values. */
 extern int gap_le_request_connection_parameter_update(u16 handle, u16 min, u16 max, u16 latency, u16 timeout);
+/* a63: Apple-compliant conn-param values, a compile-time pair (1.25 ms units).
+ * a63-15 (default): 12/24 = 15..30 ms.  a63-7: -DA63_CP_MIN=6 -DA63_CP_MAX=12 = 7.5..15 ms. */
+#ifndef A63_CP_MIN
+#define A63_CP_MIN 12u
+#endif
+#ifndef A63_CP_MAX
+#define A63_CP_MAX 24u
+#endif
 
 enum { BLE_CMD_ADV_ENABLE = 1, BLE_CMD_ADV_PARAM, BLE_CMD_ADV_DATA, BLE_CMD_RSP_DATA, BLE_CMD_DISCONNECT,
        BLE_CMD_REGIEST_THREAD, BLE_CMD_ATT_SEND_INIT, BLE_CMD_ATT_MTU_SIZE, BLE_CMD_ATT_VAILD_LEN,
@@ -85,10 +93,21 @@ static const u8 hx_db[] = {
 #define HX_ATT_BUF (188u + HX_MTU_MAX + 256u)       /* ATT_CTRL_BLOCK_SIZE + local MTU + send buffer */
 static u8 hx_att_buf[HX_ATT_BUF] __attribute__((aligned(4), section(".ctl_ram2")));
 static u16 hx_conn;
-static u32 hx_ccc_ms; static u8 hx_cp_sent;   /* a62: when CCCD went on, and whether we sent the conn-param update */
+static u32 hx_ccc_ms, hx_cp_last;   /* a62/a63: when CCCD went on, and when we last sent the conn-param request */
+static u8 hx_cp_sent, hx_cp_rc, hx_setup_flags;   /* a63: conn-param send count, last rc; setup flags b0 conn b1 mtu b2 att b3 ccc */
+/* a63 setup ring: a rolling 8-nibble history of the per-connection setup (newest in low nibble),
+ * surfaced as DIAG d_smlog. tags: 1 conn-complete, 2 MTU, 3 first ATT write, 4 CCCD-on,
+ * 5 conn-param request sent, 6 conn-update-complete, 7 disconnect. */
+#define SR(tag) do { HX.smlog = (HX.smlog << 4) | ((u32)(tag) & 0xfu); } while (0)
 static u8 hx_radio = 1, hx_started;
 static char hx_name[10];
 #define HX (ctl_mb->hx)
+
+__attribute__((section(".ble_sm_code.a62"))) static void hx_cp_pack(void)
+{
+    HX.pad_a62 = (u16)((hx_cp_sent & 0xfu) | ((u32)(hx_cp_rc & 0xfu) << 4)
+        | ((u32)(hx_setup_flags & 0xfu) << 8) | ((u32)(HX.updates ? 1u : 0u) << 12));
+}
 
 static void hx_report(void)
 {
@@ -142,12 +161,14 @@ static int hx_write(u16 con, u16 h, u16 mode, u16 off, u8 *buf, u16 size)
     (void)con; (void)mode; (void)off;
     if (h == H_IO && size >= 2) {
         HX.rx++;
+        if (!(hx_setup_flags & 4u)) { hx_setup_flags |= 4u; SR(3); hx_cp_pack(); }   /* a63 first ATT write */
         hx_to_app(XB_HX_MIDI, buf, size);
     } else if (h == H_IO_CCC && size >= 1) {
         u8 was = HX.ccc;
         HX.ccc = buf[0] & 1u;
         att_set_ccc_config(h, HX.ccc ? ATT_OP_NOTIFY : 0);
-        if (HX.ccc && !was) { hx_ccc_ms = ctl_ms(); hx_cp_sent = 0; }   /* a62: arm the conn-param update */
+        if (HX.ccc && !was) { hx_ccc_ms = ctl_ms(); hx_cp_sent = 0; hx_cp_last = 0;
+                              hx_setup_flags |= 8u; SR(4); hx_cp_pack(); }   /* a62/a63: arm the conn-param update */
         hx_report();
     }
     return 0;
@@ -196,20 +217,23 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
             HX.ccc = 0; HX.mtu = 23; HX.bonded = 0;
             HX.state = XB_LK_CONN;
             HX.links++;
+            hx_cp_sent = 0; hx_cp_rc = 0; hx_cp_last = 0; hx_setup_flags = 1u;   /* a63 */
+            SR(1); hx_cp_pack();
             ble_user_cmd_prepare(BLE_CMD_ATT_SEND_INIT, 4, hx_conn, hx_att_buf, HX_ATT_BUF, HX_MTU_MAX);
             hx_report();
         } else if (p[2] == 0x03 && p[3] == 0 && size >= 8) {       /* connection update complete */
             HX.interval = (u16)(p[6] | (p[7] << 8));
             HX.updates++;                                          /* a61 */
+            SR(6); hx_cp_pack();                                   /* a63 */
             hx_report();
         }
         break;
     case EV_DISCONNECT:
-        HX.reason = size >= 6 ? p[5] : 0;
-        HX.disc[hx_disc_i & 3u] = (u32)HX.reason | ((u32)(size & 0xffu) << 8) |   /* a61: reason, ev size, status, ccc-was */
+        HX.reason = size >= 3 ? p[size - 1] : 0;   /* a63: reason is the event's last byte (size 5 or 6), not fixed p[5] */
+        HX.disc[hx_disc_i & 3u] = (u32)HX.reason | ((u32)(size & 0xffu) << 8) |   /* a61/a63: reason, ev size, status, ccc-was, updates */
             ((u32)(size >= 3 ? p[2] : 0) << 16) | ((u32)(HX.ccc & 1u) << 24) | ((u32)(HX.updates & 0x7fu) << 25);
-        hx_disc_i++;
-        hx_conn = 0; HX.ccc = 0; hx_cp_sent = 0;
+        hx_disc_i++; SR(7);                                       /* a63 */
+        hx_conn = 0; HX.ccc = 0; hx_cp_sent = 0; hx_setup_flags = 0;
         ble_user_cmd_prepare(BLE_CMD_ATT_SEND_INIT, 4, 0, 0, 0, 0);
         if (hx_radio) hx_adv(1); else { HX.state = XB_LK_IDLE; hx_report(); }
         break;
@@ -220,6 +244,7 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
         if (size >= 6) {
             u16 m = (u16)(p[4] | (p[5] << 8));
             HX.mtu = m > HX_MTU_MAX ? HX_MTU_MAX : m;
+            hx_setup_flags |= 2u; SR(2); hx_cp_pack();             /* a63 */
             ble_user_cmd_prepare(BLE_CMD_ATT_MTU_SIZE, 1, HX.mtu - 3);
             hx_report();
         }
@@ -279,10 +304,16 @@ void hx_from_app(unsigned char type, const unsigned char *p, unsigned n)
  * (HX.interval, HX.updates). Called from ctl_poll. */
 __attribute__((section(".ble_sm_code.a62"))) void hx_tick(void)
 {
-    if (hx_conn && HX.ccc && !hx_cp_sent && (s32)(ctl_ms() - hx_ccc_ms) >= 1500) {
-        gap_le_request_connection_parameter_update(hx_conn, 6u, 12u, 0u, 200u);   /* a62b: 6*1.25=7.5ms .. 12*1.25=15ms, iOS prefers min (7.5) for MIDI; latency 0; 200*10=2000ms */
-        hx_cp_sent = 1;
-    }
+    u32 now, due, wait;
+    if (!hx_conn || !HX.ccc) return;        /* a63: only after a link is up and notifications are on */
+    if (HX.updates) return;                 /* the central already applied our parameters */
+    if (hx_cp_sent >= 3u) return;           /* a63: gave up after 3 tries */
+    now = ctl_ms();
+    due = hx_cp_sent ? hx_cp_last : hx_ccc_ms;
+    wait = hx_cp_sent ? 1000u : 1500u;      /* first ~1.5 s after CCCD, then retry every ~1 s */
+    if ((s32)(now - due) < (s32)wait) return;
+    hx_cp_rc = (u8)gap_le_request_connection_parameter_update(hx_conn, A63_CP_MIN, A63_CP_MAX, 0u, 200u);
+    hx_cp_sent++; hx_cp_last = now; SR(5); hx_cp_pack();   /* a63: observable, retried, never one-shot-lost */
 }
 
 /* the host's set-up, before btstack_init (ctl_init) */

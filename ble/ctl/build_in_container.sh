@@ -13,7 +13,7 @@ TC=${TC:-/tc}; REPO=${REPO:-/w}; OUT=${OUT:-$REPO/ble/ctl/out}
 T=$TC/pi32v2/bin
 CF="-target pi32v2 -integrated-as -mcpu=r3 -mfprev1 -Os -flto -fno-common -fallow-pointer-null \
     -fprefer-gnu-section -ffunction-sections -fdata-sections -fms-extensions -ffreestanding \
-    -mllvm -pi32v2-large-program=true -Wall -Wextra -Wno-unused-parameter -Werror -DCTL_HOST"
+    -mllvm -pi32v2-large-program=true -Wall -Wextra -Wno-unused-parameter -Werror -DCTL_HOST ${EXTRA_CF:-}"
 # Work in /tmp: a shared folder (Colima, Docker Desktop) can serve stale file sizes after an edit.
 B=/tmp/ctlbuild; rm -rf "$B"; mkdir -p "$B/obj" "$OUT"
 cp -r "$REPO/ble/ctl/src" "$REPO/ble/ctl/src_host" "$REPO/ble/ctl/gen" "$REPO/ble/ctl/lib" "$REPO/ble/ctl/ctl.ld" "$B/"
