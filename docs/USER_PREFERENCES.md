@@ -96,9 +96,9 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 
 ## Where things are
 
-- Source tree: x0x37/ (branch smk37). BLE work: flash_review repo, live branch ble-a74. Clip keys: branch clip-keys (box repo).
+- Source tree: x0x37/ (branch smk37). Firmware work: one working branch, integration (batch flow, agent rules 4 to 7), box repo /workspace/x0x37.git and Mac worktree flash_review_integration. The keyboard runs integration 9a733fe (batch 1, installed 22:25).
 - Rules: agent-rules.md. Agents and lanes: AGENTS_AND_ROOMS.md. Intended behavior: BEHAVIOR.md on integration (x0x37/BEHAVIOR.md on smk37 is a synced copy). Change log: x0x37-progress-log.md. Plan: ROADMAP.md. BLE attempt ledger: BLE_ATTEMPTS.md in the BLE branch.
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-16.
+Last update: 2026-10-16 22:39.

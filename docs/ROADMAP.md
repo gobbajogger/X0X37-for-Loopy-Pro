@@ -33,10 +33,10 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 | Bluetooth | iPhone connects over BLE MIDI and the link holds | 94285b5 (a67) |
 | Clip keys | Knobs 2-8 send CC 48-54 when no clip keys mode is on | 9984344 |
 
-## Where we are now (2026-10-16 22:25)
+## Where we are now (2026-10-16 22:39)
 
-- Branches: working branch integration f357a2e (code tree the same as 9a733fe; later commits are docs and the ledger only). It has ble-a75 (38af0a0), ble-pad-a76 (1c45b4b: violet and pad clear fixes, INLOG) and ble-arrows-a77 (59ddadd: < and > in the menus, GEN-56). Gate on 9a733fe: the 22:24 run is VOID (setup error). Two new runs started, no result at 22:30. Installed 22:25 (ledger b1). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). Next batch: apc-colors-int (f175c30). Side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1), ble-a70 (77fa067) and ble-a71 (9ef7bc2): built, not installed.
-- Keyboard: integration 9a733fe (batch 1) installed 22:25 (ledger b1, b913735). fwsc CRC32 3a738997. ctl.img read-back eb742dd2. Slots 1 and 2 the same before and after. DIAG READY. Before the install: manual build and test 93 ok, 0 FAIL, 0 skip, not the gate script. Device test PENDING (checklist-batch1).
+- Branches: working branch integration f357a2e (code tree the same as 9a733fe; later commits are docs and the ledger only). It has ble-a75 (38af0a0), ble-pad-a76 (1c45b4b: violet and pad clear fixes, INLOG) and ble-arrows-a77 (59ddadd: < and > in the menus, GEN-56). Gate on 9a733fe: PASS 22:29 (tree 1d3c048d). The 22:24 run was VOID (setup error). Installed 22:25, before the PASS (ledger b1). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). Next batch: apc-colors-int (f175c30). Side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1), ble-a70 (77fa067) and ble-a71 (9ef7bc2): built, not installed.
+- Keyboard: integration 9a733fe (batch 1) installed 22:25 (ledger b1, b913735). fwsc CRC32 3a738997. ctl.img read-back eb742dd2. Slots 1 and 2 the same before and after. DIAG READY. Gate PASS 22:29 (tree 1d3c048d, 93 ok, 0 FAIL, 0 skip). The gate Elite fwsc CRC32 3a738997 is the same as the installed file. The install at 22:25 came before the gate PASS: a rule 7 break. Cause: Merge Integrator called a manual test run a gate PASS, and Firmware Main Builder accepted it without a check of index.md. No new rule. The owner tests batch 1 only after the gate PASS (now true). If the owner test fails, Firmware Main Builder installs 14fb352 (a74) again. Device test PENDING (checklist-batch1). Tag last-good-hw stays 94285b5.
 - a74 (14fb352, branch ble-a74), installed 21:03. Owner test 1 at 21:18 (ledger 11d81a7): violet FAIL, pad clear FAIL. The other items are NOT TESTED. a74 adds to a73 the clock source setting INTERNAL / EXTERNAL / AUTO (MID-13) and the PLAY note (MID-14). Gate PASS (tree 2f1f79d2ca5c). ctl.img read back eb742dd2. Per-slot CRCs 05fb6e99 / 6bb165f0 before = after, slot 3 empty. DIAG READY. last-good-hw stays 94285b5 (a67).
 - a73 (99faa0a) installed 20:26. Owner test 20:37 to 20:39 (ledger c3ee3ef): Loopy Start starts X0X (PASS). X0X PLAY does not start or stop Loopy Pro (FAIL). Pads, overdub and tempo are not tested yet. last-good-hw stays 94285b5 (a67). a73 (branch ble-a73) adds to a67: Bluetooth MIDI clock and transport fixes (a72), clip colour and feedback fixes (a71), the installer ctl.img read-back (a69), and live recording on the nearest step (REC-06). Slots 05fb6e99 / 6bb165f0 before = after, DIAG READY.
 - a65 (ca1d4d2), installed 18:19, goes back to the BLE host in the app (from fb6b1b0, test 37), with no pairing and no bonds. The CTL_HOST host of a38 to a64 is not used. No connection parameter request (owner decision 18:18). Slots 961626d5 / 9a09fdb9 before = after. Slot 3 is empty, now 44 KiB at 0xB0000. DIAG: READY, no crash.
@@ -56,6 +56,7 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
    Open: CLP-50 FAIL. X0X PLAY does not start or stop Loopy Pro (a73, owner test 20:37-20:39). Also test the a73 pads, overdub and tempo with Loopy Pro.
    Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. Fix in 9a733fe (a76), installed 22:25, device test pending.
    Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back at once. Fix in 9a733fe (a76), installed 22:25, device test pending.
+   Open: owner test of batch 1 (9a733fe, checklist-batch1). If it fails, Firmware Main Builder installs 14fb352 again.
    Open: a74 clock source and PLAY note items are not tested yet.
    Open: BLE-16 (All Notes Off when the BLE link ends) is not in code.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
@@ -64,6 +65,7 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 6. User checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and idle clip colours on the screen. Also check that patterns and settings survived.
 7. Web installer: let the page fetch the JieLi files and build the Bluetooth image, or guide the user through it. If possible, end users need no toolchain.
 8. Release: build the Pro and Elite packages, check the installer hashes, and publish (only when the user asks).
+9. Lane files: Firmware Main Builder and Second Builder agree on the split of the lane files after the batch 1 owner test.
 
 ## Open decisions
 
@@ -76,4 +78,4 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 - Bluetooth audio.
 - Shipping any JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 22:30.
+Last update: 2026-10-16 22:39.

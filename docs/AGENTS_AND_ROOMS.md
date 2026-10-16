@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 22:30 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 22:39 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -16,7 +16,7 @@ Last updated: 2026-10-16 22:30 (Vladivostok, UTC+10).
 - ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
 - Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi lane files. Commits on integration (rules 4 to 6). Installs the batch hash with gate PASS. Only agent allowed to install (with slot backups, a per-slot CRC compare and a notice before the install).
 - Never: Writes the bootloader. Installs in the background. Installs without a slot backup and a per-slot CRC compare.
-- Worktrees (Mac, flash_review repo): /private/tmp/a74wt (ble-a74, the installed build), /private/tmp/refswt (refs-oscuro, read only).
+- Worktrees (Mac, flash_review repo): /private/tmp/a74wt (ble-a74, 14fb352, the build to install again if batch 1 fails), /private/tmp/refswt (refs-oscuro, read only).
 - Box copy: /workspace/x0x37-firmware-main-builder (a git repository). Commits there, then syncs the commits to the Mac repo before each install.
 
 ### Second Builder
@@ -126,8 +126,8 @@ Repositories:
 ## Current project context
 
 - Mac: Mac-mini.local, /Users/mac/Documents/x0x37. Main source tree: x0x37 (branch smk37). The smk37 docs/ folder holds copies of agent-rules.md, USER_PREFERENCES.md, ROADMAP.md and this file. Box smk37 and Mac smk37 stay identical (git bundle sync).
-- BLE: the keyboard runs integration 9a733fe (batch 1) installed 22:25 (ledger b1, b913735). fwsc CRC32 3a738997. ctl.img read-back eb742dd2. Slots 1 and 2 the same before and after. DIAG READY. Before the install: manual build and test 93 ok, 0 FAIL, 0 skip, not the gate script. Device test PENDING (checklist-batch1). Before: a74 (14fb352, installed 21:03, branch ble-a74, ledger tip 11d81a7), owner test 1 (21:18): violet FAIL, pad clear FAIL. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a75 38af0a0, ble-pad-a76 1c45b4b and ble-arrows-a77 59ddadd are merged into integration (installed in 9a733fe). Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
-- Working branch: integration f357a2e (code tree the same as 9a733fe). Gate on 9a733fe: the 22:24 run is VOID (setup error, not a test result). Two new runs started, no result at 22:30. clip-keys-a65 5a89b76: its changes are in integration (cherry-picked). Next batch: apc-colors-int f175c30 (LCD clip colours, CLP-05).
+- BLE: the keyboard runs integration 9a733fe (batch 1) installed 22:25 (ledger b1, b913735). fwsc CRC32 3a738997. ctl.img read-back eb742dd2. Slots 1 and 2 the same before and after. DIAG READY. Gate PASS 22:29 (tree 1d3c048d, 93 ok, 0 FAIL, 0 skip). The gate Elite fwsc CRC32 3a738997 is the same as the installed file. The install at 22:25 came before the gate PASS: a rule 7 break. Cause: Merge Integrator called a manual test run a gate PASS, and Firmware Main Builder accepted it without a check of index.md. No new rule. The owner tests batch 1 only after the gate PASS (now true). If the owner test fails, Firmware Main Builder installs 14fb352 (a74) again. Device test PENDING (checklist-batch1). Tag last-good-hw stays 94285b5. Before: a74 (14fb352, installed 21:03, branch ble-a74, ledger tip 11d81a7), owner test 1 (21:18): violet FAIL, pad clear FAIL. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a75 38af0a0, ble-pad-a76 1c45b4b and ble-arrows-a77 59ddadd are merged into integration (installed in 9a733fe). Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
+- Working branch: integration f357a2e (code tree the same as 9a733fe). Gate on 9a733fe: PASS 22:29 (tree 1d3c048d). The 22:24 run was VOID (setup error). clip-keys-a65 5a89b76: its changes are in integration (cherry-picked). Next batch: apc-colors-int f175c30 (LCD clip colours, CLP-05).
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only, see the repository rules.
 - main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change in both the Bluetooth/JieLi lane and the clip mode lane. Merge with care.
@@ -169,3 +169,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 22:27: agent sections: old worktrees removed (live: a74wt, refswt, flash_review_integration). Second Builder purpose from its profile. Optimizer: no gate, no trial merges, no push outside the box and the Mac. Lanes table: no branch names for lanes, Test Plan Writer sends checklists to Orchestrator. Release Packager and Test Plan Writer: "Never installs" confirmed from their profiles.
 - 2026-10-16 22:28: Second Builder owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). Runs an Elite build before each handoff.
 - 2026-10-16 22:30: integration f357a2e. Keyboard: integration 9a733fe installed 22:25 (ledger b1), device test pending.
+- 2026-10-16 22:39: batch 1 (9a733fe) gate PASS 22:29, after the install at 22:25 (rule 7 break). Lane file split: open item.
