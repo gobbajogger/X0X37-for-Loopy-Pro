@@ -55,6 +55,7 @@ void project_defaults(void)
     proj.set.keysound = 0;
     proj.set.autosave_off = 0;
     proj.set.clk_out = 1;
+    proj.set.clk_src = SEQ_CLK_AUTO;
     proj.set.notes_out = 0;
     proj.set.bpm_x10 = 1250;
     proj.set.accent_q7 = 88;
@@ -452,6 +453,8 @@ int project_load(void)
     else
         bad = 1;
     project_ck_check(0);                              /* (main_fm1.c trusts the clip keys settings) */
+    if (proj.set.clk_src > SEQ_CLK_EXT)                /* an older object's padding byte: AUTO */
+        proj.set.clk_src = SEQ_CLK_AUTO;
     sound_ok = load_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0;
     if (!sound_ok)
         bad = 1;
@@ -498,6 +501,7 @@ void project_apply_io(void)
     int p;
     seq.send_clock = proj.set.clk_out;
     seq.send_notes = proj.set.notes_out;
+    seq.clk_src = proj.set.clk_src;
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];
         seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? SEQ_CH_OFF : v - 1);

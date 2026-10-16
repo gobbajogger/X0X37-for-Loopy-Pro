@@ -44,6 +44,8 @@ typedef struct {
     uint8_t ck_ord, ck_rate, ck_oct;     /* clip mode ARP: order, rate, octaves - 1 (0-3) */
     uint8_t ck_gate;                     /* clip mode ARP: gate / 10 % - 1 (0-9) */
     uint8_t ck_inv;                      /* clip mode CHORD: inversion 0-3 */
+    uint8_t clk_src;                     /* GLO > MIDI > CLOCK SOURCE: SEQ_CLK_* (0 AUTO; the padding byte of an
+                                          * older object: a load sets more than 2 to AUTO) */
 } settings_t;
 
 /* the song and the motion lanes: one blob, split across OBJ_SONG and OBJ_MOTION */
