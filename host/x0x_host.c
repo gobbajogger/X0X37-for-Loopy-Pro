@@ -12,6 +12,8 @@
  *   key K down|up | tapkey K     (K: 0..26 = F3..G5, or w0..w15 white keys, b0..b10 black keys)
  *   turn ENC N [MS]              (ENC: SELECT ALGO PRESET K1 K2 K3 K4; N detents, signed, MS apart, 80 = slow)
  *   spin ENC N                   N detents at once (1 ms), exactly N (no knob acceleration)
+ *   arrow L|R down|up|tap        the SMK-37 "<" (L) or ">" (R), as smk_arrows (smk_arrows.h) after each frame
+ *   clipmode 0|1                 the clip mode flag for the arrow route only
  *   master N                     MASTER pot 0..4096
  *   param T V I VALUE            a sound pot (engine.h target, voice, index), as its knob would
  *   slot K NAME A.wav [B.wav..]  user sample slot K (0..2): one loop (zone) per WAV, encoded here
@@ -247,6 +249,24 @@ void plat_stalls_enable(int on) { (void)on; }
 #include "../firmware/src/app/project.c"
 #include "../firmware/src/app/ui.c"
 
+/* The SMK-37 "<" and ">" as main_fm1.c smk_arrows does them (the same smk_arrows.h), after each frame.
+ * Script: "arrow L|R down|up|tap", "clipmode 0|1" (the route only: the host has no clip mode screen). */
+#include "../firmware/src/app/smk_arrows.h"
+static uint32_t arrows_held, clip_on, arrow_steps;
+static arw_t host_arw;
+static void host_arrows(void)
+{
+    uint32_t route = arw_route((uint32_t)ui_menu_open(), clip_on, (held_btn >> B_HOME) & 1u);
+    int32_t d = arw_frame(&host_arw, arrows_held, route, now_ms);
+    if (!d)
+        return;
+    arrow_steps++;                                   /* (expect arrowsteps: the steps that the arrows gave) */
+    if (route == ARW_MENU)
+        ui_menu_arrow(d);
+    else
+        enc_acc[EN_SELECT] += d;
+}
+
 /* ---------------------------------------------------------- outputs --- */
 static void png_write(const char *path)
 {
@@ -472,6 +492,7 @@ static void run_ms(uint32_t ms)
         if (now_ms >= ui_due) {
             ui_due = now_ms + 16;
             ui_frame();
+            host_arrows();
         } else {
             ui_input_only();
         }
@@ -692,6 +713,18 @@ static int expect(const char *what, const char *val)
         got = ui.rec;
     else if (!strcmp(what, "sel"))                  /* the selected track of the part on screen */
         got = ui.sel[ui.part];
+    else if (!strcmp(what, "listsel"))              /* the selected row of the open list (0-based, headers count) */
+        got = ui.list_sel;
+    else if (!strcmp(what, "overlay"))              /* 0 none, 1 a list, 2 a question */
+        got = ui.overlay;
+    else if (!strcmp(what, "page"))                 /* the page of the view on the screen (0-based) */
+        got = cur_page();
+    else if (!strcmp(what, "rowval"))               /* the value of the selected row of the open list (pref_get) */
+        got = ui.overlay == O_LIST ? pref_get(list_rows[ui.list_sel]) : -1;
+    else if (!strcmp(what, "arrowsteps"))
+        got = (int)arrow_steps;
+    else if (!strcmp(what, "setsize"))              /* sizeof settings_t */
+        got = (int)sizeof proj.set;
     else if (!strcmp(what, "view"))
         got = ui.view;
     else if (!strcmp(what, "tempo"))
@@ -847,7 +880,18 @@ int main(int argc, char **argv)
                     run_ms(gap);
                 }
             }
-        } else if (!strcmp(cmd, "spin")) {              /* spin ENC N: all N detents at once, exactly N */
+        } else if (!strcmp(cmd, "arrow")) {             /* arrow L|R down|up|tap: the SMK-37 "<" or ">" */
+            uint32_t m = a[0] == 'R' ? 2u : 1u;
+            if (b[0] != 'u')
+                arrows_held |= m;
+            if (b[0] == 't')
+                run_ms(40);
+            if (b[0] != 'd')
+                arrows_held &= ~m;
+            run_ms(b[0] == 't' ? 40 : 2);
+        } else if (!strcmp(cmd, "clipmode"))
+            clip_on = (uint32_t)atoi(a) & 1u;
+        else if (!strcmp(cmd, "spin")) {              /* spin ENC N: all N detents at once, exactly N */
             int e = find_name(ENC_N, NE, a);
             if (e < 0) {
                 printf("line %d: no encoder %s\n", lineno, a);

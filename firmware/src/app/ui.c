@@ -2304,6 +2304,30 @@ static void list_enter(void)
         run_action(r.a, 0);
 }
 
+#if BOARD_SMK37 || X0X_HOST
+/* The SMK-37 "<" and ">" (smk_arrows.h). 1: a menu list of this file is open (GLO or the list of a page). */
+static int ui_menu_open(void) { return ui.overlay == O_LIST && !perf_testing(); }
+/* The hook for submenu rows. Return 1 if row r is a submenu row and the arrow did its job: ">" enters the
+ * submenu, "<" goes back. This lane has no submenu rows. */
+static int list_sub_arrow(pref_t r, int d)
+{
+    (void)r;
+    (void)d;
+    return 0;
+}
+/* "<" (d = -1) or ">" (d = +1) in a menu: the value of the selected row one step down or up, as ALGORITHM
+ * does (turn_ref). The value stops at its ends. An action row and a section header do nothing. The knob
+ * acceleration does not start: the presses and the repeats are 60 ms or more apart (accel). */
+static void ui_menu_arrow(int d)
+{
+    pref_t r = list_rows[ui.list_sel];
+    if (list_sub_arrow(r, d))
+        return;
+    turn_ref(r, d, EN_ALGO);
+    ui.act_t = plat_ms();                             /* (the autosave waits for quiet) */
+}
+#endif
+
 static void close_overlay(void)
 {
     if (ui.view == V_GLO) {
