@@ -11,6 +11,7 @@
  * Keys: F3..G5; the 16 white keys are steps (HOME: patterns), the 11 black keys a drum
  * machine's tracks or the break's slice pads (HOME: part mutes). */
 #include "x0x.h"
+#include "../x0x_cold.h"                       /* X0X_COLD: input and menu code of the main loop, built for size */
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
@@ -374,7 +375,7 @@ static int pref_get(pref_t r)
     }
 }
 
-static void pref_set(pref_t r, int v)
+X0X_COLD static void pref_set(pref_t r, int v)
 {
     pattern_t *p = cur_pat();
     const x0x_param_t *d = pref_desc(r);
@@ -578,7 +579,7 @@ static int is_pan(pref_t r)
 }
 
 /* the value, as a number and a unit ("-6" "dB"); a switch gives its name and no unit */
-static void pref_value_of(pref_t r, int v, char *num, char *unit)
+X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
 {
     const x0x_param_t *d = pref_desc(r);
     *num = *unit = 0;
@@ -1585,7 +1586,7 @@ static void perf_test_tick(void)
 
 static void set_view(int v);
 
-static void run_action(int act, int arg)
+X0X_COLD static void run_action(int act, int arg)
 {
     char t[28], *q;
     switch (act) {
@@ -2349,7 +2350,7 @@ static void close_overlay(void)
     ui.overlay = O_NONE;
 }
 
-static void button_tap(int b)
+X0X_COLD static void button_tap(int b)
 {
     if (perf_testing()) {                             /* the test owns the transport: HOME or PLAY stop it */
         if ((b == B_HOME || b == B_PLAY) && perf.phase != 3)
@@ -2512,7 +2513,7 @@ static void button_tap(int b)
     }
 }
 
-static void input(void)
+X0X_COLD static void input(void)
 {
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     int e;
