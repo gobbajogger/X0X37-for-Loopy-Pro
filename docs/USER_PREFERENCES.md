@@ -108,6 +108,8 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - The usb.c APC identity reply has no gate check, and this is not a problem. Leave it.
 - FREE PLAY: keep it, and document it as it is.
 - 2026-10-17 00:01 (owner): Pad calibration is only for development. The release build has X0X_DEV_PADCAL=0 (no PAD COLOURS row), with the pad table that the owner calibrated.
+- 2026-10-17 01:11 (owner, through Orchestrator): Install the release build. The pad colour page (PAD COLOURS) is not necessary now.
+- 2026-10-17 01:17 and 01:19 (owner, through Orchestrator): Make the idle clip pads slightly brighter. The owner selected the level at 01:19 (2 x the old level). The screen shows each idle clip square at half of the full shade of its colour group. Empty slots become brighter too, because Loopy sends the same shade for them (LIM-03).
 
 ## Clip mode keybed, arp, chord and scale (decided 2026-10-16)
 
@@ -144,4 +146,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 01:00.
+Last update: 2026-10-17 01:45.
