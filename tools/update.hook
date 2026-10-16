@@ -6,6 +6,14 @@
 # Fail closed: an error in a check rejects the ref.
 # 1. refs-oscuro: reject a ref name with "refs-oscuro", and a pushed commit that only refs-oscuro has
 #    (the same rule as part 2 of the client pre-push hook).
+# 1b. Rules = code (check 28a, owner 02:37): a push to refs/heads/smk37 that changes docs/rules/, docs/USER_PREFERENCES.md
+#    or USER_PREFERENCES.md (git diff <old> <new>) is accepted only in one of these two forms:
+#    a. <new> is a merge commit. Its first parent is <old>. Its second parent is the tip of a branch
+#       refs/heads/lane/dk-rules-*. The merge adds no rule change of its own (git diff <second parent> <new> on these
+#       paths is empty).
+#    b. <new> is the tip of a branch refs/heads/lane/dk-rules-*, and <old> is an ancestor of <new> (fast-forward).
+#    Push the lane/dk-rules-* branch first, then smk37 (the hook reads the lane tip that is in the repository now).
+#    A push to smk37 that does not change these paths is not checked. The skip option does not skip this part.
 # 2. Quick check, only for refs/heads/integration (not a delete): the installed quickcheck.sh (strict STE when the
 #    pushed tree has tools/ste_strict) runs in a work clone, base = <old sha>. It must give "QUICK PASS".
 #    It holds the gate lock SHARED (flock -s, never exclusive). If a gate holds the lock for more than
@@ -50,6 +58,30 @@ if [ "$NEW" != "$Z" ]; then
             hit=$(comm -12 <(echo "$uniq" | sort) <(echo "$G_OUT" | sort) | head -1)
             [ -z "$hit" ] || reject "the push contains the refs-oscuro commit $hit (owner rule)"
         fi
+    fi
+fi
+
+# ---------- 1b. Rules = code: rule changes on smk37 come only from a lane/dk-rules-* branch ----------
+RULEP="docs/rules/ docs/USER_PREFERENCES.md USER_PREFERENCES.md"
+if [ "$REF" = refs/heads/smk37 ] && [ "$NEW" != "$Z" ]; then
+    if [ "$OLD" = "$Z" ]; then g diff --name-only "$(git hash-object -t tree /dev/null)" "$NEW" -- $RULEP
+    else g diff --name-only "$OLD" "$NEW" -- $RULEP; fi
+    RCH=$G_OUT
+    if [ -n "$RCH" ]; then
+        g for-each-ref --format='%(refname) %(objectname)' 'refs/heads/lane/dk-rules-*'
+        LANES=$G_OUT; FORM=""
+        P1=$(git rev-parse -q --verify "$NEW^1" 2>/dev/null </dev/null || true)
+        P2=$(git rev-parse -q --verify "$NEW^2" 2>/dev/null </dev/null || true)
+        if [ -n "$P2" ] && [ "$P1" = "$OLD" ] && L=$(echo "$LANES" | awk -v h="$P2" '$2 == h {print $1; exit}') && [ -n "$L" ]; then
+            g diff --name-only "$P2" "$NEW" -- $RULEP
+            [ -z "$G_OUT" ] || reject "the merge of $L changes rule files itself ($(echo $G_OUT)). Put each rule change on the lane (rules = code, owner 02:37)."
+            FORM="merge of $L"
+        elif L=$(echo "$LANES" | awk -v h="$NEW" '$2 == h {print $1; exit}') && [ -n "$L" ] &&
+             { [ "$OLD" = "$Z" ] || git merge-base --is-ancestor "$OLD" "$NEW" 2>/dev/null </dev/null; }; then
+            FORM="fast-forward to $L"
+        fi
+        [ -n "$FORM" ] || reject "a rule change on smk37 ($(echo $RCH | cut -c1-200)) must come from a lane/dk-rules-* branch: push the lane, then a merge of its tip (first parent = smk37) or a fast-forward to its tip (rules = code, owner 02:37)"
+        echo "update hook: rule change on smk37 accepted ($FORM)" >&2
     fi
 fi
 
