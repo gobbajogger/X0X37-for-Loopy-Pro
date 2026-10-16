@@ -270,7 +270,11 @@ static int ota_ufw(uint8_t *hdr, uint32_t *fl_off, uint32_t *fl_len, uint32_t *o
 
 static int ota_stage(void)                       /* steps 1..6; 0 = host said success */
 {
+#ifdef OTA_SCRATCH                     /* the app: a main-loop scratch that it shares (2 KiB used) */
+    uint8_t *const hdr = OTA_SCRATCH, *const b = hdr + 0x400, *const mine = b + 512;
+#else
     static uint8_t hdr[0x400], b[512], mine[512];
+#endif
     uint32_t i, n, ota_off, ota_len, fl_off, fl_len, c, len, own, official;
     int rc;
     /* 1. UFW header + entry list */
