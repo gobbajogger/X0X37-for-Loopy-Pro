@@ -87,17 +87,28 @@ typedef struct {
     void *ctx;
 } seq_sink_t;
 
+#define SEQ_EXT_BEATS 8u              /* the tempo of an external clock: the mean over this many beats */
+/* the clock source (GLO > MIDI > CLOCK SOURCE): AUTO follows a clock when one comes in (the default),
+ * INTERNAL ignores MIDI Clock, Start, Stop and Continue, EXTERNAL plays only on the incoming clock */
+#define SEQ_CLK_AUTO 0u
+#define SEQ_CLK_INT 1u
+#define SEQ_CLK_EXT 2u
+
 typedef struct {                      /* one part's runtime */
     uint8_t pos;                      /* current step */
     int8_t pp_dir;                    /* ping-pong direction */
     uint8_t started;                  /* the first step has fired since start */
     uint8_t sounding;                 /* 303: a note is held */
     uint8_t held_note;
+    uint8_t ext_due;                  /* external clock: more steps due in one block, not yet played */
     uint32_t to_next;                 /* samples to the next step (Q8 fraction) */
     uint32_t to_off;                  /* 303: samples to the gate falling, Q8; 0 = none */
     uint32_t rng;                     /* DIR_RANDOM and auto-mutate */
     uint16_t bars;                    /* wraps since the pattern started (auto-mutate) */
     uint8_t ext_ticks;                /* external clock: ticks into this step */
+    uint8_t rec_skip_step;            /* a live hit recorded on a step not played yet on this pass: */
+    uint8_t rec_skip_pat;             /* that step, its pattern, and the voices (bit v; 303: bit 0) */
+    uint16_t rec_skip;                /* that the step does not sound once (the key sounded) */
 } seq_track_t;
 
 typedef struct {
@@ -126,11 +137,20 @@ typedef struct {
     uint32_t clk_to_next;             /* internal: samples to the next MIDI clock, Q8 */
     uint32_t ext_since;               /* samples since the last external clock (tempo estimate) */
     uint32_t ext_period;              /* smoothed samples per external clock, Q8 */
+    uint32_t ext_now;                 /* samples, free running: the time base of the beat ring */
+    uint32_t ext_beat[SEQ_EXT_BEATS]; /* ext_now at the last beats (24 external clocks each), a ring */
+    uint8_t ext_nb, ext_bi, ext_q;    /* beats in the ring, the next ring slot, clocks into this beat */
     volatile uint32_t ext_pending;    /* external clocks received, not yet consumed */
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
+    volatile uint8_t clk_src;         /* SEQ_CLK_*: the clock source that the UI sets */
+    uint8_t clk_cur;                  /* SEQ_CLK_*: the clock source that seq_advance applied */
+    uint8_t clk_lost;                 /* EXTERNAL: no clock now, the pause (or the wait) is done */
+    volatile uint8_t req_rt;          /* 1 = the pending Start or Continue came from MIDI in (seq_midi_rt) */
+    uint8_t start_local;              /* 1 = the last start came from PLAY (not from MIDI in) */
+    uint32_t start_at;                /* ext_now at the last start */
 } seq_t;
 
 void seq_init(seq_t *s, pattern_t *patterns);
@@ -142,6 +162,8 @@ void seq_start(seq_t *s);             /* from step 1 of the current (or cued) pa
 void seq_stop(seq_t *s);
 void seq_continue(seq_t *s);
 void seq_ext_clock(seq_t *s);         /* one 24-ppqn tick (USB MIDI 0xF8) */
+int seq_midi_rt(seq_t *s, uint8_t st);  /* MIDI in 0xF8, 0xFA, 0xFB, 0xFC: 1 (INTERNAL drops them); else 0 */
+int seq_clock_waiting(const seq_t *s);  /* EXTERNAL: playing, but no clock for 0.5 s (it waits) */
 void seq_cue(seq_t *s, int pattern);  /* every part, at the end of the bar (now, if stopped) */
 void seq_cue_part(seq_t *s, int part, int pattern);
 void seq_chain(seq_t *s, int a, int b);
@@ -153,3 +175,5 @@ uint32_t seq_step_q8(const seq_t *s, int rate);
 float seq_tempo(const seq_t *s);      /* the tempo in effect (internal or measured) */
 int seq_part_len(const seq_t *s, int t);         /* steps in part t's pattern */
 int seq_next_step(seq_t *s, int t, int p);       /* the step after p (direction; no commit) */
+int seq_rec_step(seq_t *s, int t);               /* the step a live hit now records on: the nearest */
+void seq_rec_skip(seq_t *s, int t, int step, int voice);   /* that hit: its step does not sound it once */

@@ -114,10 +114,14 @@ static inline uint8_t smk_apc40_cell_event(volatile uint8_t velocity[SMK_APC40_C
     vel &= 0x7Fu;
     f = flags[note];
     if (!vel) {
+        /* An off less than SMK_APC40_TOGGLE_TICKS after an on can be the first flash of a
+         * queued clip. Keep the color: smk_apc40_cells_age clears it if no on follows. */
+        uint8_t hold = (uint8_t)(!(f & SMK_APC40_CELL_OFF) &&
+                                 (uint8_t)(now - tick[note]) < SMK_APC40_TOGGLE_TICKS);
         f |= SMK_APC40_CELL_OFF;
         flags[note] = f;
         tick[note] = now;
-        if (f & SMK_APC40_CELL_QUEUED)
+        if ((f & SMK_APC40_CELL_QUEUED) || hold)
             return 0u;                      /* flash off phase: keep the color */
         if (!velocity[note])
             return 0u;
@@ -155,7 +159,17 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
     uint8_t note, changed = 0u;
     for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++) {
         uint8_t f = flags[note];
-        if (!(f & SMK_APC40_CELL_QUEUED) || (uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
+        if (!(f & SMK_APC40_CELL_QUEUED)) {
+            /* A held off (smk_apc40_cell_event) with no on after it: clear the cell now. */
+            if ((f & SMK_APC40_CELL_OFF) && velocity[note] &&
+                (uint8_t)(now - tick[note]) >= SMK_APC40_TOGGLE_TICKS) {
+                velocity[note] = 0u;
+                channel[note] = 0u;
+                changed = 1u;
+            }
+            continue;
+        }
+        if ((uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
             continue;
         if (f & SMK_APC40_CELL_OFF) {
             velocity[note] = 0u;
@@ -165,6 +179,28 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
         flags[note] = (uint8_t)(f & SMK_APC40_CELL_OFF);
     }
     return changed;
+}
+
+/* Bluetooth link state for the clip feedback. Bit 0: the link is up. Bit 1: notify is on.
+ * Return 1 when a bit went from 1 to 0: the link ended, or the central turned notify off
+ * (CCCD write 0). Then Loopy is gone and its feedback is not true any more. */
+static inline uint8_t smk_apc40_link_lost(uint8_t *prev, uint8_t connected, uint8_t notifying)
+{
+    uint8_t now = (uint8_t)((connected ? 1u : 0u) | (notifying ? 2u : 0u));
+    uint8_t lost = (uint8_t)((*prev & (uint8_t)~now) != 0u);
+    *prev = now;
+    return lost;
+}
+
+/* Clear all clip cells: no colour, no queued state. */
+static inline void smk_apc40_cells_clear(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t flags[SMK_APC40_CLIP_COUNT],
+                                         volatile uint8_t tick[SMK_APC40_CLIP_COUNT])
+{
+    uint8_t note;
+    for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++)
+        velocity[note] = channel[note] = flags[note] = tick[note] = 0u;
 }
 
 /* Beat phase 0..255 from the 24 PPQN clock count: one cycle per quarter note. */
@@ -410,6 +446,22 @@ static inline uint32_t smk_apc40_history_packet(uint8_t redo, uint8_t on)
     uint32_t status = (on ? 0x90u : 0x80u) | SMK_APC40_HISTORY_CHANNEL;
     uint32_t note = redo ? SMK_APC40_REDO_NOTE : SMK_APC40_UNDO_NOTE;
     return (on ? 0x09u : 0x08u) | status << 8 | note << 16 | (uint32_t)(on ? 0x7Fu : 0x00u) << 24;
+}
+
+/* Outside clip mode, PLAY also sends note 0x5B on MIDI channel 16, the channel of the Undo / Redo notes
+ * (MID-14), for a MIDI-learn in Loopy Pro. X0X starts and stops as before. In clip mode, PLAY is the APC
+ * PLAY (smk_apc40_transport_event), so this sends nothing. HOME + PLAY (X0X redo) sends nothing.
+ * The release sends note off only after a press that sent note on, also if clip mode started between. */
+#define SMK_APC40_PLAY_CTL_NOTE 0x5Bu
+static inline uint8_t smk_apc40_play_note_event(uint8_t *sent, uint8_t clip_mode, uint8_t home_held, uint8_t pressed)
+{
+    return smk_apc40_transport_event(sent, (uint8_t)(!clip_mode && !home_held), pressed);
+}
+/* USB-MIDI packet: note on 0x5B velocity 127, or note off 0x5B velocity 0, on channel 16. */
+static inline uint32_t smk_apc40_play_note_packet(uint8_t on)
+{
+    uint32_t status = (on ? 0x90u : 0x80u) | SMK_APC40_HISTORY_CHANNEL;
+    return (on ? 0x09u : 0x08u) | status << 8 | SMK_APC40_PLAY_CTL_NOTE << 16 | (uint32_t)(on ? 0x7Fu : 0x00u) << 24;
 }
 
 /* Return 1 when the current footprint fully contains the latched one and differs.

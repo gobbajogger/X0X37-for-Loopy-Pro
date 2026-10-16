@@ -94,7 +94,7 @@ shot t16_list_edit.png
 tap HOME
 tap GLO
 shot t17_global.png
-turn SELECT 15
+turn SELECT 16
 shot t18_global_reset.png
 tap SEL
 shot t19_ask.png
@@ -102,6 +102,7 @@ tap HOME
 wait 300
 shot t20_cancelled.png
 tap GLO
+turn SELECT 1
 turn ALGO -4
 press SAVE
 tap REC

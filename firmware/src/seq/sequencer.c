@@ -134,7 +134,7 @@ static void bass_release(seq_t *s, int b, const seq_sink_t *o)
     tr->to_off = 0;
 }
 
-static void fire_drum(seq_t *s, int k, int p, const seq_sink_t *o)
+static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o)
 {
     const dpart_t *d = dpart(s, k);
     uint32_t bit = 1u << (p & 31);
@@ -144,6 +144,14 @@ static void fire_drum(seq_t *s, int k, int p, const seq_sink_t *o)
     for (v = 0; v < NDRUM; v++) {
         if (!(d->hit[v][w] & bit) || ((s->mute | s->vmute) & (1u << (k * NDRUM + v))))
             continue;
+        if (skip >> v & 1u) {                        /* recorded live on this pass: the key sounded it */
+            if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
+                uint8_t mv = (uint8_t)(vel * 127.0f);
+                midi(o, (uint8_t)(0x90 | s->ch[k]), GM_DRUM[k][v], mv);
+                midi(o, (uint8_t)(0x80 | s->ch[k]), GM_DRUM[k][v], 0);
+            }
+            continue;
+        }
         if (!o->drum(o->ctx, k, v, vel))
             continue;                                /* its chance said no: no MIDI either */
         if (s->send_notes && s->ch[k] != SEQ_CH_OFF) {
@@ -154,7 +162,7 @@ static void fire_drum(seq_t *s, int k, int p, const seq_sink_t *o)
     }
 }
 
-static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, const seq_sink_t *o)
+static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, uint32_t skip, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
     bpart_t *bp = bpart(s, b);
@@ -172,7 +180,8 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     note = note < 0 ? 0 : note > 127 ? 127 : note;
     if (gate == G_NOTE || !tr->sounding) {
         int slide = tr->sounding && prev_slide;
-        o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide);
+        if (!skip)                                   /* (recorded live on this pass: the key sounded it) */
+            o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide);
         if (s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b];
             midi(o, (uint8_t)(0x90 | s->ch[TRK_BASS0 + b]), (uint8_t)note, (st->flags & BS_ACCENT) ? 127 : 90);
@@ -296,7 +305,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[t];
     int rate = part_rate(s, t), p, wrapped;
-    uint32_t changed = 0;
+    uint32_t changed = 0, skip;
     uint32_t L = seq_step_q8(s, rate);
     uint32_t carry = tr->to_next < 256u ? tr->to_next : 0;   /* the step was due this far into the sample: keep it */
     int bass = is_bass(t);
@@ -319,19 +328,23 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         tr->bars++;
     if (changed & 1u)                                /* the 909's new pattern: its passes from 1 again, as */
         tr->bars = 0;                                /* restart() does for the others (probability cycles) */
+    skip = (tr->rec_skip && tr->rec_skip_step == p && tr->rec_skip_pat == s->ppat[t]) ? tr->rec_skip : 0u;
+    tr->rec_skip = 0;                                /* one pass only */
     tr->pos = (uint8_t)p;
     if (o->step)                                     /* first: the step's motion and p-locks, which the hit */
         o->step(o->ctx, t, p);                       /* below must hear (a drum takes its tune as it fires) */
     if (is_drum(t))
-        fire_drum(s, t, p, o);
+        fire_drum(s, t, p, skip, o);
     else if (t == TRK_BRK) {
         if (o->brk)
             o->brk(o->ctx, p, tr->bars, (float)L / 256.0f,
                    (s->pat[s->ppat[TRK_BRK]].brk.steps >> p & 1u) && !(s->mute & (1u << MUTE_BRK)));
     } else
-        fire_bass(s, t - TRK_BASS0, p, L, carry, o);
+        fire_bass(s, t - TRK_BASS0, p, L, carry, skip, o);
     if (s->ext) {
-        tr->to_next = NEVER;                         /* the clock arms the next one */
+        tr->to_next = tr->ext_due ? 0 : NEVER;       /* the clock arms the next one (a burst: at once) */
+        if (tr->ext_due)
+            tr->ext_due--;
     } else {
         /* the step that follows p: swung if it is an odd one */
         int np = next_pos(s, t, p, 0);
@@ -351,6 +364,8 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
             continue;
         s->t[t].started = 0;
         s->t[t].to_next = s->ext ? NEVER : 0;
+        s->t[t].ext_due = 0;
+        s->t[t].rec_skip = 0;
         s->t[t].ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);
         s->t[t].bars = 0;
         s->t[t].pp_dir = 1;
@@ -370,6 +385,8 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
             tr->pp_dir = 1;
         }
         tr->to_off = 0;
+        tr->ext_due = 0;
+        tr->rec_skip = 0;
         tr->to_next = s->ext ? NEVER : 0;
         tr->ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);   /* the first clock is the downbeat */
     }
@@ -387,25 +404,50 @@ static void do_stop(seq_t *s, const seq_sink_t *o)
         bass_release(s, b, o);
     if (o->brk_stop)
         o->brk_stop(o->ctx);
-    for (t = 0; t < NTRACKS; t++)
+    for (t = 0; t < NTRACKS; t++) {
         s->t[t].to_next = NEVER;
+        s->t[t].ext_due = 0;
+        s->t[t].rec_skip = 0;
+    }
     if (!s->ext && s->send_clock && !s->midi_req)
         midi(o, 0xFC, 0, 0);
 }
 
-/* external clock ticks: arm the steps they complete */
+static void ext_set_period(seq_t *s, uint32_t q)   /* samples per external clock, Q8 */
+{
+    s->ext_period = q;
+    s->ext_bpm = (float)FS * 60.0f * 256.0f / (24.0f * (float)q);
+}
+
+/* external clock ticks: the tempo, and arm the steps they complete. Bluetooth MIDI gives all the ticks
+ * of one connection event (7.5-30 ms) in one block. Thus the time between two blocks is not one tick
+ * period. The tempo is the mean tick period over the last beats in the ring (SEQ_EXT_BEATS). */
 static void ext_ticks(seq_t *s)
 {
     int t;
-    uint32_t n = s->ext_pending;
+    uint32_t n = s->ext_pending, k = n;
     s->ext_pending = 0;
     for (; n; n--) {
-        if (s->ext_since > 0 && s->ext_since < FS) {  /* tempo: smoothed tick period */
-            uint32_t q = s->ext_since << 8;
-            s->ext_period = s->ext_period ? s->ext_period - (s->ext_period >> 3) + (q >> 3) : q;
-            s->ext_bpm = (float)FS * 60.0f * 256.0f / (24.0f * (float)s->ext_period);
+        if (s->ext_since > 0 && s->ext_since < FS && s->ext_nb < 2u) {   /* the first beats: smoothed */
+            uint32_t q = (s->ext_since << 8) / k;     /* the ticks of one block share its time */
+            ext_set_period(s, s->ext_period ? s->ext_period - (s->ext_period >> 3) + (q >> 3) : q);
         }
         s->ext_since = 0;
+        if (++s->ext_q >= 24u) {                      /* a beat: the mean since the oldest beat in the ring */
+            s->ext_q = 0;
+            if (s->ext_nb) {
+                uint32_t d = s->ext_now - s->ext_beat[s->ext_nb < SEQ_EXT_BEATS ? 0u : s->ext_bi], m = 24u * s->ext_nb;
+                uint32_t w = ((d / m) << 8) + ((d % m) << 8) / m, p = s->ext_period;
+                if (s->ext_nb >= 2u && (w > p ? w - p : p - w) < (p >> 6))   /* a change under 1/64: smoothed */
+                    w = p - (p >> 2) + (w >> 2);
+                if (w)                                /* (0: all the ticks of the ring in one block) */
+                    ext_set_period(s, w);
+            }
+            s->ext_beat[s->ext_bi] = s->ext_now;
+            s->ext_bi = (uint8_t)((s->ext_bi + 1u) % SEQ_EXT_BEATS);
+            if (s->ext_nb < SEQ_EXT_BEATS)
+                s->ext_nb++;
+        }
         if (!s->playing)
             continue;
         for (t = 0; t < NTRACKS; t++) {
@@ -414,6 +456,11 @@ static void ext_ticks(seq_t *s)
             if (++tr->ext_ticks < tps)
                 continue;
             tr->ext_ticks = 0;
+            if (tr->to_next != NEVER) {               /* the last one not played yet (one block): it too */
+                if (tr->ext_due < 255u)
+                    tr->ext_due++;
+                continue;
+            }
             {
                 int np = tr->started ? next_pos(s, t, tr->pos, 0) : 0;
                 uint32_t L = s->ext_period ? s->ext_period * (uint32_t)tps : seq_step_q8(s, rate);
@@ -440,36 +487,144 @@ uint32_t seq_until_event(seq_t *s, uint32_t n)
     return m ? m : 1;
 }
 
+/* the external clock is gone: a new beat ring, and the internal tempo takes the last measured one */
+static void clock_lost(seq_t *s)
+{
+    s->ext_nb = s->ext_bi = s->ext_q = 0;             /* the next clock: a new beat ring */
+    if (s->ext_period) {                              /* the internal tempo takes the last measured one */
+        float b = (float)(int)(s->ext_bpm + 0.5f);   /* whole BPM, as the TEMPO knob sets it */
+        s->bpm = b < 20.0f ? 20.0f : b > 275.0f ? 275.0f : b;
+    }
+}
+
+static void to_internal(seq_t *s)
+{
+    int t;
+    s->ext = 0;
+    clock_lost(s);
+    for (t = 0; t < NTRACKS; t++)
+        if (s->playing && s->t[t].to_next == NEVER)
+            s->t[t].to_next = 0;
+}
+
+/* CLOCK SOURCE set to INTERNAL while X0X follows a clock: each part's next step comes when the clock
+ * would give it, so no step comes early or late (a clock that is gone: at once, as to_internal) */
+static void switch_internal(seq_t *s)
+{
+    int t;
+    uint32_t per = s->ext_period ? s->ext_period : seq_step_q8(s, RATE_16) / 6u;   /* one tick, Q8 */
+    uint32_t since = s->ext_since < (1u << 23) ? s->ext_since << 8 : NEVER;
+    for (t = 0; t < NTRACKS && s->playing; t++) {
+        seq_track_t *tr = &s->t[t];
+        int rate = part_rate(s, t), tps = TICKS_PER_STEP[rate];
+        uint32_t left;
+        if (tr->to_next != NEVER)
+            continue;
+        left = (tr->ext_ticks == 0xFFu ? 1u : (uint32_t)(tps - tr->ext_ticks)) * per;   /* to the next step */
+        if ((tr->started ? next_pos(s, t, tr->pos, 0) : 0) & 1)
+            left += swing_q8(s, rate, per * (uint32_t)tps);
+        tr->to_next = left > since ? left - since : 0;
+    }
+    s->ext = 0;
+    clock_lost(s);
+}
+
+static void rephase(seq_t *s)                         /* the next tick is tick 0 of the step that plays */
+{
+    int t;
+    for (t = 0; t < NTRACKS; t++) {
+        s->t[t].to_next = NEVER;
+        s->t[t].ext_due = 0;
+        s->t[t].ext_ticks = 0xFFu;                    /* (ext_ticks adds 1 for this tick: 0) */
+    }
+}
+
+static void pause_sound(seq_t *s, const seq_sink_t *o)   /* EXTERNAL waits: the 303 notes and the break stop */
+{
+    int b;
+    if (!s->playing)
+        return;
+    for (b = 0; b < NBASS; b++)
+        bass_release(s, b, o);
+    if (o->brk_stop)
+        o->brk_stop(o->ctx);
+}
+
+/* apply a new clock source (GLO > MIDI > CLOCK SOURCE), in the audio ISR */
+static void clock_source(seq_t *s, const seq_sink_t *o)
+{
+    uint8_t m = s->clk_src;
+    if (m > SEQ_CLK_EXT)
+        m = SEQ_CLK_AUTO;
+    s->clk_cur = m;
+    s->clk_lost = 0;
+    if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
+        s->ext_pending = 0;
+        if (s->ext)
+            switch_internal(s);
+    } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
+        s->ext = 1;
+        s->ext_bpm = s->bpm;                          /* no stale tempo */
+        s->ext_period = 0;
+        s->ext_nb = s->ext_bi = s->ext_q = 0;
+        s->clk_lost = 1;
+        if (s->playing)
+            rephase(s);
+        pause_sound(s, o);
+    }
+}
+
 void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 {
     int t, guard;
     uint32_t dq = k << 8;
-    s->ext_since += k;
-    if (s->ext_pending)
+    if (s->clk_cur != SEQ_CLK_EXT || s->ext_since < 2u * FS)   /* (EXTERNAL waits long: no wrap) */
+        s->ext_since += k;
+    s->ext_now += k;
+    if (s->clk_cur != s->clk_src)
+        clock_source(s, o);
+    if (s->clk_cur == SEQ_CLK_INT)
+        s->ext_pending = 0;
+    if (s->ext_pending) {
+        if (!s->ext && s->playing)                    /* playing on the internal clock: the first tick */
+            rephase(s);                               /* is tick 0 of the step that plays (no step now) */
         s->ext = 1;
-    else if (s->ext && s->ext_since > FS / 2u) {    /* clock gone for 0.5 s: back to internal */
-        s->ext = 0;
-        if (s->ext_period) {                          /* the internal tempo takes the last measured one */
-            float b = (float)(int)(s->ext_bpm + 0.5f);   /* whole BPM, as the TEMPO knob sets it */
-            s->bpm = b < 20.0f ? 20.0f : b > 275.0f ? 275.0f : b;
-        }
-        for (t = 0; t < NTRACKS; t++)
-            if (s->playing && s->t[t].to_next == NEVER)
-                s->t[t].to_next = 0;
+        s->clk_lost = 0;
     }
-    if (s->req_stop) {
+    else if (s->ext && s->ext_since > FS / 2u) {    /* clock gone for 0.5 s */
+        if (s->clk_cur != SEQ_CLK_EXT)
+            to_internal(s);                           /* back to internal */
+        else if (!s->clk_lost) {                      /* EXTERNAL: pause, keep the place, wait for the clock */
+            s->clk_lost = 1;
+            clock_lost(s);
+            pause_sound(s, o);
+        }
+    }
+    if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
         s->req_stop = 0;
-        s->req_start = s->req_cont = 0;
         if (s->playing)
             do_stop(s, o);
     }
-    if (s->req_start) {
-        s->req_start = 0;
-        do_start(s, 1, o);
-    }
-    if (s->req_cont) {
-        s->req_cont = 0;
-        do_start(s, 0, o);
+    if (s->req_start || s->req_cont) {
+        uint8_t rt = s->req_rt;
+        s->req_rt = 0;
+        /* PLAY started X0X less than one step ago, and a MIDI Start or Continue comes (the host answers the
+         * PLAY note, MID-14): X0X already plays step 1, so it does not start again (no second step 1) */
+        if (rt && s->playing && s->start_local &&
+            s->ext_now - s->start_at < (seq_step_q8(s, part_rate(s, TRK_DRUM)) >> 8))
+            s->req_start = s->req_cont = 0;
+        else {
+            if (s->req_start) {
+                s->req_start = 0;
+                do_start(s, 1, o);
+            }
+            if (s->req_cont) {
+                s->req_cont = 0;
+                do_start(s, 0, o);
+            }
+            s->start_local = (uint8_t)!rt;
+            s->start_at = s->ext_now;
+        }
     }
     s->midi_req = 0;                                  /* used only by the requests above */
     if (s->ext_pending)
@@ -519,9 +674,28 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 }
 
 void seq_start(seq_t *s) { s->req_start = 1; }
-void seq_stop(seq_t *s) { s->req_stop = 1; }
+void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start or Continue, not a later one */
+{
+    s->req_start = s->req_cont = 0;
+    s->req_stop = 1;
+}
 void seq_continue(seq_t *s) { s->req_cont = 1; }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
+int seq_midi_rt(seq_t *s, uint8_t st)
+{
+    int internal = s->clk_src == SEQ_CLK_INT;
+    switch (st) {
+    case 0xF8: if (!internal) seq_ext_clock(s); return 1;
+    case 0xFA: if (!internal) { s->req_rt = 1; seq_start(s); } return 1;
+    case 0xFB: if (!internal) { s->req_rt = 1; seq_continue(s); } return 1;
+    case 0xFC: if (!internal) seq_stop(s); return 1;
+    default: return 0;
+    }
+}
+int seq_clock_waiting(const seq_t *s)
+{
+    return s->clk_cur == SEQ_CLK_EXT && s->playing && s->ext_since > FS / 2u;
+}
 void seq_cue(seq_t *s, int p)
 {
     int t;
@@ -536,6 +710,35 @@ void seq_cue_part(seq_t *s, int t, int p)
 }
 int seq_cue_of(const seq_t *s, int t) { return s->pcue[t] < NPAT ? s->pcue[t] : -1; }
 int seq_next_step(seq_t *s, int t, int p) { return next_pos(s, t, p, 0); }
+/* the step a live hit now records on: the nearest step. That is the step that plays, or the next one
+ * after half of the step (samples on the internal clock, ticks on an external clock; on an external
+ * clock also a next step that its tick armed and that did not play yet). Before a part's first step
+ * after PLAY or Start: its first step. */
+int seq_rec_step(seq_t *s, int t)
+{
+    const seq_track_t *tr = &s->t[t];
+    int rate = part_rate(s, t), late;
+    if (!tr->started)
+        return (is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
+    if (s->ext)
+        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= TICKS_PER_STEP[rate] / 2u);
+    else
+        late = tr->to_next != NEVER && tr->to_next < seq_step_q8(s, rate) / 2u;
+    return late ? next_pos(s, t, tr->pos, 0) : tr->pos;
+}
+/* a live hit (voice v; 303: 0) recorded on step p: if p did not play yet on this pass, p does not sound
+ * that voice when it plays next (the key sounded it). Once: the next step clears it. */
+void seq_rec_skip(seq_t *s, int t, int p, int v)
+{
+    seq_track_t *tr = &s->t[t];
+    if (tr->started && p == tr->pos)                  /* it played on this pass */
+        return;
+    if (tr->rec_skip_step != p || tr->rec_skip_pat != s->ppat[t])
+        tr->rec_skip = 0;
+    tr->rec_skip_step = (uint8_t)p;
+    tr->rec_skip_pat = s->ppat[t];
+    tr->rec_skip |= (uint16_t)(1u << v);
+}
 void seq_chain(seq_t *s, int a, int b)
 {
     s->chain_a = (uint8_t)a;

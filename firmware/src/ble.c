@@ -97,6 +97,7 @@ static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
  * usb.c does on USB. Other SysEx from Bluetooth is not taken (counted). */
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
 extern void smk_apc_host_seen(void);
+extern void smk_apc_ble_link(uint8_t connected, uint8_t notifying);
 static uint8_t ble_sx[16], ble_sx_n, ble_sx_over, ble_sx_reply, ble_sx_ch;
 static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
 {
@@ -359,6 +360,7 @@ static void ble_service(void)
             bleh_rx(h, t, ble_r.fr, (uint16_t)n);
         }
     }
+    smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));   /* a71: Loopy gone: clip feedback off */
     while (ble_r.orr != ble_r.ow) {             /* MIDI out, mirrored */
         uint8_t b[3];
         uint32_t len = ble_msg_of_usb(ble_oq[ble_r.orr % BLE_OQ], b);

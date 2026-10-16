@@ -34,19 +34,26 @@ static uint32_t packed_len;             /* the last save's (or load's) packed st
 
 /* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
  * ARP UP 1/16, 1 octave, gate 50 %, no swing, human, rhythm or strum; and the highest values. A value out of
- * range (for example an older object): all go back to the defaults. An older object without ck_x1/ck_x2 loads
+ * range (for example an older object): all go back to the defaults. Index 10 is clk_src (BLE, GLO > MIDI):
+ * not a clip byte, so the check and the reset do not touch it. An older object without ck_x1/ck_x2 loads
  * zeros there: the defaults. */
-static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
-                     CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
+static const uint8_t CK_DEF[13] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0, 0},
+                     CK_MAX[13] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 255, 63, 127};
 static void project_ck_check(int force)
 {
-    uint8_t *v = &proj.set.ck_ch;
-    for (int i = 0; i < 12; i++)
+    uint8_t *v = &proj.set.ck_ch, src = proj.set.clk_src;
+    for (int i = 0; i < 13; i++)
         force |= v[i] > CK_MAX[i];
-    if (force || v[0] < 2)
-        __builtin_memcpy(v, CK_DEF, 12);
+    if (force || v[0] < 2) {
+        __builtin_memcpy(v, CK_DEF, 13);
+        proj.set.clk_src = src;
+    }
 }
-typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
+/* the settings layout: clk_src keeps the byte that BLE (a74) gave it; ck_x1 uses the last padding byte, ck_x2 a
+ * new byte (an older 40-byte object loads 0 there) */
+typedef char ck_set_size[(__builtin_offsetof(settings_t, ck_inv) == 37u && __builtin_offsetof(settings_t, clk_src) == 38u &&
+                          __builtin_offsetof(settings_t, ck_x1) == 39u && __builtin_offsetof(settings_t, ck_x2) == 40u &&
+                          sizeof(settings_t) == 44u) ? 1 : -1];
 
 void project_defaults(void)
 {
@@ -58,6 +65,7 @@ void project_defaults(void)
     proj.set.keysound = 0;
     proj.set.autosave_off = 0;
     proj.set.clk_out = 1;
+    proj.set.clk_src = SEQ_CLK_AUTO;
     proj.set.notes_out = 0;
     proj.set.bpm_x10 = 1250;
     proj.set.accent_q7 = 88;
@@ -455,6 +463,8 @@ int project_load(void)
     else
         bad = 1;
     project_ck_check(0);                              /* (main_fm1.c trusts the clip keys settings) */
+    if (proj.set.clk_src > SEQ_CLK_EXT)                /* an older object's padding byte: AUTO */
+        proj.set.clk_src = SEQ_CLK_AUTO;
     sound_ok = load_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0;
     if (!sound_ok)
         bad = 1;
@@ -501,6 +511,7 @@ void project_apply_io(void)
     int p;
     seq.send_clock = proj.set.clk_out;
     seq.send_notes = proj.set.notes_out;
+    seq.clk_src = proj.set.clk_src;
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];
         seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? SEQ_CH_OFF : v - 1);
