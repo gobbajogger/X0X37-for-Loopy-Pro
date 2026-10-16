@@ -1200,7 +1200,7 @@ CK_FN static void ck_arp(uint32_t dt)
         }
     }
 }
-/* 1: clip mode and no menu on the screen: knobs 2-8 send CC 48-54 (ck_controls), X0X gets no knob turns */
+/* 1: clip mode and no menu on the screen: knobs 2-8 go to ck_controls (a stage or CC 48-54), X0X gets no knob turns */
 uint8_t smk_ck_knobs_owned(void)
 {
     return (uint8_t)(clip_grid_mode && ui.overlay == O_NONE && !ui.help);
@@ -1284,11 +1284,15 @@ CK_FN static void ck_key_edit(uint32_t k)
     if (z)
         ck_set(f, ck_zone_val(z, k, ck_get(f), CK_FMAX[f]));
 }
+/* knobs 2-5 of each stage (CLP-63): the field (CK_E_*), CK_NE = none */
+static const uint8_t CK_KNOB[3][4] = {{CK_E_ROOT, CK_E_SCALE, CK_E_SNAP, CK_NE}, {CK_E_CHORD, CK_E_INV, CK_NE, CK_NE},
+                                      {CK_E_ORD, CK_E_RATE, CK_E_OCT, CK_E_GATE}};
 /* SCALE, CHORD, ARP: a tap (shorter than CK_TAP_MS, no edit) turns the stage on and pins its page, or turns it
  * off and closes the page (ck_page_tap). A hold shows its page,
  * and the keys edit the page. The release closes the page. FADER BANK pins the page (the keys play), a second
  * press closes it; < and > step the last field (a hold repeats, no wrap). NOTE REPEAT + ARP: LATCH on or off.
- * NOTE REPEAT alone: panic. Knobs 2-8: CC 48-54 (no stage takes the knobs). */
+ * NOTE REPEAT alone: panic. Knobs 2-5 set the stage of the page, else the stage that is on (ARP, CHORD, SCALE).
+ * No stage: knobs 2-8 send CC 48-54. */
 CK_FN static void ck_controls(void)
 {
     CK_BASE;
@@ -1331,11 +1335,26 @@ CK_FN static void ck_controls(void)
         ck_send(0xB0u | cp->ch, 123u, 0u);                   /* All Notes Off */
         ui_say("PANIC", 0);
     }
-    if (own)                                                 /* knobs 2-8 send CC 48-54 for MIDI-learn */
-        for (i = 0; i < NE; i++) {                          /* (relative: 1-63 up, 65-127 down) */
+    /* the stage with the knobs (CLP-63): the stage of the page, else the stage that is on (ARP, CHORD, SCALE),
+     * else none (3) */
+    v = cp->pg & 3u ? (cp->pg & 3u) - 1u : cp->on & CK_M_ARP ? 2u : cp->on & CK_M_CHORD ? 1u : cp->on & CK_M_SCALE ? 0u : 3u;
+    if (own)
+        for (i = 0; i < (v < 3u ? 4u : NE); i++) {          /* a stage: knobs 2-5 (knobs 6-8 wait) */
             int32_t d = fm1_enc_take(panel.enc[i]) * panel.dir[i];
-            if (d)
-                ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);
+            char n[12], t[12];
+            if (!d)
+                continue;
+            if (v > 2u) {                                   /* no stage: CC 48-54 for MIDI-learn */
+                ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);   /* (relative) */
+                continue;
+            }
+            f = CK_KNOB[v][i];
+            if (f >= CK_NE)
+                continue;
+            d += (int32_t)ck_get(f);
+            ck_set(f, (uint32_t)(d < 0 ? 0 : d > CK_FMAX[f] ? CK_FMAX[f] : d));
+            put_s(put_s(n, ck_nm(CK_FLD_N, f)), " ");
+            ui_say(n, ck_val_txt(f, ck_get(f), t));        /* for example "RATE 1/16" */
         }
 }
 /* ------- clip mode screen: the KEYS panel (the bottom strip) and the SCALE / CHORD / ARP page (main area) --- */
