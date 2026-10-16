@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Source: /workspace/x0x37-orchestrator/ste_check.py (Orchestrator), copied 2026-10-16, sha256 8e78d6a9b4bd. No other change.
+# Source: /workspace/x0x37-orchestrator/ste_check.py (Orchestrator), copied 2026-10-16, sha256 8e78d6a9b4bd. Change: the no_verb rule knows more verbs and skips lines with no prose (not_prose).
 """ste_check.py: measurable ASD-STE100 checks for x0x37 docs, skills and commit messages.
 
 Usage:
@@ -23,7 +23,7 @@ Review counts (reported, counted as violations only with --strict):
   progressive is/are/was/were + -ing
   ing         other -ing words not in ING_OK (many are allowed nouns; check by hand)
   idiom       phrases from IDIOMS
-  no_verb     sentence of 3+ words with no verb from a small lexicon: a sign of telegraph style
+  no_verb     prose sentence of 3+ words with no verb from a lexicon: a sign of telegraph style (data lines, short list items, references skipped)
   review_word filler words and words to check by hand (REVIEW_WORDS)
   Text in "double quotes" is a mention or an example: word checks skip it (--keep-quotes to check it).
 Limits of the method: sentence split and the imperative test are heuristics.
@@ -80,7 +80,16 @@ apply count act appear belong cover pass fail print exist latch light clear dim 
 open close step load store keep reset toggle mute sound filter map lift fill glide carry drop wait
 follow grow shrink disappear cost refuse block allow differ jump hang end begin answer route relay
 watch suggest package handle request apply say ask confirm approve replace become seem win share
-edit trim conflict break""".split())
+edit trim conflict break""".split()) | set("""rewrite switch ignore port teach hear shift cycle slide
+feed park advertise release free draw fold pin blink round download look infer export resolve
+press sound repeat restart rename sit lie give lose run sing send connect disconnect enable disable
+convert compute generate detect accept reject select scale scroll flash fade queue arm launch
+loop record trigger sample tune bend hold rise fall exit enter leave change read write erase
+add hit kick cue chain link unlink change define contain fit flip swap mix pan solo sync
+need want try give allow let cause make keep stay rest echo reach expect matter remain""".split())
+IRREG_VERBS = {"ran", "gave", "took", "went", "came", "saw", "wrote", "held", "knew", "began", "got",
+               "rewrote", "rewritten", "drew", "drawn", "heard", "fed", "fell", "rose", "sang", "lay", "sat",
+               "gets", "goes", "does", "has"}
 AUX = set("is are was were be been am has have had do does did can must will cannot isn't aren't doesn't don't won't".split())
 
 
@@ -89,10 +98,13 @@ def has_verb(s):
         l = t.lower()
         if l in AUX or l in VERBS:
             return True
-        for suf, add in (("ies", "y"), ("es", ""), ("s", ""), ("ed", ""), ("ed", "e"), ("d", ""), ("ied", "y")):
+        for suf, add in (("ies", "y"), ("es", ""), ("s", ""), ("ed", ""), ("ed", "e"), ("d", ""), ("ied", "y"),
+                         ("ing", ""), ("ing", "e")):
             if l.endswith(suf) and (l[: -len(suf)] + add) in VERBS:
                 return True
-        if l in IRREG_PP or l in {"ran", "gave", "took", "went", "came", "saw", "wrote", "held", "knew", "began", "got"}:
+        if len(l) > 5 and l[-3:] in ("ing", "ped", "ted", "ned", "ged", "med") and l[-4] == l[-5] and l[:-4] in VERBS:
+            return True  # doubled consonant: stopped, setting, planned
+        if l in IRREG_PP or l in IRREG_VERBS:
             return True
     return False
 
@@ -158,7 +170,7 @@ def strip_md(text, is_commits=False):
         if not m and re.match(r"^[A-Z]{2,4}-\d+[a-z]?\.\s", s):  # BEHAVIOR.md item: own paragraph
             m = re.match(r"^()(.*)$", s)
         if m:
-            flush(); start = i; buf = [m.group(2)]; continue
+            flush(); start = i; buf = ["\x01" + m.group(2)]; continue  # \x01 marks a list item or an item
         if s.startswith(">"):
             s = s.lstrip("> ").strip()
         if not buf:
@@ -269,6 +281,29 @@ def check_sentence(s):
     return v, n, proc, un
 
 
+TAGS = re.compile(r"\[(CODE|TEST|MANUAL|SMK37|APC|PADMAP|DESIGN|USER)[^\]]*\]")
+
+
+def not_prose(s, cell, item, si, nsent):
+    """True for a sentence that is data, not prose: the no_verb rule skips it."""
+    t = re.sub(r"^[A-Z]{2,4}-\d+[a-z]?\.\s+", "", TAGS.sub("", s)).strip()
+    core = re.sub(r"\([^)]*\)?", "", t).strip(" .")  # text out of parentheses
+    nw = len(WORD.findall(core))
+    if cell or not t or not core:
+        return True  # table cell, or only tags and parentheses (a reference)
+    if re.match(r"^(\(|\[|ref\b|refs\b|see\b|source\b|cf\b|[\w.-]+/[\w./-]+)", t, re.I):
+        return True  # a reference or a source path
+    if re.match(r"^[\w /&().§>+-]{0,40}:\s*\S", t):
+        return True  # 'Label: value' data line
+    if re.search(r"\b0x[0-9A-Fa-f]+\b", t):
+        return True  # memory map or address entry
+    if item and nsent == 1 and (nw <= 6 or core.count(",") >= 3):
+        return True  # short list item, or a list item that is a list of names
+    if item and si == 0 and nw <= 4:
+        return True  # the title of an item (first sentence, 4 words or fewer)
+    return False
+
+
 HARD = ["long_proc", "long_desc", "contraction", "semicolon", "modal", "passive", "unapproved", "long_para"]
 SOFT = ["perfect", "progressive", "ing", "idiom", "review_word", "no_verb"]
 
@@ -279,15 +314,16 @@ def analyse(name, text, is_commits=False):
     ex, nsent, nwords, words_found = [], 0, 0, {}
     for ln, seg in segs:
         cell = seg.startswith("\x00")
-        ss = sentences(clean(seg.lstrip("\x00")))
+        item = seg.startswith("\x01")
+        ss = sentences(clean(seg.lstrip("\x00\x01")))
         if len(ss) > 6:
             counts["long_para"] += 1
             if SHOW_RULE == "long_para":
                 print(f"{name}:{ln} [long_para {len(ss)} sentences] {seg[:200]}")
-        for s in ss:
+        for si, s in enumerate(ss):
             v, n, proc, un = check_sentence(s)
-            if "no_verb" in v and (cell or re.match(r"^[\w /&().-]{1,30}:\s+\S+(\s+\S+){0,3}\.?$", s)):
-                del v["no_verb"]  # table cell or 'Label: short value' data line
+            if "no_verb" in v and not_prose(s, cell, item, si, len(ss)):
+                del v["no_verb"]  # a table cell, a data line, a list fragment or a reference: not prose
             nsent += 1; nwords += n
             for k, c in v.items():
                 counts[k] += c
