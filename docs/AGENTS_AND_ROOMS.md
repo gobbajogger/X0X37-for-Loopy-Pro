@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 22:25 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 22:27 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -16,15 +16,14 @@ Last updated: 2026-10-16 22:25 (Vladivostok, UTC+10).
 - ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
 - Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi lane files. Commits on integration (rules 4 to 6). Installs the batch hash with gate PASS. Only agent allowed to install (with slot backups, a per-slot CRC compare and a notice before the install).
 - Never: Writes the bootloader. Installs in the background. Installs without a slot backup and a per-slot CRC compare.
-- Worktrees (Mac, flash_review repo): /private/tmp/a65wt (ble-a65), /private/tmp/a63wt (ble-a56), /private/tmp/refswt (refs-oscuro), flash_review (ble-a51), wt-a55 (ble-a55).
+- Worktrees (Mac, flash_review repo): /private/tmp/a74wt (ble-a74, the installed build), /private/tmp/refswt (refs-oscuro, read only).
 - Box copy: /workspace/x0x37-firmware-main-builder (a git repository). Commits there, then syncs the commits to the Mac repo before each install.
 
 ### Second Builder
 - ID: d9628bfa-aaf6-4aa0-81b3-db56618755f2
-- Purpose: Builds clip-mode keybed, scale/chord/arp, tempo carry-over. Commits on integration (rules 4 to 6). (TO CONFIRM: the agent profile has no description.)
-- Never: Installs. Does not edit the flash_review tree (it belongs to Firmware Main Builder).
-- Worktree: /Users/mac/Documents/x0x37/flash_review_clipkeys (branch clip-keys).
-- Box copy: /workspace/x0x37-second-builder. Commits there, then syncs to the Mac branch clip-keys.
+- Purpose: Builds the clip-mode keybed, scale, chord, arp and tempo carry-over features. Commits on integration (rules 4 to 6).
+- Never: Installs. Edits the Bluetooth/JieLi lane files (Firmware Main Builder owns them).
+- Box copy: /workspace/x0x37-second-builder. Commits there on integration.
 
 ### Firmware Q&A
 - ID: 421cc513-a96f-4a66-b299-af00df87fbf4
@@ -46,7 +45,7 @@ Last updated: 2026-10-16 22:25 (Vladivostok, UTC+10).
 ### Release Packager
 - ID: 47f0d1b2-8691-46f3-9c06-c99fd805761c
 - Purpose: Packages passing merged builds with CRCs, slot backup paths, and plain-English changelog.
-- Never: Installs (TO CONFIRM: implied by the profile, not written). Packages anything from refs-oscuro. Pushes refs-oscuro. Pushes to GitHub or any outside remote.
+- Never: Installs. Packages anything from refs-oscuro. Pushes refs-oscuro. Pushes to GitHub or any outside remote.
 - Box folder: /workspace/x0x37-release-packager.
 
 ### Docs Keeper
@@ -58,13 +57,13 @@ Last updated: 2026-10-16 22:25 (Vladivostok, UTC+10).
 ### Test Plan Writer
 - ID: 64d26138-589a-454f-90c9-389404c9c990
 - Purpose: Writes short hardware test checklists for changed items only. Sends them to Orchestrator.
-- Never: Installs or changes code. (TO CONFIRM: implied, not written.)
+- Never: Installs or changes code.
 - Box folder: /workspace/x0x37-test-plan-writer.
 
 ### Optimizer
 - ID: e9e30685-7138-4a21-8945-13dffc12afc9
-- Purpose: Suggests optimizations that are safe for the user experience. Gives patches to the lane owners.
-- Never: Installs firmware. Commits to the branch of another agent.
+- Purpose: Suggests optimizations that are safe for the user experience. Gives patches to the lane builders.
+- Never: Installs firmware. Commits to the files of a builder lane. Runs a gate or a trial merge (Orchestrator audit 22:21). Pushes outside the box and the Mac.
 - Box folder: /workspace/x0x37-optimizer.
 
 Note: the iChord agents belong to a different project. They are not part of this setup.
@@ -76,15 +75,15 @@ Each task has one task agent. Find it in this table. All lanes commit on one wor
 | Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
 |---|---|---|---|---|
 | Orchestrator | Rule checks. Task assignment. Messages to and from the owner. | Build, write code or install. | Task agent, from this table. | Light |
-| Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (the batch hash with gate PASS). | Edit clip-keys. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
+| Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (the batch hash with gate PASS). | Edit the clip mode lane files. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
 | Second Builder | Clip mode lane files on integration (clip mode, scale, chord, arp, tempo). | Install. Edit the Bluetooth/JieLi lane files. | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
 | Firmware Q&A | Answers about firmware and branches. | Commit, change code or install. | Task agent of the topic, from this table. | Light |
 | Merge Integrator | Branch integration: branch order, merges, merge conflicts, the batch gate. merge-monitor-log.md. | Install. Write feature code. Merge or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (batch hash with gate PASS). | Heavy |
-| Build and Test Runner | Headless builds, unit tests, size and flash-map checks. | Install. Write feature code. | Release Packager (pass). Builder of the branch (fail). | Heavy |
+| Build and Test Runner | Headless builds, unit tests, size and flash-map checks. | Install. Write feature code. | Release Packager (pass). Task agent (fail). | Heavy |
 | Release Packager | Release packages with CRCs, slot backup paths and changelogs. | Install. Change code. Package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
 | Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. | Install. Change firmware code. | Orchestrator (rule changes). | Light |
-| Test Plan Writer | Hardware test checklists, sent to Orchestrator. | Install. Change code. | Firmware Main Builder (install). Docs Keeper (results). | Light |
-| Optimizer | Patches for optimizations that are safe for the user experience. | Install. Commit to the branch of another agent. | Task agent of the lane, from this table. | Light |
+| Test Plan Writer | Hardware test checklists, sent to Orchestrator. | Install. Change code. | Orchestrator (checklists). Docs Keeper (results). | Light |
+| Optimizer | Patches for optimizations that are safe for the user experience. | Install. Commit to the files of a builder lane. Run a gate or a trial merge. Push outside the box and the Mac. | Task agent of the lane, from this table. | Light |
 
 ## Messages
 
@@ -131,7 +130,7 @@ Repositories:
 - Working branch: integration 6ee9c69 (body 9a733fe, the same tree without *.md). Gate on 9a733fe: started, no result at 22:25. clip-keys-a65 5a89b76: its changes are in integration (cherry-picked). Next batch: apc-colors-int f175c30 (LCD clip colours, CLP-05).
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only, see the repository rules.
-- main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change on both BLE and clip-keys branches. Merge with care.
+- main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change in both the Bluetooth/JieLi lane and the clip mode lane. Merge with care.
 - Files to keep: agent-rules.md, USER_PREFERENCES.md, ROADMAP.md, x0x37-progress-log.md, merge-monitor-log.md, x0x37/BEHAVIOR.md and BLE_ATTEMPTS.md (the BLE ledger in the BLE branch). Do not delete slot_backups/.
 
 ## How to recreate
@@ -167,3 +166,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 22:03: rule 40 (Decision check for each agent, owner 22:02). Rule 37: skill changes go through Orchestrator.
 - 2026-10-16 22:04: rule 41 (no idle waiting, owner 22:03).
 - 2026-10-16 22:25: agent-rules.md version 2 (15 rules). Coordination rules list the 15 rules. Integration 6ee9c69, a76 and a77 merged.
+- 2026-10-16 22:27: agent sections: old worktrees removed (live: a74wt, refswt, flash_review_integration). Second Builder purpose from its profile. Optimizer: no gate, no trial merges, no push outside the box and the Mac. Lanes table: no branch names for lanes, Test Plan Writer sends checklists to Orchestrator. Release Packager and Test Plan Writer: "Never installs" confirmed from their profiles.
