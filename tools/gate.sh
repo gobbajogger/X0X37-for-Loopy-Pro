@@ -44,6 +44,14 @@
 # On SIGTERM, SIGINT or SIGHUP the gate stops all its builds and tests (each runs in its own process group),
 # releases the lock, writes "KILLED <commit> <signal> (no result)", writes no result file and exits with 143, 130 or 129.
 # No child gets the lock file descriptor, so a child that stays alive cannot keep the lock.
+# Sender of a stop signal (check 5 of rules v4, rule 2): the gate runs itself through tools/gate_sigwrap.py (exec, the
+# same PID), when that file is beside the gate. The wrapper reads the PID, working folder and command line of the process
+# that sent the signal. The KILLED lines then name them: gate.log "gate: KILLED by SIGTERM from pid N (cwd C; cmd X)
+# (no result)" and the output "KILLED <commit> SIGTERM from pid N cwd C (no result)". No wrapper (or a signal sent to the
+# inner gate process): "sender unknown". X0X_GATE_INNER=1 runs the gate with no wrapper.
+# Script change (check 13 of rules v4, rule 3): the gate keeps the mtime of its own script and of gate_flashmap.py at the
+# start. If one changes during the run, gate.log gets "gate: SCRIPT CHANGED during the run: <file> <old> -> <new>" (at
+# the end of the run and on a stop signal), and stderr gets the same line. The result does not change.
 # The install-path tests in run_tests.sh take a shared lock (flock -s) on the same file, so the gate waits for them.
 # While the gate holds its exclusive lock it sets X0X_GATE_HOLDS_LOCK=1, and its own tests do not take the shared lock.
 # The tree is a SHA-1 of "git ls-tree -r" without the *.md files.
@@ -59,6 +67,34 @@
 set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 GATE_DIR=$(cd "$(dirname "$0")" && pwd)
+if [ -z "${X0X_GATE_INNER:-}" ] && [ -f "$GATE_DIR/gate_sigwrap.py" ] && command -v python3 >/dev/null 2>&1; then
+    X0X_GATE_SIGFILE=$(mktemp "${TMPDIR:-/tmp}/x0x37-gate-sig.XXXXXX") && export X0X_GATE_INNER=1 X0X_GATE_SIGFILE &&
+        exec python3 "$GATE_DIR/gate_sigwrap.py" "$X0X_GATE_SIGFILE" bash "$GATE_DIR/$(basename "$0")" "$@"
+fi
+SELF_FILES="$GATE_DIR/$(basename "$0") $GATE_DIR/gate_flashmap.py"
+SELF_M0=$(for f in $SELF_FILES; do stat -c '%Y' "$f" 2>/dev/null || echo -; done | tr '\n' ' ')
+script_check() {   # check 13: a gate script changed during the run -> a line in gate.log (if there is one) and stderr
+    local f m0 m1 i=0 msg
+    for f in $SELF_FILES; do
+        i=$((i + 1)); m0=$(echo "$SELF_M0" | awk -v i=$i '{print $i}'); m1=$(stat -c '%Y' "$f" 2>/dev/null || echo -)
+        [ "$m0" = "$m1" ] && continue
+        msg="gate: SCRIPT CHANGED during the run: $f $(date -d "@$m0" '+%H:%M:%S' 2>/dev/null || echo "$m0") -> $(date -d "@$m1" '+%H:%M:%S' 2>/dev/null || echo "$m1")"
+        [ -n "${LOG:-}" ] && [ -d "$(dirname "$LOG")" ] && echo "$msg" >> "$LOG"
+        echo "$msg" >&2
+    done
+}
+sender() {         # check 5: "from pid N (cwd C; cmd X)" from the wrapper file, or "sender unknown"
+    local i=0 l=""
+    while [ -n "${X0X_GATE_SIGFILE:-}" ] && [ $i -lt 10 ]; do
+        [ -s "$X0X_GATE_SIGFILE" ] && { l=$(head -1 "$X0X_GATE_SIGFILE"); break; }
+        sleep 0.1; i=$((i + 1))
+    done
+    if [ -n "$l" ]; then
+        SND_PID=$(echo "$l" | sed -n 's/.* pid=\([0-9]*\) .*/\1/p'); SND_CWD=$(echo "$l" | sed -n 's/.* cwd=\(.*\) cmd=.*/\1/p')
+        SND_CMD=$(echo "$l" | sed -n 's/.* cmd=\(.*\)$/\1/p')
+        SND_LOG="from pid $SND_PID (cwd $SND_CWD; cmd $SND_CMD)"; SND_OUT="from pid $SND_PID cwd $SND_CWD"
+    else SND_LOG="sender unknown"; SND_OUT="sender unknown"; fi
+}
 REPO=${X0X_REPO:-/workspace/x0x37.git}
 RESULTS=${X0X_RESULTS:-/workspace/x0x37-results}
 REFS=${X0X_REFS:-/workspace/x0x37-refs/schwung}
@@ -122,8 +158,9 @@ on_signal() {
     fi
     { flock -u 9; exec 9>&-; } 2>/dev/null
     rm -f "${TMPF:-}" 2>/dev/null
-    [ -n "${LOG:-}" ] && [ -d "$(dirname "$LOG")" ] && echo "gate: KILLED by $1 (no result)" >> "$LOG"
-    echo "KILLED $S $1 (no result)" >&7
+    sender; script_check
+    [ -n "${LOG:-}" ] && [ -d "$(dirname "$LOG")" ] && echo "gate: KILLED by $1 $SND_LOG (no result)" >> "$LOG"
+    echo "KILLED $S $1 $SND_OUT (no result)" >&7
     exit "$2"
 }
 trap 'on_signal SIGTERM 143' TERM
@@ -416,6 +453,7 @@ done
 mcrc() { sed -n "s|^$1 crc32 \([0-9a-f]\{8\}\),.*|\1|p" "$L/crc.txt" 2>/dev/null | head -1; }
 CFG="dev elite $(mcrc build/x0x-smk37-elite.fwsc), ble $(mcrc build/x0x-smk37-elite-ble.fwsc), code free ${CODE_FREE:-?} B, pool ${POOL_H:-?} B; rel elite $(mcrc rel/build/x0x-smk37-elite.fwsc), ble $(mcrc rel/build/x0x-smk37-elite-ble.fwsc), code free ${CODE_FREE_R:-?} B, pool ${POOL_H_R:-?} B"
 T1=$(date +%s)
+script_check
 R=PASS; [ -n "$REASON" ] && R=FAIL
 TMPF="$RF.tmp.$$"
 {
