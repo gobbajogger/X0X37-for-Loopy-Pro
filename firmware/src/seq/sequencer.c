@@ -569,6 +569,15 @@ void seq_cue_part(seq_t *s, int t, int p)
 }
 int seq_cue_of(const seq_t *s, int t) { return s->pcue[t] < NPAT ? s->pcue[t] : -1; }
 int seq_next_step(seq_t *s, int t, int p) { return next_pos(s, t, p, 0); }
+/* the step a live hit now records on: the step that plays. Before a part's first step after PLAY or
+ * Start: its first step. */
+int seq_rec_step(seq_t *s, int t)
+{
+    const seq_track_t *tr = &s->t[t];
+    if (!tr->started)
+        return (is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
+    return tr->pos;
+}
 void seq_chain(seq_t *s, int a, int b)
 {
     s->chain_a = (uint8_t)a;
