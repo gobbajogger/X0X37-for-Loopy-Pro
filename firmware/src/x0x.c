@@ -106,6 +106,15 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 
 struct bootguard_s { uint32_t magic, failed, pending; };
 extern struct bootguard_s bootguard;
+/* One 4 KiB scratch for two main-loop jobs that never run at the same time: the LZ hash table of a
+ * project save (lz.c) and the read buffers of an update session (ota.c). Both run only from the
+ * main loop, to completion, and neither calls the other. ota.c uses 0x000-0x7FF for its session
+ * buffers and 0x800-0xA7F for the decoded host message (OTA_FRAME_MAX); a save may overwrite
+ * that message, which is only read in the call that decoded it. */
+_Static_assert(0x800 + 640 <= 4096, "scratch");
+static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
+#define OTA_SCRATCH ((uint8_t *)x0x_main_scratch)
+#define LZ_SCRATCH x0x_main_scratch
 #include "ota.c"
 static uint32_t ota_now_ms(void) { return fm1_ms; }
 static void ota_idle(void) { fm1_wdt_feed(); }
