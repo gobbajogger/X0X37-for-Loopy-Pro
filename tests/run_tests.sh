@@ -10,6 +10,9 @@
 #     Install, update, package, BLE and mocked-device tests always run serially, one at a time, after
 #     the parallel tests end. Each parallel test gets its own HOME and TMPDIR (build/host/iso/<test>/).
 #     The scenarios run serially after them. The result lines come in the serial order, after all tests end.
+#   X0X_TEST_TIME_SCALE=1 tests/run_tests.sh    the real waits of the updater in install-slots-web.
+#     The default is X0X_TEST_TIME_SCALE=20 (dev and branch runs): in web/test_install_slots.mjs, waits of
+#     1000 ms or more take 1/20 of the time. The pre-install gate (tools/gate.sh) always uses 1.
 #     build/host/.results/*.time gives the time of each test.
 # Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
 set -u
@@ -19,6 +22,7 @@ FAIL=0
 OUT=build/host
 mkdir -p "$OUT" build/scenarios
 JOBS="${X0X_TEST_JOBS:-8}"
+export X0X_TEST_TIME_SCALE="${X0X_TEST_TIME_SCALE:-20}"
 case "$JOBS" in ''|*[!0-9]*) JOBS=1 ;; esac
 PHASE=0                 # parallel mode: W = class W, 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
 T_SEQ=0
