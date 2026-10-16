@@ -209,6 +209,7 @@ static void apc_note(uint32_t note, uint32_t vel)
     apc_out((on ? 0x09u : 0x08u) | (on ? 0x90u : 0x80u) << 8 | (note & 0x7Fu) << 16 | (on ? vel : 0x7Fu) << 24);
 }
 #include "app/smk_clip_keys.h"
+#include "app/smk_arrows.h"
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint32_t knob_bank_hold_start;
@@ -864,33 +865,33 @@ static void smk_wheels(void)
     }
 }
 
-/* < and >: one detent of SELECT back / forward (the page, a list's row: what SELECT does there; not with HOME held,
- * where SELECT is the tempo), as on the other SMK-37 Pro ports. Not if HARDWARE CALIBRATION gave them an FM-1 label. */
+/* < and >: the route and the hold repeat are in smk_arrows.h. Not if HARDWARE CALIBRATION gave them an FM-1 label.
+ * - A menu list is open (GLO, the list of a page; also in clip mode): the value of the selected row one step
+ *   down / up, as ALGORITHM. A held arrow repeats. Action rows do not run. ck_controls masks < and > then
+ *   (smk_ck_knobs_owned is 0), so one press gives one step (CLP-27).
+ * - No menu, clip mode off: one detent of SELECT back / forward for each press (the page), as on the other
+ *   SMK-37 Pro ports. Clip mode, no menu: smk_arrows does nothing; the clip keys page takes < and > (CLP-76).
+ *   In clip mode < and > never move the Loopy viewport: Loopy does not report clips outside its 8x5 APC box,
+ *   so a legal move cannot be known, and moves to empty areas broke the pad map.
+ * - HOME held (SELECT is the tempo): nothing. */
 static void smk_arrows(void)
 {
-    static uint32_t prev;
-    uint32_t now = fm1_in.buttons & (1u << SMK_BTN_LEFT | 1u << SMK_BTN_RIGHT), id, i;
-    uint32_t pressed = now & ~prev;
-    prev = now;
-    /* In clip mode < and > are local only. They never move the Loopy viewport:
-     * Loopy does not report clips outside its 8x5 APC box, so a legal move cannot
-     * be known, and moves to empty areas broke the pad map. The whole APC box fits
-     * the pad window horizontally (8 columns), so there is no horizontal move. */
-    if (clip_grid_mode) {
+    static arw_t arw;
+    uint32_t now = fm1_in.buttons >> SMK_BTN_LEFT & 3u, i, route;
+    int32_t d;
+    for (i = 0; i < NB; i++)
+        if (panel.btn[i] == SMK_BTN_LEFT || panel.btn[i] == SMK_BTN_RIGHT)
+            now &= ~(1u << (panel.btn[i] - SMK_BTN_LEFT));
+    route = arw_route((uint32_t)ui_menu_open(), clip_grid_mode, (plat_buttons() >> B_HOME) & 1u);
+    d = arw_frame(&arw, now, route, fm1_ms);
+    if (!d)
         return;
-    }
-    if (!pressed || (plat_buttons() & (1u << B_HOME)))
-        return;
-    for (id = SMK_BTN_LEFT; id <= SMK_BTN_RIGHT; id++) {
-        if (!((pressed >> id) & 1u))
-            continue;
-        for (i = 0; i < NB && panel.btn[i] != id; i++)
-            ;
-        if (i == NB) {
-            uint32_t l = fm1__lock();
-            fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)((id == SMK_BTN_RIGHT ? 1 : -1) * panel.dir[EN_SELECT]);
-            fm1__unlock(l);
-        }
+    if (route == ARW_MENU) {
+        ui_menu_arrow(d);
+    } else {
+        uint32_t l = fm1__lock();
+        fm1_in.enc_steps[panel.enc[EN_SELECT]] += (int16_t)(d * panel.dir[EN_SELECT]);
+        fm1__unlock(l);
     }
 }
 
