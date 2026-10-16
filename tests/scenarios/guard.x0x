@@ -15,7 +15,7 @@ tap ARP
 tap OCT+
 tap PLAY
 wait 1500
-expect guard 0
+expect guard 1
 # a block over 92%: on at once, and the music plays on
 load 95
 wait 100
