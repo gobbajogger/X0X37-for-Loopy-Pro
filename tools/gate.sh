@@ -17,6 +17,9 @@
 # Step 2 holds a box-wide lock (flock on X0X_GATE_LOCK), so the tests of two gate runs (from any agent) never
 # run at the same time. While it waits, the gate writes "waiting for gate lock" to stderr. The builds and a
 # result that the gate uses again do not take the lock.
+# On SIGTERM, SIGINT or SIGHUP the gate stops all its builds and tests (each runs in its own process group),
+# releases the lock, writes "KILLED <commit> <signal> (no result)", writes no result file and exits with 143, 130 or 129.
+# No child gets the lock file descriptor, so a child that stays alive cannot keep the lock.
 # It writes one result file per tree to $X0X_RESULTS/<tree>.md and adds a line to $X0X_RESULTS/index.md.
 # The tree is a SHA-1 of "git ls-tree -r" without the *.md files. If a result for that tree exists,
 # the gate uses it again and does not build (--force builds again).
@@ -48,6 +51,29 @@ FORCE=0
 
 H=$(git -C "$REPO" rev-parse --verify --quiet "$1^{commit}") || { echo "FAIL $1 unknown commit in $REPO"; exit 1; }
 S=${H:0:7}
+# Stop on a signal: kill the process group of the current child, release the lock, write no result.
+CHILD=""; FLPID=""
+exec 7>&1                       # the gate stdout: the KILLED line goes here, also while a child writes to a log
+on_signal() {
+    trap '' TERM INT HUP
+    [ -n "$FLPID" ] && kill -TERM "$FLPID" 2>/dev/null
+    if [ -n "$CHILD" ]; then
+        kill -TERM -- "-$CHILD" 2>/dev/null
+        for _ in 1 2 3 4 5 6 7 8 9 10; do kill -0 -- "-$CHILD" 2>/dev/null || break; sleep 0.5; done
+        kill -KILL -- "-$CHILD" 2>/dev/null
+    fi
+    { flock -u 9; exec 9>&-; } 2>/dev/null
+    rm -f "${TMPF:-}" 2>/dev/null
+    [ -n "${LOG:-}" ] && [ -d "$(dirname "$LOG")" ] && echo "gate: KILLED by $1 (no result)" >> "$LOG"
+    echo "KILLED $S $1 (no result)" >&7
+    exit "$2"
+}
+trap 'on_signal SIGTERM 143' TERM
+trap 'on_signal SIGINT 130' INT
+trap 'on_signal SIGHUP 129' HUP
+# Run a child in its own process group (setsid), and wait for it so that a signal stops the gate at once.
+# The caller closes fd 9 for the child (9>&-), so the child never holds the gate lock.
+child() { setsid "$@" 7>&- & CHILD=$!; wait "$CHILD"; local rc=$?; CHILD=""; return $rc; }
 TREE=$(git -C "$REPO" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' | sha1sum | cut -c1-40)
 GTREE=$(git -C "$REPO" rev-parse "$H^{tree}")
 NOW=$(date '+%Y-%m-%d %H:%M %Z')
@@ -142,11 +168,11 @@ export NINEW9_DIR="$REFS/schwung-9W9" EIGHTW8_DIR="$REFS/schwung-8W8" SCHWUNG303
 export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c"
 
 # 1. builds
-MODEL=elite ./build.sh --board smk37 > "$L/build-elite.log" 2>&1 || fail "Elite build: $(grep -m1 -iE 'error|fail' "$L/build-elite.log")"
-./build.sh --board smk37 > "$L/build-pro.log" 2>&1 || fail "Pro build: $(grep -m1 -iE 'error|fail' "$L/build-pro.log")"
-./build.sh > "$L/build-fm1.log" 2>&1 || fail "FM-1 build: $(grep -m1 -iE 'error|fail' "$L/build-fm1.log")"
+MODEL=elite child ./build.sh --board smk37 > "$L/build-elite.log" 2>&1 9>&- || fail "Elite build: $(grep -m1 -iE 'error|fail' "$L/build-elite.log")"
+child ./build.sh --board smk37 > "$L/build-pro.log" 2>&1 9>&- || fail "Pro build: $(grep -m1 -iE 'error|fail' "$L/build-pro.log")"
+child ./build.sh > "$L/build-fm1.log" 2>&1 9>&- || fail "FM-1 build: $(grep -m1 -iE 'error|fail' "$L/build-fm1.log")"
 PCT="$L/ctl-tmp"; mkdir -p "$PCT"
-unshare -rm sh -c "mount --bind '$PCT' /tmp && env HOME='$PH' JIELI_TOOLCHAIN='$TC' SDK_LOCAL='$SDK' CTL_NATIVE=1 sh ble/ctl/build_ctl.sh" \
+child unshare -rm sh -c "mount --bind '$PCT' /tmp && env HOME='$PH' JIELI_TOOLCHAIN='$TC' SDK_LOCAL='$SDK' CTL_NATIVE=1 sh ble/ctl/build_ctl.sh" \
     > "$L/build-ctl.log" 2>&1 || fail "ctl build: $(grep -m1 -iE 'error|fail|undefined' "$L/build-ctl.log")"
 
 # 2. tests
@@ -161,11 +187,13 @@ else
     if ! flock -n 9; then
         echo "gate $S: waiting for gate lock $GLOCK" >&2
         echo "gate: waiting for gate lock $GLOCK" >> "$LOG"
-        flock 9
+        flock 9 &               # in the background, so that a signal stops the wait at once
+        FLPID=$!; wait "$FLPID"; FLRC=$?; FLPID=""
+        [ "$FLRC" = 0 ] || { fail "cannot take the gate lock $GLOCK"; }
     fi
     LW1=$(date +%s)
     echo "gate: took the gate lock after $((LW1 - LW0)) s" >> "$LOG"
-    X0X_TEST_JOBS="$JOBS" sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?
+    X0X_TEST_JOBS="$JOBS" child sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?
     flock -u 9; exec 9>&-
     LW2=$(date +%s)
     echo "gate: released the gate lock; the tests took $((LW2 - LW1)) s" >> "$LOG"
