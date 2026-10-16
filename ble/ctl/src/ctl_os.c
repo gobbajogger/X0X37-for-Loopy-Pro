@@ -156,24 +156,6 @@ static int taskq_count(struct ctl_task *t)
 
 __attribute__((used, section(".ctl_ram2.sw"))) volatile u32 ctl_sw_ring[16];
 __attribute__((used)) volatile u32 ctl_sw_n;
-/* attempt 56 DIAG: the controller hands each received ACL packet to the host as a message
- * {type 0x400002, ptr, size}; ptr - 16 is the baseband DMA buffer (lbuf), which the host frees
- * once (ll_hci_private_free_dma_rx). The a54 crash was a second free of such a buffer. Each ACL
- * message is noted when posted (op 0) and when the host takes it (op 1) in ctl_sw_ring
- * {ptr | op, the buffer's pool word}; a buffer whose pool word is not a pool in our RAM (the
- * block is already free) stops the image: dbg STAGE 0x5600 | op, DELAYS = ptr, RA = pool word. */
-extern u8 __ctl_ram_lo[], __ctl_ram_hi[];
-__attribute__((noinline)) static void d_acl(int type, int ptr, u32 op)
-{
-    u32 p = (u32)ptr, pool, i;
-    if (type != 0x400002 || (p & 3u) || p < (u32)(uintptr_t)__ctl_ram_lo + 24u || p >= (u32)(uintptr_t)__ctl_ram_hi)
-        return;
-    pool = *(volatile u32 *)(uintptr_t)(p - 24u);
-    i = ctl_sw_n & 14u;
-    ctl_sw_ring[i] = p | op; ctl_sw_ring[i + 1u] = pool; ctl_sw_n += 2u;
-    if ((pool & 3u) || pool < (u32)(uintptr_t)__ctl_ram_lo || pool >= (u32)(uintptr_t)__ctl_ram_hi)
-        d_stop(0x5600u | op, p, pool);
-}
 /* attempt 57 fix: le_hw_upload_data (btctrler) frees each received DMA buffer right after its
  * handler returns, but the handler (btstack hci_packet_handler) only queues the ACL packet's
  * pointer; the host reads and frees it later (a56: the buffer was already free when the host took
@@ -212,12 +194,18 @@ int os_taskq_post_type(const char *name, int type, int argc, int *argv)
     for (int i = 0; i < argc; i++) t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argv[i];
     t->qhead &= (CTL_TASKQ_WORDS - 1);
     t->waiting = 0;
-    if (argc >= 1) d_acl(type, argv[0], 0u);
     if (t - tasks < 2) d_inc(&ctl_d_post[t - tasks]);
     ctl_port_irq_restore(f);
     return OS_NO_ERR;
 }
 
+/* attempt 58 DIAG (piece 2): which messages the host task receives (event 0x400001, ACL 0x400002,
+ * 0x400004 ...) and whether an LE connection-complete event arrives, in ctl_sw_ring {type, count}. */
+__attribute__((noinline)) static void d_hostmsg(int type, int n)
+{
+    u32 j = ctl_sw_n & 14u;
+    ctl_sw_ring[j] = (u32)type; ctl_sw_ring[j + 1u] = (u32)n; ctl_sw_n += 2u;
+}
 int os_taskq_pend(const char *fmt, int *argv, int argc)
 {
     (void)fmt;
@@ -232,7 +220,7 @@ int os_taskq_pend(const char *fmt, int *argv, int argc)
                 if (i < argc) argv[i] = v;
             }
             t->qtail &= (CTL_TASKQ_WORDS - 1);
-            if (argc >= 2) d_acl(argv[0], argv[1], 1u);
+            if (t == &tasks[1] && argc >= 1) d_hostmsg(argv[0], n);
             ctl_port_irq_restore(f);
             if (t - tasks < 2) d_inc(&ctl_d_pend[t - tasks]);
             return OS_TASKQ;
