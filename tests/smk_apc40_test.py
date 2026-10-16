@@ -167,6 +167,13 @@ assert ui_src.index("smk_clip_history_button((uint8_t)i") < ui_src.index("smk_cl
 assert "ui.btn_used |= m | 1u << B_HOME;" in ui_src
 assert "if (!clip_grid_mode || !patch_held)" in main and 'say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);' in main
 print("PASS Loopy undo/redo: PATCH + SEQ REC / SEQ PLAY in clip mode only")
+# a74 (MID-14): PLAY outside clip mode also sends note 0x5B on channel 1, after the clip mode handlers
+call = "smk_play_note_button((uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u))"
+assert call in ui_src
+assert ui_src.index("smk_clip_transport_button((uint8_t)i") < ui_src.index(call) < ui_src.index("button_tap((int)i);")
+assert "apc_out(smk_apc40_play_note_packet(event == SMK_APC40_BUTTON_ON))" in main
+assert "smk_apc40_play_note_event(&sent, clip_grid_mode, home_held, pressed)" in main
+print("PASS PLAY note 0x5B outside clip mode: USB and Bluetooth, after the clip mode handlers")
 # a71: Loopy gone on Bluetooth (link end or CCCD 0): ble.c gives the link state to the clip feedback
 # after each event poll, and main_fm1.c clears the cells (tests/smk_clip_ble_clear_test.c runs the logic).
 ble = (ROOT / "firmware/src/ble.c").read_text()

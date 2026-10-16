@@ -12,7 +12,7 @@ static int fails;
 #define CHECK(c, ...) do { if (!(c)) { fails++; printf("  FAIL %s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); } } while (0)
 
 /* ---- event log */
-enum { E_DRUM, E_ON, E_OFF, E_BRK, E_BRKSTOP, E_MIDI };
+enum { E_DRUM, E_ON, E_OFF, E_BRK, E_BRKSTOP, E_MIDI, E_STEP };
 typedef struct { uint32_t t; int kind, a, b, c, d; } ev_t;
 static ev_t evs[100000];
 static int nev;
@@ -29,6 +29,10 @@ static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; log_e
 static void s_brkstop(void *x) { (void)x; log_ev(E_BRKSTOP, 0, 0, 0, 0); }
 static void s_midi(void *x, uint8_t st, uint8_t d1, uint8_t d2) { (void)x; log_ev(E_MIDI, st, d1, d2, 0); }
 static const seq_sink_t SINK = {s_drum, s_on, s_off, s_brk, s_brkstop, s_midi, 0, 0};
+static void s_step(void *x, int part, int st) { (void)x; if (part == 0) log_ev(E_STEP, st, 0, 0, 0); }
+static const seq_sink_t SINK_STEP = {s_drum, s_on, s_off, s_brk, s_brkstop, s_midi, s_step, 0};   /* + the 909's steps */
+static const seq_sink_t *sink = &SINK;
+static uint8_t clk_src;                                        /* reset() sets this clock source (SEQ_CLK_*) */
 
 static seq_t S;
 static pattern_t P[NPAT];
@@ -38,11 +42,11 @@ static void run(uint32_t samples)
 {
     while (samples) {
         uint32_t n = samples < 256 ? samples : 256;
-        seq_advance(&S, 0, &SINK);
+        seq_advance(&S, 0, sink);
         while (n) {
             uint32_t k = seq_until_event(&S, n);
             now += k;
-            seq_advance(&S, k, &SINK);
+            seq_advance(&S, k, sink);
             n -= k;
             samples -= k;
         }
@@ -56,6 +60,7 @@ static void reset(void)
         pattern_init(&P[i], 0x100 + i, 0x200 + i);
     seq_init(&S, P);
     S.send_clock = 0;
+    S.clk_src = clk_src;
     nev = 0;
     now = 0;
 }
@@ -341,13 +346,17 @@ static void test_ext_clock_and_midi_out(void)
 /* ---- MIDI clock as Bluetooth MIDI gives it: the ticks of one connection event come in one block */
 static double ble_tick, ble_ev;                               /* the next tick and the next connection event */
 static int ble_n;                                             /* the ticks given */
+static int ble_rt;                                            /* 1: the ticks go through seq_midi_rt (as engine.c) */
 static void ble_clock(double bpm, double ev_ms, double secs)
 {
     double tick = 44100.0 * 60.0 / bpm / 24.0, ev = 44100.0 * ev_ms / 1000.0, end = now + secs * 44100.0;
     while (now < end) {
         while (ble_ev <= now) {                               /* the events since the last block */
             while (ble_tick <= ble_ev) {
-                seq_ext_clock(&S);
+                if (ble_rt)
+                    seq_midi_rt(&S, 0xF8);
+                else
+                    seq_ext_clock(&S);
                 ble_n++;
                 ble_tick += tick;
             }
@@ -635,6 +644,360 @@ static void test_rec_nearest(void)
     printf("  live record: the nearest step, no second sound on the pass of the hit: checked\n");
 }
 
+/* ---- a74: GLO > MIDI > CLOCK SOURCE (AUTO, INTERNAL, EXTERNAL) */
+static int count_midi(int st, int from)                       /* MIDI out of status st since event from */
+{
+    int i, n = 0;
+    for (i = from; i < nev; i++)
+        if (evs[i].kind == E_MIDI && evs[i].a == st)
+            n++;
+    return n;
+}
+static void bass_held(int part)                               /* every step a note that slides: always held */
+{
+    int i;
+    P[0].bass[part].len = 16;
+    P[0].bass[part].dir = DIR_FWD;
+    for (i = 0; i < 16; i++) {
+        P[0].bass[part].step[i].note = 40;
+        P[0].bass[part].step[i].flags = G_NOTE | BS_SLIDE;
+    }
+}
+
+/* INTERNAL: Clock, Start, Continue and Stop in are ignored; the steps and the clock out use the internal tempo */
+static void test_clksrc_internal(void)
+{
+    int i, k, n;
+    uint32_t t0, end;
+    double L = 44100.0 * 60.0 / 120.0 / 4.0;
+    reset();
+    S.clk_src = SEQ_CLK_INT;
+    S.send_clock = 1;
+    S.bpm = 120.0f;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    CHECK(seq_midi_rt(&S, 0xF8) == 1 && seq_midi_rt(&S, 0xFA) == 1 && seq_midi_rt(&S, 0xFB) == 1 &&
+          seq_midi_rt(&S, 0xFC) == 1 && seq_midi_rt(&S, 0xF2) == 0 && seq_midi_rt(&S, 0x90) == 0,
+          "seq_midi_rt takes only F8 FA FB FC");
+    run(256);
+    CHECK(!S.playing && !S.ext && S.ext_pending == 0, "INTERNAL: MIDI Start and Clock in ignored");
+    seq_start(&S);                                            /* PLAY */
+    nev = 0;
+    t0 = now;
+    end = t0 + 44100 * 2 - 1;
+    for (i = 0; now < end; i++) {                             /* a clock at 140 BPM comes in all the time */
+        seq_midi_rt(&S, 0xF8);
+        if (i == 20)
+            seq_midi_rt(&S, 0xFC);
+        if (i == 40)
+            seq_midi_rt(&S, 0xFA);
+        if (i == 60)
+            seq_midi_rt(&S, 0xFB);
+        run(end - now < 788 ? end - now : 788);
+    }
+    CHECK(S.playing && !S.ext && S.bpm == 120.0f, "INTERNAL: playing %d, ext %d, tempo %.1f", S.playing, S.ext, (double)S.bpm);
+    CHECK(count_midi(0xF8, 0) == 96, "INTERNAL: %d clocks out in 2 s at 120 BPM, want 96", count_midi(0xF8, 0));
+    CHECK(find(E_MIDI, 0xFA, 0) == 0 && count_midi(0xFA, 0) == 1 && count_midi(0xFC, 0) == 0 && count_midi(0xFB, 0) == 0,
+          "INTERNAL: one Start out, no Stop or Continue");
+    for (i = 0, k = 0, n = 0; (i = find(E_DRUM, 0, i)) >= 0; i++, k++)
+        n += abs((int)(evs[i].t - t0) - (int)(k * L + 0.5)) <= 1;
+    CHECK(k == 16 && n == 16, "INTERNAL: %d steps, %d on the internal grid, want 16", k, n);
+    seq_stop(&S);                                             /* PLAY */
+    run(256);
+    CHECK(!S.playing && count_midi(0xFC, 0) == 1, "INTERNAL: PLAY stops, Stop out");
+    /* clock that came in before the switch is not used */
+    reset();
+    S.bpm = 120.0f;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    seq_start(&S);
+    run(4000);
+    t0 = evs[find(E_DRUM, 0, 0)].t;
+    seq_ext_clock(&S);
+    seq_ext_clock(&S);
+    seq_ext_clock(&S);
+    S.clk_src = SEQ_CLK_INT;
+    nev = 0;
+    run(256);
+    CHECK(S.ext == 0 && S.ext_pending == 0, "to INTERNAL: the pending clock is dropped (ext %d, pending %u)", S.ext,
+          S.ext_pending);
+    run(4000);
+    i = find(E_DRUM, 0, 0);
+    CHECK(i >= 0 && abs((int)(evs[i].t - t0) - (int)(L + 0.5)) <= 1, "to INTERNAL: step 2 on the internal grid");
+    printf("  clock source INTERNAL: clock in ignored, clock out, PLAY: checked\n");
+}
+
+/* EXTERNAL: PLAY with no clock waits; the first tick plays step 1; a lost clock pauses X0X at its place */
+static void test_clksrc_external(void)
+{
+    int i, k, n, mark;
+    uint32_t t0, last;
+    reset();
+    S.clk_src = SEQ_CLK_EXT;
+    S.send_clock = 1;
+    S.bpm = 100.0f;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    bass_held(0);
+    run(256);
+    CHECK(S.ext == 1 && !S.playing && seq_tempo(&S) == 100.0f, "EXTERNAL: stopped, the internal tempo shows");
+    seq_start(&S);                                            /* PLAY, no clock */
+    nev = 0;
+    run(44100 * 2);
+    CHECK(S.playing && find(E_DRUM, 0, 0) < 0 && find(E_ON, 0, 0) < 0 && find(E_MIDI, -1, 0) < 0,
+          "EXTERNAL: PLAY with no clock: no step and no MIDI out in 2 s");
+    CHECK(seq_clock_waiting(&S), "EXTERNAL: waiting for the clock");
+    CHECK(seq_rec_step(&S, 0) == 0, "EXTERNAL: waiting: a hit records on step 1");
+    nev = 0;
+    t0 = now;
+    for (k = 0; k < 99; k++) {                                /* 120 BPM: one bar and 3 ticks */
+        seq_midi_rt(&S, 0xF8);
+        run(919);
+    }
+    last = now - 919;
+    for (i = 0, k = 0, n = 0; (i = find(E_DRUM, 0, i)) >= 0; i++, k++)
+        n += evs[i].t - t0 == (uint32_t)(k % 16) * 6u * 919u + (k / 16) * 96u * 919u;
+    CHECK(k == 17 && n == 17, "EXTERNAL: %d steps (%d on the ticks), want 17: step 1 on the first tick", k, n);
+    CHECK(count_midi(0xF8, 0) + count_midi(0xFA, 0) + count_midi(0xFC, 0) == 0, "EXTERNAL: no clock or transport out");
+    CHECK(S.ext_bpm > 119.0f && S.ext_bpm < 121.0f && !seq_clock_waiting(&S), "EXTERNAL: tempo %.2f", (double)S.ext_bpm);
+    CHECK(S.t[TRK_BASS0].sounding, "EXTERNAL: the 303 note sounds");
+    k = S.t[0].pos;
+    mark = nev;
+    run(44100 * 6 / 10);                                      /* the clock stops */
+    i = find(E_OFF, 0, mark);
+    CHECK(i >= 0 && evs[i].t - last <= 44100u / 2u + 256u, "EXTERNAL: clock lost: 303 off %u samples after the last tick",
+          i >= 0 ? evs[i].t - last : 0);
+    CHECK(find(E_BRKSTOP, -1, mark) >= 0, "EXTERNAL: clock lost: the break stops");
+    CHECK(S.playing && S.ext && S.t[0].pos == k && find(E_DRUM, 0, mark) < 0 && !S.t[TRK_BASS0].sounding,
+          "EXTERNAL: clock lost: paused at step %d (now %d)", k + 1, S.t[0].pos + 1);
+    CHECK(S.bpm == 120.0f, "EXTERNAL: clock lost: the tempo keeps the clock's, %.1f", (double)S.bpm);
+    CHECK(seq_clock_waiting(&S) && seq_rec_step(&S, 0) == k, "EXTERNAL: paused: waiting, a hit records on step %d", k + 1);
+    run(44100 * 2);
+    CHECK(S.playing && S.ext && find(E_DRUM, 0, mark) < 0, "EXTERNAL: paused for 2 s more");
+    mark = nev;
+    for (n = 0; n < 12; n++) {                                /* the clock comes back */
+        seq_midi_rt(&S, 0xF8);
+        run(919);
+    }
+    i = find(E_STEP, -1, mark);
+    for (i = mark, n = 0; (i = find(E_DRUM, 0, i)) >= 0; i++)
+        n++;
+    CHECK(n == 2 && S.t[0].pos == (k + 2) % 16 && !seq_clock_waiting(&S),
+          "EXTERNAL: clock back: %d steps in 12 ticks (want 2), at step %d (want %d)", n, S.t[0].pos + 1, (k + 2) % 16 + 1);
+    seq_midi_rt(&S, 0xFA);                                    /* Start: from step 1 */
+    seq_midi_rt(&S, 0xF8);
+    run(919);
+    CHECK(S.playing && S.t[0].pos == 0, "EXTERNAL: Start: step %d, want 1", S.t[0].pos + 1);
+    seq_midi_rt(&S, 0xFC);                                    /* Stop and Start in one block: a restart */
+    seq_midi_rt(&S, 0xFA);
+    run(256);
+    for (n = 0; n < 7; n++) {
+        seq_midi_rt(&S, 0xF8);
+        run(919);
+    }
+    CHECK(S.playing && S.t[0].pos == 1, "EXTERNAL: Stop + Start in one block: step %d, want 2", S.t[0].pos + 1);
+    mark = nev;
+    seq_midi_rt(&S, 0xFC);
+    run(256);
+    CHECK(!S.playing && count_midi(0xFC, mark) == 0, "EXTERNAL: Stop: stopped, no Stop out");
+    run(44100);                                               /* PLAY with no clock, then PLAY again: stopped */
+    seq_start(&S);
+    run(44100);
+    CHECK(S.playing && seq_clock_waiting(&S), "EXTERNAL: PLAY waits");
+    seq_stop(&S);
+    run(256);
+    CHECK(!S.playing && !seq_clock_waiting(&S), "EXTERNAL: PLAY again cancels the wait");
+    /* the clock in Bluetooth bursts, as test_ext_tempo_ble and test_ext_burst_steps */
+    {
+        static const double EV[] = {7.5, 15.0, 30.0}, BPM[] = {120.0, 93.0, 140.0};
+        unsigned e, b, ph;
+        int r, want;
+        clk_src = SEQ_CLK_EXT;
+        ble_rt = 1;
+        for (e = 0; e < 3; e++)
+            for (b = 0; b < 3; b++)
+                for (ph = 0; ph < 2; ph++) {
+                    reset();
+                    S.bpm = 100.0f;
+                    ble_clock_start(BPM[b], EV[e], 0.1 + 0.4 * ph);
+                    ble_clock(BPM[b], EV[e], 10.0);
+                    CHECK(S.ext_bpm > BPM[b] - 0.5 && S.ext_bpm < BPM[b] + 0.5, "EXTERNAL: %.0f BPM in %.1f ms events: %.2f",
+                          BPM[b], EV[e], (double)S.ext_bpm);
+                    run(44100);
+                    CHECK(S.ext == 1 && S.bpm == (float)BPM[b], "EXTERNAL: after the link end: ext %d, tempo %.1f", S.ext,
+                          (double)S.bpm);
+                }
+        for (r = 0; r < 2; r++)
+            for (e = 0; e < 3; e++)
+                for (ph = 0; ph < 3; ph++) {
+                    n = burst_steps(r ? RATE_32 : RATE_16, 180.0, EV[e], 0.1 + 0.3 * ph, ph == 2 ? 400.0 : 0.0, &want);
+                    CHECK(n == want, "EXTERNAL: %s 180 BPM, %.1f ms events (phase %u): %d steps, the clock's %d",
+                          r ? "1/32" : "1/16", EV[e], ph, n, want);
+                }
+        ble_rt = 0;
+        clk_src = SEQ_CLK_AUTO;
+    }
+    printf("  clock source EXTERNAL: wait, pause on a lost clock, transport, Bluetooth bursts: checked\n");
+}
+
+/* all 6 switches while playing, with and without a clock: no double step, no lost step, no stuck 303 note */
+static void test_clksrc_switch(void)
+{
+    static const char *const NM[] = {"AUTO", "INTERNAL", "EXTERNAL"};
+    static const uint8_t SW[6][2] = {{0, 1}, {0, 2}, {1, 0}, {1, 2}, {2, 0}, {2, 1}};
+    double L = 44100.0 * 60.0 / 120.0 / 4.0;
+    int c, w, ph;
+    sink = &SINK_STEP;
+    for (c = 0; c < 2; c++)                                   /* c = 1: a 120 BPM clock in 15 ms events */
+        for (w = 0; w < 6; w++)
+            for (ph = 0; ph < 3; ph++) {
+                int from = SW[w][0], to = SW[w][1], i, prev, n = 0, bad = 0, mark;
+                uint32_t gmin = 0xFFFFFFFFu, gmax = 0, tsw;
+                reset();
+                S.clk_src = (uint8_t)from;
+                S.bpm = 120.0f;
+                P[0].drum[0].hit[0][0] = 0xFFFFu;
+                bass_held(0);
+                ble_rt = 1;
+                ble_clock_start(120.0, 15.0, 0.5);
+                seq_start(&S);
+                if (c)
+                    ble_clock(120.0, 15.0, 1.0 + 0.031 * ph);
+                else
+                    run(44100 + 1400 * (uint32_t)ph);
+                mark = nev;
+                for (i = nev - 1; i >= 0 && evs[i].kind != E_STEP; i--)
+                    ;
+                if (i >= 0)
+                    mark = i;                                 /* (from the last step before the switch) */
+                tsw = now;
+                S.clk_src = (uint8_t)to;
+                if (c)
+                    ble_clock(120.0, 15.0, 2.0);
+                else
+                    run(44100 * 2);
+                for (i = mark, prev = -1; (i = find(E_STEP, -1, i)) >= 0; prev = i, i++) {
+                    if (prev >= 0) {
+                        uint32_t g = evs[i].t - evs[prev].t;
+                        gmin = g < gmin ? g : gmin;
+                        gmax = g > gmax ? g : gmax;
+                        bad += evs[i].a != (evs[prev].a + 1) % 16;
+                    }
+                    n += evs[i].t > tsw;
+                }
+                if (to == SEQ_CLK_EXT && !c) {                /* no clock: X0X waits at its place */
+                    CHECK(n == 0 && !S.t[TRK_BASS0].sounding && seq_clock_waiting(&S),
+                          "no clock, %s to %s: %d steps, 303 sounding %d, waiting %d", NM[from], NM[to], n,
+                          S.t[TRK_BASS0].sounding, seq_clock_waiting(&S));
+                } else {
+                    CHECK(bad == 0, "%s, %s to %s (%d): %d steps out of order", c ? "clock" : "no clock", NM[from], NM[to],
+                          ph, bad);
+                    /* (a clock in 15 ms events moves a step by up to one event; the first tick after INTERNAL is
+                     * tick 0 of the step that plays: up to 2 steps, as LIM-11) */
+                    CHECK(gmin >= (uint32_t)((c ? 0.8 : 0.99) * L) &&
+                          gmax <= (uint32_t)((c ? (to == SEQ_CLK_EXT || from == SEQ_CLK_INT) ? 2.25 : 1.25 : 1.01) * L),
+                          "%s, %s to %s (%d): steps %u to %u samples apart (a step: %.0f)", c ? "clock" : "no clock",
+                          NM[from], NM[to], ph, gmin, gmax, L);
+                    CHECK(n >= 15, "%s, %s to %s (%d): %d steps in 2 s", c ? "clock" : "no clock", NM[from], NM[to], ph, n);
+                    CHECK(S.ext == (c && to != SEQ_CLK_INT), "%s, %s to %s: ext %d", c ? "clock" : "no clock", NM[from], NM[to],
+                          S.ext);
+                }
+                seq_stop(&S);
+                run(256);
+                CHECK(!S.t[TRK_BASS0].sounding && !S.t[TRK_BASS0 + 1].sounding, "%s to %s: a 303 note stays on", NM[from],
+                      NM[to]);
+                ble_rt = 0;
+            }
+    sink = &SINK;
+    printf("  clock source: 6 switches while playing, with and without a clock: checked\n");
+}
+
+/* ---- a74 (MID-14): the PLAY note with Loopy Pro as the clock (Toggle Clock Pause on note 0x5B) */
+static void test_play_note_with_loopy(void)
+{
+    static const int DELAY_MS[] = {5, 20, 40, 80, 120};
+    double tick = 44100.0 * 60.0 / 120.0 / 24.0, L = 6.0 * tick;
+    int d, k, i, n, prev, bad, ons, mark;
+    sink = &SINK_STEP;
+    ble_rt = 1;
+    /* X0X follows Loopy; PLAY stops X0X; Loopy pauses and sends Stop: X0X stays stopped */
+    reset();
+    S.send_clock = 1;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    ble_clock_start(120.0, 15.0, 0.5);
+    seq_midi_rt(&S, 0xFA);
+    ble_clock(120.0, 15.0, 2.0);
+    CHECK(S.playing && S.ext, "Loopy clock: X0X follows");
+    seq_stop(&S);                                             /* PLAY (the note goes to Loopy) */
+    mark = nev;
+    ble_clock(120.0, 15.0, 0.03);                             /* Loopy: its clock for 30 ms more */
+    seq_midi_rt(&S, 0xFC);                                    /* then Stop, and no clock */
+    run(44100 * 2);
+    CHECK(!S.playing && find(E_STEP, -1, mark) < 0, "PLAY stop, then Loopy Stop: X0X stays stopped");
+    CHECK(count_midi(0xFA, mark) + count_midi(0xFB, mark) + count_midi(0xFC, mark) == 0, "PLAY stop: no Start or Stop out");
+    /* Loopy paused (no clock); PLAY starts X0X; Loopy answers with Start (or Continue) and its clock */
+    for (k = 0; k < 2; k++)
+        for (d = 0; d < (int)(sizeof DELAY_MS / sizeof DELAY_MS[0]); d++) {
+            uint32_t t0, tc;
+            reset();
+            S.send_clock = 1;
+            S.bpm = 120.0f;
+            P[0].drum[0].hit[0][0] = 0xFFFFu;
+            P[0].bass[0].len = 16;
+            for (i = 0; i < 16; i++) {
+                P[0].bass[0].step[i].note = (uint8_t)(30 + i);
+                P[0].bass[0].step[i].flags = G_NOTE;
+            }
+            run(44100);
+            seq_start(&S);                                    /* PLAY: X0X plays step 1 now */
+            run(256);
+            t0 = evs[find(E_STEP, -1, 0)].t;
+            run((uint32_t)(DELAY_MS[d] * 44.1) - (now - t0));
+            seq_midi_rt(&S, k ? 0xFB : 0xFA);                 /* Loopy: Start or Continue, the first tick 1 ms later */
+            run(44);
+            tc = now;
+            ble_clock_start(120.0, 15.0, 0.9);
+            ble_clock(120.0, 15.0, 4.0);
+            {
+                uint32_t gmin = 0xFFFFFFFFu, gmax = 0, bar = t0 + (uint32_t)(15.5 * L);
+                int first = find(E_ON, 0, 0), note = first >= 0 ? evs[first].b : -1;
+                for (i = 0, prev = -1, n = 0, bad = 0; (i = find(E_STEP, -1, i)) >= 0; prev = i, i++) {
+                    if (prev >= 0) {
+                        uint32_t g = evs[i].t - evs[prev].t;
+                        bad += evs[i].a != (evs[prev].a + 1) % 16;
+                        gmin = g < gmin ? g : gmin;
+                        gmax = g > gmax ? g : gmax;
+                    }
+                    n += evs[i].a == 0 && evs[i].t < bar;
+                }
+                for (i = 0, ons = 0; i < nev && evs[i].t < bar; i++)
+                    ons += evs[i].kind == E_ON && evs[i].a == 0 && evs[i].b == note;
+                CHECK(n == 1 && bad == 0, "PLAY, then Loopy %s %d ms later: step 1 %d times in the first bar, %d steps out of order",
+                      k ? "Continue" : "Start", DELAY_MS[d], n, bad);
+                CHECK(ons == 1, "PLAY, then Loopy %s %d ms later: the 303 note of step 1 %d times in the first bar, want 1",
+                      k ? "Continue" : "Start", DELAY_MS[d], ons);
+                /* (the first tick is tick 0 of the step that plays, LIM-11: one step can be up to 2 steps long;
+                 * the clock in 15 ms events moves a step by up to one event) */
+                CHECK(gmin >= (uint32_t)(0.8 * L) && gmax <= (uint32_t)(2.25 * L),
+                      "PLAY, then Loopy %s %d ms later: steps %u to %u samples apart (a step: %.0f)", k ? "Continue" : "Start",
+                      DELAY_MS[d], gmin, gmax, L);
+                (void)tc;
+            }
+            CHECK(S.playing && S.ext, "PLAY, then Loopy: X0X follows the clock");
+        }
+    /* a Start more than one step after PLAY starts X0X again from step 1, as before */
+    reset();
+    S.bpm = 120.0f;
+    P[0].drum[0].hit[0][0] = 0xFFFFu;
+    seq_start(&S);
+    run(44100 / 2);
+    mark = nev;
+    seq_midi_rt(&S, 0xFA);
+    seq_midi_rt(&S, 0xF8);
+    run(256);
+    CHECK(find(E_STEP, 0, mark) >= 0, "a Start 0.5 s after PLAY: from step 1, as before");
+    ble_rt = 0;
+    sink = &SINK;
+    printf("  PLAY note: PLAY with Loopy as the clock, no second start: checked\n");
+}
+
 static void test_break_clock(void)
 {
     int i, k;
@@ -722,6 +1085,10 @@ int main(void)
     test_ext_transport_ble();
     test_ext_burst_steps();
     test_rec_nearest();
+    test_clksrc_internal();
+    test_clksrc_external();
+    test_clksrc_switch();
+    test_play_note_with_loopy();
     test_break_clock();
 #ifdef REF_TB3PO
     test_tb3po_matches_reference();

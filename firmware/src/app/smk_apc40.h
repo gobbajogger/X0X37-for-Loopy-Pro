@@ -448,6 +448,22 @@ static inline uint32_t smk_apc40_history_packet(uint8_t redo, uint8_t on)
     return (on ? 0x09u : 0x08u) | status << 8 | note << 16 | (uint32_t)(on ? 0x7Fu : 0x00u) << 24;
 }
 
+/* Outside clip mode, PLAY also sends note 0x5B on MIDI channel 16, the channel of the Undo / Redo notes
+ * (MID-14), for a MIDI-learn in Loopy Pro. X0X starts and stops as before. In clip mode, PLAY is the APC
+ * PLAY (smk_apc40_transport_event), so this sends nothing. HOME + PLAY (X0X redo) sends nothing.
+ * The release sends note off only after a press that sent note on, also if clip mode started between. */
+#define SMK_APC40_PLAY_CTL_NOTE 0x5Bu
+static inline uint8_t smk_apc40_play_note_event(uint8_t *sent, uint8_t clip_mode, uint8_t home_held, uint8_t pressed)
+{
+    return smk_apc40_transport_event(sent, (uint8_t)(!clip_mode && !home_held), pressed);
+}
+/* USB-MIDI packet: note on 0x5B velocity 127, or note off 0x5B velocity 0, on channel 16. */
+static inline uint32_t smk_apc40_play_note_packet(uint8_t on)
+{
+    uint32_t status = (on ? 0x90u : 0x80u) | SMK_APC40_HISTORY_CHANNEL;
+    return (on ? 0x09u : 0x08u) | status << 8 | SMK_APC40_PLAY_CTL_NOTE << 16 | (uint32_t)(on ? 0x7Fu : 0x00u) << 24;
+}
+
 /* Return 1 when the current footprint fully contains the latched one and differs.
  * The latched layout can then grow (a late or partial feedback burst), but it never
  * shrinks when a clip LED turns off, so cue changes cannot shift pads. */

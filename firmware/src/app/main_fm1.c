@@ -631,6 +631,15 @@ uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed)
     apc_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u);
     return 1u;
 }
+/* PLAY outside clip mode: also note 0x5B on channel 16 to USB and Bluetooth MIDI (MID-14). It does not
+ * use the event: ui.c starts or stops X0X as before. NOTES OUT, CLOCK OUT and CLOCK SOURCE do not gate it. */
+void smk_play_note_button(uint8_t pressed, uint8_t home_held)
+{
+    static uint8_t sent;
+    uint8_t event = smk_apc40_play_note_event(&sent, clip_grid_mode, home_held, pressed);
+    if (event == SMK_APC40_BUTTON_ON || event == SMK_APC40_BUTTON_OFF)
+        apc_out(smk_apc40_play_note_packet(event == SMK_APC40_BUTTON_ON));
+}
 static void smk_pads(void)
 {
     uint32_t logical, w;

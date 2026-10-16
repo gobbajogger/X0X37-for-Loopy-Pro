@@ -495,8 +495,62 @@ static void test_first_pending_blink_has_beat_period(void)
     assert(p == 500u);                          /* no clock: the 250/250 ms default */
 }
 
+/* a74 (MID-14): ui.c input() for PLAY on the SMK-37 (the PLAY note: channel 16, as Undo / Redo). The clip mode handler first (it uses the event in clip
+ * mode), then the PLAY note outside clip mode, which does not use the event (PLAY starts or stops X0X). */
+static uint32_t play_out[8];
+static int play_nout, play_taps;
+static void play_button(uint8_t *clip_sent, uint8_t *note_sent, uint8_t clip_mode, uint8_t home, uint8_t pressed)
+{
+    uint8_t ev = smk_apc40_transport_event(clip_sent, clip_mode, pressed);   /* smk_clip_transport_button */
+    if (ev != SMK_APC40_BUTTON_IGNORED) {
+        if (ev == SMK_APC40_BUTTON_ON || ev == SMK_APC40_BUTTON_OFF)
+            play_out[play_nout++] = (ev == SMK_APC40_BUTTON_ON ? 0x09u | 0x90u << 8 | 0x5Bu << 16 | 0x7Fu << 24
+                                                                : 0x08u | 0x80u << 8 | 0x5Bu << 16 | 0x7Fu << 24);
+        return;                                                              /* used: X0X does not start */
+    }
+    ev = smk_apc40_play_note_event(note_sent, clip_mode, home, pressed);     /* smk_play_note_button */
+    if (ev == SMK_APC40_BUTTON_ON || ev == SMK_APC40_BUTTON_OFF)
+        play_out[play_nout++] = smk_apc40_play_note_packet(ev == SMK_APC40_BUTTON_ON);
+    if (pressed && !home)
+        play_taps++;                                                         /* button_tap(B_PLAY): start or stop */
+}
+static void test_play_note_outside_clip_mode(void)
+{
+    uint8_t cs = 0u, ns = 0u;
+    const uint32_t on = 0x09u | 0x9Fu << 8 | 0x5Bu << 16 | 0x7Fu << 24, off = 0x08u | 0x8Fu << 8 | 0x5Bu << 16;   /* channel 16 */
+    assert(smk_apc40_play_note_packet(1u) == on);
+    assert(smk_apc40_play_note_packet(0u) == off);
+    play_nout = play_taps = 0;                    /* outside clip mode: note on, note off, and X0X starts */
+    play_button(&cs, &ns, 0u, 0u, 1u);
+    assert(play_nout == 1 && play_out[0] == on && play_taps == 1);
+    play_button(&cs, &ns, 0u, 0u, 0u);
+    assert(play_nout == 2 && play_out[1] == off && play_taps == 1);
+    play_button(&cs, &ns, 0u, 0u, 1u);            /* the second press: X0X stops, the note again */
+    play_button(&cs, &ns, 0u, 0u, 0u);
+    assert(play_nout == 4 && play_out[2] == on && play_out[3] == off && play_taps == 2);
+    play_nout = play_taps = 0;                    /* clip mode: one APC PLAY note on and off, X0X does not start */
+    play_button(&cs, &ns, 1u, 0u, 1u);
+    play_button(&cs, &ns, 1u, 0u, 0u);
+    assert(play_nout == 2 && play_out[0] == (0x09u | 0x90u << 8 | 0x5Bu << 16 | 0x7Fu << 24) &&
+           (play_out[1] & 0xFFFFFFu) == (0x08u | 0x80u << 8 | 0x5Bu << 16));   /* the APC PLAY: channel 1 */
+    assert(play_taps == 0 && !ns && !cs);
+    play_nout = play_taps = 0;                    /* HOME + PLAY (X0X redo): no note */
+    play_button(&cs, &ns, 0u, 1u, 1u);
+    play_button(&cs, &ns, 0u, 1u, 0u);
+    assert(play_nout == 0 && play_taps == 0);
+    play_nout = 0;                                /* pressed outside, clip mode starts, released: one note off */
+    play_button(&cs, &ns, 0u, 0u, 1u);
+    play_button(&cs, &ns, 1u, 0u, 0u);
+    assert(play_nout == 2 && play_out[0] == on && play_out[1] == off && !ns && !cs);
+    play_nout = 0;                                /* pressed in clip mode, clip mode ends, released: the APC off only */
+    play_button(&cs, &ns, 1u, 0u, 1u);
+    play_button(&cs, &ns, 0u, 0u, 0u);
+    assert(play_nout == 2 && (play_out[1] & 0xFFFFFFu) == (0x08u | 0x80u << 8 | 0x5Bu << 16) && !ns && !cs);
+}
+
 int main(void)
 {
+    test_play_note_outside_clip_mode();
     test_first_pending_blink_has_beat_period();
     test_loopy_history_packets();
     test_lcd_map_fits_used_area();

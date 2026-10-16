@@ -180,7 +180,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -227,6 +227,8 @@ static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (pla
 static const char *const BT_N[] = {"OFF", "ON"};
 static const x0x_param_t BT_P = {"BLUETOOTH", 1, 0, BT_N};      /* Bluetooth MIDI (SMK-37) */
 static const x0x_param_t CKCH_P = {"CLIP KEYS CH", 13, 0, 0};  /* clip mode keybed channel 2-15 (0 = 2) */
+static const char *const CLKSRC_N[] = {"AUTO", "INTERNAL", "EXTERNAL"};   /* SEQ_CLK_* order */
+static const x0x_param_t CLKSRC_P = {"CLOCK SOURCE", 2, 0, CLKSRC_N};
 static const char *const BTSTAT_N[] = {"NO IMAGE", "OFF", "RESTART", "STARTING", "READY", "CONNECTED",
                                        "FAILED", "BAD IMAGE"};   /* PLAT_BLE_* order */
 static const x0x_param_t BTSTAT_P = {"STATUS", 7, 0, BTSTAT_N};   /* read only (plat_ble_state) */
@@ -296,6 +298,7 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_BATT: return &BATT_P;
     case R_BT: return &BT_P;
     case R_CKCH: return &CKCH_P;
+    case R_CLKSRC: return &CLKSRC_P;
     case R_BTSTAT: return &BTSTAT_P;
     case R_BTNAME: {                                   /* read only: the name it advertises */
         static const char *nm[1];
@@ -362,6 +365,7 @@ static int pref_get(pref_t r)
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
     case R_CKCH: return proj.set.ck_ch - 2;
+    case R_CLKSRC: return PROJ_CLK_SRC(proj.set.bt);
     case R_BTSTAT: return plat_ble_state();
     case R_SLEN: return song()->len;
     case R_STALLS: return perf.stalls_on;
@@ -437,6 +441,9 @@ static void pref_set(pref_t r, int v)
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
     case R_CKCH: proj.set.ck_ch = (uint8_t)(v + 2); break;   /* sounding notes end on their own channel */
+    case R_CLKSRC:                                            /* (ui_frame gives it to the sequencer) */
+        proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_CLK_MASK) | (uint8_t)v << 1 | PROJ_BT_CLK_IN);
+        break;
     case R_BT:
         proj.set.bt = (uint8_t)((proj.set.bt & ~1u) | (v > 0 ? 1u : 0u));
         plat_ble_set(v > 0);
@@ -989,6 +996,7 @@ static void open_global(void)
 {
     ui.list_n = 0;
     list_rows[ui.list_n++] = PR(R_HDR, GR_MIDI, 0, 0);
+    list_add(PR(R_CLKSRC, 0, 0, 0));
     list_add(PR(R_CLKOUT, 0, 0, 0));
     list_add(PR(R_NOTEOUT, 0, 0, 0));
     for (int p = 0; p < NPARTS; p++)
@@ -2476,6 +2484,7 @@ static void input(void)
 #if BOARD_SMK37
     extern uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed);
     extern uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held);
+    extern void smk_play_note_button(uint8_t pressed, uint8_t home_held);
 #endif
     ch = btn ^ ui.btn;
     for (i = 0; i < NB; i++) {
@@ -2499,6 +2508,8 @@ static void input(void)
                 ui.btn_used &= ~m;
             continue;
         }
+        if (i == B_PLAY)                               /* outside clip mode: also the PLAY note (MID-14) */
+            smk_play_note_button((uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u));
 #endif
         if (btn & m) {
             any_button = 1;
@@ -3053,7 +3064,7 @@ static void draw_header(void)
         put_i(b, shown);
     }
     text_r(212, vc(&FONT_S, 1, 17), &FONT_S, b, seq.ext ? C_AMB : C_HI);
-    if (seq.playing)
+    if (seq.playing && (!seq_clock_waiting(&seq) || (ui.frame & 32u)))   /* EXTERNAL waits: it blinks */
         play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
@@ -4097,8 +4108,8 @@ static void leds(void)
     extern uint8_t smk_clip_mode_on(void);
     extern uint8_t smk_apc_transport_led_state(uint8_t note);
 #endif
-    if (seq.playing && eng_step[TRK_DRUM] % 4 == 0)
-        b |= 1u << B_PLAY;
+    if (seq_clock_waiting(&seq) ? (ui.frame & 32u) != 0 : seq.playing && eng_step[TRK_DRUM] % 4 == 0)
+        b |= 1u << B_PLAY;                            /* EXTERNAL waits for the clock: a slow blink */
     if (ui.rec)
         b |= 1u << B_REC;
 #if BOARD_SMK37
@@ -4276,6 +4287,20 @@ void ui_frame(void)
 {
     uint32_t i;
     input();
+    {   /* GLO > MIDI > CLOCK SOURCE; clip mode always uses AUTO */
+        static uint8_t waited;
+        uint8_t w;
+#if BOARD_SMK37
+        extern uint8_t smk_clip_mode_on(void);
+        seq.clk_src = smk_clip_mode_on() ? SEQ_CLK_AUTO : PROJ_CLK_SRC(proj.set.bt);
+#else
+        seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
+#endif
+        w = (uint8_t)seq_clock_waiting(&seq);
+        if (w && !waited)
+            say("WAITING FOR CLOCK", 0);
+        waited = w;
+    }
     undo_tick();
     autosave();
     perf_test_tick();

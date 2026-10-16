@@ -26,6 +26,7 @@
  *                                VALUE "<N" / ">N" is a bound
  *   reboot                       save nothing; re-run boot from the simulated flash (persistence test)
  *   snapline B                   remember 303 B's line on the pattern shown (expect linechgB: 1 = it changed since)
+ *   storepoke OBJ OFF VAL        write byte VAL (hex) at OFF of the saved object OBJ (0 = the settings; an older save)
  *   projimg FILE                 a project as the FM-1 holds it in RAM (fm1_debug peek of proj): saved
  *                                to the simulated flash and booted, as if it had been made here
  */
@@ -104,12 +105,14 @@ int plat_midi_in(uint32_t *pkt)
     *pkt = min_q[mi_r++ % MQ];
     return 1;
 }
-static uint32_t midi_out_count, clock_out_count, note_ons;
+static uint32_t midi_out_count, clock_out_count, note_ons, transport_out_count;
 void plat_midi_out(uint32_t pkt)
 {
     midi_out_count++;
     if ((((pkt >> 8) & 0xF0) == 0x90) && ((pkt >> 24) & 0x7F))
         note_ons++;                                  /* the notes the sequence sent (expect noteons) */
+    if (((pkt >> 8) & 0xFF) >= 0xFA && ((pkt >> 8) & 0xFF) <= 0xFC)
+        transport_out_count++;
     if (((pkt >> 8) & 0xFF) == 0xF8)
         clock_out_count++;
     else if (midi_log)
@@ -695,6 +698,20 @@ static int expect(const char *what, const char *val)
         got = (int)(seq.bpm + 0.5f);
     else if (!strcmp(what, "clocks_out"))
         got = (int)clock_out_count;
+    else if (!strcmp(what, "transport_out"))       /* Start, Continue, Stop sent */
+        got = (int)transport_out_count;
+    else if (!strcmp(what, "clksrc"))               /* GLO > MIDI > CLOCK SOURCE: 0 AUTO, 1 INTERNAL, 2 EXTERNAL */
+        got = PROJ_CLK_SRC(proj.set.bt);
+    else if (!strncmp(what, "setbyte", 7) && (unsigned)atoi(what + 7) < sizeof proj.set)   /* setbyteN: the settings */
+        got = ((const uint8_t *)&proj.set)[atoi(what + 7)];
+    else if (!strncmp(what, "storeset", 8) && atoi(what + 8) >= 0 && atoi(what + 8) < store_len[OBJ_SET])
+        got = store[OBJ_SET][atoi(what + 8)];       /* storesetN: byte N of the saved settings object (4 + offset) */
+    else if (!strcmp(what, "clkext"))               /* 1: the sequencer follows (or waits for) a clock */
+        got = seq.ext;
+    else if (!strcmp(what, "waiting"))              /* EXTERNAL: playing, no clock */
+        got = seq_clock_waiting(&seq);
+    else if (!strcmp(what, "msgwait"))              /* the top line says WAITING FOR CLOCK */
+        got = !strcmp(ui.msg, "WAITING FOR CLOCK") && ui.msg_until;
     else if (!strcmp(what, "noteons"))
         got = (int)note_ons;
     else if (!strcmp(what, "store_writes"))
@@ -983,6 +1000,13 @@ int main(int argc, char **argv)
                 proj.arr.lane[i].used = 0;
         } else if (!strcmp(cmd, "cpu2")) {              /* cpu2 0|1: the simulated second core */
             plat_cpu2_set(atoi(a));
+        } else if (!strcmp(cmd, "storepoke")) {
+            int o = atoi(a), off = atoi(b);
+            if (o < 0 || o >= OBJ_NOBJ || off < 0 || off >= store_len[o]) {
+                fprintf(stderr, "storepoke: no byte %d in object %d\n", off, o);
+                return 1;
+            }
+            store[o][off] = (uint8_t)strtol(c, 0, 16);
         } else if (!strcmp(cmd, "reboot")) {
             memset(&proj, 0, sizeof proj);
             boot();
