@@ -16,6 +16,7 @@
 typedef struct {
     uint8_t on, page, sel;     /* sel: the selected pad (0-15, reading order: top row 0-7, left to right) */
     uint8_t orient, tl;        /* orient: the orientation page is on; tl: the pad index the owner found top-left */
+    uint8_t init;              /* the start values are set (first open after power-on) */
     uint8_t ok[16];            /* one bit for each entry: the owner accepted it */
     uint8_t rgb[128][3];
 } smk_padcal_t;
@@ -52,11 +53,15 @@ static inline void smk_padcal_start(smk_padcal_t *c, const uint16_t lcd565[128],
                                     const uint16_t gain[3], uint32_t floor)
 {
     uint32_t e;
-    for (e = 0; e < 128u; e++)
-        smk_padcal_default(c->rgb[e], lcd565[e], lut, gain, floor);
-    __builtin_memset(c->ok, 0, sizeof c->ok);
-    c->page = c->sel = c->tl = 0u;
-    c->on = c->orient = 1u;
+    if (!c->init) {                                /* only the first open after power-on: the edits stay */
+        for (e = 0; e < 128u; e++)
+            smk_padcal_default(c->rgb[e], lcd565[e], lut, gain, floor);
+        __builtin_memset(c->ok, 0, sizeof c->ok);
+        c->tl = 0u;
+        c->init = 1u;
+    }
+    c->page = c->sel = 0u;
+    c->on = c->orient = 1u;                        /* the orientation page lights the pad of the saved tl */
 }
 /* The orientation page: the pad index 0 is lit; K2 moves the light (wrap); SEQ PLAY confirms it as top-left.
  * The pad index of reading position i is i ^ tl (and back: the same). The model: the pad index of the

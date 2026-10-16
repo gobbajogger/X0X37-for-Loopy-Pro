@@ -98,6 +98,34 @@ static void test_orientation(void)
         }
 }
 
+/* A second open of PAD COLOURS (CLP-79): the edits, the ok marks and the orientation correction stay until
+ * power off. Only the first open after power-on computes the start values. The orientation page lights the
+ * pad of the saved correction. */
+static void test_reopen(void)
+{
+    static smk_padcal_t r;                           /* .bss: as after power-on */
+    smk_padcal_start(&r, APC40_LCD565, PAD_GAMMA_LUT, PAD_GAIN_Q8, PAD_FLOOR_LEVEL);
+    smk_padcal_orient_turn(&r, 7);                   /* K2: rows mirrored */
+    r.orient = 0u;                                   /* SEQ PLAY */
+    r.page = 5u;
+    r.sel = 1u;                                      /* entry 81 */
+    smk_padcal_turn(&r, 0u, 40);                     /* red up, entry ok */
+    r.page = 2u;
+    r.sel = 3u;                                      /* entry 35 */
+    smk_padcal_mark(&r);
+    {
+        uint8_t keep81[3] = {r.rgb[81][0], r.rgb[81][1], r.rgb[81][2]};
+        assert(keep81[0] != APC40_PAD_DEFAULT[81][0]);
+        r.on = 0u;                                   /* PATCH: the mode ends */
+        smk_padcal_start(&r, APC40_LCD565, PAD_GAMMA_LUT, PAD_GAIN_Q8, PAD_FLOOR_LEVEL);
+        assert(r.on == 1u && r.orient == 1u && r.page == 0u && r.sel == 0u);
+        assert(r.rgb[81][0] == keep81[0] && r.rgb[81][1] == keep81[1] && r.rgb[81][2] == keep81[2]);
+        assert(smk_padcal_is_ok(&r, 81u) && smk_padcal_is_ok(&r, 35u) && !smk_padcal_is_ok(&r, 80u));
+        assert(r.tl == 7u && smk_padcal_phys(r.tl, 0u) == 7u);   /* the lit pad: the saved top-left */
+        assert(r.rgb[80][0] == APC40_PAD_DEFAULT[80][0] && r.rgb[80][2] == APC40_PAD_DEFAULT[80][2]);
+    }
+}
+
 int main(int argc, char **argv)
 {
     (void)argv;
@@ -105,7 +133,10 @@ int main(int argc, char **argv)
     test_nudge();
     test_orientation();
     test_start_turn_mark();
+    test_reopen();
     c.tl = 8u;                                       /* the export carries the correction */
+    c.on = 0u;                                       /* leave and open again: the export keeps the edits */
+    smk_padcal_start(&c, APC40_LCD565, PAD_GAMMA_LUT, PAD_GAIN_Q8, PAD_FLOOR_LEVEL);
     if (argc > 1) {                                  /* the state above, as the INLOG reply words */
         uint8_t e;
         for (e = 0; e < 128u; e++)
