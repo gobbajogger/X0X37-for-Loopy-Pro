@@ -17,7 +17,7 @@
    - Good: The pads show the Loopy Pro colours.
    - [ ] yes / no
 
-2. Play only the notes of a scale.
+2. Goal: Scale.
    - Start: Press HOME.
 
    1. Tap SCALE.

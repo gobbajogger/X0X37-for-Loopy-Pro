@@ -1,0 +1,122 @@
+# Keyboard checklist: batch 10
+
+- Build: c6bf44a (release)
+- Replaces: `old/owner-checklist-batch9.md`, `old/checklist-batch9-b8255f2.md`, `old/owner-checklist-batch7.md`, `old/checklist-batch7-f9bcc46.md`
+- Checked against decisions:
+  - 19:25 fonts, 20:12 plain words, 23:11 STE, 23:32 checklists, 23:50 scope, 00:01 release build
+  - 00:16 ten tasks, 00:18 goal first, 00:59 short messages, 01:11 release install
+  - 01:15 idle squares show half shade, 01:17 and 01:19 brighter idle pads, 01:32 empty slots
+  - 01:46 Mac and iPhone, 01:49 Loopy quit, 01:56 pad clear, 01:57 install
+  - 02:00 PLAY and REC, 02:23 scope
+
+## Before you start
+
+WARNING: Do not send clock from the Mac over the USB cable. The X0X can then follow the Mac and not Loopy Pro.
+
+WARNING: Do not press other buttons while the cursor is on the SAVE, CLEAR or FACTORY RESET row. Another button can run that action and erase your work.
+
+- Open the Bluetooth MIDI settings of Loopy Pro on the iPhone and select the keyboard. Its name starts with "X0X-".
+- In Loopy Pro, use an instrument that listens on MIDI channel 2.
+- Each knob shows a printed number. This checklist uses these numbers.
+- A quick tap on SCALE (the SCALE button, SEL outside clip mode), CHORD or ARP turns it on or off. A long hold opens its page.
+
+## Tasks
+
+1. See the Loopy Pro clip colours on the keyboard.
+   - Start: Press HOME (the PATCH button). If the screen does not show clip squares, hold KNOB BANK for more than 1 second. Close Loopy Pro fully on the Mac.
+
+   1. Start one clip in Loopy Pro and leave the other clips stopped. Compare the pads and the clip squares with the clips in Loopy Pro.
+   2. Give a clip a blue colour.
+   3. Close Loopy Pro fully on the iPhone. Wait about 10 seconds.
+   4. Open Loopy Pro again and select the keyboard.
+
+   - Good: The pads and the squares show the Loopy Pro colours. Clips that do not play show clearly, but dimmer than the clip that plays. Empty slots also light. The pads go dark without Loopy Pro and light again with it.
+   - [ ] yes / no
+
+2. Use Loopy Pro on the Mac and on the iPhone at the same time.
+   - Start: Press HOME. If the screen does not show clip squares, hold KNOB BANK for more than 1 second. Put the USB cable into the Mac. Open Loopy Pro on the Mac and on the iPhone, and select the keyboard in each. Put the Mac clips and the iPhone clips on different pads.
+
+   1. Press Play in Loopy Pro on the Mac. Start to record in Loopy Pro on the iPhone.
+   2. Remove the USB cable. Wait about 10 seconds. Put the cable in again, and select the keyboard in Loopy Pro on the Mac.
+   3. Close Loopy Pro fully on the iPhone. Wait about 10 seconds. Open it again and select the keyboard.
+   4. Close Loopy Pro fully on the Mac. Wait about 10 seconds.
+
+   - Good: Each time, only the pads of the Loopy Pro that stopped go dark. They stay dark until that Loopy Pro connects again. The pads of the other Loopy Pro stay lit. Without the cable, the PLAY light goes off and the REC light stays on.
+   - [ ] yes / no
+
+3. Play only the notes of a scale, and keep the knobs for Loopy Pro.
+   - Start: Press HOME. If the screen does not show clip squares, hold KNOB BANK for more than 1 second.
+
+   1. Hold SCALE. Press a key in the lowest octave to set the root. Press the C key two octaves above the lowest key. Release SCALE.
+   2. Tap SCALE to turn it on. Play white and black keys.
+   3. In Loopy Pro, start MIDI learn on a control. Turn knob 5. Tap SCALE to turn it off.
+
+   - Good: Loopy Pro gets only the notes of your scale (BLUES), and Loopy Pro learns knob 5.
+   - [ ] yes / no
+
+4. Play a full chord or a strum with one key.
+   - Start: Press HOME. If the screen does not show clip squares, hold KNOB BANK for more than 1 second.
+
+   1. Tap CHORD (the CHORD button, ENV outside clip mode) to turn it on. Press one key.
+   2. Hold CHORD. Press the F key in the third octave from the bottom. Release CHORD. Press one key.
+   3. Hold CHORD. Press the highest key one time. Release CHORD. Press one key.
+   4. Hold CHORD and press the highest key until STRUM shows OFF. Tap CHORD to turn it off.
+
+   - Good: One key plays a full chord, also the large DOM13 chord, and the strum plays the notes from low to high.
+   - [ ] yes / no
+
+5. Let the arp play in time with Loopy Pro.
+   - Start: Press HOME. If the screen does not show clip squares, hold KNOB BANK for more than 1 second. In Loopy Pro, turn on MIDI clock out.
+
+   1. Tap ARP. Hold three keys.
+   2. Hold ARP. Press the highest key to turn LATCH on. Release ARP. Play three keys and release them.
+   3. Press NOTE REPEAT (the NOTE REPEAT button, LFO outside clip mode) alone.
+   4. Hold ARP. Press the highest key to turn LATCH off. Release ARP.
+
+   - Good: The arp plays at the Loopy Pro tempo, continues with LATCH, and NOTE REPEAT stops all notes.
+   - [ ] yes / no
+
+6. Give the arp a rhythm, a human feel and a swing.
+   - Start: Press HOME. If the screen does not show clip squares, hold KNOB BANK for more than 1 second. Make sure that ARP is on.
+
+   1. Hold ARP. Press the second key from the top. Release ARP. Hold three keys.
+   2. Hold ARP. Press the lowest B key 5 times. Release ARP. Hold three keys.
+   3. Hold ARP. Press the black key directly below that B key 4 times. Release ARP. Hold three keys.
+   4. Tap ARP to turn it off.
+
+   - Good: You hear the arp leave out steps, then change a little in loudness, then play with a swing.
+   - [ ] yes / no
+
+7. Step values with < and >.
+   - Start: Press HOME. If the screen does not show clip squares, hold KNOB BANK for more than 1 second.
+
+   1. Press GLO (the GLOBE button). Hold > on a row with a value. Press < and > on the SAVE, CLEAR and FACTORY RESET rows. Press GLO.
+   2. Hold SCALE. Press FADER BANK to keep the page open. Hold >. Press FADER BANK to close the page.
+   3. Hold KNOB BANK for more than 1 second to turn clip mode off. Press < and >.
+
+   - Good: The arrows step values to their end, they do not run SAVE, CLEAR or FACTORY RESET, and each press gives one step.
+   - [ ] yes / no
+
+8. Keep your settings after the install, and read the screen.
+   - Start: Press HOME. If the screen shows clip squares, hold KNOB BANK for more than 1 second.
+
+   1. Press GLO and go to the MIDI section. Read CLOCK SOURCE. Set it to AUTO. Press GLO.
+   2. Turn knob 5.
+   3. Select BREAK mode. Turn knob 5 to BR1, BR2, BR3, BR4 and BR5.
+
+   - Good: CLOCK SOURCE kept your value, and you can read the knob box and each loop name.
+   - [ ] yes / no
+
+9. Play the X0X in time with Loopy Pro.
+   - Start: Press HOME. If the screen shows clip squares, hold KNOB BANK for more than 1 second. Make sure that CLOCK SOURCE is AUTO.
+
+   1. In Loopy Pro, turn on MIDI clock out. Set 120 BPM and press Play. Wait 4 seconds.
+   2. In Loopy Pro, stop the connection to the keyboard.
+   3. Press PLAY (the SEQ PLAY button) to stop the X0X. Press Stop in Loopy Pro. Select the keyboard in Loopy Pro again.
+
+   - Good: The X0X plays at 120, not 240, and it continues at 120 with no jump when the connection stops.
+   - [ ] yes / no
+
+## Reply to Orchestrator
+
+Send the numbers of the tasks that fail. If all pass, send "all pass".
