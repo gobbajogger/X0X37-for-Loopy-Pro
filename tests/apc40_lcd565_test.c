@@ -59,11 +59,30 @@ static void test_lit_cells_are_not_black(void)
         assert(APC40_LCD565[i] != 0x0000u);
 }
 
+/* The same lookup as smk_clip_lcd_draw (tests/smk_apc40_test.py checks the firmware text). */
+static uint16_t lcd_colour(uint8_t v)
+{
+    return APC40_LCD565[v & 0x7Fu];
+}
+
+static void test_lookup_edges(void)
+{
+    unsigned v;
+    assert(lcd_colour(0u) == 0x0000u);      /* empty cell: the firmware draws a dim dot */
+    assert(lcd_colour(1u) == APC40_LCD565[1]);
+    assert(lcd_colour(127u) == 0xA160u);    /* the highest velocity */
+    /* A value above 127 cannot come from MIDI (smk_apc_usb_event masks with 0x7F).
+     * If it comes, the lookup stays inside the table. */
+    for (v = 128u; v < 256u; v++)
+        assert(lcd_colour((uint8_t)v) == APC40_LCD565[v - 128u]);
+}
+
 int main(void)
 {
     test_size();
     test_approved_entries();
     test_lit_cells_are_not_black();
+    test_lookup_edges();
     test_tool_makes_the_same_table();
     printf("apc40_lcd565_test: ok\n");
     return 0;
