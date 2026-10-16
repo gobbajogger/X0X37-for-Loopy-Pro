@@ -1,0 +1,10 @@
+# Cases for check 7 (tests/host/test_release_tree.sh): want|path that the test commit adds
+# REFUSED = the tree of that commit must be refused, OK = it must pass.
+REFUSED|refs/jieli/include/sdk.h
+REFUSED|refs/oscuro/fw.bin
+REFUSED|tools/vendor/refs/oscuro/notes.txt
+REFUSED|REFS/JieLi/readme.txt
+REFUSED|docs/refs-oscuro-map.txt
+OK|docs/refs/other.txt
+OK|tools/jieli_notes.txt
+OK|firmware/src/oscuro_free.c
