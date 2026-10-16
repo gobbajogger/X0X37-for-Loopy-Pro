@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 22:39 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 22:40 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -102,7 +102,7 @@ Agent rules: agent-rules.md (version 2, 15 rules). Skills: asd-ste, caveman, x0x
 - 8. Only Firmware Main Builder installs. Before the install, back up the slots and send the owner notice with the exact hash. After it, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
 - 9. Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background.
 - 10. Run hardware work and edits to one shared file one at a time. While you wait for a result, do the next task that does not need it.
-- 11. Log a device PASS only for the items that the owner names, with the build. Mark each other item NOT TESTED.
+- 11. Log a device PASS only for the items that the owner names, with the build. Mark each other item NOT TESTED. Before a fix for a device bug, the owner shows the bug once with INLOG on, and the builder makes a host replay test from that log. Do not make a guess fix.
 - 12. Never push outside the box and the machines of the owner. Never push, merge or package refs-oscuro.
 - 13. Stop only the processes that you started, by their PIDs. Never use pkill -f or killall on a shared script.
 - 14. Before an action that is hard to undo or shared, do the Decision check (x0x37-builder-loop steps 12 to 16). Send skill changes through Orchestrator.
@@ -170,3 +170,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 22:28: Second Builder owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). Runs an Elite build before each handoff.
 - 2026-10-16 22:30: integration f357a2e. Keyboard: integration 9a733fe installed 22:25 (ledger b1), device test pending.
 - 2026-10-16 22:39: batch 1 (9a733fe) gate PASS 22:29, after the install at 22:25 (rule 7 break). Lane file split: open item.
+- 2026-10-16 22:40: rule 11: record the bug first (owner 22:39). INLOG replay test before a fix for a device bug.

@@ -43,6 +43,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - 2026-10-16 22:00 (owner): All planned changes go on one working branch, integration. One commit for each change, with a host test (affected tests only, time scale 20). One full gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the batch gate. Builders fetch and rebase before each commit and change only the files of their lane. The install is the batch hash with gate PASS. This replaces the gate for each lane (agent rules 4 to 7).
 - 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its red-flag words (agent rule 14). Changes to the skill go through Orchestrator.
 - 2026-10-16 22:03 (owner): No idle waiting. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 10).
+- 2026-10-16 22:39 (owner): Record the bug first. Before a fix for a device bug, the owner shows the bug once with INLOG (the inbound MIDI recorder) on. The builder makes a host replay test from that log, then fixes the bug. No guess fixes (agent rule 11).
 
 ## Hardware and targets
 
@@ -101,4 +102,4 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-16 22:39.
+Last update: 2026-10-16 22:40.
