@@ -11,6 +11,7 @@
 #      have the same sha256 and mtime before and after a run of the status tests. Cron writes them every 5 minutes,
 #      so a change is checked again one time. A leak repeats, a cron write does not.
 set -u
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a git hook sets these (tests/host/test_hook_env_isolation.sh)
 export X0X_TEST_RUN=1
 TOP="$(cd "$(dirname "$0")/../.." && pwd)"; S="$TOP/tools/status.sh"; F="$TOP/tests/host/fixtures/status"
 T=$(mktemp -d "${TMPDIR:-/tmp}/statusiso.XXXXXX"); trap 'rm -rf "$T"' EXIT

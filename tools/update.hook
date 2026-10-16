@@ -20,6 +20,13 @@
 # 1d. Integration owner (check 8 of rules v4, rule 10: only Merge Integrator moves integration): a push to
 #    refs/heads/integration (not a delete) needs the push option by=merge-integrator: git push -o by=merge-integrator ...
 #    The pre-receive hook saves the option. The skip option does not skip 1c or 1d.
+# 1e. Lane files (check 8 of rules v4, commit.md rule 10: a lane changes only its own files): a push to
+#    refs/heads/lane/<tag>-* (not a delete; tag mb, sb, opt, btr or dk) is rejected when it changes a file that only
+#    other lanes own. The map: the "Lane files" section of smk37:docs/AGENTS_AND_ROOMS.md, read by lane_files.py
+#    (git config x0x37.laneFiles, default /workspace/x0x37-refs/gate/lane_files.py, installed by tools/install_gate.sh).
+#    The changed files: the diff from the merge base with integration (or with smk37, if that one is newer) to <new>.
+#    Shared rows are allowed. A file with no lane is allowed (check 31 reports it). Fail closed: no lane_files.py, no
+#    map or a map that the parser cannot read rejects the push. The skip option does not skip 1e.
 # 2. Quick check, only for refs/heads/integration (not a delete): the installed quickcheck.sh (strict STE when the
 #    pushed tree has tools/ste_strict) runs in a work clone, base = <old sha>. It must give "QUICK PASS".
 #    It holds the gate lock SHARED (flock -s, never exclusive). If a gate holds the lock for more than
@@ -116,6 +123,23 @@ if [ "$REF" = refs/heads/integration ] && [ "$NEW" != "$Z" ]; then
     grep -qx 'by=merge-integrator' "$OPTF" 2>/dev/null ||
         reject "only Merge Integrator moves integration (rule 10): push with git push -o by=merge-integrator, or push your lane branch"
 fi
+
+# ---------- 1e. Lane files ----------
+case "$REF" in
+refs/heads/lane/mb-*|refs/heads/lane/sb-*|refs/heads/lane/opt-*|refs/heads/lane/btr-*|refs/heads/lane/dk-*)
+    if [ "$NEW" != "$Z" ]; then
+        LTAG=${REF#refs/heads/lane/}; LTAG=${LTAG%%-*}
+        LANEF=$(cfg x0x37.laneFiles /workspace/x0x37-refs/gate/lane_files.py)
+        [ -f "$LANEF" ] || reject "the lane file check $LANEF is missing (check 8). Ask the Build and Test Runner."
+        LOUT=$(python3 "$LANEF" lane --repo "$GD" --lane "$LTAG" --base auto --head "$NEW" 2>&1 </dev/null); LRC=$?
+        case "$LRC" in
+        0) echo "update hook: ${LOUT%% (map *}" >&2 ;;
+        1) reject "${LOUT#LANE REFUSED }. A lane changes only its own files and shared files (Lane files in docs/AGENTS_AND_ROOMS.md on smk37, commit.md rule 10). Send the change to the owner lane." ;;
+        *) reject "the lane file check failed (fail closed): $(echo "$LOUT" | tail -1 | cut -c1-300)" ;;
+        esac
+    fi
+    ;;
+esac
 
 # ---------- 2. Quick check (integration only) ----------
 [ "$REF" = refs/heads/integration ] && [ "$NEW" != "$Z" ] || exit 0

@@ -1,0 +1,19 @@
+# Fixture for tests/host/test_lane_files.sh: <path> <expected lanes, "-" between them, or "none"> (map-38ff65d.md)
+docs/padcal-names.csv sb
+docs/rules/commit.md dk
+firmware/src/app/ui.c sb
+firmware/src/new_feature.c mb
+BEHAVIOR.md dk-mb-sb
+tools/padcal/a/b.py sb
+tools/new_tool.py btr
+tools/quickcheck.sh btr
+tests/host/smk_clip_wait_test.c sb
+tests/host/smk_clip_wait_test/x.c btr
+LICENSE dk
+ble mb
+ble/ctl/x.c mb
+tests/run_tests.sh btr-mb-sb
+web/EDITOR_PROTOCOL.md dk
+web/index.html mb
+NOTES.txt none
+scripts/run.sh none

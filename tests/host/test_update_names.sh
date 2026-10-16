@@ -16,7 +16,8 @@ fails=0; n=0
 B="$T/box.git"; C="$T/c"
 printf '#!/bin/bash\n# stand-in quick check\nste_step() { :; }\necho "QUICK PASS stand-in"\n' > "$T/qc.sh"; chmod +x "$T/qc.sh"
 git init -q --bare "$B" && git -C "$B" config x0x37.workDir "$T/wd" && git -C "$B" config x0x37.skipLog "$T/skips.log" &&
-    git -C "$B" config x0x37.quickcheck "$T/qc.sh" && git -C "$B" config x0x37.gateLock "$T/gate.lock" || { echo "FAIL setup"; exit 1; }
+    git -C "$B" config x0x37.quickcheck "$T/qc.sh" && git -C "$B" config x0x37.gateLock "$T/gate.lock" &&
+    printf 'print("LANE OK lane/x: stand-in (the lane files are in tests/host/test_lane_files.sh)")\n' > "$T/lanef.py" && git -C "$B" config x0x37.laneFiles "$T/lanef.py" || { echo "FAIL setup"; exit 1; }
 gc() { git -C "$C" -c user.name=t -c user.email=t@t commit -q "$@"; }
 OLDB=$(grep -v '^#' "$(dirname "$F")/old-branches.txt")
 git init -q -b integration "$C" && echo a > "$C/a.c" && git -C "$C" add . && gc -m base && git -C "$C" remote add box "$B" &&

@@ -10,7 +10,8 @@ TOP="$(cd "$(dirname "$0")/../.." && pwd)"; F="$TOP/tests/host/fixtures/rules_gu
 T=$(mktemp -d "${TMPDIR:-/tmp}/rulesguard.XXXXXX"); trap 'rm -rf "$T"' EXIT
 fails=0; n=0
 B="$T/box.git"; C="$T/c"
-git init -q --bare "$B" && git -C "$B" config x0x37.workDir "$T/wd" && git -C "$B" config x0x37.skipLog "$T/skips.log" || { echo "FAIL setup"; exit 1; }
+git init -q --bare "$B" && git -C "$B" config x0x37.workDir "$T/wd" && git -C "$B" config x0x37.skipLog "$T/skips.log" &&
+    printf 'print("LANE OK lane/x: stand-in (the lane files are in tests/host/test_lane_files.sh)")\n' > "$T/lanef.py" && git -C "$B" config x0x37.laneFiles "$T/lanef.py" || { echo "FAIL setup"; exit 1; }
 gc() { git -C "$C" -c user.name=t -c user.email=t@t commit -q "$@"; }
 git init -q "$C" && git -C "$C" config user.name t && git -C "$C" config user.email t@t && mkdir -p "$C/docs/rules" && cp "$F/good-rule.txt" "$C/docs/rules/install.md" && echo prefs > "$C/docs/USER_PREFERENCES.md" &&
     echo r > "$C/README.md" && git -C "$C" add . && gc -m base && git -C "$C" branch -M smk37 && git -C "$C" remote add box "$B" &&

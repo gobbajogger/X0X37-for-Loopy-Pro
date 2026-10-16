@@ -20,6 +20,8 @@
 #   BEHAVIOR ITEM MISSING: an integration commit after the last install (INSTALLED.tsv) names an ID (for example CLP-99)
 #   with the prefix of a BEHAVIOR.md item, and integration:BEHAVIOR.md has no item line "<ID>. ..." for it.
 #   X0X_DOCS_BRANCH [smk37].
+# Check 31 (commit.md rule 10): LANE FILES when a tracked file of integration has no lane in "Lane files" of
+#   smk37:docs/AGENTS_AND_ROOMS.md (tools/lane_files.py beside this script).
 set -u
 export TZ=Asia/Vladivostok LC_ALL=C
 REPO=${X0X_REPO:-/workspace/x0x37.git}
@@ -341,6 +343,16 @@ if [ -n "$INSTLAST" ] && G cat-file -e "$INSTLAST^{commit}" 2>/dev/null; then
   if [ -n "$BMISS" ]; then L29B="- **BEHAVIOR ITEM MISSING** (check 29): $BMISS (named by integration commits after the install ${INSTLAST:0:7}, no item in $INT:BEHAVIOR.md)."
   else L29B="- BEHAVIOR items since the last install (check 29): $NN named, all in BEHAVIOR.md."; fi
 fi
+# ---------- check 31: lane files ----------
+if [ ! -f "$SELFD/lane_files.py" ]; then L31="- Lane files (check 31): not checked (no $SELFD/lane_files.py)."
+else
+  LO=$(python3 "$SELFD/lane_files.py" cover --repo "$REPO" --map-ref "${X0X_DOCS_BRANCH:-smk37}" --tree "$INT" 2>&1); LRC=$?
+  case "$LRC" in
+  0) L31="- Lane files (check 31): $(echo "$LO" | grep '^LANES OK' | sed 's/^LANES OK //; s/ (map.*//') ($(echo "$LO" | grep -c '^LANES WARN') patterns match no file)." ;;
+  1) L31="- **LANE FILES** (check 31): $(echo "$LO" | grep '^LANES FAIL' | sed 's/^LANES FAIL //; s/ (map [^)]*)//' | cut -c1-300 | esc)." ;;
+  *) L31="- Lane files (check 31): not checked ($(echo "$LO" | tail -1 | cut -c1-120 | esc))." ;;
+  esac
+fi
 {
 echo "# x0x37 status"
 echo
@@ -365,6 +377,7 @@ else echo "- BEHAVIOR diff: none. $BSRC = $INT:BEHAVIOR.md in text (header and s
 echo "$L27"
 echo "$L29A"
 echo "$L29B"
+echo "$L31"
 STALLS=""
 echo
 echo "## Live branches (tip commit in the last ${LIVE_H} h)"

@@ -42,6 +42,11 @@
 #   tests/*inlog* file, or names a file that names it. That test must FAIL on the parent of the commit: the step runs it in
 #   a temp worktree of the parent, with the tests/ files of the commit. A test that passes there, an inlog file that no
 #   test uses, or no inlog file makes "QUICK FAIL ... DEVICE BUG: ...". X0X_QUICK_ONLY=devbug: only this step.
+# Lanes step (check 31 of rules v4, commit.md rule 10): tools/lane_files.py (the copy beside this script) checks that each
+#   tracked file of <commit> has a lane in "Lane files" of smk37:docs/AGENTS_AND_ROOMS.md (the remote smk37 ref). When the
+#   changes touch docs/AGENTS_AND_ROOMS.md, the map comes from <commit> and the files from integration. "LANES FAIL"
+#   (files with no lane) makes "QUICK FAIL ... LANES: ...". No lane_files.py, no smk37 ref or a map that the parser cannot
+#   read: a note, no failure (the server update hook fails closed for lane pushes). The step runs with X0X_QUICK_ONLY=ste.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 set -u
 T0=$(date +%s%N)
@@ -229,13 +234,32 @@ print(" ".join(sorted(out)))' "${G[@]}")
     [ -z "$errs" ] || { DB_FAIL=1; DB_NOTE="DEVICE BUG: ${errs#; }"; }
     return 0
 }
+# Lanes step (see the header). It sets LN_FAIL (1 = a failure) and LN_NOTE.
+lanes_step() {
+    LN_FAIL=0; LN_NOTE=""
+    local lf="$QCDIR/lane_files.py" gd o rc mref tree
+    [ -f "$lf" ] || { LN_NOTE="; no $lf, lanes step skipped"; return 0; }
+    gd=$("${G[@]}" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || { LN_NOTE="; lanes step: no git folder"; return 0; }
+    if echo "$CHANGED" | grep -qx 'docs/AGENTS_AND_ROOMS.md'; then mref=$H; tree=${IREF:-$H}
+    elif [ -n "${DREF:-}" ]; then mref=$DREF; tree=$H
+    else LN_NOTE="; no $DOCB ref, lanes step skipped"; return 0; fi
+    o=$(python3 "$lf" cover --repo "$gd" --map-ref "$mref" --tree "$tree" 2>&1); rc=$?
+    echo "$o" >> "$LOG"
+    case "$rc" in
+    0) ;;
+    1) LN_FAIL=1; LN_NOTE="LANES: $(echo "$o" | grep '^LANES FAIL' | sed 's/^LANES FAIL //; s/ (map [^)]*)//' | cut -c1-240)" ;;
+    *) LN_NOTE="; lanes step: $(echo "$o" | tail -1 | cut -c1-120)" ;;
+    esac
+    return 0
+}
 if [ "${X0X_QUICK_ONLY:-}" = devbug ]; then
     devbug_step; [ "$DB_FAIL" = 1 ] && out FAIL "$DB_NOTE"; out PASS "(device bug step only)"
 fi
 if [ "${X0X_QUICK_ONLY:-}" = ste ]; then
     ste_step; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
     rules_step; [ "$RULES_FAIL" = 1 ] && out FAIL "$RULES_NOTE"
-    out PASS "(STE step only${STE_NOTE})"
+    lanes_step; [ "$LN_FAIL" = 1 ] && out FAIL "$LN_NOTE"
+    out PASS "(STE step only${STE_NOTE}${LN_NOTE})"
 fi
 
 # 1. the Elite build (incremental), with its build checks
@@ -305,5 +329,6 @@ MISS=""; for n in $SEL; do grep -qE "^  (ok|FAIL) +$n( |\$)" "$L/tests.log" || M
 WT=""; ste_step; WT="$STE_NOTE"; [ "$STE_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
 rules_step; [ "$RULES_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$RULES_NOTE"
 devbug_step; [ "$DB_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$DB_NOTE"
+lanes_step; [ "$LN_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$LN_NOTE"; WT="$WT$LN_NOTE"
 [ "$NF" = 0 ] && [ "$TRC" = 0 ] || out FAIL "tests: $NF failed ($(grep '^  FAIL' "$L/tests.log" | awk '{print $2}' | tr '\n' ' ' | sed 's/ $//'))$WT"
 out PASS "($NOK tests ok${MISS:+; not run:$MISS}$WT)"
