@@ -17,6 +17,9 @@ uint32_t plat_buttons(void)
             /* APC navigation controls must not also trigger X0X page/octave actions. */
             if (clip_mode && panel.btn[i] <= FM1_BTN_OCT_UP)
                 continue;
+            /* Clip mode: SCALE, CHORD, ARP and NOTE REPEAT belong to the clip keys (main_fm1.c). */
+            if (clip_mode && (i == B_SEL || i == B_ENV || i == B_ARP || i == B_LFO))
+                continue;
 #endif
             out |= 1u << i;
         }
@@ -29,6 +32,11 @@ int32_t plat_enc(int role)
 {
     if (role < 0 || role >= NE)
         return 0;
+#if BOARD_SMK37
+    extern uint8_t smk_ck_knobs_owned(void);
+    if (role <= EN_K1 && smk_ck_knobs_owned())
+        return 0;   /* clip mode: knobs 2-5 set SCALE, CHORD or ARP (main_fm1.c); knob 1 stays MASTER */
+#endif
     return fm1_enc_take(panel.enc[role]) * panel.dir[role];
 }
 

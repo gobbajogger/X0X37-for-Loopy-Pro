@@ -127,7 +127,9 @@ print("PASS Loopy Play/Record feedback LEDs, clock-synced PLAY blink, momentary 
 # Clip mode keeps controls from triggering X0X actions; the APC initialization reply remains intact.
 plat = (ROOT / "firmware/src/app/plat_fm1.c").read_text()
 assert "clip_mode && panel.btn[i] <= FM1_BTN_OCT_UP" in plat
-assert "KEY_WHITE[k] >= 0 && ((fm1_in.pnotes >> k) & 1u)" in ui
+# clip keys: the keybed stays out of the X0X UI; a held pad still blocks its white key (main_fm1.c)
+assert "if (smk_clip_mode_on())\n        return;" in ui
+assert "w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)" in main
 assert "if (smk_clip_mode_on())" in main and "enter_uboot(\"UBOOT\")" in main
 assert "0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09" in usb
 assert "apc40_introduction_reply();" in usb

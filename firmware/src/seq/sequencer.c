@@ -449,6 +449,10 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         s->ext = 1;
     else if (s->ext && s->ext_since > FS / 2u) {    /* clock gone for 0.5 s: back to internal */
         s->ext = 0;
+        if (s->ext_period) {                          /* the internal tempo takes the last measured one */
+            float b = (float)(int)(s->ext_bpm + 0.5f);   /* whole BPM, as the TEMPO knob sets it */
+            s->bpm = b < 20.0f ? 20.0f : b > 275.0f ? 275.0f : b;
+        }
         for (t = 0; t < NTRACKS; t++)
             if (s->playing && s->t[t].to_next == NEVER)
                 s->t[t].to_next = 0;
