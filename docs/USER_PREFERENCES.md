@@ -93,7 +93,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 
 ## Where things are
 
-- Source tree: x0x37/ (branch smk37). BLE work: flash_review repo, live branch ble-a65. Clip keys: branch clip-keys (box repo).
+- Source tree: x0x37/ (branch smk37). BLE work: flash_review repo, live branch ble-a74. Clip keys: branch clip-keys (box repo).
 - Rules: agent-rules.md. Agents and lanes: AGENTS_AND_ROOMS.md. Intended behaviour: x0x37/BEHAVIOR.md. Change log: x0x37-progress-log.md. Plan: ROADMAP.md. BLE attempt ledger: BLE_ATTEMPTS.md in the BLE branch.
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ble_split/flash_plan.md.
