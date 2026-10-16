@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 """Violet proof test: replay the raw clip velocity and channel from an INLOG log and compare the
-live pad table (APC40_RGB in main_fm1.c) with the Akai palette (tools/apc40mk2_akai_protocol_v1.2.csv).
+live pad table (APC40_PAD_OWNER in app/apc40_pad_owner.h; APC40_RGB in main_fm1.c before 2026-10-17)
+with the Akai palette (tools/apc40mk2_akai_protocol_v1.2.csv).
 
 For each velocity that Loopy sent in the log, the table entry must be the Akai colour. The channel
 selects the state only (protocol v1.2 "RGB LEDs Type": 0 solid, 1-5 one-shot, 6-10 pulse, 11-15
 blink), so it must not change the colour. The test also lists every table entry that is not
 the Akai colour (also velocities that are not in the log).
 Usage: tests/apc_pad_source_test.py [FIXTURE ...]   (default: tests/fixtures/inlog_*_clips.txt)
-Evidence file, not in tests/run_tests.sh: it fails on the live table (velocity 81: CC00FF, Akai 7A00FF).
-Decision 2026-10-16 23:10 (Orchestrator): the live pad table does not change. The 10 entries that are
-not the Akai colour (48-51, 69, 80, 81, 93, 94, 116) are WS2812 corrections after an owner VIOLET FAIL.
-The raw Akai colour can look blue on the pads. The pad calibration mode (GLOBAL > SYSTEM > PAD COLOURS)
-is the fix path: its export, not this test, changes the pad table.
+OBSOLETE as a pass/fail test, evidence only, not in tests/run_tests.sh. Since 2026-10-17 the live pad
+table is the owner-calibrated table (owner export tools/padcal/pads-owner-20261017.txt, sha256
+54ecc6f8..., BEHAVIOR.md CLP-13). Its entries are pad LED levels that the owner matched by eye, not
+Akai colours, so this test fails on nearly every entry by design. tests/apc40_pad_owner_test.py checks
+the live table. History: decision 2026-10-16 23:10 (Orchestrator) kept the old table with 10 WS2812
+corrections (48-51, 69, 80, 81, 93, 94, 116) and named the pad calibration mode as the fix path.
 """
-import re
 import sys
 from pathlib import Path
 
@@ -22,9 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import apc_colour_model as m  # noqa: E402
 
-main = (ROOT / "firmware/src/app/main_fm1.c").read_text()
-t = re.search(r"APC40_RGB\[128\]\s*=\s*\{(.*?)\};", main, re.S)
-live = [int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{6})", t.group(1))]
+import inlog_fmt  # noqa: E402
+live = inlog_fmt.palette()
 akai = [e["apc"] for e in m.load_source()]
 STATE = ["solid"] + ["one-shot"] * 5 + ["pulse"] * 5 + ["blink"] * 5
 fails = 0

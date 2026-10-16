@@ -11,28 +11,16 @@ engine = (ROOT / "firmware/src/app/engine.c").read_text()
 ui = (ROOT / "firmware/src/app/ui.c").read_text()
 apc = (ROOT / "firmware/src/app/smk_apc40.h").read_text()
 
-# The complete APC40 mkII palette has 128 velocity-indexed entries.
-match = re.search(r"APC40_RGB\[128\]\s*=\s*\{(.*?)\};", main, re.S)
-assert match, "missing APC40 palette"
-palette = [int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{6})", match.group(1))]
+# The pad table has 128 velocity-indexed entries: the owner-calibrated table (CLP-13). The violet group
+# 48-51 (bug a67) and the other colours come from the owner export: tests/apc40_pad_owner_test.py.
+owner_h = (ROOT / "firmware/src/app/apc40_pad_owner.h").read_text()
+match = re.search(r"APC40_PAD_OWNER\[128\]\[3\]\s*=\s*\{(.*?)\};", owner_h, re.S)
+assert match, "missing APC40 pad table"
+palette = re.findall(r"\{(\d+),(\d+),(\d+)\}", match.group(1))
 assert len(palette) == 128, f"expected 128 APC colors, found {len(palette)}"
-assert palette[0] == 0x000000 and palette[3] == 0xFFFFFF
-assert palette[5] == 0xFF0000 and palette[21] == 0x00FF00 and palette[127] == 0x4B1502
-print("PASS APC40 RGB palette (128 entries)")
-
-# Bug a67: Loopy violet showed blue on the pads. The pad LED value of the violet group 48-51
-# must have a violet hue (265-290 degrees), not blue (240). Blue and magenta do not change.
-def pad_hue(rgb):
-    r, g, b = ((rgb >> 16) * 255 // 510, ((rgb >> 8) & 0xFF) * 255 // 510, (rgb & 0xFF) * 255 // 510)
-    mx, mn = max(r, g, b), min(r, g, b)
-    assert mx == b and mx > mn, hex(rgb)
-    return 240.0 + 60.0 * (r - g) / (mx - mn)
-for v in range(48, 52):
-    h = pad_hue(palette[v])
-    assert 265.0 <= h <= 290.0, f"velocity {v} {palette[v]:06X}: pad hue {h:.1f} is not violet"
-assert palette[44:48] == [0x4C4CFF, 0x0000FF, 0x000059, 0x000019]
-assert palette[52:56] == [0xFF4CFF, 0xFF00FF, 0x590059, 0x190019]
-print("PASS violet palette group 48-51 shows violet on the pads")
+assert palette[0] == ("0", "0", "0")
+assert '#include "app/apc40_pad_owner.h"' in main and "APC40_RGB" not in main
+print("PASS APC40 pad table (128 entries, owner-calibrated)")
 
 # Universal Device Inquiry returns the APC40 mkII identity and protocol version.
 assert "apc40_device_inquiry" in usb
@@ -115,13 +103,13 @@ assert "uint8_t owned = clip_grid_mode || apc_host_on;" in main   # test 35: cli
 assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 63u)" in main
 assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
-assert "((rgb >> 16) * brightness) / 510u" in main
+assert "(uint8_t)((rgb[0] * brightness) / 510u)" in main
 assert "SMK_CLIP_LCD_FLOOR" not in main   # LCD_FLOOR is in tools/apc_colour_model.py now
 assert "smk_apc_host_seen();" in usb and "smk_apc_host_lost();" in usb
 assert "BOARD_SMK37 && !defined(FELUCCA_LOADER)" in usb
 assert "clip_state[16]" not in main and "smk_clip_state_set" not in engine
-assert "APC40_RGB[v];   /* the last color from Loopy" in main
-print("PASS host-owned clip LED state capture; last color is drawn as sent")
+assert "APC40_PAD_OWNER[v];   /* the last color from Loopy" in main
+print("PASS host-owned clip LED state capture; last color drawn from the owner-calibrated table")
 
 # Play and overdub buttons reflect Loopy feedback in clip mode.
 assert "smk_apc_transport_led_set(d1, vel)" in engine
@@ -164,7 +152,7 @@ assert "APC40_RGB" not in draw and "SMK_CLIP_LCD_FLOOR + mx" not in main   # the
 assert "if (v)\n                    cv_rect(x + gap + 1, y + gap + 1, p - 2 * gap - 2, p - 2 * gap - 2, c);" in draw
 assert "else\n                    cv_rect(x + p / 2 - 2, y + p / 2 - 2, 4, 4, C_DIM);" in draw   # velocity 0: a dim dot
 pads = main.split("static void smk_pads(void)")[1].split("\n}\n")[0]
-assert "APC40_LCD565" not in pads and "APC40_RGB[v];" in pads    # the pads keep APC40_RGB (CLP-13)
+assert "APC40_LCD565" not in pads and "APC40_PAD_OWNER[v];" in pads    # the pads use APC40_PAD_OWNER (CLP-13)
 assert "void smk_clip_lcd_force(void) { was_on = 0u; }" in main   # mode entry and menu close: draw at once
 assert "smk_clip_lcd_force();   /* a menu" in ui_src
 lost = main.split("void smk_apc_host_lost(void)")[1].split("\n}\n")[0]

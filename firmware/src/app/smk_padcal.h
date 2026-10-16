@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* SMK-37 pad calibration (GLOBAL > SYSTEM > PAD COLOURS, BEHAVIOR.md CLP-79): the logic without hardware.
  * The 16 pads show one page of 16 palette entries (8 pages, 128 entries). The values are pad table
- * levels (R, G, B 0-255, as APC40_RGB): the pads send level / 2, as a lit clip pad. The edits stay in RAM
+ * levels (R, G, B 0-255, as APC40_PAD_OWNER): the pads send level / 2, as a lit clip pad. The edits stay in RAM
  * (no settings byte, no flash save). Editor command 38 INLOG, args 2-5, exports 32 entries each.
  * main_fm1.c has the keys, the knobs, the pads and the LCD. tests/smk_padcal_test.c tests this file. */
 #ifndef SMK_PADCAL_H

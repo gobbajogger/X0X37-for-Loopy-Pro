@@ -64,8 +64,8 @@ MIDI interface).
 
 Build option: `X0X_DEV_PADCAL` (SMK-37). `1` (the default) makes a dev build with the pad calibration
 mode (BEHAVIOR.md CLP-79). `0` makes a release build without it: no PAD COLOURS row, no pad calibration
-code or RAM, and no INLOG args 2-5 export. The pads use `APC40_RGB` in the two builds. To make the release
-build, use this command:
+code or RAM, and no INLOG args 2-5 export. The pads use the owner-calibrated table `APC40_PAD_OWNER`
+(BEHAVIOR.md CLP-13) in the two builds. To make the release build, use this command:
 
 ```
 X0X_DEV_PADCAL=0 MODEL=elite ./build.sh --board smk37

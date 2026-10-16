@@ -3,7 +3,8 @@
 """Clip colours: one source (the Akai palette), the colour rules, and a replay of real INLOG data.
 
 The pad values here are the calibration start point (gamma, white gains, floor), not the live
-pad table. tests/apc_pad_source_test.py compares the live table with the Akai palette.
+pad table. The live pad table is the owner-calibrated table app/apc40_pad_owner.h
+(tests/apc40_pad_owner_test.py).
 
 The committed headers and the tool output are compared in tests/apc40_tables_test.c.
 Usage: tests/apc_palette_test.py [FIXTURE ...]   (default: tests/fixtures/inlog_*_clips.txt)
