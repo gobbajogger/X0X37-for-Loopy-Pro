@@ -15,12 +15,16 @@
 #      (a build/*.fwsc line, or the "ctl.img file crc32" line).
 # Output: "GATE OK <hash> <result file>" (exit 0), or "REFUSED <hash>: <reason>" (exit 3). Bad arguments: exit 2.
 # Environment (defaults in brackets):
-#   X0X_RESULTS_DIR [/workspace/x0x37-results]
+#   X0X_RESULTS_DIR [/workspace/x0x37-results; if that folder is not there: $HOME/Documents/x0x37/gate-results,
+#                    the copy that tools/sync_results_to_mac.sh --unpack makes on the Mac]
 #   X0X_REPO [the git repository of the current folder, else /workspace/x0x37.git]
 #   X0X_GATE_LOGS_MAP ["" ; "FROM=TO" replaces the prefix FROM of the logs path with TO, for a copy on another computer]
+#   If the logs folder is not there, the guard also looks in $X0X_RESULTS_DIR/logs/<logs path> (the layout of
+#   tools/sync_results_to_mac.sh).
 # Runs with bash 3.2 (macOS) and Linux. Read only: it changes no file.
 set -u
 RESULTS=${X0X_RESULTS_DIR:-/workspace/x0x37-results}
+[ -n "${X0X_RESULTS_DIR:-}" ] || [ -d "$RESULTS" ] || RESULTS="$HOME/Documents/x0x37/gate-results"
 C=""; FWSC=""; CTL=""
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -76,6 +80,7 @@ for row in $ROWS; do
     [ -n "$L" ] || { [ -z "$LAST" ] && LAST="$F: no logs folder"; continue; }
     if [ -n "${X0X_GATE_LOGS_MAP:-}" ]; then MF=${X0X_GATE_LOGS_MAP%%=*}; MT=${X0X_GATE_LOGS_MAP#*=}
         case "$L" in "$MF"*) L="$MT${L#"$MF"}" ;; esac; fi
+    case "$L" in /*) [ -d "$L" ] || [ ! -d "$RESULTS/logs$L" ] || L="$RESULTS/logs$L" ;; esac
     [ -f "$L/gate.log" ] || { [ -z "$LAST" ] && LAST="$F: no gate log $L/gate.log"; continue; }
     grep -q '^gate: ' "$L/gate.log" || { [ -z "$LAST" ] && LAST="$F: $L/gate.log has no gate lines"; continue; }
     [ -s "$L/crc.txt" ] || { [ -z "$LAST" ] && LAST="$F: no CRC manifest $L/crc.txt"; continue; }

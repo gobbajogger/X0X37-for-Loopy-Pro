@@ -5,6 +5,7 @@
 # must print "GATE OK" with exit code 0. A real result (9a733fe, tree 1d3c048d...) is also checked
 # when /workspace/x0x37.git and /workspace/x0x37-results are on this computer.
 set -u
+unset X0X_GATE_LOGS_MAP X0X_SYNC_DIR
 G="$(cd "$(dirname "$0")/../.." && pwd)/tools/require_gate_pass.sh"
 T=$(mktemp -d "${TMPDIR:-/tmp}/igg.XXXXXX"); trap 'rm -rf "$T"' EXIT
 fails=0; n=0
@@ -52,6 +53,18 @@ expect REFUSED "gate.log without gate lines" "$H"; mv "$L/gate.keep" "$L/gate.lo
 expect REFUSED "CRC mismatch" "$H" --fwsc "$T/bad.fwsc" --ctl "$T/ctl.img"
 expect "GATE OK" "gate PASS" "$H" --fwsc "$T/good.fwsc" --ctl "$T/ctl.img"
 index "$(row 'PASS' "$TREE.md")" "$(row 'PASS (result used again)' "$TREE.md")"; expect "GATE OK" "PASS (result used again)" "$H"
+# tools/sync_results_to_mac.sh: pack on the box, unpack on the "Mac" (a temp folder), then the guard
+# uses only the copy (the original logs folder is moved away). All copied files must be read-only.
+SY="$(dirname "$G")/sync_results_to_mac.sh"; n=$((n + 1))
+p=$(X0X_RESULTS_DIR="$T/res" X0X_SYNC_DIR="$T/sync" bash "$SY" --pack 2>&1) && \
+    u=$(X0X_RESULTS_DIR="$T/mac" bash "$SY" --unpack "$T/sync/latest.tar" 2>&1) && mv "$L" "$L.away" && \
+    out=$(X0X_RESULTS_DIR="$T/mac" X0X_REPO="$T/repo" bash "$G" "$H" --fwsc "$T/good.fwsc" --ctl "$T/ctl.img" 2>&1); rc=$?
+mv "$L.away" "$L" 2>/dev/null
+rw=$(find "$T/mac" -type f -perm -u+w ! -path '*/.unpack.*' | wc -l | tr -d ' ')
+case "$out" in "GATE OK $S $T/mac/"*) if [ "$rc" = 0 ] && [ "$rw" = 0 ]; then echo "ok   sync pack + unpack, guard on the copy: $out"
+    else echo "FAIL sync: rc=$rc writable=$rw $out"; fails=$((fails + 1)); fi ;;
+*) echo "FAIL sync: rc=$rc $p $u $out"; fails=$((fails + 1)) ;; esac
+chmod -R u+w "$T/mac" 2>/dev/null
 # fm1_install.py: a real install with no --commit stops before it opens a device (exit 9)
 n=$((n + 1)); out=$(python3 "$(dirname "$G")/fm1_install.py" "$T/good.fwsc" 2>&1); rc=$?
 if [ "$rc" = 9 ] && echo "$out" | grep -q REFUSED; then echo "ok   fm1_install.py without --commit: exit 9"; else echo "FAIL fm1_install.py without --commit: rc=$rc $out"; fails=$((fails + 1)); fi
