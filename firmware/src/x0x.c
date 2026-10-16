@@ -9,7 +9,10 @@
 #include "fm1_irq.h"
 #include "fm1_guard.h"
 #if BOARD_SMK37
-#define SMK_BIG __attribute__((section(".pool")))   /* SMK buffers in the pool (zeroed at boot): .data+.bss is full */
+/* SMK buffers (the pad and key trims, the pad LED buffer, the clip keys state, the inbound log) are in .bss.
+ * The start-up code zeroes .bss and the pool in the same way. Static RAM has room since C1-C3. The pool must
+ * keep 8192 B free for the RAM canary. */
+#define SMK_BIG
 #include "smk_input.h"               /* SMK-37 Pro: keybed, pads, buttons, encoders, faders, wheels (fm1_input.h API) */
 #else
 #include "fm1_input.h"
