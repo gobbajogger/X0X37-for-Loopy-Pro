@@ -27,7 +27,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 
 ## Repositories and remotes
 
-- 2026-10-16 02:09: Shared bare repository on the box: /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it. Lanes never push integration. Merge Integrator puts the lane commits on integration (agent rules 5 and 6).
+- 2026-10-16 02:09: Shared bare repository on the box: /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it. Lanes push only their lane/<agent>-<topic> branch, never integration. Merge Integrator moves each commit onto integration (agent rules 5 and 6, 23:15 entry).
 - 2026-10-16 18:09: Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote. The GitHub origin of the Mac x0x37 repo stays for now. No one pushes to it.
 - Box first: build, test and analyze on the box copy. Use the Mac only for installs and device access. Copy the built files to the Mac just before an install. Sync box commits to the Mac with a git bundle (same hashes, no patches). Keep the box and Mac copies in sync (git commits and docs).
 - JieLi files stay local on the box and on the Mac and are never committed. Exception: branch refs-oscuro (see below).
@@ -41,11 +41,14 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - 2026-10-16 02:43: Docs, logs and commits follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). The caveman skill applies to agent-to-agent messages only. If they conflict, asd-ste wins. (2026-10-16 21:57, Orchestrator confirmed: messages to the owner follow the 20:12 owner entry in "How to work with the user". From 23:11 they are also in ASD-STE100.)
 - 2026-10-16 13:03: Do not ask the user for approval to start a helper subagent. Start it.
 - 2026-10-16 22:00 (owner): All planned changes go on one working branch, integration. One commit for each change, with a host test (affected tests only, time scale 20; the time scale applies only when the code reads X0X_TEST_TIME_SCALE, agent rule 4). One full gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the batch gate. Builders fetch and rebase before each commit and change only the files of their lane. The install is the batch hash with gate PASS. This replaces the gate for each lane (agent rules 4 to 7).
-- 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its red-flag words (agent rule 14). Changes to the skill go through Orchestrator.
+- 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its red-flag words (agent rule 14). Changes to the skill go through Orchestrator. (2026-10-16 23:15: in the core card, the Decision check is steps 6 to 10.)
 - 2026-10-16 22:03 (owner): No idle waiting. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 10).
 - 2026-10-16 22:39 (owner): Record the bug first. Before a fix for a device bug, the owner shows the bug once with INLOG (the inbound MIDI recorder) on. The builder makes a host replay test from that log, then fixes the bug. No guess fixes (agent rule 11).
 - 2026-10-16 22:59 (owner): Never build a fix before data and a host test prove that it fixes the cause. If a fix does not help on the device, go back to the start. Name the wrong assumption and get the missing data. No second guess (agent rule 11).
 - 2026-10-16 23:11 (owner): Write every message to the owner in ASD-STE100, also with the plain words of the 20:12 entry. Do not describe a change to the owner before you verify it (agent rule 2, asd-ste skill).
+- 2026-10-16 23:15 (Orchestrator decision): Integration is the one working branch. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Merge Integrator moves each commit onto integration. (agent rule 5)
+- 2026-10-16 23:15 (Orchestrator decision): Orchestrator is the only route for questions to the owner. An owner report given in any chat is valid if it is quoted with the build. (agent rule 2)
+- 2026-10-16 23:15 (Orchestrator decision): Send one decision message for each item. Give it a tag "supersedes <time>" when it replaces an earlier decision. (agent rule 14)
 
 ## Hardware and targets
 
@@ -104,4 +107,4 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-16 23:13.
+Last update: 2026-10-16 23:16.
