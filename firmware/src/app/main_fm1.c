@@ -190,6 +190,7 @@ extern void isr_timer5(void);
 #if X0X_DEV_PADCAL                      /* dev builds only: a release build has no pad calibration */
 #include "app/smk_padcal.h"      /* the pad calibration (CLP-79) */
 #include "app/apc40_pad_gamma.h"     /* its start rule (tools/apc_pad_colors.py --gamma-h) */
+#include "app/apc40_pad_names.h"     /* the entry names (tools/apc_pad_colors.py --names-h) */
 static smk_padcal_t padcal;           /* in .bss: RAM only, no settings byte, no flash save */
 static uint32_t padcal_btn, padcal_pads, padcal_sig;   /* the last frame: buttons, pads (edges), LCD */
 uint8_t smk_padcal_on(void) { return padcal.on; }
@@ -1498,15 +1499,15 @@ static void smk_grid(void)
 }
 
 /* The pad calibration page on the LCD (CLP-79, ui.c draw_main): the 16 target colours (APC40_LCD565) in
- * the layout of the pads, a white frame on the selected pad, a white dot on each entry marked ok, then the
- * palette entry (velocity) of the selected pad. */
+ * the layout of the pads, a white frame on the selected pad, a dot on each entry marked ok, then the
+ * palette entry (velocity) and the name of the selected pad, and its boost (SEQ REC: real level). */
 #if X0X_DEV_PADCAL
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h)
 {
-    uint8_t e = smk_padcal_entry(padcal.page, padcal.sel), i;
+    uint8_t e = smk_padcal_entry(padcal.page, padcal.sel), i, s = padcal.real ? 0u : smk_padcal_boost_shift(APC40_LCD565[e]);
     uint32_t sig = smk_padcal_word(&padcal, e) ^ (uint32_t)(padcal.sel | padcal.page << 4) << 25 ^
-                   (uint32_t)(padcal.tl | padcal.orient << 4) * 2654435761u;
-    char t[16];
+                   (uint32_t)(padcal.tl | padcal.orient << 4 | padcal.real << 5) * 2654435761u;
+    char t[32], *q;
     if (sig == padcal_sig)                        /* only the selected entry, the pad and the page change */
         return 0u;
     padcal_sig = sig;
@@ -1519,14 +1520,18 @@ uint8_t smk_padcal_draw(uint32_t w, uint32_t h)
     for (i = 0; i < SMK_PADCAL_PADS; i++) {
         int32_t x = (int32_t)(i & 7u) * 30, y = (int32_t)(i >> 3) * 30;
         uint8_t n = smk_padcal_entry(padcal.page, i);
+        uint16_t c = i == padcal.sel ? smk_padcal_boost565(APC40_LCD565[n], s) : APC40_LCD565[n];
         if (i == padcal.sel)
             cv_rect(x, y, 30, 30, C_WHITE);
-        cv_rect(x + 3, y + 3, 24, 24, APC40_LCD565[n]);
+        cv_rect(x + 3, y + 3, 24, 24, c);
         if (smk_padcal_is_ok(&padcal, n))
-            cv_rect(x + 12, y + 12, 6, 6, smk_padcal_dot565(APC40_LCD565[n]));   /* black on a light square */
+            cv_rect(x + 12, y + 12, 6, 6, smk_padcal_dot565(c));   /* black on a light square */
     }
-    put_i(put_s(t, "#"), e);
+    q = put_s(put_s(put_s(put_i(put_s(t, "#"), e), " "), PADCAL_HUE[PADCAL_NAME[e] >> 3]), " ");
+    put_s(q, PADCAL_SHADE[PADCAL_NAME[e] & 7u]);
     cv_text(4, 70, &FONT_S, t, C_WHITE);
+    put_i(put_s(t, "BOOST X"), 1u << s);
+    cv_text(4, 92, &FONT_S, padcal.real ? "REAL LEVEL" : t, C_WHITE);   /* SEQ REC toggles */
     return 1u;
 }
 /* GLOBAL > SYSTEM > PAD COLOURS (ui.c run_action). The row is not in the list in clip mode: the clip keys
@@ -1561,6 +1566,8 @@ static void smk_padcal_frame(void)
         else
             smk_padcal_mark(&padcal);
     }
+    if (down & (1u << panel.btn[B_REC]))
+        padcal.real ^= 1u;                       /* the selected LCD square: boost or real level */
     if (down & (1u << panel.btn[B_OCTDN]))
         padcal.page = smk_padcal_page_step(padcal.page, -1);
     if (down & (1u << panel.btn[B_OCTUP]))

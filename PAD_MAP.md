@@ -54,6 +54,13 @@ If the orientation page gives a correction N other than 0:
 4. Change the three tables above to the new map. Run tests/pad_placement_doc_test.py and the pad tests.
 5. Set the status to CONFIRMED, with the date and the build hash (x0x.bin sha256).
 
+## Pad calibration entry names
+
+docs/padcal-names.csv lists the 128 pad calibration entries: the velocity, the Akai colour, the name and the owner value (R, G, B of APC40_PAD_OWNER). The calibration mode shows the name of the selected entry (BEHAVIOR.md CLP-79).
+- tools/apc_pad_colors.py makes the names from the Akai reference colour: a hue family and a shade. The groups 4-59 have 4 shades (LIGHT, FULL, DIM, DARK) and use the hue of their full shade.
+- The Akai CSV has no colour names. These names are not Akai names and not Loopy Pro colour names.
+- To make the list again, use `tools/apc_pad_colors.py --names-csv docs/padcal-names.csv`.
+
 ## Sequencer / grid mode (smk_pad_grid = 1)
 - White-key index w maps directly to hardware pad w.
 - Top row (pads 0-7) = steps 1-8.

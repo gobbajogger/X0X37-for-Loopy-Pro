@@ -8,6 +8,7 @@ table "RGB LEDs"). The rules and their named constants are in tools/apc_colour_m
 Usage:
   tools/apc_pad_colors.py                      # table on stdout
   tools/apc_pad_colors.py --lcd-idle-h firmware/src/app/apc40_lcd_idle.h   # idle clip squares (CLP-05)
+  tools/apc_pad_colors.py --names-h firmware/src/app/apc40_pad_names.h --names-csv names.csv   # CLP-79 names
   tools/apc_pad_colors.py --pad-h out.h        # APC40_PAD_DEFAULT[128][3]: pad LED start levels
   tools/apc_pad_colors.py --pad-h out.h --pad-override export.txt   # the entries marked ok replace the rule
   tools/apc_pad_colors.py --pad-h firmware/src/app/apc40_pad_owner.h --pad-override tools/padcal/pads-owner-20261017.txt \\
@@ -90,6 +91,29 @@ def lcd_idle_header(src, target):
     return "\n".join(out) + "\n"
 
 
+def names_header(src):
+    codes = [h << 3 | s for h, s in (m.entry_name(src, v) for v in range(128))]
+    return (GEN.format(opt="--names-h") +
+            " * The name of each pad calibration entry (BEHAVIOR.md CLP-79, dev build only): hue family and shade\n"
+            " * from the Akai reference colour. Descriptive names made by the tool: the CSV has no names, and they\n"
+            " * are not Loopy Pro colour names. Code = hue << 3 | shade. */\n"
+            "#include <stdint.h>\n"
+            "static const char *const PADCAL_HUE[" + str(len(m.NAME_HUES)) + "] = {" +
+            ", ".join(f'"{n}"' for n in m.NAME_HUES) + "};\n"
+            "static const char *const PADCAL_SHADE[" + str(len(m.NAME_SHADES)) + "] = {" +
+            ", ".join(f'"{n}"' for n in m.NAME_SHADES) + "};\n"
+            "static const uint8_t PADCAL_NAME[128] = {\n" +
+            "".join("    " + ",".join(str(c) for c in codes[i:i + 16]) + ",\n" for i in range(0, 128, 16)) + "};\n")
+
+
+def names_csv(src, owner):
+    out = ["velocity,akai_hex,name,owner_r,owner_g,owner_b"]
+    for v in range(128):
+        o = owner[v] if owner else ("", "", "")
+        out.append(f"{v},{src[v]['apc']:06X},{m.entry_name_text(src, v)},{o[0]},{o[1]},{o[2]}")
+    return "\n".join(out) + "\n"
+
+
 def read_table(path, name, digits):
     t = Path(path).read_text()
     mt = re.search(name + r"\[128\]\s*=\s*\{(.*?)\};", t, re.S)
@@ -120,6 +144,8 @@ def main():
     ap.add_argument("--lcd-h")
     ap.add_argument("--gamma-h")
     ap.add_argument("--lcd-idle-h")
+    ap.add_argument("--names-h")
+    ap.add_argument("--names-csv")
     ap.add_argument("--report")
     ap.add_argument("--html")
     ap.add_argument("--pad-override")
@@ -141,6 +167,13 @@ def main():
         Path(a.pad_h).write_text(pad_header(pad, a.gamma, bal, a.target, ov, a.pad_name, a.pad_override))
     if a.lcd_h:
         Path(a.lcd_h).write_text(lcd_header(lcd, a.target))
+    if a.names_h:
+        Path(a.names_h).write_text(names_header(src))
+    if a.names_csv:
+        oh = Path(__file__).resolve().parents[1] / "firmware/src/app/apc40_pad_owner.h"
+        mt = re.search(r"APC40_PAD_OWNER\[128\]\[3\]\s*=\s*\{(.*?)\};", oh.read_text(), re.S)
+        owner = [tuple(map(int, x)) for x in re.findall(r"\{(\d+),(\d+),(\d+)\}", mt.group(1))] if mt else None
+        Path(a.names_csv).write_text(names_csv(src, owner))
     if a.lcd_idle_h:
         Path(a.lcd_idle_h).write_text(lcd_idle_header(src, a.target))
     if a.gamma_h:

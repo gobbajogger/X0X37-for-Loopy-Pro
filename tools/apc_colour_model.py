@@ -274,6 +274,48 @@ def lcd_idle565(src, v, mode=None):
     return to565(*((c + 1) // 2 for c in split(target(src[v - 2], mode))))
 
 
+# CLP-79 entry names (dev build): a short hue family and shade from the Akai reference colour. They are
+# descriptive names made here, not Akai names (the CSV has none) and not Loopy Pro names.
+NAME_HUES = ("BLACK", "GREY", "WHITE", "RED", "ORANGE", "YELLOW", "LIME", "GREEN", "MINT", "CYAN", "SKY", "BLUE",
+             "VIOLET", "MAGENTA", "ROSE")
+NAME_SHADES = ("LIGHT", "FULL", "DIM", "DARK", "")
+_HUE_LIMITS = ((15, "RED"), (40, "ORANGE"), (65, "YELLOW"), (95, "LIME"), (145, "GREEN"), (170, "MINT"), (195, "CYAN"),
+               (220, "SKY"), (250, "BLUE"), (280, "VIOLET"), (320, "MAGENTA"), (345, "ROSE"), (361, "RED"))
+
+
+def entry_name(src, v):
+    """(hue index, shade index) of velocity v. Groups 4-59 (4 shades: light, full, dim, dark) take the hue
+    of the full shade of the group and the shade from the position. Other entries: the shade from the
+    brightest channel (FULL from 0xA0, DIM from 0x40, else DARK; LIGHT for a bright pale colour)."""
+    import colorsys
+    def hue_of(rgb):
+        r, g, b = split(rgb)
+        h, s, val = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+        mx = max(r, g, b)
+        if mx == 0:
+            return "BLACK"
+        if s < 0.2:
+            return "WHITE" if mx >= 0xE0 else "GREY"
+        return next(n for t, n in _HUE_LIMITS if h * 360 < t)
+    rgb = src[v]["apc"]
+    hue = hue_of(src[v - (v - 4) % 4 + 1]["apc"] if 4 <= v < 60 else rgb)
+    if hue in ("BLACK", "WHITE"):
+        shade = 4
+    elif 4 <= v < 60:
+        shade = (v - 4) % 4
+    else:
+        r, g, b = split(rgb)
+        mx = max(r, g, b)
+        sat = (mx - min(r, g, b)) / mx
+        shade = 0 if hue != "GREY" and mx >= 0xC0 and sat < 0.6 else 1 if mx >= 0xA0 else 2 if mx >= 0x40 else 3
+    return NAME_HUES.index(hue), shade
+
+
+def entry_name_text(src, v):
+    h, s = entry_name(src, v)
+    return (NAME_HUES[h] + " " + NAME_SHADES[s]).strip()
+
+
 def of565(c):
     return ((c >> 11) * 255 / 31, ((c >> 5) & 63) * 255 / 63, (c & 31) * 255 / 31)
 

@@ -17,6 +17,7 @@ typedef struct {
     uint8_t on, page, sel;     /* sel: the selected pad (0-15, reading order: top row 0-7, left to right) */
     uint8_t orient, tl;        /* orient: the orientation page is on; tl: the pad index the owner found top-left */
     uint8_t init;              /* the start values are set (first open after power-on) */
+    uint8_t real;              /* SEQ REC: the selected LCD square at its real level (no boost) */
     uint8_t ok[16];            /* one bit for each entry: the owner accepted it */
     uint8_t rgb[128][3];
 } smk_padcal_t;
@@ -71,6 +72,20 @@ static inline uint16_t smk_padcal_dot565(uint32_t c565)
     uint32_t y = 77u * ((c565 >> 11 & 31u) * 255u / 31u) + 150u * ((c565 >> 5 & 63u) * 255u / 63u) +
                  29u * ((c565 & 31u) * 255u / 31u);
     return (y >> 8) >= 128u ? 0x0000u : 0xFFFFu;
+}
+/* The boost of the selected LCD square (owner 2026-10-17 01:42, 01:43): the hue of a dark entry is hard to
+ * see, so the LCD square of the selected entry shows 2^s x brighter (each RGB565 field << s). s is the
+ * largest value 0-3 that keeps each field in its range. The pads and the stored values do not change. */
+static inline uint8_t smk_padcal_boost_shift(uint32_t c565)
+{
+    uint32_t r = c565 >> 11 & 31u, g = c565 >> 5 & 63u, b = c565 & 31u, s = 0u;
+    while (s < 3u && (r << (s + 1u)) <= 31u && (g << (s + 1u)) <= 63u && (b << (s + 1u)) <= 31u)
+        s++;
+    return (uint8_t)(r | g | b ? s : 0u);
+}
+static inline uint16_t smk_padcal_boost565(uint32_t c565, uint8_t s)
+{
+    return (uint16_t)((c565 >> 11 & 31u) << s << 11 | (c565 >> 5 & 63u) << s << 5 | (c565 & 31u) << s);
 }
 /* The orientation page: the pad index 0 is lit; K2 moves the light (wrap); SEQ PLAY confirms it as top-left.
  * The pad index of reading position i is i ^ tl (and back: the same). The model: the pad index of the

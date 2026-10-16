@@ -65,7 +65,7 @@ owner_h = " ".join((SRC / "apc40_pad_owner.h").read_text().replace("*", " ").spl
 check("--pad-name APC40_PAD_OWNER writes the live pad table" in " ".join(pad_h.replace("*", " ").split()) and
       "in the dev and the release build" in owner_h,
       "app/apc40_pad_owner.h (generated): the owner-calibrated pad table is the pad table of both builds")
-BAD = re.compile(r"padcal|PAD COLOURS|pad 1 top-left|apc40_pad_gamma|ACT_PADCAL", re.I)
+BAD = re.compile(r"padcal|PAD COLOURS|pad 1 top-left|apc40_pad_gamma|apc40_pad_names|ACT_PADCAL|BOOST X|REAL LEVEL", re.I)
 for name in ("main_fm1.c", "ui.c", "plat_fm1.c"):
     text = (SRC / name).read_text()
     rel = strip(text, 0)

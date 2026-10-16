@@ -185,6 +185,7 @@ run smk-clip-idle python3 tests/smk_clip_idle_test.py   # CLP-05: idle clip squa
 run smk-clip-idle-pad python3 tests/smk_clip_idle_pad_test.py   # CLP-13: idle clip pads send the full owner level
 run apc40-pad-owner python3 tests/apc40_pad_owner_test.py   # CLP-13: the owner-calibrated pad table, the export, the clip pad bytes
 run smk-padcal sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_padcal_test tests/smk_padcal_test.c && $OUT/smk_padcal_test"   # CLP-79: pad calibration logic
+run padcal-view python3 tests/padcal_view_test.py   # CLP-79: selected LCD square boost, entry names; pads unchanged
 run smk-padcal-export sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_padcal_export_bin tests/smk_padcal_test.c && python3 tests/smk_padcal_export_test.py $OUT/smk_padcal_export_bin"   # CLP-79: export round trip
 run smk-padcal-wiring python3 tests/smk_padcal_wiring_test.py   # CLP-79: menu row, keys, knobs, pads, LCD
 run pad-placement-doc python3 tests/pad_placement_doc_test.py   # PAD_MAP.md physical pad placement = PADLED_SLOT, SMK_PADMUX
