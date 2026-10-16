@@ -1457,16 +1457,16 @@ static void ck_page_draw(void)
     uint32_t pg = (cp->pg & 3u) - 1u, k, n;
     uint16_t c = CK_MODE_C[pg];
     const uint16_t *z = ck_zones(pg);
-    int32_t x = cv_text(4, vc(&FONT_B, 0, 16), &FONT_B, ck_nm(CK_MODE_N, pg), c);
-    cv_text(x + 6, vc(&FONT_XS, 0, 16), &FONT_XS, cp->on >> pg & 1u ? "ON" : "OFF", cp->on >> pg & 1u ? C_WHITE : C_DIM);
-    text_r(236, vc(&FONT_T, 0, 16), &FONT_T, cp->pg & CK_P_PIN ? "PINNED  < > STEP" : "KEYS EDIT  FADER BANK: PIN",
-           C_GRAY);
-    cv_rect(0, 17, 240, 1, C_LINE);
+    int32_t x;
+    /* no top bar (owner 2026-10-17 02:51): the KEYS strip shows the stage name and ON / OFF. The help line is
+     * at the bottom, below the keys. */
+    text_c(120, vc(&FONT_T, 124, 12), &FONT_T, cp->pg & CK_P_PIN ? "KEYS PLAY  < > STEP  FADER BANK: CLOSE"
+                                                                  : "KEYS EDIT  FADER BANK: PIN", C_GRAY);
     for (k = 0; k < CK_NKEY; k++)
         col[k] = CK_BLK(k) ? RGB(25, 25, 25) : RGB(60, 60, 60);
     for (n = 0; z[n]; n++) {
         uint32_t f = z[n] >> 12, lo = z[n] >> 6 & 63u, hi = z[n] & 63u, v = ck_get(f);
-        int32_t fx = 4 + (int32_t)(n / 4u) * 120, fy = 20 + (int32_t)(n % 4u) * 12, w;
+        int32_t fx = 4 + (int32_t)(n / 4u) * 120, fy = 2 + (int32_t)(n % 4u) * 12, w;
         const char *nm = ck_nm(CK_FLD_N, f);
         uint16_t zc = n & 1u ? dim(c, 7) : dim(c, 12);
         if (f == (uint32_t)cp->pg >> 4)
@@ -1478,9 +1478,9 @@ static void ck_page_draw(void)
         x = (ck_key_x(lo, 10, 10) + ck_key_x(hi, 10, 10) + 9) / 2;
         w = tw(&FONT_T, nm) / 2 + 1;
         x = x < w ? w : x > 239 - w ? 239 - w : x;
-        text_c(x, vc(&FONT_T, 69 + (int32_t)(n & 1u) * 10, 10), &FONT_T, nm, n & 1u ? dim(c, 11) : c);
+        text_c(x, vc(&FONT_T, 51 + (int32_t)(n & 1u) * 10, 10), &FONT_T, nm, n & 1u ? dim(c, 11) : c);
     }
-    ck_kbd(10, 91, 10, 47, CK_NKEY, col);
+    ck_kbd(10, 73, 10, 47, CK_NKEY, col);
 }
 /* every main loop pass (also between frames, for the arp timing) */
 CK_FN void smk_ck_poll(void)
