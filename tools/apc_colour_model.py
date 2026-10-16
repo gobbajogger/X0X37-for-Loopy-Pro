@@ -38,16 +38,10 @@ CIE_CMF = ((0.7514, 0.3210, 0.0001),
 # A lit entry sends at least PAD_FLOOR_SENT on its brightest channel, so the dim 0x19 entries
 # still show. The floor scales all three channels: the colour ratio stays.
 PAD_FLOOR_SENT = 2
-# LCD (RGB565, the ST7789V panel has its own gamma): no gamma. The brightest channel maps
-# from 0..255 to LCD_FLOOR..255 (idle shades are too dark on the LCD). If the colour is darker
-# than Y >= LCD_YMIN * (t/255)^2.2, OKLCH L goes up at the hue of the source colour
-# (owner rule: keep the hue, blue must not go toward purple).
-LCD_FLOOR = 128
-LCD_YMIN = 0.25
-# The owner approved the "strong" hue fix for 0x32 and 0x33 (USER_PREFERENCES, LCD clip colours):
-# for these the target hue is the hue at full brightness, plus LCD_HUE_NUDGE degrees (toward blue).
-LCD_HUE_FIX = (0x32, 0x33)
-LCD_HUE_NUDGE = -5.0
+# LCD (RGB565, the ST7789V panel has its own gamma): the source colour as plain RGB565, no gamma,
+# no floor, no lift (Orchestrator decision 2026-10-16 23:10: no hand-picked values). Each channel
+# goes to the nearest 5, 6, 5 bit level (rounding: the dark violets keep their hue better than with
+# the high bits only; tests/apc_palette_test.py).
 
 
 def load_source(path=SRC):
@@ -222,90 +216,14 @@ def pad_send(levels, bright=255):
 
 # --- LCD ------------------------------------------------------------------------
 def to565(r, g, b):
-    return (r >> 3) << 11 | (g >> 2) << 5 | (b >> 3)
+    """Nearest RGB565 code."""
+    return (r * 31 + 127) // 255 << 11 | (g * 63 + 127) // 255 << 5 | (b * 31 + 127) // 255
 
 
 def of565(c):
     return ((c >> 11) * 255 / 31, ((c >> 5) & 63) * 255 / 63, (c & 31) * 255 / 31)
 
 
-def hue_err(rgb, h0):
-    L, C, h = lch(*rgb)
-    if C < 0.02:
-        return None
-    return (h - h0 + 180) % 360 - 180
-
-
-def _lch_rgb(L, C, h):
-    return oklab_rgb(L, C * math.cos(math.radians(h)), C * math.sin(math.radians(h)))
-
-
-def _in_gamut(rgb):
-    return all(-0.5 <= c <= 255.5 for c in rgb)
-
-
-def _max_c(L, C0, h):
-    if _in_gamut(_lch_rgb(L, C0, h)):
-        return C0
-    lo, hi = 0.0, C0
-    for _ in range(40):
-        mid = (lo + hi) / 2
-        if _in_gamut(_lch_rgb(L, mid, h)):
-            lo = mid
-        else:
-            hi = mid
-    return lo
-
-
-def lcd_floor(rgb):
-    r, g, b = split(rgb)
-    mx = max(r, g, b)
-    if mx:
-        t = LCD_FLOOR + mx * (255 - LCD_FLOOR) // 255
-        r, g, b = r * t // mx, g * t // mx, b * t // mx
-    return r, g, b
-
-
 def lcd565(e, mode=None):
-    """LCD table entry (RGB565): the owner-approved rule (USER_PREFERENCES, LCD clip colours).
-
-    Floor (LCD_FLOOR), then the OKLCH lift at the hue of the source colour. For the
-    LCD_HUE_FIX velocities the target hue is the hue at full brightness plus LCD_HUE_NUDGE."""
-    rgb = target(e, mode)
-    if not rgb:
-        return 0
-    r, g, b = lcd_floor(rgb)
-    yt = LCD_YMIN * (max(r, g, b) / 255) ** 2.2
-    if lum(r, g, b) >= yt:
-        return to565(r, g, b)
-    h0 = full_hue(rgb) + LCD_HUE_NUDGE if e["v"] in LCD_HUE_FIX else lch(*split(rgb))[2]
-    L0, C0, _ = lch(r, g, b)
-
-    def at(L):
-        return _lch_rgb(L, _max_c(L, C0, h0), h0)
-
-    lo, hi = L0, 1.0
-    for _ in range(40):
-        mid = (lo + hi) / 2
-        if lum(*(min(255.0, max(0.0, x)) for x in at(mid))) >= yt:
-            hi = mid
-        else:
-            lo = mid
-    ideal = tuple(min(255.0, max(0.0, x)) for x in at(hi))
-    base = (round(ideal[0] * 31 / 255), round(ideal[1] * 63 / 255), round(ideal[2] * 31 / 255))
-    best = None
-    for dr in (-1, 0, 1):
-        for dg in (-1, 0, 1):
-            for db in (-1, 0, 1):
-                q = (base[0] + dr, base[1] + dg, base[2] + db)
-                if not (0 <= q[0] <= 31 and 0 <= q[1] <= 63 and 0 <= q[2] <= 31):
-                    continue
-                code = q[0] << 11 | q[1] << 5 | q[2]
-                rgbq = of565(code)
-                if lum(*rgbq) < yt * 0.995:
-                    continue
-                he = hue_err(rgbq, h0)
-                key = (abs(he) if he is not None else 99, sum((a - b_) ** 2 for a, b_ in zip(rgbq, ideal)))
-                if best is None or key < best[0]:
-                    best = (key, code)
-    return best[1]
+    """LCD table entry (RGB565): the source colour as plain RGB565."""
+    return to565(*split(target(e, mode)))

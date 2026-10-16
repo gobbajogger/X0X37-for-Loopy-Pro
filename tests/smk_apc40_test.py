@@ -156,7 +156,7 @@ assert "uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)" in main
 assert "SMK_CLIP_LCD_MIN_MS 64u" in main and "cv_begin(w, h, C_BLACK)" in main
 assert "smk_clip_lcd_draw" not in usb and "smk_clip_lcd_draw" not in engine
 print("PASS clip grid on the LCD: main loop only, rate limited, current pad view framed")
-# CLP-05: the LCD clip colours come from the approved table APC40_LCD565 (tools/apc_pad_colors.py).
+# CLP-05: the LCD clip colours come from the table APC40_LCD565 (tools/apc_pad_colors.py, plain RGB565).
 draw = main.split("uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)\n{")[1].split("\n}\n")[0]
 assert '#include "app/apc40_lcd565.h"' in main
 assert "uint16_t c = APC40_LCD565[v & 0x7Fu];" in draw          # velocity 0-127; a value > 127 stays in the table
