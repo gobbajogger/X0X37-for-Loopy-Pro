@@ -1,17 +1,16 @@
-# Rules v3: device bug
+# Device bug
 
 Read when: after a device bug report or a failed device test.
 
-### Rule 8 [v2: 11, sentences 2 to 6, in time order]
-Step: P1 record bug, P2 find cause.
-Rule owner: Firmware Main Builder.
+### Rule 8
+Step: P1 record bug, P2 find cause. Rule owner: Firmware Main Builder.
 
-For a device bug, the owner first shows the bug once with INLOG on. The builder then makes a host replay test from that log. Make a fix only when data and a host test prove the cause. If a fix fails on the device, do not guess again: name the wrong assumption and get the missing data. If 2 device tests fail one after the other, go back to last-good-hw and bisect.
+Trust the reports and the setup of the owner. Search our code for the cause first.
 
-To log a device result, see docs.md (rule 12).
+For a device bug, the owner first shows the bug once with INLOG on. The owner can skip the INLOG step for one bug. The builder then makes a host replay test from that log.
 
-Test target for each fix: X0X does not drop notes, pad colour updates or the BLE connection (BEHAVIOR.md, Orchestrator 2026-10-17 00:10).
+Make a fix only when data and a host test prove the cause. If a fix fails on the device, do not guess again: name the wrong assumption and get the missing data. If 2 device tests fail one after the other, go back to last-good-hw and bisect. Log the result with docs.md.
 
-## Owner facts for a fix
+Test target for each fix: X0X does not drop notes, pad colour updates or the Bluetooth connection (BEHAVIOR.md).
 
-- Optimize without cutting features. Font size is not a feature. (owner, 2026-10-16 18:41)
+Owner fact for a fix: "Optimize without cutting features. Font size is not a feature." (2026-10-16 18:41)

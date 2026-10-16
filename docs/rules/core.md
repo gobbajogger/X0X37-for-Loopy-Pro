@@ -1,15 +1,15 @@
-# Core rules (read at each task start)
+# Core rules (read at task start)
 
 1. Never push outside the box and the owner's machines. Never push, merge or package refs-oscuro.
 2. Stop only your own processes, by PID. Never use pkill -f or killall on a shared script.
-4. Do the Decision check (x0x37-builder-loop core card, steps 6 to 10) before a shared or hard-to-undo action.
+4. Before a shared or hard-to-undo action, do the Decision check (shared-work.md).
+6A. Only Firmware Main Builder installs (install.md), and only when all queued changes are complete and ready to test together. Never ask the owner about an install.
 
-## Index: open each file at its step
-- shared-work.md (3): hardware, shared file, wait.
-- install.md (5 to 7): install (only Firmware Main Builder installs).
-- device-bug.md (8).
-- commit.md (9, 10): commit, push.
-- integration.md (11): merge, gate.
-- docs.md (12): doc, log, checklist, device result.
-- owner-messages.md (13, 14, 4B): owner, decision.
-- style.md (15): text, terms.
+Open each file at its step:
+- shared-work.md: hardware, shared file, wait.
+- device-bug.md: device bug.
+- commit.md: commit, push, handoff.
+- integration.md: merge, gate.
+- docs.md: doc, log, checklist.
+- owner-messages.md: owner message, change decision.
+- style.md: text, terms.

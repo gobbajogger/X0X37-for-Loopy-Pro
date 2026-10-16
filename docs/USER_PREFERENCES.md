@@ -15,7 +15,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
   - Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms.
   - Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the step before the one you meant, so your recording sounds a bit early. I can make it snap to the closest step instead."
   - This rule applies only to text for the owner. Docs, logs and commits stay in asd-ste. (Extended 2026-10-16 23:11: these messages are also in ASD-STE100. See the 23:11 entry.)
-- 2026-10-17 01:45 (owner, through Orchestrator): Trust the reports and the setup of the owner. Search our code for the cause first. Never tell the owner that the owner made a setup mistake (agent rule 13).
+- 2026-10-17 01:45 (owner, through Orchestrator): Trust the reports and the setup of the owner. Search our code for the cause first. Never tell the owner that the owner made a setup mistake (agent rules 8 and 13).
 - 2026-10-17 00:59 (owner, supersedes 00:05): Each message to the owner, from Orchestrator and from all agents, has 1 to 3 short sentences (caveman length). Use simple ASD-STE100 words, with no shorthand, no IDs and no code references. Give only a result, a blocker or one question (agent rule 13).
 - 2026-10-17 00:05 (owner): Make each message to the owner as short as possible, and keep every fact (caveman length). Use full, simple ASD-STE100 words: no shorthand, no IDs and no hashes, unless the owner needs them (agent rule 13).
 - 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the experience of the owner.
@@ -65,7 +65,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
   - All planned changes go on one working branch, integration. Make one commit and one host test for each change. Run only the affected tests. Use time scale 20 only when the code reads X0X_TEST_TIME_SCALE (agent rule 9).
   - Run one gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the gate of the batch.
   - Builders fetch and rebase before each commit and change only the files of their lane. The install is the gated hash of the last batch in a finished set (owner rule 01:57). This replaces the gate for each lane (agent rules 6 and 9 to 11).
-- 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its stop words (agent rule 4). Changes to the skill go through Orchestrator. (2026-10-16 23:15: in the core card, the Decision check is steps 6 to 10.)
+- 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check has five steps (evidence, damage, undo, cause, size) and stop words (shared-work.md rule 4). Changes to the skill go through Orchestrator.
 - 2026-10-16 22:03 (owner): Do not wait idle. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 3).
 - 2026-10-16 22:39 (owner): Record the bug first. Before a fix for a device bug, the owner shows the bug once with INLOG (the inbound MIDI recorder) on. The builder makes a host replay test from that log, then fixes the bug. Do not make guess fixes (agent rule 8).
 - 2026-10-16 22:59 (owner): Never build a fix before data and a host test prove that it fixes the cause. If a fix does not help on the device, go back to the start. Name the wrong assumption and get the missing data. Do not try a second guess (agent rule 8).
@@ -77,6 +77,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - 2026-10-16 23:19 (Orchestrator decision): Install only with fm1_install.py --commit and the guard require_gate_pass.sh. Never use the web installer for a team install (agent rule 6).
 - 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 6 applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
 - 2026-10-17 00:01 (Orchestrator decision, owner approved 00:00): Agent rules version 3. rules/core.md has rules 1, 2 and 4 and an index of the rule files. Read the core at the start of each task, and open each other rule file only at its step. Each rule number in this file is a version 3 number.
+- 2026-10-17 02:32 (owner): Agent rules version 4. Apply it now.
 - 2026-10-16 23:36 (Orchestrator decision): From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
 - 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name.
 - 2026-10-16 23:32 (owner): Merge the small roles.
@@ -155,4 +156,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 02:27.
+Last update: 2026-10-17 02:36.
