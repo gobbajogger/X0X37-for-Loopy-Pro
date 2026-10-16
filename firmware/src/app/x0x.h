@@ -86,3 +86,4 @@ int ui_dirty(void);
 void ui_say(const char *a, const char *b);
 /* qc trim proof: warmup */
 /* qc trim proof: A-skip */
+/* qc trim proof: B-mismatch */
