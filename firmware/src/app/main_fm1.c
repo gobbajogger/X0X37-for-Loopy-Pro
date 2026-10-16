@@ -415,12 +415,25 @@ void smk_apc_host_lost(void)
 /* Lowest level (0..255) of the brightest channel of a lit clip on the LCD. */
 #define SMK_CLIP_LCD_FLOOR 128u
 static uint8_t was_on;   /* 0: the next smk_clip_lcd_draw draws at once */
+static uint32_t ck_t0;   /* the time of the last SCALE / CHORD / ARP press (a tap or a hold) */
 void smk_clip_lcd_force(void) { was_on = 0u; }
+static uint32_t ck_page_on(void);
+static void ck_page_draw(void);
 uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
 {
-    static uint32_t last_ms, last_sig, last_call;
+    static uint32_t last_ms, last_sig;
     uint32_t sig = 2166136261u, note;
     uint8_t pad, in_view[SMK_APC40_CLIP_COUNT];
+    if (ck_page_on()) {                             /* the SCALE / CHORD / ARP page is over the grid */
+        if (fm1_ms - last_ms < SMK_CLIP_LCD_MIN_MS)
+            return 0u;
+        last_ms = fm1_ms;
+        was_on = 0u;                                /* (the grid draws at once when the page closes) */
+        cv_begin(w, h, C_BLACK);
+        cv_band(0, (int32_t)h);
+        ck_page_draw();
+        return 1u;
+    }
     for (note = 0; note < SMK_APC40_CLIP_COUNT; note++) {
         in_view[note] = 0u;
         sig = (sig ^ apc_led_velocity[note]) * 16777619u;
@@ -437,9 +450,6 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
     sig = (sig ^ ((uint32_t)apc_cols | (uint32_t)apc_rows << 8 | (uint32_t)apc_origin_col << 16 |
                   (uint32_t)apc_origin_row << 24)) * 16777619u;
     sig = (sig ^ apc_view_has_clips) * 16777619u;
-    if (fm1_ms - last_call > 200u)
-        was_on = 0u;                                /* new entry to clip mode: draw at once */
-    last_call = fm1_ms;
     if (was_on && sig == last_sig && fm1_ms - last_ms < 1000u)
         return 0u;                                  /* nothing changed (1 s refresh anyway) */
     if (was_on && fm1_ms - last_ms < SMK_CLIP_LCD_MIN_MS)
@@ -807,10 +817,13 @@ static void smk_arrows(void)
  * notes first ends the notes that sound, so a release always ends exactly the notes that its key sent.
  * A note that two keys hold ends when the last of the two keys goes up. No table of notes: key bit maps. */
 typedef struct {
-    uint8_t on, focus, fl, vel;       /* on, focus: CK_M_* bits; fl: CK_F_* bits; vel: the last key velocity */
-    uint8_t arp_note, ch, btn_prev, nk;   /* arp_note: note + 1 (0 = none); ch: the channel of all notes */
+    uint8_t on, pg, fl, vel;          /* on: CK_M_* bits; pg: the page (CK_P_*); fl: CK_F_* bits; vel: the last
+                                       * key velocity */
+    uint8_t arp_note, ch, btn_prev, nk;   /* arp_note: note + 1 (0 = none); ch: the channel of all notes;
+                                           * nk: keys in korder. ARP off: a strum (korder[0] the key, nk - 1
+                                           * notes sent, acc the ms since the press); 0 = none */
     uint8_t tick, gate_left, ext_seen;
-    volatile uint8_t off_req;         /* MIDI Stop, USB reset: all notes off (set in interrupts) */   /* nk: keys in korder */
+    volatile uint8_t off_req;         /* MIDI Stop, USB reset: all notes off (set in interrupts) */
     uint16_t step, last_ms;
     uint32_t acc;                     /* the internal arp clock (600000 = one tick) */
     uint32_t keys[2], snd[2];         /* bit k: key k is down / key k has notes that sound */
@@ -846,6 +859,14 @@ CK_FN static void ck_arp_stop_note(void)
         cp->arp_note = 0;
     }
 }
+/* the velocity of a new note: the key velocity, HUMAN moves it by up to 4 x HUMAN at random */
+CK_FN static uint32_t ck_vel(uint32_t note)
+{
+    CK_BASE;
+    int32_t v = cp->vel, h = proj.set.ck_x1 >> 3 & 7u;
+    v += (int32_t)(((fm1_ms ^ note << 8) * 2654435761u >> 24) - 128u) * h / 32;
+    return (uint32_t)(v < 1 ? 1 : v > 127 ? 127 : v);
+}
 /* key k: note on (st 0x90), note off (0x80), or note off that keeps the notes of the other sounding keys
  * (0x81: a key release) */
 CK_FN static void ck_key_send(uint32_t k, uint32_t st)
@@ -860,7 +881,7 @@ CK_FN static void ck_key_send(uint32_t k, uint32_t st)
                     keep[out[i] >> 5] |= 1u << (out[i] & 31u);
     for (i = 0, n = ck_key_notes(k, out); i < n; i++)
         if (!CK_BIT(keep, out[i]))
-            ck_send((st & 0xF0u) | cp->ch, out[i], st & 0x10u ? cp->vel : 0u);
+            ck_send((st & 0xF0u) | cp->ch, out[i], st & 0x10u ? ck_vel(out[i]) : 0u);
 }
 /* all keys that sound: note off (0x80) or on again (0x90), round a setting change */
 CK_FN static void ck_voice(uint32_t st)
@@ -880,14 +901,43 @@ CK_FN static void ck_all_off(void)
     ck_arp_stop_note();
     cp->nk = 0;
 }
+/* STRUM (ARP off): the notes of the strum key, low to high, one each STRUM x 10 ms after the press.
+ * dt: the ms since the last call (a big dt sends all the notes that wait). */
+CK_FN static void ck_strum(uint32_t dt)
+{
+    CK_BASE;
+    uint8_t out[CK_MAXN];
+    uint32_t n, i, j, x, gap = (proj.set.ck_x2 >> 4) * 10u;
+    if (!cp->nk)
+        return;
+    n = ck_key_notes(cp->korder[0], out);
+    for (i = 1; i < n; i++)                                 /* (an inversion puts low notes up) */
+        for (j = i, x = out[i]; j && out[j - 1u] > x; j--) {
+            out[j] = out[j - 1u];
+            out[j - 1u] = (uint8_t)x;
+        }
+    cp->acc += dt;
+    for (; cp->nk <= n && (cp->nk - 1u) * gap <= cp->acc; cp->nk++)
+        ck_send(0x90u | cp->ch, out[cp->nk - 1u], ck_vel(out[cp->nk - 1u]));
+    if (cp->nk > n)
+        cp->nk = 0;
+}
 CK_FN static void ck_press(uint32_t k, uint32_t vel)
 {
     CK_SET;
     CK_BASE;
     cp->vel = (uint8_t)(vel ? vel : 1u);
     if (!(cp->on & CK_M_ARP)) {
-        ck_key_send(k, 0x90u);
         cp->snd[k >> 5] |= 1u << (k & 31u);
+        if ((sp->ck_x2 >> 4) && (cp->on & CK_M_CHORD)) {     /* STRUM: the last strum ends at once */
+            ck_strum(1u << 20);
+            cp->korder[0] = (uint8_t)k;
+            cp->nk = 1;
+            cp->acc = 0;
+            ck_strum(0);
+            return;
+        }
+        ck_key_send(k, 0x90u);
         return;
     }
     cp->keys[k >> 5] ^= 1u << (k & 31u);                     /* (for a moment: the other keys only) */
@@ -912,6 +962,11 @@ CK_FN static void ck_release(uint32_t k)
         cp->snd[k >> 5] &= ~(1u << (k & 31u));
         ck_key_send(k, 0x81u);
     }
+    if (!(cp->on & CK_M_ARP)) {                             /* (a strum of this key stops) */
+        if (cp->korder[0] == k)
+            cp->nk = 0;
+        return;
+    }
     if (cp->fl & CK_F_LATCH)
         return;
     for (i = j = 0; i < cp->nk; i++)
@@ -922,7 +977,7 @@ CK_FN static void ck_release(uint32_t k)
         ck_arp_stop_note();
 }
 /* one arp step: the notes of the arp keys, sorted (not for PLAYED), then the note of this step */
-CK_FN static void ck_arp_step(uint32_t rate)
+CK_FN static void ck_arp_step(uint32_t rate, uint32_t pos)
 {
     CK_BASE;
     CK_SET;
@@ -940,9 +995,9 @@ CK_FN static void ck_arp_step(uint32_t rate)
     ck_arp_stop_note();
     if (!n)
         return;
-    note = ck_arp_pick(list, n, sp->ck_ord, sp->ck_oct + 1u, cp->step++, fm1_ms * 2654435761u >> 7);
+    note = ck_arp_pick(list, n, sp->ck_ord, sp->ck_oct + 1u, pos, fm1_ms * 2654435761u >> 7);
     if (note >= 0) {
-        ck_send(0x90u | cp->ch, (uint32_t)note, cp->vel);
+        ck_send(0x90u | cp->ch, (uint32_t)note, ck_vel((uint32_t)note));
         cp->arp_note = (uint8_t)(note + 1);
         j = rate * (sp->ck_gate + 1u) / 10u;                 /* gate 10-100 % of a step, at least 1 tick */
         cp->gate_left = (uint8_t)(j ? j : 1u);
@@ -953,11 +1008,17 @@ CK_FN static void ck_arp(uint32_t dt)
 {
     CK_SET;
     CK_BASE;
-    uint32_t rate = CK_RATE_T[sp->ck_rate], ticks, e = apc_clock_count;
+    uint32_t rate = CK_RATE_T[sp->ck_rate], ticks, e = apc_clock_count, rh = sp->ck_x2 & 15u;
+    uint32_t sw = rate * 3u * (sp->ck_x1 & 7u) / 50u;      /* SWING: the odd steps start sw ticks late */
     if (ck_start_req) {                                     /* MIDI Start: the next tick is the downbeat */
         ck_start_req = 0;
         cp->tick = (uint8_t)(rate - 1u);
         cp->step = 0;
+    }
+    if (!(cp->on & CK_M_ARP)) {                             /* (acc and nk are the strum's) */
+        cp->ext_seen = (uint8_t)e;
+        ck_strum(dt);
+        return;
     }
     if (apc_clock_seen && fm1_ms - apc_clock_last_ms <= 500u) {
         ticks = (uint8_t)(e - cp->ext_seen);
@@ -972,11 +1033,14 @@ CK_FN static void ck_arp(uint32_t dt)
     while (ticks--) {
         if (cp->gate_left && !--cp->gate_left)
             ck_arp_stop_note();
-        if (++cp->tick < rate)
+        if (++cp->tick < (cp->step & 1u ? rate + sw : rate - sw))
             continue;
         cp->tick = 0;
-        if (cp->nk)
-            ck_arp_step(rate);
+        if (cp->nk) {                                       /* RHYTHM: a rest step plays no note */
+            if (ck_rhy_hit(rh, cp->step))
+                ck_arp_step(rate, ck_rhy_pos(rh, cp->step));
+            cp->step++;
+        }
     }
 }
 /* 1: clip mode and no menu on the screen: knobs 2-8 send CC 48-54 (ck_controls), X0X gets no knob turns */
@@ -985,35 +1049,122 @@ uint8_t smk_ck_knobs_owned(void)
     return (uint8_t)(clip_grid_mode && ui.overlay == O_NONE && !ui.help);
 }
 static const char CK_MODE_N[] = "SCALE\0CHORD\0ARP";
-/* SCALE, CHORD, ARP: a press turns the mode on or off. NOTE REPEAT + ARP: LATCH on or off.
- * NOTE REPEAT alone: panic. Knobs 2-8: CC 48-54 (no mode takes the knobs). */
+static const uint16_t CK_MODE_C[3] = {RGB(90, 200, 255), RGB(255, 150, 40), RGB(130, 240, 90)};
+#define CK_O(f) __builtin_offsetof(settings_t, f)
+/* the editor fields (CK_E_*): the settings_t byte and the bit shift (the highest value: CK_FMAX); the names;
+ * the value lists (0: a number) */
+static const uint8_t CK_FLD[CK_NE][2] = {
+    {CK_O(ck_root), 0}, {CK_O(ck_scale), 0}, {CK_O(ck_snap), 0}, {CK_O(ck_chord), 0}, {CK_O(ck_inv), 0},
+    {CK_O(ck_x2), 4}, {CK_O(ck_ord), 0}, {CK_O(ck_rate), 0}, {CK_O(ck_oct), 0}, {CK_O(ck_gate), 0},
+    {CK_O(ck_x1), 0}, {CK_O(ck_x1), 3}, {CK_O(ck_x2), 0}, {0, 0}};
+static const char CK_FLD_N[] = "ROOT\0SCALE\0SNAP\0CHORD\0INV\0STRUM\0ORDER\0RATE\0OCT\0GATE\0SWING\0HUMAN\0RHYTHM\0LATCH";
+static const char *const CK_LIST[CK_NE] = {CK_ROOT_N, CK_SCALE_N, "NEAR\0FILTER", CK_CHORD_N, "ROOT\0/1\0/2\0/3", 0,
+                                            CK_ORD_N, CK_RATE_N, 0, 0, 0, 0, CK_RHY_N, "OFF\0ON"};
+/* the mask of a field's bits (its highest value rounded up to 2^n - 1) */
+CK_FN static uint32_t ck_fmask(uint32_t f)
+{
+    return (2u << (31 - __builtin_clz(CK_FMAX[f]))) - 1u;
+}
+CK_FN static uint32_t ck_get(uint32_t f)
+{
+    if (f == CK_E_LATCH)
+        return ck.fl & CK_F_LATCH;
+    return (uint32_t)((const uint8_t *)&proj.set)[CK_FLD[f][0]] >> CK_FLD[f][1] & ck_fmask(f);
+}
+/* set field f to v (0..its highest value). A field that changes the notes ends the old notes and plays the
+ * new ones. The page remembers the field (< > and the panel) and the edit (the press is no tap). */
+CK_FN static void ck_set(uint32_t f, uint32_t v)
+{
+    CK_BASE;
+    uint8_t *b = (uint8_t *)&proj.set + CK_FLD[f][0];
+    uint32_t m = ck_fmask(f) << CK_FLD[f][1], nt = f <= CK_E_INV;
+    cp->pg = (uint8_t)((cp->pg & 7u) | CK_P_EDIT | f << 4);
+    ui.act_t = plat_ms();                                   /* (the autosave waits for quiet) */
+    if (f == CK_E_LATCH) {
+        if (v != (cp->fl & CK_F_LATCH)) {
+            cp->fl ^= CK_F_LATCH;
+            if (!v)
+                ck_all_off();
+        }
+        return;
+    }
+    if (!(cp->on & CK_M_ARP))
+        cp->nk = 0;                                         /* (a strum: its key plays all its notes below) */
+    if (nt)
+        ck_voice(0x80u);
+    *b = (uint8_t)((*b & ~m) | (v << CK_FLD[f][1] & m));
+    if (nt)
+        ck_voice(0x90u);
+}
+/* the text of value v of field f: a list name, or a number in buf */
+CK_FN static const char *ck_val_txt(uint32_t f, uint32_t v, char *buf)
+{
+    const char *l = CK_LIST[f];
+    if (l)
+        return ck_nm(l, v);
+    if (!v && (f == CK_E_STRUM || f == CK_E_HUMAN))
+        return "OFF";
+    v = f == CK_E_STRUM ? v * 10u : f == CK_E_OCT ? v + 1u : f == CK_E_GATE ? v * 10u + 10u
+        : f == CK_E_SWING ? 50u + 3u * v : v;
+    put_s(put_i(buf, (int)v), f == CK_E_STRUM ? "MS" : f == CK_E_GATE || f == CK_E_SWING ? "%" : "");
+    return buf;
+}
+/* 1: the page is on the screen: a stage button held for CK_TAP_MS (or an edit), or the page is pinned */
+static uint32_t ck_page_on(void)
+{
+    return ck_page_vis(ck.pg, fm1_ms - ck_t0);
+}
+/* 1: the keys edit the page (its stage button is held, no menu) */
+CK_FN static uint32_t ck_keys_edit(void)
+{
+    uint32_t pg = ck.pg & 3u;
+    return pg && (ck.btn_prev >> (pg - 1u) & 1u) && smk_ck_knobs_owned();
+}
+/* key k on the page: the field of its zone gets the value of the key (a one-key zone: the next value) */
+CK_FN static void ck_key_edit(uint32_t k)
+{
+    uint32_t z = ck_zone((ck.pg & 3u) - 1u, k), f = z >> 12;
+    if (z)
+        ck_set(f, ck_zone_val(z, k, ck_get(f), CK_FMAX[f]));
+}
+/* SCALE, CHORD, ARP: a tap (shorter than CK_TAP_MS, no edit) turns the stage on or off. A hold shows its page,
+ * and the keys edit the page. The release closes the page. FADER BANK pins the page (the keys play), a second
+ * press closes it; < and > step the last field. NOTE REPEAT + ARP: LATCH on or off. NOTE REPEAT alone: panic.
+ * Knobs 2-8: CC 48-54 (no stage takes the knobs). */
 CK_FN static void ck_controls(void)
 {
     CK_BASE;
     static const uint8_t ROLE[4] = {B_SEL, B_ENV, B_ARP, B_LFO};   /* SCALE, CHORD, ARP, NOTE REPEAT */
-    uint32_t raw = fm1_in.buttons, i, cur = 0, press, rel;
+    uint32_t raw = fm1_in.buttons, i, cur = 0, press, rel, f, tog;
     for (i = 0; i < 4u; i++)
         cur |= ((raw >> panel.btn[ROLE[i]]) & 1u) << i;
+    cur |= (raw >> SMK_BTN_FADER_BANK & 7u) << 4;            /* FADER BANK, <, > (bits 1-3) */
     press = cur & ~(uint32_t)cp->btn_prev;
     rel = (uint32_t)cp->btn_prev & ~cur;
     cp->btn_prev = (uint8_t)cur;
+    if (!smk_ck_knobs_owned())
+        press &= ~0x70u;                                    /* a menu: FADER BANK, < and > do nothing */
     if (press & 8u)
         cp->fl &= (uint8_t)~CK_F_NRUSED;
-    for (i = 0; i < 3u; i++) {
-        uint32_t m = 1u << i;
-        if (!(press & m))
-            continue;
-        if (i == 2u && (cur & 8u)) {                        /* NOTE REPEAT + ARP: LATCH */
-            cp->fl ^= CK_F_LATCH;
-            cp->fl |= CK_F_NRUSED;
-            if (!(cp->fl & CK_F_LATCH))
-                ck_all_off();
-            ui_say("LATCH", cp->fl & CK_F_LATCH ? " ON" : " OFF");
-            continue;
+    if ((press & 4u) && (cur & 8u)) {                       /* NOTE REPEAT + ARP: LATCH */
+        ck_set(CK_E_LATCH, !(cp->fl & CK_F_LATCH));
+        cp->fl |= CK_F_NRUSED;
+        ui_say("LATCH", cp->fl & CK_F_LATCH ? " ON" : " OFF");
+    }
+    cp->pg = (uint8_t)ck_page_btn(cp->pg, press, rel, cur, fm1_ms, &ck_t0, &tog);
+    for (i = 0; i < 3u; i++)
+        if (tog >> i & 1u) {                                /* a tap: the stage on or off */
+            ck_all_off();
+            cp->on ^= (uint8_t)(1u << i);
+            ui_say(ck_nm(CK_MODE_N, i), cp->on >> i & 1u ? " ON" : " OFF");
         }
-        ck_all_off();
-        cp->on ^= (uint8_t)m;
-        ui_say(ck_nm(CK_MODE_N, i), cp->on & m ? " ON" : " OFF");
+    f = cp->pg >> 4;
+    if ((press & 0x60u) && ck_page_on()) {                  /* < >: the last field one step down / up */
+        uint32_t v = ck_get(f);
+        if (press & 0x40u)
+            ck_set(f, v < CK_FMAX[f] ? v + 1u : v);
+        else
+            ck_set(f, v ? v - 1u : 0u);
     }
     if ((rel & 8u) && !(cp->fl & CK_F_NRUSED)) {             /* NOTE REPEAT alone: panic */
         ck_all_off();
@@ -1026,6 +1177,150 @@ CK_FN static void ck_controls(void)
             if (d)
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);
         }
+}
+/* ------- clip mode screen: the KEYS panel (the bottom strip) and the SCALE / CHORD / ARP page (main area) --- */
+static const uint8_t CK_WI[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};   /* the white key of each pitch class */
+#define CK_BLK(k) (0x54Au >> (k) % 12u & 1u)                             /* 1: a black key */
+/* the left x of key k on a keyboard drawing with white keys ww wide from x0 */
+CK_FN static int32_t ck_key_x(uint32_t k, int32_t x0, int32_t ww)
+{
+    return x0 + (int32_t)(k / 12u * 7u + CK_WI[k % 12u]) * ww + (int32_t)CK_BLK(k) * (ww - ww * 3 / 10);
+}
+/* a keyboard of n keys from key 0 (C), the white keys ww wide and h high, key k in col[k] */
+CK_FN static void ck_kbd(int32_t x0, int32_t y, int32_t ww, int32_t h, uint32_t n, const uint16_t *col)
+{
+    uint32_t k, pass;
+    for (pass = 0; pass < 2u; pass++)
+        for (k = 0; k < n; k++) {
+            int32_t x = ck_key_x(k, x0, ww), bw = ww * 3 / 5;
+            if (CK_BLK(k) != pass)
+                continue;
+            if (pass) {
+                cv_rect(x - 1, y, bw + 2, h * 3 / 5 + 1, C_BLACK);
+                cv_rect(x, y, bw, h * 3 / 5, col[k]);
+            } else {
+                cv_rect(x, y, ww - 1, h, col[k]);
+            }
+        }
+}
+/* 1: the arp follows the MIDI clock (a tick in the last 0.5 s), 0: the internal tempo (for the header) */
+uint8_t smk_ck_ext(void)
+{
+    return (uint8_t)(apc_clock_seen && fm1_ms - apc_clock_last_ms <= 500u);
+}
+/* The KEYS panel (ui.c draw_knobs, clip mode, no menu): the stage chips, one octave with the scale (the root
+ * marked, the notes that sound lit), the scale and chord names, the arp line and its steps. *last: the last
+ * drawing's signature; force: draw anyway. Return 1 when it drew on the canvas. */
+uint8_t smk_ck_panel(uint32_t *last, uint32_t force)
+{
+    CK_BASE;
+    CK_SET;
+    uint8_t out[CK_MAXN];
+    uint16_t col[12];
+    char t[64], *q;
+    uint32_t k, i, n, snd = 0, root = 99u, sig = 2166136261u, m = ck_mask(sp->ck_scale, sp->ck_root);
+    uint32_t arp = cp->on & CK_M_ARP, rh = sp->ck_x2 & 15u, len = rh ? (CK_RHY_T[rh] & 15u) + 1u : 8u;
+    uint32_t pos = arp && cp->nk && cp->step ? (cp->step - 1u) % len + 1u : 0u;
+    for (k = 0; k < CK_NKEY; k++)
+        if (CK_BIT(cp->snd, k) || (cp->nk && cp->korder[0] == k)) {
+            n = ck_key_notes(k, out);
+            if (root > 11u && n)
+                root = out[0] % 12u;                        /* the chord root: the first key's first note */
+            for (i = 0; i < n && !arp; i++)
+                snd |= 1u << out[i] % 12u;
+        }
+    if (cp->arp_note)
+        snd |= 1u << (cp->arp_note - 1u) % 12u;
+    if (root > 11u)
+        root = sp->ck_root;
+    for (i = 0; i < 12u; i++)
+        sig = (sig ^ (&sp->ck_ch)[i]) * 16777619u;
+    sig = (sig ^ (cp->on | (cp->fl & CK_F_LATCH) << 3 | snd << 4 | root << 16 | (uint32_t)cp->pg << 20)) * 16777619u;
+    sig = (sig ^ pos) * 16777619u;
+    if (!force && sig == *last)
+        return 0u;
+    *last = sig;
+    cv_begin(240, 82, C_BLACK);
+    cv_rect(0, 0, 240, 1, C_LINE);
+    for (i = 0; i < 4u; i++) {                              /* SCALE CHORD ARP LATCH */
+        uint32_t on = i < 3u ? cp->on >> i & 1u : cp->fl & CK_F_LATCH;
+        uint16_t c = i < 3u ? CK_MODE_C[i] : C_AMB;
+        int32_t x = 3 + (int32_t)i * 59;
+        if (on)
+            rbox(x, 4, 55, 13, 4, c);
+        else
+            rframe(x, 4, 55, 13, 4, dim(c, 7));
+        text_c(x + 27, vc(&FONT_T, 4, 13), &FONT_T, i < 3u ? ck_nm(CK_MODE_N, i) : "LATCH", on ? C_BLACK : dim(c, 11));
+        if ((cp->pg & 3u) == i + 1u)                        /* the page on the screen */
+            cv_rect(x + 8, 18, 39, 2, C_WHITE);
+    }
+    for (i = 0; i < 12u; i++)                               /* one octave: the scale, the notes that sound */
+        col[i] = snd >> i & 1u ? C_AMB : ck_in(m, i) ? (CK_BLK(i) ? RGB(140, 140, 140) : RGB(220, 220, 220))
+                                                    : (CK_BLK(i) ? RGB(30, 30, 30) : RGB(70, 70, 70));
+    ck_kbd(4, 23, 15, 36, 12u, col);
+    cv_rect(ck_key_x(sp->ck_root, 4, 15) + 2, 23 + (CK_BLK(sp->ck_root) ? 15 : 31), 5, 3, CK_MODE_C[0]);
+    q = put_s(put_s(put_s(t, ck_nm(CK_ROOT_N, sp->ck_root)), " "), ck_nm(CK_SCALE_N, sp->ck_scale));
+    if (sp->ck_snap)
+        put_s(q, " FILTER");
+    cv_text(114, vc(&FONT_XS, 22, 12), &FONT_XS, t, cp->on & CK_M_SCALE ? CK_MODE_C[0] : C_DIM);
+    if (cp->on & CK_M_CHORD) {
+        q = put_s(put_s(put_s(t, ck_nm(CK_ROOT_N, root)), " "), ck_nm(CK_CHORD_N, sp->ck_chord));
+        if (sp->ck_inv)
+            put_s(put_s(q, " "), ck_nm(CK_LIST[CK_E_INV], sp->ck_inv));
+        cv_text(114, vc(&FONT_B, 35, 15), &FONT_B, t, CK_MODE_C[1]);
+        if (sp->ck_x2 >> 4)
+            cv_text(114, vc(&FONT_T, 51, 10), &FONT_T, (ck_val_txt(CK_E_STRUM, sp->ck_x2 >> 4, put_s(t, "STRUM ")), t),
+                    C_GRAY);
+    } else {
+        cv_text(114, vc(&FONT_B, 35, 15), &FONT_B, "NO CHORD", C_DIM);
+    }
+    q = put_s(put_s(put_s(put_s(t, ck_nm(CK_ORD_N, sp->ck_ord)), " "), ck_nm(CK_RATE_N, sp->ck_rate)), " X");
+    q = put_s(put_s(put_i(q, sp->ck_oct + 1), " "), ck_val_txt(CK_E_GATE, sp->ck_gate, t + 52));
+    if (sp->ck_x1 & 7u)
+        q = put_s(put_s(q, " SW"), ck_val_txt(CK_E_SWING, sp->ck_x1 & 7u, t + 52));
+    if (sp->ck_x1 >> 3 & 7u)
+        q = put_i(put_s(q, " HUM"), sp->ck_x1 >> 3 & 7u);
+    if (rh)
+        put_s(put_s(q, " "), ck_nm(CK_RHY_N, rh));
+    cv_text(4, vc(&FONT_XS, 61, 12), &FONT_XS, t, arp ? CK_MODE_C[2] : C_DIM);
+    for (i = 0; i < len && arp; i++)                        /* the steps: hits, rests, the step now */
+        cv_rect(4 + (int32_t)i * 8, 76, 5, 4, i + 1u == pos ? C_WHITE : ck_rhy_hit(rh, i) ? dim(CK_MODE_C[2], 9) : C_LINE);
+    return 1u;
+}
+/* The page of SCALE, CHORD or ARP over the main area (smk_clip_lcd_draw, the canvas is ready): the fields and
+ * their values (the last field lit), then the 37 keys with the zone of each field and the key of its value */
+static void ck_page_draw(void)
+{
+    CK_BASE;
+    char t[12];
+    uint16_t col[CK_NKEY];
+    uint32_t pg = (cp->pg & 3u) - 1u, k, n;
+    uint16_t c = CK_MODE_C[pg];
+    const uint16_t *z = ck_zones(pg);
+    int32_t x = cv_text(4, vc(&FONT_B, 0, 16), &FONT_B, ck_nm(CK_MODE_N, pg), c);
+    cv_text(x + 6, vc(&FONT_XS, 0, 16), &FONT_XS, cp->on >> pg & 1u ? "ON" : "OFF", cp->on >> pg & 1u ? C_WHITE : C_DIM);
+    text_r(236, vc(&FONT_T, 0, 16), &FONT_T, cp->pg & CK_P_PIN ? "PINNED  < > STEP" : "KEYS EDIT  FADER BANK: PIN",
+           C_GRAY);
+    cv_rect(0, 17, 240, 1, C_LINE);
+    for (k = 0; k < CK_NKEY; k++)
+        col[k] = CK_BLK(k) ? RGB(25, 25, 25) : RGB(60, 60, 60);
+    for (n = 0; z[n]; n++) {
+        uint32_t f = z[n] >> 12, lo = z[n] >> 6 & 63u, hi = z[n] & 63u, v = ck_get(f);
+        int32_t fx = 4 + (int32_t)(n / 4u) * 120, fy = 20 + (int32_t)(n % 4u) * 12, w;
+        const char *nm = ck_nm(CK_FLD_N, f);
+        uint16_t zc = n & 1u ? dim(c, 7) : dim(c, 12);
+        if (f == (uint32_t)cp->pg >> 4)
+            rbox(fx - 2, fy, 116, 12, 3, dim(c, 4));
+        cv_text(fx, vc(&FONT_T, fy, 12), &FONT_T, nm, C_GRAY);
+        cv_text(fx + 44, vc(&FONT_XS, fy, 12), &FONT_XS, ck_val_txt(f, v, t), C_WHITE);
+        for (k = lo; k <= hi; k++)                          /* the zone; the key of the value (one key: lit if on) */
+            col[k] = (lo == hi ? v != 0u : k - lo == v) ? C_WHITE : CK_BLK(k) ? dim(zc, 9) : zc;
+        x = (ck_key_x(lo, 10, 10) + ck_key_x(hi, 10, 10) + 9) / 2;
+        w = tw(&FONT_T, nm) / 2 + 1;
+        x = x < w ? w : x > 239 - w ? 239 - w : x;
+        text_c(x, vc(&FONT_T, 69 + (int32_t)(n & 1u) * 10, 10), &FONT_T, nm, n & 1u ? dim(c, 11) : c);
+    }
+    ck_kbd(10, 91, 10, 47, CK_NKEY, col);
 }
 /* every main loop pass (also between frames, for the arp timing) */
 CK_FN void smk_ck_poll(void)
@@ -1043,11 +1338,11 @@ CK_FN void smk_ck_poll(void)
     if (!on) {
         if (cp->fl & CK_F_ACTIVE) {                          /* clip mode exit: all notes off, the modes off */
             ck_all_off();
-            cp->on = cp->focus = 0;
+            cp->on = cp->pg = 0;
         }
         cp->fl = (uint8_t)(ble | CK_F_NRUSED);               /* (LATCH off) */
         cp->ext_seen = (uint8_t)apc_clock_count;
-        cp->btn_prev = 0x0Fu;                                /* a button held at entry acts only after its release */
+        cp->btn_prev = 0x7Fu;                                /* a button held at entry acts only after its release */
     } else {
         if (!(cp->fl & CK_F_ACTIVE)) {
             cp->fl |= CK_F_ACTIVE;
@@ -1073,7 +1368,11 @@ CK_FN void smk_ck_poll(void)
             continue;
         }
         w = k >= SMK_KEY_F3 && k < SMK_KEY_F3 + NKEYS ? KEY_WHITE[k - SMK_KEY_F3] : -1;
-        if (!(w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)))   /* a held pad blocks its white key */
+        if (w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u))   /* a held pad blocks its white key */
+            continue;
+        if (ck_keys_edit())                                 /* a stage button held: the key edits its page */
+            ck_key_edit(k);
+        else
             ck_press(k, fm1_in.key_vel[k]);
     }
     if (on)

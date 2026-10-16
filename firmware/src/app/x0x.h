@@ -44,6 +44,8 @@ typedef struct {
     uint8_t ck_ord, ck_rate, ck_oct;     /* clip mode ARP: order, rate, octaves - 1 (0-3) */
     uint8_t ck_gate;                     /* clip mode ARP: gate / 10 % - 1 (0-9) */
     uint8_t ck_inv;                      /* clip mode CHORD: inversion 0-3 */
+    uint8_t ck_x1;                       /* clip mode ARP: bits 0-2 SWING (50 + 3 x %), bits 3-5 HUMAN (0 = off) */
+    uint8_t ck_x2;                       /* clip mode: bits 0-3 ARP RHYTHM (CK_RHY_T), bits 4-6 CHORD STRUM (x 10 ms) */
 } settings_t;
 
 /* the song and the motion lanes: one blob, split across OBJ_SONG and OBJ_MOTION */
