@@ -69,7 +69,8 @@ Read this file before you work on the X0X37 project. Also obey agent-rules.md. T
 - 2026-10-16 23:15 (Orchestrator decision): Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (agent rule 2).
 - 2026-10-16 23:15 (Orchestrator decision): Send one decision message for each item. Give it a tag "supersedes <time>" when it replaces an earlier decision (agent rule 14).
 - 2026-10-16 23:19 (Orchestrator decision): Install only with fm1_install.py --commit and the guard require_gate_pass.sh. Never use the web installer for a team install (agent rule 7).
-- 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 7 applies from batch 3 (install-gate-guard merged). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
+- 2026-10-16 23:29 (Orchestrator decision): The install guard of rule 7 applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file before the install. Owner quotes stay word for word inside quotation marks, and STE does not apply to them.
+- 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name.
 - 2026-10-16 23:32 (owner): Merge the small roles.
   - Merge Integrator does the release packaging. It packages only a hash with a gate PASS and a device PASS, with the same checks as before (CRCs, loop slot backup paths).
   - Docs Keeper writes the owner test checklists and sends them to Orchestrator. A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes.
@@ -138,4 +139,4 @@ Read this file before you work on the X0X37 project. Also obey agent-rules.md. T
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-16 23:35.
+Last update: 2026-10-16 23:36.

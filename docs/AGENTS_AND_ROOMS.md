@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-16 23:33 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 23:36 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -101,7 +101,7 @@ The agent rules are in agent-rules.md (version 2, 15 rules, with a list of terms
 - 4. Put each planned change in the batch for integration. Make one commit and one host test for each change. Run only the affected tests, and use time scale 20 (X0X_TEST_TIME_SCALE) only when the code reads it. Builders follow the x0x37-builder-loop skill.
 - 5. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Fetch and rebase before each commit, and push only your lane branch, never integration. Change only the files of your lane. Give other work to its task agent with SendToAgent.
 - 6. Merge Integrator owns the branch order and moves the lane commits onto integration. At the end of the batch, it requests one gate, and Build and Test Runner runs the gate script. Split or bisect only if that gate fails.
-- 7. Install only the batch hash, after a gate PASS for its exact tree with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md, and the install notice quotes the result file of that row. Do not use a PASS or a "go" in a message as evidence, or a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (install-gate-guard merged). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
+- 7. Install only the batch hash, after a gate PASS for its exact tree with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md, and the install notice quotes the result file of that row. Do not use a PASS or a "go" in a message as evidence, or a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
 - 8. Only Firmware Main Builder installs. Before the install, back up the loop slots and send the owner notice with the exact hash. After the install, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
 - 9. Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background.
 - 10. Run hardware work and edits to one shared file one at a time. While you wait for a result, do the next task that does not need it. If you have no task, tell Orchestrator.
@@ -141,7 +141,8 @@ Repositories:
   - Before batch 1, the keyboard ran a74 (14fb352, installed 21:03, branch ble-a74, ledger tip 11d81a7). Owner test 1 (21:18): violet FAIL, pad clear FAIL.
   - ble-a75 38af0a0, ble-pad-a76 1c45b4b and ble-arrows-a77 59ddadd are in integration (installed in 9a733fe).
   - Side branches with builds that nobody installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
-- Working branch: integration f357a2e (code tree the same as 9a733fe). The gate on 9a733fe gave PASS at 22:29 (tree 1d3c048d). The gate at 22:24 was VOID (setup error). clip-keys-a65 5a89b76: its changes are in integration (cherry-picked). Next batch: apc-colors-int f175c30 (LCD clip colours, CLP-05).
+- Working branch: integration. Installed = batch 1 (9a733fe). The gate on batch 1 gave PASS at 22:29 (tree 1d3c048d). The gate at 22:24 was VOID (setup error). clip-keys-a65 5a89b76: its changes are in integration (cherry-picked).
+  - Batch 2 (e8232e7) has a gate PASS, and nobody installed it. Next = batch 3 on integration (open, Merge Integrator closes it at about 23:49). Batch 3 has pad calibration (CLP-79), the LCD colours from the Akai CSV and the Optimizer cuts. It also has the install guard, the STE check and the fail-closed hook.
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only. See the repository rules.
 - main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change in the Bluetooth/JieLi lane and in the clip mode lane. Merge them carefully.
@@ -191,3 +192,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 23:27: We rewrote the docs in ASD-STE100 (Orchestrator 23:19). agent-rules.md has a list of terms and the caveman scope. Rule 7 names the install tool fm1_install.py --commit and the guard require_gate_pass.sh. The x0x37-builder-loop core card is now 2026-10-16 23:20 5748c74f.
 - 2026-10-16 23:30: Orchestrator decisions 23:29: rule 7 applies the install guard from batch 3. Until then, Firmware Main Builder reads the index row and the result file before the install. The web installer ban is only for team installs. New terms: colour and owner quotes. The 20:12 owner example is word for word again.
 - 2026-10-16 23:33: Owner OK 23:32: Merge Integrator does the release packaging (a hash with a gate PASS and a device PASS). Docs Keeper writes the owner test checklists. Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers. Their status is "retire after batch-1 checklist answers are logged".
+- 2026-10-16 23:36: Orchestrator decision 23:36: name a batch by its number and its gated hash only. Installed = batch 1 (9a733fe). Batch 2 (e8232e7) has a gate PASS. Batch 3 is open on integration.

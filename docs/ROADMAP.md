@@ -36,10 +36,10 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 ## Where we are now (2026-10-16 23:27)
 
 - Branches:
-  - The working branch integration is at f357a2e. Its code tree is the same as 9a733fe. The later commits change only docs and the ledger.
-  - It has ble-a75 (38af0a0), ble-pad-a76 (1c45b4b: violet and pad clear fixes, INLOG) and ble-arrows-a77 (59ddadd: < and > in the menus, GEN-56).
+  - Batches: installed = batch 1 (9a733fe). Batch 2 (e8232e7) has a gate PASS, and nobody installed it. Next = batch 3 on integration (open, Merge Integrator closes it at about 23:49). Batch 3 has pad calibration (CLP-79), the LCD colours from the Akai CSV and the Optimizer cuts. It also has the install guard, the STE check and the fail-closed hook.
+  - Batch 1 has ble-a75 (38af0a0), ble-pad-a76 (1c45b4b: violet and pad clear fixes, INLOG) and ble-arrows-a77 (59ddadd: < and > in the menus, GEN-56).
   - The gate on 9a733fe gave PASS at 22:29 (tree 1d3c048d). The gate at 22:24 was VOID (setup error). The install at 22:25 came before the PASS (ledger b1).
-  - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). Next batch: apc-colors-int (f175c30).
+  - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18).
   - The side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1), ble-a70 (77fa067) and ble-a71 (9ef7bc2) have builds. Nobody installed them.
 - Keyboard:
   - The keyboard runs integration 9a733fe (batch 1). Firmware Main Builder installed it at 22:25 (ledger b1, b913735).
@@ -109,4 +109,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 23:35.
+Last update: 2026-10-16 23:36.
