@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project.
 
-Last updated: 2026-10-16 18:10 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
+Last updated: 2026-10-16 18:15 (Vladivostok, UTC+10) by the doc audit for Docs Keeper.
 Owner: Docs Keeper (living document). Docs Keeper updates this file when an agent, a room or a rule changes.
 "TO CONFIRM" marks a fact that no project file or agent profile shows.
 
@@ -152,6 +152,7 @@ More rules from agent-rules.md, USER_PREFERENCES.md and merge-monitor-log.md:
 - JieLi-files exception for refs-oscuro: the general rule says do not commit JieLi files. The exception is branch refs-oscuro only. Its commit babd349 (folder refs/jieli/) holds the JieLi Bluetooth libraries that our controller image links (lib/) and the AC79 SDK headers (sdk/include_lib/ and sdk/LICENSE), as a reference. The user asked for this on 2026-10-16 17:45. The files are not for distribution. Do not ship, publish or push them outside the box. Do not put them in a release, package, installer or bundle. Do not merge refs-oscuro into ble-a56, integration or smk37. The full SDK and the toolchain stay out of git. (Source: refs/jieli/README.md in babd349.)
 - 2026-10-16 18:09 (owner): refs-oscuro stays in the local repositories. Never push refs-oscuro.
 - 2026-10-16 18:09 (owner): Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote. Orchestrator installed a pre-push block on /workspace/x0x37.git and on the builder box folders (2026-10-16 18:09).
+- 2026-10-16 18:11: The refs-oscuro pre-push block is also on the Mac: ~/Documents/x0x37/x0x37/.git/hooks/pre-push and ~/Documents/x0x37/flash_review/.git/hooks/pre-push. The second hook covers all flash_review worktrees. A test push was refused. The hook blocks only a push that contains refs-oscuro or its commits. The GitHub origin of the x0x37 repo stays for now. No one pushes to it.
 - Each builder works only in its own worktree.
 
 ## Current project context
@@ -197,3 +198,4 @@ More facts (checked 2026-10-16 01:32):
 - 2026-10-16 17:41, doc audit for Docs Keeper: x0x37/docs/AGENTS_AND_ROOMS.md is now an exact copy of this file, committed on smk37. It has no REPLACED mark. Update both together.
 - 2026-10-16 17:45, doc audit for Docs Keeper: owner decision 17:44. Branch refs-oscuro (ac10280) holds the SMK-37 Oscuro reference firmware. It is not for distribution. Added never-merge to Merge Integrator and never-package to Release Packager. Added refs-oscuro to the active branches.
 - 2026-10-16 18:10, doc audit for Docs Keeper: owner decisions 18:09. Never push refs-oscuro. Code stays only on the box and on the machines of the owner, with no push to GitHub or any outside remote. Added the pre-push block of Orchestrator, the JieLi-files exception for refs-oscuro (from refs/jieli/README.md in babd349) and the new never-do items for Merge Integrator and Release Packager.
+- 2026-10-16 18:15, doc audit for Docs Keeper: added the Mac pre-push hook paths (x0x37/.git/hooks/pre-push and flash_review/.git/hooks/pre-push). The GitHub origin stays for now, and no one pushes to it.
