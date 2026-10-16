@@ -8,7 +8,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - Do the work. Ask only when a wrong choice has real results or when the owner must decide.
 - Only a change that the owner can see, hear or play needs the approval of the owner first (see the 19:25 entry). Decide the other changes and continue.
 - Do not change release scripts unless the owner asks.
-- In build-test mode, do not install fallback or recovery builds only to make the keyboard playable. An example is a build with no Bluetooth. Install the fixed build directly. The owner tests the keyboard and does not make music with it.
+- In build-test mode, do not install fallback or recovery builds only to make the keyboard playable. An example is a build with no Bluetooth. Put the fix into the current set of changes, and install it with that set (owner rule 01:57). The owner tests the keyboard and does not make music with it.
 - Commits: author genkigenki <3080081+genkigenki@users.noreply.github.com>, messages in ASD-STE100 (asd-ste skill). Log each change in x0x37-progress-log.md.
 - 2026-10-16 18:41 (owner): Optimize without cutting features. Font size is not a feature.
 - 2026-10-16 20:12 (owner):
@@ -27,11 +27,13 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 
 - Never touch the bootloader. Never risk a brick. Run each install in the foreground, never in the background.
 - Before each install, back up the loop slots. After the install, compare the slot CRCs. The owner has 5 imported loops (3 in slot 1, 2 in slot 2). The backups are in slot_backups/.
-- 2026-10-16: A verified build installs with no question to the owner. Before each install, send the owner a notice. Give the commit hash and the result file of the gate PASS row for the exact tree (/workspace/x0x37-results/index.md). A "go" in a message does not replace that row (agent rule 6). After the install, give the owner the commit hash and the CRC result.
+- 2026-10-16: A verified build installs with no question to the owner, but only when all queued changes are complete. Never ask the owner whether to install a partial build (owner rule 01:57). Before each install, send the owner a notice. Give the commit hash and the result file of the gate PASS row for the exact tree (/workspace/x0x37-results/index.md). A "go" in a message does not replace that row (agent rule 6). After the install, give the owner the commit hash and the CRC result.
+- 2026-10-17 01:57 (owner, through Orchestrator): "install only when editing is done and all queued features are ready to test together; never ask the owner whether to install a partial build." (agent rules 6 and 14)
+- 2026-10-17 01:56 (owner, through Orchestrator): Do not install b8255f2 alone. The next install is batch 9 together with the pad clear fix of Firmware Main Builder. That fix covers the end of the USB link, Loopy quit on the Mac and the iPhone pads that light again.
 - 2026-10-16: Report UX changes immediately. Some changes can affect the experience of the owner: latency, packet or MTU size, memory margins, sample length and connection behavior. If the builder decides on such a change, it sends a short note to Orchestrator before it continues. Orchestrator tells the owner.
 - 2026-10-16 02:11:
   - Generic work needs no approval. Generic work is builds, tests, commits, pushes to the box, doc updates and merges on the box. Tell the owner first before a change that can change how the device works or feels.
-  - Examples: installs, new behavior rules, changes that the owner can see, hear or play, flash layout changes, removed features. The safety rules do not change.
+  - Examples: new behavior rules, changes that the owner can see, hear or play, flash layout changes, removed features. The safety rules do not change.
   - The 19:25 entry replaces these examples. Only a change that the owner can see, hear or play needs approval. The install notice stays (agent rule 5).
 - 2026-10-16 17:3x (the owner gave this decision to Firmware Main Builder):
   - The pool limit is 4096 B, from the build.py rule. heap2 (3584 B) is already inside .pool. A release build must turn off the test-26 RAM canary (it writes 0xFF at 0x01C72000-0x01C74000), or keep at least 8192 B of free pool.
@@ -61,7 +63,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - 2026-10-16 22:00 (owner):
   - All planned changes go on one working branch, integration. Make one commit and one host test for each change. Run only the affected tests. Use time scale 20 only when the code reads X0X_TEST_TIME_SCALE (agent rule 9).
   - Run one gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the gate of the batch.
-  - Builders fetch and rebase before each commit and change only the files of their lane. The install is the batch hash with a gate PASS. This replaces the gate for each lane (agent rules 6 and 9 to 11).
+  - Builders fetch and rebase before each commit and change only the files of their lane. The install is the gated hash of the last batch in a finished set (owner rule 01:57). This replaces the gate for each lane (agent rules 6 and 9 to 11).
 - 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its stop words (agent rule 4). Changes to the skill go through Orchestrator. (2026-10-16 23:15: in the core card, the Decision check is steps 6 to 10.)
 - 2026-10-16 22:03 (owner): Do not wait idle. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 3).
 - 2026-10-16 22:39 (owner): Record the bug first. Before a fix for a device bug, the owner shows the bug once with INLOG (the inbound MIDI recorder) on. The builder makes a host replay test from that log, then fixes the bug. Do not make guess fixes (agent rule 8).
@@ -150,4 +152,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 01:58.
+Last update: 2026-10-17 02:02.

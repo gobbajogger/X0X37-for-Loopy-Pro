@@ -14,7 +14,7 @@ Write each message to the owner in ASD-STE100, with plain words about what the o
 Step: P2 to P5 (before you decide a change).
 Rule owner: Orchestrator.
 
-Ask the owner only about a change that the owner can see, hear or play. Ask before you make the change. This includes each change that affects how the keyboard plays. Decide all other changes and continue.
+Ask the owner only about a change that the owner can see, hear or play. Ask before you make the change. This includes each change that affects how the keyboard plays. Decide all other changes and continue. An install is not a change for this rule. Never ask the owner about an install. [owner 2026-10-17 01:57]
 
 ### Rule 4B [v2: 14, sentences 3 to 5]
 Step: each decision and each skill change.

@@ -39,6 +39,7 @@ Write files (docs and logs), commits and checklists with the asd-ste skill. Writ
 - P5. Merge onto integration.
 - P6. Run one gate for each batch.
 - P7. Write the owner test checklist.
+- P7a. Wait for the full set: all queued changes are complete and have one gate PASS together (owner 2026-10-17 01:57).
 - P8. Send the owner notice.
 - P9. Install.
 - P10. The owner tests.

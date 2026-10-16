@@ -11,10 +11,14 @@ Rule owner: Firmware Main Builder.
 Only Firmware Main Builder installs. Before the install, back up the loop slots and send the owner notice. The notice gives the exact hash and quotes the result file of the gate PASS row (rule 6). After the install, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
 
 ### Rule 6 [v2: 7]
-Step: P6 gate, P9 install.
+Step: P6 gate, P7a full set, P9 install.
 Rule owner: Firmware Main Builder.
 
-Install only the batch hash, after a gate PASS for its exact tree with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md. Do not use a PASS or a "go" in a message as evidence, or a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
+Install only when the builders finish the editing and all queued changes are complete. Make one install for each finished set. A gate PASS on one batch does not start an install. Never ask the owner whether to install a part of the set. [owner 2026-10-17 01:57]
+
+Install only the gated hash of the last batch in the finished set. That hash needs a gate PASS for its exact tree, with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md. Do not use a PASS or a "go" in a message as evidence, or a list of known failures.
+
+Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
 
 ### Rule 7 [v2: 9]
 Step: P9 install.

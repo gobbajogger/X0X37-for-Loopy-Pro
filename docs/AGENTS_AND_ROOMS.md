@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-17 00:13 (Vladivostok, UTC+10).
+Last updated: 2026-10-17 02:02 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -14,7 +14,7 @@ Last updated: 2026-10-17 00:13 (Vladivostok, UTC+10).
 
 ### Firmware Main Builder
 - ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
-- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi lane files. Commits on a lane/mb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 9 to 11). Installs the batch hash with a gate PASS. It is the only agent that can install (with loop slot backups, a per-slot CRC compare and a notice before the install).
+- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi lane files. Commits on a lane/mb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 9 to 11). Installs one gated build only when all queued changes are complete (owner 2026-10-17 01:57). It is the only agent that can install (with loop slot backups, a per-slot CRC compare and a notice before the install).
 - Never: Writes the bootloader. Installs in the background. Installs without a loop slot backup and a per-slot CRC compare.
 - Worktrees (Mac, flash_review repo): /private/tmp/a74wt (ble-a74, 14fb352, the build to install again if batch 1 fails), /private/tmp/refswt (refs-oscuro, read only).
 - Box copy: /workspace/x0x37-firmware-main-builder (a git repository). Commits there, then syncs the commits to the Mac repo before each install.
@@ -78,7 +78,7 @@ Each task has one task agent, and this table shows it. Integration is the one wo
 | Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
 |---|---|---|---|---|
 | Orchestrator | Rule checks. Task assignment. Messages to and from the owner. | Build, write code or install. | Task agent, from this table. | Light |
-| Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (the batch hash with a gate PASS). | Edit the clip mode lane files. Write the bootloader. | Merge Integrator (commits). Docs Keeper (install changes, logs). | Heavy |
+| Firmware Main Builder | Bluetooth/JieLi lane files on integration. All firmware installs (one gated build, when all queued changes are complete). | Edit the clip mode lane files. Write the bootloader. | Merge Integrator (commits). Docs Keeper (install changes, logs). | Heavy |
 | Second Builder | Clip mode lane files on integration (clip mode, scale, chord, arp, tempo). The clip pad colours. The < and > buttons in all modes. An Elite build before each handoff. | Install. Edit the Bluetooth/JieLi lane files. | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
 | Firmware Q&A | Answers about the firmware and the branches. | Commit, change code or install. | Task agent of the topic, from this table. | Light |
 | Merge Integrator | Branch integration: branch order, merges, merge conflicts, the request for the gate of the batch. merge-monitor-log.md. Release packages (a hash with a gate PASS and a device PASS) with CRCs, loop slot backup paths and changelogs. | Install. Write feature code. Merge, package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (batch hash with a gate PASS). | Heavy |
@@ -184,3 +184,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 23:39: Orchestrator decision 23:36: From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
 - 2026-10-17 00:01: Agent rules version 3 (owner approved, Orchestrator 00:00). rules/core.md has rules 1, 2 and 4 and an index. The 8 other rule files have the names shared-work, install, device-bug, commit, integration, docs, owner-messages and style. agent-rules.md points to rules/core.md. Merges M1 to M4 and split S2 are in. The coordination rules section is now a pointer, and the rule numbers in the docs have the version 3 numbers.
 - 2026-10-17 00:13: Orchestrator decision 00:12: Release Packager and Test Plan Writer retired on 2026-10-17. Merge Integrator does the packaging, and Docs Keeper writes the checklists. The skills point to the version 3 rules, and the core card is 2026-10-17 00:15 3aed2483. No rule file names the two agents.
+- 2026-10-17 02:02: Owner rule 01:57: install only when all queued changes are complete, and never ask the owner about a partial build. Firmware Main Builder installs one gated build for each finished set.

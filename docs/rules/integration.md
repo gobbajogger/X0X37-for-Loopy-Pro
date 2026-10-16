@@ -8,7 +8,7 @@ Terms: A gate is one run of the gate script. Each gate writes one row in /worksp
 Step: P5 integration merge, P6 gate.
 Rule owner: Merge Integrator.
 
-Merge Integrator owns the branch order and moves the lane commits onto integration. At the end of the batch, it requests one gate, and Build and Test Runner runs the gate script. Split or bisect only if that gate fails.
+Merge Integrator owns the branch order and moves the lane commits onto integration. At the end of the batch, it requests one gate, and Build and Test Runner runs the gate script. Split or bisect only if that gate fails. A gate PASS does not start an install (install.md, rule 6).
 
 ### Integration push [new, Orchestrator 2026-10-17 00:04, owner OK]
 Step: P5 integration merge.
