@@ -188,6 +188,18 @@ static void t_host(void)
     CHECK(bleh_midi_next(&h, &m) && m.b[0] == 0x90 && m.b[1] == 64 && m.b[2] == 102 && m.ts == (1 << 7 | 3));
     CHECK(bleh_midi_next(&h, &m) && m.len == 1 && m.b[0] == 0xF8 && m.ts == (1 << 7 | 4));
     CHECK(!bleh_midi_next(&h, &m));
+    /* a72: real time as Loopy Pro sends it: Stop, Start, clocks and Continue in one event, a clock between
+     * running status notes; each one is a USB-MIDI packet CIN 0xF for the sequencer (engine.c midi_in) */
+    { const uint8_t d[] = {0x80, 0x81, 0xFC, 0x81, 0xFA, 0x81, 0xF8, 0x82, 0x90, 60, 100, 0x83, 0xF8, 61, 100,
+                           0x84, 0xF8, 0x85, 0xFB};
+      static const uint32_t want[] = {0xFu | 0xFCu << 8, 0xFu | 0xFAu << 8, 0xFu | 0xF8u << 8,
+                                      0x9u | 0x90u << 8 | 60u << 16 | 100u << 24, 0xFu | 0xF8u << 8,
+                                      0x9u | 0x90u << 8 | 61u << 16 | 100u << 24, 0xFu | 0xF8u << 8, 0xFu | 0xFBu << 8};
+      unsigned i;
+      midi_w(&h, d, sizeof d);
+      for (i = 0; i < sizeof want / sizeof want[0]; i++)
+          CHECK(bleh_midi_next(&h, &m) && ble_usb_of_msg(&m) == want[i]);
+      CHECK(!bleh_midi_next(&h, &m)); }
     /* program change (2 bytes), song position (system common, ends running status) */
     { const uint8_t d[] = {0x80, 0x80, 0xC3, 5, 0x81, 0xF2, 0x10, 0x20, 0x82, 7};
       midi_w(&h, d, sizeof d); }
