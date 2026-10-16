@@ -2482,6 +2482,7 @@ static void input(void)
 #if BOARD_SMK37
     extern uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed);
     extern uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held);
+    extern void smk_play_note_button(uint8_t pressed, uint8_t home_held);
 #endif
     ch = btn ^ ui.btn;
     for (i = 0; i < NB; i++) {
@@ -2505,6 +2506,8 @@ static void input(void)
                 ui.btn_used &= ~m;
             continue;
         }
+        if (i == B_PLAY)                               /* outside clip mode: also the PLAY note (MID-14) */
+            smk_play_note_button((uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u));
 #endif
         if (btn & m) {
             any_button = 1;
