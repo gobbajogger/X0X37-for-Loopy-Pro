@@ -97,6 +97,7 @@ static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
  * usb.c does on USB. Other SysEx from Bluetooth is not taken (counted). */
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
 extern void smk_apc_host_seen(void);
+extern void smk_apc_host_generic(uint8_t ble);
 extern void smk_apc_ble_link(uint8_t connected, uint8_t notifying);
 extern uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying);
 extern void smk_inlog(uint32_t src, uint32_t pkt);   /* a76: the inbound recorder (main_fm1.c) */
@@ -121,6 +122,8 @@ static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
                (ble_sx[6] == 0x40u || ble_sx[6] == 0x41u || ble_sx[6] == 0x42u)) {
         ble_sx_reply = 2;                         /* the APC40 mkII introduction */
         smk_apc_host_seen();
+        if (ble_sx[6] == 0x40u)
+            smk_apc_host_generic(1u);             /* CLP-18: generic mode: the Bluetooth host feedback ends */
     } else if (end)
         ble_r.sysex_drops++;
     ble_sx_n = 0;

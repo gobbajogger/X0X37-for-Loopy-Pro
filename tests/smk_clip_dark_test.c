@@ -78,15 +78,20 @@ static void run(uint32_t ms)        /* 1 ms ticks; the frame (smk_frame: map, LC
         if (!(fm1_ms % 16u)) { (void)smk_clip_map_refresh(); (void)smk_clip_lcd_draw(240, 240); smk_pads(); }
     }
 }
+static uint8_t bt_n;                /* notify is on (ble.c bleh_notifying): the last link() state */
 static void link(uint8_t c, uint8_t n, uint32_t ms)   /* ble_service calls smk_apc_ble_link each poll */
 {
+    bt_n = (uint8_t)(c && n);
     while (ms--) {
         smk_apc_ble_link(c, n);
         run(1);
     }
 }
-static void msg(uint32_t st, uint32_t note, uint32_t vel) { (void)smk_apc_usb_event((st >> 4) | st << 8 | note << 16 | vel << 24); }
-static void loopy_page(void)        /* one Loopy refresh (BLE or USB: the same smk_apc_usb_event) */
+/* CLP-18: each link owns the cells that it wrote last. Loopy on Bluetooth: ble.c gives each note to
+ * smk_apc_ble_event with the notify state. umsg: Loopy on USB (usb.c ep1_rx, smk_apc_usb_event). */
+static void msg(uint32_t st, uint32_t note, uint32_t vel) { (void)smk_apc_ble_event((st >> 4) | st << 8 | note << 16 | vel << 24, bt_n); }
+static void umsg(uint32_t st, uint32_t note, uint32_t vel) { (void)smk_apc_usb_event((st >> 4) | st << 8 | note << 16 | vel << 24); }
+static void loopy_page(void)        /* one Loopy refresh on Bluetooth */
 {
     unsigned n;
     for (n = 0; n < 16u; n++)
@@ -142,7 +147,7 @@ int main(void)
     /* 6. No regression: a USB clip message after the 300 ms (Loopy on USB) shows. */
     link(0, 0, 1000);
     check(pads_lit() == 0u, "6 the link end clears the pads");
-    msg(0x90u, 0u, 0x2Du);
+    umsg(0x90u, 0u, 0x2Du);
     link(0, 0, 10000);
     check(pads_lit() > 0u, "6 a USB clip message 1 s after the link end shows");
 
@@ -158,9 +163,9 @@ int main(void)
             0xBu | 0xB0u << 8 | 16u << 16 | 5u << 24,   /* a knob ring CC */
             0xBu | 0xB0u << 8 | 7u << 16 | 99u << 24,   /* another CC */
         };
-        static const uint32_t colour[] = {
+        static const uint32_t colour[] = {   /* CLP-18: only a colour stops; an off always goes to the cell */
             9u | 0x90u << 8 | 5u << 16 | 45u << 24, 9u | 0x9Eu << 8 | 1u << 16 | 0x39u << 24,
-            8u | 0x80u << 8 | 39u << 16,
+            9u | 0x90u << 8 | 39u << 16 | 1u << 24,
         };
         unsigned i, owned, ok;
         link(1, 0, 50);

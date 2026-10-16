@@ -25,6 +25,8 @@ extern void smk_apc_host_seen(void);
 extern void smk_apc_host_lost(void);
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
 extern void smk_apc_usb_tick(void);
+extern void smk_apc_usb_link(uint8_t up);
+extern void smk_apc_host_generic(uint8_t ble);
 extern void smk_inlog(uint32_t src, uint32_t pkt);   /* a76: the inbound recorder (main_fm1.c) */
 #endif
 enum { S_FADDR = 0, S_POWER = 1, S_INTRTX1 = 2, S_INTRTX2 = 3, S_INTRRX1 = 4, S_INTRRX2 = 5, S_INTRUSB = 6,
@@ -706,6 +708,8 @@ static void sysex_byte(uint8_t b)
             usb.sysex[6] == 0x04u && (usb.sysex[7] == 0x40u || usb.sysex[7] == 0x41u || usb.sysex[7] == 0x42u)) {
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
             smk_apc_host_seen();
+            if (usb.sysex[7] == 0x40u)
+                smk_apc_host_generic(0u);              /* CLP-18: generic mode: the USB host feedback ends */
 #endif
             apc40_introduction_reply();
         }
@@ -1165,6 +1169,7 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
     midi_link_check(&usb_link_st, usb.config && !usb.suspended, 0u);   /* unplug, host asleep, bus reset */
 #endif
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    smk_apc_usb_link((uint8_t)(usb.config && !usb.suspended));   /* CLP-18: link end clears the cells USB wrote */
     smk_apc_usb_tick();                                 /* APC cell aging in the same interrupt as the stores */
 #endif
     if (usb.config)

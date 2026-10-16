@@ -192,11 +192,13 @@ static inline uint8_t smk_apc40_link_lost(uint8_t *prev, uint8_t connected, uint
     return lost;
 }
 
-/* a76: 1 = a Bluetooth note (a USB-MIDI event packet) that writes a clip cell (notes 0-39, the
- * pad colours) while notify is off (Loopy does not listen). The cell does not change. */
+/* a76: 1 = a Bluetooth note-on with a colour (velocity 1-127, a USB-MIDI event packet) for a clip cell
+ * (notes 0-39, the pad colours) while notify is off (Loopy does not listen). The cell does not change.
+ * CLP-18: an off (note-off, or note-on velocity 0, any channel) always goes to the cell: an off cannot
+ * show an old colour, and Loopy can send its offs when it closes. */
 static inline uint8_t smk_apc40_ble_colour_unheard(uint32_t pkt, uint8_t notifying)
 {
-    return (uint8_t)(!notifying && ((pkt >> 8) & 0xE0u) == 0x80u &&
+    return (uint8_t)(!notifying && ((pkt >> 8) & 0xF0u) == 0x90u && ((pkt >> 24) & 0x7Fu) &&
                      ((pkt >> 16) & 0x7Fu) < SMK_APC40_CLIP_COUNT);
 }
 
@@ -218,15 +220,24 @@ static inline uint8_t smk_apc40_lost_step(smk_apc40_lost_t *s, uint8_t connected
     return (uint8_t)(s->link != 3u);
 }
 
+/* Clear the clip cells that have their bit set in mask (bit n = cell n): no colour, no queued state. */
+static inline void smk_apc40_cells_clear_mask(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
+                                              volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
+                                              volatile uint8_t flags[SMK_APC40_CLIP_COUNT],
+                                              volatile uint8_t tick[SMK_APC40_CLIP_COUNT], uint64_t mask)
+{
+    uint8_t note;
+    for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++, mask >>= 1)
+        if (mask & 1u)
+            velocity[note] = channel[note] = flags[note] = tick[note] = 0u;
+}
 /* Clear all clip cells: no colour, no queued state. */
 static inline void smk_apc40_cells_clear(volatile uint8_t velocity[SMK_APC40_CLIP_COUNT],
                                          volatile uint8_t channel[SMK_APC40_CLIP_COUNT],
                                          volatile uint8_t flags[SMK_APC40_CLIP_COUNT],
                                          volatile uint8_t tick[SMK_APC40_CLIP_COUNT])
 {
-    uint8_t note;
-    for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++)
-        velocity[note] = channel[note] = flags[note] = tick[note] = 0u;
+    smk_apc40_cells_clear_mask(velocity, channel, flags, tick, ~(uint64_t)0u);
 }
 
 /* Beat phase 0..255 from the 24 PPQN clock count: one cycle per quarter note. */
