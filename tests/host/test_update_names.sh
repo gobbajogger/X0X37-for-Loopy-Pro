@@ -5,6 +5,9 @@
 #      Cases: tests/host/fixtures/update_names/branches.txt. A branch that was there before (ble-old) can move and be deleted.
 #   1d (check 8, rule 10): a push to integration needs git push -o by=merge-integrator. No option, or another by=, is
 #      rejected. The quick check of part 2 is a stand-in here (x0x37.quickcheck), so the test checks only the option.
+#   Go-live cases (part 1 as before): the branch name refs-oscuro (push and delete) and a commit that only refs-oscuro has
+#   (to a new lane branch, to an old branch, to integration) are rejected. Each branch of
+#   tests/host/fixtures/update_names/old-branches.txt (there before the hooks) moves and is deleted. A new tag is accepted.
 set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE
 TOP="$(cd "$(dirname "$0")/../.." && pwd)"; F="$TOP/tests/host/fixtures/update_names/branches.txt"
@@ -15,8 +18,11 @@ printf '#!/bin/bash\n# stand-in quick check\nste_step() { :; }\necho "QUICK PASS
 git init -q --bare "$B" && git -C "$B" config x0x37.workDir "$T/wd" && git -C "$B" config x0x37.skipLog "$T/skips.log" &&
     git -C "$B" config x0x37.quickcheck "$T/qc.sh" && git -C "$B" config x0x37.gateLock "$T/gate.lock" || { echo "FAIL setup"; exit 1; }
 gc() { git -C "$C" -c user.name=t -c user.email=t@t commit -q "$@"; }
+OLDB=$(grep -v '^#' "$(dirname "$F")/old-branches.txt")
 git init -q -b integration "$C" && echo a > "$C/a.c" && git -C "$C" add . && gc -m base && git -C "$C" remote add box "$B" &&
-    git -C "$C" branch ble-old && git -C "$C" push -q box integration ble-old 2>/dev/null || { echo "FAIL setup: first push"; exit 1; }
+    git -C "$C" checkout -q -b refs-oscuro && echo jl > "$C/jl.h" && git -C "$C" add . && gc -m "JieLi file" && OSC=$(git -C "$C" rev-parse HEAD) &&
+    git -C "$C" checkout -q integration && git -C "$C" branch ble-old && for b in $OLDB; do git -C "$C" branch "$b"; done &&
+    git -C "$C" push -q box integration ble-old refs-oscuro $OLDB 2>/dev/null || { echo "FAIL setup: first push"; exit 1; }
 bash "$TOP/tools/install_server_hooks.sh" "$B" >/dev/null || { echo "FAIL setup: hooks"; exit 1; }
 push() {  # push <accept|reject> <name> <git push args...>
     want=$1; name=$2; shift 2; n=$((n + 1))
@@ -38,5 +44,13 @@ push accept "integration with -o by=merge-integrator" -o by=merge-integrator int
 echo c >> "$C/a.c"; gc -am "Change c"
 push reject "integration with only a skip option" -o skip-quickcheck="test" integration
 push accept "integration with -o by=merge-integrator and a skip" -o by=merge-integrator -o skip-quickcheck="test" integration
+# go-live cases: part 1 (refs-oscuro) as before, old branches move and are deleted
+push reject "the branch name refs-oscuro (push)" -f integration:refs-oscuro
+push reject "the branch name refs-oscuro (delete)" :refs-oscuro
+push reject "the refs-oscuro commit to a new lane branch" "$OSC:refs/heads/lane/btr-osc"
+push reject "the refs-oscuro commit to an old branch" "+$OSC:refs/heads/ble-a74"
+push reject "the refs-oscuro commit to integration with -o" -o by=merge-integrator "+$OSC:refs/heads/integration"
+for b in $OLDB; do push accept "old branch $b moves" "integration:refs/heads/$b"; push accept "old branch $b is deleted" ":$b"; done
+push accept "a new tag" integration:refs/tags/t1
 echo "update names: $((n - fails)) of $n ok"
 [ "$fails" = 0 ]

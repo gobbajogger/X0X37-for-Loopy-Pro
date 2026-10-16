@@ -1,0 +1,13 @@
+# Branches that were in the box repository before check 9 (tests/host/test_update_names.sh). They are not in the new
+# scheme, or are old lane and archive names. Each must still move and be deleted.
+ble-a74
+ble-arrows-a77
+test-speed
+test-speed-for-integration
+ste-check
+ste-strict-0eab0fe
+wip/clip-keys-a65-a74
+install-gate-guard
+lane/btr-flaky-guard
+lane/mb-install-b10
+archive/ble-a56
