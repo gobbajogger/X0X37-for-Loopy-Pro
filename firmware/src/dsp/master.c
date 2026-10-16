@@ -13,6 +13,7 @@
  * glides so a fast sweep does not zipper (ReBirth's PCF idea: sweep the whole mix).
  * Limiter: instant-attack peak follower, ~150 ms release, then a tanh knee above -1 dBFS. */
 #include "master.h"
+#include "../x0x_cold.h"
 #include "fastmath.h"
 
 #define FS 44100.0f
@@ -415,7 +416,8 @@ static void put_num(char *b, float v, int decimals, const char *unit)
     b[i] = 0;
 }
 
-void master_format(const master_t *m, int i, char *b)
+/* the UI text of a master value; the UI calls it, the audio does not (X0X_COLD) */
+X0X_COLD void master_format(const master_t *m, int i, char *b)
 {
     int p = m->pot[i];
     switch (i) {
