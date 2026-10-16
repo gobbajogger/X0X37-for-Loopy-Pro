@@ -2,7 +2,7 @@
 
 This file lets another model make the multi-agent setup for the x0x37 firmware project again. Docs Keeper maintains this file. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy, and x0x37/docs/AGENTS_AND_ROOMS.md on smk37 is an exact copy. Update both together.
 
-Last updated: 2026-10-16 23:39 (Vladivostok, UTC+10).
+Last updated: 2026-10-17 00:01 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -14,14 +14,14 @@ Last updated: 2026-10-16 23:39 (Vladivostok, UTC+10).
 
 ### Firmware Main Builder
 - ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
-- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi lane files. Commits on a lane/mb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 4 to 6). Installs the batch hash with a gate PASS. It is the only agent that can install (with loop slot backups, a per-slot CRC compare and a notice before the install).
+- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi lane files. Commits on a lane/mb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 9 to 11). Installs the batch hash with a gate PASS. It is the only agent that can install (with loop slot backups, a per-slot CRC compare and a notice before the install).
 - Never: Writes the bootloader. Installs in the background. Installs without a loop slot backup and a per-slot CRC compare.
 - Worktrees (Mac, flash_review repo): /private/tmp/a74wt (ble-a74, 14fb352, the build to install again if batch 1 fails), /private/tmp/refswt (refs-oscuro, read only).
 - Box copy: /workspace/x0x37-firmware-main-builder (a git repository). Commits there, then syncs the commits to the Mac repo before each install.
 
 ### Second Builder
 - ID: d9628bfa-aaf6-4aa0-81b3-db56618755f2
-- Purpose: Builds the clip-mode keybed, scale, chord, arp and tempo carry-over features. Owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). Commits on a lane/sb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 4 to 6). Runs an Elite build before each handoff.
+- Purpose: Builds the clip-mode keybed, scale, chord, arp and tempo carry-over features. Owns the clip pad colours and the < and > buttons in all modes (Orchestrator 22:21). Commits on a lane/sb-<topic> branch, and Merge Integrator moves each commit onto integration (rules 9 to 11). Runs an Elite build before each handoff.
 - Never: Installs. Edits the Bluetooth/JieLi lane files (Firmware Main Builder owns them).
 - Box copy: /workspace/x0x37-second-builder. Commits there on its lane/sb-<topic> branches.
 
@@ -32,14 +32,14 @@ Last updated: 2026-10-16 23:39 (Vladivostok, UTC+10).
 
 ### Merge Integrator
 - ID: 6d5025ab-17f1-4d00-abb1-a1475550e792
-- Purpose: Owns the working branch integration: the branch order, the merges and the gate of the batch (rule 6). Requests one gate at the end of each batch, and Build and Test Runner runs it. Splits or bisects the batch only if that gate fails. Reports conflicts early to Orchestrator and the builders. Keeps the caches and worktrees clean. Writes merge-monitor-log.md.
+- Purpose: Owns the working branch integration: the branch order, the merges and the gate of the batch (rule 11). Requests one gate at the end of each batch, and Build and Test Runner runs it. Splits or bisects the batch only if that gate fails. Reports conflicts early to Orchestrator and the builders. Keeps the caches and worktrees clean. Writes merge-monitor-log.md.
 - Packaging (owner OK 23:32): Packages only a hash with a gate PASS and a device PASS. It uses the same checks as before: CRCs, loop slot backup paths and a changelog in plain words.
 - Never: Installs firmware. Merges, packages or pushes refs-oscuro. Pushes to GitHub or to an outside remote.
 - Worktree: /Users/mac/Documents/x0x37/flash_review_integration (branch integration).
 
 ### Build and Test Runner
 - ID: a35e97c4-ec2a-4d3b-bea2-e32d8aedaa97
-- Purpose: Runs headless builds, unit tests (for example smk_clip_keys_test), size checks and flash-map checks. Runs the gate script when Merge Integrator requests it (rule 6). Keeps the build caches ready.
+- Purpose: Runs headless builds, unit tests (for example smk_clip_keys_test), size checks and flash-map checks. Runs the gate script when Merge Integrator requests it (rule 11). Keeps the build caches ready.
 - Never: Installs firmware.
 - Box folder: /workspace/x0x37-build-and-test-runner.
 
@@ -52,7 +52,7 @@ Last updated: 2026-10-16 23:39 (Vladivostok, UTC+10).
 
 ### Docs Keeper
 - ID: ffd7fca0-6687-4102-bc74-4dda79e8604a
-- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, AGENTS_AND_ROOMS.md and the progress log in sync. Applies rule 15. Writes the owner test checklists and sends them to Orchestrator (owner OK 23:32). A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes. The templates are in /workspace/x0x37-test-plan-writer/ (checklist-batch1.md).
+- Purpose: Keeps BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, AGENTS_AND_ROOMS.md and the progress log in sync. Applies rule 12. Writes the owner test checklists and sends them to Orchestrator (owner OK 23:32). A checklist has only the changed items, in plain words and ASD-STE100. The owner copy has no agent notes. The templates are in /workspace/x0x37-test-plan-writer/ (checklist-batch1.md).
 - Never: Installs or changes firmware code.
 - Box folder: /workspace/x0x37-docs-keeper.
 
@@ -73,7 +73,7 @@ Note: the iChord agents are part of a different project. They are not part of th
 
 ## Agent identities and lanes
 
-Each task has one task agent, and this table shows it. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Each lane pushes only its own lane branch (rules 4 to 6). A lane is a set of files. Heavy agents write code or run builds, and light agents write docs, do checks or give answers.
+Each task has one task agent, and this table shows it. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Each lane pushes only its own lane branch (rules 9 to 11). A lane is a set of files. Heavy agents write code or run builds, and light agents write docs, do checks or give answers.
 
 | Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
 |---|---|---|---|---|
@@ -90,29 +90,14 @@ Each task has one task agent, and this table shows it. Integration is the one wo
 
 ## Messages
 
-There are no rooms. Agents send messages directly to each other with SendToAgent. Orchestrator relays the messages to the owner. Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (rule 2).
+There are no rooms. Agents send messages directly to each other with SendToAgent. Orchestrator relays the messages to the owner. Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat (rule 13).
 
 ## Coordination rules
 
-The agent rules are in agent-rules.md (version 2, 15 rules, with a list of terms). The skills are asd-ste, caveman and x0x37-builder-loop. The x0x37-builder-loop skill is now the core card. Its version is 2026-10-16 23:20 5748c74f. The 15 rules are:
-- 1. Write docs, logs, commits and checklists with the asd-ste skill. Write agent-to-agent messages, including task messages, with the caveman skill. If a text is in the scope of asd-ste, asd-ste wins.
-- 2. Write each message to the owner in ASD-STE100, with plain words about what the owner hears, feels and does. Describe a change to the owner only after you verify it. Orchestrator is the only route for questions to the owner. If an agent quotes an owner report with the build, the report is valid in any chat. Tell the owner before a change that affects how the keyboard plays.
-- 3. Ask the owner only about a change that the owner can see, hear or play. Decide all other changes and continue.
-- 4. Put each planned change in the batch for integration. Make one commit and one host test for each change. Run only the affected tests, and use time scale 20 (X0X_TEST_TIME_SCALE) only when the code reads it. Builders follow the x0x37-builder-loop skill.
-- 5. Integration is the one working branch, and Merge Integrator moves each commit onto it. Lanes are short-lived branches named lane/<agent>-<topic> (mb, sb, opt), for example lane/mb-clock. Fetch and rebase before each commit, and push only your lane branch, never integration. Change only the files of your lane. Give other work to its task agent with SendToAgent.
-- 6. Merge Integrator owns the branch order and moves the lane commits onto integration. At the end of the batch, it requests one gate, and Build and Test Runner runs the gate script. Split or bisect only if that gate fails.
-- 7. Install only the batch hash, after a gate PASS for its exact tree with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md, and the install notice quotes the result file of that row. Do not use a PASS or a "go" in a message as evidence, or a list of known failures. Install only with fm1_install.py --commit and the guard require_gate_pass.sh, and never use the web installer for a team install. This applies from batch 3 (the batch with the install guard). Until then, Firmware Main Builder reads the index row and the result file himself before the install.
-- 8. Only Firmware Main Builder installs. Before the install, back up the loop slots and send the owner notice with the exact hash. After the install, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
-- 9. Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background.
-- 10. Run hardware work and edits to one shared file one at a time. While you wait for a result, do the next task that does not need it. If you have no task, tell Orchestrator.
-- 11. Log a device PASS only for the items and build that the owner names, and mark the others NOT TESTED. For a device bug, the owner first shows the bug once with INLOG on. The builder then makes a host replay test from that log. Make a fix only when data and a host test prove the cause. If a fix fails on the device, do not guess again: name the wrong assumption and get the missing data. If 2 device tests fail one after the other, go back to last-good-hw and bisect.
-- 12. Never push outside the box and the machines of the owner. Never push, merge or package refs-oscuro.
-- 13. Stop only the processes that you started, by their PIDs. Never use pkill -f or killall on a shared script.
-- 14. Before a shared action or an action that is hard to undo, do the Decision check. The Decision check is steps 6 to 10 of the x0x37-builder-loop core card. Send skill changes through Orchestrator. Send one decision message for each item. Give it a tag "supersedes <time>" when it replaces an earlier decision.
-- 15. Do not invent data. Docs and logs hold only development information. Update BEHAVIOR.md (reference copy on integration), ROADMAP.md, USER_PREFERENCES.md and the log in the same task.
+The rules are in rules/core.md. The core index names the other rule files. The skills are asd-ste, caveman and x0x37-builder-loop. The x0x37-builder-loop skill is now the core card. Its version is 2026-10-16 23:20 5748c74f.
 
 Other team notes:
-- Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Write it in ASD-STE100, and describe a change only after you verify it (owner, 23:11, rule 2). Docs, logs and commits stay in asd-ste.
+- Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Write it in ASD-STE100, and describe a change only after you verify it (owner, 23:11, rule 13). Docs, logs and commits stay in asd-ste.
 - Generic work needs no approval (owner, 2026-10-16 02:11). Only a change that the owner can see, hear or play needs the approval of the owner (owner, 2026-10-16 19:25). Decide the other changes and continue.
 - If the Mac does not answer, try again for 5 minutes. Report the Mac offline only after 5 minutes.
 - From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict). (Orchestrator decision 23:36)
@@ -122,7 +107,7 @@ Other team notes:
 - Builders commit on the box. Before an install, they sync the commits to the Mac repo with a git bundle (same hashes, no patches).
 
 Repositories:
-- The shared bare repository on the box is /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it (owner, 2026-10-16 02:09). Lanes push only their lane/<agent>-<topic> branch, never integration (rule 5).
+- The shared bare repository on the box is /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it (owner, 2026-10-16 02:09). Lanes push only their lane/<agent>-<topic> branch, never integration (rule 10).
 - Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote (owner, 2026-10-16 18:09). The GitHub origin of the Mac x0x37 repo stays, and nobody pushes to it.
 - Keep the JieLi files on the box and on the Mac. Do not commit them. Exception: branch refs-oscuro (ac10280, tip babd349) is a reference (owner, 2026-10-16 17:44 and 17:45).
 - refs-oscuro holds the Oscuro reference firmware (refs/oscuro/) and the JieLi libraries and AC79 SDK headers (refs/jieli/). It is not for distribution. Never merge, package or push refs-oscuro (owner, 2026-10-16 18:09). The full SDK and the toolchain stay out of git.
@@ -130,12 +115,12 @@ Repositories:
 
 ## Current project context
 
-- Mac: Mac-mini.local, /Users/mac/Documents/x0x37. The main source tree is x0x37 (branch smk37). The smk37 docs/ folder holds copies of agent-rules.md, USER_PREFERENCES.md, ROADMAP.md and this file. Box smk37 and Mac smk37 stay identical (git bundle sync).
+- Mac: Mac-mini.local, /Users/mac/Documents/x0x37. The main source tree is x0x37 (branch smk37). The smk37 docs/ folder holds copies of agent-rules.md, rules/, USER_PREFERENCES.md, ROADMAP.md and this file. Box smk37 and Mac smk37 stay identical (git bundle sync).
 - Keyboard:
   - The keyboard runs integration 9a733fe (batch 1). Firmware Main Builder installed it at 22:25 (ledger b1, b913735).
   - The fwsc CRC32 is 3a738997. The ctl.img read-back is eb742dd2. Slots 1 and 2 did not change. DIAG shows READY.
   - The gate gave PASS at 22:29 (tree 1d3c048d, 93 ok, 0 FAIL, 0 skip). The gate Elite fwsc CRC32 3a738997 is the same as the installed file.
-  - The install at 22:25 came before the gate PASS. This is a rule 7 break. Cause: Merge Integrator called a manual test run a gate PASS, and Firmware Main Builder accepted it without a check of index.md. We made no new rule.
+  - The install at 22:25 came before the gate PASS. This is a rule 6 break. Cause: Merge Integrator called a manual test run a gate PASS, and Firmware Main Builder accepted it without a check of index.md. We made no new rule.
   - The owner tests batch 1 only after the gate PASS (this is now true). If the owner test fails, Firmware Main Builder installs 14fb352 (a74) again. Device test: PENDING (checklist-batch1).
 - Bluetooth branches:
   - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). It stays at 94285b5.
@@ -147,7 +132,7 @@ Repositories:
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only. See the repository rules.
 - main_fm1.c, plat_fm1.c (plat_midi_out) and BEHAVIOR.md BLE-09 can change in the Bluetooth/JieLi lane and in the clip mode lane. Merge them carefully.
-- Files to keep: agent-rules.md, USER_PREFERENCES.md, ROADMAP.md, x0x37-progress-log.md, merge-monitor-log.md, x0x37/BEHAVIOR.md and BLE_ATTEMPTS.md (the Bluetooth ledger in the Bluetooth branch). Do not delete slot_backups/.
+- Files to keep: agent-rules.md, rules/, USER_PREFERENCES.md, ROADMAP.md, x0x37-progress-log.md, merge-monitor-log.md, x0x37/BEHAVIOR.md and BLE_ATTEMPTS.md (the Bluetooth ledger in the Bluetooth branch). Do not delete slot_backups/.
 
 ## How to make the setup again
 1. Make the agents above with the exact names and the purposes in the list. Do not make Release Packager and Test Plan Writer (they retire).
@@ -156,7 +141,7 @@ Repositories:
 4. Tell all agents to read this file and the project folder.
 
 ## Change log
-Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rules-v1-2026-10-16.md on the Mac).
+Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rules-v1-2026-10-16.md on the Mac). Entries from 2026-10-16 22:25 until 2026-10-17 00:00 use version 2 numbers. Each version 3 rule gives its version 2 number in brackets.
 - 2026-10-16 01:35: We made this file. It had the agent IDs, the worktrees and the never-do items. It also had the room limit (6 agents), rules 23 to 25 and the install rules.
 - 2026-10-16 02:08 to 02:29: We added box-first work, a box folder for each agent, the git bundle sync, the shared box repository and auto-approval. We also added the Mac offline retry (5 min), the commit hash in each install notice and short posts.
 - 2026-10-16 02:43 to 02:45: We added rule 26 (delegation), rule 27 and the lanes table. Merge Integrator owns merge-monitor-log.md.
@@ -195,3 +180,4 @@ Rule numbers in entries before 2026-10-16 22:25 are version 1 numbers (agent-rul
 - 2026-10-16 23:33: Owner OK 23:32: Merge Integrator does the release packaging (a hash with a gate PASS and a device PASS). Docs Keeper writes the owner test checklists. Release Packager and Test Plan Writer retire after Docs Keeper logs the batch-1 checklist answers. Their status is "retire after batch-1 checklist answers are logged".
 - 2026-10-16 23:36: Orchestrator decision 23:36: name a batch by its number and its gated hash only. Installed = batch 1 (9a733fe). Batch 2 (e8232e7) has a gate PASS. Batch 3 is open on integration.
 - 2026-10-16 23:39: Orchestrator decision 23:36: From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict).
+- 2026-10-17 00:01: Agent rules version 3 (owner approved, Orchestrator 00:00). rules/core.md has rules 1, 2 and 4 and an index. The 8 other rule files have the names shared-work, install, device-bug, commit, integration, docs, owner-messages and style. agent-rules.md points to rules/core.md. Merges M1 to M4 and split S2 are in. The coordination rules section is now a pointer, and the rule numbers in the docs have the version 3 numbers.

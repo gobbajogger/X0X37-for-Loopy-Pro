@@ -1,4 +1,4 @@
-x0x37 team: do not run the gh-pages step (agent rule 12).
+x0x37 team: do not run the gh-pages step (agent rule 1).
 
 # Building X0X
 

@@ -45,7 +45,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
   - The keyboard runs integration 9a733fe (batch 1). Firmware Main Builder installed it at 22:25 (ledger b1, b913735).
   - The fwsc CRC32 is 3a738997. The ctl.img read-back is eb742dd2. Slots 1 and 2 did not change. DIAG shows READY.
   - The gate gave PASS at 22:29 (tree 1d3c048d, 93 ok, 0 FAIL, 0 skip). The gate Elite fwsc CRC32 3a738997 is the same as the installed file.
-  - The install at 22:25 came before the gate PASS. This is a rule 7 break. Cause: Merge Integrator called a manual test run a gate PASS, and Firmware Main Builder accepted it without a check of index.md. We made no new rule.
+  - The install at 22:25 came before the gate PASS. This is a rule 6 break. Cause: Merge Integrator called a manual test run a gate PASS, and Firmware Main Builder accepted it without a check of index.md. We made no new rule.
   - The owner tests batch 1 only after the gate PASS (this is now true). If the owner test fails, Firmware Main Builder installs 14fb352 (a74) again.
   - Device test: PENDING (checklist-batch1). Tag last-good-hw stays 94285b5.
 - a74 (14fb352, branch ble-a74):
@@ -87,7 +87,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
    - Open: CLP-50 FAIL. X0X PLAY does not start or stop Loopy Pro (a73, owner test 20:37-20:39). Also test the a73 pads, overdub and tempo with Loopy Pro.
    - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The fix is in 9a733fe (a76). Firmware Main Builder installed it at 22:25. Device test: pending.
    - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix is in 9a733fe (a76). Firmware Main Builder installed it at 22:25. Device test: pending.
-   - Required before a colour fix (agent rule 11): the owner records a playing blue clip and a playing violet clip from Loopy with INLOG on. The builder makes a host replay test from that log.
+   - Required before a colour fix (agent rule 8): the owner records a playing blue clip and a playing violet clip from Loopy with INLOG on. The builder makes a host replay test from that log.
    - Open: owner test of batch 1 (9a733fe, checklist-batch1). If it fails, Firmware Main Builder installs 14fb352 again.
    - Open: the owner did not test the a74 clock source and PLAY note items yet.
    - Open: BLE-16 (All Notes Off when the Bluetooth link ends) is not in the code.
@@ -96,7 +96,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 5. Clip colours: the LCD colours are the plain Akai colours as RGB565, from the Akai CSV (CLP-05, on integration). The plan puts pad colour calibration (CLP-79) in batch 3.
 6. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
 7. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
-8. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks.
+8. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks. The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development (owner, 2026-10-17 00:01).
 9. Lane files: Firmware Main Builder and Second Builder agree on the split of the lane files after the batch 1 owner test.
 
 ## Open decisions
@@ -109,4 +109,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 23:36.
+Last update: 2026-10-17 00:01.
