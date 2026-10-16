@@ -3,7 +3,8 @@
 """SMK-37 clip mode: calculate the pad LED and LCD colour for each APC40 mkII velocity.
 
 The script reads APC40_RGB[128] from firmware/src/app/main_fm1.c and applies the
-same integer arithmetic as the firmware:
+same integer arithmetic as the firmware. For the LCD, velocities 0x30-0x33 use LCD_SRC
+(the owner-approved LCD colours) in place of APC40_RGB:
 
   pads (smk_pads):        led = palette * brightness / 510, brightness 255 (steady,
                           also the on phase of a queued blink) or 0 (blink off phase).
@@ -50,6 +51,12 @@ YMIN = 0.25         # luminance target for a full colour (t = 255)
 # Hue fix: entries and the extra OKLCH hue nudge (degrees) for each strength.
 HUE_FIX = (0x32, 0x33)
 HUE_NUDGE = {"none": None, "mild": 0.0, "strong": -5.0}
+# LCD source colours for the violet group (velocities 0x30-0x33). These are the APC40_RGB
+# values before 1632c05 (a71, CLP-13), which changed this group for the pads only.
+# The owner approved the LCD colours that come from these values (docs/USER_PREFERENCES.md,
+# line 64: 0x32 = 0x325D, 0x33 = 0x3A17). Thus the LCD table uses them, and the pads use
+# APC40_RGB from main_fm1.c.
+LCD_SRC = {0x30: 0x874CFF, 0x31: 0x5400FF, 0x32: 0x190064, 0x33: 0x0F0030}
 
 # Velocities seen in Loopy Pro captures (APC40_IMPLEMENTATION.md 1.3-apc40, 1.5-apc40, follow-up 2).
 SEEN = {
@@ -272,8 +279,9 @@ def fix_hue(v, rgb, strength):
 
 def rows(strength="strong"):
     pal, floor = palette()
-    for v, rgb in enumerate(pal):
-        led = pad_led(rgb)
+    for v, pad_rgb in enumerate(pal):
+        led = pad_led(pad_rgb)
+        rgb = LCD_SRC.get(v, pad_rgb)                   # LCD source colour (see LCD_SRC)
         h0 = lch(*split(rgb))[2]
         cur8, cur565 = lcd_cur(rgb, floor)
         prev8, prev565 = lcd_prev(rgb, floor)
@@ -281,7 +289,7 @@ def rows(strength="strong"):
         alt = {k: lcd_new(rgb, floor, fix_hue(v, rgb, k))[1] for k in HUE_NUDGE if k != "none"}
         ht = fix_hue(v, rgb, strength)
         new8, new565 = lcd_new(rgb, floor, ht)
-        yield dict(v=v, pal=rgb, led=led, grb=(led[1], led[0], led[2]), floor=floor,
+        yield dict(v=v, pal=pad_rgb, lcd_pal=rgb, led=led, grb=(led[1], led[0], led[2]), floor=floor,
                    cur8=cur8, cur565=cur565, prev8=prev8, prev565=prev565,
                    new8=new8, new565=new565, chg=bool(v) and new565 != cur565,
                    base565=base565, alt565=alt, fixed=v in HUE_FIX and ht is not None,
@@ -358,7 +366,7 @@ def hue_fix_section(data):
         q = of565(c)
         L, C, h = lch(*q)
         tgt = target(d["cur8"])
-        extra = (f' &middot; vs scaled {(h - scaled_hue(d["pal"]) + 180) % 360 - 180:+.1f}&deg;'
+        extra = (f' &middot; vs scaled {(h - scaled_hue(d["lcd_pal"]) + 180) % 360 - 180:+.1f}&deg;'
                  if show_fix else "")
         return (f'<td><span class="big"><span style="background:{hx(q)}"></span></span>{hx(q)}'
                 f'<br><small>0x{c:04X} &middot; Y {lum(*q):.3f} (target {tgt:.3f})<br>'
@@ -369,13 +377,13 @@ def hue_fix_section(data):
     for v in refs:
         d = by[v]
         fx = v in HUE_FIX
-        pL, pC, ph = lch(*split(d["pal"]))
+        pL, pC, ph = lch(*split(d["lcd_pal"]))
         alt = [sw(d, d["alt565"][k], fx) if fx else '<td><small>no change</small></td>'
                for k in ("mild", "strong")]
         trs.append(f'<tr class="{"hl" if fx else ""}"><td>0x{v:02X}<br><small>{v}'
                    f'{"<br>" + html.escape(CAND.get(v, "")) if v in CAND else ""}</small></td>'
-                   f'<td><span class="big"><span style="background:#{d["pal"]:06X}"></span></span>#{d["pal"]:06X}'
-                   f'<br><small>OKLCH {pL:.3f} {pC:.3f} {ph:.1f}&deg;<br>scaled hue {scaled_hue(d["pal"]):.1f}&deg;</small></td>'
+                   f'<td><span class="big"><span style="background:#{d["lcd_pal"]:06X}"></span></span>#{d["lcd_pal"]:06X}'
+                   f'<br><small>OKLCH {pL:.3f} {pC:.3f} {ph:.1f}&deg;<br>scaled hue {scaled_hue(d["lcd_pal"]):.1f}&deg;</small></td>'
                    + sw(d, d["cur565"], fx) + sw(d, d["base565"], fx) + "".join(alt) + "</tr>")
 
     def strip(key):
