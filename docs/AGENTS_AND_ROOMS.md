@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 19:10 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 19:13 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -121,7 +121,7 @@ All room IDs are TO CONFIRM: the owner recreates the rooms. A room can have a ma
 
 ## Coordination rules
 
-Agent rules: agent-rules.md (28 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
+Agent rules: agent-rules.md (31 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
 
 Work and posts:
 - Rule 23: if you change intended behavior, update BEHAVIOR.md in the same task.
@@ -130,6 +130,9 @@ Work and posts:
 - Rule 26: if you are blocked or a task can run in parallel, post a delegation request in the correct room. Use @Name for the owner. Give the task, the inputs (commit, branch or file), the done criteria and the deadline, in two sentences or fewer. The owner acknowledges, works in its own box folder /workspace/x0x37-<agent>, and replies with the result and the commit hash. Do not do the same work as the owner at the same time.
 - Rule 27: each task has one owner (lanes table). Do not work outside your lane. Give each task to the lightest agent that can do it. If you have no result, blocker or decision, do not post.
 - Rule 28: docs and logs hold only information that matters for development: behavior, decisions, rules, the attempt results that matter, open items, and how to build, install and test. Do not write chatter, repeated status, process narration or acknowledgements.
+- Rule 29: before an install notice, the gate must report PASS for that exact commit hash.
+- Rule 30: keep a tag last-good-hw on the newest build that passed a device test. After 2 failed device tests in a row, bisect from last-good-hw.
+- Rule 31: tests read the shared reference files in /workspace/x0x37-refs/schwung.
 - Post only results, blockers and decisions, in two sentences or fewer.
 - Docs, logs and commits follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). The caveman skill applies to every chat post and room post. If they conflict, asd-ste wins.
 - Generic work is approved automatically (user, 2026-10-16 02:11). Notify the user first before anything that changes how the device works or feels. Changes outside clip mode need the explicit approval of the user.
@@ -137,6 +140,7 @@ Work and posts:
 
 Build and install:
 - Build, test and analyze on the box copy. Use the Mac only for installs and device access.
+- Box build paths: JieLi toolchain /home/box/.jieli/toolchain, AC79 SDK /home/box/fw-AC79_AIoT_SDK (agent rule 12).
 - All agents share one box. Each agent uses its own box folder, /workspace/x0x37-<agent-name>. Never use the folder of another agent. Each builder works only in its own worktree.
 - Commit early so the Merge Integrator has a base. Build and Test Runner checks every commit. Merge Integrator merges as soon as both sides have a commit.
 - Builders commit on the box, then sync the commits to the Mac repo with a git bundle before an install (same hashes, no patches).
@@ -175,3 +179,4 @@ Repositories:
 - 2026-10-16 18:47: live BLE lane is ble-a65.
 - 2026-10-16 18:52: new agent Optimizer.
 - 2026-10-16 19:02: rule 28 (docs hold only development information). File trimmed to rule 28.
+- 2026-10-16 19:13: rules 29 to 31 (gate PASS before an install notice, tag last-good-hw, shared schwung references). Box toolchain and SDK paths.
