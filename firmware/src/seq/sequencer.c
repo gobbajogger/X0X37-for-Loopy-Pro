@@ -507,6 +507,28 @@ static void to_internal(seq_t *s)
             s->t[t].to_next = 0;
 }
 
+/* CLOCK SOURCE set to INTERNAL while X0X follows a clock: each part's next step comes when the clock
+ * would give it, so no step comes early or late (a clock that is gone: at once, as to_internal) */
+static void switch_internal(seq_t *s)
+{
+    int t;
+    uint32_t per = s->ext_period ? s->ext_period : seq_step_q8(s, RATE_16) / 6u;   /* one tick, Q8 */
+    uint32_t since = s->ext_since < (1u << 23) ? s->ext_since << 8 : NEVER;
+    for (t = 0; t < NTRACKS && s->playing; t++) {
+        seq_track_t *tr = &s->t[t];
+        int rate = part_rate(s, t), tps = TICKS_PER_STEP[rate];
+        uint32_t left;
+        if (tr->to_next != NEVER)
+            continue;
+        left = (tr->ext_ticks == 0xFFu ? 1u : (uint32_t)(tps - tr->ext_ticks)) * per;   /* to the next step */
+        if ((tr->started ? next_pos(s, t, tr->pos, 0) : 0) & 1)
+            left += swing_q8(s, rate, per * (uint32_t)tps);
+        tr->to_next = left > since ? left - since : 0;
+    }
+    s->ext = 0;
+    clock_lost(s);
+}
+
 static void rephase(seq_t *s)                         /* the next tick is tick 0 of the step that plays */
 {
     int t;
@@ -539,7 +561,7 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
     if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
         s->ext_pending = 0;
         if (s->ext)
-            to_internal(s);
+            switch_internal(s);
     } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
         s->ext = 1;
         s->ext_bpm = s->bpm;                          /* no stale tempo */
