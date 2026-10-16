@@ -45,6 +45,7 @@ enum { BLE_CMD_ADV_ENABLE = 1, BLE_CMD_ADV_PARAM, BLE_CMD_ADV_DATA, BLE_CMD_RSP_
 #define HCI_CFG_OWN_ADDRESS_TYPE 0
 #define IO_NO_INPUT_NO_OUTPUT 3
 #define SM_AUTHREQ_BONDING 0x01
+#define SM_AUTHREQ_MITM 0x04
 #define ATT_OP_NOTIFY 1                                            /* att_op_type_e */
 #define HCI_EVENT_PACKET 0x04
 #define EV_DISCONNECT 0x05
@@ -174,9 +175,11 @@ static void hx_events(u8 type, u16 ch, u8 *p, u16 size)
         if (p[2] == 2) hx_start();                                 /* HCI_STATE_WORKING (if it ever comes) */
         break;
     case EV_LE_META:
-        if (p[2] == 0x01 && p[3] == 0 && size >= 16) {             /* connection complete, success */
+        if ((p[2] == 0x01 && p[3] == 0 && size >= 16) ||           /* connection complete, success */
+            (p[2] == 0x0A && p[3] == 0 && size >= 28)) {           /* enhanced (+ 2 RPAs), as the SDK app */
+            u32 o = p[2] == 0x0A ? 26u : 14u;
             hx_conn = (u16)(p[4] | (p[5] << 8));
-            HX.interval = (u16)(p[14] | (p[15] << 8));     /* sub, status, handle, role, peer type, peer address, interval */
+            HX.interval = (u16)(p[o] | (p[o + 1] << 8));   /* sub, status, handle, role, peer type, peer address, [RPAs,] interval */
             HX.ccc = 0; HX.mtu = 23; HX.bonded = 0;
             HX.state = XB_LK_CONN;
             HX.links++;
@@ -264,7 +267,7 @@ void hx_init(void)
     sm_init();
     ctl_mark(0x313);
     sm_set_io_capabilities(IO_NO_INPUT_NO_OUTPUT);               /* Just Works */
-    sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
+    sm_set_authentication_requirements(SM_AUTHREQ_BONDING | SM_AUTHREQ_MITM); /* as the SDK app: NoIO keeps it Just Works */
     sm_set_encryption_key_size_range(7, 16);
     sm_set_request_security(0);                                  /* the central decides (iOS pairs when it wants) */
     sm_event_callback_set(hx_sm);
