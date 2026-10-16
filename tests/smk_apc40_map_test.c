@@ -454,8 +454,50 @@ static void test_loopy_history_packets(void)
     assert(SMK_APC40_UNDO_NOTE > 0x66u && SMK_APC40_REDO_NOTE > 0x66u);
 }
 
+/* Bug a67: the first blinks of a queued clip followed the Loopy 100 ms flash. Model of
+ * main_fm1.c smk_pads and smk_apc_led_brightness: with clock, half a beat on and half off
+ * (phase from the clock count); with no clock, 250 ms on and 250 ms off. Return the time
+ * between the first two dark-to-lit edges after the flash starts at 1000 ms. */
+static uint32_t first_pending_blink_period(uint32_t bpm)
+{
+    uint8_t vel[SMK_APC40_CLIP_COUNT] = {0}, ch[SMK_APC40_CLIP_COUNT] = {0};
+    uint8_t flags[SMK_APC40_CLIP_COUNT] = {0}, tick[SMK_APC40_CLIP_COUNT] = {0};
+    uint8_t prev = 1u, last16 = 0u, lit;
+    uint32_t ms, edge[2] = {0u, 0u}, edges = 0u;
+    smk_apc40_cell_event(vel, ch, flags, tick, 0x20u, 0u, 0x37u, 0u);   /* idle clip */
+    for (ms = 1u; ms < 4000u && edges < 2u; ms++) {
+        if (ms >= 1000u && ms < 3500u && (ms - 1000u) % 100u == 0u)    /* Loopy flash */
+            smk_apc40_cell_event(vel, ch, flags, tick, 0x20u, 0u,
+                                 ((ms - 1000u) / 100u) % 2u ? 0u : 0x39u, (uint8_t)(ms >> 4));
+        if ((uint8_t)(ms >> 4) != last16) {                            /* smk_apc_usb_tick */
+            last16 = (uint8_t)(ms >> 4);
+            smk_apc40_cells_age(vel, ch, flags, tick, last16);
+        }
+        lit = vel[0x20] != 0u;
+        if (lit && ((flags[0x20] & SMK_APC40_CELL_QUEUED) || smk_apc40_is_queued(ch[0x20])))
+            lit = bpm ? smk_apc40_beat_phase(ms * bpm * 24u / 60000u) < 128u : !((ms / 250u) & 1u);
+        if (ms >= 1000u && lit && !prev)
+            edge[edges++] = ms;
+        prev = lit;
+    }
+    assert(edges == 2u);
+    return edge[1] - edge[0];
+}
+
+static void test_first_pending_blink_has_beat_period(void)
+{
+    uint32_t p;
+    p = first_pending_blink_period(120u);
+    assert(p >= 498u && p <= 502u);             /* 120 BPM: 500 ms, not 200 ms */
+    p = first_pending_blink_period(90u);
+    assert(p >= 664u && p <= 669u);             /* 90 BPM: 667 ms */
+    p = first_pending_blink_period(0u);
+    assert(p == 500u);                          /* no clock: the 250/250 ms default */
+}
+
 int main(void)
 {
+    test_first_pending_blink_has_beat_period();
     test_loopy_history_packets();
     test_lcd_map_fits_used_area();
     test_loopy_refresh_keeps_last_colors();

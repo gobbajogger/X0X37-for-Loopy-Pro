@@ -114,10 +114,14 @@ static inline uint8_t smk_apc40_cell_event(volatile uint8_t velocity[SMK_APC40_C
     vel &= 0x7Fu;
     f = flags[note];
     if (!vel) {
+        /* An off less than SMK_APC40_TOGGLE_TICKS after an on can be the first flash of a
+         * queued clip. Keep the color: smk_apc40_cells_age clears it if no on follows. */
+        uint8_t hold = (uint8_t)(!(f & SMK_APC40_CELL_OFF) &&
+                                 (uint8_t)(now - tick[note]) < SMK_APC40_TOGGLE_TICKS);
         f |= SMK_APC40_CELL_OFF;
         flags[note] = f;
         tick[note] = now;
-        if (f & SMK_APC40_CELL_QUEUED)
+        if ((f & SMK_APC40_CELL_QUEUED) || hold)
             return 0u;                      /* flash off phase: keep the color */
         if (!velocity[note])
             return 0u;
@@ -155,7 +159,17 @@ static inline uint8_t smk_apc40_cells_age(volatile uint8_t velocity[SMK_APC40_CL
     uint8_t note, changed = 0u;
     for (note = 0u; note < SMK_APC40_CLIP_COUNT; note++) {
         uint8_t f = flags[note];
-        if (!(f & SMK_APC40_CELL_QUEUED) || (uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
+        if (!(f & SMK_APC40_CELL_QUEUED)) {
+            /* A held off (smk_apc40_cell_event) with no on after it: clear the cell now. */
+            if ((f & SMK_APC40_CELL_OFF) && velocity[note] &&
+                (uint8_t)(now - tick[note]) >= SMK_APC40_TOGGLE_TICKS) {
+                velocity[note] = 0u;
+                channel[note] = 0u;
+                changed = 1u;
+            }
+            continue;
+        }
+        if ((uint8_t)(now - tick[note]) < SMK_APC40_QUEUED_END_TICKS)
             continue;
         if (f & SMK_APC40_CELL_OFF) {
             velocity[note] = 0u;
