@@ -14,6 +14,12 @@
 #    b. <new> is a commit of a lane/dk-rules-* branch, and <old> is an ancestor of <new> (fast-forward).
 #    Push the lane/dk-rules-* branch first, then smk37 (the hook reads the lane tip that is in the repository now).
 #    A push to smk37 that does not change these paths is not checked. The skip option does not skip this part.
+# 1c. Branch names (check 9 of rules v4, commit.md rule 10): a NEW branch (old sha = 0) must be lane/<tag>-<topic> with the tag
+#    mb, sb, opt, btr or dk, or integration, smk37 or archive/<name>. Other new branches are rejected. A branch that is
+#    already in the repository (for example ble-a74 or test-speed) can still move or be deleted. Tags are not checked.
+# 1d. Integration owner (check 8 of rules v4, rule 10: only Merge Integrator moves integration): a push to
+#    refs/heads/integration (not a delete) needs the push option by=merge-integrator: git push -o by=merge-integrator ...
+#    The pre-receive hook saves the option. The skip option does not skip 1c or 1d.
 # 2. Quick check, only for refs/heads/integration (not a delete): the installed quickcheck.sh (strict STE when the
 #    pushed tree has tools/ste_strict) runs in a work clone, base = <old sha>. It must give "QUICK PASS".
 #    It holds the gate lock SHARED (flock -s, never exclusive). If a gate holds the lock for more than
@@ -93,11 +99,28 @@ if [ "$REF" = refs/heads/smk37 ] && [ "$NEW" != "$Z" ]; then
     fi
 fi
 
+# ---------- 1c. Branch names (new branches only) ----------
+if [ "$OLD" = "$Z" ] && [ "$NEW" != "$Z" ]; then
+    case "$REF" in
+    refs/heads/*)
+        BN=${REF#refs/heads/}
+        echo "$BN" | grep -qE '^(lane/(mb|sb|opt|btr|dk)-[A-Za-z0-9][A-Za-z0-9._/-]*|integration|smk37|archive/[A-Za-z0-9][A-Za-z0-9._/-]*)$' ||
+            reject "a new branch must be lane/<mb|sb|opt|btr|dk>-<topic>, integration, smk37 or archive/<name> (commit.md rule 10), not $BN"
+        ;;
+    esac
+fi
+
+# ---------- 1d. Integration owner ----------
+OPTF="$WD/pushopt.$PPID"
+if [ "$REF" = refs/heads/integration ] && [ "$NEW" != "$Z" ]; then
+    grep -qx 'by=merge-integrator' "$OPTF" 2>/dev/null ||
+        reject "only Merge Integrator moves integration (rule 10): push with git push -o by=merge-integrator, or push your lane branch"
+fi
+
 # ---------- 2. Quick check (integration only) ----------
 [ "$REF" = refs/heads/integration ] && [ "$NEW" != "$Z" ] || exit 0
-OPTF="$WD/pushopt.$PPID"
-if [ -f "$OPTF" ]; then
-    WHY=$(sed -n 's/^skip-quickcheck=//p' "$OPTF" | head -1); rm -f "$OPTF"
+if grep -q '^skip-quickcheck=' "$OPTF" 2>/dev/null; then
+    WHY=$(sed -n 's/^skip-quickcheck=//p' "$OPTF" | head -1)
     [ -n "$WHY" ] || reject "skip-quickcheck needs a reason: git push -o skip-quickcheck=\"<why>\""
     echo "$(date '+%F %T %z') server-update $REF ${OLD:0:7}..${NEW:0:7} skip: $WHY" >> "$SKIPLOG" || reject "cannot write the skip log $SKIPLOG"
     echo "update hook: quick check SKIPPED for ${NEW:0:7} (push option): $WHY (logged in $SKIPLOG)" >&2

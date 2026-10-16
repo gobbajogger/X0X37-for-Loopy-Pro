@@ -176,6 +176,7 @@ run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev a
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
 run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 27): each owner-rule entry of USER_PREFERENCES.md names a rule that covers it
 run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
+run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
 run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, strict STE, Trigger and Check lines
 run ste-owner-msg sh tests/host/test_ste_owner_msg.sh   # tools/ste_check.py --owner-msg (check 2): the length and the content of a message to the owner (rule 13)
 run gen-order sh tests/host/test_gen_order.sh   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
