@@ -154,6 +154,26 @@ static int taskq_count(struct ctl_task *t)
     return (int)((t->qhead - t->qtail) & (CTL_TASKQ_WORDS - 1));
 }
 
+__attribute__((used, section(".ctl_ram2.sw"))) volatile u32 ctl_sw_ring[16];
+__attribute__((used)) volatile u32 ctl_sw_n;
+/* attempt 56 DIAG: the controller hands each received ACL packet to the host as a message
+ * {type 0x400002, ptr, size}; ptr - 16 is the baseband DMA buffer (lbuf), which the host frees
+ * once (ll_hci_private_free_dma_rx). The a54 crash was a second free of such a buffer. Each ACL
+ * message is noted when posted (op 0) and when the host takes it (op 1) in ctl_sw_ring
+ * {ptr | op, the buffer's pool word}; a buffer whose pool word is not a pool in our RAM (the
+ * block is already free) stops the image: dbg STAGE 0x5600 | op, DELAYS = ptr, RA = pool word. */
+extern u8 __ctl_ram_lo[], __ctl_ram_hi[];
+__attribute__((noinline)) static void d_acl(int type, int ptr, u32 op)
+{
+    u32 p = (u32)ptr, pool, i;
+    if (type != 0x400002 || (p & 3u) || p < (u32)(uintptr_t)__ctl_ram_lo + 24u || p >= (u32)(uintptr_t)__ctl_ram_hi)
+        return;
+    pool = *(volatile u32 *)(uintptr_t)(p - 24u);
+    i = ctl_sw_n & 14u;
+    ctl_sw_ring[i] = p | op; ctl_sw_ring[i + 1u] = pool; ctl_sw_n += 2u;
+    if ((pool & 3u) || pool < (u32)(uintptr_t)__ctl_ram_lo || pool >= (u32)(uintptr_t)__ctl_ram_hi)
+        d_stop(0x5600u | op, p, pool);
+}
 int os_taskq_post_type(const char *name, int type, int argc, int *argv)
 {
     struct ctl_task *t = find(name);
@@ -169,6 +189,7 @@ int os_taskq_post_type(const char *name, int type, int argc, int *argv)
     for (int i = 0; i < argc; i++) t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argv[i];
     t->qhead &= (CTL_TASKQ_WORDS - 1);
     t->waiting = 0;
+    if (argc >= 1) d_acl(type, argv[0], 0u);
     if (t - tasks < 2) d_inc(&ctl_d_post[t - tasks]);
     ctl_port_irq_restore(f);
     return OS_NO_ERR;
@@ -188,6 +209,7 @@ int os_taskq_pend(const char *fmt, int *argv, int argc)
                 if (i < argc) argv[i] = v;
             }
             t->qtail &= (CTL_TASKQ_WORDS - 1);
+            if (argc >= 2) d_acl(argv[0], argv[1], 1u);
             ctl_port_irq_restore(f);
             if (t - tasks < 2) d_inc(&ctl_d_pend[t - tasks]);
             return OS_TASKQ;
@@ -258,10 +280,10 @@ __attribute__((noinline, section(".bt_stack_code.d51"))) static void d_check(str
         ctl_mb->dbg[XB_DBG_STALL] = 0x51000000u | (u32)i << 20 | (ctl_mb->polls & 0xFFFFFu);
     if (sp < lo || sp + 13 > hi) d_stop(0x5120u + (u32)i, (u32)(uintptr_t)sp, sp >= lo && sp < hi ? sp[0] : 0);
 }
-/* attempt 52 DIAG: the last 8 switches into a task, each {task << 28 | poll count, its saved sp};
- * tools/ble_autotest.py reads it (and idle_ctx, tasks, cur) by address from ctl.elf */
-__attribute__((used, section(".ctl_ram2.sw"))) volatile u32 ctl_sw_ring[16];
-__attribute__((used)) volatile u32 ctl_sw_n;
+/* attempt 56 DIAG (was the attempt 52 switch ring): the last 8 baseband DMA buffer allocs/frees
+ * (ctl_heap.c __wrap_hw_dma_alloc / __wrap_hw_dma_free), each {buffer | op, caller RA}:
+ * op bit 0 = alloc, bit 1 = a free of a block whose pool word is not a pool (double free: halted).
+ * tools/ble_autotest.py reads it by address from ctl.elf */
 int ctl_os_run_once(void)
 {
     int ran = 0;
@@ -277,9 +299,6 @@ int ctl_os_run_once(void)
         if (t->waiting) continue;
         t->wake_ms = 0;
         d_check(t, i);
-        ctl_sw_ring[ctl_sw_n & 14u] = (u32)i << 28 | (ctl_mb->polls & 0xFFFFFFFu);
-        ctl_sw_ring[(ctl_sw_n & 14u) + 1u] = (u32)(uintptr_t)t->ctx.sp;
-        ctl_sw_n += 2u;
         cur = t;
         ctl_port_ctx_switch(&idle_ctx, &t->ctx);
         cur = NULL;
