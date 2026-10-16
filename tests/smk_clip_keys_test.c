@@ -216,6 +216,48 @@ static uint32_t btn(uint32_t pg, uint32_t *prev, uint32_t cur, uint32_t now)
     *prev = cur;
     return ck_page_btn(pg, press, rel, cur, now, &t0, &tog);
 }
+/* CLP-62 (owner 2026-10-17 02:51): a tap turns the stage on and its page stays open; a tap again turns it off
+ * and closes the page. A tap on another stage: on, its page replaces the open one; off, the page closes. A hold
+ * works as before. FADER BANK closes the open page (the stage stays on). */
+static void test_page_latch(void)
+{
+    uint32_t pg = (uint32_t)CK_E_RATE << 4, prev = 0, on = 0;
+#define TAP(b, ms) do { pg = btn(pg, &prev, b, ms); pg = btn(pg, &prev, 0, (ms) + 100u); \
+                        if (tog) { on ^= tog; pg = ck_page_tap(pg, (uint32_t)__builtin_ctz(tog), on & tog ? 1u : 0u); } } while (0)
+    TAP(1u, 1000u);                                         /* SCALE on: its page stays after the release */
+    assert(on == 1u && (pg & 3u) == 1u && (pg & CK_P_PIN) && ck_page_vis(pg, 0) && pg >> 4 == CK_E_RATE);
+    TAP(1u, 2000u);                                         /* SCALE off: the page closes, no pin */
+    assert(on == 0u && !(pg & 3u) && !(pg & CK_P_PIN) && !ck_page_vis(pg, 5000));
+    TAP(4u, 3000u);                                         /* ARP on: open */
+    TAP(2u, 4000u);                                         /* CHORD on: its page replaces the ARP page */
+    assert(on == 6u && (pg & 3u) == 2u && (pg & CK_P_PIN));
+    TAP(4u, 5000u);                                         /* ARP off (another stage): the page closes */
+    assert(on == 2u && !(pg & 3u) && !(pg & CK_P_PIN));
+    TAP(2u, 6000u);                                         /* CHORD off (it was on, page closed): stays closed */
+    assert(on == 0u && !(pg & 3u));
+    TAP(1u, 7000u);                                         /* SCALE on, then FADER BANK: the page closes, SCALE stays on */
+    pg = btn(pg, &prev, 16, 7500);
+    pg = btn(pg, &prev, 0, 7600);
+    assert(on == 1u && !(pg & 3u) && !(pg & CK_P_PIN));
+    pg = btn(pg, &prev, 2, 8000);                           /* a hold: open while held, the release closes, no toggle */
+    assert(ck_page_vis(pg, CK_TAP_MS) && (pg & 3u) == 2u);
+    pg = btn(pg, &prev, 0, 8000 + CK_TAP_MS);
+    assert(!tog && !(pg & 3u));
+    TAP(4u, 9000u);                                         /* ARP on (latched), a hold of SCALE: the SCALE page, pinned */
+    pg = btn(pg, &prev, 1, 10000);
+    pg = btn(pg, &prev, 0, 10000 + CK_TAP_MS);
+    assert(!tog && (pg & 3u) == 1u && (pg & CK_P_PIN));
+#undef TAP
+    {                                                       /* ck_controls calls ck_page_tap after each toggle */
+        static char src[200000];
+        FILE *f = fopen("firmware/src/app/main_fm1.c", "rb");
+        size_t n = f ? fread(src, 1, sizeof src - 1, f) : 0;
+        if (f)
+            fclose(f);
+        src[n] = 0;
+        assert(strstr(src, "cp->on ^= (uint8_t)(1u << i);\n            cp->pg = (uint8_t)ck_page_tap(cp->pg, i, cp->on >> i & 1u);"));
+    }
+}
 static void test_page(void)
 {
     uint32_t pg = 0, prev = 0;
@@ -241,10 +283,12 @@ static void test_page(void)
     assert((pg & CK_P_PIN) && (pg & 3u) == 3u);
     pg = btn(pg, &prev, 0, 4600);
     assert(!tog && (pg & 3u) == 3u && ck_page_vis(pg, 4600 - t0));
-    /* pinned: a tap on SCALE toggles SCALE and shows its page, still pinned */
+    /* pinned: a tap on SCALE toggles SCALE (ck_controls then calls ck_page_tap: on, its page pinned) */
     pg = btn(pg, &prev, 1, 5000);
     pg = btn(pg, &prev, 0, 5100);
     assert(tog == 1u && (pg & 3u) == 1u && (pg & CK_P_PIN));
+    pg = ck_page_tap(pg, 0, 1);
+    assert((pg & 3u) == 1u && (pg & CK_P_PIN));
     pg = btn(pg, &prev, 16, 6000);
     assert(!(pg & 3u) && !(pg & CK_P_PIN) && pg >> 4 == CK_E_RATE);
     pg = btn(pg, &prev, 0, 6100);
@@ -361,6 +405,7 @@ int main(void)
     test_rhythm();
     test_zones();
     test_page();
+    test_page_latch();
     test_human();
     test_rpt();
     printf("smk_clip_keys_test: ok\n");
