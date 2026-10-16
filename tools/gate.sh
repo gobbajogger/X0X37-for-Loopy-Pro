@@ -1,11 +1,21 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
 # Pre-install gate for the SMK-37 Elite firmware (Linux x86-64 box only). It does not touch a device.
-#   tools/gate.sh <commit or ref> [--force] [--trial]
+#   tools/gate.sh <commit or ref> [--force "<reason>"] [--trial]
 # The commit must be on the integration branch of the box repository (X0X_INTEGRATION). Else the gate stops with
 # "FAIL <hash> not on integration (use --trial)". With --trial the gate runs any commit, but the result is a TRIAL:
-# it goes to <tree>.trial.md and to an index row marked TRIAL, the output line starts with TRIAL, and it never counts
-# as a release PASS. A trial run does not use a result again and does not write <tree>.md.
+# the result file and the index row are marked TRIAL, the output line starts with TRIAL, and it never counts
+# as a release PASS. A trial run never uses a result again and never writes <tree>.md.
+# Results: each run writes its own file $X0X_RESULTS/<tree>-<YYYYmmdd-HHMM>.md (TRIAL: <tree>.trial-<...>.md)
+# and its own index row. <tree>.md is the first PASS of the tree (the canonical result). The gate never replaces
+# a PASS <tree>.md. If a PASS <tree>.md exists, the gate uses it again (no lock, no build, one index row).
+# --force "<reason>" runs again; the reason is required and goes into the index row.
+# Preflight (before the clone, the builds and the lock): the gate finds the JieLi toolchain and the AC79 SDK
+# (X0X_TOOLCHAIN or JIELI_TOOLCHAIN, AC79_SDK; else ~/.jieli/toolchain and ~/fw-AC79_AIoT_SDK of $HOME, of the user's
+# home from getent, and of /home/box). It links them into the private HOME of the run. If one is missing, it writes
+# "VOID <hash> setup: ..." and exits with 2. A setup error is not a test result: no result file and no index row.
+# Work folder: X0X_GATE_WORK must not be under /tmp, because the Bluetooth build mounts a private /tmp over /tmp
+# and then cannot see the worktree. A work folder under /tmp is moved to ~/.cache/x0x37-gate of the user's real home.
 # The gate makes its own worktree of the commit, and then it does these steps:
 #   0. it checks that each reference folder is at its pinned commit (X0X_REF_PINS),
 #   1. the Elite build, the Pro build (build/x0x-smk37.fwsc, for the package tests), the FM-1 build and
@@ -24,13 +34,12 @@
 # On SIGTERM, SIGINT or SIGHUP the gate stops all its builds and tests (each runs in its own process group),
 # releases the lock, writes "KILLED <commit> <signal> (no result)", writes no result file and exits with 143, 130 or 129.
 # No child gets the lock file descriptor, so a child that stays alive cannot keep the lock.
-# It writes one result file per tree to $X0X_RESULTS/<tree>.md and adds a line to $X0X_RESULTS/index.md.
-# The tree is a SHA-1 of "git ls-tree -r" without the *.md files. If a result for that tree exists,
-# the gate uses it again and does not build (--force builds again).
-# Output: one line, "PASS <hash>" or "FAIL <hash> <reason>" ("TRIAL PASS" or "TRIAL FAIL" with --trial). Exit code 0 or 1. The full log is in the worktree folder.
+# The tree is a SHA-1 of "git ls-tree -r" without the *.md files.
+# Output: one line, "PASS <hash>" or "FAIL <hash> <reason>" ("TRIAL PASS" or "TRIAL FAIL" with --trial), or
+# "VOID <hash> setup: ..." (exit code 2). Exit code 0 or 1. The full log is in the worktree folder.
 # Environment (defaults in brackets):
 #   X0X_REPO [/workspace/x0x37.git]  X0X_RESULTS [/workspace/x0x37-results]  X0X_REFS [/workspace/x0x37-refs/schwung]
-#   X0X_GATE_WORK [~/.cache/x0x37-gate]  X0X_TEST_JOBS [8]  JIELI_TOOLCHAIN [~/.jieli/toolchain]  AC79_SDK [~/fw-AC79_AIoT_SDK]
+#   X0X_GATE_WORK [~/.cache/x0x37-gate, never under /tmp]  X0X_TEST_JOBS [8]  X0X_TOOLCHAIN or JIELI_TOOLCHAIN, AC79_SDK [see Preflight]
 #   X0X_PREPUSH_HOOK [/workspace/x0x37.git/hooks/pre-push]: the gate copies it into its .repo clone. A failed copy is a FAIL.
 #   X0X_GATE_SETUP_ONLY [0]: 1 = make the .repo clone (hook, push URLs), print "SETUP <commit> <path>" and stop (a test of this step).
 #   X0X_GATE_LOCK [/workspace/x0x37-refs/gate.lock]
@@ -40,22 +49,39 @@ GATE_DIR=$(cd "$(dirname "$0")" && pwd)
 REPO=${X0X_REPO:-/workspace/x0x37.git}
 RESULTS=${X0X_RESULTS:-/workspace/x0x37-results}
 REFS=${X0X_REFS:-/workspace/x0x37-refs/schwung}
-WORK=${X0X_GATE_WORK:-$HOME/.cache/x0x37-gate}
+WORK=${X0X_GATE_WORK:-${RHOME:-$HOME}/.cache/x0x37-gate}
 JOBS=${X0X_TEST_JOBS:-8}
-TC=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain}
-SDK=${AC79_SDK:-$HOME/fw-AC79_AIoT_SDK}
+RHOME=$(getent passwd "$(id -un)" | cut -d: -f6)       # the real home of the user (HOME can be a private folder)
+pick() {                # the first candidate that has the test file $1; else the first candidate (for the message)
+    local t=$1; shift; local c
+    for c in "$@"; do [ -n "$c" ] && [ -e "$c/$t" ] && { echo "$c"; return; }; done; echo "${1:-}"
+}
+TCF=pi32v2/bin/clang; SDKF=cpu/wl82/tools/uboot.boot          # the files that build.sh checks
+if [ -n "${X0X_TOOLCHAIN:-}${JIELI_TOOLCHAIN:-}" ]; then TC=${X0X_TOOLCHAIN:-$JIELI_TOOLCHAIN}
+else TC=$(pick $TCF "$HOME/.jieli/toolchain" "$RHOME/.jieli/toolchain" /home/box/.jieli/toolchain); fi
+if [ -n "${AC79_SDK:-}" ]; then SDK=$AC79_SDK
+else SDK=$(pick $SDKF "$HOME/fw-AC79_AIoT_SDK" "$RHOME/fw-AC79_AIoT_SDK" /home/box/fw-AC79_AIoT_SDK); fi
 SCALE=1                                 # the pre-install gate: real updater waits only
 export X0X_TEST_TIME_SCALE=$SCALE
 PREPUSH=${X0X_PREPUSH_HOOK:-/workspace/x0x37.git/hooks/pre-push}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
 INTB=${X0X_INTEGRATION:-integration}
-FORCE=0; TRIAL=0; ARG=""
-for a in "$@"; do
-    case "$a" in --force) FORCE=1 ;; --trial) TRIAL=1 ;; -*) echo "unknown option $a" >&2; exit 2 ;; *) ARG=$a ;; esac
+FORCE=0; TRIAL=0; ARG=""; FREASON=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+    --force) FORCE=1; FREASON=${2:-}; [ $# -ge 2 ] && shift
+             case "$FREASON" in ""|-*|[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) FREASON="" ;; esac
+             [ -n "$FREASON" ] || { echo "REFUSED: --force needs a reason: tools/gate.sh <commit> --force \"<reason>\"" >&2; exit 2; } ;;
+    --trial) TRIAL=1 ;;
+    -*) echo "unknown option $1" >&2; exit 2 ;;
+    *) ARG=$1 ;;
+    esac
+    shift
 done
 set -- "$ARG"
-[ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> [--force] [--trial]" >&2; exit 2; }
+[ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> [--force \"<reason>\"] [--trial]" >&2; exit 2; }
+FREASON=$(echo "$FREASON" | tr '|\n' '/ ' | cut -c1-120)
 
 H=$(git -C "$REPO" rev-parse --verify --quiet "$1^{commit}") || { echo "FAIL $1 unknown commit in $REPO"; exit 1; }
 S=${H:0:7}
@@ -110,18 +136,25 @@ open(p + ".tmp", "w").write("\n".join(out)); __import__("os").replace(p + ".tmp"
 PY
 fi
 chmod a+r "$INDEX"
-RF="$RESULTS/$TREE.md"
-if [ "$TRIAL" = 1 ]; then RF="$RESULTS/$TREE.trial.md"; FORCE=1; fi   # a trial never uses a result again
-
-if [ "$FORCE" = 0 ] && [ -f "$RF" ]; then
-    R=$(sed -n 's/^Result: \([A-Z]*\).*/\1/p' "$RF" | head -1)
-    WHY=$(sed -n 's/^Reason: //p' "$RF" | head -1)
-    echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $R (result used again) | $TREE.md | $NOW |" >> "$INDEX"
-    printf '\nThe gate used this result again for commit %s at %s. The tree is the same.\n' "$H" "$NOW" >> "$RF"
-    OSC=$(sed -n 's/^- Time scale (X0X_TEST_TIME_SCALE): \([0-9]*\).*/\1/p' "$RF" | head -1)
-    if [ "$R" = PASS ]; then echo "PASS $S (time scale ${OSC:-1}) (result used again: tree ${TREE:0:12} has a result)"; exit 0; fi
-    echo "FAIL $S (time scale ${OSC:-1}) ${WHY:-see $RF} (result used again: tree ${TREE:0:12})"; exit 1
+CANON="$RESULTS/$TREE.md"                # the first PASS of the tree; the gate never replaces a PASS here
+CANON_R=""; [ -f "$CANON" ] && CANON_R=$(sed -n 's/^Result: \([A-Z]*\).*/\1/p' "$CANON" | head -1)
+STAMP=$(date '+%Y%m%d-%H%M')
+RF="$RESULTS/$TREE-$STAMP.md"; [ "$TRIAL" = 1 ] && RF="$RESULTS/$TREE.trial-$STAMP.md"
+[ -e "$RF" ] && RF="${RF%.md}-$$.md"      # two runs in one minute
+if [ "$FORCE" = 0 ] && [ "$TRIAL" = 0 ] && [ "$CANON_R" = PASS ]; then
+    echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | PASS (result used again) | $TREE.md | $NOW |" >> "$INDEX"
+    OSC=$(sed -n 's/^- Time scale (X0X_TEST_TIME_SCALE): \([0-9]*\).*/\1/p' "$CANON" | head -1)
+    echo "PASS $S (time scale ${OSC:-1}) (result used again: tree ${TREE:0:12} has a PASS)"; exit 0
 fi
+
+# Preflight: the toolchain and the SDK. A setup error is not a test result: no result file, no index row.
+[ -x "$TC/$TCF" ] || { echo "VOID $S setup: no toolchain at $TC (no $TCF)"; exit 2; }
+[ -f "$SDK/$SDKF" ] || { echo "VOID $S setup: no AC79 SDK at $SDK (no $SDKF)"; exit 2; }
+case "$(realpath -m "$WORK")/" in
+/tmp/*) NW="${RHOME:-/home/box}/.cache/x0x37-gate"
+        echo "gate: the work folder $WORK is under /tmp (the Bluetooth build cannot see it); the gate uses $NW" >&2
+        WORK=$NW ;;
+esac
 
 mkdir -p "$WORK"
 [ -d "$WORK/.repo" ] || git clone -q --no-checkout "$REPO" "$WORK/.repo" || { echo "FAIL $S git clone of $REPO failed"; exit 1; }
@@ -160,6 +193,7 @@ fail() { [ -n "$REASON" ] || REASON="$1"; echo "gate: FAIL $1" >> "$LOG"; }
 cd "$W" || exit 1
 PH="$L/home"; PT="$L/tmp"; mkdir -p "$PH" "$PT"
 export HOME="$PH" TMPDIR="$PT"          # a private HOME and TMPDIR for all builds and tests of this run
+mkdir -p "$PH/.jieli"; ln -sfn "$TC" "$PH/.jieli/toolchain"; ln -sfn "$SDK" "$PH/fw-AC79_AIoT_SDK"   # the real toolchain and SDK
 for d in "$REFS"/schwung-*; do [ -d "$d" ] || fail "no reference sources in $REFS"; done
 PINLOG=""
 for p in $PINS; do                      # each reference folder must be at its pinned commit
@@ -353,7 +387,11 @@ cat "$L/crc.txt" 2>/dev/null
 echo '```'
 } > "$TMPF"
 mv "$TMPF" "$RF"; chmod a+r "$RF"
-echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $TP$R | $(basename "$RF") | $NOW |" >> "$INDEX"
+CANON_TXT=""
+if [ "$TRIAL" = 0 ] && [ "$R" = PASS ] && [ "$CANON_R" != PASS ]; then   # the first PASS of the tree is the canonical result
+    cp "$RF" "$CANON.tmp.$$" && chmod a+r "$CANON.tmp.$$" && mv -f "$CANON.tmp.$$" "$CANON" && CANON_TXT=" (also $TREE.md)"
+fi
+echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $TP$R${FREASON:+ (force: $FREASON)} | $(basename "$RF")$CANON_TXT | $NOW |" >> "$INDEX"
 cp "$RF" "$L/result.md"
 if [ "$R" = PASS ]; then echo "${TP}PASS $S (time scale $SCALE)"; exit 0; fi
 echo "${TP}FAIL $S (time scale $SCALE) $REASON"; exit 1
