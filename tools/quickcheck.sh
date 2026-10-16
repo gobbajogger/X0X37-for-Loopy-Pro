@@ -20,7 +20,21 @@
 # semicolon, modal, passive, contraction, no_verb. The default is warn only: "STE WARN <n> issues" and the
 # first lines come before the QUICK line, and the exit code does not change. Strict mode: the file
 # tools/ste_strict in the tree, or X0X_STE_STRICT=1. In strict mode, an issue makes "QUICK FAIL ... STE: ...".
-# X0X_QUICK_ONLY=ste: only the STE step (no build, no tests).
+# X0X_QUICK_ONLY=ste: only the STE step and the rules step (no build, no tests).
+# Rules step (checks 27 and 28b of rules v4, owner 02:37: rules = code):
+#   Docs lint: a commit that changes docs/ or USER_PREFERENCES.md, in a tree with docs/USER_PREFERENCES.md and docs/rules/,
+#   runs tools/prefs_lint.py (the copy beside this script). A "PREFS FAIL" makes "QUICK FAIL ... RULES: ...".
+#   Rules mode: the changes touch docs/rules/, docs/agent-rules.md, docs/USER_PREFERENCES.md or USER_PREFERENCES.md, or <commit> is the tip of
+#   a lane/dk-rules-* branch. In rules mode the STE step is strict, the docs lint runs, and each commit in BASE..<commit>
+#   that changes these paths must have two body lines:
+#     "Trigger: <when the rule applies>"   (2 words or more, the "Read when" or "Step" of the rule)
+#     "Check: <script>"                     a path in the tree (tools/quickcheck.sh), a file name in tools/ of the tree
+#                                           (require_gate_pass.sh), status.sh or x0x37_gate.sh (the live scripts),
+#                                           or "Check: manual: <reason>" when no script can check the rule.
+#   More "Check:" lines are allowed. Each one must be valid. A missing line or a bad value makes "QUICK FAIL ... RULES: ...".
+#   A missing prefs_lint.py in rules mode or with a docs change is a failure (fail closed).
+# Base for a commit on a docs lane: the merge base with X0X_DOCS_BRANCH [smk37] when it is newer than the merge base
+# with integration (a commit on X0X_DOCS_BRANCH itself: <commit>^).
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 set -u
 T0=$(date +%s%N)
@@ -28,6 +42,7 @@ QCDIR=$(cd "$(dirname "$0")" && pwd)
 REPO=${X0X_REPO:-/workspace/x0x37.git}
 QW=${X0X_QC_WORK:-$HOME/.cache/x0x37-quickcheck}
 INT=${X0X_INTEGRATION:-integration}
+DOCB=${X0X_DOCS_BRANCH:-smk37}
 TC=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain}
 SDK=${AC79_SDK:-$HOME/fw-AC79_AIoT_SDK}
 REFS=${X0X_REFS:-/workspace/x0x37-refs/schwung}
@@ -41,6 +56,8 @@ if [ -d "$1" ]; then                                    # a worktree folder, as 
     W=$(cd "$1" && pwd); G=(git -C "$W")
     H=$("${G[@]}" rev-parse HEAD) || { H=$1; out FAIL "not a git worktree"; }
     IREF=$("${G[@]}" for-each-ref --format='%(refname)' "refs/remotes/*/$INT" | head -1)
+    DREF=$("${G[@]}" for-each-ref --format='%(refname)' "refs/remotes/*/$DOCB" | head -1)
+    RLANE=$("${G[@]}" for-each-ref --points-at HEAD --format='%(refname)' 'refs/heads/lane/dk-rules-*' 'refs/remotes/*/lane/dk-rules-*' | head -1)
 else                                                    # a commit: its own worktree in $QW/wt
     exec 9>"$QW/.lock"; flock -n 9 || { echo "quickcheck: waiting for $QW/.lock (another quickcheck)" >&2; flock 9; }
     [ -d "$QW/.repo" ] || git clone -q --no-checkout "$REPO" "$QW/.repo" || out FAIL "git clone of $REPO failed"
@@ -57,14 +74,25 @@ else                                                    # a commit: its own work
     if [ -d "$W" ]; then git -C "$W" checkout -q -f --detach "$H" || out FAIL "checkout failed"
     else git -C "$QW/.repo" worktree prune; git -C "$QW/.repo" worktree add -q --detach "$W" "$H" || out FAIL "worktree failed"; fi
     G=(git -C "$W"); IREF="refs/remotes/origin/$INT"
+    DREF=$("${G[@]}" rev-parse -q --verify "refs/remotes/origin/$DOCB" >/dev/null && echo "refs/remotes/origin/$DOCB")
+    RLANE=$("${G[@]}" for-each-ref --points-at "$H" --format='%(refname)' 'refs/remotes/origin/lane/dk-rules-*' | head -1)
 fi
 L="$W/build/qc"; mkdir -p "$L" "$L/home" "$L/tmp"; LOG="$L/qc.log"; : > "$LOG"
 if [ -n "${X0X_QC_BASE:-}" ]; then BASE=$("${G[@]}" rev-parse "$X0X_QC_BASE")
 elif [ -n "$IREF" ] && "${G[@]}" merge-base --is-ancestor "$H" "$IREF" 2>/dev/null; then BASE=$("${G[@]}" rev-parse "$H^")
+elif [ -n "$DREF" ] && "${G[@]}" merge-base --is-ancestor "$H" "$DREF" 2>/dev/null; then BASE=$("${G[@]}" rev-parse "$H^")
 elif [ -n "$IREF" ]; then BASE=$("${G[@]}" merge-base "$H" "$IREF")
+    if [ -n "$DREF" ] && MD=$("${G[@]}" merge-base "$H" "$DREF" 2>/dev/null) && [ "$MD" != "$BASE" ] &&
+       "${G[@]}" merge-base --is-ancestor "$BASE" "$MD" 2>/dev/null; then BASE=$MD; fi   # a docs lane: the newer base
 else BASE=$("${G[@]}" rev-parse "$H^"); fi
 CHANGED=$( { "${G[@]}" diff --name-only "$BASE" "$H"; [ -d "$1" ] && "${G[@]}" diff --name-only HEAD; } | sort -u)
 echo "quickcheck ${H:0:7}, base ${BASE:0:7}, changed: $(echo $CHANGED)" >> "$LOG"
+RULES_MODE=0; DOCS_CH=0
+for f in $CHANGED; do
+    case "$f" in docs/rules/*|docs/agent-rules.md|docs/USER_PREFERENCES.md|USER_PREFERENCES.md) RULES_MODE=1; DOCS_CH=1 ;; docs/*) DOCS_CH=1 ;; esac
+done
+[ -n "${RLANE:-}" ] && RULES_MODE=1
+[ "$RULES_MODE" = 1 ] && echo "rules mode (${RLANE:-rule files changed})" >> "$LOG"
 cd "$W" || out FAIL "no worktree"
 export JIELI_TOOLCHAIN="$TC" AC79_SDK="$SDK" HOME="$L/home" TMPDIR="$L/tmp"
 export NINEW9_DIR="$REFS/schwung-9W9" EIGHTW8_DIR="$REFS/schwung-8W8" SCHWUNG303="$REFS/schwung-303"
@@ -74,7 +102,7 @@ export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c" X0X_TEST_JOBS=8 X0X_TEST_
 ste_step() {
     STE_FAIL=0; STE_NOTE=""
     local d n strict=0 st="$QCDIR/ste_check.py" c f md=""
-    { [ -f "$W/tools/ste_strict" ] || [ "${X0X_STE_STRICT:-0}" = 1 ]; } && strict=1
+    { [ -f "$W/tools/ste_strict" ] || [ "${X0X_STE_STRICT:-0}" = 1 ] || [ "$RULES_MODE" = 1 ]; } && strict=1
     if [ ! -f "$st" ]; then                             # strict mode fails closed: no check is a failure
         echo "STE: no $st, STE step skipped" >> "$LOG"
         [ $strict = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: no $st (run tools/install_gate.sh)"; }
@@ -114,8 +142,46 @@ print(n); print("\n".join(lines[:5]))')
     fi
     rm -rf "$d"
 }
+# Rules step (see the header). It sets RULES_FAIL (1 = a failure) and RULES_NOTE.
+rules_step() {
+    RULES_FAIL=0; RULES_NOTE=""
+    local pl="$QCDIR/prefs_lint.py" o msgs=""
+    if [ "$DOCS_CH" = 1 ] && [ -f "$W/docs/USER_PREFERENCES.md" ] && [ -d "$W/docs/rules" ]; then
+        if [ ! -f "$pl" ]; then msgs="no $pl (run tools/install_gate.sh)"
+        else
+            o=$(python3 "$pl" --rules "$W/docs/rules" "$W/docs/USER_PREFERENCES.md" 2>&1)
+            echo "$o" >> "$LOG"
+            case "$o" in "PREFS OK"*) ;; *) msgs="$(echo "$o" | head -1)"; echo "RULES $o" | head -6 ;; esac
+        fi
+    elif [ "$DOCS_CH" = 1 ]; then echo "rules: no docs/USER_PREFERENCES.md or docs/rules/ in the tree, no docs lint" >> "$LOG"
+    fi
+    if [ "$RULES_MODE" = 1 ]; then
+        o=$(for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" -- docs/rules docs/agent-rules.md USER_PREFERENCES.md docs/USER_PREFERENCES.md 2>/dev/null); do
+            QC_C=$c QC_TOOLS="$("${G[@]}" ls-tree --name-only "$H:tools" 2>/dev/null)" python3 -c '
+import os, re, subprocess, sys
+c = os.environ["QC_C"]; g = sys.argv[1:]
+body = subprocess.run(g + ["log", "-1", "--format=%b", c], capture_output=True, text=True).stdout
+tools = set(os.environ["QC_TOOLS"].split()) | {"status.sh", "x0x37_gate.sh"}
+bad = []
+if not re.search(r"^Trigger: *\S+ +\S+", body, re.M): bad.append("no line Trigger: <when the rule applies>")
+checks = re.findall(r"^Check: *(.*)$", body, re.M)
+if not checks: bad.append("no line Check: <script>")
+for v in checks:
+    v = v.strip(); w = v.split()[0].rstrip(".,") if v.split() else ""
+    if re.match(r"manual: *\S+", v): continue
+    ok = w in tools or subprocess.run(g + ["cat-file", "-e", "HEAD:" + w], capture_output=True).returncode == 0 if w else False
+    if not ok: bad.append("Check: %s is not a script of the tree, status.sh, x0x37_gate.sh or manual: <reason>" % v[:60])
+for b in bad: print("commit %s: %s" % (c[:7], b))
+' "${G[@]}"; done)
+        if [ -n "$o" ]; then echo "$o" >> "$LOG"; echo "$o" | head -5 | sed 's/^/RULES  /'; msgs="${msgs:+$msgs, }$(echo "$o" | wc -l | tr -d ' ') commit body issues"; fi
+    fi
+    if [ -n "$msgs" ]; then RULES_FAIL=1; RULES_NOTE="RULES: $msgs"; fi
+    return 0
+}
 if [ "${X0X_QUICK_ONLY:-}" = ste ]; then
-    ste_step; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"; out PASS "(STE step only${STE_NOTE})"
+    ste_step; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
+    rules_step; [ "$RULES_FAIL" = 1 ] && out FAIL "$RULES_NOTE"
+    out PASS "(STE step only${STE_NOTE})"
 fi
 
 # 1. the Elite build (incremental), with its build checks
@@ -183,5 +249,6 @@ cat "$L/tests.log" >> "$LOG"
 NF=$(grep -c '^  FAIL' "$L/tests.log"); NOK=$(grep -c '^  ok ' "$L/tests.log")
 MISS=""; for n in $SEL; do grep -qE "^  (ok|FAIL) +$n( |\$)" "$L/tests.log" || MISS="$MISS $n"; done
 WT=""; ste_step; WT="$STE_NOTE"; [ "$STE_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
+rules_step; [ "$RULES_FAIL" = 1 ] && [ "$NF" = 0 ] && [ "$TRC" = 0 ] && out FAIL "$RULES_NOTE"
 [ "$NF" = 0 ] && [ "$TRC" = 0 ] || out FAIL "tests: $NF failed ($(grep '^  FAIL' "$L/tests.log" | awk '{print $2}' | tr '\n' ' ' | sed 's/ $//'))$WT"
 out PASS "($NOK tests ok${MISS:+; not run:$MISS}$WT)"

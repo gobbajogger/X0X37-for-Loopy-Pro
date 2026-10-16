@@ -152,6 +152,9 @@ run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh
 run prepush-trim sh tests/host/test_prepush_trim.sh   # tools/prepush-check.sh: the box update hook runs the quick check, so the client does not
 run gate-configs sh tests/host/test_gate_configs.sh   # tools/gate.sh: the dev and rel configs, the caller build variables removed
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
+run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 27): each owner-rule entry of USER_PREFERENCES.md names a rule that covers it
+run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
+run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, strict STE, Trigger and Check lines
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
 # the update path, against the firmware package (Felucca's tests; needs ./build.sh)

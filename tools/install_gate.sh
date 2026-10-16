@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
-# Install the gate (tools/gate.sh as x0x37_gate.sh, tools/gate_flashmap.py, tools/prepush-check.sh, tools/quickcheck.sh and tools/ste_check.py) into the shared gate folder.
+# Install the gate (tools/gate.sh as x0x37_gate.sh, tools/gate_flashmap.py, tools/prepush-check.sh, tools/quickcheck.sh, tools/ste_check.py and tools/prefs_lint.py) into the shared gate folder.
 #   tools/install_gate.sh
 # The install starts only when the gate lock is free (flock -n) AND no x0x37_gate.sh process runs (pgrep).
 # It holds the lock during the install. Each file goes to a temp file in the same folder, gets mode 555 and
@@ -14,7 +14,7 @@ SRC=$(cd "$(dirname "$0")" && pwd)
 DEST=${X0X_GATE_DEST:-/workspace/x0x37-refs/gate}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 MAX=${X0X_INSTALL_WAIT:-1800}
-for f in gate.sh gate_flashmap.py prepush-check.sh quickcheck.sh ste_check.py; do [ -f "$SRC/$f" ] || { echo "install_gate: NOT INSTALLED: no $SRC/$f"; exit 1; }; done
+for f in gate.sh gate_flashmap.py prepush-check.sh quickcheck.sh ste_check.py prefs_lint.py; do [ -f "$SRC/$f" ] || { echo "install_gate: NOT INSTALLED: no $SRC/$f"; exit 1; }; done
 bash -n "$SRC/gate.sh" || { echo "install_gate: NOT INSTALLED: syntax error in $SRC/gate.sh"; exit 1; }
 [ -d "$DEST" ] || { echo "install_gate: NOT INSTALLED: no folder $DEST"; exit 1; }
 exec 9>>"$GLOCK" || { echo "install_gate: NOT INSTALLED: cannot open $GLOCK"; exit 1; }
@@ -37,7 +37,7 @@ done
 P0=$(stat -c %a "$DEST")
 chmod u+w "$DEST" || { echo "install_gate: NOT INSTALLED: cannot write $DEST"; exit 1; }
 ok=1
-for p in "gate.sh x0x37_gate.sh" "gate_flashmap.py gate_flashmap.py" "prepush-check.sh prepush-check.sh" "quickcheck.sh quickcheck.sh" "ste_check.py ste_check.py"; do
+for p in "gate.sh x0x37_gate.sh" "gate_flashmap.py gate_flashmap.py" "prepush-check.sh prepush-check.sh" "quickcheck.sh quickcheck.sh" "ste_check.py ste_check.py" "prefs_lint.py prefs_lint.py"; do
     set -- $p
     t="$DEST/.$2.new.$$"
     cp "$SRC/$1" "$t" && chmod 555 "$t" && mv -f "$t" "$DEST/$2" && cmp -s "$SRC/$1" "$DEST/$2" || { ok=0; rm -f "$t"; }
@@ -45,4 +45,4 @@ done
 chmod "$P0" "$DEST"
 flock -u 9; exec 9>&-
 [ "$ok" = 1 ] || { echo "install_gate: FAILED: a file did not install (see $DEST)"; exit 1; }
-echo "install_gate: INSTALLED $(sha256sum "$DEST/x0x37_gate.sh" | cut -c1-12) x0x37_gate.sh, $(sha256sum "$DEST/gate_flashmap.py" | cut -c1-12) gate_flashmap.py, $(sha256sum "$DEST/prepush-check.sh" | cut -c1-12) prepush-check.sh, $(sha256sum "$DEST/quickcheck.sh" | cut -c1-12) quickcheck.sh, $(sha256sum "$DEST/ste_check.py" | cut -c1-12) ste_check.py in $DEST (folder mode $P0, waited $(( $(date +%s) - T0 )) s)"
+echo "install_gate: INSTALLED $(sha256sum "$DEST/x0x37_gate.sh" | cut -c1-12) x0x37_gate.sh, $(sha256sum "$DEST/gate_flashmap.py" | cut -c1-12) gate_flashmap.py, $(sha256sum "$DEST/prepush-check.sh" | cut -c1-12) prepush-check.sh, $(sha256sum "$DEST/quickcheck.sh" | cut -c1-12) quickcheck.sh, $(sha256sum "$DEST/ste_check.py" | cut -c1-12) ste_check.py, $(sha256sum "$DEST/prefs_lint.py" | cut -c1-12) prefs_lint.py in $DEST (folder mode $P0, waited $(( $(date +%s) - T0 )) s)"
