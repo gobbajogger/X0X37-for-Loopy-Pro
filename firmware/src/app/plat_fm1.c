@@ -9,7 +9,10 @@ uint32_t plat_buttons(void)
     uint32_t raw = fm1_in.buttons, out = 0, i;
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
+    extern uint8_t smk_padcal_on(void);
     uint8_t clip_mode = smk_clip_mode_on();
+    if (smk_padcal_on())
+        return 0u;   /* the pad calibration has the buttons (main_fm1.c, CLP-79) */
 #endif
     for (i = 0; i < NB; i++)
         if (raw & (1u << panel.btn[i])) {
@@ -34,8 +37,9 @@ int32_t plat_enc(int role)
         return 0;
 #if BOARD_SMK37
     extern uint8_t smk_ck_knobs_owned(void);
-    if (smk_ck_knobs_owned())
-        return 0;   /* clip mode: knobs 2-8 send CCs (main_fm1.c ck_controls); knob 1 stays MASTER */
+    extern uint8_t smk_padcal_on(void);
+    if (smk_ck_knobs_owned() || smk_padcal_on())
+        return 0;   /* clip mode: knobs 2-8 send CCs (main_fm1.c ck_controls); knob 1 stays MASTER. Pad calibration: K2-K4 */
 #endif
     return fm1_enc_take(panel.enc[role]) * panel.dir[role];
 }
