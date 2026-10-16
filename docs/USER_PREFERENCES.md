@@ -112,6 +112,7 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - 2026-10-17 01:15 (owner, through Orchestrator): The screen shows each idle clip square at half of the full shade of its colour group.
 - 2026-10-17 01:17 and 01:19 (owner, through Orchestrator): Make the idle clip pads slightly brighter. The owner selected the level at 01:19 (2 x the old level).
 - 2026-10-17 01:32 (owner, through Orchestrator): Empty slots become brighter too, because Loopy sends the same shade for them (LIM-03).
+- 2026-10-17 01:42 and 01:43 (owner, through Orchestrator): This is for the PAD COLOURS page (CLP-79), which is only in dev builds. The LCD square of the selected entry shows brighter, so that the hue of a dark entry is easier to see. The LCD shows the gain below the entry number (for example "BOOST X8"). SEQ REC shows the real level ("REAL LEVEL"), and SEQ REC again shows the gain. The LCD also shows a colour name for the selected entry, for example "#47 BLUE DARK". The pads, the stored values and the export do not change.
 - 2026-10-17 01:46 (owner, through Orchestrator): When the Mac sleeps or the USB cable is out, the clip pads go dark. Loopy on the Mac (USB) and Loopy on the iPhone (Bluetooth) run at the same time. Thus the end of the USB link clears only the pads that USB set.
 
 ## Clip mode keybed, arp, chord and scale (decided 2026-10-16)
@@ -149,4 +150,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 01:56.
+Last update: 2026-10-17 01:58.
