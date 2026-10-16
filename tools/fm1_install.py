@@ -33,8 +33,9 @@ loader / no restart), 6 wrong model, or another identity after the install,
 9 refused by the gate guard (no install was started).
 
 Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
-tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE [--ctl FILE]. The install starts only if
-the gate script gave PASS for the exact tree of HASH and the files are the files that the gate built.
+tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE --config dev|rel [--ctl FILE]. The install starts
+only if the gate script gave PASS for the exact tree of HASH and the files are the files that the gate built
+for that config. --config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
 --commit (or X0X_INSTALL_COMMIT) is necessary. --info and the mocked device of the tests do not use it.
 
 Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
@@ -774,7 +775,7 @@ def gate_guard(a):
         print("REFUSED: give --commit HASH (the gate guard needs the commit of the package)", file=sys.stderr)
         return 9
     guard = Path(__file__).resolve().parent / "require_gate_pass.sh"
-    cmd = ["bash", str(guard), commit, "--fwsc", a.package] + (["--ctl", a.ctl] if a.ctl else [])
+    cmd = ["bash", str(guard), commit, "--fwsc", a.package, "--config", a.config] + (["--ctl", a.ctl] if a.ctl else [])
     try:
         r = subprocess.run(cmd, capture_output=True, text=True)
     except OSError as e:
@@ -796,6 +797,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
     ap.add_argument("--commit", metavar="HASH", help="the commit of the package: the gate guard needs its gate PASS")
+    ap.add_argument("--config", choices=("dev", "rel"), default="dev",
+                    help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
     a = ap.parse_args(argv)
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")

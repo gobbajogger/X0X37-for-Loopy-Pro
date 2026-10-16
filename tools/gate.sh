@@ -19,13 +19,21 @@
 # The gate makes its own worktree of the commit, and then it does these steps:
 #   0. it checks that each reference folder is at its pinned commit (X0X_REF_PINS),
 #   1. the Elite build, the Pro build (build/x0x-smk37.fwsc, for the package tests), the FM-1 build and
-#      the Bluetooth image build (private /tmp),
-#   2. tests/run_tests.sh with AC79_SDK and the reference variables (parallel if the tree has X0X_TEST_JOBS).
+#      the Bluetooth image build (private /tmp). Two build configs, each in its own worktree, at the same time:
+#      dev (X0X_DEV_PADCAL=1, worktree <commit>) and rel (X0X_DEV_PADCAL=0, the release build, worktree <commit>.rel).
+#      The gate sets the build flags itself: it removes X0X_DEV_* and the other build variables of the caller
+#      (see BUILD_VARS), so the caller's environment never changes a build. The rel worktree gets the dev ctl.img.
+#   2. tests/run_tests.sh with AC79_SDK and the reference variables (parallel if the tree has X0X_TEST_JOBS),
+#      for the two configs at the same time (each with its own private HOME and TMPDIR).
 #      The gate compares the tests that ran with the list of tests in the script. A missing test is a failure.
 #   3. the flash-map check (tools/gate_flashmap.py, with the owner tag), the budget checks for the three builds,
 #      the X0X_RAM_CANARY default (it must be 0) and a CRC manifest.
 #      The CRC manifest has a line for build/x0x-smk37-elite-ble.fwsc (tools/add_ctl.py: the Elite package and the
 #      gate's ctl.img), the BLE Elite package that is installed. If the gate cannot make it, the result is FAIL.
+#      Steps 2 and 3 apply to the two configs. The result is PASS only if the two configs pass. The CRC manifest has
+#      the dev lines (build/...) and the rel lines (rel/build/...). The result file has the line
+#      "- Config CRCs: dev elite <crc>, ble <crc>; rel elite <crc>, ble <crc>", and the index row has it in the
+#      last column (Configs). tools/require_gate_pass.sh --config dev|rel uses it.
 # The builds and the tests use a private HOME and TMPDIR for each run (<worktree>.logs/home and tmp).
 # The gate always uses X0X_TEST_TIME_SCALE=1 (the real waits of the updater in install-slots-web), also if the
 # caller sets another value. The PASS or FAIL line and the result file give the time scale.
@@ -67,6 +75,13 @@ if [ -n "${AC79_SDK:-}" ]; then SDK=$AC79_SDK
 else SDK=$(pick $SDKF "$HOME/fw-AC79_AIoT_SDK" "$RHOME/fw-AC79_AIoT_SDK" /home/box/fw-AC79_AIoT_SDK); fi
 SCALE=1                                 # the pre-install gate: real updater waits only
 export X0X_TEST_TIME_SCALE=$SCALE
+# The build variables of the caller never go to a build: the gate sets X0X_DEV_PADCAL for each config itself.
+BUILD_VARS="X0X_CDC X0X_DEBUG X0X_BREAK_BANK X0X_RAM_CANARY X0X_SMK_LCD_BAUD X0X_FONTSET X0X_FONT_DIRS FELUCCA_DATA_FAMILY FELUCCA_DATA_UNTAGGED_OK BOARD MODEL JIELI_DOCKER JIELI_DOCKER_IMAGE"
+UNSET_TXT=""
+for v in $(compgen -e | grep -E '^X0X_DEV_') $BUILD_VARS; do
+    [ -n "${!v+x}" ] && UNSET_TXT="$UNSET_TXT $v=${!v}"
+    unset "$v"
+done
 PREPUSH=${X0X_PREPUSH_HOOK:-/workspace/x0x37.git/hooks/pre-push}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
@@ -121,8 +136,8 @@ GTREE=$(git -C "$REPO" rev-parse "$H^{tree}")
 NOW=$(date '+%Y-%m-%d %H:%M %Z')
 mkdir -p "$RESULTS" && chmod a+rx "$RESULTS"
 INDEX="$RESULTS/index.md"
-INDEX_NOTE='Each line gives the commit, the tree, the git tree, the result and the time. The key is the tree: the SHA-1 of "git ls-tree -r --full-tree" without the *.md files. The git tree is "git rev-parse <commit>^{tree}". Older rows (before the Git tree column) have no git tree. In some older rows, the Tree column has the git ^{tree} and the text "(git ^{tree})".'
-[ -f "$INDEX" ] || printf '# x0x37 gate results: index\n\n%s\n\n| Commit | Tree | Git tree | Result | Result file | Time |\n|---|---|---|---|---|---|\n' "$INDEX_NOTE" > "$INDEX"
+INDEX_NOTE='Each line gives the commit, the tree, the git tree, the result and the time. The key is the tree: the SHA-1 of "git ls-tree -r --full-tree" without the *.md files. The git tree is "git rev-parse <commit>^{tree}". Older rows (before the Git tree column) have no git tree. In some older rows, the Tree column has the git ^{tree} and the text "(git ^{tree})". The Configs column (newer rows) gives the CRCs, the code free and the pool headroom of the dev (X0X_DEV_PADCAL=1) and the rel (X0X_DEV_PADCAL=0) Elite builds.'
+[ -f "$INDEX" ] || printf '# x0x37 gate results: index\n\n%s\n\n| Commit | Tree | Git tree | Result | Result file | Time | Configs |\n|---|---|---|---|---|---|---|\n' "$INDEX_NOTE" > "$INDEX"
 if ! grep -q '| Git tree |' "$INDEX"; then      # an index from an older gate: add the Git tree column to the header
     python3 - "$INDEX" "$INDEX_NOTE" <<'PY' || { echo "FAIL $1 cannot update $INDEX"; exit 1; }
 import sys
@@ -139,16 +154,27 @@ for ln in open(p).read().split("\n"):
 open(p + ".tmp", "w").write("\n".join(out)); __import__("os").replace(p + ".tmp", p)
 PY
 fi
+if ! grep -q '| Configs |' "$INDEX"; then     # add the Configs column to the header (older rows have no Configs cell)
+    sed -i -e 's/^| Commit | Tree | Git tree | Result | Result file | Time |$/| Commit | Tree | Git tree | Result | Result file | Time | Configs |/' \
+        -e 's/^|---|---|---|---|---|---|$/|---|---|---|---|---|---|---|/' "$INDEX" || { echo "FAIL $S cannot update $INDEX"; exit 1; }
+fi
 chmod a+r "$INDEX"
 CANON="$RESULTS/$TREE.md"                # the first PASS of the tree; the gate never replaces a PASS here
 CANON_R=""; [ -f "$CANON" ] && CANON_R=$(sed -n 's/^Result: \([A-Z]*\).*/\1/p' "$CANON" | head -1)
 STAMP=$(date '+%Y%m%d-%H%M')
 RF="$RESULTS/$TREE-$STAMP.md"; [ "$TRIAL" = 1 ] && RF="$RESULTS/$TREE.trial-$STAMP.md"
 [ -e "$RF" ] && RF="${RF%.md}-$$.md"      # two runs in one minute
-if [ "$FORCE" = 0 ] && [ "$TRIAL" = 0 ] && [ "$CANON_R" = PASS ]; then
-    echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | PASS (result used again) | $TREE.md | $NOW |" >> "$INDEX"
-    OSC=$(sed -n 's/^- Time scale (X0X_TEST_TIME_SCALE): \([0-9]*\).*/\1/p' "$CANON" | head -1)
-    echo "PASS $S (time scale ${OSC:-1}) (result used again: tree ${TREE:0:12} has a PASS)"; exit 0
+# A result is used again only if it is a PASS of the two configs (it has the "- Config CRCs:" line).
+# An older PASS (one config, dev only) does not count: the gate runs again (the canonical <tree>.md stays).
+REUSE=""
+for f in "$CANON" $(ls -t "$RESULTS/$TREE"-[0-9]*.md 2>/dev/null); do
+    [ -f "$f" ] && grep -qx 'Result: PASS' "$f" && grep -q '^- Config CRCs: ' "$f" && { REUSE=$f; break; }
+done
+if [ "$FORCE" = 0 ] && [ "$TRIAL" = 0 ] && [ -n "$REUSE" ]; then
+    CFG=$(sed -n 's/^- Config CRCs: //p' "$REUSE" | head -1)
+    echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | PASS (result used again) | $(basename "$REUSE") | $NOW | $CFG |" >> "$INDEX"
+    OSC=$(sed -n 's/^- Time scale (X0X_TEST_TIME_SCALE): \([0-9]*\).*/\1/p' "$REUSE" | head -1)
+    echo "PASS $S (time scale ${OSC:-1}) (result used again: tree ${TREE:0:12} has a PASS of the two configs)"; exit 0
 fi
 
 # Preflight: the toolchain and the SDK. A setup error is not a test result: no result file, no index row.
@@ -182,12 +208,12 @@ W="$WORK/$S"
 LOCK="$WORK/.lock-$S"
 mkdir "$LOCK" 2>/dev/null || { echo "FAIL $S another gate run uses $W"; exit 1; }
 trap 'rmdir "$LOCK" 2>/dev/null' EXIT
-if [ -d "$W" ]; then
-    git -C "$W" checkout -q --detach "$H" && git -C "$W" reset -q --hard "$H"
-else
-    git -C "$WORK/.repo" worktree prune
-    git -C "$WORK/.repo" worktree add -q --detach "$W" "$H"
-fi
+WR="$W.rel"                              # the worktree of the rel config (X0X_DEV_PADCAL=0)
+git -C "$WORK/.repo" worktree prune
+for w in "$W" "$WR"; do
+    if [ -d "$w" ]; then git -C "$w" checkout -q --detach "$H" && git -C "$w" reset -q --hard "$H"
+    else git -C "$WORK/.repo" worktree add -q --detach "$w" "$H"; fi || { echo "FAIL $S cannot make the worktree $w"; exit 1; }
+done
 L="$WORK/$S.logs"; rm -rf "$L"; mkdir -p "$L"
 LOG="$L/gate.log"
 T0=$(date +%s)
@@ -197,7 +223,9 @@ fail() { [ -n "$REASON" ] || REASON="$1"; echo "gate: FAIL $1" >> "$LOG"; }
 cd "$W" || exit 1
 PH="$L/home"; PT="$L/tmp"; mkdir -p "$PH" "$PT"
 export HOME="$PH" TMPDIR="$PT"          # a private HOME and TMPDIR for all builds and tests of this run
-mkdir -p "$PH/.jieli"; ln -sfn "$TC" "$PH/.jieli/toolchain"; ln -sfn "$SDK" "$PH/fw-AC79_AIoT_SDK"   # the real toolchain and SDK
+PHR="$L/home-rel"; PTR="$L/tmp-rel"; mkdir -p "$PHR" "$PTR"   # the private HOME and TMPDIR of the rel config
+for h in "$PH" "$PHR"; do mkdir -p "$h/.jieli"; ln -sfn "$TC" "$h/.jieli/toolchain"; ln -sfn "$SDK" "$h/fw-AC79_AIoT_SDK"; done   # the real toolchain and SDK
+[ -n "$UNSET_TXT" ] && echo "gate: removed the build variables of the caller:$UNSET_TXT" >> "$LOG"
 for d in "$REFS"/schwung-*; do [ -d "$d" ] || fail "no reference sources in $REFS"; done
 PINLOG=""
 for p in $PINS; do                      # each reference folder must be at its pinned commit
@@ -219,12 +247,30 @@ export NINEW9_DIR="$REFS/schwung-9W9" EIGHTW8_DIR="$REFS/schwung-8W8" SCHWUNG303
 export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c"
 
 # 1. builds
-MODEL=elite child ./build.sh --board smk37 > "$L/build-elite.log" 2>&1 9>&- || fail "Elite build: $(grep -m1 -iE 'error|fail' "$L/build-elite.log")"
-child ./build.sh --board smk37 > "$L/build-pro.log" 2>&1 9>&- || fail "Pro build: $(grep -m1 -iE 'error|fail' "$L/build-pro.log")"
-child ./build.sh > "$L/build-fm1.log" 2>&1 9>&- || fail "FM-1 build: $(grep -m1 -iE 'error|fail' "$L/build-fm1.log")"
+# build_config <worktree> <home> <tmp> <flag> <log suffix>: the Elite, Pro and FM-1 builds of one config.
+# The exit code of each build goes to $L/build-<b><suffix>.rc.
+build_config() {
+    cd "$1" || return 1
+    export HOME="$2" TMPDIR="$3" X0X_DEV_PADCAL="$4"
+    MODEL=elite ./build.sh --board smk37 > "$L/build-elite$5.log" 2>&1; echo $? > "$L/build-elite$5.rc"
+    ./build.sh --board smk37 > "$L/build-pro$5.log" 2>&1; echo $? > "$L/build-pro$5.rc"
+    ./build.sh > "$L/build-fm1$5.log" 2>&1; echo $? > "$L/build-fm1$5.rc"
+}
+export -f build_config; export L
+B0=$(date +%s)
+child bash -c 'build_config "$1" "$2" "$3" 1 "" & build_config "$4" "$5" "$6" 0 -rel & wait' _ "$W" "$PH" "$PT" "$WR" "$PHR" "$PTR" 9>&-
+echo "gate: builds of the two configs took $(( $(date +%s) - B0 )) s" >> "$LOG"
+for c in "dev:" "rel:-rel"; do
+    cn=${c%%:*}; sx=${c#*:}
+    for b in "elite:Elite" "pro:Pro" "fm1:FM-1"; do
+        f="$L/build-${b%%:*}$sx.log"
+        [ "$(cat "$L/build-${b%%:*}$sx.rc" 2>/dev/null)" = 0 ] || fail "${b#*:} build ($cn): $(grep -m1 -iE 'error|fail' "$f")"
+    done
+done
 PCT="$L/ctl-tmp"; mkdir -p "$PCT"
 child unshare -rm sh -c "mount --bind '$PCT' /tmp && env HOME='$PH' JIELI_TOOLCHAIN='$TC' SDK_LOCAL='$SDK' CTL_NATIVE=1 sh ble/ctl/build_ctl.sh" \
     > "$L/build-ctl.log" 2>&1 || fail "ctl build: $(grep -m1 -iE 'error|fail|undefined' "$L/build-ctl.log")"
+mkdir -p "$WR/ble/ctl/out" && cp -a "$W/ble/ctl/out/." "$WR/ble/ctl/out/" || fail "cannot copy ctl.img into the rel worktree"
 
 # 2. tests
 MODE="X0X_TEST_JOBS=$JOBS"
@@ -233,7 +279,7 @@ grep -q X0X_TEST_JOBS tests/run_tests.sh || MODE="serial: this tree has no paral
 [ -e "$GLOCK" ] || { ( umask 000; : >> "$GLOCK" ) && chmod a+rw "$GLOCK"; } 2>/dev/null
 LW0=$(date +%s)
 if ! exec 9>>"$GLOCK"; then
-    fail "cannot open the gate lock $GLOCK"; TRC=1; LOCK_TXT="not taken (cannot open $GLOCK)"
+    fail "cannot open the gate lock $GLOCK"; TRC=1; TRCR=1; LOCK_TXT="not taken (cannot open $GLOCK)"
 else
     if ! flock -n 9; then
         echo "gate $S: waiting for gate lock $GLOCK" >&2
@@ -244,20 +290,34 @@ else
     fi
     LW1=$(date +%s)
     echo "gate: took the gate lock after $((LW1 - LW0)) s" >> "$LOG"
-    X0X_GATE_HOLDS_LOCK=1 X0X_TEST_JOBS="$JOBS" child sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?   # the tests do not take the shared lock
+    # the two configs at the same time; the tests do not take the shared lock (X0X_GATE_HOLDS_LOCK=1)
+    X0X_GATE_HOLDS_LOCK=1 X0X_TEST_JOBS="$JOBS" child bash -c '
+        (cd "$1" && HOME="$2" TMPDIR="$3" X0X_DEV_PADCAL=1 sh tests/run_tests.sh > "$L/tests.log" 2>&1; echo $? > "$L/tests.rc") &
+        (cd "$4" && HOME="$5" TMPDIR="$6" X0X_DEV_PADCAL=0 sh tests/run_tests.sh > "$L/tests-rel.log" 2>&1; echo $? > "$L/tests-rel.rc") &
+        wait' _ "$W" "$PH" "$PT" "$WR" "$PHR" "$PTR" 9>&-
+    TRC=$(cat "$L/tests.rc" 2>/dev/null || echo 1); TRCR=$(cat "$L/tests-rel.rc" 2>/dev/null || echo 1)
     flock -u 9; exec 9>&-
     LW2=$(date +%s)
     echo "gate: released the gate lock; the tests took $((LW2 - LW1)) s" >> "$LOG"
     LOCK_TXT="$GLOCK: waited $((LW1 - LW0)) s, held $((LW2 - LW1)) s"
 fi
-OK=$(grep -c '^  ok ' "$L/tests.log"); NF=$(grep -c '^  FAIL' "$L/tests.log"); NS=$(grep -c '^  skip' "$L/tests.log")
-[ "$TRC" = 0 ] || fail "tests: $NF failed ($(grep -m1 '^  FAIL' "$L/tests.log" | sed 's/^  FAIL //'))"
-[ "$NS" = 0 ] || fail "tests: $NS skipped"
-BLE=$(tail -n1 build/host/ble.log 2>/dev/null)
-CK=$(tail -n1 build/host/smk-clip-keys.log 2>/dev/null)
-SCEN=$(grep -c '^  ok   scenario-' "$L/tests.log")
-# The tests that the script knows. A test that does not run (and does not write a "skip" line) is a failure.
-python3 - "$L/tests.log" "$L/tests-expected.txt" <<'PY' > "$L/tests-missing.txt"
+# check_tests <worktree> <tests log> <rc> <config name> <suffix>: the counts, the missing tests and the package tests of one config
+check_tests() {
+    local w=$1 tl=$2 rc=$3 cn=$4 sx=$5
+    local ok nf ns miss
+    ok=$(grep -c '^  ok ' "$tl"); nf=$(grep -c '^  FAIL' "$tl"); ns=$(grep -c '^  skip' "$tl")
+    [ "$rc" = 0 ] || fail "tests ($cn): $nf failed ($(grep -m1 '^  FAIL' "$tl" | sed 's/^  FAIL //'))"
+    [ "$ns" = 0 ] || fail "tests ($cn): $ns skipped"
+    (cd "$w" && expected_tests "$tl" "$L/tests-expected$sx.txt" "$L/tests-missing$sx.txt")
+    miss=$(cat "$L/tests-missing$sx.txt")
+    [ -z "$miss" ] || fail "tests ($cn) did not run: $miss"
+    for t in smk-build-package ble-package; do grep -q "^  ok   $t\$" "$tl" || fail "test $t ($cn) did not pass"; done
+    C_OK=$ok; C_NF=$nf; C_NS=$ns; C_NEXP=$(grep -c . "$L/tests-expected$sx.txt"); C_MISS=$miss   # no subshell: fail() must set REASON
+}
+# expected_tests <tests log> <expected file> <missing file>: the tests that the script knows (in the current folder)
+# A test that does not run (and does not write a "skip" line) is a failure.
+expected_tests() {
+python3 - "$1" "$2" <<'PY' > "$3"
 import glob, os, re, shutil, sys
 src = [l for l in open("tests/run_tests.sh").read().split("\n") if not l.lstrip().startswith("#")]
 names = set()
@@ -277,17 +337,19 @@ ran = set(re.findall(r"^  (?:ok|FAIL|skip) +(\S+)", open(sys.argv[1]).read(), re
 open(sys.argv[2], "w").write("\n".join(sorted(names)) + "\n")
 print(" ".join(sorted(names - ran)))
 PY
-NEXP=$(grep -c . "$L/tests-expected.txt")
-MISS=$(cat "$L/tests-missing.txt")
-[ -z "$MISS" ] || fail "tests did not run: $MISS"
-for t in smk-build-package ble-package; do grep -q "^  ok   $t\$" "$L/tests.log" || fail "test $t did not pass"; done
+}
+check_tests "$W" "$L/tests.log" "$TRC" dev ""; OK=$C_OK; NF=$C_NF; NS=$C_NS; NEXP=$C_NEXP; MISS=$C_MISS
+check_tests "$WR" "$L/tests-rel.log" "$TRCR" rel -rel; OKR=$C_OK; NFR=$C_NF; NSR=$C_NS; NEXPR=$C_NEXP; MISSR=$C_MISS
+BLE=$(tail -n1 build/host/ble.log 2>/dev/null)
+CK=$(tail -n1 build/host/smk-clip-keys.log 2>/dev/null)
+SCEN=$(grep -c '^  ok   scenario-' "$L/tests.log"); SCENR=$(grep -c '^  ok   scenario-' "$L/tests-rel.log")
 
 # 3. flash map, budgets, CRCs
 python3 "$GATE_DIR/gate_flashmap.py" firmware/hal/fm1_flash_map.h firmware/src/storage.c > "$L/flashmap.log" 2>&1 || fail "$(tail -n1 "$L/flashmap.log")"
 FM=$(tail -n1 "$L/flashmap.log")
 num() { grep -m1 -oE "$1" "$2" | grep -oE '[0-9]+' | sed -n "${3}p"; }
 SIZES=""
-for b in elite pro fm1; do      # code free, RAM free and pool headroom for each build: all must be in the limits
+for b in elite pro fm1 elite-rel pro-rel fm1-rel; do   # code free, RAM free and pool headroom for each build of the two configs
     f="$L/build-$b.log"
     cf=$(num 'app code area [0-9]+ B, [0-9]+ B free' "$f" 2)
     ru=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 1); rm=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 2)
@@ -296,9 +358,10 @@ for b in elite pro fm1; do      # code free, RAM free and pool headroom for each
     [ -n "$cf" ] && [ "$cf" -ge 0 ] || fail "$b build: app code over the limit (no 'B free' line)"
     [ -n "$ru" ] && [ -n "$rm" ] && [ "$rf" -ge 0 ] || fail "$b build: app RAM over the limit"
     [ -n "$pu" ] && [ "$ph" -ge 8192 ] || fail "$b build: pool headroom $ph B < 8192 B"
-    SIZES="$SIZES| $b | ${cf:-?} B | ${ru:-?} of ${rm:-?} B, $rf B free | ${pu:-?} of ${pm:-?} B, $ph B headroom |
+    SIZES="$SIZES| ${b/-rel/ rel} | ${cf:-?} B | ${ru:-?} of ${rm:-?} B, $rf B free | ${pu:-?} of ${pm:-?} B, $ph B headroom |
 "
-    [ "$b" = elite ] && { CODE_FREE=$cf; RAM_USED=$ru; RAM_MAX=$rm; POOL=$pu; POOL_MAX=$pm; }
+    [ "$b" = elite ] && { POOL_H=$ph; CODE_FREE=$cf; RAM_USED=$ru; RAM_MAX=$rm; POOL=$pu; POOL_MAX=$pm; }
+    [ "$b" = elite-rel ] && { CODE_FREE_R=$cf; POOL_H_R=$ph; }
 done
 # X0X_RAM_CANARY: the default in firmware/src/ble.c must be 0, and no build may set it.
 CANARY=$(sed -n 's/^#define X0X_RAM_CANARY \([0-9][0-9]*\).*/\1/p' firmware/src/ble.c 2>/dev/null | head -1)
@@ -317,13 +380,18 @@ CORE_FREE=$(( ${CORE_MAX:-0} - ${CORE_USED:-0} ))
 [ -n "$CTL_SIZE" ] && [ "$CTL_SIZE" -le 65536 ] || fail "ctl.img is not one piece of 65536 B or less"
 [ -n "$CORE_USED" ] && [ "$CORE_FREE" -ge 0 ] || fail "core RAM does not fit"
 # The BLE Elite package (the file that Firmware Main Builder installs): the Elite package with the gate's ctl.img added.
+# One for each config, in its own worktree.
 BLEPKG=build/x0x-smk37-elite-ble.fwsc
-rm -f "$BLEPKG"
-if [ ! -f tools/add_ctl.py ]; then fail "BLE Elite package: no tools/add_ctl.py"
-elif ! python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o "$BLEPKG" > "$L/ble-package.log" 2>&1 || [ ! -s "$BLEPKG" ]; then
-    fail "BLE Elite package: add_ctl.py failed ($(tail -n1 "$L/ble-package.log"))"
-fi
-python3 - "$L/crc.txt" <<'PY' || fail "CRC manifest"
+for c in "dev:$W:" "rel:$WR:-rel"; do
+    cn=${c%%:*}; cw=${c#*:}; cw=${cw%:*}; sx=${c##*:}
+    rm -f "$cw/$BLEPKG"
+    if [ ! -f "$cw/tools/add_ctl.py" ]; then fail "BLE Elite package ($cn): no tools/add_ctl.py"
+    elif ! (cd "$cw" && python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o "$BLEPKG") > "$L/ble-package$sx.log" 2>&1 || [ ! -s "$cw/$BLEPKG" ]; then
+        fail "BLE Elite package ($cn): add_ctl.py failed ($(tail -n1 "$L/ble-package$sx.log"))"
+    fi
+done
+# The CRC manifest: the dev lines (build/...), then the rel lines (rel/build/...). The ctl.img is the same for the two.
+python3 - "$L/crc.txt" "$WR" <<'PY' || fail "CRC manifest"
 import glob, struct, sys, zlib
 lines = []
 def crc(p): return format(zlib.crc32(open(p, "rb").read()), "08x")
@@ -332,12 +400,20 @@ d = open(img, "rb").read()
 magic, hv, hs, fw, size, hcrc = struct.unpack("<IHHIII", d[:20])
 lines.append(f"ctl.img header crc32 {hcrc:08x}, image_size {size} B")
 lines.append(f"ctl.img file crc32 {crc(img)}, {len(d)} B")
-for p in sorted(glob.glob("build/*.fwsc") + glob.glob("build/x0x.bin") + glob.glob("build/*/x0x.bin")
-                + glob.glob("build/loader/ota.bin") + glob.glob("build/*/loader/ota.bin")):
-    lines.append(f"{p} crc32 {crc(p)}, {len(open(p, 'rb').read())} B")
+import os
+def builds(pre):
+    for p in sorted(glob.glob("build/*.fwsc") + glob.glob("build/x0x.bin") + glob.glob("build/*/x0x.bin")
+                    + glob.glob("build/loader/ota.bin") + glob.glob("build/*/loader/ota.bin")):
+        lines.append(f"{pre}{p} crc32 {crc(p)}, {len(open(p, 'rb').read())} B")
+builds("")
+os.chdir(sys.argv[2]); builds("rel/")
 open(sys.argv[1], "w").write("\n".join(lines) + "\n")
 PY
-grep -q '^build/x0x-smk37-elite-ble\.fwsc crc32 [0-9a-f]\{8\}, [0-9]* B$' "$L/crc.txt" 2>/dev/null || fail "CRC manifest: no line for build/x0x-smk37-elite-ble.fwsc"
+for pre in "" rel/; do
+    grep -q "^${pre}build/x0x-smk37-elite-ble\.fwsc crc32 [0-9a-f]\{8\}, [0-9]* B\$" "$L/crc.txt" 2>/dev/null || fail "CRC manifest: no line for ${pre}build/x0x-smk37-elite-ble.fwsc"
+done
+mcrc() { sed -n "s|^$1 crc32 \([0-9a-f]\{8\}\),.*|\1|p" "$L/crc.txt" 2>/dev/null | head -1; }
+CFG="dev elite $(mcrc build/x0x-smk37-elite.fwsc), ble $(mcrc build/x0x-smk37-elite-ble.fwsc), code free ${CODE_FREE:-?} B, pool ${POOL_H:-?} B; rel elite $(mcrc rel/build/x0x-smk37-elite.fwsc), ble $(mcrc rel/build/x0x-smk37-elite-ble.fwsc), code free ${CODE_FREE_R:-?} B, pool ${POOL_H_R:-?} B"
 T1=$(date +%s)
 R=PASS; [ -n "$REASON" ] && R=FAIL
 TMPF="$RF.tmp.$$"
@@ -353,7 +429,10 @@ echo "- Commit: $H"
 echo "- Tree (SHA-1 of git ls-tree -r without *.md): $TREE"
 echo "- Git tree (git rev-parse <commit>^{tree}): $GTREE"
 echo "- References: pinned $PINS. Found:$PINLOG."
-echo "- Private HOME and TMPDIR: $PH, $PT"
+echo "- Private HOME and TMPDIR: $PH, $PT (rel: $PHR, $PTR)"
+echo "- Configs: dev (X0X_DEV_PADCAL=1, worktree $W) and rel (X0X_DEV_PADCAL=0, the release build, worktree $WR). The two must pass."
+echo "- Config CRCs: $CFG"
+echo "- Build variables of the caller (removed):${UNSET_TXT:- none}"
 echo "- Time: $NOW. The gate took $((T1 - T0)) s."
 echo "- Worktree: $W. Logs: $L."
 echo
@@ -380,6 +459,7 @@ echo "## Tests"
 echo
 echo "- Time scale (X0X_TEST_TIME_SCALE): $SCALE. The gate always uses 1: the real waits of the updater."
 echo "- tests/run_tests.sh ($MODE): $OK ok, $NF FAIL, $NS skip. Exit code $TRC."
+echo "- tests/run_tests.sh, rel config ($MODE): $OKR ok, $NFR FAIL, $NSR skip. Exit code $TRCR. Scenarios: $SCENR ok. Tests that did not run: ${MISSR:-none}."
 echo "- Gate lock: $LOCK_TXT."
 echo "- The script knows $NEXP tests. Tests that did not run: ${MISS:-none}."
 echo "- Scenarios: $SCEN ok."
@@ -403,7 +483,7 @@ CANON_TXT=""
 if [ "$TRIAL" = 0 ] && [ "$R" = PASS ] && [ "$CANON_R" != PASS ]; then   # the first PASS of the tree is the canonical result
     cp "$RF" "$CANON.tmp.$$" && chmod a+r "$CANON.tmp.$$" && mv -f "$CANON.tmp.$$" "$CANON" && CANON_TXT=" (also $TREE.md)"
 fi
-echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $TP$R${FREASON:+ (force: $FREASON)} | $(basename "$RF")$CANON_TXT | $NOW |" >> "$INDEX"
+echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $TP$R${FREASON:+ (force: $FREASON)} | $(basename "$RF")$CANON_TXT | $NOW | $CFG |" >> "$INDEX"
 cp "$RF" "$L/result.md"
 if [ "$R" = PASS ]; then echo "${TP}PASS $S (time scale $SCALE)"; exit 0; fi
 echo "${TP}FAIL $S (time scale $SCALE) $REASON"; exit 1
