@@ -35,7 +35,7 @@ you saw, and roll back (section 5).
 1. `python3 tools/fm1_install.py --no-ctl build/x0x-smk37.fwsc`.
 2. Observe: X0X starts as before. GLO > BLUETOOTH MIDI > STATUS = NO IMAGE. NAME = X0X-xxxx.
    The project is still there.
-3. Play all parts with a dense pattern for 5 minutes: no new xruns compared with the last release
+3. (Superseded 2026-10-16. Do not run this 5-minute run.) Play all parts with a dense pattern for 5 minutes: no new xruns compared with the last release
    (GLO > PERFORMANCE). SAVE PROJECT works. A sample upload (break loops page) works.
 4. Set BLUETOOTH ON: the screen shows "RESTART TO TURN ON". Power off and on: STATUS = NO IMAGE.
    Set BLUETOOTH OFF again.
@@ -78,7 +78,7 @@ you saw, and roll back (section 5).
 
 ### 3.5 Load and flash operations while connected
 
-1. Play the densest pattern while BLE MIDI out runs for 10 minutes. Watch GLO > PERFORMANCE:
+1. (Superseded 2026-10-16. Do not run this 10-minute run.) Play the densest pattern while BLE MIDI out runs for 10 minutes. Watch GLO > PERFORMANCE:
    the xruns stay at the 3.1 level. The connection stays up.
 2. SAVE PROJECT while connected (stopped). Expect: it saves; the connection stays up or drops and
    the central reconnects. Core 1 must not be held (BLUETOOTH STATUS stays READY or CONNECTED,

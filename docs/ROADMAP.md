@@ -1,0 +1,73 @@
+# X0X37 roadmap
+
+What we build, what is done, where we are, and what is left. Update this file when a step finishes or a plan changes. Preferences and rules: USER_PREFERENCES.md. Intended behaviour: x0x37/BEHAVIOR.md. Detailed history: x0x37-progress-log.md.
+
+## The goal
+
+X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
+
+1. Has a clip mode that acts as an Akai APC40 mkII for Loopy Pro. Pads launch clips, and the pads and screen show the clip colours.
+2. Keeps all the X0X features (sequencer, synth engines, BREAK mode) at full quality: 44.1 kHz, no length cuts.
+3. Lets the user import their own loops for BREAK mode, and keeps them safe across updates.
+4. Has Bluetooth MIDI (MIDI only), and stays freely shareable under an open license.
+5. Installs from a web page with no toolchain needed for end users.
+
+## Done
+
+| Area | What | Where |
+|---|---|---|
+| Clip mode | APC40 mkII emulation for Loopy Pro: pad MIDI send and receive, clip colours on the pads, clip view on the screen, OCT- / OCT+ move the view down / up | smk37 branch |
+| Clip mode | Fixes: notes are dropped only in clip mode, Loopy Start does not echo back, the screen clip view is not too dark (LCD floor) | 0fbfe07 ... be6fc1d |
+| Docs | BEHAVIOR.md (intended behaviour, 200+ items), agent-rules.md, BREAK mode guide, README, licences | 4046fe9, 7269951, c24899f |
+| Colours | Colour tool that calculates the real pad and screen colours from the APC40 palette | 07eb709 |
+| Step 1 | The installer backs up the imported loop slots and restores them automatically | 39eafa9 ... bd6f9f3 |
+| Step 2 | 909 ride, crash and hi-hat stored as IMA ADPCM at 44.1 kHz (no audible difference, about 166 KB freed) | 241bd15 ... 936f155 |
+| Step 3 | Factory breaks: 2 bars at 44.1 kHz. Import tools use 44.1 kHz | d3f23c5 ... 25c87bf |
+| Step 4 | New flash layout: one 64 KiB Bluetooth block, 3 loop slots (about 11 s of import space at 44.1 kHz) | 62fc644 ... 81d5f74 |
+| Step 5 | Bluetooth MIDI code: the JieLi controller runs as a separate image on core 1, built on the computer of the user. GLOBAL > BLUETOOTH MIDI settings | 07159b6 ... 7972fbb |
+| Installed | The keyboard ran 81d5f74 with all 5 user loops intact | 2026-10-15 |
+| Safety | The installer refuses to add the Bluetooth image to old firmware (it would overwrite code) | ab44241 (flash_review, ble-stage3) |
+| Safety | Bluetooth start guard: a failed Bluetooth start shows FAILED and the keyboard starts normally (no crash loop into safe mode). DIAG command reads crash and start details | bad7b95, 70a9a5f (flash_review, ble-stage3) |
+| Bluetooth | Bluetooth starts: STATUS READY at power-on (6 of 6 automatic rounds) | f0bcb28 (a52) |
+| Bluetooth | The Mac connects over BLE MIDI. MIDI goes in both directions | 79eb477 (a59), 4e6ae9b (a60) |
+| Bluetooth | iPhone connects over BLE MIDI and the link holds | 94285b5 (a67) |
+| Clip keys | Knobs 2-8 send CC 48-54 when no clip keys mode is on | 9984344 |
+
+## Where we are now (2026-10-16 20:42)
+
+- Branches: live BLE branch ble-a73 (99faa0a, ledger tip deb3da2), from ble-a72 and ble-a71. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a65 at 4d1608a. Side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1) and ble-a70 (77fa067): built, not installed. integration 1fdeb58 (merge of ble-a72 bb7c11e).
+- Keyboard: a73 (99faa0a) installed 20:26. Owner test 20:37 to 20:39 (ledger c3ee3ef): Loopy Start starts X0X (PASS). X0X PLAY does not start or stop Loopy Pro (FAIL). Pads, overdub and tempo are not tested yet. last-good-hw stays 94285b5 (a67). a73 (branch ble-a73) adds to a67: Bluetooth MIDI clock and transport fixes (a72), clip colour and feedback fixes (a71), the installer ctl.img read-back (a69), and live recording on the nearest step (REC-06). Slots 05fb6e99 / 6bb165f0 before = after, DIAG READY.
+- a65 (ca1d4d2), installed 18:19, goes back to the BLE host in the app (from fb6b1b0, test 37), with no pairing and no bonds. The CTL_HOST host of a38 to a64 is not used. No connection parameter request (owner decision 18:18). Slots 961626d5 / 9a09fdb9 before = after. Slot 3 is empty, now 44 KiB at 0xB0000. DIAG: READY, no crash.
+- iPhone: works on a67 (owner test PASS 19:18). On a73 the link carries the Loopy clock and Start (20:37 PASS). History: a65 iPhone test 1 (18:23): the iPhone connected (interval 7.5 ms, MTU 185), then the link ended with reason 0x08 (connection timeout). a62 and a62b: the link held about 2 min at 26.25 ms with 0 connection updates, reason 0x00. a63-15 (d9844a4): iOS dropped the link before any GATT step. Oct 15: Loopy used the keyboard as its APC40 over Bluetooth (test 30). But some colour notes made sounds, some pads stayed empty and colours were slow. A connection parameter request made the iPhone drop the link (test 31) and gave a large MIDI delay (test 34).
+- Mac: the BLE GATT connection works and MIDI goes in both directions (a59 79eb477, a60). The a59 fix: the host must register its event handler after btstack_task_init, because btstack_task_init removes it.
+- Bluetooth start: the supply must be the stock values (DCDC13, VDC14 1.60 V, SYSVDD 1.38 V) before the RF init (test 27, 56a7452). The controller init runs on core 0 before core 1 starts (83cd4dc). The clock stays 360 MHz.
+- Release package 0b80994 (SMK-37 Elite only, a64 files: .fwsc CRC32 5ec8b21a, ctl.img CRC32 e9c05144). Pool free 4096 B, app code 144 B free, app RAM 0 B free. The Pro package is not built. Not pushed.
+- Clip keys: branch clip-keys-a65 at 81f6418 (box archive/clip-keys keeps ce5236e). KEYS panel and SCALE, CHORD and ARP pages. Knobs 2-8 send CC 48-54. 24 scales, 30 chords, swing, Euclid rhythm, HUMAN, strum. Static RAM 98288 of 98304 B (ce5236e). Host tests pass. Not tested on hardware.
+- Integration: ceaac0a (merges of clip-keys-a65 81f6418 and ble-a65 4d1608a). integration-stale-02ae8b8 keeps the stale 17:34 merges.
+- Pool limit: 4096 B (USER_PREFERENCES.md, 2026-10-16 17:3x). A release build must turn off the test-26 RAM canary or keep at least 8192 B of pool free.
+- Tools: tools/ble_autotest.py runs the Bluetooth test over USB with no user action. Attempt ledger: BLE_ATTEMPTS.md in the BLE branch (one row per attempt). JieLi SDK BLE design vs our host, with the step plan for the iPhone link: [ble_split/SDK_DESIGN_COMPARE.md](ble_split/SDK_DESIGN_COMPARE.md).
+
+## Left to do
+
+1. Done (a52, f0bcb28): Bluetooth starts. STATUS READY at power-on.
+2. Mac: the connection works (a59, a60). Open on the Mac: test clock and Start/Stop over Bluetooth, and check for audio dropouts. iPhone: done, the link works on a67 (94285b5, owner test 19:18).
+   Open: X0X PLAY does not start or stop Loopy Pro (a73 FAIL, owner test 20:37-20:39). Also test the a73 pads, overdub and tempo with Loopy Pro.
+3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
+4. Bring the BLE branch ble-a73 (99faa0a) into the main tree (x0x37, smk37), after the full owner test of a73.
+5. Screen clip colours: put the approved table (apc40_lcd565.h, strong fix for 0x32 / 0x33) into the firmware, add a test, update BEHAVIOR.md CLP-05, commit. Install after approval.
+6. User checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and idle clip colours on the screen. Also check that patterns and settings survived.
+7. Web installer: let the page fetch the JieLi files and build the Bluetooth image, or guide the user through it. If possible, end users need no toolchain.
+8. Release: build the Pro and Elite packages, check the installer hashes, and publish (only when the user asks).
+
+## Open decisions
+
+- Whether to keep spare flash for growth, or give all of it to the loop slots.
+- Optional: capture a playing blue and a playing violet clip from Loopy to confirm which palette entries it uses.
+
+## Not planned
+
+- FM-1 build (not maintained, and its overflow is accepted).
+- Bluetooth audio.
+- Shipping any JieLi Bluetooth files with the firmware.
+
+Last update: 2026-10-16 20:42.
