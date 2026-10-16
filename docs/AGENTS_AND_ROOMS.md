@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 20:47 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 21:07 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -13,8 +13,8 @@ Last updated: 2026-10-16 20:47 (Vladivostok, UTC+10).
 
 ### Firmware Main Builder
 - ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
-- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi work on the live BLE lane ble-a73. Only agent allowed to install (with slot backups, CRC compare and a notice before the install).
-- Never: Writes the bootloader. Installs in the background. Installs without a slot backup and a CRC compare.
+- Purpose: Builds, debugs and installs custom firmware. Owns the Bluetooth/JieLi work on the live BLE lane ble-a73. Only agent allowed to install (with slot backups, a per-slot CRC compare and a notice before the install).
+- Never: Writes the bootloader. Installs in the background. Installs without a slot backup and a per-slot CRC compare.
 - Worktrees (Mac, flash_review repo): /private/tmp/a65wt (ble-a65), /private/tmp/a63wt (ble-a56), /private/tmp/refswt (refs-oscuro), flash_review (ble-a51), wt-a55 (ble-a55).
 - Box copy: /workspace/x0x37-firmware-main-builder (a git repository). Commits there, then syncs the commits to the Mac repo before each install.
 
@@ -87,7 +87,7 @@ There are no rooms. Agents send messages direct to each other with SendToAgent. 
 
 ## Coordination rules
 
-Agent rules: agent-rules.md (36 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
+Agent rules: agent-rules.md (37 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
 
 Work and messages:
 - Rule 1: commits, logs, docs and checklists follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Posts and agent messages follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). If they conflict, asd-ste wins.
@@ -114,9 +114,10 @@ Build and install:
 - Rule 36: tests use X0X_TEST_JOBS=8. Scenario tests run one at a time. Do not run tests for a tree with only .md changes. Results go to /workspace/x0x37-results/<tree>.md. Keep LIVE_BRANCHES and BUDGET.md there current. Gate: /workspace/x0x37-refs/gate/x0x37_gate.sh. Its box-wide flock on X0X_GATE_LOCK (default /workspace/x0x37-refs/gate.lock) stops two gate test runs at the same time. Its lock X0X_GATE_WORK/.lock-<hash> blocks a second run of the same commit only. X0X_TEST_TIME_SCALE: 20 in development. The gate always uses 1 and writes it in the result file. Give each dead branch the name archive/<name>. Optimizer gives patches to the builders.
 - Commit early so the Merge Integrator has a base. Build and Test Runner checks every commit. Merge Integrator merges as soon as both sides have a commit.
 - Builders commit on the box, then sync the commits to the Mac repo with a git bundle before an install (same hashes, no patches).
-- Only Firmware Main Builder installs. Before each install: back up the sample slots, notify the user with the exact commit hash, and wait for the go from the parent agent. After the install: compare the slot CRCs and send the commit hash and the CRC result. Never write the bootloader. A verified build installs with no question to the user.
-- Rule 29: before an install notice, the gate must report PASS for that exact commit hash. All tests pass, with no list of known failures. The installer reads the image back from the device. Run the install in the foreground. A watched, named screen or tmux session is allowed. If the link drops, reattach and watch the install to the end and the read-back. Never install in the background.
+- Only Firmware Main Builder installs. Before each install: back up the sample slots, notify the user with the exact commit hash, and wait for the go from the parent agent. After the install: compare the per-slot CRCs and send the commit hash and the CRC result. Never write the bootloader. A verified build installs with no question to the user.
+- Rule 29: before an install notice, the gate must report PASS for that exact commit hash. All tests pass, with no list of known failures. The installer reads the image back from the device. Compare each per-slot CRC before and after. The CRC32 of a whole .x0xslots file is always 2144df1c (the CRC-32 residue) and proves nothing. Run the install in the foreground. A watched, named screen or tmux session is allowed. If the link drops, reattach and watch the install to the end and the read-back. Never install in the background.
 - Rule 30: keep the tag last-good-hw on the newest build that passed a device test. After 2 failed device tests in a row, bisect from last-good-hw.
+- Rule 37: Firmware Main Builder, Second Builder and Optimizer follow the skill /home/box/agent-data/workflows/x0x37-builder-loop/SKILL.md for each change.
 
 Repositories:
 - Shared bare repository on the box: /workspace/x0x37.git, remote name box. Each agent pushes only its own branch there and fetches from it (user, 2026-10-16 02:09).
@@ -127,7 +128,7 @@ Repositories:
 ## Current project context
 
 - Mac: Mac-mini.local, /Users/mac/Documents/x0x37. Main source tree: x0x37 (branch smk37). The smk37 docs/ folder holds copies of agent-rules.md, USER_PREFERENCES.md, ROADMAP.md and this file. Box smk37 and Mac smk37 stay identical (git bundle sync).
-- BLE: live lane ble-a73 (a73 firmware 99faa0a, installed, partial owner test, branch tip c3ee3ef). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a74 b95c1cb (Firmware Main Builder, in build and test): clock source setting INTERNAL / EXTERNAL / AUTO, design approved by the owner 20:39. No gate PASS, not installed. Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Archived: archive/ble-a65 4d1608a, archive/ble-a72 fb5d720. History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
+- BLE: live lane ble-a73 (a73 firmware 99faa0a, installed, partial owner test, branch tip c3ee3ef). Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a74 14fb352 (Firmware Main Builder, ledger tip 462ba7c): clock source setting INTERNAL / EXTERNAL / AUTO and the PLAY note. Installed 21:03, owner test pending. Side branches, built, not installed: ble-a68-opt a1d8ea1, ble-a69-readback 75c42e1, ble-a70 77fa067, ble-a71 9ef7bc2. Archived: archive/ble-a65 4d1608a, archive/ble-a72 fb5d720. History: ble-a54 to ble-a56 (a54 to a64, the CTL_HOST image host), ble-stage3 (to a47), ble-a48 to ble-a51. Live list: /workspace/x0x37-results/LIVE_BRANCHES.
 - Clip keys and integration: clip-keys-a65 at 81f6418. integration at 7e44e94. Box archive/clip-keys keeps ce5236e. The Mac clip-keys (c2f7906) is old.
 - fix-bass303 (9703c4f): owner TO CONFIRM.
 - refs-oscuro (ac10280, tip babd349): reference only, see the repository rules.
@@ -156,3 +157,4 @@ Repositories:
 - 2026-10-16 20:32: install rule (foreground, watched tmux or screen session). Now in rule 29.
 - 2026-10-16 20:46: no rooms (SendToAgent, Orchestrator relays to the owner). Rules 1, 11, 26, 27 and 29 changed. Rules 32 to 36 added. Approval only for changes that the owner can see, hear or play. Orchestrator never installs (confirmed).
 - 2026-10-16 20:47: rule 36 gate locks and X0X_TEST_TIME_SCALE. ble-a74 status.
+- 2026-10-16 21:07: rule 29 per-slot CRC note (the whole-file CRC proves nothing). Rule 37 (builder loop skill). ble-a74 installed 21:03.

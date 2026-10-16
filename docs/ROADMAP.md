@@ -33,10 +33,11 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 | Bluetooth | iPhone connects over BLE MIDI and the link holds | 94285b5 (a67) |
 | Clip keys | Knobs 2-8 send CC 48-54 when no clip keys mode is on | 9984344 |
 
-## Where we are now (2026-10-16 20:42)
+## Where we are now (2026-10-16 21:07)
 
-- Branches: live BLE branch ble-a73 (99faa0a, ledger tip deb3da2), from ble-a72 and ble-a71. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a65 at 4d1608a. Side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1) and ble-a70 (77fa067): built, not installed. integration 1fdeb58 (merge of ble-a72 bb7c11e).
-- Keyboard: a73 (99faa0a) installed 20:26. Owner test 20:37 to 20:39 (ledger c3ee3ef): Loopy Start starts X0X (PASS). X0X PLAY does not start or stop Loopy Pro (FAIL). Pads, overdub and tempo are not tested yet. last-good-hw stays 94285b5 (a67). a73 (branch ble-a73) adds to a67: Bluetooth MIDI clock and transport fixes (a72), clip colour and feedback fixes (a71), the installer ctl.img read-back (a69), and live recording on the nearest step (REC-06). Slots 05fb6e99 / 6bb165f0 before = after, DIAG READY.
+- Branches: live BLE branch ble-a73 (99faa0a, ledger tip deb3da2), from ble-a72 and ble-a71. ble-a74 (14fb352, ledger tip 462ba7c), from ble-a73: installed 21:03. Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18). ble-a65 at 4d1608a. Side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1) and ble-a70 (77fa067): built, not installed. integration 1fdeb58 (merge of ble-a72 bb7c11e).
+- Keyboard: a74 (14fb352) installed 21:03. Owner test pending. a74 adds to a73 the clock source setting INTERNAL / EXTERNAL / AUTO (MID-13) and the PLAY note (MID-14). Gate PASS (tree 2f1f79d2ca5c). ctl.img read back eb742dd2. Per-slot CRCs 05fb6e99 / 6bb165f0 before = after, slot 3 empty. DIAG READY. last-good-hw stays 94285b5 (a67).
+- a73 (99faa0a) installed 20:26. Owner test 20:37 to 20:39 (ledger c3ee3ef): Loopy Start starts X0X (PASS). X0X PLAY does not start or stop Loopy Pro (FAIL). Pads, overdub and tempo are not tested yet. last-good-hw stays 94285b5 (a67). a73 (branch ble-a73) adds to a67: Bluetooth MIDI clock and transport fixes (a72), clip colour and feedback fixes (a71), the installer ctl.img read-back (a69), and live recording on the nearest step (REC-06). Slots 05fb6e99 / 6bb165f0 before = after, DIAG READY.
 - a65 (ca1d4d2), installed 18:19, goes back to the BLE host in the app (from fb6b1b0, test 37), with no pairing and no bonds. The CTL_HOST host of a38 to a64 is not used. No connection parameter request (owner decision 18:18). Slots 961626d5 / 9a09fdb9 before = after. Slot 3 is empty, now 44 KiB at 0xB0000. DIAG: READY, no crash.
 - iPhone: works on a67 (owner test PASS 19:18). On a73 the link carries the Loopy clock and Start (20:37 PASS). History: a65 iPhone test 1 (18:23): the iPhone connected (interval 7.5 ms, MTU 185), then the link ended with reason 0x08 (connection timeout). a62 and a62b: the link held about 2 min at 26.25 ms with 0 connection updates, reason 0x00. a63-15 (d9844a4): iOS dropped the link before any GATT step. Oct 15: Loopy used the keyboard as its APC40 over Bluetooth (test 30). But some colour notes made sounds, some pads stayed empty and colours were slow. A connection parameter request made the iPhone drop the link (test 31) and gave a large MIDI delay (test 34).
 - Mac: the BLE GATT connection works and MIDI goes in both directions (a59 79eb477, a60). The a59 fix: the host must register its event handler after btstack_task_init, because btstack_task_init removes it.
@@ -52,7 +53,7 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 1. Done (a52, f0bcb28): Bluetooth starts. STATUS READY at power-on.
 2. Mac: the connection works (a59, a60). Open on the Mac: test clock and Start/Stop over Bluetooth, and check for audio dropouts. iPhone: done, the link works on a67 (94285b5, owner test 19:18).
    Open: X0X PLAY does not start or stop Loopy Pro (a73 FAIL, owner test 20:37-20:39). Also test the a73 pads, overdub and tempo with Loopy Pro.
-   Open: a74 (branch ble-a74, b95c1cb, Firmware Main Builder) adds a clock source setting INTERNAL / EXTERNAL / AUTO. The owner approved the design at 20:39. In build and test: no gate PASS, not installed.
+   Open: owner test of a74 (branch ble-a74, 14fb352, installed 21:03). a74 adds the clock source setting INTERNAL / EXTERNAL / AUTO (owner approved the design at 20:39) and the PLAY note.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
 4. Bring the BLE branch ble-a73 (99faa0a) into the main tree (x0x37, smk37), after the full owner test of a73.
 5. Screen clip colours: put the approved table (apc40_lcd565.h, strong fix for 0x32 / 0x33) into the firmware, add a test, update BEHAVIOR.md CLP-05, commit. Install after approval.
@@ -71,4 +72,4 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 - Bluetooth audio.
 - Shipping any JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 20:47.
+Last update: 2026-10-16 21:07.
