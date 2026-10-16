@@ -116,7 +116,7 @@ assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 
 assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
 assert "((rgb >> 16) * brightness) / 510u" in main
-assert "SMK_CLIP_LCD_FLOOR 128u" in main and "SMK_CLIP_LCD_FLOOR + mx * (255u - SMK_CLIP_LCD_FLOOR) / 255u" in main
+assert "SMK_CLIP_LCD_FLOOR 128u" in main   # tools/apc_pad_colors.py reads it to make APC40_LCD565
 assert "smk_apc_host_seen();" in usb and "smk_apc_host_lost();" in usb
 assert "BOARD_SMK37 && !defined(FELUCCA_LOADER)" in usb
 assert "clip_state[16]" not in main and "smk_clip_state_set" not in engine
@@ -156,6 +156,22 @@ assert "uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)" in main
 assert "SMK_CLIP_LCD_MIN_MS 64u" in main and "cv_begin(w, h, C_BLACK)" in main
 assert "smk_clip_lcd_draw" not in usb and "smk_clip_lcd_draw" not in engine
 print("PASS clip grid on the LCD: main loop only, rate limited, current pad view framed")
+# CLP-05: the LCD clip colours come from the approved table APC40_LCD565 (tools/apc_pad_colors.py).
+draw = main.split("uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)\n{")[1].split("\n}\n")[0]
+assert '#include "app/apc40_lcd565.h"' in main
+assert "uint16_t c = APC40_LCD565[v & 0x7Fu];" in draw          # velocity 0-127; a value > 127 stays in the table
+assert "APC40_RGB" not in draw and "SMK_CLIP_LCD_FLOOR + mx" not in main   # the old floor calculation is gone
+assert "if (v)\n                    cv_rect(x + gap + 1, y + gap + 1, p - 2 * gap - 2, p - 2 * gap - 2, c);" in draw
+assert "else\n                    cv_rect(x + p / 2 - 2, y + p / 2 - 2, 4, 4, C_DIM);" in draw   # velocity 0: a dim dot
+pads = main.split("static void smk_pads(void)")[1].split("\n}\n")[0]
+assert "APC40_LCD565" not in pads and "APC40_RGB[v];" in pads    # the pads keep APC40_RGB (CLP-13)
+assert "void smk_clip_lcd_force(void) { was_on = 0u; }" in main   # mode entry and menu close: draw at once
+assert "smk_clip_lcd_force();   /* a menu" in ui_src
+lost = main.split("void smk_apc_host_lost(void)")[1].split("\n}\n")[0]
+assert "apc_led_velocity[i] = 0u;" in lost                         # USB disconnect: all cells empty
+link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
+assert "smk_apc40_cells_clear(apc_led_velocity" in link            # Bluetooth disconnect: all cells empty
+print("PASS LCD clip colours from APC40_LCD565; empty cells, pads, entry, menu and disconnect unchanged")
 assert "smk_apc_clock_position(" in engine and "cin == 3u && ep1rx[i + 1] == 0xF2u" in usb
 assert "apc_clock_count = sixteenths * 6u" in main
 print("PASS Song Position resets the queued blink phase")
