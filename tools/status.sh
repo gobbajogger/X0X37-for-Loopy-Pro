@@ -3,15 +3,19 @@
 # Read-only. It reads /workspace/x0x37.git with "git --git-dir" only (no fetch, no push, no change),
 # result files, file times and /proc. It writes only status.md and LIVE_BRANCHES (temp file + mv).
 # Made by Build and Test Runner for Orchestrator (audit item 4), 2026-10-16. Run time target: < 20 s.
+# Source: tools/status.sh in the box repository. Live copy: /workspace/x0x37-orchestrator/status.sh (copy it when it does not run).
+# Environment for a test (defaults = the live paths): X0X_REPO, X0X_STATUS_OUTDIR, X0X_STATUS_TMP, X0X_RESULTS_DIR, X0X_GATE_LOCK.
+# Agent output (check 12 of rules v4): the commits on the lane branches lane/<agent>-* of each agent count
+# (mb Firmware Main Builder, sb Second Builder, opt Optimizer, btr Build and Test Runner, dk Docs Keeper).
 set -u
 export TZ=Asia/Vladivostok LC_ALL=C
-REPO=/workspace/x0x37.git
-OUTDIR=/workspace/x0x37-orchestrator
+REPO=${X0X_REPO:-/workspace/x0x37.git}
+OUTDIR=${X0X_STATUS_OUTDIR:-/workspace/x0x37-orchestrator}
 OUT=$OUTDIR/status.md
 LIVEF=$OUTDIR/LIVE_BRANCHES
-TMPD=/workspace/x0x37-build-and-test-runner/.status-tmp   # same file system as OUTDIR: mv is atomic
-RESULTS=/workspace/x0x37-results
-GLOCK=/workspace/x0x37-refs/gate.lock
+TMPD=${X0X_STATUS_TMP:-/workspace/x0x37-build-and-test-runner/.status-tmp}   # same file system as OUTDIR: mv is atomic
+RESULTS=${X0X_RESULTS_DIR:-/workspace/x0x37-results}
+GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 LIVE_H=24          # live = tip commit time in the last 24 h
 STALL_MIN=45       # stall = queued work and no output for more than 45 min
 G() { git --git-dir="$REPO" "$@"; }
@@ -235,12 +239,12 @@ fi
 # ---------- agents ----------
 # name;branch regex (box repo);folders (space separated);result files/dirs
 AGENTS=(
-"Firmware Main Builder;^(ble-|trial-a76);/workspace/x0x37-firmware-main-builder /workspace/x0x37-firmware-main-builder-in /workspace/a[0-9]*wt /workspace/a[0-9]*trial /workspace/a[0-9]*-gate* /workspace/gate-a[0-9]* /workspace/padinv /workspace/b1wt;"
-"Second Builder;^(clip-keys|apc-colors|wip/clip-keys);/workspace/x0x37-second-builder;$RESULTS/second-builder"
+"Firmware Main Builder;^(ble-|trial-a76|lane/mb-);/workspace/x0x37-firmware-main-builder /workspace/x0x37-firmware-main-builder-in /workspace/a[0-9]*wt /workspace/a[0-9]*trial /workspace/a[0-9]*-gate* /workspace/gate-a[0-9]* /workspace/padinv /workspace/b1wt;"
+"Second Builder;^(clip-keys|apc-colors|wip/clip-keys|lane/sb-);/workspace/x0x37-second-builder;$RESULTS/second-builder"
 "Merge Integrator;^integration$;-;$RESULTS/trial-merge-state.txt $RESULTS/LIVE_BRANCHES"
-"Optimizer;^(opt|trial-a76-m);/workspace/x0x37-optimizer;"
-"Build and Test Runner;^test-speed$;/workspace/x0x37-build-and-test-runner;"
-"Docs Keeper;^smk37$;/workspace/x0x37-docs-keeper;"
+"Optimizer;^(opt|trial-a76-m|lane/opt-);/workspace/x0x37-optimizer;"
+"Build and Test Runner;^(test-speed$|lane/btr-);/workspace/x0x37-build-and-test-runner;"
+"Docs Keeper;^(smk37$|lane/dk-);/workspace/x0x37-docs-keeper;"
 "Test Plan Writer;^NONE$;/workspace/x0x37-test-plan-writer;"
 "Release Packager;^NONE$;/workspace/x0x37-release-packager;"
 "Orchestrator;^NONE$;/workspace/x0x37-orchestrator;"
