@@ -26,10 +26,13 @@ import fm1pkg_make as pm  # noqa: E402
 BLOCKS, BLK, KEEP = 20, 0x30, 0x2F
 CODE_MAX = 0x86EE0                       # app.bin offset of the Bluetooth block (fm1pkg_make BOARDS smk37)
 BLE_SIZE = 0x10000
+FLASH2_SIZE, FLASH2_HOLE, FLASH2_HOLE_SIZE = 0xC000, 0x4000, 0x1000
+BLE_FILE_MAX = BLE_SIZE + FLASH2_SIZE
 SMK_SLOT = 0x97400
 XIP = 0x02087000
-HDR_MAGIC, HDR_VERSION, ABI, HDR_SIZE = 0x43423058, 2, 2, 68
-RAM_LO, RAM_HI = 0x01C01800, 0x01C07F00
+HDR_MAGIC, HDR_VERSION, ABI, HDR_SIZE = 0x43423058, 3, 3, 72
+RAM_LO, RAM_HI = 0x01C01480, 0x01C07F00
+RAM2_LO, RAM2_HI = 0x01C7CDC0, 0x01C7D400
 IRQ_TAKEN = {1, 11, 16, 20, 24, 37, 62, 63}    # X0X's own interrupts on core 0 (src/ble/ble_glue.h)
 
 
@@ -41,16 +44,17 @@ def ctl_problem(img):
     """what is wrong with a controller image (as src/ble/ble_glue.h ble_img_check sees it), or None"""
     if len(img) < HDR_SIZE:
         return "too short for a controller image"
-    if len(img) > BLE_SIZE:
-        return f"{len(img)} B: larger than the 64 KiB Bluetooth block"
+    if len(img) > BLE_FILE_MAX:
+        return f"{len(img)} B: larger than piece 1 plus piece 2"
     (magic, ver, hsize, _fw, size, crc, abi, init, poll, slo, shi, rlo, rhi, ilo, ihi) = \
         struct.unpack_from("<IHHIIIIIIIIIIII", img, 0)
+    p2_size, p2_crc, r2lo, r2hi = struct.unpack_from("<IIII", img, 56)
     if magic != HDR_MAGIC:
         return "not a controller image (no X0BC header)"
     if ver != HDR_VERSION or hsize != HDR_SIZE or abi != ABI:
         return f"header version {ver}, size {hsize}, ABI {abi}: this X0X takes version {HDR_VERSION}, ABI {ABI}"
-    if not HDR_SIZE <= size <= len(img):
-        return f"image size {size} does not fit the file ({len(img)} B)"
+    if not HDR_SIZE <= size <= min(len(img), BLE_SIZE):
+        return f"image size {size} does not fit piece 1 ({min(len(img), BLE_SIZE)} B)"
     if zlib.crc32(img[:16] + b"\0\0\0\0" + img[20:size]) != crc:
         return "CRC mismatch (a damaged file)"
     for name, a in (("init", init), ("poll", poll)):
@@ -63,6 +67,19 @@ def ctl_problem(img):
     taken = sorted(n for n in IRQ_TAKEN if (ilo if n < 32 else ihi) >> (n & 31) & 1)
     if taken:
         return f"it routes interrupts X0X uses: {taken}"
+    if r2lo != r2hi and not (RAM2_LO <= r2lo < r2hi <= RAM2_HI):
+        return f"RAM 2 {r2lo:#x}..{r2hi:#x} is not inside {RAM2_LO:#x}..{RAM2_HI:#x}"
+    if p2_size:
+        if not (FLASH2_HOLE + FLASH2_HOLE_SIZE <= p2_size <= FLASH2_SIZE):
+            return f"piece 2 size {p2_size} is out of range"
+        if len(img) < BLE_SIZE + p2_size:
+            return f"file is short for piece 2 ({len(img)} B)"
+        p2 = img[BLE_SIZE:BLE_SIZE + p2_size]
+        a, b = p2[:FLASH2_HOLE], p2[FLASH2_HOLE + FLASH2_HOLE_SIZE:]
+        if zlib.crc32(b, zlib.crc32(a)) & 0xFFFFFFFF != p2_crc:
+            return "piece 2 CRC mismatch (a damaged file)"
+        if any(x != 0xFF for x in p2[FLASH2_HOLE:FLASH2_HOLE + FLASH2_HOLE_SIZE]):
+            return "piece 2 hole is not empty (the store owner tag lives there)"
     return None
 
 
@@ -160,6 +177,20 @@ def _close(st):
     return bytes(lg)
 
 
+def piece1_crc(logical):
+    """(stored, computed) piece 1 CRC-32 of the controller image in the package's Bluetooth block
+    (the header CRC field; zlib CRC-32 over the image with that field read as 0), or None if empty"""
+    st = _open(logical)
+    lo = 0x120 + CODE_MAX
+    b = bytes(st["area"][lo:lo + BLE_SIZE])
+    if struct.unpack_from("<I", b, 0)[0] != HDR_MAGIC:
+        return None
+    size, crc = struct.unpack_from("<II", b, 12)
+    if not HDR_SIZE <= size <= BLE_SIZE:
+        return crc, None
+    return crc, zlib.crc32(b[:16] + b"\0\0\0\0" + b[20:size]) & 0xFFFFFFFF
+
+
 def block_free(st):
     """True if the Bluetooth block of an _open state belongs to the block: empty (0xFF), a controller image
     (X0BC header), or a package with the slot map record (7054cc5 and later: the build limits the app code)"""
@@ -187,7 +218,7 @@ def insert(logical, ctl):
     lo = 0x120 + CODE_MAX
     block = bytearray(b"\xFF" * BLE_SIZE)
     if ctl is not None:
-        block[:len(ctl)] = ctl
+        block[:min(len(ctl), BLE_SIZE)] = ctl[:BLE_SIZE]   # piece 1 only; piece 2 is ED_CTL2
     st["area"][lo:lo + BLE_SIZE] = block
     return _close(st)
 

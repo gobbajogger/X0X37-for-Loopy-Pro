@@ -61,7 +61,7 @@ assert "smk_apc_usb_event(pkt)" in usb
 assert "smk_apc40_cell_event(apc_led_velocity" in main and "smk_apc40_cells_age(" in main
 assert "smk_apc40_latch_layout(feedback, &apc_cols, &apc_rows," in main
 assert "&apc_origin_col, &apc_origin_row, &apc_layout_locked" in main
-assert "max_col - min_col <= 3u && max_row - min_row >= 2u" in apc
+assert "(unsigned)(max_col - min_col) <= 3u && (unsigned)(max_row - min_row) >= 2u" in apc
 assert "origin_col + block_col % 4u" in apc
 assert "block_col >= 4u ? 0u : 2u" in apc
 assert "apc_origin_col, apc_origin_row" in main

@@ -32,12 +32,12 @@ def ok(cond, what):
 
 
 def make_ctl(size=40000, **over):
-    h = dict(magic=0x43423058, ver=2, hsize=68, fw=0x20000, size=size, crc=0, abi=2,
+    h = dict(magic=0x43423058, ver=3, hsize=72, fw=0x20000, size=size, crc=0, abi=3,
              init=0x02087000 + 0xD8, poll=0x02087000 + 0xF0, slo=0x01C06E80, shi=0x01C07680,
              rlo=0x01C01800, rhi=0x01C07680, ilo=(1 << 29) | (1 << 31), ihi=(1 << 8) | (1 << 13))
     h.update(over)
     img = bytearray(size)
-    for i in range(68, size):
+    for i in range(72, size):     # (version 3: piece 2 fields at 56..71 stay 0: no piece 2)
         img[i] = (i * 13) & 0xFF
     struct.pack_into("<IHHIIIIIIIIIIII", img, 0, h["magic"], h["ver"], h["hsize"], h["fw"], h["size"], 0, h["abi"],
                      h["init"], h["poll"], h["slo"], h["shi"], h["rlo"], h["rhi"], h["ilo"], h["ihi"])

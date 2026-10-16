@@ -17,15 +17,55 @@ u32 ctl_heap_stat(void)
     return (heap_peak & 0xFFFFu) | (heap_fails > 255u ? 255u : heap_fails) << 16 | (n > 255u ? 255u : n) << 24;
 }
 
+/* the heap; ABI 3: and a second region the app lends (boot parameters heap2). A used 8-byte block
+ * ends the first region, so a merge never joins the two. */
 void ctl_heap_init(void)
 {
     heap_first = (struct blk *)(((uintptr_t)__ctl_heap_start + 7u) & ~7u);
     heap_first->size = ((u32)(__ctl_heap_end - (u8 *)heap_first)) & ~7u;
     heap_first->next = NULL;
+#ifdef CTL_HOST
+    if (ctl_bp && ctl_bp->heap2 && ctl_bp->heap2_size >= 64u && !(ctl_bp->heap2 & 7u)) {
+        struct blk *end = (struct blk *)((u8 *)heap_first + heap_first->size - 8u);
+        struct blk *r2 = (struct blk *)(uintptr_t)ctl_bp->heap2;
+        heap_first->size -= 8u;
+        heap_first->next = end;
+        end->size = 8u | 1u;              /* never free */
+        end->next = r2;
+        r2->size = ctl_bp->heap2_size & ~7u;
+        r2->next = NULL;
+    }
+#endif
 }
 
-void *malloc(size_t n)
+/* attempt 42 (DIAG): the free bytes in the main region (bits 0-15) and in heap2 (bits 16-31), and
+ * the main region's size */
+u32 ctl_heap_free2(void)
 {
+    u32 a = 0, b = 0, in2 = 0;
+    for (struct blk *k = heap_first; k; k = k->next) {
+        if (k->size == (8u | 1u)) { in2 = 1; continue; }        /* the end mark of the main region */
+        if (!(k->size & 1u)) { if (in2) b += k->size; else a += k->size; }
+    }
+    return (a > 0xFFFFu ? 0xFFFFu : a) | (b > 0xFFFFu ? 0xFFFFu : b) << 16;
+}
+u32 ctl_heap_main_size(void) { return (u32)(__ctl_heap_end - __ctl_heap_start); }
+
+/* attempt 47: hci_controller_init (JieLi's btctrler.a) takes malloc(2560) for its HCI buffer, but
+ * gives only the first 512 bytes to lbuf_init_btctrler (disassembly: r1 = 512), and nothing else
+ * reads the buffer (its pointer, hdl+4, is used only there). So that one request gets 512 bytes:
+ * 2048 bytes more heap for the host (its le_stack_pool, malloc(1240) in btstack_task_init, failed
+ * in attempt 46). Matched by size and caller, so no other request changes. */
+#define CTL_HCI_BUF_ASKED 2560u
+#define CTL_HCI_BUF_USED  512u
+extern void hci_controller_init(void);
+
+__attribute__((noinline)) void *malloc(size_t n)
+{
+    if (n == CTL_HCI_BUF_ASKED) {
+        uintptr_t ra = (uintptr_t)__builtin_return_address(0), f0 = (uintptr_t)hci_controller_init;
+        if (ra > f0 && ra < f0 + 0x100u) n = CTL_HCI_BUF_USED;
+    }
     u32 need = ((u32)n + sizeof(struct blk) + 7u) & ~7u;
     u32 f = ctl_port_irq_save();
     for (struct blk *b = heap_first; b; b = b->next) {

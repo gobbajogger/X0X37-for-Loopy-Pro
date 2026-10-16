@@ -44,7 +44,23 @@ static int ble_img_check(const uint8_t *img, uint32_t size, uint32_t xip_base)
     if ((h->irq_lo & ((1u << 1) | (1u << 11) | (1u << 16) | (1u << 20) | (1u << 24))) ||
         (h->irq_hi & ((1u << (37 - 32)) | (1u << (62 - 32)) | (1u << (63 - 32)))))
         return BLE_IMG_BAD;
+    if (h->ram2_lo != h->ram2_hi && (h->ram2_lo < XB_RAM2_LO || h->ram2_hi > XB_RAM2_HI || h->ram2_lo > h->ram2_hi))
+        return BLE_IMG_BAD;
     return BLE_IMG_OK;
+}
+
+/* ABI 3: piece 2 (plain, at XB_FLASH2_XIP, written by ED_CTL2): its size and CRC as piece 1's header
+ * says, and the hole (the store owner tag) left out. p2 = piece 2 as the CPU reads it. */
+static inline int ble_img2_check(const xb_header_t *h, const uint8_t *p2)
+{
+    uint32_t crc;
+    if (!h->p2_size)
+        return BLE_IMG_OK;                      /* an image without a piece 2 */
+    if (h->p2_size > XB_FLASH2_SIZE || h->p2_size < XB_FLASH2_HOLE + XB_FLASH2_HOLE_SIZE)
+        return BLE_IMG_BAD;
+    crc = xb_crc32(0, p2, XB_FLASH2_HOLE);
+    crc = xb_crc32(crc, p2 + XB_FLASH2_HOLE + XB_FLASH2_HOLE_SIZE, h->p2_size - XB_FLASH2_HOLE - XB_FLASH2_HOLE_SIZE);
+    return crc == h->p2_crc ? BLE_IMG_OK : BLE_IMG_BAD;
 }
 
 /* a BLE-MIDI message as a USB-MIDI event packet, cable 0 (0 = none) */

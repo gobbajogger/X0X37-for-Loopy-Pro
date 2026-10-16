@@ -21,6 +21,7 @@ while read -r H P; do
   [ "$(sha "$F.tmp")" = "$H" ] || { echo "SHA-256 MISMATCH: $P" >&2; rm -f "$F.tmp"; exit 1; }
   mv "$F.tmp" "$F"; echo "fetch $P"
 done <<'LIST'
+c3f4ebfade12823c0b160f202bbe626b74bb2dfc5e509a034af965c5da852a2b cpu/wl82/liba/btstack.a
 9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de cpu/wl82/liba/btctrler.a
 ec50bb31af02ee3e2db9d87726c1b18b317f2acd72f233c9ce7b79a89ea324b2 cpu/wl82/liba/wl_rf_common.a
 373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e cpu/wl82/liba/crypto_toolbox_Osize.a

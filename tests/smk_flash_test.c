@@ -54,14 +54,14 @@ int main(void)
           !LDR_RANGE_OK(0x3000u, 0x2000u) && FL_PROTECTED(0xBF000u, 0x2000u) && FL_PROTECTED(0x3F00u, 0x200u));
     check("wrapping ranges refused (off + n past 4 GiB)",
           !FL_GUARD(0xBB000u, 0xFFFFF000u) && !LDR_RANGE_OK(0x9D000u, 0xFFFFFF00u) && FL_PROTECTED(0xBB000u, 0xFFFFF000u));
-    check("app windows: FL_DATA 0x9D000-0xAFFFF, FL_SMPV 0xB0000-0xBAFFF, FL_OTA 0xBB000-0xBFFFF, FL_SMP 0xC2000-0xF3FFF",
-          FL_GUARD(0x9D000u, 0x1000u) && FL_GUARD(0xAF000u, 0x1000u) && FL_GUARD(0xB0000u, 0x1000u) &&
+    check("app windows: FL_DATA 0x9D000-0xAAFFF, FL_OWNER 0xAF000, FL_SMPV 0xB7000-0xBAFFF, FL_OTA 0xBB000-0xBFFFF, FL_SMP 0xC2000-0xF3FFF",
+          FL_GUARD(0x9D000u, 0x1000u) && FL_GUARD(0xAF000u, 0x1000u) && FL_GUARD(0xB7000u, 0x1000u) &&
           FL_GUARD(0xBA000u, 0x1000u) && FL_GUARD(0xBF000u, 0x1000u) && FL_GUARD(0xC2000u, 0x1000u) &&
           FL_GUARD(0xF3000u, 0x1000u) && !FL_GUARD(0xF4000u, 0x1000u) && !FL_GUARD(0x9C000u, 0x1000u) &&
-          FL_DATA_HI == 0xB0000u && allowed == (0xC0000u - 0x9D000u + 0xF4000u - 0xC2000u) / 0x1000u);
-    check("FL_DATA (the store) and FL_SMPV (slot 3) do not overlap: no store sector in 0xB0000-0xBAFFF",
-          FL_IN(0xAF000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) && !FL_IN(0xB0000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) &&
-          FL_IN(0xB0000u, 0xB000u, FL_SMPV_LO, FL_SMPV_HI));
+          FL_DATA_HI == 0xAB000u && FL_OWNER_LO == 0xAF000u && FL_OWNER_HI == 0xB0000u && allowed == (0xC0000u - 0x9D000u + 0xF4000u - 0xC2000u + 0xFF000u - 0xFE000u) / 0x1000u);
+    check("FL_DATA (the store) and FL_SMPV (slot 3) do not overlap: no store sector in 0xB7000-0xBAFFF",
+          FL_IN(0xAA000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) && !FL_IN(0xAB000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) &&
+          !FL_IN(0xB7000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) && FL_IN(0xB7000u, 0x4000u, FL_SMPV_LO, FL_SMPV_HI));
     check("Bluetooth block 0x8B000-0x9AFFF: 64 KiB, one piece, sector aligned, in FL_APP below the app slot end",
           FL_BLE_LO == 0x8B000u && FL_BLE_HI == 0x9B000u && FL_BLE_HI - FL_BLE_LO == 0x10000u &&
           FL_LDR_RANGE_OK(FL_BLE_LO, FL_BLE_HI - FL_BLE_LO) && !FL_GUARD(FL_BLE_LO, 0x1000u) &&
@@ -85,7 +85,7 @@ int main(void)
     check("storage.c: settings 0x9D000/0x9E000, motion up to 0xAAFFF",
           st_sector(OBJ_SET, 0) == 0x9D000u && st_sector(OBJ_SET, 1) == 0x9E000u &&
           st_sector(OBJ_MOTION, 1) == 0xAA000u);
-    check("store owner tag 0xAF000: in FL_DATA, the convention of every SMK port",
+    check("store owner tag 0xAF000: in FL_OWNER, the convention of every SMK port",
           ST_OWNER_SECTOR == 0xAF000u && FL_GUARD(ST_OWNER_SECTOR, 0x1000u));
     for (k = 0; k < SMP_USER_SLOTS; k++) {
         uint32_t k2;
@@ -97,10 +97,10 @@ int main(void)
             slots_ok &= k == k2 || SMP_USER_OFF(k) + SMP_USER_SIZE(k) <= SMP_USER_OFF(k2) ||
                         SMP_USER_OFF(k2) + SMP_USER_SIZE(k2) <= SMP_USER_OFF(k);
     }
-    check("slots.c: 3 slots, 0xC2000 80 KiB, 0xD6000 120 KiB, 0xB0000 44 KiB: allowed, apart, outside the store",
+    check("slots.c: 3 slots, 0xC2000 80 KiB, 0xD6000 120 KiB, 0xB7000 16 KiB: allowed, apart, outside the store",
           SMP_USER_SLOTS == 3 && SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_SIZE(0u) == 0x14000u &&
-          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u && SMP_USER_OFF(2u) == 0xB0000u &&
-          SMP_USER_SIZE(2u) == 0xB000u && slots_ok);
+          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u && SMP_USER_OFF(2u) == 0xB7000u &&
+          SMP_USER_SIZE(2u) == 0x4000u && slots_ok);
     check("slots 1 and 2 keep the offsets of the 2 x 80 KiB layout (their data stays valid)",
           SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_OFF(1u) == 0xC2000u + 0x14000u);
     check("no slot in the install range [0x4000, 0x9D000); slot 3 ends below the OTA area 0xBB000",

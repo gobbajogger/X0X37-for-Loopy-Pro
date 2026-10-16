@@ -233,7 +233,7 @@ static void fm1_t5w_end(uint32_t ms)
     fm1_t5w.magic = FM1_T5W_MAGIC;
 }
 /* at power-on, before the timer starts: a new record (the old one stays for DIAG in fm1_t5w_prev) */
-static fm1_t5w_t fm1_t5w_prev __attribute__((section(".ble_ram")));
+static fm1_t5w_t fm1_t5w_prev __attribute__((section(".noinit")));   /* ABI 3: BLERAM is smaller */
 static void fm1_t5w_boot(void)
 {
     fm1_t5w_prev = fm1_t5w;

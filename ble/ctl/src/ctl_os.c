@@ -8,11 +8,7 @@
 #include "ctl_port.h"
 
 
-#ifdef CTL_HOST
-#define CTL_MAX_TASKS   3   /* btctrler, btstack, and a spare */
-#else
-#define CTL_MAX_TASKS   2
-#endif
+#define CTL_MAX_TASKS   2   /* the controller's task; ABI 3: and the host's ("btstack") */
 #define CTL_TASKQ_WORDS 64
 
 struct ctl_task {
@@ -27,13 +23,47 @@ struct ctl_task {
     int q[CTL_TASKQ_WORDS];
 };
 
+#ifdef CTL_HOST
+static struct ctl_task tasks[CTL_MAX_TASKS] __attribute__((section(".ctl_ram2")));   /* RAM 2 (ctl.ld) */
+#else
 static struct ctl_task tasks[CTL_MAX_TASKS];
+#endif
 static struct ctl_task *cur;           /* NULL = idle context */
+u32 ctl_q_full;                        /* task queue full (DIAG) */
+/* attempt 45 DIAG: per task (0 controller, 1 host) posts and pend returns (saturate at 15), first runs */
+u8 ctl_d_post[2], ctl_d_pend[2], ctl_d_ran, ctl_d_tc_fail;   /* attempt 46: task_create failures */
+__attribute__((noinline, section(".bt_stack_code.d45"))) static void d_inc(u8 *c) { if (*c < 15u) (*c)++; }
 static struct ctl_ctx idle_ctx;
 
-/* Stack size by task name. The SDK uses a name table; this image has
- * only the controller task, so one default is enough. */
+/* Stack size by task name, as the SDK's table: the controller 512 words; the host ("btstack") 768
+ * (the SDK's size for it). The stacks are painted (0xA5) so DIAG shows how deep they went. */
 #define CTL_TASK_STACK_WORDS 512
+static u32 stack_words(const char *name)
+{
+    const char *n = name;
+    while (n && *n) {                     /* "btstack" or "#C0btstack" */
+        if (strncmp(n, "btstack", 7) == 0 && n[7] == 0) return 768u;
+        n++;
+    }
+    return CTL_TASK_STACK_WORDS;
+}
+u32 ctl_stack_free(const u8 *lo, const u8 *hi)
+{
+    const u8 *p = lo;
+    while (p < hi && *p == 0xA5u) p++;
+    return (u32)(p - lo);
+}
+u32 ctl_os_stack_free(void)
+{
+    u32 m = 0xFFFFFFFFu;
+    for (int i = 0; i < CTL_MAX_TASKS; i++) {
+        struct ctl_task *t = &tasks[i];
+        if (!t->used || !t->stack) continue;
+        u32 f = ctl_stack_free((const u8 *)t->stack, (const u8 *)t->stack + stack_words(t->name) * 4u);
+        if (f < m) m = f;
+    }
+    return m == 0xFFFFFFFFu ? 0 : m;
+}
 
 static struct ctl_task *find(const char *name)
 {
@@ -45,21 +75,29 @@ static struct ctl_task *find(const char *name)
 
 static void task_trampoline(void)
 {
+    ctl_mark(0x360u + (u32)(cur - tasks));   /* attempt 41: the task runs for the first time */
+    if (cur - tasks < 2) ctl_d_ran |= (u8)(1u << (cur - tasks));
     cur->fn(cur->arg);
     cur->used = 0;                     /* task returned: free its slot */
     ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
 }
 
-int task_create(void (*fn)(void *p), void *p, const char *name)
+__attribute__((section(".bt_stack_code.d46"))) int task_create(void (*fn)(void *p), void *p, const char *name)   /* attempt 46: piece 2 (piece 1 is full) */
 {
     for (int i = 0; i < CTL_MAX_TASKS; i++) {
         struct ctl_task *t = &tasks[i];
         if (t->used) continue;
         memset(t, 0, sizeof(*t));
-        t->stack = malloc(CTL_TASK_STACK_WORDS * 4);
-        if (!t->stack) return -1;
+        u32 words = stack_words(name);
+        ctl_mark(0x340u + (u32)i * 0x10u);   /* attempt 41: a task is created (0x340, 0x350) */
+        t->stack = malloc(words * 4);
+        if (!t->stack) { ctl_mark(0x34Fu); d_inc(&ctl_d_tc_fail); return -1; }
+        ctl_mark_v(0x344u + (u32)i * 0x10u, (u32)(uintptr_t)t->stack);   /* malloc gave this */
+        memset(t->stack, 0xA5, words * 4);
+        ctl_mark(0x345u + (u32)i * 0x10u);
         t->name = name; t->fn = fn; t->arg = p; t->used = 1; t->waiting = 0;
-        ctl_port_ctx_init(&t->ctx, t->stack, CTL_TASK_STACK_WORDS * 4, task_trampoline);
+        ctl_port_ctx_init(&t->ctx, t->stack, words * 4, task_trampoline);
+        ctl_mark(0x346u + (u32)i * 0x10u);
         return 0;
     }
     return -1;
@@ -79,9 +117,18 @@ const char *os_current_task(void) { return cur ? cur->name : "idle"; }
 const char *os_current_task_rom(void) { return os_current_task(); }
 
 /* Give the CPU back to the idle loop until 'ready' says the wait is over. */
+static u8 in_run_once;                 /* ctl_os_run_once is on the stack */
+int ctl_os_run_once(void);
 static void block_current(void)
 {
-    if (!cur) { ctl_port_cpu_relax(); return; }   /* idle context (a timer callback): it cannot block, it spins */
+    /* Attempts 43 and 44: the init is not a task. btstack_init waits there in os_time_dly, and
+     * btctrler_task_ready waits there in os_sem_pend, until the controller task answers. So the
+     * init runs the tasks while it waits. A timer callback (inside ctl_os_run_once) only spins. */
+    if (!cur) {
+        if (!in_run_once) (void)ctl_os_run_once();
+        else ctl_port_cpu_relax();
+        return;
+    }
     cur->waiting = 1;
     ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
 }
@@ -96,12 +143,17 @@ int os_taskq_post_type(const char *name, int type, int argc, int *argv)
     struct ctl_task *t = find(name);
     if (!t) return OS_TASK_NOT_EXIST;
     u32 f = ctl_port_irq_save();
-    if (CTL_TASKQ_WORDS - 1 - taskq_count(t) < argc + 2) { ctl_port_irq_restore(f); return OS_Q_FULL; }
+    if (CTL_TASKQ_WORDS - 1 - taskq_count(t) < argc + 2) {
+        if (ctl_q_full < 255u) ctl_q_full++;   /* DIAG: a lost message */
+        ctl_port_irq_restore(f);
+        return OS_Q_FULL;
+    }
     t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argc + 1;
     t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = type;
     for (int i = 0; i < argc; i++) t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argv[i];
     t->qhead &= (CTL_TASKQ_WORDS - 1);
     t->waiting = 0;
+    if (t - tasks < 2) d_inc(&ctl_d_post[t - tasks]);
     ctl_port_irq_restore(f);
     return OS_NO_ERR;
 }
@@ -121,6 +173,7 @@ int os_taskq_pend(const char *fmt, int *argv, int argc)
             }
             t->qtail &= (CTL_TASKQ_WORDS - 1);
             ctl_port_irq_restore(f);
+            if (t - tasks < 2) d_inc(&ctl_d_pend[t - tasks]);
             return OS_TASKQ;
         }
         ctl_port_irq_restore(f);
@@ -178,10 +231,15 @@ void ctl_os_init(void) { memset(tasks, 0, sizeof(tasks)); cur = NULL; }
 
 /* One pass: timers and the host mailbox, then each task that may be runnable.
  * A task re-checks its own wait condition. */
+__attribute__((noinline, section(".bt_stack_code.d45"))) u32 ctl_os_d_waiting(void) /* attempt 45 DIAG: bit i = task i waits */
+{
+    return (tasks[0].used && tasks[0].waiting ? 1u : 0u) | (tasks[1].used && tasks[1].waiting ? 2u : 0u);
+}
 int ctl_os_run_once(void)
 {
     int ran = 0;
     u32 now;
+    in_run_once = 1;
     ctl_timer_poll();
     ctl_host_poll();
     now = ctl_ms();
@@ -196,5 +254,6 @@ int ctl_os_run_once(void)
         cur = NULL;
         ran = 1;
     }
+    in_run_once = 0;
     return ran;
 }

@@ -101,6 +101,23 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
         return -8;
     return fl_write(off, src, n);
 }
+#if BOARD_SMK37
+/* the Bluetooth image's own flash (piece 2, the bonds): FL_BLE_OK only */
+static int ble_fl_erase(uint32_t off)
+{
+    uint32_t took;
+    if (!FL_BLE_OK(off, 0x1000u))
+        return -8;
+    audio_silence();
+    return fl_erase4k(off, &took);
+}
+static int ble_fl_prog(uint32_t off, const void *src, uint32_t n)
+{
+    if (!FL_BLE_OK(off, n))
+        return -8;
+    return fl_write(off, src, n);
+}
+#endif
 #define ST_IDLE() fm1_wdt_feed()   /* (storage.c, SMK store owner check: between sector erases) */
 #include "storage.c"
 

@@ -24,8 +24,9 @@
 #define BLEH_MTU 23u
 #define BLEH_NAME_MAX 20u
 #define BLEH_MIDIQ 32u
-#define BLEH_INQ 64u                         /* attempt 32: MIDI in (iPhone colour bursts); a power of 2 */
-#define BLEH_SYSEX_MAX 64u               /* the longest SysEx bleh_sysex_send takes */
+#define BLEH_INQ 32u                         /* ABI 3: one whole packet (MTU 64: at most 30 messages); a power of 2 */
+#define BLEH_SYSEX_MAX 64u                   /* the longest SysEx bleh_sysex_send takes */
+#define BLEH_FMTU 64u                        /* frames mode (ABI 3): the ATT MTU the image offers (HX_MTU_MAX) */               /* the longest SysEx bleh_sysex_send takes */
 
 enum { BLEH_H4_CMD = 1, BLEH_H4_ACL = 2, BLEH_H4_EVT = 4 };
 enum { BLEH_IDLE = 0, BLEH_STARTING, BLEH_ADVERTISING, BLEH_CONNECTED, BLEH_ERROR };
@@ -67,7 +68,11 @@ typedef struct {
     uint16_t conn_int, conn_lat;         /* attempt 34: the link's interval (1.25 ms) and latency in use */
     uint8_t cpu_state, cpu_result;
     uint16_t mtu_req;                    /* the MTU the central asked for (last link) */
-    uint8_t disc_reason, sig_reqs;       /* the last link's end reason; L2CAP requests from the central */       /* parameter request: 0 not sent, 1 sent; result 0 none, 1 accepted, 2 rejected */
+    uint8_t disc_reason, sig_reqs;
+    /* frames mode (ABI 3: JieLi's host in the image; the image sends whole BLE-MIDI packets) */
+    uint8_t frames, lost, bonded;
+    uint16_t mtu;
+    uint32_t tx_lost;                    /* packets the ring refused (bleh_poll runs only with room) */
 } bleh_t;
 
 void bleh_init(bleh_t *h, bleh_send_fn send, void *ctx, const char *name, const uint8_t addr[6]);
@@ -80,5 +85,10 @@ int bleh_midi_next(bleh_t *h, bleh_msg_t *msg);
 void bleh_poll(bleh_t *h);
 int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16_t to);
 void bleh_radio(bleh_t *h, int on);
+/* frames mode: the image holds the host. send() gets (frame type, BLE-MIDI packet) */
+void bleh_frames_start(bleh_t *h, uint8_t midi_type);
+void bleh_link(bleh_t *h, const uint8_t s[8]);      /* the image's link frame (xb_hx_t order) */
+void bleh_midi_in(bleh_t *h, const uint8_t *p, uint16_t n);   /* a BLE-MIDI packet the central wrote */
+static inline int bleh_link_lost(bleh_t *h) { int l = h->lost; h->lost = 0; return l; }
 static inline int bleh_connected(const bleh_t *h) { return h->state == BLEH_CONNECTED; }
 static inline int bleh_notifying(const bleh_t *h) { return h->state == BLEH_CONNECTED && (h->cccd[0] & 1u); }

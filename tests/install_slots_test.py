@@ -128,7 +128,7 @@ def downgrade():
     fl = Flash()
     a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
     b = put(fl, SMK_MAP, 1, "BIG", 200000, 5)          # about 98 KiB: more than an old 80 KiB slot
-    c = put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    c = put(fl, SMK_MAP, 2, "BR3", 30000, 7)
     raw = package(OLD_PKG)                             # Felucca loader, no slot map: 2 x 80 KiB
     dev = FakeX0X(I.logical_image(raw), NEW_PKG, OLD_PKG, {OLD_PKG: OLD, NEW_PKG: NEW}, fl)
     rc, out, err = T.cli([pkgfile("old.fwsc", raw), "--yes", "--backup", "before.x0xslots"], dev)
@@ -139,7 +139,7 @@ def downgrade():
     reads_before = [c for idn, c in dev.slot_cmds if idn == NEW_PKG]
     ok(set(reads_before) <= {xs.CMD_INFO, xs.CMD_READ} and dev.sent[first_install - 1][:4] == I.ED_HDR,
        "downgrade: the backup sends SMP_INFO / SMP_READ only, and before the install")
-    ok("slot 2 (BIG, 98 KiB), slot 3 (BR3, 30 KiB)" in out, "downgrade: the warning names the slots at risk")
+    ok("slot 2 (BIG, 98 KiB), slot 3 (BR3, 15 KiB)" in out, "downgrade: the warning names the slots at risk")
     now = read(fl, SMK_OLD_MAP, ext=False)
     ok(now == [a, c] and "slot 3 written back to slot 2 and read back: ok" in out and "not written back: slot 2" in out,
        "downgrade: slot 1 kept, slot 3 written back to the free slot 2, slot 2 (too large) reported")
@@ -199,7 +199,7 @@ def backup_fails():
 def stock():
     fl = Flash()
     a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
-    c = put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    c = put(fl, SMK_MAP, 2, "BR3", 30000, 7)
     raw = package("SMK-37 Pro_016", marker=False)
     dev = FakeX0X(I.logical_image(raw), NEW_PKG, "SMK-37 Pro_016", {NEW_PKG: NEW}, fl, stock_erases=[(0x9D000, 0xC0000)])
     rc, out, err = T.cli([pkgfile("stock.fwsc", raw), "--yes", "--force", "--backup", "stock.x0xslots"], dev)
@@ -212,7 +212,7 @@ def stock():
 
 def opt_out():
     fl = Flash()
-    put(fl, SMK_MAP, 2, "BR3", 60000, 7)
+    put(fl, SMK_MAP, 2, "BR3", 30000, 7)
     raw = package(OLD_PKG)
     dev = FakeX0X(I.logical_image(raw), NEW_PKG, OLD_PKG, {OLD_PKG: OLD, NEW_PKG: NEW}, fl)
     rc, out, err = T.cli([pkgfile("old.fwsc", raw), "--yes", "--no-slots"], dev)

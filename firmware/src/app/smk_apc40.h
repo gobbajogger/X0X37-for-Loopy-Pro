@@ -278,8 +278,8 @@ static inline void smk_apc40_build_layout(const uint8_t velocity[SMK_APC40_CLIP_
      * A 4x4 grid with a late or empty edge row or column still folds. Wider
      * footprints keep the 0.7 8-wide drawing.
      * An empty edge column of a 4x4 project can make the span narrower than 4. */
-    *columns = (uint8_t)(max_col - min_col <= 3u && max_row - min_row >= 2u &&
-                                 max_row - min_row <= 3u
+    *columns = (uint8_t)((unsigned)(max_col - min_col) <= 3u && (unsigned)(max_row - min_row) >= 2u &&
+                                 (unsigned)(max_row - min_row) <= 3u
                              ? 4u : SMK_APC40_SOURCE_COLS);
     *rows = (uint8_t)(max_row - min_row + 1u);
 }
