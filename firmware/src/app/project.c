@@ -150,7 +150,8 @@ static int load_obj(uint32_t obj, void *dst, uint32_t len)
 }
 
 /* the settings may have grown since they were saved: a shorter payload of this format loads into
- * the front of dst, and the rest keeps what dst held (zeros: the new settings' defaults) */
+ * the front of dst, and the rest keeps what dst held (zeros: the new settings' defaults). Returns the
+ * payload length (the settings bytes that the object had), or -1. */
 static int load_settings(settings_t *dst)
 {
     int n = plat_store_load(OBJ_SET, io_buf, sizeof io_buf);
@@ -163,7 +164,7 @@ static int load_settings(settings_t *dst)
         stored_known[OBJ_SET] = 1;
         stored_hash[OBJ_SET] = hash_of(io_buf, (uint32_t)n);
     }
-    return 0;
+    return n - 4;
 }
 
 static int save_obj(uint32_t obj, const void *src, uint32_t len)
@@ -458,10 +459,19 @@ int project_load(void)
     project_defaults();
     packed_len = 0;
     set = proj.set;
-    if (load_settings(&set) == 0 && set.magic == PROJ_MAGIC)
+    n = load_settings(&set);
+    if (n >= 0 && set.magic == PROJ_MAGIC)
         proj.set = set;
     else
         bad = 1;
+    /* a 40-byte settings object (before the 44-byte layout): offset 38 is clk_src (ble-a74) or ck_x1
+     * (clip-keys-a65), and offset 39 (now ck_x1) is padding (0) or ck_x2. ble-a74 writes 0 at 39 and 0-2 at 38.
+     * Any other pair is from clip-keys-a65: its bytes move to ck_x1 and ck_x2, and CLOCK SOURCE is AUTO. */
+    if (n == 40 && !bad && (proj.set.ck_x1 || proj.set.clk_src > SEQ_CLK_EXT)) {
+        proj.set.ck_x2 = proj.set.ck_x1;
+        proj.set.ck_x1 = proj.set.clk_src;
+        proj.set.clk_src = SEQ_CLK_AUTO;
+    }
     project_ck_check(0);                              /* (main_fm1.c trusts the clip keys settings) */
     if (proj.set.clk_src > SEQ_CLK_EXT)                /* an older object's padding byte: AUTO */
         proj.set.clk_src = SEQ_CLK_AUTO;

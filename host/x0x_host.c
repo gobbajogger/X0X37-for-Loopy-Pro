@@ -702,6 +702,12 @@ static int expect(const char *what, const char *val)
         got = (int)transport_out_count;
     else if (!strcmp(what, "clksrc"))               /* GLO > MIDI > CLOCK SOURCE: 0 AUTO, 1 INTERNAL, 2 EXTERNAL */
         got = proj.set.clk_src;
+    else if (!strcmp(what, "ckx1"))                 /* the clip keys settings byte ck_x1 (SWING, HUMAN) */
+        got = proj.set.ck_x1;
+    else if (!strcmp(what, "ckx2"))                 /* the clip keys settings byte ck_x2 (RHYTHM, STRUM) */
+        got = proj.set.ck_x2;
+    else if (!strcmp(what, "ckscale"))
+        got = proj.set.ck_scale;
     else if (!strcmp(what, "clkext"))               /* 1: the sequencer follows (or waits for) a clock */
         got = seq.ext;
     else if (!strcmp(what, "waiting"))              /* EXTERNAL: playing, no clock */
@@ -1003,6 +1009,13 @@ int main(int argc, char **argv)
                 return 1;
             }
             store[o][off] = (uint8_t)strtol(c, 0, 16);
+        } else if (!strcmp(cmd, "storelen")) {         /* storelen OBJ N: the object is N bytes (as an older build wrote it) */
+            int o = atoi(a), n = atoi(b);
+            if (o < 0 || o >= OBJ_NOBJ || n < 0 || n > (int)PLAT_STORE_MAX) {
+                fprintf(stderr, "storelen: bad object %d or length %d\n", o, n);
+                return 1;
+            }
+            store_len[o] = n;
         } else if (!strcmp(cmd, "reboot")) {
             memset(&proj, 0, sizeof proj);
             boot();

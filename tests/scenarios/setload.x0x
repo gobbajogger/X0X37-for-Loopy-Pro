@@ -1,0 +1,75 @@
+# The settings object (object 0) of each older build loads with the right CLOCK SOURCE and clip keys bytes.
+# Byte 4 + n of the object is settings byte n. Offset 38: clk_src. Offsets 39 and 40: ck_x1, ck_x2 (CLP-78).
+# An older object has 40 settings bytes (44 bytes with the format word).
+wait 100
+tap SAVE
+wait 100
+# 1. Before a74 and before the clip ARP bytes: offsets 38 and 39 are padding (0).
+storelen 0 44
+storepoke 0 42 00
+storepoke 0 43 00
+reboot
+wait 50
+expect clksrc 0
+expect ckx1 0
+expect ckx2 0
+# 2. ble-a74: CLOCK SOURCE EXTERNAL at offset 38, offset 39 is padding.
+storelen 0 44
+storepoke 0 42 02
+storepoke 0 43 00
+reboot
+wait 50
+expect clksrc 2
+expect ckx1 0
+expect ckx2 0
+# 3. clip-keys-a65 (81f6418): ck_x1 at offset 38 (SWING 1, HUMAN 1), ck_x2 at offset 39 (RHYTHM 3, STRUM 2).
+#    CLOCK SOURCE must stay AUTO. The clip bytes move to their new offsets.
+storelen 0 44
+storepoke 0 42 09
+storepoke 0 43 23
+reboot
+wait 50
+expect clksrc 0
+expect ckx1 9
+expect ckx2 35
+# 4. clip-keys-a65: ck_x1 more than 2 (SWING 5, HUMAN 7), ck_x2 0.
+storelen 0 44
+storepoke 0 42 3D
+storepoke 0 43 00
+reboot
+wait 50
+expect clksrc 0
+expect ckx1 61
+expect ckx2 0
+# 5. clip-keys-a65: a clip value out of range (ck_x2 127 is the highest, 0x90 is not): the clip defaults, AUTO.
+storelen 0 44
+storepoke 0 42 05
+storepoke 0 43 90
+reboot
+wait 50
+expect clksrc 0
+expect ckx1 0
+expect ckx2 0
+expect ckscale 0
+# 6. This build: 44 settings bytes (48 with the format word). All three bytes load as they are, and SAVE keeps them.
+tap SAVE
+wait 100
+storelen 0 48
+storepoke 0 42 01
+storepoke 0 43 2A
+storepoke 0 44 7F
+reboot
+wait 50
+expect clksrc 1
+expect ckx1 42
+expect ckx2 127
+tap GLO
+turn ALGO 1
+tap HOME
+tap SAVE
+wait 100
+reboot
+wait 50
+expect clksrc 2
+expect ckx1 42
+expect ckx2 127
