@@ -34,7 +34,7 @@ s = "\n".join(t)
 print(s)
 assert "EDGE         link up, notify on" in t[1]
 assert "BLE          note on  ch  1 (steady) note  32 (cell row 4 col 0) vel 69 (0x45, " in t[2]
-assert "ch 15 (blink)" in t[3] and "BLE DROPPED  note off" in t[4] and "vel 0 (off)" in t[4]
+assert "ch 15 (blink)" in t[3] and "BLE NO CELL  note off" in t[4] and "vel 0 (off)" in t[4]
 assert t[5].strip().split()[2] == "USB" and t[1].strip().startswith("-1.000 s")
 assert f.parse(reply(5, [(0xFFFFFFFB, 2 << 24)], vel, ch)) and "-0.010 s" in f.text(f.parse(reply(5, [(0xFFFFFFFB, 2 << 24)], vel, ch)))[1]
 assert f.colour_name(0xFF00FF) == "magenta" and f.colour_name(0x0000FF) == "blue"

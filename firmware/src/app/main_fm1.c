@@ -353,6 +353,18 @@ static void smk_inlog_reply(uint32_t arg)
         ed_b(i < SMK_APC40_CLIP_COUNT ? apc_led_velocity[i] : apc_led_channel[i - SMK_APC40_CLIP_COUNT]);
 }
 #endif
+/* a76: ble.c gives each Bluetooth note and CC here. While notify is off, a note for a clip cell
+ * (the pad colours) does not change the cell (BEHAVIOR.md CLP-18). It gets the same answer as
+ * before, so no note is dropped (rule 8). All other messages go to smk_apc_usb_event as before. */
+uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying)
+{
+    if (smk_apc40_ble_colour_unheard(pkt, notifying)) {
+        smk_inlog(3u, pkt);
+        return (uint8_t)(clip_grid_mode || apc_host_on);
+    }
+    smk_inlog(1u, pkt);
+    return smk_apc_usb_event(pkt);
+}
 /* MIDI Start: count clock pulses from the downbeat. */
 void smk_apc_clock_start(void)
 {

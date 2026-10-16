@@ -66,15 +66,6 @@ static uint32_t ble_usb_of_msg(const bleh_msg_t *m)
     return cin | st << 8 | (uint32_t)m->b[1] << 16 | (uint32_t)m->b[2] << 24;
 }
 
-/* a76: 1 = a note or a control change (a USB-MIDI event packet) from a central that does not
- * listen (notify off). ble.c does not use it: after Loopy goes away, its APC40 feedback must not
- * light the pads again (BEHAVIOR.md CLP-18, tests/smk_clip_ble_notify_test.c) */
-static int ble_in_unheard(uint32_t pkt, int notifying)
-{
-    uint32_t cin = pkt & 0xFu;
-    return !notifying && (cin == 8u || cin == 9u || cin == 0xBu);
-}
-
 /* a USB-MIDI event packet as one MIDI message: its length (0 = not one BLE-MIDI sends this way) */
 static uint32_t ble_msg_of_usb(uint32_t pkt, uint8_t b[3])
 {

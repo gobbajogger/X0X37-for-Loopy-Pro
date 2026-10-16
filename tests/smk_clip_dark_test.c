@@ -33,6 +33,8 @@ static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) { (v
 #include "apc_a.inc"
 static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void) {}
+static unsigned inlog_src3;         /* smk_inlog (in #if BOARD_SMK37, not cut out): count source 3 */
+void smk_inlog(uint32_t src, uint32_t pkt) { (void)pkt; inlog_src3 += src == 3u; }
 #include "apc_b.inc"
 #include "apc_c.inc"
 
@@ -52,6 +54,13 @@ static unsigned stores_lit(void)    /* every other pad colour store */
         k += padled_rgb[i] != 0u;
     return k + (apc_play_feedback != 0u) + (apc_record_feedback != 0u) + (apc_burst_mask != 0u) +
            (apc_burst_count != 0u);
+}
+static unsigned cells_lit(void)     /* the clip cells only */
+{
+    unsigned i, k = 0;
+    for (i = 0; i < SMK_APC40_CLIP_COUNT; i++)
+        k += apc_led_velocity[i] != 0u || apc_led_channel[i] != 0u || apc_cell_flags[i] != 0u;
+    return k;
 }
 static void run(uint32_t ms)        /* 1 ms ticks; the frame (smk_frame: map, LCD, pads) each 16 ms */
 {
@@ -128,6 +137,55 @@ int main(void)
     msg(0x90u, 0u, 0x2Du);
     link(0, 0, 10000);
     check(pads_lit() > 0u, "6 a USB clip message 1 s after the link end shows");
+
+    /* 7. Rule 8 (never drop notes): while notify is off, only a note that writes a clip cell
+     *    (notes 0-39: the pad colours) does not change the cell. smk_apc_ble_event gives every
+     *    message the same answer as smk_apc_usb_event (1 = APC feedback, 0 = the sound engine). */
+    {
+        static const uint32_t other[] = {
+            9u | 0x90u << 8 | 60u << 16 | 100u << 24,   /* a note: track LED in APC terms, or a played note */
+            8u | 0x80u << 8 | 60u << 16,
+            9u | 0x90u << 8 | 91u << 16 | 127u << 24,   /* PLAY feedback (transport LED) */
+            9u | 0x90u << 8 | 100u << 16 | 90u << 24,   /* a note above 98 */
+            0xBu | 0xB0u << 8 | 16u << 16 | 5u << 24,   /* a knob ring CC */
+            0xBu | 0xB0u << 8 | 7u << 16 | 99u << 24,   /* another CC */
+        };
+        static const uint32_t colour[] = {
+            9u | 0x90u << 8 | 5u << 16 | 45u << 24, 9u | 0x9Eu << 8 | 1u << 16 | 0x39u << 24,
+            8u | 0x80u << 8 | 39u << 16,
+        };
+        unsigned i, owned, ok;
+        link(1, 0, 50);
+        for (owned = 0; owned < 2u; owned++) {
+            smk_apc_host_lost();
+            clip_grid_mode = (uint8_t)owned;
+            ok = 1;
+            for (i = 0; i < sizeof other / sizeof other[0]; i++) {
+                uint8_t r1 = smk_apc_ble_event(other[i], 0u), p1 = apc_play_feedback;
+                uint8_t r2;
+                apc_play_feedback = 0u;
+                r2 = smk_apc_usb_event(other[i]);
+                ok &= r1 == r2 && p1 == apc_play_feedback;
+                apc_play_feedback = 0u;
+            }
+            check(ok, owned ? "7 notify off, clip mode: notes and CCs that write no pad colour act as before"
+                            : "7 notify off, no clip mode: notes and CCs that write no pad colour act as before");
+            inlog_src3 = 0u;
+            ok = 1;
+            for (i = 0; i < sizeof colour / sizeof colour[0]; i++)
+                ok &= smk_apc_ble_event(colour[i], 0u) == owned;   /* 0: the note still goes to the sound engine */
+            link(1, 0, 100);
+            /* (this test cuts out only the clip-mode part of smk_pads: without clip mode, check the cells) */
+            check(ok && cells_lit() == 0u && inlog_src3 == 3u && (!owned || (pads_lit() == 0u && stores_lit() == 0u)),
+                  owned ? "7 notify off, clip mode: a pad colour note writes no cell, is recorded as source 3"
+                        : "7 notify off, no clip mode: a pad colour note writes no cell and still goes to the engine");
+        }
+        clip_grid_mode = 1;
+        link(1, 1, 50);
+        (void)smk_apc_ble_event(colour[0], 1u);
+        link(1, 1, 100);
+        check(pads_lit() > 0u, "7 notify on: a pad colour note lights the pad as before");
+    }
 
     printf("%s %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails ? 1 : 0;

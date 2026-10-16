@@ -5,7 +5,7 @@
 The reply: the entry count, fm1_ms now, then 2 words for each entry (the oldest first), each word
 5 x 7 bits, low bits first. Then the 40 stored clip velocities and the 40 stored clip channels.
 Entry word 1 is fm1_ms. Entry word 2 is src << 24 | status << 16 | d1 << 8 | d2.
-src: 0 USB, 1 Bluetooth, 2 Bluetooth link edge (d2 bit 0 link up, bit 1 notify on), 3 Bluetooth, dropped.
+src: 0 USB, 1 Bluetooth, 2 Bluetooth link edge (d2 bit 0 link up, bit 1 notify on), 3 Bluetooth pad colour note while notify is off (the cell did not change).
 tools/ble_autotest.py --diag-only uses this module.
 """
 import colorsys
@@ -14,7 +14,7 @@ from pathlib import Path
 
 ED_INLOG = 38
 CELLS = 40
-SRC = ["USB", "BLE", "EDGE", "BLE DROPPED"]
+SRC = ["USB", "BLE", "EDGE", "BLE NO CELL"]
 MAIN = Path(__file__).resolve().parents[1] / "firmware/src/app/main_fm1.c"
 
 
