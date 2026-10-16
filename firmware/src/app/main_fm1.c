@@ -1223,7 +1223,7 @@ CK_FN static void ck_controls(void)
     st = ck_rpt(own && ck_page_on() ? cur >> 5 & 3u : 0u, press >> 5 & 3u, fm1_ms, &ck_rpt_st);
     if (st) {                                               /* < >: the last field one step down / up */
         v = ck_get(f);
-        nv = st > 0 ? (v < CK_FMAX[f] ? v + 1u : v) : (v ? v - 1u : 0u);
+        nv = ck_step(v, st, CK_FMAX[f]);
         if (nv != v)                                        /* at an end: no step, the notes stay */
             ck_set(f, nv);
     }

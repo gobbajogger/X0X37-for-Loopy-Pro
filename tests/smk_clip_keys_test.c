@@ -310,6 +310,17 @@ static void test_rpt(void)
     assert(ck_rpt(0, 0, 83000, &t) == 0);                     /* a menu opens during a hold: stop */
     for (now = 83001; now < 84000; now++)
         assert(ck_rpt(2, 0, now, &t) == 0);                   /* it closes, > still down: nothing */
+    /* the page closes (or clip mode stops: the page closes) during a hold, then shows again: nothing */
+    assert(ck_rpt(1, 1, 90000, &t) == -1 && ck_rpt(1, 0, 90000u + CK_RPT_DELAY, &t) == -1);
+    assert(ck_rpt(0, 0, 90500, &t) == 0);
+    for (now = 90501; now < 92000; now++)
+        assert(ck_rpt(1, 0, now, &t) == 0);
+    /* the field at its lowest and highest value: no step, no wrap; a one-value field never moves */
+    assert(ck_step(0, -1, 7) == 0 && ck_step(7, 1, 7) == 7);
+    assert(ck_step(0, 1, 7) == 1 && ck_step(7, -1, 7) == 6 && ck_step(3, 1, 7) == 4 && ck_step(3, -1, 7) == 2);
+    assert(ck_step(0, 1, 0) == 0 && ck_step(0, -1, 0) == 0);
+    assert(ck_step(1, 1, 1) == 1 && ck_step(1, -1, 1) == 0);   /* LATCH, SNAP: 0..1 */
+    assert(ck_step(23, 1, 23) == 23 && ck_step(29, 1, 29) == 29);   /* the last scale, the last chord */
 }
 
 static void test_human(void)
