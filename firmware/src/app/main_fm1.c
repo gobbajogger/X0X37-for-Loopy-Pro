@@ -184,6 +184,7 @@ extern void isr_timer5(void);
 
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
+#include "app/apc40_lcd565.h"   /* APC40_LCD565[128]: the LCD clip colours (tools/apc_pad_colors.py) */
 /* ------------------------------------------------------------ SMK-37 Pro --- */
 /* What the SMK-37 Pro has beyond the FM-1's panel (smk_input.h), after the UI (ui.c) in this unity build.
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
@@ -482,12 +483,13 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
     padled_dirty = 1u;
 }
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
- * cells: lit cells in the color from Loopy (dark shades lifted, see SMK_CLIP_LCD_FLOOR), unlit cells dim, queued cells with a white
+ * cells: lit cells in the approved LCD colour (APC40_LCD565, dark shades lifted), unlit cells dim, queued cells with a white
  * dot. A white frame marks each cell that is on the 16 pads now (the OCT view, or the
  * full 4x4). It redraws when the cells or the view change, at most every 64 ms.
  * It uses the existing canvas (gfx.c cv_px): no new RAM buffer. */
 #define SMK_CLIP_LCD_MIN_MS 64u
-/* Lowest level (0..255) of the brightest channel of a lit clip on the LCD. */
+/* Lowest level (0..255) of the brightest channel of a lit clip on the LCD. The firmware does
+ * not use it: tools/apc_pad_colors.py reads it to make APC40_LCD565. Do not remove it. */
 #define SMK_CLIP_LCD_FLOOR 128u
 static uint8_t was_on;   /* 0: the next smk_clip_lcd_draw draws at once */
 static uint32_t ck_t0;   /* the time of the last SCALE / CHORD / ARP press (a tap or a hold) */
@@ -546,22 +548,8 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)
                 int32_t x = m.x0 + (int32_t)col * p, y = m.y0 + (int32_t)smk_apc40_lcd_screen_row(&m, (uint8_t)(m.row0 + row)) * p;
                 uint8_t n = (uint8_t)((m.row0 + row) * SMK_APC40_SOURCE_COLS + m.col0 + col);
                 uint8_t v = apc_led_velocity[n];
-                uint32_t rgb = APC40_RGB[v];
-                uint32_t rr = rgb >> 16, gg = (rgb >> 8) & 0xFFu, bb = rgb & 0xFFu;
-                uint32_t mx = rr > gg ? rr : gg;
-                uint16_t c;
-                if (bb > mx)
-                    mx = bb;
-                /* Loopy idle shades are too dark on the LCD. Map the brightest channel
-                 * from 0..255 to FLOOR..255. The hue stays the same. Playing (full)
-                 * colours do not change. Idle stays darker than playing. */
-                if (mx) {
-                    uint32_t t = SMK_CLIP_LCD_FLOOR + mx * (255u - SMK_CLIP_LCD_FLOOR) / 255u;
-                    rr = rr * t / mx;
-                    gg = gg * t / mx;
-                    bb = bb * t / mx;
-                }
-                c = (uint16_t)((rr >> 3) << 11 | (gg >> 2) << 5 | (bb >> 3));
+                /* The approved LCD colour (CLP-05). Idle shades are lifted, the hue stays. */
+                uint16_t c = APC40_LCD565[v & 0x7Fu];
                 int32_t q = p / 4;
                 if (in_view[n])
                     cv_rect(x, y, p, p, C_WHITE);
