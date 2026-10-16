@@ -375,6 +375,10 @@ static void ble_service(void)
     bleh_poll(h);
     while (mi_w - mi_r < MQ && bleh_midi_next(h, &m)) {   /* MIDI in: the USB queue */
         uint32_t pkt = ble_usb_of_msg(&m);
+        if (ble_in_unheard(pkt, bleh_notifying(h))) {
+            smk_inlog(3u, pkt);                   /* a76: Loopy does not listen (notify off): not used */
+            continue;
+        }
         if (pkt && ((pkt & 0xFu) == 8u || (pkt & 0xFu) == 9u || (pkt & 0xFu) == 0xBu) &&
             (smk_inlog(1u, pkt), smk_apc_usb_event(pkt)))
             continue;                             /* attempt 29: APC clip and transport feedback, as on USB */

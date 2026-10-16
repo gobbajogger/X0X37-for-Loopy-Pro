@@ -402,6 +402,13 @@ static void t_glue(void)
     CHECK(ble_msg_of_usb(0x4u | 0xF0u << 8, b) == 0);              /* SysEx: not mirrored */
     CHECK(ble_msg_of_usb(0x9u | 0x80u << 8, b) == 0);              /* CIN and status disagree */
     CHECK(ble_msg_of_usb(0x3u | 0xF2u << 8 | 1u << 16 | 2u << 24, b) == 3);
+    /* a76: notes and control changes from a central with notify off are not used */
+    CHECK(ble_in_unheard(0x9u | 0x90u << 8 | 32u << 16 | 69u << 24, 0) == 1);
+    CHECK(ble_in_unheard(0x8u | 0x80u << 8 | 32u << 16, 0) == 1);
+    CHECK(ble_in_unheard(0xBu | 0xB0u << 8 | 16u << 16, 0) == 1);
+    CHECK(ble_in_unheard(0x9u | 0x90u << 8 | 32u << 16 | 69u << 24, 1) == 0);
+    CHECK(ble_in_unheard(0xFu | 0xF8u << 8, 0) == 0);              /* clock: still used */
+    CHECK(ble_in_unheard(0, 0) == 0);
     /* every message both ways: the same bytes */
     {
         int st, bad = 0;
