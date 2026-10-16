@@ -639,7 +639,15 @@ static void run(bass303_t *b, float *out, int n)
 #elif BASS303_OS == 2
             s = lite ? os[0] : decim_hb1(b->hb1, os[0], os[1]);
 #else
-            s = lite ? os[0] : decim_hb1(b->hb1, decim_hb2(b->hb2, os[0], os[1]), decim_hb2(b->hb2, os[2], os[3]));
+            if (lite) {
+                s = os[0];
+            } else {
+                /* two calls on one filter state: sequence them (argument evaluation order is
+                 * unspecified; gcc ran the second pair first) */
+                const float h0 = decim_hb2(b->hb2, os[0], os[1]);
+                const float h1 = decim_hb2(b->hb2, os[2], os[3]);
+                s = decim_hb1(b->hb1, h0, h1);
+            }
 #endif
 
             /* allpass 14 Hz, highpass 24 Hz, notch 7.5 Hz at the base rate */
