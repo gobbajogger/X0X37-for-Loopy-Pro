@@ -24,6 +24,8 @@
 #      The gate compares the tests that ran with the list of tests in the script. A missing test is a failure.
 #   3. the flash-map check (tools/gate_flashmap.py, with the owner tag), the budget checks for the three builds,
 #      the X0X_RAM_CANARY default (it must be 0) and a CRC manifest.
+#      The CRC manifest has a line for build/x0x-smk37-elite-ble.fwsc (tools/add_ctl.py: the Elite package and the
+#      gate's ctl.img), the BLE Elite package that is installed. If the gate cannot make it, the result is FAIL.
 # The builds and the tests use a private HOME and TMPDIR for each run (<worktree>.logs/home and tmp).
 # The gate always uses X0X_TEST_TIME_SCALE=1 (the real waits of the updater in install-slots-web), also if the
 # caller sets another value. The PASS or FAIL line and the result file give the time scale.
@@ -34,6 +36,8 @@
 # On SIGTERM, SIGINT or SIGHUP the gate stops all its builds and tests (each runs in its own process group),
 # releases the lock, writes "KILLED <commit> <signal> (no result)", writes no result file and exits with 143, 130 or 129.
 # No child gets the lock file descriptor, so a child that stays alive cannot keep the lock.
+# The install-path tests in run_tests.sh take a shared lock (flock -s) on the same file, so the gate waits for them.
+# While the gate holds its exclusive lock it sets X0X_GATE_HOLDS_LOCK=1, and its own tests do not take the shared lock.
 # The tree is a SHA-1 of "git ls-tree -r" without the *.md files.
 # Output: one line, "PASS <hash>" or "FAIL <hash> <reason>" ("TRIAL PASS" or "TRIAL FAIL" with --trial), or
 # "VOID <hash> setup: ..." (exit code 2). Exit code 0 or 1. The full log is in the worktree folder.
@@ -240,7 +244,7 @@ else
     fi
     LW1=$(date +%s)
     echo "gate: took the gate lock after $((LW1 - LW0)) s" >> "$LOG"
-    X0X_TEST_JOBS="$JOBS" child sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?
+    X0X_GATE_HOLDS_LOCK=1 X0X_TEST_JOBS="$JOBS" child sh tests/run_tests.sh > "$L/tests.log" 2>&1 9>&-; TRC=$?   # the tests do not take the shared lock
     flock -u 9; exec 9>&-
     LW2=$(date +%s)
     echo "gate: released the gate lock; the tests took $((LW2 - LW1)) s" >> "$LOG"
@@ -312,6 +316,13 @@ CORE_USED=$(echo "$CORE" | sed -n 1p); CORE_MAX=$(echo "$CORE" | sed -n 2p)
 CORE_FREE=$(( ${CORE_MAX:-0} - ${CORE_USED:-0} ))
 [ -n "$CTL_SIZE" ] && [ "$CTL_SIZE" -le 65536 ] || fail "ctl.img is not one piece of 65536 B or less"
 [ -n "$CORE_USED" ] && [ "$CORE_FREE" -ge 0 ] || fail "core RAM does not fit"
+# The BLE Elite package (the file that Firmware Main Builder installs): the Elite package with the gate's ctl.img added.
+BLEPKG=build/x0x-smk37-elite-ble.fwsc
+rm -f "$BLEPKG"
+if [ ! -f tools/add_ctl.py ]; then fail "BLE Elite package: no tools/add_ctl.py"
+elif ! python3 tools/add_ctl.py build/x0x-smk37-elite.fwsc ble/ctl/out/ctl.img -o "$BLEPKG" > "$L/ble-package.log" 2>&1 || [ ! -s "$BLEPKG" ]; then
+    fail "BLE Elite package: add_ctl.py failed ($(tail -n1 "$L/ble-package.log"))"
+fi
 python3 - "$L/crc.txt" <<'PY' || fail "CRC manifest"
 import glob, struct, sys, zlib
 lines = []
@@ -326,6 +337,7 @@ for p in sorted(glob.glob("build/*.fwsc") + glob.glob("build/x0x.bin") + glob.gl
     lines.append(f"{p} crc32 {crc(p)}, {len(open(p, 'rb').read())} B")
 open(sys.argv[1], "w").write("\n".join(lines) + "\n")
 PY
+grep -q '^build/x0x-smk37-elite-ble\.fwsc crc32 [0-9a-f]\{8\}, [0-9]* B$' "$L/crc.txt" 2>/dev/null || fail "CRC manifest: no line for build/x0x-smk37-elite-ble.fwsc"
 T1=$(date +%s)
 R=PASS; [ -n "$REASON" ] && R=FAIL
 TMPF="$RF.tmp.$$"
