@@ -1,0 +1,14 @@
+# Cases for check 6 (tests/host/test_prepush_allow.sh): want|push URL. The test replaces BOX (the box repository),
+# MAC (the Mac root, x0x37.allowedRemote = MAC/x0x37) and T (the temp folder).
+OK|BOX
+OK|file:BOX
+OK|T/box-link.git
+OK|MAC/x0x37
+OK|MAC/sub/../x0x37
+REFUSED|https://github.com/genkigenki/x0x37.git
+REFUSED|git@github.com:genkigenki/x0x37.git
+REFUSED|ssh://box/workspace/x0x37.git
+REFUSED|DISABLED-no-push-outside-box
+REFUSED|MAC/x0x37/../../escape.git
+REFUSED|MAC/other.git
+REFUSED|MAC/missing.git
