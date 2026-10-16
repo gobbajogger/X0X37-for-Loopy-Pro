@@ -466,9 +466,9 @@ int project_load(void)
     settings_t set;
     project_defaults();
     packed_len = 0;
-    set = proj.set;
+    __builtin_memcpy(&set, &proj.set, sizeof set);    /* (memcpy: the padding bytes 38-39 too, project_clk_check) */
     if (load_settings(&set) == 0 && set.magic == PROJ_MAGIC)
-        proj.set = set;
+        __builtin_memcpy(&proj.set, &set, sizeof set);
     else
         bad = 1;
     project_clk_check();                              /* (first: it can clear the a74 byte 38) */
