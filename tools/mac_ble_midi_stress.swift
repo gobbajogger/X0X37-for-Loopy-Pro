@@ -130,7 +130,8 @@ final class Usb {
     static let live = ["img_boot_up_dead", "want_host_blocked_c1on", "c1_gave_up", "plat_state", "mb_state_now",
         "mb_err_now", "polls", "poll_max", "h_state", "c1_trace", "reset_now", "h2c", "c2h", "c2h_drops", "h_step",
         "ctl_took", "ctl_gave", "rx0", "rx1", "alive_ms", "alive_polls", "rails0", "rails1", "hx_state", "hx_int_mtu",
-        "hx_links", "hx_pairs", "hx_heap", "hx_stacks", "hx_nv", "hx_rx", "hx_tx", "hx_tx_drops"]
+        "hx_links", "hx_pairs", "hx_heap", "hx_stacks", "hx_nv", "hx_rx", "hx_tx", "hx_tx_drops",
+        "d_state_fr", "d_send_sx", "d_app_flags", "d_mirror_n"]
     func diag() -> [String: Any]? {
         var w: [UInt32] = []
         while true {
@@ -182,7 +183,7 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var rxPk = 0, rxB = 0, rxNotes = 0, rxPads = 0, rxCC = 0, rxSx = 0, rxOther = 0, rxSxBuf: [UInt8] = []
     var gapMax = 0.0, lastRx = 0.0
     var disc: [[String: Any]] = [], tDisc = 0.0
-    var inqSent: Double = 0, inqOut = 0, inqLost = 0, bleRtt: [Double] = [], usbRtt: [Double] = []
+    var inqSent: Double = 0, inqOut = 0, inqLost = 0, pendingInq = false, bleRtt: [Double] = [], usbRtt: [Double] = []
     var results: [[String: Any]] = []
     var genTimer: Timer?, inqTimer: Timer?
     // a55: connect step tracing + watchdog (the a52 run hung silently after the connect)
@@ -306,6 +307,7 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     /// pack as many queued messages as fit in one write; when the link is busy, wait (peripheralIsReady)
     func pump() {
         guard let p = p, let ch = ch, p.state == .connected else { return }
+        if pendingInq { _ = sendInquiry() }   // a60: probe goes first, but notes still flow if the link is momentarily full
         let cap = min(64, p.maximumWriteValueLength(for: .withoutResponse))
         while !q.isEmpty {
             guard p.canSendWriteWithoutResponse else { waits += 1; return }
@@ -319,13 +321,16 @@ final class Tester: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func peripheralIsReady(toSendWriteWithoutResponse per: CBPeripheral) { pump() }
     func inquiry() {
         if inqOut > 0 { inqLost += 1 }
-        guard let p = p, let ch = ch, p.state == .connected else { return }
-        // its own write so the round trip is not behind the note backlog's packing
+        pendingInq = true          // a60: pump() sends it with priority, before the note backlog
+        pump()
+    }
+    // a60: send the latency probe ahead of queued notes so the flood can't starve it
+    func sendInquiry() -> Bool {
+        guard let p = p, let ch = ch, p.state == .connected, p.canSendWriteWithoutResponse else { return false }
         let (h, l) = ts()
-        if p.canSendWriteWithoutResponse {
-            p.writeValue(Data([h, 0xF0, 0x7E, 0x7F, 0x06, 0x01, l, 0xF7]), for: ch, type: .withoutResponse)
-            inqSent = now(); inqOut = 1
-        }
+        p.writeValue(Data([h, l, 0xF0, 0x7E, 0x7F, 0x06, 0x01, l, 0xF7]), for: ch, type: .withoutResponse)  // a60: ts byte before F0 (BLE-MIDI)
+        inqSent = now(); inqOut = 1; pendingInq = false
+        return true
     }
     func peripheral(_ per: CBPeripheral, didUpdateValueFor c: CBCharacteristic, error e: Error?) {
         guard let v = c.value, v.count > 1 else { return }
