@@ -197,19 +197,41 @@ def pad_linear(rgb, gamma=None, balance=None):
     return [x * k * t for x, t in zip(d, PAD_GAIN_TRIM)]
 
 
+# The firmware makes the start values at run time (app/smk_padcal.h smk_padcal_default) from the
+# LCD table (the source colour as RGB565), so the 384 B table is not in flash. These integer steps
+# are the same in the firmware: green uses its 5 high bits, a 32-entry gamma table, Q8 gains.
+def pad_gamma_lut(gamma=None):
+    gamma = PAD_GAMMA if gamma is None else gamma
+    return [int(round(255 * (i / 31) ** gamma)) for i in range(32)]
+
+
+def pad_gain_q8(balance=None):
+    balance = PAD_BALANCE if balance is None else balance
+    g = PAD_WHITE_GAIN if balance else (1.0, 1.0, 1.0)
+    return [int(round(256 * w * t)) for w, t in zip(g, PAD_GAIN_TRIM)]
+
+
+PAD_FLOOR_LEVEL = 2 * PAD_FLOOR_SENT          # table units: send = level * 255 // 510
+
+
+def pad_default(c565, lut, gain, floor=PAD_FLOOR_LEVEL):
+    """Start values (R, G, B 0..255) of one entry from its RGB565 code: decode with the gamma
+    table, the white gains, then scale back to the brightest decoded channel. A lit entry gets
+    at least floor on its brightest channel: below it, the 5-bit codes scaled to floor."""
+    q = (c565 >> 11, (c565 >> 6) & 31, c565 & 31)
+    if not c565:
+        return (0, 0, 0)
+    lin = [lut[x] for x in q]
+    d = [x * g for x, g in zip(lin, gain)]
+    lvl = [x * max(lin) // max(d) for x in d] if max(d) else [0, 0, 0]
+    if max(lvl) < floor:                      # dim: the RGB565 code gives the hue (the gamma table has too few steps)
+        lvl = [x * floor // max(q) for x in q]
+    return tuple(min(255, x) for x in lvl)
+
+
 def pad_level(e, mode=None, gamma=None, balance=None):
-    """Pad table entry (R, G, B 0..255) for one velocity."""
-    rgb = target(e, mode)
-    if not rgb:
-        return (0, 0, 0)
-    d = pad_linear(rgb, gamma, balance)
-    mx = max(d)
-    if mx <= 0:
-        return (0, 0, 0)
-    floor = (2 * PAD_FLOOR_SENT) / 255          # table units: send = level * 255 // 510
-    if mx < floor:
-        d = [x * floor / mx for x in d]
-    return tuple(min(255, int(round(255 * x))) for x in d)
+    """Pad start values (R, G, B 0..255) for one velocity: pad_default of its RGB565 code."""
+    return pad_default(to565(*split(target(e, mode))), pad_gamma_lut(gamma), pad_gain_q8(balance))
 
 
 def read_override(path):

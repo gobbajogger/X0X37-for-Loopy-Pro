@@ -7,7 +7,7 @@
 #ifndef SMK_PADCAL_H
 #define SMK_PADCAL_H
 #include <stdint.h>
-#include <string.h>
+
 
 #define SMK_PADCAL_PADS 16u
 #define SMK_PADCAL_PAGES 8u
@@ -19,10 +19,42 @@ typedef struct {
     uint8_t rgb[128][3];
 } smk_padcal_t;
 
-static inline void smk_padcal_start(smk_padcal_t *c, const uint8_t def[128][3])
+/* The start values of one entry from its LCD colour (RGB565, the Akai colour): the gamma table (5-bit
+ * index; green uses its 5 high bits), the gains (Q8), then the scale back to the brightest decoded
+ * channel. Below floor: the 5-bit codes scaled to floor (the hue stays). tools/apc_colour_model.py
+ * pad_default does the same steps; app/apc40_pad_gamma.h has the constants. */
+static inline void smk_padcal_default(uint8_t out[3], uint32_t c565, const uint8_t lut[32], const uint16_t gain[3],
+                                      uint32_t floor)
 {
-    memset(c, 0, sizeof *c);
-    memcpy(c->rgb, def, sizeof c->rgb);
+    uint32_t q[3], lin[3], d[3], k, ml = 0u, md = 0u, mx = 0u, mq = 0u;
+    q[0] = c565 >> 11;
+    q[1] = (c565 >> 6) & 31u;
+    q[2] = c565 & 31u;
+    for (k = 0; k < 3u; k++) {
+        lin[k] = lut[q[k]];
+        d[k] = lin[k] * gain[k];
+        ml = lin[k] > ml ? lin[k] : ml;
+        md = d[k] > md ? d[k] : md;
+        mq = q[k] > mq ? q[k] : mq;
+    }
+    for (k = 0; k < 3u; k++) {
+        d[k] = md ? d[k] * ml / md : 0u;
+        mx = d[k] > mx ? d[k] : mx;
+    }
+    for (k = 0; k < 3u; k++) {
+        if (mx < floor)
+            d[k] = mq ? q[k] * floor / mq : 0u;
+        out[k] = (uint8_t)d[k];               /* d <= the brightest decoded channel (255), or <= floor */
+    }
+}
+static inline void smk_padcal_start(smk_padcal_t *c, const uint16_t lcd565[128], const uint8_t lut[32],
+                                    const uint16_t gain[3], uint32_t floor)
+{
+    uint32_t e;
+    for (e = 0; e < 128u; e++)
+        smk_padcal_default(c->rgb[e], lcd565[e], lut, gain, floor);
+    __builtin_memset(c->ok, 0, sizeof c->ok);
+    c->page = c->sel = 0u;
     c->on = 1u;
 }
 /* The entry of a pad on the page: page 0 pads 0-15 = entries 0-15, ..., page 7 = 112-127. */

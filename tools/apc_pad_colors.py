@@ -10,6 +10,7 @@ Usage:
   tools/apc_pad_colors.py --pad-h out.h        # APC40_PAD_DEFAULT[128][3]: pad LED start levels
   tools/apc_pad_colors.py --pad-h out.h --pad-override export.txt   # the entries marked ok replace the rule
   tools/apc_pad_colors.py --lcd-h out.h        # APC40_LCD565[128]: LCD colours
+  tools/apc_pad_colors.py --gamma-h out.h      # PAD_GAMMA_LUT, PAD_GAIN_Q8, PAD_FLOOR_LEVEL (firmware)
   tools/apc_pad_colors.py --report out.csv [--old-pad F] [--old-lcd F]   # old and new, hues
   tools/apc_pad_colors.py --html out.html [--old-pad F] [--old-lcd F]    # swatches
   --gamma G  --target apc|live  --no-balance   # try other values of the named constants
@@ -32,14 +33,28 @@ def pad_header(pad, gamma, balance, target, override=None):
            f" * Pad LED level (R, G, B) for each velocity: colour {target}, decode gamma {gamma},\n"
            f" * white gains {'on' if balance else 'off'} (WS2812B data sheet), trim {m.PAD_GAIN_TRIM},\n"
            f" * brightest channel sends at least {m.PAD_FLOOR_SENT}.\n"
-           " * The start values of the pad calibration (GLOBAL > SYSTEM > PAD COLOURS), not the live pad\n"
-           " * table (APC40_RGB in main_fm1.c). Decimal: the build's register address check. */",
+           " * The pad calibration start values (the firmware makes them at run time from APC40_LCD565 and\n"
+           " * app/apc40_pad_gamma.h) plus the entries marked ok in an export. The firmware does not include\n"
+           " * this file, and it is not the live pad table (APC40_RGB in main_fm1.c). Decimal: the build's\n"
+           " * register address check. */",
            "#include <stdint.h>",
            "static const uint8_t APC40_PAD_DEFAULT[128][3] = {"]
     for i in range(0, 128, 8):
         out.append("    " + ",".join("{%d,%d,%d}" % p for p in pad[i:i + 8]) + ",")
     out.append("};")
     return "\n".join(out) + "\n"
+
+
+def gamma_header(gamma, balance):
+    lut, gain = m.pad_gamma_lut(gamma), m.pad_gain_q8(balance)
+    return (GEN.format(opt="--gamma-h") +
+            f" * The pad calibration start values (app/smk_padcal.h smk_padcal_default): decode gamma {gamma},\n"
+            f" * white gains {'on' if balance else 'off'} (WS2812B data sheet) with trim {m.PAD_GAIN_TRIM} in Q8,\n"
+            f" * floor {m.PAD_FLOOR_LEVEL} (the brightest channel sends at least {m.PAD_FLOOR_SENT}). */\n"
+            "#include <stdint.h>\n"
+            "static const uint8_t PAD_GAMMA_LUT[32] = {" + ",".join(map(str, lut)) + "};\n"
+            "static const uint16_t PAD_GAIN_Q8[3] = {" + ",".join(map(str, gain)) + "};\n"
+            f"#define PAD_FLOOR_LEVEL {m.PAD_FLOOR_LEVEL}u\n")
 
 
 def lcd_header(lcd, target):
@@ -81,6 +96,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--pad-h")
     ap.add_argument("--lcd-h")
+    ap.add_argument("--gamma-h")
     ap.add_argument("--report")
     ap.add_argument("--html")
     ap.add_argument("--pad-override")
@@ -101,6 +117,8 @@ def main():
         Path(a.pad_h).write_text(pad_header(pad, a.gamma, bal, a.target, ov))
     if a.lcd_h:
         Path(a.lcd_h).write_text(lcd_header(lcd, a.target))
+    if a.gamma_h:
+        Path(a.gamma_h).write_text(gamma_header(a.gamma, bal))
     op = read_table(a.old_pad, "APC40_RGB", 6) if a.old_pad else None
     ol = read_table(a.old_lcd, "APC40_LCD565", 4) if a.old_lcd else None
     if a.report:
@@ -138,7 +156,7 @@ def main():
             "color:#ddd;font:12px monospace}span{display:inline-block;width:40px;height:18px;margin-right:6px;"
             "vertical-align:middle}td{padding:2px 8px}</style><table><tr>" + head + "</tr>" + "".join(trs) +
             "</table>")
-    if not (a.pad_h or a.lcd_h or a.report or a.html):
+    if not (a.pad_h or a.lcd_h or a.gamma_h or a.report or a.html):
         print("vel  source  pad      lcd")
         for e, p, c in zip(src, pad, lcd):
             print(f"{e['v']:3d}  {e['apc']:06X}  {m.join(*p):06X}   {c:04X}")
