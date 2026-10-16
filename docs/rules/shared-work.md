@@ -1,6 +1,6 @@
 # Shared work
 
-Read when: before hardware work, a shared-file edit or a hard-to-undo action, and when you wait.
+Read when: before hardware work, a shared-file edit or a hard-to-undo action, when you wait, and when you start a new change.
 
 ### Rule 3
 Step: all steps. Rule owner: Orchestrator.
@@ -19,3 +19,8 @@ Step: each shared or hard-to-undo action. Rule owner: Orchestrator.
 5. Size: Make the smallest change.
 
 Stop and check again if you think or write "probably", "should work" or "just this once". Do the same for "it works" with no build.
+
+### Rule 16
+Step: P2 start of a change. Rule owner: Orchestrator.
+
+Start a new helper subagent for each new change. Give it only the task, the inputs (commit, branch, files), the rule files of its steps and the done criteria. Do not resume an old helper for a new change. Resume a helper only for a fix to its own change. Orchestrator also follows this rule.

@@ -6,9 +6,10 @@
 6A. Only Firmware Main Builder installs (install.md), and only when all queued changes are complete and ready to test together. Put a fix in the current set, not in a fallback build that only makes the keyboard playable. Never ask the owner about an install.
 
 12A. Treat each rule change like a code change (docs.md rule 12A).
+16. Start a new helper subagent for each new change (shared-work.md rule 16).
 
 Open each file at its step:
-- shared-work.md: hardware, shared file, wait.
+- shared-work.md: hardware, shared file, wait, new change.
 - device-bug.md: device bug.
 - commit.md: commit, push, handoff.
 - integration.md: merge, gate.

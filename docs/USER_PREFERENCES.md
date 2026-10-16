@@ -77,6 +77,8 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
   - At 2026-10-17 02:32, the owner applied version 4: "Agent rules version 4. Apply it now."
 - 2026-10-17 02:36 (Orchestrator decision, from an owner question): The owner asked why the agents never read the rules. In the same commit, write each new owner rule also in the rule file of its step (rules/docs.md rule 12).
 - 2026-10-17 02:37 (owner): "Treat writing rules the same as writing code." Commit each rule change on a lane branch. Merge it only after the review of Orchestrator (rules/docs.md rule 12A).
+- 2026-10-17 03:21 (owner): "start new subagents for each new change. Cause rereading context is really aggressive on the limits" Start a new helper subagent for each new change. Resume a helper only for a fix to its own change. The reason is that a helper that reads an old context again uses much of the usage limit (rules/shared-work.md rule 16).
+- 2026-10-17 03:24 (owner, to Orchestrator): "you should follow this rule too" Orchestrator also follows the 03:21 rule. Orchestrator starts a new helper subagent for each new change (rules/shared-work.md rule 16).
 - 2026-10-16 23:36 (Orchestrator decision): From integration d6ae80d, builders edit the STE text of BEHAVIOR.md, and quickcheck checks it (ste_strict, rules/commit.md rule 9).
 - 2026-10-16 23:36 (Orchestrator decision): Name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name (rules/style.md rule 15).
 - 2026-10-16 23:32 (owner): Merge the small roles.
@@ -163,4 +165,4 @@ Read this file before you work on the X0X37 project. Also obey the agent rules (
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
 - Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
-Last update: 2026-10-17 02:59.
+Last update: 2026-10-17 03:24.
