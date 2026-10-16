@@ -2999,6 +2999,12 @@ static void draw_header(void)
             x = cv_text(x - 6, vc(&FONT_B, 1, 17), &FONT_B, drum_mix_page() ? ": 808" : ": 909",
                         PART_COL[drum_mix_page()]) + 6;
     }
+#if BOARD_SMK37
+    if (smk_clip_mode_on()) {                         /* clip mode: the clock of the arp, not the pattern */
+        extern uint8_t smk_ck_ext(void);
+        cv_text(132, vc(&FONT_S, 1, 17), &FONT_S, smk_ck_ext() ? "EXT" : "INT", smk_ck_ext() ? C_AMB : C_GRAY);
+    } else
+#endif
     {   /* the pattern of the part on screen (else the 909's), its cue; in SONG mode the bar */
         int part = part_view() ? ui.part : PART_909, cue = seq_cue_of(&seq, part);
         if (seq.song_on) {
@@ -3973,7 +3979,21 @@ static void draw_knobs(void)
 {
     static uint32_t last_sig;
     int i, pgi = cur_page();
-    uint32_t sig = knobs_sig();
+    uint32_t sig;
+#if BOARD_SMK37
+    {   /* clip mode, no menu: the KEYS panel (main_fm1.c smk_ck_panel) takes the strip */
+        extern uint8_t smk_ck_knobs_owned(void);
+        extern uint8_t smk_ck_panel(uint32_t *last, uint32_t force);
+        if (smk_ck_knobs_owned()) {
+            blit_hash[3] = 0;                         /* (the knob strip draws all again after it) */
+            if (smk_ck_panel(&last_sig, !blit_hash[2]))
+                cv_commit(2, 0, KNOB_Y);
+            return;
+        }
+        blit_hash[2] = 0;
+    }
+#endif
+    sig = knobs_sig();
     if (sig == last_sig && blit_hash[3])
         return;
     last_sig = sig;
