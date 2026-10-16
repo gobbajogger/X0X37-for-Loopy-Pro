@@ -174,10 +174,33 @@ __attribute__((noinline)) static void d_acl(int type, int ptr, u32 op)
     if ((pool & 3u) || pool < (u32)(uintptr_t)__ctl_ram_lo || pool >= (u32)(uintptr_t)__ctl_ram_hi)
         d_stop(0x5600u | op, p, pool);
 }
+/* attempt 57 fix: le_hw_upload_data (btctrler) frees each received DMA buffer right after its
+ * handler returns, but the handler (btstack hci_packet_handler) only queues the ACL packet's
+ * pointer; the host reads and frees it later (a56: the buffer was already free when the host took
+ * the message, stage 0x5601). So an ACL message gets its own copy here, in a fresh buffer of the
+ * same RX pool (hw_dma_alloc(0, ...), as hw_alloc_rx), laid out the same (packet at buffer + 16):
+ * the host frees the copy, the controller frees its original. No buffer: OS_Q_FULL (the handler
+ * waits and posts again, outside an interrupt). */
+extern void *hw_dma_alloc(int pool, u32 n);
+__attribute__((noinline)) static int acl_copy(int *argv)
+{
+    u32 n = (u32)argv[1];
+    u8 *b;
+    if (n > 600u || !(b = hw_dma_alloc(0, n + 20u))) return -1;
+    memcpy(b + 16, (const void *)(uintptr_t)argv[0], n);
+    argv[0] = (int)(uintptr_t)(b + 16);
+    return 0;
+}
 int os_taskq_post_type(const char *name, int type, int argc, int *argv)
 {
     struct ctl_task *t = find(name);
     if (!t) return OS_TASK_NOT_EXIST;
+    int cp[2];
+    if (type == 0x400002 && argc == 2) {
+        cp[0] = argv[0]; cp[1] = argv[1];
+        if (acl_copy(cp)) { if (ctl_q_full < 255u) ctl_q_full++; return OS_Q_FULL; }
+        argv = cp;
+    }
     u32 f = ctl_port_irq_save();
     if (CTL_TASKQ_WORDS - 1 - taskq_count(t) < argc + 2) {
         if (ctl_q_full < 255u) ctl_q_full++;   /* DIAG: a lost message */
