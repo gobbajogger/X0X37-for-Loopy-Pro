@@ -21,6 +21,7 @@
  *   midi B0 B1 B2                incoming USB MIDI message (hex bytes)
  *   wav FILE | wavstop           start / stop recording the output
  *   load N                       the overload guard sees every block cost N% (-1: as measured)
+ *                                (start value: env X0X_HOST_LOAD, else -1; tests/run_tests.sh sets 0)
  *   peakreset                    restart the output peak (expect peak_db_min / peak_db_max)
  *   shot FILE.png                save the screen
  *   leds                         print the lit buttons and keys
@@ -835,6 +836,8 @@ int main(int argc, char **argv)
         perror(argv[1]);
         return 2;
     }
+    if (getenv("X0X_HOST_LOAD"))                 /* the tests: the host time is not the FM-1 load (a busy host turns on the guard) */
+        load_force = atoi(getenv("X0X_HOST_LOAD"));
     snprintf(out, sizeof out, "%s/midi_out.txt", dir);
     midi_log = fopen(out, "w");
     boot();

@@ -32,6 +32,7 @@ OUT=build/host
 mkdir -p "$OUT" build/scenarios
 JOBS="${X0X_TEST_JOBS:-8}"
 export X0X_TEST_TIME_SCALE="${X0X_TEST_TIME_SCALE:-20}"
+export X0X_HOST_LOAD="${X0X_HOST_LOAD:-0}"   # x0x_host: the overload guard sees 0% until a "load N" line, not the time of a busy host
 case "$JOBS" in ''|*[!0-9]*) JOBS=1 ;; esac
 PHASE=0                 # parallel mode: W = class W, 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
 T_SEQ=0
