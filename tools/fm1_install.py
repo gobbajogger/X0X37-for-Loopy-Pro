@@ -31,13 +31,23 @@ loader / no restart), 6 wrong model, or another identity after the install,
 7 installed, but the slots were not written back (the backup file stays),
 8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32,
 9 refused by the gate guard (no install was started),
-10 refused by the foreground guard or the hardware lock (no device was opened).
+10 refused by the foreground guard or the hardware lock (no device was opened),
+11 refused by the bootloader guard: the package head is not the reference head (no device was opened).
 
 Start guards for a real device (rules v4: checks 3 and 14), after the gate guard:
   Foreground (rule 7): an install refuses to start when stdin is not a TTY and STY and TMUX are empty. Run it in the
   foreground or in a named screen session (screen -S x0x-install), never with nohup or &.
   Hardware lock (rule 3, one hardware job at a time): an install and --info take an exclusive lock on the file
   X0X_HW_LOCK [~/.x0x37-hardware.lock] (flock, no wait) for the whole run. If another run holds it, the tool stops.
+
+Bootloader guard (rule 7, check 4 of rules v4, Orchestrator decision 02:55): the bytes [0, HEAD_END = 0x4000) of the
+package's flash.bin (flash header, JLFS entries, SPL, isd_config: the bootloader; the app area starts at 0x4000, as
+WRITE_MIN in tools/fm1_rescue.py) must have the sha256 of the same bytes of a reference: a flash read-back of this unit
+(a raw dump from flash 0, for example the fm1-backup-*.bin of tools/fm1_rescue.py). The reference is --head-ref FILE,
+else X0X_HEAD_REF, else ~/.config/x0x/flash-head.bin if that file is there. A different sha256 -> "REFUSED", exit 11.
+With no reference, the tool says so and continues: this tool has no flash read-back over USB-MIDI, and the slot backup
+holds only the sample slots. --head-check compares only (no device, no gate guard): HEAD OK (exit 0) or HEAD MISMATCH (11).
+Order for a real device: gate guard, foreground guard, hardware lock, bootloader guard, then the device.
 
 Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
 tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE --config dev|rel [--ctl FILE]. The install starts
@@ -58,6 +68,8 @@ The model is checked: an FM-1 package never goes to an SMK-37 Pro, nor the other
 Pro, Elite and MKE-P37 are one keyboard: their packages install on each other).
 """
 import argparse
+import hashlib
+import os
 import queue
 import re
 import sys
@@ -76,6 +88,7 @@ MAXDATA = 512
 BLOCKS, BLK, KEEP = 20, 0x30, 0x2F         # BLOCKS: the identity blocks (more may follow, see block_count)
 MAX_BLOCKS = 64
 LOADER_MARK = b"FELUCCA-LOADER-1"
+HEAD_END = 0x4000                          # the bootloader end: flash [0, 0x4000) = header, JLFS, SPL, isd_config
 PORT_RE = re.compile(r"fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi", re.I)   # never probe other gear
 
 # seconds; the tests shorten them
@@ -84,7 +97,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
          "wait_loader": 30.0, "wait_reboot": 40.0}
 
 EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
-        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8}
+        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
 
 
 class InstallError(Exception):
@@ -597,6 +610,73 @@ def load_package(path, force):
     return product, deinterleave(raw)[0]
 
 
+def package_head(image):
+    """the bytes [0, HEAD_END) of the flash.bin entry (type 0) of a logical image"""
+    hdr = _dec(image[0:0x40])
+    count = int.from_bytes(hdr[8:10], "little")
+    for i in range(count):
+        e = _dec(image[0x40 + i * 0x50:0x40 + (i + 1) * 0x50])
+        if int.from_bytes(e[0:2], "little") == 0:
+            off, size = int.from_bytes(e[8:12], "little"), int.from_bytes(e[12:16], "little")
+            if size < HEAD_END or off + HEAD_END > len(image):
+                raise InstallError("badpkg", f"flash.bin is shorter than the bootloader (0x{HEAD_END:X} bytes)")
+            return bytes(image[off:off + HEAD_END])
+    raise InstallError("badpkg", "no flash.bin in the package: the bootloader guard cannot check it")
+
+
+def head_ref_path(a=None, env=None):
+    """--head-ref, else X0X_HEAD_REF, else ~/.config/x0x/flash-head.bin if it is there, else None"""
+    env = os.environ if env is None else env
+    p = (getattr(a, "head_ref", None) if a is not None else None) or env.get("X0X_HEAD_REF") or ""
+    if p:
+        return p
+    d = Path.home() / ".config/x0x/flash-head.bin"
+    return str(d) if d.is_file() else None
+
+
+def head_compare(image, ref_path):
+    """-> (ok, text): the package head against the first HEAD_END bytes of the reference read-back"""
+    try:
+        ref = open(ref_path, "rb").read(HEAD_END)
+    except OSError as e:
+        raise InstallError("head", f"cannot read the reference head {ref_path}: {e.strerror}")
+    if len(ref) < HEAD_END:
+        raise InstallError("head", f"the reference {ref_path} has {len(ref)} bytes, less than 0x{HEAD_END:X}")
+    pk = package_head(image)
+    hp, hr = hashlib.sha256(pk).hexdigest(), hashlib.sha256(ref).hexdigest()
+    if hp == hr:
+        return True, f"sha256 {hp[:16]} = {ref_path}"
+    at = next(i for i in range(HEAD_END) if pk[i] != ref[i])
+    n = sum(1 for i in range(HEAD_END) if pk[i] != ref[i])
+    return False, (f"package sha256 {hp[:16]}, reference {hr[:16]} ({ref_path}): {n} bytes differ, "
+                   f"the first at 0x{at:04X}")
+
+
+def head_guard(a, out=None, env=None):
+    """check 4: 0 = same head, or no reference; 11 = refused. A package that does not load is left to run()."""
+    out = out or sys.stderr
+    ref = head_ref_path(a, env)
+    if ref is None:
+        print("bootloader guard: no reference head (--head-ref, X0X_HEAD_REF or ~/.config/x0x/flash-head.bin); "
+              "not checked", file=out)
+        return 0
+    try:
+        _, image = load_package(a.package, a.force)
+    except InstallError:
+        return 0                              # run() loads it again and reports the error
+    try:
+        same, text = head_compare(image, ref)
+    except InstallError as e:
+        print(f"bootloader guard: REFUSED: {e}", file=out)
+        return EXIT["head"]
+    if not same:
+        print(f"bootloader guard: REFUSED: the package bytes 0..0x{HEAD_END:X} are not the reference head: {text}. "
+              "Nothing was written.", file=out)
+        return EXIT["head"]
+    print(f"bootloader guard: head OK, {text}", file=out)
+    return 0
+
+
 def not_found(up):
     names = up.backend.input_names()
     where = f"no MIDI port matching {up.port!r} answered" if up.port else "FM-1 not found"
@@ -845,11 +925,19 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
     ap.add_argument("--commit", metavar="HASH", help="the commit of the package: the gate guard needs its gate PASS")
+    ap.add_argument("--head-ref", metavar="FILE", help="a flash read-back of this unit (raw, from flash 0): the bootloader guard reference")
+    ap.add_argument("--head-check", action="store_true", help="compare the package head with the reference only (no device)")
     ap.add_argument("--config", choices=("dev", "rel"), default="dev",
                     help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
     a = ap.parse_args(argv)
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")
+    if a.head_check:                        # no device: only the bootloader guard
+        if not a.package or head_ref_path(a) is None:
+            ap.error("--head-check needs a PACKAGE.fwsc and a reference (--head-ref FILE or X0X_HEAD_REF)")
+        rc = head_guard(a, out=out)
+        print("HEAD OK" if rc == 0 else "HEAD MISMATCH" if rc == EXIT["head"] else "HEAD ERROR", file=out)
+        return rc
     if a.package and backend is None:       # a real device: the gate guard is the first step
         rc = gate_guard(a)
         if rc:
@@ -859,6 +947,10 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
             return rc
     if backend is None:                     # a real device (install or --info): one hardware job at a time
         rc = hardware_lock()
+        if rc:
+            return rc
+    if a.package and backend is None:       # a real device: the bootloader guard (check 4), before any device is opened
+        rc = head_guard(a)
         if rc:
             return rc
     try:
