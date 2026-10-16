@@ -1,7 +1,11 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
 # Pre-install gate for the SMK-37 Elite firmware (Linux x86-64 box only). It does not touch a device.
-#   tools/gate.sh <commit or ref> [--force]
+#   tools/gate.sh <commit or ref> [--force] [--trial]
+# The commit must be on the integration branch of the box repository (X0X_INTEGRATION). Else the gate stops with
+# "FAIL <hash> not on integration (use --trial)". With --trial the gate runs any commit, but the result is a TRIAL:
+# it goes to <tree>.trial.md and to an index row marked TRIAL, the output line starts with TRIAL, and it never counts
+# as a release PASS. A trial run does not use a result again and does not write <tree>.md.
 # The gate makes its own worktree of the commit, and then it does these steps:
 #   0. it checks that each reference folder is at its pinned commit (X0X_REF_PINS),
 #   1. the Elite build, the Pro build (build/x0x-smk37.fwsc, for the package tests), the FM-1 build and
@@ -23,7 +27,7 @@
 # It writes one result file per tree to $X0X_RESULTS/<tree>.md and adds a line to $X0X_RESULTS/index.md.
 # The tree is a SHA-1 of "git ls-tree -r" without the *.md files. If a result for that tree exists,
 # the gate uses it again and does not build (--force builds again).
-# Output: one line, "PASS <hash>" or "FAIL <hash> <reason>". Exit code 0 or 1. The full log is in the worktree folder.
+# Output: one line, "PASS <hash>" or "FAIL <hash> <reason>" ("TRIAL PASS" or "TRIAL FAIL" with --trial). Exit code 0 or 1. The full log is in the worktree folder.
 # Environment (defaults in brackets):
 #   X0X_REPO [/workspace/x0x37.git]  X0X_RESULTS [/workspace/x0x37-results]  X0X_REFS [/workspace/x0x37-refs/schwung]
 #   X0X_GATE_WORK [~/.cache/x0x37-gate]  X0X_TEST_JOBS [8]  JIELI_TOOLCHAIN [~/.jieli/toolchain]  AC79_SDK [~/fw-AC79_AIoT_SDK]
@@ -45,12 +49,20 @@ export X0X_TEST_TIME_SCALE=$SCALE
 PREPUSH=${X0X_PREPUSH_HOOK:-/workspace/x0x37.git/hooks/pre-push}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
-FORCE=0
-[ "${2:-}" = --force ] && FORCE=1
-[ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> [--force]" >&2; exit 2; }
+INTB=${X0X_INTEGRATION:-integration}
+FORCE=0; TRIAL=0; ARG=""
+for a in "$@"; do
+    case "$a" in --force) FORCE=1 ;; --trial) TRIAL=1 ;; -*) echo "unknown option $a" >&2; exit 2 ;; *) ARG=$a ;; esac
+done
+set -- "$ARG"
+[ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> [--force] [--trial]" >&2; exit 2; }
 
 H=$(git -C "$REPO" rev-parse --verify --quiet "$1^{commit}") || { echo "FAIL $1 unknown commit in $REPO"; exit 1; }
 S=${H:0:7}
+if [ "$TRIAL" = 0 ] && ! git -C "$REPO" merge-base --is-ancestor "$H" "refs/heads/$INTB" 2>/dev/null; then
+    echo "FAIL $S not on $INTB (use --trial)"; exit 1
+fi
+TP=""; [ "$TRIAL" = 1 ] && TP="TRIAL "     # the prefix of the output line and of the result
 # Stop on a signal: kill the process group of the current child, release the lock, write no result.
 CHILD=""; FLPID=""
 exec 7>&1                       # the gate stdout: the KILLED line goes here, also while a child writes to a log
@@ -99,6 +111,7 @@ PY
 fi
 chmod a+r "$INDEX"
 RF="$RESULTS/$TREE.md"
+if [ "$TRIAL" = 1 ]; then RF="$RESULTS/$TREE.trial.md"; FORCE=1; fi   # a trial never uses a result again
 
 if [ "$FORCE" = 0 ] && [ -f "$RF" ]; then
     R=$(sed -n 's/^Result: \([A-Z]*\).*/\1/p' "$RF" | head -1)
@@ -287,7 +300,7 @@ echo "# Gate result for tree $TREE"
 echo
 echo "This file uses ASD Simplified Technical English."
 echo
-echo "Result: $R"
+if [ "$TRIAL" = 1 ]; then echo "Result: TRIAL $R (a trial run with --trial: not a release PASS)"; else echo "Result: $R"; fi
 [ -n "$REASON" ] && echo "Reason: $REASON"
 echo
 echo "- Commit: $H"
@@ -340,7 +353,7 @@ cat "$L/crc.txt" 2>/dev/null
 echo '```'
 } > "$TMPF"
 mv "$TMPF" "$RF"; chmod a+r "$RF"
-echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $R | $TREE.md | $NOW |" >> "$INDEX"
+echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $TP$R | $(basename "$RF") | $NOW |" >> "$INDEX"
 cp "$RF" "$L/result.md"
-if [ "$R" = PASS ]; then echo "PASS $S (time scale $SCALE)"; exit 0; fi
-echo "FAIL $S (time scale $SCALE) $REASON"; exit 1
+if [ "$R" = PASS ]; then echo "${TP}PASS $S (time scale $SCALE)"; exit 0; fi
+echo "${TP}FAIL $S (time scale $SCALE) $REASON"; exit 1
