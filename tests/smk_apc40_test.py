@@ -189,6 +189,10 @@ clr = main.split("static uint8_t smk_apc_link_clear(uint8_t ble)")[1].split("\n}
 assert "padled_rgb[i] = 0u;" in clr and "padled_dirty = 1u;" in clr   # a76: the pad colour store too
 assert "smk_apc40_cells_clear_mask(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick," in clr
 assert "ble ? apc_ble_owned : ~apc_ble_owned" in clr                 # CLP-18: only the cells of the lost link
+assert "if ((m >> APC_OWN_PLAY) & 1u)\n        apc_play_feedback = 0u;" in clr   # CLP-18: PLAY and REC of the lost link only
+assert "if ((m >> (APC_OWN_PLAY + 1u)) & 1u)\n        apc_record_feedback = 0u;" in clr
+assert "apc_own(APC_OWN_PLAY + (d1 == SMK_APC40_RECORD_NOTE));" in main
+assert "apc_play_feedback" not in link and "apc_play_feedback" not in lost
 assert "smk_apc_link_clear(1u)" in link
 for body in (link, clr):
     assert "smk_ck" not in body and "clip_grid_mode" not in body and "seq" not in body and "apc_host_on" not in body
