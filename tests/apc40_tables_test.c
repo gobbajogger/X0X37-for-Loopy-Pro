@@ -14,6 +14,14 @@
 #define APC40_PAD_DEFAULT APC40_PAD_DEFAULT_GEN
 #include "apc40_pad_default_gen.h"
 #undef APC40_PAD_DEFAULT
+#define PAD_GAMMA_LUT PAD_GAMMA_LUT_GEN
+#define PAD_GAIN_Q8 PAD_GAIN_Q8_GEN
+#include "apc40_pad_gamma_gen.h"
+static const unsigned PAD_FLOOR_LEVEL_GEN = PAD_FLOOR_LEVEL;
+#undef PAD_GAMMA_LUT
+#undef PAD_GAIN_Q8
+#undef PAD_FLOOR_LEVEL
+#include "app/apc40_pad_gamma.h"
 #include "app/apc40_lcd565.h"
 #include "app/apc40_pad_default.h"
 #include "app/smk_apc40.h"
@@ -37,6 +45,8 @@ static void test_tool_makes_the_same_tables(void)
     }
     fflush(stdout);
     assert(bad == 0u);
+    assert(!memcmp(PAD_GAMMA_LUT, PAD_GAMMA_LUT_GEN, sizeof PAD_GAMMA_LUT));
+    assert(!memcmp(PAD_GAIN_Q8, PAD_GAIN_Q8_GEN, sizeof PAD_GAIN_Q8) && PAD_FLOOR_LEVEL == PAD_FLOOR_LEVEL_GEN);
 }
 
 /* The same lookups as main_fm1.c (tests/smk_apc40_test.py checks the firmware text). */
