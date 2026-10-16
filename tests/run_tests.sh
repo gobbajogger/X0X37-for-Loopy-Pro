@@ -65,7 +65,7 @@ run_one() {             # key name command...: the result goes to $RES/key (and 
 }
 GLOCK="${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}"
 install_path() { case "$(test_class "$1")" in W) return 0 ;; S) [ "$1" != rec-live ] ;; *) return 1 ;; esac; }
-lk() {                  # name command...: run the command; an install-path test holds the shared gate lock while it runs
+lk() {                  # name command...: start the command. An install-path test holds the shared gate lock while it runs
     n_="$1"; shift
     if install_path "$n_" && [ "${X0X_GATE_HOLDS_LOCK:-0}" != 1 ] && [ -w "$GLOCK" ] && command -v flock >/dev/null 2>&1; then
         flock -s -n "$GLOCK" true || echo "  $n_ waits for the gate lock (a gate holds it): $GLOCK" >&2
