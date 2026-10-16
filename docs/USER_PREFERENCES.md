@@ -14,7 +14,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - 2026-10-16 20:12 (owner): Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms. Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the step before the one you meant, so your recording sounds a bit early. I can make it snap to the closest step instead." This rule applies only to text for the owner. Docs, logs and commits stay in asd-ste.
 - 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the user experience.
 - 2026-10-16 19:10 (owner, from Optimizer items C3 and B3): In the XS, S and B faces, only the lower-case letters a b d k m p r s t x z keep their own glyphs. Each other lower-case letter shows as its capital letter, also in sample names. The characters ` { | } ~ show as "?". Symbols outside the font show as ?. Owner approved 2026-10-16 19:25. See BEHAVIOR.md GEN-55.
-- 2026-10-16 19:02 (owner): docs and logs hold only development information (agent rule 28).
+- 2026-10-16 19:02 (owner): docs and logs hold only development information (agent rule 15).
 
 ## Installs and safety
 
@@ -40,9 +40,9 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - 2026-10-16 02:28: Posts and agent messages hold only results, blockers and decisions, in two sentences or fewer.
 - 2026-10-16 02:43: Docs, logs and commits follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Messages to agents follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). The caveman skill applies to agent-to-agent messages only. If they conflict, asd-ste wins. (2026-10-16 21:57, Orchestrator confirmed: messages to the owner follow the 20:12 owner entry in "How to work with the user".)
 - 2026-10-16 13:03: Do not ask the user for approval to start a helper subagent. Start it.
-- 2026-10-16 22:00 (owner): All planned changes go on one working branch, integration. One commit for each change, with a host test (affected tests only, time scale 20). One full gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the batch gate. Builders fetch and rebase before each commit and change only the files of their lane. The install is the batch hash with gate PASS. This replaces the gate for each lane (agent rule 39).
-- 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its red-flag words (agent rule 40). Changes to the skill go through Orchestrator.
-- 2026-10-16 22:03 (owner): No idle waiting. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 41).
+- 2026-10-16 22:00 (owner): All planned changes go on one working branch, integration. One commit for each change, with a host test (affected tests only, time scale 20). One full gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the batch gate. Builders fetch and rebase before each commit and change only the files of their lane. The install is the batch hash with gate PASS. This replaces the gate for each lane (agent rules 4 to 7).
+- 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its red-flag words (agent rule 14). Changes to the skill go through Orchestrator.
+- 2026-10-16 22:03 (owner): No idle waiting. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 10).
 
 ## Hardware and targets
 
