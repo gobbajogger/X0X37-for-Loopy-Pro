@@ -24,6 +24,23 @@ STRICTF=$(git rev-parse HEAD)
 git checkout -q -b clean integration
 echo two > b.txt && git add . && gc -m "Add the second file." -m "The file has one line."
 CLEAN=$(git rev-parse HEAD)
+# Changed lines only: OLD.md on integration has old bad text. A new clean row passes, a new bad row or a change in
+# an old bad paragraph fails, and the old rows are not checked.
+git checkout -q integration
+printf '# Old\n\n| Row | Note |\n|---|---|\n| r1 | The test should be run again; it was not done. |\n\nThe old text was written badly; it should be changed.\n\nThe end.\n' > OLD.md
+git add . && gc -m "Add the old notes." -m "The file has old text."
+git checkout -q -b addrow integration
+sed -i.bak '/^| r1 /a\
+| r2 | We add one clean row. |' OLD.md && rm -f OLD.md.bak && git add . && gc -m "Add a clean row." -m "The row has one sentence."
+ADDROW=$(git rev-parse HEAD)
+git checkout -q -b addbad integration
+sed -i.bak '/^| r1 /a\
+| r3 | The new row was added; it could be wrong. |' OLD.md && rm -f OLD.md.bak && git add . && gc -m "Add a bad row." -m "The row has one sentence."
+ADDBAD=$(git rev-parse HEAD)
+git checkout -q -b editold integration
+sed -i.bak 's/it should be changed/it should be fixed/' OLD.md && rm -f OLD.md.bak && git add . && gc -m "Change one word." -m "The paragraph has one change."
+EDITOLD=$(git rev-parse HEAD)
+git checkout -q integration
 cd - >/dev/null
 touch "$T/pre-push"
 qc() { X0X_QUICK_ONLY=ste X0X_REPO="$R" X0X_QC_WORK="$T/qc" X0X_PREPUSH_HOOK="$T/pre-push" bash "$Q" "$@" 2>&1; }
@@ -41,6 +58,16 @@ else bad "strict file (rc=$rc)" "$out"; fi
 out=$(X0X_STE_STRICT=1 qc "$CLEAN"); rc=$?
 if [ $rc = 0 ] && echo "$out" | grep -q '^QUICK PASS ' && ! echo "$out" | grep -q 'STE WARN'; then ok "clean commit, strict: no STE line ($(echo "$out" | grep '^QUICK'))"
 else bad "clean commit (rc=$rc)" "$out"; fi
+out=$(X0X_STE_STRICT=1 qc "$ADDROW"); rc=$?
+if [ $rc = 0 ] && echo "$out" | grep -q '^QUICK PASS ' && ! echo "$out" | grep -q 'STE WARN'; then ok "changed lines only: a new clean row in a file with old bad rows passes ($(echo "$out" | grep '^QUICK'))"
+else bad "new clean row (rc=$rc)" "$out"; fi
+out=$(X0X_STE_STRICT=1 qc "$ADDBAD"); rc=$?
+if [ $rc = 1 ] && echo "$out" | grep -q '^QUICK FAIL .* STE: ' && echo "$out" | grep -q 'could be wrong' && ! echo "$out" | grep -q 'run again'; then
+    ok "changed lines only: a new bad row fails, the old rows are not checked ($(echo "$out" | grep '^QUICK'))"
+else bad "new bad row (rc=$rc)" "$out"; fi
+out=$(X0X_STE_STRICT=1 qc "$EDITOLD"); rc=$?
+if [ $rc = 1 ] && echo "$out" | grep -q 'should be fixed' && ! echo "$out" | grep -q 'run again'; then ok "changed lines only: a change in an old bad paragraph checks that paragraph ($(echo "$out" | grep '^QUICK'))"
+else bad "edit old paragraph (rc=$rc)" "$out"; fi
 # The no_verb rule of tools/ste_check.py: a verbless prose sentence flags; verbs, data lines and list fragments do not.
 S="$(dirname "$Q")/ste_check.py"
 nv() { printf '%b' "$1" > "$T/nv.md"; python3 "$S" --rule no_verb "$T/nv.md" | grep -c '\[no_verb\]'; }

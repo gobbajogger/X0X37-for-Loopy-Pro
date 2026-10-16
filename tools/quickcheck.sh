@@ -80,6 +80,11 @@ ste_step() {
         [ $strict = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: no $st (run tools/install_gate.sh)"; }
         return 0
     fi
+    if ! grep -q -- '"--diff"' "$st"; then                # the changed-lines mode (ste_check.py --diff): else fail closed
+        echo "STE: $st has no --diff mode" >> "$LOG"
+        [ $strict = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: $st has no --diff mode (run tools/install_gate.sh)"; }
+        return 0
+    fi
     d=$(mktemp -d "${TMPDIR:-/tmp}/qcste.XXXXXX") || return 0
     for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" 2>/dev/null); do
         { echo "${c:0:7}"; "${G[@]}" log -1 --format=%B "$c"; echo "@@END@@"; } > "$d/commit-${c:0:7}"
@@ -87,7 +92,7 @@ ste_step() {
     for f in $CHANGED; do case "$f" in *.md) [ -f "$W/$f" ] && md="$md $W/$f" ;; esac; done
     n=$(ls "$d" | wc -l)
     if [ "$n" -gt 0 ] || [ -n "$md" ]; then
-        STE_OUT=$(cd "$d" && python3 "$st" --json --examples 50 $(ls "$d") $md 2>&1 | QC_W="$W/" python3 -c '
+        STE_OUT=$(cd "$d" && python3 "$st" --json --examples 50 ${md:+--diff "$W" "$BASE" WORKTREE} $(ls "$d") $md 2>&1 | QC_W="$W/" python3 -c '
 import json, os, sys
 K = ["long_proc", "long_desc", "semicolon", "modal", "passive", "contraction", "no_verb"]
 try: rs = json.load(sys.stdin)

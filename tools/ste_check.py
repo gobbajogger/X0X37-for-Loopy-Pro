@@ -7,6 +7,8 @@ Usage:
   ste_check.py --git REPO REV N           check the last N commit messages of REV
   ste_check.py --from-git REPO REV FILE   check FILE as it is in git revision REV
   ste_check.py --rule passive FILE        print each sentence that breaks one check
+  ste_check.py --diff REPO BASE REV FILE  check only the paragraphs, list items and table rows of FILE that
+                                         have a line added or changed in BASE..REV (git diff -U0; REV WORKTREE: the files on disk)
   options: --examples K (worst sentences per file), --json, --strict
 
 Checks (counted as violations, exit code 1 if any count > 0):
@@ -124,11 +126,14 @@ def strip_md(text, is_commits=False):
     def flush():
         nonlocal buf
         if buf:
-            segs.append((start, " ".join(buf)))
+            segs.append((start, " ".join(buf), last))
         buf = []
 
+    last = 0
     for i, raw in enumerate(lines, 1):
         line = raw.rstrip()
+        if buf:
+            last = i - 1          # the last line of the open paragraph (before this line)
         if not fm_done:
             if i > 1 and line.strip() == "---":
                 fm_done = True
@@ -162,7 +167,7 @@ def strip_md(text, is_commits=False):
                 continue
             for cell in s.strip("|").split("|"):
                 if cell.strip():
-                    segs.append((i, "\x00" + cell.strip()))  # \x00 marks a table cell
+                    segs.append((i, "\x00" + cell.strip(), i))  # \x00 marks a table cell
             continue
         if s.startswith("[![") or s.startswith("<"):
             flush(); continue
@@ -176,6 +181,7 @@ def strip_md(text, is_commits=False):
         if not buf:
             start = i
         buf.append(s)
+    last = len(lines)
     flush()
     return segs
 
@@ -308,8 +314,10 @@ HARD = ["long_proc", "long_desc", "contraction", "semicolon", "modal", "passive"
 SOFT = ["perfect", "progressive", "ing", "idiom", "review_word", "no_verb"]
 
 
-def analyse(name, text, is_commits=False):
-    segs = strip_md(text, is_commits)
+def analyse(name, text, is_commits=False, only=None):
+    # only: a set of line numbers; check only the segments with one of these lines (None: all segments)
+    segs = [(a, t) for a, t, b in strip_md(text, is_commits)
+            if only is None or any(a <= x <= max(a, b) for x in only)]
     counts = {k: 0 for k in HARD + SOFT}
     ex, nsent, nwords, words_found = [], 0, 0, {}
     for ln, seg in segs:
@@ -337,6 +345,18 @@ def analyse(name, text, is_commits=False):
     ex.sort(key=lambda e: -e[0])
     return {"file": name, "sentences": nsent, "words": nwords, "counts": counts,
             "unapproved_found": words_found, "worst": ex}
+
+
+def diff_lines(repo, base, rev, path):
+    # the line numbers in REV of the lines that BASE..REV adds or changes in path (from the hunk headers of -U0)
+    revs = [base] if rev == "WORKTREE" else [base, rev]          # WORKTREE: BASE against the files on disk
+    out = subprocess.run(["git", "-C", repo, "diff", "-U0", "--no-color", "--no-ext-diff"] + revs + ["--", path],
+                         capture_output=True, text=True, check=True).stdout
+    got = set()
+    for m in re.finditer(r"^@@ -\S+ \+(\d+)(?:,(\d+))? @@", out, re.M):
+        c, d = int(m.group(1)), int(m.group(2) if m.group(2) is not None else 1)
+        got.update(range(c, c + d))
+    return got
 
 
 def git_commits(repo, rev, n):
@@ -371,6 +391,8 @@ def main():
     ap.add_argument("--git", nargs=3, metavar=("REPO", "REV", "N"), action="append")
     ap.add_argument("--from-git", nargs=2, metavar=("REPO", "REV"),
                     help="read FILE paths from this git revision (git show REV:FILE), not from disk")
+    ap.add_argument("--diff", nargs=3, metavar=("REPO", "BASE", "REV"),
+                    help="check only the segments with lines that BASE..REV adds or changes (FILE: path in REPO)")
     ap.add_argument("--examples", type=int, default=0)
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--strict", action="store_true")
@@ -390,6 +412,11 @@ def main():
             txt = open(f, encoding="utf-8", errors="replace").read()
         if "@@END@@" in txt:
             results.append(analyse(f, commits_text(txt), True))
+        elif a.diff:
+            rp = f
+            if rp.startswith(a.diff[0].rstrip("/") + "/"):
+                rp = rp[len(a.diff[0].rstrip("/")) + 1:]
+            results.append(analyse(f, txt, only=diff_lines(a.diff[0], a.diff[1], a.diff[2], rp)))
         else:
             results.append(analyse(f, txt))
     for repo, rev, n in a.git or []:
