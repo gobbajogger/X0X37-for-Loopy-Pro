@@ -13,6 +13,7 @@
  * that an idle instance writes exact zeros. Exits 1 if a check fails.
  *   bass303_test [--wav build/]   also writes bass303_demo.wav (port) and bass303_ref.wav
  *   --info   report only (exit 0 whatever the result); -v every note and glide; --dump dir */
+#define _XOPEN_SOURCE 700                       /* clock_gettime, M_PI (glibc, -std=c99) */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

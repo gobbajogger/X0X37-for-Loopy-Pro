@@ -256,6 +256,10 @@ static void ble_start(void)
     ble_c0_ready = 1;                           /* the bus-invalid checks stay off while it runs */
 }
 
+#ifndef X0X_RAM_CANARY
+#define X0X_RAM_CANARY 0  /* 1: arm the test-26 RAM canary (0x01C72000-0x01C74000, test builds only) */
+#endif
+
 /* after plat_cpu2_set: core 1 runs the controller from now on (its interrupts, its poll) */
 static void ble_attach(void)
 {
@@ -270,10 +274,16 @@ static void ble_attach(void)
     }
     fm1_guard_watch_c0_stacks();               /* test 21: who changes core 0's interrupt stack */
     fm1_t5w_arm = 1;                            /* test 23: the timer 5 frame closed to all writers */
+#if X0X_RAM_CANARY
+    /* Test 26: the RAM canary, core 1 watches it. Test builds only: the area
+     * overlaps the end of .pool when less than 8 KiB of the pool is free. */
     for (uint32_t *cw = (uint32_t *)(uintptr_t)FM1_CAN_LO; cw < (uint32_t *)(uintptr_t)FM1_CAN_HI; cw++)
-        *cw = 0xFFFFFFFFu;                      /* test 26: the RAM canary, core 1 watches it */
+        *cw = 0xFFFFFFFFu;
     fm1_can.n = fm1_can.scans = 0;
     fm1_can.armed = 0xCA9A11E5u;
+#else
+    fm1_can.armed = 0;                          /* .ble_ram survives a reset: clear an old arm */
+#endif
     fm1_c0_dead.magic = 0;                      /* test 24: core 1 watches core 0's clock */
     fm1_c0_dead.n = 0;
     fm1_ble_sync();
