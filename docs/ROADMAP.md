@@ -46,7 +46,7 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 - Clip keys: branch clip-keys-a65 at e7989ac (hold < or > to repeat the step on the clip keys pages, gate PASS, not in integration). 81f6418 is in integration 110d4c2. KEYS panel and SCALE, CHORD and ARP pages. Knobs 2-8 send CC 48-54. 24 scales, 30 chords, swing, Euclid rhythm, HUMAN, strum. Merged tree with a75: RAM .data+.bss 94500 of 98304 B (ledger row 75). Host tests pass. Not tested on hardware.
 - Integration: 110d4c2 (merge of ble-a75 38af0a0). integration-stale-02ae8b8 keeps the stale 17:34 merges.
 - Pool limit: build.sh and the gate require at least 8192 B of pool free (enforced 2026-10-16 21:53). USER_PREFERENCES.md keeps the older 4096 B owner entry.
-- Tools: tools/ble_autotest.py runs the Bluetooth test over USB with no user action. Attempt ledger: BLE_ATTEMPTS.md in the BLE branch (one row per attempt). JieLi SDK BLE design vs our host, with the step plan for the iPhone link: [ble_split/SDK_DESIGN_COMPARE.md](ble_split/SDK_DESIGN_COMPARE.md).
+- Tools: tools/ble_autotest.py runs the Bluetooth test over USB with no user action. Attempt ledger: BLE_ATTEMPTS.md in the BLE branch (one row per attempt). JieLi SDK BLE design vs our host, with the step plan for the iPhone link: ~/Documents/x0x37/ble_split/SDK_DESIGN_COMPARE.md (Mac).
 
 ## Left to do
 
@@ -74,4 +74,4 @@ X0X firmware for the M-Vave SMK-37 (Pro and Elite) that:
 - Bluetooth audio.
 - Shipping any JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-16 21:55.
+Last update: 2026-10-16 21:57.

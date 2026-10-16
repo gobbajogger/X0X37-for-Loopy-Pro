@@ -1,6 +1,6 @@
 # X0X37 project: user preferences and decisions
 
-Read this file before you work on the X0X37 project. Also follow agent-rules.md. The reference for intended behavior is BEHAVIOR.md on the branch integration. The smk37 copy x0x37/BEHAVIOR.md is synced from it.
+Read this file before you work on the X0X37 project. Also follow agent-rules.md. This Mac root file is the main copy. x0x37/docs/USER_PREFERENCES.md on smk37 is an exact copy. The reference for intended behavior is BEHAVIOR.md on the branch integration. The smk37 copy x0x37/BEHAVIOR.md is synced from it.
 
 ## How to work with the user
 
@@ -14,7 +14,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - 2026-10-16 20:12 (owner): Questions and explanations to the owner use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms. Example: "When you record live and hit a pad a little before the beat, the keyboard puts the note on the step before the one you meant, so your recording sounds a bit early. I can make it snap to the closest step instead." This rule applies only to text for the owner. Docs, logs and commits stay in asd-ste.
 - 2026-10-16 19:25 (owner): Do not ask the owner to approve a change that has no visible, audible or playable effect. Decide and continue. Ask only when the change affects the user experience.
 - 2026-10-16 19:10 (owner, from Optimizer items C3 and B3): In the XS, S and B faces, only the lower-case letters a b d k m p r s t x z keep their own glyphs. Each other lower-case letter shows as its capital letter, also in sample names. The characters ` { | } ~ show as "?". Symbols outside the font show as ?. Owner approved 2026-10-16 19:25. See BEHAVIOR.md GEN-55.
-- 2026-10-16 19:02 (owner, agent rule 28): Docs and logs hold only information that matters for development: behavior, decisions, rules, the attempt results that matter, open items, and how to build, install and test. Do not write chatter, repeated status, process narration or acknowledgements.
+- 2026-10-16 19:02 (owner): docs and logs hold only development information (agent rule 28).
 
 ## Installs and safety
 
@@ -31,7 +31,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - 2026-10-16 18:09: Code stays only on the box and on the machines of the owner. Never push to GitHub or to any other outside remote. The GitHub origin of the Mac x0x37 repo stays for now. No one pushes to it.
 - Box first: build, test and analyze on the box copy. Use the Mac only for installs and device access. Copy the built files to the Mac just before an install. Sync box commits to the Mac with a git bundle (same hashes, no patches). Keep the box and Mac copies in sync (git commits and docs).
 - JieLi files stay local on the box and on the Mac and are never committed. Exception: branch refs-oscuro (see below).
-- 2026-10-16 17:44 and 18:09: Branch refs-oscuro (ac10280, tip babd349) is a reference. It holds the SMK-37 Oscuro reference firmware (refs/oscuro/). It also holds the JieLi Bluetooth libraries and AC79 SDK headers (refs/jieli/). Not for distribution. Never merge it into ble-a65, integration or smk37. Never package anything from it. Never push it. It stays in the local repositories. The full SDK and the toolchain stay out of git. (Source: refs/jieli/README.md and refs/oscuro/README.md.)
+- 2026-10-16 17:44 and 18:09: Branch refs-oscuro (ac10280, tip babd349) is a reference. It holds the SMK-37 Oscuro reference firmware (refs/oscuro/). It also holds the JieLi Bluetooth libraries and AC79 SDK headers (refs/jieli/). Not for distribution. Never merge it into any branch. Never package anything from it. Never push it. It stays in the local repositories. The full SDK and the toolchain stay out of git. (Source: refs/jieli/README.md and refs/oscuro/README.md.)
 - Pre-push blocks for refs-oscuro: on the box /workspace/x0x37.git and the builder box folders, on the Mac x0x37/.git/hooks/pre-push and flash_review/.git/hooks/pre-push (covers all flash_review worktrees). The hook blocks only a push that contains refs-oscuro or its commits.
 
 ## Team rules
@@ -96,6 +96,6 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - Source tree: x0x37/ (branch smk37). BLE work: flash_review repo, live branch ble-a74. Clip keys: branch clip-keys (box repo).
 - Rules: agent-rules.md. Agents and lanes: AGENTS_AND_ROOMS.md. Intended behavior: BEHAVIOR.md on integration (x0x37/BEHAVIOR.md on smk37 is a synced copy). Change log: x0x37-progress-log.md. Plan: ROADMAP.md. BLE attempt ledger: BLE_ATTEMPTS.md in the BLE branch.
 - BREAK mode guide: BREAK_MODE_GUIDE.md and BREAK_MODE_GUIDE.pdf.
-- Flash plan: ble_split/flash_plan.md.
+- Flash plan: ~/Documents/x0x37/ble_split/flash_plan.md (Mac).
 
 Last update: 2026-10-16.

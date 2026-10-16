@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 21:55 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 21:57 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -10,6 +10,7 @@ Last updated: 2026-10-16 21:55 (Vladivostok, UTC+10).
 - ID: 6816f054-4f75-496c-b5a8-67dc1a4daf99
 - Purpose: Primary bot. Routes tasks, enforces project rules and the style rules. Relays messages between the agents and the owner.
 - Never: Installs firmware.
+- Box folder: /workspace/x0x37-orchestrator.
 
 ### Firmware Main Builder
 - ID: a02ff4ed-d19b-42fc-8286-d5854da64a2a
@@ -40,11 +41,13 @@ Last updated: 2026-10-16 21:55 (Vladivostok, UTC+10).
 - ID: a35e97c4-ec2a-4d3b-bea2-e32d8aedaa97
 - Purpose: Headless builds, unit tests (smk_clip_keys_test etc.), size and flash-map checks. Keeps caches warm.
 - Never: Installs firmware.
+- Box folder: /workspace/x0x37-build-and-test-runner.
 
 ### Release Packager
 - ID: 47f0d1b2-8691-46f3-9c06-c99fd805761c
 - Purpose: Packages passing merged builds with CRCs, slot backup paths, and plain-English changelog.
 - Never: Installs (TO CONFIRM: implied by the profile, not written). Packages anything from refs-oscuro. Pushes refs-oscuro. Pushes to GitHub or any outside remote.
+- Box folder: /workspace/x0x37-release-packager.
 
 ### Docs Keeper
 - ID: ffd7fca0-6687-4102-bc74-4dda79e8604a
@@ -56,34 +59,36 @@ Last updated: 2026-10-16 21:55 (Vladivostok, UTC+10).
 - ID: 64d26138-589a-454f-90c9-389404c9c990
 - Purpose: Writes short hardware test checklists for changed items only. Sends them to Orchestrator.
 - Never: Installs or changes code. (TO CONFIRM: implied, not written.)
+- Box folder: /workspace/x0x37-test-plan-writer.
 
 ### Optimizer
 - ID: e9e30685-7138-4a21-8945-13dffc12afc9
 - Purpose: Suggests optimizations that are safe for the user experience. Gives patches to the lane owners.
 - Never: Installs firmware. Commits to the branch of another agent.
+- Box folder: /workspace/x0x37-optimizer.
 
 Note: the iChord agents belong to a different project. They are not part of this setup.
 
 ## Agent identities and lanes
 
-Each task has one owner. Find the owner in this table. Heavy agents write code or run builds. Light agents write docs, do checks or give answers.
+Each task has one task agent. Find it in this table. Heavy agents write code or run builds. Light agents write docs, do checks or give answers.
 
 | Agent | Owns (only this agent) | Does not do | Hands off to | Cost tier |
 |---|---|---|---|---|
-| Orchestrator | Rule checks. Task assignment. Messages to and from the owner. | Build, write code or install. | Owner of the task, from this table. | Light |
+| Orchestrator | Rule checks. Task assignment. Messages to and from the owner. | Build, write code or install. | Task agent, from this table. | Light |
 | Firmware Main Builder | Live BLE lane ble-a74. All firmware installs. | Edit clip-keys. Write the bootloader. | Merge Integrator (commits). Test Plan Writer (install changes). Docs Keeper (logs). | Heavy |
 | Second Builder | Branch clip-keys (clip mode, scale, chord, arp, tempo). | Install. Edit flash_review or the BLE branches (ble-*). | Merge Integrator (commits). Docs Keeper (logs). | Heavy |
-| Firmware Q&A | Answers about firmware and branches. | Commit, change code or install. | Owner of the topic, from this table. | Light |
+| Firmware Q&A | Answers about firmware and branches. | Commit, change code or install. | Task agent of the topic, from this table. | Light |
 | Merge Integrator | Branch integration. Merges and merge conflicts. merge-monitor-log.md. | Install. Write feature code. Merge or push refs-oscuro. Push to an outside remote. | Build and Test Runner (merged commit). | Heavy |
 | Build and Test Runner | Headless builds, unit tests, size and flash-map checks. | Install. Write feature code. | Release Packager (pass). Builder of the branch (fail). | Heavy |
 | Release Packager | Release packages with CRCs, slot backup paths and changelogs. | Install. Change code. Package or push refs-oscuro. Push to an outside remote. | Firmware Main Builder (install). Docs Keeper (logs). | Light |
 | Docs Keeper | BEHAVIOR.md, USER_PREFERENCES.md, ROADMAP.md, this file, progress log. | Install. Change firmware code. | Orchestrator (rule changes). | Light |
 | Test Plan Writer | Hardware test checklists, sent to Orchestrator. | Install. Change code. | Firmware Main Builder (install). Docs Keeper (results). | Light |
-| Optimizer | Patches for optimizations that are safe for the user experience. | Install. Commit to the branch of another agent. | Owner of the lane, from this table. | Light |
+| Optimizer | Patches for optimizations that are safe for the user experience. | Install. Commit to the branch of another agent. | Task agent of the lane, from this table. | Light |
 
 ## Messages
 
-There are no rooms. Agents send messages direct to each other with SendToAgent. Orchestrator relays messages to the owner. Test Plan Writer sends checklists to Orchestrator.
+There are no rooms. Agents send messages direct to each other with SendToAgent. Orchestrator relays messages to the owner (the user).
 
 ## Coordination rules
 
@@ -94,12 +99,12 @@ Work and messages:
 - Rule 23: if you change intended behavior, update BEHAVIOR.md in the same task.
 - Rule 24: read USER_PREFERENCES.md before you start. Add each new lasting user decision to it.
 - Rule 25: when a step finishes or a plan changes, update ROADMAP.md.
-- Rule 26: no rooms. Send a delegation request direct to the owner of the task with SendToAgent: task, inputs, done criteria and deadline, in two sentences or fewer. The owner of the task replies with the result and the commit hash.
-- Rule 27: each task has one owner (lanes table). Do not work outside your lane. Give each task to the lightest agent that can do it. If you have no result, blocker or decision, do not send a message.
-- Rule 28: docs and logs hold only information that matters for development: behavior, decisions, rules, the attempt results that matter, open items, and how to build, install and test. Do not write chatter, repeated status, process narration or acknowledgements.
+- Rule 26: no rooms. Send a delegation request direct to the task agent with SendToAgent: task, inputs, done criteria and deadline, in two sentences or fewer. The task agent replies with the result and the commit hash. "The owner" is the user.
+- Rule 27: each task has one task agent (lanes table). Do not work outside your lane. Give each task to the lightest agent that can do it. If you have no result, blocker or decision, do not send a message. Optimizer gives patches to the builders and does not commit to their branches.
+- Rule 28: docs and logs hold only development information (agent-rules.md rule 28).
 - Rule 33: a test checklist holds only the changed items. Do not retest proven items. The owner reply has three fields: Connected, Seconds held, Loopy notes.
 - Rule 34: never log a hardware pass unless the owner names the build that the owner tested.
-- Rule 35: when a build is ready to test, tell Orchestrator. Orchestrator tells the owner.
+- Rule 35: when a build is ready to test, tell Orchestrator. Test Plan Writer sends the checklist to Orchestrator. Orchestrator tells the owner.
 - Messages hold only results, blockers and decisions, in two sentences or fewer.
 - Text for the owner (questions and explanations): use plain words about what the owner hears, feels and does on the keyboard. Explain each button and each term. Do not use code words, step numbers or millisecond terms (owner, 2026-10-16 20:12). Docs, logs and commits stay in asd-ste.
 - Generic work needs no approval (user, 2026-10-16 02:11). Only changes that the owner can see, hear or play need the approval of the owner (owner, 2026-10-16 19:25). Decide other changes and continue.
@@ -108,16 +113,16 @@ Work and messages:
 Build and install:
 - Build, test and analyze on the box copy. Use the Mac only for installs and device access.
 - Box build paths: JieLi toolchain /home/box/.jieli/toolchain, AC79 SDK /home/box/fw-AC79_AIoT_SDK (agent rule 12).
-- All agents share one box. Each agent uses its own box folder, /workspace/x0x37-<agent-name>. Never use the folder of another agent. Each builder works only in its own worktree.
+- All agents share one box. Each agent uses its own box folder (see the agent list). Merge Integrator uses its Mac worktree. Firmware Q&A only reads and has no folder. Never use the folder of another agent. Each builder works only in its own worktree.
 - Rule 31: tests read the shared reference files in /workspace/x0x37-refs/schwung.
 - Rule 32: run hardware tests (device, USB, BLE, installer) one at a time. Run them in parallel only when a plan shows that their results cannot interact.
-- Rule 36: tests use X0X_TEST_JOBS=8. Scenario tests run one at a time. Do not run tests for a tree with only .md changes. Results go to /workspace/x0x37-results/<tree>.md. Keep LIVE_BRANCHES and BUDGET.md there current. Gate: /workspace/x0x37-refs/gate/x0x37_gate.sh. Its box-wide flock on X0X_GATE_LOCK (default /workspace/x0x37-refs/gate.lock) stops two gate test runs at the same time. Its lock X0X_GATE_WORK/.lock-<hash> blocks a second run of the same commit only. X0X_TEST_TIME_SCALE: 20 in development. The gate always uses 1 and writes it in the result file. Give each dead branch the name archive/<name>. Optimizer gives patches to the builders.
+- Rule 36: tests use X0X_TEST_JOBS=8. Scenario tests run one at a time. Do not run tests for a tree with only .md changes. Results go to /workspace/x0x37-results/<tree>.md. Keep LIVE_BRANCHES and BUDGET.md there current. Gate: /workspace/x0x37-refs/gate/x0x37_gate.sh. Its box-wide flock on X0X_GATE_LOCK (default /workspace/x0x37-refs/gate.lock) stops two gate test runs at the same time. Its lock X0X_GATE_WORK/.lock-<hash> blocks a second run of the same commit only. X0X_TEST_TIME_SCALE: 20 in development. The gate always uses 1 and writes it in the result file.
 - Commit early so the Merge Integrator has a base. Build and Test Runner checks every commit. Merge Integrator merges as soon as both sides have a commit.
 - Builders commit on the box, then sync the commits to the Mac repo with a git bundle before an install (same hashes, no patches).
 - Only Firmware Main Builder installs. Before each install: back up the sample slots, notify the user with the exact commit hash, and wait for the go from the parent agent. After the install: compare the per-slot CRCs and send the commit hash and the CRC result. Never write the bootloader. A verified build installs with no question to the user.
 - Rule 29: before an install notice, the gate must report PASS for the exact tree of the commit. A result for the same tree (without *.md files) is valid. All tests pass, with no list of known failures. The installer reads the image back from the device. Compare each per-slot CRC before and after. The CRC32 of a whole .x0xslots file is always 2144df1c (the CRC-32 residue) and proves nothing.
 - Rule 29 (install): run the install in the foreground, or in a named screen or tmux session that an agent watches. If the link drops, reattach and watch the install to the end and the read-back. Never install in the background.
-- Rule 30: keep the tag last-good-hw on the newest build that passed a device test. After 2 failed device tests in a row, bisect from last-good-hw.
+- Rule 30: keep the tag last-good-hw on the newest build that passed a device test. After 2 failed device tests in a row, bisect from last-good-hw. Give each dead branch the name archive/<name>.
 - Rule 37: Firmware Main Builder, Second Builder and Optimizer follow the skill /home/box/agent-data/workflows/x0x37-builder-loop/SKILL.md for each change.
 - Rule 38: stop only the processes that you started, by their PIDs. Never use pkill -f or killall on shared scripts (gate, tests, installer).
 
@@ -163,3 +168,4 @@ Repositories:
 - 2026-10-16 21:42: live BLE lane is ble-a74 (owner test 1: 2 FAIL). ble-a75, ble-pad-a76, integration 110d4c2.
 - 2026-10-16 21:48: rule 38 (stop only your own PIDs). Cause: a Firmware Main Builder worker ran pkill -f x0x37_gate.sh at 21:41 and 21:43.
 - 2026-10-16 21:55: BEHAVIOR.md reference is integration (rule 22). Rule 29: gate PASS for the exact tree. Rules 5, 11, 26, 28, 29 and 34 in asd-ste. Branch tips.
+- 2026-10-16 21:57: rule contradictions fixed (rules 1, 2, 7, 9, 11, 26, 27, 30, 33, 35, 36). "Task agent" replaces "owner of the task". Box folders for each agent.
