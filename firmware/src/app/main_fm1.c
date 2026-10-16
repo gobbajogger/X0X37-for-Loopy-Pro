@@ -838,9 +838,33 @@ void smk_ck_midi_stop(void) { ck.off_req = 1; }
 enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
 #define CK_BIT(map, k) (((map)[(k) >> 5] >> ((k) & 31u)) & 1u)
 
+/* HUMAN timing: the note-ons that wait (main loop only). ck_qe: note | velocity << 7; ck_qt: the low 8 bits of
+ * fm1_ms when it goes out. The channel is ck.ch: a channel change first sends all (ck_all_off). */
+#define CK_QN 24u
+static uint16_t ck_qe[CK_QN];
+static uint8_t ck_qt[CK_QN], ck_qn;
+static void ck_q_run(uint32_t only);
 __attribute__((minsize)) static void ck_send(uint32_t st, uint32_t d1, uint32_t d2)
 {
+    if ((st & 0xF0u) == 0x80u)
+        ck_q_run(d1 + 1u);                          /* a note-off never goes before its note-on */
     apc_out((st >> 4) | st << 8 | d1 << 16 | d2 << 24);
+}
+/* send the note-ons that wait: only 0: the ones that are due (ck_q_due); note + 1: the ones of this note;
+ * 0x100: all */
+CK_FN static void ck_q_run(uint32_t only)
+{
+    uint32_t i, j, e;
+    for (i = j = 0; i < ck_qn; i++) {
+        e = ck_qe[i];
+        if (only ? only > 0xFFu || (e & 127u) + 1u == only : ck_q_due(ck_qt[i], fm1_ms)) {
+            apc_out(9u | (0x90u | ck.ch) << 8 | (e & 127u) << 16 | (e >> 7) << 24);
+            continue;
+        }
+        ck_qe[j] = (uint16_t)e;
+        ck_qt[j++] = ck_qt[i];
+    }
+    ck_qn = (uint8_t)j;
 }
 /* the notes of key k with the settings now */
 CK_FN static uint32_t ck_key_notes(uint32_t k, uint8_t *out)
@@ -859,13 +883,18 @@ CK_FN static void ck_arp_stop_note(void)
         cp->arp_note = 0;
     }
 }
-/* the velocity of a new note: the key velocity, HUMAN moves it by up to 4 x HUMAN at random */
-CK_FN static uint32_t ck_vel(uint32_t note)
+/* a note-on: the key velocity, HUMAN moves it by up to 4 x HUMAN at random and sends it 0 to 4 x HUMAN ms late
+ * (a full queue: at once) */
+CK_FN static void ck_on(uint32_t note)
 {
     CK_BASE;
-    int32_t v = cp->vel, h = proj.set.ck_x1 >> 3 & 7u;
-    v += (int32_t)(((fm1_ms ^ note << 8) * 2654435761u >> 24) - 128u) * h / 32;
-    return (uint32_t)(v < 1 ? 1 : v > 127 ? 127 : v);
+    uint32_t late, v = ck_human(proj.set.ck_x1 >> 3 & 7u, (fm1_ms ^ note << 8) * 2654435761u, cp->vel, &late);
+    if (!late || ck_qn >= CK_QN) {
+        ck_send(0x90u | cp->ch, note, v);
+        return;
+    }
+    ck_qe[ck_qn] = (uint16_t)(note | v << 7);
+    ck_qt[ck_qn++] = (uint8_t)(fm1_ms + late);
 }
 /* key k: note on (st 0x90), note off (0x80), or note off that keeps the notes of the other sounding keys
  * (0x81: a key release) */
@@ -880,8 +909,12 @@ CK_FN static void ck_key_send(uint32_t k, uint32_t st)
                 for (i = 0, n = ck_key_notes(q, out); i < n; i++)
                     keep[out[i] >> 5] |= 1u << (out[i] & 31u);
     for (i = 0, n = ck_key_notes(k, out); i < n; i++)
-        if (!CK_BIT(keep, out[i]))
-            ck_send((st & 0xF0u) | cp->ch, out[i], st & 0x10u ? ck_vel(out[i]) : 0u);
+        if (!CK_BIT(keep, out[i])) {
+            if (st & 0x10u)
+                ck_on(out[i]);
+            else
+                ck_send(0x80u | cp->ch, out[i], 0u);
+        }
 }
 /* all keys that sound: note off (0x80) or on again (0x90), round a setting change */
 CK_FN static void ck_voice(uint32_t st)
@@ -896,6 +929,7 @@ CK_FN static void ck_voice(uint32_t st)
 CK_FN static void ck_all_off(void)
 {
     CK_BASE;
+    ck_q_run(0x100u);                                       /* (the notes that wait go out first) */
     ck_voice(0x80u);
     cp->snd[0] = cp->snd[1] = 0;
     ck_arp_stop_note();
@@ -918,7 +952,7 @@ CK_FN static void ck_strum(uint32_t dt)
         }
     cp->acc += dt;
     for (; cp->nk <= n && (cp->nk - 1u) * gap <= cp->acc; cp->nk++)
-        ck_send(0x90u | cp->ch, out[cp->nk - 1u], ck_vel(out[cp->nk - 1u]));
+        ck_on(out[cp->nk - 1u]);
     if (cp->nk > n)
         cp->nk = 0;
 }
@@ -997,7 +1031,7 @@ CK_FN static void ck_arp_step(uint32_t rate, uint32_t pos)
         return;
     note = ck_arp_pick(list, n, sp->ck_ord, sp->ck_oct + 1u, pos, fm1_ms * 2654435761u >> 7);
     if (note >= 0) {
-        ck_send(0x90u | cp->ch, (uint32_t)note, ck_vel((uint32_t)note));
+        ck_on((uint32_t)note);
         cp->arp_note = (uint8_t)(note + 1);
         j = rate * (sp->ck_gate + 1u) / 10u;                 /* gate 10-100 % of a step, at least 1 tick */
         cp->gate_left = (uint8_t)(j ? j : 1u);
@@ -1375,8 +1409,10 @@ CK_FN void smk_ck_poll(void)
         else
             ck_press(k, fm1_in.key_vel[k]);
     }
-    if (on)
+    if (on) {
         ck_arp(dt);
+        ck_q_run(0);                                        /* HUMAN: the note-ons that are due */
+    }
 }
 
 /* every frame, after ui_frame; the wheels also between frames. The 10 outer keys (C3..E3, G#5..C6) have no

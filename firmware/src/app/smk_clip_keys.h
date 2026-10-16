@@ -11,7 +11,7 @@
 
 #define CK_NKEY 37u           /* keybed keys; key 0 = C3 = MIDI note 48 */
 #define CK_BASE_NOTE 48
-#define CK_MAXN 5u            /* the most notes of one chord */
+#define CK_MAXN 7u            /* the most notes of one chord (the 13th chords) */
 #define CK_ARPN 24u           /* the most notes in one arp cycle (before the octaves) */
 #define CK_NSCALE 24u
 #define CK_NCHORD 30u
@@ -30,10 +30,11 @@ static const char CK_SCALE_N[] = "MAJOR\0MINOR\0DORIAN\0PHRYG\0LYDIAN\0MIXO\0LOC
                                  "DIM H-W\0DIM W-H\0BEBOP DOM\0HIRAJOSHI\0DBL HARM";
 /* chords: the step from the last chord note to the next, one nibble each, low nibble first; 0 ends the list.
  * SC types (14-16): one nibble for each scale third stacked on the root (2, 3 or 4 thirds) */
-static const uint16_t CK_CHORD_T[CK_NCHORD] = {0x34, 0x43, 0x33, 0x44, 0x52, 0x25, 0x434, 0x343, 0x334, 0x433,
-                                               0x333, 0x3434, 0x4343, 0x4334, 0x22, 0x222, 0x2222, 0x234,
-                                               0x243, 0x443, 0x325, 0x244, 0x734, 0x743, 0x3347, 0x3473,
-                                               0x3437, 0x7374, 0x7473, 0x7464};
+static const uint32_t CK_CHORD_T[CK_NCHORD] = {0x34, 0x43, 0x33, 0x44, 0x52, 0x25, 0x434, 0x343,
+                                               0x334, 0x433, 0x333, 0x3434, 0x4343, 0x4334, 0x22,
+                                               0x222, 0x2222, 0x234, 0x243, 0x443, 0x325, 0x244,
+                                               0x734, 0x743, 0x33434, 0x34343, 0x34334, 0x433434,
+                                               0x434343, 0x434334};
 static const char CK_CHORD_N[] = "MAJ\0MIN\0DIM\0AUG\0SUS2\0SUS4\0MAJ7\0MIN7\0DOM7\0M7B5\0DIM7\0MAJ9\0MIN9\0DOM9\0"
                                  "SC TRIAD\0SC 7TH\0SC 9TH\0MAJ6\0MIN6\0MMAJ7\0" "7SUS4\0AUG7\0ADD9\0MADD9\0"
                                  "MAJ11\0MIN11\0DOM11\0MAJ13\0MIN13\0DOM13";
@@ -217,4 +218,20 @@ CK_FN static uint32_t ck_page_btn(uint32_t pg, uint32_t press, uint32_t rel, uin
         pg = pg & CK_P_PIN ? pg & 0xF0u
                            : (pg & 3u ? pg : pg | (f < CK_E_CHORD ? 1u : f < CK_E_ORD ? 2u : 3u)) | CK_P_PIN | CK_P_EDIT;
     return pg;
+}
+
+/* HUMAN 0-7. r: a random number. Return the velocity: vel moved by up to 4 x h at random (1..127); *late: the
+ * ms the note-on waits, 0 to 4 x h (CK_LATE_MAX at most). h = 0: vel, no wait. */
+#define CK_LATE_MAX 28u
+CK_FN static uint32_t ck_human(uint32_t h, uint32_t r, uint32_t vel, uint32_t *late)
+{
+    int32_t v = (int32_t)vel + (int32_t)((r >> 24) - 128u) * (int32_t)h / 32;
+    *late = (r >> 8 & 255u) * (4u * h + 1u) >> 8;
+    return (uint32_t)(v < 1 ? 1 : v > 127 ? 127 : v);
+}
+/* 1: a waiting note-on with send time t (the low 8 bits of the ms) is due at now. A note waits at most
+ * CK_LATE_MAX ms: a t more than that ahead of now means a long main loop pass (late, not early). */
+CK_FN static uint32_t ck_q_due(uint32_t t, uint32_t now)
+{
+    return (uint8_t)(t - now - 1u) >= CK_LATE_MAX;
 }
