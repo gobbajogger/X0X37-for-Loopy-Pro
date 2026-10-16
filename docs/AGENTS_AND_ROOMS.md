@@ -2,7 +2,7 @@
 
 This file lets another model recreate the multi-agent setup for the x0x37 firmware project. Owner: Docs Keeper. "TO CONFIRM" marks a fact that no project file or agent profile shows. This root file is the main copy. x0x37/docs/AGENTS_AND_ROOMS.md is an exact copy, committed on smk37. Update both together.
 
-Last updated: 2026-10-16 22:03 (Vladivostok, UTC+10).
+Last updated: 2026-10-16 22:04 (Vladivostok, UTC+10).
 
 ## Agents
 
@@ -92,7 +92,7 @@ There are no rooms. Agents send messages direct to each other with SendToAgent. 
 
 ## Coordination rules
 
-Agent rules: agent-rules.md (40 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
+Agent rules: agent-rules.md (41 rules). The rules below are the team rules from agent-rules.md, USER_PREFERENCES.md and the owner.
 
 Work and messages:
 - Rule 1: commits, logs, docs and checklists follow the asd-ste skill (/home/box/agent-data/workflows/asd-ste/SKILL.md). Agent-to-agent messages follow the caveman skill (/home/box/agent-data/workflows/caveman/SKILL.md). Messages to the owner use plain words (see "Text for the owner" below). If asd-ste and caveman conflict, asd-ste wins.
@@ -125,6 +125,7 @@ Build and install:
 - Rule 30: keep the tag last-good-hw on the newest build that passed a device test. After 2 failed device tests in a row, bisect from last-good-hw. Give each dead branch the name archive/<name>.
 - Rule 37: Firmware Main Builder, Second Builder and Optimizer follow the skill /home/box/agent-data/workflows/x0x37-builder-loop/SKILL.md for each change. Skill changes go through Orchestrator.
 - Rule 40 (owner, 2026-10-16 22:02): each agent does the Decision check (skill steps 12 to 16: evidence, damage, undo, cause, size, and the red-flag words) before an action that is hard to undo or shared.
+- Rule 41 (owner, 2026-10-16 22:03): no idle waiting. While you wait for a gate, review, merge or owner reply, do the next task that does not need that result. Only hardware work (rule 32) and edits to the same shared file stay one at a time.
 - Rule 38: stop only the processes that you started, by their PIDs. Never use pkill -f or killall on shared scripts (gate, tests, installer).
 
 Repositories:
@@ -173,3 +174,4 @@ Repositories:
 - 2026-10-16 21:57: rule 1: caveman only for agent-to-agent messages. Messages to the owner use plain words (Orchestrator confirmed).
 - 2026-10-16 22:00: rule 39 (owner 22:00): one working branch, integration, and one batch gate. Rule 29: install the batch hash. Lanes are file sets.
 - 2026-10-16 22:03: rule 40 (Decision check for each agent, owner 22:02). Rule 37: skill changes go through Orchestrator.
+- 2026-10-16 22:04: rule 41 (no idle waiting, owner 22:03).

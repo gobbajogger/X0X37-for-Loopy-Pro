@@ -42,6 +42,7 @@ Read this file before you work on the X0X37 project. Also follow agent-rules.md.
 - 2026-10-16 13:03: Do not ask the user for approval to start a helper subagent. Start it.
 - 2026-10-16 22:00 (owner): All planned changes go on one working branch, integration. One commit for each change, with a host test (affected tests only, time scale 20). One full gate at the end of the batch. Split or bisect only if that gate fails. Merge Integrator owns the branch order and the batch gate. Builders fetch and rebase before each commit and change only the files of their lane. The install is the batch hash with gate PASS. This replaces the gate for each lane (agent rule 39).
 - 2026-10-16 22:02 (owner): Each agent, not only the builders, does the Decision check before an action that is hard to undo or shared. The check is steps 12 to 16 of the x0x37-builder-loop skill (evidence, damage, undo, cause, size), with its red-flag words (agent rule 40). Changes to the skill go through Orchestrator.
+- 2026-10-16 22:03 (owner): No idle waiting. While you wait for a gate, a review, a merge or an owner reply, do the next task that does not need that result. Only hardware work and edits to the same shared file stay one at a time (agent rule 41).
 
 ## Hardware and targets
 
