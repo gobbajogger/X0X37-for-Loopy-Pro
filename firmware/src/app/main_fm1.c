@@ -958,7 +958,8 @@ void smk_ck_midi_stop(void) { ck.off_req = 1; }
 #include "fm1_opt.h"
 #define CK_BASE ck_t *cp = &ck; FM1_BASE(cp)
 #define CK_SET settings_t *sp = &proj.set
-enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
+enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u,
+       CK_F_KNOB = 0x30u };   /* bits 4-5: the stage with the knobs + 1 (0: none, CLP-63) */
 #define CK_BIT(map, k) (((map)[(k) >> 5] >> ((k) & 31u)) & 1u)
 
 /* HUMAN timing: the note-ons that wait (main loop only). ck_qe: note | velocity << 7; ck_qt: the low 8 bits of
@@ -1291,8 +1292,8 @@ static const uint8_t CK_KNOB[3][4] = {{CK_E_ROOT, CK_E_SCALE, CK_E_SNAP, CK_NE},
  * off and closes the page (ck_page_tap). A hold shows its page,
  * and the keys edit the page. The release closes the page. FADER BANK pins the page (the keys play), a second
  * press closes it; < and > step the last field (a hold repeats, no wrap). NOTE REPEAT + ARP: LATCH on or off.
- * NOTE REPEAT alone: panic. Knobs 2-5 set the stage of the page, else the stage that is on (ARP, CHORD, SCALE).
- * No stage: knobs 2-8 send CC 48-54. */
+ * NOTE REPEAT alone: panic. Knobs 2-5 set the stage that has the knobs: the stage that a tap turned on last. When
+ * it goes off, the knobs go to the stage that is on (ARP, CHORD, SCALE). No stage: knobs 2-8 send CC 48-54. */
 CK_FN static void ck_controls(void)
 {
     CK_BASE;
@@ -1320,6 +1321,9 @@ CK_FN static void ck_controls(void)
             ck_all_off();
             cp->on ^= (uint8_t)(1u << i);
             cp->pg = (uint8_t)ck_page_tap(cp->pg, i, cp->on >> i & 1u);   /* on: the page stays open */
+            v = cp->on >> i & 1u ? i + 1u : (cp->fl & CK_F_KNOB) >> 4 != i + 1u ? (cp->fl & CK_F_KNOB) >> 4
+                : cp->on & CK_M_ARP ? 3u : cp->on & CK_M_CHORD ? 2u : cp->on & CK_M_SCALE;   /* (as 94285b5) */
+            cp->fl = (uint8_t)((cp->fl & ~CK_F_KNOB) | v << 4);  /* on: the knobs; off: the next stage that is on */
             ui_say(ck_nm(CK_MODE_N, i), cp->on >> i & 1u ? " ON" : " OFF");
         }
     f = cp->pg >> 4;
@@ -1335,15 +1339,13 @@ CK_FN static void ck_controls(void)
         ck_send(0xB0u | cp->ch, 123u, 0u);                   /* All Notes Off */
         ui_say("PANIC", 0);
     }
-    /* the stage with the knobs (CLP-63): the stage of the page, else the stage that is on (ARP, CHORD, SCALE),
-     * else none (3) */
-    v = cp->pg & 3u ? (cp->pg & 3u) - 1u : cp->on & CK_M_ARP ? 2u : cp->on & CK_M_CHORD ? 1u : cp->on & CK_M_SCALE ? 0u : 3u;
+    v = ((cp->fl & CK_F_KNOB) >> 4) - 1u;                    /* the stage with the knobs (CLP-63), > 2: none */
     if (own)
-        for (i = 0; i < (v < 3u ? 4u : NE); i++) {          /* a stage: knobs 2-5 (knobs 6-8 wait) */
+        for (i = 0; i < NE; i++) {                          /* a stage: knobs 2-5 (knobs 6-8 do nothing) */
             int32_t d = fm1_enc_take(panel.enc[i]) * panel.dir[i];
             char n[12], t[12];
-            if (!d)
-                continue;
+            if (!d || (v < 3u && i >= 4u))
+                continue;                                   /* (taken: no old turns later) */
             if (v > 2u) {                                   /* no stage: CC 48-54 for MIDI-learn */
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);   /* (relative) */
                 continue;
