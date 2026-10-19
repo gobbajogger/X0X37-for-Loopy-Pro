@@ -110,7 +110,7 @@ static const char *queued_save_label(void)
 {
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
-    if (smk_clip_mode_on())
+    if (!seq.playing && !seq.req_stop && smk_clip_mode_on())
         return "SAVE WHEN QUIET";
 #endif
     return "SAVE AT STOP";
@@ -119,7 +119,7 @@ static const char *queued_save_message(void)
 {
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
-    if (smk_clip_mode_on())
+    if (!seq.playing && !seq.req_stop && smk_clip_mode_on())
         return "SAVES WHEN QUIET";
 #endif
     return "SAVES WHEN STOPPED";
@@ -1414,10 +1414,18 @@ static void do_undo(int redo)
 
 /* SAVE while playing waits for the stop: writing the flash stops the audio (the code and the samples
  * are read from it, and a 4 KB erase takes tens of ms) */
+#define AUTOSAVE_QUIET 4000u
 static void save_project(void)
 {
     int rc;
-    if (seq.playing || seq.req_stop) {
+#if BOARD_SMK37
+    extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
+#endif
+    if (seq.playing || seq.req_stop
+#if BOARD_SMK37
+        || (smk_clip_mode_on() && (smk_ck_flash_busy() || plat_ms() - ui.act_t < AUTOSAVE_QUIET))
+#endif
+    ) {
         save_wait = 1;
         say(queued_save_message(), 0);
         return;
@@ -3263,8 +3271,8 @@ static void draw_header(void)
         play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
-    else if (ss != SAVE_SAVED)
-        dot(233, 9, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
+    if (ss != SAVE_SAVED)            /* still visible when REC or a long mode name uses the badge space */
+        dot(237, 3, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
     cv_commit(0, 0, 0);
 }
 
@@ -4488,7 +4496,6 @@ void ui_init(void)
 /* AUTOSAVE: changes are saved by themselves while the pattern is stopped and nothing has been touched
  * for AUTOSAVE_QUIET ms, at most every AUTOSAVE_GAP ms. Stopped only: a flash erase silences the
  * audio. Only the objects that changed are written (project.c), usually one or two sectors. */
-#define AUTOSAVE_QUIET 4000u
 #define AUTOSAVE_GAP 20000u
 static void autosave(void)
 {

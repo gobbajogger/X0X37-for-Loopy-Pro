@@ -11,7 +11,7 @@
 #undef main
 
 #if BOARD_SMK37
-static uint8_t test_clip_mode;
+static uint8_t test_clip_mode, test_clip_busy;
 uint8_t smk_clip_mode_on(void) { return test_clip_mode; }
 uint8_t smk_padcal_on(void) { return 0; }
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
@@ -20,7 +20,7 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; 
 void smk_clip_lcd_force(void) {}
 uint8_t smk_clip_wait(void) { return 0; }
 uint8_t smk_ck_ext(void) { return 0; }
-uint8_t smk_ck_flash_busy(void) { return 0; }
+uint8_t smk_ck_flash_busy(void) { return test_clip_busy; }
 uint8_t smk_ck_knobs_owned(void) { return 0; }
 uint8_t smk_ck_panel(uint32_t *last, uint32_t force) { (void)last; (void)force; return 0; }
 uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held)
@@ -435,6 +435,26 @@ int main(void)
     test_303_live();
     test_start_ext_running();
     test_drum_nearest();
+#if BOARD_SMK37
+    seq_stop(&seq);
+    tick(20);
+    ui.rec = 0;
+    test_clip_mode = test_clip_busy = 1;
+    ui.act_t = plat_ms();
+    save_project();
+    CHECK(save_wait, "manual SAVE waits while a clip key is held");
+    test_clip_busy = 0;
+    autosave();
+    CHECK(save_wait, "queued clip SAVE still waits for quiet time");
+    ui.act_t = plat_ms() - AUTOSAVE_QUIET;
+    autosave();
+    CHECK(!save_wait, "queued clip SAVE runs after clip input is quiet");
+    seq.playing = 1;
+    CHECK(!strcmp(queued_save_label(), "SAVE AT STOP"), "playing clip-mode save names the stop condition");
+    seq.playing = 0;
+    CHECK(!strcmp(queued_save_label(), "SAVE WHEN QUIET"), "stopped clip-mode save names the quiet condition");
+    test_clip_mode = 0;
+#endif
     printf("rec_live: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }

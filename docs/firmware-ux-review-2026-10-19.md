@@ -6,6 +6,8 @@ This review follows the SMK-37 as a musician plays it: keys, pads, faders, trans
 
 The review branch contains fixes for note and step ownership, song mute persistence, fader pickup, queued save feedback and clip-safe saving, memory-full save preflight, and copy/paste source ownership. The final image-budget review is still in progress. Each fix has a focused host regression. The active SMC MIDI/Bluetooth thread owns its separate integration work.
 
+The 303 velocity format enlarged the project and undo shadow. Integration now uses a 16,128-byte undo history pool to preserve the 8 KiB runtime margin. A stress test retains 24 whole-pattern replacement undo entries instead of 30 with the former 20,480-byte pool; one-byte edits still reach the existing 32-entry limit. This is a deliberate capacity cost, not a change to saved project data.
+
 ## What the player experiences
 
 | Moment | Before this review | Fix or current state | Remaining ambiguity |
@@ -15,7 +17,7 @@ The review branch contains fixes for note and step ownership, song mute persiste
 | Record a song mute and save | The mute change did not mark the project dirty | The bar mute now marks dirty and survives reboot in a scenario test | The SONG screen still needs a device check for the visible mute state during a live bar change |
 | Switch a fader bank | First small movement could jump the target to the physical fader value | The fader waits until it meets or crosses the stored value; a short hint shows the direction | Check the hint and takeover feel on the keyboard, including a target changed by a knob |
 | Hold SAVE and choose another pattern | “COPIED” suggested a frozen clipboard, but paste read live source patterns later | UI now asks for a paste target and remembers the five source slots through replacement confirmation | Pattern *contents* remain live until confirmation; playback or generator edits during a prompt can change what is pasted |
-| Save while the sequencer or clips are active | Save could appear delayed with little persistent explanation; clip activity could overlap flash work | Persistent UNSAVED / queued / failed marks, SAVE LED states, and clip activity quiet guard | REC armed while stopped suppresses autosave until REC is turned off; help states this, but the status mark does not explain the cause |
+| Save while the sequencer or clips are active | Save could appear delayed with little persistent explanation; clip activity could overlap flash work | UNSAVED / queued / failed marks, SAVE LED states, and a clip activity quiet guard for manual and automatic saves | REC armed while stopped suppresses autosave until REC is turned off; help states this, but the status mark does not explain the cause |
 | Save a project that no longer fits | The first objects could be rewritten before stream capacity failed | A preflight detects the memory-full case before any storage write | Other I/O failures can still leave a partially updated project |
 
 ## Ambiguities still worth resolving
@@ -34,7 +36,7 @@ The clip LCD draws colored squares and a white viewport frame, but no track or s
 
 ### 4. Flash quiet time needs an activity definition
 
-The clip save guard checks the raw keybed and pending clip encoders, then waits four quiet seconds. It covers the controls that were making the flash save audible during a clip performance. External MIDI activity and outgoing notes should be checked on hardware to establish whether they also need to postpone flash. “SAVE WHEN QUIET” is the current display wording; it should match the actual audible-safe condition.
+The clip save guard checks the raw keybed and pending clip encoders for both manual and automatic saves, then waits four quiet seconds. It covers the controls that were making the flash save audible during a clip performance. While X0X plays, the queued save says `SAVE AT STOP`; after X0X stops it says `SAVE WHEN QUIET`. External MIDI activity and outgoing notes should be checked on hardware to establish whether they also need to postpone flash.
 
 ### 5. PLAY to Loopy still needs round-trip proof
 
@@ -54,3 +56,5 @@ The SMC integration initially toggled `ui.rec` directly. Panel REC first cancels
 2. Run the host suite, focused firmware tests, Pro and Elite builds, and the project image/headroom gates on the exact combined commit.
 3. On the keyboard, test note release across mode changes, fader pickup in both banks, clip PLAY/REC round trips, clip paging, and save timing during sustained notes and external MIDI.
 4. Only then package an image for installation. No device installation was part of this review.
+
+The local Mac host run passed the affected UI and scenario tests. Its repository-wide result also reports unavailable reference DSP source trees and Linux-specific `flock`/Bash checks; those are environment limits, not a passing release gate. A repeat on the project's supported build environment is required.

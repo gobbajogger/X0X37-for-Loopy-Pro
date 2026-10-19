@@ -666,7 +666,7 @@ If REC is on, turn REC off for autosave. Hold SAVE to see this reminder.
 > SAVES WHEN STOPPED and shows SAVE AT STOP in the header. X0X saves when you stop. The SAVE
 > button stays lit until then.
 
-In clip mode, SAVE shows SAVES WHEN QUIET and then SAVE WHEN QUIET in the header. X0X waits
+In clip mode while X0X plays, SAVE first shows SAVES WHEN STOPPED and then SAVE AT STOP in the header. Once X0X stops, the header changes to SAVE WHEN QUIET. A SAVE pressed while clip keys or encoders are active shows SAVES WHEN QUIET. X0X waits
 until the transport stops and keybed or control activity stays quiet for four seconds. The
 SAVE button stays lit until the save completes.
 
