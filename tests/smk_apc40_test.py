@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 usb = (ROOT / "firmware/src/usb.c").read_text()
+ble = (ROOT / "firmware/src/ble.c").read_text()
 main = (ROOT / "firmware/src/app/main_fm1.c").read_text()
 engine = (ROOT / "firmware/src/app/engine.c").read_text()
 ui = (ROOT / "firmware/src/app/ui.c").read_text()
@@ -99,7 +100,8 @@ print("PASS clip mode entry refreshes pad colors; page snapshots clear old-page 
 assert "smk_apc_led_set(d1, ch, vel)" not in engine   # stored once, in the USB interrupt
 assert "smk_apc_usb_tick();" in usb and "smk_apc40_cells_age(" not in main.split("static uint8_t smk_clip_map_refresh")[1].split("\n}\n")[0]
 assert "smk_apc_host_is_active" not in engine and "smk_apc_host_is_active" not in main
-assert "uint8_t owned = clip_grid_mode || apc_host_on;" in main   # test 35: clip mode, or an APC40 host seen (user 2026-10-15)
+assert "apc_host_on & (1u << apc_in_ble)" in main   # APC handshake owns only the input link that sent it
+assert "smk_apc_ble_host_seen();" in ble and "smk_apc_host_seen();" in usb
 assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 63u)" in main
 assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
@@ -180,7 +182,6 @@ assert "smk_apc40_play_note_event(&sent, clip_grid_mode, home_held, pressed)" in
 print("PASS PLAY note 0x5B outside clip mode: USB and Bluetooth, after the clip mode handlers")
 # a71: Loopy gone on Bluetooth (link end or CCCD 0): ble.c gives the link state to the clip feedback
 # after each event poll, and main_fm1.c clears the cells (tests/smk_clip_ble_clear_test.c runs the logic).
-ble = (ROOT / "firmware/src/ble.c").read_text()
 assert "smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));" in ble
 assert ble.index("bleh_rx(h, t, ble_r.fr") < ble.index("smk_apc_ble_link((uint8_t)") < ble.index("bleh_midi_next(h, &m)")
 link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
@@ -195,7 +196,8 @@ assert "apc_own(APC_OWN_PLAY + (d1 == SMK_APC40_RECORD_NOTE));" in main
 assert "apc_play_feedback" not in link and "apc_play_feedback" not in lost
 assert "smk_apc_link_clear(1u)" in link
 for body in (link, clr):
-    assert "smk_ck" not in body and "clip_grid_mode" not in body and "seq" not in body and "apc_host_on" not in body
+    assert "smk_ck" not in body and "clip_grid_mode" not in body and "seq" not in body
+assert "apc_host_on" not in clr and "apc_host_on &= (uint8_t)~2u;" in link
 # CLP-18: usb.c gives the USB link state each poll; its end clears only the USB cells (no apc_host_on change)
 assert "smk_apc_usb_link((uint8_t)(usb.config && !usb.suspended));" in usb
 ul = main.split("void smk_apc_usb_link(uint8_t up)")[1].split("\n}\n")[0]

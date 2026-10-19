@@ -200,7 +200,7 @@ uint8_t smk_padcal_on(void) { return padcal.on; }
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
  * bright, dim an eighth, else dark; sent between LCD transfers (lcd.c padled_flush). */
 static volatile uint8_t clip_grid_mode;   /* APC40 mkII compatibility; KNOB BANK press toggles */
-static volatile uint8_t apc_host_on;      /* attempt 35: an APC40 host did the handshake (smk_apc_host_seen) */
+static volatile uint8_t apc_host_on;      /* bit 0 USB, bit 1 Bluetooth: APC handshake on that input */
 /* attempt 30: what clip mode sends to the APC40 host goes to USB and to a Bluetooth MIDI connection
  * (Loopy Pro on the BLE port). ble_out has one producer (the audio ISR): IRQs off around it here. */
 static void apc_out(uint32_t pkt)
@@ -298,9 +298,9 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)((pkt >> 16) & 0x7Fu);
     uint8_t d2 = (uint8_t)((pkt >> 24) & 0x7Fu), ty = st & 0xF0u;
-    /* Always store APC feedback. Keep it from the sound engine only while clip mode is on.
-     * When clip mode is off, the original MIDI input path stays the same (agent-rules 2). */
-    uint8_t owned = clip_grid_mode || apc_host_on;   /* attempt 35: or an APC40 host seen */
+    /* Store feedback on either link. Outside clip mode, only a link that completed
+     * the APC handshake owns these messages; the other link still plays notes. */
+    uint8_t owned = (uint8_t)(clip_grid_mode || (apc_host_on & (1u << apc_in_ble)));
     if (ty == 0xB0u)                    /* attempt 35: APC40 knob LED rings (CC 16-31, 48-63) */
         return (uint8_t)(owned && ((d1 >= 16u && d1 <= 31u) || (d1 >= 48u && d1 <= 63u)));
     if (ty != 0x90u && ty != 0x80u)
@@ -379,7 +379,7 @@ uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying)
     uint8_t r;
     if (smk_apc40_ble_colour_unheard(pkt, notifying)) {
         smk_inlog(3u, pkt);
-        return (uint8_t)(clip_grid_mode || apc_host_on);
+        return (uint8_t)(clip_grid_mode || (apc_host_on & 2u));
     }
     smk_inlog(1u, pkt);
     apc_in_ble = 1u;
@@ -451,14 +451,13 @@ uint8_t smk_clip_mode_on(void)
 {
     return clip_grid_mode;
 }
-/* usb.c calls this when the host sends the APC40 introduction. No state is necessary:
- * APC feedback is stored at all times. */
-/* attempt 35: an APC40 host answered the identity handshake (Loopy Pro, USB or Bluetooth): its LED
- * notes stay out of the sound engine also with clip mode off, until the USB host is lost. */
+/* Track the handshake by input link. A USB Loopy session must not consume notes
+ * arriving from a Bluetooth instrument, or vice versa. */
 void smk_apc_host_seen(void)
 {
-    apc_host_on = 1u;
+    apc_host_on |= 1u;
 }
+void smk_apc_ble_host_seen(void) { apc_host_on |= 2u; }
 /* CLP-18: clear the clip cells and the PLAY and REC LED feedback of one link (ble 1: those that Bluetooth
  * wrote last, 0: those of USB), and the feedback burst. If a cell stays lit, the latched layout stays, so the pads of the other link do not move,
  * and the next frame draws them. If no cell stays lit, new feedback latches the layout again, and the pad
@@ -487,7 +486,7 @@ static uint8_t smk_apc_link_clear(uint8_t ble)
 }
 void smk_apc_host_lost(void)
 {
-    apc_host_on = 0u;
+    apc_host_on &= (uint8_t)~1u;
     smk_ck_midi_stop();                              /* clip keys: all notes off (smk_ck_poll) */
     apc_clock_count = apc_clock_last_ms = apc_clock_period_ms = 0u;
     apc_clock_seen = 0u;
@@ -526,6 +525,7 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
     static smk_apc40_lost_t lost;
     if (!smk_apc40_lost_step(&lost, connected, notifying, fm1_ms))
         return;
+    apc_host_on &= (uint8_t)~2u;
     (void)smk_apc_link_clear(1u);                    /* CLP-18: only the Bluetooth cells, PLAY and REC */
 }
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
