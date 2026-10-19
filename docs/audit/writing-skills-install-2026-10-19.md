@@ -42,3 +42,16 @@ remain on demand. This increase installs the exact skills the owner requested.
 
 These are source and host checks. They do not prove future agent compliance,
 strict ASD-STE100 certification, firmware builds, formal gates, or device results.
+
+## Applied rollout
+
+Skill install commit: `95a9e08`, merged locally on `smk37`.
+Verified 38 workspace entry points and two existing external worktree entry
+points. They reach the current skills through local docs or the workspace
+wrapper. Two workspace `.agents/skills` links expose the canonical copies to
+new turns. The six changed rule files and their backups match recorded hashes.
+A repeat rollout changes zero files. See [rollout evidence](writing-skills-rollout-2026-10-19.json).
+
+Existing chats must read the changed rules on their next turn. No completed
+chat was restarted. The instruction and discovery checks cover every current
+project checkout, but cannot force an agent to obey or certify every reply.

@@ -1,0 +1,47 @@
+{
+  "apply": true,
+  "files": 6,
+  "backup": "/Users/mac/Documents/x0x37/repo-bak/rules-rollout-20261019T132932376160Z",
+  "changes": [
+    {
+      "path": "agent-rules.md",
+      "before_sha256": "a1fea7ecca36ddd372718ce132d15a6dacd4fa55b6f7efc6ca3f6a7ca3ff0ef6",
+      "after_sha256": "ad6f83df90a1570fb07fbfb9b22547c5ce1fe5d4d769c2d56800b62aa0c707b1"
+    },
+    {
+      "path": "USER_PREFERENCES.md",
+      "before_sha256": "a91453fcd6b80b4ea57aa0a72cfb95da76ebcccd32670b114391e4f2829aca6a",
+      "after_sha256": "c971c902af363416db645331c68fa48c35a1e3748fdcc1092f73a7586e376292"
+    },
+    {
+      "path": "rules/SCRIPT-CHECKS.md",
+      "before_sha256": "28dcb6cee57a62f4ff5eefd1abea7a45b43401b2ab0ca5a5480e0fec0e455d80",
+      "after_sha256": "1f60c80d393b484ee425de51dbfd1b1a9ffdf04166ea7faea0699969ffde019b"
+    },
+    {
+      "path": "rules/shared-work.md",
+      "before_sha256": "46cf2b58d1f71ce1a3061827bb301abfa25937c3da90b215b250dba238fcfca6",
+      "after_sha256": "620bb1b2a4fc8cb4db5a32e662ff2bb9326a852dfaddd1dd17f75538d8bdca6a"
+    },
+    {
+      "path": "rules/style.md",
+      "before_sha256": "1c408877990b520d2e2e0651b8afe7028b7b9260f73ae13e704d447276a2feb5",
+      "after_sha256": "a1456bba51e691377afb0cb8011b6bc04f420253542ac83f81872b44868867be"
+    },
+    {
+      "path": "rules_token_opt/AGENTS.md",
+      "before_sha256": "bfd27495a95e2cfc56f7e5465024d54795ff0cb8a20971cebafdb986dab92816",
+      "after_sha256": "cc94d82d42cfcf761b7c6f72372f6ac73f91bcafc351d2131f6b16b7b45d3191"
+    }
+  ],
+  "checkout_entries_verified": 38,
+  "external_entries_verified": [
+    "/private/tmp/b1wt",
+    "/private/tmp/x0x37-dk-batch11-status"
+  ],
+  "workspace_discovery_links": [
+    "/Users/mac/Documents/x0x37/.agents/skills/caveman",
+    "/Users/mac/Documents/x0x37/.agents/skills/asd-ste100"
+  ],
+  "install_commit": "95a9e08"
+}
