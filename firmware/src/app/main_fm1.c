@@ -1407,6 +1407,64 @@ uint8_t smk_ck_flash_busy(void)
     return 0u;
 }
 /* ------- clip mode screen: the KEYS panel (the bottom strip) and the SCALE / CHORD / ARP page (main area) --- */
+#include "app/smk_chord_detect.h"
+
+/* Logical notes before ARP, STRUM and HUMAN. Raw keys also contain blocked keys and keys held through
+ * all-notes-off, so use the sounding sources (or the arp's accepted list), never the physical key map. */
+CK_FN static uint32_t ck_chord_state(ck_chord_input_t *chord)
+{
+    CK_BASE;
+    uint8_t out[CK_MAXN];
+    uint32_t arp = cp->on & CK_M_ARP, a, k, i, n, used = 0, latched = 0;
+    chord->pcs = chord->upper_pcs = 0;
+    chord->bass = chord->upper_bass = 0xFFu;
+    for (a = 0; a < (arp ? cp->nk : CK_NKEY); a++) {
+        k = arp ? cp->korder[a] : a;
+        if (!arp && !CK_BIT(cp->snd, k))
+            continue;
+        for (i = 0, n = ck_key_notes(k, out); i < n && (!arp || used < CK_ARPN); i++, used++) {
+            uint32_t note = out[i], bit = 1u << (note % 12u);
+            if (note < chord->bass) {
+                chord->upper_pcs = chord->pcs;
+                chord->upper_bass = chord->bass;
+                chord->bass = (uint8_t)note;
+            } else if (note > chord->bass) {
+                chord->upper_pcs |= (uint16_t)bit;
+                if (note < chord->upper_bass)
+                    chord->upper_bass = (uint8_t)note;
+            }
+            chord->pcs |= (uint16_t)bit;
+            if (arp && (cp->fl & CK_F_LATCH) && !CK_BIT(cp->keys, k))
+                latched = 1u;
+        }
+    }
+    return latched;
+}
+
+/* No guessed chord for an unmatched set: show up to four pitch names, then + for the remaining notes. */
+CK_FN static void ck_chord_text(const ck_chord_input_t *chord, char *text)
+{
+    ck_chord_result_t result;
+    uint32_t pc, shown = 0;
+    char *q = text;
+    if (ck_chord_detect(chord, &result)) {
+        ck_chord_format(&result, text, 32u);
+        return;
+    }
+    for (pc = 0; pc < 12u; pc++)
+        if (chord->pcs >> pc & 1u) {
+            if (shown == 4u) {
+                put_s(q, " +");
+                return;
+            }
+            if (shown++)
+                q = put_s(q, " ");
+            q = put_s(q, ck_chord_note_name(pc));
+        }
+    if (!shown)
+        put_s(text, "-");
+}
+
 static const uint8_t CK_WI[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};   /* the white key of each pitch class */
 #define CK_BLK(k) (0x54Au >> (k) % 12u & 1u)                             /* 1: a black key */
 /* the left x of key k on a keyboard drawing with white keys ww wide from x0 */
@@ -1446,24 +1504,24 @@ uint8_t smk_ck_panel(uint32_t *last, uint32_t force)
     uint8_t out[CK_MAXN];
     uint16_t col[12];
     char t[64], *q;
-    uint32_t k, i, n, snd = 0, root = 99u, sig = 2166136261u, m = ck_mask(sp->ck_scale, sp->ck_root);
+    ck_chord_input_t chord;
+    uint32_t latched = ck_chord_state(&chord);
+    uint32_t k, i, n, snd = 0, sig = 2166136261u, m = ck_mask(sp->ck_scale, sp->ck_root);
     uint32_t arp = cp->on & CK_M_ARP, rh = sp->ck_x2 & 15u, len = rh ? (CK_RHY_T[rh] & 15u) + 1u : 8u;
     uint32_t pos = arp && cp->nk && cp->step ? (cp->step - 1u) % len + 1u : 0u;
     for (k = 0; k < CK_NKEY; k++)
         if (CK_BIT(cp->snd, k) || (cp->nk && cp->korder[0] == k)) {
             n = ck_key_notes(k, out);
-            if (root > 11u && n)
-                root = out[0] % 12u;                        /* the chord root: the first key's first note */
             for (i = 0; i < n && !arp; i++)
                 snd |= 1u << out[i] % 12u;
         }
     if (cp->arp_note)
         snd |= 1u << (cp->arp_note - 1u) % 12u;
-    if (root > 11u)
-        root = sp->ck_root;
     for (i = 0; i < 12u; i++)
         sig = (sig ^ (&sp->ck_ch)[i]) * 16777619u;
-    sig = (sig ^ (cp->on | (cp->fl & CK_F_LATCH) << 3 | snd << 4 | root << 16 | (uint32_t)cp->pg << 20)) * 16777619u;
+    sig = (sig ^ (cp->on | (cp->fl & CK_F_LATCH) << 3 | snd << 4 | (uint32_t)cp->pg << 20)) * 16777619u;
+    sig = (sig ^ ((uint32_t)chord.pcs | (uint32_t)chord.upper_pcs << 16)) * 16777619u;
+    sig = (sig ^ (chord.bass | (uint32_t)chord.upper_bass << 8 | latched << 16)) * 16777619u;
     sig = (sig ^ pos) * 16777619u;
     if (!force && sig == *last)
         return 0u;
@@ -1491,17 +1549,19 @@ uint8_t smk_ck_panel(uint32_t *last, uint32_t force)
     if (sp->ck_snap)
         put_s(q, " FILTER");
     cv_text(114, vc(&FONT_XS, 22, 12), &FONT_XS, t, cp->on & CK_M_SCALE ? CK_MODE_C[0] : C_DIM);
-    if (cp->on & CK_M_CHORD) {
-        q = put_s(put_s(put_s(t, ck_nm(CK_ROOT_N, root)), " "), ck_nm(CK_CHORD_N, sp->ck_chord));
-        if (sp->ck_inv)
-            put_s(put_s(q, " "), ck_nm(CK_LIST[CK_E_INV], sp->ck_inv));
-        cv_text(114, vc(&FONT_B, 35, 15), &FONT_B, t, CK_MODE_C[1]);
-        if (sp->ck_x2 >> 4)
-            cv_text(114, vc(&FONT_T, 51, 10), &FONT_T, (ck_val_txt(CK_E_STRUM, sp->ck_x2 >> 4, put_s(t, "STRUM ")), t),
-                    C_GRAY);
-    } else {
-        cv_text(114, vc(&FONT_B, 35, 15), &FONT_B, "NO CHORD", C_DIM);
+    {
+        const felucca_font_t *font = &FONT_B;
+        ck_chord_text(&chord, t);
+        if (tw(font, t) > 122)
+            font = &FONT_XS;
+        if (tw(font, t) > 122)
+            font = &FONT_T;
+        cv_text(114, vc(font, 35, 15), font, t, chord.pcs ? CK_MODE_C[1] : C_DIM);
     }
+    q = put_s(t, latched ? "LATCH " : "");
+    if ((cp->on & CK_M_CHORD) && (sp->ck_x2 >> 4))
+        ck_val_txt(CK_E_STRUM, sp->ck_x2 >> 4, put_s(q, "STRUM "));
+    cv_text(114, vc(&FONT_T, 51, 10), &FONT_T, t, C_GRAY);
     q = put_s(put_s(put_s(put_s(t, ck_nm(CK_ORD_N, sp->ck_ord)), " "), ck_nm(CK_RATE_N, sp->ck_rate)), " X");
     q = put_s(put_s(put_i(q, sp->ck_oct + 1), " "), ck_val_txt(CK_E_GATE, sp->ck_gate, t + 52));
     if (sp->ck_x1 & 7u)
@@ -1702,7 +1762,7 @@ static void smk_padcal_frame(void)
 }
 #endif
 
-static void smk_frame(void)
+CK_FN static void smk_frame(void)
 {
     while (smk_extkey_take() >= 0)
         ;

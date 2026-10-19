@@ -3168,7 +3168,14 @@ static int steps_len(void)
 }
 
 /* -------------------------------------------------------------- header --- */
-static void draw_header(void)
+/* Keep screen renderers out of their callers on SMK to reduce code size.
+ * Drawing operations, fonts and audio code stay unchanged. */
+#if BOARD_SMK37 && defined(__clang__)
+#define UI_DRAW __attribute__((minsize, noinline))
+#else
+#define UI_DRAW
+#endif
+static UI_DRAW void draw_header(void)
 {
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
@@ -3282,7 +3289,7 @@ static int step_of(int col) { return ui.spage * 16 + col; }
 static int32_t col_x(int c) { return GX + c * 13 + (c >> 2); }   /* a pixel between beats */
 
 #define DROW 11                                    /* drum rows: 12 of them over both bands, a gap under */
-static void draw_drum(int band)
+static UI_DRAW void draw_drum(int band)
 {
     int k = ui.part, v, c, len = cur_pat()->drum[k].len;
     const dpart_t *d = &cur_pat()->drum[k];
@@ -3335,7 +3342,7 @@ static int held_note_of(const bpart_t *bp, int s)
     return bp->step[s].note;
 }
 
-static void draw_303(int band, int gen)
+static UI_DRAW void draw_303(int band, int gen)
 {
     int b = bidx(), c, o = band * BAND_H, n;       /* o: drawn in the screen's rows, minus the band's */
     const bpart_t *bp = &cur_pat()->bass[b];
@@ -3417,7 +3424,7 @@ static void draw_303(int band, int gen)
     }
 }
 
-static void draw_break(int band)
+static UI_DRAW void draw_break(int band)
 {
     const brkpart_t *bp = &cur_pat()->brk;
     int c, ph = seq.playing ? eng_step[TRK_BRK] : -1, slice, bank, div, running;
@@ -3488,7 +3495,7 @@ static void lane(int y, int p, uint32_t bits, int ph, int len, int base)
     }
 }
 
-static void draw_home(int band)
+static UI_DRAW void draw_home(int band)
 {
     int p, c;
     if (band == 0) {                                   /* the 16 patterns; in each, a bar per part playing it */
@@ -3542,7 +3549,7 @@ static void draw_home(int band)
 }
 
 /* SONG: a table of bars, twelve rows across the two bands (the first is the heading) */
-static void draw_song(int band)
+static UI_DRAW void draw_song(int band)
 {
     const song_t *sg = song();
     int r, p, top = ui.song_sel > 5 ? ui.song_sel - 5 : 0;
@@ -3581,7 +3588,7 @@ static void draw_song(int band)
     }
 }
 
-static void draw_fx(int band)
+static UI_DRAW void draw_fx(int band)
 {
     int p;
     if (band == 0) {                                   /* five parts x reverb / delay */
@@ -3615,7 +3622,7 @@ static void draw_fx(int band)
 }
 
 /* MIX, a drum machine's page: its eleven tracks' levels (and pans), the selected one lit */
-static void draw_drum_mix(int band, int k)
+static UI_DRAW void draw_drum_mix(int band, int k)
 {
     int t = k ? T_808 : T_909, v, o = band * BAND_H;
     uint16_t col = PART_COL[k];
@@ -3640,7 +3647,7 @@ static void draw_drum_mix(int band, int k)
     }
 }
 
-static void draw_mix(int band)
+static UI_DRAW void draw_mix(int band)
 {
     int p;
     if (drum_mix_page() >= 0) {
@@ -3708,7 +3715,7 @@ static char *put_pct10(char *q, int v)                /* 123 -> "12.3%" */
     q = put_i(q, v % 10);
     return put_s(q, "%");
 }
-static void draw_perf(int band)
+static UI_DRAW void draw_perf(int band)
 {
     static const char *const SN[ENG_PROF_N] = {"909", "808", "303A", "303B", "BREAK", "FX", "MASTER", "SEQ"};
     char t[40], *q;
@@ -3818,7 +3825,7 @@ static void draw_perf(int band)
 }
 
 /* the readout: the knob being turned, large, across the bottom band */
-static void draw_readout(void)
+static UI_DRAW void draw_readout(void)
 {
     char num[16], unit[8];
     pref_t r;
@@ -3859,7 +3866,7 @@ static void draw_readout(void)
 }
 
 /* a list over the main area: six rows of 24 px */
-static void draw_list(int band)
+static UI_DRAW void draw_list(int band)
 {
     int i;
     for (i = 0; i < 3; i++) {
@@ -3910,7 +3917,7 @@ static void draw_list(int band)
     }
 }
 
-static void draw_ask(int band)
+static UI_DRAW void draw_ask(int band)
 {
     uint16_t red = RGB(255, 80, 60);
     if (band == 0) {
@@ -3929,7 +3936,7 @@ static void draw_ask(int band)
     }
 }
 
-static void draw_help(int band)
+static UI_DRAW void draw_help(int band)
 {
     const char *l[HELP_LINES];
     int n = help_lines(ui.help - 1, l), k;
@@ -4058,7 +4065,7 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
     return C_DIM;
 }
 #define FOOT_Y 71                     /* in the knob row: its last line, in the tiny face */
-static void draw_footer(void)
+static UI_DRAW void draw_footer(void)
 {
     const char *a, *b, *c;
     uint16_t col = footer_text(&a, &b, &c);
@@ -4236,7 +4243,7 @@ static void knob_tag(char *t)
     }
 }
 
-static void draw_knobs(void)
+static UI_DRAW void draw_knobs(void)
 {
     static uint32_t last_sig;
     int i, pgi = cur_page();
