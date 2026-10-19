@@ -213,6 +213,15 @@ static void smc_toggle_fx(int which)
         pref_set(r, smc.fx_restore[which] ? smc.fx_restore[which] : 100);
 }
 
+static void smc_record_toggle(void)
+{
+    ui.rec = !ui.rec;
+    if (ui.rec && is_303())
+        ui.wpos[bidx()] = 0;
+    smc.rec_part = ui.part;
+    say(ui.rec ? "RECORD ON" : "RECORD OFF", PART_N[ui.part]);
+}
+
 /* All 32 strip buttons have a role. Strips 1-5 select/mute/solo/record the five
  * parts; 6-8 address reverb, delay and master. Global buttons navigate X0X. */
 static void smc_button(uint8_t note, int mmc)
@@ -224,9 +233,7 @@ static void smc_button(uint8_t note, int mmc)
         if (strip < NPARTS) {
             if (row == 0) {             /* REC */
                 ui.part = (uint8_t)strip;
-                smc.rec_part = (uint8_t)strip;
-                ui.rec = !ui.rec;
-                say(ui.rec ? "RECORD ON" : "RECORD OFF", PART_N[strip]);
+                smc_record_toggle();
             } else if (row == 1) {      /* SOLO */
                 if (mmc)                /* stock User MMC has no release: latch as fallback */
                     smc.solo ^= (uint8_t)(1u << strip);
@@ -271,11 +278,14 @@ static void smc_button(uint8_t note, int mmc)
         break;
     }
     case 0x5D: seq_stop(&seq); break;
-    case 0x5E: if (!seq.playing) seq_start(&seq); break;
+    case 0x5E:
+        if (!seq.playing) {
+            seq.song_start = ui.song_sel < song()->len ? ui.song_sel : 0;
+            seq_start(&seq);
+        }
+        break;
     case 0x5F:
-        ui.rec = !ui.rec;
-        smc.rec_part = ui.part;
-        say(ui.rec ? "RECORD ON" : "RECORD OFF", PART_N[ui.part]);
+        smc_record_toggle();
         break;
     case 0x60: case 0x61: {            /* up/down: list row or page */
         int d = note == 0x60 ? -1 : 1;
@@ -339,6 +349,7 @@ static void smc_message(const uint8_t *m, uint8_t len)
 void smc_poll(void)
 {
     uint8_t link = smc_link_pending, r, count = 0;
+    int allow = ui.overlay != O_ASK && !perf_testing();
     if (link) {
         smc_link_pending = 0;
         smc.up = link == 1u;
@@ -353,16 +364,23 @@ void smc_poll(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
+    if (!allow) {
+        smc.picked = smc.seen = 0;
+        if (smc.solo) {
+            smc.solo = 0;
+            engine_smc_solo(0);
+        }
+    }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
-        if (smc.up && (proj.set.bt & PROJ_BT_SMC_CENTRAL))
+        if (allow && smc.up && (proj.set.bt & PROJ_BT_SMC_CENTRAL))
             smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
         smc_qr = (uint8_t)(r + 1u);
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
         r = smc_host_r;
-        if (proj.set.bt & PROJ_BT_SMC_USER)
+        if (allow && (proj.set.bt & PROJ_BT_SMC_USER))
             smc_message(smc_host_q[r % SMC_Q], 3);
         smc_host_r = (uint8_t)(r + 1u);
     }
@@ -370,7 +388,7 @@ void smc_poll(void)
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
             r = smc_mmc_r[src];
-            if (proj.set.bt & PROJ_BT_SMC_USER)
+            if (allow && (proj.set.bt & PROJ_BT_SMC_USER))
                 smc_button(smc_mmc_note(smc_mmc_q[src][r % 16u]), 1);
             smc_mmc_r[src] = (uint8_t)(r + 1u);
         }
