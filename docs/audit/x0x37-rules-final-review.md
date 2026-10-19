@@ -91,3 +91,17 @@ Independent final verification:
 Rollout coordination limit: this review does not assert that a future merge or workspace rollout already happened. Main smk37 and frozen firmware history stay separate. Preserve the active firmware owner's frozen source and running scripts. A tested enforcement lane may be handed to that owner without taking over firmware integration. Report any enforcement merge still pending. If the main canonical checkout receives the new BUILDING.md Mac quickcheck instructions, it must also receive matching portable quickcheck behavior, or explicitly route that command to the reviewed lane/container. Do not leave a documented native Mac command pointing at the old GNU-date implementation.
 
 The five representative task scenarios above still hold. Mac docs work uses folder mode with an explicit base; Linux/container uses real accessible tool/reference paths; missing optional references block only their dependent checks; unavailable hardware keeps device evidence NOT TESTED; helper handoff gives exact current sources or truthful missing skill status and one owner for each next action.
+
+## Bounded main-port review
+
+Main port: /Users/mac/Documents/x0x37/rules_main_rollout, based on 8ba4981.
+
+No new blocking defect found. Approve main rollout after the parent's selected Linux checks pass. The first reported container attempt failed on unresolved linked-worktree metadata before tests ran; it provides no test result. Parent is rerunning with the workspace mounted at its same absolute host path.
+
+- Compared all 113 ported entry/docs/tools/tests/fixtures with rules_audit: exact byte matches, including the existing guarded fm1_install.py. No firmware/host/lib paths changed.
+- BUILDING.md changes comprise current authority notice and reviewed validation guidance. Original product build text is retained. The final worktree-mount clarification correctly states that Git common metadata must resolve; mounting the workspace at the same absolute path or using an independent clone avoids that dependency.
+- Main native Mac command with X0X_QUICK_ONLY=ste, X0X_QC_BASE=HEAD, X0X_QC_WORK=/proc/x0x37-review-unused and the main worktree folder returned QUICK PASS. It reported 47 advisory grammar issues; no shared cache was needed.
+- Main current entry/rule/skill links and diff whitespace checks PASS.
+- Main's existing firmware test runner is preserved; it adds six standalone rule checks instead of importing the new firmware runner/tests.
+
+This closes the earlier main-sync caveat: canonical main now includes the current portable quickcheck implementation matching BUILDING.md. Full Linux test outcome remains the parent's running validation responsibility; no firmware gate/install/device PASS is inferred.

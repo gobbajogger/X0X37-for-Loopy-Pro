@@ -86,7 +86,9 @@ bash tools/gate.sh <commit>
 ```
 
 Keep the gate work path outside `/tmp`. In a container, mount source, references,
-SDK and toolchain where these paths resolve. The approved project image is
+SDK and toolchain where these paths resolve. A Git worktree records the path to
+its shared repository. Mount the workspace at the same absolute path, or make an
+independent clone inside the container with `git clone --no-local`. The approved project image is
 `x0x37-validation:local`; its availability is local setup evidence, not a gate PASS.
 A lane commit needs `--trial`; its result does not permit install or release.
 
