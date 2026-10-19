@@ -78,7 +78,7 @@ typedef struct {
 
 typedef struct {
     int (*drum)(void *ctx, int kit, int voice, float vel);      /* 0: the hit did not play (its chance) */
-    void (*bass_on)(void *ctx, int part, int note, int accent, int slide);
+    void (*bass_on)(void *ctx, int part, int note, int accent, int slide, int velocity);
     void (*bass_off)(void *ctx, int part);
     void (*brk)(void *ctx, int step16, int bar, float samples_per_16th, int enabled);
     void (*brk_stop)(void *ctx);
@@ -152,6 +152,8 @@ typedef struct {
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
+    uint8_t bass_slide_old[NBASS];    /* previous pitch whose MIDI gate overlaps a slide */
+    uint32_t bass_slide_off[NBASS];   /* remaining samples (Q8), zero = none */
     volatile uint8_t clk_src;         /* SEQ_CLK_*: the clock source that the UI sets */
     uint8_t clk_cur;                  /* SEQ_CLK_*: the clock source that seq_advance applied */
     uint8_t clk_lost;                 /* EXTERNAL: no clock now, the pause (or the wait) is done */

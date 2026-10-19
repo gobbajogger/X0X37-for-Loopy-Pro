@@ -4,6 +4,7 @@
 #include "tb3po.h"
 
 #define NEVER 0xFFFFFFFFu
+#define BASS_SLIDE_OVERLAP_Q8 (FS / 50u * 256u) /* 20 ms after the next note-on */
 
 static const uint8_t TICKS_PER_STEP[NRATES] = {6, 4, 3, 8};     /* 24 ppqn: 1/16, 1/16T, 1/32, 1/8T */
 static const uint8_t GM_DRUM[NKIT][NDRUM] = {
@@ -122,6 +123,10 @@ static void midi(const seq_sink_t *o, uint8_t st, uint8_t d1, uint8_t d2)
 static void bass_release(seq_t *s, int b, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
+    if (s->bass_slide_old[b] && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF)
+        midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), s->bass_slide_old[b], 0);
+    s->bass_slide_old[b] = 0;
+    s->bass_slide_off[b] = 0;
     if (tr->sounding) {
         o->bass_off(o->ctx, b);
         tr->sounding = 0;
@@ -181,12 +186,24 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     if (gate == G_NOTE || !tr->sounding) {
         int slide = tr->sounding && prev_slide;
         if (!skip)                                   /* (recorded live on this pass: the key sounded it) */
-            o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide);
+            o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
         if (s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b];
-            midi(o, (uint8_t)(0x90 | s->ch[TRK_BASS0 + b]), (uint8_t)note, (st->flags & BS_ACCENT) ? 127 : 90);
-            if (old && old != note)
-                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), old, 0);   /* legato: the new note first */
+            if (s->bass_slide_old[b]) {                  /* only one old MIDI pitch can remain open */
+                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), s->bass_slide_old[b], 0);
+                s->bass_slide_old[b] = 0;
+                s->bass_slide_off[b] = 0;
+            }
+            if (old && old == note)
+                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), old, 0);
+            midi(o, (uint8_t)(0x90 | s->ch[TRK_BASS0 + b]), (uint8_t)note, bstep_velocity(st));
+            if (old && old != note) {
+                if (slide) {
+                    s->bass_slide_old[b] = old;
+                    s->bass_slide_off[b] = BASS_SLIDE_OVERLAP_Q8;
+                } else
+                    midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), old, 0);
+            }
             s->bass_notes_out[b] = (uint8_t)note;
         }
         tr->sounding = 1;
@@ -486,6 +503,9 @@ uint32_t seq_until_event(seq_t *s, uint32_t n)
         if (s->t[t].to_off && (e = s->t[t].to_off >> 8) < m)
             m = e;
     }
+    for (t = 0; t < NBASS; t++)
+        if (s->bass_slide_off[t] && (e = s->bass_slide_off[t] >> 8) < m)
+            m = e;
     if (!s->ext && s->send_clock && (e = s->clk_to_next >> 8) < m)
         m = e;
     return m ? m : 1;
@@ -652,6 +672,9 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         if (tr->to_off)
             tr->to_off = tr->to_off > dq ? tr->to_off - dq : 1;   /* 1: due, still "set" */
     }
+    for (t = 0; t < NBASS; t++)
+        if (s->bass_slide_off[t])
+            s->bass_slide_off[t] = s->bass_slide_off[t] > dq ? s->bass_slide_off[t] - dq : 1;
     if (!s->ext && s->send_clock)
         s->clk_to_next = s->clk_to_next > dq ? s->clk_to_next - dq : 0;
     /* fire what is due; the drum part first, since its wrap may switch the pattern */
@@ -673,6 +696,13 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         if (!fired)
             break;
     }
+    for (t = 0; t < NBASS; t++)
+        if (s->bass_slide_off[t] && s->bass_slide_off[t] < 256u) {
+            if (s->ch[TRK_BASS0 + t] != SEQ_CH_OFF)
+                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + t]), s->bass_slide_old[t], 0);
+            s->bass_slide_old[t] = 0;
+            s->bass_slide_off[t] = 0;
+        }
     if (!s->ext && s->send_clock && s->clk_to_next < 256u) {
         midi(o, 0xF8, 0, 0);
         s->clk_to_next += seq_step_q8(s, RATE_16) / 6u;           /* 24 ppqn */

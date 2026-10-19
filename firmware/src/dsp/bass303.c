@@ -320,6 +320,7 @@ void bass303_init(bass303_t *b)
         bass303_set(b, i, params[i].def);
 
     b->osc_freq = b->slew_y = 440.0f;
+    b->velocity_gain = b->velocity_cutoff = 1.0f;
     b->env_c = b->decay_c;
     env_tables(b);
     b->env_y = 0.0f;
@@ -342,13 +343,21 @@ static void set_accent_state(bass303_t *b, int accent)
     env_tables(b);
 }
 
-void bass303_note_on(bass303_t *b, int note, int accent, int slide)
+void bass303_note_on_velocity(bass303_t *b, int note, int accent, int slide, int velocity)
 {
     float f;
     if (note < 0)
         note = 0;
     if (note > 127)
         note = 127;
+    if (velocity < 1)
+        velocity = 1;
+    if (velocity > 127)
+        velocity = 127;
+    /* At the old sequencer's velocity (100), saved projects keep their sound. Lower
+     * strikes close the filter and reduce level; higher strikes brighten and lift it. */
+    b->velocity_gain = (float)velocity / 100.0f;
+    b->velocity_cutoff = fm_exp2f((float)(velocity - 100) * (1.5f / 100.0f));
     f = b->tuning * fm_exp2f((float)(note - 69) * (1.0f / 12.0f));
     set_accent_state(b, accent);
     b->osc_freq = f;
@@ -364,6 +373,11 @@ void bass303_note_on(bass303_t *b, int note, int accent, int slide)
     b->idle = 0;
     b->quiet = 0;
     b->started = 1;
+}
+
+void bass303_note_on(bass303_t *b, int note, int accent, int slide)
+{
+    bass303_note_on_velocity(b, note, accent, slide, 100);
 }
 
 void bass303_note_off(bass303_t *b) { b->gate = 0; }
@@ -529,7 +543,7 @@ static void run(bass303_t *b, float *out, int n)
     const float hp1_b0 = lite ? b->hp1l_b0 : b->hp1_b0, hp1_a1 = lite ? b->hp1l_a1 : b->hp1_a1;
     const float fb_b0 = lite ? b->fbhpl_b0 : b->fbhp_b0, fb_a1 = lite ? b->fbhpl_a1 : b->fbhp_a1;
     const float sq_dc = b->sq_dc, sq_h2 = 0.5f * b->sq_h;
-    const float out_gain = b->amp_scaler;
+    const float out_gain = b->amp_scaler * b->velocity_gain;
     const int square = b->wave;
     float os[BASS303_OS];
 
@@ -556,7 +570,7 @@ static void run(bass303_t *b, float *out, int n)
         }
         n_inc = b->slew_y * (1.0f / fso);
         n_a = b->amp_y + amp_boost * b->env_y;
-        fc = cutoff * fm_exp2f(scaler * (b->rc1_y - offset) + acc * b->rc2_y);   /* n1 = n2 = 1 */
+        fc = cutoff * b->velocity_cutoff * fm_exp2f(scaler * (b->rc1_y - offset) + acc * b->rc2_y);   /* n1 = n2 = 1 */
         fc = fm_clampf(fc, 200.0f, 20000.0f);
         /* TeeBeeFilter::calculateCoefficientsApprox4, TB_303 branch only (the a1 polynomial
          * it computes first is overwritten there, so it is skipped) */

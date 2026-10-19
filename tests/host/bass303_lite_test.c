@@ -65,6 +65,17 @@ int main(void)
                 big = fabsf(buf[i] - buf[i - 1]);
         CHECK(big <= 1.5f * (s1 > s2 ? s1 : s2), "switch %s: a %.3f jump at the switch", sw ? "lite->2x" : "2x->lite", big);
     }
+    note(&b, 0);
+    bass303_note_on_velocity(&b, 45, 0, 0, 35);
+    {
+        float quiet_gain = b.velocity_gain, dark_cutoff = b.velocity_cutoff;
+        bass303_note_on_velocity(&b, 45, 0, 0, 100);
+        CHECK(b.velocity_gain == 1.0f && b.velocity_cutoff == 1.0f,
+              "legacy/default 303 velocity changes its sound");
+        bass303_note_on_velocity(&b, 45, 0, 0, 127);
+        CHECK(quiet_gain < 1.0f && b.velocity_gain > 1.0f && dark_cutoff < 1.0f && b.velocity_cutoff > 1.0f,
+              "303 velocity does not move both level and cutoff");
+    }
     printf(fails ? "bass303 lite: %d FAILED\n" : "bass303 lite: ok\n", fails);
     return fails != 0;
 }

@@ -318,7 +318,14 @@ void engine_drum(int kit, int voice, float vel)
 }
 void engine_bass_on(int part, int note, int accent, int slide)
 {
-    cq_put(C_BON, (uint32_t)part, (uint32_t)note, (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0)));
+    engine_bass_on_velocity(part, note, accent, slide, 100);
+}
+void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity)
+{
+    if (velocity < 1) velocity = 1;
+    if (velocity > 127) velocity = 127;
+    cq_put(C_BON, (uint32_t)part, (uint32_t)note,
+           (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0) | (velocity << 2)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
@@ -363,13 +370,13 @@ static void s_drum(void *x, int kit, int v, float vel)
     else                                 /* the 808's unaccented hit sits at D8_VEL_NORMAL, not at our 909 level */
         drum808_trigger(&d808, v, vel >= 0.999f ? 1.0f : vel * (D8_VEL_NORMAL / (88.0f / 127.0f)));
 }
-static void s_bon(void *x, int p, int note, int acc, int sl)
+static void s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     (void)x;
     if (prob_skip(PART_303A + p, 0))                  /* skipped: a rest */
         bass303_note_off(&b303[p]);
     else
-        bass303_note_on(&b303[p], note, acc, sl);
+        bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
 }
 static void s_boff(void *x, int p) { (void)x; bass303_note_off(&b303[p]); }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
@@ -524,7 +531,7 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
-                bass303_note_on(&b303[k], d1, d2 >= 100, bass_held[k] != 0);
+                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
                 bass_held[k] = d1;
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
@@ -570,7 +577,7 @@ static void drain(void)
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
         else if (type == C_BON && a < NBASS)
-            bass303_note_on(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u));
+            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
         else if (type == C_BOFF && a < NBASS)
             bass303_note_off(&b303[a]);
         else if (type == C_BRK && !brk_hold)

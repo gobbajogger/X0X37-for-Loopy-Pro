@@ -19,7 +19,8 @@
 
 project_t proj;
 
-#define PROJ_STREAM 2u                  /* the format word of the packed objects */
+#define PROJ_STREAM 3u                  /* 303 steps gained velocity; format 2 migrates below */
+#define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
 #define NSTREAM ((int)sizeof STREAM_OBJ)
 #define STREAM_HDR 16u                  /* in the first object: format, raw length, raw CRC, packed length */
@@ -244,6 +245,7 @@ static int save_stream(void)
 typedef struct {
     int k, n;
     uint32_t pos, left;
+    uint32_t format;
 } st_in_t;
 
 static int st_get(void *ctx)
@@ -255,7 +257,7 @@ static int st_get(void *ctx)
         if (++s->k >= NSTREAM)
             return -1;
         s->n = plat_store_load(STREAM_OBJ[s->k], io_buf, sizeof io_buf);
-        if (s->n < 4 || get32(io_buf) != PROJ_STREAM)
+        if (s->n < 4 || get32(io_buf) != s->format)
             return -1;
         stored_known[STREAM_OBJ[s->k]] = 1;
         stored_hash[STREAM_OBJ[s->k]] = hash_of(io_buf, (uint32_t)s->n);
@@ -266,18 +268,67 @@ static int st_get(void *ctx)
 }
 
 /* 0 = loaded; -1 = not there or not good (proj's patterns and arrangement then hold garbage) */
-static int load_stream(int n)
+/* The old stream's 303 step was note+flags. Expand patterns back-to-front in
+ * the already allocated new raw area; move the unchanged arrangement first. */
+typedef struct { uint8_t note, flags; } bstep2_t;
+typedef struct {
+    bstep2_t step[NSTEPS];
+    uint8_t len, rate, dir, transpose;
+    tb3po_cfg_t gen;
+} bpart2_t;
+typedef struct {
+    dpart_t drum[NKIT];
+    bpart2_t bass[NBASS];
+    brkpart_t brk;
+    uint8_t swing, rsv[3];
+} pattern2_t;
+#define RAW_LEN_2 (NPAT * sizeof(pattern2_t) + sizeof(arrange_t))
+static void stream_from2(void)
+{
+    uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
+    int p, b, s;
+    __builtin_memmove(raw + NPAT * sizeof(pattern_t), raw + NPAT * sizeof(pattern2_t), sizeof(arrange_t));
+    for (p = NPAT - 1; p >= 0; p--) {
+        pattern2_t old;
+        pattern_t *dst = &proj.pat[p];
+        __builtin_memcpy(&old, raw + (uint32_t)p * sizeof old, sizeof old);
+        __builtin_memset(dst, 0, sizeof *dst);
+        __builtin_memcpy(dst->drum, old.drum, sizeof old.drum);
+        for (b = 0; b < NBASS; b++) {
+            bpart_t *bp = &dst->bass[b];
+            for (s = 0; s < NSTEPS; s++) {
+                bp->step[s].note = old.bass[b].step[s].note;
+                bp->step[s].flags = old.bass[b].step[s].flags;
+            }
+            bp->len = old.bass[b].len;
+            bp->rate = old.bass[b].rate;
+            bp->dir = old.bass[b].dir;
+            bp->transpose = old.bass[b].transpose;
+            bp->gen = old.bass[b].gen;
+        }
+        dst->brk = old.brk;
+        dst->swing = old.swing;
+        __builtin_memcpy(dst->rsv, old.rsv, sizeof old.rsv);
+    }
+    for (p = 0; p < NSTREAM; p++)
+        stored_known[STREAM_OBJ[p]] = 0;             /* next save writes format 3 */
+}
+
+static int load_stream(int n, uint32_t format)
 {
     uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
     uint32_t crc = get32(io_buf + 8), plen = get32(io_buf + 12);
-    st_in_t s = {0, n, STREAM_HDR, plen};
+    uint32_t raw_len = format == PROJ_STREAM_OLD ? RAW_LEN_2 : RAW_LEN;
+    st_in_t s = {0, n, STREAM_HDR, plen, format};
     lz_src_t src = {st_get, &s};
-    if (n < (int)STREAM_HDR || get32(io_buf + 4) != RAW_LEN || plen > STREAM_CAP)
+    if (n < (int)STREAM_HDR || get32(io_buf + 4) != raw_len || plen > STREAM_CAP)
         return -1;
     stored_known[STREAM_OBJ[0]] = 1;
     stored_hash[STREAM_OBJ[0]] = hash_of(io_buf, (uint32_t)n);
-    if (lz_decompress(&src, raw, RAW_LEN) || crc32_of(raw, RAW_LEN) != crc)
+    if (lz_decompress(&src, raw, raw_len) || crc32_of(raw, raw_len) != crc)
         return -1;
+    if (format == PROJ_STREAM_OLD)
+        stream_from2();
     packed_len = plen;
     return 0;
 }
@@ -292,7 +343,7 @@ typedef struct {
     uint8_t len, rate, rsv[2];
 } dpart1_t;
 typedef struct {
-    bstep_t step[NSTEPS1];
+    bstep2_t step[NSTEPS1];
     uint8_t len, rate, dir, transpose;
     tb3po_cfg_t gen;
 } bpart1_t;
@@ -326,8 +377,10 @@ static void pattern_from1(pattern_t *p, const pattern1_t *o)
         p->drum[k].rate = o->drum[k].rate;
     }
     for (k = 0; k < NBASS; k++) {
-        for (s = 0; s < NSTEPS1; s++)
-            p->bass[k].step[s] = o->bass[k].step[s];
+        for (s = 0; s < NSTEPS1; s++) {
+            p->bass[k].step[s].note = o->bass[k].step[s].note;
+            p->bass[k].step[s].flags = o->bass[k].step[s].flags;
+        }
         p->bass[k].len = o->bass[k].len;
         p->bass[k].rate = o->bass[k].rate;
         p->bass[k].dir = o->bass[k].dir;
@@ -490,8 +543,8 @@ int project_load(void)
         engine_sound_centre_drum_pans(&proj.sound);
     proj.set.stereo = PROJ_STEREO;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && get32(io_buf) == PROJ_STREAM) {
-        if (load_stream(n)) {                         /* torn or broken: the defaults, not garbage */
+    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_OLD)) {
+        if (load_stream(n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
             patterns_defaults();
             arrange_defaults();
             bad = 1;

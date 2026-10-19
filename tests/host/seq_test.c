@@ -17,13 +17,14 @@ typedef struct { uint32_t t; int kind, a, b, c, d; } ev_t;
 static ev_t evs[100000];
 static int nev;
 static uint32_t now;
+static int last_bass_velocity;
 static void log_ev(int k, int a, int b, int c, int d)
 {
     if (nev < (int)(sizeof evs / sizeof evs[0]))
         evs[nev++] = (ev_t){now, k, a, b, c, d};
 }
 static int s_drum(void *x, int k, int v, float vel) { (void)x; log_ev(E_DRUM, k * 100 + v, (int)(vel * 127.0f + 0.5f), 0, 0); return 1; }
-static void s_on(void *x, int p, int n, int acc, int sl) { (void)x; log_ev(E_ON, p, n, acc, sl); }
+static void s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; last_bass_velocity = velocity; log_ev(E_ON, p, n, acc, sl); }
 static void s_off(void *x, int p) { (void)x; log_ev(E_OFF, p, 0, 0, 0); }
 static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; log_ev(E_BRK, s16, bar, (int)spb, en); }
 static void s_brkstop(void *x) { (void)x; log_ev(E_BRKSTOP, 0, 0, 0, 0); }
@@ -141,12 +142,12 @@ static void test_303(void)
     S.bpm = 120.0f;
     b = &P[0].bass[0];
     b->len = 8;
-    b->step[0] = (bstep_t){36, G_NOTE};                       /* plain: off at half step */
-    b->step[1] = (bstep_t){38, G_NOTE | BS_SLIDE};            /* slides into step 2 */
-    b->step[2] = (bstep_t){41, G_NOTE | BS_ACCENT};           /* reached by slide, accented */
-    b->step[3] = (bstep_t){41, G_TIE};                        /* tie: 2 held through 3 */
-    b->step[4] = (bstep_t){0, G_REST};
-    b->step[5] = (bstep_t){43, G_TIE};                        /* tie after rest = a note */
+    b->step[0] = (bstep_t){36, G_NOTE, 0};                       /* plain: off at half step */
+    b->step[1] = (bstep_t){38, G_NOTE | BS_SLIDE, 0};            /* slides into step 2 */
+    b->step[2] = (bstep_t){41, G_NOTE | BS_ACCENT, 0};           /* reached by slide, accented */
+    b->step[3] = (bstep_t){41, G_TIE, 0};                        /* tie: 2 held through 3 */
+    b->step[4] = (bstep_t){0, G_REST, 0};
+    b->step[5] = (bstep_t){43, G_TIE, 0};                        /* tie after rest = a note */
     b->transpose = 26;                                        /* +2 */
     seq_start(&S);
     run((uint32_t)(step * 8));
@@ -166,6 +167,36 @@ static void test_303(void)
     printf("  303 gate / slide / tie / transpose: checked\n");
 }
 
+static void test_303_velocity_slide_overlap(void)
+{
+    int i, on = -1, off = -1;
+    reset();
+    S.bpm = 120.0f;
+    S.send_notes = 1;
+    P[0].bass[0].len = 4;
+    P[0].bass[0].step[0] = (bstep_t){36, G_NOTE | BS_SLIDE, 72};
+    P[0].bass[0].step[1] = (bstep_t){41, G_NOTE, 115};
+    seq_start(&S);
+    run(7000);
+    CHECK(last_bass_velocity == 115, "step velocity reaches the synth sink (%d)", last_bass_velocity);
+    for (i = 0; i < nev; i++) {
+        if (evs[i].kind != E_MIDI)
+            continue;
+        if (evs[i].a == 0x91 && evs[i].b == 36)
+            CHECK(evs[i].c == 72, "first MIDI velocity %d", evs[i].c);
+        if (evs[i].a == 0x91 && evs[i].b == 41) {
+            on = i;
+            CHECK(evs[i].c == 115, "slide target MIDI velocity %d", evs[i].c);
+        }
+        if (evs[i].a == 0x81 && evs[i].b == 36)
+            off = i;
+    }
+    CHECK(on >= 0 && off > on && evs[off].t - evs[on].t == FS / 50u,
+          "slide MIDI notes overlap 20 ms (%u samples)", on >= 0 && off >= 0 ? evs[off].t - evs[on].t : 0);
+    CHECK(bstep_velocity(&P[0].bass[0].step[2]) == BASS_VELOCITY_DEFAULT,
+          "unset step velocity follows legacy default");
+}
+
 static void test_polymeter_cue_chain(void)
 {
     int i, n, last;
@@ -173,7 +204,7 @@ static void test_polymeter_cue_chain(void)
     reset();
     S.bpm = 120.0f;
     P[0].bass[0].len = 3;
-    P[0].bass[0].step[0] = (bstep_t){36, G_NOTE};
+    P[0].bass[0].step[0] = (bstep_t){36, G_NOTE, 0};
     P[0].drum[0].hit[0][0] = 1u;
     P[1].drum[0].hit[1][0] = 1u;                                    /* SD only in pattern 2 */
     seq_start(&S);
@@ -222,8 +253,8 @@ static void test_part_cue(void)
     S.bpm = 120.0f;
     P[0].drum[0].hit[0][0] = 1u;
     P[0].bass[1].len = 3;                                       /* 303 B: a 3-step loop */
-    P[0].bass[1].step[0] = (bstep_t){40, G_NOTE};
-    P[1].bass[0].step[0] = (bstep_t){50, G_NOTE};               /* 303 A in pattern 2 */
+    P[0].bass[1].step[0] = (bstep_t){40, G_NOTE, 0};
+    P[1].bass[0].step[0] = (bstep_t){50, G_NOTE, 0};               /* 303 A in pattern 2 */
     seq_start(&S);
     run((uint32_t)(step * 5));
     seq_cue_part(&S, TRK_BASS0, 1);
@@ -1077,6 +1108,7 @@ int main(void)
     test_drum_timing();
     test_swing_and_rates();
     test_303();
+    test_303_velocity_slide_overlap();
     test_polymeter_cue_chain();
     test_part_cue();
     test_song();

@@ -1201,6 +1201,7 @@ static int help_lines(int b, const char *l[HELP_LINES])
         break;
     case B_SEQ:
         L("THE PART'S STEPS: LENGTH, RATE"); L("AGAIN: THE NEXT PAGE"); L("HOLD A STEP + SELECT: ITS CHANCE");
+        if (is_303()) L("HOLD A STEP + ALGO: VELOCITY");
         break;
     case B_PLAY: L("START / STOP"); L("HOME + PLAY: REDO"); break;
     case B_REC:
@@ -2024,6 +2025,7 @@ static void bass_write(int b, int note, int gate)
             ui.btn_used |= 1u << B_LFO;
         }
         bp->step[w].note = (uint8_t)note;
+        bp->step[w].velocity = BASS_VELOCITY_DEFAULT;
     }
     bp->step[w].flags = f;
     ui.wpos[b] = (uint8_t)((w + 1) % len);
@@ -2052,6 +2054,7 @@ static void bass_kbd(int key, int down)
             }
             bp->step[s].note = (uint8_t)n;
             bp->step[s].flags = f;
+            bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
             seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
             mark_dirty();
         }
@@ -2080,7 +2083,8 @@ static void bass_step_key(int white, int down)
         }
         ui.step_preview = key_sounds();               /* as the drum keys */
         if (ui.step_preview)
-            engine_bass_on(b, bp->step[s].note + bp->transpose - 24, (bp->step[s].flags & BS_ACCENT) != 0, 0);
+            engine_bass_on_velocity(b, bp->step[s].note + bp->transpose - 24,
+                                    (bp->step[s].flags & BS_ACCENT) != 0, 0, bstep_velocity(&bp->step[s]));
     } else if (ui.held_step == s) {
         if (!ui.step_created && !ui.step_edited && plat_ms() - ui.step_t0 < STEP_TAP_MS) {   /* a tap takes it off */
             bp->step[s].flags = G_REST;
@@ -2123,7 +2127,7 @@ static void held_note_by(int by)
     ui.step_edited = 1;
     mark_dirty();
     if (key_sounds()) {                                /* as the drum keys: playing, the line is heard */
-        engine_bass_on(bidx(), st->note + bp->transpose - 24, 0, 1);
+        engine_bass_on_velocity(bidx(), st->note + bp->transpose - 24, 0, 1, bstep_velocity(st));
         ui.step_preview = 1;
     }
 }
@@ -2625,9 +2629,20 @@ X0X_COLD static void input(void)
             *page_of(ui.view) = (uint8_t)(p < 0 ? 0 : p >= pg.n ? pg.n - 1 : p);
         }
     }
-    if ((e = enc(EN_ALGO)) != 0) {               /* ALGORITHM: the part; in a list, the value */
+    if ((e = enc(EN_ALGO)) != 0) {               /* ALGORITHM: part, or held 303 step's velocity */
         if (ui.overlay == O_LIST) {
             turn_ref(list_rows[ui.list_sel], e, EN_ALGO);
+        } else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0) {
+            bstep_t *st = &cur_pat()->bass[bidx()].step[ui.held_step];
+            int v = (int)bstep_velocity(st) + e;
+            st->velocity = (uint8_t)(v < 1 ? 1 : v > 127 ? 127 : v);
+            ui.step_edited = 1;
+            mark_dirty();
+            if (ui.step_preview) {
+                bpart_t *bp = &cur_pat()->bass[bidx()];
+                engine_bass_on_velocity(bidx(), st->note + bp->transpose - 24,
+                                        (st->flags & BS_ACCENT) != 0, 1, st->velocity);
+            }
         } else {
             int p = ui.part + (e > 0 ? 1 : -1);
             ui.part = (uint8_t)(p < 0 ? 0 : p >= NPARTS ? NPARTS - 1 : p);
@@ -3264,7 +3279,8 @@ static void draw_303(int band, int gen)
         if (st->flags & BS_ACCENT)
             q = put_s(q, " ACC");
         if (st->flags & BS_SLIDE)
-            put_s(q, " SLIDE");
+            q = put_s(q, " SLIDE");
+        put_i(put_s(q, " V"), bstep_velocity(st));
         cv_text(4, vc(&FONT_B, 122, 16) - o, &FONT_B, t, C_WHITE);
     } else {                                           /* else the line's scale and seed */
         char t2[16];
@@ -4038,7 +4054,7 @@ static uint32_t knobs_sig(void)
     }
     if (ui.held_step >= 0) {
         const bstep_t *st = &cur_pat()->bass[bidx()].step[ui.held_step];
-        MIXIN(st->note | st->flags << 8);
+        MIXIN(st->note | st->flags << 8 | st->velocity << 16);
     }
 #undef MIXIN
     return h;

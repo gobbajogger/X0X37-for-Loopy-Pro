@@ -86,6 +86,7 @@ typedef struct bass303 {
     float accent;            /* 0..1 */
     float tuning;            /* A4, Hz */
     float amp_scaler;        /* volume, linear */
+    float velocity_gain, velocity_cutoff; /* per-note response; 100 is neutral */
     float decay_c, accdec_c; /* main-envelope multipliers for normal / accented notes */
     float slew_c;            /* pitch slew-limiter coefficient */
     int wave;                /* 0 saw, 1 square */
@@ -148,6 +149,7 @@ typedef struct bass303 {
 
 void bass303_init(bass303_t *b);
 void bass303_note_on(bass303_t *b, int note, int accent, int slide);
+void bass303_note_on_velocity(bass303_t *b, int note, int accent, int slide, int velocity);
 void bass303_note_off(bass303_t *b);
 void bass303_all_off(bass303_t *b);
 void bass303_render(bass303_t *b, float *out, int n);
