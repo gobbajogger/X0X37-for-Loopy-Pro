@@ -52,7 +52,8 @@ Order for a real device: gate guard, foreground guard, hardware lock, bootloader
 Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
 tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE --config dev|rel [--ctl FILE]. The install starts
 only if the gate script gave PASS for the exact tree of HASH and the files are the files that the gate built
-for that config. --config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
+for that config. Alternatively --dev-record accepts scoped DEV CHECKED evidence for dev only,
+with explicit --ctl or --no-ctl so an unchecked cached controller cannot be added. --config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
 --commit (or X0X_INSTALL_COMMIT) is necessary. --info and the mocked device of the tests do not use it.
 
 Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
@@ -854,22 +855,30 @@ def ask_tty(prompt):
 
 
 def gate_guard(a):
-    """tools/require_gate_pass.sh: 0 if the gate PASS of the exact tree is there, else 9 (no install)"""
+    """Require exact gate or scoped dev evidence before opening the device."""
     import os
     import subprocess
     commit = a.commit or os.environ.get("X0X_INSTALL_COMMIT", "")
     if not commit:
         print("REFUSED: give --commit HASH (the gate guard needs the commit of the package)", file=sys.stderr)
         return 9
+    dev_record = getattr(a, "dev_record", None)
+    if dev_record and (a.config != "dev" or (not a.ctl and not a.no_ctl)):
+        print("REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl", file=sys.stderr)
+        return 9
     guard = Path(__file__).resolve().parent / "require_gate_pass.sh"
     cmd = ["bash", str(guard), commit, "--fwsc", a.package, "--config", a.config] + (["--ctl", a.ctl] if a.ctl else [])
+    if dev_record:
+        cmd += ["--dev-record", dev_record]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True)
     except OSError as e:
         print(f"REFUSED {commit}: cannot run {guard}: {e}", file=sys.stderr)
         return 9
     print((r.stdout + r.stderr).strip())
-    return 0 if r.returncode == 0 and r.stdout.startswith("GATE OK ") else 9
+    lines = r.stdout.splitlines()
+    expected = "DEV OK " if dev_record else "GATE OK "
+    return 0 if r.returncode == 0 and lines and lines[-1].startswith(expected) else 9
 
 
 def foreground_guard(stdin=None, env=None):
@@ -924,7 +933,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
-    ap.add_argument("--commit", metavar="HASH", help="the commit of the package: the gate guard needs its gate PASS")
+    ap.add_argument("--commit", metavar="HASH", help="the source commit covered by the package validation record")
+    ap.add_argument("--dev-record", metavar="FILE", help="scoped development validation record; requires config dev and explicit --ctl or --no-ctl")
     ap.add_argument("--head-ref", metavar="FILE", help="a flash read-back of this unit (raw, from flash 0): the bootloader guard reference")
     ap.add_argument("--head-check", action="store_true", help="compare the package head with the reference only (no device)")
     ap.add_argument("--config", choices=("dev", "rel"), default="dev",

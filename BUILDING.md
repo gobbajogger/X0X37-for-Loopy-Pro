@@ -79,6 +79,37 @@ Use the actual reference directory names. The release gate pins are 9W9 `10cbe5c
 as `CC='clang -U__APPLE__'` is not a compiler executable for these runners. Put
 compiler options in the runner's supported flags.
 
+Edits, commits, merges, handoffs, and completed development batches do not
+require the full gate. Use checks scoped to the change. Run a gate when the
+next install/release step requires it, or when the owner requests full validation;
+see [rule 11](docs/rules/integration.md). Reuse matching passing evidence.
+
+For a development install, prepare a JSON plan with `base` (the reviewed base
+commit), `scope` (what changed and which consumers can be affected), and `checks`
+(entries with `reason` and `argv`, an array of command arguments). Use
+`no_tests_reason` only when no host test applies. Review the plan against the diff;
+the runner cannot infer complete test coverage. Checks run in a private worktree.
+For example, a change to install evidence can select
+`{"reason":"changed install evidence contract","argv":["sh","tests/host/test_install_gate_guard.sh"]}`.
+
+```
+python3 tools/dev_validate.py run --commit <commit> --model elite --plan /path/plan.json --output /path/new-dev-result
+python3 tools/fm1_install.py /path/new-dev-result/x0x-smk37-elite.fwsc --commit <commit> --config dev --dev-record /path/new-dev-result/record.json --ctl /path/new-dev-result/ctl.img
+```
+
+Use `--model pro` for Pro (package `x0x-smk37.fwsc`). Run validation inside Linux x86-64 (a local container is supported); verification
+and installation also work on macOS. Plan commands must be synchronous native
+processes, without detached jobs or nested containers. The runner builds only that
+model in development configuration, checks code/RAM/pool budgets, builds the
+controller, and records selected test logs and artifact hashes. If the intended
+install needs no controller, use `--no-controller` when validating and `--no-ctl`
+when installing. An unchecked cached controller is not accepted on this path.
+Reuse the record for the same source tree and exact artifacts; no repeat gate or
+validation run is needed for another install of them. Failed checks issue no
+record. DEV CHECKED is local development evidence, not release or device PASS.
+The installer still applies its queue, model, bootloader, lock, and data guards.
+Release installs continue to use full gate evidence without `--dev-record`.
+
 A gate needs explicit local state paths when the old `/workspace` layout is absent:
 
 ```
@@ -127,9 +158,9 @@ keep external push URLs disabled.
 Finish a local task when its authorized change and affected checks are complete.
 Report each missing dependency and each unrun check. Do useful independent work
 before handing off a real blocker. An unavailable device does not reopen completed
-local work. A full release gate, exact model/package checks, flash and RAM budgets,
-slot backup and readback, and device evidence still apply at their install or
-release steps. A selected test pass is not a full gate or a hardware PASS.
+local work. Development installs need scoped validation; release installs need
+the full gate. Exact model/package checks, flash and RAM budgets, slot backup
+and readback, and device evidence still apply at their respective steps. A selected test pass is not a full gate or a hardware PASS.
 
 ## Locked settings (regression guard)
 

@@ -1,17 +1,34 @@
 # Integration and gate
 
-Read before integration, a formal gate, or release evidence.
-
 ### Rule 11: branch order and formal validation
 
-The current integration task owns the firmware branch order. Lane agents give it tested commits. They do not create a second coordinator or overwrite its work. Local fast forwards or cherry-picks are valid when the assigned integrator controls the checkout. Use Git operations that preserve history. Do not use `git update-ref` to evade checks.
+The assigned integrator owns firmware branch order and receives checked lane
+commits. No second coordinator. Use history-preserving merges, fast forwards,
+or cherry-picks in its controlled checkout; never `git update-ref` to evade checks.
 
-Use one formal gate for a finished batch. Run focused tests during development. Re-run a gate for a changed validation tree, a failed run that needs proof of repair, or an explicit force reason. Do not repeat a successful gate or review without a cause.
+Use [scoped checks](commit.md) during development. An edit, commit, merge,
+handoff, or finished development batch does not by itself require a formal gate.
+Run the full gate only when the next step requires it under [install/release
+rules](install.md), or the owner explicitly requests full validation.
+At that step, reuse a matching PASS. Repeat only for changed validation inputs
+(source, configuration, toolchain, dependencies), repair of a failed run, or a
+stated force reason. A changed input invalidates old evidence; it does not by
+itself require running a gate before another development edit. Do not repeat
+successful gates or reviews without cause.
 
-A supported Linux x86-64 environment, including the local container, can run the formal gate. The box is not required. Use the maintained `tools/gate.sh` and its documented environment variables. Set `X0X_REPO`, `X0X_INTEGRATION`, `X0X_RESULTS`, `X0X_REFS`, `X0X_GATE_WORK`, `X0X_GATE_LOCK`, `X0X_PREPUSH_HOOK`, `JIELI_TOOLCHAIN` or `X0X_TOOLCHAIN`, and `AC79_SDK` to actual accessible paths as needed. Do not override `HOME` to simulate the box. Use a writable work path visible through the build container's mounts.
+Run maintained `tools/gate.sh` in supported Linux x86-64, including a local
+container. Follow its header and `BUILDING.md` for accessible repository,
+reference, work, lock, results, SDK, toolchain, and hook paths. The work path
+must be writable through container mounts; do not fake the box with `HOME`.
 
-Keep the four DSP references at the exact gate pins. Keep both dev and release checks, model guards, test completeness, release tree checks, CRC evidence, and budgets. Static RAM free stays at zero or more. Pool headroom stays at 8192 B or more. SMK-37 Pro and Elite are the maintained targets; keep the documented FM-1 allowance distinct from SMK target requirements.
+Keep four DSP reference pins, dev and release checks, model guards, complete
+tests, release tree checks, CRC evidence, and budgets. Static RAM free >= 0 B;
+pool headroom >= 8192 B. SMK-37 Pro and Elite are maintained targets; keep the
+documented FM-1 allowance separate.
 
-Only the formal gate writes its result. A TRIAL PASS, selected host test, quick check, setup-only run, VOID, or hand-written row is not a release PASS. The install guard uses the gate's exact validation tree key and artifact CRCs. Record the source commit and configurations too. Docs-only edits do not create new device evidence.
-
-If setup is absent, state the missing path or tool and the checks still completed. Local task completion and a formal gate are separate evidence levels. An unavailable release dependency leaves release pending; it does not make completed local work endless.
+Only the gate writes its result. TRIAL PASS, focused tests, quick checks,
+setup-only runs, VOID, and handwritten rows are not release PASS. Release
+installation requires the gate's exact validation tree key and artifact CRCs;
+development installation uses the scoped evidence in [rule 6](install.md).
+Record source commit and configurations too. Missing setup leaves gate/release pending,
+not independent local work. Docs edits create no device evidence.
