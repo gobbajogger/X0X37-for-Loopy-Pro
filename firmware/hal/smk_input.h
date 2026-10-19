@@ -131,6 +131,7 @@ static volatile struct {
     uint16_t pad_raw[SMK_NPAD], pad_base[SMK_NPAD], pad_peak[SMK_NPAD];
     uint8_t pad_st[SMK_NPAD];    /* 0 idle, 1..SMK_PAD_PEAKN collecting the peak, 0x80 on */
     uint8_t pad_low[SMK_NPAD];
+    uint8_t pad_vel[SMK_NPAD];   /* last strike, separate from the overlapping keybed velocity */
     uint8_t pad_press[SMK_NPAD]; /* pressure 0..127 while on */
     uint16_t fad_acc[4];         /* faders: 0..1023 IIR */
     uint8_t fader[4];            /* 0..127 */
@@ -455,6 +456,7 @@ static void smk__padq(uint32_t pad, uint32_t vel)     /* a pad hit (vel) or rele
     n = (uint32_t)n0;
     bit = 1u << n;
     if (vel) {
+        fm1_in.pad_vel[pad] = (uint8_t)vel;
         fm1_in.key_vel[SMK_KEY_F3 + n] = (uint8_t)vel;
         fm1_in.pnotes |= bit;
         fm1_in.notes_pressed |= bit;

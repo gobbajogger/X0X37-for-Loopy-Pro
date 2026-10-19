@@ -450,6 +450,15 @@ void engine_motion_rec(int k) { motion_req_rec(&mot, k); }
 void engine_motion_hold(int k) { motion_req_hold(&mot, k); }
 static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_midi, s_step, 0};
 
+#if BOARD_SMK37
+/* Called with audio interrupts disabled at both clip-mode boundaries. */
+void engine_clip_midi_flush(void)
+{
+    seq_midi_flush(&seq, &SINK);
+}
+#endif
+
+
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
 static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */

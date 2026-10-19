@@ -131,6 +131,12 @@ static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
     s->bass_out_valid[b] = 0;
 }
 
+void seq_midi_flush(seq_t *s, const seq_sink_t *o)
+{
+    for (int b = 0; b < NBASS; b++)
+        bass_midi_flush(s, b, o);
+}
+
 static void bass_release(seq_t *s, int b, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
