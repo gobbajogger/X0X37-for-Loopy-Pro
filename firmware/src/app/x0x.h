@@ -29,6 +29,8 @@
  * bit 3 (a74 and older), project_load reads the a74 byte at offset 38 (padding then; ck_x1 in the clip keys). */
 #define PROJ_BT_CLK_MASK 6u
 #define PROJ_BT_CLK_IN 8u
+#define PROJ_BT_SMC_CENTRAL 16u  /* connect to an SMC-Mixer instead of advertising at next boot */
+#define PROJ_BT_SMC_USER 32u     /* SMC's editable User preset, rather than factory DAW mode */
 #define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
 #define PROJ_A74_CLK_OFF 38u
 
@@ -84,3 +86,14 @@ void ui_frame(void);
 void ui_input_only(void);
 int ui_dirty(void);
 void ui_say(const char *a, const char *b);
+#if BOARD_SMK37
+/* BLE TIMER5 producer; smc_poll and smc_frame consume from the main loop. */
+void smc_ble_midi(const uint8_t *msg, uint8_t len);
+void smc_ble_link(int up);
+int smc_ble_role_get(void);
+int smc_connected(void);
+int smc_midi_host(uint32_t pkt);       /* audio ISR: opt-in User preset on channel 16 only */
+void smc_mmc_host(uint8_t cmd, uint8_t src); /* USB or peripheral BLE IRQ: complete stock User MMC */
+void smc_poll(void);
+void smc_frame(void);
+#endif

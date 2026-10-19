@@ -671,6 +671,9 @@ stall:
 /* SysEx assembly: only short commands matter here */
 static void sysex_byte(uint8_t b)
 {
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    extern void smc_mmc_host(uint8_t cmd, uint8_t src);
+#endif
     static const uint8_t UBOOT_KEY[6] = {0xF0, 0x22, 0x24, 0x35, 0x7D, 0xF7};
     if (b == 0xF0) {
         usb.sx_on = 1;
@@ -694,6 +697,14 @@ static void sysex_byte(uint8_t b)
         usb.sysex[usb.sx_len++] = b;
     if (b == 0xF7) {
         uint32_t i, ok = usb.sx_len == 6u;
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+        /* The stock SMC User preset sends 43 distinct six-byte MMC commands.
+         * Exact envelope only: APC inquiry/initialization stays independent. */
+        if (usb.sx_len == 6u && usb.sysex[0] == 0xF0u && usb.sysex[1] == 0x7Fu &&
+            usb.sysex[2] == 0x7Fu && usb.sysex[3] == 0x06u &&
+            usb.sysex[4] >= 1u && usb.sysex[4] <= 43u)
+            smc_mmc_host(usb.sysex[4], 0u);
+#endif
         /* Universal MIDI Device Inquiry, used by Loopy Pro to auto-identify the APC40 mkII. */
         if (usb.sx_len == 6u && usb.sysex[1] == 0x7Eu && usb.sysex[3] == 0x06u &&
             usb.sysex[4] == 0x01u && (usb.sysex[2] <= 0x0Fu || usb.sysex[2] == 0x7Fu)) {

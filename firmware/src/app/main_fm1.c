@@ -1276,6 +1276,32 @@ static uint32_t ck_page_on(void)
 {
     return (ck.pg & 3u) != 0u;
 }
+/* SMC encoders follow the visible clip keys editor's two columns (up to eight
+ * fields). The SMC faders keep the five part levels and three returns here. */
+int smk_ck_smc_turn(int n, int delta)
+{
+    const uint16_t *z;
+    uint32_t i, f;
+    int v;
+    char name[20], value[12];
+    if (!clip_grid_mode || !ck_page_on())
+        return 0;
+    z = ck_zones((ck.pg & 3u) - 1u);
+    for (i = 0; i < (uint32_t)n && z[i]; i++)
+        ;
+    if (!z[i])
+        return 1;
+    f = z[i] >> 12;
+    v = (int)ck_get(f) + delta;
+    v = v < 0 ? 0 : v > CK_FMAX[f] ? CK_FMAX[f] : v;
+    if ((uint32_t)v != ck_get(f)) {
+        ck_set(f, (uint32_t)v);
+        mark_dirty();
+    }
+    put_s(put_s(name, ck_nm(CK_FLD_N, f)), " ");
+    ui_say(name, ck_val_txt(f, ck_get(f), value));
+    return 1;
+}
 /* knobs 2-5 of each stage (CLP-63): the field (CK_E_*), CK_NE = none */
 static const uint8_t CK_KNOB[3][4] = {{CK_E_ROOT, CK_E_SCALE, CK_E_SNAP, CK_NE}, {CK_E_CHORD, CK_E_INV, CK_NE, CK_NE},
                                       {CK_E_ORD, CK_E_RATE, CK_E_OCT, CK_E_GATE}};

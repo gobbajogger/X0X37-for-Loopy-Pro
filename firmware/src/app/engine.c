@@ -93,6 +93,8 @@ static const x0x_param_t MIX_P[MX_NPARAMS] = {{"LEVEL", 127, 100, 0}, {"REV", 12
                                                {"PAN", 127, 64, 0}};
 static const char *const PART_NAMES[NPARTS] = {"909", "808", "303 A", "303 B", "BREAK"};
 static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS];
+static volatile uint8_t smc_solo_mask;
+void engine_smc_solo(uint8_t mask) { smc_solo_mask = (uint8_t)(mask & 0x1Fu); }
 /* pan: a balance law. Centre is full level on both sides (a centred mix is the mono one exactly);
  * turning toward a side fades the other out along a quarter cosine, the near side stays at 1 */
 static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
@@ -501,6 +503,15 @@ static void midi_in(uint32_t pkt)
     if (seq_midi_rt(&seq, st))      /* Clock, Start, Continue, Stop: GLO > MIDI > CLOCK SOURCE */
         return;
 #if BOARD_SMK37
+    /* A host-routed SMC User preset uses its own channel. Consume before APC feedback
+     * or instrument note routing; direct BLE central input has its own callback. */
+    {
+        extern int smc_midi_host(uint32_t pkt);
+        if (smc_midi_host(pkt))
+            return;
+    }
+#endif
+#if BOARD_SMK37
     /* The USB interrupt stores APC feedback at all times. Keep these notes from the
      * sound engine only while clip mode is on. When clip mode is off, the original
      * MIDI input path stays the same (agent-rules 2). */
@@ -639,6 +650,8 @@ static glide_t mix_glide[NPARTS][GL_N] = {
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
 static void mix_targets(int p, float g)                     /* g: the part level */
 {
+    if (smc_solo_mask && !(smc_solo_mask & (1u << p)))
+        g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
     glide_set(&mix_glide[p][GL_R], g * mix_pr[p]);
     glide_set(&mix_glide[p][GL_REV], g * mix_rev[p]);

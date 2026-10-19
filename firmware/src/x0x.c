@@ -177,5 +177,8 @@ static void ota_commit(const uint8_t *parm)
 #include "app/plat_fm1.c"
 #include "app/project.c"
 #include "app/ui.c"
+#if BOARD_SMK37
+#include "app/smc_mixer.c"
+#endif
 #include "app/editor.c"
 #include "app/main_fm1.c"

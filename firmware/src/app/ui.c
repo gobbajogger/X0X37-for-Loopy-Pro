@@ -185,7 +185,7 @@ static void say(const char *a, const char *b)
 enum { R_NONE, R_ENG, R_SWING, R_DLEN, R_DRATE, R_BLEN, R_BRATE, R_BDIR, R_BTRANS, R_GEN, R_BRKSET,
        R_BRKSLOT, R_TEMPO, R_ACCENT, R_CLKOUT, R_NOTEOUT, R_PALETTE, R_KEYLED, R_KEYSOUND, R_AUTOSAVE, R_ACT, R_SBAR, R_SPAT,
        R_SLEN, R_STALLS, R_HDR, R_TAPE, R_MIDICH, R_OUTLOUD, R_SREP, R_BATT, R_USBFULL, R_FREEPLAY,
-       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
+       R_BT, R_BTSTAT, R_BTNAME, R_CKCH, R_CLKSRC, R_SMC_ROLE, R_SMC_MAP };   /* R_TAPE: FX's one-knob TAPE (DIGI .. worn tape) */          /* R_HDR: a list's section header (a = its group), never selected */
 typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 #define NONE PR(R_NONE, 0, 0, 0)
@@ -234,6 +234,10 @@ static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER",
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
 static const char *const BT_N[] = {"OFF", "ON"};
 static const x0x_param_t BT_P = {"BLUETOOTH", 1, 0, BT_N};      /* Bluetooth MIDI (SMK-37) */
+static const char *const SMC_ROLE_N[] = {"DEVICE", "SMC HOST"};
+static const char *const SMC_MAP_N[] = {"DAW", "USER"};
+static const x0x_param_t SMC_ROLE_P = {"BT ROLE", 1, 0, SMC_ROLE_N};
+static const x0x_param_t SMC_MAP_P = {"SMC PRESET", 1, 0, SMC_MAP_N};
 static const x0x_param_t CKCH_P = {"CLIP KEYS CH", 13, 0, 0};  /* clip mode keybed channel 2-15 (0 = 2) */
 static const char *const CLKSRC_N[] = {"AUTO", "INTERNAL", "EXTERNAL"};   /* SEQ_CLK_* order */
 static const x0x_param_t CLKSRC_P = {"CLOCK SOURCE", 2, 0, CLKSRC_N};
@@ -305,6 +309,8 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_SREP: return &SREP_P;
     case R_BATT: return &BATT_P;
     case R_BT: return &BT_P;
+    case R_SMC_ROLE: return &SMC_ROLE_P;
+    case R_SMC_MAP: return &SMC_MAP_P;
     case R_CKCH: return &CKCH_P;
     case R_CLKSRC: return &CLKSRC_P;
     case R_BTSTAT: return &BTSTAT_P;
@@ -372,6 +378,8 @@ static int pref_get(pref_t r)
     case R_SREP: return ui.song_sel < song()->len ? song()->bar[ui.song_sel].mute >> 5 : 0;
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
+    case R_SMC_ROLE: return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL);
+    case R_SMC_MAP: return !!(proj.set.bt & PROJ_BT_SMC_USER);
     case R_CKCH: return proj.set.ck_ch - 2;
     case R_CLKSRC: return PROJ_CLK_SRC(proj.set.bt);
     case R_BTSTAT: return plat_ble_state();
@@ -457,6 +465,14 @@ X0X_COLD static void pref_set(pref_t r, int v)
         plat_ble_set(v > 0);
         if (plat_ble_state() == PLAT_BLE_RESTART)
             say("RESTART TO TURN ON", 0);             /* the controller starts only at power-on */
+        break;
+    case R_SMC_ROLE:
+        proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_CENTRAL) | (v ? PROJ_BT_SMC_CENTRAL : 0u));
+        say("RESTART FOR BT ROLE", 0);
+        break;
+    case R_SMC_MAP:
+        proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_USER) | (v ? PROJ_BT_SMC_USER : 0u));
+        say(v ? "USER: CH16 + MMC" : "DAW: MACKIE MODE", 0);
         break;
     case R_FREEPLAY:
         ui.freeplay[r.a] = (uint8_t)v;
@@ -1038,6 +1054,8 @@ static void open_global(void)
 #endif
     list_rows[ui.list_n++] = PR(R_HDR, GR_BT, 0, 0);
     list_add(PR(R_BT, 0, 0, 0));
+    list_add(PR(R_SMC_ROLE, 0, 0, 0));
+    list_add(PR(R_SMC_MAP, 0, 0, 0));
     list_add(PR(R_BTSTAT, 0, 0, 0));
     list_add(PR(R_BTNAME, 0, 0, 0));
 #endif
@@ -2549,6 +2567,9 @@ X0X_COLD static void input(void)
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     int e;
 #if BOARD_SMK37
+    smc_poll();
+#endif
+#if BOARD_SMK37
     extern uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed);
     extern uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held);
     extern void smk_play_note_button(uint8_t pressed, uint8_t home_held);
@@ -3884,6 +3905,13 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
         *b = "ALGO: CHANGE";
         *c = "HOME: BACK";
     } else if (ui.view == V_HOME) {
+#if BOARD_SMK37
+        if (smc_connected()) {
+            *a = "SMC F1-5: PART LEVEL";
+            *b = "F6: REV  F7: DLY  F8: MST";
+            return C_AMB;
+        }
+#endif
         *a = "WHITE: PATTERN";
         *b = "TWO: CHAIN";
         *c = "BLACK: MUTE";
@@ -4392,6 +4420,9 @@ void ui_frame(void)
 {
     uint32_t i;
     input();
+#if BOARD_SMK37
+    smc_frame();
+#endif
     {   /* GLO > MIDI > CLOCK SOURCE; clip mode always uses AUTO */
         static uint8_t waited;
         uint8_t w;
