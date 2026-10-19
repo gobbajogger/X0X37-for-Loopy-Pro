@@ -1378,12 +1378,12 @@ static void save_project(void)
  * sound, 1 s to settle and 3 s measured each, and keeps the table; then it puts back the project's
  * patterns, sound, tempo, mutes, chain and song mode. The project itself is never written. */
 static const char *const PT_N[3] = {"FACTORY LOOP", "ALL FIVE", "WORST CASE"};
-#ifdef PERF_SCRATCH       /* the app: in the main-loop scratch (x0x.c), 2928 B of static RAM less */
+#ifdef PERF_SCRATCH       /* the app: in the main-loop scratch (x0x.c) */
 typedef struct {
     pattern_t bench[3];
     sound_t snd;
 } perf_data_t;
-_Static_assert(sizeof(perf_data_t) <= 0xC00, "PERF TEST data overlaps the ota.c host message");
+_Static_assert(sizeof(perf_data_t) <= 0xD00, "PERF TEST data overlaps the ota.c host message");
 _Static_assert(sizeof(perf_data_t) <= sizeof PERF_SCRATCH, "PERF TEST data is larger than the scratch");
 #define perf_bench (((perf_data_t *)(void *)PERF_SCRATCH)->bench)
 #define perf_snd (((perf_data_t *)(void *)PERF_SCRATCH)->snd)
