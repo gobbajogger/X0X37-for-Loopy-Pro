@@ -1280,18 +1280,15 @@ static uint32_t ck_page_on(void)
  * fields). The SMC faders keep the five part levels and three returns here. */
 int smk_ck_smc_turn(int n, int delta)
 {
-    const uint16_t *z;
-    uint32_t i, f;
+    uint32_t pg, f;
     int v;
     char name[20], value[12];
     if (!clip_grid_mode || !ck_page_on())
         return 0;
-    z = ck_zones((ck.pg & 3u) - 1u);
-    for (i = 0; i < (uint32_t)n && z[i]; i++)
-        ;
-    if (!z[i])
+    pg = (ck.pg & 3u) - 1u;
+    if (n < 0 || n >= (pg == 2u ? 8 : 4))
         return 1;
-    f = z[i] >> 12;
+    f = CK_PAGE_FIELDS[pg][n];
     v = (int)ck_get(f) + delta;
     v = v < 0 ? 0 : v > CK_FMAX[f] ? CK_FMAX[f] : v;
     if ((uint32_t)v != ck_get(f)) {
