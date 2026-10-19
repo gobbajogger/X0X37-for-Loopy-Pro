@@ -4,7 +4,9 @@
 
 This review follows the SMK-37 as a musician plays it: keys, pads, faders, transport, clip mode, recording, and saving. It covers firmware behavior and the keyboard display, not a companion website. I read the control paths in `firmware/src/app/ui.c` and `main_fm1.c`, the sequencer and project storage code, `BEHAVIOR.md`, and the other active project's integration changes. Host tests exercise input and persistence; they do not replace a keyboard and Loopy Pro session.
 
-The review branch contains fixes for note and step ownership, song mute persistence, fader pickup, queued save feedback and clip-safe saving, memory-full save preflight, and copy/paste source ownership. The final image-budget review is still in progress. Each fix has a focused host regression. The active SMC MIDI/Bluetooth thread owns its separate integration work.
+The review branch contains fixes for note and step ownership, song mute persistence, fader pickup, queued save feedback and clip-safe saving, memory-full save preflight, copy/paste source ownership, and per-link APC MIDI ownership. Each fix has a focused host regression. The active SMC MIDI/Bluetooth thread owns its separate integration work. The final source revision `c565164` built for Elite and Pro; the controller source is unchanged from its independently validated build.
+
+Final image margins are tight: Elite has 232 bytes of code space free and Pro has 248 bytes. Both have 556 bytes of main RAM free and 8,436 bytes in the project pool, 244 bytes above the 8 KiB guard. The controller image has 44 bytes of code space and 544 bytes of RAM free. These builds prove link and image checks, not musical behavior on the keyboard.
 
 The 303 velocity format enlarged the project and undo shadow. Integration now uses a 16,128-byte undo history pool to preserve the 8 KiB runtime margin. A stress test retains 24 whole-pattern replacement undo entries instead of 30 with the former 20,480-byte pool; one-byte edits still reach the existing 32-entry limit. This is a deliberate capacity cost, not a change to saved project data.
 
@@ -19,6 +21,8 @@ The 303 velocity format enlarged the project and undo shadow. Integration now us
 | Hold SAVE and choose another pattern | “COPIED” suggested a frozen clipboard, but paste read live source patterns later | UI now asks for a paste target and remembers the five source slots through replacement confirmation | Pattern *contents* remain live until confirmation; playback or generator edits during a prompt can change what is pasted |
 | Save while the sequencer or clips are active | Save could appear delayed with little persistent explanation; clip activity could overlap flash work | UNSAVED / queued / failed marks, SAVE LED states, and a clip activity quiet guard for manual and automatic saves | REC armed while stopped suppresses autosave until REC is turned off; help states this, but the status mark does not explain the cause |
 | Save a project that no longer fits | The first objects could be rewritten before stream capacity failed | A preflight detects the memory-full case before any storage write | Other I/O failures can still leave a partially updated project |
+| Keep a 303 step held while selecting another part on SMC | A temporary parameter lock could remain audible on the old 303 after the page changed | The held step now cancels before part selection; host regression passes | Confirm the old sound returns on release and the new part remains selected |
+| Play notes into X0X after leaving clip mode | APC ownership could consume ordinary MIDI notes 0–98 from both links while Loopy stayed connected | Handshake ownership is now per input link; focused host tests pass | Same-link APC feedback and playable notes are indistinguishable by note/channel alone; test USB and Bluetooth together |
 
 ## Ambiguities still worth resolving
 
@@ -50,11 +54,19 @@ White and black keys select patterns and mutes on HOME, edit steps in SEQ/PART, 
 
 The SMC integration initially toggled `ui.rec` directly. Panel REC first cancels a held 303 step preview because the key-up will change meaning from step edit to keyboard play. The review branch now calls the same cleanup in the SMC path. This needs a device check with a held step and the SMC REC control after the combined image is built.
 
+### 8. SMC part selection can outlive a temporary 303 lock
+
+Changing part from SMC rebuilds the knob pages. A held 303 step can own a temporary parameter-lock preview, and releasing that preview restores controls from the *current* page. If part selection happens first, the old part's sound may stay at the preview value. The review branch now cancels the held step before changing part. Verify the host-tested fix on a stopped 303 with a held step, a sound-knob turn, and an SMC part select.
+
+### 9. APC feedback and ordinary MIDI notes need separate ownership
+
+CLP-11 intentionally suppresses APC feedback after a host handshake, including outside clip mode. The old receive path applied that ownership to incoming notes 0–98 on *both* links, which could swallow playable notes from a different MIDI keyboard. The review branch now scopes ownership to the link that sent the handshake and clears it when that link ends. A keyboard and APC host on the *same* USB or Bluetooth link remain ambiguous because APC LED feedback uses all MIDI channels and overlaps the playable note range. That requires a routing choice or a distinct MIDI source identifier, then a device test with both active.
+
 ## Release checks
 
-1. Rebase this review branch after the active SMC MIDI/Bluetooth work settles; resolve overlapping clip and UI files with the integration owner.
-2. Run the host suite, focused firmware tests, Pro and Elite builds, and the project image/headroom gates on the exact combined commit.
-3. On the keyboard, test note release across mode changes, fader pickup in both banks, clip PLAY/REC round trips, clip paging, and save timing during sustained notes and external MIDI.
+1. Have the integration owner merge this review branch after the active SMC MIDI/Bluetooth work settles, then validate the exact integrated commit.
+2. Re-run the host suite and Pro, Elite, controller image/headroom gates in the supported Linux build environment. The final review revision passed focused host checks and local image builds.
+3. On the keyboard, test note release across mode changes, SMC part selection during a held 303 lock, fader pickup in both banks, clip PLAY/REC round trips, clip paging, APC feedback alongside played MIDI on both links, and save timing during sustained notes and external MIDI.
 4. Only then package an image for installation. No device installation was part of this review.
 
 The local Mac host run passed the affected UI and scenario tests. Its repository-wide result also reports unavailable reference DSP source trees and Linux-specific `flock`/Bash checks; those are environment limits, not a passing release gate. A repeat on the project's supported build environment is required.
