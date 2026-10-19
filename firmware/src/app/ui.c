@@ -105,6 +105,24 @@ static int save_state(void)
         return SAVE_FAILED;
     return ui.dirty ? SAVE_UNSAVED : SAVE_SAVED;
 }
+static const char *queued_save_label(void)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on())
+        return "SAVE WHEN QUIET";
+#endif
+    return "SAVE AT STOP";
+}
+static const char *queued_save_message(void)
+{
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    if (smk_clip_mode_on())
+        return "SAVES WHEN QUIET";
+#endif
+    return "SAVES WHEN STOPPED";
+}
 
 /* the encoders, read for the UI: a turn counts as being touched (the autosave waits for quiet) */
 static int32_t enc(int role)
@@ -1230,7 +1248,7 @@ static int help_lines(int b, const char *l[HELP_LINES])
             put_s(st, "REC OFF FOR AUTOSAVE");
         else
             put_s(put_s(st, proj.set.autosave_off ? "AUTO OFF / " : "AUTO ON / "),
-                  save_state() == SAVE_QUEUED ? "SAVE AT STOP" : save_state() == SAVE_FAILED ? "SAVE FAILED" :
+                  save_state() == SAVE_QUEUED ? queued_save_label() : save_state() == SAVE_FAILED ? "SAVE FAILED" :
                   save_state() == SAVE_UNSAVED ? "UNSAVED" : "SAVED");
         L("TAP: SAVE EVERYTHING"); L(cp); L(ui.pbank ? "    TO P17-32 (+ OCT-: P1-16)" : "    TO P1-16 (+ OCT+: P17-32)"); L(cl);
         L("+ KNOB: FORGET ITS MOTION"); L(st);
@@ -1401,7 +1419,7 @@ static void save_project(void)
     int rc;
     if (seq.playing || seq.req_stop) {
         save_wait = 1;
-        say("SAVES WHEN STOPPED", 0);
+        say(queued_save_message(), 0);
         return;
     }
     save_wait = 0;
@@ -3179,7 +3197,7 @@ static void draw_header(void)
                         PART_COL[drum_mix_page()]) + 6;
     }
     if (ss != SAVE_SAVED) {               /* use the gap before pattern/clock, never cover cue or step range */
-        const char *label = ss == SAVE_QUEUED ? "SAVE AT STOP" : ss == SAVE_FAILED ? "SAVE FAILED" : "UNSAVED";
+        const char *label = ss == SAVE_QUEUED ? queued_save_label() : ss == SAVE_FAILED ? "SAVE FAILED" : "UNSAVED";
         int32_t w = tw(&FONT_XS, label) + 10;
         uint16_t c = ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB;
         if (x + w <= 130) {

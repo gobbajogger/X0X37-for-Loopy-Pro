@@ -664,6 +664,10 @@ If REC is on, turn REC off for autosave. Hold SAVE to see this reminder.
 > SAVES WHEN STOPPED and shows SAVE AT STOP in the header. X0X saves when you stop. The SAVE
 > button stays lit until then.
 
+In clip mode, SAVE shows SAVES WHEN QUIET and then SAVE WHEN QUIET in the header. X0X waits
+until the transport stops and keybed or control activity stays quiet for four seconds. The
+SAVE button stays lit until the save completes.
+
 If a save fails, the header shows SAVE FAILED (or a red mark when space is tight). The SAVE
 button flashes fast. The warning stays until a save succeeds. A flash write failure also
 shows SAVE FAILED after an autosave.
