@@ -20,7 +20,7 @@ awk '/^static volatile uint8_t clip_grid_mode;/{on=1} /^#include "app\/smk_clip_
 awk '/^\/\* Loopy Undo \/ Redo/{on=0} on; /^static uint8_t knob_bank_prev;/{on=1}' $M > $OUT/apc_b.inc
 awk '/^\/\* -+ clip mode keybed/{on=1} /^\/\* ------- clip mode screen/{on=0} on' $M > $OUT/ck_a.inc
 awk '/^CK_FN void smk_ck_poll\(void\)/{on=1} on; on && /^}/{exit}' $M > $OUT/ck_b.inc
-awk '/^\/\* AUTOSAVE:/{on=1} /^void ui_frame\(void\)/{on=0} on' $SRC/app/ui.c > $OUT/autosave.inc
+awk '/^#define AUTOSAVE_QUIET/{print} /^\/\* AUTOSAVE:/{on=1} /^void ui_frame\(void\)/{on=0} on' $SRC/app/ui.c > $OUT/autosave.inc
 awk '/^#define PADLED_N 16u/{on=1} on && /^#endif/{exit} on' $SRC/lcd.c > $OUT/padled.inc
 for f in apc_a apc_b ck_a ck_b autosave padled; do
     test -s $OUT/$f.inc || { echo "FAIL: marker for $f.inc not found"; exit 1; }
