@@ -287,7 +287,11 @@ static void stream_from2(void)
 {
     uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
     int p, b, s;
-    __builtin_memmove(raw + NPAT * sizeof(pattern_t), raw + NPAT * sizeof(pattern2_t), sizeof(arrange_t));
+    uint32_t i;
+    /* The destination is higher and overlaps the old pattern data. Copy from the
+     * end so this also works with the firmware link, which has no libc memmove. */
+    for (i = sizeof(arrange_t); i > 0; i--)
+        raw[NPAT * sizeof(pattern_t) + i - 1u] = raw[NPAT * sizeof(pattern2_t) + i - 1u];
     for (p = NPAT - 1; p >= 0; p--) {
         pattern2_t old;
         pattern_t *dst = &proj.pat[p];
