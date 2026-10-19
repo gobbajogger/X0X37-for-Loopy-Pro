@@ -222,6 +222,16 @@ static void smc_record_toggle(void)
     say(ui.rec ? "RECORD ON" : "RECORD OFF", PART_N[ui.part]);
 }
 
+static void smc_select_part(int part)
+{
+    ui.part = (uint8_t)part;
+    ui.mixsel = (uint8_t)part;
+    if (ui.view == V_GEN && !is_303())
+        set_view(V_PART);
+    ui.outline_ok = 0;
+    build_pages();
+}
+
 /* All 32 strip buttons have a role. Strips 1-5 select/mute/solo/record the five
  * parts; 6-8 address reverb, delay and master. Global buttons navigate X0X. */
 static void smc_button(uint8_t note, int mmc)
@@ -232,7 +242,7 @@ static void smc_button(uint8_t note, int mmc)
         strip = note & 7;
         if (strip < NPARTS) {
             if (row == 0) {             /* REC */
-                ui.part = (uint8_t)strip;
+                smc_select_part(strip);
                 smc_record_toggle();
             } else if (row == 1) {      /* SOLO */
                 if (mmc)                /* stock User MMC has no release: latch as fallback */
@@ -244,9 +254,7 @@ static void smc_button(uint8_t note, int mmc)
             } else if (row == 2)       /* MUTE */
                 mute_part(strip);
             else {                     /* SELECT */
-                ui.part = (uint8_t)strip;
-                ui.mixsel = (uint8_t)strip;
-                build_pages();
+                smc_select_part(strip);
                 say("SELECT", PART_N[strip]);
             }
         } else {
@@ -264,12 +272,10 @@ static void smc_button(uint8_t note, int mmc)
     }
     switch (note) {
     case 0x2E: case 0x30:             /* bank / channel left: part */
-        if (ui.part) ui.part--;
-        build_pages();
+        if (ui.part) smc_select_part(ui.part - 1);
         break;
     case 0x2F: case 0x31:
-        if (ui.part + 1 < NPARTS) ui.part++;
-        build_pages();
+        if (ui.part + 1 < NPARTS) smc_select_part(ui.part + 1);
         break;
     case 0x5B: case 0x5C: {            /* rewind / forward: pattern */
         int next = seq.ppat[ui.part] + (note == 0x5B ? -1 : 1);
