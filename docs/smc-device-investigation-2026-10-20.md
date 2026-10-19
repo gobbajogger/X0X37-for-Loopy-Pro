@@ -25,3 +25,9 @@ The local change maps HOME/clip fader 8 to `T_MST/MST_DJF`, matching the keyboar
 - Target build, formal gate, installation and device validation of the filter change: NOT RUN.
 
 Next: obtain actual BLE notification bytes or add bounded SMC receive diagnostics through the integration owner. Test captured bytes against the BLE parser before proposing a Bluetooth fix. Integrate the filter correction separately from the unresolved transport diagnosis.
+
+## Successful Bluetooth capture retry
+
+The later Mac capture connected to `SMC-MackieMixer` and subscribed to MIDI characteristic handle 113. It received 1,271 raw BLE packets from owner-operated DAW controls. Replaying every packet through the production `blec_midi_packet` function produced all 2,711 expected MIDI messages. The local capture and reproducible replay script are `evidence/smc-raw-ble-retry.json` and `evidence/replay_capture.py`. This supersedes the earlier lack of raw BLE evidence. It verifies the MIDI payload parser, not the keyboard's HCI reception or UI dispatch.
+
+After the keyboard returned on USB, repeated DIAG reads reported `plat_state=4` (READY), `h_state=3` (SCANNING), `step=6`, and zero controller-to-host mailbox drops. The owner reported SMC connected in host mode; the disagreement requires checking the exact on-screen STATUS value. Apple's documented `MIDIBluetoothDriverDisconnect` returned success for the Mac's SMC MIDI connection. No keyboard firmware was installed or changed during this retry.
