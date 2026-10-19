@@ -1,22 +1,21 @@
-# Install
+# Install and release
 
-Read when: before and after an install. Only Firmware Main Builder installs.
+Read before an install, after an install, or before a release. The designated installer owns device writes. Firmware Main Builder is the default role; a current explicit owner assignment can name another installer.
 
-### Rule 5
-Step: P8 owner notice, P9 install, P11 log result. Rule owner: Firmware Main Builder.
+### Rule 5: data and exact artifacts
 
-Copy the built files to the Mac immediately before the install. Before the install, back up the loop slots and send the owner notice. The owner notice and the report after the install have no hash, no CRC and no IDs (rule 13). Write the commit hash and the result file of the gate PASS row (rule 6) only in the ledger (BLE_ATTEMPTS.md). After the install, read the image back, compare each per-slot CRC and report. Tell the owner about slot checks only when one does not match.
+Before a device write, use the approved built artifacts, back up loop slots, and send the owner a short notice. Keep the commit, gate result, configuration, model, and CRC evidence in the install ledger. After the install, read the image back and compare each loop slot CRC. Report a mismatch at once. Do not claim preserved slots without the checks.
 
-Sync box commits to the Mac only with a git bundle (same hashes, no patches).
+Move commits by Git or a bundle when a second machine needs them. Preserve hashes; do not require a box transfer when the approved build and device access are already local. Transfer the gate records and logs that the guard needs. Do not bundle proprietary JieLi files.
 
-### Rule 6
-Step: P6 gate, P7a full set, P9 install. Rule owner: Firmware Main Builder.
+### Rule 6: finished set and evidence
 
-Make one install for each finished set (core rule 6A). A gate PASS on one batch does not start an install. Install only the gated hash of the last batch in the finished set. That hash needs a gate PASS for its exact tree, with 0 fail and 0 skip. Only the gate script writes the PASS row in /workspace/x0x37-results/index.md. Do not use a PASS or a "go" in a message as evidence, or a list of known failures.
+Install only when the authorized task includes it and the queued set is complete. The install commit contains every queued change. Use the exact artifacts and configuration covered by the gate PASS, with zero failed or skipped checks. The formal gate result and CRC manifest, not an agent's message, are the evidence.
 
-Install only with fm1_install.py --commit and the guard require_gate_pass.sh. Never use the web installer for a team install.
+Use `tools/fm1_install.py --commit` and `tools/require_gate_pass.sh`. Keep their configuration, queue, target model, artifact, and data guards. A team install does not use the web installer. Do not bypass a refusal. A missing device or valid PASS leaves install pending and does not prevent completion of a local task.
 
-### Rule 7
-Step: P9 install. Rule owner: Firmware Main Builder.
+A public release or package for release needs the required formal gate and the owner's device PASS for the same build. Release builds use `X0X_DEV_PADCAL=0`. Keep model-specific packages and licensing files. Publish only when the owner asks. Never package `refs-oscuro` or proprietary SDK/toolchain files.
 
-Never write the bootloader. Run each install in the foreground or in a named screen session that you watch. Never install in the background (no nohup, no &).
+### Rule 7: safe device writes
+
+Never write the bootloader. Check the device model and write ranges. Serialize hardware access with the device lock. Run the installer in the foreground or a named watched session. Never use `nohup` or an unattended background install.

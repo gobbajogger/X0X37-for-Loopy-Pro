@@ -1,3 +1,20 @@
+# Current authority notice — 2026-10-19
+
+The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
+
+## Team rules
+
+Source: the owner's current rules audit request, relayed into this task. "Need to audit all project rules and docs to prevent it from happening. And make sure that all agents use simply English skill and caveman at all times. start a new thread with subagents to finish this job".
+
+- 2026-10-19 (owner): Supersedes earlier box-only work rules and role-only handoffs for authorized work. Supported local environments can complete builds and tests. Keep truthful validation, data protection, licensing, target model checks, and memory budgets (rules/commit.md rule 9; rules/core.md rule 6A).
+- 2026-10-19 (owner): Supersedes earlier writing scope exceptions. Plain correct English and concise caveman style apply to every project agent, subagent, output, doc, handoff, and task prompt. Read exact skills and report a missing source; do not claim a substitute is the original (rules/style.md rule 15).
+- 2026-10-19 (owner): The owner authorized this audit, its rule and enforcement repairs, isolated commits, checks, independent review, and project rollout. Keep firmware integration with its current task. No repeated approval for necessary reversible work (rules/docs.md rule 12A; rules/owner-messages.md rule 14).
+- 2026-10-19 (owner): Local completion, formal gate, install, device test, and release are separate evidence levels. Finish independent authorized work and name real pending dependencies (rules/core.md rule 6A; rules/integration.md rule 11; rules/install.md rule 6).
+
+---
+
+## Historical preference record — preserved text
+
 # X0X37 project: owner preferences and decisions
 
 Read this file before you work on the X0X37 project. Also obey the agent rules (rules/core.md). This Mac root file is the main copy, and x0x37/docs/USER_PREFERENCES.md on smk37 is an exact copy. The reference for the intended behavior is BEHAVIOR.md on the branch integration. The smk37 copy x0x37/BEHAVIOR.md is a synced copy of it.

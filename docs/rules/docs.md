@@ -1,24 +1,23 @@
-# Docs, checklists and logs
+# Docs, checklists, and logs
 
-Read when: before an owner test checklist, a doc, a log or a device result log, and at the end of each task.
+Read before docs work, owner checklists, device result logs, and task completion.
 
-### Rule 12
-Step: P7 checklist, P11 log result. Rule owner: Docs Keeper.
+### Rule 12: current facts and history
 
-Do not invent data. Docs and logs hold only development information. Update BEHAVIOR.md (reference copy on integration), ROADMAP.md, USER_PREFERENCES.md and the log (x0x37-progress-log.md) in the same task. Keep the box and the Mac copies in sync (git commits and docs). Log a device PASS only for the items and build that the owner names. Mark the others NOT TESTED.
+Do not invent data. Update the docs affected by the change. Change `BEHAVIOR.md` when intended behavior changes. Change the plan when its status changes. Record new owner decisions in `docs/USER_PREFERENCES.md` with a pointer to the active rule. Record actual results in the relevant log. Do not force unrelated edits to four files for every task.
 
-Start each owner test checklist with these header lines:
-- Build: the batch number and the gated hash.
-- Replaces: the earlier checklist, or "none".
-- Checked against decisions: the time of the latest USER_PREFERENCES.md entry that you compared with the checklist.
+The repository `docs/agent-rules.md` and `docs/rules/` are the maintained instruction source. The wrapper mirrors them for discovery. The current integration checkout's `BEHAVIOR.md` describes intended firmware behavior. Old plans, backups, dated rosters, and logs remain historical evidence. A stale installed hash in a log is not a new install instruction.
 
-Write each new owner rule in USER_PREFERENCES.md. In the same commit, write it in the rule file that agents open at its step. Give the file and the rule number in the USER_PREFERENCES.md entry.
+Keep preference chronology and historical evidence intact. Add a current authority notice and a superseding decision when older instructions conflict. Sync current rules and entry points after a rule commit without changing firmware or active agents' unrelated edits.
 
-Put 10 tasks or fewer in an owner test checklist. Start each task with its goal, in the words of the owner. Each task starts from any screen.
+Log device PASS only for the items and exact build the owner tested. Mark the other items NOT TESTED. A local build, host test, or selected check is not device evidence.
 
-### Rule 12A: rule changes
-Step: each change to a rule file or to agent-rules.md. Rule owner: Docs Keeper.
+An owner checklist has no more than ten tasks. Start each task with its goal and a clear starting state. Include Build, Replaces, and Checked against decisions headers. Technical evidence can go in the attached record.
 
-Commit each rule change on a lane branch lane/dk-rules-<topic>, never directly on smk37. In the commit body, give the trigger step and the check of each rule change. The check is a script check number from SCRIPT-CHECKS.md, or "hourly audit". The quick check (STE and the pointer lint, script check 27) must pass. Then Orchestrator compares the meaning with the old text. After that review, Docs Keeper merges the lane into smk37 fast-forward only and syncs the Mac main copy.
+### Rule 12A: rule repairs
 
-Log each rule break in rules-breaks.md, next to the rules folder. Give the break, the rule, why the trigger or the check missed it, and the fix.
+Use an isolated `lane/dk-rules-<topic>` branch. Audit the trigger, cause, and effect of each change. Run the relevant doc and enforcement checks. Give commit body lines `Trigger: <when the rule applies>` and `Check: <script path or manual: reason>`. Script check numbers and live status are in [SCRIPT-CHECKS.md](SCRIPT-CHECKS.md).
+
+Use a bounded independent review for the final rules and representative tasks. The assigned task agent can complete the repair and rollout authorized by the owner. A missing Docs Keeper, Orchestrator, box, or retired role does not require a circular handoff. Coordinate only an actual overlap with live work. Keep firmware integration with its current owner.
+
+Roll out the maintained entry point and current rule copies to affected project checkouts. Preserve old records and unrelated edits. Give active agents a concrete rule path and a short change notice through the authorized coordination channel. Do not restart completed tasks. Log causes and checks in the audit record; log a material future rule break in `docs/rules-breaks.md`.

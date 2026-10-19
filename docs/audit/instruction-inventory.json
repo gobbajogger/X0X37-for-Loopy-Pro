@@ -1,0 +1,3199 @@
+{
+  "date": "2026-10-19",
+  "timezone": "Asia/Vladivostok",
+  "scope": "Filesystem snapshot. Canonical rule repair is rules_audit/docs; source archive content inventory is separate. Git metadata, generated build files, node_modules, reference repositories and .venv were excluded from doc walk.",
+  "repositories": [
+    {
+      "path": "b10/repo",
+      "head": "c6bf44a5651856b84a1091fc41f2d282e88435aa",
+      "branch": "",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "b3/repo",
+      "head": "89f680ece89d4adf09292214d26864977efdd3a5",
+      "branch": "",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "b7/repo",
+      "head": "f9bcc4666ecaf8814d88c65ae34b24653fd1477e",
+      "branch": "",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "batch11_local",
+      "head": "692c9353050c7686b0764ca78ec76fbe16721363",
+      "branch": "completion/batch11-local",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "clip_ui_work",
+      "head": "d4caf9179ef618c181ec3017ecafe12a748701b5",
+      "branch": "lane/mb-clip-ui",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "flash_review",
+      "head": "cea15dd10b80e452294e604b5135881f6f92b72a",
+      "branch": "ble-a51",
+      "git_common_dir": ".git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "flash_review_integration",
+      "head": "280eb4d4671e97a114069aab040591baa7df5ff1",
+      "branch": "integration",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "integration_final_review",
+      "head": "532d91fc69232fdc932d516e9190028fb9a699da",
+      "branch": "review/final-integration-20261019",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "integration_smc_visibility",
+      "head": "532d91fc69232fdc932d516e9190028fb9a699da",
+      "branch": "lane/mb-smc-visibility",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "rules_audit",
+      "head": "280eb4d4671e97a114069aab040591baa7df5ff1",
+      "branch": "lane/dk-rules-portable",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": true
+    },
+    {
+      "path": "rules_main_rollout",
+      "head": "8ba4981a460ae76dd610ba9da81c16a3145ee1d2",
+      "branch": "lane/dk-rules-main-sync",
+      "git_common_dir": "/Users/mac/Documents/x0x37/x0x37/.git",
+      "has_agents": false,
+      "has_rules_pointer_target": true
+    },
+    {
+      "path": "sb-padcal-wait",
+      "head": "de823b4e6c80ef84172fdf5081295a874ad900ee",
+      "branch": "lane/sb-padcal-wait",
+      "git_common_dir": ".git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "sb_transfer/ck_clone",
+      "head": "72ff62804e7b8b08c9e130ba013ffede34d6ead3",
+      "branch": "clip-keys",
+      "git_common_dir": ".git",
+      "has_agents": false,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "smc_ble_work",
+      "head": "6e4315f42c7f3eaed14797ab7ebaf1d254069338",
+      "branch": "lane/smc-ble",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "smc_ui_work",
+      "head": "82686631de5e60d2ad3602d31413aedd05b37e3a",
+      "branch": "lane/mb-smc-midi-ui",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_apc_midi_owner",
+      "head": "59c37f6a87b59b26a000c4c4f65342fffb6c3eb2",
+      "branch": "lane/ux-apc-midi-owner",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_clip_save_guard",
+      "head": "dba324eb4a05672fc48983b26f78bbf110afdb96",
+      "branch": "lane/ux-clip-save-guard",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_code_budget",
+      "head": "ce32f7cba39e21fa33d5976cfff65344c583d724",
+      "branch": "lane/ux-code-budget",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_code_budget_latest",
+      "head": "c56516436d2c53cacbe9078812992411d020ea27",
+      "branch": "lane/ux-code-budget-latest",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_combined_review",
+      "head": "4a9500ea508e73883822c44f8fabe72ed3040ce0",
+      "branch": "review/keyboard-ux-fixes",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_copy_semantics",
+      "head": "28ac792e2f0bd9f6026e05ca81253cd9cae93b4c",
+      "branch": "lane/ux-copy-semantics",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_fader_pickup",
+      "head": "06bbce2f59cb1f637d293d59dc415f667e63a623",
+      "branch": "lane/ux-fader-pickup",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_note_lifecycle",
+      "head": "46f8430de8433f987ee5c7317286de82291217e3",
+      "branch": "lane/ux-note-lifecycle",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_perf_scratch",
+      "head": "c550e86be2289ea6eca3f3920e0238eda6bada43",
+      "branch": "lane/ux-perf-scratch",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_project_link",
+      "head": "51c750fb7977091658608ffa4b8414334fcbae9c",
+      "branch": "lane/ux-project-migration-link",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_save_feedback",
+      "head": "015ddf776da03aaa8c55cdced1420fceed1a2f9d",
+      "branch": "lane/ux-save-feedback",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_save_preflight",
+      "head": "0483746aa1ef8013a6cf981942820a5e552a9bdb",
+      "branch": "lane/ux-save-atomic-preflight",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_smc_step_cancel",
+      "head": "dec60306ed44f6e51d0035079ac322d27b2b09db",
+      "branch": "lane/ux-smc-step-cancel",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_song_mute",
+      "head": "1ab487c980735ed35173d9332fed5ba3ad6fa51e",
+      "branch": "lane/ux-song-mute",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "ux_step_preview",
+      "head": "4fdf0b9ebf894aa0c5eec1ad6264bbf6993f0f1c",
+      "branch": "lane/ux-step-preview",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "validation_batch11_ble",
+      "head": "692c9353050c7686b0764ca78ec76fbe16721363",
+      "branch": "integration",
+      "git_common_dir": ".git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "validation_batch11_local",
+      "head": "692c9353050c7686b0764ca78ec76fbe16721363",
+      "branch": "",
+      "git_common_dir": ".git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "validation_batch11_rel",
+      "head": "692c9353050c7686b0764ca78ec76fbe16721363",
+      "branch": "",
+      "git_common_dir": ".git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "work-303",
+      "head": "88f4236dcf1d8e222ec4c7358c13debff1892b04",
+      "branch": "lane/mb-303-velocity-overlap",
+      "git_common_dir": "/Users/mac/Documents/x0x37/flash_review/.git",
+      "has_agents": true,
+      "has_rules_pointer_target": false
+    },
+    {
+      "path": "x0x37",
+      "head": "8ba4981a460ae76dd610ba9da81c16a3145ee1d2",
+      "branch": "smk37",
+      "git_common_dir": ".git",
+      "has_agents": false,
+      "has_rules_pointer_target": true
+    }
+  ],
+  "instruction_and_workflow_files": [
+    {
+      "path": "AGENTS_AND_ROOMS.md",
+      "classification": "wrapper current copy",
+      "bytes": 27002,
+      "sha256": "c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016",
+      "classification": "historical record",
+      "bytes": 13966,
+      "sha256": "a09b9581f10d29d872b381367d427998dce2c0ebfdaf1de38ec7579999bdea40"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-a74",
+      "classification": "historical record",
+      "bytes": 15657,
+      "sha256": "4d7119d17f9c1aae11b4ad42bfb5e78d8fa1ded8abcc1a2433bb863accadf6aa"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-a76",
+      "classification": "historical record",
+      "bytes": 16106,
+      "sha256": "991ab3ba0e1b0e376a154e60b1bad0f759844623e749dc9c834eefe2b2456318"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-batch",
+      "classification": "historical record",
+      "bytes": 17648,
+      "sha256": "573f092ff80b305309eb33013b39257a7d78d8111d86adb42ca1d2f177f00815"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-clash5",
+      "classification": "historical record",
+      "bytes": 17428,
+      "sha256": "ca14daeacc244e972db2e0ecd3235e7072a8415cd0a976148fdae99ce3f39c7a"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-contra",
+      "classification": "historical record",
+      "bytes": 17061,
+      "sha256": "43115053a77674e76b13a82e9adf6549141280182942d3cf7580b28b323c2e85"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-open3",
+      "classification": "historical record",
+      "bytes": 15225,
+      "sha256": "88928d2c736da3bea81727cdfd915063ce0004edfd04983ec8169bc4ae3596f3"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-pretrim",
+      "classification": "historical record",
+      "bytes": 20694,
+      "sha256": "5e11cba867486a94bc1ad1a5dc35de3a9258bb78549001b297cfacceffa05e45"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-r38",
+      "classification": "historical record",
+      "bytes": 16495,
+      "sha256": "e14474ee67e33ff64c7c4eb0d29cada7e19187ec9488f92fbf47ded7c2cf1510"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-r40",
+      "classification": "historical record",
+      "bytes": 18469,
+      "sha256": "32cbfabd13f935cff275ddb79e6b03ce1310b52c47dc425e23120895d727576c"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-r41",
+      "classification": "historical record",
+      "bytes": 18835,
+      "sha256": "034d03db96dbf38e1e0f325351c3f5a0011ad225ff8e174e70edf1b1408891e2"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-rules",
+      "classification": "historical record",
+      "bytes": 14090,
+      "sha256": "fc9b335486a5c0010bba50d200cad80983524d2dbe24d0fe97de2eee405d99fa"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-rulesync",
+      "classification": "historical record",
+      "bytes": 15412,
+      "sha256": "4e6df394b9d30de0c14726bbeafbef013bc38ec5ed4b2cd39e33babd3fa006ae"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-sanity",
+      "classification": "historical record",
+      "bytes": 16777,
+      "sha256": "abc6fdb095bf98466cd4a08dbae77d6424f5b1363f88026a87c63767db82c11c"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261016-v2",
+      "classification": "historical record",
+      "bytes": 19138,
+      "sha256": "4a2c0e0d3a13cf9c4e374f6c7b2dbee4b955834b2e1c27320cbc6dae2ae84a80"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 25524,
+      "sha256": "8073bb763b57534ddb29f59d0fd16a88d3f0e63016511970ef381329cb4f222a"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261017-001158",
+      "classification": "historical record",
+      "bytes": 22148,
+      "sha256": "10ddb7fa16a4b4871d2553b94d3ba3ff6ceb1181f2600a3bb47e0240cd58a5dc"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261017-020204",
+      "classification": "historical record",
+      "bytes": 22536,
+      "sha256": "3f37fce25b7986474947a9f7361f864d098b50dbdad7cbd1e5666bc84858350c"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md.bak-20261017-033102",
+      "classification": "historical record",
+      "bytes": 22815,
+      "sha256": "065c5968ea43a5fa091b5785a5f32809c66b5641b01ba36414f63958c2309372"
+    },
+    {
+      "path": "BEHAVIOR.md.bak-20261016-a74",
+      "classification": "historical record",
+      "bytes": 54148,
+      "sha256": "04248f04f629afc540fd7a227fd49d8579385fd64cbd9eabec4951a27bdaed55"
+    },
+    {
+      "path": "BEHAVIOR.md.bak-20261016-a76",
+      "classification": "historical record",
+      "bytes": 54281,
+      "sha256": "8bd08fa7be80120a6fc00c403b7ab9d1c55394f415c907c6e20438d1deaa73f7"
+    },
+    {
+      "path": "BEHAVIOR.md.bak-20261016-sanity",
+      "classification": "historical record",
+      "bytes": 54536,
+      "sha256": "e15ac5b4a569810146ab1417b46ab197b5f7c4e4d88451e989678387351cd297"
+    },
+    {
+      "path": "LIVE_BRANCHES",
+      "classification": "wrapper current copy",
+      "bytes": 10111,
+      "sha256": "5f4705f3b8d10085d2142dfe1f1b53877a38739b12f690acd1c6ba64b551ff07"
+    },
+    {
+      "path": "ROADMAP.md",
+      "classification": "wrapper current copy",
+      "bytes": 11780,
+      "sha256": "9c31c902eb42405d9c9abdd7b101198a3e90286a5480139bd41ec60e5551b7ea"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016",
+      "classification": "historical record",
+      "bytes": 7074,
+      "sha256": "5a8ab9ddcb12879091f312296f4c37b996e12055fbed04570e03af58447cef89"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-a74",
+      "classification": "historical record",
+      "bytes": 8291,
+      "sha256": "da5e06450c58a2c1158e156e160d72d5a11d9452a07e4fde42b4d2c9c5a7e951"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-a76",
+      "classification": "historical record",
+      "bytes": 8670,
+      "sha256": "4866355554d57947e4123752d2f1dcc0d5fb0275f8382f3f0fee02c46d1167fb"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-contra",
+      "classification": "historical record",
+      "bytes": 9569,
+      "sha256": "fda0e913b18c9c7724f066810f8989dbb86b55a730afb49b31da27437f27050a"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-open3",
+      "classification": "historical record",
+      "bytes": 8085,
+      "sha256": "76284df683279cd222f1f622c8670e730bc6b9f4abac36c4fefeb7eebfa53c4a"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-pretrim",
+      "classification": "historical record",
+      "bytes": 10723,
+      "sha256": "a9effc8006813ed450e3e64b924c1d56a0a7abde893a0e7003359637c2fcb189"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-rulesync",
+      "classification": "historical record",
+      "bytes": 8085,
+      "sha256": "76284df683279cd222f1f622c8670e730bc6b9f4abac36c4fefeb7eebfa53c4a"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-sanity",
+      "classification": "historical record",
+      "bytes": 9211,
+      "sha256": "fd04070890546f41d0b769e4f33ca5542f88df4df2f3c28280efff5cd0ece41c"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261016-v2",
+      "classification": "historical record",
+      "bytes": 9558,
+      "sha256": "92cc64501a5f07d6baeee4949823a1bc0eb4e68e567800791f72b0c3733f5538"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 11666,
+      "sha256": "e407192c584cbd90fcabe8d0d064355fda2331e73252273439f2ff278d300288"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261017-002515",
+      "classification": "historical record",
+      "bytes": 11852,
+      "sha256": "7e6008d80c5711f15ffe9fcfa590761b838928887100847df4f1568e6327e7b8"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261017-011610",
+      "classification": "historical record",
+      "bytes": 9656,
+      "sha256": "f7db517e3106e73b5a65b35969822e2f6f0f20d29a3576b8e887035eb14b8b57"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261017-023920",
+      "classification": "historical record",
+      "bytes": 9947,
+      "sha256": "0cb006074b1864475f97ecd34f133381b5edbbc949b8b082232f5421de44f422"
+    },
+    {
+      "path": "ROADMAP.md.bak-20261017-033229",
+      "classification": "historical record",
+      "bytes": 10992,
+      "sha256": "642d774fd2a7e6278ef13f77f1a1e3e60ca8c56c5f24169da6a43e055edfbd4c"
+    },
+    {
+      "path": "USER_PREFERENCES.md",
+      "classification": "wrapper current copy",
+      "bytes": 24174,
+      "sha256": "b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016",
+      "classification": "historical record",
+      "bytes": 9079,
+      "sha256": "1e8badb385d3c48a60cb81798f0c385ebdb0d1a30422c9a47a2cf00a4e15add4"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-a76",
+      "classification": "historical record",
+      "bytes": 11802,
+      "sha256": "eadbc330ee9259a19df451087a1ac62a2f8cca95c8f7522785da878af2c69959"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-batch",
+      "classification": "historical record",
+      "bytes": 12032,
+      "sha256": "79e27680d95d8552af4581069be1650dd7ee3c54b0425139b8905b25c646cd62"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-clash5",
+      "classification": "historical record",
+      "bytes": 11905,
+      "sha256": "5e1fa5286f3339c862aefaa92e7cceb55201cb0d9d31b7ccee0088a6fca36b3e"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-contra",
+      "classification": "historical record",
+      "bytes": 12008,
+      "sha256": "19de43160b55626a46b107bcc0b83cc40ea983afedb9194f9fca9f5898af98cc"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-pretrim",
+      "classification": "historical record",
+      "bytes": 11326,
+      "sha256": "0047814bac1ea3fb3f4dd52f2f513e6a99554945b43975651b3074b2b08719d2"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-r40",
+      "classification": "historical record",
+      "bytes": 12527,
+      "sha256": "303c322b4896240a540ca1a82dc1d24cb3d4b13d50cb83d5cf193e2d7ad390a8"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-r41",
+      "classification": "historical record",
+      "bytes": 12849,
+      "sha256": "5d56b0317db135149d1bfa9e4b514afbf790e009d0d5342e0cb0321d8acced04"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-rulesync",
+      "classification": "historical record",
+      "bytes": 11686,
+      "sha256": "78440403d9cbd0c948e2a804ddf41d92be1cd04c930ca507cfe4597d407eb710"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-sanity",
+      "classification": "historical record",
+      "bytes": 11802,
+      "sha256": "8a7b8765a6e25d47a18cb46c9b04f30232f0d167426838529d751a9ea3e4227a"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261016-v2",
+      "classification": "historical record",
+      "bytes": 13096,
+      "sha256": "e7bfa68c92a0edaa09d2b26eb1c96daa4112ab1fea76c89387fe4b405df3b350"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 17426,
+      "sha256": "704ab6ff906b223d9d0642753a4efbad1d0459d10f24e8aebe553b185acc5ff5"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-000600",
+      "classification": "historical record",
+      "bytes": 17968,
+      "sha256": "b23ca7fb31112828de3f617bb0516d54de2e311a74ed53c9d25bc4dfdfb1f3fc"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-000949",
+      "classification": "historical record",
+      "bytes": 18203,
+      "sha256": "d1d0613f30cc8a9211205ce68d577dae9cfe7afc9c34fb3095f4d8d28d72f04b"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-001032",
+      "classification": "historical record",
+      "bytes": 18194,
+      "sha256": "8c8d6f8a80153e78f777041d715b2c9fb25da3641ae31483e64307354a024879"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-010016",
+      "classification": "historical record",
+      "bytes": 18203,
+      "sha256": "d1d0613f30cc8a9211205ce68d577dae9cfe7afc9c34fb3095f4d8d28d72f04b"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-014502",
+      "classification": "historical record",
+      "bytes": 18502,
+      "sha256": "d26ac842baab61701431dc692d3cd6f012b20d5bc62cbf6f91fa42e32144deaf"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-015541",
+      "classification": "historical record",
+      "bytes": 18970,
+      "sha256": "a8c6742aae0083daef491713fe51c5ee436adce520a20fb978dce389fcd8a34e"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-015635",
+      "classification": "historical record",
+      "bytes": 19333,
+      "sha256": "9bc3a619b1441f35d9bcab7bfb4b39715a09abc15b33da2bd9a8313f2f274b7d"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-020204",
+      "classification": "historical record",
+      "bytes": 19863,
+      "sha256": "f3e8d8f566f0636092213cd837faa5741e44423c146ea17253edd15f20e0dad8"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-022639",
+      "classification": "historical record",
+      "bytes": 20557,
+      "sha256": "d52fc0216ecd173c9b9ec693a991e63b269d0c241b51a3fcdaeae1c5626a70b0"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-023530",
+      "classification": "historical record",
+      "bytes": 21153,
+      "sha256": "70c2e0c01ec225db7d288c5b18f342ae9cf6088837e7e4e1ac5b5ad3d7366c97"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-023657",
+      "classification": "historical record",
+      "bytes": 21118,
+      "sha256": "a08ccc3d6c2ae045358fd688990e9ec913b5d08389ecbfb01990e09dfc15747e"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-024159",
+      "classification": "historical record",
+      "bytes": 21118,
+      "sha256": "a08ccc3d6c2ae045358fd688990e9ec913b5d08389ecbfb01990e09dfc15747e"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-025910",
+      "classification": "historical record",
+      "bytes": 21673,
+      "sha256": "5e24ed8b2d4d62853f26096ac43fca8ea3868a829a7b2bfcee2fc6b9e59dd462"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-030117",
+      "classification": "historical record",
+      "bytes": 22539,
+      "sha256": "9cad5647a16d4fb925c5d35d8b4b9fca35afed581d693f87f004872afe6c558e"
+    },
+    {
+      "path": "USER_PREFERENCES.md.bak-20261017-033229",
+      "classification": "historical record",
+      "bytes": 23885,
+      "sha256": "4e5713dbff46fcd2089046fdcd17f15c65084db8d887da50e0d09695bdcd87c4"
+    },
+    {
+      "path": "agent-rules-v1-2026-10-16.md",
+      "classification": "historical record",
+      "bytes": 8244,
+      "sha256": "0c1c7e0689f91150c8d84e31796670ce04f780ff2dcf599ce42c321d92ca5d70"
+    },
+    {
+      "path": "agent-rules.md",
+      "classification": "wrapper current copy",
+      "bytes": 132,
+      "sha256": "1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016",
+      "classification": "historical record",
+      "bytes": 2810,
+      "sha256": "a944d9abc46de36530e3421385376bb6db5d0e3f2c5419e9951cc29482d17d3c"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-a74",
+      "classification": "historical record",
+      "bytes": 5576,
+      "sha256": "21f377811110ca3f824dc8eb04e6a9a2bd7cb879b128c345e4695f541f4250d0"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-batch",
+      "classification": "historical record",
+      "bytes": 6823,
+      "sha256": "1dd5f512bbc35ef896a44387ac4bdb2c4dc3e7d3293815b8d9f50ad7606ef2f1"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-clash5",
+      "classification": "historical record",
+      "bytes": 6718,
+      "sha256": "14678c2d5103f6fd5805397155c70c0f53944d3d96901fb0785d7dbbff518fb9"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-contra",
+      "classification": "historical record",
+      "bytes": 6278,
+      "sha256": "f68b94840fe249be27d2bf92e52e1905377bc00413495d7da32766a1e87040e5"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-open3",
+      "classification": "historical record",
+      "bytes": 5307,
+      "sha256": "1f9a8bc86ca7bf9d0a3061202629d2a00371d8cd8b86589b8cc89f2d3f2ce39d"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-r38",
+      "classification": "historical record",
+      "bytes": 5924,
+      "sha256": "2f1475ea6324a03b0302e91ad4e3e599a6cdcfd0b45837b393098796dc7b669a"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-r40",
+      "classification": "historical record",
+      "bytes": 7434,
+      "sha256": "8a4c6b9e14718c56b735cd9cd5a5541a44d5cdd99af2e7bbf78d15bc3b85ed8a"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-r41",
+      "classification": "historical record",
+      "bytes": 7925,
+      "sha256": "9cb9cb2ac64c1ca6ccf4e74558e119bb36553014b9bbb0979a6221aa34b1cc02"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-rules",
+      "classification": "historical record",
+      "bytes": 3067,
+      "sha256": "0be2fdc4eb0dca3a167bbc70da377ed2cae73ec35f95a5ed1c4fd45566d96476"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-rulesync",
+      "classification": "historical record",
+      "bytes": 3374,
+      "sha256": "a753b9f91f8b6b5fd7a6da9e980c6869c07c94ee32670d12ae0c476664b9f48d"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-sanity",
+      "classification": "historical record",
+      "bytes": 6097,
+      "sha256": "e4eb17e96fc03175019e286efd0c7f41dbe0787604236f1b0619b8dacc7f5958"
+    },
+    {
+      "path": "agent-rules.md.bak-20261016-v2",
+      "classification": "historical record",
+      "bytes": 8244,
+      "sha256": "0c1c7e0689f91150c8d84e31796670ce04f780ff2dcf599ce42c321d92ca5d70"
+    },
+    {
+      "path": "agent-rules.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 5604,
+      "sha256": "e6745b93bbc8c9a0141c839d9ac31c16f1633088239d034d37136b6165a0695f"
+    },
+    {
+      "path": "archive/AGENTS.md.bak-20261016-rules",
+      "classification": "historical record",
+      "bytes": 1104,
+      "sha256": "e34e935cbb55c21d376d1550773ae3015a816603cb5a7da0f602b5b0d32478ab"
+    },
+    {
+      "path": "b10/repo/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "b10/repo/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94486,
+      "sha256": "211abe7d1f0b7897fb8d0379decd041b265e28f72f573b15004d05e811a1c79d"
+    },
+    {
+      "path": "b10/repo/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "b3/repo/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "b3/repo/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 89410,
+      "sha256": "d85145767ba08d2f4016bb3e882409928cd1f71838fce90d78f10711456eba3b"
+    },
+    {
+      "path": "b3/repo/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 12292,
+      "sha256": "71bc61d8c8134caaab0cc28a6fc508c9cceb45fcc52f580701c76ad041c8ed4b"
+    },
+    {
+      "path": "b7/repo/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "b7/repo/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 90584,
+      "sha256": "eb9d33c8d144ee9428c5675ca98c4d34df8b52d2d4d95c87016d3f3d5ea0b773"
+    },
+    {
+      "path": "b7/repo/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "batch11_local/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "batch11_local/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 96944,
+      "sha256": "0b850188d7b9d00ff863a0a924c5a9757e8c685763a238c63e46c81d515950bc"
+    },
+    {
+      "path": "batch11_local/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "batch11_local/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "batch11_local/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "batch11_local/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "batch11_local/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "clip_ui_work/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "clip_ui_work/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "clip_ui_work/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "clip_ui_work/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "clip_ui_work/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "clip_ui_work/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "clip_ui_work/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "flash_review/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1104,
+      "sha256": "e34e935cbb55c21d376d1550773ae3015a816603cb5a7da0f602b5b0d32478ab"
+    },
+    {
+      "path": "flash_review/AGENTS.md.bak-20261016-rules",
+      "classification": "historical record",
+      "bytes": 1104,
+      "sha256": "e34e935cbb55c21d376d1550773ae3015a816603cb5a7da0f602b5b0d32478ab"
+    },
+    {
+      "path": "flash_review/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 52209,
+      "sha256": "dda6d4ed8b00c1343b2cfb19469f32b30e5f6ac7c7820e3f053ee1a8919af1fb"
+    },
+    {
+      "path": "flash_review/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 11568,
+      "sha256": "06eba211dfdce5a16247b4c396b80aa7f1dcf8cb574e672f2c2b725b4702ff81"
+    },
+    {
+      "path": "flash_review_integration/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "flash_review_integration/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "flash_review_integration/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "flash_review_integration/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "flash_review_integration/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "flash_review_integration/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "flash_review_integration/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "integration_final_review/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "integration_final_review/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 95647,
+      "sha256": "a2a1700681303a9e1edc600f484f6474795231959bf4f871cb58eb9455730e09"
+    },
+    {
+      "path": "integration_final_review/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "integration_final_review/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "integration_final_review/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "integration_final_review/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "integration_final_review/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "integration_smc_visibility/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "integration_smc_visibility/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 95647,
+      "sha256": "a2a1700681303a9e1edc600f484f6474795231959bf4f871cb58eb9455730e09"
+    },
+    {
+      "path": "integration_smc_visibility/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "integration_smc_visibility/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "integration_smc_visibility/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "integration_smc_visibility/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "integration_smc_visibility/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016",
+      "classification": "historical record",
+      "bytes": 9219,
+      "sha256": "b39e95f6fc2c27dd54771a369848a143c9516bf81d06a9fa6afb2933152573ec"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 21060,
+      "sha256": "ebe62644b5adfe123131e69101a1f78b9c9bc52a0bfb089963e778008a2077a3"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016-233039",
+      "classification": "historical record",
+      "bytes": 22849,
+      "sha256": "6658cadf0fd9337766801f95f1770eb9ae2cd4c77290382cee602c30c03ec386"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016-233415",
+      "classification": "historical record",
+      "bytes": 23339,
+      "sha256": "3a87d2e3d856cc9351b1deea532a5caa1874054561df18121d86d2152958bad7"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016-233648",
+      "classification": "historical record",
+      "bytes": 24781,
+      "sha256": "4402d995e2fa9a08defda44df0d1e2906882eb11d87acf8f44392d1ebdace876"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016-233941",
+      "classification": "historical record",
+      "bytes": 25227,
+      "sha256": "0cb97858c38a75cc80fa3769442bd158b41096b8bf7ba6d4561eee4f91db0a6a"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016-rules",
+      "classification": "historical record",
+      "bytes": 14090,
+      "sha256": "fc9b335486a5c0010bba50d200cad80983524d2dbe24d0fe97de2eee405d99fa"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-20261016-rulesync",
+      "classification": "historical record",
+      "bytes": 15412,
+      "sha256": "4e6df394b9d30de0c14726bbeafbef013bc38ec5ed4b2cd39e33babd3fa006ae"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2228",
+      "classification": "historical record",
+      "bytes": 16391,
+      "sha256": "9cce1f1c86ed5f6f3dee0a919351e4a7ef4de0735753bdc00c50d8460c79667e"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2229",
+      "classification": "historical record",
+      "bytes": 16699,
+      "sha256": "896d968f2df0212ad80896a3ef0aa15f9a2afc7b65923e7bf0175bee3dbbd335"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2231",
+      "classification": "historical record",
+      "bytes": 17078,
+      "sha256": "927bce6d4e20a9069b967af2e4560b4f3a0843761d80a8a9a586df258af8db27"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2240",
+      "classification": "historical record",
+      "bytes": 17560,
+      "sha256": "62980dfe3f8c6b39974a375bf56c96e5d575fb10bcef3dcdd05e5448738e815f"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2241",
+      "classification": "historical record",
+      "bytes": 18103,
+      "sha256": "95271894a0e7bf350f4866f0961a8170acbc340c0ce6b3f118ccfe952d9426dc"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2259",
+      "classification": "historical record",
+      "bytes": 18373,
+      "sha256": "9bcc27b63f88ff5122085082608a64f93523ce3593a152c8ad074b7348e3b04d"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2315",
+      "classification": "historical record",
+      "bytes": 18641,
+      "sha256": "2cde54b8439e2a18d4440bb8c6793daeab4759c82e79e2a10d8fe09385daf213"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.bak-2317",
+      "classification": "historical record",
+      "bytes": 20058,
+      "sha256": "4792e931d4787df2a543b11903a3782eeddef64f356b378b102a49cdef7ee827"
+    },
+    {
+      "path": "repo-bak/AGENTS_AND_ROOMS.md.lane-paths-20261017-032516",
+      "classification": "historical record",
+      "bytes": 22815,
+      "sha256": "065c5968ea43a5fa091b5785a5f32809c66b5641b01ba36414f63958c2309372"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016",
+      "classification": "historical record",
+      "bytes": 47797,
+      "sha256": "5ea3159e3d3e8eebcb5487424c7d2d747987c653b47b9168ef741da17ea20b35"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-233307",
+      "classification": "historical record",
+      "bytes": 78684,
+      "sha256": "b1cf5a8a1045f751fafb5fa2df20609d1bcc4750d2c2adf76d6a57541fcd141f"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-233648",
+      "classification": "historical record",
+      "bytes": 85490,
+      "sha256": "3cf4ccaadb9ec0e88fc8cec9284c78c09dafbdb9ab92de903e70bfdf513d243c"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-233941",
+      "classification": "historical record",
+      "bytes": 88941,
+      "sha256": "462438ef3945b43114a196ad5062a8e570dc815fbcfed6d5667c04898ace511d"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-234646",
+      "classification": "historical record",
+      "bytes": 88922,
+      "sha256": "4f2e98af3dc06897e99ea4c080a377467290e12aaf5f3dd0a7ff152d367c42ba"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-235211",
+      "classification": "historical record",
+      "bytes": 89725,
+      "sha256": "2f6a796698233c88e8a0bd74ba5292222fb72120e7d2a3cbe6a367ebd32699fe"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-a73",
+      "classification": "historical record",
+      "bytes": 51038,
+      "sha256": "9ab6916a1b1e8429542ddb062f6f065a3da7bb851d0b224a4516c29285d5a208"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-presplit",
+      "classification": "historical record",
+      "bytes": 49962,
+      "sha256": "da570aee1fdb002d7c519166f5d279ea503a25c40a3578172dde6390c9cf2586"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-pretrim",
+      "classification": "historical record",
+      "bytes": 49920,
+      "sha256": "20606cff77c577fab7e6550a4539cf7c3f803d220777de515328acd046667fc4"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261016-rulesync",
+      "classification": "historical record",
+      "bytes": 54364,
+      "sha256": "f99814471d4429177f1ff400fe54fd91f38213e5b8d65318291f91d39cb2a4d0"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 89809,
+      "sha256": "fba2ea23cdf4f06a99e5a92d2b5e0fdcbc522170af2aa6454bd042f3a54ed80f"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261017-000949",
+      "classification": "historical record",
+      "bytes": 90541,
+      "sha256": "c33b0df18a486961331aed90e5d67b8a5e2e0c0f4bbd8880355b44f639d0943b"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261017-004439",
+      "classification": "historical record",
+      "bytes": 90506,
+      "sha256": "bf822c8ba26099d2a73692855522649898b6574597e735164a6a21a7f185ee04"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261017-011610",
+      "classification": "historical record",
+      "bytes": 90582,
+      "sha256": "c8e60ec5d07a3f8f1c578f7594e079b3ff3fbd09f2e8a2249be7dfd8b7b20338"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261017-015541",
+      "classification": "historical record",
+      "bytes": 90776,
+      "sha256": "01619b04da9fc16cf856fd89065497dc1569ff155d5d697a70f0b6302e3388c7"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-20261017-023920",
+      "classification": "historical record",
+      "bytes": 93347,
+      "sha256": "ff328e3b40e5018cdeaeb263bda6b45a125104232ef60fe3a5058da9d7c13320"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-2228",
+      "classification": "historical record",
+      "bytes": 73904,
+      "sha256": "fa6a8d64bd32eb58ecb6b96e443ab006114c918719f182db841ee588291832cf"
+    },
+    {
+      "path": "repo-bak/BEHAVIOR.md.bak-2231",
+      "classification": "historical record",
+      "bytes": 78771,
+      "sha256": "7bd9be2a4042f8d87b0bfda75a91eb513df2ba10d84199e15f29e9b0543a0c4a"
+    },
+    {
+      "path": "repo-bak/BUILDING.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 11627,
+      "sha256": "de66d433a71a94a712ba86b081dc51b7f9a5c6217b802ba7a825da8d805a442e"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 10312,
+      "sha256": "3ac34aa36eed64d2506e63fd7f903e7e69d30395d9a0c7d5c6c1dc79d5568c6b"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-20261016-233039",
+      "classification": "historical record",
+      "bytes": 11388,
+      "sha256": "a280d3df6b878a224f24601bb1ad3b550c4592cdbc03aecbd439efbcb4c41371"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-20261016-233415",
+      "classification": "historical record",
+      "bytes": 11388,
+      "sha256": "a280d3df6b878a224f24601bb1ad3b550c4592cdbc03aecbd439efbcb4c41371"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-20261016-233522",
+      "classification": "historical record",
+      "bytes": 11456,
+      "sha256": "644173f1b116fb7fc404434a3adc79df3f0fb96acbe4ac44f0e76c20aab2c9bc"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-20261016-233648",
+      "classification": "historical record",
+      "bytes": 11486,
+      "sha256": "01516ac9cdcd2100165eeffd85eeb0149611553a66272c319cedd5c7a258c629"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-2231",
+      "classification": "historical record",
+      "bytes": 9139,
+      "sha256": "9b112e05ba7f4d37473e5e29a08bad1d48464212ca98c86fa81635c57b668a7f"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-2240",
+      "classification": "historical record",
+      "bytes": 9578,
+      "sha256": "da46dc500997f507e02c18649adb9d3e1e20fe9ae72660907a8ab82519f8304c"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-2315",
+      "classification": "historical record",
+      "bytes": 10240,
+      "sha256": "30552054a24bfa33aff39dc731494206b80030f00686e4e78929e4e0940fc802"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.bak-2317",
+      "classification": "historical record",
+      "bytes": 10312,
+      "sha256": "3ac34aa36eed64d2506e63fd7f903e7e69d30395d9a0c7d5c6c1dc79d5568c6b"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.pre-keybed-20261017-032725",
+      "classification": "historical record",
+      "bytes": 10992,
+      "sha256": "642d774fd2a7e6278ef13f77f1a1e3e60ca8c56c5f24169da6a43e055edfbd4c"
+    },
+    {
+      "path": "repo-bak/ROADMAP.md.pre-keybed2-20261017-033024",
+      "classification": "historical record",
+      "bytes": 11055,
+      "sha256": "5a773932139da6b751ab4c92d0d9a9708dc1c9047aa3adcd47db78ee078d59d7"
+    },
+    {
+      "path": "repo-bak/SCRIPT-CHECKS.md.lane-paths-20261017-032516",
+      "classification": "historical record",
+      "bytes": 4902,
+      "sha256": "90027e2a50afd8ba2a2273909fe446c93ee7f325e161b75af9dc37efdfe81925"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 15392,
+      "sha256": "0c000bfba53ffd52dc874b0565bc5e80d72d55a82a008c4e686012f62d137d61"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-20261016-233039",
+      "classification": "historical record",
+      "bytes": 15979,
+      "sha256": "355b85aa3c079c0f174134552365f1a67c580c581dc48b37436e092d2b5855f2"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-20261016-233415",
+      "classification": "historical record",
+      "bytes": 16305,
+      "sha256": "b64abf23b2ae9bd4c179bc18747e374739621d925c07621286b1fd41eee579ea"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-20261016-233522",
+      "classification": "historical record",
+      "bytes": 16818,
+      "sha256": "463db412c6036897426eacc3e642c630ac2758fe86fd13f846af75c7d69640f2"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-20261016-233648",
+      "classification": "historical record",
+      "bytes": 17102,
+      "sha256": "c60a24eb98f19a1bdc65c419154f7ef479f81db2ec11d66054324be1ed7e5fb1"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-20261016-233941",
+      "classification": "historical record",
+      "bytes": 17274,
+      "sha256": "c86d92fab925128830c1a0f46bcf99cac9b967f689cfa46260fa485794018122"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-2240",
+      "classification": "historical record",
+      "bytes": 13101,
+      "sha256": "ee455a3bd230dfa9290d024f991d808dc2678e4bba3c3c96a6635c41b9769a86"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-2241",
+      "classification": "historical record",
+      "bytes": 13237,
+      "sha256": "1a8fad62d23030e3feb1551cdd14141a80e40ae73927699fb0b47d654847694a"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-2259",
+      "classification": "historical record",
+      "bytes": 13494,
+      "sha256": "b14a4dc091e2232a3a73866e5a4f9177c04fe00bfaa22e8511e691b2a6c98a79"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-2315",
+      "classification": "historical record",
+      "bytes": 13744,
+      "sha256": "93ca8ed4b3cee4943ccb5897ce5a9d8ea56a544bbee027695e27aa5ad45b332a"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.bak-2317",
+      "classification": "historical record",
+      "bytes": 14649,
+      "sha256": "a97d932a2a79f0f9a1cd30ce9d9db092bc338cf1d2e0ee1d927cef24531fd69e"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.pre-keybed-20261017-032725",
+      "classification": "historical record",
+      "bytes": 23885,
+      "sha256": "4e5713dbff46fcd2089046fdcd17f15c65084db8d887da50e0d09695bdcd87c4"
+    },
+    {
+      "path": "repo-bak/USER_PREFERENCES.md.pre-keybed2-20261017-033024",
+      "classification": "historical record",
+      "bytes": 24122,
+      "sha256": "6d687fbcbcdbadc66e9bc776c85bed12f8f20cd91d9216a380ba6e0ce6a58436"
+    },
+    {
+      "path": "repo-bak/agent-rules.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 4139,
+      "sha256": "0e89d28c0b534e1680eb839537e18fb33b885f7af34b98e963c9e540bd3e0117"
+    },
+    {
+      "path": "repo-bak/agent-rules.md.bak-20261016-233039",
+      "classification": "historical record",
+      "bytes": 5235,
+      "sha256": "469a8b71ce15d323a1dd56c35ae04cdbd45c4f82b9dddd3184dee7655dcddf66"
+    },
+    {
+      "path": "repo-bak/agent-rules.md.bak-20261016-233648",
+      "classification": "historical record",
+      "bytes": 5597,
+      "sha256": "5b91ebbac85a3b621b258edc3f0b58701b32512a5e76aefee5c1725942b3c418"
+    },
+    {
+      "path": "repo-bak/agent-rules.md.bak-2241",
+      "classification": "historical record",
+      "bytes": 2875,
+      "sha256": "69e74010418ac4a7a3ef7479b49fa0eb7151ff9e89f48287529cf86f57f2d2dc"
+    },
+    {
+      "path": "repo-bak/agent-rules.md.bak-2259",
+      "classification": "historical record",
+      "bytes": 3031,
+      "sha256": "ab916745fc9540893be4e8eed7230fccad0293b350ad214c9b3d87688f80b02f"
+    },
+    {
+      "path": "repo-bak/agent-rules.md.bak-2315",
+      "classification": "historical record",
+      "bytes": 3179,
+      "sha256": "88ad08f96fc3d7217d2c1e2df1162f15f46c82f10366c6ecc6c3c27444699cee"
+    },
+    {
+      "path": "repo-bak/agent-rules.md.bak-2317",
+      "classification": "historical record",
+      "bytes": 3823,
+      "sha256": "339986273a85755ac085f4d03c7f34343ea42c17750eda6fa637e17aecc1cbaa"
+    },
+    {
+      "path": "repo-bak/dk-fresh-helper-merge-20261017-032639/ROADMAP.md",
+      "classification": "historical record",
+      "bytes": 10496,
+      "sha256": "bff26c056d7d7bf4318f0a44e20f590906c35452709c6ea61cbcf04993c75dc9"
+    },
+    {
+      "path": "repo-bak/dk-fresh-helper-merge-20261017-032639/USER_PREFERENCES.md",
+      "classification": "historical record",
+      "bytes": 22598,
+      "sha256": "11884783160b0a97dd9babec2f40e1081163ca2ba87dc207e9e8d403e1fcab2d"
+    },
+    {
+      "path": "repo-bak/dk-fresh-helper-merge-20261017-032639/rules-breaks.md",
+      "classification": "historical record",
+      "bytes": 2777,
+      "sha256": "c77e616b3bcf30e8045f57ce4bddf03a9484f0f69899426209ccf15dd2b8dbe0"
+    },
+    {
+      "path": "repo-bak/dk-fresh-helper-merge-20261017-032639/rules/core.md",
+      "classification": "historical record",
+      "bytes": 916,
+      "sha256": "559f9eeaf311643d36b35f6beff3f553e39f8a28fd755e3c661e7adc6e9a2b8d"
+    },
+    {
+      "path": "repo-bak/dk-fresh-helper-merge-20261017-032639/rules/shared-work.md",
+      "classification": "historical record",
+      "bytes": 1061,
+      "sha256": "4ea1ae82de4df22d9f86991e966c6be1f1929509df0e01ad2b8e4d043c034c99"
+    },
+    {
+      "path": "repo-bak/dk-rules-fresh-helper-20261017-032313/ROADMAP.md",
+      "classification": "historical record",
+      "bytes": 10496,
+      "sha256": "bff26c056d7d7bf4318f0a44e20f590906c35452709c6ea61cbcf04993c75dc9"
+    },
+    {
+      "path": "repo-bak/dk-rules-fresh-helper-20261017-032313/USER_PREFERENCES.md",
+      "classification": "historical record",
+      "bytes": 22598,
+      "sha256": "11884783160b0a97dd9babec2f40e1081163ca2ba87dc207e9e8d403e1fcab2d"
+    },
+    {
+      "path": "repo-bak/dk-rules-fresh-helper-20261017-032313/rules-breaks.md",
+      "classification": "historical record",
+      "bytes": 2777,
+      "sha256": "c77e616b3bcf30e8045f57ce4bddf03a9484f0f69899426209ccf15dd2b8dbe0"
+    },
+    {
+      "path": "repo-bak/docs-AGENTS_AND_ROOMS.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 21060,
+      "sha256": "ebe62644b5adfe123131e69101a1f78b9c9bc52a0bfb089963e778008a2077a3"
+    },
+    {
+      "path": "repo-bak/docs-ROADMAP.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 10312,
+      "sha256": "3ac34aa36eed64d2506e63fd7f903e7e69d30395d9a0c7d5c6c1dc79d5568c6b"
+    },
+    {
+      "path": "repo-bak/docs-ROADMAP.md.bak-20261017-023920",
+      "classification": "historical record",
+      "bytes": 9947,
+      "sha256": "0cb006074b1864475f97ecd34f133381b5edbbc949b8b082232f5421de44f422"
+    },
+    {
+      "path": "repo-bak/docs-USER_PREFERENCES.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 15392,
+      "sha256": "0c000bfba53ffd52dc874b0565bc5e80d72d55a82a008c4e686012f62d137d61"
+    },
+    {
+      "path": "repo-bak/docs-agent-rules.md.bak-20261016-232827",
+      "classification": "historical record",
+      "bytes": 4139,
+      "sha256": "0e89d28c0b534e1680eb839537e18fb33b885f7af34b98e963c9e540bd3e0117"
+    },
+    {
+      "path": "repo-bak/docs_AGENTS_AND_ROOMS.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 25524,
+      "sha256": "8073bb763b57534ddb29f59d0fd16a88d3f0e63016511970ef381329cb4f222a"
+    },
+    {
+      "path": "repo-bak/docs_AGENTS_AND_ROOMS.md.bak-20261017-001158",
+      "classification": "historical record",
+      "bytes": 22148,
+      "sha256": "10ddb7fa16a4b4871d2553b94d3ba3ff6ceb1181f2600a3bb47e0240cd58a5dc"
+    },
+    {
+      "path": "repo-bak/docs_AGENTS_AND_ROOMS.md.bak-20261017-020204",
+      "classification": "historical record",
+      "bytes": 22536,
+      "sha256": "3f37fce25b7986474947a9f7361f864d098b50dbdad7cbd1e5666bc84858350c"
+    },
+    {
+      "path": "repo-bak/docs_ROADMAP.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 11666,
+      "sha256": "e407192c584cbd90fcabe8d0d064355fda2331e73252273439f2ff278d300288"
+    },
+    {
+      "path": "repo-bak/docs_ROADMAP.md.bak-20261017-002515",
+      "classification": "historical record",
+      "bytes": 11852,
+      "sha256": "7e6008d80c5711f15ffe9fcfa590761b838928887100847df4f1568e6327e7b8"
+    },
+    {
+      "path": "repo-bak/docs_ROADMAP.md.bak-20261017-011610",
+      "classification": "historical record",
+      "bytes": 9656,
+      "sha256": "f7db517e3106e73b5a65b35969822e2f6f0f20d29a3576b8e887035eb14b8b57"
+    },
+    {
+      "path": "repo-bak/docs_ROADMAP.md.bak-20261017-025706",
+      "classification": "historical record",
+      "bytes": 10094,
+      "sha256": "7772809e04b756700ea1049dc87463529549b7c5c25f8636cd64c7ca3a887574"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 17426,
+      "sha256": "704ab6ff906b223d9d0642753a4efbad1d0459d10f24e8aebe553b185acc5ff5"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-000600",
+      "classification": "historical record",
+      "bytes": 17968,
+      "sha256": "b23ca7fb31112828de3f617bb0516d54de2e311a74ed53c9d25bc4dfdfb1f3fc"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-000949",
+      "classification": "historical record",
+      "bytes": 18203,
+      "sha256": "d1d0613f30cc8a9211205ce68d577dae9cfe7afc9c34fb3095f4d8d28d72f04b"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-001032",
+      "classification": "historical record",
+      "bytes": 18194,
+      "sha256": "8c8d6f8a80153e78f777041d715b2c9fb25da3641ae31483e64307354a024879"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-010016",
+      "classification": "historical record",
+      "bytes": 18203,
+      "sha256": "d1d0613f30cc8a9211205ce68d577dae9cfe7afc9c34fb3095f4d8d28d72f04b"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-014502",
+      "classification": "historical record",
+      "bytes": 18502,
+      "sha256": "d26ac842baab61701431dc692d3cd6f012b20d5bc62cbf6f91fa42e32144deaf"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-015541",
+      "classification": "historical record",
+      "bytes": 18970,
+      "sha256": "a8c6742aae0083daef491713fe51c5ee436adce520a20fb978dce389fcd8a34e"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-015635",
+      "classification": "historical record",
+      "bytes": 19333,
+      "sha256": "9bc3a619b1441f35d9bcab7bfb4b39715a09abc15b33da2bd9a8313f2f274b7d"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-020204",
+      "classification": "historical record",
+      "bytes": 19863,
+      "sha256": "f3e8d8f566f0636092213cd837faa5741e44423c146ea17253edd15f20e0dad8"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-022639",
+      "classification": "historical record",
+      "bytes": 20557,
+      "sha256": "d52fc0216ecd173c9b9ec693a991e63b269d0c241b51a3fcdaeae1c5626a70b0"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-023530",
+      "classification": "historical record",
+      "bytes": 21153,
+      "sha256": "70c2e0c01ec225db7d288c5b18f342ae9cf6088837e7e4e1ac5b5ad3d7366c97"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-023657",
+      "classification": "historical record",
+      "bytes": 21118,
+      "sha256": "a08ccc3d6c2ae045358fd688990e9ec913b5d08389ecbfb01990e09dfc15747e"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.bak-20261017-025706",
+      "classification": "historical record",
+      "bytes": 21673,
+      "sha256": "5e24ed8b2d4d62853f26096ac43fca8ea3868a829a7b2bfcee2fc6b9e59dd462"
+    },
+    {
+      "path": "repo-bak/docs_USER_PREFERENCES.md.lane-bak-20261017-025814",
+      "classification": "historical record",
+      "bytes": 22498,
+      "sha256": "24e9079aec67906b084fc2a63f11045b6260f0935069523acf75bf748818299e"
+    },
+    {
+      "path": "repo-bak/docs_agent-rules.md.bak-20261017-000452",
+      "classification": "historical record",
+      "bytes": 5604,
+      "sha256": "e6745b93bbc8c9a0141c839d9ac31c16f1633088239d034d37136b6165a0695f"
+    },
+    {
+      "path": "repo-bak/docs_agent-rules.md.bak-20261017-023530",
+      "classification": "historical record",
+      "bytes": 132,
+      "sha256": "b8a2ea738a08c1834513386977122f8f662053c2e020a1d03c1dd8b7fc30d373"
+    },
+    {
+      "path": "repo-bak/docs_rules-breaks.md.bak-20261017-025706",
+      "classification": "historical record",
+      "bytes": 1697,
+      "sha256": "ab98fce6f752d71c0bcbdb5ceb91b3fd7e7e814dbb4783009fb5534d91b1a010"
+    },
+    {
+      "path": "repo-bak/lane-docs_ROADMAP.md.bak-20261017-030016",
+      "classification": "historical record",
+      "bytes": 10451,
+      "sha256": "f155402bb74601fa50b35eca2c15c43346b3b600809f7d93e8e93d663ec68dd7"
+    },
+    {
+      "path": "repo-bak/lane-docs_USER_PREFERENCES.md.bak-20261017-030016",
+      "classification": "historical record",
+      "bytes": 22539,
+      "sha256": "9cad5647a16d4fb925c5d35d8b4b9fca35afed581d693f87f004872afe6c558e"
+    },
+    {
+      "path": "repo-bak/lane-docs_rules-breaks.md.bak-20261017-030016",
+      "classification": "historical record",
+      "bytes": 2114,
+      "sha256": "53c169cb39550fe116c9594904c06e829b6c8e664352c6d3b9c7df4fae7d263f"
+    },
+    {
+      "path": "repo-bak/lane-docs_rules_SCRIPT-CHECKS.md.bak-20261017-030016",
+      "classification": "historical record",
+      "bytes": 4186,
+      "sha256": "0911f71f47fe56b035a3734b208ead97ac49e1159d3b3768da2817f611316fe8"
+    },
+    {
+      "path": "repo-bak/root_ROADMAP.md.bak-20261017-025910",
+      "classification": "historical record",
+      "bytes": 10094,
+      "sha256": "7772809e04b756700ea1049dc87463529549b7c5c25f8636cd64c7ca3a887574"
+    },
+    {
+      "path": "repo-bak/root_ROADMAP.md.bak-20261017-030117",
+      "classification": "historical record",
+      "bytes": 10451,
+      "sha256": "f155402bb74601fa50b35eca2c15c43346b3b600809f7d93e8e93d663ec68dd7"
+    },
+    {
+      "path": "repo-bak/root_agent-rules.md.bak-20261017-023530",
+      "classification": "historical record",
+      "bytes": 132,
+      "sha256": "b8a2ea738a08c1834513386977122f8f662053c2e020a1d03c1dd8b7fc30d373"
+    },
+    {
+      "path": "repo-bak/root_agent-rules.md.bak-20261017-024159",
+      "classification": "historical record",
+      "bytes": 132,
+      "sha256": "1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864"
+    },
+    {
+      "path": "repo-bak/root_rules-breaks.md.bak-20261017-025910",
+      "classification": "historical record",
+      "bytes": 1697,
+      "sha256": "ab98fce6f752d71c0bcbdb5ceb91b3fd7e7e814dbb4783009fb5534d91b1a010"
+    },
+    {
+      "path": "repo-bak/root_rules-breaks.md.bak-20261017-030117",
+      "classification": "historical record",
+      "bytes": 2114,
+      "sha256": "53c169cb39550fe116c9594904c06e829b6c8e664352c6d3b9c7df4fae7d263f"
+    },
+    {
+      "path": "repo-bak/root_rules_SCRIPT-CHECKS.md.bak-20261017-030117",
+      "classification": "historical record",
+      "bytes": 4186,
+      "sha256": "0911f71f47fe56b035a3734b208ead97ac49e1159d3b3768da2817f611316fe8"
+    },
+    {
+      "path": "repo-bak/rules-SCRIPT-CHECKS.md.bak-20261017-033102",
+      "classification": "historical record",
+      "bytes": 4902,
+      "sha256": "90027e2a50afd8ba2a2273909fe446c93ee7f325e161b75af9dc37efdfe81925"
+    },
+    {
+      "path": "rules-breaks.md",
+      "classification": "wrapper current copy",
+      "bytes": 3161,
+      "sha256": "5b56cb7fc1bf35786cf6d77d79294847469d76ba1054867ad75e6412610b4d51"
+    },
+    {
+      "path": "rules/SCRIPT-CHECKS.md",
+      "classification": "wrapper current copy",
+      "bytes": 5649,
+      "sha256": "34e29841ad37b51384d3980c5d058bd6bf25625ce6db8ac92b6d89f223a98c13"
+    },
+    {
+      "path": "rules/commit.md",
+      "classification": "wrapper current copy",
+      "bytes": 1311,
+      "sha256": "78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85"
+    },
+    {
+      "path": "rules/core.md",
+      "classification": "wrapper current copy",
+      "bytes": 1006,
+      "sha256": "27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f"
+    },
+    {
+      "path": "rules/device-bug.md",
+      "classification": "wrapper current copy",
+      "bytes": 908,
+      "sha256": "636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3"
+    },
+    {
+      "path": "rules/docs.md",
+      "classification": "wrapper current copy",
+      "bytes": 1917,
+      "sha256": "84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8"
+    },
+    {
+      "path": "rules/install.md",
+      "classification": "wrapper current copy",
+      "bytes": 1592,
+      "sha256": "6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b"
+    },
+    {
+      "path": "rules/integration.md",
+      "classification": "wrapper current copy",
+      "bytes": 1256,
+      "sha256": "1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9"
+    },
+    {
+      "path": "rules/owner-messages.md",
+      "classification": "wrapper current copy",
+      "bytes": 1585,
+      "sha256": "f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f"
+    },
+    {
+      "path": "rules/shared-work.md",
+      "classification": "wrapper current copy",
+      "bytes": 1450,
+      "sha256": "76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b"
+    },
+    {
+      "path": "rules/style.md",
+      "classification": "wrapper current copy",
+      "bytes": 1544,
+      "sha256": "154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68"
+    },
+    {
+      "path": "rules_audit/AGENTS.md",
+      "classification": "canonical candidate",
+      "bytes": 1238,
+      "sha256": "25e38c9bab7e150bfe65b1c42a38d7d53cfae2981d4288b1b6a24968d1aa3bd2"
+    },
+    {
+      "path": "rules_audit/BEHAVIOR.md",
+      "classification": "canonical candidate",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "rules_audit/BUILDING.md",
+      "classification": "canonical candidate",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "rules_audit/docs/AGENTS_AND_ROOMS.md",
+      "classification": "canonical candidate",
+      "bytes": 1950,
+      "sha256": "4f8baa8a8d9a802967d414e8372cc8a493b4f914ddecff674cb5f51b8295dd91"
+    },
+    {
+      "path": "rules_audit/docs/USER_PREFERENCES.md",
+      "classification": "canonical candidate",
+      "bytes": 26150,
+      "sha256": "7ca55ee2eab2042ceeace26908ad966ab0980615b9dd3073684855cb9b78faa5"
+    },
+    {
+      "path": "rules_audit/docs/agent-rules.md",
+      "classification": "canonical candidate",
+      "bytes": 744,
+      "sha256": "4d0065515cec3aeaa9d8582c3f24e5c210d9986a5488bb773ca9bf6fe54e7db6"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/AGENTS_AND_ROOMS.md",
+      "classification": "historical record",
+      "bytes": 27002,
+      "sha256": "c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/USER_PREFERENCES.md",
+      "classification": "historical record",
+      "bytes": 24174,
+      "sha256": "b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/agent-rules.md",
+      "classification": "historical record",
+      "bytes": 132,
+      "sha256": "1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules-breaks.md",
+      "classification": "historical record",
+      "bytes": 3161,
+      "sha256": "5b56cb7fc1bf35786cf6d77d79294847469d76ba1054867ad75e6412610b4d51"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/commit.md",
+      "classification": "historical record",
+      "bytes": 1311,
+      "sha256": "78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/core.md",
+      "classification": "historical record",
+      "bytes": 1006,
+      "sha256": "27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/device-bug.md",
+      "classification": "historical record",
+      "bytes": 908,
+      "sha256": "636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/docs.md",
+      "classification": "historical record",
+      "bytes": 1917,
+      "sha256": "84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/install.md",
+      "classification": "historical record",
+      "bytes": 1592,
+      "sha256": "6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/integration.md",
+      "classification": "historical record",
+      "bytes": 1256,
+      "sha256": "1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/owner-messages.md",
+      "classification": "historical record",
+      "bytes": 1585,
+      "sha256": "f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/shared-work.md",
+      "classification": "historical record",
+      "bytes": 1450,
+      "sha256": "76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b"
+    },
+    {
+      "path": "rules_audit/docs/archive/rules-2026-10-17/rules/style.md",
+      "classification": "historical record",
+      "bytes": 1544,
+      "sha256": "154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68"
+    },
+    {
+      "path": "rules_audit/docs/rules-breaks.md",
+      "classification": "canonical candidate",
+      "bytes": 3412,
+      "sha256": "e33ed6f6997f69bbe4e98c24130507c6c6c9b68aea095bf73ee8c700b90c6d44"
+    },
+    {
+      "path": "rules_audit/docs/rules/commit.md",
+      "classification": "canonical candidate",
+      "bytes": 2706,
+      "sha256": "4e7c0e74ad2b629620b1a73d58f1381a26a759e8557b975f00c347e50559b28e"
+    },
+    {
+      "path": "rules_audit/docs/rules/core.md",
+      "classification": "canonical candidate",
+      "bytes": 2895,
+      "sha256": "ae73fea55d073a4654722ae2d7f63445b3d4fb38ff2f5012220af3cf5d48d1b7"
+    },
+    {
+      "path": "rules_audit/docs/rules/device-bug.md",
+      "classification": "canonical candidate",
+      "bytes": 1363,
+      "sha256": "b29bc363ba57dddf80810969b60c2269ce286f1dbc47fcd15eaa02f0de2d57b7"
+    },
+    {
+      "path": "rules_audit/docs/rules/docs.md",
+      "classification": "canonical candidate",
+      "bytes": 2622,
+      "sha256": "e2f5946e38233eb972ddc6cc0339ca0945697e752892a4f061c76e1546f07e2f"
+    },
+    {
+      "path": "rules_audit/docs/rules/install.md",
+      "classification": "canonical candidate",
+      "bytes": 2153,
+      "sha256": "42077f381fda2f6861e05a32901faa98934cc5983c8341d5578e1621318524d9"
+    },
+    {
+      "path": "rules_audit/docs/rules/integration.md",
+      "classification": "canonical candidate",
+      "bytes": 2215,
+      "sha256": "6ffd7327f9ee2e0145bbf55453080ec905d774a8471b4bad496f6486f0a6d30e"
+    },
+    {
+      "path": "rules_audit/docs/rules/owner-messages.md",
+      "classification": "canonical candidate",
+      "bytes": 1827,
+      "sha256": "40bb338fca2994a9d08f7bb5d27a1aa9cdd8e03e3b536c35e5c8be27cee7def5"
+    },
+    {
+      "path": "rules_audit/docs/rules/shared-work.md",
+      "classification": "canonical candidate",
+      "bytes": 1611,
+      "sha256": "3ef979ebed061f38b4644e413f89c77ddfe23d11f46bac86fa8fca3119993776"
+    },
+    {
+      "path": "rules_audit/docs/rules/style.md",
+      "classification": "canonical candidate",
+      "bytes": 1847,
+      "sha256": "df084cd64bd826b8f077611f4b4455038aa8574b560e31f36d325cb1ab2598f4"
+    },
+    {
+      "path": "rules_audit/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "canonical candidate",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "rules_audit/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "canonical candidate",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "rules_audit/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "canonical candidate",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "rules_audit/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "canonical candidate",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "rules_main_rollout/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94486,
+      "sha256": "211abe7d1f0b7897fb8d0379decd041b265e28f72f573b15004d05e811a1c79d"
+    },
+    {
+      "path": "rules_main_rollout/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 11626,
+      "sha256": "9a5bc770aa6872f8daaf653c8fbd921d617a3c84df29ba353493d9273c2ccf8e"
+    },
+    {
+      "path": "rules_main_rollout/docs/AGENTS_AND_ROOMS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 27002,
+      "sha256": "c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb"
+    },
+    {
+      "path": "rules_main_rollout/docs/ROADMAP.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 11780,
+      "sha256": "9c31c902eb42405d9c9abdd7b101198a3e90286a5480139bd41ec60e5551b7ea"
+    },
+    {
+      "path": "rules_main_rollout/docs/USER_PREFERENCES.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 24174,
+      "sha256": "b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459"
+    },
+    {
+      "path": "rules_main_rollout/docs/agent-rules.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 132,
+      "sha256": "1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules-breaks.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 3161,
+      "sha256": "5b56cb7fc1bf35786cf6d77d79294847469d76ba1054867ad75e6412610b4d51"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/SCRIPT-CHECKS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 5649,
+      "sha256": "34e29841ad37b51384d3980c5d058bd6bf25625ce6db8ac92b6d89f223a98c13"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/commit.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1311,
+      "sha256": "78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1006,
+      "sha256": "27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/device-bug.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 908,
+      "sha256": "636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/docs.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1917,
+      "sha256": "84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1592,
+      "sha256": "6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/integration.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1256,
+      "sha256": "1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/owner-messages.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1585,
+      "sha256": "f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/shared-work.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1450,
+      "sha256": "76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b"
+    },
+    {
+      "path": "rules_main_rollout/docs/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1544,
+      "sha256": "154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68"
+    },
+    {
+      "path": "sb-padcal-wait/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "sb-padcal-wait/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 96944,
+      "sha256": "0b850188d7b9d00ff863a0a924c5a9757e8c685763a238c63e46c81d515950bc"
+    },
+    {
+      "path": "sb-padcal-wait/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "sb-padcal-wait/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "sb-padcal-wait/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "sb-padcal-wait/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "sb-padcal-wait/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "sb_transfer/ck_clone/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 56598,
+      "sha256": "fd57285a6c82e874240ba8d0a143847fbb3c99b540f9c27d981735c2956faaf5"
+    },
+    {
+      "path": "sb_transfer/ck_clone/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 11568,
+      "sha256": "06eba211dfdce5a16247b4c396b80aa7f1dcf8cb574e672f2c2b725b4702ff81"
+    },
+    {
+      "path": "smc_ble_work/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "smc_ble_work/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 96944,
+      "sha256": "0b850188d7b9d00ff863a0a924c5a9757e8c685763a238c63e46c81d515950bc"
+    },
+    {
+      "path": "smc_ble_work/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "smc_ble_work/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "smc_ble_work/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "smc_ble_work/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "smc_ble_work/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "smc_ui_work/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "smc_ui_work/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94226,
+      "sha256": "16b1657532c9ccc30d1a972e9a9444e8ebabdf18392e453eb572e1e158268457"
+    },
+    {
+      "path": "smc_ui_work/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "smc_ui_work/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "smc_ui_work/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "smc_ui_work/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "smc_ui_work/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "task-plan.md",
+      "classification": "wrapper current copy",
+      "bytes": 1093,
+      "sha256": "076199e89b456328f103132cb0194b6a24def7a908a2b543d9abeac8ef61f4ba"
+    },
+    {
+      "path": "ux_apc_midi_owner/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_apc_midi_owner/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 95647,
+      "sha256": "a2a1700681303a9e1edc600f484f6474795231959bf4f871cb58eb9455730e09"
+    },
+    {
+      "path": "ux_apc_midi_owner/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_apc_midi_owner/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_apc_midi_owner/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_apc_midi_owner/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_apc_midi_owner/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_clip_save_guard/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_clip_save_guard/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "ux_clip_save_guard/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_clip_save_guard/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_clip_save_guard/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_clip_save_guard/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_clip_save_guard/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_code_budget/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_code_budget/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94846,
+      "sha256": "6416c7cfa8fc74d0b6fdb91577e3160344c8d30975b02ccecd9a36ef909f5e68"
+    },
+    {
+      "path": "ux_code_budget/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_code_budget/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_code_budget/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_code_budget/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_code_budget/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_code_budget_latest/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_code_budget_latest/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 95647,
+      "sha256": "a2a1700681303a9e1edc600f484f6474795231959bf4f871cb58eb9455730e09"
+    },
+    {
+      "path": "ux_code_budget_latest/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_code_budget_latest/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_code_budget_latest/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_code_budget_latest/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_code_budget_latest/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_combined_review/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_combined_review/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 95647,
+      "sha256": "a2a1700681303a9e1edc600f484f6474795231959bf4f871cb58eb9455730e09"
+    },
+    {
+      "path": "ux_combined_review/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_combined_review/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_combined_review/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_combined_review/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_combined_review/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_copy_semantics/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_copy_semantics/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "ux_copy_semantics/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_copy_semantics/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_copy_semantics/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_copy_semantics/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_copy_semantics/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_fader_pickup/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_fader_pickup/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94503,
+      "sha256": "dfac313f02f885f71f0a488c097808febe0391a6f2d11c6ae606966cf855ca55"
+    },
+    {
+      "path": "ux_fader_pickup/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_fader_pickup/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_fader_pickup/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_fader_pickup/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_fader_pickup/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_note_lifecycle/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_note_lifecycle/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94226,
+      "sha256": "16b1657532c9ccc30d1a972e9a9444e8ebabdf18392e453eb572e1e158268457"
+    },
+    {
+      "path": "ux_note_lifecycle/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_note_lifecycle/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_note_lifecycle/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_note_lifecycle/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_note_lifecycle/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_perf_scratch/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_perf_scratch/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "ux_perf_scratch/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_perf_scratch/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_perf_scratch/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_perf_scratch/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_perf_scratch/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_project_link/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_project_link/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "ux_project_link/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_project_link/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_project_link/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_project_link/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_project_link/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_save_feedback/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_save_feedback/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94846,
+      "sha256": "6416c7cfa8fc74d0b6fdb91577e3160344c8d30975b02ccecd9a36ef909f5e68"
+    },
+    {
+      "path": "ux_save_feedback/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_save_feedback/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_save_feedback/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_save_feedback/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_save_feedback/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_save_preflight/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_save_preflight/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "ux_save_preflight/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_save_preflight/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_save_preflight/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_save_preflight/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_save_preflight/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_smc_step_cancel/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_smc_step_cancel/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 95197,
+      "sha256": "efa97da31cddb025bb3494398c54cdf344841c82c18c23b0bea8b4b862343b7a"
+    },
+    {
+      "path": "ux_smc_step_cancel/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_smc_step_cancel/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_smc_step_cancel/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_smc_step_cancel/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_smc_step_cancel/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_song_mute/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_song_mute/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94226,
+      "sha256": "16b1657532c9ccc30d1a972e9a9444e8ebabdf18392e453eb572e1e158268457"
+    },
+    {
+      "path": "ux_song_mute/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_song_mute/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_song_mute/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_song_mute/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_song_mute/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "ux_step_preview/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "ux_step_preview/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94212,
+      "sha256": "f077c7c3fdc3c5bdb455e80a194dff404b930b240c5dee56c74d00405ad5cc3f"
+    },
+    {
+      "path": "ux_step_preview/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13392,
+      "sha256": "8ba1e7c9d178fe7fa598bcc79907b990450cc363630ab4664329b0ab79f82817"
+    },
+    {
+      "path": "ux_step_preview/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "ux_step_preview/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "ux_step_preview/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "ux_step_preview/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "validation_batch11_ble/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "validation_batch11_ble/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 96944,
+      "sha256": "0b850188d7b9d00ff863a0a924c5a9757e8c685763a238c63e46c81d515950bc"
+    },
+    {
+      "path": "validation_batch11_ble/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "validation_batch11_ble/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "validation_batch11_ble/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "validation_batch11_ble/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "validation_batch11_ble/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "validation_batch11_local/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "validation_batch11_local/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 96944,
+      "sha256": "0b850188d7b9d00ff863a0a924c5a9757e8c685763a238c63e46c81d515950bc"
+    },
+    {
+      "path": "validation_batch11_local/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "validation_batch11_local/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "validation_batch11_local/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "validation_batch11_local/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "validation_batch11_local/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "validation_batch11_rel/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "validation_batch11_rel/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 96944,
+      "sha256": "0b850188d7b9d00ff863a0a924c5a9757e8c685763a238c63e46c81d515950bc"
+    },
+    {
+      "path": "validation_batch11_rel/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "validation_batch11_rel/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "validation_batch11_rel/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "validation_batch11_rel/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "validation_batch11_rel/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "work-303/AGENTS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 40,
+      "sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01"
+    },
+    {
+      "path": "work-303/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 96944,
+      "sha256": "0b850188d7b9d00ff863a0a924c5a9757e8c685763a238c63e46c81d515950bc"
+    },
+    {
+      "path": "work-303/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 13284,
+      "sha256": "3877ed95ff482460ae6727184bc3511a632da768a56bd405fd3ba39ab2c1f365"
+    },
+    {
+      "path": "work-303/tests/host/fixtures/prefs_lint/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 206,
+      "sha256": "3c96519ed2075bc6a5aec041da3a36889118222b1c5bc0130002d9e86784f9e0"
+    },
+    {
+      "path": "work-303/tests/host/fixtures/prefs_lint/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "eca93767c5bbd6fc3a4f8a5e92a1d640e286f20f61bac566673b201f1f336c22"
+    },
+    {
+      "path": "work-303/tests/host/fixtures/prefs_lint/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 184,
+      "sha256": "a037e1fda4aa570c480620fd98c433ffdc3f2f117b8897aaa8c3d1f1935da87e"
+    },
+    {
+      "path": "work-303/tests/host/fixtures/status/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 129,
+      "sha256": "692ed37bad844df4268b41f635e474a52c3a1561eee6012f1651300a004e7725"
+    },
+    {
+      "path": "x0x37-task-plan.md",
+      "classification": "wrapper current copy",
+      "bytes": 1455,
+      "sha256": "8b0f75c559ed568c40870f8fd2cda1ab2c8a835c8da56be705f6aa13b39b2b9d"
+    },
+    {
+      "path": "x0x37/BEHAVIOR.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 94486,
+      "sha256": "211abe7d1f0b7897fb8d0379decd041b265e28f72f573b15004d05e811a1c79d"
+    },
+    {
+      "path": "x0x37/BUILDING.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 11626,
+      "sha256": "9a5bc770aa6872f8daaf653c8fbd921d617a3c84df29ba353493d9273c2ccf8e"
+    },
+    {
+      "path": "x0x37/docs/AGENTS_AND_ROOMS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 27002,
+      "sha256": "c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb"
+    },
+    {
+      "path": "x0x37/docs/ROADMAP.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 11780,
+      "sha256": "9c31c902eb42405d9c9abdd7b101198a3e90286a5480139bd41ec60e5551b7ea"
+    },
+    {
+      "path": "x0x37/docs/USER_PREFERENCES.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 24174,
+      "sha256": "b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459"
+    },
+    {
+      "path": "x0x37/docs/agent-rules.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 132,
+      "sha256": "1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864"
+    },
+    {
+      "path": "x0x37/docs/rules-breaks.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 3161,
+      "sha256": "5b56cb7fc1bf35786cf6d77d79294847469d76ba1054867ad75e6412610b4d51"
+    },
+    {
+      "path": "x0x37/docs/rules/SCRIPT-CHECKS.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 5649,
+      "sha256": "34e29841ad37b51384d3980c5d058bd6bf25625ce6db8ac92b6d89f223a98c13"
+    },
+    {
+      "path": "x0x37/docs/rules/commit.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1311,
+      "sha256": "78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85"
+    },
+    {
+      "path": "x0x37/docs/rules/core.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1006,
+      "sha256": "27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f"
+    },
+    {
+      "path": "x0x37/docs/rules/device-bug.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 908,
+      "sha256": "636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3"
+    },
+    {
+      "path": "x0x37/docs/rules/docs.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1917,
+      "sha256": "84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8"
+    },
+    {
+      "path": "x0x37/docs/rules/install.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1592,
+      "sha256": "6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b"
+    },
+    {
+      "path": "x0x37/docs/rules/integration.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1256,
+      "sha256": "1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9"
+    },
+    {
+      "path": "x0x37/docs/rules/owner-messages.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1585,
+      "sha256": "f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f"
+    },
+    {
+      "path": "x0x37/docs/rules/shared-work.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1450,
+      "sha256": "76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b"
+    },
+    {
+      "path": "x0x37/docs/rules/style.md",
+      "classification": "repository/worktree current copy",
+      "bytes": 1544,
+      "sha256": "154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68"
+    }
+  ]
+}

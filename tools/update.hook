@@ -1,0 +1,158 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+# Server-side update hook of the box repository (installed as /workspace/x0x37.git/hooks/update by
+# tools/install_server_hooks.sh). It runs for each pushed ref, from any client (box clone, Mac clone, no client hook).
+#   update <ref> <old sha> <new sha>      (git receive-pack calls it; exit code 0 = accept, other = reject)
+# Fail closed: an error in a check rejects the ref.
+# 1. refs-oscuro: reject a ref name with "refs-oscuro", and a pushed commit that only refs-oscuro has
+#    (the same rule as part 2 of the client pre-push hook).
+# 1b. Rules = code (check 28, owner 02:37, docs/rules/SCRIPT-CHECKS.md on smk37): a push to refs/heads/smk37 that changes
+#    docs/rules/, docs/agent-rules.md, docs/USER_PREFERENCES.md or USER_PREFERENCES.md (git diff <old> <new>) is accepted
+#    only in one of these two forms. "A commit of a lane" = the tip of a branch refs/heads/lane/dk-rules-* or an ancestor of it.
+#    a. <new> is a merge commit. Its first parent is <old>. Its second parent is a commit of a lane/dk-rules-* branch.
+#       The merge adds no rule change of its own (git diff <second parent> <new> on these paths is empty).
+#    b. <new> is a commit of a lane/dk-rules-* branch, and <old> is an ancestor of <new> (fast-forward).
+#    Push the lane/dk-rules-* branch first, then smk37 (the hook reads the lane tip that is in the repository now).
+#    A push to smk37 that does not change these paths is not checked. The skip option does not skip this part.
+# 1c. Branch names (check 9 of rules v4, commit.md rule 10): a NEW branch (old sha = 0) must be lane/<tag>-<topic> with the tag
+#    mb, sb, opt, btr or dk, or integration, smk37 or archive/<name>. Other new branches are rejected. A branch that is
+#    already in the repository (for example ble-a74 or test-speed) can still move or be deleted. Tags are not checked.
+# 1d. Integration owner (check 8 of rules v4, rule 10: only Merge Integrator moves integration): a push to
+#    refs/heads/integration (not a delete) needs the push option by=merge-integrator: git push -o by=merge-integrator ...
+#    The pre-receive hook saves the option. The skip option does not skip 1c or 1d.
+# 2. Quick check, only for refs/heads/integration (not a delete): the installed quickcheck.sh (strict STE when the
+#    pushed tree has tools/ste_strict) runs in a work clone, base = <old sha>. It must give "QUICK PASS".
+#    It holds the gate lock SHARED (flock -s, never exclusive). If a gate holds the lock for more than
+#    x0x37.gateWait seconds (default 120), the push is rejected: "gate running, push again later".
+# Skip (emergency only): git push -o skip-quickcheck="<why>" ... The reason goes to the skip log. Part 1 always runs.
+#   The pre-receive hook (tools/pre-receive.hook) saves the option, because git gives push options only to pre-receive.
+#   An environment variable cannot skip the check.
+# Settings (git config of the bare repository, for a scratch copy): x0x37.quickcheck, x0x37.gateLock, x0x37.gateWait,
+#   x0x37.skipLog, x0x37.workDir.
+set -u
+REF=${1:-}; OLD=${2:-}; NEW=${3:-}
+Z=0000000000000000000000000000000000000000
+reject() { echo "update hook: REJECTED $REF: $1" >&2; exit 1; }
+[ -n "$REF" ] && [ ${#OLD} = 40 ] && [ ${#NEW} = 40 ] || reject "bad arguments ($*)"
+GD=$(git rev-parse --absolute-git-dir 2>/dev/null) || reject "cannot find the repository"
+cfg() { git config --get "$1" 2>/dev/null || echo "$2"; }
+QC=$(cfg x0x37.quickcheck /workspace/x0x37-refs/gate/quickcheck.sh)
+GLOCK=$(cfg x0x37.gateLock /workspace/x0x37-refs/gate.lock)
+GWAIT=$(cfg x0x37.gateWait 120)
+SKIPLOG=$(cfg x0x37.skipLog /workspace/x0x37-results/quickcheck-skips.log)
+WD=$(cfg x0x37.workDir "$GD/x0x37-quickcheck")
+ERR=$(mktemp "${TMPDIR:-/tmp}/x0x-update.XXXXXX") || reject "cannot make a temp file"
+trap 'rm -f "$ERR"' EXIT
+g() {   # g <git args>: output in G_OUT; an exit code other than 0 or error text rejects
+    if G_OUT=$(git "$@" 2>"$ERR" </dev/null) && [ ! -s "$ERR" ]; then return 0; fi
+    reject "cannot read history (git $*: $(tr '\n' ' ' < "$ERR" | cut -c1-300))"
+}
+
+# ---------- 1. refs-oscuro ----------
+case "$REF" in *refs-oscuro*) reject "refs-oscuro must never be pushed (owner rule)";; esac
+if [ "$NEW" != "$Z" ]; then
+    g cat-file -t "$NEW"
+    if [ "$G_OUT" = commit ]; then
+        OSC=$(git rev-parse -q --verify refs/heads/refs-oscuro 2>/dev/null </dev/null || true)
+        if [ -n "$OSC" ]; then
+            g for-each-ref --format='%(objectname) %(refname)' refs/heads refs/tags
+            others=$(echo "$G_OUT" | awk -v r="$REF" '$2 != "refs/heads/refs-oscuro" && $2 != r {print $1}' | sort -u)
+            g rev-list "$OSC" --not $others
+            uniq=$G_OUT
+            [ -n "$uniq" ] || { g rev-list -1 "$OSC"; uniq=$G_OUT; }
+            if [ "$OLD" = "$Z" ]; then g rev-list "$NEW" --not $others; else g rev-list "$NEW" "^$OLD"; fi
+            hit=$(comm -12 <(echo "$uniq" | sort) <(echo "$G_OUT" | sort) | head -1)
+            [ -z "$hit" ] || reject "the push contains the refs-oscuro commit $hit (owner rule)"
+        fi
+    fi
+fi
+
+# ---------- 1b. Rules = code: rule changes on smk37 come only from a lane/dk-rules-* branch ----------
+RULEP="docs/rules/ docs/agent-rules.md docs/USER_PREFERENCES.md USER_PREFERENCES.md"
+onlane() {  # onlane <commit>: print the first refs/heads/lane/dk-rules-* branch that has <commit> (tip or ancestor)
+    local r t
+    while read -r r t; do
+        [ -n "$r" ] || continue
+        if [ "$t" = "$1" ] || git merge-base --is-ancestor "$1" "$t" 2>/dev/null </dev/null; then echo "$r"; return 0; fi
+    done <<< "$LANES"
+    return 1
+}
+if [ "$REF" = refs/heads/smk37 ] && [ "$NEW" != "$Z" ]; then
+    if [ "$OLD" = "$Z" ]; then g diff --name-only "$(git hash-object -t tree /dev/null)" "$NEW" -- $RULEP
+    else g diff --name-only "$OLD" "$NEW" -- $RULEP; fi
+    RCH=$G_OUT
+    if [ -n "$RCH" ]; then
+        g for-each-ref --format='%(refname) %(objectname)' 'refs/heads/lane/dk-rules-*'
+        LANES=$G_OUT; FORM=""
+        P1=$(git rev-parse -q --verify "$NEW^1" 2>/dev/null </dev/null || true)
+        P2=$(git rev-parse -q --verify "$NEW^2" 2>/dev/null </dev/null || true)
+        if [ -n "$P2" ] && [ "$P1" = "$OLD" ] && L=$(onlane "$P2"); then
+            g diff --name-only "$P2" "$NEW" -- $RULEP
+            [ -z "$G_OUT" ] || reject "the merge of $L changes rule files itself ($(echo $G_OUT)). Put each rule change on the lane (rules = code, owner 02:37)."
+            FORM="merge of $L"
+        elif L=$(onlane "$NEW") &&
+             { [ "$OLD" = "$Z" ] || git merge-base --is-ancestor "$OLD" "$NEW" 2>/dev/null </dev/null; }; then
+            FORM="fast-forward to $L"
+        fi
+        [ -n "$FORM" ] || reject "a rule change on smk37 ($(echo $RCH | cut -c1-200)) must come from a lane/dk-rules-* branch: push the lane, then a merge of a lane commit (first parent = smk37) or a fast-forward to a lane commit (rules = code, owner 02:37)"
+        echo "update hook: rule change on smk37 accepted ($FORM)" >&2
+    fi
+fi
+
+# ---------- 1c. Branch names (new branches only) ----------
+if [ "$OLD" = "$Z" ] && [ "$NEW" != "$Z" ]; then
+    case "$REF" in
+    refs/heads/*)
+        BN=${REF#refs/heads/}
+        echo "$BN" | grep -qE '^(lane/(mb|sb|opt|btr|dk)-[A-Za-z0-9][A-Za-z0-9._/-]*|integration|smk37|archive/[A-Za-z0-9][A-Za-z0-9._/-]*)$' ||
+            reject "a new branch must be lane/<mb|sb|opt|btr|dk>-<topic>, integration, smk37 or archive/<name> (commit.md rule 10), not $BN"
+        ;;
+    esac
+fi
+
+# ---------- 1d. Integration owner ----------
+OPTF="$WD/pushopt.$PPID"
+if [ "$REF" = refs/heads/integration ] && [ "$NEW" != "$Z" ]; then
+    grep -qx 'by=merge-integrator' "$OPTF" 2>/dev/null ||
+        reject "only Merge Integrator moves integration (rule 10): push with git push -o by=merge-integrator, or push your lane branch"
+fi
+
+# ---------- 2. Quick check (integration only) ----------
+[ "$REF" = refs/heads/integration ] && [ "$NEW" != "$Z" ] || exit 0
+if grep -q '^skip-quickcheck=' "$OPTF" 2>/dev/null; then
+    WHY=$(sed -n 's/^skip-quickcheck=//p' "$OPTF" | head -1)
+    [ -n "$WHY" ] || reject "skip-quickcheck needs a reason: git push -o skip-quickcheck=\"<why>\""
+    echo "$(date '+%F %T %z') server-update $REF ${OLD:0:7}..${NEW:0:7} skip: $WHY" >> "$SKIPLOG" || reject "cannot write the skip log $SKIPLOG"
+    echo "update hook: quick check SKIPPED for ${NEW:0:7} (push option): $WHY (logged in $SKIPLOG)" >&2
+    exit 0
+fi
+[ -f "$QC" ] && [ -x "$QC" ] || reject "the quick check $QC is missing or not executable. Ask the Build and Test Runner."
+grep -q '^ste_step()' "$QC" || reject "the installed $QC has no STE step (run tools/install_gate.sh)"
+mkdir -p "$WD" || reject "cannot make $WD"
+exec 7>>"$WD/.lock" || reject "cannot open $WD/.lock"
+flock -w 600 7 || reject "another integration push holds $WD/.lock for 600 s. Push again later."
+exec 8>>"$GLOCK" || reject "cannot open the gate lock $GLOCK"
+if ! flock -s -n 8; then
+    echo "update hook: a gate holds $GLOCK, waiting at most $GWAIT s (shared lock)" >&2
+    flock -s -w "$GWAIT" 8 || reject "gate running, push again later (gate lock $GLOCK held for more than $GWAIT s)"
+fi
+# the work clone: not bare, objects shared with the box repository (git clone --shared)
+W="$WD/srv-wt"
+wg() { env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_QUARANTINE_PATH -u GIT_COMMON_DIR -u GIT_PREFIX -u GIT_NAMESPACE git -C "$W" "$@"; }
+if [ -d "$W/.git" ] && ! wg cat-file -e HEAD 2>/dev/null; then rm -rf "$W"; fi
+if [ ! -d "$W/.git" ]; then
+    env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_QUARANTINE_PATH -u GIT_COMMON_DIR -u GIT_PREFIX -u GIT_NAMESPACE git clone -q --shared --no-checkout "$GD" "$W" </dev/null >&2 ||
+        reject "cannot make the work clone $W"
+    wg remote set-url --push origin DISABLED-no-push-from-hook-clone
+fi
+wg checkout -q -f --detach "$NEW" </dev/null >&2 || reject "checkout of ${NEW:0:7} in $W failed"
+if [ "$OLD" = "$Z" ]; then BASE=$(wg rev-parse "$NEW^" 2>/dev/null) || reject "no base for a new ref"; else BASE=$OLD; fi
+echo "update hook: quick check of ${NEW:0:7} (base ${BASE:0:7}) for $REF" >&2
+OUT=$(env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_QUARANTINE_PATH -u GIT_COMMON_DIR -u GIT_PREFIX -u GIT_NAMESPACE \
+      -u X0X_STE_STRICT -u X0X_QUICK_ONLY -u X0X_SKIP_QUICKCHECK X0X_QC_BASE="$BASE" bash "$QC" "$W" </dev/null 2>&1)
+QRC=$?
+echo "$OUT" | grep -E '^(STE|QUICK) ' | head -8 >&2
+LAST=$(echo "$OUT" | grep -E '^QUICK (PASS|FAIL) ' | tail -1)
+[ "$QRC" = 0 ] && case "$LAST" in "QUICK PASS"*) true;; *) false;; esac ||
+    reject "quick check: ${LAST:-no QUICK line (exit code $QRC)}. Fix the commit. Emergency only: git push -o skip-quickcheck=\"<why>\""
+exit 0

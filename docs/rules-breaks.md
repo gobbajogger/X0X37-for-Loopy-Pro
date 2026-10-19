@@ -1,3 +1,7 @@
+# Current record scope
+
+The entries below are preserved historical evidence. Their old role and path instructions do not override [current rules](agent-rules.md). The 2026-10-19 audit records completion barriers and repairs in the rule audit report.
+
 # Rule breaks
 
 One row for each rule break (docs.md rule 12A).

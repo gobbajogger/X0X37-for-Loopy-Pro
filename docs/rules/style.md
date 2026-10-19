@@ -1,24 +1,24 @@
-# Style and terms
+# Writing style
 
-Read when: before you write a file, a commit, a checklist or an agent message.
+Read before any output, doc, log, commit, checklist, or agent prompt.
 
-### Rule 15
-Step: each text (P1 to P11). Rule owner: Docs Keeper.
+### Rule 15: all project agents and all output
 
-Write files (docs and logs), commits and checklists with the asd-ste skill. Write agent-to-agent messages, including task messages, with the caveman skill. If a text is in the scope of asd-ste, asd-ste wins. Messages to the owner obey rule 13. Keep owner quotes word for word inside quotation marks. STE does not apply to them.
+The owner requires plain, correct English and concise caveman style at all times. This applies to every project agent and subagent, including owner messages, agent messages, task prompts, docs, logs, commits, and handoffs. Earlier scope exceptions no longer apply.
+
+Read the exact `asd-ste` and `caveman` skills before claiming to use them. [SKILLS.md](../SKILLS.md) records their current paths, sources, and recovery status. Use the project copies when available. Pass those paths to every subagent. A missing exact skill is a specific dependency: report it truthfully and keep doing independent authorized work in plain, correct, brief English. Do not invent a replacement or claim installation.
+
+Use simple words, short sentences, and the result first. Keep grammar and necessary meaning. Preserve exact code, paths, commands, identifiers, quoted evidence, and owner quotes. A short style does not excuse missing validation or an unclear handoff. An STE heuristic warns about wording; it does not prove skill use or justify changing exact evidence.
 
 Terms:
-- owner: the person who owns the project. Do not write "user".
-- Orchestrator: the agent that routes the tasks and relays the messages to the owner. Do not write "parent agent".
-- task agent: the agent that owns a task in the lanes table (AGENTS_AND_ROOMS.md).
-- rule owner: the agent role that keeps a rule current. It is not the owner.
-- loop slots: the flash slots 1 to 3 that hold the imported loops.
-- gate: one run of the gate script. It writes one row in /workspace/x0x37-results/index.md.
-- Bluetooth: Bluetooth Low Energy MIDI. Write "Bluetooth" in text. Use "BLE" only in names, for example BLE_ATTEMPTS.md.
-- pairing: the Bluetooth security step with the bonds. Do not write "bonding".
-- batch: name a batch only by its number and its gated hash, for example batch 1 (9a733fe). Do not name a batch by a branch name.
-- Write "behavior" (US) and "colour" (British). Use "color" only in code names.
 
-Core rule owners: 1 Merge Integrator, 2 and 4 Orchestrator, 6A Firmware Main Builder.
+- owner: the person who owns the project.
+- task agent: the agent responsible for the current task.
+- Orchestrator: the coordinator of the current task when one is assigned.
+- loop slots: flash slots 1 to 3 for imported loops.
+- gate: a full run of the formal gate script with its recorded result.
+- Bluetooth: Bluetooth Low Energy MIDI. Keep `BLE` in exact names.
+- pairing: the Bluetooth security step with saved bonds.
+- Use "behavior" and "colour" in project prose. Keep exact code spelling.
 
-USER_PREFERENCES.md holds the owner decisions.
+Use technical names when they help the owner act or assess evidence. No old word, ID, path, or sentence count ban overrides a clear and complete answer.

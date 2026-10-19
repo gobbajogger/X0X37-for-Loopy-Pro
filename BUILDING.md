@@ -1,4 +1,4 @@
-x0x37 team: do not run the gh-pages step (agent rule 1).
+Publish the site only when the owner authorizes publication (docs/rules/install.md rule 6).
 
 # Building X0X
 
@@ -33,6 +33,98 @@ The build makes three files in `build/`:
 - Node.js (optional, for the web tests).
 
 On Linux x86-64 the toolchain runs natively and Docker is not needed.
+
+## Agent validation and completion
+
+Build and test on Linux x86-64 or in a local Linux container. Use the same pinned SDK, toolchain and DSP references in either one.
+The full gate also needs Bash, Python with Pillow, Node, `flock`, `setsid`, `getent`,
+and Linux signal support. macOS can run docs checks and supported host checks.
+Run Linux-specific checks in the local container. Docker Desktop and Colima both work.
+
+For docs and rules work, run the affected checks without a firmware build:
+
+```
+python3 tools/prefs_lint.py docs/USER_PREFERENCES.md
+X0X_QUICK_ONLY=ste X0X_QC_BASE=<base-commit> bash tools/quickcheck.sh "$PWD"
+```
+
+A worktree-folder docs check does not use the shared quickcheck cache. Commit-mode
+quickcheck needs `flock`. Use the Linux container when the host lacks it.
+
+Grammar findings are review hints. `X0X_STE_STRICT=1` requests a strict review.
+The old `tools/ste_strict` marker does not force every task to pass grammar
+heuristics. Current owner rule pointers and commit evidence still fail closed.
+
+For Linux build checks, set paths in the environment that runs the commands:
+
+```
+export CC=cc CXX=c++
+export JIELI_TOOLCHAIN=/path/to/toolchain
+export AC79_SDK=/path/to/fw-AC79_AIoT_SDK
+export X0X_REFS=/path/to/validation_refs
+export NINEW9_DIR="$X0X_REFS/schwung-9W9"
+export EIGHTW8_DIR="$X0X_REFS/schwung-8W8"
+export SCHWUNG303="$X0X_REFS/schwung-303"
+export TB3PO_REF="$X0X_REFS/schwung-tb3po/src/dsp/tb3po.c"
+bash tools/quickcheck.sh "$PWD"
+```
+
+Use the actual reference directory names. The release gate pins are 9W9 `10cbe5c`,
+8W8 `94aa271`, 303 `7680578` and TB3PO `f49d81d`. A quoted compiler value such
+as `CC='clang -U__APPLE__'` is not a compiler executable for these runners. Put
+compiler options in the runner's supported flags.
+
+A gate needs explicit local state paths when the old `/workspace` layout is absent:
+
+```
+export X0X_REPO="$PWD"
+export X0X_RESULTS="$PWD/build/gate-results"
+export X0X_GATE_WORK="$PWD/build/gate-work"
+export X0X_GATE_LOCK="$PWD/build/gate.lock"
+export X0X_PREPUSH_HOOK="$PWD/tools/pre-push.hook"
+bash tools/gate.sh <commit>
+```
+
+Keep the gate work path outside `/tmp`. In a container, mount source, references,
+SDK and toolchain where these paths resolve. A Git worktree records the path to
+its shared repository. Mount the workspace at the same absolute path, or make an
+independent clone inside the container with `git clone --no-local`. The approved project image is
+`x0x37-validation:local`; its availability is local setup evidence, not a gate PASS.
+A lane commit needs `--trial`; its result does not permit install or release.
+
+For a local Git server, set `x0x37.allowedRemote` to the approved local repository.
+Set `x0x37.allowedRoot` to its local root. These settings also apply to an installed
+pre-push hook. Set
+`x0x37.prepushCheck` to the local `tools/prepush-check.sh` and `x0x37.skipLog`
+to a writable local log. `X0X_PREPUSH_CHECK` and `X0X_QUICKCHECK_SKIP_LOG` override
+the latter paths for a run. Server hooks also support `x0x37.quickcheck`,
+`x0x37.gateLock`, `x0x37.workDir` and `x0x37.skipLog`.
+For local status and hook setup, use the same state paths:
+
+```
+export X0X_RESULTS_DIR="$X0X_RESULTS"
+export X0X_PREFS_LINT="$PWD/tools/prefs_lint.py"
+X0X_REPO="$(git rev-parse --absolute-git-dir)" bash tools/status.sh --out "$PWD/build/status"
+X0X_GATE_DEST=/path/to/local-gate X0X_GATE_LOCK="$X0X_GATE_LOCK" bash tools/install_gate.sh
+bash tools/install_server_hooks.sh /path/to/approved-local-bare.git
+X0X_RESULTS_DIR="$X0X_RESULTS" bash tools/require_gate_pass.sh <commit> --config rel --fwsc /path/to/package.fwsc
+```
+
+Create the gate destination first. Use one lock path across local gate runners and
+hook installation. `status.sh` needs the Linux tools; its old roster and STALL
+labels are diagnostic hints, not task completion gates. Configure the actual current
+docs branch through `X0X_DOCS_BRANCH`. For a hook in a local bare server, configure
+its quickcheck, work, lock and skip-log paths before receiving integration pushes.
+
+External push destinations remain blocked. Scratch gate and quickcheck clones
+keep external push URLs disabled.
+
+Finish a local task when its authorized change and affected checks are complete.
+Report each missing dependency and each unrun check. Do useful independent work
+before handing off a real blocker. An unavailable device does not reopen completed
+local work. A full release gate, exact model/package checks, flash and RAM budgets,
+slot backup and readback, and device evidence still apply at their install or
+release steps. A selected test pass is not a full gate or a hardware PASS.
 
 ## Build
 

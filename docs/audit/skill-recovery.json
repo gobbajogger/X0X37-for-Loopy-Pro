@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-19",
+  "exact_originals_recovered": false,
+  "installed_project_copies": [],
+  "local_paths": "No originals found in workspace, ~/.agents, ~/.codex/skills or plugin cache.",
+  "archives_scanned": 46,
+  "archive_matches": 0,
+  "ssh_hosts": [
+    "colima (local VM only)"
+  ],
+  "container_image": "x0x37-validation:local",
+  "container_result": {
+    "/home/box/agent-data/workflows/asd-ste/SKILL.md": "MISSING",
+    "/home/box/agent-data/workflows/caveman/SKILL.md": "MISSING",
+    "/workspace/x0x37-orchestrator/skills-v2-backup-0010": "MISSING"
+  },
+  "web_queries": [
+    "\"asd-ste\" \"SKILL.md\"",
+    "\"caveman\" \"SKILL.md\" skill"
+  ],
+  "web_result": "Several caveman namesakes, no proof of original project provenance. No original asd-ste source identified.",
+  "not_checked": [
+    "Original remote box: no access endpoint configured",
+    "Git bundle and repository unreachable/history objects: not exhaustively searched",
+    "Native Grok Bot UI: not inspected"
+  ],
+  "blocker": "Need original two skill files or authenticated export from recorded box workflow folders.",
+  "tool_delay": "Initial Docker inventory required sandbox permission. Batch was interrupted after waiting approximately 10 minutes. Docker prefix subsequently approved; final bounded container check passed."
+}

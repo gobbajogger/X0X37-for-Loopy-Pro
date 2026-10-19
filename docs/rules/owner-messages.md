@@ -1,22 +1,19 @@
 # Owner messages and decisions
 
-Read when: before you write to the owner or relay an owner report, before you decide a change, and before a decision or skill change.
+Read before an owner message, a decision, or a skill change.
 
-### Rule 13
-Step: each message to the owner (P8 owner notice, P10 owner test). Rule owner: Orchestrator.
+### Rule 13: clear short messages
 
-Each message to the owner, from any agent, has 1 to 3 short sentences. Use simple ASD-STE100 words about what the owner hears, feels and does. Use no shorthand, no IDs and no code references. Give only a result, a blocker or one question.
+Follow [style.md](style.md) for every agent and every output. Give the result first, then the real blocker or next step. Usually one to three short sentences is enough. Include a path, command, commit, or evidence link when the owner needs it. Do not hide a material limit to meet a sentence or word ban.
 
-Never tell the owner that the owner made a setup mistake. Describe a change only after you verify it. Send each question for the owner through Orchestrator. An owner report that an agent quotes with the build is valid in any chat.
+Treat the owner's report as evidence for the named build and tested item. Preserve exact quotes. Do not invent a setup mistake. Ask the owner directly in the active task when a decision is required; a missing Orchestrator is not a reason to wait forever. Do not send messages to another chat or person without the owner's authorization.
 
-### Rule 14
-Step: P2 to P5 (before you decide a change). Rule owner: Orchestrator.
+### Rule 14: use existing authorization
 
-Ask the owner only about a change that the owner can see, hear or play. Ask before you make the change. This includes each change to how the keyboard plays. Decide all other changes and continue. Never ask the owner for approval to start a helper subagent. An install is not a change for this rule (core rule 6A).
+The owner's request authorizes necessary reversible work within its scope. Do that work and finish its checks. Do not ask again for work already authorized. Ask only about a material unresolved choice outside that scope, an irreversible action not yet authorized, or missing facts needed for safe progress.
 
-Some changes can affect latency, packet or MTU size, memory margins, sample length or connection behavior. Before you continue with such a change, send a short note to Orchestrator. Orchestrator tells the owner.
+A new change to what the owner sees, hears, or plays needs a decision when the request does not already settle it. Internal repairs and the explicitly requested rules and script audit can proceed. Preserve features, sample quality, model guards, and memory budgets. Report a material tradeoff clearly; do not silently cut it to get a PASS.
 
-### Rule 4B
-Step: each decision and each skill change. Rule owner: Orchestrator.
+### Rule 4B: decision records
 
-Send skill changes through Orchestrator. Send one decision message for each item. If it replaces an earlier decision, tag it "supersedes <time>".
+Record each new owner decision with its source and applicable rule. If it replaces an older decision, say "supersedes" and name the old entry or scope. The assigned task agent can update skills within an authorized repair. No retired role approval is needed. Read exact source skills and record provenance before claiming their use.

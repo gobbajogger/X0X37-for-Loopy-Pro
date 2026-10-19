@@ -1,20 +1,17 @@
 # Integration and gate
 
-Read when: before you move commits onto integration (git push), request a gate or run the gate script.
+Read before integration, a formal gate, or release evidence.
 
-### Rule 11
-Step: P5 integration merge, P6 gate. Rule owner: Merge Integrator.
+### Rule 11: branch order and formal validation
 
-Merge Integrator owns the branch order and moves the lane commits onto integration. Move integration only with git push to the box repository. Do not use git update-ref.
+The current integration task owns the firmware branch order. Lane agents give it tested commits. They do not create a second coordinator or overwrite its work. Local fast forwards or cherry-picks are valid when the assigned integrator controls the checkout. Use Git operations that preserve history. Do not use `git update-ref` to evade checks.
 
-The server hook runs the strict quick check on each push to integration. Skip it only with `git push -o skip-quickcheck="<why>"`. At the end of the batch, Merge Integrator requests one gate. Split or bisect only if that gate fails.
+Use one formal gate for a finished batch. Run focused tests during development. Re-run a gate for a changed validation tree, a failed run that needs proof of repair, or an explicit force reason. Do not repeat a successful gate or review without a cause.
 
-build.sh and the gate require 8192 B of free pool or more.
+A supported Linux x86-64 environment, including the local container, can run the formal gate. The box is not required. Use the maintained `tools/gate.sh` and its documented environment variables. Set `X0X_REPO`, `X0X_INTEGRATION`, `X0X_RESULTS`, `X0X_REFS`, `X0X_GATE_WORK`, `X0X_GATE_LOCK`, `X0X_PREPUSH_HOOK`, `JIELI_TOOLCHAIN` or `X0X_TOOLCHAIN`, and `AC79_SDK` to actual accessible paths as needed. Do not override `HOME` to simulate the box. Use a writable work path visible through the build container's mounts.
 
-### Gate run
-Step: P6 gate. Rule owner: Build and Test Runner.
+Keep the four DSP references at the exact gate pins. Keep both dev and release checks, model guards, test completeness, release tree checks, CRC evidence, and budgets. Static RAM free stays at zero or more. Pool headroom stays at 8192 B or more. SMK-37 Pro and Elite are the maintained targets; keep the documented FM-1 allowance distinct from SMK target requirements.
 
-- Merge Integrator sends this request line to Build and Test Runner: `GATE REQUEST batch <N>: integration <full hash>`.
-- Build and Test Runner runs `/workspace/x0x37-refs/gate/x0x37_gate.sh <full 40-character integration commit>` with the normal HOME. Never override HOME.
-- Use `--force "<reason>"` (run again after a PASS) and `--trial` (a commit that is not on integration) only on request. A TRIAL PASS never counts for a release.
-- The header of x0x37_gate.sh gives the gate outputs, the lock and the VOID result.
+Only the formal gate writes its result. A TRIAL PASS, selected host test, quick check, setup-only run, VOID, or hand-written row is not a release PASS. The install guard uses the gate's exact validation tree key and artifact CRCs. Record the source commit and configurations too. Docs-only edits do not create new device evidence.
+
+If setup is absent, state the missing path or tool and the checks still completed. Local task completion and a formal gate are separate evidence levels. An unavailable release dependency leaves release pending; it does not make completed local work endless.

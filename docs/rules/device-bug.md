@@ -1,16 +1,13 @@
 # Device bug
 
-Read when: after a device bug report or a failed device test.
+Read after a device bug report or failed device test.
 
-### Rule 8
-Step: P1 record bug, P2 find cause. Rule owner: Firmware Main Builder.
+### Rule 8: evidence and regression
 
-Trust the reports and the setup of the owner. Search our code for the cause first.
+Trust the owner's report and setup. Search project code for the cause first. Use available device logs, source evidence, and a meaningful host regression test. Request an INLOG trace when it is needed to resolve uncertainty. If the existing evidence proves the cause, do not require the owner to reproduce it again just to satisfy an old procedure. Record an explicit owner skip when the applicable check requires it.
 
-For a device bug, the owner first shows the bug once with INLOG on. The owner can skip the INLOG step for one bug. The builder then makes a host replay test from that log.
+Prove a code fix with the relevant test where possible. A new regression test should fail on the broken base and pass after the fix. If the failure cannot run on a host, explain that limit and use the best available evidence. Do independent repair work while hardware is unavailable. Keep the device result NOT TESTED until the owner reports it.
 
-Make a fix only when data and a host test prove the cause. If a fix fails on the device, do not guess again: name the wrong assumption and get the missing data. If 2 device tests fail one after the other, go back to last-good-hw and bisect. Log the result with docs.md.
+If a fix fails on the device, name the failed assumption and seek the missing data before another guess. After two consecutive device failures, use last-good device evidence and bisect when a safe bounded test can distinguish the cause. Never overwrite current work or install an unapproved fallback to perform that diagnosis.
 
-Test target for each fix: X0X does not drop notes, pad colour updates or the Bluetooth connection (BEHAVIOR.md).
-
-Owner fact for a fix: "Optimize without cutting features. Font size is not a feature." (2026-10-16 18:41)
+Preserve notes, pad colour updates, and the Bluetooth connection. Owner fact: "Optimize without cutting features. Font size is not a feature." (2026-10-16 18:41).

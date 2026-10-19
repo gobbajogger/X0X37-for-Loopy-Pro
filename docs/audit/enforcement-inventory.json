@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-19",
+  "scope": "Reviewed repair source snapshot. Installed shared hook observations are pre-rollout; their policy is preserved and only recognized repair notices change. Configurable paths are documented in BUILDING.md. Old status roster labels are diagnostic, not completion gates.",
+  "scripts": [
+    {
+      "path": "tools/quickcheck.sh",
+      "sha256": "00f85e55cbc4a5b26f5dd726008cf582e9398e5a34e1272ae067b26ab68b727c",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/prefs_lint.py",
+      "sha256": "52502b7fe9cf9ef6037d98b2ffa666f01651b35200705b398398a4526b122313",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/ste_check.py",
+      "sha256": "05e60708f8c61d4be563c64a2b02d52b1e81394870a48af4169f5bf22dfef4b6",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/pre-push.hook",
+      "sha256": "b1b7961ff9e9e2b8ffcd7dac432d47b31f405edc1125f96ff2542811986684ce",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/prepush-check.sh",
+      "sha256": "0081931e4a642c50a4ec9f32475359b8aed11a31facf2d3231ca7b1f7f849c4f",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/pre-receive.hook",
+      "sha256": "761adfd9947469cbed8c4ca9e0d4c0ac1ccd937ff2948f0db6a57eac5d3fa394",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/update.hook",
+      "sha256": "744921749ed9052a56e0322ca935778bcfaff9d56131b48e9598596816188ac7",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/gate.sh",
+      "sha256": "c9e7e38a72aadda8c9735f51d827c33013a7d5c34e625beccacb59d06ea13e94",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/gate_sigwrap.py",
+      "sha256": "3db30726d5fc79da599af9bb58d92f06544a2cefbfe9dd3c78d3b0bb11fb5da2",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/gate_flashmap.py",
+      "sha256": "f7722cd4ef7c0ccec6c221b9cb173da747baaa11c35b2193ee911fea4e68b5c5",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/install_gate.sh",
+      "sha256": "81a818707f7d4a8fff8b6c6a4825bcd94035866d538b3011092d7f76a0c8e202",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/install_server_hooks.sh",
+      "sha256": "48905c7d975624ee10cacf92d13be3aeda02ea3def8c5fd6ea9b952145864364",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/require_gate_pass.sh",
+      "sha256": "01b668621055fb08b2bebe40dc9a861bd581e3316123b541f7540d4fd3860ede",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/fm1_install.py",
+      "sha256": "eb447d552439b24c76ff284db96ff94a3ad4e8271b352b688019dc51ff6f61fc",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/status.sh",
+      "sha256": "5acaadef40ca37320c9761bcd2c4a7fa1c88475130a4cdd7db5bc30dd2269b66",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/release_tree_check.sh",
+      "sha256": "229fc27bad625e3f91c6e135b4ca069124424fdbde08e76fdd56e90d36ab05c5",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/sync_results_to_mac.sh",
+      "sha256": "28d60f21e87a9debab98279e91d5a7d3a07d883bf24688b4d50b37a6e8020cfd",
+      "scope": "maintained enforcement source"
+    },
+    {
+      "path": "tools/checklist_lint.py",
+      "sha256": "0f7a09865f1d6c2a134ca2b52b52fe44c4481d4ca8b355537b00bdc7730a53d0",
+      "scope": "maintained enforcement source"
+    }
+  ],
+  "installed_hooks": [
+    {
+      "checkout": "flash_review_integration",
+      "path": "/Users/mac/Documents/x0x37/flash_review/.git/hooks/pre-push",
+      "sha256": "d88578854e1246b380eb068eb5fe954e6845359130089074de58ad4e32cf4984",
+      "state": "existing installed hook; not replaced by this rollout"
+    },
+    {
+      "checkout": "flash_review_integration",
+      "path": "/Users/mac/Documents/x0x37/flash_review/.git/hooks/pre-push.before-failclosed",
+      "sha256": "ad3e7be78f4ce770423672b39421849c004fc79c9b37e4f51428af3402789495",
+      "state": "existing installed hook; not replaced by this rollout"
+    },
+    {
+      "checkout": "x0x37",
+      "path": "/Users/mac/Documents/x0x37/x0x37/.git/hooks/pre-push",
+      "sha256": "d88578854e1246b380eb068eb5fe954e6845359130089074de58ad4e32cf4984",
+      "state": "existing installed hook; not replaced by this rollout"
+    },
+    {
+      "checkout": "x0x37",
+      "path": "/Users/mac/Documents/x0x37/x0x37/.git/hooks/pre-push.before-failclosed",
+      "sha256": "ad3e7be78f4ce770423672b39421849c004fc79c9b37e4f51428af3402789495",
+      "state": "existing installed hook; not replaced by this rollout"
+    },
+    {
+      "checkout": "ux_combined_review",
+      "path": "/Users/mac/Documents/x0x37/flash_review/.git/hooks/pre-push",
+      "sha256": "d88578854e1246b380eb068eb5fe954e6845359130089074de58ad4e32cf4984",
+      "state": "existing installed hook; not replaced by this rollout"
+    },
+    {
+      "checkout": "ux_combined_review",
+      "path": "/Users/mac/Documents/x0x37/flash_review/.git/hooks/pre-push.before-failclosed",
+      "sha256": "ad3e7be78f4ce770423672b39421849c004fc79c9b37e4f51428af3402789495",
+      "state": "existing installed hook; not replaced by this rollout"
+    }
+  ]
+}

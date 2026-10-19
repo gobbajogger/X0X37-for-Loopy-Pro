@@ -28,12 +28,39 @@ tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flas
 Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
-7 installed, but the slots were not written back (the backup file stays).
+7 installed, but the slots were not written back (the backup file stays),
+8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32,
+9 refused by the gate guard (no install was started),
+10 refused by the foreground guard or the hardware lock (no device was opened),
+11 refused by the bootloader guard: the package head is not the reference head (no device was opened).
+
+Start guards for a real device (rules v4: checks 3 and 14), after the gate guard:
+  Foreground (rule 7): an install refuses to start when stdin is not a TTY and STY and TMUX are empty. Run it in the
+  foreground or in a named screen session (screen -S x0x-install), never with nohup or &.
+  Hardware lock (rule 3, one hardware job at a time): an install and --info take an exclusive lock on the file
+  X0X_HW_LOCK [~/.x0x37-hardware.lock] (flock, no wait) for the whole run. If another run holds it, the tool stops.
+
+Bootloader guard (rule 7, check 4 of rules v4, Orchestrator decision 02:55): the bytes [0, HEAD_END = 0x4000) of the
+package's flash.bin (flash header, JLFS entries, SPL, isd_config: the bootloader; the app area starts at 0x4000, as
+WRITE_MIN in tools/fm1_rescue.py) must have the sha256 of the same bytes of a reference: a flash read-back of this unit
+(a raw dump from flash 0, for example the fm1-backup-*.bin of tools/fm1_rescue.py). The reference is --head-ref FILE,
+else X0X_HEAD_REF, else ~/.config/x0x/flash-head.bin if that file is there. A different sha256 -> "REFUSED", exit 11.
+With no reference, the tool says so and continues: this tool has no flash read-back over USB-MIDI, and the slot backup
+holds only the sample slots. --head-check compares only (no device, no gate guard): HEAD OK (exit 0) or HEAD MISMATCH (11).
+Order for a real device: gate guard, foreground guard, hardware lock, bootloader guard, then the device.
+
+Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
+tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE --config dev|rel [--ctl FILE]. The install starts
+only if the gate script gave PASS for the exact tree of HASH and the files are the files that the gate built
+for that config. --config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
+--commit (or X0X_INSTALL_COMMIT) is necessary. --info and the mocked device of the tests do not use it.
 
 Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
 computer to the package before it is sent (tools/add_ctl.py). Every install writes the Bluetooth block,
 so without it the unit has no Bluetooth after the install. build_ctl.sh also keeps a copy in
 ~/.config/x0x/ctl.img: an SMK-37 install uses that copy by itself (and says so); --no-ctl skips it.
+After the install, the tool reads the image back from the unit's Bluetooth block (editor command 37
+CTL_READ, read only) and prints the unit CRC32. If it is not the file CRC32, the tool stops with exit 8.
 
 Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
 v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
@@ -41,10 +68,13 @@ The model is checked: an FM-1 package never goes to an SMK-37 Pro, nor the other
 Pro, Elite and MKE-P37 are one keyboard: their packages install on each other).
 """
 import argparse
+import hashlib
+import os
 import queue
 import re
 import sys
 import time
+import zlib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -58,6 +88,7 @@ MAXDATA = 512
 BLOCKS, BLK, KEEP = 20, 0x30, 0x2F         # BLOCKS: the identity blocks (more may follow, see block_count)
 MAX_BLOCKS = 64
 LOADER_MARK = b"FELUCCA-LOADER-1"
+HEAD_END = 0x4000                          # the bootloader end: flash [0, 0x4000) = header, JLFS, SPL, isd_config
 PORT_RE = re.compile(r"fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi", re.I)   # never probe other gear
 
 # seconds; the tests shorten them
@@ -66,7 +97,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
          "wait_loader": 30.0, "wait_reboot": 40.0}
 
 EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
-        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7}
+        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
 
 
 class InstallError(Exception):
@@ -579,6 +610,73 @@ def load_package(path, force):
     return product, deinterleave(raw)[0]
 
 
+def package_head(image):
+    """the bytes [0, HEAD_END) of the flash.bin entry (type 0) of a logical image"""
+    hdr = _dec(image[0:0x40])
+    count = int.from_bytes(hdr[8:10], "little")
+    for i in range(count):
+        e = _dec(image[0x40 + i * 0x50:0x40 + (i + 1) * 0x50])
+        if int.from_bytes(e[0:2], "little") == 0:
+            off, size = int.from_bytes(e[8:12], "little"), int.from_bytes(e[12:16], "little")
+            if size < HEAD_END or off + HEAD_END > len(image):
+                raise InstallError("badpkg", f"flash.bin is shorter than the bootloader (0x{HEAD_END:X} bytes)")
+            return bytes(image[off:off + HEAD_END])
+    raise InstallError("badpkg", "no flash.bin in the package: the bootloader guard cannot check it")
+
+
+def head_ref_path(a=None, env=None):
+    """--head-ref, else X0X_HEAD_REF, else ~/.config/x0x/flash-head.bin if it is there, else None"""
+    env = os.environ if env is None else env
+    p = (getattr(a, "head_ref", None) if a is not None else None) or env.get("X0X_HEAD_REF") or ""
+    if p:
+        return p
+    d = Path.home() / ".config/x0x/flash-head.bin"
+    return str(d) if d.is_file() else None
+
+
+def head_compare(image, ref_path):
+    """-> (ok, text): the package head against the first HEAD_END bytes of the reference read-back"""
+    try:
+        ref = open(ref_path, "rb").read(HEAD_END)
+    except OSError as e:
+        raise InstallError("head", f"cannot read the reference head {ref_path}: {e.strerror}")
+    if len(ref) < HEAD_END:
+        raise InstallError("head", f"the reference {ref_path} has {len(ref)} bytes, less than 0x{HEAD_END:X}")
+    pk = package_head(image)
+    hp, hr = hashlib.sha256(pk).hexdigest(), hashlib.sha256(ref).hexdigest()
+    if hp == hr:
+        return True, f"sha256 {hp[:16]} = {ref_path}"
+    at = next(i for i in range(HEAD_END) if pk[i] != ref[i])
+    n = sum(1 for i in range(HEAD_END) if pk[i] != ref[i])
+    return False, (f"package sha256 {hp[:16]}, reference {hr[:16]} ({ref_path}): {n} bytes differ, "
+                   f"the first at 0x{at:04X}")
+
+
+def head_guard(a, out=None, env=None):
+    """check 4: 0 = same head, or no reference; 11 = refused. A package that does not load is left to run()."""
+    out = out or sys.stderr
+    ref = head_ref_path(a, env)
+    if ref is None:
+        print("bootloader guard: no reference head (--head-ref, X0X_HEAD_REF or ~/.config/x0x/flash-head.bin); "
+              "not checked", file=out)
+        return 0
+    try:
+        _, image = load_package(a.package, a.force)
+    except InstallError:
+        return 0                              # run() loads it again and reports the error
+    try:
+        same, text = head_compare(image, ref)
+    except InstallError as e:
+        print(f"bootloader guard: REFUSED: {e}", file=out)
+        return EXIT["head"]
+    if not same:
+        print(f"bootloader guard: REFUSED: the package bytes 0..0x{HEAD_END:X} are not the reference head: {text}. "
+              "Nothing was written.", file=out)
+        return EXIT["head"]
+    print(f"bootloader guard: head OK, {text}", file=out)
+    return 0
+
+
 def not_found(up):
     names = up.backend.input_names()
     where = f"no MIDI port matching {up.port!r} answered" if up.port else "FM-1 not found"
@@ -620,7 +718,13 @@ def with_ctl(a, product, image, out, cache=None):
     path = getattr(a, "ctl", None)
     smk = board_of(product) == "smk"
     if path is None and smk and not getattr(a, "no_ctl", False) and Path(cache).is_file():
-        path = cache
+        # the cached image goes only into a package with a free Bluetooth block: an older X0X (a rollback)
+        # has app code there and installs without it (the cache never stops an install)
+        try:
+            add_ctl.check_block(image)
+            path = cache
+        except add_ctl.PkgError as e:
+            print(f"Bluetooth controller image: {cache} not added: {e}", file=out)
     if path is None:
         return image
     if not smk:
@@ -633,10 +737,45 @@ def with_ctl(a, product, image, out, cache=None):
         if (p := add_ctl.ctl_problem(ctl)):
             raise add_ctl.PkgError(f"{path}: {p}")
         image = add_ctl.insert(image, ctl)
+        a.ctl_bytes = ctl                   # read back from the unit after the install (check_ctl)
     except add_ctl.PkgError as e:
         raise InstallError("badpkg", f"Bluetooth controller image: {e}")
     print(f"Bluetooth controller image: {path} (added to the package)", file=out)
     return image
+
+
+ED_CTL_READ = 37                    # editor.c: read only, the Bluetooth block (0x8B000, 64 KiB) only
+CTL_READ_N = 224                    # bytes a reply (editor.c ED_READ_MAX)
+CTL_READ = {"timeout": 3.0, "tries": 3}   # a lost reply is asked for again (the read changes nothing)
+
+
+def read_ctl(ed, size):
+    """the first size bytes of the unit's Bluetooth block (ED_CTL_READ)"""
+    got = bytearray()
+    while len(got) < size:
+        off, n = len(got), min(CTL_READ_N, size - len(got))
+        r = xs.req(ed, ED_CTL_READ, [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, (n + 1) // 2],
+                   CTL_READ["timeout"], CTL_READ["tries"])
+        if len(r) < 3 or r[0] | r[1] << 7 | r[2] << 14 != off:
+            raise TimeoutError(f"bad ED_CTL_READ reply at {off:#x}")
+        d = xs.unpack7(r[3:])
+        if len(d) < n:
+            raise TimeoutError(f"short ED_CTL_READ reply at {off:#x} ({len(d)} of {n} B)")
+        got += d[:n]
+    return bytes(got)
+
+
+def check_ctl(link, ctl, out):
+    """read the Bluetooth controller image back from the unit; stop the install if its CRC32 is not the file's"""
+    want = zlib.crc32(ctl) & 0xFFFFFFFF
+    try:
+        got = zlib.crc32(read_ctl(EditorLink(link), len(ctl))) & 0xFFFFFFFF
+    except TimeoutError as e:
+        raise InstallError("ctlcrc", f"installed, but the Bluetooth controller image was not read back ({e})")
+    print(f"Bluetooth controller image read back: {len(ctl)} B, unit CRC32 {got:08x}, file CRC32 {want:08x}", file=out)
+    if got != want:
+        raise InstallError("ctlcrc", f"Bluetooth controller image: unit CRC32 {got:08x} is not the file CRC32 {want:08x}")
+    return got
 
 
 def run(a, backend, out, ask):
@@ -695,6 +834,15 @@ def run(a, backend, out, ask):
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
     elif move:
         print(move.help(), file=out)
+    ctl = getattr(a, "ctl_bytes", None)
+    if ctl:
+        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        if not back:
+            raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
+        try:
+            check_ctl(back.link, ctl, out)
+        finally:
+            back.link.close()
     return 0
 
 
@@ -703,6 +851,66 @@ def ask_tty(prompt):
         return input(prompt).strip().lower() in ("y", "yes")
     except EOFError:
         return False
+
+
+def gate_guard(a):
+    """tools/require_gate_pass.sh: 0 if the gate PASS of the exact tree is there, else 9 (no install)"""
+    import os
+    import subprocess
+    commit = a.commit or os.environ.get("X0X_INSTALL_COMMIT", "")
+    if not commit:
+        print("REFUSED: give --commit HASH (the gate guard needs the commit of the package)", file=sys.stderr)
+        return 9
+    guard = Path(__file__).resolve().parent / "require_gate_pass.sh"
+    cmd = ["bash", str(guard), commit, "--fwsc", a.package, "--config", a.config] + (["--ctl", a.ctl] if a.ctl else [])
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True)
+    except OSError as e:
+        print(f"REFUSED {commit}: cannot run {guard}: {e}", file=sys.stderr)
+        return 9
+    print((r.stdout + r.stderr).strip())
+    return 0 if r.returncode == 0 and r.stdout.startswith("GATE OK ") else 9
+
+
+def foreground_guard(stdin=None, env=None):
+    """rule 7: 0 if the install runs in a terminal or in a screen/tmux session, else 10 (no install)"""
+    import os
+    stdin = sys.stdin if stdin is None else stdin
+    env = os.environ if env is None else env
+    try:
+        tty = stdin.isatty()
+    except (AttributeError, ValueError):
+        tty = False
+    if tty or env.get("STY") or env.get("TMUX"):
+        return 0
+    print("REFUSED: stdin is not a terminal and STY and TMUX are empty. Run the install in the foreground or in a "
+          "named screen session (screen -S x0x-install), never with nohup or & (rule 7)", file=sys.stderr)
+    return 10
+
+
+_HW_LOCK = None
+
+
+def hardware_lock():
+    """rule 3: take the hardware lock file (no wait). 0 if taken (kept until the process ends), else 10"""
+    import fcntl
+    import os
+    global _HW_LOCK
+    path = os.environ.get("X0X_HW_LOCK") or os.path.join(os.path.expanduser("~"), ".x0x37-hardware.lock")
+    try:
+        f = open(path, "a")
+    except OSError as e:
+        print(f"REFUSED: cannot open the hardware lock {path}: {e.strerror}", file=sys.stderr)
+        return 10
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        print(f"REFUSED: another install or device run holds the hardware lock {path}. "
+              "Run one hardware job at a time (rule 3)", file=sys.stderr)
+        return 10
+    _HW_LOCK = f
+    return 0
 
 
 def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
@@ -716,9 +924,35 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
+    ap.add_argument("--commit", metavar="HASH", help="the commit of the package: the gate guard needs its gate PASS")
+    ap.add_argument("--head-ref", metavar="FILE", help="a flash read-back of this unit (raw, from flash 0): the bootloader guard reference")
+    ap.add_argument("--head-check", action="store_true", help="compare the package head with the reference only (no device)")
+    ap.add_argument("--config", choices=("dev", "rel"), default="dev",
+                    help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
     a = ap.parse_args(argv)
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")
+    if a.head_check:                        # no device: only the bootloader guard
+        if not a.package or head_ref_path(a) is None:
+            ap.error("--head-check needs a PACKAGE.fwsc and a reference (--head-ref FILE or X0X_HEAD_REF)")
+        rc = head_guard(a, out=out)
+        print("HEAD OK" if rc == 0 else "HEAD MISMATCH" if rc == EXIT["head"] else "HEAD ERROR", file=out)
+        return rc
+    if a.package and backend is None:       # a real device: the gate guard is the first step
+        rc = gate_guard(a)
+        if rc:
+            return rc
+        rc = foreground_guard()
+        if rc:
+            return rc
+    if backend is None:                     # a real device (install or --info): one hardware job at a time
+        rc = hardware_lock()
+        if rc:
+            return rc
+    if a.package and backend is None:       # a real device: the bootloader guard (check 4), before any device is opened
+        rc = head_guard(a)
+        if rc:
+            return rc
     try:
         if backend is None:
             try:
