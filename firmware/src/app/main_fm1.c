@@ -1762,7 +1762,7 @@ static void smk_padcal_frame(void)
 }
 #endif
 
-static void smk_frame(void)
+CK_FN static void smk_frame(void)
 {
     while (smk_extkey_take() >= 0)
         ;
