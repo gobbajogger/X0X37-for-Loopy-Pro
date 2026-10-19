@@ -1,0 +1,391 @@
+{
+  "apply": true,
+  "files": 70,
+  "backup": "/Users/mac/Documents/x0x37/repo-bak/rules-rollout-20261019T131624308333Z",
+  "changes": [
+    {
+      "path": "AGENTS.md",
+      "before_sha256": null,
+      "after_sha256": "73cd206cc03829d5639dc703d64aadcfd7ac423602a78f6429a88588785263bb"
+    },
+    {
+      "path": "agent-rules.md",
+      "before_sha256": "1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864",
+      "after_sha256": "4d0065515cec3aeaa9d8582c3f24e5c210d9986a5488bb773ca9bf6fe54e7db6"
+    },
+    {
+      "path": "AGENTS_AND_ROOMS.md",
+      "before_sha256": "c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb",
+      "after_sha256": "4f8baa8a8d9a802967d414e8372cc8a493b4f914ddecff674cb5f51b8295dd91"
+    },
+    {
+      "path": "USER_PREFERENCES.md",
+      "before_sha256": "b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459",
+      "after_sha256": "7ca55ee2eab2042ceeace26908ad966ab0980615b9dd3073684855cb9b78faa5"
+    },
+    {
+      "path": "rules/SCRIPT-CHECKS.md",
+      "before_sha256": "34e29841ad37b51384d3980c5d058bd6bf25625ce6db8ac92b6d89f223a98c13",
+      "after_sha256": "d5167cae8b3c90dd93207c47b090fed35a60dc5fb6a4b499fd48df53c96ddddd"
+    },
+    {
+      "path": "rules/commit.md",
+      "before_sha256": "78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85",
+      "after_sha256": "4e7c0e74ad2b629620b1a73d58f1381a26a759e8557b975f00c347e50559b28e"
+    },
+    {
+      "path": "rules/core.md",
+      "before_sha256": "27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f",
+      "after_sha256": "ae73fea55d073a4654722ae2d7f63445b3d4fb38ff2f5012220af3cf5d48d1b7"
+    },
+    {
+      "path": "rules/device-bug.md",
+      "before_sha256": "636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3",
+      "after_sha256": "b29bc363ba57dddf80810969b60c2269ce286f1dbc47fcd15eaa02f0de2d57b7"
+    },
+    {
+      "path": "rules/docs.md",
+      "before_sha256": "84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8",
+      "after_sha256": "e2f5946e38233eb972ddc6cc0339ca0945697e752892a4f061c76e1546f07e2f"
+    },
+    {
+      "path": "rules/install.md",
+      "before_sha256": "6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b",
+      "after_sha256": "42077f381fda2f6861e05a32901faa98934cc5983c8341d5578e1621318524d9"
+    },
+    {
+      "path": "rules/integration.md",
+      "before_sha256": "1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9",
+      "after_sha256": "6ffd7327f9ee2e0145bbf55453080ec905d774a8471b4bad496f6486f0a6d30e"
+    },
+    {
+      "path": "rules/owner-messages.md",
+      "before_sha256": "f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f",
+      "after_sha256": "40bb338fca2994a9d08f7bb5d27a1aa9cdd8e03e3b536c35e5c8be27cee7def5"
+    },
+    {
+      "path": "rules/shared-work.md",
+      "before_sha256": "76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b",
+      "after_sha256": "3ef979ebed061f38b4644e413f89c77ddfe23d11f46bac86fa8fca3119993776"
+    },
+    {
+      "path": "rules/style.md",
+      "before_sha256": "154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68",
+      "after_sha256": "df084cd64bd826b8f077611f4b4455038aa8574b560e31f36d325cb1ab2598f4"
+    },
+    {
+      "path": "SKILLS.md",
+      "before_sha256": null,
+      "after_sha256": "b4b63e3db91705032af12af5198a4b7f5815a3b174723687f00dba460370d5ae"
+    },
+    {
+      "path": "archive/rules-2026-10-17/AGENTS_AND_ROOMS.md",
+      "before_sha256": null,
+      "after_sha256": "c567294f5b57b1be3b5e94c635748455312e3f99d869e7cdace4d1d09e0cf3cb"
+    },
+    {
+      "path": "archive/rules-2026-10-17/USER_PREFERENCES.md",
+      "before_sha256": null,
+      "after_sha256": "b0ceaebc26ddae60d08531516f371ee6b63d56cf36da77ef3fb5d57ff00b9459"
+    },
+    {
+      "path": "archive/rules-2026-10-17/agent-rules.md",
+      "before_sha256": null,
+      "after_sha256": "1f9d914491158342c22376e53fb4235b95d8f3b3df2d9688be235b0b5d605864"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/SCRIPT-CHECKS.md",
+      "before_sha256": null,
+      "after_sha256": "34e29841ad37b51384d3980c5d058bd6bf25625ce6db8ac92b6d89f223a98c13"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/commit.md",
+      "before_sha256": null,
+      "after_sha256": "78f3e646cff85bbfb434398baca7e5a7276bc7608d7c6a894218c05e234b4c85"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/core.md",
+      "before_sha256": null,
+      "after_sha256": "27b5fdbdb004b0594214c02cd5113839cd9c9ea3d9ac25774b541f1d12cee32f"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/device-bug.md",
+      "before_sha256": null,
+      "after_sha256": "636a15024b364324a83295f3ad1f5f81a20c6aa36fa59217d48ce379570115c3"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/docs.md",
+      "before_sha256": null,
+      "after_sha256": "84ef50ea1e505cecf9c85f8cf16f4cb97b664e4a9d81209675188ba13ae71ce8"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/install.md",
+      "before_sha256": null,
+      "after_sha256": "6e863eecf57661c96e113a0c4dc2cf9f6d029f995fd95b2532ff4cfd16ad928b"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/integration.md",
+      "before_sha256": null,
+      "after_sha256": "1f8ad890be2f94a252664f0fe4829e6873fbc50035d02c3238007a82f37914f9"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/owner-messages.md",
+      "before_sha256": null,
+      "after_sha256": "f4a78fb4d58329c1f2603e2d0c9ee37f5d36ac4b54013e8b1a0d858d0dd98b3f"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/shared-work.md",
+      "before_sha256": null,
+      "after_sha256": "76799d983965e9f7ff4ebb209f315b9cdb3bd0554c52f7aacd6d125b3673c55b"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules/style.md",
+      "before_sha256": null,
+      "after_sha256": "154ec8d2914e32b1f8a6927b8d3fe264ba5b331c4f97051d4420a642ac721b68"
+    },
+    {
+      "path": "archive/rules-2026-10-17/rules-breaks.md",
+      "before_sha256": null,
+      "after_sha256": "5b56cb7fc1bf35786cf6d77d79294847469d76ba1054867ad75e6412610b4d51"
+    },
+    {
+      "path": "BUDGET.md",
+      "before_sha256": "2cd8f0c31ba99f7e73ebc06bcb2dc535e8cdb7597881f614c386bdfaf24e91b6",
+      "after_sha256": "d8f19365148ab84adf3f2999be24b25463be9332dca4a6a7dcd13436fc744303"
+    },
+    {
+      "path": "LIVE_BRANCHES",
+      "before_sha256": "5f4705f3b8d10085d2142dfe1f1b53877a38739b12f690acd1c6ba64b551ff07",
+      "after_sha256": "fcb5d5d510cd32bbc6b320fc7612fdc24a2a90897d0889b1c03573ff9048bbb7"
+    },
+    {
+      "path": "ROADMAP.md",
+      "before_sha256": "9c31c902eb42405d9c9abdd7b101198a3e90286a5480139bd41ec60e5551b7ea",
+      "after_sha256": "296c0a3a6b26b35ec4fda5b1a765b6360ab666a07fc72c2e7090d43d067ab9e8"
+    },
+    {
+      "path": "task-plan.md",
+      "before_sha256": "076199e89b456328f103132cb0194b6a24def7a908a2b543d9abeac8ef61f4ba",
+      "after_sha256": "e87e3501966a0b4d9dadc9c9ee3a8b09b2926586b238f8cc4f7eee479db6d3ff"
+    },
+    {
+      "path": "x0x37-task-plan.md",
+      "before_sha256": "8b0f75c559ed568c40870f8fd2cda1ab2c8a835c8da56be705f6aa13b39b2b9d",
+      "after_sha256": "cae88828c9595aaa7d3b8e1641a4a57d73efeee40e5412d4285aa372fb63e350"
+    },
+    {
+      "path": "b10/repo/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "2a38dccdf52a6c1bf98de676cc20ce7c0d44fb15666a95ee0cfa0d9401a9247c"
+    },
+    {
+      "path": "b3/repo/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "2a38dccdf52a6c1bf98de676cc20ce7c0d44fb15666a95ee0cfa0d9401a9247c"
+    },
+    {
+      "path": "b7/repo/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "2a38dccdf52a6c1bf98de676cc20ce7c0d44fb15666a95ee0cfa0d9401a9247c"
+    },
+    {
+      "path": "batch11_local/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "clip_ui_work/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "flash_review/AGENTS.md",
+      "before_sha256": "e34e935cbb55c21d376d1550773ae3015a816603cb5a7da0f602b5b0d32478ab",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "flash_review_integration/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "integration_final_review/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "integration_project_gcc/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "integration_smc_visibility/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "sb-padcal-wait/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "sb_transfer/ck_clone/AGENTS.md",
+      "before_sha256": null,
+      "after_sha256": "2a38dccdf52a6c1bf98de676cc20ce7c0d44fb15666a95ee0cfa0d9401a9247c"
+    },
+    {
+      "path": "smc_ble_work/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "smc_ui_work/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_apc_midi_owner/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_clip_save_guard/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_code_budget/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_code_budget_latest/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_combined_review/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_copy_semantics/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_fader_pickup/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_note_lifecycle/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_perf_scratch/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_project_link/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_save_feedback/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_save_preflight/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_smc_step_cancel/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_song_mute/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "ux_step_preview/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "validation_batch11_ble/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "validation_batch11_local/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "validation_batch11_rel/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "work-303/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "1397fced8cdc6399d962282225ce0368c7f55fc107e41419434707b036a9c8de"
+    },
+    {
+      "path": "flash_review/.git/hooks/pre-push",
+      "before_sha256": "d88578854e1246b380eb068eb5fe954e6845359130089074de58ad4e32cf4984",
+      "after_sha256": "d52a8d101debcd9438b23318bca5b760eb0a0b8feeb2cad09503fc76274eeb58"
+    },
+    {
+      "path": "x0x37/.git/hooks/pre-push",
+      "before_sha256": "d88578854e1246b380eb068eb5fe954e6845359130089074de58ad4e32cf4984",
+      "after_sha256": "d52a8d101debcd9438b23318bca5b760eb0a0b8feeb2cad09503fc76274eeb58"
+    },
+    {
+      "path": "sb_transfer/ck_clone/.git/hooks/pre-push",
+      "before_sha256": "d88578854e1246b380eb068eb5fe954e6845359130089074de58ad4e32cf4984",
+      "after_sha256": "d52a8d101debcd9438b23318bca5b760eb0a0b8feeb2cad09503fc76274eeb58"
+    }
+  ],
+  "external_worktrees": [
+    {
+      "path": "/private/tmp/b1wt/AGENTS.md",
+      "before_sha256": "72a275ea67b3e4745c07f97e2d6e0df86b2c2137ede14654f95352eb2abbcf01",
+      "after_sha256": "719719c368e7289d3a3fc5b0d60979e722b59f4b8f2c5ee34dbe873e156e8ab5",
+      "backup": "/Users/mac/Documents/x0x37/repo-bak/rules-rollout-20261019T131624308333Z/external-worktrees/b1wt/AGENTS.md"
+    },
+    {
+      "path": "/private/tmp/x0x37-dk-batch11-status/AGENTS.md",
+      "before_sha256": null,
+      "after_sha256": "719719c368e7289d3a3fc5b0d60979e722b59f4b8f2c5ee34dbe873e156e8ab5",
+      "backup": null
+    }
+  ],
+  "canonical_repository": "x0x37",
+  "canonical_commit": "2815062138a166d07abc0ebe21d58a33e3c95095",
+  "firmware_rules_lane": [
+    "c7367f049c34320ca778c3b87ef61cdc4ba81233",
+    "9995a71"
+  ],
+  "checkout_entries_verified": 36,
+  "external_worktrees_verified": 2,
+  "archive_files_verified": 14,
+  "repeat_changes": 0,
+  "protected_main_objects": {
+    "firmware": "0a3842819241a32dc4fd9ba8cb93b0577ceb7a16",
+    "ble": "1d1536cff84e68376ea7a60d064223d37b373187",
+    "assets": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "host": "ddd19a7f5fa0c8951c0e184aed3cfac754a7f3cd",
+    "lib": null,
+    "build.sh": "f78db0774f42d02208a496f32bbbcaa042b485e5"
+  },
+  "messaging_note": "First coordination notice succeeded. Automatic approval review rejected a second chat notice: messaging requires approval, policy is never. No retry or substitute message was sent.",
+  "fresh_discovery_probe": "A fresh read-only subagent followed ux_combined_review and /private/tmp/b1wt entries, resolved authority and exact missing skill state, and found no broken links or completion loop."
+}
