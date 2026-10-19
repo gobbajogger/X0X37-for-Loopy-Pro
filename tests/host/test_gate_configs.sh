@@ -28,5 +28,26 @@ chk "guard: one-config result is dev only" '^- Config CRCs: ' "$Q"
 n=$((n + 1)); row='| be9a097 | bd2688f0437c | f521eba896d4 | PASS | x-1.md (also x.md) | 2026-10-17 00:27 +10 | dev elite 38d57833, ble e63a25b3; rel elite 8ea0ba13, ble 504fe793 |'
 got=$(echo "$row" | awk -F '|' '{ r=$5; f=$6; t=$7; gsub(/^ +| +$/, "", r); gsub(/^ +| +$/, "", f); gsub(/^ +| +$/, "", t); split(f, a, " "); print r ";" a[1] ";" t }')
 [ "$got" = "PASS;x-1.md;2026-10-17 00:27 +10" ] && echo "ok   index row columns 5-7: $got" || { echo "FAIL index row columns: $got"; fails=$((fails + 1)); }
+# Execute the gate's parser against comments, quoted hashes, and a missing real test.
+n=$((n + 1))
+if python3 - "$G" <<'PYTEST'
+import pathlib, subprocess, sys, tempfile
+source = pathlib.Path(sys.argv[1]).read_text()
+parser = source.split('expected_tests() {', 1)[1].split("<<'PY' > \"$3\"\n", 1)[1].split('\nPY\n', 1)[0]
+with tempfile.TemporaryDirectory() as folder:
+    root = pathlib.Path(folder)
+    (root / 'tests').mkdir()
+    (root / 'tests/run_tests.sh').write_text(
+        'export X0X_TEST_RUN=1 # a test run never writes live state\n'
+        'gen_wait() { # this run and did not end\n'
+        'run present echo "# quoted hash"; run missing true # run bogus true\n')
+    (root / 'tests.log').write_text('  ok   present\n')
+    result = subprocess.run([sys.executable, '-c', parser, 'tests.log', 'expected'],
+                            cwd=root, capture_output=True, text=True, check=True)
+    assert (root / 'expected').read_text().splitlines() == ['missing', 'present']
+    assert result.stdout.strip() == 'missing', result.stdout
+print('ok   expected tests ignore comments and retain missing real tests')
+PYTEST
+then :; else fails=$((fails + 1)); echo "FAIL expected tests parser"; fi
 echo "gate configs: $((n - fails)) of $n ok"
 [ "$fails" = 0 ]

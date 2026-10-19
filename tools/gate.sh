@@ -363,6 +363,9 @@ import glob, os, re, shutil, sys
 src = [l for l in open("tests/run_tests.sh").read().split("\n") if not l.lstrip().startswith("#")]
 names = set()
 for l in src:
+    # Ignore inline comments while preserving quoted shell arguments.
+    l = re.sub(r"('(?:[^']*)'|\"(?:\\.|[^\"\\])*\"|\\.)|#.*",
+               lambda m: m.group(1) or "", l)
     for n in re.findall(r'(?:^|[\s;&|])run "?([A-Za-z0-9_.-]+)"?\s', l + " "):
         names.add(n)
     m = re.match(r'\s*for t in ([^;]+); do', l)
