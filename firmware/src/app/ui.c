@@ -58,17 +58,17 @@ typedef struct {
     int8_t brk_held;                   /* BREAK: the white key (16th) held, -1 none */
     int8_t hold_step;                  /* a drum machine: the step (white key) held, -1 none */
     uint8_t hold_created, hold_used;   /* drums / BREAK: the press turned the step on; a knob or a slice used it */
+    int8_t chain_first;
+    int8_t touched;                    /* knob cell being turned (4 = tempo), -1 none */
     uint32_t step_t0;                  /* when the held 303 step went down: a tap toggles, a hold does not */
     uint32_t hold_t0;                  /* when it went down (a tap takes an old step off) */
     uint16_t brk_pinkeys;              /* BREAK: black keys used to give a held step its slice (their release is not live) */
     uint8_t gen_stale[NBASS];          /* TB-3PO's knobs changed since the line was written */
     uint32_t btn, keys, btn_used;
-    int8_t chain_first;
     uint32_t enc_t[NE];
     uint8_t enc_run[NE];               /* quick detents in a row (acceleration waits for a spin) */
     char msg[28];
     uint32_t msg_until;
-    int8_t touched;                    /* knob cell being turned (4 = tempo), -1 none */
     uint32_t touch_until;
     uint8_t overlay;
     uint8_t list_sel, list_top, list_n;
