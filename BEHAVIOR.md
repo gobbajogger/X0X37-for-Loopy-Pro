@@ -56,7 +56,7 @@ GEN-29. When clip mode is off and no menu list is open, "<" and ">" move SELECT 
 GEN-30. FADER BANK switches the faders between bank A and bank B. The FADER BANK LED is on for bank B. [SMK37] [CODE app/main_fm1.c:607-613]
 GEN-31. Bank A faders 1-4 set the levels of the 909, the 808, 303A and 303B. [SMK37] [CODE app/main_fm1.c:628-629]
 GEN-32. Bank B faders 1-4 set the BREAK level, the reverb return, the delay return and the master FILTER. [SMK37] [CODE app/main_fm1.c:630-637]
-GEN-33. A fader has an effect only after it moves. This is also true after a bank change. [SMK37] [CODE app/main_fm1.c:621-626]
+GEN-33. A fader takes over when it reaches or crosses the saved value, within two raw counts. This applies after a bank change and after a knob or loaded project changes the target. Until then, moving it shows the fader number and the direction toward the saved value. The hint leaves the pattern or song bar and tempo visible. [SMK37] [CODE app/main_fm1.c smk_faders; app/ui.c draw_header]
 GEN-34. A fader sets the same value as the related knob. The project keeps the value. With REC on, the fader records knob motion. [SMK37] [CODE app/main_fm1.c:641-642]
 GEN-35. The pitch wheel changes the TUNE of the 303 on the screen by about +-1.5 semitones. It goes back when you release it. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:708-712]
 GEN-36. The mod wheel opens the CUTOFF of the 303 on the screen from the saved value to the top. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:713-720]
@@ -366,7 +366,7 @@ CLP-26. OCT- and OCT+ move the local 8x2 view down and up by 2 rows. The move st
 CLP-27. In clip mode, KNOB BANK exits on press. FADER BANK changes the fader bank. "<" and ">" step the selected clip keys field when its page is open (CLP-76). With a menu list open, they step the menu value (GEN-56). Only smk_arrows reads them then, so one press gives one step.
   - With no menu and a SCALE, CHORD or ARP page on the screen, "<" and ">" step the selected field of the page. The hold repeat is the same, 400 ms then 80 ms (CLP-76). SCALE, CHORD, ARP and NOTE REPEAT go to the clip keys only (CLP-61). The firmware sends no APC navigation messages. [APC] [PADMAP] [CODE app/main_fm1.c smk_arrows] [CODE app/main_fm1.c ck_controls]
   - (Was OQ-02. Resolved 2026-10-15: PAD_MAP.md and BUILDING.md now agree with the code. Changed 2026-10-16: FADER BANK and < > work the page. Changed 2026-10-16, a77: a menu list in clip mode, owner approval 21:20.)
-CLP-28. The four faders and FADER BANK work in clip mode. Bank A sets the 909, 808, 303 A and 303 B levels. Bank B sets BREAK level, reverb return, delay return and master filter. A fader takes over after it moves. [CODE app/main_fm1.c smk_faders]
+CLP-28. The four faders and FADER BANK work in clip mode. Bank A sets the 909, 808, 303 A and 303 B levels. Bank B sets BREAK level, reverb return, delay return and master filter. A fader takes over when it reaches or crosses the saved value. [CODE app/main_fm1.c smk_faders]
 CLP-29. In clip mode, the update-mode hold (OCT- and OCT+ for 5 s) does nothing. [CODE app/main_fm1.c:1078-1083]
 CLP-30. In clip mode, a pad press on a lit cell sends note-on (velocity 127) for the cell APC note on MIDI channel 1. The release sends note-off. [CODE app/main_fm1.c:823-839] [CODE usb.c:147-153]
 CLP-31. A pad press on an unlit cell sends nothing. [APC "Spatial mapping"] [CODE app/main_fm1.c:830]

@@ -3162,25 +3162,33 @@ static int steps_len(void)
 /* -------------------------------------------------------------- header --- */
 static void draw_header(void)
 {
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+#endif
     char b[24];
     int32_t x;
     int ss = save_state();
+    int pickup = ui.msg[0] == 'P' && ui.msg[1] == 'I' && ui.msg[2] == 'C' &&
+                 ui.msg[3] == 'K' && ui.msg[4] == ' ';
     cv_begin(240, HDR_H, C_BLACK);
     cv_rect(0, HDR_H - 1, 240, 1, C_LINE);
-    if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0) {   /* what a button just did */
+    if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0 && !pickup) {   /* what a button just did */
         box(0, 0, 240, HDR_H - 1, part_col());
         text_c(120, vc(&FONT_B, 0, HDR_H - 1), &FONT_B, ui.msg, C_BLACK);
         cv_commit(0, 0, 0);
         return;
     }
-    ui.msg_until = 0;
+    if (!pickup || (int32_t)(ui.msg_until - plat_ms()) <= 0)
+        ui.msg_until = pickup = 0;
+    if (pickup) {                         /* fader pickup hint in the left chip; song/pattern and tempo stay visible */
+        x = cv_text(4, vc(&FONT_S, 1, 17), &FONT_S, ui.msg, C_AMB) + 6;
+    }
 #if BOARD_SMK37
-    extern uint8_t smk_clip_mode_on(void);
-    if (smk_clip_mode_on()) {                         /* clip mode: the mode chip reads LP (Loopy Pro) */
+    else if (smk_clip_mode_on()) {                         /* clip mode: the mode chip reads LP (Loopy Pro) */
         x = cv_text(4, vc(&FONT_B, 1, 17), &FONT_B, "LP", C_HI) + 6;
-    } else
+    }
 #endif
-    if (part_view()) {                                /* the part chip, then where we are */
+    else if (part_view()) {                           /* the part chip, then where we are */
         int32_t w = tw(&FONT_B, PART_N[ui.part]) + 12;
         box(0, 1, w, 17, part_col());
         cv_text(6, vc(&FONT_B, 1, 17), &FONT_B, PART_N[ui.part], C_BLACK);
