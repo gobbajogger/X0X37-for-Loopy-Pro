@@ -164,6 +164,8 @@ static int is_drum(void) { return ui.part == PART_909 || ui.part == PART_808; }
 static int bidx(void) { return ui.part == PART_303B ? 1 : 0; }
 static int kbd_on(void) { return is_303() && (ui.rec || ui.freeplay[bidx()]); }   /* the keys a keyboard */
 static uint8_t kbd_held_note[NBASS];
+static uint8_t bass_rec_step[NBASS];                 /* recorded source step + 1; zero means none */
+static uint8_t bass_rec_pat[NBASS], bass_rec_playing[NBASS];
 static uint8_t kbd_held_key[NBASS];                  /* physical key + 1; survives octave and part changes */
 static int held_note_of(const bpart_t *bp, int s);
 static void bass_step_cancel(void);
@@ -2093,12 +2095,29 @@ static void drum_step(int white, int down)
 
 static int kbd_note(int k) { return 41 + k + 12 * ui.oct; }
 
+/* Slide belongs to the source note, not the newly pressed destination. Only link a
+ * note written by this held-key gesture in the same pattern and recording mode. */
+static void bass_rec_link(int b, int step)
+{
+    bpart_t *bp = &cur_pat()->bass[b];
+    int prev = (int)bass_rec_step[b] - 1;
+    int len = bp->len ? bp->len : 16;
+    if (kbd_held_note[b] && prev >= 0 && prev < len && prev != step &&
+        bass_rec_pat[b] == seq.ppat[ui.part] && bass_rec_playing[b] == seq.playing &&
+        bstep_gate(&bp->step[prev]) == G_NOTE && bp->step[prev].note == kbd_held_note[b])
+        bp->step[prev].flags |= BS_SLIDE;
+    bass_rec_step[b] = (uint8_t)(step + 1);
+    bass_rec_pat[b] = seq.ppat[ui.part];
+    bass_rec_playing[b] = seq.playing;
+}
+
 static void bass_write(int b, int note, int gate)
 {
     bpart_t *bp = &cur_pat()->bass[b];
     int len = bp->len ? bp->len : 16, w = ui.wpos[b] % len;
     uint8_t f = (uint8_t)gate;
     if (gate == G_NOTE) {
+        bass_rec_link(b, w);
         if (ui.btn & (1u << B_ENV)) {
             f |= BS_ACCENT;
             ui.btn_used |= 1u << B_ENV;
@@ -2110,6 +2129,8 @@ static void bass_write(int b, int note, int gate)
         bp->step[w].note = (uint8_t)note;
         bp->step[w].velocity = BASS_VELOCITY_DEFAULT;
     }
+    if (gate != G_NOTE)
+        bass_rec_step[b] = 0;
     bp->step[w].flags = f;
     ui.wpos[b] = (uint8_t)((w + 1) % len);
     mark_dirty();
@@ -2119,14 +2140,13 @@ static void bass_kbd(int key)
 {
     int b = bidx(), n = kbd_note(key);
     engine_bass_on(b, n, (ui.btn & (1u << B_ENV)) != 0, kbd_held_note[b] != 0);
-    kbd_held_note[b] = (uint8_t)n;
-    kbd_held_key[b] = (uint8_t)(key + 1);
     if (ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
     } else if (ui.rec && seq.playing) {
         bpart_t *bp = &cur_pat()->bass[b];
         int s = rec_step(TRK_BASS0 + b);
         uint8_t f = G_NOTE;
+        bass_rec_link(b, s);
         if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
             f |= BS_ACCENT;
             ui.btn_used |= 1u << B_ENV;
@@ -2140,7 +2160,10 @@ static void bass_kbd(int key)
         bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
         seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
         mark_dirty();
-    }
+    } else
+        bass_rec_step[b] = 0;
+    kbd_held_note[b] = (uint8_t)n;
+    kbd_held_key[b] = (uint8_t)(key + 1);
 }
 
 /* an edit sounds as the drum keys do (KEY SOUND): while stopped or recording, or always */
@@ -2239,6 +2262,7 @@ void smk_clip_enter_cleanup(void)
             engine_bass_off(b);
             kbd_held_note[b] = 0;
             kbd_held_key[b] = 0;
+            bass_rec_step[b] = 0;
         }
 }
 #endif
@@ -2251,6 +2275,7 @@ static void key_event(int k, int down)
                 engine_bass_off(b);
                 kbd_held_note[b] = 0;
                 kbd_held_key[b] = 0;
+                bass_rec_step[b] = 0;
                 return;
             }
     }
@@ -2503,6 +2528,7 @@ X0X_COLD static void button_tap(int b)
             do_undo(1);
             break;
         }
+        memset(bass_rec_step, 0, sizeof bass_rec_step);
         if (seq.playing)
             seq_stop(&seq);
         else {
@@ -2524,6 +2550,7 @@ X0X_COLD static void button_tap(int b)
             break;
         }
         bass_step_cancel();                            /* key-up will now take the keyboard path */
+        memset(bass_rec_step, 0, sizeof bass_rec_step);
         ui.rec = !ui.rec;
         if (ui.rec && is_303())
             ui.wpos[bidx()] = 0;
@@ -2644,6 +2671,10 @@ X0X_COLD static void input(void)
 {
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     int e;
+    for (i = 0; i < NBASS; i++)
+        if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||
+            bass_rec_pat[i] != seq.ppat[PART_303A + i] || bass_rec_playing[i] != seq.playing)
+            bass_rec_step[i] = 0;
     if (ui.held_step >= 0 && (ui.part != ui.held_step_part || seq.ppat[ui.part] != ui.held_step_pat))
         bass_step_cancel();                            /* playback or a cue changed the pattern under the key */
 #if BOARD_SMK37
@@ -4467,6 +4498,7 @@ static void leds(void)
 void ui_init(void)
 {
     int i;
+    memset(bass_rec_step, 0, sizeof bass_rec_step);
     for (i = 0; i < NKEYS; i++) {
         if (KEY_WHITE[i] >= 0)
             WHITE_KEY[KEY_WHITE[i]] = (uint8_t)i;
