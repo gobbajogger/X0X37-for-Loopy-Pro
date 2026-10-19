@@ -183,6 +183,8 @@ static void smc_fader(int n, uint8_t v)
 
 static void smc_knob(int n, int delta)
 {
+    if (ui.overlay != O_NONE || ui.help)
+        return;                          /* a menu/help card covers both clip and X0X fields */
     if (smk_ck_smc_turn(n, delta))
         return;                          /* a SCALE / CHORD / ARP page owns its visible fields */
     pref_t r = smc_page_target(n);
