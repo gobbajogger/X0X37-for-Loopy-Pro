@@ -20,6 +20,7 @@ uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; 
 void smk_clip_lcd_force(void) {}
 uint8_t smk_clip_wait(void) { return 0; }
 uint8_t smk_ck_ext(void) { return 0; }
+uint8_t smk_ck_flash_busy(void) { return 0; }
 uint8_t smk_ck_knobs_owned(void) { return 0; }
 uint8_t smk_ck_panel(uint32_t *last, uint32_t force) { (void)last; (void)force; return 0; }
 uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held)
@@ -187,7 +188,7 @@ static void test_303_step_preview_lifecycle(void)
     b->flags = G_NOTE;
 
     key(white, 1);
-    tick(2);
+    tick(10);
     CHECK(engine_midi_held() & 1, "303 A step preview starts while its key is held");
     enc_acc[EN_ALGO] = 1;                              /* change A to B with the key still down */
     tick(20);

@@ -52,7 +52,7 @@ test_class() {
     ota-entry|update-loader|installer|installer-targets|installer-slots|slot-backup|upload-tools|\
     breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|emu|emu-slots|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) echo S ;;
-    rec-live) echo S ;;   # it reads build/gen from host-build (phase 1), so it runs after phase 1
+    rec-live|rec-live-smk) echo S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|host-build) echo G ;;
     scenario-*|perf-scratch) echo C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) echo P ;;
