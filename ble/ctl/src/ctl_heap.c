@@ -8,14 +8,7 @@ extern u8 __ctl_heap_start[], __ctl_heap_end[];
 
 struct blk { u32 size; struct blk *next; }; /* size includes header; bit0 = used */
 static struct blk *heap_first;
-static u32 heap_used, heap_peak, heap_fails, heap_fail_n;
-/* for DIAG after a failure: peak bytes in use (bits 0-15), failed allocations (bits 16-23),
- * the last failed request in 16-byte units (bits 24-31, 255 = larger) */
-u32 ctl_heap_stat(void)
-{
-    u32 n = heap_fail_n >> 4;
-    return (heap_peak & 0xFFFFu) | (heap_fails > 255u ? 255u : heap_fails) << 16 | (n > 255u ? 255u : n) << 24;
-}
+u32 ctl_heap_stat(void) { return 0; } /* image space is reserved for both LE roles */
 
 void ctl_heap_init(void)
 {
@@ -40,13 +33,9 @@ void *malloc(size_t n)
             b->size = need; b->next = r;
         }
         b->size |= 1u;
-        heap_used += b->size & ~1u;
-        if (heap_used > heap_peak) heap_peak = heap_used;
         ctl_port_irq_restore(f);
         return b + 1;
     }
-    heap_fails++;
-    heap_fail_n = (u32)n;
     ctl_port_irq_restore(f);
     return NULL;
 }
@@ -55,7 +44,6 @@ void free(void *p)
 {
     if (!p) return;
     u32 f = ctl_port_irq_save();
-    heap_used -= ((struct blk *)p - 1)->size & ~1u;
     ((struct blk *)p - 1)->size &= ~1u;
     ctl_port_irq_restore(f);
 }

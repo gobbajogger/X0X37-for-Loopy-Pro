@@ -86,7 +86,7 @@ void ctl_port_irq_reroute(u8 prio)
 {
     volatile u32 *cfg = (volatile u32 *)(uintptr_t)ctl_bp->icfg_base;
     u32 n, sh;
-    for (n = 0; n < 128u; n++)
+    for (n = 0; n < 64u; n++)
         if (ctl_mb->irqs_routed[n >> 5] & (1u << (n & 31u))) {
             sh = (n & 7u) * 4u;
             cfg[n >> 3] = (cfg[n >> 3] & ~(0xFu << sh)) | ((((u32)prio & 7u) << 1 | 1u) << sh);

@@ -21,9 +21,14 @@ The two programs share no code. The app calls only the image's two entry points:
 - `poll` runs on core 1 between audio jobs, with interrupts on. The controller's interrupts also run on core 1. X0X routes none of its own interrupts there.
 
 Everything else goes through the mailbox (in BLERAM): two byte rings of HCI packets
-(`[u16 length][u8 H4 type][bytes]`), one writer and one reader each. The app side is a plain
-BLE-MIDI peripheral (felucca-bsp's `ble_midi_host`, extended): advertising, one connection,
-the BLE-MIDI GATT service, notifications, no pairing.
+(`[u16 length][u8 H4 type][bytes]`), one writer and one reader each. At boot the app selects
+one of two BLE-MIDI roles. The default is the existing peripheral: it advertises, accepts one
+connection, and serves BLE-MIDI without pairing. The SMC-Mixer setting selects a central:
+it scans for an `SMC` advertising name, connects, discovers the BLE-MIDI GATT service,
+subscribes to notifications, and sends LED MIDI. The controller image contains both roles,
+but the app uses one role per boot. A change to the role setting takes effect after reboot.
+If the mixer is absent, central mode keeps scanning; it does not fall back to peripheral mode.
+The one-link controller cannot use both roles at once.
 
 Before X0X turns the flash off (store writes, sample uploads, SPI reads), it parks core 1 in RAM
 with its interrupts off (`fm1_cpu1_park`). The image runs from the flash, so it must not run then.
@@ -54,7 +59,7 @@ python3 tools/fm1_install.py build/x0x-smk37.fwsc      # adds ~/.config/x0x/ctl.
 Or `tools/add_ctl.py PACKAGE ctl.img -o NEW.fwsc`, or the web installer's ctl.img field. Each X0X
 update writes the Bluetooth block, so add the image to every update.
 
-## Numbers (2026-10-15)
+## Numbers (2026-10-15 baseline)
 
 - Image: 64,504 B of 65,536 (1,032 B free). RAM 0x01C01800-0x01C0767F (24,192 B of 26,368: RAM code 3,504 B, data 1,804 B, bss 6,592 B, heap 8 KiB, run stack 2 KiB, interrupt stack 2 KiB).
 - App: BLERAM 3,460 B of 4,096. Main RAM .data+.bss 98,080 B of 98,304. Pool headroom 8,496 B. App code 544,184 B (8,488 B below the block).
@@ -62,3 +67,5 @@ update writes the Bluetooth block, so add the image to every update.
 ## Not tested on hardware
 
 See docs/plans/2026-10-15-ble-stage3-test-plan.md.
+The SMC central role has host-side parser/state tests, but has not been connected to a mixer
+or tested on the unit. The controller's pairing feature is disabled; neither role offers pairing.

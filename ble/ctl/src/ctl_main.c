@@ -124,11 +124,10 @@ void ctl_fail(u32 err)
     ctl_port_irq_save();
     failed = 1;
     if (ctl_mb) {
-        for (n = 0; n < 128u && cfg; n++)
+        for (n = 0; n < 64u && cfg; n++)
             if (ctl_mb->irqs_routed[n >> 5] & (1u << (n & 31u)))
                 cfg[n >> 3] &= ~(1u << ((n & 7u) * 4u));
         ctl_mb->err = err;
-        ctl_mb->dbg[XB_DBG_MS] = ctl_heap_stat();   /* the stage time is not needed now: the heap use */
         XB_SYNC();
         ctl_mb->state = XB_ST_FAILED;
         XB_SYNC();
@@ -141,14 +140,6 @@ static int boot_ok(const xb_boot_t *bp)
 {
     return bp && bp->magic == XB_BOOT_MAGIC && bp->abi == XB_ABI && bp->mbox &&
            bp->tick_addr && bp->vec_base && bp->icfg_base;
-}
-
-/* the start record for the app (xb_mbox_t dbg): the step and the time */
-static void stage(u32 n)
-{
-    ctl_mb->dbg[XB_DBG_STAGE] = n;
-    ctl_mb->dbg[XB_DBG_MS] = ctl_ms();
-    XB_SYNC();
 }
 
 /* core 1, once, as an app job, with the app's core 0 waiting in RAM: set up the RAM, the
@@ -173,33 +164,26 @@ static u32 ctl_init(u32 arg)
     ctl_os_init();
     ctl_port_tick_start(1000);
     t_init = ctl_ms();
-    stage(XB_STG_ENTRY);
-    stage(XB_STG_OS);
-    stage(XB_STG_H4);
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
     btctrler_task_init(&ctl_transport, NULL);
-    stage(XB_STG_TASK);
     /* The RF trim runs in the controller task during the settle loop. Its inner loops are in RAM, but
      * JieLi's interrupt handlers are in the flash, and flash reads can come back wrong under the trim's
      * high current (felucca-bsp#2). Core 1 died twice at the same place in the trim (rd_adc_peak).
      * So the interrupts stay off until the trim has settled: no flash reads from interrupts. */
     (void)ctl_port_irq_save();            /* off, and the tasks' critical sections keep them off */
     t0 = ctl_ms();
-    stage(XB_STG_SETTLE);
     while ((s32)(ctl_ms() - t0) < (s32)bp->settle_ms) {   /* the RF trim runs in the controller task */
         if (ctl_os_run_once())
             idle = 0;
         else if (++idle > 2000u && (s32)(ctl_ms() - t0) > 50)
             break;                        /* every task waits: settled */
     }
-    stage(XB_STG_SETTLED);
     /* The interrupts stay off until the first poll on core 1. */
     ctl_mb->dbg[XB_DBG_INIT_MS] = ctl_ms() - t_init;
     if (ctl_mb->err != XB_E_NONE) {
         ctl_mb->state = XB_ST_FAILED;
         return ctl_mb->err;
     }
-    stage(XB_STG_READY);
     ctl_mb->dbg[XB_DBG_MS] = 0;           /* from now on: HCI counters (ctl_host_poll, c2h) */
     ctl_mb->dbg[XB_DBG_INIT_MS] = 0;
     ctl_mb->state = XB_ST_READY;

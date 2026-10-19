@@ -124,6 +124,7 @@ u16 CRC16(const void *ptr, u32 len)
     }
     return crc;
 }
+u16 crc_get_16bit(const void *ptr, u32 len) { return CRC16(ptr, len); }
 u32 crc_get_32bit(const char *src)
 {
     u32 crc = 0xFFFFFFFFu;               /* CRC-32 (IEEE) of a NUL-terminated string */

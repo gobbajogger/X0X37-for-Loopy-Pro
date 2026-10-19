@@ -158,6 +158,7 @@ void plat_midi_out(uint32_t pkt)
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }
 void plat_ble_set(int on) { (void)on; }
+int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
 #endif
 
 int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -1; }

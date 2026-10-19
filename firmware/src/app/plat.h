@@ -76,6 +76,8 @@ enum { PLAT_BLE_NOIMG, PLAT_BLE_OFF, PLAT_BLE_RESTART, PLAT_BLE_STARTING, PLAT_B
 int plat_ble_state(void);
 const char *plat_ble_name(void);
 void plat_ble_set(int on);
+/* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
+int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 
 /* performance (the PERF screen; firmware/hal/fm1_perf.h): a counter for timing stages, the CPU's
  * clock cycles when its counter runs, else the 24 MHz timer; which one it is; the 24 MHz timer;
