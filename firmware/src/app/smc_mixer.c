@@ -215,6 +215,7 @@ static void smc_toggle_fx(int which)
 
 static void smc_record_toggle(void)
 {
+    bass_step_cancel();                /* panel REC does this before key-up changes from step to note */
     ui.rec = !ui.rec;
     if (ui.rec && is_303())
         ui.wpos[bidx()] = 0;
