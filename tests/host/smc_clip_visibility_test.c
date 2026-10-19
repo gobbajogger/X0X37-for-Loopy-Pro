@@ -34,7 +34,7 @@ static void engine_smc_solo(uint8_t solo) { (void)solo; }
 static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
 static void smc_release(uint8_t note) { (void)note; }
 static void smc_fader(int n, uint8_t value) { (void)n; (void)value; }
-static pref_t smc_page_target(int n) { (void)n; return (pref_t){R_ENG}; }
+static pref_t smc_knob_target(int n) { (void)n; return (pref_t){R_ENG}; }
 static void turn_ref(pref_t r, int delta, int enc)
 {
     (void)r; (void)enc;
@@ -74,9 +74,15 @@ static void covered(uint8_t overlay, uint8_t help)
     ui.help = help;
     for (int n = 0; n < 8; n++)
         turn(n, 1);
-    check(help ? "help blocks clip fields and X0X fallback" : "menu blocks clip fields and X0X fallback",
-          !memcmp(before, fields, sizeof before) && dirty == d && notices == nt &&
-          fallback_turns == ft && page_value == pv && ui.act_t == act);
+    if (overlay == O_LIST && !help) {
+        check("menu owns encoders without editing covered clip fields",
+              !memcmp(before, fields, sizeof before) && dirty == d &&
+              fallback_turns == ft + 8 && page_value == pv + 8);
+    } else {
+        check(help ? "help blocks clip fields and X0X fallback" : "confirmation blocks clip fields and X0X fallback",
+              !memcmp(before, fields, sizeof before) && dirty == d && notices == nt &&
+              fallback_turns == ft && page_value == pv && ui.act_t == act);
+    }
     check("covered encoder events are drained", smc_qr == smc_qw && smc_host_r == smc_host_w);
     memcpy(before, fields, sizeof before);
     d = dirty;
@@ -104,8 +110,9 @@ int main(void)
             check("visible stage edits its first field", fields[f] == 1 && dirty == d + 1 && fallback_turns == ft);
             covered(O_LIST, 0);
             covered(O_NONE, 1);
+            covered(O_ASK, 0);
             turn(0, 0x41);
-            check("visible stage resumes editing", fields[f] == 0 && fallback_turns == ft);
+            check("visible stage resumes editing", fields[f] == 0 && fallback_turns == ft + 8);
         }
         ck.pg = 0;                    /* clip grid, with the normal X0X page underneath */
         covered(O_LIST, 0);

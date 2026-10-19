@@ -4,13 +4,20 @@ Choose **GLOBAL → BLUETOOTH MIDI → BT ROLE → SMC HOST**, enable Bluetooth,
 
 The eight faders use pickup. A fader starts changing a value when it reaches the value currently shown by X0X (within two MIDI steps, or crossing it). A changed page or another change to that value resets pickup. X0X sends the target fader position back to the SMC so its pickup light can guide the move.
 
-| Control | HOME and clip grid | Other X0X pages |
+| Screen | Faders | Encoders |
 | --- | --- | --- |
-| Faders 1–5 | 909, 808, 303A, 303B, BREAK levels | Current page's four values, then next page's four values |
-| Faders 6–8 | Reverb level, delay level, master level | Same page rule; a one-page view uses the selected part's level, pan, reverb and delay sends for faders 5–8 |
-| Encoders 1–8 | First four X0X page values, then the next four or the selected part's mix | The visible page's fields, one value step per click; on an open SCALE, CHORD or ARP page, the eight positions follow its two columns of fields |
+| HOME / clip grid | 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter | Visible page fields except those already assigned to a fader |
+| 909 MIX / 808 MIX | Individual sample levels: tracks 1–8, or tracks 9–12 on faders 1–4 | Selected sample's pan, reverb and delay on knobs 2–4; knob 1 inactive |
+| Other X0X pages | Main mixer, same as HOME | Visible fields except those already assigned to a fader |
+| Open menu | Main mixer, same as HOME | Six visible rows, except fader targets. Headings, actions and unused positions are inactive |
+| SCALE / CHORD / ARP editor | Main mixer, same as HOME | Visible fields in the editor's two columns |
+| Help / confirmation | Inactive | Inactive |
 
-For strips 1–5, **M** toggles that part's mute, **S** solos it while held, **R** selects the part and toggles recording, and **SELECT** selects the part. Several held **S** buttons can solo several parts together. Solo clears when the SMC disconnects. The stock User preset's MMC buttons provide no release event, so **S** latches on/off there. On strips 6–8, **M** toggles reverb, delay or master output; the other three buttons open their FX, mix, part or home pages. The SMC's **PLAY**, **STOP** and **REC** control X0X transport and recording. Rewind and fast-forward move the selected part's pattern. Bank and channel left/right move between parts; arrows move pages or a selected menu value. These SMC actions do not send APC40 clip commands.
+On 909 MIX and 808 MIX, **Bank Left** selects tracks **1–8** and **Bank Right** selects **9–12**. Faders 5–8 are inactive in the second bank. Selecting a sample with the keyboard also selects its fader bank. Each drum machine keeps its own selection. Changing banks resets pickup for the new targets. The bank buttons show the track range in the header. Channel Left/Right still select parts. Controls never fall back to hidden next-page fields.
+
+For strips 1–5, **M** toggles that part's mute, **S** solos it while held, **R** selects the part and toggles recording, and **SELECT** selects the part. Several held **S** buttons can solo several parts together. Solo clears when the SMC disconnects. The stock User preset's MMC buttons provide no release event, so **S** latches on/off there. On strips 6–8, **M** toggles reverb, delay or master output; the other three buttons open their FX, mix, part or home pages. The SMC's **PLAY**, **STOP** and **REC** control X0X transport and recording. Rewind and fast-forward move the selected part's pattern. Outside the drum MIX pages, bank and channel left/right move between parts; arrows move pages or a selected menu value. These SMC actions do not send APC40 clip commands.
+
+Fader 8's master filter matches the keyboard's bank-B filter: low-pass below the middle, neutral in the middle, and high-pass above it. Strip 8's M button still toggles master output, and its light reflects that output mute.
 
 ## MIDI messages
 

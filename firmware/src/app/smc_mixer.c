@@ -74,37 +74,54 @@ void smc_mmc_host(uint8_t cmd, uint8_t src)
 
 static int smc_same(pref_t a, pref_t b)
 {
-    return a.kind == b.kind && a.a == b.a && a.b == b.b && a.c == b.c;
+    /* pref_t is four bytes; compare its complete packed identity. */
+    _Static_assert(sizeof(pref_t) == sizeof(uint32_t), "packed parameter identity");
+    union { pref_t ref; uint32_t word; } x = {a}, y = {b};
+    return x.word == y.word;
 }
 
-static pref_t smc_home_target(int n)
+static __attribute__((noinline)) pref_t smc_home_target(int n)
 {
-    if (n < NPARTS)
-        return PR(R_ENG, T_MIX, n, MX_LEVEL);
-    if (n == 5)
-        return PR(R_ENG, T_FX, 0, FX_RV_LEVEL);
-    if (n == 6)
-        return PR(R_ENG, T_FX, 0, FX_DL_LEVEL);
-    return PR(R_ENG, T_FX, 0, FX_VOLUME);
+    static const pref_t targets[8] = {
+        PR(R_ENG, T_MIX, 0, MX_LEVEL), PR(R_ENG, T_MIX, 1, MX_LEVEL),
+        PR(R_ENG, T_MIX, 2, MX_LEVEL), PR(R_ENG, T_MIX, 3, MX_LEVEL),
+        PR(R_ENG, T_MIX, 4, MX_LEVEL), PR(R_ENG, T_FX, 0, FX_RV_LEVEL),
+        PR(R_ENG, T_FX, 0, FX_DL_LEVEL), PR(R_ENG, T_MST, 0, MST_DJF)
+    };
+    return targets[n];
 }
 
-/* Every page owns eight faders: its four visible cells, followed by the next page's
- * four cells. A one-page view uses the selected part's mixer strip for faders 5-8. */
+/* Only visible cells are targets. Empty positions never fall through to another
+ * page or to the selected part's mixer, which can duplicate visible controls. */
 static pref_t smc_page_target(int n)
 {
-    int p = cur_page();
-    if (n < 4)
-        return pg.r[p][n];
-    if (p + 1 < pg.n)
-        return pg.r[p + 1][n - 4];
-    return PR(R_ENG, T_MIX, ui.part, n - 4);
+    if (ui.overlay == O_LIST)
+        return n < 6 && ui.list_top + n < ui.list_n ? list_rows[ui.list_top + n] : NONE;
+    return n < 4 ? pg.r[cur_page()][n] : NONE;
 }
 
+/* Faders use the main mixer except on the visible drum MIX pages. The
+ * sample bank follows selection, including the final four of twelve tracks. */
 static pref_t smc_target(int n)
 {
-    if (smk_clip_mode_on() || ui.view == V_HOME || ui.view == V_GLO)
-        return smc_home_target(n);
-    return smc_page_target(n);
+    int kit, track;
+    if (ui.help || ui.overlay == O_ASK)
+        return NONE;
+    kit = ui.overlay == O_NONE && !smk_clip_mode_on() ? drum_mix_page() : -1;
+    if (kit >= 0) {
+        track = (ui.sel[kit] / 8) * 8 + n;
+        return track < NDRUM ? find_ref(kit ? T_808 : T_909, track, "Level") : NONE;
+    }
+    return smc_home_target(n);
+}
+
+static pref_t smc_knob_target(int n)
+{
+    pref_t r = smc_page_target(n);
+    for (int i = 0; i < 8; i++)
+        if (smc_same(r, smc_target(i)))
+            return NONE;
+    return r;
 }
 
 static uint8_t smc_scaled(pref_t r)
@@ -159,35 +176,34 @@ static void smc_fader(int n, uint8_t v)
     d = pref_desc(r);
     if (!d || !d->max || r.kind == R_ACT || r.kind == R_HDR || r.kind == R_NONE)
         return;
-    smc_show(n, 0, r);
-    ui.act_t = plat_ms();
     old = smc.value[n];
     crossed = smc_pickup_reached(smc.last[n], smc.seen & bit, old, v);
     smc.last[n] = v;
     smc.seen |= bit;
     if (!(smc.picked & bit)) {
         if (!crossed)
-            return;
+            goto show;
         smc.picked |= bit;
     }
     nv = (v * d->max + 63) / 127;
     if (nv != pref_get(r)) {
         pref_set(r, nv);
         motion_touch(r);
-        ui.act_t = plat_ms();
         smc.value[n] = smc_scaled(r);
         smc.pending |= bit;
-        smc_show(n, 0, r);
     }
+show:
+    smc_show(n, 0, r);
+    ui.act_t = plat_ms();
 }
 
 static void smc_knob(int n, int delta)
 {
-    if (ui.overlay != O_NONE || ui.help)
-        return;                          /* a menu/help card covers both clip and X0X fields */
-    if (smk_ck_smc_turn(n, delta))
+    if (ui.overlay == O_ASK || ui.help)
+        return;
+    if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
         return;                          /* a SCALE / CHORD / ARP page owns its visible fields */
-    pref_t r = smc_page_target(n);
+    pref_t r = smc_knob_target(n);
     if (r.kind == R_NONE || r.kind == R_HDR || r.kind == R_ACT)
         return;
     turn_ref(r, delta, EN_K1 + n % 4);
@@ -237,6 +253,19 @@ static void smc_select_part(int part)
     build_pages();
 }
 
+static int smc_bank(uint8_t note)
+{
+    if ((note == 0x2E || note == 0x2F) && !ui.help && ui.overlay == O_NONE &&
+        !smk_clip_mode_on() && drum_mix_page() >= 0) {
+        int kit = drum_mix_page();
+        ui.sel[kit] = note == 0x2E ? 0 : 8;
+        build_pages();
+        say(PART_N[kit], note == 0x2E ? "1-8" : "9-12");
+        return 1;
+    }
+    return 0;
+}
+
 /* All 32 strip buttons have a role. Strips 1-5 select/mute/solo/record the five
  * parts; 6-8 address reverb, delay and master. Global buttons navigate X0X. */
 static void smc_button(uint8_t note, int mmc)
@@ -266,15 +295,20 @@ static void smc_button(uint8_t note, int mmc)
             int which = strip - NPARTS;
             if (row == 2)
                 smc_toggle_fx(which);
-            else if (row == 0)
-                smc_view(which == 0 ? V_FX : which == 1 ? V_FX : V_HOME, which == 1 ? 1 : 0);
-            else if (row == 1)
-                smc_view(which == 0 ? V_MIX : which == 1 ? V_MIX : V_PART, which == 2 ? 0 : -1);
-            else
-                smc_view(which == 0 ? V_FX : which == 1 ? V_FX : V_MIX, which == 1 ? 1 : which == 2 ? 3 : 0);
+            else {
+                static const uint8_t view[4][3] = {
+                    {V_FX, V_FX, V_HOME}, {V_MIX, V_MIX, V_PART},
+                    {0, 0, 0}, {V_FX, V_FX, V_MIX}
+                };
+                static const int8_t page[4][3] = {
+                    {0, 1, 0}, {-1, -1, 0}, {0, 0, 0}, {0, 1, 3}
+                };
+                smc_view(view[row][which], page[row][which]);
+            }
         }
         return;
     }
+    if (smc_bank(note)) return;
     switch (note) {
     case 0x2E: case 0x30:             /* bank / channel left: part */
         if (ui.part) smc_select_part(ui.part - 1);
@@ -298,24 +332,17 @@ static void smc_button(uint8_t note, int mmc)
     case 0x5F:
         smc_record_toggle();
         break;
-    case 0x60: case 0x61: {            /* up/down: list row or page */
-        int d = note == 0x60 ? -1 : 1;
-        if (ui.overlay == O_LIST)
-            list_move(d);
-        else {
+    case 0x60: case 0x61: case 0x62: case 0x63: {
+        int d = (note & 1) ? 1 : -1;
+        if (ui.overlay == O_LIST) {
+            if (note < 0x62) list_move(d);
+            else ui_menu_arrow(d);
+        } else {
             int p = cur_page() + d;
             if (p >= 0 && p < pg.n) *page_of(ui.view) = (uint8_t)p;
         }
         break;
     }
-    case 0x62: case 0x63:             /* left/right: selected value, or page */
-        if (ui.overlay == O_LIST)
-            ui_menu_arrow(note == 0x62 ? -1 : 1);
-        else {
-            int p = cur_page() + (note == 0x62 ? -1 : 1);
-            if (p >= 0 && p < pg.n) *page_of(ui.view) = (uint8_t)p;
-        }
-        break;
     default: break;
     }
 }
@@ -416,7 +443,8 @@ static int smc_led(int note)
             if (row == 2) return part_muted(strip);
             return ui.part == strip;
         }
-        if (row == 2) return pref_get(smc_home_target(strip)) == 0;
+        if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
+                                     smc_home_target(strip)) == 0;
         return (strip == 5 && ui.view == V_FX) || (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
                (strip == 7 && (ui.view == V_MIX || ui.view == V_HOME));
     }
