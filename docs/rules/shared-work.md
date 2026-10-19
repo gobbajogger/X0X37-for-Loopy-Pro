@@ -1,19 +1,25 @@
 # Shared work
 
-Read before shared edits, hardware work, a hard to undo action, a wait, or a subagent handoff.
+### Rule 3: resources and waits
 
-### Rule 3: shared resources and waits
+Use separate worktrees for independent edits. Coordinate overlapping files
+before editing. Do not edit a running shared script, reset another agent's
+work, or run concurrent device writes.
 
-Use isolated worktrees for independent edits. Do not edit a shared script while it runs. Serialize device writes and edits to the same live file. Never reset or overwrite another agent's changes.
-
-While a check runs, do useful independent work. Use bounded waits and report a meaningful change. If a needed host is unavailable, make a bounded retry, then use an equivalent supported local environment or report the exact dependency. Do not wait five minutes as a ritual when the work can finish locally. A quiet or retired agent is not an approval gate.
+While a check runs, do independent work. Use bounded waits; report meaningful
+changes. After a bounded host retry, use an equivalent supported environment
+or name the dependency. Quiet or retired agents are not approval gates.
 
 ### Rule 4: Decision check
 
-Check evidence, damage, undo, cause, and scope before shared or hard to undo work. Prefer the smallest change that completes the task. Keep owner data and other agents' work safe. Investigate failures; do not bypass a real guard or report an unrun check as passed.
-
-A word such as "probably" is a reason to state uncertainty and check the relevant fact. It does not require a new approval loop for a reversible task.
+Before shared or hard to undo work, check evidence, damage, undo, cause, and
+scope. Make the smallest complete repair. Investigate failures; never bypass
+guards or claim unrun checks. Uncertainty calls for a relevant fact check,
+not repeated approval for authorized reversible work.
 
 ### Rule 16: subagents
 
-Follow core rule 16. Each prompt includes the current rules entry point, task scope, allowed files, input commit or tree, done criteria, and [style.md](style.md). Tell the agent where to read both writing skills and how to report a missing skill. Separate independent audit scopes. Use one final independent review for rule changes; repair findings in the same task. Repeat review only for a material new change or unresolved finding.
+Each prompt gives the current entry point, [style](style.md), [skill status](../SKILLS.md),
+input commit/tree, task, owned files, and done criteria. State missing exact
+skills. Keep separate scopes. Rule repairs need one final independent review;
+repeat only for a material new change or unresolved finding.

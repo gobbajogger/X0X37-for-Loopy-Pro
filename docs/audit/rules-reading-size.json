@@ -1,0 +1,42 @@
+{
+  "base": "82d0f49",
+  "measurement": "Whitespace-separated words and Unicode characters, not tokenizer counts.",
+  "sets": [
+    {
+      "set": "startup",
+      "before_words": 1465,
+      "after_words": 675,
+      "before_chars": 9842,
+      "after_chars": 4941,
+      "paths": [
+        "AGENTS.md",
+        "docs/agent-rules.md",
+        "docs/rules/core.md",
+        "docs/rules/style.md",
+        "docs/SKILLS.md"
+      ]
+    },
+    {
+      "set": "all_rules",
+      "before_words": 4017,
+      "after_words": 2371,
+      "before_chars": 26095,
+      "after_chars": 16704,
+      "paths": [
+        "AGENTS.md",
+        "docs/agent-rules.md",
+        "docs/SKILLS.md",
+        "docs/rules/SCRIPT-CHECKS.md",
+        "docs/rules/commit.md",
+        "docs/rules/core.md",
+        "docs/rules/device-bug.md",
+        "docs/rules/docs.md",
+        "docs/rules/install.md",
+        "docs/rules/integration.md",
+        "docs/rules/owner-messages.md",
+        "docs/rules/shared-work.md",
+        "docs/rules/style.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 5.631s
+
+OK
+ok   rule change, Trigger and Check: QUICK PASS 4925e3a 3 s (STE step only)
+ok   rule change, no Trigger or Check: QUICK FAIL ce8b7e0 2 s RULES: 2 commit body issues
+ok   rule change, Check names no script: QUICK FAIL ca7b833 4 s RULES: 1 commit body issues
+ok   rule change, Check: manual: QUICK PASS eb9e745 4 s (STE step only)
+ok   rule grammar hints are advisory: QUICK PASS 003440e 4 s (STE step only; STE WARN 3 issues)
+ok   USER_PREFERENCES.md entry with no rule: QUICK FAIL 89067f4 3 s RULES: PREFS FAIL 6 of 6 entries
+ok   docs/agent-rules.md change, no Trigger or Check: QUICK FAIL 09c5daa 2 s RULES: 2 commit body issues
+ok   docs change, not a rule change: QUICK PASS ce7ee5f 3 s (STE step only)
+ok   lane/dk-rules grammar hints are advisory: QUICK PASS 1884f48 4 s (STE step only; STE WARN 3 issues)
+ok   integration lane: QUICK PASS f30b327 2 s (STE step only), base 7bf5193
+quickcheck rules: 10 of 10 ok

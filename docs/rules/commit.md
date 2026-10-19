@@ -1,21 +1,37 @@
 # Tests, commits, and handoffs
 
-Read before a build, test, commit, push, or handoff.
+### Rule 9: supported checks
 
-### Rule 9: supported environments and truthful checks
+Read `BUILDING.md` and the relevant script header. Supported host tests can run
+on macOS or Linux. JieLi target tools need Linux x86-64; a working local
+container is valid. Use actual mounted paths, including linked-worktree Git
+metadata. Never change `HOME` to impersonate another machine.
 
-Build and test in a supported environment with the required tools. Native host tests can run on macOS or Linux when the test supports it. The JieLi target tools need Linux x86-64; a working local Linux container is valid. The box is one option, not a completion requirement. Read `BUILDING.md` and the script header. Configure paths for the environment in use. Never change `HOME` to pretend to be another machine.
+Set `JIELI_TOOLCHAIN` or `X0X_TOOLCHAIN`, `AC79_SDK`, and reference variables as
+needed. Keep reference pins exact. `CC` and `CXX` name single executables
+(e.g. `CC=cc CXX=c++`), not flags. A missing optional reference blocks only its
+dependent check.
 
-Use `JIELI_TOOLCHAIN` or `X0X_TOOLCHAIN`, `AC79_SDK`, and the reference variables for actual mounted paths. Use a single compiler executable for `CC` and `CXX` (for example `CC=cc CXX=c++`). Do not put compiler flags in the executable name. Keep the gate reference pins exact. A missing optional reference blocks that reference check, not all independent host tests.
+Run affected tests and required checks. Add regression tests for meaningful
+faults; docs-only edits need docs checks, not target builds. Reuse a result only
+when its checked source, configuration, tools, and dependencies still match.
+Rerun affected checks after changes or failures. Record commands, inputs, result,
+and log path once; link that evidence in handoffs. New required coverage still runs.
+Use `X0X_TEST_TIME_SCALE` only where supported; formal gates use fixed real time.
+Tests use scratch folders/repos, never live queues, results, or status files.
 
-Run the affected tests and required checks. Add a regression test when it proves the reported fault or guards a meaningful behavior. Docs edits need docs checks, not a firmware build for every sentence. Use `X0X_TEST_TIME_SCALE` only for tests that read it; formal gates use their fixed real time scale. Tests use temporary folders and repositories. They never write live results, status files, queues, or shared repositories.
+Keep required code, static RAM, and pool margins. Do not cut features or sample
+quality for a PASS. Use commit author
+`genkigenki <3080081+genkigenki@users.noreply.github.com>`.
+Group related repairs in coherent commits with relevant validation.
 
-Use commit author `genkigenki <3080081+genkigenki@users.noreply.github.com>`. Keep each commit coherent. Several related repairs can share one commit and one relevant validation run. Report exact checks and limits. Keep required code, static RAM, and pool margins; do not reduce features or sample quality to make a check pass.
+### Rule 10: lanes and handoffs
 
-### Rule 10: isolated lanes
+Check the base and existing edits. Use `lane/<agent>-<topic>` (`mb`, `sb`, `opt`,
+`btr`, `dk`); rules use `lane/dk-rules-<topic>`. Fetch/rebase only when needed
+and the approved source is reachable; never rebase another agent's work.
 
-Use a short lived branch `lane/<agent>-<topic>` (`mb`, `sb`, `opt`, `btr`, or `dk`). Rule repairs use `lane/dk-rules-<topic>`. Check the base and existing edits before work. Fetch or rebase when the approved source is reachable and needed; do not require a network fetch for a clean local docs commit. Never rebase another agent's work.
-
-The current integration task owns firmware integration and branch order. Follow the current task assignment, not the IDs in an old roster. Coordinate a file overlap before editing. Complete an authorized repair in your own scope; do not pass it round retired roles. A handoff gives the commit, files, checks, limitations, and next action. One receiving agent owns each remaining action.
-
-Push only to approved local repositories when the task needs it. A local commit and a concrete handoff can complete a lane task. Do not push directly onto another agent's active integration branch. The owner can authorize rule and enforcement script repairs together.
+The assigned integrator owns firmware branch order. Do not push to its active
+branch. Push to approved local repositories only when needed. A checked local
+commit and requested handoff can finish a lane. Handoffs give commit, files,
+checks, limits, next action, and one receiving owner.

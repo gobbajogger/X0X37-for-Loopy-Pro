@@ -11,6 +11,8 @@ Source: the owner's current rules audit request, relayed into this task. "Need t
 - 2026-10-19 (owner): The owner authorized this audit, its rule and enforcement repairs, isolated commits, checks, independent review, and project rollout. Keep firmware integration with its current task. No repeated approval for necessary reversible work (rules/docs.md rule 12A; rules/owner-messages.md rule 14).
 - 2026-10-19 (owner): Local completion, formal gate, install, device test, and release are separate evidence levels. Finish independent authorized work and name real pending dependencies (rules/core.md rule 6A; rules/integration.md rule 11; rules/install.md rule 6).
 
+- 2026-10-19 (owner, "Optimize project rules" chat): "check what other thread that works on rules had came up with and make sure that all project rules are optimized for minimal token usage while meaningfully improve speed of the development and reliability of the builds". Keep one home per requirement, read step rules on demand, reuse only matching validation evidence, and retain required checks and guards. Supersedes repeated full-rule/history reading (rules/docs.md rule 12A; rules/commit.md rule 9).
+
 ---
 
 ## Historical preference record — preserved text

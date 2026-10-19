@@ -69,22 +69,12 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
 
-    write(workspace / 'AGENTS.md', f'''# x0x37 workspace entry point
+    write(workspace / 'AGENTS.md', f'''# x0x37 workspace
 
-This folder holds several repositories. Read [agent-rules.md](agent-rules.md)
-and [rules/core.md](rules/core.md) before work. These files mirror the maintained
-rules in {canonical}/docs. The mirror supports old worktrees.
-The latest owner instruction wins over old checkout rules and historical notes.
-Use plain correct English and concise caveman style for all project output,
-including helper prompts, docs and handoffs. Read SKILLS.md for exact sources
-and known missing skills; do not claim missing skills were read or installed.
-Keep exact code, commands, paths, quotes and necessary technical meaning.
-Complete authorized work in a supported environment. Report actual checks and
-remaining dependencies. Local checks do not prove a release or device PASS.
-Protect owner data, model guards, flash and RAM limits. Do not push externally.
-Keep each task in its owned files and an isolated lane. The firmware integration
-chat owns flash_review_integration; the rules audit must not take over firmware.
-Pass this entry point and clear done criteria to each helper.
+Read [agent-rules.md](agent-rules.md) before work. It mirrors maintained
+[{canonical}/docs]({canonical}/docs/agent-rules.md) and routes to current rules
+and skill status. Current owner instructions win over old checkout text.
+Keep each task in its isolated lane; the assigned integration chat owns firmware.
 ''')
     for name in ['agent-rules.md', 'AGENTS_AND_ROOMS.md', 'USER_PREFERENCES.md']:
         if (docs / name).is_file():
@@ -93,9 +83,7 @@ Pass this entry point and clear done criteria to each helper.
         write(workspace / 'rules' / path.name, path.read_bytes())
     write(workspace / 'SKILLS.md', f'''# Writing skills
 
-Read [the maintained skill sources and status]({canonical}/docs/SKILLS.md).
-Use plain correct English and concise caveman style for all project output.
-Do not claim an unavailable exact skill has been read or installed.
+Read [current sources and status]({canonical}/docs/SKILLS.md).
 ''')
     # Preserve links to archived evidence from the mirrored rule entry points.
     for path in sorted((docs / 'archive/rules-2026-10-17').rglob('*')):
@@ -122,12 +110,9 @@ Do not claim an unavailable exact skill has been read or installed.
         entry = os.path.relpath(workspace / 'AGENTS.md', repo)
         write(repo / 'AGENTS.md', f'''# x0x37 workspace rules
 
-Read [{entry}]({entry}) at task start. It is the current workspace entry point.
-Its rule and skill links apply to every agent and helper in this checkout.
-Old local docs, plans and logs are historical when they conflict with it.
-If this checkout moves outside the workspace, use docs/agent-rules.md and
-docs/rules/core.md from the current maintained project revision. If absent,
-recover those files before work; do not fall back to obsolete box-only rules.
+Read [{entry}]({entry}) before work; its current rules supersede old checkout
+instructions. Outside this workspace, recover current `docs/agent-rules.md`
+and its linked rules/skill status before work. Never fall back to stale rules.
 ''')
     # Existing Mac hooks protect local history and proprietary refs. Preserve
     # their policy; repair only the recognized stale box-only repair notice.

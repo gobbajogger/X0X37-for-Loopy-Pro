@@ -1,7 +1,22 @@
 # Agent rules
 
-Read [rules/core.md](rules/core.md) at task start. Read the linked rule for the work you do. These repository files are the current project rules.
+At task start, read [core](rules/core.md), [style](rules/style.md), and
+[skill status](SKILLS.md). Read each once per task; reread changed sections after
+a rule update. Load the step rules below only when needed.
 
-The workspace wrapper `AGENTS.md` directs agents to the current rule checkout. Wrapper copies are mirrors for discovery, not a second rule source. If a checkout lacks these docs, use the wrapper entry point and report the missing copy. Do not follow a broken pointer or treat an old copy as current.
+These repository docs are maintained rules. Workspace copies are discovery
+mirrors, not extra reading. If a checkout lacks current docs, follow its
+`AGENTS.md` to the workspace entry. Repair broken pointers; never use stale rules.
+Current owner instructions win. Old plans, rosters, logs, backups, and
+[archives](archive/) preserve evidence, not current assignments or approvals.
+Search relevant product decisions and behavior; do not load whole histories by default.
 
-The owner's current instructions take priority over older project rules and role records. Backups, dated plans, old logs, and [archive/](archive/) are evidence of past work. They do not assign current work, require approval, or change the done criteria. Keep their original text.
+| Step | Read |
+| --- | --- |
+| Shared work, waits, helpers | [shared-work](rules/shared-work.md) |
+| Build, test, commit, handoff | [commit](rules/commit.md) |
+| Device bug | [device-bug](rules/device-bug.md) |
+| Integration, formal gate | [integration](rules/integration.md) |
+| Install, release | [install](rules/install.md) |
+| Docs, rule repair, results | [docs](rules/docs.md) |
+| Owner decision | [owner-messages](rules/owner-messages.md) |

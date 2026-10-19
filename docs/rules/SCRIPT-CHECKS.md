@@ -1,10 +1,8 @@
 # Rule checks
 
-Read when: change a rule, install a hook, or check completion.
+Read for rule/enforcement changes. Run affected checks, not this whole list by default.
 
-The current rules are in core.md. The old numbered check list is in
-../archive/rules-2026-10-17/rules/SCRIPT-CHECKS.md. Its dates, box paths, roster
-and unfinished proposals are historical evidence, not current requirements.
+[Old check numbers](../archive/rules-2026-10-17/rules/SCRIPT-CHECKS.md) are historical.
 
 | Area | Check | Evidence |
 | --- | --- | --- |

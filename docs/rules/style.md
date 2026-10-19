@@ -1,24 +1,19 @@
 # Writing style
 
-Read before any output, doc, log, commit, checklist, or agent prompt.
+### Rule 15: every agent and all output
 
-### Rule 15: all project agents and all output
+Use plain, correct English and concise caveman style in replies, prompts, docs,
+logs, commits, and handoffs. Give the result first; use short sentences and
+simple words. Preserve grammar, technical meaning, exact code, paths, commands,
+identifiers, quotes, and evidence. Brevity never hides validation or blockers.
 
-The owner requires plain, correct English and concise caveman style at all times. This applies to every project agent and subagent, including owner messages, agent messages, task prompts, docs, logs, commits, and handoffs. Earlier scope exceptions no longer apply.
+Read exact writing skills only when available; [SKILLS.md](../SKILLS.md) records
+sources and status. Never claim a missing skill was read or installed. A wording
+heuristic is advisory, not proof of skill use. No old word or sentence ban
+prevents a clear answer.
 
-Read the exact `asd-ste` and `caveman` skills before claiming to use them. [SKILLS.md](../SKILLS.md) records their current paths, sources, and recovery status. Use the project copies when available. Pass those paths to every subagent. A missing exact skill is a specific dependency: report it truthfully and keep doing independent authorized work in plain, correct, brief English. Do not invent a replacement or claim installation.
-
-Use simple words, short sentences, and the result first. Keep grammar and necessary meaning. Preserve exact code, paths, commands, identifiers, quoted evidence, and owner quotes. A short style does not excuse missing validation or an unclear handoff. An STE heuristic warns about wording; it does not prove skill use or justify changing exact evidence.
-
-Terms:
-
-- owner: the person who owns the project.
-- task agent: the agent responsible for the current task.
-- Orchestrator: the coordinator of the current task when one is assigned.
-- loop slots: flash slots 1 to 3 for imported loops.
-- gate: a full run of the formal gate script with its recorded result.
-- Bluetooth: Bluetooth Low Energy MIDI. Keep `BLE` in exact names.
-- pairing: the Bluetooth security step with saved bonds.
-- Use "behavior" and "colour" in project prose. Keep exact code spelling.
-
-Use technical names when they help the owner act or assess evidence. No old word, ID, path, or sentence count ban overrides a clear and complete answer.
+Use "behavior" and "colour" in prose; preserve code spelling. "Owner" means the
+project owner; "task agent" means the responsible agent; "Orchestrator" means
+an assigned coordinator. "Loop slots" means flash slots 1–3. "Gate" means a full
+formal script run. "Bluetooth" means Bluetooth Low Energy MIDI; keep exact
+`BLE` names. "Pairing" means security with saved bonds.
