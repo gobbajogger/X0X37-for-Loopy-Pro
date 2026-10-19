@@ -12,6 +12,7 @@
 # x86-64 or Docker (any OS: an x86-64 container; on an ARM Mac it runs emulated).
 #   JIELI_TOOLCHAIN  the toolchain root (default ~/.jieli/toolchain)
 #   CTL_NATIVE=1     build without Docker (Linux x86-64 only)
+#   CTL_NO_CACHE=1   keep output local; do not replace the shared installer cache
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$HERE/../.." && pwd)
@@ -29,5 +30,8 @@ else
 fi
 python3 "$HERE/mkimage.py" "$HERE/out/ctl.elf" "$HERE/out/ctl.img"
 # a copy for tools/fm1_install.py, which adds it to each SMK-37 install by itself (--no-ctl skips it)
-mkdir -p "$HOME/.config/x0x" && cp "$HERE/out/ctl.img" "$HOME/.config/x0x/ctl.img"
-echo "Done: $HERE/out/ctl.img (copy in ~/.config/x0x/ctl.img). tools/fm1_install.py adds it to each SMK-37 install; or use tools/add_ctl.py, or select it in the web installer."
+if [ "${CTL_NO_CACHE:-0}" != 1 ]; then
+  mkdir -p "$HOME/.config/x0x" && cp "$HERE/out/ctl.img" "$HOME/.config/x0x/ctl.img"
+  echo "Controller cache updated: $HOME/.config/x0x/ctl.img"
+fi
+echo "Done: $HERE/out/ctl.img"
