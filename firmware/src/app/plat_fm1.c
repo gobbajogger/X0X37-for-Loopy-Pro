@@ -163,6 +163,12 @@ int plat_midi_in(uint32_t *pkt)
 }
 void plat_midi_out(uint32_t pkt)
 {
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    /* Sequencer output must never become APC commands or mix with clip keys. */
+    if (smk_clip_mode_on())
+        return;
+#endif
     midi_out_event(pkt);
 #if X0X_BLE
     ble_out(pkt);                               /* the same, to a Bluetooth MIDI connection */

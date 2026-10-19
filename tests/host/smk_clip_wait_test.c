@@ -28,6 +28,8 @@ static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) { (v
 #include "app/apc40_lcd565.h"
 #include "app/apc40_lcd_idle.h"
 #include "app/smk_clip_colour.h"
+static uint32_t irq_save(void) { return 0u; }
+static void irq_restore(uint32_t f) { (void)f; }
 #include "apc_a.inc"
 static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void) {}

@@ -205,14 +205,12 @@ static volatile uint8_t apc_host_on;      /* bit 0 USB, bit 1 Bluetooth: APC han
  * (Loopy Pro on the BLE port). ble_out has one producer (the audio ISR): IRQs off around it here. */
 static void apc_out(uint32_t pkt)
 {
+    uint32_t f = irq_save();
     midi_out_event(pkt);
 #if X0X_BLE
-    {
-        uint32_t f = irq_save();
-        ble_out(pkt);
-        irq_restore(f);
-    }
+    ble_out(pkt);
 #endif
+    irq_restore(f);
 }
 static void apc_note(uint32_t note, uint32_t vel)
 {
@@ -686,14 +684,18 @@ uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_h
     if (pressed) {
         if (!clip_grid_mode || !patch_held)
             return 0u;
+        uint32_t f = irq_save();
         midi_out_event(smk_apc40_history_packet(redo, 1u));   /* USB only (the APC40 view) */
+        irq_restore(f);
         sent |= bit;
         say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);
         return 1u;
     }
     if (!(sent & bit))
         return 0u;
+    uint32_t f = irq_save();
     midi_out_event(smk_apc40_history_packet(redo, 0u));
+    irq_restore(f);
     sent &= (uint8_t)~bit;
     return 1u;
 }
@@ -1762,6 +1764,31 @@ static void smk_padcal_frame(void)
 }
 #endif
 
+/* Resolve mode ownership before either UI input path can dispatch REC or PLAY. */
+static void smk_clip_mode_poll(void)
+{
+#if X0X_DEV_PADCAL
+    if (padcal.on)
+        return;
+#endif
+    uint8_t down = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
+    if (down && !knob_bank_prev) {
+        extern void engine_clip_midi_flush(void);
+        uint32_t f = irq_save();
+        /* Entry releases old output; exit discards notes suppressed in clip mode. */
+        engine_clip_midi_flush();
+        clip_grid_mode ^= 1u;
+        irq_restore(f);
+        if (clip_grid_mode) {
+            extern void smk_clip_enter_cleanup(void);
+            smk_clip_enter_cleanup();
+            smk_apc_clip_entered();
+        }
+        say(clip_grid_mode ? "LOOPY CLIPS" : "LP OFF", 0);
+    }
+    knob_bank_prev = down;
+}
+
 CK_FN static void smk_frame(void)
 {
     while (smk_extkey_take() >= 0)
@@ -1776,19 +1803,8 @@ CK_FN static void smk_frame(void)
     (void)smk_clip_map_refresh();
     smk_faders();
     smk_wheels();
-    /* A KNOB BANK press enters or leaves clip mode. A hold makes one change only. */
+    /* Local clip view navigation. */
     {
-        uint8_t down = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
-        if (down && !knob_bank_prev) {
-            clip_grid_mode ^= 1u;
-            if (clip_grid_mode) {
-                extern void smk_clip_enter_cleanup(void);
-                smk_clip_enter_cleanup();
-                smk_apc_clip_entered();
-            }
-            say(clip_grid_mode ? "LOOPY CLIPS" : "LP OFF", 0);
-        }
-        knob_bank_prev = down;
         /* OCT- / OCT+ move the local view down / up by one 8x2 view. The move stays
          * in the latched clip footprint. plat_buttons hides these buttons from the
          * X0X UI in clip mode, so they have no other effect. */
@@ -1827,7 +1843,7 @@ CK_FN static void smk_frame(void)
                                                             apc_origin_row, apc_view, logical);
                 if (note != 0xFFu && apc_led_velocity[note] != 0u) {
                     sent_note[i] = note;
-                    apc_note(note, 127u);
+                    apc_note(note, fm1_in.pad_vel[i]);
                 }
             }
             if ((fall & bit) && sent_note[i] != 0xFFu) {
@@ -2137,6 +2153,9 @@ static void fm1_main(void)
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }
+#if BOARD_SMK37
+        smk_clip_mode_poll();
+#endif
         if (fm1_ms - last_frame >= 16u) {           /* ~60 frames/s at most; input in between */
             last_frame = fm1_ms;
             x0x_dbg.ui_frames++;

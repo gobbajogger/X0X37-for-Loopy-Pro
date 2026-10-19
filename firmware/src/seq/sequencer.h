@@ -173,6 +173,7 @@ typedef struct {
 void seq_init(seq_t *s, pattern_t *patterns);
 uint32_t seq_until_event(seq_t *s, uint32_t n);
 void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o);
+void seq_midi_flush(seq_t *s, const seq_sink_t *o); /* end tracked output without stopping local voices */
 
 /* main loop / MIDI side (all are flag writes picked up at the next block) */
 void seq_start(seq_t *s);             /* from step 1 of the current (or cued) pattern */
