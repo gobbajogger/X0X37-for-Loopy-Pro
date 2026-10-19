@@ -44,6 +44,10 @@ A previous owner device check reported that clip PLAY did not start or stop Loop
 
 White and black keys select patterns and mutes on HOME, edit steps in SEQ/PART, play or record notes under 303 FREE PLAY/REC, and play Loopy notes in clip mode. The footer describes several roles, but the same physical key can make or edit data depending on REC and screen. A short, always-visible `KEYS: STEPS / PLAY / WRITE / LOOPY` state, or an equivalent LED convention, would reduce wrong-mode presses. Validate that it fits alongside save status and pattern/clock information.
 
+### 7. Incoming SMC REC must use the same step cleanup as panel REC
+
+The separate SMC integration branch currently toggles `ui.rec` directly. Panel REC first cancels a held 303 step preview because the key-up will change meaning from step edit to keyboard play. The SMC path should call that same cleanup before changing REC. Otherwise a player who holds a step and presses SMC REC can leave the preview sounding after key-up. This needs an integration regression after the SMC branch is merged; it is not part of the current review branch yet.
+
 ## Release checks
 
 1. Rebase this review branch after the active SMC MIDI/Bluetooth work settles; resolve overlapping clip and UI files with the integration owner.
