@@ -143,10 +143,10 @@ CK_FN static uint32_t ck_rhy_pos(uint32_t r, uint32_t s)
 /* Clip keys editor: the key zones of one page. Each zone is a range of keys that sets one field. A one-key
  * zone steps its field by one (and wraps). Fields: */
 enum { CK_E_ROOT, CK_E_SCALE, CK_E_SNAP, CK_E_CHORD, CK_E_INV, CK_E_STRUM, CK_E_ORD, CK_E_RATE, CK_E_OCT,
-       CK_E_GATE, CK_E_SWING, CK_E_HUMAN, CK_E_RHY, CK_E_LATCH, CK_NE };
+       CK_E_GATE, CK_E_SWING, CK_E_HUMAN, CK_E_RHY, CK_E_LATCH, CK_E_ON, CK_NE };
 /* the highest value of each field */
 static const uint8_t CK_FMAX[CK_NE] = {11, CK_NSCALE - 1, 1, CK_NCHORD - 1, 3, 7, CK_NORD - 1, CK_NRATE - 1, 3, 9, 7, 7,
-                                       CK_NRHY - 1, 1};
+                                       CK_NRHY - 1, 1, 1};
 /* zone: (field << 12) | (first key << 6) | last key, in key order; 3 pages (SCALE, CHORD, ARP) */
 static const uint16_t CK_ZONE[] = {
     CK_E_ROOT << 12 | 0 << 6 | 11, CK_E_SCALE << 12 | 12 << 6 | 35, CK_E_SNAP << 12 | 36 << 6 | 36, 0,
@@ -181,49 +181,30 @@ CK_FN static uint32_t ck_zone_val(uint32_t z, uint32_t k, uint32_t v, uint32_t m
     return k > max ? max : k;
 }
 
-/* Clip keys page state (one byte): bits 0-1 the page (0 none, 1 SCALE, 2 CHORD, 3 ARP), bit 2 pinned, bit 3 an
- * edit since the last stage press, bits 4-7 the last field (CK_E_*) */
-enum { CK_P_PIN = 4u, CK_P_EDIT = 8u };
-#define CK_TAP_MS 300u        /* a shorter stage press with no edit is a tap; a longer one shows the page */
-/* 1: the page is on the screen. dt: the ms since the last stage press. */
-CK_FN static uint32_t ck_page_vis(uint32_t pg, uint32_t dt)
+/* Clip keys page state: bits 0-1 page (0 none, 1 SCALE, 2 CHORD, 3 ARP), bits 4-7 selected field. */
+/* The ON field is first on each page, followed by the fields shown on the screen. */
+static const uint8_t CK_PAGE_FIELDS[3][9] = {
+    {CK_E_ON, CK_E_ROOT, CK_E_SCALE, CK_E_SNAP, CK_NE},
+    {CK_E_ON, CK_E_CHORD, CK_E_INV, CK_E_STRUM, CK_NE},
+    {CK_E_ON, CK_E_ORD, CK_E_OCT, CK_E_SWING, CK_E_HUMAN, CK_E_RATE, CK_E_GATE, CK_E_RHY, CK_E_LATCH}};
+CK_FN static uint32_t ck_page_field(uint32_t pg, uint32_t f, int32_t d)
 {
-    return (pg & 3u) && ((pg & (CK_P_PIN | CK_P_EDIT)) || dt >= CK_TAP_MS);
+    const uint8_t *a = CK_PAGE_FIELDS[pg - 1u];
+    uint32_t i, n = pg == 3u ? 9u : 4u;
+    for (i = 0; i < n && a[i] != f; i++)
+        ;
+    if (i == n)
+        i = 0;
+    return a[(uint32_t)((int32_t)i + (d > 0 ? 1 : (int32_t)n - 1)) % n];
 }
-/* The stage buttons and FADER BANK. press, rel: the buttons that went down, up; cur: the buttons down now
- * (bits 0-2 SCALE CHORD ARP, bit 3 NOTE REPEAT, bit 4 FADER BANK). A stage press opens its page (held);
- * NOTE REPEAT + ARP is LATCH (no page). A stage release on its page: a tap (no edit, shorter than CK_TAP_MS)
- * puts the stage bit in *tog; the page closes unless pinned. FADER BANK pins the page (no page: the page of
- * the last field), a second press closes it. now: ms; *t0: the time of the last stage press. Return the
- * new page state. */
-CK_FN static uint32_t ck_page_btn(uint32_t pg, uint32_t press, uint32_t rel, uint32_t cur, uint32_t now,
-                                  uint32_t *t0, uint32_t *tog)
+/* A press opens its page immediately; pressing the open page again closes it. */
+CK_FN static uint32_t ck_page_press(uint32_t pg, uint32_t press, uint32_t cur)
 {
-    uint32_t i, f;
-    *tog = 0;
-    for (i = 0; i < 3u; i++) {
-        if ((press >> i & 1u) && !(i == 2u && (cur & 8u))) {
-            *t0 = now;
-            pg = (pg & (0xF0u | CK_P_PIN)) | (i + 1u);
-        }
-        if ((rel >> i & 1u) && (pg & 3u) == i + 1u) {
-            if (!(pg & CK_P_EDIT) && now - *t0 < CK_TAP_MS)
-                *tog |= 1u << i;
-            if (!(pg & CK_P_PIN))
-                pg &= 0xF0u;
-        }
-    }
-    f = pg >> 4;
-    if (press & 16u)
-        pg = pg & CK_P_PIN ? pg & 0xF0u
-                           : (pg & 3u ? pg : pg | (f < CK_E_CHORD ? 1u : f < CK_E_ORD ? 2u : 3u)) | CK_P_PIN | CK_P_EDIT;
+    uint32_t i;
+    for (i = 0; i < 3u; i++)
+        if ((press >> i & 1u) && !(i == 2u && (cur & 8u)))
+            pg = (pg & 3u) == i + 1u ? 0u : (CK_E_ON << 4) | (i + 1u);
     return pg;
-}
-/* A stage tap (owner 2026-10-17 02:51, CLP-62): on 1 (the stage went on): its page opens and stays (pinned, as
- * FADER BANK pins it). on 0 (the stage went off): the page closes and the pin goes off. i: 0 SCALE, 1 CHORD, 2 ARP. */
-CK_FN static uint32_t ck_page_tap(uint32_t pg, uint32_t i, uint32_t on)
-{
-    return on ? (pg & 0xF0u) | CK_P_PIN | (i + 1u) : pg & 0xF0u;
 }
 
 /* < and > on a page: a press steps the last field at once. A hold steps again after CK_RPT_DELAY ms, then

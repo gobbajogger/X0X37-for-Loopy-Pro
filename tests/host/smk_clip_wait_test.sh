@@ -7,7 +7,7 @@ OUT=build/host/clip_wait
 mkdir -p $OUT
 M=firmware/src/app/main_fm1.c
 awk '/^static volatile uint8_t clip_grid_mode;/{on=1} /^#include "app\/smk_clip_keys.h"/{on=0} on' $M > $OUT/apc_a.inc
-awk '/^\/\* Loopy Undo \/ Redo/{on=0} on; /^static uint32_t knob_bank_hold_start;/{on=1}' $M > $OUT/apc_b.inc
+awk '/^\/\* Loopy Undo \/ Redo/{on=0} on; /^static uint8_t knob_bank_prev;/{on=1}' $M > $OUT/apc_b.inc
 awk '/^#define PADLED_N 16u/{on=1} on && /^#endif/{exit} on' firmware/src/lcd.c > $OUT/padled.inc
 for f in apc_a apc_b padled; do
     test -s $OUT/$f.inc || { echo "FAIL: marker for $f.inc not found"; exit 1; }

@@ -223,8 +223,7 @@ static void apc_note(uint32_t note, uint32_t vel)
 #include "app/smk_arrows.h"
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
-static uint32_t knob_bank_hold_start;
-static uint8_t knob_bank_toggled;
+static uint8_t knob_bank_prev;
 static volatile uint8_t apc_led_velocity[SMK_APC40_CLIP_COUNT];
 static volatile uint8_t apc_cell_flags[SMK_APC40_CLIP_COUNT];   /* off pending, queued */
 static volatile uint8_t apc_led_channel[SMK_APC40_CLIP_COUNT];
@@ -536,7 +535,6 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
  * It uses the existing canvas (gfx.c cv_px): no new RAM buffer. */
 #define SMK_CLIP_LCD_MIN_MS 64u
 static uint8_t was_on;   /* 0: the next smk_clip_lcd_draw draws at once */
-static uint32_t ck_t0;   /* the time of the last SCALE / CHORD / ARP press (a tap or a hold) */
 static uint32_t ck_rpt_st;   /* < >: the next repeat and the arm bit (ck_rpt) */
 void smk_clip_lcd_force(void) { was_on = 0u; }
 static uint32_t ck_page_on(void);
@@ -782,8 +780,6 @@ static void smk_pads(void)
  * A fader takes over only once it moves (also after a bank change), so nothing jumps. */
 static void smk_faders(void)
 {
-    if (clip_grid_mode)
-        return;                         /* clip mode: the faders and FADER BANK do nothing */
     static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
                                            {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
     static uint8_t last[4] = {0xFF, 0xFF, 0xFF, 0xFF}, held;
@@ -940,7 +936,7 @@ static void smk_arrows(void)
  * notes first ends the notes that sound, so a release always ends exactly the notes that its key sent.
  * A note that two keys hold ends when the last of the two keys goes up. No table of notes: key bit maps. */
 typedef struct {
-    uint8_t on, pg, fl, vel;          /* on: CK_M_* bits; pg: the page (CK_P_*); fl: CK_F_* bits; vel: the last
+    uint8_t on, pg, fl, vel;          /* on: CK_M_* bits; pg: page and selected field; fl: CK_F_* bits; vel: the last
                                        * key velocity */
     uint8_t arp_note, ch, btn_prev, nk;   /* arp_note: note + 1 (0 = none); ch: the channel of all notes;
                                            * nk: keys in korder. ARP off: a strum (korder[0] the key, nk - 1
@@ -958,8 +954,7 @@ void smk_ck_midi_stop(void) { ck.off_req = 1; }
 #include "fm1_opt.h"
 #define CK_BASE ck_t *cp = &ck; FM1_BASE(cp)
 #define CK_SET settings_t *sp = &proj.set
-enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u,
-       CK_F_KNOB = 0x30u };   /* bits 4-5: the stage with the knobs + 1 (0: none, CLP-63) */
+enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
 #define CK_BIT(map, k) (((map)[(k) >> 5] >> ((k) & 31u)) & 1u)
 
 /* HUMAN timing: the note-ons that wait (main loop only). ck_qe: note | velocity << 7; ck_qt: the low 8 bits of
@@ -1214,10 +1209,10 @@ static const uint16_t CK_MODE_C[3] = {RGB(90, 200, 255), RGB(255, 150, 40), RGB(
 static const uint8_t CK_FLD[CK_NE][2] = {
     {CK_O(ck_root), 0}, {CK_O(ck_scale), 0}, {CK_O(ck_snap), 0}, {CK_O(ck_chord), 0}, {CK_O(ck_inv), 0},
     {CK_O(ck_x2), 4}, {CK_O(ck_ord), 0}, {CK_O(ck_rate), 0}, {CK_O(ck_oct), 0}, {CK_O(ck_gate), 0},
-    {CK_O(ck_x1), 0}, {CK_O(ck_x1), 3}, {CK_O(ck_x2), 0}, {0, 0}};
-static const char CK_FLD_N[] = "ROOT\0SCALE\0SNAP\0CHORD\0INV\0STRUM\0ORDER\0RATE\0OCT\0GATE\0SWING\0HUMAN\0RHYTHM\0LATCH";
+    {CK_O(ck_x1), 0}, {CK_O(ck_x1), 3}, {CK_O(ck_x2), 0}, {0, 0}, {0, 0}};
+static const char CK_FLD_N[] = "ROOT\0SCALE\0SNAP\0CHORD\0INV\0STRUM\0ORDER\0RATE\0OCT\0GATE\0SWING\0HUMAN\0RHYTHM\0LATCH\0ON";
 static const char *const CK_LIST[CK_NE] = {CK_ROOT_N, CK_SCALE_N, "NEAR\0FILTER", CK_CHORD_N, "ROOT\0/1\0/2\0/3", 0,
-                                            CK_ORD_N, CK_RATE_N, 0, 0, 0, 0, CK_RHY_N, "OFF\0ON"};
+                                            CK_ORD_N, CK_RATE_N, 0, 0, 0, 0, CK_RHY_N, "OFF\0ON", "OFF\0ON"};
 /* the mask of a field's bits (its highest value rounded up to 2^n - 1) */
 CK_FN static uint32_t ck_fmask(uint32_t f)
 {
@@ -1227,17 +1222,26 @@ CK_FN static uint32_t ck_get(uint32_t f)
 {
     if (f == CK_E_LATCH)
         return ck.fl & CK_F_LATCH;
+    if (f == CK_E_ON)
+        return (ck.on >> ((ck.pg & 3u) - 1u)) & 1u;
     return (uint32_t)((const uint8_t *)&proj.set)[CK_FLD[f][0]] >> CK_FLD[f][1] & ck_fmask(f);
 }
-/* set field f to v (0..its highest value). A field that changes the notes ends the old notes and plays the
- * new ones. The page remembers the field (< > and the panel) and the edit (the press is no tap). */
+/* Set field f to v. A note field change ends the old notes and plays the new ones. */
 CK_FN static void ck_set(uint32_t f, uint32_t v)
 {
     CK_BASE;
     uint8_t *b = (uint8_t *)&proj.set + CK_FLD[f][0];
     uint32_t m = ck_fmask(f) << CK_FLD[f][1], nt = f <= CK_E_INV;
-    cp->pg = (uint8_t)((cp->pg & 7u) | CK_P_EDIT | f << 4);
+    cp->pg = (uint8_t)((cp->pg & 3u) | f << 4);
     ui.act_t = plat_ms();                                   /* (the autosave waits for quiet) */
+    if (f == CK_E_ON) {
+        uint32_t bit = 1u << ((cp->pg & 3u) - 1u);
+        if (!!(cp->on & bit) != !!v) {
+            ck_all_off();
+            cp->on ^= (uint8_t)bit;
+        }
+        return;
+    }
     if (f == CK_E_LATCH) {
         if (v != (cp->fl & CK_F_LATCH)) {
             cp->fl ^= CK_F_LATCH;
@@ -1267,47 +1271,30 @@ CK_FN static const char *ck_val_txt(uint32_t f, uint32_t v, char *buf)
     put_s(put_i(buf, (int)v), f == CK_E_STRUM ? "MS" : f == CK_E_GATE || f == CK_E_SWING ? "%" : "");
     return buf;
 }
-/* 1: the page is on the screen: a stage button held for CK_TAP_MS (or an edit), or the page is pinned */
+/* 1: a stage page is open. */
 static uint32_t ck_page_on(void)
 {
-    return ck_page_vis(ck.pg, fm1_ms - ck_t0);
-}
-/* 1: the keys edit the page (its stage button is held, no menu) */
-CK_FN static uint32_t ck_keys_edit(void)
-{
-    uint32_t pg = ck.pg & 3u;
-    return pg && (ck.btn_prev >> (pg - 1u) & 1u) && smk_ck_knobs_owned();
-}
-/* key k on the page: the field of its zone gets the value of the key (a one-key zone: the next value) */
-CK_FN static void ck_key_edit(uint32_t k)
-{
-    uint32_t z = ck_zone((ck.pg & 3u) - 1u, k), f = z >> 12;
-    if (z)
-        ck_set(f, ck_zone_val(z, k, ck_get(f), CK_FMAX[f]));
+    return (ck.pg & 3u) != 0u;
 }
 /* knobs 2-5 of each stage (CLP-63): the field (CK_E_*), CK_NE = none */
 static const uint8_t CK_KNOB[3][4] = {{CK_E_ROOT, CK_E_SCALE, CK_E_SNAP, CK_NE}, {CK_E_CHORD, CK_E_INV, CK_NE, CK_NE},
                                       {CK_E_ORD, CK_E_RATE, CK_E_OCT, CK_E_GATE}};
-/* SCALE, CHORD, ARP: a tap (shorter than CK_TAP_MS, no edit) turns the stage on and pins its page, or turns it
- * off and closes the page (ck_page_tap). A hold shows its page,
- * and the keys edit the page. The release closes the page. FADER BANK pins the page (the keys play), a second
- * press closes it; < and > step the last field (a hold repeats, no wrap). NOTE REPEAT + ARP: LATCH on or off.
- * NOTE REPEAT alone: panic. Knobs 2-5 set the stage that has the knobs: the stage that a tap turned on last. When
- * it goes off, the knobs go to the stage that is on (ARP, CHORD, SCALE). No stage: knobs 2-8 send CC 48-54. */
+/* A stage press opens or closes its page. Knob 2 picks a field, knob 3 and < > change its value.
+ * The ON field controls the stage. Knobs 4-8 keep their direct assignments when a page is open. */
 CK_FN static void ck_controls(void)
 {
     CK_BASE;
     static const uint8_t ROLE[4] = {B_SEL, B_ENV, B_ARP, B_LFO};   /* SCALE, CHORD, ARP, NOTE REPEAT */
-    uint32_t raw = fm1_in.buttons, i, cur = 0, press, rel, f, tog, own = smk_ck_knobs_owned(), v, nv;
+    uint32_t raw = fm1_in.buttons, i, cur = 0, press, rel, f, own = smk_ck_knobs_owned(), v, nv;
     int32_t st;
     for (i = 0; i < 4u; i++)
         cur |= ((raw >> panel.btn[ROLE[i]]) & 1u) << i;
-    cur |= (raw >> SMK_BTN_FADER_BANK & 7u) << 4;            /* FADER BANK, <, > (bits 1-3) */
+    cur |= (raw >> SMK_BTN_LEFT & 3u) << 5;                  /* < and > */
     press = cur & ~(uint32_t)cp->btn_prev;
     rel = (uint32_t)cp->btn_prev & ~cur;
     cp->btn_prev = (uint8_t)cur;
     if (!own)
-        press &= ~0x70u;                                    /* a menu: FADER BANK, < and > do nothing */
+        press &= ~0x60u;                                    /* a menu: < and > belong to smk_arrows */
     if (press & 8u)
         cp->fl &= (uint8_t)~CK_F_NRUSED;
     if ((press & 4u) && (cur & 8u)) {                       /* NOTE REPEAT + ARP: LATCH */
@@ -1315,17 +1302,7 @@ CK_FN static void ck_controls(void)
         cp->fl |= CK_F_NRUSED;
         ui_say("LATCH", cp->fl & CK_F_LATCH ? " ON" : " OFF");
     }
-    cp->pg = (uint8_t)ck_page_btn(cp->pg, press, rel, cur, fm1_ms, &ck_t0, &tog);
-    for (i = 0; i < 3u; i++)
-        if (tog >> i & 1u) {                                /* a tap: the stage on or off */
-            ck_all_off();
-            cp->on ^= (uint8_t)(1u << i);
-            cp->pg = (uint8_t)ck_page_tap(cp->pg, i, cp->on >> i & 1u);   /* on: the page stays open */
-            v = cp->on >> i & 1u ? i + 1u : (cp->fl & CK_F_KNOB) >> 4 != i + 1u ? (cp->fl & CK_F_KNOB) >> 4
-                : cp->on & CK_M_ARP ? 3u : cp->on & CK_M_CHORD ? 2u : cp->on & CK_M_SCALE;   /* (as 94285b5) */
-            cp->fl = (uint8_t)((cp->fl & ~CK_F_KNOB) | v << 4);  /* on: the knobs; off: the next stage that is on */
-            ui_say(ck_nm(CK_MODE_N, i), cp->on >> i & 1u ? " ON" : " OFF");
-        }
+    cp->pg = (uint8_t)ck_page_press(cp->pg, press, cur);
     f = cp->pg >> 4;
     st = ck_rpt(own && ck_page_on() ? cur >> 5 & 3u : 0u, press >> 5 & 3u, fm1_ms, &ck_rpt_st);
     if (st) {                                               /* < >: the last field one step down / up */
@@ -1339,22 +1316,35 @@ CK_FN static void ck_controls(void)
         ck_send(0xB0u | cp->ch, 123u, 0u);                   /* All Notes Off */
         ui_say("PANIC", 0);
     }
-    v = ((cp->fl & CK_F_KNOB) >> 4) - 1u;                    /* the stage with the knobs (CLP-63), > 2: none */
+    v = (cp->pg & 3u) ? (cp->pg & 3u) - 1u : 3u;
     if (own)
         for (i = 0; i < NE; i++) {                          /* a stage: knobs 2-5 (knobs 6-8 do nothing) */
             int32_t d = fm1_enc_take(panel.enc[i]) * panel.dir[i];
             char n[12], t[12];
-            if (!d || (v < 3u && i >= 4u))
-                continue;                                   /* (taken: no old turns later) */
+            if (!d)
+                continue;
             if (v > 2u) {                                   /* no stage: CC 48-54 for MIDI-learn */
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);   /* (relative) */
                 continue;
             }
-            f = CK_KNOB[v][i];
+            if (i == 0u) {                                  /* knob 2: select the next or previous field */
+                d %= v == 2u ? 9 : 4;                       /* bound work after a fast turn */
+                while (d) {
+                    f = ck_page_field(v + 1u, cp->pg >> 4, d);
+                    cp->pg = (uint8_t)((cp->pg & 3u) | f << 4);
+                    d += d > 0 ? -1 : 1;
+                }
+                ui_say(ck_nm(CK_FLD_N, f), ck_val_txt(f, ck_get(f), t));
+                continue;
+            }
+            f = i == 1u ? cp->pg >> 4 : i == 2u ? CK_E_ON : i - 1u < 4u ? CK_KNOB[v][i - 1u] : CK_NE;
             if (f >= CK_NE)
                 continue;
             d += (int32_t)ck_get(f);
+            nv = cp->pg >> 4;
             ck_set(f, (uint32_t)(d < 0 ? 0 : d > CK_FMAX[f] ? CK_FMAX[f] : d));
+            if (i == 2u)                                /* direct ON keeps knob 3 on the selected field */
+                cp->pg = (uint8_t)((cp->pg & 15u) | nv << 4);
             put_s(put_s(n, ck_nm(CK_FLD_N, f)), " ");
             ui_say(n, ck_val_txt(f, ck_get(f), t));        /* for example "RATE 1/16" */
         }
@@ -1481,8 +1471,9 @@ static void ck_page_draw(void)
     int32_t x;
     /* no top bar (owner 2026-10-17 02:51): the KEYS strip shows the stage name and ON / OFF. The help line is
      * at the bottom, below the keys. */
-    text_c(120, vc(&FONT_T, 124, 12), &FONT_T, cp->pg & CK_P_PIN ? "KEYS PLAY  < > STEP  FADER BANK: CLOSE"
-                                                                  : "KEYS EDIT  FADER BANK: PIN", C_GRAY);
+    text_c(120, vc(&FONT_T, 124, 12), &FONT_T,
+           (cp->pg >> 4) == CK_E_ON ? (cp->on >> pg & 1u ? "STAGE ON  KNOB3 / < >: OFF" : "STAGE OFF  KNOB3 / < >: ON")
+                                    : "KNOB2 FIELD  KNOB3 / < > VALUE  KEYS PLAY", C_GRAY);
     for (k = 0; k < CK_NKEY; k++)
         col[k] = CK_BLK(k) ? RGB(25, 25, 25) : RGB(60, 60, 60);
     for (n = 0; z[n]; n++) {
@@ -1551,10 +1542,7 @@ CK_FN void smk_ck_poll(void)
         w = k >= SMK_KEY_F3 && k < SMK_KEY_F3 + NKEYS ? KEY_WHITE[k - SMK_KEY_F3] : -1;
         if (w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u))   /* a held pad blocks its white key */
             continue;
-        if (ck_keys_edit())                                 /* a stage button held: the key edits its page */
-            ck_key_edit(k);
-        else
-            ck_press(k, fm1_in.key_vel[k]);
+        ck_press(k, fm1_in.key_vel[k]);                    /* the page never steals keybed notes */
     }
     if (on) {
         ck_arp(dt);
@@ -1681,27 +1669,19 @@ static void smk_frame(void)
     (void)smk_clip_map_refresh();
     smk_faders();
     smk_wheels();
-    /* long KNOB BANK hold toggles clip-grid mode once per hold */
-    if (fm1_in.buttons & (1u << SMK_BTN_KNOB_BANK)) {
-        if (!knob_bank_hold_start) {
-            knob_bank_hold_start = fm1_ms ? fm1_ms : 1u;
-        } else if (!knob_bank_toggled && fm1_ms - knob_bank_hold_start > 1000u) {
+    /* A KNOB BANK press enters or leaves clip mode. A hold makes one change only. */
+    {
+        uint8_t down = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
+        if (down && !knob_bank_prev) {
             clip_grid_mode ^= 1u;
-            knob_bank_toggled = 1u;
             if (clip_grid_mode) {
                 extern void smk_clip_enter_cleanup(void);
                 smk_clip_enter_cleanup();
                 smk_apc_clip_entered();
             }
-            if (clip_grid_mode)
-                say("LOOPY CLIPS", 0);
-            else
-                say("LP OFF", 0);
+            say(clip_grid_mode ? "LOOPY CLIPS" : "LP OFF", 0);
         }
-    } else {
-        /* A short KNOB BANK tap does nothing in clip mode. */
-        knob_bank_hold_start = 0;
-        knob_bank_toggled = 0;
+        knob_bank_prev = down;
         /* OCT- / OCT+ move the local view down / up by one 8x2 view. The move stays
          * in the latched clip footprint. plat_buttons hides these buttons from the
          * X0X UI in clip mode, so they have no other effect. */
@@ -1717,7 +1697,6 @@ static void smk_frame(void)
                 apc_view = smk_apc40_view_after_move(apc_cols, apc_rows, apc_view, 1);
         }
     }
-    /* FADER BANK does nothing in clip mode (smk_faders returns early). */
     static uint32_t last_notes;
     static uint8_t sent_note[SMK_APC40_PAD_COUNT];
     static uint8_t was_on;

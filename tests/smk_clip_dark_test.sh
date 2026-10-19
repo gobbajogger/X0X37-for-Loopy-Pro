@@ -7,7 +7,7 @@ OUT=build/host/clip_dark
 mkdir -p $OUT
 M=firmware/src/app/main_fm1.c
 awk '/^static volatile uint8_t clip_grid_mode;/{on=1} /^#include "app\/smk_clip_keys.h"/{on=0} on' $M > $OUT/apc_a.inc
-awk '/^\/\* Loopy Undo \/ Redo/{on=0} on; /^static uint32_t knob_bank_hold_start;/{on=1}' $M > $OUT/apc_b.inc
+awk '/^\/\* Loopy Undo \/ Redo/{on=0} on; /^static uint8_t knob_bank_prev;/{on=1}' $M > $OUT/apc_b.inc
 awk '/^    uint16_t c = PART_COL/{exit} /^static void smk_pads\(void\)/{on=1} on; END{print "}"}' $M > $OUT/apc_c.inc
 awk '/^#define PADLED_N 16u/{on=1} on && /^#endif/{exit} on' firmware/src/lcd.c > $OUT/padled.inc
 for f in apc_a apc_b apc_c padled; do

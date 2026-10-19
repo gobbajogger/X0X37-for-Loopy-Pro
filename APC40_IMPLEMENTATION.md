@@ -8,8 +8,8 @@ This section shows the current behaviour (`1.8-apc40`). The version sections bel
 - Added the APC40 mkII introduction-message response, with complete-message queue reservation so a full MIDI queue cannot emit a truncated SysEx reply.
 - Replaced the local simulated clip state with host-driven LED feedback. The source retains all 40 APC logical pad IDs (`0x00..0x27`) and uses the APC velocity palette (128 colors) for static RGB rendering. Clip colors are accepted on MIDI channels 0–15; the channel does not change a clip cell's color.
 - The firmware trims empty outer APC margins and keeps internal empty cells in their positions. A footprint of 3 or 4 rows and 4 or fewer columns folds onto one 8×2 view (pad order: see `0.9-apc40` and `1.7-apc40`). Other layouts show one local 8×2 view at a time.
-- The physical pad rows are vertically flipped in clip mode. Columns stay left to right. A KNOB BANK hold of more than 1 s toggles clip mode.
-- In clip mode, `<` and `>` do not send APC LEFT or RIGHT. They only step the last field of a pinned SCALE / CHORD / ARP page (BEHAVIOR.md CLP-76). A short KNOB BANK tap does nothing. FADER BANK pins the page. The firmware sends no APC navigation messages.
+- The physical pad rows are vertically flipped in clip mode. Columns stay left to right. A KNOB BANK press toggles clip mode.
+- In clip mode, `<` and `>` do not send APC LEFT or RIGHT. They step the selected field of an open SCALE / CHORD / ARP page (BEHAVIOR.md CLP-76). KNOB BANK exits on press. FADER BANK switches the fader bank. The firmware sends no APC navigation messages.
 - OCT− and OCT+ move the local 8×2 view down and up by 2 rows. The move stays in the latched footprint. To see clips outside the Loopy APC box, change the Loopy page.
 - Pad hits do not trigger X0X pad functions. Keybed input stays available.
 - The layout latches 250 ms after the first feedback burst. It cannot shrink, so cue and play color changes cannot move pads. It grows only to complete a 4×4 fold (`smk_apc40_layout_grows` in smk_apc40.h). 8-wide layouts stay as latched. A page snapshot clears old-page cells (rules: see `0.9-apc40` and `1.0-apc40`).
