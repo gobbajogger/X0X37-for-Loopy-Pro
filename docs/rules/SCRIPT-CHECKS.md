@@ -6,6 +6,7 @@ Read for rule/enforcement changes. Run affected checks, not this whole list by d
 
 | Area | Check | Evidence |
 | --- | --- | --- |
+| Installed writing skills | `python3 tools/check_writing_skills.py` | Pinned source hashes, frontmatter, references, and discovery |
 | Rule entry and rollout | `python3 tests/host/test_rules_rollout.py` | Entry files, copy safety and archive preservation |
 | Current owner pointers | `python3 tools/prefs_lint.py docs/USER_PREFERENCES.md` | Current entries point to rules; history does not set new gates |
 | Rule commits | `bash tests/host/test_quickcheck_rules.sh` | Trigger/check evidence, valid pointers, advisory grammar |

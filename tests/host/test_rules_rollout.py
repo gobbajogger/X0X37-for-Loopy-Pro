@@ -57,6 +57,18 @@ def main():
         assert json.loads(run(*command))['files'] == 0
         assert json.loads(run(*command, '--apply'))['files'] == 0
         assert (canonical / 'AGENTS.md').read_bytes() == (source / 'AGENTS.md').read_bytes()
+        # Identical docs with absent or stale skill files must use the wrapper.
+        shutil.copytree(canonical / 'docs', workspace / 'x0x37/docs')
+        (canonical / 'skills/caveman').mkdir(parents=True)
+        (canonical / 'skills/caveman/SKILL.md').write_text('current skill\n')
+        run(*command, '--apply')
+        assert '(../AGENTS.md)' in (workspace / 'x0x37/AGENTS.md').read_text()
+        shutil.copytree(canonical / 'skills', workspace / 'x0x37/skills')
+        run(*command, '--apply')
+        assert (workspace / 'x0x37/AGENTS.md').read_bytes() == (canonical / 'AGENTS.md').read_bytes()
+        (workspace / 'x0x37/skills/caveman/SKILL.md').write_text('stale skill\n')
+        run(*command, '--apply')
+        assert '(../AGENTS.md)' in (workspace / 'x0x37/AGENTS.md').read_text()
     print('PASS rule rollout: dry run, backups, discovery, third-party exclusion, repeat')
 
 

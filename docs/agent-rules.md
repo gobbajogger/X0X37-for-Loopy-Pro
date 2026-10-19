@@ -1,7 +1,7 @@
 # Agent rules
 
 At task start, read [core](rules/core.md), [style](rules/style.md), and
-[skill status](SKILLS.md). Read each once per task; reread changed sections after
+[writing skills](SKILLS.md), including both linked skill files. Read each once per task; reread changed sections after
 a rule update. Load the step rules below only when needed.
 
 These repository docs are maintained rules. Workspace copies are discovery

@@ -20,6 +20,6 @@ not repeated approval for authorized reversible work.
 ### Rule 16: subagents
 
 Each prompt gives the current entry point, [style](style.md), [skill status](../SKILLS.md),
-input commit/tree, task, owned files, and done criteria. State missing exact
-skills. Keep separate scopes. Rule repairs need one final independent review;
+both resolved writing skill paths, input commit/tree, task, owned files, and
+done criteria. Each helper reads both skills. Report any missing file. Keep separate scopes. Rule repairs need one final independent review;
 repeat only for a material new change or unresolved finding.

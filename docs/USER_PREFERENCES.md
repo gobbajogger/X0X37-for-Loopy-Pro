@@ -13,6 +13,8 @@ Source: the owner's current rules audit request, relayed into this task. "Need t
 
 - 2026-10-19 (owner, "Optimize project rules" chat): "check what other thread that works on rules had came up with and make sure that all project rules are optimized for minimal token usage while meaningfully improve speed of the development and reliability of the builds". Keep one home per requirement, read step rules on demand, reuse only matching validation evidence, and retain required checks and guards. Supersedes repeated full-rule/history reading (rules/docs.md rule 12A; rules/commit.md rule 9).
 
+- 2026-10-19 (owner, "Install caveman and English skills" chat): "install skill caveman and simply english into project andmake sure every agent thatt works on project complies with their rules". The owner selected "Install public skills (recommended)" after the missing originals and public substitutes were explained. Use the pinned public Caveman and ASD-STE100 copies for every project agent and helper. This replaces the prior original-only recovery requirement (rules/style.md rule 15; SKILLS.md).
+
 ---
 
 ## Historical preference record — preserved text

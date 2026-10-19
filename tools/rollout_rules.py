@@ -102,6 +102,8 @@ Read [current sources and status]({canonical}/docs/SKILLS.md).
         if repo == source:
             continue
         discovery = [docs / 'agent-rules.md', docs / 'SKILLS.md', *sorted((docs / 'rules').glob('*.md'))]
+        # Matching docs alone are not enough: they now link to installed skills.
+        discovery += sorted(p for p in (source / 'skills').rglob('*') if p.is_file())
         if all((repo / p.relative_to(source)).is_file()
                and (repo / p.relative_to(source)).read_bytes() == p.read_bytes()
                for p in discovery):
