@@ -2,6 +2,7 @@
 /* M-VAVE SMC-Mixer control surface. Included after ui.c in the firmware unity build.
  * DAW messages match Mackie Control; the stock User preset uses CC and MMC SysEx.
  * TIMER5 only copies complete messages. All project, sequencer and display work is in the main loop. */
+#include "smc_protocol.h"
 
 #define SMC_Q 32u
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
@@ -44,15 +45,9 @@ int smc_connected(void) { return smc.up && smc_ble_role_get(); }
  * central's TIMER5 producer never touches it. A full ring still consumes the message. */
 int smc_midi_host(uint32_t pkt)
 {
-    uint8_t st = (uint8_t)(pkt >> 8), ty = st & 0xF0u, w = smc_host_w;
+    uint8_t st = (uint8_t)(pkt >> 8), w = smc_host_w;
     uint8_t a = (uint8_t)(pkt >> 16) & 0x7Fu;
-    if (!(proj.set.bt & PROJ_BT_SMC_USER) || (st & 15u) != 15u ||
-        (ty != 0x90u && ty != 0x80u && ty != 0xB0u))
-        return 0;
-    if (ty == 0xB0u && !((a >= 16u && a < 24u) || (a >= 40u && a < 48u)))
-        return 0;
-    if (ty != 0xB0u && !(a < 32u || a == 0x2Eu || a == 0x2Fu || a == 0x30u || a == 0x31u ||
-                         (a >= 0x5Bu && a <= 0x5Fu) || (a >= 0x60u && a <= 0x63u)))
+    if (!smc_host_accept(st, a, proj.set.bt & PROJ_BT_SMC_USER))
         return 0;
     if ((uint8_t)(w - smc_host_r) < SMC_Q) {
         smc_host_q[w % SMC_Q][0] = st;
@@ -167,11 +162,11 @@ static void smc_fader(int n, uint8_t v)
     smc_show(n, 0, r);
     ui.act_t = plat_ms();
     old = smc.value[n];
-    crossed = (smc.seen & bit) && ((smc.last[n] < old) != (v < old));
+    crossed = smc_pickup_reached(smc.last[n], smc.seen & bit, old, v);
     smc.last[n] = v;
     smc.seen |= bit;
     if (!(smc.picked & bit)) {
-        if (!crossed && (v + 2u < old || v > old + 2u))
+        if (!crossed)
             return;
         smc.picked |= bit;
     }
@@ -313,17 +308,6 @@ static void smc_release(uint8_t note)
 }
 
 /* Stock User preset commands 1..32 run M/S/R/SELECT in strip order. */
-static uint8_t smc_mmc_note(uint8_t cmd)
-{
-    static const uint8_t tail[11] = {0x5E, 0x5D, 0x5F, 0x5B, 0x5C, 0x2E, 0x2F,
-                                      0x60, 0x61, 0x62, 0x63};
-    if (cmd >= 1 && cmd <= 32) {
-        static const uint8_t base[4] = {0x10, 0x08, 0x00, 0x18};
-        return (uint8_t)(base[(cmd - 1) & 3u] + ((cmd - 1) >> 2));
-    }
-    return cmd >= 33 && cmd <= 43 ? tail[cmd - 33] : 0xFFu;
-}
-
 static void smc_message(const uint8_t *m, uint8_t len)
 {
     uint8_t type, ch, a, b, user = !!(proj.set.bt & PROJ_BT_SMC_USER);
@@ -342,8 +326,8 @@ static void smc_message(const uint8_t *m, uint8_t len)
     if (type == 0xE0u && !user && ch < 8u)
         smc_fader(ch, (uint8_t)(((uint16_t)b << 7 | a) >> 7));
     else if (type == 0xB0u && a >= 16u && a < 24u && (user || ch == 0u)) {
-        int delta = b & 0x3Fu;
-        if (delta) smc_knob(a - 16u, (b & 0x40u) ? -delta : delta);
+        int delta = smc_relative(b);
+        if (delta) smc_knob(a - 16u, delta);
     } else if (type == 0xB0u && user && a >= 40u && a < 48u)
         smc_fader(a - 40u, b);
     else if ((type == 0x90u || type == 0x80u) && (!ch || user)) {
