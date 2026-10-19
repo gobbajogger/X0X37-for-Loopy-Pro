@@ -589,7 +589,7 @@ void project_apply_io(void)
     seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];
-        seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? SEQ_CH_OFF : v - 1);
+        seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? (int)SEQ_CH_OFF : v - 1);
     }
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
