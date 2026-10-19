@@ -651,15 +651,22 @@ The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk
 ### Saving
 
 **SAVE** saves the sounds, all 32 patterns, the song, the knob motion, the tempo and the
-settings. A small grey dot at the top right of the screen means there are unsaved changes, and
-anything unsaved is lost when you switch off.
+settings. UNSAVED in the header and a SAVE button that flashes mean the project needs a save.
+If the header has little space, it shows a small amber mark. You lose unsaved changes when you
+switch off. Hold SAVE to see the current save state.
 
-With **AUTOSAVE** on (the default) you'll rarely need SAVE: whenever the pattern is stopped and
-nothing has been touched for four seconds, X0X saves and says AUTOSAVED.
+With **AUTOSAVE** on, X0X saves after you stop the pattern and leave the controls untouched
+for four seconds. AUTOSAVE is on by default. X0X then says AUTOSAVED.
+If REC is on, turn REC off for autosave. Hold SAVE to see this reminder.
 
-> **X0X never saves while playing.** Saving pauses the sound for a moment (the FM-1 plays from the
-> same memory it saves to), so a SAVE pressed while playing says SAVES WHEN STOPPED and saves when
-> you stop.
+> **X0X never saves while the pattern plays.** A save pauses the sound for a moment. The FM-1
+> plays from the same memory that it writes. A press on SAVE while the pattern plays says
+> SAVES WHEN STOPPED and shows SAVE AT STOP in the header. X0X saves when you stop. The SAVE
+> button stays lit until then.
+
+If a save fails, the header shows SAVE FAILED (or a red mark when space is tight). The SAVE
+button flashes fast. The warning stays until a save succeeds. A flash write failure also
+shows SAVE FAILED after an autosave.
 
 <details><summary>How much fits</summary>
 

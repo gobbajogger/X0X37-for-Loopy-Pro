@@ -79,6 +79,7 @@ typedef struct {
     uint32_t act_t;                    /* the last time anything was touched (autosave waits for quiet) */
     uint32_t saved_t;                  /* the last autosave */
     uint8_t last_autosave;             /* AUTOSAVE was just switched off: one more, which keeps that */
+    uint8_t save_failed;               /* a failed write stays visible until a save succeeds */
     uint8_t help;                      /* the help card on screen: its button + 1, 0 none */
     uint32_t down_t[NB];               /* when each button went down */
     uint32_t turn_t;                   /* the last encoder turn */
@@ -93,6 +94,17 @@ static uint16_t footer_text(const char **a, const char **b, const char **c);
 
 /* something the project keeps changed: SAVE (or the autosave) has work to do */
 static void mark_dirty(void) { ui.dirty = 1; }
+
+static uint8_t save_wait;
+enum { SAVE_SAVED, SAVE_UNSAVED, SAVE_QUEUED, SAVE_FAILED };
+static int save_state(void)
+{
+    if (save_wait)
+        return SAVE_QUEUED;
+    if (ui.save_failed)
+        return SAVE_FAILED;
+    return ui.dirty ? SAVE_UNSAVED : SAVE_SAVED;
+}
 
 /* the encoders, read for the UI: a turn counts as being touched (the autosave waits for quiet) */
 static int32_t enc(int role)
@@ -1211,11 +1223,17 @@ static int help_lines(int b, const char *l[HELP_LINES])
         L("+ REC: UNDO   + PLAY: REDO"); L("LIST: BACK   QUESTION: NO");
         break;
     case B_SAVE: {                                   /* the pattern a copy takes */
-        static char cp[40], cl[32];
+        static char cp[40], cl[32], st[40];
         put_s(put_i(put_s(cp, "+ WHITE KEY: PASTE P"), seq.ppat[PART_909] + 1), " THERE");
         put_s(put_s(cl, "+ REC: CLEAR "), PART_N[ui.part]);
+        if (ui.rec && !proj.set.autosave_off && save_state() == SAVE_UNSAVED)
+            put_s(st, "REC OFF FOR AUTOSAVE");
+        else
+            put_s(put_s(st, proj.set.autosave_off ? "AUTO OFF / " : "AUTO ON / "),
+                  save_state() == SAVE_QUEUED ? "SAVE AT STOP" : save_state() == SAVE_FAILED ? "SAVE FAILED" :
+                  save_state() == SAVE_UNSAVED ? "UNSAVED" : "SAVED");
         L("TAP: SAVE EVERYTHING"); L(cp); L(ui.pbank ? "    TO P17-32 (+ OCT-: P1-16)" : "    TO P1-16 (+ OCT+: P17-32)"); L(cl);
-        L("+ KNOB: FORGET ITS MOTION"); L(proj.set.autosave_off ? "AUTOSAVE IS OFF" : "STOPPED: SAVES BY ITSELF");
+        L("+ KNOB: FORGET ITS MOTION"); L(st);
         break;
     }
     case B_ARP:
@@ -1378,7 +1396,6 @@ static void do_undo(int redo)
 
 /* SAVE while playing waits for the stop: writing the flash stops the audio (the code and the samples
  * are read from it, and a 4 KB erase takes tens of ms) */
-static uint8_t save_wait;
 static void save_project(void)
 {
     int rc;
@@ -1390,6 +1407,7 @@ static void save_project(void)
     save_wait = 0;
     rc = project_save();
     say(rc == -7 ? "MEMORY FULL: NOT SAVED" : rc ? "SAVE FAILED" : "SAVED", 0);
+    ui.save_failed = rc != 0;
     if (!rc)
         ui.dirty = 0;
 }
@@ -3126,6 +3144,7 @@ static void draw_header(void)
 {
     char b[24];
     int32_t x;
+    int ss = save_state();
     cv_begin(240, HDR_H, C_BLACK);
     cv_rect(0, HDR_H - 1, 240, 1, C_LINE);
     if (ui.msg_until && (int32_t)(ui.msg_until - plat_ms()) > 0) {   /* what a button just did */
@@ -3158,6 +3177,18 @@ static void draw_header(void)
         if (drum_mix_page() >= 0)                     /* MIX: 909 / MIX: 808 (whose tracks these are) */
             x = cv_text(x - 6, vc(&FONT_B, 1, 17), &FONT_B, drum_mix_page() ? ": 808" : ": 909",
                         PART_COL[drum_mix_page()]) + 6;
+    }
+    if (ss != SAVE_SAVED) {               /* use the gap before pattern/clock, never cover cue or step range */
+        const char *label = ss == SAVE_QUEUED ? "SAVE AT STOP" : ss == SAVE_FAILED ? "SAVE FAILED" : "UNSAVED";
+        int32_t w = tw(&FONT_XS, label) + 10;
+        uint16_t c = ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB;
+        if (x + w <= 130) {
+            box(x, 3, w, 13, c);
+            text_c(x + w / 2, vc(&FONT_XS, 3, 13), &FONT_XS, label, C_BLACK);
+        } else if (x + 11 <= 130) {       /* a long mode name leaves room only for a short flag */
+            box(x, 3, 11, 13, c);
+            text_c(x + 5, vc(&FONT_XS, 3, 13), &FONT_XS, ss == SAVE_FAILED ? "!" : ss == SAVE_QUEUED ? "Q" : "*", C_BLACK);
+        }
     }
 #if BOARD_SMK37
     if (smk_clip_mode_on()) {                         /* clip mode: the clock of the arp, not the pattern */
@@ -3204,8 +3235,8 @@ static void draw_header(void)
         play_icon(217, 4, (eng_step[TRK_DRUM] & 3) == 0 ? C_WHITE : C_HI);
     if (ui.rec)
         dot(231, 9, 4, RGB(255, 50, 50));
-    else if (ui.dirty)
-        dot(233, 9, 1, C_GRAY);
+    else if (ss != SAVE_SAVED)
+        dot(233, 9, 2, ss == SAVE_FAILED ? RGB(255, 70, 70) : C_AMB);
     cv_commit(0, 0, 0);
 }
 
@@ -4309,7 +4340,7 @@ static void leds(void)
         b |= 1u << B_SEL;
     if (ui.view == V_HOME || ui.view == V_SONG ? ui.pbank : ui.spage)
         b |= 1u << B_OCTUP;
-    if (ui.dirty && blink && ui.view == V_GLO)
+    if (save_state() == SAVE_QUEUED || (save_state() == SAVE_FAILED ? (ui.frame & 2u) : save_state() == SAVE_UNSAVED && blink))
         b |= 1u << B_SAVE;
     if (proj.set.keyled) {                           /* bright: on / chosen; dim: there, not chosen */
         if (ui.view == V_HOME || ui.view == V_SONG) {
@@ -4416,6 +4447,9 @@ void ui_init(void)
     ui.touched = -1;
     ui.overlay = O_NONE;
     ui.outline_ok = 0;
+    ui.dirty = 0;
+    ui.save_failed = 0;
+    save_wait = 0;
     palette_set(proj.set.palette);
     for (i = 0; i < 4; i++)
         blit_hash[i] = 0;
@@ -4443,12 +4477,16 @@ static void autosave(void)
     switch (project_save()) {
     case 0:
         ui.dirty = 0;
+        ui.save_failed = 0;
         say("AUTOSAVED", 0);
         break;
     case -7:
+        ui.save_failed = 1;
         say("MEMORY FULL: NOT SAVED", 0);
         break;
     default:
+        ui.save_failed = 1;
+        say("SAVE FAILED", 0);
         break;
     }
 }
