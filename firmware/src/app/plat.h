@@ -27,6 +27,7 @@ enum { EN_SELECT, EN_ALGO, EN_PRESET, EN_K1, EN_K2, EN_K3, EN_K4, NE };
 uint32_t plat_ms(void);
 uint32_t plat_buttons(void);           /* held: bit B_* */
 uint32_t plat_keys(void);              /* held: bit k = key k (0 = F3) */
+uint8_t plat_key_velocity(int key);    /* last strike, 1..127; 100 without velocity sensing */
 int32_t plat_enc(int role);            /* detents since the last call, + = clockwise; EN_* */
 uint32_t plat_master(void);            /* MASTER pot, 0..4096 gain Q12 */
 int plat_battery(void);                /* 0..3 bars, 4 = powered by a USB host, -1 = not read yet */

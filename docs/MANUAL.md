@@ -299,11 +299,21 @@ between them. Press REC again to go back to steps.
 and set FREE PLAY to ON. The keys then play the 303 on every 303 screen, stopped or playing, so
 you can try lines and turn EDIT's knobs as you go; the top line says FREE PLAY. Nothing is
 written until you press REC, which records as above. Set FREE PLAY back to OFF for the steps.
-Each 303 has its own, and both are off at power-on.
+Each 303 has its own, and both are off at power-on. In FREE PLAY, the SMK keybed's strike
+velocity controls volume and cutoff: soft notes are quieter and darker; hard notes are louder
+and brighter. Incoming MIDI notes use the same response. Velocity 100 is neutral. Overlapping
+notes still slide.
 
 **The pages.** EDIT has TONE (CUTOFF, RESO, ENVMOD, DECAY) and VOICE (ACCENT, WAVE, saw or
 square, DRIVE, SLIDE time); TUNE, VOLUME, DRIVE TYPE (off, soft or RAT) and ACCENT DECAY are in
-SEL's list. SEQ has the line's LENGTH (1–64 steps), RATE, DIRECTION (forward, reverse, ping-pong
+SEL's list. FILTER ADSR adds FATTACK (0–2000 ms), DECAY (200–2000 ms), FSUSTAIN (0–100%) and
+FRELEASE (0–4000 ms). In SEL's list, set FENV to ADSR to use these filter controls; 303 keeps
+the original envelope and is the default for existing sounds. DECAY is the same control on
+TONE and FILTER ADSR. ENVMOD sets the filter envelope depth. A slide continues the envelope;
+a fresh note starts it again. These controls affect the filter only: the original volume
+envelope still determines how long the release is audible.
+
+SEQ has the line's LENGTH (1–64 steps), RATE, DIRECTION (forward, reverse, ping-pong
 or random) and TRANSPOSE. Each 303's level, pan and sends are on the mixer (LFO).
 
 ---

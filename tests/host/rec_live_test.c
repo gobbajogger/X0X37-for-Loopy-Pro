@@ -103,6 +103,52 @@ static void at_step(int t, int s, uint32_t ms)
 
 static bstep_t *bst(int s) { return &proj.pat[seq.ppat[PART_303A]].bass[0].step[s]; }
 
+/* End-to-end FREE PLAY: measured key velocity and MIDI velocity reach the audio. */
+static void test_303_freeplay_velocity(void)
+{
+    float peaks[2][2];
+    int source, strike;
+    ui.part = PART_303A;
+    set_view(V_PART);
+    ui.freeplay[0] = 1;
+    build_pages();
+    /* Measure the voice without factory RAT saturation, compression or echo tails. */
+    engine_set(T_303, 0, BASS303_DRIVE, 0);
+    engine_set(T_303, 0, BASS303_VOLUME, 96);
+    engine_set(T_303, 0, BASS303_RESO, 0);
+    engine_set(T_303, 0, BASS303_CUTOFF, 100);
+    engine_set(T_303, 0, BASS303_ENVMOD, 0);
+    engine_set(T_MIX, PART_303A, MX_DLY, 0);
+    engine_set(T_MIX, PART_303A, MX_REV, 0);
+    engine_set(T_MST, 0, MST_COMP1, 0);
+    for (source = 0; source < 2; source++) {
+        for (strike = 0; strike < 2; strike++) {
+            int velocity = strike ? 90 : 20; /* both below MIDI's accent threshold */
+            tick(1000);
+            peak_out = 0.0f;
+            if (source)
+                midi3(0x90 | seq.ch[TRK_BASS0], kbd_note(10), velocity);
+            else {
+                key_velocity[10] = (uint8_t)velocity;
+                key(10, 1);
+            }
+            tick(150);
+            peaks[source][strike] = peak_out;
+            if (source)
+                midi3(0x80 | seq.ch[TRK_BASS0], kbd_note(10), 0);
+            else
+                key(10, 0);
+        }
+        CHECK(peaks[source][0] > 0.000001f && peaks[source][1] > peaks[source][0] * 1.5f,
+              "FREE PLAY %s responds to velocity: soft %f hard %f", source ? "MIDI" : "keys",
+              (double)peaks[source][0], (double)peaks[source][1]);
+    }
+    key_velocity[10] = 0;
+    ui.freeplay[0] = 0;
+    engine_apply_sound(&proj.sound);
+    tick(1000);
+}
+
 static void test_303_key_release(void)
 {
     ui.part = PART_303A;
@@ -518,10 +564,36 @@ static void test_drum_nearest(void)
     printf("  909 live record: the nearest step, step 1 for a hit just before the loop start: checked\n");
 }
 
+static void test_filter_controls(void)
+{
+    const int params[] = {BASS303_FATTACK, BASS303_DECAY, BASS303_FSUSTAIN, BASS303_FRELEASE, BASS303_FENV};
+    const int values[] = {32, 80, 64, 90, 1};
+    int i, part;
+    seq_stop(&seq);
+    ui.rec = 0;
+    tick(20);
+    for (part = 0; part < NBASS; part++)
+        for (i = 0; i < 5; i++)
+            pref_set(PR(R_ENG, T_303, part, params[i]), values[i]);
+    CHECK(project_save() == 0, "filter ADSR sound saves in existing project format");
+    memset(&proj.sound, 0, sizeof proj.sound);
+    CHECK(project_load() == 0, "filter ADSR sound reloads");
+    for (part = 0; part < NBASS; part++)
+        for (i = 0; i < 5; i++)
+            CHECK(proj.sound.v[T_303][part][params[i]] == values[i], "filter ADSR control survives reload");
+    ui.part = PART_303A;
+    set_view(V_PART);
+    build_pages();
+    *page_of(V_PART) = 2;
+    tick(50);
+    png_write("build/host/filter-adsr.png");
+}
+
 int main(void)
 {
     boot();
     tick(300);
+    test_303_freeplay_velocity();
     test_303_key_release();
     test_303_step_preview_lifecycle();
     test_303_auto_slide();
@@ -548,6 +620,7 @@ int main(void)
     CHECK(!strcmp(queued_save_label(), "SAVE WHEN QUIET"), "stopped clip-mode save names the quiet condition");
     test_clip_mode = 0;
 #endif
+    test_filter_controls();
     printf("rec_live: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }
