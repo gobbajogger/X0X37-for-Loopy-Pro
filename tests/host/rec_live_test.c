@@ -171,6 +171,86 @@ static void test_303_key_release(void)
     printf("  303 keyboard: octave and part changes release the original key; later key owns gate: checked\n");
 }
 
+static void test_303_step_preview_lifecycle(void)
+{
+    bstep_t *a, *b;
+    int white = WHITE_KEY[0];
+    ui.part = PART_303A;
+    ui.rec = 0;
+    ui.freeplay[0] = ui.freeplay[1] = 0;
+    set_view(V_PART);
+    a = &proj.pat[seq.ppat[PART_303A]].bass[0].step[0];
+    b = &proj.pat[seq.ppat[PART_303B]].bass[1].step[0];
+    a->note = 48;
+    a->flags = G_NOTE;
+    b->note = 55;
+    b->flags = G_NOTE;
+
+    key(white, 1);
+    tick(2);
+    CHECK(engine_midi_held() & 1, "303 A step preview starts while its key is held");
+    enc_acc[EN_ALGO] = 1;                              /* change A to B with the key still down */
+    tick(20);
+    CHECK(ui.part == PART_303B, "ALGORITHM selected 303 B");
+    CHECK(!(engine_midi_held() & 1), "303 A preview ended on part change");
+    key(white, 0);
+    CHECK(b->flags == G_NOTE && b->note == 55, "303 B step survives the old key-up");
+    CHECK(a->flags == G_NOTE, "303 A step survives navigation without a tap");
+
+    ui.part = PART_303A;
+    set_view(V_PART);
+    key(white, 1);
+    tick(2);
+    btn(B_FX, 1);
+    btn(B_FX, 0);
+    tick(20);
+    CHECK(ui.view == V_FX && !(engine_midi_held() & 1), "FX closes the held step preview");
+    key(white, 0);
+    CHECK(a->flags == G_NOTE, "view change does not turn the old step off");
+
+    set_view(V_PART);
+    key(white, 1);
+    tick(2);
+    smk_clip_enter_cleanup();                         /* the hardware clip-entry hook */
+    tick(20);
+    CHECK(!(engine_midi_held() & 1), "clip entry closes the held step preview");
+    key(white, 0);
+    CHECK(a->flags == G_NOTE, "clip entry does not turn the old step off");
+
+    key(white, 1);
+    tick(2);
+    btn(B_REC, 1);                                  /* REC changes the same keybed to keyboard notes */
+    btn(B_REC, 0);
+    tick(20);
+    CHECK(ui.rec && !(engine_midi_held() & 1), "REC closes the old step preview");
+    key(white, 0);
+    CHECK(a->flags == G_NOTE, "REC transition does not toggle the old step");
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+
+    key(white, 1);
+    tick(2);
+    seq.ppat[PART_303A] = 1;                        /* a queued pattern can change during a hold */
+    tick(20);
+    CHECK(!(engine_midi_held() & 1), "pattern change closes the old step preview");
+    key(white, 0);
+    CHECK(a->flags == G_NOTE, "pattern change leaves the original step on");
+    CHECK(bstep_gate(&proj.pat[1].bass[0].step[0]) == G_REST,
+          "old key-up does not edit the newly selected pattern");
+    seq.ppat[PART_303A] = 0;
+    tick(2);
+
+    tap_key(white, 20);
+    CHECK(bstep_gate(a) == G_REST, "ordinary tap still turns an existing step off");
+    tap_key(white, 20);
+    CHECK(bstep_gate(a) == G_NOTE, "ordinary tap still creates an empty step");
+    key(white, 1);
+    tick(350);
+    key(white, 0);
+    CHECK(bstep_gate(a) == G_NOTE, "ordinary hold still keeps a step on");
+    printf("  303 step preview: part, view and clip transitions release sound; taps keep their meaning: checked\n");
+}
+
 static void test_303_live(void)
 {
     int s, n_lfo = kbd_note(15), n_env = kbd_note(14), n_plain = kbd_note(22), n_after = kbd_note(10);
@@ -346,6 +426,7 @@ int main(void)
     boot();
     tick(300);
     test_303_key_release();
+    test_303_step_preview_lifecycle();
     test_303_live();
     test_start_ext_running();
     test_drum_nearest();

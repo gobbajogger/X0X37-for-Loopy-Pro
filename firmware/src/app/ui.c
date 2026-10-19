@@ -50,6 +50,7 @@ typedef struct {
     uint8_t freeplay[NBASS];           /* SEQ > FREE PLAY: the keys play the 303, nothing written (not saved) */
     uint8_t wpos[NBASS];
     int8_t held_step;
+    uint8_t held_step_part, held_step_pat; /* owner at key-down; a pattern can change before key-up */
     uint8_t step_edited;
     uint32_t step_t0;                  /* when the held 303 step went down: a tap toggles, a hold does not */
     uint8_t step_preview;              /* the held step is sounding (only while stopped) */
@@ -134,6 +135,7 @@ static int kbd_on(void) { return is_303() && (ui.rec || ui.freeplay[bidx()]); } 
 static uint8_t kbd_held_note[NBASS];
 static uint8_t kbd_held_key[NBASS];                  /* physical key + 1; survives octave and part changes */
 static int held_note_of(const bpart_t *bp, int s);
+static void bass_step_cancel(void);
 
 /* ============================================================ text helpers === */
 static char *put_s(char *b, const char *s)
@@ -476,6 +478,8 @@ X0X_COLD static void pref_set(pref_t r, int v)
         say(v ? "USER: CH16 + MMC" : "DAW: MACKIE MODE", 0);
         break;
     case R_FREEPLAY:
+        if (v && ui.part == PART_303A + r.a)
+            bass_step_cancel();                       /* the held step must not become a held keyboard note */
         ui.freeplay[r.a] = (uint8_t)v;
         if (!v && kbd_held_note[r.a]) {                /* a key still down: let it go */
             engine_bass_off(r.a);
@@ -1739,10 +1743,10 @@ static int32_t accel(int role, int32_t s, int range)
 
 static void set_view(int v)
 {
+    bass_step_cancel();
     if (v != ui.view)
         ui.prev_view = ui.view;
     ui.view = (uint8_t)v;
-    ui.held_step = -1;
     ui.brk_held = -1;
     ui.hold_step = -1;
     ui.overlay = O_NONE;
@@ -1883,6 +1887,22 @@ static void lock_release(void)                        /* the held step let go: s
             engine_set(r.a, r.b, r.c, proj.sound.v[r.a][r.b][r.c]);
     }
 }
+
+/* Navigation ends a step gesture without treating its later key-up as a tap. The preview belongs
+ * to the part that was down, even if a queued pattern switch has changed the screen meanwhile. */
+static void bass_step_cancel(void)
+{
+    if (ui.held_step < 0)
+        return;
+    if (ui.step_preview)
+        engine_bass_off(ui.held_step_part - PART_303A);
+    if (ui.step_edited && lock_step() >= 0)
+        lock_release();
+    ui.step_preview = 0;
+    ui.step_edited = 0;
+    ui.held_step = -1;
+}
+
 /* probability: SEQ or EDIT, a step held, SELECT sets its chance (5..100 %, a T_PROB lane: motion.h's
  * MOT_NONE = always). Drums: the selected track's step; the 303s and the break: the step */
 static int held_any_step(void)
@@ -2089,7 +2109,10 @@ static void bass_step_key(int white, int down)
     if (s >= NSTEPS)
         return;
     if (down) {                                       /* an empty step is on at once: hold it to edit it */
+        bass_step_cancel();                            /* a second held key replaces the first preview */
         ui.held_step = (int8_t)s;
+        ui.held_step_part = ui.part;
+        ui.held_step_pat = seq.ppat[ui.part];
         ui.step_edited = 0;
         ui.step_t0 = plat_ms();
         ui.step_created = bstep_gate(&bp->step[s]) == G_REST;
@@ -2101,17 +2124,13 @@ static void bass_step_key(int white, int down)
         if (ui.step_preview)
             engine_bass_on_velocity(b, bp->step[s].note + bp->transpose - 24,
                                     (bp->step[s].flags & BS_ACCENT) != 0, 0, bstep_velocity(&bp->step[s]));
-    } else if (ui.held_step == s) {
+    } else if (ui.held_step == s && ui.held_step_part == ui.part &&
+               ui.held_step_pat == seq.ppat[ui.part]) {
         if (!ui.step_created && !ui.step_edited && plat_ms() - ui.step_t0 < STEP_TAP_MS) {   /* a tap takes it off */
             bp->step[s].flags = G_REST;
             mark_dirty();
         }
-        if (ui.step_preview)
-            engine_bass_off(b);
-        if (ui.step_edited && lock_step() >= 0)
-            lock_release();
-        ui.step_preview = 0;
-        ui.held_step = -1;
+        bass_step_cancel();
     }
 }
 
@@ -2164,9 +2183,10 @@ static void mute_track(int km, int v)                /* one drum track on / off 
     say(track_muted(km, v) ? "MUTED " : "UNMUTED ", engine_voice_name(km ? T_808 : T_909, v));
 }
 
-#if BOARD_SMK37
+#if BOARD_SMK37 || X0X_HOST
 void smk_clip_enter_cleanup(void)
 {
+    bass_step_cancel();
     ui.chain_first = -1;
     ui.hold_step = -1;
     ui.brk_held = -1;
@@ -2456,6 +2476,7 @@ X0X_COLD static void button_tap(int b)
             ask(ACT_CLEAR_PART, ui.part, t, "IN THIS PATTERN?");
             break;
         }
+        bass_step_cancel();                            /* key-up will now take the keyboard path */
         ui.rec = !ui.rec;
         if (ui.rec && is_303())
             ui.wpos[bidx()] = 0;
@@ -2576,6 +2597,8 @@ X0X_COLD static void input(void)
 {
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     int e;
+    if (ui.held_step >= 0 && (ui.part != ui.held_step_part || seq.ppat[ui.part] != ui.held_step_pat))
+        bass_step_cancel();                            /* playback or a cue changed the pattern under the key */
 #if BOARD_SMK37
     smc_poll();
 #endif
@@ -2676,7 +2699,10 @@ X0X_COLD static void input(void)
             }
         } else {
             int p = ui.part + (e > 0 ? 1 : -1);
-            ui.part = (uint8_t)(p < 0 ? 0 : p >= NPARTS ? NPARTS - 1 : p);
+            p = p < 0 ? 0 : p >= NPARTS ? NPARTS - 1 : p;
+            if (p != ui.part)
+                bass_step_cancel();
+            ui.part = (uint8_t)p;
             if (ui.view == V_GEN && !is_303())         /* TB-3PO is a 303's */
                 set_view(V_PART);
             ui.outline_ok = 0;
