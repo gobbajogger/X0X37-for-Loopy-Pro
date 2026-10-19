@@ -53,7 +53,7 @@ test_class() {
     breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|emu|emu-slots|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) echo S ;;
     rec-live|rec-live-smk) echo S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|host-build) echo G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|host-build) echo G ;;
     scenario-*|perf-scratch) echo C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) echo P ;;
     esac
@@ -81,7 +81,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|project-303-stream) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|copy-semantics|project-303-stream) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -285,6 +285,7 @@ run rec-live-smk sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD
     firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
     firmware/src/app/engine.c -lm && $OUT/rec_live_smk_test"
+run copy-semantics sh tests/host/copy_semantics_test.sh
 if command -v emcc >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then   # the browser build, when it can be built
     printf 'wav emu_ref.wav\nwait 500\ntapkey b0\ntapkey w0\ntapkey w8\ntap PLAY\nwait 2960\nwavstop\n' > build/host/emu_ref.x0x
     run emu sh -c "sh web/emu/build.sh >/dev/null 2>&1 && build/host/x0x_host build/host/emu_ref.x0x build/host >/dev/null && \

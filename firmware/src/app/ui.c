@@ -88,6 +88,10 @@ typedef struct {
     uint8_t song_sel;                  /* the SONG screen's bar */
 } ui_t;
 static ui_t ui;
+/* A paste can wait at a replacement question while the song cues new patterns.
+ * Remember the source slots chosen with the destination key; the pattern data
+ * itself is copied only when the player confirms. */
+static uint8_t paste_src[NPARTS];
 static uint8_t any_button;             /* a button has been pressed since power-on (the footer's first line) */
 #define FOOT_GAP 7                     /* between the footer's parts */
 static uint16_t footer_text(const char **a, const char **b, const char **c);
@@ -1242,7 +1246,7 @@ static int help_lines(int b, const char *l[HELP_LINES])
         break;
     case B_SAVE: {                                   /* the pattern a copy takes */
         static char cp[40], cl[32], st[40];
-        put_s(put_i(put_s(cp, "+ WHITE KEY: PASTE P"), seq.ppat[PART_909] + 1), " THERE");
+        put_s(cp, "+ WHITE KEY: COPY LIVE PARTS");
         put_s(put_s(cl, "+ REC: CLEAR "), PART_N[ui.part]);
         if (ui.rec && !proj.set.autosave_off && save_state() == SAVE_UNSAVED)
             put_s(st, "REC OFF FOR AUTOSAVE");
@@ -1284,7 +1288,8 @@ static int help_lines(int b, const char *l[HELP_LINES])
     return n;
 }
 
-/* SAVE held on its own a moment: the pattern is on the clipboard ("P1 COPIED"); a white key pastes it */
+/* SAVE held on its own a moment: invite a destination, without claiming a
+ * snapshot exists before the player chooses one. */
 #define COPY_HOLD 250u
 static void copy_tick(uint32_t btn, uint32_t keys)
 {
@@ -1296,9 +1301,7 @@ static void copy_tick(uint32_t btn, uint32_t keys)
     }
     if (!said && btn == m && !keys && !(ui.btn_used & m) && ui.overlay != O_ASK &&
         plat_ms() - ui.down_t[B_SAVE] >= COPY_HOLD && (int32_t)(ui.turn_t - ui.down_t[B_SAVE]) <= 0) {
-        char t[16];
-        put_s(put_i(put_s(t, "P"), seq.ppat[PART_909] + 1), " COPIED");
-        say(t, 0);
+        say("CHOOSE PASTE TARGET", 0);
         said = 1;
     }
 }
@@ -1682,14 +1685,13 @@ X0X_COLD static void run_action(int act, int arg)
         say("PATTERN CLEARED", 0);
         break;
     }
-    case ACT_COPY: {                                  /* arg: the pattern to paste onto (all five parts, */
-        int dst = arg & 0xFF, i, rc = 0;              /* each as it plays now) */
+    case ACT_COPY: {                                  /* all five parts, from the source slots selected */
+        int dst = arg & 0xFF, i, rc = 0;              /* with the destination key */
         for (i = 0; i < NPARTS; i++)
-            if (seq.ppat[i] != dst)
-                rc |= copy_part(dst, seq.ppat[i], i);
+            if (paste_src[i] != dst)
+                rc |= copy_part(dst, paste_src[i], i);
         mark_dirty();
-        q = put_i(put_s(t, "P"), seq.ppat[PART_909] + 1);
-        put_i(put_s(q, " PASTED TO P"), dst + 1);
+        put_i(put_s(t, "PARTS PASTED TO P"), dst + 1);
         say(rc ? "MOTION FULL: NOT ALL PASTED" : t, 0);
         break;
     }
@@ -2261,9 +2263,12 @@ static void key_event(int k, int down)
     if (ui.overlay == O_ASK || ui.view == V_PERF || perf_testing())
         return;
     if (down && w >= 0 && (ui.btn & (1u << B_SAVE))) {     /* SAVE held + white key: paste the pattern here */
+        int p;
         ui.btn_used |= 1u << B_SAVE;
         if (all_on(wp))
             return;
+        for (p = 0; p < NPARTS; p++)
+            paste_src[p] = seq.ppat[p];
         if (pattern_used(&proj.pat[wp])) {
             char t[24];
             put_s(put_i(put_s(t, "PASTE OVER P"), wp + 1), "?");

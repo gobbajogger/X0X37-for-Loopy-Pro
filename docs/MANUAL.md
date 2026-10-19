@@ -208,7 +208,7 @@ The **top line** shows, from left to right:
 - a play symbol while playing and a red dot while recording. A small grey dot means there are
   unsaved changes.
 
-When a button does something, the top line says what for a second, for example SAVED or P1
+When a button does something, the top line says what for a second, for example SAVED or PARTS
 PASTED TO P5.
 
 The **knobs** sit under a tag that says whose they are: the selected track (BD), the whole
@@ -435,10 +435,12 @@ with notes in that pattern: bright where that part is playing it now, dim otherw
 While playing, the new pattern starts when the current bar ends; stopped, it takes over at once.
 A part that changes pattern starts again from step 1; the others carry on.
 
-**Copy and paste.** Hold SAVE: the top line says P1 COPIED. Press a white key to paste onto that
-pattern (P1 PASTED TO P2): all five parts, as they're playing now. If the pattern you paste onto
-has notes, X0X asks first. While holding SAVE, OCT- and OCT+ switch between patterns 1–16 and
-17–32.
+**Copy and paste.** Hold SAVE: the top line says CHOOSE PASTE TARGET. Press a white key to copy
+the five parts currently playing onto that pattern (PARTS PASTED TO P2). Each part can come from a
+different pattern. If the destination has notes, X0X asks first; the source pattern numbers are
+held from when you pressed the destination key, and their contents are copied when you confirm.
+SAVE does not make a clipboard snapshot. While holding SAVE, OCT- and OCT+ switch between patterns
+1–16 and 17–32.
 
 **Clearing.** Hold SAVE and press REC to clear the selected part in its pattern. GLO > CLEAR
 PATTERN clears all five.
