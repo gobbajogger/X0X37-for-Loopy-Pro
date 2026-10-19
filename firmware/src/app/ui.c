@@ -52,12 +52,13 @@ typedef struct {
     int8_t held_step;
     uint8_t held_step_part, held_step_pat; /* owner at key-down; a pattern can change before key-up */
     uint8_t step_edited;
-    uint32_t step_t0;                  /* when the held 303 step went down: a tap toggles, a hold does not */
+    uint8_t paste_src[NPARTS];        /* source slots chosen with a paste target; stable through confirmation */
     uint8_t step_preview;              /* the held step is sounding (only while stopped) */
     uint8_t step_created;              /* the press turned the held step on (its release keeps it) */
     int8_t brk_held;                   /* BREAK: the white key (16th) held, -1 none */
     int8_t hold_step;                  /* a drum machine: the step (white key) held, -1 none */
     uint8_t hold_created, hold_used;   /* drums / BREAK: the press turned the step on; a knob or a slice used it */
+    uint32_t step_t0;                  /* when the held 303 step went down: a tap toggles, a hold does not */
     uint32_t hold_t0;                  /* when it went down (a tap takes an old step off) */
     uint16_t brk_pinkeys;              /* BREAK: black keys used to give a held step its slice (their release is not live) */
     uint8_t gen_stale[NBASS];          /* TB-3PO's knobs changed since the line was written */
@@ -88,10 +89,6 @@ typedef struct {
     uint8_t song_sel;                  /* the SONG screen's bar */
 } ui_t;
 static ui_t ui;
-/* A paste can wait at a replacement question while the song cues new patterns.
- * Remember the source slots chosen with the destination key; the pattern data
- * itself is copied only when the player confirms. */
-static uint8_t paste_src[NPARTS];
 static uint8_t any_button;             /* a button has been pressed since power-on (the footer's first line) */
 #define FOOT_GAP 7                     /* between the footer's parts */
 static uint16_t footer_text(const char **a, const char **b, const char **c);
@@ -1688,8 +1685,8 @@ X0X_COLD static void run_action(int act, int arg)
     case ACT_COPY: {                                  /* all five parts, from the source slots selected */
         int dst = arg & 0xFF, i, rc = 0;              /* with the destination key */
         for (i = 0; i < NPARTS; i++)
-            if (paste_src[i] != dst)
-                rc |= copy_part(dst, paste_src[i], i);
+            if (ui.paste_src[i] != dst)
+                rc |= copy_part(dst, ui.paste_src[i], i);
         mark_dirty();
         put_i(put_s(t, "PARTS PASTED TO P"), dst + 1);
         say(rc ? "MOTION FULL: NOT ALL PASTED" : t, 0);
@@ -2268,7 +2265,7 @@ static void key_event(int k, int down)
         if (all_on(wp))
             return;
         for (p = 0; p < NPARTS; p++)
-            paste_src[p] = seq.ppat[p];
+            ui.paste_src[p] = seq.ppat[p];
         if (pattern_used(&proj.pat[wp])) {
             char t[24];
             put_s(put_i(put_s(t, "PASTE OVER P"), wp + 1), "?");
