@@ -60,4 +60,10 @@ with backups; verify mirrors, pointers, and a zero-change second dry run.
 Never push externally or edit the active firmware integration checkout's code.
 The separate skill installation chat owns public-skill installation/provenance
 and will rebase on this completed merge. This lane installs no skills.
-Rollout outcome is recorded after application.
+Applied from canonical `x0x37` at `ecb1708`: 50 entry/mirror files updated.
+Every changed path is a rule mirror or AGENTS.md. All replaced bytes match
+backups; all mirrors match canonical docs; live integration/UX entry links
+resolve; repeat dry run reports zero changes. Full manifest:
+[rules-token-rollout-2026-10-19.json](rules-token-rollout-2026-10-19.json).
+Committed native docs quickcheck also PASS (94 advisory hints after audit text
+was included). No firmware scripts/source or hooks changed in this rollout.
