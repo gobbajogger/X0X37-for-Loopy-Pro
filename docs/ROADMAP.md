@@ -41,7 +41,8 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 ## Where we are now (2026-10-19)
 
 - Branches:
-  - Integration HEAD = f752007 (batch 11 open). Focused host tests and an Elite build pass at this hash. The formal batch 11 gate and device test have not run.
+  - Integration HEAD = f752007 (batch 11 open). Focused host tests and an Elite build pass at this hash.
+  - Local batch 11 completion candidate = 692c935 (f752007 plus a one-line dev PAD COLOURS waiting-screen redraw fix). Both Elite local builds and the focused and reference tests pass. It is on completion/batch11-local; integration still points to f752007. The formal batch 11 gate and device test have not run for this candidate.
   - Installed = batch 10 (c6bf44a), release configuration (X0X_DEV_PADCAL=0). Batch 10 contains the batches before it. It remains the installed build.
   - The gate on c6bf44a gave PASS at 2026-10-17 02:19 (tree b220466e91d0). It built and tested the dev and the release configuration (116 ok, 0 FAIL, 0 skip in each).
   - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18).
@@ -77,13 +78,13 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
    - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Current host tests pass; a device retest is still needed.
    - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix (a76) is in the installed build c6bf44a. In c6bf44a, a link end clears only the clip cells of that link (30a08fc, 79de009). Device test: pending.
    - Open: the owner test of batch 10 (c6bf44a).
-   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. The batch 11 fix is in integration f752007 and passes focused host tests and an Elite build. It needs the formal gate and a device retest. At 03:20, the owner said "Just fix them". The intended result is that knobs 2 to 8 edit the keybed ARP, CHORD and SCALE again, so that Loopy Pro records the keybed (owner 03:26).
+   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. The batch 11 fix is in integration f752007 and the local completion candidate 692c935; the local builds and tests pass. It needs the formal gate and a device retest. At 03:20, the owner said "Just fix them". The intended result is that knobs 2 to 8 edit the keybed ARP, CHORD and SCALE again, so that Loopy Pro records the keybed (owner 03:26).
    - Batch 11 (owner 02:49, Second Builder): in clip mode, a tap on MODE latches the MODE UI open, and a second tap closes it. A hold works as before.
    - Batch 11 (owner 02:50, Second Builder): show a "waiting for Loopy Pro to connect" screen instead of the 8x5 grid.
    - Batch 11 (owner 02:52, Second Builder): a tap on the stage latches it open, and a tap closes it. FADER BANK also closes it. The screen has no top bar, and it shows a help line at the bottom. The stage is the MODE UI of the 02:49 item. The owner said at 02:51: "The SCALE, CHORD or ARP button" (Second Builder confirmed).
    - Open: the owner did not test the a74 clock source (MID-13) and PLAY note (MID-14) items yet.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
-4. Run the formal batch 11 gate on integration f752007 or its later final hash. After the finished set is installed and the owner reports a device PASS, bring that integration hash into the main tree (x0x37, smk37).
+4. Integrate the local completion candidate 692c935 when reviewed, then run the formal batch 11 gate on the final integration hash. After the finished set is installed and the owner reports a device PASS, bring that integration hash into the main tree (x0x37, smk37).
 5. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
 6. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
 7. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks. The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development (owner, 2026-10-17 00:01). The build option is in the code (bd254a0, BUILDING.md c3cdb5a).
