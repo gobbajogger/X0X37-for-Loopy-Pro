@@ -13,6 +13,8 @@ in agent-rules.md and SKILLS.md. Active rules: rules/core.md and rules/style.md.
 
 ## Team rules
 
+- 2026-10-20 (owner, current chat): "checks must be scoped to what we edited". Select checks by changed behavior and dependencies; expand only for a concrete risk or applicable gate. Supersedes interpreting required checks as every available check. Active rule: commit.md rule 9; check selection: rules/SCRIPT-CHECKS.md.
+
 Source: the owner's current rules audit request, relayed into this task. "Need to audit all project rules and docs to prevent it from happening. And make sure that all agents use simply English skill and caveman at all times. start a new thread with subagents to finish this job".
 
 - 2026-10-19 (owner): Supersedes earlier box-only work rules and role-only handoffs for authorized work. Supported local environments can complete builds and tests. Keep truthful validation, data protection, licensing, target model checks, and memory budgets (rules/commit.md rule 9; rules/core.md rule 6A).
