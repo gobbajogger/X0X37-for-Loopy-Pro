@@ -2,6 +2,12 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
+## Build target scope — 2026-10-20
+
+Source: owner in this chat: "we dont need to build and test fm1 builds. they are only for reference to port".
+
+FM-1 is reference-only for porting. Build and test SMK-37 Elite and Pro; do not require FM-1 target builds or FM-1 target tests. This supersedes the gate’s FM-1 build, budget, and target-test requirements. Keep shared code and checks needed for the SMK-37 port, including tools with legacy `fm1` names. Active rules: owner-messages.md rules 4B and 14; docs.md rule 12. The assigned integration chat owns the workflow change.
+
 ## On-demand rules — 2026-10-20
 
 Source: owner in this chat requested rules initialized only when needed, fewer
@@ -14,6 +20,10 @@ in agent-rules.md and SKILLS.md. Active rules: rules/core.md and rules/style.md.
 ## Team rules
 
 - 2026-10-20 (owner, gate audit chat): "Need to audit when full gate run is performed and make sure that it won't run without a concrete reason for it and will only run when it's actually makes sense". Require an explicit current release purpose or owner validation request and a concrete reason before invoking the full gate; development uses scoped checks. This strengthens gate admission and does not authorize a full gate for this audit. Active rule: integration.md rule 11.
+
+- 2026-10-20 (owner, current chat): Asked whether gating is always necessary, then requested "fix?". Routine edits, commits, merges, handoffs, and completed development batches use scoped checks. Supersedes the automatic full gate for every finished batch. Active rule: integration.md rule 11. Owner then selected "Yes—use focused checks for development installs; full gate for releases" and asked that checks depend on specific changes. This also supersedes a full gate before every development install. Scoped development records must retain artifact, model, budget, queue, and data checks. Active rules: integration.md rule 11 and install.md rule 6.
+
+- 2026-10-20 (owner, current chat): "checks must be scoped to what we edited". Select checks by changed behavior and dependencies; expand only for a concrete risk or applicable gate. Supersedes interpreting required checks as every available check. Active rule: commit.md rule 9; check selection: rules/SCRIPT-CHECKS.md.
 
 Source: the owner's current rules audit request, relayed into this task. "Need to audit all project rules and docs to prevent it from happening. And make sure that all agents use simply English skill and caveman at all times. start a new thread with subagents to finish this job".
 
