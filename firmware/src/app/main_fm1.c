@@ -1458,41 +1458,28 @@ uint8_t smk_ck_panel(uint32_t *last, uint32_t force)
         cv_rect(4 + (int32_t)i * 8, 76, 5, 4, i + 1u == pos ? C_WHITE : ck_rhy_hit(rh, i) ? dim(CK_MODE_C[2], 9) : C_LINE);
     return 1u;
 }
-/* The page of SCALE, CHORD or ARP over the main area (smk_clip_lcd_draw, the canvas is ready): the fields and
- * their values (the last field lit), then the 37 keys with the zone of each field and the key of its value */
+/* The stage settings and a plain keybed. The keybed plays MIDI; its colours do not encode field values. */
 static void ck_page_draw(void)
 {
     CK_BASE;
     char t[12];
     uint16_t col[CK_NKEY];
-    uint32_t pg = (cp->pg & 3u) - 1u, k, n;
+    uint32_t pg = (cp->pg & 3u) - 1u, k, n, count = pg == 2u ? 9u : 4u;
     uint16_t c = CK_MODE_C[pg];
-    const uint16_t *z = ck_zones(pg);
-    int32_t x;
-    /* no top bar (owner 2026-10-17 02:51): the KEYS strip shows the stage name and ON / OFF. The help line is
-     * at the bottom, below the keys. */
-    text_c(120, vc(&FONT_T, 124, 12), &FONT_T,
-           (cp->pg >> 4) == CK_E_ON ? (cp->on >> pg & 1u ? "STAGE ON  KNOB3 / < >: OFF" : "STAGE OFF  KNOB3 / < >: ON")
-                                    : "KNOB2 FIELD  KNOB3 / < > VALUE  KEYS PLAY", C_GRAY);
-    for (k = 0; k < CK_NKEY; k++)
-        col[k] = CK_BLK(k) ? RGB(25, 25, 25) : RGB(60, 60, 60);
-    for (n = 0; z[n]; n++) {
-        uint32_t f = z[n] >> 12, lo = z[n] >> 6 & 63u, hi = z[n] & 63u, v = ck_get(f);
-        int32_t fx = 4 + (int32_t)(n / 4u) * 120, fy = 2 + (int32_t)(n % 4u) * 12, w;
+    text_c(120, vc(&FONT_T, 124, 12), &FONT_T, "KNOB2 FIELD  KNOB3 / < > VALUE  KEYS PLAY", C_GRAY);
+    for (n = 0; n < count; n++) {
+        uint32_t f = CK_PAGE_FIELDS[pg][n];
+        int32_t fx = 4 + (int32_t)(n / 5u) * 120, fy = 2 + (int32_t)(n % 5u) * 12;
         const char *nm = ck_nm(CK_FLD_N, f);
-        uint16_t zc = n & 1u ? dim(c, 7) : dim(c, 12);
         if (f == (uint32_t)cp->pg >> 4)
             rbox(fx - 2, fy, 116, 12, 3, dim(c, 4));
         cv_text(fx, vc(&FONT_T, fy, 12), &FONT_T, nm, C_GRAY);
-        cv_text(fx + 44, vc(&FONT_XS, fy, 12), &FONT_XS, ck_val_txt(f, v, t), C_WHITE);
-        for (k = lo; k <= hi; k++)                          /* the zone; the key of the value (one key: lit if on) */
-            col[k] = (lo == hi ? v != 0u : k - lo == v) ? C_WHITE : CK_BLK(k) ? dim(zc, 9) : zc;
-        x = (ck_key_x(lo, 10, 10) + ck_key_x(hi, 10, 10) + 9) / 2;
-        w = tw(&FONT_T, nm) / 2 + 1;
-        x = x < w ? w : x > 239 - w ? 239 - w : x;
-        text_c(x, vc(&FONT_T, 51 + (int32_t)(n & 1u) * 10, 10), &FONT_T, nm, n & 1u ? dim(c, 11) : c);
+        cv_text(fx + 44, vc(&FONT_XS, fy, 12), &FONT_XS, ck_val_txt(f, ck_get(f), t), C_WHITE);
     }
-    ck_kbd(10, 73, 10, 47, CK_NKEY, col);
+    text_c(120, vc(&FONT_T, 64, 10), &FONT_T, "PLAY KEYS", c);
+    for (k = 0; k < CK_NKEY; k++)
+        col[k] = CK_BIT(cp->keys, k) ? c : CK_BLK(k) ? RGB(25, 25, 25) : RGB(60, 60, 60);
+    ck_kbd(10, 76, 10, 46, CK_NKEY, col);
 }
 /* every main loop pass (also between frames, for the arp timing) */
 CK_FN void smk_ck_poll(void)

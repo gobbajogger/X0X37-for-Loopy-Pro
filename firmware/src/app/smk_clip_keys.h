@@ -140,46 +140,12 @@ CK_FN static uint32_t ck_rhy_pos(uint32_t r, uint32_t s)
     return r ? s / l * h + (i ? (i - 1u) * h / l + 1u : 0u) : s;
 }
 
-/* Clip keys editor: the key zones of one page. Each zone is a range of keys that sets one field. A one-key
- * zone steps its field by one (and wraps). Fields: */
+/* Fields selected with knob 2 on a stage page. */
 enum { CK_E_ROOT, CK_E_SCALE, CK_E_SNAP, CK_E_CHORD, CK_E_INV, CK_E_STRUM, CK_E_ORD, CK_E_RATE, CK_E_OCT,
        CK_E_GATE, CK_E_SWING, CK_E_HUMAN, CK_E_RHY, CK_E_LATCH, CK_E_ON, CK_NE };
-/* the highest value of each field */
+/* The highest value of each field. */
 static const uint8_t CK_FMAX[CK_NE] = {11, CK_NSCALE - 1, 1, CK_NCHORD - 1, 3, 7, CK_NORD - 1, CK_NRATE - 1, 3, 9, 7, 7,
                                        CK_NRHY - 1, 1, 1};
-/* zone: (field << 12) | (first key << 6) | last key, in key order; 3 pages (SCALE, CHORD, ARP) */
-static const uint16_t CK_ZONE[] = {
-    CK_E_ROOT << 12 | 0 << 6 | 11, CK_E_SCALE << 12 | 12 << 6 | 35, CK_E_SNAP << 12 | 36 << 6 | 36, 0,
-    CK_E_CHORD << 12 | 0 << 6 | 29, CK_E_INV << 12 | 32 << 6 | 35, CK_E_STRUM << 12 | 36 << 6 | 36, 0,
-    CK_E_ORD << 12 | 0 << 6 | 5, CK_E_OCT << 12 | 6 << 6 | 9, CK_E_SWING << 12 | 10 << 6 | 10,
-    CK_E_HUMAN << 12 | 11 << 6 | 11, CK_E_RATE << 12 | 12 << 6 | 24, CK_E_GATE << 12 | 25 << 6 | 34,
-    CK_E_RHY << 12 | 35 << 6 | 35, CK_E_LATCH << 12 | 36 << 6 | 36, 0};
-/* The first zone of page pg (0 SCALE, 1 CHORD, 2 ARP) */
-CK_FN static const uint16_t *ck_zones(uint32_t pg)
-{
-    const uint16_t *z = CK_ZONE;
-    while (pg)
-        pg -= !*z++;
-    return z;
-}
-/* The zone of key k on page pg: (field << 12 | first << 6 | last), or 0 for a key with no zone */
-CK_FN static uint32_t ck_zone(uint32_t pg, uint32_t k)
-{
-    const uint16_t *z;
-    for (z = ck_zones(pg); *z; z++)
-        if (k >= (*z >> 6 & 63u) && k <= (*z & 63u))
-            return *z;
-    return 0;
-}
-/* The new value of a field after key k in zone z. v: the old value, max: the highest value. */
-CK_FN static uint32_t ck_zone_val(uint32_t z, uint32_t k, uint32_t v, uint32_t max)
-{
-    uint32_t lo = z >> 6 & 63u;
-    if (lo == (z & 63u))
-        return v >= max ? 0u : v + 1u;
-    k -= lo;
-    return k > max ? max : k;
-}
 
 /* Clip keys page state: bits 0-1 page (0 none, 1 SCALE, 2 CHORD, 3 ARP), bits 4-7 selected field. */
 /* The ON field is first on each page, followed by the fields shown on the screen. */

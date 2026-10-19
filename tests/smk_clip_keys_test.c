@@ -164,50 +164,6 @@ static void test_rhythm(void)
     assert(!ck_rhy_hit(8, 4) && !ck_rhy_hit(8, 5) && ck_rhy_hit(8, 6) && !ck_rhy_hit(8, 7));
 }
 
-static void test_zones(void)
-{
-    uint32_t pg, k, z, n, f, seen;
-    for (pg = 0; pg < 3; pg++) {
-        uint8_t used[CK_NKEY] = {0};
-        const uint16_t *p = ck_zones(pg);
-        for (n = seen = 0; p[n]; n++) {
-            uint32_t lo = p[n] >> 6 & 63u, hi = p[n] & 63u;
-            f = p[n] >> 12;
-            assert(f < CK_NE && lo <= hi && hi < CK_NKEY);
-            assert(!(seen >> f & 1u));                      /* one zone for each field */
-            seen |= 1u << f;
-            assert(lo == hi || hi - lo == CK_FMAX[f]);      /* a key for each value (or one key that steps) */
-            for (k = lo; k <= hi; k++) {
-                assert(!used[k]);                           /* no overlap */
-                used[k] = 1;
-                assert(ck_zone(pg, k) == p[n]);
-            }
-        }
-        for (k = 0; k < CK_NKEY; k++)
-            if (!used[k])
-                assert(!ck_zone(pg, k));
-    }
-    /* the zones of the proposal */
-    assert(ck_zone(0, 0) >> 12 == CK_E_ROOT && ck_zone(0, 11) >> 12 == CK_E_ROOT && ck_zone(0, 12) >> 12 == CK_E_SCALE);
-    assert(ck_zone(0, 35) >> 12 == CK_E_SCALE && ck_zone(0, 36) >> 12 == CK_E_SNAP);
-    assert(ck_zone(1, 29) >> 12 == CK_E_CHORD && !ck_zone(1, 30) && !ck_zone(1, 31));
-    assert(ck_zone(1, 32) >> 12 == CK_E_INV && ck_zone(1, 36) >> 12 == CK_E_STRUM);
-    assert(ck_zone(2, 5) >> 12 == CK_E_ORD && ck_zone(2, 6) >> 12 == CK_E_OCT && ck_zone(2, 10) >> 12 == CK_E_SWING);
-    assert(ck_zone(2, 11) >> 12 == CK_E_HUMAN && ck_zone(2, 12) >> 12 == CK_E_RATE && ck_zone(2, 25) >> 12 == CK_E_GATE);
-    assert(ck_zone(2, 35) >> 12 == CK_E_RHY && ck_zone(2, 36) >> 12 == CK_E_LATCH);
-    /* the values: a key of a wide zone sets its value; a one-key zone steps and wraps */
-    z = ck_zone(0, 14);
-    assert(ck_zone_val(z, 14, 0, CK_FMAX[CK_E_SCALE]) == 2);                  /* DORIAN */
-    z = ck_zone(2, 12);
-    assert(ck_zone_val(z, 21, 0, CK_FMAX[CK_E_RATE]) == 9);                   /* 1/16 */
-    z = ck_zone(2, 34);
-    assert(ck_zone_val(z, 34, 0, CK_FMAX[CK_E_GATE]) == 9);                   /* 100 % */
-    z = ck_zone(1, 36);
-    assert(ck_zone_val(z, 36, 3, 7) == 4 && ck_zone_val(z, 36, 7, 7) == 0);   /* STRUM steps, then OFF */
-    z = ck_zone(2, 36);
-    assert(ck_zone_val(z, 36, 0, 1) == 1 && ck_zone_val(z, 36, 1, 1) == 0);   /* LATCH on, off */
-}
-
 /* Stage buttons open the settings page on press and close it on the next press. */
 static void test_page(void)
 {
@@ -312,7 +268,6 @@ int main(void)
     test_tables();
     test_new_scales_chords();
     test_rhythm();
-    test_zones();
     test_page();
     test_human();
     test_rpt();
