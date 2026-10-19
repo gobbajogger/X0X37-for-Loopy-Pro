@@ -7,10 +7,12 @@ The eight faders use pickup. A fader starts changing a value when it reaches the
 | Control | HOME and clip grid | Other X0X pages |
 | --- | --- | --- |
 | Faders 1–5 | 909, 808, 303A, 303B, BREAK levels | Current page's four values, then next page's four values |
-| Faders 6–8 | Reverb level, delay level, master level | Same page rule; a one-page view uses the selected part's level, pan, reverb and delay sends for faders 5–8 |
+| Faders 6–8 | Reverb level, delay level, master filter | Same page rule; a one-page view uses the selected part's level, pan, reverb and delay sends for faders 5–8 |
 | Encoders 1–8 | First four X0X page values, then the next four or the selected part's mix | The visible page's fields, one value step per click; on an open SCALE, CHORD or ARP page, the eight positions follow its two columns of fields |
 
 For strips 1–5, **M** toggles that part's mute, **S** solos it while held, **R** selects the part and toggles recording, and **SELECT** selects the part. Several held **S** buttons can solo several parts together. Solo clears when the SMC disconnects. The stock User preset's MMC buttons provide no release event, so **S** latches on/off there. On strips 6–8, **M** toggles reverb, delay or master output; the other three buttons open their FX, mix, part or home pages. The SMC's **PLAY**, **STOP** and **REC** control X0X transport and recording. Rewind and fast-forward move the selected part's pattern. Bank and channel left/right move between parts; arrows move pages or a selected menu value. These SMC actions do not send APC40 clip commands.
+
+Fader 8's master filter matches the keyboard's bank-B filter: low-pass below the middle, neutral in the middle, and high-pass above it. Strip 8's M button still toggles master output, and its light reflects that output mute.
 
 ## MIDI messages
 

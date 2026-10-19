@@ -85,7 +85,7 @@ static pref_t smc_home_target(int n)
         return PR(R_ENG, T_FX, 0, FX_RV_LEVEL);
     if (n == 6)
         return PR(R_ENG, T_FX, 0, FX_DL_LEVEL);
-    return PR(R_ENG, T_FX, 0, FX_VOLUME);
+    return PR(R_ENG, T_MST, 0, MST_DJF);
 }
 
 /* Every page owns eight faders: its four visible cells, followed by the next page's
@@ -416,7 +416,8 @@ static int smc_led(int note)
             if (row == 2) return part_muted(strip);
             return ui.part == strip;
         }
-        if (row == 2) return pref_get(smc_home_target(strip)) == 0;
+        if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
+                                     smc_home_target(strip)) == 0;
         return (strip == 5 && ui.view == V_FX) || (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
                (strip == 7 && (ui.view == V_MIX || ui.view == V_HOME));
     }
