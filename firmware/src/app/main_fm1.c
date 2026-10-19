@@ -1346,6 +1346,7 @@ CK_FN static void ck_controls(void)
             char n[12], t[12];
             if (!d)
                 continue;
+            ui.act_t = fm1_ms;                               /* CC turns also keep flash writes away from playing */
             if (v > 2u) {                                   /* no stage: CC 48-54 for MIDI-learn */
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);   /* (relative) */
                 continue;
@@ -1371,6 +1372,24 @@ CK_FN static void ck_controls(void)
             put_s(put_s(n, ck_nm(CK_FLD_N, f)), " ");
             ui_say(n, ck_val_txt(f, ck_get(f), t));        /* for example "RATE 1/16" */
         }
+}
+/* All 37 raw keybed bits, including the ten keys outside X0X's 27-key panel. */
+uint8_t smk_ck_keybed_held(void)
+{
+    const volatile uint32_t *keys = (const volatile uint32_t *)&fm1_in.keys;
+    return (uint8_t)(clip_grid_mode && (keys[0] || (keys[1] & 0x1Fu)));
+}
+/* A frame may reach autosave before the clip poll consumes a new knob turn. */
+uint8_t smk_ck_flash_busy(void)
+{
+    uint32_t i;
+    if (smk_ck_keybed_held())
+        return 1u;
+    if (smk_ck_knobs_owned())
+        for (i = 0; i < NE; i++)
+            if (fm1_in.enc_steps[panel.enc[i]])
+                return 1u;
+    return 0u;
 }
 /* ------- clip mode screen: the KEYS panel (the bottom strip) and the SCALE / CHORD / ARP page (main area) --- */
 static const uint8_t CK_WI[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};   /* the white key of each pitch class */
@@ -1526,6 +1545,8 @@ CK_FN void smk_ck_poll(void)
         cp->ext_seen = (uint8_t)apc_clock_count;
         cp->btn_prev = 0x7Fu;                                /* a button held at entry acts only after its release */
     } else {
+        if (smk_ck_keybed_held())
+            ui.act_t = now;                                 /* a held clip key keeps autosave quiet */
         if (!(cp->fl & CK_F_ACTIVE)) {
             cp->fl |= CK_F_ACTIVE;
             was_on = 0u;
@@ -1545,6 +1566,7 @@ CK_FN void smk_ck_poll(void)
         *pk ^= bit;
         if (!on)
             continue;
+        ui.act_t = now;                                     /* a release also starts the quiet interval */
         if (!d) {
             ck_release(k);
             continue;

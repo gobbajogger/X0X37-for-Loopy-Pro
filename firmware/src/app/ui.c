@@ -4465,10 +4465,21 @@ void ui_init(void)
 static void autosave(void)
 {
     uint32_t now = plat_ms();
+#if BOARD_SMK37
+    extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
+#endif
     if (save_wait && !seq.playing && !seq.req_stop) { /* SAVE pressed while playing: now */
+#if BOARD_SMK37
+        if (smk_clip_mode_on() && (smk_ck_flash_busy() || now - ui.act_t < AUTOSAVE_QUIET))
+            return;                                    /* keep the queued SAVE until clip playing has gone quiet */
+#endif
         save_project();
         return;
     }
+#if BOARD_SMK37
+    if (smk_ck_flash_busy())                          /* ui_frame runs before smk_ck_poll on display frames */
+        return;
+#endif
     if (!ui.dirty || (proj.set.autosave_off && !ui.last_autosave) || seq.playing || seq.req_stop || ui.rec || perf_testing() ||
         ui.overlay == O_ASK || now - ui.act_t < AUTOSAVE_QUIET || (ui.saved_t && now - ui.saved_t < AUTOSAVE_GAP))
         return;
