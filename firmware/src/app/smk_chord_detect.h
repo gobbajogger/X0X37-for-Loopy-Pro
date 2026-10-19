@@ -66,19 +66,19 @@ CK_CD_FN static const char *ck_chord_note_name(uint32_t pc)
     return pc < 12u ? CK_CD_NOTES[pc] : "-";
 }
 
-CK_CD_FN static uint32_t ck_cd_count(uint32_t mask)
+/* At least three bits, without counting the rest. */
+CK_CD_FN static uint32_t ck_cd_three(uint32_t mask)
 {
-    uint32_t n = 0;
-    for (; mask; mask &= mask - 1u)
-        n++;
-    return n;
+    mask &= mask - 1u;
+    return mask & (mask - 1u);
 }
 
 /* No held tone may be unexplained. Exact matches beat omitted perfect fifths;
- * then a root at the bass wins, then table order. No time/history heuristics. */
-CK_CD_FN static int ck_cd_fit(uint32_t pcs, uint32_t pref, uint8_t *root, uint8_t *type)
+ * then a root at the bass wins, then table order. No time/history heuristics.
+ * Return root << 8 | type, or -1: no pointer outputs or caller scratch bytes. */
+CK_CD_FN static int ck_cd_fit(uint32_t pcs, uint32_t pref)
 {
-    int best = -1;
+    int best = -1, found = -1;
     uint32_t r, t;
     for (r = 0; r < 12u; r++) {
         uint32_t rel;
@@ -100,12 +100,11 @@ CK_CD_FN static int ck_cd_fit(uint32_t pcs, uint32_t pref, uint8_t *root, uint8_
                 score += 100;
             if (score > best) {
                 best = score;
-                *root = (uint8_t)r;
-                *type = (uint8_t)t;
+                found = (int)(r << 8 | t);
             }
         }
     }
-    return best >= 0;
+    return found;
 }
 
 /* Return 1 for a chord, 0 for empty/single/dyad/unknown input. On 0 the result
@@ -116,42 +115,42 @@ CK_CD_FN static int ck_cd_fit(uint32_t pcs, uint32_t pref, uint8_t *root, uint8_
  * notes (D below C E G -> C/D). Octave-doubled bass notes prevent that split. */
 CK_CD_FN static int ck_chord_detect(const ck_chord_input_t *in, ck_chord_result_t *out)
 {
-    uint8_t r = 0, t = 0, ur = 0, ut = 0;
     uint32_t low, iv, core;
-    int all;
+    int all, upper, is_core = 0;
     out->root = out->type = out->bass = CK_CD_NONE;
     if (in->bass > 127u || (in->pcs & ~0xFFFu) || (in->upper_pcs & ~in->pcs) ||
-        ck_cd_count(in->pcs) < 3u)
+        !ck_cd_three(in->pcs))
         return 0;
     low = in->bass % 12u;
     if (!(in->pcs >> low & 1u))
         return 0;
-    all = ck_cd_fit(in->pcs, low, &r, &t);
-    iv = (low + 12u - r) % 12u;
-    core = CK_CD_CORE[t];
-    if ((!all || (iv && iv != (core & 15u) && iv != (core >> 4))) &&
+    all = ck_cd_fit(in->pcs, low);
+    if (all >= 0) {
+        iv = (low + 12u - ((uint32_t)all >> 8)) % 12u;
+        core = CK_CD_CORE[(uint32_t)all & 255u];
+        is_core = !iv || iv == (core & 15u) || iv == (core >> 4);
+    }
+    if (!is_core &&
         in->upper_bass <= 127u && in->upper_bass > in->bass &&
         (in->upper_pcs >> (in->upper_bass % 12u) & 1u) &&
-        ck_cd_count(in->upper_pcs) >= 3u && !(in->upper_pcs >> low & 1u) &&
-        ck_cd_fit(in->upper_pcs, in->upper_bass % 12u, &ur, &ut)) {
-        r = ur;
-        t = ut;
+        ck_cd_three(in->upper_pcs) && !(in->upper_pcs >> low & 1u) &&
+        (upper = ck_cd_fit(in->upper_pcs, in->upper_bass % 12u)) >= 0) {
+        all = upper;
         out->bass = (uint8_t)low;
-    } else if (!all)
+    } else if (all < 0)
         return 0;
-    out->root = r;
-    out->type = t;
+    out->root = (uint8_t)((uint32_t)all >> 8);
+    out->type = (uint8_t)all;
     return 1;
 }
 
-CK_CD_FN static void ck_cd_append(char **out, uint32_t *left, const char *s)
+/* end is the last byte available for the terminator. */
+CK_CD_FN static char *ck_cd_append(char *out, char *end, const char *s)
 {
-    while (*s && *left > 1u) {
-        *(*out)++ = *s++;
-        --*left;
-    }
-    if (*left)
-        **out = 0;
+    while (*s && out < end)
+        *out++ = *s++;
+    *out = 0;
+    return out;
 }
 
 /* capacity includes the terminator; capacity 0 writes nothing (out may be NULL).
@@ -159,21 +158,23 @@ CK_CD_FN static void ck_cd_append(char **out, uint32_t *left, const char *s)
 CK_CD_FN static void ck_chord_format(const ck_chord_result_t *ch, char *out, uint32_t capacity)
 {
     const char *name = CK_CD_NAMES;
+    char *end;
     uint32_t t;
     if (!capacity)
         return;
+    end = out + capacity - 1u;
     *out = 0;
     if (ch->root > 11u || ch->type >= CK_CD_NTYPES || (ch->bass > 11u && ch->bass != CK_CD_NONE)) {
-        ck_cd_append(&out, &capacity, "-");
+        out = ck_cd_append(out, end, "-");
         return;
     }
-    ck_cd_append(&out, &capacity, ck_chord_note_name(ch->root));
+    out = ck_cd_append(out, end, ck_chord_note_name(ch->root));
     for (t = 0; t < ch->type; t++)
         while (*name++)
             ;
-    ck_cd_append(&out, &capacity, name);
+    out = ck_cd_append(out, end, name);
     if (ch->bass != CK_CD_NONE && ch->bass != ch->root) {
-        ck_cd_append(&out, &capacity, "/");
-        ck_cd_append(&out, &capacity, ck_chord_note_name(ch->bass));
+        out = ck_cd_append(out, end, "/");
+        out = ck_cd_append(out, end, ck_chord_note_name(ch->bass));
     }
 }
