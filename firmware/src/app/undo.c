@@ -17,7 +17,7 @@
 #include <stdint.h>
 
 #ifndef UNDO_POOL
-#define UNDO_POOL 20480u                 /* X0X 0.11: 4 KB less, for the 64-step project's shadow (pool headroom) */
+#define UNDO_POOL 16128u                 /* leave 8 KiB pool headroom after per-step 303 velocity expands the shadow */
 #endif
 #define UNDO_MAX 32
 #define UNDO_GAP 8u                    /* unchanged bytes between changes cheaper to keep than a new run */
