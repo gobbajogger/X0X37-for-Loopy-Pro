@@ -2173,6 +2173,7 @@ static void mute_part(int p)                         /* a whole part on / off (H
     if (seq.song_rec && seq.playing && seq.song_pos < song()->len) {   /* song recording: this bar too */
         song_bar_t *b = &song()->bar[seq.song_pos];
         b->mute = (uint8_t)(part_muted(p) ? b->mute | 1u << p : b->mute & ~(1u << p));
+        mark_dirty();
     }
     say(part_muted(p) ? "MUTED " : "UNMUTED ", PART_N[p]);
 }
