@@ -199,7 +199,7 @@ uint8_t smk_padcal_on(void) { return padcal.on; }
 /* What the SMK-37 Pro has beyond the FM-1's panel (smk_input.h), after the UI (ui.c) in this unity build.
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
  * bright, dim an eighth, else dark; sent between LCD transfers (lcd.c padled_flush). */
-static volatile uint8_t clip_grid_mode;   /* APC40 mkII compatibility; long KNOB BANK toggles */
+static volatile uint8_t clip_grid_mode;   /* APC40 mkII compatibility; KNOB BANK press toggles */
 static volatile uint8_t apc_host_on;      /* attempt 35: an APC40 host did the handshake (smk_apc_host_seen) */
 /* attempt 30: what clip mode sends to the APC40 host goes to USB and to a Bluetooth MIDI connection
  * (Loopy Pro on the BLE port). ble_out has one producer (the audio ISR): IRQs off around it here. */
