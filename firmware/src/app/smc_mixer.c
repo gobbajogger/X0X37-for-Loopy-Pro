@@ -225,6 +225,8 @@ static void smc_record_toggle(void)
 
 static void smc_select_part(int part)
 {
+    if (part != ui.part)
+        bass_step_cancel();             /* restore a held 303 step's sound before the page changes */
     ui.part = (uint8_t)part;
     ui.mixsel = (uint8_t)part;
     if (ui.view == V_GEN && !is_303())
