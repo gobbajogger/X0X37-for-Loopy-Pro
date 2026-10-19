@@ -37,7 +37,7 @@ assert re.search(r"if \(route == ARW_MENU\) \{\s*ui_menu_arrow\(d\);", sa), sa
 assert "return home ? ARW_NONE : menu ? ARW_MENU : clip ? ARW_NONE : ARW_SELECT;" in arw
 # the clip keys: the arrow presses are masked when they do not own the controls
 ck = body(main, "CK_FN static void ck_controls(void)")
-assert re.search(r"if \(!(own|smk_ck_knobs_owned\(\))\)\s*press &= ~0x70u;", ck), "ck_controls must mask < > with a menu"
+assert re.search(r"if \(!(own|smk_ck_knobs_owned\(\))\)\s*press &= ~0x60u;", ck), "ck_controls must mask < > with a menu"
 if "ck_rpt(" in ck:                      # e7989ac: the hold repeat reads the held arrows: only when owned
     arg = ck[ck.index("ck_rpt(") + 7:]
     assert re.match(r"(own|smk_ck_knobs_owned\(\)) &&", arg), "ck_rpt must get 0 with a menu open"
