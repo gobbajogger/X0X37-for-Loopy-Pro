@@ -36,3 +36,12 @@ Rollout uses the maintained x0x37/docs source and tools/rollout_rules.py with
 backups. Preserve the pre-existing FM-1 preference edit. Firmware integration
 remains with its assigned chat. Existing chats use changed rules next time they
 read the entry; no messages or restarts are authorized by this task.
+
+## Applied result
+
+Commit `f9666ea` was fast-forwarded locally to `smk37`. Rollout updated
+13 workspace mirrors and checkout entries; a repeat proposed zero changes.
+Backups and the complete hash manifest are in `/Users/mac/Documents/x0x37/repo-bak/rules-rollout-20261019T144450251996Z`.
+The existing FM-1 preference edit remains uncommitted and byte-preserved apart
+from this task's inserted decision. Final preference lint and committed-tree
+docs quickcheck passed. Independent follow-up found no unresolved findings.
