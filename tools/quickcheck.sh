@@ -276,12 +276,12 @@ for l in src.split("\n"):
 for t in ("drum909", "drum808", "bass303", "breaks"):
     if os.path.exists(f"tests/host/run_{t}.sh"): cmds[t] = f"sh tests/host/run_{t}.sh"
 scen = ["scenario-" + os.path.basename(s)[:-4] for s in sorted(glob.glob("tests/scenarios/*.x0x"))]
-FAST = "fastmath sequencer encoder uac trs undo lz motion storage smk-flash smk-storage smk-apc40-map smk-clip-keys locked-settings".split()
+FAST = "fastmath sequencer encoder uac trs undo lz motion smk-flash smk-storage smk-apc40-map smk-clip-keys locked-settings".split()
 RULES = [                                        # path prefix -> tests (added to the tests found by text)
     ("firmware/src/dsp/drum909", "drum909 drum909-adpcm drum-pan"), ("firmware/src/dsp/drum808", "drum808 drum-pan"),
     ("firmware/src/dsp/bass303", "bass303 bass303_lite"), ("firmware/src/dsp/breaks", "breaks"),
     ("firmware/src/dsp/", "master stereo fastmath"), ("firmware/src/seq/", "sequencer motion loop-bars rec-live"),
-    ("firmware/src/storage", "storage smk-storage"), ("firmware/hal/fm1_flash_map.h", "smk-flash storage smk-storage"),
+    ("firmware/src/storage", "smk-storage"), ("firmware/hal/fm1_flash_map.h", "smk-flash smk-storage"),
     ("firmware/src/ble", "ble smk-clip-ble-clear smk-clip-ble-notify diag-size"), ("firmware/src/lcd", "smk-clip-dark"),
     ("tools/fm1_install.py", "installer installer-slots installer-ctl installer-targets"), ("tools/fm1pkg_make.py", "smk-package"),
     ("tools/upload_breaks.py", "upload-images upload-tools breaks-web"), ("web/", "breaks-web breaks-page install-slots-web"),

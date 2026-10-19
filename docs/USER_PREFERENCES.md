@@ -2,6 +2,12 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
+## Build target scope — 2026-10-20
+
+Source: owner in this chat: "we dont need to build and test fm1 builds. they are only for reference to port".
+
+FM-1 is reference-only for porting. Build and test SMK-37 Elite and Pro; do not require FM-1 target builds or FM-1 target tests. This supersedes the gate’s FM-1 build, budget, and target-test requirements. Keep shared code and checks needed for the SMK-37 port, including tools with legacy `fm1` names. Active rules: owner-messages.md rules 4B and 14; docs.md rule 12. The assigned integration chat owns the workflow change.
+
 ## Team rules
 
 Source: the owner's current rules audit request, relayed into this task. "Need to audit all project rules and docs to prevent it from happening. And make sure that all agents use simply English skill and caveman at all times. start a new thread with subagents to finish this job".
