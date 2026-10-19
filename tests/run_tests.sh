@@ -49,7 +49,7 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) echo W ;;
-    ota-entry|update-loader|installer|installer-targets|installer-slots|slot-backup|upload-tools|\
+    installer|installer-targets|installer-slots|slot-backup|upload-tools|\
     breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|emu|emu-slots|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) echo S ;;
     rec-live|rec-live-smk) echo S ;;   # these read build/gen from host-build (phase 1)
@@ -195,23 +195,9 @@ run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.s
 run status-checks bash tests/host/test_status_checks.sh   # tools/status.sh (checks 27, 29): docs lint flag, ROADMAP installed hash, BEHAVIOR items since the last install
 run checklist-lint sh tests/host/test_checklist_lint.sh   # tools/checklist_lint.py (check 23): checklist header lines, 10 tasks or fewer, each task starts with Goal:
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
-run storage sh -c "$CC -O2 -o $OUT/storage_test tests/storage_test.c && $OUT/storage_test"
-# the update path, against the firmware package (Felucca's tests; needs ./build.sh)
-if [ -f build/x0x.fwsc ]; then
-    run ota-entry sh -c "$CC -o $OUT/ota_test tests/ota_test.c && $OUT/ota_test build/x0x.fwsc"
-    if [ -z "${AC79_SDK:-}" ]; then
-        note "  skip update-loader (needs AC79_SDK, as the build)"
-    else
-    run update-loader sh -c "head -c 200000 build/x0x.bin > $OUT/old_app.bin && \
-        python3 tools/fm1pkg_make.py $OUT/old_app.bin build/loader/ota.bin $OUT/old.fwsc >/dev/null && \
-        $CC -o $OUT/ldr_test tests/ldr_test.c && $OUT/ldr_test $OUT/old.fwsc build/x0x.fwsc"
-    fi
-    run installer python3 tests/install_test.py
-else
-    note "  skip update-path tests (no build/x0x.fwsc: run ./build.sh)"
-fi
-# SMK-37 Pro (BOARD_SMK37): the flash map and the store, the package layout, the update path on SMK-layout
-# packages (made from the FM-1 app: only the layout matters), and the SMK build's own package if there is one
+# Shared installer protocol coverage uses an SMK mock and the Pro package.
+run installer python3 tests/install_test.py
+# SMK-37: flash map, storage, package layout, and update path use SMK build inputs.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings (tools/locked_settings.json)
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
@@ -246,19 +232,19 @@ run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a li
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
 run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
-if [ -f build/x0x.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
-    run smk-package sh -c "python3 tools/fm1pkg_make.py --board smk37 build/x0x.bin build/loader/ota.bin $OUT/smk_new.fwsc >/dev/null && \
+if [ -f build/x0x-smk37.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
+    run smk-package sh -c "python3 tools/fm1pkg_make.py --board smk37 build/smk37/x0x.bin build/smk37/loader/ota.bin $OUT/smk_new.fwsc >/dev/null && \
         python3 tests/smk_pkg_test.py $OUT/smk_new.fwsc"
     run smk-ota-entry sh -c "$CC -DBOARD_SMK37=1 -o $OUT/ota_test_smk tests/ota_test.c && $OUT/ota_test_smk $OUT/smk_new.fwsc"
     for m in 1 2; do                     # the MODEL=elite / mke builds of ota.c
         run smk-ota-entry-model$m sh -c "$CC -DBOARD_SMK37=1 -DT_MODEL=$m -o $OUT/ota_test_smk_m$m tests/ota_test.c && \
             $OUT/ota_test_smk_m$m $OUT/smk_new.fwsc"
     done
-    run smk-update-loader sh -c "head -c 200000 build/x0x.bin > $OUT/old_app.bin && \
-        python3 tools/fm1pkg_make.py --board smk37 $OUT/old_app.bin build/loader/ota.bin $OUT/smk_old.fwsc >/dev/null && \
+    run smk-update-loader sh -c "head -c 200000 build/smk37/x0x.bin > $OUT/old_app.bin && \
+        python3 tools/fm1pkg_make.py --board smk37 $OUT/old_app.bin build/smk37/loader/ota.bin $OUT/smk_old.fwsc >/dev/null && \
         $CC -DBOARD_SMK37=1 -o $OUT/ldr_test_smk tests/ldr_test.c && $OUT/ldr_test_smk $OUT/smk_old.fwsc $OUT/smk_new.fwsc"
 else
-    note "  skip SMK-37 Pro package tests (needs build/x0x.fwsc and AC79_SDK)"
+    note "  skip SMK-37 Pro package tests (needs build/x0x-smk37.fwsc and AC79_SDK)"
 fi
 [ -f build/x0x-smk37.fwsc ] && run smk-build-package python3 tests/smk_pkg_test.py build/x0x-smk37.fwsc
 [ -f build/x0x-smk37-elite.fwsc ] && run smk-build-package-elite python3 tests/smk_pkg_test.py build/x0x-smk37-elite.fwsc "SMK-37 Elite_900"

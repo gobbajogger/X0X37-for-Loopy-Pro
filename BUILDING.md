@@ -2,6 +2,11 @@ Publish the site only when the owner authorizes publication (docs/rules/install.
 
 # Building X0X
 
+Maintained targets are SMK-37 Elite and Pro. The gate builds and tests both in dev
+and release configurations. FM-1 source is reference-only for porting; its target
+builds, target tests, and memory budgets are not gate requirements. Shared tools
+with `fm1` names still serve SMK-37. Historical FM-1 instructions below are reference material.
+
 The build makes three files in `build/`:
 
 | File | What |

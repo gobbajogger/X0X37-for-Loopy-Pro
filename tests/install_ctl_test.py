@@ -13,7 +13,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import install_test as T  # noqa: E402  (FakeFM1, package, cli; its tests run only as __main__)
+import install_test as T  # noqa: E402  (FakeSMK, package, cli; its tests run only as __main__)
 import x0x_slots as xs  # noqa: E402
 
 I = T.I
@@ -35,7 +35,7 @@ def ctl_read(block, args):
     return [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F] + xs.pack7(block[off:off + n])
 
 
-class FakeBT(T.FakeFM1):
+class FakeBT(T.FakeSMK):
     """an SMK-37 with X0X: the Bluetooth block after the install is `block` (None: no CTL_READ, an older X0X)"""
 
     def __init__(self, image, block, **kw):

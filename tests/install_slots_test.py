@@ -3,7 +3,7 @@
 """tools/fm1_install.py with sample slots on a simulated SMK-37 (no hardware, no device writes):
 an install that would lose slot data saves every slot to an .x0xslots file (SMP_INFO / SMP_READ),
 installs, and writes the slots back into the new firmware's slot map, then reads them back.
-The fake keyboard is tests/install_test.py's FakeFM1 with tests/slot_mock.py's slot commands over one
+The fake keyboard is tests/install_test.py's FakeSMK with tests/slot_mock.py's slot commands over one
 flash model, so the slot bytes stay over an install as on the device. Run from the repo root:
   python3 tests/install_slots_test.py"""
 import math
@@ -15,7 +15,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import install_test as T  # noqa: E402  (FakeFM1, package, cli; its tests run only as __main__)
+import install_test as T  # noqa: E402  (FakeSMK, package, cli; its tests run only as __main__)
 from slot_mock import Flash, MockDevice, SMK_MAP, SMK_OLD_MAP  # noqa: E402
 import fm1pkg_make  # noqa: E402
 import x0x_slots as xs  # noqa: E402
@@ -44,7 +44,7 @@ def pkgfile(name, raw):
     return str(p)
 
 
-class FakeX0X(T.FakeFM1):
+class FakeX0X(T.FakeSMK):
     """an SMK-37 with X0X: firmware = {identity: (slot map, SMP_INFO extension) or None (no X0X slots)}"""
 
     def __init__(self, image, identity, after_write, firmware, flash, fail_write_at=None, stock_erases=()):
