@@ -38,10 +38,11 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 | Pad colours | The owner calibrated the pad colours (export of 2026-10-17, 89 entries with owner values). The clip pads use this table APC40_PAD_OWNER in the dev build and in the release build (CLP-13) | 48892fe, 4113ce0 (in the installed build c6bf44a) |
 | Gate | The gate builds and tests the dev configuration and the release configuration. The install guard checks the configuration | 7cef9e4, 2012283 (in f9bcc46) |
 
-## Where we are now (2026-10-17 02:45)
+## Where we are now (2026-10-19)
 
 - Branches:
-  - Installed = batch 10 (c6bf44a), release configuration (X0X_DEV_PADCAL=0). Batch 10 contains the batches before it. c6bf44a is the integration tip.
+  - Integration HEAD = f752007 (batch 11 open). Focused host tests and an Elite build pass at this hash. The formal batch 11 gate and device test have not run.
+  - Installed = batch 10 (c6bf44a), release configuration (X0X_DEV_PADCAL=0). Batch 10 contains the batches before it. It remains the installed build.
   - The gate on c6bf44a gave PASS at 2026-10-17 02:19 (tree b220466e91d0). It built and tested the dev and the release configuration (116 ok, 0 FAIL, 0 skip in each).
   - Tag last-good-hw = 94285b5 (a67, iPhone PASS 19:18).
   - The side branches ble-a68-opt (a1d8ea1), ble-a69-readback (75c42e1), ble-a70 (77fa067) and ble-a71 (9ef7bc2) have builds. Nobody installed them.
@@ -49,7 +50,7 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
   - The keyboard runs integration c6bf44a (batch 10) in the release configuration. The install time is 2026-10-17 02:25 (INSTALLED.tsv). It has no PAD COLOURS page, and the owner pad colours are in the firmware.
   - The fwsc CRC32 is c48b5c6e. The ctl.img read-back is eb742dd2 (the same as the file). Slots 1 and 2 did not change, and slot 3 is empty. DIAG shows READY.
   - Free bytes of the Elite release build at c6bf44a: app code 3864 B, static RAM 5824 B, pool 8196 B.
-  - Device test: PENDING (batch 10). Regression (owner 02:49): in clip mode, the knobs do nothing. Tag last-good-hw stays 94285b5.
+  - Device test: PENDING (batch 10). Regression (owner 02:49): in clip mode, the knobs do nothing on the installed build. The batch 11 host fix is at f752007; the device has not been retested. Tag last-good-hw stays 94285b5.
 - iPhone:
   - The iPhone works on a67 (owner test PASS 19:18). On a73, the link carries the Loopy clock and Start (20:37 PASS).
   - History: a65 iPhone test 1 (18:23): the iPhone connected (interval 7.5 ms, MTU 185). Then the link ended with reason 0x08 (connection timeout).
@@ -72,17 +73,17 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 
 1. Mac: test the clock and Start/Stop over Bluetooth, and check for audio dropouts.
 2. Clip mode with Loopy Pro:
-   - Open: CLP-50 FAIL. X0X PLAY does not start or stop Loopy Pro (a73, owner test 20:37-20:39). Also test the pads, overdub and tempo with Loopy Pro.
-   - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Device test: pending.
+   - Open: CLP-50 FAIL. X0X PLAY does not start or stop Loopy Pro (a73, owner test 20:37-20:39). Capture the outbound MIDI from X0X PLAY, then test the pads, overdub and tempo with Loopy Pro.
+   - Open: CLP-13 FAIL (a74 owner test 1, 21:18). A violet clip from Loopy Pro shows blue on the pads. The installed build c6bf44a has the owner pad table (48892fe). In c6bf44a, an idle pad sends the full owner table level (4113ce0). Current host tests pass; a device retest is still needed.
    - Open: CLP-18 FAIL (a74 owner test 1, 21:18). When Loopy Pro disconnects, the pads go dark, but the clip colours come back immediately. The fix (a76) is in the installed build c6bf44a. In c6bf44a, a link end clears only the clip cells of that link (30a08fc, 79de009). Device test: pending.
    - Open: the owner test of batch 10 (c6bf44a).
-   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. Firmware Main Builder records a knob turn on the device, then finds the cause. The fix goes in batch 11. At 03:20, the owner said "Just fix them". After the fix, knobs 2 to 8 edit the keybed ARP, CHORD and SCALE again, so that Loopy Pro records the keybed (owner 03:26).
+   - Open: regression on c6bf44a (owner 02:49). In clip mode, the knobs do nothing. The batch 11 fix is in integration f752007 and passes focused host tests and an Elite build. It needs the formal gate and a device retest. At 03:20, the owner said "Just fix them". The intended result is that knobs 2 to 8 edit the keybed ARP, CHORD and SCALE again, so that Loopy Pro records the keybed (owner 03:26).
    - Batch 11 (owner 02:49, Second Builder): in clip mode, a tap on MODE latches the MODE UI open, and a second tap closes it. A hold works as before.
    - Batch 11 (owner 02:50, Second Builder): show a "waiting for Loopy Pro to connect" screen instead of the 8x5 grid.
    - Batch 11 (owner 02:52, Second Builder): a tap on the stage latches it open, and a tap closes it. FADER BANK also closes it. The screen has no top bar, and it shows a help line at the bottom. The stage is the MODE UI of the 02:49 item. The owner said at 02:51: "The SCALE, CHORD or ARP button" (Second Builder confirmed).
    - Open: the owner did not test the a74 clock source (MID-13) and PLAY note (MID-14) items yet.
 3. Turn Bluetooth on and off in GLOBAL without a restart. OFF: stop advertising and disconnect. ON: start the controller while the keyboard runs, with no audio dropouts (the radio calibration is the hard part).
-4. Bring integration (c6bf44a or later) into the main tree (x0x37, smk37) after an owner test PASS of an installed build.
+4. Run the formal batch 11 gate on integration f752007 or its later final hash. After the finished set is installed and the owner reports a device PASS, bring that integration hash into the main tree (x0x37, smk37).
 5. Owner checks by ear and eye: the ADPCM cymbals, the 44.1 kHz factory breaks and the idle clip colours on the screen. Also check that the patterns and settings stayed the same.
 6. Web installer: let the page get the JieLi files and build the Bluetooth image. Or let it guide the end user. If possible, end users need no toolchain.
 7. Release: Merge Integrator builds the Pro and Elite packages from a hash with a gate PASS and a device PASS. It checks the installer hashes and publishes only when the owner asks. The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, and it uses the pad table that the owner calibrated. Pad calibration is only for development (owner, 2026-10-17 00:01). The build option is in the code (bd254a0, BUILDING.md c3cdb5a).
@@ -99,4 +100,4 @@ We make X0X firmware for the M-Vave SMK-37 (Pro and Elite). The firmware has the
 - Bluetooth audio.
 - Ship JieLi Bluetooth files with the firmware.
 
-Last update: 2026-10-17 03:31.
+Last update: 2026-10-19.
