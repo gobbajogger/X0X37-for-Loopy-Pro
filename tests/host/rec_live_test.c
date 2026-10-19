@@ -10,6 +10,31 @@
 #include "../../host/x0x_host.c"
 #undef main
 
+#if BOARD_SMK37
+static uint8_t test_clip_mode;
+uint8_t smk_clip_mode_on(void) { return test_clip_mode; }
+uint8_t smk_padcal_on(void) { return 0; }
+uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
+void smk_padcal_enter(void) {}
+uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
+void smk_clip_lcd_force(void) {}
+uint8_t smk_clip_wait(void) { return 0; }
+uint8_t smk_ck_ext(void) { return 0; }
+uint8_t smk_ck_knobs_owned(void) { return 0; }
+uint8_t smk_ck_panel(uint32_t *last, uint32_t force) { (void)last; (void)force; return 0; }
+uint8_t smk_clip_history_button(uint8_t button, uint8_t pressed, uint8_t patch_held)
+{ (void)button; (void)pressed; (void)patch_held; return 0; }
+uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed)
+{ (void)button; (void)pressed; return 0; }
+void smk_play_note_button(uint8_t pressed, uint8_t home_held) { (void)pressed; (void)home_held; }
+void smk_apc_transport_led_set(uint8_t note, uint8_t velocity) { (void)note; (void)velocity; }
+uint8_t smk_apc_transport_led_state(uint8_t note) { (void)note; return 0; }
+void smk_apc_clock_tick(void) {}
+void smk_apc_clock_start(void) {}
+void smk_apc_clock_position(uint32_t sixteenths) { (void)sixteenths; }
+void smk_ck_midi_stop(void) {}
+#endif
+
 static int fails;
 #define CHECK(c, ...) do { if (!(c)) { fails++; printf("  FAIL %s:%d: ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); } } while (0)
 
@@ -72,6 +97,79 @@ static void at_step(int t, int s, uint32_t ms)
 }
 
 static bstep_t *bst(int s) { return &proj.pat[seq.ppat[PART_303A]].bass[0].step[s]; }
+
+static void test_303_key_release(void)
+{
+    ui.part = PART_303A;
+    set_view(V_PART);
+    ui.freeplay[0] = 1;
+    build_pages();
+
+    key(10, 1);
+    tick(10);
+    CHECK(engine_midi_held() & 1, "303 A key sounds before octave change");
+    btn(B_OCTUP, 1);
+    btn(B_OCTUP, 0);
+    CHECK(engine_midi_held() & 1, "303 A key continues through octave change");
+    key(10, 0);
+    tick(10);
+    CHECK(!(engine_midi_held() & 1), "303 A key releases after octave change");
+
+    key(10, 1);
+    tick(10);
+    CHECK(engine_midi_held() & 1, "303 A key sounds before part change");
+    enc_acc[EN_ALGO] += 1;
+    tick(1);
+    CHECK(ui.part == PART_303B, "ALGORITHM selects 303 B while A key is held");
+    key(10, 0);
+    tick(10);
+    CHECK(!(engine_midi_held() & 1), "303 A key releases while 303 B is selected");
+
+    ui.part = PART_303A;
+    key(10, 1);
+    key(12, 1);                                      /* 303 is monophonic: the later key owns the gate */
+    tick(10);
+    key(10, 0);
+    tick(10);
+    CHECK(engine_midi_held() & 1, "release of older key leaves later note sounding");
+    key(12, 0);
+    tick(10);
+    CHECK(!(engine_midi_held() & 1), "later key releases its note");
+
+    key(10, 1);
+    tick(10);
+    pref_set(PR(R_FREEPLAY, 0, 0, 0), 0);         /* SEQ > KEYS > FREE PLAY switched off */
+    tick(10);
+    CHECK(!(engine_midi_held() & 1), "free-play exit ends held note");
+    key(10, 0);
+
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    CHECK(ui.rec, "record turns on for the 303 keybed");
+    key(10, 1);
+    tick(10);
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    CHECK(!ui.rec, "record turns off while key is held");
+    key(10, 0);
+    tick(10);
+    CHECK(!(engine_midi_held() & 1), "held 303 key releases after record exit");
+
+#if BOARD_SMK37
+    ui.freeplay[0] = 1;
+    key(10, 1);
+    tick(10);
+    CHECK(engine_midi_held() & 1, "303 A key sounds before clip entry");
+    smk_clip_enter_cleanup();                     /* same cleanup used by the knob-bank mode switch */
+    test_clip_mode = 1;
+    tick(10);
+    CHECK(!(engine_midi_held() & 1), "clip entry ends held 303 note");
+    key(10, 0);
+    test_clip_mode = 0;
+#endif
+    ui.freeplay[0] = 0;
+    printf("  303 keyboard: octave and part changes release the original key; later key owns gate: checked\n");
+}
 
 static void test_303_live(void)
 {
@@ -247,6 +345,7 @@ int main(void)
 {
     boot();
     tick(300);
+    test_303_key_release();
     test_303_live();
     test_start_ext_running();
     test_drum_nearest();

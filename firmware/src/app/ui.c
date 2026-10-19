@@ -132,6 +132,7 @@ static int is_drum(void) { return ui.part == PART_909 || ui.part == PART_808; }
 static int bidx(void) { return ui.part == PART_303B ? 1 : 0; }
 static int kbd_on(void) { return is_303() && (ui.rec || ui.freeplay[bidx()]); }   /* the keys a keyboard */
 static uint8_t kbd_held_note[NBASS];
+static uint8_t kbd_held_key[NBASS];                  /* physical key + 1; survives octave and part changes */
 static int held_note_of(const bpart_t *bp, int s);
 
 /* ============================================================ text helpers === */
@@ -479,6 +480,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         if (!v && kbd_held_note[r.a]) {                /* a key still down: let it go */
             engine_bass_off(r.a);
             kbd_held_note[r.a] = 0;
+            kbd_held_key[r.a] = 0;
         }
         break;
     case R_SREP:
@@ -2050,35 +2052,31 @@ static void bass_write(int b, int note, int gate)
     mark_dirty();
 }
 
-static void bass_kbd(int key, int down)
+static void bass_kbd(int key)
 {
     int b = bidx(), n = kbd_note(key);
-    if (down) {
-        engine_bass_on(b, n, (ui.btn & (1u << B_ENV)) != 0, kbd_held_note[b] != 0);
-        kbd_held_note[b] = (uint8_t)n;
-        if (ui.rec && !seq.playing) {
-            bass_write(b, n, G_NOTE);
-        } else if (ui.rec && seq.playing) {
-            bpart_t *bp = &cur_pat()->bass[b];
-            int s = rec_step(TRK_BASS0 + b);
-            uint8_t f = G_NOTE;
-            if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
-                f |= BS_ACCENT;
-                ui.btn_used |= 1u << B_ENV;
-            }
-            if (ui.btn & (1u << B_LFO)) {              /* (used: its release does not open MIX) */
-                f |= BS_SLIDE;
-                ui.btn_used |= 1u << B_LFO;
-            }
-            bp->step[s].note = (uint8_t)n;
-            bp->step[s].flags = f;
-            bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
-            seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
-            mark_dirty();
+    engine_bass_on(b, n, (ui.btn & (1u << B_ENV)) != 0, kbd_held_note[b] != 0);
+    kbd_held_note[b] = (uint8_t)n;
+    kbd_held_key[b] = (uint8_t)(key + 1);
+    if (ui.rec && !seq.playing) {
+        bass_write(b, n, G_NOTE);
+    } else if (ui.rec && seq.playing) {
+        bpart_t *bp = &cur_pat()->bass[b];
+        int s = rec_step(TRK_BASS0 + b);
+        uint8_t f = G_NOTE;
+        if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
+            f |= BS_ACCENT;
+            ui.btn_used |= 1u << B_ENV;
         }
-    } else if (kbd_held_note[b] == n) {
-        engine_bass_off(b);
-        kbd_held_note[b] = 0;
+        if (ui.btn & (1u << B_LFO)) {              /* (used: its release does not open MIX) */
+            f |= BS_SLIDE;
+            ui.btn_used |= 1u << B_LFO;
+        }
+        bp->step[s].note = (uint8_t)n;
+        bp->step[s].flags = f;
+        bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
+        seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
+        mark_dirty();
     }
 }
 
@@ -2176,12 +2174,22 @@ void smk_clip_enter_cleanup(void)
         if (kbd_held_note[b]) {
             engine_bass_off(b);
             kbd_held_note[b] = 0;
+            kbd_held_key[b] = 0;
         }
 }
 #endif
 
 static void key_event(int k, int down)
 {
+    if (!down) {
+        for (int b = 0; b < NBASS; b++)
+            if (kbd_held_key[b] == k + 1) {
+                engine_bass_off(b);
+                kbd_held_note[b] = 0;
+                kbd_held_key[b] = 0;
+                return;
+            }
+    }
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
 #if X0X_DEV_PADCAL
@@ -2289,8 +2297,10 @@ static void key_event(int k, int down)
         else if (w >= 0)
             drum_step(w, down);
     } else if (is_303()) {
-        if (kbd_on())                                  /* REC: the keys play and write notes; FREE PLAY: play */
-            bass_kbd(k, down);
+        if (kbd_on()) {                                /* REC: the keys play and write notes; FREE PLAY: play */
+            if (down)
+                bass_kbd(k);
+        }
         else if (w >= 0)
             bass_step_key(w, down);
     } else {
