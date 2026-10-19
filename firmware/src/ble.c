@@ -355,6 +355,15 @@ static void ble_fail(void)
  * queue. The engine then releases the notes that came from Bluetooth and the clock of Bluetooth. It goes after
  * the MIDI in of this tick, so no note of the old link comes after it. */
 static uint8_t ble_link_st;
+static uint8_t ble_central_link_seen;
+static void ble_central_link_notify(int up)
+{
+    uint8_t next = (uint8_t)(up != 0);
+    if (next != ble_central_link_seen) {
+        ble_central_link_seen = next;
+        smc_ble_link(next);
+    }
+}
 
 /* SMC central: HCI, ATT and MIDI run in TIMER5 beside the original peripheral host. */
 static void ble_central_service(void)
@@ -362,9 +371,9 @@ static void ble_central_service(void)
     blec_t *c = &ble_r.host.c;
     uint32_t k;
     uint8_t t;
-    if (!ble_up) { smc_ble_link(0); return; }
+    if (!ble_up) { ble_central_link_notify(0); return; }
     if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
-        ble_record(); ble_fail(); smc_ble_link(0); return;
+        ble_record(); ble_fail(); ble_central_link_notify(0); return;
     }
     ble_alive[0] = fm1_ms;
     ble_alive[1] = ble_r.mb.polls;
@@ -377,7 +386,7 @@ static void ble_central_service(void)
     }
     if (!ble_want) {
         if (c->state != BLEC_OFF) blec_stop(c);
-        smc_ble_link(0);
+        ble_central_link_notify(0);
         return;
     }
     if (c->state == BLEC_OFF)
@@ -388,7 +397,7 @@ static void ble_central_service(void)
         if (n > 0) blec_rx(c, t, ble_r.fr, (uint16_t)n, fm1_ms);
     }
     blec_poll(c, fm1_ms);
-    smc_ble_link(blec_connected(c));
+    ble_central_link_notify(blec_connected(c));
 }
 
 /* TIMER5, next to usb_poll (same context: the MIDI in queue has one writer) */
