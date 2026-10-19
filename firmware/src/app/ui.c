@@ -3936,6 +3936,7 @@ static void draw_main(void)
         extern uint8_t smk_padcal_on(void);
         extern uint8_t smk_padcal_draw(uint32_t w, uint32_t h);
         if (smk_padcal_on()) {                    /* the pad calibration page (main_fm1.c, CLP-79) */
+            clip_wait_on = 0u;                    /* its LCD page replaces the waiting screen */
             if (smk_padcal_draw(240u, 2u * BAND_H))
                 cv_commit_rect(1, 0, MAIN_Y);
             return;
