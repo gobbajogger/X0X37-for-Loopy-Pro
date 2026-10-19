@@ -1,0 +1,152 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X0X controller</title>
+<style>
+:root { --bg:#f4f5f6; --card:#fff; --fg:#1c1f23; --dim:#626970; --rule:#d8dce0; --accent:#c8700a; color-scheme:light; }
+@media (prefers-color-scheme:dark) { :root { --bg:#131518; --card:#1a1d21; --fg:#e7e9ec; --dim:#9aa1a9; --rule:#30343a; --accent:#f0a043; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.45 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; }
+main { max-width:900px; margin:auto; padding:32px 16px 64px; }
+.home { color:var(--dim); text-decoration:none; font-weight:700; }
+h1 { margin:8px 0 4px; font-size:28px; }
+p { margin:0 0 16px; } .small,#status,#activity { color:var(--dim); font-size:14px; }
+.card { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px; margin:16px 0; }
+.bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+button,select,input { font:inherit; }
+button { border:0; border-radius:5px; padding:9px 15px; background:var(--fg); color:var(--bg); cursor:pointer; touch-action:manipulation; }
+button.quiet { background:transparent; color:var(--fg); border:1px solid var(--rule); }
+button:disabled { opacity:.35; cursor:default; }
+label { display:inline-flex; gap:6px; align-items:center; }
+input[type=number] { width:5em; padding:6px; color:var(--fg); background:var(--bg); border:1px solid var(--rule); border-radius:4px; }
+select { padding:6px; color:var(--fg); background:var(--bg); border:1px solid var(--rule); border-radius:4px; }
+.parts { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+.part { width:100%; background:transparent; color:var(--fg); border:1px solid var(--rule); }
+.part[aria-pressed=true] { color:var(--bg); background:var(--accent); border-color:var(--accent); }
+.pads { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin-top:14px; }
+.pad { min-height:64px; background:var(--card); color:var(--fg); border:1px solid var(--rule); padding:5px; user-select:none; -webkit-user-select:none; }
+.pad.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+.keys { display:flex; min-height:150px; margin-top:14px; overflow-x:auto; padding-bottom:4px; }
+.key { position:relative; flex:1 0 42px; min-width:42px; border-radius:0 0 5px 5px; border:1px solid #333; background:#fff; color:#111; padding:112px 2px 4px; }
+.key.black { flex:0 0 30px; min-width:30px; height:96px; margin:0 -15px; z-index:2; background:#17191c; color:#fff; padding-top:62px; }
+.key.on { background:var(--accent); color:#fff; }
+.channel { margin-left:auto; }
+@media (max-width:650px) { .parts { grid-template-columns:repeat(3,1fr); } .pads { grid-template-columns:repeat(3,1fr); } .channel { margin-left:0; } }
+</style>
+</head>
+<body><main>
+<a class="home" href="../">X0X</a>
+<h1>Controller</h1>
+<p>Play a connected X0X from Chrome or Edge. This page uses USB MIDI and changes nothing in flash.</p>
+
+<section class="card">
+  <div class="bar">
+    <button id="connect">Connect</button>
+    <button id="panic" class="quiet" disabled>Panic</button>
+    <span id="status">Not connected.</span>
+  </div>
+</section>
+
+<section class="card">
+  <div class="bar">
+    <button id="start" disabled>Start</button>
+    <button id="continue" class="quiet" disabled>Continue</button>
+    <button id="stop" class="quiet" disabled>Stop</button>
+    <label>Tempo <input id="tempo" type="number" min="30" max="300" value="120"> BPM</label>
+    <label><input id="clock" type="checkbox" checked> Send clock</label>
+  </div>
+  <p class="small">Start and Continue send MIDI transport. When clock is on, X0X follows this tempo.</p>
+</section>
+
+<section class="card">
+  <div class="parts" id="parts"></div>
+  <div class="bar" style="margin-top:12px">
+    <label class="channel">MIDI channel <select id="channel"></select></label>
+    <label>Velocity <input id="velocity" type="number" min="1" max="127" value="90"></label>
+    <label><input id="accent" type="checkbox"> 303 accent</label>
+  </div>
+  <div id="surface"></div>
+  <p id="activity" aria-live="polite"></p>
+</section>
+
+<p class="small">Default channels: 909 = 10, 808 = 11, 303A = 2, 303B = 3, BREAK = 4. Match these to GLO on X0X if you changed them.</p>
+
+<script>
+/*CONTROLLER-BEGIN*/
+const PARTS = [
+  { name:"909", channel:10, notes:[[36,"Kick"],[38,"Snare"],[41,"Low tom"],[45,"Mid tom"],[50,"High tom"],[37,"Rim"],[39,"Clap"],[42,"Closed hat"],[46,"Open hat"],[49,"Crash"],[51,"Ride"]] },
+  { name:"808", channel:11, notes:[[36,"Kick"],[38,"Snare"],[41,"Low tom"],[45,"Mid tom"],[50,"High tom"],[37,"Rim"],[39,"Clap"],[56,"Cowbell"],[49,"Cymbal"],[46,"Open hat"],[42,"Closed hat"]] },
+  { name:"303A", channel:2, keys:true },
+  { name:"303B", channel:3, keys:true },
+  { name:"BREAK", channel:4, notes:Array.from({length:8},(_,i)=>[36+i,`Slice ${i+1}`]) }
+];
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, Number(v) || lo)); }
+function noteMessage(channel, note, velocity, on=true) {
+  return [(on ? 0x90 : 0x80) | (clamp(channel,1,16)-1), clamp(note,0,127), on ? clamp(velocity,1,127) : 0];
+}
+function clockPeriod(bpm) { return 60000 / clamp(bpm,30,300) / 24; }
+function makeController(send, schedule=setInterval, cancel=clearInterval) {
+  let timer=0, held=new Map();
+  const out=(data)=>send(Array.from(data));
+  return {
+    noteOn(channel,note,velocity) { const k=`${channel}:${note}`; if (!held.has(k)) { held.set(k,[channel,note]); out(noteMessage(channel,note,velocity,true)); } },
+    noteOff(channel,note) { held.delete(`${channel}:${note}`); out(noteMessage(channel,note,0,false)); },
+    transport(status,bpm,withClock) { if (timer) { cancel(timer); timer=0; } out([status]); if (withClock && status !== 0xFC) timer=schedule(()=>out([0xF8]),clockPeriod(bpm)); },
+    setTempo(bpm,withClock) { if (timer) { cancel(timer); timer=0; if (withClock) timer=schedule(()=>out([0xF8]),clockPeriod(bpm)); } },
+    panic() { for (const [channel,note] of held.values()) out(noteMessage(channel,note,0,false)); held.clear(); for (let ch=0;ch<16;ch++) out([0xB0|ch,123,0]); },
+    stopClock() { if (timer) cancel(timer); timer=0; },
+    heldCount() { return held.size; }
+  };
+}
+/*CONTROLLER-END*/
+
+const $=id=>document.getElementById(id);
+let access=null, output=null, part=0;
+const ctl=makeController(data=>{ if (!output) return; output.send(data); if (data[0]!==0xF8) $("activity").textContent=`Sent ${data.map(x=>x.toString(16).padStart(2,"0")).join(" ")}`; });
+function connected(on) { for (const id of ["panic","start","continue","stop"]) $(id).disabled=!on; }
+function outputs() { return access ? [...access.outputs.values()] : []; }
+function pickOutput() {
+  const all=outputs(); output=all.find(x=>/x0x|fm-1|smk-37|mke-p37/i.test(x.name||"")) || all[0] || null;
+  connected(!!output); $("status").textContent=output ? `Connected to ${output.name}.` : "No MIDI output found.";
+}
+async function connect() {
+  if (!navigator.requestMIDIAccess) { $("status").textContent="Web MIDI is unavailable. Use Chrome or Edge."; return; }
+  try { access=await navigator.requestMIDIAccess({sysex:false}); access.onstatechange=pickOutput; pickOutput(); }
+  catch(e) { $("status").textContent=`Could not connect: ${e.message}`; }
+}
+function channel() { return Number($("channel").value); }
+function velocity() { const v=clamp($("velocity").value,1,127); return $("accent").checked && PARTS[part].keys ? Math.max(100,v) : v; }
+function press(el,note,on) { el.classList.toggle("on",on); on ? ctl.noteOn(channel(),note,velocity()) : ctl.noteOff(channel(),note); }
+function bindPress(el,note) {
+  el.addEventListener("pointerdown",e=>{ e.preventDefault(); el.setPointerCapture(e.pointerId); press(el,note,true); });
+  const up=e=>{ if (el.classList.contains("on")) press(el,note,false); };
+  el.addEventListener("pointerup",up); el.addEventListener("pointercancel",up); el.addEventListener("lostpointercapture",up);
+}
+function render() {
+  [...$("parts").children].forEach((b,i)=>b.setAttribute("aria-pressed",i===part));
+  $("channel").value=PARTS[part].channel; $("accent").disabled=!PARTS[part].keys;
+  const s=$("surface"); s.textContent="";
+  if (PARTS[part].keys) {
+    const keys=document.createElement("div"); keys.className="keys";
+    for (let n=48;n<=72;n++) { const black=[1,3,6,8,10].includes(n%12); const b=document.createElement("button"); b.className=`key${black?" black":""}`; b.textContent=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"][n%12]+(Math.floor(n/12)-1); bindPress(b,n); keys.append(b); }
+    s.append(keys);
+  } else {
+    const pads=document.createElement("div"); pads.className="pads";
+    for (const [n,name] of PARTS[part].notes) { const b=document.createElement("button"); b.className="pad"; b.textContent=name; bindPress(b,n); pads.append(b); } s.append(pads);
+  }
+}
+for (let i=1;i<=16;i++) $("channel").add(new Option(i,i));
+PARTS.forEach((p,i)=>{ const b=document.createElement("button"); b.className="part"; b.textContent=p.name; b.setAttribute("aria-pressed",i===0); b.onclick=()=>{ ctl.panic(); part=i; render(); }; $("parts").append(b); });
+$("connect").onclick=connect; $("panic").onclick=()=>ctl.panic();
+$("start").onclick=()=>ctl.transport(0xFA,$("tempo").value,$("clock").checked);
+$("continue").onclick=()=>ctl.transport(0xFB,$("tempo").value,$("clock").checked);
+$("stop").onclick=()=>ctl.transport(0xFC,$("tempo").value,false);
+$("tempo").onchange=()=>ctl.setTempo($("tempo").value,$("clock").checked);
+$("clock").onchange=()=>ctl.setTempo($("tempo").value,$("clock").checked);
+window.addEventListener("blur",()=>ctl.panic()); window.addEventListener("pagehide",()=>{ ctl.panic(); ctl.stopClock(); });
+render();
+</script>
+</main></body></html>

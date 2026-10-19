@@ -9,6 +9,7 @@
                               metadata inlined; Chrome or Edge, Web MIDI)
   breaks/index.html           your own break loops onto the FM-1 (web/x0x_breaks.html with
                               x0x_breaks.js inlined; Chrome or Edge, Web MIDI)
+  control/index.html          play and transport controls (web/x0x_controller.html; Chrome or Edge, Web MIDI)
   manual/index.html, img/     the manual (tools/manual_html.py, from docs/MANUAL.md)
   new/index.html, img/new/    what's new in each version (the same, from docs/NEW.md)
   firmware/x0x-VERSION.fwsc   the package the installer writes; also the download
@@ -96,6 +97,7 @@ at your own risk.</div>
   <div class="card"><strong><a href="install/">Install v__VERSION__</a> <a class="new" href="new/">What's new?</a></strong><span>From Chrome or Edge, with the FM-1 connected by USB. Nothing to install on the computer.</span></div>
   <a href="manual/"><strong>Manual</strong><span>Getting started in ten steps, then everything else.</span></a>
   <a href="breaks/"><strong>Your own breaks</strong><span>Drop in loops and send them to the BREAK part, from Chrome or Edge.</span></a>
+  <a href="control/"><strong>Control X0X</strong><span>Play its five parts and control transport from Chrome or Edge.</span></a>
   <a href="firmware/__PKG__"><strong>Download __PKG__</strong><span>For the command-line installer: <code>python3 tools/fm1_install.py __PKG__</code></span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. Built on Felucca by Hügelton Instruments.</span></a>
 </nav>
@@ -121,7 +123,7 @@ def main(pkg, version, out):
     name = f"x0x-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
     if out.exists():
         shutil.rmtree(out)
-    for d in ("install", "manual", "firmware", "breaks", "new"):
+    for d in ("install", "manual", "firmware", "breaks", "control", "new"):
         (out / d).mkdir(parents=True)
     shutil.copy(pkg, out / "firmware" / name)
     # the installer
@@ -145,6 +147,7 @@ def main(pkg, version, out):
         raise SystemExit("x0x_breaks.html must contain /*LIB*/ once")
     lib = strip_module((SRC / "web" / "x0x_breaks.js").read_text(encoding="utf-8"))
     (out / "breaks" / "index.html").write_text(page.replace("/*LIB*/", lib), encoding="utf-8")
+    shutil.copy(SRC / "web" / "x0x_controller.html", out / "control" / "index.html")
     # the manual (a complete page; its images beside it)
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "MANUAL.md"),
                     str(out / "manual" / "index.html")], check=True, capture_output=True)

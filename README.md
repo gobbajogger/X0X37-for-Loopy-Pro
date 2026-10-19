@@ -11,6 +11,7 @@ The factory sound is set up for big beat, so it should make noise the moment you
 [![X0X running on the FM-1 (watch on YouTube)](https://img.youtube.com/vi/cZLYrZaLDUk/maxresdefault.jpg)](https://www.youtube.com/watch?v=cZLYrZaLDUk)
 
 - **Try it in your browser** (no FM-1 needed): <https://charlesvestal.github.io/fm1-x0x/emu/>
+- **Control a connected X0X** (Chrome or Edge): <https://charlesvestal.github.io/fm1-x0x/control/>
 - **Install it** (Chrome or Edge, with the FM-1 plugged in): <https://charlesvestal.github.io/fm1-x0x/install/>
 - **Read the manual**: <https://charlesvestal.github.io/fm1-x0x/manual/>
 - **Download the firmware file**: [releases](https://github.com/charlesvestal/fm1-x0x/releases)
