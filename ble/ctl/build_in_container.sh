@@ -15,7 +15,9 @@ CF="-target pi32v2 -integrated-as -mcpu=r3 -mfprev1 -Os -flto -fno-common -fallo
     -fprefer-gnu-section -ffunction-sections -fdata-sections -fms-extensions -ffreestanding \
     -mllvm -pi32v2-large-program=true -Wall -Wextra -Wno-unused-parameter -Werror"
 # Work in /tmp: a shared folder (Colima, Docker Desktop) can serve stale file sizes after an edit.
-B=/tmp/ctlbuild; rm -rf "$B"; mkdir -p "$B/obj" "$OUT"
+B=$(mktemp -d "${TMPDIR:-/tmp}/ctlbuild.XXXXXX")
+trap 'rm -rf "$B"' EXIT
+mkdir -p "$B/obj" "$OUT"
 cp -r "$REPO/ble/ctl/src" "$REPO/ble/ctl/gen" "$REPO/ble/ctl/lib" "$REPO/ble/ctl/ctl.ld" "$B/"
 cp "$REPO/firmware/hal/x0x_ble_abi.h" "$B/src/"
 cd "$B"; OBJS=""; : > obj/cc_warn.txt
