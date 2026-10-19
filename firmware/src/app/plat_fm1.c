@@ -33,6 +33,20 @@ uint32_t plat_buttons(void)
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
 
+uint8_t plat_key_velocity(int key)
+{
+#if BOARD_SMK37
+    if ((unsigned)key < NKEYS) {
+        uint8_t v = fm1_in.key_vel[SMK_KEY_F3 + key];
+        if (v)
+            return v;
+    }
+#else
+    (void)key;
+#endif
+    return 100;
+}
+
 int32_t plat_enc(int role)
 {
     if (role < 0 || role >= NE)

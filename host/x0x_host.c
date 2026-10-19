@@ -80,7 +80,12 @@ static uint32_t lit_btn, lit_keys, dim_keys;
 
 uint32_t plat_ms(void) { return now_ms; }
 uint32_t plat_buttons(void) { return held_btn; }
+static uint8_t key_velocity[NKEYS];
 uint32_t plat_keys(void) { return held_keys; }
+uint8_t plat_key_velocity(int key)
+{
+    return (unsigned)key < NKEYS && key_velocity[key] ? key_velocity[key] : 100;
+}
 int32_t plat_enc(int role)
 {
     int32_t v = enc_acc[role];

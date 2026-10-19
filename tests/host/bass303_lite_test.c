@@ -35,12 +35,70 @@ static void stats(const float *x, int n, double *rms, int *zc, float *step)
     *rms = sqrt(s / n);
 }
 
+static void render_samples(bass303_t *b, int n)
+{
+    while (n) {
+        int m = n > 128 ? 128 : n;
+        bass303_render(b, buf, m);
+        n -= m;
+    }
+}
+
+static void test_filter_adsr(void)
+{
+    bass303_t b, stock;
+    int lite;
+    for (lite = 0; lite < 2; lite++) {
+        float y;
+        bass303_init(&b);
+        bass303_set_lite(&b, lite);
+        bass303_set(&b, BASS303_FENV, 1);
+        bass303_set(&b, BASS303_FATTACK, 127); /* 2 seconds */
+        bass303_set(&b, BASS303_DECAY, 0);    /* 200 ms */
+        bass303_set(&b, BASS303_FSUSTAIN, 64);
+        bass303_set(&b, BASS303_FRELEASE, 127); /* 4 seconds */
+        stock = b;
+        bass303_set(&stock, BASS303_FENV, 0);
+        bass303_note_on(&b, 45, 0, 0);
+        bass303_note_on(&stock, 45, 0, 0);
+        render_samples(&b, 44100);
+        render_samples(&stock, 44100);
+        CHECK(fabsf(b.fenv_y - 0.5f) < 0.002f, "filter attack reaches half after one second");
+        CHECK(b.amp_y == stock.amp_y && b.env_y == stock.env_y, "filter ADSR changes amp envelope");
+        y = b.fenv_y;
+        bass303_note_on_velocity(&b, 48, 0, 1, 30);
+        CHECK(b.fenv_y == y, "legato slide retriggers filter ADSR");
+        render_samples(&b, 44100);
+        CHECK(b.fenv_y > 0.998f, "filter attack reaches peak");
+        render_samples(&b, 8820);
+        CHECK(fabsf(b.fenv_y - 64.0f / 127.0f) < 0.002f, "filter decay reaches sustain");
+        render_samples(&b, 4410);
+        CHECK(fabsf(b.fenv_y - 64.0f / 127.0f) < 0.002f, "filter sustain holds");
+        y = b.fenv_y;
+        bass303_note_off(&b);
+        render_samples(&b, 88200);
+        CHECK(fabsf(b.fenv_y - y * 0.5f) < 0.002f, "filter release reaches half after two seconds");
+        bass303_note_off(&b); /* duplicate note-off must not restart release */
+        render_samples(&b, 88200 + 256);
+        CHECK(b.fenv_y < 0.002f, "filter release ends");
+        bass303_set(&b, BASS303_FATTACK, 0);
+        bass303_set(&b, BASS303_FRELEASE, 0);
+        bass303_note_on(&b, 45, 0, 0);
+        render_samples(&b, 4);
+        CHECK(b.fenv_y > 0.999f, "zero attack reaches peak immediately");
+        bass303_all_off(&b);
+        render_samples(&b, 4);
+        CHECK(b.fenv_y == 0.0f, "zero release closes filter envelope");
+    }
+}
+
 int main(void)
 {
     static bass303_t b;
     double r2, r1;
     int z2, z1, i, sw;
     float s2, s1;
+    test_filter_adsr();
     note(&b, 0);
     for (i = 0; i < 44100; i += 128)
         bass303_render(&b, buf + i, 128);

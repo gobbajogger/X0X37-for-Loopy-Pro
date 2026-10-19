@@ -68,6 +68,7 @@ enum {
     BASS303_CUTOFF, BASS303_RESO, BASS303_ENVMOD, BASS303_DECAY,     /* page 1 */
     BASS303_ACCENT, BASS303_WAVE, BASS303_TUNE, BASS303_VOLUME,      /* page 2 */
     BASS303_DRIVE, BASS303_DRVTYPE, BASS303_SLIDE, BASS303_ACCDEC,   /* page 3 */
+    BASS303_FATTACK, BASS303_FSUSTAIN, BASS303_FRELEASE, BASS303_FENV,
     BASS303_NPARAMS
 };
 enum { BASS303_DRV_OFF, BASS303_DRV_SOFT, BASS303_DRV_RAT };
@@ -87,6 +88,10 @@ typedef struct bass303 {
     float tuning;            /* A4, Hz */
     float amp_scaler;        /* volume, linear */
     float velocity_gain, velocity_cutoff; /* per-note response; 100 is neutral */
+    float fattack_step, fdecay_step, fsustain, frelease_rate;
+    float fenv_y, frelease_step;
+    uint32_t fenv_samples;
+    int fenv_stage;          /* 0 release, 1 attack, 2 decay, 3 sustain */
     float decay_c, accdec_c; /* main-envelope multipliers for normal / accented notes */
     float slew_c;            /* pitch slew-limiter coefficient */
     int wave;                /* 0 saw, 1 square */
@@ -160,3 +165,6 @@ int bass303_nparams(void);
 const x0x_param_t *bass303_param(int i);
 void bass303_set(bass303_t *b, int i, int value);
 int bass303_get(const bass303_t *b, int i);
+
+/* Envelope time for a clamped 0..127 Decay, FAttack or FRelease pot, in milliseconds. */
+float bass303_env_time_ms(int param, int value);

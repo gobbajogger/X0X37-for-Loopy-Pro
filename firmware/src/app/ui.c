@@ -667,6 +667,17 @@ X0X_COLD static void pref_value_of(pref_t r, int v, char *num, char *unit)
     }
     switch (r.kind) {
     case R_ENG:
+        if (r.a == T_303 && (r.c == BASS303_FATTACK || r.c == BASS303_FRELEASE || r.c == BASS303_DECAY)) {
+            float ms = bass303_env_time_ms(r.c, v);
+            put_i(num, (int)(ms + 0.5f));
+            put_s(unit, "ms");
+            return;
+        }
+        if (r.a == T_303 && r.c == BASS303_FSUSTAIN) {
+            put_i(num, (v * 100 + 63) / 127);
+            put_s(unit, "%");
+            return;
+        }
         if (r.a == T_MST) {                              /* the master formats itself: "-12dB" */
             char t[16], *q = t;
             engine_master_format(r.c, t);
@@ -897,6 +908,9 @@ static void build_pages(void)
             more(PR(R_ENG, T_303, b, BASS303_VOLUME));
             more(PR(R_ENG, T_303, b, BASS303_DRVTYPE));
             more(PR(R_ENG, T_303, b, BASS303_ACCDEC));
+            add_page("FILTER ADSR", PR(R_ENG, T_303, b, BASS303_FATTACK), PR(R_ENG, T_303, b, BASS303_DECAY),
+                     PR(R_ENG, T_303, b, BASS303_FSUSTAIN), PR(R_ENG, T_303, b, BASS303_FRELEASE));
+            more(PR(R_ENG, T_303, b, BASS303_FENV));
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */
             add_page("LOOPS", PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE),
@@ -2118,7 +2132,8 @@ static void bass_write(int b, int note, int gate)
 static void bass_kbd(int key)
 {
     int b = bidx(), n = kbd_note(key);
-    engine_bass_on(b, n, (ui.btn & (1u << B_ENV)) != 0, kbd_held_note[b] != 0);
+    engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0, kbd_held_note[b] != 0,
+                            ui.freeplay[b] && !ui.rec ? plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
     kbd_held_note[b] = (uint8_t)n;
     kbd_held_key[b] = (uint8_t)(key + 1);
     if (ui.rec && !seq.playing) {
