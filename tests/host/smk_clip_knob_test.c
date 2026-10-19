@@ -16,6 +16,7 @@
 #define SMK_BIG
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
 #include "src/usb.c"
+void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 #undef BOARD_SMK37
 #define X0X_HOST 1
 #include "app/plat.h"
@@ -41,6 +42,7 @@ static void cv_band(int32_t a, int32_t b) { (void)a; (void)b; }
 static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) { (void)x; (void)y; (void)w; (void)h; (void)c; }
 enum { O_NONE, O_LIST, O_ASK };
 static struct { uint8_t overlay, help; uint32_t act_t; } ui;
+static void mark_dirty(void) {}
 static struct { uint8_t btn[NB], enc[NE]; int8_t dir[NE]; } panel;
 static volatile struct {
     uint32_t pnotes, buttons;
