@@ -104,7 +104,7 @@ static int ble_send(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
 /* attempt 29: the APC40 mkII identity and introduction over Bluetooth (Loopy Pro on a BLE port), as
  * usb.c does on USB. Other SysEx from Bluetooth is not taken (counted). */
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
-extern void smk_apc_host_seen(void);
+extern void smk_apc_ble_host_seen(void);
 extern void smk_apc_host_generic(uint8_t ble);
 extern void smk_apc_ble_link(uint8_t connected, uint8_t notifying);
 extern uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying);
@@ -124,12 +124,12 @@ static void ble_sysex_in(const uint8_t *p, uint32_t n, int end, void *ctx)
         ble_sx[3] == 0x01u && (ble_sx[1] <= 0x0Fu || ble_sx[1] == 0x7Fu)) {
         ble_sx_ch = ble_sx[1];                    /* Universal Device Inquiry */
         ble_sx_reply = 1;
-        smk_apc_host_seen();
+        smk_apc_ble_host_seen();
     } else if (end > 0 && !ble_sx_over && ble_sx_n == 10u && ble_sx[0] == 0x47u && ble_sx[1] == 0x7Fu &&
                ble_sx[2] == 0x29u && ble_sx[3] == 0x60u && ble_sx[4] == 0x00u && ble_sx[5] == 0x04u &&
                (ble_sx[6] == 0x40u || ble_sx[6] == 0x41u || ble_sx[6] == 0x42u)) {
         ble_sx_reply = 2;                         /* the APC40 mkII introduction */
-        smk_apc_host_seen();
+        smk_apc_ble_host_seen();
         if (ble_sx[6] == 0x40u)
             smk_apc_host_generic(1u);             /* CLP-18: generic mode: the Bluetooth host feedback ends */
     } else if (end > 0 && !ble_sx_over && ble_sx_n == 4u && ble_sx[0] == 0x7Fu && ble_sx[1] == 0x7Fu &&

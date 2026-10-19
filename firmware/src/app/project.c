@@ -217,17 +217,24 @@ static int st_put(void *ctx, const uint8_t *p, uint32_t n)
     return 0;
 }
 
+/* Check capacity before any project object is changed, including settings and sound. */
+static int measure_stream(void)
+{
+    const uint8_t *raw = (const uint8_t *)&proj + RAW_OFF;
+    st_out_t o = {1, 0, 0, 0, 0};
+    lz_sink_t sink = {st_put, &o};
+    if (lz_compress(raw, RAW_LEN, &sink))
+        return -7;
+    packed_len = o.total;
+    return 0;
+}
+
 static int save_stream(void)
 {
     const uint8_t *raw = (const uint8_t *)&proj + RAW_OFF;
     uint32_t crc = crc32_of(raw, RAW_LEN);
-    st_out_t o = {1, 0, 0, 0, 0};
+    st_out_t o = {0, 0, 0, 0, 0};
     lz_sink_t sink = {st_put, &o};
-    if (lz_compress(raw, RAW_LEN, &sink))
-        return -7;                                    /* would not fit: nothing written */
-    packed_len = o.total;
-    o.measure = 0;
-    o.total = 0;
     o.fill = STREAM_HDR;
     put32(io_buf, PROJ_STREAM);
     put32(io_buf + 4, RAW_LEN);
@@ -598,6 +605,8 @@ int project_save(void)
     proj.set.accent_q7 = seq.accent_q7;
     proj.set.clk_out = seq.send_clock;
     proj.set.notes_out = seq.send_notes;
+    if (measure_stream())
+        return -7;
     if (save_obj(OBJ_SET, &proj.set, sizeof proj.set))
         return -1;
     if (save_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound))

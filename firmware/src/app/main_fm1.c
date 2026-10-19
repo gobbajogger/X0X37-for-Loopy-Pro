@@ -200,7 +200,7 @@ uint8_t smk_padcal_on(void) { return padcal.on; }
  * The pads: the 16 white keys' lights (plat_fm1.c plat_leds) in the colour of the part on screen, lit half
  * bright, dim an eighth, else dark; sent between LCD transfers (lcd.c padled_flush). */
 static volatile uint8_t clip_grid_mode;   /* APC40 mkII compatibility; KNOB BANK press toggles */
-static volatile uint8_t apc_host_on;      /* attempt 35: an APC40 host did the handshake (smk_apc_host_seen) */
+static volatile uint8_t apc_host_on;      /* bit 0 USB, bit 1 Bluetooth: APC handshake on that input */
 /* attempt 30: what clip mode sends to the APC40 host goes to USB and to a Bluetooth MIDI connection
  * (Loopy Pro on the BLE port). ble_out has one producer (the audio ISR): IRQs off around it here. */
 static void apc_out(uint32_t pkt)
@@ -298,9 +298,9 @@ uint8_t smk_apc_usb_event(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)((pkt >> 16) & 0x7Fu);
     uint8_t d2 = (uint8_t)((pkt >> 24) & 0x7Fu), ty = st & 0xF0u;
-    /* Always store APC feedback. Keep it from the sound engine only while clip mode is on.
-     * When clip mode is off, the original MIDI input path stays the same (agent-rules 2). */
-    uint8_t owned = clip_grid_mode || apc_host_on;   /* attempt 35: or an APC40 host seen */
+    /* Store feedback on either link. Outside clip mode, only a link that completed
+     * the APC handshake owns these messages; the other link still plays notes. */
+    uint8_t owned = (uint8_t)(clip_grid_mode || (apc_host_on & (1u << apc_in_ble)));
     if (ty == 0xB0u)                    /* attempt 35: APC40 knob LED rings (CC 16-31, 48-63) */
         return (uint8_t)(owned && ((d1 >= 16u && d1 <= 31u) || (d1 >= 48u && d1 <= 63u)));
     if (ty != 0x90u && ty != 0x80u)
@@ -379,7 +379,7 @@ uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying)
     uint8_t r;
     if (smk_apc40_ble_colour_unheard(pkt, notifying)) {
         smk_inlog(3u, pkt);
-        return (uint8_t)(clip_grid_mode || apc_host_on);
+        return (uint8_t)(clip_grid_mode || (apc_host_on & 2u));
     }
     smk_inlog(1u, pkt);
     apc_in_ble = 1u;
@@ -451,14 +451,13 @@ uint8_t smk_clip_mode_on(void)
 {
     return clip_grid_mode;
 }
-/* usb.c calls this when the host sends the APC40 introduction. No state is necessary:
- * APC feedback is stored at all times. */
-/* attempt 35: an APC40 host answered the identity handshake (Loopy Pro, USB or Bluetooth): its LED
- * notes stay out of the sound engine also with clip mode off, until the USB host is lost. */
+/* Track the handshake by input link. A USB Loopy session must not consume notes
+ * arriving from a Bluetooth instrument, or vice versa. */
 void smk_apc_host_seen(void)
 {
-    apc_host_on = 1u;
+    apc_host_on |= 1u;
 }
+void smk_apc_ble_host_seen(void) { apc_host_on |= 2u; }
 /* CLP-18: clear the clip cells and the PLAY and REC LED feedback of one link (ble 1: those that Bluetooth
  * wrote last, 0: those of USB), and the feedback burst. If a cell stays lit, the latched layout stays, so the pads of the other link do not move,
  * and the next frame draws them. If no cell stays lit, new feedback latches the layout again, and the pad
@@ -487,7 +486,7 @@ static uint8_t smk_apc_link_clear(uint8_t ble)
 }
 void smk_apc_host_lost(void)
 {
-    apc_host_on = 0u;
+    apc_host_on &= (uint8_t)~1u;
     smk_ck_midi_stop();                              /* clip keys: all notes off (smk_ck_poll) */
     apc_clock_count = apc_clock_last_ms = apc_clock_period_ms = 0u;
     apc_clock_seen = 0u;
@@ -526,6 +525,7 @@ void smk_apc_ble_link(uint8_t connected, uint8_t notifying)
     static smk_apc40_lost_t lost;
     if (!smk_apc40_lost_step(&lost, connected, notifying, fm1_ms))
         return;
+    apc_host_on &= (uint8_t)~2u;
     (void)smk_apc_link_clear(1u);                    /* CLP-18: only the Bluetooth cells, PLAY and REC */
 }
 /* Clip grid on the LCD (main loop only, from ui.c draw_main). It shows the 8x5 APC
@@ -777,33 +777,30 @@ static void smk_pads(void)
 /* The four faders, by FADER BANK (its LED lit on bank B): A = the levels of 909, 808, 303 A, 303 B; B = the
  * BREAK level, the reverb and delay returns, the master FILTER (middle off, low-pass left, high-pass right).
  * They set the same values as the knobs (saved with the project; a knob move while REC runs records motion).
- * A fader takes over only once it moves (also after a bank change), so nothing jumps. */
+ * A fader takes over when it reaches the saved value (also after a bank change). */
 static void smk_faders(void)
 {
     static const char *const NAME[2][4] = {{"909 LEVEL", "808 LEVEL", "303 A LEVEL", "303 B LEVEL"},
                                            {"BREAK LEVEL", "REV RETURN", "DLY RETURN", "FILTER"}};
-    static uint8_t last[4] = {0xFF, 0xFF, 0xFF, 0xFF}, held;
+    /* Bit 7 of last[] means waiting for pickup; the low bits hold the last raw reading. */
+    static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held;
     uint32_t i, down = (fm1_in.buttons >> SMK_BTN_FADER_BANK) & 1u;
-    if (down && !held) {                                /* FADER BANK: the other bank, each fader waits to move */
+    if (down && !held) {                                /* FADER BANK: match the new targets before taking over */
         smk_fbank ^= 1u;
         for (i = 0; i < 4u; i++)
-            last[i] = 0xFF;
+            last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
         say(smk_fbank ? "FADERS: BRK REV DLY FILTER" : "FADERS: 909 808 303A 303B", 0);   /* (say: 27 chars) */
     }
     held = (uint8_t)down;
     for (i = 0; i < 4u; i++) {
         uint32_t v = fm1_in.fader[i];
         pref_t r;
-        const x0x_param_t *d;
         char t[28], num[16], unit[8], *q;
         uint32_t n = 0;
-        if (last[i] == 0xFF || fm1_in.frames < 200u) {   /* (the first readings settle) */
-            last[i] = (uint8_t)v;
+        if (fm1_in.frames < 200u) {                    /* the first readings settle */
+            last[i] = (uint8_t)(0x80u | v);
             continue;
         }
-        if (v == last[i])
-            continue;
-        last[i] = (uint8_t)v;
         if (!smk_fbank)
             r = PR(R_ENG, T_MIX, i, MX_LEVEL);
         else if (i == 0)
@@ -814,10 +811,28 @@ static void smk_faders(void)
             r = PR(R_ENG, T_FX, 0, FX_DL_LEVEL);
         else
             r = PR(R_ENG, T_MST, 0, MST_DJF);
-        d = pref_desc(r);
-        if (!d)
+        /* These eight fader destinations are all 0..127 pots. */
+        /* A knob or loaded project can change a target while this bank stays selected. */
+        if (!(last[i] & 0x80u) && pref_get(r) != (int)(last[i] & 127u))
+            last[i] |= 0x80u;
+        if (v == (last[i] & 127u))
             continue;
-        pref_set(r, (int)((v * d->max + 63u) / 127u));
+        if (last[i] & 0x80u) {
+            uint32_t target = (uint32_t)pref_get(r);
+            uint32_t prev = last[i] & 127u;
+            uint32_t near = v + 2u >= target && v <= target + 2u;
+            uint32_t crossed = (prev < target && v >= target) || (prev > target && v <= target);
+            last[i] = (uint8_t)(0x80u | v);
+            if (!near && !crossed) {
+                char hint[20], *p = put_s(hint, "PICK F");
+                p = put_i(p, (int)i + 1);
+                put_s(p, v < target ? " UP" : " DOWN");
+                say(hint, 0);                         /* draw_header keeps pattern and tempo visible */
+                continue;
+            }
+        }
+        last[i] = (uint8_t)v;
+        pref_set(r, (int)v);
         motion_touch(r);
         ui.act_t = plat_ms();                            /* (the autosave waits for quiet) */
         pref_value(r, num, unit);
@@ -1346,6 +1361,7 @@ CK_FN static void ck_controls(void)
             char n[12], t[12];
             if (!d)
                 continue;
+            ui.act_t = fm1_ms;                               /* CC turns also keep flash writes away from playing */
             if (v > 2u) {                                   /* no stage: CC 48-54 for MIDI-learn */
                 ck_send(0xB0u, 48u + i, (uint32_t)(d < -63 ? -63 : d > 63 ? 63 : d) & 127u);   /* (relative) */
                 continue;
@@ -1371,6 +1387,24 @@ CK_FN static void ck_controls(void)
             put_s(put_s(n, ck_nm(CK_FLD_N, f)), " ");
             ui_say(n, ck_val_txt(f, ck_get(f), t));        /* for example "RATE 1/16" */
         }
+}
+/* All 37 raw keybed bits, including the ten keys outside X0X's 27-key panel. */
+uint8_t smk_ck_keybed_held(void)
+{
+    const volatile uint32_t *keys = (const volatile uint32_t *)&fm1_in.keys;
+    return (uint8_t)(clip_grid_mode && (keys[0] || (keys[1] & 0x1Fu)));
+}
+/* A frame may reach autosave before the clip poll consumes a new knob turn. */
+uint8_t smk_ck_flash_busy(void)
+{
+    uint32_t i;
+    if (smk_ck_keybed_held())
+        return 1u;
+    if (smk_ck_knobs_owned())
+        for (i = 0; i < NE; i++)
+            if (fm1_in.enc_steps[panel.enc[i]])
+                return 1u;
+    return 0u;
 }
 /* ------- clip mode screen: the KEYS panel (the bottom strip) and the SCALE / CHORD / ARP page (main area) --- */
 static const uint8_t CK_WI[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};   /* the white key of each pitch class */
@@ -1526,6 +1560,8 @@ CK_FN void smk_ck_poll(void)
         cp->ext_seen = (uint8_t)apc_clock_count;
         cp->btn_prev = 0x7Fu;                                /* a button held at entry acts only after its release */
     } else {
+        if (smk_ck_keybed_held())
+            ui.act_t = now;                                 /* a held clip key keeps autosave quiet */
         if (!(cp->fl & CK_F_ACTIVE)) {
             cp->fl |= CK_F_ACTIVE;
             was_on = 0u;
@@ -1545,6 +1581,7 @@ CK_FN void smk_ck_poll(void)
         *pk ^= bit;
         if (!on)
             continue;
+        ui.act_t = now;                                     /* a release also starts the quiet interval */
         if (!d) {
             ck_release(k);
             continue;

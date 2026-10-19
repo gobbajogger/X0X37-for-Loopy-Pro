@@ -30,6 +30,7 @@
  *   reboot                       save nothing; re-run boot from the simulated flash (persistence test)
  *   snapline B                   remember 303 B's line on the pattern shown (expect linechgB: 1 = it changed since)
  *   storepoke OBJ OFF VAL        write byte VAL (hex) at OFF of the saved object OBJ (0 = the settings; an older save)
+ *   storefail 0|1                make simulated flash writes fail or work
  *   projimg FILE                 a project as the FM-1 holds it in RAM (fm1_debug peek of proj): saved
  *                                to the simulated flash and booted, as if it had been made here
  */
@@ -127,6 +128,7 @@ void plat_midi_out(uint32_t pkt)
 static uint8_t store[OBJ_NOBJ][PLAT_STORE_MAX];
 static int store_len[OBJ_NOBJ] = {-1, -1, -1, -1, -1, -1, -1};
 static uint32_t store_writes;
+static int store_fail;
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 {
     int n = store_len[obj];
@@ -139,7 +141,7 @@ int plat_store_load(uint32_t obj, void *dst, uint32_t max)
 }
 int plat_store_save(uint32_t obj, const void *src, uint32_t len)
 {
-    if (obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
+    if (store_fail || obj >= OBJ_NOBJ || len > PLAT_STORE_MAX)
         return -1;
     memcpy(store[obj], src, len);
     store_len[obj] = (int)len;
@@ -755,6 +757,8 @@ static int expect(const char *what, const char *val)
         got = (int)note_ons;
     else if (!strcmp(what, "store_writes"))
         got = (int)store_writes;
+    else if (!strcmp(what, "savestate"))            /* 0 saved, 1 unsaved, 2 waits for stop, 3 failed */
+        got = save_state();
     else if (!strcmp(what, "peak_db_max")) {
         double db = 20.0 * log10(peak_out > 1e-9f ? peak_out : 1e-9f);
         if (db > atof(val)) {
@@ -1054,7 +1058,9 @@ int main(int argc, char **argv)
                 proj.arr.lane[i].used = 0;
         } else if (!strcmp(cmd, "cpu2")) {              /* cpu2 0|1: the simulated second core */
             plat_cpu2_set(atoi(a));
-        } else if (!strcmp(cmd, "storepoke")) {
+        } else if (!strcmp(cmd, "storefail"))
+            store_fail = atoi(a) != 0;
+        else if (!strcmp(cmd, "storepoke")) {
             int o = atoi(a), off = atoi(b);
             if (o < 0 || o >= OBJ_NOBJ || off < 0 || off >= store_len[o]) {
                 fprintf(stderr, "storepoke: no byte %d in object %d\n", off, o);

@@ -44,6 +44,7 @@ static void check(int ok, const char *m)
     printf("%s %s\n", ok ? "PASS" : "FAIL", m);
 }
 #define NOTE(n, v) (9u | 0x90u << 8 | (uint32_t)(n) << 16 | (uint32_t)(v) << 24)
+#define CC(n, v) (0xBu | 0xB0u << 8 | (uint32_t)(n) << 16 | (uint32_t)(v) << 24)
 static void ble_lost(void)          /* the Bluetooth link ends: the clear comes at once and 300 ms later */
 {
     uint32_t t;
@@ -86,6 +87,23 @@ int main(void)
     page = 1u;
     check(smk_clip_wait() == 0u, "W12 a clip keys page shows while it waits: no waiting screen");
     page = 0u;
+    clip_grid_mode = 0u;
+    smk_apc_host_lost();
+    smk_apc_host_seen();
+    check(smk_apc_usb_event(NOTE(60, 100)) && !smk_apc_ble_event(NOTE(60, 100), 1u) &&
+          smk_apc_usb_event(CC(16, 7)) && !smk_apc_ble_event(CC(16, 7), 1u),
+          "W13 USB APC host cannot consume Bluetooth instrument notes and CCs");
+    for (t = 0; t < 50u; t++, fm1_ms++)
+        smk_apc_ble_link(1u, 1u);
+    smk_apc_ble_host_seen();
+    check(smk_apc_usb_event(NOTE(60, 100)) && smk_apc_ble_event(NOTE(60, 100), 1u),
+          "W14 each APC host owns only its own link");
+    smk_apc_host_lost();
+    check(!smk_apc_usb_event(NOTE(60, 100)) && smk_apc_ble_event(NOTE(60, 100), 1u),
+          "W15 USB host loss preserves Bluetooth host ownership");
+    ble_lost();
+    check(!smk_apc_usb_event(NOTE(60, 100)) && !smk_apc_ble_event(NOTE(60, 100), 1u),
+          "W16 Bluetooth link loss releases its note ownership");
     printf("smk_clip_wait_test: %d fail(s)\n", fails);
     return fails != 0;
 }

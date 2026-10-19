@@ -12,6 +12,9 @@ int main(void)
     int p;
     memset(raw, 0, RAW_LEN);
     memset(&arr, 0, sizeof arr);
+    /* Check the whole overlapping move, including fields far from the start. */
+    for (p = 0; p < (int)sizeof arr; p++)
+        ((uint8_t *)&arr)[p] = (uint8_t)(p * 37u + 11u);
     arr.song.len = 17;
     arr.song.bar[16].pat[TRK_BASS0] = 29;
     for (p = 0; p < NPAT; p++) {
@@ -36,7 +39,7 @@ int main(void)
             printf("format-2 migration failed at pattern %d\n", p);
             return 1;
         }
-    if (proj.arr.song.len != 17 || proj.arr.song.bar[16].pat[TRK_BASS0] != 29) {
+    if (memcmp(&proj.arr, &arr, sizeof arr) != 0) {
         puts("format-2 arrangement migration failed");
         return 1;
     }

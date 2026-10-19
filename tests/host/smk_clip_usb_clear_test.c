@@ -21,8 +21,8 @@
 #define X0X_BLE 0
 #define SMK_BIG
 static void fm1_delay_ms(uint32_t ms) { (void)ms; }
-#include "src/usb.c"
 void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
+#include "src/usb.c"
 #undef BOARD_SMK37                 /* main_fm1.c: leave out the INLOG reply (it needs editor.c), as in smk_clip_dark_test */
 static volatile uint32_t fm1_ms;
 static void lcd_sync(void) {}

@@ -22,9 +22,10 @@ void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 #include "app/plat.h"
 typedef struct {                    /* the clip keys fields of settings_t (app/x0x.h) */
     uint8_t ck_ch, ck_root, ck_scale, ck_snap, ck_chord, ck_inv, ck_ord, ck_rate, ck_oct, ck_gate, ck_x1, ck_x2;
+    uint8_t autosave_off;
 } settings_t;
 static struct { settings_t set; } proj;
-static struct { uint16_t bpm; } seq;
+static struct { uint16_t bpm; uint8_t playing, req_stop; } seq;
 #include "fm1_opt.h"
 #define SMK_KEY_F3 5u
 #define SMK_BTN_FADER_BANK 1
@@ -41,8 +42,8 @@ static void cv_begin(uint32_t w, uint32_t h, uint16_t c) { (void)w; (void)h; (vo
 static void cv_band(int32_t a, int32_t b) { (void)a; (void)b; }
 static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) { (void)x; (void)y; (void)w; (void)h; (void)c; }
 enum { O_NONE, O_LIST, O_ASK };
-static struct { uint8_t overlay, help; uint32_t act_t; } ui;
-static void mark_dirty(void) {}
+static struct { uint8_t overlay, help, rec, last_autosave, save_failed; uint32_t act_t, saved_t, dirty; } ui;
+static void mark_dirty(void) { ui.dirty++; }
 static struct { uint8_t btn[NB], enc[NE]; int8_t dir[NE]; } panel;
 static volatile struct {
     uint32_t pnotes, buttons;
@@ -83,6 +84,15 @@ void smk_inlog(uint32_t src, uint32_t pkt) { (void)src; (void)pkt; }
 #include "ck_a.inc"
 #include "ck_b.inc"
 static void ck_page_draw(void) {}
+static uint8_t save_wait;
+static uint32_t save_calls;
+static uint8_t perf_testing(void) { return 0u; }
+static int project_save(void) { save_calls++; return 0; }
+static void say(const char *s, uint32_t t) { (void)s; (void)t; }
+static void save_project(void) { save_wait = 0u; project_save(); }
+#define BOARD_SMK37 1
+#include "autosave.inc"
+#undef BOARD_SMK37
 
 static uint8_t host;                /* 1: a host is on the cable and awake (SOF each 1 ms) */
 static void run(uint32_t ms)        /* usb_poll at 2 kHz, ble.c link poll and the main loop smk_ck_poll each 1 ms */
@@ -346,6 +356,56 @@ int main(void)
     tap(B_ENV);
     check("K9 CHORD page closes", !(ck.pg & 3u));
     knob("K9 no page: CC controls resume", 1);
+    /* A clip performance must not enter flash erase while the raw outer keybed is held. The first
+     * check runs before smk_ck_poll, as ui_frame does on display frames. */
+    save_calls = 0u;
+    ui.dirty = 1u;
+    ui.saved_t = 0u;
+    run(AUTOSAVE_QUIET + 1u);
+    fm1_in.keys |= (uint64_t)1u << 36;
+    autosave();
+    check("K11 outer C6 blocks autosave before key polling", save_calls == 0u);
+    run(AUTOSAVE_QUIET + 1u);
+    autosave();
+    check("K11 held outer C6 keeps autosave quiet", save_calls == 0u && ui.act_t == fm1_ms);
+    fm1_in.keys &= ~((uint64_t)1u << 36);
+    run(1);
+    autosave();
+    check("K11 release starts the quiet interval", save_calls == 0u && ui.act_t == fm1_ms);
+    run(AUTOSAVE_QUIET);
+    autosave();
+    check("K11 autosave resumes after the quiet interval", save_calls == 1u);
+    ui.dirty = 1u;
+    ui.saved_t = 0u;
+    run(AUTOSAVE_QUIET + 1u);
+    fm1_in.enc_steps[0] = 1;                         /* CC 48, with no stage page open */
+    run(1);
+    autosave();
+    check("K11 clip CC turn starts the quiet interval", save_calls == 1u && ui.act_t == fm1_ms);
+    run(AUTOSAVE_QUIET);
+    autosave();
+    check("K11 autosave resumes after the CC turn", save_calls == 2u);
+    fm1_in.keys |= (uint64_t)1u << 36;
+    save_wait = 1u;                                  /* manual SAVE requested during playback */
+    autosave();
+    check("K11 queued SAVE waits during a held clip note", save_calls == 2u && save_wait);
+    run(AUTOSAVE_QUIET + 1u);
+    autosave();
+    check("K11 queued SAVE remains pending through the held note", save_calls == 2u && save_wait);
+    fm1_in.keys &= ~((uint64_t)1u << 36);
+    run(1);
+    autosave();
+    check("K11 queued SAVE waits after key release", save_calls == 2u && save_wait);
+    run(AUTOSAVE_QUIET);
+    fm1_in.enc_steps[0] = 1;                         /* new CC turn, before the next clip poll */
+    autosave();
+    check("K11 queued SAVE waits for a pending clip CC turn", save_calls == 2u && save_wait);
+    run(1);
+    autosave();
+    check("K11 queued SAVE waits after the CC turn", save_calls == 2u && save_wait);
+    run(AUTOSAVE_QUIET);
+    autosave();
+    check("K11 queued SAVE runs once performance is quiet", save_calls == 3u && !save_wait);
     printf("%s %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails != 0;
 }
