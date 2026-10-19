@@ -71,6 +71,7 @@ static uint8_t smk_pad_grid = 1;
 static uint32_t ble_tx[256];        /* what goes to Bluetooth (ble.c ble_out) */
 static unsigned ble_tx_n;
 static void ble_out(uint32_t p) { if (ble_tx_n < 256u) ble_tx[ble_tx_n++] = p; }
+void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 static uint32_t irq_save(void) { return 0u; }
 static void irq_restore(uint32_t f) { (void)f; }
 #undef X0X_BLE
@@ -80,6 +81,7 @@ static void irq_restore(uint32_t f) { (void)f; }
 static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void);
 void smk_inlog(uint32_t src, uint32_t pkt) { (void)src; (void)pkt; }
+static void mark_dirty(void) { ui.dirty++; }
 #include "apc_b.inc"
 #include "ck_a.inc"
 #include "ck_b.inc"

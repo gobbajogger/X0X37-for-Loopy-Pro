@@ -34,6 +34,10 @@ void smk_apc_clock_tick(void) {}
 void smk_apc_clock_start(void) {}
 void smk_apc_clock_position(uint32_t sixteenths) { (void)sixteenths; }
 void smk_ck_midi_stop(void) {}
+int smc_connected(void) { return 0; }
+void smc_frame(void) {}
+void smc_poll(void) {}
+int smc_midi_host(uint32_t pkt) { (void)pkt; return 0; }
 #endif
 
 static int fails;
