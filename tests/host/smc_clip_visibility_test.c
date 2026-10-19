@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "app/smc_protocol.h"
+#define CK_FN __attribute__((unused))
 #include "app/smk_clip_keys.h"
 
 enum { O_NONE, O_LIST, O_ASK, R_NONE, R_HDR, R_ACT, R_ENG, EN_K1,
