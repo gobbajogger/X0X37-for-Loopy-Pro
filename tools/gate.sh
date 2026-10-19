@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
-# Pre-install gate for the SMK-37 Elite firmware (Linux x86-64 box only). It does not touch a device.
+# Pre-install gate for the SMK-37 Elite firmware (Linux x86-64, native or local container). It does not touch a device.
 #   tools/gate.sh <commit or ref> [--force "<reason>"] [--trial]
 # The commit must be on the integration branch of the box repository (X0X_INTEGRATION). Else the gate stops with
 # "FAIL <hash> not on integration (use --trial)". With --trial the gate runs any commit, but the result is a TRIAL:
@@ -67,6 +67,9 @@
 set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 GATE_DIR=$(cd "$(dirname "$0")" && pwd)
+if [ "$(uname -s)" != Linux ]; then
+    echo "VOID ${1:-unknown} setup: use Linux x86-64 or the local Linux container (BUILDING.md)"; exit 2
+fi
 if [ -z "${X0X_GATE_INNER:-}" ] && [ -f "$GATE_DIR/gate_sigwrap.py" ] && command -v python3 >/dev/null 2>&1; then
     X0X_GATE_SIGFILE=$(mktemp "${TMPDIR:-/tmp}/x0x37-gate-sig.XXXXXX") && export X0X_GATE_INNER=1 X0X_GATE_SIGFILE &&
         exec python3 "$GATE_DIR/gate_sigwrap.py" "$X0X_GATE_SIGFILE" bash "$GATE_DIR/$(basename "$0")" "$@"
@@ -95,7 +98,7 @@ sender() {         # check 5: "from pid N (cwd C; cmd X)" from the wrapper file,
         SND_LOG="from pid $SND_PID (cwd $SND_CWD; cmd $SND_CMD)"; SND_OUT="from pid $SND_PID cwd $SND_CWD"
     else SND_LOG="sender unknown"; SND_OUT="sender unknown"; fi
 }
-REPO=${X0X_REPO:-/workspace/x0x37.git}
+REPO=${X0X_REPO:-$(git -C "$GATE_DIR/.." rev-parse --show-toplevel 2>/dev/null || echo /workspace/x0x37.git)}
 RESULTS=${X0X_RESULTS:-/workspace/x0x37-results}
 REFS=${X0X_REFS:-/workspace/x0x37-refs/schwung}
 WORK=${X0X_GATE_WORK:-${RHOME:-$HOME}/.cache/x0x37-gate}
@@ -119,7 +122,7 @@ for v in $(compgen -e | grep -E '^X0X_DEV_') $BUILD_VARS; do
     [ -n "${!v+x}" ] && UNSET_TXT="$UNSET_TXT $v=${!v}"
     unset "$v"
 done
-PREPUSH=${X0X_PREPUSH_HOOK:-/workspace/x0x37.git/hooks/pre-push}
+PREPUSH=${X0X_PREPUSH_HOOK:-$GATE_DIR/pre-push.hook}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
 INTB=${X0X_INTEGRATION:-integration}
@@ -225,7 +228,7 @@ case "$(realpath -m "$WORK")/" in
 esac
 
 mkdir -p "$WORK"
-[ -d "$WORK/.repo" ] || git clone -q --no-checkout "$REPO" "$WORK/.repo" || { echo "FAIL $S git clone of $REPO failed"; exit 1; }
+[ -d "$WORK/.repo" ] || git clone -q --no-local --no-checkout "$REPO" "$WORK/.repo" || { echo "FAIL $S git clone of $REPO failed"; exit 1; }
 # The clone gets the pre-push hook of the box repository, and no remote can push outside the box.
 # The gate does this for a new clone and also for an older clone without the hook.
 HC=$(git -C "$WORK/.repo" rev-parse --path-format=absolute --git-common-dir) && mkdir -p "$HC/hooks" &&

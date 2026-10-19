@@ -9,16 +9,16 @@
 #    repository /workspace/x0x37.git, or a value of "git config --get-all x0x37.allowedRemote" (the Mac sets
 #    /Users/mac/Documents/x0x37/x0x37). That path must also be inside a root: /workspace/x0x37.git or /Users/mac/Documents/x0x37.
 #    All other URLs are refused: GitHub, ssh, a path outside the roots, a path that is not there, "DISABLED-no-push-outside-box".
-#    X0X_PREPUSH_ROOTS replaces the roots and X0X_BOX_REPO the box path (only for the test tests/host/test_prepush_allow.sh).
+#    x0x37.allowedRoot config or X0X_PREPUSH_ROOTS sets local roots; X0X_BOX_REPO sets the legacy box path.
 # POSIX sh (also macOS /bin/sh and bash 3.2).
 set -u
 z=0000000000000000000000000000000000000000
-FIX="fix the clone (see /workspace/x0x37-build-and-test-runner/failclosed-hook-rollout.md)"
+FIX="fetch complete local history and check the configured local repository"
 block() { echo "BLOCKED: $1" >&2; exit 1; }
 
 # ---------- 0. Remote allowlist ----------
 BOXR=${X0X_BOX_REPO:-/workspace/x0x37.git}
-ROOTS=${X0X_PREPUSH_ROOTS:-/workspace/x0x37.git /Users/mac/Documents/x0x37}
+ROOTS=${X0X_PREPUSH_ROOTS:-$(git config --get-all x0x37.allowedRoot 2>/dev/null || echo "/workspace/x0x37.git /Users/mac/Documents/x0x37")}
 canon() {   # canon PATH: the real path (symlinks and ".." resolved), or nothing if the path is not there
   [ -e "$1" ] || return 1
   if [ -d "$1" ]; then (cd "$1" 2>/dev/null && pwd -P)
@@ -88,8 +88,8 @@ done < "$PUSHED_REFS"
 # Fail closed: a missing check, an error or no QUICK PASS line blocks the push, as a QUICK FAIL does.
 # Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON="<why>" git push ... The skip goes to the skip log.
 # The refs-oscuro check and the clone check above always run. A Mac clone uses pre-push.mac (no quick check there).
-QC=/workspace/x0x37-refs/gate/prepush-check.sh
-QCLOG=/workspace/x0x37-results/quickcheck-skips.log
+QC=${X0X_PREPUSH_CHECK:-$(git config --get x0x37.prepushCheck 2>/dev/null || echo /workspace/x0x37-refs/gate/prepush-check.sh)}
+QCLOG=${X0X_QUICKCHECK_SKIP_LOG:-$(git config --get x0x37.skipLog 2>/dev/null || echo /workspace/x0x37-results/quickcheck-skips.log)}
 QCSKIP="Emergency only: X0X_SKIP_QUICKCHECK=1 X0X_SKIP_REASON=\"<why>\" git push ..."
 QCN=$(awk -v z="$z" '$3 == "refs/heads/integration" && $2 != z' "$PUSHED_REFS" | wc -l | tr -d ' ')
 if [ "$QCN" -gt 0 ]; then
@@ -98,7 +98,7 @@ if [ "$QCN" -gt 0 ]; then
     echo "$(date '+%F %T %z') $(id -un) $PWD $1 skip: $X0X_SKIP_REASON" >> "$QCLOG" || block "cannot write the skip log $QCLOG"
     echo "pre-push: quick check SKIPPED (X0X_SKIP_QUICKCHECK=1): $X0X_SKIP_REASON (logged in $QCLOG)" >&2
   else
-    [ -f "$QC" ] && [ -x "$QC" ] || block "the quick check $QC is missing or not executable. Ask the Build and Test Runner. $QCSKIP"
+    [ -f "$QC" ] && [ -x "$QC" ] || block "the quick check $QC is missing or not executable. Set X0X_PREPUSH_CHECK or x0x37.prepushCheck to the installed local runner. $QCSKIP"
     [ -t 2 ] && echo "pre-push: quick check of the push to integration (about 20 s; the first run in a clone builds everything)" >&2
     "$QC" "$@" < "$PUSHED_REFS" > "$TMPD/qc" 2>&1; QCRC=$?
     QCPASS=$(grep -c 'QUICK PASS' "$TMPD/qc")

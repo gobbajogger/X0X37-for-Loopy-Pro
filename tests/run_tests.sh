@@ -182,8 +182,9 @@ run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh:
 run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 27): each owner-rule entry of USER_PREFERENCES.md names a rule that covers it
 run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
-run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, strict STE, Trigger and Check lines
-run ste-owner-msg sh tests/host/test_ste_owner_msg.sh   # tools/ste_check.py --owner-msg (check 2): the length and the content of a message to the owner (rule 13)
+run portable-rules python3 tests/host/test_portable_rules.py
+run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, advisory grammar, Trigger and Check lines
+run ste-owner-msg sh tests/host/test_ste_owner_msg.sh   # tools/ste_check.py --owner-msg (check 2): usable owner message content with exact evidence (rule 13)
 run gen-order sh tests/host/test_gen_order.sh   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
 run quickcheck-devbug bash tests/host/test_quickcheck_devbug.sh   # tools/quickcheck.sh device bug step (checks 16, 17): an INLOG replay test that fails on the parent
 run status-lanes bash tests/host/test_status_lanes.sh   # tools/status.sh (check 12): lane/<agent>-* commits count as agent output
