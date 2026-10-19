@@ -197,6 +197,86 @@ static void test_303_velocity_slide_overlap(void)
           "unset step velocity follows legacy default");
 }
 
+static void test_303_midi_lifecycle(void)
+{
+    int i, on, off, mode;
+    reset();
+    S.send_notes = 1;
+    P[0].bass[0].len = 2;
+    P[0].bass[0].transpose = 0;                 /* note 24 down to MIDI pitch zero */
+    P[0].bass[0].step[0] = (bstep_t){24, G_NOTE, 100};
+    seq_start(&S);
+    run(3000);
+    on = off = -1;
+    for (i = 0; i < nev; i++) {
+        if (evs[i].kind == E_MIDI && evs[i].a == 0x91 && evs[i].b == 0) on = i;
+        if (evs[i].kind == E_MIDI && evs[i].a == 0x81 && evs[i].b == 0) off = i;
+    }
+    CHECK(on >= 0 && off > on, "MIDI note zero must have a Note Off");
+
+    reset();
+    S.send_notes = 1;
+    P[0].bass[0].len = 4;
+    P[0].bass[0].step[0] = (bstep_t){36, G_NOTE | BS_SLIDE, 80};
+    P[0].bass[0].step[1] = (bstep_t){41, G_NOTE, 100};
+    seq_start(&S);
+    run(5600);                                    /* old note's delayed off is pending */
+    S.ch[TRK_BASS0] = 5;
+    run(900);
+    off = on = -1;
+    for (i = 0; i < nev; i++)
+        if (evs[i].kind == E_MIDI && evs[i].b == 36 && (evs[i].a & 0xF0) == 0x80)
+            off = i;
+    for (i = 0; i < nev; i++)
+        if (evs[i].kind == E_MIDI && evs[i].b == 41 && (evs[i].a & 0xF0) == 0x80)
+            on = i;
+    CHECK(off >= 0 && on > off && evs[off].a == 0x81 && evs[on].a == 0x81,
+          "channel change flushes both old and current notes on their original channel");
+
+    for (mode = 0; mode < 2; mode++) {
+        int old_off = -1, current_off = -1, request_at;
+        reset();
+        S.send_notes = 1;
+        P[0].bass[0].len = 4;
+        P[0].bass[0].step[0] = (bstep_t){36, G_NOTE | BS_SLIDE, 100};
+        P[0].bass[0].step[1] = (bstep_t){41, G_NOTE, 100};
+        seq_start(&S);
+        run(5600);
+        request_at = nev;
+        if (mode) seq_continue(&S); else seq_start(&S);
+        run(1);
+        for (i = request_at; i < nev; i++) {
+            if (evs[i].kind == E_MIDI && evs[i].a == 0x81 && evs[i].b == 36) old_off = i;
+            if (evs[i].kind == E_MIDI && evs[i].a == 0x81 && evs[i].b == 41) current_off = i;
+        }
+        CHECK(old_off >= request_at && current_off > old_off,
+              "%s flushes both pending and active MIDI notes", mode ? "Continue" : "Start");
+    }
+
+    reset();
+    S.send_notes = 1;
+    P[0].bass[0].len = 2;
+    P[0].bass[0].step[0] = (bstep_t){36, G_NOTE | BS_SLIDE, 100};
+    P[0].bass[0].step[1] = (bstep_t){36, G_NOTE, 100};
+    seq_start(&S);
+    run(5600);
+    on = off = -1;
+    for (i = 0; i < nev; i++) {
+        if (evs[i].kind == E_MIDI && evs[i].a == 0x81 && evs[i].b == 36) off = i;
+        if (off >= 0 && evs[i].kind == E_MIDI && evs[i].a == 0x91 && evs[i].b == 36) on = i;
+    }
+    CHECK(off >= 0 && on > off && evs[on].t == evs[off].t,
+          "same-pitch slide ends old MIDI note before retrigger at the same sample");
+
+    reset();
+    for (i = 0; i < NSTEPS; i++)
+        P[0].bass[0].step[i].velocity = 42;
+    tb3po_generate(&P[0].bass[0]);
+    for (i = 0; i < NSTEPS; i++)
+        CHECK(P[0].bass[0].step[i].velocity == 0,
+              "generator must clear stale velocity at step %d", i);
+}
+
 static void test_polymeter_cue_chain(void)
 {
     int i, n, last;
@@ -1109,6 +1189,7 @@ int main(void)
     test_swing_and_rates();
     test_303();
     test_303_velocity_slide_overlap();
+    test_303_midi_lifecycle();
     test_polymeter_cue_chain();
     test_part_cue();
     test_song();

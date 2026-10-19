@@ -152,7 +152,9 @@ typedef struct {
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
+    uint8_t bass_out_valid[NBASS], bass_out_ch[NBASS]; /* note zero is valid; release on its original channel */
     uint8_t bass_slide_old[NBASS];    /* previous pitch whose MIDI gate overlaps a slide */
+    uint8_t bass_slide_valid[NBASS], bass_slide_ch[NBASS];
     uint32_t bass_slide_off[NBASS];   /* remaining samples (Q8), zero = none */
     volatile uint8_t clk_src;         /* SEQ_CLK_*: the clock source that the UI sets */
     uint8_t clk_cur;                  /* SEQ_CLK_*: the clock source that seq_advance applied */

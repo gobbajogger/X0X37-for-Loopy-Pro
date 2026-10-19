@@ -120,22 +120,26 @@ static void midi(const seq_sink_t *o, uint8_t st, uint8_t d1, uint8_t d2)
         o->midi(o->ctx, st, d1, d2);
 }
 
+static void bass_midi_flush(seq_t *s, int b, const seq_sink_t *o)
+{
+    if (s->bass_slide_valid[b])
+        midi(o, (uint8_t)(0x80 | s->bass_slide_ch[b]), s->bass_slide_old[b], 0);
+    s->bass_slide_valid[b] = 0;
+    s->bass_slide_off[b] = 0;
+    if (s->bass_out_valid[b])
+        midi(o, (uint8_t)(0x80 | s->bass_out_ch[b]), s->bass_notes_out[b], 0);
+    s->bass_out_valid[b] = 0;
+}
+
 static void bass_release(seq_t *s, int b, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
-    if (s->bass_slide_old[b] && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF)
-        midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), s->bass_slide_old[b], 0);
-    s->bass_slide_old[b] = 0;
-    s->bass_slide_off[b] = 0;
+    bass_midi_flush(s, b, o);
     if (tr->sounding) {
         o->bass_off(o->ctx, b);
         tr->sounding = 0;
-        if (s->send_notes && s->bass_notes_out[b]) {
-            if (s->ch[TRK_BASS0 + b] != SEQ_CH_OFF)    /* (switched OFF while it sounded: 0x80 | 0xFF is a reset) */
-                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), s->bass_notes_out[b], 0);
-            s->bass_notes_out[b] = 0;
-        }
     }
+    tr->held_note = 0;
     tr->to_off = 0;
 }
 
@@ -188,23 +192,33 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
         if (!skip)                                   /* (recorded live on this pass: the key sounded it) */
             o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
         if (s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
-            uint8_t old = s->bass_notes_out[b];
-            if (s->bass_slide_old[b]) {                  /* only one old MIDI pitch can remain open */
-                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), s->bass_slide_old[b], 0);
-                s->bass_slide_old[b] = 0;
+            uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
+            uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
+            if (s->bass_slide_valid[b]) {                  /* only one old MIDI pitch can remain open */
+                midi(o, (uint8_t)(0x80 | s->bass_slide_ch[b]), s->bass_slide_old[b], 0);
+                s->bass_slide_valid[b] = 0;
                 s->bass_slide_off[b] = 0;
             }
-            if (old && old == note)
-                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), old, 0);
-            midi(o, (uint8_t)(0x90 | s->ch[TRK_BASS0 + b]), (uint8_t)note, bstep_velocity(st));
-            if (old && old != note) {
+            /* A repeated pitch must end before its new Note On: otherwise its old
+             * Note Off could silence the new voice on a monophonic receiver. */
+            if (had_old && (old == note || old_ch != ch))
+                midi(o, (uint8_t)(0x80 | old_ch), old, 0);
+            midi(o, (uint8_t)(0x90 | ch), (uint8_t)note, bstep_velocity(st));
+            if (had_old && old != note && old_ch == ch) {
                 if (slide) {
                     s->bass_slide_old[b] = old;
+                    s->bass_slide_ch[b] = old_ch;
+                    s->bass_slide_valid[b] = 1;
                     s->bass_slide_off[b] = BASS_SLIDE_OVERLAP_Q8;
                 } else
-                    midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + b]), old, 0);
+                    midi(o, (uint8_t)(0x80 | old_ch), old, 0);
             }
             s->bass_notes_out[b] = (uint8_t)note;
+            s->bass_out_ch[b] = ch;
+            s->bass_out_valid[b] = 1;
+        } else if (s->bass_out_valid[b] || s->bass_slide_valid[b]) {
+            /* Output was disabled or its channel set OFF while a note sounded. */
+            bass_midi_flush(s, b, o);
         }
         tr->sounding = 1;
     }
@@ -392,6 +406,8 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
 static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
 {
     int t;
+    for (t = 0; t < NBASS; t++)
+        bass_release(s, t, o);             /* Start/Continue reinitialises timers: release old notes first */
     if (from_top)
         bar_end(s, 1);                                /* cues, or the song's start bar */
     for (t = 0; t < NTRACKS; t++) {
@@ -605,6 +621,9 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     if (s->clk_cur != SEQ_CLK_EXT || s->ext_since < 2u * FS)   /* (EXTERNAL waits long: no wrap) */
         s->ext_since += k;
     s->ext_now += k;
+    for (t = 0; t < NBASS; t++)
+        if (s->bass_out_valid[t] && (!s->send_notes || s->ch[TRK_BASS0 + t] != s->bass_out_ch[t]))
+            bass_midi_flush(s, t, o);    /* direct channel/settings edits cannot strand the old MIDI note */
     if (s->clk_cur != s->clk_src)
         clock_source(s, o);
     if (s->clk_lock && s->ext_now - s->clk_lock_at > SEQ_LOCK_T)
@@ -698,9 +717,9 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     }
     for (t = 0; t < NBASS; t++)
         if (s->bass_slide_off[t] && s->bass_slide_off[t] < 256u) {
-            if (s->ch[TRK_BASS0 + t] != SEQ_CH_OFF)
-                midi(o, (uint8_t)(0x80 | s->ch[TRK_BASS0 + t]), s->bass_slide_old[t], 0);
-            s->bass_slide_old[t] = 0;
+            if (s->bass_slide_valid[t])
+                midi(o, (uint8_t)(0x80 | s->bass_slide_ch[t]), s->bass_slide_old[t], 0);
+            s->bass_slide_valid[t] = 0;
             s->bass_slide_off[t] = 0;
         }
     if (!s->ext && s->send_clock && s->clk_to_next < 256u) {
