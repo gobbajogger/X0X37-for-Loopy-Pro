@@ -256,6 +256,98 @@ static void test_303_step_preview_lifecycle(void)
     printf("  303 step preview: part, view and clip transitions release sound; taps keep their meaning: checked\n");
 }
 
+static void test_303_auto_slide(void)
+{
+    bpart_t *bp;
+    seq_stop(&seq);
+    ui.part = PART_303A;
+    set_view(V_PART);
+    ui.rec = 0;
+    ui.freeplay[0] = 0;
+    build_pages();
+    bp = &cur_pat()->bass[0];
+    bp->len = 16;
+    memset(bp->step, 0, sizeof bp->step);
+    btn(B_REC, 1); btn(B_REC, 0);
+    key(10, 1);
+    key(12, 1);
+    CHECK(bst(0)->flags == (G_NOTE | BS_SLIDE), "step REC overlap marks source slide");
+    CHECK(bst(1)->flags == G_NOTE, "step REC destination has no outgoing slide");
+    key(10, 0); key(12, 0);
+    key(14, 1); key(14, 0);
+    CHECK(bst(1)->flags == G_NOTE, "released key does not create a slide");
+    ui.wpos[0] = 15;
+    key(10, 1); key(12, 1);
+    CHECK(bst(15)->flags & BS_SLIDE, "step REC slide wraps to step zero");
+    key(10, 0); key(12, 0);
+    ui.wpos[0] = 3;
+    key(10, 1);
+    bass_write(0, 0, G_REST);
+    key(12, 1);
+    CHECK(!(bst(3)->flags & BS_SLIDE), "explicit rest breaks automatic slide gesture");
+    key(10, 0); key(12, 0);
+    ui.wpos[0] = 6;
+    key(10, 1);
+    btn(B_REC, 1); btn(B_REC, 0);
+    btn(B_REC, 1); btn(B_REC, 0);
+    key(12, 1);
+    CHECK(!(bst(6)->flags & BS_SLIDE), "REC restart cannot slide from stale source");
+    key(10, 0); key(12, 0);
+
+    ui.wpos[0] = 7;
+    key(10, 1);
+    ui.part = PART_303B;
+    ui.wpos[1] = 0;
+    memset(cur_pat()->bass[1].step, 0, sizeof cur_pat()->bass[1].step);
+    key(12, 1);
+    CHECK(!(bst(7)->flags & BS_SLIDE), "part change cannot alter the old part's slide");
+    key(14, 1);
+    CHECK(cur_pat()->bass[1].step[0].flags & BS_SLIDE, "303 B also records automatic slides");
+    key(10, 0); key(12, 0); key(14, 0);
+    ui.part = PART_303A;
+    ui.wpos[0] = 9;
+    key(10, 1);
+    {
+        int oldpat = seq.ppat[PART_303A];
+        seq.ppat[PART_303A] = (uint8_t)((oldpat + 1) % NPAT);
+        key(12, 1);
+        CHECK(!(proj.pat[oldpat].bass[0].step[9].flags & BS_SLIDE),
+              "pattern change cannot link back to the old pattern");
+        key(10, 0); key(12, 0);
+        seq.ppat[PART_303A] = (uint8_t)oldpat;
+    }
+    memset(bp->step, 0, sizeof bp->step);
+    seq.bpm = 120.0f;
+    btn(B_PLAY, 1); btn(B_PLAY, 0);
+    at_step(TRK_BASS0, 4, 10);
+    btn(B_ENV, 1);
+    key(10, 1);
+    btn(B_ENV, 0);
+    at_step(TRK_BASS0, 5, 10);
+    key(12, 1);
+    CHECK(bst(4)->flags == (G_NOTE | BS_ACCENT | BS_SLIDE), "live overlap slides source and retains accent");
+    CHECK(bst(5)->flags == G_NOTE, "live destination has no outgoing slide");
+    key(10, 0); key(12, 0);
+    at_step(TRK_BASS0, 6, 10);
+    key(14, 1); key(14, 0);
+    CHECK(!(bst(5)->flags & BS_SLIDE), "live detached notes do not slide");
+    at_step(TRK_BASS0, 8, 10);
+    key(10, 1); key(12, 1);
+    CHECK(bst(8)->flags == G_NOTE && bst(8)->note == kbd_note(12),
+          "two live notes on one quantized step replace pitch without a self-slide");
+    key(10, 0); key(12, 0);
+    at_step(TRK_BASS0, 15, 10);
+    key(10, 1);
+    at_step(TRK_BASS0, 0, 10);
+    key(12, 1);
+    CHECK(bst(15)->flags & BS_SLIDE, "live overlap slides across loop boundary");
+    key(10, 0); key(12, 0);
+    btn(B_REC, 1); btn(B_REC, 0);
+    btn(B_PLAY, 1); btn(B_PLAY, 0);
+    tick(20);
+    printf("  303 automatic REC slides: overlap, release, wrap, same step, accent, rest and REC restart checked\n");
+}
+
 static void test_303_live(void)
 {
     int s, n_lfo = kbd_note(15), n_env = kbd_note(14), n_plain = kbd_note(22), n_after = kbd_note(10);
@@ -432,6 +524,7 @@ int main(void)
     tick(300);
     test_303_key_release();
     test_303_step_preview_lifecycle();
+    test_303_auto_slide();
     test_303_live();
     test_start_ext_running();
     test_drum_nearest();
