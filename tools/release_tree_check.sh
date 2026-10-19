@@ -13,11 +13,11 @@
 # Output: "TREE OK <short>: ..." (exit 0), "TREE REFUSED <short>: <reason>" (exit 1), "TREE ERROR: ..." (exit 2).
 # Read only. GITDIR default: X0X_REPO, else /workspace/x0x37.git.
 set -u
-REPO=${X0X_REPO:-/workspace/x0x37.git}
+REPO=${X0X_REPO:-$(git rev-parse --absolute-git-dir 2>/dev/null || echo /workspace/x0x37.git)}
 case "${1:-}" in --repo) REPO=${2:-}; shift 2 || true;; esac
 C=${1:-}
 [ -n "$C" ] || { echo "TREE ERROR: usage: release_tree_check.sh [--repo GITDIR] <commit>"; exit 2; }
-g() { git --git-dir="$REPO" "$@"; }
+g() { git -C "$REPO" "$@"; }
 H=$(g rev-parse --verify --quiet "$C^{commit}") || { echo "TREE ERROR: no commit $C in $REPO"; exit 2; }
 S=$(echo "$H" | cut -c1-7)
 bad=$(g ls-tree -r --name-only --full-tree "$H" | grep -iE '(^|/)refs/(jieli|oscuro)(/|$)|refs-oscuro' | head -5)

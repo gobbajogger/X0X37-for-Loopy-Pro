@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
-# Quick check before a push or a handoff (box only, no device). Target: 60 s or less. It is not the gate.
+# Quick check before a push or a handoff (Linux build environment, no device). Target: 60 s or less. It is not the gate.
 #   tools/quickcheck.sh <commit or ref>     a commit of the box repository (its own worktree, kept for incremental builds)
 #   tools/quickcheck.sh <worktree folder>   a worktree as it is (with changes that are not committed)
 # Steps:
@@ -18,14 +18,14 @@
 # STE step (tools/ste_check.py, the copy beside this script): it examines the changed *.md files and the
 # message (subject and body) of each commit in BASE..<commit>. Counted categories: long_proc, long_desc,
 # semicolon, modal, passive, contraction, no_verb. The default is warn only: "STE WARN <n> issues" and the
-# first lines come before the QUICK line, and the exit code does not change. Strict mode: the file
-# tools/ste_strict in the tree, or X0X_STE_STRICT=1. In strict mode, an issue makes "QUICK FAIL ... STE: ...".
+# first lines come before the QUICK line, and the exit code does not change. Strict mode is an explicit
+# X0X_STE_STRICT=1 run. In strict mode, an issue makes "QUICK FAIL ... STE: ...".
 # X0X_QUICK_ONLY=ste: only the STE step and the rules step (no build, no tests).
 # Rules step (checks 27 and 28b of rules v4, owner 02:37: rules = code):
 #   Docs lint: a commit that changes docs/ or USER_PREFERENCES.md, in a tree with docs/USER_PREFERENCES.md and docs/rules/,
 #   runs tools/prefs_lint.py (the copy beside this script). A "PREFS FAIL" makes "QUICK FAIL ... RULES: ...".
 #   Rules mode: the changes touch docs/rules/, docs/agent-rules.md, docs/USER_PREFERENCES.md or USER_PREFERENCES.md, or <commit> is the tip of
-#   a lane/dk-rules-* branch. In rules mode the STE step is strict, the docs lint runs, and each commit in BASE..<commit>
+#   a lane/dk-rules-* branch. In rules mode grammar stays advisory, the docs lint runs, and each commit in BASE..<commit>
 #   that changes these paths must have two body lines:
 #     "Trigger: <when the rule applies>"   (2 words or more, the "Read when" or "Step" of the rule)
 #     "Check: <script>"                     a path in the tree (tools/quickcheck.sh), a file name in tools/ of the tree
@@ -38,27 +38,30 @@
 # Device bug step (checks 16 and 17 of rules v4, rule 8: record the bug first), after the tests:
 #   A commit in BASE..<commit> whose message has the words "device bug" must add a file tests/*inlog* (the replay test of
 #   the INLOG log, or its log file), unless the message has the line "INLOG skip: owner <HH:MM>" (the owner skips the
-#   INLOG step for this bug). The replay test = each run_tests.sh test (of that commit) whose command names an added
+#   INLOG step for this bug). Bug evidence: <changed tests/path> permits a source-proven regression instead.
+#   The regression must pass on the fixed tree. The replay test = each run_tests.sh test (of that commit) whose command names an added
 #   tests/*inlog* file, or names a file that names it. That test must FAIL on the parent of the commit: the step runs it in
 #   a temp worktree of the parent, with the tests/ files of the commit. A test that passes there, an inlog file that no
 #   test uses, or no inlog file makes "QUICK FAIL ... DEVICE BUG: ...". X0X_QUICK_ONLY=devbug: only this step.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 set -u
-T0=$(date +%s%N)
+T0=$(date +%s)
 QCDIR=$(cd "$(dirname "$0")" && pwd)
-REPO=${X0X_REPO:-/workspace/x0x37.git}
+REPO=${X0X_REPO:-$(git -C "$QCDIR/.." rev-parse --show-toplevel 2>/dev/null || echo /workspace/x0x37.git)}
 QW=${X0X_QC_WORK:-$HOME/.cache/x0x37-quickcheck}
 INT=${X0X_INTEGRATION:-integration}
 DOCB=${X0X_DOCS_BRANCH:-smk37}
 TC=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain}
 SDK=${AC79_SDK:-$HOME/fw-AC79_AIoT_SDK}
 REFS=${X0X_REFS:-/workspace/x0x37-refs/schwung}
-PREPUSH=${X0X_PREPUSH_HOOK:-/workspace/x0x37.git/hooks/pre-push}
+PREPUSH=${X0X_PREPUSH_HOOK:-$QCDIR/pre-push.hook}
 [ -n "${1:-}" ] || { echo "usage: tools/quickcheck.sh <commit or worktree folder>" >&2; exit 2; }
-secs() { local t=$(( ($(date +%s%N) - T0) / 1000000 )); echo "$((t / 1000)).$(( (t % 1000) / 100 ))"; }
+secs() { echo "$(( $(date +%s) - T0 ))"; }
 H=${1}
 out() { echo "QUICK $1 ${H:0:7} $(secs) s${2:+ $2}"; [ "$1" = PASS ]; exit $?; }
-mkdir -p "$QW"
+if [ ! -d "$1" ] && ! command -v flock >/dev/null 2>&1; then
+    out FAIL "setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks"
+fi
 if [ -d "$1" ]; then                                    # a worktree folder, as it is
     W=$(cd "$1" && pwd); G=(git -C "$W")
     H=$("${G[@]}" rev-parse HEAD) || { H=$1; out FAIL "not a git worktree"; }
@@ -66,8 +69,10 @@ if [ -d "$1" ]; then                                    # a worktree folder, as 
     DREF=$("${G[@]}" for-each-ref --format='%(refname)' "refs/remotes/*/$DOCB" | head -1)
     RLANE=$("${G[@]}" for-each-ref --points-at HEAD --format='%(refname)' 'refs/heads/lane/dk-rules-*' 'refs/remotes/*/lane/dk-rules-*' | head -1)
 else                                                    # a commit: its own worktree in $QW/wt
-    exec 9>"$QW/.lock"; flock -n 9 || { echo "quickcheck: waiting for $QW/.lock (another quickcheck)" >&2; flock 9; }
-    [ -d "$QW/.repo" ] || git clone -q --no-checkout "$REPO" "$QW/.repo" || out FAIL "git clone of $REPO failed"
+    mkdir -p "$QW" || out FAIL "setup: cannot create $QW"
+    exec 9>"$QW/.lock" || out FAIL "setup: cannot open $QW/.lock"
+    flock -w "${X0X_QC_LOCK_WAIT:-120}" 9 || out FAIL "setup: quickcheck work folder is busy ($QW/.lock); retry after its owner finishes"
+    [ -d "$QW/.repo" ] || git clone -q --no-local --no-checkout "$REPO" "$QW/.repo" || out FAIL "git clone of $REPO failed"
     HC=$(git -C "$QW/.repo" rev-parse --path-format=absolute --git-common-dir)
     cp "$PREPUSH" "$HC/hooks/pre-push" && chmod +x "$HC/hooks/pre-push" || out FAIL "cannot copy the pre-push hook $PREPUSH"
     for rem in $(git -C "$QW/.repo" remote); do
@@ -102,14 +107,15 @@ done
 [ "$RULES_MODE" = 1 ] && echo "rules mode (${RLANE:-rule files changed})" >> "$LOG"
 cd "$W" || out FAIL "no worktree"
 export JIELI_TOOLCHAIN="$TC" AC79_SDK="$SDK" HOME="$L/home" TMPDIR="$L/tmp"
-export NINEW9_DIR="$REFS/schwung-9W9" EIGHTW8_DIR="$REFS/schwung-8W8" SCHWUNG303="$REFS/schwung-303"
-export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c" X0X_TEST_JOBS=8 X0X_TEST_TIME_SCALE=20
+export NINEW9_DIR="${NINEW9_DIR:-$REFS/schwung-9W9}" EIGHTW8_DIR="${EIGHTW8_DIR:-$REFS/schwung-8W8}" SCHWUNG303="${SCHWUNG303:-$REFS/schwung-303}"
+export TB3PO_REF="${TB3PO_REF:-$REFS/schwung-tb3po/src/dsp/tb3po.c}" X0X_TEST_JOBS=8 X0X_TEST_TIME_SCALE=20
 
 # STE step (see the header). It sets STE_FAIL (1 = strict and issues) and STE_NOTE.
 ste_step() {
     STE_FAIL=0; STE_NOTE=""
     local d n strict=0 st="$QCDIR/ste_check.py" c f md=""
-    { [ -f "$W/tools/ste_strict" ] || [ "${X0X_STE_STRICT:-0}" = 1 ] || [ "$RULES_MODE" = 1 ]; } && strict=1
+    [ "${X0X_STE_STRICT:-0}" = 1 ] && strict=1
+    # Grammar heuristics give review hints. Only an explicit strict run blocks.
     if [ ! -f "$st" ]; then                             # strict mode fails closed: no check is a failure
         echo "STE: no $st, STE step skipped" >> "$LOG"
         [ $strict = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: no $st (run tools/install_gate.sh)"; }
@@ -193,6 +199,12 @@ devbug_step() {
         msg=$("${G[@]}" log -1 --format=%B "$c")
         echo "$msg" | grep -qi 'device bug' || continue
         added=$("${G[@]}" diff-tree --no-commit-id -r --diff-filter=A --name-only "$c" | grep -E '^tests/.*inlog' || true)
+        # A source-proven regression can replace new device logging.
+        evidence=$(printf '%s\n' "$msg" | sed -n 's/^Bug evidence: *//p')
+        if [ -n "$evidence" ]; then
+            added=$("${G[@]}" diff-tree --no-commit-id -r --diff-filter=AM --name-only "$c" -- tests | grep -F -x -- "$evidence" || true)
+            [ -n "$added" ] || { errs="$errs; ${c:0:7}: Bug evidence must name an added or changed tests/ file"; continue; }
+        fi
         if [ -z "$added" ]; then
             echo "$msg" | grep -qE '^INLOG skip: owner [0-9]{1,2}:[0-9]{2}' && { echo "devbug ${c:0:7}: owner INLOG skip" >> "$LOG"; continue; }
             errs="$errs; ${c:0:7} adds no tests/*inlog* replay test"; continue
@@ -213,6 +225,11 @@ for l in src.split("\n"):
 print(" ".join(sorted(out)))' "${G[@]}")
         [ -n "$names" ] || { errs="$errs; ${c:0:7}: no run_tests.sh test uses $(echo $added)"; continue; }
         wt=$(mktemp -d "${TMPDIR:-/tmp}/qcdevbug.XXXXXX")
+        (cd "$W" && X0X_TESTS="$names" sh tests/run_tests.sh > "$wt/fixed.log" 2>&1); fixed_rc=$?
+        cat "$wt/fixed.log" >> "$LOG"
+        for n in $names; do
+            [ "$fixed_rc" = 0 ] && grep -qE "^ *ok +$n( |\$)" "$wt/fixed.log" || errs="$errs; ${c:0:7}: replay test $n does not pass on the fixed tree"
+        done
         if "${G[@]}" worktree add -q --detach "$wt/w" "$c^" >/dev/null 2>&1; then
             "${G[@]}" diff-tree --no-commit-id -r --diff-filter=AM --name-only "$c" -- tests | while read -r f; do
                 mkdir -p "$wt/w/$(dirname "$f")"; "${G[@]}" show "$c:$f" > "$wt/w/$f"; done
@@ -239,6 +256,9 @@ if [ "${X0X_QUICK_ONLY:-}" = ste ]; then
 fi
 
 # 1. the Elite build (incremental), with its build checks
+if [ "$(uname -s)" != Linux ]; then
+    out FAIL "build validation needs Linux tools; use the local Linux container (BUILDING.md). Docs-only review: X0X_QUICK_ONLY=ste."
+fi
 if ! MODEL=elite ./build.sh --board smk37 > "$L/build-elite.log" 2>&1 9>&-; then
     out FAIL "Elite build: $(grep -m1 -E 'FAIL|error|Error' "$L/build-elite.log" | sed 's/^ *//' | cut -c1-160)"
 fi

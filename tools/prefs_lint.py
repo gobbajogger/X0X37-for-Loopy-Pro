@@ -8,6 +8,9 @@ Usage:
   prefs_lint.py --git REPO REV            REV:docs/USER_PREFERENCES.md and REV:docs/rules/*.md
   options: --json, --sections "A,B" (the sections with owner rules, default below), --min-words N [3]
 
+Only the current record before "## Historical preference record" is checked.
+Older entries remain intact as evidence and do not reactivate superseded procedures.
+
 Owner-rule entry: a top-level list item ("- ") that starts with a date (YYYY-MM-DD), in one of the sections
 "How to work with the owner", "Installs and safety", "Repositories and remotes", "Team rules". Its indented
 sub-items are part of the entry. The other sections hold product decisions (BEHAVIOR.md), not agent rules.
@@ -66,6 +69,9 @@ def expand(lst):
 def entries(text, sections):
     out, sec, cur = [], None, None
     for ln, line in enumerate(text.split("\n"), 1):
+        # The archived preference record is evidence, not current instructions.
+        if line.startswith("## Historical preference record"):
+            break
         if line.startswith("## "):
             sec = line[3:].strip(); cur = None; continue
         if sec not in sections:

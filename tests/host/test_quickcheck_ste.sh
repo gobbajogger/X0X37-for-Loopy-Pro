@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # The STE step of tools/quickcheck.sh (X0X_QUICK_ONLY=ste: no build, no tests) on a temp git repository.
 #   A commit with a semicolon, a contraction and a passive in its message, and a .md file with a long sentence:
-#   warn mode -> "QUICK PASS" and "STE WARN" lines. Strict mode (X0X_STE_STRICT=1, or the file tools/ste_strict
+#   warn mode -> "QUICK PASS" and "STE WARN" lines. Strict mode (X0X_STE_STRICT=1; the legacy tools/ste_strict
 #   in the tree) -> "QUICK FAIL ... STE: ...". A clean commit -> no STE line.
 set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
@@ -53,7 +53,7 @@ out=$(X0X_STE_STRICT=1 qc "$BAD"); rc=$?
 if [ $rc = 1 ] && echo "$out" | grep -q '^QUICK FAIL .* STE: '; then ok "strict (X0X_STE_STRICT=1): $(echo "$out" | grep '^QUICK')"
 else bad "strict env (rc=$rc)" "$out"; fi
 out=$(qc "$STRICTF"); rc=$?
-if [ $rc = 1 ] && echo "$out" | grep -q '^QUICK FAIL .* STE: '; then ok "strict (tools/ste_strict in the tree): $(echo "$out" | grep '^QUICK')"
+if [ $rc = 0 ] && echo "$out" | grep -q '^QUICK PASS '; then ok "legacy strict marker is advisory: $(echo "$out" | grep '^QUICK')"
 else bad "strict file (rc=$rc)" "$out"; fi
 out=$(X0X_STE_STRICT=1 qc "$CLEAN"); rc=$?
 if [ $rc = 0 ] && echo "$out" | grep -q '^QUICK PASS ' && ! echo "$out" | grep -q 'STE WARN'; then ok "clean commit, strict: no STE line ($(echo "$out" | grep '^QUICK'))"

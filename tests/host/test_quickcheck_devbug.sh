@@ -30,6 +30,8 @@ WEAK=$(mk weak "Clip pads: fix the dark pad." "This fixes a device bug." "$F/wea
 printf 'pad 5 dark\n' > "$T/log.txt"; printf '#!/bin/sh\ngrep -q dark tests/fixtures/pad_inlog.txt && grep -qx fixed app.txt\n' > "$T/replay.sh"
 UNUSED=$(mk unused "Clip pads: fix the dark pad." "This fixes a device bug." "$T/log.txt:tests/fixtures/x_inlog.txt")
 VIAFILE=$(mk viafile "Clip pads: fix the dark pad." "This fixes a device bug." "$T/log.txt:tests/fixtures/pad_inlog.txt" "$T/replay.sh:tests/replay_test.sh")
+SOURCE=$(mk source "Fix the source-proven device bug." $'Bug evidence: tests/replay_test.sh' "$T/replay.sh:tests/replay_test.sh" "$T/log.txt:tests/fixtures/pad_inlog.txt")
+BADSOURCE=$(mk badsource "Fix the device bug." $'Bug evidence: app.txt')
 PLAIN=$(mk plain "Change the app." "The app has the new line.")
 git checkout -q integration; cd - >/dev/null; touch "$T/pre-push"
 chk() {  # chk <name> <PASS|FAIL> <grep -E pattern or ""> <commit>
@@ -44,6 +46,8 @@ chk "device bug, owner INLOG skip" PASS "" "$SKIP"
 chk "device bug, test passes on the parent" FAIL "replay test weak-inlog does not fail on the parent" "$WEAK"
 chk "device bug, inlog file that no test uses" FAIL "no run_tests.sh test uses tests/fixtures/x_inlog.txt" "$UNUSED"
 chk "device bug, inlog log read by a test" PASS "" "$VIAFILE"
+chk "source-proven bug with regression" PASS "" "$SOURCE"
+chk "source evidence is not a test" FAIL "Bug evidence must name" "$BADSOURCE"
 chk "no device bug" PASS "" "$PLAIN"
 echo "quickcheck device bug: $((n - fails)) of $n ok"
 [ "$fails" = 0 ]
