@@ -64,6 +64,11 @@ update writes the Bluetooth block, so add the image to every update.
 - Image: 64,504 B of 65,536 (1,032 B free). RAM 0x01C01800-0x01C0767F (24,192 B of 26,368: RAM code 3,504 B, data 1,804 B, bss 6,592 B, heap 8 KiB, run stack 2 KiB, interrupt stack 2 KiB).
 - App: BLERAM 3,460 B of 4,096. Main RAM .data+.bss 98,080 B of 98,304. Pool headroom 8,496 B. App code 544,184 B (8,488 B below the block).
 
+The 2026-10-19 combined-role controller image builds at 65,492 B of 65,536 B (44 B free),
+with 25,824 B of 26,368 B RAM used. These figures exclude the app and do not establish
+hardware behavior. The size trim removes the old per-delay RF stack and caller diagnostics;
+the delay loop retains its stopped-clock check.
+
 ## Not tested on hardware
 
 See docs/plans/2026-10-15-ble-stage3-test-plan.md.

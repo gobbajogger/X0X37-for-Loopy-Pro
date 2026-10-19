@@ -6,6 +6,14 @@
  * (ctl_port.c). */
 #include "ctl_port.h"
 
+/* The SDK uses strcmp for fixed controller names; a small generic implementation keeps the
+ * dual-role image inside its flash slot without pulling the toolchain's full libc version. */
+int strcmp(const char *a, const char *b)
+{
+    while (*a && *a == *b) { a++; b++; }
+    return (unsigned char)*a - (unsigned char)*b;
+}
+
 /* ---- interrupts ---- */
 void request_irq(unsigned char index, unsigned char prio, void (*handler)(void), unsigned char cpu_id)
 {
@@ -55,49 +63,27 @@ int clk_get(const char *name)
 }
 /* RAM code: the RF trim calls these while the flash is off. They read the app's free-running
  * counter, so they call nothing and need no calibration. (The app's core 0 feeds the watchdog.) */
-extern u8 __ctl_ramtext_start[], __ctl_ramtext_end[];
 static volatile const u32 *dly_tick;
 static u32 dly_per_us;
 CTL_RAMTEXT void delay_us(unsigned int us)
 {
     volatile const u32 *t = dly_tick;
     u32 t0, span = (u32)us * dly_per_us;
-    u32 ra = (u32)(uintptr_t)__builtin_return_address(0), same = 0, last;
-    if (ctl_mb) {                         /* the start record: how far the RF trim got */
-        const u32 *sp;
-        __asm__ volatile("%0 = sp" : "=r"(sp));
-        u32 i, k = 0;
-        ctl_mb->dbg[XB_DBG_DELAYS]++;
-        ctl_mb->dbg[XB_DBG_RA] = ra | 1u;  /* bit 0: in this delay */
-        for (i = 0; i < 24u; i++) {       /* the caller's caller: the 2nd RAM code address above */
-            u32 w = sp[i];
-            if (w >= (u32)(uintptr_t)__ctl_ramtext_start && w < (u32)(uintptr_t)__ctl_ramtext_end && w != ra &&
-                ++k == 2u) {
-                ctl_mb->dbg[XB_DBG_STALL] = (ctl_mb->dbg[XB_DBG_STALL] & 0xFFFFu) | w << 16;
-                break;
-            }
+    u32 same = 0, last;
+    t0 = last = *t;                        /* boot_ok requires tick_addr before ctl_delay_init */
+    for (;;) {
+        u32 now = *t;
+        if ((u32)(now - t0) >= span)
+            break;
+        if (now != last) {
+            last = now;
+            same = 0;
+        } else if (++same > 1000000u) {   /* the tick counter stopped: count it, go on */
+            if (ctl_mb)
+                ctl_mb->dbg[XB_DBG_STALL]++;
+            break;
         }
     }
-    if (!t) {
-        for (volatile u32 n = (u32)us * 64u; n; n--) {}
-    } else {
-        t0 = last = *t;
-        for (;;) {
-            u32 now = *t;
-            if ((u32)(now - t0) >= span)
-                break;
-            if (now != last) {
-                last = now;
-                same = 0;
-            } else if (++same > 1000000u) {   /* the tick counter stopped: count it, go on */
-                if (ctl_mb)
-                    ctl_mb->dbg[XB_DBG_STALL]++;
-                break;
-            }
-        }
-    }
-    if (ctl_mb)
-        ctl_mb->dbg[XB_DBG_RA] = ra;
 }
 CTL_RAMTEXT void delay(unsigned int cnt)
 {

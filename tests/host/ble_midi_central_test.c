@@ -68,6 +68,11 @@ int main(void)
     att(&c, note, sizeof note); assert(midi_count == 1 && midi_n == 3 && midi[1] == 0x18);
     att(&c, sx1, sizeof sx1); att(&c, sx2, sizeof sx2);
     assert(midi_count == 2 && midi_n == 6 && midi[0] == 0xf0 && midi[4] == 0x21 && midi[5] == 0xf7);
+    /* Timestamp-low 0xF7 in an open SysEx precedes ordinary 7-bit data. */
+    { const uint8_t sx3[] = {0x1b,6,0,0x80,0x81,0xf0,0x7f,0x7f};
+      const uint8_t sx4[] = {0x1b,6,0,0x80,0xf7,0x06,0x21,0x81,0xf7};
+      att(&c, sx3, sizeof sx3); att(&c, sx4, sizeof sx4); }
+    assert(midi_count == 3 && midi_n == 6 && midi[4] == 0x21 && midi[5] == 0xf7);
     { const uint8_t out[] = {0x90,0x5e,0x7f}; assert(blec_midi_send(&c,out,3)); }
     { const uint8_t done[] = {0x13,5,1,1,0,5,0}; blec_rx(&c,4,done,sizeof done,110); }
     blec_poll(&c, 111); assert(tx_type == 2 && tx[8] == 0x52);
@@ -76,5 +81,27 @@ int main(void)
     c.state = BLEC_CONNECTING; c.step = 8; c.deadline = 1;
     blec_poll(&c, 10); assert(c.state == BLEC_CONNECTING && tx_type == 1 && tx[0] == 0x0e);
     cc(&c, 0x200e, 0, 0); assert(c.state == BLEC_SCANNING && tx[0] == 0x0c);
+    /* Discovery failure disconnects before restarting the scan. */
+    blec_init(&c, send_h4, got_midi, 0, addr);
+    c.state = BLEC_DISCOVERING; c.step = 10; c.conn = 1;
+    { const uint8_t error[] = {1,0x10,1,0,0x0a}; att(&c, error, sizeof error); }
+    assert(c.state == BLEC_DISCONNECTING && tx_type == 1 && tx[0] == 0x06);
+    { const uint8_t down[] = {5,4,0,1,0,0x13}; blec_rx(&c,4,down,sizeof down,120); }
+    assert(c.state == BLEC_SCANNING && tx[0] == 0x0c);
+    /* OFF→ON waits for scan disable completion, then starts with a fresh Reset. */
+    blec_init(&c, send_h4, got_midi, 0, addr);
+    c.state = BLEC_SCANNING; c.step = 6; c.now_ms = 200;
+    blec_stop(&c); assert(c.state == BLEC_STOPPING && tx[0] == 0x0c);
+    cc(&c, 0x200c, 0, 0); assert(c.state == BLEC_OFF);
+    blec_start(&c, 220); assert(c.state == BLEC_STARTING && tx[0] == 0x03);
+    cc(&c, 0x200c, 0, 0); assert(c.state == BLEC_STARTING && tx[0] == 0x03);
+    /* A cancelled create waits for LE Connection Complete as well as Cancel Complete. */
+    blec_init(&c, send_h4, got_midi, 0, addr);
+    c.state = BLEC_CONNECTING; c.step = 8; c.now_ms = 240;
+    blec_stop(&c); assert(c.state == BLEC_STOPPING && tx[0] == 0x0e);
+    cc(&c, 0x200e, 0, 0); assert(c.state == BLEC_STOPPING);
+    { uint8_t failed_conn[sizeof conn]; memcpy(failed_conn, conn, sizeof conn);
+      failed_conn[3] = 2; blec_rx(&c,4,failed_conn,sizeof failed_conn,250); }
+    assert(c.state == BLEC_OFF);
     return 0;
 }

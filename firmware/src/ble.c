@@ -40,20 +40,22 @@ static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* attempt 
                                                                       * (CON5 | CON6 << 8 | CON9 << 16 | CON0 << 24) */
 
 static void ble_record(void);
+static uint8_t ble_central_role;                 /* settings bit 4 at boot; one HCI role per run */
 /* attempt 34 (DIAG): interval | end reason << 16 | pairing refusals << 24;
  * MIDI in drops | asked MTU << 8 (10 bits) | request sent << 18 | result << 19 | latency << 21 (3) | L2CAP requests << 24 */
 static uint32_t ble_sat(uint32_t v, uint32_t m) { return v > m ? m : v; }
 static uint32_t ble_h_link0(void)
 {
+    if (ble_central_role) return 0; /* these fields describe the peripheral link */
     return ble_r.host.h.conn_int | (uint32_t)ble_r.host.h.disc_reason << 16 | ble_sat(ble_r.host.h.smp_rejects, 255u) << 24;
 }
 static uint32_t ble_h_link1(void)
 {
+    if (ble_central_role) return 0;
     return ble_sat(ble_r.host.h.drops_in, 255u) | ble_sat(ble_r.host.h.mtu_req, 1023u) << 8 | (uint32_t)(ble_r.host.h.cpu_state & 1u) << 18 |
            (uint32_t)(ble_r.host.h.cpu_result & 3u) << 19 | ble_sat(ble_r.host.h.conn_lat, 7u) << 21 | (uint32_t)ble_r.host.h.sig_reqs << 24;
 }
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
-static uint8_t ble_central_role;                 /* settings bit 4 at boot; one HCI role per run */
 extern int smc_ble_role_get(void);
 extern void smc_ble_midi(const uint8_t *msg, uint8_t len);
 extern void smc_ble_link(int up);
@@ -382,19 +384,28 @@ static void ble_central_service(void)
     if (!ble_host_on) {
         if (!ble_want) return;
         ble_host_on = 1;
-        blec_start(c, fm1_ms);
     }
-    if (!ble_want) {
-        if (c->state != BLEC_OFF) blec_stop(c);
-        ble_central_link_notify(0);
-        return;
-    }
-    if (c->state == BLEC_OFF)
-        blec_start(c, fm1_ms);
+    if (!ble_want && c->state != BLEC_OFF && c->state != BLEC_STOPPING)
+        blec_stop(c);
     for (k = 0; k < 8u; k++) {
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
         if (n == 0) break;
         if (n > 0) blec_rx(c, t, ble_r.fr, (uint16_t)n, fm1_ms);
+    }
+    if (!ble_want) {
+        blec_poll(c, fm1_ms); /* finish disable/cancel/disconnect while radio is OFF */
+        ble_central_link_notify(0);
+        return;
+    }
+    if (c->state == BLEC_STOPPING) {
+        blec_poll(c, fm1_ms);
+        ble_central_link_notify(0);
+        return;
+    }
+    if (c->state == BLEC_OFF) {
+        /* Drain old HCI events before a fresh Reset starts a new command sequence. */
+        if (xb_ring_used(&ble_r.mb.c2h)) return;
+        blec_start(c, fm1_ms);
     }
     blec_poll(c, fm1_ms);
     ble_central_link_notify(blec_connected(c));
@@ -492,7 +503,8 @@ const char *plat_ble_name(void)
 }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 {
-    return ble_central_role && ble_want && blec_midi_send(&ble_r.host.c, msg, len);
+    return ble_central_role && ble_up && ble_host_on && ble_want &&
+           blec_midi_send(&ble_r.host.c, msg, len);
 }
 void plat_ble_set(int on)
 {
@@ -523,7 +535,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.err;
     w[n++] = ble_r.mb.polls;
     w[n++] = fm1_c1_mb.poll_max;
-    w[n++] = ble_r.host.h.state;
+    w[n++] = ble_central_role ? ble_r.host.c.state : ble_r.host.h.state;
     w[n++] = fm1_c1_trace;
     w[n++] = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* this boot's reset */
     if (n + 6u > max)
@@ -531,7 +543,10 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.h2c.head | ble_r.mb.h2c.tail << 16;   /* the HCI rings: written, read */
     w[n++] = ble_r.mb.c2h.head | ble_r.mb.c2h.tail << 16;
     w[n++] = ble_r.mb.c2h_drops;
-    w[n++] = ble_r.host.h.step | (uint32_t)ble_r.host.h.cmd_wait << 8 | (uint32_t)ble_r.host.h.credits << 16;
+    w[n++] = ble_central_role ? (uint32_t)ble_r.host.c.step | (uint32_t)ble_r.host.c.waiting << 8 |
+                                 (uint32_t)ble_r.host.c.credits << 16 :
+                                 (uint32_t)ble_r.host.h.step | (uint32_t)ble_r.host.h.cmd_wait << 8 |
+                                 (uint32_t)ble_r.host.h.credits << 16;
     w[n++] = ble_r.mb.dbg[XB_DBG_INIT_MS];     /* frames the controller took */
     w[n++] = ble_r.mb.dbg[XB_DBG_MS];          /* frames it gave to the app */
     if (n + 2u > max)
