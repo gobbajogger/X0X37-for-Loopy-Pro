@@ -31,3 +31,9 @@ Next: obtain actual BLE notification bytes or add bounded SMC receive diagnostic
 The later Mac capture connected to `SMC-MackieMixer` and subscribed to MIDI characteristic handle 113. It received 1,271 raw BLE packets from owner-operated DAW controls. Replaying every packet through the production `blec_midi_packet` function produced all 2,711 expected MIDI messages. The local capture and reproducible replay script are `evidence/smc-raw-ble-retry.json` and `evidence/replay_capture.py`. This supersedes the earlier lack of raw BLE evidence. It verifies the MIDI payload parser, not the keyboard's HCI reception or UI dispatch.
 
 After the keyboard returned on USB, repeated DIAG reads reported `plat_state=4` (READY), `h_state=3` (SCANNING), `step=6`, and zero controller-to-host mailbox drops. The owner reported SMC connected in host mode; the disagreement requires checking the exact on-screen STATUS value. Apple's documented `MIDIBluetoothDriverDisconnect` returned success for the Mac's SMC MIDI connection. No keyboard firmware was installed or changed during this retry.
+
+## Owner confirms control response
+
+The owner confirmed the X0X screen showed CONNECTED. A fresh USB DIAG then agreed: central state 6, step 14, no mailbox drops. During the control test, controller receive counts increased from 668 to 904 while connected. The owner answered “Controls now work” and added “and smc drives them too.” This confirms response on the existing installed firmware; it does not validate the uninstalled fader-8 correction.
+
+The counter watch also recorded the link leaving CONNECTED later, entering CONNECTING and then SCANNING. The cause is unknown; continuous link stability is not established. No transport firmware change was necessary to obtain the confirmed control response. Do not attribute the original failure conclusively to the Mac connection.
