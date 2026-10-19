@@ -2,7 +2,8 @@
 
 ### Rule 9: supported checks
 
-Read `BUILDING.md` and the relevant script header. Supported host tests can run
+Read the relevant script header before running it; read `BUILDING.md` when
+build or test environment setup is needed. Supported host tests can run
 on macOS or Linux. JieLi target tools need Linux x86-64; a working local
 container is valid. Use actual mounted paths, including linked-worktree Git
 metadata. Never change `HOME` to impersonate another machine.

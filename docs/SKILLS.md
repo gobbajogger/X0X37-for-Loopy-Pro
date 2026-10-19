@@ -1,26 +1,20 @@
-# Required writing skills
+# Writing skills: load on demand
 
-Every project agent and helper must read both files once at task start, before
-its first work output. Apply them to replies, prompts, docs, logs, commits,
-and handoffs. Reread only after a skill or project override changes.
+The short default in [core](rules/core.md) applies to all output. Read only the
+selected skill once when its trigger applies; reread after relevant updates.
 
-- [Caveman](../skills/caveman/SKILL.md): result first, brief wording, no filler.
-- [Simplified Technical English](../skills/asd-ste100/SKILL.md): plain words,
-  correct grammar, and exact meaning. Use its default 80% STE style.
+- [Caveman](../skills/caveman/SKILL.md): explicit Caveman mode or a request for
+  terse compression that benefits from its detailed guidance.
+- [Simplified Technical English](../skills/asd-ste100/SKILL.md): explicit STE,
+  technical rewriting/explanation needing its guidance, or strict STE work.
+  Load strict-mode references only for strict mode.
 
-The owner's all-output scope overrides Caveman's exception for saved text.
 Keep grammar, uncertainty, conditions, negation, and exact technical content.
-These take priority over word limits, dropped articles, or “no hedging”.
-Higher-priority instructions still control tool use, approvals, and status updates.
-Do not add approval steps for already authorized work because of a style skill.
-The writing rule is [rule 15](rules/style.md).
-
-Pass this page and both resolved skill paths to each helper. Before sending,
-check the result comes first, filler is removed, and meaning and evidence remain.
-If a file is missing, restore it from the pinned source below. Report that gap
-and continue independent work in plain, correct English. Never claim an unread
-or missing skill was used. Optional Caveman modes and companion skills are not
-installed or required.
+These outrank compression limits. The owner's all-output scope applies when a
+skill is active. Higher-priority tool and approval instructions still apply.
+Pass helpers only relevant skill paths. If a selected skill is missing, report
+it and continue independent work; restore from its pinned source when needed.
+Never claim an unread skill was used. Optional companion skills are not required.
 
 ## Installed sources
 
@@ -39,4 +33,4 @@ references, README files, licenses, and notices. `.agents/skills/` links to
 these project copies. No global install or background updater is needed.
 Run `python3 tools/check_writing_skills.py` after an install or update.
 File checks and a fresh-agent review do not guarantee every future reply or
-certify ASD-STE100 compliance. Correct any observed breach using rule 15.
+certify ASD-STE100 compliance. Correct observed wording problems without adding a new workflow gate.

@@ -15,6 +15,7 @@ access. Exclude proprietary JieLi files.
 
 ### Rule 6: finished set and release evidence
 
+Never install a fallback just to make the keyboard playable.
 Install only within authorized scope with every queued change included. Use
 exact gated artifacts/configuration with zero failed or skipped checks.
 Gate records and CRC manifests, not agent messages, prove readiness.

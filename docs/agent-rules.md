@@ -1,22 +1,22 @@
 # Agent rules
 
-At task start, read [core](rules/core.md), [style](rules/style.md), and
-[writing skills](SKILLS.md), including both linked skill files. Read each once per task; reread changed sections after
-a rule update. Load the step rules below only when needed.
+Read [core](rules/core.md) once per task. Load only the matching rules below,
+when that step begins; reread only changed sections. Links are references,
+not instructions to load every linked file.
 
-These repository docs are maintained rules. Workspace copies are discovery
-mirrors, not extra reading. If a checkout lacks current docs, follow its
-`AGENTS.md` to the workspace entry. Repair broken pointers; never use stale rules.
-Current owner instructions win. Old plans, rosters, logs, backups, and
-[archives](archive/) preserve evidence, not current assignments or approvals.
-Search relevant product decisions and behavior; do not load whole histories by default.
+These docs are maintained rules; workspace copies are discovery mirrors, not
+extra reading. Current owner instructions win. Use the checkout's `AGENTS.md`
+to find current rules. Search relevant product decisions and behavior; old
+plans, rosters, logs, and archives do not assign work or grant approval.
 
-| Step | Read |
+| When needed | Read |
 | --- | --- |
-| Shared work, waits, helpers | [shared-work](rules/shared-work.md) |
-| Build, test, commit, handoff | [commit](rules/commit.md) |
-| Device bug | [device-bug](rules/device-bug.md) |
-| Integration, formal gate | [integration](rules/integration.md) |
-| Install, release | [install](rules/install.md) |
-| Docs, rule repair, results | [docs](rules/docs.md) |
-| Owner decision | [owner-messages](rules/owner-messages.md) |
+| Concurrent work, shared resources, hard to undo actions, or delegated review | [shared-work](rules/shared-work.md) |
+| Edit, build, test, commit, or handoff | [commit](rules/commit.md) |
+| Diagnose a device bug | [device-bug](rules/device-bug.md) |
+| Integrate firmware or run a formal gate | [integration](rules/integration.md) |
+| Install, package, or release | [install](rules/install.md) |
+| Edit docs or rules | [docs](rules/docs.md) |
+| Resolve authorization or record an owner decision | [owner-messages](rules/owner-messages.md) |
+| Write product terminology or apply a requested writing style | [style](rules/style.md) |
+| Use or repair an installed writing skill | [skill sources and triggers](SKILLS.md) |

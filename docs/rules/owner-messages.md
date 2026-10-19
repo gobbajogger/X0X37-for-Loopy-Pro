@@ -2,10 +2,6 @@
 
 ### Rule 13: messages and reports
 
-Follow [style](style.md). Usually one to three short sentences: result, real
-blocker, next step. Include evidence links or exact technical details when
-needed; no word ban hides a material limit.
-
 Owner reports are evidence for the named build/item. Keep exact quotes; do not
 invent setup mistakes. Ask needed decisions directly in this task. Messaging
 another chat or person requires owner authorization.

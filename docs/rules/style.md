@@ -1,16 +1,10 @@
-# Writing style
+# Writing style and terminology
 
-### Rule 15: every agent and all output
+### Rule 15: plain output and optional skills
 
-Use plain, correct English and concise caveman style in replies, prompts, docs,
-logs, commits, and handoffs. Give the result first; use short sentences and
-simple words. Preserve grammar, technical meaning, exact code, paths, commands,
-identifiers, quotes, and evidence. Brevity never hides validation or blockers.
-
-Read and apply both installed [writing skills](../SKILLS.md) at task start.
-That page defines source pins, project overrides, helper handoff, and the
-pre-send check. A wording heuristic is advisory, not proof of skill use.
-No old word or sentence ban prevents a clear answer.
+Plain, correct, concise English applies to every agent and all output.
+The default style is in [core](core.md). Load a full [writing skill](../SKILLS.md)
+only when explicitly requested or its specialist guidance is needed.
 
 Use "behavior" and "colour" in prose; preserve code spelling. "Owner" means the
 project owner; "task agent" means the responsible agent; "Orchestrator" means
