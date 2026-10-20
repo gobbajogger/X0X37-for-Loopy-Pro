@@ -111,8 +111,36 @@ static uint32_t ed_unpack_exact(const uint8_t *a, uint32_t na, uint8_t *out, uin
  * A browser restores sample slots only while mode 2 holds this lock, after VALIDATE. */
 static struct {
     uint32_t at, next;
-    uint8_t mode, valid, header[PROJECT_FILE_HDR];
+    uint32_t sample_len[SMP_USER_SLOTS], sample_crc[SMP_USER_SLOTS];
+    uint8_t mode, valid, changed, recovery, header[PROJECT_FILE_HDR];
 } ed_project;
+
+static uint32_t ed_project_sample_len(uint32_t k)
+{
+    const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(k);
+    return usr_nz[k] ? SMP_USER_DATA + h->data_len : 0;
+}
+static void ed_project_sample_snapshot(void)
+{
+    uint32_t k;
+    for (k = 0; k < SMP_USER_SLOTS; k++) {
+        uint32_t n = ed_project_sample_len(k);
+        ed_project.sample_len[k] = n;
+        ed_project.sample_crc[k] = n ? st_crc32(smp_user_xip(k), n) : 0;
+    }
+}
+static int ed_project_samples_restored(void)
+{
+    uint32_t k;
+    if (!ed_project.changed)
+        return 1;
+    for (k = 0; k < SMP_USER_SLOTS; k++) {
+        uint32_t n = ed_project_sample_len(k);
+        if (n != ed_project.sample_len[k] || (n && st_crc32(smp_user_xip(k), n) != ed_project.sample_crc[k]))
+            return 0;
+    }
+    return 1;
+}
 
 static uint32_t ed_u21(const uint8_t *a)
 {
@@ -127,12 +155,19 @@ static int ed_project_samples_locked(void)
 {
     return ed_project.mode == 1 || (ed_project.mode == 2 && !ed_project.valid);
 }
-static void ed_project_end(int apply)
+static int ed_project_end(int apply)
 {
     if (ed_project.mode) {
+        if (!apply && !ed_project_samples_restored()) {
+            ed_project.recovery = 1;
+            ui_say("SAMPLE RECOVERY NEEDED", "");
+            return 2;                               /* never resume old music against partial samples */
+        }
         ed_project.mode = 0;
+        ed_project.recovery = 0;
         ui_project_end(apply);
     }
+    return 0;
 }
 static uint32_t ed_project_rc(int rc)
 {
@@ -150,14 +185,21 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
     switch (op) {
     case 64:                                        /* QUERY / keepalive */
         if (na) { rc = 1; break; }
-        ed_b(0); ed_b(1); ed_w21(PROJECT_FILE_SIZE); ed_b(ed_project.mode);
+        ed_b(0); ed_b(1); ed_w21(PROJECT_FILE_SIZE); ed_b(ed_project.recovery ? 3 : ed_project.mode);
         return;
     case 65:                                        /* EXPORT BEGIN */
     case 67:                                        /* IMPORT BEGIN */
         if ((op == 65 && na) || (op == 67 && (na != 3 || ed_u21(a) != PROJECT_FILE_SIZE))) {
             rc = 1; break;
         }
-        if (ed_project.mode || ui_project_begin()) { rc = 2; break; }
+        if (op == 67 && ed_project.recovery) {
+            ed_project.recovery = 0;                 /* recover under the existing audio/input hold */
+        } else {
+            if (ed_project.mode || ui_project_begin()) { rc = 2; break; }
+            ed_project.changed = 0;
+            if (op == 67)
+                ed_project_sample_snapshot();
+        }
         ed_project.mode = (uint8_t)(op == 65 ? 1 : 2);
         ed_project.at = fm1_ms;
         ed_project.next = 0;
@@ -214,7 +256,7 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         break;
     case 70:                                        /* ABORT, including an already expired session */
         if (na) { rc = 1; break; }
-        ed_project_end(0);
+        rc = (uint32_t)ed_project_end(0);
         break;
     case 71:                                        /* SAVE */
     case 72:                                        /* LOAD SAVED */
@@ -244,6 +286,8 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
 {
     uint32_t i, took;
     int rc = 0;
+    if (ed_project.mode == 2)
+        ed_project.changed = 1;
     usr_nz[k] = 0;
     engine_brk_loops();                               /* nothing may read the slot now */
     for (i = 0; i < (all ? SMP_USER_SIZE(k) / 0x1000u : 1u) && !rc; i++) {
@@ -266,6 +310,8 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
     ed_smp_inval(k);
     if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc)
         return 3;
+    if (ed_project.mode == 2)
+        ed_project.changed = 1;
     if (fl_write(ed_smp_slot(k), ed_smp_buf, n))
         return 4;
     ed_smp_inval(k);
@@ -401,6 +447,8 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         else if (usr_nz[a[0]] || ed_project_samples_locked())
             rc = 4;
         else {
+            if (ed_project.mode == 2)
+                ed_project.changed = 1;
             if (!(off & 0xFFFu)) {
                 audio_silence();
                 rc = fl_erase4k(ed_smp_slot(a[0]) + off, &took) ? 2u : 0u;
@@ -492,6 +540,8 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         uint32_t op = na > 0u ? a[0] : 0u;
         if (op > 4u)
             return;
+        if (ui_project_busy() && (op == 1u || op == 2u))
+            return;                                 /* radio reset/reboot cannot interrupt sample recovery */
         if (op >= 3u) {     /* 3: the timer 5 frame watch (fm1_guard.h), last boot's, then hits now;
                              * 4: core 1's records (fm1_cpu1.h): core 0 seen stopping, the RAM canary */
             const uint32_t *t = op == 3u ? (const uint32_t *)&fm1_t5w_prev : (const uint32_t *)&fm1_c0_dead;
@@ -554,7 +604,7 @@ static void ed_service(void)
 {
     const uint8_t *p;
     uint32_t n;
-    if (ed_project.mode && fm1_ms - ed_project.at >= 15000u)
+    if (ed_project.mode && !ed_project.recovery && fm1_ms - ed_project.at >= 15000u)
         ed_project_end(0);
     if (!ota_frame_get(&p, &n))
         return;

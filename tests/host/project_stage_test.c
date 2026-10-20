@@ -277,7 +277,8 @@ static void test_save_export_load(void)
     seq.accent_q7 = 127;
     seq.send_clock = 0;
     seq.send_notes = 1;
-    seq.clk_src = SEQ_CLK_EXT;
+    proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_CLK_MASK) | (SEQ_CLK_EXT << 1));
+    seq.clk_src = SEQ_CLK_AUTO;        /* clip mode's temporary override must not replace the stored preference */
     seq.ch[0] = SEQ_CH_OFF;
     seq.ch[1] = 15;
     snapshot();
