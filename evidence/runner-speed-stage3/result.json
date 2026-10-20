@@ -1,0 +1,42 @@
+{
+  "workflow": "runner-speed-20261021",
+  "stage": 3,
+  "state": "checked",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "author": "genkigenki <3080081+genkigenki@users.noreply.github.com>",
+  "source_chat": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "completion_copy": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "production_source_changed": false,
+  "files": [
+    "tests/run_tests.sh",
+    "tests/host/smk_clip_knob_test.sh",
+    "tests/host/smk_clip_chord_display_test.sh",
+    "tests/host/test_runner_admission.py"
+  ],
+  "reports": [
+    "review.json",
+    "identity.json",
+    "test/report.json",
+    "investigation/report.json"
+  ],
+  "checks": {
+    "identity": "417 saved SHA256 inputs match, four reference HEADs clean and equal, host versions and immutable Linux image match.",
+    "test": "PASS: saved assertions/logs for 13 candidate and four baseline scheduler records plus 17 probe records; final Linux generation jobs=8/1.",
+    "investigation": "PASS: complete source review and reproducible assertions; no findings; 117 retained literal registrations match."
+  },
+  "execution_reuse": "Existing complete passing behavior checks reused under current validation rules. New stage3 commands assert source/evidence consistency only; no repeated scheduler/probe/build execution.",
+  "failures": [],
+  "dispositions": [
+    "Initial Mac generation attempt remains failed for host setup; final exact-source supported Linux jobs=8/1 PASS supplies required behavior coverage.",
+    "Installer invocation and bypass are covered; real exclusive contention and dynamic signal cleanup were not rerun because relevant mechanisms are unchanged."
+  ],
+  "limits": [
+    "No target build, full gate, package/install/device work or external push.",
+    "Fixture timing uses identical small instrumented inputs; some candidate samples are slower. No end-to-end gain is established.",
+    "Installer fixtures verify invocation and bypass, not real lock contention.",
+    "Browser removal common deletion must be deduplicated by the sole coordinator."
+  ],
+  "next": "One fresh host-only Validate stage4 from evidence-bearing commit, with exact candidate source identity and matching evidence reused. No merge/install/push in this Test task."
+}

@@ -1,0 +1,137 @@
+{
+  "workflow": "runner-speed-20261021",
+  "stage": 3,
+  "role": "independent investigation",
+  "result": "pass",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "author": "genkigenki <3080081+genkigenki@users.noreply.github.com>",
+  "scope": "Complete production and test-source delta reviewed read-only; this helper owns only investigation evidence.",
+  "findings": [],
+  "review": [
+    {
+      "scope": "Shell global state",
+      "locations": [
+        "tests/run_tests.sh:49",
+        "tests/run_tests.sh:62",
+        "tests/run_tests.sh:70",
+        "tests/run_tests.sh:82",
+        "tests/run_tests.sh:103",
+        "tests/run_tests.sh:127"
+      ],
+      "result": "pass",
+      "evidence": "test_class assigns only TEST_CLASS on every branch. run snapshots it to cls before scheduling. install_path may replace TEST_CLASS during execution but leaves cls unchanged. prepare_test uses positional parameters only. Existing name, n, n_, k and t0 bindings retain their call scopes; background execution remains in its subshell."
+    },
+    {
+      "scope": "Selection, phase admission and preparation",
+      "locations": [
+        "tests/run_tests.sh:62",
+        "tests/run_tests.sh:69",
+        "tests/run_tests.sh:106",
+        "tests/run_tests.sh:108",
+        "tests/run_tests.sh:119",
+        "tests/run_tests.sh:120",
+        "tests/run_tests.sh:122"
+      ],
+      "result": "pass",
+      "evidence": "Serial selection precedes run_test. Parallel selection and phase admission precede key formatting and run_one. prepare_test precedes lk using &&, so setup failure stops the test body and is captured by existing serial or file-based failure handling. Scenario mkdir and perf scratch write return their own status. Other case names return success without setup."
+    },
+    {
+      "scope": "Result and fixture ordering",
+      "locations": [
+        "tests/run_tests.sh:70",
+        "tests/run_tests.sh:308",
+        "tests/run_tests.sh:314",
+        "tests/run_tests.sh:325"
+      ],
+      "result": "pass",
+      "evidence": "T_SEQ still counts all registrations, preserving stable sorted result keys across repeated phases. Parameter expansion removes the directory and one final .x0x suffix, matching basename for the registered paths, including dashed and repeated-suffix names. Each admitted C test prepares its own fixture; perf-scratch remains after scenario-perfsave. Scratch bytes are unchanged."
+    },
+    {
+      "scope": "G serialization, W overlap, job slots and generation markers",
+      "locations": [
+        "tests/run_tests.sh:92",
+        "tests/run_tests.sh:125",
+        "tests/run_tests.sh:134",
+        "tests/run_tests.sh:137",
+        "tests/run_tests.sh:319"
+      ],
+      "result": "pass",
+      "evidence": "Generation helper functions, background scheduling block and scheduler tail are byte-identical to the base. G unlock and slot release read cls, which no longer changes through install_path. Host generation marker still appears after host-build completes, including its failure path. W retains its slot bypass and phase-1 overlap."
+    },
+    {
+      "scope": "Installer lock paths",
+      "locations": [
+        "tests/run_tests.sh:82",
+        "tests/run_tests.sh:83"
+      ],
+      "result": "pass",
+      "evidence": "Lock execution function is byte-identical. install_path preserves W and S behavior, the rec-live-only exclusion, rec-live-smk shared-lock invocation, and X0X_GATE_HOLDS_LOCK bypass. Removed emu names are authorized browser-removal overlap. No lock semantic change was inferred from the general header wording."
+    },
+    {
+      "scope": "Literal Quickcheck registrations",
+      "locations": [
+        "tests/run_tests.sh:147",
+        "tools/quickcheck.sh:218",
+        "tools/quickcheck.sh:270"
+      ],
+      "result": "pass",
+      "evidence": "Using the existing literal-registration parser, all 117 retained names and command strings exactly match the base. Only emu and emu-slots were removed. Dynamic scenario and drum loops keep their existing interface; no wrapper hides commands from Quickcheck."
+    },
+    {
+      "scope": "Extraction and default CLI behavior",
+      "locations": [
+        "tests/host/smk_clip_knob_test.sh:13",
+        "tests/host/smk_clip_knob_test.sh:22",
+        "tests/host/smk_clip_knob_test.sh:32",
+        "tests/host/smk_clip_knob_test.sh:35",
+        "tests/host/smk_clip_chord_display_test.sh:9"
+      ],
+      "result": "pass",
+      "evidence": "Only zero arguments or one exact --extract-only argument are accepted. Unknown, empty or extra arguments exit 2 before work. Both modes copy source and fake USB data, extract all six streams, and enforce nonempty markers before the extract-only exit. Default still compiles and runs the knob probe; display still compiles and runs its own probe. Both C bodies and fake USB header are byte-identical to the base."
+    },
+    {
+      "scope": "New standalone regression tool",
+      "locations": [
+        "tests/host/test_runner_admission.py:1"
+      ],
+      "result": "pass",
+      "evidence": "The new test operates only in TemporaryDirectory scratch trees, preserves actual scheduler functions and scenario loop, and replaces expensive bodies. It introduces no default-suite registration. No production sources are mutated by it."
+    }
+  ],
+  "commands": [
+    {
+      "command": "python3 evidence/runner-speed-stage3/investigation/source_audit.py > evidence/runner-speed-stage3/investigation/source-audit.json",
+      "result": "pass",
+      "scope": "Independent immutable-source assertions and exact working-source identity."
+    }
+  ],
+  "reused_execution_evidence": [
+    {
+      "path": "evidence/runner-speed-stage2/runner.json",
+      "scope": "Admitted setup counts and failures, serial/parallel selection, result order, G serialization, W overlap, slot bounds, generation and installer invocation/bypass."
+    },
+    {
+      "path": "evidence/runner-speed-stage2/probes.json",
+      "scope": "Real default knob/display probes, six extraction streams, 3-to-2 compile/execution count, SRC override, six missing markers and invalid arguments."
+    },
+    {
+      "path": "evidence/runner-speed-stage2/gen-order-linux.log",
+      "scope": "Final-source existing generation-order test jobs=8 and jobs=1; pinned supported Linux image."
+    }
+  ],
+  "evidence_reuse_basis": "Parent independently verified all 417 saved input hashes, reference pins and environment identity in stage3 identity.json. This helper independently asserted complete candidate working-source identity and unchanged critical paths in source-audit.json. No production source changed.",
+  "failure_dispositions": [
+    {
+      "item": "Initial macOS generation-order failure",
+      "disposition": "Existing environment failure was resolved by final matching-source supported Linux PASS. No Mac workaround or source change was introduced."
+    }
+  ],
+  "limits": [
+    "Installer fixture proves invocation and bypass, not real exclusive-lock contention. The unchanged lock execution code adds no new need for that check.",
+    "Signal/process cleanup was inspected by byte-equivalence of unchanged scheduling paths; no new dynamic signal test was run.",
+    "Single instrumented timing samples vary, including slower candidate samples. Work-count reduction does not establish an end-to-end build speedup.",
+    "No full suite, target firmware build, package, install, device check, browser test, external push or competing integration was performed."
+  ],
+  "disposition": "No material regression or uncovered changed-behavior risk found. Complete candidate may proceed to host-only Validate with matching evidence; sole combined integration ownership stays with coordinator."
+}

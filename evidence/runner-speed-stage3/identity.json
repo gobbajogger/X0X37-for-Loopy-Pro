@@ -1,0 +1,148 @@
+{
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "checked_input_files": 417,
+  "mismatches": [],
+  "reference_pins": {
+    "schwung-9W9": {
+      "expected": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "identity": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+          "rev-parse",
+          "HEAD"
+        ],
+        "rc": 0,
+        "output": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c"
+      },
+      "tracked_status": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "rc": 0,
+        "output": ""
+      },
+      "matches": true
+    },
+    "schwung-8W8": {
+      "expected": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "identity": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+          "rev-parse",
+          "HEAD"
+        ],
+        "rc": 0,
+        "output": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997"
+      },
+      "tracked_status": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "rc": 0,
+        "output": ""
+      },
+      "matches": true
+    },
+    "schwung-303": {
+      "expected": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+      "identity": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-303",
+          "rev-parse",
+          "HEAD"
+        ],
+        "rc": 0,
+        "output": "7680578cdecd91e512cfddb9c9eb07b287fb64f4"
+      },
+      "tracked_status": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-303",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "rc": 0,
+        "output": ""
+      },
+      "matches": true
+    },
+    "schwung-tb3po": {
+      "expected": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "identity": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po",
+          "rev-parse",
+          "HEAD"
+        ],
+        "rc": 0,
+        "output": "f49d81d05d1e29ae37728a08e30f193892be3bc9"
+      },
+      "tracked_status": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "rc": 0,
+        "output": ""
+      },
+      "matches": true
+    }
+  },
+  "tools": [
+    {
+      "argv": [
+        "/usr/bin/cc",
+        "--version"
+      ],
+      "rc": 0,
+      "output": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import sys,platform,PIL; print(sys.version); print(PIL.__version__); print(platform.platform())"
+      ],
+      "rc": 0,
+      "output": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]\n10.4.0\nmacOS-27.2-arm64-arm-64bit"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "x0x37-validation:local",
+        "--format",
+        "{{.Id}}"
+      ],
+      "rc": 0,
+      "output": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"
+    }
+  ],
+  "reuse": "Same committed inputs, recorded tool versions and immutable Linux image; no repeated execution of passing suites."
+}

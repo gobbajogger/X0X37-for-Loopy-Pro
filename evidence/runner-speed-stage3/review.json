@@ -1,0 +1,35 @@
+{
+  "workflow": "runner-speed-20261021",
+  "stage": 3,
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "state": "checked",
+  "receiver": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "source_sha256": {
+    "tests/run_tests.sh": "8962afcdca97021b76390bbbb9469982d0cb1b79931a5e0c2d4f7cedb342bb99",
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f"
+  },
+  "checks": [
+    {
+      "scope": "evidence input identity",
+      "method": "Python hashlib SHA256 over every path in stage2 inputs.json; compare clean reference HEAD pins and current host versions/image identity",
+      "risk": "Old evidence could describe changed source or dependencies.",
+      "result": "PASS: 417 matching files, four matching clean reference pins, matching host versions and Linux image",
+      "log": "identity.json"
+    },
+    {
+      "scope": "complete candidate independent Test",
+      "risk": "Lazy preparation, shell class scope, scheduler ordering, extraction mode or test declarations could change behavior.",
+      "method": "Separate test and investigation helpers; matching executed checks reused under current check rule9",
+      "result": "PASS: separate test and investigation reports; no material findings"
+    }
+  ],
+  "unchanged_production_source": true,
+  "limits": [
+    "No target build, full gate, package/install/device work or external push.",
+    "Fixture timing uses identical small instrumented inputs; some candidate samples are slower. No end-to-end gain is established.",
+    "Installer fixtures verify invocation and bypass, not real lock contention.",
+    "Browser removal common deletion must be deduplicated by the sole coordinator."
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "workflow": "runner-speed-20261021",
+  "stage": 3,
+  "role": "independent-test-helper",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "status": "PASS",
+  "production_source_changed": false,
+  "new_behavior_tests_run": [],
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "evidence/runner-speed-stage3/test/verify_saved_evidence.py"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/runner_speed_stage3",
+      "result": "PASS",
+      "log": "verify-saved-evidence.log",
+      "scope": "Recheck saved assertions and consistency; no probe or scheduler rerun."
+    }
+  ],
+  "identity": "../identity.json (parent record confirms all 417 source inputs, reference pins and environments; independent helper also found no source hash mismatch before this record was available).",
+  "checks": [
+    {
+      "scope": "Scheduler evidence",
+      "result": "PASS",
+      "details": "All 13 candidate records pass the unchanged fixture check() assertions when paired with their committed traces. Four baseline records have expected success. Assertions cover selected execution, result order, exact admitted preparation counts, zero case/basename substitutions, admitted key formats, scratch bytes, lock calls/bypass, generation readiness, G serialization, W overlap, serial phase barriers and two/four job bounds. Scenario names include dash-name and multi.x0x."
+    },
+    {
+      "scope": "Failure evidence",
+      "result": "PASS",
+      "details": "Both jobs=1 and jobs=4 record expected test failure, scenario mkdir failure and scratch-header write failure as exactly one reported failure with nonzero runner status."
+    },
+    {
+      "scope": "Real C probe evidence",
+      "result": "PASS",
+      "details": "Both baseline and candidate knob logs end PASS 0 fail. Both display logs report 7049 checks and 7050 captured chord draws passed. Saved compiler/binary wrapper records contain three baseline compile/executions and two candidate compile/executions. check_probes.py asserts six exact extraction byte streams across baseline/candidate and knob/display outputs."
+    },
+    {
+      "scope": "Extraction and CLI evidence",
+      "result": "PASS",
+      "details": "Saved results and logs match expected success for extract-only, source override and copied USB sentinel; return code 2 for unknown/extra args; return code 1 and named diagnostic for each of six missing markers. Reviewed harness verifies no compiler or binary invocation during extract-only and exact USB copy bytes."
+    },
+    {
+      "scope": "Real generation order",
+      "result": "PASS",
+      "details": "Final gen-order-linux.log records successful jobs=8 and jobs=1 with gen=yes/host=yes. The final source manifest matches the candidate, and current immutable image identity matches the recorded image. Earlier Linux pass and Mac failure are separate logs and are not substituted for this final pass."
+    },
+    {
+      "scope": "Coverage review",
+      "result": "PASS",
+      "details": "Reviewed complete fixture and probe checker. The meaningful changed paths have matching saved evidence. Source-order/global-scope investigation belongs to the separate helper. No additional concrete test gap requires a rerun."
+    }
+  ],
+  "evidence_reused": [
+    "../../runner-speed-stage2/implementation.json",
+    "../../runner-speed-stage2/commands.json",
+    "../../runner-speed-stage2/inputs.json",
+    "../../runner-speed-stage2/runner.json",
+    "../../runner-speed-stage2/probes.json",
+    "../../runner-speed-stage2/runner-summary.log",
+    "../../runner-speed-stage2/probe-summary.log",
+    "../../runner-speed-stage2/gen-order-linux.log",
+    "../../runner-speed-stage2/source-review.log"
+  ],
+  "limits": [
+    "Scheduler fixtures retain real runner scheduling and setup logic but replace expensive test bodies. Real generation-order and knob/display checks provide separate direct-consumer evidence.",
+    "Installer lock fixtures verify invocation and bypass paths, not real exclusive-lock contention. Existing lock/signal mechanisms are outside this source delta.",
+    "Exact extraction parity is reused from committed checker assertions and hashes; this helper did not regenerate the .inc files.",
+    "Timing records are single samples of instrumented scratch inputs. Some candidate samples are slower. Reduced work counts do not establish an end-to-end build speedup.",
+    "The failed Mac generation-order attempt remains a recorded setup limitation; the supported Linux equivalent passed. No full suite, target firmware build, installation, release gate or device check was run."
+  ],
+  "failures": [],
+  "disposition": "Reuse matching passing evidence. Candidate passes the independent test-evidence review; proceed only if separate source investigation also passes."
+}

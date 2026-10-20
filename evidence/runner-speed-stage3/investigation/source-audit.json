@@ -1,0 +1,60 @@
+{
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "checks": [
+    {
+      "check": "Unchanged tests/host/smk_clip_knob_test.c",
+      "result": "pass",
+      "sha256": "30d7bd3bd33807af37fd1f55fb9fe574060556cecf94b89e523050f67ff1d9f4"
+    },
+    {
+      "check": "Unchanged tests/host/smk_clip_chord_display_test.c",
+      "result": "pass",
+      "sha256": "bbc1900f76d20103d8d8934ad6e75d8be2252106451ecc68945cad7d44eda5d0"
+    },
+    {
+      "check": "Unchanged tests/host/smk_clip_knob_fake_usb.h",
+      "result": "pass",
+      "sha256": "51185361f4b2aff612c3fff675f42686a5494c4a07de475b18161d29dbd2ca07"
+    },
+    {
+      "check": "Generation dependencies and lock helpers",
+      "result": "pass",
+      "sha256": "8bf58a303d877503d087d81cd0025406dae1c6ef5fe790a8b0fd689317c83f80"
+    },
+    {
+      "check": "Slot, generation-lock and background execution block",
+      "result": "pass",
+      "sha256": "10bfd54bcc487ae7d35634bc36d404fbcdbf909b05b987d0931ead7f7ac124f9"
+    },
+    {
+      "check": "Scheduler tail",
+      "result": "pass",
+      "sha256": "83207caaf99028ded91a4d387eb1edb67b2e3fa93b3cee86904487485d2858fb"
+    },
+    {
+      "check": "Installer lock execution",
+      "result": "pass",
+      "sha256": "bc797cfa042e714500a3ff14c441745bb02b55cd65658f8d897d723617695958"
+    },
+    {
+      "check": "Literal Quickcheck registrations and command strings",
+      "result": "pass",
+      "retained_count": 117,
+      "removed_only": [
+        "emu",
+        "emu-slots"
+      ]
+    },
+    {
+      "check": "Working source matches exact candidate",
+      "result": "pass"
+    }
+  ],
+  "source_sha256": {
+    "tests/run_tests.sh": "8962afcdca97021b76390bbbb9469982d0cb1b79931a5e0c2d4f7cedb342bb99",
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f"
+  }
+}
