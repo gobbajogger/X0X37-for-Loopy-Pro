@@ -163,7 +163,6 @@ Projects saved with 0.10 load as they were.
 - Safe mode: after two failed starts X0X starts with no sound and USB on, so the web installer can always reach it (it used to drop into the chip's update mode, which no installer can see). PLAY tries again.
 - After a crash, the next start says so and shows where.
 - The web installer can put M-VAVE's stock firmware (FM-1 V15) back.
-- The browser version can load your own breaks.
 
 </details>
 
