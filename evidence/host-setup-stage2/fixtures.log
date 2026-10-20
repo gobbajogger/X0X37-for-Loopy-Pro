@@ -1,0 +1,12 @@
+test_compile_failure_propagates (__main__.HostSetupTest) ... ok
+test_custom_bank (__main__.HostSetupTest) ... ok
+test_default_build_and_environment (__main__.HostSetupTest) ... ok
+test_default_output (__main__.HostSetupTest) ... ok
+test_existing_headers_skip_only_font_and_drums (__main__.HostSetupTest) ... ok
+test_generate_only_from_empty_headers (__main__.HostSetupTest) ... ok
+test_setup_failures_stop_both_modes (__main__.HostSetupTest) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 2.684s
+
+OK

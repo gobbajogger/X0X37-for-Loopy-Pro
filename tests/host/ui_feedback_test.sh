@@ -9,7 +9,7 @@ firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c 
 firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c"
 HOST_DEFS=
 if [ "$(uname -s)" = Darwin ]; then HOST_DEFS=-D_DARWIN_C_SOURCE; fi
-X0X_HOST_OUT="$OUT/host" X0X_HOST_DEFS="$HOST_DEFS" sh host/build_host.sh > "$OUT/build.log" 2>&1 || {
+X0X_HOST_OUT="$OUT/host" X0X_HOST_DEFS="$HOST_DEFS" sh host/build_host.sh --generate-only > "$OUT/build.log" 2>&1 || {
     cat "$OUT/build.log"
     exit 1
 }
