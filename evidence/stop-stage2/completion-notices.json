@@ -1,0 +1,19 @@
+{
+  "authorization": "workflow18 automatic stage completion notices",
+  "sent": [
+    {
+      "thread_id": "01a15a87-298e-7d21-b004-b78d5beafd89",
+      "purpose": "Mapping validation and sole stage5 integrator coordination."
+    },
+    {
+      "thread_id": "01a15aa1-3015-75c0-b331-15e212d9b5ec",
+      "purpose": "Completion notice to the source stage3 owner."
+    }
+  ],
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "evidence_commit": "40899e1a47ca704b0d3f63bbd0372ed27b7a5e45",
+  "started_stage3": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+  "observed_startup_turn": "01a15ab0-ecc5-7081-915d-2bd6dfb5c22f",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED"
+}

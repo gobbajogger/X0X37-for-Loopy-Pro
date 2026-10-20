@@ -15,6 +15,7 @@
   "broken-stop-scan.log": "87d4258b842957757e2fd4c42acb2356b872c3fd28839c97face808b9e316f68",
   "build-elite.log": "bbb5ca2aabb94a59e8f0e9e99823a4a829715e9e72cc636ea848acf60b0593c8",
   "checks.json": "31067e97df23ae81e5a623242132112b778448b014bbbc53f5dd9e069054c868",
+  "completion-notices.json": "d377ccae803df9a967b0dbc3494db1cd9aa88d0ded8c076f5470a057b051cbdc",
   "coverage.json": "5d678d3636e7d4234e0347c7c59e8edd932f43ab849880d368d4f1c277dbf3ab",
   "deadline-broken-public-cancel.log": "25c16d77d3bf2bf6838f755ecba127572f9e15ccf6e88703d0f262aed3acdf83",
   "deadline-broken-public-service.log": "4a5280c7d08f04afb3ec6b492d3a1857321a8fc584f9f7ac2636b719cabd62d3",
@@ -100,7 +101,8 @@
   "source-inputs.json": "838ae96e3f2dde0d9b3eb615679ae6419280c65d9a0397ec3b5c6da6d4bbe856",
   "stage3-prompt.txt": "083ade305bdb24c4c058fb8ee23916a59841623bebc097172856676ec3c61452",
   "stage4-dev-plan.json": "c9ab4d02098ac0a2507250210e69f4ec3905a057be291fa8af424b009c65f653",
+  "startup.json": "5de88904cd5559a785ec982bb182e093590b879e4b83e733381aeae2efb44e7b",
   "stop-checks.json": "4ad0b398266369c5b7a1985f860ab8d195ae0621ce60dcc2acdfa790f258880f",
   "stop-inputs.json": "6f9d7816cae3bd66182a9e5047eca9fad97b93c62063099aa406e3d986714228",
-  "successor.json": "62b5a036a4a13c8194181ec9c941fd84e5ad6e86ea010e8d3f127156e6813ca1"
+  "successor.json": "968ff65a78a10245bce1eeaa834405f6cf68333f382473151d281ed24369cf11"
 }
