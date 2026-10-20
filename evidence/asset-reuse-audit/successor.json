@@ -1,0 +1,11 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "stage": 2,
+  "state": "started",
+  "source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+  "audit_commit": "7a08385807d7ae79b67c105db90de9cffa8b805b",
+  "prompt": "evidence/asset-reuse-audit/stage2-prompt.txt",
+  "thread_id": "01a15ad1-a598-7a01-baae-5a8ac034d2c4",
+  "host_id": "local",
+  "turn_id": "01a15ad1-a6b9-7041-8680-6880feb67ea3"
+}
