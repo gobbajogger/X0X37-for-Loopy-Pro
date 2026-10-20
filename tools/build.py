@@ -232,7 +232,7 @@ def build_app():
     flags = [*CFLAGS, *FPU, *BOARD_DEFS[BOARD], "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
     if VERSION and os.environ.get("X0X_DEBUG") == "1":
         raise SystemExit("X0X_DEBUG=1 (register peek / poke over USB) is for development builds only")
-    for flag in ("X0X_CDC", "X0X_DEBUG"):
+    for flag in ("X0X_CDC", "X0X_DEBUG", "X0X_DEV_PADCAL"):
         v = os.environ.get(flag)    # unset: the default in firmware/src/x0x.c
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
@@ -257,12 +257,13 @@ def build_app():
              ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
              ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
              ("cc", "-c", FW / "hal" / "fm1_cpu1.S", "-o", OUT / "fm1_cpu1.o"),
-             ("cc", *flags, "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
+             ("cc", *[f if f != "-Os" else "-Oz" for f in flags], "-c", FW / "src" / "x0x.c", "-o", OUT / "x0x.o")]
     objs = [OUT / "crt0.o", OUT / "fm1_vec.o", OUT / "fm1_isr.o", OUT / "fm1_cpu1.o", OUT / "x0x.o"]
     (OUT / "o2").mkdir(parents=True, exist_ok=True)
     for u in O2_UNITS:
         o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
-        units.append(("cc", *o2, "-c", FW / "src" / u, "-o", o))
+        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
+        units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
         objs.append(o)
     tc_all(*units)
     elf = OUT / "x0x.elf"
@@ -406,6 +407,9 @@ def main():
                     help="smk37: the model name, pro (default), elite or mke (default: $MODEL, else pro)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
+    # regression guard: hardware-relevant settings must match tools/locked_settings.json
+    if subprocess.run([sys.executable, str(SRC / "tools" / "check_locked_settings.py")]).returncode:
+        raise SystemExit("build.py: locked settings differ (see above); the build stops")
     BOARD = (a.board or os.environ.get("BOARD") or "fm1").lower().replace("-", "")
     if BOARD not in BOARD_PREFIX:
         raise SystemExit(f"BOARD={BOARD}: use fm1 or smk37")

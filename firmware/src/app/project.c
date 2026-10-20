@@ -19,7 +19,8 @@
 
 project_t proj;
 
-#define PROJ_STREAM 2u                  /* the format word of the packed objects */
+#define PROJ_STREAM 3u                  /* 303 steps gained velocity; format 2 migrates below */
+#define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
 #define NSTREAM ((int)sizeof STREAM_OBJ)
 #define STREAM_HDR 16u                  /* in the first object: format, raw length, raw CRC, packed length */
@@ -32,6 +33,22 @@ typedef char raw_contiguous[(__builtin_offsetof(project_t, arr) == RAW_OFF + siz
 static void arrange_defaults(void);
 static uint32_t packed_len;             /* the last save's (or load's) packed stream, bytes */
 
+/* SMK-37 clip mode keybed settings (main_fm1.c), ck_ch .. ck_x2: channel 2, C MAJOR NEAR, MAJ root position,
+ * ARP UP 1/16, 1 octave, gate 50 %, no swing, human, rhythm or strum; and the highest values. A value out of
+ * range (for example an older object): all go back to the defaults. An older object without ck_x1/ck_x2 loads
+ * zeros there: the defaults. */
+static const uint8_t CK_DEF[12] = {2, 0, 0, 0, 0, 0, 9, 0, 4, 0, 0, 0},
+                     CK_MAX[12] = {15, 11, 23, 1, 29, 5, 12, 3, 9, 3, 63, 127};
+static void project_ck_check(int force)
+{
+    uint8_t *v = &proj.set.ck_ch;
+    for (int i = 0; i < 12; i++)
+        force |= v[i] > CK_MAX[i];
+    if (force || v[0] < 2)
+        __builtin_memcpy(v, CK_DEF, 12);
+}
+typedef char ck_set_size[sizeof(settings_t) == 40u ? 1 : -1];   /* the new bytes use the old padding */
+
 void project_defaults(void)
 {
     int i;
@@ -42,11 +59,13 @@ void project_defaults(void)
     proj.set.keysound = 0;
     proj.set.autosave_off = 0;
     proj.set.clk_out = 1;
+    proj.set.bt = (uint8_t)((proj.set.bt & 1u) | PROJ_BT_CLK_IN);   /* CLOCK SOURCE AUTO */
     proj.set.notes_out = 0;
     proj.set.bpm_x10 = 1250;
     proj.set.accent_q7 = 88;
     proj.set.stereo = PROJ_STEREO;
     proj.set.snd_rev = PROJ_SND_REV;
+    project_ck_check(1);
     engine_sound_defaults(&proj.sound);
     arrange_defaults();
     /* the 303 lines start empty, like the drums: OCT+ on TB-3PO (or keyboard mode) writes one */
@@ -198,17 +217,24 @@ static int st_put(void *ctx, const uint8_t *p, uint32_t n)
     return 0;
 }
 
+/* Check capacity before any project object is changed, including settings and sound. */
+static int measure_stream(void)
+{
+    const uint8_t *raw = (const uint8_t *)&proj + RAW_OFF;
+    st_out_t o = {1, 0, 0, 0, 0};
+    lz_sink_t sink = {st_put, &o};
+    if (lz_compress(raw, RAW_LEN, &sink))
+        return -7;
+    packed_len = o.total;
+    return 0;
+}
+
 static int save_stream(void)
 {
     const uint8_t *raw = (const uint8_t *)&proj + RAW_OFF;
     uint32_t crc = crc32_of(raw, RAW_LEN);
-    st_out_t o = {1, 0, 0, 0, 0};
+    st_out_t o = {0, 0, 0, 0, 0};
     lz_sink_t sink = {st_put, &o};
-    if (lz_compress(raw, RAW_LEN, &sink))
-        return -7;                                    /* would not fit: nothing written */
-    packed_len = o.total;
-    o.measure = 0;
-    o.total = 0;
     o.fill = STREAM_HDR;
     put32(io_buf, PROJ_STREAM);
     put32(io_buf + 4, RAW_LEN);
@@ -226,6 +252,7 @@ static int save_stream(void)
 typedef struct {
     int k, n;
     uint32_t pos, left;
+    uint32_t format;
 } st_in_t;
 
 static int st_get(void *ctx)
@@ -237,7 +264,7 @@ static int st_get(void *ctx)
         if (++s->k >= NSTREAM)
             return -1;
         s->n = plat_store_load(STREAM_OBJ[s->k], io_buf, sizeof io_buf);
-        if (s->n < 4 || get32(io_buf) != PROJ_STREAM)
+        if (s->n < 4 || get32(io_buf) != s->format)
             return -1;
         stored_known[STREAM_OBJ[s->k]] = 1;
         stored_hash[STREAM_OBJ[s->k]] = hash_of(io_buf, (uint32_t)s->n);
@@ -248,18 +275,71 @@ static int st_get(void *ctx)
 }
 
 /* 0 = loaded; -1 = not there or not good (proj's patterns and arrangement then hold garbage) */
-static int load_stream(int n)
+/* The old stream's 303 step was note+flags. Expand patterns back-to-front in
+ * the already allocated new raw area; move the unchanged arrangement first. */
+typedef struct { uint8_t note, flags; } bstep2_t;
+typedef struct {
+    bstep2_t step[NSTEPS];
+    uint8_t len, rate, dir, transpose;
+    tb3po_cfg_t gen;
+} bpart2_t;
+typedef struct {
+    dpart_t drum[NKIT];
+    bpart2_t bass[NBASS];
+    brkpart_t brk;
+    uint8_t swing, rsv[3];
+} pattern2_t;
+#define RAW_LEN_2 (NPAT * sizeof(pattern2_t) + sizeof(arrange_t))
+static void stream_from2(void)
+{
+    uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
+    int p, b, s;
+    uint32_t i;
+    /* The destination is higher and overlaps the old pattern data. Copy from the
+     * end so this also works with the firmware link, which has no libc memmove. */
+    for (i = sizeof(arrange_t); i > 0; i--)
+        raw[NPAT * sizeof(pattern_t) + i - 1u] = raw[NPAT * sizeof(pattern2_t) + i - 1u];
+    for (p = NPAT - 1; p >= 0; p--) {
+        pattern2_t old;
+        pattern_t *dst = &proj.pat[p];
+        __builtin_memcpy(&old, raw + (uint32_t)p * sizeof old, sizeof old);
+        __builtin_memset(dst, 0, sizeof *dst);
+        __builtin_memcpy(dst->drum, old.drum, sizeof old.drum);
+        for (b = 0; b < NBASS; b++) {
+            bpart_t *bp = &dst->bass[b];
+            for (s = 0; s < NSTEPS; s++) {
+                bp->step[s].note = old.bass[b].step[s].note;
+                bp->step[s].flags = old.bass[b].step[s].flags;
+            }
+            bp->len = old.bass[b].len;
+            bp->rate = old.bass[b].rate;
+            bp->dir = old.bass[b].dir;
+            bp->transpose = old.bass[b].transpose;
+            bp->gen = old.bass[b].gen;
+        }
+        dst->brk = old.brk;
+        dst->swing = old.swing;
+        __builtin_memcpy(dst->rsv, old.rsv, sizeof old.rsv);
+    }
+    for (p = 0; p < NSTREAM; p++)
+        stored_known[STREAM_OBJ[p]] = 0;             /* next save writes format 3 */
+}
+
+static int load_stream(int n, uint32_t format)
 {
     uint8_t *raw = (uint8_t *)&proj + RAW_OFF;
     uint32_t crc = get32(io_buf + 8), plen = get32(io_buf + 12);
-    st_in_t s = {0, n, STREAM_HDR, plen};
+    uint32_t raw_len = format == PROJ_STREAM_OLD ? RAW_LEN_2 : RAW_LEN;
+    st_in_t s = {0, n, STREAM_HDR, plen, format};
     lz_src_t src = {st_get, &s};
-    if (n < (int)STREAM_HDR || get32(io_buf + 4) != RAW_LEN || plen > STREAM_CAP)
+    if (n < (int)STREAM_HDR || get32(io_buf + 4) != raw_len || plen > STREAM_CAP)
         return -1;
     stored_known[STREAM_OBJ[0]] = 1;
     stored_hash[STREAM_OBJ[0]] = hash_of(io_buf, (uint32_t)n);
-    if (lz_decompress(&src, raw, RAW_LEN) || crc32_of(raw, RAW_LEN) != crc)
+    if (lz_decompress(&src, raw, raw_len) || crc32_of(raw, raw_len) != crc)
         return -1;
+    if (format == PROJ_STREAM_OLD)
+        stream_from2();
     packed_len = plen;
     return 0;
 }
@@ -274,7 +354,7 @@ typedef struct {
     uint8_t len, rate, rsv[2];
 } dpart1_t;
 typedef struct {
-    bstep_t step[NSTEPS1];
+    bstep2_t step[NSTEPS1];
     uint8_t len, rate, dir, transpose;
     tb3po_cfg_t gen;
 } bpart1_t;
@@ -308,8 +388,10 @@ static void pattern_from1(pattern_t *p, const pattern1_t *o)
         p->drum[k].rate = o->drum[k].rate;
     }
     for (k = 0; k < NBASS; k++) {
-        for (s = 0; s < NSTEPS1; s++)
-            p->bass[k].step[s] = o->bass[k].step[s];
+        for (s = 0; s < NSTEPS1; s++) {
+            p->bass[k].step[s].note = o->bass[k].step[s].note;
+            p->bass[k].step[s].flags = o->bass[k].step[s].flags;
+        }
         p->bass[k].len = o->bass[k].len;
         p->bass[k].rate = o->bass[k].rate;
         p->bass[k].dir = o->bass[k].dir;
@@ -425,6 +507,25 @@ static void patterns_defaults(void)
         pattern_init(&proj.pat[i], 0x3B0u + (uint32_t)i * 977u, 0x5A1u + (uint32_t)i * 613u);
 }
 
+/* CLOCK SOURCE (MID-13) is in bt bits 1-2. An object without PROJ_BT_CLK_IN comes from a74 or older. a74 kept
+ * the value 0-2 in byte 38, and byte 39 was 0. Byte 38 is ck_x1 in the clip keys (ARP SWING and HUMAN), so the
+ * value moves to bt, and byte 38 becomes 0 (no SWING, no HUMAN). Other bytes there stay, and CLOCK SOURCE is AUTO. */
+typedef char a74_clk_in_set[(PROJ_A74_CLK_OFF + 2u == sizeof(settings_t)) ? 1 : -1];
+static void project_clk_check(void)
+{
+    uint8_t *raw = (uint8_t *)&proj.set, b = proj.set.bt, v = raw[PROJ_A74_CLK_OFF];
+    if (!(b & PROJ_BT_CLK_IN)) {
+        b &= 1u;
+        if (v <= SEQ_CLK_EXT && !raw[PROJ_A74_CLK_OFF + 1u]) {
+            b |= (uint8_t)(v << 1);
+            raw[PROJ_A74_CLK_OFF] = 0;
+        }
+        b |= PROJ_BT_CLK_IN;
+    } else if (PROJ_CLK_SRC(b) > SEQ_CLK_EXT)
+        b &= (uint8_t)~PROJ_BT_CLK_MASK;
+    proj.set.bt = b;
+}
+
 /* each object is read straight into its place in proj: a load copies only a valid payload */
 int project_load(void)
 {
@@ -432,11 +533,13 @@ int project_load(void)
     settings_t set;
     project_defaults();
     packed_len = 0;
-    set = proj.set;
+    __builtin_memcpy(&set, &proj.set, sizeof set);    /* (memcpy: the padding bytes 38-39 too, project_clk_check) */
     if (load_settings(&set) == 0 && set.magic == PROJ_MAGIC)
-        proj.set = set;
+        __builtin_memcpy(&proj.set, &set, sizeof set);
     else
         bad = 1;
+    project_clk_check();                              /* (first: it can clear the a74 byte 38) */
+    project_ck_check(0);                              /* (main_fm1.c trusts the clip keys settings) */
     sound_ok = load_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0;
     if (!sound_ok)
         bad = 1;
@@ -451,8 +554,8 @@ int project_load(void)
         engine_sound_centre_drum_pans(&proj.sound);
     proj.set.stereo = PROJ_STEREO;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && get32(io_buf) == PROJ_STREAM) {
-        if (load_stream(n)) {                         /* torn or broken: the defaults, not garbage */
+    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_OLD)) {
+        if (load_stream(n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
             patterns_defaults();
             arrange_defaults();
             bad = 1;
@@ -483,9 +586,10 @@ void project_apply_io(void)
     int p;
     seq.send_clock = proj.set.clk_out;
     seq.send_notes = proj.set.notes_out;
+    seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
     for (p = 0; p < 5; p++) {
         int v = proj.set.midi_ch[p];
-        seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? SEQ_CH_OFF : v - 1);
+        seq.ch[p] = (uint8_t)(!v ? DEF[p] : v > 16 ? (int)SEQ_CH_OFF : v - 1);
     }
     engine_out_loud(proj.set.out_loud);
     engine_usb_full(proj.set.usb_full);
@@ -501,6 +605,8 @@ int project_save(void)
     proj.set.accent_q7 = seq.accent_q7;
     proj.set.clk_out = seq.send_clock;
     proj.set.notes_out = seq.send_notes;
+    if (measure_stream())
+        return -7;
     if (save_obj(OBJ_SET, &proj.set, sizeof proj.set))
         return -1;
     if (save_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound))

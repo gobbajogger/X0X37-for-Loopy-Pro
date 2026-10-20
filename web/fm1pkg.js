@@ -93,6 +93,19 @@ export function ctlProblem(img) {
   return null;
 }
 
+// the slot map record (fm1pkg_make.slotmap_of): magic, u32 count, count x (u32 offset, u32 size), CRC-32
+const CTL_SLOTMAP = [..."X0X-SLOTMAP-1\0\0\0"].map((c) => c.charCodeAt(0));
+function pkHasSlotMap(d) {
+  outer: for (let i = d.indexOf(CTL_SLOTMAP[0]); i >= 0 && i + 24 <= d.length; i = d.indexOf(CTL_SLOTMAP[0], i + 1)) {
+    for (let j = 1; j < CTL_SLOTMAP.length; j++) if (d[i + j] !== CTL_SLOTMAP[j]) continue outer;
+    const n = pkU32(d, i + 16), end = i + 20 + 8 * n;
+    return n <= 16 && end + 4 <= d.length && pkU32(d, end) === pkCrc32(d, i, end);
+  }
+  return false;
+}
+export const CTL_NO_BLOCK = "the app code of this package goes into the Bluetooth block (flash 0x8B000-0x9AFFF). "
+  + "It is an X0X from before the block. It takes no controller image (install it without one)";
+
 // the logical image (logicalImage) with ctl in the Bluetooth block; throws on anything unexpected
 export function insertCtl(logical, ctl) {
   if (ctl && ctlProblem(ctl)) throw new Error("ctl.img: " + ctlProblem(ctl));
@@ -128,6 +141,11 @@ export function insertCtl(logical, ctl) {
   const slot = pkU32(area, 40);
   if (slot !== CTL_SLOT) throw new Error("not an SMK-37 package (the Bluetooth block is on the SMK-37 only)");
   const lo = 0x120 + CTL_CODE_MAX;
+  // the block must be free: empty, a controller image, or a package with the slot map record (the build
+  // limits the app code since then). An older X0X has app code there: writing it would stop the unit.
+  const blockFree = area.subarray(lo, lo + CTL_SIZE).every((b) => b === 0xFF) || pkU32(area, lo) === 0x43423058
+    || pkHasSlotMap(lg);
+  if (!blockFree) throw new Error(CTL_NO_BLOCK);
   area.fill(0xFF, lo, lo + CTL_SIZE);
   if (ctl) area.set(ctl, lo);
   pkPut16(area, 34, pkCrc16(area, 0x120, 0x120 + slot));

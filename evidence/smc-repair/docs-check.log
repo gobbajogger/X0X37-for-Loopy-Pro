@@ -1,0 +1,7 @@
+STE WARN 41 issues
+STE  BEHAVIOR.md: [semicolon] R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global.
+STE  BEHAVIOR.md: [passive,semicolon] PICK F feedback means waiting for pickup; SMC F means pickup is acquired.
+STE  BEHAVIOR.md: [semicolon] SELECT chooses the track within the bank; knobs 2–4 edit its pan and sends.
+STE  BEHAVIOR.md: [semicolon] These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notic
+STE  docs/SMC_MIXER.md: [passive,semicolon] Confirm / cancel; other SMC controls are blocked
+QUICK PASS 53ed908 1 s (STE step only; STE WARN 41 issues)

@@ -8,6 +8,7 @@ extern u8 __ctl_heap_start[], __ctl_heap_end[];
 
 struct blk { u32 size; struct blk *next; }; /* size includes header; bit0 = used */
 static struct blk *heap_first;
+u32 ctl_heap_stat(void) { return 0; } /* image space is reserved for both LE roles */
 
 void ctl_heap_init(void)
 {

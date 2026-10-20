@@ -10,12 +10,20 @@ uint32_t plat_buttons(void)
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
     uint8_t clip_mode = smk_clip_mode_on();
+#if X0X_DEV_PADCAL
+    extern uint8_t smk_padcal_on(void);
+    if (smk_padcal_on())
+        return 0u;   /* the pad calibration has the buttons (main_fm1.c, CLP-79) */
+#endif
 #endif
     for (i = 0; i < NB; i++)
         if (raw & (1u << panel.btn[i])) {
 #if BOARD_SMK37
             /* APC navigation controls must not also trigger X0X page/octave actions. */
             if (clip_mode && panel.btn[i] <= FM1_BTN_OCT_UP)
+                continue;
+            /* Clip mode: SCALE, CHORD, ARP and NOTE REPEAT belong to the clip keys (main_fm1.c). */
+            if (clip_mode && (i == B_SEL || i == B_ENV || i == B_ARP || i == B_LFO))
                 continue;
 #endif
             out |= 1u << i;
@@ -25,10 +33,34 @@ uint32_t plat_buttons(void)
 
 uint32_t plat_keys(void) { return fm1_in.notes & ((1u << NKEYS) - 1u); }
 
+uint8_t plat_key_velocity(int key)
+{
+#if BOARD_SMK37
+    if ((unsigned)key < NKEYS) {
+        uint8_t v = fm1_in.key_vel[SMK_KEY_F3 + key];
+        if (v)
+            return v;
+    }
+#else
+    (void)key;
+#endif
+    return 100;
+}
+
 int32_t plat_enc(int role)
 {
     if (role < 0 || role >= NE)
         return 0;
+#if BOARD_SMK37
+    extern uint8_t smk_ck_knobs_owned(void);
+#if X0X_DEV_PADCAL
+    extern uint8_t smk_padcal_on(void);
+    if (smk_ck_knobs_owned() || smk_padcal_on())
+#else
+    if (smk_ck_knobs_owned())
+#endif
+        return 0;   /* clip mode: knobs 2-8 send CCs (main_fm1.c ck_controls); knob 1 stays MASTER. Pad calibration: K2-K4 */
+#endif
     return fm1_enc_take(panel.enc[role]) * panel.dir[role];
 }
 
@@ -131,6 +163,12 @@ int plat_midi_in(uint32_t *pkt)
 }
 void plat_midi_out(uint32_t pkt)
 {
+#if BOARD_SMK37
+    extern uint8_t smk_clip_mode_on(void);
+    /* Sequencer output must never become APC commands or mix with clip keys. */
+    if (smk_clip_mode_on())
+        return;
+#endif
     midi_out_event(pkt);
 #if X0X_BLE
     ble_out(pkt);                               /* the same, to a Bluetooth MIDI connection */
@@ -140,6 +178,7 @@ void plat_midi_out(uint32_t pkt)
 int plat_ble_state(void) { return PLAT_BLE_NOIMG; }
 const char *plat_ble_name(void) { return ""; }
 void plat_ble_set(int on) { (void)on; }
+int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 0; }
 #endif
 
 int plat_store_load(uint32_t obj, void *dst, uint32_t max) { return flash_ok ? st_load(obj, dst, max) : -1; }

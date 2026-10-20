@@ -25,6 +25,9 @@ extern void smk_apc_host_seen(void);
 extern void smk_apc_host_lost(void);
 extern uint8_t smk_apc_usb_event(uint32_t pkt);
 extern void smk_apc_usb_tick(void);
+extern void smk_apc_usb_link(uint8_t up);
+extern void smk_apc_host_generic(uint8_t ble);
+extern void smk_inlog(uint32_t src, uint32_t pkt);   /* a76: the inbound recorder (main_fm1.c) */
 #endif
 enum { S_FADDR = 0, S_POWER = 1, S_INTRTX1 = 2, S_INTRTX2 = 3, S_INTRRX1 = 4, S_INTRRX2 = 5, S_INTRUSB = 6,
        S_INTRTX1E = 7, S_INTRTX2E = 8, S_INTRRX1E = 9, S_INTRRX2E = 10, S_INTRUSBE = 11, S_FRAME1 = 12,
@@ -668,6 +671,9 @@ stall:
 /* SysEx assembly: only short commands matter here */
 static void sysex_byte(uint8_t b)
 {
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    extern void smc_mmc_host(uint8_t cmd, uint8_t src);
+#endif
     static const uint8_t UBOOT_KEY[6] = {0xF0, 0x22, 0x24, 0x35, 0x7D, 0xF7};
     if (b == 0xF0) {
         usb.sx_on = 1;
@@ -691,6 +697,14 @@ static void sysex_byte(uint8_t b)
         usb.sysex[usb.sx_len++] = b;
     if (b == 0xF7) {
         uint32_t i, ok = usb.sx_len == 6u;
+#if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+        /* The stock SMC User preset sends 43 distinct six-byte MMC commands.
+         * Exact envelope only: APC inquiry/initialization stays independent. */
+        if (usb.sx_len == 6u && usb.sysex[0] == 0xF0u && usb.sysex[1] == 0x7Fu &&
+            usb.sysex[2] == 0x7Fu && usb.sysex[3] == 0x06u &&
+            usb.sysex[4] >= 1u && usb.sysex[4] <= 43u)
+            smc_mmc_host(usb.sysex[4], 0u);
+#endif
         /* Universal MIDI Device Inquiry, used by Loopy Pro to auto-identify the APC40 mkII. */
         if (usb.sx_len == 6u && usb.sysex[1] == 0x7Eu && usb.sysex[3] == 0x06u &&
             usb.sysex[4] == 0x01u && (usb.sysex[2] <= 0x0Fu || usb.sysex[2] == 0x7Fu)) {
@@ -705,6 +719,8 @@ static void sysex_byte(uint8_t b)
             usb.sysex[6] == 0x04u && (usb.sysex[7] == 0x40u || usb.sysex[7] == 0x41u || usb.sysex[7] == 0x42u)) {
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
             smk_apc_host_seen();
+            if (usb.sysex[7] == 0x40u)
+                smk_apc_host_generic(0u);              /* CLP-18: generic mode: the USB host feedback ends */
 #endif
             apc40_introduction_reply();
         }
@@ -727,6 +743,24 @@ static void sysex_byte(uint8_t b)
     }
 }
 
+#ifndef FELUCCA_LOADER
+/* MID-15, BLE-16: when the link of input src ends (up goes to 0), one PLAT_MIDI_LINK_END packet goes into
+ * midi_in_q, after the MIDI in of that tick. If the queue is full, it goes at a later tick.
+ * *st: bit 0 the link was up, bit 1 a packet waits. TIMER5 only (the one writer of midi_in_q). */
+static __attribute__((noinline)) void midi_link_check(uint8_t *st, uint32_t up, uint32_t src)
+{
+    uint8_t v = (uint8_t)((*st & 2u) | ((*st & 1u) && !up ? 2u : 0u));
+    if ((v & 2u) && mi_w - mi_r < MQ) {
+        midi_in_q[mi_w % MQ] = src << 4;              /* PLAT_MIDI_LINK_END(src) */
+        RING_PUBLISH();
+        mi_w++;
+        v = 0;
+    }
+    *st = (uint8_t)(v | (up ? 1u : 0u));
+}
+static uint8_t usb_link_st;
+#endif
+
 static void ep1_rx(void)
 {
     uint32_t csr, n, i;
@@ -747,14 +781,14 @@ static void ep1_rx(void)
                 sysex_byte(ep1rx[i + 1 + k]);
         }
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
-        else if ((cin == 8u || cin == 9u) && smk_apc_usb_event(pkt)) {
+        else if ((cin == 8u || cin == 9u || cin == 0xBu) && (smk_inlog(0u, pkt), smk_apc_usb_event(pkt))) {
             /* APC clip feedback: applied at once, not queued (no drops in a burst) */
         }
 #endif
         else if (((cin >= 8u && cin <= 0xEu) || (cin == 0xFu && ep1rx[i + 1] >= 0xF8u) ||
                   (cin == 3u && ep1rx[i + 1] == 0xF2u)) && mi_w - mi_r < MQ) {
             /* CIN 0xF: a single byte; the real-time ones (clock, start, continue, stop) matter */
-            midi_in_q[mi_w % MQ] = pkt;
+            midi_in_q[mi_w % MQ] = pkt & ~0xF0u;      /* cable bits: the input, 0 USB (MID-15) */
             RING_PUBLISH();
             mi_w++;
         }
@@ -1142,7 +1176,11 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
         ep0_service();
     if (ir & 0x02u)
         ep1_rx();
+#ifndef FELUCCA_LOADER
+    midi_link_check(&usb_link_st, usb.config && !usb.suspended, 0u);   /* unplug, host asleep, bus reset */
+#endif
 #if BOARD_SMK37 && !defined(FELUCCA_LOADER)
+    smk_apc_usb_link((uint8_t)(usb.config && !usb.suspended));   /* CLP-18: link end clears the cells USB wrote */
     smk_apc_usb_tick();                                 /* APC cell aging in the same interrupt as the stores */
 #endif
     if (usb.config)

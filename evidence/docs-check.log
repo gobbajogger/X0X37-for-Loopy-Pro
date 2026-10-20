@@ -1,0 +1,7 @@
+STE WARN 5 issues
+STE  docs/SMC_MIXER.md: [long_desc] For strips 1–5, M toggles that part's mute, S solos it while held, R selects the part and toggles recording, and SELECT selects the part.
+STE  docs/SMC_MIXER.md: [semicolon] 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter
+STE  docs/SMC_MIXER.md: [semicolon] Selected sample's pan, reverb and delay on knobs 2–4; knob 1 inactive
+STE  docs/SMC_MIXER.md: [semicolon] On strips 6–8, M toggles reverb, delay or master output; the other three buttons open their FX, mix, part or home pages.
+STE  docs/SMC_MIXER.md: [semicolon] Outside the drum MIX pages, bank and channel left/right move between parts; arrows move pages or a selected menu value.
+QUICK PASS 38b3070 0 s (STE step only; STE WARN 5 issues)

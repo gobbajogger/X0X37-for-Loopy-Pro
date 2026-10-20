@@ -53,7 +53,10 @@ u32  ctl_ms(void);
 void ctl_ms_init(void);
 void ctl_host_poll(void);
 void ctl_heap_init(void);
+void ctl_port_irq_reroute(u8 prio);   /* core 1's interrupt bank again (first poll) */
+#define CTL_BLE_IRQ_PRIO 7             /* felucca-bsp #2 finding: BLE IRQs need priority 7 */
 void ctl_fail(u32 err);           /* the controller stops for good: state FAILED */
+u32 ctl_heap_stat(void);          /* heap peak and failures, for DIAG (ctl_heap.c) */
 
 /* ---- Port layer (pi32v2, core 1). ctl_port.c and ctl_port_asm.S ---- */
 struct ctl_ctx { void *sp; };

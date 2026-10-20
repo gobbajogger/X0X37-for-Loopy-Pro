@@ -1,0 +1,1158 @@
+# MID-15: two inputs send MIDI clock (USB 0 and Bluetooth 1, the 4th field of midi). X0X follows one input.
+# The first input with Clock, Start or Continue gets the clock. The other input is ignored until the first
+# input sends nothing for 0.4 s, or until 0.4 s after its Stop. INTERNAL ignores both inputs.
+wait 300
+expect clksrc 0
+tapkey b0
+tapkey w0
+tapkey w4
+tapkey w8
+tapkey w12
+# both inputs send Start in the same millisecond: the first in the queue (Bluetooth) wins
+midi FA 00 00 1
+midi FA 00 00 0
+midi FC 00 00 0
+wait 10
+expect playing 1
+# both inputs send clock at 119 BPM, interleaved: X0X counts one input (119 BPM, not 238)
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+expect playing 1
+expect clkext 1
+expect exttempo >116
+expect exttempo <122
+# USB sends Stop and Start while Bluetooth has the clock: X0X ignores them
+midi FC 00 00 0
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+expect playing 1
+# Bluetooth stops (the link ends): after 0.4 s USB gets the clock, X0X does not stop or pause
+# (the tempo measure starts again at the change: 120 +-1 BPM after 2 beats, no dip)
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+expect playing 1
+expect clkext 1
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+expect playing 1
+expect clkext 1
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+expect playing 1
+expect clkext 1
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+midi F8 00 00 0
+wait 21
+expect exttempo >116
+expect exttempo <122
+# Bluetooth comes back: USB keeps the clock, Bluetooth Stop is ignored
+midi FC 00 00 1
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+expect playing 1
+# USB sends Stop: X0X stops. A Bluetooth Start less than 0.4 s later is ignored
+midi FC 00 00 0
+wait 50
+expect playing 0
+midi FA 00 00 1
+wait 50
+expect playing 0
+# 0.4 s after the Stop with no Start from USB: a Bluetooth Start gets the clock
+wait 400
+midi FA 00 00 1
+wait 30
+expect playing 1
+midi FC 00 00 0
+wait 30
+expect playing 1
+midi FC 00 00 1
+wait 30
+expect playing 0
+wait 1000
+expect tempo >116
+expect tempo <122
+# the Bluetooth link ends while Bluetooth has the clock: USB gets the clock at once (no 0.4 s wait)
+midi FA 00 00 1
+midi F8 00 00 1
+wait 20
+midi F8 00 00 1
+wait 20
+expect playing 1
+blelinkend
+midi FC 00 00 0
+wait 30
+expect playing 0
+# the USB link ends (unplug) while USB has the clock: a Bluetooth Start acts at once
+midi FA 00 00 0
+midi F8 00 00 0
+wait 20
+expect playing 1
+usblinkend
+midi FC 00 00 1
+wait 30
+expect playing 0
+# INTERNAL: X0X ignores Start and clock from both inputs
+tap GLO
+turn ALGO 1
+expect clksrc 1
+tap HOME
+wait 100
+midi FA 00 00 0
+midi FA 00 00 1
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+midi F8 00 00 1
+wait 10
+midi F8 00 00 0
+wait 11
+expect playing 0
+expect clkext 0
+# AUTO again: the first input gets the clock
+tap GLO
+turn ALGO -1
+expect clksrc 0
+tap HOME
+wait 100
+midi FA 00 00 0
+midi FC 00 00 1
+wait 30
+expect playing 1
+midi FC 00 00 0
+wait 30
+expect playing 0
+expect setsize 40

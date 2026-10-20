@@ -38,6 +38,7 @@ extern seq_t seq;                      /* the sequencer (its pattern pointer is 
 enum { PR_909, PR_808, PR_303A, PR_303B, PR_BRK, PR_FX, PR_MST, PR_SEQ, ENG_PROF_N };
 extern volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
 void engine_motion_enable(int on);                          /* off: lanes do not play (the PERF test) */
+void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo mask; 0 = all parts audible */
 void engine_motion_reset(void);                             /* lanes replaced (undo): knobs to their own values */
 /* overload guard (engine.c): the platform reports each block's load after rendering it */
 void engine_load(uint32_t pct, uint32_t frames);           /* ISR, after engine_render */
@@ -70,6 +71,7 @@ void engine_sound_defaults(sound_t *s);                     /* each engine's pow
 void engine_sound_centre_drum_pans(sound_t *s);             /* every drum voice's PAN (its last pot) to centre */
 void engine_drum(int kit, int voice, float vel);            /* play now (keys) */
 void engine_bass_on(int part, int note, int accent, int slide);
+void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity);
 void engine_bass_off(int part);
 void engine_brk_live(int key, int down);
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */

@@ -93,6 +93,8 @@ static const x0x_param_t MIX_P[MX_NPARAMS] = {{"LEVEL", 127, 100, 0}, {"REV", 12
                                                {"PAN", 127, 64, 0}};
 static const char *const PART_NAMES[NPARTS] = {"909", "808", "303 A", "303 B", "BREAK"};
 static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS];
+static volatile uint8_t smc_solo_mask;
+void engine_smc_solo(uint8_t mask) { smc_solo_mask = (uint8_t)(mask & 0x1Fu); }
 /* pan: a balance law. Centre is full level on both sides (a centred mix is the mono one exactly);
  * turning toward a side fades the other out along a quarter cosine, the near side stays at 1 */
 static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
@@ -318,7 +320,14 @@ void engine_drum(int kit, int voice, float vel)
 }
 void engine_bass_on(int part, int note, int accent, int slide)
 {
-    cq_put(C_BON, (uint32_t)part, (uint32_t)note, (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0)));
+    engine_bass_on_velocity(part, note, accent, slide, 100);
+}
+void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity)
+{
+    if (velocity < 1) velocity = 1;
+    if (velocity > 127) velocity = 127;
+    cq_put(C_BON, (uint32_t)part, (uint32_t)note,
+           (uint32_t)((accent ? 1 : 0) | (slide ? 2 : 0) | (velocity << 2)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
 void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
@@ -363,13 +372,13 @@ static void s_drum(void *x, int kit, int v, float vel)
     else                                 /* the 808's unaccented hit sits at D8_VEL_NORMAL, not at our 909 level */
         drum808_trigger(&d808, v, vel >= 0.999f ? 1.0f : vel * (D8_VEL_NORMAL / (88.0f / 127.0f)));
 }
-static void s_bon(void *x, int p, int note, int acc, int sl)
+static void s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     (void)x;
     if (prob_skip(PART_303A + p, 0))                  /* skipped: a rest */
         bass303_note_off(&b303[p]);
     else
-        bass303_note_on(&b303[p], note, acc, sl);
+        bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
 }
 static void s_boff(void *x, int p) { (void)x; bass303_note_off(&b303[p]); }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
@@ -441,8 +450,18 @@ void engine_motion_rec(int k) { motion_req_rec(&mot, k); }
 void engine_motion_hold(int k) { motion_req_hold(&mot, k); }
 static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_midi, s_step, 0};
 
+#if BOARD_SMK37
+/* Called with audio interrupts disabled at both clip-mode boundaries. */
+void engine_clip_midi_flush(void)
+{
+    seq_midi_flush(&seq, &SINK);
+}
+#endif
+
+
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
+static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
 void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity);
@@ -451,13 +470,30 @@ uint8_t smk_clip_mode_on(void);
 void smk_apc_clock_tick(void);
 void smk_apc_clock_start(void);
 void smk_apc_clock_position(uint32_t sixteenths);
+void smk_ck_midi_stop(void);
 #endif
 
 static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
     uint8_t ch = st & 0x0F, ty = st & 0xF0;
-    int k, v;
+    int k, v, src = (int)PLAT_MIDI_SRC(pkt);
+    if (!(pkt & ~0x30u)) {                      /* CIN 0, no message: the link of an input ended (usb.c midi_link_check) */
+        seq_clk_drop(&seq, (uint32_t)src);      /* MID-15: another input can get the clock at once */
+        if (src > 1)
+            return;
+        v = src_held[src];
+        for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
+            if ((v >> k) & 1) {
+                bass303_note_off(&b303[k]);
+                bass_held[k] = 0;
+            }
+        brk.keys = (uint16_t)(brk.keys & ~(v >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
+        src_held[src] = 0;
+        return;
+    }
+    if (!seq_clk_take(&seq, st, PLAT_MIDI_SRC(pkt)))
+        return;                     /* another input has the clock: its Clock, Start, Continue, Stop, Song Position (MID-15) */
 #if BOARD_SMK37
     /* Count MIDI Clock for the clip-mode PLAY blink. The sequencer path below is unchanged. */
     if (st == 0xF8)
@@ -466,22 +502,28 @@ static void midi_in(uint32_t pkt)
         smk_apc_clock_start();
     else if (st == 0xF2)
         smk_apc_clock_position((uint32_t)d1 | (uint32_t)d2 << 7);   /* Song Position: 6 ticks per unit */
+    else if (st == 0xFC)
+        smk_ck_midi_stop();         /* clip mode keybed: the arp stops its notes (main_fm1.c) */
     /* Clip mode: Loopy Start, Continue and Stop must not go back to the host as
-     * X0X transport (no echo). With clip mode off, nothing changes (agent rules, 10). */
+     * X0X transport (no echo). With clip mode off, nothing changes (agent-rules 2). */
     if (st >= 0xFA && st <= 0xFC && smk_clip_mode_on())
         seq.midi_req = 1;
 #endif
-    switch (st) {
-    case 0xF8: seq_ext_clock(&seq); return;
-    case 0xFA: seq_start(&seq); return;
-    case 0xFB: seq_continue(&seq); return;
-    case 0xFC: seq_stop(&seq); return;
-    default: break;
+    if (seq_midi_rt(&seq, st))      /* Clock, Start, Continue, Stop: GLO > MIDI > CLOCK SOURCE */
+        return;
+#if BOARD_SMK37
+    /* A host-routed SMC User preset uses its own channel. Consume before APC feedback
+     * or instrument note routing; direct BLE central input has its own callback. */
+    {
+        extern int smc_midi_host(uint32_t pkt);
+        if (smc_midi_host(pkt))
+            return;
     }
+#endif
 #if BOARD_SMK37
     /* The USB interrupt stores APC feedback at all times. Keep these notes from the
      * sound engine only while clip mode is on. When clip mode is off, the original
-     * MIDI input path stays the same (agent rules, 10). */
+     * MIDI input path stays the same (agent-rules 2). */
     if (ty == 0x90 || ty == 0x80) {
         uint8_t vel = (ty == 0x80) ? 0u : d2;
         if (d1 < SMK_APC40_CLIP_COUNT) {
@@ -509,16 +551,38 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
-                bass303_note_on(&b303[k], d1, d2 >= 100, bass_held[k] != 0);
+                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
                 bass_held[k] = d1;
+                v = 1 << k;                     /* the input of the last note-on holds the note */
+                src_held[0] &= (uint16_t)~v;
+                src_held[1] &= (uint16_t)~v;
+                if (src < 2)
+                    src_held[src] |= (uint16_t)v;
             } else if (ty == 0x80 && bass_held[k] == d1) {
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
+                src_held[0] &= (uint16_t)~(1u << k);
+                src_held[1] &= (uint16_t)~(1u << k);
             }
         }
-    if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43)   /* the break's slices */
+    if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43) {   /* the break's slices */
         breaks_live(&brk, d1 - 36, ty == 0x90);
+        v = 1 << (8 + d1 - 36);
+        src_held[0] &= (uint16_t)~v;
+        src_held[1] &= (uint16_t)~v;
+        if (ty == 0x90 && src < 2)
+            src_held[src] |= (uint16_t)v;
+    }
 }
+#ifdef X0X_HOST
+int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the break slice key s */
+{
+    int k, r = brk.keys << 8 & 0xFF00;
+    for (k = 0; k < NBASS; k++)
+        r |= b303[k].gate ? 1 << k : 0;
+    return r;
+}
+#endif
 
 /* ---------------------------------------------------------------- render --- */
 static void drain(void)
@@ -533,7 +597,7 @@ static void drain(void)
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
         else if (type == C_BON && a < NBASS)
-            bass303_note_on(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u));
+            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
         else if (type == C_BOFF && a < NBASS)
             bass303_note_off(&b303[a]);
         else if (type == C_BRK && !brk_hold)
@@ -595,6 +659,8 @@ static glide_t mix_glide[NPARTS][GL_N] = {
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
 static void mix_targets(int p, float g)                     /* g: the part level */
 {
+    if (smc_solo_mask && !(smc_solo_mask & (1u << p)))
+        g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
     glide_set(&mix_glide[p][GL_R], g * mix_pr[p]);
     glide_set(&mix_glide[p][GL_REV], g * mix_rev[p]);

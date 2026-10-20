@@ -84,6 +84,7 @@ void tb3po_generate(bpart_t *b)
     for (i = 0; i < NSTEPS; i++) {
         b->step[i].flags = G_REST;
         b->step[i].note = note_of(g, 0, 0);
+        b->step[i].velocity = 0;       /* generated notes use the default, not a prior edit */
     }
     for (i = 0; i < len; i++) {
         int deg, oct;

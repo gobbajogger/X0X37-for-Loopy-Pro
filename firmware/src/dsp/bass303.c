@@ -14,6 +14,7 @@
 /* ---- parameters ------------------------------------------------------------------------ */
 
 static const char *const wave_names[] = { "Saw", "Sqr" };
+static const char *const fenv_names[] = { "303", "ADSR" };
 static const char *const drv_names[] = { "Off", "Soft", "RAT" };
 
 /* defaults are schwung-303's (every knob at 0.5, Devilfish values stock), except Volume,
@@ -31,6 +32,10 @@ static const x0x_param_t params[BASS303_NPARAMS] = {
     { "DrvTyp", 2, 1, drv_names },
     { "Slide", 127, 21, 0 },         /* 2 .. 360 ms (Devilfish); 21 = 61 ms, stock is 60 */
     { "AccDec", 127, 7, 0 },         /* 30 .. 3000 ms (Devilfish); 7 = 194 ms, stock is 200 */
+    { "FAttack", 127, 0, 0 },        /* 0 .. 2000 ms, quadratic */
+    { "FSustain", 127, 0, 0 },       /* 0 .. 100 % */
+    { "FRelease", 127, 0, 0 },       /* 0 .. 4000 ms, quadratic */
+    { "FEnv", 1, 0, fenv_names },    /* old sounds use the original 303 envelope */
 };
 
 int bass303_nparams(void) { return BASS303_NPARAMS; }
@@ -45,14 +50,22 @@ int bass303_get(const bass303_t *b, int i)
     return (i >= 0 && i < BASS303_NPARAMS) ? b->pot[i] : 0;
 }
 
+/* Shared by the sound engine and the time readouts; value is a clamped 0..127 pot. */
+__attribute__((noinline)) float bass303_env_time_ms(int param, int value)
+{
+    float n = (float)value * (1.0f / 127.0f);
+    return param == BASS303_DECAY ? 200.0f * fm_exp2f(n * 3.321928095f)
+        : (param == BASS303_FATTACK ? 2000.0f : 4000.0f) * n * n;
+}
+
 /* exp(-1/(tau_ms * fs / 1000)): one-pole / RC coefficient */
-static float rc_coeff(float tau_ms, float fs)
+__attribute__((noinline)) static float rc_coeff(float tau_ms, float fs)
 {
     return tau_ms > 0.0f ? fm_expf(-1000.0f / (tau_ms * fs)) : 0.0f;
 }
 
 /* pw[m] = c^m, m = 0..BASS303_CTRL */
-static void powers(float *pw, float c)
+__attribute__((noinline)) static void powers(float *pw, float c)
 {
     int m;
     pw[0] = 1.0f;
@@ -62,7 +75,7 @@ static void powers(float *pw, float c)
 
 /* the main envelope's multiplier changed: its powers, and the closed-form gains of the two RC
  * followers it drives, g[m] = (1-a) sum_{n=1..m} a^(m-n) c^n (so r_m = a^m r_0 + g[m] e_0) */
-static void env_tables(bass303_t *b)
+__attribute__((noinline)) static void env_tables(bass303_t *b)
 {
     int m;
     powers(b->env_pw, b->env_c);
@@ -74,7 +87,7 @@ static void env_tables(bass303_t *b)
 }
 
 /* Open303::calculateEnvModScalerAndOffset, the measured mapping */
-static void calc_envmod(bass303_t *b)
+__attribute__((noinline)) static void calc_envmod(bass303_t *b)
 {
     float e = (float)b->pot[BASS303_ENVMOD] * (1.0f / 127.0f);
     float c = fm_log2f(b->cutoff * (1.0f / 313.8152786f)) * (1.0f / 2.931683907f); /* log2(c1/c0) */
@@ -171,8 +184,26 @@ void bass303_set(bass303_t *b, int i, int v)
     case BASS303_RESO:                                         /* TeeBeeFilter::setResonance */
         b->reso = (1.0f - fm_expf(-3.0f * n)) * (1.0f / 0.950212932f);
         break;
-    case BASS303_DECAY:                                        /* applied at the next note */
-        b->decay_c = rc_coeff(200.0f * fm_exp2f(n * 3.321928095f), BASS303_SR);
+    case BASS303_DECAY: {                                      /* stock decay applied at the next note */
+        float ms = bass303_env_time_ms(i, v);
+        b->decay_c = rc_coeff(ms, BASS303_SR);
+        b->fdecay_step = 1000.0f / (BASS303_SR * ms);
+        break;
+    }
+    case BASS303_FATTACK:
+        b->fattack_step = v ? 1000.0f / (BASS303_SR * bass303_env_time_ms(i, v)) : 1.0f;
+        break;
+    case BASS303_FSUSTAIN:
+        b->fsustain = n;
+        break;
+    case BASS303_FRELEASE:
+        b->frelease_rate = v ? 1000.0f / (BASS303_SR * bass303_env_time_ms(i, v)) : 1.0f;
+        b->frelease_step = b->fenv_y * b->frelease_rate;
+        break;
+    case BASS303_FENV:
+        b->fenv_y = 0.0f;
+        b->fenv_samples = 0;
+        b->fenv_stage = b->gate ? 1 : 0;
         break;
     case BASS303_ACCDEC:
         b->accdec_c = rc_coeff(30.0f + 2970.0f * n, BASS303_SR);
@@ -320,6 +351,7 @@ void bass303_init(bass303_t *b)
         bass303_set(b, i, params[i].def);
 
     b->osc_freq = b->slew_y = 440.0f;
+    b->velocity_gain = b->velocity_cutoff = 1.0f;
     b->env_c = b->decay_c;
     env_tables(b);
     b->env_y = 0.0f;
@@ -342,19 +374,30 @@ static void set_accent_state(bass303_t *b, int accent)
     env_tables(b);
 }
 
-void bass303_note_on(bass303_t *b, int note, int accent, int slide)
+__attribute__((noinline)) void bass303_note_on_velocity(bass303_t *b, int note, int accent, int slide, int velocity)
 {
     float f;
     if (note < 0)
         note = 0;
     if (note > 127)
         note = 127;
+    if (velocity < 1)
+        velocity = 1;
+    if (velocity > 127)
+        velocity = 127;
+    /* At the old sequencer's velocity (100), saved projects keep their sound. Lower
+     * strikes close the filter and reduce level; higher strikes brighten and lift it. */
+    b->velocity_gain = (float)velocity / 100.0f;
+    b->velocity_cutoff = fm_exp2f((float)(velocity - 100) * (1.5f / 100.0f));
     f = b->tuning * fm_exp2f((float)(note - 69) * (1.0f / 12.0f));
     set_accent_state(b, accent);
     b->osc_freq = f;
     if (!(slide && b->gate)) {           /* triggerNote; else slideToNote (no retrigger) */
         b->slew_y = f;                   /* pitchSlewLimiter.setState */
         b->env_y = 1.0f / b->env_c;      /* mainEnv.trigger: the next sample is 1 */
+        b->fenv_y = b->pot[BASS303_FATTACK] ? 0.0f : 1.0f;
+        b->fenv_samples = 0;
+        b->fenv_stage = b->pot[BASS303_FATTACK] ? 1 : 2;
         b->amp_trig = 1;                 /* ampEnv.noteOn: attack time 0 */
         b->trig = 1;
     }
@@ -366,9 +409,21 @@ void bass303_note_on(bass303_t *b, int note, int accent, int slide)
     b->started = 1;
 }
 
-void bass303_note_off(bass303_t *b) { b->gate = 0; }
+void bass303_note_on(bass303_t *b, int note, int accent, int slide)
+{
+    bass303_note_on_velocity(b, note, accent, slide, 100);
+}
+
+void bass303_note_off(bass303_t *b)
+{
+    if (b->gate) {
+        b->fenv_stage = 0;
+        b->frelease_step = b->fenv_y * b->frelease_rate;
+    }
+    b->gate = 0;
+}
 void bass303_set_lite(bass303_t *b, int on) { b->lite = on != 0; }
-void bass303_all_off(bass303_t *b) { b->gate = 0; }
+void bass303_all_off(bass303_t *b) { bass303_note_off(b); }
 
 /* ---- render ---------------------------------------------------------------------------- */
 
@@ -429,6 +484,29 @@ static inline float decim_hb2(bass303_ap_t *s, float x_old, float x_new)
 }
 #endif
 
+/* Filter-only ADSR; the original amp and accent envelopes remain independent. */
+__attribute__((noinline)) static float filter_adsr(bass303_t *b, int n)
+{
+    float step = (float)n;
+    if (!b->gate) {
+        b->fenv_y = fm_maxf(0.0f, b->fenv_y - step * b->frelease_step);
+    } else if (b->fenv_stage == 1) {
+        b->fenv_samples += (uint32_t)n;
+        b->fenv_y = fm_minf(1.0f, (float)b->fenv_samples * b->fattack_step);
+        if (b->fenv_y >= 1.0f) {
+            b->fenv_stage = 2;
+            b->fenv_samples = 0;
+        }
+    } else {
+        if (b->fenv_stage == 2)
+            b->fenv_samples += (uint32_t)n;
+        b->fenv_y = fm_maxf(b->fsustain, 1.0f - (float)b->fenv_samples * b->fdecay_step * (1.0f - b->fsustain));
+        if (b->fenv_y <= b->fsustain)
+            b->fenv_stage = 3;
+    }
+    return b->fenv_y;
+}
+
 /* While idle, advance what Open303 keeps running so the next note starts where the
  * reference would: oscillator phase, slew, the main envelope and its RC followers
  * (closed forms of N steps of each recursion). */
@@ -444,7 +522,10 @@ static void idle_advance(bass303_t *b, int n)
     cn = fm_powf(b->env_c, N);
     an = fm_powf(b->rc1_c, N);
     /* r[n] = a r[n-1] + (1-a) u[n], u[n] = E c^n:  r_N = a^N r0 + (1-a) E c (c^N - a^N)/(c - a) */
-    b->rc1_y = an * b->rc1_y + (1.0f - b->rc1_c) * b->env_y * b->env_c * (cn - an) / (b->env_c - b->rc1_c);
+    if (b->pot[BASS303_FENV])
+        b->rc1_y = an * b->rc1_y + (1.0f - an) * filter_adsr(b, n);
+    else
+        b->rc1_y = an * b->rc1_y + (1.0f - b->rc1_c) * b->env_y * b->env_c * (cn - an) / (b->env_c - b->rc1_c);
     an = fm_powf(b->rc2_c, N);
     if (b->accent_gain > 0.0f)
         b->rc2_y = an * b->rc2_y + (1.0f - b->rc2_c) * b->env_y * b->env_c * (cn - an) / (b->env_c - b->rc2_c);
@@ -529,7 +610,7 @@ static void run(bass303_t *b, float *out, int n)
     const float hp1_b0 = lite ? b->hp1l_b0 : b->hp1_b0, hp1_a1 = lite ? b->hp1l_a1 : b->hp1_a1;
     const float fb_b0 = lite ? b->fbhpl_b0 : b->fbhp_b0, fb_a1 = lite ? b->fbhpl_a1 : b->fbhp_a1;
     const float sq_dc = b->sq_dc, sq_h2 = 0.5f * b->sq_h;
-    const float out_gain = b->amp_scaler;
+    const float out_gain = b->amp_scaler * b->velocity_gain;
     const int square = b->wave;
     float os[BASS303_OS];
 
@@ -541,7 +622,8 @@ static void run(bass303_t *b, float *out, int n)
          * form (exact), then the cutoff and amp they produce at the chunk's last sample */
         e0 = b->env_y;                                         /* main envelope: y *= c */
         b->env_y = e0 * b->env_pw[m];
-        b->rc1_y = b->rc1_pw[m] * b->rc1_y + b->g1[m] * e0;    /* RC followers of it */
+        b->rc1_y = b->rc1_pw[m] * b->rc1_y + (b->pot[BASS303_FENV]
+            ? (1.0f - b->rc1_pw[m]) * filter_adsr(b, m) : b->g1[m] * e0);    /* RC followers of it */
         b->rc2_y = b->rc2_pw[m] * b->rc2_y + (acc > 0.0f ? b->g2[m] * e0 : 0.0f);
         b->slew_y = osc_freq + b->slew_pw[m] * (b->slew_y - osc_freq);
         if (b->amp_trig) {                                     /* attack 0: 1, then decay */
@@ -556,7 +638,7 @@ static void run(bass303_t *b, float *out, int n)
         }
         n_inc = b->slew_y * (1.0f / fso);
         n_a = b->amp_y + amp_boost * b->env_y;
-        fc = cutoff * fm_exp2f(scaler * (b->rc1_y - offset) + acc * b->rc2_y);   /* n1 = n2 = 1 */
+        fc = cutoff * b->velocity_cutoff * fm_exp2f(scaler * (b->rc1_y - offset) + acc * b->rc2_y);   /* n1 = n2 = 1 */
         fc = fm_clampf(fc, 200.0f, 20000.0f);
         /* TeeBeeFilter::calculateCoefficientsApprox4, TB_303 branch only (the a1 polynomial
          * it computes first is overwritten there, so it is skipped) */
@@ -639,7 +721,15 @@ static void run(bass303_t *b, float *out, int n)
 #elif BASS303_OS == 2
             s = lite ? os[0] : decim_hb1(b->hb1, os[0], os[1]);
 #else
-            s = lite ? os[0] : decim_hb1(b->hb1, decim_hb2(b->hb2, os[0], os[1]), decim_hb2(b->hb2, os[2], os[3]));
+            if (lite) {
+                s = os[0];
+            } else {
+                /* two calls on one filter state: sequence them (argument evaluation order is
+                 * unspecified; gcc ran the second pair first) */
+                const float h0 = decim_hb2(b->hb2, os[0], os[1]);
+                const float h1 = decim_hb2(b->hb2, os[2], os[3]);
+                s = decim_hb1(b->hb1, h0, h1);
+            }
 #endif
 
             /* allpass 14 Hz, highpass 24 Hz, notch 7.5 Hz at the base rate */

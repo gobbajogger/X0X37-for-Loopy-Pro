@@ -6,19 +6,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 usb = (ROOT / "firmware/src/usb.c").read_text()
+ble = (ROOT / "firmware/src/ble.c").read_text()
 main = (ROOT / "firmware/src/app/main_fm1.c").read_text()
 engine = (ROOT / "firmware/src/app/engine.c").read_text()
 ui = (ROOT / "firmware/src/app/ui.c").read_text()
 apc = (ROOT / "firmware/src/app/smk_apc40.h").read_text()
 
-# The complete APC40 mkII palette has 128 velocity-indexed entries.
-match = re.search(r"APC40_RGB\[128\]\s*=\s*\{(.*?)\};", main, re.S)
-assert match, "missing APC40 palette"
-palette = [int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{6})", match.group(1))]
+# The pad table has 128 velocity-indexed entries: the owner-calibrated table (CLP-13). The violet group
+# 48-51 (bug a67) and the other colours come from the owner export: tests/apc40_pad_owner_test.py.
+owner_h = (ROOT / "firmware/src/app/apc40_pad_owner.h").read_text()
+match = re.search(r"APC40_PAD_OWNER\[128\]\[3\]\s*=\s*\{(.*?)\};", owner_h, re.S)
+assert match, "missing APC40 pad table"
+palette = re.findall(r"\{(\d+),(\d+),(\d+)\}", match.group(1))
 assert len(palette) == 128, f"expected 128 APC colors, found {len(palette)}"
-assert palette[0] == 0x000000 and palette[3] == 0xFFFFFF
-assert palette[5] == 0xFF0000 and palette[21] == 0x00FF00 and palette[127] == 0x4B1502
-print("PASS APC40 RGB palette (128 entries)")
+assert palette[0] == ("0", "0", "0")
+assert '#include "app/apc40_pad_owner.h"' in main and "APC40_RGB" not in main
+print("PASS APC40 pad table (128 entries, owner-calibrated)")
 
 # Universal Device Inquiry returns the APC40 mkII identity and protocol version.
 assert "apc40_device_inquiry" in usb
@@ -61,7 +64,7 @@ assert "smk_apc_usb_event(pkt)" in usb
 assert "smk_apc40_cell_event(apc_led_velocity" in main and "smk_apc40_cells_age(" in main
 assert "smk_apc40_latch_layout(feedback, &apc_cols, &apc_rows," in main
 assert "&apc_origin_col, &apc_origin_row, &apc_layout_locked" in main
-assert "max_col - min_col <= 3u && max_row - min_row >= 2u" in apc
+assert "(unsigned)(max_col - min_col) <= 3u && (unsigned)(max_row - min_row) >= 2u" in apc
 assert "origin_col + block_col % 4u" in apc
 assert "block_col >= 4u ? 0u : 2u" in apc
 assert "apc_origin_col, apc_origin_row" in main
@@ -70,7 +73,8 @@ assert "smk_clip_pages" not in main
 assert "note != 0xFFu && apc_led_velocity[note] != 0u" in main
 assert "smk_apc40_physical_pad_for_logical((uint8_t)logical)" in main
 assert "smk_apc40_logical_pad_for_physical((uint8_t)i)" in main
-assert "sent_note[i] = note" in main and "midi_send_note(sent_note[i], 0u)" in main
+assert "sent_note[i] = note" in main and "apc_note(sent_note[i], 0u)" in main
+assert "if (d1 <= 98u)\n        return owned;" in main
 print("PASS origin-normalized sparse maps and single-view pad rendering")
 
 # Local 8x2 views replace Loopy viewport navigation. No navigation MIDI is sent.
@@ -96,16 +100,18 @@ print("PASS clip mode entry refreshes pad colors; page snapshots clear old-page 
 assert "smk_apc_led_set(d1, ch, vel)" not in engine   # stored once, in the USB interrupt
 assert "smk_apc_usb_tick();" in usb and "smk_apc40_cells_age(" not in main.split("static uint8_t smk_clip_map_refresh")[1].split("\n}\n")[0]
 assert "smk_apc_host_is_active" not in engine and "smk_apc_host_is_active" not in main
-assert "uint8_t owned = clip_grid_mode;" in main   # APC notes drop only in clip mode
+assert "apc_host_on & (1u << apc_in_ble)" in main   # APC handshake owns only the input link that sent it
+assert "smk_apc_ble_host_seen();" in ble and "smk_apc_host_seen();" in usb
+assert "if (d1 <= 98u)\n        return owned;" in main and "(d1 >= 48u && d1 <= 63u)" in main
 assert engine.count("if (smk_clip_mode_on())\n                return;") == 2
 assert "SMK_APC40_PAD_FLOOR" not in main   # pads: half level, no floor (user decision)
-assert "((rgb >> 16) * brightness) / 510u" in main
-assert "SMK_CLIP_LCD_FLOOR 128u" in main and "SMK_CLIP_LCD_FLOOR + mx * (255u - SMK_CLIP_LCD_FLOOR) / 255u" in main
+assert "smk_clip_pad_level(rgb[0], v, brightness)" in main
+assert "SMK_CLIP_LCD_FLOOR" not in main   # LCD_FLOOR is in tools/apc_colour_model.py now
 assert "smk_apc_host_seen();" in usb and "smk_apc_host_lost();" in usb
 assert "BOARD_SMK37 && !defined(FELUCCA_LOADER)" in usb
 assert "clip_state[16]" not in main and "smk_clip_state_set" not in engine
-assert "APC40_RGB[v];   /* the last color from Loopy" in main
-print("PASS host-owned clip LED state capture; last color is drawn as sent")
+assert "APC40_PAD_OWNER[v];   /* the last color from Loopy" in main
+print("PASS host-owned clip LED state capture; last color drawn from the owner-calibrated table")
 
 # Play and overdub buttons reflect Loopy feedback in clip mode.
 assert "smk_apc_transport_led_set(d1, vel)" in engine
@@ -115,7 +121,7 @@ assert "smk_apc40_transport_feedback_note" in apc
 assert "smk_apc40_transport_feedback_on" in apc
 assert "smk_clip_transport_button((uint8_t)i, (uint8_t)((btn & m) != 0u))" in ui
 assert "static uint8_t play_sent, record_sent" in main
-assert "midi_send_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u)" in main
+assert "apc_note(note, event == SMK_APC40_BUTTON_ON ? 127u : 0u)" in main
 assert "smk_apc40_transport_led_after_press(apc_play_feedback)" in main
 assert "smk_apc40_transport_led_after_press(apc_record_feedback)" in main
 assert "smk_apc_clock_tick();" in engine and "smk_apc_clock_start();" in engine
@@ -125,7 +131,9 @@ print("PASS Loopy Play/Record feedback LEDs, clock-synced PLAY blink, momentary 
 # Clip mode keeps controls from triggering X0X actions; the APC initialization reply remains intact.
 plat = (ROOT / "firmware/src/app/plat_fm1.c").read_text()
 assert "clip_mode && panel.btn[i] <= FM1_BTN_OCT_UP" in plat
-assert "KEY_WHITE[k] >= 0 && ((fm1_in.pnotes >> k) & 1u)" in ui
+# clip keys: the keybed stays out of the X0X UI; a held pad still blocks its white key (main_fm1.c)
+assert "if (smk_clip_mode_on() || smk_padcal_on())\n#else\n    if (smk_clip_mode_on())\n#endif\n        return;" in ui   # CLP-79: also in the pad calibration (dev build)
+assert "w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)" in main
 assert "if (smk_clip_mode_on())" in main and "enter_uboot(\"UBOOT\")" in main
 assert "0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09" in usb
 assert "apc40_introduction_reply();" in usb
@@ -138,6 +146,22 @@ assert "uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)" in main
 assert "SMK_CLIP_LCD_MIN_MS 64u" in main and "cv_begin(w, h, C_BLACK)" in main
 assert "smk_clip_lcd_draw" not in usb and "smk_clip_lcd_draw" not in engine
 print("PASS clip grid on the LCD: main loop only, rate limited, current pad view framed")
+# CLP-05: the LCD clip colours come from the table APC40_LCD565 (tools/apc_pad_colors.py, plain RGB565).
+draw = main.split("uint8_t smk_clip_lcd_draw(uint32_t w, uint32_t h)\n{")[1].split("\n}\n")[0]
+assert '#include "app/apc40_lcd565.h"' in main
+assert "uint16_t c = smk_clip_lcd565(v);" in draw          # APC40_LCD565, idle shades half of the full shade (CLP-05)
+assert "APC40_RGB" not in draw and "SMK_CLIP_LCD_FLOOR + mx" not in main   # the old floor calculation is gone
+assert "if (v)\n                    cv_rect(x + gap + 1, y + gap + 1, p - 2 * gap - 2, p - 2 * gap - 2, c);" in draw
+assert "else\n                    cv_rect(x + p / 2 - 2, y + p / 2 - 2, 4, 4, C_DIM);" in draw   # velocity 0: a dim dot
+pads = main.split("static void smk_pads(void)")[1].split("\n}\n")[0]
+assert "APC40_LCD565" not in pads and "APC40_PAD_OWNER[v];" in pads    # the pads use APC40_PAD_OWNER (CLP-13)
+assert "void smk_clip_lcd_force(void) { was_on = 0u; }" in main   # mode entry and menu close: draw at once
+assert "smk_clip_lcd_force();   /* a menu" in ui_src
+lost = main.split("void smk_apc_host_lost(void)")[1].split("\n}\n")[0]
+assert "smk_apc_link_clear(0u)" in lost                            # USB disconnect: the USB cells empty (CLP-18)
+link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
+assert "smk_apc_link_clear(1u)" in link                            # Bluetooth disconnect: the Bluetooth cells empty
+print("PASS LCD clip colours from APC40_LCD565; empty cells, pads, entry, menu and disconnect unchanged")
 assert "smk_apc_clock_position(" in engine and "cin == 3u && ep1rx[i + 1] == 0xF2u" in usb
 assert "apc_clock_count = sixteenths * 6u" in main
 print("PASS Song Position resets the queued blink phase")
@@ -149,3 +173,43 @@ assert ui_src.index("smk_clip_history_button((uint8_t)i") < ui_src.index("smk_cl
 assert "ui.btn_used |= m | 1u << B_HOME;" in ui_src
 assert "if (!clip_grid_mode || !patch_held)" in main and 'say(redo ? "LOOPY REDO" : "LOOPY UNDO", 0);' in main
 print("PASS Loopy undo/redo: PATCH + SEQ REC / SEQ PLAY in clip mode only")
+# a74 (MID-14): PLAY outside clip mode also sends note 0x5B on channel 1, after the clip mode handlers
+call = "smk_play_note_button((uint8_t)((btn & m) != 0u), (uint8_t)((btn >> B_HOME) & 1u))"
+assert call in ui_src
+assert ui_src.index("smk_clip_transport_button((uint8_t)i") < ui_src.index(call) < ui_src.index("button_tap((int)i);")
+assert "apc_out(smk_apc40_play_note_packet(event == SMK_APC40_BUTTON_ON))" in main
+assert "smk_apc40_play_note_event(&sent, clip_grid_mode, home_held, pressed)" in main
+print("PASS PLAY note 0x5B outside clip mode: USB and Bluetooth, after the clip mode handlers")
+# a71: Loopy gone on Bluetooth (link end or CCCD 0): ble.c gives the link state to the clip feedback
+# after each event poll, and main_fm1.c clears the cells (tests/smk_clip_ble_clear_test.c runs the logic).
+assert "smk_apc_ble_link((uint8_t)bleh_connected(h), (uint8_t)bleh_notifying(h));" in ble
+assert ble.index("bleh_rx(h, t, ble_r.fr") < ble.index("smk_apc_ble_link((uint8_t)") < ble.index("bleh_midi_next(h, &m)")
+link = main.split("void smk_apc_ble_link(uint8_t connected, uint8_t notifying)")[1].split("\n}\n")[0]
+assert "smk_apc40_lost_step(&lost, connected, notifying, fm1_ms)" in link   # a76: and again 300 ms later
+clr = main.split("static uint8_t smk_apc_link_clear(uint8_t ble)")[1].split("\n}\n")[0]
+assert "padled_rgb[i] = 0u;" in clr and "padled_dirty = 1u;" in clr   # a76: the pad colour store too
+assert "smk_apc40_cells_clear_mask(apc_led_velocity, apc_led_channel, apc_cell_flags, apc_cell_tick," in clr
+assert "ble ? apc_ble_owned : ~apc_ble_owned" in clr                 # CLP-18: only the cells of the lost link
+assert "if ((m >> APC_OWN_PLAY) & 1u)\n        apc_play_feedback = 0u;" in clr   # CLP-18: PLAY and REC of the lost link only
+assert "if ((m >> (APC_OWN_PLAY + 1u)) & 1u)\n        apc_record_feedback = 0u;" in clr
+assert "apc_own(APC_OWN_PLAY + (d1 == SMK_APC40_RECORD_NOTE));" in main
+assert "apc_play_feedback" not in link and "apc_play_feedback" not in lost
+assert "smk_apc_link_clear(1u)" in link
+for body in (link, clr):
+    assert "smk_ck" not in body and "clip_grid_mode" not in body and "seq" not in body
+assert "apc_host_on" not in clr and "apc_host_on &= (uint8_t)~2u;" in link
+# CLP-18: usb.c gives the USB link state each poll; its end clears only the USB cells (no apc_host_on change)
+assert "smk_apc_usb_link((uint8_t)(usb.config && !usb.suspended));" in usb
+ul = main.split("void smk_apc_usb_link(uint8_t up)")[1].split("\n}\n")[0]
+assert "smk_apc_link_clear(0u)" in ul and "apc_host_on" not in ul and "smk_ck" not in ul
+# CLP-18: the APC40 introduction with mode 0x40 (generic mode) clears the cells of that link
+assert "if (usb.sysex[7] == 0x40u)\n                smk_apc_host_generic(0u);" in usb
+assert "if (ble_sx[6] == 0x40u)\n            smk_apc_host_generic(1u);" in ble
+assert "(void)smk_apc_link_clear(ble);" in main.split("void smk_apc_host_generic(uint8_t ble)")[1].split("\n}\n")[0]
+print("PASS Bluetooth link end or notify off clears the clip feedback")
+# a76 rule 8: ble.c gives every Bluetooth note and CC to smk_apc_ble_event; it does not drop any.
+assert "smk_apc_ble_event(pkt, (uint8_t)bleh_notifying(h))" in ble
+assert "ble_in_unheard" not in ble
+bev = main.split("uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying)")[1].split("\n}\n")[0]
+assert "smk_apc40_ble_colour_unheard(pkt, notifying)" in bev and "smk_apc_usb_event(pkt)" in bev
+print("PASS Bluetooth notes while notify is off: only the pad colour write stops (rule 8)")

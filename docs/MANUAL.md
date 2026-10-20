@@ -208,7 +208,7 @@ The **top line** shows, from left to right:
 - a play symbol while playing and a red dot while recording. A small grey dot means there are
   unsaved changes.
 
-When a button does something, the top line says what for a second, for example SAVED or P1
+When a button does something, the top line says what for a second, for example SAVED or PARTS
 PASTED TO P5.
 
 The **knobs** sit under a tag that says whose they are: the selected track (BD), the whole
@@ -299,11 +299,21 @@ between them. Press REC again to go back to steps.
 and set FREE PLAY to ON. The keys then play the 303 on every 303 screen, stopped or playing, so
 you can try lines and turn EDIT's knobs as you go; the top line says FREE PLAY. Nothing is
 written until you press REC, which records as above. Set FREE PLAY back to OFF for the steps.
-Each 303 has its own, and both are off at power-on.
+Each 303 has its own, and both are off at power-on. In FREE PLAY, the SMK keybed's strike
+velocity controls volume and cutoff: soft notes are quieter and darker; hard notes are louder
+and brighter. Incoming MIDI notes use the same response. Velocity 100 is neutral. Overlapping
+notes still slide.
 
 **The pages.** EDIT has TONE (CUTOFF, RESO, ENVMOD, DECAY) and VOICE (ACCENT, WAVE, saw or
 square, DRIVE, SLIDE time); TUNE, VOLUME, DRIVE TYPE (off, soft or RAT) and ACCENT DECAY are in
-SEL's list. SEQ has the line's LENGTH (1–64 steps), RATE, DIRECTION (forward, reverse, ping-pong
+SEL's list. FILTER ADSR adds FATTACK (0–2000 ms), DECAY (200–2000 ms), FSUSTAIN (0–100%) and
+FRELEASE (0–4000 ms). In SEL's list, set FENV to ADSR to use these filter controls; 303 keeps
+the original envelope and is the default for existing sounds. DECAY is the same control on
+TONE and FILTER ADSR. ENVMOD sets the filter envelope depth. A slide continues the envelope;
+a fresh note starts it again. These controls affect the filter only: the original volume
+envelope still determines how long the release is audible.
+
+SEQ has the line's LENGTH (1–64 steps), RATE, DIRECTION (forward, reverse, ping-pong
 or random) and TRANSPOSE. Each 303's level, pan and sends are on the mixer (LFO).
 
 ---
@@ -435,10 +445,12 @@ with notes in that pattern: bright where that part is playing it now, dim otherw
 While playing, the new pattern starts when the current bar ends; stopped, it takes over at once.
 A part that changes pattern starts again from step 1; the others carry on.
 
-**Copy and paste.** Hold SAVE: the top line says P1 COPIED. Press a white key to paste onto that
-pattern (P1 PASTED TO P2): all five parts, as they're playing now. If the pattern you paste onto
-has notes, X0X asks first. While holding SAVE, OCT- and OCT+ switch between patterns 1–16 and
-17–32.
+**Copy and paste.** Hold SAVE: the top line says CHOOSE PASTE TARGET. Press a white key to copy
+the five parts currently playing onto that pattern (PARTS PASTED TO P2). Each part can come from a
+different pattern. If the destination has notes, X0X asks first; the source pattern numbers are
+held from when you pressed the destination key, and their contents are copied when you confirm.
+SAVE does not make a clipboard snapshot. While holding SAVE, OCT- and OCT+ switch between patterns
+1–16 and 17–32.
 
 **Clearing.** Hold SAVE and press REC to clear the selected part in its pattern. GLO > CLEAR
 PATTERN clears all five.
@@ -651,15 +663,26 @@ The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk
 ### Saving
 
 **SAVE** saves the sounds, all 32 patterns, the song, the knob motion, the tempo and the
-settings. A small grey dot at the top right of the screen means there are unsaved changes, and
-anything unsaved is lost when you switch off.
+settings. UNSAVED in the header and a SAVE button that flashes mean the project needs a save.
+If the header has little space, it shows a small amber mark. You lose unsaved changes when you
+switch off. Hold SAVE to see the current save state.
 
-With **AUTOSAVE** on (the default) you'll rarely need SAVE: whenever the pattern is stopped and
-nothing has been touched for four seconds, X0X saves and says AUTOSAVED.
+With **AUTOSAVE** on, X0X saves after you stop the pattern and leave the controls untouched
+for four seconds. AUTOSAVE is on by default. X0X then says AUTOSAVED.
+If REC is on, turn REC off for autosave. Hold SAVE to see this reminder.
 
-> **X0X never saves while playing.** Saving pauses the sound for a moment (the FM-1 plays from the
-> same memory it saves to), so a SAVE pressed while playing says SAVES WHEN STOPPED and saves when
-> you stop.
+> **X0X never saves while the pattern plays.** A save pauses the sound for a moment. The FM-1
+> plays from the same memory that it writes. A press on SAVE while the pattern plays says
+> SAVES WHEN STOPPED and shows SAVE AT STOP in the header. X0X saves when you stop. The SAVE
+> button stays lit until then.
+
+In clip mode while X0X plays, SAVE first shows SAVES WHEN STOPPED and then SAVE AT STOP in the header. Once X0X stops, the header changes to SAVE WHEN QUIET. A SAVE pressed while clip keys or encoders are active shows SAVES WHEN QUIET. X0X waits
+until the transport stops and keybed or control activity stays quiet for four seconds. The
+SAVE button stays lit until the save completes.
+
+If a save fails, the header shows SAVE FAILED (or a red mark when space is tight). The SAVE
+button flashes fast. The warning stays until a save succeeds. A flash write failure also
+shows SAVE FAILED after an autosave.
 
 <details><summary>How much fits</summary>
 

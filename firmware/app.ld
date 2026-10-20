@@ -23,6 +23,9 @@ MEMORY
 SECTIONS
 {
     .text : { KEEP(*(.text.crt0)) *(.text*) *(.rodata*) . = ALIGN(4); _etext = .; } > XIP
+    /* 1 KiB at the start of RAM that nothing uses: the Bluetooth start checks whether the radio writes
+     * there (src/ble.c ble_sink_*). The RAM code starts after it. */
+    .ram_sink (NOLOAD) : { _ram_sink = .; . += 0x400; _ram_sink_end = .; } > RAMTEXT
     .ram_text : { _rt_start = .; KEEP(*(.ram_text*)) . = ALIGN(4); } > RAMTEXT AT > XIP
     _rt_load = LOADADDR(.ram_text);
     .c1_text : { _c1_start = .; KEEP(*(.c1_text*)) . = ALIGN(4); _c1_end = .; } > RAMTEXT AT > XIP

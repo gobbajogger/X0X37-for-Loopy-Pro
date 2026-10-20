@@ -3,9 +3,9 @@
  * X0X changes: Copyright (C) 2026 M. Geisler (genkigenki/makkuro) */
 #include "ble_midi_host.h"
 
-enum { OP_DISC = 0x0406, OP_RESET = 0x0C03, OP_LE_BUF = 0x2002, OP_RAND = 0x2005, OP_ADV_PARAM = 0x2006,
+enum { OP_DISC = 0x0406, OP_EVMASK = 0x0C01, OP_RESET = 0x0C03, OP_LE_EVMASK = 0x2001, OP_LE_BUF = 0x2002, OP_RAND = 0x2005, OP_ADV_PARAM = 0x2006,
        OP_ADV_DATA = 0x2008, OP_SCAN_RSP = 0x2009, OP_ADV_EN = 0x200A };
-enum { ST_RESET, ST_BUF, ST_RAND, ST_PARAM, ST_DATA, ST_SCAN, ST_DONE };
+enum { ST_RESET, ST_EVMASK, ST_LE_EVMASK, ST_BUF, ST_RAND, ST_PARAM, ST_DATA, ST_SCAN, ST_DONE };
 enum { H_GAP = 1, H_NAME_DECL, H_NAME, H_MIDI_SVC, H_MIDI_DECL, H_MIDI, H_CCCD, H_LAST = H_CCCD };
 enum { A_ERR = 1, A_MTU = 2, A_MTU_R = 3, A_INFO = 4, A_INFO_R = 5, A_FVAL = 6, A_FVAL_R = 7, A_RTYPE = 8, A_RTYPE_R = 9,
        A_READ = 10, A_READ_R = 11, A_GROUP = 16, A_GROUP_R = 17, A_WRITE = 18, A_WRITE_R = 19, A_NOTIFY = 27,
@@ -72,6 +72,16 @@ static void next_cmd(bleh_t *h)
     unsigned i, n;
     switch (h->step) {
     case ST_RESET: cmd(h, OP_RESET, 0, 0); break;
+    case ST_EVMASK:                                 /* attempt 28: the events, with LE meta (bit 61) */
+        for (i = 0; i < 8; i++) b[i] = 0xFF;
+        b[7] = 0x3F;
+        cmd(h, OP_EVMASK, b, 8);
+        break;
+    case ST_LE_EVMASK:                              /* the LE events: connection complete, update, ... */
+        for (i = 0; i < 8; i++) b[i] = 0;
+        b[0] = 0xFF; b[1] = 0x0F;
+        cmd(h, OP_LE_EVMASK, b, 8);
+        break;
     case ST_BUF: cmd(h, OP_LE_BUF, 0, 0); break;
     case ST_RAND: cmd(h, OP_RAND, h->addr, 6); break;
     case ST_PARAM:                                  /* 40..80 ms, ADV_IND, random address, all 3 channels, no filter */
@@ -128,8 +138,8 @@ static void att_err(bleh_t *h, unsigned op, unsigned hd, unsigned code)
  * may come inside SysEx, after a timestamp. */
 static void in_put(bleh_t *h, const bleh_msg_t *m)
 {
-    if ((uint8_t)(h->in_w - h->in_r) < BLEH_MIDIQ)
-        h->in_q[h->in_w++ % BLEH_MIDIQ] = *m;
+    if ((uint8_t)(h->in_w - h->in_r) < BLEH_INQ)
+        h->in_q[h->in_w++ % BLEH_INQ] = *m;
     else
         h->drops_in++;
 }
@@ -228,10 +238,15 @@ static void sig_in(bleh_t *h, const uint8_t *p, unsigned n)
 {
     uint8_t r[6] = {0x01, 0, 2, 0, 0, 0};           /* Command Reject: command not understood */
     if (n < 4) return;
+    if (p[0] == 0x13 && n >= 6 && h->cpu_state) {   /* attempt 34: our parameter request: accepted (0) or not */
+        h->cpu_result = p[4] == 0 && p[5] == 0 ? 1u : 2u;
+        return;
+    }
     switch (p[0]) {
     case 0x01: case 0x07: case 0x13: case 0x15: case 0x18: return;   /* responses: nothing to answer */
     default: break;
     }
+    if (h->sig_reqs < 255u) h->sig_reqs++;
     r[1] = p[1];
     l2cap_send(h, CID_SIG, r, 6);
 }
@@ -248,6 +263,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
     switch (op) {
     case A_MTU:
         if (n != 3) { att_err(h, op, 0, E_PDU); return; }
+        h->mtu_req = (uint16_t)rd16(p + 1);
         r[0] = A_MTU_R; wr16(r + 1, BLEH_MTU);
         att_send(h, r, 3);
         return;
@@ -381,6 +397,7 @@ static void acl_in(bleh_t *h, const uint8_t *p, unsigned n)
 static void link_reset(bleh_t *h)
 {
     h->cccd[0] = h->cccd[1] = 0;
+    h->cpu_state = 0;
     h->rx_on = 0;
     h->in_r = h->in_w = h->in_running = 0;
     sysex_end(h, -1);
@@ -408,18 +425,26 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
     } else if (code == 0x3E && pl >= 5 && (p[0] == 0x01 || p[0] == 0x0A)) {     /* (enhanced) connection complete */
         h->want_adv = 0;                            /* the controller stops advertising either way */
         if (p[1] == 0 && p[4] == 1) {               /* success, we are the peripheral */
+            unsigned o = p[0] == 0x0A ? 24u : 12u;
             h->conn = (uint16_t)(rd16(p + 2) & 0x0FFFu);
+            if (pl >= o + 4u) { h->conn_int = (uint16_t)rd16(p + o); h->conn_lat = (uint16_t)rd16(p + o + 2u); }
             h->state = BLEH_CONNECTED;
             h->credits = h->acl_total;
             link_reset(h);
         }
+    } else if (code == 0x3E && pl >= 8 && p[0] == 0x03 && p[1] == 0) {   /* attempt 34: connection update complete */
+        h->conn_int = (uint16_t)rd16(p + 4);
+        h->conn_lat = (uint16_t)rd16(p + 6);
     } else if (code == 0x05 && pl >= 4) {           /* disconnection complete */
+        h->disc_reason = p[3];                      /* attempt 34 (DIAG) */
         if (h->state == BLEH_CONNECTED && (rd16(p + 1) & 0x0FFFu) == h->conn) {
             h->state = BLEH_ADVERTISING;
             h->want_adv = 0;
             h->q_r = h->q_w;
             h->sx_on = 0;
             link_reset(h);
+        } else if (h->state == BLEH_ADVERTISING) {
+            h->want_adv = 0;                        /* attempt 28: a link the host did not see ended: advertise again */
         }
     } else if (code == 0x13 && pl >= 1) {           /* number of completed packets: all handles, then all counts */
         unsigned i, c = p[0];
@@ -488,7 +513,7 @@ int bleh_sysex_send(bleh_t *h, const uint8_t *m, uint32_t len, uint16_t ts)
 int bleh_midi_next(bleh_t *h, bleh_msg_t *m)
 {
     if (h->in_r == h->in_w) return 0;
-    *m = h->in_q[h->in_r++ % BLEH_MIDIQ];
+    *m = h->in_q[h->in_r++ % BLEH_INQ];
     return 1;
 }
 
@@ -512,6 +537,17 @@ static unsigned sysex_packet(bleh_t *h, uint8_t *r)
     return len;
 }
 
+/* attempt 34: an L2CAP connection parameter update request (peripheral to central), once per link.
+ * 1 sent, 0 not now (not connected, or sent already). */
+int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16_t to)
+{
+    uint8_t r[12] = {0x12, 0x31, 8, 0};
+    if (h->state != BLEH_CONNECTED || h->cpu_state) return 0;
+    wr16(r + 4, min); wr16(r + 6, max); wr16(r + 8, lat); wr16(r + 10, to);
+    h->cpu_state = 1; h->cpu_result = 0;
+    l2cap_send(h, CID_SIG, r, 12);
+    return 1;
+}
 void bleh_poll(bleh_t *h)
 {
     uint8_t r[BLEH_MTU];

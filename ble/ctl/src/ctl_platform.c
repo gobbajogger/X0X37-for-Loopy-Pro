@@ -6,8 +6,15 @@
  * (ctl_port.c). */
 #include "ctl_port.h"
 
+/* The SDK uses strcmp for fixed controller names; a small generic implementation keeps the
+ * dual-role image inside its flash slot without pulling the toolchain's full libc version. */
+int strcmp(const char *a, const char *b)
+{
+    while (*a && *a == *b) { a++; b++; }
+    return (unsigned char)*a - (unsigned char)*b;
+}
+
 /* ---- interrupts ---- */
-#define CTL_BLE_IRQ_PRIO 7   /* felucca-bsp #2 finding: BLE IRQs need priority 7 */
 void request_irq(unsigned char index, unsigned char prio, void (*handler)(void), unsigned char cpu_id)
 {
     (void)prio; (void)cpu_id;          /* this image runs on core 1: always route to it */
@@ -43,8 +50,13 @@ u8 low_power_get_osc_type(void) { return ctl_bp->osc_type; }
 int power_is_poweroff_post(void) { return 0; }
 
 /* ---- clocks and delays (RAM: the RF trim calls them while flash is off) ---- */
+/* The radio library (wf_rf_common_init) asks only for "osc": the crystal, 24 MHz on the FM-1 and the
+ * SMK-37 (fm1-ctl's shim gives 24 MHz too). Before, "osc" got the system clock (360 MHz): the radio
+ * then set its clocks for a wrong crystal, and both cores stopped in the TX IQ trim (watchdog reset). */
+#define CTL_OSC_HZ 24000000
 int clk_get(const char *name)
 {
+    if (name && name[0] == 'o') return CTL_OSC_HZ;
     if (name && name[0] == 'l') return (int)ctl_bp->lsb_clk_hz;
     if (name && name[0] == 'h') return (int)ctl_bp->hsb_clk_hz;
     return (int)ctl_bp->sys_clk_hz;
@@ -57,12 +69,21 @@ CTL_RAMTEXT void delay_us(unsigned int us)
 {
     volatile const u32 *t = dly_tick;
     u32 t0, span = (u32)us * dly_per_us;
-    if (!t) {
-        for (volatile u32 n = (u32)us * 64u; n; n--) {}
-        return;
+    u32 same = 0, last;
+    t0 = last = *t;                        /* boot_ok requires tick_addr before ctl_delay_init */
+    for (;;) {
+        u32 now = *t;
+        if ((u32)(now - t0) >= span)
+            break;
+        if (now != last) {
+            last = now;
+            same = 0;
+        } else if (++same > 1000000u) {   /* the tick counter stopped: count it, go on */
+            if (ctl_mb)
+                ctl_mb->dbg[XB_DBG_STALL]++;
+            break;
+        }
     }
-    t0 = *t;
-    while ((u32)(*t - t0) < span) {}
 }
 CTL_RAMTEXT void delay(unsigned int cnt)
 {
@@ -89,6 +110,7 @@ u16 CRC16(const void *ptr, u32 len)
     }
     return crc;
 }
+u16 crc_get_16bit(const void *ptr, u32 len) { return CRC16(ptr, len); }
 u32 crc_get_32bit(const char *src)
 {
     u32 crc = 0xFFFFFFFFu;               /* CRC-32 (IEEE) of a NUL-terminated string */
@@ -109,7 +131,17 @@ int puts(const char *s) { (void)s; return 0; }
 int putchar(int c) { return c; }
 void printf_buf(u8 *buf, u32 len) { (void)buf; (void)len; }
 void put_buf(const u8 *buf, int len) { (void)buf; (void)len; }
-void cpu_assert_debug(void) { ctl_fail(XB_E_ASSERT); }
+void cpu_assert_debug(void)
+{
+    if (ctl_mb)                           /* the caller, for DIAG (XB_DBG_INIT_MS is free when init fails) */
+        ctl_mb->dbg[XB_DBG_INIT_MS] = (u32)(uintptr_t)__builtin_return_address(0);
+    ctl_fail(XB_E_ASSERT);
+}
 
 /* ---- reset: the app owns the system. The controller stops; the app goes on without it. ---- */
-void P33_SYSTEM_RESET(void) { ctl_fail(XB_E_RESET); }
+void P33_SYSTEM_RESET(void)
+{
+    if (ctl_mb)                           /* the library's caller, for DIAG */
+        ctl_mb->dbg[XB_DBG_INIT_MS] = (u32)(uintptr_t)__builtin_return_address(0);
+    ctl_fail(XB_E_RESET);
+}

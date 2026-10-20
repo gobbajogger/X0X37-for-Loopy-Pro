@@ -29,7 +29,7 @@ Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
 7 installed, but the slots were not written back (the backup file stays),
-8 installed, but the Bluetooth controller image read-back failed or its CRC32 is not the file CRC32,
+8 installed, but the Bluetooth controller block read-back failed or its CRC32 is not the expected full-block CRC32,
 9 refused by the gate guard (no install was started),
 10 refused by the foreground guard or the hardware lock (no device was opened),
 11 refused by the bootloader guard: the package head is not the reference head (no device was opened).
@@ -52,16 +52,19 @@ Order for a real device: gate guard, foreground guard, hardware lock, bootloader
 Gate guard (x0x37 rule 29): before an install on a real device, the tool runs
 tools/require_gate_pass.sh <--commit HASH> --fwsc PACKAGE --config dev|rel [--ctl FILE]. The install starts
 only if the gate script gave PASS for the exact tree of HASH and the files are the files that the gate built
-for that config. Alternatively --dev-record accepts scoped DEV CHECKED evidence for dev only,
-with explicit --ctl or --no-ctl so an unchecked cached controller cannot be added. --config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
+for that config. Alternatively --dev-record accepts scoped DEV CHECKED evidence for dev only.
+An SMK-37 package with an empty controller block requires explicit --ctl FILE; --no-ctl is accepted only
+when the package already embeds a valid controller or is an old package whose application owns that range.
+--config dev (the default) is the dev build (X0X_DEV_PADCAL=1), rel is the release build (0).
 --commit (or X0X_INSTALL_COMMIT) is necessary. --info and the mocked device of the tests do not use it.
 
 Bluetooth MIDI (SMK-37): --ctl FILE adds a controller image that ble/ctl/build_ctl.sh built on this
-computer to the package before it is sent (tools/add_ctl.py). Every install writes the Bluetooth block,
-so without it the unit has no Bluetooth after the install. build_ctl.sh also keeps a copy in
-~/.config/x0x/ctl.img: an SMK-37 install uses that copy by itself (and says so); --no-ctl skips it.
-After the install, the tool reads the image back from the unit's Bluetooth block (editor command 37
-CTL_READ, read only) and prints the unit CRC32. If it is not the file CRC32, the tool stops with exit 8.
+computer to the package before it is sent (tools/add_ctl.py). Every current SMK install writes the
+Bluetooth block, so an empty block is refused instead of erasing the installed controller. The installer
+does not use the cached ~/.config/x0x/ctl.img implicitly: select the exact validated file with --ctl.
+After the install, the tool reads the complete 64 KiB block back from the unit (editor command 37
+CTL_READ, read only) and compares it with the selected image plus erased padding. A mismatch stops
+with exit 8.
 
 Packages: 20 interleave blocks (FM-1, X0X, an SMK-37 Pro build of X0X) or more (the stock SMK-37 Pro
 v016 has 36: the extra markers are 0x7D); the count is detected and checked with the files' CRCs.
@@ -584,15 +587,19 @@ class SlotMove:
                 f"or: python3 tools/x0x_slots.py restore {self.path}")
 
 
-def plan_slots(dev, image, product):
-    """-> SlotMove if the install would lose slot data, else None"""
+def plan_slots(dev, image, product, require_backup=False):
+    """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup."""
     lay = slot_probe(dev.link)
-    if not lay or not any(sl["nz"] for sl in lay["slots"]):
+    if not lay:
+        if require_backup:
+            raise xs.SlotError("the running firmware did not provide its slot layout")
+        return None
+    if not require_backup and not any(sl["nz"] for sl in lay["slots"]):
         return None
     old_map = xs.flash_map(lay, board_of(dev.id.text))
     new_map = package_slot_map(image, product)
     risk = xs.at_risk(lay, old_map, new_map)
-    return SlotMove(lay, old_map, new_map, risk, board_of(dev.id.text)) if risk else None
+    return SlotMove(lay, old_map, new_map, risk, board_of(dev.id.text)) if risk or require_backup else None
 
 
 # ------------------------------------------------------------------- CLI ---
@@ -710,26 +717,28 @@ class Progress:
             self.line = False
 
 
-CTL_CACHE = Path.home() / ".config" / "x0x" / "ctl.img"   # ble/ctl/build_ctl.sh keeps its last image here
-
-
-def with_ctl(a, product, image, out, cache=None):
-    """the logical image with the Bluetooth controller image added (--ctl, or the cached one on an SMK-37)"""
-    cache = CTL_CACHE if cache is None else cache
+def with_ctl(a, product, image, out):
+    """Return an installable image; current SMK packages require an explicit or embedded controller."""
     path = getattr(a, "ctl", None)
     smk = board_of(product) == "smk"
-    if path is None and smk and not getattr(a, "no_ctl", False) and Path(cache).is_file():
-        # the cached image goes only into a package with a free Bluetooth block: an older X0X (a rollback)
-        # has app code there and installs without it (the cache never stops an install)
-        try:
-            add_ctl.check_block(image)
-            path = cache
-        except add_ctl.PkgError as e:
-            print(f"Bluetooth controller image: {cache} not added: {e}", file=out)
-    if path is None:
-        return image
     if not smk:
-        raise InstallError("usage", "--ctl: the Bluetooth controller image is for the SMK-37 family only")
+        if path is not None:
+            raise InstallError("usage", "--ctl: the Bluetooth controller image is for the SMK-37 family only")
+        return image
+    if path is None:
+        try:
+            ctl = add_ctl.controller_of(image)
+        except add_ctl.NoBlock as e:
+            print(f"Bluetooth controller image: not applicable: {e}", file=out)
+            return image
+        except add_ctl.PkgError as e:
+            raise InstallError("badpkg", f"Bluetooth controller image: {e}")
+        if ctl is None:
+            raise InstallError("badpkg", "SMK-37 package has an empty Bluetooth controller block. Give --ctl FILE "
+                                        "for the exact validated controller; --no-ctl does not preserve the unit block")
+        a.ctl_bytes = ctl
+        print(f"Bluetooth controller image: {len(ctl)} B already embedded in the package", file=out)
+        return image
     try:
         ctl = Path(path).read_bytes()
     except OSError as e:
@@ -767,15 +776,18 @@ def read_ctl(ed, size):
 
 
 def check_ctl(link, ctl, out):
-    """read the Bluetooth controller image back from the unit; stop the install if its CRC32 is not the file's"""
-    want = zlib.crc32(ctl) & 0xFFFFFFFF
+    """Read and compare the complete 64 KiB controller block, including erased padding."""
+    expected = ctl + b"\xFF" * (add_ctl.BLE_SIZE - len(ctl))
+    want = zlib.crc32(expected) & 0xFFFFFFFF
     try:
-        got = zlib.crc32(read_ctl(EditorLink(link), len(ctl))) & 0xFFFFFFFF
+        got = zlib.crc32(read_ctl(EditorLink(link), add_ctl.BLE_SIZE)) & 0xFFFFFFFF
     except TimeoutError as e:
         raise InstallError("ctlcrc", f"installed, but the Bluetooth controller image was not read back ({e})")
-    print(f"Bluetooth controller image read back: {len(ctl)} B, unit CRC32 {got:08x}, file CRC32 {want:08x}", file=out)
+    print(f"Bluetooth controller block read back: {add_ctl.BLE_SIZE} B, unit CRC32 {got:08x}, "
+          f"expected block CRC32 {want:08x}", file=out)
     if got != want:
-        raise InstallError("ctlcrc", f"Bluetooth controller image: unit CRC32 {got:08x} is not the file CRC32 {want:08x}")
+        raise InstallError("ctlcrc", f"Bluetooth controller block: unit CRC32 {got:08x} is not the expected "
+                                     f"ctl.img plus erased padding CRC32 {want:08x}")
     return got
 
 
@@ -798,9 +810,17 @@ def run(a, backend, out, ask):
     print(f"device:  {dev.id.text}  ({dev.name})" + ("  in update mode: the write will be finished" if dev.id.loader else ""),
           file=out)
     move = None
+    if a.backup and dev.id.loader:
+        dev.link.close()
+        raise InstallError("slots", "--backup needs the running firmware; the device is already in update mode. "
+                                    "Nothing was written")
     if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
-        move = plan_slots(dev, image, product)
-        if move:
+        try:
+            move = plan_slots(dev, image, product, require_backup=bool(a.backup))
+        except (xs.SlotError, TimeoutError) as e:
+            dev.link.close()
+            raise InstallError("slots", f"the requested slot backup cannot start ({e}); nothing was written")
+        if move and move.risk:
             print(f"This install changes the sample slot map. These slots would lose their samples: {move.describe()}.",
                   file=out)
             print("They are saved to a file first and written back after the install." if move.new_map else
@@ -822,7 +842,7 @@ def run(a, backend, out, ask):
         up.install(dev, image, product, prog)
     finally:
         prog.end()
-    if move and move.new_map:
+    if move and move.risk and move.new_map:
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
         try:
             if not back:
@@ -833,7 +853,7 @@ def run(a, backend, out, ask):
                 back.link.close()
         except (xs.SlotError, TimeoutError, KeyError, IndexError) as e:
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
-    elif move:
+    elif move and move.risk:
         print(move.help(), file=out)
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
@@ -929,10 +949,11 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--port", metavar="NAME", help="MIDI port to use (part of its name)")
     ap.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
-    ap.add_argument("--backup", metavar="FILE", help="where to save the slots if the install would lose them")
+    ap.add_argument("--backup", metavar="FILE", help="save and verify every slot here before writing, even if none is at risk")
     ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
-    ap.add_argument("--no-ctl", action="store_true", help="SMK-37: do not add the cached ~/.config/x0x/ctl.img")
+    ap.add_argument("--no-ctl", action="store_true",
+                    help="SMK-37: use only a valid controller already embedded in the package (never preserves the unit block)")
     ap.add_argument("--commit", metavar="HASH", help="the source commit covered by the package validation record")
     ap.add_argument("--dev-record", metavar="FILE", help="scoped development validation record; requires config dev and explicit --ctl or --no-ctl")
     ap.add_argument("--head-ref", metavar="FILE", help="a flash read-back of this unit (raw, from flash 0): the bootloader guard reference")
@@ -940,6 +961,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--config", choices=("dev", "rel"), default="dev",
                     help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
     a = ap.parse_args(argv)
+    if a.backup and a.no_slots:
+        ap.error("--backup and --no-slots cannot be used together")
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")
     if a.head_check:                        # no device: only the bootloader guard

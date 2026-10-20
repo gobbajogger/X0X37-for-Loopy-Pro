@@ -34,13 +34,13 @@ The X0X manual still applies; the SMK-37's controls map onto the FM-1's like thi
 | ARP / SEQ | ARP / SEQ |
 | SEQ PLAY / SEQ REC | PLAY / REC |
 | OCTAVE- / OCTAVE+ | OCT- / OCT+ |
-| < / > | one step of SELECT back / forward (the page, a list's row); not while HOME is held |
+| < / > | no menu open, clip mode off: one step of SELECT back / forward for each press (the page); no repeat. A menu list open (GLO, or a page's list from SEL; also in clip mode): the value of the selected row one step down / up, as ALGORITHM (in clip mode with no menu, the clip keys page takes < and >). Hold to repeat (first repeat after 400 ms, then each 80 ms). The value stops at its ends. Action rows do not run. Not while HOME is held |
 | FADER BANK | switches the faders between bank A and bank B (lit on B) |
 | Faders 1..4, bank A | levels of the 909, the 808, 303 A, 303 B |
 | Faders 1..4, bank B | BREAK level, reverb return, delay return, master FILTER (middle off, left low-pass, right high-pass) |
 | Pitch wheel | on a 303 (the part on screen): its TUNE, about +-1.5 semitones, back when let go; other parts: nothing |
 | Mod wheel | on a 303: opens its CUTOFF from the saved value up to the top; other parts: nothing |
-| KNOB BANK | a short press: nothing; held for more than 1 s: toggles clip mode (APC40 mkII clip launcher for Loopy Pro, see [APC40_IMPLEMENTATION.md](APC40_IMPLEMENTATION.md)) |
+| KNOB BANK | press: toggles clip mode; a hold makes one change (APC40 mkII clip launcher for Loopy Pro, see [APC40_IMPLEMENTATION.md](APC40_IMPLEMENTATION.md)) |
 | OCTAVE- + OCTAVE+ held at power-on | HARDWARE CALIBRATION: teach the buttons and knobs K2..K8 again |
 
 A fader takes over only once it moves (also after a bank change). The faders set the same values as the knobs

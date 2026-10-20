@@ -56,14 +56,14 @@ GEN-29. When clip mode is off and no menu list is open, "<" and ">" move SELECT 
 GEN-30. FADER BANK switches the faders between bank A and bank B. The FADER BANK LED is on for bank B. [SMK37] [CODE app/main_fm1.c:607-613]
 GEN-31. Bank A faders 1-4 set the levels of the 909, the 808, 303A and 303B. [SMK37] [CODE app/main_fm1.c:628-629]
 GEN-32. Bank B faders 1-4 set the BREAK level, the reverb return, the delay return and the master FILTER. [SMK37] [CODE app/main_fm1.c:630-637]
-GEN-33. A fader has an effect only after it moves. This is also true after a bank change. [SMK37] [CODE app/main_fm1.c:621-626]
+GEN-33. A fader takes over when it reaches or crosses the saved value, within two raw counts. This applies after a bank change and after a knob or loaded project changes the target. Until then, moving it shows the fader number and the direction toward the saved value. The hint leaves the pattern or song bar and tempo visible. [SMK37] [CODE app/main_fm1.c smk_faders; app/ui.c draw_header]
 GEN-34. A fader sets the same value as the related knob. The project keeps the value. With REC on, the fader records knob motion. [SMK37] [CODE app/main_fm1.c:641-642]
 GEN-35. The pitch wheel changes the TUNE of the 303 on the screen by about +-1.5 semitones. It goes back when you release it. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:708-712]
 GEN-36. The mod wheel opens the CUTOFF of the 303 on the screen from the saved value to the top. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:713-720]
 GEN-37. The wheels change only the sound. They do not change saved values. [SMK37] [CODE app/main_fm1.c:698-705]
 GEN-38. The keys and the pads play without velocity. [SMK37]
 GEN-39. OCTAVE- and OCTAVE+ held at power-on start HARDWARE CALIBRATION. It teaches the buttons and K2 to K8 again. It does not teach K1. [SMK37] [CODE app/main_fm1.c:1039-1041] [CODE app/panel.c:100-101]
-GEN-40. A short KNOB BANK press does nothing. A KNOB BANK hold of more than 1 s toggles clip mode (section 15). [SMK37] [CODE app/main_fm1.c:772-792] (Was OQ-01. Resolved 2026-10-15: SMK37.md now agrees with the code.)
+GEN-40. A KNOB BANK press toggles clip mode (section 15). A hold makes one change. [SMK37] [CODE app/main_fm1.c smk_frame]
 GEN-41. The SMK-37 keybed has no LEDs. Black-key information (tracks, slices, part mutes) is on the screen only. [CODE app/plat_fm1.c:50-53]
 GEN-42. The first start of X0X on an SMK-37 clears the data of another firmware in the store area. The screen then shows "OLD DATA CLEARED". [SMK37] [CODE storage.c:62-100] [CODE app/main_fm1.c:1049-1051]
 GEN-43. The firmware never writes the calibration, the Bluetooth pairing or the key areas of the flash. [SMK37] [CODE ../hal/fm1_flash_map.h:24-83]
@@ -188,6 +188,8 @@ SNG-01. A song has a maximum of 192 bars. [MANUAL §12] [CODE seq/sequencer.h:52
 SNG-02. A song bar can repeat 1 to 8 times. [MANUAL §12] [CODE seq/sequencer.h:68]
 SNG-03. PLAY on the SONG screen plays the song from the selected bar. PLAY on another screen plays the patterns. [MANUAL §12]
 SNG-04. REC and PLAY on the SONG screen record the song bar by bar. The recording replaces the old bars. [MANUAL §12]
+SNG-05. INSERT BAR and DELETE BAR change only an existing selected bar. On the blank append row, they leave the song and save state unchanged and show NO BAR SELECTED. INSERT BAR on a 192-bar song leaves the song and save state unchanged and shows SONG FULL. [CODE app/ui.c run_action]
+SNG-06. HOME cancels a confirmation and returns to the overlay that opened it, including its selected list row. SELECT still confirms the action and completes it as before. [CODE app/ui.c ask button_tap]
 
 ## 11. Effects
 
@@ -206,9 +208,9 @@ MIX-04. FILTER is off in the middle. Left is a low-pass. Right is a high-pass. [
 
 SET-01. GLO has five sections: MIDI, AUDIO, KEYS AND SCREEN, PROJECT, SYSTEM. On the SMK-37 a sixth section, BLUETOOTH MIDI, follows SYSTEM (BLE-05). [MANUAL §15] [CODE app/ui.c open_global] (Changed 2026-10-15: the SMK-37 section is new.)
 SET-02. SAVE saves the sounds, all 32 patterns, the song, the knob motion, the tempo and the settings. [MANUAL §15]
-SET-03. X0X never saves while the sequencer plays. A SAVE during play shows "SAVES WHEN STOPPED" and saves at stop. [MANUAL §15] [CODE app/ui.c:1302]
-SET-04. AUTOSAVE is ON by default. It saves when the sequencer does not run and nobody touched a control for 4 s. [MANUAL §15] [CODE app/ui.c:4169]
-SET-05. If the project does not fit, X0X shows "MEMORY FULL: NOT SAVED" and keeps the last saved project. [MANUAL §15] [CODE app/ui.c:4189]
+SET-03. X0X never saves while the sequencer plays. A SAVE during play shows "SAVES WHEN STOPPED" and "SAVE AT STOP" in the header, including in clip mode. Once X0X stops, a queued clip-mode save shows "SAVE WHEN QUIET" until clip input has been quiet for four seconds. A SAVE pressed while clip keys or encoders are active also queues with "SAVES WHEN QUIET". [MANUAL §15] [CODE app/ui.c save_project autosave draw_header]
+SET-04. AUTOSAVE is ON by default. It saves when the sequencer does not run and nobody touched a control for 4 s. The header shows UNSAVED, or a small amber mark when space is tight, when an edit needs a save. The SAVE light flashes for unsaved changes and stays on for a queued save. A successful save clears the status. [MANUAL §15] [CODE app/ui.c autosave draw_header leds]
+SET-05. If the project does not fit, X0X shows "MEMORY FULL: NOT SAVED" and keeps the last saved project. Any save failure keeps a red "SAVE FAILED" header mark. When space is tight, X0X shows a red mark instead. The SAVE light flashes fast until a save succeeds. [MANUAL §15] [CODE app/ui.c save_project autosave draw_header leds]
 SET-06. Undo keeps a maximum of 32 steps. Undo does not cover the tempo or the settings. Power-off clears the history. [MANUAL §3] [CODE app/undo.c:22]
 SET-07. FACTORY RESET does not delete the saved project until you save. [MANUAL §15]
 SET-08. Defaults of a new project: tempo 125 BPM, CLOCK SOURCE AUTO, CLOCK OUT on, NOTES OUT off, KEY SOUND STOPPED, theme amber. A new project keeps the BLUETOOTH setting. [CODE app/project.c project_defaults] (Changed 2026-10-16, a74: CLOCK SOURCE. a75: CLOCK SOURCE AUTO is in the bt byte, MID-13.)
@@ -313,7 +315,7 @@ BLE-17. When the USB link ends, X0X releases each note that sounds from a USB no
 ### 15.1 Mode
 
 CLP-01. Clip mode exists only on the SMK-37 build. [CODE app/main_fm1.c:170]
-CLP-02. A KNOB BANK hold of more than 1 s toggles clip mode. The screen shows "LOOPY CLIPS" at entry and "LP OFF" at exit. [APC] [SMK37] [PADMAP] [CODE app/main_fm1.c:772-788]
+CLP-02. A KNOB BANK press toggles clip mode. A hold makes one change. The screen shows "LOOPY CLIPS" at entry and "LP OFF" at exit. [APC] [SMK37] [PADMAP] [CODE app/main_fm1.c smk_frame]
 CLP-03. Clip mode is off at power-on. [CODE app/main_fm1.c:176]
 CLP-04. In clip mode, the LCD main area shows the clip map. When a menu is open (for example GLO), the LCD shows the menu. When the menu closes, the clip map comes back. The mode chip at the top left reads "LP" (Loopy Pro). Where the X0X shows the pattern, the header shows the clock of the arp: EXT (amber) or INT (CLP-67).
   - The tempo stays. While a SCALE, CHORD or ARP page is open (CLP-75), the page covers the clip map. The bottom strip shows the KEYS panel (CLP-74). (Changed 2026-10-16: the menu and LP. Changed 2026-10-16: EXT/INT, the page and the KEYS panel.) When clip mode stops, the normal X0X view comes back at the next frame. [APC 1.5-apc40] [CODE app/ui.c:3788-3799]
@@ -328,8 +330,8 @@ CLP-05. LCD clip colours: a lit cell is a filled square. The colour comes from t
 ### 15.2 Feedback from Loopy
 
 CLP-10. The firmware always stores APC clip colour feedback (notes 0-39) and transport feedback (notes 91 = PLAY, 93 = RECORD). This is also true when clip mode is off. [USER] [APC] [CODE app/main_fm1.c:250-270]
-CLP-11. While clip mode is on, the APC40 LED feedback does not go to the sound engine. This is also true after an APC40 host (Loopy Pro) did the identity handshake on USB or Bluetooth. The APC40 LED feedback is note-on and note-off for notes 0-98 on all MIDI channels and the knob ring CCs 16-31 and 48-63. The notes are the clip colours, the blink and pulse channels and the track, scene and transport LEDs. The handshake state ends when X0X loses the USB host. [USER] [CODE app/main_fm1.c smk_apc_usb_event] (Changed 2026-10-15, test 35: was notes 0-39, 91, 93 in clip mode only.)
-CLP-12. While clip mode is off and no APC40 host did the handshake, these notes and CCs go to the sound engine as before. [USER] [CODE app/engine.c]
+CLP-11. While clip mode is on, the APC40 LED feedback does not go to the sound engine. This is also true after an APC40 host (Loopy Pro) did the identity handshake on the input link that carried the handshake: USB owns USB messages, Bluetooth owns Bluetooth messages. The APC40 LED feedback is note-on and note-off for notes 0-98 on all MIDI channels and the knob ring CCs 16-31 and 48-63. The notes are the clip colours, the blink and pulse channels and the track, scene and transport LEDs. USB handshake ownership ends when X0X loses the USB host; Bluetooth ownership ends when its link or notification subscription ends. [USER] [CODE app/main_fm1.c smk_apc_usb_event] (Changed 2026-10-15, test 35: was notes 0-39, 91, 93 in clip mode only. Changed 2026-10-19: ownership is per input link.)
+CLP-12. While clip mode is off and an input link has no APC40 handshake, its notes and CCs go to the sound engine as before, even if the other link has an APC40 host. On one link, an ordinary played note in the APC feedback range is indistinguishable from an LED note after the handshake and remains suppressed by CLP-11. [USER] [CODE app/engine.c] [CODE app/main_fm1.c smk_apc_usb_event]
 CLP-13. Clip colours use the 128-colour APC palette. The firmware accepts them on MIDI channels 1-16. The channel does not change the colour. The pads use the owner-calibrated table APC40_PAD_OWNER.
   - The owner made this table on 2026-10-17 with PAD COLOURS (CLP-79) on build 89f680e. The export is tools/padcal/pads-owner-20261017.txt (sha256 54ecc6f8). 89 entries have owner values. The other 39 entries have the start values that the owner saw and kept. tools/apc_pad_colors.py --pad-override writes app/apc40_pad_owner.h from the export. Dev builds and release builds use the same table. [USER 2026-10-17] [CODE app/apc40_pad_owner.h] [TEST tests/apc40_pad_owner_test.py]
   - A lit clip pad sends the table level / 2. These are the bytes that the owner saw for the same entry in PAD COLOURS. The off half of a blink or a pulse sends 0. [CODE app/main_fm1.c smk_pads] [TEST tests/smk_apc40_violet_test.py]
@@ -363,10 +365,10 @@ CLP-23. A footprint of 3 or 4 rows and 4 or fewer columns folds onto one 8x2 vie
 CLP-24. 4x4 fold (1.7 mapping): source rows 0-1 go on pads 5-8 and 13-16. Source rows 2-3 go on pads 1-4 and 9-12. [APC 0.9-apc40] [APC 1.7-apc40]
 CLP-25. In clip mode, the physical pad rows are upside down (vertical flip). Columns stay left to right. [APC]
 CLP-26. OCT- and OCT+ move the local 8x2 view down and up by 2 rows. The move stays inside the latched footprint. [APC] [PADMAP] [CODE app/main_fm1.c:793-806] (Was part of OQ-02. Resolved 2026-10-15.)
-CLP-27. In clip mode, a short KNOB BANK press does nothing. "<" and ">" do nothing unless a menu list is open or a clip keys page shows (CLP-76). FADER BANK pins the page (CLP-76). With a menu list open (GLO), "<" and ">" step the value of the selected row with the hold repeat (GEN-56). Only smk_arrows reads them then: the clip keys ignore "<" and ">" while a menu is open (smk_ck_knobs_owned is 0), so one press gives one step.
-  - With no menu and a SCALE, CHORD or ARP page on the screen, "<" and ">" step the last field of the page. The hold repeat is the same, 400 ms then 80 ms (CLP-76). SCALE, CHORD, ARP and NOTE REPEAT go to the clip keys only (CLP-61). The firmware sends no APC navigation messages. [APC] [PADMAP] [CODE app/main_fm1.c smk_arrows] [CODE app/main_fm1.c ck_controls]
+CLP-27. In clip mode, KNOB BANK exits on press. FADER BANK changes the fader bank. "<" and ">" step the selected clip keys field when its page is open (CLP-76). With a menu list open, they step the menu value (GEN-56). Only smk_arrows reads them then, so one press gives one step.
+  - With no menu and a SCALE, CHORD or ARP page on the screen, "<" and ">" step the selected field of the page. The hold repeat is the same, 400 ms then 80 ms (CLP-76). SCALE, CHORD, ARP and NOTE REPEAT go to the clip keys only (CLP-61). The firmware sends no APC navigation messages. [APC] [PADMAP] [CODE app/main_fm1.c smk_arrows] [CODE app/main_fm1.c ck_controls]
   - (Was OQ-02. Resolved 2026-10-15: PAD_MAP.md and BUILDING.md now agree with the code. Changed 2026-10-16: FADER BANK and < > work the page. Changed 2026-10-16, a77: a menu list in clip mode, owner approval 21:20.)
-CLP-28. In clip mode, the faders do nothing. [CODE app/main_fm1.c:602-603] (Was OQ-03. Resolved 2026-10-15: the code comment at app/main_fm1.c:599 now agrees.)
+CLP-28. The four faders and FADER BANK work in clip mode. Bank A sets the 909, 808, 303 A and 303 B levels. Bank B sets BREAK level, reverb return, delay return and master filter. A fader takes over when it reaches or crosses the saved value. [CODE app/main_fm1.c smk_faders]
 CLP-29. In clip mode, the update-mode hold (OCT- and OCT+ for 5 s) does nothing. [CODE app/main_fm1.c:1078-1083]
 CLP-30. In clip mode, a pad press on a lit cell sends note-on (velocity 127) for the cell APC note on MIDI channel 1. The release sends note-off. [CODE app/main_fm1.c:823-839] [CODE usb.c:147-153]
 CLP-31. A pad press on an unlit cell sends nothing. [APC "Spatial mapping"] [CODE app/main_fm1.c:830]
@@ -397,9 +399,8 @@ CLP-56. In clip mode, MIDI Clock, Start, Stop and Continue from Loopy also go to
 
 CLP-60. In clip mode, each keybed key sends a MIDI note. Key 0 (the lowest C) is note 48. The note goes through SCALE, then CHORD, then ARP, then out on the CLIP KEYS channel on USB and Bluetooth MIDI. Only the processed notes go out. [USER] [CODE app/main_fm1.c smk_ck_poll] [CODE app/smk_clip_keys.h]
 CLP-61. GLO > MIDI > CLIP KEYS CH sets the keybed channel: 2 to 15, default 2. Channels 1 and 16 stay free for the APC40 emulation. X0X saves the value with the settings. An older project loads the default. [USER] [CODE app/ui.c open_global] [CODE app/project.c]
-CLP-62. SCALE, CHORD and ARP are off when clip mode starts. A tap on SCALE, CHORD or ARP (shorter than 0.3 s, with no edit) turns that stage on or off. A message on the LCD tells the new state. A longer hold opens the page of the stage (CLP-75).
-  - No stage takes the knobs. (Changed 2026-10-16: before, a press gave the mode knobs 2 to 5. Changed 2026-10-16: tap and hold.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/smk_clip_keys.h ck_page_btn]
-CLP-63. In clip mode, knob 1 is always MASTER. No SCALE, CHORD or ARP setting is on a knob: the pages (CLP-75) and the keys set them. A SCALE or CHORD change while keys sound ends the old notes and plays the new notes. (Changed 2026-10-16: in clip mode, the knobs do only clip mode functions, see CLP-73.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/plat_fm1.c plat_enc]
+CLP-62. SCALE, CHORD and ARP are off when clip mode starts. One press on a stage button opens its settings page at once. Press the same button again to close it. Press another stage button to show that page. These presses do not change whether a stage is on. [CODE app/smk_clip_keys.h ck_page_press] [TEST tests/smk_clip_keys_test.c test_page]
+CLP-63. In clip mode, knob 1 is always MASTER. With a stage page open, knob 2 selects a field and knob 3 edits it. The first field is ON; edit it to turn that stage on or off. Knob 4 directly edits ON without changing the selected field. Knobs 5 and 6 keep useful direct settings when present. The screen shows the selected field or value after a turn. A SCALE or CHORD change while keys sound ends the old notes and plays the new notes. [CODE app/main_fm1.c ck_controls] [TEST tests/host/smk_clip_knob_test.c K9]
 CLP-64. SCALE has 24 scales:
   - Major, minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian, harmonic minor.
   - Melodic minor, major pentatonic, minor pentatonic, chromatic, blues, major blues, harmonic major, Phrygian dominant.
@@ -418,13 +419,13 @@ CLP-66. ARP plays the held notes one at a time. Orders: UP, DOWN, UP/DN, DN/UP, 
   - The note-on of the new note goes out 0 to 4 x HUMAN ms late at random (28 ms at most). Up to 24 note-ons wait. When 24 wait, a new one goes out immediately. A note-off never goes out before the note-on of its note: a waiting note-on goes out first. All notes off sends the waiting note-ons first.
   - The arp uses the first 8 keys that you press. One arp cycle holds 24 notes at most. (Changed 2026-10-16: DN/UP and true random are back. Changed 2026-10-16: SWING, RHYTHM, HUMAN. Changed 2026-10-16: HUMAN also moves the timing.) [USER] [CODE app/smk_clip_keys.h] [CODE app/main_fm1.c ck_arp]
 CLP-67. The arp follows the incoming MIDI clock when a tick came in the last 0.5 s. Else it uses the internal tempo. It also runs when Loopy does not play. MIDI Start resets it to the first step on the next tick. A jump of the incoming clock count (Start, Song Position) gives no burst of steps. The arp sends no clock. [USER] [CODE app/main_fm1.c ck_arp]
-CLP-68. NOTE REPEAT + ARP turns LATCH on or off. With LATCH on, the notes stay in the arp after the keys go up. The next key after all keys are up starts a new list. The ARP page also sets LATCH (key 36). (Changed 2026-10-16: the page.) [USER] [CODE app/main_fm1.c ck_controls]
+CLP-68. NOTE REPEAT + ARP turns LATCH on or off. With LATCH on, the notes stay in the arp after the keys go up. The next key after all keys are up starts a new list. The ARP page also sets LATCH through knob 2 and knob 3. (Changed 2026-10-16: the page.) [USER] [CODE app/main_fm1.c ck_controls]
 CLP-69. A key release ends exactly the notes that the key sent. The firmware finds them again from the key and the settings, and a settings change first ends the old notes. A note that two keys hold ends when the last of the two keys goes up. All notes use one channel. A change of CLIP KEYS CH first ends all notes on the old channel. (Changed 2026-10-16: no limit of 16 notes, and shared notes end with the last key.) [USER] [CODE app/main_fm1.c ck_release]
 CLP-70. All notes off sends a note-off for each note that sounds. It occurs at clip mode exit, when a mode turns on or off and when LATCH goes off. It also occurs at MIDI Stop, at a CLIP KEYS CH change, at a USB reset and when Bluetooth disconnects. The arp list clears. [USER] [CODE app/main_fm1.c ck_all_off]
 CLP-71. NOTE REPEAT alone is the panic button. It sends all notes off and then CC 123 (All Notes Off) on the CLIP KEYS channel. [USER] [CODE app/main_fm1.c ck_controls]
 CLP-72. While you hold a pad, the keybed white key that shares its note bit plays no note (CLP-34 stays). [USER] [CODE app/main_fm1.c smk_ck_poll]
-CLP-73. In clip mode, knobs 2-8 always send CC 48-54 on channel 1 for Loopy Pro MIDI-learn, also when SCALE, CHORD or ARP is on. The value is relative: 1-63 is up and 65-127 is down. When a menu is on the screen (for example GLO), the knobs work the menu and send no CC. In clip mode the knobs do not change X0X values.
-  - Knob 1 stays MASTER. (Added 2026-10-16. Changed 2026-10-16: also when a mode is on.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/plat_fm1.c plat_enc]
+CLP-73. In clip mode, when no stage page is open, knobs 2-8 send CC 48-54 on channel 1 for Loopy Pro MIDI-learn. The value is relative: 1-63 is up and 65-127 is down. When a menu is on the screen (for example GLO), the knobs work the menu and send no CC. In clip mode the knobs do not change X0X values.
+  - Knob 1 stays MASTER. (Added 2026-10-16. Changed 2026-10-16: also when a mode is on. Changed 2026-10-17: only when no stage has the knobs.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/plat_fm1.c plat_enc]
 CLP-74. In clip mode with no menu, the bottom strip (82 px) is the KEYS panel. It is always on. It shows these items:
   - The SCALE, CHORD, ARP and LATCH chips. A chip shows filled when its function is on. A white bar is under the chip of the open page.
   - One octave with the scale notes lit, the root marked and the notes that sound in amber.
@@ -434,14 +435,11 @@ CLP-74. In clip mode with no menu, the bottom strip (82 px) is the KEYS panel. I
   - One arp line (order, rate, octaves, gate, swing, human, rhythm).
   - With ARP on, a dot for each rhythm step (8 with RHYTHM OFF). The hits are brighter, and the step that plays now is white.
   - The X0X knob strip does not show in clip mode. (Added 2026-10-16.) [USER] [CODE app/main_fm1.c smk_ck_panel] [CODE app/ui.c draw_knobs]
-CLP-75. A hold of SCALE, CHORD or ARP (0.3 s, or at once after an edit) opens the page of that stage over the main area. The page shows the stage name, ON/OFF and the name of each key zone. It shows every field of the stage and its value (the last edited field lit). It also shows a drawing of the 37 keys. Each zone has the colour of the stage, and the key of the current value is white.
-  - While you hold the button, a key press edits the page and plays no note. Keys that sound already keep sounding. A held pad still blocks its white key. The release closes the page and the clip map comes back.
-  - A page edit is no tap: the stage does not toggle. While a menu is open, no page shows and the keys play. (Added 2026-10-16.) [USER] [CODE app/main_fm1.c ck_controls] [CODE app/main_fm1.c ck_page_draw]
-CLP-76. FADER BANK pins the page that is open. With no page open, it pins the page of the last edited field (SCALE at first). While the pin is on, the keybed plays, and "<" and ">" step the last edited field down and up (no wrap). A tap or hold on another stage button moves the pin to that page. A second FADER BANK press closes the page.
-  - Clip mode exit closes the page. Hold "<" or ">" to repeat the step. The first repeat comes after 0.4 s, then one step comes each 80 ms. The field stops at its first or last value. If "<" and ">" are both held, no step occurs, and the arrow that stays held does nothing until you push it again.
-  - An arrow that you hold when a menu closes does nothing until you push it again. The same applies to an arrow that you hold when a page opens. (Added 2026-10-16. Changed 2026-10-16: hold to repeat. Changed 2026-10-16: a held arrow needs a new push.) [USER] [CODE app/smk_clip_keys.h ck_page_btn] [CODE app/smk_clip_keys.h ck_rpt] [CODE app/main_fm1.c ck_controls]
-CLP-77. Page key zones (key 0 = the lowest C). A zone of many keys sets its field to the key number in the zone. A one-key zone steps its field (and wraps to the first value). SCALE: keys 0-11 ROOT C to B, 12-35 the 24 scales, 36 SNAP NEAR/FILTER.
-  - CHORD: keys 0-29 the 30 types, 32-35 inversion 0-3, 36 STRUM step. ARP: keys 0-5 order, 6-9 octaves 1-4, 10 SWING step, 11 HUMAN step, 12-24 the 13 rates, 25-34 gate 10-100 %, 35 RHYTHM step, 36 LATCH. Keys with no zone do nothing. (Added 2026-10-16.) [USER] [CODE app/smk_clip_keys.h CK_ZONE]
+CLP-75. A press of SCALE, CHORD or ARP opens its settings page over the clip map. The page stays open after release. It lists the stage fields and values, highlights the selected field and shows a keyboard labeled PLAY KEYS. The KEYS strip shows the stage name and ON/OFF. [CODE app/main_fm1.c ck_page_draw]
+  - The keybed plays MIDI notes while the page is open. A held pad still blocks its white key. Page changes use knob 2, knob 3 and the arrows. Held keys light on the drawing. Key presses do not edit fields.
+CLP-76. With a clip keys page open, knob 2 selects the field. Knob 3 and "<" and ">" step its value down or up without wrap. The ON field enables or disables the stage. FADER BANK keeps its normal fader-bank function. A second press of the open stage button closes the page.
+  - Hold "<" or ">" to repeat after 0.4 s, then every 80 ms. Both arrows held give no step. An arrow held before a page opens or a menu closes does nothing until a new press. [CODE app/smk_clip_keys.h ck_rpt] [CODE app/main_fm1.c ck_controls]
+CLP-77. The page shows a plain playable keyboard with no setting zones or value keys. The keybed plays while the page is open. [CODE app/main_fm1.c ck_page_draw] [CODE app/main_fm1.c smk_ck_poll]
 CLP-78. X0X saves SWING, HUMAN, RHYTHM and STRUM with the settings, in two new bytes at the end of the settings. An older project loads them as 0: OFF (swing 50 %). A value out of range sets all clip keys settings to the defaults (CLP-61). (Added 2026-10-16.) [USER] [CODE app/project.c project_ck_check] [CODE app/x0x.h]
 CLP-79. Pad calibration (GLOBAL > SYSTEM > PAD COLOURS, SMK-37, not in clip mode). The 16 pads show one page of 16 palette entries (8 pages: entries 0-127). The pads show the entries in reading order of the pad rows (pad index 0-7, then 8-15), at half level, as a lit clip pad. The LCD shows the Akai colour of each entry (APC40_LCD565) in the same layout. It also shows the entry number of the selected pad and a white frame on that pad.
   - A dot marks each entry with ok. The dot is black on a light square and white on a dark square.
@@ -458,6 +456,11 @@ CLP-79. Pad calibration (GLOBAL > SYSTEM > PAD COLOURS, SMK-37, not in clip mode
   - The mode is in dev builds only (X0X_DEV_PADCAL=1, the default). The release build has X0X_DEV_PADCAL=0. It has no PAD COLOURS row, no pad calibration code and no INLOG args 2-5 export. It uses the owner-calibrated pad table of CLP-13 (export of 2026-10-17, sha256 54ecc6f8), as the dev build does. [USER 2026-10-17 00:01]
   - Editor command 38 INLOG, args 2-5, exports the 128 entries (R, G, B, ok) and tl. The export also works after the mode ends. tools/ble_autotest.py --padcal-export FILE writes them. tools/apc_pad_colors.py --pad-h OUT --pad-override FILE puts the entries marked ok over the start values.
   - The export file has the line "padcal_orient TL". tools/apc_pad_colors.py --pad-override warns if TL is not 0. [USER] [CODE app/smk_padcal.h] [CODE app/main_fm1.c smk_padcal_frame, smk_padcal_draw] [CODE app/ui.c open_global, run_action] [TEST tests/smk_padcal_test.c] [TEST tests/smk_padcal_wiring_test.py] [TEST tests/smk_padcal_export_test.py] (New 2026-10-16, apc-palette.)
+CLP-80. In clip mode, the LCD main area shows "WAITING FOR LOOPY PRO" until a link has a Loopy host. The clip map then replaces this screen. [USER 2026-10-17 02:50] [CODE app/main_fm1.c smk_clip_wait, apc_own, smk_apc_link_clear] [CODE app/ui.c draw_main] [TEST tests/host/smk_clip_wait_test.sh]
+  - A link (USB or Bluetooth) has a Loopy host after the first clip or PLAY / REC LED message on that link. The handshake alone does not set it, because the firmware does not get the link of the handshake.
+  - The link has no host after its end, after the APC40 generic mode (mode 0x40) on that link, and after a USB host loss. These are the events that clear the clip cells of that link (CLP-18).
+  - When no link has a host, the waiting screen comes back. A clip keys page (CLP-75) shows over the waiting screen. A menu shows over it too.
+  - A Bluetooth clip message while notify is off does not set the host (CLP-18).
 
 ## 16. Flash and sample storage
 
@@ -516,6 +519,16 @@ LIM-13. Bluetooth MIDI (BLE-01 to BLE-16) has only part of its hardware tests (S
   - BLE-16 is in code (2026-10-16), with a host test only. The RF calibration values are the AC79 SDK demo board values, not the unit's own. X0X gives clocks to the image (system 360 MHz, HSB 180 MHz, LSB 60 MHz). We measured them on an FM-1, not on an SMK-37. [CODE ../hal/fm1_ble.h]
 LIM-14. The controller's poll and its interrupts run on core 1 between and inside audio jobs. A long poll can delay an audio job past the 8 ms limit, and then X0X holds core 1 (one core, no Bluetooth). Long flash operations park core 1, and a long park can drop the Bluetooth connection. Units that cannot run core 1 (fm1-x0x#10) have no Bluetooth. [CODE ../hal/fm1_cpu1.h]
 LIM-12. We maintain only the SMK-37 build. We do not maintain the FM-1 build. Its link step fails because the XIP region overflows by about 648 B. The owner accepts this. It is not a defect. [USER]
+
+### SMC-Mixer navigation and pickup
+
+SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank; knobs 2–4 edit its pan and sends. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-03. Encoders edit visible fields only. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
+
+SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
 
 ## 18. Open questions
 
