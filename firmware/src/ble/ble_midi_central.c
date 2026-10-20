@@ -17,6 +17,20 @@ static void blec_wr16(uint8_t *p, unsigned v) { p[0] = (uint8_t)v; p[1] = (uint8
 static int blec_eq(const uint8_t *a, const uint8_t *b, unsigned n)
 { unsigned i; for (i = 0; i < n; i++) if (a[i] != b[i]) return 0; return 1; }
 
+static void blec_rx_reset(blec_t *c)
+{
+    c->running = c->in_sysex = c->sx_len = c->rx_have = c->rx_need = 0;
+}
+static void blec_reject(blec_t *c, uint8_t reason)
+{
+    c->rx_reject++; c->rx_reason = reason;
+}
+static void blec_emit(blec_t *c, const uint8_t *p, uint8_t n)
+{
+    c->rx_midi++;
+    if (c->midi) c->midi(p, n, c->ctx);
+}
+
 static void blec_command(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
 {
     uint8_t b[32];
@@ -44,6 +58,7 @@ static void blec_fail(blec_t *c)
 {
     uint8_t b[3];
     c->errors++;
+    blec_rx_reset(c);
     c->qr = c->qw;
     c->att_waiting = 0;
     if (c->conn) {
@@ -118,6 +133,9 @@ void blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const
 }
 void blec_start(blec_t *c, uint32_t now)
 {
+    blec_rx_reset(c);
+    c->midi_handle = c->cccd_handle = c->svc_end = 0;
+    c->now_ms = now;
     c->waiting = c->att_waiting = c->conn = c->credits = 0;
     c->qr = c->qw = 0;
     c->state = BLEC_STARTING; c->step = S_RESET; c->query_start = 1;
@@ -128,6 +146,7 @@ void blec_stop(blec_t *c)
     uint8_t b[3];
     if (c->state == BLEC_OFF || c->state == BLEC_STOPPING) return;
     c->deadline = c->now_ms + 3000u;
+    blec_rx_reset(c);
     c->state = BLEC_STOPPING;
     c->qr = c->qw;
     if (c->conn) {
@@ -144,7 +163,7 @@ void blec_stop(blec_t *c)
 static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
 {
     unsigned i = 1;
-    if (n < 3 || (p[0] & 0xc0u) != 0x80u) return;
+    if (n < 3 || (p[0] & 0xc0u) != 0x80u) { blec_reject(c, BLEC_RX_MIDI); return; }
     while (i < n) {
         uint8_t st, m[3], len;
         if (c->in_sysex) {
@@ -153,13 +172,13 @@ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
                 continue; /* timestamp low 127 before more SysEx data or EOX */
             if (b == 0xf7u) {
                 if (c->sx_len < sizeof c->sx) c->sx[c->sx_len++] = b;
-                if (c->sx_len == 6u && c->midi) c->midi(c->sx, 6u, c->ctx);
+                if (c->sx_len == 6u) blec_emit(c, c->sx, 6u);
                 c->in_sysex = c->sx_len = 0;
             } else if (!(b & 0x80u)) {
                 if (c->sx_len < sizeof c->sx) c->sx[c->sx_len++] = b;
                 else { c->in_sysex = c->sx_len = 0; c->errors++; }
             } else if (b >= 0xf8u) {
-                if (c->midi) c->midi(&b, 1u, c->ctx);
+                blec_emit(c, &b, 1u);
             } /* timestamp bytes inside SysEx are skipped */
             continue;
         }
@@ -170,7 +189,7 @@ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
             i++; if (st < 0xf0u) c->running = st;
             else if (st < 0xf8u) c->running = 0;
         } else {
-            if (!c->running) { i++; continue; }
+            if (!c->running) { blec_reject(c, BLEC_RX_MIDI); i++; continue; }
             st = c->running;
         }
         if (st == 0xf0u) {
@@ -181,17 +200,21 @@ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
               (st & 0xe0u) == 0xc0u ? 2u : 3u;
         if (!len) continue;                 /* control surface has no SysEx input */
         m[0] = st; m[1] = m[2] = 0;
-        if (i + len - 1u > n) break;
+        if (i + len - 1u > n) { blec_reject(c, BLEC_RX_MIDI); break; }
         if (len > 1u) m[1] = p[i++];
         if (len > 2u) m[2] = p[i++];
-        if (c->midi) c->midi(m, len, c->ctx);
+        blec_emit(c, m, len);
     }
 }
 static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
 {
     unsigned i, es;
     if (!n) return;
-    if (p[0] == 0x1b && n >= 4u && blec_rd16(p + 1) == c->midi_handle) {
+    if (p[0] == 0x1b) {
+        if (n < 4u || !c->midi_handle || blec_rd16(p + 1) != c->midi_handle) {
+            blec_reject(c, BLEC_RX_HANDLE); return;
+        }
+        c->rx_notify++;
         blec_midi_packet(c, p + 3, n - 3u);
         return;
     }
@@ -249,31 +272,42 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
 }
 static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
 {
-    unsigned hd, pb, len, cid;
-    if (n < 8u) return;
+    unsigned hd, pb, len, need, have, i;
+    uint8_t reason;
+    c->rx_acl++;
+    if (n < 4u) { blec_reject(c, BLEC_RX_HEADER); return; }
     hd = blec_rd16(p); pb = hd >> 12 & 3u;
-    if ((hd & 0xfffu) != c->conn) return;
+    if ((c->state != BLEC_DISCOVERING && c->state != BLEC_CONNECTED) ||
+        (hd & 0xfffu) != c->conn) { blec_reject(c, BLEC_RX_LINK); return; }
     len = blec_rd16(p + 2);
-    if (len > n - 4u) return;
+    reason = BLEC_RX_LENGTH;
+    if (len != n - 4u) goto reject;
+    reason = BLEC_RX_FRAGMENT;
     if (pb == 1u) {
-        unsigned i;
-        if (!c->rx_need || c->rx_have + len > sizeof c->rx) { c->rx_need = 0; return; }
+        if (!len || !c->rx_need || len > (unsigned)(c->rx_need - c->rx_have)) goto reject;
         for (i = 0; i < len; i++) c->rx[c->rx_have + i] = p[4 + i];
         c->rx_have = (uint8_t)(c->rx_have + len);
     } else {
-        unsigned i;
-        c->rx_need = 0;
-        if (len < 4u) return;
-        cid = blec_rd16(p + 6);
-        if (cid != 4u || blec_rd16(p + 4) > sizeof c->rx) return;
-        c->rx_need = (uint8_t)blec_rd16(p + 4);
-        c->rx_have = (uint8_t)(len - 4u);
-        for (i = 0; i < c->rx_have; i++) c->rx[i] = p[8 + i];
+        c->rx_have = c->rx_need = 0;
+        if (pb == 3u || len < 4u) goto reject;
+        reason = BLEC_RX_CID;
+        if (blec_rd16(p + 6) != 4u) goto reject;
+        need = blec_rd16(p + 4); have = len - 4u;
+        reason = BLEC_RX_SIZE;
+        if (!need || need > sizeof c->rx || have > need) goto reject;
+        c->rx_need = (uint8_t)need;
+        c->rx_have = (uint8_t)have;
+        for (i = 0; i < have; i++) c->rx[i] = p[8 + i];
     }
-    if (c->rx_need && c->rx_have >= c->rx_need) {
-        blec_att_in(c, c->rx, c->rx_need);
-        c->rx_need = 0;
+    if (c->rx_have == c->rx_need) {
+        unsigned complete = c->rx_need;
+        c->rx_have = c->rx_need = 0;
+        blec_att_in(c, c->rx, complete);
     }
+    return;
+reject:
+    c->rx_have = c->rx_need = 0;
+    blec_reject(c, reason);
 }
 static void blec_adv_report(blec_t *c, const uint8_t *p, unsigned n)
 {
@@ -357,12 +391,15 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
                 if (c->step != S_CANCEL) { blec_scan_again(c, now); blec_progress(c); }
                 return;
             }
+            blec_rx_reset(c);
+            c->midi_handle = c->cccd_handle = c->svc_end = 0;
             c->conn = (uint16_t)(blec_rd16(p + 2) & 0x0fffu);
             if (c->step == S_CANCEL) c->waiting = 0; /* connection won the cancel race */
             c->state = BLEC_DISCOVERING; c->step = S_SERVICE; c->query_start = 1; c->att_waiting = 0;
             c->deadline = now + 5000u; blec_progress(c);
         }
     } else if (code == 0x05 && pl >= 4u && c->state != BLEC_OFF && blec_rd16(p + 1) == c->conn) {
+        blec_rx_reset(c);
         c->conn = 0; c->qr = c->qw; c->att_waiting = 0; blec_scan_again(c, now); blec_progress(c);
     } else if (code == 0x13 && pl >= 5u) {
         unsigned i;

@@ -18,21 +18,47 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; r
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
 #include SMC_SOURCE_FILE
+#include "ble/ble_midi_central.c"
+static blec_t receiver;
 static int route;
+static int user_route(void) { return route==1 || route==2 || route==4; }
+static int hci_send(uint8_t t,const uint8_t *p,uint16_t n,void *ctx)
+{ (void)t;(void)p;(void)n;(void)ctx;return 0; }
+static void hci_midi(const uint8_t *p,uint8_t n,void *ctx)
+{ (void)ctx;smc_ble_midi(p,n); }
+static void receive_ready(void)
+{ receiver.conn=1;receiver.midi_handle=6;receiver.state=BLEC_CONNECTED; }
+static void hci_input(const uint8_t *m,unsigned n,unsigned tail)
+{
+    uint8_t b[32]={1,0,0,0,0,0,4,0,0x1b,6,0,0x80,0x81};
+    b[2]=n+9-tail;b[4]=n+5;memcpy(b+13,m,n);
+    blec_rx(&receiver,2,b,n+13-tail,now_ms);
+    if(tail) {
+        uint8_t end[16]={1,0x10,0,0};end[2]=tail;
+        memcpy(end+4,b+n+13-tail,tail);
+        blec_rx(&receiver,2,end,tail+4,now_ms);
+    }
+}
+static void smc_input(const uint8_t *m,unsigned n)
+{
+    static unsigned fragments;
+    if(route>=3) hci_input(m,n,(fragments++)%5);
+    else smc_ble_midi(m,n);
+}
 static void message(int st, int a, int b) {
     uint8_t msg[3] = {st,a,b};
     now_ms += 100;
-    if(route && (st & 0xF0)==0xE0) { msg[0]=0xBF; msg[1]=40+(st&7); }
-    if(route && (st & 0xF0)==0xB0) msg[0]=0xBF;
-    if(route && (st==0x90 || st==0x80)) {
+    if(user_route() && (st & 0xF0)==0xE0) { msg[0]=0xBF; msg[1]=40+(st&7); }
+    if(user_route() && (st & 0xF0)==0xB0) msg[0]=0xBF;
+    if(user_route() && (st==0x90 || st==0x80)) {
         if(st==0x80) return;            /* stock MMC buttons have no release */
         int cmd; for(cmd=1;cmd<=43 && smc_mmc_note(cmd)!=a;cmd++);
         assert(cmd<=43);
         if(route==2) smc_mmc_host(cmd,0);
-        else { uint8_t mmc[6]={0xF0,0x7F,0x7F,6,cmd,0xF7}; smc_ble_midi(mmc,6); }
+        else { uint8_t mmc[6]={0xF0,0x7F,0x7F,6,cmd,0xF7}; smc_input(mmc,6); }
     } else if(route==2)
         assert(smc_midi_host(0x0B | (uint32_t)msg[0]<<8 | (uint32_t)msg[1]<<16 | (uint32_t)msg[2]<<24));
-    else smc_ble_midi(msg,3);
+    else smc_input(msg,3);
     smc_poll(); smc_frame();
 }
 static void press(int note) { message(0x90,note,127); message(0x80,note,0); }
@@ -49,7 +75,19 @@ static void edit(pref_t r, int n) {
 }
 static void scenario(void) {
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
-    memset(&ui,0,sizeof ui); boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (route?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
+    memset(&ui,0,sizeof ui); boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
+    if(route>=3) {
+        uint8_t addr[6]={0};blec_init(&receiver,hci_send,hci_midi,0,addr);receive_ready();
+        const uint8_t partial[]={0xF0,0x7F,0x7F};hci_input(partial,3,0);
+        assert(receiver.in_sysex);
+        const uint8_t down[]={5,4,0,1,0,0x13};
+        blec_rx(&receiver,4,down,sizeof down,now_ms);smc_ble_link(0);smc_poll();
+        receive_ready();smc_ble_link(1);smc_poll();
+        /* The first fader, knob and SELECT after an interrupted SysEx reach UI. */
+        fader(0,0);assert(!strncmp(ui.msg,"PICK F1",7) || !strncmp(ui.msg,"SMC F1",6));
+        press(24);assert(ui.view==V_PART && ui.part==0);
+        edit(smc_knob_target(0),0);smc_view(V_HOME,0);
+    }
     if(getenv("SMC_PICKUP_ONLY")) goto pickup;
     /* Starting at HOME, SELECT must expose each part's sound. */
     for(int part=0;part<NPARTS;part++) {
@@ -165,6 +203,16 @@ pickup: ;
     puts("PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths");
 }
 int main(void) {
-    for(route=0;route<3;route++) { printf("Route %d\n",route); scenario(); }
+    for(route=0;route<5;route++) { printf("Route %d\n",route); scenario(); }
+    /* Rejection observability without rewriting input presets or dispatch rules. */
+    const uint8_t m[3]={0xE0,0,100};
+    proj.set.bt=PROJ_BT_SMC_CENTRAL|PROJ_BT_SMC_USER;
+    smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==4);
+    smc_ble_link(0);smc_poll();smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==2);
+    smc_ble_link(1);smc_poll();proj.set.bt=0;
+    smc_ble_midi(m,3);smc_poll();assert((smc_rx_diag()>>24)==3);
+    unsigned drops=(smc_rx_diag()>>8)&255;
+    for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(m,3);
+    assert(((smc_rx_diag()>>8)&255)==((drops+1)&255));smc_poll();
     return 0;
 }

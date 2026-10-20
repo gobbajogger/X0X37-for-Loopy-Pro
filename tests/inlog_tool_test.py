@@ -63,3 +63,6 @@ assert "MISMATCH" in t2[6] and "sent 127,  0,  0 (red)" in t2[6]
 assert "WARNING: all clip cells are off, but 2 pads show a colour" in t2[-1]
 assert f.parse_pads([1, 0, 1]) is None and f.pads_text(None)[0].startswith("PADS: no reply")
 print("PASS INLOG reply decode and text")
+
+assert "SMC          MIDI BF 28 64" in f.entry_text(100, 100, 0x04BF2864, None)
+assert "SMC          MMC command 24" in f.entry_text(100, 100, 0x04F01800, None)

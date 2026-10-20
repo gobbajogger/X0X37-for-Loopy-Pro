@@ -5,7 +5,7 @@
 The reply: the entry count, fm1_ms now, then 2 words for each entry (the oldest first), each word
 5 x 7 bits, low bits first. Then the 40 stored clip velocities and the 40 stored clip channels.
 Entry word 1 is fm1_ms. Entry word 2 is src << 24 | status << 16 | d1 << 8 | d2.
-src: 0 USB, 1 Bluetooth, 2 Bluetooth link edge (d2 bit 0 link up, bit 1 notify on), 3 Bluetooth pad colour note-on while notify is off (the cell did not change).
+src: 4 decoded SMC input (MMC command in d1), 0 USB, 1 Bluetooth, 2 Bluetooth link edge (d2 bit 0 link up, bit 1 notify on), 3 Bluetooth pad colour note-on while notify is off (the cell did not change).
 tools/ble_autotest.py --diag-only uses this module.
 """
 import colorsys
@@ -92,6 +92,10 @@ def entry_text(now, ms, w, pal):
     t = f"{d / 1000:+9.3f} s"
     if src == 2:
         return f"{t}  EDGE         link {'up' if d2 & 1 else 'down'}, notify {'on' if d2 & 2 else 'off'}"
+    if src == 4:
+        if st == 0xF0:
+            return f"{t}  SMC          MMC command {d1}"
+        return f"{t}  SMC          MIDI {st:02X} {d1:02X} {d2:02X}"
     kind = "note on " if st & 0xF0 == 0x90 and d2 else "note off"
     ch = st & 0x0F
     where = f"cell row {d1 // 8} col {d1 % 8}" if d1 < CELLS else "LED note"

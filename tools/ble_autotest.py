@@ -213,7 +213,11 @@ def summary(d, before):
                f"credits {d['h_step'] >> 16 & 0xFF}; h2c head/tail {d['h2c'] & 0xFFFF}/{d['h2c'] >> 16} "
                f"c2h {d['c2h'] & 0xFFFF}/{d['c2h'] >> 16} drops {d['c2h_drops']}; controller took "
                f"{d['ctl_took']}, gave {d['ctl_gave']}; polls {d['polls']}",
-        "link": (f"interval {(d['rx0'] & 0xFFFF) * 1.25:g} ms, latency {d['rx1'] >> 21 & 7}; last end reason 0x{d['rx0'] >> 16 & 0xFF:02X}; "
+        "link": (f"SMC receive (counters modulo 256): ACL {d['rx0'] & 255}, notifications {d['rx0'] >> 8 & 255}, "
+                 f"MIDI {d['rx0'] >> 16 & 255}, rejected {d['rx0'] >> 24}; last receive rejection "
+                 f"{d['h_step'] >> 24 & 127}; queue enqueued {d['rx1'] & 255}, dropped {d['rx1'] >> 8 & 255}, "
+                 f"dispatched {d['rx1'] >> 16 & 255}, dispatch reason {d['rx1'] >> 24}"
+                 if d['h_step'] & 0x80000000 else f"interval {(d['rx0'] & 0xFFFF) * 1.25:g} ms, latency {d['rx1'] >> 21 & 7}; last end reason 0x{d['rx0'] >> 16 & 0xFF:02X}; "
                  f"pairing refused {d['rx0'] >> 24}; asked MTU {d['rx1'] >> 8 & 0x3FF}; L2CAP requests {d['rx1'] >> 24}; MIDI in drops {d['rx1'] & 0xFF}; "
                  f"parameter request {['not sent', 'sent'][d['rx1'] >> 18 & 1]}, {['no answer', 'accepted', 'rejected', '?'][d['rx1'] >> 19 & 3]}"),
         "alive": f"core 0 last Bluetooth tick at {d['alive_ms']} ms after boot, core 1 polls then {d['alive_polls']}, now {d['polls']}",

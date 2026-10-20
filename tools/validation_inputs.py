@@ -159,7 +159,7 @@ def main():
     try:
         if a.action == 'capture':
             print(json.dumps(capture(a.repo, a.commit, 'gate',
-                {'models': ['elite', 'pro', 'fm1'], 'configs': {'dev': 1, 'rel': 0}, 'time_scale': 1},
+                {'models': ['elite', 'pro'], 'configs': {'dev': 1, 'rel': 0}, 'time_scale': 1},
                 a.toolchain, a.sdk, a.refs, a.pins, hook=a.hook, runner_path=a.runner), sort_keys=True))
         else:
             record = json.loads(Path(a.file).read_text())

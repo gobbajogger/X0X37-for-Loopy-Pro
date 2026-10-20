@@ -13,6 +13,13 @@ static struct {
     uint8_t n, b[6];
 } smc_q[SMC_Q];
 static volatile uint8_t smc_qw, smc_qr, smc_link_pending;
+/* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
+static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
+uint32_t smc_rx_diag(void)
+{
+    return (uint32_t)smc_enqueued | (uint32_t)smc_dropped << 8 |
+           (uint32_t)smc_dispatched << 16 | (uint32_t)smc_reason << 24;
+}
 static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
@@ -28,13 +35,15 @@ static struct {
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
     uint8_t w = smc_qw, i;
-    if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q)
-        return;
+    if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q) {
+        smc_dropped++; return;
+    }
     smc_q[w % SMC_Q].n = len;
     for (i = 0; i < len; i++)
         smc_q[w % SMC_Q].b[i] = msg[i];
     __asm__ volatile("" ::: "memory");
     smc_qw = (uint8_t)(w + 1u);
+    smc_enqueued++;
 }
 
 void smc_ble_link(int up) { smc_link_pending = (uint8_t)(up ? 1u : 2u); }
@@ -399,17 +408,18 @@ static void smc_release(uint8_t note)
 }
 
 /* Stock User preset commands 1..32 run M/S/R/SELECT in strip order. */
-static void smc_message(const uint8_t *m, uint8_t len)
+static uint8_t smc_message(const uint8_t *m, uint8_t len)
 {
     uint8_t type, ch, a, b, user = !!(proj.set.bt & PROJ_BT_SMC_USER);
     if (len == 6 && user && m[0] == 0xF0 && m[1] == 0x7F && m[2] == 0x7F &&
         m[3] == 0x06 && m[5] == 0xF7) {
         a = smc_mmc_note(m[4]);
-        if (a != 0xFFu) smc_button(a, 1);
-        return;
+        if (a == 0xFFu) return 4;
+        smc_button(a, 1);
+        return 0;
     }
     if (len < 3)
-        return;
+        return 4;
     type = m[0] & 0xF0u;
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
@@ -424,7 +434,8 @@ static void smc_message(const uint8_t *m, uint8_t len)
     else if ((type == 0x90u || type == 0x80u) && (!ch || user)) {
         if (type == 0x90u && b) smc_button(a, 0);
         else smc_release(a);
-    }
+    } else return 4; /* message is outside the selected preset's input format */
+    return 0;
 }
 
 void smc_poll(void)
@@ -454,8 +465,13 @@ void smc_poll(void)
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
-        if (allow && !perf_testing() && smc.up && (proj.set.bt & PROJ_BT_SMC_CENTRAL))
-            smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
+        if (!allow || perf_testing()) smc_reason = 1;
+        else if (!smc.up) smc_reason = 2;
+        else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
+        else {
+            smc_dispatched++;
+            smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
+        }
         smc_qr = (uint8_t)(r + 1u);
     }
     count = 0;

@@ -63,7 +63,10 @@ int main(void)
     att(&c, gap, sizeof gap); assert(tx[8] == 0x10 && tx[9] == 4);
     att(&c, svc, sizeof svc); assert(tx[8] == 0x08);
     att(&c, chr, sizeof chr); assert(tx[8] == 0x04);
-    att(&c, info, sizeof info); assert(tx[8] == 0x12);
+    att(&c, info, sizeof info);
+    /* Synthetic discovery assigns CCCD 7; capture metadata does not supply it. */
+    assert(tx_type == 2 && tx_n == 13 && tx[8] == 0x12 &&
+           tx[9] == 7 && tx[10] == 0 && tx[11] == 1 && tx[12] == 0);
     att(&c, wr, sizeof wr); assert(blec_connected(&c));
     att(&c, note, sizeof note); assert(midi_count == 1 && midi_n == 3 && midi[1] == 0x18);
     att(&c, sx1, sizeof sx1); att(&c, sx2, sizeof sx2);

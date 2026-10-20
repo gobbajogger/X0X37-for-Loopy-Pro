@@ -35,6 +35,9 @@ int main(void)
     assert(smk_inlog_wanted(SMK_INLOG_NOCELL, pkt(0x90, 0x20, 0x31)));
     smk_inlog_put(&g, 5u, SMK_INLOG_BLE, pkt(0xB0, 0x10, 5));
     assert(g.n == 0u && g.next == 0u && smk_inlog_copy(&g, w) == 0u);
+    assert(smk_inlog_wanted(SMK_INLOG_SMC, pkt(0xE0, 0, 100)));
+    assert(smk_inlog_wanted(SMK_INLOG_SMC, pkt(0xBF, 40, 100)));
+    assert(smk_inlog_word(SMK_INLOG_SMC, pkt(0xBF, 40, 100)) == 0x04BF2864u);
     printf("PASS filter\n");
 
     /* an edge goes in only when the link state changes */

@@ -165,6 +165,8 @@ run project-303-stream sh tests/host/run_project_303_stream.sh
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
+run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
+run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
 run smc-reachability sh tests/host/smc_reachability_test.sh
 run smc-mapping python3 tests/host/smc_mapping_test.py
 run smc-filter python3 tests/host/smc_filter_test.py
@@ -192,6 +194,7 @@ run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.h
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
 run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
+run smk-update-contract python3 tests/host/test_smk_update_contract.py
 run prefs-parser python3 tests/host/test_prefs_lint.py
 run portable-rules python3 tests/host/test_portable_rules.py
 run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, advisory grammar, Trigger and Check lines
@@ -203,10 +206,10 @@ run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.s
 run status-checks bash tests/host/test_status_checks.sh   # tools/status.sh (checks 27, 29): docs lint flag, ROADMAP installed hash, BEHAVIOR items since the last install
 run checklist-lint sh tests/host/test_checklist_lint.sh   # tools/checklist_lint.py (check 23): checklist header lines, 10 tasks or fewer, each task starts with Goal:
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
-# Shared installer protocol coverage uses an SMK mock and the Pro package.
+# Shared installer protocol and model guards use synthetic devices; package parity uses SMK builds.
 run installer python3 tests/install_test.py
-# SMK-37: flash map, storage, package layout, and update path use SMK build inputs.
-run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings (tools/locked_settings.json)
+# SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
+run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
     tests/smk_flash_test.c && $OUT/smk_flash_test"
 run smk-storage sh -c "$CC -O2 -DBOARD_SMK37=1 -o $OUT/storage_test_smk tests/storage_test.c && $OUT/storage_test_smk"
@@ -235,6 +238,7 @@ run apc-palette python3 tests/apc_palette_test.py   # one source, hue order, dis
 run installer-targets python3 tests/make_pages_test.py
 run diag-size python3 tests/diag_size_test.py           # a76: ED_DIAG stays in its buffers
 run smk-inlog sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_inlog_test tests/smk_inlog_test.c && $OUT/smk_inlog_test"   # a76: inbound recorder ring
+run ble-central-diag python3 -B tests/ble_central_diag_test.py
 run inlog-tool python3 tests/inlog_tool_test.py      # a76: ED_INLOG dump text
 run smk-clip-ble-notify sh -c "$CC -std=c99 -O2 -Wall -Wextra -Wno-unused-function -Werror -Ifirmware/src -Ifirmware/hal -Ifirmware/src/ble -o $OUT/smk_clip_ble_notify_test tests/smk_clip_ble_notify_test.c && $OUT/smk_clip_ble_notify_test"   # a76: no pad colour while notify is off
 run smk-clip-dark sh tests/smk_clip_dark_test.sh   # a76: real clip and pad LED code: dark 10 s after Loopy goes away
@@ -243,7 +247,7 @@ run smk-clip-isolation python3 tests/host/smk_clip_isolation_test.py
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
 run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
-if [ -f build/x0x-smk37.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
+if [ -f build/smk37/x0x.bin ] && [ -f build/smk37/loader/ota.bin ] && [ -n "${AC79_SDK:-}" ]; then
     run smk-package sh -c "python3 tools/fm1pkg_make.py --board smk37 build/smk37/x0x.bin build/smk37/loader/ota.bin $OUT/smk_new.fwsc >/dev/null && \
         python3 tests/smk_pkg_test.py $OUT/smk_new.fwsc"
     run smk-ota-entry sh -c "$CC -DBOARD_SMK37=1 -o $OUT/ota_test_smk tests/ota_test.c && $OUT/ota_test_smk $OUT/smk_new.fwsc"
@@ -255,7 +259,7 @@ if [ -f build/x0x-smk37.fwsc ] && [ -n "${AC79_SDK:-}" ]; then
         python3 tools/fm1pkg_make.py --board smk37 $OUT/old_app.bin build/smk37/loader/ota.bin $OUT/smk_old.fwsc >/dev/null && \
         $CC -DBOARD_SMK37=1 -o $OUT/ldr_test_smk tests/ldr_test.c && $OUT/ldr_test_smk $OUT/smk_old.fwsc $OUT/smk_new.fwsc"
 else
-    note "  skip SMK-37 Pro package tests (needs build/x0x-smk37.fwsc and AC79_SDK)"
+    note "  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)"
 fi
 [ -f build/x0x-smk37.fwsc ] && run smk-build-package python3 tests/smk_pkg_test.py build/x0x-smk37.fwsc
 [ -f build/x0x-smk37-elite.fwsc ] && run smk-build-package-elite python3 tests/smk_pkg_test.py build/x0x-smk37-elite.fwsc "SMK-37 Elite_900"

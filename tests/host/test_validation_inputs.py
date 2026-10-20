@@ -34,7 +34,7 @@ class Inputs(unittest.TestCase):
         for name in ('gate.sh', 'gate_flashmap.py', 'gate_sigwrap.py', 'validation_inputs.py', 'pre-push.hook'):
             shutil.copy2(TOP/'tools'/name, self.runner/name)
         self.env = {k:v for k,v in os.environ.items() if not k.startswith(('X0X_', 'JIELI_', 'AC79_', 'GIT_'))}
-        self.config = {'models': ['elite', 'pro', 'fm1'], 'configs': {'dev': 1, 'rel': 0}, 'time_scale': 1}
+        self.config = {'models': ['elite', 'pro'], 'configs': {'dev': 1, 'rel': 0}, 'time_scale': 1}
         self.env['X0X_TEST_TIME_SCALE'] = '1'
 
     def git(self, repo, *args):
@@ -49,7 +49,7 @@ class Inputs(unittest.TestCase):
                                 self.refs, self.pins, env=self.env, runner_dir=self.runner)
 
     def test_identical_and_changes(self):
-        baseline = self.capture()
+        baseline = copy.deepcopy(self.capture())
         identity.validate(baseline, self.capture())
         for path in (self.tc/'compiler', self.sdk/'library', self.ref/'dsp.c', self.runner/'gate.sh',
                      self.runner/'gate_flashmap.py', self.runner/'validation_inputs.py', self.runner/'pre-push.hook'):
@@ -58,6 +58,11 @@ class Inputs(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'changed'):
                     identity.validate(baseline, self.capture())
                 path.write_bytes(old)
+        # Pre-migration FM-1-inclusive evidence cannot qualify for the SMK-only gate.
+        self.config['models'].append('fm1')
+        with self.assertRaisesRegex(ValueError, 'changed'):
+            identity.validate(baseline, self.capture())
+        self.config['models'].pop()
         self.config['configs']['rel'] = 1
         self.assertNotEqual(baseline['sha256'], self.capture()['sha256'])
         self.config['configs']['rel'] = 0

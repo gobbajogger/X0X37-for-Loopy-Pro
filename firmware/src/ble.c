@@ -44,14 +44,16 @@ static uint8_t ble_central_role;                 /* settings bit 4 at boot; one 
 /* attempt 34 (DIAG): interval | end reason << 16 | pairing refusals << 24;
  * MIDI in drops | asked MTU << 8 (10 bits) | request sent << 18 | result << 19 | latency << 21 (3) | L2CAP requests << 24 */
 static uint32_t ble_sat(uint32_t v, uint32_t m) { return v > m ? m : v; }
+extern uint32_t smc_rx_diag(void);
 static uint32_t ble_h_link0(void)
 {
-    if (ble_central_role) return 0; /* these fields describe the peripheral link */
+    if (ble_central_role) return (uint32_t)ble_r.host.c.rx_acl | (uint32_t)ble_r.host.c.rx_notify << 8 |
+                                 (uint32_t)ble_r.host.c.rx_midi << 16 | (uint32_t)ble_r.host.c.rx_reject << 24;
     return ble_r.host.h.conn_int | (uint32_t)ble_r.host.h.disc_reason << 16 | ble_sat(ble_r.host.h.smp_rejects, 255u) << 24;
 }
 static uint32_t ble_h_link1(void)
 {
-    if (ble_central_role) return 0;
+    if (ble_central_role) return smc_rx_diag();
     return ble_sat(ble_r.host.h.drops_in, 255u) | ble_sat(ble_r.host.h.mtu_req, 1023u) << 8 | (uint32_t)(ble_r.host.h.cpu_state & 1u) << 18 |
            (uint32_t)(ble_r.host.h.cpu_result & 3u) << 19 | ble_sat(ble_r.host.h.conn_lat, 7u) << 21 | (uint32_t)ble_r.host.h.sig_reqs << 24;
 }
@@ -203,6 +205,11 @@ static uint8_t ble_c0_ready;
 static void ble_central_midi(const uint8_t *p, uint8_t n, void *ctx)
 {
     (void)ctx;
+    /* Reuse the bounded ISR-owned INLOG ring; MMC records command in d1. */
+    if (n == 3u)
+        smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 24);
+    else if (n == 6u)
+        smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[4] << 16);
     smc_ble_midi(p, n);                       /* TIMER5: SMC queues for the UI main loop */
 }
 static void ble_start(void)
@@ -544,7 +551,8 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.c2h.head | ble_r.mb.c2h.tail << 16;
     w[n++] = ble_r.mb.c2h_drops;
     w[n++] = ble_central_role ? (uint32_t)ble_r.host.c.step | (uint32_t)ble_r.host.c.waiting << 8 |
-                                 (uint32_t)ble_r.host.c.credits << 16 :
+                                 (uint32_t)ble_r.host.c.credits << 16 |
+                                 (uint32_t)ble_r.host.c.rx_reason << 24 | 0x80000000u :
                                  (uint32_t)ble_r.host.h.step | (uint32_t)ble_r.host.h.cmd_wait << 8 |
                                  (uint32_t)ble_r.host.h.credits << 16;
     w[n++] = ble_r.mb.dbg[XB_DBG_INIT_MS];     /* frames the controller took */

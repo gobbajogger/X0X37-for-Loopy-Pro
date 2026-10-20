@@ -21,7 +21,7 @@ chk "rel test failures make a FAIL" 'check_tests "$WR" "$L/tests-rel.log" "$TRCR
 chk "pool headroom checked for the rel builds" 'for b in elite pro elite-rel pro-rel' "$G"
 chk "rel lines in the CRC manifest" 'builds("rel/")' "$G"
 chk "Config CRCs line in the result file" 'echo "- Config CRCs: $CFG"' "$G"
-chk "Configs column in the index row" '| $NOW | $CFG |" >> "$INDEX"' "$G"
+chk "Configs column in the index row" '| $NOW | $CFG; purpose: $PURPOSE; reason: $RUN_REASON |" >> "$INDEX"' "$G"
 chk "guard: rel lines" 'PRE="rel/build/"' "$Q"
 chk "guard: one-config result is dev only" '^- Config CRCs: ' "$Q"
 # the index row stays parseable: columns 2-7 are the same as before (commit, tree, git tree, result, file, time)

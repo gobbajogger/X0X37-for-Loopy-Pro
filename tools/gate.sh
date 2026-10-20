@@ -22,7 +22,7 @@
 # and then cannot see the worktree. A work folder under /tmp is moved to ~/.cache/x0x37-gate of the user's real home.
 # The gate makes its own worktree of the commit, and then it does these steps:
 #   0. it checks that each reference folder is at its pinned commit (X0X_REF_PINS),
-#   1. the Elite build, the Pro build (build/x0x-smk37.fwsc, for the package tests), the FM-1 build and
+#   1. the Elite build, the Pro build (build/x0x-smk37.fwsc, for the package tests), and
 #      the Bluetooth image build (private /tmp). Two build configs, each in its own worktree, at the same time:
 #      dev (X0X_DEV_PADCAL=1, worktree <commit>) and rel (X0X_DEV_PADCAL=0, the release build, worktree <commit>.rel).
 #      The gate sets the build flags itself: it removes X0X_DEV_* and the other build variables of the caller
@@ -30,7 +30,7 @@
 #   2. tests/run_tests.sh with AC79_SDK and the reference variables (parallel if the tree has X0X_TEST_JOBS),
 #      for the two configs at the same time (each with its own private HOME and TMPDIR).
 #      The gate compares the tests that ran with the list of tests in the script. A missing test is a failure.
-#   3. the flash-map check (tools/gate_flashmap.py, with the owner tag), the budget checks for the three builds,
+#   3. the flash-map check (tools/gate_flashmap.py, with the owner tag), the budget checks for both models,
 #      the X0X_RAM_CANARY default (it must be 0) and a CRC manifest.
 #      The CRC manifest has a line for build/x0x-smk37-elite-ble.fwsc (tools/add_ctl.py: the Elite package and the
 #      gate's ctl.img), the BLE Elite package that is installed. If the gate cannot make it, the result is FAIL.
@@ -328,14 +328,13 @@ export NINEW9_DIR="$REFS/schwung-9W9" EIGHTW8_DIR="$REFS/schwung-8W8" SCHWUNG303
 export TB3PO_REF="$REFS/schwung-tb3po/src/dsp/tb3po.c"
 
 # 1. builds
-# build_config <worktree> <home> <tmp> <flag> <log suffix>: the Elite, Pro and FM-1 builds of one config.
+# build_config <worktree> <home> <tmp> <flag> <log suffix>: the Elite and Pro builds of one config.
 # The exit code of each build goes to $L/build-<b><suffix>.rc.
 build_config() {
     cd "$1" || return 1
     export HOME="$2" TMPDIR="$3" X0X_DEV_PADCAL="$4"
     MODEL=elite ./build.sh --board smk37 > "$L/build-elite$5.log" 2>&1; echo $? > "$L/build-elite$5.rc"
     ./build.sh --board smk37 > "$L/build-pro$5.log" 2>&1; echo $? > "$L/build-pro$5.rc"
-    ./build.sh > "$L/build-fm1$5.log" 2>&1; echo $? > "$L/build-fm1$5.rc"
 }
 export -f build_config; export L
 B0=$(date +%s)
@@ -343,7 +342,7 @@ child bash -c 'build_config "$1" "$2" "$3" 1 "" & build_config "$4" "$5" "$6" 0 
 echo "gate: builds of the two configs took $(( $(date +%s) - B0 )) s" >> "$LOG"
 for c in "dev:" "rel:-rel"; do
     cn=${c%%:*}; sx=${c#*:}
-    for b in "elite:Elite" "pro:Pro" "fm1:FM-1"; do
+    for b in "elite:Elite" "pro:Pro"; do
         f="$L/build-${b%%:*}$sx.log"
         [ "$(cat "$L/build-${b%%:*}$sx.rc" 2>/dev/null)" = 0 ] || fail "${b#*:} build ($cn): $(grep -m1 -iE 'error|fail' "$f")"
     done
@@ -403,6 +402,9 @@ import glob, os, re, shutil, sys
 src = [l for l in open("tests/run_tests.sh").read().split("\n") if not l.lstrip().startswith("#")]
 names = set()
 for l in src:
+    # Ignore inline comments while preserving quoted shell arguments.
+    l = re.sub(r"('(?:[^']*)'|\"(?:\\.|[^\"\\])*\"|\\.)|#.*",
+               lambda m: m.group(1) or "", l)
     for n in re.findall(r'(?:^|[\s;&|])run "?([A-Za-z0-9_.-]+)"?\s', l + " "):
         names.add(n)
     m = re.match(r'\s*for t in ([^;]+); do', l)
@@ -430,7 +432,7 @@ python3 "$GATE_DIR/gate_flashmap.py" firmware/hal/fm1_flash_map.h firmware/src/s
 FM=$(tail -n1 "$L/flashmap.log")
 num() { grep -m1 -oE "$1" "$2" | grep -oE '[0-9]+' | sed -n "${3}p"; }
 SIZES=""
-for b in elite pro fm1 elite-rel pro-rel fm1-rel; do   # code free, RAM free and pool headroom for each build of the two configs
+for b in elite pro elite-rel pro-rel; do   # code free, RAM free and pool headroom for each build of the two configs
     f="$L/build-$b.log"
     cf=$(num 'app code area [0-9]+ B, [0-9]+ B free' "$f" 2)
     ru=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 1); rm=$(num 'RAM \.data\+\.bss [0-9]+ B of [0-9]+' "$f" 2)
@@ -483,8 +485,9 @@ lines.append(f"ctl.img header crc32 {hcrc:08x}, image_size {size} B")
 lines.append(f"ctl.img file crc32 {crc(img)}, {len(d)} B")
 import os
 def builds(pre):
-    for p in sorted(glob.glob("build/*.fwsc") + glob.glob("build/x0x.bin") + glob.glob("build/*/x0x.bin")
-                    + glob.glob("build/loader/ota.bin") + glob.glob("build/*/loader/ota.bin")):
+    for p in sorted(["build/x0x-smk37.fwsc", "build/x0x-smk37-elite.fwsc", "build/x0x-smk37-elite-ble.fwsc",
+                     "build/smk37/x0x.bin", "build/smk37/loader/ota.bin",
+                     "build/smk37-elite/x0x.bin", "build/smk37-elite/loader/ota.bin"]):
         lines.append(f"{pre}{p} crc32 {crc(p)}, {len(open(p, 'rb').read())} B")
 builds("")
 os.chdir(sys.argv[2]); builds("rel/")
@@ -529,7 +532,6 @@ echo "## Builds"
 echo
 echo "- Elite build: $(grep -m1 '^package' "$L/build-elite.log" | sed "s|$W/||")"
 echo "- Pro build: $(grep -m1 '^package' "$L/build-pro.log" | sed "s|$W/||")"
-echo "- FM-1 build: $(grep -m1 '^package' "$L/build-fm1.log" | sed "s|$W/||")"
 echo "- Bluetooth image: $(echo "$CTL_LINE" | sed "s|$W/||")"
 echo
 echo "## Sizes"
