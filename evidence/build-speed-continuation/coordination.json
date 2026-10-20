@@ -25,18 +25,22 @@
       "blocker": "Waiting on tool approval after Docker Colima socket permission denied. Owner informed; no pending action bypassed."
     },
     "quickcheck_controller": {
-      "state": "independent_test_started",
+      "state": "independent_test_failed_fresh_repair_started",
       "owner": "01a15ae3-2cce-7e42-9a7f-5911e60a9be5",
       "runner_overlap": "Owner confirms no tests/run_tests.sh diff.",
       "implementation": "30c567d8588227d5285f04422130300fe83577a9",
       "stage3": "01a15af3-9c23-7321-b361-c3cbefd2462e",
       "controller_seconds": 28.513924458,
-      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "repair_owner": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+      "finding": "Successful compiler driver child can survive later compiler failure while scratch is deleted."
     },
     "runner_extraction": {
-      "state": "implementation_started",
+      "state": "independent_test_started",
       "owner": "01a15aed-3863-7e61-8a04-344c29da894f",
-      "handoff": "evidence/runner-speed-stage1/handoff.txt"
+      "handoff": "evidence/runner-speed-stage1/handoff.txt",
+      "implementation": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+      "stage3": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa"
     },
     "browser_removal": {
       "state": "checked_local_repair_pass",
@@ -87,5 +91,11 @@
     "Preserve precise source/configuration/dependency identity for selected final checks.",
     "Measured asset or walker gains are not whole-build gains.",
     "No device write, external push, release/full gate."
-  ]
+  ],
+  "controlled_combination": {
+    "state": "stage2_started",
+    "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+    "handoff": "evidence/build-speed-combination-stage1/handoff.txt",
+    "scope": "Accepted local tooling staging plus remaining cache consumers and stable validator removal cleanup. Wait for incoming checked repair/independent/validation prerequisites; preserve sole firmware integration owner."
+  }
 }
