@@ -1,0 +1,17 @@
+{
+  "app": {
+    "path": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/build/smk37-elite/x0x.bin",
+    "size": 551544,
+    "sha256": "3204d8cd391a735f82af41b652b030b5e412da5575ac002250c913cf4ad16a98"
+  },
+  "loader": {
+    "path": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/build/smk37-elite/loader/ota.bin",
+    "size": 7280,
+    "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e"
+  },
+  "package": {
+    "path": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/build/x0x-smk37-elite.fwsc",
+    "size": 651396,
+    "sha256": "1ee6d2fcf20b39b625924ee15c6788c908ad9adc2933b4408b986c45cab745d4"
+  }
+}

@@ -1,0 +1,7 @@
+Assertion failed: (ble_r.host.c.state == BLEC_STOPPING && !linked), function stop, file ble_midi_stop_test.c, line 89.
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/tests/host/ble_midi_stop_test.py", line 30, in <module>
+    subprocess.run([str(binary)] + ([args.case] if args.case else []), check=True)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/ble-stop-4h5c5d28/stop', 'edges']' died with <Signals.SIGABRT: 6>.

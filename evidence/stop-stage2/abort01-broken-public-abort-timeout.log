@@ -1,0 +1,1 @@
+Assertion failed: (sent == 1 && c.waiting && last_type == 1), function recovered, file ble_midi_abort_test.c, line 53.

@@ -1,0 +1,18 @@
+{
+  "previous_count": 413,
+  "matching": 411,
+  "changed": [
+    "firmware/src/ble/ble_midi_central.c",
+    "tests/host/ble_midi_receive_test.sh"
+  ],
+  "added": [
+    "tests/host/ble_midi_stop_test.c",
+    "tests/host/ble_midi_stop_test.py"
+  ],
+  "production_diff": [
+    "firmware/src/ble/ble_midi_central.c"
+  ],
+  "reuse": "Previous DIAG behavior remains unchanged. The affected host suite, negative controls, replay and Elite DEV build ran again.",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED"
+}

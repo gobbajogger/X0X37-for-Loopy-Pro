@@ -1,0 +1,22 @@
+{
+  "base": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+  "scope": "The shared central stop lifecycle retains refused Cancel and Scan Disable, separates accepted commands from completion, preserves the original cutoff and handles late connection completion. Mapping and controller source remain unchanged.",
+  "checks": [
+    {
+      "reason": "The complete central lifecycle can affect startup, MIDI reception, signaling, credits, stop, abort and service timing.",
+      "argv": [
+        "sh",
+        "tests/host/ble_midi_receive_test.sh"
+      ]
+    },
+    {
+      "reason": "The unchanged DIAG decoding must retain the existing central lifecycle fields.",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/ble_central_diag_test.py"
+      ]
+    }
+  ],
+  "model_policy": "Elite covers shared source and memory checks. Actual Pro install/distribution packages retain applicable validation. Reuse matching checks instead of running model-independent checks again solely for a stage change."
+}
