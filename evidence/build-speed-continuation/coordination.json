@@ -25,9 +25,13 @@
       "blocker": "Waiting on tool approval after Docker Colima socket permission denied. Owner informed; no pending action bypassed."
     },
     "quickcheck_controller": {
-      "state": "implementation_active",
+      "state": "independent_test_started",
       "owner": "01a15ae3-2cce-7e42-9a7f-5911e60a9be5",
-      "runner_overlap": "Owner confirms no tests/run_tests.sh diff."
+      "runner_overlap": "Owner confirms no tests/run_tests.sh diff.",
+      "implementation": "30c567d8588227d5285f04422130300fe83577a9",
+      "stage3": "01a15af3-9c23-7321-b361-c3cbefd2462e",
+      "controller_seconds": 28.513924458,
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
     },
     "runner_extraction": {
       "state": "implementation_started",
@@ -35,7 +39,7 @@
       "handoff": "evidence/runner-speed-stage1/handoff.txt"
     },
     "browser_removal": {
-      "state": "repair_independent_test_started",
+      "state": "checked_local_repair_pass",
       "implementation": "05405ff",
       "stage3": "01a15aed-1bb1-7b62-b595-7c77f283569e",
       "maintained_combination_cleanup": [
@@ -50,7 +54,9 @@
         "docs/NEW.md obsolete browser-version local-break loading sentence"
       ],
       "repair_implementation": "bcb856b6637a98866ac1bf3ad4642c2bb21e4a92",
-      "repair_stage3": "01a15af2-d3b9-7061-ac2f-c5b1e6dab8a5"
+      "repair_stage3": "01a15af2-d3b9-7061-ac2f-c5b1e6dab8a5",
+      "evidence": "/Users/mac/Documents/x0x37/remove_browser_emu_evidence/repair1-stage3/result.json",
+      "native_preprocessing_sha256": "13b8478d8f8ff86e5740bccb2ba643982824503bd5a5ea15e0328955c15e5d0c"
     },
     "cache_consumers": {
       "state": "audit_waits_for_checked_cache",

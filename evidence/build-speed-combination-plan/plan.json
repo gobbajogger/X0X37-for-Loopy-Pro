@@ -18,8 +18,13 @@
       "required": "checked Python-file provenance repair, fresh independent review and native validation completion"
     },
     "quickcheck_controller": {
-      "implementation": null,
-      "required": "checked bounded-controller/scope-planner implementation and independent review/validation"
+      "implementation": "30c567d8588227d5285f04422130300fe83577a9",
+      "required": "Await independent stage3/validation; evidence in build_work_implementation/evidence/build-work-stage2.",
+      "code_commits": [
+        "bf69251a2166df9245fd8760d5296e99727f253a",
+        "83de54a23c0467078d0f680fbaa89aeef53f46e1",
+        "29b0e6ae67fc3d8acfc2912d659c1916fe1e787a"
+      ]
     },
     "runner": {
       "implementation": null,
@@ -28,13 +33,15 @@
     "browser_removal": {
       "implementation": "05405ff56ced13ca5534ccd8861599c9872b61e1",
       "repair": "bcb856b6637a98866ac1bf3ad4642c2bb21e4a92",
-      "required": "fresh independent repair review; deduplicate overlapping runner removal"
+      "required": "PASS accepted host/docs/site source repair; still remove incoming stable validator and current runner references.",
+      "acceptance_evidence": "/Users/mac/Documents/x0x37/remove_browser_emu_evidence/repair1-stage3/result.json"
     }
   },
   "remaining_implementation": [
     "Apply only accepted contributor tooling diffs onto combined firmware base; preserve firmware tree exactly.",
     "Remove retired validator Emscripten compiler/SDK/environment capture, dedicated optional emcc identity test and BUILDING paragraph; remove retired LinuxWorker environment forwarding. Preserve all actual runtime/package/SDK/toolchain/reference/dependency provenance and installer guards.",
-    "Use checked cache for remaining host break, 909 drum and clip-display font consumers only where same-input entrypoint measurements justify reuse. Keep native original generator paths when reuse is unsupported; preserve output destinations, X0X_BREAK_BANK and CYM_AB/reference policies."
+    "Use checked cache for remaining host break, 909 drum and clip-display font consumers only where same-input entrypoint measurements justify reuse. Keep native original generator paths when reuse is unsupported; preserve output destinations, X0X_BREAK_BANK and CYM_AB/reference policies.",
+    "Register accepted Quickcheck/controller direct fixtures in the combined runner only after their files exist, if required to keep scope routing and general runner coverage coherent. Preserve literal run declarations."
   ],
   "evidence_reuse": [
     "Consumer baseline audit9ae47f9 supplies immutable-image generator timings, exact four output hashes and generator/assets/firmware source hashes.",
