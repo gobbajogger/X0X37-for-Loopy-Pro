@@ -1,0 +1,64 @@
+{
+  "workflow": "build-speed-finish-20261021",
+  "state": "prerequisites_pending",
+  "coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "intent": "One controlled local tooling combination; preserve sole firmware integration owner and dirty primary checkout.",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "sources": {
+    "host_setup": {
+      "implementation": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+      "acceptance": "db72964fd1bc82481a4c869912c8258165687ca8"
+    },
+    "cache": {
+      "implementation": null,
+      "required": "checked selector/symlink repair plus fresh independent review and applicable validation"
+    },
+    "native": {
+      "implementation": null,
+      "required": "checked Python-file provenance repair, fresh independent review and native validation completion"
+    },
+    "quickcheck_controller": {
+      "implementation": null,
+      "required": "checked bounded-controller/scope-planner implementation and independent review/validation"
+    },
+    "runner": {
+      "implementation": null,
+      "required": "checked lazy fixture/extraction implementation and independent review/validation"
+    },
+    "browser_removal": {
+      "implementation": "05405ff56ced13ca5534ccd8861599c9872b61e1",
+      "repair": "bcb856b6637a98866ac1bf3ad4642c2bb21e4a92",
+      "required": "fresh independent repair review; deduplicate overlapping runner removal"
+    }
+  },
+  "remaining_implementation": [
+    "Apply only accepted contributor tooling diffs onto combined firmware base; preserve firmware tree exactly.",
+    "Remove retired validator Emscripten compiler/SDK/environment capture, dedicated optional emcc identity test and BUILDING paragraph; remove retired LinuxWorker environment forwarding. Preserve all actual runtime/package/SDK/toolchain/reference/dependency provenance and installer guards.",
+    "Use checked cache for remaining host break, 909 drum and clip-display font consumers only where same-input entrypoint measurements justify reuse. Keep native original generator paths when reuse is unsupported; preserve output destinations, X0X_BREAK_BANK and CYM_AB/reference policies."
+  ],
+  "evidence_reuse": [
+    "Consumer baseline audit9ae47f9 supplies immutable-image generator timings, exact four output hashes and generator/assets/firmware source hashes.",
+    "Host setup accepted46a3b3e removes four unused full-simulator compiles; its real probe PASS may be reused only for matching source/configuration/dependencies.",
+    "Quickcheck/controller owner has one real controller build against matching saved combined image; no duplicate baseline/controller build solely to measure speed.",
+    "Old native audit9a1d6fc is not combined1165396. Keep the source/configuration difference explicit; do not compare packages as equivalent.",
+    "No second full Mac/Linux baseline validation merely to recreate measured timings; final scoped checks must resolve actual combination risk."
+  ],
+  "validation": [
+    "Record each changed production-file hash and exact contributor acceptance evidence.",
+    "Require unchanged firmware tree and model/package/installer guard source, plus exact generated output equality.",
+    "Check combined Quickcheck selected runner parsing/execution, serial/parallel runner ordering and selected fixture setup, host generate-only dispatch with cache/native/custom bank, real directly affected host probes, and remaining runtime/provenance capture consumers.",
+    "Run only checks invalidated by combined inputs; reuse all others with exact matching rationale.",
+    "Source edits require fresh independent stage3 test/investigation then host-tooling stage4 acceptance as applicable. Do not advance failing inputs.",
+    "Report operation/caller timings honestly. Sum of isolated savings is not measured end-to-end validation speed."
+  ],
+  "excluded": [
+    "device writes",
+    "external push",
+    "release/full gate",
+    "competing firmware integration",
+    "unchecked cache candidates",
+    "proprietary SDK/toolchain in commits",
+    "resetting primary or editing active owner lanes"
+  ],
+  "next_stage_owner": null
+}

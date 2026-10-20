@@ -15,12 +15,14 @@
       "implementation": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
       "stage3": "01a15aec-a3db-7972-b1a3-cbd56a0bd510",
       "finding": "I1: retargeted CC symlink to pre-existing fast-math wrapper returns stale break-cache hit; no promotion.",
-      "proof": "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/investigation/compiler-symlink-proof.log"
+      "proof": "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/investigation/compiler-symlink-proof.log",
+      "repair_owner": "01a15af0-9697-77e2-a70f-4b88642384f7"
     },
     "native_validator": {
       "state": "provenance_repair_active",
       "failed_implementation": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
-      "repair_owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d"
+      "repair_owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
+      "blocker": "Waiting on tool approval after Docker Colima socket permission denied. Owner informed; no pending action bypassed."
     },
     "quickcheck_controller": {
       "state": "implementation_active",
@@ -33,7 +35,7 @@
       "handoff": "evidence/runner-speed-stage1/handoff.txt"
     },
     "browser_removal": {
-      "state": "independent_test_failed_pending_fresh_repair",
+      "state": "repair_independent_test_started",
       "implementation": "05405ff",
       "stage3": "01a15aed-1bb1-7b62-b595-7c77f283569e",
       "maintained_combination_cleanup": [
@@ -46,7 +48,9 @@
       "repair_scope": [
         "host/x0x_host.c X0X_WEB callback, engine_load and native main guards",
         "docs/NEW.md obsolete browser-version local-break loading sentence"
-      ]
+      ],
+      "repair_implementation": "bcb856b6637a98866ac1bf3ad4642c2bb21e4a92",
+      "repair_stage3": "01a15af2-d3b9-7061-ac2f-c5b1e6dab8a5"
     },
     "cache_consumers": {
       "state": "audit_waits_for_checked_cache",
@@ -60,7 +64,14 @@
         "Preserve original native path where dependency discovery cannot reuse outputs.",
         "Preserve host X0X_BREAK_BANK, per-caller destinations, reference and CYM_AB policy.",
         "Require entrypoint timing and byte equality; no browser hooks."
-      ]
+      ],
+      "audit_commit": "9ae47f9",
+      "audit_lane": "/Users/mac/Documents/x0x37/build_speed_consumer_audit",
+      "baseline_seconds": {
+        "font": 1.4794489999985672,
+        "drums": 0.9846969999998691,
+        "breaks": 6.896375000000262
+      }
     }
   },
   "validation_policy": [
