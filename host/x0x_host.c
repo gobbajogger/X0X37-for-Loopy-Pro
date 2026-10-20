@@ -422,9 +422,6 @@ static void run_ms(uint32_t ms)
                 pr0[k] = eng_prof[k];
             engine_render(blk, 256);
             engine_volume(blk, 256);
-#ifdef X0X_WEB
-            web_audio(blk, 256);                         /* the browser build: to the AudioWorklet */
-#endif
             di = instr_now() - i0;
             dt = now_ns() - t0;
             if (seq.playing) {                           /* the cost that matters: while it plays */
@@ -440,11 +437,7 @@ static void run_ms(uint32_t ms)
             cpu_pct = (uint32_t)(100.0 * dt / (256.0 * 1e9 / 44100.0));
             if (cpu_pct > cpu_peak)
                 cpu_peak = cpu_pct;
-#ifdef X0X_WEB
-            engine_load(load_force >= 0 ? (uint32_t)load_force : 0u, 256);   /* a browser's timing is not the FM-1's */
-#else
             engine_load(load_force >= 0 ? (uint32_t)load_force : cpu_pct, 256);
-#endif
             for (k = 0; k < 256; k++) {
                 float l = (float)blk[2 * k] / 8388608.0f, r = (float)blk[2 * k + 1] / 8388608.0f;
                 int16_t s[2];
@@ -763,7 +756,6 @@ static int expect(const char *what, const char *val)
     return 0;
 }
 
-#ifndef X0X_WEB
 int main(int argc, char **argv)
 {
     FILE *sc;
@@ -1015,4 +1007,3 @@ int main(int argc, char **argv)
                (double)ins_total / (double)ins_frames, (double)ins_block_max / 256.0);
     return fails ? 1 : 0;
 }
-#endif /* X0X_WEB */
