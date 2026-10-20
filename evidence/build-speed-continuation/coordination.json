@@ -11,11 +11,11 @@
       "evidence": "/Users/mac/Documents/x0x37/host_setup_stage4/evidence/host-setup-stage4/result.json"
     },
     "asset_cache": {
-      "state": "selector_repair_final_checks_running",
+      "state": "execution_finished_independent_fail_excluded",
       "implementation": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
       "stage3": "01a15aec-a3db-7972-b1a3-cbd56a0bd510",
-      "finding": "I1: retargeted CC symlink to pre-existing fast-math wrapper returns stale break-cache hit; no promotion.",
-      "proof": "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/investigation/compiler-symlink-proof.log",
+      "finding": "ELF $ORIGIN loader search uses alias path while inventory uses canonical mapped path; earlier alias candidate is omitted and warm cache can return stale bytes.",
+      "proof": "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/investigation/origin-earlier.log",
       "repair_owner": "01a15af0-9697-77e2-a70f-4b88642384f7",
       "repair_lane": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
       "preliminary_coverage": [
@@ -25,10 +25,23 @@
         "Python import aliases and interpreter selectors",
         "Loader legacy/hwcaps path inventory and conservative unknown-loader fallback"
       ],
-      "acceptance": "No checked final commit or independent PASS yet; do not promote."
+      "acceptance": "Do not accept746ece6936a456ef963c758da659c07a801cec37. Finish current independent evidence; save classic project repair handoff under current routing. No automatic new Codex repair.",
+      "repair_implementation": "746ece6936a456ef963c758da659c07a801cec37",
+      "repair_handoff": "1f1e75bc0d567f69b94d384b32f3c62232609f20",
+      "repair_stage3": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+      "repair_evidence": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/result.json",
+      "final_stage2_regressions": 28,
+      "stage2_timing_seconds": {
+        "disabled": 8.298,
+        "cold": 15.798,
+        "warm": 6.762,
+        "fresh_source_copy": 6.827
+      },
+      "final_failure_evidence": "cb71961c9645b8231c0b8272d257db74ee9370a4",
+      "classic_repair_prompt": "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/repair-handoff.txt"
     },
     "native_validator": {
-      "state": "provenance_repair_scoped_checks_running",
+      "state": "independent_pass_eligible_for_scoped_combination",
       "failed_implementation": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
       "repair_owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
       "blocker": null,
@@ -38,6 +51,22 @@
         "original_seconds": 2.792,
         "direct_seconds": 0.88,
         "scope": "One sequential actual SDK warm-cache-sensitive hash probe; identities equal. Not full validation timing or accepted final implementation."
+      },
+      "repair_implementation": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+      "repair_evidence": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/result.json",
+      "scope": "Package source/extension identity and equivalent direct walker checked. Independent test/investigation helpers stay in existing bounded task under new routing; no new successor.",
+      "limits": [
+        "No real target artifact equality or end-to-end timing claimed.",
+        "Every consumed extra worker mount must be declared in plan.dependencies.",
+        "Native audit-base9a1d6fc evidence does not automatically validate combined firmware1165396."
+      ],
+      "repair_acceptance": "96302a7196640ac1cb13dea3a9d3c0a6411edce9",
+      "acceptance_evidence": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/final-result.json",
+      "classic_handoff": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/classic-handoff.txt",
+      "independent_scopes": {
+        "test_host_cases": 9,
+        "test_linux_cases": 14,
+        "investigation_edge_scopes": 10
       }
     },
     "quickcheck_controller": {
@@ -101,7 +130,7 @@
       "native_preprocessing_sha256": "13b8478d8f8ff86e5740bccb2ba643982824503bd5a5ea15e0328955c15e5d0c"
     },
     "cache_consumers": {
-      "state": "audit_waits_for_checked_cache",
+      "state": "deferred_no_safe_checked_cache",
       "consumers": [
         "host/build_host.sh breaks only",
         "tests/host/run_drum909.sh drums",
@@ -111,7 +140,8 @@
       "constraints": [
         "Preserve original native path where dependency discovery cannot reuse outputs.",
         "Preserve host X0X_BREAK_BANK, per-caller destinations, reference and CYM_AB policy.",
-        "Require entrypoint timing and byte equality; no browser hooks."
+        "Require entrypoint timing and byte equality; no browser hooks.",
+        "Repaired safe cache has smaller asset-only gain. Measure each consumer; leave font/drum direct paths when cache overhead exceeds saved generation. Do not route consumers merely to use the API."
       ],
       "audit_commit": "9ae47f9",
       "audit_lane": "/Users/mac/Documents/x0x37/build_speed_consumer_audit",
@@ -119,7 +149,8 @@
         "font": 1.4794489999985672,
         "drums": 0.9846969999998691,
         "breaks": 6.896375000000262
-      }
+      },
+      "disposition": "Preserve original consumer generators. No cache routing without a checked safe implementation and supported entrypoint gain. Finish accepted non-cache reductions; disclose withheld cache and hand back repair decision to classic LoopyX0X37."
     }
   },
   "validation_policy": [
@@ -131,7 +162,7 @@
     "No device write, external push, release/full gate."
   ],
   "controlled_combination": {
-    "state": "accepted_pieces_initial_checks_pass_waiting_prerequisites",
+    "state": "complete_scoped_non_cache_independent_pass",
     "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
     "handoff": "evidence/build-speed-combination-stage1/handoff.txt",
     "scope": "Accepted local tooling staging plus remaining cache consumers and stable validator removal cleanup. Wait for incoming checked repair/independent/validation prerequisites; preserve sole firmware integration owner.",
@@ -142,7 +173,12 @@
       "0de6c9b",
       "df2ae79"
     ],
-    "initial_checks": "Firmware tree unchanged vs1165396; six host source hashes match acceptance; current native preprocessing equivalent; four site identities preserve installer/uploader; 87 generator/assets/firmware baseline inputs match."
+    "initial_checks": "Firmware tree unchanged vs1165396; six host source hashes match acceptance; current native preprocessing equivalent; four site identities preserve installer/uploader; 87 generator/assets/firmware baseline inputs match.",
+    "cache_prerequisite_disposition": "Failed cache remains excluded. Preserve accepted host/browser/runner/Quickcheck/controller reductions and complete authorised native/combined checks, reporting cache exclusion and classic repair handoff explicitly.",
+    "final_commit": "6aad0113821cf113bc1db2e2c7bd06f1ce7526de",
+    "production_candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+    "final_result": "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/final-result.json",
+    "coordinator_verification": "/Users/mac/Documents/x0x37/build_work_audit/evidence/build-speed-continuation/final-coordinator-verification.json"
   },
   "completion_recipient": {
     "thread_id": "01a15af6-f2aa-71d3-a7f6-9c65def5f01e",
@@ -158,5 +194,16 @@
     ],
     "push_owner": "01a15af6-f2aa-71d3-a7f6-9c65def5f01e",
     "constraint": "Send completion only when existing build-speed work and relevant successor stages finish; no push added to this tooling lane."
-  }
+  },
+  "current_routing": {
+    "source_chat": "01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
+    "source_user_message": "01a15b05-83db-7623-8ada-4799ecf430ea",
+    "owner_request": "We need to leave only necessary work for codex like install and make other tasks always start in classic chatgpt thread to reduce usage on agentic use as much as possible",
+    "follow_up": "But in loopyx0x37 project so they won't be in general",
+    "verified": "Direct owner messages read; current workspace routing/workflow/stages/handoff/ownership sources read.",
+    "application": "Finish authorized necessary execution and checks in existing lanes. No more automatic Codex stage launches, duplicate work, idle polling or timers. Return compact results/new decisions to classic ChatGPT inside LoopyX0X37. Existing completion notices and standing action permission remain.",
+    "classic_project": "g-p-ad9d6d4ab04c8191af6aa22fd752707e",
+    "classic_creation": "No supported classic project-thread creator is available; save prompt if needed, owner launch required."
+  },
+  "state": "complete_non_cache_execution_cache_deferred_classic"
 }
