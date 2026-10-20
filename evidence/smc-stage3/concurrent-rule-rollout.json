@@ -1,0 +1,8 @@
+{
+  "paths": [
+    "AGENTS.md",
+    "docs/SKILLS.md"
+  ],
+  "disposition": "Concurrent owner-authorized rule rollout added managed discovery headers. Preserved unstaged and excluded from stage3 commit. Production/test/source hashes unchanged. Read updated workspace workflow rule18 before successor creation.",
+  "scope_thread": "01a15a0d-6c6a-7ae3-a094-94bb0cbfe40d"
+}

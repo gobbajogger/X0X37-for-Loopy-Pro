@@ -1,0 +1,16 @@
+{
+  "base": "3d7c29bdd4cec0450cfb3a8f319ffa1e1a1611f9",
+  "argv": [
+    "python3",
+    "tests/ble_central_diag_test.py"
+  ],
+  "environment": {
+    "DIAG_TOOL_ROOT": "scratch containing exact base tools/ble_autotest.py"
+  },
+  "exit_code": 1,
+  "result": "INVALID FIXTURE",
+  "expected_cause": "base decoder shifts old h_step when six extension words are appended",
+  "log": "base-diag.log",
+  "cause": "scratch omitted imported inlog_fmt.py; ModuleNotFoundError before regression",
+  "disposition": "Retained as setup failure only. Corrected scratch includes exact base inlog_fmt.py; base-diag.json records meaningful expected assertion failure."
+}
