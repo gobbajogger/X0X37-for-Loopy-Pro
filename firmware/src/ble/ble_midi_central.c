@@ -128,16 +128,27 @@ static void blec_signal_flush(blec_t *c)
         const uint8_t *s = c->sig[c->sig_read];
         uint8_t b[8] = {s[0], s[1], 2, 0, s[2], 0, sizeof c->rx, 0};
         unsigned n = s[0] == 1u && s[2] == 1u ? 8u : 6u;
-        b[2] = (uint8_t)(n - 4u);
-        if (blec_acl_cid(c, 5, b, n)) {
+        if (!s[1]) { b[1] = s[2]; n = 2u; } /* id zero: SMP, without a signaling header */
+        else b[2] = (uint8_t)(n - 4u);
+        if (blec_acl_cid(c, s[1] ? 5u : 6u, b, n)) {
             c->sig_read = (uint8_t)((c->sig_read + 1u) % 4u);
             c->sig_count--;
         }
     }
 }
-static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
+static void blec_reply_queue(blec_t *c, uint8_t code, uint8_t id, uint8_t reason)
 {
     unsigned slot;
+    blec_signal_flush(c);
+    if (c->sig_count == 4u) { blec_fail(c); return; }
+    if (!c->sig_count) c->sig_deadline = c->now_ms + 3000u;
+    slot = (c->sig_read + c->sig_count) % 4u;
+    c->sig[slot][0] = code; c->sig[slot][1] = id; c->sig[slot][2] = reason;
+    c->sig_count++;
+    blec_signal_flush(c);
+}
+static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
+{
     uint8_t code = 1, reason = 0;
     if (n < 4u || !p[1]) { blec_reject(c, BLEC_RX_LENGTH); return; }
     /* No signaling request is outstanding. Do not reply to identified responses. */
@@ -151,13 +162,16 @@ static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
         /* Reject parameters: accepting them also requires an HCI controller update. */
         if (p[0] == 0x12u) { code = 0x13; reason = 1; }
     }
-    blec_signal_flush(c);
-    if (c->sig_count == 4u) { blec_fail(c); return; }
-    if (!c->sig_count) c->sig_deadline = c->now_ms + 3000u;
-    slot = (c->sig_read + c->sig_count) % 4u;
-    c->sig[slot][0] = code; c->sig[slot][1] = p[1]; c->sig[slot][2] = reason;
-    c->sig_count++;
-    blec_signal_flush(c);
+    blec_reply_queue(c, code, p[1], reason);
+}
+static void blec_smp_in(blec_t *c, const uint8_t *p, unsigned n)
+{
+    /* Pairing is not supported by this host/controller configuration. Complete
+     * the peer's Security Request explicitly (Core Vol 3 H 2.4.6), rather than
+     * leaving its security procedure waiting. Never answer a failure or reserved opcode. */
+    if (p[0] != 0x0bu && p[0] != 1u) return;
+    if (n != (p[0] == 0x0bu ? 2u : 7u)) { blec_reject(c, BLEC_RX_LENGTH); return; }
+    blec_reply_queue(c, 5u, 0u, 5u); /* SMP Pairing Failed: Pairing Not Supported */
 }
 static void blec_progress(blec_t *c)
 {
@@ -380,11 +394,11 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
         if (pb == 3u || len < 4u) goto reject;
         reason = BLEC_RX_CID;
         need = blec_rd16(p + 6);
-        if (need != 4u && need != 5u) goto reject;
+        if (need < 4u || need > 6u) goto reject;
         c->rx_cid = (uint8_t)need;
         need = blec_rd16(p + 4); have = len - 4u;
         reason = BLEC_RX_SIZE;
-        if (!need || (c->rx_cid == 4u && need > sizeof c->rx) || have > need) goto reject;
+        if (!need || (c->rx_cid != 5u && need > sizeof c->rx) || have > need) goto reject;
         c->rx_need = (uint16_t)need;
         c->rx_have = (uint16_t)have;
         for (i = 0; i < have && i < sizeof c->rx; i++) c->rx[i] = p[8 + i];
@@ -393,6 +407,7 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
         unsigned complete = c->rx_need;
         c->rx_have = c->rx_need = 0;
         if (c->rx_cid == 5u) blec_signal_in(c, c->rx, complete);
+        else if (c->rx_cid == 6u) blec_smp_in(c, c->rx, complete);
         else blec_att_in(c, c->rx, complete);
     }
     return;

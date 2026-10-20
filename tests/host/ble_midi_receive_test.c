@@ -49,12 +49,12 @@ int main(void)
  feed(&c,first,sizeof note-1);feed(&c,end,sizeof end);
  assert(c.rx_reason==BLEC_RX_FRAGMENT && !c.rx_need && count==before);
  end[2]=1;feed(&c,end,5);assert(c.rx_reason==BLEC_RX_FRAGMENT);
- memcpy(first,note,sizeof note);first[6]=6;feed(&c,first,sizeof first);
+ memcpy(first,note,sizeof note);first[6]=7;feed(&c,first,sizeof first);
  assert(c.rx_reason==BLEC_RX_CID);
  assert(c.reject_reason==BLEC_RX_CID && c.reject_n==sizeof first);
  assert(!memcmp(c.reject_head,first,sizeof c.reject_head));
- /* A two-byte SMP packet retains both opcode and reason/authentication byte. */
- const uint8_t smp[]={1,0x20,6,0,2,0,6,0,0x0b,1};
+ /* A two-byte rejected payload retains both bytes (valid SMP is handled separately). */
+ const uint8_t smp[]={1,0x20,6,0,2,0,7,0,0x0b,1};
  feed(&c,smp,sizeof smp);assert(c.reject_n==10 && c.reject_reason==BLEC_RX_CID);
  assert(!memcmp(c.reject_head,smp,10) && !c.reject_head[10] && !c.reject_head[11]);
  /* Even a truncated header records exactly the bounded bytes, zero-padded. */

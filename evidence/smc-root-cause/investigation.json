@@ -1,10 +1,13 @@
 {
-  "result": "INVESTIGATION IN PROGRESS; physical SMC root cause not proved",
+  "result": "LIVE PROTOCOL DEFECT REPRODUCED AND CORRECTED; actual SMC control recovery not yet established",
   "base": "b6d6516",
   "installed_source": "a5cb24d",
   "last_good_source": "53d5654",
-  "identified_source_defect": "BLE-MIDI initial characteristic read omitted; also present in last-good source",
-  "source_change": "Initial read before CCCD notification enable; bounded first four rejected ACL payload bytes for discriminating live protocol observation",
+  "identified_source_defect": [
+    "Initial characteristic read omitted; confirmed specification violation and corrected in4668e48",
+    "Actual received Security Request0b01 dropped at CID validation. Central original implementation assumes unpaired links and supplies no required negative response. The exact observed ACL reproduces absent response on installed source."
+  ],
+  "source_change": "Recognize bounded SMP SecurityRequest and PairingRequest; queue exact PairingFailed0505 onCID6 under existing no-pairing policy. Reuse bounded priority/credit/deadline/lifecycle reply queue; preserve initial-read correction.",
   "source_sha256": {
     "firmware/src/app/editor.c": "bc92f27d40c4aea1d9b3492ae4377a6f0016fdb0f20e5a22e32094cf68d3a62f",
     "firmware/src/ble.c": "4aa516110ffad67a54a69ac44e40619882f3996fcd0a915e7e9fdb49ffa0eee1",
@@ -20,12 +23,15 @@
     "receive_suite": "PASS: receive/fragments/signaling/credits/stop/abort/deadline",
     "startup_ui": "PASS DAW/User through simulated production mailbox, startup and UI; peer and radio substituted",
     "diag_size": "PASS 78 words; INLOG retains732byte limit",
-    "diag_decoder": "PASS old, version01 and version02"
+    "diag_decoder": "PASS old, version01 and version02",
+    "security_regression": "Exact observed physical ACL fails sent==1 on4668e48; passes corrected source under native ASan/UBSan. Credit/backpressure, fragments, unsupported/failure/reserved inputs, discovery, timeout and lifecycle checked.",
+    "capture": "Same-source exact1271packet capture replay andMTU23 resegmentation pass with nativeASan/UBSan; no physicalcontrolPASS inferred."
   },
   "live_evidence": {
     "initial": "READY/SCANNING, no ACL",
     "later": "CONNECTED, MIDI value114,CCCD115; rejected two-byte SMP on CID6; payload not yet available",
-    "virtual_peer": "No subscriptions/read/writes; no test outcome; peer identity not established"
+    "virtual_peer": "No subscriptions/read/writes; no test outcome; peer identity not established",
+    "after_initial_read": "After guarded DEV install and reboot: CONNECTED, value114/CCCD115, noATTpending. Exact rejected SMP payload0b01 onCID6,10byteACL50200600020006000b01. Three snapshots retain the same request."
   },
   "specification": {
     "title": "MIDI over Bluetooth Low Energy1.0",
@@ -35,9 +41,12 @@
     "pdf_sha256": "70cae8df6d440c64423f0376970653d74a622c8e1dd564a833fef328bc8fc9e0"
   },
   "limits": [
-    "No evidence yet that actual SMC gates notification on initial read",
-    "Idle zero-packet observations do not prove receive failure",
-    "No firmware install in this task yet",
-    "No physical SMC control PASS"
-  ]
+    "Exact received SecurityRequest and missing response are proved; effect of explicit rejection on actual SMC notification delivery must still be established",
+    "Idle zero counters are not input-failure proof",
+    "Initial read now completes on target; it was not the whole demonstrated problem",
+    "No physical SMC control PASS yet"
+  ],
+  "installed_test_revision": "4668e48f9c69672444c7364a30f9809cbe0cb1cd",
+  "historical_change": "SMC central added at5af672c disables controller encryption with unpaired-link assumption. Last-good53d5654 has the same missingSecurityRequest response; this is an original latent defect, not a newly demonstrated mapping regression.",
+  "security_reference": "https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/security-manager-specification.html section2.4.6"
 }

@@ -19,7 +19,8 @@ typedef struct {
     uint8_t state, step, waiting, att_waiting, credits, acl_total, addr_type, link_name[21];
     uint8_t addr[6], target[6], target_type, found, running, sx[8], sx_len, in_sysex, rx[64], rx_cid;
     uint16_t rx_have, rx_need; /* Oversized signaling is drained; only rx[] is stored. */
-    /* TIMER5 owns this bounded reply queue. Entries contain code, identifier, reason. */
+    /* TIMER5 owns replies: code, identifier, reason. A zero identifier denotes
+     * SMP Pairing Failed; L2CAP signaling identifiers are always nonzero. */
     uint8_t sig[4][3], sig_read, sig_count;
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
