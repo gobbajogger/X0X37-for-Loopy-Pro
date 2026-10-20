@@ -1,0 +1,26 @@
+{
+  "workflow": "runner-speed-20261021",
+  "stage": 3,
+  "state": "started",
+  "source_chat": "01a15aed-3863-7e61-8a04-344c29da894f",
+  "coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "prompt": "stage3-handoff.txt",
+  "thread_id": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa",
+  "attempts": [
+    {
+      "result": "created",
+      "thread_id": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa",
+      "host_id": "local"
+    }
+  ],
+  "host_id": "local",
+  "observed_turn_id": "01a15af8-2413-7c52-8f51-dc537c09ec24",
+  "startup_evidence": {
+    "assistant_message_id": "msg_0457535c18a4002c016ad7ccdda37c8191938cf72c47082158",
+    "text": "I have initialized the x0x37 task and writing skills. I\u2019ll read the saved handoff, confirm current ownership, and set up the isolated Test lane.",
+    "tool_marker": "exec-8bc62d5a-cfd2-47d5-bf86-ea637fe15e9e",
+    "tool": "read_thread",
+    "tool_status": "completed"
+  }
+}
