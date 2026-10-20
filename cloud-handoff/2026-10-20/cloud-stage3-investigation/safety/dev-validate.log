@@ -1,0 +1,9 @@
+.......REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+.....
+----------------------------------------------------------------------
+Ran 12 tests in 13.902s
+
+OK
+DEV CHECKED fda337d62f1c24fde52dd6735220fa21828b9803
+DEV OK fda337d /tmp/tmpmuk15pg8/result/record.json (config dev; queue: 0 open lines in fda337d)

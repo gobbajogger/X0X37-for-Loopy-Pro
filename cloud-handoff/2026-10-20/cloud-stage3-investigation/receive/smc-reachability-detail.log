@@ -1,0 +1,20 @@
+In file included from tests/host/../../host/x0x_host.c:259,
+                 from tests/host/smc_reachability_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:498:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  498 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2011:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2011 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+Route 0
+PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths
+Route 1
+PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths
+Route 2
+PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths
+Route 3
+PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths
+Route 4
+PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths

@@ -1,0 +1,35 @@
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   smc-reachability
+  ok   smc-mapping
+  ok   smc-filter
+  ok   smc-part-select
+  FAIL smc-clip-visibility (see build/host/smc-clip-visibility.log)
+       /tmp/tmp.NNPx80IHEk/smc_turn.inc: In function ‘smc_poll’:
+       /tmp/tmp.NNPx80IHEk/smc_turn.inc:46:26: error: implicit declaration of function ‘smc_message’ [-Wimplicit-function-declaration]
+          46 |             smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
+             |                          ^~~~~~~~~~~
+       /tmp/tmp.NNPx80IHEk/smc_turn.inc: At top level:
+       /tmp/tmp.NNPx80IHEk/smc_turn.inc:1:13: error: ‘smc_knob’ defined but not used [-Werror=unused-function]
+           1 | static void smc_knob(int n, int delta)
+             |             ^~~~~~~~
+       tests/host/smc_clip_visibility_test.c:36:13: error: ‘smc_fader’ defined but not used [-Werror=unused-function]
+          36 | static void smc_fader(int n, uint8_t value) { (void)n; (void)value; }
+             |             ^~~~~~~~~
+       tests/host/smc_clip_visibility_test.c:35:13: error: ‘smc_release’ defined but not used [-Werror=unused-function]
+          35 | static void smc_release(uint8_t note) { (void)note; }
+             |             ^~~~~~~~~~~
+       cc1: all warnings being treated as errors
+  ok   smk-apc40-map
+  ok   smk-apc40
+  ok   diag-size
+  ok   smk-inlog
+  ok   ble-central-diag
+  ok   inlog-tool
+  ok   smk-apc40-violet
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   ble
+TESTS FAILED
