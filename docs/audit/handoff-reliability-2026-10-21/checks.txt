@@ -1,0 +1,8 @@
+python3 tools/prefs_lint.py docs/USER_PREFERENCES.md
+PREFS OK 19 entries (pointer checks; semantic review still required)
+python3 tests/host/test_rules_rollout.py
+PASS rule rollout: dry run, backups, discovery, third-party exclusion, repeat
+git diff --check
+PASS
+Manual workflow local-link check: 7 local targets exist.
+Manual historical preference check: unchanged against c33463c.
