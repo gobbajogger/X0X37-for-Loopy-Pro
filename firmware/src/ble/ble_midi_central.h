@@ -20,6 +20,9 @@ typedef struct {
     uint8_t addr[6], target[6], target_type, found, running, sx[8], sx_len, in_sysex, rx[64], rx_have, rx_need;
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
+    /* Last rejected ACL header, zero-padded; bounded, no payload log or allocation. */
+    uint8_t reject_head[8], reject_reason, att_op;
+    uint16_t reject_n, att_handle;
     uint8_t q[32][3], qlen[32];
     volatile uint8_t qr, qw; /* main-loop producer, TIMER5 consumer */
     uint16_t conn, cmd_op, svc_end, query_start, midi_handle, cccd_handle, ts;

@@ -51,9 +51,17 @@ int main(void)
  end[2]=1;feed(&c,end,5);assert(c.rx_reason==BLEC_RX_FRAGMENT);
  memcpy(first,note,sizeof note);first[6]=5;feed(&c,first,sizeof first);
  assert(c.rx_reason==BLEC_RX_CID);
+ assert(c.reject_reason==BLEC_RX_CID && c.reject_n==sizeof first);
+ assert(!memcmp(c.reject_head,first,8));
+ /* Even a truncated header records exactly the bounded bytes, zero-padded. */
+ feed(&c,first,1); assert(c.reject_n==1 && c.reject_reason==BLEC_RX_HEADER);
+ assert(c.reject_head[0]==1);
+ for(unsigned i=1;i<8;i++) assert(!c.reject_head[i]);
  first[6]=4;first[0]=2;feed(&c,first,sizeof first);assert(c.rx_reason==BLEC_RX_LINK);
  first[0]=1;first[9]=7;feed(&c,first,sizeof first);assert(c.rx_reason==BLEC_RX_HANDLE && c.state==BLEC_CONNECTED);
+ assert(c.att_op==0x1b && c.att_handle==7);
  feed(&c,note,sizeof note);assert(count==before+1);
+ assert(c.att_handle==6 && c.att_op==0x1b);
  /* Partial SysEx AND partial ACL must not survive any link lifetime boundary. */
  const uint8_t sx[]={1,0,12,0,8,0,4,0,0x1b,6,0,0x80,0x81,0xf0,0x7f,0x7f};
  const uint8_t down[]={5,4,0,1,0,0x13};

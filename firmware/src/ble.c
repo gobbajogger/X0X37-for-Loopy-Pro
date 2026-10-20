@@ -567,5 +567,17 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_alive[1];
     w[n++] = ble_rails[0];
     w[n++] = ble_rails[1];
+    if (n + 6u > max)
+        return n;
+    /* Versioned tail, present in both roles; central fields are valid only in central role. */
+    w[n++] = 0x534D4301u;
+    w[n++] = ble_central_role ? ble_r.host.c.midi_handle | (uint32_t)ble_r.host.c.cccd_handle << 16 : 0;
+    w[n++] = ble_central_role ? blec_rd16(ble_r.host.c.reject_head) |
+                               (uint32_t)blec_rd16(ble_r.host.c.reject_head + 2) << 16 : 0;
+    w[n++] = ble_central_role ? blec_rd16(ble_r.host.c.reject_head + 4) |
+                               (uint32_t)blec_rd16(ble_r.host.c.reject_head + 6) << 16 : 0;
+    w[n++] = ble_central_role ? ble_r.host.c.reject_n | (uint32_t)ble_r.host.c.reject_reason << 16 |
+                               (uint32_t)ble_r.host.c.att_op << 24 : 0;
+    w[n++] = ble_central_role ? ble_r.host.c.att_handle | (uint32_t)ble_r.host.c.att_waiting << 16 : 0;
     return n;
 }

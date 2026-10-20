@@ -25,6 +25,14 @@ static void blec_reject(blec_t *c, uint8_t reason)
 {
     c->rx_reject++; c->rx_reason = reason;
 }
+static void blec_acl_reject(blec_t *c, const uint8_t *p, unsigned n, uint8_t reason)
+{
+    for (unsigned i = 0; i < sizeof c->reject_head; i++)
+        c->reject_head[i] = i < n ? p[i] : 0;
+    c->reject_n = (uint16_t)n;
+    c->reject_reason = reason;
+    blec_reject(c, reason);
+}
 static void blec_emit(blec_t *c, const uint8_t *p, uint8_t n)
 {
     c->rx_midi++;
@@ -210,6 +218,8 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
 {
     unsigned i, es;
     if (!n) return;
+    c->att_op = p[0];
+    c->att_handle = n >= 3u && p[0] == 0x1b ? (uint16_t)blec_rd16(p + 1) : 0;
     if (p[0] == 0x1b) {
         if (n < 4u || !c->midi_handle || blec_rd16(p + 1) != c->midi_handle) {
             blec_reject(c, BLEC_RX_HANDLE); return;
@@ -275,10 +285,10 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
     unsigned hd, pb, len, need, have, i;
     uint8_t reason;
     c->rx_acl++;
-    if (n < 4u) { blec_reject(c, BLEC_RX_HEADER); return; }
+    if (n < 4u) { blec_acl_reject(c, p, n, BLEC_RX_HEADER); return; }
     hd = blec_rd16(p); pb = hd >> 12 & 3u;
     if ((c->state != BLEC_DISCOVERING && c->state != BLEC_CONNECTED) ||
-        (hd & 0xfffu) != c->conn) { blec_reject(c, BLEC_RX_LINK); return; }
+        (hd & 0xfffu) != c->conn) { blec_acl_reject(c, p, n, BLEC_RX_LINK); return; }
     len = blec_rd16(p + 2);
     reason = BLEC_RX_LENGTH;
     if (len != n - 4u) goto reject;
@@ -307,7 +317,7 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
     return;
 reject:
     c->rx_have = c->rx_need = 0;
-    blec_reject(c, reason);
+    blec_acl_reject(c, p, n, reason);
 }
 static void blec_adv_report(blec_t *c, const uint8_t *p, unsigned n)
 {
