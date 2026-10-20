@@ -133,7 +133,7 @@
     "Remove unused stable validator compiler/environment capture and worker forwarding, preserving actual native provenance.",
     "Measure checked cache helper per consumer on pinned Linux, compare saved operation baseline, verify exact bytes at real output paths. Retain original native path without unsupported discovery overhead.",
     "Cover default/generate-only host dispatch, custom break bank, output override and generator failures; reference/CYM_AB behavior; clip SRC/OUT overrides.",
-    "Record complete combined checked source and checks; launch exactly one fresh independent Test, then host Validate."
+    "Record complete combined checked source; run required independent review and scoped validation in this bounded task. Return compact execution evidence and any remaining classic-project handoff."
   ],
   "checks_now": "initial-checks.json",
   "test_plan": [
@@ -163,12 +163,18 @@
     "No numeric whole-build speed claim; no target/controller build repeated.",
     "No device write, publication, external push, release/full gate or competing firmware integration."
   ],
-  "resume": "Continue in this same combination stage chat when checked completion notices arrive. Do not create another continuation or poll active owners.",
+  "resume": "Continue necessary authorized combination edits/checks in this same task when required results arrive. No repeated polling, timer automation or automatic Codex successor.",
   "combined_registration": {
     "quickcheck-plan": "test_quickcheck_plan.py",
     "ctl-compile": "test_ctl_compile.py",
     "host-setup": "test_host_setup.py",
     "runner-admission": "test_runner_admission.py"
   },
-  "registration_checks": "controller-quickcheck-identity.json"
+  "registration_checks": "controller-quickcheck-identity.json",
+  "current_routing": {
+    "source": "Current workspace AGENTS, task routing, workflow17/18 and coordinator notice relaying owner01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
+    "supersedes": "Original per-stage Codex launch plan in saved handoff and earlier checkpoint",
+    "execution": "Keep authorized necessary edits and affected checks in this existing isolated combination task; no automatic Codex Test/Validate successors. Independent review helpers remain required by this explicit combination assignment.",
+    "handoff": "Return compact execution evidence to coordinator; save classic LoopyX0X37 prompt if a new decision/task remains. Do not substitute general/Work/cloud chat."
+  }
 }
