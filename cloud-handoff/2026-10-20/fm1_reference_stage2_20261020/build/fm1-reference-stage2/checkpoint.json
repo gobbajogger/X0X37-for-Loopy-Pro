@@ -1,0 +1,28 @@
+{
+  "stage": "2 incomplete; local development stopped for cloud transition",
+  "base": "649c5bc4deb2fab06daae8a2199a222462045857",
+  "branch": "lane/dk-fm1-reference-stage2",
+  "worktree": "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020",
+  "patch_sha256": "65c173210f594ca0e84757bb3f6cc16dc88265d241f6d344deb4c2a72ba8f1a0",
+  "files": {
+    "tests/host/test_validation_inputs.py": "4ea89325f8e82b01b14c9fee5189ed09f9ce534487ecb39e15b1401c5c963052",
+    "tests/install_slots_test.py": "802abd0344c0fec4de791ca4d0323949d26751ed9414b95098c1902b5a46e04c",
+    "tests/install_test.py": "fe51cf954a9d3eada28a95586de395101134fc46d90f715a91519e9ea7327473",
+    "tests/run_tests.sh": "3b2f6c5f9db033e3bd22026a7fecff09263538840ff9d53dc2de28bc99c5bd90",
+    "tools/gate.sh": "141802bc8e53e1d52895c0db14ab23a101310401842b652960b7071048345eb4",
+    "tools/quickcheck.sh": "cf14305620be2c40a9156d9636fe5dbf9789f93ef31118558a76622c16da6d09",
+    "tools/validation_inputs.py": "b1cf53a3c087944763b5baa310a27a5f9dd7dad452f6862ee730f6951e9228ec",
+    "tests/host/test_smk_update_contract.py": "ebfa52a12b9c1e7f33702da90bae7d5c7815706accc43176d35c402e5a23197b"
+  },
+  "passing": [
+    "validation-inputs: 4 tests latest",
+    "gate-reason: 2 tests",
+    "shell syntax and diff whitespace",
+    "latest update-contract: build/config budgets and expected parser pass; real SMK OTA/model/loader/package subchecks pass"
+  ],
+  "blocked": [
+    "After adopting ea9d678 FakeSMK fixtures, installer and slot tests hit preexisting 649c5bc tool mismatch: fm1_install.with_ctl calls missing add_ctl.check_block. Coordinator a3680ca-based candidate retains newer installer and add_ctl implementations; reconcile there, do not downgrade installed safety."
+  ],
+  "successor": null,
+  "receiving_owner": "01a1593e-18e0-7651-ad7d-32b59e3c3a63"
+}

@@ -1,0 +1,58 @@
+{
+  "x0x37": {
+    "head": "de8f2d622d4640a3571a1ba5df3ecdd3793499f6",
+    "branch": "smk37",
+    "common": ".git",
+    "status": "M AGENTS.md\n M BUILDING.md\n M ble/ctl/build_ctl.sh\n M ble/ctl/build_in_container.sh\n M docs/USER_PREFERENCES.md\n M docs/rules/SCRIPT-CHECKS.md\n M docs/rules/commit.md\n M docs/rules/install.md\n M docs/rules/integration.md\n M tests/host/fixtures/prefs_lint/good.md\n M tests/host/test_gate_trap.sh\n M tests/host/test_install_gate_guard.sh\n M tests/host/test_portable_rules.py\n M tests/host/test_rules_rollout.py\n M tests/run_tests.sh\n M tools/fm1_install.py\n M tools/gate.sh\n M tools/install_gate.sh\n M tools/prefs_lint.py\n M tools/require_gate_pass.sh\n M tools/rollout_rules.py\n M tools/sync_results_to_mac.sh\n?? docs/audit/workflow-2026-10-20.md\n?? docs/audit/workflow-2026-10-20/\n?? docs/rules-audit-2026-10-20-gate-reason.md\n?? fm1_reference_stage2_20261020/\n?? tests/host/test_dev_validate.py\n?? tests/host/test_gate_reason.py\n?? tests/host/test_prefs_lint.py\n?? tests/host/test_validation_inputs.py\n?? tools/dev_validate.py\n?? tools/validation_inputs.py",
+    "remotes": "origin\thttps://github.com/genkigenki/fm1-x0x.git (fetch)\norigin\tDISABLED-no-push-outside-box (push)"
+  },
+  "firmware_ux_repair_merge_20261020": {
+    "head": "a3680ca940b27d18edd24b2df4a4e44419fc9145",
+    "branch": "lane/mb-ux-repair-merge-20261020",
+    "common": "/Users/mac/Documents/x0x37/flash_review/.git",
+    "status": "M AGENTS.md\n M docs/SKILLS.md",
+    "remotes": "origin\t/Users/mac/Documents/x0x37/x0x37 (fetch)\norigin\t/Users/mac/Documents/x0x37/x0x37 (push)"
+  },
+  "smk_only_gate": {
+    "head": "ea9d678448d1a88bf20ec236f464a143bdb80ded",
+    "branch": "lane/dk-smk-only-gate",
+    "common": "/Users/mac/Documents/x0x37/flash_review/.git",
+    "status": "M AGENTS.md\n M docs/SKILLS.md",
+    "remotes": "origin\t/Users/mac/Documents/x0x37/x0x37 (fetch)\norigin\t/Users/mac/Documents/x0x37/x0x37 (push)"
+  },
+  "final_install_integration": {
+    "head": "53ed908c92e3a112a5d5c1ec8d1dddf303bf57e8",
+    "branch": "lane/mb-final-install",
+    "common": "/Users/mac/Documents/x0x37/flash_review/.git",
+    "status": "M AGENTS.md\n M docs/SKILLS.md",
+    "remotes": "origin\t/Users/mac/Documents/x0x37/x0x37 (fetch)\norigin\t/Users/mac/Documents/x0x37/x0x37 (push)"
+  },
+  "firmware_smc_receive_20261020": {
+    "head": "a3680ca940b27d18edd24b2df4a4e44419fc9145",
+    "branch": "lane/btr-smc-receive-20261020",
+    "common": "/Users/mac/Documents/x0x37/flash_review/.git",
+    "status": "M firmware/src/app/smc_mixer.c\n M firmware/src/app/smk_inlog.h\n M firmware/src/ble.c\n M firmware/src/ble/ble_midi_central.c\n M firmware/src/ble/ble_midi_central.h\n M tools/ble_autotest.py\n M tools/inlog_fmt.py\n?? tests/host/ble_midi_receive_test.c\n?? tests/host/ble_midi_receive_test.sh",
+    "remotes": "origin\t/Users/mac/Documents/x0x37/x0x37 (fetch)\norigin\t/Users/mac/Documents/x0x37/x0x37 (push)"
+  },
+  "rules_workflow_identity": {
+    "head": "649c5bc4deb2fab06daae8a2199a222462045857",
+    "branch": "lane/dk-rules-workflow-identity",
+    "common": "/Users/mac/Documents/x0x37/x0x37/.git",
+    "status": "M AGENTS.md\n M docs/SKILLS.md",
+    "remotes": "origin\thttps://github.com/genkigenki/fm1-x0x.git (fetch)\norigin\tDISABLED-no-push-outside-box (push)"
+  },
+  "web_controller": {
+    "head": "44c0f124512d9a9499a39ba03cf41cd79ff75f9a",
+    "branch": "lane/mb-web-controller",
+    "common": "/Users/mac/Documents/x0x37/x0x37/.git",
+    "status": "M AGENTS.md\n M docs/SKILLS.md",
+    "remotes": "origin\thttps://github.com/genkigenki/fm1-x0x.git (fetch)\norigin\tDISABLED-no-push-outside-box (push)"
+  },
+  "ux_emulator_20261020": {
+    "head": "ed494755eff5dbdaafd85f5cf6ea753599e6afcb",
+    "branch": "lane/sb-ux-emulator-20261020",
+    "common": "/Users/mac/Documents/x0x37/flash_review/.git",
+    "status": "M AGENTS.md\n M docs/SKILLS.md",
+    "remotes": "origin\t/Users/mac/Documents/x0x37/x0x37 (fetch)\norigin\t/Users/mac/Documents/x0x37/x0x37 (push)"
+  }
+}

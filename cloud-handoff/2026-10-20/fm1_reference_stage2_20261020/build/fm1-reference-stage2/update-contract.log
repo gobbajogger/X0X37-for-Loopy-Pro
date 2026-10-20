@@ -1,0 +1,115 @@
+..F
+======================================================================
+FAIL: test_update_consumers_without_fm1_build (__main__.SmkUpdateContract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/fm1_reference_stage2_20261020/tests/host/test_smk_update_contract.py", line 77, in test_update_consumers_without_fm1_build
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : smk pkg: identity SMK-37 Pro_900, 20 blocks, CRCs ok                            ok
+smk pkg: flash.bin 0x9d000 B (stock PRCT 0x9D000)                               ok
+smk pkg: app.bin, cfg_tool.bin first                                            ok
+smk pkg: region table == stock v016 (VM, PRCT, BTIF, USRTRIM, USRFLASH, USR)    ok
+smk pkg: head present (never written by the loader, checked against the device) ok
+smk package test passed
+  ok   smk-package
+handshake answered                                   ok
+identity frame is SMK-37 Pro_900                     ok
+  10 requests
+session commits                                      ok
+headers + loader + confirm, no head reads            ok
+staged body == the package's loader                  ok
+LOADER.BIN head CRC                                  ok
+record at the area end - 256 == RAM record           ok
+parm identity ota-SMK-37 Pro_016, zero to +0x27      ok
+record CRC / type / magic / ota_addr                 ok
+nothing written outside the staging area             ok
+boot cleanup erases the area                         ok
+second boot: nothing to do                           ok
+host gone -> no commit, area clean                   ok
+no 'success' -> -13, no commit, area clean           ok
+ota test passed
+  ok   smk-ota-entry
+handshake answered                                   ok
+identity frame is SMK-37 Elite_900                   ok
+  10 requests
+session commits                                      ok
+headers + loader + confirm, no head reads            ok
+staged body == the package's loader                  ok
+LOADER.BIN head CRC                                  ok
+record at the area end - 256 == RAM record           ok
+parm identity ota-SMK-37 Elite_016, zero to +0x27    ok
+record CRC / type / magic / ota_addr                 ok
+nothing written outside the staging area             ok
+boot cleanup erases the area                         ok
+second boot: nothing to do                           ok
+host gone -> no commit, area clean                   ok
+no 'success' -> -13, no commit, area clean           ok
+ota test passed
+  ok   smk-ota-entry-model1
+handshake answered                                   ok
+identity frame is MKE-P37_900                        ok
+  10 requests
+session commits                                      ok
+headers + loader + confirm, no head reads            ok
+staged body == the package's loader                  ok
+LOADER.BIN head CRC                                  ok
+record at the area end - 256 == RAM record           ok
+parm identity ota-MKE-P37_016, zero to +0x27         ok
+record CRC / type / magic / ota_addr                 ok
+nothing written outside the staging area             ok
+boot cleanup erases the area                         ok
+second boot: nothing to do                           ok
+host gone -> no commit, area clean                   ok
+no 'success' -> -13, no commit, area clean           ok
+ota test passed
+  ok   smk-ota-entry-model2
+  rc 0, 1228 requests, 17 sector erases
+install completes                                        ok
+app area == the new package's flash.bin                  ok
+flash head [0, 0x4000) untouched                         ok
+finish asked (0xF0000000)                                ok
+update record cleared (RAM + flash)                      ok
+no write outside the allowed windows                     ok
+re-run with the same package erases nothing              ok
+foreign key / damaged app head refused, nothing erased   ok
+protected ranges untouched (SMK: BTIF, USRTRIM, USR, key_mac) ok
+loader test passed
+  ok   smk-update-loader
+smk pkg: identity SMK-37 Pro_900, 20 blocks, CRCs ok                            ok
+smk pkg: flash.bin 0x9d000 B (stock PRCT 0x9D000)                               ok
+smk pkg: app.bin, cfg_tool.bin first                                            ok
+smk pkg: region table == stock v016 (VM, PRCT, BTIF, USRTRIM, USRFLASH, USR)    ok
+smk pkg: head present (never written by the loader, checked against the device) ok
+smk package test passed
+  ok   smk-build-package
+smk pkg: identity SMK-37 Elite_900, 20 blocks, CRCs ok                          ok
+smk pkg: flash.bin 0x9d000 B (stock PRCT 0x9D000)                               ok
+smk pkg: app.bin, cfg_tool.bin first                                            ok
+smk pkg: region table == stock v016 (VM, PRCT, BTIF, USRTRIM, USRFLASH, USR)    ok
+smk pkg: head present (never written by the loader, checked against the device) ok
+smk package test passed
+  ok   smk-build-package-elite
+pack7 / unpack7 round trip                                       ok
+response: header, address, data, checksum                        ok
+product_of / logical_image (synthetic)                           ok
+product_of: a long SMK identity                                  ok
+Traceback (most recent call last):
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpi2t86998/tests/install_test.py", line 292, in <module>
+    installs()
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpi2t86998/tests/install_test.py", line 192, in installs
+    rc, out, err = cli([p, "--yes"], dev)
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpi2t86998/tests/install_test.py", line 165, in cli
+    rc = I.main(args, backend=dev, out=out, ask=lambda _p: answer)
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpi2t86998/tools/fm1_install.py", line 972, in main
+    return run(a, backend, out, ask)
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpi2t86998/tools/fm1_install.py", line 794, in run
+    image = with_ctl(a, product, image, out)
+  File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpi2t86998/tools/fm1_install.py", line 725, in with_ctl
+    add_ctl.check_block(image)
+AttributeError: module 'add_ctl' has no attribute 'check_block'
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 6.046s
+
+FAILED (failures=1)
