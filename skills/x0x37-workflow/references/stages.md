@@ -2,7 +2,7 @@
 
 1. **Audit.** Inspect the specified revision and intended behavior. Record defects, evidence, affected scope, fixes, existing approvals, and missing decisions.
 2. **Implement.** Use the audit and approvals. Hand off checked commits and deferred items. Ask only for decisions still missing.
-3. **Test.** Check the complete implementation candidate. Use helpers only when requested or required for independent review.
+3. **Test.** Check the complete implementation candidate. Use supported, justified helpers under [rule 16](../../x0x37-shared-work/SKILL.md); otherwise check sequentially.
    Record passing checks and each failure's cause and disposition. Repair the source, then rerun affected checks.
 4. **Validate.** Use the tested candidate, configurations, and dependencies.
    Record exact build/install-package identities, checks, and logs under [rule 11](../../x0x37-integrate/SKILL.md) and [rule 6](../../x0x37-install/SKILL.md).

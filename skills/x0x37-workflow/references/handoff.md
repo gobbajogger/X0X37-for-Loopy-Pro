@@ -2,7 +2,8 @@
 
 After required checks pass, record the result, exact revision, inputs, logs, artifacts, remaining work,
 and originating classic ChatGPT thread in LoopyX0X37. Return that compact result through an authorized channel.
-If no work remains, end the workflow. Do not automatically create another Codex thread for the next logical stage.
+If no work remains, end the workflow. Otherwise continue the applicable reasoning stages in classic project chat.
+Keep authorized chains when supported and necessary; a stage change alone does not require another Codex thread.
 Use [chat routing](../../x0x37-task/references/routing.md) for the next task and its project destination.
 
 If the owner explicitly requested a separate execution task and its tools are necessary:
@@ -22,7 +23,8 @@ If the owner explicitly requested a separate execution task and its tools are ne
 
 Classic ChatGPT creation must retain the LoopyX0X37 project and classic mode.
 If no supported tool can do that, provide the saved prompt and project link for the owner to launch.
-Do not substitute a general chat, ChatGPT Work, cloud agent, or another Codex task.
+Do not silently substitute a general chat, ChatGPT Work, cloud agent, or another Codex task.
+Separately authorized Work or Codex execution uses the verified capabilities and project scope in [chat routing](../../x0x37-task/references/routing.md).
 Report `prompt ready; owner launch needed` rather than claiming startup or waiting for unavailable automation.
 
 Failed checks need repair and affected checks before advancement. A missing device leaves installation pending;

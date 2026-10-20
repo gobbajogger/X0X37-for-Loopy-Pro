@@ -1,0 +1,37 @@
+{
+  "skills/x0x37-task/references/routing.md": {
+    "sha256": "2f413daf468230f8fb1dc8215929f983bb224f105e2b8e4160feb79984b19a70",
+    "bytes": 3696,
+    "words": 520
+  },
+  "skills/x0x37-workflow/SKILL.md": {
+    "sha256": "691beaaecc7c6a1104f49c636d57332e685698c6a75b4819efe057d9c3efc38d",
+    "bytes": 1559,
+    "words": 209
+  },
+  "skills/x0x37-workflow/references/stages.md": {
+    "sha256": "43f85fdc977a39005b9c0513b4c188a243d780428122e0092bbfff2f66cf8e25",
+    "bytes": 2834,
+    "words": 358
+  },
+  "skills/x0x37-workflow/references/handoff.md": {
+    "sha256": "0d5bdea5a5932ca0e6f84ac60941b77d38795ebdf96088c7b80d4b4c91b3ee8c",
+    "bytes": 2850,
+    "words": 403
+  },
+  "skills/x0x37-shared-work/SKILL.md": {
+    "sha256": "dfe3ca37cde061195d638c02d1b7f4b15d82997a554ab6f68af3a5c00a33ce91",
+    "bytes": 2064,
+    "words": 303
+  },
+  "docs/chatgpt-project-instructions.txt": {
+    "sha256": "2a7e6c16577630a800ad61a5bb913b5a03bd4c68552d93b202f163096d1c0ce5",
+    "bytes": 1894,
+    "words": 268
+  },
+  "docs/USER_PREFERENCES.md": {
+    "sha256": "f2a5e285a59d1c514590b73663b92137e99a0365a75527cb0b6342132ffb4186",
+    "bytes": 44331,
+    "words": 6939
+  }
+}
