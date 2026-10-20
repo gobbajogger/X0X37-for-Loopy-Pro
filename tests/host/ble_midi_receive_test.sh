@@ -10,3 +10,4 @@ for test in ble_midi_central ble_midi_receive ble_midi_signal ble_midi_abort; do
         "tests/host/${test}_test.c" firmware/src/ble/ble_midi_central.c -o "$OUT/$test"
     "$OUT/$test"
 done
+python3 -B tests/host/ble_midi_deadline_test.py

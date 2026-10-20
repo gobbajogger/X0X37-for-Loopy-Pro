@@ -69,6 +69,11 @@ static int blec_acl(blec_t *c, const uint8_t *p, unsigned n)
 static void blec_disconnect(blec_t *c)
 {
     uint8_t b[3];
+    /* Every entry path must obey the original cutoff, including stop and cancel. */
+    if ((int32_t)(c->now_ms - c->deadline) >= 0) {
+        c->state = BLEC_FAILED; c->waiting = 0;
+        return;
+    }
     if (c->disconnect_flags & D_SENT) return;
     blec_wr16(b, c->conn); b[2] = 0x13;
     c->waiting = 0;
@@ -510,9 +515,7 @@ void blec_poll(blec_t *c, uint32_t now)
 {
     c->now_ms = now;
     if (c->state == BLEC_DISCONNECTING || (c->state == BLEC_STOPPING && c->conn)) {
-        if ((int32_t)(now - c->deadline) >= 0) {
-            c->state = BLEC_FAILED; c->waiting = 0;
-        } else blec_disconnect(c);
+        blec_disconnect(c);
         return;
     }
     if (c->sig_count) {

@@ -1,0 +1,63 @@
+The CENTRAL-ABORT-02 repair passes its affected stage2 checks.
+The physical all-input failure remains unresolved.
+
+One helper checks the original deadline before every Disconnect submission.
+The helper applies to poll, direct stop and the successful connection/cancel race.
+The production service supplies its current fm1_ms before stop can submit a command.
+An expired interval reaches FAILED without a late submission.
+The connection handle and unreturned credits remain available for the applicable successful completion.
+Stop intent remains available after timeout.
+A normal stop starts a distinct interval from the current service time.
+An active abort interval does not change after refusal or repeated stop.
+
+The public central, receive, signaling, abort and deadline tests pass with ASan and UBSan.
+The new deadline suite has 38 cases.
+It covers overflow, reply timeout, direct stop and the production service body.
+It also covers legacy and enhanced connection events during cancel.
+The cases include recovery before expiry, exact expiry, after expiry and timer wrap.
+Late successful completion respects stop intent.
+Failed and wrong-handle completions do not release the link.
+The existing tests retain command acceptance, status, missing completion and reconnect coverage.
+The old and extended DIAG decoder tests pass.
+
+The saved stop probe and all 12 saved deadline probes fail functionally on 05eff60.
+All three new public path controls also fail on that source.
+The saved direct-stop and cancel probes pass after the repair.
+The four old service simulations deliberately retain the stale caller.
+Those simulations remain negative examples against the helper alone.
+The new regression executes the actual production service body with simulated dependencies.
+That regression passes with the repaired caller.
+A separate control with the repaired helper and old caller fails.
+This control establishes the need for the service time update.
+The original 28d0fc2 controls still fail before the CENTRAL-ABORT-01 repair.
+All applicable backpressure controls pass on the complete repair.
+No sanitizer failure precedes these expected functional assertions.
+
+The startup replay passes with 1268 unchanged payloads.
+It produces 2616 decoded messages and 513 feedback messages.
+The input queue is empty. The performance test is idle.
+Help and overlay are inactive.
+The peer, HCI framing, mailbox, clock and schedule are simulated.
+Three oversized ATT packets remain excluded. No payload resegmentation occurs.
+The project store is synthetic.
+Target interrupt timing and physical radio execution are untested.
+
+The Elite and Pro DEV builds pass code, RAM and pool checks.
+The code margins are 1400 bytes for Elite and 1416 bytes for Pro.
+The static RAM margin is 524 bytes. The pool margin is 8364 bytes.
+The required pool margin is 8192 bytes.
+These stage2 builds are not stage4 validated install records.
+The controller and parallel mapping sources are unchanged.
+No feature or sample quality was removed.
+
+Physical result: NOT TESTED.
+Original all-input failure: UNRESOLVED.
+This source defect does not establish the cause of the physical failure.
+No device write, controller write, release build, full gate, fallback or external push occurred.
+
+The next required stage is one fresh LOCAL stage3.
+It requires separate independent test and investigation subagents.
+Only a passing stage3 can start scoped DEV stage4 for both complete package/controller sets.
+Mapping stage4 owner 01a15a87-298e-7d21-b004-b78d5beafd89 retains selection of the sole stage5 integrator.
+Both validated contributions are required before merge.
+The complete validated DEV-install permission carries forward with its notice requirement.

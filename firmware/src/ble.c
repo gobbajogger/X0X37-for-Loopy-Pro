@@ -392,6 +392,8 @@ static void ble_central_service(void)
         if (!ble_want) return;
         ble_host_on = 1;
     }
+    /* Stop can submit Disconnect before receive or poll supplies the current time. */
+    c->now_ms = fm1_ms;
     if (!ble_want && c->state != BLEC_OFF && c->state != BLEC_STOPPING)
         blec_stop(c);
     for (k = 0; k < 8u; k++) {

@@ -1,0 +1,45 @@
+{
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "base": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "start": "5d66ffd49d0dbe9d6bab639c59353089d1a524d8",
+  "lane": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021",
+  "branch": "lane/mb-smc-central-abort-deadline-repair-20261021",
+  "sdk": {
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "status": ""
+  },
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "configuration": {
+    "X0X_DEV_PADCAL": 1,
+    "board": "smk37",
+    "models": [
+      "elite",
+      "pro"
+    ]
+  },
+  "build_command": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-v",
+    "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+    "-v",
+    "/Users/mac/.jieli/toolchain:/Users/mac/.jieli/toolchain:ro",
+    "-v",
+    "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+    "-w",
+    "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021",
+    "x0x37-validation:local",
+    "sh",
+    "evidence/deadline-stage2/run-builds.sh"
+  ],
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"
+}
