@@ -188,6 +188,8 @@ SNG-01. A song has a maximum of 192 bars. [MANUAL §12] [CODE seq/sequencer.h:52
 SNG-02. A song bar can repeat 1 to 8 times. [MANUAL §12] [CODE seq/sequencer.h:68]
 SNG-03. PLAY on the SONG screen plays the song from the selected bar. PLAY on another screen plays the patterns. [MANUAL §12]
 SNG-04. REC and PLAY on the SONG screen record the song bar by bar. The recording replaces the old bars. [MANUAL §12]
+SNG-05. INSERT BAR and DELETE BAR change only an existing selected bar. On the blank append row, they leave the song and save state unchanged and show NO BAR SELECTED. INSERT BAR on a 192-bar song leaves the song and save state unchanged and shows SONG FULL. [CODE app/ui.c run_action]
+SNG-06. HOME cancels a confirmation and returns to the overlay that opened it, including its selected list row. SELECT still confirms the action and completes it as before. [CODE app/ui.c ask button_tap]
 
 ## 11. Effects
 

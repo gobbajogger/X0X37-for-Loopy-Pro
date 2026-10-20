@@ -73,6 +73,7 @@ typedef struct {
     uint8_t overlay;
     uint8_t list_sel, list_top, list_n;
     uint8_t ask_act;
+    uint8_t ask_overlay;
     uint16_t ask_arg;
     char ask_q[2][28];
     uint32_t frame;
@@ -1123,6 +1124,7 @@ static void open_global(void)
 static void ask(int act, int arg, const char *q1, const char *q2)
 {
     ui.ask_act = (uint8_t)act;
+    ui.ask_overlay = ui.overlay;
     ui.ask_arg = (uint16_t)arg;
     put_s(ui.ask_q[0], q1);
     put_s(ui.ask_q[1], q2 ? q2 : "");
@@ -1720,13 +1722,19 @@ X0X_COLD static void run_action(int act, int arg)
     case ACT_SONG_DEL: {
         song_t *sg = song();
         int k = ui.song_sel, i;
-        if (k >= sg->len)
+        if (k >= sg->len) {
+            say("NO BAR SELECTED", 0);
             break;
-        if (act == ACT_SONG_INS && sg->len < NSONG) {
+        }
+        if (act == ACT_SONG_INS) {
+            if (sg->len >= NSONG) {
+                say("SONG FULL", 0);
+                break;
+            }
             for (i = sg->len; i > k; i--)
                 sg->bar[i] = sg->bar[i - 1];
             sg->len++;
-        } else if (act == ACT_SONG_DEL) {
+        } else {
             for (i = k; i + 1 < sg->len; i++)
                 sg->bar[i] = sg->bar[i + 1];
             sg->len--;
@@ -2528,7 +2536,7 @@ X0X_COLD static void button_tap(int b)
             ui.overlay = O_NONE;
             run_action(ui.ask_act, ui.ask_arg);
         } else if (b == B_HOME) {
-            ui.overlay = O_NONE;
+            ui.overlay = ui.ask_overlay;
             say("CANCELLED", 0);
         } else
             return;
