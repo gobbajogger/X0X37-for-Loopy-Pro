@@ -26,6 +26,9 @@
   processes by PID; never use `pkill -f` or `killall` on shared scripts.
 ### Rule 6A: finish authorized work
 
+- Default all builds and installs to development. Follow [rule 11](integration.md)
+  for explicit release-build authorization and full-gate restrictions.
+
 - Finish authorized work and relevant checks. Missing hardware or retired roles
   block only dependent steps. Name a real blocker and next action; do not repeat
   approval requests or poll without cause.

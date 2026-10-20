@@ -2,6 +2,10 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
+## Development default and explicit release builds
+
+- 2026-10-21 Source: owner in the side conversation attached to local stage 4: "Edit rules to launch release build only when explicitly asked by user. Full gate is always skipped until release build actually has been requested. Always assume it's dev build!" The owner also clarified: "We are not doing a release install. Only a dev build and install". This supersedes treating generic build, install, validation, stage-4 or successor instructions as release-build permission, including earlier dev/release gate handoff wording and the historical 2026-10-17 01:11 release-install preference for current work. Default to development builds and installs with pad calibration enabled. Skip the full gate, including trial/force/owner-validation, until the user explicitly requests a release build for the current work. Then apply the normal scoped/full-gate routing and release safeguards. Active rules: integration.md rule 11; install.md rule 6; core.md rule 6A; commit.md rule 9; workflow.md rule 17. Publication still requires its own authorization.
+
 ## Build target scope
 
 - 2026-10-20 Source: owner in this chat: "we dont need to build and test fm1 builds. they are only for reference to port". FM-1 is reference-only for porting. Build and test SMK-37 Elite and Pro; do not require FM-1 target builds or FM-1 target tests. This supersedes the gate’s FM-1 build, budget, and target-test requirements. Keep shared code and checks needed for the SMK-37 port, including tools with legacy `fm1` names. Active rules: integration.md rule 11; owner-messages.md rules 4B and 14; docs.md rule 12. The assigned integration chat owns the workflow change.

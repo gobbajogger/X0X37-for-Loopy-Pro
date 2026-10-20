@@ -2,6 +2,9 @@
 
 ### Rule 9: supported checks
 
+Use the development build by default; apply [release authorization](integration.md)
+before selecting a release configuration or the full gate.
+
 Read the relevant script header before running it; read `BUILDING.md` when
 build or test environment setup is needed. Supported host tests can run
 on macOS or Linux. JieLi target tools need Linux x86-64; a working local

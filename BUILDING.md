@@ -2,6 +2,11 @@ Publish the site only when the owner authorizes publication (docs/rules/install.
 
 # Building X0X
 
+Default to development builds and installs (`X0X_DEV_PADCAL=1`). Build a release
+configuration only after the user explicitly requests a release build for the
+current work. Until then, always skip the full gate, including trial runs. See
+[rule 11](docs/rules/integration.md).
+
 Maintained targets are SMK-37 Elite and Pro. The gate builds and tests both in dev
 and release configurations. FM-1 source is reference-only for porting; its target
 builds, target tests, and memory budgets are not gate requirements. Shared tools
@@ -79,10 +84,10 @@ Use the actual reference directory names. The release gate pins are 9W9 `10cbe5c
 as `CC='clang -U__APPLE__'` is not a compiler executable for these runners. Put
 compiler options in the runner's supported flags.
 
-Edits, commits, merges, handoffs, and completed development batches do not
-require the full gate. Use checks scoped to the change. Run a gate when the
-next install/release step requires it, or when the owner requests full validation;
-see [rule 11](docs/rules/integration.md). Reuse matching passing evidence.
+Use checks scoped to the change and development validation by default.
+Only after an explicit user request for a release build may the full gate run
+under [rule 11](docs/rules/integration.md). Generic full-validation, build or
+install requests do not authorize a release build. Reuse matching evidence.
 
 For a development install, prepare a JSON plan with `base` (the reviewed base
 commit), `scope` (what changed and which consumers can be affected), and `checks`
@@ -229,10 +234,10 @@ Use the actual reference directory names. The release gate pins are 9W9 `10cbe5c
 as `CC='clang -U__APPLE__'` is not a compiler executable for these runners. Put
 compiler options in the runner's supported flags.
 
-Edits, commits, merges, handoffs, and completed development batches do not
-require the full gate. Use checks scoped to the change. Run a gate when the
-next install/release step requires it, or when the owner requests full validation;
-see [rule 11](docs/rules/integration.md). Reuse matching passing evidence.
+Use checks scoped to the change and development validation by default.
+Only after an explicit user request for a release build may the full gate run
+under [rule 11](docs/rules/integration.md). Generic full-validation, build or
+install requests do not authorize a release build. Reuse matching evidence.
 
 For a development install, prepare a JSON plan with `base` (the reviewed base
 commit), `scope` (what changed and which consumers can be affected), and `checks`
