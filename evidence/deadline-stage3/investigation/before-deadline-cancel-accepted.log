@@ -1,0 +1,2 @@
+After production stop: path=cancel refused=0 state=1 waiting=1 handle=0 attempts=1 accepted=1 deadline=3100
+After successful connection: state=1 handle=80 attempts=2 accepted=2 Disconnects=1

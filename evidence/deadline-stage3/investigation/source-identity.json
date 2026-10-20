@@ -1,0 +1,18 @@
+{
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "lane_head": "767de3dea05ac7a38b17f7a4380b063d364f8a84",
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "source_sha256": {
+    "firmware/src/ble/ble_midi_central.c": "0f400b3e9d88b95599eac7d3ce21f7fd71b990cb6530589dba08e6fcf235eb77",
+    "firmware/src/ble/ble_midi_central.h": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+    "firmware/src/ble.c": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba",
+    "firmware/src/app/main_fm1.c": "74de15cd0ee2e9456420fae16d8eaf4d5b11c1ae9badc3e2b07e6d1b94fa22e2",
+    "firmware/src/x0x.c": "551339422f5119ce47782f81e7e27290a72d343041daa7a0328bc8794906408e",
+    "firmware/hal/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867",
+    "firmware/src/app/smc_mixer.c": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+    "firmware/src/app/ui.c": "22f58e87d1f77baac72ca68c84a71eadd02bcb1968929b730af2074a3d9e230f",
+    "tests/host/ble_midi_signal_test.c": "54ac463bf3435a7e701030d594b20fee4ac7c69a7213c4ea5adb3a6dfeae221f"
+  }
+}

@@ -1,0 +1,3 @@
+Accepted Create status: state=4 step=8 waiting=0 conn=0
+After Cancel: refused=0 accepted=1 state=1 waiting=1 conn=0 deadline=3030
+After successful legacy connection: state=1 waiting=1 conn=80 disconnects=1

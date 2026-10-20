@@ -1,0 +1,77 @@
+{
+  "stage": 3,
+  "helper": "independent-test",
+  "result": "SOURCE REPAIR REQUIRED",
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "lane_base": "767de3dea05ac7a38b17f7a4380b063d364f8a84",
+  "commands": "host-checks.json",
+  "command_count": 56,
+  "negative_review": "negative-review.json",
+  "expected_nonzero_commands": 26,
+  "identity": "identity.json",
+  "variant_inputs": "variant-inputs.json",
+  "selected_stage2_inputs_match": 413,
+  "public_tests": {
+    "runner": "sh tests/host/ble_midi_receive_test.sh",
+    "log": "receive.log",
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ],
+    "result": "PASS",
+    "coverage": [
+      "The central completes startup, service discovery, CCCD subscription and normal MIDI delivery.",
+      "The receive tests cover short fragments, invalid lengths, ATT bounds, rejected headers and lifecycle resets.",
+      "The signaling tests cover identifiers, invalid commands, fragmented replies, bounds, reply priority, unavailable credits and transport refusal.",
+      "The reconnect tests restore credits only after successful disconnection. Completion counts saturate before conversion.",
+      "The abort tests distinguish submission acceptance, command status and successful Disconnection Complete.",
+      "The abort tests cover refused sends, recovery before expiry, absent completion, failed status, wrong handles, repeated stop, start and reconnect.",
+      "The deadline tests execute the production service body with simulated dependencies.",
+      "The 38 deadline cases cover overflow and timeout, direct stop, service and both successful connection event types during cancel.",
+      "The deadline cases cover expiry minus 1 ms, exact expiry, expiry plus 1 ms and timer wrap.",
+      "Normal stop starts a new interval. An active abort interval does not change. Late successful completion keeps stop intent."
+    ]
+  },
+  "diag": {
+    "result": "PASS",
+    "log": "diag.log",
+    "coverage": "The Python tests check old and extended DIAG words, handles, rejected headers and unchanged peripheral decoding."
+  },
+  "negative_controls": {
+    "abort01_broken": "Public overflow and timeout controls and both saved independent probes fail functionally on 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f.",
+    "abort01_repaired": "All applicable busy-mailbox controls pass on the complete candidate.",
+    "deadline_broken": "The saved stop probe, all 12 saved deadline probes and all three new public path controls fail functionally on 05eff604cb3f136db71727a2aeeea785cab73b99.",
+    "deadline_repaired": "The saved direct-stop and cancel probes pass. All current public path controls pass.",
+    "stale_service": "Four saved service simulations still fail by design. They retain stale caller order and do not execute the repaired production caller.",
+    "old_caller_mutation": "The repaired helper with the old production caller fails the public service test. This control confirms the need for the caller time update.",
+    "sanitizer_result": "No sanitizer failure preceded an expected functional assertion. No sanitizer error occurred in this run.",
+    "prior_logs": "prior-log-review.json"
+  },
+  "setup_failures": [],
+  "unexpected_failures": [
+    "CENTRAL-STOP-01"
+  ],
+  "source_repair_required": true,
+  "changes": {
+    "production_source": false,
+    "tracked_public_tests": false,
+    "target_build": false,
+    "device_write": false,
+    "controller_write": false,
+    "release_build": false,
+    "full_gate": false,
+    "external_push": false
+  },
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "limits": [
+    "HCI events, mailbox pressure, clock, peer and schedule are simulated.",
+    "The public service test executes the production body with stub dependencies. Target interrupts and physical radio execution remain untested.",
+    "The parent owns replay and target-evidence reuse. This helper ran no replay or target build.",
+    "These checks do not establish the cause of the physical input failure."
+  ],
+  "next_owner": "The stage3 task agent owns the combined result and any successor.",
+  "public_required_checks_result": "PASS",
+  "supplement": "cancel-report.json"
+}

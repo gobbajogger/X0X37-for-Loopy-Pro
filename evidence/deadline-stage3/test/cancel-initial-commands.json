@@ -1,0 +1,75 @@
+[
+  {
+    "name": "cancel-realistic-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/test/cancel-realistic-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/cancel-independent-qhayj07m/cancel-probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "expected": 0,
+    "returncode": 0,
+    "sanitizer_error": false,
+    "log": "cancel-realistic-compile.log"
+  },
+  {
+    "name": "cancel-clear-legacy",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/cancel-independent-qhayj07m/cancel-probe",
+      "clear"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "expected": 0,
+    "returncode": 0,
+    "sanitizer_error": false,
+    "log": "cancel-clear-legacy.log"
+  },
+  {
+    "name": "cancel-clear-enhanced",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/cancel-independent-qhayj07m/cancel-probe",
+      "clear",
+      "enhanced"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "expected": 0,
+    "returncode": 0,
+    "sanitizer_error": false,
+    "log": "cancel-clear-enhanced.log"
+  },
+  {
+    "name": "cancel-busy-legacy",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/cancel-independent-qhayj07m/cancel-probe",
+      "busy"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "expected": -6,
+    "returncode": -6,
+    "sanitizer_error": false,
+    "log": "cancel-busy-legacy.log"
+  },
+  {
+    "name": "cancel-busy-enhanced",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/cancel-independent-qhayj07m/cancel-probe",
+      "busy",
+      "enhanced"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "expected": -6,
+    "returncode": -6,
+    "sanitizer_error": false,
+    "log": "cancel-busy-enhanced.log"
+  }
+]

@@ -1,0 +1,93 @@
+{
+  "stage": 3,
+  "marker": "smc-central-abort-deadline-20261021-stage3-after-checked-repair",
+  "owner_thread": "01a15aa1-3015-75c0-b331-15e212d9b5ec",
+  "source_owner": "01a15a98-8224-7cb0-8740-c2fe113077b3",
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "lane_base": "767de3dea05ac7a38b17f7a4380b063d364f8a84",
+  "result": "SOURCE REPAIR REQUIRED",
+  "source_repair_required": true,
+  "next_stage": 2,
+  "helpers": {
+    "test": {
+      "owner": "/root/test",
+      "public_regression_result": "PASS",
+      "complete_candidate_result": "FAIL",
+      "report": "test/report.json",
+      "finding": "test/cancel-report.json"
+    },
+    "investigation": {
+      "owner": "/root/investigation",
+      "result": "FAIL",
+      "report": "investigation/report.json"
+    }
+  },
+  "passing_checks": [
+    "All 56 independent public regression, DIAG and negative-control commands have their expected results.",
+    "The actual production service passes all public deadline cases.",
+    "All 413 selected stage2 inputs match.",
+    "The retained replay inputs, SDK, compiler, image and six stage2 build artifacts match.",
+    "Twelve independent Disconnect event-order and stop-intent cases pass with ASan and UBSan."
+  ],
+  "new_failure": {
+    "id": "CENTRAL-STOP-01",
+    "priority": 2,
+    "status": "CONFIRMED",
+    "title": "A no-handle stop loses its control command under transport refusal.",
+    "locations": [
+      "firmware/src/ble/ble_midi_central.c:206",
+      "firmware/src/ble/ble_midi_central.c:224",
+      "firmware/src/ble/ble_midi_central.c:409",
+      "firmware/src/ble/ble_midi_central.c:420",
+      "firmware/src/ble.c:378"
+    ],
+    "cause": "blec_command sets waiting only after acceptance. blec_stop treats waiting=0 and conn=0 as a completed stop after a refused Cancel or Scan Disable.",
+    "cancel_consequence": "A successful Create completion is discarded in OFF. The active controller handle is lost and no Disconnect reaches transport.",
+    "scan_consequence": "The host reports OFF without an accepted Scan Disable.",
+    "reproduction": "The independent public startup sequence and exact extracted production service reproduce the refused Cancel failure. The service also reproduces refused Scan Disable.",
+    "provenance": [
+      "f080d1a5f31073dde600238f780acf37c12b2738",
+      "05eff604cb3f136db71727a2aeeea785cab73b99",
+      "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d"
+    ],
+    "classification": "Inherited source defect in the required stop/cancel/backpressure scope. This is not a newly introduced regression.",
+    "controls": "Accepted Cancel and Scan Disable controls pass. Refusal assertions fail with return code -6. No sanitizer error precedes these assertions.",
+    "disposition": "Use one fresh stage2, then one fresh independent stage3. Do not advance this candidate to stage4.",
+    "requirements": [
+      "Retain refused no-handle stop commands until acceptance or the original bounded cutoff.",
+      "Do not repeat accepted commands. Keep acceptance, status and completion distinct.",
+      "Preserve stop intent, late connection handles, unreturned credits and original Disconnect cutoff.",
+      "Use a truthful failed state when radio stop cannot be confirmed.",
+      "Preserve signaling, reconnect, queue bounds, identifiers, priority, fragments and normal MIDI."
+    ],
+    "scan_failed_status": "An accepted Scan Disable with Command Complete status 0x0c also enters OFF. The stop branch does not inspect the failed status.",
+    "reproduction_commands": "investigation/service-stop-record.json records 18 commands across three exact revisions."
+  },
+  "reuse": {
+    "record": "input-review.json",
+    "source_inputs": 413,
+    "replay_run_in_stage3": false,
+    "target_build_in_stage3": false,
+    "stage2_build_limit": "Stage2 build evidence is not a stage4 validated install record."
+  },
+  "production_edits": false,
+  "public_test_edits": false,
+  "device_write": false,
+  "controller_write": false,
+  "target_build": false,
+  "release_build": false,
+  "full_gate": false,
+  "external_push": false,
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "integration": "Mapping stage4 retains selection of the sole stage5 integrator for both contributions.",
+  "model_policy": "Elite covers shared development checks. Pro-specific source and actual Pro packages retain applicable checks. Reuse matching evidence and run model-independent checks once.",
+  "authorization": "Owner request Now read rules and fix; workflow17 source-repair loop; workflow18 automatic successors, recovery, startup checks and completion notices; owner-decisions14 complete validated DEV install with notice.",
+  "setup_notes": [
+    "The investigation event fixture first left transport busy before its clean Reset assertion. The corrected fixture passes all 12 cases without production changes.",
+    "The complete identity-check setup notes are in input-review.json."
+  ]
+}

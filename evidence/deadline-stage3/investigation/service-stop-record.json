@@ -1,0 +1,269 @@
+[
+  {
+    "name": "candidate-service-stop-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate",
+      "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/investigation/service-stop-probe.c",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate/probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "candidate-service-stop-compile.log"
+  },
+  {
+    "name": "candidate-cancel-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate/probe",
+      "cancel",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "candidate-cancel-refused.log"
+  },
+  {
+    "name": "candidate-cancel-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate/probe",
+      "cancel",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "candidate-cancel-accepted.log"
+  },
+  {
+    "name": "candidate-scan-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate/probe",
+      "scan",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "candidate-scan-refused.log"
+  },
+  {
+    "name": "candidate-scan-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate/probe",
+      "scan",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "candidate-scan-accepted.log"
+  },
+  {
+    "name": "candidate-scan-failed-status",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/candidate/probe",
+      "scan",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "candidate-scan-failed-status.log"
+  },
+  {
+    "name": "before-deadline-service-stop-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline",
+      "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/investigation/service-stop-probe.c",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline/probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "before-deadline-service-stop-compile.log"
+  },
+  {
+    "name": "before-deadline-cancel-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline/probe",
+      "cancel",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "before-deadline-cancel-refused.log"
+  },
+  {
+    "name": "before-deadline-cancel-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline/probe",
+      "cancel",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "before-deadline-cancel-accepted.log"
+  },
+  {
+    "name": "before-deadline-scan-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline/probe",
+      "scan",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "before-deadline-scan-refused.log"
+  },
+  {
+    "name": "before-deadline-scan-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline/probe",
+      "scan",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "before-deadline-scan-accepted.log"
+  },
+  {
+    "name": "before-deadline-scan-failed-status",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-deadline/probe",
+      "scan",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "before-deadline-scan-failed-status.log"
+  },
+  {
+    "name": "before-session-service-stop-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session",
+      "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/investigation/service-stop-probe.c",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session/probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "before-session-service-stop-compile.log"
+  },
+  {
+    "name": "before-session-cancel-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session/probe",
+      "cancel",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "before-session-cancel-refused.log"
+  },
+  {
+    "name": "before-session-cancel-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session/probe",
+      "cancel",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "before-session-cancel-accepted.log"
+  },
+  {
+    "name": "before-session-scan-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session/probe",
+      "scan",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "before-session-scan-refused.log"
+  },
+  {
+    "name": "before-session-scan-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session/probe",
+      "scan",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "before-session-scan-accepted.log"
+  },
+  {
+    "name": "before-session-scan-failed-status",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/central-service-stop-gjppau9m/before-session/probe",
+      "scan",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "before-session-scan-failed-status.log"
+  }
+]
