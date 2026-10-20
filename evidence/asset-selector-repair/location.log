@@ -1,0 +1,8 @@
+test_git_common_directory_survives_real_worktree (__main__.LocationTests) ... ok
+test_path_selection_keeps_parent_links_and_relative_parent_semantics (__main__.LocationTests) ... ok
+test_recursive_lookup_follows_directory_alias_and_rejects_cycle (__main__.LocationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.072s
+
+OK

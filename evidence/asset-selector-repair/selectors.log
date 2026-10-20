@@ -1,0 +1,10 @@
+test_cc_chain_retarget_existing_target_matches_original_across_processes (__main__.SelectorTests.test_cc_chain_retarget_existing_target_matches_original_across_processes) ... ok
+test_gcc_backend_and_linker_aliases_retarget_conservatively (__main__.SelectorTests.test_gcc_backend_and_linker_aliases_retarget_conservatively) ... ok
+test_import_alias_and_earlier_import_candidate_retarget (__main__.SelectorTests.test_import_alias_and_earlier_import_candidate_retarget) ... ok
+test_interpreter_alias_and_native_search_alias_invalidate_inventory (__main__.SelectorTests.test_interpreter_alias_and_native_search_alias_invalidate_inventory) ... ok
+test_path_shadow_and_execute_permission_select_original_generator (__main__.SelectorTests.test_path_shadow_and_execute_permission_select_original_generator) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 234.942s
+
+OK

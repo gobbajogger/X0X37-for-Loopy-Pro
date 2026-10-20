@@ -1,0 +1,17 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "marker": "asset-reuse-20261021-stage2-selector-repair",
+  "base": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "source_stage3_evidence": "1972989",
+  "source_stage3_startup_evidence": "2712bc81884e0ad4c5f6f6bb7818e467f56f7b5d",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "uid_gid": "501:20",
+  "platform": "linux/amd64",
+  "network": "none",
+  "scope": "Host asset cache selectors and regressions only."
+}

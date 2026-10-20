@@ -1,0 +1,18 @@
+{
+  "result": "PASS",
+  "base": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "unchanged_function_AST": [
+    "generate_asset",
+    "restore",
+    "publish",
+    "fallback_inputs",
+    "python_command",
+    "builtin_command",
+    "cache_directory",
+    "identity",
+    "discovery_identity",
+    "save_discovery"
+  ],
+  "unchanged_build_sha256": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+  "limits": "AST identity supports scoped reuse of API/fallback/publication/scheduling evidence; it does not replace tests for changed discovery inputs."
+}

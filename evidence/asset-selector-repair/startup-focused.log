@@ -1,0 +1,6 @@
+test_python_startup_search_path_and_unknown_hook (__main__.SelectorTests.test_python_startup_search_path_and_unknown_hook) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 20.635s
+
+OK

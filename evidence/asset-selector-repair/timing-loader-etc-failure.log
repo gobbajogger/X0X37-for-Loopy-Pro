@@ -1,0 +1,48 @@
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+asset cache: drums miss
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5625 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 6864 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7024 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 7488 B
+font set barlow: 39912 B (approx)
+asset cache: font miss
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+asset cache: breaks miss
+HASHES={"felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44", "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9", "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199", "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"}
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5625 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 6864 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7024 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 7488 B
+font set barlow: 39912 B (approx)
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/measure.py", line 70, in <module>
+    worker()
+  File "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/measure.py", line 28, in worker
+    build.generate()
+  File "/tmp/asset-selector-measure-7axim0az/source/tools/build.py", line 156, in generate
+    raise errors[0]
+  File "/tmp/asset-selector-measure-7axim0az/source/tools/build.py", line 152, in generate
+    job.result()
+  File "/usr/lib/python3.11/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/asset-selector-measure-7axim0az/source/tools/asset_cache.py", line 676, in generate_asset
+    raise RuntimeError('asset inputs changed: ' + kind)
+RuntimeError: asset inputs changed: font
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/measure.py", line 72, in <module>
+    main()
+  File "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/measure.py", line 52, in main
+    assert result.returncode == 0, result.returncode
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1

@@ -1,0 +1,100 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "marker": "asset-reuse-20261021-stage2-selector-repair",
+  "stage": 2,
+  "result": "PASS",
+  "base": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "checked_commit": "746ece6936a456ef963c758da659c07a801cec37",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "changes": [
+    "Retain command aliases, full path/link selection and actual cwd/PATH lookup; revalidate compiler/backend/linker requests.",
+    "Inventory directory entry types, execute bits and link resolutions; follow recursive include aliases and reject cycles.",
+    "Inventory glibc PT_INTERP/system/legacy/hwcaps search paths and loader config/cache candidates; reject unsupported loader resolution.",
+    "Inventory Python startup/import selectors and preserve original interpreter byte checks; reject unknown startup/import hooks.",
+    "Deduplicate filesystem reads only within each new snapshot. Old inventories rediscover."
+  ],
+  "checks": [
+    {
+      "scope": "Final Linux regression",
+      "result": "PASS",
+      "log": "regression.log",
+      "cases": 28,
+      "seconds": 420.003
+    },
+    {
+      "scope": "Real build.generate disabled/cold/warm/fresh-source-copy, separate processes",
+      "result": "PASS",
+      "log": "timing.log",
+      "data": "timing.json",
+      "exact_output_equality": true,
+      "warm_discovery_forbidden": true
+    },
+    {
+      "scope": "Public API/fallback/publication AST, unchanged build scheduling source",
+      "result": "PASS",
+      "evidence": "unchanged-contracts.json"
+    },
+    {
+      "scope": "Syntax AST parse and patch whitespace",
+      "result": "PASS",
+      "log": "diff.log"
+    }
+  ],
+  "timing": {
+    "disabled": 8.297923,
+    "cold": 15.797721,
+    "warm": 6.761502,
+    "fresh": 6.82664
+  },
+  "warm_speedup": 1.2272307247704415,
+  "failure_dispositions": [
+    {
+      "evidence": "timing-before-snapshot-dedup.json",
+      "cause": "Broad alias snapshots reduced the initial warm saving.",
+      "disposition": "Added only snapshot-local duplicate-read elimination; final timing records the remaining cost."
+    },
+    {
+      "evidence": "regression-loader-etc-failure.log and timing-loader-etc-failure.log",
+      "cause": "Broad /etc inventory included mtab -> /proc/self, which differs between discovery and parent processes.",
+      "disposition": "Removed broad /etc enumeration and added explicit loader config/cache candidates. Final tests cover changed identities."
+    },
+    {
+      "evidence": "loader-focused.log",
+      "cause": "One mocked warm assertion received None; root cause not established.",
+      "disposition": "Same-source fresh-process focused retry passed (discovery-focused-retry.log); manual instrumented cold/warm also returned False/True. Require final full-suite pass and independent stage3 investigation; do not erase this observation."
+    },
+    {
+      "evidence": "regression-before-loader-review-interrupted.log and regression-before-startup-review-interrupted.log",
+      "cause": "Own exploratory suites stopped to complete transitive selector review.",
+      "disposition": "Exact owned test containers stopped; no passing suite claim. Final suite restarts from the final frozen source."
+    }
+  ],
+  "reused_evidence": [
+    {
+      "scope": "Original stage3 build.generate parallel order/error propagation",
+      "evidence": "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/routing-result.json",
+      "basis": "tools/build.py source hash and public generate_asset API are unchanged."
+    },
+    {
+      "scope": "Original macOS fallback equality",
+      "evidence": "/Users/mac/Documents/x0x37/asset_reuse_implementation/evidence/asset-reuse-stage2/mac-smoke.log",
+      "basis": "Non-Linux rejection and original fallback/generation commands are unchanged. This is native fallback evidence only, not Linux reuse or cross-platform font equality."
+    }
+  ],
+  "limits": [
+    "Asset generation checks only, with no firmware build, release/full gate, device operation, browser work, external push or native-validator source change.",
+    "Warm savings are about 1.23 times in this asset-only run; cold discovery is slower. Consumer entrypoint savings require their separate measurements.",
+    "Fresh timing uses a disposable source copy; independent stage3 must rerun real clean checked-worktree/shared-common-Git reuse.",
+    "Unsupported compiler/loader/Python hook pipelines use original generation.",
+    "Original failed candidate bb953df is not promoted; independent stage3 and applicable stage4 acceptance remain required.",
+    "Native provenance repair is still a separate pending dependency, with no checked completion received."
+  ],
+  "receiving_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "receiving_combination_stage2": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "next_stage": "One fresh affected independent stage3"
+}

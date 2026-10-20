@@ -1,0 +1,10 @@
+test_discovery_reuse_checks_contents_without_restarting_tools (__main__.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools) ... ok
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums hit
+asset cache: drums miss
+
+----------------------------------------------------------------------
+Ran 1 test in 12.214s
+
+OK

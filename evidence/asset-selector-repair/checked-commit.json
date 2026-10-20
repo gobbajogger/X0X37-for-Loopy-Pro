@@ -1,0 +1,10 @@
+{
+  "production_commit": "746ece6936a456ef963c758da659c07a801cec37",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "checks": "result.json",
+  "independent_stage3": "pending"
+}

@@ -1,0 +1,17 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "marker": "asset-reuse-20261021-stage3-selector-repair",
+  "source_chat": "01a15af0-9697-77e2-a70f-4b88642384f7",
+  "stage": 3,
+  "status": "pending",
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "prompt": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/stage3-prompt.txt",
+  "prompt_sha256": "4fed1e32382b2ce72965f6a8f429e3e82cd042180c838d53b7dc6c40c642582f",
+  "lane": "/Users/mac/Documents/x0x37/asset_selector_stage3",
+  "branch": "lane/opt-asset-selector-stage3",
+  "thread_id": null,
+  "host_id": null,
+  "attempts": [],
+  "receiving_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "receiving_combination_stage2": "01a15af9-c386-7803-90e4-71d26b6dd0ef"
+}

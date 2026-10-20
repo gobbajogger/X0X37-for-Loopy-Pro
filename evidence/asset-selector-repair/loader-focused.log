@@ -1,0 +1,18 @@
+test_discovery_reuse_checks_contents_without_restarting_tools (__main__.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools) ... FAIL
+test_loader_unknown_injection_and_tokens_disable_reuse (__main__.SelectorTests.test_loader_unknown_injection_and_tokens_disable_reuse) ... ok
+test_loaded_native_library_alias_retarget_matches_original (__main__.SelectorTests.test_loaded_native_library_alias_retarget_matches_original) ... ok
+
+======================================================================
+FAIL: test_discovery_reuse_checks_contents_without_restarting_tools (__main__.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/tests/host/test_asset_cache.py", line 123, in test_discovery_reuse_checks_contents_without_restarting_tools
+    self.assertTrue(self.generate())
+AssertionError: None is not true
+
+----------------------------------------------------------------------
+Ran 3 tests in 28.558s
+
+FAILED (failures=1)
+asset cache: drums miss
+asset cache: drums hit

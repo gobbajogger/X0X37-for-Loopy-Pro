@@ -1,0 +1,36 @@
+{
+  "status": "ASSET_REPAIR_STAGE2_PASS_INDEPENDENT_TEST_REQUIRED",
+  "asset_candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "asset_stage3": "FAIL: I1 compiler-selection symlink retarget can produce stale output",
+  "asset_next": "One fresh affected independent stage3, then scoped stage4 only after required checks pass.",
+  "native_original": "6d690e347b2c66d331f0b6da58a390b627ee84b7 is not validated",
+  "native_repair_owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
+  "native_checked_handoff": "Requested from active repair owner; no checked completion received by this repair stage2. Preserve pending tool approval; do not bypass or duplicate it.",
+  "combination_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "required_before_combination": [
+    "Obtain repaired asset checked commit and fresh affected independent stage3 PASS.",
+    "Obtain installed-package provenance repair checked commit and fresh independent stage3 PASS; retain walker equivalence evidence if present.",
+    "Combine only approved local tooling inputs in an isolated lane, preserve history and both evidence sets. Resolve BUILDING.md asset/native sections without dropping either.",
+    "Verify exact combined source hashes, pinned worker image, environment and dependency inputs. Reuse matching scoped host results, rerun affected checks only.",
+    "Exercise supported worker common-Git cache sharing and source read-only mounts with repaired asset cache; compare all generated header hashes with the original generators.",
+    "Use scoped development validation. Do not run a routine duplicate complete firmware build; require a concrete unresolved integration risk for a target build."
+  ],
+  "firmware_integrator": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "firmware_combined_validation": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+  "excluded": [
+    "device installation",
+    "release/full gate",
+    "external push",
+    "competing firmware integration",
+    "browser emulator cache routing"
+  ],
+  "consumer_scope": "Any additional host, 909 or display consumer routing is separately checked under the continuation owner. Preserve output directories, environment policy and reference controls; require improved entrypoint timing.",
+  "asset_repair_owner": "01a15af0-9697-77e2-a70f-4b88642384f7",
+  "asset_repair_candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "combination_stage2": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "asset_repair_source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  }
+}

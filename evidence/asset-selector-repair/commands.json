@@ -1,0 +1,53 @@
+{
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "cwd": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+  "regression": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-v",
+    "/Users/mac/Documents/x0x37/asset_reuse_selector_repair:/Users/mac/Documents/x0x37/asset_reuse_selector_repair:ro",
+    "-w",
+    "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+    "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "python3",
+    "-B",
+    "tests/host/test_asset_cache.py",
+    "-v"
+  ],
+  "timing": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-e",
+    "MEASURE_IMAGE_ID=sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "-v",
+    "/Users/mac/Documents/x0x37/asset_reuse_selector_repair:/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+    "-w",
+    "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+    "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "python3",
+    "-u",
+    "-B",
+    "evidence/asset-selector-repair/measure.py"
+  ],
+  "checks": {
+    "regression.log": "Changed identities can return stale output, rediscover on warm reuse, or violate cache/fallback/publication guards. Exercise all original tests and the new real selector controls.",
+    "timing.log": "Real build.generate must preserve all four original headers across disabled/cold/warm/fresh source-copy processes, and warm processes must forbid discovery.",
+    "diff.log": "Patch whitespace.",
+    "unchanged-contracts.json": "Public API, fallback, family names, atomic publication, output/changed-input checks and build scheduling remain unchanged by AST/source identity."
+  },
+  "static": "Parse tools/asset_cache.py, tools/build.py and tests/host/test_asset_cache.py with ast.parse; git diff --check."
+}

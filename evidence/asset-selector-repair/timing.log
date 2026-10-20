@@ -1,0 +1,99 @@
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+asset cache: drums miss
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5625 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 6864 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7024 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 7488 B
+font set barlow: 39912 B (approx)
+asset cache: font miss
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+asset cache: breaks miss
+HASHES={"felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44", "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9", "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199", "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"}
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+asset cache: drums miss
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5625 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 6864 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7024 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 7488 B
+font set barlow: 39912 B (approx)
+asset cache: font miss
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+asset cache: breaks miss
+HASHES={"felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44", "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9", "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199", "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"}
+asset cache: drums hit
+asset cache: font hit
+asset cache: breaks hit
+HASHES={"felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44", "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9", "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199", "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"}
+asset cache: drums hit
+asset cache: font hit
+asset cache: breaks hit
+HASHES={"felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44", "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9", "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199", "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"}
+{
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "uid": 501,
+  "runs": {
+    "disabled": {
+      "seconds": 8.297922999998264,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "hits": [
+        "asset cache: drums miss",
+        "asset cache: font miss",
+        "asset cache: breaks miss"
+      ]
+    },
+    "cold": {
+      "seconds": 15.797720999999001,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "hits": [
+        "asset cache: drums miss",
+        "asset cache: font miss",
+        "asset cache: breaks miss"
+      ]
+    },
+    "warm": {
+      "seconds": 6.761502000001201,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "hits": [
+        "asset cache: drums hit",
+        "asset cache: font hit",
+        "asset cache: breaks hit"
+      ]
+    },
+    "fresh": {
+      "seconds": 6.8266399999993155,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "hits": [
+        "asset cache: drums hit",
+        "asset cache: font hit",
+        "asset cache: breaks hit"
+      ]
+    }
+  },
+  "warm_speedup": 1.2272307247704415,
+  "result": "PASS",
+  "limits": "Asset generation only. Fresh uses a disposable source copy; real clean Git worktree checks belong to independent stage3."
+}
