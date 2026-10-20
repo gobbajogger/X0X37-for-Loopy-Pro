@@ -50,9 +50,12 @@ else:
         start = time.monotonic()
         p = subprocess.run(argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90)
         log = OUT / (sys.platform + '-' + label + '.log')
-        log.write_bytes(p.stdout)
+        # unittest subtest progress can end in spaces; keep committed logs whitespace-clean.
+        log.write_bytes(b'\n'.join(line.rstrip() for line in p.stdout.splitlines()) + b'\n')
         rows.append(dict(label=label, argv=argv, returncode=p.returncode, seconds=time.monotonic()-start,
-                         log=str(log.relative_to(ROOT)), sha256=sha(log)))
+                         log=str(log.relative_to(ROOT)), sha256=sha(log),
+                         raw_sha256=hashlib.sha256(p.stdout).hexdigest(),
+                         log_normalization='Trailing line whitespace removed; terminal newline retained.'))
         print(label, p.returncode, flush=True)
     result = dict(platform=sys.platform, machine=platform.machine(), python=sys.version,
                   image=os.environ.get('CHECK_IMAGE'), base=BASE,

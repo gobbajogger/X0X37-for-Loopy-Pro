@@ -20,7 +20,9 @@
       "returncode": 0,
       "seconds": 9.793719084,
       "log": "evidence/build-work-cleanup-repair/darwin-suite.log",
-      "sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74"
+      "sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+      "raw_sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+      "log_normalization": "Trailing line whitespace removed; terminal newline retained."
     },
     {
       "label": "negative",
@@ -33,7 +35,9 @@
       "returncode": 0,
       "seconds": 11.264044625,
       "log": "evidence/build-work-cleanup-repair/darwin-negative.log",
-      "sha256": "06c8aa3ceefcfbc09bdf9b65cad420a42e9faefa974db2f02ade458dbba7720a"
+      "sha256": "75a5d593c265ac38fe4746635e6f8cde90d0c3ba4342ca3a8bc2fbd011a667f8",
+      "raw_sha256": "06c8aa3ceefcfbc09bdf9b65cad420a42e9faefa974db2f02ade458dbba7720a",
+      "log_normalization": "Trailing line whitespace removed; terminal newline retained."
     }
   ]
 }

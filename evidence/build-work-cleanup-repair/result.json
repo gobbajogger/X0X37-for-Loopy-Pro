@@ -100,6 +100,11 @@
       ],
       "repair": "Use git -c safe.directory=<this exact lane> only on the scratch old-source read. No global settings changed. One bounded retry reran only the failed negative control; the suite PASS was reused.",
       "result": "PASS"
+    },
+    {
+      "failure": "The initial staged whitespace check reported unittest progress-line spaces in raw negative-control logs. Source-only whitespace and shell syntax checks passed.",
+      "repair": "Normalise trailing whitespace in saved test logs without changing assertions or outcomes. Retain original raw-output SHA-256 alongside normalised log SHA-256; verify all updated identities.",
+      "result": "PASS after evidence-only normalisation"
     }
   ],
   "limits": [

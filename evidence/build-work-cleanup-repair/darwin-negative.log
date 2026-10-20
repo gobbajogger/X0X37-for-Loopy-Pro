@@ -1,5 +1,5 @@
 test_successful_driver_child_before_later_failure (fixture.ControllerCompile) ... test_successful_driver_child_stopped_on_success (fixture.ControllerCompile) ... FAIL
-test_signal_after_successful_batch_stops_children (fixture.ControllerCompile) ... 
+test_signal_after_successful_batch_stops_children (fixture.ControllerCompile) ...
 ======================================================================
 FAIL: test_successful_driver_child_before_later_failure (fixture.ControllerCompile) (jobs=2, failing='src/b.c')
 ----------------------------------------------------------------------

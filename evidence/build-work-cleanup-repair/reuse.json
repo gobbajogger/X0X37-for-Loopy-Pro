@@ -115,7 +115,9 @@
           "returncode": 0,
           "seconds": 9.793719084,
           "log": "evidence/build-work-cleanup-repair/darwin-suite.log",
-          "sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74"
+          "sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+          "raw_sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
         },
         {
           "label": "negative",
@@ -128,7 +130,9 @@
           "returncode": 0,
           "seconds": 11.264044625,
           "log": "evidence/build-work-cleanup-repair/darwin-negative.log",
-          "sha256": "06c8aa3ceefcfbc09bdf9b65cad420a42e9faefa974db2f02ade458dbba7720a"
+          "sha256": "75a5d593c265ac38fe4746635e6f8cde90d0c3ba4342ca3a8bc2fbd011a667f8",
+          "raw_sha256": "06c8aa3ceefcfbc09bdf9b65cad420a42e9faefa974db2f02ade458dbba7720a",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
         }
       ]
     },
@@ -154,7 +158,9 @@
           "returncode": 0,
           "seconds": 14.241308999997273,
           "log": "evidence/build-work-cleanup-repair/linux-suite.log",
-          "sha256": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280"
+          "sha256": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280",
+          "raw_sha256": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
         },
         {
           "label": "negative",
@@ -167,7 +173,9 @@
           "returncode": 0,
           "seconds": 15.30667700000049,
           "log": "evidence/build-work-cleanup-repair/linux-negative.log",
-          "sha256": "efd63e5b9a92814087b2b32d02687ecd366a31ae0f70fcedd8a1ddd833eda733"
+          "sha256": "924438183373c41ec555d682f18d7aa33cff43dd3461b8ace2f9d184b1920893",
+          "raw_sha256": "efd63e5b9a92814087b2b32d02687ecd366a31ae0f70fcedd8a1ddd833eda733",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
         }
       ]
     }
