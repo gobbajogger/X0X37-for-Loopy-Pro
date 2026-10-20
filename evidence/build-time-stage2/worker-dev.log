@@ -1,0 +1,13 @@
+.......REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+......Preparing worktree (detached HEAD f59a171)
+HEAD is now at f59a171 fixture
+..Preparing worktree (detached HEAD 4dc6d14)
+HEAD is now at 4dc6d14 fixture
+.
+----------------------------------------------------------------------
+Ran 16 tests in 86.806s
+
+OK
+DEV CHECKED 0fb2b36b4bd98e0160035e0d0f7fa76b9e2e1b97
+DEV OK 0fb2b36 /Users/mac/Documents/x0x37/build_time_implementation/build/worker-fixtures/tmpdixu8vzt/result/record.json (config dev; queue: 0 open lines in 0fb2b36)

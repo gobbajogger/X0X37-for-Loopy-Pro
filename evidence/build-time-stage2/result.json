@@ -1,0 +1,63 @@
+{
+  "workflow": "build-time-20261021",
+  "stage": 2,
+  "status": "CHECKED IMPLEMENTATION",
+  "source_chat": "01a15ac7-17e4-7633-b9a5-6652fa0aefed",
+  "audit_commit": "6affed8",
+  "firmware_source_base": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "branch": "lane/opt-build-time-implementation",
+  "files": {
+    "tools/dev_validate.py": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+    "tools/validation_inputs.py": "5f77ec9233824b61a7a4cb34cb4568b81ca958c5659a60ba419518cbee619e8d",
+    "tests/host/test_dev_validate.py": "f816acfa58ec071ae935328f01f64b7e04a0353e7f543e01cccb05949589fdc7",
+    "tests/host/test_validation_inputs.py": "8dd9c3aa6b13dc8d14da9735a866a07572192478fd2fe95e4fea668c5e49255e",
+    "BUILDING.md": "58d97f0510e406e9b3f9a2724b5ac24723c2ca33fe4c54b4f51a54ffa2a055f4",
+    "docs/USER_PREFERENCES.md": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e"
+  },
+  "checks": {
+    "native_dev_fixtures": 14,
+    "real_docker_worker_cases": 16,
+    "validation_input_cases": 5,
+    "preferences": "PASS",
+    "diff": "PASS"
+  },
+  "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "fix": [
+    "Native SDK/toolchain/reference content hashing, with unchanged byte/mode coverage before and after.",
+    "One immutable Linux/amd64 worker for all selected checks, build, font/assets, and controller.",
+    "Worker tools/Python bytes and effective environment, image/kernel, native Docker/Python/Git bytes in authenticated plan/config metadata.",
+    "Synchronous logs and return codes. Container termination precedes scratch deletion. Cleanup errors preserve the original failure.",
+    "Existing Linux path and schema-2 consumer guards remain in place."
+  ],
+  "resolved_failures": [
+    "Initial Docker tests used a Colima-inaccessible system temporary folder. Fixtures now use the shared workspace.",
+    "Python py_compile attempted a protected cache directory. In-memory compile succeeded."
+  ],
+  "not_done": [
+    "No real firmware target build in stage 2.",
+    "No full-run timing or firmware/controller equality claim yet. Stage 4 owns this evidence.",
+    "No device install, release/full gate, external push, or firmware integration."
+  ],
+  "parallel_scope": {
+    "asset_reuse_chat": "01a15ad1-a598-7a01-baae-5a8ac034d2c4",
+    "owned_elsewhere": [
+      "tools/build.py",
+      "asset cache helper",
+      "asset tests"
+    ]
+  },
+  "authorization": {
+    "owner_request": "Drastically reduce build times while preserving checks, features, quality, and exact target artifacts.",
+    "request_source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+    "current_owner_quote": "I grant you full access for this project indefinitely for development purposes",
+    "current_quote_source_chat": "01a15ac7-17e4-7633-b9a5-6652fa0aefed",
+    "scope_exclusions": [
+      "device installation",
+      "release/full gates",
+      "external pushes",
+      "firmware integration"
+    ]
+  },
+  "next_stage": 3,
+  "next_owner": "Exactly one fresh independent test-stage chat."
+}

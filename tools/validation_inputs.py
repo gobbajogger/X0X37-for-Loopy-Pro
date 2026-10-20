@@ -60,36 +60,14 @@ def source_tree(repo, commit):
     return digest(''.join(r + '\n' for r in rows if not r.split('\t', 1)[-1].endswith('.md')).encode())
 
 
-def capture(repo, commit, mode, config, toolchain, sdk, refs=None, pins=PINS,
-            env=None, runner_dir=None, hook=None, runner_path=None):
+def runtime(config, env=None):
+    """Hash the tools and Python packages in the command execution environment."""
     env = os.environ if env is None else env
-    runner_dir = Path(runner_dir or Path(__file__).resolve().parent)
-    runners = ['validation_inputs.py'] + (['gate.sh', 'gate_flashmap.py', 'gate_sigwrap.py']
-                                         if mode == 'gate' else ['dev_validate.py'])
-    dependencies = {'toolchain': content(toolchain), 'sdk': content(sdk)}
-    references = {}
-    if mode == 'gate':
-        for pin in pins.split():
-            name, want = pin.split('=', 1)
-            path = Path(refs) / name
-            head = git(path, 'rev-parse', 'HEAD')
-            if not head.startswith(want):
-                raise ValueError('reference pin mismatch: ' + name)
-            references[name] = {'pin': want, 'commit': head, 'content': content(path)}
-        dependencies['pre-push'] = content(hook or runner_dir / 'pre-push.hook')
-    else:
-        for key in ('NINEW9_DIR', 'EIGHTW8_DIR', 'SCHWUNG303', 'TB3PO_REF', 'X0X_REFS'):
-            if env.get(key):
-                references[key] = content(env[key])
-    for path in config.get('dependencies', []):
-        dependencies[path] = content(path)
     tools = {}
+    dependencies = {}
     check_tools = []
     for check in config.get('plan', {}).get('checks', []):
         check_tools.append(check['argv'][0])
-        for arg in check['argv'][1:]:
-            if Path(arg).is_absolute() and Path(arg).exists():
-                dependencies[arg] = content(arg)
     for name in ('bash', 'sh', 'git', 'make', 'node', 'emcc', 'cc', 'c++', 'ld', 'ar', 'objcopy',
                  env.get('CC', 'cc'), env.get('CXX', 'c++'), sys.executable, *check_tools):
         resolved = shutil.which(name, path=env.get('PATH'))
@@ -123,11 +101,45 @@ def capture(repo, commit, mode, config, toolchain, sdk, refs=None, pins=PINS,
         'LD_LIBRARY_PATH', 'LD_PRELOAD', 'PYTHONPATH', 'NODE_PATH', 'NODE_OPTIONS',
         'X0X_CDC', 'X0X_DEBUG', 'X0X_BREAK_BANK', 'X0X_RAM_CANARY', 'X0X_SMK_LCD_BAUD',
         'X0X_FONTSET', 'X0X_FONT_DIRS', 'CTL_NATIVE', 'CTL_NO_CACHE', 'X0X_TEST_TIME_SCALE', 'BOARD', 'MODEL')}
+    return {'tools': tools, 'python_packages': packages, 'environment': settings,
+            'platform': [platform.system(), platform.machine(), platform.release()],
+            'dependencies': dependencies}
+
+
+def capture(repo, commit, mode, config, toolchain, sdk, refs=None, pins=PINS,
+            env=None, runner_dir=None, hook=None, runner_path=None, execution=None):
+    env = os.environ if env is None else env
+    runner_dir = Path(runner_dir or Path(__file__).resolve().parent)
+    runners = ['validation_inputs.py'] + (['gate.sh', 'gate_flashmap.py', 'gate_sigwrap.py']
+                                         if mode == 'gate' else ['dev_validate.py'])
+    dependencies = {'toolchain': content(toolchain), 'sdk': content(sdk)}
+    references = {}
+    if mode == 'gate':
+        for pin in pins.split():
+            name, want = pin.split('=', 1)
+            path = Path(refs) / name
+            head = git(path, 'rev-parse', 'HEAD')
+            if not head.startswith(want):
+                raise ValueError('reference pin mismatch: ' + name)
+            references[name] = {'pin': want, 'commit': head, 'content': content(path)}
+        dependencies['pre-push'] = content(hook or runner_dir / 'pre-push.hook')
+    else:
+        for key in ('NINEW9_DIR', 'EIGHTW8_DIR', 'SCHWUNG303', 'TB3PO_REF', 'X0X_REFS'):
+            if env.get(key):
+                references[key] = content(env[key])
+    for path in config.get('dependencies', []):
+        dependencies[path] = content(path)
+    for check in config.get('plan', {}).get('checks', []):
+        for arg in check['argv'][1:]:
+            if Path(arg).is_absolute() and Path(arg).exists():
+                dependencies[arg] = content(arg)
+    execution = runtime(config, env) if execution is None else execution
+    dependencies.update(execution['dependencies'])
     payload = {'schema': SCHEMA, 'mode': mode, 'source': source_tree(repo, commit),
-               'configuration': config, 'environment': settings,
-               'platform': [platform.system(), platform.machine(), platform.release()],
+               'configuration': config, 'environment': execution['environment'],
+               'platform': execution['platform'],
                'validator': {name: content(runner_path if name == 'gate.sh' and runner_path else runner_dir / name) for name in runners},
-               'tools': tools, 'python_packages': packages,
+               'tools': execution['tools'], 'python_packages': execution['python_packages'],
                'dependencies': dependencies, 'references': references}
     return {'schema': SCHEMA, 'sha256': digest(encoded(payload)), 'inputs': payload}
 

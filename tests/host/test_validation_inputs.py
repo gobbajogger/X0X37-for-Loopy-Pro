@@ -108,6 +108,22 @@ class Inputs(unittest.TestCase):
         (sdk/'backend').write_text('llvm v2')
         self.assertNotEqual(changed['sha256'], self.capture()['sha256'])
 
+    def test_split_execution_preserves_all_original_input_bytes(self):
+        baseline = self.capture()
+        runtime = identity.runtime(self.config, self.env)
+        split = identity.capture(self.repo, 'HEAD', 'gate', self.config, self.tc, self.sdk,
+            self.refs, self.pins, env=self.env, runner_dir=self.runner, execution=runtime)
+        self.assertEqual(baseline, split)
+        (self.sdk/'library').write_text('different SDK with identical runtime')
+        changed = identity.capture(self.repo, 'HEAD', 'gate', self.config, self.tc, self.sdk,
+            self.refs, self.pins, env=self.env, runner_dir=self.runner, execution=runtime)
+        with self.assertRaisesRegex(ValueError, 'changed'):
+            identity.validate(baseline, changed)
+        self.config['worker'] = {'image': 'sha256:first'}
+        first = self.capture()
+        self.config['worker']['image'] = 'sha256:second'
+        self.assertNotEqual(first['sha256'], self.capture()['sha256'])
+
     def test_real_gate_reuse_routing_with_scratch_inputs(self):
         # Override uname only to reach the portable admission/reuse path on macOS.
         # The missing target compiler stops every non-reuse route before a build.

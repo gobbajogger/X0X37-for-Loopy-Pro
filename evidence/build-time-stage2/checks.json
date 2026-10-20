@@ -1,0 +1,67 @@
+[
+  {
+    "name": "native-dev",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "tests.host.test_dev_validate.DevelopmentValidation"
+    ],
+    "returncode": 0,
+    "seconds": 11.732078375,
+    "log": "native-dev.log",
+    "log_sha256": "c873433a031c0c4312e03097f07eb122488a2a2b4914861f439bbbf2426d0a41"
+  },
+  {
+    "name": "worker-dev",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "tests.host.test_dev_validate.WorkerValidation"
+    ],
+    "returncode": 0,
+    "seconds": 86.850211375,
+    "log": "worker-dev.log",
+    "log_sha256": "f667fd30f8d55329af47f61f2f5055d633d9eff9cb18f3403d106cc2cfe5bc5a"
+  },
+  {
+    "name": "validation-inputs",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-B",
+      "tests/host/test_validation_inputs.py"
+    ],
+    "returncode": 0,
+    "seconds": 8.918526666999995,
+    "log": "validation-inputs.log",
+    "log_sha256": "8dabb1e39956291a21edfefa05bf269f3dea90a2c51a6909bf3f7026f80345b0"
+  },
+  {
+    "name": "preferences",
+    "argv": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "-B",
+      "tools/prefs_lint.py",
+      "docs/USER_PREFERENCES.md"
+    ],
+    "returncode": 0,
+    "seconds": 0.032880000000005793,
+    "log": "preferences.log",
+    "log_sha256": "1d9ccdc1c953674dc4290ece5d4261ce152d2dbe575b2449a8302d0186d888b7"
+  },
+  {
+    "name": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.015258416999998303,
+    "log": "diff.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -19,7 +19,7 @@ GUARD = ROOT/'tools/require_gate_pass.sh'
 
 class DevelopmentValidation(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        self.tmp = tempfile.TemporaryDirectory(dir=getattr(self, "fixture_parent", None))
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.repo = self.root/'repo'
@@ -218,6 +218,145 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
             args.config = 'rel'
             self.assertEqual(fm1_install.gate_guard(args), 9)
 
+
+    def test_worker_cleanup_failure_preserves_original_error_and_scratch(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        import io
+        sys.path.insert(0, str(ROOT/'tools'))
+        import dev_validate
+        args = SimpleNamespace(repo=str(self.repo), commit=self.commit, model='elite', plan=str(self.plan),
+            output=str(self.out), no_controller=True, worker_image='fixture', worker_mount=[], timeout=30)
+        class BrokenWorker:
+            def __init__(inner, *args): pass
+            def start(inner): raise ValueError('original startup error')
+            def close(inner): raise ValueError('cleanup error')
+        with patch.object(dev_validate, 'LinuxWorker', BrokenWorker), patch('sys.stderr', new_callable=io.StringIO) as err:
+            with self.assertRaisesRegex(ValueError, 'original startup error'):
+                dev_validate.run(args)
+            self.assertIn('scratch tree retained', err.getvalue())
+            self.assertIn('cleanup error', err.getvalue())
+        self.assertEqual(len(self.git('worktree', 'list').splitlines()), 2)
+        self.assertTrue(list(self.repo.parent.glob('dev-check-*/source')))
+        self.assertFalse((self.out/'record.json').exists())
+
+    def test_worker_stop_precedes_worktree_removal(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        sys.path.insert(0, str(ROOT/'tools'))
+        import dev_validate
+        args = SimpleNamespace(repo=str(self.repo), commit=self.commit, model='elite', plan=str(self.plan),
+            output=str(self.out), no_controller=True, worker_image='fixture', worker_mount=[], timeout=30)
+        stopped = []
+        owner = self
+        class StartupFailure:
+            def __init__(inner, *args): pass
+            def start(inner): raise ValueError('startup failed')
+            def close(inner):
+                owner.assertTrue(list(owner.repo.parent.glob('dev-check-*/source')))
+                stopped.append(True)
+        with patch.object(dev_validate, 'LinuxWorker', StartupFailure):
+            with self.assertRaisesRegex(ValueError, 'startup failed'):
+                dev_validate.run(args)
+        self.assertEqual(stopped, [True])
+        self.assertEqual(len(self.git('worktree', 'list').splitlines()), 1)
+        self.assertFalse(list(self.repo.parent.glob('dev-check-*')))
+
+
+@unittest.skipUnless(os.environ.get('X0X_TEST_WORKER_IMAGE'), 'set X0X_TEST_WORKER_IMAGE for local Docker checks')
+class WorkerValidation(DevelopmentValidation):
+    def setUp(self):
+        self.fixture_parent = ROOT/'build/worker-fixtures'
+        self.fixture_parent.mkdir(parents=True, exist_ok=True)
+        super().setUp()
+
+    # Reuse all consumer, mutation and failure tests with real worker commands.
+    def run_validation(self, controller=False, timeout=1800):
+        plan = json.loads(self.plan.read_text())
+        for check in plan.get('checks', []):
+            if check['argv'][0] == sys.executable:
+                check['argv'][0] = 'python3'
+        self.plan.write_text(json.dumps(plan))
+        return subprocess.run([sys.executable, '-B', str(RUNNER), 'run', '--repo', str(self.repo),
+            '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
+            '--output', str(self.out), '--timeout', str(timeout),
+            '--worker-image', os.environ['X0X_TEST_WORKER_IMAGE']] + ([] if controller else ['--no-controller']),
+            capture_output=True, text=True, env=self.env)
+
+    def test_worker_provenance_and_consumer_authentication(self):
+        self.ready()
+        data = json.loads((self.out/'record.json').read_text())
+        worker = data['plan']['worker']
+        self.assertTrue(worker['image'].startswith('sha256:'))
+        self.assertEqual(worker['platform'][:2], ['Linux', 'x86_64'])
+        self.assertEqual(worker['environment']['CTL_NATIVE'], '1')
+        self.assertIn('docker', worker['orchestrator_tools'])
+        self.assertEqual(data['validation_inputs']['inputs']['python_packages']['pillow']['version'],
+            subprocess.check_output(['docker', 'run', '--rm', '--entrypoint', 'python3', worker['image'],
+                '-c', 'import PIL; print(PIL.__version__)'], text=True).strip())
+        worker['image'] = 'sha256:changed'
+        (self.out/'record.json').write_text(json.dumps(data))
+        self.assertEqual(self.guard().returncode, 3)
+
+    def test_dependency_change_during_validation_issues_no_record(self):
+        # The worker receives these same bytes read-only. A mutation must fail.
+        plan = json.loads(self.plan.read_text())
+        plan['checks'][0]['argv'] = ['python3', '-c',
+            "from pathlib import Path; Path("+repr(str(self.sdk/'library'))+").write_text('changed SDK')"]
+        self.plan.write_text(json.dumps(plan))
+        actual = self.run_validation()
+        self.assertEqual(actual.returncode, 3, actual.stdout+actual.stderr)
+        self.assertFalse((self.out/'record.json').exists())
+        self.assertEqual((self.sdk/'library').read_text(), 'fixture SDK')
+
+    def test_timeout_kills_owned_child(self):
+        # Assert daemon state, because a killed Docker CLI alone leaves exec children alive.
+        def containers():
+            return set(subprocess.check_output(['docker', 'ps', '-aq', '--filter', 'name=x0x37-dev-'], text=True).split())
+        before = containers()
+        plan = json.loads(self.plan.read_text())
+        plan['checks'][0]['argv'] = ['sh', '-c', 'sleep 40 & wait']
+        self.plan.write_text(json.dumps(plan))
+        actual = self.run_validation(timeout=2)
+        self.assertEqual(actual.returncode, 3, actual.stdout+actual.stderr)
+        self.assertFalse((self.out/'record.json').exists())
+        self.assertEqual(containers(), before)
+        self.assertEqual(len(self.git('worktree', 'list').splitlines()), 1)
+
+    def test_signal_removes_worker_before_scratch(self):
+        import signal
+        plan = json.loads(self.plan.read_text())
+        plan['checks'][0]['argv'] = ['sh', '-c', 'echo ready; sleep 40 & wait']
+        self.plan.write_text(json.dumps(plan))
+        args = [sys.executable, '-B', str(RUNNER), 'run', '--repo', str(self.repo), '--commit', self.commit,
+                '--model', 'elite', '--plan', str(self.plan), '--output', str(self.out), '--no-controller',
+                '--worker-image', os.environ['X0X_TEST_WORKER_IMAGE']]
+        process = subprocess.Popen(args, env=self.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            deadline = time.monotonic()+30
+            while time.monotonic() < deadline:
+                log = self.out/'check-0.log'
+                if log.exists() and 'ready' in log.read_text():
+                    break
+                if process.poll() is not None:
+                    self.fail(str(process.communicate()))
+                time.sleep(0.1)
+            else:
+                self.fail('worker did not start the check')
+            # Find only the worker that owns this fixture's scratch mount.
+            names = subprocess.check_output(['docker', 'ps', '--format', '{{.Names}}', '--filter', 'name=x0x37-dev-'], text=True).split()
+            owned = [name for name in names if str(self.repo) in subprocess.check_output(['docker', 'inspect', name], text=True)]
+            self.assertEqual(len(owned), 1)
+            process.send_signal(signal.SIGTERM)
+            process.communicate(timeout=30)
+            self.assertNotEqual(process.returncode, 0)
+            self.assertNotEqual(subprocess.run(['docker', 'inspect', owned[0]], capture_output=True).returncode, 0)
+            self.assertEqual(len(self.git('worktree', 'list').splitlines()), 1)
+            self.assertFalse((self.out/'record.json').exists())
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.communicate()
 
 if __name__ == '__main__':
     unittest.main()
