@@ -96,5 +96,12 @@
   ],
   "receiving_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
   "receiving_combination_stage2": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
-  "next_stage": "One fresh affected independent stage3"
+  "next_stage": "One fresh affected independent stage3",
+  "successor": {
+    "thread_id": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+    "status": "started",
+    "startup_verified": true,
+    "independent_result": "pending",
+    "evidence": "successor.json"
+  }
 }

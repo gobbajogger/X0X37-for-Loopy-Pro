@@ -3,15 +3,44 @@
   "marker": "asset-reuse-20261021-stage3-selector-repair",
   "source_chat": "01a15af0-9697-77e2-a70f-4b88642384f7",
   "stage": 3,
-  "status": "pending",
+  "status": "started",
   "candidate": "746ece6936a456ef963c758da659c07a801cec37",
   "prompt": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/stage3-prompt.txt",
   "prompt_sha256": "4fed1e32382b2ce72965f6a8f429e3e82cd042180c838d53b7dc6c40c642582f",
   "lane": "/Users/mac/Documents/x0x37/asset_selector_stage3",
   "branch": "lane/opt-asset-selector-stage3",
-  "thread_id": null,
-  "host_id": null,
-  "attempts": [],
+  "thread_id": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+  "host_id": "local",
+  "attempts": [
+    {
+      "attempt": 1,
+      "action": "create_thread",
+      "result": "created",
+      "thread_id": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+      "host_id": "local",
+      "startup": "verified"
+    }
+  ],
   "receiving_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
-  "receiving_combination_stage2": "01a15af9-c386-7803-90e4-71d26b6dd0ef"
+  "receiving_combination_stage2": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "activity_checks": [
+    {
+      "tool": "list_threads",
+      "limit": 60,
+      "result": "rejected: maximum50, no mutation"
+    },
+    {
+      "tool": "list_threads",
+      "limit": 50,
+      "result": "PASS; no existing affected successor, only repair/source implementation/failed stage3 found"
+    }
+  ],
+  "startup": {
+    "turn_id": "01a15b09-a0e3-77f3-94df-d645063fd7a0",
+    "observed_via": "read_thread and wait_threads",
+    "assistant_message_id": "msg_0266b4d326859c18016ad7d1589a3c8191b2f8f590cfe7a7ed",
+    "acknowledgement": "I\u2019m using the x0x37 task and writing skills. I\u2019ll read the saved assignment, confirm current lane ownership, and run the independent checks from the exact production commit.",
+    "tool_activity": "Current task/writing skills read completed; list_threads completed in the same turn.",
+    "result": "Actual assignment acknowledgement and tool activity verified."
+  }
 }

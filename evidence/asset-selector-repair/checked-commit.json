@@ -6,5 +6,10 @@
     "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
   },
   "checks": "result.json",
-  "independent_stage3": "pending"
+  "independent_stage3": {
+    "thread_id": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+    "status": "started",
+    "result": "pending",
+    "startup_evidence": "successor.json"
+  }
 }
