@@ -62,7 +62,16 @@
   "pending": {
     "cache": "Selector repair stage2 active; no checked final commit or independent PASS. Completion requested.",
     "native": "Repair owner retains pending Docker approval; no bypass. Need checked repair, fresh independent Test and native Validate. Completion requested.",
-    "controller": "Successful-driver descendant cleanup repair active; failed30c567d not applied. Need repaired fresh Test and applicable acceptance. Completion requested.",
+    "controller": {
+      "state": "checked_repair_waiting_independent_test_and_validation",
+      "candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+      "handoff_evidence": "5c5667c6fd60c25143b46c817e28d0437f8f40bb",
+      "lane": "../build_work_cleanup_repair",
+      "test_owner": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+      "source_applied": false,
+      "evidence": "../build_work_cleanup_repair/evidence/build-work-cleanup-repair/result.json",
+      "limits": "Standalone checked repair only; no independent Test or applicable validation PASS received. No new real controller build required for cleanup-only source change."
+    },
     "runner": "fe7f040 independent Test PASS at7f8dff3; host Validate01a15afb-2b5e-77f0-afac-98934e19bbfb pending. Completion requested."
   },
   "remaining": [
