@@ -1,0 +1,144 @@
+SMC regression audit — 2026-10-21
+
+Stage 1 owner: 01a159f4-de3d-7d90-9124-b09940980f92, Fix SMC mixer control trigger.
+Repository lane: lane/mb-smc-regression-audit-20261021.
+Base: 39db0049c8c04855bcd1bc4076f436ee7b4936df.
+Installed application: b3112a8c152dabb1ac8b7f88a4746380895b5e4d; 39db004 adds installation Markdown only.
+Receiving owner: exactly one fresh LOCAL stage-2 SMC regression repair thread.
+
+Owner scope and current facts
+
+- Current owner: "Need to fix a bug where SMC mixer doesn't trigger control it's supposed to. Light feedback is working on it tho".
+- Current clarification: "All. Both in Daw". All controls fail, with both ends in DAW mode.
+- Current steering: "Check why previous attempts didn't fix it" and "We had a working version".
+- Do not ask again which controls fail or imply a setup mistake.
+- Current rules: /Users/mac/Documents/x0x37/AGENTS.md and agent-rules.md. Read matching rules on demand. The newer capture-reuse rule is present in this checkout's docs/rules/device-bug.md and docs/USER_PREFERENCES.md; the workspace discovery mirror of device-bug.md is stale on this point. Existing captures and simulated sends are authorized. Do not ask for hands-on captures or movement.
+- The prior seven-stage workflow completed; its stage-7 owner verified the previous exact revision on remote main. There is no active firmware integrator/installer competing with this audit. The primary checkout is dirty and OLD; never use or reset it.
+
+Why the earlier repairs did not establish a fix for this report
+
+1. The mapping repair contradicted an explicit owner answer.
+   In thread 01a154a1-996b-7fa1-9f25-b2695e5aca3f, Connect and map SMC mixer,
+   the owner answered "Both faders and knobs should follow the screen" and
+   clarified duplication meant "Two faders or two knobs duplicate each other".
+   Commit 91356e76d2f981fdfb9947214a0a270ea3941a3b nevertheless made faders
+   stay on the main mixer outside drum MIX, and disabled encoders that duplicate
+   fader destinations. The later navigation repair 79f251a preserved that policy.
+   A paired fader and knob sharing a field was not the duplication the owner named.
+   Current SMC_MIXER.md and test expectations encode the implemented policy;
+   those are not evidence that the owner approved it. The direct answer wins.
+
+2. The subsequent navigation repair addressed parameter access and pickup display.
+   Thread 01a158bc-98ff-7542-9d5d-f526c3fc0a64, Trace mixer control changes,
+   identified missing view/menu/track access and misleading SMC F feedback before
+   pickup. Thread 01a158c2-9f70-76d0-81fd-2ba08d92c4e2 implemented 79f251a.
+   These are useful UI repairs, but none establishes why ALL received input would
+   disappear while light feedback still works. Keep the valid navigation fixes.
+
+3. The receive repair fixed separate, demonstrated defects.
+   b9d4024's checkpoint, reconciled into daa7794, fixes valid short HCI continuation
+   fragments, malformed assembly bounds and stale SysEx/fragment state after
+   reconnect. It adds diagnostics. Tests supplied MIDI notifications/HCI bytes
+   directly; the reachability harness sets a synthetic link CONNECTED and injects
+   notifications. The connection test supplies a synthetic CCCD write response.
+   Those tests do not reproduce a real peer that stays connected without input.
+   Existing stage handoffs correctly kept physical SMC behavior NOT TESTED.
+   Building, installing and reading back the candidate did not close that gap.
+
+4. The earlier "zero incoming packets" observation was made while idle.
+   The owner explicitly corrected this in 01a1593b-4839-70d1-8f3a-d02bfa0d3b26,
+   Repair SMC Bluetooth receive path. It is invalid evidence for an input failure.
+   The new snapshot is also uncoordinated; no movement is assumed in this audit.
+
+Last-good evidence and limits
+
+- The owner confirmed "Controls now work" and "and smc drives them too" in
+  01a154a1-996b-7fa1-9f25-b2695e5aca3f before the mapping commit. The contemporary
+  investigation references 53d5654c9bbaec10b64c55fb60d0e7d857ba8156 as installed.
+- That SAME investigation first reported silence, then response, without a
+  firmware change. Do not assume this is a deterministic code-only regression.
+  It also recorded a later disconnect; sustained link health was not established.
+- The precise pre-remap physical package identity is not retained in the available
+  install ledgers. Treat 53d5654 as a well-supported SOURCE reference, not a newly
+  verified readback of the earlier working device. Do not invent a last-good CRC.
+- There is no diff in ble.c, ble_midi_central.c, or controller configuration
+  between 53d5654 and 91356e7. Later application receive changes are listed above.
+- Controller source under ble/ctl/src and radio setup firmware/hal/fm1_ble.h are
+  unchanged from the source reference to the current candidate. The explicit
+  53ed908 install ledger and the current b3112a8 install use identical controller
+  SHA-256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+  Current actual ctl.img hash was checked. This rules out an intervening change
+  to those recorded controller bytes; it does not rule out a session/peer issue.
+
+Fresh audit checks and evidence
+
+- python3 audit/smc_differential.py > audit/differential-results.json: PASS.
+  Uses git-show source at 53d5654, 91356e7, 39db004; compiles production receiver
+  on macOS with cc. Exact recorded notification payloads, SIMULATED HCI headers,
+  synthetic link/handle. Three >64-byte ATT packets excluded equally from this
+  bounded comparison; 1268 supported payloads produce 2616 expected MIDI events.
+- Whole packets: all three sources emit byte-identical 2616-message streams.
+  Simulated fragment tails 1–8: 53d5654 and 91356e7 emit 1673; 39db004 emits all
+  2616. This verifies the prior fragment repair; it cannot prove live delivery.
+- Mapping probe extracts production target functions, substitutes page storage,
+  and selects a sound page. Fader 1 follows its visible field on 53d5654 but fails
+  this owner contract on 91356e7 and 39db004. Fader 5 similarly loses the next-page
+  field. This is an identified mapping regression, not a complete-silence cause.
+- Capture SHA-256 a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+- audit/current-device-diag.txt: read-only --diag-only under the exclusive native
+  /Users/mac/.x0x37-hardware.lock, no writes/restarts/disconnects. CONNECTED,
+  central state6 step14, credits5, mailbox READY, drops0, no new crash. Modulo256:
+  ACL8, notifications0, MIDI0, rejects2, last reason5 (BLEC_RX_CID); queue0/0/0.
+  This does NOT identify the rejected CID or bytes. Non-ATT traffic may be normal.
+  No motion is asserted, so this is not proof controls sent nothing.
+- audit/artifact-comparison.json: explicit ledger and actual controller hashes.
+- Source comparisons and the cited thread messages are read-only. No firmware
+  production source was edited, no build/install/full gate/push occurred here.
+
+Stage 2 scope and proposed repair
+
+The owner already authorizes diagnosis and repair of SMC controls. No new mapping
+decision is needed to restore the direct screen-following request. Use a fresh
+isolated local lane from this audit commit. Do not reuse an old task for execution.
+
+1. Correct the identified mapping regression. Both faders and knobs follow the
+   screen/page/menu as requested. Use the last-good source as behavioral evidence,
+   preserving subsequent valid navigation, explicit pickup, eleven-track banking,
+   clip visibility, modal/performance guards and main/home master filter. Prevent
+   duplicate targets within the same control type; do not silently suppress paired
+   fader/knob edits. Add meaningful contract tests failing on 91356e7/current base
+   and passing the repair. Screen/menu changes must reset pickup safely.
+
+2. Continue diagnosis of ALL-INPUT silence as a separate unresolved requirement.
+   Before another transport fix, get the missing evidence using existing captures,
+   differential simulation and bounded production diagnostics. Identify actual
+   rejected CID and packet shape, discovered value/CCCD handles, subscription
+   state, and receipt->decode->queue->dispatch boundary with minimal bounded
+   instrumentation if necessary. Reuse existing INLOG/DIAG storage where possible;
+   app RAM free524B, app flash free2472B, controller flash free44B. Do not equate
+   the generic CID rejection with a proven cause. Both the last-good and current
+   receivers ignore non-ATT CIDs. Do not add speculative reconnect, re-subscribe,
+   security, MTU, connection-parameter or radio-setting changes.
+
+3. Use the working source and real captured messages for a bounded regression
+   comparison. Current synthetic tests demonstrate downstream processing after
+   input is supplied; they cannot certify actual notifications arrive. Preserve
+   this limit honestly. A targeted trace build is diagnostic progress, not a
+   claim that total silence has been fixed. If the missing physical boundary
+   cannot be established without a new installed diagnostic artifact, complete
+   source/host work and hand it to validation; do not install in stage2.
+
+4. Check only affected contracts/consumers; the full host test/build stages belong
+   to their fresh owners. Target scope Elite and Pro DEVELOPMENT only. No FM-1
+   target work, full gate or release build. Keep licensing, features, sample
+   quality, notes, pad colours, controller image and all loop data intact.
+
+At stage2 completion, recheck activity and successor records, create/start exactly
+ONE fresh LOCAL stage3 test/investigation thread with independent scoped subagents
+as workflow rule17 requires; record its ID and end stage2 execution. Any new code
+repair from tests needs a fresh stage2, then3. Stage4 validates exact DEV artifacts;
+stage5 receives sole integration ownership. This request does not authorize a new
+physical install, fallback, release, or external push. Carry existing valid evidence
+and approvals; seek any missing install approval only with a concrete checked
+artifact and exact scope. Never reuse the prior completed workflow's push/install
+permission for new artifacts.

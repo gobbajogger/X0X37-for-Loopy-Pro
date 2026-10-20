@@ -1,0 +1,16 @@
+{
+  "old_install_controller": {
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "crc32": "9c07ae67"
+  },
+  "current_install_controller": {
+    "path": "/Users/mac/Documents/x0x37/local_fixture_stage4_evidence_20261021/elite/ctl.img",
+    "bytes": 65492,
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "crc32": "9c07ae67"
+  },
+  "current_artifact_actual_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "same_controller_sha256": true,
+  "capture_sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+  "limit": "The pre-remap working source reference is 53d5654 per contemporaneous investigation. No exact pre-remap physical install record is retained here; 53ed908 is the first later explicit install record."
+}
