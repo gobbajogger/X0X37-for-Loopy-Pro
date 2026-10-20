@@ -6,3 +6,12 @@ git diff --check
 PASS
 Manual workflow local-link check: 7 local targets exist.
 Manual historical preference check: unchanged against c33463c.
+Committed candidate aa5d616:
+X0X_QUICK_ONLY=ste X0X_QC_BASE=c33463c bash tools/quickcheck.sh <lane>
+QUICK PASS aa5d616 (STE step only; STE WARN 41 issues)
+Grammar warnings are advisory; rule commit metadata and pointers passed.
+Maintained preferences after delta rollout: PREFS OK 18 entries.
+Lane preferences have 19 because the base also contains the controller-input decision.
+Final discovery --check: 0 changed files.
+Maintained workflow and preference mirrors: byte-for-byte PASS.
+Unrelated maintained content: exact pre-rollout comparison PASS.

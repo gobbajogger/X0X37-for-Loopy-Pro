@@ -57,6 +57,22 @@ supports phase context and evidence-backed handoffs; the local tools' supplied
 schemas define the actual creation, status and message interfaces used here.
 That guidance supplies no availability guarantee.
 
-Rollout: pending final commit checks and maintained-file backup/application.
+Rollout completed after committed-candidate `aa5d616` passed the docs-only
+quickcheck. Its 41 grammar warnings are advisory. Preference pointers passed
+19 entries in the lane and 18 in maintained sources; the lane base contains
+one additional existing controller-input decision. Only this task's two-file
+delta was applied to maintained sources, preserving all unrelated bytes.
+The exact patch, before/after hashes and backups are recorded in
+[maintained-rollout.json](handoff-reliability-2026-10-21/maintained-rollout.json).
+Discovery rollout updated 22 mirror/managed-entry files with backups in
+`repo-bak/rules-rollout-20261020T160714802502Z`. Twenty pointer files already
+needed current-authority rollout before this repair, including the new lane.
+[Final discovery check](handoff-reliability-2026-10-21/discovery-check.json)
+reports zero drift. Workspace workflow and preference mirrors match maintained
+sources byte for byte; startup core and router remain unchanged.
+
+Receiving owner: the next authorized workflow stage owner reads current
+`rules/workflow.md` rule 18. Firmware integration remains with its assigned
+thread. This rules-only task has no next code stage to launch.
 No execution work or notices were sent to other production chats. The existing
 SMC workflow remains with its receiving owner.
