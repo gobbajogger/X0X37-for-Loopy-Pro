@@ -1,0 +1,221 @@
+Begin stage3 NOW in this one fresh LOCAL chat.
+Do not create another copy of stage3.
+Marker: smc-central-abort-deadline-20261021-stage3-after-checked-repair.
+Source owner: 01a15a98-8224-7cb0-8740-c2fe113077b3.
+Previous test owner: 01a15a92-6343-7f30-8495-f968228e2d2c.
+
+Current instructions
+
+Read /Users/mac/Documents/x0x37/AGENTS.md and agent-rules.md.
+Initialize the current workspace x0x37-task, x0x37-workflow and x0x37-writing skills.
+Initialize x0x37-check, x0x37-device-bug, x0x37-shared-work and x0x37-owner-decisions for this stage.
+Each skill path is /Users/mac/Documents/x0x37/.agents/skills/NAME/SKILL.md.
+Read the selected skill bodies and strict writing references.
+Read x0x37-integrate before target validation.
+Current owner instructions override old checkout text and saved handoffs.
+Do not load the old rule files.
+
+Authorization
+
+The latest owner repair request is "Now read rules and fix".
+The standing owner request is "Make sure that they automatically allow to do that without my intervention".
+Workflow17 requires this test stage after the confirmed source repair.
+Workflow18 permits automatic successors, recovery, startup checks and completion notices.
+Owner-decisions14 permits the complete validated DEV install with a notice.
+Carry this permission through each required stage. Do not ask again for a stage or artifact change.
+No stage3 device or controller write is authorized.
+No release build, full gate, trial, fallback, external push, publication or unrelated feature is authorized.
+Do not request a hands-on capture, control movement, mode repetition or another setup check.
+
+Candidate and lane
+
+Checked repair candidate: f080d1a5f31073dde600238f780acf37c12b2738.
+The sibling successor.json gives its exact tree and the later handoff-only evidence commit.
+Repository administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021.
+Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Source lane: /Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021.
+Source branch: lane/mb-smc-central-abort-deadline-repair-20261021.
+Start your own isolated lane from the evidence commit in successor.json.
+Its production source matches the checked repair candidate.
+Suggested lane: /Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021.
+Suggested branch: lane/mb-smc-central-deadline-stage3-20261021.
+Author: genkigenki <3080081+genkigenki@users.noreply.github.com>.
+Preserve other lanes and the separate rules migration.
+Do not add rules rollout commits to firmware integration.
+
+Required independent scopes
+
+Use two separate independent subagents under workflow17.
+Give each helper the current skill entry, exact candidate, owned evidence folder and completion criteria.
+The test helper owns public tests, negative controls, evidence identity and regression coverage.
+The investigation helper owns source review, independent edge probes, event order, service time and physical-result limits.
+Keep their evidence folders separate. Neither helper may edit production source.
+The task agent owns the combined conclusion and the successor.
+
+Read these complete stage2 records
+
+- evidence/deadline-stage2/RESULT.txt, checks.json, environment.json and input-review.json.
+- evidence/deadline-stage2/coverage.json, host-checks.json, source-inputs.json and run-checks.py.
+- evidence/deadline-stage2/receive.log, diag.log and all negative-control logs.
+- evidence/deadline-stage2/replay-run.py, replay.json, replay-inputs.json, replay.c and replay.log.
+- evidence/deadline-stage2/build-elite.log, build-pro.log and stage4-dev-plan.json.
+- tests/host/ble_midi_deadline_test.c and ble_midi_deadline_test.py.
+- firmware/src/ble/ble_midi_central.c and .h, firmware/src/ble.c and their direct consumers.
+- The complete public central, receive, signaling and abort tests and runner.
+
+Retain the original failure evidence
+
+- evidence/abort-stage3/RESULT.txt, checks.json and input-review.json.
+- evidence/abort-stage3/test/report.json, stop-deadline.c and stop-deadline-record.json.
+- evidence/abort-stage3/investigation/report.json, deadline-stop-probe.c, abort-suite.inc and run-deadline-probes.py.
+- evidence/abort-stage3/investigation/deadline-stop-record.json and deadline-*.log.
+- evidence/session-stage3/RESULT.txt and stage2-prompt.txt.
+- evidence/session-stage3/investigation-abort-probe.c and test-busy-disconnect.c.
+- evidence/session-stage2/RESULT.txt and checks.json for the full signaling/reconnect contribution.
+- evidence/session-audit/audit.json and stage2-prompt.txt for original owner evidence and limits.
+
+Confirmed defects and repair
+
+CENTRAL-ABORT-01 lost a refused Disconnect command under mailbox backpressure.
+That repair retains the command until one accepted send or the original 3-second deadline.
+Its broken source is 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f.
+Its public overflow/timeout controls and both saved helper controls fail there and pass on the complete candidate.
+
+CENTRAL-ABORT-02 allowed late submission through direct stop and the connection/cancel race.
+Its broken source is 05eff604cb3f136db71727a2aeeea785cab73b99.
+The production service could call stop with the previous tick's now_ms.
+The new repair moves the original cutoff check into blec_disconnect.
+Poll uses that same helper. Direct stop and the successful connection/cancel race also use it.
+At or after the cutoff, the helper sets FAILED without a submission.
+It retains the active handle, unreturned credits and stop intent.
+The production service supplies current fm1_ms before stop can submit a command.
+Normal stop still starts a distinct interval. An active abort interval does not change.
+The repair changes two production files. Mapping and controller source remain unchanged.
+
+Important probe distinction
+
+The saved stop probe and all 12 saved deadline probes fail functionally on 05eff60.
+The saved direct-stop and cancel probes pass after the repair.
+The four old service simulations deliberately retain the stale caller order.
+They do not execute firmware/src/ble.c. They remain expected negative examples against the helper alone.
+Do not report these unchanged stale-caller simulations as current production failures.
+Do not silently change their expected result or claim that they pass.
+The new public regression extracts and executes the actual production service body.
+Its mailbox, clock and hardware dependencies are stubs.
+The actual repaired caller passes all cutoff cases.
+A separate mutation with the repaired helper and old production caller fails.
+All three new public path controls fail on 05eff60 and pass on the repair.
+The new public suite has 38 cases across overflow/timeout, direct stop, actual service and both connection-event types.
+It includes expiry minus 1 ms, exact expiry, expiry plus 1 ms and timer wrap.
+The first draft of the service fixture counted its deliberate busy pre-poll incorrectly.
+The final fixture measures the count before service and checks its increment.
+Production source did not change for that fixture correction.
+
+Required stage3 checks
+
+Review the complete contribution, including previous signaling, credits and bounded retry repairs.
+Run affected public central, receive, signaling, abort and deadline tests with ASan and UBSan.
+Run the old and extended DIAG decoder tests.
+Use the saved independent busy-mailbox and deadline probes as negative controls on their exact broken sources.
+Independently examine every Disconnect entry and the actual service time update.
+Retain acceptance, command status and successful Disconnection Complete as distinct events.
+Do not repeat an accepted command after successful status.
+Do not release the handle or unreturned credits on refusal, failure or timeout.
+Only the applicable successful Disconnection Complete releases the link and credits.
+Check repeated stop, late completion, wrong handles, failed statuses, start, reconnect and cancel races.
+Keep stop intent through late completion. Do not restart scanning after stop.
+Preserve identifiers, bounded queues, fragment/size limits, reply priority, lifecycle resets and MIDI delivery.
+Record exact inputs, commands, logs, failures, causes and dispositions.
+An actionable source defect requires a fresh stage2, then a fresh stage3.
+Do not advance a failed source candidate to stage4.
+
+Matching replay and target evidence
+
+Stage2 completed 56 host commands with their expected results.
+No sanitizer failure preceded the expected functional assertions.
+All 412 previous selected inputs match except the two repaired production files and the expanded runner.
+The source-inputs.json record includes the two new public test files.
+The repaired startup replay passes with 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The queue is empty. The performance test is idle. Help and overlay are inactive.
+Capture: cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json.
+Capture SHA256: a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+External harness/store: /Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021.
+The peer, HCI framing and schedule are simulated.
+Three ATT packets above 64 bytes remain excluded. No payload resegmentation occurs.
+The project store is synthetic. Target interrupts and physical radio execution are untested.
+Reuse this replay only after its source, compiler, capture, harness, store and generated inputs match.
+Do not repeat matching checks without cause. Use -D_DARWIN_C_SOURCE on macOS.
+
+Both Elite and Pro stage2 DEV target builds pass.
+Elite code margin: 1400 bytes. Pro code margin: 1416 bytes.
+Static RAM margin: 524 bytes. Pool margin: 8364 bytes. Required pool margin: 8192 bytes.
+Exact app, loader and package paths and hashes are in checks.json.
+These stage2 build checks are not stage4 validated install records.
+Read BUILDING.md and script headers before commands.
+Use Linux x86-64 or x0x37-validation:local for JieLi tools.
+Toolchain: /Users/mac/.jieli/toolchain. SDK: /Users/mac/fw-AC79_AIoT_SDK.
+Mount both read-only. Keep proprietary files outside commits and bundles. Never change HOME.
+DEV X0X_DEV_PADCAL=1 remains the default.
+
+Physical result and preservation
+
+The owner reports that all SMC controls failed while light feedback operated.
+Working reference: 53d5654c9bbaec10b64c55fb60d0e7d857ba8156.
+Owner quotes: "Controls now work" and "and smc drives them too".
+The owner states that the messages did not change.
+The working reference also lacks signaling replies and disconnect-credit reclamation.
+Neither omission establishes the cause of the later physical input failure.
+The idle trace reports CONNECTED, handles 114/115, five credits and continued polling.
+It has no pending ATT or mailbox drops.
+The rejected header 50 20 10 00 0c 00 05 00 contains no command or identifier.
+Zero idle counters do not establish input loss.
+Credit starvation reproduces discovery failure, which differs from the CONNECTED observation.
+Physical result: NOT TESTED. Original all-input failure: UNRESOLVED.
+Do not claim a complete cure or physical PASS.
+These limits do not prevent truthful completion of the source checks and authorized DEV workflow.
+
+Preserve controls, notes, pad colours, loops and all loop slots.
+Preserve menus, navigation, pickup, sample quality, licensing, model guards and budgets.
+Preserve the three mixer modes: keyboard-equivalent, individual 909 and individual 808.
+Do not restore withdrawn generic screen-following mappings.
+Controller SHA256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+Full 64 KiB controller CRC32: 4a400899.
+Controller flash margin: 44 bytes. Controller RAM margin: 544 bytes.
+Do not change the controller blindly. No FM-1 target work is authorized.
+
+Mapping and sole integration
+
+Mapping candidate: 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Mapping tree: 56a78830c67477684e1ec114274ae204acb81296.
+Mapping stage4 owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Mapping result: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json.
+That contribution has stage4 VALIDATION PASS for both complete DEV package/controller sets.
+Its separate packages do not qualify as the combined install.
+Mapping stage4 retains selection of the sole stage5 integrator for both contributions.
+No stage5 existed for this pair when that completion notice arrived.
+Carry this chat ID and result path into every successor.
+Send permitted candidate and successor completion notices to that chat.
+Central stage4 must send its validation record to mapping stage4 or its selected sole integrator.
+Check current project activity and saved records before stage5 selection.
+Do not create a competing integrator or install independently over the sole integrator.
+Both complete contributions must pass their required stages before merge.
+
+Completion and successor
+
+After independent stage3 PASS, start exactly one fresh LOCAL stage4 automatically.
+Stage4 must use dev_validate for BOTH Elite and Pro complete package/controller sets.
+Use evidence/deadline-stage2/stage4-dev-plan.json as a reviewed starting plan.
+Adjust it only for actual inputs and affected consumers.
+Then hand off to the one sole stage5 integrator and the complete authorized DEV install with a notice.
+No external push is authorized.
+
+Apply workflow18 at the next transition.
+Save the complete prompt and successor record before creation.
+Check records and project activity for duplicates, including idle and setup chats.
+Use list_projects and create_thread with local execution and default model settings.
+Record returned host and chat IDs immediately.
+Verify actual new assistant or tool activity that acknowledges the assignment or reads its inputs.
+Save the observed turn ID and startup evidence before the status becomes started.
+Creation, a title, queued input or an active flag alone is insufficient.
+Recover an existing failed launch under workflow18 without a duplicate.
+End the current stage after verified startup. Do not wait for the successor to finish.

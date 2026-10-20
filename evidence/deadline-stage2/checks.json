@@ -100,5 +100,7 @@
   "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
   "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
   "next_stage": 3,
-  "authorization": "Owner request Now read rules and fix; workflow17 repair loop; workflow18 automatic successors, recovery, startup checks and notices; owner-decisions14 complete validated DEV install with notice."
+  "authorization": "Owner request Now read rules and fix; workflow17 repair loop; workflow18 automatic successors, recovery, startup checks and notices; owner-decisions14 complete validated DEV install with notice.",
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e"
 }
