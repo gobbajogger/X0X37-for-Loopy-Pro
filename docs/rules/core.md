@@ -10,7 +10,9 @@
 
 - Start every task in a fresh chat, including work continued from an old chat.
   If this chat was just created for this task, finish here; do not create
-  another chat for the same task. Use old chats as information sources.
+  another chat for the same task. In a staged code workflow, each stage is a
+  separate task: follow [stage order and successor handoffs](workflow.md).
+  Use old chats as information sources.
   New agents may contact other chats for context and handoff details needed to
   continue old work; continued task execution stays in the fresh chat.
   They may ask a chat still working to notify the fresh chat when done.

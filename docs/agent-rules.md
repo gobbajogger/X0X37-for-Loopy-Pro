@@ -11,6 +11,7 @@ plans, rosters, logs, and archives do not assign work or grant approval.
 
 | When needed | Read |
 | --- | --- |
+| Start or hand off a staged code workflow | [workflow](rules/workflow.md) |
 | Concurrent work, shared resources, hard to undo actions, or delegated review | [shared-work](rules/shared-work.md) |
 | Edit, build, test, commit, or handoff | [commit](rules/commit.md) |
 | Diagnose a device bug | [device-bug](rules/device-bug.md) |
