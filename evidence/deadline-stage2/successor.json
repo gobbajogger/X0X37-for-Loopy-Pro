@@ -1,0 +1,39 @@
+{
+  "marker": "smc-central-abort-deadline-20261021-stage3-after-checked-repair",
+  "source_thread": "01a15a98-8224-7cb0-8740-c2fe113077b3",
+  "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "evidence_commit": "767de3dea05ac7a38b17f7a4380b063d364f8a84",
+  "next_stage": 3,
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/evidence/deadline-stage2/stage3-prompt.txt",
+  "prompt_sha256": "1f2c2fc535dd6e743ab7131f2c7dad5b72f29fed414b5f168c8eb40313659136",
+  "status": "started",
+  "receiving_owner": "01a15aa1-3015-75c0-b331-15e212d9b5ec",
+  "thread_id": "01a15aa1-3015-75c0-b331-15e212d9b5ec",
+  "host_id": "local",
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "status": "started_verified",
+      "result": {
+        "threadId": "01a15aa1-3015-75c0-b331-15e212d9b5ec",
+        "hostId": "local"
+      }
+    }
+  ],
+  "project_id": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
+  "duplicate_check": "Current project activity contains the previous idle central stages and no deadline stage3 successor. The unique successor marker has no existing record.",
+  "authorization": "Owner request Now read rules and fix; workflow17 independent stage3; workflow18 automatic launch, recovery, actual startup checks and completion notices; owner-decisions14 complete validated DEV install with notice.",
+  "integration_dependency": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "current_model_policy": "Current workspace rule9: Elite for shared development target checks. Pro-specific changes and actual Pro packages retain applicable checks. Reuse matching inputs and run model-independent checks once.",
+  "source_repair_required": false,
+  "stage4_permitted_now": false,
+  "startup": {
+    "turn_id": "01a15aa1-3111-7a61-ad30-a6674e2ffdd4",
+    "status": "inProgress",
+    "evidence": "The successor executed cat on the current x0x37-task and x0x37-writing skills. The command completed with exit code 0.",
+    "command_id": "exec-b1611da7-6b58-4d0a-8762-063e416b3757",
+    "verification": "Actual new tool activity after creation. This is not an active-flag or queued-input inference."
+  }
+}
