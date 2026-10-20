@@ -1,0 +1,38 @@
+{
+  "production_commit": "746ece6936a456ef963c758da659c07a801cec37",
+  "evidence_startup_commit": "1f1e75bc0d567f69b94d384b32f3c62232609f20",
+  "successor": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+  "receipts": [
+    {
+      "thread_id": "01a15aec-a3db-7972-b1a3-cbd56a0bd510",
+      "tool": "send_message_to_thread",
+      "isError": false,
+      "status": "delivered"
+    },
+    {
+      "thread_id": "01a15ad1-a598-7a01-baae-5a8ac034d2c4",
+      "tool": "send_message_to_thread",
+      "isError": false,
+      "status": "delivered"
+    },
+    {
+      "thread_id": "01a15a99-75d7-7921-9d65-f4b120566904",
+      "tool": "send_message_to_thread",
+      "isError": false,
+      "status": "delivered"
+    },
+    {
+      "thread_id": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+      "tool": "send_message_to_thread",
+      "isError": false,
+      "status": "delivered"
+    },
+    {
+      "thread_id": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+      "tool": "send_message_to_thread",
+      "isError": false,
+      "status": "delivered"
+    }
+  ],
+  "scope": "Checked source hashes, 28-case PASS, exact four output equality, asset timings/limits, retained trial observations, verified fresh stage3 startup and pending independent/validation acceptance. No additional execution assigned to old chats."
+}
