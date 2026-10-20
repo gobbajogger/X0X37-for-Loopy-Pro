@@ -5,6 +5,8 @@
 Owner reports are evidence for the named build/item. Keep exact quotes; do not
 invent setup mistakes. Ask needed decisions directly in this task. Messaging
 another chat or person requires owner authorization.
+The owner's standing authorization for continuation context, handoff messages,
+and completion replies is in [rule 2](core.md); it does not authorize unrelated messages.
 
 ### Rule 14: existing authorization
 

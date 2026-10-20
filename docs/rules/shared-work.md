@@ -21,6 +21,6 @@ not repeated approval for authorized reversible work.
 
 Use helpers when requested or required for independent review. Give the current
 entry point, input commit/tree, task, owned files, relevant skill paths, and done
-criteria. Keep scopes separate and reuse helpers for follow-up; the task agent
-owns completion. Rule repairs need one final independent review; repeat only
+criteria. Keep scopes separate; follow [chat ownership](core.md) for new work.
+The task agent owns completion. Rule repairs need one final independent review; repeat only
 for a material new change or unresolved finding.
