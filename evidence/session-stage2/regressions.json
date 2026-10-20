@@ -1,0 +1,78 @@
+{
+  "base-signaling": {
+    "returncode": -6,
+    "log": "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-stage2/base-signaling.log",
+    "compile": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/base/tests/host/ble_midi_signal_test.c",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/base/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/base/test"
+    ]
+  },
+  "base-lifecycle": {
+    "returncode": -6,
+    "log": "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-stage2/base-lifecycle.log",
+    "compile": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/base/tests/host/ble_midi_signal_test.c",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/base/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/base/test"
+    ]
+  },
+  "candidate-signaling": {
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-stage2/candidate-signaling.log",
+    "compile": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/candidate/tests/host/ble_midi_signal_test.c",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/candidate/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/candidate/test"
+    ]
+  },
+  "candidate-lifecycle": {
+    "returncode": 0,
+    "log": "/Users/mac/Documents/x0x37/smc_central_session_repair_20261021/evidence/session-stage2/candidate-lifecycle.log",
+    "compile": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/candidate/tests/host/ble_midi_signal_test.c",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/candidate/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/smc-central-regression-ne5auk8s/candidate/test"
+    ]
+  }
+}

@@ -20,6 +20,7 @@ static int blec_eq(const uint8_t *a, const uint8_t *b, unsigned n)
 static void blec_rx_reset(blec_t *c)
 {
     c->running = c->in_sysex = c->sx_len = c->rx_have = c->rx_need = 0;
+    c->sig_read = c->sig_count = 0;
 }
 static void blec_reject(blec_t *c, uint8_t reason)
 {
@@ -50,18 +51,20 @@ static void blec_command(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
         c->waiting = 1;
     }
 }
-static int blec_acl(blec_t *c, const uint8_t *p, unsigned n)
+static int blec_acl_cid(blec_t *c, unsigned cid, const uint8_t *p, unsigned n)
 {
     uint8_t b[35];
     unsigned i;
     if (!c->credits || n > 23u) return 0;
     blec_wr16(b, c->conn); blec_wr16(b + 2, n + 4u);
-    blec_wr16(b + 4, n); blec_wr16(b + 6, 4);
+    blec_wr16(b + 4, n); blec_wr16(b + 6, cid);
     for (i = 0; i < n; i++) b[i + 8u] = p[i];
     if (c->send(H4_ACL, b, (uint16_t)(n + 8u), c->ctx)) return 0;
     c->credits--;
     return 1;
 }
+static int blec_acl(blec_t *c, const uint8_t *p, unsigned n)
+{ return !c->sig_count && blec_acl_cid(c, 4, p, n); }
 static void blec_fail(blec_t *c)
 {
     uint8_t b[3];
@@ -87,6 +90,43 @@ static void blec_scan_again(blec_t *c, uint32_t now)
     c->waiting = 0;
     c->found = 0;
     c->deadline = now + 10000u;
+}
+static void blec_signal_flush(blec_t *c)
+{
+    if (c->sig_count) {
+        const uint8_t *s = c->sig[c->sig_read];
+        uint8_t b[8] = {s[0], s[1], 2, 0, s[2], 0, sizeof c->rx, 0};
+        unsigned n = s[0] == 1u && s[2] == 1u ? 8u : 6u;
+        b[2] = (uint8_t)(n - 4u);
+        if (blec_acl_cid(c, 5, b, n)) {
+            c->sig_read = (uint8_t)((c->sig_read + 1u) % 4u);
+            c->sig_count--;
+        }
+    }
+}
+static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
+{
+    unsigned slot;
+    uint8_t code = 1, reason = 0;
+    if (n < 4u || !p[1]) { blec_reject(c, BLEC_RX_LENGTH); return; }
+    /* No signaling request is outstanding. Do not reply to identified responses. */
+    if (p[0] == 1u || p[0] == 7u || p[0] == 0x13u || p[0] == 0x15u ||
+        p[0] == 0x18u || p[0] == 0x1au) return;
+    if (n > sizeof c->rx) reason = 1; /* Report our signaling MTU. */
+    else {
+        if (blec_rd16(p + 2) != n - 4u || (p[0] == 0x12u && n != 12u)) {
+            blec_reject(c, BLEC_RX_LENGTH); return;
+        }
+        /* Reject parameters: accepting them also requires an HCI controller update. */
+        if (p[0] == 0x12u) { code = 0x13; reason = 1; }
+    }
+    blec_signal_flush(c);
+    if (c->sig_count == 4u) { blec_fail(c); return; }
+    if (!c->sig_count) c->sig_deadline = c->now_ms + 3000u;
+    slot = (c->sig_read + c->sig_count) % 4u;
+    c->sig[slot][0] = code; c->sig[slot][1] = p[1]; c->sig[slot][2] = reason;
+    c->sig_count++;
+    blec_signal_flush(c);
 }
 static void blec_progress(blec_t *c)
 {
@@ -295,24 +335,27 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
     reason = BLEC_RX_FRAGMENT;
     if (pb == 1u) {
         if (!len || !c->rx_need || len > (unsigned)(c->rx_need - c->rx_have)) goto reject;
-        for (i = 0; i < len; i++) c->rx[c->rx_have + i] = p[4 + i];
-        c->rx_have = (uint8_t)(c->rx_have + len);
+        for (i = 0; i < len && c->rx_have + i < sizeof c->rx; i++) c->rx[c->rx_have + i] = p[4 + i];
+        c->rx_have = (uint16_t)(c->rx_have + len);
     } else {
         c->rx_have = c->rx_need = 0;
         if (pb == 3u || len < 4u) goto reject;
         reason = BLEC_RX_CID;
-        if (blec_rd16(p + 6) != 4u) goto reject;
+        need = blec_rd16(p + 6);
+        if (need != 4u && need != 5u) goto reject;
+        c->rx_cid = (uint8_t)need;
         need = blec_rd16(p + 4); have = len - 4u;
         reason = BLEC_RX_SIZE;
-        if (!need || need > sizeof c->rx || have > need) goto reject;
-        c->rx_need = (uint8_t)need;
-        c->rx_have = (uint8_t)have;
-        for (i = 0; i < have; i++) c->rx[i] = p[8 + i];
+        if (!need || (c->rx_cid == 4u && need > sizeof c->rx) || have > need) goto reject;
+        c->rx_need = (uint16_t)need;
+        c->rx_have = (uint16_t)have;
+        for (i = 0; i < have && i < sizeof c->rx; i++) c->rx[i] = p[8 + i];
     }
     if (c->rx_have == c->rx_need) {
         unsigned complete = c->rx_need;
         c->rx_have = c->rx_need = 0;
-        blec_att_in(c, c->rx, complete);
+        if (c->rx_cid == 5u) blec_signal_in(c, c->rx, complete);
+        else blec_att_in(c, c->rx, complete);
     }
     return;
 reject:
@@ -355,7 +398,8 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
         if (code == 0x0e && pl >= 4u && c->waiting && blec_rd16(p + 1) == c->cmd_op) {
             c->waiting = 0;
             if (!c->conn && c->cmd_op != COP_CANCEL) c->state = BLEC_OFF;
-        } else if (code == 0x05 && pl >= 4u && blec_rd16(p + 1) == c->conn) {
+        } else if (code == 0x05 && pl >= 4u && !p[0] && blec_rd16(p + 1) == c->conn) {
+            c->credits = c->acl_total;
             c->conn = 0;
             c->waiting = 0;
             c->state = BLEC_OFF;
@@ -408,15 +452,18 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
             c->state = BLEC_DISCOVERING; c->step = S_SERVICE; c->query_start = 1; c->att_waiting = 0;
             c->deadline = now + 5000u; blec_progress(c);
         }
-    } else if (code == 0x05 && pl >= 4u && c->state != BLEC_OFF && blec_rd16(p + 1) == c->conn) {
+    } else if (code == 0x05 && pl >= 4u && !p[0] && c->state != BLEC_OFF && blec_rd16(p + 1) == c->conn) {
         blec_rx_reset(c);
+        /* HCI disconnection frees this sole link's outstanding controller buffers. */
+        c->credits = c->acl_total;
         c->conn = 0; c->qr = c->qw; c->att_waiting = 0; blec_scan_again(c, now); blec_progress(c);
     } else if (code == 0x13 && pl >= 5u) {
         unsigned i;
         for (i = 0; i < p[0] && 1u + 4u * (i + 1u) <= pl; i++)
-            if ((blec_rd16(p + 1u + 4u * i) & 0x0fffu) == c->conn)
-                c->credits = (uint8_t)(c->credits + blec_rd16(p + 3u + 4u * i));
-        if (c->credits > c->acl_total) c->credits = c->acl_total;
+            if ((blec_rd16(p + 1u + 4u * i) & 0x0fffu) == c->conn) {
+                unsigned credits = c->credits + blec_rd16(p + 3u + 4u * i);
+                c->credits = (uint8_t)(credits > c->acl_total ? c->acl_total : credits);
+            }
     }
 }
 void blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now)
@@ -440,6 +487,11 @@ int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n)
 void blec_poll(blec_t *c, uint32_t now)
 {
     c->now_ms = now;
+    if (c->sig_count) {
+        if ((int32_t)(now - c->sig_deadline) >= 0) blec_fail(c);
+        else blec_signal_flush(c);
+        if (c->sig_count) return; /* Required replies precede ATT and light feedback. */
+    }
     if (c->state == BLEC_STARTING || c->state == BLEC_SCANNING ||
         c->state == BLEC_CONNECTING || c->state == BLEC_DISCOVERING ||
         c->state == BLEC_DISCONNECTING || c->state == BLEC_STOPPING) {
