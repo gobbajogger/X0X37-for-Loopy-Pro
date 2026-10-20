@@ -1,0 +1,43 @@
+{
+  "marker": "smc-central-abort-deadline-20261021-stage2-after-05eff60-stage3",
+  "source_thread": "01a15a92-6343-7f30-8495-f968228e2d2c",
+  "failed_candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "evidence_commit": "5d66ffd49d0dbe9d6bab639c59353089d1a524d8",
+  "next_stage": 2,
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021/evidence/abort-stage3/stage2-prompt.txt",
+  "prompt_sha256": "24ba6710446b180dbc5aef65b3664cc382fdcb5fcecc0be74f542c2a04a41393",
+  "status": "started",
+  "receiving_owner": "01a15a98-8224-7cb0-8740-c2fe113077b3",
+  "thread_id": "01a15a98-8224-7cb0-8740-c2fe113077b3",
+  "host_id": "local",
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "status": "started_verified",
+      "result": {
+        "threadId": "01a15a98-8224-7cb0-8740-c2fe113077b3",
+        "hostId": "local"
+      }
+    }
+  ],
+  "duplicate_check": "The current local project activity includes idle and active central stages. No deadline-repair successor exists. A workspace search finds no successor record with this unique marker.",
+  "project_id": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
+  "authorization": "Owner request Now read rules and fix; workflow17 repair loop; workflow18 automatic launch, recovery, startup checks and notices; owner-decisions14 complete validated DEV install with notice.",
+  "integration_dependency": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "next_stage3_required": true,
+  "stage4_permitted_now": false,
+  "observed_turn_id": "01a15a98-8373-7c72-bdd7-7a2299d8bfb2",
+  "startup_evidence": "/Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021/evidence/abort-stage3/successor-startup.json",
+  "completion_notices": [
+    {
+      "thread_id": "01a15a87-298e-7d21-b004-b78d5beafd89",
+      "status": "sent",
+      "scope": "Failed candidate, exact evidence commit, repair successor ID and verified startup; sole integration selection retained."
+    },
+    {
+      "thread_id": "01a15a8a-6061-7a83-9716-5766833e15a5",
+      "status": "sent",
+      "scope": "Stage3 result, defect, exact evidence commit and verified repair successor startup."
+    }
+  ]
+}
