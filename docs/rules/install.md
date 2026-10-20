@@ -18,16 +18,19 @@ access. Exclude proprietary JieLi files.
 Never install a fallback just to make the keyboard playable.
 Install only within authorized scope with every queued change included. Use
 exact validated artifacts/configuration with no failed required checks.
+Build and install development firmware by default under [rule 11](integration.md);
+keep `X0X_DEV_PADCAL=1`.
 For development installs, use `tools/dev_validate.py` with a justified plan of
 affected checks and the intended model. Its DEV CHECKED record covers the build,
 code/RAM/pool limits, selected checks, package, and selected controller. Pass it
 with `tools/fm1_install.py --commit HASH --dev-record FILE --config dev` and
 explicit `--ctl FILE` or `--no-ctl`; never omit a needed controller to save checks.
-Reuse matching evidence for repeated installs. No full gate is required merely
-because a development build will be installed. Broaden checks only for affected
+Reuse matching evidence for repeated installs. Skip the full gate for development
+builds and installs under [rule 11](integration.md). Broaden checks only for affected
 dependencies or a concrete risk; explain the reason in the plan.
 
-Release installs require the full gate. `tools/require_gate_pass.sh` accepts
+After the user explicitly requests a release build under [rule 11](integration.md),
+release installs require the full gate. `tools/require_gate_pass.sh` accepts
 development evidence only for dev configuration; it never creates a release PASS.
 Preserve configuration, queue, model, artifact, and data guards. No team web
 install or bypass of a refusal. Missing device or applicable validation leaves

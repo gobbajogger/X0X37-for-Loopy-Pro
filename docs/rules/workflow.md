@@ -16,8 +16,9 @@ request does not start a code audit or release cycle.
 | 6. Install | Use the merged revision, matching validated artifacts, and recorded install scope. | The designated installer records installation and data-preservation checks under [install rules](install.md). |
 | 7. Push to Git | Use the completed merge and install evidence, approved repository/ref, and recorded push scope. | Verify the remote ref matches the intended commit. End this workflow; do not start another audit automatically. |
 
-Use [scoped checks and reuse](commit.md). Stage 4 does not turn every
-development build into a full release gate; release requirements still apply.
+Use [scoped checks and reuse](commit.md). Stage 4 validates development builds
+by default. Apply [rule 11](integration.md) before any release build or full gate;
+stage progression does not supply release-build authorization.
 Stage 4 validates candidate/install packages. Public-release packaging remains
 conditional on the owner's device PASS for the same build after installation.
 If requested, complete it in a fresh thread when that evidence exists; stage 7
