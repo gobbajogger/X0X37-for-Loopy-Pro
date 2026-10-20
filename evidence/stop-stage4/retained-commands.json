@@ -1,0 +1,1142 @@
+[
+  {
+    "name": "receive",
+    "argv": [
+      "sh",
+      "tests/host/ble_midi_receive_test.sh"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "receive.log"
+  },
+  {
+    "name": "diag",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/ble_central_diag_test.py"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "diag.log"
+  },
+  {
+    "name": "abort01-broken-public-abort-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "tests/host/ble_midi_abort_test.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/public-abort"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "abort01-broken-public-abort-compile.log"
+  },
+  {
+    "name": "abort01-broken-public-abort-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/public-abort",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "abort01-broken-public-abort-overflow.log"
+  },
+  {
+    "name": "abort01-broken-public-abort-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/public-abort",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "abort01-broken-public-abort-timeout.log"
+  },
+  {
+    "name": "abort01-broken-saved-investigation-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/investigation-abort-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/saved-investigation"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "abort01-broken-saved-investigation-compile.log"
+  },
+  {
+    "name": "abort01-broken-saved-investigation-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/saved-investigation",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "abort01-broken-saved-investigation-overflow.log"
+  },
+  {
+    "name": "abort01-broken-saved-investigation-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/saved-investigation",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "abort01-broken-saved-investigation-timeout.log"
+  },
+  {
+    "name": "abort01-broken-saved-test-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/test-busy-disconnect.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "abort01-broken-saved-test-compile.log"
+  },
+  {
+    "name": "abort01-broken-saved-test-None",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/abort01-broken",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "abort01-broken-saved-test-None.log"
+  },
+  {
+    "name": "repaired-public-abort-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "tests/host/ble_midi_abort_test.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/public-abort"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-public-abort-compile.log"
+  },
+  {
+    "name": "repaired-public-abort-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/public-abort",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-public-abort-overflow.log"
+  },
+  {
+    "name": "repaired-public-abort-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/public-abort",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-public-abort-timeout.log"
+  },
+  {
+    "name": "repaired-saved-investigation-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/investigation-abort-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-investigation"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-investigation-compile.log"
+  },
+  {
+    "name": "repaired-saved-investigation-overflow",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-investigation",
+      "overflow"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-investigation-overflow.log"
+  },
+  {
+    "name": "repaired-saved-investigation-timeout",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-investigation",
+      "timeout"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-investigation-timeout.log"
+  },
+  {
+    "name": "repaired-saved-test-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/session-stage3/test-busy-disconnect.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-test-compile.log"
+  },
+  {
+    "name": "repaired-saved-test-None",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-test"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-test-None.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/abort-stage3/test/stop-deadline.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-stop"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "deadline-broken-saved-stop-compile.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-stop"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-stop.log"
+  },
+  {
+    "name": "deadline-broken-saved-deadline-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/abort-stage3/investigation/deadline-stop-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "deadline-broken-saved-deadline-compile.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "stop",
+      "exact"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-stop-exact.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "stop",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-stop-exact-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "stop",
+      "after"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-stop-after.log"
+  },
+  {
+    "name": "deadline-broken-saved-stop-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "stop",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-stop-after-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "service",
+      "exact"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-service-exact.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "service",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-service-exact-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "service",
+      "after"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-service-after.log"
+  },
+  {
+    "name": "deadline-broken-saved-service-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "service",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-service-after-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "cancel",
+      "exact"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-cancel-exact.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "cancel",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-cancel-exact-wrap.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "cancel",
+      "after"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-cancel-after.log"
+  },
+  {
+    "name": "deadline-broken-saved-cancel-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken/saved-deadline",
+      "cancel",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "deadline-broken-saved-cancel-after-wrap.log"
+  },
+  {
+    "name": "deadline-broken-public-stop",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_deadline_test.py",
+      "stop"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "deadline-broken-public-stop.log"
+  },
+  {
+    "name": "deadline-broken-public-service",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_deadline_test.py",
+      "service"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "deadline-broken-public-service.log"
+  },
+  {
+    "name": "deadline-broken-public-cancel",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_deadline_test.py",
+      "cancel"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/deadline-broken",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "deadline-broken-public-cancel.log"
+  },
+  {
+    "name": "repaired-saved-stop-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/abort-stage3/test/stop-deadline.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-stop"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-stop-compile.log"
+  },
+  {
+    "name": "repaired-saved-stop",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-stop"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-stop.log"
+  },
+  {
+    "name": "repaired-saved-deadline-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/abort-stage3/investigation/deadline-stop-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-deadline-compile.log"
+  },
+  {
+    "name": "repaired-saved-stop-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "stop",
+      "exact"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-stop-exact.log"
+  },
+  {
+    "name": "repaired-saved-stop-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "stop",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-stop-exact-wrap.log"
+  },
+  {
+    "name": "repaired-saved-stop-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "stop",
+      "after"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-stop-after.log"
+  },
+  {
+    "name": "repaired-saved-stop-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "stop",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-stop-after-wrap.log"
+  },
+  {
+    "name": "repaired-saved-service-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "service",
+      "exact"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "repaired-saved-service-exact.log"
+  },
+  {
+    "name": "repaired-saved-service-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "service",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "repaired-saved-service-exact-wrap.log"
+  },
+  {
+    "name": "repaired-saved-service-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "service",
+      "after"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "repaired-saved-service-after.log"
+  },
+  {
+    "name": "repaired-saved-service-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "service",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": -6,
+    "expected": -6,
+    "result": "PASS",
+    "log": "repaired-saved-service-after-wrap.log"
+  },
+  {
+    "name": "repaired-saved-cancel-exact",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "cancel",
+      "exact"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-cancel-exact.log"
+  },
+  {
+    "name": "repaired-saved-cancel-exact-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "cancel",
+      "exact",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-cancel-exact-wrap.log"
+  },
+  {
+    "name": "repaired-saved-cancel-after",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "cancel",
+      "after"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-cancel-after.log"
+  },
+  {
+    "name": "repaired-saved-cancel-after-wrap",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired/saved-deadline",
+      "cancel",
+      "after",
+      "wrap"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-saved-cancel-after-wrap.log"
+  },
+  {
+    "name": "repaired-public-stop",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_deadline_test.py",
+      "stop"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-public-stop.log"
+  },
+  {
+    "name": "repaired-public-service",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_deadline_test.py",
+      "service"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-public-service.log"
+  },
+  {
+    "name": "repaired-public-cancel",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_deadline_test.py",
+      "cancel"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/repaired",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-public-cancel.log"
+  },
+  {
+    "name": "guard-only-service-negative",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_deadline_test.py",
+      "service"
+    ],
+    "cwd": "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/deadline-controls-121_w9ch/guard-only",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "guard-only-service-negative.log"
+  },
+  {
+    "name": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "diff.log"
+  },
+  {
+    "name": "broken-stop-cancel",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "cancel"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-cancel.log"
+  },
+  {
+    "name": "repaired-stop-cancel",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "cancel"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-cancel.log"
+  },
+  {
+    "name": "broken-stop-scan",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "scan"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-scan.log"
+  },
+  {
+    "name": "repaired-stop-scan",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "scan"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-scan.log"
+  },
+  {
+    "name": "broken-stop-failed-status",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-failed-status.log"
+  },
+  {
+    "name": "repaired-stop-failed-status",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-failed-status.log"
+  },
+  {
+    "name": "broken-stop-edges",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "--source-root",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "edges"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 1,
+    "expected": 1,
+    "result": "PASS",
+    "log": "broken-stop-edges.log"
+  },
+  {
+    "name": "repaired-stop-edges",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ble_midi_stop_test.py",
+      "edges"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "repaired-stop-edges.log"
+  },
+  {
+    "name": "saved-service-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-I/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf",
+      "-I/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/firmware/src/ble",
+      "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/evidence/deadline-stage3/investigation/service-stop-probe.c",
+      "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-compile.log"
+  },
+  {
+    "name": "saved-service-cancel-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "cancel",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-cancel-refused.log"
+  },
+  {
+    "name": "saved-service-cancel-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "cancel",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-cancel-accepted.log"
+  },
+  {
+    "name": "saved-service-scan-refused",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "scan",
+      "refused"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-scan-refused.log"
+  },
+  {
+    "name": "saved-service-scan-accepted",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "scan",
+      "accepted"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-scan-accepted.log"
+  },
+  {
+    "name": "saved-service-scan-failed-status",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/stop-controls-333wq2lf/service-probe",
+      "scan",
+      "failed-status"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "result": "PASS",
+    "log": "saved-service-scan-failed-status.log"
+  },
+  {
+    "name": "realistic-cancel-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/deadline-stage3/test/cancel-realistic-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-compile.log"
+  },
+  {
+    "name": "realistic-cancel-0",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "clear"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-0.log"
+  },
+  {
+    "name": "realistic-cancel-1",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "clear",
+      "enhanced"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-1.log"
+  },
+  {
+    "name": "realistic-cancel-2",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "busy"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-2.log"
+  },
+  {
+    "name": "realistic-cancel-3",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/realistic-cancel",
+      "busy",
+      "enhanced"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "realistic-cancel-3.log"
+  },
+  {
+    "name": "event-edge-compile",
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "evidence/deadline-stage3/investigation/event-edge-probe.c",
+      "firmware/src/ble/ble_midi_central.c",
+      "-o",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/event-edge"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "event-edge-compile.log"
+  },
+  {
+    "name": "event-edge-0",
+    "argv": [
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/saved-stop-probes-k6qq4d0d/event-edge"
+    ],
+    "cwd": "/Users/mac/Documents/x0x37/smc_central_stop_repair_20261021",
+    "returncode": 0,
+    "expected": 0,
+    "log": "event-edge-0.log"
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "marker": "smc-central-stop-backpressure-20261021-stage4-after-independent-pass",
+  "owner_chat": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
+  "source_owner": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+  "independent_result": "evidence/stop-stage3/checks.json",
+  "stage3_evidence_commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "complete_validated_dev_install": "AUTHORIZED WITH NOTICE",
+  "authorization_sources": [
+    "Owner request: Now read rules and fix.",
+    "Standing owner request: Make sure that they automatically allow to do that without my intervention.",
+    "Current workspace workflow17, workflow18 and owner-decisions14."
+  ],
+  "stage4_scope": "Build and package validation only.",
+  "sole_stage5_selection_owner": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "model_policy": {
+    "source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+    "source_turn": "01a15a99-78a0-7092-a321-a7cca4e3e073",
+    "owner_quote": "I don't think we need to check pro targets if elite passes cause they are consistently smaller than Ellie",
+    "application": "Use Elite for shared target checks. Use applicable Pro checks for Pro-specific inputs and each actual Pro package. Use matching completed checks again."
+  },
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "stage4_device_write": false,
+  "stage4_controller_write": false,
+  "release_build": false,
+  "full_gate": false,
+  "trial": false,
+  "fallback": false,
+  "external_push_authorized": false,
+  "publication_authorized": false
+}

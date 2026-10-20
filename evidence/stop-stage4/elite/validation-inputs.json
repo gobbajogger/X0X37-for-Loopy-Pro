@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "sha256": "69a610942727173b0a3ebcf63584187f93efae2d00b20ca71ca39c8f072f4cf5",
+  "inputs": {
+    "schema": 1,
+    "mode": "dev",
+    "source": "e1c4b02e77e5d1d43be28a7b868b7f5cfa114b74e76ec2970eb2e7391a4a80fe",
+    "configuration": {
+      "model": "elite",
+      "config": "dev",
+      "controller": true,
+      "plan": {
+        "base": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+        "scope": "The tested shared central stop repair retains pending commands, the original cutoff, late handles and stop intent. Startup, signaling, receive, credits, MIDI and diagnostics retain matching passing host evidence. Stage4 checks the actual Elite DEV package and controller. No Pro-specific input changed.",
+        "checks": [
+          {
+            "reason": "The source, saved negative controls, independent probe and logs must match before reuse. The complete host suites already pass on the recorded compiler. This command checks their identity and expected results without another suite run.",
+            "argv": [
+              "python3",
+              "-B",
+              "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-checked.py"
+            ]
+          }
+        ],
+        "dependencies": [
+          "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json"
+        ],
+        "model_policy": "Elite covers shared development target checks. No Pro artifact is selected or claimed. Actual Pro packages retain applicable checks."
+      },
+      "dependencies": [
+        "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json"
+      ]
+    },
+    "environment": {
+      "CXX": "c++",
+      "CC": "cc",
+      "MODEL": "elite",
+      "BOARD": "smk37",
+      "X0X_DEV_PADCAL": "1",
+      "CTL_NO_CACHE": "1",
+      "CTL_NATIVE": "1"
+    },
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "validator": {
+      "validation_inputs.py": {
+        "sha256": "b1cf53a3c087944763b5baa310a27a5f9dd7dad452f6862ee730f6951e9228ec",
+        "executable": false
+      },
+      "dev_validate.py": {
+        "sha256": "7eb3705069a1b9583f1c96a83c9ec89df33539c508982fb532d54cab956513d5",
+        "executable": false
+      }
+    },
+    "tools": {
+      "bash": {
+        "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+        "executable": true
+      },
+      "sh": {
+        "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+        "executable": true
+      },
+      "git": {
+        "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+        "executable": true
+      },
+      "make": {
+        "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+        "executable": true
+      },
+      "node": {
+        "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+        "executable": true
+      },
+      "emcc": null,
+      "cc": {
+        "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+        "executable": true
+      },
+      "c++": {
+        "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+        "executable": true
+      },
+      "ld": {
+        "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+        "executable": true
+      },
+      "ar": {
+        "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+        "executable": true
+      },
+      "objcopy": {
+        "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+        "executable": true
+      },
+      "python": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      },
+      "python3": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      }
+    },
+    "python_packages": {
+      "numpy": null,
+      "pillow": {
+        "version": "9.4.0",
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "dependencies": {
+      "toolchain": {
+        "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+      },
+      "sdk": {
+        "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+      },
+      "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-host.json": {
+        "sha256": "04f58b15d260926abc2a4e722e7c47b9997f557e0ed3832a8b4f76d01cefa7d7",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/reuse-checked.py": {
+        "sha256": "c8dd5df34968672f6548f4c264d2b58f56ac9bb9bd108b1d8aeb4436812da631",
+        "executable": false
+      }
+    },
+    "references": {}
+  }
+}

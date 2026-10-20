@@ -1,0 +1,15 @@
+{
+  "source-inputs.json": 415,
+  "helper-inputs.json": 224,
+  "stop-inputs.json": 6,
+  "replay-inputs.json": 7,
+  "logs": 81,
+  "host-checks.json": 56,
+  "stop-checks.json": 14,
+  "saved-probes.json": 7,
+  "expected_nonzero": 30,
+  "independent_probe_cases": 16,
+  "result": "PASS",
+  "host_suites_repeated": false,
+  "replay_repeated": false
+}

@@ -1,0 +1,73 @@
+{
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "python": "Python 3.9.6",
+  "host_cc": {
+    "path": "/usr/bin/cc",
+    "version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+    "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d"
+  },
+  "target_cc": {
+    "path": "/Users/mac/.jieli/toolchain/pi32v2/bin/clang",
+    "sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f"
+  },
+  "sdk": {
+    "path": "/Users/mac/fw-AC79_AIoT_SDK",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "status": ""
+  },
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "build_command": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-v",
+    "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+    "-v",
+    "/Users/mac/.jieli/toolchain:/Users/mac/.jieli/toolchain:ro",
+    "-v",
+    "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+    "-w",
+    "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021",
+    "x0x37-validation:local",
+    "sh",
+    "evidence/stop-stage4/run-validation.sh"
+  ],
+  "configuration": {
+    "board": "smk37",
+    "model": "elite",
+    "X0X_DEV_PADCAL": 1
+  },
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "lane": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021",
+  "branch": "lane/mb-smc-central-stop-stage4-20261021",
+  "base": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
+  "stage": 4,
+  "validation_revision": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "model_policy": "Elite covers shared development target checks. No Pro artifact is selected or claimed.",
+  "stage2_environment": "evidence/stop-stage2/environment.json",
+  "environment_preflight": "evidence/stop-stage4/reuse-host.json",
+  "effective_environment": {
+    "CC": "cc",
+    "CXX": "c++",
+    "X0X_HOST_DEFS": "-D_POSIX_C_SOURCE=200809L",
+    "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+    "AC79_SDK": "/sdk",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "MODEL": "elite",
+    "BOARD": "smk37",
+    "X0X_DEV_PADCAL": "1",
+    "CTL_NO_CACHE": "1",
+    "CTL_NATIVE": "1",
+    "SDK_LOCAL": "/sdk"
+  },
+  "wrapper_sha256": "a71899f80c2d7adef789acc51db4fc4437d4f9e9dd95e23400fac43e6e0b47c3",
+  "network": "none",
+  "proprietary_mounts": "read-only"
+}
