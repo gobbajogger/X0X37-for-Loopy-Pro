@@ -2,7 +2,7 @@
   "stage": 4,
   "marker": "smc-central-stop-backpressure-20261021-stage4-after-independent-pass",
   "validation_result": "STAGE4 VALIDATION PASS",
-  "workflow_status": "PENDING VERIFIED SOLE STAGE5 STARTUP",
+  "workflow_status": "COMPLETE; SOLE STAGE5 STARTUP VERIFIED",
   "owner_chat": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
   "source_owner": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
   "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
@@ -183,5 +183,8 @@
     "The store is synthetic. Target interrupts and physical radio execution are not tested.",
     "The raw package and controller stay local. They are excluded from the evidence commit."
   ],
-  "next_action": "Mapping stage4 selects and starts one sole stage5 for both validated contributions. Record verified actual startup before this stage ends."
+  "next_action": "The sole stage5 owner integrates both contributions. Changed combined inputs need matching validation before the authorized complete DEV install.",
+  "sole_stage5_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "successor_startup_turn": "01a15ac1-6ebe-7da1-b581-5a417f764129",
+  "startup_evidence": "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/startup.json"
 }

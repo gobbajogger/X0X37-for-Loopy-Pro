@@ -1,0 +1,17 @@
+{
+  "validation_result": "STAGE4 VALIDATION PASS",
+  "checked_evidence_hashes": 23,
+  "mismatches": [],
+  "text_evidence_commit": "049d0274c80af543bd4e334af92b4393015c4f85",
+  "committed_files": 24,
+  "only_stage4_text_evidence_committed": true,
+  "proprietary_files_committed": false,
+  "raw_package_committed": false,
+  "raw_controller_committed": false,
+  "source_diff_from_candidate": "",
+  "successor": "STARTED",
+  "successor_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "startup_turn": "01a15ac1-6ebe-7da1-b581-5a417f764129",
+  "stage4_workflow_complete": true,
+  "raw_artifacts": "The exact package and controller stay local as untracked files. They are not committed."
+}

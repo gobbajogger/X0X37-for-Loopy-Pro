@@ -1,0 +1,46 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-v",
+    "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+    "-v",
+    "/Users/mac/.jieli/toolchain:/Users/mac/.jieli/toolchain:ro",
+    "-v",
+    "/Users/mac/fw-AC79_AIoT_SDK:/sdk:ro",
+    "-w",
+    "/Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021",
+    "x0x37-validation:local",
+    "sh",
+    "evidence/stop-stage4/run-validation.sh"
+  ],
+  "exit_code": 0,
+  "result": "DEV CHECKED",
+  "stdout_completion": "DEV CHECKED /Users/mac/Documents/x0x37/smc_central_stop_stage4_20261021/evidence/stop-stage4/elite/record.json",
+  "record": "elite/record.json",
+  "logs": [
+    "elite/check-0.log",
+    "elite/build.log",
+    "elite/controller.log"
+  ],
+  "artifact_verification": {
+    "command": [
+      "python3",
+      "-B",
+      "evidence/stop-stage4/verify-artifacts.py",
+      "elite"
+    ],
+    "exit_code": 0,
+    "result": "PASS",
+    "log": "elite/package-layout.log",
+    "record": "artifact-verification.json"
+  },
+  "failures": []
+}

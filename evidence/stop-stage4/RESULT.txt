@@ -33,3 +33,11 @@ The combined source needs matching validation before installation.
 The complete validated DEV-install permission continues with its notice requirement.
 No device/controller write, release build, full gate, trial, fallback or external push occurred.
 The successor record must show actual startup before this stage ends.
+
+Sole stage5 startup is verified. This stage4 is complete.
+Receiving owner: 01a15ac1-6dac-7ca2-a2fc-877c4671ab33. Host: local.
+Observed turn: 01a15ac1-6ebe-7da1-b581-5a417f764129.
+New assistant acknowledgment and completed tool activity establish actual startup.
+The receiving owner has both validated contributions and has identified the combined replay dependency.
+Startup evidence: startup.json. No competing stage5 was created.
+The next stage result is not claimed. This stage does not wait for its completion.

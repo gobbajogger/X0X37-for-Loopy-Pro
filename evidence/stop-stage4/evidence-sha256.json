@@ -1,5 +1,5 @@
 {
-  "RESULT.txt": "a4d1c494b508030c4e418bc3794ee210a7c8f2248153e2a5731ae6f93a87caaa",
+  "RESULT.txt": "7d7c56c34df4515f92453944add4b37806c259043946383693e1adca8200fff4",
   "artifact-verification.json": "93a03602041010f3273c9778ee22a804c8bb4396dd8615b7e21476e782f8841a",
   "dev-plan.json": "c1eeff1a78481616b722a5fe248808a2f51d5f406e69ac6c2fde94a84d0fbf3d",
   "elite/build.log": "f6e5f276631472814ddd12a712acb9241126ad8838de65a2e27f5e89653ad8d0",
@@ -9,10 +9,11 @@
   "elite/record.json": "18e52031ad1f0fa8539dac1304bfea6d4d6459483f30da4c0675787a91ff1d78",
   "elite/validation-inputs.json": "d2b3075545310cffe608501b8ed7544c71f068ad3ae9d2bbd593fd25bdf4ceec",
   "environment.json": "a72ba5b18dfa3f876b3a105bf766300254055ea1765d6905a276c50f684626e2",
+  "final-audit.json": "9e844ecc5421948ca34ead28b05f2d41aad8a7d60ae8168759213ab2eeaaea0c",
   "permissions.json": "340ed6b3eb6f9ef188e6c86cccc9fdb9373f0d52de349e2167f83958e807c3b6",
   "plan-review.json": "b2153fe81924fcff3cda7d24bbfc2cea00cec3562e130cc6876bd1bca282c512",
   "records-read.json": "a8e4cf1f18b96840531b12fbc40a054233210ce1f2521383a9676cca77a12529",
-  "result.json": "76edcdc24681b46b5c222c249be88565637d9ee1f6afb2d24d82f46133318099",
+  "result.json": "be61e905d0d2ef6fcfd8045eeb130a0b5310684c289f688b540cf8fd6e14c155",
   "retained-commands.json": "8a2c4017bd6289c1ddc01c0c7b4aaed20c65791de4fd3415405788e9c6e3ef18",
   "reuse-checked.py": "c8dd5df34968672f6548f4c264d2b58f56ac9bb9bd108b1d8aeb4436812da631",
   "reuse-host.json": "04f58b15d260926abc2a4e722e7c47b9997f557e0ed3832a8b4f76d01cefa7d7",
@@ -20,6 +21,8 @@
   "source-identity.json": "a671a75d9f187fcce645a275c5cd2244800340e37c0427cc6ff198da300f8bf0",
   "stage2-artifact-match.json": "74f6d82a846ab699f0f9a76bc27e57bdc1edd45d770c56c48d0ea59e939c15fd",
   "stage5-contribution.txt": "0afe0cad8e5395ec03c4593a0eb67dff6c2b39f05f7170c9d8ecc939554c4749",
-  "successor.json": "aaa00348d229729e5200b0928f630f01f54a1c62b092af647f2bef93797d034d",
+  "startup.json": "f0a6387fea1656cbbe4ecb40f9c449f1d9394305de313253ebe10611859c9004",
+  "successor.json": "5224a69697d0a94a05067709f4ee8a2d748c3db7faade58885c7692d709e3a8e",
+  "validation-run.json": "807a640bede8edf364f2fabb0c086abbcf7105c2926402bf07d4353f848c8f15",
   "verify-artifacts.py": "cc41d03e506a2b985f1b38bee514f390add69786ef9c1af15e2e80bb8c76a887"
 }
