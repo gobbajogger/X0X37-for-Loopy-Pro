@@ -33,7 +33,11 @@ class Inputs(unittest.TestCase):
         self.runner = self.root/'runner'; self.runner.mkdir()
         for name in ('gate.sh', 'gate_flashmap.py', 'gate_sigwrap.py', 'validation_inputs.py', 'pre-push.hook'):
             shutil.copy2(TOP/'tools'/name, self.runner/name)
-        self.env = {k:v for k,v in os.environ.items() if not k.startswith(('X0X_', 'JIELI_', 'AC79_', 'GIT_'))}
+        # The gate clears caller build selectors before capturing its inputs.
+        # Keep baseline capture equivalent when dev_validate sets MODEL/BOARD.
+        self.env = {k:v for k,v in os.environ.items()
+                    if k not in ('MODEL', 'BOARD')
+                    and not k.startswith(('X0X_', 'JIELI_', 'AC79_', 'GIT_'))}
         self.config = {'models': ['elite', 'pro'], 'configs': {'dev': 1, 'rel': 0}, 'time_scale': 1}
         self.env['X0X_TEST_TIME_SCALE'] = '1'
 

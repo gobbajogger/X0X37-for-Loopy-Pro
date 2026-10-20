@@ -17,11 +17,20 @@ SY="$(dirname "$G")/sync_results_to_mac.sh"
 T=$(mktemp -d "${TMPDIR:-/tmp}/qguard.XXXXXX"); trap 'chmod -R u+w "$T" 2>/dev/null; rm -rf "$T"' EXIT
 QF=$(mktemp "$T/queue.XXXXXX")   # commit.md rule 9: each case gives X0X_QUEUE_FILE = a temp file, never the live QUEUE.md
 fails=0; n=0
-expect() {  # expect <REFUSED|GATE OK> <name> [results folder] [queue file]
-    want=$1; name=$2; res=${3:-$T/res}; qf=${4:-$QF}; n=$((n + 1))
+expect() {  # expect <REFUSED|GATE OK> <name> [results folder] [queue file] [queue refusal reason]
+    want=$1; name=$2; res=${3:-$T/res}; qf=${4:-$QF}; reason=${5:-}; n=$((n + 1))
     out=$(X0X_QUEUE_FILE="$qf" X0X_RESULTS_DIR="$res" X0X_REPO="$T/repo" bash "$G" "$B" 2>&1); rc=$?
     case "$want" in REFUSED) wrc=3;; *) wrc=0;; esac
-    case "$out" in "$want "*) [ "$rc" = "$wrc" ] && { echo "ok   $name: $(echo "$out" | tail -1)"; return; };; esac
+    case "$out" in "$want "*)
+        if [ "$rc" = "$wrc" ]; then
+            case "$want:$out" in
+                REFUSED:*)
+                    # A provenance failure must not satisfy a queue refusal case.
+                    case "$out" in *": open queue line"*"$reason"*) [ -n "$reason" ] && { echo "ok   $name: $out"; return; };; esac ;;
+                *) echo "ok   $name: $(echo "$out" | tail -1)"; return ;;
+            esac
+        fi ;;
+    esac
     echo "FAIL $name: rc=$rc out=$out"; fails=$((fails + 1))
 }
 gc() { git -c user.name=t -c user.email=t@t commit -q "$@"; }
@@ -35,7 +44,20 @@ TREE=$(git -C "$T/repo" ls-tree -r --full-tree "$B" | awk -F '\t' '$2 !~ /\.md$/
 T12=$(echo "$TREE" | cut -c1-12)
 L="$T/work/$S.logs"; mkdir -p "$L"
 printf 'gate: took the gate lock after 0 s\n' > "$L/gate.log"; printf 'ctl.img file crc32 00000000, 1 B\n' > "$L/crc.txt"
+INPUT_ID=$(python3 - "$G" "$T/repo" "$B" "$L" <<'PYID'
+import json, sys
+from pathlib import Path
+sys.path.insert(0, str(Path(sys.argv[1]).parent))
+import validation_inputs as v
+# Synthetic provenance only for this disposable queue fixture; no validation run.
+payload = {'schema': v.SCHEMA, 'mode': 'gate', 'source': v.source_tree(sys.argv[2], sys.argv[3])}
+data = {'schema': v.SCHEMA, 'inputs': payload, 'sha256': v.digest(v.encoded(payload))}
+(Path(sys.argv[4])/'validation-inputs.json').write_text(json.dumps(data))
+print(data['sha256'])
+PYID
+)
 { echo "# Gate result for tree $TREE"; echo; echo "Result: PASS"; echo; echo "- Commit: $B"
+  echo "- Validation inputs: $INPUT_ID"
   echo "- Tree (SHA-1 of git ls-tree -r without *.md): $TREE"; echo "- Worktree: $T/work/$S. Logs: $L."
   echo; echo "## CRC manifest"; echo; cat "$L/crc.txt"; } > "$T/res/$TREE.md"
 printf '| Commit | Tree | Git tree | Result | Result file | Time |\n|---|---|---|---|---|---|\n| %s | %s | 000000000000 | PASS | %s.md | 2026-10-17 02:00 +10 |\n' "$S" "$T12" "$TREE" > "$T/res/index.md"
@@ -44,20 +66,20 @@ expect "GATE OK" "no queue file" "$T/res" "$T/absent-queue.md"
 queue "- [ ] $A first change" "- [ ] $(echo "$B" | cut -c1-9) the install commit" "- [x] $C done, not in the set"
 expect "GATE OK" "open lines in the history, done line outside"
 queue "- [ ] $A first change" "- [ ] $(echo "$C" | cut -c1-7) a change that is not in the install commit"
-expect REFUSED "open line not an ancestor"
+expect REFUSED "open line not an ancestor" "$T/res" "$QF" "is not in the install commit"
 queue "- [ ] 0123456789abcdef0123 a commit that is not in the repository"
-expect REFUSED "open line with an unknown commit"
+expect REFUSED "open line with an unknown commit" "$T/res" "$QF" "is not in $T/repo"
 queue "- [ ] a change with no commit"
-expect REFUSED "open line with no commit"
+expect REFUSED "open line with no commit" "$T/res" "$QF" "with no commit"
 cp "$(dirname "$G")/../tests/host/fixtures/queue_guard/no-commit.txt" "$QF"
-expect REFUSED "fixture no-commit.txt: open lines with no commit (exit 3)"
+expect REFUSED "fixture no-commit.txt: open lines with no commit (exit 3)" "$T/res" "$QF" "with no commit"
 # the Mac copy: --pack takes QUEUE.md, --unpack writes it, the guard reads it there
 queue "- [ ] $C a change that is not in the install commit"; cp "$QF" "$T/res/QUEUE.md"; n=$((n + 1))
 if X0X_RESULTS_DIR="$T/res" X0X_SYNC_DIR="$T/sync" bash "$SY" --pack >/dev/null 2>&1 && \
    X0X_RESULTS_DIR="$T/mac" bash "$SY" --unpack "$T/sync/latest.tar" >/dev/null 2>&1 && [ -f "$T/mac/QUEUE.md" ]; then
     echo "ok   sync copies QUEUE.md"
 else echo "FAIL sync does not copy QUEUE.md"; fails=$((fails + 1)); fi
-expect REFUSED "guard on the Mac copy, open line not an ancestor" "$T/mac" "$T/mac/QUEUE.md"
+expect REFUSED "guard on the Mac copy, open line not an ancestor" "$T/mac" "$T/mac/QUEUE.md" "is not in the install commit"
 # commit.md rule 9: each test that runs require_gate_pass.sh sets X0X_QUEUE_FILE (bad fixture: fixtures/queue_guard/leaky_test.sh)
 TD="$(dirname "$G")/../tests/host"
 scanq() { for f in "$@"; do grep -qE 'bash +"?\$(G|Q)"? |require_gate_pass\.sh"? ' "$f" && grep -qE '(^|[^.])require_gate_pass\.sh' "$f" && ! grep -q 'X0X_QUEUE_FILE' "$f" && echo "$f"; done; }
