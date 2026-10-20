@@ -32,30 +32,40 @@ if [ $rc = 143 ] && grep -q "INNER GOT sig=SIGTERM pid=$SP cwd=$T/sender1 " "$T/
 else bad "wrapper: rc=$rc sender=$SP out=$(cat "$T/w1.out") file=$(ls "$SF" 2>&1)"; fi
 
 # 2. and 3. a gate run on a temp repository
-G="$T/g"; mkdir -p "$G"; cp "$TOP/tools/gate.sh" "$TOP/tools/gate_sigwrap.py" "$TOP/tools/gate_flashmap.py" "$G/"
+G="$T/g"; mkdir -p "$G"; cp "$TOP/tools/gate.sh" "$TOP/tools/gate_sigwrap.py" "$TOP/tools/gate_flashmap.py" "$TOP/tools/validation_inputs.py" "$G/"
 mkdir -p "$T/tc/pi32v2/bin" "$T/sdk/cpu/wl82/tools" "$T/res" "$T/refs"
 printf '#!/bin/sh\nexit 0\n' > "$T/tc/pi32v2/bin/clang"; chmod +x "$T/tc/pi32v2/bin/clang"; : > "$T/sdk/cpu/wl82/tools/uboot.boot"
 printf '#!/bin/sh\nexit 0\n' > "$T/pre-push"
 git init -q --bare "$T/box.git"; git init -q -b integration "$T/c"; cp "$FX/build.sh" "$T/c/build.sh"
 git -C "$T/c" add . && git -C "$T/c" -c user.name=t -c user.email=t@t commit -qm "Fixture build" && git -C "$T/c" push -q "$T/box.git" integration
 H=$(git -C "$T/c" rev-parse --short=7 HEAD)
+git clone -q --no-local "$T/c" "$T/refs/fixture"
+PIN="fixture=$(git -C "$T/c" rev-parse HEAD)"
 gate() {  # gate <case> [env...]: start the gate in the background; GP = its PID
     local c=$1; shift
     env X0X_REPO="$T/box.git" X0X_RESULTS="$T/res" X0X_REFS="$T/refs" X0X_GATE_WORK="$T/work$c" X0X_TOOLCHAIN="$T/tc" \
-        AC79_SDK="$T/sdk" X0X_PREPUSH_HOOK="$T/pre-push" X0X_GATE_LOCK="$T/gate.lock" X0X_REF_PINS="" X0X_GATE_SIGFILE= "$@" \
-        bash "$G/gate.sh" "$H" > "$T/gate$c.out" 2>&1 & GP=$!
+        AC79_SDK="$T/sdk" X0X_PREPUSH_HOOK="$T/pre-push" X0X_GATE_LOCK="$T/gate.lock" X0X_REF_PINS="$PIN" X0X_GATE_SIGFILE= "$@" \
+        bash "$G/gate.sh" "$H" --purpose owner-validation --reason "Gate signal regression fixture requested by rule repair" > "$T/gate$c.out" 2>&1 & GP=$!
+}
+waitbuild() {
+    local i=0
+    while [ $i -lt 200 ]; do
+        find "$1" -name build-elite.log -exec grep -q 'fixture build' {} \; -print 2>/dev/null | grep -q . && return 0
+        sleep 0.1; i=$((i + 1))
+    done
+    return 1
 }
 gate 2
-if waitfor "$T/work2/$H.logs/build-elite.log" "fixture build"; then
+if waitbuild "$T/work2"; then
     sleep 1.2; touch "$G/gate_flashmap.py"
-    SP=$(send "$GP" "$T/sender2"); wait "$GP"; rc=$?; L2="$T/work2/$H.logs/gate.log"
+    SP=$(send "$GP" "$T/sender2"); wait "$GP"; rc=$?; L2=$(find "$T/work2" -name gate.log)
     if grep -q "KILLED by SIGTERM from pid $SP (cwd $T/sender2;" "$L2"; then ok "gate.log names the sender (pid $SP, cwd sender2)"; else bad "gate.log: $(grep KILLED "$L2")"; fi
     if grep -q "^KILLED $H SIGTERM from pid $SP cwd $T/sender2 (no result)" "$T/gate2.out" && [ $rc = 143 ]; then ok "output line names the sender, exit 143"; else bad "output: rc=$rc $(cat "$T/gate2.out")"; fi
     if grep -q "SCRIPT CHANGED during the run: $G/gate_flashmap.py" "$L2"; then ok "gate.log: SCRIPT CHANGED for gate_flashmap.py"; else bad "no SCRIPT CHANGED line: $(cat "$L2")"; fi
 else bad "gate 2 did not reach the builds: $(cat "$T/gate2.out")"; kill "$GP" 2>/dev/null; fi
 gate 3 X0X_GATE_INNER=1
-if waitfor "$T/work3/$H.logs/build-elite.log" "fixture build"; then
-    SP=$(send "$GP" "$T/sender3"); wait "$GP"; rc=$?; L3="$T/work3/$H.logs/gate.log"
+if waitbuild "$T/work3"; then
+    SP=$(send "$GP" "$T/sender3"); wait "$GP"; rc=$?; L3=$(find "$T/work3" -name gate.log)
     if grep -q "KILLED by SIGTERM sender unknown (no result)" "$L3" && [ $rc = 143 ] && ! grep -q 'SCRIPT CHANGED' "$L3"; then ok "no wrapper: sender unknown, no SCRIPT CHANGED"; else bad "no wrapper: rc=$rc $(grep -E 'KILLED|SCRIPT' "$L3")"; fi
 else bad "gate 3 did not reach the builds: $(cat "$T/gate3.out")"; kill "$GP" 2>/dev/null; fi
 echo "gate trap: $((n - fails)) of $n ok"

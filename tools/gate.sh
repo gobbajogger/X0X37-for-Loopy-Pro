@@ -1,7 +1,11 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
 # Pre-install gate for the SMK-37 Elite firmware (Linux x86-64, native or local container). It does not touch a device.
-#   tools/gate.sh <commit or ref> [--force "<reason>"] [--trial]
+#   tools/gate.sh <commit or ref> --purpose <purpose> --reason "<concrete reason>" [--force "<reason>"] [--trial]
+# Purpose: release-install, release-package, or owner-validation. Identify the release
+# step/artifact or explicit owner request in --reason. Development uses scoped checks.
+# Missing purpose/reason is refused before setup, result writes, clones or locks.
+# --force also needs a separate reason why matching passing evidence cannot be reused.
 # The commit must be on the integration branch of the box repository (X0X_INTEGRATION). Else the gate stops with
 # "FAIL <hash> not on integration (use --trial)". With --trial the gate runs any commit, but the result is a TRIAL:
 # the result file and the index row are marked TRIAL, the output line starts with TRIAL, and it never counts
@@ -66,13 +70,48 @@
 #   X0X_REF_PINS ["schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d"]
 set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
+ORIGINAL_ARGS=("$@")
+FORCE=0; TRIAL=0; ARG=""; FREASON=""; PURPOSE=""; RUN_REASON=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+    --force) FORCE=1; FREASON=${2:-}; [ $# -ge 2 ] && shift
+             case "$FREASON" in ""|-*|[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) FREASON="" ;; esac
+             [ -n "$FREASON" ] || { echo "REFUSED: --force needs a rerun reason in addition to --purpose and --reason" >&2; exit 2; } ;;
+    --purpose|--reason)
+        opt=$1
+        [ $# -ge 2 ] && [[ "$2" != -* ]] || { echo "REFUSED: $opt needs a value" >&2; exit 2; }
+        if [ "$opt" = --purpose ]; then PURPOSE=$2; else RUN_REASON=$2; fi
+        shift ;;
+    --trial) TRIAL=1 ;;
+    -*) echo "unknown option $1" >&2; exit 2 ;;
+    *) [ -z "$ARG" ] || { echo "REFUSED: give exactly one commit" >&2; exit 2; }; ARG=$1 ;;
+    esac
+    shift
+done
+set -- "$ARG"
+[ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> --purpose <purpose> --reason \"<concrete reason>\" [--force \"<reason>\"] [--trial]" >&2; exit 2; }
+FREASON=$(printf '%s' "$FREASON" | tr '|\n' '/ ' | cut -c1-120)
+
+case "$PURPOSE" in
+    release-install|release-package|owner-validation) ;;
+    *) echo "REFUSED: --purpose must be release-install, release-package, or owner-validation; use scoped checks for development" >&2; exit 2 ;;
+esac
+# A reason is required even for trial, force, cache reuse and setup-only calls.
+# This records the caller's justification; it cannot verify owner intent.
+[[ "$RUN_REASON" =~ [[:alnum:]] ]] || { echo "REFUSED: --reason must identify the release step or owner request" >&2; exit 2; }
+if [ "$TRIAL" = 1 ] && [ "$PURPOSE" != owner-validation ]; then
+    echo "REFUSED: --trial requires --purpose owner-validation; trial results cannot qualify a release" >&2; exit 2
+fi
+[[ "$FREASON" =~ [[:alnum:]] ]] || { [ "$FORCE" = 0 ] || { echo "REFUSED: --force needs a concrete rerun reason" >&2; exit 2; }; }
+RUN_REASON=$(printf '%s' "$RUN_REASON" | tr '|\r\n' '/  ')
+
 GATE_DIR=$(cd "$(dirname "$0")" && pwd)
 if [ "$(uname -s)" != Linux ]; then
     echo "VOID ${1:-unknown} setup: use Linux x86-64 or the local Linux container (BUILDING.md)"; exit 2
 fi
 if [ -z "${X0X_GATE_INNER:-}" ] && [ -f "$GATE_DIR/gate_sigwrap.py" ] && command -v python3 >/dev/null 2>&1; then
     X0X_GATE_SIGFILE=$(mktemp "${TMPDIR:-/tmp}/x0x37-gate-sig.XXXXXX") && export X0X_GATE_INNER=1 X0X_GATE_SIGFILE &&
-        exec python3 "$GATE_DIR/gate_sigwrap.py" "$X0X_GATE_SIGFILE" bash "$GATE_DIR/$(basename "$0")" "$@"
+        exec python3 "$GATE_DIR/gate_sigwrap.py" "$X0X_GATE_SIGFILE" bash "$GATE_DIR/$(basename "$0")" "${ORIGINAL_ARGS[@]}"
 fi
 SELF_FILES="$GATE_DIR/$(basename "$0") $GATE_DIR/gate_flashmap.py"
 SELF_M0=$(for f in $SELF_FILES; do stat -c '%Y' "$f" 2>/dev/null || echo -; done | tr '\n' ' ')
@@ -126,21 +165,6 @@ PREPUSH=${X0X_PREPUSH_HOOK:-$GATE_DIR/pre-push.hook}
 GLOCK=${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}
 PINS=${X0X_REF_PINS:-schwung-9W9=10cbe5c schwung-8W8=94aa271 schwung-303=7680578 schwung-tb3po=f49d81d}
 INTB=${X0X_INTEGRATION:-integration}
-FORCE=0; TRIAL=0; ARG=""; FREASON=""
-while [ $# -gt 0 ]; do
-    case "$1" in
-    --force) FORCE=1; FREASON=${2:-}; [ $# -ge 2 ] && shift
-             case "$FREASON" in ""|-*|[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) FREASON="" ;; esac
-             [ -n "$FREASON" ] || { echo "REFUSED: --force needs a reason: tools/gate.sh <commit> --force \"<reason>\"" >&2; exit 2; } ;;
-    --trial) TRIAL=1 ;;
-    -*) echo "unknown option $1" >&2; exit 2 ;;
-    *) ARG=$1 ;;
-    esac
-    shift
-done
-set -- "$ARG"
-[ -n "${1:-}" ] || { echo "usage: tools/gate.sh <commit or ref> [--force \"<reason>\"] [--trial]" >&2; exit 2; }
-FREASON=$(printf '%s' "$FREASON" | tr '|\n' '/ ' | cut -c1-120)
 
 H=$(git -C "$REPO" rev-parse --verify --quiet "$1^{commit}") || { echo "FAIL $1 unknown commit in $REPO"; exit 1; }
 S=${H:0:7}
@@ -174,6 +198,14 @@ trap 'on_signal SIGHUP 129' HUP
 child() { setsid "$@" 7>&- & CHILD=$!; wait "$CHILD"; local rc=$?; CHILD=""; return $rc; }
 TREE=$(git -C "$REPO" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' | sha1sum | cut -c1-40)
 GTREE=$(git -C "$REPO" rev-parse "$H^{tree}")
+# Capture actual inputs before looking for a reusable PASS. Missing inputs cannot match.
+input_identity() {
+    python3 "$GATE_DIR/validation_inputs.py" capture --repo "$REPO" --commit "$H" \
+        --toolchain "$TC" --sdk "$SDK" --refs "$REFS" --pins "$PINS" --hook "$PREPUSH" --runner "$GATE_DIR/$(basename "$0")"
+}
+INPUT_JSON=$(input_identity) || { echo "VOID $S setup: cannot identify validation inputs"; exit 2; }
+INPUT_SOURCE=$(printf '%s' "$INPUT_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["inputs"]["source"])')
+INPUT_ID=$(printf '%s' "$INPUT_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["sha256"])')
 NOW=$(date '+%Y-%m-%d %H:%M %Z')
 mkdir -p "$RESULTS" && chmod a+rx "$RESULTS"
 INDEX="$RESULTS/index.md"
@@ -205,15 +237,21 @@ CANON_R=""; [ -f "$CANON" ] && CANON_R=$(sed -n 's/^Result: \([A-Z]*\).*/\1/p' "
 STAMP=$(date '+%Y%m%d-%H%M')
 RF="$RESULTS/$TREE-$STAMP.md"; [ "$TRIAL" = 1 ] && RF="$RESULTS/$TREE.trial-$STAMP.md"
 [ -e "$RF" ] && RF="${RF%.md}-$$.md"      # two runs in one minute
-# A result is used again only if it is a PASS of the two configs (it has the "- Config CRCs:" line).
+# Reuse requires both configs and the exact current validation-input identity.
 # An older PASS (one config, dev only) does not count: the gate runs again (the canonical <tree>.md stays).
+candidate_inputs_match() {
+    local logs
+    logs=$(sed -n 's/^- Worktree: .*\. Logs: \(.*\)\.$/\1/p' "$1" | head -1)
+    [ -n "$logs" ] && python3 "$GATE_DIR/validation_inputs.py" verify "$logs/validation-inputs.json" \
+        --sha256 "$INPUT_ID" --source "$INPUT_SOURCE" 2>/dev/null
+}
 REUSE=""
 for f in "$CANON" $(ls -t "$RESULTS/$TREE"-[0-9]*.md 2>/dev/null); do
-    [ -f "$f" ] && grep -qx 'Result: PASS' "$f" && grep -q '^- Config CRCs: ' "$f" && { REUSE=$f; break; }
+    [ -f "$f" ] && grep -qx 'Result: PASS' "$f" && grep -q '^- Config CRCs: ' "$f" && grep -qx -- "- Validation inputs: $INPUT_ID" "$f" && candidate_inputs_match "$f" && { REUSE=$f; break; }
 done
 if [ "$FORCE" = 0 ] && [ "$TRIAL" = 0 ] && [ -n "$REUSE" ]; then
     CFG=$(sed -n 's/^- Config CRCs: //p' "$REUSE" | head -1)
-    echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | PASS (result used again) | $(basename "$REUSE") | $NOW | $CFG |" >> "$INDEX"
+    echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | PASS (result used again) | $(basename "$REUSE") | $NOW | $CFG; purpose: $PURPOSE; reason: $RUN_REASON |" >> "$INDEX"
     OSC=$(sed -n 's/^- Time scale (X0X_TEST_TIME_SCALE): \([0-9]*\).*/\1/p' "$REUSE" | head -1)
     echo "PASS $S (time scale ${OSC:-1}) (result used again: tree ${TREE:0:12} has a PASS of the two configs)"; exit 0
 fi
@@ -255,8 +293,10 @@ for w in "$W" "$WR"; do
     if [ -d "$w" ]; then git -C "$w" checkout -q --detach "$H" && git -C "$w" reset -q --hard "$H"
     else git -C "$WORK/.repo" worktree add -q --detach "$w" "$H"; fi || { echo "FAIL $S cannot make the worktree $w"; exit 1; }
 done
-L="$WORK/$S.logs"; rm -rf "$L"; mkdir -p "$L"
+L="$WORK/$S-$STAMP-$$.logs"; mkdir -p "$L"  # preserve evidence for every prior run
 LOG="$L/gate.log"
+printf '%s\n' "$INPUT_JSON" > "$L/validation-inputs.json"
+printf 'gate: Purpose: %s; Run reason: %s\n' "$PURPOSE" "$RUN_REASON" >> "$LOG"
 T0=$(date +%s)
 REASON=""
 fail() { [ -n "$REASON" ] || REASON="$1"; echo "gate: FAIL $1" >> "$LOG"; }
@@ -455,6 +495,9 @@ for pre in "" rel/; do
 done
 mcrc() { sed -n "s|^$1 crc32 \([0-9a-f]\{8\}\),.*|\1|p" "$L/crc.txt" 2>/dev/null | head -1; }
 CFG="dev elite $(mcrc build/x0x-smk37-elite.fwsc), ble $(mcrc build/x0x-smk37-elite-ble.fwsc), code free ${CODE_FREE:-?} B, pool ${POOL_H:-?} B; rel elite $(mcrc rel/build/x0x-smk37-elite.fwsc), ble $(mcrc rel/build/x0x-smk37-elite-ble.fwsc), code free ${CODE_FREE_R:-?} B, pool ${POOL_H_R:-?} B"
+# Recheck the same effective inputs; never issue PASS if they changed during validation.
+FINAL_INPUT_JSON=$(input_identity) || fail "cannot recheck validation inputs"
+[ "$FINAL_INPUT_JSON" = "$INPUT_JSON" ] || fail "validation inputs changed during run"
 T1=$(date +%s)
 script_check
 R=PASS; [ -n "$REASON" ] && R=FAIL
@@ -467,6 +510,9 @@ echo
 if [ "$TRIAL" = 1 ]; then echo "Result: TRIAL $R (a trial run with --trial: not a release PASS)"; else echo "Result: $R"; fi
 [ -n "$REASON" ] && echo "Reason: $REASON"
 echo
+echo "- Purpose: $PURPOSE"
+echo "- Run reason: $RUN_REASON"
+[ "$FORCE" = 0 ] || echo "- Rerun reason: $FREASON"
 echo "- Commit: $H"
 echo "- Tree (SHA-1 of git ls-tree -r without *.md): $TREE"
 echo "- Git tree (git rev-parse <commit>^{tree}): $GTREE"
@@ -474,6 +520,7 @@ echo "- References: pinned $PINS. Found:$PINLOG."
 echo "- Private HOME and TMPDIR: $PH, $PT (rel: $PHR, $PTR)"
 echo "- Configs: dev (X0X_DEV_PADCAL=1, worktree $W) and rel (X0X_DEV_PADCAL=0, the release build, worktree $WR). The two must pass."
 echo "- Config CRCs: $CFG"
+echo "- Validation inputs: $INPUT_ID"
 echo "- Build variables of the caller (removed):${UNSET_TXT:- none}"
 echo "- Time: $NOW. The gate took $((T1 - T0)) s."
 echo "- Worktree: $W. Logs: $L."
@@ -525,7 +572,7 @@ CANON_TXT=""
 if [ "$TRIAL" = 0 ] && [ "$R" = PASS ] && [ "$CANON_R" != PASS ]; then   # the first PASS of the tree is the canonical result
     cp "$RF" "$CANON.tmp.$$" && chmod a+r "$CANON.tmp.$$" && mv -f "$CANON.tmp.$$" "$CANON" && CANON_TXT=" (also $TREE.md)"
 fi
-echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $TP$R${FREASON:+ (force: $FREASON)} | $(basename "$RF")$CANON_TXT | $NOW | $CFG |" >> "$INDEX"
+echo "| $S | ${TREE:0:12} | ${GTREE:0:12} | $TP$R${FREASON:+ (force: $FREASON)} | $(basename "$RF")$CANON_TXT | $NOW | $CFG; purpose: $PURPOSE; reason: $RUN_REASON |" >> "$INDEX"
 cp "$RF" "$L/result.md"
 if [ "$R" = PASS ]; then echo "${TP}PASS $S (time scale $SCALE)"; exit 0; fi
 echo "${TP}FAIL $S (time scale $SCALE) $REASON"; exit 1

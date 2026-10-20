@@ -2,7 +2,7 @@
 
 ## How to work with the owner
 
-- Talk plainly. An entry with no date is not an owner-rule entry.
+Source: Current decision fixture.
 - 2026-10-16 18:41 (owner): Font size is not a feature (style.md rule 15).
 - 2026-10-17 01:57 (owner): Install only when all queued changes are ready to test together (core rule 6A).
 
@@ -13,6 +13,8 @@
   - The sub-item has the reference (agent rules 7 and 15).
 
 - 2026-10-16 20:30 (owner): Never write the bootloader during an install (rules/install.md rule 7).
+
+## Historical preference record
 
 ## Clip mode
 

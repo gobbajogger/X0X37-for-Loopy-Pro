@@ -8,8 +8,8 @@
 # /workspace/a65-artifacts), then runs --unpack on the Mac.
 # The tar file has (paths below "gate-results/"):
 #   index.md, QUEUE.md (if it is there), the result files that index.md names (<tree>[-<stamp>].md, <tree>.trial-<stamp>.md),
-#   logs/<logs path without the first "/">/{gate.log,crc.txt,result.md} for each "Logs:" path of a
-#   result file (only these 3 files, not the worktrees), SHA256SUMS.
+#   logs/<logs path without the first "/">/{gate.log,crc.txt,result.md,validation-inputs.json} for each "Logs:" path of a
+#   result file (only these evidence files, not the worktrees), SHA256SUMS.
 # Environment (defaults in brackets):
 #   --pack:   X0X_RESULTS_DIR [/workspace/x0x37-results]   X0X_SYNC_DIR [$X0X_RESULTS_DIR/mac-sync]
 #             Output: $X0X_SYNC_DIR/<YYYYmmdd-HHMMSS>.tar and the symlink latest.tar to it.
@@ -42,7 +42,7 @@ case "${1:-}" in
         [ -d "$L" ] || continue
         [ -d "$G/logs$L" ] && continue
         mkdir -p "$G/logs$L"
-        for n in gate.log crc.txt result.md; do [ -f "$L/$n" ] && cp "$L/$n" "$G/logs$L/"; done
+        for n in gate.log crc.txt result.md validation-inputs.json; do [ -f "$L/$n" ] && cp "$L/$n" "$G/logs$L/"; done
         NL=$((NL + 1))
     done
     (cd "$G" && find . -type f ! -name SHA256SUMS | sed 's|^\./||' | sort | while read -r p; do $SUM "$p"; done > SHA256SUMS)

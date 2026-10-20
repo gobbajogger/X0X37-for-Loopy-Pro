@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 """prefs_lint.py: each owner-rule entry of USER_PREFERENCES.md must name a rule that exists in docs/rules/,
-and that rule must quote or cover the entry (check 27 of rules v4, owner 02:37: rules = code).
+with a lexical pointer sanity check (not proof of semantic coverage) (check 27 of rules v4, owner 02:37: rules = code).
 
 Usage:
   prefs_lint.py [--rules DIR] FILE        FILE: USER_PREFERENCES.md, DIR: the rule files [FILE folder/rules]
   prefs_lint.py --git REPO REV            REV:docs/USER_PREFERENCES.md and REV:docs/rules/*.md
-  options: --json, --sections "A,B" (the sections with owner rules, default below), --min-words N [3]
+  options: --json, --sections "A,B" (legacy option; all current sections are always checked), --min-words N [3]
 
 Only the current record before "## Historical preference record" is checked.
 Older entries remain intact as evidence and do not reactivate superseded procedures.
 
-Owner-rule entry: a top-level list item ("- ") that starts with a date (YYYY-MM-DD), in one of the sections
-"How to work with the owner", "Installs and safety", "Repositories and remotes", "Team rules". Its indented
-sub-items are part of the entry. The other sections hold product decisions (BEHAVIOR.md), not agent rules.
+Current decisions use dated top-level bullets under any level-two heading.
+Dated headings and undated bullets/prose within current sections fail visibly.
+The document introduction and explicit Source: paragraphs are metadata.
+Historical records are excluded. Word overlap is only a pointer-review hint;
+a human must review changed requirements for semantic compliance.
 Rule reference (the "step" of the entry), in the entry text:
   "<file>.md rule <ID>"   the rule <ID> in docs/rules/<file>.md
   "core rule <ID>"        the numbered line <ID>. of docs/rules/core.md
@@ -67,23 +69,46 @@ def expand(lst):
 
 
 def entries(text, sections):
-    out, sec, cur = [], None, None
+    out, sec, cur, metadata = [], None, None, False
+    headings = []
+    section_entries = 0
     for ln, line in enumerate(text.split("\n"), 1):
-        # The archived preference record is evidence, not current instructions.
         if line.startswith("## Historical preference record"):
             break
         if line.startswith("## "):
-            sec = line[3:].strip(); cur = None; continue
-        if sec not in sections:
-            cur = None; continue
+            if headings and section_entries == 0:
+                headings[-1]['empty'] = True
+            sec = line[3:].strip(); cur = None; metadata = False
+            section_entries = 0
+            headings.append({'line': ln, 'date': '', 'time': '', 'text': line, 'unrecognized': True})
+            if re.search(r"\d{4}-\d{2}-\d{2}", sec):
+                out.append({"line": ln, "date": "", "time": "", "text": line,
+                            "unrecognized": True})
+            continue
+        if line.strip() == '---':
+            continue
+        if sec is None and not re.match(r'^[-*] ', line):
+            continue
         m = re.match(r"^- (\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2}:\d{2}|\d{1,2}:\dx))?", line)
         if m:
-            cur = {"line": ln, "date": m.group(1), "time": m.group(2) or "", "text": line[2:]}; out.append(cur)
-        elif line.startswith("- ") or not line.strip():
+            metadata = False
+            section_entries += 1
+            cur = {"line": ln, "date": m.group(1), "time": m.group(2) or "", "text": line[2:]}
+            out.append(cur)
+        elif not line.strip():
+            cur = None; metadata = False
+        elif line.startswith('Source:'):
+            metadata = True; cur = None
+        elif cur is not None and line.startswith(' '):
+            cur['text'] += ' ' + line.strip()
+        elif not metadata or line.startswith(('- ', '* ', '#')):
+            out.append({"line": ln, "date": "", "time": "", "text": line,
+                        "unrecognized": True})
             cur = None
-        elif cur is not None and line.startswith(" "):
-            cur["text"] += " " + line.strip()
-    return out
+    if headings and section_entries == 0:
+        headings[-1]['empty'] = True
+    out.extend(h for h in headings if h.get('empty') and not any(e['line'] == h['line'] for e in out))
+    return sorted(out, key=lambda e: e['line'])
 
 
 def words(s):
@@ -94,6 +119,10 @@ def lint(prefs, rule_files, sections=SECTIONS, min_words=3):
     rules = parse_rules(rule_files)
     res = []
     for e in entries(prefs, sections):
+        if e.get('unrecognized'):
+            e.update(status='UNRECOGNIZED', rules=[])
+            res.append(e)
+            continue
         refs = []
         for m in REF.finditer(e["text"]):
             f = m.group(1) if m.group(1) else ("core.md" if m.group(2) == "core" else None)
@@ -118,7 +147,7 @@ def main():
     ap.add_argument("--rules")
     ap.add_argument("--git", nargs=2, metavar=("REPO", "REV"))
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--sections")
+    ap.add_argument("--sections", help="legacy option; never hides current decisions")
     ap.add_argument("--min-words", type=int, default=3)
     a = ap.parse_args()
     try:
@@ -148,10 +177,10 @@ def main():
     elif bad:
         print(f"PREFS FAIL {len(bad)} of {len(res)} entries")
         for e in bad:
-            what = e["text"][:100] + e.get("hint", "") if e["status"] == "NO STEP" else ", ".join(e["rules"])
+            what = e["text"][:100] + e.get("hint", "") if e["status"] in ("NO STEP", "UNRECOGNIZED") else ", ".join(e["rules"])
             print(f"  {e['status']} line {e['line']} {e['date']} {e['time']}: {what}")
     else:
-        print(f"PREFS OK {len(res)} entries")
+        print(f"PREFS OK {len(res)} entries (pointer checks; semantic review still required)")
     sys.exit(1 if bad else 0)
 
 

@@ -1,7 +1,9 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-only
-# The install guard: an install starts only if the gate script gave PASS for the EXACT tree of the commit.
-#   tools/require_gate_pass.sh <commit> [--fwsc FILE] [--config dev|rel] [--ctl FILE]
+# The install guard: exact gate evidence, or explicit scoped development evidence for dev only.
+#   tools/require_gate_pass.sh <commit> [--fwsc FILE] [--config dev|rel] [--ctl FILE] [--dev-record FILE]
+# --dev-record accepts scoped DEV CHECKED evidence only for config dev; queue checks still apply.
+# Without that option the full gate path is unchanged.
 # Checks, in this order (the first failed check stops it):
 #   1. The tree key of <commit>, the same as tools/gate.sh: the SHA-1 of "git ls-tree -r --full-tree"
 #      without the *.md files.
@@ -35,12 +37,13 @@
 set -u
 RESULTS=${X0X_RESULTS_DIR:-/workspace/x0x37-results}
 [ -n "${X0X_RESULTS_DIR:-}" ] || [ -d "$RESULTS" ] || RESULTS="$HOME/Documents/x0x37/gate-results"
-C=""; FWSC=""; CTL=""; CONFIG=dev
-USAGE="usage: $0 <commit> [--fwsc FILE] [--config dev|rel] [--ctl FILE]"
+C=""; FWSC=""; CTL=""; CONFIG=dev; DEV_RECORD=""
+USAGE="usage: $0 <commit> [--fwsc FILE] [--config dev|rel] [--ctl FILE] [--dev-record FILE]"
 while [ $# -gt 0 ]; do
     case "$1" in
     --fwsc) FWSC=${2:-}; shift ;;
     --ctl) CTL=${2:-}; shift ;;
+    --dev-record) DEV_RECORD=${2:-}; [ -n "$DEV_RECORD" ] || { echo "$USAGE" >&2; exit 2; }; shift ;;
     --config) CONFIG=${2:-}; shift; case "$CONFIG" in dev|rel) ;; *) echo "$USAGE" >&2; exit 2 ;; esac ;;
     -*) echo "$USAGE" >&2; exit 2 ;;
     *) [ -z "$C" ] && C=$1 || { echo "$USAGE" >&2; exit 2; } ;;
@@ -59,7 +62,6 @@ if command -v sha1sum >/dev/null 2>&1; then SHA1="sha1sum"; else SHA1="shasum -a
 TREE=$(git -C "$REPO" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' | $SHA1 | cut -c1-40)
 T12=$(echo "$TREE" | cut -c1-12)
 INDEX="$RESULTS/index.md"
-[ -f "$INDEX" ] || refuse "no $INDEX"
 # 6. the queue file: each open line names <commit> or an ancestor of it
 queue_check() {
     local Q=${X0X_QUEUE_FILE:-$RESULTS/QUEUE.md} line w qh nl=0
@@ -74,6 +76,18 @@ queue_check() {
     done < "$Q"
     QNOTE="; queue: $nl open lines in $S"
 }
+# Development evidence is separate from the release gate and never enters its index.
+if [ -n "$DEV_RECORD" ]; then
+    [ "$CONFIG" = dev ] || refuse "development evidence cannot authorize a release install"
+    [ -n "$FWSC" ] || refuse "development validation requires --fwsc"
+    DEV_ARGS=(--repo "$REPO" --commit "$H" --record "$DEV_RECORD" --fwsc "$FWSC")
+    [ -z "$CTL" ] || DEV_ARGS+=(--ctl "$CTL")
+    python3 "$(dirname "$0")/dev_validate.py" verify "${DEV_ARGS[@]}" || refuse "invalid development evidence"
+    queue_check
+    echo "DEV OK $S $DEV_RECORD (config dev$QNOTE)"
+    exit 0
+fi
+[ -f "$INDEX" ] || refuse "no $INDEX"
 crc32() { python3 -c 'import sys, zlib; print("%08x" % (zlib.crc32(open(sys.argv[1], "rb").read()) & 0xffffffff))' "$1"; }
 FCRC=""; CCRC=""
 if [ -n "$FWSC" ]; then [ -f "$FWSC" ] || refuse "no file $FWSC"; FCRC=$(crc32 "$FWSC") || refuse "cannot read $FWSC"; fi
@@ -111,6 +125,12 @@ for row in $ROWS; do
     grep -q '^gate: ' "$L/gate.log" || { [ -z "$LAST" ] && LAST="$F: $L/gate.log has no gate lines"; continue; }
     [ -s "$L/crc.txt" ] || { [ -z "$LAST" ] && LAST="$F: no CRC manifest $L/crc.txt"; continue; }
     grep -qx '## CRC manifest' "$RF" || { [ -z "$LAST" ] && LAST="$F: no CRC manifest section"; continue; }
+    # Provenance travels with exact artifacts; the installer need not have the build SDK.
+    INPUT_ID=$(sed -n 's/^- Validation inputs: //p' "$RF")
+    INPUT_SOURCE=$(git -C "$REPO" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
+    python3 "$(dirname "$0")/validation_inputs.py" verify "$L/validation-inputs.json" \
+        --sha256 "$INPUT_ID" --source "$INPUT_SOURCE" 2>/dev/null || {
+        [ -z "$LAST" ] && LAST="$F: missing or invalid validation-input provenance"; continue; }
     # 5. the files to install
     MAN=$(sed -n '/^## CRC manifest/,/^## [^C]/p' "$RF")
     TWO=0; grep -q '^- Config CRCs: ' "$RF" && TWO=1
