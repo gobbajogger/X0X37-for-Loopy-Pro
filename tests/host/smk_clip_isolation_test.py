@@ -43,6 +43,9 @@ static uint8_t clip_grid_mode, knob_bank_prev, smk_pad_piano, smk_pad_grid = 1;
 static uint8_t apc_cols=8, apc_rows=5, apc_origin_col, apc_origin_row, apc_view;
 static uint8_t apc_led_velocity[40];
 static uint8_t smk_pad_note[16];
+static uint32_t clip_pad_keys;
+static uint8_t clip_pad_note[SMK_APC40_PAD_COUNT], clip_pad_active, project_busy;
+static int ui_project_busy(void) {return project_busy;}
 static const uint8_t SMK_WHITE_NOTE[16] = {0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26};
 static const int8_t SMK_PIANO_NOTE[16] = {7,9,11,12,14,16,18,19,8,10,-1,13,15,17,-1,20};
 static struct {
@@ -133,6 +136,17 @@ int main(void) {
  CHECK(!clip_grid_mode && flush_n==2 && flush_mode[1]==1 && !irq);
  CHECK(usb_n==2 && ((usb_packets[1]>>8)&255)==0x80);
  smk__padq(0,0); fm1_in.buttons=0; frame(); CHECK(usb_n==2);
+ /* A project hold consumes mode/pad edges without forwarding them after release. */
+ clear_packets(); project_busy=1; fm1_in.buttons=1; frame();
+ CHECK(!clip_grid_mode && flush_n==2 && usb_n==0);
+ project_busy=0; frame(); CHECK(!clip_grid_mode && flush_n==2 && usb_n==0);
+ fm1_in.buttons=0; frame(); fm1_in.buttons=1; frame();
+ CHECK(clip_grid_mode && flush_n==3 && usb_n==0);
+ fm1_in.buttons=0; frame(); project_busy=1; smk__padq(0,80); frame();
+ CHECK(usb_n==0); project_busy=0; frame(); CHECK(usb_n==0);
+ smk__padq(0,0); frame(); CHECK(usb_n==0);
+ smk__padq(0,80); frame(); CHECK(usb_n==1);
+ smk__padq(0,0); frame(); CHECK(usb_n==2);
  if(failed) return 1;
  printf("PASS clip isolation, pad velocity and mode ownership (BLE=%d)\n",X0X_BLE);
  return 0;
