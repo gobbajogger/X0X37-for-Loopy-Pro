@@ -1,5 +1,7 @@
 # x0x37
 
-Read [docs/agent-rules.md](docs/agent-rules.md) before work. It routes to core
-rules and task-specific guidance. Current owner instructions win over old
-checkout text and historical records.
+Initialize `$x0x37-task` at task start and `$x0x37-writing` before output.
+Use [skill triggers](docs/agent-rules.md) to select the skill for each later step.
+Read its `SKILL.md` when the step begins. Do not load the old rule files.
+Current owner instructions take priority. Keep each task in its isolated lane.
+The assigned integration chat owns firmware.

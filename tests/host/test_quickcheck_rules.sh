@@ -25,7 +25,7 @@ git checkout -q -b smk37 && mkdir -p docs/rules tools && cp "$F/prefs_lint/rules
 git checkout -q integration && echo more >> a.txt && git add . && gc -m "Change the first file." -m "The file has two lines."
 lane() {  # lane <branch> <base> <file> <content file or text> <subject> <body>...
     b=$1; base=$2; f=$3; c=$4; s=$5; shift 5
-    git checkout -q -b "$b" "$base"; if [ -f "$c" ]; then cp "$c" "$f"; else echo "$c" >> "$f"; fi
+    git checkout -q -b "$b" "$base"; mkdir -p "$(dirname "$f")"; if [ -f "$c" ]; then cp "$c" "$f"; else echo "$c" >> "$f"; fi
     git add . && args=(); for x in "$@"; do args+=(-m "$x"); done; gc -m "$s" "${args[@]}"; git rev-parse HEAD
 }
 GOOD=$(lane lane/dk-rules-good smk37 docs/rules/install.md "Run each install in the foreground." "Add a rule fact." "The rule has one more fact." $'Trigger: P9 install.\nCheck: tools/check_x.sh')
@@ -40,6 +40,7 @@ AGR=$(lane lane/dk-rules-agr smk37 docs/agent-rules.md "Read the core rules firs
 DOCS=$(lane docs-roadmap smk37 docs/ROADMAP.md "Batch 9 is next." "Update the plan." "The plan names the next batch.")
 TIPMSG=$(lane lane/dk-rules-tip smk37 docs/ROADMAP.md "Batch 9 is next." "Fix the plan; it was changed" "The plan was changed by the tool.")
 INTL=$(lane lane/btr-x integration a.txt "three" "Change the file." "The file has three lines.")
+SKILL=$(lane lane/mb-skill smk37 skills/x0x37-install/SKILL.md "Initialize install checks." "Change a project skill." "The skill changed.")
 git checkout -q integration; cd - >/dev/null
 touch "$T/pre-push"
 qc() { X0X_QUICK_ONLY=ste X0X_REPO="$R" X0X_QC_WORK="$T/qc" X0X_PREPUSH_HOOK="$T/pre-push" bash "$Q" "$@" 2>&1; }
@@ -58,6 +59,7 @@ chk "rule change, Check: manual" PASS "" "$MANUAL"
 chk "rule grammar hints are advisory" PASS "STE WARN" "$BADTXT"
 chk "USER_PREFERENCES.md entry with no rule" FAIL "RULES: PREFS FAIL 6 of 6 entries" "$BADPREF"
 chk "docs/agent-rules.md change, no Trigger or Check" FAIL "RULES: 2 commit body issues" "$AGR"
+chk "project skill change, no Trigger or Check" FAIL "RULES: 2 commit body issues" "$SKILL"
 chk "docs change, not a rule change" PASS "" "$DOCS" "changed: docs/ROADMAP.md$"
 chk "lane/dk-rules grammar hints are advisory" PASS "STE WARN" "$TIPMSG" "rules mode \(refs/remotes/origin/lane/dk-rules-tip\)"
 n=$((n + 1)); out=$(qc "$INTL"); base=$(git -C "$R" merge-base "$INTL" integration | cut -c1-7)

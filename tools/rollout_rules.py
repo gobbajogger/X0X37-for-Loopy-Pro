@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install workspace rule mirrors and entry points without changing source files.
+"""Install project skill discovery and compatibility entry points.
 
 Dry run is the default. --apply saves each replaced file before writing it.
 The default canonical source is workspace/x0x37, independent of the runner checkout.
@@ -49,10 +49,35 @@ def main():
     if not (workspace / 'agent-rules.md').is_file() or not (workspace / 'x0x37').is_dir():
         parser.error('workspace must contain agent-rules.md and the x0x37 checkout')
     docs = source / 'docs'
+    workflow_manifest = source / 'skills/workflows.json'
+    if not workflow_manifest.is_file():
+        parser.error('canonical source is missing skills/workflows.json')
+    workflows = json.loads(workflow_manifest.read_text())
+    if not workflows:
+        parser.error('canonical workflow skill manifest is empty')
+    names = set()
+    for item in workflows:
+        name = item['name']
+        if name in names or not re.fullmatch(r'x0x37-[a-z0-9-]+', name):
+            parser.error('invalid project skill name: ' + name)
+        names.add(name)
+        if item['source'] != f'skills/{name}/SKILL.md' or not (source / item['source']).is_file():
+            parser.error('missing or invalid project skill: ' + name)
     required = ['agent-rules.md', 'SKILLS.md', 'rules/core.md']
     for name in required:
         if not (docs / name).is_file():
             parser.error('canonical source is missing docs/' + name)
+    checkouts = list(repositories(workspace))
+    # Refuse collisions before any write, including on an --apply run.
+    for location in [workspace, *checkouts]:
+        for parent in [location / '.agents', location / '.agents/skills']:
+            if ((parent.exists() or parent.is_symlink()) and not parent.is_dir()
+                    or not parent.resolve().is_relative_to(workspace)):
+                parser.error('unsafe skill discovery directory: ' + str(parent))
+        for item in workflows:
+            target = location / '.agents/skills' / item['name']
+            if target.exists() and not target.is_symlink():
+                parser.error('skill discovery path is not a managed symlink: ' + str(target))
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
     backup = workspace / 'repo-bak' / ('rules-rollout-' + stamp)
     changes = []
@@ -74,19 +99,56 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
 
+    def skill_link(target, destination):
+        """Own only named workflow links; never replace an unknown directory."""
+        relative = os.path.relpath(destination, target.parent)
+        old = os.readlink(target) if target.is_symlink() else None
+        if old == relative:
+            return
+        if target.exists() and not target.is_symlink():
+            raise ValueError('skill discovery path is not a managed symlink: ' + str(target))
+        location = target.relative_to(workspace)
+        changes.append({'path': str(location), 'kind': 'symlink',
+                        'before_target': old, 'after_target': relative})
+        if args.apply:
+            if old is not None:
+                saved = backup / location
+                saved.parent.mkdir(parents=True, exist_ok=True)
+                saved.symlink_to(old)
+                target.unlink()
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.symlink_to(relative)
+
+    def mirror(target, original):
+        text = original.read_text()
+        def replace(match):
+            label, url = match.groups()
+            if '://' not in url and not url.startswith('#'):
+                resolved = (original.parent / url).resolve()
+                if resolved.is_relative_to(source / 'skills'):
+                    relative = resolved.relative_to(source / 'skills')
+                    url = os.path.relpath(workspace / '.agents/skills' / relative, target.parent)
+            return f'[{label}]({url})'
+        write(target, re.sub(r'\[([^\]]+)\]\(([^)]+)\)', replace, text))
+
     write(workspace / 'AGENTS.md', f'''# x0x37 workspace
 
-Read [agent-rules.md](agent-rules.md) before work. It mirrors maintained
-[{canonical}/docs]({canonical}/docs/agent-rules.md) and routes to current rules
-and skill status. Current owner instructions win over old checkout text.
+Initialize [$x0x37-task](.agents/skills/x0x37-task/SKILL.md) at task start.
+Initialize [$x0x37-writing](.agents/skills/x0x37-writing/SKILL.md) before output.
+Use [skill triggers](agent-rules.md) when each later step begins.
+Read the selected `SKILL.md`. Do not load the old rule files.
+Maintained skills: [{canonical}/skills]({canonical}/skills).
+Current owner instructions win over old checkout text.
 Keep each task in its isolated lane; the assigned integration chat owns firmware.
 ''')
     for name in ['agent-rules.md', 'AGENTS_AND_ROOMS.md', 'USER_PREFERENCES.md']:
         if (docs / name).is_file():
-            write(workspace / name, (docs / name).read_bytes())
+            mirror(workspace / name, docs / name)
     for path in sorted((docs / 'rules').glob('*.md')):
-        write(workspace / 'rules' / path.name, path.read_bytes())
-    write(workspace / 'SKILLS.md', f'''# Writing skills
+        mirror(workspace / 'rules' / path.name, path)
+    for item in workflows:
+        skill_link(workspace / '.agents/skills' / item['name'], source / 'skills' / item['name'])
+    write(workspace / 'SKILLS.md', f'''# Skill sources and discovery
 
 Read [current sources and status]({canonical}/docs/SKILLS.md).
 ''')
@@ -102,7 +164,6 @@ Read [current sources and status]({canonical}/docs/SKILLS.md).
         target = workspace / name
         if target.is_file() and not target.read_text().startswith(notice):
             write(target, notice + target.read_text())
-    checkouts = list(repositories(workspace))
     def managed(target, block):
         old = target.read_text() if target.exists() else ''
         start, end = '<!-- x0x37-current-rules -->', '<!-- /x0x37-current-rules -->'
@@ -113,13 +174,16 @@ Read [current sources and status]({canonical}/docs/SKILLS.md).
 
     for repo in checkouts:
         entry = os.path.relpath(workspace / 'AGENTS.md', repo)
-        managed(repo / 'AGENTS.md', f'''# Current x0x37 rules
+        managed(repo / 'AGENTS.md', f'''# Current x0x37 skills
 
-In the x0x37 workspace, read [current rules]({entry}) before work. Its maintained
-rules and skill status supersede older workflow text here. For a standalone
-checkout, use `docs/agent-rules.md` and its skill links; recover missing sources
+In the x0x37 workspace, use [current skill entry points]({entry}) before work.
+Initialize the matching `SKILL.md` when its step begins. These skills supersede
+older workflow text here. For a standalone checkout, use `docs/agent-rules.md`
+and its skill links; recover missing sources
 from the maintained project. Unrelated checkout instructions below still apply.
 ''')
+        for item in workflows:
+            skill_link(repo / '.agents/skills' / item['name'], source / 'skills' / item['name'])
         if repo != source and (repo / 'docs/SKILLS.md').is_file():
             skill = os.path.relpath(docs / 'SKILLS.md', repo / 'docs')
             managed(repo / 'docs/SKILLS.md', f'''# Current skill discovery

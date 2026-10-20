@@ -2,6 +2,10 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
+## Initialize project skills when needed
+
+- 2026-10-21 Source: owner in chat `01a15a76-4cff-7370-890e-f80672e744a2`: "Let's rewrite rules into skills that threads can use to do same stuff but would actually initialize skills when needed instead of reading rules". This supersedes loading task procedures from rule files. Initialize the matching project skill when its task step begins. Preserve the existing scope, safeguards, permissions, and strict writing default. Old rule paths preserve decision IDs through compatibility links. Active rules: docs.md rule 12A; core.md rule 6A.
+
 ## Strict Simplified Technical English
 
 - 2026-10-21 Source: owner in chat `01a15a3f-e535-7c03-a89a-4d2be5f3fbb7`: "Check rules to follow asd-ste 100", then "100%ste". Use strict ASD-STE100 for all output, including saved text. Use the official Issue 9 rules and dictionary. This replaces the installed skill's 80% default and the earlier on-demand STE instruction. Other skills keep their own triggers. Active rules: core.md rule 6A and style.md rule 15.

@@ -101,7 +101,7 @@ CHANGED=$( { "${G[@]}" diff --name-only "$BASE" "$H"; [ -d "$1" ] && "${G[@]}" d
 echo "quickcheck ${H:0:7}, base ${BASE:0:7}, changed: $(echo $CHANGED)" >> "$LOG"
 RULES_MODE=0; DOCS_CH=0
 for f in $CHANGED; do
-    case "$f" in docs/rules/*|docs/agent-rules.md|docs/USER_PREFERENCES.md|USER_PREFERENCES.md) RULES_MODE=1; DOCS_CH=1 ;; docs/*) DOCS_CH=1 ;; esac
+    case "$f" in skills/x0x37-*/*|skills/workflows.json|.agents/skills/x0x37-*|AGENTS.md|docs/rules/*|docs/agent-rules.md|docs/USER_PREFERENCES.md|USER_PREFERENCES.md) RULES_MODE=1; DOCS_CH=1 ;; docs/*) DOCS_CH=1 ;; esac
 done
 [ -n "${RLANE:-}" ] && RULES_MODE=1
 [ "$RULES_MODE" = 1 ] && echo "rules mode (${RLANE:-rule files changed})" >> "$LOG"
@@ -169,7 +169,7 @@ rules_step() {
     elif [ "$DOCS_CH" = 1 ]; then echo "rules: no docs/USER_PREFERENCES.md or docs/rules/ in the tree, no docs lint" >> "$LOG"
     fi
     if [ "$RULES_MODE" = 1 ]; then
-        o=$(for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" -- docs/rules docs/agent-rules.md USER_PREFERENCES.md docs/USER_PREFERENCES.md 2>/dev/null); do
+        o=$(for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" -- 'skills/x0x37-*' skills/workflows.json '.agents/skills/x0x37-*' AGENTS.md docs/rules docs/agent-rules.md USER_PREFERENCES.md docs/USER_PREFERENCES.md 2>/dev/null); do
             QC_C=$c QC_TOOLS="$("${G[@]}" ls-tree --name-only "$H:tools" 2>/dev/null)" python3 -c '
 import os, re, subprocess, sys
 c = os.environ["QC_C"]; g = sys.argv[1:]
@@ -276,12 +276,12 @@ for l in src.split("\n"):
 for t in ("drum909", "drum808", "bass303", "breaks"):
     if os.path.exists(f"tests/host/run_{t}.sh"): cmds[t] = f"sh tests/host/run_{t}.sh"
 scen = ["scenario-" + os.path.basename(s)[:-4] for s in sorted(glob.glob("tests/scenarios/*.x0x"))]
-FAST = "fastmath sequencer encoder uac trs undo lz motion smk-flash smk-storage smk-apc40-map smk-clip-keys locked-settings".split()
+FAST = "fastmath sequencer encoder uac trs undo lz motion storage smk-flash smk-storage smk-apc40-map smk-clip-keys locked-settings".split()
 RULES = [                                        # path prefix -> tests (added to the tests found by text)
     ("firmware/src/dsp/drum909", "drum909 drum909-adpcm drum-pan"), ("firmware/src/dsp/drum808", "drum808 drum-pan"),
     ("firmware/src/dsp/bass303", "bass303 bass303_lite"), ("firmware/src/dsp/breaks", "breaks"),
     ("firmware/src/dsp/", "master stereo fastmath"), ("firmware/src/seq/", "sequencer motion loop-bars rec-live"),
-    ("firmware/src/storage", "smk-storage"), ("firmware/hal/fm1_flash_map.h", "smk-flash smk-storage"),
+    ("firmware/src/storage", "storage smk-storage"), ("firmware/hal/fm1_flash_map.h", "smk-flash storage smk-storage"),
     ("firmware/src/ble", "ble smk-clip-ble-clear smk-clip-ble-notify diag-size"), ("firmware/src/lcd", "smk-clip-dark"),
     ("tools/fm1_install.py", "installer installer-slots installer-ctl installer-targets"), ("tools/fm1pkg_make.py", "smk-package"),
     ("tools/upload_breaks.py", "upload-images upload-tools breaks-web"), ("web/", "breaks-web breaks-page install-slots-web"),

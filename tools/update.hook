@@ -7,7 +7,8 @@
 # 1. refs-oscuro: reject a ref name with "refs-oscuro", and a pushed commit that only refs-oscuro has
 #    (the same rule as part 2 of the client pre-push hook).
 # 1b. Rules = code (check 28, owner 02:37, docs/rules/SCRIPT-CHECKS.md on smk37): a push to refs/heads/smk37 that changes
-#    docs/rules/, docs/agent-rules.md, docs/USER_PREFERENCES.md or USER_PREFERENCES.md (git diff <old> <new>) is accepted
+#    project workflow skills/discovery, AGENTS.md, docs/rules/, docs/agent-rules.md,
+#    docs/USER_PREFERENCES.md or USER_PREFERENCES.md (git diff <old> <new>) is accepted
 #    only in one of these two forms. "A commit of a lane" = the tip of a branch refs/heads/lane/dk-rules-* or an ancestor of it.
 #    a. <new> is a merge commit. Its first parent is <old>. Its second parent is a commit of a lane/dk-rules-* branch.
 #       The merge adds no rule change of its own (git diff <second parent> <new> on these paths is empty).
@@ -68,7 +69,7 @@ if [ "$NEW" != "$Z" ]; then
 fi
 
 # ---------- 1b. Rules = code: rule changes on smk37 come only from a lane/dk-rules-* branch ----------
-RULEP="docs/rules/ docs/agent-rules.md docs/USER_PREFERENCES.md USER_PREFERENCES.md"
+RULEP=('skills/x0x37-*' skills/workflows.json '.agents/skills/x0x37-*' AGENTS.md docs/rules/ docs/agent-rules.md docs/USER_PREFERENCES.md USER_PREFERENCES.md)
 onlane() {  # onlane <commit>: print the first refs/heads/lane/dk-rules-* branch that has <commit> (tip or ancestor)
     local r t
     while read -r r t; do
@@ -78,8 +79,8 @@ onlane() {  # onlane <commit>: print the first refs/heads/lane/dk-rules-* branch
     return 1
 }
 if [ "$REF" = refs/heads/smk37 ] && [ "$NEW" != "$Z" ]; then
-    if [ "$OLD" = "$Z" ]; then g diff --name-only "$(git hash-object -t tree /dev/null)" "$NEW" -- $RULEP
-    else g diff --name-only "$OLD" "$NEW" -- $RULEP; fi
+    if [ "$OLD" = "$Z" ]; then g diff --name-only "$(git hash-object -t tree /dev/null)" "$NEW" -- "${RULEP[@]}"
+    else g diff --name-only "$OLD" "$NEW" -- "${RULEP[@]}"; fi
     RCH=$G_OUT
     if [ -n "$RCH" ]; then
         g for-each-ref --format='%(refname) %(objectname)' 'refs/heads/lane/dk-rules-*'
@@ -87,7 +88,7 @@ if [ "$REF" = refs/heads/smk37 ] && [ "$NEW" != "$Z" ]; then
         P1=$(git rev-parse -q --verify "$NEW^1" 2>/dev/null </dev/null || true)
         P2=$(git rev-parse -q --verify "$NEW^2" 2>/dev/null </dev/null || true)
         if [ -n "$P2" ] && [ "$P1" = "$OLD" ] && L=$(onlane "$P2"); then
-            g diff --name-only "$P2" "$NEW" -- $RULEP
+            g diff --name-only "$P2" "$NEW" -- "${RULEP[@]}"
             [ -z "$G_OUT" ] || reject "the merge of $L changes rule files itself ($(echo $G_OUT)). Put each rule change on the lane (rules = code, owner 02:37)."
             FORM="merge of $L"
         elif L=$(onlane "$NEW") &&

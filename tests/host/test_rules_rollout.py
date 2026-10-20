@@ -26,6 +26,7 @@ def main():
                 (repo / 'tools').mkdir()
                 (repo / 'tools/fm1_install.py').write_text('# installer marker\n')
         shutil.copytree(source / 'docs/rules', canonical / 'docs/rules')
+        shutil.copytree(source / 'skills', canonical / 'skills')
         for name in ['agent-rules.md', 'SKILLS.md']:
             shutil.copy2(source / 'docs' / name, canonical / 'docs' / name)
         shutil.copy2(source / 'AGENTS.md', canonical / 'AGENTS.md')
@@ -59,7 +60,12 @@ def main():
         assert (workspace / 'old/.git/hooks/pre-push').stat().st_mode & 0o111
         assert (workspace / 'third-party/AGENTS.md').read_text() == 'old checkout rules\n'
         assert '(../AGENTS.md)' in (workspace / 'old/AGENTS.md').read_text()
-        assert (workspace / 'rules/core.md').read_bytes() == (canonical / 'docs/rules/core.md').read_bytes()
+        skill = workspace / '.agents/skills/x0x37-task/SKILL.md'
+        assert skill.read_bytes() == (canonical / 'skills/x0x37-task/SKILL.md').read_bytes()
+        assert (workspace / 'old/.agents/skills/x0x37-install/SKILL.md').resolve() == (canonical / 'skills/x0x37-install/SKILL.md').resolve()
+        assert '../.agents/skills/x0x37-task/SKILL.md' in (workspace / 'rules/core.md').read_text()
+        assert '.agents/skills/x0x37-task/SKILL.md' in (workspace / 'agent-rules.md').read_text()
+        assert not (workspace / 'third-party/.agents').exists()
         assert (workspace/archive).read_text() == 'unique historical evidence'
         assert json.loads(run(*command))['files'] == 0
         assert json.loads(run(*command, '--apply'))['files'] == 0
@@ -68,8 +74,6 @@ def main():
         assert subprocess.run([*command, '--check'], stdout=subprocess.DEVNULL).returncode == 0
         # Identical docs with absent or stale skill files must use the wrapper.
         shutil.copytree(canonical / 'docs', workspace / 'x0x37/docs')
-        (canonical / 'skills/caveman').mkdir(parents=True)
-        (canonical / 'skills/caveman/SKILL.md').write_text('current skill\n')
         run(*command, '--apply')
         assert '(../AGENTS.md)' in (workspace / 'x0x37/AGENTS.md').read_text()
         shutil.copytree(canonical / 'skills', workspace / 'x0x37/skills')
@@ -78,6 +82,40 @@ def main():
         (workspace / 'x0x37/skills/caveman/SKILL.md').write_text('stale skill\n')
         run(*command, '--apply')
         assert '(../AGENTS.md)' in (workspace / 'x0x37/AGENTS.md').read_text()
+        # A stale workflow link is backed up and repaired without touching its target.
+        link = workspace / 'old/.agents/skills/x0x37-install'
+        link.unlink()
+        link.symlink_to('../../../../unrelated')
+        result = json.loads(run(*command, '--apply'))
+        saved = Path(result['backup']) / 'old/.agents/skills/x0x37-install'
+        assert saved.is_symlink() and saved.readlink() == Path('../../../../unrelated')
+        assert (link / 'SKILL.md').read_bytes() == (canonical / 'skills/x0x37-install/SKILL.md').read_bytes()
+        # Unknown local skill directories are never overwritten.
+        link.unlink()
+        link.mkdir()
+        (link / 'keep').write_text('local work')
+        (workspace / 'agent-rules.md').write_text('Must remain unchanged after preflight refusal.\n')
+        result = subprocess.run([*command, '--apply'], capture_output=True, text=True)
+        assert result.returncode != 0
+        assert (link / 'keep').read_text() == 'local work'
+        assert (workspace / 'agent-rules.md').read_text() == 'Must remain unchanged after preflight refusal.\n'
+        shutil.rmtree(link)
+        for relative in ['old/.agents/skills', 'old/.agents']:
+            parent = workspace / relative
+            saved_parent = parent.with_name(parent.name + '-saved')
+            parent.rename(saved_parent)
+            parent.write_text('Local file blocks discovery.\n')
+            result = subprocess.run([*command, '--apply'], capture_output=True, text=True)
+            assert result.returncode != 0
+            assert (workspace / 'agent-rules.md').read_text() == 'Must remain unchanged after preflight refusal.\n'
+            assert parent.read_text() == 'Local file blocks discovery.\n'
+            parent.unlink()
+            parent.symlink_to(temporary + '-outside')
+            result = subprocess.run([*command, '--apply'], capture_output=True, text=True)
+            assert result.returncode != 0
+            assert (workspace / 'agent-rules.md').read_text() == 'Must remain unchanged after preflight refusal.\n'
+            parent.unlink()
+            saved_parent.rename(parent)
     print('PASS rule rollout: dry run, backups, discovery, third-party exclusion, repeat')
 
 
