@@ -8,3 +8,5 @@ The retained unit checks do not need another run for a stage change alone.
 Physical result: NOT TESTED. The original input failure is UNRESOLVED.
 No device write or external push occurred.
 The next owner must preserve the completed merge and sole integration identity.
+The combined stage4 has verified actual startup in chat 01a15ac6-2f01-7e93-93b8-cf1910a41ea1.
+Stage5 is complete. The combined package validation remains with that receiving owner.

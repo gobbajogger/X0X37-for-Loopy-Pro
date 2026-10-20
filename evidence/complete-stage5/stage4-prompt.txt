@@ -1,0 +1,177 @@
+Begin the combined DEV stage4 NOW in this one fresh LOCAL chat. Do not create another copy.
+Marker: smc-complete-20261021-combined-stage4-after-merge.
+Source and sole integration owner: 01a15ac1-6dac-7ca2-a2fc-877c4671ab33.
+This stage receives the completed merge. It does not repeat stage5.
+Read this complete handoff, input-handoff.txt, result.json, source-identity.json, integration-check.json and plan-review.json in:
+/Users/mac/Documents/x0x37/smc_complete_stage5_20261021/evidence/complete-stage5/.
+The input-handoff.txt contains both complete contribution handoffs, exact separate artifact identities, scope and owner permissions.
+
+Current entry and skills
+
+Read /Users/mac/Documents/x0x37/AGENTS.md and agent-rules.md.
+Initialize x0x37-task, x0x37-writing, x0x37-workflow, x0x37-check, x0x37-integrate,
+x0x37-shared-work, x0x37-owner-decisions and x0x37-install.
+Read their CURRENT SKILL.md files at /Users/mac/Documents/x0x37/.agents/skills/NAME/SKILL.md.
+Read required step references when their steps begin. Do not load old rule files.
+Current owner instructions win over old checkout text.
+
+Completed merge and ownership
+
+Sole stage5 integrator: 01a15ac1-6dac-7ca2-a2fc-877c4671ab33.
+Mapping selection owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+Central stage4 owner: 01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3.
+The merge is COMPLETE. Do not repeat it after validation unless another merge is necessary.
+Merge revision: dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9.
+Merge Git tree: 4540c0afecc0e6482614fc41aaade8485d565976.
+Merge parents: 049d0274c80af543bd4e334af92b4393015c4f85 and 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Validated contribution base: 1313e0fe384ef5df1f2f5f5ef699902c4543bc0d.
+Use this evidence candidate for your isolated lane:
+c275f899f7a408e8e1f1ce297b88c47e06e326ce.
+Its Git tree is 907aa2568b9bca356d29430ae2584fe0fc78d0ac.
+Its production, tests, tools, controller and host source equal the completed merge.
+The candidate adds 65 saved mapping text evidence files and stage5 identity/plan records.
+The central contribution already includes its required evidence history.
+Central later completion tip 546250896f6225dbf2539149f55d967410aff7cc adds only startup/status text.
+Its owner states that no new merge or repeated check is required. Keep the selected 049d027 ancestry.
+
+The merge had no conflicts, overlapping contributed paths or production repair.
+All 41 mapping paths and all 518 central paths matched their checked input blobs before commit.
+The merge retains both source histories. Current checked-path tree SHA256:
+a4d31ccd2c2a60b052506e1da118b7ef6c68909d10dffd596b88261eb449624f.
+The path scope and hash method are in source-identity.json.
+Both exact mapping DEV records and the exact central DEV record passed verification with their original package/controller bytes.
+These separate packages do not represent the combined application.
+No combined build, package or physical PASS is claimed by stage5.
+
+Repository and lane
+
+Git administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021.
+Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Use your own isolated lane from c275f899f7a408e8e1f1ce297b88c47e06e326ce.
+Suggested path: /Users/mac/Documents/x0x37/smc_complete_stage4_20261021.
+Suggested branch: lane/mb-smc-complete-stage4-20261021.
+Inspect project activity, saved successors, source history and existing lanes first.
+Do not edit another lane or incorporate unrelated build-time work.
+Preserve the administration lane's AGENTS.md, docs/SKILLS.md and untracked discovery paths.
+Author: genkigenki <3080081+genkigenki@users.noreply.github.com>.
+Never push, merge or package refs-oscuro. Do not use git update-ref to avoid checks.
+Keep proprietary SDK/toolchain files, packages, controller bytes and synthetic store bytes out of commits and bundles.
+
+Validation scope
+
+Run python3 -B evidence/complete-stage5/verify-integration.py from the combined checkout.
+It checks both contribution histories and matching source, 224 helper inputs, six stop inputs,
+81 central log hashes, 77 commands with 30 expected negative controls, the 16-case independent probe,
+the mapping evidence snapshot and the three separate DEV records/logs.
+It does not repeat the host suites. It does not validate the combined package.
+
+Read plan-review.json before selecting checks.
+Keep matching independent stage3 evidence. Do model-independent host checks once for the same inputs.
+The mapping probes use the exact merged smc_mixer.c, production UI/engine and simulated hardware callbacks.
+They bypass the Bluetooth/HCI path. The central changes do not enter those probes.
+The central unit and extracted service checks use unchanged central inputs.
+Seven entries differ in the broad 415-file central source manifest. They are the checked mapping source and tests.
+The exact list is in integration-check.json. Do not label that broad manifest as wholly unchanged.
+Do not run the old reuse-checked.py unchanged against the merged source. Its whole-source comparison is intentionally narrower.
+Use the checked integration evidence and the actual check dependency scope.
+A stage or commit ID change alone does not require another test.
+
+The startup replay MUST run for the combined source.
+The saved harness includes host/x0x_host.c, app/smc_mixer.c, ble_midi_central.c and extracted production ble.c callbacks.
+It therefore depends on BOTH contributions. The separate replay does not validate this combination.
+Use evidence/stop-stage2/replay-run.py as the reviewed source for a new runner in your own evidence/complete-stage4 folder.
+Regenerate the harness against YOUR combined checkout. The old saved replay.c has an absolute old host path.
+Do not compile that old harness without correcting its source selection.
+Keep the original evidence unchanged. Save new generated harness, inputs, compile/run logs and result in your own folder.
+Use the actual supported host compiler and required generated headers. Read script headers before execution.
+The saved macOS host compiler path is /usr/bin/cc. Its SHA256 is 5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d.
+The prior harness and synthetic store remain local at:
+/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/compare_startup.py
+/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/working-source-store.bin.
+The exact capture is cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json.
+Its SHA256 is a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+Keep all 1268 selected payloads unchanged. Three oversized ATT packets remain excluded. Do not resegment payloads.
+Record the decoded messages, feedback, queue, performance phase, help and overlay results from the new run.
+The prior separate result had 2616 decoded messages, 513 feedback messages, empty queue, idle performance, and inactive help/overlay.
+Check the combined result against approved mapping behavior. Do not assume changed feedback counts are automatically a defect.
+The mailbox, peer, clock and schedule are simulated. The store is synthetic.
+No replay gives a target-interrupt, physical-radio or physical-control PASS.
+
+Run tools/dev_validate.py for the complete actual Elite DEV package/controller set with a justified plan.
+Use model elite, board smk37, config dev and X0X_DEV_PADCAL=1.
+Its selected checks must include matching evidence and the NEW combined replay result with hashed dependencies.
+The replay can run on the supported host first. The validator can verify its saved identities in Linux.
+Do not duplicate the replay solely because the validator runs in a container.
+The validator must build its actual selected package and controller. Do not replace required builds with the separate records.
+Check the final validation-input identity and exact DEV record against its exact package/controller.
+Check model, package CRCs, region table, loop-slot map and controller insertion/removal.
+Controller insertion must keep app bytes, bootloader head and slot map.
+Controller removal must restore the original package byte for byte.
+Keep RAM free >=0 B and pool free >=8192 B. Do not reduce features or sample quality for a PASS.
+Record exact app, loader, package, controller, source, configuration, tools and dependency identities.
+If you commit new evidence before validation, record the exact revision that the DEV validator uses.
+Later evidence-only commits require a production/input comparison. They do not require another merge or build by ID alone.
+
+Use Elite for shared development target checks and budgets.
+After Elite PASS, do not duplicate shared Pro source or memory checks.
+No Pro-specific input changed. No combined Pro artifact is currently selected.
+If an actual Pro package is selected for installation or distribution, check that package and all applicable Pro inputs.
+An Elite PASS gives no Pro artifact or Pro device PASS.
+
+Known setup and environment
+
+The validated Linux image is x0x37-validation:local, platform linux/amd64, network none.
+Its upstream image ID is sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1.
+Mount the workspace at its same absolute path.
+Mount /Users/mac/.jieli/toolchain read-only at its same path.
+Mount /Users/mac/fw-AC79_AIoT_SDK read-only at /sdk.
+Use user 501:20. Read build-environment.md and BUILDING.md when setup starts.
+The prior run-validation.sh and environment.json files give exact supported commands and variables.
+JIELI_TOOLCHAIN=/Users/mac/.jieli/toolchain. AC79_SDK=/sdk. SDK_LOCAL=/sdk.
+Target compiler SHA256: c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f.
+SDK revision: d179b4484759423312073f5fbb232501aa491047.
+These compiler bytes and the SDK clean tracked state matched during stage5.
+The full upstream dependency hashes are in source-identity.json and the separate DEV records.
+Check your actual environment. Do not treat upstream dependency identities as a fresh current build check.
+Build-time audit work in another lane has separate ownership. Do not merge its tools here.
+
+Failure disposition and permissions
+
+No stage5 firmware check failed. No production repair occurred.
+The read-only setup errors are recorded in result.json. No guard was bypassed.
+The historical 30 nonzero controls retain their expected broken-source or stale-service results.
+They are not failures of the final candidate.
+If you find an actionable production defect, start the earliest fresh repair stage with its concrete evidence.
+A source repair requires fresh stage2 and affected independent stage3. Do not silently repair source in stage4.
+Preserve all source histories and the completed merge when you hand off a repair.
+
+The owner repair request is "Now read rules and fix".
+The standing owner request is "Make sure that they automatically allow to do that without my intervention".
+Current workflow17-18 authorize required successor launch, recovery, actual startup checks and completion notices.
+Owner-decisions14 permits installation of the complete validated DEV set with a notice and native guards.
+Carry this permission forward. Do not ask again because a chat, stage, commit or artifact changed.
+No owner decision is missing within this approved work.
+No device/controller write belongs to this stage4.
+No release/full gate, trial, force, fallback, unrelated feature, external push or publication is authorized.
+Preserve features, licensing, sample quality, notes, pad colours, loop slots, controls, navigation, menus and pickup.
+Keep main, individual909 and individual808 mixer modes. Keep visible kit/bank drum M behavior.
+Bank2 M4-M8 remain inert and unlit. R/S per-track policy remains deferred. R2/S2 retain whole-part behavior.
+Keep STOP, PLAY and back abort/restoration and queued-input protection.
+The non-blocking docs/SMC_MIXER.md:47 discrepancy remains deferred. Do not change source to match stale text.
+The physical all-input failure remains UNRESOLVED. Physical behavior is NOT TESTED.
+Do not request another capture, control movement, mode repetition or setup check.
+Idle zero-packet counters do not establish a receive failure.
+
+Completion and next owner
+
+Save the complete combined validation result, checked revision, exact artifacts, plan, input identities and logs.
+After matching combined validation passes, start exactly one fresh LOCAL INSTALL chat under workflow18.
+Do not create another merge chat. Carry the completed merge dc4fc5f and sole integrator identity through installation.
+The install chat receives designated device-write ownership only for the complete validated set.
+It sends an install notice and uses native model, data, bootloader and lock guards.
+It must back up every loop slot before installation, read back the installed image and compare every slot CRC afterward.
+Missing hardware blocks only device-dependent work. Do not skip installation to push.
+Before you end, save the complete successor prompt and record. Create one required successor and verify actual startup.
+Creation or an active flag alone is insufficient. Do not create all later stages in advance.
+Send permitted completion and verified successor notices to the sole integration owner and both contributing stage4 chats.
+End after verified actual install-chat startup. Do not wait for the install stage to finish.

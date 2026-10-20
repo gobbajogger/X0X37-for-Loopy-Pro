@@ -5,7 +5,7 @@
   "selection_owner": "01a15a87-298e-7d21-b004-b78d5beafd89",
   "central_owner": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
   "result": "MERGE PASS",
-  "workflow_status": "PENDING VERIFIED COMBINED STAGE4 STARTUP",
+  "workflow_status": "COMPLETE; COMBINED STAGE4 ACTUAL STARTUP VERIFIED",
   "merge_revision": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
   "merge_tree": "4540c0afecc0e6482614fc41aaade8485d565976",
   "parents": [
@@ -72,5 +72,14 @@
     "Non-blocking docs/SMC_MIXER.md:47 discrepancy.",
     "Cause of the physical all-input failure."
   ],
-  "next_stage": "One fresh LOCAL combined DEV stage4, then one fresh install chat after matching validation. The completed merge must remain in the handoff."
+  "next_stage": "One fresh LOCAL combined DEV stage4, then one fresh install chat after matching validation. The completed merge must remain in the handoff.",
+  "successor": {
+    "thread_id": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+    "host_id": "local",
+    "status": "started",
+    "turn_id": "01a15ac6-2ff9-7a62-81a0-370e77fffda2",
+    "record": "successor.json",
+    "startup_evidence": "startup.json"
+  },
+  "completion": "The required merge and evidence checks pass. Exactly one fresh LOCAL combined stage4 has actual startup. Stage5 is complete."
 }

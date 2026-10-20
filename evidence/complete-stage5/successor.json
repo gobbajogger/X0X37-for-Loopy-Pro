@@ -1,0 +1,32 @@
+{
+  "marker": "smc-complete-20261021-combined-stage4-after-merge",
+  "stage": 4,
+  "source_chat": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "integration_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "status": "started",
+  "candidate": "c275f899f7a408e8e1f1ce297b88c47e06e326ce",
+  "candidate_tree": "907aa2568b9bca356d29430ae2584fe0fc78d0ac",
+  "completed_merge": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "prompt": "/Users/mac/Documents/x0x37/smc_complete_stage5_20261021/evidence/complete-stage5/stage4-prompt.txt",
+  "prompt_sha256": "ec109b6e943b4ba8490594a3725724ac738250579c64ea5252a055715f018cd3",
+  "project_id": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
+  "duplicate_check": "Current project active, idle and setup chats, Git lanes and saved successor state show no combined stage4 for this merge.",
+  "creation_attempts": [
+    {
+      "attempt": 1,
+      "result": "started",
+      "thread_id": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+      "host_id": "local",
+      "prompt_sha256": "ec109b6e943b4ba8490594a3725724ac738250579c64ea5252a055715f018cd3"
+    }
+  ],
+  "permission": "Current workflow18 and the standing owner statement authorize automatic stage launch and actual startup checks.",
+  "next_action": "The receiving owner completes the combined DEV validation and starts one fresh install chat after matching PASS. Stage5 is complete.",
+  "thread_id": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+  "host_id": "local",
+  "receiving_owner": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+  "observed_turn_id": "01a15ac6-2ff9-7a62-81a0-370e77fffda2",
+  "observed_assistant_message_id": "msg_0ec3f9b46bdd073a016ad7c0197084819191b213611fda73bc",
+  "observed_input_read_tool": "exec-3803b8f7-64ad-4a23-87e5-bd2f6b83b774",
+  "startup_evidence": "/Users/mac/Documents/x0x37/smc_complete_stage5_20261021/evidence/complete-stage5/startup.json"
+}
