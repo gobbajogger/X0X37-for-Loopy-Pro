@@ -3,7 +3,6 @@
 """Make the X0X site for GitHub Pages (https://charlesvestal.github.io/fm1-x0x/):
 
   index.html                  what X0X is, and the three ways in: install, manual, source
-  emu/                        X0X in the browser (web/emu: build/emu, from web/emu/build.sh)
   install/index.html          the web installer (web/x0x_installer.html, with fm1pkg.js, fm1ota.js,
                               x0x_breaks.js (the slots kept over an install) and the package's
                               metadata inlined; Chrome or Edge, Web MIDI)
@@ -92,7 +91,6 @@ recorded knob moves.</p>
 <div class="status">X0X installs and uninstalls the way Felucca does, and the installer can put M-VAVE's own firmware back. Installing is
 at your own risk.</div>
 <nav class="ways" aria-label="Get X0X">
-  <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed.</span></a>
   <div class="card"><strong><a href="install/">Install v__VERSION__</a> <a class="new" href="new/">What's new?</a></strong><span>From Chrome or Edge, with the FM-1 connected by USB. Nothing to install on the computer.</span></div>
   <a href="manual/"><strong>Manual</strong><span>Getting started in ten steps, then everything else.</span></a>
   <a href="breaks/"><strong>Your own breaks</strong><span>Drop in loops and send them to the BREAK part, from Chrome or Edge.</span></a>
@@ -156,15 +154,9 @@ def main(pkg, version, out):
     # the landing page
     landing = LANDING
     if not is_fm1:
-        landing = landing.replace('<a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed.</span></a>', "")
         landing = landing.replace("FM-1", model)
     (out / "index.html").write_text(landing.replace("__VERSION__", html.escape(version)).replace("__PKG__", name)
                                     .replace("__REPO__", REPO), encoding="utf-8")
-    emu = SRC / "build" / "emu"
-    if is_fm1:
-        if not (emu / "x0x.wasm").exists():
-            raise SystemExit("no build/emu/x0x.wasm: run web/emu/build.sh (needs Emscripten)")
-        shutil.copytree(emu, out / "emu")
     (out / ".nojekyll").write_text("")
     print(f"site: {out}: index.html, install/ ({product}), manual/, firmware/{name} ({len(raw)} B)")
 

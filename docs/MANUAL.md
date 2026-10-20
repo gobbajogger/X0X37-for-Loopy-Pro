@@ -36,9 +36,6 @@ New in this version: see [What's new](https://charlesvestal.github.io/fm1-x0x/ne
 
 ## 1. Install
 
-**Try it first:** the [X0X emulator](https://charlesvestal.github.io/fm1-x0x/emu/) runs the same
-code in the browser, with sound, played with the mouse, a touch screen or the keyboard.
-
 **Install:** open the [web installer](https://charlesvestal.github.io/fm1-x0x/install/) in Chrome or
 Edge, connect the FM-1 with a USB data cable and press Install. Don't unplug it while it's
 writing; when it finishes, the FM-1 restarts into X0X.
