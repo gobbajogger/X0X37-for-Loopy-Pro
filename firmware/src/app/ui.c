@@ -287,6 +287,11 @@ static const x0x_param_t SONG_P[] = {
     {"LENGTH", NSONG, 0, 0},
 };
 
+static int pref_read_only(pref_t r)
+{
+    return r.kind == R_BATT || r.kind == R_BTSTAT || r.kind == R_BTNAME;
+}
+
 /* the song's bar k exists from here on: a new bar repeats the one before (the first: what plays) */
 static void song_fill(int k)
 {
@@ -431,7 +436,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
 {
     pattern_t *p = cur_pat();
     const x0x_param_t *d = pref_desc(r);
-    if (!d || r.kind == R_ACT)
+    if (!d || r.kind == R_ACT || pref_read_only(r))
         return;
     v = v < 0 ? 0 : v > d->max ? d->max : v;
     mark_dirty();
@@ -2041,7 +2046,7 @@ static uint32_t lock_marks(int t, int v, int base)
 static void turn_ref(pref_t r, int e, int knob)
 {
     const x0x_param_t *d = pref_desc(r);
-    if (!d || r.kind == R_ACT)
+    if (!d || r.kind == R_ACT || pref_read_only(r))
         return;
     if (d->names || d->max < 24)
         e = e > 0 ? 1 : -1;                          /* a switch: one detent, one position */
@@ -4128,7 +4133,8 @@ static UI_DRAW void draw_footer(void)
 
 static void draw_main(void)
 {
-    int band, readout = ui.touched >= 0 && (int32_t)(ui.touch_until - plat_ms()) > 0 && ui.overlay == O_NONE;
+    int band, readout = ui.touched >= 0 && (int32_t)(ui.touch_until - plat_ms()) > 0 &&
+                        ui.overlay == O_NONE && !ui.help;
     if (!readout)
         ui.touched = -1;
 #if BOARD_SMK37
