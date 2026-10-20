@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"timedOut\":true,\"wake\":null,\"polls\":[{\"schemaVersion\":1,\"cursor\":\"f1dc61e4-b080-4944-a3a7-804b09f1cf51:4\",\"revision\":4,\"changed\":true,\"thread\":{\"id\":\"01a15aa8-2a86-78e3-93b9-258e3d8371d8\",\"hostId\":\"local\",\"status\":{\"type\":\"active\",\"activeFlags\":[]}},\"latestTurn\":{\"id\":\"01a15aa8-2baf-7ee1-9472-5e197af2ee39\",\"status\":\"inProgress\",\"error\":null,\"startedAt\":1792522333,\"completedAt\":null,\"durationMs\":null},\"latestAssistantMessageId\":\"msg_0832a6eaf8a2d628016ad7b86d90f081918faf2942b2f43a58\",\"latestAssistantMessage\":{\"id\":\"msg_0832a6eaf8a2d628016ad7b86d90f081918faf2942b2f43a58\",\"turnId\":\"01a15aa8-2baf-7ee1-9472-5e197af2ee39\",\"phase\":\"commentary\",\"text\":\"I have read the task, workflow, and writing skills. I will repair CENTRAL-STOP-01 in a separate lane. I will then run the affected checks and start one fresh stage 3 chat. Physical behavior remains NOT TESTED.\"},\"latestToolMarkerId\":\"exec-175c8b5f-b59a-4ae1-97ca-5eec965ecc15\",\"latestToolMarker\":{\"id\":\"exec-175c8b5f-b59a-4ae1-97ca-5eec965ecc15\",\"turnId\":\"01a15aa8-2baf-7ee1-9472-5e197af2ee39\",\"type\":\"commandExecution\",\"name\":\"commandExecution\",\"status\":\"completed\"}}]}"
+    }
+  ],
+  "isError": false
+}

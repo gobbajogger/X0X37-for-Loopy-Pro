@@ -89,5 +89,24 @@
   "setup_notes": [
     "The investigation event fixture first left transport busy before its clean Reset assertion. The corrected fixture passes all 12 cases without production changes.",
     "The complete identity-check setup notes are in input-review.json."
+  ],
+  "repair_successor": {
+    "thread_id": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+    "host_id": "local",
+    "startup_turn": "01a15aa8-2baf-7ee1-9472-5e197af2ee39",
+    "status": "started",
+    "record": "successor.json"
+  },
+  "completion_notices": [
+    {
+      "thread_id": "01a15a87-298e-7d21-b004-b78d5beafd89",
+      "result": "sent",
+      "scope": "Mapping stage4 result, source defect, exact evidence and verified repair successor."
+    },
+    {
+      "thread_id": "01a15a98-8224-7cb0-8740-c2fe113077b3",
+      "result": "sent",
+      "scope": "Stage2 sender completion notice with exact result and successor."
+    }
   ]
 }

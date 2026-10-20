@@ -3,19 +3,34 @@
   "source_thread": "01a15aa1-3015-75c0-b331-15e212d9b5ec",
   "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
   "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
-  "evidence_commit": null,
+  "evidence_commit": "1c5e8f8953658689434b4b3e8687ccd630afeff0",
   "next_stage": 2,
   "prompt": "/Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/stage2-prompt.txt",
   "prompt_sha256": "4c5c583a79203dcf5a6507360a1609724d32c26e55d93b84f6e9d8705f6634cc",
-  "status": "pending",
-  "receiving_owner": null,
-  "thread_id": null,
-  "host_id": null,
-  "attempts": [],
+  "status": "started",
+  "receiving_owner": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+  "thread_id": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+  "host_id": "local",
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "status": "started_verified",
+      "result": {
+        "threadId": "01a15aa8-2a86-78e3-93b9-258e3d8371d8",
+        "hostId": "local"
+      }
+    }
+  ],
   "project_id": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
   "reason": "CENTRAL-STOP-01 requires a fresh source repair before another stage3.",
   "authorization": "Owner request Now read rules and fix; workflow17 source-repair loop; workflow18 automatic successors, recovery, startup checks and completion notices; owner-decisions14 complete validated DEV install with notice.",
   "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
   "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
-  "stage4_permitted_now": false
+  "stage4_permitted_now": false,
+  "duplicate_check": "Project activity was checked after evidence commit. No stop-backpressure stage2 or matching successor exists. Existing central repair chats are idle and precede this new defect. Mapping stage4 retains sole stage5 selection.",
+  "startup_turn": "01a15aa8-2baf-7ee1-9472-5e197af2ee39",
+  "startup_evidence": "successor-startup.json",
+  "startup_assistant_message": "msg_0832a6eaf8a2d628016ad7b86d90f081918faf2942b2f43a58",
+  "startup_tool_marker": "exec-175c8b5f-b59a-4ae1-97ca-5eec965ecc15",
+  "startup_observation": "The new assistant acknowledges CENTRAL-STOP-01 repair in a separate lane and the fresh stage3 successor. New command execution completed in the same active turn."
 }
