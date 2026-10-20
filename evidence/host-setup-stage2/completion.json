@@ -1,0 +1,24 @@
+{
+  "workflow": "host-setup-20261021",
+  "stage": 2,
+  "checked_code_commit": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+  "setup_interface": {
+    "generate_only": "sh host/build_host.sh --generate-only",
+    "default_build": "sh host/build_host.sh",
+    "behavior": "Both modes run the original font, drum and break-bank setup. Generate-only exits successfully before the full simulator compile. Setup failures still propagate. Default mode keeps the original compiler section.",
+    "environment": "CC, X0X_HOST_DEFS, X0X_HOST_OUT and X0X_BREAK_BANK keep their existing meanings. The four callers retain their source overrides, compile flags, failure handlers and cleanup."
+  },
+  "remaining_break_generation": {
+    "current": "Both host modes still run tools/gen_builtin_break.sh on every builtin-bank call. It compiles and runs the break renderer even if the generated break header already exists. X0X_BREAK_BANK instead runs its custom-bank generator each time.",
+    "later_integration": "After the asset-cache candidate passes its own review, combine the exact checked helper in a new isolated change. Route host asset preparation through its generate_asset API, completing font/drum generation before requesting breaks because builtin breaks depend on drum headers. Keep --generate-only as the public host setup interface, and preserve default compile behavior, custom bank, fatal setup errors and environment. Validate byte-identical headers, invalidation, cache failures and cold/warm timings for that combined change. Do not import the target build driver just to run host setup.",
+    "observed_helper_api": "The current live helper exposes generate_asset(kind, root, gen, cache=None), including kind=breaks. This is an observation of unfinished source, not a checked interface contract. Use the final reviewed API.",
+    "platform_limit": "The observed builtin_identity function currently requires Linux and falls back to the original generator on other platforms. Checked integration can skip renderer compilation/rendering on a valid supported Linux hit. It alone will not remove repeated builtin rendering in native macOS host calls unless the cache owner also supplies checked native dependency discovery.",
+    "ownership": "Asset-cache helper/build.py and their tests stay with chat 01a15ad1-a598-7a01-baae-5a8ac034d2c4. No cache files were edited here."
+  },
+  "stage3": {
+    "thread_id": "01a15adf-da12-7082-b087-3e0fde4aef27",
+    "state": "startup verified",
+    "evidence": "evidence/host-setup-stage2/successor.json"
+  },
+  "timing_limit": "Four real probe command times are recorded in probes.json. No paired baseline or measured saving is claimed."
+}
