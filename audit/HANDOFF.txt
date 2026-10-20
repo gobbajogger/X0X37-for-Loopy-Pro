@@ -1,5 +1,29 @@
 SMC regression audit — 2026-10-21
 
+OWNER CORRECTION — supersedes the mapping diagnosis and repair instruction below
+
+In originating thread 01a159f4-de3d-7d90-9124-b09940980f92, the owner corrected
+the audit directly: "Because thats intended. And there's 3 modes for faders and
+buttons to map like they do on keyboard faders and to then map to individual
+sounds of either 909 and 808".
+
+The three fader/button modes are intentional: keyboard-equivalent mapping,
+individual 909 sounds, individual 808 sounds. Preserve them. This latest direct
+owner clarification supersedes this audit's interpretation of the older
+screen-following answer. Finding1 and proposed stage2 item1 below are RETRACTED.
+The differential mapping results describe a change, not a defect or an approved
+reason to restore generic current/next-page fader assignments. The later fixes
+were correct to retain the intended mode mapping on this point.
+
+The real bug remains ALL SMC controls failing with both ends DAW and light
+feedback working. Continue that input diagnosis, preserving intentional mapping.
+The active stage2 owner 01a159fc-b487-7ed0-ae49-12e13cc06aef received this correction
+through send_message_to_thread and was asked to withdraw only the new mapping
+changes based on the mistaken audit, preserve valid diagnostics/other work,
+and record the corrected product decision. No production source is edited here.
+
+Original audit follows as history; apply the correction above first.
+
 Stage 1 owner: 01a159f4-de3d-7d90-9124-b09940980f92, Fix SMC mixer control trigger.
 Repository lane: lane/mb-smc-regression-audit-20261021.
 Base: 39db0049c8c04855bcd1bc4076f436ee7b4936df.
