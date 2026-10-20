@@ -1,0 +1,3 @@
+Independent reviewer /root/routing_review: PASS — no material findings.
+Reviewed classic project destination, bounded execution, no successor/helper requirement, explicit Codex selection, existing work, unsupported classic creation, safeguards, rollout and assertions.
+Read-only source review; no tests rerun or firmware actions. Project instructions prepared, not installed.

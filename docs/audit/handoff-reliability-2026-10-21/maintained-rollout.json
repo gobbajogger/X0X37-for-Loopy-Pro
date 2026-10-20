@@ -1,0 +1,16 @@
+{
+  "implementation": "aa5d616",
+  "backup": "/Users/mac/Documents/x0x37/repo-bak/handoff-reliability-20261020T160714761891Z",
+  "files": [
+    {
+      "path": "docs/rules/workflow.md",
+      "before_sha256": "b727661da22be82a0b3ec959cfe8a23d932e1d3163aca850cf5df84faaeab34f",
+      "after_sha256": "c1b5112375d1f947801e5a07f481f2bc13904f1a658a5b5207511ccf697c3b8d"
+    },
+    {
+      "path": "docs/USER_PREFERENCES.md",
+      "before_sha256": "3d761556106bd9bf2d1306d41932495d46790a382d627c783ec6b52afe4337c1",
+      "after_sha256": "229505a93964d0bcfdc61880f6d1a9557d1e72541edbef1f4a4b61e01b775972"
+    }
+  ]
+}

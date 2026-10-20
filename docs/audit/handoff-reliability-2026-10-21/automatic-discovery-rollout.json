@@ -1,0 +1,32 @@
+{
+  "apply": true,
+  "files": 5,
+  "backup": "/Users/mac/Documents/x0x37/repo-bak/rules-rollout-20261020T161412875584Z",
+  "changes": [
+    {
+      "path": "USER_PREFERENCES.md",
+      "before_sha256": "229505a93964d0bcfdc61880f6d1a9557d1e72541edbef1f4a4b61e01b775972",
+      "after_sha256": "19a2c3104cf7ee9aa944a07839d430edab643a423e236c8a8cfe845ebb4c3091"
+    },
+    {
+      "path": "rules/owner-messages.md",
+      "before_sha256": "68adb77a3a5a6cd2988f39f987219ebe88bfb006bc70381ae462831203af6c66",
+      "after_sha256": "ac4a5672ebfd81227b76b15df84fbcade2e8f191edef9ded67df43f6df1c8a08"
+    },
+    {
+      "path": "rules/workflow.md",
+      "before_sha256": "c1b5112375d1f947801e5a07f481f2bc13904f1a658a5b5207511ccf697c3b8d",
+      "after_sha256": "2b76a163375f4482ddfcd341ae291b814b913896fb69a7d138ecdf93788348dc"
+    },
+    {
+      "path": "smc_stage4_20261021/AGENTS.md",
+      "before_sha256": "ded5cf472c241432e35b14607f36c8bb21d64eeda86e7987a8109f781f8f3d17",
+      "after_sha256": "7550ea950ef8de34467fce0d1d112b2bb23307ef01d25bfb32738de9535c8688"
+    },
+    {
+      "path": "smc_stage4_20261021/docs/SKILLS.md",
+      "before_sha256": "ac06ea307a9efa6b477da9bc6d826a6b60b2779bb73f7e983d2a4303f32beeff",
+      "after_sha256": "54dc5e2a1b54fa66ef19e1e4988490dc904a430467634bfc108f27054d9062bc"
+    }
+  ]
+}

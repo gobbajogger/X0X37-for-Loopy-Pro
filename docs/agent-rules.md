@@ -1,23 +1,20 @@
-# Agent rules
+# x0x37 skill triggers
 
-Read [core](rules/core.md) once per task. Load only the matching rules below,
-when that step begins; reread only changed sections. Links are references,
-not instructions to load every linked file.
+Start with `x0x37-task` and its [chat routing](../skills/x0x37-task/references/routing.md). Use `x0x37-writing` before output.
+The task skill defines skill use and instruction priority. Read selected `SKILL.md` files, not old rule entries.
 
-These docs are maintained rules; workspace copies are discovery mirrors, not
-extra reading. Current owner instructions win. Use the checkout's `AGENTS.md`
-to find current rules. Search relevant product decisions and behavior; old
-plans, rosters, logs, and archives do not assign work or grant approval.
+- [$x0x37-task](../skills/x0x37-task/SKILL.md): Task start, ownership, source protection, and completion.
+- [$x0x37-writing](../skills/x0x37-writing/SKILL.md): All output and saved text.
+- [$x0x37-workflow](../skills/x0x37-workflow/SKILL.md): Bounded code execution and return to classic ChatGPT. Excludes docs-only tasks.
+- [$x0x37-check](../skills/x0x37-check/SKILL.md): Scoped checks, tests, builds, commits, and handoffs.
+- [$x0x37-integrate](../skills/x0x37-integrate/SKILL.md): Firmware integration, candidate validation, release builds, and full gates.
+- [$x0x37-install](../skills/x0x37-install/SKILL.md): Device installation, artifact transfer, and requested release packages.
+- [$x0x37-device-bug](../skills/x0x37-device-bug/SKILL.md): Device and controller-input diagnosis, captures, and regressions.
+- [$x0x37-shared-work](../skills/x0x37-shared-work/SKILL.md): Concurrent edits, shared resources, difficult-to-undo actions, and independent review.
+- [$x0x37-owner-decisions](../skills/x0x37-owner-decisions/SKILL.md): Authorization, owner reports, thread contact, and decision records.
+- [$x0x37-docs](../skills/x0x37-docs/SKILL.md): Documentation, skill edits, discovery, and rollout.
 
-| When needed | Read |
-| --- | --- |
-| Start or hand off a staged code workflow | [workflow](rules/workflow.md) |
-| Concurrent work, shared resources, hard to undo actions, or delegated review | [shared-work](rules/shared-work.md) |
-| Edit, build, test, commit, or handoff | [commit](rules/commit.md) |
-| Diagnose a device bug | [device-bug](rules/device-bug.md) |
-| Integrate firmware or run a formal gate | [integration](rules/integration.md) |
-| Install, package, or release | [install](rules/install.md) |
-| Edit docs or rules | [docs](rules/docs.md) |
-| Resolve authorization or record an owner decision | [owner-messages](rules/owner-messages.md) |
-| Write product terminology or apply a requested writing style | [style](rules/style.md) |
-| Use or repair an installed writing skill | [skill sources and triggers](SKILLS.md) |
+Maintain procedures in `skills/`. `.agents/skills/` exposes them to discovery.
+Running threads with an older skill list can use the paths above.
+Inside this workspace, use the current workspace `AGENTS.md`. A standalone checkout uses this index and its own skills.
+Read [source status](SKILLS.md) only for skill installation, source checks, or repair.

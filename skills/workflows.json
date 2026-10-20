@@ -1,0 +1,62 @@
+[
+  {
+    "legacy": "core.md",
+    "name": "x0x37-task",
+    "description": "Start an x0x37 task or continuation with current ownership, isolated lanes, source protection, and verified results.",
+    "source": "skills/x0x37-task/SKILL.md"
+  },
+  {
+    "legacy": "workflow.md",
+    "name": "x0x37-workflow",
+    "description": "Run bounded x0x37 code execution and hand results back to classic ChatGPT, preserving stage checks and ownership. Excludes docs-only tasks.",
+    "source": "skills/x0x37-workflow/SKILL.md"
+  },
+  {
+    "legacy": "shared-work.md",
+    "name": "x0x37-shared-work",
+    "description": "Coordinate x0x37 concurrent edits, shared processes, device resources, hard-to-undo actions, or delegated independent review.",
+    "source": "skills/x0x37-shared-work/SKILL.md"
+  },
+  {
+    "legacy": "commit.md",
+    "name": "x0x37-check",
+    "description": "Select scoped checks, build, test, commit, or hand off x0x37 changes with matching validation evidence and lane ownership.",
+    "source": "skills/x0x37-check/SKILL.md"
+  },
+  {
+    "legacy": "device-bug.md",
+    "name": "x0x37-device-bug",
+    "description": "Diagnose an x0x37 device or controller-input bug using recorded captures, simulated sends, source evidence, and regression tests.",
+    "source": "skills/x0x37-device-bug/SKILL.md"
+  },
+  {
+    "legacy": "integration.md",
+    "name": "x0x37-integrate",
+    "description": "Integrate x0x37 firmware, validate a candidate, or select development versus release checks and full-gate admission.",
+    "source": "skills/x0x37-integrate/SKILL.md"
+  },
+  {
+    "legacy": "install.md",
+    "name": "x0x37-install",
+    "description": "Install validated x0x37 firmware, transfer install artifacts, or prepare an explicitly requested release package with data safeguards.",
+    "source": "skills/x0x37-install/SKILL.md"
+  },
+  {
+    "legacy": "docs.md",
+    "name": "x0x37-docs",
+    "description": "Edit x0x37 documentation, project skills, or instruction discovery and rollout. Preserve decisions, history, and firmware ownership.",
+    "source": "skills/x0x37-docs/SKILL.md"
+  },
+  {
+    "legacy": "owner-messages.md",
+    "name": "x0x37-owner-decisions",
+    "description": "Resolve x0x37 authorization, process an owner report, contact another thread, or record an owner decision and its source.",
+    "source": "skills/x0x37-owner-decisions/SKILL.md"
+  },
+  {
+    "legacy": "style.md",
+    "name": "x0x37-writing",
+    "description": "Write x0x37 output in plain, concise English; use STE rules and dictionary only for an explicitly requested strict review.",
+    "source": "skills/x0x37-writing/SKILL.md"
+  }
+]

@@ -57,6 +57,12 @@ git -C "$C" reset -q --hard box/smk37
 # 7c. docs/agent-rules.md directly on smk37
 echo "agent rules" > "$C/docs/agent-rules.md"; git -C "$C" add -A; gc -m "Add the agent rules"; push reject "direct docs/agent-rules.md change" smk37
 git -C "$C" reset -q --hard box/smk37
+# Skill procedures retain the same lane protection after migration.
+mkdir -p "$C/skills/x0x37-install"
+echo 'Install validated artifacts.' > "$C/skills/x0x37-install/SKILL.md"
+git -C "$C" add -A; gc -m "Change an install skill"
+push reject "direct project skill change on smk37" smk37
+git -C "$C" reset -q --hard box/smk37
 # 8. fast-forward to a lane commit (the tip)
 co -b lane/dk-rules-c smk37; echo "Fourth." >> "$C/docs/rules/install.md"; gc -am "Fourth fact"; push accept "lane/dk-rules-c push" lane/dk-rules-c
 push accept "fast-forward smk37 to the lane tip" lane/dk-rules-c:smk37

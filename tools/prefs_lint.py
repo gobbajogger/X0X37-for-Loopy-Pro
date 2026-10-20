@@ -8,6 +8,9 @@ Usage:
   prefs_lint.py --git REPO REV            REV:docs/USER_PREFERENCES.md and REV:docs/rules/*.md
   options: --json, --sections "A,B" (legacy option; all current sections are always checked), --min-words N [3]
 
+Legacy rule entries can redirect to maintained project skills with an explicit
+x0x37-skill marker. The same decision IDs apply to the actual skill body.
+
 Only the current record before "## Historical preference record" is checked.
 Older entries remain intact as evidence and do not reactivate superseded procedures.
 
@@ -30,6 +33,7 @@ Output: "PREFS OK <n> entries" (exit 0), or "PREFS FAIL <k> of <n> entries" and 
 Bad arguments or files: exit 2.
 """
 import argparse, glob, json, os, re, subprocess, sys
+from pathlib import Path
 
 SECTIONS = ["How to work with the owner", "Installs and safety", "Repositories and remotes", "Team rules"]
 STOP = set("""this that with from have when then than they them their there these those each only also into
@@ -38,6 +42,24 @@ owner owners agent agents rule rules entry file files line lines same does just 
 ID = r"\d+[A-Z]?"
 LIST = rf"{ID}(?:\s*(?:,|and|to|or)\s*{ID})*"
 REF = re.compile(rf"(?:\b([\w-]+\.md)\s+|\b(core|agent)\s+)rules?\s+({LIST})\b")
+
+
+def resolve_skill_entries(files, read):
+    """Keep legacy decision IDs while checking the maintained skill body.
+
+    Only an explicit project-skill marker can redirect a rule source. Missing
+    or malformed targets fail rather than silently disabling decision checks.
+    """
+    resolved = {}
+    for name, text in files.items():
+        marker = re.search(r'^<!-- x0x37-skill: (.+) -->$', text, re.M)
+        if marker:
+            target = marker.group(1)
+            if not re.fullmatch(r'skills/x0x37-[a-z0-9-]+/SKILL\.md', target):
+                raise ValueError('invalid project skill source: ' + target)
+            text = read(target)
+        resolved[name] = text
+    return resolved
 
 
 def parse_rules(files):
@@ -159,13 +181,26 @@ def main():
             names = subprocess.run(["git", "-C", repo, "ls-tree", "--name-only", f"{rev}:docs/rules"],
                                    capture_output=True, text=True, check=True).stdout.split()
             rf = {n: show(f"docs/rules/{n}") for n in names if n.endswith(".md")}
+            rf = resolve_skill_entries(rf, show)
         elif a.file:
             prefs = open(a.file, encoding="utf-8").read()
             d = a.rules or os.path.join(os.path.dirname(os.path.abspath(a.file)), "rules")
             rf = {os.path.basename(p): open(p, encoding="utf-8").read() for p in glob.glob(os.path.join(d, "*.md"))}
+            rule_dir = Path(d).resolve()
+            project = rule_dir.parents[1] if rule_dir.parent.name == 'docs' else rule_dir.parent
+            def read_skill(target):
+                path = project / target
+                # Workspace rule mirrors use the maintained discovery links.
+                if not path.exists() and rule_dir.parent.name != 'docs':
+                    path = project / '.agents' / target
+                path = path.resolve()
+                if not path.is_relative_to(project):
+                    raise ValueError('skill source is outside project skills: ' + target)
+                return path.read_text(encoding='utf-8')
+            rf = resolve_skill_entries(rf, read_skill)
         else:
             ap.error("give FILE or --git REPO REV")
-    except (OSError, subprocess.CalledProcessError) as ex:
+    except (OSError, ValueError, subprocess.CalledProcessError) as ex:
         print(f"PREFS ERROR {ex}"); sys.exit(2)
     if not rf:
         print("PREFS ERROR no rule files"); sys.exit(2)

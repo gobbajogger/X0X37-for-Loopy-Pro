@@ -1,0 +1,16 @@
+{
+  "docs/rules/workflow.md": {
+    "before": 769,
+    "after": 1097
+  },
+  "automatic_followup": {
+    "docs/rules/workflow.md": {
+      "before": 1097,
+      "after": 1178
+    },
+    "docs/rules/owner-messages.md": {
+      "before": 166,
+      "after": 173
+    }
+  }
+}

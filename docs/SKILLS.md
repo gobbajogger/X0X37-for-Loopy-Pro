@@ -1,22 +1,17 @@
-# Writing skills: load on demand
+# Skill sources and discovery
 
-The short default in [core](rules/core.md) applies to all output. Read only the
-selected skill once when its trigger applies; reread after relevant updates.
+Use [project skill triggers](agent-rules.md) to initialize workflow skills when needed.
+Project procedures live in `skills/x0x37-*/SKILL.md`. `.agents/skills/` exposes them to skill discovery.
+Automatic selection is enabled. A running thread can use the exact path from the trigger index.
 
-- [Caveman](../skills/caveman/SKILL.md): explicit Caveman mode or a request for
-  terse compression that benefits from its detailed guidance.
-- [Simplified Technical English](../skills/asd-ste100/SKILL.md): explicit STE,
-  technical rewriting/explanation needing its guidance, or strict STE work.
-  Load strict-mode references only for strict mode.
+Initialize [x0x37-writing](../skills/x0x37-writing/SKILL.md) before project output.
+It uses plain, concise English. Load detailed writing sources only for their explicit triggers.
 
-Keep grammar, uncertainty, conditions, negation, and exact technical content.
-These outrank compression limits. The owner's all-output scope applies when a
-skill is active. Higher-priority tool and approval instructions still apply.
-Pass helpers only relevant skill paths. If a selected skill is missing, report
-it and continue independent work; restore from its pinned source when needed.
-Never claim an unread skill was used. Optional companion skills are not required.
+- [asd-ste100](../skills/asd-ste100/SKILL.md): only for an explicitly requested strict ASD-STE100 review.
+- [caveman](../skills/caveman/SKILL.md): requested Caveman mode.
 
-## Installed sources
+## Installed writing sources
+
 
 The owner chose public skills on 2026-10-19. These replace the missing box copies
 for current use. They are not claimed as recovered originals. This supersedes
