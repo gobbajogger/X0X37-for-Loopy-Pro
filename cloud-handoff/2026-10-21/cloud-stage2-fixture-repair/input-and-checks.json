@@ -1,0 +1,27 @@
+{
+  "stage": 2,
+  "status": "implementation and focused checks complete; fresh stage 3 pending",
+  "owner_thread_id": "01a1599e-a0e8-7525-b82c-1dfe9bc6905b",
+  "input_commit": "6e0da0bc97f04ed6b11cbd5b5c03c432eb9061c2",
+  "source_commit": "ffabcaae4a3fc9a03510f74de5f1eb4f4c9a39a2",
+  "firmware_tree": "d5879fc55da3dce617f2be93086634da78d1720b",
+  "previous_firmware_tree": "d5879fc55da3dce617f2be93086634da78d1720b",
+  "host_compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "kernel": "Linux x86_64",
+  "environment": {
+    "CC": "cc",
+    "CXX": "c++",
+    "X0X_HOST_DEFS": "-D_POSIX_C_SOURCE=200809L",
+    "X0X_TEST_JOBS": "1",
+    "X0X_GATE_LOCK": "/workspace/x0x-fixture-repair-evidence/test.lock",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "ASAN_OPTIONS": "halt_on_error=1:abort_on_error=1"
+  },
+  "changed_files": [
+    "tests/host/ble_midi_central_test.c",
+    "tests/host/ble_midi_receive_test.sh",
+    "tests/host/smc_clip_visibility_test.sh",
+    "tests/host/smk_clip_isolation_test.py"
+  ],
+  "successor_thread_id": null
+}

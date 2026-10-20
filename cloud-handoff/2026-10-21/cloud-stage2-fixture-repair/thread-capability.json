@@ -1,0 +1,18 @@
+{
+  "checked_at_client_date": "2026-10-21",
+  "available_thread_tools": [
+    "codex_app__list_archived_threads",
+    "codex_app__list_threads",
+    "codex_app__move_thread_to_sidebar_section",
+    "codex_app__read_thread",
+    "codex_app__read_thread_terminal",
+    "codex_app__set_thread_archived",
+    "codex_app__set_thread_read_state",
+    "codex_app__set_thread_title",
+    "codex_app__share_thread",
+    "codex_app__wait_threads"
+  ],
+  "create_thread_callable": false,
+  "fork_thread_callable": false,
+  "note": "No callable create_thread/fork_thread or tool_search was exposed. No CLI session or supporting subagent was created as a substitute."
+}

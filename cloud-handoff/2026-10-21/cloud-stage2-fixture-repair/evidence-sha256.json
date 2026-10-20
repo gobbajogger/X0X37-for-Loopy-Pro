@@ -1,0 +1,19 @@
+{
+  "HANDOFF.txt": "f3e9f7c148af3ba452f320084f5f3ca1c1717a7aaace25859cbc99a7a9286380",
+  "baseline-isolation.log": "93d7404f0a1b34b46d19e327d3e0f33dd81318ed5437b4d6d5b1a7e998e42bbd",
+  "baseline-receive-strict.log": "62d80b720b44f120033265d9e50068d33442a8ebd0d74769481c4378bed7439c",
+  "baseline-visibility.log": "5b2180deb419935ee6aafbe43c523dc103249a0c0b28d4c6c22272f9b8496f45",
+  "ble-midi-receive.log": "eacf60c02d85856f57eaba1de4208619214419c6ecbb7abd08bfdc2bb4a9b456",
+  "cc-strict": "cc7365ce117a61e236f97ed44363f2b551c3ef93fe4a22aa6d460d74fd81eb0d",
+  "docs-check.log": "ba5d7c8eebed2fd2869ae6b9a58523536b174a567698c151bba930a4c4d1ce38",
+  "failfast-original-fixture.log": "fa6d98e709fafddec15d4f68790116b3f9fb9d413fc291d9a4cf98497fde5d4f",
+  "focused.log": "87addc8e85cefff5d2cef076e7bc0cdf21424d68c5ec4e070c51c994d84973db",
+  "input-and-checks.json": "86f3f63178dfb7e9b61e5c78a8384bb5d5cb8707785fa0106c45aae3d9e25b64",
+  "isolation-strict.log": "d5b069b9d5ac8ddf244c45d7a5a56f7b930931438ca524f9e552903e8cc6f920",
+  "smc-clip-visibility.log": "a157bc8c280e98fdc03c6ce54c62518aca15caff50c818eee260272b00792c3c",
+  "smk-clip-isolation.log": "d5b069b9d5ac8ddf244c45d7a5a56f7b930931438ca524f9e552903e8cc6f920",
+  "stage3-prompt.txt": "0d86ba1594dd572d4fcc97676a239454635481ae8dddf5df4affdf9a5c996752",
+  "strict-results.json": "a45d31c880ffe0a3ffd1805126f98e1105807e8f390c2f0fa87d8cc762e587b6",
+  "thread-capability.json": "95822167b00420ae95b986621d82012c7397258e182f1bf82225340037c2f008",
+  "visibility-strict.log": "a157bc8c280e98fdc03c6ce54c62518aca15caff50c818eee260272b00792c3c"
+}

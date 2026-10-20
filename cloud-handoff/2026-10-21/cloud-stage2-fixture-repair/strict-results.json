@@ -1,0 +1,23 @@
+[
+  {
+    "name": "visibility-strict",
+    "argv": [
+      "sh",
+      "tests/host/smc_clip_visibility_test.sh"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "isolation-strict",
+    "argv": [
+      "python3",
+      "tests/host/smk_clip_isolation_test.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "failfast-original-fixture",
+    "expected": "nonzero null-pointer UBSan diagnostic with halt_on_error=0",
+    "exit_code": 1
+  }
+]

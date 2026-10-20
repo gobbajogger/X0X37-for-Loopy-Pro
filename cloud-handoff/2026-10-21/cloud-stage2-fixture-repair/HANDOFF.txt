@@ -1,0 +1,102 @@
+Cloud stage-2 fixture repair -- 2026-10-21 (Asia/Vladivostok)
+
+RESULT: all three scoped fixture repairs are implemented and their focused
+checks pass. Stage 3 is still pending independent execution in a fresh chat.
+No firmware code, behavioral assertion, model guard or build input changed.
+
+Repair owner: fresh user-assigned cloud chat
+01a1599e-a0e8-7525-b82c-1dfe9bc6905b.
+Input: 6e0da0bc97f04ed6b11cbd5b5c03c432eb9061c2, the fetched transfer tip.
+Implementation: ffabcaae4a3fc9a03510f74de5f1eb4f4c9a39a2.
+Lane: lane/mb-cloud-fixture-repair-20261021.
+Checkpoint destination: lane/mb-cloud-transfer-20261020 at the authorized
+https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git repository.
+The enclosing evidence checkpoint descends from the implementation commit.
+
+Changes and risks covered:
+- tests/host/smc_clip_visibility_test.sh now extracts the actual uint8_t
+  smc_message signature. Existing visibility, overlay and fallback assertions
+  execute again. Baseline compilation failed; repaired normal/strict runs pass.
+- tests/host/ble_midi_central_test.c copies command-complete extra data only
+  when n is nonzero. Existing null/zero calls and BLE assertions remain intact.
+- tests/host/ble_midi_receive_test.sh compiles both central and receive fixtures
+  with -fno-sanitize-recover=all, in addition to ASan/UBSan. The runner exits on
+  undefined behavior even if UBSAN_OPTIONS requests recovery.
+- tests/host/smk_clip_isolation_test.py defines CK_FN in its host preamble.
+  Both BLE configurations, per-pad velocity, MIDI flush and UI dispatch
+  assertions pass. Production placement annotations remain unchanged.
+
+Checks and evidence (all paths beside this file):
+1. Baseline, before edits, on 6e0da0b:
+   CC=cc sh tests/host/smc_clip_visibility_test.sh -> exit 1
+   CC=cc python3 tests/host/smk_clip_isolation_test.py -> exit 1
+   CC=cc UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+     sh tests/host/ble_midi_receive_test.sh -> exit 1, null memcpy in cc().
+   Logs: baseline-visibility.log, baseline-isolation.log,
+   baseline-receive-strict.log. These are expected baseline failures.
+2. Focused runner on the repaired source:
+   CC=cc CXX=c++ X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L
+   X0X_TEST_JOBS=1
+   X0X_GATE_LOCK=/workspace/x0x-fixture-repair-evidence/test.lock
+   UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+   ASAN_OPTIONS=halt_on_error=1:abort_on_error=1
+   sh tests/run_tests.sh ble-midi-receive smc-clip-visibility smk-clip-isolation
+   -> all 3 selected checks pass, exit 0. See focused.log and per-check logs.
+   The receive runner executes both central and receive fixtures with strict
+   ASan/UBSan. Its successful per-check log is empty because both binaries
+   are silent on success. The package skip is outside this scoped selection.
+3. Strict ASan/UBSan for the two extraction fixtures:
+   CC=/workspace/x0x-fixture-repair-evidence/cc-strict, same sanitizer options,
+   sh tests/host/smc_clip_visibility_test.sh and
+   python3 tests/host/smk_clip_isolation_test.py -> both exit 0.
+   cc-strict is included here; it adds -g -O1 -fsanitize=address,undefined
+   -fno-sanitize-recover=all to cc. See visibility-strict.log,
+   isolation-strict.log, strict-results.json. Set CC to this directory's
+   absolute cc-strict path when reproducing after workspace restoration.
+4. Fail-fast fault injection in a disposable tree:
+   Copy the repaired receive runner, both fixture C files, and central C/header
+   to their normal paths in a temporary directory. Replace only
+   tests/host/ble_midi_central_test.c with git show 6e0da0b:<that path>.
+   Run CC=cc UBSAN_OPTIONS=halt_on_error=0:print_stacktrace=1
+   sh tests/host/ble_midi_receive_test.sh in that scratch tree.
+   -> expected exit 1 and null-pointer UBSan diagnostic. See
+   failfast-original-fixture.log. This proves the compile flag prevents a
+   false PASS without relying on a strict runtime environment variable.
+5. Shell syntax, Python AST parse, git diff --check pass.
+   git diff --exit-code e50df9a -- firmware host tools build.sh passes.
+   Firmware subtree IDs are recorded in input-and-checks.json.
+
+Evidence scope:
+The prior stage-3 evidence remains at
+cloud-handoff/2026-10-20/cloud-stage3-investigation/.
+Firmware/host/tool/build sources still match that candidate; earlier successful
+checks remain historical evidence for their recorded inputs. The two affected
+fixture failures and default-recovery receive result are superseded only by
+this stage-2 repair evidence; a fresh stage 3 must independently accept it.
+No target build, package, full gate, controller build, installation, device PASS,
+public release or main push was performed here. Target dependency directories
+and artifacts are not restored in this workspace. Do not infer that they are
+present from older absolute paths. Test-only changes do not require rebuilding
+the unchanged firmware in this stage.
+
+Successor status:
+Exactly one receiving owner is required: a fresh cloud stage-3 test chat,
+not created. No stage-3 successor ID exists for this repair.
+The activity check before checkpoint work showed this repair chat active and
+Continue Stage 3 Cloud Transfer idle; no active competing repair was observed.
+/workspace/shared/x0x-stage3-start.json was absent on this restored workspace.
+All exposed thread-tool metadata was inspected again. create_thread,
+fork_thread and tool_search are not callable; see thread-capability.json.
+No CLI session or supporting subagent was substituted for the fresh chat.
+The prior SUCCESSOR.txt CLI-network conclusion was retracted in the prior
+chat after the owner identified the wrong creation route. It is historical,
+not proof that creating the required cloud successor is network-blocked.
+
+Next action: launch one fresh cloud stage-3 chat using stage3-prompt.txt and
+the enclosing checkpoint revision. Recheck activity and start records first.
+Follow docs/rules/workflow.md rules 17-18: stage 3 uses separately scoped
+helpers, independently reruns the affected checks, reuses only matching
+unaffected evidence, and creates exactly one stage-4 successor after PASS.
+If new source repairs are needed, return to a fresh stage 2. Stages 4 through
+7 remain separate: validation, sole integration, local installation, verified
+normal fast-forward private-main push. Do not skip them.
