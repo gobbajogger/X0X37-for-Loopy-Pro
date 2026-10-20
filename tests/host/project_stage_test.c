@@ -371,6 +371,7 @@ static void test_semantic_rejection(void)
         BAD8(arr.lane[NLANE - 1].part, NPARTS), BAD8(arr.lane[NLANE - 1].t, T_PROB + 1),
         BAD8(arr.lane[NLANE - 1].v, NVOICES_MAX), BAD8(arr.lane[NLANE - 1].i, NPARAMS_MAX),
         BAD8(arr.lane[NLANE - 1].val[NSTEPS - 1], 254), BAD8(sound.v[T_303][1][0], 254),
+        BAD8(sound.v[T_FX][1][0], 128),
     };
     uint8_t h[PROJECT_FILE_HDR];
     unsigned k, b;

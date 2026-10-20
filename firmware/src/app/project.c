@@ -612,6 +612,8 @@ int project_validate_stage(void)
     for (i = 0; i < NPARTS; i++)
         if (s->midi_ch[i] > 17)
             return -1;
+    if (p->sound.v[T_FX][1][0] > 127)       /* UI's derived TAPE control */
+        return -1;
     for (t = 0; t < NTARGETS; t++)
         for (v = 0; v < engine_nvoices(t); v++)
             for (i = 0; i < engine_nparams(t, v); i++)
