@@ -8,7 +8,7 @@ description: "Install validated x0x37 firmware, transfer install artifacts, or p
 ### Rule 5: exact artifacts and owner data
 
 Before artifact selection, transfer, or installation, read [artifact and data requirements](references/artifacts.md).
-They define the designated installer, standing permission, model match, loop-slot backups, install notice, ledger, readback, and CRC checks.
+They define installer ownership, permission, model match, backups, notice, ledger, and the conditions for readback and CRC checks.
 Use local access without a machine transfer when available. Exclude proprietary JieLi files.
 
 ### Rule 6: finished set and release evidence

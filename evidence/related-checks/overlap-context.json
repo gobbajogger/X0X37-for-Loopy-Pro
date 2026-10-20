@@ -1,0 +1,10 @@
+{
+  "source_thread": "01a15b3e-244b-7fd3-a774-a2a43c651e82",
+  "result": "No overlap with managed discovery entries; current fixture checks do not use them as source-sensitive inputs.",
+  "excluded_paths": [
+    "tools/dev_validate.py",
+    "tests/host/test_dev_validate.py",
+    "BUILDING.md",
+    "evidence/native-worker-git-repair/"
+  ]
+}
