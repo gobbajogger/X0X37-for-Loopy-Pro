@@ -8,7 +8,14 @@
 # K10: only the stage state gives the knobs (not a page, a pad or Loopy), the keybed notes change, knobs 6-8
 # keep no turns. K10 fails on 54f92b2 (5 fail).
 # SRC=<dir> runs it on the firmware sources of another commit (the bisect), default firmware/src.
+# --extract-only prepares the shared harness without compiling or running the knob probe.
 set -e
+EXTRACT_ONLY=0
+case "$#:$*" in
+    0:) ;;
+    1:--extract-only) EXTRACT_ONLY=1 ;;
+    *) echo "usage: $0 [--extract-only]" >&2; exit 2 ;;
+esac
 cd "$(dirname "$0")/../.."
 SRC=${SRC:-firmware/src}
 OUT=${OUT:-build/host/clip_knob}
@@ -25,5 +32,6 @@ awk '/^#define PADLED_N 16u/{on=1} on && /^#endif/{exit} on' $SRC/lcd.c > $OUT/p
 for f in apc_a apc_b ck_a ck_b autosave padled; do
     test -s $OUT/$f.inc || { echo "FAIL: marker for $f.inc not found"; exit 1; }
 done
+[ "$EXTRACT_ONLY" = 0 ] || exit 0
 ${CC:-cc} -std=gnu99 -O1 -w -I$SRC -Ifirmware/hal -I$OUT -o $OUT/smk_clip_knob_test tests/host/smk_clip_knob_test.c
 $OUT/smk_clip_knob_test

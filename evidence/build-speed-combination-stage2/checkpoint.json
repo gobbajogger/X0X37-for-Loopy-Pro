@@ -21,6 +21,12 @@
       "source": "bcb856b6637a98866ac1bf3ad4642c2bb21e4a92",
       "local": "df2ae79",
       "acceptance": "remove_browser_emu_evidence/repair1-stage3/result.json"
+    },
+    {
+      "source": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+      "acceptance": "fed51d6233bf4d91a0ff73de06fe46d62414d71b",
+      "identity": "runner-identity.json",
+      "deduplication": "Scoped three-way patch applied; all four final source files match accepted candidate exactly."
     }
   ],
   "source_hashes": {
@@ -38,14 +44,17 @@
     "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
     "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
     "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf",
-    "tests/run_tests.sh": "14e1995eddbf626c66240361860a8dbeb87784ad29f7c47767277551bca58b07",
+    "tests/run_tests.sh": "8962afcdca97021b76390bbbb9469982d0cb1b79931a5e0c2d4f7cedb342bb99",
     "tools/gate.sh": "c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5",
     "tools/make_pages.py": "f0a59fb5bf75e01cfe76a55ff28a332058fecef83940b15fa12f081f2e223bcd",
     "tools/publish_pages.sh": "13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0",
     "web/emu/build.sh": null,
     "web/emu/index.html": null,
     "web/emu/worklet.js": null,
-    "web/emu/x0x_web.c": null
+    "web/emu/x0x_web.c": null,
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f"
   },
   "baseline_generator_asset_firmware_inputs": {
     "count": 87,
@@ -71,8 +80,7 @@
       "source_applied": false,
       "evidence": "../build_work_cleanup_repair/evidence/build-work-cleanup-repair/result.json",
       "limits": "Standalone checked repair only; no independent Test or applicable validation PASS received. No new real controller build required for cleanup-only source change."
-    },
-    "runner": "fe7f040 independent Test PASS at7f8dff3; host Validate01a15afb-2b5e-77f0-afac-98934e19bbfb pending. Completion requested."
+    }
   },
   "remaining": [
     "Apply each source only after required independent results/acceptance. Deduplicate browser removal patch.",

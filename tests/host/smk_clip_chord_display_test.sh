@@ -6,7 +6,7 @@ cd "$(dirname "$0")/../.."
 SRC=${SRC:-firmware/src}
 OUT=${OUT:-build/host/clip_chord}
 export SRC OUT
-sh tests/host/smk_clip_knob_test.sh
+sh tests/host/smk_clip_knob_test.sh --extract-only
 python3 tools/gen_font.py "$OUT/felucca_font.h"
 python3 - "$SRC" "$OUT" <<'PY'
 import pathlib,sys

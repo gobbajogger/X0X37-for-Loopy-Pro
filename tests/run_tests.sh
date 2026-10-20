@@ -32,7 +32,7 @@ cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
 OUT=build/host
-mkdir -p "$OUT" build/scenarios
+mkdir -p "$OUT"
 JOBS="${X0X_TEST_JOBS:-8}"
 export X0X_TEST_TIME_SCALE="${X0X_TEST_TIME_SCALE:-20}"
 export X0X_HOST_LOAD="${X0X_HOST_LOAD:-0}"   # x0x_host: the overload guard sees 0% until a "load N" line, not the time of a busy host
@@ -48,20 +48,29 @@ RES="$OUT/.results"
 # simulator's CPU guard uses the host time, so a busy host changes the result). P: host-only, parallel.
 test_class() {
     case "$1" in
-    install-slots-web) echo W ;;
+    install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|slot-backup|upload-tools|\
-    breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|emu|emu-slots|\
-    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) echo S ;;
-    rec-live|rec-live-smk) echo S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|smc-reachability|smc-drum-mutes|smc-performance-abort) echo G ;;
-    scenario-*|perf-scratch) echo C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
-    *) echo P ;;
+    breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
+    rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|smc-reachability|smc-drum-mutes|smc-performance-abort) TEST_CLASS=G ;;
+    scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
+    *) TEST_CLASS=P ;;
     esac
 }
+# Prepare fixtures only after selection and phase admission. Failure is a test failure.
+prepare_test() {
+    case "$1" in
+    scenario-*) mkdir -p "build/scenarios/${1#scenario-}" ;;
+    perf-scratch)
+        printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n' > $OUT/scratch_defs.h ;;
+    esac
+}
+run_test() { prepare_test "$1" && lk "$@"; }
 run_one() {             # key name command...: the result goes to $RES/key (and $RES/key.fail)
     k="$1"; n="$2"; shift 2
     t0=$(date +%s)
-    if lk "$n" "$@" > "$OUT/$n.log" 2>&1; then
+    if run_test "$n" "$@" > "$OUT/$n.log" 2>&1; then
         echo "  ok   $n" > "$RES/$k"
     else
         { echo "  FAIL $n (see $OUT/$n.log)"; tail -15 "$OUT/$n.log" | sed 's/^/       /'; } > "$RES/$k"
@@ -70,7 +79,7 @@ run_one() {             # key name command...: the result goes to $RES/key (and 
     echo "$(( $(date +%s) - t0 )) s $n" > "$RES/$k.time"
 }
 GLOCK="${X0X_GATE_LOCK:-/workspace/x0x37-refs/gate.lock}"
-install_path() { case "$(test_class "$1")" in W) return 0 ;; S) [ "$1" != rec-live ] ;; *) return 1 ;; esac; }
+install_path() { test_class "$1"; case "$TEST_CLASS" in W) return 0 ;; S) [ "$1" != rec-live ] ;; *) return 1 ;; esac; }
 lk() {                  # name command...: start the command. An install-path test holds the shared gate lock while it runs
     n_="$1"; shift
     if install_path "$n_" && [ "${X0X_GATE_HOLDS_LOCK:-0}" != 1 ] && [ -w "$GLOCK" ] && command -v flock >/dev/null 2>&1; then
@@ -96,7 +105,7 @@ run() {
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
     if [ "$JOBS" -le 1 ]; then
-        if lk "$name" "$@" > "$OUT/$name.log" 2>&1; then
+        if run_test "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
         else
             echo "  FAIL $name (see $OUT/$name.log)"
@@ -105,9 +114,10 @@ run() {
         fi
         return
     fi
-    key=$(printf '%04d' "$T_SEQ")
-    cls=$(test_class "$name")
+    test_class "$name"
+    cls=$TEST_CLASS
     case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+    key=$(printf '%04d' "$T_SEQ")
     if [ "$cls" = S ] || [ "$cls" = C ]; then
         run_one "$key" "$name" "$@"
         return
@@ -296,13 +306,11 @@ run copy-semantics sh tests/host/copy_semantics_test.sh
 run song-actions sh tests/host/song_actions_test.sh
 run ui-feedback sh tests/host/ui_feedback_test.sh
 for s in tests/scenarios/*.x0x; do
-    n=$(basename "$s" .x0x)
-    mkdir -p "build/scenarios/$n"
+    n=${s##*/}; n=${n%.x0x}
     run "scenario-$n" build/host/x0x_host "$s" "build/scenarios/$n"
 done
 # the device scratch (x0x.c): the PERF TEST patterns and the LZ hash table of a save in the same 4 KiB.
 # The test must play the same sound as with its own buffers (scenario perfsave: a save just before the test).
-printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n' > $OUT/scratch_defs.h
 run perf-scratch sh -c "X0X_HOST_DEFS='-include $OUT/scratch_defs.h' X0X_HOST_OUT=$OUT/x0x_host_scratch sh host/build_host.sh 2>/dev/null && \
     mkdir -p $OUT/perf-scratch && $OUT/x0x_host_scratch tests/scenarios/perf.x0x $OUT/perf-scratch && \
     $OUT/x0x_host_scratch tests/scenarios/perfsave.x0x $OUT/perf-scratch && \
