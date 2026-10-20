@@ -90,6 +90,7 @@ static void ck_page_draw(void) {}
 static uint8_t save_wait;
 static uint32_t save_calls;
 static uint8_t perf_testing(void) { return 0u; }
+static uint8_t perf_save_busy(void) { return 0u; }
 static int project_save(void) { save_calls++; return 0; }
 static void say(const char *s, uint32_t t) { (void)s; (void)t; }
 static void save_project(void) { save_wait = 0u; project_save(); }
