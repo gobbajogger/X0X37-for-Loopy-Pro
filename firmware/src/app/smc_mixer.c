@@ -125,13 +125,20 @@ static pref_t smc_target(int n)
     return smc_home_target(n);
 }
 
+/* The three mixer modes share strip destinations between faders and knobs.
+ * Sound pages, menus and clip editors keep their visible-field controls. */
 static pref_t smc_knob_target(int n)
 {
-    pref_t r = smc_page_target(n);
-    for (int i = 0; i < 8; i++)
-        if (smc_same(r, smc_target(i)))
-            return NONE;
-    return r;
+    pref_t r;
+    if (ui.help || ui.overlay == O_ASK)
+        return NONE;
+    if (ui.overlay == O_NONE && !smk_clip_mode_on() &&
+        (ui.view == V_HOME || (ui.view == V_MIX && (cur_page() == 0 || drum_mix_page() >= 0))))
+        return smc_target(n);
+    r = smc_page_target(n);
+    for (int i = 0; i < n; i++)
+        if (smc_same(r, smc_page_target(i))) return NONE;
+    return r;                         /* a paired fader does not disable this field */
 }
 
 static uint8_t smc_scaled(pref_t r)

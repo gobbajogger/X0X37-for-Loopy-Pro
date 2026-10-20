@@ -6,7 +6,7 @@ import re
 import subprocess
 import tempfile
 root = Path(__file__).resolve().parents[2]
-source = (root / 'firmware/src/app/smc_mixer.c').read_text()
+source = (Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c').read_text()
 names = ('smc_same', 'smc_home_target', 'smc_page_target', 'smc_target', 'smc_knob_target', 'smc_bank', 'smc_notice')
 functions = []
 for name in names:
@@ -50,7 +50,6 @@ static void unique(void) {
         pref_t f=smc_target(i), k=smc_knob_target(i);
         for(int j=0;j<8;j++) {
             if(f.kind!=R_NONE) {
-                assert(!smc_same(f,smc_knob_target(j)));
                 if(i!=j) assert(!smc_same(f,smc_target(j)));
             }
             if(k.kind!=R_NONE && i!=j) assert(!smc_same(k,smc_knob_target(j)));
@@ -58,7 +57,12 @@ static void unique(void) {
     }
 }
 int main(void) {
+    /* Owner: include knobs in all three mixer modes. */
+    ui.view=V_HOME; ui.overlay=O_NONE;
+    for(int n=0;n<8;n++) assert(smc_same(smc_knob_target(n),smc_home_target(n)));
+    unique();
     ui.view=V_MIX; ui.overlay=O_NONE;
+    for(int n=0;n<8;n++) assert(smc_same(smc_knob_target(n),smc_home_target(n)));
     for(kit=0;kit<2;kit++) {
         unsigned seen=0;
         for(int bank=0;bank<2;bank++) {
@@ -72,8 +76,7 @@ int main(void) {
                 assert(r.kind==R_ENG && r.a==(kit ? T_808:T_909) && r.b==bank*8+n && r.c==0);
                 seen |= 1u<<r.b;
             }
-            assert(smc_knob_target(0).kind==R_NONE);
-            assert(smc_knob_target(1).c==1);
+            for(int n=0;n<8;n++) assert(smc_same(smc_knob_target(n),smc_target(n)));
             unique();
         }
         assert(seen==0x7FF);
@@ -82,7 +85,9 @@ int main(void) {
     }
     ui.view=V_PART; kit=-1;
     pg.r[0][0]=PR(R_ENG,T_MIX,0,MX_LEVEL);
-    assert(smc_target(0).kind==R_ENG && smc_knob_target(0).kind==R_NONE);
+    assert(smc_target(0).kind==R_ENG && smc_same(smc_knob_target(0),pg.r[0][0]));
+    pg.r[0][1]=pg.r[0][0]; assert(smc_knob_target(1).kind==R_NONE);
+    pg.r[0][1]=PR(R_ENG,T_MIX,0,1);
     unique(); assert(!smc_bank(0x2F));
     ui.overlay=O_LIST; ui.list_n=8; ui.list_top=2;
     for(int n=0;n<12;n++) list_rows[n]=PR(R_ENG,T_MIX,n,1);
@@ -92,7 +97,7 @@ int main(void) {
     }
     unique();
     ui.help=1;
-    for(int n=0;n<8;n++) assert(smc_target(n).kind==R_NONE);
+    for(int n=0;n<8;n++) assert(smc_target(n).kind==R_NONE && smc_knob_target(n).kind==R_NONE);
     ui.help=0; ui.overlay=O_NONE; clip=1; stage=1;
     for(int n=0;n<8;n++) assert(smc_same(smc_target(n),smc_home_target(n)));
     return 0;
@@ -102,4 +107,4 @@ with tempfile.TemporaryDirectory() as tmp:
     c=Path(tmp)/'test.c'; exe=Path(tmp)/'test'; c.write_text(harness)
     subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror','-I'+str(root/'firmware/src'),str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
-print('PASS: both drum kits, 11 tracks, bank bounds, unique fader/knob targets, menus and stage isolation')
+print('PASS: both drum kits, 11 tracks, bank bounds, three knob modes, unique targets within each type, menus and stage isolation')

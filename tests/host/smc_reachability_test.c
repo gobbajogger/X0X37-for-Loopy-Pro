@@ -133,8 +133,9 @@ static void scenario(void) {
         for(int t=0;t<NDRUM;t++) {
             if(t==8) press(0x2F);
             press(24+t%8); assert(ui.sel[kit]==t);
-            for(int n=1;n<4;n++) { pref_t r=smc_knob_target(n); assert(r.b==t); edit(r,n); }
-            assert(smc_knob_target(0).kind==R_NONE);
+            pref_t k=smc_knob_target(t%8); assert(k.b==t);
+            edit(k,t%8);                  /* every strip in both drum knob banks */
+            for(int n=0;n<8;n++) assert(smc_same(smc_knob_target(n),smc_target(n)));
             pref_t r=smc_target(t%8); assert(r.b==t);
             fader(t%8,smc_scaled(r)); fader(t%8,70); assert(smc.picked & (1u<<(t%8)));
 
@@ -149,7 +150,9 @@ static void scenario(void) {
     }
 pickup: ;
     /* Real notice/frame: feedback must not rearm pickup after our own write. */
-    smc_view(V_HOME,0); pref_t r=smc_target(0); pref_set(r,64); smc_frame();
+    smc_view(V_HOME,0);
+    for(int n=0;n<8;n++) { assert(smc_same(smc_knob_target(n),smc_target(n))); edit(smc_knob_target(n),n); }
+    pref_t r=smc_target(0); pref_set(r,64); smc_frame();
     fader(0,0); assert(!(smc.picked&1) && !strncmp(ui.msg,"PICK F1",7));
     int old=pref_get(r); smc_frame(); assert(pref_get(r)==old);
     fader(0,127); assert((smc.picked&1) && !strncmp(ui.msg,"SMC F1",6));
