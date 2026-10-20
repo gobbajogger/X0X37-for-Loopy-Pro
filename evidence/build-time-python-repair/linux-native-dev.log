@@ -1,0 +1,13 @@
+.......REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+.....Preparing worktree (detached HEAD 7fa72ac)
+HEAD is now at 7fa72ac fixture
+.Preparing worktree (detached HEAD 7fa72ac)
+HEAD is now at 7fa72ac fixture
+.
+----------------------------------------------------------------------
+Ran 14 tests in 25.070s
+
+OK
+DEV CHECKED 3f3a19e5e59b298b513bd16444f3b67bc09dcdd3
+DEV OK 3f3a19e /Users/mac/Documents/x0x37/build_time_python_repair/build/native-fixtures/tmpclk45ns7/result/record.json (config dev; queue: 0 open lines in 3f3a19e)

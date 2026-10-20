@@ -5,6 +5,7 @@ No target toolchain, live queue, gate index, or device is used.
 import importlib.util
 import json
 import os
+import platform
 from pathlib import Path
 import subprocess
 import sys
@@ -123,6 +124,20 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('validation inputs changed', result.stderr)
         self.assertFalse((self.out/'record.json').exists())
+
+    def test_unenumerable_python_package_issues_no_record(self):
+        packages = self.root/'python-packages'
+        metadata = packages/'uncovered.egg-info'
+        metadata.mkdir(parents=True)
+        (metadata/'PKG-INFO').write_text('Name: uncovered\nVersion: 1.0\n')
+        self.env.update(PYTHONPATH=str(packages), X0X_VALIDATION_PYTHON_PACKAGES='uncovered')
+        plan = json.loads(self.plan.read_text())
+        plan['dependencies'] = [str(packages)]
+        self.plan.write_text(json.dumps(plan))
+        actual = self.run_validation()
+        self.assertEqual(actual.returncode, 3, actual.stdout+actual.stderr)
+        self.assertFalse((self.out/'record.json').exists())
+        self.assertFalse((self.out/'build.log').exists())
 
     def test_docs_only_commit_reuses_evidence(self):
         self.ready()
@@ -263,6 +278,21 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         self.assertFalse(list(self.repo.parent.glob('dev-check-*')))
 
 
+@unittest.skipUnless(platform.system() == 'Linux' and platform.machine() in ('x86_64', 'AMD64'),
+                     'Linux x86-64 is required for native execution')
+class NativeLinuxValidation(DevelopmentValidation):
+    def setUp(self):
+        self.fixture_parent = ROOT/'build/native-fixtures'
+        self.fixture_parent.mkdir(parents=True, exist_ok=True)
+        super().setUp()
+
+    def run_validation(self, controller=False, timeout=1800):
+        return subprocess.run([sys.executable, '-B', str(RUNNER), 'run', '--repo', str(self.repo),
+            '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
+            '--output', str(self.out), '--timeout', str(timeout)] + ([] if controller else ['--no-controller']),
+            capture_output=True, text=True, env=self.env)
+
+
 @unittest.skipUnless(os.environ.get('X0X_TEST_WORKER_IMAGE'), 'set X0X_TEST_WORKER_IMAGE for local Docker checks')
 class WorkerValidation(DevelopmentValidation):
     def setUp(self):
@@ -294,9 +324,31 @@ class WorkerValidation(DevelopmentValidation):
         self.assertEqual(data['validation_inputs']['inputs']['python_packages']['pillow']['version'],
             subprocess.check_output(['docker', 'run', '--rm', '--entrypoint', 'python3', worker['image'],
                 '-c', 'import PIL; print(PIL.__version__)'], text=True).strip())
+        self.assertNotEqual(data['validation_inputs']['inputs']['python_packages']['pillow']['sha256'],
+            __import__('hashlib').sha256(b'{}').hexdigest())
         worker['image'] = 'sha256:changed'
         (self.out/'record.json').write_text(json.dumps(data))
         self.assertEqual(self.guard().returncode, 3)
+
+    def package_mutation(self, module):
+        # Only the disposable worker's writable layer changes, never the image.
+        plan = json.loads(self.plan.read_text())
+        plan['checks'][0]['argv'] = ['python3', '-B', '-c',
+            'from pathlib import Path; import '+module+' as p; '
+            'f=Path(p.__file__); f.write_bytes(f.read_bytes()+b"\\n# mutation\\n"); print(f)']
+        self.plan.write_text(json.dumps(plan))
+        actual = self.run_validation()
+        self.assertEqual(actual.returncode, 3, actual.stdout+actual.stderr)
+        self.assertIn('validation inputs changed', actual.stderr)
+        self.assertFalse((self.out/'record.json').exists())
+        self.assertIn('/PIL/', (self.out/'check-0.log').read_text())
+        self.assertEqual(len(self.git('worktree', 'list').splitlines()), 1)
+
+    def test_installed_pillow_source_mutation_issues_no_record(self):
+        self.package_mutation('PIL')
+
+    def test_installed_pillow_binary_mutation_issues_no_record(self):
+        self.package_mutation('PIL._imaging')
 
     def test_dependency_change_during_validation_issues_no_record(self):
         # The worker receives these same bytes read-only. A mutation must fail.

@@ -1,0 +1,315 @@
+{
+  "distribution_files_is_none": true,
+  "covered_files": [
+    "PIL/BdfFontFile.py",
+    "PIL/BlpImagePlugin.py",
+    "PIL/BmpImagePlugin.py",
+    "PIL/BufrStubImagePlugin.py",
+    "PIL/ContainerIO.py",
+    "PIL/CurImagePlugin.py",
+    "PIL/DcxImagePlugin.py",
+    "PIL/DdsImagePlugin.py",
+    "PIL/EpsImagePlugin.py",
+    "PIL/ExifTags.py",
+    "PIL/FitsImagePlugin.py",
+    "PIL/FitsStubImagePlugin.py",
+    "PIL/FliImagePlugin.py",
+    "PIL/FontFile.py",
+    "PIL/FpxImagePlugin.py",
+    "PIL/FtexImagePlugin.py",
+    "PIL/GbrImagePlugin.py",
+    "PIL/GdImageFile.py",
+    "PIL/GifImagePlugin.py",
+    "PIL/GimpGradientFile.py",
+    "PIL/GimpPaletteFile.py",
+    "PIL/GribStubImagePlugin.py",
+    "PIL/Hdf5StubImagePlugin.py",
+    "PIL/IcnsImagePlugin.py",
+    "PIL/IcoImagePlugin.py",
+    "PIL/ImImagePlugin.py",
+    "PIL/Image.py",
+    "PIL/ImageChops.py",
+    "PIL/ImageCms.py",
+    "PIL/ImageColor.py",
+    "PIL/ImageDraw.py",
+    "PIL/ImageDraw2.py",
+    "PIL/ImageEnhance.py",
+    "PIL/ImageFile.py",
+    "PIL/ImageFilter.py",
+    "PIL/ImageFont.py",
+    "PIL/ImageGrab.py",
+    "PIL/ImageMath.py",
+    "PIL/ImageMode.py",
+    "PIL/ImageMorph.py",
+    "PIL/ImageOps.py",
+    "PIL/ImagePalette.py",
+    "PIL/ImagePath.py",
+    "PIL/ImageQt.py",
+    "PIL/ImageSequence.py",
+    "PIL/ImageShow.py",
+    "PIL/ImageStat.py",
+    "PIL/ImageTransform.py",
+    "PIL/ImageWin.py",
+    "PIL/ImtImagePlugin.py",
+    "PIL/IptcImagePlugin.py",
+    "PIL/Jpeg2KImagePlugin.py",
+    "PIL/JpegImagePlugin.py",
+    "PIL/JpegPresets.py",
+    "PIL/McIdasImagePlugin.py",
+    "PIL/MicImagePlugin.py",
+    "PIL/MpegImagePlugin.py",
+    "PIL/MpoImagePlugin.py",
+    "PIL/MspImagePlugin.py",
+    "PIL/PSDraw.py",
+    "PIL/PaletteFile.py",
+    "PIL/PalmImagePlugin.py",
+    "PIL/PcdImagePlugin.py",
+    "PIL/PcfFontFile.py",
+    "PIL/PcxImagePlugin.py",
+    "PIL/PdfImagePlugin.py",
+    "PIL/PdfParser.py",
+    "PIL/PixarImagePlugin.py",
+    "PIL/PngImagePlugin.py",
+    "PIL/PpmImagePlugin.py",
+    "PIL/PsdImagePlugin.py",
+    "PIL/PyAccess.py",
+    "PIL/SgiImagePlugin.py",
+    "PIL/SpiderImagePlugin.py",
+    "PIL/SunImagePlugin.py",
+    "PIL/TarIO.py",
+    "PIL/TgaImagePlugin.py",
+    "PIL/TiffImagePlugin.py",
+    "PIL/TiffTags.py",
+    "PIL/WalImageFile.py",
+    "PIL/WebPImagePlugin.py",
+    "PIL/WmfImagePlugin.py",
+    "PIL/XVThumbImagePlugin.py",
+    "PIL/XbmImagePlugin.py",
+    "PIL/XpmImagePlugin.py",
+    "PIL/__init__.py",
+    "PIL/__main__.py",
+    "PIL/_binary.py",
+    "PIL/_deprecate.py",
+    "PIL/_imaging.cpython-311-x86_64-linux-gnu.so",
+    "PIL/_imagingcms.cpython-311-x86_64-linux-gnu.so",
+    "PIL/_imagingft.cpython-311-x86_64-linux-gnu.so",
+    "PIL/_imagingmath.cpython-311-x86_64-linux-gnu.so",
+    "PIL/_imagingmorph.cpython-311-x86_64-linux-gnu.so",
+    "PIL/_tkinter_finder.py",
+    "PIL/_util.py",
+    "PIL/_version.py",
+    "PIL/_webp.cpython-311-x86_64-linux-gnu.so",
+    "PIL/features.py"
+  ],
+  "runtime_before": {
+    "tools": {
+      "bash": {
+        "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+        "executable": true
+      },
+      "sh": {
+        "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+        "executable": true
+      },
+      "git": {
+        "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+        "executable": true
+      },
+      "make": {
+        "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+        "executable": true
+      },
+      "node": {
+        "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+        "executable": true
+      },
+      "emcc": null,
+      "cc": {
+        "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+        "executable": true
+      },
+      "c++": {
+        "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+        "executable": true
+      },
+      "ld": {
+        "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+        "executable": true
+      },
+      "ar": {
+        "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+        "executable": true
+      },
+      "objcopy": {
+        "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+        "executable": true
+      },
+      "python": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      }
+    },
+    "python_packages": {
+      "numpy": null,
+      "pillow": {
+        "version": "9.4.0",
+        "sha256": "c6d6f5bc403396868ad18dad0b1d84a003b0837ece68e7f144d88fec9ea358b2"
+      }
+    },
+    "environment": {
+      "CC": "cc",
+      "CXX": "c++"
+    },
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "dependencies": {}
+  },
+  "mutations": [
+    {
+      "path": "/usr/lib/python3/dist-packages/PIL/__init__.py",
+      "before": "dd9f25c2ad1d6a7444ed64056716bbbccbdf4a3bff0b8f90ef7154aff807b786",
+      "after": "0b1f3d963d0e58acf1fe49b8ae947e11b5847990821eb1992650224670649432",
+      "runtime_after": {
+        "tools": {
+          "bash": {
+            "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+            "executable": true
+          },
+          "sh": {
+            "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+            "executable": true
+          },
+          "git": {
+            "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+            "executable": true
+          },
+          "make": {
+            "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+            "executable": true
+          },
+          "node": {
+            "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+            "executable": true
+          },
+          "emcc": null,
+          "cc": {
+            "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+            "executable": true
+          },
+          "c++": {
+            "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+            "executable": true
+          },
+          "ld": {
+            "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+            "executable": true
+          },
+          "ar": {
+            "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+            "executable": true
+          },
+          "objcopy": {
+            "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+            "executable": true
+          },
+          "python": {
+            "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+            "executable": true
+          }
+        },
+        "python_packages": {
+          "numpy": null,
+          "pillow": {
+            "version": "9.4.0",
+            "sha256": "6c23e7c56e1ac699c4ec4b5f160556c908fe7c667847c019cec5e77268dc0ca9"
+          }
+        },
+        "environment": {
+          "CC": "cc",
+          "CXX": "c++"
+        },
+        "platform": [
+          "Linux",
+          "x86_64",
+          "6.8.0-117-generic"
+        ],
+        "dependencies": {}
+      }
+    },
+    {
+      "path": "/usr/lib/python3/dist-packages/PIL/_imaging.cpython-311-x86_64-linux-gnu.so",
+      "before": "0aced06a23f7166ee001346828b253c82d3e0afd05cbc220546775c9822ab2aa",
+      "after": "1bc9d79042a5a04b2b7eaa6301fc1dd93b4311c02001293fe80d5018d80a4ec9",
+      "runtime_after": {
+        "tools": {
+          "bash": {
+            "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+            "executable": true
+          },
+          "sh": {
+            "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+            "executable": true
+          },
+          "git": {
+            "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+            "executable": true
+          },
+          "make": {
+            "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+            "executable": true
+          },
+          "node": {
+            "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+            "executable": true
+          },
+          "emcc": null,
+          "cc": {
+            "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+            "executable": true
+          },
+          "c++": {
+            "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+            "executable": true
+          },
+          "ld": {
+            "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+            "executable": true
+          },
+          "ar": {
+            "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+            "executable": true
+          },
+          "objcopy": {
+            "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+            "executable": true
+          },
+          "python": {
+            "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+            "executable": true
+          }
+        },
+        "python_packages": {
+          "numpy": null,
+          "pillow": {
+            "version": "9.4.0",
+            "sha256": "be4bdffa19e25e8cc3517432dbcfdfd10a21ef00536fa860867c1d9535fd0fb0"
+          }
+        },
+        "environment": {
+          "CC": "cc",
+          "CXX": "c++"
+        },
+        "platform": [
+          "Linux",
+          "x86_64",
+          "6.8.0-117-generic"
+        ],
+        "dependencies": {}
+      }
+    }
+  ],
+  "restored": true
+}

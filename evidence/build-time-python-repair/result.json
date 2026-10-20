@@ -1,0 +1,82 @@
+{
+  "workflow": "build-time-20261021",
+  "marker": "build-time-20261021-stage2-python-manifest-repair",
+  "stage": 2,
+  "status": "CHECKED REPAIR",
+  "source_chat": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
+  "lane": "/Users/mac/Documents/x0x37/build_time_python_repair",
+  "branch": "lane/opt-build-time-python-repair",
+  "base": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "fixes": [
+    "I2: Hash installed declared modules when distro metadata omits or empties the manifest; include source, extensions and package data without importing modules.",
+    "Refuse absent/unsafe/unresolvable installed-module coverage, empty fingerprints and missing declared manifest files. Preserve optional absent distributions as null.",
+    "Use the audited direct directory traversal while preserving byte/mode/exclusion/symlink identities. Rehash bytes every capture; no mtime cache."
+  ],
+  "inputs": "inputs.json",
+  "checks": "checks.json",
+  "coverage": {
+    "input_cases_host": 14,
+    "input_cases_linux": 14,
+    "host_dev_cases": "14 original cases plus 1 new fail-closed consumer case",
+    "linux_native_dev_cases": "14 original cases plus 1 new fail-closed consumer case, no platform mocking",
+    "real_worker_cases": "7: actual provenance, source mutation, binary mutation, transferred consumer authentication, fail closed, timeout cleanup and signal cleanup",
+    "actual_package_proof": "Pinned distro Pillow source and compiled _imaging bytes each invalidate runtime; restored bytes restore exact runtime identity.",
+    "walker_equivalence": "Frozen original algorithm versus direct walker on scratch aliases/modes/bytes/exclusions/cycle/dangling/FIFO cases and actual SDK/toolchain."
+  },
+  "setup_failures": [
+    "Initial Docker socket access required approval, which was granted. No denied attempt is counted as passing.",
+    "Linux shared-mount scratch files triggered Git dubious ownership and unsupported FIFO creation (linux-inputs-attempt1.log; setup-attempt.json).",
+    "Default Linux tmpfs was noexec, so fake emcc was not discoverable (linux-inputs-attempt2.log; setup-attempt2.json).",
+    "Controlled fixture retry uses read-only same-path source and exec-enabled Linux scratch tmpfs at build/. No HOME or global Git setting changed."
+  ],
+  "reused_checks": {
+    "logs": [
+      {
+        "log": "evidence/build-time-stage2/native-dev.log",
+        "sha256": "c873433a031c0c4312e03097f07eb122488a2a2b4914861f439bbbf2426d0a41",
+        "returncode": 0
+      },
+      {
+        "log": "evidence/build-time-stage2/worker-dev.log",
+        "sha256": "f667fd30f8d55329af47f61f2f5055d633d9eff9cb18f3403d106cc2cfe5bc5a",
+        "returncode": 0
+      },
+      {
+        "log": "evidence/build-time-stage2/validation-inputs.log",
+        "sha256": "8dabb1e39956291a21edfefa05bf269f3dea90a2c51a6909bf3f7026f80345b0",
+        "returncode": 0
+      },
+      {
+        "log": "evidence/build-time-stage2/preferences.log",
+        "sha256": "1d9ccdc1c953674dc4290ece5d4261ce152d2dbe575b2449a8302d0186d888b7",
+        "returncode": 0
+      },
+      {
+        "log": "evidence/build-time-stage2/diff.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "returncode": 0
+      }
+    ],
+    "scope": "Original checks are retained historical coverage for unchanged plan/record/queue/installer/worker lifecycle code. Changed package/runtime and direct-walker behavior is covered by the new checks. Original native/input results are superseded by current execution; no original run proves I2."
+  },
+  "I1_declaration_contract": "Every additional consumed worker mount must be listed in plan.dependencies. Mount path/access metadata alone does not hash all mounted bytes.",
+  "authorization": {
+    "owner_request_source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+    "owner_quote": "I grant you full access for this project indefinitely for development purposes",
+    "quote_source_chat": "01a15ac7-17e4-7633-b9a5-6652fa0aefed",
+    "optional_walker_guidance": "/Users/mac/Documents/x0x37/build_time_stage3/evidence/build-time-stage3/repair-handoff-supplement.json"
+  },
+  "limits": [
+    "No target build, exact firmware/controller comparison, end-to-end timing, full/release gate, device install, firmware integration or external push.",
+    "SDK traversal timers are one sequential local probe with possible warm-cache effects, not full validation speed.",
+    "Linux fixture tmpfs, scratch paths and per-worker HOSTNAME are recorded bookkeeping; real comparison inputs must still match.",
+    "Fresh independent stage3 must test the complete checked repair before stage4."
+  ],
+  "routing_update": {
+    "source_chat": "01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
+    "current_rule": "/Users/mac/Documents/x0x37/.agents/skills/x0x37-task/references/routing.md",
+    "disposition": "Complete the requested independent test and investigation scopes in this bounded execution task; do not launch an automatic Codex stage chain. Save the remaining validation handoff for classic ChatGPT in LoopyX0X37."
+  },
+  "next_stage": 3,
+  "next_owner": "Separate independent test and investigation subagents in this bounded execution task."
+}

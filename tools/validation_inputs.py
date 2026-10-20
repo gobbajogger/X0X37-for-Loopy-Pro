@@ -9,11 +9,13 @@ Install consumers check recorded provenance; they need not have the build SDK.
 import argparse
 import hashlib
 import importlib.metadata
+import importlib.machinery
 import json
 import os
 from pathlib import Path
 import platform
 import shutil
+import stat
 import subprocess
 import sys
 
@@ -38,17 +40,29 @@ def file_hash(path):
 
 
 def content(path, ancestors=(), exclude=()):
-    path = Path(path)
-    actual = path.resolve(strict=True)
+    return _content_resolved(Path(path).resolve(strict=True), ancestors, exclude)
+
+
+def _content_resolved(actual, ancestors, exclude):
     if actual in ancestors:
-        raise ValueError('dependency symlink cycle: ' + str(path))
-    if path.is_file():
-        return {'sha256': file_hash(path), 'executable': bool(path.stat().st_mode & 0o111)}
-    if not path.is_dir():
-        raise ValueError('not a dependency file/directory: ' + str(path))
+        raise ValueError('dependency symlink cycle: ' + str(actual))
+    info = actual.stat()
+    if stat.S_ISREG(info.st_mode):
+        return {'sha256': file_hash(actual), 'executable': bool(info.st_mode & 0o111)}
+    if not stat.S_ISDIR(info.st_mode):
+        raise ValueError('not a dependency file/directory: ' + str(actual))
     # Git metadata is mutable bookkeeping, not a build input.
-    return {'sha256': digest(encoded({p.name: content(p, (*ancestors, actual), exclude)
-                                     for p in sorted(path.iterdir()) if p.name not in ('.git', '__pycache__', *exclude)}))}
+    with os.scandir(actual) as scan:
+        entries = sorted(scan, key=lambda entry: entry.name)
+    children = {}
+    for entry in entries:
+        if entry.name in ('.git', '__pycache__', *exclude):
+            continue
+        child = Path(entry.path)
+        if entry.is_symlink():
+            child = child.resolve(strict=True)
+        children[entry.name] = _content_resolved(child, (*ancestors, actual), exclude)
+    return {'sha256': digest(encoded(children))}
 
 
 def git(repo, *args):
@@ -58,6 +72,51 @@ def git(repo, *args):
 def source_tree(repo, commit):
     rows = git(repo, 'ls-tree', '-r', '--full-tree', commit).splitlines()
     return digest(''.join(r + '\n' for r in rows if not r.split('\t', 1)[-1].endswith('.md')).encode())
+
+
+def package_files(dist):
+    """Hash a manifest, or declared installed modules when distro metadata omits it.
+
+    Do not import modules: imports can execute code and select a shadowing copy.
+    Missing/unsafe metadata must stop capture rather than authenticate no bytes.
+    """
+    manifest = dist.files
+    if manifest:
+        files = {str(p): file_hash(dist.locate_file(p)) for p in manifest
+                 if not str(p).endswith(('.pyc', '.pyo'))}
+    else:
+        names = (dist.read_text('top_level.txt') or '').split()
+        if not names or any(not name.isidentifier() for name in names):
+            raise ValueError('cannot enumerate Python package: missing or unsafe top_level.txt')
+        root = Path(dist.locate_file('')).resolve(strict=True)
+        files = {}
+
+        def collect(path, ancestors=()):
+            actual = path.resolve(strict=True)
+            if root not in actual.parents or actual in ancestors:
+                raise ValueError('unsafe Python package path: ' + str(path))
+            if path.is_dir():
+                for child in sorted(path.iterdir()):
+                    if child.name != '__pycache__':
+                        collect(child, (*ancestors, actual))
+            elif path.is_file():
+                if path.suffix not in ('.pyc', '.pyo'):
+                    files[str(path.relative_to(root))] = file_hash(path)
+            else:
+                raise ValueError('not a Python package file/directory: ' + str(path))
+
+        for name in sorted(set(names)):
+            paths = [root / name] + [root / (name + suffix)
+                                     for suffix in importlib.machinery.all_suffixes()
+                                     if suffix not in ('.pyc', '.pyo')]
+            installed = [p for p in paths if p.exists() or p.is_symlink()]
+            if not installed:
+                raise ValueError('cannot find installed Python module: ' + name)
+            for path in installed:
+                collect(path)
+    if not files:
+        raise ValueError('cannot fingerprint an empty installed Python package')
+    return files
 
 
 def runtime(config, env=None):
@@ -92,8 +151,7 @@ def runtime(config, env=None):
         except importlib.metadata.PackageNotFoundError:
             packages[name] = None
             continue
-        files = {str(p): file_hash(dist.locate_file(p)) for p in (dist.files or [])
-                 if not str(p).endswith(('.pyc', '.pyo')) and dist.locate_file(p).is_file()}
+        files = package_files(dist)
         packages[name] = {'version': dist.version, 'sha256': digest(encoded(files))}
     settings = {k: v for k, v in env.items() if k.startswith(('X0X_DEV_', 'FELUCCA_', 'EMCC_')) or k in (
         'CC', 'CXX', 'CFLAGS', 'CXXFLAGS', 'CPPFLAGS', 'LDFLAGS', 'CPATH', 'LIBRARY_PATH',

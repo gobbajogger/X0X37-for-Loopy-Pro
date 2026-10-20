@@ -1,0 +1,246 @@
+{
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "python": "/Library/Developer/CommandLineTools/usr/bin/python3",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "environment_overrides": {
+    "CC": "cc",
+    "CXX": "c++",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "X0X_TEST_WORKER_IMAGE": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"
+  },
+  "timer": "perf_counter around each complete subprocess.run; no firmware validation timing",
+  "checks": [
+    {
+      "name": "image",
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "--format",
+        "{{.Id}} {{.Os}}/{{.Architecture}}"
+      ],
+      "returncode": 0,
+      "seconds": 0.180722292,
+      "log": "image.log",
+      "sha256": "fb3a5bd39412621e3279f34104de48b8142f5f8584c0a433da690fb4600837ac"
+    },
+    {
+      "name": "host-inputs",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ],
+      "returncode": 0,
+      "seconds": 10.731615416,
+      "log": "host-inputs.log",
+      "sha256": "bfba48a0cc35a9607846386b857d1af44de29c1cc96fc8b10b4a51a7e61f0e3e"
+    },
+    {
+      "name": "host-dev",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation"
+      ],
+      "returncode": 0,
+      "seconds": 11.347291166000002,
+      "log": "host-dev.log",
+      "sha256": "6b249b1d976fa6b2ae3c71bde621cb4a9ddf51bcc497e6a4214361376676d1bd"
+    },
+    {
+      "name": "linux-inputs",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ],
+      "returncode": 0,
+      "seconds": 22.968642875,
+      "log": "linux-inputs.log",
+      "sha256": "e027ff9238c33b1461c5da4e69222235bf71303f96dee82c13e386615146ce57"
+    },
+    {
+      "name": "linux-native-dev",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.NativeLinuxValidation"
+      ],
+      "returncode": 0,
+      "seconds": 26.512257333,
+      "log": "linux-native-dev.log",
+      "sha256": "943e8e26455a1ac071f4553f03a1798ef52a728f5c8a17526e8af948b5209f62"
+    },
+    {
+      "name": "package-proof",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/package-proof.py"
+      ],
+      "returncode": 0,
+      "seconds": 2.5045498329999987,
+      "log": "package-proof.log",
+      "sha256": "8704634d0b213d95016d64fc834b8bc252781d5816838749a254bcc856d10b95"
+    },
+    {
+      "name": "worker-affected",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.WorkerValidation.test_worker_provenance_and_consumer_authentication",
+        "tests.host.test_dev_validate.WorkerValidation.test_installed_pillow_source_mutation_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_installed_pillow_binary_mutation_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_identity_required_and_transfer_does_not_need_build_dependencies"
+      ],
+      "returncode": 0,
+      "seconds": 16.071909291999994,
+      "log": "worker-affected.log",
+      "sha256": "5c98ab9cdb7739f7e5d6c03345c69c686247fdb6958156670ab5ab3d09cfa27f"
+    },
+    {
+      "name": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0,
+      "seconds": 0.020487584000008496,
+      "log": "diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "host-dev-fail-closed",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation.test_unenumerable_python_package_issues_no_record"
+      ],
+      "returncode": 0,
+      "seconds": 0.546375084,
+      "log": "host-dev-fail-closed.log",
+      "sha256": "484304328268146c6ecb364cb9a14ef86d19316cca29933805cf752bd90125fe"
+    },
+    {
+      "name": "linux-native-fail-closed",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.NativeLinuxValidation.test_unenumerable_python_package_issues_no_record"
+      ],
+      "returncode": 0,
+      "seconds": 2.779141209,
+      "log": "linux-native-fail-closed.log",
+      "sha256": "d0578e96b87c18c278140eef44e2e15084fcbc2a59cf84f985ce93ac27c3e976"
+    },
+    {
+      "name": "worker-additional",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.WorkerValidation.test_unenumerable_python_package_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_timeout_kills_owned_child",
+        "tests.host.test_dev_validate.WorkerValidation.test_signal_removes_worker_before_scratch"
+      ],
+      "returncode": 0,
+      "seconds": 11.510546834,
+      "log": "worker-additional.log",
+      "sha256": "b15b61feba02bf7cf42fd8586237a13464066e7b997a76a727e78c5b421b13d7"
+    }
+  ]
+}

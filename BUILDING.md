@@ -223,6 +223,9 @@ alone does not request a gate: the release/owner-purpose rule still applies.
 Development records use schema 2 and the same provenance format. Put external check
 inputs in the plan's `dependencies` path list; list additional Python distributions
 in `X0X_VALIDATION_PYTHON_PACKAGES` (Pillow and NumPy are captured by default).
+Installed distributions use their file manifests. If a distro omits the manifest,
+capture hashes the source, extensions and data under its declared `top_level.txt`
+modules. Missing, empty or unsafe installed-module coverage stops validation.
 Gate logs are retained per run. Keep `validation-inputs.json` with transferred gate
 logs; `sync_results_to_mac.sh` includes it. Install consumers verify the recorded
 identity and exact artifacts without needing the producer's SDK on the installer.

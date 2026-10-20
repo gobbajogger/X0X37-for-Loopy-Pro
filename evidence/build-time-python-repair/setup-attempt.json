@@ -1,0 +1,88 @@
+{
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "python": "/Library/Developer/CommandLineTools/usr/bin/python3",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "environment_overrides": {
+    "CC": "cc",
+    "CXX": "c++",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "X0X_TEST_WORKER_IMAGE": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"
+  },
+  "timer": "perf_counter around each complete subprocess.run; no firmware validation timing",
+  "checks": [
+    {
+      "name": "image",
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "--format",
+        "{{.Id}} {{.Os}}/{{.Architecture}}"
+      ],
+      "returncode": 0,
+      "seconds": 0.180722292,
+      "log": "image.log",
+      "sha256": "fb3a5bd39412621e3279f34104de48b8142f5f8584c0a433da690fb4600837ac"
+    },
+    {
+      "name": "host-inputs",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ],
+      "returncode": 0,
+      "seconds": 10.731615416,
+      "log": "host-inputs.log",
+      "sha256": "bfba48a0cc35a9607846386b857d1af44de29c1cc96fc8b10b4a51a7e61f0e3e"
+    },
+    {
+      "name": "host-dev",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation"
+      ],
+      "returncode": 0,
+      "seconds": 11.347291166000002,
+      "log": "host-dev.log",
+      "sha256": "6b249b1d976fa6b2ae3c71bde621cb4a9ddf51bcc497e6a4214361376676d1bd"
+    },
+    {
+      "name": "linux-inputs",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ],
+      "returncode": 1,
+      "seconds": 8.699641084000003,
+      "log": "linux-inputs.log",
+      "sha256": "c0ba73bdcbfebbad3d966973f153310f83b490ca4188c785c0e6ed5651e67248"
+    }
+  ]
+}

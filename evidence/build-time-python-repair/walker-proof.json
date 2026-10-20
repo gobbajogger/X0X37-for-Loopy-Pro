@@ -1,0 +1,34 @@
+{
+  "host": "macOS-27.2-arm64-arm-64bit",
+  "argv": [
+    "evidence/build-time-python-repair/walker-proof.py",
+    "/Users/mac/fw-AC79_AIoT_SDK",
+    "/Users/mac/.jieli/toolchain"
+  ],
+  "equal": true,
+  "timer": "perf_counter around one content(path) call, original then direct; warm caches possible; no target build",
+  "results": [
+    {
+      "path": "/Users/mac/fw-AC79_AIoT_SDK",
+      "original": {
+        "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+      },
+      "original_seconds": 2.791667292,
+      "direct": {
+        "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+      },
+      "direct_seconds": 0.8804291660000003
+    },
+    {
+      "path": "/Users/mac/.jieli/toolchain",
+      "original": {
+        "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+      },
+      "original_seconds": 0.42609312499999996,
+      "direct": {
+        "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+      },
+      "direct_seconds": 0.25808391600000036
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "base": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "source_hashes": {
+    "tools/validation_inputs.py": "84eb0d8852619557f9e44adc1e92045ce4e26fa3462670f36fc427dccd6cda8d",
+    "tests/host/test_validation_inputs.py": "7b277dab7f8a7c2bd410317e2eb15cdb6e59bde40c1b9f5d8670f2c8cc9b6cbf",
+    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
+    "BUILDING.md": "010336a36d6eb1328cb358b1d1ae71c73c4458ddb7974032b04d098f89bd75c8"
+  },
+  "unchanged_consumers_and_generators": {
+    "tools/dev_validate.py": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+    "tools/require_gate_pass.sh": "cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf",
+    "tools/fm1_install.py": "2ede8eb2ced566b9916ea7aec403c3bbc70c2063f96efa94625ba737a5a87c6b",
+    "tools/build.py": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+    "tools/gen_font.py": "091d0152de0feafb57d4082c252232e613e8e79f6e91178032c514b5d816166f",
+    "ble/ctl/build_ctl.sh": "96f46b2c1cc6a09f2d2e4e6f600679a8aaf580bf257c3985262fbedfde449eec",
+    "ble/ctl/build_in_container.sh": "e0481ad35e3a272edad4b6327dbd0d3c7515b55e7cfcf7bf54fd0d215d503077"
+  },
+  "verify_AST_matches_audit": true,
+  "host_python": {
+    "path": "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464"
+  },
+  "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "worker_runtime_and_pillow_byte_proof": "package-proof.log",
+  "dependency_identities_and_walk_timer": "walker-proof.json",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_tracked_status": ""
+}

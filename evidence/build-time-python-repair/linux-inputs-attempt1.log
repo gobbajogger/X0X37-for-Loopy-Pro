@@ -1,0 +1,123 @@
+Efatal: detected dubious ownership in repository at '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmp1cjoa92j/repo'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmp1cjoa92j/repo
+Efatal: detected dubious ownership in repository at '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpuouagfs0/repo'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpuouagfs0/repo
+Efatal: detected dubious ownership in repository at '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpczdtp9ft/repo'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpczdtp9ft/repo
+Efatal: detected dubious ownership in repository at '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpk6ceqkgy/repo'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpk6ceqkgy/repo
+Efatal: detected dubious ownership in repository at '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpfl37_ijj/repo'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpfl37_ijj/repo
+E........
+======================================================================
+ERROR: test_original_identity_and_rejections (tests.host.test_validation_inputs.ContentWalk.test_original_identity_and_rejections)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 320, in test_original_identity_and_rejections
+    os.mkfifo(root/'unsupported')
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_identical_and_changes (tests.host.test_validation_inputs.Inputs.test_identical_and_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 29, in setUp
+    self.commit(self.repo)
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 51, in commit
+    self.git(repo, 'add', '.')
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 48, in git
+    return subprocess.check_output(['git', '-C', str(repo), *args], text=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmp1cjoa92j/repo', 'add', '.']' returned non-zero exit status 128.
+
+======================================================================
+ERROR: test_installed_runner_name_preserves_identity (tests.host.test_validation_inputs.Inputs.test_installed_runner_name_preserves_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 29, in setUp
+    self.commit(self.repo)
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 51, in commit
+    self.git(repo, 'add', '.')
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 48, in git
+    return subprocess.check_output(['git', '-C', str(repo), *args], text=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpuouagfs0/repo', 'add', '.']' returned non-zero exit status 128.
+
+======================================================================
+ERROR: test_optional_emcc_changes_coverage_identity (tests.host.test_validation_inputs.Inputs.test_optional_emcc_changes_coverage_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 29, in setUp
+    self.commit(self.repo)
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 51, in commit
+    self.git(repo, 'add', '.')
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 48, in git
+    return subprocess.check_output(['git', '-C', str(repo), *args], text=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpczdtp9ft/repo', 'add', '.']' returned non-zero exit status 128.
+
+======================================================================
+ERROR: test_real_gate_reuse_routing_with_scratch_inputs (tests.host.test_validation_inputs.Inputs.test_real_gate_reuse_routing_with_scratch_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 29, in setUp
+    self.commit(self.repo)
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 51, in commit
+    self.git(repo, 'add', '.')
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 48, in git
+    return subprocess.check_output(['git', '-C', str(repo), *args], text=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpk6ceqkgy/repo', 'add', '.']' returned non-zero exit status 128.
+
+======================================================================
+ERROR: test_split_execution_preserves_all_original_input_bytes (tests.host.test_validation_inputs.Inputs.test_split_execution_preserves_all_original_input_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 29, in setUp
+    self.commit(self.repo)
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 51, in commit
+    self.git(repo, 'add', '.')
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 48, in git
+    return subprocess.check_output(['git', '-C', str(repo), *args], text=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/Users/mac/Documents/x0x37/build_time_python_repair/build/input-fixtures/tmpfl37_ijj/repo', 'add', '.']' returned non-zero exit status 128.
+
+----------------------------------------------------------------------
+Ran 14 tests in 6.893s
+
+FAILED (errors=6)

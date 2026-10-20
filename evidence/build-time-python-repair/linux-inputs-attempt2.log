@@ -1,0 +1,13 @@
+...F..........
+======================================================================
+FAIL: test_optional_emcc_changes_coverage_identity (tests.host.test_validation_inputs.Inputs.test_optional_emcc_changes_coverage_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_time_python_repair/tests/host/test_validation_inputs.py", line 102, in test_optional_emcc_changes_coverage_identity
+    self.assertNotEqual(baseline['sha256'], changed['sha256'])
+AssertionError: '56d1463a4bf7c8495729fa123d7e8ee3ba174de532113ec97fe9df7dd8516712' == '56d1463a4bf7c8495729fa123d7e8ee3ba174de532113ec97fe9df7dd8516712'
+
+----------------------------------------------------------------------
+Ran 14 tests in 24.702s
+
+FAILED (failures=1)

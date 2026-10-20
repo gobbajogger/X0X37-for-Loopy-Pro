@@ -1,0 +1,13 @@
+.......REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
+.....Preparing worktree (detached HEAD 4534fe6)
+HEAD is now at 4534fe6 fixture
+.Preparing worktree (detached HEAD 4534fe6)
+HEAD is now at 4534fe6 fixture
+.
+----------------------------------------------------------------------
+Ran 14 tests in 11.252s
+
+OK
+DEV CHECKED 1a0dd6c0c839233d6a7399f1ccb8ab347824ad08
+DEV OK 1a0dd6c /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpjeeymmwi/result/record.json (config dev; queue: 0 open lines in 1a0dd6c)
