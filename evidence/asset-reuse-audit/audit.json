@@ -1,0 +1,37 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "stage": 1,
+  "source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+  "owner_request": "Implement?",
+  "approved_scope": "Implement the proposed generated-asset reuse and avoid redundant whole-firmware comparison builds. Preserve required checks, features, and asset quality.",
+  "findings": [
+    "tools/build.py generate() unconditionally runs gen_font.py, gen_drum_samples.py, and the custom or built-in break-bank generator.",
+    "gen_drum_samples.py produces both x0x_drum_samples.h and x0x_drum_tables.h and imports sampleio.py; its source WAVs are assets/909/{hh,ride,crash}.wav.",
+    "gen_font.py reads X0X_FONTSET and the ordered X0X_FONT_DIRS search path; resolves bundled fonts first; imports Pillow and depends on font-renderer feature availability and libraries.",
+    "gen_builtin_break.sh compiles gen_builtin_break.c and drum909.c using CC (default cc), -O2 -ffp-contract=off, generated samples/tables and transitive project/system headers, then executes the renderer.",
+    "gen_break_bank.py imports sampleio.py and reads bank.txt and selected WAVs from X0X_BREAK_BANK. The generated comment also includes the bank folder name.",
+    "Fresh validation worktrees discard build/gen. A build-directory-only cache will not remove repeated generation across validations.",
+    "The active native orchestration lane modifies dev_validate.py and validation_inputs.py, not build.py. Its worker already mounts the git common directory read-write at the same absolute path.",
+    "A cache under git-common-dir/x0x37-asset-cache can survive scratch worktrees without another Docker mount or dependency-source modification. A non-Git checkout needs a safe fallback.",
+    "No routine second Mac/Linux full firmware build is required. Cache correctness can be checked at generated-output scope. There is no permission to silently reduce font or audio quality."
+  ],
+  "requirements": [
+    "Use content hashes for actual generator inputs and runtime dependencies. Do not use only mtimes or commit IDs.",
+    "Keep font, drum data, and break-bank cache keys separate so an unrelated input change does not regenerate every asset.",
+    "Include resolved selected font bytes, fontset/search semantics, Pillow/FreeType/RAQM and relevant interpreter/native-library identity; never share fonts across incompatible rendering environments.",
+    "Include sampleio.py, WAV contents, Python/math runtime dependencies for drum/sample generation. Track both output headers together.",
+    "For built-in breaks include generator scripts/C, drum909.c, transitive headers, generated drum headers, effective CC and compiler/runtime/library identities. If trustworthy dependency discovery fails, regenerate instead of guessing.",
+    "For custom banks include bank manifest, actual named WAV contents and folder-name semantics, sampleio.py and runtime. Distinguish the built-in bank.",
+    "Verify output hashes before reuse. Missing, corrupted, partial, interrupted or concurrently written cache entries must never count as hits.",
+    "Publish cache entries atomically. Validate inputs again before publication so a changed input cannot seed a stale key. Preserve failure exit codes.",
+    "Use a cache location shared by fresh worktrees, scoped to this local repository; make unavailable/unwritable cache a performance miss, never a correctness failure. Avoid cache contents becoming source/provenance inputs.",
+    "Keep existing generator output and all target/compiler/budget/package guards. No routine second whole firmware build merely for Mac/Linux comparison.",
+    "Measure cold/warm asset generation and actual reuse in a fresh scratch worktree. Test input edits with restored mtimes, generator changes, selected runtime/config changes, output corruption, failures and concurrent writers.",
+    "Test at asset scope. Do not run a complete old Linux validator simply to time a baseline already measured in build-time-audit.",
+    "Do not edit the active native validator lane or active firmware integration. Deliver a separately checked asset commit and explicit combination handoff."
+  ],
+  "not_done": [
+    "No asset cache is implemented in this audit.",
+    "No asset runtime saving is claimed."
+  ]
+}
