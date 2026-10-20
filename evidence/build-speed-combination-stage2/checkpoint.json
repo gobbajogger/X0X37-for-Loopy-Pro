@@ -1,7 +1,7 @@
 {
   "workflow": "build-speed-combination-20261021",
   "stage": 2,
-  "state": "waiting_for_checked_prerequisites",
+  "state": "finishing_accepted_non_cache_reductions",
   "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
   "final_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
   "base": "1165396199210889fa460d26cbdd0b66183267e1",
@@ -84,35 +84,6 @@
     }
   },
   "pending": {
-    "cache": {
-      "state": "independent_test_failed_waiting_owner_routed_repair",
-      "production": "746ece6936a456ef963c758da659c07a801cec37",
-      "evidence": "1f1e75bc0d567f69b94d384b32f3c62232609f20",
-      "lane": "../asset_reuse_selector_repair",
-      "test_owner": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
-      "source_applied": false,
-      "reported_source_sha256": {
-        "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
-        "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250",
-        "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b"
-      },
-      "reported_stage2_checks": "28 pinned Linux/amd64 regressions PASS; four real output headers equal original; independent investigation of retained exploratory failures pending.",
-      "reported_asset_operation_seconds": {
-        "disabled": 8.298,
-        "cold": 15.798,
-        "warm": 6.762,
-        "fresh_source_copy": 6.827
-      },
-      "consumer_policy": "No accepted input yet. After acceptance, measure individual caller paths against matching baseline and retain original generation wherever cache reuse does not justify routing; preserve native unsupported fallback without expensive discovery.",
-      "limits": "Reported stage2 data only; independent Test and applicable stage4 acceptance still required.",
-      "independent_owner": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
-      "finding": "Symlink-loaded library RUNPATH $ORIGIN resolution uses alias folder, but canonical /proc/maps path inventory omits alias/early. Adding earlier alias dependency yields stale warm hit with bytes differing from cache-disabled original.",
-      "proof": "../asset_selector_stage3/evidence/asset-selector-stage3/investigation/origin-earlier.log",
-      "cached_sha256": "274ba96a799b1359e329df43a8317e9787accd855c5a62873ddf1c82a9d82382",
-      "original_sha256": "ae5a3fac1cbe9e75be3d164068c768b70883d06efebddf55b74228c09eac2828",
-      "routing": "Independent owner is finishing bounded checks and saving classic LoopyX0X37 repair handoff under updated owner routing; no automatic Codex repair chain.",
-      "required": "Wait for checked owner-routed repair plus independent PASS and applicable validation; reject746ece6. Remaining cache consumers retain direct generation."
-    },
     "native": {
       "state": "checked_repair_waiting_independent_results_and_validation",
       "candidate": "cadeae04bdc9160cfe15a74427829165e36ba60b",
@@ -129,9 +100,9 @@
     }
   },
   "remaining": [
+    "Asset reuse/consumer routing is withheld after independent FAIL; finish accepted non-cache reductions without waiting for a new cache repair.",
     "Apply each source only after required independent results/acceptance. Deduplicate browser removal patch.",
     "Remove unused stable validator compiler/environment capture and worker forwarding, preserving actual native provenance.",
-    "Measure checked cache helper per consumer on pinned Linux, compare saved operation baseline, verify exact bytes at real output paths. Retain original native path without unsupported discovery overhead.",
     "Cover default/generate-only host dispatch, custom break bank, output override and generator failures; reference/CYM_AB behavior; clip SRC/OUT overrides.",
     "Record complete combined checked source; run required independent review and scoped validation in this bounded task. Return compact execution evidence and any remaining classic-project handoff."
   ],
@@ -176,5 +147,20 @@
     "supersedes": "Original per-stage Codex launch plan in saved handoff and earlier checkpoint",
     "execution": "Keep authorized necessary edits and affected checks in this existing isolated combination task; no automatic Codex Test/Validate successors. Independent review helpers remain required by this explicit combination assignment.",
     "handoff": "Return compact execution evidence to coordinator; save classic LoopyX0X37 prompt if a new decision/task remains. Do not substitute general/Work/cloud chat."
+  },
+  "excluded_cache": {
+    "state": "excluded_failed_input",
+    "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+    "independent_review": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+    "proof": "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/investigation/origin-earlier.log",
+    "proof_sha256": "b293c585bbc04286149817024ec9e866f484c21f33a55c6c3a3fa1118dd4ee19",
+    "reason": "$ORIGIN RUNPATH dependency identity loses dlopen symlink alias directory; an earlier alias dependency can change original output while cache returns stale hit.",
+    "exclusion_checks": "PASS no asset_cache.py or test_asset_cache.py added; tools/build.py and both drum909 consumers exactly match1165396; all host-builder and clip-display generation command lines match1165396. Accepted generate-only/extraction changes remain.",
+    "no_accepted_cache_speedup": true,
+    "deferred": [
+      "Repair aliased loader origin identity or conservatively disable unsupported reuse; require stale-hit negative proof and affected independent checks.",
+      "Only then measure remaining individual host/drum/font caller paths and route where supported measured gain exists."
+    ],
+    "handoff": "classic-cache-repair-handoff.txt"
   }
 }
