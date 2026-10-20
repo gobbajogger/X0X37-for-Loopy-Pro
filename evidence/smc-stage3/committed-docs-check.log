@@ -1,0 +1,7 @@
+STE WARN 14 issues
+STE  AGENTS.md: [semicolon] For a standalone checkout, use CODE and its skill links; recover missing sources from the maintained project.
+STE  BEHAVIOR.md: [modal] A paired fader and knob may share a destination.
+STE  docs/SKILLS.md: [passive] The older status below is retained as history and is superseded there.
+STE  docs/SMC_MIXER.md: [modal,semicolon] Each control type has unique destinations; a paired fader and knob may share one.
+STE  docs/SMC_MIXER.md: [long_proc] SELECT 1–8 chooses the track within the current bank, so the page and deep menu can edit each track's pan and sends.
+QUICK PASS b03d173 0 s (STE step only; STE WARN 14 issues)
