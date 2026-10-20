@@ -1,0 +1,26 @@
+{
+  "cloud-handoff/2026-10-20/cloud-stage3-investigation": {
+    "count": 52,
+    "mismatches": []
+  },
+  "cloud-handoff/2026-10-21/cloud-stage2-fixture-repair": {
+    "count": 17,
+    "mismatches": []
+  },
+  "source_diff": {
+    "baseline": "e50df9a67f72211f85f0410c97c430b03c2e96ee",
+    "candidate": "1c6847412b8a380858d2eaace50e8dfe36b7495a",
+    "changed_non_evidence_paths": [
+      "tests/host/ble_midi_central_test.c",
+      "tests/host/ble_midi_receive_test.sh",
+      "tests/host/smc_clip_visibility_test.sh",
+      "tests/host/smk_clip_isolation_test.py"
+    ],
+    "unaffected_paths_byte_identical": true
+  },
+  "reuse": {
+    "host_results": "Prior passing unaffected host checks retained for matching recorded source/configuration/tool/dependency inputs; affected three checks must be independently rerun. No recovery-mode receive pass reused.",
+    "target_results": "Historical build/package results only at their recorded source/toolchain/SDK/artifact identities. Dependencies and artifacts are not assumed restored or currently validated. Stage 4 independently validates required configurations, packages and gate.",
+    "capture": "Exact saved payload replay with synthetic HCI remains distinct from MTU-23 resegmentation simulation; no new physical capture."
+  }
+}
