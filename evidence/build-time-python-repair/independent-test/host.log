@@ -1,0 +1,15 @@
+test_distro_source_binary_and_added_file_mutations (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_empty_installed_package_fails_closed (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_empty_manifest_uses_installed_modules (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_missing_unsafe_or_unresolvable_metadata_fails_closed (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_module_source_and_extension_without_importing (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_normal_manifest_preserves_all_declared_files (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_optional_absent_packages_remain_explicit (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_symlink_escape_and_cycle_fail_closed (tests.host.test_validation_inputs.PackageBytes) ... ok
+test_original_identity_and_rejections (tests.host.test_validation_inputs.ContentWalk) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.216s
+
+OK
+

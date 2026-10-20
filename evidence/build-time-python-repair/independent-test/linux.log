@@ -1,0 +1,22 @@
+test_distro_source_binary_and_added_file_mutations (tests.host.test_validation_inputs.PackageBytes.test_distro_source_binary_and_added_file_mutations) ... ok
+test_empty_installed_package_fails_closed (tests.host.test_validation_inputs.PackageBytes.test_empty_installed_package_fails_closed) ... ok
+test_empty_manifest_uses_installed_modules (tests.host.test_validation_inputs.PackageBytes.test_empty_manifest_uses_installed_modules) ... ok
+test_missing_unsafe_or_unresolvable_metadata_fails_closed (tests.host.test_validation_inputs.PackageBytes.test_missing_unsafe_or_unresolvable_metadata_fails_closed) ... ok
+test_module_source_and_extension_without_importing (tests.host.test_validation_inputs.PackageBytes.test_module_source_and_extension_without_importing) ... ok
+test_normal_manifest_preserves_all_declared_files (tests.host.test_validation_inputs.PackageBytes.test_normal_manifest_preserves_all_declared_files) ... ok
+test_optional_absent_packages_remain_explicit (tests.host.test_validation_inputs.PackageBytes.test_optional_absent_packages_remain_explicit) ... ok
+test_symlink_escape_and_cycle_fail_closed (tests.host.test_validation_inputs.PackageBytes.test_symlink_escape_and_cycle_fail_closed) ... ok
+test_original_identity_and_rejections (tests.host.test_validation_inputs.ContentWalk.test_original_identity_and_rejections) ... ok
+test_success_without_gate_and_queue_enforced (tests.host.test_dev_validate.NativeLinuxValidation.test_success_without_gate_and_queue_enforced) ... ok
+test_dependency_change_during_validation_issues_no_record (tests.host.test_dev_validate.NativeLinuxValidation.test_dependency_change_during_validation_issues_no_record) ... ok
+test_unenumerable_python_package_issues_no_record (tests.host.test_dev_validate.NativeLinuxValidation.test_unenumerable_python_package_issues_no_record) ... ok
+test_source_byte_mutation (__main__.InstalledMutation.test_source_byte_mutation) ... {"module": "PIL", "path": "/usr/lib/python3/dist-packages/PIL/__init__.py", "before": "dd9f25c2ad1d6a7444ed64056716bbbccbdf4a3bff0b8f90ef7154aff807b786", "after": "d52193b03a6b73fc236a265e399bb71df05d169c846c87c4dd02535b4555fe17", "record_issued": false}
+ok
+test_extension_byte_mutation (__main__.InstalledMutation.test_extension_byte_mutation) ... {"module": "PIL._imaging", "path": "/usr/lib/python3/dist-packages/PIL/_imaging.cpython-311-x86_64-linux-gnu.so", "before": "0aced06a23f7166ee001346828b253c82d3e0afd05cbc220546775c9822ab2aa", "after": "2247c153d10c26de5181c07bcde0f932b50cb9ff9f726f9872c3dffe0388019e", "record_issued": false}
+ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 11.487s
+
+OK
+

@@ -1,0 +1,65 @@
+{
+  "workflow": "build-time-20261021",
+  "scope": "Independent investigation of the Python provenance repair and direct content walker",
+  "candidate": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+  "base": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "status": "PASS",
+  "source_unchanged": true,
+  "findings": [],
+  "review": [
+    {
+      "scope": "Manifestless/empty-manifest package enumeration",
+      "result": "PASS",
+      "evidence": "tools/validation_inputs.py:77-119; independent-investigation/probe.py; probe-result.json",
+      "details": "The fallback reads top_level.txt without importing packages, accepts identifier-only module names, finds installed package directories and interpreter-supported source/extension suffixes, and hashes source, extensions and data recursively. Resolved paths must remain below the installation root; cycles, dangling links, unresolved modules, unsupported entries and empty coverage refuse capture. Bytecode outputs are excluded. A real metadata fixture covering namespace modules, standalone modules, extension/data bytes, same-root aliases and dangling links passed independently. Byte changes with preserved mtimes invalidate coverage."
+    },
+    {
+      "scope": "Normal manifests and optional absent packages",
+      "result": "PASS",
+      "evidence": "tools/validation_inputs.py:83-86,145-155; probe-result.json; retained host-inputs.log and linux-inputs.log",
+      "details": "Normal manifests remain authoritative and include declared files outside import package roots. Missing non-bytecode manifest files now fail closed instead of silently disappearing. Manifest records containing only excluded bytecode cannot issue an empty fingerprint. PackageNotFoundError remains explicit null for absent optional requested distributions. The schema and package record shape are unchanged."
+    },
+    {
+      "scope": "Actual pinned-worker source and binary bytes",
+      "result": "PASS RETAINED MATCHING EXECUTION EVIDENCE",
+      "evidence": "../package-proof.log; ../worker-affected.log; ../inputs.json; probe-result.json",
+      "details": "Verified saved log hashes and source identities. The actual Pillow 9.4.0 distribution still has files=None, but its repaired fingerprint is nonempty. Mutating PIL/__init__.py and the compiled PIL._imaging extension changes both bytes and runtime package identity. Restoration restores the exact runtime identity. Real LinuxWorker integration tests separately refuse DEV records for source and binary mutation. No package/image changes persist outside disposable workers."
+    },
+    {
+      "scope": "Direct directory traversal equivalence",
+      "result": "PASS",
+      "evidence": "tools/validation_inputs.py:42-65; probe-result.json; ../walker-proof.json; retained ContentWalk host/Linux cases",
+      "details": "The public function still resolves its input strictly. Ordinary descendants use direct paths; symlinks resolve strictly and use canonical ancestors for cycle checks. Each regular file is freshly hashed and keeps the same executable-mode bit. Child names, sorted order, exclusion rules and recursive JSON/digest format remain unchanged. Independent nested alias/mode/exclusion/cycle probes match the AST-extracted original algorithm. Verified retained exact SDK/toolchain hash equality. There is no mtime cache."
+    },
+    {
+      "scope": "Native/worker/gate failure propagation and consumer guards",
+      "result": "PASS",
+      "evidence": "tools/dev_validate.py:260-340,370; tools/gate.sh:202-207; validation_inputs.py main; probe-result.json; retained host/native/worker fail-closed logs",
+      "details": "Both native and worker captures happen before execution and again before record creation. A package enumeration error prevents initial capture; a changed package prevents the final identity comparison. The gate capture CLI independently returned 2 with no identity JSON for unusable installed metadata; the unchanged gate shell rejects that failed capture before reuse. Direct DEV native/worker failure and mutation tests pass in matching retained evidence. The entire dev_validate.py, require_gate_pass.sh and fm1_install.py match the base, and the verifier AST matches audit6affed8. Build/font/controller source is unchanged."
+    }
+  ],
+  "commands": [
+    {
+      "argv": ["python3", "-B", "evidence/build-time-python-repair/independent-investigation/probe.py"],
+      "cwd": "/Users/mac/Documents/x0x37/build_time_python_repair",
+      "returncode": 0,
+      "log": "probe.log",
+      "result": "10 independent edge scopes passed; source/log hashes and actual worker/walker proofs verified. The saved probe includes its scratch gate capture CLI command and result."
+    },
+    {
+      "argv": ["git", "diff", "6d690e347b2c66d331f0b6da58a390b627ee84b7..cadeae04bdc9160cfe15a74427829165e36ba60b", "--", "tools/dev_validate.py", "tools/require_gate_pass.sh", "tools/fm1_install.py", "tools/build.py", "tools/gen_font.py", "ble/ctl/build_ctl.sh", "ble/ctl/build_in_container.sh"],
+      "returncode": 0,
+      "stdout": "",
+      "result": "Consumers and artifact generators are unchanged."
+    }
+  ],
+  "identities_and_reused_log_hashes": "probe-result.json",
+  "limits": [
+    "Independent review and scratch host edge probes only; actual pinned-worker package mutations and Linux-native consumer runs were reused after source/log hash verification, not claimed as fresh executions by this helper.",
+    "Manifestless coverage follows the distribution's declared module roots. It does not claim arbitrary unrelated installation files or the full system shared-library dependency closure. Normal manifests continue to cover every declared non-bytecode file.",
+    "I1 remains the documented contract: every additional consumed worker mount must be listed in plan.dependencies. Mount path/access metadata alone does not hash every mounted byte.",
+    "No target build, exact firmware/controller comparison, full validation timing, full/release gate, installation, device test, firmware integration or push occurred.",
+    "The single SDK traversal timer is an operation-level sequential probe with possible warm-cache effects, not an end-to-end speed claim.",
+    "Current owner routing keeps the independent scopes in this bounded execution task and forbids an automatic Codex stage chain. Remaining validation goes back through the LoopyX0X37 classic project handoff."
+  ]
+}

@@ -1,0 +1,386 @@
+{
+  "workflow": "build-time-20261021",
+  "scope": "Independent Test in the current bounded execution task",
+  "status": "PASS",
+  "candidate": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+  "source_changed": false,
+  "source_hashes": {
+    "tools/validation_inputs.py": {
+      "sha256": "84eb0d8852619557f9e44adc1e92045ce4e26fa3462670f36fc427dccd6cda8d",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "tests/host/test_validation_inputs.py": {
+      "sha256": "7b277dab7f8a7c2bd410317e2eb15cdb6e59bde40c1b9f5d8670f2c8cc9b6cbf",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "tests/host/test_dev_validate.py": {
+      "sha256": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "BUILDING.md": {
+      "sha256": "010336a36d6eb1328cb358b1d1ae71c73c4458ddb7974032b04d098f89bd75c8",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "tools/dev_validate.py": {
+      "sha256": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "tools/require_gate_pass.sh": {
+      "sha256": "cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "tools/fm1_install.py": {
+      "sha256": "2ede8eb2ced566b9916ea7aec403c3bbc70c2063f96efa94625ba737a5a87c6b",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "tools/build.py": {
+      "sha256": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "tools/gen_font.py": {
+      "sha256": "091d0152de0feafb57d4082c252232e613e8e79f6e91178032c514b5d816166f",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "ble/ctl/build_ctl.sh": {
+      "sha256": "96f46b2c1cc6a09f2d2e4e6f600679a8aaf580bf257c3985262fbedfde449eec",
+      "commit_matches": true,
+      "working_matches": true
+    },
+    "ble/ctl/build_in_container.sh": {
+      "sha256": "e0481ad35e3a272edad4b6327dbd0d3c7515b55e7cfcf7bf54fd0d215d503077",
+      "commit_matches": true,
+      "working_matches": true
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.host.test_validation_inputs.PackageBytes",
+        "tests.host.test_validation_inputs.ContentWalk"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/build_time_python_repair",
+      "returncode": 0,
+      "log": "host.log",
+      "sha256": "3b4f2f93ce8389496b555b395ad3bc17870911d55e680eed36216b93d18534bb",
+      "cases": 9,
+      "risk": "Missing/empty manifests, ordinary declared files, unsafe metadata, optional absent packages and exact content-walker behavior."
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/independent-test/linux-probe.py"
+      ],
+      "cwd": "/Users/mac/Documents/x0x37/build_time_python_repair",
+      "returncode": 0,
+      "log": "linux.log",
+      "sha256": "01cd1551d85bdb620dcd3a7af98b36712c624feba9f3240bf186ee24d33f0ebc",
+      "cases": 14,
+      "risk": "The same package/walker fixtures on actual Linux, direct native success/queue guards, dependency mutation, fail-closed metadata and installed Pillow source/binary mutation."
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "--format",
+        "{{.Id}} {{.Os}}/{{.Architecture}}"
+      ],
+      "returncode": 0,
+      "log": "image.log",
+      "sha256": "fb3a5bd39412621e3279f34104de48b8142f5f8584c0a433da690fb4600837ac"
+    }
+  ],
+  "independent_installed_mutations": [
+    {
+      "path": "/usr/lib/python3/dist-packages/PIL/__init__.py",
+      "before": "dd9f25c2ad1d6a7444ed64056716bbbccbdf4a3bff0b8f90ef7154aff807b786",
+      "after": "d52193b03a6b73fc236a265e399bb71df05d169c846c87c4dd02535b4555fe17",
+      "returncode": 3,
+      "record_issued": false
+    },
+    {
+      "path": "/usr/lib/python3/dist-packages/PIL/_imaging.cpython-311-x86_64-linux-gnu.so",
+      "before": "0aced06a23f7166ee001346828b253c82d3e0afd05cbc220546775c9822ab2aa",
+      "after": "2247c153d10c26de5181c07bcde0f932b50cb9ff9f726f9872c3dffe0388019e",
+      "returncode": 3,
+      "record_issued": false
+    }
+  ],
+  "retained_checked_evidence": [
+    {
+      "name": "image",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/image.log",
+      "sha256": "fb3a5bd39412621e3279f34104de48b8142f5f8584c0a433da690fb4600837ac",
+      "returncode": 0,
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "--format",
+        "{{.Id}} {{.Os}}/{{.Architecture}}"
+      ]
+    },
+    {
+      "name": "host-inputs",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/host-inputs.log",
+      "sha256": "bfba48a0cc35a9607846386b857d1af44de29c1cc96fc8b10b4a51a7e61f0e3e",
+      "returncode": 0,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ]
+    },
+    {
+      "name": "host-dev",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/host-dev.log",
+      "sha256": "6b249b1d976fa6b2ae3c71bde621cb4a9ddf51bcc497e6a4214361376676d1bd",
+      "returncode": 0,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation"
+      ]
+    },
+    {
+      "name": "linux-inputs",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/linux-inputs.log",
+      "sha256": "e027ff9238c33b1461c5da4e69222235bf71303f96dee82c13e386615146ce57",
+      "returncode": 0,
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ]
+    },
+    {
+      "name": "linux-native-dev",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/linux-native-dev.log",
+      "sha256": "943e8e26455a1ac071f4553f03a1798ef52a728f5c8a17526e8af948b5209f62",
+      "returncode": 0,
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.NativeLinuxValidation"
+      ]
+    },
+    {
+      "name": "package-proof",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/package-proof.log",
+      "sha256": "8704634d0b213d95016d64fc834b8bc252781d5816838749a254bcc856d10b95",
+      "returncode": 0,
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/package-proof.py"
+      ]
+    },
+    {
+      "name": "worker-affected",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/worker-affected.log",
+      "sha256": "5c98ab9cdb7739f7e5d6c03345c69c686247fdb6958156670ab5ab3d09cfa27f",
+      "returncode": 0,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.WorkerValidation.test_worker_provenance_and_consumer_authentication",
+        "tests.host.test_dev_validate.WorkerValidation.test_installed_pillow_source_mutation_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_installed_pillow_binary_mutation_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_identity_required_and_transfer_does_not_need_build_dependencies"
+      ]
+    },
+    {
+      "name": "diff",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "returncode": 0,
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ]
+    },
+    {
+      "name": "host-dev-fail-closed",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/host-dev-fail-closed.log",
+      "sha256": "484304328268146c6ecb364cb9a14ef86d19316cca29933805cf752bd90125fe",
+      "returncode": 0,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation.test_unenumerable_python_package_issues_no_record"
+      ]
+    },
+    {
+      "name": "linux-native-fail-closed",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/linux-native-fail-closed.log",
+      "sha256": "d0578e96b87c18c278140eef44e2e15084fcbc2a59cf84f985ce93ac27c3e976",
+      "returncode": 0,
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.NativeLinuxValidation.test_unenumerable_python_package_issues_no_record"
+      ]
+    },
+    {
+      "name": "worker-additional",
+      "log": "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/worker-additional.log",
+      "sha256": "b15b61feba02bf7cf42fd8586237a13464066e7b997a76a727e78c5b421b13d7",
+      "returncode": 0,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.WorkerValidation.test_unenumerable_python_package_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_timeout_kills_owned_child",
+        "tests.host.test_dev_validate.WorkerValidation.test_signal_removes_worker_before_scratch"
+      ]
+    }
+  ],
+  "reuse_scope": "Checked source hashes and all retained log hashes match. Reuse the current repair checks for unaffected cases and actual LinuxWorker orchestration/cleanup. Independent execution reran the new package cases and real Linux-native source/binary mutation refusal. No old pre-repair result establishes the missing-manifest fix.",
+  "failures": [],
+  "blocked_tool_execution": [],
+  "environment": {
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "platform": "linux/amd64",
+    "CC": "cc",
+    "CXX": "c++",
+    "source_mount": "same absolute path, read only",
+    "scratch": "same build/ path on executable container-local tmpfs",
+    "HOME_changed": false
+  },
+  "limits": [
+    "Independent new mutation tests exercise actual Linux-native execution in the pinned Docker image; LinuxWorker orchestration cases are retained matching current-repair evidence.",
+    "No target firmware/controller build, artifact equality, end-to-end timing, formal gate, install, firmware integration or push.",
+    "Extra consumed worker mounts still require explicit plan.dependencies declarations.",
+    "Unrelated AGENTS.md/docs/SKILLS.md and skill-discovery rollout changes were preserved and not included in this source scope."
+  ],
+  "routing": "Complete this requested independent scope here. No successor Codex chat was created under the current routing rules."
+}

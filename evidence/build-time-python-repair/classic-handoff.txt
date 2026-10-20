@@ -1,0 +1,88 @@
+Continue the build-speed provenance work in the classic ChatGPT project LoopyX0X37.
+Project: g-p-ad9d6d4ab04c8191af6aa22fd752707e
+Project link: https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e/project
+Source execution chat: 01a15ae0-185b-7b40-b1e8-9a19c0eca02d
+Workflow: build-time-20261021. Marker: build-time-20261021-python-repair-classic-return.
+
+The bounded implementation repaired Python package fingerprints in local commit
+cadeae04bdc9160cfe15a74427829165e36ba60b, lane
+/Users/mac/Documents/x0x37/build_time_python_repair. Base was
+6d690e347b2c66d331f0b6da58a390b627ee84b7.
+
+The old pinned worker Pillow9.4.0 has no distribution file manifest. It previously
+hashed an empty dictionary, so installed source mutations were invisible. The
+repair hashes installed source, extensions and data under declared top_level.txt
+modules when the manifest is missing/empty, without importing modules. Unknown,
+unsafe, empty or missing installed coverage now stops capture. Normal manifests
+still hash declared files; absent optional distributions remain explicit nulls.
+
+The owner also authorized the audited direct directory walker. It preserves
+source byte, executable-mode, exclusion and symlink identities and always reads
+bytes again. Actual SDK identity remained
+bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3;
+toolchain identity remained
+50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5.
+One sequential local SDK walk measured2.792s original versus0.880s direct.
+Possible warm-cache effects apply. This is not end-to-end validation speed.
+
+Required scoped implementation checks passed:14 input cases on each Mac/Linux;
+14 original plus1 fail-closed DEV consumer case on each host/Linux native path;
+7 actual Linux worker cases; and a separate pinned-worker proof that both Pillow
+source and compiled _imaging mutations change runtime identity and restored bytes
+restore exact identity. Verifier AST, dev_validate.py, installer/gate guards,
+firmware, asset generators and controller scripts are unchanged by this repair.
+
+Evidence in evidence/build-time-python-repair/:
+- result.json: checked implementation and scope/limits.
+- inputs.json: production, consumer, host Python, image and SDK identities.
+- checks.json: exact command argv, return codes, timers and log hashes.
+- package-proof.log: full before/after actual worker runtime and package hashes.
+- walker-proof.json: old/new actual SDK/toolchain identity and scoped timers.
+- independent-test/test-result.json: PASS,9 fresh host and14 fresh pinned-Linux tests,
+  including independent source and compiled-extension mutation refusal.
+- independent-investigation/investigation-result.json: PASS, no material findings,
+ 10 fresh edge scopes and matching retained execution/consumer evidence verified.
+- final-result.json: final checked source identity, evidence hashes, status and limits.
+Classic ChatGPT must use this supplied summary/evidence; it must not claim it can
+read local paths without an available execution tool. Request a bounded Codex task
+only for operations requiring local inspection, tests, builds or artifact checks.
+
+Remaining validation requirements after independent acceptance:
+Use the checked external validator against unchanged firmware source
+9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a only for a controlled comparison
+whose inputs match the saved audit evidence. Record actual runner identity,
+source/config/image/toolchain/SDK/reference/dependency bytes, exact artifact hashes,
+and command-timer scope. Require Linux font generation. Additional consumed worker
+mounts must appear in plan.dependencies; mounts alone do not hash all their bytes.
+Record scratch-path and HOSTNAME bookkeeping differences explicitly.
+
+Reuse saved baseline/artifact evidence when inputs and scope match. Do not run a
+second complete old Linux validation solely to recreate timing. The old581s Elite
+figure is approximate filesystem timestamps, not a precise command timer. Audit
+evidence: /Users/mac/Documents/x0x37/build_time_implementation/evidence/build-time-audit/.
+If a necessary matching baseline is incomplete, make only the necessary controlled
+comparison. No end-to-end speed or exact firmware/controller equality has yet been
+established by this source repair. Native/record/installer guards must remain intact.
+
+Current final tooling combination is owned by01a15af9-c386-7803-90e4-71d26b6dd0ef
+in build_speed_combination, coordinated by01a15aec-08a1-7cb3-b395-f17ad2cf9add.
+Its combined firmware base1165396 differs from original audit base9a1d6fc; evidence
+for one does not automatically validate the other. Preserve browser-emulator removal
+when combining validation_inputs.py. Asset selector repair is separate; do not use
+the failed original bb953df as accepted. Coordinate current checked inputs with
+the existing owners rather than duplicating implementation or target builds.
+
+Current routing source: owner chat01a15b05-73df-7fb1-a9f7-6bb1484cfd02;
+/Users/mac/Documents/x0x37/.agents/skills/x0x37-task/references/routing.md.
+It supersedes automatic Codex stage chains. No automatic successor was created.
+No originating classic thread existed for this older Codex stage chain; this prompt
+is ready for the owner to paste inside LoopyX0X37. Do not substitute ChatGPT Work,
+a general chat, a cloud agent or another automatic Codex stage.
+
+Authorization is the existing build-speed request in owner/audit chat
+01a15a99-75d7-7921-9d65-f4b120566904 and owner quote
+"I grant you full access for this project indefinitely for development purposes"
+recorded in implementation chat01a15ac7-17e4-7633-b9a5-6652fa0aefed.
+Tools still require their normal approvals. No device install, release/full gate,
+external push or competing firmware integration is authorized by this handoff.
+Sole firmware integrator remains01a15ac1-6dac-7ca2-a2fc-877c4671ab33.

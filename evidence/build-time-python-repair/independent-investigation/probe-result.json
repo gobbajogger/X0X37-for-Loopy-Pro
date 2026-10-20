@@ -1,0 +1,336 @@
+{
+  "candidate": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+  "source_unchanged": true,
+  "source_hashes": {
+    "tools/validation_inputs.py": "84eb0d8852619557f9e44adc1e92045ce4e26fa3462670f36fc427dccd6cda8d",
+    "tests/host/test_validation_inputs.py": "7b277dab7f8a7c2bd410317e2eb15cdb6e59bde40c1b9f5d8670f2c8cc9b6cbf",
+    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
+    "BUILDING.md": "010336a36d6eb1328cb358b1d1ae71c73c4458ddb7974032b04d098f89bd75c8"
+  },
+  "unchanged_consumers_and_generators": {
+    "tools/dev_validate.py": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+    "tools/require_gate_pass.sh": "cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf",
+    "tools/fm1_install.py": "2ede8eb2ced566b9916ea7aec403c3bbc70c2063f96efa94625ba737a5a87c6b",
+    "tools/build.py": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+    "tools/gen_font.py": "091d0152de0feafb57d4082c252232e613e8e79f6e91178032c514b5d816166f",
+    "ble/ctl/build_ctl.sh": "96f46b2c1cc6a09f2d2e4e6f600679a8aaf580bf257c3985262fbedfde449eec",
+    "ble/ctl/build_in_container.sh": "e0481ad35e3a272edad4b6327dbd0d3c7515b55e7cfcf7bf54fd0d215d503077"
+  },
+  "cases": [
+    {
+      "case": "namespace_single_module_extension_and_data_without_import",
+      "result": "PASS"
+    },
+    {
+      "case": "all_fallback_byte_mutations_invalidate_with_mtime_preserved",
+      "result": "PASS"
+    },
+    {
+      "case": "safe_in_root_file_symlink_is_hashed",
+      "result": "PASS"
+    },
+    {
+      "case": "dangling_fallback_link_fails_closed",
+      "result": "PASS"
+    },
+    {
+      "case": "valid_normal_manifest_remains_authoritative",
+      "result": "PASS"
+    },
+    {
+      "case": "missing_manifest_file_fails_closed",
+      "result": "PASS"
+    },
+    {
+      "case": "fallback_does_not_use_unsafe_module_declaration",
+      "result": "PASS"
+    },
+    {
+      "case": "walker_nested_aliases_modes_and_exclusions_match_original",
+      "result": "PASS"
+    },
+    {
+      "case": "both_walkers_reject_cycles",
+      "result": "PASS"
+    },
+    {
+      "case": "gate_capture_cli_refuses_unenumerable_installed_package",
+      "result": "PASS",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/tools/validation_inputs.py",
+        "capture",
+        "--repo",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build/independent-investigation/tmpl72b7w9x/repo",
+        "--commit",
+        "HEAD",
+        "--toolchain",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build/independent-investigation/tmpl72b7w9x/toolchain",
+        "--sdk",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build/independent-investigation/tmpl72b7w9x/sdk",
+        "--refs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build/independent-investigation/tmpl72b7w9x/refs",
+        "--pins",
+        "",
+        "--hook",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build/independent-investigation/tmpl72b7w9x/hook",
+        "--runner",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/tools/gate.sh"
+      ],
+      "returncode": 2,
+      "stdout": "",
+      "stderr": "validation inputs: cannot enumerate Python package: missing or unsafe top_level.txt\n",
+      "environment_overrides": {
+        "PYTHONPATH": "/Users/mac/Documents/x0x37/build_time_python_repair/build/independent-investigation/tmpl72b7w9x/site-packages",
+        "X0X_VALIDATION_PYTHON_PACKAGES": "specimen",
+        "CC": "cc",
+        "CXX": "c++"
+      }
+    }
+  ],
+  "reused_checks_verified": [
+    {
+      "name": "image",
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "--format",
+        "{{.Id}} {{.Os}}/{{.Architecture}}"
+      ],
+      "returncode": 0,
+      "seconds": 0.180722292,
+      "log": "image.log",
+      "sha256": "fb3a5bd39412621e3279f34104de48b8142f5f8584c0a433da690fb4600837ac"
+    },
+    {
+      "name": "host-inputs",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ],
+      "returncode": 0,
+      "seconds": 10.731615416,
+      "log": "host-inputs.log",
+      "sha256": "bfba48a0cc35a9607846386b857d1af44de29c1cc96fc8b10b4a51a7e61f0e3e"
+    },
+    {
+      "name": "host-dev",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation"
+      ],
+      "returncode": 0,
+      "seconds": 11.347291166000002,
+      "log": "host-dev.log",
+      "sha256": "6b249b1d976fa6b2ae3c71bde621cb4a9ddf51bcc497e6a4214361376676d1bd"
+    },
+    {
+      "name": "linux-inputs",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_validation_inputs"
+      ],
+      "returncode": 0,
+      "seconds": 22.968642875,
+      "log": "linux-inputs.log",
+      "sha256": "e027ff9238c33b1461c5da4e69222235bf71303f96dee82c13e386615146ce57"
+    },
+    {
+      "name": "linux-native-dev",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.NativeLinuxValidation"
+      ],
+      "returncode": 0,
+      "seconds": 26.512257333,
+      "log": "linux-native-dev.log",
+      "sha256": "943e8e26455a1ac071f4553f03a1798ef52a728f5c8a17526e8af948b5209f62"
+    },
+    {
+      "name": "package-proof",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/evidence/build-time-python-repair/package-proof.py"
+      ],
+      "returncode": 0,
+      "seconds": 2.5045498329999987,
+      "log": "package-proof.log",
+      "sha256": "8704634d0b213d95016d64fc834b8bc252781d5816838749a254bcc856d10b95"
+    },
+    {
+      "name": "worker-affected",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.WorkerValidation.test_worker_provenance_and_consumer_authentication",
+        "tests.host.test_dev_validate.WorkerValidation.test_installed_pillow_source_mutation_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_installed_pillow_binary_mutation_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_identity_required_and_transfer_does_not_need_build_dependencies"
+      ],
+      "returncode": 0,
+      "seconds": 16.071909291999994,
+      "log": "worker-affected.log",
+      "sha256": "5c98ab9cdb7739f7e5d6c03345c69c686247fdb6958156670ab5ab3d09cfa27f"
+    },
+    {
+      "name": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0,
+      "seconds": 0.020487584000008496,
+      "log": "diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "host-dev-fail-closed",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation.test_unenumerable_python_package_issues_no_record"
+      ],
+      "returncode": 0,
+      "seconds": 0.546375084,
+      "log": "host-dev-fail-closed.log",
+      "sha256": "484304328268146c6ecb364cb9a14ef86d19316cca29933805cf752bd90125fe"
+    },
+    {
+      "name": "linux-native-fail-closed",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "--mount",
+        "type=bind,source=/Users/mac/Documents/x0x37/build_time_python_repair,target=/Users/mac/Documents/x0x37/build_time_python_repair,readonly",
+        "--tmpfs",
+        "/Users/mac/Documents/x0x37/build_time_python_repair/build:rw,exec",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_time_python_repair",
+        "-e",
+        "CC=cc",
+        "-e",
+        "CXX=c++",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "--entrypoint",
+        "python3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.NativeLinuxValidation.test_unenumerable_python_package_issues_no_record"
+      ],
+      "returncode": 0,
+      "seconds": 2.779141209,
+      "log": "linux-native-fail-closed.log",
+      "sha256": "d0578e96b87c18c278140eef44e2e15084fcbc2a59cf84f985ce93ac27c3e976"
+    },
+    {
+      "name": "worker-additional",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.WorkerValidation.test_unenumerable_python_package_issues_no_record",
+        "tests.host.test_dev_validate.WorkerValidation.test_timeout_kills_owned_child",
+        "tests.host.test_dev_validate.WorkerValidation.test_signal_removes_worker_before_scratch"
+      ],
+      "returncode": 0,
+      "seconds": 11.510546834,
+      "log": "worker-additional.log",
+      "sha256": "b15b61feba02bf7cf42fd8586237a13464066e7b997a76a727e78c5b421b13d7"
+    }
+  ],
+  "worker_proof_verified": {
+    "log": "evidence/build-time-python-repair/package-proof.log",
+    "sha256": "8704634d0b213d95016d64fc834b8bc252781d5816838749a254bcc856d10b95",
+    "mutations": 2
+  },
+  "walker_sdk_toolchain_proof_verified": {
+    "file": "evidence/build-time-python-repair/walker-proof.json",
+    "sha256": "38791bf7f44e0f31434bc031908ab20e228c0a0ba514142d659ccd5e2acf91f4"
+  },
+  "verify_ast_matches_audit": true
+}

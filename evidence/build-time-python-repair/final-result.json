@@ -1,0 +1,80 @@
+{
+  "workflow": "build-time-20261021",
+  "marker": "build-time-20261021-stage2-python-manifest-repair",
+  "status": "CHECKED SOURCE REPAIR AND INDEPENDENT TEST/INVESTIGATION PASS",
+  "checked_source_commit": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+  "source_files": {
+    "tools/validation_inputs.py": "84eb0d8852619557f9e44adc1e92045ce4e26fa3462670f36fc427dccd6cda8d",
+    "tests/host/test_validation_inputs.py": "7b277dab7f8a7c2bd410317e2eb15cdb6e59bde40c1b9f5d8670f2c8cc9b6cbf",
+    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
+    "BUILDING.md": "010336a36d6eb1328cb358b1d1ae71c73c4458ddb7974032b04d098f89bd75c8"
+  },
+  "production_runner_unchanged": true,
+  "implementation": "result.json",
+  "implementation_checks": "checks.json",
+  "independent_test": "independent-test/test-result.json",
+  "independent_investigation": "independent-investigation/investigation-result.json",
+  "independent_outcome": {
+    "test": "PASS:9 host and14 pinned-Linux cases",
+    "investigation": "PASS:10 fresh edge scopes, matching retained evidence, no material findings"
+  },
+  "remaining": [
+    "Controlled target validation and exact package/controller artifact comparisons with matching saved audit inputs.",
+    "End-to-end command timing with exact timer scope; no second complete old validation merely to recreate baseline timings.",
+    "A supplied-evidence decision in classic LoopyX0X37 before another bounded execution task."
+  ],
+  "classic_handoff": {
+    "status": "PROMPT READY; OWNER LAUNCH NEEDED",
+    "prompt": "classic-handoff.txt",
+    "project_id": "g-p-ad9d6d4ab04c8191af6aa22fd752707e",
+    "project_url": "https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e/project",
+    "originating_classic_thread": null,
+    "codex_successor_created": false,
+    "source_of_updated_routing": "01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
+    "confirmed_by_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add"
+  },
+  "limits": [
+    "No real target build, target artifact equality or end-to-end speed measurement is claimed.",
+    "No release/full gate, device install/test, firmware integration or external push.",
+    "Manifestless package coverage follows safely declared installed module roots; it does not enumerate arbitrary installation files or a full system library closure.",
+    "Every additional consumed worker mount must be declared in plan.dependencies.",
+    "Foreign AGENTS.md/docs/SKILLS.md and discovery-link rollout edits remain outside these commits."
+  ],
+  "evidence_sha256": {
+    "checks.json": "9831aa35bca137239f60c1cba0ec7ff2d9bcaece64dac77eb02ce8c6907aa4db",
+    "classic-handoff.txt": "946f95c017c67f021669f17690316f5ae3b0b7fbc0eb464a2c8e17b3c224e1fc",
+    "diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finalize.py": "c44ffdfbacbc7e2f25876038a6abfde6aeba23e631877adb9296e175fef43305",
+    "host-dev-fail-closed.log": "484304328268146c6ecb364cb9a14ef86d19316cca29933805cf752bd90125fe",
+    "host-dev.log": "6b249b1d976fa6b2ae3c71bde621cb4a9ddf51bcc497e6a4214361376676d1bd",
+    "host-inputs.log": "bfba48a0cc35a9607846386b857d1af44de29c1cc96fc8b10b4a51a7e61f0e3e",
+    "image.log": "fb3a5bd39412621e3279f34104de48b8142f5f8584c0a433da690fb4600837ac",
+    "independent-investigation/investigation-result.json": "7e67a6723faccfbeaa73b24d33b2dd26026dffdb74f2494ca95e9f0cf09cdbe8",
+    "independent-investigation/probe-result.json": "8f43bd4a5a6c5cb0cbe6a3efc4fbd562aeef535b322c0db6a15fac2b1670a017",
+    "independent-investigation/probe.log": "af71963cc99d77e7085401b5b873b1040a9f5436e9e3da67bee7278dca283189",
+    "independent-investigation/probe.py": "9858d70e27eacfda61b42b8302870a27d9a6ec304ba2eac8a4306980662060fd",
+    "independent-test/finalize.py": "8467851a79f62bf81fb3d7b22a44243f7606f72eb60d474c71864ac326e2dead",
+    "independent-test/host.log": "3b4f2f93ce8389496b555b395ad3bc17870911d55e680eed36216b93d18534bb",
+    "independent-test/image.log": "fb3a5bd39412621e3279f34104de48b8142f5f8584c0a433da690fb4600837ac",
+    "independent-test/linux-probe.py": "2fb49ed70aff5869f660309b54de91d57188c66d15b09a1fd4a4fc6a6d325d27",
+    "independent-test/linux.log": "01cd1551d85bdb620dcd3a7af98b36712c624feba9f3240bf186ee24d33f0ebc",
+    "independent-test/test-result.json": "83e20fcca544687725caab682a45c50acb84b2e78313b9eb4b96f735b571213c",
+    "inputs.json": "d919fa3d2f0ad47fe1e396f8714f8144f0c9e37806418f294667f28c77e90c0d",
+    "linux-inputs-attempt1.log": "c0ba73bdcbfebbad3d966973f153310f83b490ca4188c785c0e6ed5651e67248",
+    "linux-inputs-attempt2.log": "f668c9e80b48ca0219a221d2403ede423ae53014c52e7175ca6892db87b10c7b",
+    "linux-inputs.log": "e027ff9238c33b1461c5da4e69222235bf71303f96dee82c13e386615146ce57",
+    "linux-native-dev.log": "943e8e26455a1ac071f4553f03a1798ef52a728f5c8a17526e8af948b5209f62",
+    "linux-native-fail-closed.log": "d0578e96b87c18c278140eef44e2e15084fcbc2a59cf84f985ce93ac27c3e976",
+    "package-proof.log": "8704634d0b213d95016d64fc834b8bc252781d5816838749a254bcc856d10b95",
+    "package-proof.py": "ff1b9d67971c341abf42f5260d0b57b13531c20e10e3566abec8e7c33e954046",
+    "result.json": "7d6111905f0e5f8df284d98ece23c22c028bb76ef8ed13b714e8f5ca84f20eb4",
+    "run-checks.py": "794a8a4783ee33c822bead4a3e81212e288277b39e1aab1cbd6f36b9f99064e1",
+    "setup-attempt.json": "ddc877a1345f6e460312ea4e61504001a20ac44b3286ce20fe9b09003f36d08c",
+    "setup-attempt2.json": "56bee74187096e5ce56bafb746009399d780a346a659c7c78f7602992e8bb443",
+    "summarize.py": "c88d3a0f3d9e6f93e25c2f6b7ce93845256ce6ebf21b24c3c403a7394e8c45f3",
+    "walker-proof.json": "38791bf7f44e0f31434bc031908ab20e228c0a0ba514142d659ccd5e2acf91f4",
+    "walker-proof.py": "9ed56b78a1d6a35d5c9bc42964a0aea2a1bf58c869263675d1127e4895d8a929",
+    "worker-additional.log": "b15b61feba02bf7cf42fd8586237a13464066e7b997a76a727e78c5b421b13d7",
+    "worker-affected.log": "5c98ab9cdb7739f7e5d6c03345c69c686247fdb6958156670ab5ab3d09cfa27f"
+  }
+}
