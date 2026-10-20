@@ -5,10 +5,10 @@ Project procedures live in `skills/x0x37-*/SKILL.md`. `.agents/skills/` exposes 
 Automatic selection is enabled. A running thread can use the exact path from the trigger index.
 
 Initialize [x0x37-writing](../skills/x0x37-writing/SKILL.md) before project output.
-It selects strict STE and the relevant writing sources.
+It uses plain, concise English. Load detailed writing sources only for their explicit triggers.
 
-- [asd-ste100](../skills/asd-ste100/SKILL.md): strict STE, through `x0x37-writing`.
-- [caveman](../skills/caveman/SKILL.md): explicit Caveman mode or a matching compression request.
+- [asd-ste100](../skills/asd-ste100/SKILL.md): only for an explicitly requested strict ASD-STE100 review.
+- [caveman](../skills/caveman/SKILL.md): requested Caveman mode.
 
 ## Installed writing sources
 

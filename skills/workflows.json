@@ -56,7 +56,7 @@
   {
     "legacy": "style.md",
     "name": "x0x37-writing",
-    "description": "Write any x0x37 output or saved text using the owner's strict STE default, project terminology, and relevant writing skills.",
+    "description": "Write x0x37 output in plain, concise English; use STE rules and dictionary only for an explicitly requested strict review.",
     "source": "skills/x0x37-writing/SKILL.md"
   }
 ]
