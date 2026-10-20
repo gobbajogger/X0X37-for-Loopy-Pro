@@ -1,0 +1,99 @@
+{
+  "workflow": "build-work-20261021",
+  "stage": 1,
+  "source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+  "owner_request": "Look for all obvious improvements that we can implement right now",
+  "source_commit": "1165396199210889fa460d26cbdd0b66183267e1",
+  "files": {
+    "tools/quickcheck.sh": "cf14305620be2c40a9156d9636fe5dbf9789f93ef31118558a76622c16da6d09",
+    "tools/pre-push.hook": "b1b7961ff9e9e2b8ffcd7dac432d47b31f405edc1125f96ff2542811986684ce",
+    "tests/host/test_quickcheck_ste.sh": "3b1307e85a9cd11447e7a10ca0e047ec4dd4893d61a08493077113754a4de1ba",
+    "tests/host/test_quickcheck_rules.sh": "bb7a3fc3bc87356c9f364775454a6951935e85fb838b2e048c404eac076844b7",
+    "tests/host/test_quickcheck_devbug.sh": "1b0935f1f6d80be2ba0fe99df824329ba2131b5d8d4699a2f92f2f8215a3d5e0",
+    "ble/ctl/build_in_container.sh": "e0481ad35e3a272edad4b6327dbd0d3c7515b55e7cfcf7bf54fd0d215d503077",
+    "ble/ctl/build_ctl.sh": "96f46b2c1cc6a09f2d2e4e6f600679a8aaf580bf257c3985262fbedfde449eec",
+    "ble/ctl/fetch_sdk.sh": "d987c0485e0e3a8394d428812e976096a406927ca298c8be2a6919adee15b882",
+    "tools/build.py": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+    "host/build_host.sh": "12c9149e5e5550deb045452b652d3ef2d67ee9e502df483fc35b0c208dd28413",
+    "tests/run_tests.sh": "281c75d6337919ace9e0792c59fb684b255bcc0985d5196701d3e9fa69d71e6f"
+  },
+  "implementation_now": [
+    {
+      "area": "quickcheck routing",
+      "finding": "Ordinary quickcheck always builds Elite before it selects tests. Documentation, skills, known web/host/test-only changes therefore pay for a target build unnecessarily. Its no-match fallback selects unrelated firmware tests.",
+      "repair": "Compute and record the applicable scope before build. Skip target build only for proven non-target inputs; retain relevant checks and all pointer/commit/device-bug guards. Unknown files, mixed source changes, build inputs and dependencies remain conservative. A test selection must be explicit; never turn an unrecognized relevant change into a silent empty PASS."
+    },
+    {
+      "area": "repeated selector work",
+      "finding": "For every changed file, quickcheck expands tests/**/* and reads the same test files again. Large diffs multiply the metadata and content work.",
+      "repair": "Enumerate and read test sources once per invocation, preserving matching and conservative fallback semantics. Do not introduce a persistent stale index or commit-only cache."
+    },
+    {
+      "area": "routine STE work",
+      "finding": "The ordinary quickcheck tail invokes ste_step even though plain English is now the default. Explicit X0X_QUICK_ONLY=ste and X0X_STE_STRICT=1 remain requested checks.",
+      "repair": "Skip STE processing on ordinary runs; retain explicit advisory/strict modes and strict fail-closed behavior. Rules pointer/evidence checks remain independent and always run when relevant."
+    },
+    {
+      "area": "repeated fixed regression",
+      "finding": "devbug_step reruns every selected new regression on the fixed tree after normal quickcheck already ran selected tests. It still must run a negative control on the parent.",
+      "repair": "Reuse a fixed-tree result only when this same invocation successfully ran the exact required names with the same source, environment, arguments and supported runner. Keep the parent failure check. If equivalence is not trivial to prove, retain this rerun and report it as deferred rather than weaken evidence."
+    },
+    {
+      "area": "controller compilation",
+      "finding": "ble/ctl/build_in_container.sh compiles src/*.c, src/*.S and gen/*.c serially. Objects are independent until the final LTO link.",
+      "repair": "Use a bounded number of owned compile jobs. Preserve every compiler flag, warning/error behavior, source order in OBJS and final linker command. Keep private scratch output. Separate per-unit diagnostics and combine deterministically. Wait for all jobs and stop only owned children on error/signal before deleting scratch files. Preserve serial mode; validate job-count input."
+    }
+  ],
+  "already_owned_elsewhere": [
+    {
+      "area": "native hashing and validator worker",
+      "thread": "01a15ad7-8be3-7301-aabe-e4533790c4a2",
+      "files": [
+        "tools/dev_validate.py",
+        "tools/validation_inputs.py"
+      ],
+      "status": "Independent review; correctness findings must be repaired before promotion."
+    },
+    {
+      "area": "generated assets and cheap cache hits",
+      "thread": "01a15ad1-a598-7a01-baae-5a8ac034d2c4",
+      "files": [
+        "tools/build.py",
+        "tools/asset_cache.py"
+      ],
+      "status": "Implementation and actual cold/warm/fresh-worktree measurement in progress. The 1.57-second dependency probe replaces the initial warm full-renderer compile."
+    },
+    {
+      "area": "four discarded host simulator builds",
+      "thread": "01a15adc-ae44-75e0-a069-92f7b5cabaa9",
+      "files": [
+        "host/build_host.sh",
+        "tests/host/smc_reachability_test.sh",
+        "tests/host/smc_drum_mutes_test.sh",
+        "tests/host/smc_performance_abort_test.sh",
+        "tests/host/ui_feedback_test.sh"
+      ],
+      "status": "Implementation of generate-only setup in progress. Later checked combination should route host setup through the asset cache; do not edit live cache files."
+    }
+  ],
+  "do_not_guess_or_skip": [
+    "Do not narrow all app/DSP/sequencer scenario coverage without a proven dependency map. Current broad fallback remains appropriate for unknown firmware impact.",
+    "Do not skip full before/after input identity capture or replace it with timestamps. SDK hashing already moves to Mac in its own lane.",
+    "Controller artifact reuse across application-only revisions needs a separately authenticated controller dependency identity. Do not reuse an unchecked global image or weaken installer guards.",
+    "Incremental target/object/loader reuse needs complete compiler/include/config/runtime identity. It is beyond these simple orchestration changes.",
+    "A faster direct provenance walker prototype exists in build_time_audit/evidence/build-time-audit/. It preserved tested identities (native 2.40\u21920.79 s). Do not edit the active validator/review lane; propose it to a later checked repair or combination owner.",
+    "Do not run a second complete old Linux validator merely to recreate a known baseline. Reuse matching saved artifacts/timing evidence and scope new checks to the change.",
+    "No release/full gate, external push, device write or competing firmware integration is in this tooling scope."
+  ],
+  "checks": [
+    "Use scratch repositories with mocked build/test executables to prove docs/web/host-only routes avoid target invocation, firmware/build/unknown/mixed routes retain it, selected checks really ran, relevant rule guards fail closed and explicit strict STE still works.",
+    "Run affected existing quickcheck STE/rules/device-bug/portable fixtures and targeted routing regression cases, not the whole firmware suite.",
+    "For controller orchestration test actual concurrency bound, serial override, deterministic link order/diagnostics, compile failure, signal cleanup and no stale success with fake toolchains.",
+    "Run one real controller build on the same compiler/SDK/controller-source inputs as a saved checked controller. Compare to the existing saved artifact; do not build the old baseline again. Retain all image and budget checks. Report elapsed time and execution environment, with other concurrent load as a measurement limit.",
+    "No full application target build is needed for the quickcheck orchestration tests. Keep code commits and validation evidence distinct from a device PASS."
+  ],
+  "limits": [
+    "This audit implements no production change and claims no new runtime saving.",
+    "All clear improvements found in the inspected entry points are either assigned above or in the new implementation scope. This is not proof that no further optimization exists."
+  ]
+}
