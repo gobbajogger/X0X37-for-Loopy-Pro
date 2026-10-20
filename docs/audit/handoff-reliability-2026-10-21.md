@@ -131,3 +131,37 @@ lane and maintained sources; preference mirrors match maintained sources.
 The maintained pointer check passes 19 entries. No app restart was needed for
 the observed native creation/startup/completion-message verification; that test
 does not establish when each process reloaded its saved settings.
+
+
+## Recurring approval — not resolved in the running app
+
+The owner reported another MCP prompt after the automatic-authorization change.
+Read-only application diagnostics confirm a real `create_thread` approval from
+the already-running stage-4 owner at 16:37:45 UTC, call ID
+`exec-a5bd051a-6e17-46b3-ab03-4906fe61f227`. Its receiving stage-5 thread started
+only after that approval. This supersedes any interpretation of the earlier
+single-thread test as proof that all active workflow threads would auto-approve.
+
+The source began at 16:09:44 UTC, before the saved tool setting changed at
+16:11:59 UTC. A fresh instance of the exact bundled native app-server, run with
+`--strict-config`, accepts the saved config and reports both handoff tools as
+`approve`. No broader permissions are needed based on that check. A stale
+runtime snapshot in the older source is a likely cause; its exact per-tool
+snapshot is not exposed in the inspected logs, so that cause is an inference.
+The desktop also starts fresh workflow threads with an explicit `on-request`
+workspace profile. Global `never` must not be treated as inherited proof.
+
+The supported live API is `config/mcpServer/reload`, documented in the
+[official app-server reference](https://learn.chatgpt.com/docs/app-server).
+No available app tool exposes it. The bundled CLI's supported app-server proxy
+cannot connect to the running app's control socket. Computer Use refuses access
+to `com.openai.codex` for safety reasons. No private state mutation, UI workaround,
+server kill or app restart was attempted. Firmware integration is active.
+
+Status: saved configuration is valid; live app reload and prompt suppression
+remain unverified. Reload MCP configuration through the running client, or
+restart the app after active work finishes, then check a natural successor
+launch and its approval events. Do not create duplicate workflow threads.
+[Exact diagnostic record](handoff-reliability-2026-10-21/approval-recurrence.json)
+contains the observed identities and limits. Only the isolated diagnostic
+subprocess was terminated; no running workflow process was touched.
