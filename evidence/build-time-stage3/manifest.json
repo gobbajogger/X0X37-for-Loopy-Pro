@@ -1,0 +1,26 @@
+{
+  "files": {
+    "font-check.json": "14c17a84aa6e01a4ee6ec5146d655ae73542f3ae8e05260f0d8d504c946dbea4",
+    "font-check.log": "c48248755b64a71e761f7f1dcdbc3a0551a5352ed60859a934a79fab083f64dd",
+    "font-check.py": "c5b6ce2a86cc98a9ef7d9599e3ef65be8fe76b803675ab697dbce969bb85a109",
+    "inputs.json": "1ab497878d6e8f81cbd8b475ce8652c2bb5be9f7b3042d6485cbca5818e64746",
+    "investigation-font-environment.json": "3113cd93f20057dd6b21b4bc6f22d4e92dcd56d11ffc3e1c2ba32dbfa6d761ba",
+    "investigation-mount-proof.json": "3b826c1144b417812923a048e70eee518e7267fae2fe7bd3f5ce3044f1b171db",
+    "investigation-mount-proof.py": "8280080581651672aa9074b8f50e075dde6937dd5ecff519b1ff5ff3b349972e",
+    "investigation-pillow-proof.json": "3cf9a35a56710dbc51c1578ab4485db18a68e0f3368bc9fe503a9a7074f245ac",
+    "investigation-pillow-proof.log": "fc06efe52ed290aac13f1557bfc22c509f51bd74363c9ff1d62827eec532186e",
+    "investigation-pillow-proof.py": "a5981636e035ad258b017c08301f17609c55cba2d932873175d7d307e79b9050",
+    "investigation-pillow-run.py": "69ab9c61a1e48e0b2851a4eb36ff746406a0fa2121716bfb89bada89e5aa3579",
+    "investigation-pillow-sandbox-failure.log": "fc06efe52ed290aac13f1557bfc22c509f51bd74363c9ff1d62827eec532186e",
+    "investigation-result.json": "ccbe1538e4a416c7bcdd8dfca0456449f5d499685e337b8821d7f47638798803",
+    "repair-stage2-prompt.txt": "14a854743c9a65cff0e1ffb46d35d1f764d03a7fda3e3605048c08eada48aab3",
+    "result.json": "aae5496cb2ed9348b0ef555fd408b5e52158036d6c68506d98c36e87e93fc33d",
+    "reuse-verification.json": "1466b4c7a0396f18fea5ccddcc63639c170aa827c522629d3c320a7c32dcb89d",
+    "root-pillow-proof.json": "ca5ed290b5578d44803febd95299763f8eacccc2aaf38019276d37e8b323f816",
+    "root-pillow-proof.log": "785b968672a7d20198c6cd5e0f623ab4ca654cce0ecdd9f386c641997a1364ee",
+    "test-result.json": "385568027021bc6fd4f20ed0e435550916ccbee78d37ac13ee5ff7d7e21d0918",
+    "test-worker-mount.py": "ec2d2f543110c62ea8be8b17604f24ee1838185c0d608610903117d12b4c679d",
+    "write-result.py": "e65b2ca25c8f50af49042a1b97de5828847656fc04a46677551d01771db0fe40"
+  },
+  "note": "Successor metadata changes after dispatch and is excluded. This manifest covers the stage3 findings, logs, scripts and saved handoff."
+}

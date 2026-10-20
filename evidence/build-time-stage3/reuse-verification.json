@@ -1,0 +1,124 @@
+{
+  "candidate": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "source_matches_stage2": [
+    {
+      "file": "tools/dev_validate.py",
+      "expected": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+      "actual": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+      "match": true
+    },
+    {
+      "file": "tools/validation_inputs.py",
+      "expected": "5f77ec9233824b61a7a4cb34cb4568b81ca958c5659a60ba419518cbee619e8d",
+      "actual": "5f77ec9233824b61a7a4cb34cb4568b81ca958c5659a60ba419518cbee619e8d",
+      "match": true
+    },
+    {
+      "file": "tests/host/test_dev_validate.py",
+      "expected": "f816acfa58ec071ae935328f01f64b7e04a0353e7f543e01cccb05949589fdc7",
+      "actual": "f816acfa58ec071ae935328f01f64b7e04a0353e7f543e01cccb05949589fdc7",
+      "match": true
+    },
+    {
+      "file": "tests/host/test_validation_inputs.py",
+      "expected": "8dd9c3aa6b13dc8d14da9735a866a07572192478fd2fe95e4fea668c5e49255e",
+      "actual": "8dd9c3aa6b13dc8d14da9735a866a07572192478fd2fe95e4fea668c5e49255e",
+      "match": true
+    },
+    {
+      "file": "BUILDING.md",
+      "expected": "58d97f0510e406e9b3f9a2724b5ac24723c2ca33fe4c54b4f51a54ffa2a055f4",
+      "actual": "58d97f0510e406e9b3f9a2724b5ac24723c2ca33fe4c54b4f51a54ffa2a055f4",
+      "match": true
+    },
+    {
+      "file": "docs/USER_PREFERENCES.md",
+      "expected": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+      "actual": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+      "match": true
+    }
+  ],
+  "retained_log_checks": [
+    {
+      "name": "native-dev",
+      "log": "/Users/mac/Documents/x0x37/build_time_stage3/evidence/build-time-stage2/native-dev.log",
+      "expected": "c873433a031c0c4312e03097f07eb122488a2a2b4914861f439bbbf2426d0a41",
+      "actual": "c873433a031c0c4312e03097f07eb122488a2a2b4914861f439bbbf2426d0a41",
+      "match": true,
+      "returncode": 0,
+      "seconds": 11.732078375,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.DevelopmentValidation"
+      ]
+    },
+    {
+      "name": "worker-dev",
+      "log": "/Users/mac/Documents/x0x37/build_time_stage3/evidence/build-time-stage2/worker-dev.log",
+      "expected": "f667fd30f8d55329af47f61f2f5055d633d9eff9cb18f3403d106cc2cfe5bc5a",
+      "actual": "f667fd30f8d55329af47f61f2f5055d633d9eff9cb18f3403d106cc2cfe5bc5a",
+      "match": true,
+      "returncode": 0,
+      "seconds": 86.850211375,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.host.test_dev_validate.WorkerValidation"
+      ]
+    },
+    {
+      "name": "validation-inputs",
+      "log": "/Users/mac/Documents/x0x37/build_time_stage3/evidence/build-time-stage2/validation-inputs.log",
+      "expected": "8dabb1e39956291a21edfefa05bf269f3dea90a2c51a6909bf3f7026f80345b0",
+      "actual": "8dabb1e39956291a21edfefa05bf269f3dea90a2c51a6909bf3f7026f80345b0",
+      "match": true,
+      "returncode": 0,
+      "seconds": 8.918526666999995,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "tests/host/test_validation_inputs.py"
+      ]
+    },
+    {
+      "name": "preferences",
+      "log": "/Users/mac/Documents/x0x37/build_time_stage3/evidence/build-time-stage2/preferences.log",
+      "expected": "1d9ccdc1c953674dc4290ece5d4261ce152d2dbe575b2449a8302d0186d888b7",
+      "actual": "1d9ccdc1c953674dc4290ece5d4261ce152d2dbe575b2449a8302d0186d888b7",
+      "match": true,
+      "returncode": 0,
+      "seconds": 0.032880000000005793,
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "tools/prefs_lint.py",
+        "docs/USER_PREFERENCES.md"
+      ]
+    },
+    {
+      "name": "diff",
+      "log": "/Users/mac/Documents/x0x37/build_time_stage3/evidence/build-time-stage2/diff.log",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "match": true,
+      "returncode": 0,
+      "seconds": 0.015258416999998303,
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ]
+    }
+  ],
+  "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "host_python": {
+    "path": "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464"
+  },
+  "disposition": "Reuse stage2 passing fixtures as historical coverage for unchanged files. They did not cover installed Python distributions with no file manifest. Package/runtime affected checks require a fresh stage3 after repair; do not claim stage2 proves that missing case."
+}

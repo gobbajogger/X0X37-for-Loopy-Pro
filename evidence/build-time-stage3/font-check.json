@@ -1,0 +1,165 @@
+{
+  "command": [
+    "/opt/homebrew/bin/docker",
+    "exec",
+    "-w",
+    "/Users/mac/Documents/x0x37/build_time_stage3",
+    "x0x37-dev-9a6fec1cf0d14b70b3c6cbdff4b75f6f",
+    "env",
+    "-i",
+    "BOARD=smk37",
+    "CPATH=/usr/local/include",
+    "CTL_NATIVE=1",
+    "CTL_NO_CACHE=1",
+    "HOME=/root",
+    "HOSTNAME=2a519969d094",
+    "LIBRARY_PATH=/usr/local/lib",
+    "MODEL=elite",
+    "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "SDK_LOCAL=/Users/mac/fw-AC79_AIoT_SDK",
+    "X0X_DEV_PADCAL=1",
+    "python3",
+    "-B",
+    "tools/gen_font.py",
+    "/Users/mac/Documents/x0x37/build_time_stage3/build/font-stage3-nvg8tq6f/font.h"
+  ],
+  "returncode": 0,
+  "command_seconds": 1.518768166,
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "worker_environment": {
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "HOSTNAME": "2a519969d094",
+    "HOME": "/root",
+    "CPATH": "/usr/local/include",
+    "LIBRARY_PATH": "/usr/local/lib",
+    "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+    "MODEL": "elite",
+    "BOARD": "smk37",
+    "X0X_DEV_PADCAL": "1",
+    "CTL_NO_CACHE": "1",
+    "CTL_NATIVE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "runtime": {
+    "tools": {
+      "bash": {
+        "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+        "executable": true
+      },
+      "sh": {
+        "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+        "executable": true
+      },
+      "git": {
+        "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+        "executable": true
+      },
+      "make": {
+        "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+        "executable": true
+      },
+      "node": {
+        "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+        "executable": true
+      },
+      "emcc": null,
+      "cc": {
+        "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+        "executable": true
+      },
+      "c++": {
+        "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+        "executable": true
+      },
+      "ld": {
+        "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+        "executable": true
+      },
+      "ar": {
+        "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+        "executable": true
+      },
+      "objcopy": {
+        "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+        "executable": true
+      },
+      "python": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      }
+    },
+    "python_packages": {
+      "numpy": null,
+      "pillow": {
+        "version": "9.4.0",
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "environment": {
+      "BOARD": "smk37",
+      "CPATH": "/usr/local/include",
+      "CTL_NATIVE": "1",
+      "CTL_NO_CACHE": "1",
+      "LIBRARY_PATH": "/usr/local/lib",
+      "MODEL": "elite",
+      "X0X_DEV_PADCAL": "1"
+    },
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "dependencies": {}
+  },
+  "provenance": {
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "environment": {
+      "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "HOSTNAME": "2a519969d094",
+      "HOME": "/root",
+      "CPATH": "/usr/local/include",
+      "LIBRARY_PATH": "/usr/local/lib",
+      "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+      "MODEL": "elite",
+      "BOARD": "smk37",
+      "X0X_DEV_PADCAL": "1",
+      "CTL_NO_CACHE": "1",
+      "CTL_NATIVE": "1",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "mounts": {
+      "/Users/mac/Documents/x0x37/build_time_stage3": true,
+      "/Users/mac/Documents/x0x37/build_time_stage3/build/font-stage3-nvg8tq6f": false
+    },
+    "orchestrator_platform": [
+      "Darwin",
+      "arm64",
+      "27.2.0"
+    ],
+    "orchestrator_tools": {
+      "docker": {
+        "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+        "executable": true
+      },
+      "python": {
+        "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+        "executable": true
+      },
+      "git": {
+        "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+        "executable": true
+      }
+    }
+  },
+  "generated_header_sha256": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+  "audit_linux_sha256": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+  "equal": true,
+  "log_sha256": "c48248755b64a71e761f7f1dcdbc3a0551a5352ed60859a934a79fab083f64dd",
+  "scope": "Only the font generator; no target artifacts, full validation or speed claim."
+}

@@ -1,0 +1,128 @@
+{
+  "workflow": "build-time-20261021",
+  "stage": 3,
+  "reviewer": "independent investigation subagent",
+  "candidate": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "status": "FAIL: SOURCE REPAIR REQUIRED",
+  "source_unchanged": true,
+  "input_sha256": {
+    "tools/dev_validate.py": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+    "tools/validation_inputs.py": "5f77ec9233824b61a7a4cb34cb4568b81ca958c5659a60ba419518cbee619e8d",
+    "tools/require_gate_pass.sh": "cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf",
+    "tools/fm1_install.py": "2ede8eb2ced566b9916ea7aec403c3bbc70c2063f96efa94625ba737a5a87c6b",
+    "tools/gen_font.py": "091d0152de0feafb57d4082c252232e613e8e79f6e91178032c514b5d816166f",
+    "tools/build.py": "2e45945065f0302b293053280ec6e46c017679c0c31386b34b4e3fe317e378e1",
+    "ble/ctl/build_ctl.sh": "96f46b2c1cc6a09f2d2e4e6f600679a8aaf580bf257c3985262fbedfde449eec",
+    "ble/ctl/build_in_container.sh": "e0481ad35e3a272edad4b6327dbd0d3c7515b55e7cfcf7bf54fd0d215d503077"
+  },
+  "review_scopes": [
+    {
+      "scope": "Worker lifecycle",
+      "result": "PASS SOURCE REVIEW",
+      "evidence": "dev_validate.py:145-179,204-209,231-255,272-289,316-338",
+      "details": "One UUID-named worker is created from the inspected immutable Linux/amd64 image. Timeout/signal handling kills the owned host CLI process group, then the finally path removes that worker before worktree/scratch removal. Failed worker cleanup retains scratch; failure paths do not reach record writing. A second interrupt can prevent confirmed cleanup, but still retains scratch and cannot issue a record."
+    },
+    {
+      "scope": "Worker/native identity boundary",
+      "result": "FAIL: INSTALLED PYTHON PACKAGE BYTE COVERAGE",
+      "evidence": "dev_validate.py:185-202,258-270,310; validation_inputs.py:63-144",
+      "details": "The same runtime function captures tools, Emscripten and Python package bytes in the execution environment. Native capture hashes SDK/toolchain, explicit reference paths and declared external dependencies. Worker image ID, platform, full effective worker environment, mount map and native Docker/Python/Git executable bytes enter the normalized plan. Before/after identity validates exact equality within a run. I2 proves that apt Pillow has no distribution file manifest: runtime() hashes an empty file set and misses changed installed package bytes."
+    },
+    {
+      "scope": "External runner provenance",
+      "result": "PASS SOURCE REVIEW",
+      "evidence": "validation_inputs.py:111-114,141; dev_validate.py:246,189-193",
+      "details": "The actual external runner directory supplies dev_validate.py and validation_inputs.py identity. Candidate source is independently identified from Git. Runner tools are mounted read-only for the worker runtime probe."
+    },
+    {
+      "scope": "Consumer authentication and installer guards",
+      "result": "UNCHANGED",
+      "evidence": "dev_validate.py:77-113; require_gate_pass.sh:79-88; fm1_install.py:877-901",
+      "details": "Schema/result/config/model, source identity, normalized plan configuration, expected log set, log return codes and hashes, budgets, package/controller selection and artifact hashes remain checked. Queue guards remain after development verification. No diff from audit in require_gate_pass.sh or fm1_install.py; verify function is unchanged."
+    },
+    {
+      "scope": "Exact Linux font environment",
+      "result": "PASS SCOPED WORKER FONT EQUALITY; TARGET ARTIFACT EQUALITY DEFERRED TO STAGE4",
+      "evidence": "dev_validate.py:116-125,158-172,299; tools/build.py:146-149; tools/gen_font.py:56-58,134-164,186-188; investigation-font-environment.json; root font-check.py and font-check.json (root-owned actual worker generation probe)",
+      "details": "Development sanitation removes external font selection/paths. Build and generators run within the same Linux/amd64 worker. Immutable image ID captures the image font engine libraries, runtime intends to capture installed Pillow package bytes but misses this apt package (I2). The local image has Pillow 9.4.0, FreeType 2.12.1 and raqm enabled. No direct Mac font build or artifact equality claim was made. Root generated the actual Linux worker font header; SHA-256 589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44 matches audit Linux evidence."
+    }
+  ],
+  "findings": [
+    {
+      "id": "I1",
+      "severity": "coverage limit",
+      "title": "Additional worker mounts need explicit dependency declarations",
+      "evidence": "dev_validate.py:248-254; validation_inputs.py:130-137; BUILDING.md:119-120,223-225; investigation-mount-proof.json",
+      "observed": "Changing an extra mounted directory changes its content hash while preserving the capture identity when it is absent from plan.dependencies and absolute check argv. A shell command with an embedded path or PYTHONPATH can consume it. Mount provenance records path/access mode only.",
+      "disposition": "BUILDING.md explicitly requires external check inputs in plan.dependencies. This proof uses an undeclared input, so it does not establish a defect for a conforming plan. It does establish that automatic full mounted-byte coverage is not provided by --worker-mount alone. Require all extra worker input mounts to be listed in plan.dependencies for stage4; optionally make that association automatic in a later source repair if automatic coverage is intended.",
+      "blocking": false,
+      "root_disposition": "Accepted as the documented input-declaration contract. Stage4 must list each consumed --worker-mount path in plan.dependencies. Do not claim automatic coverage of every mounted file. No source repair is required for a conforming plan."
+    },
+    {
+      "id": "I2",
+      "severity": "material defect",
+      "title": "Python package bytes are omitted when distribution metadata has no file manifest",
+      "blocking": true,
+      "evidence": "validation_inputs.py:89-97; root-pillow-proof.json; root-pillow-proof.log; investigation-pillow-proof.py",
+      "observed": "In the actual pinned worker image, importlib.metadata.distribution(\"pillow\").files is None and file count is zero. runtime() uses dist.files or [], hashes an empty mapping and records SHA-256 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a. Root ran the saved proof in a disposable container: changing /usr/lib/python3/dist-packages/PIL/__init__.py from dd9f25c2ad1d6a7444ed64056716bbbccbdf4a3bff0b8f90ef7154aff807b786 to a different hash left the complete runtime result unchanged.",
+      "impact": "Before/after capture can issue a DEV CHECKED record while installed Pillow bytes differ. The unchanged image ID identifies the initial image, but does not identify changed bytes in the writable container layer. This violates the explicit worker Python-byte coverage requirement.",
+      "origin": "The file-manifest algorithm predates this refactor, but is exercised by the selected worker image and remains in the checked candidate.",
+      "disposition": "Do not advance to stage4. Launch one fresh repair stage2 to hash actual installed package bytes when metadata has no manifest or refuse an incomplete capture. Then require fresh stage3 for affected byte coverage and runtime compatibility. Reuse unrelated valid checks."
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "6affed8",
+        "6d690e3",
+        "--",
+        "tools/require_gate_pass.sh",
+        "tools/fm1_install.py",
+        "tools/gen_font.py",
+        "tools/build.py",
+        "ble/ctl/build_ctl.sh",
+        "ble/ctl/build_in_container.sh"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "scope": "Confirm consumer/font/build/controller source unchanged."
+    },
+    {
+      "shell": "docker image inspect x0x37-validation:local --format '{{.Id}} {{.Os}}/{{.Architecture}}' && docker run --rm --platform linux/amd64 --entrypoint python3 x0x37-validation:local -B -c 'import json,platform,sys,PIL; from PIL import features; print(json.dumps({\"platform\":[platform.system(),platform.machine(),platform.release()],\"python\":sys.version,\"pillow\":PIL.__version__,\"raqm\":features.check(\"raqm\"),\"freetype\":features.version(\"freetype2\"),\"harfbuzz\":features.version(\"harfbuzz\"),\"fribidi\":features.version(\"fribidi\")},sort_keys=True))'",
+      "returncode": 0,
+      "tool_wall_seconds": 1.7,
+      "timing_limit": "Combined tool elapsed time; no individual command timing claim."
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-time-stage3/investigation-mount-proof.py"
+      ],
+      "scope": "Equivalent saved reproducer of the executed inline pure-capture proof. The inline proof produced investigation-mount-proof.json.",
+      "execution_note": "The saved reproducer itself has not been rerun; the equivalent inline probe returned 0."
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-time-stage3/investigation-pillow-run.py"
+      ],
+      "result": "Not executed successfully: sandbox Docker socket denied; escalation attempt was aborted by user. Root ran investigation-pillow-proof.py with approved direct Docker escalation.",
+      "evidence": [
+        "investigation-pillow-sandbox-failure.log",
+        "root-pillow-proof.json",
+        "root-pillow-proof.log"
+      ]
+    }
+  ],
+  "limits": [
+    "This investigation reviewed source and used focused identity/environment probes. It did not duplicate the test agent fixtures.",
+    "No real target firmware/controller build, artifact equality, end-to-end speed, gate, install or device check ran here.",
+    "Mutable worker filesystem outside captured runtime dependencies is not exhaustively hashed. Normal synchronous plans must declare external inputs and avoid system mutation. Image identity alone is not an assertion that arbitrary privileged plan commands cannot alter the container.",
+    "The before/after identity contains per-run scratch mount paths and full environment including container HOSTNAME. Separate runs can have different complete identities despite matching build bytes; baseline comparison must document those bookkeeping differences without discarding real build inputs.",
+    "The earlier package-source review PASS is superseded by I2 and the actual disposable-container mutation proof. The font header equality remains valid as scoped evidence, but does not repair package provenance."
+  ]
+}

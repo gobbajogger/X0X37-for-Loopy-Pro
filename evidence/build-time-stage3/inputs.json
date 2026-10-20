@@ -1,0 +1,29 @@
+{
+  "workflow": "build-time-20261021",
+  "stage": 3,
+  "candidate": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "lane": "/Users/mac/Documents/x0x37/build_time_stage3",
+  "branch": "lane/opt-build-time-stage3",
+  "source_files": {
+    "tools/dev_validate.py": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+    "tools/validation_inputs.py": "5f77ec9233824b61a7a4cb34cb4568b81ca958c5659a60ba419518cbee619e8d",
+    "tests/host/test_dev_validate.py": "f816acfa58ec071ae935328f01f64b7e04a0353e7f543e01cccb05949589fdc7",
+    "tests/host/test_validation_inputs.py": "8dd9c3aa6b13dc8d14da9735a866a07572192478fd2fe95e4fea668c5e49255e",
+    "BUILDING.md": "58d97f0510e406e9b3f9a2724b5ac24723c2ca33fe4c54b4f51a54ffa2a055f4",
+    "docs/USER_PREFERENCES.md": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+    "tools/require_gate_pass.sh": "cc347a41bdee02f272e7e94db03a37933980515fd36769337efd9046668f8bbf",
+    "tools/fm1_install.py": "2ede8eb2ced566b9916ea7aec403c3bbc70c2063f96efa94625ba737a5a87c6b"
+  },
+  "consumer_review": {
+    "verify_AST_unchanged_from_audit": true,
+    "require_gate_pass_changed": false,
+    "fm1_install_changed": false
+  },
+  "source_tree": "a573227b80e95f86f40982dc76847e33f337db3d",
+  "authorization": {
+    "owner_quote": "I grant you full access for this project indefinitely for development purposes",
+    "quote_source_chat": "01a15ac7-17e4-7633-b9a5-6652fa0aefed",
+    "owner_request_source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+    "scope": "Tool development/test/validation only; no device installation, release/full gate, external push, or firmware integration."
+  }
+}

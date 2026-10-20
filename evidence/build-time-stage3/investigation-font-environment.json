@@ -1,0 +1,16 @@
+{
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "image_platform": "linux/amd64",
+  "platform": [
+    "Linux",
+    "x86_64",
+    "6.8.0-117-generic"
+  ],
+  "python": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+  "pillow": "9.4.0",
+  "raqm": true,
+  "freetype": "2.12.1",
+  "harfbuzz": null,
+  "fribidi": null,
+  "version_limit": "features.version returned null for harfbuzz/fribidi; no claim of absent libraries. Immutable image identifies actual library bytes."
+}

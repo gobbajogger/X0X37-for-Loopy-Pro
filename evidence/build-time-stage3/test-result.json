@@ -1,0 +1,129 @@
+{
+  "candidate": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "actual_head": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "stage": "3 independent test scope",
+  "status": "STOPPED: material package-byte defect independently confirmed by root/investigation",
+  "source_changed": false,
+  "stage2_inputs": {
+    "tools/dev_validate.py": {
+      "expected": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+      "actual": "7a3636eed3e811c5e97b3a753a48169058fb89b50a9cacc60ad6652d10f785bf",
+      "matches": true
+    },
+    "tools/validation_inputs.py": {
+      "expected": "5f77ec9233824b61a7a4cb34cb4568b81ca958c5659a60ba419518cbee619e8d",
+      "actual": "5f77ec9233824b61a7a4cb34cb4568b81ca958c5659a60ba419518cbee619e8d",
+      "matches": true
+    },
+    "tests/host/test_dev_validate.py": {
+      "expected": "f816acfa58ec071ae935328f01f64b7e04a0353e7f543e01cccb05949589fdc7",
+      "actual": "f816acfa58ec071ae935328f01f64b7e04a0353e7f543e01cccb05949589fdc7",
+      "matches": true
+    },
+    "tests/host/test_validation_inputs.py": {
+      "expected": "8dd9c3aa6b13dc8d14da9735a866a07572192478fd2fe95e4fea668c5e49255e",
+      "actual": "8dd9c3aa6b13dc8d14da9735a866a07572192478fd2fe95e4fea668c5e49255e",
+      "matches": true
+    },
+    "BUILDING.md": {
+      "expected": "58d97f0510e406e9b3f9a2724b5ac24723c2ca33fe4c54b4f51a54ffa2a055f4",
+      "actual": "58d97f0510e406e9b3f9a2724b5ac24723c2ca33fe4c54b4f51a54ffa2a055f4",
+      "matches": true
+    },
+    "docs/USER_PREFERENCES.md": {
+      "expected": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+      "actual": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+      "matches": true
+    }
+  },
+  "stage2_logs": {
+    "native-dev.log": {
+      "expected": "c873433a031c0c4312e03097f07eb122488a2a2b4914861f439bbbf2426d0a41",
+      "actual": "c873433a031c0c4312e03097f07eb122488a2a2b4914861f439bbbf2426d0a41",
+      "matches": true,
+      "returncode": 0,
+      "seconds": 11.732078375
+    },
+    "worker-dev.log": {
+      "expected": "f667fd30f8d55329af47f61f2f5055d633d9eff9cb18f3403d106cc2cfe5bc5a",
+      "actual": "f667fd30f8d55329af47f61f2f5055d633d9eff9cb18f3403d106cc2cfe5bc5a",
+      "matches": true,
+      "returncode": 0,
+      "seconds": 86.850211375
+    },
+    "validation-inputs.log": {
+      "expected": "8dabb1e39956291a21edfefa05bf269f3dea90a2c51a6909bf3f7026f80345b0",
+      "actual": "8dabb1e39956291a21edfefa05bf269f3dea90a2c51a6909bf3f7026f80345b0",
+      "matches": true,
+      "returncode": 0,
+      "seconds": 8.918526666999995
+    },
+    "preferences.log": {
+      "expected": "1d9ccdc1c953674dc4290ece5d4261ce152d2dbe575b2449a8302d0186d888b7",
+      "actual": "1d9ccdc1c953674dc4290ece5d4261ce152d2dbe575b2449a8302d0186d888b7",
+      "matches": true,
+      "returncode": 0,
+      "seconds": 0.032880000000005793
+    },
+    "diff.log": {
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true,
+      "returncode": 0,
+      "seconds": 0.015258416999998303
+    }
+  },
+  "stage2_evidence_reusable": true,
+  "reused_coverage": {
+    "DevelopmentValidation": {
+      "cases": 14,
+      "scope": "Native mocked-platform fixture path, plan and record guards, log/artifact/source/controller mutation, queue guards, installer DEV routing, input mutation, timeout child cleanup, failed checks, scratch retention, worker-stop ordering."
+    },
+    "WorkerValidation": {
+      "cases": 16,
+      "scope": "Real Docker scratch worker repeats consumer and lifecycle cases; includes actual image/Pillow version metadata, read-only SDK rejection, timeout worker cleanup, signal cleanup."
+    },
+    "Inputs": {
+      "cases": 5,
+      "scope": "Content invalidation, gate routing, runner name, Emscripten backend/cache classification, split capture and image configuration invalidation."
+    }
+  },
+  "completed_supplemental_commands": [
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "x0x37-validation:local",
+        "--format",
+        "{{.Id}} {{.Os}}/{{.Architecture}}"
+      ],
+      "first_result": "Sandbox denied docker.sock; escalated retry succeeded.",
+      "result": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1 linux/amd64"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-time-stage3/test-worker-mount.py"
+      ],
+      "result": "No execution result. Approval request was aborted by user after 386.5 seconds. No active runner or result files confirmed by root."
+    }
+  ],
+  "prepared_but_unexecuted": "test-worker-mount.py",
+  "pending_scopes": [
+    "Additional worker-mount input mutation reproduction and conforming plan.dependencies variant.",
+    "Complete byte/executable-mode mutation matrix across declared external, argv, reference and runner inputs.",
+    "Expanded plan/log/record mutation matrix beyond existing reusable cases.",
+    "Actual Linux-native fixture run without mocked platform.",
+    "All declared dependency mounts read-only, beyond existing SDK case.",
+    "Environment mutation and unrelated-worker-preservation supplemental runs."
+  ],
+  "pending_reason": "Root directed testing to stop because actual installed Pillow-byte mutation is absent from the worker runtime identity. Fresh repair stage2 and affected stage3 are required.",
+  "limits": [
+    "No real firmware target build, package/controller equality or end-to-end timing was tested in this scope.",
+    "Image ID unchanged does not repair the installed-package-byte coverage defect.",
+    "Additional worker mounts still require external input declaration in plan.dependencies under current BUILDING.md contract."
+  ],
+  "next_action": "Use independent defect evidence from root/investigation for fresh repair stage2; reuse the matching passing stage2 coverage where repair inputs and scope remain applicable."
+}

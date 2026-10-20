@@ -1,0 +1,136 @@
+{
+  "distribution_files_is_none": true,
+  "distribution_files_count": 0,
+  "module_path": "/usr/lib/python3/dist-packages/PIL/__init__.py",
+  "module_before_sha256": "dd9f25c2ad1d6a7444ed64056716bbbccbdf4a3bff0b8f90ef7154aff807b786",
+  "module_after_sha256": "96f7377e59bc5247401abfe9d3bb3c40c29ac7805cb5602027481d1638b6f83f",
+  "runtime_before": {
+    "tools": {
+      "bash": {
+        "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+        "executable": true
+      },
+      "sh": {
+        "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+        "executable": true
+      },
+      "git": {
+        "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+        "executable": true
+      },
+      "make": {
+        "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+        "executable": true
+      },
+      "node": {
+        "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+        "executable": true
+      },
+      "emcc": null,
+      "cc": {
+        "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+        "executable": true
+      },
+      "c++": {
+        "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+        "executable": true
+      },
+      "ld": {
+        "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+        "executable": true
+      },
+      "ar": {
+        "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+        "executable": true
+      },
+      "objcopy": {
+        "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+        "executable": true
+      },
+      "python": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      }
+    },
+    "python_packages": {
+      "numpy": null,
+      "pillow": {
+        "version": "9.4.0",
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "environment": {},
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "dependencies": {}
+  },
+  "runtime_after": {
+    "tools": {
+      "bash": {
+        "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+        "executable": true
+      },
+      "sh": {
+        "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+        "executable": true
+      },
+      "git": {
+        "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+        "executable": true
+      },
+      "make": {
+        "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+        "executable": true
+      },
+      "node": {
+        "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+        "executable": true
+      },
+      "emcc": null,
+      "cc": {
+        "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+        "executable": true
+      },
+      "c++": {
+        "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+        "executable": true
+      },
+      "ld": {
+        "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+        "executable": true
+      },
+      "ar": {
+        "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+        "executable": true
+      },
+      "objcopy": {
+        "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+        "executable": true
+      },
+      "python": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      }
+    },
+    "python_packages": {
+      "numpy": null,
+      "pillow": {
+        "version": "9.4.0",
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "environment": {},
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "dependencies": {}
+  },
+  "package_bytes_changed": true,
+  "runtime_identity_unchanged": true
+}
+

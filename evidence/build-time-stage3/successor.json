@@ -1,0 +1,10 @@
+{
+  "workflow": "build-time-20261021",
+  "next_stage": 2,
+  "marker": "build-time-20261021-stage2-python-manifest-repair",
+  "status": "pending",
+  "source_chat": "01a15ad7-8be3-7301-aabe-e4533790c4a2",
+  "checked_candidate": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "prompt": "/Users/mac/Documents/x0x37/build_time_stage3/evidence/build-time-stage3/repair-stage2-prompt.txt",
+  "attempts": []
+}

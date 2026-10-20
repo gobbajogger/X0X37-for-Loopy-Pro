@@ -1,0 +1,22 @@
+{
+  "candidate": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+  "proof": "A declared worker mount is represented in plan.worker.mounts but omitted from dependencies unless separately declared. A shell command or PYTHONPATH can consume it without an absolute argv input.",
+  "before_identity": "8c536c107423394d4fc6253148a5f81d9a4e039346792e1ec7e3e4c1ebe85dbc",
+  "after_identity": "8c536c107423394d4fc6253148a5f81d9a4e039346792e1ec7e3e4c1ebe85dbc",
+  "before_extra_content": {
+    "sha256": "d0749d4c6ab705477043f25c9ae390561dac94a75a5f9e0c5d199bfb130b4ce3"
+  },
+  "after_extra_content": {
+    "sha256": "b86ea0138b8a7a1439740822b06396c60dc44e4a299708cdb325b7aa3b2e3d4e"
+  },
+  "identity_unchanged": true,
+  "content_changed": true,
+  "capture_dependencies": {
+    "toolchain": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "sdk": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  }
+}

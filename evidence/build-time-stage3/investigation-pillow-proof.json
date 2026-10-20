@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--mount",
+    "type=bind,source=/Users/mac/Documents/x0x37/build_time_stage3,target=/review,readonly",
+    "--entrypoint",
+    "python3",
+    "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "-B",
+    "/review/evidence/build-time-stage3/investigation-pillow-proof.py"
+  ],
+  "returncode": 1,
+  "seconds": 0.022126959,
+  "log": "investigation-pillow-proof.log",
+  "log_sha256": "fc06efe52ed290aac13f1557bfc22c509f51bd74363c9ff1d62827eec532186e",
+  "result": "permission denied while trying to connect to the docker API at unix:///Users/mac/.colima/default/docker.sock\n"
+}
