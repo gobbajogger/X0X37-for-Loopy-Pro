@@ -4,7 +4,7 @@
   "next_stage": 4,
   "candidate": "b03d1737e909439c0a036af64bbcaa901c41382e",
   "launch_prompt": "stage4-prompt.txt",
-  "status": "created; startup verification pending",
+  "status": "started",
   "thread_id": "01a15a13-69cb-7553-ac87-f3309cc52a3c",
   "host_id": "local",
   "attempts": [
@@ -16,5 +16,13 @@
     }
   ],
   "duplicate_check": "Project activity and saved pending record checked immediately before create; no existing SMC stage4 successor.",
-  "title": "Validate SMC knobs and diagnostics DEV packages \u2014 stage 4"
+  "title": "Validate SMC knobs and diagnostics DEV packages \u2014 stage 4",
+  "startup_verified": {
+    "tool": "wait_threads timeoutMs0",
+    "turn_id": "01a15a13-6ac9-7900-a01a-bef438c0d237",
+    "assistant_message_id": "msg_0d946a776764a6d1016ad7924da9488191858550ae33d79cc8",
+    "assistant_text": "I\u2019ll read the handoff and current rules, check for duplicate stage 4 activity, then create an isolated lane from the exact candidate.",
+    "evidence": "New assistant commentary acknowledges assigned stage4 scope; actual response observed, not just active flag.",
+    "stage3_execution": "ends after recording this startup; no wait for stage4 completion"
+  }
 }
