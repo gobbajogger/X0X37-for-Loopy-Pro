@@ -152,6 +152,7 @@ def main(pkg, version, out):
     # the manual (a complete page; its images beside it)
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "MANUAL.md"),
                     str(out / "manual" / "index.html")], check=True, capture_output=True)
+    shutil.copy(SRC / "docs" / "PROJECT_FILES.md", out / "manual" / "PROJECT_FILES.md")
     shutil.copytree(SRC / "docs" / "img", out / "manual" / "img")
     # what's new (the same converter; its pictures beside it)
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "NEW.md"),
