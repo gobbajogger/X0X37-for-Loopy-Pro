@@ -70,13 +70,13 @@ def bounds():
 
 def unit_side():
     ctl = make_ctl()
-    want = zlib.crc32(ctl)
+    want = zlib.crc32(block_of(ctl))
     dev = FakeBT(b"", block_of(ctl))
     link = dev.open("SMK-37 Elite", None)
     out = io.StringIO()
     got = I.check_ctl(link, ctl, out)
-    ok(got == want and f"unit CRC32 {want:08x}" in out.getvalue() and len(dev.reads) == (len(ctl) + 223) // 224,
-       f"read-back: {len(ctl)} B in {len(dev.reads)} reads, unit CRC32 = file CRC32 {want:08x}")
+    ok(got == want and f"unit CRC32 {want:08x}" in out.getvalue() and len(dev.reads) == (BLOCK + 223) // 224,
+       f"read-back: full {BLOCK} B block in {len(dev.reads)} reads, unit CRC32 = expected CRC32 {want:08x}")
     ok(all(r[3] <= 112 and (r[0] | r[1] << 7 | r[2] << 14) + 2 * r[3] <= BLOCK for r in dev.reads),
        "read-back: every request stays inside the Bluetooth block")
     bad = bytearray(block_of(ctl))
@@ -87,10 +87,17 @@ def unit_side():
         I.check_ctl(dev.open("SMK-37 Elite", None), ctl, out)
         ok(False, "one changed bit: the read-back stops with an error")
     except I.InstallError as e:
-        unit = zlib.crc32(bytes(bad[:len(ctl)]))
+        unit = zlib.crc32(bytes(bad))
         ok(e.code == "ctlcrc" and f"{unit:08x}" in str(e) and f"{want:08x}" in str(e)
            and f"unit CRC32 {unit:08x}" in out.getvalue(),
-           f"one changed bit: error, unit CRC32 {unit:08x} printed, file {want:08x}")
+           f"one changed bit: error, unit CRC32 {unit:08x} printed, expected {want:08x}")
+    bad_padding = bytearray(block_of(ctl))
+    bad_padding[-1] = 0
+    try:
+        I.check_ctl(FakeBT(b"", bytes(bad_padding)).open("SMK-37 Elite", None), ctl, io.StringIO())
+        ok(False, "changed erased padding byte: the full-block read-back stops with an error")
+    except I.InstallError as e:
+        ok(e.code == "ctlcrc", "changed erased padding byte is detected")
     dev = FakeBT(b"", None)
     try:
         I.check_ctl(dev.open("SMK-37 Elite", None), ctl, io.StringIO())
@@ -107,20 +114,20 @@ def install():
     p = T.pkgfile("elite.fwsc", raw)
     real = I.with_ctl
 
-    def fake_with_ctl(a, product, img, out, cache=None):
+    def fake_with_ctl(a, product, img, out):
         a.ctl_bytes = ctl
         return img
     I.with_ctl = fake_with_ctl
     try:
         dev = FakeBT(image, block_of(ctl))
         rc, out, err = T.cli([p, "--yes", "--no-slots"], dev)
-        ok(rc == 0 and "done:" in out and f"unit CRC32 {zlib.crc32(ctl):08x}" in out,
+        ok(rc == 0 and "done:" in out and f"unit CRC32 {zlib.crc32(block_of(ctl)):08x}" in out,
            "install with a ctl.img: installed, read back, CRC32 ok, exit 0")
         bad = bytearray(block_of(ctl))
         bad[0] ^= 1
         dev = FakeBT(image, bytes(bad))
         rc, out, err = T.cli([p, "--yes", "--no-slots"], dev)
-        ok(rc == 8 and "done:" in out and "is not the file CRC32" in err, "install, the unit block differs: exit 8, error")
+        ok(rc == 8 and "done:" in out and "is not the expected" in err, "install, the unit block differs: exit 8, error")
         dev = FakeBT(image, None)
         rc, out, err = T.cli([p, "--yes", "--no-slots"], dev)
         ok(rc == 8 and "not read back" in err, "install, the unit has no CTL_READ: exit 8")

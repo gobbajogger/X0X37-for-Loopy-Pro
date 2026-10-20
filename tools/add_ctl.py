@@ -179,6 +179,30 @@ def check_block(logical):
         raise NoBlock(NO_BLOCK)
 
 
+def controller_of(logical):
+    """Return the valid controller embedded in a package, or None for an empty controller block.
+
+    NoBlock still identifies old packages whose application owns this range.  Other non-empty
+    contents are refused: a current package must not silently install an unknown controller block.
+    """
+    st = _open(logical)
+    if not block_free(st):
+        raise NoBlock(NO_BLOCK)
+    lo = 0x120 + CODE_MAX
+    block = bytes(st["area"][lo:lo + BLE_SIZE])
+    if block == b"\xFF" * BLE_SIZE:
+        return None
+    if len(block) < HDR_SIZE or struct.unpack_from("<I", block, 0)[0] != HDR_MAGIC:
+        raise PkgError("the Bluetooth block is neither empty nor a controller image")
+    size = struct.unpack_from("<I", block, 12)[0]
+    ctl = block[:size]
+    if (problem := ctl_problem(ctl)):
+        raise PkgError(f"embedded controller image: {problem}")
+    if block[size:] != b"\xFF" * (BLE_SIZE - size):
+        raise PkgError("embedded controller image has non-erased bytes after its declared size")
+    return ctl
+
+
 def insert(logical, ctl):
     """the logical image with ctl (bytes, or None for an empty block) in the Bluetooth block"""
     st = _open(logical)

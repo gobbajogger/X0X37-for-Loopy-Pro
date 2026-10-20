@@ -3,10 +3,11 @@
 """tools/add_ctl.py and web/fm1pkg.js insertCtl on an SMK-37 package (build/x0x-smk37.fwsc; skipped
 without a build): the image lands in the Bluetooth block, every checksum is right again, nothing else
 changes, --remove gives the package back byte for byte, Python and JavaScript give the same bytes,
-and a damaged or unsuitable ctl.img is refused. Also fm1_install.py's --ctl / cached image."""
+and a damaged or unsuitable ctl.img is refused. Also fm1_install.py's explicit-controller guard."""
 import argparse
 import io
 import json
+import os
 import shutil
 import struct
 import subprocess
@@ -67,7 +68,7 @@ def plain_area(logical):
 
 
 def main():
-    pkg_path = SRC / "build" / "x0x-smk37.fwsc"
+    pkg_path = Path(os.environ.get("X0X_SMK_PKG", SRC / "build" / "x0x-smk37.fwsc"))
     if not pkg_path.is_file():
         print("ble_pkg_test: skipped (no build/x0x-smk37.fwsc)")
         return 0
@@ -83,7 +84,7 @@ def main():
     out = add_ctl.add(raw, ctl)
     ok(len(out) == len(raw), "same length")
     product, logical = add_ctl.logical_of(out)
-    ok(product == "SMK-37 Pro_900", "identity kept")
+    ok(product.startswith("SMK-37 "), "identity kept")
     ok(fi.package_damage(logical) is None, f"package CRCs: {fi.package_damage(logical)}")
     area, blk, flash = plain_area(logical)
     lo = 0x120 + add_ctl.CODE_MAX
@@ -188,34 +189,56 @@ writeFileSync(d + "/js.json", JSON.stringify(v));
                    "JS insertCtl with the slot map record = Python insert")
     else:
         print("ble_pkg_test: node not found, JavaScript parity skipped")
-    # fm1_install.py: --ctl, the cached image, --no-ctl, an FM-1 package
+    # fm1_install.py: current SMK packages need an explicit or embedded controller.
     with tempfile.TemporaryDirectory() as td:
         cache = Path(td) / "ctl.img"
         buf = io.StringIO()
         a = argparse.Namespace(ctl=None, no_ctl=False)
-        ok(fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf, cache=cache) == logical0, "no cache: unchanged")
         cache.write_bytes(ctl)
-        ok(fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf, cache=cache) == add_ctl.insert(logical0, ctl), "cached image added")
-        ok("added" in buf.getvalue(), "it says so")
+        try:
+            fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf)
+            ok(False, "empty SMK controller block is refused")
+        except fi.InstallError as e:
+            ok(e.code == "badpkg" and "empty" in str(e) and "--ctl" in str(e),
+               "empty SMK controller block: clear refusal before device access")
+        a.no_ctl = True
+        try:
+            fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf)
+            ok(False, "--no-ctl with an empty SMK controller block is refused")
+        except fi.InstallError as e:
+            ok(e.code == "badpkg" and "does not preserve" in str(e), "--no-ctl cannot erase the controller")
+        class NoDeviceAccess:
+            def input_names(self):
+                raise AssertionError("controller guard reached the device")
+        try:
+            fi.run(argparse.Namespace(info=False, package=str(pkg_path), force=False, port=None, ctl=None,
+                                      no_ctl=True, no_slots=False, backup=None, yes=True),
+                   NoDeviceAccess(), io.StringIO(), lambda _p: True)
+            ok(False, "empty SMK package run is refused")
+        except fi.InstallError as e:
+            ok(e.code == "badpkg" and "empty" in str(e), "empty --no-ctl run is refused before device access")
+        a.no_ctl = False
+        a.ctl = str(cache)
+        ok(fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf) == add_ctl.insert(logical0, ctl)
+           and a.ctl_bytes == ctl, "explicit valid --ctl is added and selected for read-back")
+        embedded = add_ctl.insert(logical0, ctl)
+        b = argparse.Namespace(ctl=None, no_ctl=True)
+        ok(fi.with_ctl(b, "SMK-37 Pro_900", embedded, buf) == embedded and b.ctl_bytes == ctl,
+           "a valid embedded controller is preserved and selected for read-back")
         buf = io.StringIO()
-        ok(fi.with_ctl(a, "SMK-37 Elite_9010800", old_code, buf, cache=cache) == old_code
-           and "not added" in buf.getvalue() and "added to the package" not in buf.getvalue(),
-           "cached image and an old package: skipped with a warning, the package unchanged")
-        cache.write_bytes(make_ctl(badcrc=True))
-        ok(fi.with_ctl(a, "SMK-37 Elite_9010800", old_code, io.StringIO(), cache=cache) == old_code,
-           "a damaged cache and an old package: the rollback still installs")
+        ok(fi.with_ctl(argparse.Namespace(ctl=None, no_ctl=True), "SMK-37 Elite_9010800", old_code, buf) == old_code
+           and "not applicable" in buf.getvalue(),
+           "an old package whose app owns the range remains installable without a controller")
         cache.write_bytes(ctl)
         try:
             fi.with_ctl(argparse.Namespace(ctl=str(cache), no_ctl=False), "SMK-37 Elite_9010800", old_code, buf)
             ok(False, "--ctl on an old package is refused")
         except fi.InstallError as e:
             ok(e.code == "badpkg" and "Bluetooth block" in str(e), "--ctl on an old package: badpkg, clear message")
-        a.no_ctl = True
-        ok(fi.with_ctl(a, "SMK-37 Pro_900", logical0, buf, cache=cache) == logical0, "--no-ctl")
-        ok(fi.with_ctl(argparse.Namespace(ctl=None, no_ctl=False), "FM-1_900", b"x", buf, cache=cache) == b"x",
+        ok(fi.with_ctl(argparse.Namespace(ctl=None, no_ctl=False), "FM-1_900", b"x", buf) == b"x",
            "FM-1: the cache is not used")
         try:
-            fi.with_ctl(argparse.Namespace(ctl=str(cache), no_ctl=False), "FM-1_900", b"x", buf, cache=cache)
+            fi.with_ctl(argparse.Namespace(ctl=str(cache), no_ctl=False), "FM-1_900", b"x", buf)
             ok(False, "--ctl on an FM-1 package is refused")
         except fi.InstallError:
             pass

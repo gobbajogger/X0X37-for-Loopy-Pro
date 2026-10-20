@@ -21,6 +21,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import fm1_install as I  # noqa: E402
 
+# These transport fixtures predate the real encrypted package builder and have no parseable app
+# area. Treat their controller range like an old package; tests/ble_pkg_test.py covers real packages.
+def synthetic_old_package(_image):
+    raise I.add_ctl.NoBlock(I.add_ctl.NO_BLOCK)
+
+
+I.add_ctl.controller_of = synthetic_old_package
+
 I.DELAY.update(open=0, start=0.01, reply=0, loader=0.01, reboot=0.01, retry=0.02, poll=0.05, hs=0.1,
                idle_check=0.4, idle_write=0.4, wait_loader=2, wait_reboot=2)
 I.SLOT_PROBE.update(timeout=0.05, tries=1)

@@ -25,8 +25,6 @@ I = T.I
 ok = T.ok
 TMP = Path(tempfile.mkdtemp(prefix="x0x-install-slots-"))
 os.chdir(TMP)                                         # the default backup file lands here
-NO_CACHE = TMP / "no-ctl.img"
-I.CTL_CACHE = NO_CACHE                                # not the user's ~/.config/x0x/ctl.img: the packages stay as made
 PRO = "SMK-37 Pro_900"
 
 
@@ -121,6 +119,24 @@ def upgrade_keeps():
     writes = [c for _, c in dev.slot_cmds if c != xs.CMD_INFO]
     ok(rc == 0 and not backups() and writes == [] and read(fl, SMK_MAP)[:2] == [a, b] and "lose" not in out,
        "old X0X -> this X0X: the slots stay, no backup, no slot command but SMP_INFO")
+
+
+def explicit_backup_keeps():
+    """--backup is a fresh verified prewrite backup even when no slot is at risk."""
+    fl = Flash()
+    a = put(fl, SMK_MAP, 0, "BR1", 120000, 3)
+    b = put(fl, SMK_MAP, 1, "BR2", 140000, 5)
+    raw = package(NEW_PKG, SMK_MAP)
+    dev = FakeX0X(I.logical_image(raw), NEW_PKG, NEW_PKG, {NEW_PKG: NEW}, fl)
+    rc, out, err = T.cli([pkgfile("same.fwsc", raw), "--yes", "--backup", "fresh.x0xslots"], dev)
+    f = TMP / "fresh.x0xslots"
+    meta, imgs = xs.read_archive(f.read_bytes()) if f.exists() else (None, None)
+    first_install = next(i for i, p in enumerate(dev.sent) if p == I.UPGRADE)
+    ok(rc == 0 and imgs[:2] == [a, b] and "slots saved: fresh.x0xslots" in out,
+       "explicit --backup: every slot saved and verified with zero at-risk slots")
+    ok(dev.sent[first_install - 1][:4] == I.ED_HDR and dev.upgrades == 2,
+       "explicit --backup: reads finish before the first update command")
+    clear()
 
 
 def downgrade():
@@ -222,22 +238,15 @@ def opt_out():
     ok(rc == 1 and not backups() and dev.upgrades == 0 and "lose" in out, "answer no: warning shown, nothing saved or sent")
 
 
-def cache_skipped():
-    """a cached ctl.img never stops a rollback: the old package has no free Bluetooth block, so it installs without it"""
+def old_package_without_controller():
+    """an old-package transport fixture still installs without implicit cached-controller selection"""
     fl = Flash()
     a = put(fl, SMK_OLD_MAP, 0, "BR1", 120000, 3)
-    cache = TMP / "ctl.img"
-    cache.write_bytes(b"X0BC" + bytes(100))
-    I.CTL_CACHE = cache
-    try:
-        raw = package(OLD_PKG)
-        dev = FakeX0X(I.logical_image(raw), NEW_PKG, OLD_PKG, {OLD_PKG: OLD, NEW_PKG: NEW}, fl)
-        rc, out, err = T.cli([pkgfile("old.fwsc", raw), "--yes", "--no-slots"], dev)
-        ok(rc == 0 and "done:" in out and "not added" in out and "added to the package" not in out,
-           "cached ctl.img and a package without a free Bluetooth block: installed without the image, a warning")
-    finally:
-        I.CTL_CACHE = NO_CACHE
-        cache.unlink()
+    raw = package(OLD_PKG)
+    dev = FakeX0X(I.logical_image(raw), NEW_PKG, OLD_PKG, {OLD_PKG: OLD, NEW_PKG: NEW}, fl)
+    rc, out, err = T.cli([pkgfile("old.fwsc", raw), "--yes", "--no-slots"], dev)
+    ok(rc == 0 and "done:" in out and "added to the package" not in out,
+       "old package transport: no controller is selected implicitly")
 
 
 def maps():
@@ -254,6 +263,7 @@ def maps():
 ROOT = HERE.parent
 maps()
 upgrade_keeps()
+explicit_backup_keeps()
 downgrade()
 clear()
 moved()
@@ -261,7 +271,7 @@ fails()
 backup_fails()
 stock()
 opt_out()
-cache_skipped()
+old_package_without_controller()
 os.chdir(HERE)
 __import__("shutil").rmtree(TMP, ignore_errors=True)
 print(f"INSTALL SLOT TESTS FAILED ({T.failed})" if T.failed else "install slot tests passed")

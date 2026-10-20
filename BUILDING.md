@@ -101,9 +101,12 @@ Use `--model pro` for Pro (package `x0x-smk37.fwsc`). Run validation inside Linu
 and installation also work on macOS. Plan commands must be synchronous native
 processes, without detached jobs or nested containers. The runner builds only that
 model in development configuration, checks code/RAM/pool budgets, builds the
-controller, and records selected test logs and artifact hashes. If the intended
-install needs no controller, use `--no-controller` when validating and `--no-ctl`
-when installing. An unchecked cached controller is not accepted on this path.
+controller, and records selected test logs and artifact hashes. Current SMK
+packages always rewrite the controller block. Validate a controller and install
+with `--ctl` pointing to that exact artifact. `--no-controller` / `--no-ctl` are
+not a preservation path: an empty current package is refused. They remain usable
+only for a package that already embeds a valid controller or an old package whose
+application owns that flash range.
 Reuse the record for the same source tree and exact artifacts; no repeat gate or
 validation run is needed for another install of them. Failed checks issue no
 record. DEV CHECKED is local development evidence, not release or device PASS.
@@ -272,9 +275,11 @@ python3 tools/add_ctl.py build/x0x-smk37.fwsc ble/ctl/out/ctl.img -o build/x0x-s
 python3 tools/add_ctl.py ble/ctl/out/ctl.img --check
 ```
 
-`build_ctl.sh` also copies the image to `~/.config/x0x/ctl.img`. `tools/fm1_install.py` adds
-that copy to each SMK-37 install (`--ctl FILE` for another one, `--no-ctl` for none). The web
-installer has a file field for it. See ble/README.md for how the image and the app fit together.
+`build_ctl.sh` also copies the image to `~/.config/x0x/ctl.img`, but the installer
+does not select that cache implicitly. Give the exact validated image with
+`tools/fm1_install.py --ctl FILE` for every current SMK-37 update. The installer
+refuses an empty controller block. The web installer has a file field for the image.
+See ble/README.md for how the image and the app fit together.
 
 ## Tests
 
