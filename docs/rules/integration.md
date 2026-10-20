@@ -11,6 +11,15 @@ Repeat for a changed validation tree, changed configuration/toolchain/dependenci
 a failed run needing repair proof, or an explicit force reason. Do not repeat
 successful gates or reviews without cause.
 
+Every invocation must supply `--purpose release-install|release-package|owner-validation`
+and `--reason` naming the pending release step/artifact or explicit owner request.
+A development install, changed input, failed old gate, `--trial`, or `--force`
+is not a purpose by itself. Before starting, confirm the named step is current;
+use scoped checks while development continues. `--force` additionally names why
+matching passing evidence cannot be reused. The script rejects missing/invalid
+purpose and blank reasons before setup or writes; it records the caller's reason,
+but cannot prove owner intent. Trial runs require `owner-validation`.
+
 Run maintained `tools/gate.sh` in supported Linux x86-64, including a local
 container. Follow its header and `BUILDING.md` for accessible repository,
 reference, work, lock, results, SDK, toolchain, and hook paths. The work path

@@ -15,6 +15,7 @@ Read for rule/enforcement changes. Run affected checks, not this whole list by d
 | Device bug cause | `bash tests/host/test_quickcheck_devbug.sh` | Regression fails before fix and passes after fix; valid source evidence accepted |
 | Local path and environment | `python3 tests/host/test_portable_rules.py` | Caller reference paths, local repo selection and configured hook runner |
 | Install evidence | `sh tests/host/test_install_gate_guard.sh` | Exact gate result, no invented device result |
+| Gate admission, purpose/reason, or reuse routing | `python3 tests/host/test_gate_reason.py` | Refusal before side effects; explicit purpose, PASS reuse and force routing |
 | Shared gate safety | `bash tests/host/test_gate_trap.sh` | Owned child cleanup, signal report, script change detection |
 
 Run Linux-specific checks in a supported Linux environment. Record the command,

@@ -43,7 +43,7 @@ gate() {  # gate <case> [env...]: start the gate in the background; GP = its PID
     local c=$1; shift
     env X0X_REPO="$T/box.git" X0X_RESULTS="$T/res" X0X_REFS="$T/refs" X0X_GATE_WORK="$T/work$c" X0X_TOOLCHAIN="$T/tc" \
         AC79_SDK="$T/sdk" X0X_PREPUSH_HOOK="$T/pre-push" X0X_GATE_LOCK="$T/gate.lock" X0X_REF_PINS="" X0X_GATE_SIGFILE= "$@" \
-        bash "$G/gate.sh" "$H" > "$T/gate$c.out" 2>&1 & GP=$!
+        bash "$G/gate.sh" "$H" --purpose owner-validation --reason "Gate signal regression fixture requested by rule repair" > "$T/gate$c.out" 2>&1 & GP=$!
 }
 gate 2
 if waitfor "$T/work2/$H.logs/build-elite.log" "fixture build"; then

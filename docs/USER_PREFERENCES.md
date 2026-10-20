@@ -13,6 +13,8 @@ in agent-rules.md and SKILLS.md. Active rules: rules/core.md and rules/style.md.
 
 ## Team rules
 
+- 2026-10-20 (owner, gate audit chat): "Need to audit when full gate run is performed and make sure that it won't run without a concrete reason for it and will only run when it's actually makes sense". Require an explicit current release purpose or owner validation request and a concrete reason before invoking the full gate; development uses scoped checks. This strengthens gate admission and does not authorize a full gate for this audit. Active rule: integration.md rule 11.
+
 Source: the owner's current rules audit request, relayed into this task. "Need to audit all project rules and docs to prevent it from happening. And make sure that all agents use simply English skill and caveman at all times. start a new thread with subagents to finish this job".
 
 - 2026-10-19 (owner): Supersedes earlier box-only work rules and role-only handoffs for authorized work. Supported local environments can complete builds and tests. Keep truthful validation, data protection, licensing, target model checks, and memory budgets (rules/commit.md rule 9; rules/core.md rule 6A).

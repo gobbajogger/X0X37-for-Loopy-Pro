@@ -82,7 +82,7 @@ export X0X_RESULTS="$PWD/build/gate-results"
 export X0X_GATE_WORK="$PWD/build/gate-work"
 export X0X_GATE_LOCK="$PWD/build/gate.lock"
 export X0X_PREPUSH_HOOK="$PWD/tools/pre-push.hook"
-bash tools/gate.sh <commit>
+bash tools/gate.sh <commit> --purpose release-install --reason "Install release candidate <version/artifact>"
 ```
 
 Keep the gate work path outside `/tmp`. In a container, mount source, references,
