@@ -284,3 +284,43 @@ The enclosing handoff/ledger commit changes Markdown only and retains the exact
 checked non-Markdown source identity. Physical SMC operation remains NOT TESTED
 on this installation; the owner's earlier failure and prior replay/simulation
 limits remain. Verified installation does not grant a device PASS or release.
+
+
+## 2026-10-21: complete SMC DEV candidate installed and preserved
+
+Installed source `b03d1737e909439c0a036af64bbcaa901c41382e` on the connected
+SMK-37 Elite with development configuration `X0X_DEV_PADCAL=1`. The exact raw
+Elite package and schema2 record are in `smc_stage4_evidence_20261021/elite`.
+Raw package SHA256 `0cfb652fc8ef0f7600004547b54e4a8e269f9f92be0bbf775e5be72ce7b4b0af`,
+CRC32 `1ab81f49`. The explicit matching controller image has SHA256
+`956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a` and CRC32
+`9c07ae67`. The full padded controller readback has CRC32 `4a400899` and is
+byte-identical before and after. No controller omission or cache substitution.
+
+The owner corrected the extra approval request in stage6. The direct correction
+supersedes the inherited pending-approval statement for this complete checked
+installation. The owner decision is recorded in `docs/USER_PREFERENCES.md` and
+`/Users/mac/Documents/x0x37/smc_stage6_evidence_20261021/owner-correction.json`.
+The installer retained native development admission, foreground, default hardware
+lock, bootloader-range and model guards. A watched wrapper called those unchanged
+guards in native order, then the unchanged native updater. The same lock covered
+fresh full before reads, a forced native all-slot backup, installation and after
+reads. No guard was replaced and no mocked backend was used. Owner notice sent.
+
+Native updater exit0 and expected runtime identity followed FINISH_WRITE. The
+loader read back and byte-compared all153 application sectors. An independent
+host application dump is unavailable. No independent unit head reference exists,
+so no physical host head-hash comparison is claimed. The package head matches
+the previous installed package and the loader/RAM-driver guards exclude bootloader
+writes. No bootloader write, fallback, rescue, release or full gate occurred.
+
+All3 complete slot regions, including empty space, are byte-identical before and
+after: slot1 81920B CRC32 `ee599248`, slot2 122880B `8a124cb7`, slot3 45056B
+`7e7f9415`. All5 imported loops remain (3 in slot1,2 in slot2, slot3 empty).
+Before/native forced backup/after loop images match. No restore or migration.
+Exact record, commands, times, backups and readbacks are saved at
+`/Users/mac/Documents/x0x37/smc_stage6_evidence_20261021/install-record.json`
+and `install.log`. This isolated ledger changes Markdown only. The integrated
+firmware lane remains clean and unchanged. All-input silence remains unresolved.
+New diagnostics are installed, but physical input delivery remains NOT TESTED.
+No external push or publication was performed.
