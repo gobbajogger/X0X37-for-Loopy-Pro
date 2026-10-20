@@ -9,7 +9,7 @@ esac
 mkdir -p build/host build/gen
 [ -f build/gen/x0x_drum_tables.h ] || python3 tools/gen_drum_samples.py build/gen/x0x_drum_samples.h >/dev/null
 [ -f build/gen/x0x_break_bank.h ] || sh tools/gen_builtin_break.sh build/gen >/dev/null
-${CC:-cc} -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-unused-function \
+${CC:-cc} -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-unused-function ${SAN_FLAGS:-} \
     -ffunction-sections -fdata-sections -DX0X_HOST -DBOARD_SMK37=1 \
     -Ibuild/gen -Ifirmware/src tests/host/project_stage_test.c \
     firmware/src/app/engine.c firmware/src/seq/pattern.c firmware/src/seq/tb3po.c \
