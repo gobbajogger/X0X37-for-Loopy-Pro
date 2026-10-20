@@ -107,14 +107,18 @@
       "limits": "Reported stage2 data only; independent Test and applicable stage4 acceptance still required."
     },
     "native": {
-      "state": "repair_scoped_checks_running",
+      "state": "checked_repair_waiting_independent_results_and_validation",
+      "candidate": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+      "lane": "../build_time_python_repair",
       "owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
-      "docker_approval": "Granted and action resumed by native owner; prior approval blocker cleared.",
-      "required": "Checked repair commit, fresh independent Test PASS and native Validate acceptance.",
+      "coordination_owner": "01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
+      "docker_approval": "Granted; prior blocker cleared.",
       "source_applied": false,
-      "reported_checks": "Host package/input and native consumer fixtures passed. Initial Linux shared-mount Git ownership/FIFO issue received one supported container-local tmpfs retry with source read-only.",
-      "measurement_limit": "SDK traversal operation sample2.792s old vs0.880s direct is warm-sensitive operation-only evidence; no end-to-end claim.",
-      "source": "Coordinator completion-context notice from01a15aec-08a1-7cb3-b395-f17ad2cf9add relaying current native repair owner."
+      "source_identity_record": "../build_time_python_repair/evidence/build-time-python-repair/inputs.json",
+      "reported_checks": "Host/Linux input14 each; native consumers14+1 each; actual Pillow source/extension mutation and seven real worker cases PASS. Unknown installed coverage fails closed.",
+      "independent_routing": "Repair owner reports independent Test and investigation helpers active within its existing bounded task under updated owner classic ChatGPT routing. No automatic Codex stage3 chain planned by that owner.",
+      "required": "Await final independent results and remaining validation handoff. No independent PASS or real target acceptance claimed.",
+      "remaining_combination_cleanup": "Apply only accepted stable source, then remove retired browser compiler/environment capture while preserving installed runtime/native dependency provenance."
     }
   },
   "remaining": [
