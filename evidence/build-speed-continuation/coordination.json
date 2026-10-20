@@ -1,0 +1,68 @@
+{
+  "workflow": "build-speed-finish-20261021",
+  "owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "firmware_base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "firmware_integration_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "components": {
+    "host_setup": {
+      "state": "accepted_local",
+      "implementation": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+      "acceptance": "db72964fd1bc82481a4c869912c8258165687ca8",
+      "evidence": "/Users/mac/Documents/x0x37/host_setup_stage4/evidence/host-setup-stage4/result.json"
+    },
+    "asset_cache": {
+      "state": "independent_test_started",
+      "implementation": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+      "stage3": "01a15aec-a3db-7972-b1a3-cbd56a0bd510"
+    },
+    "native_validator": {
+      "state": "provenance_repair_active",
+      "failed_implementation": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
+      "repair_owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d"
+    },
+    "quickcheck_controller": {
+      "state": "implementation_active",
+      "owner": "01a15ae3-2cce-7e42-9a7f-5911e60a9be5",
+      "runner_overlap": "Owner confirms no tests/run_tests.sh diff."
+    },
+    "runner_extraction": {
+      "state": "implementation_started",
+      "owner": "01a15aed-3863-7e61-8a04-344c29da894f",
+      "handoff": "evidence/runner-speed-stage1/handoff.txt"
+    },
+    "browser_removal": {
+      "state": "independent_test_started",
+      "implementation": "05405ff",
+      "stage3": "01a15aed-1bb1-7b62-b595-7c77f283569e",
+      "maintained_combination_cleanup": [
+        "tests/run_tests.sh test_class emu|emu-slots cases",
+        "tools/validation_inputs.py Emscripten compiler, SDK and environment capture",
+        "tests/host/test_validation_inputs.py optional emcc identity case",
+        "tools/dev_validate.py LinuxWorker retired Emscripten environment forwarding",
+        "BUILDING.md optional Emscripten dependency paragraph"
+      ]
+    },
+    "cache_consumers": {
+      "state": "audit_waits_for_checked_cache",
+      "consumers": [
+        "host/build_host.sh breaks only",
+        "tests/host/run_drum909.sh drums",
+        "tests/host/run_drum909_adpcm.sh drums",
+        "tests/host/smk_clip_chord_display_test.sh font"
+      ],
+      "constraints": [
+        "Preserve original native path where dependency discovery cannot reuse outputs.",
+        "Preserve host X0X_BREAK_BANK, per-caller destinations, reference and CYM_AB policy.",
+        "Require entrypoint timing and byte equality; no browser hooks."
+      ]
+    }
+  },
+  "validation_policy": [
+    "Reuse accepted same-input checks.",
+    "Combine tooling in isolated lane; leave primary dirty work and firmware integration untouched.",
+    "No new baseline full build or duplicate controller build for comparison.",
+    "Preserve precise source/configuration/dependency identity for selected final checks.",
+    "Measured asset or walker gains are not whole-build gains.",
+    "No device write, external push, release/full gate."
+  ]
+}
