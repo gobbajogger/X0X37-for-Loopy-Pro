@@ -11,3 +11,4 @@ for test in ble_midi_central ble_midi_receive ble_midi_signal ble_midi_abort; do
     "$OUT/$test"
 done
 python3 -B tests/host/ble_midi_deadline_test.py
+python3 -B tests/host/ble_midi_stop_test.py

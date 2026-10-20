@@ -10,7 +10,7 @@ enum { COP_RESET = 0x0c03, COP_EV_MASK = 0x0c01, COP_LE_MASK = 0x2001,
        COP_DISCONNECT = 0x0406 };
 enum { S_RESET, S_EVENT, S_LE_EVENT, S_BUFFER, S_RANDOM, S_SCAN_PARAM,
        S_SCAN_ON, S_SCAN_OFF, S_CREATE, S_CANCEL, S_SERVICE, S_CHAR, S_CCCD, S_SUBSCRIBE, S_READY };
-enum { D_SENT = 1, D_STOP = 2 };
+enum { D_SENT = 1, D_STOP = 2, D_CONTROL = 4 };
 static const uint8_t blec_U_SVC[16] = {0x00,0xc7,0xc4,0x4e,0xe3,0x6c,0x51,0xa7,0x33,0x4b,0xe8,0xed,0x5a,0x0e,0xb8,0x03};
 static const uint8_t blec_U_CHAR[16] = {0xf3,0x6b,0x10,0x9d,0x66,0xf2,0xa9,0xa1,0x12,0x41,0x68,0x38,0xdb,0xe5,0x72,0x77};
 static unsigned blec_rd16(const uint8_t *p) { return (unsigned)p[0] | (unsigned)p[1] << 8; }
@@ -79,6 +79,24 @@ static void blec_disconnect(blec_t *c)
     c->waiting = 0;
     blec_command(c, COP_DISCONNECT, b, 3);
     if (c->waiting) c->disconnect_flags |= D_SENT;
+}
+/* A stop retains the original operation until its completion is known. */
+static void blec_stop_progress(blec_t *c)
+{
+    if (c->conn) { blec_disconnect(c); return; }
+    if ((int32_t)(c->now_ms - c->deadline) >= 0) {
+        c->state = BLEC_FAILED; c->waiting = 0; return;
+    }
+    if (c->waiting || (c->disconnect_flags & D_CONTROL)) return;
+    if (c->step == S_CREATE || c->step == S_CANCEL) {
+        c->step = S_CANCEL;
+        blec_command(c, COP_CANCEL, 0, 0);
+    } else if (c->step == S_SCAN_ON || c->step == S_SCAN_OFF) {
+        const uint8_t b[2] = {0, 0};
+        c->step = S_SCAN_OFF;
+        blec_command(c, COP_SCAN_ENABLE, b, 2);
+    } else { c->state = BLEC_OFF; return; }
+    if (c->waiting) c->disconnect_flags |= D_CONTROL;
 }
 static void blec_fail(blec_t *c)
 {
@@ -194,6 +212,8 @@ void blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const
 }
 void blec_start(blec_t *c, uint32_t now)
 {
+    /* Do not erase an unresolved stop or its controller handle. */
+    if ((c->disconnect_flags & D_STOP) && c->state != BLEC_OFF) return;
     blec_rx_reset(c);
     c->midi_handle = c->cccd_handle = c->svc_end = 0;
     c->now_ms = now;
@@ -205,23 +225,19 @@ void blec_start(blec_t *c, uint32_t now)
 }
 void blec_stop(blec_t *c)
 {
-    uint8_t b[3];
-    if (c->state == BLEC_OFF || c->state == BLEC_STOPPING) return;
+    if (c->state == BLEC_OFF || (c->disconnect_flags & D_STOP)) return;
     c->disconnect_flags |= D_STOP;
     if (c->state == BLEC_FAILED && c->conn) return;
-    if (c->state != BLEC_DISCONNECTING) c->deadline = c->now_ms + 3000u;
+    if (c->state != BLEC_DISCONNECTING && c->step != S_CANCEL)
+        c->deadline = c->now_ms + 3000u;
+    /* An automatic Cancel that was accepted must not be submitted again. */
+    if (c->step == S_CANCEL && c->cmd_op == COP_CANCEL)
+        c->disconnect_flags |= D_CONTROL;
     blec_rx_reset(c);
     c->state = BLEC_STOPPING;
     c->qr = c->qw;
-    if (c->conn) {
-        blec_disconnect(c);
-    } else if (c->step == S_SCAN_ON) {
-        b[0] = b[1] = 0;
-        blec_command(c, COP_SCAN_ENABLE, b, 2);
-    } else if (c->step == S_CREATE || c->step == S_CANCEL) {
-        blec_command(c, COP_CANCEL, 0, 0);
-    }
-    if (!c->waiting && !c->conn) c->state = BLEC_OFF;
+    c->att_waiting = 0;
+    blec_stop_progress(c);
 }
 static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
 {
@@ -417,21 +433,37 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
         if (p[code == 0x0e ? 3 : 0]) c->state = BLEC_FAILED;
         return;
     }
-    if (c->state == BLEC_STOPPING) {
-        if (code == 0x0e && pl >= 4u && c->waiting && blec_rd16(p + 1) == c->cmd_op) {
+    if (c->state == BLEC_STOPPING ||
+        (c->state == BLEC_FAILED && (c->disconnect_flags & D_STOP))) {
+        if ((code == 0x0e || code == 0x0f) && pl >= 4u) {
+            op = blec_rd16(p + (code == 0x0e ? 1 : 2));
+            status = p[code == 0x0e ? 3 : 0];
+            if (op != c->cmd_op || (!c->waiting && !(c->disconnect_flags & D_CONTROL))) return;
+            /* Successful Status does not complete a synchronous command. */
+            if (code == 0x0f && !status && op != COP_CREATE && op != COP_DISCONNECT) return;
             c->waiting = 0;
-            if (!c->conn && c->cmd_op != COP_CANCEL) c->state = BLEC_OFF;
-        } else if (code == 0x05 && pl >= 4u && !p[0] && blec_rd16(p + 1) == c->conn) {
+            if (op == COP_CREATE && status) c->state = BLEC_OFF;
+            else if (status) c->state = BLEC_FAILED;
+            else if (code == 0x0e && op != COP_CANCEL && op != COP_CREATE && op != COP_DISCONNECT) {
+                if (c->step != S_SCAN_ON) c->state = BLEC_OFF;
+                else if (c->state == BLEC_STOPPING) blec_stop_progress(c);
+            } else if (op == COP_CREATE && c->state == BLEC_STOPPING) blec_stop_progress(c);
+        } else if (code == 0x05 && pl >= 4u && c->conn && !p[0] && blec_rd16(p + 1) == c->conn) {
             c->credits = c->acl_total;
             c->conn = 0;
             c->disconnect_flags = 0;
             c->waiting = 0;
             c->state = BLEC_OFF;
-        } else if (code == 0x3e && pl >= 19u && (p[0] == 1u || p[0] == 0x0au)) {
-            if (p[1]) c->state = BLEC_OFF; /* cancelled create completes with failure */
+        } else if (code == 0x3e && pl >= 19u && (p[0] == 1u || p[0] == 0x0au) && !c->conn) {
+            if (p[1]) {
+                if (c->step == S_CREATE || c->step == S_CANCEL) {
+                    c->state = BLEC_OFF; c->waiting = 0;
+                }
+            }
             else {
                 c->conn = (uint16_t)(blec_rd16(p + 2) & 0x0fffu);
                 c->disconnect_flags = D_STOP;
+                c->state = BLEC_STOPPING;
                 blec_disconnect(c);
             }
         }
@@ -514,10 +546,8 @@ int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n)
 void blec_poll(blec_t *c, uint32_t now)
 {
     c->now_ms = now;
-    if (c->state == BLEC_DISCONNECTING || (c->state == BLEC_STOPPING && c->conn)) {
-        blec_disconnect(c);
-        return;
-    }
+    if (c->state == BLEC_STOPPING) { blec_stop_progress(c); return; }
+    if (c->state == BLEC_DISCONNECTING) { blec_disconnect(c); return; }
     if (c->sig_count) {
         if ((int32_t)(now - c->sig_deadline) >= 0) blec_fail(c);
         else blec_signal_flush(c);
@@ -535,7 +565,7 @@ void blec_poll(blec_t *c, uint32_t now)
                     c->step = S_CANCEL; c->deadline = now + 3000u; blec_progress(c);
                 }
             } else if (c->state == BLEC_DISCOVERING) blec_fail(c);
-            else if (c->state == BLEC_STOPPING) { c->state = BLEC_OFF; c->waiting = 0; c->conn = 0; }
+            else if (c->state == BLEC_STOPPING) { c->state = BLEC_FAILED; c->waiting = 0; }
             else { c->state = BLEC_FAILED; c->waiting = 0; } /* disconnect stalled */
         }
     }
