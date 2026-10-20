@@ -1,0 +1,33 @@
+{
+  "result": "REVIEWED",
+  "scope": "The merge contains the exact mapping and central contributions. No production repair was necessary.",
+  "retained": [
+    "Mapping actions, lights, knobs, priorities and restoration use the exact checked mapping inputs. The production mapping probes bypass Bluetooth/HCI.",
+    "Central signaling, receive, credits, abort, deadline, stop and different-handle probes use unchanged central inputs. Their 224 helper inputs and six stop inputs match.",
+    "All 81 central log hashes match. The 77 recorded commands retain 30 expected negative controls.",
+    "Both contributions retain their independent stage3 reviews."
+  ],
+  "changed": [
+    "The central broad 415-file manifest has seven mapping changes. integration-check.json lists each one. This does not invalidate the central unit and extracted service checks.",
+    "The replay includes host/x0x_host.c, app/smc_mixer.c, ble_midi_central.c and extracted production ble.c callbacks. Its combined inputs differ from both separate candidates.",
+    "The target application includes both source contributions. Its package needs a new DEV CHECKED record."
+  ],
+  "new_required_checks": [
+    {
+      "check": "Combined startup and unchanged-payload replay",
+      "risk": "The service, receive callback, mapping queue, main-loop actions and feedback interact. Regenerate the harness against the combined checkout. Do not compile the saved replay.c with its absolute old host path."
+    },
+    {
+      "check": "Elite dev_validate with the selected exact controller",
+      "risk": "The combined application can change code layout and budgets. The new package must match its complete source and configuration."
+    },
+    {
+      "check": "Exact DEV-record verification, package model/CRC/region/slot-map checks, controller insertion/removal",
+      "risk": "The actual install set must preserve app bytes, bootloader head and loop slots."
+    }
+  ],
+  "model_policy": "Use Elite for shared checks. No duplicate Pro shared build is required. Check any actual Pro package selected later.",
+  "reuse_condition": "Before reuse, confirm the check scope and its source, tools, configuration and dependency bytes. Do model-independent checks once.",
+  "source_defect_disposition": "A source repair needs a fresh stage2 and fresh independent stage3 for affected checks. Do not repair production source in stage4.",
+  "completed_merge": "Do not repeat this merge after combined validation unless a new merge is necessary."
+}

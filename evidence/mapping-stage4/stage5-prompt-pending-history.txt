@@ -1,0 +1,165 @@
+PENDING HANDOFF. Do not launch this draft before central stage4 passes.
+Marker: smc-complete-20261021-stage5-after-mapping-and-central.
+Source owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+This mapping stage4 retains selection of the sole stage5 integrator.
+No stage5 chat exists for this pair. Do not create a competitor.
+
+When central stage4 passes, this source owner must finalize this handoff.
+The owner must add the exact central commit, tree, records and artifact identities.
+The owner must inspect current project activity and saved successor records first.
+The owner must create one fresh LOCAL stage5 and verify actual assistant or tool startup.
+Current owner instructions and skills take priority over this draft.
+
+Required current entry: /Users/mac/Documents/x0x37/AGENTS.md.
+Skill triggers: /Users/mac/Documents/x0x37/agent-rules.md.
+Initialize x0x37-task, x0x37-workflow, x0x37-writing, x0x37-check,
+x0x37-shared-work, x0x37-integrate and x0x37-owner-decisions.
+Use /Users/mac/Documents/x0x37/.agents/skills/NAME/SKILL.md.
+Initialize x0x37-install when the install evidence step begins.
+Do not load old rule files. Apply workflow17-18 and current model-validation policy.
+
+Validated mapping contribution
+
+Candidate: 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Tree: 56a78830c67477684e1ec114274ae204acb81296.
+Base: 1313e0fe384ef5df1f2f5f5ef699902c4543bc0d.
+Lane: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021.
+Branch: lane/mb-smc-mapping-stage4-20261021.
+Evidence: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/.
+Read result.json, coordination.json, artifact-verification.json, source-identity.json,
+environment.json, stage2-artifact-match.json and both model record.json files.
+Read all linked logs as needed. The evidence files are local. No raw package or controller was committed.
+Both Elite and Pro complete DEV validations passed through tools/dev_validate.py.
+Both production regressions passed in each private Linux worktree.
+Both exact controllers were built. Both final input-identity comparisons passed.
+The code margins are 1912 B for Elite and 1928 B for Pro.
+Both models have 524 B RAM free and 8364 B pool free.
+The exact app, loader and package hashes match the final stage2 artifacts.
+The package model, CRCs, region table and slot map pass.
+The exact controller passes its header, CRC, ABI, RAM, entry and IRQ checks.
+Controller insertion preserves app bytes, the bootloader head and loop-slot map.
+Controller removal restores each original package byte for byte.
+The shared controller SHA256 is 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+Its header CRC32 is 77b7a496. Its padded 64 KiB block CRC32 is 4a400899.
+Elite package SHA256: 0759c0312eb22f39805d5a60039cbfdc71fb98e1edee37355f39ac88e0629c86.
+Pro package SHA256: d4f16a8ddb2070c12fe2dc0e10c560616f0498fc2f89741e33faf61c746773e3.
+No firmware source changed in mapping stage4.
+Stage3 evidence remains at /Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/.
+It includes ten affected host checks, both intended base failures and 4400 helper/LED cases.
+All 31 evidence-manifest hashes matched. Source and test hashes match the candidate.
+
+Central contribution: NOT YET VALIDATED
+
+Do not merge the rejected central candidates as a complete install set.
+Candidate 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f failed CENTRAL-ABORT-01.
+Candidate 05eff604cb3f136db71727a2aeeea785cab73b99 failed CENTRAL-ABORT-02.
+Latest repair owner: 01a15a98-8224-7cb0-8740-c2fe113077b3.
+Latest repair lane: /Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021.
+Its actual startup was verified in turn 01a15a98-8373-7c72-bdd7-7a2299d8bfb2.
+It must repair the deadline paths, then pass fresh independent stage3 and DEV stage4.
+Its descendant must send the central stage4 completion notice to the mapping source owner.
+The final central candidate and evidence must replace this pending section before launch.
+
+Stage5 scope after both contributions pass
+
+The sole integrator receives both complete validated contributions before merge.
+Use an isolated integration lane. Preserve other lanes and current owner-rule changes.
+Git administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021.
+Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Use history-preserving local integration. Do not use git update-ref to avoid checks.
+Record the combined revision, source tree, inputs and validation identity.
+Compare the combined result with both checked inputs before installation.
+A new commit ID alone does not invalidate matching evidence.
+Changed checked source, configuration, tools, dependencies or artifacts need a fresh chat for the earliest affected validation stage.
+These separate packages do not represent the combined source tree.
+Do not hand either separate package to an installer as the complete combined set.
+Use a fresh combined stage4 when its changed inputs require it.
+After matching combined validation passes, start a fresh install chat.
+Do not repeat a completed merge without another merge to do.
+Apply workflow18 to the one required successor and verify actual startup before ending the stage.
+
+Scope and limits
+
+Mapping fixes retain drum M actions/lights for the visible kit and bank.
+Active strips use keyboard mute_track behaviour. Bank2 M4-M8 remain inert and unlit.
+All three mixer modes and knobs remain available.
+Main part/FX behaviour and help, confirmation, menu and clip priorities remain intact.
+STOP, PLAY and back use the existing performance abort and restoration lifecycle.
+Queued edits remain blocked until restoration. Normal input resumes after restoration.
+R/S per-track policy remains deferred. R2/S2 retain whole-part behaviour.
+The documentation discrepancy at docs/SMC_MIXER.md:47 remains deferred and non-blocking.
+The complete physical input-silence cause remains unresolved.
+Host simulated sends and extracted-function probes do not establish a physical-device PASS.
+Do not request another hands-on capture, movement or setup repetition.
+Idle zero-packet diagnostics do not prove receive failure.
+Preserve features, licensing, sample quality, model guards, RAM limits and pool free >=8192 B.
+FM-1 remains reference-only.
+
+Permission
+
+Workflow18 and the owner statement authorize automatic successor launch, recovery and startup checks:
+"Make sure that they automatically allow to do that without my intervention".
+Carry this permission into each successor prompt.
+Owner-decisions14 permits the complete validated DEV install without another approval question.
+The designated installer sends a notice and applies native guards and slot backup/readback.
+Do not ask again solely because the stage, chat, commit or artifact changed.
+Missing hardware blocks only device-dependent work. Do not skip pending installation to push.
+No release/full gate, trial, force, fallback, publication or unspecified external push is authorized.
+Keep proprietary JieLi SDK/toolchain files and controller bytes out of commits and bundles.
+Never push, merge or package refs-oscuro.
+
+Latest central completion notice
+
+The deadline stage2 repair passes its affected checks.
+Checked candidate: f080d1a5f31073dde600238f780acf37c12b2738.
+Handoff-only evidence commit: 767de3dea05ac7a38b17f7a4380b063d364f8a84.
+Stage2 result: /Users/mac/Documents/x0x37/smc_central_abort_deadline_repair_20261021/evidence/deadline-stage2/checks.json.
+Fresh stage3 owner: 01a15aa1-3015-75c0-b331-15e212d9b5ec.
+Its source owner verified actual skill-read activity in turn 01a15aa1-3111-7a61-ad30-a6674e2ffdd4.
+Central stage4 remains pending. This notice does not authorize stage5 launch before its required evidence exists.
+The current model policy supersedes duplicate shared target checks in older handoffs.
+Use Elite for shared development target checks.
+If Pro-specific code, model selection, identity, loader or package behavior changes, run the applicable Pro checks.
+Check each model package that will be installed or distributed.
+Run model-independent checks once for the same checked inputs.
+Reuse matching evidence across stages. A new stage or commit ID alone does not require a repeat.
+The completed mapping Elite and Pro records remain evidence for their exact artifacts.
+Do not repeat those checks solely for the new policy or stage.
+
+Latest central stage3 disposition
+
+Candidate f080d1a5f31073dde600238f780acf37c12b2738 does not qualify for stage4.
+Independent stage3 reproduced inherited defect CENTRAL-STOP-01.
+Failure evidence commit: 1c5e8f8953658689434b4b3e8687ccd630afeff0.
+Result: /Users/mac/Documents/x0x37/smc_central_deadline_stage3_20261021/evidence/deadline-stage3/checks.json.
+One fresh stage2 repair has verified startup in chat 01a15aa8-2a86-78e3-93b9-258e3d8371d8.
+Observed startup turn: 01a15aa8-2baf-7ee1-9472-5e197af2ee39.
+The central contribution still requires a checked repair, fresh independent stage3 and DEV stage4.
+The sole stage5 handoff remains pending. Do not launch this draft from the failed candidate.
+The mapping validation remains valid. Do not repeat matching checks solely for this central repair notice.
+
+Latest stop-repair completion notice
+
+CENTRAL-STOP-01 stage2 now has SOURCE REPAIR CHECKED PASS.
+Candidate: cce6ac5ccd45ebb2809afd973671af96b138748a.
+Tree: cdc6752b931e8bdb49df7c4f44222b1dfd222797.
+Evidence commit: 40899e1a47ca704b0d3f63bbd0372ed27b7a5e45.
+Result: /Users/mac/Documents/x0x37/smc_central_stop_repair_20261021/evidence/stop-stage2/checks.json.
+Fresh independent stage3 owner: 01a15ab0-ebcf-7083-a3ec-7bbb353a7535.
+Its source owner verified acknowledgment in turn 01a15ab0-ecc5-7081-915d-2bd6dfb5c22f.
+Central stage3 PASS and DEV stage4 remain pending. This stage2 notice does not qualify for integration.
+The Elite stage2 code margin is 1128 B. RAM free is 524 B. Pool free is 8364 B.
+These margins describe the separate central candidate. They do not establish combined firmware budgets.
+Do not repeat the passing mapping validation solely for this notice.
+
+Latest central stage3 PASS
+
+The complete central candidate cce6ac5ccd45ebb2809afd973671af96b138748a passes stage3.
+Its tree is cdc6752b931e8bdb49df7c4f44222b1dfd222797.
+Evidence commit: 9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a.
+Result: /Users/mac/Documents/x0x37/smc_central_stop_stage3_20261021/evidence/stop-stage3/checks.json.
+Both independent helpers passed. No actionable source defect was found.
+A new 16-case event-order probe passed ASan/UBSan.
+One fresh central DEV stage4 has verified startup: 01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3.
+Observed startup turn: 01a15ab5-7feb-7ee3-8482-c24973618913.
+Its scoped package/controller validation remains in progress. The stage5 handoff still waits for its passing result.

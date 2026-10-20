@@ -1,0 +1,76 @@
+{
+  "stage": 5,
+  "marker": "smc-complete-20261021-stage5-after-mapping-and-central",
+  "integration_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "selection_owner": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "central_owner": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
+  "result": "MERGE PASS",
+  "workflow_status": "PENDING VERIFIED COMBINED STAGE4 STARTUP",
+  "merge_revision": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "merge_tree": "4540c0afecc0e6482614fc41aaade8485d565976",
+  "parents": [
+    "049d0274c80af543bd4e334af92b4393015c4f85",
+    "4ff0cd468e8afa746deca5840afb7f2890eedb9c"
+  ],
+  "conflicts": [],
+  "source_repairs": false,
+  "mapping_contributed_paths": 41,
+  "central_contributed_paths": 518,
+  "checked_contribution_paths_overlap": [],
+  "combined_dev_validated": false,
+  "combined_package_selected": false,
+  "contribution_dev_records_verified": [
+    {
+      "commit": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "result": "DEV CHECKED"
+    },
+    {
+      "commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+      "models": [
+        "elite"
+      ],
+      "result": "DEV CHECKED"
+    }
+  ],
+  "checks": [
+    "Every contributed index blob matched before the merge commit.",
+    "Both contribution histories are merge parents.",
+    "git diff --cached --check passed before commit.",
+    "python3 -B evidence/complete-stage5/verify-integration.py passed.",
+    "Exact separate DEV-record verification passed for all three package/controller sets."
+  ],
+  "source_identity": "source-identity.json",
+  "integration_check": "integration-check.json",
+  "plan_review": "plan-review.json",
+  "mapping_evidence_snapshot": "mapping-evidence-snapshot.json",
+  "central_completion_notice": {
+    "evidence_tip": "546250896f6225dbf2539149f55d967410aff7cc",
+    "meaning": "The central owner confirmed completion after this merge. The added startup and status text does not require another merge."
+  },
+  "failures": [],
+  "setup_notes": [
+    "One read-only query used an unmatched shell glob. The corrected query confirmed the common base and unchanged central production inputs.",
+    "The lane has no .githooks directory or configured core.hooksPath. The read-only query did not affect the merge."
+  ],
+  "permissions": {
+    "automatic_successor": "Workflow18 and owner statement: Make sure that they automatically allow to do that without my intervention.",
+    "complete_validated_dev_install": "AUTHORIZED WITH NOTICE under owner-decisions14. The installer must apply model, bootloader, lock, backup and readback guards.",
+    "external_push": false,
+    "release_build": false,
+    "full_gate": false
+  },
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "device_write": false,
+  "controller_write": false,
+  "deferred": [
+    "R/S per-track policy.",
+    "Non-blocking docs/SMC_MIXER.md:47 discrepancy.",
+    "Cause of the physical all-input failure."
+  ],
+  "next_stage": "One fresh LOCAL combined DEV stage4, then one fresh install chat after matching validation. The completed merge must remain in the handoff."
+}

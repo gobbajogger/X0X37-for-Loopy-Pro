@@ -1,0 +1,35 @@
+{
+  "candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "56a78830c67477684e1ec114274ae204acb81296",
+  "stage2_final_source_matches": true,
+  "protected_dependencies": [
+    {
+      "path": "ble/ctl",
+      "changed": false
+    },
+    {
+      "path": "firmware/src/ble",
+      "changed": false
+    },
+    {
+      "path": "firmware/src/dsp",
+      "changed": false
+    },
+    {
+      "path": "firmware/hal",
+      "changed": false
+    },
+    {
+      "path": "tools/locked_settings.json",
+      "changed": false
+    },
+    {
+      "path": "tools/dev_validate.py",
+      "changed": false
+    }
+  ],
+  "target_build_evidence": "The final stage2 DEV Elite and Pro logs match the recorded SMC source. These logs do not replace stage4 dev_validate records.",
+  "controller_dependency": "The controller source is unchanged. Each current install set still requires the exact validated controller artifact.",
+  "package_dependency": "Stage4 must run dev_validate for both maintained models with the controller.",
+  "central_session_dependency": "This candidate does not contain the active central-session repair. The sole stage5 must receive both validated lanes."
+}

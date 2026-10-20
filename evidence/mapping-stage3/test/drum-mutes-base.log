@@ -1,0 +1,11 @@
+Assertion failed: (seq.vmute == expected), function mute_regression, file smc_drum_mutes_test.c, line 102.
+Simulated raw DAW MIDI; production UI, engine, SMC queues and feedback; no radio/HCI or device claim.
+CONTINUOUS mode=MAIN bank=1 strip=1 target=1/5/0/0 knob=63->64 fader=64->0 PASS
+CONTINUOUS mode=MAIN bank=1 strip=2 target=1/5/1/0 knob=63->64 fader=64->0 PASS
+CONTINUOUS mode=MAIN bank=1 strip=3 target=1/5/2/0 knob=63->64 fader=64->0 PASS
+CONTINUOUS mode=MAIN bank=1 strip=4 target=1/5/3/0 knob=63->64 fader=64->0 PASS
+CONTINUOUS mode=MAIN bank=1 strip=5 target=1/5/4/0 knob=63->64 fader=64->0 PASS
+CONTINUOUS mode=MAIN bank=1 strip=6 target=1/4/0/7 knob=63->64 fader=64->0 PASS
+CONTINUOUS mode=MAIN bank=1 strip=7 target=1/4/0/11 knob=63->64 fader=64->0 PASS
+CONTINUOUS mode=MAIN bank=1 strip=8 target=1/6/0/13 knob=63->64 fader=64->0 PASS
+tests/host/smc_drum_mutes_test.sh: line 18: 89363 Abort trap: 6           "$OUT/probe"

@@ -1,0 +1,262 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "2ffb0b0cf077f583c05b12fd6a250d5ff2cf84ffc0c12946a79402c2ce740bda",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "4f949ede911ae7fc67761a845c8915c8ea127371d04303de66b91ad80d786994",
+      "configuration": {
+        "model": "pro",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+          "scope": "SMC drum M actions and LED feedback use the visible kit and bank. Performance STOP, PLAY and back use the existing abort and restore path. Elite and Pro share this application source. Stage3 passed all ten affected host checks and the selected dispatcher checks. Stage4 must validate each complete DEV package with its exact controller artifact.",
+          "checks": [
+            {
+              "reason": "Production drum actions/lights, both banks, inactive positions, main ownership and actual continuous writes.",
+              "argv": [
+                "sh",
+                "tests/host/smc_drum_mutes_test.sh"
+              ]
+            },
+            {
+              "reason": "Production performance abort across all supported SMC routes with queued input guard and actual deferred restoration.",
+              "argv": [
+                "sh",
+                "tests/host/smc_performance_abort_test.sh"
+              ]
+            }
+          ]
+        },
+        "dependencies": []
+      },
+      "environment": {
+        "CXX": "c++",
+        "CC": "cc",
+        "MODEL": "pro",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "b1cf53a3c087944763b5baa310a27a5f9dd7dad452f6862ee730f6951e9228ec",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "7eb3705069a1b9583f1c96a83c9ec89df33539c508982fb532d54cab956513d5",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+          "executable": true
+        },
+        "make": {
+          "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+          "executable": true
+        },
+        "node": {
+          "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+          "executable": true
+        },
+        "emcc": null,
+        "cc": {
+          "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+          "executable": true
+        },
+        "python": {
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": null,
+        "pillow": {
+          "version": "9.4.0",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        }
+      },
+      "references": {
+        "NINEW9_DIR": {
+          "sha256": "f294646e5b85ca19e8af9a1885d4d5291b674eb77135e5f270111b0be86d39c3"
+        },
+        "EIGHTW8_DIR": {
+          "sha256": "c9afce2266d3e7b999806ebe19d3b30378500039f8727e02a2b715e33c055768"
+        },
+        "SCHWUNG303": {
+          "sha256": "aa138ec5b833ff21173aed6911be1e1550df0f3d15330b15068ebf7ae1631a7b"
+        },
+        "TB3PO_REF": {
+          "sha256": "f9345b97eb05692a161893ac1d3d2d100025eb68f4f90e8b7ae7605533d7c9e6",
+          "executable": false
+        },
+        "X0X_REFS": {
+          "sha256": "12813b6693241c602660df0f857804c25df849619099c5420f3c7213b506f5f3"
+        }
+      }
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "pro",
+  "commit": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "tree": "4f949ede911ae7fc67761a845c8915c8ea127371d04303de66b91ad80d786994",
+  "plan": {
+    "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+    "scope": "SMC drum M actions and LED feedback use the visible kit and bank. Performance STOP, PLAY and back use the existing abort and restore path. Elite and Pro share this application source. Stage3 passed all ten affected host checks and the selected dispatcher checks. Stage4 must validate each complete DEV package with its exact controller artifact.",
+    "checks": [
+      {
+        "reason": "Production drum actions/lights, both banks, inactive positions, main ownership and actual continuous writes.",
+        "argv": [
+          "sh",
+          "tests/host/smc_drum_mutes_test.sh"
+        ]
+      },
+      {
+        "reason": "Production performance abort across all supported SMC routes with queued input guard and actual deferred restoration.",
+        "argv": [
+          "sh",
+          "tests/host/smc_performance_abort_test.sh"
+        ]
+      }
+    ]
+  },
+  "changed_files": [
+    "evidence/mapping-repair/drum-mutes-base.log",
+    "evidence/mapping-repair/drum-mutes-notes.txt",
+    "evidence/mapping-repair/drum-mutes.log",
+    "evidence/mapping-stage2/build-elite-first.log",
+    "evidence/mapping-stage2/build-elite.log",
+    "evidence/mapping-stage2/build-pro-first.log",
+    "evidence/mapping-stage2/build-pro.log",
+    "evidence/mapping-stage2/build-source-before.json",
+    "evidence/mapping-stage2/dev-plan-proposal.json",
+    "evidence/mapping-stage2/environment.json",
+    "evidence/mapping-stage2/host-checks.py",
+    "evidence/mapping-stage2/host-results.json",
+    "evidence/mapping-stage2/independent-review.txt",
+    "evidence/mapping-stage2/protocol.log",
+    "evidence/mapping-stage2/reachability.log",
+    "evidence/mapping-stage2/result.json",
+    "evidence/mapping-stage2/run-builds.sh",
+    "evidence/mapping-stage2/smc_buttons_test.log",
+    "evidence/mapping-stage2/smc_clip_visibility_test.log",
+    "evidence/mapping-stage2/smc_drum_mutes_test.log",
+    "evidence/mapping-stage2/smc_fader_test.log",
+    "evidence/mapping-stage2/smc_filter_test.log",
+    "evidence/mapping-stage2/smc_mapping_test.log",
+    "evidence/mapping-stage2/smc_part_select_test.log",
+    "evidence/mapping-stage2/smc_performance_abort_test.log",
+    "evidence/mapping-stage2/smc_reachability_test.log",
+    "evidence/performance-abort/base.log",
+    "evidence/performance-abort/clip-visibility.log",
+    "evidence/performance-abort/fixed.log",
+    "evidence/performance-abort/result.json",
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_buttons_test.py",
+    "tests/host/smc_clip_visibility_test.c",
+    "tests/host/smc_clip_visibility_test.sh",
+    "tests/host/smc_drum_mutes_test.c",
+    "tests/host/smc_drum_mutes_test.sh",
+    "tests/host/smc_filter_test.py",
+    "tests/host/smc_mapping_test.py",
+    "tests/host/smc_performance_abort_test.c",
+    "tests/host/smc_performance_abort_test.sh",
+    "tests/run_tests.sh"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 1928,
+    "ram_free": 524,
+    "pool_free": 8364
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ],
+      "returncode": 0,
+      "sha256": "7cf61114380dc509c8974329b07e5f4e89fd754755b62aa64a185396c357e747"
+    },
+    "check-1": {
+      "argv": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ],
+      "returncode": 0,
+      "sha256": "87677194d28a94ab39ec12b5635f880a4f924d6551d33f91fafe447c7447c241"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "8f7d79422fd87d2a3e85a5d77b99c7060127c5d748aa1b6e6b0d1ef5484ec246"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "444210ea7bdda1d15b7107c5454dec61d6b4b23e7a1d6003fbd5de5a660942b7"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37.fwsc",
+      "sha256": "d4f16a8ddb2070c12fe2dc0e10c560616f0498fc2f89741e33faf61c746773e3"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

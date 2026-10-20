@@ -1,0 +1,327 @@
+[
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/central-coordination.json",
+    "saved": "evidence/mapping-stage3/central-coordination.json",
+    "sha256": "e10faaf098a655d1238a72768ac2716eccc3c7bc0e4d00610983ddf03d86751c"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/dependency-review.json",
+    "saved": "evidence/mapping-stage3/dependency-review.json",
+    "sha256": "6899780187c4be7ec5c96ce413c8b9c436dda0759affcffab4f744b4a3b9bbd0"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/evidence-sha256.json",
+    "saved": "evidence/mapping-stage3/evidence-sha256.json",
+    "sha256": "815662df489cf74ac8ff7ed0e21c5dab119ed19c270d51ff44df7de92e0f9851"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/input.json",
+    "saved": "evidence/mapping-stage3/input.json",
+    "sha256": "313d23fca04bad7f2302e32dab3e1cc56be23cd534db46e376c4702b8f90d4dd"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/diff-check.log",
+    "saved": "evidence/mapping-stage3/investigation/diff-check.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/helper_led_probe.c",
+    "saved": "evidence/mapping-stage3/investigation/helper_led_probe.c",
+    "sha256": "ae0bb81d0d61a2348b3f80f363d7169828539fb1503b821980a0f72faf807233"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/probe-compile.log",
+    "saved": "evidence/mapping-stage3/investigation/probe-compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/probe-run.log",
+    "saved": "evidence/mapping-stage3/investigation/probe-run.log",
+    "sha256": "ab83948c47816c7637346a1a6a02b6eae75cd1e5c2e63fe6f140c918c1dcfbfa"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/investigation/result.json",
+    "saved": "evidence/mapping-stage3/investigation/result.json",
+    "sha256": "0a597bd107d44411df46e36915a9076b3fc1dc72c8ce8edfd4c7a1472ee22c7e"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/result.json",
+    "saved": "evidence/mapping-stage3/result.json",
+    "sha256": "f053be40302e4d1b1aca77899caa3faf36600c35c9f49e6d52be5d909e03e8a1"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-dev-plan.json",
+    "saved": "evidence/mapping-stage3/stage4-dev-plan.json",
+    "sha256": "ddf11f65f687b3326b8884844901e17d44aa6c0de4d6a2eac9597aaf6aa37244"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-duplicate-check.json",
+    "saved": "evidence/mapping-stage3/stage4-duplicate-check.json",
+    "sha256": "79a4cfa4c93fcfecaec179bd3ed2e600b5dd86d479b19152429c668cb02a3a72"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-prompt.txt",
+    "saved": "evidence/mapping-stage3/stage4-prompt.txt",
+    "sha256": "7c8df8beb0daddbc875d9b718f21a8f2fe64b3c519fbe8dc31b97ff0d3dfc9f3"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-startup.json",
+    "saved": "evidence/mapping-stage3/stage4-startup.json",
+    "sha256": "005e13e872a6ff6868450b8ddf6dc0800b08560a2da65ad4fc6320aa9c18546c"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/stage4-successor.json",
+    "saved": "evidence/mapping-stage3/stage4-successor.json",
+    "sha256": "5f9c10f476c0606ea2886faeb4d162ae2989da8311e92a2f810645d44371bac6"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/base-smc_mixer.c",
+    "saved": "evidence/mapping-stage3/test/base-smc_mixer.c",
+    "sha256": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/buttons.log",
+    "saved": "evidence/mapping-stage3/test/buttons.log",
+    "sha256": "1df751729edccc07a92318958edd074cf7027b7b9635e4717f9de5520630439d"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/clip-visibility.log",
+    "saved": "evidence/mapping-stage3/test/clip-visibility.log",
+    "sha256": "a157bc8c280e98fdc03c6ce54c62518aca15caff50c818eee260272b00792c3c"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/drum-mutes-base.log",
+    "saved": "evidence/mapping-stage3/test/drum-mutes-base.log",
+    "sha256": "b550739c48b274104c47d493b56ebb39c1566ca9c78b151053d9d0645c4bf55e"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/drum-mutes.log",
+    "saved": "evidence/mapping-stage3/test/drum-mutes.log",
+    "sha256": "e54cc258b48f8ae80aa5c4b006409b7de8fecf29453fabe6973a6d70ff428465"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/fader.log",
+    "saved": "evidence/mapping-stage3/test/fader.log",
+    "sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/filter.log",
+    "saved": "evidence/mapping-stage3/test/filter.log",
+    "sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/input-identity.json",
+    "saved": "evidence/mapping-stage3/test/input-identity.json",
+    "sha256": "888386cfcca3939c293d024af1cc26ab17de7fe5670148b21c1d0072e0bc684a"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/mapping.log",
+    "saved": "evidence/mapping-stage3/test/mapping.log",
+    "sha256": "1d0965c197dbedb144b294c81dac5bae105fadae6704dd6d74ac1aeb4d4c3938"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/part-select.log",
+    "saved": "evidence/mapping-stage3/test/part-select.log",
+    "sha256": "232941838900ea044e95c2e848228751dd188b6c5441145fc0dc70069c338938"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/performance-abort-base.log",
+    "saved": "evidence/mapping-stage3/test/performance-abort-base.log",
+    "sha256": "486b0b125557785fda2406c1f09cd155c5cff1af96bdeb7b4558c407e2c37b55"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/performance-abort.log",
+    "saved": "evidence/mapping-stage3/test/performance-abort.log",
+    "sha256": "3633c954719dfff591f8d5b6f1070b78641df2649292a2323c79f1475378e1ad"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/protocol.log",
+    "saved": "evidence/mapping-stage3/test/protocol.log",
+    "sha256": "7dd80227d6127e4d93cd62751cc2242f4123ac82ccaa3e744c9a433c6bce773b"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/reachability.log",
+    "saved": "evidence/mapping-stage3/test/reachability.log",
+    "sha256": "e2322eab897bf8bd378ca9c17f182fd35c889c58cd0286c7e339a0190a24b7e8"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/registration.json",
+    "saved": "evidence/mapping-stage3/test/registration.json",
+    "sha256": "1ecb6164fd2ef32b486ce862fb67f4d374d4c6f03f0eee671cdeecea5ea05518"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/result.json",
+    "saved": "evidence/mapping-stage3/test/result.json",
+    "sha256": "f4dd286ce27515d6b2034f063089fdf8674ff766dd68e96bf73c38595cb6d4c8"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage3_20261021/evidence/mapping-stage3/test/selected-dispatch.log",
+    "saved": "evidence/mapping-stage3/test/selected-dispatch.log",
+    "sha256": "3d3c9f437a564407bacec2821d0fe9e9863e0af9b8e814fec94b9d559bace4d6"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/artifact-verification.json",
+    "saved": "evidence/mapping-stage4/artifact-verification.json",
+    "sha256": "0f8cf94c89c02019018d5f408ae28d08e9070613c4614e784463ed53f7559bb2"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/central-stage3-pass-notice.json",
+    "saved": "evidence/mapping-stage4/central-stage3-pass-notice.json",
+    "sha256": "59ef49e4f1369275d1de2285e881341823344f721e5fe3b1c81e1b7030bf177f"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/central-stop-notice.json",
+    "saved": "evidence/mapping-stage4/central-stop-notice.json",
+    "sha256": "d71da7781a3043a62f652eb40238994dfaa19e850f9350bec360a51fbcaf6010"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/central-stop-repair-notice.json",
+    "saved": "evidence/mapping-stage4/central-stop-repair-notice.json",
+    "sha256": "d74877c78c2ebd640e9d0749ec80c4b82d4fc2e4e04e8129b6f9287885f27c2d"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/coordination.json",
+    "saved": "evidence/mapping-stage4/coordination.json",
+    "sha256": "c2bf25560358002ddd9bd961e0010e39ec3e1c36f5ef86b82b0b924e8f8e5719"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/dev-plan.json",
+    "saved": "evidence/mapping-stage4/dev-plan.json",
+    "sha256": "ddf11f65f687b3326b8884844901e17d44aa6c0de4d6a2eac9597aaf6aa37244"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/build.log",
+    "saved": "evidence/mapping-stage4/elite/build.log",
+    "sha256": "e4fb8282298c30b90cee6eaa11340699de24a6625d97450143c18018ca7d221f"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/check-0.log",
+    "saved": "evidence/mapping-stage4/elite/check-0.log",
+    "sha256": "7cf61114380dc509c8974329b07e5f4e89fd754755b62aa64a185396c357e747"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/check-1.log",
+    "saved": "evidence/mapping-stage4/elite/check-1.log",
+    "sha256": "87677194d28a94ab39ec12b5635f880a4f924d6551d33f91fafe447c7447c241"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/controller.log",
+    "saved": "evidence/mapping-stage4/elite/controller.log",
+    "sha256": "0ee81193dd71eaea80ca481ded292bdb1b663ae3ace65eadc9d1b9b7a93bf808"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/package-layout.log",
+    "saved": "evidence/mapping-stage4/elite/package-layout.log",
+    "sha256": "8e7ffb6b973257e15e2c05331715507d2ce866dfe9d87f414d506f235856653b"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/elite/record.json",
+    "saved": "evidence/mapping-stage4/elite/record.json",
+    "sha256": "f1fc51b3f1a724093db8e854203cda4a6a4d13d6521f7451675973e6893cb479"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/environment.json",
+    "saved": "evidence/mapping-stage4/environment.json",
+    "sha256": "41e86347b07a672081acf0b9f025837d9fdced13f2e2e96e99d4028b59eeea20"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/evidence-sha256.json",
+    "saved": "evidence/mapping-stage4/evidence-sha256.json",
+    "sha256": "1d6f175341b5c94ed1ae2e0948655bef865c3d52a737637808e46ca639f66af6"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/input.json",
+    "saved": "evidence/mapping-stage4/input.json",
+    "sha256": "33f8987aec26ceb622fbee3d91667b56a4a196643655c5008d351786f95fe5bc"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/plan-review.json",
+    "saved": "evidence/mapping-stage4/plan-review.json",
+    "sha256": "05cd581b914b23f5ad29343bb4e941b6227a504fb38c0f2cc1c20636476011ba"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/build.log",
+    "saved": "evidence/mapping-stage4/pro/build.log",
+    "sha256": "8f7d79422fd87d2a3e85a5d77b99c7060127c5d748aa1b6e6b0d1ef5484ec246"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/check-0.log",
+    "saved": "evidence/mapping-stage4/pro/check-0.log",
+    "sha256": "7cf61114380dc509c8974329b07e5f4e89fd754755b62aa64a185396c357e747"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/check-1.log",
+    "saved": "evidence/mapping-stage4/pro/check-1.log",
+    "sha256": "87677194d28a94ab39ec12b5635f880a4f924d6551d33f91fafe447c7447c241"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/controller.log",
+    "saved": "evidence/mapping-stage4/pro/controller.log",
+    "sha256": "444210ea7bdda1d15b7107c5454dec61d6b4b23e7a1d6003fbd5de5a660942b7"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/package-layout.log",
+    "saved": "evidence/mapping-stage4/pro/package-layout.log",
+    "sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/pro/record.json",
+    "saved": "evidence/mapping-stage4/pro/record.json",
+    "sha256": "f595a9bc82b18766facfb521c55bbd6e4db61a8cae881d91199e30dbfb092170"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/progress.json",
+    "saved": "evidence/mapping-stage4/progress.json",
+    "sha256": "24add36fc65aa6a896336d788e135da1aec4a6c1f84c33df188a1744dba6360c"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+    "saved": "evidence/mapping-stage4/result.json",
+    "sha256": "8bbdeab50daf65472612e899c24f08865a3bb94a3d3e0764a5cbb6084929643b"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/run-validation.sh",
+    "saved": "evidence/mapping-stage4/run-validation.sh",
+    "sha256": "5baeda4436f6a065bab4dbaf89e9f4bd3cceebf617c953cfc17fbddde9134e7c"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/source-identity.json",
+    "saved": "evidence/mapping-stage4/source-identity.json",
+    "sha256": "8a902391074ebb8c619f19c9b84c9b23b455f0eb804cc90ea533f3ac206c5351"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage2-artifact-match.json",
+    "saved": "evidence/mapping-stage4/stage2-artifact-match.json",
+    "sha256": "d6666c4be3ebf1c5c7789c459feb5fec45afb72e2e266193a144ff03f359f4a1"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage3-evidence-verification.json",
+    "saved": "evidence/mapping-stage4/stage3-evidence-verification.json",
+    "sha256": "e509149fd353a5809612f78bd96f4964e36861e559f96855dd927f4a52fd67ca"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-prompt-pending-history.txt",
+    "saved": "evidence/mapping-stage4/stage5-prompt-pending-history.txt",
+    "sha256": "28352a5ec1122067029cb46e0f4a013ccdda7d340487cde712045533b048d1a5"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-prompt.txt",
+    "saved": "evidence/mapping-stage4/stage5-prompt.txt",
+    "sha256": "ffdfa7b580a8a8fece13d014f0a92e40cf6b54387dafa2eb2a834afa35fd8cf0"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-startup.json",
+    "saved": "evidence/mapping-stage4/stage5-startup.json",
+    "sha256": "78d341596ef13cb88488bb8ead05a2b7a0b2b5b61f8a606f9dcf5cab1fe9f596"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/stage5-successor.json",
+    "saved": "evidence/mapping-stage4/stage5-successor.json",
+    "sha256": "a5063805034a69167daa6bb8ec9ffa62ca0a850d43b9a1e45347bff4bc776bde"
+  },
+  {
+    "source": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/verify-artifacts.py",
+    "saved": "evidence/mapping-stage4/verify-artifacts.py",
+    "sha256": "8c3a9142d62cd5a095d33f8eb994cb70b80c118296e7b6cf58cdef0c5248dfd7"
+  }
+]
