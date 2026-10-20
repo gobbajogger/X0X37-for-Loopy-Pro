@@ -60,7 +60,7 @@ The mounted work path must be writable. Never change `HOME` to imitate another m
 Preserve the four DSP reference pins, development and release checks, model guards, complete tests, release-tree checks, and CRC evidence.
 Keep static RAM free >= 0 B and pool headroom >= 8192 B.
 
-Maintain SMK-37 Pro and Elite targets.
+Maintain SMK-37 Pro and Elite targets. Select development targets under [rule 9](../x0x37-check/SKILL.md).
 Keep FM-1 as a porting reference only. Do not require FM-1 target builds or target tests.
 
 Preserve shared SMK-37 checks, including tools with legacy `fm1` names.

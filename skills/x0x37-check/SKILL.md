@@ -31,12 +31,20 @@ Expand coverage only for a concrete dependency, unexplained failure, or applicab
 A requested formal gate retains its defined coverage.
 
 For documentation-only changes, check relevant links and content. Do not build firmware.
+For web-only or host-tool changes, do not build firmware unless firmware inputs or package compatibility can change.
 Review each changed rule requirement. Run enforcement tests only when their implementation or contract changes. See [rule checks](../x0x37-docs/references/checks.md).
 
-For code changes, run affected tests and builds for affected supported targets. Shared code can affect both targets.
+For shared development changes, do the Elite build and checks only.
+If Elite has a PASS result, do not do duplicate Pro builds or target checks.
+This result is sufficient for shared checks and memory budgets. It does not give a Pro artifact or device PASS.
+Do Pro checks when the change affects Pro-specific code, model selection, identity, loader, or package behavior.
+Do checks of each model package that you will install or distribute.
+Obey an explicit request for Pro checks and the defined coverage of an authorized full gate.
+Do model-independent host checks one time for the same checked inputs.
 Add regression tests for meaningful defects.
 
-Reuse results only when checked source, configuration, tools, and dependencies still match.
+Use results again in other workflow stages when the checked source, configuration, tools, dependencies, and check scope are the same.
+A new stage or commit ID alone does not require another test or build.
 Rerun invalidated checks and failed checks after repair. Do not rerun unrelated passing checks.
 
 Record scope, commands, inputs, result, and log path once. Link that evidence in handoffs.

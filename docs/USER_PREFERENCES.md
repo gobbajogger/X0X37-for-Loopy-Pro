@@ -22,6 +22,10 @@ The current owner request and repository [agent rules](agent-rules.md) govern th
 
 ## Build target scope
 
+- 2026-10-21 Source: owner in chat `01a15a99-75d7-7921-9d65-f4b120566904`: "I don't think we need to check pro targets if elite passes cause they are consistently smaller than Ellie". This supersedes the 2026-10-20 requirement to build and test both models for every shared development change. If Elite passes, omit duplicate Pro development builds and target checks. Keep checks for Pro-specific changes and each package selected for installation or distribution. An authorized full gate retains its defined coverage. Active rule: [commit.md rule 9](../skills/x0x37-check/SKILL.md).
+
+- 2026-10-21 Source: owner follow-up in the same chat: "Look for other ways to reduce work in a similar way or other obviously simple reductions". Examine duplicate builds, tests, controller work, and evidence transfer. Reuse matching evidence across stages. Run model-independent host checks once for the same checked inputs. Preserve distinct checks and exact artifact evidence. Active rule: [commit.md rule 9](../skills/x0x37-check/SKILL.md).
+
 - 2026-10-20 Source: owner in this chat: "we dont need to build and test fm1 builds. they are only for reference to port". FM-1 is reference-only for porting. Build and test SMK-37 Elite and Pro; do not require FM-1 target builds or FM-1 target tests. This supersedes the gate’s FM-1 build, budget, and target-test requirements. Keep shared code and checks needed for the SMK-37 port, including tools with legacy `fm1` names. Active rules: integration.md rule 11; owner-messages.md rules 4B and 14; docs.md rule 12. The assigned integration chat owns the workflow change.
 
 ## Controller-input evidence
