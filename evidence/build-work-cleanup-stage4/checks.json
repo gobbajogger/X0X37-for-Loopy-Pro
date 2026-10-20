@@ -1,0 +1,26 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "evidence/build-work-cleanup-stage4/verify-acceptance.py"
+    ],
+    "returncode": 0,
+    "log": "evidence/build-work-cleanup-stage4/verify-acceptance.log",
+    "sha256": "22dc25bbfdccec79af14eb439a8acb9b2b28c3ab62dac99a48fe7b94cdc5998f",
+    "script_sha256": "627c39b3138180d78e5c73dcfeb3a13e1b547d11d1154af36ad86ac527cb9b3b",
+    "purpose": "Verify exact checked source and saved execution, configuration, dependency-record and artifact identities without repeating suites or builds."
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "returncode": 0,
+    "log": "evidence/build-work-cleanup-stage4/staged-whitespace.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "purpose": "Check stage4 evidence whitespace before committing."
+  }
+]

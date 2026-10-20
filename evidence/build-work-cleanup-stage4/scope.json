@@ -1,0 +1,52 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-stage4-20261021",
+  "stage": 4,
+  "chat": "01a15b00-e1c0-73a3-823c-d0c3e654dc9f",
+  "lane": "/Users/mac/Documents/x0x37/build_work_cleanup_stage4",
+  "branch": "lane/opt-build-work-cleanup-stage4",
+  "start_commit": "7e0f567a0adec5252fbf97de0176ef8c6549afd1",
+  "checked_candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "owned_files": "evidence/build-work-cleanup-stage4/ only",
+  "current_entry": "/Users/mac/Documents/x0x37/AGENTS.md",
+  "instruction_sha256": {
+    "/Users/mac/Documents/x0x37/AGENTS.md": "32bee9f3c8619750382999eb4a18c6af1156c73d12f0450d479bb7538262bd7b",
+    "/Users/mac/Documents/x0x37/agent-rules.md": "b9a52e9132582b0a6ecde0d3af24d7a865abef08547ac12aad1be32ad5d9f5e1",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-task/SKILL.md": "262decc1cb651d9f5ce8a48f412a1d7d59f101eb7a978b16d70442a173d4b7b5",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-writing/SKILL.md": "ad3734fa60b2c763e7b1f80395c3819a070fd1a76d959e7830afa5732f9eb537",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-task/references/ownership.md": "757a0ad89b38a6d56d95cd75c8fe4d3808ea4b5528a7ff8d15fef1726c33fb30",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-workflow/SKILL.md": "f54b8e641c6c3fd8dcdb0b58f890fd4882f9535793d60a401df734ee1c28632c",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-workflow/references/stages.md": "954277bea06d370b0d193d2ec953f1c5935f4fe274bc4f4c7c170de2d4a1f454",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-check/SKILL.md": "ba9c6b1908f72c7d98b87f2543349867e0f6d6d75481ec59dd6b8dd80eb4994b",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-check/references/validation.md": "adaa43db88f32e713c3134ceaeb07932eae2d8e0ce61c3e6a490f46e3a1850ef",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-check/references/commits.md": "e5ed94c0dd390def3c758abcfcf505cf097c80380cce060e05c1a964f46315ba",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-shared-work/SKILL.md": "b7239e6eccbbb6bf636989a96ca0dd8def06389651d8b767651b32884daa6126",
+    "/Users/mac/Documents/x0x37/.agents/skills/x0x37-owner-decisions/SKILL.md": "db06751d3a7acedb35cc8c0d86cd5f152207e5cb78f11b5f58f438bb200ff497"
+  },
+  "authorization": "Current saved stage4 assignment and launch; standing development and workflow17/18 permission. Completion notices to the finishing owner, combination receiver and source stage2 are explicitly authorised.",
+  "project_activity_review": {
+    "checked_chats": [
+      "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+      "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+      "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+      "01a15af7-e865-7242-8dfc-5972a5c8d9b4"
+    ],
+    "result": "One assigned stage4; combination/source/firmware scopes remain with their existing owners. Worktree list showed assigned stage4 did not yet exist; created it from exact handoff.",
+    "activity_tool_disposition": "Initial list_threads limit60 exceeded tool maximum50; corrected read-only call succeeded."
+  },
+  "input_records": {
+    "assignment.txt": "075382312a75693b3ba368f9fb066bca794afbfabefc964b8c6679b52880e3ce",
+    "incoming-successor.json": "905db67f2c8db1bd4ef1c933ba8de3223eb5f7d5c987165dfe127cbd13334be4"
+  },
+  "source_files_since_audit": [
+    "ble/ctl/build_ctl.sh",
+    "ble/ctl/build_in_container.sh",
+    "docs/QUICKCHECK-SCOPE.md",
+    "tests/host/test_ctl_compile.py",
+    "tests/host/test_portable_rules.py",
+    "tests/host/test_quickcheck_plan.py",
+    "tools/install_gate.sh",
+    "tools/quickcheck.sh",
+    "tools/quickcheck_plan.py"
+  ]
+}

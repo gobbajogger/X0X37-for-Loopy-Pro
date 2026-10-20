@@ -1,0 +1,422 @@
+{
+  "result": "PASS",
+  "candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "handoff": "7e0f567a0adec5252fbf97de0176ef8c6549afd1",
+  "independent_evidence_commit": "258144db38d331c691c3a449146ff3da8ed86676",
+  "head_at_verification": "7e0f567a0adec5252fbf97de0176ef8c6549afd1",
+  "source_tree_identity_sha256": "14b6c534d238ef5682b3629e08ff3b5ef3fc05f864fd592a7721d7e6ec688444",
+  "source_tree_identity_format": "git ls-tree -r -z entries excluding evidence/; original order; terminal NUL",
+  "source_entry_count": 764,
+  "all_non_evidence_source_equal": true,
+  "post_candidate_evidence_only_commits": {
+    "258144db38d331c691c3a449146ff3da8ed86676": [
+      "evidence/build-work-cleanup-stage3/assignment.txt",
+      "evidence/build-work-cleanup-stage3/checks.json",
+      "evidence/build-work-cleanup-stage3/evidence-sha256.json",
+      "evidence/build-work-cleanup-stage3/identity.json",
+      "evidence/build-work-cleanup-stage3/incoming-successor.json",
+      "evidence/build-work-cleanup-stage3/investigation/identity.json",
+      "evidence/build-work-cleanup-stage3/investigation/report.json",
+      "evidence/build-work-cleanup-stage3/investigation/verify.log",
+      "evidence/build-work-cleanup-stage3/investigation/verify.py",
+      "evidence/build-work-cleanup-stage3/result.json",
+      "evidence/build-work-cleanup-stage3/scope.json",
+      "evidence/build-work-cleanup-stage3/shell-syntax.log",
+      "evidence/build-work-cleanup-stage3/source-whitespace.log",
+      "evidence/build-work-cleanup-stage3/test/identity.json",
+      "evidence/build-work-cleanup-stage3/test/initial-verifier.log",
+      "evidence/build-work-cleanup-stage3/test/report.json",
+      "evidence/build-work-cleanup-stage3/test/verify.log",
+      "evidence/build-work-cleanup-stage3/test/verify.py",
+      "evidence/build-work-cleanup-stage3/verify-identity.log",
+      "evidence/build-work-cleanup-stage3/verify-identity.py"
+    ],
+    "cbc9e7c871c9e6b70100a624ec40e1cbed8255e6": [
+      "evidence/build-work-cleanup-stage3/stage4-prompt.txt",
+      "evidence/build-work-cleanup-stage3/successor.json"
+    ],
+    "7e0f567a0adec5252fbf97de0176ef8c6549afd1": [
+      "evidence/build-work-cleanup-stage3/stage4-prompt.txt",
+      "evidence/build-work-cleanup-stage3/successor.json"
+    ]
+  },
+  "source_hashes": {
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de"
+  },
+  "verified_file_sha256": {
+    "evidence/build-work-cleanup-repair/evidence-sha256.json": "5c7873b6312ff96d0c2538c42c2b6349c62f646da2c5e2dd80241c7e574b485a",
+    "evidence/build-work-cleanup-repair/darwin-checks.json": "7ef413385cbce42fbb4611b2dc4f220743ee0a658938497c2ebae547bc3cccb8",
+    "evidence/build-work-cleanup-repair/darwin-negative.log": "75a5d593c265ac38fe4746635e6f8cde90d0c3ba4342ca3a8bc2fbd011a667f8",
+    "evidence/build-work-cleanup-repair/darwin-suite.log": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+    "evidence/build-work-cleanup-repair/initial-linux-checks.json": "3aff0b30dcd38da384da6e74809d0f1b25403a798e97c99fa6a955dc55cd499f",
+    "evidence/build-work-cleanup-repair/initial-linux-negative.log": "9ed1770fdd89ae1ca94ffa71dc79a1b2ec9c4ee57cdc0e81acbde78554e819fd",
+    "evidence/build-work-cleanup-repair/linux-checks.json": "0a9b9518d7a515b633ca8f11bbb9dd2c8ff61d40f637e45aa9e014f67d371fed",
+    "evidence/build-work-cleanup-repair/linux-negative.log": "924438183373c41ec555d682f18d7aa33cff43dd3461b8ace2f9d184b1920893",
+    "evidence/build-work-cleanup-repair/linux-suite.log": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280",
+    "evidence/build-work-cleanup-repair/result.json": "e8576af64310ba884aab93ee57a57d38e3ca992e8e5fc5f7a6d01740724503fe",
+    "evidence/build-work-cleanup-repair/reuse.json": "a8f8f238ecd1d7d0a85ca9189c1a9e21813a5fae89f5763aee15e6f3dfa87735",
+    "evidence/build-work-cleanup-repair/run-checks.py": "06096ac6b3e69e0d728e4f3cd07b2a0930a0405403556f76a3eb39a731c44db4",
+    "evidence/build-work-cleanup-repair/verify-reuse.py": "2442a25ff37ee9df57108f728b3326a2aceb1764485cbe076e147b324b2ca0c2",
+    "evidence/build-work-stage3/evidence-sha256.json": "ccc2df0d060a55f95b66e047be70e34cef91a5138c3dc998e314f79cc541c2b6",
+    "evidence/build-work-stage3/identity.json": "1886e3dd5e23da6b6ac5c3188e7692c336f648552e162da4d791794accab4f7f",
+    "evidence/build-work-stage3/investigation/probe-cleanup-linux.json": "26a9a7deb548ff6e812a01994de851c277e94d893bc915e5051122212c155bb3",
+    "evidence/build-work-stage3/investigation/probe-cleanup-macos.json": "af335d975e71c63edc4d3c387ccc4a92f501662b5a29e5a1b035d2c4c07a65b7",
+    "evidence/build-work-stage3/investigation/probe-cleanup.json": "e52253107935db2b93afed9dd99b1044d707bfb033741113d10c5efbd5b2caeb",
+    "evidence/build-work-stage3/investigation/probe-success-inputs.json": "9f6974de7012ca7fece4dc20d1255f8dace6bcefd4c52534b9dc8b403a7543a6",
+    "evidence/build-work-stage3/investigation/probe_cleanup.py": "a038dd4d472cf3b2205f7d30f184f7104281922f25bbad73999e522652ae2296",
+    "evidence/build-work-stage3/investigation/probe_success_inputs.py": "6b8b362564295ef3c2b30a9c00e575379826d07389aebecf88e7e88d3555257a",
+    "evidence/build-work-stage3/investigation/report.json": "b0a638c7d84bcad64d47c5e2d4b7d7bfd3fcc4f945e76565139bf3022bb3ab82",
+    "evidence/build-work-stage3/result.json": "eabd47de6d61ecaa87438dcc24aa22917d2d79266d8dfe649f2f9d3cc39be001",
+    "evidence/build-work-stage3/test/adversarial.log": "e986616801ea5f0f0f8583214036ead21cb1b93bada2423e24159d98ccd215d0",
+    "evidence/build-work-stage3/test/adversarial.py": "1b363c1082a1640997f40c58c2518543a55ad5ac67a7307434cbb5ae73e38234",
+    "evidence/build-work-stage3/test/identity.json": "6ad7d03741edafe3f41d0da794a70c5ea2c960c397b6b71a8ac57fb54fe9dfbd",
+    "evidence/build-work-stage3/test/report.json": "ef44b22b47768e04e2df9b7dd8bc3ed7fa4052ec7a93fa2968eb5275fb203e4d",
+    "evidence/build-work-stage3/test/verify-evidence.log": "36566af8653efea81995b2d112e5e4e9396170bae372dc28b8b46dce3fc15466",
+    "evidence/build-work-stage3/test/verify-evidence.py": "b9f0a86f07c8cfe6b259d75a81523e38d5acce2956054560751a2a5c1ed440c1",
+    "evidence/build-work-stage3/verify-identity.py": "0eef32849c15171cc6d5ac2a9846b6188608bb12c14b23279266e15c49d2b4e3",
+    "evidence/build-work-cleanup-stage3/evidence-sha256.json": "12b282ba4a627d77a634d15015509aa55f57c963f6bdefe11865fb86e79b80cf",
+    "evidence/build-work-cleanup-stage3/assignment.txt": "b7530295625fa94e91706ae046f475dc7b6c62e4f67d4048e2f48d95ba41ee7c",
+    "evidence/build-work-cleanup-stage3/checks.json": "73b371e4df4a2ad6eb618f78bf830d4f8aa684d4b4ba8d46448f0642f80ee439",
+    "evidence/build-work-cleanup-stage3/identity.json": "dacdad56b29df4ad13bf3e4102a8154e459983dd593e9710380098a7da312e3c",
+    "evidence/build-work-cleanup-stage3/incoming-successor.json": "14fa27b0cf5fa2d7248c33b7e9424c278e30b84f3269639f8ac656b4c8398f8d",
+    "evidence/build-work-cleanup-stage3/investigation/identity.json": "8219e3d846e2bf817c4c847c5a9e55020082c475e1a47cf794dde5081963ff5c",
+    "evidence/build-work-cleanup-stage3/investigation/report.json": "704d0ae8ea2440fc3887eb012500c99992dba12729b53a1d57bdf02c5a47baa0",
+    "evidence/build-work-cleanup-stage3/investigation/verify.log": "0519703507dd9e237de70163b2b48341c2dd628bb24fec4ffe30345c18065554",
+    "evidence/build-work-cleanup-stage3/investigation/verify.py": "17ea6fe4d80c364935447bc945413e641c454d5520210e3c2a1074d21d1252b7",
+    "evidence/build-work-cleanup-stage3/result.json": "2317890c1eb6ee4fd149ae665a746402bd3b43d78568c104f3e1f90df8f10daa",
+    "evidence/build-work-cleanup-stage3/scope.json": "d1fc1181acf3015becac52f96f40a7ae64ddf92d1b5dd9b26ca923ce4b6efffb",
+    "evidence/build-work-cleanup-stage3/shell-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/build-work-cleanup-stage3/source-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/build-work-cleanup-stage3/test/identity.json": "035892278056f347df814ed0e8abf29201f720e8e957083fc3cb6d257126857d",
+    "evidence/build-work-cleanup-stage3/test/initial-verifier.log": "9a8eadf02529fd3940846cdcb29c4841f717934da520960d6e07d85856c833de",
+    "evidence/build-work-cleanup-stage3/test/report.json": "a1b9b11c1679a81f9de60f99c7a4de592a4552b6330dc3cd3504c8a5397d19ea",
+    "evidence/build-work-cleanup-stage3/test/verify.log": "2bfd33c621b17bbecc1d6d3b8c3c5b03daffb60e2fdce00ddcc29573aefab7fa",
+    "evidence/build-work-cleanup-stage3/test/verify.py": "2db6d9e71de49e4480243094da51c113ea9fd48fefd0c8e35d76958f11e5ec16",
+    "evidence/build-work-cleanup-stage3/verify-identity.log": "ef051416ce8e8bcce61440579b579c6d6303c098846c06e88abf5e2ffdc29a2c",
+    "evidence/build-work-cleanup-stage3/verify-identity.py": "b897885ff586e4528c4a5c41bdbf8272f64a02c3cffc007c1e91f977ffe44071",
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de",
+    "evidence/build-work-stage2/test_rules_guard_hook.log": "b7400c07d64bfc17de3abda8339f8501d71fc8a033e675f862a2ee2e47619f22",
+    "evidence/build-work-stage2/test_quickcheck_plan.log": "3b3e4c535aaabb38db27e7ebf5d69057537f6f0ea73e6bd01cb7c4992b239f07",
+    "evidence/build-work-stage2/test_quickcheck_ste.log": "9627e1197d17d03bf509cd20a94f152dd338108f138724dd0c30453af3832a23",
+    "evidence/build-work-stage2/test_quickcheck_rules.log": "c251cb5a3838cb74132ff231fdb5d730520a635010aed3091874578ab052b3e7",
+    "evidence/build-work-stage2/test_quickcheck_devbug.log": "fec1c164fe0c28faed6630e359238d35bc6f57274b79281d8ad6ef1a6da25303",
+    "evidence/build-work-stage2/test_portable_rules.log": "3543237d558e72f2283d1e84f6eabaf0e7df9b595c5ce0f2567e8255286bc63b",
+    "evidence/build-work-stage2/controller-result.json": "1dccf7570ea407bf04965756cb6435a24b74411ddafa3a8bdb33c2d457daaa46",
+    "evidence/build-work-stage2/controller-reuse.json": "12f11b1c78d9f479f742abd39e596be45c60f86f7eea84c816ba3387c1c4c287",
+    "evidence/build-work-stage2/controller.log": "aa472b7b94cff54ff2b14d98fc14f135e13f8be08b93e428b93b022f51869006",
+    "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/record.json": "74e3a1436043e4c0cdf51b07b0735313b1b0c7a95689f6279c4f1a551ae9e073",
+    "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/ctl.img": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/controller.log": "4a9bc1c841e3f83f1d3507badbcc463c769b673022a05d0809e34f69444e3147",
+    "/Users/mac/Documents/x0x37/build_work_implementation/ble/ctl/out/ctl.img": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "/Users/mac/Documents/x0x37/build_work_implementation/ble/ctl/gen/rf_tables.c": "335c1ca89c333a0dbae61afd40f14f7417d94a488caaed76e9bb12cd57ecdd9f",
+    "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/environment.json": "234a888af695ee0f9b389c3de361356adfd16cbd78fb6e6387749bccb62e912b",
+    "ble/ctl/.gitignore": "cc0c30df3b964ad4290b02521d4bac8eec2ab0a03c2696f22dc783a1bf68e31a",
+    "ble/ctl/ctl.ld": "61e1750ad911f68a47db55b3cba1f2553344c3e104bb7ec744ae25792ae78dee",
+    "ble/ctl/fetch_sdk.sh": "d987c0485e0e3a8394d428812e976096a406927ca298c8be2a6919adee15b882",
+    "ble/ctl/gen_rf_tables.py": "0701e3f925d0474dac086a508e883703f325e60647f067d49526bdbdae6055d1",
+    "ble/ctl/mkimage.py": "1d93beb52c3814c28f43f3c62f4b293ccf277b6f42b4e26f5e1246bf3c9c44e4",
+    "ble/ctl/src/config.c": "589aabde87b4d8ceb27aa5b5bfc6f2860878317950b0555c2f8a14abafefac13",
+    "ble/ctl/src/ctl_heap.c": "01303f8e0caefb1eb236d16aea9ac79805fd22a54732a8cdf1669327ead16ea8",
+    "ble/ctl/src/ctl_main.c": "21db795484b07c821acd792543388ad4232b81943016e7ab25716e69d8157b9c",
+    "ble/ctl/src/ctl_os.c": "baa8f32f7506a0098322bbb1909862f74ebeaaf053bae89794a79131525fe4b8",
+    "ble/ctl/src/ctl_platform.c": "1925274b730ccd9cb07d435b0372c8b0fb2559c67c916aa144f71d2b7f8e7664",
+    "ble/ctl/src/ctl_port.c": "7d0212831f5695146d6565ddfc8d3688d5199a7a7c26ab5c6b890a1d33bba8cb",
+    "ble/ctl/src/ctl_port.h": "a03f95d9deefd59a09222dafe3d2e3bde4360c4dddba5e5171fd649313b86df4",
+    "ble/ctl/src/ctl_port_asm.S": "446b646ab299250ddcc2efaf1c7dee567c157542b7a51d919b02a363b483a12f",
+    "ble/ctl/src/ctl_syscfg.c": "a0ffd9207cb36f4510082973ab4e94525efd966d67a60f2f9afc7070b3472f02",
+    "ble/ctl/src/ctl_timer.c": "621158e68734c1ea3cb22fd1f9ef97209b1ce2e1a5a2eabedff3403bd5e709db",
+    "ble/ctl/src/log_tags.c": "a719cbc200136e382122c75c15df32cc6dddf73565d47ad4c00c72fac12756ed",
+    "firmware/hal/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867"
+  },
+  "reused_platform_checks": [
+    {
+      "platform": "darwin",
+      "machine": "arm64",
+      "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+      "image": null,
+      "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+      "sources": {
+        "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+        "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+      },
+      "checks": [
+        {
+          "label": "suite",
+          "argv": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "tests/host/test_ctl_compile.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "seconds": 9.793719084,
+          "log": "evidence/build-work-cleanup-repair/darwin-suite.log",
+          "sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+          "raw_sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
+        },
+        {
+          "label": "negative",
+          "argv": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "evidence/build-work-cleanup-repair/run-checks.py",
+            "negative"
+          ],
+          "returncode": 0,
+          "seconds": 11.264044625,
+          "log": "evidence/build-work-cleanup-repair/darwin-negative.log",
+          "sha256": "75a5d593c265ac38fe4746635e6f8cde90d0c3ba4342ca3a8bc2fbd011a667f8",
+          "raw_sha256": "06c8aa3ceefcfbc09bdf9b65cad420a42e9faefa974db2f02ade458dbba7720a",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "machine": "x86_64",
+      "python": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+      "sources": {
+        "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+        "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+      },
+      "checks": [
+        {
+          "label": "suite",
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "tests/host/test_ctl_compile.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "seconds": 14.241308999997273,
+          "log": "evidence/build-work-cleanup-repair/linux-suite.log",
+          "sha256": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280",
+          "raw_sha256": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
+        },
+        {
+          "label": "negative",
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "evidence/build-work-cleanup-repair/run-checks.py",
+            "negative"
+          ],
+          "returncode": 0,
+          "seconds": 15.30667700000049,
+          "log": "evidence/build-work-cleanup-repair/linux-negative.log",
+          "sha256": "924438183373c41ec555d682f18d7aa33cff43dd3461b8ace2f9d184b1920893",
+          "raw_sha256": "efd63e5b9a92814087b2b32d02687ecd366a31ae0f70fcedd8a1ddd833eda733",
+          "log_normalization": "Trailing line whitespace removed; terminal newline retained."
+        }
+      ]
+    }
+  ],
+  "reused_unaffected_suites": [
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_rules_guard_hook.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.627994000002218,
+      "log": "evidence/build-work-stage2/test_rules_guard_hook.log",
+      "sha256": "b7400c07d64bfc17de3abda8339f8501d71fc8a033e675f862a2ee2e47619f22"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_quickcheck_plan.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 32.800687000002654,
+      "log": "evidence/build-work-stage2/test_quickcheck_plan.log",
+      "sha256": "3b3e4c535aaabb38db27e7ebf5d69057537f6f0ea73e6bd01cb7c4992b239f07"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_ste.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 12.468725999999151,
+      "log": "evidence/build-work-stage2/test_quickcheck_ste.log",
+      "sha256": "9627e1197d17d03bf509cd20a94f152dd338108f138724dd0c30453af3832a23"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_rules.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 21.51453599999877,
+      "log": "evidence/build-work-stage2/test_quickcheck_rules.log",
+      "sha256": "c251cb5a3838cb74132ff231fdb5d730520a635010aed3091874578ab052b3e7"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_devbug.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 12.731372999998712,
+      "log": "evidence/build-work-stage2/test_quickcheck_devbug.log",
+      "sha256": "fec1c164fe0c28faed6630e359238d35bc6f57274b79281d8ad6ef1a6da25303"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_portable_rules.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.165578000000096,
+      "log": "evidence/build-work-stage2/test_portable_rules.log",
+      "sha256": "3543237d558e72f2283d1e84f6eabaf0e7df9b595c5ce0f2567e8255286bc63b"
+    }
+  ],
+  "reused_quickcheck_commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-work-stage3/test/adversarial.py"
+      ],
+      "returncode": 0,
+      "log": "evidence/build-work-stage3/test/adversarial.log",
+      "sha256": "e986616801ea5f0f0f8583214036ead21cb1b93bada2423e24159d98ccd215d0"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-work-stage3/test/verify-evidence.py"
+      ],
+      "returncode": 0,
+      "log": "evidence/build-work-stage3/test/verify-evidence.log",
+      "sha256": "36566af8653efea81995b2d112e5e4e9396170bae372dc28b8b46dce3fc15466"
+    }
+  ],
+  "successful_controller": {
+    "baseline_record": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/record.json",
+    "baseline_record_sha256": "74e3a1436043e4c0cdf51b07b0735313b1b0c7a95689f6279c4f1a551ae9e073",
+    "baseline_controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "sources": {
+      "ble/ctl/.gitignore": "cc0c30df3b964ad4290b02521d4bac8eec2ab0a03c2696f22dc783a1bf68e31a",
+      "ble/ctl/ctl.ld": "61e1750ad911f68a47db55b3cba1f2553344c3e104bb7ec744ae25792ae78dee",
+      "ble/ctl/fetch_sdk.sh": "d987c0485e0e3a8394d428812e976096a406927ca298c8be2a6919adee15b882",
+      "ble/ctl/gen_rf_tables.py": "0701e3f925d0474dac086a508e883703f325e60647f067d49526bdbdae6055d1",
+      "ble/ctl/mkimage.py": "1d93beb52c3814c28f43f3c62f4b293ccf277b6f42b4e26f5e1246bf3c9c44e4",
+      "ble/ctl/src/config.c": "589aabde87b4d8ceb27aa5b5bfc6f2860878317950b0555c2f8a14abafefac13",
+      "ble/ctl/src/ctl_heap.c": "01303f8e0caefb1eb236d16aea9ac79805fd22a54732a8cdf1669327ead16ea8",
+      "ble/ctl/src/ctl_main.c": "21db795484b07c821acd792543388ad4232b81943016e7ab25716e69d8157b9c",
+      "ble/ctl/src/ctl_os.c": "baa8f32f7506a0098322bbb1909862f74ebeaaf053bae89794a79131525fe4b8",
+      "ble/ctl/src/ctl_platform.c": "1925274b730ccd9cb07d435b0372c8b0fb2559c67c916aa144f71d2b7f8e7664",
+      "ble/ctl/src/ctl_port.c": "7d0212831f5695146d6565ddfc8d3688d5199a7a7c26ab5c6b890a1d33bba8cb",
+      "ble/ctl/src/ctl_port.h": "a03f95d9deefd59a09222dafe3d2e3bde4360c4dddba5e5171fd649313b86df4",
+      "ble/ctl/src/ctl_port_asm.S": "446b646ab299250ddcc2efaf1c7dee567c157542b7a51d919b02a363b483a12f",
+      "ble/ctl/src/ctl_syscfg.c": "a0ffd9207cb36f4510082973ab4e94525efd966d67a60f2f9afc7070b3472f02",
+      "ble/ctl/src/ctl_timer.c": "621158e68734c1ea3cb22fd1f9ef97209b1ce2e1a5a2eabedff3403bd5e709db",
+      "ble/ctl/src/log_tags.c": "a719cbc200136e382122c75c15df32cc6dddf73565d47ad4c00c72fac12756ed",
+      "firmware/hal/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867"
+    },
+    "dependencies": {
+      "toolchain": {
+        "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+      },
+      "sdk": {
+        "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+      }
+    },
+    "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "jobs": 4,
+    "orchestration": {
+      "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+      "ble/ctl/build_in_container.sh": "1c6a70251f48d011593f5c32decd061398d88aa08bbb6621349e5844adda8873"
+    },
+    "limits": "One new controller build. No new old baseline, application build, gate or device check. Other project lanes may use CPU/I/O concurrently. No isolated speedup claim.",
+    "argv": [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "-v",
+      "/Users/mac/Documents/x0x37/build_work_implementation:/Users/mac/Documents/x0x37/build_work_implementation",
+      "-v",
+      "/Users/mac/.jieli/toolchain:/Users/mac/.jieli/toolchain:ro",
+      "-v",
+      "/Users/mac/fw-AC79_AIoT_SDK:/Users/mac/fw-AC79_AIoT_SDK:ro",
+      "-w",
+      "/Users/mac/Documents/x0x37/build_work_implementation",
+      "-e",
+      "CTL_NATIVE=1",
+      "-e",
+      "CTL_NO_CACHE=1",
+      "-e",
+      "X0X_JOBS=4",
+      "-e",
+      "JIELI_TOOLCHAIN=/Users/mac/.jieli/toolchain",
+      "-e",
+      "SDK_LOCAL=/Users/mac/fw-AC79_AIoT_SDK",
+      "-e",
+      "CC=cc",
+      "-e",
+      "CXX=c++",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "sh",
+      "ble/ctl/build_ctl.sh"
+    ],
+    "elapsed_seconds": 28.513924458,
+    "returncode": 0,
+    "log_sha256": "aa472b7b94cff54ff2b14d98fc14f135e13f8be08b93e428b93b022f51869006",
+    "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "matches_saved_controller": true,
+    "generated_rf_tables_sha256": "335c1ca89c333a0dbae61afd40f14f7417d94a488caaed76e9bb12cd57ecdd9f"
+  },
+  "controller_baseline_config": {
+    "board": "smk37",
+    "model": "elite",
+    "config": "dev",
+    "X0X_DEV_PADCAL": 1,
+    "controller": true
+  },
+  "dependencies_reused_without_full_rehash": {
+    "toolchain": {
+      "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+    },
+    "sdk": {
+      "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+    }
+  },
+  "exact_cleanup_delta_verified": true,
+  "compiler_flags_equal": true,
+  "link_post_link_equal": true,
+  "source_findings": [],
+  "new_behavior_probes_required": false,
+  "verifier_environment": {
+    "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+    "host": "macOS-27.2-arm64-arm-64bit"
+  }
+}

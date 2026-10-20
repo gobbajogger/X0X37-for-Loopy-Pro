@@ -1,0 +1,18 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-stage4-20261021",
+  "stage": 4,
+  "state": "pending",
+  "source_chat": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "combination_receiver": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "source_stage2": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+  "checked_candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "stage3_evidence_commit": "258144db38d331c691c3a449146ff3da8ed86676",
+  "prompt": "evidence/build-work-cleanup-stage3/stage4-prompt.txt",
+  "prompt_sha256": "075382312a75693b3ba368f9fb066bca794afbfabefc964b8c6679b52880e3ce",
+  "lane": "/Users/mac/Documents/x0x37/build_work_cleanup_stage4",
+  "branch": "lane/opt-build-work-cleanup-stage4",
+  "attempts": [],
+  "activity_check": "list_projects and list_threads after stage3 PASS found no matching cleanup stage4 successor; existing runner/native/combination owners retain their distinct scopes."
+}

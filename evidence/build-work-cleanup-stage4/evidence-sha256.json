@@ -1,0 +1,13 @@
+{
+  "evidence/build-work-cleanup-stage4/assignment.txt": "075382312a75693b3ba368f9fb066bca794afbfabefc964b8c6679b52880e3ce",
+  "evidence/build-work-cleanup-stage4/checks.json": "e082be2e0e8f3aca312ffb4cfff436d62ce5fce6bbdd09973d4218795fd9b786",
+  "evidence/build-work-cleanup-stage4/identity.json": "a89e371b5ce07ce126f39139378cdd1cf76b99bf4bca8c3d09c649dec5216b4c",
+  "evidence/build-work-cleanup-stage4/incoming-successor.json": "905db67f2c8db1bd4ef1c933ba8de3223eb5f7d5c987165dfe127cbd13334be4",
+  "evidence/build-work-cleanup-stage4/initial-checks.json": "b9442c0883efcf51245894e59dfd3ce3d75bc511bbfa826cf27b38a93ebbd682",
+  "evidence/build-work-cleanup-stage4/initial-verifier.log": "67204ada8f23966fe2e64f565bfd8c8837879b3c128c251842df05609646e1ee",
+  "evidence/build-work-cleanup-stage4/result.json": "1574fa68906482846256c6995b58f3067ffc9424127667dc0d7b05cda693545a",
+  "evidence/build-work-cleanup-stage4/scope.json": "50b589a478fc7a1bb9d7eee544ef2cf3152c9528fc40adbd9294476f00ff2aaa",
+  "evidence/build-work-cleanup-stage4/staged-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "evidence/build-work-cleanup-stage4/verify-acceptance.log": "22dc25bbfdccec79af14eb439a8acb9b2b28c3ab62dac99a48fe7b94cdc5998f",
+  "evidence/build-work-cleanup-stage4/verify-acceptance.py": "627c39b3138180d78e5c73dcfeb3a13e1b547d11d1154af36ad86ac527cb9b3b"
+}

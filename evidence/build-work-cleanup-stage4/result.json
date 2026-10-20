@@ -1,0 +1,100 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-stage4-20261021",
+  "stage": 4,
+  "state": "accepted_local",
+  "result": "PASS",
+  "checked_candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "handoff_commit": "7e0f567a0adec5252fbf97de0176ef8c6549afd1",
+  "independent_stage3_evidence_commit": "258144db38d331c691c3a449146ff3da8ed86676",
+  "production_repair_commit": "bc0e1fde262aee6e3a4f0b976887b9489585aeb8",
+  "audit_base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "source_history": [
+    "bf69251a2166df9245fd8760d5296e99727f253a",
+    "83de54a23c0467078d0f680fbaa89aeef53f46e1",
+    "29b0e6ae67fc3d8acfc2912d659c1916fe1e787a",
+    "30c567d8588227d5285f04422130300fe83577a9",
+    "bc0e1fde262aee6e3a4f0b976887b9489585aeb8"
+  ],
+  "source_unchanged": true,
+  "source_tree_identity_sha256": "14b6c534d238ef5682b3629e08ff3b5ef3fc05f864fd592a7721d7e6ec688444",
+  "scope": "Quickcheck routing and bounded controller compilation with repaired owned-process-group cleanup; local host-tooling acceptance only.",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "combination_receiver": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "source_stage2": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+  "identity": "evidence/build-work-cleanup-stage4/identity.json",
+  "checks": "evidence/build-work-cleanup-stage4/checks.json",
+  "independent_reports": {
+    "test": {
+      "path": "evidence/build-work-cleanup-stage3/test/report.json",
+      "sha256": "a1b9b11c1679a81f9de60f99c7a4de592a4552b6330dc3cd3504c8a5397d19ea",
+      "result": "PASS"
+    },
+    "investigation": {
+      "path": "evidence/build-work-cleanup-stage3/investigation/report.json",
+      "sha256": "704d0ae8ea2440fc3887eb012500c99992dba12729b53a1d57bdf02c5a47baa0",
+      "result": "PASS"
+    }
+  },
+  "closed_finding": {
+    "id": "CTL-SUCCESSFUL-DRIVER-CHILD",
+    "state": "closed",
+    "resolution": "After each direct driver wait, stop its owned group before dropping tracking. Outstanding groups and direct PIDs remain owned through failure/signal cleanup; no obsolete group list crosses batches."
+  },
+  "acceptance_reasoning": [
+    {
+      "risk": "A commit or evidence handoff could change checked source.",
+      "result": "PASS",
+      "evidence": "identity.json verifies every tracked non-evidence path, mode and blob equals exact tested candidate c4cec67, no worktree source edits or untracked non-evidence files, and every post-candidate stage3 commit changes only its dedicated evidence folder."
+    },
+    {
+      "risk": "Reuse could refer to different source, platform, check or log inputs.",
+      "result": "PASS",
+      "evidence": "identity.json verifies original/repair/stage3 manifests, both independent PASS report hashes, matching source hashes and exact saved commands/logs. macOS arm64 and Linux amd64 pinned image records match seven methods and ten expected parent assertion failures each. All six unaffected suites and original Quickcheck adversarial reports remain applicable."
+    },
+    {
+      "risk": "Successful-driver children could survive later failure, batch boundary, success or signal.",
+      "result": "PASS",
+      "evidence": "Independent Test and investigation review plus stage4 join_jobs source review confirm wait then stop owned group before dropping tracking. Outstanding direct PIDs/groups stay owned until cleanup; no obsolete group list crosses batches. Existing private scratch-deletion observer and three failure orderings, one successful completion and six signal cases cover the defect; source is unchanged from tested candidate."
+    },
+    {
+      "risk": "Cleanup repair could invalidate successful image evidence.",
+      "result": "PASS",
+      "evidence": "Retained real image in both saved baseline and original build lane, baseline record/log, generated tables, environment and real controller input hashes match. Exact built-to-current delta is cleanup-only; full compiler flags and link/post-link bytes match. Normally completed drivers leave no residual group; stop action has no remaining group to affect. No duplicated build is needed."
+    },
+    {
+      "risk": "Acceptance could cross another owner scope.",
+      "result": "PASS",
+      "evidence": "Only dedicated stage4 evidence is added. Production, runner, asset/cache, helper, native-validator/provenance and BUILDING source bytes remain unchanged. Existing combination and sole firmware owners retain their scopes."
+    }
+  ],
+  "real_controller": {
+    "record": "evidence/build-work-stage2/controller-result.json",
+    "image_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "seconds": 28.513924458,
+    "flash_bytes": 65492,
+    "flash_limit": 65536,
+    "ram_bytes": 25824,
+    "ram_limit": 26368,
+    "reused": true
+  },
+  "failure_dispositions": [
+    "Original material cleanup failure is closed by source review and meaningful two-platform negative controls.",
+    "Initial Linux parent-read ownership error received one exact-lane bounded retry; matching passing suite was reused.",
+    "Saved logs strip trailing whitespace only. Raw stream hashes remain provenance metadata; raw streams are not retained for recomputation. Assertions/outcomes are unchanged.",
+    "Independent Test verifier initially counted assertion source text; it was corrected to count lines beginning AssertionError. Initial verifier log retained; no production or fixture change.",
+    "Stage4 verifier initially treated older build-work-stage3 manifest keys as repository-relative. Corrected resolution to each manifest directory for keys without evidence/ prefix. Initial verifier log and command/hash record retained. Corrected identity check PASS; no production, fixture or prior evidence changed."
+  ],
+  "limits": [
+    "Matching executed checks were reused under rule9: seven-method macOS and pinned Linux controller suites, ten exact-parent rejection subcases per platform, six unaffected suites and prior independent Quickcheck checks. No new behavior suite or scratch behavior probe was needed.",
+    "The original controller fixture PASS is superseded by repaired seven-method platform checks. Historical bug-expected cleanup probes remain failure evidence and were not run against the repair.",
+    "Six original-source signal negative controls fail before signal delivery, at the earlier-child-stopped assertion. Repaired passing cases deliver HUP/INT/TERM and verify statuses129/130/143 and cleanup.",
+    "Normalised saved logs match their hashes. Pre-normalisation raw digests are retained provenance metadata; raw streams are unavailable for recomputation.",
+    "SDK/toolchain full hashes are reused from saved validated records; proprietary dependencies were not rehashed or bundled.",
+    "One prior real controller build is reused. Its 28.513924458 seconds is a single measured build, without an isolated or end-to-end speedup claim.",
+    "Direct fixture runner registration remains with the runner/combination owner. Fixed-tree devbug reuse stays deferred; fixed regression rerun and parent negative control remain required.",
+    "This is scoped host-tooling acceptance. It does not establish combined-tooling acceptance, firmware integration, release/full-gate, installation or device PASS."
+  ],
+  "next_action": "This local host-tooling subworkflow is complete. Send exact checked candidate and acceptance evidence commit to the single finishing owner, existing combination receiver and source stage2. Existing combination receiver owns coherent application and later combined checks. Do not create another combination, firmware stage5 or install workflow.",
+  "successor_required": false
+}

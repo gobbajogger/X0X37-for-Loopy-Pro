@@ -1,0 +1,14 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "evidence/build-work-cleanup-stage4/verify-acceptance.py"
+    ],
+    "returncode": 1,
+    "log": "evidence/build-work-cleanup-stage4/initial-verifier.log",
+    "sha256": "67204ada8f23966fe2e64f565bfd8c8837879b3c128c251842df05609646e1ee",
+    "script_sha256": "46d8782a66f112ac5d46e5cae093bc1f3a478cf7602fe2e49d44987f325a1672",
+    "purpose": "Verify exact checked source and saved execution, configuration, dependency-record and artifact identities without repeating suites or builds."
+  }
+]
