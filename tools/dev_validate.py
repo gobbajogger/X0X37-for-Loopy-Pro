@@ -7,11 +7,13 @@ verify --commit HASH --record FILE --fwsc FILE [--ctl FILE]
 
 Plans contain a base commit, scope explanation, and checks [{reason, argv}].
 Use no_tests_reason for a change with no applicable host test. Builds and budgets
-are mandatory. Results are DEV CHECKED, never release PASS. Run in Linux x86-64, including a local container; commands must be synchronous
-native processes, not detached jobs or nested containers. Uses a private Git
+are mandatory. Results are DEV CHECKED, never release PASS. Run in Linux x86-64, or use
+--worker-image on macOS for native input hashing and Linux command execution.
+Commands must be synchronous processes, not detached jobs or nested containers. Uses a private Git
 worktree; never writes device state, a gate index, or an existing output folder.
 """
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -23,6 +25,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import validation_inputs
@@ -110,90 +113,229 @@ def verify(repo, commit, record, fwsc, ctl=None):
     return data
 
 
+def development_env(env, model):
+    env = dict(env)
+    for key in list(env):
+        if key.startswith('X0X_DEV_') or key in ('X0X_CDC', 'X0X_DEBUG', 'X0X_BREAK_BANK', 'X0X_RAM_CANARY',
+                'X0X_SMK_LCD_BAUD', 'X0X_FONTSET', 'X0X_FONT_DIRS',
+                'FELUCCA_DATA_FAMILY', 'FELUCCA_DATA_UNTAGGED_OK', 'BOARD', 'MODEL', 'JIELI_DOCKER'):
+            env.pop(key)
+    env['SDK_LOCAL'] = env.get('AC79_SDK', str(Path.home()/'fw-AC79_AIoT_SDK'))
+    env.update(MODEL=model, BOARD='smk37', X0X_DEV_PADCAL='1', CTL_NO_CACHE='1', CTL_NATIVE='1')
+    return env
+
+
+class LinuxWorker:
+    """One owned container. All commands finish before its scratch tree is removed."""
+    def __init__(self, image, mounts, writable, env, timeout):
+        self.docker = shutil.which('docker')
+        if not self.docker:
+            raise ValueError('Docker CLI is required for --worker-image')
+        self.timeout = timeout
+        self.name = 'x0x37-dev-' + uuid.uuid4().hex
+        self.created = False
+        self.image = self.call('image', 'inspect', image)[0]
+        if (self.image['Os'], self.image['Architecture']) != ('linux', 'amd64'):
+            raise ValueError('worker image must be Linux/amd64')
+        self.mounts = {str(Path(p).absolute()): str(Path(p).absolute()) not in writable for p in mounts}
+        # Docker resolves source symlinks. Also mount their targets for Git metadata and path lookups.
+        self.mounts.update({str(Path(p).resolve(strict=True)): str(Path(p).absolute()) not in writable for p in mounts})
+        self.host_env = env
+
+    def start(self):
+        args = ['create', '--name', self.name, '--platform', 'linux/amd64',
+                '--entrypoint', '/bin/sleep']
+        for path, readonly in sorted(self.mounts.items()):
+            if ',' in path:
+                raise ValueError('worker mount paths cannot contain commas')
+            args += ['--mount', 'type=bind,source='+path+',target='+path+(',readonly' if readonly else '')]
+        args += [self.image['Id'], 'infinity']
+        # The unique name permits cleanup even if create is interrupted after creation.
+        self.created = True
+        env = self.host_env
+        self.call(*args, json_output=False)
+        self.call('start', self.name, json_output=False)
+        original = self.call('exec', self.name, 'env', '-0', json_output=False)
+        self.env = dict(item.split('=', 1) for item in original.split('\0') if item)
+        # Keep Linux PATH/HOME and image defaults. Forward only build/check inputs.
+        keys = ('JIELI_TOOLCHAIN', 'X0X_TOOLCHAIN', 'AC79_SDK', 'SDK_LOCAL', 'NINEW9_DIR',
+                'EIGHTW8_DIR', 'SCHWUNG303', 'TB3PO_REF', 'X0X_REFS', 'CC', 'CXX',
+                'CFLAGS', 'CXXFLAGS', 'CPPFLAGS', 'LDFLAGS', 'CPATH', 'LIBRARY_PATH',
+                'X0X_VERSION',
+                'LD_LIBRARY_PATH', 'LD_PRELOAD', 'PYTHONPATH', 'NODE_PATH', 'NODE_OPTIONS',
+                'X0X_TEST_TIME_SCALE', 'X0X_TESTS', 'X0X_TEST_JOBS', 'X0X_HOST_DEFS', 'X0X_JOBS',
+                'X0X_GATE_LOCK', 'X0X_GATE_HOLDS_LOCK', 'X0X_REPO', 'X0X_QUEUE_FILE',
+                'X0X_RESULTS_DIR', 'X0X_RESULTS', 'X0X_GATE_WORK',
+                'X0X_VALIDATION_PYTHON_PACKAGES', 'PYTHONDONTWRITEBYTECODE')
+        self.env.update({k: v for k, v in env.items() if k in keys})
+        self.env = development_env(self.env, env['MODEL'])
+        self.env['PYTHONDONTWRITEBYTECODE'] = '1'
+
+    def call(self, *args, json_output=True):
+        result = subprocess.run([self.docker, *args], capture_output=True,
+                                text=True, timeout=max(30, self.timeout) if args[0] == 'rm' else self.timeout)
+        if result.returncode:
+            raise ValueError(f'Docker {args[0]} failed ({result.returncode}): {result.stderr.strip()}')
+        return json.loads(result.stdout) if json_output else result.stdout
+
+    def argv(self, work, argv):
+        return [self.docker, 'exec', '-w', str(work), self.name, 'env', '-i',
+                *[k+'='+v for k, v in sorted(self.env.items())], *argv]
+
+    def snapshot(self, config):
+        actual = self.call('inspect', self.name)[0]
+        if actual['Image'] != self.image['Id'] or not actual['State']['Running']:
+            raise ValueError('worker image or state changed')
+        code = ('import json,sys; sys.path.insert(0,sys.argv[1]); import validation_inputs as v; '
+                'print(json.dumps(v.runtime(json.loads(sys.argv[2]))))')
+        probe = subprocess.run(self.argv(Path(__file__).resolve().parent, ['python3', '-B', '-c', code,
+            str(Path(__file__).resolve().parent), json.dumps(config)]), check=True,
+            capture_output=True, text=True, timeout=self.timeout)
+        runtime = json.loads(probe.stdout)
+        if runtime['platform'][:2] != ['Linux', 'x86_64']:
+            raise ValueError('worker kernel must be Linux x86_64')
+        provenance = {'image': self.image['Id'], 'platform': runtime['platform'],
+            'environment': self.env, 'mounts': self.mounts,
+            'orchestrator_platform': [platform.system(), platform.machine(), platform.release()],
+            'orchestrator_tools': {name: validation_inputs.content(path) for name, path in
+                [('docker', self.docker), ('python', sys.executable), ('git', shutil.which('git'))]}}
+        return runtime, provenance
+
+    def close(self):
+        if self.created:
+            # rm -f waits for the container's processes to stop, including exec children.
+            # Never remove another task's container or scratch directory.
+            self.call('rm', '--force', self.name, json_output=False)
+            self.created = False
+
+
 def run(a):
-    if platform.system() != 'Linux' or platform.machine() not in ('x86_64', 'AMD64'):
-        raise ValueError('run validation inside Linux x86-64 (a local container is supported); verification runs on any host')
+    system = platform.system()
+    if not a.worker_image and (system != 'Linux' or platform.machine() not in ('x86_64', 'AMD64')):
+        raise ValueError('use --worker-image on macOS, or run inside Linux x86-64')
     repo = Path(a.repo).resolve()
     commit = git(repo, 'rev-parse', '--verify', a.commit + '^{commit}')
     plan = json.loads(Path(a.plan).read_text())
     checks = check_plan(plan)
+    if 'worker' in plan:
+        raise ValueError('worker provenance is generated by the runner, not supplied in the plan')
     base = git(repo, 'rev-parse', '--verify', plan['base'] + '^{commit}')
     subprocess.run(['git', '-C', str(repo), 'merge-base', '--is-ancestor', base, commit], check=True)
     output = Path(a.output).resolve()
     output.mkdir(parents=True, exist_ok=False)
     plan['base'] = base
-    env = os.environ.copy()
-    for key in list(env):
-        if key.startswith('X0X_DEV_') or key in ('X0X_CDC', 'X0X_DEBUG', 'X0X_BREAK_BANK', 'X0X_RAM_CANARY',
-                'X0X_SMK_LCD_BAUD', 'X0X_FONTSET', 'X0X_FONT_DIRS',
-                'FELUCCA_DATA_FAMILY', 'FELUCCA_DATA_UNTAGGED_OK', 'BOARD', 'MODEL'):
-            env.pop(key)
-    env.pop('JIELI_DOCKER', None)
-    env['SDK_LOCAL'] = env.get('AC79_SDK', str(Path.home()/'fw-AC79_AIoT_SDK'))
-    env.update(MODEL=a.model, BOARD='smk37', X0X_DEV_PADCAL='1', CTL_NO_CACHE='1', CTL_NATIVE='1')
-    def identity():
-        return validation_inputs.capture(repo, commit, 'dev',
-            {'model': a.model, 'config': 'dev', 'controller': not a.no_controller,
-             'plan': plan, 'dependencies': plan.get('dependencies', [])},
-            env.get('JIELI_TOOLCHAIN', str(Path.home()/'.jieli/toolchain')),
-            env.get('AC79_SDK', str(Path.home()/'fw-AC79_AIoT_SDK')), env=env)
-    inputs = identity()
+    env = development_env(os.environ, a.model)
+    env.setdefault('JIELI_TOOLCHAIN', str(Path.home()/'.jieli/toolchain'))
+    env.setdefault('AC79_SDK', str(Path.home()/'fw-AC79_AIoT_SDK'))
+    # Each path is available at the same absolute location on the host and worker.
+    tmp = Path(tempfile.mkdtemp(prefix='dev-check-', dir=repo.parent))
+    work = tmp / 'source'
+    worker = None
+    added = False
     logs = {}
-    # Use a mounted repository sibling, not /tmp, so container builds can see it.
-    with tempfile.TemporaryDirectory(prefix='dev-check-', dir=repo.parent) as tmp:
-        work = Path(tmp) / 'source'
+    data = None
+    failure = None
+    try:
         subprocess.run(['git', '-C', str(repo), 'worktree', 'add', '--detach', str(work), commit], check=True)
-        try:
-            if not a.no_controller:
-                if ('CTL_NO_CACHE' not in (work/'ble/ctl/build_ctl.sh').read_text() or
-                        'B=$(mktemp -d' not in (work/'ble/ctl/build_in_container.sh').read_text()):
-                    raise ValueError('selected commit lacks isolated controller build support')
-            def command(name, argv):
-                log = output / (name + '.log')
-                with log.open('w') as stream:
-                    process = subprocess.Popen(argv, cwd=work, env=env, stdout=stream,
-                                               stderr=subprocess.STDOUT, start_new_session=True)
-                    try:
-                        rc = process.wait(timeout=a.timeout)
-                    except BaseException:
-                        # Kill only this command's owned process group before cleanup.
-                        try:
-                            os.killpg(process.pid, signal.SIGKILL)
-                        except ProcessLookupError:
-                            pass
-                        process.wait()
-                        raise
-                logs[name] = {'argv': argv, 'returncode': rc, 'sha256': digest(log)}
-                if rc:
-                    raise ValueError(f'{name} failed; see {log}')
-            for i, check in enumerate(checks):
-                command(f'check-{i}', check['argv'])
-            def unchanged():
-                if git(work, 'rev-parse', 'HEAD') != commit or git(work, 'status', '--porcelain'):
-                    raise ValueError('validation changed sources; no record issued')
-            unchanged()
-            command('build', ['sh', 'build.sh', '--board', 'smk37'])
-            limits = budgets((output / 'build.log').read_text())
-            if not a.no_controller:
-                command('controller', ['sh', 'ble/ctl/build_ctl.sh'])
-            unchanged()
-            package = work / ('build/x0x-smk37-elite.fwsc' if a.model == 'elite' else 'build/x0x-smk37.fwsc')
-            artifacts = {}
-            for kind, path in [('package', package)] + ([] if a.no_controller else [('controller', work/'ble/ctl/out/ctl.img')]):
-                dest = output / path.name
-                shutil.copy2(path, dest)
-                artifacts[kind] = {'file': dest.name, 'sha256': digest(dest)}
-            validation_inputs.validate(inputs, identity())
-            data = {'schema': 2, 'validation_inputs': inputs, 'result': 'DEV CHECKED', 'config': 'dev', 'model': a.model,
-                    'commit': commit, 'tree': tree(repo, commit), 'plan': plan,
-                    'changed_files': git(repo, 'diff', '--name-only', base, commit).splitlines(),
-                    'controller': not a.no_controller, 'budgets': limits,
-                    'logs': logs, 'artifacts': artifacts}
-            (output/'record.json').write_text(json.dumps(data, indent=2)+'\n')
-            print('DEV CHECKED ' + str(output/'record.json'))
-        finally:
-            subprocess.run(['git', '-C', str(repo), 'worktree', 'remove', '--force', str(work)], check=True)
+        added = True
+        if not a.no_controller:
+            if ('CTL_NO_CACHE' not in (work/'ble/ctl/build_ctl.sh').read_text() or
+                    'B=$(mktemp -d' not in (work/'ble/ctl/build_in_container.sh').read_text()):
+                raise ValueError('selected commit lacks isolated controller build support')
+        if a.worker_image:
+            paths = [repo, tmp, Path(__file__).resolve().parent,
+                     Path(git(repo, 'rev-parse', '--path-format=absolute', '--git-common-dir')),
+                     env['JIELI_TOOLCHAIN'], env['AC79_SDK'], *a.worker_mount,
+                     *plan.get('dependencies', [])]
+            paths += [env[k] for k in ('NINEW9_DIR', 'EIGHTW8_DIR', 'SCHWUNG303', 'TB3PO_REF', 'X0X_REFS') if env.get(k)]
+            paths += [v for check in checks for v in check['argv'][1:]
+                      if Path(v).is_absolute() and Path(v).exists()]
+            worker = LinuxWorker(a.worker_image, paths,
+                {str(tmp), str(paths[3])}, env, a.timeout)
+            worker.start()
+            env = worker.env
 
+        def identity():
+            normalized = copy.deepcopy(plan)
+            config = {'model': a.model, 'config': 'dev', 'controller': not a.no_controller,
+                      'plan': normalized, 'dependencies': plan.get('dependencies', [])}
+            execution = None
+            if worker:
+                execution, provenance = worker.snapshot(config)
+                normalized['worker'] = provenance
+            return validation_inputs.capture(repo, commit, 'dev', config,
+                env['JIELI_TOOLCHAIN'], env['AC79_SDK'], env=env, execution=execution)
+
+        inputs = identity()
+        plan = inputs['inputs']['configuration']['plan']
+
+        def command(name, argv):
+            log = output / (name + '.log')
+            with log.open('w') as stream:
+                process = subprocess.Popen(worker.argv(work, argv) if worker else argv,
+                    cwd=work, env=None if worker else env, stdout=stream,
+                    stderr=subprocess.STDOUT, start_new_session=True)
+                try:
+                    rc = process.wait(timeout=a.timeout)
+                except BaseException:
+                    try:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    process.wait()
+                    raise
+            logs[name] = {'argv': argv, 'returncode': rc, 'sha256': digest(log)}
+            if rc:
+                raise ValueError(f'{name} failed; see {log}')
+
+        for i, check in enumerate(checks):
+            command(f'check-{i}', check['argv'])
+
+        def unchanged():
+            if git(work, 'rev-parse', 'HEAD') != commit or git(work, 'status', '--porcelain'):
+                raise ValueError('validation changed sources; no record issued')
+
+        unchanged()
+        command('build', ['sh', 'build.sh', '--board', 'smk37'])
+        limits = budgets((output / 'build.log').read_text())
+        if not a.no_controller:
+            command('controller', ['sh', 'ble/ctl/build_ctl.sh'])
+        unchanged()
+        package = work / ('build/x0x-smk37-elite.fwsc' if a.model == 'elite' else 'build/x0x-smk37.fwsc')
+        artifacts = {}
+        for kind, path in [('package', package)] + ([] if a.no_controller else [('controller', work/'ble/ctl/out/ctl.img')]):
+            dest = output / path.name
+            shutil.copy2(path, dest)
+            artifacts[kind] = {'file': dest.name, 'sha256': digest(dest)}
+        validation_inputs.validate(inputs, identity())
+        data = {'schema': 2, 'validation_inputs': inputs, 'result': 'DEV CHECKED', 'config': 'dev', 'model': a.model,
+                'commit': commit, 'tree': tree(repo, commit), 'plan': plan,
+                'changed_files': git(repo, 'diff', '--name-only', base, commit).splitlines(),
+                'controller': not a.no_controller, 'budgets': limits,
+                'logs': logs, 'artifacts': artifacts}
+    except BaseException as error:
+        failure = error
+        raise
+    finally:
+        try:
+            if worker:
+                worker.close()
+        except BaseException as cleanup_error:
+            # Leave the scratch tree intact when worker termination is unconfirmed.
+            if failure is None:
+                raise
+            print('Worker cleanup failed; scratch tree retained: '+str(tmp)+': '+str(cleanup_error), file=sys.stderr)
+        else:
+            try:
+                if added:
+                    subprocess.run(['git', '-C', str(repo), 'worktree', 'remove', '--force', str(work)], check=True)
+                shutil.rmtree(tmp)
+            except BaseException as cleanup_error:
+                if failure is None:
+                    raise
+                print('Scratch cleanup failed: '+str(cleanup_error), file=sys.stderr)
+    (output/'record.json').write_text(json.dumps(data, indent=2)+'\n')
+    print('DEV CHECKED ' + str(output/'record.json'))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -208,11 +350,17 @@ def main():
             p.add_argument('--output', required=True)
             p.add_argument('--no-controller', action='store_true')
             p.add_argument('--timeout', type=int, default=1800)
+            p.add_argument('--worker-image', help='local immutable Linux/amd64 image or local image tag')
+            p.add_argument('--worker-mount', action='append', default=[], help='additional same-path worker mount')
         else:
             p.add_argument('--record', required=True)
             p.add_argument('--fwsc', required=True)
             p.add_argument('--ctl')
     a = parser.parse_args()
+    def interrupted(signum, frame):
+        raise KeyboardInterrupt('validation interrupted by signal '+str(signum))
+    for signum in (signal.SIGTERM, signal.SIGHUP):
+        signal.signal(signum, interrupted)
     try:
         if a.action == 'run':
             run(a)

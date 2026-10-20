@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch, PropertyMock
 
 TOP = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(TOP/'tools'))
@@ -17,7 +18,9 @@ import validation_inputs as identity
 
 class Inputs(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        parent = TOP/'build/input-fixtures'
+        parent.mkdir(parents=True, exist_ok=True)
+        self.tmp = tempfile.TemporaryDirectory(dir=parent)
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.repo = self.root/'repo'; self.repo.mkdir()
@@ -88,25 +91,21 @@ class Inputs(unittest.TestCase):
                                   runner_path=installed)
         self.assertEqual(baseline['sha256'], actual['sha256'])
 
-    def test_optional_emcc_changes_coverage_identity(self):
+    def test_split_execution_preserves_all_original_input_bytes(self):
         baseline = self.capture()
-        sdk = self.root/'emsdk'; sdk.mkdir()
-        (sdk/'emcc').write_text('#!/bin/sh\necho fixture\n'); (sdk/'emcc').chmod(0o755)
-        (sdk/'backend').write_text('llvm v1')
-        self.env.update(PATH=str(sdk)+os.pathsep+self.env['PATH'], EMSDK=str(sdk))
-        (sdk/'upstream/emscripten').mkdir(parents=True)
-        changed = self.capture()
-        self.assertNotEqual(baseline['sha256'], changed['sha256'])
-        cache = sdk/'upstream/emscripten/cache'
-        cache.mkdir(parents=True); (cache/'generated.a').write_text('derived output')
-        # Creating the cache parent directories is also an output-only change.
-        # Keep the existing SDK directory structure present before comparison.
-        stable = self.capture()
-        self.assertEqual(changed['sha256'], stable['sha256'])
-        (cache/'generated.a').write_text('rebuilt output')
-        self.assertEqual(stable['sha256'], self.capture()['sha256'])
-        (sdk/'backend').write_text('llvm v2')
-        self.assertNotEqual(changed['sha256'], self.capture()['sha256'])
+        runtime = identity.runtime(self.config, self.env)
+        split = identity.capture(self.repo, 'HEAD', 'gate', self.config, self.tc, self.sdk,
+            self.refs, self.pins, env=self.env, runner_dir=self.runner, execution=runtime)
+        self.assertEqual(baseline, split)
+        (self.sdk/'library').write_text('different SDK with identical runtime')
+        changed = identity.capture(self.repo, 'HEAD', 'gate', self.config, self.tc, self.sdk,
+            self.refs, self.pins, env=self.env, runner_dir=self.runner, execution=runtime)
+        with self.assertRaisesRegex(ValueError, 'changed'):
+            identity.validate(baseline, changed)
+        self.config['worker'] = {'image': 'sha256:first'}
+        first = self.capture()
+        self.config['worker']['image'] = 'sha256:second'
+        self.assertNotEqual(first['sha256'], self.capture()['sha256'])
 
     def test_real_gate_reuse_routing_with_scratch_inputs(self):
         # Override uname only to reach the portable admission/reuse path on macOS.
@@ -146,6 +145,163 @@ class Inputs(unittest.TestCase):
         (self.sdk/'library').write_text('changed SDK')
         self.assertNotEqual(gate().returncode, 0)
         self.assertFalse((self.root/'work').exists())
+
+class PackageBytes(unittest.TestCase):
+    def setUp(self):
+        parent = TOP/'build/input-fixtures'
+        parent.mkdir(parents=True, exist_ok=True)
+        self.tmp = tempfile.TemporaryDirectory(dir=parent)
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.meta = self.root/'fixture.egg-info'
+        self.meta.mkdir()
+        (self.meta/'PKG-INFO').write_text('Name: fixture\nVersion: 1.0\n')
+        (self.meta/'top_level.txt').write_text('fixture\n')
+        self.pkg = self.root/'fixture'
+        self.pkg.mkdir()
+        (self.pkg/'__init__.py').write_text('source = 1\n')
+        (self.pkg/'native.so').write_bytes(b'binary fixture')
+        self.dist = importlib.metadata.Distribution.at(self.meta)
+
+    def runtime(self):
+        def distribution(name):
+            if name == 'fixture':
+                return self.dist
+            raise importlib.metadata.PackageNotFoundError(name)
+        with patch.object(identity.importlib.metadata, 'distribution', side_effect=distribution):
+            return identity.runtime({}, {'X0X_VALIDATION_PYTHON_PACKAGES': 'fixture'})
+
+    def test_distro_source_binary_and_added_file_mutations(self):
+        self.assertIsNone(self.dist.files)
+        baseline = self.runtime()
+        self.assertEqual(baseline['python_packages']['fixture']['version'], '1.0')
+        self.assertNotEqual(baseline['python_packages']['fixture']['sha256'], identity.digest(identity.encoded({})))
+        for path in (self.pkg/'__init__.py', self.pkg/'native.so', self.pkg/'new.py'):
+            with self.subTest(path=path.name):
+                original = path.read_bytes() if path.exists() else None
+                path.write_bytes(b'changed bytes')
+                self.assertNotEqual(baseline, self.runtime())
+                if original is None:
+                    path.unlink()
+                else:
+                    path.write_bytes(original)
+                self.assertEqual(baseline, self.runtime())
+        cache = self.pkg/'__pycache__'
+        cache.mkdir(); (cache/'output.pyc').write_bytes(b'output')
+        (self.pkg/'output.pyo').write_bytes(b'output')
+        self.assertEqual(baseline, self.runtime())
+
+    def test_empty_manifest_uses_installed_modules(self):
+        with patch.object(type(self.dist), 'files', new_callable=PropertyMock, return_value=[]):
+            self.assertIn('fixture/native.so', identity.package_files(self.dist))
+
+    def test_normal_manifest_preserves_all_declared_files(self):
+        # RECORD can contain data outside the import package, including binaries.
+        (self.root/'extra.data').write_bytes(b'data')
+        (self.meta/'RECORD').write_text('fixture/__init__.py,,\nfixture/native.so,,\nextra.data,,\nfixture/output.pyc,,\n')
+        expected = {p: identity.file_hash(self.root/p)
+                    for p in ('fixture/__init__.py', 'fixture/native.so', 'extra.data')}
+        self.assertEqual(identity.package_files(self.dist), expected)
+        baseline = self.runtime()
+        (self.root/'extra.data').write_bytes(b'changed')
+        self.assertNotEqual(baseline, self.runtime())
+        (self.pkg/'native.so').unlink()
+        with self.assertRaises(OSError):
+            self.runtime()
+
+    def test_module_source_and_extension_without_importing(self):
+        shutil.rmtree(self.pkg)
+        (self.root/'fixture.py').write_text('raise RuntimeError("must not import")\n')
+        extension = self.root/('fixture'+importlib.machinery.EXTENSION_SUFFIXES[0])
+        extension.write_bytes(b'extension fixture')
+        files = identity.package_files(self.dist)
+        self.assertEqual(set(files), {'fixture.py', extension.name})
+
+    def test_missing_unsafe_or_unresolvable_metadata_fails_closed(self):
+        for declaration in ('', '../', '.', 'fixture missing', 'missing'):
+            with self.subTest(declaration=declaration):
+                (self.meta/'top_level.txt').write_text(declaration)
+                with self.assertRaises(ValueError):
+                    self.runtime()
+        (self.meta/'top_level.txt').unlink()
+        with self.assertRaises(ValueError):
+            self.runtime()
+
+    def test_symlink_escape_and_cycle_fail_closed(self):
+        for target in (self.root.parent, self.pkg):
+            link = self.pkg/'linked'
+            link.symlink_to(target, target_is_directory=True)
+            with self.assertRaises(ValueError):
+                self.runtime()
+            link.unlink()
+
+    def test_empty_installed_package_fails_closed(self):
+        for p in self.pkg.iterdir():
+            p.unlink()
+        with self.assertRaises(ValueError):
+            self.runtime()
+        (self.meta/'RECORD').write_text('fixture/output.pyc,,\n')
+        with self.assertRaises(ValueError):
+            self.runtime()
+
+    def test_optional_absent_packages_remain_explicit(self):
+        with patch.object(identity.importlib.metadata, 'distribution', side_effect=importlib.metadata.PackageNotFoundError):
+            actual = identity.runtime({}, {'X0X_VALIDATION_PYTHON_PACKAGES': 'optional'})
+        self.assertEqual(actual['python_packages'], {'numpy': None, 'optional': None, 'pillow': None})
+
+
+class ContentWalk(unittest.TestCase):
+    @staticmethod
+    def original(path, ancestors=(), exclude=()):
+        # Frozen pre-repair algorithm, to check the optimized traversal's contract.
+        path = Path(path)
+        actual = path.resolve(strict=True)
+        if actual in ancestors:
+            raise ValueError('dependency symlink cycle: ' + str(path))
+        if path.is_file():
+            return {'sha256': identity.file_hash(path), 'executable': bool(path.stat().st_mode & 0o111)}
+        if not path.is_dir():
+            raise ValueError('not a dependency file/directory: ' + str(path))
+        return {'sha256': identity.digest(identity.encoded({p.name: ContentWalk.original(p, (*ancestors, actual), exclude)
+                for p in sorted(path.iterdir()) if p.name not in ('.git', '__pycache__', *exclude)}))}
+
+    def test_original_identity_and_rejections(self):
+        parent = TOP/'build/input-fixtures'
+        parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=parent) as tmp:
+            root = Path(tmp)/'input'; root.mkdir()
+            def equal(path=root, exclude=()):
+                self.assertEqual(self.original(path, exclude=exclude), identity.content(path, exclude=exclude))
+            equal()
+            leaf = root/'leaf'; leaf.write_bytes(b'input'); equal(); equal(leaf)
+            initial = identity.content(root)
+            leaf.chmod(0o755); equal(); self.assertNotEqual(initial, identity.content(root))
+            leaf.write_bytes(b'changed'); equal()
+            sub = root/'nested'; sub.mkdir(); (sub/'data').write_bytes(b'bytes'); equal()
+            (root/'alias').symlink_to(sub, target_is_directory=True); equal()
+            (root/'file-alias').symlink_to(leaf); equal()
+            # Exclusions apply at every depth, even to dangling links.
+            for directory in (root, sub):
+                for name in ('.git', '__pycache__', 'ignored'):
+                    (directory/name).symlink_to(root/'absent')
+            equal(exclude=('ignored',))
+            alias = Path(tmp)/'root-alias'; alias.symlink_to(root, target_is_directory=True)
+            equal(alias, ('ignored',))
+            (sub/'cycle').symlink_to(root, target_is_directory=True)
+            for function in (self.original, identity.content):
+                with self.assertRaisesRegex(ValueError, 'symlink cycle'):
+                    function(root, exclude=('ignored',))
+            (sub/'cycle').unlink()
+            (root/'dangling').symlink_to(root/'absent')
+            for function in (self.original, identity.content):
+                with self.assertRaises(FileNotFoundError):
+                    function(root, exclude=('ignored',))
+            (root/'dangling').unlink()
+            os.mkfifo(root/'unsupported')
+            for function in (self.original, identity.content):
+                with self.assertRaisesRegex(ValueError, 'not a dependency'):
+                    function(root, exclude=('ignored',))
+
 
 if __name__ == '__main__':
     unittest.main()

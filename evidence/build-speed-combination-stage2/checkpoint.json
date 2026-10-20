@@ -1,7 +1,7 @@
 {
   "workflow": "build-speed-combination-20261021",
   "stage": 2,
-  "state": "finishing_accepted_non_cache_reductions",
+  "state": "complete_source_candidate_preparing_independent_review",
   "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
   "final_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
   "base": "1165396199210889fa460d26cbdd0b66183267e1",
@@ -33,6 +33,13 @@
       "acceptance": "a3409ca4482497b8b6625dc2672d53e242c4d7a1",
       "identity": "controller-quickcheck-identity.json",
       "source_application": "Scoped three-way nine-file patch; exact accepted source hashes match."
+    },
+    {
+      "source": "cadeae04bdc9160cfe15a74427829165e36ba60b",
+      "acceptance_evidence": "96302a7196640ac1cb13dea3a9d3c0a6411edce9",
+      "scope": "Scoped six-file native implementation and checked package/walker repair patch. Removed retired optional compiler/backend/environment capture, dedicated test and worker forwarding; declared-input requirement clarified. Added literal dev-validate fixture registration.",
+      "checks": "registered-native-fixtures.log, native-cleanup.json/log, native-worker.log and retired-reference-scan.json",
+      "limits": "Host13 input+15 DEV scratch tests, real pinned worker1 fixture PASS; accepted unchanged package/walker/guard evidence reused. No target artifact equality or end-to-end speed claim."
     }
   ],
   "source_hashes": {
@@ -50,7 +57,7 @@
     "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
     "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
     "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf",
-    "tests/run_tests.sh": "5301a613adafe4cc22729ceb23b04017b7cd252663c8e9464759583fae24ff36",
+    "tests/run_tests.sh": "812756e95e9f263f4c3b1b41b448e2d5cbfa7ef6993f0cc22b75e5d96e696cf3",
     "tools/gate.sh": "c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5",
     "tools/make_pages.py": "f0a59fb5bf75e01cfe76a55ff28a332058fecef83940b15fa12f081f2e223bcd",
     "tools/publish_pages.sh": "13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0",
@@ -69,7 +76,13 @@
     "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
     "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
     "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
-    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37"
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "BUILDING.md": "281ff6e840f5dce7d5e9cfa331640b038da6a87cdd2f0188d71356115c56ced9",
+    "docs/USER_PREFERENCES.md": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
+    "tools/dev_validate.py": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
+    "tools/validation_inputs.py": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
+    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
+    "tests/host/test_validation_inputs.py": "8a5da8b34e39a81bffe828e35eb7e660172e71c1d4639b5c50464743923ca4fa"
   },
   "baseline_generator_asset_firmware_inputs": {
     "count": 87,
@@ -83,28 +96,10 @@
       "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44"
     }
   },
-  "pending": {
-    "native": {
-      "state": "checked_repair_waiting_independent_results_and_validation",
-      "candidate": "cadeae04bdc9160cfe15a74427829165e36ba60b",
-      "lane": "../build_time_python_repair",
-      "owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
-      "coordination_owner": "01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
-      "docker_approval": "Granted; prior blocker cleared.",
-      "source_applied": false,
-      "source_identity_record": "../build_time_python_repair/evidence/build-time-python-repair/inputs.json",
-      "reported_checks": "Host/Linux input14 each; native consumers14+1 each; actual Pillow source/extension mutation and seven real worker cases PASS. Unknown installed coverage fails closed.",
-      "independent_routing": "Repair owner reports independent Test and investigation helpers active within its existing bounded task under updated owner classic ChatGPT routing. No automatic Codex stage3 chain planned by that owner.",
-      "required": "Await final independent results and remaining validation handoff. No independent PASS or real target acceptance claimed.",
-      "remaining_combination_cleanup": "Apply only accepted stable source, then remove retired browser compiler/environment capture while preserving installed runtime/native dependency provenance."
-    }
-  },
+  "pending": {},
   "remaining": [
-    "Asset reuse/consumer routing is withheld after independent FAIL; finish accepted non-cache reductions without waiting for a new cache repair.",
-    "Apply each source only after required independent results/acceptance. Deduplicate browser removal patch.",
-    "Remove unused stable validator compiler/environment capture and worker forwarding, preserving actual native provenance.",
-    "Cover default/generate-only host dispatch, custom break bank, output override and generator failures; reference/CYM_AB behavior; clip SRC/OUT overrides.",
-    "Record complete combined checked source; run required independent review and scoped validation in this bounded task. Return compact execution evidence and any remaining classic-project handoff."
+    "Complete required independent Test and investigation on the non-cache combined candidate, then affected repairs/checks in this same bounded task.",
+    "Record final exact source/guard/output identities, evidence reuse and exclusions; return compact result and classic-project remaining validation/repair prompts."
   ],
   "checks_now": "initial-checks.json",
   "test_plan": [
@@ -161,6 +156,14 @@
       "Repair aliased loader origin identity or conservatively disable unsupported reuse; require stale-hit negative proof and affected independent checks.",
       "Only then measure remaining individual host/drum/font caller paths and route where supported measured gain exists."
     ],
-    "handoff": "classic-cache-repair-handoff.txt"
-  }
+    "handoff": "classic-cache-repair-handoff.txt",
+    "independent_evidence": "cb71961c9645b8231c0b8272d257db74ee9370a4",
+    "authoritative_classic_prompt": "../asset_selector_stage3/evidence/asset-selector-stage3/repair-handoff.txt"
+  },
+  "owned_check_failure_disposition": "Initial cleanup evidence script omitted root sys.path and could not import its fixture; corrected only the evidence harness and reran to PASS. Initial log retained; real worker fixture PASS was reused.",
+  "foreign_rollout_preserved": [
+    "AGENTS.md",
+    "docs/SKILLS.md",
+    ".agents/skills/x0x37-*"
+  ]
 }

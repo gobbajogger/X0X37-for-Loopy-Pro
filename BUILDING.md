@@ -102,11 +102,38 @@ python3 tools/dev_validate.py run --commit <commit> --model elite --plan /path/p
 python3 tools/fm1_install.py /path/new-dev-result/x0x-smk37-elite.fwsc --commit <commit> --config dev --dev-record /path/new-dev-result/record.json --ctl /path/new-dev-result/ctl.img
 ```
 
-Use `--model pro` for Pro (package `x0x-smk37.fwsc`). Run validation inside Linux x86-64 (a local container is supported); verification
-and installation also work on macOS. Plan commands must be synchronous native
-processes, without detached jobs or nested containers. The runner builds only that
-model in development configuration, checks code/RAM/pool budgets, builds the
-controller, and records selected test logs and artifact hashes. Current SMK
+Use `--model pro` for Pro (package `x0x-smk37.fwsc`). On macOS, use native orchestration with the local Linux/amd64 validation image:
+
+```
+export JIELI_TOOLCHAIN=/Users/mac/.jieli/toolchain
+export AC79_SDK=/Users/mac/fw-AC79_AIoT_SDK
+export CC=cc CXX=c++
+python3 -B tools/dev_validate.py run --commit COMMIT --model elite \
+  --plan dev-plan.json --output build/dev-check-result \
+  --worker-image x0x37-validation:local
+```
+
+Set reference paths and check flags for the selected plan. Each dependency path
+must exist on macOS and resolve to the same bytes in the worker. The runner mounts
+source, shared Git metadata, scratch, SDK, toolchain, references, plan dependencies,
+and absolute check inputs at their actual paths. Use `--worker-mount PATH` for
+another read-only input. Every extra consumed input must also be declared in
+`plan.dependencies`; a mount alone does not declare an input. Docker must share
+these paths. Keep paths outside system temporary folders when the Docker VM cannot access those folders.
+
+The host hashes every SDK, toolchain, and reference input before and after the run.
+The worker hashes its actual tools and Python packages. The normalized plan records
+the immutable image ID, Linux platform/kernel, effective environment, mounts, and
+host Docker/Python/Git bytes. Image changes invalidate the input identity. Build,
+font/asset generation, controller, and selected checks all run in that same worker.
+The runner removes only its own container before it removes the scratch checkout.
+If container cleanup fails, the runner retains the checkout and refuses a record.
+
+The existing Linux x86-64 path remains available without `--worker-image`.
+Verification and installation also work on macOS. Plan commands must be synchronous
+processes, without detached jobs or nested containers. The runner builds only the
+selected model in development configuration. It checks code/RAM/pool budgets,
+builds the controller, and records selected test logs and artifact hashes. Current SMK
 packages always rewrite the controller block. Validate a controller and install
 with `--ctl` pointing to that exact artifact. `--no-controller` / `--no-ctl` are
 not a preservation path: an empty current package is refused. They remain usable
@@ -189,14 +216,16 @@ Run Linux-specific checks in the local container. Docker Desktop and Colima both
 
 Gate reuse requires a content fingerprint of the source, effective configuration,
 external gate runner, toolchain, SDK, reference contents/pins, host tools and Python
-dependencies. The runner checks it again before recording PASS. Optional Emscripten
-availability changes coverage and is part of the identity; its generated caches are
-outputs. Older evidence without this identity cannot be reused. A changed identity
+dependencies. The runner checks it again before recording PASS. Older evidence
+without this identity cannot be reused. A changed identity
 alone does not request a gate: the release/owner-purpose rule still applies.
 
 Development records use schema 2 and the same provenance format. Put external check
 inputs in the plan's `dependencies` path list; list additional Python distributions
 in `X0X_VALIDATION_PYTHON_PACKAGES` (Pillow and NumPy are captured by default).
+Installed distributions use their file manifests. If a distro omits the manifest,
+capture hashes the source, extensions and data under its declared `top_level.txt`
+modules. Missing, empty or unsafe installed-module coverage stops validation.
 Gate logs are retained per run. Keep `validation-inputs.json` with transferred gate
 logs; `sync_results_to_mac.sh` includes it. Install consumers verify the recorded
 identity and exact artifacts without needing the producer's SDK on the installer.

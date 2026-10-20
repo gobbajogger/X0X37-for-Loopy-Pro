@@ -211,6 +211,7 @@ run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.h
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
 run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
+run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
 run prefs-parser python3 tests/host/test_prefs_lint.py
 run portable-rules python3 tests/host/test_portable_rules.py

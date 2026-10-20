@@ -2,6 +2,10 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
+## Project development access
+
+- 2026-10-21 Source: owner in build-time stage2 chat `01a15ac7-17e4-7633-b9a5-6652fa0aefed`: "I grant you full access for this project indefinitely for development purposes". This supersedes another approval request for authorized project development. The permission covers necessary reversible development work and its checks. Do not ask for repeated approval at later stages. Tool approval requirements still apply. This workflow retains its explicit exclusions for device installation, release builds, external pushes, and firmware integration. Active rule: owner-messages.md rule 14. Current source: [owner decisions](../../.agents/skills/x0x37-owner-decisions/SKILL.md).
+
 ## Development default and explicit release builds
 
 - 2026-10-21 Source: owner in stage6 chat `01a15a33-62e2-7b33-b7ef-3095346069df`: "There's no need for my approval and rules explicitly say that". This supersedes the stage5 handoff and stage6 plan requiring another approval for the complete checked SMC development installation. Continue the exact validated Elite candidate and matching controller installation without another question. Retain the prewrite notice, complete slot backups, foreground hardware lock, model and artifact guards, image readback and slot comparisons. This reaffirms the historical instruction that a verified complete build installs without another question. It does not authorize a fallback, release build, external push or publication. Active rules: owner-messages.md rules 4B and 14; install.md rules 5, 6 and 7; workflow.md rule 17.
