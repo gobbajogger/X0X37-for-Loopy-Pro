@@ -1,0 +1,96 @@
+{
+  "candidate": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+  "candidate_tree": "067a79c2e60d5041c68bb5e669b027e1f40d60e4",
+  "checked_evidence_commit": "4e7b1e334f1d61f507f5cb94f202ceb8286f79a0",
+  "audit_base": "9a94229b3ff8751763351b403e980ac2a2a4cdf6",
+  "result": "PASS",
+  "checks": {
+    "checked_commit_parent_is_candidate": true,
+    "checked_commit_is_lane_ancestor": true,
+    "source_manifest_matches": true,
+    "retained_evidence_matches_checked_commit": true,
+    "stage3_recorded_stage2_hashes_match": true,
+    "reviewed_source_hashes_match": true,
+    "original_generated_headers_match": true,
+    "recorded_runtime_versions_match": true,
+    "candidate_source_unchanged": true,
+    "candidate_source_scope_matches": true,
+    "preserved_sections_match": true,
+    "stage3_reports_pass_exact_candidate": true,
+    "supplemental_script_matches_test_report": true
+  },
+  "source_manifest_count": 278,
+  "source_mismatches": [],
+  "candidate_source_delta": [],
+  "changed_source_files": [
+    "host/build_host.sh",
+    "tests/host/smc_drum_mutes_test.sh",
+    "tests/host/smc_performance_abort_test.sh",
+    "tests/host/smc_reachability_test.sh",
+    "tests/host/test_host_setup.py",
+    "tests/host/ui_feedback_test.sh"
+  ],
+  "evidence_sha256": {
+    "evidence/host-setup-stage2/fixtures.log": "72413de5cb968d0cf81ae89416817967b44fb2ee0a98f9b562c5e759ba4fd30e",
+    "evidence/host-setup-stage2/inputs.json": "a525b166256d528ca7cc422e9d5b48bca1c68131c7a147b32d24ee76eb4a1083",
+    "evidence/host-setup-stage2/probes.json": "3c2c9f4d359098b91b4ec02aa70c5f2fd7843afa028c009ff5df1040ccaca89c",
+    "evidence/host-setup-stage2/result.json": "c9c85cf74e50714336f803164ab5f27afd5eb1a7845ebf331e6393a2fe785d17",
+    "evidence/host-setup-stage2/smc_drum_mutes.log": "e54cc258b48f8ae80aa5c4b006409b7de8fecf29453fabe6973a6d70ff428465",
+    "evidence/host-setup-stage2/smc_performance_abort.log": "3633c954719dfff591f8d5b6f1070b78641df2649292a2323c79f1475378e1ad",
+    "evidence/host-setup-stage2/smc_reachability.log": "e2322eab897bf8bd378ca9c17f182fd35c889c58cd0286c7e339a0190a24b7e8",
+    "evidence/host-setup-stage2/source-preservation.json": "c14a733df2e1ecd50225df3734a010d3cc833c7536ea55feb23af826a7dbdb2f",
+    "evidence/host-setup-stage2/ui_feedback.log": "0207ce40cfd05838cb868ae9684d20eb1f3b82976d7cd25854cab0187cbcf8c2",
+    "evidence/host-setup-stage3/investigation/report.json": "54971ae6af77818cf00e0a5e802af6c90977aedd97521b70781f411301d2ec2d",
+    "evidence/host-setup-stage3/result.json": "c356d7ac4bf5643eff580ee1ba33211623069907fd89cef0dc54f9fbef9ff706",
+    "evidence/host-setup-stage3/source-preservation.json": "cafd5dbff7082f52e85c0e2d17ac670323c6f9712ac78cb9f4d22d7d249fb2be",
+    "evidence/host-setup-stage3/test/report.json": "07a053b5488c7458f38c909c21a4b150be1602d9090442a7271c02bdb34e4b80",
+    "evidence/host-setup-stage3/test/supplemental.log": "3bb3d6a95d1656115ec3444c6516e78042f011a611f6d0df35bb1bbdfbb81242",
+    "evidence/host-setup-stage3/test/supplemental.py": "0e52aa84d05bc01280dcaeab0038dd79efd5724daea37ac5f4a307aad181bd60"
+  },
+  "evidence_mismatches": [],
+  "prior_hash_mismatches": [],
+  "reviewed_mismatches": [],
+  "original_lane_headers": {
+    "build/gen/felucca_font.h": {
+      "expected": "091fa798cb22f69cf80f15ee00d23ec8ed9e8d66ae44bf1f7d45bcfb25c8b6d9",
+      "actual": "091fa798cb22f69cf80f15ee00d23ec8ed9e8d66ae44bf1f7d45bcfb25c8b6d9"
+    },
+    "build/gen/x0x_break_bank.h": {
+      "expected": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "actual": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+    },
+    "build/gen/x0x_drum_samples.h": {
+      "expected": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "actual": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9"
+    },
+    "build/gen/x0x_drum_tables.h": {
+      "expected": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "actual": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199"
+    }
+  },
+  "runtime": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+    "pillow": "10.4.0",
+    "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n"
+  },
+  "runtime_version_matches": {
+    "platform": true,
+    "python": true,
+    "pillow": true,
+    "cc": true
+  },
+  "section_matches": {
+    "asset_setup": true,
+    "default_compile": true,
+    "tests/host/smc_drum_mutes_test.sh": true,
+    "tests/host/smc_performance_abort_test.sh": true,
+    "tests/host/smc_reachability_test.sh": true,
+    "tests/host/ui_feedback_test.sh": true,
+    "tests/run_tests.sh": true,
+    "tools/quickcheck.sh": true,
+    "tools/gen_builtin_break.sh": true
+  },
+  "dependency_identity_limit": "Recorded versions match; full installed package bytes were not fingerprinted in stage2.",
+  "execution_scope": "Read-only identity checks. No retained test, generator, probe, simulator or target build was rerun."
+}

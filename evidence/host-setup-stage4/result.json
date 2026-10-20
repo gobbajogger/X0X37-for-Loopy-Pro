@@ -1,0 +1,128 @@
+{
+  "workflow": "host-setup-20261021",
+  "marker": "host-setup-20261021-stage4-tooling-validation",
+  "stage": 4,
+  "state": "ACCEPTED_LOCAL",
+  "stage4_chat": "01a15ae3-4d7a-7740-9de0-6932cd45c65d",
+  "source_stage3_chat": "01a15adf-da12-7082-b087-3e0fde4aef27",
+  "candidate": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+  "candidate_tree": "067a79c2e60d5041c68bb5e669b027e1f40d60e4",
+  "checked_evidence_commit": "4e7b1e334f1d61f507f5cb94f202ceb8286f79a0",
+  "audit_base": "9a94229b3ff8751763351b403e980ac2a2a4cdf6",
+  "firmware_base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "lane": "/Users/mac/Documents/x0x37/host_setup_stage4",
+  "branch": "lane/opt-host-setup-stage4",
+  "source_unchanged": true,
+  "accepted_source_sha256": {
+    "host/build_host.sh": "0b0644ceb4706ed4f328081ac9699ce3e66cc2f8d4226d8666c57d4a39a27acd",
+    "tests/host/smc_drum_mutes_test.sh": "bb24f80cef63ca74b95697c72e89c12c6106b1024a2ab367d8629ec1b48d994f",
+    "tests/host/smc_performance_abort_test.sh": "a7563087ffbf02a2bbb52e3293866c733263166cfb55b3cc44492fdd158924dd",
+    "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
+    "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
+    "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf"
+  },
+  "disposition": "Accept unchanged host tooling candidate for a later controlled local combination by the receiving owner. No material repair or additional tooling stage is required.",
+  "checks": [
+    {
+      "scope": "Stage4 source and evidence identity",
+      "command": [
+        "python3",
+        "-B",
+        "evidence/host-setup-stage4/verify_identity.py"
+      ],
+      "risk": "Reusing PASS evidence for changed source, generated assets, runtime configuration or unrelated candidate.",
+      "result": "PASS: 13 identity checks; 278 source files, 15 retained evidence files and four original generated headers match.",
+      "log": "evidence/host-setup-stage4/identity.json"
+    },
+    {
+      "scope": "Seven setup fixtures",
+      "reuse": true,
+      "command": [
+        "python3",
+        "tests/host/test_host_setup.py",
+        "-v"
+      ],
+      "risk": "New mode could skip required asset generation, invoke the simulator compiler, lose environment/custom-bank/output arguments, or suppress setup/compiler failure.",
+      "result": "PASS (7 tests).",
+      "log": "evidence/host-setup-stage2/fixtures.log"
+    },
+    {
+      "scope": "Four real production probes",
+      "reuse": true,
+      "commands": "evidence/host-setup-stage2/probes.json",
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "risk": "Each changed caller must still compile and run its actual production probe with generated assets.",
+      "result": "PASS (4 probes).",
+      "logs": [
+        "evidence/host-setup-stage2/smc_reachability.log",
+        "evidence/host-setup-stage2/smc_drum_mutes.log",
+        "evidence/host-setup-stage2/smc_performance_abort.log",
+        "evidence/host-setup-stage2/ui_feedback.log"
+      ]
+    },
+    {
+      "scope": "Caller dispatch, overrides, error propagation and cleanup",
+      "reuse": true,
+      "command": [
+        "python3",
+        "evidence/host-setup-stage3/test/supplemental.py",
+        "-v"
+      ],
+      "risk": "Invalid switch, caller configuration forwarding, double compilation, lost diagnostics, error handling or leaked scratch outputs.",
+      "result": "PASS (2 tests, including 16 caller success/failure subcases).",
+      "log": "evidence/host-setup-stage3/test/supplemental.log"
+    },
+    {
+      "scope": "Independent investigation and unchanged source sections",
+      "reuse": true,
+      "risk": "Removing an unused compile could alter real probe assertions/flags/selection, asset setup, simulator/scenario dispatch or generated-header locking.",
+      "result": "PASS: no blocking findings; exact preserved sections also verified in stage4.",
+      "logs": [
+        "evidence/host-setup-stage3/investigation/report.json",
+        "evidence/host-setup-stage3/source-preservation.json"
+      ]
+    }
+  ],
+  "reuse_rationale": "Exact candidate source, retained evidence blobs, original generated headers and recorded runtime versions match. The same macOS probe configuration and check scope apply. Stage3 filled the missing caller/rejection/cleanup coverage. No source or configuration input was changed in stage4; changing only the stage or evidence commit does not invalidate these PASS results. Full installed dependency-byte identity was not captured, and is not claimed.",
+  "missing_or_invalidated_coverage": [],
+  "limits": [
+    "Stage2 did not fingerprint full installed Python/Pillow/compiler package bytes. Matching recorded runtime versions and source/header hashes does not establish complete installed dependency-byte identity.",
+    "Default simulator/scenario dispatch and compiler section are unchanged and reviewed; controlled compiler fixtures passed. No fresh real full simulator/scenario PASS is claimed.",
+    "tests/host/test_host_setup.py runs directly and is not registered in the general runner. Registration remains a nonblocking maintenance opportunity outside this candidate.",
+    "No paired baseline timing was measured. Four unused simulator invocations are eliminated; no numeric time-saving claim is supported.",
+    "Builtin break generation remains per call. No new concurrency guarantee is made for direct script invocations outside the standard generated-header lock.",
+    "Asset-cache, native-validator repair and Quickcheck/controller changes remain separately owned. This acceptance does not validate a combination with their incomplete changes.",
+    "Host tooling acceptance only. No target/controller build, release/full gate, device operation, firmware integration, external push or package acceptance is claimed."
+  ],
+  "applicable_consumers": {
+    "changed_callers": [
+      "tests/host/smc_reachability_test.sh",
+      "tests/host/smc_drum_mutes_test.sh",
+      "tests/host/smc_performance_abort_test.sh",
+      "tests/host/ui_feedback_test.sh"
+    ],
+    "normal_default_build": "tests/run_tests.sh:163 retains sh host/build_host.sh without the new option.",
+    "scenarios": "tests/run_tests.sh:304-307 retains simulator scenario execution; perf-scratch at line 312 retains its separate default simulator build.",
+    "selection": "tools/quickcheck.sh:303-304 retains host-build/scenarios for app, seq, dsp and host changes.",
+    "locking": "The four callers remain class G in tests/run_tests.sh:56 and retain standard generated-header locking at lines 124-126.",
+    "firmware_inputs": "No firmware, controller, model, installer or package source changed."
+  },
+  "assignment_snapshots": {
+    "assignment-stage4-prompt.txt": "a787fcdb54c31df1d191f932bf3991e8eaf69fbc0971c1077ae5517cb6ddb091",
+    "assignment-successor.json": "41147fe6196783939f68c92136749ec1c0f8c869d71d925764a7307516781743"
+  },
+  "authorization": "Current owner development scope and workflow17/18 carried through the saved assignment; no new approval was requested.",
+  "handoff": {
+    "receiving_owner_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+    "next_action": "Receiving owner may include this checked candidate in a later controlled local tooling combination. Recheck affected inputs at that combination; preserve the stated evidence limits.",
+    "required_successor": null,
+    "workflow_complete": true,
+    "completion_notice_chats": [
+      "01a15adf-da12-7082-b087-3e0fde4aef27",
+      "01a15a99-75d7-7921-9d65-f4b120566904"
+    ]
+  }
+}
