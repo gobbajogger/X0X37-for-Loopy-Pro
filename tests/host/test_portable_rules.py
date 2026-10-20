@@ -97,6 +97,8 @@ class PortableRules(unittest.TestCase):
         self.assertEqual((destination / 'pre-push.hook').read_bytes(),
                          (TOP / 'tools/pre-push.hook').read_bytes())
         self.assertTrue(os.access(destination / 'pre-push.hook', os.X_OK))
+        self.assertEqual((destination / 'quickcheck_plan.py').read_bytes(),
+                         (TOP / 'tools/quickcheck_plan.py').read_bytes())
         self.assertEqual((destination / 'validation_inputs.py').read_bytes(),
                          (TOP / 'tools/validation_inputs.py').read_bytes())
 
