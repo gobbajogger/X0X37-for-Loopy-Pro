@@ -359,7 +359,7 @@ check_tests() {
 # A test that does not run (and does not write a "skip" line) is a failure.
 expected_tests() {
 python3 - "$1" "$2" <<'PY' > "$3"
-import glob, os, re, shutil, sys
+import glob, os, re, sys
 src = [l for l in open("tests/run_tests.sh").read().split("\n") if not l.lstrip().startswith("#")]
 names = set()
 for l in src:
@@ -373,7 +373,6 @@ for l in src:
         names |= {f"smk-ota-entry-model{x}" for x in m.group(1).split()}
 names |= {"scenario-" + os.path.basename(s)[:-4] for s in glob.glob("tests/scenarios/*.x0x")}
 if not os.path.exists("build/x0x-smk37-mke.fwsc"): names.discard("smk-build-package-mke")   # the gate does not build MKE
-if not shutil.which("emcc"): names -= {"emu", "emu-slots"}                                  # the browser build needs emcc
 ran = set(re.findall(r"^  (?:ok|FAIL|skip) +(\S+)", open(sys.argv[1]).read(), re.M))
 open(sys.argv[2], "w").write("\n".join(sorted(names)) + "\n")
 print(" ".join(sorted(names - ran)))

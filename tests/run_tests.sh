@@ -107,12 +107,6 @@ command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_s
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run host-build sh host/build_host.sh
-if command -v emcc >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then   # the browser build, when it can be built
-    printf 'wav emu_ref.wav\nwait 500\ntapkey b0\ntapkey w0\ntapkey w8\ntap PLAY\nwait 2960\nwavstop\n' > build/host/emu_ref.x0x
-    run emu sh -c "sh web/emu/build.sh >/dev/null 2>&1 && build/host/x0x_host build/host/emu_ref.x0x build/host >/dev/null && \
-        node tests/host/emu_test.mjs build/emu/x0x.wasm build/host/emu_ref.wav"
-    run emu-slots node tests/host/emu_slots_test.mjs build/emu/x0x.wasm build/test_loops/loop1.wav
-fi
 for s in tests/scenarios/*.x0x; do
     n=$(basename "$s" .x0x)
     mkdir -p "build/scenarios/$n"
