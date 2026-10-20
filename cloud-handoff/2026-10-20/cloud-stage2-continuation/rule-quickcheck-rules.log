@@ -1,0 +1,11 @@
+ok   rule change, Trigger and Check: QUICK PASS 656f2fd 0 s (STE step only)
+ok   rule change, no Trigger or Check: QUICK FAIL ca70e81 0 s RULES: 2 commit body issues
+ok   rule change, Check names no script: QUICK FAIL 0083bf1 0 s RULES: 1 commit body issues
+ok   rule change, Check: manual: QUICK PASS 6c5c3c5 0 s (STE step only)
+ok   rule grammar hints are advisory: QUICK PASS b87fdb9 1 s (STE step only; STE WARN 3 issues)
+ok   USER_PREFERENCES.md entry with no rule: QUICK FAIL bd6a9e9 0 s RULES: PREFS FAIL 6 of 6 entries
+ok   docs/agent-rules.md change, no Trigger or Check: QUICK FAIL 3e7ebf1 0 s RULES: 2 commit body issues
+ok   docs change, not a rule change: QUICK PASS c2aabc2 0 s (STE step only)
+ok   lane/dk-rules grammar hints are advisory: QUICK PASS 491323a 0 s (STE step only; STE WARN 3 issues)
+ok   integration lane: QUICK PASS d00be08 0 s (STE step only), base 736a151
+quickcheck rules: 10 of 10 ok

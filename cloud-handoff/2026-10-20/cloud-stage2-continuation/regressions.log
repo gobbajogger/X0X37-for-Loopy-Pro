@@ -1,0 +1,27 @@
+  ok   smc-protocol
+  ok   smc-fader
+  ok   smc-buttons
+  ok   ble-midi-receive
+  ok   ble-capture-replay
+  ok   smc-mapping
+  ok   smc-filter
+  ok   install-guards
+  ok   install-head
+  FAIL gate-configs (see build/host/gate-configs.log)
+       ok   rel build with X0X_DEV_PADCAL=0 in its own worktree
+       ok   dev tests with X0X_DEV_PADCAL=1
+       ok   rel tests with X0X_DEV_PADCAL=0
+       ok   rel test failures make a FAIL
+       ok   pool headroom checked for the rel builds
+       ok   rel lines in the CRC manifest
+       ok   Config CRCs line in the result file
+       FAIL Configs column in the index row: no '| $NOW | $CFG |" >> "$INDEX"' in gate.sh
+       ok   guard: rel lines
+       ok   guard: one-config result is dev only
+       ok   index row columns 5-7: PASS;x-1.md;2026-10-17 00:27 +10
+       ok   both configs build only Elite and Pro
+       ok   manifest excludes FM-1 and requires SMK artifacts
+       ok   expected tests ignore comments and retain missing real tests
+       gate configs: 18 of 19 ok
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED
