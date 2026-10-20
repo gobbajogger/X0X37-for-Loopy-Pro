@@ -32,6 +32,24 @@ static struct {
     uint8_t fx_restore[3];
 } smc;
 
+int smc_project_active(void) { return smc.solo != 0; }
+X0X_COLD static void smc_project_drop(void)
+{
+    smc_qr = smc_qw;
+    smc_host_r = smc_host_w;
+    smc_mmc_r[0] = smc_mmc_w[0];
+    smc_mmc_r[1] = smc_mmc_w[1];
+}
+X0X_COLD void smc_project_reset(void)
+{
+    uint8_t up = smc.up;
+    smc_project_drop();
+    memset(&smc, 0, sizeof smc);
+    smc.up = smc.fresh = up;
+    smc.pending = 0xFFu;
+    engine_smc_solo(0);
+}
+
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
     uint8_t w = smc_qw, i;
@@ -480,6 +498,10 @@ void smc_poll(void)
 {
     uint8_t link = smc_link_pending, r, count = 0;
     int allow = !perf_testing();
+    if (ui_project_busy()) {
+        smc_project_drop();
+        return;
+    }
     if (link) {
         smc_link_pending = 0;
         smc.up = link == 1u;
@@ -503,28 +525,28 @@ void smc_poll(void)
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
+        smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
         else {
             if (allow && !perf_testing()) smc_dispatched++;
             smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n, allow);
         }
-        smc_qr = (uint8_t)(r + 1u);
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
         r = smc_host_r;
+        smc_host_r = (uint8_t)(r + 1u);
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_message(smc_host_q[r % SMC_Q], 3, allow);
-        smc_host_r = (uint8_t)(r + 1u);
     }
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
             r = smc_mmc_r[src];
+            smc_mmc_r[src] = (uint8_t)(r + 1u);
             if (proj.set.bt & PROJ_BT_SMC_USER)
                 smc_guarded_button(smc_mmc_note(smc_mmc_q[src][r % 16u]), 1, allow);
-            smc_mmc_r[src] = (uint8_t)(r + 1u);
         }
     }
 }
@@ -568,7 +590,7 @@ void smc_frame(void)
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
-    if (!smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
+    if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
         return;
     for (i = 0; i < 8; i++) smc_notice(i);
     for (i = 0; i < 43; i++) {

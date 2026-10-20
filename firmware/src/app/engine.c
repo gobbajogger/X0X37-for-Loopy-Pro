@@ -2,6 +2,7 @@
 /* X0X audio engine; see engine.h. */
 #include "engine.h"
 #include "plat.h"
+#include "../x0x_cold.h"
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
 #include "../dsp/bass303.h"
@@ -35,6 +36,18 @@ static master_t mst;
 #define DLY_LEN 88200
 static int16_t dly_buf[DLY_LEN] POOL;
 static volatile uint8_t brk_hold;      /* main loop is rewriting the break loops: ISR leaves it alone */
+static volatile uint8_t project_hold, project_midi_drop;
+void engine_project_hold(int hold)
+{
+    __asm__ volatile("" ::: "memory");
+    project_hold = (uint8_t)(hold != 0);
+    __asm__ volatile("" ::: "memory");
+}
+void engine_project_release(void)
+{
+    project_midi_drop = 1;             /* no MIDI received during the transaction starts the new project */
+    engine_project_hold(0);
+}
 static motion_t mot;
 static const sound_t *mot_base_snd;    /* the knobs' own values (the project's mirror) */
 static uint8_t mot_playing;
@@ -473,6 +486,34 @@ void smk_apc_clock_position(uint32_t sixteenths);
 void smk_ck_midi_stop(void);
 #endif
 
+X0X_COLD int engine_project_notes(void)
+{
+    uint32_t r = cq_r;
+    int k;
+    if (brk.keys || src_held[0] || src_held[1])
+        return 1;
+    for (k = 0; k < NBASS; k++)
+        if (b303[k].gate || bass_held[k])
+            return 1;
+    while (r != cq_w) {
+        uint32_t c = cq[r++ % CQ], t = c >> 28;
+        if (t == C_DRUM || t == C_BON || (t == C_BRK && ((c >> 12) & 0xFFu)))
+            return 1;
+    }
+    return 0;
+}
+
+X0X_COLD void engine_project_flush(void)
+{
+    seq_midi_flush(&seq, &SINK);
+    if (seq.playing && !seq.ext && seq.send_clock
+#if BOARD_SMK37
+        && !smk_clip_mode_on()
+#endif
+    )
+        s_midi(0, 0xFC, 0, 0);
+}
+
 static void midi_in(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)(pkt >> 16) & 0x7F, d2 = (uint8_t)(pkt >> 24) & 0x7F;
@@ -605,7 +646,10 @@ static void drain(void)
     }
     cq_r = r;
     while (guard-- && plat_midi_in(&pkt))
-        midi_in(pkt);
+        if (!project_midi_drop)
+            midi_in(pkt);
+    if (guard >= 0)                   /* the ring was empty; subsequent MIDI belongs to live operation */
+        project_midi_drop = 0;
 }
 
 static float part_peak[NPARTS];
@@ -830,6 +874,11 @@ void engine_render(int32_t *out_lr, uint32_t n)
     int p;
     if (n > 256u)
         n = 256u;
+    if (project_hold) {
+        for (i = 0; i < n * 2u; i++)
+            out_lr[i] = 0;
+        return;
+    }
     eng_prof_frames += n;
     if ((mot_was_on && !mot_on) || mot_release_req) {   /* motion off, or its lanes replaced: knobs back */
         mot_release_req = 0;
@@ -1041,9 +1090,26 @@ void engine_brk_loops(void)
     brk_hold = 0;
 }
 
-void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base)
+X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base)
 {
-    int p;
+    int p, g;
+    cq_w = cq_r = 0;
+    src_held[0] = src_held[1] = 0;
+    for (p = 0; p < NBASS; p++)
+        bass_held[p] = 0;
+    for (p = 0; p < BRK_NSET; p++)
+        brk_applied[p] = 0xFFu;
+    brk_hold = mot_playing = mot_release_req = 0;
+    mot_on = mot_was_on = 1;
+    guard_on = guard_applied = 0;
+    guard_enabled = 1;
+    guard_avg_q8 = guard_calm = 0;
+    drum808_quiet = 3.2e-5f;
+    smc_solo_mask = 0;
+    prob_rng = 0x2545F491u;
+    brk_silent_now = 1;
+    d808_was_active = 0;
+    vol_after = -1.0f;
     for (p = 0; p < NPARTS * NDRUM; p++)
         prob[p / NDRUM][p % NDRUM] = 100;             /* every step plays, until a lane says */
     drum909_init(&d909);
@@ -1062,5 +1128,18 @@ void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t
     for (p = 0; p < NPARTS; p++) {
         mix_level[p] = 1.0f;
         mix_rev[p] = mix_dly[p] = 0.0f;
+        mix_pl[p] = mix_pr[p] = 1.0f;
+        part_peak[p] = 0.0f;
+        eng_step[p] = 0;
+        eng_peak[p] = 0;
+        for (g = 0; g < GL_N; g++) {
+            mix_glide[p][g].cur = -1.0f;
+            mix_glide[p][g].tgt = 0.0f;
+        }
     }
+    for (p = 0; p < NKIT * NDRUM; p++)
+        eng_hit[p / NDRUM][p % NDRUM] = 0;
+    for (p = 0; p < (int)SCOPE_N; p++)
+        eng_scope[p] = 0;
+    eng_scope_w = 0;
 }

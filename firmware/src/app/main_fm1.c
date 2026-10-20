@@ -222,6 +222,8 @@ static void apc_note(uint32_t note, uint32_t vel)
 static volatile uint8_t ck_start_req;   /* (set in an interrupt; smk_ck_poll clears it) */
 void smk_ck_midi_stop(void);            /* all notes off: ck_t off_req (in the pool) */
 static uint8_t knob_bank_prev;
+static uint32_t clip_pad_keys;
+static uint8_t clip_pad_note[SMK_APC40_PAD_COUNT], clip_pad_active;
 static volatile uint8_t apc_led_velocity[SMK_APC40_CLIP_COUNT];
 static volatile uint8_t apc_cell_flags[SMK_APC40_CLIP_COUNT];   /* off pending, queued */
 static volatile uint8_t apc_led_channel[SMK_APC40_CLIP_COUNT];
@@ -787,6 +789,12 @@ static void smk_faders(void)
     /* Bit 7 of last[] means waiting for pickup; the low bits hold the last raw reading. */
     static uint8_t last[4] = {0x80, 0x80, 0x80, 0x80}, held;
     uint32_t i, down = (fm1_in.buttons >> SMK_BTN_FADER_BANK) & 1u;
+    if (ui_project_busy()) {
+        for (i = 0; i < 4u; i++)
+            last[i] = (uint8_t)(0x80u | fm1_in.fader[i]);
+        held = (uint8_t)down;
+        return;
+    }
     if (down && !held) {                                /* FADER BANK: match the new targets before taking over */
         smk_fbank ^= 1u;
         for (i = 0; i < 4u; i++)
@@ -859,6 +867,8 @@ static void smk_wheels(void)
     static int8_t part = -1;
     static int16_t tune_now = -1, cut_now = -1;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
+    if (ui_project_busy())
+        return;
     if (fm1_in.frames < 300u)                         /* (the readings settle) */
         return;
     if (!pc) {
@@ -930,6 +940,10 @@ static void smk_arrows(void)
     static arw_t arw;
     uint32_t now = fm1_in.buttons >> SMK_BTN_LEFT & 3u, i, route;
     int32_t d;
+    if (ui_project_busy()) {
+        (void)arw_frame(&arw, now, ARW_NONE, fm1_ms);
+        return;
+    }
     for (i = 0; i < NB; i++)
         if (panel.btn[i] == SMK_BTN_LEFT || panel.btn[i] == SMK_BTN_RIGHT)
             now &= ~(1u << (panel.btn[i] - SMK_BTN_LEFT));
@@ -1070,6 +1084,30 @@ CK_FN static void ck_all_off(void)
     cp->snd[0] = cp->snd[1] = 0;
     ck_arp_stop_note();
     cp->nk = 0;
+}
+
+/* Project replacement ends notes using the old scale/chord and channel. Calibration,
+ * Bluetooth ownership and Loopy's clip feedback are device state and are left in place. */
+CK_FN void smk_project_reset(void)
+{
+    uint32_t i;
+    ck_qn = 0;                                       /* delayed note-ons never belong to the new project */
+    ck_all_off();
+    memset(&ck, 0, sizeof ck);
+    ck.keys[0] = ((const volatile uint32_t *)&fm1_in.keys)[0];
+    ck.keys[1] = ((const volatile uint32_t *)&fm1_in.keys)[1] & 0x1Fu;
+    ck.btn_prev = 0x7Fu;
+    ck.last_ms = (uint16_t)fm1_ms;
+    ck_start_req = 0;
+    for (i = 0; i < SMK_APC40_PAD_COUNT; i++) {
+        if (clip_pad_active && clip_pad_note[i] != 0xFFu)
+            apc_note(clip_pad_note[i], 0u);
+        clip_pad_note[i] = 0xFFu;
+    }
+    clip_pad_keys = fm1_in.pnotes;
+    clip_pad_active = clip_grid_mode;
+    knob_bank_prev = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
+    was_on = 0u;                                    /* redraw clip-key settings after the swap */
 }
 /* STRUM (ARP off): the notes of the strum key, low to high, one each STRUM x 10 ms after the press.
  * dt: the ms since the last call (a big dt sends all the notes that wait). */
@@ -1435,6 +1473,11 @@ uint8_t smk_ck_flash_busy(void)
                 return 1u;
     return 0u;
 }
+CK_FN int smk_project_active(void)
+{
+    return smk_ck_flash_busy() || fm1_in.pnotes || ck.snd[0] || ck.snd[1] ||
+           ck.arp_note || ck.nk || ck_qn || ck_start_req;
+}
 /* ------- clip mode screen: the KEYS panel (the bottom strip) and the SCALE / CHORD / ARP page (main area) --- */
 #include "app/smk_chord_detect.h"
 
@@ -1635,6 +1678,14 @@ CK_FN void smk_ck_poll(void)
     uint32_t now = fm1_ms, k, on = clip_grid_mode, ble = plat_ble_state() == PLAT_BLE_CONNECTED ? CK_F_BLE : 0u;
     uint32_t dt = (uint16_t)(now - cp->last_ms);
     cp->last_ms = (uint16_t)now;
+    if (ui_project_busy()) {
+        cp->keys[0] = ((const volatile uint32_t *)&fm1_in.keys)[0];
+        cp->keys[1] = ((const volatile uint32_t *)&fm1_in.keys)[1] & 0x1Fu;
+        cp->btn_prev = 0x7Fu;
+        cp->ext_seen = (uint8_t)apc_clock_count;
+        ck_start_req = 0;
+        return;
+    }
     if (cp->off_req || (cp->fl & ~ble & CK_F_BLE)) {          /* MIDI Stop, USB reset, Bluetooth drop: all notes off */
         cp->off_req = 0;
         ck_all_off();
@@ -1794,6 +1845,10 @@ static void smk_padcal_frame(void)
 /* Resolve mode ownership before either UI input path can dispatch REC or PLAY. */
 static void smk_clip_mode_poll(void)
 {
+    if (ui_project_busy()) {
+        knob_bank_prev = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
+        return;
+    }
 #if X0X_DEV_PADCAL
     if (padcal.on)
         return;
@@ -1820,6 +1875,12 @@ CK_FN static void smk_frame(void)
 {
     while (smk_extkey_take() >= 0)
         ;
+    if (ui_project_busy()) {
+        smk_arrows();
+        smk_faders();
+        clip_pad_keys = fm1_in.pnotes;
+        return;
+    }
 #if X0X_DEV_PADCAL
     if (padcal.on) {
         smk_padcal_frame();
@@ -1847,20 +1908,17 @@ CK_FN static void smk_frame(void)
                 apc_view = smk_apc40_view_after_move(apc_cols, apc_rows, apc_view, 1);
         }
     }
-    static uint32_t last_notes;
-    static uint8_t sent_note[SMK_APC40_PAD_COUNT];
-    static uint8_t was_on;
     if (clip_grid_mode) {
         smk_pad_piano = 0;   /* force direct white map, ignore piano layout */
         /* simple pad press: send note on rising edge, note-off on falling */
-        if (!was_on) {
-            last_notes = fm1_in.pnotes;   /* suppress false rising edges from pads held at entry */
+        if (!clip_pad_active) {
+            clip_pad_keys = fm1_in.pnotes;   /* suppress false rising edges from pads held at entry */
             for (uint32_t i = 0; i < SMK_APC40_PAD_COUNT; i++)
-                sent_note[i] = 0xFFu;
-            was_on = 1u;
+                clip_pad_note[i] = 0xFFu;
+            clip_pad_active = 1u;
         }
-        uint32_t now = fm1_in.pnotes, edge = now & ~last_notes, fall = last_notes & ~now;
-        last_notes = now;
+        uint32_t now = fm1_in.pnotes, edge = now & ~clip_pad_keys, fall = clip_pad_keys & ~now;
+        clip_pad_keys = now;
         for (uint32_t i = 0; i < SMK_APC40_PAD_COUNT; i++) {
             uint32_t bit = 1u << SMK_WHITE_NOTE[i];
             if (edge & bit) {
@@ -1869,28 +1927,28 @@ CK_FN static void smk_frame(void)
                 uint8_t note = smk_apc40_note_for_pad_view(apc_cols, apc_rows, apc_origin_col,
                                                             apc_origin_row, apc_view, logical);
                 if (note != 0xFFu && apc_led_velocity[note] != 0u) {
-                    sent_note[i] = note;
+                    clip_pad_note[i] = note;
                     apc_note(note, fm1_in.pad_vel[i]);
                 }
             }
-            if ((fall & bit) && sent_note[i] != 0xFFu) {
+            if ((fall & bit) && clip_pad_note[i] != 0xFFu) {
                 extern void midi_send_note(uint32_t note, uint32_t vel);
-                apc_note(sent_note[i], 0u);
-                sent_note[i] = 0xFFu;
+                apc_note(clip_pad_note[i], 0u);
+                clip_pad_note[i] = 0xFFu;
             }
         }
     } else {
-        if (was_on) {
+        if (clip_pad_active) {
             /* mode exit: send note-off only for pads that received a note-on */
             for (uint32_t i = 0; i < SMK_APC40_PAD_COUNT; i++) {
-                if (sent_note[i] != 0xFFu) {
+                if (clip_pad_note[i] != 0xFFu) {
                     extern void midi_send_note(uint32_t note, uint32_t vel);
-                    apc_note(sent_note[i], 0u);
-                    sent_note[i] = 0xFFu;
+                    apc_note(clip_pad_note[i], 0u);
+                    clip_pad_note[i] = 0xFFu;
                 }
             }
-            was_on = 0;
-            last_notes = 0;
+            clip_pad_active = 0;
+            clip_pad_keys = 0;
         }
     }
     smk_grid();
@@ -2133,12 +2191,14 @@ static void fm1_main(void)
         {   /* OCT- + OCT+ held 5 s: update mode (Felucca's, unchanged) */
             static uint32_t t0, shown;
             uint32_t both = (1u << panel.btn[B_OCTDN]) | (1u << panel.btn[B_OCTUP]);
+            if (ui_project_busy()
 #if BOARD_SMK37
-            if (smk_clip_mode_on()) {
+                || smk_clip_mode_on()
+#endif
+            ) {
                 t0 = fm1_ms;
                 shown = 0;
             } else
-#endif
             if ((fm1_in.buttons & both) != both) {
                 if (shown)
                     ui_say("UPDATE MODE CANCELLED", 0);
@@ -2162,8 +2222,9 @@ static void fm1_main(void)
             fm1_delay_ms(30);
             fm1_reboot();
         }
-        ota_service();                              /* M-UPGRADE handshake */
-        if (usb.ota_req) {
+        if (!ui_project_busy())
+            ota_service();                          /* M-UPGRADE uses the same main-loop scratch as project staging */
+        if (!ui_project_busy() && usb.ota_req) {
             usb.ota_req = 0;
             seq_stop(&seq);
             if (flash_ok)
@@ -2171,12 +2232,12 @@ static void fm1_main(void)
             lcd_fill(0, 0, 240, 240, C_BLACK);
             ui_init();
         }
-        if (usb.uboot_req)
+        if (!ui_project_busy() && usb.uboot_req)
             enter_uboot("UBOOT (USB)");
 #if X0X_CDC
         cdc_task();
 #endif
-        if (seq.ppat[TRK_BRK] != last_pat) {        /* the break's new pattern may name other loops */
+        if (!ui_project_busy() && seq.ppat[TRK_BRK] != last_pat) { /* the break's new pattern may name other loops */
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }

@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X audio engine: the five parts, the mixer, the send FX and the master, driven by
  * the sequencer. engine_render() runs in the audio ISR; everything else is called
- * from the main loop and reaches the ISR only through the command queue, so the
- * engines' state is only ever touched by one context.
+ * from the main loop and reaches the ISR through the command queue. A project
+ * replacement first holds the ISR, then rebuilds the engines from the main loop.
  *
  * Parameters are addressed as (target, voice, index) -> pot value, the same triple
  * the UI pages, the project file and the command queue use:
@@ -54,6 +54,14 @@ extern volatile uint32_t eng_scope_w;
 
 void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, const sound_t *base);
 void engine_render(int32_t *out_lr, uint32_t n);   /* ISR: n stereo frames, 24-bit in int32 */
+/* Main loop project transaction. The render and main loop run on the same core; once held,
+ * the ISR emits silence without reading project or sample memory.
+ * Flush on the old channels before replacing the project, then engine_init + apply its sound.
+ * Releasing an aborted transaction preserves the sequencer and queued parameter commands. */
+void engine_project_hold(int hold);
+void engine_project_release(void);              /* end a transaction; discard MIDI received while held */
+int engine_project_notes(void);                 /* held or queued notes: cannot begin a transfer */
+void engine_project_flush(void);                /* held only: end old output notes and transport */
 
 /* parameter descriptors (UI) */
 int engine_nvoices(int target);

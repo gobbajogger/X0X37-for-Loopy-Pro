@@ -31,7 +31,7 @@ static const char *const PART_S[NPARTS] = {"909", "808", "303A", "303B", "BRK"};
 
 /* overlays drawn over the main area */
 enum { O_NONE, O_LIST, O_ASK };
-enum { ACT_NONE, ACT_SAVE, ACT_CLEAR_PART, ACT_CLEAR_PAT, ACT_COPY, ACT_RESET, ACT_ABOUT, ACT_SONG_INS,
+enum { ACT_NONE, ACT_SAVE, ACT_LOAD, ACT_CLEAR_PART, ACT_CLEAR_PAT, ACT_COPY, ACT_RESET, ACT_ABOUT, ACT_SONG_INS,
        ACT_SONG_DEL, ACT_SONG_CLR, ACT_PERF, ACT_PERF_TEST,
 #if BOARD_SMK37 && X0X_DEV_PADCAL
        ACT_PADCAL,
@@ -98,6 +98,18 @@ static uint16_t footer_text(const char **a, const char **b, const char **c);
 static void mark_dirty(void) { ui.dirty = 1; }
 
 static uint8_t save_wait;
+static uint8_t project_busy, project_revision;
+int ui_project_busy(void) { return project_busy != 0; }
+X0X_COLD static void project_input_sync(void)
+{
+    int i;
+    ui.btn = ui.btn_used = plat_buttons();
+    ui.keys = plat_keys();
+    for (i = 0; i < NE; i++) {
+        (void)plat_enc(i);
+        ui.enc_run[i] = 0;
+    }
+}
 enum { SAVE_SAVED, SAVE_UNSAVED, SAVE_QUEUED, SAVE_FAILED };
 static int save_state(void)
 {
@@ -250,8 +262,9 @@ static const x0x_param_t SEQ_P[NSQ] = {
     {"AUTOSAVE", 1, 1, ONOFF_N},
 };
 static const x0x_param_t ACT_P[] = {
-    {"", 0, 0, 0}, {"SAVE PROJECT", 0, 0, 0}, {"CLEAR THIS PART", 0, 0, 0}, {"CLEAR PATTERN", 0, 0, 0},
-    {"COPY PATTERN", 0, 0, 0}, {"FACTORY RESET", 0, 0, 0}, {"ABOUT X0X", 0, 0, 0}, {"INSERT BAR", 0, 0, 0},
+    {"", 0, 0, 0}, {"SAVE PROJECT", 0, 0, 0}, {"LOAD SAVED", 0, 0, 0},
+    {"CLEAR THIS PART", 0, 0, 0}, {"CLEAR PATTERN", 0, 0, 0},
+    {"COPY PATTERN", 0, 0, 0}, {"RESET PROJECT", 0, 0, 0}, {"ABOUT X0X", 0, 0, 0}, {"INSERT BAR", 0, 0, 0},
     {"DELETE BAR", 0, 0, 0}, {"CLEAR SONG", 0, 0, 0}, {"PERFORMANCE", 0, 0, 0}, {"RUN PERF TEST", 0, 0, 0},
 #if BOARD_SMK37 && X0X_DEV_PADCAL
     {"PAD COLOURS", 0, 0, 0},
@@ -1096,6 +1109,7 @@ static void open_global(void)
     list_add(PR(R_PALETTE, 0, 0, 0));
     list_rows[ui.list_n++] = PR(R_HDR, GR_PROJECT, 0, 0);
     list_add(PR(R_ACT, ACT_SAVE, 0, 0));
+    list_add(PR(R_ACT, ACT_LOAD, 0, 0));
     list_add(PR(R_AUTOSAVE, 0, 0, 0));
     list_add(PR(R_ACT, ACT_CLEAR_PAT, 0, 0));
     list_add(PR(R_ACT, ACT_RESET, 0, 0));
@@ -1352,15 +1366,18 @@ static void help_tick(uint32_t btn, uint32_t keys)
  * two quiet moments (UNDO_QUIET ms with nothing touched or held), or a whole recording pass. */
 #define UNDO_QUIET 400u
 #define UNDO_OFF __builtin_offsetof(project_t, sound)
+#define UNDO_BYTES (sizeof(project_t) - UNDO_OFF)
 static undo_t undo X0X_POOL;
-static uint8_t undo_shadow[sizeof(project_t) - UNDO_OFF] X0X_POOL;
+/* Project transfers temporarily borrow the undo baseline. The history stays in undo.pool;
+ * abort copies the live project back, and successful replacement starts a new history. */
+#define undo_shadow ((uint8_t *)&project_stage + UNDO_OFF)
 static uint8_t undo_lanes;             /* the last undo / redo touched the knob motion */
 
-static void undo_start(void) { undo_init(&undo, (uint8_t *)&proj + UNDO_OFF, undo_shadow, sizeof undo_shadow); }
+static void undo_start(void) { undo_init(&undo, (uint8_t *)&proj + UNDO_OFF, undo_shadow, UNDO_BYTES); }
 
 static void undo_tick(void)
 {
-    if (perf_testing() || (ui.rec && seq.playing) || ui.btn || ui.keys || plat_ms() - ui.act_t < UNDO_QUIET ||
+    if (project_busy || perf_testing() || (ui.rec && seq.playing) || ui.btn || ui.keys || plat_ms() - ui.act_t < UNDO_QUIET ||
         (ui.frame & 3u))
         return;
     undo_commit(&undo);
@@ -1438,13 +1455,37 @@ static void do_undo(int redo)
 /* SAVE while playing waits for the stop: writing the flash stops the audio (the code and the samples
  * are read from it, and a 4 KB erase takes tens of ms) */
 #define AUTOSAVE_QUIET 4000u
-static void save_project(void)
+X0X_COLD int ui_project_save(void)
 {
     int rc;
 #if BOARD_SMK37
+    extern uint8_t smk_ck_flash_busy(void);
+#endif
+    if (project_busy || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_testing()
+#if BOARD_SMK37
+        || smk_ck_flash_busy()
+#endif
+    )
+        return UI_PROJECT_BUSY;
+    save_wait = 0;
+    rc = project_save();
+    say(rc == -7 ? "MEMORY FULL: NOT SAVED" : rc ? "SAVE FAILED" : "SAVED", 0);
+    ui.save_failed = rc != 0;
+    if (!rc)
+        ui.dirty = 0;
+    return rc;
+}
+
+static void save_project(void)
+{
+#if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
 #endif
-    if (seq.playing || seq.req_stop
+    if (project_busy) {
+        say("PROJECT TRANSFER BUSY", 0);
+        return;
+    }
+    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_testing()
 #if BOARD_SMK37
         || (smk_clip_mode_on() && (smk_ck_flash_busy() || plat_ms() - ui.act_t < AUTOSAVE_QUIET))
 #endif
@@ -1453,12 +1494,7 @@ static void save_project(void)
         say(queued_save_message(), 0);
         return;
     }
-    save_wait = 0;
-    rc = project_save();
-    say(rc == -7 ? "MEMORY FULL: NOT SAVED" : rc ? "SAVE FAILED" : "SAVED", 0);
-    ui.save_failed = rc != 0;
-    if (!rc)
-        ui.dirty = 0;
+    (void)ui_project_save();
 }
 
 /* ============================================================ performance === */
@@ -1697,6 +1733,7 @@ X0X_COLD static void run_action(int act, int arg)
     char t[28], *q;
     switch (act) {
     case ACT_SAVE: save_project(); break;
+    case ACT_LOAD: (void)ui_project_load(); break;
     case ACT_CLEAR_PART:
         clear_part(pat_of(arg), arg);
         clear_lanes(seq.ppat[arg], arg);
@@ -1755,13 +1792,7 @@ X0X_COLD static void run_action(int act, int arg)
         say("SONG CLEARED", 0);
         break;
     case ACT_RESET:
-        project_defaults();
-        engine_apply_sound(&proj.sound);
-        engine_brk_loops();
-        palette_set(proj.set.palette);
-        mark_dirty();
-        ui.outline_ok = 0;
-        say("FACTORY SOUND + PATTERNS", 0);
+        (void)ui_project_reset();
         break;
     case ACT_PERF:
         set_view(V_PERF);
@@ -2488,7 +2519,9 @@ static void list_enter(void)
     if (r.a == ACT_CLEAR_PAT)
         ask(ACT_CLEAR_PAT, 0, "CLEAR THIS PATTERN?", "ALL FIVE PARTS");
     else if (r.a == ACT_RESET)
-        ask(ACT_RESET, 0, "FACTORY RESET?", "SOUND, PATTERNS, SONG");
+        ask(ACT_RESET, 0, "RESET PROJECT?", "SAMPLES ARE KEPT");
+    else if (r.a == ACT_LOAD && ui.dirty)
+        ask(ACT_LOAD, 0, "LOAD SAVED PROJECT?", "DISCARD UNSAVED EDITS");
     else if (r.a == ACT_SONG_CLR)
         ask(ACT_SONG_CLR, 0, "CLEAR THE SONG?", 0);
     else
@@ -2698,7 +2731,15 @@ X0X_COLD static void button_tap(int b)
 X0X_COLD static void input(void)
 {
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
+    uint8_t revision = project_revision;
     int e;
+    if (project_busy) {
+        project_input_sync();
+#if BOARD_SMK37
+        smc_poll();                                  /* discard controller events while the project is locked */
+#endif
+        return;
+    }
     for (i = 0; i < NBASS; i++)
         if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||
             bass_rec_pat[i] != seq.ppat[PART_303A + i] || bass_rec_playing[i] != seq.playing)
@@ -2707,6 +2748,8 @@ X0X_COLD static void input(void)
         bass_step_cancel();                            /* playback or a cue changed the pattern under the key */
 #if BOARD_SMK37
     smc_poll();
+    if (revision != project_revision)
+        return;
 #endif
 #if BOARD_SMK37
     extern uint8_t smk_clip_transport_button(uint8_t button, uint8_t pressed);
@@ -2747,6 +2790,8 @@ X0X_COLD static void input(void)
         } else if (!(ui.btn_used & m) && i != B_REC && i != B_PLAY) {
             button_tap((int)i);
         }
+        if (revision != project_revision)
+            return;                                  /* discard the remainder of the old project's input frame */
     }
     if (btn || keys || btn != ui.btn || keys != ui.keys)
         ui.act_t = plat_ms();                         /* held or changed: being played */
@@ -4531,10 +4576,16 @@ static void leds(void)
 }
 
 /* ===================================================================== frame === */
-void ui_init(void)
+X0X_COLD void ui_init(void)
 {
     int i;
+    memset(&ui, 0, sizeof ui);
+    memset(kbd_held_note, 0, sizeof kbd_held_note);
+    memset(kbd_held_key, 0, sizeof kbd_held_key);
     memset(bass_rec_step, 0, sizeof bass_rec_step);
+    memset(bass_rec_pat, 0, sizeof bass_rec_pat);
+    memset(bass_rec_playing, 0, sizeof bass_rec_playing);
+    undo_lanes = 0;
     for (i = 0; i < NKEYS; i++) {
         if (KEY_WHITE[i] >= 0)
             WHITE_KEY[KEY_WHITE[i]] = (uint8_t)i;
@@ -4561,6 +4612,98 @@ void ui_init(void)
     undo_start();                                   /* the project as loaded is where undo stops */
 }
 
+/* A transaction borrows the undo baseline and holds the audio engine. Setting the hold before
+ * the transport check closes the gap in which the audio ISR could consume a queued Start. */
+X0X_COLD static int project_acquire(int reset)
+{
+    if (project_busy || perf_testing() || (!reset && (ui.rec || ui.keys || plat_keys() ||
+        ui.held_step >= 0 || ui.hold_step >= 0 || ui.brk_held >= 0)))
+        return UI_PROJECT_BUSY;
+#if BOARD_SMK37
+    {
+        extern int smk_project_active(void), smc_project_active(void);
+        if (!reset && (smk_project_active() || smc_project_active()))
+            return UI_PROJECT_BUSY;
+    }
+#endif
+    engine_project_hold(1);
+    if (!reset && (seq.playing || seq.req_start || seq.req_cont || seq.req_stop || engine_project_notes())) {
+        engine_project_hold(0);
+        return UI_PROJECT_BUSY;
+    }
+    project_busy = 1;
+    undo_commit(&undo);                              /* no uncommitted gesture is lost when staging borrows shadow */
+    return 0;
+}
+
+int ui_project_begin(void) { return project_acquire(0); }
+
+X0X_COLD void ui_project_end(int apply)
+{
+    if (!project_busy)
+        return;
+    if (apply) {
+        engine_project_flush();                     /* old note-offs use the channels that sent the notes */
+#if BOARD_SMK37
+        {
+            extern void smk_project_reset(void), smc_project_reset(void);
+            smk_project_reset();                    /* clip key notes depend on the old project's scale/chord */
+            smc_project_reset();
+        }
+#endif
+        project_commit_stage();
+        engine_init(proj.pat, &proj.arr.song, proj.arr.lane, &proj.sound);
+        seq.bpm = (float)proj.set.bpm_x10 / 10.0f;
+        seq.ext_bpm = seq.bpm;
+        seq.accent_q7 = proj.set.accent_q7;
+        project_apply_io();
+        seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
+#if BOARD_SMK37
+        if (smk_clip_mode_on())
+            seq.clk_src = SEQ_CLK_AUTO;
+#endif
+        engine_apply_sound(&proj.sound);
+        engine_brk_loops();
+        ui_init();
+        mark_dirty();                               /* reset/import are saved only by the ordinary save policy */
+        project_revision++;
+    } else {
+        memcpy(undo_shadow, (uint8_t *)&proj + UNDO_OFF, UNDO_BYTES);
+    }
+    project_input_sync();                            /* consume controls held or turned during the transaction */
+    ui.act_t = plat_ms();
+    project_busy = 0;
+    engine_project_release();
+}
+
+X0X_COLD int ui_project_load(void)
+{
+    int rc = ui_project_begin();
+    if (rc) {
+        say("STOP PLAYING TO LOAD", 0);
+        return rc;
+    }
+    rc = project_load_stage();
+    ui_project_end(rc == 0);
+    if (!rc)
+        ui.dirty = 0;                                /* the last saved project is now the live project */
+    say(rc ? "NO VALID SAVED PROJECT" : "SAVED PROJECT LOADED", 0);
+    return rc;
+}
+
+X0X_COLD int ui_project_reset(void)
+{
+    int rc = project_acquire(1);
+    if (rc) {
+        say("PROJECT BUSY", 0);
+        return rc;
+    }
+    project_reset_stage();
+    ui_project_end(1);
+    say("PROJECT RESET: SAMPLES KEPT", 0);
+    return 0;
+}
+
 /* AUTOSAVE: changes are saved by themselves while the pattern is stopped and nothing has been touched
  * for AUTOSAVE_QUIET ms, at most every AUTOSAVE_GAP ms. Stopped only: a flash erase silences the
  * audio. Only the objects that changed are written (project.c), usually one or two sectors. */
@@ -4571,7 +4714,9 @@ static void autosave(void)
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void), smk_clip_mode_on(void);
 #endif
-    if (save_wait && !seq.playing && !seq.req_stop) { /* SAVE pressed while playing: now */
+    if (project_busy)
+        return;
+    if (save_wait && !seq.playing && !seq.req_start && !seq.req_cont && !seq.req_stop && !ui.rec && !perf_testing()) {
 #if BOARD_SMK37
         if (smk_clip_mode_on() && (smk_ck_flash_busy() || now - ui.act_t < AUTOSAVE_QUIET))
             return;                                    /* keep the queued SAVE until clip playing has gone quiet */
@@ -4583,7 +4728,7 @@ static void autosave(void)
     if (smk_ck_flash_busy())                          /* ui_frame runs before smk_ck_poll on display frames */
         return;
 #endif
-    if (!ui.dirty || (proj.set.autosave_off && !ui.last_autosave) || seq.playing || seq.req_stop || ui.rec || perf_testing() ||
+    if (!ui.dirty || (proj.set.autosave_off && !ui.last_autosave) || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_testing() ||
         ui.overlay == O_ASK || now - ui.act_t < AUTOSAVE_QUIET || (ui.saved_t && now - ui.saved_t < AUTOSAVE_GAP))
         return;
     ui.saved_t = now;
@@ -4609,10 +4754,14 @@ void ui_frame(void)
 {
     uint32_t i;
     input();
+    if (project_busy) {
+        draw_header();                             /* keep transfer status visible; samples and runtime stay untouched */
+        return;
+    }
 #if BOARD_SMK37
     smc_frame();
 #endif
-    {   /* GLO > MIDI > CLOCK SOURCE; clip mode always uses AUTO */
+    if (!project_busy) {   /* GLO > MIDI > CLOCK SOURCE; clip mode always uses AUTO */
         static uint8_t waited;
         uint8_t w;
 #if BOARD_SMK37
@@ -4628,7 +4777,8 @@ void ui_frame(void)
     }
     undo_tick();
     autosave();
-    perf_test_tick();
+    if (!project_busy)
+        perf_test_tick();
     if (ui.view == V_PERF && !perf_testing())
         perf_window(0);
     for (i = 0; i < NPARTS; i++)
