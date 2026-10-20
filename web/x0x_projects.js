@@ -149,7 +149,10 @@ function strictArchive(b, manifest) {
   const parsed = readArchive(b);
   parsed.images.forEach((img, k) => {
     const h = validateSlotImage(img, manifest[k].size), e = meta.slots[k];
-    if (h && (e.data_len !== h.dataLen || e.data_crc32 !== h.crc)) throw fail("Sample data metadata does not match its header.");
+    if (h && (e.data_len !== h.dataLen || e.data_crc32 !== h.crc || e.name !== h.name || e.zones !== h.nz ||
+        JSON.stringify(e.samples) !== JSON.stringify(h.zones.map((z) => z.n)) ||
+        JSON.stringify(e.rates) !== JSON.stringify(h.zones.map((z) => z.rate))))
+      throw fail("Sample metadata does not match its original header.");
   });
   return parsed;
 }

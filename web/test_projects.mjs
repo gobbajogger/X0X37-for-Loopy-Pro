@@ -226,6 +226,23 @@ test("strict metadata rejects duplicated entries, overlapping ranges and unrefer
   ]) await assert.rejects(readProjectFile(editArchive(good, edit)));
 });
 
+test("sample metadata must match the original header even when both JSON copies and CRCs agree", async () => {
+  const good = await bundle();
+  const mutations = [
+    ["name", (e) => { e.name = "FORGED"; }],
+    ["zone count", (e) => { e.zones++; e.samples.push(e.samples[0]); e.rates.push(e.rates[0]); }],
+    ["sample counts", (e) => { e.samples[0]--; }],
+    ["sample rates", (e) => { e.rates[0] = 22050; }]
+  ];
+  for (const [label, mutate] of mutations) {
+    // Both editors preserve the image body and SHA-256. The nested archive CRC,
+    // its component CRC, and the outer file CRC are all recomputed correctly.
+    const nested = editArchive(good, (meta) => { mutate(meta.slots[0]); });
+    const forged = editContainer(nested, (meta) => { mutate(meta.slots[0]); });
+    await assert.rejects(readProjectFile(forged), /metadata does not match its original header/, label);
+  }
+});
+
 test("sample image rejects data CRC, impossible zone boundaries and rate corruption", () => {
   const data = original.slice(); data[512] ^= 1;
   assert.throws(() => validateSlotImage(data, 4096), /CRC/);
