@@ -2,7 +2,7 @@
   "stage": 4,
   "marker": "smc-complete-20261021-combined-stage4-after-merge",
   "validation_result": "COMBINED STAGE4 VALIDATION PASS",
-  "workflow_status": "PENDING VERIFIED INSTALL STARTUP",
+  "workflow_status": "COMPLETE; INSTALL STARTUP VERIFIED",
   "owner_chat": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
   "sole_integration_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
   "completed_merge": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
@@ -332,5 +332,10 @@
     "No combined Pro package or Pro device PASS is claimed.",
     "Raw package, controller, generated headers, replay payloads and synthetic store bytes remain local and outside commits."
   ],
-  "next_action": "Start exactly one fresh LOCAL install chat. Verify actual startup. Preserve the completed merge and sole integration owner."
+  "next_action": "Start exactly one fresh LOCAL install chat. Verify actual startup. Preserve the completed merge and sole integration owner.",
+  "install_chat_id": "01a15ad9-c772-7660-8a69-64685904cbfa",
+  "install_startup_turn": "01a15ad9-c884-7c91-88fb-b9f86b91c3b5",
+  "install_successor": "install-successor.json",
+  "completion_notices": "completion-notices.json",
+  "current_rule_note": "Current writing/task skill changes were read and carried into the install handoff. They do not invalidate the completed DEV evidence."
 }

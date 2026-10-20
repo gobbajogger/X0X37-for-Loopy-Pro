@@ -1,0 +1,18 @@
+{
+  "result": "PASS",
+  "validated_revision": "1165396199210889fa460d26cbdd0b66183267e1",
+  "evidence_revision": "993ee175fe3e196dc214a4c7300d21673cdf7d24",
+  "completed_merge": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "checked_paths": [
+    "firmware",
+    "tests",
+    "tools",
+    "ble/ctl",
+    "host",
+    "build.sh",
+    "build_ctl.sh",
+    "Makefile"
+  ],
+  "production_input_diff": "",
+  "meaning": "Later commits add evidence and handoff text. All production, test, tool, controller, host and build inputs remain equal. The exact DEV record still selects its original validated revision and artifacts."
+}

@@ -209,3 +209,10 @@ Exact artifact identities:
     "No physical-device PASS is established."
   ]
 }
+
+Current rule clarification after c3f8683
+
+Use plain, concise English by default. Read STE sources and the dictionary only for an explicitly requested strict review.
+Load only the current step instructions. Reuse unchanged sources.
+These rule updates do not invalidate the completed Elite DEV evidence. Do not repeat builds, add Pro checks or run release checks.
+The validation owner sent this clarification to the existing installer. Device and artifact guards remain required.
