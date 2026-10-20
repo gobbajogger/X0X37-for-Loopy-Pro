@@ -1,0 +1,36 @@
+The independent test result is FAIL for candidate 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f.
+A required disconnect can be lost when the mailbox remains busy.
+Both signaling queue overflow and queue timeout reproduce the failure.
+
+blec_fail submits HCI Disconnect once.
+When the send callback rejects that command, blec_command does not set waiting.
+blec_poll does not retry the command in BLEC_DISCONNECTING.
+After the callback accepts sends again, polls at 1 ms and 2999 ms submit no command.
+At 3000 ms, the state becomes BLEC_FAILED.
+The connection handle remains 80.
+No Disconnect was submitted.
+The controller can retain its physical connection while the local session stops.
+
+A fresh stage 2 must repair this source failure.
+A fresh stage 3 must repeat the affected checks.
+This candidate must not advance to stage 4.
+The failing public HCI probe is test-busy-disconnect.c.
+Its log and exact commands are in test-busy-disconnect.log and test-busy-disconnect-record.json.
+
+The existing public HCI checks and DIAG checks pass.
+The additional lifecycle and credit checks also pass.
+ASan and UBSan report no memory or undefined-behavior failure in those checks.
+Their timeout cases accept the disconnect command at the deadline.
+They do not cover a mailbox that remains busy at that instant.
+The expected stage-2 base failures remain valid regression evidence.
+The source, test files and reused stage-2 input hashes match the candidate.
+
+The HCI packets and callback timing are simulated.
+These checks do not exercise target interrupts, radio execution or the physical peer.
+The task agent owns the exact recorded payload replay.
+The original physical input failure remains unresolved.
+The physical result is NOT TESTED.
+No production source or tracked test changed.
+No device write occurred.
+
+Exact commands, tool versions, hashes, coverage and dispositions are in test-report.json.

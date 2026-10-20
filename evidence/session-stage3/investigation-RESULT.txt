@@ -1,0 +1,54 @@
+Stage 3 investigation result: FAIL.
+Candidate: 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f.
+One confirmed defect requires a fresh stage 2.
+
+CENTRAL-ABORT-01: A busy transport can discard the required disconnect command.
+A signaling queue overflow or timeout calls blec_fail.
+That function attempts COP_DISCONNECT once.
+If the send callback reports busy, the host does not preserve the command.
+BLEC_DISCONNECTING never retries the command.
+
+Both public HCI probes reproduce the defect.
+The transport recovers after 1 ms, before the deadline.
+Later polls produce no accepted disconnect command.
+At the deadline, the host changes to BLEC_FAILED and retains connection handle 0x50.
+Both assertions fail. Each process returns -6.
+No sanitizer error precedes the assertions.
+The probe uses a synthetic busy callback and a connected unit-test fixture.
+It does not prove saturation of the physical mailbox or the original input failure.
+
+The one-shot failure helper also exists on the base.
+The new signaling paths expose that dependency defect.
+The repair must preserve a pending abort until transport acceptance or its bounded deadline.
+After transport recovery, exactly one accepted disconnect command must reach the active handle.
+A failed send must not extend the deadline.
+A successful disconnect event must permit clean reconnection.
+The complete acceptance criteria are in investigation-report.json.
+
+The protocol review found no additional confirmed defect in the selected policy.
+The new signaling fields remain in TIMER5.
+The existing main-loop producer does not write those fields.
+The receive buffer remains bounded at 64 bytes.
+The target interrupt and radio behavior remain outside this source review.
+
+The original physical all-input failure remains unresolved.
+The working reference also lacks signaling replies and credit reclamation.
+The idle CONNECTED trace has five credits and no pending ATT.
+It does not match the reproduced discovery-starvation condition.
+Its CID 5 header contains no surviving signaling command or identifier.
+Zero idle counters do not prove input loss.
+The saved notification payloads have no correlated negotiation trace from the physical failure.
+The existing replay uses simulated HCI framing and scheduling.
+No complete cure or physical PASS is established.
+
+Source and test files remain unchanged.
+No device write, controller write, target build, gate, or external push occurred.
+The task agent must start one fresh stage 2 for the confirmed repair.
+After the repair passes, a fresh stage 3 must check affected behavior.
+Stage 4 must not start from this failing candidate.
+
+Files:
+- investigation-abort-probe.c contains the public API probe.
+- investigation-overflow.log and investigation-timeout.log contain the failures.
+- investigation-abort-results.json contains exact run results.
+- investigation-report.json contains hashes, causes, criteria, limits, and primary source URLs.
