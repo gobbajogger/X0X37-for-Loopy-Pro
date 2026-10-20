@@ -1,0 +1,34 @@
+Audit commit: 6affed8. Begin the assigned implementation now. Read the saved handoff at /Users/mac/Documents/x0x37/build_time_audit/evidence/build-time-audit/stage2-prompt.txt and successor.json.
+
+Begin now. You own stage 2 of workflow build-time-20261021.
+
+Owner request: drastically reduce build times. Preserve all checks, features, quality, and exact target artifacts. Do not optimize rule word counts.
+Source chat: 01a15a99-75d7-7921-9d65-f4b120566904.
+Current skill entry: /Users/mac/Documents/x0x37/AGENTS.md.
+Initialize current x0x37-task, x0x37-writing, x0x37-workflow, and x0x37-check skills from /Users/mac/Documents/x0x37/.agents/skills/. Apply workflow18 for your successor.
+
+Inputs: /Users/mac/Documents/x0x37/build_time_audit/evidence/build-time-audit/{result.json,linux-walk-profile.json,native-walk-profile.json,native-build-result.json,generated-header-comparison.json,saved-timing.json}.
+Use the audit commit named in successor.json. Its firmware source base is 9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a. Create your own lane/opt-build-time-implementation worktree from that audit commit.
+
+Measured SDK fingerprint: x86 Linux container 120.177 s; native Mac 2.402 s, with identical complete byte/mode content identity. The direct-walker prototype is only 120→92 s and is not the primary solution.
+A recent Elite validation used about 581 s: 177 s host tests, 61 s firmware build, 75 s controller, 268 s outside command logs. Those old phase intervals use filesystem timestamps; do not present them as precise command timers.
+A direct native Mac build took 54.827 s but changed font bytes. All other generated headers matched. Preserve Linux font/asset generation and its library environment.
+
+Implement native macOS orchestration and complete provenance capture while running build, controller and any Linux-dependent checks in the same local Linux/amd64 validation image. The actual JieLi compiler stays Linux x86. Keep the existing Linux-native path.
+Suggested owned files: tools/dev_validate.py, affected tests/host/test_dev_validate.py and test_validation_inputs.py, and minimal build instructions. Modify other build helpers only if required for safe ownership/cleanup.
+
+Requirements:
+- Hash ALL the same SDK/toolchain/dependency bytes before and after. No mtime-only cache, forged manifests, or reduced fingerprint coverage.
+- Record the actual immutable worker image ID, worker platform/kernel, effective environment, and Docker CLI dependency. Image changes must invalidate reuse.
+- Prefer binding worker provenance inside normalized plan/config metadata, which existing schema-2 records already authenticate. Verify existing consumers accept the new records; do not weaken guards.
+- Use the same mounted source/dependency bytes and the existing Linux asset/test environment. No nested Docker in the worker. Use synchronous commands with exact log/return-code checks.
+- Own and clean up only this run's worker container. Timeouts/signals must remove its processes before scratch worktree deletion. Preserve original errors. Never kill other tasks or edit running shared scripts.
+- Preserve DEV configuration, Elite policy, budgets, model/package/controller checks, source cleanliness, exact artifacts, input-change detection, and queue/data guards.
+- Measure native fast path versus old Linux orchestration on identical candidate/image/inputs. Require byte-identical firmware package and controller image. Do not accept the direct native-font mismatch.
+
+Current active firmware validation and mapping workflows retain their ownership. Do not create another firmware integrator, install to a device, run release/full gates, or push externally for this tooling task.
+A checked external validator can be used from its lane against an unchanged firmware candidate; record its actual runner identity. Coordinate later controlled integration without disturbing the current firmware workflow.
+
+Complete the repair and relevant checks, commit with genkigenki author, and launch exactly one fresh stage3 with separate independent test/investigation scopes. After those checks pass, relevant stage4 must verify real DEV records, exact artifacts, and measured end-to-end improvement. Carry current owner permission and its source; do not ask again. Scope excludes device installs and external pushes. Report unresolved blockers truthfully.
+
+Current sole firmware integrator is chat 01a15ac1-6dac-7ca2-a2fc-877c4671ab33. Its combined validation is chat 01a15ac6-2f01-7e93-93b8-cf1910a41ea1. Do not compete with their firmware ownership. Implement and deliver the checked external validator in its own lane.
