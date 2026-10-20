@@ -28,13 +28,20 @@
       "acceptance": "No checked final commit or independent PASS yet; do not promote."
     },
     "native_validator": {
-      "state": "provenance_repair_active",
+      "state": "provenance_repair_scoped_checks_running",
       "failed_implementation": "6d690e347b2c66d331f0b6da58a390b627ee84b7",
       "repair_owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
-      "blocker": "Waiting on tool approval after Docker Colima socket permission denied. Owner informed; no pending action bypassed."
+      "blocker": null,
+      "docker_approval": "Granted in repair owner chat; no pending action bypassed.",
+      "check_context": "Host package/input and native consumer fixtures passed. First Linux shared-mount fixture hit Git ownership/FIFO limitations; one equivalent same-build-path tmpfs retry with read-only source is running.",
+      "walker_probe": {
+        "original_seconds": 2.792,
+        "direct_seconds": 0.88,
+        "scope": "One sequential actual SDK warm-cache-sensitive hash probe; identities equal. Not full validation timing or accepted final implementation."
+      }
     },
     "quickcheck_controller": {
-      "state": "cleanup_repair_independent_test_started",
+      "state": "accepted_local",
       "owner": "01a15ae3-2cce-7e42-9a7f-5911e60a9be5",
       "runner_overlap": "Owner confirms no tests/run_tests.sh diff.",
       "implementation": "30c567d8588227d5285f04422130300fe83577a9",
@@ -47,7 +54,15 @@
       "repair_handoff": "5c5667c6fd60c25143b46c817e28d0437f8f40bb",
       "repair_stage3": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
       "repair_evidence": "/Users/mac/Documents/x0x37/build_work_cleanup_repair/evidence/build-work-cleanup-repair/result.json",
-      "acceptance": "Stage2 checks pass; independent review and applicable scoped validation pending."
+      "acceptance": "a3409ca4482497b8b6625dc2672d53e242c4d7a1",
+      "production_cleanup_repair": "bc0e1fde262aee6e3a4f0b976887b9489585aeb8",
+      "repair_stage3_evidence": "258144db38d331c691c3a449146ff3da8ed86676",
+      "acceptance_evidence": "/Users/mac/Documents/x0x37/build_work_cleanup_stage4/evidence/build-work-cleanup-stage4/result.json",
+      "accepted_source_tree_sha256": "14b6c534d238ef5682b3629e08ff3b5ef3fc05f864fd592a7721d7e6ec688444",
+      "limits": [
+        "One real controller successful-path build28.513924458s matches saved image; no comparative speedup claimed.",
+        "Fixed-tree devbug regression PASS reuse remains deferred; fixed check and parent negative remain."
+      ]
     },
     "runner_extraction": {
       "state": "accepted_local",
