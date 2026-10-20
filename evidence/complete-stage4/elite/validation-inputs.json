@@ -1,0 +1,700 @@
+{
+  "schema": 1,
+  "sha256": "bd4a98aa2a764b2b7dd7aaccd85f0aa6c4a2f63f6f0c2d2f9eb1bd6805963e4f",
+  "inputs": {
+    "schema": 1,
+    "mode": "dev",
+    "source": "136a3dd08cb345fa70ecb023881e062cfab3d09860c75edaef77498a94a91ef9",
+    "configuration": {
+      "model": "elite",
+      "config": "dev",
+      "controller": true,
+      "plan": {
+        "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+        "scope": "The complete merge combines mapping actions and central service changes. Independent contribution checks retain matching inputs. The new combined startup replay passed. The actual Elite DEV package and controller require fresh builds and budgets.",
+        "checks": [
+          {
+            "reason": "Verify retained contribution histories, scoped source inputs, negative controls and logs. Verify every new combined replay input and its saved result. The replay ran once on its supported host compiler.",
+            "argv": [
+              "python3",
+              "-B",
+              "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/verify-checked.py"
+            ]
+          }
+        ],
+        "dependencies": [
+          "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/complete-stage4/payloads.bin",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/felucca_font.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_break_bank.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_drum_samples.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_drum_tables.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/collect-replay-inputs.py",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/environment.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/generated-inputs.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/plan-review.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-all.d",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-compile.log",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-inputs.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-run.py",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.log",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/saved-inputs.json",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/verify-checked.py",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/hal/x0x_ble_abi.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/../seq/pattern.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/bass303.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/breaks.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum808.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum909.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum909_dsp.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/fastmath.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/fxbus.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/master.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/x0x_param.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/motion.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/pattern.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/sequencer.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/engine.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/engine.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/plat.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smc_mixer.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smc_protocol.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smk_inlog.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_central.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_central.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_host.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/../seq/pattern.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/../x0x_cold.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/bass303.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/bass303.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/breaks.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/breaks.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum808.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum808.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909_dsp.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fastmath.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fxbus.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fxbus.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/ima_adpcm.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/master.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/master.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/x0x_param.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/motion.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/motion.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/pattern.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/pattern.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/sequencer.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/sequencer.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/tb3po.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/tb3po.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/../seq/pattern.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/bass303.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/breaks.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/drum909.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/drum909_dsp.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/fastmath.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/fxbus.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/master.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/x0x_param.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/motion.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/pattern.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/sequencer.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/tb3po.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../x0x_cold.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/engine.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/lz.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/plat.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/project.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/slots.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/smk_arrows.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/ui.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/undo.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/x0x.h",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/gfx.c",
+          "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/x0x_host.c",
+          "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/compare_startup.py",
+          "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/working-source-store.bin"
+        ],
+        "model_policy": "Elite covers shared checks and budgets. No Pro package is selected."
+      },
+      "dependencies": [
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/complete-stage4/payloads.bin",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/felucca_font.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_break_bank.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_drum_samples.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_drum_tables.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/collect-replay-inputs.py",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/environment.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/generated-inputs.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/plan-review.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-all.d",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-compile.log",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-inputs.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-run.py",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.log",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/saved-inputs.json",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/verify-checked.py",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/hal/x0x_ble_abi.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/../seq/pattern.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/bass303.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/breaks.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum808.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum909.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum909_dsp.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/fastmath.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/fxbus.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/master.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/x0x_param.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/motion.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/pattern.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/sequencer.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/engine.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/engine.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/plat.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smc_mixer.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smc_protocol.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smk_inlog.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_central.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_central.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_host.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/../seq/pattern.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/../x0x_cold.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/bass303.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/bass303.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/breaks.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/breaks.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum808.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum808.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909_dsp.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fastmath.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fxbus.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fxbus.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/ima_adpcm.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/master.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/master.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/x0x_param.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/motion.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/motion.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/pattern.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/pattern.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/sequencer.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/sequencer.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/tb3po.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/tb3po.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/../seq/pattern.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/bass303.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/breaks.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/drum909.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/drum909_dsp.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/fastmath.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/fxbus.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/master.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/x0x_param.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/motion.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/pattern.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/sequencer.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/tb3po.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../x0x_cold.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/engine.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/lz.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/plat.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/project.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/slots.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/smk_arrows.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/ui.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/undo.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/x0x.h",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/gfx.c",
+        "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/x0x_host.c",
+        "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/compare_startup.py",
+        "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/working-source-store.bin"
+      ]
+    },
+    "environment": {
+      "CXX": "c++",
+      "CC": "cc",
+      "MODEL": "elite",
+      "BOARD": "smk37",
+      "X0X_DEV_PADCAL": "1",
+      "CTL_NO_CACHE": "1",
+      "CTL_NATIVE": "1"
+    },
+    "platform": [
+      "Linux",
+      "x86_64",
+      "6.8.0-117-generic"
+    ],
+    "validator": {
+      "validation_inputs.py": {
+        "sha256": "b1cf53a3c087944763b5baa310a27a5f9dd7dad452f6862ee730f6951e9228ec",
+        "executable": false
+      },
+      "dev_validate.py": {
+        "sha256": "7eb3705069a1b9583f1c96a83c9ec89df33539c508982fb532d54cab956513d5",
+        "executable": false
+      }
+    },
+    "tools": {
+      "bash": {
+        "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
+        "executable": true
+      },
+      "sh": {
+        "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
+        "executable": true
+      },
+      "git": {
+        "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
+        "executable": true
+      },
+      "make": {
+        "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
+        "executable": true
+      },
+      "node": {
+        "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
+        "executable": true
+      },
+      "emcc": null,
+      "cc": {
+        "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
+        "executable": true
+      },
+      "c++": {
+        "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
+        "executable": true
+      },
+      "ld": {
+        "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
+        "executable": true
+      },
+      "ar": {
+        "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
+        "executable": true
+      },
+      "objcopy": {
+        "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
+        "executable": true
+      },
+      "python": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      },
+      "python3": {
+        "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
+        "executable": true
+      }
+    },
+    "python_packages": {
+      "numpy": null,
+      "pillow": {
+        "version": "9.4.0",
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    "dependencies": {
+      "toolchain": {
+        "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+      },
+      "sdk": {
+        "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+      },
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json": {
+        "sha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/complete-stage4/payloads.bin": {
+        "sha256": "085499b9c2d9ad749c0dd9d6c753f32971bec3ee4ec3014a41bc338aadc1e4db",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/felucca_font.h": {
+        "sha256": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_break_bank.h": {
+        "sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_drum_samples.h": {
+        "sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/gen/x0x_drum_tables.h": {
+        "sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json": {
+        "sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/collect-replay-inputs.py": {
+        "sha256": "4fed683b5ec820ef22c65ee10cf8d1b5effbafc9bbb5878b0ba767c3ff416d01",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/environment.json": {
+        "sha256": "234a888af695ee0f9b389c3de361356adfd16cbd78fb6e6387749bccb62e912b",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/generated-inputs.json": {
+        "sha256": "4014506a0e93cbc11d98f58d98d7b17d964f9bad53b0ef73c6548d9edaba03eb",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/plan-review.json": {
+        "sha256": "cf834db206d2a58332cd3fc2a67ff047a763b0fc9d51561f3d49712669e9113e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-all.d": {
+        "sha256": "e983143cc95da3830b850d462d1ba7ea20a93d4ac1f7f96a78ad84bc88d8b633",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-compile.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-inputs.json": {
+        "sha256": "ea4257b09eea7bccf5c7e49ca86de6a4757f0b358d43b2e27b62d78c0cb9f9ab",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay-run.py": {
+        "sha256": "0a974b31ea42e429343030d4938020d87975b5d9b582b40d8e7829138d48b7ef",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.c": {
+        "sha256": "d48cd403e2c121d53eaab8f276dd7db26baf3eb15b383f9ce2c85470cd23ac15",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.json": {
+        "sha256": "d80d54cfea72a4a73795b421061b23116de767269ceecd46e736d17c45f9f65e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/replay.log": {
+        "sha256": "4941a2cfb1015dfb4151d932d5b4bc56192fbabe785e039d60c9bb901c6e93a1",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/saved-inputs.json": {
+        "sha256": "69421965be62afd4bf08038bf68dabda95b42addaf0d8f12e400be046b2d84d9",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/verify-checked.py": {
+        "sha256": "5cb6eab547a274a133ab660c397dafc8bbb4fa9690e84ca0d86735c2b162eb0a",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/hal/x0x_ble_abi.h": {
+        "sha256": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/../seq/pattern.h": {
+        "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/bass303.h": {
+        "sha256": "f46dd0f449dd14737396ffbcf29820a9c13b804d38210c166acd08e4b0469795",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/breaks.h": {
+        "sha256": "bd9fe5c22b7da74f2bdb744927ecbf0e67b02e2d98feb3d56ab45fafc91c8deb",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum808.h": {
+        "sha256": "30ff069afe51ed18100841c90a2417a80e61ba8222151590f46313c0833a4e7d",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum909.h": {
+        "sha256": "70e94b572117d994c73190a31500f7c6969c623665950151a3920febc4a70aea",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/drum909_dsp.h": {
+        "sha256": "b9a2e498377ede0a61653a202bd45f5a842b3be40965ba55f183cf426914c76d",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/fastmath.h": {
+        "sha256": "71d0fb4c242e6c03e435cebacc1e978f928ce2672d6b47a48b68372e72453349",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/fxbus.h": {
+        "sha256": "7dcb0a570ee66b956fd9aae5c10ee04021e50dc6d931a5e5519ab72baa2fb63e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/master.h": {
+        "sha256": "09f9df5b769c1576b77047aacb72789a19f1c4527c874eb29850ba561d7b54c0",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../dsp/x0x_param.h": {
+        "sha256": "51bc82a79fdcdb8090ec94e4dd2abe9f95cfb6171e521457678b090ca2010e27",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/motion.h": {
+        "sha256": "ac88bf9e4532f50f7d157a7b15c60c72118078a1bd5ac6cee1a6cf74ceaa585e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/pattern.h": {
+        "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/../seq/sequencer.h": {
+        "sha256": "56bc3d8f3220ad3419735d13037a4c48662573d175fd6292cf232b94100e01ce",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/engine.c": {
+        "sha256": "d3f912623434585de787ae032a78286a639c9b1e5abafec4158065cad5975f36",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/engine.h": {
+        "sha256": "1fc21750a3930f80ea348fe93c2d2d4c85a04f5a0f12b222e8d0dd35fbbd21d6",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/plat.h": {
+        "sha256": "6c1e40d49ca222fb3f57ff7cf5dc4044f92d5f0021ec491ec3cfd214445cee23",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smc_mixer.c": {
+        "sha256": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smc_protocol.h": {
+        "sha256": "51211b7778da8cc6700204df88bbe30288e606ea91acc6bec232646b363a530e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/app/smk_inlog.h": {
+        "sha256": "1d335edf2a3d709a060369a9f715ab7a54ed1276289fe5fa10fcc675c7c4e076",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_central.c": {
+        "sha256": "4fbc29db6f9fb97f5598bdd3eb960f097c08567e63bba6b000a12fe0a24c3b27",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_central.h": {
+        "sha256": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/ble/ble_midi_host.h": {
+        "sha256": "b957fa6513c08e32326dc46a149d22d5d6685d815711dce1b87376d178b6cda1",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/../seq/pattern.h": {
+        "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/../x0x_cold.h": {
+        "sha256": "e95f4037d8f8e0dca5c32ba9253fb8aba7baf1d098407998f6a9c0d1857ba663",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/bass303.c": {
+        "sha256": "9738fb47fd19626cefb3bab738e63c09bd11d0d3c2243ca2b6d605efbc642da5",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/bass303.h": {
+        "sha256": "f46dd0f449dd14737396ffbcf29820a9c13b804d38210c166acd08e4b0469795",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/breaks.c": {
+        "sha256": "94e3865c1c2d1b8d16bb422f0206123d7f05026ba4bda49830071d05b2108786",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/breaks.h": {
+        "sha256": "bd9fe5c22b7da74f2bdb744927ecbf0e67b02e2d98feb3d56ab45fafc91c8deb",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum808.c": {
+        "sha256": "aa9d65c11f2682a7740adb6fedbace9856db2c38bad4de0b10fcfdf3c7362707",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum808.h": {
+        "sha256": "30ff069afe51ed18100841c90a2417a80e61ba8222151590f46313c0833a4e7d",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909.c": {
+        "sha256": "5b9ef2578ff5250d321fdd4243889e5eb82d6dce144d620ca7c4390dd0c9d28b",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909.h": {
+        "sha256": "70e94b572117d994c73190a31500f7c6969c623665950151a3920febc4a70aea",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/drum909_dsp.h": {
+        "sha256": "b9a2e498377ede0a61653a202bd45f5a842b3be40965ba55f183cf426914c76d",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fastmath.h": {
+        "sha256": "71d0fb4c242e6c03e435cebacc1e978f928ce2672d6b47a48b68372e72453349",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fxbus.c": {
+        "sha256": "01619014e6bf5e3d5d484f94c8d8294d827bbd3cc56a49bc00675edb292aa5bf",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/fxbus.h": {
+        "sha256": "7dcb0a570ee66b956fd9aae5c10ee04021e50dc6d931a5e5519ab72baa2fb63e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/ima_adpcm.h": {
+        "sha256": "dacb61a870a8091c5c33e32f259c6869db0712f10872ce1424cea2b9726f8236",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/master.c": {
+        "sha256": "c7707d4e936a578633962b11e5b526c0e04b2c19a70f84c84f2bdf4ea9a0cda9",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/master.h": {
+        "sha256": "09f9df5b769c1576b77047aacb72789a19f1c4527c874eb29850ba561d7b54c0",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/dsp/x0x_param.h": {
+        "sha256": "51bc82a79fdcdb8090ec94e4dd2abe9f95cfb6171e521457678b090ca2010e27",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/motion.c": {
+        "sha256": "5cf517f38b6653f142b663af7a7179e0fcc92db3c390dcd9dc2949036b03a7c4",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/motion.h": {
+        "sha256": "ac88bf9e4532f50f7d157a7b15c60c72118078a1bd5ac6cee1a6cf74ceaa585e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/pattern.c": {
+        "sha256": "0d9b36c4ab979533df2974e0adc962d521c9bf587403eaecca4109042eaddf2a",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/pattern.h": {
+        "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/sequencer.c": {
+        "sha256": "55a844496819e577c7dc15da0c3969334410af388c4db29155b2c15a9ab3b8a9",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/sequencer.h": {
+        "sha256": "56bc3d8f3220ad3419735d13037a4c48662573d175fd6292cf232b94100e01ce",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/tb3po.c": {
+        "sha256": "7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/firmware/src/seq/tb3po.h": {
+        "sha256": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/../seq/pattern.h": {
+        "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/bass303.h": {
+        "sha256": "f46dd0f449dd14737396ffbcf29820a9c13b804d38210c166acd08e4b0469795",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/breaks.h": {
+        "sha256": "bd9fe5c22b7da74f2bdb744927ecbf0e67b02e2d98feb3d56ab45fafc91c8deb",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/drum909.h": {
+        "sha256": "70e94b572117d994c73190a31500f7c6969c623665950151a3920febc4a70aea",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/drum909_dsp.h": {
+        "sha256": "b9a2e498377ede0a61653a202bd45f5a842b3be40965ba55f183cf426914c76d",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/fastmath.h": {
+        "sha256": "71d0fb4c242e6c03e435cebacc1e978f928ce2672d6b47a48b68372e72453349",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/fxbus.h": {
+        "sha256": "7dcb0a570ee66b956fd9aae5c10ee04021e50dc6d931a5e5519ab72baa2fb63e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/master.h": {
+        "sha256": "09f9df5b769c1576b77047aacb72789a19f1c4527c874eb29850ba561d7b54c0",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../dsp/x0x_param.h": {
+        "sha256": "51bc82a79fdcdb8090ec94e4dd2abe9f95cfb6171e521457678b090ca2010e27",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/motion.h": {
+        "sha256": "ac88bf9e4532f50f7d157a7b15c60c72118078a1bd5ac6cee1a6cf74ceaa585e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/pattern.h": {
+        "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/sequencer.h": {
+        "sha256": "56bc3d8f3220ad3419735d13037a4c48662573d175fd6292cf232b94100e01ce",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../seq/tb3po.h": {
+        "sha256": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/../x0x_cold.h": {
+        "sha256": "e95f4037d8f8e0dca5c32ba9253fb8aba7baf1d098407998f6a9c0d1857ba663",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/engine.h": {
+        "sha256": "1fc21750a3930f80ea348fe93c2d2d4c85a04f5a0f12b222e8d0dd35fbbd21d6",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/lz.c": {
+        "sha256": "05b40abb42ab2e34d08b48d0cb5c3b6214a2d0c1c3a7d02883e3cb70821092ee",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/plat.h": {
+        "sha256": "6c1e40d49ca222fb3f57ff7cf5dc4044f92d5f0021ec491ec3cfd214445cee23",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/project.c": {
+        "sha256": "9e00f87a82da38a216122ccfd088acdb2880a70780fe724c218c8eef969764f0",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/slots.c": {
+        "sha256": "a962d906c5ae83f95923706f7f9bb6a79c0adb3bd90d187808117e2f37584988",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/smk_arrows.h": {
+        "sha256": "015af7ef6cabc06c499d7529e0c2502976cb7f28186ea69c01e16a46facc8b08",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/ui.c": {
+        "sha256": "22f58e87d1f77baac72ca68c84a71eadd02bcb1968929b730af2074a3d9e230f",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/undo.c": {
+        "sha256": "90fab93eac41736fd917544cb550a55baf51bac8a1f8306c43c1071305881f0a",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/app/x0x.h": {
+        "sha256": "8337e7cc5a1e1e70dccbe7eef1593a8d6eb13b9a5f43c77df1b148452c48ee96",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/../firmware/src/gfx.c": {
+        "sha256": "156420b0411bfadc8f294f64c4400f6fea62a53a24bf0ac46459f6a5f135498e",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/host/x0x_host.c": {
+        "sha256": "6a88517d1b63c1a7a608de5a00a07c85676c3fa8313e02ebac5ba49c311422c7",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/compare_startup.py": {
+        "sha256": "23afbe7f10cf894ce9e07f5ee0db7c7ce3d79959bd5ccb4017c56f4948b1a274",
+        "executable": false
+      },
+      "/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/working-source-store.bin": {
+        "sha256": "402fe3c9f70c5b550ded0b85ab54b3a4413cf1135dd6cb15d365aeb8c7738283",
+        "executable": false
+      }
+    },
+    "references": {}
+  }
+}

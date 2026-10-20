@@ -1,0 +1,32 @@
+{
+  "stage": 4,
+  "marker": "smc-complete-20261021-combined-stage4-after-merge",
+  "owner_chat": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+  "sole_integration_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "completed_merge": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "input_candidate": "c275f899f7a408e8e1f1ce297b88c47e06e326ce",
+  "validated_revision": "1165396199210889fa460d26cbdd0b66183267e1",
+  "validated_git_tree": "d34ccdcbb4f8c8c2b221f4c0198f4b96a9291a6c",
+  "checked_paths": [
+    "firmware",
+    "tests",
+    "tools",
+    "ble/ctl",
+    "host",
+    "build.sh",
+    "build_ctl.sh",
+    "Makefile"
+  ],
+  "checked_path_tree_sha256": "a4d31ccd2c2a60b052506e1da118b7ef6c68909d10dffd596b88261eb449624f",
+  "checked_path_hash_method": "SHA256 of git ls-tree -r --full-tree REV -- followed by checked_paths, with a final newline.",
+  "production_input_diff_from_completed_merge": "",
+  "source_repairs": false,
+  "new_checks": [
+    "The new combined startup replay passed.",
+    "The actual Elite DEV package and controller passed.",
+    "The exact DEV-record, package and controller checks passed."
+  ],
+  "reused": "The exact mapping and central contribution evidence passed the integration checker. The broad central source manifest contains seven mapping differences.",
+  "model_policy": "Elite covers shared checks and budgets. No combined Pro artifact is selected.",
+  "validation_source_fingerprint": "136a3dd08cb345fa70ecb023881e062cfab3d09860c75edaef77498a94a91ef9"
+}

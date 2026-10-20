@@ -1,0 +1,8 @@
+{
+  "source": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json",
+  "local_copy": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/build/complete-stage4/macos-SDKSettings.json",
+  "sha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb",
+  "container_path": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json",
+  "mode": "read-only",
+  "scope": "This settings file is a dependency of the saved macOS replay. It is not a target SDK input. The raw file remains outside Git."
+}

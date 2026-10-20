@@ -1,0 +1,11 @@
+{
+  "platform": "Linux-6.8.0-117-generic-x86_64-with-glibc2.36",
+  "machine": "x86_64",
+  "user": 501,
+  "group": 20,
+  "python": "3.11.2",
+  "cc": "cc (Debian 12.2.0-14+deb12u1) 12.2.0\nCopyright (C) 2022 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "target_cc_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "sdk_revision": "d179b4484759423312073f5fbb232501aa491047",
+  "sdk_tracked_status": ""
+}

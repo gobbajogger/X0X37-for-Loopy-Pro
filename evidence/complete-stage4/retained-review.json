@@ -1,0 +1,21 @@
+{
+  "mapping_result": "STAGE4 VALIDATION PASS",
+  "mapping_candidate": "4ff0cd468e8afa746deca5840afb7f2890eedb9c",
+  "central_result": "STAGE4 VALIDATION PASS",
+  "central_validated_revision": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "central_candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "retained_independent_reviews": [
+    "evidence/mapping-stage3/result.json",
+    "evidence/stop-stage3/test/report.json",
+    "evidence/stop-stage3/investigation/report.json"
+  ],
+  "retained_scope": [
+    "Mapping actions, lights, knobs and priorities use the exact checked mapping inputs. Their production probes bypass Bluetooth/HCI.",
+    "Central helpers and extracted service checks retain their exact scoped inputs. The broad source manifest has seven mapping differences.",
+    "The independent 16-case central probe retains its exact inputs and passing log."
+  ],
+  "new_coverage": "The combined source receives the new startup replay and actual Elite DEV package/controller validation.",
+  "physical_result": "NOT TESTED",
+  "physical_cause": "UNRESOLVED",
+  "historical_negative_controls": "The 30 expected nonzero controls remain historical broken-source or deliberately stale-service checks. They do not identify a current candidate failure."
+}
