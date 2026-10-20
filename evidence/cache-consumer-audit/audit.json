@@ -1,0 +1,31 @@
+{
+  "scope": "Remaining cache consumers; implementation waits for a checked cache repair.",
+  "firmware_base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "baseline": "original-linux.json",
+  "operations": {
+    "font_seconds": 1.4794489999985672,
+    "drums_seconds": 0.9846969999998691,
+    "builtin_breaks_seconds": 6.896375000000262
+  },
+  "expected_consumers": {
+    "host/build_host.sh": "Preserve existing font/drum existence guards. Route repeated break generation only when supported and measured beneficial; preserve X0X_BREAK_BANK.",
+    "tests/host/run_drum909.sh": "Preserve reference source, local writable copy, cymbal_ref --wav and compiler behavior.",
+    "tests/host/run_drum909_adpcm.sh": "Preserve CYM_AB and output location.",
+    "tests/host/smk_clip_chord_display_test.sh": "Preserve native font output and source override. Coordinate extraction changes after runner stage."
+  },
+  "performance_constraints": [
+    "Do not add unsupported-cache discovery overhead to native Mac paths.",
+    "Original headers are available in build/cache-consumer-baseline for exact equality; their hashes are saved.",
+    "Measure changed caller path with same image, generator/helper/assets/firmware/environment inputs.",
+    "Do not repeat target/controller baseline or run full firmware gate."
+  ],
+  "prerequisites": [
+    "Asset cache I1 selector/symlink repair plus fresh independent check.",
+    "Accepted host setup commit 46a3b3e.",
+    "Runner extraction candidate for clip-display script if changing it."
+  ],
+  "limits": [
+    "One observation per generator; concurrent host activity may affect elapsed time.",
+    "Pinned immutable Linux image supplies the tool and dependency bytes; no independent whole runtime manifest is claimed."
+  ]
+}

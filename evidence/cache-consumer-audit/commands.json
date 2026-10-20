@@ -1,0 +1,25 @@
+{
+  "scope": "Generator baseline only. No target/controller/simulator build.",
+  "cwd": "/Users/mac/Documents/x0x37/build_speed_consumer_audit",
+  "argv": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-e",
+    "MEASURE_IMAGE_ID=sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "-v",
+    "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+    "-w",
+    "/Users/mac/Documents/x0x37/build_speed_consumer_audit",
+    "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "python3",
+    "-B",
+    "evidence/cache-consumer-audit/measure-original.py"
+  ]
+}
