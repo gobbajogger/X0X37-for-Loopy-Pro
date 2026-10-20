@@ -1,0 +1,29 @@
+{
+  "workflow": "host-setup-20261021",
+  "marker": "host-setup-20261021-stage4-tooling-validation",
+  "stage": 4,
+  "state": "started",
+  "source_chat": "01a15adf-da12-7082-b087-3e0fde4aef27",
+  "candidate": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+  "checked_evidence_commit": "4e7b1e334f1d61f507f5cb94f202ceb8286f79a0",
+  "prompt": "evidence/host-setup-stage3/stage4-prompt.txt",
+  "receiver": "One fresh stage4 tooling validation chat",
+  "thread_id": "01a15ae3-4d7a-7740-9de0-6932cd45c65d",
+  "attempts": [
+    {
+      "result": "created",
+      "thread_id": "01a15ae3-4d7a-7740-9de0-6932cd45c65d",
+      "host_id": "local"
+    }
+  ],
+  "precreation_activity_check": "list_projects and list_threads found no existing host-setup stage4 successor.",
+  "host_id": "local",
+  "startup": {
+    "turn_id": "01a15ae3-4e6a-7ce3-a074-85e286958575",
+    "assistant_message_id": "msg_00087e40a53bbdd3016ad7c789f6d88191b9b5e1bb8599b0fe",
+    "assistant_text": "I\u2019m using the x0x37 task and writing skills. I\u2019ll read the saved stage4 assignment, confirm current ownership, and validate the existing host tooling evidence in an isolated lane.",
+    "tool_marker_id": "exec-944a75ed-8b02-4395-8d18-5e3a373377b4",
+    "tool_status": "completed",
+    "verification": "wait_threads returned new assistant acknowledgement and completed command activity."
+  }
+}
