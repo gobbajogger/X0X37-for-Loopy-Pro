@@ -1,0 +1,34 @@
+{
+  "scope": "Four original generated headers match saved complete1165396 package generation; this is output equality, not new package validation.",
+  "saved_source": "1165396199210889fa460d26cbdd0b66183267e1",
+  "source_revision": "1165396199210889fa460d26cbdd0b66183267e1",
+  "reference": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/generated-inputs.json",
+  "reference_sha256": "4014506a0e93cbc11d98f58d98d7b17d964f9bad53b0ef73c6548d9edaba03eb",
+  "rows": [
+    {
+      "name": "x0x_break_bank.h",
+      "baseline_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "saved_package_generation_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "retained_file_matches": true
+    },
+    {
+      "name": "x0x_drum_tables.h",
+      "baseline_sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "saved_package_generation_sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "retained_file_matches": true
+    },
+    {
+      "name": "x0x_drum_samples.h",
+      "baseline_sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "saved_package_generation_sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "retained_file_matches": true
+    },
+    {
+      "name": "felucca_font.h",
+      "baseline_sha256": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+      "saved_package_generation_sha256": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+      "retained_file_matches": true
+    }
+  ],
+  "result": "PASS"
+}
