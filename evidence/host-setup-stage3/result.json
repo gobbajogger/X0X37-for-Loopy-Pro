@@ -1,0 +1,67 @@
+{
+  "workflow": "host-setup-20261021",
+  "marker": "host-setup-20261021-stage3",
+  "stage": 3,
+  "state": "PASS",
+  "source_chat": "01a15adc-ae44-75e0-a069-92f7b5cabaa9",
+  "stage3_chat": "01a15adf-da12-7082-b087-3e0fde4aef27",
+  "candidate": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+  "audit_base": "9a94229b3ff8751763351b403e980ac2a2a4cdf6",
+  "lane": "/Users/mac/Documents/x0x37/host_setup_stage3",
+  "branch": "lane/opt-host-setup-stage3",
+  "source_unchanged": true,
+  "independent_reports": [
+    "evidence/host-setup-stage3/test/report.json",
+    "evidence/host-setup-stage3/investigation/report.json"
+  ],
+  "checks": [
+    {
+      "scope": "Evidence reuse",
+      "result": "PASS: 278 source hashes, four original generated-header hashes and recorded platform/Python/Pillow/compiler versions match. Seven fixture tests and four real probe PASS logs reused.",
+      "evidence": "evidence/host-setup-stage3/test/report.json"
+    },
+    {
+      "scope": "Missing shell contract coverage",
+      "command": [
+        "python3",
+        "evidence/host-setup-stage3/test/supplemental.py",
+        "-v"
+      ],
+      "result": "PASS: two tests, including 16 caller success/failure subcases and invalid option rejection.",
+      "log": "evidence/host-setup-stage3/test/supplemental.log"
+    },
+    {
+      "scope": "Independent source review",
+      "result": "PASS: no blocking findings; default build/scenario routes remain unchanged in source.",
+      "evidence": "evidence/host-setup-stage3/investigation/report.json"
+    },
+    {
+      "scope": "Exact source-section comparison",
+      "result": "PASS: setup, default compiler section and normalized caller bodies match audit.",
+      "evidence": "evidence/host-setup-stage3/source-preservation.json"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "result": "PASS",
+      "scope": "Patch whitespace"
+    }
+  ],
+  "failures": [],
+  "limits": [
+    "Stage2 runtime package bytes were not fingerprinted. Evidence reuse asserts recorded version and source/header identity, not complete installed dependency-byte identity.",
+    "Default simulator/scenario routes were reviewed in unchanged source; no new full simulator/scenario execution is claimed.",
+    "New setup fixture tests run directly and are not registered in the general test runner. This is a nonblocking maintenance item outside this candidate.",
+    "No paired baseline timing or numeric savings estimate. Four unused simulator invocations are eliminated.",
+    "Builtin break generation remains per call. Asset-cache and native-validator lanes retain their ownership.",
+    "No target/controller build, full gate, device operation, firmware integration or external push."
+  ],
+  "next_stage": {
+    "stage": 4,
+    "scope": "Validate host tooling candidate and evidence for local acceptance, reusing matching checks. No firmware/package/device pipeline.",
+    "receiver": "One fresh stage4 chat launched under workflow18."
+  }
+}

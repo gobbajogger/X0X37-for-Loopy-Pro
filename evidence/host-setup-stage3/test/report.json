@@ -1,0 +1,175 @@
+{
+  "workflow": "host-setup-20261021",
+  "role": "independent test helper",
+  "candidate": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+  "result": "PASS",
+  "source_preserved": true,
+  "identity": {
+    "source_manifest_files": 278,
+    "all_source_hashes_match": true,
+    "source_mismatches": [],
+    "actual_runtime": {
+      "platform": "macOS-27.2-arm64-arm-64bit",
+      "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+      "pillow": "10.4.0",
+      "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n"
+    },
+    "recorded_runtime_matches": {
+      "platform": true,
+      "python": true,
+      "pillow": true,
+      "cc": true
+    },
+    "original_lane_headers": {
+      "build/gen/felucca_font.h": {
+        "recorded_sha256": "091fa798cb22f69cf80f15ee00d23ec8ed9e8d66ae44bf1f7d45bcfb25c8b6d9",
+        "actual_sha256": "091fa798cb22f69cf80f15ee00d23ec8ed9e8d66ae44bf1f7d45bcfb25c8b6d9",
+        "match": true
+      },
+      "build/gen/x0x_break_bank.h": {
+        "recorded_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+        "actual_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+        "match": true
+      },
+      "build/gen/x0x_drum_samples.h": {
+        "recorded_sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "actual_sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "match": true
+      },
+      "build/gen/x0x_drum_tables.h": {
+        "recorded_sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "actual_sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "match": true
+      }
+    }
+  },
+  "reused_checks": [
+    {
+      "command": [
+        "python3",
+        "tests/host/test_host_setup.py",
+        "-v"
+      ],
+      "result": "PASS (7 tests)",
+      "log": "evidence/host-setup-stage2/fixtures.log",
+      "coverage": "Empty headers, generated-only compiler exclusion, custom bank with spaces, existing header reuse, default build flags/output/environment, setup failure in both modes, compiler failure."
+    },
+    {
+      "command": [
+        "sh",
+        "tests/host/smc_reachability_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 3.849095708,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/smc_reachability.log",
+      "result": "PASS",
+      "scope": "Real production probe on recorded macOS configuration."
+    },
+    {
+      "command": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 3.1527209170000003,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/smc_drum_mutes.log",
+      "result": "PASS",
+      "scope": "Real production probe on recorded macOS configuration."
+    },
+    {
+      "command": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 2.996736416,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/smc_performance_abort.log",
+      "result": "PASS",
+      "scope": "Real production probe on recorded macOS configuration."
+    },
+    {
+      "command": [
+        "sh",
+        "tests/host/ui_feedback_test.sh"
+      ],
+      "environment_overrides": {
+        "CC": "cc",
+        "X0X_HOST_DEFS": "-D_DARWIN_C_SOURCE"
+      },
+      "elapsed_seconds": 2.9837166669999995,
+      "exit_code": 0,
+      "log": "evidence/host-setup-stage2/ui_feedback.log",
+      "result": "PASS",
+      "scope": "Real production probe on recorded macOS configuration."
+    }
+  ],
+  "retained_log_identities": {
+    "evidence/host-setup-stage2/smc_drum_mutes.log": {
+      "sha256": "e54cc258b48f8ae80aa5c4b006409b7de8fecf29453fabe6973a6d70ff428465",
+      "bytes": 4054,
+      "contains_PASS": true
+    },
+    "evidence/host-setup-stage2/smc_reachability.log": {
+      "sha256": "e2322eab897bf8bd378ca9c17f182fd35c889c58cd0286c7e339a0190a24b7e8",
+      "bytes": 465,
+      "contains_PASS": true
+    },
+    "evidence/host-setup-stage2/ui_feedback.log": {
+      "sha256": "0207ce40cfd05838cb868ae9684d20eb1f3b82976d7cd25854cab0187cbcf8c2",
+      "bytes": 65,
+      "contains_PASS": true
+    },
+    "evidence/host-setup-stage2/fixtures.log": {
+      "sha256": "72413de5cb968d0cf81ae89416817967b44fb2ee0a98f9b562c5e759ba4fd30e",
+      "bytes": 547,
+      "contains_PASS": false
+    },
+    "evidence/host-setup-stage2/smc_performance_abort.log": {
+      "sha256": "3633c954719dfff591f8d5b6f1070b78641df2649292a2323c79f1475378e1ad",
+      "bytes": 500,
+      "contains_PASS": true
+    }
+  },
+  "new_checks": [
+    {
+      "command": [
+        "python3",
+        "evidence/host-setup-stage3/test/supplemental.py",
+        "-v"
+      ],
+      "result": "PASS (2 tests; 16 caller subcases plus invalid option)",
+      "log": "evidence/host-setup-stage3/test/supplemental.log",
+      "script_sha256": "0e52aa84d05bc01280dcaeab0038dd79efd5724daea37ac5f4a307aad181bd60",
+      "risks": "New option dispatch and caller changes could suppress generation errors, compile twice, lose source overrides/environment/arguments, or leak scratch outputs.",
+      "coverage": [
+        "Unknown first option exits 2 before creating output directories.",
+        "Each of four candidate caller shell scripts executes in a disposable stub fixture with cleared build/log outputs per subcase and source override/configuration forwarding.",
+        "Each caller succeeds and propagates setup/compiler/probe failures as expected.",
+        "Each caller compiles only its probe; generate-only creates no unused simulator.",
+        "Each caller removes its scratch output directory on success and each failure.",
+        "UI feedback retains native Darwin definitions, excludes unrelated X0X_HOST_DEFS, and forwards arguments."
+      ]
+    }
+  ],
+  "failures": [],
+  "limits": [
+    "Retained stage2 source hashes, generated-header hashes and runtime version strings match. Stage2 did not fingerprint full installed Python/Pillow/compiler package bytes; no stronger dependency-byte identity is claimed.",
+    "Generated headers were compared read-only in the original stage2 lane; the fresh stage3 lane has no generated outputs.",
+    "Supplemental tests use controlled generators/compiler for shell contracts. The four retained stage2 logs provide the actual production probe coverage.",
+    "Normal default simulator dispatch is covered by the retained compiler fixture and exact unchanged compile section, without another actual full simulator compile.",
+    "No paired baseline timing or numeric speed saving is established.",
+    "No target/controller build, full gate, device test, integration or external push ran."
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "workflow": "host-setup-20261021",
+  "stage": 3,
+  "role": "independent investigation",
+  "candidate": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+  "audit_base": "9a94229b3ff8751763351b403e980ac2a2a4cdf6",
+  "result": "PASS",
+  "blocking_findings": [],
+  "source_checks": {
+    "asset_setup_exact": true,
+    "default_compile_exact": true,
+    "runner_exact": true,
+    "quickcheck_exact": true,
+    "builtin_generator_exact": true
+  },
+  "callers": {
+    "smc_reachability": {
+      "caller_normalizes_exactly_to_base": true,
+      "probe_c_exact": true,
+      "probe_includes_simulator": true,
+      "output_host_consumed": false
+    },
+    "smc_drum_mutes": {
+      "caller_normalizes_exactly_to_base": true,
+      "probe_c_exact": true,
+      "probe_includes_simulator": true,
+      "output_host_consumed": false
+    },
+    "smc_performance_abort": {
+      "caller_normalizes_exactly_to_base": true,
+      "probe_c_exact": true,
+      "probe_includes_simulator": true,
+      "output_host_consumed": false
+    },
+    "ui_feedback": {
+      "caller_normalizes_exactly_to_base": true,
+      "probe_c_exact": true,
+      "probe_includes_simulator": true,
+      "output_host_consumed": false
+    }
+  },
+  "conclusions": [
+    {
+      "scope": "Setup mode and default simulator",
+      "evidence": [
+        "host/build_host.sh:8",
+        "host/build_host.sh:14",
+        "host/build_host.sh:18",
+        "host/build_host.sh:23"
+      ],
+      "finding": "The new switch exits only after the unchanged setup. The no-argument compiler inputs, output selection and failure semantics are unchanged. Unknown first arguments now fail before setup; no repository production consumer passes an unexpected positional argument."
+    },
+    {
+      "scope": "Discarded compile coverage",
+      "evidence": [
+        "tests/run_tests.sh:163",
+        "tests/run_tests.sh:304",
+        "tests/run_tests.sh:312",
+        "tools/quickcheck.sh:303"
+      ],
+      "finding": "The default suite retains one dedicated simulator compile, scenario execution and the special scratch simulator compile. Host-source changes still select host-build and scenarios. Each changed probe includes host/x0x_host.c and links the same shared source list; the temporary simulator executable was not used by the probe."
+    },
+    {
+      "scope": "Generator failures",
+      "evidence": [
+        "host/build_host.sh:6",
+        "host/build_host.sh:14",
+        "host/build_host.sh:17",
+        "tools/gen_builtin_break.sh:5",
+        "tools/gen_builtin_break.sh:10"
+      ],
+      "finding": "set -e still stops on font, drum, custom-bank, builtin-helper compile or builtin-helper execution failure. Generation remains before the new success exit. The builtin generator still uses the compiler; the mode skips only the simulator compile."
+    },
+    {
+      "scope": "Caller state, errors and source overrides",
+      "evidence": [
+        "tests/host/smc_reachability_test.sh:5",
+        "tests/host/smc_reachability_test.sh:7",
+        "tests/host/smc_drum_mutes_test.sh:9",
+        "tests/host/smc_drum_mutes_test.sh:16",
+        "tests/host/smc_performance_abort_test.sh:7",
+        "tests/host/smc_performance_abort_test.sh:13",
+        "tests/host/ui_feedback_test.sh:6",
+        "tests/host/ui_feedback_test.sh:11"
+      ],
+      "finding": "Caller traps, diagnostic replay, probe compile flags, SMC_SOURCE_ROOT/SMC_SOURCE/SMC_SOURCE_FILE selection and UI feedback native HOST_DEFS handling are byte-preserved after normalizing the new setup option and comment. No later command consumes the discarded $OUT/host binary."
+    },
+    {
+      "scope": "Generated headers and concurrency",
+      "evidence": [
+        "host/build_host.sh:13",
+        "host/build_host.sh:14",
+        "tests/run_tests.sh:56",
+        "tests/run_tests.sh:124"
+      ],
+      "finding": "The changed probes remain class G and retain the shared generated-header lock in the standard runner. Existing font/drum presence checks and per-call break generation are unchanged. No new safety claim is made for concurrent direct script calls outside that runner."
+    }
+  ],
+  "nonblocking_limits": [
+    {
+      "scope": "Fixture registration",
+      "evidence": [
+        "tests/host/test_host_setup.py:115",
+        "tests/run_tests.sh:137"
+      ],
+      "finding": "The seven setup fixtures were invoked directly for this candidate. The new test file is not registered in tests/run_tests.sh, so normal suite runs do not automatically run those fixture contracts. The assignment did not require registration or edits to the shared runner. A later owner can register them as a tooling coverage improvement."
+    },
+    {
+      "scope": "Measurement",
+      "finding": "No paired baseline timing establishes numeric simulator compile savings. The evidence proves four eliminated unused simulator invocations and preserved real probe PASS results."
+    },
+    {
+      "scope": "Source review boundary",
+      "finding": "This helper executed no test, target build, controller build, formal gate or device operation. The separate test helper owns evidence matching and supplemental executed checks."
+    },
+    {
+      "scope": "Simulator and scenarios",
+      "finding": "The host-build and scenario routes were reviewed in unchanged source only. This stage3 investigation did not execute the full simulator build or scenario suite and does not claim a new simulator/scenario PASS."
+    }
+  ],
+  "necessary_supplemental_coverage": [
+    "Invalid option rejection before generators/compiler run.",
+    "Caller success/setup-failure/probe-compile-failure cleanup and diagnostic preservation.",
+    "Supported source override and UI feedback argument forwarding dispatch."
+  ],
+  "source_preserved": true,
+  "reviewed_source_sha256": {
+    "host/build_host.sh": "0b0644ceb4706ed4f328081ac9699ce3e66cc2f8d4226d8666c57d4a39a27acd",
+    "tests/run_tests.sh": "281c75d6337919ace9e0792c59fb684b255bcc0985d5196701d3e9fa69d71e6f",
+    "tools/quickcheck.sh": "cf14305620be2c40a9156d9636fe5dbf9789f93ef31118558a76622c16da6d09",
+    "tools/gen_builtin_break.sh": "e36f6056d63cb572f5829d9e536d36af22da63540d21aeb593c14cf588582537",
+    "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
+    "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
+    "tests/host/smc_reachability_test.c": "837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4",
+    "tests/host/smc_drum_mutes_test.sh": "bb24f80cef63ca74b95697c72e89c12c6106b1024a2ab367d8629ec1b48d994f",
+    "tests/host/smc_drum_mutes_test.c": "8d828bc5537f32c720a92006850916e9ce3b1646622f0f0003be7d6b84d65fb4",
+    "tests/host/smc_performance_abort_test.sh": "a7563087ffbf02a2bbb52e3293866c733263166cfb55b3cc44492fdd158924dd",
+    "tests/host/smc_performance_abort_test.c": "5cc405670147eb2fe4362cf45aa65d58cb19d8d44db10bfbb77a65d760582fce",
+    "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf",
+    "tests/host/ui_feedback_test.c": "5c04d4a08b90c9c7bb8983682f3c84fff6b5db86832733fe22fa740e93fdc93d"
+  }
+}
