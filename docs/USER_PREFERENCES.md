@@ -2,14 +2,9 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
-## On-demand rules — 2026-10-20
+## On-demand rules
 
-Source: owner in this chat requested rules initialized only when needed, fewer
-redundant rules, and faster progress with fewer errors and wasted usage.
-This supersedes mandatory startup loading of both writing skills in the
-2026-10-19 entries below. Plain, correct, concise writing still applies to all
-output. Read core once; load step rules and full skills only for the triggers
-in agent-rules.md and SKILLS.md. Active rules: rules/core.md and rules/style.md.
+- 2026-10-20 Source: owner in this chat requested rules initialized only when needed, fewer redundant rules, and faster progress with fewer errors and wasted usage. This supersedes mandatory startup loading of both writing skills in the 2026-10-19 entries below. Plain, correct, concise writing still applies to all output. Read core once; load step rules and full skills only for the triggers in agent-rules.md and SKILLS.md. Active rules: core.md rule 6A; style.md rule 15; docs.md rule 12A.
 
 ## Team rules
 

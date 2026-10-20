@@ -64,7 +64,44 @@ Pre-edit backups and before/after hashes are saved in
 `repo-bak/rules-stage-threads-20261020T120209987800Z/manifest.json`.
 All unrelated live preference and rule content was preserved.
 
-The broader stable-pointer rollout remains owned by the active enforcement
-thread named above. A dry run showed 25 checkout entry files to refresh; it
-received the applied-file handoff so that rollout can use these maintained
-rules. This task does not overwrite its tooling or run a competing rollout.
+The broader stable-pointer rollout completed in the enforcement task. Its
+audit at `649c5bc:docs/audit/workflow-2026-10-20.md`
+records 105 updated files and a zero-drift check; its backups are in
+`repo-bak/rules-rollout-20261020T120523015014Z/`. The earlier pending status is
+superseded. The enforcement implementation and its audit remain a separate
+integration scope.
+
+## Local history integration
+
+Receiving rules integration owner: fresh thread
+`01a1593b-2362-7703-850e-67466600f08a`, lane
+`lane/dk-rules-thread-integration`. Starting maintained branch: `smk37` at
+`5d7997da2082b528924716643c607b276e71b9c1`.
+
+The reviewed predecessor `72b0a2a` and workflow commit `f900140` are retained
+as ancestors. This integration adds only this status correction and preserves
+the already-reviewed dated-bullet format of the on-demand preference from
+the enforcement task. It changes no workflow requirement; the final independent
+review above remains applicable. No enforcement implementation or firmware
+change is included. The live checkout's additional decisions and formatting,
+stable discovery pointers, and unrelated working changes remain intact.
+
+The integration backup is
+`repo-bak/rules-thread-integration-20261020T121440Z/`: 46 dirty/untracked files,
+the initial binary diff, SHA-256 manifest, and starting HEAD. Final execution
+evidence is saved there as `integration-result.json` and `checks.txt`, including
+the integrated commit, branch containment, exact workflow equality, preference
+history equality, and preservation checks. The branch advances by normal Git
+fast-forward merge; no reference shortcut or history rewrite is used.
+
+Scoped pre-integration checks: current decision validator PASS (16 live entries,
+12 integration-lane entries); changed links and whitespace checked. Prior scratch
+rollout regression remains valid because its implementation was not changed.
+The rollout check confirms existing mirrors and prior checkout pointers; it
+reports two missing managed pointers in the newly created, separately owned
+`firmware_smc_receive_20261020` checkout. Those new-lane discovery additions are
+outside this history integration and do not invalidate the earlier completed
+rollout. Final evidence records any change in that concurrent state.
+
+This completes the rules-only integration. No firmware audit, build, device
+write, external push, or code-workflow successor is part of this task.
