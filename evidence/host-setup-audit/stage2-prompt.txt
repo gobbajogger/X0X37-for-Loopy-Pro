@@ -1,0 +1,26 @@
+Begin now. You own stage2 implementation of workflow host-setup-20261021.
+Source chat 01a15a99-75d7-7921-9d65-f4b120566904.
+Owner request: “Check the old thread that it's still working under old rules and maybe there's more to improve build times”. This continues the authorized implementation goal to reduce build times to the absolute minimum without sacrificing features or relevant checks. No additional owner approval is needed for this reversible host-tool reduction.
+
+Read /Users/mac/Documents/x0x37/AGENTS.md and current task, writing, workflow, check skills from /Users/mac/Documents/x0x37/.agents/skills/. Plain English is now the default; do not load STE dictionary or strict sources without an explicit strict-review request. Load only the current step's instructions; reuse unchanged sources. Read /Users/mac/Documents/x0x37/host_setup_audit/evidence/host-setup-audit/audit.json.
+
+Create an isolated lane/opt-host-setup-implementation worktree from audit commit 9a94229b3ff8751763351b403e980ac2a2a4cdf6. It is based on combined checked firmware 1165396199210889fa460d26cbdd0b66183267e1. Do not edit the integration/source worktree or active validation/cache scripts.
+
+Implement one small reduction: host/build_host.sh should offer a generate-only mode that runs its existing asset setup but stops before the full simulator compile. Use this in four callers that discard the produced temporary simulator and independently compile/run their actual probe:
+- tests/host/smc_reachability_test.sh
+- tests/host/smc_drum_mutes_test.sh
+- tests/host/smc_performance_abort_test.sh
+- tests/host/ui_feedback_test.sh
+
+Own host/build_host.sh, these four shell scripts, and a focused test for the new setup contract if needed. Leave each probe C source, assertions, compile flags, test selection, model scope and required coverage unchanged. Default host/build_host.sh must still build the normal simulator; full-suite host-build and scenarios stay intact. Preserve environment variables, custom break-bank setup, failures, clean scratch starts and cleanup. Read script headers before running. This task needs no target compiler build, controller build, device, release/full gate, external push or new firmware integrator.
+
+Validate generate-only and default behavior with focused fixtures, including empty headers/startup and setup failure. Run the four real probes once in a supported environment with the matching host definitions; use recorded baseline evidence if its inputs match rather than compiling four old discarded binaries just to time a baseline. Capture actual command timers and outcomes. Do not claim savings not measured. Existing native Mac compiler needs its normal platform definitions; Linux fixtures can use CC=cc and X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L. Preserve each script's actual supported configuration and investigate any failure.
+
+Separate active ownership:
+- asset caching: /Users/mac/Documents/x0x37/asset_reuse_implementation, thread 01a15ad1-a598-7a01-baae-5a8ac034d2c4, owns tools/build.py/tools/asset_cache.py/cache tests and minimal asset docs. It is optimizing cache lookup itself. Do not edit those files.
+- native validator review: /Users/mac/Documents/x0x37/build_time_stage3, thread 01a15ad7-8be3-7301-aabe-e4533790c4a2, owns review of tools/dev_validate.py and validation_inputs.py candidate 6d690e3. Do not duplicate or weaken it.
+- combined firmware validation/install retains owners 01a15ac6-2f01-7e93-93b8-cf1910a41ea1 and sole integrator 01a15ac1-6dac-7ca2-a2fc-877c4671ab33. No device operations here.
+
+Repeated break generation and automatic quickcheck routing/default STE checks are separate findings, not reasons to enlarge this change. After the asset cache is checked, a later controlled combination can reuse its generator in host setup. Report that remaining limit if still present.
+
+Complete implementation and scoped checks, commit with genkigenki author per check skill, then launch exactly one fresh stage3 with separate test/investigation subagents per workflow17. Preserve already matching evidence and avoid rerunning expensive checks without a concrete new risk. Verify successor actual startup and end stage2 under workflow18. Carry exact candidate, logs, timers, owner scope and current shared skill paths. A checked local tooling commit and handoff are sufficient; do not launch a competing firmware merge/install pipeline.
