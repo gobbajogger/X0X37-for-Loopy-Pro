@@ -3,7 +3,8 @@
 - Start each task in a fresh chat. This includes work continued from another chat.
   Complete the task in its assigned fresh chat. Do not create another copy of that task.
 
-  For a staged workflow, use [rules 17 and 18](../../x0x37-workflow/SKILL.md).
+  Apply [chat routing](routing.md) before choosing its destination.
+  Logical workflow stages do not each need another chat; use [rules 17 and 18](../../x0x37-workflow/SKILL.md).
 - Use old chats for context and handoff details. The owner permits new agents to request that information.
   The owner permits requests for a completion notice from a working chat. The owner also permits that reply.
 

@@ -1,0 +1,9 @@
+Checked dirty lane/dk-rules-classic-chat, parent c3f8683.
+python3 tools/check_project_skills.py: PASS, 10 skills.
+python3 tools/prefs_lint.py docs/USER_PREFERENCES.md: PREFS OK, 30 current entries.
+python3 tests/host/test_rules_rollout.py: PASS, dry run/backups/discovery/third-party exclusion/repeat.
+Initial rollout regression exposed a stale canonical managed-entry line; fixed to match the generator before PASS.
+git diff --check: PASS.
+No firmware build, full gate, installation, device test, or external push performed; rules and discovery only.
+Post-rollout maintained sources: skill validator PASS; preference pointers PREFS OK 30.
+Standard rollout --check: PASS, zero drift.

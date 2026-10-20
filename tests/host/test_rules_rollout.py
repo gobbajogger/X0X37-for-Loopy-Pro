@@ -60,6 +60,8 @@ def main():
         assert (workspace / 'old/.git/hooks/pre-push').stat().st_mode & 0o111
         assert (workspace / 'third-party/AGENTS.md').read_text() == 'old checkout rules\n'
         assert '(../AGENTS.md)' in (workspace / 'old/AGENTS.md').read_text()
+        assert 'classic ChatGPT inside LoopyX0X37' in (workspace / 'AGENTS.md').read_text()
+        assert 'references/routing.md' in (workspace / 'old/AGENTS.md').read_text()
         skill = workspace / '.agents/skills/x0x37-task/SKILL.md'
         assert skill.read_bytes() == (canonical / 'skills/x0x37-task/SKILL.md').read_bytes()
         assert (workspace / 'old/.agents/skills/x0x37-install/SKILL.md').resolve() == (canonical / 'skills/x0x37-install/SKILL.md').resolve()

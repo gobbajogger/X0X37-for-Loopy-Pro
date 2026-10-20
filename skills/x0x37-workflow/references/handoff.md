@@ -1,37 +1,31 @@
-# Launch and verify the next stage
+# Hand back results
 
-If no stage remains, end the workflow. Otherwise, the recorded owner starts one fresh chat after current required checks pass.
-Create exactly one successor for the next required stage.
-Do not ask the owner to launch it or create all stages in advance. The receiver does its assignment; it does not create itself again.
-The owner permits automatic launch, recovery handoffs, startup checks, and completion notices within the requested workflow.
-Carry that permission and its source in every prompt. Use [rule 14](../../x0x37-owner-decisions/SKILL.md) for action scope.
+After required checks pass, record the result, exact revision, inputs, logs, artifacts, remaining work,
+and originating classic ChatGPT thread in LoopyX0X37. Return that compact result through an authorized channel.
+If no work remains, end the workflow. Do not automatically create another Codex thread for the next logical stage.
+Use [chat routing](../../x0x37-task/references/routing.md) for the next task and its project destination.
 
-1. Save the complete prompt and successor record in the lane's evidence folder before creation.
-   Include:
-   - A unique workflow/stage marker, source chat, and current skill entry.
-   - Required skill names and paths, lane, repository, and exact revision.
-   - Approved scope, missing decisions, commits, validation inputs, logs, artifacts, failures, and completion criteria.
-   Name the next stage and one receiver. Preserve every attempt and error.
-2. Check the saved record and project activity, including idle and setup chats, for an existing successor.
-   Use `list_projects`, then `create_thread`. Use local execution unless the owner selected another environment. Keep model defaults.
-   Tell the receiver to begin now, read the handoff, and initialize `x0x37-task`, `x0x37-workflow`, and its stage skills.
-   Record host and chat IDs immediately. A pending client ID is not a chat ID; resolve setup with supported status tools.
-3. Verify startup with `read_thread` or `wait_threads`.
-   Require a new assistant response or tool activity that acknowledges the assignment or reads its inputs. A successful completed turn qualifies.
-   Creation, title, queued input, or an active flag alone is insufficient. Failed/interrupted turns and self-launch requests do not qualify.
-   Save the observed turn ID and evidence. Mark `started`, report the receiver, and end this stage without waiting for its completion.
-4. Until startup is verified, keep the handoff `pending` or `blocked`.
-   Before a retry, inspect IDs, activity, and matching contents. Use bounded status waits, not timer automations.
-   A transient service/setup error permits one retry only after a fresh check confirms no successor exists.
-   After a timeout or lost response, do not create another chat while the outcome is uncertain.
-   If an existing successor failed before work began, verify no active or queued turn/input. Recover that same chat with the saved prompt.
-   The recorded sender may make that recovery turn. Do not resend to a running or completed stage. Preserve the error and recovery result.
-   Resolve access, setup, permission denials, and policy refusals; do not bypass them.
-   Permission-setting changes need explicit owner permission, including any existing permission for automatic handoff tools.
-   If blocked, report the dependency, saved prompt/record, successor ID, and next action.
+If the owner explicitly requested a separate execution task and its tools are necessary:
 
-A failed or blocked stage is incomplete. Finish authorized work or launch its required fresh repair stage with a concrete handoff.
-A missing device leaves installation pending; do not skip to push or report failed checks as success.
-Only a real missing permission pauses dependent work. Use valid evidence again; do not restart completed work.
-Use [rule 2](../../x0x37-task/SKILL.md) for context and completion notices.
-Report unresolved outcomes truthfully. These checks cannot guarantee service availability.
+1. Save its prompt and record before launch: unique task marker, source chat, project, lane, exact revision,
+   tool requirement, relevant skill paths, approved scope and permission source, evidence, failures, and completion condition.
+2. Check that no matching receiver exists, including idle and setup chats. Select the correct local project
+   with `list_projects`; use `create_thread` only for the requested Codex task. Keep model defaults.
+   Record its host and chat IDs. A pending client ID is not a chat ID.
+3. Verify new assistant or tool activity that acknowledges the assignment or reads its inputs.
+   Creation, title, queued input, or an active flag alone is insufficient. Record the turn and startup evidence.
+   End the sender's task after verified startup; do not wait for the receiver's full task.
+4. Keep uncertain launches pending. Inspect existing IDs before retrying; never duplicate an uncertain task.
+   One transient retry is permitted only after confirming no receiver exists. Recover an unstarted receiver
+   only through an authorized channel, with no active or queued input. Preserve attempts and errors.
+   Respect tool permission requirements and policy refusals; do not change approval settings as a workaround.
+
+Classic ChatGPT creation must retain the LoopyX0X37 project and classic mode.
+If no supported tool can do that, provide the saved prompt and project link for the owner to launch.
+Do not substitute a general chat, ChatGPT Work, cloud agent, or another Codex task.
+Report `prompt ready; owner launch needed` rather than claiming startup or waiting for unavailable automation.
+
+Failed checks need repair and affected checks before advancement. A missing device leaves installation pending;
+do not skip it to push or report failed checks as success. Reuse valid evidence and finish already authorized work.
+Existing action permission continues under [rule 14](../../x0x37-owner-decisions/SKILL.md).
+Use [rule 2](../../x0x37-task/SKILL.md) for authorized context and completion notices.

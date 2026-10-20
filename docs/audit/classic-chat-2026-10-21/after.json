@@ -1,0 +1,72 @@
+{
+  "AGENTS.md": {
+    "sha256": "04d45e967e955154dc916f1c49f1a288c762e4502824f0b5ff4a11e1d97b6534",
+    "bytes": 1055,
+    "words": 134
+  },
+  "docs/USER_PREFERENCES.md": {
+    "sha256": "e941b83fd9ebe4e0369d973e194f2f32ef9c83e9fb72243c6984588bec389428",
+    "bytes": 43074,
+    "words": 6788
+  },
+  "docs/agent-rules.md": {
+    "sha256": "1dc89305d33d85ae4195908cf57586ccc388e41b814155d9c718a0c371d4a920",
+    "bytes": 1817,
+    "words": 179
+  },
+  "docs/chatgpt-project-instructions.txt": {
+    "sha256": "f82e3f5e3b867a1a5b6589f39828d911d32f4cd016364318e642d9089187eef3",
+    "bytes": 1264,
+    "words": 173
+  },
+  "skills/workflows.json": {
+    "sha256": "f81db9b22c3662d4bab8988b7f4deb3e4ef6ea2ea06e44cab807d99865cd2d9c",
+    "bytes": 2639,
+    "words": 262
+  },
+  "skills/x0x37-owner-decisions/SKILL.md": {
+    "sha256": "6a0382297f39cf25ae582a7fd581cfc628ad8dbf70b26067e907b26b2859b9d4",
+    "bytes": 2640,
+    "words": 365
+  },
+  "skills/x0x37-task/SKILL.md": {
+    "sha256": "c3ae0d6f762214064e9a43fe3b5192e64bb891ee5ae736bf8d232397527891c0",
+    "bytes": 2505,
+    "words": 364
+  },
+  "skills/x0x37-task/references/ownership.md": {
+    "sha256": "e85e66fb8451e1717a9456f0743a9d9169e58d0039eaa42bce9f3cd882d561a1",
+    "bytes": 1127,
+    "words": 186
+  },
+  "skills/x0x37-task/references/routing.md": {
+    "sha256": "4935398a25a8b5cfc818f3491f87d06808448f21cfd8e3c979adc565c662615e",
+    "bytes": 2799,
+    "words": 391
+  },
+  "skills/x0x37-workflow/SKILL.md": {
+    "sha256": "5f7aba6deb61e53f50fb7c70af5f1f7698bdcf5bc6d627e3d4ab8413107146c3",
+    "bytes": 1358,
+    "words": 186
+  },
+  "skills/x0x37-workflow/references/handoff.md": {
+    "sha256": "a6140e7667f2b9b89afc4a695f725b05d004d0c8715dfae9bb908b0e6430f073",
+    "bytes": 2575,
+    "words": 371
+  },
+  "skills/x0x37-workflow/references/stages.md": {
+    "sha256": "38ffdb257dc88690f7164bfb9b8a0f1013de436d8219fcbdc8ab4dab5b85d4bf",
+    "bytes": 2788,
+    "words": 358
+  },
+  "tests/host/test_rules_rollout.py": {
+    "sha256": "6175b9598214fb67bfb8c934f9655bbf22540dfb36ac3b08d394c5220fba703c",
+    "bytes": 7766,
+    "words": 616
+  },
+  "tools/rollout_rules.py": {
+    "sha256": "a5534771048ece560d3a99b8518a9a3d48dd9265122989ac0907f0b18288f4b1",
+    "bytes": 11940,
+    "words": 1192
+  }
+}

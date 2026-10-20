@@ -13,7 +13,8 @@ Do not invent a setup error. Ask a necessary new decision in the current task.
 Contact another chat or person only with owner permission.
 [Rule 2](../x0x37-task/SKILL.md) permits continuation context, handoff details, and completion replies.
 
-[Rule 18](../x0x37-workflow/SKILL.md) permits automatic stage launch, recovery, and completion notices.
+[Rule 18](../x0x37-workflow/SKILL.md) governs necessary execution handoffs, recovery, and completion notices.
+Apply [chat routing](../x0x37-task/references/routing.md); old automatic-stage permission does not require another Codex task.
 Those permissions do not permit unrelated messages.
 
 ### Rule 14: existing authorization

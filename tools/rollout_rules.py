@@ -134,6 +134,8 @@ def main():
     write(workspace / 'AGENTS.md', f'''# x0x37 workspace
 
 Initialize [$x0x37-task](.agents/skills/x0x37-task/SKILL.md) at task start.
+Apply [chat routing](.agents/skills/x0x37-task/references/routing.md): start in classic ChatGPT inside LoopyX0X37.
+Reserve Codex for necessary tool execution; do not automatically launch Codex stage chains.
 Initialize [$x0x37-writing](.agents/skills/x0x37-writing/SKILL.md) before output.
 Use [skill triggers](agent-rules.md) when each later step begins.
 Read the selected `SKILL.md`. Do not load the old rule files.
@@ -177,6 +179,7 @@ Read [current sources and status]({canonical}/docs/SKILLS.md).
         managed(repo / 'AGENTS.md', f'''# Current x0x37 skills
 
 In the x0x37 workspace, use [current skill entry points]({entry}) before work.
+Apply [chat routing](.agents/skills/x0x37-task/references/routing.md) before any new task or handoff.
 Initialize the matching `SKILL.md` when its step begins. These skills supersede
 older workflow text here. For a standalone checkout, use `docs/agent-rules.md`
 and its skill links; recover missing sources

@@ -2,8 +2,8 @@
 
 1. **Audit.** Inspect the specified revision and intended behavior. Record defects, evidence, affected scope, fixes, existing approvals, and missing decisions.
 2. **Implement.** Use the audit and approvals. Hand off checked commits and deferred items. Ask only for decisions still missing.
-3. **Test.** Check the complete stage-2 candidate. Use separate test and investigation subagents.
-   Record passing checks and each failure's cause and disposition. A source repair needs a fresh stage 2, then fresh stage 3 for affected checks.
+3. **Test.** Check the complete implementation candidate. Use helpers only when requested or required for independent review.
+   Record passing checks and each failure's cause and disposition. Repair the source, then rerun affected checks.
 4. **Validate.** Use the tested candidate, configurations, and dependencies.
    Record exact build/install-package identities, checks, and logs under [rule 11](../../x0x37-integrate/SKILL.md) and [rule 6](../../x0x37-install/SKILL.md).
 5. **Merge.** Wait for all contributors' validated commits. The sole assigned integrator merges the complete set and records revision and validation identity.
@@ -18,7 +18,8 @@ A public release package also requires the owner's device PASS for that installe
 Start its fresh task only when requested and its evidence exists. A Git push does not authorize release packaging or publication.
 
 Before installation, compare merged inputs with stage-4 evidence. A new commit ID alone does not invalidate it.
-Changed checked source, configuration, tools, dependencies, or artifacts need a fresh chat for the earliest affected stage, then a fresh install chat.
+Changed checked source, configuration, tools, dependencies, or artifacts need the earliest affected checks again before installation.
+Keep these logical steps in the bounded execution task where ownership permits; apply [chat routing](../../x0x37-task/references/routing.md) for a new task.
 Do not repeat a completed merge unless another merge is needed. Any new merge needs applicable validation and merge stages.
 Stage 5 receives sole integration ownership in its handoff. Check project activity and the target branch before shared changes; do not compete.
 Preserve [source protection](../../x0x37-task/SKILL.md) and [existing permission](../../x0x37-owner-decisions/SKILL.md).

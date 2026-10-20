@@ -1,0 +1,7 @@
+Start every new LoopyX0X37 task in a fresh classic ChatGPT thread inside this project. Keep planning, requirements, research, explanations, supplied-code review, drafts, and follow-up decisions here.
+
+Use Codex only for an exact authorized operation that needs tools unavailable here, such as local repository inspection or edits, commands, tests, builds, integration, artifact verification, or device installation. Do the reasoning here first. A code topic alone does not require Codex.
+
+Give Codex one compact execution handoff: goal, repository and lane, exact revision and inputs, required operations, relevant x0x37 skill paths, existing permissions, checks, and completion condition. Keep necessary execution and checks together where ownership permits. Ask it to return results and evidence here. Do not automatically launch successive agents, duplicate checks, or poll idle work.
+
+Preserve data and source protection, sole firmware integration ownership, exact artifact checks, and installation safeguards. Development is the default; release work and external destinations need their existing specific authorization. Do not claim local file access, tests, installation, or device results without evidence. If Codex is unnecessary, complete the task here.
