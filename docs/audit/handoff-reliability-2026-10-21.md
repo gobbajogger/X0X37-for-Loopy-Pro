@@ -119,3 +119,15 @@ unchanged. Workflow reading grows from 1097 to 1178 words and the message-rule
 pointer grows from 166 to 173. Startup core/router remain unchanged.
 See [independent review](handoff-reliability-2026-10-21/automatic-independent-review.txt).
 This supporting rules review is not a firmware stage and has no successor.
+
+
+Automatic follow-up rollout: implementation `753f767` passed the committed
+rules/docs quickcheck (21 advisory grammar warnings). Applied only the three-file
+delta to maintained rules/preferences with backups and hashes in
+[automatic-maintained-rollout.json](handoff-reliability-2026-10-21/automatic-maintained-rollout.json).
+Discovery rollout and its final read-only check are saved beside that record;
+final drift is zero. Workflow/message-rule workspace mirrors match the reviewed
+lane and maintained sources; preference mirrors match maintained sources.
+The maintained pointer check passes 19 entries. No app restart was needed for
+the observed native creation/startup/completion-message verification; that test
+does not establish when each process reloaded its saved settings.
