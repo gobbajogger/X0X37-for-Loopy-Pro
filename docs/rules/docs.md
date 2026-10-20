@@ -2,31 +2,36 @@
 
 ### Rule 12: current facts and history
 
-Update only affected docs: intended behavior in `BEHAVIOR.md`, changed plan
-status, actual results in the relevant log, and owner decisions with source
-and active rule in `docs/USER_PREFERENCES.md`. Never invent data or force unrelated
-log edits. The integration checkout owns intended firmware behavior.
+Update only affected documents. Put intended behavior in `BEHAVIOR.md` and actual results in the relevant log.
+Update changed plan status. Record owner decisions, sources, and active rules in `docs/USER_PREFERENCES.md`.
 
-Keep history intact; supersede conflicting decisions explicitly. Maintained
-instructions are `docs/agent-rules.md` and `docs/rules/`; workspace copies are
-mirrors. Device PASS covers only owner-tested items on the exact build; mark
-others NOT TESTED.
+Do not invent data or require unrelated log edits. The integration checkout owns intended firmware behavior.
 
-Owner checklists: at most ten tasks, each with goal and starting state. Include
-Build, Replaces, and Checked against decisions headers; link technical evidence.
+Preserve history. Explicitly supersede conflicting decisions.
+Maintain instructions in `docs/agent-rules.md` and `docs/rules/`. Workspace copies are mirrors.
+
+A device PASS covers only items that the owner tested on the exact build. Mark other items NOT TESTED.
+
+Limit an owner checklist to ten tasks. Give each task a goal and starting state.
+Include Build, Replaces, and Checked against decisions headers. Link technical evidence.
 
 ### Rule 12A: rule repair
 
-Use `lane/dk-rules-<topic>`. Record trigger, cause, effect, and checks in one audit.
-Keep each requirement in one home with short links elsewhere; load step rules
-on demand. Measure reading size before/after, but preserve meaning and guards.
-Use relevant [rule checks](SCRIPT-CHECKS.md) and one bounded independent review
-against representative tasks. Commit body needs `Trigger: <when>` and
-`Check: <script path or manual: reason>`.
+Use `lane/dk-rules-<topic>`. Record the trigger, cause, effect, and checks in one audit.
+Keep each requirement in one home. Use short links elsewhere. Load step rules only when needed.
 
-Finish authorized repair and rollout; no retired-role handoff loop. Coordinate
-actual overlap. Sync maintained entry points/rules with backups, preserve
-unrelated edits/history, and leave firmware integration with its owner. Give
-active agents a short path/change notice only through an authorized channel;
-otherwise save the handoff. Do not restart completed work. Log future material
-rule breaks in `docs/rules-breaks.md`.
+Measure text size before and after the change. Preserve meaning and guards.
+Use relevant [rule checks](SCRIPT-CHECKS.md) and one bounded independent review of representative tasks.
+
+Include these lines in the commit body:
+
+- `Trigger: <when>`
+- `Check: <script path or manual: reason>`
+
+Complete the authorized repair and rollout. Do not send work through retired roles.
+Coordinate actual file overlap. Back up changed files before synchronizing maintained rules and entry points.
+
+Preserve unrelated edits and history. Leave firmware integration with its assigned owner.
+Send active agents a short path and change notice only through an authorized channel. Otherwise, save the handoff.
+
+Do not restart completed work. Record future material rule violations in `docs/rules-breaks.md`.

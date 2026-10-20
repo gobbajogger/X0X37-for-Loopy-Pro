@@ -2,24 +2,43 @@
 
 ### Rule 13: messages and reports
 
-Owner reports are evidence for the named build/item. Keep exact quotes; do not
-invent setup mistakes. Ask needed decisions directly in this task. Messaging
-another chat or person requires owner authorization.
-The owner's standing authorization for continuation context, handoff messages,
-and completion replies is in [rule 2](core.md), with automatic successor
-launch/recovery in [rule 18](workflow.md). It does not authorize unrelated messages.
+Treat the owner's report as evidence for the specified build or item. Preserve exact quotes.
+Do not invent a setup error. Ask a necessary new decision in the current task.
+
+Contact another chat or person only with owner permission.
+[Rule 2](core.md) permits continuation context, handoff details, and completion replies.
+
+[Rule 18](workflow.md) permits automatic stage launch, recovery, and completion notices.
+Those permissions do not permit unrelated messages.
 
 ### Rule 14: existing authorization
 
-Do necessary reversible work within the owner's request and finish its checks.
-Ask only for missing facts needed for safe progress, a material choice outside
-scope, or an unauthorized irreversible action. A new visible, audible, or
-playable change needs a decision only when the request leaves it unsettled.
-Do not silently cut features, quality, model guards, or budgets for a PASS.
+Use the owner's current request and standing instructions to determine permission.
+Carry that permission through the required stages. Do not ask again because the chat, stage, commit, or artifact changed.
+
+The owner permits installation of the complete, validated development set without another approval question.
+This standing instruction applies to the current SMC workflow and later authorized development workflows.
+
+Send an install notice, then use [rules 5–7](install.md).
+A notice tells the owner what will happen. It is not a request for permission.
+
+Do not treat a handoff's claim of missing permission as stronger than the owner's instruction.
+
+Complete necessary reversible work and its checks within the requested scope.
+Ask only for a necessary missing fact, a new choice outside that scope, or an action with no existing permission.
+
+Ask about a visible, audible, or playable change only when the owner's request leaves that change undecided.
+Do not silently remove features, reduce quality, or weaken model guards or budgets to get a PASS.
+
+Installation permission does not permit an unspecified external push, release build, publication, fallback, or new feature.
+Apply [rule 1](core.md) to external destinations and [rule 11](integration.md) to release builds.
+
+Obey tool permission requirements. Do not bypass a refusal.
 
 ### Rule 4B: decision records
 
-Record new decisions and source in the [preference record](../USER_PREFERENCES.md)
-with the active rule. Say "supersedes" and name replaced scope. Authorized skill
-repairs need no retired-role approval; verify exact sources/provenance before
-claiming skill use.
+Record each new owner decision and its source in the [preference record](../USER_PREFERENCES.md).
+Link its active rule. Use "supersedes" and identify the replaced instruction.
+
+Authorized skill repairs do not need approval from a retired role.
+Check exact skill sources and their status before claiming that you used them.

@@ -2,102 +2,106 @@
 
 ### Rule 17: one fresh thread per stage
 
-For an authorized code workflow, use this order. Each stage runs in a new
-thread; subagents support a stage and do not replace its thread. A rules-only
-request does not start a code audit or release cycle.
+Use this order for an authorized code workflow. Start each stage in a fresh chat.
+Subagents support a stage. They do not replace its chat.
 
-| Stage | Goal and starting state | Completion evidence |
-| --- | --- | --- |
-| 1. Audit | Inspect the identified code revision and current intended behavior. | Defects with evidence, affected scope, and proposed fixes; identify which fixes already have approval and which need a decision. |
-| 2. Implement approved fixes | Use the audit and recorded approvals. | Checked lane commits for approved fixes and a record of deferred items. Request only missing decisions; preserve existing authorization. |
-| 3. Test and investigate | Test the complete candidate from stage 2. Use subagents for tests and failure investigation, with separate scopes. | Relevant tests pass; failures have causes and dispositions. New code fixes return to a fresh stage 2 thread, then a fresh stage 3 thread for affected checks. |
-| 4. Validate build and packages | Use the tested candidate, target configurations, and dependencies. | Exact candidate build/install-package identities, checks, and logs under [validation](integration.md) and [install/release](install.md) rules. |
-| 5. Merge | Use validated commits after all contributing lanes have handed off. | The sole assigned integrator merges the complete set and records the resulting revision and its validation identity. |
-| 6. Install | Use the merged revision, matching validated artifacts, and recorded install scope. | The designated installer records installation and data-preservation checks under [install rules](install.md). |
-| 7. Push to Git | Use the completed merge and install evidence, approved repository/ref, and recorded push scope. | Verify the remote ref matches the intended commit. End this workflow; do not start another audit automatically. |
+A rules-only request does not start a firmware audit or release cycle.
 
-Use [scoped checks and reuse](commit.md). Stage 4 validates development builds
-by default. Apply [rule 11](integration.md) before any release build or full gate;
-stage progression does not supply release-build authorization.
-Stage 4 validates candidate/install packages. Public-release packaging remains
-conditional on the owner's device PASS for the same build after installation.
-If requested, complete it in a fresh thread when that evidence exists; stage 7
-Git push does not itself authorize public-release packaging or publication.
-Before installation, compare the merged result with stage 4's checked inputs.
-A changed commit ID alone need not invalidate matching evidence. A change to
-checked source, configuration, tools, dependencies, or artifacts requires a
-fresh thread for the earliest affected stage. Resume with a fresh install
-thread only after required checks pass; do not repeat an already completed
-merge when no further merge is needed.
+1. **Audit.** Inspect the specified revision and intended behavior.
+   Record defects, evidence, affected scope, proposed fixes, existing approvals, and missing decisions.
+2. **Implement approved fixes.** Use the audit and recorded approvals.
+   Hand off checked commits and deferred items. Ask only for decisions that are still missing.
+3. **Test and investigate.** Test the complete candidate from stage 2.
+   Use subagents with separate test and investigation scopes.
 
-The stage 5 thread receives integration ownership through the handoff; it must
-not compete with an existing integrator. Recheck project activity and the
-target branch before shared changes. Any additional merge returns through
-the applicable validation and merge stages. Preserve the source and artifact
-guards in [core](core.md); neither stage order nor thread creation expands
-approval to an unspecified install, remote, publication, or new defect fix.
-Carry forward valid approvals without asking again.
+   Record passing checks and each failure's cause and disposition.
+   A source repair requires a fresh stage 2, then a fresh stage 3 for affected checks.
+4. **Validate builds and packages.** Use the tested candidate, target configurations, and dependencies.
+   Record exact build and install-package identities, checks, and logs under [rule 11](integration.md) and [rule 6](install.md).
+5. **Merge.** Wait for all contributing lanes to hand off their validated commits.
+   The sole assigned integrator merges the complete set. Record the resulting revision and validation identity.
+6. **Install.** Use the merged revision, matching artifacts, and existing owner permission under [rule 14](owner-messages.md).
+   The designated installer records the install and data checks under [rules 5–7](install.md).
+
+   Do not add another approval question for this stage.
+7. **Push to Git.** Use the completed merge and install evidence and the approved repository, ref, and push scope.
+   Verify that the remote ref matches the intended commit. End the workflow. Do not start another audit automatically.
+
+Use [scoped checks and matching evidence](commit.md). Stage 4 uses development configuration by default.
+Stage order does not request a release build. Apply [rule 11](integration.md) before release work or a full gate.
+
+A public release package also needs the owner's device PASS for the same installed build.
+Start that package task in a fresh chat when requested and when its evidence exists.
+
+A Git push does not authorize public-release packaging or publication.
+
+Before installation, compare the merged result with the inputs checked in stage 4.
+A new commit ID alone does not invalidate matching evidence.
+
+Changed checked source, configuration, tools, dependencies, or artifacts require a fresh chat for the earliest affected stage.
+After those checks pass, use a fresh install chat. Do not repeat a completed merge without another merge to do.
+
+Stage 5 receives sole firmware integration ownership through its handoff.
+Check project activity and the target branch before shared changes. Do not compete with another integrator.
+
+Another merge must pass the applicable validation and merge stages.
+Preserve [rule 1](core.md). Carry valid owner permission forward under [rule 14](owner-messages.md).
+
+Stage changes do not permit an unspecified external destination, publication, release, or new defect fix.
 
 ### Rule 18: verify the successor before finishing
 
-At completion, the current stage owner creates and starts exactly one new
-thread for the next required stage. This is authorized continuation of the
-owner's requested workflow; carry its source into the prompt. Do not ask the
-owner to launch each stage or create all seven threads in advance. The fresh
-thread assigned to a stage performs it without creating another copy of itself.
-Only the recorded stage owner launches its successor.
+After the current stage's work and required checks pass, its recorded owner creates and starts the next required stage's chat.
+Create exactly one fresh successor chat.
 
-The owner gives standing authorization to create and start required successor
-threads, send their launch/recovery handoffs, verify startup, and send completion
-notices within the approved workflow. Proceed automatically without another
-owner confirmation, including a handoff-only recovery turn by the recorded
-sender when no successor began. Carry this owner authorization and its source
-into every successor prompt. It does not approve new feature scope, installation,
-release builds, external pushes, or unrelated messages.
+Do not ask the owner to launch it. Do not create all stages in advance.
+The receiving chat does its assigned stage. It does not create another copy of itself.
 
-1. Save the complete launch prompt and a successor record in the lane's evidence
-   folder before creation. Give the record a unique workflow/stage marker and
-   the source thread ID. Include the current rules entry, repository/lane and
-   exact revision, approved scope and missing decisions, files/commits,
-   validation inputs/logs, artifact identities, known failures, completion
-   criteria, next stage, and one receiving owner. Preserve attempts and errors.
-2. Check project activity and that record for an existing successor, including
-   idle or setting-up threads. Resolve the project with `list_projects`; use
-   `create_thread` with that project and local execution unless the owner chose
-   another environment. The prompt must say to begin the assigned work now,
-   read the saved handoff, and carry rule 18 forward. Preserve model defaults.
-   Record the returned host/thread IDs immediately. A pending client ID is not
-   a thread ID; resolve setup through supported status tools before using it.
-3. Verify the returned thread with `read_thread` or `wait_threads`. Creation,
-   a title, queued input, or an active flag alone does not prove work started.
-   Require a new assistant response or tool activity for this handoff that
-   acknowledges the assigned scope or reads its inputs. A fast completed turn
-   can also qualify; a failed/interrupted turn or a request to launch itself
-   cannot. Save the observed turn ID and evidence, then mark `started`, report
-   the receiving thread, and end this stage's execution. Do not await completion
-   of the successor stage.
-4. If creation or startup fails, keep the handoff `pending` or `blocked`, never
-   `started`. Inspect the saved IDs, project activity, and matching thread
-   contents before any retry; use bounded status waits, not a timer automation.
-   For a transient service/setup error, allow one retry after confirming no
-   successor exists and refreshing the relevant state. After a timeout or lost
-   response, do not create again while the outcome is uncertain. If a successor
-   exists but its launch failed before work began, recover that same thread
-   with the saved prompt only after verifying no turn/input is active or queued.
-   This request authorizes that handoff message; do not resend to a running or
-   completed stage. Preserve the original error and recovery result. Approval
-   denials, policy refusals, missing access, or unresolved setup need their real
-   dependency resolved; do not bypass them. Change permission settings only with
-   explicit owner authorization, as given for handoff tool auto-approval. When
-   recovery cannot proceed, report the exact blocker, saved prompt/record, any
-   successor ID, and next action. Never claim successful handoff from an attempt.
+The owner permits automatic launch, recovery handoffs, startup checks, and completion notices within the requested workflow.
+This includes a recovery turn by the recorded sender when its successor did not start.
 
-A failed or blocked stage is not complete. Resolve authorized work in its
-scope, or start the fresh repair-stage thread required above with a concrete
-handoff; do not advance to merge, install, or push as if checks passed.
-Missing approval pauses only dependent work. A missing device leaves install
-pending and does not silently skip to push; a different order needs an owner
-instruction. Reuse valid evidence and do not restart completed work.
-Follow [chat ownership and completion notices](core.md) for other-thread context.
-These checks prevent silent success claims; service availability is not a
-100% guarantee, and unresolved outcomes must stay visible.
+Carry this permission and its source into each prompt. Do not ask for the same permission again.
+For installation and other action scope, apply [rule 14](owner-messages.md).
+
+1. **Save the handoff before creation.** Save the complete prompt and successor record in the lane's evidence folder.
+   Include a unique workflow and stage marker, source chat ID, current rules entry, lane, repository, and exact revision.
+
+   Include approved scope, actual missing decisions, commits, validation inputs, logs, artifacts, failures, and completion criteria.
+   Identify the next stage and one receiving owner. Preserve every attempt and error.
+2. **Check for a successor.** Check the record and project activity, including idle chats and chats in setup.
+   Use `list_projects` to select the project. Use `create_thread` with local execution unless the owner selected another environment.
+
+   Tell the chat to begin now, read the saved handoff, and apply rule 18. Keep model defaults.
+   Record returned host and chat IDs immediately. A pending client ID is not a chat ID.
+
+   Resolve pending setup with supported status tools before use.
+3. **Check actual startup.** Use `read_thread` or `wait_threads`.
+   Require a new assistant response or tool activity that acknowledges the assignment or reads its inputs.
+
+   A completed successful turn also qualifies. Creation, a title, queued input, or an active flag alone does not qualify.
+   A failed or interrupted turn, or a request to launch itself, does not qualify.
+
+   Save the observed turn ID and evidence. Then mark `started`, report the receiving chat, and end the current stage.
+   Do not wait for the next stage to finish.
+4. **Resolve a failed launch.** Keep the handoff `pending` or `blocked` until you verify actual startup.
+   Inspect saved IDs, activity, and matching chat contents before a retry. Use bounded status waits, not timer automations.
+
+   For a transient service or setup error, permit one retry after a fresh check confirms that no successor exists.
+   After a timeout or lost response, do not create another chat while the result is uncertain.
+
+   If the existing successor failed before work began, verify that no turn or input is active or queued.
+   Then recover that same chat with the saved prompt. The owner permits this handoff message.
+
+   Do not resend to a running or completed stage. Preserve the original error and recovery result.
+   Resolve permission denials, policy refusals, missing access, and unresolved setup. Do not bypass them.
+
+   Change permission settings only with explicit owner permission, including existing permission for automatic handoff tools.
+   If recovery remains blocked, report the exact dependency, saved prompt and record, successor ID, and next action.
+
+A failed or blocked stage is incomplete. Finish its authorized work or start the required fresh repair stage with a concrete handoff.
+Do not advance failed checks as a success. A missing device leaves installation pending. Do not silently skip to push.
+
+Only a real missing permission pauses its dependent action. Do not invent a new approval requirement.
+Reuse valid evidence. Do not restart completed work. Use [rule 2](core.md) for context and completion notices.
+
+Report unresolved results truthfully. The startup checks cannot guarantee service availability.

@@ -2,39 +2,40 @@
 
 ### Rule 1: protect data and sources
 
-- Keep code on owner machines and approved local repositories. External pushes
-  need an explicit owner request. Never push, merge, or package `refs-oscuro`.
-  Keep proprietary JieLi SDK/toolchain files out of commits and bundles.
-- Preserve licensing, target model guards, flash/RAM limits, features, and sample quality.
+- Keep code on owner machines and approved local repositories.
+- Push to an external repository only when the owner requests that destination.
+- Never push, merge, or package `refs-oscuro`.
+- Keep proprietary JieLi SDK and toolchain files out of commits and bundles.
+- Preserve licensing, model guards, flash and RAM limits, features, and sample quality.
+
 ### Rule 2: process and edit ownership
 
-- Start every task in a fresh chat, including work continued from an old chat.
-  If this chat was just created for this task, finish here; do not create
-  another chat for the same task. In a staged code workflow, each stage is a
-  separate task: follow [stage order and successor handoffs](workflow.md).
-  Use old chats as information sources.
-  New agents may contact other chats for context and handoff details needed to
-  continue old work; continued task execution stays in the fresh chat.
-  They may ask a chat still working to notify the fresh chat when done.
-  That completion reply is authorized; use it to continue promptly without
-  polling or a timer automation. Do not send new execution work to old chats.
-- At task start, always check which other chats are currently working on this
-  project. Inspect relevant status and scope read-only before editing, merging,
-  or taking a shared resource; avoid duplicate work and overlapping ownership.
-  Check again before shared changes if the activity snapshot may be stale.
-- Use isolated lanes for edits; preserve others' work. Stop only your own
-  processes by PID; never use `pkill -f` or `killall` on shared scripts.
+- Start each task in a fresh chat. This includes work continued from another chat.
+  Complete the task in its assigned fresh chat. Do not create another copy of that task.
+
+  For a staged workflow, use [rules 17 and 18](workflow.md).
+- Use old chats for context and handoff details. The owner permits new agents to request that information.
+  The owner permits requests for a completion notice from a working chat. The owner also permits that reply.
+
+  Continue in the fresh chat when the notice arrives. Do not use polling or a timer automation.
+  Do not assign new execution work to an old chat.
+- At task start, check other project chats. Read their current status and scope before shared work.
+  Check again before shared changes if that information can be out of date.
+
+  Do not duplicate work or compete for ownership.
+- Use a separate lane for each task. Preserve other work.
+  Stop only your own processes by PID. Never use `pkill -f` or `killall` on shared scripts.
+
 ### Rule 6A: finish authorized work
 
-- Default all builds and installs to development. Follow [rule 11](integration.md)
-  for explicit release-build authorization and full-gate restrictions.
+- Use development builds and installs by default. Apply [rule 11](integration.md) before a release build or full gate.
+- Complete the authorized work and its required checks. Carry existing permission forward under [rule 14](owner-messages.md).
+  A missing device blocks only work that needs that device. Retired roles do not block work.
 
-- Finish authorized work and relevant checks. Missing hardware or retired roles
-  block only dependent steps. Name a real blocker and next action; do not repeat
-  approval requests or poll without cause.
-- Report only verified evidence. Distinguish source review, host tests, target
-  build, formal gate, install, and device test; include inputs and unrun checks
-  when relevant. Local completion grants no install or release permission.
-- Use plain, correct English in all output, including saved text. Give the
-  result first; remove filler. Preserve exact technical content, conditions,
-  uncertainty, and evidence. Full writing skills load only for their triggers.
+  State the real blocker and next action. Do not ask for the same permission again.
+- Report only verified results. Identify source review, host tests, target builds, gates, installs, and device tests separately.
+  Include relevant inputs and checks that did not run. A passing check does not create permission outside the owner's scope.
+- Use short, complete sentences and plain English in all output, including saved text.
+  Give the result first. Preserve facts, conditions, uncertainty, and evidence.
+
+  Load a full writing skill only when its trigger applies. See [rule 15](style.md).

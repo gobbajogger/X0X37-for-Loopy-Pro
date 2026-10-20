@@ -2,53 +2,54 @@
 
 ### Rule 9: supported checks
 
-Use the development build by default; apply [release authorization](integration.md)
-before selecting a release configuration or the full gate.
+Use development configuration by default. Apply [rule 11](integration.md) before a release build or full gate.
+Read a script's header before running it. Read `BUILDING.md` when build or test setup is needed.
 
-Read the relevant script header before running it; read `BUILDING.md` when
-build or test environment setup is needed. Supported host tests can run
-on macOS or Linux. JieLi target tools need Linux x86-64; a working local
-container is valid. Use actual mounted paths, including linked-worktree Git
-metadata. Never change `HOME` to impersonate another machine.
+Host tests can run on supported macOS or Linux. JieLi target tools require Linux x86-64. You can use a working local container.
+Use actual mounted paths, including linked-worktree Git metadata. Never change `HOME` to imitate another machine.
 
-Set `JIELI_TOOLCHAIN` or `X0X_TOOLCHAIN`, `AC79_SDK`, and reference variables as
-needed. Keep reference pins exact. `CC` and `CXX` name single executables
-(e.g. `CC=cc CXX=c++`), not flags. A missing optional reference blocks only its
-dependent check.
+Set `JIELI_TOOLCHAIN` or `X0X_TOOLCHAIN`, `AC79_SDK`, and reference variables as required. Keep exact reference pins.
+Set `CC` and `CXX` to single executable names, such as `CC=cc CXX=c++`. Do not put flags in them.
 
-Select checks from the diff: changed behavior, direct consumers, shared code,
-configuration, and build dependencies. For each selected check, name what the
-edit could break. Run the smallest set that covers those risks and any explicit
-requirement for the current step; a check's existence does not make it required.
-Broaden only for a concrete dependency, unexplained failure, or applicable formal
-gate. Formal gates retain their defined coverage when that step is requested.
+A missing optional reference blocks only its dependent check.
 
-Docs-only edits need relevant link/content checks, not target builds. Rule text
-needs review of the changed requirement; enforcement tests apply when its
-implementation or contract changes (see [rule checks](SCRIPT-CHECKS.md)). Code
-edits need affected tests and builds for affected supported targets; shared code
-can affect more than one target. Add regression tests for meaningful faults.
+Select checks from the diff and its dependencies: changed behavior, direct consumers, shared code, configuration, and build inputs.
+For each selected check, state what the change can break.
 
-Reuse a result only when its checked source, configuration, tools, and dependencies
-still match. Rerun checks invalidated by later edits or failed checks after repair;
-do not rerun unrelated passes. Record scope, commands, inputs, result, and log path
-once; link that evidence in handoffs. Explain material coverage gaps, not every
-unrelated check omitted. New required coverage still runs.
-Use `X0X_TEST_TIME_SCALE` only where supported; formal gates use fixed real time.
-Tests use scratch folders/repos, never live queues, results, or status files.
+Use the smallest set that covers those risks and the step's explicit requirements.
+An available check is not automatically required.
 
-Keep required code, static RAM, and pool margins. Do not cut features or sample
-quality for a PASS. Use commit author
-`genkigenki <3080081+genkigenki@users.noreply.github.com>`.
-Group related repairs in coherent commits with relevant validation.
+Expand coverage only for a concrete dependency, unexplained failure, or applicable formal gate.
+A requested formal gate retains its defined coverage.
+
+For documentation-only changes, check relevant links and content. Do not build firmware.
+Review each changed rule requirement. Run enforcement tests only when their implementation or contract changes. See [rule checks](SCRIPT-CHECKS.md).
+
+For code changes, run affected tests and builds for affected supported targets. Shared code can affect both targets.
+Add regression tests for meaningful defects.
+
+Reuse results only when checked source, configuration, tools, and dependencies still match.
+Rerun invalidated checks and failed checks after repair. Do not rerun unrelated passing checks.
+
+Record scope, commands, inputs, result, and log path once. Link that evidence in handoffs.
+State material coverage gaps. Do not list every unrelated omitted check. Run new required coverage.
+
+Use `X0X_TEST_TIME_SCALE` only where supported. Formal gates use fixed real time.
+Run tests in scratch folders and repositories. Never use live queues, results, or status files as test fixtures.
+
+Preserve required code, static RAM, and pool margins. Do not remove features or reduce sample quality for a PASS.
+Use commit author `genkigenki <3080081+genkigenki@users.noreply.github.com>`.
+
+Group related repairs into coherent commits with relevant validation.
 
 ### Rule 10: lanes and handoffs
 
-Check the base and existing edits. Use `lane/<agent>-<topic>` (`mb`, `sb`, `opt`,
-`btr`, `dk`); rules use `lane/dk-rules-<topic>`. Fetch/rebase only when needed
-and the approved source is reachable; never rebase another agent's work.
+Check the base and existing edits. Use `lane/<agent>-<topic>` with `mb`, `sb`, `opt`, `btr`, or `dk`.
+Use `lane/dk-rules-<topic>` for rules.
 
-The assigned integrator owns firmware branch order. Do not push to its active
-branch. Push to approved local repositories only when needed. A checked local
-commit and requested handoff can finish a lane. Handoffs give commit, files,
-checks, limits, next action, and one receiving owner.
+Fetch or rebase only when needed and when the approved source is reachable. Never rebase another agent's work.
+
+The assigned integrator owns firmware branch order. Do not push to its active branch.
+Push to approved local repositories only when needed. A checked local commit and requested handoff can complete a lane.
+
+Include the commit, files, checks, limits, next action, and one receiving owner in each handoff.

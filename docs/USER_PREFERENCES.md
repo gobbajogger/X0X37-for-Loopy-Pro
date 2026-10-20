@@ -2,6 +2,12 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
+## Complete development installs without another question
+
+- 2026-10-21 Source: owner correction in chat `01a15a2d-10dd-78a2-a345-fec17f62b453`. Install the complete, validated development set without another approval question. Send a notice. This confirms the standing 2026-10-16 install instruction and supersedes the current SMC handoffs' separate-install-approval requirement. Preserve exact artifacts, model checks, backups, locks, write limits, readback, and loop data under install.md rules 5–7 and owner-messages.md rule 14. This does not authorize an unspecified external push, release, publication, fallback, or new feature.
+
+- 2026-10-21 Source: the same owner correction requested an ASD-STE100 rewrite of the rules. Use short, complete sentences and explicit conditions. Preserve facts, permission scope, uncertainty, and technical safeguards. Do not claim standard compliance without the full standard and dictionary checks. Active rule: style.md rule 15.
+
 ## Development default and explicit release builds
 
 - 2026-10-21 Source: owner in the side conversation attached to local stage 4: "Edit rules to launch release build only when explicitly asked by user. Full gate is always skipped until release build actually has been requested. Always assume it's dev build!" The owner also clarified: "We are not doing a release install. Only a dev build and install". This supersedes treating generic build, install, validation, stage-4 or successor instructions as release-build permission, including earlier dev/release gate handoff wording and the historical 2026-10-17 01:11 release-install preference for current work. Default to development builds and installs with pad calibration enabled. Skip the full gate, including trial/force/owner-validation, until the user explicitly requests a release build for the current work. Then apply the normal scoped/full-gate routing and release safeguards. Active rules: integration.md rule 11; install.md rule 6; core.md rule 6A; commit.md rule 9; workflow.md rule 17. Publication still requires its own authorization.
