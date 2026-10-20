@@ -8,7 +8,7 @@
 #include "app/smk_clip_keys.h"
 
 enum { O_NONE, O_LIST, O_ASK, R_NONE, R_HDR, R_ACT, R_ENG, EN_K1,
-       PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
+       B_HOME, PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
 typedef struct { uint8_t kind; } pref_t;
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { uint8_t overlay, help; uint32_t act_t; } ui;
@@ -30,6 +30,7 @@ static const char *ck_val_txt(uint32_t f, uint32_t v, char *s)
 #include "clip_turn.inc"
 
 static uint8_t perf_testing(void) { return 0; }
+static void button_tap(int button) { (void)button; }
 static void engine_smc_solo(uint8_t solo) { (void)solo; }
 static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
 static void smc_release(uint8_t note) { (void)note; }

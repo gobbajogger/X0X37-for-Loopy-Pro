@@ -110,6 +110,17 @@ static pref_t smc_page_target(int n)
     return n < 4 ? pg.r[cur_page()][n] : NONE;
 }
 
+static int smc_drum_mix(void)
+{
+    return ui.overlay == O_NONE && !smk_clip_mode_on() ? drum_mix_page() : -1;
+}
+
+static int smc_drum_track(int kit, int strip)
+{
+    int track = (ui.sel[kit] / 8) * 8 + strip;
+    return track < NDRUM ? track : -1;
+}
+
 /* Faders use the main mixer except on the visible drum MIX pages. The
  * sample bank follows selection, including the final three of eleven tracks. */
 static pref_t smc_target(int n)
@@ -117,10 +128,10 @@ static pref_t smc_target(int n)
     int kit, track;
     if (ui.help || ui.overlay == O_ASK)
         return NONE;
-    kit = ui.overlay == O_NONE && !smk_clip_mode_on() ? drum_mix_page() : -1;
+    kit = smc_drum_mix();
     if (kit >= 0) {
-        track = (ui.sel[kit] / 8) * 8 + n;
-        return track < NDRUM ? find_ref(kit ? T_808 : T_909, track, "Level") : NONE;
+        track = smc_drum_track(kit, n);
+        return track >= 0 ? find_ref(kit ? T_808 : T_909, track, "Level") : NONE;
     }
     return smc_home_target(n);
 }
@@ -284,8 +295,8 @@ static int smc_bank(uint8_t note)
     return 0;
 }
 
-/* All 32 strip buttons have a role. Strips 1-5 select/mute/solo/record the five
- * parts; 6-8 address reverb, delay and master. Global buttons navigate X0X. */
+/* Main strips address parts and FX. Drum MIX pages pair M and SELECT with
+ * the visible fader/knob bank. Reserved and global buttons navigate X0X. */
 static void smc_button(uint8_t note, int mmc)
 {
     int row, strip;
@@ -305,11 +316,18 @@ static void smc_button(uint8_t note, int mmc)
                    note == 6 ? B_HOME : B_GLO);
         return;
     }
-    if (ui.overlay == O_NONE && !smk_clip_mode_on() && note >= 24 && note < 32 && drum_mix_page() >= 0) {
-        int kit = drum_mix_page(), track = (ui.sel[kit] / 8) * 8 + note - 24;
-        if (track < NDRUM) ui.sel[kit] = (uint8_t)track;
-        build_pages();
-        return;
+    if (note >= 16 && note < 32) {
+        int kit = smc_drum_mix();
+        if (kit >= 0) {
+            int track = smc_drum_track(kit, note & 7);
+            if (note < 24) {
+                if (track >= 0) mute_track(kit, track);
+            } else {
+                if (track >= 0) ui.sel[kit] = (uint8_t)track;
+                build_pages();
+            }
+            return;
+        }
     }
     if ((note == 0x30 || note == 0x31 ||
          ((note == 0x2E || note == 0x2F) && ui.view == V_PART && is_drum())) &&
@@ -415,15 +433,23 @@ static void smc_release(uint8_t note)
 }
 
 /* Stock User preset commands 1..32 run M/S/R/SELECT in strip order. */
-static uint8_t smc_message(const uint8_t *m, uint8_t len)
+static void smc_guarded_button(uint8_t note, int mmc, int allow)
+{
+    if (allow && !perf_testing())
+        smc_button(note, mmc);
+    else if (perf_testing() && (note == 6u || note == 0x5Du || note == 0x5Eu))
+        button_tap(B_HOME);            /* STOP, PLAY and back use the panel abort/restore path */
+}
+
+static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
 {
     uint8_t type, ch, a, b, user = !!(proj.set.bt & PROJ_BT_SMC_USER);
     if (len == 6 && user && m[0] == 0xF0 && m[1] == 0x7F && m[2] == 0x7F &&
         m[3] == 0x06 && m[5] == 0xF7) {
         a = smc_mmc_note(m[4]);
         if (a == 0xFFu) return 4;
-        smc_button(a, 1);
-        return 0;
+        smc_guarded_button(a, 1, allow);
+        return !allow || perf_testing() ? 1 : 0;
     }
     if (len < 3)
         return 4;
@@ -431,6 +457,11 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len)
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
     b = m[2] & 0x7Fu;
+    if (!allow || perf_testing()) {
+        if (type == 0x90u && b && (!ch || user))
+            smc_guarded_button(a, 0, 0);
+        return 1;                     /* restoration still owns every other queued input */
+    }
     if (type == 0xE0u && !user && ch < 8u)
         smc_fader(ch, (uint8_t)(((uint16_t)b << 7 | a) >> 7));
     else if (type == 0xB0u && a >= 16u && a < 24u && (user || ch == 0u)) {
@@ -472,28 +503,27 @@ void smc_poll(void)
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
-        if (!allow || perf_testing()) smc_reason = 1;
-        else if (!smc.up) smc_reason = 2;
+        if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
         else {
-            smc_dispatched++;
-            smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
+            if (allow && !perf_testing()) smc_dispatched++;
+            smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n, allow);
         }
         smc_qr = (uint8_t)(r + 1u);
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
         r = smc_host_r;
-        if (allow && !perf_testing() && (proj.set.bt & PROJ_BT_SMC_USER))
-            smc_message(smc_host_q[r % SMC_Q], 3);
+        if (proj.set.bt & PROJ_BT_SMC_USER)
+            smc_message(smc_host_q[r % SMC_Q], 3, allow);
         smc_host_r = (uint8_t)(r + 1u);
     }
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
             r = smc_mmc_r[src];
-            if (allow && !perf_testing() && (proj.set.bt & PROJ_BT_SMC_USER))
-                smc_button(smc_mmc_note(smc_mmc_q[src][r % 16u]), 1);
+            if (proj.set.bt & PROJ_BT_SMC_USER)
+                smc_guarded_button(smc_mmc_note(smc_mmc_q[src][r % 16u]), 1, allow);
             smc_mmc_r[src] = (uint8_t)(r + 1u);
         }
     }
@@ -505,8 +535,16 @@ static int smc_led(int note)
     if (note == 5) return ui.overlay != O_NONE;
     if (note == 6) return 0;
     if (note == 14) return ui.view == V_GLO;
-    if (note >= 24 && note < 32 && ui.overlay == O_NONE && !smk_clip_mode_on() && drum_mix_page() >= 0)
-        return strip == ui.sel[drum_mix_page()] % 8;
+    if (note >= 16 && note < 32) {
+        int kit = smc_drum_mix();
+        if (kit >= 0) {
+            if (note >= 24) return strip == ui.sel[kit] % 8;
+            if (!ui.help) {
+                int track = smc_drum_track(kit, strip);
+                return track >= 0 && track_muted(kit, track);
+            }
+        }
+    }
     if (note < 32) {
         if (strip < NPARTS) {
             if (row == 0) return ui.rec && smc.rec_part == strip;

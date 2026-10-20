@@ -53,7 +53,7 @@ test_class() {
     breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|emu|emu-slots|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) echo S ;;
     rec-live|rec-live-smk) echo S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build) echo G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|smc-reachability|smc-drum-mutes|smc-performance-abort) echo G ;;
     scenario-*|perf-scratch) echo C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) echo P ;;
     esac
@@ -169,6 +169,8 @@ run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
 run smc-reachability sh tests/host/smc_reachability_test.sh
 run smc-mapping python3 tests/host/smc_mapping_test.py
+run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh
+run smc-performance-abort sh tests/host/smc_performance_abort_test.sh
 run smc-filter python3 tests/host/smc_filter_test.py
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
