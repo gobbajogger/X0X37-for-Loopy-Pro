@@ -45,7 +45,14 @@ dm = body(ui, "static void draw_main(void)")
 check(dm.index("smk_padcal_draw(240u, 2u * BAND_H)") < dm.index("smk_clip_lcd_draw(240u"), "LCD: the page draws before the clip grid")
 # The frame: the mode takes the frame; the keys and knobs.
 fr = body(main, "static void smk_frame(void)")
-check(fr.index("if (padcal.on) {") < fr.index("smk_arrows();"), "frame: the mode runs before the arrows, faders and clip mode")
+held = re.search(r"if \(ui_project_busy\(\)\) \{[^{}]*\}", fr)
+check(held and held.start() < fr.index("if (padcal.on) {") and "return;" in held.group()
+      and "smk_padcal_frame();" not in held.group(),
+      "frame: a project hold returns before pad calibration dispatch")
+normal = fr[:held.start()] + fr[held.end():] if held else fr
+check(normal.index("if (padcal.on) {") < min(normal.index(call) for call in
+      ("smk_arrows();", "smk_faders();", "if (clip_grid_mode)")),
+      "frame: pad calibration runs before normal arrows, faders and clip mode")
 pf = body(main, "static void smk_padcal_frame(void)")
 check("padcal_btn & ~b & (1u << panel.btn[B_HOME] | 1u << panel.btn[B_GLO])" in pf, "keys: PATCH or GLOBE ends the mode on the release")
 check("down & (1u << panel.btn[B_PLAY])" in pf and "smk_padcal_mark(&padcal)" in pf, "keys: PLAY marks ok")
