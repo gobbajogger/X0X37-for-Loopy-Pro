@@ -1,0 +1,24 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-stage3-20261021",
+  "stage": 3,
+  "state": "started",
+  "source_chat": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "combination_receiver": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "prompt": "evidence/build-work-cleanup-repair/stage3-prompt.txt",
+  "thread_id": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "result": "created",
+      "thread_id": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+      "host_id": "local"
+    }
+  ],
+  "activity_check": "list_threads before creation found no matching cleanup stage3 successor.",
+  "host_id": "local",
+  "verified_turn": "01a15afc-9366-7282-9fac-564a3e36eaa5",
+  "startup_evidence": "evidence/build-work-cleanup-repair/successor-startup.json"
+}

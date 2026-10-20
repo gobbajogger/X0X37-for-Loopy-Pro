@@ -114,5 +114,9 @@
     "Direct controller/routing runner registration remains with the runner owner. Fixed-tree devbug reuse remains deferred.",
     "Fresh independent stage3 Test and investigation review must pass before acceptance."
   ],
-  "next_action": "Launch exactly one fresh affected stage3, require independent Test and investigation subagents, then scoped tooling validation if needed. Deliver accepted source to the one finishing owner and notify the combination dependency receiver."
+  "next_action": "Launch exactly one fresh affected stage3, require independent Test and investigation subagents, then scoped tooling validation if needed. Deliver accepted source to the one finishing owner and notify the combination dependency receiver.",
+  "checked_candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "successor": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+  "successor_state": "started",
+  "successor_turn": "01a15afc-9366-7282-9fac-564a3e36eaa5"
 }

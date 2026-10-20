@@ -7,8 +7,11 @@
   "evidence/build-work-cleanup-repair/linux-checks.json": "0a9b9518d7a515b633ca8f11bbb9dd2c8ff61d40f637e45aa9e014f67d371fed",
   "evidence/build-work-cleanup-repair/linux-negative.log": "924438183373c41ec555d682f18d7aa33cff43dd3461b8ace2f9d184b1920893",
   "evidence/build-work-cleanup-repair/linux-suite.log": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280",
-  "evidence/build-work-cleanup-repair/result.json": "e8576af64310ba884aab93ee57a57d38e3ca992e8e5fc5f7a6d01740724503fe",
+  "evidence/build-work-cleanup-repair/result.json": "70548a3f93032e6a7388d9b4fa2252528b8d785aa6135574384a4e61a518fa53",
   "evidence/build-work-cleanup-repair/reuse.json": "a8f8f238ecd1d7d0a85ca9189c1a9e21813a5fae89f5763aee15e6f3dfa87735",
   "evidence/build-work-cleanup-repair/run-checks.py": "06096ac6b3e69e0d728e4f3cd07b2a0930a0405403556f76a3eb39a731c44db4",
+  "evidence/build-work-cleanup-repair/stage3-prompt.txt": "b7530295625fa94e91706ae046f475dc7b6c62e4f67d4048e2f48d95ba41ee7c",
+  "evidence/build-work-cleanup-repair/successor-startup.json": "92491e97241639e961f8640a277c86dae7943ae08558a09ecc6bcf5439c714e9",
+  "evidence/build-work-cleanup-repair/successor.json": "14fa27b0cf5fa2d7248c33b7e9424c278e30b84f3269639f8ac656b4c8398f8d",
   "evidence/build-work-cleanup-repair/verify-reuse.py": "2442a25ff37ee9df57108f728b3326a2aceb1764485cbe076e147b324b2ca0c2"
 }
