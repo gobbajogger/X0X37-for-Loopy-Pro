@@ -1,0 +1,21 @@
+{
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "scope": "The complete central signaling, reconnect-credit and bounded abort repairs affect HCI ingress, command events, stop/start, mailbox delivery and the diagnostic consumer. Mapping remains a separate contribution.",
+  "checks": [
+    {
+      "reason": "A busy send callback must retain the Disconnect command until one accepted send or the bounded deadline. Signaling, fragments, MIDI delivery and reconnect credits must remain valid.",
+      "argv": [
+        "sh",
+        "tests/host/ble_midi_receive_test.sh"
+      ]
+    },
+    {
+      "reason": "The central structure changes. Public diagnostic word decoding must remain valid.",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/ble_central_diag_test.py"
+      ]
+    }
+  ]
+}

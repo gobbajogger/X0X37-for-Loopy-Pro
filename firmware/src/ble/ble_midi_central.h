@@ -21,6 +21,7 @@ typedef struct {
     uint16_t rx_have, rx_need; /* Oversized signaling is drained; only rx[] is stored. */
     /* TIMER5 owns this bounded reply queue. Entries contain code, identifier, reason. */
     uint8_t sig[4][3], sig_read, sig_count;
+    uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
     /* Last rejected ACL header, zero-padded; bounded, no payload log or allocation. */
