@@ -20,3 +20,23 @@ Manual scenario review, performed after writing the change:
 Subagents are prohibited in this side conversation. This is a manual review; no independent helper review is claimed.
 
 Reading size (seven affected documents, bytes): before 77897; after 80528; change +2631. The added text records the explicit authorization condition; historical decisions remain intact.
+
+Workspace rollout follow-up (current rule-edit task): The maintained rules already
+contained commit `f708dc5`, but workspace discovery mirrors still exposed the old
+gate wording. Applied `tools/rollout_rules.py --workspace
+/Users/mac/Documents/x0x37 --apply`; replaced files were backed up under
+`repo-bak/rules-rollout-20261020T143628354732Z`. The subsequent `--check` reports
+zero drift. `python3 tests/host/test_rules_rollout.py` passes its scratch-repository
+checks, and `python3 tools/prefs_lint.py docs/USER_PREFERENCES.md` plus the workspace
+mirror check pass all 17 entries reported by the current checker. The five affected
+rule mirrors match their maintained sources byte for byte; their relative links
+resolve.
+
+One independent read-only reviewer in this task reviewed the saved commit and
+maintained rules against generic build/install/stage-4/full-validation requests,
+explicit release requests, trial/force and historical instructions. Result: PASS,
+no gaps. Development remains the default, full gates require a current explicit
+release-build request, and existing release/install/evidence/publication guards
+remain intact. No firmware build, full gate, device write or remote push was run
+for this follow-up. Active agents can discover the correction through the synced
+workspace entry points; no cross-chat message was sent.
