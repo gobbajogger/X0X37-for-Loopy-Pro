@@ -1,0 +1,4 @@
+PASS: HCI fragments 1-8, malformed assembly, bounds, rejection and lifecycle
+LE signaling, bounds, priority, backpressure, lifecycle: PASS
+Reconnect credits: PASS
+Disconnect retry, acceptance, deadline, events and lifecycle: PASS

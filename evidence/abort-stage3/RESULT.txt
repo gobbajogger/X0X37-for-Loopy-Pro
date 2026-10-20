@@ -1,0 +1,59 @@
+Stage3 requires a source repair before stage4.
+The original physical input failure remains unresolved.
+
+Candidate: 05eff604cb3f136db71727a2aeeea785cab73b99.
+Candidate tree: a00e1710ab67f800dea2bf4b97fbb9bd34fde384.
+Owner chat: 01a15a92-6343-7f30-8495-f968228e2d2c.
+Lane: /Users/mac/Documents/x0x37/smc_central_abort_stage3_20261021.
+
+The public central, receive, signaling and abort tests pass with ASan and UBSan.
+The old and extended DIAG decoder tests pass.
+Both saved independent probes fail functionally on 28d0fc2 and pass on this candidate.
+The new public overflow and timeout controls also fail on 28d0fc2 and pass on this candidate.
+These passes confirm the repair of the lost Disconnect command before the deadline.
+
+Both independent helpers found a remaining deadline defect: CENTRAL-ABORT-02.
+blec_stop preserves an active abort deadline, but it calls blec_disconnect without an expiry check.
+A public HCI event can advance now_ms to that deadline before the next poll.
+If the transport then becomes available, blec_stop submits the refused command at the expired deadline.
+Both new independent probes reproduce one accepted Disconnect at now_ms=deadline=3100.
+Each probe fails its no-send assertion with return code -6.
+No sanitizer failure precedes these functional assertions.
+The command must not be submitted at or after the original deadline.
+The production service also calls stop before receive and poll.
+That caller can supply stale now_ms to the send path.
+The investigation helper reproduces that service order with a simulated current tick.
+A successful connection event during STOPPING also bypasses the expired cutoff.
+All 12 investigation cases fail at the deadline or one millisecond later, with and without timer wrap.
+The repair must check the actual current service time and all Disconnect entry paths.
+
+The candidate matches all 412 selected source, test, tool and controller inputs from stage2.
+The exact replay capture, harness, store, generated inputs and compiler match the saved stage2 evidence.
+That replay has 1268 unchanged payloads, 2616 decoded messages and 513 feedback messages.
+The input queue is empty. The performance test is idle. Help and overlay are inactive.
+The peer, HCI framing and schedule are simulated.
+Three oversized ATT packets are excluded. No payload resegmentation occurs.
+The project store is synthetic. Target interrupts and physical radio execution are untested.
+Stage3 reuses that matching replay. It does not repeat the replay.
+
+The saved stage2 Elite and Pro app, loader and package hashes match their files.
+Those DEV builds passed code, RAM and pool checks.
+They are stage2 build checks. They are not stage4 validated install records.
+The deadline repair invalidates affected source-dependent checks and target builds.
+
+No production source or tracked test changed in stage3.
+No target build, device write, controller write, release, full gate, fallback or external push occurred.
+Physical result: NOT TESTED.
+Original input failure: UNRESOLVED.
+The deadline defect does not establish the cause of the physical input failure.
+
+One fresh LOCAL stage2 must repair CENTRAL-ABORT-02.
+It must preserve the complete signaling, reconnect-credit and bounded retry contributions.
+A checked repair requires one fresh stage3 with separate test and investigation subagents.
+Only a passing stage3 can start scoped DEV stage4 for both complete package/controller sets.
+
+Mapping stage4 owner: 01a15a87-298e-7d21-b004-b78d5beafd89.
+That chat retains selection of the sole stage5 integrator for both validated contributions.
+The central contribution remains pending until its repair and validation pass.
+The complete validated DEV-install permission carries forward with its notice requirement.
+No push is authorized.

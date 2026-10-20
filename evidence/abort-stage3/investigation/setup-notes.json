@@ -1,0 +1,1 @@
+{"initial_extra_probe_compile":"FAIL","cause":"The nested public test redefined the main macro.","disposition":"The owned harness uses a derived include with only the entry point and include path changed. Production source does not change."}

@@ -1,0 +1,4 @@
+Recovered transport before deadline: state=7 conn=80 attempts=1 accepted_disconnects=0
+Before deadline: state=7 conn=80 attempts=1 accepted_disconnects=0
+At deadline: state=8 conn=80 attempts=1 accepted_disconnects=0
+Assertion failed: (disconnects == 1), function main, file investigation-abort-probe.c, line 49.

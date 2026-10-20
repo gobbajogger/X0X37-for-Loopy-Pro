@@ -1,0 +1,2 @@
+At original deadline: state=1 now=3100 deadline=3100 attempts=2 accepted=1 conn=80
+Assertion failed: (sent == 0), function main, file deadline-stop-probe.c, line 16.
