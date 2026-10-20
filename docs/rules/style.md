@@ -1,22 +1,25 @@
 # Writing style and terminology
 
-### Rule 15: plain output and optional skills
+### Rule 15: strict STE
 
-Use plain, correct, concise English in every output. Apply [rule 6A](core.md).
+Use strict ASD-STE100 in every output, including saved text. Obey [rule 6A](core.md).
 Write one idea in each sentence. Use complete sentences and direct verbs.
 
 Keep each instruction short. Put its condition before its action.
-Preserve facts, uncertainty, negation, exceptions, technical terms, and literal commands.
+Keep facts, uncertainty, negation, exceptions, technical terms, and literal commands.
 
 Do not remove a condition to shorten the text.
 
-Load the full [writing skill](../SKILLS.md) when requested or when its specialist guidance is needed.
-For ASD-STE100 work, use the installed skill. Read its strict notes for an explicit strict-mode request.
+Use the installed STE skill in strict mode. This project instruction replaces its 80% default.
+Read the skill, strict notes, and official references through [skill instructions](../SKILLS.md).
+Read them one time per task. If these instructions change, read the changed sections again.
 
-Do not claim verified standard compliance without the required standard and dictionary checks.
+Before each output, use the rules and dictionary to examine the text.
+Do not give a compliance statement without the applicable rule and dictionary checks.
+For another requested language, use the same clarity rules. Do not give an ASD-STE100 compliance statement for that text.
 
-Use "behavior" and "colour" in prose. Preserve code spelling.
-Use these terms consistently:
+Use "behavior" and "colour" in prose. Keep code spelling.
+Use these terms with the meanings that follow:
 
 - "Owner": the project owner.
 - "Task agent": the agent responsible for the task.

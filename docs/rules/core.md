@@ -35,7 +35,8 @@
   State the real blocker and next action. Do not ask for the same permission again.
 - Report only verified results. Identify source review, host tests, target builds, gates, installs, and device tests separately.
   Include relevant inputs and checks that did not run. A passing check does not create permission outside the owner's scope.
-- Use short, complete sentences and plain English in all output, including saved text.
-  Give the result first. Preserve facts, conditions, uncertainty, and evidence.
+- Use the [strict STE default](style.md) for all output, including saved text.
+  Give the result first. Keep facts, conditions, uncertainty, and evidence.
 
-  Load a full writing skill only when its trigger applies. See [rule 15](style.md).
+  Read the STE skill and strict references under [rule 15](style.md).
+  Load other skills only when their triggers apply.

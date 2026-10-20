@@ -2,6 +2,10 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
+## Strict Simplified Technical English
+
+- 2026-10-21 Source: owner in chat `01a15a3f-e535-7c03-a89a-4d2be5f3fbb7`: "Check rules to follow asd-ste 100", then "100%ste". Use strict ASD-STE100 for all output, including saved text. Use the official Issue 9 rules and dictionary. This replaces the installed skill's 80% default and the earlier on-demand STE instruction. Other skills keep their own triggers. Active rules: core.md rule 6A and style.md rule 15.
+
 ## Complete development installs without another question
 
 - 2026-10-21 Source: owner correction in chat `01a15a2d-10dd-78a2-a345-fec17f62b453`. Install the complete, validated development set without another approval question. Send a notice. This confirms the standing 2026-10-16 install instruction and supersedes the current SMC handoffs' separate-install-approval requirement. Preserve exact artifacts, model checks, backups, locks, write limits, readback, and loop data under install.md rules 5–7 and owner-messages.md rule 14. This does not authorize an unspecified external push, release, publication, fallback, or new feature.
