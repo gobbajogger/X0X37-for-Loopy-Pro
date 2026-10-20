@@ -1,0 +1,26 @@
+[
+  {
+    "model": "elite",
+    "source": "saved filesystem creation/write timestamps; approximate phase intervals, not instrumented command timers",
+    "total_seconds": 580.9935672283173,
+    "log_write_spans_seconds": {
+      "check-0.log": 91.08194398880005,
+      "check-1.log": 86.08404970169067,
+      "build.log": 60.92765402793884,
+      "controller.log": 75.1103458404541
+    },
+    "outside_command_logs_seconds": 267.7895736694336
+  },
+  {
+    "model": "pro",
+    "source": "saved filesystem creation/write timestamps; approximate phase intervals, not instrumented command timers",
+    "total_seconds": 508.3443851470947,
+    "log_write_spans_seconds": {
+      "check-0.log": 90.93718552589417,
+      "check-1.log": 87.39427065849304,
+      "build.log": 66.53951048851013,
+      "controller.log": 58.662235736846924
+    },
+    "outside_command_logs_seconds": 204.81118273735046
+  }
+]

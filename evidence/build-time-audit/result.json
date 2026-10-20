@@ -1,0 +1,68 @@
+{
+  "workflow": "build-time-20261021",
+  "stage": 1,
+  "source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+  "source_commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+  "owner_request": "Dude we had 400 entry text. We need to drastically reduce our build times",
+  "scope": "Build and validation runtime. No further rule-text optimization. Preserve checks, features, quality, source protection, and exact artifacts.",
+  "measured_sdk": {
+    "linux_x86_container_baseline_seconds": 120.1772920000003,
+    "linux_direct_walker_seconds": 92.448128,
+    "native_mac_baseline_seconds": 2.4017337910000003,
+    "native_mac_direct_walker_seconds": 0.789038084,
+    "all_content_identities_equal": true,
+    "identity": {
+      "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+    },
+    "two_snapshot_sdk_saving_seconds": 235.55111641800062
+  },
+  "native_full_build": {
+    "returncode": 0,
+    "seconds": 54.827351917,
+    "source_commit": "9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a",
+    "config": "dev",
+    "model": "elite",
+    "native_package": {
+      "bytes": 651396,
+      "sha256": "53c8dd247343cbafb13b88f3040a61747b6dfcfa2adb2d1f5eeb7366ce01b274"
+    },
+    "linux_package": {
+      "bytes": 651396,
+      "sha256": "1ee6d2fcf20b39b625924ee15c6788c908ad9adc2933b4408b986c45cab745d4"
+    },
+    "package_byte_equal": false
+  },
+  "generated_headers": [
+    {
+      "header": "felucca_font.h",
+      "native_sha256": "091fa798cb22f69cf80f15ee00d23ec8ed9e8d66ae44bf1f7d45bcfb25c8b6d9",
+      "linux_sha256": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+      "equal": false
+    },
+    {
+      "header": "x0x_break_bank.h",
+      "native_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "linux_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "equal": true
+    },
+    {
+      "header": "x0x_drum_samples.h",
+      "native_sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "linux_sha256": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "equal": true
+    },
+    {
+      "header": "x0x_drum_tables.h",
+      "native_sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "linux_sha256": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "equal": true
+    }
+  ],
+  "decision": "Implement native macOS validation orchestration/provenance with the existing pinned Linux x86 build/test/controller environment. Do not move font generation to native Mac.",
+  "not_done": [
+    "No production validator change yet.",
+    "No end-to-end fast-path timing yet.",
+    "No install, release, full gate, merge, external push, or firmware integration change."
+  ],
+  "receiver": "Exactly one fresh stage2 implementation owner; then fresh independent stage3 and relevant stage4."
+}

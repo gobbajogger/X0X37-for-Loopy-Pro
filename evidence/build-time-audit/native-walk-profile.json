@@ -1,0 +1,11 @@
+[
+  {
+    "path": "/Users/mac/fw-AC79_AIoT_SDK",
+    "baseline_seconds": 2.4017337910000003,
+    "direct_seconds": 0.789038084,
+    "equal": true,
+    "content": {
+      "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+    }
+  }
+]
