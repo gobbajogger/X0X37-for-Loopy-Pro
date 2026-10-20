@@ -35,10 +35,16 @@ if os.environ.get('BARRIER'):
     while sum(json.loads(l)[0] == 'start' for l in Path(os.environ['EVENTS']).read_text().splitlines()) < required:
         assert time.monotonic() < deadline, 'compile batch did not start'
         time.sleep(.01)
-if os.environ.get('HANG') or os.environ.get('SPAWN_CHILD') == source:
+if os.environ.get('AFTER_SUCCESS') == source:
+    deadline = time.monotonic() + 5
+    while not any(json.loads(l)[:2] == ['end', 'src/a.c'] for l in Path(os.environ['EVENTS']).read_text().splitlines()):
+        assert time.monotonic() < deadline, 'earlier driver did not succeed'
+        time.sleep(.01)
+hang = os.environ.get('HANG') or os.environ.get('HANG_SOURCE') == source
+if hang or os.environ.get('SPAWN_CHILD') == source:
     child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])
     with open(os.environ['CHILDREN'], 'a') as f: f.write(str(child.pid) + '\n')
-    if os.environ.get('HANG'): time.sleep(60)
+    if hang: time.sleep(60)
 else:
     time.sleep(.08 if source == 'src/a.c' else .20)
 print('stdout ' + source)
@@ -56,6 +62,24 @@ args = sys.argv[1:]
 Path(os.environ['OUT'], 'link.json').write_text(json.dumps(args))
 Path(args[args.index('-Map') + 1]).write_text('map')
 Path(args[args.index('-o') + 1]).write_text('elf')
+'''
+CLEANUP_MONITOR = r'''
+import json, os, subprocess, sys
+from pathlib import Path
+if any(Path(arg).name.startswith('ctlbuild.') for arg in sys.argv[1:]):
+    states = []
+    children = Path(os.environ['CHILDREN'])
+    for pid in children.read_text().splitlines() if children.exists() else []:
+        if sys.platform.startswith('linux'):
+            try:
+                state = (Path('/proc') / pid / 'stat').read_text().split()[2]
+            except FileNotFoundError:
+                state = ''
+        else:
+            state = subprocess.run(['ps', '-o', 'stat=', '-p', pid], capture_output=True, text=True).stdout.strip()
+        states.append([int(pid), state])
+    Path(os.environ['CLEANUP_STATES']).write_text(json.dumps(states))
+os.execv(os.environ['REAL_RM'], [os.environ['REAL_RM'], *sys.argv[1:]])
 '''
 
 
@@ -93,6 +117,34 @@ class ControllerCompile(unittest.TestCase):
             self.env['PATH'] = str(launcher.parent) + ':' + self.env['PATH']
         self.env.pop('FAIL', None)
         self.env.pop('HANG', None)
+
+    def monitor_cleanup(self):
+        """Observe children at scratch deletion and stop only fixture children on failure."""
+        self.addCleanup(self.stop_fixture_children)
+        monitor = self.root / 'monitor/rm'
+        monitor.parent.mkdir()
+        monitor.write_text('#!' + sys.executable + '\n' + CLEANUP_MONITOR)
+        monitor.chmod(0o755)
+        self.env.update(REAL_RM=shutil.which('rm'), CLEANUP_STATES=str(self.root / 'cleanup-states'),
+                        PATH=str(monitor.parent) + ':' + self.env['PATH'])
+
+    def stop_fixture_children(self):
+        for pid in self.child_pids():
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+
+    def child_pids(self):
+        return [int(n) for n in self.children.read_text().splitlines()] if self.children.exists() else []
+
+    def assert_children_stopped_before_cleanup(self):
+        states = json.loads((self.root / 'cleanup-states').read_text())
+        self.assertTrue(states, 'no child observed at scratch cleanup')
+        for pid, state in states:
+            self.assertTrue(not state or state.startswith('Z'), f'owned child {pid} active at scratch cleanup: {state}')
+        self.assert_stopped(self.child_pids())
+        self.assert_clean()
 
     def run_build(self, jobs):
         self.env['X0X_JOBS'] = str(jobs)
@@ -151,6 +203,58 @@ class ControllerCompile(unittest.TestCase):
                 self.assertIn('Invalid X0X_JOBS', p.stderr)
                 self.assertFalse((self.out / 'ctl.elf').exists())
                 self.assert_clean()
+
+    def test_successful_driver_child_before_later_failure(self):
+        self.monitor_cleanup()
+        for jobs, failing in ((2, 'src/b.c'), (1, 'src/b.c'), (2, 'src/c.S')):
+            with self.subTest(jobs=jobs, failing=failing):
+                self.events.unlink(missing_ok=True)
+                self.children.unlink(missing_ok=True)
+                self.env.update(SPAWN_CHILD='src/a.c', FAIL=failing, AFTER_SUCCESS=failing)
+                try:
+                    p = self.run_build(jobs)
+                    self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+                    self.assertIn('CC FAIL', p.stdout)
+                    self.assertFalse((self.out / 'link.json').exists())
+                    self.assert_children_stopped_before_cleanup()
+                finally:
+                    self.stop_fixture_children()
+
+    def test_successful_driver_child_stopped_on_success(self):
+        self.monitor_cleanup()
+        self.env['SPAWN_CHILD'] = 'src/a.c'
+        p = self.run_build(1)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertTrue((self.out / 'ctl.elf').exists())
+        self.assert_children_stopped_before_cleanup()
+
+    def test_signal_after_successful_batch_stops_children(self):
+        self.monitor_cleanup()
+        for jobs, sig in ((jobs, sig) for jobs in (1, 2) for sig in (signal.SIGHUP, signal.SIGINT, signal.SIGTERM)):
+            with self.subTest(jobs=jobs, signal=sig):
+                self.events.unlink(missing_ok=True)
+                self.children.unlink(missing_ok=True)
+                self.env.update(X0X_JOBS=str(jobs), SPAWN_CHILD='src/a.c', HANG_SOURCE='src/b.c',
+                                AFTER_SUCCESS='src/b.c')
+                p = subprocess.Popen(['sh', str(TOP / 'ble/ctl/build_in_container.sh')],
+                                     env=self.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                try:
+                    deadline = time.monotonic() + 5
+                    while len(self.child_pids()) < 2:
+                        self.assertLess(time.monotonic(), deadline, 'later compiler did not start')
+                        time.sleep(.01)
+                    # The previous group must already be stopped at the batch boundary.
+                    self.assert_stopped(self.child_pids()[:1])
+                    p.send_signal(sig)
+                    stdout, stderr = p.communicate(timeout=5)
+                    self.assertEqual(p.returncode, 128 + sig, stdout + stderr)
+                    self.assert_children_stopped_before_cleanup()
+                    self.assertFalse((self.out / 'ctl.elf').exists())
+                finally:
+                    if p.poll() is None:
+                        p.send_signal(signal.SIGTERM)
+                        p.communicate(timeout=5)
+                    self.stop_fixture_children()
 
     def test_interruption_joins_compilers_and_descendants_before_cleanup(self):
         self.env.update(X0X_JOBS='2', HANG='1')

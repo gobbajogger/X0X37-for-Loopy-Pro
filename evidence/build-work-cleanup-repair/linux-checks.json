@@ -1,0 +1,39 @@
+{
+  "platform": "linux",
+  "machine": "x86_64",
+  "python": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+  "sources": {
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+  },
+  "checks": [
+    {
+      "label": "suite",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "tests/host/test_ctl_compile.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 14.241308999997273,
+      "log": "evidence/build-work-cleanup-repair/linux-suite.log",
+      "sha256": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280"
+    },
+    {
+      "label": "negative",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "evidence/build-work-cleanup-repair/run-checks.py",
+        "negative"
+      ],
+      "returncode": 0,
+      "seconds": 15.30667700000049,
+      "log": "evidence/build-work-cleanup-repair/linux-negative.log",
+      "sha256": "efd63e5b9a92814087b2b32d02687ecd366a31ae0f70fcedd8a1ddd833eda733"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-repair-20261021",
+  "stage": 2,
+  "result": "PASS: scoped implementation checks; fresh independent stage3 required",
+  "source_chat": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "combination_receiver": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+  "source_candidate_preserved": "30c567d8588227d5285f04422130300fe83577a9",
+  "files": [
+    "ble/ctl/build_in_container.sh",
+    "tests/host/test_ctl_compile.py"
+  ],
+  "change": "Stop the owned compiler group after each direct-driver wait and before dropping its ownership. This covers successful drivers, failed drivers, batch boundaries and later signal cleanup without retaining obsolete groups.",
+  "checks": [
+    {
+      "risk": "Earlier successful-driver children survive a later failure or signal and outlive scratch.",
+      "evidence": [
+        "darwin-checks.json",
+        "linux-checks.json"
+      ],
+      "result": "PASS: seven controller methods on macOS and pinned Linux; three failure orderings, success with a child and six signal/batch subcases. Scratch deletion monitor observes stopped children."
+    },
+    {
+      "risk": "Regression fixtures could pass the original faulty source.",
+      "evidence": [
+        "darwin-negative.log",
+        "linux-negative.log"
+      ],
+      "result": "PASS: all ten new subcases reject the exact original source in scratch. Only fixture child PIDs are stopped afterward."
+    },
+    {
+      "risk": "Reuse could hide changed Quickcheck or successful controller inputs.",
+      "evidence": "reuse.json",
+      "result": "PASS: six unaffected suite records, stage3 Quickcheck adversarial checks, unchanged controller input hashes, retained real image, flags/link/output bytes and exact bounded delta."
+    },
+    {
+      "risk": "Shell syntax or patch whitespace damage.",
+      "argv": [
+        "sh -n ble/ctl/build_in_container.sh",
+        "git diff --check"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "execution_commands": [
+    [
+      "python3",
+      "-B",
+      "evidence/build-work-cleanup-repair/run-checks.py"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "-v",
+      "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+      "-w",
+      "/Users/mac/Documents/x0x37/build_work_cleanup_repair",
+      "-e",
+      "CHECK_IMAGE=sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-B",
+      "evidence/build-work-cleanup-repair/run-checks.py"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "-v",
+      "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37",
+      "-w",
+      "/Users/mac/Documents/x0x37/build_work_cleanup_repair",
+      "-e",
+      "CHECK_IMAGE=sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-B",
+      "evidence/build-work-cleanup-repair/run-checks.py",
+      "negative-only"
+    ],
+    [
+      "python3",
+      "-B",
+      "evidence/build-work-cleanup-repair/verify-reuse.py"
+    ]
+  ],
+  "failure_dispositions": [
+    {
+      "failure": "The first Linux negative-control attempt could not read Git due to Docker root versus host repository ownership.",
+      "evidence": [
+        "initial-linux-checks.json",
+        "initial-linux-negative.log"
+      ],
+      "repair": "Use git -c safe.directory=<this exact lane> only on the scratch old-source read. No global settings changed. One bounded retry reran only the failed negative control; the suite PASS was reused.",
+      "result": "PASS"
+    }
+  ],
+  "limits": [
+    "No new baseline, real controller or application build. Original real controller timing 28.513924458 seconds is reused without a comparative speed claim.",
+    "No release/full gate, install, device test, external push, proprietary bundle or firmware integration.",
+    "Original seven suite records are preserved; the affected controller suite is superseded by current macOS/Linux runs.",
+    "Direct controller/routing runner registration remains with the runner owner. Fixed-tree devbug reuse remains deferred.",
+    "Fresh independent stage3 Test and investigation review must pass before acceptance."
+  ],
+  "next_action": "Launch exactly one fresh affected stage3, require independent Test and investigation subagents, then scoped tooling validation if needed. Deliver accepted source to the one finishing owner and notify the combination dependency receiver."
+}

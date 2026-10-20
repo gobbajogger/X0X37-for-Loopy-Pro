@@ -1,0 +1,246 @@
+{
+  "result": "PASS",
+  "source_base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+  "source_candidate": "30c567d8588227d5285f04422130300fe83577a9",
+  "source_hashes": {
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de"
+  },
+  "changed_files": [
+    "ble/ctl/build_in_container.sh",
+    "tests/host/test_ctl_compile.py"
+  ],
+  "reused_checks": [
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_rules_guard_hook.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.627994000002218,
+      "log": "evidence/build-work-stage2/test_rules_guard_hook.log",
+      "sha256": "b7400c07d64bfc17de3abda8339f8501d71fc8a033e675f862a2ee2e47619f22"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_quickcheck_plan.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 32.800687000002654,
+      "log": "evidence/build-work-stage2/test_quickcheck_plan.log",
+      "sha256": "3b3e4c535aaabb38db27e7ebf5d69057537f6f0ea73e6bd01cb7c4992b239f07"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_ste.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 12.468725999999151,
+      "log": "evidence/build-work-stage2/test_quickcheck_ste.log",
+      "sha256": "9627e1197d17d03bf509cd20a94f152dd338108f138724dd0c30453af3832a23"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_rules.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 21.51453599999877,
+      "log": "evidence/build-work-stage2/test_quickcheck_rules.log",
+      "sha256": "c251cb5a3838cb74132ff231fdb5d730520a635010aed3091874578ab052b3e7"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_devbug.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 12.731372999998712,
+      "log": "evidence/build-work-stage2/test_quickcheck_devbug.log",
+      "sha256": "fec1c164fe0c28faed6630e359238d35bc6f57274b79281d8ad6ef1a6da25303"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_portable_rules.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.165578000000096,
+      "log": "evidence/build-work-stage2/test_portable_rules.log",
+      "sha256": "3543237d558e72f2283d1e84f6eabaf0e7df9b595c5ce0f2567e8255286bc63b"
+    }
+  ],
+  "superseded_controller_fixture": {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/test_ctl_compile.py"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 4.692589999998745,
+    "log": "evidence/build-work-stage2/test_ctl_compile.log",
+    "sha256": "b373b76624c03c2b2b60227d07e04c951844891215f0784a7ecad7e0ee6934f3"
+  },
+  "new_controller_checks": [
+    {
+      "platform": "darwin",
+      "machine": "arm64",
+      "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+      "image": null,
+      "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+      "sources": {
+        "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+        "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+      },
+      "checks": [
+        {
+          "label": "suite",
+          "argv": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "tests/host/test_ctl_compile.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "seconds": 9.793719084,
+          "log": "evidence/build-work-cleanup-repair/darwin-suite.log",
+          "sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74"
+        },
+        {
+          "label": "negative",
+          "argv": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "evidence/build-work-cleanup-repair/run-checks.py",
+            "negative"
+          ],
+          "returncode": 0,
+          "seconds": 11.264044625,
+          "log": "evidence/build-work-cleanup-repair/darwin-negative.log",
+          "sha256": "06c8aa3ceefcfbc09bdf9b65cad420a42e9faefa974db2f02ade458dbba7720a"
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "machine": "x86_64",
+      "python": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+      "sources": {
+        "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+        "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+      },
+      "checks": [
+        {
+          "label": "suite",
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "tests/host/test_ctl_compile.py",
+            "-v"
+          ],
+          "returncode": 0,
+          "seconds": 14.241308999997273,
+          "log": "evidence/build-work-cleanup-repair/linux-suite.log",
+          "sha256": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280"
+        },
+        {
+          "label": "negative",
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "evidence/build-work-cleanup-repair/run-checks.py",
+            "negative"
+          ],
+          "returncode": 0,
+          "seconds": 15.30667700000049,
+          "log": "evidence/build-work-cleanup-repair/linux-negative.log",
+          "sha256": "efd63e5b9a92814087b2b32d02687ecd366a31ae0f70fcedd8a1ddd833eda733"
+        }
+      ]
+    }
+  ],
+  "stage3_quickcheck_adversarial_report": "evidence/build-work-stage3/test/report.json",
+  "controller_result": "evidence/build-work-stage2/controller-result.json",
+  "controller_image_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "original_real_controller_seconds": 28.513924458,
+  "current_script_sha256": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+  "parent_delta": [
+    "--- ",
+    "+++ ",
+    "@@ -52,12 +52,12 @@",
+    "     case \"$remaining\" in *\" \"*) remaining=${remaining#* } ;; *) remaining=\"\" ;; esac",
+    "     if ! wait \"$pid\"; then",
+    "       failed=1",
+    "-      # A failed driver can leave children in its own group after it exits.",
+    "-      kill -KILL \"-$pid\" 2>/dev/null || true",
+    "-      PIDS=\"$remaining\"; stop_jobs",
+    "-      break",
+    "     fi",
+    "+    # Even a successful driver can leave children. Stop its group before dropping",
+    "+    # ownership, including at batch boundaries. Only unjoined drivers need waits.",
+    "+    kill -KILL \"-$pid\" 2>/dev/null || true",
+    "     PIDS=\"$remaining\"",
+    "+    if [ \"$failed\" != 0 ]; then stop_jobs; break; fi",
+    "   done",
+    "   PIDS=\"\"; count=0",
+    " }"
+  ],
+  "exact_built_to_current_delta": [
+    "--- ",
+    "+++ ",
+    "@@ -28,8 +28,8 @@",
+    " stop_jobs() {",
+    "   # Each compiler has its own process group, including any driver children.",
+    "   # Also signal the direct PID in case interruption precedes setsid execution.",
+    "-  for pid in $PIDS; do kill -TERM -- \"-$pid\" 2>/dev/null || true; kill -TERM \"$pid\" 2>/dev/null || true; done",
+    "-  for pid in $PIDS; do kill -KILL -- \"-$pid\" 2>/dev/null || true; kill -KILL \"$pid\" 2>/dev/null || true; done",
+    "+  for pid in $PIDS; do kill -TERM \"-$pid\" 2>/dev/null || true; kill -TERM \"$pid\" 2>/dev/null || true; done",
+    "+  for pid in $PIDS; do kill -KILL \"-$pid\" 2>/dev/null || true; kill -KILL \"$pid\" 2>/dev/null || true; done",
+    "   for pid in $PIDS; do wait \"$pid\" 2>/dev/null || true; done",
+    "   PIDS=\"\"",
+    " }",
+    "@@ -52,10 +52,12 @@",
+    "     case \"$remaining\" in *\" \"*) remaining=${remaining#* } ;; *) remaining=\"\" ;; esac",
+    "     if ! wait \"$pid\"; then",
+    "       failed=1",
+    "-      PIDS=\"$remaining\"; stop_jobs",
+    "-      break",
+    "     fi",
+    "+    # Even a successful driver can leave children. Stop its group before dropping",
+    "+    # ownership, including at batch boundaries. Only unjoined drivers need waits.",
+    "+    kill -KILL \"-$pid\" 2>/dev/null || true",
+    "     PIDS=\"$remaining\"",
+    "+    if [ \"$failed\" != 0 ]; then stop_jobs; break; fi",
+    "   done",
+    "   PIDS=\"\"; count=0",
+    " }"
+  ],
+  "successful_invocation_flags_link_outputs_unchanged": true,
+  "protected_sources_unchanged": [
+    "tests/run_tests.sh",
+    "tools/build.py",
+    "tools/dev_validate.py",
+    "tools/validation_inputs.py",
+    "host/build_host.sh",
+    "BUILDING.md"
+  ],
+  "reason": "Only joined-driver process-group cleanup changes. A normally successful driver leaves no residual group; the added kill then returns ESRCH and is ignored. Any surviving compiler children are stopped before group ownership is dropped. Compiler argv, batch bound, diagnostic and object order, link and image inputs remain unchanged.",
+  "limits": [
+    "No second real controller, baseline or application build; no isolated timing comparison.",
+    "SDK/toolchain identities reuse saved controller records and were not rehashed.",
+    "Stage2 checks do not replace the required fresh independent stage3 review."
+  ]
+}

@@ -52,12 +52,12 @@ join_jobs() {
     case "$remaining" in *" "*) remaining=${remaining#* } ;; *) remaining="" ;; esac
     if ! wait "$pid"; then
       failed=1
-      # A failed driver can leave children in its own group after it exits.
-      kill -KILL "-$pid" 2>/dev/null || true
-      PIDS="$remaining"; stop_jobs
-      break
     fi
+    # Even a successful driver can leave children. Stop its group before dropping
+    # ownership, including at batch boundaries. Only unjoined drivers need waits.
+    kill -KILL "-$pid" 2>/dev/null || true
     PIDS="$remaining"
+    if [ "$failed" != 0 ]; then stop_jobs; break; fi
   done
   PIDS=""; count=0
 }

@@ -1,0 +1,12 @@
+test_compile_failure_and_stale_outputs (__main__.ControllerCompile) ... ok
+test_interruption_joins_compilers_and_descendants_before_cleanup (__main__.ControllerCompile) ... ok
+test_invalid_job_counts_fail_without_stale_success (__main__.ControllerCompile) ... ok
+test_parallel_bound_serial_and_ordered_diagnostics_link (__main__.ControllerCompile) ... ok
+test_signal_after_successful_batch_stops_children (__main__.ControllerCompile) ... ok
+test_successful_driver_child_before_later_failure (__main__.ControllerCompile) ... ok
+test_successful_driver_child_stopped_on_success (__main__.ControllerCompile) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 9.759s
+
+OK

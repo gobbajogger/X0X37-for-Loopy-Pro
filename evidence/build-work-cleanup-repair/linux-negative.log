@@ -1,0 +1,118 @@
+test_successful_driver_child_before_later_failure (fixture.ControllerCompile.test_successful_driver_child_before_later_failure) ... 
+  test_successful_driver_child_before_later_failure (fixture.ControllerCompile.test_successful_driver_child_before_later_failure) (jobs=2, failing='src/b.c') ... FAIL
+  test_successful_driver_child_before_later_failure (fixture.ControllerCompile.test_successful_driver_child_before_later_failure) (jobs=1, failing='src/b.c') ... FAIL
+  test_successful_driver_child_before_later_failure (fixture.ControllerCompile.test_successful_driver_child_before_later_failure) (jobs=2, failing='src/c.S') ... FAIL
+test_successful_driver_child_stopped_on_success (fixture.ControllerCompile.test_successful_driver_child_stopped_on_success) ... FAIL
+test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) ... 
+  test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGHUP: 1>) ... FAIL
+  test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGINT: 2>) ... FAIL
+  test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGTERM: 15>) ... FAIL
+  test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGHUP: 1>) ... FAIL
+  test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGINT: 2>) ... FAIL
+  test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGTERM: 15>) ... FAIL
+
+======================================================================
+FAIL: test_successful_driver_child_before_later_failure (fixture.ControllerCompile.test_successful_driver_child_before_later_failure) (jobs=2, failing='src/b.c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 219, in test_successful_driver_child_before_later_failure
+    self.assert_children_stopped_before_cleanup()
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 145, in assert_children_stopped_before_cleanup
+    self.assertTrue(not state or state.startswith('Z'), f'owned child {pid} active at scratch cleanup: {state}')
+AssertionError: False is not true : owned child 20 active at scratch cleanup: S
+
+======================================================================
+FAIL: test_successful_driver_child_before_later_failure (fixture.ControllerCompile.test_successful_driver_child_before_later_failure) (jobs=1, failing='src/b.c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 219, in test_successful_driver_child_before_later_failure
+    self.assert_children_stopped_before_cleanup()
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 145, in assert_children_stopped_before_cleanup
+    self.assertTrue(not state or state.startswith('Z'), f'owned child {pid} active at scratch cleanup: {state}')
+AssertionError: False is not true : owned child 35 active at scratch cleanup: S
+
+======================================================================
+FAIL: test_successful_driver_child_before_later_failure (fixture.ControllerCompile.test_successful_driver_child_before_later_failure) (jobs=2, failing='src/c.S')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 219, in test_successful_driver_child_before_later_failure
+    self.assert_children_stopped_before_cleanup()
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 145, in assert_children_stopped_before_cleanup
+    self.assertTrue(not state or state.startswith('Z'), f'owned child {pid} active at scratch cleanup: {state}')
+AssertionError: False is not true : owned child 54 active at scratch cleanup: S
+
+======================================================================
+FAIL: test_successful_driver_child_stopped_on_success (fixture.ControllerCompile.test_successful_driver_child_stopped_on_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 229, in test_successful_driver_child_stopped_on_success
+    self.assert_children_stopped_before_cleanup()
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 145, in assert_children_stopped_before_cleanup
+    self.assertTrue(not state or state.startswith('Z'), f'owned child {pid} active at scratch cleanup: {state}')
+AssertionError: False is not true : owned child 75 active at scratch cleanup: S
+
+======================================================================
+FAIL: test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGHUP: 1>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 247, in test_signal_after_successful_batch_stops_children
+    self.assert_stopped(self.child_pids()[:1])
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 290, in assert_stopped
+    self.assertLess(time.monotonic(), deadline, f'owned process {pid} still active: {state}')
+AssertionError: 21565.742764353 not less than 21565.731460353 : owned process 109 still active: S
+
+======================================================================
+FAIL: test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGINT: 2>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 247, in test_signal_after_successful_batch_stops_children
+    self.assert_stopped(self.child_pids()[:1])
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 290, in assert_stopped
+    self.assertLess(time.monotonic(), deadline, f'owned process {pid} still active: {state}')
+AssertionError: 21567.460580353 not less than 21567.455986353 : owned process 123 still active: S
+
+======================================================================
+FAIL: test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=1, signal=<Signals.SIGTERM: 15>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 247, in test_signal_after_successful_batch_stops_children
+    self.assert_stopped(self.child_pids()[:1])
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 290, in assert_stopped
+    self.assertLess(time.monotonic(), deadline, f'owned process {pid} still active: {state}')
+AssertionError: 21569.113287353 not less than 21569.102531353 : owned process 137 still active: S
+
+======================================================================
+FAIL: test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGHUP: 1>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 247, in test_signal_after_successful_batch_stops_children
+    self.assert_stopped(self.child_pids()[:1])
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 290, in assert_stopped
+    self.assertLess(time.monotonic(), deadline, f'owned process {pid} still active: {state}')
+AssertionError: 21570.674364353 not less than 21570.663874353 : owned process 153 still active: S
+
+======================================================================
+FAIL: test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGINT: 2>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 247, in test_signal_after_successful_batch_stops_children
+    self.assert_stopped(self.child_pids()[:1])
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 290, in assert_stopped
+    self.assertLess(time.monotonic(), deadline, f'owned process {pid} still active: {state}')
+AssertionError: 21572.254678353 not less than 21572.252032353 : owned process 167 still active: S
+
+======================================================================
+FAIL: test_signal_after_successful_batch_stops_children (fixture.ControllerCompile.test_signal_after_successful_batch_stops_children) (jobs=2, signal=<Signals.SIGTERM: 15>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 247, in test_signal_after_successful_batch_stops_children
+    self.assert_stopped(self.child_pids()[:1])
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/tests/host/test_ctl_compile.py", line 290, in assert_stopped
+    self.assertLess(time.monotonic(), deadline, f'owned process {pid} still active: {state}')
+AssertionError: 21573.886078353 not less than 21573.878714353 : owned process 181 still active: S
+
+----------------------------------------------------------------------
+Ran 3 tests in 14.823s
+
+FAILED (failures=10)
+PASS: original source rejected in all ten new failure/success/signal subcases; fixture-owned children stopped.

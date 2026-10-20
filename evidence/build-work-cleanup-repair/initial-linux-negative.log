@@ -1,0 +1,16 @@
+fatal: detected dubious ownership in repository at '/Users/mac/Documents/x0x37/build_work_cleanup_repair'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /Users/mac/Documents/x0x37/build_work_cleanup_repair
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/evidence/build-work-cleanup-repair/run-checks.py", line 41, in <module>
+    negative()
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_repair/evidence/build-work-cleanup-repair/run-checks.py", line 30, in negative
+    script.write_bytes(subprocess.check_output(['git', 'show', BASE + ':ble/ctl/build_in_container.sh'], cwd=ROOT))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'show', '78c5296e95b9a18a514bbfd126ab04ebd86df9c9:ble/ctl/build_in_container.sh']' returned non-zero exit status 128.

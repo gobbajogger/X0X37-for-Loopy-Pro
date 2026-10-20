@@ -1,0 +1,39 @@
+{
+  "platform": "darwin",
+  "machine": "arm64",
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "image": null,
+  "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+  "sources": {
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+  },
+  "checks": [
+    {
+      "label": "suite",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "tests/host/test_ctl_compile.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 9.793719084,
+      "log": "evidence/build-work-cleanup-repair/darwin-suite.log",
+      "sha256": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74"
+    },
+    {
+      "label": "negative",
+      "argv": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-B",
+        "evidence/build-work-cleanup-repair/run-checks.py",
+        "negative"
+      ],
+      "returncode": 0,
+      "seconds": 11.264044625,
+      "log": "evidence/build-work-cleanup-repair/darwin-negative.log",
+      "sha256": "06c8aa3ceefcfbc09bdf9b65cad420a42e9faefa974db2f02ade458dbba7720a"
+    }
+  ]
+}
