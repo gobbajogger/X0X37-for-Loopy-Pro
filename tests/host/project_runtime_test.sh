@@ -4,6 +4,12 @@ set -eu
 cd "$(dirname "$0")/../.."
 OUT=${OUT:-build/host/project-runtime}
 mkdir -p "$OUT"
+awk '/Project transfers cannot queue an update/{on=1}
+     on && /^#if X0X_CDC/{exit} on{print}' firmware/src/app/main_fm1.c > "$OUT/project_updates.inc"
+test -s "$OUT/project_updates.inc"
+${CC:-cc} -std=c99 -Wall -Wextra -Werror -I"$OUT" \
+    tests/host/project_update_guard_test.c -o "$OUT/project_update_guard"
+"$OUT/project_update_guard"
 sh host/build_host.sh --generate-only
 U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c
 firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
