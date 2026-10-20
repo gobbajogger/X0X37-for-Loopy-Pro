@@ -1,14 +1,31 @@
 {
   "workflow": "asset-reuse-20261021",
   "marker": "asset-reuse-20261021-stage2-selector-repair",
-  "status": "pending",
+  "status": "started",
   "source_chat": "01a15aec-a3db-7972-b1a3-cbd56a0bd510",
   "stage": 2,
   "kind": "repair",
   "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
   "prompt": "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/repair-stage2-prompt.txt",
-  "thread_id": null,
-  "host_id": null,
-  "attempts": [],
-  "reason": "Stage3 FAIL I1 requires source repair before any stage4."
+  "thread_id": "01a15af0-9697-77e2-a70f-4b88642384f7",
+  "host_id": "local",
+  "attempts": [
+    {
+      "attempt": 1,
+      "action": "create_thread",
+      "result": "created",
+      "thread_id": "01a15af0-9697-77e2-a70f-4b88642384f7",
+      "host_id": "local",
+      "startup": "verified"
+    }
+  ],
+  "reason": "Stage3 FAIL I1 requires source repair before any stage4.",
+  "startup": {
+    "turn_id": "01a15af0-97bc-7762-b40d-99ca6fd053ac",
+    "assistant_message_id": "msg_0cc0b8cbdc4a5526016ad7caf1134c8191bbd8c3bc8bb27e38",
+    "observed_via": "wait_threads",
+    "acknowledgement": "I\u2019m using the x0x37 task and writing skills. I\u2019ll read the saved repair assignment and failure evidence, then create an isolated repair lane from the failed production candidate.",
+    "tool_activity": "list_artifacts completed in the successor turn.",
+    "result": "Actual assistant response acknowledges repair assignment; startup verified."
+  }
 }
