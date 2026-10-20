@@ -6,8 +6,13 @@ import re
 import subprocess
 import tempfile
 root = Path(__file__).resolve().parents[2]
-s = (root / 'firmware/src/app/smc_mixer.c').read_text()
+s = Path(os.environ.get('SMC_SOURCE', Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c')).read_text()
 f = re.search(r'^static void smc_button\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)[0]
+helpers = []
+for name in ('smc_drum_mix', 'smc_drum_track'):
+    match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
+    if match:
+        helpers.append(match[0])
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -33,6 +38,7 @@ static void smc_record_toggle(void) {}
 static void engine_smc_solo(int s) { (void)s; }
 static void say(const char *a,const char *b) { (void)a;(void)b; }
 static void mute_part(int p) { (void)p; }
+#define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }
 static void smc_view(int v,int p) { last_view=v; last_page=p; }
 static int smc_bank(uint8_t n) { (void)n; return 0; } /* bank logic has its own routing test */
@@ -43,7 +49,7 @@ static void list_move(int d) { moved+=d; }
 static void ui_menu_arrow(int d) { edited+=d; }
 static int cur_page(void) { return page; }
 static uint8_t *page_of(int v) { (void)v; return &page; }
-'''+f+r'''
+'''+ '\n'.join(helpers) + f + r'''
 int main(void) {
     const int views[4][3]={{V_FX,V_FX,V_HOME},{V_MIX,V_MIX,V_PART},{-1,-1,-1},{V_FX,V_FX,V_MIX}};
     const int pages[4][3]={{0,1,0},{-1,-1,0},{-1,-1,-1},{0,1,3}};

@@ -1,0 +1,5 @@
+{
+  "smc_mixer_blob": "fa885dad6c721f413da64ab78a2f7439b51d29d7",
+  "smc_mixer_sha256": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+  "reason": "Repeat both builds after the final guard diagnostic return correction."
+}

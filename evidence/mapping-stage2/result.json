@@ -1,0 +1,173 @@
+{
+  "marker": "smc-mapping-20261021-confirmed-defects-stage2",
+  "base": "1313e0fe384ef5df1f2f5f5ef699902c4543bc0d",
+  "result": "STAGE2 CHECKED",
+  "source_blob": "fa885dad6c721f413da64ab78a2f7439b51d29d7",
+  "source_sha256": "ad29f71abe1411ebb2666e481deeca13c9a0a835b50b9f454963aa9fdb64205a",
+  "scope": [
+    "Visible drum bank M actions use keyboard per-track mute semantics.",
+    "M lights reflect active drum track mutes; unused slots are inactive.",
+    "SMC STOP/PLAY/back abort performance test through guarded deferred restoration."
+  ],
+  "host_checks": [
+    {
+      "argv": [
+        "python3",
+        "tests/host/smc_mapping_test.py"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_mapping_test.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/host/smc_fader_test.py"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_fader_test.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/host/smc_buttons_test.py"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_buttons_test.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/host/smc_filter_test.py"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_filter_test.log"
+    },
+    {
+      "argv": [
+        "sh",
+        "tests/host/smc_part_select_test.sh"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_part_select_test.log"
+    },
+    {
+      "argv": [
+        "sh",
+        "tests/host/smc_reachability_test.sh"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_reachability_test.log"
+    },
+    {
+      "argv": [
+        "sh",
+        "tests/host/smc_clip_visibility_test.sh"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_clip_visibility_test.log"
+    },
+    {
+      "argv": [
+        "sh",
+        "tests/host/smc_drum_mutes_test.sh"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_drum_mutes_test.log"
+    },
+    {
+      "argv": [
+        "sh",
+        "tests/host/smc_performance_abort_test.sh"
+      ],
+      "returncode": 0,
+      "log": "/Users/mac/Documents/x0x37/smc_mapping_fix_20261021/evidence/mapping-stage2/smc_performance_abort_test.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-o",
+        "build/stage2/smc_protocol_test",
+        "tests/host/smc_protocol_test.c"
+      ],
+      "run": [
+        "build/stage2/smc_protocol_test"
+      ],
+      "returncode": 0,
+      "log": "evidence/mapping-stage2/protocol.log"
+    }
+  ],
+  "regression_controls": {
+    "drum_base": "EXPECTED FAIL exit134 at seq.vmute assertion",
+    "performance_base": "EXPECTED FAIL exit1 at DAW STOP phase0"
+  },
+  "review": "independent source/regression review: no actionable findings",
+  "builds": {
+    "elite": {
+      "result": "PASS",
+      "config": "dev",
+      "X0X_DEV_PADCAL": 1,
+      "code_free": 1912,
+      "ram_free": 524,
+      "pool_free": 8364,
+      "log": "evidence/mapping-stage2/build-elite.log",
+      "artifacts": {
+        "build/smk37-elite/x0x.bin": {
+          "size": 550760,
+          "sha256": "21268e95f3bbfd1f29de1f6bd313f2470e5b3d5bf7fe7794663012a2b236f3b2"
+        },
+        "build/smk37-elite/loader/ota.bin": {
+          "size": 7280,
+          "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e"
+        },
+        "build/x0x-smk37-elite.fwsc": {
+          "size": 651396,
+          "sha256": "0759c0312eb22f39805d5a60039cbfdc71fb98e1edee37355f39ac88e0629c86"
+        }
+      }
+    },
+    "pro": {
+      "result": "PASS",
+      "config": "dev",
+      "X0X_DEV_PADCAL": 1,
+      "code_free": 1928,
+      "ram_free": 524,
+      "pool_free": 8364,
+      "log": "evidence/mapping-stage2/build-pro.log",
+      "artifacts": {
+        "build/smk37/x0x.bin": {
+          "size": 550744,
+          "sha256": "b4be8c5c8a61c3c2bc7bdaad3abd382d7c2055feb3d92b4412ac05770e206804"
+        },
+        "build/smk37/loader/ota.bin": {
+          "size": 7276,
+          "sha256": "62b3251239feae72d0e5d89dff46e9da54f76a6633a88a16874d9bfe08137bdf"
+        },
+        "build/x0x-smk37.fwsc": {
+          "size": 651392,
+          "sha256": "d4f16a8ddb2070c12fe2dc0e10c560616f0498fc2f89741e33faf61c746773e3"
+        }
+      }
+    }
+  },
+  "controller": "unchanged; not rebuilt in stage2",
+  "limits": [
+    "R/S track policy deferred; existing whole-part semantics retained.",
+    "Physical input silence remains unresolved; no device test or physical PASS.",
+    "Raw DEV builds are stage2 checks; stage4 must produce matching dev_validate records and complete controller/package set.",
+    "No release/fullgate, install, integration or external push performed."
+  ],
+  "excluded_local_changes": [
+    "AGENTS.md",
+    "docs/SKILLS.md"
+  ],
+  "check_failures_resolved": [
+    "Mapping fragment initially lacked new shared helper extraction; fixture adapted, final PASS.",
+    "Drum base negative control initially lacked temporary-source include path; runner corrected, true base failure verified."
+  ],
+  "build_repeat_reason": "Repeat final DEV builds after the diagnostic return correction; first logs retained."
+}

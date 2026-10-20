@@ -9,6 +9,10 @@ root = Path(__file__).resolve().parents[2]
 source = (Path(os.environ.get('SMC_SOURCE_ROOT', root)) / 'firmware/src/app/smc_mixer.c').read_text()
 names = ('smc_same', 'smc_home_target', 'smc_page_target', 'smc_target', 'smc_knob_target', 'smc_bank', 'smc_notice')
 functions = []
+for helper in ('smc_drum_mix', 'smc_drum_track'):
+    match = re.search(r'^static [^\n]+ '+helper+r'\([^\n]*\)\n\{.*?^\}', source, re.M | re.S)
+    if match:
+        functions.append(match[0])
 for name in names:
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', source, re.M | re.S)
     assert match, name
