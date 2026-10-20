@@ -236,3 +236,51 @@ Next: install a64 and do the iPhone connect test. Read DIAG with `tools/ble_auto
 | b10 (INSTALLED 02:25, batch 10, rel) | 2026-10-17 | Install of integration c6bf44a (batch 10, CLP-18 pad clear and PLAY/REC owner link) in config rel. Gate PASS 02:19 (+10), result file b220466e91d0b4e98caa8a5a9d6dac5153ba6394-20261017-0219.md, guard GATE OK. I ran the install from 02:24:20 to 02:25:26 (+10) in the watched screen session x0x-install-b10-c6bf44a, with no bootloader write. Elite fwsc CRC32 c48b5c6e, EXIT=0, "done: the FM-1 runs SMK-37 Elite_900". The ctl.img read-back unit CRC32 eb742dd2 is the same as the file, slots 1, 2 and 3 do not change, and no restore is necessary. DIAG: READY, no new crash, hci drops 0, logs in box x0x37-results/installs/. | Device test: PENDING |
 | SMC central (build only) | 2026-10-19 | `config_btctler_le_roles` adds LE_MASTER, LE_SCAN, and LE_INIT to existing LE_ADV and LE_SLAVE roles so one controller image supports either app-selected role at boot. `config_btctler_le_features` is 0: neither role uses pairing or encryption, and removing that unused feature helps fit the 64 KiB image. The app selects the SMC central role from project Bluetooth bit 4 at BLE boot; changing it requires reboot. With no SMC present it keeps scanning. Host tests cover scan, connect, paged GATT discovery, subscribe, MIDI/MMC reassembly, send, cancel completion and failure reconnect. No device install or hardware test. | Host test PASS; combined controller link exceeds the 64 KiB CFLASH slot by 188 B. No image produced. |
 | SMC central fit (build only) | 2026-10-19 | Follow-up to SMC central: removed obsolete RF delay stack/caller tracing while keeping the stopped-clock check, and supplied a small standards-compatible `strcmp` to avoid the 160 B libc implementation. The combined LE peripheral+central controller links with 0 undefined symbols; `mkimage.py` validates `ctl.img` at 65,492 / 65,536 B (44 B free), RAM 25,824 / 26,368 B, CRC-32 77b7a496. Central host tests pass, including OFF→ON HCI completion, ATT failure rescan, split MMC SysEx with timestamp 0xF7, and MIDI queue handoff. | Build only; no installation or hardware test. |
+
+
+## Local stage 6: verified development install, 2026-10-21
+
+Installed the complete accepted revision `b3112a8c152dabb1ac8b7f88a4746380895b5e4d`
+on the connected `SMK-37 Elite_900`, port `X0X FM-1`, in configuration `dev`
+(`X0X_DEV_PADCAL=1`). Installer exit 0. The watched foreground run started at
+2026-10-21T01:28:55.735551+10:00 and finished verification at 2026-10-21T01:30:45.831120+10:00 (+10).
+
+Admission used the original schema-2 DEV CHECKED record
+`/Users/mac/Documents/x0x37/local_fixture_stage4_evidence_20261021/elite/record.json`,
+validation-input identity
+`a3af32a9b8470fb7391624065329126d3c5e18272f186a2c8252e9ee55f9427b`, with the
+matching original Elite package and explicit validated `--ctl`. Package CRC32
+`b7aca7d2`; controller file CRC32 `9c07ae67`; controller header checksum
+`77b7a496`. The complete 65536-byte controller readback, including 44 bytes of
+erased padding, has CRC32 `4a400899` and matches the expected bytes and SHA-256.
+The controller was neither omitted nor taken from the local cache.
+
+The unmodified maintained installer kept development admission, queue, foreground,
+exclusive hardware lock, model, controller and explicit full-backup guards.
+The lock remained held through the complete postinstall slot/controller reads.
+Both a verified preflight archive and the installer's verified prewrite archive
+contain all five imported loops (three in slot 1, two in slot 2). Slot 3 is empty.
+All three complete slot regions were also saved before and after and compared
+byte for byte: slot 1 (81920 B) CRC32 `ee599248`, slot 2 (122880 B) `8a124cb7`,
+slot 3 (45056 B) `7e7f9415`; every before/after value matches. Used loop-image
+CRCs remain `961626d5` and `9a09fdb9`. No slot migration or restore was needed.
+
+Application verification is the device loader's readback and byte comparison of
+all 153 sectors in `[0x4000,0x9D000)`, followed by its FINISH_WRITE completion
+and the expected running identity. The current USB protocol does not expose an
+independent host dump of arbitrary application flash. The selected Felucca loader
+never writes `[0,0x4000)`; its RAM flash driver independently rejects that head.
+Controller insertion leaves the package head unchanged. No unit head-reference
+file was available, so the host head-hash comparison was explicitly unrun; no
+reference was fabricated and no bootloader write was made.
+
+Private evidence, exact arguments, artifact SHA-256 values, backups, full-slot
+reads, full controller capture and completion times:
+`/Users/mac/Documents/x0x37/local_install_stage6_evidence_20261021/install-record.json`
+and `install.log`. See the
+[stage-6 handoff](local-handoff/2026-10-21/stage6-dev-installed/HANDOFF.md).
+No new build, full gate, release configuration, main push or publication ran.
+The enclosing handoff/ledger commit changes Markdown only and retains the exact
+checked non-Markdown source identity. Physical SMC operation remains NOT TESTED
+on this installation; the owner's earlier failure and prior replay/simulation
+limits remain. Verified installation does not grant a device PASS or release.
