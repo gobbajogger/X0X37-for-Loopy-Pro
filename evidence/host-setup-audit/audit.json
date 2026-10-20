@@ -1,0 +1,39 @@
+{
+  "workflow": "host-setup-20261021",
+  "stage": 1,
+  "source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+  "owner_request": "Check the old thread that it's still working under old rules and maybe there's more to improve build times",
+  "standing_goal": "Drastically reduce build/validation work without sacrificing features or relevant checks.",
+  "source_commit": "1165396199210889fa460d26cbdd0b66183267e1",
+  "files": {
+    "host/build_host.sh": "12c9149e5e5550deb045452b652d3ef2d67ee9e502df483fc35b0c208dd28413",
+    "tests/host/smc_reachability_test.sh": "7d3fec22308b2fe41d0bcbb144f21f82446a58c18b43585ff2522b00b8bcb49b",
+    "tests/host/smc_drum_mutes_test.sh": "dd88873a65ae03e683bc878faa5045b44c6a13ac881b6df22fa59ce1c28cf9ff",
+    "tests/host/smc_performance_abort_test.sh": "e271395c8e9de3424d2a12fe8b9fa209c4ef04e34d52620551fc0aeed1cd1022",
+    "tests/host/ui_feedback_test.sh": "e1896167353bcc0737b2b2033f4a4e24e0a72303ff11717611246d13ac1130b9",
+    "tests/run_tests.sh": "281c75d6337919ace9e0792c59fb684b255bcc0985d5196701d3e9fa69d71e6f",
+    "tools/quickcheck.sh": "cf14305620be2c40a9156d9636fe5dbf9789f93ef31118558a76622c16da6d09"
+  },
+  "confirmed_findings": [
+    "The old combined-validation and asset threads loaded mandatory STE sources before the shared plain-writing update. Root sent the active owners the changed writing/task paths and instructed them not to repeat completed validation.",
+    "Each of smc_reachability_test.sh, smc_drum_mutes_test.sh, smc_performance_abort_test.sh and ui_feedback_test.sh calls host/build_host.sh with X0X_HOST_OUT pointing at a temporary host binary.",
+    "None of those four scripts runs or otherwise reads that temporary simulator binary. Each separately compiles and runs its own C probe, which includes host/x0x_host.c directly.",
+    "The useful setup from host/build_host.sh is its generated headers. A generate-only mode can stop before the unused -O2 full simulator compile while retaining original asset generation and test probe flags/assertions.",
+    "tests/run_tests.sh retains an explicit host-build test and actual simulator scenarios. Removing the four discarded auxiliary binaries does not remove that coverage.",
+    "tools/quickcheck.sh still performs an Elite target build before selecting tests for all ordinary changes, including host/web-only changes. Its fallback also runs a fixed firmware-oriented test set when few tests match. Narrow automatic routing needs a separate checked change; do not simply delete the fallback.",
+    "quickcheck also invokes approximate STE checks by default despite the new writing default. No dictionary is involved, but this is additional obsolete routine work to assess in a later scoped checker change.",
+    "The current asset cache owner measured 33.63 s cold / 21.82 s warm initially and found warm lookup recompiles the break renderer. It is already replacing that with a dependency probe. Root will not duplicate it."
+  ],
+  "recommended_implementation": [
+    "Add a clearly named generate-only option to host/build_host.sh. Preserve its default full-simulator behavior and existing flags/environment.",
+    "Use this option in the four scripts. Leave probe C files, assertions, compile options and pass/fail criteria unchanged.",
+    "Keep setup failures fatal and preserve clean-temp startup and cleanup. Check empty generated-header startup, custom break-bank behavior and default full-host invocation with controlled fixtures.",
+    "Run the four real probes once in the supported host environment, preserving their relevant configuration. Record timers and exact command scopes. Do not rebuild firmware/controller or run a full suite for a host setup-only change.",
+    "Use existing checked baseline logs where inputs match; do not run four expensive old simulator builds solely to reproduce a timing baseline.",
+    "The asset lane owns tools/build.py, tools/asset_cache.py, its tests and asset docs. Do not edit its live files. A later checked combination can route host generation through the same cache; report repeated break generation as a remaining limit if it persists."
+  ],
+  "limits": [
+    "No implementation, runtime-saving, target-build or device PASS is claimed by this audit.",
+    "Quickcheck routing/STE-default changes are findings only and are not part of the four-helper implementation."
+  ]
+}
