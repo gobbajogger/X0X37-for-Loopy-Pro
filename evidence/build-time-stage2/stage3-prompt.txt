@@ -1,0 +1,78 @@
+Begin now. You own stage 3 of workflow build-time-20261021.
+Marker: build-time-20261021-stage3-native-worker.
+Source implementation chat: 01a15ac7-17e4-7633-b9a5-6652fa0aefed.
+Source owner/audit chat: 01a15a99-75d7-7921-9d65-f4b120566904.
+Read this complete handoff and /Users/mac/Documents/x0x37/build_time_implementation/evidence/build-time-stage2/result.json and checks.json.
+Do not create another copy of stage 3.
+
+Current instructions and lane
+Read /Users/mac/Documents/x0x37/AGENTS.md and agent-rules.md.
+Initialize current x0x37-task, x0x37-writing, x0x37-workflow, x0x37-check, and x0x37-shared-work from /Users/mac/Documents/x0x37/.agents/skills/.
+Read their current SKILL.md files and step references. Do not load old rule files.
+Apply workflow18 for exactly one successor after required checks pass.
+Use the shared Git administration through /Users/mac/Documents/x0x37/build_time_implementation.
+Create your isolated lane from checked implementation commit 6d690e347b2c66d331f0b6da58a390b627ee84b7.
+Suggested path: /Users/mac/Documents/x0x37/build_time_stage3.
+Suggested branch: lane/opt-build-time-stage3.
+Author: genkigenki <3080081+genkigenki@users.noreply.github.com>.
+Never push, merge, or package refs-oscuro. Keep proprietary SDK/toolchain and binary output files out of commits.
+
+Owner scope and permission
+Drastically reduce build times. Preserve checks, features, quality, and exact target artifacts. Do not optimize rule word counts.
+The original owner request and automatic stage launch permission come from source chat 01a15a99-75d7-7921-9d65-f4b120566904 and current workflow rules 17/18.
+The owner stated in the stage2 conversation: "I grant you full access for this project indefinitely for development purposes".
+This permission persists through required development stages. Tool approval requirements still apply. Do not ask again for authorized work.
+This tooling workflow excludes device installs, release/full gates, external pushes, and firmware integration.
+The sole firmware integrator is chat 01a15ac1-6dac-7ca2-a2fc-877c4671ab33. Combined firmware validation is chat 01a15ac6-2f01-7e93-93b8-cf1910a41ea1.
+Do not compete with their workflow or change their lanes/scripts.
+
+Candidate and checks
+Audit commit: 6affed8. Firmware source base: 9a1d6fc93c8b8c7220d9f2bb8d4deb30314be65a.
+Checked tool candidate: 6d690e347b2c66d331f0b6da58a390b627ee84b7.
+Owned changes: tools/dev_validate.py, tools/validation_inputs.py, affected host tests, BUILDING.md development-validation instructions, and one owner permission entry in docs/USER_PREFERENCES.md.
+The runner now accepts --worker-image. It hashes mounted SDK/toolchain/reference/dependency bytes on macOS without reducing coverage.
+It starts one locally available immutable Linux/amd64 worker. Selected checks, firmware/font/assets, and controller run there.
+The actual worker image, platform/kernel, complete effective environment, mounts, and native Docker/Python/Git bytes are in normalized plan/config metadata.
+Worker tools, Emscripten dependencies, and Python package bytes use the same runtime capture function as the original Linux path.
+The worker must stop before scratch deletion. A cleanup failure retains scratch and preserves the original error. No record issues after a failure.
+The existing Linux-native run path and schema-2 consumer guards remain.
+Stage2 evidence: 14 native fixture cases, 16 real Docker worker cases, 5 validation-input cases, preference pointers and diff checks passed.
+Commands, exact elapsed test times, logs and hashes are saved in evidence/build-time-stage2/checks.json.
+These are tool regression tests. Stage2 made no real target-artifact or end-to-end speed claim.
+The first Docker test attempt failed because Colima cannot access system temporary folders. Current real-worker fixtures use build/worker-fixtures and pass.
+The current local worker image was sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1, tag x0x37-validation:local. Inspect and record the actual image for new checks.
+Use CC=cc CXX=c++. Use actual host SDK/toolchain/reference paths for same-path mounts. Do not change HOME.
+
+Required independent scopes
+Spawn separate test and investigation subagents under this fresh stage3 chat. Give each the current skill entry and exact checked candidate.
+Test agent: exercise plan/log/record consumers, full byte/mode input coverage, image/environment invalidation, Linux-native compatibility, read-only dependencies, timeout/signal/process cleanup, scratch retention, and unrelated-worker preservation. Use only scratch state. Record exact commands and logs.
+Investigation agent: independently inspect lifecycle/error paths, worker/native identity boundaries, actual mounted-byte coverage, runner provenance, unchanged consumer authentication, exact Linux font environment, and any untested realistic failure. Do not duplicate the test agent's execution scope.
+Keep code unchanged during stage3. If a material source repair is required, save the defect evidence and launch one fresh repair stage2 under workflow rules. Then require fresh stage3 for affected checks.
+Reuse valid stage2 checks when inputs and scope match. Do not rerun unrelated passing coverage.
+
+Parallel asset lane
+The owner separately approved generated-asset reuse and removal of redundant full Mac/Linux comparison builds.
+That work has its own stage2 chat 01a15ad1-a598-7a01-baae-5a8ac034d2c4 and lane /Users/mac/Documents/x0x37/asset_reuse_implementation from audit 7a08385807d7ae79b67c105db90de9cffa8b805b.
+It owns tools/build.py, a cache helper, asset tests, and minimal asset documentation. This validator stage does not incorporate or repair those files.
+Its planned cache is git-common-dir/x0x37-asset-cache. The worker already mounts shared Git metadata writable. Dependencies and original source are read-only.
+Coordinate only authorized context/completion notices. Do not merge incomplete asset work.
+
+Next required stage4
+After stage3 passes, launch exactly one fresh local stage4. It must verify real Elite DEV records, exact artifacts, and measured end-to-end improvement.
+Use the checked external validator from its own lane against an unchanged firmware candidate. Its actual runner identity is captured independently of candidate source.
+Require byte-identical firmware package AND controller image against qualifying Linux evidence from the identical source/config/image/dependency bytes.
+Keep all Linux font and asset generation. A direct native Mac font build is invalid: the audit found different font bytes.
+Do not repeat complete Mac/Linux comparison builds when existing matching evidence already proves artifact equality and supplies usable timing.
+If no complete qualifying baseline exists, make only the necessary controlled comparison. State exact timer scope and any remaining timing limit.
+The audit measured SDK content hashing at 120.177 s in x86 Linux versus 2.402 s on macOS with the identical full byte/mode identity.
+Those measurements establish a hash-cost opportunity, not a complete validation speed result.
+The audit's old 581 s Elite estimate uses filesystem phase timestamps. Do not describe its phase intervals as precise command timers.
+Audit inputs are under evidence/build-time-audit/ in the implementation lane, including result.json, saved-timing.json, both walker profiles, native-build-result.json, and generated-header-comparison.json.
+Source source byte identity and all installer queue/model/package/data guards must remain intact.
+Do not start another firmware integrator or device installation. Report real pending dependencies.
+
+Completion
+Save stage3 result, independent findings, dispositions, commands, input identities and coverage limits. Commit your evidence.
+Carry current owner permission and source into the stage4 prompt. Save prompt/successor metadata before creation.
+Verify actual successor assistant/tool startup, then end stage3 without waiting for its completion.
+Send the permitted completion notice to source implementation chat 01a15ac7-17e4-7633-b9a5-6652fa0aefed and source owner/audit chat 01a15a99-75d7-7921-9d65-f4b120566904.
