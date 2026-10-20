@@ -1,0 +1,192 @@
+Begin the central-session stage 3 NOW in this one fresh LOCAL chat.
+Do not create another copy of stage 3.
+Marker: smc-central-session-20261021-stage3-after-28d0fc2.
+Source owner: 01a15a7c-126f-7f22-b8d3-0bad5a77306a.
+Audit owner: 01a15a73-c90c-7862-a6a4-2caa85154e41.
+
+Read this complete handoff and the current workspace AGENTS.md.
+Current entry: /Users/mac/Documents/x0x37/AGENTS.md.
+Skill triggers: /Users/mac/Documents/x0x37/agent-rules.md.
+Initialize the actual SKILL.md files before their steps.
+Required startup skills are x0x37-task, x0x37-writing and x0x37-workflow.
+Stage skills are x0x37-check, x0x37-device-bug, x0x37-shared-work and x0x37-owner-decisions.
+Their paths are /Users/mac/Documents/x0x37/.agents/skills/NAME/SKILL.md.
+Current owner instructions override old checkout and handoff text.
+The rules migrated to skills during stage 2. Do not load old rule files by default.
+Read the writing skill and strict references once.
+
+Authorization
+
+Latest direct owner instruction: "Now read rules and fix".
+This authorizes the central repair and its necessary reversible checks.
+The prior investigation used the owner's unchanged recorded SMC messages.
+Do not ask for another capture, movement, mode repetition or setup check.
+Task rule 2 and workflow rule 18 permit context, completion, successor and recovery notices.
+Standing owner request: "Make sure that they automatically allow to do that without my intervention".
+Create each required fresh successor automatically. Verify actual assistant or tool startup.
+Save its full prompt and record before creation. Preserve every returned ID and attempt.
+Do not ask the owner to launch a successor.
+Owner-decisions rule 14 permits the complete validated DEV install with a notice.
+Carry that permission through the remaining stages without another approval question.
+No external push, publication, release build, full gate, fallback or unrelated feature is authorized.
+No device or controller write belongs to stage 3.
+
+Inputs and ownership
+
+Repository administration: /Users/mac/Documents/x0x37/local_install_stage6_20261021.
+Shared Git: /Users/mac/Documents/x0x37/x0x37/.git.
+Stage-2 lane: /Users/mac/Documents/x0x37/smc_central_session_repair_20261021.
+Branch: lane/mb-smc-central-session-repair-20261021.
+Checked candidate: 28d0fc230f60bc823c1e5e73d3aed61e68a8e32f.
+Base: 1313e0fe384ef5df1f2f5f5ef699902c4543bc0d.
+Author: genkigenki <3080081+genkigenki@users.noreply.github.com>.
+Use your own stage-3 lane from the exact candidate.
+Suggested path: /Users/mac/Documents/x0x37/smc_central_session_stage3_20261021.
+Suggested branch: lane/mb-smc-central-session-stage3-20261021.
+Preserve all other lanes and the current rules migration files.
+The stage-2 AGENTS.md, docs/SKILLS.md and project skill links are rollout changes outside this repair commit.
+Do not include them in firmware integration.
+
+Read these candidate files in full:
+- evidence/session-audit/stage2-prompt.txt and audit.json.
+- evidence/session-stage2/RESULT.txt and checks.json.
+- evidence/session-stage2/regressions.json and replay.json.
+- firmware/src/ble/ble_midi_central.c and .h.
+- tests/host/ble_midi_signal_test.c and the changed receive runner/test.
+The audit session_probe.c intentionally asserts the old omission. It is not a passing candidate test.
+
+Functional changes
+
+CID 5 now shares bounded ACL reassembly with CID 4.
+Valid parameter-update requests receive a refusal with the original identifier.
+Accepting parameters would also require an HCI controller update. This repair does not accept them.
+Unknown commands receive Command Reject. Oversized commands receive the supported signaling MTU of 64 bytes.
+Identified unsolicited responses receive no reply. Invalid command lengths and zero identifiers are discarded.
+Only 64 bytes are retained when oversized signaling is drained.
+The ATT receive limit and existing short-fragment repairs remain intact.
+Four fixed queue entries retain replies during credit or mailbox backpressure.
+Replies precede ATT discovery and MIDI light feedback.
+Queue overflow or a 3-second stall increments errors and disconnects the link.
+Lifecycle reset removes pending replies and partial fragments.
+Successful disconnect restores the sole link's flushed ACL credits.
+Failed disconnect events do not clear the connection.
+Completed-packet counts saturate before the uint8_t conversion.
+Production changes are confined to ble_midi_central.c/.h.
+
+Independent stage-3 work
+
+Workflow rule 17 requires separate test and investigation subagents.
+Give each helper the current skill entry, exact candidate, owned evidence files and completion criteria.
+The test helper must assess changed-path coverage and independently check the candidate.
+Use the public HCI regressions and inspect fragment, bounds, identifier, credit, priority and lifecycle behavior.
+Reuse matching stage-2 evidence where appropriate. Do not repeat unrelated full suites.
+The investigation helper must inspect the protocol policy, target/shared state and unresolved original input failure.
+It must separate reproduced session defects from a proven explanation of the owner report.
+Helpers must not edit production source in stage 3.
+Record each failure, cause and disposition. If a source repair is required, start one fresh stage 2 with concrete findings.
+A repaired source then requires a fresh stage 3 for affected checks.
+Do not advance a failing check as success.
+
+Checks already completed
+
+ASan/UBSan public receive tests: PASS.
+Command: sh tests/host/ble_midi_receive_test.sh.
+This includes the new signaling test and preserves the old receive/lifecycle tests.
+New signaling and reconnect-credit regressions fail on the base and pass on the candidate.
+Command: python3 evidence/session-stage2/check-regressions.py.
+Expected base assertion failures are recorded in base-signaling.log and base-lifecycle.log.
+Candidate logs pass. These expected base failures are regression evidence.
+DIAG decoder: PASS. Public word order remains valid after the struct change.
+Command: python3 -B tests/ble_central_diag_test.py.
+
+Startup replay: PASS with simulated CID 5 negotiation before CONNECTED.
+It uses production callback, mailbox service, UI, queue and feedback code.
+Command: python3 evidence/session-stage2/replay.py.
+It reuses the prior harness module under /Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021.
+The exact external module hash and synthetic store hash are in replay.json.
+Result: 1268 unchanged recorded payloads, 2616 decoded messages, 513 feedback messages.
+Input queue empty. Performance test idle. No help or overlay.
+The capture SHA256 is a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
+Path: cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json.
+Three ATT packets above 64 bytes are excluded. No payload resegmentation occurs in this replay.
+The peer, HCI framing and scheduling are simulated. The saved project is synthetic.
+This is not a physical radio or target interrupt test.
+On macOS the replay uses -D_DARWIN_C_SOURCE. Do not change HOME.
+
+Elite and Pro DEV target builds: PASS.
+Code free: Elite 1640 bytes. Pro 1656 bytes.
+Static RAM margin: 524 bytes. Pool margin: 8364 bytes. Required pool margin: 8192 bytes.
+Exact app and package hashes, input source hashes, commands and log paths are in checks.json.
+The build script is evidence/session-stage2/run-builds.sh.
+Linux x86-64 local image x0x37-validation:local was used.
+Toolchain /Users/mac/.jieli/toolchain and SDK /Users/mac/fw-AC79_AIoT_SDK were mounted read-only.
+These are stage-2 build checks, not stage-4 validated install records.
+No controller source change or device write occurred.
+
+Original input failure remains unresolved
+
+The owner says SMC input controls failed while light feedback operated.
+The working reference is 53d5654c9bbaec10b64c55fb60d0e7d857ba8156.
+The owner confirmed "Controls now work" and "and smc drives them too" on that source.
+The messages did not change. The working source also lacks signaling replies and disconnect-credit reclamation.
+Thus neither omission establishes a later source regression or a complete cure.
+The idle trace is CONNECTED, handles 114/115, five credits, no pending ATT, no mailbox drops and continued polling.
+Its rejected header is 50 20 10 00 0c 00 05 00. No signaling command or identifier survives.
+Zero idle input counters do not prove input loss.
+Credit starvation reproduces a reconnect-discovery failure, not that CONNECTED observation.
+The capture has notification payloads, without a session-negotiation trace correlated with the physical failure.
+Do not claim the original input failure fixed or a physical PASS.
+The stage-2 contribution is an actual protocol/lifecycle repair, not diagnostic-only firmware.
+Investigate omitted target/session conditions with the existing evidence. Do not guess another source change.
+
+Prior investigation inputs remain available:
+/Users/mac/Documents/x0x37/smc_working_source_regression_evidence_20261021/COMPARISON.txt and CHECKS.json.
+/Users/mac/Documents/x0x37/smc_input_functional_repair_evidence_20261021/investigation-state.json and live-diag.log.
+/Users/mac/Documents/x0x37/smc_input_repair_restart_20261021/HANDOFF.txt.
+/Users/mac/Documents/x0x37/smc_stage6_evidence_20261021/install-record.json.
+Old missing-approval statements do not override current owner-decisions rule 14.
+
+Parallel mapping contribution and one integrator
+
+Mapping commit: 4ff0cd468e8afa746deca5840afb7f2890eedb9c.
+Mapping implementation lane: /Users/mac/Documents/x0x37/smc_mapping_fix_20261021.
+Branch: lane/mb-smc-mapping-fix-20261021.
+Only smc_mixer.c changed in production there.
+It repairs drum mute/light kit banks and SMC STOP/PLAY/back abort during performance tests.
+Its stage-2 checks include ten affected host checks, base-fail regressions and both DEV builds.
+No evidence proves the performance guard caused the physical all-input silence.
+Mapping stage-3 owner: 01a15a82-82cb-75a1-9aff-9bbc76a3d482.
+Mapping stage-3 lane: /Users/mac/Documents/x0x37/smc_mapping_stage3_20261021.
+Its separate test and investigation helpers are active.
+Do not duplicate mapping edits or create a competing stage-5 integrator.
+The mapping workflow will check activity and existing coordination before selecting the sole stage-5 owner.
+Send permitted completion/handoff notices with your checked commit and successor IDs.
+The complete validated mapping and central contributions must reach that one integration owner.
+No lane may independently install over an active integrator.
+
+Preservation
+
+Preserve valid fragment, bounds and lifecycle repairs, all controls, notes, pad colours, loops and all loop slots.
+Preserve sample quality, licensing, menus, navigation, pickup, model guards and budgets.
+Preserve the intentional three mixer modes: keyboard-equivalent, individual 909 and individual 808.
+Do not restore withdrawn generic screen-following mappings.
+Controller SHA256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+Full 64 KiB controller CRC32: 4a400899. Controller flash margin: 44 bytes. RAM margin: 544 bytes.
+Do not change the controller blindly. Keep proprietary SDK/toolchain material out of commits and bundles.
+Default configuration is DEV X0X_DEV_PADCAL=1.
+No full gate, release build, FM-1 target work, fallback, external push or publication is authorized.
+
+Completion
+
+Provide independent test and investigation records for this exact contribution.
+State the original failure and physical result truthfully.
+If this contribution passes, start one fresh LOCAL stage 4 for scoped DEV build/package validation.
+Carry the unresolved original failure and mapping integration dependency forward.
+Then continue to one sole stage 5 and the authorized complete DEV install.
+An install or successful host test must not become a claimed complete cure.
+No push is authorized in this workflow.
+Apply workflow rule 18 at every required transition.
+Save the full prompt and successor record first. Check duplicates including idle and setup chats.
+Create exactly one successor. Record host/chat IDs immediately.
+Verify a new assistant response or tool activity before ending this stage.
+Do not wait for the successor to finish.
