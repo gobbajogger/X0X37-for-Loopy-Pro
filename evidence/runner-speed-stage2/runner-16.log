@@ -1,0 +1,1380 @@
++ set -u
++ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE
++ '[' 0 -gt 0 ']'
++ X0X_TESTS='install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch'
+++ dirname tests/run_tests.sh
++ cd tests/..
++ CC=cc
++ FAIL=0
++ OUT=build/host
++ mkdir -p build/host build/scenarios
++ JOBS=4
++ export X0X_TEST_TIME_SCALE=20
++ X0X_TEST_TIME_SCALE=20
++ export X0X_HOST_LOAD=0
++ X0X_HOST_LOAD=0
++ export X0X_TEST_RUN=1
++ X0X_TEST_RUN=1
++ case "$JOBS" in
++ PHASE=0
++ T_SEQ=0
++ RES=build/host/.results
++ GLOCK=/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock
++ '[' 4 -le 1 ']'
++ rm -rf build/host/.results build/host/iso
++ mkdir -p build/host/.results build/host/iso
++ fifo=build/host/iso/.jobs
++ mkfifo build/host/iso/.jobs
++ exec
++ rm -f build/host/iso/.jobs
++ i=0
++ '[' 0 -lt 4 ']'
++ echo
++ i=1
++ '[' 1 -lt 4 ']'
++ echo
++ i=2
++ '[' 2 -lt 4 ']'
++ echo
++ i=3
++ '[' 3 -lt 4 ']'
++ echo
++ i=4
++ '[' 4 -lt 4 ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 1
++ key=0001
+++ test_class install-slots-web
+++ case "$1" in
+++ echo W
++ cls=W
++ case "$PHASE$cls" in
++ '[' W = S ']'
++ '[' W = C ']'
++ gw=0
++ gen_wait install-slots-web
++ needs_gen install-slots-web
++ case "$1" in
++ return 1
++ return 1
++ '[' W = W ']'
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ export HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/home TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/tmp
++ HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/home
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/tmp
++ mkdir -p /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/home /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/tmp
++ '[' 4 -le 1 ']'
+++ printf %04d 2
++ key=0002
+++ test_class host-build
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 3
++ key=0003
+++ test_class stereo
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 4
++ key=0004
+++ test_class smc-reachability
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 5
++ key=0005
+++ test_class fastmath
+++ case "$1" in
+++ echo P
++ cls=P
++ case "$PHASE$cls" in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 6
++ key=0006
+++ test_class installer
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 7
++ key=0007
+++ test_class rec-live
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 8
++ key=0008
+++ test_class rec-live-smk
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' W = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/alpha.x0x .x0x
++ n=alpha
++ mkdir -p build/scenarios/alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 10
++ key=0010
+++ test_class scenario-alpha
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/dash-name.x0x .x0x
++ n=dash-name
++ mkdir -p build/scenarios/dash-name
++ '[' 0 = 1 ']'
++ '[' W = G ']'
++ run_one 0001 install-slots-web python3 worker.py install-slots-web
++ k=0001
++ n=install-slots-web
++ shift 2
+++ date +%s
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 11
++ key=0011
+++ test_class scenario-dash-name
+++ case "$1" in
+++ echo C
++ t0=1792527315
++ lk install-slots-web python3 worker.py install-slots-web
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/multi.x0x.x0x .x0x
++ n=multi.x0x
++ mkdir -p build/scenarios/multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 12
++ key=0012
+++ test_class scenario-multi.x0x
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/perfsave.x0x .x0x
++ n=perfsave
++ mkdir -p build/scenarios/perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 13
++ key=0013
+++ test_class scenario-perfsave
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n'
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 14
++ key=0014
+++ test_class perf-scratch
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ '[' W = W ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 1
++ key=0001
+++ test_class install-slots-web
+++ case "$1" in
+++ echo W
++ cls=W
++ case "$PHASE$cls" in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 2
++ key=0002
+++ test_class host-build
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ '[' G = S ']'
++ '[' G = C ']'
++ gw=0
++ gen_wait host-build
++ needs_gen host-build
++ case "$1" in
++ return 1
++ return 1
++ '[' G = W ']'
++ '[' 0 = 1 ']'
++ read -r _
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ export HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/home TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/tmp
++ HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/home
++ TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/tmp
++ mkdir -p /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/home /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/tmp
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 3
++ key=0003
+++ test_class stereo
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ '[' G = S ']'
++ '[' G = C ']'
++ gw=0
++ gen_wait stereo
++ needs_gen stereo
++ case "$1" in
++ return 0
++ '[' -e build/host/iso/.gen-done ']'
++ '[' -z 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ return 0
++ gw=1
++ '[' G = W ']'
++ '[' 1 = 1 ']'
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ export HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/home TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/tmp
++ HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/home
++ TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/tmp
++ mkdir -p /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/home /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/tmp
+++ printf %04d 4
++ key=0004
+++ test_class smc-reachability
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ '[' G = S ']'
++ '[' G = C ']'
++ gw=0
++ gen_wait smc-reachability
++ needs_gen smc-reachability
++ case "$1" in
++ return 1
++ return 1
++ '[' G = W ']'
++ '[' 0 = 1 ']'
++ read -r _
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ export HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/home TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/tmp
++ HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/home
++ TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/tmp
++ mkdir -p /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/home /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/tmp
+++ printf %04d 5
++ key=0005
+++ test_class fastmath
+++ case "$1" in
+++ echo P
++ cls=P
++ case "$PHASE$cls" in
++ '[' P = S ']'
++ '[' P = C ']'
++ gw=0
++ gen_wait fastmath
++ needs_gen fastmath
++ case "$1" in
++ return 1
++ return 1
++ '[' P = W ']'
++ '[' 0 = 1 ']'
++ read -r _
++ export HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/home TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/tmp
++ HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/home
++ TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/tmp
++ mkdir -p /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/home /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/tmp
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 6
++ key=0006
+++ test_class installer
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 7
++ key=0007
+++ test_class rec-live
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 8
++ key=0008
+++ test_class rec-live-smk
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 1 = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/alpha.x0x .x0x
++ n=alpha
++ mkdir -p build/scenarios/alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 10
++ key=0010
+++ test_class scenario-alpha
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/dash-name.x0x .x0x
++ n=dash-name
++ mkdir -p build/scenarios/dash-name
++ '[' 0 = 1 ']'
++ '[' G = G ']'
++ gen_lock
++ mkdir build/host/iso/.lock-gen
++ '[' 1 = 1 ']'
++ '[' -e build/host/iso/.gen-done ']'
++ sleep 0.1
++ '[' 0 = 1 ']'
++ '[' G = G ']'
++ gen_lock
++ mkdir build/host/iso/.lock-gen
++ '[' 0 = 1 ']'
++ '[' P = G ']'
++ run_one 0005 fastmath python3 worker.py fastmath
++ k=0005
++ n=fastmath
++ shift 2
+++ date +%s
++ t0=1792527316
++ lk fastmath python3 worker.py fastmath
++ run_one 0002 host-build python3 worker.py host-build
++ k=0002
++ n=host-build
++ shift 2
+++ date +%s
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ t0=1792527316
++ lk host-build python3 worker.py host-build
+++ printf %04d 11
++ key=0011
+++ test_class scenario-dash-name
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/multi.x0x.x0x .x0x
++ n=multi.x0x
++ mkdir -p build/scenarios/multi.x0x
++ sleep 0.1
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 12
++ key=0012
+++ test_class scenario-multi.x0x
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/perfsave.x0x .x0x
++ n=perfsave
++ mkdir -p build/scenarios/perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 13
++ key=0013
+++ test_class scenario-perfsave
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n'
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 14
++ key=0014
+++ test_class perf-scratch
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ '[' 1 = W ']'
++ wait
++ '[' -e build/host/iso/.gen-done ']'
++ sleep 0.1
++ mkdir build/host/iso/.lock-gen
++ sleep 0.1
++ '[' -e build/host/iso/.gen-done ']'
++ sleep 0.1
++ echo '  ok   host-build'
+++ date +%s
++ echo '0 s host-build'
++ '[' G = G ']'
++ gen_unlock
++ rmdir build/host/iso/.lock-gen
++ '[' host-build = host-build ']'
++ :
++ '[' G = W ']'
++ echo
++ echo '  ok   fastmath'
+++ date +%s
++ echo '0 s fastmath'
++ '[' P = G ']'
++ '[' fastmath = host-build ']'
++ '[' P = W ']'
++ echo
++ mkdir build/host/iso/.lock-gen
++ run_one 0004 smc-reachability python3 worker.py smc-reachability
++ k=0004
++ n=smc-reachability
++ shift 2
+++ date +%s
++ t0=1792527316
++ lk smc-reachability python3 worker.py smc-reachability
++ '[' -e build/host/iso/.gen-done ']'
++ '[' G = W ']'
++ read -r _
++ '[' G = G ']'
++ gen_lock
++ mkdir build/host/iso/.lock-gen
++ sleep 0.1
++ echo '  ok   smc-reachability'
+++ date +%s
++ echo '0 s smc-reachability'
++ '[' G = G ']'
++ gen_unlock
++ rmdir build/host/iso/.lock-gen
++ '[' smc-reachability = host-build ']'
++ '[' G = W ']'
++ echo
++ mkdir build/host/iso/.lock-gen
++ run_one 0003 stereo python3 worker.py stereo
++ k=0003
++ n=stereo
++ shift 2
+++ date +%s
++ t0=1792527316
++ lk stereo python3 worker.py stereo
++ echo '  ok   stereo'
+++ date +%s
++ echo '0 s stereo'
++ '[' G = G ']'
++ gen_unlock
++ rmdir build/host/iso/.lock-gen
++ '[' stereo = host-build ']'
++ '[' G = W ']'
++ echo
++ echo '  ok   install-slots-web'
+++ date +%s
++ echo '1 s install-slots-web'
++ '[' W = G ']'
++ '[' install-slots-web = host-build ']'
++ '[' W = W ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 1
++ key=0001
+++ test_class install-slots-web
+++ case "$1" in
+++ echo W
++ cls=W
++ case "$PHASE$cls" in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 2
++ key=0002
+++ test_class host-build
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 3
++ key=0003
+++ test_class stereo
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 4
++ key=0004
+++ test_class smc-reachability
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 5
++ key=0005
+++ test_class fastmath
+++ case "$1" in
+++ echo P
++ cls=P
++ case "$PHASE$cls" in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 6
++ key=0006
+++ test_class installer
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ '[' S = S ']'
++ run_one 0006 installer python3 worker.py installer
++ k=0006
++ n=installer
++ shift 2
+++ date +%s
++ t0=1792527316
++ lk installer python3 worker.py installer
++ echo '  ok   installer'
+++ date +%s
++ echo '1 s installer'
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 7
++ key=0007
+++ test_class rec-live
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ '[' S = S ']'
++ run_one 0007 rec-live python3 worker.py rec-live
++ k=0007
++ n=rec-live
++ shift 2
+++ date +%s
++ t0=1792527317
++ lk rec-live python3 worker.py rec-live
++ echo '  ok   rec-live'
+++ date +%s
++ echo '0 s rec-live'
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 8
++ key=0008
+++ test_class rec-live-smk
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ '[' S = S ']'
++ run_one 0008 rec-live-smk python3 worker.py rec-live-smk
++ k=0008
++ n=rec-live-smk
++ shift 2
+++ date +%s
++ t0=1792527317
++ lk rec-live-smk python3 worker.py rec-live-smk
++ echo '  ok   rec-live-smk'
+++ date +%s
++ echo '0 s rec-live-smk'
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 2 = 2 ']'
++ echo '  skip fixture package'
+++ printf %04d 9
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/alpha.x0x .x0x
++ n=alpha
++ mkdir -p build/scenarios/alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 10
++ key=0010
+++ test_class scenario-alpha
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/dash-name.x0x .x0x
++ n=dash-name
++ mkdir -p build/scenarios/dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 11
++ key=0011
+++ test_class scenario-dash-name
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/multi.x0x.x0x .x0x
++ n=multi.x0x
++ mkdir -p build/scenarios/multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 12
++ key=0012
+++ test_class scenario-multi.x0x
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/perfsave.x0x .x0x
++ n=perfsave
++ mkdir -p build/scenarios/perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 13
++ key=0013
+++ test_class scenario-perfsave
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n'
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 14
++ key=0014
+++ test_class perf-scratch
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ '[' 2 = W ']'
++ wait
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 1
++ key=0001
+++ test_class install-slots-web
+++ case "$1" in
+++ echo W
++ cls=W
++ case "$PHASE$cls" in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 2
++ key=0002
+++ test_class host-build
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 3
++ key=0003
+++ test_class stereo
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 4
++ key=0004
+++ test_class smc-reachability
+++ case "$1" in
+++ echo G
++ cls=G
++ case "$PHASE$cls" in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 5
++ key=0005
+++ test_class fastmath
+++ case "$1" in
+++ echo P
++ cls=P
++ case "$PHASE$cls" in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 6
++ key=0006
+++ test_class installer
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 7
++ key=0007
+++ test_class rec-live
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 8
++ key=0008
+++ test_class rec-live-smk
+++ case "$1" in
+++ echo S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 3 = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/alpha.x0x .x0x
++ n=alpha
++ mkdir -p build/scenarios/alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 10
++ key=0010
+++ test_class scenario-alpha
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ '[' C = S ']'
++ '[' C = C ']'
++ run_one 0010 scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ k=0010
++ n=scenario-alpha
++ shift 2
+++ date +%s
++ t0=1792527317
++ lk scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ echo '  ok   scenario-alpha'
+++ date +%s
++ echo '0 s scenario-alpha'
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/dash-name.x0x .x0x
++ n=dash-name
++ mkdir -p build/scenarios/dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 11
++ key=0011
+++ test_class scenario-dash-name
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ '[' C = S ']'
++ '[' C = C ']'
++ run_one 0011 scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ k=0011
++ n=scenario-dash-name
++ shift 2
+++ date +%s
++ t0=1792527317
++ lk scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ echo '  ok   scenario-dash-name'
+++ date +%s
++ echo '0 s scenario-dash-name'
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/multi.x0x.x0x .x0x
++ n=multi.x0x
++ mkdir -p build/scenarios/multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 12
++ key=0012
+++ test_class scenario-multi.x0x
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ '[' C = S ']'
++ '[' C = C ']'
++ run_one 0012 scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ k=0012
++ n=scenario-multi.x0x
++ shift 2
+++ date +%s
++ t0=1792527317
++ lk scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ echo '  ok   scenario-multi.x0x'
+++ date +%s
++ echo '0 s scenario-multi.x0x'
++ return
++ for s in 'tests/scenarios/*.x0x'
+++ basename tests/scenarios/perfsave.x0x .x0x
++ n=perfsave
++ mkdir -p build/scenarios/perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 13
++ key=0013
+++ test_class scenario-perfsave
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ '[' C = S ']'
++ '[' C = C ']'
++ run_one 0013 scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ k=0013
++ n=scenario-perfsave
++ shift 2
+++ date +%s
++ t0=1792527317
++ lk scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ echo '  ok   scenario-perfsave'
+++ date +%s
++ echo '0 s scenario-perfsave'
++ return
++ printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n'
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
+++ printf %04d 14
++ key=0014
+++ test_class perf-scratch
+++ case "$1" in
+++ echo C
++ cls=C
++ case "$PHASE$cls" in
++ '[' C = S ']'
++ '[' C = C ']'
++ run_one 0014 perf-scratch python3 worker.py perf-scratch
++ k=0014
++ n=perf-scratch
++ shift 2
+++ date +%s
++ t0=1792527317
++ lk perf-scratch python3 worker.py perf-scratch
++ echo '  ok   perf-scratch'
+++ date +%s
++ echo '0 s perf-scratch'
++ return
++ '[' 3 = W ']'
++ wait
++ exec
+++ grep -v -e '\.fail$' -e '\.time$'
+++ ls build/host/.results
+++ sort
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0001
+  ok   install-slots-web
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0002
+  ok   host-build
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0003
+  ok   stereo
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0004
+  ok   smc-reachability
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0005
+  ok   fastmath
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0006
+  ok   installer
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0007
+  ok   rec-live
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0008
+  ok   rec-live-smk
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0009
+  skip fixture package
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0010
+  ok   scenario-alpha
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0011
+  ok   scenario-dash-name
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0012
+  ok   scenario-multi.x0x
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0013
+  ok   scenario-perfsave
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0014
+  ok   perf-scratch
++ ls build/host/.results
++ grep -q '\.fail$'
++ '[' 0 -eq 0 ']'
++ echo 'all tests passed'
+all tests passed
++ exit 0
++ n_=installer
++ shift
++ install_path installer
++ case "$(test_class "$1")" in
+++ test_class installer
+++ case "$1" in
+++ echo S
++ '[' installer '!=' rec-live ']'
++ '[' 0 '!=' 1 ']'
++ '[' -w /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock ']'
++ command -v flock
++ flock -s -n /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock true
++ flock -s -o /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock python3 worker.py installer
++ n_=install-slots-web
++ shift
++ install_path install-slots-web
++ case "$(test_class "$1")" in
+++ test_class install-slots-web
+++ case "$1" in
+++ echo W
++ return 0
++ '[' 0 '!=' 1 ']'
++ '[' -w /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock ']'
++ command -v flock
++ flock -s -n /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock true
++ flock -s -o /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock python3 worker.py install-slots-web
++ n_=scenario-dash-name
++ shift
++ install_path scenario-dash-name
++ case "$(test_class "$1")" in
+++ test_class scenario-dash-name
+++ case "$1" in
+++ echo C
++ return 1
++ build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ n_=scenario-multi.x0x
++ shift
++ install_path scenario-multi.x0x
++ case "$(test_class "$1")" in
+++ test_class scenario-multi.x0x
+++ case "$1" in
+++ echo C
++ return 1
++ build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ n_=stereo
++ shift
++ install_path stereo
++ case "$(test_class "$1")" in
+++ test_class stereo
+++ case "$1" in
+++ echo G
++ return 1
++ python3 worker.py stereo
++ n_=scenario-perfsave
++ shift
++ install_path scenario-perfsave
++ case "$(test_class "$1")" in
+++ test_class scenario-perfsave
+++ case "$1" in
+++ echo C
++ return 1
++ build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ n_=fastmath
++ shift
++ install_path fastmath
++ case "$(test_class "$1")" in
+++ test_class fastmath
+++ case "$1" in
+++ echo P
++ return 1
++ python3 worker.py fastmath
++ n_=scenario-alpha
++ shift
++ install_path scenario-alpha
++ case "$(test_class "$1")" in
+++ test_class scenario-alpha
+++ case "$1" in
+++ echo C
++ return 1
++ build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ n_=rec-live-smk
++ shift
++ install_path rec-live-smk
++ case "$(test_class "$1")" in
+++ test_class rec-live-smk
+++ case "$1" in
+++ echo S
++ '[' rec-live-smk '!=' rec-live ']'
++ '[' 0 '!=' 1 ']'
++ '[' -w /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock ']'
++ command -v flock
++ flock -s -n /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock true
++ flock -s -o /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock python3 worker.py rec-live-smk
++ n_=smc-reachability
++ shift
++ install_path smc-reachability
++ case "$(test_class "$1")" in
+++ test_class smc-reachability
+++ case "$1" in
+++ echo G
++ return 1
++ python3 worker.py smc-reachability
++ n_=rec-live
++ shift
++ install_path rec-live
++ case "$(test_class "$1")" in
+++ test_class rec-live
+++ case "$1" in
+++ echo S
++ '[' rec-live '!=' rec-live ']'
++ python3 worker.py rec-live
++ n_=perf-scratch
++ shift
++ install_path perf-scratch
++ case "$(test_class "$1")" in
+++ test_class perf-scratch
+++ case "$1" in
+++ echo C
++ return 1
++ python3 worker.py perf-scratch
++ n_=host-build
++ shift
++ install_path host-build
++ case "$(test_class "$1")" in
+++ test_class host-build
+++ case "$1" in
+++ echo G
++ return 1
++ python3 worker.py host-build

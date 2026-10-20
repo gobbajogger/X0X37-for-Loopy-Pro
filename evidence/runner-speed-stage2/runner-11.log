@@ -1,0 +1,732 @@
++ set -u
++ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE
++ '[' 0 -gt 0 ']'
++ X0X_TESTS='install-slots-web installer rec-live rec-live-smk'
+++ dirname tests/run_tests.sh
++ cd tests/..
++ CC=cc
++ FAIL=0
++ OUT=build/host
++ mkdir -p build/host
++ JOBS=4
++ export X0X_TEST_TIME_SCALE=20
++ X0X_TEST_TIME_SCALE=20
++ export X0X_HOST_LOAD=0
++ X0X_HOST_LOAD=0
++ export X0X_TEST_RUN=1
++ X0X_TEST_RUN=1
++ case "$JOBS" in
++ PHASE=0
++ T_SEQ=0
++ RES=build/host/.results
++ GLOCK=/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/gate.lock
++ '[' 4 -le 1 ']'
++ rm -rf build/host/.results build/host/iso
++ mkdir -p build/host/.results build/host/iso
++ fifo=build/host/iso/.jobs
++ mkfifo build/host/iso/.jobs
++ exec
++ rm -f build/host/iso/.jobs
++ i=0
++ '[' 0 -lt 4 ']'
++ echo
++ i=1
++ '[' 1 -lt 4 ']'
++ echo
++ i=2
++ '[' 2 -lt 4 ']'
++ echo
++ i=3
++ '[' 3 -lt 4 ']'
++ echo
++ i=4
++ '[' 4 -lt 4 ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class install-slots-web
++ case "$1" in
++ TEST_CLASS=W
++ cls=W
++ case "$PHASE$cls" in
+++ printf %04d 1
++ key=0001
++ '[' W = S ']'
++ '[' W = C ']'
++ gw=0
++ gen_wait install-slots-web
++ needs_gen install-slots-web
++ case "$1" in
++ return 1
++ return 1
++ '[' W = W ']'
++ export HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/home TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/tmp
++ HOME=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/home
++ TMPDIR=/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/tmp
++ mkdir -p /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/home /private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/tmp
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class installer
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live-smk
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' W = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ '[' W = W ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class install-slots-web
++ case "$1" in
++ TEST_CLASS=W
++ cls=W
++ case "$PHASE$cls" in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class installer
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live-smk
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 1 = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ '[' 1 = W ']'
++ wait
++ '[' 0 = 1 ']'
++ '[' W = G ']'
++ run_one 0001 install-slots-web python3 worker.py install-slots-web
++ k=0001
++ n=install-slots-web
++ shift 2
+++ date +%s
++ t0=1792527308
++ run_test install-slots-web python3 worker.py install-slots-web
++ echo '  ok   install-slots-web'
+++ date +%s
++ echo '1 s install-slots-web'
++ '[' W = G ']'
++ '[' install-slots-web = host-build ']'
++ '[' W = W ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class install-slots-web
++ case "$1" in
++ TEST_CLASS=W
++ cls=W
++ case "$PHASE$cls" in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class installer
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
+++ printf %04d 6
++ key=0006
++ '[' S = S ']'
++ run_one 0006 installer python3 worker.py installer
++ k=0006
++ n=installer
++ shift 2
+++ date +%s
++ t0=1792527309
++ run_test installer python3 worker.py installer
++ echo '  ok   installer'
+++ date +%s
++ echo '0 s installer'
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
+++ printf %04d 7
++ key=0007
++ '[' S = S ']'
++ run_one 0007 rec-live python3 worker.py rec-live
++ k=0007
++ n=rec-live
++ shift 2
+++ date +%s
++ t0=1792527309
++ run_test rec-live python3 worker.py rec-live
++ echo '  ok   rec-live'
+++ date +%s
++ echo '0 s rec-live'
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live-smk
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
+++ printf %04d 8
++ key=0008
++ '[' S = S ']'
++ run_one 0008 rec-live-smk python3 worker.py rec-live-smk
++ k=0008
++ n=rec-live-smk
++ shift 2
+++ date +%s
++ t0=1792527309
++ run_test rec-live-smk python3 worker.py rec-live-smk
++ echo '  ok   rec-live-smk'
+++ date +%s
++ echo '0 s rec-live-smk'
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 2 = 2 ']'
++ echo '  skip fixture package'
+++ printf %04d 9
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ '[' 2 = W ']'
++ wait
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class install-slots-web
++ case "$1" in
++ TEST_CLASS=W
++ cls=W
++ case "$PHASE$cls" in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class installer
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class rec-live-smk
++ case "$1" in
++ TEST_CLASS=S
++ cls=S
++ case "$PHASE$cls" in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 3 = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n 'install-slots-web installer rec-live rec-live-smk' ']'
++ case " $X0X_TESTS " in
++ return
++ '[' 3 = W ']'
++ wait
++ exec
+++ ls build/host/.results
+++ grep -v -e '\.fail$' -e '\.time$'
+++ sort
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0001
+  ok   install-slots-web
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0006
+  ok   installer
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0007
+  ok   rec-live
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0008
+  ok   rec-live-smk
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0009
+  skip fixture package
++ ls build/host/.results
++ grep -q '\.fail$'
++ '[' 0 -eq 0 ']'
++ echo 'all tests passed'
+all tests passed
++ exit 0
++ prepare_test installer
++ case "$1" in
++ lk installer python3 worker.py installer
++ n_=installer
++ shift
++ install_path installer
++ test_class installer
++ case "$1" in
++ TEST_CLASS=S
++ case "$TEST_CLASS" in
++ '[' installer '!=' rec-live ']'
++ '[' 1 '!=' 1 ']'
++ python3 worker.py installer
++ prepare_test install-slots-web
++ case "$1" in
++ lk install-slots-web python3 worker.py install-slots-web
++ n_=install-slots-web
++ shift
++ install_path install-slots-web
++ test_class install-slots-web
++ case "$1" in
++ TEST_CLASS=W
++ case "$TEST_CLASS" in
++ return 0
++ '[' 1 '!=' 1 ']'
++ python3 worker.py install-slots-web
++ prepare_test rec-live-smk
++ case "$1" in
++ lk rec-live-smk python3 worker.py rec-live-smk
++ n_=rec-live-smk
++ shift
++ install_path rec-live-smk
++ test_class rec-live-smk
++ case "$1" in
++ TEST_CLASS=S
++ case "$TEST_CLASS" in
++ '[' rec-live-smk '!=' rec-live ']'
++ '[' 1 '!=' 1 ']'
++ python3 worker.py rec-live-smk
++ prepare_test rec-live
++ case "$1" in
++ lk rec-live python3 worker.py rec-live
++ n_=rec-live
++ shift
++ install_path rec-live
++ test_class rec-live
++ case "$1" in
++ TEST_CLASS=S
++ case "$TEST_CLASS" in
++ '[' rec-live '!=' rec-live ']'
++ python3 worker.py rec-live

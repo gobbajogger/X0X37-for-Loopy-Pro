@@ -1,0 +1,8 @@
+PASS: Both probe C bodies and fake USB header are byte-identical to the base.
+PASS: All literal run registrations remain byte-identical except authorized emu and emu-slots removal.
+PASS: sh -n for runner and both probe scripts.
+PASS: git diff --check.
+PASS: Job-slot wait/release, W overlap, G lock/unlock, background scope, gen_done and scheduler tail are byte-identical to base.
+PASS: needs_gen/gen_wait/gen_lock/gen_unlock remain byte-identical.
+The existing rec-live exclusion and rec-live-smk installer-lock behavior are preserved.
+The standalone runner-admission check is intentionally invoked directly; the default suite does not add this instrumented scheduler fixture to its runtime.

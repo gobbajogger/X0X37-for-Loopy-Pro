@@ -1,0 +1,558 @@
++ set -u
++ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE
++ '[' 0 -gt 0 ']'
++ X0X_TESTS=perf-scratch
+++ dirname tests/run_tests.sh
++ cd tests/..
++ CC=cc
++ FAIL=0
++ OUT=build/host
++ mkdir -p build/host
++ JOBS=4
++ export X0X_TEST_TIME_SCALE=20
++ X0X_TEST_TIME_SCALE=20
++ export X0X_HOST_LOAD=0
++ X0X_HOST_LOAD=0
++ export X0X_TEST_RUN=1
++ X0X_TEST_RUN=1
++ case "$JOBS" in
++ PHASE=0
++ T_SEQ=0
++ RES=build/host/.results
++ GLOCK=/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-s8n0q5m9/gate.lock
++ '[' 4 -le 1 ']'
++ rm -rf build/host/.results build/host/iso
++ mkdir -p build/host/.results build/host/iso
++ fifo=build/host/iso/.jobs
++ mkfifo build/host/iso/.jobs
++ exec
++ rm -f build/host/iso/.jobs
++ i=0
++ '[' 0 -lt 4 ']'
++ echo
++ i=1
++ '[' 1 -lt 4 ']'
++ echo
++ i=2
++ '[' 2 -lt 4 ']'
++ echo
++ i=3
++ '[' 3 -lt 4 ']'
++ echo
++ i=4
++ '[' 4 -lt 4 ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' W = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class perf-scratch
++ case "$1" in
++ TEST_CLASS=C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ '[' W = W ']'
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 1 = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class perf-scratch
++ case "$1" in
++ TEST_CLASS=C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ '[' 1 = W ']'
++ wait
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 2 = 2 ']'
++ echo '  skip fixture package'
+++ printf %04d 9
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class perf-scratch
++ case "$1" in
++ TEST_CLASS=C
++ cls=C
++ case "$PHASE$cls" in
++ return
++ '[' 2 = W ']'
++ wait
++ for PHASE in W 1 2 3
++ T_SEQ=0
++ tests_body
++ run install-slots-web python3 worker.py install-slots-web
++ name=install-slots-web
++ shift
++ T_SEQ=1
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run host-build python3 worker.py host-build
++ name=host-build
++ shift
++ T_SEQ=2
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run stereo python3 worker.py stereo
++ name=stereo
++ shift
++ T_SEQ=3
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run smc-reachability python3 worker.py smc-reachability
++ name=smc-reachability
++ shift
++ T_SEQ=4
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run fastmath python3 worker.py fastmath
++ name=fastmath
++ shift
++ T_SEQ=5
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run installer python3 worker.py installer
++ name=installer
++ shift
++ T_SEQ=6
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live python3 worker.py rec-live
++ name=rec-live
++ shift
++ T_SEQ=7
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run rec-live-smk python3 worker.py rec-live-smk
++ name=rec-live-smk
++ shift
++ T_SEQ=8
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ note '  skip fixture package'
++ T_SEQ=9
++ '[' 4 -le 1 ']'
++ '[' 3 = 2 ']'
++ for s in 'tests/scenarios/*.x0x'
++ n=alpha.x0x
++ n=alpha
++ run scenario-alpha build/host/x0x_host tests/scenarios/alpha.x0x build/scenarios/alpha
++ name=scenario-alpha
++ shift
++ T_SEQ=10
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=dash-name.x0x
++ n=dash-name
++ run scenario-dash-name build/host/x0x_host tests/scenarios/dash-name.x0x build/scenarios/dash-name
++ name=scenario-dash-name
++ shift
++ T_SEQ=11
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=multi.x0x.x0x
++ n=multi.x0x
++ run scenario-multi.x0x build/host/x0x_host tests/scenarios/multi.x0x.x0x build/scenarios/multi.x0x
++ name=scenario-multi.x0x
++ shift
++ T_SEQ=12
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ for s in 'tests/scenarios/*.x0x'
++ n=perfsave.x0x
++ n=perfsave
++ run scenario-perfsave build/host/x0x_host tests/scenarios/perfsave.x0x build/scenarios/perfsave
++ name=scenario-perfsave
++ shift
++ T_SEQ=13
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ return
++ run perf-scratch python3 worker.py perf-scratch
++ name=perf-scratch
++ shift
++ T_SEQ=14
++ '[' -n perf-scratch ']'
++ case " $X0X_TESTS " in
++ '[' 4 -le 1 ']'
++ test_class perf-scratch
++ case "$1" in
++ TEST_CLASS=C
++ cls=C
++ case "$PHASE$cls" in
+++ printf %04d 14
++ key=0014
++ '[' C = S ']'
++ '[' C = C ']'
++ run_one 0014 perf-scratch python3 worker.py perf-scratch
++ k=0014
++ n=perf-scratch
++ shift 2
+++ date +%s
++ t0=1792527308
++ run_test perf-scratch python3 worker.py perf-scratch
++ echo '  FAIL perf-scratch (see build/host/perf-scratch.log)'
++ tail -15 build/host/perf-scratch.log
++ sed 's/^/       /'
++ :
+++ date +%s
++ echo '0 s perf-scratch'
++ return
++ '[' 3 = W ']'
++ wait
++ exec
+++ ls build/host/.results
+++ grep -v -e '\.fail$' -e '\.time$'
+++ sort
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0009
+  skip fixture package
++ for f in '$(ls "$RES" | grep -v -e '\''\.fail$'\'' -e '\''\.time$'\'' | sort)'
++ cat build/host/.results/0014
+  FAIL perf-scratch (see build/host/perf-scratch.log)
+       + prepare_test perf-scratch
+       + case "$1" in
+       + printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n'
+       tests/run_tests.sh: line 66: build/host/scratch_defs.h: Is a directory
++ ls build/host/.results
++ grep -q '\.fail$'
++ FAIL=1
++ '[' 1 -eq 0 ']'
++ echo 'TESTS FAILED'
+TESTS FAILED
++ exit 1
++ prepare_test perf-scratch
++ case "$1" in
++ printf 'static unsigned short host_scratch[2048] __attribute__((aligned(4), unused));\n#define LZ_SCRATCH host_scratch\n#define PERF_SCRATCH host_scratch\n'
+tests/run_tests.sh: line 66: build/host/scratch_defs.h: Is a directory

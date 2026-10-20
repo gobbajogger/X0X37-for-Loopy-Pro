@@ -1,0 +1,2347 @@
+[
+  {
+    "jobs": 1,
+    "selected": "fastmath",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 0.5902847920000001,
+    "events": [
+      [
+        "fastmath",
+        "start",
+        1792527295783313000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527295934045000
+      ]
+    ],
+    "results": [
+      "  ok   fastmath"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 0,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 0,
+    "version": "candidate"
+  },
+  {
+    "jobs": 1,
+    "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 2.693394125,
+    "events": [
+      [
+        "install-slots-web",
+        "start",
+        1792527296530711000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527297232142000
+      ],
+      [
+        "host-build",
+        "start",
+        1792527297267411000
+      ],
+      [
+        "host-build",
+        "end",
+        1792527297422821000
+      ],
+      [
+        "stereo",
+        "start",
+        1792527297452012000
+      ],
+      [
+        "stereo",
+        "end",
+        1792527297525631000
+      ],
+      [
+        "smc-reachability",
+        "start",
+        1792527297553678000
+      ],
+      [
+        "smc-reachability",
+        "end",
+        1792527297565900000
+      ],
+      [
+        "fastmath",
+        "start",
+        1792527297592926000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527297743737000
+      ],
+      [
+        "installer",
+        "start",
+        1792527297831481000
+      ],
+      [
+        "installer",
+        "end",
+        1792527297842169000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527297868929000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527297879370000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527297956437000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527297971593000
+      ],
+      [
+        "scenario-alpha",
+        "start",
+        1792527298376268000
+      ],
+      [
+        "scenario-alpha",
+        "end",
+        1792527298389769000
+      ],
+      [
+        "scenario-dash-name",
+        "start",
+        1792527298442890000
+      ],
+      [
+        "scenario-dash-name",
+        "end",
+        1792527298458043000
+      ],
+      [
+        "scenario-multi.x0x",
+        "start",
+        1792527298510777000
+      ],
+      [
+        "scenario-multi.x0x",
+        "end",
+        1792527298523979000
+      ],
+      [
+        "scenario-perfsave",
+        "start",
+        1792527298581703000
+      ],
+      [
+        "scenario-perfsave",
+        "end",
+        1792527298592281000
+      ],
+      [
+        "perf-scratch",
+        "start",
+        1792527298618597000
+      ],
+      [
+        "perf-scratch",
+        "end",
+        1792527298630577000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   host-build",
+      "  ok   stereo",
+      "  ok   smc-reachability",
+      "  ok   fastmath",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk",
+      "  ok   scenario-alpha",
+      "  ok   scenario-dash-name",
+      "  ok   scenario-multi.x0x",
+      "  ok   scenario-perfsave",
+      "  ok   perf-scratch"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-smy7o4px/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-smy7o4px/gate.lock",
+        "python3",
+        "worker.py",
+        "install-slots-web"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-smy7o4px/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-smy7o4px/gate.lock",
+        "python3",
+        "worker.py",
+        "installer"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-smy7o4px/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-smy7o4px/gate.lock",
+        "python3",
+        "worker.py",
+        "rec-live-smk"
+      ]
+    ],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 0,
+    "version": "candidate"
+  },
+  {
+    "jobs": 1,
+    "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+    "fail": "stereo",
+    "setup": "",
+    "holds": false,
+    "rc": 1,
+    "seconds": 2.6413020830000002,
+    "events": [
+      [
+        "install-slots-web",
+        "start",
+        1792527299283578000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527299991676000
+      ],
+      [
+        "host-build",
+        "start",
+        1792527300018380000
+      ],
+      [
+        "host-build",
+        "end",
+        1792527300178730000
+      ],
+      [
+        "stereo",
+        "start",
+        1792527300204812000
+      ],
+      [
+        "stereo",
+        "end",
+        1792527300280267000
+      ],
+      [
+        "smc-reachability",
+        "start",
+        1792527300318135000
+      ],
+      [
+        "smc-reachability",
+        "end",
+        1792527300330652000
+      ],
+      [
+        "fastmath",
+        "start",
+        1792527300365023000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527300525181000
+      ],
+      [
+        "installer",
+        "start",
+        1792527300599019000
+      ],
+      [
+        "installer",
+        "end",
+        1792527300614200000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527300640774000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527300651692000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527300728799000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527300743951000
+      ],
+      [
+        "scenario-alpha",
+        "start",
+        1792527301016625000
+      ],
+      [
+        "scenario-alpha",
+        "end",
+        1792527301026856000
+      ],
+      [
+        "scenario-dash-name",
+        "start",
+        1792527301082299000
+      ],
+      [
+        "scenario-dash-name",
+        "end",
+        1792527301097462000
+      ],
+      [
+        "scenario-multi.x0x",
+        "start",
+        1792527301153674000
+      ],
+      [
+        "scenario-multi.x0x",
+        "end",
+        1792527301168825000
+      ],
+      [
+        "scenario-perfsave",
+        "start",
+        1792527301224101000
+      ],
+      [
+        "scenario-perfsave",
+        "end",
+        1792527301235174000
+      ],
+      [
+        "perf-scratch",
+        "start",
+        1792527301262474000
+      ],
+      [
+        "perf-scratch",
+        "end",
+        1792527301277616000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   host-build",
+      "  FAIL stereo (see build/host/stereo.log)",
+      "  ok   smc-reachability",
+      "  ok   fastmath",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk",
+      "  ok   scenario-alpha",
+      "  ok   scenario-dash-name",
+      "  ok   scenario-multi.x0x",
+      "  ok   scenario-perfsave",
+      "  ok   perf-scratch"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-y_qypgbu/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-y_qypgbu/gate.lock",
+        "python3",
+        "worker.py",
+        "install-slots-web"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-y_qypgbu/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-y_qypgbu/gate.lock",
+        "python3",
+        "worker.py",
+        "installer"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-y_qypgbu/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-y_qypgbu/gate.lock",
+        "python3",
+        "worker.py",
+        "rec-live-smk"
+      ]
+    ],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 0,
+    "version": "candidate"
+  },
+  {
+    "jobs": 1,
+    "selected": "scenario-alpha",
+    "fail": "",
+    "setup": "scenario",
+    "holds": false,
+    "rc": 1,
+    "seconds": 0.27035279100000054,
+    "events": [],
+    "results": [
+      "  FAIL scenario-alpha (see build/host/scenario-alpha.log)"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 0,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 0,
+    "version": "candidate"
+  },
+  {
+    "jobs": 1,
+    "selected": "perf-scratch",
+    "fail": "",
+    "setup": "perf",
+    "holds": false,
+    "rc": 1,
+    "seconds": 0.19416741599999998,
+    "events": [],
+    "results": [
+      "  FAIL perf-scratch (see build/host/perf-scratch.log)"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 0,
+    "version": "candidate"
+  },
+  {
+    "jobs": 1,
+    "selected": "install-slots-web installer rec-live rec-live-smk",
+    "fail": "",
+    "setup": "",
+    "holds": true,
+    "rc": 0,
+    "seconds": 1.0977052910000005,
+    "events": [
+      [
+        "install-slots-web",
+        "start",
+        1792527301970975000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527302673630000
+      ],
+      [
+        "installer",
+        "start",
+        1792527302728884000
+      ],
+      [
+        "installer",
+        "end",
+        1792527302740159000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527302796812000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527302807582000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527302834592000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527302849758000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 0,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 0,
+    "version": "candidate"
+  },
+  {
+    "jobs": 4,
+    "selected": "fastmath",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 0.5702151250000007,
+    "events": [
+      [
+        "fastmath",
+        "start",
+        1792527303249793000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527303406411000
+      ]
+    ],
+    "results": [
+      "  ok   fastmath"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-amwje_2r/build/host/iso/fastmath/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-amwje_2r/build/host/iso/fastmath/tmp"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 0,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 2,
+    "version": "candidate"
+  },
+  {
+    "jobs": 4,
+    "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 2.418272666,
+    "events": [
+      [
+        "smc-reachability",
+        "start",
+        1792527303861911000
+      ],
+      [
+        "smc-reachability",
+        "end",
+        1792527303876529000
+      ],
+      [
+        "host-build",
+        "start",
+        1792527303997865000
+      ],
+      [
+        "install-slots-web",
+        "start",
+        1792527304040633000
+      ],
+      [
+        "fastmath",
+        "start",
+        1792527304051496000
+      ],
+      [
+        "host-build",
+        "end",
+        1792527304156526000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527304202868000
+      ],
+      [
+        "stereo",
+        "start",
+        1792527304284666000
+      ],
+      [
+        "stereo",
+        "end",
+        1792527304364807000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527304749988000
+      ],
+      [
+        "installer",
+        "start",
+        1792527304867508000
+      ],
+      [
+        "installer",
+        "end",
+        1792527304880588000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527304916104000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527304926717000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527305021247000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527305035172000
+      ],
+      [
+        "scenario-alpha",
+        "start",
+        1792527305420874000
+      ],
+      [
+        "scenario-alpha",
+        "end",
+        1792527305436058000
+      ],
+      [
+        "scenario-dash-name",
+        "start",
+        1792527305528732000
+      ],
+      [
+        "scenario-dash-name",
+        "end",
+        1792527305543905000
+      ],
+      [
+        "scenario-multi.x0x",
+        "start",
+        1792527305631103000
+      ],
+      [
+        "scenario-multi.x0x",
+        "end",
+        1792527305646239000
+      ],
+      [
+        "scenario-perfsave",
+        "start",
+        1792527305733143000
+      ],
+      [
+        "scenario-perfsave",
+        "end",
+        1792527305743568000
+      ],
+      [
+        "perf-scratch",
+        "start",
+        1792527305801479000
+      ],
+      [
+        "perf-scratch",
+        "end",
+        1792527305812967000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   host-build",
+      "  ok   stereo",
+      "  ok   smc-reachability",
+      "  ok   fastmath",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk",
+      "  ok   scenario-alpha",
+      "  ok   scenario-dash-name",
+      "  ok   scenario-multi.x0x",
+      "  ok   scenario-perfsave",
+      "  ok   perf-scratch"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/install-slots-web/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/install-slots-web/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/smc-reachability/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/smc-reachability/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/stereo/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/stereo/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/host-build/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/host-build/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/fastmath/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/build/host/iso/fastmath/tmp"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/gate.lock",
+        "python3",
+        "worker.py",
+        "install-slots-web"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/gate.lock",
+        "python3",
+        "worker.py",
+        "installer"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-knr9rh3z/gate.lock",
+        "python3",
+        "worker.py",
+        "rec-live-smk"
+      ]
+    ],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 14,
+    "version": "candidate"
+  },
+  {
+    "jobs": 4,
+    "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+    "fail": "stereo",
+    "setup": "",
+    "holds": false,
+    "rc": 1,
+    "seconds": 2.2511431249999987,
+    "events": [
+      [
+        "smc-reachability",
+        "start",
+        1792527306320835000
+      ],
+      [
+        "smc-reachability",
+        "end",
+        1792527306334661000
+      ],
+      [
+        "host-build",
+        "start",
+        1792527306463295000
+      ],
+      [
+        "install-slots-web",
+        "start",
+        1792527306516972000
+      ],
+      [
+        "fastmath",
+        "start",
+        1792527306530244000
+      ],
+      [
+        "host-build",
+        "end",
+        1792527306620334000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527306688352000
+      ],
+      [
+        "stereo",
+        "start",
+        1792527306730533000
+      ],
+      [
+        "stereo",
+        "end",
+        1792527306806443000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527307223515000
+      ],
+      [
+        "installer",
+        "start",
+        1792527307352009000
+      ],
+      [
+        "installer",
+        "end",
+        1792527307362358000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527307395747000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527307405940000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527307490896000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527307506056000
+      ],
+      [
+        "scenario-alpha",
+        "start",
+        1792527307816387000
+      ],
+      [
+        "scenario-alpha",
+        "end",
+        1792527307831508000
+      ],
+      [
+        "scenario-dash-name",
+        "start",
+        1792527307888369000
+      ],
+      [
+        "scenario-dash-name",
+        "end",
+        1792527307898850000
+      ],
+      [
+        "scenario-multi.x0x",
+        "start",
+        1792527307956758000
+      ],
+      [
+        "scenario-multi.x0x",
+        "end",
+        1792527307971912000
+      ],
+      [
+        "scenario-perfsave",
+        "start",
+        1792527308030986000
+      ],
+      [
+        "scenario-perfsave",
+        "end",
+        1792527308045797000
+      ],
+      [
+        "perf-scratch",
+        "start",
+        1792527308077131000
+      ],
+      [
+        "perf-scratch",
+        "end",
+        1792527308092272000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   host-build",
+      "  FAIL stereo (see build/host/stereo.log)",
+      "  ok   smc-reachability",
+      "  ok   fastmath",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk",
+      "  ok   scenario-alpha",
+      "  ok   scenario-dash-name",
+      "  ok   scenario-multi.x0x",
+      "  ok   scenario-perfsave",
+      "  ok   perf-scratch"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/install-slots-web/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/install-slots-web/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/smc-reachability/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/smc-reachability/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/stereo/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/stereo/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/host-build/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/host-build/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/fastmath/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/build/host/iso/fastmath/tmp"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/gate.lock",
+        "python3",
+        "worker.py",
+        "install-slots-web"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/gate.lock",
+        "python3",
+        "worker.py",
+        "installer"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-12u2ydzt/gate.lock",
+        "python3",
+        "worker.py",
+        "rec-live-smk"
+      ]
+    ],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 14,
+    "version": "candidate"
+  },
+  {
+    "jobs": 4,
+    "selected": "scenario-alpha",
+    "fail": "",
+    "setup": "scenario",
+    "holds": false,
+    "rc": 1,
+    "seconds": 0.27316937500000016,
+    "events": [],
+    "results": [
+      "  FAIL scenario-alpha (see build/host/scenario-alpha.log)"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 0,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 2,
+    "version": "candidate"
+  },
+  {
+    "jobs": 4,
+    "selected": "perf-scratch",
+    "fail": "",
+    "setup": "perf",
+    "holds": false,
+    "rc": 1,
+    "seconds": 0.24032674999999948,
+    "events": [],
+    "results": [
+      "  FAIL perf-scratch (see build/host/perf-scratch.log)"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 2,
+    "version": "candidate"
+  },
+  {
+    "jobs": 4,
+    "selected": "install-slots-web installer rec-live rec-live-smk",
+    "fail": "",
+    "setup": "",
+    "holds": true,
+    "rc": 0,
+    "seconds": 1.236013332999999,
+    "events": [
+      [
+        "install-slots-web",
+        "start",
+        1792527308996524000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527309706426000
+      ],
+      [
+        "installer",
+        "start",
+        1792527309783762000
+      ],
+      [
+        "installer",
+        "end",
+        1792527309798916000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527309830845000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527309845953000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527309876176000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527309889659000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-43f3y69u/build/host/iso/install-slots-web/tmp"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": null,
+    "scratch_writes": 0,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 5,
+    "version": "candidate"
+  },
+  {
+    "jobs": 2,
+    "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 1.9944419169999996,
+    "events": [
+      [
+        "host-build",
+        "start",
+        1792527310270851000
+      ],
+      [
+        "host-build",
+        "end",
+        1792527310429892000
+      ],
+      [
+        "install-slots-web",
+        "start",
+        1792527310444618000
+      ],
+      [
+        "fastmath",
+        "start",
+        1792527310536306000
+      ],
+      [
+        "smc-reachability",
+        "start",
+        1792527310545428000
+      ],
+      [
+        "smc-reachability",
+        "end",
+        1792527310560540000
+      ],
+      [
+        "stereo",
+        "start",
+        1792527310628644000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527310692730000
+      ],
+      [
+        "stereo",
+        "end",
+        1792527310706386000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527311150781000
+      ],
+      [
+        "installer",
+        "start",
+        1792527311231344000
+      ],
+      [
+        "installer",
+        "end",
+        1792527311242111000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527311273713000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527311288867000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527311372120000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527311385355000
+      ],
+      [
+        "scenario-alpha",
+        "start",
+        1792527311606211000
+      ],
+      [
+        "scenario-alpha",
+        "end",
+        1792527311620287000
+      ],
+      [
+        "scenario-dash-name",
+        "start",
+        1792527311679491000
+      ],
+      [
+        "scenario-dash-name",
+        "end",
+        1792527311691305000
+      ],
+      [
+        "scenario-multi.x0x",
+        "start",
+        1792527311751528000
+      ],
+      [
+        "scenario-multi.x0x",
+        "end",
+        1792527311766669000
+      ],
+      [
+        "scenario-perfsave",
+        "start",
+        1792527311825670000
+      ],
+      [
+        "scenario-perfsave",
+        "end",
+        1792527311840786000
+      ],
+      [
+        "perf-scratch",
+        "start",
+        1792527311870288000
+      ],
+      [
+        "perf-scratch",
+        "end",
+        1792527311881340000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   host-build",
+      "  ok   stereo",
+      "  ok   smc-reachability",
+      "  ok   fastmath",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk",
+      "  ok   scenario-alpha",
+      "  ok   scenario-dash-name",
+      "  ok   scenario-multi.x0x",
+      "  ok   scenario-perfsave",
+      "  ok   perf-scratch"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/install-slots-web/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/install-slots-web/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/smc-reachability/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/smc-reachability/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/host-build/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/host-build/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/stereo/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/stereo/tmp"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/fastmath/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/build/host/iso/fastmath/tmp"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/gate.lock",
+        "python3",
+        "worker.py",
+        "install-slots-web"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/gate.lock",
+        "python3",
+        "worker.py",
+        "installer"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-bgelrv1e/gate.lock",
+        "python3",
+        "worker.py",
+        "rec-live-smk"
+      ]
+    ],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 0,
+    "test_class_substitutions": 0,
+    "key_formats": 14,
+    "version": "candidate"
+  },
+  {
+    "jobs": 1,
+    "selected": "fastmath",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 0.4765372499999998,
+    "events": [
+      [
+        "fastmath",
+        "start",
+        1792527312162679000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527312313206000
+      ]
+    ],
+    "results": [
+      "  ok   fastmath"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host",
+        "build/scenarios"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 4,
+    "test_class_substitutions": 1,
+    "key_formats": 0,
+    "version": "baseline"
+  },
+  {
+    "jobs": 1,
+    "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 2.385498666,
+    "events": [
+      [
+        "install-slots-web",
+        "start",
+        1792527312850155000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527313552631000
+      ],
+      [
+        "host-build",
+        "start",
+        1792527313580136000
+      ],
+      [
+        "host-build",
+        "end",
+        1792527313737123000
+      ],
+      [
+        "stereo",
+        "start",
+        1792527313763024000
+      ],
+      [
+        "stereo",
+        "end",
+        1792527313837811000
+      ],
+      [
+        "smc-reachability",
+        "start",
+        1792527313906881000
+      ],
+      [
+        "smc-reachability",
+        "end",
+        1792527313922022000
+      ],
+      [
+        "fastmath",
+        "start",
+        1792527313949780000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527314109964000
+      ],
+      [
+        "installer",
+        "start",
+        1792527314196869000
+      ],
+      [
+        "installer",
+        "end",
+        1792527314207592000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527314234290000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527314249441000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527314327872000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527314341059000
+      ],
+      [
+        "scenario-alpha",
+        "start",
+        1792527314556126000
+      ],
+      [
+        "scenario-alpha",
+        "end",
+        1792527314571278000
+      ],
+      [
+        "scenario-dash-name",
+        "start",
+        1792527314628870000
+      ],
+      [
+        "scenario-dash-name",
+        "end",
+        1792527314639365000
+      ],
+      [
+        "scenario-multi.x0x",
+        "start",
+        1792527314696957000
+      ],
+      [
+        "scenario-multi.x0x",
+        "end",
+        1792527314707472000
+      ],
+      [
+        "scenario-perfsave",
+        "start",
+        1792527314764190000
+      ],
+      [
+        "scenario-perfsave",
+        "end",
+        1792527314776464000
+      ],
+      [
+        "perf-scratch",
+        "start",
+        1792527314802770000
+      ],
+      [
+        "perf-scratch",
+        "end",
+        1792527314814397000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   host-build",
+      "  ok   stereo",
+      "  ok   smc-reachability",
+      "  ok   fastmath",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk",
+      "  ok   scenario-alpha",
+      "  ok   scenario-dash-name",
+      "  ok   scenario-multi.x0x",
+      "  ok   scenario-perfsave",
+      "  ok   perf-scratch"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host",
+        "build/scenarios"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-doc6xynw/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-doc6xynw/gate.lock",
+        "python3",
+        "worker.py",
+        "install-slots-web"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-doc6xynw/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-doc6xynw/gate.lock",
+        "python3",
+        "worker.py",
+        "installer"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-doc6xynw/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-doc6xynw/gate.lock",
+        "python3",
+        "worker.py",
+        "rec-live-smk"
+      ]
+    ],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 1,
+    "scenario_basename_substitutions": 4,
+    "test_class_substitutions": 13,
+    "key_formats": 0,
+    "version": "baseline"
+  },
+  {
+    "jobs": 4,
+    "selected": "fastmath",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 0.860242999999997,
+    "events": [
+      [
+        "fastmath",
+        "start",
+        1792527315246839000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527315406961000
+      ]
+    ],
+    "results": [
+      "  ok   fastmath"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host",
+        "build/scenarios"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-5ldm1hnl/build/host/iso/fastmath/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-5ldm1hnl/build/host/iso/fastmath/tmp"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 4,
+    "scenario_basename_substitutions": 16,
+    "test_class_substitutions": 5,
+    "key_formats": 5,
+    "version": "baseline"
+  },
+  {
+    "jobs": 4,
+    "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+    "fail": "",
+    "setup": "",
+    "holds": false,
+    "rc": 0,
+    "seconds": 2.2296867080000027,
+    "events": [
+      [
+        "host-build",
+        "start",
+        1792527316202072000
+      ],
+      [
+        "install-slots-web",
+        "start",
+        1792527316239698000
+      ],
+      [
+        "fastmath",
+        "start",
+        1792527316242949000
+      ],
+      [
+        "host-build",
+        "end",
+        1792527316358891000
+      ],
+      [
+        "fastmath",
+        "end",
+        1792527316393458000
+      ],
+      [
+        "smc-reachability",
+        "start",
+        1792527316478964000
+      ],
+      [
+        "smc-reachability",
+        "end",
+        1792527316489690000
+      ],
+      [
+        "stereo",
+        "start",
+        1792527316643321000
+      ],
+      [
+        "stereo",
+        "end",
+        1792527316723473000
+      ],
+      [
+        "install-slots-web",
+        "end",
+        1792527316940139000
+      ],
+      [
+        "installer",
+        "start",
+        1792527317027868000
+      ],
+      [
+        "installer",
+        "end",
+        1792527317043012000
+      ],
+      [
+        "rec-live",
+        "start",
+        1792527317075994000
+      ],
+      [
+        "rec-live",
+        "end",
+        1792527317089242000
+      ],
+      [
+        "rec-live-smk",
+        "start",
+        1792527317172153000
+      ],
+      [
+        "rec-live-smk",
+        "end",
+        1792527317187316000
+      ],
+      [
+        "scenario-alpha",
+        "start",
+        1792527317539797000
+      ],
+      [
+        "scenario-alpha",
+        "end",
+        1792527317554921000
+      ],
+      [
+        "scenario-dash-name",
+        "start",
+        1792527317616481000
+      ],
+      [
+        "scenario-dash-name",
+        "end",
+        1792527317626826000
+      ],
+      [
+        "scenario-multi.x0x",
+        "start",
+        1792527317689352000
+      ],
+      [
+        "scenario-multi.x0x",
+        "end",
+        1792527317703128000
+      ],
+      [
+        "scenario-perfsave",
+        "start",
+        1792527317785044000
+      ],
+      [
+        "scenario-perfsave",
+        "end",
+        1792527317800282000
+      ],
+      [
+        "perf-scratch",
+        "start",
+        1792527317850367000
+      ],
+      [
+        "perf-scratch",
+        "end",
+        1792527317862885000
+      ]
+    ],
+    "results": [
+      "  ok   install-slots-web",
+      "  ok   host-build",
+      "  ok   stereo",
+      "  ok   smc-reachability",
+      "  ok   fastmath",
+      "  ok   installer",
+      "  ok   rec-live",
+      "  ok   rec-live-smk",
+      "  ok   scenario-alpha",
+      "  ok   scenario-dash-name",
+      "  ok   scenario-multi.x0x",
+      "  ok   scenario-perfsave",
+      "  ok   perf-scratch"
+    ],
+    "mkdir": [
+      [
+        "-p",
+        "build/host",
+        "build/scenarios"
+      ],
+      [
+        "-p",
+        "build/host/.results",
+        "build/host/iso"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/install-slots-web/tmp"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/host-build/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/stereo/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/smc-reachability/tmp"
+      ],
+      [
+        "-p",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/home",
+        "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/build/host/iso/fastmath/tmp"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "build/host/iso/.lock-gen"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ],
+      [
+        "-p",
+        "build/scenarios/alpha"
+      ],
+      [
+        "-p",
+        "build/scenarios/dash-name"
+      ],
+      [
+        "-p",
+        "build/scenarios/multi.x0x"
+      ],
+      [
+        "-p",
+        "build/scenarios/perfsave"
+      ]
+    ],
+    "flock": [
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock",
+        "python3",
+        "worker.py",
+        "install-slots-web"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock",
+        "python3",
+        "worker.py",
+        "installer"
+      ],
+      [
+        "-s",
+        "-n",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock",
+        "true"
+      ],
+      [
+        "-s",
+        "-o",
+        "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/runner-admission-mtgdkd2w/gate.lock",
+        "python3",
+        "worker.py",
+        "rec-live-smk"
+      ]
+    ],
+    "scratch_sha256": "e5e0a2aecddeb11118fed7faa0253c624881d22e7476b6eda4ccbe24947a423d",
+    "scratch_writes": 4,
+    "scenario_basename_substitutions": 16,
+    "test_class_substitutions": 65,
+    "key_formats": 53,
+    "version": "baseline"
+  }
+]

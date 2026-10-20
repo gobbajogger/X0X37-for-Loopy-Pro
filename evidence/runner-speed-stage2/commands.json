@@ -1,0 +1,89 @@
+{
+  "cwd": "/Users/mac/Documents/x0x37/runner_speed_implementation",
+  "commands": [
+    {
+      "scope": "shell syntax",
+      "argv": [
+        "sh",
+        "-n",
+        "tests/run_tests.sh",
+        "tests/host/smk_clip_knob_test.sh",
+        "tests/host/smk_clip_chord_display_test.sh"
+      ],
+      "log": "source-review.log"
+    },
+    {
+      "scope": "source diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "log": "source-review.log"
+    },
+    {
+      "scope": "admission, fixtures, scheduling, invocation of installer lock and same-fixture comparison",
+      "argv": [
+        "python3",
+        "tests/host/test_runner_admission.py",
+        "--baseline",
+        "07fa87dc950908d4d720bde9c06c2478cc212b19",
+        "--output",
+        "evidence/runner-speed-stage2"
+      ],
+      "log": "runner-summary.log",
+      "details": "runner.json; runner-00.log through runner-16.log"
+    },
+    {
+      "scope": "real probes, source overrides, marker checks and compiler/execution counts",
+      "argv": [
+        "python3",
+        "evidence/runner-speed-stage2/check_probes.py"
+      ],
+      "log": "probe-summary.log",
+      "details": "probes.json and individual named logs"
+    },
+    {
+      "scope": "generation ordering; initial macOS attempt",
+      "argv": [
+        "sh",
+        "tests/host/test_gen_order.sh"
+      ],
+      "env": {
+        "NINEW9_DIR": "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+        "EIGHTW8_DIR": "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+        "TB3PO_REF": "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po/src/dsp/tb3po.c"
+      },
+      "log": "gen-order-macos-failed.log",
+      "result": "failed: isolated HOME hides user-site Pillow; serial host compile also lacks Mac SDK declarations. Use supported Linux environment."
+    },
+    {
+      "scope": "generation ordering on final source in existing Linux host image",
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "-v",
+        "/Users/mac/Documents/x0x37/runner_speed_implementation:/Users/mac/Documents/x0x37/runner_speed_implementation:ro",
+        "-v",
+        "/Users/mac/Documents/x0x37/validation_refs:/Users/mac/Documents/x0x37/validation_refs:ro",
+        "-w",
+        "/Users/mac/Documents/x0x37/runner_speed_implementation",
+        "-e",
+        "NINEW9_DIR=/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+        "-e",
+        "EIGHTW8_DIR=/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+        "-e",
+        "TB3PO_REF=/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po/src/dsp/tb3po.c",
+        "x0x37-validation:local",
+        "sh",
+        "tests/host/test_gen_order.sh"
+      ],
+      "log": "gen-order-linux.log",
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "details": "An earlier Linux pass before the adjacent basename reduction is in gen-order-linux-before-name-change.log. Final repeat checks exact stable runner inputs."
+    }
+  ]
+}

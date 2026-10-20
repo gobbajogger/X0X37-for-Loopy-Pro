@@ -1,0 +1,143 @@
+{
+  "workflow": "runner-speed-20261021",
+  "stage": 2,
+  "state": "checked",
+  "source_chat": "01a15aed-3863-7e61-8a04-344c29da894f",
+  "coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "branch": "lane/opt-runner-speed-implementation",
+  "changes": [
+    "Add explicit --extract-only to knob harness and use it from chord display; preserve default knob compile/run and both C probe bodies.",
+    "Prepare scenario directories and scratch_defs.h only within selected, admitted execution, with setup failures reported as test failures.",
+    "Use TEST_CLASS as a case result, keep cls separate across install_path and background execution, and format result keys after phase admission.",
+    "Replace scenario basename subprocess with parameter expansion, as requested by coordinator during this stage."
+  ],
+  "browser_overlap": {
+    "owner": "01a15ae9-9426-7b20-8873-e995ebaa8113",
+    "commit": "05405ff",
+    "action": "Delete same optional emcc/emu registration block; additionally remove dead emu|emu-slots S class names from newer base. The complete browser removal remains in its own lane. Deduplicate the shared deletion during combined integration."
+  },
+  "checks": {
+    "runner_fixture": "17 cases passed; serial and parallel selection, admitted fixture counts and bytes, dashed/repeated-suffix scenario names, setup and test failure status, result order, slot bounds, G serialization, W overlap, generation order, installer-lock invocation and existing rec-live-smk semantics.",
+    "probes": "Real baseline and candidate knob/display probes passed. Compile and execution counts per registered pair: 3 to 2. All six extraction byte streams match; SRC override and copied USB sentinel, six missing markers, unknown and extra arguments passed.",
+    "generation_order": "Existing test_gen_order.sh passed for jobs=8 and jobs=1 on final stable source in existing Linux image.",
+    "source": "Shell syntax, diff whitespace, unchanged literal run registrations except authorized browser removal, unchanged probe bodies, and byte-identical scheduler tail/generation helpers passed."
+  },
+  "evidence": {
+    "commands": "commands.json",
+    "inputs": "inputs.json",
+    "runner": "runner.json",
+    "probe": "probes.json",
+    "generation": "gen-order-linux.log",
+    "source_review": "source-review.log",
+    "environment": [
+      "macos-tools.log",
+      "linux-tools.log",
+      "reference-pins.json"
+    ]
+  },
+  "timings": [
+    {
+      "version": "candidate",
+      "jobs": 1,
+      "selected": "fastmath",
+      "seconds": 0.5902847920000001,
+      "scratch_writes": 0,
+      "key_formats": 0,
+      "test_class_substitutions": 0,
+      "scenario_basename_substitutions": 0
+    },
+    {
+      "version": "candidate",
+      "jobs": 1,
+      "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+      "seconds": 2.693394125,
+      "scratch_writes": 1,
+      "key_formats": 0,
+      "test_class_substitutions": 0,
+      "scenario_basename_substitutions": 0
+    },
+    {
+      "version": "candidate",
+      "jobs": 4,
+      "selected": "fastmath",
+      "seconds": 0.5702151250000007,
+      "scratch_writes": 0,
+      "key_formats": 2,
+      "test_class_substitutions": 0,
+      "scenario_basename_substitutions": 0
+    },
+    {
+      "version": "candidate",
+      "jobs": 4,
+      "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+      "seconds": 2.418272666,
+      "scratch_writes": 1,
+      "key_formats": 14,
+      "test_class_substitutions": 0,
+      "scenario_basename_substitutions": 0
+    },
+    {
+      "version": "candidate",
+      "jobs": 2,
+      "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+      "seconds": 1.9944419169999996,
+      "scratch_writes": 1,
+      "key_formats": 14,
+      "test_class_substitutions": 0,
+      "scenario_basename_substitutions": 0
+    },
+    {
+      "version": "baseline",
+      "jobs": 1,
+      "selected": "fastmath",
+      "seconds": 0.4765372499999998,
+      "scratch_writes": 1,
+      "key_formats": 0,
+      "test_class_substitutions": 1,
+      "scenario_basename_substitutions": 4
+    },
+    {
+      "version": "baseline",
+      "jobs": 1,
+      "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+      "seconds": 2.385498666,
+      "scratch_writes": 1,
+      "key_formats": 0,
+      "test_class_substitutions": 13,
+      "scenario_basename_substitutions": 4
+    },
+    {
+      "version": "baseline",
+      "jobs": 4,
+      "selected": "fastmath",
+      "seconds": 0.860242999999997,
+      "scratch_writes": 4,
+      "key_formats": 5,
+      "test_class_substitutions": 5,
+      "scenario_basename_substitutions": 16
+    },
+    {
+      "version": "baseline",
+      "jobs": 4,
+      "selected": "install-slots-web host-build stereo smc-reachability fastmath installer rec-live rec-live-smk scenario-alpha scenario-dash-name scenario-multi.x0x scenario-perfsave perf-scratch",
+      "seconds": 2.2296867080000027,
+      "scratch_writes": 4,
+      "key_formats": 53,
+      "test_class_substitutions": 65,
+      "scenario_basename_substitutions": 16
+    }
+  ],
+  "timing_limits": "Single samples of the same instrumented scratch inputs, including wrapper overhead and host contention. Some candidate samples are slower. Work-count reductions are deterministic; no end-to-end build speedup is claimed.",
+  "failure_disposition": [
+    "Initial fixture instrumentation was corrected for shell xtrace quotes and cross-process timestamps, then rerun to PASS. The W-overlap probe synchronizes startup to avoid testing Python wrapper startup latency.",
+    "Initial macOS generation-order attempt failed because isolated HOME hides user-site Pillow and Mac host SDK declarations are unavailable with these source flags. The supported existing Linux host image passed both modes.",
+    "An initial Linux PASS predates the adjacent scenario-name reduction. The final exact-source repeat also passed; keep its separate log."
+  ],
+  "limits": [
+    "No target firmware builds, full gate, package/install/device checks, external push, or cache-consumer changes.",
+    "Installer lock fixture checks invocation and bypass paths, not real exclusive-lock contention. Existing lock mechanism and background/signal behavior remain unchanged by source review.",
+    "Standalone regression tool is invoked directly and does not add instrumented fixture runtime to the default suite."
+  ],
+  "next": "Fresh independent Test stage3 with separate test and investigation subagents, followed by host-only Validate stage4 on matching inputs; final checked/validated completion to coordinator. No new source repair in Test: use fresh repair Implement then fresh Test if needed."
+}

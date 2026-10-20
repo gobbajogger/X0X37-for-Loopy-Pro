@@ -1,0 +1,174 @@
+[
+  {
+    "label": "baseline-knob",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh"
+    ],
+    "rc": 0,
+    "seconds": 1.034777584
+  },
+  {
+    "label": "baseline-chord_display",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_chord_display_test.sh"
+    ],
+    "rc": 0,
+    "seconds": 1.686734292
+  },
+  {
+    "label": "baseline-counts",
+    "compile": 3,
+    "executions": 3,
+    "details": [
+      "[\"compile\", \"build/host/clip_knob/smk_clip_knob_test\"]",
+      "run build/host/clip_knob/smk_clip_knob_test",
+      "[\"compile\", \"build/host/clip_chord/smk_clip_knob_test\"]",
+      "run build/host/clip_chord/smk_clip_knob_test",
+      "[\"compile\", \"build/host/clip_chord/smk_clip_chord_display_test\"]",
+      "run build/host/clip_chord/smk_clip_chord_display_test"
+    ]
+  },
+  {
+    "label": "candidate-knob",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh"
+    ],
+    "rc": 0,
+    "seconds": 0.7042572090000001
+  },
+  {
+    "label": "candidate-chord_display",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_chord_display_test.sh"
+    ],
+    "rc": 0,
+    "seconds": 0.8139682079999995
+  },
+  {
+    "label": "candidate-counts",
+    "compile": 2,
+    "executions": 2,
+    "details": [
+      "[\"compile\", \"build/host/clip_knob/smk_clip_knob_test\"]",
+      "run build/host/clip_knob/smk_clip_knob_test",
+      "[\"compile\", \"build/host/clip_chord/smk_clip_chord_display_test\"]",
+      "run build/host/clip_chord/smk_clip_chord_display_test"
+    ]
+  },
+  {
+    "label": "source-override",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 0,
+    "seconds": 0.04166724999999971
+  },
+  {
+    "label": "unknown-argument",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--typo"
+    ],
+    "rc": 2,
+    "seconds": 0.004285791999999233
+  },
+  {
+    "label": "extra-argument",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only",
+      "extra"
+    ],
+    "rc": 2,
+    "seconds": 0.003872874999999887
+  },
+  {
+    "label": "missing-apc_a",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 1,
+    "seconds": 0.04319766600000019
+  },
+  {
+    "label": "missing-apc_b",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 1,
+    "seconds": 0.039509375000000624
+  },
+  {
+    "label": "missing-ck_a",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 1,
+    "seconds": 0.0424195420000002
+  },
+  {
+    "label": "missing-ck_b",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 1,
+    "seconds": 0.041836374999999926
+  },
+  {
+    "label": "missing-autosave",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 1,
+    "seconds": 0.0392092909999997
+  },
+  {
+    "label": "missing-padled",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 1,
+    "seconds": 0.03884445899999989
+  },
+  {
+    "label": "override-sentinel",
+    "command": [
+      "sh",
+      "tests/host/smk_clip_knob_test.sh",
+      "--extract-only"
+    ],
+    "rc": 0,
+    "seconds": 0.039727582999999456
+  },
+  {
+    "label": "extraction-sha256",
+    "files": {
+      "apc_a": "e5fa59c648075b4a074f269ebbe7014428f4e981ad90182c6d66f6aff1371d05",
+      "apc_b": "e643414adf1a518031329fe52a637547daca3cbd1f064831d460c15e028c3a52",
+      "ck_a": "1c58840fed891070931a80dc3b151dd4d38770394aa530114d1a1a256cf3b5af",
+      "ck_b": "55802585420c791ba2b40a027c1adcbe609bf3e1baadcc40cd1b212f618218ae",
+      "autosave": "0d9462693385681fb786cc2e754cd42aad6c4b180e171b68c2a9e849ed6581ed",
+      "padled": "c16aa0dc8acd0da7f4857f58bebe5d537df1f4c5ccd4c0d168223406bdad1b3a"
+    }
+  }
+]

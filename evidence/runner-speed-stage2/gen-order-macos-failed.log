@@ -1,0 +1,60 @@
+FAIL jobs=8: want "drum_pan_test gen=yes host=yes", got "drum_pan_test gen=no host=no"
+FAIL jobs=8: want "stereo_test gen=yes host=yes", got "stereo_test gen=no host=no"
+FAIL jobs=8: run_tests.sh rc=1:
+         FAIL host-build (see build/host/host-build.log)
+              Traceback (most recent call last):
+                File "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/gord.amWMEr/tree/tools/gen_font.py", line 16, in <module>
+                  from PIL import Image, ImageDraw, ImageFont, features as PILFeatures
+              ModuleNotFoundError: No module named 'PIL'
+         FAIL drum-pan (see build/host/drum-pan.log)
+              In file included from tests/host/drum_pan_test.c:6:
+              In file included from firmware/src/dsp/drum909.h:19:
+              firmware/src/dsp/drum909_dsp.h:23:10: fatal error: 'x0x_drum_tables.h' file not found
+                 23 | #include "x0x_drum_tables.h"
+                    |          ^~~~~~~~~~~~~~~~~~~
+              1 error generated.
+              In file included from firmware/src/dsp/drum909.c:8:
+              In file included from firmware/src/dsp/drum909.h:19:
+              firmware/src/dsp/drum909_dsp.h:23:10: fatal error: 'x0x_drum_tables.h' file not found
+                 23 | #include "x0x_drum_tables.h"
+                    |          ^~~~~~~~~~~~~~~~~~~
+              1 error generated.
+         FAIL stereo (see build/host/stereo.log)
+              In file included from tests/host/stereo_test.c:14:
+              In file included from tests/host/../../firmware/src/dsp/fxbus.h:26:
+              tests/host/../../firmware/src/dsp/drum909_dsp.h:23:10: fatal error: 'x0x_drum_tables.h' file not found
+                 23 | #include "x0x_drum_tables.h"
+                    |          ^~~~~~~~~~~~~~~~~~~
+              1 error generated.
+              In file included from firmware/src/dsp/fxbus.c:4:
+              In file included from firmware/src/dsp/fxbus.h:26:
+              firmware/src/dsp/drum909_dsp.h:23:10: fatal error: 'x0x_drum_tables.h' file not found
+                 23 | #include "x0x_drum_tables.h"
+                    |          ^~~~~~~~~~~~~~~~~~~
+              1 error generated.
+         skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+       TESTS FAILED
+FAIL jobs=1: want "drum_pan_test gen=yes host=yes", got "drum_pan_test gen=yes host=no"
+FAIL jobs=1: want "stereo_test gen=yes host=yes", got "stereo_test gen=yes host=no"
+FAIL jobs=1: run_tests.sh rc=1:
+         FAIL host-build (see build/host/host-build.log)
+                413 |     struct rusage_info_v4 ri;
+                    |                           ^
+              host/x0x_host.c:413:12: note: forward declaration of 'struct rusage_info_v4'
+                413 |     struct rusage_info_v4 ri;
+                    |            ^
+              host/x0x_host.c:414:36: error: use of undeclared identifier 'RUSAGE_INFO_V4'
+                414 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+                    |                                    ^~~~~~~~~~~~~~
+              host/x0x_host.c:414:53: error: use of undeclared identifier 'rusage_info_t'
+                414 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+                    |                                                     ^~~~~~~~~~~~~
+              host/x0x_host.c:414:68: error: expected expression
+                414 |     if (!proc_pid_rusage(getpid(), RUSAGE_INFO_V4, (rusage_info_t *)&ri))
+                    |                                                                    ^
+              18 errors generated.
+         ok   drum-pan
+         ok   stereo
+         skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+       TESTS FAILED
+gen order: 6 FAILED
