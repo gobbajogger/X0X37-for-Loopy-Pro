@@ -1,7 +1,7 @@
 {
   "workflow": "build-speed-combination-20261021",
   "stage": 2,
-  "state": "complete_source_candidate_preparing_independent_review",
+  "state": "complete_checked_non_cache_execution",
   "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
   "final_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
   "base": "1165396199210889fa460d26cbdd0b66183267e1",
@@ -43,10 +43,15 @@
     }
   ],
   "source_hashes": {
+    "BUILDING.md": "281ff6e840f5dce7d5e9cfa331640b038da6a87cdd2f0188d71356115c56ced9",
     "LICENSING.md": "ee98f4ba5a379114ffd8cfa72c8893d390a4eb746bedde5ddba2e707d289b1fa",
     "README.md": "01eceefd799e3c2cbdb38d6dc5cf09f9d04fe0ca9e7bc8b66ccb83492bcf68ff",
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
     "docs/MANUAL.md": "ec6f408c9eda336cd1ad8886523aef9faa6cdfa5b004203d68950391a5084c93",
     "docs/NEW.md": "dea22979aafa6770d1f4580efe659be1bb319d2e969b9362eb3b5d84dca5282a",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de",
+    "docs/USER_PREFERENCES.md": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
     "docs/manual.html": "cc9ce5a9236370d59c9b6806d55b7e1796351905d2a14539760e60144c9f5367",
     "host/build_host.sh": "0b0644ceb4706ed4f328081ac9699ce3e66cc2f8d4226d8666c57d4a39a27acd",
     "host/x0x_host.c": "350a9b93302512c5bbde56a0a14fd07a18066e64e9492113ea59b12350d2c321",
@@ -55,34 +60,29 @@
     "tests/host/smc_drum_mutes_test.sh": "bb24f80cef63ca74b95697c72e89c12c6106b1024a2ab367d8629ec1b48d994f",
     "tests/host/smc_performance_abort_test.sh": "a7563087ffbf02a2bbb52e3293866c733263166cfb55b3cc44492fdd158924dd",
     "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/test_ctl_compile.py": "ed705a2e6bf4e9851e86269da80b7786240ea352563be50faeb0f5a473a9a3d0",
+    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
     "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f",
+    "tests/host/test_validation_inputs.py": "8a5da8b34e39a81bffe828e35eb7e660172e71c1d4639b5c50464743923ca4fa",
     "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf",
-    "tests/run_tests.sh": "812756e95e9f263f4c3b1b41b448e2d5cbfa7ef6993f0cc22b75e5d96e696cf3",
+    "tests/run_tests.sh": "ba03f9ad79b7178b68d89952c284ae295b4df9e1368f0dc52db63aa86859f7bf",
+    "tools/dev_validate.py": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
     "tools/gate.sh": "c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
     "tools/make_pages.py": "f0a59fb5bf75e01cfe76a55ff28a332058fecef83940b15fa12f081f2e223bcd",
     "tools/publish_pages.sh": "13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "tools/validation_inputs.py": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
     "web/emu/build.sh": null,
     "web/emu/index.html": null,
     "web/emu/worklet.js": null,
-    "web/emu/x0x_web.c": null,
-    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
-    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
-    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f",
-    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
-    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
-    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de",
-    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8",
-    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
-    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
-    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
-    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
-    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
-    "BUILDING.md": "281ff6e840f5dce7d5e9cfa331640b038da6a87cdd2f0188d71356115c56ced9",
-    "docs/USER_PREFERENCES.md": "b1e8578fe0dcf75822da8e4995569ec4023004eb0479def56c8b33d17785343e",
-    "tools/dev_validate.py": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
-    "tools/validation_inputs.py": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
-    "tests/host/test_dev_validate.py": "9d1c28ab27b5fae93e21d4488f67bfd95ca75dc3a383574b33f702939365ac76",
-    "tests/host/test_validation_inputs.py": "8a5da8b34e39a81bffe828e35eb7e660172e71c1d4639b5c50464743923ca4fa"
+    "web/emu/x0x_web.c": null
   },
   "baseline_generator_asset_firmware_inputs": {
     "count": 87,
@@ -98,8 +98,8 @@
   },
   "pending": {},
   "remaining": [
-    "Complete required independent Test and investigation on the non-cache combined candidate, then affected repairs/checks in this same bounded task.",
-    "Record final exact source/guard/output identities, evidence reuse and exclusions; return compact result and classic-project remaining validation/repair prompts."
+    "Asset reuse and remaining cache consumer routing withheld after independent FAIL; saved classic repair handoff is the next decision input.",
+    "No new target artifact equality or whole-build timing was measured; any such decision needs the exact combined source/configuration/dependency scope in classic LoopyX0X37."
   ],
   "checks_now": "initial-checks.json",
   "test_plan": [
@@ -129,12 +129,13 @@
     "No numeric whole-build speed claim; no target/controller build repeated.",
     "No device write, publication, external push, release/full gate or competing firmware integration."
   ],
-  "resume": "Continue necessary authorized combination edits/checks in this same task when required results arrive. No repeated polling, timer automation or automatic Codex successor.",
+  "resume": "Bounded accepted non-cache execution is complete. Return result to existing coordinator. Future decisions start in classic LoopyX0X37; no automatic Codex successor.",
   "combined_registration": {
     "quickcheck-plan": "test_quickcheck_plan.py",
     "ctl-compile": "test_ctl_compile.py",
     "host-setup": "test_host_setup.py",
-    "runner-admission": "test_runner_admission.py"
+    "runner-admission": "test_runner_admission.py",
+    "dev-validate": "test_dev_validate.py DevelopmentValidation"
   },
   "registration_checks": "controller-quickcheck-identity.json",
   "current_routing": {
@@ -165,5 +166,10 @@
     "AGENTS.md",
     "docs/SKILLS.md",
     ".agents/skills/x0x37-*"
-  ]
+  ],
+  "candidate": "e7e63bdca31e238c07b724fcc271788c877918b8",
+  "final_test": "independent-test/result.json",
+  "final_investigation": "independent-investigation/result.json",
+  "final_result": "final-result.json",
+  "superseded_registration": "Initial classS/lock workaround is superseded by signal-fixture-repair.json: fixture child reset works under outer async caller; all accepted scheduler functions restored."
 }

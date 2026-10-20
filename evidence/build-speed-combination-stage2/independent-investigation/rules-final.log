@@ -1,0 +1,2 @@
+RULES  commit e0ec9b7: Check: registered-native-fixtures.log (13 input identity and 15 DEV is not a script of the tree, status.sh, x0x37_gate.sh or manual: <reason>
+QUICK FAIL e0ec9b7 0 s RULES: 1 commit body issues

@@ -1,0 +1,3 @@
+RULES  commit f53309c: no line Trigger: <when the rule applies>
+RULES  commit f53309c: no line Check: <script>
+QUICK FAIL f53309c 0 s RULES: 2 commit body issues

@@ -1,0 +1,72 @@
+{
+  "role": "independent_test",
+  "result": "PASS",
+  "candidate": "c0d2ab2f3248ce86a1e6421be926ce5297768272",
+  "original_checked_candidate": "f53309ce43c7624a83291b1773ae1f86ec9db484",
+  "tree": "f5bd7b999fea184e8377dcb2d80f2465954fc1a4",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "source_entry_count": 760,
+  "source_tree_identity_sha256": "c2a28d635214a9af598679fcafeb0bb7f28a46ec1b07d50ad32d7613d6085f2c",
+  "production_edits": false,
+  "findings": [],
+  "checks": [
+    {
+      "scope": "Complete candidate/source/accepted input identity",
+      "result": "PASS",
+      "evidence": "verification.json; acceptance-bindings.json",
+      "coverage": "40 changed source/deletion hashes; unchanged firmware; accepted contributor source hashes and actual retained controller image/record; 24 committed combined evidence artifacts and 35 native evidence hashes."
+    },
+    {
+      "scope": "Combined fixture invocation evidence",
+      "result": "PASS reused",
+      "coverage": "Quickcheck12, controller7 after foreground mapping repair, host7, runner13; native-input13, native-DEV15, real pinned-worker1. Existing initial SIGINT registration failure remains rejected/failure evidence.",
+      "evidence": "Parent registered-* logs, native-worker.log, native-cleanup.json, exact committed artifact hashes in acceptance-bindings.json."
+    },
+    {
+      "scope": "New fifth native fixture and earlier four direct fixtures in Quickcheck parser",
+      "result": "PASS new source assertions",
+      "evidence": "verification.json quickcheck_selection",
+      "coverage": "Actual select() sees all five existing direct fixture files, including final dev-validate registration."
+    },
+    {
+      "scope": "Controller foreground SIGINT and installer-lock bypass",
+      "result": "PASS new scratch boundary test with meaningful negative control",
+      "evidence": "verification.json registration_boundary_probes",
+      "coverage": "Real unchanged runner dispatcher with one tiny replaced test body: jobs1 and4 retain usable SIGINT and invoke no fake flock; restoring ctl-compile to classP causes expected ignored-SIGINT failure. No real controller build."
+    },
+    {
+      "scope": "Native cleanup preserves active provenance",
+      "result": "PASS source/evidence verification",
+      "evidence": "acceptance-bindings.json",
+      "coverage": "Accepted native package/walker/capture/validate top-level ASTs unchanged; accepted dev_validate functions except narrowly changed LinuxWorker unchanged. Root focused runtime/forwarding/dependency mutation proof and actual worker authentication PASS verified as committed evidence."
+    },
+    {
+      "scope": "Cache exclusion and generator preservation",
+      "result": "PASS",
+      "coverage": "No asset_cache.py; build.py and both909 consumers equal1165396; host/clip generator command lines unchanged. No accepted cache speedup."
+    }
+  ],
+  "failure_dispositions": [
+    "First evidence binding attempt iterated all on-disk root evidence and found concurrently created final-identity.log absent from candidate. Corrected verifier scope to candidate-tracked evidence paths; accepted production source was not implicated. No behavior suite rerun.",
+    "Parent amended only commit metadata to add required Trigger/Check fields; identical Git tree verified. Passing source/evidence/behavior assertions reused."
+  ],
+  "limits": [
+    "No behavior suites repeated; new scratch checks cover only newly registered controller foreground signal and installer-lock bypass.",
+    "Historical recorded environment/tool identity and current source/log hashes support reuse; no complete original inherited environment snapshot or installed-byte snapshot was recorded for all host fixture runs.",
+    "SDK/toolchain byte identities are retained evidence; no full dependency rehash or target build.",
+    "No target artifact equality, whole-build timing, gate, install, device or push claim. Cache and new cache consumer routing remain excluded."
+  ],
+  "report_sha256": {
+    "verify.log": "b130836516a307d84eb76690de97be41c3b9f524f66c4b22b7c4b214ad16b295",
+    "acceptance-bindings.json": "272ef9782d2eca2e9fcae93e39e22b1a0f7959c7bd0e9899d499100f89f751ce",
+    "verification.json": "b3133525e5614aa6eb29256be4211d572dfb6cccc138e9659959ea465feb1380",
+    "verify.py": "f880fed5fcdb1c46c535defa4a2f4b7b6f0e0bc3458a5ee198df4c22b22a1e3e"
+  },
+  "final_metadata_binding": {
+    "previous_candidate": "e0ec9b763f79bd1e44a2294a1815866f3dad06ed",
+    "final_candidate": "c0d2ab2f3248ce86a1e6421be926ce5297768272",
+    "tree": "f5bd7b999fea184e8377dcb2d80f2465954fc1a4",
+    "assertion": "PASS identical tree and empty diff; required Check: manual: commit field present.",
+    "execution": "Identity assertions only; all passing source/evidence/behavior results reused."
+  }
+}
