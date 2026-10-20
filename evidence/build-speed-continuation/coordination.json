@@ -11,12 +11,21 @@
       "evidence": "/Users/mac/Documents/x0x37/host_setup_stage4/evidence/host-setup-stage4/result.json"
     },
     "asset_cache": {
-      "state": "independent_test_failed_pending_fresh_repair",
+      "state": "selector_repair_final_checks_running",
       "implementation": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
       "stage3": "01a15aec-a3db-7972-b1a3-cbd56a0bd510",
       "finding": "I1: retargeted CC symlink to pre-existing fast-math wrapper returns stale break-cache hit; no promotion.",
       "proof": "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/investigation/compiler-symlink-proof.log",
-      "repair_owner": "01a15af0-9697-77e2-a70f-4b88642384f7"
+      "repair_owner": "01a15af0-9697-77e2-a70f-4b88642384f7",
+      "repair_lane": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+      "preliminary_coverage": [
+        "CC symlink chains",
+        "PATH execute permissions",
+        "GCC backend/linker aliases",
+        "Python import aliases and interpreter selectors",
+        "Loader legacy/hwcaps path inventory and conservative unknown-loader fallback"
+      ],
+      "acceptance": "No checked final commit or independent PASS yet; do not promote."
     },
     "native_validator": {
       "state": "provenance_repair_active",
@@ -25,7 +34,7 @@
       "blocker": "Waiting on tool approval after Docker Colima socket permission denied. Owner informed; no pending action bypassed."
     },
     "quickcheck_controller": {
-      "state": "independent_test_failed_fresh_repair_started",
+      "state": "cleanup_repair_independent_test_started",
       "owner": "01a15ae3-2cce-7e42-9a7f-5911e60a9be5",
       "runner_overlap": "Owner confirms no tests/run_tests.sh diff.",
       "implementation": "30c567d8588227d5285f04422130300fe83577a9",
@@ -33,14 +42,28 @@
       "controller_seconds": 28.513924458,
       "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
       "repair_owner": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
-      "finding": "Successful compiler driver child can survive later compiler failure while scratch is deleted."
+      "finding": "Successful compiler driver child can survive later compiler failure while scratch is deleted.",
+      "repair_implementation": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+      "repair_handoff": "5c5667c6fd60c25143b46c817e28d0437f8f40bb",
+      "repair_stage3": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+      "repair_evidence": "/Users/mac/Documents/x0x37/build_work_cleanup_repair/evidence/build-work-cleanup-repair/result.json",
+      "acceptance": "Stage2 checks pass; independent review and applicable scoped validation pending."
     },
     "runner_extraction": {
-      "state": "independent_test_started",
+      "state": "accepted_local",
       "owner": "01a15aed-3863-7e61-8a04-344c29da894f",
       "handoff": "evidence/runner-speed-stage1/handoff.txt",
       "implementation": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
-      "stage3": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa"
+      "stage3": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa",
+      "test_evidence_commit": "7f8dff3d69880e26b3a56be3f21f5a8af41ae6b8",
+      "validation_owner": "01a15afb-2b5e-77f0-afac-98934e19bbfb",
+      "acceptance": "fed51d6233bf4d91a0ff73de06fe46d62414d71b",
+      "acceptance_evidence": "/Users/mac/Documents/x0x37/runner_speed_stage4/evidence/runner-speed-stage4/result.json",
+      "validated_source_unchanged": true,
+      "limits": [
+        "Probe pair compile/execution count3 to2 verified; single instrumented wall-time samples do not establish end-to-end speedup.",
+        "Installer coverage is invocation/bypass; no real contention PASS claimed."
+      ]
     },
     "browser_removal": {
       "state": "checked_local_repair_pass",
@@ -93,9 +116,32 @@
     "No device write, external push, release/full gate."
   ],
   "controlled_combination": {
-    "state": "stage2_started",
+    "state": "accepted_pieces_initial_checks_pass_waiting_prerequisites",
     "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
     "handoff": "evidence/build-speed-combination-stage1/handoff.txt",
-    "scope": "Accepted local tooling staging plus remaining cache consumers and stable validator removal cleanup. Wait for incoming checked repair/independent/validation prerequisites; preserve sole firmware integration owner."
+    "scope": "Accepted local tooling staging plus remaining cache consumers and stable validator removal cleanup. Wait for incoming checked repair/independent/validation prerequisites; preserve sole firmware integration owner.",
+    "checkpoint_commit": "ab2df875005e1727092c5d135c80f297821cad60",
+    "checkpoint": "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/checkpoint.json",
+    "applied_local": [
+      "cee0b2c",
+      "0de6c9b",
+      "df2ae79"
+    ],
+    "initial_checks": "Firmware tree unchanged vs1165396; six host source hashes match acceptance; current native preprocessing equivalent; four site identities preserve installer/uploader; 87 generator/assets/firmware baseline inputs match."
+  },
+  "completion_recipient": {
+    "thread_id": "01a15af6-f2aa-71d3-a7f6-9c65def5f01e",
+    "title": "Check Latest Commits on Git",
+    "owner_request": "Actually push when threads finish",
+    "source_user_message": "01a15afa-d734-79d3-8c1d-6fcc4b59ad99",
+    "verified_by": "read_thread latest two turns",
+    "notice_scope": [
+      "Final checked combined commit/branch",
+      "Intended lane coverage and exclusions",
+      "Remaining dirty work and pending project work",
+      "Validation evidence"
+    ],
+    "push_owner": "01a15af6-f2aa-71d3-a7f6-9c65def5f01e",
+    "constraint": "Send completion only when existing build-speed work and relevant successor stages finish; no push added to this tooling lane."
   }
 }
