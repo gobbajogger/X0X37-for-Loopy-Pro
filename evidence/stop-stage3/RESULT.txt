@@ -53,3 +53,7 @@ Mapping result: /Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/
 That chat retains selection of the sole stage5 integrator for both contributions.
 The saved stage4-prompt.txt carries the complete scope, evidence, permissions and limits.
 The successor record must contain verified actual startup before this stage ends.
+
+Stage4 actual startup is verified in chat 01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3.
+Observed turn: 01a15ab5-7feb-7ee3-8482-c24973618913.
+The new assistant acknowledges the full handoff. A completed command also exists.

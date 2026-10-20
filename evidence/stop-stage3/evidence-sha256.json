@@ -1,6 +1,6 @@
 {
-  "RESULT.txt": "30fd42f1f3a57dd5141c951e365d8f64ff12de920823d9e56bb1594543d532c5",
-  "checks.json": "4b4574f82318f363f769d135dc1e2097d52dd7d48082f1f57dbaf28f00b2d00d",
+  "RESULT.txt": "5f8783c240397ed6ea6530e3c210c9d4f03b4e47a04cea073a41f6323cb55492",
+  "checks.json": "c32cd93a123ff175dbb700ca2515c9e72a73d6f109768bc8a911bf15c9fb6390",
   "investigation/different-handle-probe.c": "0846aabaf549e49588764feb216dcfe95ade4f925c225905d0fc9492c00d03bf",
   "investigation/probe-commands.json": "e33a79ab3d4e810fce0e81804d410faff51d7b9de92f9247fd0c682ad547f63b",
   "investigation/probe-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -12,7 +12,8 @@
   "investigation/source-identity.json": "8836a91243ef21ab8f5fd3d445046fbc64b3654e3f39ebc3deafb43df30d5fb7",
   "reuse.json": "04f58b15d260926abc2a4e722e7c47b9997f557e0ed3832a8b4f76d01cefa7d7",
   "stage4-prompt.txt": "f7e67b1cc94cf5323f910b1cabbc9772475321b39e6ad8322bd91b6142ba8a57",
-  "successor.json": "f9b3d4d69c3c2546a9afeb6afc612f176d8a62e4123d1e122d21f628a075de21",
+  "startup.json": "9a8e8560c2bee670ddb5c72379d46c4bc29cdda4d5ac6b2567df6a2835eb4af5",
+  "successor.json": "b223fc481b3893ff5f86575e8f79a972a5a88d5e4b7f9b0210188aab791971ef",
   "test/identity-review.json": "430ae2bd3eb028d6084e28d75eaba53d3f0bc9e37f0f0313e64e879da0ce34d0",
   "test/report.json": "165a43594fe02dd9a033daf0a525da3e509ed6da3fea1e3db46c7415a1b6ebc2",
   "verify-reuse.py": "d45257513af005a0e1dc2e2a5c2f24c036a102384b72f6b3ea304c93ff320f68"

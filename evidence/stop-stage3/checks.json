@@ -184,5 +184,13 @@
   "setup_notes": [
     "The first read-only container identity check lacked sandbox access to the Docker socket. The approved retry passed. No build or device action occurred.",
     "The historical short enhanced-event deadline fixture is covered by the complete current stop and realistic Cancel event layouts."
-  ]
+  ],
+  "successor": {
+    "status": "started",
+    "thread_id": "01a15ab5-7ed0-79c1-bc2c-241d84dc9ee3",
+    "host_id": "local",
+    "startup_turn": "01a15ab5-7feb-7ee3-8482-c24973618913",
+    "record": "successor.json",
+    "startup_evidence": "startup.json"
+  }
 }
