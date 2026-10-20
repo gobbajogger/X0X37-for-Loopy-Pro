@@ -1,0 +1,17 @@
+{
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "candidate": "a5cb24dd08b40b80e802e03ff0d9c848315a9751",
+  "unchanged": [
+    "firmware",
+    "tools/build.py",
+    "tools/fm1pkg_make.py",
+    "tools/fm1_install.py",
+    "tools/add_ctl.py",
+    "tools/x0x_slots.py",
+    "tools/require_gate_pass.sh"
+  ],
+  "meaning": "Previous combined SMC tests and loader/installer safety checks retain identical source inputs. New build scripts/native validator require current package build and development record.",
+  "later_tool_scope_checked_by": "evidence/build-speed-combination-stage2/final-result.json",
+  "later_rules_checked_by": "evidence/commit-latest-20261021/checks.json",
+  "firmware_merge": "Already in GitHub main; no new firmware merge or source repair required."
+}

@@ -1,0 +1,20 @@
+{
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "scope": "Latest GitHub main a5cb24d contains unchanged combined firmware and accepted non-cache tooling. Reuse matching independent source/host test evidence. Build the actual Elite DEV app/controller with current scripts and native validator; verify budgets and exact artifacts before authorized install.",
+  "checks": [
+    {
+      "reason": "Prove matching unchanged firmware/installer and independently tested tooling scope before reusing accepted host evidence.",
+      "argv": [
+        "python3",
+        "-B",
+        "-c",
+        "import subprocess,json,hashlib,pathlib\nbase=pathlib.Path('/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2')\nr=json.loads((base/'final-result.json').read_text())\nassert r['status']=='PASS checked local non-cache tooling combination'\nfor key in ['independent_test','independent_investigation']:\n p=base/r[key]['path'];assert hashlib.sha256(p.read_bytes()).hexdigest()==r[key]['sha256']\nassert not subprocess.check_output(['git','diff','1165396','HEAD','--','firmware','tools/build.py','tools/fm1pkg_make.py','tools/add_ctl.py','tools/fm1_install.py','tools/x0x_slots.py'])\nassert sorted(subprocess.check_output(['git','diff','--name-only',r['production_candidate'],'HEAD','--','tools','tests','ble'],text=True).splitlines())==['tests/host/test_prefs_lint.py', 'tests/host/test_quickcheck_rules.sh', 'tests/host/test_rules_guard_hook.sh', 'tests/host/test_rules_rollout.py', 'tools/check_project_skills.py', 'tools/prefs_lint.py', 'tools/rollout_rules.py', 'tools/update.hook']\nassert all(x['returncode']==0 for x in json.loads(pathlib.Path('evidence/commit-latest-20261021/checks.json').read_text()))\nprint('PASS: firmware and installer unchanged; accepted tooling/test sources match independently checked candidate; failed cache excluded.')\n"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/final-result.json",
+    "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-test/result.json",
+    "/Users/mac/Documents/x0x37/build_speed_combination/evidence/build-speed-combination-stage2/independent-investigation/result.json"
+  ]
+}

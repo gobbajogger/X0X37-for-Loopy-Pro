@@ -7,11 +7,11 @@ description: "Select scoped checks, build, test, commit, or hand off x0x37 chang
 
 ### Rule 9: supported checks
 
-Select checks from the diff: changed behavior, direct consumers, shared code, configuration, and build inputs.
-For each check, state what the change can break.
-Use the smallest set that covers those risks and the step's explicit requirements.
-Add coverage only for a concrete dependency, unexplained failure, or applicable formal gate.
-An available check is not automatically required. A requested formal gate retains its defined coverage.
+Select checks from committed edits and their affected consumers. Name the changed path and the failure each check covers.
+Use the smallest set that covers those risks. Reuse matching evidence for unchanged inputs.
+A stage change, new commit ID, available suite, or install alone does not trigger unrelated tests.
+Expand only for an affected dependency, unexplained failure, or applicable explicitly requested formal gate.
+For install-time readbacks and unchanged packages, use [the install scope](../x0x37-install/references/artifacts.md).
 
 - Documentation: relevant content and links; no firmware build.
 - Web or host tools: no firmware build unless firmware inputs or package compatibility can change.

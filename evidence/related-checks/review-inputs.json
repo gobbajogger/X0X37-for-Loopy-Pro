@@ -1,0 +1,24 @@
+{
+  "review": "independent-review.json",
+  "reviewer": "/root/review_related_checks",
+  "files": [
+    {
+      "path": "skills/x0x37-check/SKILL.md",
+      "sha256": "1e3521baa8d7458ba3c3138fc2525151bcf598ce7c62ef8b2462c6bbc1eaf8aa"
+    },
+    {
+      "path": "skills/x0x37-install/SKILL.md",
+      "sha256": "2a4ed845559f545e5372b0ef2032a48cc0f74e07ebfb03b7129b3aa728044762"
+    },
+    {
+      "path": "skills/x0x37-install/references/artifacts.md",
+      "sha256": "d3321be56db40f73211a6e9439d7d86d801af575c84470a469b68a86824d898f"
+    },
+    {
+      "path": "docs/USER_PREFERENCES.md",
+      "sha256": "59ca9c3d789e59149f596ec79a706d35ec19567600b074149bbe0826f796534f"
+    }
+  ],
+  "requirement_edits_after_review": false,
+  "rollout": "Existing unchanged rollout implementation; generated discovery outputs do not alter reviewed requirements."
+}
