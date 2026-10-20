@@ -1,0 +1,105 @@
+{
+  "workflow": "build-speed-combination-20261021",
+  "stage": 2,
+  "state": "waiting_for_checked_prerequisites",
+  "owner": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "final_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "base": "1165396199210889fa460d26cbdd0b66183267e1",
+  "lane": "/Users/mac/Documents/x0x37/build_speed_combination",
+  "applied": [
+    {
+      "source": "46a3b3e8c781f9a8b503ac00013a6389bfb404b6",
+      "local": "cee0b2c",
+      "acceptance": "db72964fd1bc82481a4c869912c8258165687ca8"
+    },
+    {
+      "source": "05405ff56ced13ca5534ccd8861599c9872b61e1",
+      "local": "0de6c9b",
+      "conflict": "Preserved newer installer-ctl/rec-live/copy/song/ui declarations and earlier host-build position; deleted only retired optional browser block."
+    },
+    {
+      "source": "bcb856b6637a98866ac1bf3ad4642c2bb21e4a92",
+      "local": "df2ae79",
+      "acceptance": "remove_browser_emu_evidence/repair1-stage3/result.json"
+    }
+  ],
+  "source_hashes": {
+    "LICENSING.md": "ee98f4ba5a379114ffd8cfa72c8893d390a4eb746bedde5ddba2e707d289b1fa",
+    "README.md": "01eceefd799e3c2cbdb38d6dc5cf09f9d04fe0ca9e7bc8b66ccb83492bcf68ff",
+    "docs/MANUAL.md": "ec6f408c9eda336cd1ad8886523aef9faa6cdfa5b004203d68950391a5084c93",
+    "docs/NEW.md": "dea22979aafa6770d1f4580efe659be1bb319d2e969b9362eb3b5d84dca5282a",
+    "docs/manual.html": "cc9ce5a9236370d59c9b6806d55b7e1796351905d2a14539760e60144c9f5367",
+    "host/build_host.sh": "0b0644ceb4706ed4f328081ac9699ce3e66cc2f8d4226d8666c57d4a39a27acd",
+    "host/x0x_host.c": "350a9b93302512c5bbde56a0a14fd07a18066e64e9492113ea59b12350d2c321",
+    "tests/host/emu_slots_test.mjs": null,
+    "tests/host/emu_test.mjs": null,
+    "tests/host/smc_drum_mutes_test.sh": "bb24f80cef63ca74b95697c72e89c12c6106b1024a2ab367d8629ec1b48d994f",
+    "tests/host/smc_performance_abort_test.sh": "a7563087ffbf02a2bbb52e3293866c733263166cfb55b3cc44492fdd158924dd",
+    "tests/host/smc_reachability_test.sh": "da6f2a5eb2ae64d594c4aa531ed4875baed4c74f50c4f8cd62b72fc5666a9c58",
+    "tests/host/test_host_setup.py": "72fb6713a228057dbc1885c262b4bdeda287304199a7c07fe6643896d48f5069",
+    "tests/host/ui_feedback_test.sh": "7016e5b56345fbb31e9b7d6174999d0204a715e4d91aa12d7fa9e07c594fddbf",
+    "tests/run_tests.sh": "14e1995eddbf626c66240361860a8dbeb87784ad29f7c47767277551bca58b07",
+    "tools/gate.sh": "c1986a250ef9f820edb912dcf14711bfa8319992d79fc70f0e86e798d02aa8e5",
+    "tools/make_pages.py": "f0a59fb5bf75e01cfe76a55ff28a332058fecef83940b15fa12f081f2e223bcd",
+    "tools/publish_pages.sh": "13794417cd578b98e490297273edaec4c687545e2292d42a6125de4991640df0",
+    "web/emu/build.sh": null,
+    "web/emu/index.html": null,
+    "web/emu/worklet.js": null,
+    "web/emu/x0x_web.c": null
+  },
+  "baseline_generator_asset_firmware_inputs": {
+    "count": 87,
+    "match": true,
+    "record": "../build_speed_consumer_audit/evidence/cache-consumer-audit/original-linux.json",
+    "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "outputs": {
+      "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+      "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+      "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+      "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44"
+    }
+  },
+  "pending": {
+    "cache": "Selector repair stage2 active; no checked final commit or independent PASS. Completion requested.",
+    "native": "Repair owner retains pending Docker approval; no bypass. Need checked repair, fresh independent Test and native Validate. Completion requested.",
+    "controller": "Successful-driver descendant cleanup repair active; failed30c567d not applied. Need repaired fresh Test and applicable acceptance. Completion requested.",
+    "runner": "fe7f040 independent Test PASS at7f8dff3; host Validate01a15afb-2b5e-77f0-afac-98934e19bbfb pending. Completion requested."
+  },
+  "remaining": [
+    "Apply each source only after required independent results/acceptance. Deduplicate browser removal patch.",
+    "Remove unused stable validator compiler/environment capture and worker forwarding, preserving actual native provenance.",
+    "Measure checked cache helper per consumer on pinned Linux, compare saved operation baseline, verify exact bytes at real output paths. Retain original native path without unsupported discovery overhead.",
+    "Cover default/generate-only host dispatch, custom break bank, output override and generator failures; reference/CYM_AB behavior; clip SRC/OUT overrides.",
+    "Register present accepted direct fixture files where needed for coherent Quickcheck runner parsing.",
+    "Record complete combined checked source and checks; launch exactly one fresh independent Test, then host Validate."
+  ],
+  "checks_now": "initial-checks.json",
+  "test_plan": [
+    {
+      "check": "Combined source/guard identities",
+      "risk": "Old-base patch could erase newer declarations, firmware or installer/package guards.",
+      "reuse": "Initial host matches accepted source. Firmware unchanged and native preprocessing equivalent. Recheck final source."
+    },
+    {
+      "check": "Runner admission + Quickcheck selection fixtures, jobs1/8 gen-order",
+      "risk": "Class result variable, lazy preparation and literal parsing could conflict with new fixtures.",
+      "reuse": "Runner standalone matching evidence; rerun only combined mapping/selection behavior invalidated by registration edits."
+    },
+    {
+      "check": "Cache caller wall times and generated SHA256; actual host/drum/clip probes",
+      "risk": "Caller dispatch or output policy could change generated bytes, references, custom bank or source overrides.",
+      "reuse": "Existing immutable-image original generator timings and headers. Newly changed caller paths need measured outcomes."
+    },
+    {
+      "check": "Native runtime/package/dependency capture and worker forwarding fixtures",
+      "risk": "Removal of unused compiler settings could weaken active native identity or intersect package repair.",
+      "reuse": "Incoming accepted provenance evidence; recheck affected cleanup behavior only."
+    }
+  ],
+  "limits": [
+    "Partial implementation checkpoint; not a completed candidate and not ready for Test successor.",
+    "No numeric whole-build speed claim; no target/controller build repeated.",
+    "No device write, publication, external push, release/full gate or competing firmware integration."
+  ],
+  "resume": "Continue in this same combination stage chat when checked completion notices arrive. Do not create another continuation or poll active owners."
+}
