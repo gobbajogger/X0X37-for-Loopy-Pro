@@ -1,0 +1,9 @@
+{
+  "audit_owner": "01a159f4-de3d-7d90-9124-b09940980f92",
+  "audit_final_revision": "3d7c29bdd4cec0450cfb3a8f319ffa1e1a1611f9",
+  "stage": 2,
+  "thread_id": "01a159fc-b487-7ed0-ae49-12e13cc06aef",
+  "host_id": "local",
+  "title": "Repair SMC regression from working-version evidence",
+  "creation": "succeeded exactly once"
+}
