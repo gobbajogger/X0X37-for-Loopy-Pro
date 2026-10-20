@@ -332,7 +332,308 @@ class SelectedAssetTests(unittest.TestCase):
         self.assertFalse(cache.generate_asset('breaks', self.root, self.gen, self.store))
 
 
+@unittest.skipUnless(sys.platform == 'linux', 'GCC and runtime selectors require Linux')
+class SelectorTests(unittest.TestCase):
+    setUp = CacheTests.setUp
+    tearDown = CacheTests.tearDown
+
+    def worker(self, kind='drums', deny=False):
+        code = """import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import asset_cache
+if sys.argv[5] == 'deny':
+    def forbidden(*args, **kwargs):
+        raise AssertionError('warm reuse restarted discovery')
+    asset_cache.run_checked = forbidden
+print('HIT=' + str(asset_cache.generate_asset(sys.argv[4], Path(sys.argv[2]),
+    Path(sys.argv[2]) / 'build/gen', Path(sys.argv[3]))))
+"""
+        result = subprocess.run([getattr(self, 'interpreter', sys.executable), '-B', '-c', code, str(ROOT / 'tools'),
+            str(self.root), str(self.store), kind, 'deny' if deny else 'normal'],
+            capture_output=True, text=True, check=True)
+        return 'HIT=True' in result.stdout
+
+    def builtin_fixture(self):
+        shutil.copytree(ROOT / 'firmware/src', self.root / 'firmware/src')
+        for name in ('gen_builtin_break.c', 'gen_builtin_break.sh', 'gen_drum_samples.py', 'sampleio.py'):
+            shutil.copyfile(ROOT / 'tools' / name, self.root / 'tools' / name)
+        shutil.copytree(ROOT / 'assets/909', self.root / 'assets/909', dirs_exist_ok=True)
+        self.gen.mkdir(parents=True)
+        subprocess.run([sys.executable, '-B', str(self.root / 'tools/gen_drum_samples.py'),
+            str(self.gen / 'x0x_drum_samples.h')], check=True, capture_output=True)
+
+    def assert_original(self, kind):
+        expected = {n: (self.gen / n).read_bytes() for n in cache.OUTPUTS[kind]}
+        with patch.dict(os.environ, {'X0X_ASSET_CACHE': '0'}):
+            self.assertFalse(self.worker(kind))
+        self.assertEqual(expected, {n: (self.gen / n).read_bytes() for n in expected})
+
+    def test_cc_chain_retarget_existing_target_matches_original_across_processes(self):
+        self.builtin_fixture()
+        folder = self.base / 'compiler'
+        folder.mkdir()
+        marker = self.base / 'called'
+        wrapper = folder / 'fast-cc'
+        wrapper.write_text('#!/bin/sh\necho called >> ' + str(marker) +
+                           '\nexec /usr/bin/gcc -ffast-math "$@"\n')
+        wrapper.chmod(0o755)
+        alias = folder / 'alias'
+        alias.symlink_to('/usr/bin/gcc')
+        link = folder / 'cc'
+        link.symlink_to(alias.name)
+        with patch.dict(os.environ, {'CC': str(link)}):
+            self.assertFalse(self.worker('breaks'))
+            before = (self.gen / 'x0x_break_bank.h').read_bytes()
+            self.assertTrue(self.worker('breaks', deny=True))
+            alias.unlink()
+            alias.symlink_to(wrapper.name)
+            self.assertFalse(self.worker('breaks'))
+            self.assertTrue(marker.exists())
+            self.assertNotEqual(before, (self.gen / 'x0x_break_bank.h').read_bytes())
+            self.assert_original('breaks')
+
+    def test_path_shadow_and_execute_permission_select_original_generator(self):
+        self.builtin_fixture()
+        early, late = self.base / 'early', self.base / 'late'
+        early.mkdir()
+        late.mkdir()
+        wrapper = early / 'selector-cc'
+        wrapper.write_text('#!/bin/sh\nexec /usr/bin/gcc -ffast-math "$@"\n')
+        wrapper.chmod(0o644)  # Same name already exists, but is not executable.
+        (late / wrapper.name).symlink_to('/usr/bin/gcc')
+        with patch.dict(os.environ, {'CC': wrapper.name,
+                'PATH': str(early) + ':' + str(late) + ':' + os.environ['PATH']}):
+            self.assertFalse(self.worker('breaks'))
+            before = (self.gen / 'x0x_break_bank.h').read_bytes()
+            self.assertTrue(self.worker('breaks', deny=True))
+            wrapper.chmod(0o755)
+            self.assertFalse(self.worker('breaks'))
+            self.assertNotEqual(before, (self.gen / 'x0x_break_bank.h').read_bytes())
+            self.assert_original('breaks')
+
+    def test_gcc_backend_and_linker_aliases_retarget_conservatively(self):
+        self.builtin_fixture()
+        folder = self.base / 'pipeline'
+        folder.mkdir()
+        targets = {}
+        for name in ('cc1', 'as', 'collect2', 'ld'):
+            target = subprocess.check_output(['/usr/bin/gcc', '-print-prog-name=' + name],
+                text=True).strip()
+            targets[name] = cache.execution_selector(target, self.root)
+            (folder / name).symlink_to(targets[name])
+        with patch.dict(os.environ, {'CC': '/usr/bin/gcc', 'COMPILER_PATH': str(folder)}):
+            self.assertFalse(self.worker('breaks'))
+            original = (self.gen / 'x0x_break_bank.h').read_bytes()
+            self.assertTrue(self.worker('breaks', deny=True))
+            for name, target in targets.items():
+                with self.subTest(name=name):
+                    wrapper = folder / (name + '-wrapper')
+                    marker = self.base / (name + '-called')
+                    wrapper.write_text('#!/bin/sh\necho called >> ' + str(marker) +
+                                       '\nexec ' + str(target) + ' "$@"\n')
+                    wrapper.chmod(0o755)
+                    # Warm with both names present, then change only the alias.
+                    self.worker('breaks')
+                    self.assertTrue(self.worker('breaks', deny=True))
+                    link = folder / name
+                    link.unlink()
+                    link.symlink_to(wrapper.name)
+                    self.assertFalse(self.worker('breaks'))
+                    self.assertTrue(marker.exists())
+                    self.assertEqual(original, (self.gen / 'x0x_break_bank.h').read_bytes())
+                    self.assert_original('breaks')
+                    link.unlink()
+                    link.symlink_to(target)
+
+    def test_import_alias_and_earlier_import_candidate_retarget(self):
+        runtime = self.root / 'tools/fixture_runtime.py'
+        runtime.unlink()
+        first, second = self.base / 'runtime-one.py', self.base / 'runtime-two.py'
+        first.write_text('TOKEN = "runtime1"\n')
+        second.write_text('TOKEN = "runtime2"\n')
+        runtime.symlink_to(first)
+        self.assertFalse(self.worker())
+        self.assertTrue(self.worker(deny=True))
+        runtime.unlink()
+        runtime.symlink_to(second)
+        self.assertFalse(self.worker())
+        self.assertIn('runtime2', (self.gen / 'x0x_drum_samples.h').read_text())
+        self.assert_original('drums')
+        runtime.unlink()
+        external = self.base / 'imports'
+        external.mkdir()
+        (external / runtime.name).write_text('TOKEN = "external"\n')
+        with patch.dict(os.environ, {'PYTHONPATH': str(external)}):
+            self.assertFalse(self.worker())
+            self.assertTrue(self.worker(deny=True))
+            runtime.symlink_to(first)  # Earlier tools candidate now wins.
+            self.assertFalse(self.worker())
+            self.assertIn('runtime1', (self.gen / 'x0x_drum_samples.h').read_text())
+            self.assert_original('drums')
+
+    def test_loaded_native_library_alias_retarget_matches_original(self):
+        folder = self.base / 'native'
+        folder.mkdir()
+        search, earlier = folder / 'search', folder / 'earlier'
+        search.mkdir()
+        earlier.mkdir()
+        source = folder / 'fixture.c'
+        for value in (1, 2):
+            source.write_text('int fixture_token(void) { return ' + str(value) + '; }\n')
+            subprocess.run(['/usr/bin/gcc', '-shared', '-fPIC', str(source),
+                '-Wl,-soname,libtoken.so', '-o', str(search / ('library' + str(value) + '.so'))],
+                check=True, capture_output=True)
+        alias = search / 'libtoken.so'
+        alias.symlink_to('library1.so')
+        entry = folder / 'entry.so'
+        source.write_text('extern int fixture_token(void); int entry(void) { return fixture_token(); }\n')
+        subprocess.run(['/usr/bin/gcc', '-shared', '-fPIC', str(source), '-L' + str(search),
+            '-ltoken', '-Wl,-rpath,$ORIGIN/earlier:$ORIGIN/search', '-o', str(entry)],
+            check=True, capture_output=True)
+        (self.root / 'tools/fixture_runtime.py').write_text(
+            'import ctypes\nTOKEN = str(ctypes.CDLL(' + repr(str(entry)) + ').entry())\n')
+        self.assertFalse(self.worker())
+        self.assertTrue(self.worker(deny=True))
+        original = (self.gen / 'x0x_drum_samples.h').read_bytes()
+        alias.unlink()
+        alias.symlink_to('library2.so')
+        self.assertFalse(self.worker())
+        self.assertNotEqual(original, (self.gen / 'x0x_drum_samples.h').read_bytes())
+        self.assert_original('drums')
+        alias.unlink()
+        alias.symlink_to('library1.so')
+        self.worker()
+        self.assertTrue(self.worker(deny=True))
+        (earlier / 'libtoken.so').symlink_to(search / 'library2.so')
+        self.assertFalse(self.worker())
+        self.assertNotEqual(original, (self.gen / 'x0x_drum_samples.h').read_bytes())
+        self.assert_original('drums')
+
+    def test_loader_unknown_injection_and_tokens_disable_reuse(self):
+        for variable, value in (('LD_LIBRARY_PATH', '$ORIGIN'), ('LD_AUDIT', 'unknown-audit')):
+            with self.subTest(variable=variable), patch.dict(os.environ, {variable: value}):
+                with self.assertRaisesRegex(ValueError, 'loader'):
+                    cache.loader_inputs({Path(sys.executable)})
+        with patch.dict(os.environ, {'LD_LIBRARY_PATH': ':relative'}):
+            paths = cache.loader_inputs({Path(sys.executable)}, self.root)
+            self.assertIn(self.root, paths)
+            self.assertIn(self.root / 'relative', paths)
+            self.assertTrue(any(str(p).endswith('/tls/x86_64') for p in paths))
+
+    def test_python_startup_search_path_and_unknown_hook(self):
+        venv = self.base / 'venv'
+        subprocess.run([sys.executable, '-m', 'venv', '--without-pip', str(venv)],
+                       check=True, capture_output=True)
+        self.interpreter = str(venv / 'bin/python')
+        site = venv / ('lib/python' + str(sys.version_info.major) + '.' + str(sys.version_info.minor)) / 'site-packages'
+        first, second = self.base / 'startup-one', self.base / 'startup-two'
+        first.mkdir()
+        second.mkdir()
+        for folder, token in ((first, 'one'), (second, 'two')):
+            (folder / 'fixture_runtime.py').write_text('TOKEN = ' + repr(token) + '\n')
+        (self.root / 'tools/fixture_runtime.py').unlink()
+        startup = site / 'fixture.pth'
+        startup.write_text(str(first) + '\n')
+        self.assertFalse(self.worker())
+        self.assertTrue(self.worker(deny=True))
+        stamp = startup.stat()
+        startup.write_text(str(second) + '\n')
+        os.utime(startup, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+        self.assertFalse(self.worker())
+        self.assertIn('two', (self.gen / 'x0x_drum_samples.h').read_text())
+        self.assert_original('drums')
+        config = venv / 'pyvenv.cfg'
+        config.write_text(config.read_text() + '# selected configuration changed\n')
+        self.assertFalse(self.worker())
+        self.assertTrue(self.worker(deny=True))
+        startup.write_text(str(second) + '\nimport os; os.environ["FIXTURE_STARTUP"] = "hook"\n')
+        self.assertFalse(self.worker())
+        self.assertFalse(self.worker())
+        self.assert_original('drums')
+
+    def test_selected_interpreter_alias_retarget_across_processes(self):
+        folder = self.base / 'interpreters'
+        folder.mkdir()
+        first, second = folder / 'python-one', folder / 'python-two'
+        for target in (first, second):
+            shutil.copyfile(sys.executable, target)
+            target.chmod(0o755)
+        # A valid ELF trailer changes selected bytes without changing execution.
+        with second.open('ab') as stream:
+            stream.write(b'fixture interpreter identity change')
+        alias = folder / 'python'
+        alias.symlink_to(first.name)
+        self.interpreter = str(alias)
+        self.assertFalse(self.worker())
+        self.assertTrue(self.worker(deny=True))
+        alias.unlink()
+        alias.symlink_to(second.name)
+        self.assertFalse(self.worker())
+        self.assertTrue(self.worker(deny=True))
+        self.assert_original('drums')
+
+    def test_interpreter_alias_and_native_search_alias_invalidate_inventory(self):
+        # sys.executable was already hashed through its unresolved path. Preserve
+        # that coverage and add selection identity, including equal-byte targets.
+        self.gen.mkdir(parents=True)
+        with tempfile.TemporaryDirectory() as tmp:
+            before, _ = cache.identity('drums', self.root, self.gen, Path(tmp), None)
+        alias = self.base / 'python'
+        alias.symlink_to(sys.executable)
+        other = self.base / 'same-python'
+        shutil.copyfile(sys.executable, other)
+        other.chmod(0o755)
+        before['files'][str(alias)] = cache.digest(alias)
+        before['resolutions'][str(alias)] = cache.path_selection(alias, self.root)
+        self.assertTrue(cache.verify_identity(before, self.root))
+        alias.unlink()
+        alias.symlink_to(other)
+        self.assertFalse(cache.verify_identity(before, self.root))
+        # A loaded library may be recorded under its canonical maps path. Its
+        # soname/search alias still needs checking even if all names stay equal.
+        directory = self.base / 'libraries'
+        directory.mkdir()
+        first, second = directory / 'one.so', directory / 'two.so'
+        first.write_bytes(b'one')
+        second.write_bytes(b'two')
+        link = directory / 'libfixture.so'
+        link.symlink_to(first.name)
+        selected = cache.lookup_directories([directory], self.root)
+        link.unlink()
+        link.symlink_to(second.name)
+        self.assertNotEqual(selected, cache.lookup_directories([directory], self.root))
+
+
 class LocationTests(unittest.TestCase):
+    def test_recursive_lookup_follows_directory_alias_and_rejects_cycle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            include, external = root / 'include', root / 'external'
+            include.mkdir()
+            external.mkdir()
+            alias = include / 'alias'
+            alias.symlink_to(external, target_is_directory=True)
+            before = cache.lookup_directories([include], root, {include})
+            (external / 'earlier.h').write_text('new earlier header')
+            self.assertNotEqual(before, cache.lookup_directories([include], root, {include}))
+            (external / 'cycle').symlink_to(include, target_is_directory=True)
+            with self.assertRaisesRegex(ValueError, 'cycle'):
+                cache.lookup_directories([include], root, {include})
+
+    def test_path_selection_keeps_parent_links_and_relative_parent_semantics(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            (root / 'one/child').mkdir(parents=True)
+            (root / 'two/child').mkdir(parents=True)
+            alias = root / 'alias'
+            alias.symlink_to('one/child')
+            selected = cache.path_selection(alias / '../header', root)
+            self.assertEqual('$SRC/one/header', selected['target'])
+            alias.unlink()
+            alias.symlink_to('two/child')
+            self.assertNotEqual(selected, cache.path_selection(alias / '../header', root))
+
     def test_git_common_directory_survives_real_worktree(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / 'repo'

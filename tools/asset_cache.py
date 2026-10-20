@@ -6,8 +6,10 @@ Unknown execution dependencies disable reuse. Cache errors never disable generat
 Each operation uses private output files. Only complete entries become visible.
 """
 import hashlib
+import itertools
 import glob
 import struct
+import stat
 import fcntl
 from contextlib import ExitStack
 import json
@@ -61,18 +63,90 @@ def python_command(script, *args, scratch):
             str(script), *map(str, args)]
 
 
+def path_selection(path, root, memo=None, active=()):
+    """Keep aliases and every link in a path, including links in parent folders.
+
+    Memoization lasts for one snapshot only. Each verification starts afresh.
+    """
+    memo = {} if memo is None else memo
+    path = Path(path).absolute()
+    if path in active or len(active) >= 128:
+        raise ValueError('dependency symlink loop or unsupported path depth')
+    if path in memo:
+        return memo[path]
+    if path == path.parent:
+        result = {'target': str(path), 'links': []}
+    else:
+        active = (*active, path)
+        parent = path_selection(path.parent, root, memo, active)
+        selected = identity_path(parent['target'], root) / path.name
+        if path.name == '..':
+            selected = identity_path(parent['target'], root).parent
+        links = parent['links']
+        if selected.is_symlink():
+            target = os.readlink(selected)
+            destination = path_selection(selected.parent / target, root, memo, active)
+            links = [*links, [file_identity_name(selected, root), target], *destination['links']]
+            selected = identity_path(destination['target'], root)
+        if len(links) > 40:
+            raise ValueError('dependency symlink chain too long')
+        result = {'target': file_identity_name(selected, root), 'links': links}
+    memo[path] = result
+    return result
+
+
 def lookup_directories(paths, root, recursive=()):
-    result = {}
+    result, selections, listings = {}, {}, {}
     for directory in sorted(set(Path(p).absolute() for p in paths)):
         key = file_identity_name(directory, root)
-        if not directory.is_dir():
-            result[key] = None
-            continue
-        entries = directory.rglob('*') if directory in recursive else directory.iterdir()
-        result[key] = sorted(str(p.relative_to(directory)) for p in entries
-                             if '__pycache__' not in p.parts and not p.name.endswith('.pyc')
-                             and not (directory == root / 'build/gen' and p.name == 'x0x_break_bank.h'))
+        selection = path_selection(directory, root, selections)
+        canonical = identity_path(selection['target'], root)
+        listing_key = (canonical, directory in recursive, directory == root / 'build/gen')
+        if listing_key not in listings:
+            if not canonical.is_dir():
+                listings[listing_key] = None
+            else:
+                values = {}
+                pending = [(canonical, frozenset())]
+                while pending:
+                    folder, ancestors = pending.pop()
+                    info = folder.stat()
+                    inode = (info.st_dev, info.st_ino)
+                    if inode in ancestors:
+                        raise ValueError('recursive dependency directory cycle')
+                    with os.scandir(folder) as entries:
+                        for entry in entries:
+                            path = Path(entry.path)
+                            if ('__pycache__' in path.parts or path.name.endswith('.pyc')
+                                    or (directory == root / 'build/gen' and path.name == 'x0x_break_bank.h')):
+                                continue
+                            mode = entry.stat(follow_symlinks=False).st_mode
+                            value = [stat.S_IFMT(mode), stat.S_IMODE(mode) & 0o111]
+                            if stat.S_ISLNK(mode):
+                                value.append(path_selection(path, root, selections))
+                            values[str(path.relative_to(canonical))] = value
+                            # Include search trees reached through directory aliases.
+                            if directory in recursive and entry.is_dir():
+                                pending.append((path, ancestors | {inode}))
+                listings[listing_key] = values
+        result[key] = {'selection': selection, 'entries': listings[listing_key]}
     return result
+
+
+def execution_selector(command, root):
+    """Resolve exactly as subprocess does with cwd=root; retain the chosen alias."""
+    search = os.environ.get('PATH', os.defpath).split(os.pathsep)
+    search = [str((root / p).absolute()) for p in search]
+    request = str(root / command) if os.path.dirname(command) else command
+    selected = shutil.which(request, path=os.pathsep.join(search))
+    if selected is None:
+        raise ValueError('unresolved execution dependency: ' + command)
+    return Path(selected).absolute()
+
+
+def resolution_inputs(files, root):
+    memo = {}
+    return {file_identity_name(p.absolute(), root): path_selection(p, root, memo) for p in files}
 
 
 def file_identity_name(path, root):
@@ -109,10 +183,17 @@ def environment():
 
 def verify_identity(before, root):
     """Rehash the discovered closure and its lookup directories, without execution."""
+    if before.get('resolution_schema') != 2:
+        return False
     if before['environment'] != environment() or before.get('cpu') != cpu_identity():
         return False
     if any(digest(identity_path(name, root)) != value for name, value in before['files'].items()):
         return False
+    if resolution_inputs([identity_path(name, root) for name in before['resolutions']], root) != before['resolutions']:
+        return False
+    for command, selected in before.get('executables', {}).items():
+        if file_identity_name(execution_selector(command, root), root) != selected:
+            return False
     paths = [identity_path(name, root) for name in before['lookups']]
     recursive = {identity_path(name, root) for name in before.get('recursive', [])}
     if lookup_directories(paths, root, recursive) != before['lookups']:
@@ -124,9 +205,21 @@ def verify_identity(before, root):
     return True
 
 
-def loader_inputs(files):
-    """Capture loader configuration and ELF search paths, including absent paths."""
+def loader_inputs(files, cwd=None, candidates=None):
+    """Capture supported glibc selectors, including absent and hardware paths."""
+    cwd = Path.cwd() if cwd is None else cwd
+    if any(os.environ.get(k) for k in ('LD_PRELOAD', 'LD_AUDIT')):
+        raise ValueError('injected loader dependency discovery is unavailable')
+    library_path = os.environ.get('LD_LIBRARY_PATH')
+    if library_path is not None and '$' in library_path:
+        raise ValueError('unknown loader environment search-path variable')
     directories = {Path('/lib'), Path('/usr/lib')}
+    if candidates is not None:
+        for path in (Path('/etc/ld.so.conf'), Path('/etc/ld.so.cache')):
+            candidates[str(path)] = digest(path) if path.is_file() else None
+    if library_path is not None:
+        directories.update((cwd / p).absolute() for p in library_path.split(':'))
+    interpreters = set()
     pending = [Path('/etc/ld.so.conf')]
     visited = set()
     while pending:
@@ -161,6 +254,9 @@ def loader_inputs(files):
         offset = struct.unpack_from('<Q', data, 32)[0]
         size, count = struct.unpack_from('<HH', data, 54)
         headers = [struct.unpack_from('<IIQQQQQQ', data, offset + i * size) for i in range(count)]
+        for header in headers:
+            if header[0] == 3:  # PT_INTERP is the kernel-selected loader, not an ldd alias.
+                interpreters.add(Path(data[header[2]:header[2] + header[5]].rstrip(b'\0').decode()))
         dynamic = next((h for h in headers if h[0] == 2), None)
         if not dynamic:
             continue
@@ -184,7 +280,35 @@ def loader_inputs(files):
                 directory = directory.replace('${ORIGIN}', str(path.parent)).replace('$ORIGIN', str(path.parent))
                 if '$' in directory:
                     raise ValueError('unknown ELF search-path variable')
-                directories.add(Path(directory or os.getcwd()).absolute())
+                directories.add((cwd / directory).absolute())
+    if not interpreters:
+        raise ValueError('unknown native loader')
+    legacy = None
+    for interpreter in interpreters:
+        files.add(interpreter)
+        help_text = run_checked([str(interpreter), '--help'], cwd)
+        if ('Subdirectories of glibc-hwcaps directories' not in help_text
+                or 'Legacy HWCAP subdirectories' not in help_text):
+            raise ValueError('unknown native loader search policy')
+        directories.update(Path(p) for p in re.findall(
+            r'^  (/[^ ]+) \(system search path\)', help_text, re.MULTILINE))
+        # Include every ordering of the reported legacy components. The loader
+        # may combine them, and absent higher-priority folders matter too.
+        components = help_text.split('Legacy HWCAP subdirectories', 1)[1].splitlines()[1:]
+        current = [line.strip().split()[0] for line in components if line.startswith('  ') and line.strip()]
+        if len(current) > 5 or any('/' in name or name in ('.', '..') for name in current):
+            raise ValueError('unknown legacy loader path')
+        if legacy is not None and legacy != current:
+            raise ValueError('inconsistent native loader policies')
+        legacy = current
+    for directory in tuple(directories):
+        hwcaps = directory / 'glibc-hwcaps'
+        directories.add(hwcaps)
+        if hwcaps.is_dir():
+            directories.update(p for p in hwcaps.iterdir() if p.is_dir())
+        for count in range(1, len(legacy) + 1):
+            directories.update(directory.joinpath(*parts)
+                               for parts in itertools.permutations(legacy, count))
     return directories
 
 
@@ -234,6 +358,32 @@ def probe_python(kind, root, bank):
              root / 'tools' / 'build.py', Path(sys.executable)}
     settings = {}
     candidates = {}
+    import site
+    # Startup path selectors are not necessarily imported modules. Inventory
+    # their bytes and absent candidates before trusting the saved import closure.
+    startup_directories = {Path(p) for p in site.getsitepackages()}
+    if site.ENABLE_USER_SITE:
+        startup_directories.add(Path(site.getusersitepackages()))
+    if any(getattr(finder, '__module__', '') not in
+           ('_frozen_importlib', '_frozen_importlib_external') for finder in sys.meta_path):
+        raise ValueError('unknown Python import finder')
+    if any(getattr(hook, '__module__', '') not in
+           ('zipimport', '_frozen_importlib_external') for hook in sys.path_hooks):
+        raise ValueError('unknown Python import path hook')
+    for folder in startup_directories:
+        for startup in folder.glob('*.pth'):
+            if any(line.strip().startswith(('import ', 'import\t'))
+                   for line in startup.read_text().splitlines()):
+                raise ValueError('executable Python startup hook')
+            files.add(startup)
+    for folder in sys.path:
+        files.update(Path(folder or os.getcwd()).glob('*.pkg'))
+    for executable in (Path(sys.executable).absolute(), Path(sys.executable).resolve()):
+        for config in (executable.parent / 'pyvenv.cfg', executable.parent.parent / 'pyvenv.cfg',
+                       executable.parent / (executable.name + '._pth'), executable.parent / 'python._pth'):
+            candidates[file_identity_name(config, root)] = digest(config) if config.is_file() else None
+            if config.is_file():
+                files.add(config)
     if kind == 'font':
         settings = {'fontset': module['FONTSET'],
                     'search': [str(p) for p in module['FONTDIRS']]}
@@ -277,6 +427,7 @@ def probe_python(kind, root, bank):
     # Module and native-library lookup changes must invalidate the discovered closure.
     directories = {Path(p).absolute().parent for p in files}
     directories.update(Path(p or os.getcwd()).absolute() for p in sys.path)
+    directories.update(startup_directories)
     for imported in tuple(sys.modules.values()):
         parts = getattr(imported, '__name__', '').split('.')
         for base in sys.path:
@@ -292,8 +443,9 @@ def probe_python(kind, root, bank):
         if path and name and (root / 'tools' / (name + '.py')).is_file():
             if Path(path).resolve() != (root / 'tools' / (name + '.py')).resolve():
                 raise ValueError('shadowed interpreter module: ' + name)
-    directories.update(loader_inputs(files))
-    return {'files': dict(sorted(file_identity(p, root) for p in files)),
+    directories.update(loader_inputs(files, candidates=candidates))
+    return {'resolution_schema': 2, 'resolutions': resolution_inputs(files, root),
+            'files': dict(sorted(file_identity(p, root) for p in files)),
             'lookups': lookup_directories(directories, root), 'candidates': candidates,
             'settings': settings, 'platform': [platform.system(), platform.machine(), platform.release()],
             'python': sys.version}
@@ -328,9 +480,13 @@ def builtin_identity(root, gen, scratch):
     if sys.platform != 'linux':
         raise ValueError('renderer dependency discovery requires Linux')
     cc = shlex.split(os.environ.get('CC') or 'cc')
-    if len(cc) != 1 or not shutil.which(cc[0]):
+    if len(cc) != 1:
         raise ValueError('compiler wrapper dependency discovery is unavailable')
-    compiler = Path(shutil.which(cc[0])).resolve()
+    compiler = execution_selector(cc[0], root)
+    if compiler.read_bytes()[:4] != b'\x7fELF':
+        raise ValueError('compiler wrapper dependency discovery is unavailable')
+    executables = {cc[0]: file_identity_name(compiler, root)}
+    candidates = {}
     command = builtin_command(root, gen, scratch / 'renderer')
     flags = command[1:6]
     dependencies = run_checked([str(compiler), *flags, '-M',
@@ -351,8 +507,12 @@ def builtin_identity(root, gen, scratch):
             continue
         if any(arg.startswith('-fplugin') for arg in args):
             raise ValueError('compiler plugin dependency discovery is unavailable')
-        executable = Path(shutil.which(args[0]) or args[0]).resolve(strict=True)
-        name = 'as' if executable.name.endswith('-as') else executable.name
+        executable = execution_selector(args[0], root)
+        executables[args[0]] = file_identity_name(executable, root)
+        if executable.read_bytes()[:4] != b'\x7fELF':
+            raise ValueError('compiler helper wrapper discovery is unavailable')
+        name = executable.name
+        name = 'as' if name.endswith('-as') else name
         if name not in ('cc1', 'as', 'collect2'):
             raise ValueError('unsupported compiler pipeline')
         programs.add(name)
@@ -364,7 +524,11 @@ def builtin_identity(root, gen, scratch):
     if programs != {'cc1', 'as', 'collect2'}:
         raise ValueError('incomplete GCC dependency discovery')
     linker = run_checked([str(compiler), '-print-prog-name=ld'], root).strip()
-    linker = Path(shutil.which(linker) or linker).resolve(strict=True)
+    selected_linker = execution_selector(linker, root)
+    executables[linker] = file_identity_name(selected_linker, root)
+    linker = selected_linker
+    if linker.read_bytes()[:4] != b'\x7fELF':
+        raise ValueError('linker wrapper discovery is unavailable')
     files.add(linker)
     files.update(shared_libraries(linker, root))
     files.update(shared_libraries(compiler, root))
@@ -389,12 +553,26 @@ def builtin_identity(root, gen, scratch):
     recursive = {root / 'tools', root / 'firmware/src'}
     recursive.update(Path(line.strip()).absolute() for line in include.splitlines() if line.strip())
     directories = recursive | {p.absolute().parent for p in files}
+    # GCC searches these paths even when the selected executable/input is elsewhere.
+    search_dirs = run_checked([str(compiler), '-print-search-dirs'], root)
+    searches = set()
+    for line in search_dirs.splitlines():
+        if line.startswith(('programs: =', 'libraries: =')):
+            searches.add(line.split(':', 1)[0])
+            directories.update((root / p).absolute() for p in line.split('=', 1)[1].split(os.pathsep))
+    if searches != {'programs', 'libraries'}:
+        raise ValueError('unknown GCC search directories')
+    for variable in ('PATH', 'COMPILER_PATH', 'LIBRARY_PATH', 'CPATH', 'C_INCLUDE_PATH'):
+        if variable in os.environ:
+            directories.update((root / p).absolute() for p in os.environ[variable].split(os.pathsep))
+    directories.update(Path(p) for p in re.findall(r'ignoring nonexistent directory "([^"]+)"', search))
     directories.update(Path(p).absolute() for p in os.environ.get('LD_LIBRARY_PATH', '').split(':') if p)
-    directories.update(loader_inputs(files))
-    return {'files': dict(sorted(file_identity(p, root) for p in files)),
+    directories.update(loader_inputs(files, root, candidates))
+    return {'resolution_schema': 2, 'resolutions': resolution_inputs(files, root),
+            'files': dict(sorted(file_identity(p, root) for p in files)),
             'lookups': lookup_directories(directories, root, recursive),
             'recursive': sorted(file_identity_name(p, root) for p in recursive),
-            'cc': cc, 'flags': flags[:-1], 'specs': specs,
+            'executables': executables, 'candidates': candidates, 'cc': cc, 'flags': flags[:-1], 'specs': specs,
             'platform': [platform.system(), platform.machine(), platform.release()]}, None
 
 
