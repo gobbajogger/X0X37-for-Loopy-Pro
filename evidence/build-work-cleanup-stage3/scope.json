@@ -1,0 +1,28 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-stage3-20261021",
+  "stage": 3,
+  "candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "lane": "/Users/mac/Documents/x0x37/build_work_cleanup_stage3",
+  "branch": "lane/opt-build-work-cleanup-stage3",
+  "source_chat": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "combination_receiver": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "input_records": {
+    "/Users/mac/Documents/x0x37/build_work_cleanup_repair/evidence/build-work-cleanup-repair/stage3-prompt.txt": {
+      "saved_as": "evidence/build-work-cleanup-stage3/assignment.txt",
+      "sha256": "b7530295625fa94e91706ae046f475dc7b6c62e4f67d4048e2f48d95ba41ee7c"
+    },
+    "/Users/mac/Documents/x0x37/build_work_cleanup_repair/evidence/build-work-cleanup-repair/successor.json": {
+      "saved_as": "evidence/build-work-cleanup-stage3/incoming-successor.json",
+      "sha256": "14fa27b0cf5fa2d7248c33b7e9424c278e30b84f3269639f8ac656b4c8398f8d"
+    }
+  },
+  "authorization": "Saved stage3 assignment and standing development/workflow17/18; current AGENTS.md and skills.",
+  "own_files": "Only evidence/build-work-cleanup-stage3/",
+  "reviewers": {
+    "test": "/root/test",
+    "investigation": "/root/investigation"
+  },
+  "source_changed": false
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "evidence/build-work-cleanup-stage3/verify-identity.py"
+    ],
+    "returncode": 0,
+    "log": "evidence/build-work-cleanup-stage3/verify-identity.log",
+    "sha256": "ef051416ce8e8bcce61440579b579c6d6303c098846c06e88abf5e2ffdc29a2c"
+  },
+  {
+    "argv": [
+      "sh",
+      "-n",
+      "ble/ctl/build_in_container.sh"
+    ],
+    "returncode": 0,
+    "log": "evidence/build-work-cleanup-stage3/shell-syntax.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+      "c4cec67f9c642fa6f925a06147e136b2b7231644",
+      "--",
+      "ble/ctl/build_in_container.sh",
+      "tests/host/test_ctl_compile.py"
+    ],
+    "returncode": 0,
+    "log": "evidence/build-work-cleanup-stage3/source-whitespace.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

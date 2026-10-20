@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_cleanup_stage3/evidence/build-work-cleanup-stage3/test/verify.py", line 63, in <module>
+    assert log.count('active at scratch cleanup:') == 4
+AssertionError

@@ -1,0 +1,83 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-stage3-20261021",
+  "stage": 3,
+  "role": "independent investigation",
+  "result": "PASS",
+  "candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+  "current_entry": "/Users/mac/Documents/x0x37/AGENTS.md",
+  "owned_files": "evidence/build-work-cleanup-stage3/investigation",
+  "production_source_changed": false,
+  "source_hashes": {
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+  },
+  "material_findings": [],
+  "closed_finding": {
+    "id": "CTL-SUCCESSFUL-DRIVER-CHILD",
+    "prior": "evidence/build-work-stage3/investigation/report.json",
+    "resolution": "Every join now stops its owned group after waiting for the direct driver, before removing that group from PIDS. The action applies to both successful and failed drivers and to the end of each batch."
+  },
+  "review": [
+    "The exact parent-to-candidate non-evidence delta contains only ble/ctl/build_in_container.sh and tests/host/test_ctl_compile.py. The shell delta is confined to join_jobs; all shell bytes before that function and from the source loop through final output handling remain equal to the parent.",
+    "The direct compiler driver remains waitable and is joined once. After wait returns, kill -KILL targets only the negative group ID made from that launched driver PID. PIDS is shortened only afterward. Successful drivers can no longer leave an untracked residual group for a later failure or later batch.",
+    "During a signal before the group kill or before shortening PIDS, EXIT cleanup still sees that driver and all outstanding groups. After shortening PIDS, the removed group has already received SIGKILL. On failure the outstanding direct PIDs/groups remain in PIDS for stop_jobs, which signals them and waits for their direct drivers. No obsolete group list survives into another batch.",
+    "Each compiler starts through setsid. Cleanup uses only numeric IDs obtained from the invocation own background launches; it does not match process names or enumerate shared processes. No new global group list or broad process kill was added. Test failure cleanup uses only child PIDs recorded in each private fixture.",
+    "The compiler CF bytes, source glob, generated-warning policy, job bound/default/validation, object construction and order, diagnostic merge order, LTO/link/post-link block, stale-output removal and image-checking wrapper are unchanged. The focused repair affects residual child lifetime and does not change successful compilation/link inputs.",
+    "The private rm observer samples child states when ctlbuild scratch deletion starts. Current failure and success checks require every sampled child to be absent or a zombie before deletion, then verify scratch removal and stopped children. Failure fixtures cover same-batch jobs 2, later-batch jobs 1, and later-batch jobs 2 with failure at src/c.S.",
+    "The six HUP/INT/TERM cases with jobs 1 and jobs 2 first require the earlier successful group child to be stopped, then interrupt the later active compiler and check status 129/130/143, stopped children before scratch deletion, and absence of success output. The parent negative controls fail this earlier-group assertion before sending their requested signal; they prove rejection of the ownership defect, while the current-source PASS exercises actual signals.",
+    "Current macOS and pinned Linux logs each show all seven methods passing. Exact-parent negative logs each show ten assertion failures and the expected-rejection runner exits 0. Those failures are the intended negative-control result, not an unresolved suite failure.",
+    "The prior complete independent Quickcheck reports remain applicable because all their source hashes are unchanged. The six unaffected original suite results and two independent adversarial checks are retained. Their controller fixture result is superseded by the new platform suites; the prior failed cleanup probes remain historical proof, not a current expected PASS.",
+    "The retained real controller image, baseline record, baseline controller log, environment record, current real-input hashes and exact built-to-current cleanup delta all match. Compiler flags and the complete link/post-link block are byte-equal. An ordinary successful driver with no residual group gives the added kill no process to stop, so reuse of this output proof is justified."
+  ],
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-work-cleanup-stage3/investigation/verify.py"
+      ],
+      "returncode": 0,
+      "log": "evidence/build-work-cleanup-stage3/investigation/verify.log",
+      "sha256": "0519703507dd9e237de70163b2b48341c2dd628bb24fec4ffe30345c18065554",
+      "purpose": "Independently verify exact source delta, matching platform logs, unchanged suite and adversarial logs, retained image/baseline/environment and compiler/link bytes."
+    }
+  ],
+  "reused_checks": [
+    "evidence/build-work-cleanup-repair/darwin-checks.json",
+    "evidence/build-work-cleanup-repair/linux-checks.json",
+    "evidence/build-work-cleanup-repair/reuse.json",
+    "evidence/build-work-stage3/test/report.json",
+    "evidence/build-work-stage3/investigation/report.json"
+  ],
+  "identity": "evidence/build-work-cleanup-stage3/investigation/identity.json",
+  "real_controller": {
+    "record": "evidence/build-work-stage2/controller-result.json",
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "seconds": 28.513924458,
+    "flash_bytes": 65492,
+    "flash_limit": 65536,
+    "ram_bytes": 25824,
+    "ram_limit": 26368,
+    "build_reused": true
+  },
+  "failure_dispositions": [
+    "Prior successful-driver cleanup defect is closed by the bounded join_jobs repair and meaningful parent negative controls.",
+    "Initial Linux negative-control Git ownership failure was retried once using only exact-lane safe.directory on its old-source read. Its passing suite result was retained. No global configuration changed.",
+    "Committed negative logs remove trailing whitespace only; saved records retain raw-output hashes. Current normalized log hashes and assertions/outcomes match the records."
+  ],
+  "limits": [
+    "Investigation reused matching executed suites; it ran no new fake-compiler probe because source analysis and existing failure/signal/success observations left no concrete coverage gap.",
+    "No new real controller, baseline, application build or timing comparison ran. Saved 28.513924458-second real build is not an isolated speedup claim.",
+    "SDK/toolchain identities were reused from saved records and were not rehashed.",
+    "No production or fixture source edit, commit, install, release/full gate, external push, proprietary bundle or firmware integration ran.",
+    "Direct fixture registration remains with the runner/combination owner. Fixed-tree devbug result reuse remains deferred; fixed regression and parent negative controls remain required."
+  ],
+  "next_action": "Combine with the separate Test report; if both PASS, root may commit only stage3 evidence and launch the required scoped host-tooling stage4.",
+  "evidence_sha256": {
+    "identity.json": "8219e3d846e2bf817c4c847c5a9e55020082c475e1a47cf794dde5081963ff5c",
+    "verify.log": "0519703507dd9e237de70163b2b48341c2dd628bb24fec4ffe30345c18065554",
+    "verify.py": "17ea6fe4d80c364935447bc945413e641c454d5520210e3c2a1074d21d1252b7"
+  }
+}

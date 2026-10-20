@@ -1,0 +1,34 @@
+{
+  "result": "PASS",
+  "candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "base": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
+  "source_hashes": {
+    "ble/ctl/build_in_container.sh": "dbd77890e452a668b9bd2dbdcf47074f79acd0b8d92386a312c6779bb54dabb8",
+    "tests/host/test_ctl_compile.py": "e00be908712a17fc4d96f7d8972dc9b1076454ab1411d05d9d604dd08406c1e8"
+  },
+  "changed_non_evidence": [
+    "ble/ctl/build_in_container.sh",
+    "tests/host/test_ctl_compile.py"
+  ],
+  "checked_log_hashes": {
+    "evidence/build-work-cleanup-repair/darwin-suite.log": "55b890a2eec6aaa5bae66309f1e69e5657a798448b44b988b4b7f07d12a0de74",
+    "evidence/build-work-cleanup-repair/darwin-negative.log": "75a5d593c265ac38fe4746635e6f8cde90d0c3ba4342ca3a8bc2fbd011a667f8",
+    "evidence/build-work-cleanup-repair/linux-suite.log": "9f28a3f3ff69e691b93839883a422e89c08b4a81b0062e04e6b342d5b8cc9280",
+    "evidence/build-work-cleanup-repair/linux-negative.log": "924438183373c41ec555d682f18d7aa33cff43dd3461b8ace2f9d184b1920893",
+    "evidence/build-work-stage2/test_rules_guard_hook.log": "b7400c07d64bfc17de3abda8339f8501d71fc8a033e675f862a2ee2e47619f22",
+    "evidence/build-work-stage2/test_quickcheck_plan.log": "3b3e4c535aaabb38db27e7ebf5d69057537f6f0ea73e6bd01cb7c4992b239f07",
+    "evidence/build-work-stage2/test_quickcheck_ste.log": "9627e1197d17d03bf509cd20a94f152dd338108f138724dd0c30453af3832a23",
+    "evidence/build-work-stage2/test_quickcheck_rules.log": "c251cb5a3838cb74132ff231fdb5d730520a635010aed3091874578ab052b3e7",
+    "evidence/build-work-stage2/test_quickcheck_devbug.log": "fec1c164fe0c28faed6630e359238d35bc6f57274b79281d8ad6ef1a6da25303",
+    "evidence/build-work-stage2/test_portable_rules.log": "3543237d558e72f2283d1e84f6eabaf0e7df9b595c5ce0f2567e8255286bc63b",
+    "evidence/build-work-stage3/test/adversarial.log": "e986616801ea5f0f0f8583214036ead21cb1b93bada2423e24159d98ccd215d0",
+    "evidence/build-work-stage3/test/verify-evidence.log": "36566af8653efea81995b2d112e5e4e9396170bae372dc28b8b46dce3fc15466"
+  },
+  "controller_image": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "real_controller_seconds": 28.513924458,
+  "compiler_flags_byte_equal": true,
+  "link_post_link_byte_equal": true,
+  "exact_delta_verified": true,
+  "retained_artifacts_and_baseline_verified": true,
+  "sdk_toolchain_hashes_reused_not_rehashed": true
+}

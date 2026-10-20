@@ -1,0 +1,21 @@
+{
+  "evidence/build-work-cleanup-stage3/assignment.txt": "b7530295625fa94e91706ae046f475dc7b6c62e4f67d4048e2f48d95ba41ee7c",
+  "evidence/build-work-cleanup-stage3/checks.json": "73b371e4df4a2ad6eb618f78bf830d4f8aa684d4b4ba8d46448f0642f80ee439",
+  "evidence/build-work-cleanup-stage3/identity.json": "dacdad56b29df4ad13bf3e4102a8154e459983dd593e9710380098a7da312e3c",
+  "evidence/build-work-cleanup-stage3/incoming-successor.json": "14fa27b0cf5fa2d7248c33b7e9424c278e30b84f3269639f8ac656b4c8398f8d",
+  "evidence/build-work-cleanup-stage3/investigation/identity.json": "8219e3d846e2bf817c4c847c5a9e55020082c475e1a47cf794dde5081963ff5c",
+  "evidence/build-work-cleanup-stage3/investigation/report.json": "704d0ae8ea2440fc3887eb012500c99992dba12729b53a1d57bdf02c5a47baa0",
+  "evidence/build-work-cleanup-stage3/investigation/verify.log": "0519703507dd9e237de70163b2b48341c2dd628bb24fec4ffe30345c18065554",
+  "evidence/build-work-cleanup-stage3/investigation/verify.py": "17ea6fe4d80c364935447bc945413e641c454d5520210e3c2a1074d21d1252b7",
+  "evidence/build-work-cleanup-stage3/result.json": "2317890c1eb6ee4fd149ae665a746402bd3b43d78568c104f3e1f90df8f10daa",
+  "evidence/build-work-cleanup-stage3/scope.json": "d1fc1181acf3015becac52f96f40a7ae64ddf92d1b5dd9b26ca923ce4b6efffb",
+  "evidence/build-work-cleanup-stage3/shell-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "evidence/build-work-cleanup-stage3/source-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "evidence/build-work-cleanup-stage3/test/identity.json": "035892278056f347df814ed0e8abf29201f720e8e957083fc3cb6d257126857d",
+  "evidence/build-work-cleanup-stage3/test/initial-verifier.log": "9a8eadf02529fd3940846cdcb29c4841f717934da520960d6e07d85856c833de",
+  "evidence/build-work-cleanup-stage3/test/report.json": "a1b9b11c1679a81f9de60f99c7a4de592a4552b6330dc3cd3504c8a5397d19ea",
+  "evidence/build-work-cleanup-stage3/test/verify.log": "2bfd33c621b17bbecc1d6d3b8c3c5b03daffb60e2fdce00ddcc29573aefab7fa",
+  "evidence/build-work-cleanup-stage3/test/verify.py": "2db6d9e71de49e4480243094da51c113ea9fd48fefd0c8e35d76958f11e5ec16",
+  "evidence/build-work-cleanup-stage3/verify-identity.log": "ef051416ce8e8bcce61440579b579c6d6303c098846c06e88abf5e2ffdc29a2c",
+  "evidence/build-work-cleanup-stage3/verify-identity.py": "b897885ff586e4528c4a5c41bdbf8272f64a02c3cffc007c1e91f977ffe44071"
+}

@@ -1,0 +1,63 @@
+{
+  "workflow": "build-work-20261021",
+  "marker": "build-work-cleanup-stage3-20261021",
+  "stage": 3,
+  "result": "PASS",
+  "source_chat": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
+  "source_stage2": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "combination_receiver": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "tested_candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
+  "production_repair_commit": "bc0e1fde262aee6e3a4f0b976887b9489585aeb8",
+  "source_changed": false,
+  "independent_reports": {
+    "test": {
+      "path": "evidence/build-work-cleanup-stage3/test/report.json",
+      "sha256": "a1b9b11c1679a81f9de60f99c7a4de592a4552b6330dc3cd3504c8a5397d19ea",
+      "result": "PASS"
+    },
+    "investigation": {
+      "path": "evidence/build-work-cleanup-stage3/investigation/report.json",
+      "sha256": "704d0ae8ea2440fc3887eb012500c99992dba12729b53a1d57bdf02c5a47baa0",
+      "result": "PASS"
+    }
+  },
+  "root_identity": "evidence/build-work-cleanup-stage3/identity.json",
+  "root_checks": "evidence/build-work-cleanup-stage3/checks.json",
+  "closed_findings": [
+    {
+      "id": "CTL-SUCCESSFUL-DRIVER-CHILD",
+      "resolution": "After each direct driver wait, stop its owned group before dropping tracking. Outstanding groups and direct PIDs remain owned through failure/signal cleanup; no obsolete group list crosses batches."
+    }
+  ],
+  "verified": [
+    "Exact checked candidate/source hashes and all saved repair log identities match.",
+    "Seven controller methods PASS on macOS arm64 and pinned Linux amd64; three failure orderings, successful completion and six HUP/INT/TERM subcases.",
+    "Exact parent rejected all ten new subcases on each platform: four at scratch deletion and six at the earlier-child assertion before requested signal. Repaired runs do send HUP/INT/TERM and pass cleanup.",
+    "Six unchanged suites and prior independent Quickcheck adversarial reports are preserved with matching source/log hashes.",
+    "Exact retained image/baseline/environment/input identities and built-to-current cleanup-only delta match; flags/link/post-link bytes remain equal."
+  ],
+  "real_controller": {
+    "record": "evidence/build-work-stage2/controller-result.json",
+    "image_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "seconds": 28.513924458,
+    "flash_bytes": 65492,
+    "flash_limit": 65536,
+    "ram_bytes": 25824,
+    "ram_limit": 26368,
+    "reused": true
+  },
+  "failure_dispositions": [
+    "Original material cleanup failure is closed by source review and meaningful two-platform negative controls.",
+    "Initial Linux parent-read ownership error received one exact-lane bounded retry; matching passing suite was reused.",
+    "Saved logs strip trailing whitespace only. Raw stream hashes remain provenance metadata; raw streams are not retained for recomputation. Assertions/outcomes are unchanged.",
+    "Independent Test verifier initially counted assertion source text; it was corrected to count lines beginning AssertionError. Initial verifier log retained; no production or fixture change."
+  ],
+  "limits": [
+    "No duplicate suite/controller/baseline/application build or isolated speedup comparison.",
+    "SDK/toolchain identities reused from saved records; dependencies were not rehashed.",
+    "No runner/asset/helper/native-validator/BUILDING changes, release/full gate, install, device test, external push, proprietary bundle or firmware integration.",
+    "Direct fixture registration remains with runner/combination owner. Fixed-tree devbug reuse stays deferred."
+  ],
+  "next_action": "Launch exactly one fresh scoped host-tooling stage4 acceptance; reuse matching checked evidence and successful real controller proof. Verify actual startup. Final accepted commits go to the single finishing owner, with completion notices to combination receiver and source stage2."
+}
