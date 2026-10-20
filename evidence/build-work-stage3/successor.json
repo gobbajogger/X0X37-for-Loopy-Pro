@@ -2,12 +2,22 @@
   "workflow": "build-work-20261021",
   "marker": "build-work-cleanup-repair-20261021",
   "stage": 2,
-  "state": "pending",
+  "state": "started",
   "source_chat": "01a15af3-9c23-7321-b361-c3cbefd2462e",
   "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
   "source_candidate": "30c567d8588227d5285f04422130300fe83577a9",
   "evidence_commit": "78c5296e95b9a18a514bbfd126ab04ebd86df9c9",
   "prompt": "evidence/build-work-stage3/stage2-repair-prompt.txt",
-  "thread_id": null,
-  "attempts": []
+  "thread_id": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "result": "created",
+      "thread_id": "01a15af7-e865-7242-8dfc-5972a5c8d9b4",
+      "host_id": "local"
+    }
+  ],
+  "host_id": "local",
+  "startup_turn_id": "01a15af7-e98f-7a21-a601-afea301761f2",
+  "startup_evidence": "successor-startup.json"
 }
