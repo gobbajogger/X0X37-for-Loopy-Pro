@@ -1,0 +1,93 @@
+{
+  "result": "FAIL",
+  "scope": "Independent source review and focused selector proofs",
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "tree": "4cbd4d8c8f01aa49568dbd82a673f53a2c725170",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "production_sources_unchanged": true,
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "uid_gid": "501:20",
+  "network": "none",
+  "findings": [
+    {
+      "id": "I2",
+      "priority": "P1",
+      "title": "Canonical maps paths lose selected native entry ORIGIN lookup precedence",
+      "file": "tools/asset_cache.py",
+      "line": 280,
+      "related_lines": [
+        423,
+        426,
+        446
+      ],
+      "cause": "probe_python records canonical /proc/self/maps paths; loader_inputs expands ORIGIN from that path rather than the actual alias used by glibc for dlopen. Missing earlier alias-relative lookup paths do not invalidate warm inventories.",
+      "proof": "origin_earlier_probe.py",
+      "log": "origin-earlier.log",
+      "observation": {
+        "cold_hit": false,
+        "warm_hit": true,
+        "first": "audio2fixture",
+        "changed_hit": true,
+        "after": "audio2fixture",
+        "matches_original": false,
+        "direct": "audio3fixture",
+        "cached_sha256": "274ba96a799b1359e329df43a8317e9787accd855c5a62873ddf1c82a9d82382",
+        "direct_sha256": "ae5a3fac1cbe9e75be3d164068c768b70883d06efebddf55b74228c09eac2828",
+        "actual_early_directory_inventoried": false
+      },
+      "disposition": "Block candidate promotion. Use an authorized scoped source repair under current routing, then affected independent checks. Preserve source here."
+    }
+  ],
+  "checks": [
+    {
+      "scope": "Saved mocked warm None investigation",
+      "result": "PASS not reproduced; historical cause unresolved",
+      "cases": 6,
+      "returns": 16,
+      "log": "focused.log",
+      "details": "Exact saved three-case sequence plus three further repetitions of the mocked warm case. Every traced return was bool; no None observed. Source successful return path is return hit, where hit is bool on real restore."
+    },
+    {
+      "scope": "Native alias selected-library byte change",
+      "result": "PASS",
+      "log": "origin-alias.log",
+      "details": "Cold miss, deny-discovery warm hit, changed loaded library miss, exact original output equality."
+    },
+    {
+      "scope": "Native alias earlier ORIGIN candidate",
+      "result": "FAIL reproducible",
+      "log": "origin-earlier.log",
+      "details": "Cold miss, deny-discovery warm hit, earlier candidate insertion produces warm stale hit and differs from disabled-cache original generation."
+    }
+  ],
+  "historical_failure_dispositions": [
+    {
+      "log": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/loader-focused.log",
+      "observation": "assertTrue received None in mocked warm call",
+      "status": "Preserved. Independent exact sequence and repeats passed; no established root cause, no invented explanation."
+    },
+    {
+      "log": "origin-earlier-initial.log",
+      "observation": "Initial new proof failed required invalidation/equality assertion.",
+      "status": "Retained. Same source second run adds inventory/path/output diagnostics and reproduces the same defect in origin-earlier.log."
+    }
+  ],
+  "reviewed_boundaries": [
+    "Compiler CC/backend/linker alias requests and execute/PATH changes, parent symlinks and recursive include cycles.",
+    "Interpreter byte hashing was present in original candidate; repair preserves it and adds selector tracking.",
+    "Python startup .pth/.pkg, virtualenv and import lookup snapshots; unknown import hooks and compiler scripts conservatively fall back.",
+    "Content checks, inventory schema/checksum rejection, exact output verification, atomic publication and postgeneration changed-input guards remain.",
+    "Source changes limited to host helper/tests; no firmware production change or proprietary SDK/toolchain/generated binary artifact."
+  ],
+  "limits": [
+    "Independent Test helper owns complete 28-case rerun and clean Git-worktree/common-cache output/timing proof.",
+    "Source review and disposable host fixtures only; no firmware build, gate, device write, external push, browser or runtime-image mutation.",
+    "Native provenance repair and tooling combination acceptance remain separate dependencies."
+  ],
+  "next_action": "Do not advance stage3 PASS or stage4. Parent saves concrete repair handoff under current routing."
+}

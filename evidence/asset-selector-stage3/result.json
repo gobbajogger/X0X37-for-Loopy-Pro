@@ -1,0 +1,93 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "marker": "asset-reuse-20261021-stage3-selector-repair",
+  "stage": 3,
+  "result": "FAIL",
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "tree": "4cbd4d8c8f01aa49568dbd82a673f53a2c725170",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "production_source_unchanged": true,
+  "test": {
+    "result": "PASS scoped controls",
+    "evidence": "test/result.json",
+    "cases": 28,
+    "seconds": 428.727,
+    "clean_worktree_common_git_reuse": "PASS: both exact-candidate worktrees clean, source read-only, separate warm/fresh processes forbid discovery, four original output hashes match"
+  },
+  "investigation": {
+    "result": "FAIL",
+    "evidence": "investigation/result.json",
+    "finding": {
+      "id": "I2",
+      "priority": "P1",
+      "title": "Canonical maps paths lose selected native entry ORIGIN lookup precedence",
+      "file": "tools/asset_cache.py",
+      "line": 280,
+      "related_lines": [
+        423,
+        426,
+        446
+      ],
+      "cause": "probe_python records canonical /proc/self/maps paths; loader_inputs expands ORIGIN from that path rather than the actual alias used by glibc for dlopen. Missing earlier alias-relative lookup paths do not invalidate warm inventories.",
+      "proof": "origin_earlier_probe.py",
+      "log": "origin-earlier.log",
+      "observation": {
+        "cold_hit": false,
+        "warm_hit": true,
+        "first": "audio2fixture",
+        "changed_hit": true,
+        "after": "audio2fixture",
+        "matches_original": false,
+        "direct": "audio3fixture",
+        "cached_sha256": "274ba96a799b1359e329df43a8317e9787accd855c5a62873ddf1c82a9d82382",
+        "direct_sha256": "ae5a3fac1cbe9e75be3d164068c768b70883d06efebddf55b74228c09eac2828",
+        "actual_early_directory_inventoried": false
+      },
+      "disposition": "Block candidate promotion. Use an authorized scoped source repair under current routing, then affected independent checks. Preserve source here."
+    }
+  },
+  "historical_none": {
+    "state": "Not reproduced; cause unknown and preserved",
+    "evidence": "investigation/focused.log",
+    "cases": 6,
+    "boolean_returns": 16,
+    "original": "/Users/mac/Documents/x0x37/asset_reuse_selector_repair/evidence/asset-selector-repair/loader-focused.log"
+  },
+  "timing": {
+    "seconds": {
+      "disabled": 12.44800000000032,
+      "cold": 20.129149000000325,
+      "warm": 6.676585999997769,
+      "fresh": 6.868270999999368
+    },
+    "warm_speedup_observation": 1.864425920673302,
+    "limits": "One run under concurrent regression load, asset generation only; excludes Docker startup. No end-to-end or stable-factor claim.",
+    "repair_stage2_warm_speedup": 1.2272307247704415,
+    "acceptance": "Neither timing observation accepts a candidate with stale-output defect."
+  },
+  "reused_evidence": "unchanged-contracts.json: same API/fallback/publication function AST and byte-identical tools/build.py support scheduling and macOS fallback evidence reuse only. Final source selector controls were rerun.",
+  "failures_retained": [
+    "test/process-attempt1.json",
+    "test/process-attempt2.json",
+    "test/process-attempt3.json",
+    "investigation/origin-earlier-initial.log",
+    "investigation/origin-earlier.log",
+    "inputs.json links and hashes all source-repair trial evidence"
+  ],
+  "source_cleanliness": "source-cleanliness.json preserves external owner instruction rollout; evidence commit excludes those edits.",
+  "combination_plan": "combination-plan.json",
+  "next_action": "Scoped native loader ORIGIN selector repair and affected independent checks under current classic routing. No validation advancement for this failed candidate.",
+  "handoff": "repair-handoff.txt",
+  "successor": "No successor created; handoff.json records current routing and owner launch step.",
+  "receiving_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "receiving_tooling_combination": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "limits": [
+    "No firmware build, device operation, full/release gate, browser work, external push or competing integration.",
+    "Native provenance repair still requires checked independent acceptance before tooling combination.",
+    "Original failed bb953df and repaired746ece6 are not accepted."
+  ]
+}

@@ -1,0 +1,97 @@
+Preparing worktree (detached HEAD 746ece6)
+HEAD is now at 746ece6 Revalidate asset command aliases and dependency search precedence
+Preparing worktree (detached HEAD 746ece6)
+HEAD is now at 746ece6 Revalidate asset command aliases and dependency search precedence
+$ ['docker', 'run', '--rm', '--platform', 'linux/amd64', '--network', 'none', '--user', '501:20', '-e', 'X0X_ASSET_CACHE=0', '-v', '/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro', '-v', '/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first:/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first:ro', '-v', '/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw', '--tmpfs', '/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first/build:rw,uid=501,gid=20,mode=755', '-w', '/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first', 'sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1', 'python3', '-u', '-B', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py', '--worker', '/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first', 'disabled', 'stage3-selector-test-c2f16be9c2ee437bb55978b969bc80f1']
+docker: Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "tmpfs" to rootfs at "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first/build": create mountpoint for /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first/build mount: make mountpoint "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first/build": mkdirat /var/lib/docker/rootfs/overlayfs/d7bce3f1d4e52b99756d06d0d8a75b9c884db58762590ae53bce0476426c8698/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first/build: read-only file system
+
+Run 'docker run --help' for more information
+{
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "tree": "4cbd4d8c8f01aa49568dbd82a673f53a2c725170",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "network": "none",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "commands": [
+    [
+      "git",
+      "-C",
+      "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+      "worktree",
+      "add",
+      "--detach",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first",
+      "746ece6936a456ef963c758da659c07a801cec37"
+    ],
+    [
+      "git",
+      "-C",
+      "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+      "worktree",
+      "add",
+      "--detach",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/second",
+      "746ece6936a456ef963c758da659c07a801cec37"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-e",
+      "X0X_ASSET_CACHE=0",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-v",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first:/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw",
+      "--tmpfs",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first/build:rw,uid=501,gid=20,mode=755",
+      "-w",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py",
+      "--worker",
+      "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first",
+      "disabled",
+      "stage3-selector-test-c2f16be9c2ee437bb55978b969bc80f1"
+    ]
+  ],
+  "runs": {},
+  "worktrees": {
+    "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/first": {
+      "head": "746ece6936a456ef963c758da659c07a801cec37",
+      "before_status": ""
+    },
+    "/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/asset-selector-stage3-1os9fljc/second": {
+      "head": "746ece6936a456ef963c758da659c07a801cec37",
+      "before_status": ""
+    }
+  },
+  "cache_namespace": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1/stage3-selector-test-c2f16be9c2ee437bb55978b969bc80f1",
+  "failures": [
+    "AssertionError(('disabled', 125))"
+  ],
+  "result": "FAIL",
+  "source_unchanged": true
+}
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py", line 108, in <module>
+    else: main()
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py", line 74, in main
+    assert result.returncode == 0, (mode,result.returncode)
+AssertionError: ('disabled', 125)

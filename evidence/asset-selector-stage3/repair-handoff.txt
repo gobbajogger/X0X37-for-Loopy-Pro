@@ -1,0 +1,74 @@
+Continue the generated-asset reuse repair in classic ChatGPT inside LoopyX0X37.
+Project: g-p-ad9d6d4ab04c8191af6aa22fd752707e.
+Source review chat: 01a15b09-9f82-7db2-a86b-102fddcb4a0a.
+Workflow: asset-reuse-20261021. Failed review marker: asset-reuse-20261021-stage3-selector-repair.
+Production candidate 746ece6936a456ef963c758da659c07a801cec37 is NOT accepted.
+Tree: 4cbd4d8c8f01aa49568dbd82a673f53a2c725170.
+Evidence: /Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/.
+Read result.json, inputs.json, investigation/result.json, investigation/audit.md,
+investigation/origin_earlier_probe.py and origin-earlier.log, test/result.json,
+test/process-result.json, unchanged-contracts.json, combination-plan.json and routing-update.json.
+
+Independent finding I2 is a real stale-output defect. A ctypes native entry opened as
+alias/entry.so -> real/entry.so has RUNPATH $ORIGIN/early:$ORIGIN/search. glibc uses
+the selected alias directory. /proc/self/maps supplies the canonical target, and
+loader_inputs expands ORIGIN from that canonical path. The inventory records
+real/early but omits alias/early. Adding alias/early/libtoken.so after a warm run
+returns a cache hit with audio2fixture; identical cache-disabled generation returns
+audio3fixture. The proof reproduces twice with immutable candidate source.
+Cached SHA256: 274ba96a799b1359e329df43a8317e9787accd855c5a62873ddf1c82a9d82382.
+Original SHA256: ae5a3fac1cbe9e75be3d164068c768b70883d06efebddf55b74228c09eac2828.
+
+The required bounded repair needs local repository edits, Linux tests and artifact
+verification unavailable to classic ChatGPT. Use current workspace task, writing,
+check, shared-work and workflow skills at /Users/mac/Documents/x0x37/.agents/skills/.
+Preserve this stage3 source/evidence lane. Use Git administration through
+/Users/mac/Documents/x0x37/asset_reuse_selector_repair for a separate repair lane
+from the failed exact production candidate; do not duplicate an existing owner.
+The authorized scope is tools/asset_cache.py and directly affected tests only.
+Preserve all API, fallback, output, atomic publication and changed-input guards.
+Retain the actual native loader-selected spelling and its symlink chain for ORIGIN
+resolution, including transitive dependencies, or conservatively disable reuse
+when that selection cannot be established. Canonical maps paths alone are insufficient.
+Add the failing earlier alias-relative candidate regression, compare actual selected
+original-generator bytes, and rerun affected independent checks before advancement.
+Do not weaken provenance or use mtime state. Reuse matching unaffected evidence.
+
+The historical loader-focused.log once returned None in a mocked warm assertion.
+The exact three-case sequence plus three repeats passed independently with all
+16 traced successful returns bool. Its root cause is still unknown; preserve it.
+The original Python interpreter path was already hashed; do not claim an original
+interpreter defect. All earlier trial logs and their dispositions remain linked.
+
+Execute only in pinned worker sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1,
+linux/amd64, user 501:20, network none, source read-only and disposable caches/fixtures.
+Use actual supported /Users workspace mounts and executable build tmpfs where needed.
+Keep SDK/toolchain and generated binaries out of commits. Author:
+genkigenki <3080081+genkigenki@users.noreply.github.com>.
+No firmware build, device write, release/full gate, browser work, external push or
+competing integration is authorized. Never push, merge or package refs-oscuro.
+
+Carry existing generated-asset implementation permission, recorded in
+/Users/mac/Documents/x0x37/build_time_audit/evidence/asset-reuse-audit/stage2-prompt.txt.
+Current owner routing (01a15b05-73df-7fb1-a9f7-6bb1484cfd02) supersedes the old
+automatic Codex stage chain. Finish necessary authorized execution together where
+ownership permits; do not automatically create new Codex stages. Keep this classic
+thread for the next decision. This saved prompt is not a started successor.
+
+Coordinator: 01a15aec-08a1-7cb3-b395-f17ad2cf9add.
+Distinct tooling combination owner: 01a15af9-c386-7803-90e4-71d26b6dd0ef,
+lane build_speed_combination at base 1165396. Notify both of checked acceptance or
+blockers; failing cache inputs must not be promoted. Native provenance repair owner
+01a15ae0-185b-7b40-b1e8-9a19c0eca02d remains a separate prerequisite. Its Docker
+approval was granted and scoped checks were running; require its checked successor,
+independent Test and applicable Validate acceptance. Do not duplicate its execution.
+Keep both evidence sets, exact package/image/dependency identities and source/common-Git
+mount policy. Additional host/909/display consumer routing belongs to combination;
+retain it only when entrypoint timing improves. Browser routing is excluded.
+Sole firmware integrator: 01a15ac1-6dac-7ca2-a2fc-877c4671ab33.
+Combined firmware validation: 01a15ac6-2f01-7e93-93b8-cf1910a41ea1.
+
+Completion condition: checked repair and affected independent acceptance with exact
+source/input/output identities, all failure dispositions and measured asset timing.
+Report honest asset-only limits and any remaining combination blocker. Do not
+advance failed checks or automatically launch a Test/Validate/repair chat.

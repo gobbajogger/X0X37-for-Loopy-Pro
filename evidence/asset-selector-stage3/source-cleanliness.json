@@ -1,0 +1,28 @@
+{
+  "result": "PASS production identity; external instruction edits preserved",
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "tracked_external_edits": [
+    "AGENTS.md",
+    "docs/SKILLS.md"
+  ],
+  "external_untracked": [
+    ".agents/skills/x0x37-check",
+    ".agents/skills/x0x37-device-bug",
+    ".agents/skills/x0x37-docs",
+    ".agents/skills/x0x37-install",
+    ".agents/skills/x0x37-integrate",
+    ".agents/skills/x0x37-owner-decisions",
+    ".agents/skills/x0x37-shared-work",
+    ".agents/skills/x0x37-task",
+    ".agents/skills/x0x37-workflow",
+    ".agents/skills/x0x37-writing"
+  ],
+  "own_scope": "evidence/asset-selector-stage3 only",
+  "firmware_diff_empty": true,
+  "notes": "Instruction owner rolled current entry points into existing lanes during checks. These changes are preserved and excluded from this evidence commit. Test process proof independently used exact-candidate clean detached worktrees with empty before/after Git status."
+}

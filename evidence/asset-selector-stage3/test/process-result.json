@@ -1,0 +1,259 @@
+{
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "tree": "4cbd4d8c8f01aa49568dbd82a673f53a2c725170",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "network": "none",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "commands": [
+    [
+      "git",
+      "-C",
+      "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+      "worktree",
+      "add",
+      "--detach",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first",
+      "746ece6936a456ef963c758da659c07a801cec37"
+    ],
+    [
+      "git",
+      "-C",
+      "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+      "worktree",
+      "add",
+      "--detach",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/second",
+      "746ece6936a456ef963c758da659c07a801cec37"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-e",
+      "X0X_ASSET_CACHE=0",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first:/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw",
+      "--tmpfs",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first/build:rw,exec,uid=501,gid=20,mode=755",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py",
+      "--worker",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first",
+      "disabled",
+      "stage3-selector-test-0c93b859e1564907a8ed93149960ab34"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-e",
+      "X0X_ASSET_CACHE=1",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first:/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw",
+      "--tmpfs",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first/build:rw,exec,uid=501,gid=20,mode=755",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py",
+      "--worker",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first",
+      "cold",
+      "stage3-selector-test-0c93b859e1564907a8ed93149960ab34"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-e",
+      "X0X_ASSET_CACHE=1",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first:/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw",
+      "--tmpfs",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first/build:rw,exec,uid=501,gid=20,mode=755",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py",
+      "--worker",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first",
+      "warm",
+      "stage3-selector-test-0c93b859e1564907a8ed93149960ab34"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-e",
+      "X0X_ASSET_CACHE=1",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/second:/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/second:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw",
+      "--tmpfs",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/second/build:rw,exec,uid=501,gid=20,mode=755",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/second",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py",
+      "--worker",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/second",
+      "fresh",
+      "stage3-selector-test-0c93b859e1564907a8ed93149960ab34"
+    ]
+  ],
+  "runs": {
+    "disabled": {
+      "seconds": 12.44800000000032,
+      "cache_default": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1",
+      "cache_selected": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1/stage3-selector-test-0c93b859e1564907a8ed93149960ab34",
+      "uid": 501,
+      "gid": 20,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "container_wall_seconds": 13.867148582999999,
+      "hits": [
+        "asset cache: drums miss",
+        "asset cache: font miss",
+        "asset cache: breaks miss"
+      ]
+    },
+    "cold": {
+      "seconds": 20.129149000000325,
+      "cache_default": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1",
+      "cache_selected": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1/stage3-selector-test-0c93b859e1564907a8ed93149960ab34",
+      "uid": 501,
+      "gid": 20,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "container_wall_seconds": 21.580136292000002,
+      "hits": [
+        "asset cache: drums miss",
+        "asset cache: font miss",
+        "asset cache: breaks miss"
+      ]
+    },
+    "warm": {
+      "seconds": 6.676585999997769,
+      "cache_default": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1",
+      "cache_selected": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1/stage3-selector-test-0c93b859e1564907a8ed93149960ab34",
+      "uid": 501,
+      "gid": 20,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "container_wall_seconds": 8.137887957999993,
+      "hits": [
+        "asset cache: drums hit",
+        "asset cache: font hit",
+        "asset cache: breaks hit"
+      ]
+    },
+    "fresh": {
+      "seconds": 6.868270999999368,
+      "cache_default": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1",
+      "cache_selected": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1/stage3-selector-test-0c93b859e1564907a8ed93149960ab34",
+      "uid": 501,
+      "gid": 20,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "container_wall_seconds": 8.214394916000003,
+      "hits": [
+        "asset cache: drums hit",
+        "asset cache: font hit",
+        "asset cache: breaks hit"
+      ]
+    }
+  },
+  "worktrees": {
+    "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/first": {
+      "head": "746ece6936a456ef963c758da659c07a801cec37",
+      "before_status": "",
+      "after_status": ""
+    },
+    "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-51v9d5ik/second": {
+      "head": "746ece6936a456ef963c758da659c07a801cec37",
+      "before_status": "",
+      "after_status": ""
+    }
+  },
+  "cache_namespace": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1/stage3-selector-test-0c93b859e1564907a8ed93149960ab34",
+  "failures": [],
+  "warm_speedup": 1.864425920673302,
+  "seconds_saved": 5.771414000002551,
+  "result": "PASS",
+  "limits": "Asset generation only. Timing excludes container startup and includes separate worker processes; no whole-build speed claim.",
+  "source_unchanged": true
+}

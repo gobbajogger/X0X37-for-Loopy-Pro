@@ -1,0 +1,16 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "source_marker": "asset-reuse-20261021-stage3-selector-repair",
+  "state": "prompt ready; owner launch needed",
+  "classic_project_id": "g-p-ad9d6d4ab04c8191af6aa22fd752707e",
+  "project_url": "https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e/project",
+  "prompt": "repair-handoff.txt",
+  "successor_thread_id": null,
+  "created": false,
+  "startup_verified": false,
+  "reason": "Stage3 failed I2; no validation successor is permitted. Current owner routing supersedes saved automatic Codex stage/repair launch. Available create_thread supports Codex or ChatGPT Work cloud, not classic project chat. No substitution was attempted.",
+  "current_routing_evidence": "routing-update.json",
+  "receiving_coordinator": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "receiving_tooling_combination": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "required_next": "Scoped native ORIGIN selector repair and affected independent checks before acceptance."
+}

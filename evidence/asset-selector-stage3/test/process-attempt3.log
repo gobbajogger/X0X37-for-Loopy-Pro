@@ -1,0 +1,116 @@
+Preparing worktree (detached HEAD 746ece6)
+HEAD is now at 746ece6 Revalidate asset command aliases and dependency search precedence
+Preparing worktree (detached HEAD 746ece6)
+HEAD is now at 746ece6 Revalidate asset command aliases and dependency search precedence
+$ ['docker', 'run', '--rm', '--platform', 'linux/amd64', '--network', 'none', '--user', '501:20', '-e', 'X0X_ASSET_CACHE=0', '-v', '/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro', '-v', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first:/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first:ro', '-v', '/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw', '--tmpfs', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first/build:rw,uid=501,gid=20,mode=755', '-w', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first', 'sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1', 'python3', '-u', '-B', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py', '--worker', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first', 'disabled', 'stage3-selector-test-96eec981b00f4c2b9ba56cc39da9cfe9']
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5625 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 6864 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7024 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 7488 B
+font set barlow: 39912 B (approx)
+asset cache: drums miss
+asset cache: font miss
+/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first/tools/gen_builtin_break.sh: 12: build/host/gen_builtin_break: Permission denied
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py", line 108, in <module>
+    if len(sys.argv)>1 and sys.argv[1]=='--worker': worker()
+                                                    ^^^^^^^^
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py", line 34, in worker
+    build.generate()
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first/tools/build.py", line 157, in generate
+    asset_cache.generate_asset('breaks', SRC, GEN)
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first/tools/asset_cache.py", line 699, in generate_asset
+    raise subprocess.CalledProcessError(result.returncode, command)
+subprocess.CalledProcessError: Command '['sh', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first/tools/gen_builtin_break.sh', '/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first/build/.asset-o4tbjfen/gen']' returned non-zero exit status 126.
+{
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "tree": "4cbd4d8c8f01aa49568dbd82a673f53a2c725170",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "network": "none",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "commands": [
+    [
+      "git",
+      "-C",
+      "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+      "worktree",
+      "add",
+      "--detach",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first",
+      "746ece6936a456ef963c758da659c07a801cec37"
+    ],
+    [
+      "git",
+      "-C",
+      "/Users/mac/Documents/x0x37/asset_reuse_selector_repair",
+      "worktree",
+      "add",
+      "--detach",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/second",
+      "746ece6936a456ef963c758da659c07a801cec37"
+    ],
+    [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-e",
+      "X0X_ASSET_CACHE=0",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first:/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first:ro",
+      "-v",
+      "/Users/mac/Documents/x0x37/x0x37/.git:/Users/mac/Documents/x0x37/x0x37/.git:rw",
+      "--tmpfs",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first/build:rw,uid=501,gid=20,mode=755",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py",
+      "--worker",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first",
+      "disabled",
+      "stage3-selector-test-96eec981b00f4c2b9ba56cc39da9cfe9"
+    ]
+  ],
+  "runs": {},
+  "worktrees": {
+    "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/first": {
+      "head": "746ece6936a456ef963c758da659c07a801cec37",
+      "before_status": ""
+    },
+    "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/scratch-ebkzktv2/second": {
+      "head": "746ece6936a456ef963c758da659c07a801cec37",
+      "before_status": ""
+    }
+  },
+  "cache_namespace": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/v1/stage3-selector-test-96eec981b00f4c2b9ba56cc39da9cfe9",
+  "failures": [
+    "AssertionError(('disabled', 1))"
+  ],
+  "result": "FAIL",
+  "source_unchanged": true
+}
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py", line 109, in <module>
+    else: main()
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/test/process_probe.py", line 75, in main
+    assert result.returncode == 0, (mode,result.returncode)
+AssertionError: ('disabled', 1)

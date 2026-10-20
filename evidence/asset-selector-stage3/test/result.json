@@ -1,0 +1,75 @@
+{
+  "result": "PASS",
+  "scope": "Execution of final existing 28 regression controls and real separate-process clean-worktree/common-Git reuse. This is scoped test evidence, not candidate acceptance.",
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "candidate_acceptance": "FAIL: independent investigation proved native entry-alias/RUNPATH stale-output defect. Do not promote.",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "network": "none",
+  "uid_gid": "501:20",
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  },
+  "production_sources_unchanged": true,
+  "checks": [
+    {
+      "scope": "Final exact-source regression, including CC chain/PATH execute/GCC backend-linker/import/interpreter/native-library search/startup and conservative fallback controls",
+      "result": "PASS",
+      "cases": 28,
+      "seconds": 428.727,
+      "exit_code": 0,
+      "log": "regression.log",
+      "coverage_limit": "Existing native test uses canonical entry.so and retargets a dependency alias or earlier dependency candidate. It does not cover symlink-selected entry.so with ORIGIN-relative RUNPATH."
+    },
+    {
+      "scope": "Disabled/cold/warm/second clean checked-worktree separate container processes",
+      "result": "PASS",
+      "data": "process-result.json",
+      "log": "process.log",
+      "source_overlays": false,
+      "both_worktrees_clean_before_after": true,
+      "source_mount": "read-only",
+      "output_mount": "build tmpfs rw,exec",
+      "cache": "Dedicated disposable namespace below actual common-Git cache root; same root for both checked worktrees. Namespace cleaned.",
+      "all_four_headers_match_original": true,
+      "warm_and_fresh_discovery_forbidden": true
+    }
+  ],
+  "observed_asset_seconds": {
+    "disabled": 12.44800000000032,
+    "cold": 20.129149000000325,
+    "warm": 6.676585999997769,
+    "fresh": 6.868270999999368
+  },
+  "warm_speedup": 1.864425920673302,
+  "timing_limit": "One run under concurrent regression load, asset generation only; excludes Docker startup. No end-to-end or stable-factor claim.",
+  "commands_and_failure_dispositions": "commands.json",
+  "known_material_failure": {
+    "evidence": "../investigation/origin-earlier.log",
+    "observed": "changed_hit=True, cached audio2fixture versus original audio3fixture; actual alias/early directory absent from saved inventory.",
+    "cached_sha256": "274ba96a799b1359e329df43a8317e9787accd855c5a62873ddf1c82a9d82382",
+    "original_sha256": "ae5a3fac1cbe9e75be3d164068c768b70883d06efebddf55b74228c09eac2828",
+    "disposition": "Parent stage3 FAIL; preserve proof and hand off concrete repair under current classic routing. No source repair or successor execution by test helper."
+  },
+  "limits": [
+    "No firmware, device, full/release gate, browser or external push work.",
+    "Current owner instruction rollout edits in AGENTS.md/docs/SKILLS.md/.agents links were observed but not made by this helper; parent excludes them from evidence commit.",
+    "Matching scheduling and macOS fallback evidence is reused by parent.",
+    "Three setup trial failures remain, with exact commands and dispositions."
+  ],
+  "evidence_sha256": {
+    "regression.log": "3228b66a3da40fce45acdfbcc3bbd8ce5b09607e07c8a556852f119c109ea512",
+    "process-attempt1.json": "44fb548da5a1b8b2027632cbe706868a8b4e390317449fa7a806972a7dc57c10",
+    "process-attempt2.log": "739c7a42d2ca28724eec2e4fe74ec483ab9e908946c615b1b065c4fa73e8f73d",
+    "process-attempt3.log": "159d7eed9502749dff91905e8d8efb6cc60ef1437bf90dcb9b94b50740c69944",
+    "process-attempt1.log": "f6cb21098b2e8fd06080bd3792381ba96f7ac354a879b18e96765e019da8f212",
+    "process.log": "5b518462f6228645c1a3ea4c4adc22e7f725450ac152e08522278a6858fea852",
+    "commands.json": "f2fb806c4c962e08378f522ce3768996bec89136d76954dec8d5c2e52e315e9d",
+    "process-result.json": "cd9ae97a4059c18c40e77df8d437097422dde86ed6996d887750bc822fd95064",
+    "process-attempt2.json": "0282592ad96ce4cab3c5a988d91c91fbe7da09c4c2b4cd589e37339eb0a240c4",
+    "process-attempt3.json": "34800c97b23cc3e1c02fe76e549c73954efb35a9436fc6729b1e7496107aab06",
+    "process_probe.py": "80f048df804e8f06aae60d859a9a84abe0f2cbf59accc044f407ec8c438c33e7"
+  }
+}

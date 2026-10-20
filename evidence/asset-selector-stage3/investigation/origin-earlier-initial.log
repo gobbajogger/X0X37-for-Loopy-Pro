@@ -1,0 +1,5 @@
+{"cold_hit": false, "warm_hit": true, "first": "audio2fixture", "changed_hit": true, "after": "audio2fixture", "matches_original": false}
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_selector_stage3/evidence/asset-selector-stage3/investigation/origin_earlier_probe.py", line 55, in <module>
+    assert not changed and original_match
+AssertionError

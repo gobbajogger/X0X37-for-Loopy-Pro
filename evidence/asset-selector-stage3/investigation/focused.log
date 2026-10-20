@@ -1,0 +1,44 @@
+test_discovery_reuse_checks_contents_without_restarting_tools (final_asset_tests.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools) ... asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+ok
+test_loader_unknown_injection_and_tokens_disable_reuse (final_asset_tests.SelectorTests.test_loader_unknown_injection_and_tokens_disable_reuse) ... ok
+test_loaded_native_library_alias_retarget_matches_original (final_asset_tests.SelectorTests.test_loaded_native_library_alias_retarget_matches_original) ... ok
+test_discovery_reuse_checks_contents_without_restarting_tools (final_asset_tests.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools) ... asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+ok
+test_discovery_reuse_checks_contents_without_restarting_tools (final_asset_tests.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools) ... asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+ok
+test_discovery_reuse_checks_contents_without_restarting_tools (final_asset_tests.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools) ... asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums hit
+RETURN={"kind": "drums", "value": true, "type": "bool"}
+asset cache: drums miss
+RETURN={"kind": "drums", "value": false, "type": "bool"}
+ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 75.810s
+
+OK
+SUMMARY={"result": "PASS", "tests": 6, "returns": [{"kind": "drums", "value": false, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": false, "type": "bool"}, {"kind": "drums", "value": false, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": false, "type": "bool"}, {"kind": "drums", "value": false, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": false, "type": "bool"}, {"kind": "drums", "value": false, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": true, "type": "bool"}, {"kind": "drums", "value": false, "type": "bool"}], "source_sha256": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172"}

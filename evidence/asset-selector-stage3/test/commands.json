@@ -1,0 +1,73 @@
+{
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "checks": {
+    "regression": {
+      "risk": "Final selector handling, content/inventory invalidation, corruption, publication, interruption and changed-input guards may return stale output or break generation.",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "asset-selector-stage3-test-regression",
+        "--platform",
+        "linux/amd64",
+        "--network",
+        "none",
+        "--user",
+        "501:20",
+        "-v",
+        "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+        "-w",
+        "/Users/mac/Documents/x0x37/asset_selector_stage3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "python3",
+        "-B",
+        "tests/host/test_asset_cache.py",
+        "-v"
+      ],
+      "log": "regression.log"
+    },
+    "clean_worktree_processes": {
+      "risk": "Inventories may fail across separate processes or clean checked worktrees, or cached headers may differ from original generation.",
+      "command": [
+        "python3",
+        "-B",
+        "evidence/asset-selector-stage3/test/process_probe.py"
+      ],
+      "worker_commands": "process-result.json",
+      "log": "process.log"
+    }
+  },
+  "setup_failure_dispositions": [
+    {
+      "evidence": [
+        "process-attempt1.log",
+        "process-attempt1.json"
+      ],
+      "cause": "Docker could not mount nested output tmpfs below the read-only source at the macOS /var/folders path; worker did not start.",
+      "disposition": "Created empty ignored build mountpoint and bounded retry."
+    },
+    {
+      "evidence": [
+        "process-attempt2.log",
+        "process-attempt2.json"
+      ],
+      "cause": "Same pre-start nested mount failure at macOS /var/folders despite mountpoint.",
+      "disposition": "Used equivalent disposable checked worktrees below known shared /Users workspace, preserving read-only source."
+    },
+    {
+      "evidence": [
+        "process-attempt3.log",
+        "process-attempt3.json"
+      ],
+      "cause": "Shared-path mounts succeeded; default Docker tmpfs noexec blocked built-in host renderer execution (exit126).",
+      "disposition": "Corrected only evidence harness output tmpfs to rw,exec; final complete four-mode proof passed."
+    }
+  ],
+  "limits": [
+    "All disposable host worktrees were unregistered through the repair administrative repository. Their source had no overlays. Dedicated common-Git cache namespace was removed.",
+    "The parent investigation found a material native entry-alias/RUNPATH stale-output defect outside the existing regression variant. Passing controls do not accept the candidate.",
+    "No scheduling or macOS fallback rerun: parent records matching unchanged-source evidence.",
+    "No firmware, full/release gate, device, browser, external push or shared runtime mutation."
+  ]
+}

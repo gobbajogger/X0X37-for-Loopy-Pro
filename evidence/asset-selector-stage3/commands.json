@@ -1,0 +1,23 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "candidate": "746ece6936a456ef963c758da659c07a801cec37",
+  "parent_checks": [
+    {
+      "scope": "API, fallback, publication and scheduling evidence reuse",
+      "risk": "An unrelated interface or scheduling change could invalidate old scoped evidence.",
+      "method": "Compare function AST against bb953df and exact tools/build.py bytes.",
+      "result": "PASS",
+      "evidence": "unchanged-contracts.json"
+    },
+    {
+      "scope": "Final source cleanliness and exact source identity",
+      "risk": "Evidence from source overlays or a different candidate would not establish acceptance.",
+      "method": "Hash production/test source; compare Git blob bytes; inspect final diff and tracked paths.",
+      "result": "PASS",
+      "evidence": "source-cleanliness.json"
+    }
+  ],
+  "independent_test": "test/result.json records exact execution argv/logs and checks changed selector behavior, persistent warm reuse and outputs at final source.",
+  "independent_investigation": "investigation/result.json records source review and focused retained-failure analysis.",
+  "execution_boundary": "Pinned Linux worker, linux/amd64, uid501:20, no network, read-only source and disposable fixture/cache writes. No firmware builds."
+}

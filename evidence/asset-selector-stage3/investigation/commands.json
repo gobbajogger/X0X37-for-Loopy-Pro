@@ -1,0 +1,74 @@
+{
+  "commands": {
+    "focused": [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "evidence/asset-selector-stage3/investigation/focused_probe.py"
+    ],
+    "origin_alias": [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "evidence/asset-selector-stage3/investigation/origin_alias_probe.py"
+    ],
+    "origin_earlier": [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--user",
+      "501:20",
+      "-v",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3:/Users/mac/Documents/x0x37/asset_selector_stage3:ro",
+      "-w",
+      "/Users/mac/Documents/x0x37/asset_selector_stage3",
+      "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "python3",
+      "-u",
+      "-B",
+      "evidence/asset-selector-stage3/investigation/origin_earlier_probe.py"
+    ]
+  },
+  "checks": {
+    "focused": "Investigate saved mocked warm None with exact three-case sequence and three added first-case repetitions.",
+    "origin_alias": "Check selected alias library byte changes invalidate supported warm reuse.",
+    "origin_earlier": "Check earlier ORIGIN lookup candidate under selected alias invalidates supported warm reuse."
+  },
+  "source_sha256": {
+    "tools/asset_cache.py": "160db209ffdcfe477f39a5a21cc83e9748ac97fb3cf3286b730cdd05e459c172",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0b67eb33f2a6dee30abfa8c3d2521368e0d71aa723f49f1f348c6ba15db48250"
+  }
+}

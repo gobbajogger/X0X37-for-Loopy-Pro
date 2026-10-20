@@ -1,0 +1,16 @@
+{
+  "event": "Current owner changed chat routing while authorized tests were running.",
+  "owner_source_thread": "01a15b05-73df-7fb1-a9f7-6bb1484cfd02",
+  "source_title": "Use Codex only for install tasks",
+  "owner_request": "We need to leave only necessary work for codex like install and make other tasks always start in classic chatgpt thread to reduce usage on agentic use as much as possible",
+  "current_rule": "Finish already authorized execution and required safety checks in its assigned lane. Apply this routing at its next handoff; do not migrate or duplicate running work just to change chat type.",
+  "current_workflow18": "Return results to the originating classic project thread. Do not automatically launch another Codex stage.",
+  "effect": "Finish independent stage3; preserve external instruction edits; apply current routing at handoff instead of the saved automatic stage4 launch.",
+  "files": {
+    "AGENTS.md": "fa08ae9a3170821d55cfb12627e73721c66900ba7d62fb970a45840afe234569",
+    ".agents/skills/x0x37-task/SKILL.md": "c3ae0d6f762214064e9a43fe3b5192e64bb891ee5ae736bf8d232397527891c0",
+    ".agents/skills/x0x37-task/references/routing.md": "4935398a25a8b5cfc818f3491f87d06808448f21cfd8e3c979adc565c662615e",
+    ".agents/skills/x0x37-workflow/SKILL.md": "5f7aba6deb61e53f50fb7c70af5f1f7698bdcf5bc6d627e3d4ab8413107146c3",
+    ".agents/skills/x0x37-workflow/references/stages.md": "38ffdb257dc88690f7164bfb9b8a0f1013de436d8219fcbdc8ab4dab5b85d4bf"
+  }
+}
