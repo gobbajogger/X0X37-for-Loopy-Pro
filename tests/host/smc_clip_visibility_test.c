@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "x0x_cold.h"
 #include "app/smc_protocol.h"
 #define CK_FN __attribute__((unused))
 #include "app/smk_clip_keys.h"
@@ -30,6 +31,7 @@ static const char *ck_val_txt(uint32_t f, uint32_t v, char *s)
 #include "clip_turn.inc"
 
 static uint8_t perf_testing(void) { return 0; }
+static int ui_project_busy(void) { return 0; }
 static void button_tap(int button) { (void)button; }
 static void engine_smc_solo(uint8_t solo) { (void)solo; }
 static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
