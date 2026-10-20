@@ -12,6 +12,7 @@
 # x86-64 or Docker (any OS: an x86-64 container; on an ARM Mac it runs emulated).
 #   JIELI_TOOLCHAIN  the toolchain root (default ~/.jieli/toolchain)
 #   CTL_NATIVE=1     build without Docker (Linux x86-64 only)
+#   X0X_JOBS=1      compile serially (default 4; range 1..64)
 #   CTL_NO_CACHE=1   keep output local; do not replace the shared installer cache
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -26,7 +27,7 @@ if [ "${CTL_NATIVE:-0}" = 1 ]; then
   TC="$TC" REPO="$REPO" sh "$HERE/build_in_container.sh"
 else
   command -v docker >/dev/null || { echo "Docker is needed (or CTL_NATIVE=1 on Linux x86-64)." >&2; exit 1; }
-  docker run --rm --platform linux/amd64 -v "$TC:/tc:ro" -v "$REPO:/w" debian:bookworm-slim \
+  docker run --rm --platform linux/amd64 -e X0X_JOBS="${X0X_JOBS-4}" -v "$TC:/tc:ro" -v "$REPO:/w" debian:bookworm-slim \
     sh /w/ble/ctl/build_in_container.sh
 fi
 python3 "$HERE/mkimage.py" "$HERE/out/ctl.elf" "$HERE/out/ctl.img"
