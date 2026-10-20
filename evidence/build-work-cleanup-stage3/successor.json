@@ -2,7 +2,7 @@
   "workflow": "build-work-20261021",
   "marker": "build-work-cleanup-stage4-20261021",
   "stage": 4,
-  "state": "pending",
+  "state": "started",
   "source_chat": "01a15afc-9222-7d13-8f72-ca0f31d9fc0e",
   "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
   "combination_receiver": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
@@ -13,6 +13,25 @@
   "prompt_sha256": "075382312a75693b3ba368f9fb066bca794afbfabefc964b8c6679b52880e3ce",
   "lane": "/Users/mac/Documents/x0x37/build_work_cleanup_stage4",
   "branch": "lane/opt-build-work-cleanup-stage4",
-  "attempts": [],
-  "activity_check": "list_projects and list_threads after stage3 PASS found no matching cleanup stage4 successor; existing runner/native/combination owners retain their distinct scopes."
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "result": "created",
+      "thread_id": "01a15b00-e1c0-73a3-823c-d0c3e654dc9f",
+      "host_id": "local"
+    }
+  ],
+  "activity_check": "list_projects and list_threads after stage3 PASS found no matching cleanup stage4 successor; existing runner/native/combination owners retain their distinct scopes.",
+  "thread_id": "01a15b00-e1c0-73a3-823c-d0c3e654dc9f",
+  "host_id": "local",
+  "handoff_commit": "7e0f567a0adec5252fbf97de0176ef8c6549afd1",
+  "startup": {
+    "method": "wait_threads",
+    "turn_id": "01a15b00-e2f1-7032-85b9-356d2fd57d6f",
+    "assistant_message_id": "msg_09c979873d3acff1016ad7cf2e1b908191a35e7d7c15ba1852",
+    "assistant_message": "The assignment gives this chat ownership of host-tooling acceptance only. The combination and firmware owners retain their scopes. I\u2019ll create the lane from 7e0f567 and verify that its source and evidence match the tested candidate.",
+    "completed_tool_marker": "exec-7853fada-885f-4a6c-8c78-ceca5e5903d5",
+    "turn_status": "inProgress",
+    "verification": "New assistant acknowledgement of exact handoff/scope plus completed commandExecution after creation; active flag alone was not used."
+  }
 }

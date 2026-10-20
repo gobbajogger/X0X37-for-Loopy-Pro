@@ -11,6 +11,8 @@
   "evidence/build-work-cleanup-stage3/scope.json": "d1fc1181acf3015becac52f96f40a7ae64ddf92d1b5dd9b26ca923ce4b6efffb",
   "evidence/build-work-cleanup-stage3/shell-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "evidence/build-work-cleanup-stage3/source-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "evidence/build-work-cleanup-stage3/stage4-prompt.txt": "075382312a75693b3ba368f9fb066bca794afbfabefc964b8c6679b52880e3ce",
+  "evidence/build-work-cleanup-stage3/successor.json": "996f151af2c0ab922d8024e64027c359d6072eb77b71d97f5388616ee7c80b84",
   "evidence/build-work-cleanup-stage3/test/identity.json": "035892278056f347df814ed0e8abf29201f720e8e957083fc3cb6d257126857d",
   "evidence/build-work-cleanup-stage3/test/initial-verifier.log": "9a8eadf02529fd3940846cdcb29c4841f717934da520960d6e07d85856c833de",
   "evidence/build-work-cleanup-stage3/test/report.json": "a1b9b11c1679a81f9de60f99c7a4de592a4552b6330dc3cd3504c8a5397d19ea",
