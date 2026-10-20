@@ -1,0 +1,18 @@
+{
+  "marker": "smc-central-stop-backpressure-20261021-stage4-after-independent-pass",
+  "source_thread": "01a15ab0-ebcf-7083-a3ec-7bbb353a7535",
+  "candidate": "cce6ac5ccd45ebb2809afd973671af96b138748a",
+  "candidate_tree": "cdc6752b931e8bdb49df7c4f44222b1dfd222797",
+  "next_stage": 4,
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_stop_stage3_20261021/evidence/stop-stage3/stage4-prompt.txt",
+  "prompt_sha256": "f7e67b1cc94cf5323f910b1cabbc9772475321b39e6ad8322bd91b6142ba8a57",
+  "status": "pending",
+  "receiving_owner": null,
+  "attempts": [],
+  "project_id": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
+  "mapping_stage4": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "mapping_result": "/Users/mac/Documents/x0x37/smc_mapping_stage4_20261021/evidence/mapping-stage4/result.json",
+  "authorization": "Owner request Now read rules and fix; workflow17 independent stage3; workflow18 automatic successors, recovery, startup checks and completion notices; owner-decisions14 complete validated DEV install with notice.",
+  "physical_result": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED"
+}
