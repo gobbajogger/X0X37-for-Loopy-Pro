@@ -1,0 +1,56 @@
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5625 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 6864 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7024 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 7488 B
+font set barlow: 39912 B (approx)
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+asset cache: drums miss
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 5625 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 6864 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 7024 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 8496 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 7488 B
+font set barlow: 39912 B (approx)
+asset cache: font miss
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+asset cache: breaks miss
+asset cache: drums hit
+asset cache: font hit
+asset cache: breaks hit
+Preparing worktree (detached HEAD 7a08385)
+Updating files:  12% (163/1349)Updating files:  13% (176/1349)Updating files:  14% (189/1349)Updating files:  15% (203/1349)Updating files:  16% (216/1349)Updating files:  17% (230/1349)Updating files:  18% (243/1349)Updating files:  19% (257/1349)Updating files:  20% (270/1349)Updating files:  21% (284/1349)Updating files:  22% (297/1349)Updating files:  23% (311/1349)Updating files:  23% (323/1349)Updating files:  24% (324/1349)Updating files:  25% (338/1349)Updating files:  26% (351/1349)Updating files:  27% (365/1349)Updating files:  28% (378/1349)Updating files:  29% (392/1349)Updating files:  30% (405/1349)Updating files:  31% (419/1349)Updating files:  32% (432/1349)Updating files:  33% (446/1349)Updating files:  34% (459/1349)Updating files:  35% (473/1349)Updating files:  36% (486/1349)Updating files:  37% (500/1349)Updating files:  37% (505/1349)Updating files:  38% (513/1349)Updating files:  39% (527/1349)Updating files:  40% (540/1349)Updating files:  41% (554/1349)Updating files:  42% (567/1349)Updating files:  43% (581/1349)Updating files:  44% (594/1349)Updating files:  45% (608/1349)Updating files:  46% (621/1349)Updating files:  47% (635/1349)Updating files:  48% (648/1349)Updating files:  49% (662/1349)Updating files:  50% (675/1349)Updating files:  51% (688/1349)Updating files:  52% (702/1349)Updating files:  53% (715/1349)Updating files:  54% (729/1349)Updating files:  55% (742/1349)Updating files:  56% (756/1349)Updating files:  57% (769/1349)Updating files:  58% (783/1349)Updating files:  59% (796/1349)Updating files:  60% (810/1349)Updating files:  61% (823/1349)Updating files:  62% (837/1349)Updating files:  63% (850/1349)Updating files:  64% (864/1349)Updating files:  65% (877/1349)Updating files:  66% (891/1349)Updating files:  67% (904/1349)Updating files:  67% (911/1349)Updating files:  68% (918/1349)Updating files:  69% (931/1349)Updating files:  70% (945/1349)Updating files:  71% (958/1349)Updating files:  72% (972/1349)Updating files:  73% (985/1349)Updating files:  74% (999/1349)Updating files:  75% (1012/1349)Updating files:  76% (1026/1349)Updating files:  77% (1039/1349)Updating files:  78% (1053/1349)Updating files:  79% (1066/1349)Updating files:  79% (1072/1349)Updating files:  80% (1080/1349)Updating files:  81% (1093/1349)Updating files:  82% (1107/1349)Updating files:  83% (1120/1349)Updating files:  84% (1134/1349)Updating files:  85% (1147/1349)Updating files:  86% (1161/1349)Updating files:  87% (1174/1349)Updating files:  88% (1188/1349)Updating files:  89% (1201/1349)Updating files:  90% (1215/1349)Updating files:  91% (1228/1349)Updating files:  91% (1238/1349)Updating files:  92% (1242/1349)Updating files:  93% (1255/1349)Updating files:  94% (1269/1349)Updating files:  95% (1282/1349)Updating files:  96% (1296/1349)Updating files:  97% (1309/1349)Updating files:  98% (1323/1349)Updating files:  99% (1336/1349)Updating files: 100% (1349/1349)Updating files: 100% (1349/1349), done.
+HEAD is now at 7a083858 Audit safe generated asset reuse across validation worktrees
+asset cache: drums hit
+asset cache: font hit
+asset cache: breaks hit
+{
+  "baseline_seconds": 8.359510000002047,
+  "cold_seconds": 16.403855000000476,
+  "warm_seconds": 3.100066999999399,
+  "saved_seconds": 5.259443000002648,
+  "warm_speedup": 2.6965578485896167,
+  "outputs": {
+    "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+    "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+    "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+    "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+  },
+  "fresh_worktree_seconds": 3.8282240000007732,
+  "fresh_worktree_outputs_equal": true,
+  "fresh_worktree_status": [
+    " M tools/build.py",
+    "?? tools/asset_cache.py"
+  ],
+  "cache": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/stage2-measure-1",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "source_files": {
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tools/asset_cache.py": "2a03db339e96582906cf5e3080eff9096e0848210ad7642f0a5a179ccb6ceb89",
+    "tests/host/test_asset_cache.py": "0fed1f1891f37133ab3e043826aa1eb1cef39d8bb7354462b83b44ccf6325937"
+  }
+}

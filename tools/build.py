@@ -38,6 +38,7 @@ LDR = OUT / "loader"
 sys.path.insert(0, str(SRC / "tools"))
 import fm1pkg_make  # noqa: E402
 import lz4blk  # noqa: E402
+import asset_cache  # noqa: E402
 
 APP_XIP = 0x02000120                # app.bin offset 0 in the XIP map; the SPL jumps here
 APP_SLOT = fm1pkg_make.APP_SLOT
@@ -141,29 +142,19 @@ def tc_all(*cmds):
 
 def generate():
     """generated headers: the font (Felucca's), the 909's samples and tables, the break bank"""
-    GEN.mkdir(parents=True, exist_ok=True)
-    tools = SRC / "tools"
-    cmds = [[tools / "gen_font.py", GEN / "felucca_font.h"],
-            [tools / "gen_drum_samples.py", GEN / "x0x_drum_samples.h"]]
-    procs = [subprocess.Popen([sys.executable, *map(str, c)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                              text=True) for c in cmds]
-    failed = []
-    for c, p in zip(cmds, procs):
-        sys.stdout.write(p.communicate()[0])
-        if p.returncode:
-            failed.append(c[0].name)
-    if failed:
-        raise SystemExit(f"build: {', '.join(failed)} failed")
-    # the BREAK part's built-in bank: the 909-rendered loops (no recordings), or, opt-in,
-    # one-bar WAVs from X0X_BREAK_BANK (made by tools/import_breaks.py; not in this tree)
-    bank = os.environ.get("X0X_BREAK_BANK")
-    cmd = ([sys.executable, str(tools / "gen_break_bank.py"), bank, str(GEN / "x0x_break_bank.h")] if bank
-           else ["sh", str(tools / "gen_builtin_break.sh"), str(GEN)])
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    sys.stdout.write(r.stdout)
-    if r.returncode:
-        sys.stderr.write(r.stderr)
-        raise SystemExit("build: break bank failed")
+    with ThreadPoolExecutor(2) as executor:
+        jobs = [executor.submit(asset_cache.generate_asset, kind, SRC, GEN)
+                for kind in ('font', 'drums')]
+        # Wait for both generators before reporting a failure.
+        errors = []
+        for job in jobs:
+            try:
+                job.result()
+            except Exception as error:
+                errors.append(error)
+        if errors:
+            raise errors[0]
+    asset_cache.generate_asset('breaks', SRC, GEN)
 
 
 # ---- update loader

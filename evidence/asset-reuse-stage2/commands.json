@@ -1,0 +1,10 @@
+{
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "working_directory": "/Users/mac/Documents/x0x37/asset_reuse_implementation",
+  "linux_common_arguments": ["docker", "run", "--rm", "--platform", "linux/amd64", "--network", "none", "--user", "501:20", "-v", "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37", "-w", "/Users/mac/Documents/x0x37/asset_reuse_implementation", "x0x37-validation:local"],
+  "regression_command": ["python3", "-B", "tests/host/test_asset_cache.py"],
+  "timing_command": ["python3", "-u", "-B", "evidence/asset-reuse-stage2/measure.py"],
+  "timing_environment": {"MEASURE_IMAGE_ID": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"},
+  "mac_smoke_scope": "Run each unchanged font/drum generator and generate_asset in separate temporary folders. Require misses and identical hashes for all three output headers.",
+  "static_commands": ["python3 -B -m py_compile tools/asset_cache.py tools/build.py tests/host/test_asset_cache.py", "git diff --check"]
+}

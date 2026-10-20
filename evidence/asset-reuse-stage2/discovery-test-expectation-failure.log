@@ -1,0 +1,53 @@
+.F..............
+======================================================================
+FAIL: test_discovery_reuse_checks_contents_without_restarting_tools (__main__.CacheTests.test_discovery_reuse_checks_contents_without_restarting_tools)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/asset_reuse_implementation/tests/host/test_asset_cache.py", line 131, in test_discovery_reuse_checks_contents_without_restarting_tools
+    with self.assertRaises(subprocess.CalledProcessError):
+AssertionError: CalledProcessError not raised
+
+----------------------------------------------------------------------
+Ran 16 tests in 91.195s
+
+FAILED (failures=1)
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss
+asset cache: breaks hit
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss

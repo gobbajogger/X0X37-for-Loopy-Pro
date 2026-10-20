@@ -1,0 +1,87 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "stage": 2,
+  "result": "PASS",
+  "base": "7a08385807d7ae79b67c105db90de9cffa8b805b",
+  "source_chat": "01a15ad1-a598-7a01-baae-5a8ac034d2c4",
+  "checks": [
+    {
+      "scope": "Cache correctness and invalidation",
+      "command": "python3 -B tests/host/test_asset_cache.py",
+      "environment": "Pinned Linux/amd64 image, user 501:20",
+      "cases": 17,
+      "result": "PASS",
+      "log": "regression.log"
+    },
+    {
+      "scope": "Original/cold/warm/fresh-worktree output equality and actual asset timing",
+      "command": "python3 -u -B evidence/asset-reuse-stage2/measure.py",
+      "result": "PASS",
+      "log": "timing.log",
+      "data": "timing.json"
+    },
+    {
+      "scope": "macOS font/drum fallback compared with original generators",
+      "result": "PASS",
+      "log": "mac-smoke.log"
+    },
+    {
+      "scope": "Python syntax and patch whitespace",
+      "result": "PASS",
+      "log": "diff.log"
+    }
+  ],
+  "source_files": {
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tools/asset_cache.py": "2a03db339e96582906cf5e3080eff9096e0848210ad7642f0a5a179ccb6ceb89",
+    "tests/host/test_asset_cache.py": "0fed1f1891f37133ab3e043826aa1eb1cef39d8bb7354462b83b44ccf6325937"
+  },
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "timing": {
+    "baseline_seconds": 8.359510000002047,
+    "cold_seconds": 16.403855000000476,
+    "warm_seconds": 3.100066999999399,
+    "saved_seconds": 5.259443000002648,
+    "warm_speedup": 2.6965578485896167,
+    "fresh_worktree_seconds": 3.8282240000007732
+  },
+  "coverage": [
+    "Same-mtime input, helper, generator and imported runtime edits.",
+    "CPU, fontset, search order, custom bank name/manifest/audio and compiler configuration.",
+    "Actual interpreter, Pillow, FreeType/RAQM, math libraries, GCC tools, transitive headers, linker inputs, ELF paths and loader configuration.",
+    "Dependency inventory reuse with byte verification, malformed inventory recovery and search-path invalidation.",
+    "Missing/corrupt/partial/wrong-key entries; unavailable cache.",
+    "Generator failure, generator signal, interrupted parent, changed inputs and concurrent publication.",
+    "Fresh real Git worktree using the shared Git common directory."
+  ],
+  "dispositions": [
+    {
+      "evidence": "discovery-test-expectation-failure.log",
+      "cause": "The new test incorrectly expected a shadow math.py to break this interpreter. It caused a conservative cache miss while generation succeeded.",
+      "repair": "The test now requires the cache miss. All 17 final cases pass."
+    },
+    {
+      "evidence": "timing-before-recheck.json",
+      "cause": "Repeated dependency discovery erased the initial warm saving.",
+      "repair": "The final implementation rehashes saved dependency inventories and lookup paths. The final timing is in timing.json."
+    }
+  ],
+  "limits": [
+    "Cold dependency discovery is slower than original generation. Warm savings are measured asset time, not whole-build or end-to-end DEV savings.",
+    "Linux GCC dependency discovery is supported. Other compiler pipelines and native macOS preserve generation without reuse.",
+    "No target firmware build, full gate, release build, device installation or external push ran in this stage.",
+    "The native validator lane remains separate. Its original 6d690e3 candidate has an active package-provenance repair in chat 01a15ae0-185b-7b40-b1e8-9a19c0eca02d. Use its checked successor before combination."
+  ],
+  "interface": {
+    "function": "asset_cache.generate_asset(kind, root, gen, cache=None)",
+    "kinds": [
+      "font",
+      "drums",
+      "breaks"
+    ],
+    "environment": "The breaks family honors X0X_BREAK_BANK. Callers that require the original built-in bank must preserve their own environment policy.",
+    "outputs": "OUTPUTS maps each family to its output filenames. Drums include both samples and tables.",
+    "scope": "No host/browser/reference consumer outside tools/build.py was changed."
+  },
+  "next_owner": "One fresh asset stage3 chat with separate independent test and investigation subagents."
+}

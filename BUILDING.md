@@ -170,6 +170,33 @@ local work. Development installs need scoped validation; release installs need
 the full gate. Exact model/package checks, flash and RAM budgets, slot backup
 and readback, and device evidence still apply at their respective steps. A selected test pass is not a full gate or a hardware PASS.
 
+## Generated asset cache
+
+`tools/build.py` reuses font, drum, and break headers separately.
+The cache uses input content hashes and actual runtime dependency files.
+It checks output hashes before each copy.
+It rehashes saved dependency inventories and lookup paths before reuse.
+Changed files or lookup paths trigger dependency discovery again.
+Font keys include the selected font files and the ordered font search path.
+Custom bank keys include the manifest, WAV files, and bank folder name.
+Built-in break keys include transitive headers, GCC tools, and linker/runtime libraries.
+
+If dependency discovery fails, the original generator runs.
+The initial compiler discovery supports the Linux GCC pipeline.
+Other compiler pipelines and macOS use generation without cache reuse.
+
+Git worktrees share `x0x37-asset-cache/v1` in the Git common directory.
+Source archives use `build/asset-cache/v1`.
+An unavailable cache causes generation.
+Each entry appears after an atomic directory rename.
+A failed generator cannot publish partial output.
+Input changes during generation stop the build.
+`X0X_ASSET_CACHE=0` disables cache reuse.
+The cache does not change font dimensions, audio quality, or package guards.
+
+The scoped regression command is `python3 -B tests/host/test_asset_cache.py`.
+Run the runtime and compiler cases in the supported Linux environment.
+
 ## Locked settings (regression guard)
 
 `tools/locked_settings.json` lists the hardware-relevant settings. They are the Bluetooth TX level and

@@ -1,0 +1,49 @@
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 100.943s
+
+OK
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums hit
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums miss
+asset cache: drums hit
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss
+asset cache: breaks hit
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss
+break bank: 1 loops at 44100 Hz, 4 B of flash (budget 262144)
+asset cache: breaks miss

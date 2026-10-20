@@ -1,0 +1,26 @@
+{
+  "baseline_seconds": 8.359510000002047,
+  "cold_seconds": 16.403855000000476,
+  "warm_seconds": 3.100066999999399,
+  "saved_seconds": 5.259443000002648,
+  "warm_speedup": 2.6965578485896167,
+  "outputs": {
+    "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+    "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+    "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+    "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+  },
+  "fresh_worktree_seconds": 3.8282240000007732,
+  "fresh_worktree_outputs_equal": true,
+  "fresh_worktree_status": [
+    " M tools/build.py",
+    "?? tools/asset_cache.py"
+  ],
+  "cache": "/Users/mac/Documents/x0x37/x0x37/.git/x0x37-asset-cache/stage2-measure-1",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "source_files": {
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tools/asset_cache.py": "2a03db339e96582906cf5e3080eff9096e0848210ad7642f0a5a179ccb6ceb89",
+    "tests/host/test_asset_cache.py": "0fed1f1891f37133ab3e043826aa1eb1cef39d8bb7354462b83b44ccf6325937"
+  }
+}
