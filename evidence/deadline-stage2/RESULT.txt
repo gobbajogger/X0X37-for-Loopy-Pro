@@ -57,7 +57,13 @@ No device write, controller write, release build, full gate, fallback or externa
 
 The next required stage is one fresh LOCAL stage3.
 It requires separate independent test and investigation subagents.
-Only a passing stage3 can start scoped DEV stage4 for both complete package/controller sets.
+Only a passing stage3 can start scoped DEV stage4 under the current model-validation policy.
 Mapping stage4 owner 01a15a87-298e-7d21-b004-b78d5beafd89 retains selection of the sole stage5 integrator.
 Both validated contributions are required before merge.
 The complete validated DEV-install permission carries forward with its notice requirement.
+
+The owner's new model policy uses Elite for shared development target checks.
+Pro-specific changes and actual Pro packages retain their applicable checks.
+Model-independent checks run one time for matching inputs.
+Both recorded stage2 builds completed before this policy update was read.
+Their valid results remain available for reuse.

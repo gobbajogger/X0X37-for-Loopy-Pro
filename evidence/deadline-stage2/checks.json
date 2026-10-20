@@ -102,5 +102,12 @@
   "next_stage": 3,
   "authorization": "Owner request Now read rules and fix; workflow17 repair loop; workflow18 automatic successors, recovery, startup checks and notices; owner-decisions14 complete validated DEV install with notice.",
   "candidate": "f080d1a5f31073dde600238f780acf37c12b2738",
-  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e"
+  "candidate_tree": "f9eee1e5cc9fb5dae55d1e2ffa19c67db65f386e",
+  "current_model_policy": {
+    "source_thread": "01a15a99-75d7-7921-9d65-f4b120566904",
+    "source_turn": "01a15a99-78a0-7092-a321-a7cca4e3e073",
+    "rule": "Current workspace x0x37-check rule9.",
+    "scope": "Elite is sufficient for shared development checks and budgets. Pro-specific changes and actual Pro packages retain their checks. Model-independent host checks run once for matching inputs.",
+    "timing": "Both stage2 builds completed before this update was read. Their results remain valid."
+  }
 }

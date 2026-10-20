@@ -203,7 +203,20 @@ Both complete contributions must pass their required stages before merge.
 Completion and successor
 
 After independent stage3 PASS, start exactly one fresh LOCAL stage4 automatically.
-Stage4 must use dev_validate for BOTH Elite and Pro complete package/controller sets.
+Stage4 must use dev_validate for each actual install or distribution package/controller set.
+The new owner policy uses Elite for shared development target checks after an Elite PASS.
+Do not repeat duplicate Pro target checks for shared source or memory budgets.
+Pro-specific changes and actual Pro packages still require their applicable checks.
+Do model-independent host checks one time for matching inputs.
+Reuse matching stage2 evidence across stages. Independent stage3 review remains required.
+The earlier handoff requested both complete package/controller sets.
+Apply the newer owner model policy when you select the actual stage4 artifacts.
+Do not claim an unbuilt Pro artifact or a Pro device PASS.
+Policy source: chat 01a15a99-75d7-7921-9d65-f4b120566904, completed turn 01a15a99-78a0-7092-a321-a7cca4e3e073.
+Owner quote: "I don't think we need to check pro targets if elite passes cause they are consistently smaller than Ellie".
+Current skill: /Users/mac/Documents/x0x37/.agents/skills/x0x37-check/SKILL.md rule9.
+The two stage2 builds had completed before this policy update was read.
+Keep their valid results. They do not require another duplicate build.
 Use evidence/deadline-stage2/stage4-dev-plan.json as a reviewed starting plan.
 Adjust it only for actual inputs and affected consumers.
 Then hand off to the one sole stage5 integrator and the complete authorized DEV install with a notice.
