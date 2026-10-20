@@ -1,0 +1,45 @@
+{
+  "marker": "smc-central-abort-20261021-stage3-after-checked-repair",
+  "source_thread": "01a15a8a-6061-7a83-9716-5766833e15a5",
+  "candidate": "05eff604cb3f136db71727a2aeeea785cab73b99",
+  "candidate_tree": "a00e1710ab67f800dea2bf4b97fbb9bd34fde384",
+  "next_stage": 3,
+  "prompt": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/evidence/abort-stage2/stage3-prompt.txt",
+  "prompt_sha256": "5123f4035b4286c9a7a57060fcc83d2cdb5a53ea4f810df85850360fda62c466",
+  "receiving_owner": "01a15a92-6343-7f30-8495-f968228e2d2c",
+  "thread_id": "01a15a92-6343-7f30-8495-f968228e2d2c",
+  "host_id": "local",
+  "status": "started",
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "result": {
+        "threadId": "01a15a92-6343-7f30-8495-f968228e2d2c",
+        "hostId": "local"
+      },
+      "status": "started_verified"
+    }
+  ],
+  "duplicate_check": "The local project activity and saved records show no existing successor for this repaired candidate. The prior central stage3 is idle after its repair handoff.",
+  "project_id": "f7f0e66d-e6da-4b2b-960a-3fb3185c535e",
+  "authorization": "Owner request Now read rules and fix; automatic handoffs under workflow17-18; complete validated DEV install under owner-decisions14.",
+  "integration_dependency": "01a15a87-298e-7d21-b004-b78d5beafd89",
+  "startup": {
+    "turn_id": "01a15a92-6462-7702-9e7b-717be8711aef",
+    "assistant_message_id": "msg_0701a8fb1be34bdc016ad7b2da31cc819196e5b356997014b3",
+    "evidence": "/Users/mac/Documents/x0x37/smc_central_abort_repair_20261021/evidence/abort-stage2/successor-startup.json",
+    "criterion": "A new assistant message acknowledges the assigned stage3 and its separate test and investigation helpers. The turn is in progress with no turn error."
+  },
+  "completion_notices": [
+    {
+      "thread_id": "01a15a87-298e-7d21-b004-b78d5beafd89",
+      "result": "sent",
+      "scope": "Checked central candidate and verified stage3 successor. Mapping retains sole stage5 selection."
+    },
+    {
+      "thread_id": "01a15a85-2fb6-7683-a11e-72faeecd3a8e",
+      "result": "sent",
+      "scope": "Repair completion and verified successor notice to the source owner."
+    }
+  ]
+}
