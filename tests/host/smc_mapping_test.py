@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile production routing and bank logic; cover all twelve drum destinations."""
+"""Compile production routing and bank logic; cover all eleven drum destinations."""
 import os
 from pathlib import Path
 import re
@@ -17,9 +17,10 @@ harness = r'''
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
+#include "seq/pattern.h"
 enum { R_NONE, R_ENG, R_HDR, R_ACT, T_909, T_808, T_MIX, T_FX, T_MST,
        MX_LEVEL, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART,
-       O_NONE, O_LIST, O_ASK, NPARTS=5, NDRUM=12 };
+       O_NONE, O_LIST, O_ASK, NPARTS=5 };
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 #define NONE PR(R_NONE,0,0,0)
@@ -28,7 +29,7 @@ static struct { pref_t r[1][4]; } pg;
 static pref_t list_rows[12];
 static const char *const PART_N[] = {"909","808"};
 static int kit=-1, clip, stage;
-static struct { pref_t target[8]; uint8_t value[8],picked,pending; } smc;
+static struct { pref_t target[8]; uint8_t value[8],picked,pending,seen; } smc;
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
 static int cur_page(void) { return 0; }
 static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }
@@ -67,7 +68,7 @@ int main(void) {
             assert(smc.picked==0 && smc.pending==255);
             for(int n=0;n<8;n++) {
                 pref_t r=smc_target(n);
-                if(bank && n>=4) { assert(r.kind==R_NONE); continue; }
+                if(bank && n>=3) { assert(r.kind==R_NONE); continue; }
                 assert(r.kind==R_ENG && r.a==(kit ? T_808:T_909) && r.b==bank*8+n && r.c==0);
                 seen |= 1u<<r.b;
             }
@@ -75,8 +76,8 @@ int main(void) {
             assert(smc_knob_target(1).c==1);
             unique();
         }
-        assert(seen==0xFFF);
-        ui.sel[kit]=11; build_pages(); assert(smc_target(3).b==11); unique();
+        assert(seen==0x7FF);
+        ui.sel[kit]=10; build_pages(); assert(smc_target(2).b==10); unique();
         ui.sel[kit]=7; build_pages(); assert(smc_target(7).b==7); unique();
     }
     ui.view=V_PART; kit=-1;
@@ -99,6 +100,6 @@ int main(void) {
 '''
 with tempfile.TemporaryDirectory() as tmp:
     c=Path(tmp)/'test.c'; exe=Path(tmp)/'test'; c.write_text(harness)
-    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror',str(c),'-o',str(exe)],check=True)
+    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-Wall','-Wextra','-Werror','-I'+str(root/'firmware/src'),str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
-print('PASS: both drum kits, 12 tracks, bank bounds, unique fader/knob targets, menus and stage isolation')
+print('PASS: both drum kits, 11 tracks, bank bounds, unique fader/knob targets, menus and stage isolation')

@@ -518,6 +518,16 @@ LIM-13. Bluetooth MIDI (BLE-01 to BLE-16) has only part of its hardware tests (S
 LIM-14. The controller's poll and its interrupts run on core 1 between and inside audio jobs. A long poll can delay an audio job past the 8 ms limit, and then X0X holds core 1 (one core, no Bluetooth). Long flash operations park core 1, and a long park can drop the Bluetooth connection. Units that cannot run core 1 (fm1-x0x#10) have no Bluetooth. [CODE ../hal/fm1_cpu1.h]
 LIM-12. We maintain only the SMK-37 build. We do not maintain the FM-1 build. Its link step fails because the XIP region overflows by about 648 B. The owner accepts this. It is not a defect. [USER]
 
+### SMC-Mixer navigation and pickup
+
+SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank; knobs 2–4 edit its pan and sends. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-03. Encoders edit visible fields only. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
+
+SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
+
 ## 18. Open questions
 
 These are disagreements between the code and a source document, or behavior that needs an owner decision. Do not report them as defects. Do not fix them without an owner decision.

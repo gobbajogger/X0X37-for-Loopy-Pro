@@ -8,6 +8,7 @@
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
+extern int smk_ck_smc_nav(uint8_t note);
 static struct {
     uint8_t n, b[6];
 } smc_q[SMC_Q];
@@ -101,7 +102,7 @@ static pref_t smc_page_target(int n)
 }
 
 /* Faders use the main mixer except on the visible drum MIX pages. The
- * sample bank follows selection, including the final four of twelve tracks. */
+ * sample bank follows selection, including the final three of eleven tracks. */
 static pref_t smc_target(int n)
 {
     int kit, track;
@@ -139,7 +140,7 @@ static void smc_show(int n, int knob, pref_t r)
     char t[28], *q = t;
     const char *name = pref_name(r);
     int i = 0;
-    q = put_s(q, knob ? "SMC K" : "SMC F");
+    q = put_s(q, knob ? "SMC K" : (smc.picked & (1u << n)) ? "SMC F" : "PICK F");
     q = put_i(q, n + 1);
     *q++ = ' ';
     while (name[i] && i < 12) *q++ = name[i++];
@@ -158,6 +159,7 @@ static void smc_notice(int n)
         smc.target[n] = r;
         smc.value[n] = v;
         smc.picked &= (uint8_t)~bit;
+        smc.seen &= (uint8_t)~bit;
         smc.pending |= bit;
     }
 }
@@ -260,7 +262,7 @@ static int smc_bank(uint8_t note)
         int kit = drum_mix_page();
         ui.sel[kit] = note == 0x2E ? 0 : 8;
         build_pages();
-        say(PART_N[kit], note == 0x2E ? "1-8" : "9-12");
+        say(PART_N[kit], note == 0x2E ? "1-8" : "9-11");
         return 1;
     }
     return 0;
@@ -271,6 +273,40 @@ static int smc_bank(uint8_t note)
 static void smc_button(uint8_t note, int mmc)
 {
     int row, strip;
+    if (ui.help) {
+        if (note == 6) ui.help = 0;       /* R7: back */
+        return;
+    }
+    if (ui.overlay == O_ASK) {
+        if (note == 5 || note == 6)
+            button_tap(note == 5 ? B_SEL : B_HOME);
+        return;
+    }
+    if (ui.overlay == O_NONE && smk_ck_smc_nav(note))
+        return;
+    if (note == 5 || note == 6 || note == 14) {
+        button_tap(note == 5 ? (smk_clip_mode_on() && ui.overlay == O_NONE ? B_GLO : B_SEL) :
+                   note == 6 ? B_HOME : B_GLO);
+        return;
+    }
+    if (ui.overlay == O_NONE && !smk_clip_mode_on() && note >= 24 && note < 32 && drum_mix_page() >= 0) {
+        int kit = drum_mix_page(), track = (ui.sel[kit] / 8) * 8 + note - 24;
+        if (track < NDRUM) ui.sel[kit] = (uint8_t)track;
+        build_pages();
+        return;
+    }
+    if ((note == 0x30 || note == 0x31 ||
+         ((note == 0x2E || note == 0x2F) && ui.view == V_PART && is_drum())) &&
+        ui.overlay == O_NONE && !smk_clip_mode_on()) {
+        int kit = drum_mix_page();
+        if (kit < 0 && ui.view == V_PART && is_drum()) kit = ui.part;
+        if (kit >= 0) {
+            int track = ui.sel[kit] + ((note & 1) ? 1 : -1);
+            if (track >= 0 && track < NDRUM) ui.sel[kit] = (uint8_t)track;
+            build_pages();
+            return;
+        }
+    }
     if (note < 32u) {
         row = note >> 3;
         strip = note & 7;
@@ -289,6 +325,7 @@ static void smc_button(uint8_t note, int mmc)
                 mute_part(strip);
             else {                     /* SELECT */
                 smc_select_part(strip);
+                smc_view(V_PART, -1);
                 say("SELECT", PART_N[strip]);
             }
         } else {
@@ -337,6 +374,12 @@ static void smc_button(uint8_t note, int mmc)
         if (ui.overlay == O_LIST) {
             if (note < 0x62) list_move(d);
             else ui_menu_arrow(d);
+        } else if (note < 0x62) {
+            static const uint8_t views[] = {V_HOME, V_PART, V_SEQ, V_GEN, V_FX, V_MIX, V_SONG};
+            int i = 0;
+            while (i < 6 && views[i] != ui.view) i++;
+            do { i = (i + d + 7) % 7; } while (views[i] == V_GEN && !is_303());
+            smc_view(views[i], -1);
         } else {
             int p = cur_page() + d;
             if (p >= 0 && p < pg.n) *page_of(ui.view) = (uint8_t)p;
@@ -387,7 +430,7 @@ static void smc_message(const uint8_t *m, uint8_t len)
 void smc_poll(void)
 {
     uint8_t link = smc_link_pending, r, count = 0;
-    int allow = ui.overlay != O_ASK && !perf_testing();
+    int allow = !perf_testing();
     if (link) {
         smc_link_pending = 0;
         smc.up = link == 1u;
@@ -402,7 +445,7 @@ void smc_poll(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
-    if (!allow) {
+    if (!allow || ui.overlay == O_ASK || ui.help) {
         smc.picked = smc.seen = 0;
         if (smc.solo) {
             smc.solo = 0;
@@ -411,14 +454,14 @@ void smc_poll(void)
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
-        if (allow && smc.up && (proj.set.bt & PROJ_BT_SMC_CENTRAL))
+        if (allow && !perf_testing() && smc.up && (proj.set.bt & PROJ_BT_SMC_CENTRAL))
             smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n);
         smc_qr = (uint8_t)(r + 1u);
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
         r = smc_host_r;
-        if (allow && (proj.set.bt & PROJ_BT_SMC_USER))
+        if (allow && !perf_testing() && (proj.set.bt & PROJ_BT_SMC_USER))
             smc_message(smc_host_q[r % SMC_Q], 3);
         smc_host_r = (uint8_t)(r + 1u);
     }
@@ -426,7 +469,7 @@ void smc_poll(void)
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
             r = smc_mmc_r[src];
-            if (allow && (proj.set.bt & PROJ_BT_SMC_USER))
+            if (allow && !perf_testing() && (proj.set.bt & PROJ_BT_SMC_USER))
                 smc_button(smc_mmc_note(smc_mmc_q[src][r % 16u]), 1);
             smc_mmc_r[src] = (uint8_t)(r + 1u);
         }
@@ -436,6 +479,11 @@ void smc_poll(void)
 static int smc_led(int note)
 {
     int strip = note & 7, row = note >> 3;
+    if (note == 5) return ui.overlay != O_NONE;
+    if (note == 6) return 0;
+    if (note == 14) return ui.view == V_GLO;
+    if (note >= 24 && note < 32 && ui.overlay == O_NONE && !smk_clip_mode_on() && drum_mix_page() >= 0)
+        return strip == ui.sel[drum_mix_page()] % 8;
     if (note < 32) {
         if (strip < NPARTS) {
             if (row == 0) return ui.rec && smc.rec_part == strip;

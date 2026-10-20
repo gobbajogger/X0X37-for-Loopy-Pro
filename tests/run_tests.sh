@@ -165,6 +165,7 @@ run project-303-stream sh tests/host/run_project_303_stream.sh
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
+run smc-reachability sh tests/host/smc_reachability_test.sh
 run smc-mapping python3 tests/host/smc_mapping_test.py
 run smc-filter python3 tests/host/smc_filter_test.py
 run smc-part-select sh tests/host/smc_part_select_test.sh
