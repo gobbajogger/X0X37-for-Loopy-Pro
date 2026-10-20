@@ -10,7 +10,7 @@
   "checked_candidate": "c4cec67f9c642fa6f925a06147e136b2b7231644",
   "stage3_evidence_commit": "258144db38d331c691c3a449146ff3da8ed86676",
   "prompt": "evidence/build-work-cleanup-stage3/stage4-prompt.txt",
-  "prompt_sha256": "b2bae289f951244141ef65001c83a707a38c74c9e581447a7250b87cbf43fa97",
+  "prompt_sha256": "075382312a75693b3ba368f9fb066bca794afbfabefc964b8c6679b52880e3ce",
   "lane": "/Users/mac/Documents/x0x37/build_work_cleanup_stage4",
   "branch": "lane/opt-build-work-cleanup-stage4",
   "attempts": [],
