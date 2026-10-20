@@ -1,0 +1,20 @@
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+asset cache: breaks miss
+asset cache: breaks hit
+asset cache: breaks hit
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+asset cache: breaks miss
+{
+  "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "cold_hit": false,
+  "warm_hit": true,
+  "retarget_hit": true,
+  "wrapper_called_by_hit": false,
+  "disabled_hit": false,
+  "wrapper_called_by_disabled": true,
+  "initial_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+  "retarget_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+  "disabled_sha256": "bfe99a56c3de8e350bdda36584022ee4f811b2908da9b75ad8645b7d5646b1d6",
+  "bytes_differ_after_actual_compiler_change": true
+}

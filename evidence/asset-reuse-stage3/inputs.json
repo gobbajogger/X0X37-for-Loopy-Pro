@@ -1,0 +1,54 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "marker": "asset-reuse-20261021-stage3-content-cache",
+  "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "tree": "215653a9f95ac5643e5b68bab0cca9aa7201e214",
+  "audit_base": "7a08385807d7ae79b67c105db90de9cffa8b805b",
+  "lane": "/Users/mac/Documents/x0x37/asset_reuse_stage3",
+  "source_hashes": {
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tools/asset_cache.py": "2a03db339e96582906cf5e3080eff9096e0848210ad7642f0a5a179ccb6ceb89",
+    "tests/host/test_asset_cache.py": "0fed1f1891f37133ab3e043826aa1eb1cef39d8bb7354462b83b44ccf6325937"
+  },
+  "matches_stage2_source_hashes": true,
+  "candidate_changed_files": [
+    "BUILDING.md",
+    "evidence/asset-reuse-stage2/commands.json",
+    "evidence/asset-reuse-stage2/diff.log",
+    "evidence/asset-reuse-stage2/discovery-test-expectation-failure.log",
+    "evidence/asset-reuse-stage2/mac-smoke.log",
+    "evidence/asset-reuse-stage2/measure.py",
+    "evidence/asset-reuse-stage2/regression.log",
+    "evidence/asset-reuse-stage2/result.json",
+    "evidence/asset-reuse-stage2/timing-before-discovery-reuse.json",
+    "evidence/asset-reuse-stage2/timing-before-recheck.json",
+    "evidence/asset-reuse-stage2/timing-before-recheck.log",
+    "evidence/asset-reuse-stage2/timing.json",
+    "evidence/asset-reuse-stage2/timing.log",
+    "tests/host/test_asset_cache.py",
+    "tools/asset_cache.py",
+    "tools/build.py"
+  ],
+  "stage2_evidence_sha256": {
+    "evidence/asset-reuse-stage2/regression.log": "2e102c63c2d5ccc45499e1034f8697941e83a55bb5b87aaef70657620088cbaf",
+    "evidence/asset-reuse-stage2/measure.py": "5646ab1c36f6c41d9f663a82b7c06eb961674adc91e3b512a9a6b2c5293a43a3",
+    "evidence/asset-reuse-stage2/timing-before-recheck.json": "1eb6dc31fda99c4b52c6ce6bbde440cf896ac6dfdd63fc14fefa29ee45d5f731",
+    "evidence/asset-reuse-stage2/timing.json": "75925a27ca85d8881ac921c03b400b97f1725456cf9a94a8624621ad74683418",
+    "evidence/asset-reuse-stage2/result.json": "b8468eb0df6885a1712325b0f2335eac18050d340a887b435b0874b9bc5e138b",
+    "evidence/asset-reuse-stage2/timing-before-recheck.log": "90b08a7a2289d646bcdc831563b736498bec160520679c2fa0278830a8771691",
+    "evidence/asset-reuse-stage2/commands.json": "6ef0238ef7b50bba840287d92a6220c21154b7cda791081665f3a166bcc16f91",
+    "evidence/asset-reuse-stage2/discovery-test-expectation-failure.log": "294c530686bc246ac23d897c7cddd6d6ef3e70dfb1ade47c96fd0ee83aaf9850",
+    "evidence/asset-reuse-stage2/timing-before-discovery-reuse.json": "f80a445874d50978239d658c3c6c225636a606ad370ae9c7bbff0ef4b9528d0f",
+    "evidence/asset-reuse-stage2/mac-smoke.log": "8ad87f5786fc037de3300b44ec81a7121b7fde70f73b9ced60c7d30dcd10c6d2",
+    "evidence/asset-reuse-stage2/diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/asset-reuse-stage2/timing.log": "4edcc32f4024e2258c0135b4f6bc48baf545844429e979d6bcc4f829ea78ad53"
+  },
+  "stage2_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "stage2_reused_checks": [
+    "17 final Linux cache regression cases",
+    "original/cold/warm/fresh-worktree asset output equality and timing",
+    "macOS font/drum fallback equality",
+    "syntax and whitespace"
+  ],
+  "matching_scope_note": "Stage3 preserves candidate source. Reuse refers to these checks at their recorded configurations and image, not to complete firmware validation."
+}

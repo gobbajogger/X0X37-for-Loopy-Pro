@@ -1,0 +1,14 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "marker": "asset-reuse-20261021-stage2-selector-repair",
+  "status": "pending",
+  "source_chat": "01a15aec-a3db-7972-b1a3-cbd56a0bd510",
+  "stage": 2,
+  "kind": "repair",
+  "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "prompt": "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/repair-stage2-prompt.txt",
+  "thread_id": null,
+  "host_id": null,
+  "attempts": [],
+  "reason": "Stage3 FAIL I1 requires source repair before any stage4."
+}

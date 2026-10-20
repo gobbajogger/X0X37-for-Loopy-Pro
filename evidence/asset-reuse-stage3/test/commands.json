@@ -1,0 +1,9 @@
+{
+  "working_directory": "/Users/mac/Documents/x0x37/asset_reuse_stage3",
+  "command": ["docker", "run", "--rm", "--platform", "linux/amd64", "--network", "none", "--user", "501:20", "-e", "STAGE3_IMAGE=sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1", "-v", "/Users/mac/Documents/x0x37:/Users/mac/Documents/x0x37", "-w", "/Users/mac/Documents/x0x37/asset_reuse_stage3", "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1", "python3", "-u", "-B", "evidence/asset-reuse-stage3/test/process_probe.py"],
+  "stdout_stderr": "process.log",
+  "exit_code": 0,
+  "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "result": "process-result.json",
+  "note": "Times are observed subprocess durations during concurrent work. They exclude worktree creation and do not establish end-to-end validation speed."
+}

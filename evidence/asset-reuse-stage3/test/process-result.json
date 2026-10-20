@@ -1,0 +1,204 @@
+{
+  "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "uid": 501,
+  "checks": {
+    "real_build_cold_warm_processes": {
+      "cold": {
+        "seconds": 17.229447000001528,
+        "hashes": {
+          "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+          "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+          "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+          "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+        },
+        "hits": [
+          "asset cache: drums miss",
+          "asset cache: font miss",
+          "asset cache: breaks miss"
+        ],
+        "command": [
+          "/usr/bin/python3",
+          "-u",
+          "-B",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+          "--worker",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fresh",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/cache",
+          "normal",
+          "all"
+        ]
+      },
+      "warm": {
+        "seconds": 3.6791320000011183,
+        "hashes": {
+          "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+          "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+          "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+          "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+        },
+        "hits": [
+          "asset cache: drums hit",
+          "asset cache: font hit",
+          "asset cache: breaks hit"
+        ],
+        "command": [
+          "/usr/bin/python3",
+          "-u",
+          "-B",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+          "--worker",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fresh",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/cache",
+          "deny-discovery",
+          "all"
+        ]
+      },
+      "risk": "A new interpreter must reuse verified inventories and preserve all four real generated headers."
+    },
+    "fresh_clean_checked_commit": {
+      "seconds": 4.243873999999778,
+      "hashes": {
+        "felucca_font.h": "589ca6d26e0520b1c5d7653e516664b4e72373b66434727a195a6c904ea55d44",
+        "x0x_drum_samples.h": "50e7aa406f7767d7b10bb2165aa9d19e59b27b451dea59b881cab06a0c5818e9",
+        "x0x_drum_tables.h": "c9cbca716373b2c8408fc09997106cffc9785cad33b6ee8fdd8df6fe6ced8199",
+        "x0x_break_bank.h": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56"
+      },
+      "hits": [
+        "asset cache: drums hit",
+        "asset cache: font hit",
+        "asset cache: breaks hit"
+      ],
+      "command": [
+        "/usr/bin/python3",
+        "-u",
+        "-B",
+        "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+        "--worker",
+        "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/second",
+        "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/cache",
+        "deny-discovery",
+        "all"
+      ]
+    },
+    "same_mtime_runtime_stale_pyc_across_processes": {
+      "first": {
+        "seconds": 3.653169999997772,
+        "hashes": {
+          "x0x_drum_samples.h": "cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4",
+          "x0x_drum_tables.h": "21ab682c64c6e378e425bb8b9bcc5979179c9ac8a1489fbe5e4f40fadd202cf8"
+        },
+        "hits": [
+          "asset cache: drums miss"
+        ],
+        "command": [
+          "/usr/bin/python3",
+          "-u",
+          "-B",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+          "--worker",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture-cache",
+          "normal",
+          "drums"
+        ]
+      },
+      "again": {
+        "seconds": 0.9800250000007509,
+        "hashes": {
+          "x0x_drum_samples.h": "cba06b5736faf67e54b07b561eae94395e774c517a7d910a54369e1263ccfbd4",
+          "x0x_drum_tables.h": "21ab682c64c6e378e425bb8b9bcc5979179c9ac8a1489fbe5e4f40fadd202cf8"
+        },
+        "hits": [
+          "asset cache: drums hit"
+        ],
+        "command": [
+          "/usr/bin/python3",
+          "-u",
+          "-B",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+          "--worker",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture-cache",
+          "deny-discovery",
+          "drums"
+        ]
+      },
+      "changed": {
+        "seconds": 3.5059239999973215,
+        "hashes": {
+          "x0x_drum_samples.h": "11507a0e2f5e69d5dfa40a62a1bd7b6ee57e6bcd85c67c9b8431b36fff21c437",
+          "x0x_drum_tables.h": "aaff1bf960436f6a4767b1df3686fb174142b781d08eed9060dac265d352d383"
+        },
+        "hits": [
+          "asset cache: drums miss"
+        ],
+        "command": [
+          "/usr/bin/python3",
+          "-u",
+          "-B",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+          "--worker",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture-cache",
+          "normal",
+          "drums"
+        ]
+      },
+      "after": {
+        "seconds": 1.0949600000021746,
+        "hashes": {
+          "x0x_drum_samples.h": "11507a0e2f5e69d5dfa40a62a1bd7b6ee57e6bcd85c67c9b8431b36fff21c437",
+          "x0x_drum_tables.h": "aaff1bf960436f6a4767b1df3686fb174142b781d08eed9060dac265d352d383"
+        },
+        "hits": [
+          "asset cache: drums hit"
+        ],
+        "command": [
+          "/usr/bin/python3",
+          "-u",
+          "-B",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+          "--worker",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture",
+          "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture-cache",
+          "deny-discovery",
+          "drums"
+        ]
+      },
+      "risk": "Persistent discovery and timestamp-valid stale bytecode must not hide changed imported runtime bytes."
+    },
+    "real_unwritable_directory_fallback": {
+      "seconds": 3.301117000002705,
+      "hashes": {
+        "x0x_drum_samples.h": "361e48d0308f20e32dba5fb56328baf18d72ef0ccb43b84f5c262d2a6a1fc6c8",
+        "x0x_drum_tables.h": "8d6fa6ab42911c03802ce0e827235262e7d54ae70cc6e3915884825547e26d09"
+      },
+      "hits": [
+        "asset cache: drums miss"
+      ],
+      "command": [
+        "/usr/bin/python3",
+        "-u",
+        "-B",
+        "/Users/mac/Documents/x0x37/asset_reuse_stage3/evidence/asset-reuse-stage3/test/process_probe.py",
+        "--worker",
+        "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture",
+        "/Users/mac/Documents/x0x37/asset_reuse_stage3/build/stage3-process-m7m8vi7z/fixture-cache",
+        "normal",
+        "drums"
+      ]
+    }
+  },
+  "result": "PASS",
+  "source_unchanged": {
+    "asset_cache.py": "2a03db339e96582906cf5e3080eff9096e0848210ad7642f0a5a179ccb6ceb89",
+    "build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b"
+  },
+  "reused_stage2_evidence": [
+    "Corrupt/missing/partial/wrong-key entries, generator failure/signal, parent interruption, concurrent publication, fallback input mutation: exact candidate and pinned environment match."
+  ],
+  "limits": [
+    "Asset generation and cache boundaries only; no firmware, device, gate or end-to-end validation timing."
+  ]
+}

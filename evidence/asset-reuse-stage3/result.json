@@ -1,0 +1,55 @@
+{
+  "workflow": "asset-reuse-20261021",
+  "stage": 3,
+  "result": "FAIL",
+  "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "source_unchanged": true,
+  "test_scope": {
+    "result": "PASS",
+    "evidence": "test/process-result.json",
+    "limits": "Scoped asset checks only. No firmware or device validation."
+  },
+  "investigation_scope": {
+    "result": "FAIL",
+    "evidence": "investigation/result.json",
+    "finding": "I1: persistent compiler symlink selection is not revalidated; proven stale output differs from actual selected generator output."
+  },
+  "parent_checks": [
+    {
+      "scope": "build.generate parallel scheduling, dependency order and error propagation",
+      "command": "python3 -B evidence/asset-reuse-stage3/routing_probe.py",
+      "result": "PASS",
+      "evidence": "routing-result.json"
+    },
+    {
+      "scope": "Candidate source hashes match stage2 and unchanged candidate tree",
+      "result": "PASS",
+      "evidence": "inputs.json"
+    },
+    {
+      "scope": "Patch whitespace",
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  ],
+  "reused_evidence": "Exact-source stage2 17 final Linux cases, output equality/timing and macOS fallback remain scoped passing evidence. They did not cover I1. See inputs.json for their hashes.",
+  "findings": [
+    {
+      "id": "I1",
+      "priority": "P1",
+      "cause": "Resolved compiler target bytes survive while the selected symlink target and effective resolution change. Directory inventories contain names only.",
+      "disposition": "Fresh repair stage2 then fresh affected independent stage3. Do not advance candidate to stage4.",
+      "proof": "investigation/compiler-symlink-proof.log"
+    }
+  ],
+  "timing_note": "New test durations (cold 17.229s, warm 3.679s, fresh 4.244s) are observations under concurrent load, not an end-to-end speed claim. All four headers matched the original hashes in these supported unchanged-input runs.",
+  "combination_plan": "combination-plan.json",
+  "next_stage": "One fresh selector-repair stage2",
+  "next_owner_marker": "asset-reuse-20261021-stage2-selector-repair",
+  "receiving_combination_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "limits": [
+    "No source repair was made in stage3.",
+    "No native-provenance repair handoff was received before this result; its checked successor remains required for combination.",
+    "No target build, full/release gate, device installation or external push ran."
+  ]
+}

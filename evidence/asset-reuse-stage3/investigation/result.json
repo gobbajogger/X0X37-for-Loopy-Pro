@@ -1,0 +1,62 @@
+{
+  "result": "FAIL",
+  "scope": "Independent source investigation and targeted compiler-resolution proof",
+  "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+  "findings": [
+    {
+      "id": "I1",
+      "priority": "P1",
+      "title": "Compiler symlink retargeting permits stale break-bank cache hits",
+      "file": "tools/asset_cache.py",
+      "line": 333,
+      "proof": "compiler-symlink-proof.log",
+      "cause": "Resolved compiler target is inventoried; selected link and effective lookup resolution are not revalidated on persistent inventory reuse.",
+      "disposition": "Fresh repair stage2, then fresh affected independent stage3. Do not advance candidate."
+    }
+  ],
+  "proof": {
+    "candidate": "bb953dfaa086c44e57382e9d82fe9e0a2714f965",
+    "cold_hit": false,
+    "warm_hit": true,
+    "retarget_hit": true,
+    "wrapper_called_by_hit": false,
+    "disabled_hit": false,
+    "wrapper_called_by_disabled": true,
+    "initial_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+    "retarget_sha256": "54bd2932086d911ac12d4fa5b52b1950db09c23eaf6035bf2acc4893ecc99c56",
+    "disabled_sha256": "bfe99a56c3de8e350bdda36584022ee4f811b2908da9b75ad8645b7d5646b1d6",
+    "bytes_differ_after_actual_compiler_change": true
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--user",
+    "501:20",
+    "-v",
+    "/Users/mac/Documents/x0x37/asset_reuse_stage3:/Users/mac/Documents/x0x37/asset_reuse_stage3:ro",
+    "-w",
+    "/Users/mac/Documents/x0x37/asset_reuse_stage3",
+    "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "python3",
+    "-B",
+    "evidence/asset-reuse-stage3/investigation/compiler-symlink-proof.py"
+  ],
+  "audit": "audit.md",
+  "source_sha256": {
+    "tools/asset_cache.py": "2a03db339e96582906cf5e3080eff9096e0848210ad7642f0a5a179ccb6ceb89",
+    "tools/build.py": "ab6bded21257bae6455f66c717e63edb77315639e315414614565e88f66eab8b",
+    "tests/host/test_asset_cache.py": "0fed1f1891f37133ab3e043826aa1eb1cef39d8bb7354462b83b44ccf6325937",
+    "BUILDING.md": "4015fc9c8deb780fafcbb9c08b9fdc80a050f7743153cecdfb0d232ae0ada695"
+  },
+  "candidate_sources_unchanged": true,
+  "limits": [
+    "Related PATH/helper/native-loader resolution risks are source inferences, not additional proven failures.",
+    "No firmware build, gate, device write, external push or shared runtime mutation.",
+    "The independent test helper owns broad execution coverage."
+  ]
+}

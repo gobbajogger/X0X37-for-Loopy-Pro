@@ -1,0 +1,30 @@
+{
+  "scope": "build.generate parallel scheduling, dependency order and failure handling",
+  "cases": [
+    {
+      "failure_injected": false,
+      "calls": [
+        "font",
+        "drums",
+        "breaks"
+      ],
+      "finished": [
+        "drums",
+        "font"
+      ],
+      "result": "PASS"
+    },
+    {
+      "failure_injected": true,
+      "calls": [
+        "font",
+        "drums"
+      ],
+      "finished": [
+        "drums",
+        "font"
+      ],
+      "result": "PASS"
+    }
+  ]
+}
