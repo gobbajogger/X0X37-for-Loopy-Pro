@@ -1,0 +1,30 @@
+{
+  "skill": "/Users/mac/Documents/x0x37/.agents/skills/x0x37-workflow/SKILL.md",
+  "prompt": "Combined INSTALL completion notice under x0x37-task rule2 and x0x37-workflow rule18. Marker smc-complete-20261021-install-after-combined-dev. This designated installer chat 01a15ad9-c772-7660-8a69-64685904cbfa completed the authorized combined Elite DEV install in /Users/mac/Documents/x0x37/smc_complete_install_20261021. Actual validated revision: 1165396199210889fa460d26cbdd0b66183267e1; install lane base/evidence revision: a4d970327d044a35b12e55399c3233a37dd8cca2; completed merge dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9 remains unchanged. The exact combined DEV record, package SHA256 9bc1d9fdf6252a8bf5a6e79038c34b5bbc102918888283dea41be4738096d2f8 and controller SHA256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a were selected. Native DEV, foreground, default hardware-lock, model, slot, bootloader and write-range guards remained unchanged. The first sandbox attempt refused the lock before device access; the same command passed with approved escalation. The monitored foreground install exited 0 and restarted as SMK-37 Elite_900. All three complete slots were backed up before writing and are byte-identical afterward: CRC32 ee599248, 8a124cb7, 7e7f9415. All five imported loops are preserved. Full 64KiB controller readback matches selected image plus erased padding: CRC32 4a400899; SHA256 7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210. The native loader verifies every application sector in [0x4000,0x9d000) before FINISH_WRITE. No independent host app dump or unit bootloader-head reference exists. The package head matches the previous installed package; bootloader writes were excluded. Exact ledger and logs: evidence/complete-install/install-ledger.json, install-record.json and install.log in this lane. Raw device backups stay local and excluded from Git. Physical behavior remains NOT TESTED; original all-input failure remains UNRESOLVED. No source repair, repeated build, Pro check, merge, release/full gate, fallback, external push or publication occurred. The assigned install is complete. No push successor was started because no destination/ref/scope is approved. This is a completion notice; no new execution work is assigned.",
+  "results": [
+    {
+      "threadId": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"threadId\":\"01a15ac6-2f01-7e93-93b8-cf1910a41ea1\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "threadId": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"threadId\":\"01a15ac1-6dac-7ca2-a2fc-877c4671ab33\"}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "stage": 6,
+  "marker": "smc-complete-20261021-install-after-combined-dev",
+  "result": "INSTALL AND DATA CHECKS PASS",
+  "install_chat": "01a15ad9-c772-7660-8a69-64685904cbfa",
+  "validation_owner": "01a15ac6-2f01-7e93-93b8-cf1910a41ea1",
+  "integration_owner": "01a15ac1-6dac-7ca2-a2fc-877c4671ab33",
+  "validated_revision": "1165396199210889fa460d26cbdd0b66183267e1",
+  "evidence_revision": "a4d970327d044a35b12e55399c3233a37dd8cca2",
+  "completed_merge": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "model": "elite",
+  "config": "dev",
+  "X0X_DEV_PADCAL": 1,
+  "dev_record": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/record.json",
+  "arguments": {
+    "package": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/x0x-smk37-elite.fwsc",
+    "ctl": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/ctl.img",
+    "commit": "1165396199210889fa460d26cbdd0b66183267e1",
+    "dev_record": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/record.json",
+    "config": "dev",
+    "port": "X0X FM-1",
+    "yes": true,
+    "force": false,
+    "no_ctl": false,
+    "no_slots": false,
+    "info": false,
+    "head_ref": null,
+    "backup": "/Users/mac/Documents/x0x37/smc_complete_install_20261021/evidence/complete-install/installer-all-loops.x0xslots"
+  },
+  "artifacts": {
+    "result": "PASS",
+    "record": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/record.json",
+    "validation_input_sha256": "bd4a98aa2a764b2b7dd7aaccd85f0aa6c4a2f63f6f0c2d2f9eb1bd6805963e4f",
+    "budgets": {
+      "code_free": 952,
+      "ram_free": 524,
+      "pool_free": 8364
+    },
+    "package": {
+      "bytes": 651396,
+      "sha256": "9bc1d9fdf6252a8bf5a6e79038c34b5bbc102918888283dea41be4738096d2f8",
+      "crc32": "8b04ed22"
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    },
+    "controller_full_64k": {
+      "bytes": 65536,
+      "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+      "crc32": "4a400899"
+    },
+    "app": {
+      "bytes": 551720,
+      "sha256": "c78569e5346e5f3b382302620ebac8813d381d1a30c1d394a42372eb14ea2d30",
+      "crc32": "7ed6d41e"
+    },
+    "entries": {
+      "flash.bin": {
+        "bytes": 643072,
+        "sha256": "c17686aed8a39854df45b425659d42de1882285039a4fe33f077691def32fc4f",
+        "crc32": "9c276433"
+      },
+      "ota.bin": {
+        "bytes": 7280,
+        "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+        "crc32": "efce9076"
+      }
+    },
+    "slot_map": [
+      [
+        794624,
+        81920
+      ],
+      [
+        876544,
+        122880
+      ],
+      [
+        720896,
+        45056
+      ]
+    ],
+    "assembled_install_image": {
+      "bytes": 651396,
+      "sha256": "e8beaaac3cf7b316c03cb26d12f04fc67ab335d01e084e87f0f431a5278b2a3e",
+      "crc32": "c2c26b05"
+    },
+    "checks": [
+      "The DEV record matches the candidate, logs, package and exact controller.",
+      "The package model, CRCs, region table and slot map pass.",
+      "The exact controller passes its CRC, ABI, RAM, entry and IRQ checks.",
+      "Controller insertion preserves app bytes, the bootloader head and slot map.",
+      "Controller removal restores the original package byte for byte."
+    ],
+    "limits": [
+      "The assembled image remains in memory. No device write occurs.",
+      "No physical-device PASS is established."
+    ]
+  },
+  "started": "2026-10-21T06:50:13.090152+11:00",
+  "completed": "2026-10-21T06:53:02.542503+11:00",
+  "guards": {
+    "development admission": 0,
+    "foreground": 0,
+    "hardware lock": 0,
+    "bootloader": 0
+  },
+  "installer_exit": 0,
+  "protected_head": {
+    "writes_excluded": true,
+    "independent_unit_head_reference_available": false,
+    "package_head_matches_previous_installed_package": true
+  },
+  "image_readback": {
+    "method": "The native loader byte-compares each application sector before FINISH_WRITE. An arbitrary host app dump is unavailable. Read the full controller block and every full loop slot afterward.",
+    "loader_FINISH_WRITE_received": true,
+    "application_sectors": 153,
+    "independent_host_application_dump": false
+  },
+  "application_write_range": [
+    16384,
+    643072
+  ],
+  "expected_flash_image": {
+    "bytes": 643072,
+    "sha256": "9663e940a635cf02932c6ded9195e4169385368c3a844cea2a04254e10b9b006",
+    "crc32": "17d41bcd"
+  },
+  "expected_application_write_range": {
+    "bytes": 626688,
+    "sha256": "bec9a922d14dd6764c7584f00e19507baddcb79c257864880af2029400441e60",
+    "crc32": "4cdacc7b"
+  },
+  "controller_readback": {
+    "bytes": 65536,
+    "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+    "crc32": "4a400899"
+  },
+  "slots": [
+    {
+      "slot": 1,
+      "flash": 794624,
+      "before": {
+        "bytes": 81920,
+        "sha256": "34b686e6a29f15f18754d6907e8e83528c56feeac78c866bbae3f4a4759ca783",
+        "crc32": "ee599248"
+      },
+      "after": {
+        "bytes": 81920,
+        "sha256": "34b686e6a29f15f18754d6907e8e83528c56feeac78c866bbae3f4a4759ca783",
+        "crc32": "ee599248"
+      },
+      "byte_equal": true
+    },
+    {
+      "slot": 2,
+      "flash": 876544,
+      "before": {
+        "bytes": 122880,
+        "sha256": "fae7bf5f098a6706f9b11591050340335b4625e6fa8686a3c368591606ea1133",
+        "crc32": "8a124cb7"
+      },
+      "after": {
+        "bytes": 122880,
+        "sha256": "fae7bf5f098a6706f9b11591050340335b4625e6fa8686a3c368591606ea1133",
+        "crc32": "8a124cb7"
+      },
+      "byte_equal": true
+    },
+    {
+      "slot": 3,
+      "flash": 720896,
+      "before": {
+        "bytes": 45056,
+        "sha256": "e841c5bf9673b6afc9bb66304e9cb7cbd5a4780caa5a6471c57b79fa0465fba5",
+        "crc32": "7e7f9415"
+      },
+      "after": {
+        "bytes": 45056,
+        "sha256": "e841c5bf9673b6afc9bb66304e9cb7cbd5a4780caa5a6471c57b79fa0465fba5",
+        "crc32": "7e7f9415"
+      },
+      "byte_equal": true
+    }
+  ],
+  "all_loop_data_preserved": true,
+  "archives": [
+    {
+      "path": "/Users/mac/Documents/x0x37/smc_complete_install_20261021/evidence/complete-install/before/loops.x0xslots",
+      "identity": {
+        "bytes": 110905,
+        "sha256": "a02eb6efa3a6263077d288bcafcc8117c2f432c0020c351af43b0e977fde29aa",
+        "crc32": "2144df1c"
+      }
+    },
+    {
+      "path": "/Users/mac/Documents/x0x37/smc_complete_install_20261021/evidence/complete-install/installer-all-loops.x0xslots",
+      "identity": {
+        "bytes": 110905,
+        "sha256": "2ed18e756d138eef4804fd64d9fa9e4d863b6e0b6658f151b0b4da9b2ec448f0",
+        "crc32": "2144df1c"
+      }
+    },
+    {
+      "path": "/Users/mac/Documents/x0x37/smc_complete_install_20261021/evidence/complete-install/after/loops.x0xslots",
+      "identity": {
+        "bytes": 110905,
+        "sha256": "eae0c5bdbd4f104c4769b977df0cf33114270965ed6d2f7fcb6782d9648b59ba",
+        "crc32": "2144df1c"
+      }
+    }
+  ],
+  "imported_loops": 5,
+  "physical_behavior": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "limits": [
+    "The native loader verifies each application sector before FINISH_WRITE. No independent host application dump is available.",
+    "No independent unit bootloader-head reference is available. The package head matches the previous installed package; loader writes exclude the bootloader.",
+    "Installation and readback do not establish a physical-input repair."
+  ],
+  "source_repairs": false,
+  "release": false,
+  "full_gate": false,
+  "external_push": false,
+  "publication": false,
+  "next_stage": null,
+  "next_stage_reason": "No external destination, ref and scope are approved. The assigned installation is complete.",
+  "sandbox_attempt": "attempt-1.json"
+}

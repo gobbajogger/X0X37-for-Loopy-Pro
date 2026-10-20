@@ -1,0 +1,8 @@
+INSTALL AND DATA CHECKS PASS.
+Combined Elite DEV revision 1165396199210889fa460d26cbdd0b66183267e1 installed.
+The loader verified all 153 application sectors; full controller readback passed.
+All three complete loop slots are byte-identical. All five imported loops are preserved.
+Physical behavior is NOT TESTED. The original all-input failure remains UNRESOLVED.
+No independent host app dump or unit bootloader-head reference is available.
+No release, full gate, external push or publication occurred.
+Exact identities, CRCs, limits and local backup paths are in install-ledger.json.

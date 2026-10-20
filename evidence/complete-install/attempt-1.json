@@ -1,0 +1,9 @@
+{
+  "result": "REFUSED BEFORE DEVICE ACCESS",
+  "command": "env PYTHONDONTWRITEBYTECODE=1 python3 evidence/complete-install/install_watched.py",
+  "cause": "Sandbox blocked opening native /Users/mac/.x0x37-hardware.lock: Operation not permitted",
+  "exit_code": 1,
+  "guard_exit": 10,
+  "device_writes": false,
+  "disposition": "Reran the same foreground command with approved escalation. The native lock path and guard were unchanged."
+}

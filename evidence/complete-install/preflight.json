@@ -1,0 +1,147 @@
+{
+  "result": "PASS",
+  "evidence_revision": "a4d970327d044a35b12e55399c3233a37dd8cca2",
+  "validated_revision": "1165396199210889fa460d26cbdd0b66183267e1",
+  "completed_merge": "dc4fc5fc39a2a1f910173b1a550c2acc9a1786c9",
+  "checked_path_tree_sha256": "a4d31ccd2c2a60b052506e1da118b7ef6c68909d10dffd596b88261eb449624f",
+  "checked_paths": [
+    "firmware",
+    "tests",
+    "tools",
+    "ble/ctl",
+    "host",
+    "build.sh",
+    "build_ctl.sh",
+    "Makefile"
+  ],
+  "source_equal": true,
+  "record_sha256": "74e3a1436043e4c0cdf51b07b0735313b1b0c7a95689f6279c4f1a551ae9e073",
+  "reads": {
+    "result.json": {
+      "bytes": 12484,
+      "sha256": "82c2ebcd85e5b7bf5246ce045bb95c249b29ee800db20fcfaf39b01a0fd4c8e0"
+    },
+    "source-identity.json": {
+      "bytes": 1487,
+      "sha256": "1debf85e2e4712b4426e3106564c236856f75bdd293817ea3b3e034540b20fa0"
+    },
+    "artifact-verification.json": {
+      "bytes": 2235,
+      "sha256": "9f96337e32544ebcaa87a9dd4d4f7e38e3c6ee6ee07efc0cb1ae6572fcaa3154"
+    },
+    "plan-review.json": {
+      "bytes": 2916,
+      "sha256": "cf834db206d2a58332cd3fc2a67ff047a763b0fc9d51561f3d49712669e9113e"
+    },
+    "environment.json": {
+      "bytes": 1109,
+      "sha256": "234a888af695ee0f9b389c3de361356adfd16cbd78fb6e6387749bccb62e912b"
+    },
+    "worker-environment.json": {
+      "bytes": 577,
+      "sha256": "505e6b7687fa012b5da2b97eb45f94c4936dd3c26cf1b2d75dd7c106ed12ce7a"
+    },
+    "run-command.json": {
+      "bytes": 1036,
+      "sha256": "2d55c3e36b10691fa0bf9e2127bae2c78b445e808b1835d4fd1eb740c870f0ee"
+    },
+    "replay.json": {
+      "bytes": 1711,
+      "sha256": "d80d54cfea72a4a73795b421061b23116de767269ceecd46e736d17c45f9f65e"
+    },
+    "replay-inputs.json": {
+      "bytes": 9363,
+      "sha256": "ea4257b09eea7bccf5c7e49ca86de6a4757f0b358d43b2e27b62d78c0cb9f9ab"
+    },
+    "saved-inputs.json": {
+      "bytes": 1375,
+      "sha256": "69421965be62afd4bf08038bf68dabda95b42addaf0d8f12e400be046b2d84d9"
+    },
+    "elite/record.json": {
+      "bytes": 95571,
+      "sha256": "74e3a1436043e4c0cdf51b07b0735313b1b0c7a95689f6279c4f1a551ae9e073"
+    }
+  },
+  "artifacts": {
+    "result": "PASS",
+    "record": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/record.json",
+    "validation_input_sha256": "bd4a98aa2a764b2b7dd7aaccd85f0aa6c4a2f63f6f0c2d2f9eb1bd6805963e4f",
+    "budgets": {
+      "code_free": 952,
+      "ram_free": 524,
+      "pool_free": 8364
+    },
+    "package": {
+      "bytes": 651396,
+      "sha256": "9bc1d9fdf6252a8bf5a6e79038c34b5bbc102918888283dea41be4738096d2f8",
+      "crc32": "8b04ed22"
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    },
+    "controller_full_64k": {
+      "bytes": 65536,
+      "sha256": "7f560b3bd709d45a920e80e24aed27a2d2852700cab2678dc4cffd2bd4e0c210",
+      "crc32": "4a400899"
+    },
+    "app": {
+      "bytes": 551720,
+      "sha256": "c78569e5346e5f3b382302620ebac8813d381d1a30c1d394a42372eb14ea2d30",
+      "crc32": "7ed6d41e"
+    },
+    "entries": {
+      "flash.bin": {
+        "bytes": 643072,
+        "sha256": "c17686aed8a39854df45b425659d42de1882285039a4fe33f077691def32fc4f",
+        "crc32": "9c276433"
+      },
+      "ota.bin": {
+        "bytes": 7280,
+        "sha256": "32a62f83dd17468aed3d08629b97d50499846efa916d53970a8b44f6043fe33e",
+        "crc32": "efce9076"
+      }
+    },
+    "slot_map": [
+      [
+        794624,
+        81920
+      ],
+      [
+        876544,
+        122880
+      ],
+      [
+        720896,
+        45056
+      ]
+    ],
+    "assembled_install_image": {
+      "bytes": 651396,
+      "sha256": "e8beaaac3cf7b316c03cb26d12f04fc67ab335d01e084e87f0f431a5278b2a3e",
+      "crc32": "c2c26b05"
+    },
+    "checks": [
+      "The DEV record matches the candidate, logs, package and exact controller.",
+      "The package model, CRCs, region table and slot map pass.",
+      "The exact controller passes its CRC, ABI, RAM, entry and IRQ checks.",
+      "Controller insertion preserves app bytes, the bootloader head and slot map.",
+      "Controller removal restores the original package byte for byte."
+    ],
+    "limits": [
+      "The assembled image remains in memory. No device write occurs.",
+      "No physical-device PASS is established."
+    ]
+  },
+  "image_readback_plan": "The native loader byte-compares each application sector before FINISH_WRITE. An arbitrary host app dump is unavailable. Read the full controller block and every full loop slot afterward.",
+  "native_guard_sequence": [
+    "gate_guard",
+    "foreground_guard",
+    "hardware_lock",
+    "head_guard"
+  ],
+  "physical_behavior": "NOT TESTED",
+  "original_input_failure": "UNRESOLVED",
+  "package_head_matches_previous_installed_package": true
+}
