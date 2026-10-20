@@ -21,7 +21,7 @@
 /* Peripheral keyboard or direct SMC-Mixer central, selected by the app, one link. */
 const int config_btctler_modules = BT_MODULE_LE;
 const int config_btctler_le_roles = LE_ADV | LE_SLAVE | LE_MASTER | LE_SCAN | LE_INIT;
-const uint64_t config_btctler_le_features = 0; /* SMC BLE-MIDI uses an unpaired link. */
+const uint64_t config_btctler_le_features = LL_FEAT_ENCRYPTION; /* Permit host-driven SMP pairing. */
 
 /* Standard HCI over the in-memory H4 transport. Normal (non-test) mode.
  * The SDK pairs hci_standard=1 only with test modes; this pairing is a

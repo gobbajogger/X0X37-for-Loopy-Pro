@@ -1,0 +1,14 @@
+check_locked_settings: 20 settings ok
+ok    cpu/wl82/liba/btctrler.a
+ok    cpu/wl82/liba/wl_rf_common.a
+ok    cpu/wl82/liba/crypto_toolbox_Osize.a
+ok    cpu/wl82/liba/lib_ccm_aes.a
+ok    include_lib/newlib/pi32v2-lib/libc.a
+ok    include_lib/newlib/pi32v2-lib/libcompiler_rt.a
+ok    apps/common/net/wifi_conf.c
+ok    LICENSE
+rf_tables.c: 294 lines
+ld exit 1, undefined symbols: 0
+/Users/mac/.jieli/toolchain/pi32v2/bin/ld: obj/ctl.elf section `.ramtext' will not fit in region `CFLASH'
+/Users/mac/.jieli/toolchain/pi32v2/bin/ld: the image is larger than the 64 KiB Bluetooth block
+/Users/mac/.jieli/toolchain/pi32v2/bin/ld: region `CFLASH' overflowed by 4232 bytes

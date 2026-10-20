@@ -1,0 +1,18 @@
+check_locked_settings: 20 settings ok
+ok    cpu/wl82/liba/btctrler.a
+ok    cpu/wl82/liba/wl_rf_common.a
+ok    cpu/wl82/liba/crypto_toolbox_Osize.a
+ok    cpu/wl82/liba/lib_ccm_aes.a
+ok    include_lib/newlib/pi32v2-lib/libc.a
+ok    include_lib/newlib/pi32v2-lib/libcompiler_rt.a
+ok    apps/common/net/wifi_conf.c
+ok    LICENSE
+rf_tables.c: 294 lines
+ld exit 0, undefined symbols: 0
+  load 02087000  vma 02087000      68 B
+  load 02087044  vma 02087044   45572 B
+  load 02092250  vma 02092250    6224 B
+  load 02093aa0  vma 01c01800    3512 B
+  load 02094858  vma 01c025b8    1636 B
+/Users/mac/Documents/x0x37/smc_controller_encryption_20261021/ble/ctl/out/ctl.img: 57020 B of 65536, crc32 603a4cf4, RAM 0x1c01800..0x1c07968 (24936 B of 26368)
+Done: /Users/mac/Documents/x0x37/smc_controller_encryption_20261021/ble/ctl/out/ctl.img

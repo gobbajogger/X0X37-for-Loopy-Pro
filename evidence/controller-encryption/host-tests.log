@@ -1,0 +1,2 @@
+PASS: all 65536 opcodes in all seven classic fallback families
+PASS: unsupported classic+LE module fails the link

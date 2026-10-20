@@ -1,0 +1,30 @@
+{
+  "scope": "Static contract audit of pinned SDK LLVM IR, separate from host tests and target link.",
+  "archive_sha256": "9ef4262444b49171c4a5eab906e3939b1d4943350ac4993c18d8474d01d773de",
+  "fallback_abi": "int(uint16_t, uint8_t *, int) for all seven classic families",
+  "generic_consumed_opcodes": [
+    "0x406",
+    "0xc01",
+    "0xc03"
+  ],
+  "le_consumed_opcodes": [
+    "0x2001",
+    "0x2002",
+    "0x2005",
+    "0x2006",
+    "0x2008",
+    "0x2009",
+    "0x200a",
+    "0x200b",
+    "0x200c",
+    "0x200d",
+    "0x200e",
+    "0x2017",
+    "0x2018",
+    "0x2019"
+  ],
+  "dispatch": "SDK generic families run before classic fallbacks; LE OGF8 uses original LE handler directly.",
+  "unknown_command": "Fallback return 0 leaves the original common Command Complete event with status 0x01 in charge.",
+  "rng": "HCI Rand invokes pseudo_random_genrate(dest, 8); each byte comes from the low 8 bits of a separate volatile 32-bit JL_RAND.R64L read at MMIO 0x13b00. Silicon entropy was not measured.",
+  "limits": "No runtime vendor dispatcher or physical pairing test. Original classic-only command recognition changes to unknown in already LE-only image; no current app command depends on it."
+}
