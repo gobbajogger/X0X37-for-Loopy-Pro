@@ -3,7 +3,13 @@
 ### Rule 8: evidence and regression
 
 Trust the owner's report and setup. Search code first. Use logs, source evidence,
-and meaningful host regression tests. Request INLOG when needed to resolve
+and meaningful host regression tests. For controller-input diagnosis and regression,
+reuse recorded captures and simulated sends; do not request another hands-on
+capture or ask the owner to move controls. An idle zero-packet capture does not
+prove a receive failure. Label exact recorded payload replay, simulated HCI
+framing, inputs resegmented for a supported MTU, and physical-device evidence
+separately. Replay or simulation does not establish a physical-device PASS.
+For other device bugs, request INLOG only when existing evidence cannot resolve
 uncertainty; do not demand another reproduction when evidence proves the cause.
 Record an explicit owner skip when the applicable check requires it.
 

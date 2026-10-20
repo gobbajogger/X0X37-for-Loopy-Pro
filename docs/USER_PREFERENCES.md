@@ -6,6 +6,10 @@ The current owner request and repository [agent rules](agent-rules.md) govern th
 
 - 2026-10-20 Source: owner in this chat: "we dont need to build and test fm1 builds. they are only for reference to port". FM-1 is reference-only for porting. Build and test SMK-37 Elite and Pro; do not require FM-1 target builds or FM-1 target tests. This supersedes the gate’s FM-1 build, budget, and target-test requirements. Keep shared code and checks needed for the SMK-37 port, including tools with legacy `fm1` names. Active rules: integration.md rule 11; owner-messages.md rules 4B and 14; docs.md rule 12. The assigned integration chat owns the workflow change.
 
+## Controller-input evidence
+
+- 2026-10-20 (owner, recorded in `cloud-handoff/2026-10-20/smc_receive_repair_20261020/cloud-transition.txt`): "No I did not. And there's no need in that. We have previous captures that can be reused and we can stimulate sends without ever needing them"; then "Make it a rule too". This supersedes requiring another hands-on capture or control movement for controller-input diagnosis and regression, including that scope of the historical 2026-10-16 22:39 and 22:59 entries. The earlier zero-packet capture was idle and proves no receive failure. Reuse existing captures and simulated sends, with evidence labels and limits defined in device-bug.md rule 8. Other device-bug evidence requirements remain in force.
+
 ## On-demand rules
 
 - 2026-10-20 Source: owner in this chat requested rules initialized only when needed, fewer redundant rules, and faster progress with fewer errors and wasted usage. This supersedes mandatory startup loading of both writing skills in the 2026-10-19 entries below. Plain, correct, concise writing still applies to all output. Read core once; load step rules and full skills only for the triggers in agent-rules.md and SKILLS.md. Active rules: core.md rule 6A; style.md rule 15; docs.md rule 12A.
