@@ -30,6 +30,7 @@ prefix = r'''
 #include <stdio.h>
 #include <string.h>
 #include "app/smk_apc40.h"
+#define CK_FN
 #define BOARD_SMK37 1
 #define X0X_DEV_PADCAL 0
 #define SMK_NPAD 16

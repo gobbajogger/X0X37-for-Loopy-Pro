@@ -20,7 +20,8 @@ static void got_midi(const uint8_t *p, uint8_t n, void *ctx)
 static void cc(blec_t *c, unsigned op, const uint8_t *extra, unsigned n)
 {
     uint8_t b[16] = {0x0e, 0, 1, (uint8_t)op, (uint8_t)(op >> 8), 0};
-    b[1] = (uint8_t)(4u + n); memcpy(b + 6, extra, n);
+    b[1] = (uint8_t)(4u + n);
+    if (n) memcpy(b + 6, extra, n);
     blec_rx(c, 4, b, (uint16_t)(6u + n), 10);
 }
 static void att(blec_t *c, const uint8_t *p, unsigned n)
