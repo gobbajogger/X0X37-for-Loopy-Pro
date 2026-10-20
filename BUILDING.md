@@ -41,6 +41,20 @@ The full gate also needs Bash, Python with Pillow, Node, `flock`, `setsid`, `get
 and Linux signal support. macOS can run docs checks and supported host checks.
 Run Linux-specific checks in the local container. Docker Desktop and Colima both work.
 
+Gate reuse requires a content fingerprint of the source, effective configuration,
+external gate runner, toolchain, SDK, reference contents/pins, host tools and Python
+dependencies. The runner checks it again before recording PASS. Optional Emscripten
+availability changes coverage and is part of the identity; its generated caches are
+outputs. Older evidence without this identity cannot be reused. A changed identity
+alone does not request a gate: the release/owner-purpose rule still applies.
+
+Development records use schema 2 and the same provenance format. Put external check
+inputs in the plan's `dependencies` path list; list additional Python distributions
+in `X0X_VALIDATION_PYTHON_PACKAGES` (Pillow and NumPy are captured by default).
+Gate logs are retained per run. Keep `validation-inputs.json` with transferred gate
+logs; `sync_results_to_mac.sh` includes it. Install consumers verify the recorded
+identity and exact artifacts without needing the producer's SDK on the installer.
+
 For docs and rules work, run the affected checks without a firmware build:
 
 ```

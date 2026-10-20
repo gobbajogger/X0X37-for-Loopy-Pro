@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Gate admission regression: scratch inputs only; never builds or runs a full gate.
-Run with python3 tests/host/test_gate_reason.py. Linux also covers PASS reuse.
+Run with python3 tests/host/test_gate_reason.py. PASS reuse is covered by test_validation_inputs.py.
 """
 import hashlib
 import os
@@ -55,33 +55,6 @@ class GateReason(unittest.TestCase):
             self.assertNotIn('REFUSED', p.stdout + p.stderr)
             self.assertIn('unknown commit' if platform.system() == 'Linux' else 'use Linux', p.stdout)
 
-    @unittest.skipUnless(platform.system() == 'Linux', 'Linux gate reuse')
-    def test_reuse_and_force_keep_admission_contract(self):
-        repo = self.root / 'repo'
-        repo.mkdir()
-        def git(*args):
-            return subprocess.check_output(['git', '-C', str(repo), *args], env=self.env)
-        git('init', '-q', '-b', 'integration')
-        (repo / 'source.c').write_text('fixture\n')
-        git('add', '.')
-        git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'fixture')
-        tree = hashlib.sha1(git('ls-tree', '-r', '--full-tree', 'HEAD')).hexdigest()
-        results = self.root / 'results'
-        results.mkdir()
-        (results / (tree + '.md')).write_text('Result: PASS\n- Config CRCs: fixture\n')
-        args = ['HEAD', '--purpose', 'release-install', '--reason', 'Install candidate v1 | owner request']
-        p = self.gate(*args)
-        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
-        self.assertIn('result used again', p.stdout)
-        self.assertIn('purpose: release-install; reason: Install candidate v1 / owner request',
-                      (results / 'index.md').read_text())
-        self.assertFalse((self.root / 'work').exists())
-        p = self.gate(*args, '--force', 'Toolchain changed since recorded PASS')
-        self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
-        self.assertIn('no toolchain', p.stdout)
-        p = self.gate('HEAD', '--trial', '--purpose', 'owner-validation', '--reason', 'Owner requested lane validation')
-        self.assertIn('no toolchain', p.stdout)
-        self.assertNotIn('result used again', p.stdout)
 
 
 if __name__ == '__main__':

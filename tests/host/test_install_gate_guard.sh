@@ -33,8 +33,21 @@ FC=$(crc "$T/good.fwsc"); CC=$(crc "$T/ctl.img")
 L="$T/work/$S.logs"; mkdir -p "$L"
 printf 'gate: took the gate lock after 0 s\ngate: released the gate lock; the tests took 1 s\n' > "$L/gate.log"
 printf 'ctl.img file crc32 %s, 10 B\nbuild/x0x-smk37-elite.fwsc crc32 %s, 11 B\n' "$CC" "$FC" > "$L/crc.txt"
+INPUT_ID=$(python3 - "$G" "$T/repo" "$L" <<'PYID'
+import json, sys
+from pathlib import Path
+sys.path.insert(0, str(Path(sys.argv[1]).parent))
+import validation_inputs as v
+# Synthetic provenance only; no validation run or device involved.
+payload = {'schema': v.SCHEMA, 'mode': 'gate', 'source': v.source_tree(sys.argv[2], 'HEAD')}
+data = {'schema': v.SCHEMA, 'inputs': payload, 'sha256': v.digest(v.encoded(payload))}
+(Path(sys.argv[3])/'validation-inputs.json').write_text(json.dumps(data))
+print(data['sha256'])
+PYID
+)
 result() {  # result <file> <Result line> <tree>
     { echo "# Gate result for tree $3"; echo; echo "$2"; echo; echo "- Commit: $H"
+      echo "- Validation inputs: $INPUT_ID"
       echo "- Tree (SHA-1 of git ls-tree -r without *.md): $3"; echo "- Worktree: $T/work/$S. Logs: $L."
       echo; echo "## CRC manifest"; echo; echo '```'; cat "$L/crc.txt"; echo '```'; } > "$T/res/$1"; }
 index() { printf '| Commit | Tree | Git tree | Result | Result file | Time |\n|---|---|---|---|---|---|\n' > "$T/res/index.md"
@@ -89,12 +102,11 @@ index "$(row 'PASS' "$TREE.md")"
 expect REFUSED "one-config result, --config rel" "$H" --fwsc "$T/good.fwsc" --config rel
 n=$((n + 1)); out=$(X0X_RESULTS_DIR="$T/res" X0X_REPO="$T/repo" bash "$G" "$H" --config beta 2>&1); rc=$?
 [ "$rc" = 2 ] && echo "ok   --config beta: exit 2" || { echo "FAIL --config beta: rc=$rc $out"; fails=$((fails + 1)); }
-# a real gate result on the box (the queue file is the temp file above, not the live QUEUE.md)
-REAL=/workspace/x0x37-results/1d3c048d3cc356d8d8584fe1e6a85bae9235b99c.md
-if [ -f "$REAL" ] && git -C /workspace/x0x37.git cat-file -e 9a733fe 2>/dev/null; then
-    n=$((n + 1)); out=$(X0X_RESULTS_DIR=/workspace/x0x37-results X0X_REPO=/workspace/x0x37.git bash "$G" 9a733fe 2>&1); rc=$?
-    case "$out" in "GATE OK 9a733fe "*) [ $rc = 0 ] && echo "ok   real gate PASS: $out" || { echo "FAIL real: rc=$rc $out"; fails=$((fails + 1)); };;
-    *) echo "FAIL real gate PASS 9a733fe: rc=$rc $out"; fails=$((fails + 1));; esac
-else echo "note real gate PASS case: not on this computer (synthetic gate PASS case done)"; fi
+# Legacy evidence and damaged provenance must fail closed, even with exact CRCs.
+mv "$L/validation-inputs.json" "$L/validation-inputs.keep"
+expect REFUSED "missing validation identity" "$H"
+mv "$L/validation-inputs.keep" "$L/validation-inputs.json"
+printf 'changed' >> "$L/validation-inputs.json"
+expect REFUSED "damaged validation identity" "$H"
 echo "install gate guard: $((n - fails)) of $n ok"
 [ "$fails" = 0 ]

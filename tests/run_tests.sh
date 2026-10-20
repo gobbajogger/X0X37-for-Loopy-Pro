@@ -120,6 +120,8 @@ for s in tests/scenarios/*.x0x; do
 done
 # Current rule checks use temporary repositories. Full validation needs Linux.
 run gate-reason python3 tests/host/test_gate_reason.py
+run validation-inputs python3 tests/host/test_validation_inputs.py
+run prefs-lint python3 tests/host/test_prefs_lint.py
 run portable-rules python3 tests/host/test_portable_rules.py
 run rules-rollout python3 tests/host/test_rules_rollout.py
 run quickcheck-rules bash tests/host/test_quickcheck_rules.sh

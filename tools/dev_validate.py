@@ -24,6 +24,9 @@ import subprocess
 import sys
 import tempfile
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import validation_inputs
+
 
 def git(repo, *args):
     return subprocess.check_output(['git', '-C', str(repo), *args], text=True).strip()
@@ -55,6 +58,8 @@ def budgets(log):
 def check_plan(plan):
     if not isinstance(plan, dict) or not plan.get('base') or not plan.get('scope'):
         raise ValueError('plan needs base and scope')
+    if not isinstance(plan.get('dependencies', []), list) or not all(isinstance(p, str) and p for p in plan.get('dependencies', [])):
+        raise ValueError('plan dependencies must be paths to external check inputs')
     checks = plan.get('checks', [])
     if not isinstance(checks, list) or (not checks and not plan.get('no_tests_reason')):
         raise ValueError('plan needs affected checks or no_tests_reason')
@@ -69,11 +74,19 @@ def check_plan(plan):
 def verify(repo, commit, record, fwsc, ctl=None):
     record = Path(record).resolve()
     data = json.loads(record.read_text())
-    if (data.get('schema') != 1 or data.get('result') != 'DEV CHECKED' or
+    if (data.get('schema') != 2 or data.get('result') != 'DEV CHECKED' or
             data.get('config') != 'dev' or data.get('model') not in ('elite', 'pro')):
         raise ValueError('not a development validation record')
     if data.get('tree') != tree(repo, commit):
         raise ValueError('development evidence is for another source tree')
+    validation_inputs.validate(data.get('validation_inputs'))
+    if data['validation_inputs']['inputs'].get('source') != data['tree']:
+        raise ValueError('validation input source mismatch')
+    expected_config = {'model': data['model'], 'config': 'dev', 'controller': data['controller'],
+                       'plan': data['plan'], 'dependencies': data['plan'].get('dependencies', [])}
+    if (data['validation_inputs']['inputs'].get('mode') != 'dev' or
+            data['validation_inputs']['inputs'].get('configuration') != expected_config):
+        raise ValueError('validation input configuration mismatch')
     check_plan(data['plan'])
     logs = data['logs']
     expected = {'build'} | {f'check-{i}' for i in range(len(data['plan'].get('checks', [])))}
@@ -116,7 +129,15 @@ def run(a):
                 'FELUCCA_DATA_FAMILY', 'FELUCCA_DATA_UNTAGGED_OK', 'BOARD', 'MODEL'):
             env.pop(key)
     env.pop('JIELI_DOCKER', None)
+    env['SDK_LOCAL'] = env.get('AC79_SDK', str(Path.home()/'fw-AC79_AIoT_SDK'))
     env.update(MODEL=a.model, BOARD='smk37', X0X_DEV_PADCAL='1', CTL_NO_CACHE='1', CTL_NATIVE='1')
+    def identity():
+        return validation_inputs.capture(repo, commit, 'dev',
+            {'model': a.model, 'config': 'dev', 'controller': not a.no_controller,
+             'plan': plan, 'dependencies': plan.get('dependencies', [])},
+            env.get('JIELI_TOOLCHAIN', str(Path.home()/'.jieli/toolchain')),
+            env.get('AC79_SDK', str(Path.home()/'fw-AC79_AIoT_SDK')), env=env)
+    inputs = identity()
     logs = {}
     # Use a mounted repository sibling, not /tmp, so container builds can see it.
     with tempfile.TemporaryDirectory(prefix='dev-check-', dir=repo.parent) as tmp:
@@ -162,7 +183,8 @@ def run(a):
                 dest = output / path.name
                 shutil.copy2(path, dest)
                 artifacts[kind] = {'file': dest.name, 'sha256': digest(dest)}
-            data = {'schema': 1, 'result': 'DEV CHECKED', 'config': 'dev', 'model': a.model,
+            validation_inputs.validate(inputs, identity())
+            data = {'schema': 2, 'validation_inputs': inputs, 'result': 'DEV CHECKED', 'config': 'dev', 'model': a.model,
                     'commit': commit, 'tree': tree(repo, commit), 'plan': plan,
                     'changed_files': git(repo, 'diff', '--name-only', base, commit).splitlines(),
                     'controller': not a.no_controller, 'budgets': limits,

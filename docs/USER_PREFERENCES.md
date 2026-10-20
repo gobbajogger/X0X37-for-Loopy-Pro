@@ -2,20 +2,13 @@
 
 The current owner request and repository [agent rules](agent-rules.md) govern this work. The text below the historical-record divider is the unchanged preference record captured on 2026-10-17. Its role IDs, machine paths, installed hashes, scope exceptions, and procedure summaries are historical. Product decisions still apply unless a later owner instruction supersedes them.
 
-## Build target scope — 2026-10-20
+## Build target scope
 
-Source: owner in this chat: "we dont need to build and test fm1 builds. they are only for reference to port".
+- 2026-10-20 Source: owner in this chat: "we dont need to build and test fm1 builds. they are only for reference to port". FM-1 is reference-only for porting. Build and test SMK-37 Elite and Pro; do not require FM-1 target builds or FM-1 target tests. This supersedes the gate’s FM-1 build, budget, and target-test requirements. Keep shared code and checks needed for the SMK-37 port, including tools with legacy `fm1` names. Active rules: integration.md rule 11; owner-messages.md rules 4B and 14; docs.md rule 12. The assigned integration chat owns the workflow change.
 
-FM-1 is reference-only for porting. Build and test SMK-37 Elite and Pro; do not require FM-1 target builds or FM-1 target tests. This supersedes the gate’s FM-1 build, budget, and target-test requirements. Keep shared code and checks needed for the SMK-37 port, including tools with legacy `fm1` names. Active rules: owner-messages.md rules 4B and 14; docs.md rule 12. The assigned integration chat owns the workflow change.
+## On-demand rules
 
-## On-demand rules — 2026-10-20
-
-Source: owner in this chat requested rules initialized only when needed, fewer
-redundant rules, and faster progress with fewer errors and wasted usage.
-This supersedes mandatory startup loading of both writing skills in the
-2026-10-19 entries below. Plain, correct, concise writing still applies to all
-output. Read core once; load step rules and full skills only for the triggers
-in agent-rules.md and SKILLS.md. Active rules: rules/core.md and rules/style.md.
+- 2026-10-20 Source: owner in this chat requested rules initialized only when needed, fewer redundant rules, and faster progress with fewer errors and wasted usage. This supersedes mandatory startup loading of both writing skills in the 2026-10-19 entries below. Plain, correct, concise writing still applies to all output. Read core once; load step rules and full skills only for the triggers in agent-rules.md and SKILLS.md. Active rules: core.md rule 6A; style.md rule 15; docs.md rule 12A.
 
 ## Team rules
 

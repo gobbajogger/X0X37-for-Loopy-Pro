@@ -125,6 +125,12 @@ for row in $ROWS; do
     grep -q '^gate: ' "$L/gate.log" || { [ -z "$LAST" ] && LAST="$F: $L/gate.log has no gate lines"; continue; }
     [ -s "$L/crc.txt" ] || { [ -z "$LAST" ] && LAST="$F: no CRC manifest $L/crc.txt"; continue; }
     grep -qx '## CRC manifest' "$RF" || { [ -z "$LAST" ] && LAST="$F: no CRC manifest section"; continue; }
+    # Provenance travels with exact artifacts; the installer need not have the build SDK.
+    INPUT_ID=$(sed -n 's/^- Validation inputs: //p' "$RF")
+    INPUT_SOURCE=$(git -C "$REPO" ls-tree -r --full-tree "$H" | awk -F '\t' '$2 !~ /\.md$/' | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
+    python3 "$(dirname "$0")/validation_inputs.py" verify "$L/validation-inputs.json" \
+        --sha256 "$INPUT_ID" --source "$INPUT_SOURCE" 2>/dev/null || {
+        [ -z "$LAST" ] && LAST="$F: missing or invalid validation-input provenance"; continue; }
     # 5. the files to install
     MAN=$(sed -n '/^## CRC manifest/,/^## [^C]/p' "$RF")
     TWO=0; grep -q '^- Config CRCs: ' "$RF" && TWO=1

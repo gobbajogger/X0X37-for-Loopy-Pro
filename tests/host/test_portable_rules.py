@@ -97,6 +97,8 @@ class PortableRules(unittest.TestCase):
         self.assertEqual((destination / 'pre-push.hook').read_bytes(),
                          (TOP / 'tools/pre-push.hook').read_bytes())
         self.assertTrue(os.access(destination / 'pre-push.hook', os.X_OK))
+        self.assertEqual((destination / 'validation_inputs.py').read_bytes(),
+                         (TOP / 'tools/validation_inputs.py').read_bytes())
 
     def test_preference_history_does_not_reactivate_old_rules(self):
         spec = importlib.util.spec_from_file_location('prefs', TOP / 'tools/prefs_lint.py')

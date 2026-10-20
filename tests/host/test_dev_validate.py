@@ -46,6 +46,12 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         self.queue = self.root/'QUEUE.md'
         self.queue.write_text('')
         self.env = os.environ.copy()
+        self.tc = self.root/'toolchain'
+        self.sdk = self.root/'sdk'
+        self.tc.mkdir(); self.sdk.mkdir()
+        (self.tc/'compiler').write_text('fixture compiler')
+        (self.sdk/'library').write_text('fixture SDK')
+        self.env.update(JIELI_TOOLCHAIN=str(self.tc), AC79_SDK=str(self.sdk))
         self.env.update(X0X_REPO=str(self.repo), X0X_QUEUE_FILE=str(self.queue),
                         X0X_RESULTS_DIR=str(self.root/'no-gate-results'))
 
@@ -53,10 +59,10 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         return subprocess.check_output(['git', '-C', str(self.repo), *args], text=True).strip()
 
     def run_validation(self, controller=False, timeout=1800):
-        launcher = 'import runpy,sys; from unittest.mock import patch; sys.argv=sys.argv[1:]; a=patch("platform.system",return_value="Linux"); b=patch("platform.machine",return_value="x86_64"); a.start(); b.start(); runpy.run_path(sys.argv[0],run_name="__main__")'
+        launcher = 'import runpy,sys; sys.path.insert(0,str(__import__("pathlib").Path(sys.argv[1]).parent)); from unittest.mock import patch; sys.argv=sys.argv[1:]; a=patch("platform.system",return_value="Linux"); b=patch("platform.machine",return_value="x86_64"); a.start(); b.start(); runpy.run_path(sys.argv[0],run_name="__main__")'
         return subprocess.run([sys.executable, '-c', launcher, str(RUNNER), 'run', '--repo', str(self.repo),
                                '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
-                               '--output', str(self.out), '--timeout', str(timeout)] + ([] if controller else ['--no-controller']), capture_output=True, text=True)
+                               '--output', str(self.out), '--timeout', str(timeout)] + ([] if controller else ['--no-controller']), capture_output=True, text=True, env=self.env)
 
     def guard(self, *args):
         return subprocess.run(['bash', str(GUARD), self.commit, '--fwsc', str(self.out/'x0x-smk37-elite.fwsc'),
@@ -95,6 +101,28 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         self.git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'changed')
         self.commit = self.git('rev-parse', 'HEAD')
         self.assertEqual(self.guard().returncode, 3)
+
+    def test_identity_required_and_transfer_does_not_need_build_dependencies(self):
+        self.ready()
+        record = self.out/'record.json'
+        data = json.loads(record.read_text())
+        saved = record.read_text()
+        data.pop('validation_inputs')
+        record.write_text(json.dumps(data))
+        self.assertEqual(self.guard().returncode, 3)
+        record.write_text(saved)
+        self.env['JIELI_TOOLCHAIN'] = '/missing-on-installer'
+        self.assertEqual(self.guard().returncode, 0)
+
+    def test_dependency_change_during_validation_issues_no_record(self):
+        plan = json.loads(self.plan.read_text())
+        plan['checks'][0]['argv'] = [sys.executable, '-c',
+            "from pathlib import Path; Path("+repr(str(self.sdk/'library'))+").write_text('changed SDK')"]
+        self.plan.write_text(json.dumps(plan))
+        result = self.run_validation()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('validation inputs changed', result.stderr)
+        self.assertFalse((self.out/'record.json').exists())
 
     def test_docs_only_commit_reuses_evidence(self):
         self.ready()
