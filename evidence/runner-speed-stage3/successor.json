@@ -1,0 +1,30 @@
+{
+  "workflow": "runner-speed-20261021",
+  "stage": 4,
+  "marker": "runner-speed-20261021-stage4",
+  "state": "started",
+  "source_chat": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "completion_copy": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "input_evidence_commit": "7f8dff3d69880e26b3a56be3f21f5a8af41ae6b8",
+  "prompt": "stage4-handoff.txt",
+  "attempts": [
+    {
+      "result": "created",
+      "thread_id": "01a15afb-2b5e-77f0-afac-98934e19bbfb",
+      "host_id": "local"
+    }
+  ],
+  "thread_id": "01a15afb-2b5e-77f0-afac-98934e19bbfb",
+  "host_id": "local",
+  "startup": {
+    "turn_id": "01a15afb-2c80-71e0-bbcb-516e87c1dca9",
+    "assistant_message_id": "msg_0fe79af536e69c8a016ad7cda591488191a002b20e319f3252",
+    "observed_via": "wait_threads",
+    "acknowledgment": "I\u2019m using the x0x37 task and writing skills. I\u2019ll read the saved stage4 handoff and current ownership, then create the isolated validation lane and check the existing evidence without repeating target builds or full suites.",
+    "tool_marker_id": "exec-008292ed-2a06-4c2c-a812-47c74de9c2e4",
+    "tool_name": "read_thread",
+    "tool_status": "completed"
+  }
+}
