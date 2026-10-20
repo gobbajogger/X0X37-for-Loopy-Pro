@@ -85,7 +85,7 @@
   },
   "pending": {
     "cache": {
-      "state": "checked_repair_waiting_independent_test_and_acceptance",
+      "state": "independent_test_failed_waiting_owner_routed_repair",
       "production": "746ece6936a456ef963c758da659c07a801cec37",
       "evidence": "1f1e75bc0d567f69b94d384b32f3c62232609f20",
       "lane": "../asset_reuse_selector_repair",
@@ -104,7 +104,14 @@
         "fresh_source_copy": 6.827
       },
       "consumer_policy": "No accepted input yet. After acceptance, measure individual caller paths against matching baseline and retain original generation wherever cache reuse does not justify routing; preserve native unsupported fallback without expensive discovery.",
-      "limits": "Reported stage2 data only; independent Test and applicable stage4 acceptance still required."
+      "limits": "Reported stage2 data only; independent Test and applicable stage4 acceptance still required.",
+      "independent_owner": "01a15b09-9f82-7db2-a86b-102fddcb4a0a",
+      "finding": "Symlink-loaded library RUNPATH $ORIGIN resolution uses alias folder, but canonical /proc/maps path inventory omits alias/early. Adding earlier alias dependency yields stale warm hit with bytes differing from cache-disabled original.",
+      "proof": "../asset_selector_stage3/evidence/asset-selector-stage3/investigation/origin-earlier.log",
+      "cached_sha256": "274ba96a799b1359e329df43a8317e9787accd855c5a62873ddf1c82a9d82382",
+      "original_sha256": "ae5a3fac1cbe9e75be3d164068c768b70883d06efebddf55b74228c09eac2828",
+      "routing": "Independent owner is finishing bounded checks and saving classic LoopyX0X37 repair handoff under updated owner routing; no automatic Codex repair chain.",
+      "required": "Wait for checked owner-routed repair plus independent PASS and applicable validation; reject746ece6. Remaining cache consumers retain direct generation."
     },
     "native": {
       "state": "checked_repair_waiting_independent_results_and_validation",
