@@ -166,6 +166,7 @@ def main():
     target = not changed or any(route(p) == 'target' for p in changed)
     plan = {'changed': changed, 'target': target,
             'reason': 'empty scope or target/unknown input' if target else 'proven documentation/web/host/test inputs',
+            'checks': target or any(route(p) != 'docs' for p in changed),
             'rules': any(is_rule(p) for p in changed),
             'docs': any(route(p) == 'docs' or p.startswith('docs/') for p in changed),
             'tests': [] if args.scope_only else select(args.root, changed, target)}

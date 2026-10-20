@@ -134,10 +134,22 @@ run host-build sh host/probe.c
         self.assertIn('scope:', self.qc(False).stdout)
         self.env['X0X_QC_BASE'] = self.base
         real_git = shutil.which('git')
-        (self.bin / 'git').write_text('#!/bin/sh\nfor arg do [ "$arg" != diff ] || exit 77; done\nexec "' + real_git + '" "$@"\n')
-        (self.bin / 'git').chmod(0o755)
-        self.assertIn('scope:', self.qc(False).stdout)
+        self.put('docs/start.md', 'changed\n')
+        for failed_command in ('for-each-ref', 'diff', 'rev-list', 'ls-files'):
+            with self.subTest(failed_command=failed_command):
+                (self.bin / 'git').write_text('#!/bin/sh\nfor arg do [ "$arg" != ' + failed_command + ' ] || exit 77; done\nexec "' + real_git + '" "$@"\n')
+                (self.bin / 'git').chmod(0o755)
+                self.assertIn('scope:', self.qc(False).stdout)
         self.assertFalse((self.repo / 'build/invoked').exists())
+
+    def test_mixed_docs_and_web_scope_cannot_hide_missing_tests(self):
+        self.put('docs/start.md', 'changed\n')
+        self.put('web/page.js', 'changed\n')
+        (self.repo / 'tests/run_tests.sh').unlink()
+        p = self.qc(False)
+        self.assertIn('no runnable tests selected', p.stdout)
+        self.assertFalse(self.plan()['target'])
+        self.assertTrue(self.plan()['checks'])
 
     def test_explicit_ste_modes_and_broken_checker_fail_closed(self):
         tool_dir = self.root / 'checker'

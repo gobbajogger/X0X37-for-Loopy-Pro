@@ -59,15 +59,20 @@ PREPUSH=${X0X_PREPUSH_HOOK:-$QCDIR/pre-push.hook}
 secs() { echo "$(( $(date +%s) - T0 ))"; }
 H=${1}
 out() { echo "QUICK $1 ${H:0:7} $(secs) s${2:+ $2}"; [ "$1" = PASS ]; exit $?; }
+ancestor() {
+    "${G[@]}" merge-base --is-ancestor "$1" "$2" 2>/dev/null; local rc=$?
+    [ "$rc" -le 1 ] || out FAIL "scope: cannot read ancestry"
+    return "$rc"
+}
 if [ ! -d "$1" ] && ! command -v flock >/dev/null 2>&1; then
     out FAIL "setup: commit-mode quickcheck needs flock; use the Linux container or a worktree folder for docs-only checks"
 fi
 if [ -d "$1" ]; then                                    # a worktree folder, as it is
     W=$(cd "$1" && pwd); G=(git -C "$W")
     H=$("${G[@]}" rev-parse HEAD) || { H=$1; out FAIL "not a git worktree"; }
-    IREF=$("${G[@]}" for-each-ref --format='%(refname)' "refs/remotes/*/$INT" | head -1)
-    DREF=$("${G[@]}" for-each-ref --format='%(refname)' "refs/remotes/*/$DOCB" | head -1)
-    RLANE=$("${G[@]}" for-each-ref --points-at HEAD --format='%(refname)' 'refs/heads/lane/dk-rules-*' 'refs/remotes/*/lane/dk-rules-*' | head -1)
+    IREF=$("${G[@]}" for-each-ref --count=1 --format='%(refname)' "refs/remotes/*/$INT") || out FAIL "scope: cannot read integration refs"
+    DREF=$("${G[@]}" for-each-ref --count=1 --format='%(refname)' "refs/remotes/*/$DOCB") || out FAIL "scope: cannot read docs refs"
+    RLANE=$("${G[@]}" for-each-ref --count=1 --points-at HEAD --format='%(refname)' 'refs/heads/lane/dk-rules-*' 'refs/remotes/*/lane/dk-rules-*') || out FAIL "scope: cannot read rule refs"
 else                                                    # a commit: its own worktree in $QW/wt
     mkdir -p "$QW" || out FAIL "setup: cannot create $QW"
     exec 9>"$QW/.lock" || out FAIL "setup: cannot open $QW/.lock"
@@ -86,17 +91,17 @@ else                                                    # a commit: its own work
     if [ -d "$W" ]; then git -C "$W" checkout -q -f --detach "$H" || out FAIL "checkout failed"
     else git -C "$QW/.repo" worktree prune; git -C "$QW/.repo" worktree add -q --detach "$W" "$H" || out FAIL "worktree failed"; fi
     G=(git -C "$W"); IREF="refs/remotes/origin/$INT"
-    DREF=$("${G[@]}" rev-parse -q --verify "refs/remotes/origin/$DOCB" >/dev/null && echo "refs/remotes/origin/$DOCB")
-    RLANE=$("${G[@]}" for-each-ref --points-at "$H" --format='%(refname)' 'refs/remotes/origin/lane/dk-rules-*' | head -1)
+    DREF=$("${G[@]}" for-each-ref --count=1 --format='%(refname)' "refs/remotes/origin/$DOCB") || out FAIL "scope: cannot read docs refs"
+    RLANE=$("${G[@]}" for-each-ref --count=1 --points-at "$H" --format='%(refname)' 'refs/remotes/origin/lane/dk-rules-*') || out FAIL "scope: cannot read rule refs"
 fi
 L="$W/build/qc"; mkdir -p "$L" "$L/tmp"; LOG="$L/qc.log"; : > "$LOG"
 if [ -n "${X0X_QC_BASE:-}" ]; then BASE=$("${G[@]}" rev-parse --verify "$X0X_QC_BASE^{commit}") || out FAIL "scope: invalid base"
-elif [ -n "$IREF" ] && "${G[@]}" merge-base --is-ancestor "$H" "$IREF" 2>/dev/null; then BASE=$("${G[@]}" rev-parse "$H^") || out FAIL "scope: no parent"
-elif [ -n "$DREF" ] && "${G[@]}" merge-base --is-ancestor "$H" "$DREF" 2>/dev/null; then BASE=$("${G[@]}" rev-parse "$H^") || out FAIL "scope: no parent"
+elif [ -n "$IREF" ] && ancestor "$H" "$IREF"; then BASE=$("${G[@]}" rev-parse "$H^") || out FAIL "scope: no parent"
+elif [ -n "$DREF" ] && ancestor "$H" "$DREF"; then BASE=$("${G[@]}" rev-parse "$H^") || out FAIL "scope: no parent"
 elif [ -n "$IREF" ]; then BASE=$("${G[@]}" merge-base "$H" "$IREF") || out FAIL "scope: no integration merge base"
     if [ -n "$DREF" ]; then
         MD=$("${G[@]}" merge-base "$H" "$DREF") || out FAIL "scope: no docs merge base"
-        if [ "$MD" != "$BASE" ] && "${G[@]}" merge-base --is-ancestor "$BASE" "$MD"; then BASE=$MD; fi
+        if [ "$MD" != "$BASE" ] && ancestor "$BASE" "$MD"; then BASE=$MD; fi
     fi
 else BASE=$("${G[@]}" rev-parse "$H^") || out FAIL "scope: no parent"; fi
 PLAN_ARGS=(); [ -d "$1" ] && PLAN_ARGS+=(--folder)
@@ -108,10 +113,10 @@ python3 "$QCDIR/quickcheck_plan.py" "$W" "$BASE" "$H" "${PLAN_ARGS[@]}" > "$L/pl
 python3 - "$L/plan.json" > "$L/plan-fields" <<'PYPLAN'
 import json, sys
 p = json.load(open(sys.argv[1]))
-for k in ('target', 'rules', 'docs'): print(int(p[k]))
+for k in ('target', 'rules', 'docs', 'checks'): print(int(p[k]))
 print(' '.join(p['tests']))
 PYPLAN
-{ read -r TARGET; read -r RULES_MODE; read -r DOCS_CH; read -r SEL; } < "$L/plan-fields"
+{ read -r TARGET; read -r RULES_MODE; read -r DOCS_CH; read -r NEED_TESTS; read -r SEL; } < "$L/plan-fields"
 CHANGED=$(python3 -c 'import json,sys; print("\n".join(json.load(open(sys.argv[1]))["changed"]))' "$L/plan.json")
 echo "quickcheck ${H:0:7}, base ${BASE:0:7}, changed: $(echo $CHANGED)" >> "$LOG"
 cat "$L/plan.json" >> "$LOG"
@@ -309,7 +314,7 @@ if [ -n "$SEL" ]; then
     cat "$L/tests.log" >> "$LOG"
     NF=$(grep -c '^  FAIL' "$L/tests.log"); NOK=$(grep -c '^  ok ' "$L/tests.log")
     for n in $SEL; do grep -qE "^  ok +$n( |\$)" "$L/tests.log" || MISS="$MISS $n"; done
-elif [ "$TARGET" = 1 ] || [ "$DOCS_CH" != 1 ]; then
+elif [ "$NEED_TESTS" = 1 ]; then
     out FAIL "tests: no runnable tests selected for relevant scope"
 fi
 WT=""
