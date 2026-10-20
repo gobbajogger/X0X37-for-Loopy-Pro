@@ -236,8 +236,11 @@ class ControllerCompile(unittest.TestCase):
                 self.children.unlink(missing_ok=True)
                 self.env.update(X0X_JOBS=str(jobs), SPAWN_CHILD='src/a.c', HANG_SOURCE='src/b.c',
                                 AFTER_SUCCESS='src/b.c')
+                # An outer asynchronous shell can inherit ignored SIGINT. The
+                # tested child needs the normal disposition before its shell exec.
                 p = subprocess.Popen(['sh', str(TOP / 'ble/ctl/build_in_container.sh')],
-                                     env=self.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                                     env=self.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                                     preexec_fn=lambda: signal.signal(signal.SIGINT, signal.SIG_DFL))
                 try:
                     deadline = time.monotonic() + 5
                     while len(self.child_pids()) < 2:
