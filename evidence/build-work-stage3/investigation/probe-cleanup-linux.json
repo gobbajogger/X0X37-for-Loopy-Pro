@@ -1,0 +1,52 @@
+{
+  "platform": "linux",
+  "returncode": 1,
+  "stdout": "CC FAIL (see /tmp/tmpe5qh80z9/out/cc_warn.txt)\nstderr src/a.c\nstdout src/a.c\nstderr src/b.c\nstdout src/b.c\n",
+  "stderr": "",
+  "successful_driver_children": [
+    {
+      "pid": 18,
+      "exists": true,
+      "active": true,
+      "state": "S",
+      "process_group": 15
+    }
+  ],
+  "events": [
+    [
+      "start",
+      "src/a.c",
+      15,
+      "/tmp/tmpe5qh80z9/ctlbuild.56HomO"
+    ],
+    [
+      "start",
+      "src/b.c",
+      17,
+      "/tmp/tmpe5qh80z9/ctlbuild.56HomO"
+    ],
+    [
+      "end",
+      "src/a.c",
+      15,
+      "/tmp/tmpe5qh80z9/ctlbuild.56HomO"
+    ],
+    [
+      "fail",
+      "src/b.c",
+      17,
+      "/tmp/tmpe5qh80z9/ctlbuild.56HomO"
+    ]
+  ],
+  "scratch_removed": true,
+  "expected": "Every owned compiler process group is stopped before scratch cleanup.",
+  "probe_owned_child_cleanup": [
+    {
+      "pid": 18,
+      "exists": true,
+      "active": false,
+      "state": "Z",
+      "process_group": 15
+    }
+  ]
+}

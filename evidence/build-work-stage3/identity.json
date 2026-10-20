@@ -1,0 +1,111 @@
+{
+  "candidate": "30c567d8588227d5285f04422130300fe83577a9",
+  "result": "PASS",
+  "source_files": {
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "7f0528be983339b94cb37fcffb01fed8ea9732773c840c6869de7cf84fa51052",
+    "tests/host/test_ctl_compile.py": "10bb6060be246faefa46104ae4993f59e2d8585095c14e1cc56c4d66e77f69bc",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de"
+  },
+  "reused_suites": [
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_rules_guard_hook.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.627994000002218,
+      "log": "evidence/build-work-stage2/test_rules_guard_hook.log",
+      "sha256": "b7400c07d64bfc17de3abda8339f8501d71fc8a033e675f862a2ee2e47619f22"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_ctl_compile.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 4.692589999998745,
+      "log": "evidence/build-work-stage2/test_ctl_compile.log",
+      "sha256": "b373b76624c03c2b2b60227d07e04c951844891215f0784a7ecad7e0ee6934f3"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_quickcheck_plan.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 32.800687000002654,
+      "log": "evidence/build-work-stage2/test_quickcheck_plan.log",
+      "sha256": "3b3e4c535aaabb38db27e7ebf5d69057537f6f0ea73e6bd01cb7c4992b239f07"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_ste.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 12.468725999999151,
+      "log": "evidence/build-work-stage2/test_quickcheck_ste.log",
+      "sha256": "9627e1197d17d03bf509cd20a94f152dd338108f138724dd0c30453af3832a23"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_rules.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 21.51453599999877,
+      "log": "evidence/build-work-stage2/test_quickcheck_rules.log",
+      "sha256": "c251cb5a3838cb74132ff231fdb5d730520a635010aed3091874578ab052b3e7"
+    },
+    {
+      "argv": [
+        "bash",
+        "tests/host/test_quickcheck_devbug.sh"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 12.731372999998712,
+      "log": "evidence/build-work-stage2/test_quickcheck_devbug.log",
+      "sha256": "fec1c164fe0c28faed6630e359238d35bc6f57274b79281d8ad6ef1a6da25303"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/test_portable_rules.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 6.165578000000096,
+      "log": "evidence/build-work-stage2/test_portable_rules.log",
+      "sha256": "3543237d558e72f2283d1e84f6eabaf0e7df9b595c5ce0f2567e8255286bc63b"
+    }
+  ],
+  "controller_sources_match": true,
+  "controller_image_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "real_controller_seconds": 28.513924458,
+  "controller_log_matches": true,
+  "baseline_record_matches": true,
+  "baseline_environment_matches": true,
+  "current_image_matches": true,
+  "cleanup_delta_matches_exact_saved_diff": true,
+  "protected_sources_unchanged": [
+    "tests/run_tests.sh",
+    "tools/build.py",
+    "tools/dev_validate.py",
+    "tools/validation_inputs.py",
+    "host/build_host.sh",
+    "BUILDING.md"
+  ],
+  "limits": [
+    "No target builds or suite reruns were performed by this identity check.",
+    "Toolchain and SDK identities are reused from the saved before/after build record; they were not rehashed by this check.",
+    "Successful controller-path equivalence also requires source review of the recorded cleanup-only delta."
+  ]
+}

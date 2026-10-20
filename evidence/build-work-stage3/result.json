@@ -1,0 +1,44 @@
+{
+  "workflow": "build-work-20261021",
+  "stage": 3,
+  "result": "FAIL: fresh stage2 cleanup repair required",
+  "source_chat": "01a15af3-9c23-7321-b361-c3cbefd2462e",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "tested_candidate": "30c567d8588227d5285f04422130300fe83577a9",
+  "source_changed": false,
+  "identity_report": "evidence/build-work-stage3/identity.json",
+  "independent_test_report": "evidence/build-work-stage3/test/report.json",
+  "independent_investigation_report": "evidence/build-work-stage3/investigation/report.json",
+  "passing_evidence": [
+    "All nine candidate source hashes and seven saved suite PASS log hashes match.",
+    "The saved real controller image, baseline record, logs and unchanged controller source identities match.",
+    "The exact later cleanup-only delta matches controller-reuse.json; no second real controller build ran.",
+    "Two new scratch checks pass: partial selected PASS reports fail Quickcheck, and a test-source read error fails planning."
+  ],
+  "findings": [
+    {
+      "id": "CTL-SUCCESSFUL-DRIVER-CHILD",
+      "priority": "P2",
+      "file": "ble/ctl/build_in_container.sh",
+      "line": 60,
+      "trigger": "An earlier compiler driver returns success while leaving a child in its owned process group; a later compiler fails.",
+      "cause": "join_jobs removes the successful driver group from PIDS. Later failure and EXIT cleanup stop only remaining groups.",
+      "observed": "Pinned Linux probe returned 1 and deleted ctlbuild scratch while the earlier driver's child remained active in state S, process group 15. macOS also reproduced the active child.",
+      "probe_cleanup": "The probe killed only its own surviving child and recorded its stopped state.",
+      "evidence": [
+        "evidence/build-work-stage3/investigation/probe-cleanup-linux.json",
+        "evidence/build-work-stage3/investigation/probe-cleanup-macos.json",
+        "evidence/build-work-stage3/investigation/probe_cleanup.py"
+      ],
+      "disposition": "Unresolved. Preserve stage3 source; use exactly one fresh scoped stage2 repair, then a fresh stage3 for affected coverage. Do not promote to stage4."
+    }
+  ],
+  "limits": [
+    "Seven saved suites retain their original execution evidence; stage3 did not duplicate them.",
+    "Toolchain and SDK identities were reused from the saved before/after controller record, rather than rehashed.",
+    "No source repair, target controller/application build, full gate, release, install, device test, external push or firmware integration ran.",
+    "The direct controller/routing fixtures remain unregistered in tests/run_tests.sh; the runner owner retains that file.",
+    "The normal fixed-tree device-bug regression reuse remains deferred; the fixed regression and parent negative control remain required."
+  ],
+  "next_action": "One fresh stage2 controller cleanup repair, followed by fresh affected independent stage3, then scoped validation and handoff to the single finishing owner."
+}

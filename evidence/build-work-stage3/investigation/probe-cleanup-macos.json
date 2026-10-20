@@ -1,0 +1,50 @@
+{
+  "platform": "darwin",
+  "returncode": 1,
+  "stdout": "CC FAIL (see /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpucb3ac8g/out/cc_warn.txt)\nstderr src/a.c\nstdout src/a.c\nstderr src/b.c\nstdout src/b.c\n",
+  "stderr": "",
+  "successful_driver_children": [
+    {
+      "pid": 28062,
+      "exists": true,
+      "active": true,
+      "state": "S",
+      "process_group": 28059
+    }
+  ],
+  "events": [
+    [
+      "start",
+      "src/b.c",
+      28061,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpucb3ac8g/ctlbuild.iObWr0"
+    ],
+    [
+      "start",
+      "src/a.c",
+      28059,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpucb3ac8g/ctlbuild.iObWr0"
+    ],
+    [
+      "end",
+      "src/a.c",
+      28059,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpucb3ac8g/ctlbuild.iObWr0"
+    ],
+    [
+      "fail",
+      "src/b.c",
+      28061,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpucb3ac8g/ctlbuild.iObWr0"
+    ]
+  ],
+  "scratch_removed": true,
+  "expected": "Every owned compiler process group is stopped before scratch cleanup.",
+  "probe_owned_child_cleanup": [
+    {
+      "pid": 28062,
+      "exists": false,
+      "active": false
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "workflow": "build-work-20261021",
+  "stage": 3,
+  "role": "independent investigation",
+  "result": "FAIL — fresh stage2 repair required",
+  "candidate": "30c567d8588227d5285f04422130300fe83577a9",
+  "audit_base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "source_changed": false,
+  "source_hashes_match": {
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "7f0528be983339b94cb37fcffb01fed8ea9732773c840c6869de7cf84fa51052",
+    "tests/host/test_ctl_compile.py": "10bb6060be246faefa46104ae4993f59e2d8585095c14e1cc56c4d66e77f69bc",
+    "tests/host/test_portable_rules.py": "7e217721689148f83f858f9a675bdc67391580d49cb908ba0b22f2bc7522486f",
+    "tests/host/test_quickcheck_plan.py": "c52d2fdcc12efd7a6698dd23f4783005c1c4be71c519bb641299016e911bf2ed",
+    "tools/install_gate.sh": "65a4f89f2783869fd0cbbb655162fce6e5fe980d64e5e8146c7a82f8084d0168",
+    "tools/quickcheck.sh": "5aeed6279e5b0b8c29bde0775778764c5b92fc336da7eaa2b02a25575fd1010c",
+    "tools/quickcheck_plan.py": "372c28af8883338c662cd3faa4b027984eeb17bba67cfa21a91f9f143c2eaa37",
+    "docs/QUICKCHECK-SCOPE.md": "0dee1109f0fb0d219aff40e1346b064adebae3f340c9da4fec1a15f4312bc9de"
+  },
+  "findings": [
+    {
+      "id": "INV-1",
+      "priority": "P2",
+      "file": "ble/ctl/build_in_container.sh",
+      "lines": [
+        49,
+        60
+      ],
+      "title": "Cleanup loses the process group of an already successful compiler driver.",
+      "trigger": "A compiler driver starts a child and exits successfully; a later compiler in the batch fails or the build is interrupted.",
+      "cause": "join_jobs drops each successful driver PID from PIDS at line 60. stop_jobs only signals groups represented by the remaining PIDS. The successful driver group can still contain active descendants.",
+      "observed": "Pinned Linux fake-tool fixture: src/a.c driver PID/process group 15 exited successfully; child PID 18 remained active in state S and group 15 after src/b.c failed, the build returned 1, and ctlbuild scratch was deleted. macOS also reproduced an active surviving child.",
+      "impact": "Owned compiler descendants can survive a failed invocation and continue after their scratch directory is removed. This violates the requested cleanup contract. Existing seven suites remain valid for their covered cases but miss this ordering.",
+      "evidence": [
+        "probe_cleanup.py",
+        "probe-cleanup-linux.json",
+        "probe-cleanup-macos.json"
+      ],
+      "probe_cleanup": "The probe sent SIGKILL only to its recorded child PIDs and verified they were absent or stopped (Linux zombie state Z). No shared process was signalled.",
+      "repair_recommendation": "In a fresh stage2, preserve cleanup ownership for residual compiler process groups after their direct drivers have been joined, or stop residual descendants before dropping group tracking. Add a regression for earlier successful driver plus later failure, and the related interruption case. Keep compile flags, source/object order, link and image checks unchanged.",
+      "disposition": "Material failure reported to root. No repair was made. Do not advance to stage4."
+    }
+  ],
+  "review": [
+    "Reviewed the complete non-evidence candidate diff: both controller scripts, new planner, Quickcheck shell, install-gate helper propagation, portable assertion, new routing/controller fixtures and Quickcheck scope documentation.",
+    "Planner retains target coverage for empty, unknown, firmware/build/assets and unusual-name scope; NUL-delimited Git reads and disabled rename detection preserve both old and new source names. Folder scope includes committed, staged, unstaged and non-ignored untracked paths. Checked Git calls fail scope planning on read errors.",
+    "Known documentation, skills and rule entries avoid target and test work. Known web/host/test routes retain selected reports. Separate checks boolean prevents mixed documentation/web scope from passing with an empty plan. Every selected test requires an actual ok report and a zero runner status.",
+    "Ordinary STE is skipped; explicit ste-only and strict STE remain. Strict mode rejects missing checker, invalid output and process errors; legitimate exit 1 findings remain strict failures and advisory warnings as appropriate. Current skill/workflow/agent entries participate in per-commit Trigger/Check evidence. Preference lint remains.",
+    "Scenario selection retains host-build for all selected scenarios. Slot and slotimg are outside the local-command allowlist. Unknown or unreadable scenarios and build/test_upload references retain upload-images. Existing upload and upload44 source content still selects all original upload generation formats. The index is invocation-local and has no saved persistent cache.",
+    "Controller uses bounded batches. Invalid counts fail before compilation. Default-unset and 64-job fake-tool checks passed; existing matching evidence covers 1/2/4 bounds and invalid counts. Docker wrapper forwards the same default or explicit value.",
+    "Compiler CF string and complete L=$B/lib onward link/post-link block are byte-equal to the audit base. Source glob, object basename construction and link append order remain. Deterministic diagnostic collection uses source-unit order.",
+    "Controller reuse file matches the exact built/current script hashes and exact unified diff. Only failure/signal cleanup changed after the real successful build. Reusing its successful build/image result remains justified; the newly found cleanup defect does not invalidate successful output equivalence.",
+    "No diff exists in tests/run_tests.sh, active build/validator helper sources or BUILDING.md. Their owners retain control."
+  ],
+  "reused_evidence": {
+    "seven_scoped_suites": [
+      {
+        "argv": [
+          "bash",
+          "tests/host/test_rules_guard_hook.sh"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 6.627994000002218,
+        "log": "evidence/build-work-stage2/test_rules_guard_hook.log",
+        "sha256": "b7400c07d64bfc17de3abda8339f8501d71fc8a033e675f862a2ee2e47619f22"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "tests/host/test_ctl_compile.py"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 4.692589999998745,
+        "log": "evidence/build-work-stage2/test_ctl_compile.log",
+        "sha256": "b373b76624c03c2b2b60227d07e04c951844891215f0784a7ecad7e0ee6934f3"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "tests/host/test_quickcheck_plan.py"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 32.800687000002654,
+        "log": "evidence/build-work-stage2/test_quickcheck_plan.log",
+        "sha256": "3b3e4c535aaabb38db27e7ebf5d69057537f6f0ea73e6bd01cb7c4992b239f07"
+      },
+      {
+        "argv": [
+          "bash",
+          "tests/host/test_quickcheck_ste.sh"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 12.468725999999151,
+        "log": "evidence/build-work-stage2/test_quickcheck_ste.log",
+        "sha256": "9627e1197d17d03bf509cd20a94f152dd338108f138724dd0c30453af3832a23"
+      },
+      {
+        "argv": [
+          "bash",
+          "tests/host/test_quickcheck_rules.sh"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 21.51453599999877,
+        "log": "evidence/build-work-stage2/test_quickcheck_rules.log",
+        "sha256": "c251cb5a3838cb74132ff231fdb5d730520a635010aed3091874578ab052b3e7"
+      },
+      {
+        "argv": [
+          "bash",
+          "tests/host/test_quickcheck_devbug.sh"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 12.731372999998712,
+        "log": "evidence/build-work-stage2/test_quickcheck_devbug.log",
+        "sha256": "fec1c164fe0c28faed6630e359238d35bc6f57274b79281d8ad6ef1a6da25303"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "tests/host/test_portable_rules.py"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 6.165578000000096,
+        "log": "evidence/build-work-stage2/test_portable_rules.log",
+        "sha256": "3543237d558e72f2283d1e84f6eabaf0e7df9b595c5ce0f2567e8255286bc63b"
+      }
+    ],
+    "real_controller_result": "evidence/build-work-stage2/controller-result.json",
+    "real_controller_log_sha256": "aa472b7b94cff54ff2b14d98fc14f135e13f8be08b93e428b93b022f51869006",
+    "real_controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "real_controller_seconds": 28.513924458,
+    "cleanup_delta_exact": true,
+    "dependency_identity_limit": "Reused the saved full SDK/toolchain identities. Root separately verified baseline records, images, environment and non-orchestration inputs. This subagent did not rehash entire proprietary dependencies or execute a real target build."
+  },
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-work-stage3/investigation/probe_cleanup.py"
+      ],
+      "environment": "Local macOS; PYTHONDONTWRITEBYTECODE=1; fixture-owned temporary repositories, fake compiler and setsid shim.",
+      "result": "Reproduced INV-1; probe process exited 0 after verifying and stopping its own surviving child.",
+      "log": "probe-cleanup-macos.json"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--platform",
+        "linux/amd64",
+        "-v",
+        "/Users/mac/Documents/x0x37/build_work_stage3:/Users/mac/Documents/x0x37/build_work_stage3:ro",
+        "-w",
+        "/Users/mac/Documents/x0x37/build_work_stage3",
+        "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+        "python3",
+        "-B",
+        "evidence/build-work-stage3/investigation/probe_cleanup.py"
+      ],
+      "result": "Reproduced INV-1; active state S and owned group identity recorded. Probe exited 0 after child cleanup.",
+      "log": "probe-cleanup-linux.json"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "evidence/build-work-stage3/investigation/probe_success_inputs.py"
+      ],
+      "result": "PASS: unchanged compiler/link/post-link bytes, unset jobs and upper bound 64 with four fake units; object order and scratch cleanup preserved.",
+      "log": "probe-success-inputs.json"
+    },
+    {
+      "operation": "SHA-256 verification",
+      "result": "PASS: all nine current candidate source hashes, seven suite log hashes, controller log, built/current controller script and exact reuse delta match saved evidence."
+    }
+  ],
+  "limits": [
+    "No source repair, commit, target application/controller build, full gate, device check, installation, external push, release packaging, proprietary bundle or firmware integration ran.",
+    "The upper-bound fixture has four source units, so it verifies acceptance and partial-batch behavior at 64; the shell loop and existing fixtures establish the bound mechanism.",
+    "No comparative timing or isolated speedup claim is made. The real controller timing remains the saved 28.513924458-second run.",
+    "The fixed-tree device-bug result reuse remains deferred because exact runner/environment/result identity is unavailable."
+  ],
+  "evidence_sha256": {
+    "probe-cleanup-linux.json": "26a9a7deb548ff6e812a01994de851c277e94d893bc915e5051122212c155bb3",
+    "probe-cleanup-macos.json": "af335d975e71c63edc4d3c387ccc4a92f501662b5a29e5a1b035d2c4c07a65b7",
+    "probe-cleanup.json": "e52253107935db2b93afed9dd99b1044d707bfb033741113d10c5efbd5b2caeb",
+    "probe-success-inputs.json": "9f6974de7012ca7fece4dc20d1255f8dace6bcefd4c52534b9dc8b403a7543a6",
+    "probe_cleanup.py": "a038dd4d472cf3b2205f7d30f184f7104281922f25bbad73999e522652ae2296",
+    "probe_success_inputs.py": "6b8b362564295ef3c2b30a9c00e575379826d07389aebecf88e7e88d3555257a"
+  },
+  "next_action": "Root must save the failed stage3 evidence and launch exactly one fresh stage2 cleanup repair, then a fresh affected stage3. The successful controller image evidence can be reused if its successful inputs/path remain equivalent."
+}

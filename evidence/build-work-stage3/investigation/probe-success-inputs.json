@@ -1,0 +1,40 @@
+{
+  "compiler_flags_byte_equal": true,
+  "link_and_post_link_block_byte_equal": true,
+  "fake_tool_results": [
+    {
+      "X0X_JOBS": null,
+      "returncode": 0,
+      "units": [
+        "src/a.c",
+        "src/b.c",
+        "src/c.S",
+        "gen/d.c"
+      ],
+      "objects": [
+        "obj/a.c.o",
+        "obj/b.c.o",
+        "obj/c.S.o",
+        "obj/d.c.o"
+      ],
+      "scratch_removed": true
+    },
+    {
+      "X0X_JOBS": "64",
+      "returncode": 0,
+      "units": [
+        "src/a.c",
+        "src/b.c",
+        "src/c.S",
+        "gen/d.c"
+      ],
+      "objects": [
+        "obj/a.c.o",
+        "obj/b.c.o",
+        "obj/c.S.o",
+        "obj/d.c.o"
+      ],
+      "scratch_removed": true
+    }
+  ]
+}

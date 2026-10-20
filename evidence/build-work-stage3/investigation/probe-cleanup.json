@@ -1,0 +1,39 @@
+{
+  "returncode": 1,
+  "stdout": "CC FAIL (see /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpd5xjqjpl/out/cc_warn.txt)\nstderr src/a.c\nstdout src/a.c\nstderr src/b.c\nstdout src/b.c\n",
+  "stderr": "",
+  "successful_driver_child_pids": [
+    27963
+  ],
+  "live_after_failed_build": [
+    27963
+  ],
+  "events": [
+    [
+      "start",
+      "src/a.c",
+      27900,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpd5xjqjpl/ctlbuild.WZ0yna"
+    ],
+    [
+      "start",
+      "src/b.c",
+      27902,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpd5xjqjpl/ctlbuild.WZ0yna"
+    ],
+    [
+      "end",
+      "src/a.c",
+      27900,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpd5xjqjpl/ctlbuild.WZ0yna"
+    ],
+    [
+      "fail",
+      "src/b.c",
+      27902,
+      "/private/var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpd5xjqjpl/ctlbuild.WZ0yna"
+    ]
+  ],
+  "scratch_removed": true,
+  "expected": "Every owned compiler process group is stopped before scratch cleanup."
+}

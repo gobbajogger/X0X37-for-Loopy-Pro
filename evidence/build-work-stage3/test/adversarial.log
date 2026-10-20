@@ -1,0 +1,14 @@
+[
+  {
+    "case": "partial_selected_PASS",
+    "result": "PASS",
+    "quickcheck_returncode": 1,
+    "stdout": "QUICK FAIL 533bf21 0 s tests: 0 failed; missing PASS: breaks-web (runner rc 0)\n"
+  },
+  {
+    "case": "unreadable_test_source",
+    "result": "PASS",
+    "planner_returncode": 1,
+    "stderr": "Quickcheck planning failed: stage3 injected unreadable test source\n"
+  }
+]
