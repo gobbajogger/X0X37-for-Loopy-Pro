@@ -19,9 +19,11 @@ typedef struct {
     uint8_t state, step, waiting, att_waiting, credits, acl_total, addr_type, link_name[21];
     uint8_t addr[6], target[6], target_type, found, running, sx[8], sx_len, in_sysex, rx[64], rx_cid;
     uint16_t rx_have, rx_need; /* Oversized signaling is drained; only rx[] is stored. */
-    /* TIMER5 owns replies: code, identifier, reason. A zero identifier denotes
-     * SMP Pairing Failed; L2CAP signaling identifiers are always nonzero. */
+    /* TIMER5 owns signaling replies: code, nonzero identifier, reason. */
     uint8_t sig[4][3], sig_read, sig_count;
+    /* Legacy Just Works: wire-order randoms, peer confirm, and AES scratch.
+     * The peripheral host is larger; these fit the existing host union. */
+    uint8_t sec, key_size, pres[7], random[16], peer[16], confirm[16], crypt[16];
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;

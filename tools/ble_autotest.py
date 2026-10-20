@@ -238,7 +238,7 @@ def summary(d, before):
     if d.get("smc_trace") in (0x534D4301, 0x534D4302) and d["h_step"] & 0x80000000:
         hdr = d["smc_acl0"].to_bytes(4, "little") + d["smc_acl1"].to_bytes(4, "little")
         out["smc_trace"] = (f"value handle {d['smc_handles'] & 65535}, CCCD handle {d['smc_handles'] >> 16}; "
-                            f"ATT response pending {d['smc_att'] >> 16}; "
+                            f"ATT response pending {d['smc_att'] >> 16 & 255}, security state {d['smc_att'] >> 24}; "
                             f"last ATT opcode 0x{d['smc_reject'] >> 24:02X}, notify handle {d['smc_att'] & 65535}; "
                             f"last rejected ACL: reason {d['smc_reject'] >> 16 & 255}, bytes {d['smc_reject'] & 65535}, "
                             f"header {hdr.hex(' ')}, CID 0x{d['smc_acl1'] >> 16:04X} (CID valid for start packets of at least 8 bytes)")

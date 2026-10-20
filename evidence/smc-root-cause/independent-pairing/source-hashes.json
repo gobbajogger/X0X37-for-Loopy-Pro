@@ -1,0 +1,5 @@
+{
+  "firmware/src/ble/ble_midi_central.c": "ccf83ada5f72b3ec08bccb92d319a4c0d479e486b048175851ef7e70ee7f29b2",
+  "firmware/src/ble/ble_midi_central.h": "e41435b69edf4a398592bf8a49e919b7a1696e322307f81d2b257eba85c84e32",
+  "tests/host/ble_midi_security_test.c": "3a3b6445c36f9217eb851e0f217aace4ceee068d046161748282f56a0861de95"
+}

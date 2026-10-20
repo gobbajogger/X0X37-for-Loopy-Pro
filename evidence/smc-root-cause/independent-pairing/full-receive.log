@@ -1,0 +1,7 @@
+PASS: HCI fragments 1-8, malformed assembly, bounds, rejection and lifecycle
+LE signaling, bounds, priority, backpressure, lifecycle: PASS
+Reconnect credits: PASS
+PASS: independent legacy pairing AES oracle, 35-byte HCI, ATT overlap, retries, peer-confirm failure, lifetime and wrap
+Disconnect retry, acceptance, deadline, events and lifecycle: PASS
+Disconnect cutoff, production service time and cancel race: PASS
+Stop acceptance, status, original cutoff, late events and production service: PASS

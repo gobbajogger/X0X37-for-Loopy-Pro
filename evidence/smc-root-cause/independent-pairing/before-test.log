@@ -1,0 +1,1 @@
+Assertion failed: (type==2&&nlast==n+8&&last[0]==0x50&&last[2]==n+4&&last[4]==n&&last[6]==6&&last[8]==op), function outgoing, file ble_midi_security_test.c, line 39.

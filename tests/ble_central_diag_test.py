@@ -25,7 +25,7 @@ print('PASS: central receive and unchanged peripheral diagnostic formats')
 
 # Versioned extension decodes without shifting old live words or guard data.
 for tail in ([], [0x534D4301, 113 | 114 << 16, 0x00080001, 0x00060004, 12 | 5 << 16 | 0x1B << 24, 113],
-             [0x534D4302, 113 | 114 << 16, 0x00062050, 0x00060002, 10 | 5 << 16 | 0x13 << 24, 0, 0x010b]):
+             [0x534D4302, 113 | 114 << 16, 0x00062050, 0x00060002, 10 | 5 << 16 | 0x13 << 24, 1 << 16 | 16 << 24, 0x010b]):
     words = [0] * (len(b.CRASH) + len(b.BOOT) + len(b.GUARD)) + [0] * len(b.LIVE)
     words[-len(b.LIVE)+b.LIVE.index('h_step')] = 0x8605000e
     words += tail
@@ -43,5 +43,6 @@ for tail in ([], [0x534D4301, 113 | 114 << 16, 0x00080001, 0x00060004, 12 | 5 <<
         else:
             assert 'reason 5, bytes 10' in text
             assert 'first rejected payload bytes 0b 01' in text
+            assert 'ATT response pending 1, security state 16' in text
     else: assert 'smc_trace' not in b.summary(parsed, None)
 print('PASS: old and extended DIAG decoding, handles and bounded rejected header')

@@ -1,23 +1,13 @@
 {
-  "result": "LIVE PROTOCOL DEFECT REPRODUCED AND CORRECTED; actual SMC control recovery not yet established",
+  "result": "Observed unpaired-link assumption is incompatible with peer SecurityRequest; pairing repair under test; physical control recovery not yet established",
   "base": "b6d6516",
-  "installed_source": "a5cb24d",
+  "installed_source": "29c7b0280d71e746497714ce83e69dbd242df147",
   "last_good_source": "53d5654",
   "identified_source_defect": [
     "Initial characteristic read omitted; confirmed specification violation and corrected in4668e48",
     "Actual received Security Request0b01 dropped at CID validation. Central original implementation assumes unpaired links and supplies no required negative response. The exact observed ACL reproduces absent response on installed source."
   ],
-  "source_change": "Recognize bounded SMP SecurityRequest and PairingRequest; queue exact PairingFailed0505 onCID6 under existing no-pairing policy. Reuse bounded priority/credit/deadline/lifecycle reply queue; preserve initial-read correction.",
-  "source_sha256": {
-    "firmware/src/app/editor.c": "bc92f27d40c4aea1d9b3492ae4377a6f0016fdb0f20e5a22e32094cf68d3a62f",
-    "firmware/src/ble.c": "4aa516110ffad67a54a69ac44e40619882f3996fcd0a915e7e9fdb49ffa0eee1",
-    "firmware/src/ble/ble_midi_central.c": "479bc3170c3d6fd0f760e3a2f74ba3a313e3f31ae8c7bd69d0a3539a101ee1fb",
-    "firmware/src/ble/ble_midi_central.h": "f70e19c780fbaf2fcbf0b668fa657ed326e4d7e2e3ae7732cfa8c536f7c8b5c4",
-    "tests/ble_central_diag_test.py": "9645b331578990efd7346361e17e641e6432ec502bb143385c73c1aadf217ebe",
-    "tests/host/ble_midi_central_test.c": "72abb164c42aeb3e9ed2dba1e598d893309a69eba52845b4b5fe7f0c63ab3e95",
-    "tests/host/ble_midi_receive_test.c": "ef3de410cd28b821f44658cc773318f8e64ba56c4cf1ec1b8d20bc9254d4acd0",
-    "tools/ble_autotest.py": "624d0dd97a6385485c77f7b2dadf894223293cb4715234efdb9deecd93f5cb2d"
-  },
+  "source_change": "In progress: replace explicit refusal with bounded automatic LE Legacy Just Works pairing, preserve outstanding ATT response handling, resume discovery only after successful EncryptionChange. Controller encryption must fit fixed budgets before installation.",
   "checks": {
     "regression": "Expanded central test fails against unmodified source and passes repaired source under ASan/UBSan and -Werror",
     "receive_suite": "PASS: receive/fragments/signaling/credits/stop/abort/deadline",
@@ -25,13 +15,15 @@
     "diag_size": "PASS 78 words; INLOG retains732byte limit",
     "diag_decoder": "PASS old, version01 and version02",
     "security_regression": "Exact observed physical ACL fails sent==1 on4668e48; passes corrected source under native ASan/UBSan. Credit/backpressure, fragments, unsupported/failure/reserved inputs, discovery, timeout and lifecycle checked.",
-    "capture": "Same-source exact1271packet capture replay andMTU23 resegmentation pass with nativeASan/UBSan; no physicalcontrolPASS inferred."
+    "capture": "Same-source exact1271packet capture replay andMTU23 resegmentation pass with nativeASan/UBSan; no physicalcontrolPASS inferred.",
+    "pairing_host": "PASS: independent OpenSSL AES c1/s1 fixture boundaries, exact35byteHCI commands, full legacy exchange, matching EncryptionChange, ATT overlap/authentication retry, busy/credits/failure/lifecycle/deadline; previous refusal source fails. Native ASan/UBSan receive suite and exact capture replay pass."
   },
   "live_evidence": {
     "initial": "READY/SCANNING, no ACL",
     "later": "CONNECTED, MIDI value114,CCCD115; rejected two-byte SMP on CID6; payload not yet available",
     "virtual_peer": "No subscriptions/read/writes; no test outcome; peer identity not established",
-    "after_initial_read": "After guarded DEV install and reboot: CONNECTED, value114/CCCD115, noATTpending. Exact rejected SMP payload0b01 onCID6,10byteACL50200600020006000b01. Three snapshots retain the same request."
+    "after_initial_read": "After guarded DEV install and reboot: CONNECTED, value114/CCCD115, noATTpending. Exact rejected SMP payload0b01 onCID6,10byteACL50200600020006000b01. Three snapshots retain the same request.",
+    "after_explicit_refusal": "Native verified29c7b02 install; peer repeatedly disconnects during discovery. Explicit0505 does not support the observed session. after-security-diag.json and after-security-inlog.txt retain evidence."
   },
   "specification": {
     "title": "MIDI over Bluetooth Low Energy1.0",
@@ -41,12 +33,12 @@
     "pdf_sha256": "70cae8df6d440c64423f0376970653d74a622c8e1dd564a833fef328bc8fc9e0"
   },
   "limits": [
-    "Exact received SecurityRequest and missing response are proved; effect of explicit rejection on actual SMC notification delivery must still be established",
+    "Missing response and initial-read defects are proved; explicit refusal fails on actual peer. Proper pairing is under independent protocol/build tests.",
     "Idle zero counters are not input-failure proof",
     "Initial read now completes on target; it was not the whole demonstrated problem",
     "No physical SMC control PASS yet"
   ],
-  "installed_test_revision": "4668e48f9c69672444c7364a30f9809cbe0cb1cd",
+  "installed_test_revision": "29c7b0280d71e746497714ce83e69dbd242df147",
   "historical_change": "SMC central added at5af672c disables controller encryption with unpaired-link assumption. Last-good53d5654 has the same missingSecurityRequest response; this is an original latent defect, not a newly demonstrated mapping regression.",
   "security_reference": "https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/security-manager-specification.html section2.4.6"
 }

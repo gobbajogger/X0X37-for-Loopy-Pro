@@ -1,0 +1,51 @@
+{
+  "result": "PASS for bounded legacy Just Works host implementation and host regressions",
+  "findings": [],
+  "resolved_during_review": [
+    "Reserved SMP commands now ignored during active pairing",
+    "Bad peer confirm now retries mandatory PairingFailed0504 before disconnect rather than only disconnecting"
+  ],
+  "owned_test": "tests/host/ble_midi_security_test.c replaced old refusal assertions with independent AES oracle handshake regression",
+  "oracle": "Fixture plaintext/ciphertext generated using independent OpenSSL AES-128 ECB, reversing wire arrays only at OpenSSL interface. Source implementation compared at all five HCI LE Encrypt boundaries. Official c1/s1 examples separately verified in vectors.json.",
+  "coverage": [
+    "Actual observed SecurityRequest0b01 causes nonbonding NoIO PairingRequest",
+    "Exact35-byte LE Encrypt commands, zeroTK, wire-order p1/p2 and correctSTK",
+    "Initiator request/response/confirm/random verification/encryption sequence",
+    "CommandStatus acceptance plus matching successful EncryptionChange required",
+    "Outstanding ATT ReadResponse while pairing advances preserved step without transmitting next request until encrypted",
+    "ATT InsufficientAuthentication retries same request after encryption",
+    "Busy/credit retry, no duplicate pending controller command",
+    "Bad peer confirm0504 credits/busy retry, latecrypto ignored during refusal",
+    "Stop/disconnect clears randoms/confirm/scratch and late Rand completion ignored",
+    "Wrong connection/malformed request/reserved opcode handling",
+    "Pairing deadline wrap",
+    "Full receive ASan/UBSan suite and preserved capture replay"
+  ],
+  "results": [
+    {
+      "name": "before",
+      "build_returncode": 0,
+      "test_returncode": -6
+    },
+    {
+      "name": "after",
+      "build_returncode": 0,
+      "test_returncode": 0
+    },
+    {
+      "name": "full-receive",
+      "returncode": 0
+    },
+    {
+      "name": "capture-replay",
+      "returncode": 0
+    }
+  ],
+  "limits": [
+    "Simulated HCI peer/controller, fixed independent AES oracle fixtures; no real controller crypto or physical SMC behavior tested",
+    "Negotiated7-15-byte keys reviewed in source but successful handshake fixture negotiates16",
+    "No secure-connections or persistent bonding implementation is claimed",
+    "Controller64KiB fit and application target budgets/build remain root-owned blockers",
+    "Current observed source repair does not establish physical controls recovery"
+  ]
+}

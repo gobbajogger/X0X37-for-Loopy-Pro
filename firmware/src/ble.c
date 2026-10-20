@@ -580,7 +580,8 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
                                (uint32_t)blec_rd16(ble_r.host.c.reject_head + 6) << 16 : 0;
     w[n++] = ble_central_role ? ble_r.host.c.reject_n | (uint32_t)ble_r.host.c.reject_reason << 16 |
                                (uint32_t)ble_r.host.c.att_op << 24 : 0;
-    w[n++] = ble_central_role ? ble_r.host.c.att_handle | (uint32_t)ble_r.host.c.att_waiting << 16 : 0;
+    w[n++] = ble_central_role ? ble_r.host.c.att_handle | (uint32_t)ble_r.host.c.att_waiting << 16 |
+                               (uint32_t)ble_r.host.c.sec << 24 : 0;
     w[n++] = ble_central_role ? blec_rd16(ble_r.host.c.reject_head + 8) |
                                (uint32_t)blec_rd16(ble_r.host.c.reject_head + 10) << 16 : 0;
     return n;

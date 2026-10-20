@@ -1,0 +1,25 @@
+{
+  "source": "Bluetooth Core5.4 Vol3H2.2.3 and2.2.4 official c1/s1 vectors; AES via independent OpenSSL ECB oracle",
+  "all_arrays_below": "HCI/SMP wire order, least-significant octet first",
+  "c1": {
+    "tk": "00000000000000000000000000000000",
+    "random": "e02e70c64e2788630e6fad5621d58357",
+    "preq": "01010000100707",
+    "pres": "02030000080005",
+    "initiator_addr": "a6a5a4a3a2a1",
+    "responder_addr": "b6b5b4b3b2b1",
+    "p1": "01000101000010070702030000080005",
+    "p2": "b6b5b4b3b2b1a6a5a4a3a2a100000000",
+    "first_plaintext": "e12e71c74e279864096dae5621dd8352",
+    "first_encrypted": "953c0edf3212f96f86ac57982aaac702",
+    "second_plaintext": "2389ba6c80a35fca220ff5392aaac702",
+    "confirm": "863bf1bec54da7d2ea888987ef3f1e1e"
+  },
+  "s1": {
+    "tk": "00000000000000000000000000000000",
+    "responder_random": "8877665544332211090a0b0c0d0e0f00",
+    "initiator_random": "00ffeeddccbbaa990807060504030201",
+    "plaintext": "00ffeeddccbbaa998877665544332211",
+    "stk": "62a06d79ae16425b9bf4b0e8f0e11f9a"
+  }
+}

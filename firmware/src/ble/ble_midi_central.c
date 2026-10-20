@@ -7,10 +7,15 @@ enum { H4_CMD = 1, H4_ACL = 2, H4_EVT = 4 };
 enum { COP_RESET = 0x0c03, COP_EV_MASK = 0x0c01, COP_LE_MASK = 0x2001,
        COP_LE_BUF = 0x2002, COP_RAND = 0x2005, COP_SCAN_PARAM = 0x200b,
        COP_SCAN_ENABLE = 0x200c, COP_CREATE = 0x200d, COP_CANCEL = 0x200e,
-       COP_DISCONNECT = 0x0406 };
+       COP_DISCONNECT = 0x0406, COP_ENCRYPT = 0x2017, COP_RANDOM = 0x2018,
+       COP_START_ENCRYPT = 0x2019 };
 enum { S_RESET, S_EVENT, S_LE_EVENT, S_BUFFER, S_RANDOM, S_SCAN_PARAM,
        S_SCAN_ON, S_SCAN_OFF, S_CREATE, S_CANCEL, S_SERVICE, S_CHAR, S_CCCD, S_SUBSCRIBE, S_READY, S_READ };
 enum { D_SENT = 1, D_STOP = 2, D_CONTROL = 4 };
+enum { P_NONE, P_REQUEST, P_RESPONSE, P_RAND0, P_RAND1, P_LOCAL0, P_LOCAL1,
+       P_CONFIRM, P_PEER_CONFIRM, P_RANDOM, P_PEER_RANDOM, P_PEER0, P_PEER1,
+       P_STK, P_ENCRYPT, P_CHANGE, P_DONE, P_FAIL };
+static const uint8_t blec_preq[7] = {1,3,0,0,16,0,0};
 static const uint8_t blec_U_SVC[16] = {0x00,0xc7,0xc4,0x4e,0xe3,0x6c,0x51,0xa7,0x33,0x4b,0xe8,0xed,0x5a,0x0e,0xb8,0x03};
 static const uint8_t blec_U_CHAR[16] = {0xf3,0x6b,0x10,0x9d,0x66,0xf2,0xa9,0xa1,0x12,0x41,0x68,0x38,0xdb,0xe5,0x72,0x77};
 static unsigned blec_rd16(const uint8_t *p) { return (unsigned)p[0] | (unsigned)p[1] << 8; }
@@ -22,6 +27,9 @@ static void blec_rx_reset(blec_t *c)
 {
     c->running = c->in_sysex = c->sx_len = c->rx_have = c->rx_need = 0;
     c->sig_read = c->sig_count = 0;
+    c->sec = P_NONE;
+    for (unsigned i = 0; i < 16; i++)
+        c->random[i] = c->peer[i] = c->confirm[i] = c->crypt[i] = 0;
 }
 static void blec_reject(blec_t *c, uint8_t reason)
 {
@@ -43,7 +51,7 @@ static void blec_emit(blec_t *c, const uint8_t *p, uint8_t n)
 
 static void blec_command(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
 {
-    uint8_t b[32];
+    uint8_t b[35];
     unsigned i;
     blec_wr16(b, op); b[2] = (uint8_t)n;
     for (i = 0; i < n; i++) b[3 + i] = p[i];
@@ -65,7 +73,7 @@ static int blec_acl_cid(blec_t *c, unsigned cid, const uint8_t *p, unsigned n)
     return 1;
 }
 static int blec_acl(blec_t *c, const uint8_t *p, unsigned n)
-{ return !c->sig_count && blec_acl_cid(c, 4, p, n); }
+{ return !c->sig_count && (!c->sec || c->sec == P_DONE) && blec_acl_cid(c, 4, p, n); }
 static void blec_disconnect(blec_t *c)
 {
     uint8_t b[3];
@@ -128,9 +136,8 @@ static void blec_signal_flush(blec_t *c)
         const uint8_t *s = c->sig[c->sig_read];
         uint8_t b[8] = {s[0], s[1], 2, 0, s[2], 0, sizeof c->rx, 0};
         unsigned n = s[0] == 1u && s[2] == 1u ? 8u : 6u;
-        if (!s[1]) { b[1] = s[2]; n = 2u; } /* id zero: SMP, without a signaling header */
-        else b[2] = (uint8_t)(n - 4u);
-        if (blec_acl_cid(c, s[1] ? 5u : 6u, b, n)) {
+        b[2] = (uint8_t)(n - 4u);
+        if (blec_acl_cid(c, 5u, b, n)) {
             c->sig_read = (uint8_t)((c->sig_read + 1u) % 4u);
             c->sig_count--;
         }
@@ -164,20 +171,99 @@ static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
     }
     blec_reply_queue(c, code, p[1], reason);
 }
+static void blec_pair_start(blec_t *c)
+{
+    if (c->sec) return;
+    c->sec = P_REQUEST;
+    c->deadline = c->now_ms + 30000u;
+}
+static void blec_pair_reject(blec_t *c, uint8_t reason)
+{
+    c->waiting = 0;
+    c->sec = P_FAIL; c->key_size = reason;
+    c->deadline = c->now_ms + 3000u;
+}
+static void blec_pair_progress(blec_t *c)
+{
+    uint8_t b[32] = {0};
+    unsigned i, op = COP_ENCRYPT, n = 32;
+    if (c->waiting || c->sig_count) return;
+    switch (c->sec) {
+    case P_FAIL:
+        b[0] = 5; b[1] = c->key_size;
+        if (blec_acl_cid(c, 6, b, 2)) blec_fail(c);
+        return;
+    case P_REQUEST:
+        if (blec_acl_cid(c, 6, blec_preq, 7)) c->sec++;
+        return;
+    case P_CONFIRM: case P_RANDOM:
+        b[0] = c->sec == P_CONFIRM ? 3 : 4;
+        for (i = 0; i < 16; i++) b[i+1] = c->sec == P_CONFIRM ? c->crypt[i] : c->random[i];
+        if (blec_acl_cid(c, 6, b, 17)) c->sec++;
+        return;
+    case P_RAND0: case P_RAND1: op = COP_RANDOM; n = 0; break;
+    case P_LOCAL0: case P_PEER0:
+        /* Core Vol3 H c1, all arrays least-significant octet first. */
+        b[16] = 1; b[17] = c->target_type;
+        for (i = 0; i < 7; i++) { b[18+i] = blec_preq[i]; b[25+i] = c->pres[i]; }
+        for (i = 0; i < 16; i++) b[16+i] ^= c->sec == P_LOCAL0 ? c->random[i] : c->peer[i];
+        break;
+    case P_LOCAL1: case P_PEER1:
+        for (i = 0; i < 16; i++) b[16+i] = c->crypt[i];
+        for (i = 0; i < 6; i++) { b[16+i] ^= c->target[i]; b[22+i] ^= c->addr[i]; }
+        break;
+    case P_STK:
+        for (i = 0; i < 8; i++) { b[16+i] = c->random[i]; b[24+i] = c->peer[i]; }
+        break;
+    case P_ENCRYPT:
+        op = COP_START_ENCRYPT; n = 28; blec_wr16(b, c->conn);
+        for (i = 0; i < c->key_size; i++) b[12+i] = c->crypt[i];
+        break;
+    default: return;
+    }
+    blec_command(c, op, b, n);
+}
 static void blec_smp_in(blec_t *c, const uint8_t *p, unsigned n)
 {
-    /* Pairing is not supported by this host/controller configuration. Complete
-     * the peer's Security Request explicitly (Core Vol 3 H 2.4.6), rather than
-     * leaving its security procedure waiting. Never answer a failure or reserved opcode. */
-    if (p[0] != 0x0bu && p[0] != 1u) return;
-    if (n != (p[0] == 0x0bu ? 2u : 7u)) { blec_reject(c, BLEC_RX_LENGTH); return; }
-    blec_reply_queue(c, 5u, 0u, 5u); /* SMP Pairing Failed: Pairing Not Supported */
+    unsigned i;
+    if (!p[0] || p[0] > 0x0eu) return; /* Reserved SMP codes are ignored. */
+    if (c->sec == P_FAIL) return;
+    if (p[0] == 0x0b && n == 2u) { blec_pair_start(c); return; }
+    if (p[0] == 5 && c->sec && c->sec != P_DONE) { blec_fail(c); return; }
+    if (p[0] == 2 && c->sec == P_RESPONSE && n == 7u &&
+        p[1] <= 4u && !p[2] && p[4] >= 7u && p[4] <= 16u && !p[5] && !p[6]) {
+        for (i = 0; i < 7; i++) c->pres[i] = p[i];
+        c->key_size = p[4]; c->sec = P_RAND0;
+    } else if (p[0] == 3 && c->sec == P_PEER_CONFIRM && n == 17u) {
+        for (i = 0; i < 16; i++) c->confirm[i] = p[1+i];
+        c->sec = P_RANDOM;
+    } else if (p[0] == 4 && c->sec == P_PEER_RANDOM && n == 17u) {
+        for (i = 0; i < 16; i++) c->peer[i] = p[1+i];
+        c->sec = P_PEER0;
+    } else if (p[0] != 5) {
+        blec_reject(c, BLEC_RX_LENGTH);
+        if (c->sec && c->sec != P_DONE) blec_pair_reject(c, 10u);
+    }
+}
+static void blec_pair_complete(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
+{
+    unsigned i;
+    if (p[0] || n < (op == COP_RANDOM ? 9u : 17u)) { blec_fail(c); return; }
+    if (op == COP_RANDOM) {
+        for (i = 0; i < 8; i++) c->random[i + (c->sec == P_RAND1 ? 8u : 0u)] = p[1+i];
+    } else {
+        for (i = 0; i < 16; i++) c->crypt[i] = p[1+i];
+        if (c->sec == P_PEER1 && !blec_eq(c->crypt, c->confirm, 16)) {
+            blec_pair_reject(c, 4u); return;
+        }
+    }
+    c->sec++;
 }
 static void blec_progress(blec_t *c)
 {
     uint8_t b[25] = {0};
     unsigned i;
-    if (c->waiting || c->att_waiting) return;
+    if (c->waiting || c->att_waiting || (c->sec && c->sec != P_DONE)) return;
     switch (c->step) {
     case S_RESET: blec_command(c, COP_RESET, 0, 0); break;
     case S_EVENT:
@@ -319,7 +405,12 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
         return;
     }
     c->att_waiting = 0;
-    if (p[0] == 0x01) { blec_fail(c); return; }
+    if (p[0] == 0x01) {
+        if (n == 5u && (p[4] == 5u || p[4] == 15u) && c->sec != P_DONE) {
+            blec_pair_start(c); return;
+        }
+        blec_fail(c); return;
+    }
     if (c->step == S_SERVICE && p[0] == 0x11 && n >= 2u) {
         es = p[1];
         for (i = 2; es == 20u && i + es <= n; i += es)
@@ -447,6 +538,25 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
     if (c->state == BLEC_OFF) return;
     if (n < 2u || p[1] > n - 2u) return;
     code = p[0]; pl = p[1]; p += 2;
+    if (c->sec && c->sec != P_DONE) {
+        if ((code == 0x0e || code == 0x0f) && pl >= 4u) {
+            op = blec_rd16(p + (code == 0x0e ? 1 : 2));
+            if (c->waiting && op == c->cmd_op && op >= COP_ENCRYPT && op <= COP_START_ENCRYPT) {
+                if (code == 0x0f && !p[0] && op != COP_START_ENCRYPT) return;
+                c->waiting = 0;
+                if (op == COP_START_ENCRYPT) {
+                    if (p[code == 0x0e ? 3 : 0]) blec_fail(c);
+                    else c->sec = P_CHANGE;
+                } else if (code == 0x0e) blec_pair_complete(c, op, p+3, pl-3u);
+                else blec_fail(c);
+                return;
+            }
+        } else if (code == 8 && pl >= 4u && c->sec == P_CHANGE && blec_rd16(p+1) == c->conn) {
+            if (p[0] || !p[3]) blec_fail(c);
+            else { c->sec = P_DONE; c->deadline = now+5000u; }
+            return;
+        }
+    }
     if ((c->state == BLEC_DISCONNECTING || c->state == BLEC_STOPPING) &&
         c->waiting && c->cmd_op == COP_DISCONNECT &&
         ((code == 0x0e && pl >= 4u && blec_rd16(p + 1) == COP_DISCONNECT) ||
@@ -574,6 +684,11 @@ void blec_poll(blec_t *c, uint32_t now)
         if ((int32_t)(now - c->sig_deadline) >= 0) blec_fail(c);
         else blec_signal_flush(c);
         if (c->sig_count) return; /* Required replies precede ATT and light feedback. */
+    }
+    if (c->sec && c->sec != P_DONE) {
+        if ((int32_t)(now - c->deadline) >= 0) blec_fail(c);
+        else blec_pair_progress(c);
+        return;
     }
     if (c->state == BLEC_STARTING || c->state == BLEC_SCANNING ||
         c->state == BLEC_CONNECTING || c->state == BLEC_DISCOVERING ||
