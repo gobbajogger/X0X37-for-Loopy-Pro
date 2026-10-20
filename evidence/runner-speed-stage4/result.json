@@ -1,0 +1,114 @@
+{
+  "workflow": "runner-speed-20261021",
+  "marker": "runner-speed-20261021-stage4",
+  "stage": 4,
+  "state": "validated",
+  "result": "PASS",
+  "scope": "Host runner and extraction tooling only",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "input_evidence_commit": "7f8dff3d69880e26b3a56be3f21f5a8af41ae6b8",
+  "author": "genkigenki <3080081+genkigenki@users.noreply.github.com>",
+  "source_chat": "01a15af8-22ed-7d41-bcc9-5a0fbbb49dfa",
+  "validation_chat": "01a15afb-2b5e-77f0-afac-98934e19bbfb",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "completion_copy": "01a15af9-c386-7803-90e4-71d26b6dd0ef",
+  "lane": "/Users/mac/Documents/x0x37/runner_speed_stage4",
+  "branch": "lane/opt-runner-speed-stage4",
+  "production_files": [
+    "tests/host/smk_clip_chord_display_test.sh",
+    "tests/host/smk_clip_knob_test.sh",
+    "tests/host/test_runner_admission.py",
+    "tests/run_tests.sh"
+  ],
+  "production_source_changed": false,
+  "configuration": {
+    "identity_record": "identity.json",
+    "source_manifest": "../runner-speed-stage2/inputs.json",
+    "original_commands": "../runner-speed-stage2/commands.json",
+    "fixture": "Scratch-only; jobs=1/2/4; selected cases, holds, fail and setup values remain in runner.json. Test bodies are replaced with small workers; scheduling and setup logic are retained.",
+    "probes": "Real baseline and candidate default knob/display probes; --extract-only, SRC override, copied USB sentinel, invalid arguments and six missing markers. Compiler flags remain in the hashed shell scripts.",
+    "generation": "Final Linux log only; linux/amd64 image sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1; jobs=8/1; X0X_TESTS=drum-pan stereo host-build; explicit reference paths remain in commands.json.",
+    "limits": "Original explicit argv/env and checked script defaults are preserved. A complete inherited environment snapshot was not recorded. No new behavior execution or target/package configuration is claimed."
+  },
+  "checks": [
+    {
+      "scope": "Exact candidate, evidence, tool and dependency identity",
+      "risk": "Reusing evidence for changed inputs could conceal a regression.",
+      "method": "python3 evidence/runner-speed-stage4/verify_identity.py > evidence/runner-speed-stage4/identity.log",
+      "result": "PASS",
+      "log": "identity.json",
+      "execution": "New identity assertions only"
+    },
+    {
+      "scope": "Runner selection, setup and scheduler behavior",
+      "risk": "Skipped cases could create fixtures; setup failures, ordering, class scope or job admission could regress.",
+      "result": "PASS reused",
+      "evidence": [
+        "../runner-speed-stage2/runner.json",
+        "../runner-speed-stage2/runner-summary.log",
+        "../runner-speed-stage3/test/report.json",
+        "../runner-speed-stage3/test/saved-assertions.json"
+      ],
+      "coverage": "13 candidate records and four baseline records; serial/parallel selection; admitted fixture counts/bytes; failures; result order; G serialization; W overlap; slots; generation; installer invocation/bypass."
+    },
+    {
+      "scope": "Clip probe extraction and direct consumers",
+      "risk": "Display could run the knob probe unnecessarily or share incorrect extracted source.",
+      "result": "PASS reused",
+      "evidence": [
+        "../runner-speed-stage2/probes.json",
+        "../runner-speed-stage2/probe-summary.log",
+        "../runner-speed-stage2/check_probes.py",
+        "../runner-speed-stage3/test/report.json"
+      ],
+      "coverage": "Real knob/display PASS; compile/execution count 3 to 2; six equal extraction streams; SRC/copied USB sentinel; six missing markers; unknown/extra args."
+    },
+    {
+      "scope": "Real generation order",
+      "risk": "Parallel tests might compile before generated data and host build are ready.",
+      "result": "PASS reused",
+      "evidence": [
+        "../runner-speed-stage2/gen-order-linux.log",
+        "../runner-speed-stage2/commands.json"
+      ],
+      "coverage": "Final exact-source Linux jobs=8 and jobs=1 passed. Earlier Linux log is not substituted."
+    },
+    {
+      "scope": "Independent complete-candidate investigation",
+      "risk": "Global shell state, lock semantics, source extraction or literal registration changes could escape fixture checks.",
+      "result": "PASS reused",
+      "evidence": [
+        "../runner-speed-stage3/investigation/report.json",
+        "../runner-speed-stage3/investigation/source-audit.json"
+      ],
+      "coverage": "No material finding; unchanged lock/scheduler/generation paths and C probe bodies; all 117 retained literal Quickcheck registrations match."
+    }
+  ],
+  "evidence_reuse": {
+    "disposition": "Accept matching stage2/3 PASS evidence under current validation rule. A stage/evidence commit change alone does not invalidate it.",
+    "matching_source_hashes": 417,
+    "matching_stage2_evidence_hashes": 46,
+    "matching_stage3_evidence_files": 10,
+    "reference_pins": 4,
+    "new_behavior_runs": []
+  },
+  "failure_dispositions": [
+    "Initial Mac generation-order attempt remains a failed setup attempt: isolated HOME/Pillow and SDK declarations. Final exact-source supported Linux PASS is applicable.",
+    "Stage3 assertion scripts require HEAD equal to the production commit. Reuse their committed reports and verified input/evidence hashes on this evidence descendant; do not alter their guards or rerun them here."
+  ],
+  "limits": [
+    "Single instrumented scratch timing samples include slower candidate samples. Reduced work counts do not establish an end-to-end build speedup.",
+    "Installer fixtures verify invocation and bypass, not real exclusive-lock contention. rec-live-smk semantics remain unchanged.",
+    "Dynamic signal checks were not rerun. Scheduler tail, background block, generation helpers and lock execution are byte-identical.",
+    "No target build, full suite, full/release gate, package, installation, device check or external push was performed. No target/package identity or device PASS is supplied."
+  ],
+  "integration": {
+    "owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+    "next": "Return checked/validated contributor completion to the existing coordinator and requested combination-owner copy. Coordinator retains sole combined integration ownership and handles the complete contributor set.",
+    "overlap": "Deduplicate the optional browser runner registration deletion and dead emu|emu-slots class names against the separate accepted browser-removal lane. Apply the scoped runner changes to newer combined source; do not replace its entire runner with this older-base file.",
+    "preserve": "Quickcheck/controller, generated-asset helper/consumers and native provenance repairs have separate owners. Source guards, licensing, samples, budgets and firmware inputs remain unchanged.",
+    "successor": "No new Merge/Install/Push chat is required or authorized for this contributor stage. The existing combination task has started; no duplicate stage was created."
+  },
+  "failures": []
+}

@@ -1,0 +1,336 @@
+{
+  "status": "PASS",
+  "candidate": "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+  "base": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "input_evidence_commit": "7f8dff3d69880e26b3a56be3f21f5a8af41ae6b8",
+  "production_files": [
+    "tests/host/smk_clip_chord_display_test.sh",
+    "tests/host/smk_clip_knob_test.sh",
+    "tests/host/test_runner_admission.py",
+    "tests/run_tests.sh"
+  ],
+  "source_sha256": {
+    "tests/run_tests.sh": "8962afcdca97021b76390bbbb9469982d0cb1b79931a5e0c2d4f7cedb342bb99",
+    "tests/host/smk_clip_knob_test.sh": "11848d5b481a041bbf38f0b784ae7f5b67d4753949553c089befafcf5be1f1d4",
+    "tests/host/smk_clip_chord_display_test.sh": "aa4f7abbf7b59d0d157aef11daa079b33fadba9f04d1be3aed030975adae3cb9",
+    "tests/host/test_runner_admission.py": "f65d499b344386b21f71a8848a1e037751c18cf88ef5fe24b07db3d1920acd4f"
+  },
+  "matching_saved_source_hashes": 417,
+  "matching_stage2_evidence_hashes": 46,
+  "stage3_evidence_sha256": {
+    "evidence/runner-speed-stage3/identity.json": "5630e94e3e10805fcade5305d6458b36bbb6690ec303667b0ecd2fd8b12c24da",
+    "evidence/runner-speed-stage3/investigation/report.json": "96a1b5aff59728e898cc9f897c5df0ad586b01be428a875f52a6197f9083e587",
+    "evidence/runner-speed-stage3/investigation/source-audit.json": "099e358398ce957d06cd20b9919796510bba1ee7c5f0e5105a07c2bb1b80c397",
+    "evidence/runner-speed-stage3/investigation/source_audit.py": "c0dc3b010d9d94793024d851cd46850a9cf7e1bdc955dc9b9391a94811331e54",
+    "evidence/runner-speed-stage3/result.json": "00b7af5d75f38d9a27e40bc7de529f8458bcb79d67a8f6b584a4fbdcb05fc750",
+    "evidence/runner-speed-stage3/review.json": "400348b478446db4291d44beee158973b8615f1ba2d3db7d901d00832ad2781e",
+    "evidence/runner-speed-stage3/test/report.json": "1c637fde9e02ca6abdafdec8ab1a6f47817d1608ee8a3c5a2a1e339fe84be1a8",
+    "evidence/runner-speed-stage3/test/saved-assertions.json": "f5e65d0964e93d23259bca34c687090fc85d5c574cf5c74a56a2242564e82f61",
+    "evidence/runner-speed-stage3/test/verify-saved-evidence.log": "ecf290553a8fa20089eb4547252365d88ca0f22359fcae6808b3315eb928ae8d",
+    "evidence/runner-speed-stage3/test/verify_saved_evidence.py": "79f30c0a486a2d4739d081cd13cc78dfccf7c9553b09f28fedc53f518a800221"
+  },
+  "unchanged_production_source": true,
+  "unchanged_trees": {
+    "firmware": "878d5c734bf6d567db8a2120e9aeec873b85eaa7",
+    "host": "a60be63cc85e8137f0616f801d448e9f7bce379d",
+    "tools": "9d7bbbf8a46b1b09364920e05b0c50a3adcb566b",
+    "assets": "0e721b227239d885a77a12ef24d9f001604e3eb3"
+  },
+  "reference_pins": {
+    "schwung-9W9": {
+      "head": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "tracked_status": ""
+    },
+    "schwung-8W8": {
+      "head": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "tracked_status": ""
+    },
+    "schwung-303": {
+      "head": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+      "tracked_status": ""
+    },
+    "schwung-tb3po": {
+      "head": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "tracked_status": ""
+    }
+  },
+  "tools": [
+    {
+      "argv": [
+        "/usr/bin/cc",
+        "--version"
+      ],
+      "rc": 0,
+      "output": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import sys,platform,PIL; print(sys.version); print(PIL.__version__); print(platform.platform())"
+      ],
+      "rc": 0,
+      "output": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]\n10.4.0\nmacOS-27.2-arm64-arm-64bit"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "x0x37-validation:local",
+        "--format",
+        "{{.Id}}"
+      ],
+      "rc": 0,
+      "output": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "7f8dff3d69880e26b3a56be3f21f5a8af41ae6b8",
+        "HEAD"
+      ],
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+        "--",
+        ".",
+        ":(exclude)evidence/**"
+      ],
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "07fa87dc950908d4d720bde9c06c2478cc212b19",
+        "fe7f0401e79cd5dd4a76307811d2ee0d12446263",
+        "--",
+        ".",
+        ":(exclude)evidence/**"
+      ],
+      "rc": 0,
+      "output": "tests/host/smk_clip_chord_display_test.sh\ntests/host/smk_clip_knob_test.sh\ntests/host/test_runner_admission.py\ntests/run_tests.sh"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-tree",
+        "-r",
+        "--name-only",
+        "7f8dff3d69880e26b3a56be3f21f5a8af41ae6b8",
+        "--",
+        "evidence/runner-speed-stage3"
+      ],
+      "rc": 0,
+      "output": "evidence/runner-speed-stage3/identity.json\nevidence/runner-speed-stage3/investigation/report.json\nevidence/runner-speed-stage3/investigation/source-audit.json\nevidence/runner-speed-stage3/investigation/source_audit.py\nevidence/runner-speed-stage3/result.json\nevidence/runner-speed-stage3/review.json\nevidence/runner-speed-stage3/test/report.json\nevidence/runner-speed-stage3/test/saved-assertions.json\nevidence/runner-speed-stage3/test/verify-saved-evidence.log\nevidence/runner-speed-stage3/test/verify_saved_evidence.py"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+        "rev-parse",
+        "HEAD"
+      ],
+      "rc": 0,
+      "output": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+        "rev-parse",
+        "HEAD"
+      ],
+      "rc": 0,
+      "output": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-303",
+        "rev-parse",
+        "HEAD"
+      ],
+      "rc": 0,
+      "output": "7680578cdecd91e512cfddb9c9eb07b287fb64f4"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-303",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po",
+        "rev-parse",
+        "HEAD"
+      ],
+      "rc": 0,
+      "output": "f49d81d05d1e29ae37728a08e30f193892be3bc9"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "rc": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/cc",
+        "--version"
+      ],
+      "rc": 0,
+      "output": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import sys,platform,PIL; print(sys.version); print(PIL.__version__); print(platform.platform())"
+      ],
+      "rc": 0,
+      "output": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]\n10.4.0\nmacOS-27.2-arm64-arm-64bit"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "x0x37-validation:local",
+        "--format",
+        "{{.Id}}"
+      ],
+      "rc": 0,
+      "output": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "07fa87dc950908d4d720bde9c06c2478cc212b19:firmware"
+      ],
+      "rc": 0,
+      "output": "878d5c734bf6d567db8a2120e9aeec873b85eaa7"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fe7f0401e79cd5dd4a76307811d2ee0d12446263:firmware"
+      ],
+      "rc": 0,
+      "output": "878d5c734bf6d567db8a2120e9aeec873b85eaa7"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "07fa87dc950908d4d720bde9c06c2478cc212b19:host"
+      ],
+      "rc": 0,
+      "output": "a60be63cc85e8137f0616f801d448e9f7bce379d"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fe7f0401e79cd5dd4a76307811d2ee0d12446263:host"
+      ],
+      "rc": 0,
+      "output": "a60be63cc85e8137f0616f801d448e9f7bce379d"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "07fa87dc950908d4d720bde9c06c2478cc212b19:tools"
+      ],
+      "rc": 0,
+      "output": "9d7bbbf8a46b1b09364920e05b0c50a3adcb566b"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fe7f0401e79cd5dd4a76307811d2ee0d12446263:tools"
+      ],
+      "rc": 0,
+      "output": "9d7bbbf8a46b1b09364920e05b0c50a3adcb566b"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "07fa87dc950908d4d720bde9c06c2478cc212b19:assets"
+      ],
+      "rc": 0,
+      "output": "0e721b227239d885a77a12ef24d9f001604e3eb3"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "fe7f0401e79cd5dd4a76307811d2ee0d12446263:assets"
+      ],
+      "rc": 0,
+      "output": "0e721b227239d885a77a12ef24d9f001604e3eb3"
+    }
+  ],
+  "method": "Compare unchanged source, saved evidence, clean reference pins, host versions and immutable Linux image. No behavior test or build execution.",
+  "legacy_checker_note": "Stage3 source_audit.py and verify_saved_evidence.py require HEAD equal to the production commit. They were not rerun on this evidence descendant. Their committed outputs and all recorded inputs are unchanged."
+}

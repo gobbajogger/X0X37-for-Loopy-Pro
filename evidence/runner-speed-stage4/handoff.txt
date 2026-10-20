@@ -1,0 +1,14 @@
+Validated PASS for runner-speed-20261021 stage4, host-only scope.
+
+Production candidate: fe7f0401e79cd5dd4a76307811d2ee0d12446263.
+Input Test evidence commit: 7f8dff3d69880e26b3a56be3f21f5a8af41ae6b8.
+The stage4 evidence commit is the commit containing this handoff and result.json.
+Production files: tests/run_tests.sh, tests/host/smk_clip_knob_test.sh, tests/host/smk_clip_chord_display_test.sh, tests/host/test_runner_admission.py. Stage4 changes evidence only.
+
+New identity assertions passed for 417 saved source hashes, all recorded stage2 evidence hashes, all ten stage3 evidence files, four clean reference pins, exact host versions and the immutable Linux image. Production source matches the tested candidate. Firmware, host, tools and assets trees are unchanged from base 07fa87dc950908d4d720bde9c06c2478cc212b19. See identity.json, identity.log and verify_identity.py.
+
+Reuse matching stage2/3 PASS results: 17 scheduler fixture records; real knob/display probes; compile/execution count reduction from 3 to 2; six exact extraction streams; SRC/copied USB sentinel; missing markers and invalid arguments; final Linux generation jobs=8/1; both independent Test reviews without findings; 117 retained literal Quickcheck registrations unchanged. See result.json for exact scopes, risks, configurations and log links.
+
+Limits remain: single instrumented timing samples, including slower candidate samples, establish no end-to-end speedup; installer fixtures cover invocation/bypass rather than real contention; dynamic signal cleanup was not rerun because relevant code is unchanged. Initial Mac generation attempt failed for setup; final exact-source Linux PASS applies. No target/full-suite/gate/package/install/device/push work was performed. No target or package identity is claimed.
+
+One receiving owner: coordinator 01a15aec-08a1-7cb3-b395-f17ad2cf9add. Requested completion copy: combination owner 01a15af9-c386-7803-90e4-71d26b6dd0ef. The coordinator retains sole integration ownership. Deduplicate browser removal and apply scoped runner changes to the newer combined runner. Preserve separate controller/cache/native owners and source guards. No competing Merge/Install/Push or duplicate Validate chat is created.
