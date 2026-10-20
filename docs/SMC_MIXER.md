@@ -6,15 +6,17 @@ The eight faders use pickup. A fader starts changing a value when it reaches the
 
 | Screen | Faders | Encoders |
 | --- | --- | --- |
-| HOME | 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter | Four visible fields, except fader targets |
-| 909 MIX / 808 MIX | Track levels 1–8, or tracks 9–11 on faders 1–3 | Selected track's pan, reverb and delay on knobs 2–4; knob 1 inactive |
-| Other X0X pages | Main mixer, same as HOME | Four visible fields, except fader targets; knobs 5–8 inactive |
-| Open menu | Main mixer, same as HOME | Six visible rows, except fader targets. Headings, actions and unused positions are inactive |
+| HOME | 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter | Same eight strip destinations as faders |
+| 909 MIX / 808 MIX | Track levels 1–8, or tracks 9–11 on faders 1–3 | Same track levels as faders in the active bank |
+| Other X0X pages | Main mixer, same as HOME | Four visible fields; knobs 5–8 inactive. Main MIX uses the same eight strip destinations as faders |
+| Open menu | Main mixer, same as HOME | Six visible rows. Headings, actions and unused positions are inactive |
 | Clip grid | Main mixer, same as HOME | Inactive; the hidden X0X page cannot receive edits |
 | SCALE / CHORD / ARP editor | Main mixer, same as HOME | First four / four / eight visible fields; ARP LATCH is accessible through field navigation |
 | Help / confirmation | Inactive | Inactive |
 
-Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not another drum. Earlier SMC documentation and a test fixture incorrectly claimed twelve tracks. Two banks remain: **Bank Left** selects tracks **1–8** and **Bank Right** selects **9–11** on drum MIX pages. Faders and SELECT buttons 4–8 are inactive in the second bank. SELECT 1–8 chooses the track within the current bank, so knobs 2–4 can edit every track's pan and sends. The SELECT lights show the chosen track. Keyboard selection also sets the bank. Each kit keeps its selection.
+The three mixer modes are the keyboard-equivalent main mix, 909 tracks and 808 tracks. In these modes, knobs 1–8 trim the same destinations as faders 1–8. Each control type has unique destinations; a paired fader and knob may share one. Turning a knob resets pickup for its paired fader when the value changes. Other sound pages, menus and clip editors retain their visible-field controls. Duplicate fields within the visible knob bank use the first position only.
+
+Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not another drum. Earlier SMC documentation and a test fixture incorrectly claimed twelve tracks. Two banks remain: **Bank Left** selects tracks **1–8** and **Bank Right** selects **9–11** on drum MIX pages. Faders, knobs and SELECT buttons 4–8 are inactive in the second bank. SELECT 1–8 chooses the track within the current bank, so the page and deep menu can edit each track's pan and sends. The SELECT lights show the chosen track. Keyboard selection also sets the bank. Each kit keeps its selection.
 
 ## Navigation
 

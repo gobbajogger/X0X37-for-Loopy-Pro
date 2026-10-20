@@ -1,0 +1,146 @@
+{
+  "base": "3d7c29bdd4cec0450cfb3a8f319ffa1e1a1611f9",
+  "checks": [
+    {
+      "command": "python3 tests/host/smc_mapping_test.py",
+      "log": "knob-mapping.log",
+      "reason": "three-mode knob destinations, bank bounds and unique fields",
+      "result": "PASS"
+    },
+    {
+      "command": "DIAG_TOOL_ROOT=<audit checkout> python3 tests/ble_central_diag_test.py",
+      "log": "base-diag.log",
+      "reason": "expected failure: old decoder misreads versioned extension",
+      "result": "EXPECTED FAIL"
+    },
+    {
+      "command": "SMC_SOURCE_ROOT=<audit checkout> python3 tests/host/smc_mapping_test.py",
+      "log": "base-knobs.log",
+      "reason": "expected failure: missing requested three-mode knobs",
+      "result": "EXPECTED FAIL"
+    },
+    {
+      "command": "python3 tests/ble_central_diag_test.py",
+      "log": "diag-decoder.log",
+      "reason": "old/new diagnostic tail decoding",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tests/diag_size_test.py",
+      "log": "diag-bounds.log",
+      "reason": "ED_DIAG and INLOG buffer bounds",
+      "result": "PASS"
+    },
+    {
+      "command": "sh tests/host/ble_midi_receive_test.sh",
+      "log": "receive.log",
+      "reason": "sanitized production receive lifecycle and bounded raw rejected headers",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tests/host/ble_capture_replay_test.py",
+      "log": "capture.log",
+      "reason": "recorded payload replay, simulated HCI and separate resegmented MTU23",
+      "result": "PASS"
+    },
+    {
+      "command": "sh tests/host/smc_reachability_test.sh [Linux container, X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L]",
+      "log": "reachability-final.log",
+      "reason": "all five downstream UI/queue/HCI routes and guard/pickup preservation",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tests/host/smc_fader_test.py",
+      "log": "pickup.log",
+      "reason": "unchanged fader writes, crossing history and motion",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tests/host/smc_buttons_test.py",
+      "log": "buttons.log",
+      "reason": "unchanged strip/navigation buttons",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tests/host/smc_filter_test.py",
+      "log": "filter.log",
+      "reason": "master-filter mapping and independent output mute",
+      "result": "PASS"
+    },
+    {
+      "command": "sh tests/host/smc_clip_visibility_test.sh",
+      "log": "clip-visibility.log",
+      "reason": "clip/menu/help/confirmation priority",
+      "result": "PASS"
+    },
+    {
+      "command": "sh tests/host/smc_part_select_test.sh",
+      "log": "part-selection.log",
+      "reason": "part navigation",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tests/inlog_tool_test.py",
+      "log": "inlog-tool.log",
+      "reason": "unchanged inbound recorder decoder",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/prefs_lint.py docs/USER_PREFERENCES.md",
+      "log": "prefs-lint.log",
+      "reason": "recorded correction and active rule pointers",
+      "result": "PASS"
+    },
+    {
+      "command": "X0X_QUICK_ONLY=ste X0X_QC_BASE=3d7c29b bash tools/quickcheck.sh <lane>",
+      "log": "docs-check.log",
+      "reason": "scoped docs/rule-pointer checks",
+      "result": "PASS"
+    },
+    {
+      "command": "MODEL=elite X0X_DEV_PADCAL=1 ./build.sh --board smk37 [Linux container]",
+      "log": "build-elite-knobs-dev.log",
+      "result": "PASS",
+      "reason": "affected supported DEV target; preliminary source check, not exact stage4 install validation",
+      "code_free": 2104,
+      "static_ram_free": 524,
+      "pool_free": 8364
+    },
+    {
+      "command": "MODEL=pro X0X_DEV_PADCAL=1 ./build.sh --board smk37 [Linux container]",
+      "log": "build-pro-knobs-dev.log",
+      "result": "PASS",
+      "reason": "affected supported DEV target; preliminary source check, not exact stage4 install validation",
+      "code_free": 2120,
+      "static_ram_free": 524,
+      "pool_free": 8364
+    }
+  ],
+  "source_sha256": {
+    "BEHAVIOR.md": "1396f5ec093cb643ab48720ac8fbdb9112ad903102db832aa4fa76b9f16cca35",
+    "docs/SMC_MIXER.md": "8e77bf38714c851fe1ad1ba9b4b766e60d228cae2ce5f710c748bc6d85826137",
+    "docs/USER_PREFERENCES.md": "59c045d8bf51089305061966ecc0273b4fe93398a5757bb9e31c8bab41b775a1",
+    "firmware/src/app/editor.c": "76f0daa83254f43cea6a484856289d1b2c2e8e2bf234e7ec6b7ac64dcc1d372f",
+    "firmware/src/app/smc_mixer.c": "6f8795f4e247630f0c993ac0ca5ebb1c7cc66ce0a5374a513663236930428fc0",
+    "firmware/src/ble.c": "321c03c8f2a801a6110595c19e14247be711a678ab2dce2b4dafb5082c1a3c44",
+    "firmware/src/ble/ble_midi_central.c": "ca8eb6f5d7b8c6b603a19e53f8410e02ab2be075744964128dea488c823afe62",
+    "firmware/src/ble/ble_midi_central.h": "78fbd13f3524fee86dfdb2222dbc934d6fad3eadcfb4c2bc4e4b967c732aad6c",
+    "tests/ble_central_diag_test.py": "259c501482f87a077cb1193502e31b5fb14b5108b47e076a8f9e223a3e864839",
+    "tests/host/ble_midi_receive_test.c": "8961e866d224327510fe8b7883f25da7fb60b3e7aad3082cd8c4dd69ebe67a30",
+    "tests/host/smc_mapping_test.py": "cd21282afe246d06d813fa2802a8b6ec9de67a98128cf87e32ae6340d2265e54",
+    "tests/host/smc_reachability_test.c": "837c8401a931b3c149ad29cab8da78df487ea09c7ebf06428b3d2f3a7d5941e4",
+    "tools/ble_autotest.py": "77219c2dc187d39dbdaa1b263261d8d78c2a2ddde6090f63c231a0e75161642c"
+  },
+  "preliminary_build_artifacts_sha256": {
+    "build/smk37-elite/x0x.bin": "827ed4a014b5733d435c71044d3b5ee0181bd310e3eb75bcf42e672674fcc343",
+    "build/smk37/x0x.bin": "1a7abc4b06a38c46b31c91c9b7a6e1f48b3cbc9bc4e346665d079d75e65567bf",
+    "build/x0x-smk37-elite.fwsc": "0cfb652fc8ef0f7600004547b54e4a8e269f9f92be0bbf775e5be72ce7b4b0af",
+    "build/x0x-smk37.fwsc": "39155dcaae8101fe211f2ef44348e01c77369283487c456f9ce70fd8cbf7c1e2"
+  },
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "sdk_commit": "d179b4484759423312073f5fbb232501aa491047",
+  "hardware": "NOT TESTED; all-input silence unresolved",
+  "no_install_no_push": true,
+  "superseded": "build-elite-dev.log/build-pro-dev.log predate requested knob addition; not final candidate evidence",
+  "limits": "Synthetic link/CCCD/HCI and payload replay do not establish physical delivery. No FM1 target, release, fullgate or controller build. Old mapping-audit defect interpretation superseded by owner."
+}

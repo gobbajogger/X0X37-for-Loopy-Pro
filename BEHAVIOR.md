@@ -522,11 +522,11 @@ LIM-12. We maintain only the SMK-37 build. We do not maintain the FM-1 build. It
 
 ### SMC-Mixer navigation and pickup
 
-SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank; knobs 2–4 edit its pan and sends. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
+SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank. In HOME and main MIX, knobs trim the same eight main-mix destinations as the faders. In 909 MIX and 808 MIX, knobs trim the matching track levels in the active bank. A paired fader and knob may share a destination. Each control type has unique destinations. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
 
 SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
 
-SMC-03. Encoders edit visible fields only. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
+SMC-03. Outside the three mixer modes in SMC-01, encoders edit visible fields. Open menus take precedence over the mixer modes. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
 
 SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
 
