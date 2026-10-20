@@ -3,9 +3,6 @@ name: x0x37-device-bug
 description: "Diagnose an x0x37 device or controller-input bug using recorded captures, simulated sends, source evidence, and regression tests."
 ---
 
-Initialize this skill when its description matches the current step. Read it once per task.
-Load linked skills only when their described step applies. Current owner instructions take priority.
-
 # Device bug
 
 ### Rule 8: evidence and regression

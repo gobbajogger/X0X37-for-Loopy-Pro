@@ -4,6 +4,8 @@ The current owner request and repository [agent rules](agent-rules.md) govern th
 
 ## Initialize project skills when needed
 
+- 2026-10-21 Source: owner in chat `01a15a99-75d7-7921-9d65-f4b120566904`: "And maybe we can find something else obvious that we can change about rules or how we treat them to make them smaller but more obvious of what we want". The owner then clarified: "Cause 5000 words sounds crazy excessive or am I wrong and they are perfect? Simple instructions with clear paths and solutions". Keep common skill-use instructions in the task skill. Use short step entry points with explicit paths to required procedures. Read each selected source one time per task. Follow-ups use loaded instructions; changed sources require their changed sections. Keep detailed build setup in its step reference. Search relevant decisions instead of loading full history by default. This supersedes repeated skill prefaces and repeated loading of unchanged sources. Preserve existing requirements and guards. Active rules: core.md rule 6A; docs.md rule 12A; commit.md rule 9.
+
 - 2026-10-21 Source: owner in chat `01a15a76-4cff-7370-890e-f80672e744a2`: "Let's rewrite rules into skills that threads can use to do same stuff but would actually initialize skills when needed instead of reading rules". This supersedes loading task procedures from rule files. Initialize the matching project skill when its task step begins. Preserve the existing scope, safeguards, permissions, and strict writing default. Old rule paths preserve decision IDs through compatibility links. Active rules: docs.md rule 12A; core.md rule 6A.
 
 ## Strict Simplified Technical English

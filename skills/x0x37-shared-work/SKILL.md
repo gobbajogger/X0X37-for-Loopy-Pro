@@ -3,9 +3,6 @@ name: x0x37-shared-work
 description: "Coordinate x0x37 concurrent edits, shared processes, device resources, hard-to-undo actions, or delegated independent review."
 ---
 
-Initialize this skill when its description matches the current step. Read it once per task.
-Load linked skills only when their described step applies. Current owner instructions take priority.
-
 # Shared work
 
 ### Rule 3: resources and waits

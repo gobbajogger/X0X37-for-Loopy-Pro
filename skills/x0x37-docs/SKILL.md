@@ -3,9 +3,6 @@ name: x0x37-docs
 description: "Edit x0x37 documentation, project skills, or instruction discovery and rollout. Preserve decisions, history, and firmware ownership."
 ---
 
-Initialize this skill when its description matches the current step. Read it once per task.
-Load linked skills only when their described step applies. Current owner instructions take priority.
-
 # Docs and rules
 
 ### Rule 12: current facts and history

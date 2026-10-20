@@ -3,9 +3,6 @@ name: x0x37-owner-decisions
 description: "Resolve x0x37 authorization, process an owner report, contact another thread, or record an owner decision and its source."
 ---
 
-Initialize this skill when its description matches the current step. Read it once per task.
-Load linked skills only when their described step applies. Current owner instructions take priority.
-
 # Owner decisions
 
 ### Rule 13: messages and reports
