@@ -1,0 +1,13 @@
+.F..
+======================================================================
+FAIL: test_interruption_joins_compilers_and_descendants_before_cleanup (__main__.ControllerCompile.test_interruption_joins_compilers_and_descendants_before_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mac/Documents/x0x37/build_work_implementation/tests/host/test_ctl_compile.py", line 175, in test_interruption_joins_compilers_and_descendants_before_cleanup
+    self.assertTrue(not state or state.startswith('Z'), f'owned process {pid} still active: {state}')
+AssertionError: False is not true : owned process 1226 still active: R
+
+----------------------------------------------------------------------
+Ran 4 tests in 4.499s
+
+FAILED (failures=1)

@@ -1,0 +1,17 @@
+FAIL warn mode (rc=0)
+     QUICK PASS 3a71a6f 1 s (STE step only)
+ok   strict (X0X_STE_STRICT=1): QUICK FAIL 3a71a6f 2 s STE: 1 issues: unreadable STE result (strict)
+ok   legacy strict marker is advisory: QUICK PASS b96d704 1 s (STE step only)
+ok   clean commit, strict: no STE line (QUICK PASS 9b5fead 1 s (STE step only))
+ok   changed lines only: a new clean row in a file with old bad rows passes (QUICK PASS 2935d5c 1 s (STE step only))
+FAIL new bad row (rc=1)
+     QUICK FAIL 38415f2 1 s STE: 1 issues: unreadable STE result (strict)
+FAIL edit old paragraph (rc=1)
+     QUICK FAIL f354e4b 2 s STE: 1 issues: unreadable STE result (strict)
+ok   no_verb 1: The second row of pads at the top of the grid on the APC40.
+ok   no_verb 0: FADER BANK switches the faders between bank A and bank B.
+ok   no_verb 0: INTERNAL ignores the clock of all inputs, as before.
+ok   no_verb 0: Rewrite BEHAVIOR.md in ASD-STE100
+ok   no_verb 0:   - Major, minor, Dorian, Phrygian, Lydian.
+ok   no_verb 0: Rates: 1/2 to 1/32T on a 24 PPQN grid.
+quickcheck STE: 10 of 13 ok

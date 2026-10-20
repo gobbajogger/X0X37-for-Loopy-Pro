@@ -1,0 +1,33 @@
+{
+  "built_script_sha256": "1c6a70251f48d011593f5c32decd061398d88aa08bbb6621349e5844adda8873",
+  "current_script_sha256": "7f0528be983339b94cb37fcffb01fed8ea9732773c840c6869de7cf84fa51052",
+  "success_path_equivalent": true,
+  "exact_delta": [
+    "--- ",
+    "+++ ",
+    "@@ -28,8 +28,8 @@",
+    " stop_jobs() {",
+    "   # Each compiler has its own process group, including any driver children.",
+    "   # Also signal the direct PID in case interruption precedes setsid execution.",
+    "-  for pid in $PIDS; do kill -TERM -- \"-$pid\" 2>/dev/null || true; kill -TERM \"$pid\" 2>/dev/null || true; done",
+    "-  for pid in $PIDS; do kill -KILL -- \"-$pid\" 2>/dev/null || true; kill -KILL \"$pid\" 2>/dev/null || true; done",
+    "+  for pid in $PIDS; do kill -TERM \"-$pid\" 2>/dev/null || true; kill -TERM \"$pid\" 2>/dev/null || true; done",
+    "+  for pid in $PIDS; do kill -KILL \"-$pid\" 2>/dev/null || true; kill -KILL \"$pid\" 2>/dev/null || true; done",
+    "   for pid in $PIDS; do wait \"$pid\" 2>/dev/null || true; done",
+    "   PIDS=\"\"",
+    " }",
+    "@@ -52,6 +52,8 @@",
+    "     case \"$remaining\" in *\" \"*) remaining=${remaining#* } ;; *) remaining=\"\" ;; esac",
+    "     if ! wait \"$pid\"; then",
+    "       failed=1",
+    "+      # A failed driver can leave children in its own group after it exits.",
+    "+      kill -KILL \"-$pid\" 2>/dev/null || true",
+    "       PIDS=\"$remaining\"; stop_jobs",
+    "       break",
+    "     fi"
+  ],
+  "reason": "Only failed-compile/signal process cleanup changed after the one real build. Compile arguments, objects, link order, successful LTO link and image checks are unchanged. Current failure and signal paths are covered by scratch Linux fixtures; a second target controller build would repeat unchanged successful code.",
+  "baseline_environment": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/environment.json",
+  "baseline_environment_sha256": "234a888af695ee0f9b389c3de361356adfd16cbd78fb6e6387749bccb62e912b",
+  "baseline_worker_image_matches": true
+}

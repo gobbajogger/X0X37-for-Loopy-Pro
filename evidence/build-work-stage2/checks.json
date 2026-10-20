@@ -1,0 +1,75 @@
+[
+  {
+    "argv": [
+      "bash",
+      "tests/host/test_rules_guard_hook.sh"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 6.627994000002218,
+    "log": "evidence/build-work-stage2/test_rules_guard_hook.log",
+    "sha256": "b7400c07d64bfc17de3abda8339f8501d71fc8a033e675f862a2ee2e47619f22"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/test_ctl_compile.py"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 4.692589999998745,
+    "log": "evidence/build-work-stage2/test_ctl_compile.log",
+    "sha256": "b373b76624c03c2b2b60227d07e04c951844891215f0784a7ecad7e0ee6934f3"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/test_quickcheck_plan.py"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 32.800687000002654,
+    "log": "evidence/build-work-stage2/test_quickcheck_plan.log",
+    "sha256": "3b3e4c535aaabb38db27e7ebf5d69057537f6f0ea73e6bd01cb7c4992b239f07"
+  },
+  {
+    "argv": [
+      "bash",
+      "tests/host/test_quickcheck_ste.sh"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 12.468725999999151,
+    "log": "evidence/build-work-stage2/test_quickcheck_ste.log",
+    "sha256": "9627e1197d17d03bf509cd20a94f152dd338108f138724dd0c30453af3832a23"
+  },
+  {
+    "argv": [
+      "bash",
+      "tests/host/test_quickcheck_rules.sh"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 21.51453599999877,
+    "log": "evidence/build-work-stage2/test_quickcheck_rules.log",
+    "sha256": "c251cb5a3838cb74132ff231fdb5d730520a635010aed3091874578ab052b3e7"
+  },
+  {
+    "argv": [
+      "bash",
+      "tests/host/test_quickcheck_devbug.sh"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 12.731372999998712,
+    "log": "evidence/build-work-stage2/test_quickcheck_devbug.log",
+    "sha256": "fec1c164fe0c28faed6630e359238d35bc6f57274b79281d8ad6ef1a6da25303"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/test_portable_rules.py"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 6.165578000000096,
+    "log": "evidence/build-work-stage2/test_portable_rules.log",
+    "sha256": "3543237d558e72f2283d1e84f6eabaf0e7df9b595c5ce0f2567e8255286bc63b"
+  }
+]

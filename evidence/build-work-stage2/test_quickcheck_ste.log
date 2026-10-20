@@ -1,0 +1,19 @@
+ok   warn mode: QUICK PASS with STE WARN
+     STE WARN 4 issues
+     STE  commit ac1c028: [contraction,semicolon] Fix the build; it's done.
+     STE  commit ac1c028: [passive] The file was changed by the tool.
+     STE  NOTES.md: [long_desc] The quick check examines the changed files and the commit messages and then it writes one line with the result and the time and the reason f
+     QUICK PASS ac1c028 2 s (STE step only; STE WARN 4 issues)
+ok   strict (X0X_STE_STRICT=1): QUICK FAIL ac1c028 1 s STE: 4 issues (strict)
+ok   legacy strict marker is advisory: QUICK PASS 8f9b59c 1 s (STE step only; STE WARN 4 issues)
+ok   clean commit, strict: no STE line (QUICK PASS da9236d 1 s (STE step only))
+ok   changed lines only: a new clean row in a file with old bad rows passes (QUICK PASS 287d244 1 s (STE step only))
+ok   changed lines only: a new bad row fails, the old rows are not checked (QUICK FAIL e2eb89b 2 s STE: 3 issues (strict))
+ok   changed lines only: a change in an old bad paragraph checks that paragraph (QUICK FAIL 54d9150 1 s STE: 4 issues (strict))
+ok   no_verb 1: The second row of pads at the top of the grid on the APC40.
+ok   no_verb 0: FADER BANK switches the faders between bank A and bank B.
+ok   no_verb 0: INTERNAL ignores the clock of all inputs, as before.
+ok   no_verb 0: Rewrite BEHAVIOR.md in ASD-STE100
+ok   no_verb 0:   - Major, minor, Dorian, Phrygian, Lydian.
+ok   no_verb 0: Rates: 1/2 to 1/32T on a 24 PPQN grid.
+quickcheck STE: 13 of 13 ok

@@ -1,0 +1,80 @@
+{
+  "workflow": "build-work-20261021",
+  "stage": 2,
+  "result": "CHECKED IMPLEMENTATION",
+  "source_chat": "01a15ae3-2cce-7e42-9a7f-5911e60a9be5",
+  "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "audit_commit": "07fa87dc950908d4d720bde9c06c2478cc212b19",
+  "code_commit": "29b0e6ae67fc3d8acfc2912d659c1916fe1e787a",
+  "code_commits": [
+    "bf69251a2166df9245fd8760d5296e99727f253a",
+    "83de54a23c0467078d0f680fbaa89aeef53f46e1",
+    "29b0e6ae67fc3d8acfc2912d659c1916fe1e787a"
+  ],
+  "lane": "lane/opt-build-work-implementation",
+  "source_files": "source-files.json",
+  "changes": [
+    "Scope planning precedes target builds; proven docs/rules/skills/web/host/test routes avoid target builds.",
+    "Ref/ancestry/base/history/diff/untracked/test-index errors fail closed. NUL-delimited names and disabled rename detection preserve conservative source coverage.",
+    "Selected tests require actual PASS reports; mixed docs/check scope cannot hide missing plans.",
+    "Test source bytes are read once per invocation. No persistent selector index.",
+    "Ordinary STE is skipped; explicit advisory and strict modes remain; strict unreadable/error results fail.",
+    "Current skills, workflows and agent entries require rule commit evidence; preference pointer guards remain.",
+    "Unrelated scenarios avoid upload generation; upload/upload44, unknown commands and unreadable inputs retain it.",
+    "Controller compile jobs are bounded to a validated 1..64 setting, default four, with Docker forwarding and serial mode.",
+    "Per-unit diagnostics merge in source order. Original compile flags, object/link order, LTO, image and budget checks remain.",
+    "Failed and signalled compile processes and owned groups are stopped and joined before scratch deletion; stale output is removed."
+  ],
+  "checked": {
+    "checks": "checks.json",
+    "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+    "scope_suites": 7,
+    "routing_fixture_methods": 12,
+    "controller_fixture_methods": 4,
+    "real_controller": "controller-result.json",
+    "controller_cleanup_delta_reuse": "controller-reuse.json",
+    "controller_build_seconds": 28.513924458,
+    "controller_matches_saved_image": true,
+    "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "image_bytes": 65492,
+    "image_capacity": 65536,
+    "ram_bytes": 25824,
+    "ram_capacity": 26368
+  },
+  "initial_failure_dispositions": [
+    {
+      "finding": "The new STE process-error handling rejected exit status 1 for valid grammar findings.",
+      "repair": "Accept status 1 with a valid positive finding count; retain strict failure for missing/malformed/error output.",
+      "verification": "STE/rules and explicit-mode fixtures pass; original failures remain in initial-ste/rules-failure.log."
+    },
+    {
+      "finding": "Linux dash rejects kill -TERM -- negative-process-group syntax.",
+      "repair": "Use the supported negative-group form and kill descendants of an already failed driver.",
+      "verification": "Current Linux failed-driver and interruption cleanup fixtures pass; dash-cleanup-failure.log preserves the finding."
+    },
+    {
+      "finding": "The slim image lacks ps; emulated startup can make a sleep-only concurrency peak assertion scheduling-dependent.",
+      "repair": "Use /proc on Linux and a compiler-start barrier for concurrency assertions.",
+      "verification": "Current serial/bounded concurrency and cleanup fixtures pass. initial-ctl-failure.log preserves the first run."
+    },
+    {
+      "finding": "Mixed docs/web scope could have no tests yet pass because the docs flag was true.",
+      "repair": "Track required checks separately from docs lint; require a runnable plan.",
+      "verification": "New missing mixed-scope runner regression passes."
+    }
+  ],
+  "deferred": [
+    {
+      "item": "Reuse normal fixed-tree regression PASS inside devbug_step.",
+      "reason": "Normal tests can run with per-test HOME/TMPDIR isolation. No exact same-invocation source/environment/arguments/runner result identity proves equivalence. Retain the fixed regression rerun and parent negative control."
+    }
+  ],
+  "limits": [
+    "No full application build, release/full gate, installation, device test, external push or firmware integration ran.",
+    "The one real controller build used matching saved inputs and image. A later cleanup-only source delta reuses the successful build path under controller-reuse.json; current cleanup paths are independently fixture-tested.",
+    "Elapsed time includes Docker/controller entry work. Concurrent project load was not isolated; no comparative speedup is claimed.",
+    "tests/run_tests.sh remains unchanged because the separate runner owner owns its optimization and future registration of these new direct fixtures.",
+    "Active asset/helper/native-validator source and BUILDING.md remain unchanged."
+  ],
+  "next_action": "One fresh independent stage3 with test and investigation subagents; deliver validated tooling to the single finishing owner."
+}

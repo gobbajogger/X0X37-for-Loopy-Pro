@@ -1,0 +1,39 @@
+{
+  "baseline_record": "/Users/mac/Documents/x0x37/smc_complete_stage4_20261021/evidence/complete-stage4/elite/record.json",
+  "baseline_record_sha256": "74e3a1436043e4c0cdf51b07b0735313b1b0c7a95689f6279c4f1a551ae9e073",
+  "baseline_controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "sources": {
+    "ble/ctl/.gitignore": "cc0c30df3b964ad4290b02521d4bac8eec2ab0a03c2696f22dc783a1bf68e31a",
+    "ble/ctl/ctl.ld": "61e1750ad911f68a47db55b3cba1f2553344c3e104bb7ec744ae25792ae78dee",
+    "ble/ctl/fetch_sdk.sh": "d987c0485e0e3a8394d428812e976096a406927ca298c8be2a6919adee15b882",
+    "ble/ctl/gen_rf_tables.py": "0701e3f925d0474dac086a508e883703f325e60647f067d49526bdbdae6055d1",
+    "ble/ctl/mkimage.py": "1d93beb52c3814c28f43f3c62f4b293ccf277b6f42b4e26f5e1246bf3c9c44e4",
+    "ble/ctl/src/config.c": "589aabde87b4d8ceb27aa5b5bfc6f2860878317950b0555c2f8a14abafefac13",
+    "ble/ctl/src/ctl_heap.c": "01303f8e0caefb1eb236d16aea9ac79805fd22a54732a8cdf1669327ead16ea8",
+    "ble/ctl/src/ctl_main.c": "21db795484b07c821acd792543388ad4232b81943016e7ab25716e69d8157b9c",
+    "ble/ctl/src/ctl_os.c": "baa8f32f7506a0098322bbb1909862f74ebeaaf053bae89794a79131525fe4b8",
+    "ble/ctl/src/ctl_platform.c": "1925274b730ccd9cb07d435b0372c8b0fb2559c67c916aa144f71d2b7f8e7664",
+    "ble/ctl/src/ctl_port.c": "7d0212831f5695146d6565ddfc8d3688d5199a7a7c26ab5c6b890a1d33bba8cb",
+    "ble/ctl/src/ctl_port.h": "a03f95d9deefd59a09222dafe3d2e3bde4360c4dddba5e5171fd649313b86df4",
+    "ble/ctl/src/ctl_port_asm.S": "446b646ab299250ddcc2efaf1c7dee567c157542b7a51d919b02a363b483a12f",
+    "ble/ctl/src/ctl_syscfg.c": "a0ffd9207cb36f4510082973ab4e94525efd966d67a60f2f9afc7070b3472f02",
+    "ble/ctl/src/ctl_timer.c": "621158e68734c1ea3cb22fd1f9ef97209b1ce2e1a5a2eabedff3403bd5e709db",
+    "ble/ctl/src/log_tags.c": "a719cbc200136e382122c75c15df32cc6dddf73565d47ad4c00c72fac12756ed",
+    "firmware/hal/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867"
+  },
+  "dependencies": {
+    "toolchain": {
+      "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+    },
+    "sdk": {
+      "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+    }
+  },
+  "worker_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "jobs": 4,
+  "orchestration": {
+    "ble/ctl/build_ctl.sh": "548110169c83aad8c04ad6e1bd82bbe7aea7bda9bde2b08b6e6f7c19081efa53",
+    "ble/ctl/build_in_container.sh": "1c6a70251f48d011593f5c32decd061398d88aa08bbb6621349e5844adda8873"
+  },
+  "limits": "One new controller build. No new old baseline, application build, gate or device check. Other project lanes may use CPU/I/O concurrently. No isolated speedup claim."
+}

@@ -1,0 +1,16 @@
+ok   rule change, Trigger and Check: QUICK PASS 3f736b3 2 s (STE step only)
+ok   rule change, no Trigger or Check: QUICK FAIL fbc9594 2 s RULES: 2 commit body issues
+ok   rule change, Check names no script: QUICK FAIL 1c28a1c 1 s RULES: 1 commit body issues
+ok   rule change, Check: manual: QUICK PASS f8a28fd 2 s (STE step only)
+FAIL rule grammar hints are advisory (want PASS, rc=0)
+     QUICK PASS 1af7a1d 2 s (STE step only)
+ok   USER_PREFERENCES.md entry with no rule: QUICK FAIL d97ac9b 1 s RULES: PREFS FAIL 6 of 6 entries
+ok   docs/agent-rules.md change, no Trigger or Check: QUICK FAIL ba9d2e4 2 s RULES: 2 commit body issues
+ok   docs change, not a rule change: QUICK PASS f5c6eef 1 s (STE step only)
+FAIL lane/dk-rules grammar hints are advisory (want PASS, rc=0)
+     QUICK PASS 6786242 2 s (STE step only)
+     log: quickcheck 6786242, base 52b490e, changed: docs/ROADMAP.md
+     log: {
+     log:   "changed": [
+ok   integration lane: QUICK PASS 7381f10 1 s (STE step only), base 370c0c3
+quickcheck rules: 8 of 10 ok

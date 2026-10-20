@@ -1,0 +1,19 @@
+ok   direct rule change on smk37: update hook: REJECTED refs/heads/smk37: a rule change on smk37 (docs/rules/install.md) must come from a lane/dk-rules-* branch: push the lane, then a merge of a lane commit (first parent = smk37) or a fast-forward to a lane commit (rules = code, owner 02:37)        
+ok   direct USER_PREFERENCES.md change: update hook: REJECTED refs/heads/smk37: a rule change on smk37 (docs/USER_PREFERENCES.md) must come from a lane/dk-rules-* branch: push the lane, then a merge of a lane commit (first parent = smk37) or a fast-forward to a lane commit (rules = code, owner 02:37)        
+ok   smk37 change without rule files: 
+ok   lane/dk-rules-a push: 
+ok   smk37 moves: 
+ok   merge of the lane tip: update hook: rule change on smk37 accepted (merge of refs/heads/lane/dk-rules-a)        
+ok   lane/dk-rules-b push: 
+ok   smk37 moves again: 
+Automatic merge went well; stopped before committing as requested
+ok   merge with its own rule change: update hook: REJECTED refs/heads/smk37: the merge of refs/heads/lane/dk-rules-b changes rule files itself (docs/rules/install.md). Put each rule change on the lane (rules = code, owner 02:37).        
+ok   lane/mb-x push: 
+ok   merge of lane/mb-x: update hook: REJECTED refs/heads/smk37: a rule change on smk37 (docs/rules/install.md) must come from a lane/dk-rules-* branch: push the lane, then a merge of a lane commit (first parent = smk37) or a fast-forward to a lane commit (rules = code, owner 02:37)        
+ok   lane/dk-rules-b moves: 
+ok   merge of an older commit of the lane: update hook: rule change on smk37 accepted (merge of refs/heads/lane/dk-rules-b)        
+ok   merge of a commit that no lane has: update hook: REJECTED refs/heads/smk37: a rule change on smk37 (docs/rules/install.md) must come from a lane/dk-rules-* branch: push the lane, then a merge of a lane commit (first parent = smk37) or a fast-forward to a lane commit (rules = code, owner 02:37)        
+ok   direct docs/agent-rules.md change: update hook: REJECTED refs/heads/smk37: a rule change on smk37 (docs/agent-rules.md) must come from a lane/dk-rules-* branch: push the lane, then a merge of a lane commit (first parent = smk37) or a fast-forward to a lane commit (rules = code, owner 02:37)        
+ok   lane/dk-rules-c push: 
+ok   fast-forward smk37 to the lane tip: update hook: rule change on smk37 accepted (fast-forward to refs/heads/lane/dk-rules-c)        
+rules guard hook: 17 of 17 ok
