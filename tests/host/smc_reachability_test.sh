@@ -12,7 +12,7 @@ U="firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c firmware/src/dsp/bass30
 firmware/src/dsp/fxbus.c firmware/src/dsp/master.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c
 firmware/src/seq/pattern.c firmware/src/seq/motion.c firmware/src/app/engine.c"
 # The supported host builder generates the same fonts/sample tables first.
-X0X_HOST_OUT="$OUT/host" sh host/build_host.sh > "$OUT/build.log" 2>&1 || { cat "$OUT/build.log"; exit 1; }
+X0X_HOST_OUT="$OUT/host" sh host/build_host.sh --generate-only > "$OUT/build.log" 2>&1 || { cat "$OUT/build.log"; exit 1; }
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
     -DX0X_HOST -DSMC_SOURCE_FILE=\"$SOURCE/firmware/src/app/smc_mixer.c\" ${X0X_HOST_DEFS:-} -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
     tests/host/smc_reachability_test.c $U -lm -o "$OUT/test"
