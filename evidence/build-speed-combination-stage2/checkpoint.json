@@ -85,7 +85,16 @@
   },
   "pending": {
     "cache": "Selector repair stage2 active; no checked final commit or independent PASS. Completion requested.",
-    "native": "Repair owner retains pending Docker approval; no bypass. Need checked repair, fresh independent Test and native Validate. Completion requested."
+    "native": {
+      "state": "repair_scoped_checks_running",
+      "owner": "01a15ae0-185b-7b40-b1e8-9a19c0eca02d",
+      "docker_approval": "Granted and action resumed by native owner; prior approval blocker cleared.",
+      "required": "Checked repair commit, fresh independent Test PASS and native Validate acceptance.",
+      "source_applied": false,
+      "reported_checks": "Host package/input and native consumer fixtures passed. Initial Linux shared-mount Git ownership/FIFO issue received one supported container-local tmpfs retry with source read-only.",
+      "measurement_limit": "SDK traversal operation sample2.792s old vs0.880s direct is warm-sensitive operation-only evidence; no end-to-end claim.",
+      "source": "Coordinator completion-context notice from01a15aec-08a1-7cb3-b395-f17ad2cf9add relaying current native repair owner."
+    }
   },
   "remaining": [
     "Apply each source only after required independent results/acceptance. Deduplicate browser removal patch.",
