@@ -207,7 +207,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(0);
         break;
     case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
-        uint32_t w[77], nw = 0, k;            /* 77 x 5 B fit ed_out (tests/diag_size_test.py) */
+        uint32_t w[78], nw = 0, k;            /* 78 x 5 B fit ed_out (tests/diag_size_test.py) */
         const uint32_t *c = (const uint32_t *)&fm1_crash;
         for (k = 0; k < sizeof fm1_crash / 4u; k++)
             w[nw++] = c[k];

@@ -1,0 +1,43 @@
+{
+  "result": "INVESTIGATION IN PROGRESS; physical SMC root cause not proved",
+  "base": "b6d6516",
+  "installed_source": "a5cb24d",
+  "last_good_source": "53d5654",
+  "identified_source_defect": "BLE-MIDI initial characteristic read omitted; also present in last-good source",
+  "source_change": "Initial read before CCCD notification enable; bounded first four rejected ACL payload bytes for discriminating live protocol observation",
+  "source_sha256": {
+    "firmware/src/app/editor.c": "bc92f27d40c4aea1d9b3492ae4377a6f0016fdb0f20e5a22e32094cf68d3a62f",
+    "firmware/src/ble.c": "4aa516110ffad67a54a69ac44e40619882f3996fcd0a915e7e9fdb49ffa0eee1",
+    "firmware/src/ble/ble_midi_central.c": "479bc3170c3d6fd0f760e3a2f74ba3a313e3f31ae8c7bd69d0a3539a101ee1fb",
+    "firmware/src/ble/ble_midi_central.h": "f70e19c780fbaf2fcbf0b668fa657ed326e4d7e2e3ae7732cfa8c536f7c8b5c4",
+    "tests/ble_central_diag_test.py": "9645b331578990efd7346361e17e641e6432ec502bb143385c73c1aadf217ebe",
+    "tests/host/ble_midi_central_test.c": "72abb164c42aeb3e9ed2dba1e598d893309a69eba52845b4b5fe7f0c63ab3e95",
+    "tests/host/ble_midi_receive_test.c": "ef3de410cd28b821f44658cc773318f8e64ba56c4cf1ec1b8d20bc9254d4acd0",
+    "tools/ble_autotest.py": "624d0dd97a6385485c77f7b2dadf894223293cb4715234efdb9deecd93f5cb2d"
+  },
+  "checks": {
+    "regression": "Expanded central test fails against unmodified source and passes repaired source under ASan/UBSan and -Werror",
+    "receive_suite": "PASS: receive/fragments/signaling/credits/stop/abort/deadline",
+    "startup_ui": "PASS DAW/User through simulated production mailbox, startup and UI; peer and radio substituted",
+    "diag_size": "PASS 78 words; INLOG retains732byte limit",
+    "diag_decoder": "PASS old, version01 and version02"
+  },
+  "live_evidence": {
+    "initial": "READY/SCANNING, no ACL",
+    "later": "CONNECTED, MIDI value114,CCCD115; rejected two-byte SMP on CID6; payload not yet available",
+    "virtual_peer": "No subscriptions/read/writes; no test outcome; peer identity not established"
+  },
+  "specification": {
+    "title": "MIDI over Bluetooth Low Energy1.0",
+    "section": "5. Initial Connection and Pairing",
+    "official_page": "https://midi.org/midi-over-bluetooth-low-energy-ble-midi",
+    "official_linked_pdf": "https://drive.google.com/file/d/15jF6H78kMS0jEBQ7JpH0W6MHf_yxoE5r/view",
+    "pdf_sha256": "70cae8df6d440c64423f0376970653d74a622c8e1dd564a833fef328bc8fc9e0"
+  },
+  "limits": [
+    "No evidence yet that actual SMC gates notification on initial read",
+    "Idle zero-packet observations do not prove receive failure",
+    "No firmware install in this task yet",
+    "No physical SMC control PASS"
+  ]
+}

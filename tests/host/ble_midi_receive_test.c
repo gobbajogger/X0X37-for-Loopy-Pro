@@ -52,11 +52,15 @@ int main(void)
  memcpy(first,note,sizeof note);first[6]=6;feed(&c,first,sizeof first);
  assert(c.rx_reason==BLEC_RX_CID);
  assert(c.reject_reason==BLEC_RX_CID && c.reject_n==sizeof first);
- assert(!memcmp(c.reject_head,first,8));
+ assert(!memcmp(c.reject_head,first,sizeof c.reject_head));
+ /* A two-byte SMP packet retains both opcode and reason/authentication byte. */
+ const uint8_t smp[]={1,0x20,6,0,2,0,6,0,0x0b,1};
+ feed(&c,smp,sizeof smp);assert(c.reject_n==10 && c.reject_reason==BLEC_RX_CID);
+ assert(!memcmp(c.reject_head,smp,10) && !c.reject_head[10] && !c.reject_head[11]);
  /* Even a truncated header records exactly the bounded bytes, zero-padded. */
  feed(&c,first,1); assert(c.reject_n==1 && c.reject_reason==BLEC_RX_HEADER);
  assert(c.reject_head[0]==1);
- for(unsigned i=1;i<8;i++) assert(!c.reject_head[i]);
+ for(unsigned i=1;i<sizeof c.reject_head;i++) assert(!c.reject_head[i]);
  first[6]=4;first[0]=2;feed(&c,first,sizeof first);assert(c.rx_reason==BLEC_RX_LINK);
  first[0]=1;first[9]=7;feed(&c,first,sizeof first);assert(c.rx_reason==BLEC_RX_HANDLE && c.state==BLEC_CONNECTED);
  assert(c.att_op==0x1b && c.att_handle==7);

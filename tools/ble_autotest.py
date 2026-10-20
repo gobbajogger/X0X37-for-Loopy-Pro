@@ -94,7 +94,10 @@ def diag():
         b = r[1 + 5 * k:6 + 5 * k]
         w.append(b[0] | b[1] << 7 | b[2] << 14 | b[3] << 21 | (b[4] & 15) << 28)
     trace = {}
-    if len(w) >= 6 and w[-6] == 0x534D4301:
+    if len(w) >= 7 and w[-7] == 0x534D4302:
+        trace = dict(zip(["smc_trace", "smc_handles", "smc_acl0", "smc_acl1", "smc_reject", "smc_att", "smc_acl2"], w[-7:]))
+        w = w[:-7]
+    elif len(w) >= 6 and w[-6] == 0x534D4301:
         trace = dict(zip(["smc_trace", "smc_handles", "smc_acl0", "smc_acl1", "smc_reject", "smc_att"], w[-6:]))
         w = w[:-6]
     head = CRASH + BOOT
@@ -232,13 +235,16 @@ def summary(d, before):
                   f"up {d['up_ms']} ms etm {h(d['etm3'])} {h(d['etm2'])} {h(d['etm1'])} {h(d['etm0'])}")
                  if crash_new and d.get("magic") == 0x43525348 else "none new",
     }
-    if d.get("smc_trace") == 0x534D4301 and d["h_step"] & 0x80000000:
+    if d.get("smc_trace") in (0x534D4301, 0x534D4302) and d["h_step"] & 0x80000000:
         hdr = d["smc_acl0"].to_bytes(4, "little") + d["smc_acl1"].to_bytes(4, "little")
         out["smc_trace"] = (f"value handle {d['smc_handles'] & 65535}, CCCD handle {d['smc_handles'] >> 16}; "
                             f"ATT response pending {d['smc_att'] >> 16}; "
                             f"last ATT opcode 0x{d['smc_reject'] >> 24:02X}, notify handle {d['smc_att'] & 65535}; "
                             f"last rejected ACL: reason {d['smc_reject'] >> 16 & 255}, bytes {d['smc_reject'] & 65535}, "
                             f"header {hdr.hex(' ')}, CID 0x{d['smc_acl1'] >> 16:04X} (CID valid for start packets of at least 8 bytes)")
+        if d["smc_trace"] == 0x534D4302:
+            payload_n = max(0, min(4, (d['smc_reject'] & 65535) - 8))
+            out["smc_trace"] += "; first rejected payload bytes " + d["smc_acl2"].to_bytes(4, "little")[:payload_n].hex(' ')
     return out
 
 

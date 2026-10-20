@@ -24,7 +24,8 @@ assert 'interval 30 ms' in s and 'asked MTU 23' in s
 print('PASS: central receive and unchanged peripheral diagnostic formats')
 
 # Versioned extension decodes without shifting old live words or guard data.
-for tail in ([], [0x534D4301, 113 | 114 << 16, 0x00080001, 0x00060004, 12 | 5 << 16 | 0x1B << 24, 113]):
+for tail in ([], [0x534D4301, 113 | 114 << 16, 0x00080001, 0x00060004, 12 | 5 << 16 | 0x1B << 24, 113],
+             [0x534D4302, 113 | 114 << 16, 0x00062050, 0x00060002, 10 | 5 << 16 | 0x13 << 24, 0, 0x010b]):
     words = [0] * (len(b.CRASH) + len(b.BOOT) + len(b.GUARD)) + [0] * len(b.LIVE)
     words[-len(b.LIVE)+b.LIVE.index('h_step')] = 0x8605000e
     words += tail
@@ -36,7 +37,11 @@ for tail in ([], [0x534D4301, 113 | 114 << 16, 0x00080001, 0x00060004, 12 | 5 <<
     if tail:
         text = b.summary(parsed, None)['smc_trace']
         assert 'value handle 113, CCCD handle 114' in text
-        assert 'header 01 00 08 00 04 00 06 00, CID 0x0006' in text
-        assert 'reason 5, bytes 12' in text
+        if tail[0] == 0x534D4301:
+            assert 'header 01 00 08 00 04 00 06 00, CID 0x0006' in text
+            assert 'reason 5, bytes 12' in text
+        else:
+            assert 'reason 5, bytes 10' in text
+            assert 'first rejected payload bytes 0b 01' in text
     else: assert 'smc_trace' not in b.summary(parsed, None)
 print('PASS: old and extended DIAG decoding, handles and bounded rejected header')

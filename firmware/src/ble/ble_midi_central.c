@@ -9,7 +9,7 @@ enum { COP_RESET = 0x0c03, COP_EV_MASK = 0x0c01, COP_LE_MASK = 0x2001,
        COP_SCAN_ENABLE = 0x200c, COP_CREATE = 0x200d, COP_CANCEL = 0x200e,
        COP_DISCONNECT = 0x0406 };
 enum { S_RESET, S_EVENT, S_LE_EVENT, S_BUFFER, S_RANDOM, S_SCAN_PARAM,
-       S_SCAN_ON, S_SCAN_OFF, S_CREATE, S_CANCEL, S_SERVICE, S_CHAR, S_CCCD, S_SUBSCRIBE, S_READY };
+       S_SCAN_ON, S_SCAN_OFF, S_CREATE, S_CANCEL, S_SERVICE, S_CHAR, S_CCCD, S_SUBSCRIBE, S_READY, S_READ };
 enum { D_SENT = 1, D_STOP = 2, D_CONTROL = 4 };
 static const uint8_t blec_U_SVC[16] = {0x00,0xc7,0xc4,0x4e,0xe3,0x6c,0x51,0xa7,0x33,0x4b,0xe8,0xed,0x5a,0x0e,0xb8,0x03};
 static const uint8_t blec_U_CHAR[16] = {0xf3,0x6b,0x10,0x9d,0x66,0xf2,0xa9,0xa1,0x12,0x41,0x68,0x38,0xdb,0xe5,0x72,0x77};
@@ -196,6 +196,11 @@ static void blec_progress(blec_t *c)
     case S_CCCD:
         b[0] = 0x04; blec_wr16(b + 1, c->query_start);
         blec_wr16(b + 3, c->svc_end); c->att_waiting = (uint8_t)blec_acl(c, b, 5); break;
+    case S_READ:
+        /* BLE-MIDI 1.0 section 5: complete the initial MIDI I/O read before
+         * enabling notifications. The characteristic normally returns no data. */
+        b[0] = 0x0a; blec_wr16(b + 1, c->midi_handle);
+        c->att_waiting = (uint8_t)blec_acl(c, b, 3); break;
     case S_SUBSCRIBE:
         b[0] = 0x12; blec_wr16(b + 1, c->cccd_handle); b[3] = 1; b[4] = 0;
         c->att_waiting = (uint8_t)blec_acl(c, b, 5); break;
@@ -336,7 +341,7 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
         for (i = 2; i + 4u <= n; i += 4u)
             if (blec_rd16(p + i + 2) == 0x2902u) {
                 c->cccd_handle = (uint16_t)blec_rd16(p + i);
-                c->step = S_SUBSCRIBE; blec_progress(c); return;
+                c->step = S_READ; blec_progress(c); return;
             }
         if (n >= 6u && (n - 2u) % 4u == 0u) {
             unsigned last = blec_rd16(p + n - 4u);
@@ -345,6 +350,8 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
                 blec_progress(c); return;
             }
         }
+    } else if (c->step == S_READ && p[0] == 0x0b) {
+        c->step = S_SUBSCRIBE; blec_progress(c); return;
     } else if (c->step == S_SUBSCRIBE && p[0] == 0x13) {
         c->step = S_READY; c->state = BLEC_CONNECTED; c->connects++;
         return;

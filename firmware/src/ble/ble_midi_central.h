@@ -24,8 +24,8 @@ typedef struct {
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
-    /* Last rejected ACL header, zero-padded; bounded, no payload log or allocation. */
-    uint8_t reject_head[8], reject_reason, att_op;
+    /* Last rejected ACL header and first four payload bytes, zero-padded. */
+    uint8_t reject_head[12], reject_reason, att_op;
     uint16_t reject_n, att_handle;
     uint8_t q[32][3], qlen[32];
     volatile uint8_t qr, qw; /* main-loop producer, TIMER5 consumer */
