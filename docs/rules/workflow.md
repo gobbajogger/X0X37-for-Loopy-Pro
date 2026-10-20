@@ -47,6 +47,14 @@ owner to launch each stage or create all seven threads in advance. The fresh
 thread assigned to a stage performs it without creating another copy of itself.
 Only the recorded stage owner launches its successor.
 
+The owner gives standing authorization to create and start required successor
+threads, send their launch/recovery handoffs, verify startup, and send completion
+notices within the approved workflow. Proceed automatically without another
+owner confirmation, including a handoff-only recovery turn by the recorded
+sender when no successor began. Carry this owner authorization and its source
+into every successor prompt. It does not approve new feature scope, installation,
+release builds, external pushes, or unrelated messages.
+
 1. Save the complete launch prompt and a successor record in the lane's evidence
    folder before creation. Give the record a unique workflow/stage marker and
    the source thread ID. Include the current rules entry, repository/lane and
@@ -79,7 +87,8 @@ Only the recorded stage owner launches its successor.
    This request authorizes that handoff message; do not resend to a running or
    completed stage. Preserve the original error and recovery result. Approval
    denials, policy refusals, missing access, or unresolved setup need their real
-   dependency resolved; do not bypass them or change permission settings. When
+   dependency resolved; do not bypass them. Change permission settings only with
+   explicit owner authorization, as given for handoff tool auto-approval. When
    recovery cannot proceed, report the exact blocker, saved prompt/record, any
    successor ID, and next action. Never claim successful handoff from an attempt.
 

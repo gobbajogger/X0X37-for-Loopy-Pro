@@ -76,3 +76,46 @@ Receiving owner: the next authorized workflow stage owner reads current
 thread. This rules-only task has no next code stage to launch.
 No execution work or notices were sent to other production chats. The existing
 SMC workflow remains with its receiving owner.
+
+
+## Automatic authorization follow-up — 2026-10-21
+
+Trigger: The owner clarified, "Make sure that they automatically allow to do
+that without my intervention" in this same ongoing task. This explicitly
+supersedes per-handoff confirmation and authorizes narrow handoff-tool settings.
+
+Cause: The local Codex configuration auto-approved `send_message_to_thread`
+but had no explicit approval entry for `create_thread`. General
+`approval_policy = "never"` suppresses prompts; it does not itself approve
+an MCP tool that would otherwise need permission.
+
+Change: Added plugin-scoped `create_thread` `approval_mode = "approve"` in
+`/Users/mac/.codex/config.toml`, retaining the existing handoff-message setting.
+Backed up the original beside the config. Parsed TOML comparison proves only
+that entry was added. No global approval, sandbox, reviewer, model, or unrelated
+tool setting changed. The exact backup and runtime verification thread identity
+are in [automatic-startup.json](handoff-reliability-2026-10-21/automatic-startup.json).
+The [official plugin configuration documentation](https://developers.openai.com/plugins/build/plugins#configure-installed-server-policy)
+and [schema](https://developers.openai.com/codex/config-schema.json) define this
+per-tool policy. Local settings do not override higher-priority restrictions.
+
+Rule 18 now explicitly carries standing owner authorization for required
+successor creation/startup, launch/recovery messages, verification and completion
+notices. The recorded sender may recover a handoff that never started without
+asking again. Prompts carry the source authorization forward. Rule 13 links to
+this home. Existing duplicate checks, uncertain-outcome checks, source/feature
+scope, install/release/push requirements and actual policy denials remain.
+
+Runtime check: Created one bounded independent read-only review thread using
+the native `create_thread` tool without owner intervention. Startup was verified in receiving turn
+`01a15a15-e4b3-78c1-9c1e-18bac181ad3c`: assistant acknowledgment, rules/handoff
+reads and the assigned diff inspection. The independent review found no
+actionable issues and delivered its completion message automatically via
+`send_message_to_thread`. Both creation/startup and messaging worked without
+owner intervention. Saved configuration does not by itself prove policy reload
+causation or universal availability. The current preference-pointer check passed
+20 lane entries, changed rule links resolve and historical preferences are
+unchanged. Workflow reading grows from 1097 to 1178 words and the message-rule
+pointer grows from 166 to 173. Startup core/router remain unchanged.
+See [independent review](handoff-reliability-2026-10-21/automatic-independent-review.txt).
+This supporting rules review is not a firmware stage and has no successor.
