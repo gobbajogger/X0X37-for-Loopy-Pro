@@ -107,7 +107,7 @@
    "value": {
     "config_btctler_modules": "BT_MODULE_LE",
     "config_btctler_le_roles": "LE_ADV | LE_SLAVE | LE_MASTER | LE_SCAN | LE_INIT",
-    "config_btctler_le_features": "0",
+    "config_btctler_le_features": "LL_FEAT_ENCRYPTION",
     "config_btctler_mode": "BT_NORMAL",
     "config_btctler_hci_standard": "1",
     "config_btctler_le_hw_nums": "1",

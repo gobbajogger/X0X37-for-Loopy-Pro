@@ -1,0 +1,86 @@
+{
+  "status": "Controller target build PASS; application and physical pairing untested",
+  "base_commit": "29c7b0280d71e746497714ce83e69dbd242df147",
+  "docker_image": "x0x37-validation:local",
+  "docker_image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "platform": "linux/amd64",
+  "environment": {
+    "CTL_NATIVE": "1",
+    "CTL_NO_CACHE": "1",
+    "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+    "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK"
+  },
+  "build_command": "sh ble/ctl/build_ctl.sh (Docker linux/amd64; own lane rw, SDK/toolchain ro)",
+  "compiler_sha256": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+  "linker_sha256": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9",
+  "source_sha256": {
+    "ble/ctl/src/config.c": "dca713b22fb7420569275b71385186201785121a2d1b58387fe2cbfdd3f40f8a",
+    "ble/ctl/src/ctl_classic_commands.c": "6478e58cb3b11a1e6a89a5df30f6a1f0f4e597d926d56f9e6affb37f691d4ab6",
+    "tools/locked_settings.json": "1e2e480a0609263eb5d83db10ea454b2b70bb37ce2965f8ed95800d3c87dcebe",
+    "tests/host/ctl_classic_commands_test.c": "86acb98e352c89a74d34f93a96ef2edeeea02563a819cca04b1a9b46b17368a8",
+    "tests/host/run_ctl_classic_commands.sh": "e7085d1da5a2cb4dc3d9e731b8f66eada6f55adff9bba77e4ad2626486d4d391"
+  },
+  "baseline": {
+    "image_bytes": 65492,
+    "flash_free_bytes": 44,
+    "ram_bytes": 25824,
+    "ram_free_bytes": 544,
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+  },
+  "encryption_only": {
+    "link_status": "FAIL CFLASH overflow",
+    "mapped_image_bytes": 69768,
+    "overflow_bytes": 4232,
+    "text_growth_bytes": 4184,
+    "rodata_growth_bytes": 84,
+    "ram_bytes": 25824,
+    "ram_free_bytes": 544
+  },
+  "linker_wrap": {
+    "link_status": "FAIL CFLASH overflow",
+    "mapped_image_bytes": 69768,
+    "gain_bytes": 0
+  },
+  "final": {
+    "image_path": "/Users/mac/Documents/x0x37/smc_controller_encryption_20261021/ble/ctl/out/ctl.img",
+    "image_bytes": 57020,
+    "flash_free_bytes": 8516,
+    "ram_bytes": 24936,
+    "ram_free_bytes": 1432,
+    "ram_lo": "0x1c01800",
+    "ram_hi": "0x1c07968",
+    "sha256": "ce2d1523748322f55cb2620d86ca1844fde48f9242e216659a3306194990dc2b",
+    "crc32": "0x603a4cf4",
+    "undefined_symbols": 0,
+    "compiler_warning_bytes": 0,
+    "classic_parser_archive_absent": true,
+    "classic_hci_symbols_absent": true,
+    "generic_le_crypto_symbols_present": true
+  },
+  "checks": {
+    "locked_settings": "20 settings PASS",
+    "host": "All 65,536 opcodes across seven classic fallback families; nonnull and null inputs; unsupported classic+LE configuration fails link as expected.",
+    "target": "compiler -Wall -Wextra -Werror, linker guards, mkimage header/CRC/RAM PASS",
+    "independent_review": {
+      "reviewer": "smc_receive_audit",
+      "result": "PASS; no blocking findings",
+      "scope": "Source and final linked target inspection; hashes verified, classic parser absent, generic/LE command routes and encryption mechanisms retained.",
+      "specific_paths": "Final disassembly retains generic 0x0406/0x0c01/0x0c03 and direct LE dispatch; 0x2017 reaches aes128_start, 0x2018 reaches hardware RNG, 0x2019 retains ll_push_control_data; encryption steps, callbacks and change/refresh events retained.",
+      "limits": "No independent runtime crypto, physical pairing or hardware result."
+    }
+  },
+  "local_evidence_not_committed": {
+    "evidence/controller-encryption/baseline.map": "330accd26fb4cc85893dbe8dd768b07b1b92d3757b0890e1df4a7e68f8edf44f",
+    "evidence/controller-encryption/encrypted.map": "e3199d9ff150736df7e979b8b0b84e25fa07223db23b38d8a453b6cfa052eae3",
+    "evidence/controller-encryption/direct.map": "1c2a2ed87f52860bfe9cd7535f0027f51dd13d4de130c8eda58715a11ea647ea",
+    "evidence/controller-encryption/direct-symbols.txt": "e836dc32ea4f25c653bb7fe7806137fc3f33718849c67d4eec69575cc2c5a9e3",
+    "evidence/controller-encryption/direct-disassembly.txt": "5ad9c31f2eed4e4875cb2d165a6c9d0283a613c0f90ddab6b5af179b57b46452"
+  },
+  "limits": [
+    "No firmware app build by this lane",
+    "No release/full gate",
+    "No install or device writes",
+    "No physical pairing/input/entropy test",
+    "Classic-only commands now report unsupported in an already LE-only image; current host contract preserved"
+  ]
+}

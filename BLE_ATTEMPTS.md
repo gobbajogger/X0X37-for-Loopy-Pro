@@ -324,3 +324,9 @@ and `install.log`. This isolated ledger changes Markdown only. The integrated
 firmware lane remains clean and unchanged. All-input silence remains unresolved.
 New diagnostics are installed, but physical input delivery remains NOT TESTED.
 No external push or publication was performed.
+
+## 2026-10-21: LE encryption controller build
+
+| Attempt | Date | Change and evidence | Result |
+| --- | --- | --- | --- |
+| SMC controller encryption | 2026-10-21 | `config_btctler_le_features` enables `LL_FEAT_ENCRYPTION` for host-driven SMP pairing. Seven LE-only classic fallback definitions return not handled to the unchanged SDK dispatcher. They prevent extraction of its unused classic command parser; generic and LE handlers remain the SDK implementations. A module change from LE-only fails the link. Both BLE roles, one link, queues, heap, stacks, radio settings and flash/RAM limits remain unchanged. Baseline matches SHA-256 `956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a`: 65,492 B flash and 25,824 B RAM. Encryption alone overflowed flash by 4,232 B; linker wrapping saved nothing. Direct fallback definitions build at 57,020 B flash (8,516 B free), 24,936 B RAM (1,432 B free), image SHA-256 `ce2d1523748322f55cb2620d86ca1844fde48f9242e216659a3306194990dc2b`. Locked settings, target compilation/link, image header/CRC/RAM checks and exhaustive host fallback/module-guard tests pass. HCI Rand reads the chip RNG register through the pinned SDK; silicon entropy was not measured. | Controller build PASS. No application build, install, physical pairing or device-input result is established by this experiment. |
