@@ -1,11 +1,21 @@
 {
   "workflow": "build-work-20261021",
   "stage": 3,
-  "state": "pending",
+  "state": "started",
   "source_chat": "01a15ae3-2cce-7e42-9a7f-5911e60a9be5",
   "receiving_owner": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
   "candidate_commit": "30c567d8588227d5285f04422130300fe83577a9",
   "prompt": "evidence/build-work-stage2/stage3-prompt.txt",
-  "thread_id": null,
-  "attempts": []
+  "thread_id": "01a15af3-9c23-7321-b361-c3cbefd2462e",
+  "attempts": [
+    {
+      "operation": "create_thread",
+      "result": "created",
+      "thread_id": "01a15af3-9c23-7321-b361-c3cbefd2462e",
+      "host_id": "local"
+    }
+  ],
+  "host_id": "local",
+  "startup_turn_id": "01a15af3-9d52-7c91-ac67-bfa7664650c7",
+  "startup_evidence": "evidence/build-work-stage2/startup.json"
 }

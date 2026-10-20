@@ -1,0 +1,16 @@
+{
+  "candidate": "30c567d8588227d5285f04422130300fe83577a9",
+  "source_hashes_match": true,
+  "runner_and_active_other_sources_unchanged": true,
+  "checked_source_files": [
+    "ble/ctl/build_ctl.sh",
+    "ble/ctl/build_in_container.sh",
+    "tests/host/test_ctl_compile.py",
+    "tests/host/test_portable_rules.py",
+    "tests/host/test_quickcheck_plan.py",
+    "tools/install_gate.sh",
+    "tools/quickcheck.sh",
+    "tools/quickcheck_plan.py",
+    "docs/QUICKCHECK-SCOPE.md"
+  ]
+}
