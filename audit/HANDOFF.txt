@@ -85,7 +85,7 @@ Fresh audit checks and evidence
   this owner contract on 91356e7 and 39db004. Fader 5 similarly loses the next-page
   field. This is an identified mapping regression, not a complete-silence cause.
 - Capture SHA-256 a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a.
-- audit/current-device-diag.txt: read-only --diag-only under the exclusive native
+- audit/current-device-diag.txt (trailing spaces removed): read-only --diag-only under the exclusive native
   /Users/mac/.x0x37-hardware.lock, no writes/restarts/disconnects. CONNECTED,
   central state6 step14, credits5, mailbox READY, drops0, no new crash. Modulo256:
   ACL8, notifications0, MIDI0, rejects2, last reason5 (BLEC_RX_CID); queue0/0/0.

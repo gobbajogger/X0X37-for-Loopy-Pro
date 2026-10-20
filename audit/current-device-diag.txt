@@ -14,11 +14,11 @@
 }
 INLOG: 0 entries, the oldest first (time before the read, fm1_ms now 444744)
 Stored clip cells (APC row 4 = top Loopy row; velocity/channel; '.' = off):
-  row 4:    .      .      .      .      .      .      .      .  
-  row 3:    .      .      .      .      .      .      .      .  
-  row 2:    .      .      .      .      .      .      .      .  
-  row 1:    .      .      .      .      .      .      .      .  
-  row 0:    .      .      .      .      .      .      .      .  
+  row 4:    .      .      .      .      .      .      .      .
+  row 3:    .      .      .      .      .      .      .      .
+  row 2:    .      .      .      .      .      .      .      .
+  row 1:    .      .      .      .      .      .      .      .
+  row 0:    .      .      .      .      .      .      .      .
 PADS: the LED output (hardware pads 0-7 top row, 8-15 bottom row; R,G,B; a frame waits to go out: no)
   pad  0: to send 127, 74, 20 (orange)  sent 127, 74, 20 (orange)
   pad  1: to send   0,  0,  0 (off)  sent   0,  0,  0 (off)
