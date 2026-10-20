@@ -1,0 +1,9 @@
+{
+  "workflow": "build-speed-finish-20261021",
+  "state": "started",
+  "source_chat": "01a15a99-75d7-7921-9d65-f4b120566904",
+  "prompt": "evidence/build-speed-continuation/handoff.txt",
+  "thread_id": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "host_id": "local",
+  "turn_id": "01a15aec-0a54-7012-ae5d-85a5083210bc"
+}

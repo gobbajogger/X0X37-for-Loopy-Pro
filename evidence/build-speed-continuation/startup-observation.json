@@ -1,0 +1,12 @@
+{
+  "thread_id": "01a15aec-08a1-7cb3-b395-f17ad2cf9add",
+  "turn_id": "01a15aec-0a54-7012-ae5d-85a5083210bc",
+  "title": "Finish build-speed reductions",
+  "assignment_read": {
+    "tool_id": "exec-224e42e7-b2ec-4f71-876c-b5fb76930fe9",
+    "status": "completed",
+    "exit_code": 0
+  },
+  "assistant_acknowledgment": "Using current task/writing skills; read handoff and active/browser-removal scope, finish remaining work in an isolated lane.",
+  "handoff_scope": "One continuation owner; existing implementation owners remain; original root ends after verified startup."
+}
