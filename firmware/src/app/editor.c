@@ -9,7 +9,7 @@
 #define ED_HDR0 0x7D
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
-enum { ED_INFO = 1, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
+enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
        ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38 };
 #if BOARD_SMK37
 /* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
@@ -85,6 +85,147 @@ static void ed_put7(const uint8_t *src, uint32_t n)
     }
 }
 static uint8_t ed_smp_buf[512] __attribute__((aligned(4)));
+
+/* Unlike the legacy decoder, reject truncated groups, excess bytes and noncanonical
+ * high-bit masks. A malformed frame must never be accepted as a shorter write. */
+static uint32_t ed_unpack_exact(const uint8_t *a, uint32_t na, uint8_t *out, uint32_t max)
+{
+    uint32_t n = na - (na + 7u) / 8u, i, pos = 0;
+    if (!n || n > max || na % 8u == 1u)
+        return 0;
+    while (na) {
+        uint32_t mask = *a++, take = --na > 7u ? 7u : na;
+        if (mask >> take)
+            return 0;
+        for (i = 0; i < take; i++, na--) {
+            if (*a & 0x80u)
+                return 0;
+            out[pos++] = (uint8_t)(*a++ | ((mask >> i) & 1u) << 7);
+        }
+    }
+    return n;
+}
+
+/* PROJECT version 1. The project-stage allocation doubles as UI undo storage;
+ * ui_project_begin freezes input/audio, and end restores that storage on every exit.
+ * A browser restores sample slots only while mode 2 holds this lock, after VALIDATE. */
+static struct {
+    uint32_t at, next;
+    uint8_t mode, header[PROJECT_FILE_HDR];
+} ed_project;
+
+static uint32_t ed_u21(const uint8_t *a)
+{
+    return (uint32_t)a[0] | (uint32_t)a[1] << 7 | (uint32_t)a[2] << 14;
+}
+static void ed_w21(uint32_t v) { ed_b(v); ed_b(v >> 7); ed_b(v >> 14); }
+static uint8_t *ed_project_byte(uint32_t off)
+{
+    return off < PROJECT_FILE_HDR ? &ed_project.header[off] : (uint8_t *)&project_stage + off - PROJECT_FILE_HDR;
+}
+static void ed_project_end(int apply)
+{
+    if (ed_project.mode) {
+        ed_project.mode = 0;
+        ui_project_end(apply);
+    }
+}
+static uint32_t ed_project_rc(int rc)
+{
+    return rc == 0 ? 0u : rc == UI_PROJECT_BUSY ? 2u : rc == -4 ? 4u : rc == -7 ? 6u : 5u;
+}
+static void ed_project_handle(const uint8_t *a, uint32_t na)
+{
+    uint32_t op, rc = 0, off = 0, n = 0, i;
+    if (!na)
+        return;
+    op = *a++; na--;
+    ed_b(op);
+    if (ed_project.mode)
+        ed_project.at = fm1_ms;
+    switch (op) {
+    case 64:                                        /* QUERY / keepalive */
+        if (na) { rc = 1; break; }
+        ed_b(0); ed_b(1); ed_w21(PROJECT_FILE_SIZE); ed_b(ed_project.mode);
+        return;
+    case 65:                                        /* EXPORT BEGIN */
+    case 67:                                        /* IMPORT BEGIN */
+        if ((op == 65 && na) || (op == 67 && (na != 3 || ed_u21(a) != PROJECT_FILE_SIZE))) {
+            rc = 1; break;
+        }
+        if (ed_project.mode || ui_project_begin()) { rc = 2; break; }
+        ed_project.mode = (uint8_t)(op == 65 ? 1 : 2);
+        ed_project.at = fm1_ms;
+        ed_project.next = 0;
+        if (op == 65) {
+            project_capture_stage();
+            project_file_header(ed_project.header);
+            ed_b(0); ed_w21(PROJECT_FILE_SIZE);
+            return;
+        }
+        break;
+    case 66:                                        /* READ */
+        if (ed_project.mode != 1) { rc = 2; break; }
+        if (na != 5) { rc = 1; break; }
+        off = ed_u21(a); n = (uint32_t)a[3] | (uint32_t)a[4] << 7;
+        if (!n || n > ED_READ_MAX || off > PROJECT_FILE_SIZE || n > PROJECT_FILE_SIZE - off) {
+            rc = 1; break;
+        }
+        for (i = 0; i < n; i++)
+            ed_smp_buf[i] = *ed_project_byte(off + i);
+        ed_b(0); ed_w21(off); ed_put7(ed_smp_buf, n);
+        return;
+    case 68:                                        /* sequential WRITE, exact retries are idempotent */
+        if (ed_project.mode != 2) { rc = 2; break; }
+        if (na < 5) { rc = 1; break; }
+        off = ed_u21(a);
+        n = ed_unpack_exact(a + 3, na - 3, ed_smp_buf, ED_READ_MAX);
+        if (!n || off > PROJECT_FILE_SIZE || n > PROJECT_FILE_SIZE - off) { rc = 1; break; }
+        if (off > ed_project.next || (off < ed_project.next && n > ed_project.next - off)) {
+            rc = 3; break;
+        }
+        if (off < ed_project.next) {
+            for (i = 0; i < n; i++)
+                if (*ed_project_byte(off + i) != ed_smp_buf[i]) { rc = 3; break; }
+            if (rc) break;
+        } else {
+            for (i = 0; i < n; i++)
+                *ed_project_byte(off + i) = ed_smp_buf[i];
+            ed_project.next += n;
+        }
+        ed_b(0); ed_w21(ed_project.next);
+        return;
+    case 69:                                        /* COMMIT, deliberately never saved implicitly */
+    case 74:                                        /* VALIDATE before any sample write */
+        if (ed_project.mode != 2) { rc = 2; break; }
+        if (op == 69 && (na != 2 || a[0] != 0x58 || a[1] != 0x30)) { rc = 8; break; }
+        if (op == 74 && na) { rc = 1; break; }
+        if (ed_project.next != PROJECT_FILE_SIZE) { rc = 3; break; }
+        rc = ed_project_rc(project_file_validate(ed_project.header));
+        if (!rc && op == 69)
+            ed_project_end(1);
+        break;
+    case 70:                                        /* ABORT, including an already expired session */
+        if (na) { rc = 1; break; }
+        ed_project_end(0);
+        break;
+    case 71:                                        /* SAVE */
+    case 72:                                        /* LOAD SAVED */
+    case 73: {                                      /* RESET */
+        int result;
+        if (ed_project.mode) { rc = 2; break; }
+        if (op == 71 ? na != 0 : na != 2 || a[0] != 0x58 || a[1] != 0x30) {
+            rc = op == 71 ? 1 : 8; break;
+        }
+        result = op == 71 ? ui_project_save() : op == 72 ? ui_project_load() : ui_project_reset();
+        rc = result == UI_PROJECT_BUSY ? 2u : result == -7 ? 6u : result ? 7u : 0u;
+        break;
+    }
+    default: rc = 1; break;
+    }
+    ed_b(rc);
+}
+
 static uint32_t ed_smp_slot(uint32_t k) { return SMP_USER_OFF(k); }
 static void ed_smp_inval(uint32_t k)
 {
@@ -109,7 +250,8 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
 static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
 {
     const smp_user_hdr_t *h = (const smp_user_hdr_t *)ed_smp_buf;
-    if (ed_unpack7(a, na, ed_smp_buf, sizeof(smp_user_hdr_t)) != sizeof(smp_user_hdr_t))
+    uint32_t n = ed_unpack_exact(a, na, ed_smp_buf, sizeof ed_smp_buf);
+    if (n != sizeof(smp_user_hdr_t) && n != SMP_USER_DATA)
         return 1;
     if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
         h->data_len > SMP_USER_SIZE(k) - SMP_USER_DATA)
@@ -117,7 +259,7 @@ static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
     ed_smp_inval(k);
     if (st_crc32(smp_user_xip(k) + SMP_USER_DATA, h->data_len) != h->crc)
         return 3;
-    if (fl_write(ed_smp_slot(k), ed_smp_buf, sizeof(smp_user_hdr_t)))
+    if (fl_write(ed_smp_slot(k), ed_smp_buf, n))
         return 4;
     ed_smp_inval(k);
     smp_user_scan(k);
@@ -194,6 +336,9 @@ static void ed_handle(const uint8_t *f, uint32_t n)
     uint32_t na = n - 4u;
     ed_begin(cmd);
     switch (cmd) {
+    case ED_PROJECT:
+        ed_project_handle(a, na);
+        break;
     case ED_INFO:
         ed_str("X0X " X0X_VERSION, 24);
         ed_b(0);                                      /* no engines / parameters over this protocol */
@@ -236,7 +381,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (na < 1u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         ed_b(a[0]);
-        ed_b(ed_smp_erase(a[0], cmd == ED_SMP_ERASE) ? 1u : 0u);
+        ed_b(ed_project.mode == 1 ? 4u : ed_smp_erase(a[0], cmd == ED_SMP_ERASE) ? 1u : 0u);
         break;
     case ED_SMP_WRITE: {
         uint32_t off, len, rc = 0, took;
@@ -246,7 +391,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
         if (off < SMP_USER_DATA || (off & 0xFFu) || !len || off + len > SMP_USER_SIZE(a[0]))
             rc = 1;
-        else if (usr_nz[a[0]])
+        else if (usr_nz[a[0]] || ed_project.mode == 1)
             rc = 4;
         else {
             if (!(off & 0xFFFu)) {
@@ -267,7 +412,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (na < 2u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         ed_b(a[0]);
-        ed_b((uint32_t)ed_smp_end(a[0], a + 1, na - 1u));
+        ed_b(ed_project.mode == 1 ? 4u : (uint32_t)ed_smp_end(a[0], a + 1, na - 1u));
         break;
 #if X0X_DEBUG
     case ED_PEEK:
@@ -402,9 +547,16 @@ static void ed_service(void)
 {
     const uint8_t *p;
     uint32_t n;
-    if (!ota_frame_get(&p, &n) || n < 4u || p[0] != ED_HDR0 || p[1] != ED_HDR1 || p[2] != ED_HDR2)
+    if (ed_project.mode && fm1_ms - ed_project.at >= 15000u)
+        ed_project_end(0);
+    if (!ota_frame_get(&p, &n))
+        return;
+    if (n < 4u || p[0] != ED_HDR0 || p[1] != ED_HDR1 || p[2] != ED_HDR2) {
+        if (ed_project.mode)
+            ota_frame_done();                        /* OTA and project operations share scratch */
         return;                                       /* not an editor frame: ota_service() reads it */
-    if (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ) {
+    }
+    if (p[3] == ED_PROJECT || (p[3] >= ED_SMP_BEGIN && p[3] <= ED_SMP_READ)) {
         ed_handle(p, n);
         ota_frame_done();
         return;
