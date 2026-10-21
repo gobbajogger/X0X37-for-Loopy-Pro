@@ -85,10 +85,21 @@ _Static_assert(FL_REC_HI == FL_CAL_LO && FL_OTA_HI <= FL_REC_HI && FL_OTA_LO >= 
                "SMK: the update record (OTA area) must lie in the loader's record window, below BTIF");
 _Static_assert(FL_DATA_HI <= FL_OTA_LO && FL_APP_HI <= FL_DATA_LO, "SMK: windows overlap");
 /* the update loader (loader.c): the app area, and records only in the VM below BTIF */
+#if defined(X0X_SMC_VENDOR_TEST) && X0X_SMC_VENDOR_TEST
+#define FL_LDR_RANGE_OK(off, n) (FL_IN(off, n, FL_APP_LO, FL_APP_HI) || \
+                               FL_IN(off, n, FL_REC_LO, 0xAB000u) || FL_IN(off, n, 0xAF000u, FL_REC_HI))
+#else
 #define FL_LDR_RANGE_OK(off, n) (FL_IN(off, n, FL_APP_LO, FL_APP_HI) || FL_IN(off, n, FL_REC_LO, FL_REC_HI))
+#endif
+/* TEST profile's external data stay protected independently of BLE state. */
+#if defined(X0X_SMC_VENDOR_TEST) && X0X_SMC_VENDOR_TEST
+#define FL_STORE_OK(off, n) (FL_IN(off, n, FL_DATA_LO, 0xAB000u) || FL_IN(off, n, 0xAF000u, FL_DATA_HI) || \
+                             FL_IN(off, n, FL_SMP_LO, FL_SMP_HI) || FL_IN(off, n, FL_SMPV_LO, FL_SMPV_HI))
+#else
 /* X0X's own store: FL_DATA and the sample slots */
 #define FL_STORE_OK(off, n) (FL_IN(off, n, FL_DATA_LO, FL_DATA_HI) || FL_IN(off, n, FL_SMP_LO, FL_SMP_HI) || \
                              FL_IN(off, n, FL_SMPV_LO, FL_SMPV_HI))
+#endif
 #ifndef FL_RANGE_OK
 #define FL_RANGE_OK(off, n) (FL_STORE_OK(off, n) || FL_IN(off, n, FL_OTA_LO, FL_OTA_HI))
 #endif

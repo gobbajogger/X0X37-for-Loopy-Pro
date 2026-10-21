@@ -95,7 +95,13 @@ static void st_owner_check(void)
     if (ours)
         return;
     if (!erased || !FELUCCA_DATA_UNTAGGED_OK) {     /* another firmware's store (or unknown): clear it */
-        for (s = ST_SMK_BASE; s < ST_OWNER_SECTOR; s += ST_SECTOR) {
+        for (s = ST_SMK_BASE; s <
+#if X0X_SMC_VENDOR_TEST
+             0xAB000u /* external app/vendor immutable data are never store objects */
+#else
+             ST_OWNER_SECTOR
+#endif
+             ; s += ST_SECTOR) {
             st_erase(s);
             ST_IDLE();
         }

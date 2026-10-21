@@ -40,7 +40,7 @@ static void fixture(void)
         uint32_t skip = i ? 0 : sizeof good;
         xb4_segment_t *s = &good.segment[i];
         s->off = xb4_segment_off(i); s->size = i ? 64 : 256;
-        s->exec_size = s->size - 16;
+        s->exec_size = i == 0u ? s->size - 16 : 0;
         available[i] = s->size;
         for (j = skip; j < s->size; ++j) flash[s->off + j] = (uint8_t)(j + 17 * i);
         s->crc32 = xb4_crc32(flash + s->off + skip, s->size - skip);
@@ -83,6 +83,10 @@ static void field_errors(void)
         BAD(segment[i].exec_size, good.segment[i].size + 4, XB4_E_SEGMENT);
     }
     BAD(segment[0].exec_size, sizeof good, XB4_E_SEGMENT);
+    BAD(segment[1].exec_size, 4, XB4_E_SEGMENT);
+    BAD(segment[2].exec_size, 4, XB4_E_SEGMENT);
+    BAD(contract, 0x534D4301u, XB4_E_HEADER);
+    BAD(segment[1].off, 0xAB000u, XB4_E_SEGMENT);
     BAD(init, XB4_XIP(XB4_PRIMARY_OFF), XB4_E_ENTRY);
     BAD(init, good.init + 1, XB4_E_ENTRY);
     BAD(init, XB4_XIP(XB4_SECOND_OFF), XB4_E_ENTRY);
@@ -115,8 +119,8 @@ static void field_errors(void)
     assert(xb4_executable(&good, good.init));
     assert(xb4_executable(&good, good.init + 2u)); /* pi32v2 instructions are 2-byte aligned */
     assert(!xb4_executable(&good, good.init + 1u));
-    assert(xb4_executable(&good, XB4_XIP(XB4_SECOND_OFF)));
-    assert(xb4_executable(&good, XB4_XIP(XB4_SECOND_OFF) + 2u));
+    assert(!xb4_executable(&good, XB4_XIP(XB4_SECOND_OFF)));
+    assert(!xb4_executable(&good, XB4_XIP(XB4_SECOND_OFF) + 2u));
     candidate = good; candidate.init += 2u; seal(&candidate);
     assert(check(&candidate) == XB4_OK);
     assert(!xb4_executable(&good, XB4_XIP(XB4_SECOND_OFF) + good.segment[1].exec_size));

@@ -11,13 +11,13 @@
 #define XB4_MAGIC        0x53423058u /* "X0BS", deliberately unlike ABI-2 X0BC */
 #define XB4_ABI          4u          /* ABI 3 was a discarded historical experiment */
 #define XB4_VERSION      1u
-#define XB4_CONTRACT     0x534D4301u /* SMC host mailbox contract, revision 1 */
+#define XB4_CONTRACT     0x534D4302u /* revision 2: 92K primary, data-only secondaries, app UI excluded */
 #define XB4_CENTRAL_TEST  1u
 #define XB4_SEGMENTS      3u
-#define XB4_PRIMARY_OFF   0x00087000u
-#define XB4_PRIMARY_SIZE  0x00014000u
-#define XB4_SECOND_OFF    0x000AB000u
-#define XB4_SECOND_SIZE   0x00004000u
+#define XB4_PRIMARY_OFF   0x00084000u
+#define XB4_PRIMARY_SIZE  0x00017000u
+#define XB4_SECOND_OFF    0x000AD000u
+#define XB4_SECOND_SIZE   0x00002000u
 #define XB4_THIRD_OFF     0x000FE000u
 #define XB4_THIRD_SIZE    0x00001000u
 #define XB4_LOW_RAM_LO    0x01C01800u
@@ -85,7 +85,7 @@ static inline int xb4_payload_write_ok(unsigned i, uint32_t off, uint32_t size)
  * remains unchanged until the runtime owner selects the new profile explicitly. */
 static inline int xb4_owner_erase_ok(uint32_t off)
 {
-    return !(off & 0xFFFu) && ((off >= 0x9D000u && off < XB4_SECOND_OFF) || off == 0xAF000u);
+    return !(off & 0xFFFu) && ((off >= 0x9D000u && off < 0xAB000u) || off == 0xAF000u);
 }
 
 static inline uint32_t xb4_crc_byte(uint32_t crc, uint8_t byte)
@@ -114,14 +114,9 @@ static inline uint32_t xb4_manifest_crc(const xb4_manifest_t *h)
  * registration guard; no instruction may target load-only or high-RAM data. */
 static inline int xb4_executable(const xb4_manifest_t *h, uint32_t address)
 {
-    unsigned i;
-    if (address & 1u) return 0;
-    for (i = 0; i < XB4_SEGMENTS; ++i) {
-        uint32_t lo = XB4_XIP(xb4_segment_off(i));
-        uint32_t skip = i == 0u ? (uint32_t)sizeof *h : 0u;
-        if (address >= lo + skip && address - lo < h->segment[i].exec_size) return 1;
-    }
-    return 0;
+    uint32_t lo = XB4_XIP(XB4_PRIMARY_OFF);
+    return !(address & 1u) && address >= lo + sizeof *h &&
+           address - lo < h->segment[0].exec_size;
 }
 
 /* h points to a naturally aligned snapshot. Pass available before dereferencing
@@ -140,7 +135,7 @@ static inline int xb4_validate(const xb4_manifest_t *h, uint32_t available,
         const xb4_segment_t *s = &h->segment[i];
         if (s->off != xb4_segment_off(i) || !xb4_range_ok(i, s->off, s->size) ||
             (s->size & 3u) || (s->exec_size & 3u) || s->exec_size > s->size ||
-            (i == 0u && s->exec_size < sizeof *h + 4u)) return XB4_E_SEGMENT;
+            ((i != 0u && s->exec_size != 0u) || (i == 0u && s->exec_size < sizeof *h + 4u))) return XB4_E_SEGMENT;
     }
     /* Bootstrap entries stay in the verified primary executable payload. */
     if (!xb4_executable(h, h->init) || !xb4_executable(h, h->poll) ||

@@ -3,6 +3,15 @@
  * Leo Kuroshita (@kurogedelic), Hugelton Instruments. */
 /* X0X on the FM-1: boot (WDT first, boot-loop guard, guards), LCD, input (TIMER5 10 kHz),
  * audio (ALNK0), USB; then the main loop: UI at ~60 frames/s, input polled in between. */
+#include "x0x_app_ui_data.h"
+#if X0X_SMC_VENDOR_TEST
+/* Final image builder must seal this primary descriptor from final linked UI
+ * bytes. The unsealed source default deliberately enters USB recovery. */
+static const volatile xau_descriptor_t app_ui_descriptor
+    __attribute__((section(".rodata.app_ui_descriptor"), used)) = {0, XAU_VERSION, XAU_OFF, XAU_SIZE, 0};
+static uint8_t app_ui_admitted;
+int smc_app_ui_admitted(void) { return app_ui_admitted; }
+#endif
 extern uint32_t _data_start[], _data_end[], _data_load[], _bss_start[], _bss_end[];
 extern uint32_t _pool_start[], _pool_end[], _rt_start[], _rt_end[], _rt_load[], _c1_start[], _c1_end[], _c1_load[];
 
@@ -2026,8 +2035,16 @@ static void safe_main(void)
     char b[24];
     uint32_t t0, play;
     lcd_fill(0, 0, 240, 240, C_BLACK);
+#if X0X_SMC_VENDOR_TEST
+    draw_text_box(0, 18, 240, &FONT_S, "X0X SAFE MODE", C_HI, 1);
+#else
     draw_text_box(0, 18, 240, &FONT_B, "X0X SAFE MODE", C_HI, 1);
-    draw_text_box(0, 52, 240, &FONT_S, "IT CRASHED TWICE", C_WHITE, 1);
+#endif
+    draw_text_box(0, 52, 240, &FONT_S,
+#if X0X_SMC_VENDOR_TEST
+                  !app_ui_admitted ? "UI DATA INVALID" :
+#endif
+                  "IT CRASHED TWICE", C_WHITE, 1);
     draw_text_box(0, 72, 240, &FONT_S, "WHILE STARTING.", C_WHITE, 1);
     draw_text_box(0, 102, 240, &FONT_S, "NO SOUND. USB IS ON:", C_WHITE, 1);
     draw_text_box(0, 122, 240, &FONT_S, "REINSTALL FROM THE", C_WHITE, 1);
@@ -2109,6 +2126,11 @@ static void fm1_main(void)
         memset(&x0x_dbg, 0, sizeof x0x_dbg);
         x0x_dbg.magic = DBG_MAGIC;
     }
+#if X0X_SMC_VENDOR_TEST
+    app_ui_admitted = flash_ok && xau_validate(&app_ui_descriptor,
+                        fm1_xip_ptr(XAU_OFF), XAU_SIZE) == 0;
+    if (!app_ui_admitted) safe_mode = 1;
+#endif
     if (safe_mode)
         safe_main();                                /* never returns */
     if (fm1_crash.magic == FM1_CRASH_MAGIC && fm1_crash.count != x0x_dbg.crash_seen) {
