@@ -387,3 +387,28 @@ guard-preserving fit. Independent allocation analysis separately establishes a
 10440 B simultaneous heap lower bound versus10112 B available, before transients;
 see the single-central memory and PC-window reports. No app startup, segmented
 installer or firmware package is claimed. Baseline dual-mode remains default.
+
+### Guard-preserving flash placement discriminator passes
+
+The subsequent app-data study moves exactly8192 B of immutable UI font/table
+data, preserving glyph bytes and RAM/pool use. Its only recovery rendering change
+is a retained-font substitution for the safe-mode heading; all normal rendering
+requires independent app-data admission. See the app-readonly relocation report.
+
+With those two sectors reclaimed, `link_runtime.py --controller-roles central
+--avctp-extra-commands 0 --placement data-only-92k` actually resolves with:
+
+| Storage | Used | Capacity | Remaining |
+| --- | ---: | ---: | ---: |
+| Contiguous primary: placeholder header, XIP code, RAM-code load | 94156 | 94208 | 52 |
+| Data-only secondary: vendor constants | 7272 | 8192 | 920 |
+| Data-only tertiary: initialized RAM load | 1816 | 4096 | 2280 |
+
+The separate8192 B app-data sector pair is counted once, not free extra storage.
+No executable code resides in the secondary/tertiary; RAM code executes in the
+existing low interval. This **passes only flash placement**, independently
+reviewed. The128 B header is still a placeholder, not a complete manifest.
+RAM remains deliberately oversized at28648 B; app bridge/admission/update code
+and target stack/live-heap evidence are still missing. No package was generated.
+Earlier placement-blocked findings above describe the preceding84 KiB layout,
+not this later bounded92 KiB discriminator. Default dual-mode firmware is unchanged.

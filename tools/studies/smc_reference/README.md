@@ -188,3 +188,11 @@ After the authoritative-radio regression fix, all-role comparison is108724 B;
 central-only is104536 B, and central-only with AVRCP extra-command0 is103188 B.
 The last variant still needs4616 B more contiguous executable primary room
 (text plus manifest) under existing PC guards; total-byte arithmetic is not fit.
+
+`--placement data-only-92k` tests physical flash placement only:92 KiB primary
+(physical0x84000), vendor constants in8 KiB at0xAD000, initialized RAM load at
+0xFE000. It reserves128 B for a placeholder header and assumes the separate
+reviewed8 KiB app-data relocation at0xAB000. It does NOT generate a manifest,
+implement app-data admission, bound RAM, or produce an installable image.
+The result records per-region capacities instead of a misleading contiguous
+flash extent; ELF/map/symbol hashes identify retained private diagnostics.

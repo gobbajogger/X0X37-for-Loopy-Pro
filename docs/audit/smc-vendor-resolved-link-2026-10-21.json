@@ -161,6 +161,76 @@
       "flash_extent_bytes": 103188,
       "ram_extent_bytes": 28648,
       "avctp_extra_commands": 0
+    },
+    "data_only_92k_placement": {
+      "placement": "data-only-92k",
+      "controller_roles": "central",
+      "avctp_extra_commands": 0,
+      "installable": false,
+      "resolved": true,
+      "link_exit": 0,
+      "unresolved": [],
+      "input_hashes": {
+        "btstack.a": "d4c02f42e1be97a5288ecbcb5d42e6d0727e2ca4ffa2e0e2e6bb2ae61fede4bc",
+        "btctrler.a": "885cd53747753488b380f761318bf30d691f75541dd28adc72457690aa51506a",
+        "wl_rf_common.a": "1e6f7cdf0f0956282d251cdf23dffc2dae39c4ca498cb314801dde35b00e1769",
+        "crypto_toolbox_Osize.a": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e",
+        "lib_ccm_aes.a": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c",
+        "libc.a": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4",
+        "libcompiler_rt.a": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009",
+        "clang": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+        "ld": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9",
+        "rf_tables.c": "335c1ca89c333a0dbae61afd40f14f7417d94a488caaed76e9bb12cd57ecdd9f",
+        "LLVMgold.so": "2ca8dafde18070d6a42fc47fc2ec4723946cf3d2404ca25981de5070beb1aa12",
+        "objdump": "f7e449e2c8001d5ed4493a45d1f5f304c8910418e4074acdc8715079ef64e08a",
+        "system.a": "a71bdc75e5afbcffaf7d79bc2b27f2b65fec63d94d2261b584744d3e9b9098ea"
+      },
+      "study_hashes": {
+        "link_runtime.py": "27c0b85d15e28a5a440adff7af249064cd306a2f1ef9f3791ce55c706a4f0dbb",
+        "run.py": "5ceb727530d1b76d3c560159ba61eb2859a10ded1fad7d439a063b1bf79351c1",
+        "config-values.json": "903ba197a280efabb988c459a38d5236cb626bbee2859d81493d43c795ce8b72",
+        "input-hashes.json": "5d4dc616eafb50b066fffd14830c6b55420f5ad6d5fa6879ee1f2ac38999def2"
+      },
+      "source_hashes": {
+        "src/config.c": "58cb50c1c414803fe6cb8f1e7f5df5025c1e45620bf741390d1a74e338dd19e4",
+        "src/ctl_heap.c": "0f161471e55112737b27d5002b6782ddbaae2773c1e407b14fe7a825d15aa30f",
+        "src/ctl_main.c": "a2426e3c19b29eb8b258ed70878104ea03bc1fb98e7814b77071055078201a17",
+        "src/ctl_os.c": "6c3e3afa5aa5a5273b22451418bc18b24c8fb213c41d6969661c08df1987a3dd",
+        "src/ctl_platform.c": "1925274b730ccd9cb07d435b0372c8b0fb2559c67c916aa144f71d2b7f8e7664",
+        "src/ctl_port.c": "7d0212831f5695146d6565ddfc8d3688d5199a7a7c26ab5c6b890a1d33bba8cb",
+        "src/ctl_port.h": "381ee8e5f0fbd3620d9d06545b3f570aefbe8d410e1c3adebf771d2dd5e121fc",
+        "src/ctl_port_asm.S": "446b646ab299250ddcc2efaf1c7dee567c157542b7a51d919b02a363b483a12f",
+        "src/ctl_syscfg.c": "a0ffd9207cb36f4510082973ab4e94525efd966d67a60f2f9afc7070b3472f02",
+        "src/ctl_timer.c": "ee7dcc0ee0adc3c383fdcf4f45a0c1eb7360b3399431afb6af59cf7137dc6557",
+        "src/ctl_vendor_bridge.c": "65f85a14bb6393cf9ed3aab91fdaa8ff3a8079539be3049cf09ef64373df79e4",
+        "src/ctl_vendor_crc.c": "87fb3d30e7d54fa86d227305326fe439ad88c4392dba9f2582cea74c3819584c",
+        "src/ctl_vendor_events.c": "7490e8d8eaffbb65e05f60d12b721657b7ac365876eb613f1110556217655401",
+        "src/ctl_vendor_profile.c": "94b9eeb6f848c3bafa4efe6b44e8b227048708b11e3a1ab267171b54a4e6a884",
+        "src/ctl_vendor_profile.h": "fb5fa79251687fbdcd406a84e78e2babe54903a313cd7e10df83470c5e44fcfa",
+        "src/log_tags.c": "6d356eff814fc4ee09ae80de5d043f21e559cd697d055a0193b3d921c9c9026c",
+        "src/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867",
+        "src/x0x_smc_host_messages.h": "7964aaf34d1a636fd268ba6bae6aede29cfaac010c88783c0ef9ddd99246c366"
+      },
+      "flash_extent_bytes": null,
+      "ram_extent_bytes": 28648,
+      "placed_flash": {
+        "primary_bytes": 94156,
+        "primary_capacity": 94208,
+        "rodata_bytes": 7272,
+        "rodata_capacity": 8192,
+        "data_load_bytes": 1816,
+        "data_load_capacity": 4096,
+        "total_loaded_bytes": 103244,
+        "ram_still_oversized": true,
+        "manifest_placeholder_only": true
+      },
+      "private_artifact_hashes": {
+        "resolved-NOT-FIRMWARE.elf": "e5965de8bf761f8073850d776b74beeb1026bd62909765ba0bf869aa4cc7d6ab",
+        "resolved.map": "084632ac75ea94a10ae8bcaec20fe673993447f4df9f9f54951a2c3cc59f1643",
+        "symbols.txt": "04e3f9b0f0c3930fc1df136fb4cc0febaabba589b91351ca252935f5e865f788",
+        "sections.txt": "f44a058444b81473c403c37a42500106dcb19aca914255a7e91e649bf6934b54",
+        "ctl.ld": "4a8e25ede04e02ef6461f31519fb0f205f66b5246423db59ea96d3700acbaeb2"
+      }
     }
   },
   "central_primary_placement": {
@@ -176,5 +246,7 @@
     "optimistic_primary_bytes": 86016,
     "minimum_excess_bytes": 4616,
     "admitted": false
-  }
+  },
+  "flash_placement_discriminator_pass": true,
+  "runtime_admitted": false
 }
