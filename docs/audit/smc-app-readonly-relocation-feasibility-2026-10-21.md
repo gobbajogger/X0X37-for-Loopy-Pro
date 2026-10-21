@@ -72,3 +72,47 @@ remain), but not the earlier 84 KiB primary.
 
 No default edits, profile startup, sample/guard changes, relocated build,
 packaging or hardware tests were performed for this feasibility pass.
+
+## Subsequent isolated target measurement
+
+The parent authorized a disposable relocation measurement, not runtime adoption.
+`tools/studies/smc_app_data/prepare.py` makes the exact study changes in an
+explicit baseline archive export and suppresses package creation. Reproduce:
+
+```sh
+mkdir "$EXPORT"
+git archive 816e0d3987bcb69be972cff2cd4df4469969f196 | tar -x -C "$EXPORT"
+python3 tools/studies/smc_app_data/prepare.py "$EXPORT"
+# Set JIELI_TOOLCHAIN and AC79_SDK to the established pinned local inputs.
+(cd "$EXPORT" && X0X_DEV_PADCAL=1 CC=cc CXX=c++ python3 tools/build.py --board smk37 --model elite)
+```
+
+This fresh build uses baseline flags (not the earlier pattern-Oz change).
+Measured results:
+
+- `.app_ui`: exactly 8192 bytes, XIP `0x020A7000`, corresponding to physical
+  flash `[0xAB000,0xAD000)`. No extra alignment bytes.
+- Primary image: 540288 bytes versus baseline 548480: **8192 bytes smaller**.
+- Primary free space under the original limit: 12384 bytes versus 4192.
+- RAM `.data+.bss`: 97972 bytes, unchanged; pool 335740 bytes, unchanged.
+- Existing target build checks passed. No installable package was produced.
+- Extracted final linked `.app_ui` SHA-256:
+  `32a8d485cc70adb8fd1739006e8f953748b8f562e7bef78b0b15416d4238f661`.
+
+Linked font pointers were decoded from the section and compared to target ELF
+symbols, in field order ADV, BW, OFF, DATA:
+
+- FONT_B at `0x020A7000`: `0x020A71A4`, `0x020370D7`, `0x020A7028`, `0x020A726B`.
+- FONT_XS at `0x020A7014`: `0x020A7203`, `0x02037078`, `0x020A70E6`, `0x020A834E`.
+
+All eight pointers matched, including retained primary BW arrays. These are
+this build's addresses, not a general wire contract. A final CRC must cover
+linked data after its pointers are relocated.
+
+This measured app still includes both custom BLE hosts and all musical/UI
+features. It does not implement app-data admission, smaller-app-first update,
+loader storage exclusions, or the new vendor app bridge. The generated primary
+binary alone is intentionally incomplete and must not be installed. The safe
+mode heading uses retained FONT_S with unchanged text; its visual appearance
+has not been tested on hardware. Active profile-to-profile data replacement
+also requires quiescing every reader, not merely a safe first-install order.
