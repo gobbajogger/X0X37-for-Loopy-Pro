@@ -5,7 +5,6 @@ No alternate uploader. No release authorization or automatic cold/RF claim.
 import json
 import os
 from pathlib import Path
-import sys
 import tempfile
 
 import smc_vendor_bundle as bundle
@@ -16,6 +15,14 @@ def prerequisites(a):
     bundle.need(not (a.ctl or a.no_ctl or a.force or a.no_slots), 'SMC DEV forbids --ctl/--no-ctl/--force/--no-slots')
     bundle.need(a.backup and a.verify_slots and a.smc_receipt and a.smc_cold_recovery, 'SMC DEV requires --backup, --verify-slots, --smc-receipt and explicit --smc-cold-recovery')
     bundle.need(a.head_ref, 'SMC DEV requires explicit --head-ref from this physical unit')
+    paths = [(name, Path(getattr(a,name))) for name in
+             ('package','dev_record','head_ref','backup','smc_receipt')]
+    for i,(name,path) in enumerate(paths):
+        for other,q in paths[:i]:
+            same = path.resolve() == q.resolve()
+            if path.exists() and q.exists():
+                same = same or os.path.samefile(path,q)
+            bundle.need(not same, f'{name} must not alias {other}; preserve package, head, evidence and backup')
 
 
 def prepare(a):
@@ -133,6 +140,12 @@ def run(a, backend, out, ask, fi):
             if not a.yes and not ask('Install central-only DEV from physical cold recovery? [y/N] '):
                 dev.link.close(); return 1
             move.backup(dev.link,a.backup,out)
+            # A durable receipt must never precede the backup it promises.
+            with open(a.backup,'rb') as backup_file:
+                os.fsync(backup_file.fileno())
+            backup_dir = os.open(Path(a.backup).resolve().parent,os.O_RDONLY)
+            try: os.fsync(backup_dir)
+            finally: os.close(backup_dir)
             bundle.need(move.old_map == move.new_map and not move.risk, 'actual sample backup changed layout/risk')
             transaction = dict(identity=identity,backup_path=str(Path(a.backup).resolve()),
                                backup_sha256=bundle.sha(Path(a.backup).read_bytes()),

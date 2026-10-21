@@ -53,6 +53,23 @@ class InstallTest(unittest.TestCase):
         Path(self.a.dev_record).write_text(json.dumps(self.record))
         with self.assertRaises(b.BundleError):si.prepare(self.a)
 
+    def test_path_aliases_rejected_before_io(self):
+        names=('package','dev_record','head_ref','backup','smc_receipt')
+        for i,name in enumerate(names):
+            for other in names[:i]:
+                a=copy.copy(self.a);setattr(a,name,getattr(a,other))
+                with self.subTest(name=name,other=other),self.assertRaises(b.BundleError):si.prerequisites(a)
+        # Absent paths that normalize to one destination, existing symlink and
+        # separate names for one inode are all refused before opening a device.
+        a=copy.copy(self.a);a.smc_receipt=str(self.root/'sub'/'..'/'backup.x0xslots')
+        with self.assertRaises(b.BundleError):si.prerequisites(a)
+        a=copy.copy(self.a);Path(a.smc_receipt).symlink_to(a.head_ref)
+        with self.assertRaises(b.BundleError):si.prerequisites(a)
+        Path(a.smc_receipt).unlink()
+        import os
+        os.link(a.head_ref,a.smc_receipt)
+        with self.assertRaises(b.BundleError):si.prerequisites(a)
+
     def test_record_swap_and_wrong_policy(self):
         self.a._smc_record_sha='0'*64
         with self.assertRaises(b.BundleError):si.prepare(self.a)
@@ -72,19 +89,26 @@ class InstallTest(unittest.TestCase):
     def test_wrong_finish_never_acknowledged(self):
         class Link:
             lost=False
-            def __init__(self):self.sent=[]
-            def read(self,_):return b'packet'
+            def __init__(self,pkt):self.sent=[];self.pkt=pkt
+            def read(self,_):return self.pkt
             def send(self,p):self.sent.append(p);return True
+        def packet(req,frame_length=8):
+            fl,addr,n=req
+            wire=bytes([0,0x59,0x30,frame_length,0,0,fl])+addr.to_bytes(4,'little')+n.to_bytes(3,'little')
+            wire+=bytes([~sum(wire[6:])&255])
+            return b'\xf0'+fi.pack7(wire)+b'\xf7'
         up=fi.Updater(None);up.read_policy=b.response_bytes
         for req in ((0,fi.FINISH_WRITE,8),(0,fi.FINISH_CHECK,7),(1,0,1),(0,3,1)):
-            link=Link()
-            with patch.object(fi,'parse_request',return_value=req),self.assertRaises(fi.InstallError):
+            link=Link(packet(req))
+            with self.assertRaises(fi.InstallError):
                 up.serve(link,b'abc',fi.FINISH_CHECK,0,lambda *_:None)
             self.assertEqual(link.sent,[])
-        link=Link()
-        with patch.object(fi,'parse_request',return_value=(0,fi.FINISH_CHECK,8)):
-            self.assertEqual(up.serve(link,b'abc',fi.FINISH_CHECK,0,lambda *_:None),(0,True,False))
+        link=Link(packet((0,fi.FINISH_CHECK,8)))
+        self.assertEqual(up.serve(link,b'abc',fi.FINISH_CHECK,0,lambda *_:None),(0,True,False))
         self.assertEqual(len(link.sent),1)
+        link=Link(packet((0,fi.FINISH_CHECK,8),9))
+        with self.assertRaises(fi.InstallError):up.serve(link,b'abc',fi.FINISH_CHECK,0,lambda *_:None)
+        self.assertEqual(link.sent,[])
 
     def test_transaction_and_resume_binding(self):
         calls=[];mapping=[(0xC2000,0x14000),(0xD6000,0x1E000),(0xB0000,0xB000)]

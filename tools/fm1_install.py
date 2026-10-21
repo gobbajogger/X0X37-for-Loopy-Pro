@@ -467,6 +467,9 @@ class Updater:
             fl, addr, n = r
             last = time.monotonic()
             if getattr(self, "read_policy", None):
+                wire = unpack7(pkt[1:-1])
+                if wire[3:6] != b"\x08\0\0" or pack7(wire) != pkt[1:-1]:
+                    raise InstallError("badreq", "noncanonical request framing/length")
                 try:
                     data, done = self.read_policy(image, fl, addr, n, finish)
                 except ValueError as e:

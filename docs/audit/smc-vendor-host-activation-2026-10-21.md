@@ -25,6 +25,8 @@ The explicit path requires `--smc-vendor-dev --config dev --commit HASH --dev-re
 
 The operator must physically cold-power the sole keyboard into recovery before any controller/audio startup. The new app gate rejects a touched controller session; the older firmware used for first migration cannot enforce that new gate. This is an operational prerequisite, not a proved RF shutdown acknowledgment or soft-reset guarantee. If recovery cannot supply the required sample backup, the adapter refuses; there is no sample-check bypass.
 
+All package/record/head/backup/receipt paths must be distinct, including resolved symlinks and hardlinks. This is checked before opening the device. Backup data and its directory are flushed before a durable receipt is published.
+
 Before UPGRADE, all sample slots are backed up and the archive read back using existing code. The exact slot map must remain unchanged. A durable local receipt binds source package, converted bytes, head hash, DEV record, loader/app identities and archive hash. Resume requires this same receipt and backup, including when the loader is already running. It does not claim to make a fresh sample backup from a loader. Port enumeration/model checks preserve existing single-keyboard constraints; the MIDI handshake has no unit serial.
 
 The response source is immutable bytes. Wrong-phase finish, malformed flags/length and out-of-range reads are rejected before any success reply. The existing loader independently checks every staged loader byte against the source before payload writes. No automatic rollback occurs on interruption; retain the exact source/receipt/backup.
