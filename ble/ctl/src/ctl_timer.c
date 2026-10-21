@@ -7,6 +7,7 @@
  * "_to_task" variants run in the same context (the SDK runs them in the named task); the
  * controller only uses short callbacks. */
 #include "ctl_port.h"
+#include "ctl_highcpu.h"
 
 #define CTL_MAX_TIMERS 16
 
@@ -18,7 +19,7 @@ struct ctl_timer {
     u16 id;          /* 0 = free slot */
 };
 
-static struct ctl_timer timers[CTL_MAX_TIMERS];
+static struct ctl_timer timers[CTL_MAX_TIMERS] CTL_HIGHCPU_BSS;
 static u32 ms_now, tick_last, tick_per_ms = 24000u;
 static volatile const u32 *tick;
 static u16 next_id = 1;

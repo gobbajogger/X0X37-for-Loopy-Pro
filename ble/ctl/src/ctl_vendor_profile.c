@@ -6,6 +6,7 @@
  * The sole named SMC selection and radio request live here; BLE-MIDI decoding
  * and musical mapping remain in the app. */
 #include "ctl_port.h"
+#include "ctl_highcpu.h"
 #include "ctl_vendor_profile.h"
 #if defined(CTL_VENDOR_HOST_TEST) && CTL_VENDOR_HOST_TEST
 
@@ -45,11 +46,12 @@ enum { ABSENT = 0xffff, MTU = 128, CMD_DISCONNECT = 5, CMD_ATT_INIT = 7,
        CMD_ATT_SEND = 10, CMD_SCAN_PARAM = 13, CMD_CONNECT = 15,
        CMD_CANCEL = 16, CMD_SCAN = 22, CMD_SEARCH = 128 };
 /* Exact reference application allocation sizes; no speculative shrink. */
-static u8 att_storage[188 + MTU + 512] __attribute__((aligned(4)));
-static u8 search_storage[512] __attribute__((aligned(4)));
-static struct connection_parameters request;
-static u16 connection = ABSENT, midi_handle, midi_end, cccd;
-static u8 connecting, discovering, wanted, receiving, down_pending, down_reason, started, off_pending, scan_pending;
+static u8 att_storage[188 + MTU + 512] __attribute__((aligned(4))) CTL_HIGHCPU_BSS;
+static u8 search_storage[512] __attribute__((aligned(4))) CTL_HIGHCPU_BSS;
+static struct connection_parameters request CTL_HIGHCPU_BSS;
+static u16 connection = ABSENT; /* initialized data deliberately stays low */
+static u16 midi_handle CTL_HIGHCPU_BSS, midi_end CTL_HIGHCPU_BSS, cccd CTL_HIGHCPU_BSS;
+static u8 connecting CTL_HIGHCPU_BSS, discovering CTL_HIGHCPU_BSS, wanted CTL_HIGHCPU_BSS, receiving CTL_HIGHCPU_BSS, down_pending CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, started CTL_HIGHCPU_BSS, off_pending CTL_HIGHCPU_BSS, scan_pending CTL_HIGHCPU_BSS;
 extern int ctl_vendor_address(u8 address[6]);
 extern void os_time_dly(int);
 

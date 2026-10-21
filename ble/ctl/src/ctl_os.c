@@ -6,6 +6,7 @@
  * they never pend. The "idle context" is poll() on its own stack: it runs each runnable task
  * once and returns to the app's idle loop on core 1 (ctl_os_run_once). */
 #include "ctl_port.h"
+#include "ctl_highcpu.h"
 
 
 #ifndef CTL_VENDOR_HOST_TEST
@@ -27,12 +28,12 @@ struct ctl_task {
     int q[CTL_TASKQ_WORDS];
 };
 
-static struct ctl_task tasks[CTL_MAX_TASKS];
-static struct ctl_task *cur;           /* NULL = idle context */
-static struct ctl_ctx idle_ctx;
+static struct ctl_task tasks[CTL_MAX_TASKS] CTL_HIGHCPU_BSS;
+static struct ctl_task *cur CTL_HIGHCPU_BSS;           /* NULL = idle context */
+static struct ctl_ctx idle_ctx CTL_HIGHCPU_BSS;
 #if CTL_VENDOR_HOST_TEST
-static u32 bootstrap_deadline;
-static u8 bootstrap_active, bootstrap_running;
+static u32 bootstrap_deadline CTL_HIGHCPU_BSS;
+static u8 bootstrap_active CTL_HIGHCPU_BSS, bootstrap_running CTL_HIGHCPU_BSS;
 
 /* Only ctl_init may enable this window, around the single btstack_init call.
  * The vendor waits for controller-ready before creating its host task. Running
