@@ -9,9 +9,10 @@ extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
-static struct {
+typedef struct {
     uint8_t n, b[6];
-} smc_q[SMC_Q];
+} smc_event_t;
+static smc_event_t smc_q[SMC_Q];
 static volatile uint8_t smc_qw, smc_qr, smc_link_pending;
 /* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
 static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
@@ -525,28 +526,41 @@ void smc_poll(void)
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
+        __asm__ volatile("" ::: "memory");
+        smc_event_t msg = smc_q[r % SMC_Q];
+        /* The ISR may reuse a full ring's slot as soon as the read index moves.
+         * Keep a private event before releasing it. Release before dispatch so
+         * a project action can still discard the remaining queued input. */
+        __asm__ volatile("" ::: "memory");
         smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
         else {
             if (allow && !perf_testing()) smc_dispatched++;
-            smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n, allow);
+            smc_reason = smc_message(msg.b, msg.n, allow);
         }
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
         r = smc_host_r;
+        uint8_t msg[3];
+        __asm__ volatile("" ::: "memory");
+        memcpy(msg, smc_host_q[r % SMC_Q], sizeof msg);
+        __asm__ volatile("" ::: "memory");
         smc_host_r = (uint8_t)(r + 1u);
         if (proj.set.bt & PROJ_BT_SMC_USER)
-            smc_message(smc_host_q[r % SMC_Q], 3, allow);
+            smc_message(msg, sizeof msg, allow);
     }
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
             r = smc_mmc_r[src];
+            __asm__ volatile("" ::: "memory");
+            uint8_t cmd = smc_mmc_q[src][r % 16u];
+            __asm__ volatile("" ::: "memory");
             smc_mmc_r[src] = (uint8_t)(r + 1u);
             if (proj.set.bt & PROJ_BT_SMC_USER)
-                smc_guarded_button(smc_mmc_note(smc_mmc_q[src][r % 16u]), 1, allow);
+                smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
     }
 }
