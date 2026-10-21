@@ -84,3 +84,25 @@ and1. The parent baseline heap shrink/overflow, CRC and timeout tests also pass
 when linked with the parent's current CRC/timer adapters. Final assembled target
 link, strict segment bounds, high-region initialization/admission, actual startup,
 phase allocation counters and runtime heap/stack high-water remain required.
+
+### Resolved target route check
+
+The integration owner's scoped diagnostic ELF SHA-256
+`8096128a2f9c513c29a5e5f89ee0e41610295261139a7c1d1339213ab27b64c8`
+places high CPU BSS/pool at6440/7168 bytes. Target disassembly confirms:
+
+- `task_trampoline` calls phase1 begin before the vendor function pointer.
+- `btstack_task` first calls `btstack_task_init` at0x020885ba.
+- In that initialization, malloc1240 at0x02086288 and malloc128 at0x020862ae
+  both call the actual scoped allocator. The remaining pre-profile calls are
+  direct mask/config access and CPU list/circular-buffer/ATT-state setup; no wait.
+- The frontend at0x02081392 first closes phase1, then opens/closes DBphase2 and
+  SMphase3. Their malloc56/480 calls are0x0208da18/0x0208dc92.
+- `heap_alloc` checks phase, ISR status and owner before selecting `cpu_first`.
+  It retains the four-size contract and no-fallback failure path.
+
+Thus the1936-byte target relocation is supported by assembled call routes, not
+merely assumed from C scope placement. It remains a diagnostic, not hardware
+execution evidence. In this ELF the unused diagnostic accessor/storage was removed
+by LTO: phase/ordinal/size telemetry is **not yet available** until integration
+retains or publishes it. Do not claim telemetry from this image.
