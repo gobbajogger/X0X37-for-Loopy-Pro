@@ -57,12 +57,11 @@ SMC_STEPS = ("RESET", "SET_EVENT_MASK", "SET_LE_EVENT_MASK", "READ_BUFFER_SIZE",
              "CREATE_CONNECTION", "CANCEL_CONNECTION", "DISCOVER_MIDI_SERVICE",
              "DISCOVER_MIDI_CHARACTERISTIC", "DISCOVER_CCCD",
              "SUBSCRIBE_NOTIFICATIONS", "READY")
-SMC_SMP_TRACE_MAGIC, SMC_SMP_TRACE_WORDS = 0x534D4303, 11
 SMC_TRACE_MAGIC, SMC_TRACE_WORDS = 0x534D4302, 26
 SMC_TRACE_KINDS = {0: "NONE", 1: "HCI_ERROR", 2: "CONNECT_FAIL", 3: "DISCONNECT",
                    4: "ATT_ERROR", 5: "TIMEOUT", 6: "TRANSPORT_BLOCKED",
                    7: "PROTOCOL_ERROR", 8: "SIGNAL_FAILURE", 9: "NO_PEER",
-                   16: "START", 17: "CREATE", 18: "LINK", 19: "READY", 20: "CANCEL", 21: "SMP"}
+                   16: "START", 17: "CREATE", 18: "LINK", 19: "READY", 20: "CANCEL"}
 SMC_TIMEOUTS = {1: "controller command completion", 2: "link establishment",
                 3: "connection cancellation outcome", 4: "ATT response",
                 5: "signaling reply", 6: "disconnection completion",
@@ -92,43 +91,10 @@ def smc_trace_record(words):
               "state": state, "state_name": SMC_STATES[state] if state < len(SMC_STATES) else f"UNKNOWN_{state}",
               "step": step, "step_name": SMC_STEPS[step] if step < len(SMC_STEPS) else f"UNKNOWN_{step}",
               "status": status, "opcode": operation & 65535, "handle": operation >> 16, "detail": detail}
-    if kind == 21:
-        record["smp_length"] = detail
-        if detail == 2 and record["opcode"] == 0x0B:
-            record["smp_security_request_auth_flags"] = status
-        elif detail == 2 and record["opcode"] == 0x05:
-            record["smp_pairing_failed_reason"] = status
     if kind == 5:
         record["timeout_detail"] = dict(zip(("hci_waiting", "att_waiting", "acl_credits", "command_retry"),
                                            ((detail >> shift) & 255 for shift in (0, 8, 16, 24))))
     return record
-
-
-def smc_smp_text(record):
-    """Last received metadata is not proof of current-link security or peer silence."""
-    if record is None:
-        return "No SMP command recorded since host initialization."
-    text = (f"Last SMP since host initialization (may predate the current link): "
-            f"opcode 0x{record['opcode']:02X}, length {record['smp_length']}, "
-            f"handle 0x{record['handle']:04X}, at {record['ms']} ms after boot")
-    if "smp_security_request_auth_flags" in record:
-        text += f"; Security Request auth flags 0x{record['status']:02X}"
-    elif "smp_pairing_failed_reason" in record:
-        text += f"; Pairing Failed reason 0x{record['status']:02X}"
-    return text
-
-
-def smc_smp_history_text(trace):
-    lines = [smc_smp_text(trace["last_smp"])]
-    seen = trace["smp_seen_opcodes"]
-    lines += [f"SMP opcode seen mask since host initialization: 0x{seen:08X} (bit31 means other opcodes)."]
-    for key, label, field in (("last_security_request", "Security Request", "auth_flags"),
-                               ("last_pairing_failed", "Pairing Failed", "reason")):
-        item = trace[key]
-        if item is not None:
-            lines += [f"Retained {label} (may predate the current link): {field} 0x{item[field]:02X}, "
-                      f"handle 0x{item['handle']:04X}, at {item['ms']} ms after boot."]
-    return "\n".join(lines)
 
 
 def smc_failure_text(record):
@@ -248,19 +214,6 @@ def decode_diag(r):
     if len(rest) >= SMC_TRACE_WORDS and rest[-SMC_TRACE_WORDS] == SMC_TRACE_MAGIC:
         d["smc_connection_trace"] = decode_smc_trace(rest[-SMC_TRACE_WORDS:])
         rest = rest[:-SMC_TRACE_WORDS]
-    if len(rest) >= SMC_SMP_TRACE_WORDS and rest[-SMC_SMP_TRACE_WORDS] == SMC_SMP_TRACE_MAGIC:
-        block = rest[-SMC_SMP_TRACE_WORDS:]
-        if block[-1] != SMC_SMP_TRACE_WORDS or block[2] & 255 not in (0, 21):
-            raise ValueError("invalid sticky SMP metadata block")
-        last_smp = smc_trace_record(block[1:5]) if block[2] & 255 else None
-        history = d.setdefault("smc_connection_trace", {})
-        history["last_smp"] = last_smp
-        history["smp_seen_opcodes"] = block[5]
-        history["last_security_request"] = ({"ms": block[6], "handle": block[7] >> 16,
-            "auth_flags": block[7] & 255} if block[7] & 0x100 else None)
-        history["last_pairing_failed"] = ({"ms": block[8], "handle": block[9] >> 16,
-            "reason": block[9] & 255} if block[9] & 0x100 else None)
-        rest = rest[:-SMC_SMP_TRACE_WORDS]
     d.update(trace)
     d.update(zip(GUARD, rest))                     # an older firmware sends fewer guard words
     for k in GUARD + LIVE:
@@ -400,8 +353,6 @@ def summary(d, before):
     connection_trace = d.get("smc_connection_trace")
     if connection_trace and d["h_step"] & 0x80000000:
         out["smc_connection_trace"] = connection_trace
-        if "last_smp" in connection_trace:
-            out["smc_last_smp"] = smc_smp_history_text(connection_trace)
         failure = connection_trace["latest_failure"]
         state = d["h_state"]
         prefix = ("Currently CONNECTED; retained earlier failure: " if state == 6 and d.get("plat_state") == 5 else

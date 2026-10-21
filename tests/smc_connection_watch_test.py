@@ -444,20 +444,3 @@ assert captured[-1]['no_replies'] == captured[-1]['invalid_replies'] == 1
 assert 'unavailable samples: 2' in summary.getvalue()
 assert 'owner confirmed fader/button gestures' in summary.getvalue()
 print('PASS: recorder preserves original request windows and unavailable samples for safe counter comparison')
-
-# A late snapshot exposes both security initiation and terminal failure even
-# after a later random-PDU opcode and unrelated trace-ring turnover.
-last_random = [9, 21 | 6 << 8 | 14 << 16, 4 | 0x50 << 16, 17]
-latch = [watch.ble.SMC_SMP_TRACE_MAGIC] + last_random + [
-    (1 << 11) | (1 << 5) | (1 << 4), 0, 0x100, 5, 0x50 << 16 | 0x105, 11]
-parsed = watch.ble.decode_diag(reply(6, 14, 0, latch + trace))
-retained = watch.central_state(parsed)['connection_trace']
-assert retained['last_smp']['opcode'] == 4
-assert retained['last_security_request'] == {'ms': 0, 'handle': 0, 'auth_flags': 0}
-assert retained['last_pairing_failed'] == {'ms': 5, 'handle': 0x50, 'reason': 5}
-report = watch.human_report(parsed, finish, True, 'finished')
-assert 'Retained Security Request' in report and 'auth_flags 0x00' in report
-assert 'Retained Pairing Failed' in report and 'reason 0x05' in report
-assert 'may predate the current link' in report
-assert 'opcode 0x04, length 17' in report
-print('PASS: human report and JSON preserve independent sticky SMP fields after later events')

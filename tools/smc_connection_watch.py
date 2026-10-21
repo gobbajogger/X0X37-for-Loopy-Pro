@@ -281,8 +281,6 @@ def human_report(last, counts, observed_connected, reason, input_history=None, c
                           "First recorded failure: " + ble.smc_failure_text(trace["first_failure"])]
             else:
                 lines += ["No failure was recorded by the firmware since host initialization."]
-            if "last_smp" in trace:
-                lines += [ble.smc_smp_history_text(trace)]
             if trace["recent_events"]:
                 lines += ["Recent firmware events (oldest first):"]
                 for event in trace["recent_events"]:

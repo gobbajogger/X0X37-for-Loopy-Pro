@@ -36,8 +36,7 @@ static void ready(blec_t *c)
 }
 static void acl(blec_t *c, uint8_t cid, const uint8_t *payload, unsigned n, uint32_t at)
 {
-    uint8_t p[64] = {0};
-    p[0] = (uint8_t)c->conn; p[1] = (uint8_t)(0x20u | c->conn >> 8);
+    uint8_t p[64] = {0x50, 0x20}; /* Actual logged connection handle / ACL PB flag. */
     assert(n <= 56);
     p[2] = (uint8_t)(n + 4);
     p[4] = (uint8_t)n;
@@ -45,26 +44,6 @@ static void acl(blec_t *c, uint8_t cid, const uint8_t *payload, unsigned n, uint
     memcpy(p + 8, payload, n);
     blec_rx(c, 2, p, (uint16_t)(n + 8), at);
 }
-static void assert_smp_trace(const blec_t *c, unsigned opcode, unsigned length,
-                             unsigned safe_status, uint32_t at)
-{
-    unsigned i = (c->trace.next + BLEC_TRACE_RECENT - 1u) % BLEC_TRACE_RECENT;
-    const blec_trace_record_t *r = &c->trace.recent[i];
-    assert((r->context & 255u) == BLEC_TRACE_SMP);
-    assert((r->context >> 24) == safe_status);
-    assert(r->operation == (opcode | 0x50u << 16));
-    assert(r->detail == length && r->ms == at);
-    assert(!memcmp(&c->trace.last_smp, r, sizeof *r));
-    assert(c->trace.smp_seen & (1u << (opcode < 31u ? opcode : 31u)));
-    if (opcode == 11u && length == 2u)
-        assert(c->trace.smp_security == (0x50u << 16 | 0x100u | safe_status));
-    else assert(!c->trace.smp_security);
-    if (opcode == 5u && length == 2u)
-        assert(c->trace.smp_failure == (0x50u << 16 | 0x100u | safe_status));
-    else assert(!c->trace.smp_failure);
-    assert(!c->trace.failures); /* Receiving SMP is not itself a failure. */
-}
-
 static void assert_pairing_not_supported(void)
 {
     static const uint8_t expected[] = {0x50,0, 6,0, 2,0, 6,0, 5,5};
@@ -88,14 +67,12 @@ int main(void)
     acl(&c, 6, security_request, sizeof security_request, 100);
     assert(sends == 1 && !c.rx_reject && !c.sig_count);
     assert_pairing_not_supported();
-    assert_smp_trace(&c, 0x0b, 2, 0, 100);
     notification(&c);
 
     /* Peer Pairing Failed is terminal; do not ping-pong responses. */
     ready(&c);
     acl(&c, 6, failed, sizeof failed, 100);
     assert(sends == 0 && c.sig_count == 0);
-    assert_smp_trace(&c, 5, 2, 5, 100);
     /* Reserved codes must be ignored rather than answered. */
     const uint8_t reserved[] = {0x0a,0};
     acl(&c, 6, reserved, sizeof reserved, 101);
@@ -107,10 +84,8 @@ int main(void)
     const uint8_t smp_last[] = {0x50,0x10,1,0,0};
     blec_rx(&c, 2, smp_first, sizeof smp_first, 100);
     assert(sends == 0 && c.rx_need == 2 && c.rx_have == 1);
-    assert(c.trace.events == 0); /* No partial-PDU trace or payload leak. */
     blec_rx(&c, 2, smp_last, sizeof smp_last, 101);
     assert(sends == 1 && !c.rx_need && !c.rx_have);
-    assert_smp_trace(&c, 0x0b, 2, 0, 101);
     assert_pairing_not_supported();
     notification(&c);
 
@@ -164,70 +139,6 @@ int main(void)
     ready(&c);
     acl(&c, 7, security_request, sizeof security_request, 100);
     assert(sends == 0 && c.rx_reject == 1 && c.rx_reason == BLEC_RX_CID);
-    /* Exhaust every opcode with truncated, exact-two-byte and longer payloads.
-     * All payload bytes use a marker. Only the two explicitly allowed fields
-     * may appear in trace status; confirms/randoms/keys and malformed payloads
-     * retain opcode/length only. Protocol decisions above remain unchanged. */
-    for (unsigned opcode = 0; opcode < 256u; opcode++) {
-        const unsigned lengths[] = {1, 2, 17, 56};
-        for (unsigned j = 0; j < sizeof lengths / sizeof lengths[0]; j++) {
-            uint8_t secret[56];
-            memset(secret, 0xa5, sizeof secret); secret[0] = (uint8_t)opcode;
-            ready(&c);
-            acl(&c, 6, secret, lengths[j], 123);
-            assert_smp_trace(&c, opcode, lengths[j],
-                lengths[j] == 2 && (opcode == 0x0b || opcode == 5) ? 0xa5 : 0, 123);
-        }
-    }
-    /* Keep the decisive metadata after ring replacement, discovery/start events,
-     * disconnect and explicit retry. Only host initialization clears the latch. */
-    ready(&c);
-    acl(&c, 6, security_request, sizeof security_request, 0);
-    blec_trace_record_t saved = c.trace.last_smp; /* timestamp zero is valid */
-    for (unsigned i = 0; i < 8; i++)
-        blec_trace_note(&c.trace, i + 1, BLEC_CONNECTED, 14,
-                        BLEC_TRACE_READY, 0, 0x13, c.conn, 0, 0);
-    for (unsigned i = 0; i < BLEC_TRACE_RECENT; i++)
-        assert((c.trace.recent[i].context & 255u) != BLEC_TRACE_SMP);
-    assert(!memcmp(&saved, &c.trace.last_smp, sizeof saved));
-    blec_stop(&c);
-    const uint8_t disconnected[] = {5, 4, 0, 0x50, 0, 0x13};
-    blec_rx(&c, 4, disconnected, sizeof disconnected, 100);
-    blec_start(&c, 101);
-    assert(!memcmp(&saved, &c.trace.last_smp, sizeof saved));
-    uint32_t exported[BLEC_SMP_TRACE_WORDS + 2u] = {0xdeadbeef};
-    exported[BLEC_SMP_TRACE_WORDS + 1u] = 0xc0ffee;
-    blec_smp_trace_words(&c.trace, exported + 1);
-    assert(exported[0] == 0xdeadbeef && exported[BLEC_SMP_TRACE_WORDS + 1u] == 0xc0ffee);
-    assert(exported[1] == BLEC_SMP_TRACE_MAGIC && exported[BLEC_SMP_TRACE_WORDS] == BLEC_SMP_TRACE_WORDS);
-    assert(!memcmp(exported + 2, &saved, sizeof saved));
-    ready(&c);
-    acl(&c, 6, security_request, 2, 0);
-    acl(&c, 6, failed, 2, 5);
-    const uint8_t secret_random[] = {4, 0xa5, 0xa5, 0xa5};
-    acl(&c, 6, secret_random, sizeof secret_random, 9);
-    assert(c.trace.last_smp.operation == (4u | 0x50u << 16));
-    assert(c.trace.last_smp.context >> 24 == 0);
-    assert(c.trace.smp_security_ms == 0 && c.trace.smp_security == (0x50u << 16 | 0x100u));
-    assert(c.trace.smp_failure_ms == 5 && c.trace.smp_failure == (0x50u << 16 | 0x105u));
-    assert(c.trace.smp_seen == ((1u << 11) | (1u << 5) | (1u << 4)));
-    blec_start(&c, 50);
-    assert(c.trace.smp_security && c.trace.smp_failure);
-    ready(&c);
-    const blec_trace_record_t empty = {0};
-    assert(!memcmp(&c.trace.last_smp, &empty, sizeof empty));
-    assert(!c.trace.smp_seen && !c.trace.smp_security && !c.trace.smp_failure);
-    /* Handle zero, timestamp zero and zero-valued fields are all valid data. */
-    c.conn = 0;
-    const uint8_t zero_failed[] = {5, 0};
-    acl(&c, 6, security_request, 2, 0);
-    acl(&c, 6, zero_failed, 2, 0);
-    assert(c.trace.smp_security == 0x100 && c.trace.smp_failure == 0x100);
-    assert(!c.trace.smp_security_ms && !c.trace.smp_failure_ms);
-    /* Malformed later packets do not erase previously valid field latches. */
-    acl(&c, 6, security_request, 1, 10);
-    acl(&c, 6, zero_failed, 1, 11);
-    assert(c.trace.smp_security == 0x100 && c.trace.smp_failure == 0x100);
-    puts("PASS: SMP refusal behavior, privacy, independent security/failure latches, ring/retry/init and zero-value validity");
+    puts("PASS: captured SMP CID, no-pairing response, retry, no ping-pong, MIDI receive and CID guard");
     return 0;
 }

@@ -241,10 +241,6 @@ static void blec_smp_in(blec_t *c, const uint8_t *p, unsigned n)
 {
     unsigned slot;
     if (!n) { blec_reject(c, BLEC_RX_LENGTH); return; }
-    /* Passive metadata only: never record key/random/confirm/identity payloads. */
-    blec_note(c, BLEC_TRACE_SMP,
-              n == 2u && (p[0] == 0x0bu || p[0] == 5u) ? p[1] : 0u,
-              p[0], c->conn, n, 0);
     /* Peer Pairing Failed terminates the exchange; 0, 0x0a, and >0x0e
      * are reserved SMP codes and must be ignored, not answered. */
     if (p[0] == 5u || p[0] == 0u || p[0] == 0x0au || p[0] > 14u) return;

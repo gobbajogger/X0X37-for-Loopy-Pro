@@ -39,7 +39,6 @@ boot = len(re.findall(r"w\[nw\+\+\] = bootguard", case))
 out = int(re.search(r"static uint8_t ed_out\[(\d+)\];", editor).group(1))
 
 body = re.search(r"static uint32_t ble_diag\(uint32_t \*w, uint32_t max\)\n\{(.*?)\n\}", ble, re.S).group(1)
-smp_words = int(re.search(r"BLEC_SMP_TRACE_WORDS = (\d+)u", trace).group(1))
 trace_words = int(re.search(r"BLEC_TRACE_WORDS = (\d+)u", trace).group(1))
 live, k, writes, bulk = 0, None, 0, 0
 for ln in body.split("\n"):
@@ -52,9 +51,6 @@ for ln in body.split("\n"):
     elif "w[n++] =" in ln and "g[i]" not in ln:
         writes += 1
         live += 1
-    elif "blec_smp_trace_words(" in ln:
-        writes += smp_words
-        bulk += smp_words
     elif "blec_trace_words(" in ln:
         writes += trace_words
         bulk += trace_words
