@@ -2215,8 +2215,15 @@ static void fm1_main(void)
                 enter_uboot("UBOOT");
             }
         }
-        ed_service();                               /* sample upload SysEx */
-        if (ed_reboot_at && fm1_ms - ed_reboot_at > 200u) {
+        {   /* Project transfers cannot queue an update across COMMIT or ABORT. */
+            int held = ui_project_busy();
+            ed_service();                           /* sample upload SysEx */
+            if (held || ui_project_busy()) {
+                usb.ota_req = 0;
+                usb.uboot_req = 0;
+            }
+        }
+        if (!ui_project_busy() && ed_reboot_at && fm1_ms - ed_reboot_at > 200u) {
             bootguard.pending = 0;                  /* intentional reset: not a failed boot */
             usb_detach();                           /* ED_BT_TEST restart: the reply had 200 ms */
             fm1_delay_ms(30);
