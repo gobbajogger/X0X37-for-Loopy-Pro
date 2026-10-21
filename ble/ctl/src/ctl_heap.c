@@ -29,12 +29,14 @@ void ctl_heap_init(void)
 #endif
 }
 
+#if CTL_VENDOR_CPUPOOL_TEST
 static void *heap_alloc(size_t n, int force_low)
+#else
+void *malloc(size_t n)
+#endif
 {
 #if CTL_VENDOR_CPUPOOL_TEST
     int high = !force_low && ctl_scope_allocate(n);
-#else
-    (void)force_low;
 #endif
 #if CTL_VENDOR_HOST_TEST
     if (n > UINT32_MAX - sizeof(struct blk) - 7u) return NULL;
@@ -43,10 +45,12 @@ static void *heap_alloc(size_t n, int force_low)
     u32 f = ctl_port_irq_save();
 #if CTL_VENDOR_CPUPOOL_TEST
     struct blk *first = high ? cpu_first : heap_first;
-#else
-    struct blk *first = heap_first;
 #endif
+#if CTL_VENDOR_CPUPOOL_TEST
     for (struct blk *b = first; b; b = b->next) {
+#else
+    for (struct blk *b = heap_first; b; b = b->next) {
+#endif
         if (b->size & 1u) continue;
         while (b->next && !(b->next->size & 1u)) {          /* merge free neighbours */
             b->size += b->next->size; b->next = b->next->next;
@@ -67,7 +71,9 @@ static void *heap_alloc(size_t n, int force_low)
 #endif
     return NULL;
 }
+#if CTL_VENDOR_CPUPOOL_TEST
 void *malloc(size_t n) { return heap_alloc(n, 0); }
+#endif
 
 void free(void *p)
 {
@@ -90,7 +96,11 @@ void free(void *p)
 }
 
 void *zalloc(size_t n) { void *p = malloc(n); if (p) memset(p, 0, n); return p; }
+#if CTL_VENDOR_CPUPOOL_TEST
 void *ram_malloc(unsigned long n) { return heap_alloc(n, 1); }
+#else
+void *ram_malloc(unsigned long n) { return malloc(n); }
+#endif
 void ram_free(void *p) { free(p); }
 
 /* lbuf: the library passes its own lbuff_head. This image keeps every
@@ -102,7 +112,11 @@ void *lbuf_alloc(struct lbuff_head *head, u32 len)
 #if CTL_VENDOR_HOST_TEST
     if (len > UINT32_MAX - 4u) return NULL;
 #endif
+#if CTL_VENDOR_CPUPOOL_TEST
     u32 *p = heap_alloc(len + 4u, 1);
+#else
+    u32 *p = malloc(len + 4u);
+#endif
     if (!p) return NULL;
     p[0] = len;
     return p + 1;
