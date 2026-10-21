@@ -13,7 +13,11 @@ typedef struct {
     uint8_t n, b[6];
 } smc_event_t;
 static smc_event_t smc_q[SMC_Q];
-static volatile uint8_t smc_qw, smc_qr, smc_link_pending;
+static volatile uint8_t smc_qw, smc_qr;
+/* TIMER5 owns publication; the main loop owns acknowledgment. A generation
+ * keeps a reconnect visible even if its final state equals the previous one. */
+static volatile uint32_t smc_link_published;
+static uint32_t smc_link_seen;
 /* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
 static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
 uint32_t smc_rx_diag(void)
@@ -65,7 +69,11 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
     smc_enqueued++;
 }
 
-void smc_ble_link(int up) { smc_link_pending = (uint8_t)(up ? 1u : 2u); }
+void smc_ble_link(int up)
+{
+    uint32_t next = (smc_link_published + 2u) & ~1u;
+    smc_link_published = next | (uint32_t)(up != 0);
+}
 int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
 int smc_connected(void) { return smc.up && smc_ble_role_get(); }
 
@@ -497,15 +505,18 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
 
 void smc_poll(void)
 {
-    uint8_t link = smc_link_pending, r, count = 0;
+    uint32_t link = smc_link_published;
+    uint8_t r, count = 0;
     int allow = !perf_testing();
     if (ui_project_busy()) {
         smc_project_drop();
         return;
     }
-    if (link) {
-        smc_link_pending = 0;
-        smc.up = link == 1u;
+    if (link != smc_link_seen) {
+        /* Never clear the ISR's publication: it may already contain a newer
+         * link edge than this snapshot. The next poll must still see it. */
+        smc_link_seen = link;
+        smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
         smc.picked = smc.seen = 0;
         smc.pending = 0xFFu;
