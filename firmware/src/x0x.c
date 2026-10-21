@@ -177,12 +177,7 @@ static void ota_commit(const uint8_t *parm)
 #endif
 #if X0X_BLE
 #if X0X_SMC_VENDOR_TEST
-#if !defined(X0X_SMC_VENDOR_STUDY_ONLY) || !X0X_SMC_VENDOR_STUDY_ONLY
-#error "Vendor TEST is not installable: use the packaging-disabled sizing study only"
-#endif
-#if !BOARD_SMK37
-#error "SMC vendor TEST requires SMK-37"
-#endif
+#include "x0x_smc_profile.h"
 #include "ble_vendor.c"
 #else
 #include "ble.c"
