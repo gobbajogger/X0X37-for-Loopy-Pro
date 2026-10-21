@@ -1,0 +1,10 @@
+{
+  "base": "d9d7953b34c6e045b14ff08770df78fa9bc2d34f",
+  "scope": "Repair offline-reproduced normal SMC connection failures: refused HCI command submission, automatic Create/Cancel ownership, and independent peer ATT requests/indications during discovery. Bound missing Create status without losing late results or sending Cancel before acknowledgement. Export retained first/latest failures and critical events through ED_DIAG, guard uninitialized host state, and automatically produce a truthful USB diagnostic report with a pinned device port. Build the exact Elite development application and unchanged selected controller with existing code, static RAM and pool budgets. The hardware test has not occurred; these simulated failures do not prove the historical physical cause. Existing integrated mappings, project/drum features, storage layout, sample quality and controller are unchanged.",
+  "checks": [
+    {
+      "reason": "The central command, discovery, retry, stop and failure-report paths changed. Run their public-HCI/ACL fault injections under ASan/UBSan, the existing recorded SMC payload replay and actual application input consumer, and the DIAG buffer/decoder/watcher checks. The watcher fixture covers historical failures, blocked boot, selected USB port disappearance and automatic saved reports. Only leak detection is disabled for the sandbox's unavailable process introspection; address and undefined-behavior checks remain enabled.",
+      "argv": ["env", "ASAN_OPTIONS=detect_leaks=0", "X0X_TEST_JOBS=1", "X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L", "sh", "tests/run_tests.sh", "ble-midi-receive", "ble-capture-replay", "smc-reachability", "diag-size", "ble-central-diag", "smc-connection-watch"]
+    }
+  ]
+}

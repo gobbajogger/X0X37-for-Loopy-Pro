@@ -58,6 +58,7 @@ static uint32_t ble_h_link1(void)
            (uint32_t)(ble_r.host.h.cpu_result & 3u) << 19 | ble_sat(ble_r.host.h.conn_lat, 7u) << 21 | (uint32_t)ble_r.host.h.sig_reqs << 24;
 }
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
+static uint8_t ble_host_initialized;          /* BLERAM is readable after host init, even after failure. */
 extern int smc_ble_role_get(void);
 extern void smc_ble_midi(const uint8_t *msg, uint8_t len);
 extern void smc_ble_link(int up);
@@ -248,6 +249,7 @@ static void ble_start(void)
         bleh_init(&ble_r.host.h, ble_send, 0, ble_r.nm, addr);
         bleh_set_sysex(&ble_r.host.h, ble_sysex_in);
     }
+    ble_host_initialized = 1;
     fm1_ble_sync();
     ble_guard.start_ms = fm1_ms;
     ble_guard.sink_n = ble_guard.sink_at = ble_guard.sink_val = ble_guard.wait_end = 0;
@@ -530,10 +532,19 @@ void plat_ble_set(int on)
 /* ED_DIAG (editor.c): the start guard and the controller's state, as 32-bit words */
 static uint32_t ble_diag(uint32_t *w, uint32_t max)
 {
-    uint32_t n = 0, i;
+    uint32_t n = 0, i, central_ready = ble_central_role && ble_host_initialized;
     const uint32_t *g = (const uint32_t *)&ble_guard;
     for (i = 0; i < sizeof ble_guard / 4u && n < max; i++)
         w[n++] = g[i];
+    if (central_ready) {
+        if (n + 26u > max)
+            return n;
+        /* TIMER5 writes the trace; export a coherent snapshot without allocation. */
+        uint32_t flags = irq_save();
+        blec_trace_words(&ble_r.host.c.trace, w + n);
+        irq_restore(flags);
+        n += BLEC_TRACE_WORDS;
+    }
     if (n + 17u > max)
         return n;
     w[n++] = ble_img | (uint32_t)ble_boot_on << 8 | (uint32_t)ble_up << 16 | (uint32_t)ble_dead << 24;
@@ -544,7 +555,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.err;
     w[n++] = ble_r.mb.polls;
     w[n++] = fm1_c1_mb.poll_max;
-    w[n++] = ble_central_role ? ble_r.host.c.state : ble_r.host.h.state;
+    w[n++] = ble_host_initialized ? (ble_central_role ? ble_r.host.c.state : ble_r.host.h.state) : 0;
     w[n++] = fm1_c1_trace;
     w[n++] = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* this boot's reset */
     if (n + 6u > max)
@@ -552,17 +563,19 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.h2c.head | ble_r.mb.h2c.tail << 16;   /* the HCI rings: written, read */
     w[n++] = ble_r.mb.c2h.head | ble_r.mb.c2h.tail << 16;
     w[n++] = ble_r.mb.c2h_drops;
-    w[n++] = ble_central_role ? (uint32_t)ble_r.host.c.step | (uint32_t)ble_r.host.c.waiting << 8 |
+    w[n++] = ble_central_role ? 0x80000000u | (central_ready ?
+                                 (uint32_t)ble_r.host.c.step | (uint32_t)ble_r.host.c.waiting << 8 |
                                  (uint32_t)ble_r.host.c.credits << 16 |
-                                 (uint32_t)ble_r.host.c.rx_reason << 24 | 0x80000000u :
-                                 (uint32_t)ble_r.host.h.step | (uint32_t)ble_r.host.h.cmd_wait << 8 |
-                                 (uint32_t)ble_r.host.h.credits << 16;
+                                 (uint32_t)ble_r.host.c.rx_reason << 24 : 0) :
+                                 (ble_host_initialized ? (uint32_t)ble_r.host.h.step |
+                                 (uint32_t)ble_r.host.h.cmd_wait << 8 |
+                                 (uint32_t)ble_r.host.h.credits << 16 : 0);
     w[n++] = ble_r.mb.dbg[XB_DBG_INIT_MS];     /* frames the controller took */
     w[n++] = ble_r.mb.dbg[XB_DBG_MS];          /* frames it gave to the app */
     if (n + 2u > max)
         return n;
-    w[n++] = ble_h_link0();                                 /* attempt 34: interval, latency in use */
-    w[n++] = ble_h_link1();                                 /* MIDI in drops, request state and result */
+    w[n++] = ble_host_initialized ? ble_h_link0() : 0;       /* attempt 34: interval, latency in use */
+    w[n++] = ble_host_initialized ? ble_h_link1() : 0;       /* MIDI in drops, request state and result */
     if (n + 4u > max)                                       /* a76: 4 words follow (was 2: one word past w[]) */
         return n;
     w[n++] = ble_alive[0];
@@ -573,13 +586,13 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
         return n;
     /* Versioned tail, present in both roles; central fields are valid only in central role. */
     w[n++] = 0x534D4301u;
-    w[n++] = ble_central_role ? ble_r.host.c.midi_handle | (uint32_t)ble_r.host.c.cccd_handle << 16 : 0;
-    w[n++] = ble_central_role ? blec_rd16(ble_r.host.c.reject_head) |
+    w[n++] = central_ready ? ble_r.host.c.midi_handle | (uint32_t)ble_r.host.c.cccd_handle << 16 : 0;
+    w[n++] = central_ready ? blec_rd16(ble_r.host.c.reject_head) |
                                (uint32_t)blec_rd16(ble_r.host.c.reject_head + 2) << 16 : 0;
-    w[n++] = ble_central_role ? blec_rd16(ble_r.host.c.reject_head + 4) |
+    w[n++] = central_ready ? blec_rd16(ble_r.host.c.reject_head + 4) |
                                (uint32_t)blec_rd16(ble_r.host.c.reject_head + 6) << 16 : 0;
-    w[n++] = ble_central_role ? ble_r.host.c.reject_n | (uint32_t)ble_r.host.c.reject_reason << 16 |
+    w[n++] = central_ready ? ble_r.host.c.reject_n | (uint32_t)ble_r.host.c.reject_reason << 16 |
                                (uint32_t)ble_r.host.c.att_op << 24 : 0;
-    w[n++] = ble_central_role ? ble_r.host.c.att_handle | (uint32_t)ble_r.host.c.att_waiting << 16 : 0;
+    w[n++] = central_ready ? ble_r.host.c.att_handle | (uint32_t)ble_r.host.c.att_waiting << 16 : 0;
     return n;
 }
