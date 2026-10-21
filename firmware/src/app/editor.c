@@ -6,11 +6,14 @@
  * INFO (1), PING (25) and the sample-slot commands SMP_BEGIN .. SMP_INFO (11..15), so
  * tools/fm1_sample_upload.py loads break loops into the three slots unchanged. The
  * parameter / preset / track commands are Felucca's instrument and are not answered. */
+#if X0X_SMC_VENDOR_TEST
+#include "x0x_smc_readback.h"
+#endif
 #define ED_HDR0 0x7D
 #define ED_HDR1 0x46
 #define ED_HDR2 0x4C
 enum { ED_INFO = 1, ED_PROJECT = 9, ED_SMP_BEGIN = 11, ED_SMP_WRITE, ED_SMP_END, ED_SMP_ERASE, ED_SMP_INFO, ED_SMP_READ, ED_PING = 25,
-       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38 };
+       ED_DIAG = 33, ED_BT_TEST = 34, ED_CTL_READ = 37, ED_INLOG = 38, ED_SMC_READ = 39 };
 #if BOARD_SMK37
 /* ED_INLOG (SMK-37, read only, a76): the inbound recorder (app/smk_inlog.h). No arg or arg 0: the entry
  * count, fm1_ms now, then 2 words for each entry (the oldest first), each word 5 x 7 bits, low bits
@@ -573,6 +576,15 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b((uint32_t)plat_ble_state());
         break;
     }
+#if X0X_SMC_VENDOR_TEST
+    case ED_SMC_READ: {
+        uint32_t address, n;
+        if (!xsr_request(a, na, &address, &n)) return;
+        for (unsigned i=0;i<4;i++) ed_b(a[i]);
+        ed_put7(fm1_xip_ptr(address), n);
+        break;
+    }
+#endif
     case ED_CTL_READ: {
         uint32_t off, n;
         const uint8_t *src;
