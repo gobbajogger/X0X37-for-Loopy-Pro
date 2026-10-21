@@ -17,7 +17,8 @@
  * Main: motion_find() / motion_alloc() / motion_clear(), and the two requests
  *       motion_req_rec() (the knob moved, recording) and motion_req_hold() (the knob moved,
  *       not recording: it wins for a pass). Allocation writes the fields first and `used`
- *       last; `gen` tells the ISR a slot was reused, so it resets that slot's runtime. */
+ *       last; `gen` tells the ISR a slot was reused. The runtime keeps the target it
+ *       applied until the ISR restores its base, even if the slot was cleared or reused. */
 #pragma once
 #include <stdint.h>
 #include "pattern.h"
@@ -38,8 +39,8 @@ typedef struct {
 typedef struct {
     uint8_t gen;                      /* lane gen this runtime belongs to */
     uint8_t applied;                  /* value playback set, MOT_NONE = the engine has the base / knob */
-    uint8_t from, to, ramp;           /* the ramp across the current step */
-    uint8_t part_parity;              /* parity of the step the ramp started on */
+    uint8_t target, voice;            /* last applied t << 4 | i, and full voice (T_PROB includes part) */
+    uint8_t from, to, ramp;           /* ramp flags: bit 0 active, bit 1 starting step parity */
     volatile uint8_t rec_req, hold_req;
     uint8_t rec_last;                 /* the step a gesture last wrote, MOT_NONE = no gesture */
     uint8_t rec_quiet;                /* steps since */

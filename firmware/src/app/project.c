@@ -493,9 +493,15 @@ static void sound_rev2(project_t *pr)
 static void sound_bd_sends(project_t *pr, int t, int pan)
 {
     uint8_t *bd = pr->sound.v[t][0];
-    int i;
     bd[pan + 2] = bd[pan];
     bd[pan] = bd[pan + 1] = 0;
+}
+
+/* The arrangement is decoded after the static sound. Migrate its lanes only
+ * after that load, while set.snd_rev still describes the saved sound layout. */
+static void motion_bd_sends(project_t *pr, int t, int pan)
+{
+    int i;
     for (i = 0; i < NLANE; i++) {
         lane_t *l = &pr->arr.lane[i];
         if (l->used && l->t == t && l->v == 0 && l->i == pan)
@@ -577,6 +583,10 @@ static int read_project(project_t *pr)
         bad = 1;
         pr->arr.song.len = NSONG;
     }
+    if (sound_ok && pr->set.snd_rev < 3)
+        motion_bd_sends(pr, T_909, 8);
+    if (sound_ok && pr->set.snd_rev < 4)
+        motion_bd_sends(pr, T_808, 7);
     if (sound_ok && pr->set.snd_rev < 1)             /* saved before the 909 SD's DECAY: its pots move up one */
         sound_rev1(pr);
     if (sound_ok && pr->set.snd_rev < 2)             /* before the one-knob COMP, FILTER, TAPE */

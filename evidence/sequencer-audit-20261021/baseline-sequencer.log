@@ -1,0 +1,38 @@
+Original source: 7b0bce55c5446a709fc3eecdafb993181654dcab
+New regression source: tests/host/seq_test.c (hash in checked-files.sha256)
+Full observed output SHA-256: 343550b4497642ad2c37956e55846b4e91985df0e4e925120dbdfeab8db14ca6
+Full observed output: /workspace/scratch/92f983668cdd/sequencer-baseline/build/host/sequencer.log
+Failure assertion lines: 3952
+
+Selected unmodified lines from the observed output:
+  FAIL tests/host/seq_test.c:1166: dir=1 step=3 position=0 pass=1, expected position=0 pass=0
+  FAIL tests/host/seq_test.c:1166: dir=1 step=4 position=3 pass=2, expected position=3 pass=1
+  FAIL tests/host/seq_test.c:1166: dir=1 step=5 position=2 pass=2, expected position=2 pass=1
+  FAIL tests/host/seq_test.c:1166: dir=1 step=6 position=1 pass=2, expected position=1 pass=1
+  FAIL tests/host/seq_test.c:1166: dir=1 step=7 position=0 pass=3, expected position=0 pass=1
+  FAIL tests/host/seq_test.c:1166: dir=1 step=8 position=3 pass=4, expected position=3 pass=2
+  FAIL tests/host/seq_test.c:1166: dir=1 step=9 position=2 pass=4, expected position=2 pass=2
+  FAIL tests/host/seq_test.c:1166: dir=1 step=10 position=1 pass=4, expected position=1 pass=2
+  FAIL tests/host/seq_test.c:1166: dir=1 step=11 position=0 pass=5, expected position=0 pass=2
+  FAIL tests/host/seq_test.c:1166: dir=1 step=12 position=3 pass=6, expected position=3 pass=3
+  FAIL tests/host/seq_test.c:1166: dir=1 step=13 position=2 pass=6, expected position=2 pass=3
+  FAIL tests/host/seq_test.c:1166: dir=1 step=14 position=1 pass=6, expected position=1 pass=3
+  FAIL tests/host/seq_test.c:1170: dir=1 mutation only after two complete passes, step=4
+  FAIL tests/host/seq_test.c:1170: dir=1 mutation only after two complete passes, step=12
+  FAIL tests/host/seq_test.c:1170: dir=1 mutation only after two complete passes, step=20
+  FAIL tests/host/seq_test.c:1193: look-ahead stays inside live length=2 old=3 dir=-1 next=4
+  FAIL tests/host/seq_test.c:1193: look-ahead stays inside live length=2 old=3 dir=1 next=2
+  FAIL tests/host/seq_test.c:1193: look-ahead stays inside live length=2 old=4 dir=-1 next=5
+  FAIL tests/host/seq_test.c:1193: look-ahead stays inside live length=2 old=4 dir=1 next=3
+  FAIL tests/host/seq_test.c:1193: look-ahead stays inside live length=2 old=5 dir=-1 next=6
+  FAIL tests/host/seq_test.c:1193: look-ahead stays inside live length=2 old=5 dir=1 next=4
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=0 actual=64
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=1 actual=63
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=2 actual=64
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=3 actual=63
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=4 actual=64
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=5 actual=63
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=6 actual=64
+  FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=8 old direction=-1 step=7 actual=63
+  ping-pong live length edits, both directions and one-step patterns: checked
+seq: FAIL

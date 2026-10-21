@@ -1131,6 +1131,95 @@ static void test_break_clock(void)
     printf("  break clock: %d 16ths, bars counted, step mask honoured\n", k);
 }
 
+static int bass_n, bass_pos[256], bass_pass[256];
+static uint32_t bass_mut[256];
+static void observe_bass_step(void *x, int part, int step)
+{
+    (void)x;
+    if (part == TRK_BASS0 && bass_n < 256) {
+        bass_pos[bass_n] = step;
+        bass_pass[bass_n] = S.t[part].bars;
+        bass_mut[bass_n++] = S.mut_rng[0];
+    }
+}
+
+static void test_direction_passes(void)
+{
+    seq_sink_t observed = SINK;
+    int dir, i;
+    observed.step = observe_bass_step;
+    sink = &observed;
+    for (dir = DIR_FWD; dir <= DIR_PINGPONG; dir++) {
+        int period = dir == DIR_PINGPONG ? 6 : 4;
+        reset();
+        S.bpm = 120.0f;
+        P[0].bass[0].len = 4;
+        P[0].bass[0].dir = (uint8_t)dir;
+        P[0].bass[0].gen.mutate_bars = 2;
+        bass_n = 0;
+        seq_start(&S);
+        run(5513u * 25u);
+        CHECK(bass_n >= 24, "enough direction steps observed (%d)", bass_n);
+        for (i = 0; i < bass_n; i++) {
+            int pos = dir == DIR_REV ? 3 - i % 4 : dir == DIR_FWD ? i % 4 :
+                      (i % 6 < 4 ? i % 6 : 6 - i % 6);
+            CHECK(bass_pos[i] == pos && bass_pass[i] == i / period,
+                  "dir=%d step=%d position=%d pass=%d, expected position=%d pass=%d",
+                  dir, i, bass_pos[i], bass_pass[i], pos, i / period);
+            if (i)
+                CHECK((bass_mut[i] != bass_mut[i - 1]) == (i % (2 * period) == 0),
+                      "dir=%d mutation only after two complete passes, step=%d", dir, i);
+        }
+    }
+    sink = &SINK;
+    printf("  forward/reverse/ping-pong passes and mutation intervals: checked\n");
+}
+
+static void test_pingpong_length_edit(void)
+{
+    seq_sink_t observed = SINK;
+    static const int lengths[] = {1, 8, 16};
+    int len, p, d, i, which;
+    observed.step = observe_bass_step;
+    reset();
+    P[0].bass[0].dir = DIR_PINGPONG;
+    for (len = 1; len <= NSTEPS; len++)
+        for (p = 0; p < NSTEPS; p++)
+            for (d = -1; d <= 1; d += 2) {
+                int next;
+                P[0].bass[0].len = (uint8_t)len;
+                S.t[TRK_BASS0].pp_dir = (int8_t)d;
+                next = seq_next_step(&S, TRK_BASS0, p);
+                CHECK(next >= 0 && next < len, "look-ahead stays inside live length=%d old=%d dir=%d next=%d", len, p, d, next);
+                CHECK(S.t[TRK_BASS0].pp_dir == d, "look-ahead does not commit direction");
+            }
+    sink = &observed;
+    for (which = 0; which < 3; which++)
+        for (d = -1; d <= 1; d += 2) {
+            int next;
+            len = lengths[which];
+            reset();
+            S.bpm = 120.0f;
+            P[0].bass[0].len = NSTEPS;
+            P[0].bass[0].dir = DIR_PINGPONG;
+            bass_n = 0;
+            seq_start(&S);
+            run(1);
+            S.t[TRK_BASS0].pos = NSTEPS - 1;
+            S.t[TRK_BASS0].pp_dir = (int8_t)d;
+            P[0].bass[0].len = (uint8_t)len;            /* the real UI edits this live field */
+            next = seq_next_step(&S, TRK_BASS0, S.t[TRK_BASS0].pos);
+            bass_n = 0;
+            run(5513u * 36u);
+            CHECK(bass_n >= 35 && bass_pos[0] == next, "committed step matches look-ahead after shortening");
+            for (i = 0; i < bass_n; i++)
+                CHECK(bass_pos[i] >= 0 && bass_pos[i] < len,
+                      "playback stays inside shortened length=%d old direction=%d step=%d actual=%d", len, d, i, bass_pos[i]);
+        }
+    sink = &SINK;
+    printf("  ping-pong live length edits, both directions and one-step patterns: checked\n");
+}
+
 /* ---- TB-3PO against schwung-tb3po: include its plugin source and call its generator */
 #ifdef REF_TB3PO
 #define move_plugin_init_v2 ref_move_plugin_init_v2
@@ -1203,6 +1292,8 @@ int main(void)
     test_clksrc_switch();
     test_play_note_with_loopy();
     test_break_clock();
+    test_direction_passes();
+    test_pingpong_length_edit();
 #ifdef REF_TB3PO
     test_tb3po_matches_reference();
 #endif
