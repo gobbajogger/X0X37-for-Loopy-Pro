@@ -515,6 +515,105 @@ static void test_capacity_rejection(void)
     check_live_unchanged();
 }
 
+static uint8_t old_raw[RAW_LEN_2], old_packed[STREAM_CAP];
+static uint32_t old_packed_n;
+static int collect_old(void *ctx, const uint8_t *p, uint32_t n)
+{
+    (void)ctx;
+    if (old_packed_n + n > sizeof old_packed) return -1;
+    memcpy(old_packed + old_packed_n, p, n);
+    old_packed_n += n;
+    return 0;
+}
+static void save_legacy_stream(void)
+{
+    uint32_t k, b, s, at = 0;
+    lz_sink_t sink = {collect_old, 0};
+    for (k = 0; k < NPAT; k++) {
+        pattern2_t p;
+        memset(&p, 0, sizeof p);
+        memcpy(p.drum, proj.pat[k].drum, sizeof p.drum);
+        for (b = 0; b < NBASS; b++) {
+            for (s = 0; s < NSTEPS; s++) {
+                p.bass[b].step[s].note = proj.pat[k].bass[b].step[s].note;
+                p.bass[b].step[s].flags = proj.pat[k].bass[b].step[s].flags;
+            }
+            p.bass[b].len = proj.pat[k].bass[b].len;
+            p.bass[b].rate = proj.pat[k].bass[b].rate;
+            p.bass[b].dir = proj.pat[k].bass[b].dir;
+            p.bass[b].transpose = proj.pat[k].bass[b].transpose;
+            p.bass[b].gen = proj.pat[k].bass[b].gen;
+        }
+        p.brk = proj.pat[k].brk;
+        p.swing = proj.pat[k].swing;
+        memcpy(old_raw + k * sizeof p, &p, sizeof p);
+    }
+    memcpy(old_raw + NPAT * sizeof(pattern2_t), &proj.arr, sizeof proj.arr);
+    old_packed_n = 0;
+    REQUIRE(lz_compress(old_raw, sizeof old_raw, &sink) == 0);
+    for (k = 0; k < NSTREAM; k++) {
+        uint8_t payload[PLAT_STORE_MAX];
+        uint32_t head = k ? 4 : STREAM_HDR;
+        uint32_t n = old_packed_n - at;
+        if (n > sizeof payload - head) n = sizeof payload - head;
+        memset(payload, 0, sizeof payload);
+        put32(payload, PROJ_STREAM_OLD);
+        if (!k) {
+            put32(payload + 4, sizeof old_raw);
+            put32(payload + 8, crc32_of(old_raw, sizeof old_raw));
+            put32(payload + 12, old_packed_n);
+        }
+        memcpy(payload + head, old_packed + at, n);
+        REQUIRE(plat_store_save(STREAM_OBJ[k], payload, head + n) == 0);
+        at += n;
+    }
+    REQUIRE(at == old_packed_n);
+}
+static void test_legacy_kick_pan(void)
+{
+    const int targets[2] = {T_909, T_808}, old_pan[2] = {8, 7}, new_pan[2] = {10, 9};
+    int rev, k, round;
+    for (rev = 2; rev <= 4; rev++) {
+        fixture("legacy kick-pan migration survives load and resave");
+        proj.set.snd_rev = (uint8_t)rev;
+        for (k = 0; k < 2; k++) {
+            int pan = rev < 3 + k ? old_pan[k] : new_pan[k];
+            lane_t *l = &proj.arr.lane[k];
+            memset(l, 0, sizeof *l);
+            l->used = 1;
+            l->part = (uint8_t)k;
+            l->t = (uint8_t)targets[k];
+            l->i = (uint8_t)pan;
+            memset(l->val, MOT_NONE, sizeof l->val);
+            l->val[0] = (uint8_t)(k ? 91 : 37);
+            proj.sound.v[targets[k]][0][pan] = l->val[0];
+            if (pan != new_pan[k]) {
+                proj.sound.v[targets[k]][0][pan + 1] = 0;
+                proj.sound.v[targets[k]][0][pan + 2] = 0;
+            }
+        }
+        REQUIRE(save_obj(OBJ_SET, &proj.set, sizeof proj.set) == 0);
+        REQUIRE(save_obj(OBJ_SOUND, &proj.sound, sizeof proj.sound) == 0);
+        save_legacy_stream();
+        memset(stored_known, 0, sizeof stored_known);
+        for (round = 0; round < 2; round++) {
+            REQUIRE(project_load_stage() == 0);
+            CHECK(project_stage.set.snd_rev == PROJ_SND_REV);
+            for (k = 0; k < 2; k++) {
+                const lane_t *l = &project_stage.arr.lane[k];
+                CHECK(l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]);
+                CHECK(l->val[0] == (k ? 91 : 37) && l->val[1] == MOT_NONE);
+                CHECK(project_stage.sound.v[targets[k]][0][new_pan[k]] == l->val[0]);
+                CHECK(project_stage.sound.v[targets[k]][0][old_pan[k]] == 0);
+                CHECK(project_stage.sound.v[targets[k]][0][old_pan[k] + 1] == 0);
+            }
+            check_protected_flash();
+            project_commit_stage();
+            REQUIRE(project_save() == 0);             /* current-format save must not migrate again */
+        }
+    }
+}
+
 int main(void)
 {
     test_defaults();
@@ -523,6 +622,7 @@ int main(void)
     test_semantic_rejection();
     test_storage_rejection();
     test_capacity_rejection();
+    test_legacy_kick_pan();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
 }
