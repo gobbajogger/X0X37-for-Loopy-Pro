@@ -233,3 +233,29 @@ retains an ELF/map, explicitly unlocks compilation for study only, and suppresse
 packaging. Its ordinary app-area check is **not** the proposed smaller app limit:
 compare the measured527460 B against524000 B; the profile fails by3460 B.
 The unsealed descriptor must not be mistaken for a firmware ready to install.
+
+### Actual ELF manifest validation fixtures (still not installable)
+
+After a successful strict fixed-placement link, `seal_segments.py --elf
+PRIVATE_OUT/resolved-NOT-FIRMWARE.elf --model 'SMK-37 Elite' --out NEW_PRIVATE_DIR`
+extracts the three admitted load ranges and replaces the128-byte placeholder
+with a real manifest. It preserves entries/stack/IRQ ownership from the linked
+header, checks symbols and allocated/executable regions, and rejects a misleading
+legacy header at the old slot. High-data end is rounded up to16-byte admission
+alignment (6444used becomes6448declared); this is not an allocation-size change.
+No appdata descriptor, bundle, package, updater authorization or runtime admission
+is produced. The app study-only activation interlock remains.
+
+Validation:
+
+```sh
+python3 tests/ble/check_segment_elf.py PRIVATE_OUT/resolved-NOT-FIRMWARE.elf
+cc -std=c11 -O2 -Wall -Wextra -Werror tests/ble/segment_fixture_test.c -o /tmp/segment-fixture
+/tmp/segment-fixture NEW_PRIVATE_DIR/segment-{0,1,2}-NOT-INSTALLABLE.fixture
+```
+
+The native test calls the production validator and checks the model, every header
+byte, segment truncation and payload corruption. Repeat with ASan/UBSan as needed.
+Private fixture hashes are in the generated `manifest.json`; do not commit the
+vendor bytes. This tests admission format only, not hardware transport or live
+heap/stack sufficiency.
