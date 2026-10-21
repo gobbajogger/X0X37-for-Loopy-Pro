@@ -1,0 +1,3 @@
+cc -O1 -g -std=c99 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer tests/host/motion_test.c firmware/src/seq/motion.c -o /workspace/scratch/92f983668cdd/sequencer-repair/build/host/audit-sanitized/motion-sanitizers
+motion runtime: lane=12 bytes, all lanes=1920 bytes, motion=2024 bytes
+motion: ok

@@ -1,0 +1,7 @@
+tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+project staging: 24857 checks, 6 failures; real storage, defaults and sample metadata
