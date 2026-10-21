@@ -1,0 +1,277 @@
+{
+  "schema": 1,
+  "baseline_commit": "816e0d3987bcb69be972cff2cd4df4469969f196",
+  "baseline_tree": "74db8ca92ab208c3a8fd963ad02e5e60a509d3a8",
+  "baseline_app": {
+    "config": "X0X_DEV_PADCAL=1",
+    "model": "elite",
+    "code_free_bytes": 4192,
+    "main_ram_free_bytes": 332,
+    "pool_headroom_bytes": 8324,
+    "pool_required_headroom_bytes": 8192,
+    "bleram_used_bytes": 3856,
+    "bleram_limit_bytes": 4096
+  },
+  "baseline_controller": {
+    "flash_extent_bytes": 65524,
+    "ram_extent_bytes": 25824
+  },
+  "baseline_artifacts": {
+    "build/smk37-elite/x0x.bin": "4b7c76e4bdeca3d8b1ce366e868406b8d554b0ae7d87beb282bd99254dcd0ec9",
+    "build/x0x-smk37-elite.fwsc": "d3d01b82b5ea36a7265e8126103f80dc577eeef5ac202e2d848189b595f991f8",
+    "ble/ctl/out/ctl.img": "9d6855e47791b3cab698af95d9625c35d2ea7b01d1fa7216e72ea622683a8245"
+  },
+  "donor_commit": "45df60aa41e02196dd3375a2bee7e258f331a417",
+  "donor_sdk_commit": "64afb30b805af5f5d3c2e6471e970c3fd0ba40ad",
+  "private_input_hashes": {
+    "smc-donor-comparison/sdk-private-readonly/btstack-64afb.a": "d4c02f42e1be97a5288ecbcb5d42e6d0727e2ca4ffa2e0e2e6bb2ae61fede4bc",
+    "reference-smc-measure/private/btctrler.a": "885cd53747753488b380f761318bf30d691f75541dd28adc72457690aa51506a",
+    "reference-smc-measure/private/wl_rf_common.a": "1e6f7cdf0f0956282d251cdf23dffc2dae39c4ca498cb314801dde35b00e1769",
+    "cloud-build-inputs/toolchain/jieli-linux-toolchains-20260730.1/pi32v2/bin/clang": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+    "cloud-build-inputs/toolchain/jieli-linux-toolchains-20260730.1/pi32v2/bin/ld": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9"
+  },
+  "measurements": {
+    "donor_config_combined": {
+      "flash_extent_bytes": 106660,
+      "ram_extent_bytes": 27336
+    },
+    "one_hw_context_no_gatt_server": {
+      "flash_extent_bytes": 105956,
+      "ram_extent_bytes": 27336
+    },
+    "direct_core_central": {
+      "flash_extent_bytes": 98020,
+      "ram_extent_bytes": 27232
+    },
+    "direct_core_both_roles": {
+      "flash_extent_bytes": 103932,
+      "ram_extent_bytes": 27288
+    },
+    "direct_core_both_private_transport": {
+      "flash_extent_bytes": 103636,
+      "ram_extent_bytes": 26984
+    },
+    "app_both_hosts_inert_removal_ceiling": {
+      "code_free_bytes": 16896,
+      "net_code_reclaim_bytes": 12704,
+      "packaged": false
+    },
+    "ram_load_lz4_roundtrip": {
+      "ramtext_raw_bytes": 3524,
+      "ramtext_compressed_bytes": 3141,
+      "data_raw_bytes": 1804,
+      "data_compressed_bytes": 429,
+      "gross_savings_bytes": 1758,
+      "decoder_metadata_included": false
+    },
+    "direct_core_central_private_transport": {
+      "flash_extent_bytes": 97724,
+      "ram_extent_bytes": 26928
+    }
+  },
+  "unresolved_combined_imports": [
+    "a2dp_sink_media_codec_begin",
+    "a2dp_sink_media_codec_end",
+    "bt_event_notify",
+    "cbuf_clear",
+    "cbuf_get_data_size",
+    "cbuf_init",
+    "cbuf_read",
+    "cbuf_write",
+    "chip_crc16",
+    "lbuf_realloc",
+    "usr_timeout_add",
+    "usr_timeout_del"
+  ],
+  "limitations": [
+    "Measurement links deliberately ignore unresolved imports and enlarge scratch linker regions. Never packaged or executed.",
+    "Current one-task shim and 10112-byte heap retained only as a measurement scaffold, not adequate vendor-host runtime.",
+    "Additional callbacks, host task, central buffers, live heap/stack headroom and integration code unmeasured.",
+    "Root retention and remaining raw-HCI shim may overretain some functions: these are measured candidates, not a mathematical minimum.",
+    "Raw donor SMC captures unavailable; existing 1271-packet capture belongs to user Mac session.",
+    "No runtime source changes, installation, hardware test or push.",
+    "App removal-ceiling has inert Bluetooth and no package; reclaim must fund functional adapters.",
+    "Direct-core roots replace generic startup only for measurement; full task/startup semantics are not implemented.",
+    "Compression measured on core-both predecessor; decoder, metadata and final segmented layout costs excluded."
+  ],
+  "optimistic_redesign": {
+    "total_flash_capacity_before_adapters_bytes": 102400,
+    "direct_core_excess_bytes": 1236,
+    "gross_compression_headroom_before_costs_bytes": 522,
+    "candidate_data_only_high_ram_start": "0x01C7D400",
+    "candidate_data_only_high_ram_end": "0x01C7F000",
+    "admitted": false,
+    "sector_reclaimable_app_bytes": 16384,
+    "unclaimed_app_tail_bytes": 512
+  },
+  "unresolved_private_core_both_imports": [
+    "a2dp_sink_media_codec_begin",
+    "a2dp_sink_media_codec_end",
+    "bt_event_notify",
+    "cbuf_clear",
+    "cbuf_get_data_size",
+    "cbuf_init",
+    "cbuf_write",
+    "chip_crc16",
+    "lbuf_realloc",
+    "usr_timeout_add",
+    "usr_timeout_del"
+  ],
+  "central_only_option": {
+    "owner_approval": "pending",
+    "implemented": false,
+    "omitted_feature": "SMK Bluetooth peripheral / Loopy wireless",
+    "flash_headroom_before_costs_bytes": 4676,
+    "host_union_reclaim_ceiling_bytes": 768,
+    "low_ram_overage_bytes": 560,
+    "additional_ram_ceiling_including_existing_bleram_slack_bytes": 7616,
+    "conservative_extra_heap_and_two_stacks_bytes": 7808,
+    "conservative_ram_deficit_before_new_costs_bytes": 192
+  },
+  "unresolved_private_core_central_imports": [
+    "a2dp_sink_media_codec_begin",
+    "a2dp_sink_media_codec_end",
+    "bt_event_notify",
+    "cbuf_clear",
+    "cbuf_get_data_size",
+    "cbuf_init",
+    "cbuf_write",
+    "chip_crc16",
+    "lbuf_realloc",
+    "usr_timeout_add",
+    "usr_timeout_del"
+  ],
+  "private_evidence_hashes": {
+    "reference-smc-measure/private/core-private-transport/symbols.txt": "b73d4ae5aad58d2bea18d61ccd0271c073650a4ad26368f8e7114014b9da0cd4",
+    "reference-smc-measure/private/core-central-private/symbols.txt": "da95b20afd8c5032ca5ec9d28644f0b29af03aafa9c9609a303ae3af47e41cf4",
+    "reference-smc-measure/private/core-private-imports/undef.txt": "b5b7b421a73ab00a4ceea7d47f52f3b87d041df1b6408a155c42173bee555f62",
+    "reference-smc-measure/private/core-central-imports/undef.txt": "b5b7b421a73ab00a4ceea7d47f52f3b87d041df1b6408a155c42173bee555f62",
+    "reference-smc-measure/app-ceiling-symbols.txt": "665f538fd5d50d1e732795d3a917ffd6dfd45d145f528a3ba53bc7634e8bd7b3",
+    "reference-smc-measure/ram-load-compression.json": "2e2f839bae2b5e4043d7e0de617f747feb9a363440106959b578c4afa775142c",
+    "reference-smc-measure/private/combined/ble/ctl/core_measure.sh": "1203d39a1ed68fdcf40a6107ecb9c24720800484af9d3580aa7fa05ed2e3f4cf",
+    "reference-smc-measure/private/combined/ble/ctl/core_both_measure.sh": "b6389eb4d8d11d553defc765a9b803403894ed67176b3247c84437cbccafb91d"
+  },
+  "link_recipe": {
+    "baseline_shim_commit": "816e0d3987bcb69be972cff2cd4df4469969f196",
+    "config_stack_modules": 4,
+    "host_roots": {
+      "build_in_container.sh": [
+        "btstack_init",
+        "le_device_db_init",
+        "ble_stack_gatt_role",
+        "sm_init",
+        "sm_set_io_capabilities",
+        "sm_set_authentication_requirements",
+        "sm_set_encryption_key_size_range",
+        "sm_set_master_request_pair",
+        "gatt_client_init",
+        "gatt_client_register_packet_handler",
+        "hci_event_callback_set",
+        "le_l2cap_register_packet_handler",
+        "ble_vendor_set_default_att_mtu",
+        "user_client_init",
+        "ble_user_cmd_prepare"
+      ],
+      "core_measure.sh": [
+        "btstack_hci_init",
+        "btstack_mem_init",
+        "bt_profile_loop",
+        "hci_event_handler",
+        "hci_acl_handler",
+        "hci_transport_h4_controller_instance",
+        "le_device_db_init",
+        "l2cap_init",
+        "sm_init",
+        "sm_set_io_capabilities",
+        "sm_set_authentication_requirements",
+        "sm_set_encryption_key_size_range",
+        "sm_set_master_request_pair",
+        "gatt_client_init",
+        "gatt_client_register_packet_handler",
+        "hci_event_callback_set",
+        "le_l2cap_register_packet_handler",
+        "gatt_client_discover_primary_services_by_uuid128",
+        "gatt_client_discover_characteristics_for_service",
+        "gatt_client_discover_characteristic_descriptors_by_handle",
+        "gatt_client_write_characteristic_descriptor_using_descriptor_handle",
+        "gatt_client_listen_for_characteristic_value_updates",
+        "gatt_client_write_value_of_characteristic_without_response",
+        "ll_hci_scan_set_params",
+        "ll_hci_scan_enable",
+        "ll_hci_create_conn",
+        "ll_hci_create_conn_cancel",
+        "ll_hci_disconnect"
+      ],
+      "core_both_measure.sh": [
+        "btstack_hci_init",
+        "btstack_mem_init",
+        "bt_profile_loop",
+        "hci_event_handler",
+        "hci_acl_handler",
+        "hci_transport_h4_controller_instance",
+        "le_device_db_init",
+        "l2cap_init",
+        "sm_init",
+        "sm_set_io_capabilities",
+        "sm_set_authentication_requirements",
+        "sm_set_encryption_key_size_range",
+        "sm_set_master_request_pair",
+        "gatt_client_init",
+        "gatt_client_register_packet_handler",
+        "hci_event_callback_set",
+        "le_l2cap_register_packet_handler",
+        "gatt_client_discover_primary_services_by_uuid128",
+        "gatt_client_discover_characteristics_for_service",
+        "gatt_client_discover_characteristic_descriptors_by_handle",
+        "gatt_client_write_characteristic_descriptor_using_descriptor_handle",
+        "gatt_client_listen_for_characteristic_value_updates",
+        "gatt_client_write_value_of_characteristic_without_response",
+        "ll_hci_scan_set_params",
+        "ll_hci_scan_enable",
+        "ll_hci_create_conn",
+        "ll_hci_create_conn_cancel",
+        "ll_hci_disconnect",
+        "att_server_init",
+        "att_server_register_packet_handler",
+        "att_server_notify",
+        "att_set_ccc_config",
+        "att_get_ccc_config",
+        "ll_hci_adv_set_params",
+        "ll_hci_adv_set_data",
+        "ll_hci_adv_scan_response_set_data",
+        "ll_hci_adv_enable"
+      ],
+      "sections_measure.sh": [
+        "btstack_init",
+        "le_device_db_init",
+        "ble_stack_gatt_role",
+        "sm_init",
+        "sm_set_io_capabilities",
+        "sm_set_authentication_requirements",
+        "sm_set_encryption_key_size_range",
+        "sm_set_master_request_pair",
+        "gatt_client_init",
+        "gatt_client_register_packet_handler",
+        "hci_event_callback_set",
+        "le_l2cap_register_packet_handler",
+        "ble_vendor_set_default_att_mtu",
+        "user_client_init",
+        "ble_user_cmd_prepare"
+      ]
+    },
+    "script_hashes": {
+      "reference-smc-measure/private/combined/ble/ctl/build_in_container.sh": "2cb79c7192dd5608cff7fccc28542676c53c53e7d823a426d38946fdcd14e2dc",
+      "reference-smc-measure/private/combined/ble/ctl/core_measure.sh": "1203d39a1ed68fdcf40a6107ecb9c24720800484af9d3580aa7fa05ed2e3f4cf",
+      "reference-smc-measure/private/combined/ble/ctl/core_both_measure.sh": "b6389eb4d8d11d553defc765a9b803403894ed67176b3247c84437cbccafb91d",
+      "reference-smc-measure/private/combined/ble/ctl/sections_measure.sh": "4baa8f1c7497a322c64d98b442dd231ab71d930c53977497dc8418187cfcbe44"
+    },
+    "notes": [
+      "Exact donor libraries replace baseline host/controller/RF archives; enlarge scratch linker regions only for size.",
+      "Size links ignore unresolved imports; corresponding report-all probes must fail until operational imports implemented.",
+      "one-link variants use one hardware context and five RX/ACL buffers; generic donor variant uses two and ten.",
+      "core-both and core-private-transport retain server_num=1; central-only variants use server_num=0.",
+      "private-transport variants replace ctl_transport init argument with vendor hci_transport_h4_controller_instance and permit dead raw transport to be eliminated.",
+      "App ceiling retains guarded source settings but renames old host API implementations and replaces public APIs with inert wrappers; package generation disabled."
+    ]
+  }
+}
