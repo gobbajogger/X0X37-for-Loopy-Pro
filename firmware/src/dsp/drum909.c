@@ -242,16 +242,22 @@ void drum909_set(drum909_t *d, int voice, int i, int value)
 /* ===================================================================== */
 /* Init (er99_engine_init)                                                */
 /* ===================================================================== */
+/* Boot-only coefficient setup; keep the audio and per-trigger paths inline. */
+static __attribute__((noinline)) void d9_init_biquad(d9_biquad_t *f, int type, float freq, float q)
+{
+    d9_biquad_set(f, type, freq, q);
+}
+
 static void d9_bt_init(d9_bt_t *v)
 {
-    d9_biquad_set(&v->dc_block, D9_HP, 20.0f, 0.7071f);
+    d9_init_biquad(&v->dc_block, D9_HP, 20.0f, 0.7071f);
     d9_env_set(&v->pitch, v->tune);
     d9_env_set(&v->amp, 0.0f);
     d9_env_set(&v->click_env, 0.0f);
     d9_env_set(&v->noise_env, 0.0f);
-    d9_biquad_set(&v->click_lp, D9_LP, v->click_tone > 0.0f ? v->click_tone : 3000.0f, 0.7071f);
-    d9_biquad_set(&v->noise_hpf, D9_HP, v->noise_hp > 0.0f ? v->noise_hp : 800.0f, 0.7071f);
-    d9_biquad_set(&v->noise_lpf, D9_LP, 6500.0f, 0.7071f);
+    d9_init_biquad(&v->click_lp, D9_LP, v->click_tone > 0.0f ? v->click_tone : 3000.0f, 0.7071f);
+    d9_init_biquad(&v->noise_hpf, D9_HP, v->noise_hp > 0.0f ? v->noise_hp : 800.0f, 0.7071f);
+    d9_init_biquad(&v->noise_lpf, D9_LP, 6500.0f, 0.7071f);
     if (v->pitch_mod <= 0.0f)
         v->pitch_mod = 1.0f;
     d9_shape_prep(&v->shape, v->drive, v->dist_type);
@@ -305,17 +311,17 @@ void drum909_init(drum909_t *d)
             d9_env_set(&t->env[j], 0.0f);
         d9_env_set(&t->pitch, 100.0f);
         d9_env_set(&t->noise_env, 0.0f);
-        d9_biquad_set(&t->noise_bp, D9_BP, 1200.0f, 1.2f);
-        d9_biquad_set(&t->dc_block, D9_HP, 20.0f, 0.7071f);
+        d9_init_biquad(&t->noise_bp, D9_BP, 1200.0f, 1.2f);
+        d9_init_biquad(&t->dc_block, D9_HP, 20.0f, 0.7071f);
     }
 
     d9_rim_t *r = &d->rim;
     r->tune = 210.0f; r->tune2 = 480.0f; r->res = 10.0f;
     r->decay = 200.0f; r->noise_mix = 0.35f;
     r->drive = 1.4f; r->dist_type = 0; r->level = 1.1f;
-    d9_biquad_set(&r->bp1, D9_BP, r->tune, r->res);
-    d9_biquad_set(&r->bp2, D9_BP, r->tune2, r->res * 1.1f);
-    d9_biquad_set(&r->hp, D9_HP, 120.0f, 0.7071f);
+    d9_init_biquad(&r->bp1, D9_BP, r->tune, r->res);
+    d9_init_biquad(&r->bp2, D9_BP, r->tune2, r->res * 1.1f);
+    d9_init_biquad(&r->hp, D9_HP, 120.0f, 0.7071f);
     d9_env_set(&r->amp, 0.0f);
     r->accent = 1.0f;
     d9_shape_prep(&r->shape, r->drive, r->dist_type);
@@ -325,8 +331,8 @@ void drum909_init(drum909_t *d)
     c->spread = 12.0f; c->burst_decay = 50.0f;
     c->tail_decay = 345.0f; c->tail_level = 0.58f;
     c->drive = 1.6f; c->dist_type = 0; c->level = 1.3f;
-    d9_biquad_set(&c->bp, D9_BP, c->tune, c->res);
-    d9_biquad_set(&c->hp, D9_HP, 400.0f, 0.7071f);
+    d9_init_biquad(&c->bp, D9_BP, c->tune, c->res);
+    d9_init_biquad(&c->hp, D9_HP, 400.0f, 0.7071f);
     d9_env_set(&c->burst, 0.0f);
     d9_env_set(&c->tail, 0.0f);
     c->pulse_index = 4;
