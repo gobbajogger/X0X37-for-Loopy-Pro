@@ -99,9 +99,15 @@ def central_state(d):
     return out
 
 
+def u32(value):
+    return type(value) is int and 0 <= value <= 0xFFFFFFFF
+
+
 def input_counters(d):
     """Extract SMC receive counters; the SMC1 ACL words are *rejection bytes*, not counters."""
-    if not d or d.get("smc_trace") != 0x534D4301 or not d.get("h_step", 0) & 0x80000000:
+    if (not isinstance(d, dict) or d.get("smc_trace") != 0x534D4301
+            or not all(u32(d.get(key)) for key in ("h_step", "rx0", "rx1"))
+            or not d["h_step"] & 0x80000000):
         return None
     transport, consumer = d["rx0"], d["rx1"]
     return {
@@ -117,38 +123,103 @@ def input_counters(d):
     }
 
 
-def input_activity(snapshots):
-    """Accumulate minimum counter changes between adjacent snapshots, modulo 256.
+def counter_continuity(before, after):
+    """Return an uncertainty reason, or None for a bounded live-uptime interval.
 
-    A host reboot breaks continuity. Values can wrap more than once between
-    reads, so the result is *not* an exact number of messages on the air.
+    reset_now contains reset *causes*, not a boot ID. alive_ms is a uint32
+    last-tick uptime retained across resets (firmware/src/ble.c). Require an
+    active connection and advancing uptime, plus monotonic request windows.
+    UTC windows must agree: macOS monotonic time can stop during host sleep.
+    Wall time can veto continuity, but never establishes it by itself.
+    The later uptime must exceed the entire host interval, with a conservative
+    2x clock allowance and 2 ms rounding margin, so a boot within that interval
+    cannot explain it. Do not infer uptime wrap or continuity from causes alone.
+    """
+    if not isinstance(before, dict) or not isinstance(after, dict):
+        return "missing_sample_timing"
+    first, last = before.get("diag"), after.get("diag")
+    if not isinstance(first, dict) or not isinstance(last, dict):
+        return "missing_sample_timing"
+    times = [row.get(key) for row in (before, after)
+             for key in ("request_started_elapsed_seconds", "elapsed_seconds")]
+    if not all(type(t) in (int, float) and 0 <= t < math.inf for t in times):
+        return "missing_sample_timing"
+    try:
+        times = [float(t) for t in times]
+        wall_times = [datetime.fromisoformat(row[key].replace("Z", "+00:00"))
+                      for row in (before, after) for key in ("request_started_utc", "utc")]
+        if any(t.utcoffset() is None for t in wall_times):
+            return "missing_sample_timing"
+        wall_elapsed = [(t - wall_times[0]).total_seconds() for t in wall_times]
+    except (KeyError, TypeError, ValueError, OverflowError, AttributeError):
+        return "missing_sample_timing"
+    # UTC is stored to milliseconds. Allow only rounding/scheduling noise, not
+    # suspend or a clock adjustment. Never use wall time alone as a boot ID.
+    if (wall_elapsed != sorted(wall_elapsed)
+            or any(abs(wall - (mono - times[0])) > 0.01
+                   for wall, mono in zip(wall_elapsed, times))):
+        return "host_clock_discontinuity"
+    start, end, next_start, next_end = times
+    if not start <= end <= next_start <= next_end or next_end <= start:
+        return "invalid_sample_timing"
+    if any(d.get("h_state") != 6 or d.get("plat_state") != 5
+           or d.get("blocked", 0) or d.get("c1_gave_up", 0) for d in (first, last)):
+        return "not_live_connected"
+    if not all(u32(d.get(key)) for d in (first, last) for key in ("alive_ms", "reset_now")):
+        return "missing_uptime_or_reset_cause"
+    if first["reset_now"] != last["reset_now"]:
+        return "reset_cause_changed"
+    advance = last["alive_ms"] - first["alive_ms"]
+    elapsed_ms = max(next_end - start, wall_elapsed[-1]) * 2000
+    if not 0 <= elapsed_ms < math.inf:
+        return "invalid_sample_timing"
+    bound_ms = math.ceil(elapsed_ms) + 2
+    if advance <= 0 or advance > bound_ms or last["alive_ms"] <= bound_ms:
+        return "uptime_continuity_unproven"
+    return None
+
+
+def input_activity(snapshots):
+    """Sum minimum modulo-256 increments only over comparable sample intervals.
+
+    Pass original JSONL sample rows to retain monotonic timing and missing reads.
+    Decoded-only histories remain usable for snapshots, but not interval totals.
+    Multiple counter wraps are unobservable. Excluded intervals are indeterminate,
+    not zero events or a count of boots.
     """
     keys = ("acl", "notifications", "midi", "rejected", "enqueued", "dropped", "dispatched")
     totals = dict.fromkeys(keys, 0)
     previous = None
-    valid = 0
-    discontinuities = 0
-    for d in snapshots:
+    valid = compared = unavailable = 0
+    excluded = {}
+    for row in snapshots:
+        is_sample = isinstance(row, dict) and "diag" in row
+        d = row.get("diag") if is_sample else row
         current = input_counters(d)
-        if current is None:
+        if current is None or (is_sample and row.get("outcome") != "reply"):
+            unavailable += 1
             previous = None
             continue
         valid += 1
         if previous is not None:
-            prior, reset_now = previous
-            if reset_now != d.get("reset_now"):
-                discontinuities += 1
+            prior_row, prior = previous
+            uncertainty = counter_continuity(prior_row, row)
+            if uncertainty:
+                excluded[uncertainty] = excluded.get(uncertainty, 0) + 1
             else:
+                compared += 1
                 for key in keys:
                     totals[key] += (current[key] - prior[key]) & 255
-        previous = (current, d.get("reset_now"))
-    return {"samples": valid, "minimum_increments": totals,
-            "boot_discontinuities": discontinuities} if valid else None
+        previous = (row, current)
+    return {"samples": valid, "minimum_increments": totals if compared else None,
+            "compared_intervals": compared, "indeterminate_intervals": sum(excluded.values()),
+            "excluded_reasons": excluded, "unavailable_samples": unavailable} if valid else None
 
 
 def rejected_smp(d):
     """Return the retained rejected SMP *header*. The two-byte payload was not saved."""
-    if not d or d.get("smc_trace") != 0x534D4301:
+    if (not isinstance(d, dict) or d.get("smc_trace") != 0x534D4301
+            or not all(u32(d.get(key)) for key in ("smc_reject", "smc_acl0", "smc_acl1"))):
         return None
     if (d["smc_reject"] >> 16 & 255) != 5 or (d["smc_reject"] & 65535) < 8:
         return None  # BLEC_RX_CID
@@ -159,7 +230,7 @@ def rejected_smp(d):
             "smp_length": int.from_bytes(head[4:6], "little")}
 
 
-def human_report(last, counts, observed_connected, reason, input_history=None):
+def human_report(last, counts, observed_connected, reason, input_history=None, controls_operated=None):
     lines = ["SMC CONNECTION TEST REPORT", ""]
     controller_lines = []
     if last is not None:
@@ -222,21 +293,33 @@ def human_report(last, counts, observed_connected, reason, input_history=None):
     counters = input_counters(last)
     if counters is not None:
         lines += ["SMC receive counters (each modulo 256 since host initialization): "
-                  f"notifications {counters['notifications']}, decoded MIDI {counters['midi']}, "
+                  f"ACL {counters['acl']}, notifications {counters['notifications']}, decoded MIDI {counters['midi']}, "
                   f"application enqueued {counters['enqueued']}, dispatched {counters['dispatched']}, "
                   f"dropped {counters['dropped']}, rejected ACL {counters['rejected']}."]
         activity = input_activity(input_history) if input_history is not None else None
-        if activity and activity["samples"] > 1:
-            changes = activity["minimum_increments"]
-            lines += ["Observed counter increments during this watch (minimum modulo-256): "
-                      f"notifications {changes['notifications']}, decoded MIDI {changes['midi']}, "
-                      f"application dispatched {changes['dispatched']}, "
-                      f"queue dropped {changes['dropped']}, rejected ACL {changes['rejected']}."]
-            if activity["boot_discontinuities"]:
-                lines += ["One or more host restarts interrupted these counters; increments across a restart were excluded."]
-            if not changes["notifications"] and not changes["midi"] and not changes["dispatched"]:
-                lines += ["No receive/dispatch counter changes were observed during sampling. "
-                          "This does not establish whether a control was operated or whether input works."]
+        if activity:
+            if activity["compared_intervals"]:
+                changes = activity["minimum_increments"]
+                lines += [f"Observed counter increments over {activity['compared_intervals']} comparable intervals "
+                          "(minimum modulo-256, not an exact event count): "
+                          f"notifications {changes['notifications']}, decoded MIDI {changes['midi']}, "
+                          f"application dispatched {changes['dispatched']}, "
+                          f"queue dropped {changes['dropped']}, rejected ACL {changes['rejected']}."]
+                if not changes["notifications"] and not changes["midi"] and not changes["dispatched"]:
+                    lines += ["No receive/dispatch counter changes were observed in comparable samples. "
+                              "Complete modulo-256 wraps between reads cannot be excluded."]
+            else:
+                lines += ["Input counter increments are indeterminate: no comparable sample interval."]
+            if activity["indeterminate_intervals"] or activity["unavailable_samples"]:
+                lines += [f"Excluded intervals: {activity['indeterminate_intervals']}; "
+                          f"unavailable samples: {activity['unavailable_samples']}. "
+                          "Their input activity is indeterminate, not zero. Reset-cause bits are not a boot ID."]
+        if controls_operated is True:
+            lines += ["The owner confirmed fader/button gestures during this capture; flat counters "
+                      "must not be described as an idle capture. The missing-input cause remains unconfirmed."]
+        else:
+            lines += ["Diagnostic counters do not record physical gestures; keep any owner-reported "
+                      "control activity separate from these observations."]
         smp = rejected_smp(last)
         if smp is not None:
             lines += ["Retained rejected ACL frame: Bluetooth Security Manager (L2CAP CID 0x0006), "
@@ -306,18 +389,19 @@ def record(output, seconds, interval, metadata, report_output=None, port_pair=No
                     else:
                         baseline = d if baseline is None else baseline
                         last = d
-                        input_history.append(d)
                         observed_connected |= bool(d["h_step"] & 0x80000000 and d["h_state"] == 6 and d.get("plat_state") == 5)
                         row["outcome"] = "reply"
                         counts["replies"] += 1
             write(row)
+            input_history.append(row)
             delay = min(requested + interval, deadline) - time.monotonic()
             if delay > 0:
                 time.sleep(delay)
     except KeyboardInterrupt:
         reason = "interrupted"
     finally:
-        report = human_report(last, counts, observed_connected, reason, input_history)
+        report = human_report(last, counts, observed_connected, reason, input_history,
+                              controls_operated=metadata.get("controls_operated"))
         write({"kind": "finish", "reason": reason, "human_summary": report, **counts})
         if report_output is not None:
             report_output.write(report)
