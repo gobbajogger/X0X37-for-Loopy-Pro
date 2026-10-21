@@ -740,7 +740,8 @@ static void capture_settings(settings_t *set)
     set->accent_q7 = seq.accent_q7;
     set->clk_out = seq.send_clock;
     set->notes_out = seq.send_notes;
-    set->bt = (uint8_t)((set->bt & ~PROJ_BT_CLK_MASK) | PROJ_BT_CLK_IN | (seq.clk_src << 1));
+    /* The UI stores CLOCK SOURCE in set->bt. Clip mode temporarily forces the
+     * runtime sequencer to AUTO; saving must retain the user's stored choice. */
 }
 
 void project_capture_stage(void)

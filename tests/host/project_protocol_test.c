@@ -43,6 +43,7 @@ static uint32_t st_crc32(const uint8_t *p, uint32_t n)
     return ~c;
 }
 void engine_brk_loops(void) {}
+void ui_say(const char *a, const char *b) { (void)a; (void)b; }
 int ui_project_begin(void) { if (held) return UI_PROJECT_BUSY; held = 1; return 0; }
 void ui_project_end(int apply)
 {
@@ -146,7 +147,7 @@ int main(void)
     fm1_ms++; ed_service(); assert(!held && aborts == 2); ed_service(); assert(aborts == 2);
     /* Complete original 512-byte header area, including the reserved 32 bytes. */
     {
-        uint8_t header[512];
+        uint8_t header[512], original[544];
         smp_user_hdr_t *h = (smp_user_hdr_t *)header;
         memset(header, 0, sizeof header); h->magic = SMP_USER_MAGIC; h->version = 1; h->nz = 1;
         h->data_len = 32; h->zone[0].n = 64; h->zone[0].rate = 65536;
@@ -158,6 +159,25 @@ int main(void)
         n = pack(header, 511, a + 1); request(ED_SMP_END, a, n + 1); assert(reply[6] == 1);
         n = pack(header, 512, a + 1); a[n + 1] = 0; request(ED_SMP_END, a, n + 2); assert(reply[6] == 1);
         assert(flash_writes == 2);
+        memcpy(original, flash_image + SMP_USER_OFF(0), sizeof original);
+        begin_import();
+        for (i = 0; i < sizeof data; i += 224)
+            write_chunk(i, sizeof data - i < 224 ? sizeof data - i : 224, 0);
+        op(74, 0, 0, 0);
+        a[0] = 0; request(ED_SMP_BEGIN, a, 1); assert(reply[6] == 0);
+        fm1_ms += 15000; ed_service();
+        assert(held && ed_project.recovery);
+        op(64, 0, 0, 0); assert(reply[11] == 3);
+        op(70, 0, 0, 2); assert(held);              /* partial samples must never resume old playback */
+        begin_import();                           /* reconnect recovery keeps the existing hold */
+        for (i = 0; i < sizeof data; i += 224)
+            write_chunk(i, sizeof data - i < 224 ? sizeof data - i : 224, 0);
+        op(74, 0, 0, 0);
+        a[0] = 0; u21(a + 1, 512); n = pack(original + 512, 32, a + 4);
+        request(ED_SMP_WRITE, a, n + 4); assert(reply[9] == 0 && held);
+        a[0] = 0; n = pack(original, 512, a + 1); request(ED_SMP_END, a, n + 1);
+        assert(reply[6] == 0 && held && !memcmp(original, flash_image + SMP_USER_OFF(0), sizeof original));
+        op(70, 0, 0, 0); assert(!held && adopts == 1);
     }
     puts("project protocol: staging, exact chunks, CRC/capacity, confirmation, timeout and full sample headers ok");
     return 0;
