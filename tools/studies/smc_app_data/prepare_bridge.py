@@ -15,7 +15,7 @@ for name in ('firmware/src/x0x.c', 'firmware/src/ble_vendor.c',
              'firmware/src/ota.c', 'firmware/hal/x0x_bundle_gate.h',
              'firmware/hal/fm1_smc_vendor.h', 'firmware/hal/x0x_ble_segment.h',
              'firmware/hal/x0x_smc_host_messages.h', 'firmware/src/ble/smc_host_ingress.h',
-             'firmware/src/dsp/drum808.c', 'firmware/src/app/smc_mixer.c', 'firmware/src/app/x0x.h', 'firmware/src/app/ui.c'):
+             'firmware/src/app/engine.c', 'firmware/src/dsp/drum808.c', 'firmware/src/app/smc_mixer.c', 'firmware/src/app/x0x.h', 'firmware/src/app/ui.c'):
     shutil.copyfile(root / name, export / name)
 print('NON-INSTALLABLE: real bridge sizing; default app ceiling is NOT segmented admission')
 ui = export / 'firmware/src/app/ui.c'

@@ -736,8 +736,8 @@ volatile uint32_t eng_dbg_wait, eng_dbg_nsub;  /* 24 MHz ticks waiting for core 
 #endif
 
 /* the mix of one stretch between two events: dry left and right, the reverb and delay sends;
- * t0..tr the 808's scratch, kbuf the break's, mono the 909's kit send */
-static float dry_l[256], dry_r[256], rev[256], dly[256], t0[256], t1[256], t2[256], tr[256], kbuf[256], mono[256];
+ * t0..tr the 808's scratch, kbuf the break's */
+static float dry_l[256], dry_r[256], rev[256], dly[256], t0[256], t1[256], t2[256], tr[256], kbuf[256];
 
 /* a glide applied in place to a buffer that started at zero: buf * c is 0 + buf * c exactly, so this
  * is add_glide(zeros, buf) to the bit (the same steps of c) */
@@ -800,6 +800,10 @@ __attribute__((noinline)) static void kit_sends(int b, const float *m, uint32_t 
  * 303 B, break): the same sums either way */
 static void render_sub(float *out_l, float *out_r, uint32_t n)
 {
+    /* The 909 kit send dies before either bass renderer writes its output.
+     * Reuse this stretch's output slice, not a separate 1 KiB static buffer.
+     * core2_job uses only t0/tr/t1/t2/kbuf; it never accesses out_l. */
+    float *mono = out_l;
     float *bb[NBASS] = {out_l, out_r};
     int idle[NBASS], b;
     uint32_t solo = smc_solo_state;
