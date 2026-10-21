@@ -14,7 +14,8 @@
 #define SOURCE_SIZE (0x100000u+96u)
 #define SOURCE_BASE 0x400u
 #define LOADER_BASE 0x110000u
-static uint8_t source[SOURCE_SIZE],loader[16384],head[1024],nor[0x100000],before[0x100000];
+static _Alignas(4) uint8_t source[SOURCE_SIZE],loader[16384],head[1024],nor[0x100000],before[0x100000];
+static uint32_t policy,commit_off;
 static uint32_t loader_size,rx_len,rx_full,now_ms,requests,erases,cleared,ab_reads;
 static unsigned bad_finish,bad_addr,bad_len,swap_source,overflows;
 static uint8_t rx[1024];
@@ -90,10 +91,41 @@ static void reset(void)
 }
 static void load(const char*path,uint8_t*p,size_t cap,size_t exact,size_t*n)
 {FILE*f=fopen(path,"rb");assert(f);*n=fread(p,1,cap,f);assert(fgetc(f)==EOF&&(!exact||*n==exact));fclose(f);}
+static void installed_baseline(void)
+{
+    uint32_t key,c=~0u;uint8_t b[512];assert(!ldr_chip_key(&key));
+    for(uint32_t k=0;k<0x99000u;k+=sizeof b) {
+        memcpy(b,nor+0x4000u+k,sizeof b);
+        if(k<BP_RB_CRYPT_SIZE) {
+            uint32_t n=BP_RB_CRYPT_SIZE-k;if(n>sizeof b)n=sizeof b;
+            ldr_sfc(b,n,k,key);
+        }
+        c=bp_crc(c,b,sizeof b);
+    }
+    assert(~c==BP_RB_MAIN_CRC); /* exact canonical approved main, independently from NOR */
+    memcpy(b,nor+0x8B000u,128);ldr_sfc(b,128,0x87000u,key);
+    assert(ota_rd32(b)==0x43423058u && ota_rd16(b+4)==2 && ota_rd16(b+6)==68);
+    for(uint32_t k=0xAB000;k<0xAF000;k++)assert(nor[k]==255);
+    for(uint32_t k=0xFE000;k<0xFF000;k++)assert(nor[k]==255);
+}
+/* Reseal the transaction CRCs after a source mutation: the approved baseline
+ * pin must still reject an internally consistent alternative main. */
+static void reseal_source(void)
+{
+    bp_header *h=(bp_header *)(void *)(source+0x100000u);uint32_t all=~0u;
+    for(unsigned i=0;i<4;i++) {
+        h->p[i].crc=~bp_crc(~0u,source+h->p[i].off,h->p[i].size);
+        all=bp_crc(all,source+h->p[i].off,h->p[i].size);
+    }
+    h->bundle_crc=~all;h->header_crc=0;h->header_crc=~bp_crc(~0u,(const uint8_t*)h,sizeof *h);
+}
 int main(int argc,char**argv)
 {
     assert(argc==3);size_t n;load(argv[1],source,sizeof source,sizeof source,&n);load(argv[2],loader,sizeof loader,0,&n);loader_size=n;
-    reset();int rc=ldr_session();printf("actual byte/wire forward rc=%d requests=%u erases=%u\n",rc,requests,erases);assert(!rc&&cleared==1);
+    policy=ota_rd32(source+0x100000u+12);commit_off=ota_rd32(source+0x100000u+16);
+    assert((policy==1&&commit_off==0x84000u)||(policy==2&&commit_off==0x8B000u));
+    reset();int rc=ldr_session();printf("actual byte/wire policy%u rc=%d requests=%u erases=%u\n",policy,rc,requests,erases);assert(!rc&&cleared==1);
+    if(policy==2)installed_baseline();
     for(unsigned i=0;i<sizeof nor;i++) {
         if(i>=0xBF000&&i<0xC0000)assert(nor[i]==255);
         else assert(nor[i]==(writable(i,1)?source[i]:before[i]));
@@ -109,7 +141,13 @@ int main(int argc,char**argv)
       assert(serve(0xFFFFFFF0u,a,512)&&overflows);
       assert(bp_install(0xFFFFFFF0u,SOURCE_SIZE,0x1234,h,a,b)==-60&&!erases); }
     reset();swap_source=1;assert(ldr_session()&&!cleared);assert(!memcmp(nor+OTA_RES,before+OTA_RES,112));
-    for(unsigned i=0;i<128;i++)assert(nor[0x84000+i]==255);
+    for(unsigned i=0;i<128;i++)assert(nor[commit_off+i]==255);
+    if(policy==2) {
+        uint8_t saved[96];memcpy(saved,source+0x100000u,sizeof saved);
+        source[0x5000]^=1;reseal_source();reset();assert(ldr_session()==-76&&!erases&&!cleared);
+        source[0x5000]^=1;memcpy(source+0x100000u,saved,sizeof saved);
+        puts("logical rollback: installed canonical approved main/68-byte ABI2, exact FF spares, resealed alternative-main rejection PASS");
+    }
     puts("actual app/UI/vendor protocol replay: source swap, overflow, address/length/finish mismatch, protected outside ranges PASS");
     return 0;
 }
