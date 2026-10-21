@@ -121,6 +121,7 @@ int main(void)
     op(71, 0, 0, 2); op(70, 0, 0, 0); assert(!held && aborts == 1);
     op(70, 0, 0, 0); assert(aborts == 1);
     begin_import(); op(74, 0, 0, 3); write_chunk(224, 224, 3);
+    a[0] = 0; request(ED_SMP_ERASE, a, 1); assert(reply[6] == 4 && !flash_erases);
     write_chunk(0, 224, 0); write_chunk(0, 224, 0); assert(ed_project.next == 224);
     data[0] ^= 1; write_chunk(0, 224, 3); data[0] ^= 1;
     u21(a, 224); n = pack(data + 224, 21, a + 3); a[3 + n] = 0;
@@ -133,7 +134,7 @@ int main(void)
     validation = -4; op(69, confirm, 2, 4); assert(!adopts && held);
     validation = -7; op(74, 0, 0, 6);
     validation = -1; op(74, 0, 0, 5);
-    validation = 0; op(74, 0, 0, 0); assert(!adopts && held);
+    validation = 0; op(74, 0, 0, 0); assert(!adopts && held && !ed_project_samples_locked());
     op(69, confirm, 2, 0); assert(adopts == 1 && !held && !ed_project.mode);
     assert(!memcmp(&proj, data + PROJECT_FILE_HDR, sizeof proj));
     assert(!flash_writes && !flash_erases);

@@ -111,7 +111,7 @@ static uint32_t ed_unpack_exact(const uint8_t *a, uint32_t na, uint8_t *out, uin
  * A browser restores sample slots only while mode 2 holds this lock, after VALIDATE. */
 static struct {
     uint32_t at, next;
-    uint8_t mode, header[PROJECT_FILE_HDR];
+    uint8_t mode, valid, header[PROJECT_FILE_HDR];
 } ed_project;
 
 static uint32_t ed_u21(const uint8_t *a)
@@ -122,6 +122,10 @@ static void ed_w21(uint32_t v) { ed_b(v); ed_b(v >> 7); ed_b(v >> 14); }
 static uint8_t *ed_project_byte(uint32_t off)
 {
     return off < PROJECT_FILE_HDR ? &ed_project.header[off] : (uint8_t *)&project_stage + off - PROJECT_FILE_HDR;
+}
+static int ed_project_samples_locked(void)
+{
+    return ed_project.mode == 1 || (ed_project.mode == 2 && !ed_project.valid);
 }
 static void ed_project_end(int apply)
 {
@@ -157,6 +161,7 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         ed_project.mode = (uint8_t)(op == 65 ? 1 : 2);
         ed_project.at = fm1_ms;
         ed_project.next = 0;
+        ed_project.valid = 0;
         if (op == 65) {
             project_capture_stage();
             project_file_header(ed_project.header);
@@ -189,6 +194,7 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
                 if (*ed_project_byte(off + i) != ed_smp_buf[i]) { rc = 3; break; }
             if (rc) break;
         } else {
+            ed_project.valid = 0;
             for (i = 0; i < n; i++)
                 *ed_project_byte(off + i) = ed_smp_buf[i];
             ed_project.next += n;
@@ -202,6 +208,7 @@ static void ed_project_handle(const uint8_t *a, uint32_t na)
         if (op == 74 && na) { rc = 1; break; }
         if (ed_project.next != PROJECT_FILE_SIZE) { rc = 3; break; }
         rc = ed_project_rc(project_file_validate(ed_project.header));
+        ed_project.valid = rc == 0;
         if (!rc && op == 69)
             ed_project_end(1);
         break;
@@ -381,7 +388,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (na < 1u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         ed_b(a[0]);
-        ed_b(ed_project.mode == 1 ? 4u : ed_smp_erase(a[0], cmd == ED_SMP_ERASE) ? 1u : 0u);
+        ed_b(ed_project_samples_locked() ? 4u : ed_smp_erase(a[0], cmd == ED_SMP_ERASE) ? 1u : 0u);
         break;
     case ED_SMP_WRITE: {
         uint32_t off, len, rc = 0, took;
@@ -391,7 +398,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         len = ed_unpack7(a + 4, na - 4u, ed_smp_buf, 256u);
         if (off < SMP_USER_DATA || (off & 0xFFu) || !len || off + len > SMP_USER_SIZE(a[0]))
             rc = 1;
-        else if (usr_nz[a[0]] || ed_project.mode == 1)
+        else if (usr_nz[a[0]] || ed_project_samples_locked())
             rc = 4;
         else {
             if (!(off & 0xFFFu)) {
@@ -412,7 +419,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         if (na < 2u || a[0] >= SMP_USER_SLOTS || !flash_ok)
             return;
         ed_b(a[0]);
-        ed_b(ed_project.mode == 1 ? 4u : (uint32_t)ed_smp_end(a[0], a + 1, na - 1u));
+        ed_b(ed_project_samples_locked() ? 4u : (uint32_t)ed_smp_end(a[0], a + 1, na - 1u));
         break;
 #if X0X_DEBUG
     case ED_PEEK:
