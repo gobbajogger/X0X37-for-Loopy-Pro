@@ -159,3 +159,64 @@ export quarantined. Its hash was not captured before removal, so remains unknown
 The incident log is private; it is not candidate evidence. The recipe now turns
 packaging off **before** pin validation, preventing that failure mode even when a
 caller neglects `set -e`. Correct paired replay above resolved without packaging.
+
+## Actual-byte host-response replay (follow-up)
+
+`real_fixture.py` now binds the verified baseline kit, final sealed app/UI and
+complete materialized vendor regions into one **private response-data fixture**.
+It reuses baseline SFC/JLFS machinery, preserves the canonical main configuration
+and slot map, updates their CRCs for changed app/controller bytes, and uses only
+explicit test key`0x1234`. The simulated flash head's isd key record is rebuilt
+with that fixture key; no real device key or backup is used. It emits no UFW,
+FWSC or uploader. Current source fixture length1048672 and SHA256:
+`4fc83a935b198f409701ed1c8debcd7db97c3848c087e524a3be551c90351273`.
+
+Actual input identities:
+- app/UI hashes are the exact interlocked pair documented above; UI SHA256
+  `b3f4184cdb6c7bd52c50a7df644bdf7f813a090a0a5b0f2a7607901210ab48a9`.
+- full primary94208 SHA256
+  `f932189d1ef6d61b60693347b5fb54d7a0dc7001c2c83e573d98836139b64414`;
+- full vendor RO8192 SHA256
+  `3c3fa1f88b5a080788fce673738c9110bd9c41a78170ca1e6d1d078f6ad63b10`;
+- full tertiary4096 SHA256
+  `0905950ad661147aa5de2cc1a16ae39f252814af8a48a7065c8d3915f8e5f0ed`.
+
+`wire_replay.c` compiles the actual prepared `ota.c` and `ldr_core.c`. Its host
+answers real packed SysEx read requests from immutable bounded source maps;
+entry framing exists only in RAM. Calling **ldr_session**, not just bp_install,
+exercises key discovery, source parsing, exact staged-loader/112-byte record
+ownership, app/UI/vendor admission, all writes/readbacks, exact finish response,
+persistent-record retirement and RAM-record clear. Success: **3779 requests,
+159 erases**, exact installed four payload ranges and all outside bytes unchanged
+except the explicitly owned final record sector.
+
+Strict `-Werror` and ASan/UBSan replay pass. Negative cases reject a changed staged
+loader, foreign valid-CRC record, wrong echoed response address/length, source
+chunk substitution after preflight, overflowing source offset and wrong finish
+response. Substitution leaves the controller prefix unpublished; finish failure
+retains records. The host map explicitly bounds both storage capacity and declared
+length. Source swap here means one changed returned UI chunk, not a claim of
+exhaustively exploring every possible coherent hostile source replacement.
+No actual USB transport, RF, SPL, firmware execution or live-memory proof is
+implied. The staged capability marker is not cryptographic authentication.
+
+Reproduce with the same privately retained actual inputs:
+
+```sh
+set -e
+python3 tools/studies/smc_bundle_loader/real_fixture.py \
+  "$BASELINE_KIT" "$FINAL_ELF" "$APP_FIXTURE_DIR" "$VENDOR_FIXTURE_DIR" "$NEW_PRIVATE_OUT"
+cc -O2 -std=c11 -Wall -Wextra -Werror -Wno-unused-function \
+  -DBP_OTA_SOURCE=\""$EXPORT/firmware/src/ota.c"\" \
+  -DBP_LDR_SOURCE=\""$EXPORT/firmware/loader/ldr_core.c"\" \
+  -I"$EXPORT/firmware/hal" \
+  tools/studies/smc_bundle_loader/wire_replay.c -o "$PRIVATE_TEST"
+"$PRIVATE_TEST" "$NEW_PRIVATE_OUT/source-NOT-INSTALLABLE.fixture" \
+  "$EXPORT/build/smk37-elite/loader/ota.bin"
+```
+
+EXPORT must be the prepared paired-loader export from the preceding recipe, with
+pins for the same final app. The copied sealer is updated identically to owner's
+`fa22c3e` record-slot checks; the builder also rejects secondary sector-end tags
+that could resemble persistent update records. All recipe inputs/hashes remain
+source-verifiable; generated/vendor bytes remain private.
