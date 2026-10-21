@@ -15,16 +15,20 @@ for name in ('record.json','rollback-record.json'):
     v.verify(repo,record['commit'],root/name,root/record['artifacts']['package']['file'])
 r=json.loads((root/'record.json').read_text());bind=r['loader_binding']
 f,ota=b.unpack((root/r['artifacts']['package']['file']).read_bytes())
-m,_,_=b._main(f);app=bytes(m[0x120:0x120+bind['app_size']]);ui=f[0xAB000:0xAD000]
+m,key,blk=b._main(f);app=bytes(m[0x120:0x120+bind['app_size']]);ui=f[0xAB000:0xAD000]
 regions=[bytes(m[0x80000:0x97000]),f[0xAD000:0xAF000],f[0xFE000:0xFF000]]
+# Restore the exact app-only constructor template, not an already populated slot.
+blank=bytearray(m);blank[0x120+len(app):0x97520]=b'\xff'*(0x97400-len(app))
+b._recrc(blank,blk);b.pm.sfc(blank,0,b.CRYPT_SIZE,0,key)
+template0=bytearray(f[:0x9D000]);template0[0x4000:0x9D000]=blank
 # A different structurally valid vendor image, with every internal CRC repaired.
 rs=list(regions);rs[1]=bytes([rs[1][0]^1])+rs[1][1:]
 h=bytearray(rs[0]);used=struct.unpack_from('<I',h,88)[0]
 struct.pack_into('<I',h,96,zlib.crc32(rs[1][:used]));struct.pack_into('<I',h,116,0)
 struct.pack_into('<I',h,116,zlib.crc32(h[:128]));rs[0]=bytes(h)
-alternate=b.build_bundle(f[:0x9D000],app,ui,rs,ota,descriptor_off=bind['descriptor_off'],loader_binding=bind)
+alternate=b.build_bundle(template0,app,ui,rs,ota,descriptor_off=bind['descriptor_off'],loader_binding=bind)
 # Different canonical padding/template data, not an app/loader pin violation.
-template=bytearray(f[:0x9D000]);template[0x9C000]^=1
+template=bytearray(template0);template[0x9C000]^=1
 canonical=b.build_bundle(template,app,ui,regions,ota,descriptor_off=bind['descriptor_off'],loader_binding=bind)
 with tempfile.TemporaryDirectory() as tmp:
     out=Path(tmp)
