@@ -57,6 +57,7 @@ typedef struct {
     uint8_t step_created;              /* the press turned the held step on (its release keeps it) */
     int8_t brk_held;                   /* BREAK: the white key (16th) held, -1 none */
     int8_t hold_step;                  /* a drum machine: the step (white key) held, -1 none */
+    uint8_t hold_drum, hold_pat;       /* kit/track and pattern at key-down; navigation cannot retarget its release */
     uint8_t hold_created, hold_used;   /* drums / BREAK: the press turned the step on; a knob or a slice used it */
     int8_t chain_first;
     int8_t touched;                    /* knob cell being turned (4 = tempo), -1 none */
@@ -182,6 +183,7 @@ static uint8_t bass_rec_pat[NBASS], bass_rec_playing[NBASS];
 static uint8_t kbd_held_key[NBASS];                  /* physical key + 1; survives octave and part changes */
 static int held_note_of(const bpart_t *bp, int s);
 static void bass_step_cancel(void);
+static void drum_step_cancel(void);
 
 /* ============================================================ text helpers === */
 static char *put_s(char *b, const char *s)
@@ -1848,11 +1850,11 @@ static int32_t accel(int role, int32_t s, int range)
 static void set_view(int v)
 {
     bass_step_cancel();
+    drum_step_cancel();
     if (v != ui.view)
         ui.prev_view = ui.view;
     ui.view = (uint8_t)v;
     ui.brk_held = -1;
-    ui.hold_step = -1;
     ui.overlay = O_NONE;
     build_pages();
 }
@@ -1914,13 +1916,19 @@ static int has_motion(pref_t r)
 
 /* p-locks: on EDIT, a step held (one already there: a tap still toggles it) and a sound knob turned
  * give that step its own value, one step of the knob's lane (motion.h: the other steps keep the knob's) */
+static int held_drum_step(void)
+{
+    return is_drum() && ui.hold_drum == ui.part * NDRUM + ui.sel[ui.part] &&
+           ui.hold_pat == seq.ppat[ui.part] ? ui.hold_step : -1;
+}
+
 static int lock_step(void)
 {
     if (ui.view != V_PART || ui.overlay != O_NONE)
         return -1;
     if (is_303())
         return ui.rec ? -1 : ui.held_step;
-    return is_drum() ? ui.hold_step : ui.brk_held;
+    return is_drum() ? held_drum_step() : ui.brk_held;
 }
 static int lockable(pref_t r) { return r.kind == R_ENG && engine_motion_part(r.a, r.b) == ui.part; }
 static int lock_of(pref_t r, int s)                  /* step s's own value of r, -1 none */
@@ -2007,6 +2015,14 @@ static void bass_step_cancel(void)
     ui.held_step = -1;
 }
 
+static void drum_step_cancel(void)
+{
+    if (ui.hold_step >= 0 && ui.hold_used && is_drum() &&
+        ui.hold_drum == ui.part * NDRUM + ui.sel[ui.part])
+        lock_release();                /* restore before selection/navigation replaces the preview's page */
+    ui.hold_step = -1;
+}
+
 /* probability: SEQ or EDIT, a step held, SELECT sets its chance (5..100 %, a T_PROB lane: motion.h's
  * MOT_NONE = always). Drums: the selected track's step; the 303s and the break: the step */
 static int held_any_step(void)
@@ -2015,7 +2031,7 @@ static int held_any_step(void)
         return -1;
     if (is_303())
         return ui.rec ? -1 : ui.held_step;
-    return is_drum() ? ui.hold_step : ui.brk_held;
+    return is_drum() ? held_drum_step() : ui.brk_held;
 }
 static void prob_turn(int e)
 {
@@ -2095,6 +2111,7 @@ static void drum_key(int v, int down)
     int k = ui.part;
     if (!down)
         return;
+    if (ui.sel[k] != v) drum_step_cancel();
     ui.sel[k] = (uint8_t)v;
     build_pages();
     /* KEY SOUND STOPPED (the default): while the pattern plays a black key only selects its track,
@@ -2117,20 +2134,23 @@ static void drum_key(int v, int down)
 #define STEP_TAP_MS 300u
 /* a white key: a step. An empty one is on at once; one already on comes off on a tap (a quick
  * release), and stays when held (EDIT: its p-locks) */
-static void drum_step(int white, int down)
+static void drum_step(int k, int white, int down)
 {
-    int k = ui.part, s = ui.spage * 16 + white;
-    dpart_t *d = &cur_pat()->drum[k];
+    int s = ui.spage * 16 + white;
+    dpart_t *d = &pat_of(k)->drum[k];
     uint32_t *bits = d->hit[ui.sel[k]];
     if (s >= NSTEPS)
         return;
     if (!down) {
-        if (ui.hold_step == s) {
-            if (!ui.hold_created && !ui.hold_used && plat_ms() - ui.hold_t0 < STEP_TAP_MS) {
+        if (ui.hold_step >= 0 && (ui.hold_step & 15) == white) {
+            int same_target = ui.hold_drum == k * NDRUM + ui.sel[k];
+            int same = ui.hold_step == s && same_target &&
+                       ui.hold_pat == seq.ppat[k];
+            if (same && !ui.hold_created && !ui.hold_used && plat_ms() - ui.hold_t0 < STEP_TAP_MS) {
                 sm_flip(bits, s);
                 mark_dirty();
             }
-            if (ui.hold_used)
+            if (same_target && ui.hold_used)
                 lock_release();
             ui.hold_step = -1;
         }
@@ -2143,6 +2163,8 @@ static void drum_step(int white, int down)
         return;
     }
     ui.hold_step = (int8_t)s;
+    ui.hold_drum = (uint8_t)(k * NDRUM + ui.sel[k]);
+    ui.hold_pat = seq.ppat[k];
     ui.hold_used = 0;
     ui.hold_t0 = plat_ms();
     ui.hold_created = !sm_get(bits, s);
@@ -2426,11 +2448,19 @@ static void key_event(int k, int down)
     if (bl >= 0 && drum_mix_page() >= 0) {            /* MIX, a drum machine's page: black keys pick the track */
         if (down) {
             int km = drum_mix_page();
+            if (ui.sel[km] != bl) drum_step_cancel();
             ui.sel[km] = (uint8_t)bl;
             if (proj.set.keysound || !seq.playing)
                 engine_drum(km, bl, 0.75f);
             build_pages();
         }
+        return;
+    }
+    if (w >= 0 && drum_mix_page() >= 0) {            /* the SMK pads keep editing this visible kit's steps */
+        if (ui.overlay == O_NONE && !ui.help)
+            drum_step(drum_mix_page(), w, down);
+        else if (!down && ui.hold_step >= 0 && (ui.hold_step & 15) == w)
+            ui.hold_step = -1;
         return;
     }
     if (ui.view == V_HOME && bl >= 0) {
@@ -2450,7 +2480,7 @@ static void key_event(int k, int down)
         if (bl >= 0)
             drum_key(bl, down);
         else if (w >= 0)
-            drum_step(w, down);
+            drum_step(ui.part, w, down);
     } else if (is_303()) {
         if (kbd_on()) {                                /* REC: the keys play and write notes; FREE PLAY: play */
             if (down)
@@ -2855,8 +2885,10 @@ X0X_COLD static void input(void)
         } else {
             int p = ui.part + (e > 0 ? 1 : -1);
             p = p < 0 ? 0 : p >= NPARTS ? NPARTS - 1 : p;
-            if (p != ui.part)
+            if (p != ui.part) {
                 bass_step_cancel();
+                drum_step_cancel();
+            }
             ui.part = (uint8_t)p;
             if (ui.view == V_GEN && !is_303())         /* TB-3PO is a 303's */
                 set_view(V_PART);
@@ -4453,6 +4485,20 @@ static UI_DRAW void draw_knobs(void)
 }
 
 /* ===================================================================== LEDs === */
+static uint32_t drum_step_lights(int kit)
+{
+    const dpart_t *d = &pat_of(kit)->drum[kit];
+    const uint32_t *bits = (ui.btn & (1u << B_ENV)) ? d->accent : d->hit[ui.sel[kit]];
+    int ph = eng_step[TRK_DRUM + kit];
+    uint32_t lit = 0;
+    for (int i = 0; i < 16; i++) {
+        int s = step_of(i), on = s < d->len && sm_get(bits, s);
+        if (seq.playing && s == ph) on = !on;
+        if (on) lit |= 1u << WHITE_KEY[i];
+    }
+    return lit;
+}
+
 static void leds(void)
 {
     uint32_t b = 0, k = 0, d = 0, i;
@@ -4516,6 +4562,7 @@ static void leds(void)
             }
         } else if (ui.view == V_MIX && (cur_page() == 0 || drum_mix_page() >= 0)) {
             int dm = drum_mix_page(), n = dm >= 0 ? NDRUM : NPARTS, on = dm >= 0 ? ui.sel[dm] : ui.mixsel;
+            if (dm >= 0) k |= drum_step_lights(dm);
             for (i = 0; i < (uint32_t)n && i < 11u; i++) {  /* the knobs' channel bright (blinking: muted), */
                 int mu = dm >= 0 ? track_muted(dm, (int)i) : part_muted((int)i);   /* the others dim, muted dark */
                 if ((int)i == on ? !mu || blink : 0)
@@ -4527,15 +4574,7 @@ static void leds(void)
             /* the master and the effects: the keys have nothing to choose */
         } else if (is_drum()) {
             const dpart_t *d0 = &cur_pat()->drum[ui.part];
-            const uint32_t *bits = (ui.btn & (1u << B_ENV)) ? d0->accent : d0->hit[ui.sel[ui.part]];
-            int ph = eng_step[TRK_DRUM + ui.part];
-            for (i = 0; i < 16; i++) {
-                int s = step_of((int)i), on = s < d0->len && sm_get(bits, s);
-                if (seq.playing && s == ph)
-                    on = !on;
-                if (on)
-                    k |= 1u << WHITE_KEY[i];
-            }
+            k |= drum_step_lights(ui.part);
             for (i = 0; i < NDRUM && i < 11u; i++) {    /* the track bright (blinking: muted), the others */
                 int mu = track_muted(ui.part, (int)i);  /* with hits dim, muted dark */
                 if ((int)i == ui.sel[ui.part] ? !mu || blink : 0)
