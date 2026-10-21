@@ -7,6 +7,7 @@ The fixture simulates scan/create/cancel/retry, discovery/subscription, another
 retry, and connection. It verifies recorder behavior, not a physical SMC link.
 """
 import io
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import sys
@@ -267,44 +268,179 @@ for inputs, outputs, expected in (([], [], 'No complete USB MIDI'),
 print('PASS: explicit case-insensitive USB selection, pinned requests, no fallback, and saved early-failure reports')
 
 # The SMC1 tail is the retained rejected ACL header, NOT receive counters.
-# Use the live rx0/rx1 words for MIDI ingress and dispatch. The physical
-# capture recorded an SMP CID 6 / length-2 rejection, and zero MIDI input.
+# These counter values match the supplied capture. Gesture confirmation comes
+# from the owner's report, not from raw diagnostics or the simulated fixture.
 physical = watch.ble.decode_diag(reply(6, 14, 0))
 physical.update(rx0=0x01000009, rx1=0, smc_acl0=0x00062050,
-                smc_acl1=0x00060002, smc_reject=0x1305000A)
+                smc_acl1=0x00060002, smc_reject=0x1305000A, reset_now=8193)
 parsed = watch.input_counters(physical)
 assert parsed['acl'] == 9 and parsed['rejected'] == 1
 assert not parsed['notifications'] and not parsed['midi'] and not parsed['dispatched']
 assert watch.rejected_smp(physical) == {'acl_length': 6, 'smp_length': 2}
-activity = watch.input_activity([physical] * 3)
-assert activity['samples'] == 3 and set(activity['minimum_increments'].values()) == {0}
-report = watch.human_report(physical, rows[-1], True, 'duration_complete', [physical] * 3)
+
+
+def sample(diag, index, uptime=None):
+    start = datetime(2026, 10, 21, tzinfo=timezone.utc) + timedelta(seconds=index * 0.4)
+    return {'kind': 'sample', 'outcome': 'reply',
+            'request_started_elapsed_seconds': index * 0.4,
+            'elapsed_seconds': index * 0.4 + 0.32,
+            'request_started_utc': start.isoformat(),
+            'utc': (start + timedelta(seconds=0.32)).isoformat(),
+            'diag': dict(diag, alive_ms=10000 + index * 400 if uptime is None else uptime)}
+
+
+flat = [sample(physical, i) for i in range(3)]
+activity = watch.input_activity(flat)
+assert activity['samples'] == 3 and activity['compared_intervals'] == 2
+assert set(activity['minimum_increments'].values()) == {0}
+report = watch.human_report(physical, rows[-1], True, 'duration_complete', flat, controls_operated=True)
 assert 'notifications 0, decoded MIDI 0, application enqueued 0, dispatched 0' in report
 assert 'No receive/dispatch counter changes' in report
+assert 'owner confirmed fader/button gestures' in report
+assert 'missing-input cause remains unconfirmed' in report
+assert 'wraps between reads cannot be excluded' in report
 assert 'Security Manager (L2CAP CID 0x0006), 2-byte payload' in report
 assert 'command bytes were not captured' in report
 assert watch.input_counters({'h_step': 0}) is None
 assert watch.rejected_smp({'smc_trace': 0}) is None
 
-# The counters roll every 256 messages, so compare consecutive snapshots,
-# discard reboot boundaries and report minimum increments, never exact totals.
-shift = dict(physical)
-shift.update(rx0=(2 << 16) | (1 << 8) | 10, rx1=(3 << 16) | 3)
-roll = dict(shift)
-roll.update(rx0=(4 << 16) | (2 << 8) | 11, rx1=(5 << 16) | 5)
-activity = watch.input_activity([physical, shift, roll])
+# Continuous movement and uint8 counter wrap are comparable when active uptime
+# advances and proves the current boot predates the previous request window.
+shift = dict(physical, rx0=0x0102010A, rx1=(3 << 16) | 3)
+roll = dict(shift, rx0=0x0104020B, rx1=(5 << 16) | 5)
+activity = watch.input_activity([sample(d, i) for i, d in enumerate((physical, shift, roll))])
 assert activity['minimum_increments']['midi'] == 4
 assert activity['minimum_increments']['notifications'] == 2
 assert activity['minimum_increments']['dispatched'] == 5
-wrapped = dict(physical)
-wrapped.update(rx0=(3 << 16) | (2 << 8) | 0, rx1=(4 << 16) | 4)
-prewrap = dict(physical)
-prewrap.update(rx0=(253 << 16) | (254 << 8) | 255, rx1=(250 << 16) | 253)
-activity = watch.input_activity([prewrap, wrapped])
+wrapped = dict(physical, rx0=(3 << 16) | (2 << 8), rx1=(4 << 16) | 4)
+prewrap = dict(physical, rx0=(253 << 16) | (254 << 8) | 255, rx1=(250 << 16) | 253)
+activity = watch.input_activity([sample(prewrap, 0), sample(wrapped, 1)])
 assert activity['minimum_increments']['midi'] == 6
 assert activity['minimum_increments']['notifications'] == 4
 assert activity['minimum_increments']['dispatched'] == 10
-reboot = dict(wrapped, reset_now=1)
-assert watch.input_activity([prewrap, reboot])['boot_discontinuities'] == 1
-assert not any(watch.input_activity([prewrap, reboot])['minimum_increments'].values())
-print('PASS: actual physical counter fields, retained SMP header, no-input warning, wrap and reboot safety')
+
+# The old bug: reset causes remain 8193, but a reboot resets 7 -> 0. It must
+# never fabricate 249 events or claim that reset causes uniquely identify boots.
+before = dict(physical, rx0=0x01070709, rx1=0x00070007)
+after = dict(physical, rx0=0, rx1=0)
+reboot_rows = [sample(before, 0), sample(after, 1, uptime=100)]
+activity = watch.input_activity(reboot_rows)
+assert activity['minimum_increments'] is None
+assert activity['compared_intervals'] == 0 and activity['indeterminate_intervals'] == 1
+assert activity['excluded_reasons'] == {'uptime_continuity_unproven': 1}
+assert 'boot_discontinuities' not in activity
+report = watch.human_report(after, rows[-1], True, 'duration_complete', reboot_rows)
+assert 'increments are indeterminate' in report and '249' not in report
+assert 'not a boot ID' in report and 'No receive/dispatch counter changes' not in report
+
+# A changed reset cause is also excluded, but is not counted as a known boot.
+activity = watch.input_activity([sample(before, 0), sample(dict(after, reset_now=1), 1)])
+assert activity['minimum_increments'] is None
+assert activity['excluded_reasons'] == {'reset_cause_changed': 1}
+
+# Increasing uptime alone cannot establish continuity across a long gap: a
+# same-cause reboot can restart early and exceed the older sampled uptime.
+long_gap = [sample(before, 0, uptime=1000), sample(after, 100, uptime=2000)]
+assert watch.input_activity(long_gap)['minimum_increments'] is None
+
+# On macOS monotonic time can pause during sleep. A same-cause reboot during
+# a 20-second suspension can increase uptime while resetting counters. UTC
+# disagreement must veto that comparison; wall time cannot establish it alone.
+asleep = sample(after, 1, uptime=10400)
+for key in ('request_started_utc', 'utc'):
+    asleep[key] = (datetime.fromisoformat(asleep[key]) + timedelta(seconds=20)).isoformat()
+activity = watch.input_activity([sample(before, 0), asleep])
+assert activity['minimum_increments'] is None
+assert activity['excluded_reasons'] == {'host_clock_discontinuity': 1}
+for change in (-20, 20):
+    jumped = sample(wrapped, 1)
+    jumped['utc'] = (datetime.fromisoformat(jumped['utc']) + timedelta(seconds=change)).isoformat()
+    assert watch.input_activity([sample(prewrap, 0), jumped])['minimum_increments'] is None
+for value in (None, '', '2026-10-21T00:00:00', 'not-a-time', 42):
+    invalid = sample(wrapped, 1)
+    invalid['utc'] = value
+    assert watch.input_activity([sample(prewrap, 0), invalid])['minimum_increments'] is None
+# The admitted UTC/monotonic rounding tolerance also belongs in the uptime
+# bound. A tiny host interval must not authenticate a 5ms post-reboot uptime.
+tiny_first, tiny_last = sample(before, 0, 1), sample(after, 1, 5)
+for row, start, end in ((tiny_first, 0, 0.0001), (tiny_last, 0.0002, 0.001)):
+    row['request_started_elapsed_seconds'], row['elapsed_seconds'] = start, end
+    origin = datetime(2026, 10, 21, tzinfo=timezone.utc)
+    row['request_started_utc'] = (origin + timedelta(seconds=start)).isoformat()
+    row['utc'] = (origin + timedelta(seconds=end)).isoformat()
+tiny_last['utc'] = '2026-10-21T00:00:00.008000+00:00'
+assert watch.input_activity([tiny_first, tiny_last])['minimum_increments'] is None
+missing_wall = sample(wrapped, 1)
+del missing_wall['utc']
+assert watch.input_activity([sample(prewrap, 0), missing_wall])['minimum_increments'] is None
+
+# uint32 uptime wrap, stalled/retained uptime, clock jumps, and blocked or stale
+# central CONNECTED snapshots remain indeterminate. Do not infer a boot count.
+for first_ms, next_ms in ((0xFFFFFF00, 144), (10000, 10000), (10000, 9000), (10000, 50000)):
+    assert watch.input_activity([sample(prewrap, 0, first_ms), sample(wrapped, 1, next_ms)])['minimum_increments'] is None
+for key, value in (('plat_state', 6), ('blocked', 1), ('c1_gave_up', 2), ('h_state', 2)):
+    assert watch.input_activity([sample(prewrap, 0), sample(dict(wrapped, **{key: value}), 1)])['minimum_increments'] is None
+
+# Decoded-only histories have no capture-time bound. Missing or malformed
+# counters/times must neither crash nor manufacture zeros or bridge a gap.
+assert watch.input_activity([prewrap, wrapped])['minimum_increments'] is None
+for key in ('rx0', 'rx1', 'h_step'):
+    for value in (None, -1, 0x100000000, '7', True):
+        assert watch.input_counters(dict(physical, **{key: value})) is None
+    incomplete = dict(physical)
+    del incomplete[key]
+    assert watch.input_counters(incomplete) is None
+assert watch.rejected_smp(dict(physical, smc_acl0=None)) is None
+assert watch.input_activity([None, {}, {'diag': None, 'outcome': 'no_reply'}]) is None
+for timing in (None, -1, float('nan'), float('inf'), 1e308, 10**1000, '0.72', True):
+    invalid = sample(wrapped, 1)
+    invalid['elapsed_seconds'] = timing
+    assert watch.input_activity([sample(prewrap, 0), invalid])['minimum_increments'] is None
+invalid = sample(wrapped, 1)
+invalid['elapsed_seconds'] = 0.1
+assert watch.input_activity([sample(prewrap, 0), invalid])['minimum_increments'] is None
+for key in ('alive_ms', 'reset_now'):
+    missing = sample(wrapped, 1)
+    del missing['diag'][key]
+    assert watch.input_activity([sample(prewrap, 0), missing])['minimum_increments'] is None
+for gap in (None, {'diag': None, 'outcome': 'no_reply'},
+            {'diag': physical, 'outcome': 'invalid_reply'}, {'diag': dict(physical, rx0=None), 'outcome': 'reply'}):
+    activity = watch.input_activity([sample(prewrap, 0), gap, sample(wrapped, 2), sample(wrapped, 3)])
+    assert activity['unavailable_samples'] == 1 and activity['compared_intervals'] == 1
+    assert set(activity['minimum_increments'].values()) == {0}
+print('PASS: actual counters, confirmed gestures with flat samples, continuous movement and uint8 wrap; same-cause reboot, long gaps, Mac sleep/clock changes, stale/wrapped uptime and incomplete input stay indeterminate')
+
+# Exercise timing retention and gap handling through the recorder, not only
+# hand-built rows. Both missing and malformed raw replies break comparisons.
+clock[0] = 0
+capture = iter((reply(6, 14, 0), None, [2, 1], reply(6, 14, 0), reply(6, 14, 0)))
+decoded = iter((dict(before, alive_ms=10000), dict(after, alive_ms=11200), dict(after, alive_ms=11600)))
+real_decode = watch.ble.decode_diag
+
+
+def capture_ask(*args, **kwargs):
+    clock[0] += 0.4
+    return next(capture)
+
+
+def capture_decode(raw):
+    if raw == [2, 1]:
+        return real_decode(raw)  # actual truncated wire payload, not mocked failure
+    return next(decoded)
+
+
+with patch.object(watch.ble, 'ask', capture_ask), \
+     patch.object(watch, 'utc_now', side_effect=lambda: (datetime(2026, 10, 21, tzinfo=timezone.utc) + timedelta(seconds=clock[0])).isoformat()), \
+     patch.object(watch.ble, 'decode_diag', capture_decode), \
+     patch.object(watch.time, 'monotonic', side_effect=lambda: clock[0]), \
+     patch.object(watch.time, 'sleep', side_effect=sleep):
+    output, summary = io.StringIO(), io.StringIO()
+    assert watch.record(output, 2.1, 0.25, {'controls_operated': True}, summary) == 0
+captured = [json.loads(line) for line in output.getvalue().splitlines()]
+activity = watch.input_activity(captured[1:-1])
+assert activity['samples'] == 3 and activity['unavailable_samples'] == 2
+assert activity['compared_intervals'] == 1 and set(activity['minimum_increments'].values()) == {0}
+assert captured[-1]['no_replies'] == captured[-1]['invalid_replies'] == 1
+assert 'unavailable samples: 2' in summary.getvalue()
+assert 'owner confirmed fader/button gestures' in summary.getvalue()
+print('PASS: recorder preserves original request windows and unavailable samples for safe counter comparison')

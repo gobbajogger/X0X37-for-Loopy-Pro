@@ -15,8 +15,10 @@ The installed source is **not** replaced by this patch.
 - The real `rx0` counters show 9 received ACL frames since initialization, zero
   MIDI notifications, zero decoded MIDI messages, and one rejected ACL frame.
   `rx1` shows zero enqueued/dispatched/dropped application SMC events. These
-  values did not change in the sampled window. No control movement is recorded,
-  so these observations alone cannot establish whether button/fader input works.
+  values did not change in the sampled window. The owner confirmed actual
+  fader/button gestures ("I did", transcript timestamp 2026-10-21 09:04:46).
+  This was not an idle capture: the reported gestures had no observed MIDI
+  ingress or application dispatch. The capture does not identify the cause.
 - The retained rejected HCI ACL header is `50 20 06 00 02 00 06 00`, which
   identifies handle `0x0050`, L2CAP CID `0x0006` (Security Manager), payload
   length two. The original capture did **not** retain the two SMP payload bytes
@@ -47,11 +49,13 @@ Changes:
   `smc_acl0` and `smc_acl1` are packet-header bytes, not receive counters.
   The monitor remains ED_DIAG-only, read-only, and cannot prove unseen input.
 
-## Host verification
+## Original protocol-patch host verification (historical)
 
 - Negative control: compile new `ble_midi_smp_test.c` against original central
   source; expected assertion `sends == 1 && !c.rx_reject && !c.sig_count`
-  **fails** (exit 134), showing the old CID 6 defect.
+  **fails** (exit 134), showing the missing response to the simulated Security
+  Request. It does not identify the original captured SMP command or prove
+  that this defect caused the owner-reported missing input.
 - Patched sanitizer-backed test covers the saved ACL header with simulated
   Security Request bytes (clearly not recovered from hardware), fragmentation,
   credit starvation, blocked HCI sends, signaling queue priority, reserved
@@ -64,9 +68,52 @@ Changes:
   smc-host-ingress` — 10 passed, 0 failed.
 - `git diff --check` clean.
 
-**Limit:** The proprietary AC79 SDK and target compiler are not present in
-this analysis container. No new Elite firmware was built, installed, or tested
-on hardware. The change is a host-verified protocol repair, not proof that
-SMC control inputs now reach 909/808/sequencer controls. The original 45-second
-watch did not capture active input traffic, so the cause of missing MIDI input
-remains unconfirmed.
+**Original verification limit:** At the time of the source-package checks above,
+no target firmware was built, installed, or tested. Those historical host checks
+are not a current target-build or device result. The protocol repair does not
+prove that SMC input reaches the intended controls.
+
+## Counter-accounting and evidence correction
+
+This section supersedes the original source package's idle-capture description
+and reboot-detection claim. The original `eb39ea4` source tree is
+`3dc1f145561fad897a54301d25cb229b4e5c9963`; its archived patch is unchanged.
+
+- `firmware/src/ble.c` exports reset-cause registers as `reset_now`, not a unique
+  boot identifier. The original monitor incorrectly treated equal reset causes
+  as proof of continuity and counted a same-cause restart from 7 to 0 as 249
+  events. The old regression changed the cause and missed this case.
+- `alive_ms` is a uint32 last-Bluetooth-tick uptime retained across resets. The
+  corrected monitor compares counters only when both snapshots report a live
+  connection and advancing uptime, with ordered monotonic request windows.
+  UTC request/end windows must agree with monotonic elapsed time within 10 ms
+  for timestamp rounding and scheduling. UTC only vetoes continuity: macOS
+  monotonic time can stop during sleep, and wall-clock jumps also need exclusion.
+  The later uptime must exceed the larger UTC/monotonic host interval, allowing
+  a conservative 2x clock margin plus 2 ms for rounding; its advance must fit
+  that bound.
+  This excludes a boot within the compared interval under that clock bound.
+  It does not create or claim a firmware boot ID.
+- Same-cause resets, changed causes, stalled or wrapped uptime, unbounded timing,
+  host sleep or clock disagreement, non-live states, missing replies and malformed counters cannot produce
+  modulo increments. These intervals remain indeterminate. Missing samples
+  break comparison; they are not silently removed from the history.
+- Counters remain modulo 256. Reported increments are minimums over comparable
+  intervals, not exact traffic totals. Flat values cannot exclude complete
+  wraps. Owner-reported gestures are retained separately, never inferred from
+  the diagnostic counters.
+- The earlier working-controls reference `53d5654c9bbaec10b64c55fb60d0e7d857ba8156`
+  also ignored CID 6: `firmware/src/ble/ble_midi_central.c` lines 267–268 accept
+  only CID 4 (blob `7440ed5f980f16f20f58b970b328586b566bdb20`). The
+  [historical investigation](smc-normal-connection-20261021.md) records working
+  controls on that reference. Missing SMP refusal is therefore a reproduced
+  protocol defect, not an established explanation for the change in live input.
+  The rejected SMP payload is still unknown.
+
+The correction changes the host monitor, its tests and this audit only. No
+firmware, controller, ABI, model, package or A/B behavior changes are included.
+Run `python3 -B tests/smc_connection_watch_test.py` for counter/session, gesture
+context, malformed-input and recorder regressions, and
+`python3 -B tests/ble_central_diag_test.py` for the related diagnostic decoder.
+These host checks do not require a firmware rebuild. The corrected capture report
+is a reanalysis of retained data, not a new device test.
