@@ -20,7 +20,7 @@ def checked_tools(repo,commit):
     """Constructor/validator implementation must be the selected source, too."""
     here=Path(__file__).resolve().parent
     for name in ('smc_vendor_dev_validate.py','smc_vendor_dev_build.py','smc_vendor_bundle.py',
-                 'dev_validate.py','validation_inputs.py','fm1pkg_make.py','add_ctl.py'):
+                 'dev_validate.py','validation_inputs.py','fm1pkg_make.py','add_ctl.py','smc_vendor_replay.py'):
         expected=subprocess.check_output(['git','-C',str(repo),'show',str(commit)+':tools/'+name])
         if (here/name).read_bytes()!=expected:
             raise ValueError('invoking tool differs from selected commit: '+name)
@@ -43,7 +43,7 @@ def verify(repo,commit,record,fwsc):
     if inputs.get('source')!=data['tree'] or inputs.get('mode')!='dev' or inputs.get('configuration')!=config:
         raise ValueError('SMC validation input profile/layout mismatch')
     dv.check_plan(data['plan'])
-    expected={'build'}|{f'check-{i}' for i in range(len(data['plan'].get('checks',[])))}
+    expected={'build','bundle-replay'}|{f'check-{i}' for i in range(len(data['plan'].get('checks',[])))}
     if set(data['logs'])!=expected:raise ValueError('missing SMC build/check logs')
     for name,info in data['logs'].items():
         if info['returncode']!=0 or dv.digest(path.parent/(name+'.log'))!=info['sha256']:
@@ -127,6 +127,7 @@ def run(a):
         bundlemeta=bundle.validate_bundle(raw,loader_binding=meta['loader_binding'])
         if tuple(r['sha256'] for r in bundlemeta['controller']['regions'])!=builder.REGION_SHA:
             raise ValueError('constructed controller is not the reviewed pinned image')
+        command('bundle-replay',[sys.executable,'tools/smc_vendor_replay.py',str(package),str(root)])
         # Real budget lines, not the component wrapper's prose, are authoritative.
         buildlog=(root/'build.log').read_text()
         with (out/'build.log').open('a') as f:f.write('\nFINAL TARGET BUDGETS\n'+buildlog)
