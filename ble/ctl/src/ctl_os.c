@@ -6,6 +6,7 @@
  * they never pend. The "idle context" is poll() on its own stack: it runs each runnable task
  * once and returns to the app's idle loop on core 1 (ctl_os_run_once). */
 #include "ctl_port.h"
+#include "ctl_host_scope.h"
 #include "ctl_highcpu.h"
 
 
@@ -85,7 +86,9 @@ static struct ctl_task *find(const char *name)
 
 static void task_trampoline(void)
 {
+    ctl_scope_task_enter(cur->name);
     cur->fn(cur->arg);
+    ctl_scope_no_yield();
     cur->used = 0;                     /* task returned: free its slot */
     ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
 }
@@ -113,7 +116,7 @@ int task_kill(const char *name)
     struct ctl_task *t = find(name);
     if (!t) return OS_TASK_NOT_EXIST;
     t->used = 0;
-    if (t == cur) ctl_port_ctx_switch(&t->ctx, &idle_ctx);
+    if (t == cur) { ctl_scope_no_yield(); ctl_port_ctx_switch(&t->ctx, &idle_ctx); }
     free(t->stack);
 #if CTL_VENDOR_HOST_TEST
     t->stack = NULL;
@@ -121,6 +124,9 @@ int task_kill(const char *name)
     return 0;
 }
 
+#if CTL_VENDOR_CPUPOOL_TEST
+void *ctl_os_scope_owner(void) { return cur; }
+#endif
 const char *os_current_task(void) { return cur ? cur->name : "idle"; }
 const char *os_current_task_rom(void) { return os_current_task(); }
 
@@ -129,6 +135,7 @@ const char *os_current_task_rom(void) { return os_current_task(); }
  * Restore the caller's IRQ state before switching to the idle context. */
 static void block_current(u32 flags, u32 deadline, int timed)
 {
+    ctl_scope_no_yield();
     struct ctl_task *t = cur;
     if (t) {
         t->wake_ms = deadline;
@@ -260,6 +267,7 @@ void ctl_os_init(void)
  * A task re-checks its own wait condition. */
 int ctl_os_run_once(void)
 {
+    ctl_scope_no_yield();
     int ran = 0;
     u32 now;
     ctl_timer_poll();

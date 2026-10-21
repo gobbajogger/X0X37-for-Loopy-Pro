@@ -6,6 +6,7 @@
  * The sole named SMC selection and radio request live here; BLE-MIDI decoding
  * and musical mapping remain in the app. */
 #include "ctl_port.h"
+#include "ctl_host_scope.h"
 #include "ctl_highcpu.h"
 #include "ctl_vendor_profile.h"
 #if defined(CTL_VENDOR_HOST_TEST) && CTL_VENDOR_HOST_TEST
@@ -110,9 +111,14 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
 
 void ble_profile_init(void)
 {
+    ctl_scope_end(1);
+    ctl_scope_begin(2);
     le_device_db_init();
+    ctl_scope_end(2);
     ble_stack_gatt_role(1);
+    ctl_scope_begin(3);
     sm_init();
+    ctl_scope_end(3);
     sm_set_io_capabilities(3);
     sm_set_authentication_requirements(0);
     sm_set_encryption_key_size_range(7, 16);

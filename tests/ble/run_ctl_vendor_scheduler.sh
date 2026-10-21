@@ -16,3 +16,6 @@ ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_profile_test.c
 
 ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_highcpu_test.c" -o "$OUT/highcpu"
 "$OUT/highcpu"
+
+${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror -no-pie "$HERE/ctl_host_scope_test.c" -o "$OUT/scope"
+"$OUT/scope"
