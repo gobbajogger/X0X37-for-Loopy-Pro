@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source-repo', type=Path, required=True)
 parser.add_argument('--validated-result', type=Path, required=True)
+parser.add_argument('--host-tools-repo', type=Path)
+parser.add_argument('--historical-baseline', action='store_true')
 a = parser.parse_args()
 source, result = a.source_repo.resolve(), a.validated_result.resolve()
 original_record = (result / 'record.json').read_bytes()
@@ -35,6 +37,10 @@ with tempfile.TemporaryDirectory(prefix='distribution-test-') as td:
     generate = [sys.executable, '-B', str(ROOT/'tools/distribution/package_dev.py'),
                 '--source-repo', str(source), '--validated-result', str(result),
                 '--output', str(kit), '--zip', str(zipped)]
+    if a.host_tools_repo:
+        generate[3:3] = ['--host-tools-repo', str(a.host_tools_repo.resolve())]
+    if a.historical_baseline:
+        generate[3:3] = ['--historical-baseline']
     inside = generate[:-2] + ['--zip', str(kit/'recursive.zip')]
     assert 'ZIP must be outside' in run(inside, 3)
     assert not kit.exists()
@@ -64,6 +70,14 @@ with tempfile.TemporaryDirectory(prefix='distribution-test-') as td:
     manifest_path = kit/'MANIFEST.json'; manifest = json.loads(manifest_path.read_text())
     assert manifest['runtime_commit'] == record['commit']
     assert manifest['runtime_rebuild'] is False
+    if a.historical_baseline:
+        assert manifest['post_install_watch'] == 'manual-only'
+        assert manifest['host_tools']['commit'] == subprocess.check_output(
+            ['git', '-C', str(a.host_tools_repo), 'rev-parse', 'HEAD'], text=True).strip()
+        p = kit/'host-tools/tools/dev_validate.py'; original=p.read_bytes()
+        p.write_bytes(original+b'\n# changed\n')
+        assert 'host tools identity mismatch' in run(verify,3); p.write_bytes(original)
+        print('PASS maintained host tools are separately pinned and tamper-refused')
     for name in manifest['identities']:
         p = kit/name; original = p.read_bytes(); changed = bytearray(original); changed[-1] ^= 1
         p.write_bytes(changed)
@@ -77,6 +91,11 @@ with tempfile.TemporaryDirectory(prefix='distribution-test-') as td:
     run(verify,3); p.write_bytes(original)
     print('PASS missing combined firmware refused')
     original=manifest_path.read_bytes()
+    altered={**manifest, 'content_identities': {**manifest['content_identities'], 'app_bin_sha256': '0'*64}}
+    manifest_path.write_text(json.dumps(altered))
+    assert 'decoded package identity mismatch' in run(verify,3)
+    manifest_path.write_bytes(original)
+    print('PASS incorrect decoded app identity refused')
     for field,value in [('model','pro'), ('config','rel'), ('runtime_commit','0'*40)]:
         altered={**manifest,field:value}; manifest_path.write_text(json.dumps(altered)); run(verify,3)
         print('PASS invalid distribution metadata refused:',field)

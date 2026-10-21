@@ -5,6 +5,8 @@ set -euo pipefail
 
 KIT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 COMMIT=@RUNTIME_COMMIT@
+INSTALL_TOOLS="$KIT_DIR/@HOST_TOOLS_DIR@"
+POST_INSTALL_WATCH=@POST_INSTALL_WATCH@
 VERIFY_ONLY=0
 EXTRA_ARGS=(--config dev)
 WATCH_ARGS=(--seconds 45 --interval 0.25)
@@ -73,7 +75,7 @@ else
     echo "QUEUE NOT CHECKED: native guard semantics are unchanged; no queue is fabricated."
 fi
 python3 -B "$KIT_DIR/verify_combined.py" 2>&1 | tee "$RUN_DIR/combined-verification.log"
-bash "$X0X_REPO/tools/require_gate_pass.sh" "$COMMIT" \
+bash "$INSTALL_TOOLS/require_gate_pass.sh" "$COMMIT" \
     --fwsc "$KIT_DIR/evidence/validated-build/x0x-smk37-elite.fwsc" \
     --config dev --dev-record "$KIT_DIR/evidence/validated-build/record.json" \
     --ctl "$KIT_DIR/evidence/validated-build/ctl.img" 2>&1 | tee "$RUN_DIR/validation.log"
@@ -163,12 +165,16 @@ echo "$BACKUP"
 echo "After installing, saved headers and used sample data will be read back on the same keyboard."
 echo "Per-slot CRC32 results are saved in install.log; a mismatch stops without another rewrite."
 echo "The native installer will show the device identity and ask whether to install."
+if [ "$POST_INSTALL_WATCH" = automatic ]; then
 echo "After a successful install, a 45-second read-only connection check starts automatically."
 echo "Keep the SMC powered on. During the post-install capture, try the intended controls and note what you moved."
 echo "Record the gesture timing separately; diagnostic counters do not prove physical movement."
+else
+    echo "No automatic post-install connection watcher or polling will run."
+fi
 echo
 set +e
-python3 "$X0X_REPO/tools/fm1_install.py" \
+python3 "$INSTALL_TOOLS/fm1_install.py" \
     "$KIT_DIR/evidence/validated-build/x0x-smk37-elite.fwsc" \
     --commit "$COMMIT" \
     --dev-record "$KIT_DIR/evidence/validated-build/record.json" \
@@ -180,7 +186,7 @@ INSTALL_STATUS=${INSTALL_CODES[0]}
 INSTALL_APPEND_STATUS=0
 echo "Native installer exit code: $INSTALL_STATUS" | tee -a "$RUN_DIR/install.log" || INSTALL_APPEND_STATUS=$?
 if [ "$INSTALL_STATUS" != 0 ]; then
-    echo "Installation did not complete successfully. Automatic connection collection was skipped."
+    echo "Installation did not complete successfully. No post-install connection collection was run."
     exit "$INSTALL_STATUS"
 fi
 if [ "${INSTALL_CODES[1]}" != 0 ] || [ "$INSTALL_APPEND_STATUS" != 0 ]; then
@@ -188,11 +194,17 @@ if [ "${INSTALL_CODES[1]}" != 0 ] || [ "$INSTALL_APPEND_STATUS" != 0 ]; then
     exit 74
 fi
 
+if [ "$POST_INSTALL_WATCH" = manual ]; then
+    echo "Installation completed. No automatic connection watcher or polling was started."
+    echo "Keep the backup and installation logs. Optional diagnostics must be started separately by hand."
+    exit 0
+fi
+
 CAPTURE="$RUN_DIR/smc-connection.jsonl"
 echo
 echo "Installation completed. Collecting read-only SMC connection diagnostics for 45 seconds..."
 set +e
-python3 -B "$X0X_REPO/tools/smc_connection_watch.py" \
+python3 -B "$INSTALL_TOOLS/smc_connection_watch.py" \
     "${WATCH_ARGS[@]}" --output "$CAPTURE" 2>&1 | tee "$RUN_DIR/connection-watch.log"
 WATCH_CODES=("${PIPESTATUS[@]}")
 set -e

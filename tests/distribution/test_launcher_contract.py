@@ -3,7 +3,9 @@
 from pathlib import Path
 import json, os, shutil, subprocess, sys, tempfile
 source=Path(sys.argv[1]).resolve()
-runtime=json.loads((source/'MANIFEST.json').read_text())['runtime_commit']
+manifest=json.loads((source/'MANIFEST.json').read_text())
+runtime=manifest['runtime_commit']
+manual=manifest.get('post_install_watch')=='manual-only'
 with tempfile.TemporaryDirectory(prefix='forward-review-') as tmp:
     base=Path(tmp); root=base/'kit with spaces'
     shutil.copytree(source,root,symlinks=True)
@@ -62,7 +64,7 @@ os.execv('''+repr(realtee)+''',['''+repr(realtee)+''', *a])
         c,o=run('native failure '+str(code)+' skips capture',updates={'INSTALL_RC':str(code)},want=code); assert not any('smc_connection_watch.py' in ' '.join(x['argv']) for x in c)
     c,o=run('successful exact guarded native invocation',('--port','Elite port name','--head-ref','/tmp/genuine head.bin'))
     inst=next(x['argv'] for x in c if x['argv'][0].endswith('fm1_install.py'))
-    watch=next(x['argv'] for x in c if 'smc_connection_watch.py' in ' '.join(x['argv']))
+    watch=next((x['argv'] for x in c if 'smc_connection_watch.py' in ' '.join(x['argv'])), None)
     for arg in ('--commit','--dev-record','--ctl','--backup','--verify-slots','--config','--port','--head-ref'): assert arg in inst
     assert inst[inst.index('--commit')+1]==runtime
     assert inst[inst.index('--config')+1]=='dev'
@@ -70,6 +72,18 @@ os.execv('''+repr(realtee)+''',['''+repr(realtee)+''', *a])
     assert inst[inst.index('--head-ref')+1]=='/tmp/genuine head.bin'
     assert inst[inst.index('--backup')+1].endswith('slots-before-install.x0xslots')
     assert not set(inst)&{'--yes','--force','--no-ctl','--no-slots'}
+    if manual:
+        assert watch is None and 'No automatic connection watcher or polling was started' in o
+        if manifest.get('host_tools'):
+            assert '/host-tools/tools/fm1_install.py' in inst[0]
+        for failure in ('install_append', 'install_initial'):
+            run('manual logging failure preserves native8 '+failure,updates={'INSTALL_RC':'8','FAIL_TEE':failure},want=8)
+            calls,_=run('manual success logging failure is74 '+failure,updates={'FAIL_TEE':failure},want=74)
+            assert not any('smc_connection_watch.py' in ' '.join(x['argv']) for x in calls)
+        calls,_=run('manual mode never invokes watcher even with watcher failure settings',updates={'WATCH_RC':'130','WRITE_SUMMARY':'0'})
+        assert not any('smc_connection_watch.py' in ' '.join(x['argv']) for x in calls)
+        print('PASS all manual-only launcher contracts; no automatic watcher or device access')
+        sys.exit(0)
     assert watch[watch.index('--seconds')+1]=='45' and watch[watch.index('--interval')+1]=='0.25'
     assert watch[watch.index('--port')+1]=='Elite port name'
     run('collector nonzero becomes incomplete20',updates={'WATCH_RC':'3'},want=20)
