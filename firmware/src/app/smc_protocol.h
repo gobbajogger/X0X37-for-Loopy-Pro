@@ -26,8 +26,9 @@ static inline int smc_relative(uint8_t value)
     return (value & 0x40u) ? -(int)(value & 0x3Fu) : (int)(value & 0x3Fu);
 }
 
-/* Host USB/peripheral BLE has no controller identity: opt-in User mode and
- * channel 16 isolate these messages from instruments and APC40 feedback. */
+/* Host USB/peripheral BLE has no original controller identity. Opt-in User
+ * mode reserves these channel-16 messages; the host must keep overlapping
+ * APC feedback out of that reservation. Direct SMC input has its own link. */
 static inline int smc_host_accept(uint8_t status, uint8_t data1, int user_mode)
 {
     uint8_t type = status & 0xF0u, a = data1 & 0x7Fu;

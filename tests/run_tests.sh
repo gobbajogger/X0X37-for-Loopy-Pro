@@ -57,7 +57,7 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-targets|installer-slots|installer-safety|installer-safety-web|slot-backup|upload-tools|\
+    installer|installer-targets|installer-slots|installer-safety|installer-safety-web|install-slot-verify|slot-backup|upload-tools|\
     breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
@@ -326,6 +326,7 @@ command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_s
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run installer-safety python3 tests/installer_safety_test.py
+run install-slot-verify python3 tests/install_slot_verify_test.py
 command -v node >/dev/null 2>&1 && run installer-safety-web node web/test_installer_safety.mjs
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
