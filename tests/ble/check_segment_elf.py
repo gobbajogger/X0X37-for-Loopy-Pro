@@ -29,3 +29,11 @@ for i in range(count):
     if row[2]&2 and row[5]:
         x=bytearray(b);struct.pack_into('<I',x,at+12,0x01c7fd50);reject(x)
 print('ELF fixture extractor: malformed tables, truncation, type and protected VMA rejection PASS')
+
+region=bytearray(b'\xff'*8192)
+assert len(m.record_slots(region,0xAD000))==2
+struct.pack_into('<H',region,0x1F06,0x5441)
+try:m.record_slots(region,0xAD000)
+except ValueError:pass
+else:raise AssertionError('record-like padding accepted')
+print('materialized external sectors: explicit padding and record-tag rejection PASS')

@@ -284,3 +284,11 @@ Use `descriptor_image_offset` from `fixture.json`. The native test runs the actu
 app validator against every descriptor byte and every UI payload byte corrupted
 individually. ASan/UBSan also passed on the retained actual fixture. Re-sealing or
 substituting an app binary that differs from the ELF is rejected.
+
+The controller fixture generator also emits whole fixed-size `region-N` fixtures
+with explicit FF padding and separate full-region CRC/SHA hashes. Those complete
+bytes, not an assumption about old flash contents beyond short segments, are the
+input required by the bundle/rollback study. External sectors are rejected if
+any sector-end record position has the update-record tag0x5441. The app/UI sealer
+performs the same conservative check for both UI sectors. This is not a proof of
+opaque SPL execution, nor a claim to restore original unused flash contents.

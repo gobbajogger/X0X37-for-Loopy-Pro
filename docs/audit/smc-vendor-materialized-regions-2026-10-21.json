@@ -1,0 +1,76 @@
+{
+  "model": "SMK-37 Elite",
+  "model_crc32": 2303463332,
+  "image_id": 1361286804,
+  "ram_lo": 29366272,
+  "ram_hi": 29392624,
+  "high_lo": 29873152,
+  "high_hi": 29879600,
+  "primary_executable_bytes": 91364,
+  "installable": false,
+  "bundle_generated": false,
+  "elf_sha256": "32270ce1ee210959e8376205916742f00d54b07815b926f1c44ccc17123c9501",
+  "segments": [
+    {
+      "file": "segment-0-NOT-INSTALLABLE.fixture",
+      "offset": 540672,
+      "size": 93180,
+      "sha256": "bcc274e1273458fc016eb09b8e51548752bf2e6ec538c3c1ca921800451fd3dd"
+    },
+    {
+      "file": "segment-1-NOT-INSTALLABLE.fixture",
+      "offset": 708608,
+      "size": 7272,
+      "sha256": "d0a6c0dfeb14024b5e27848f63436b273e3257607925e55f3bbfec6a64aea77a"
+    },
+    {
+      "file": "segment-2-NOT-INSTALLABLE.fixture",
+      "offset": 1040384,
+      "size": 3524,
+      "sha256": "db3fc96527ebc832853b10f5bca38332efded80cf033cc06dd0861df0825a9d7"
+    }
+  ],
+  "materialized_regions": [
+    {
+      "file": "region-0-NOT-INSTALLABLE.fixture",
+      "offset": 540672,
+      "size": 94208,
+      "padding_byte": 255,
+      "crc32": 3072101384,
+      "sha256": "f932189d1ef6d61b60693347b5fb54d7a0dc7001c2c83e573d98836139b64414",
+      "record_slots": []
+    },
+    {
+      "file": "region-1-NOT-INSTALLABLE.fixture",
+      "offset": 708608,
+      "size": 8192,
+      "padding_byte": 255,
+      "crc32": 3662935600,
+      "sha256": "3c3fa1f88b5a080788fce673738c9110bd9c41a78170ca1e6d1d078f6ad63b10",
+      "record_slots": [
+        {
+          "flash_offset": 712448,
+          "tag_at_plus6": 1982
+        },
+        {
+          "flash_offset": 716544,
+          "tag_at_plus6": 65535
+        }
+      ]
+    },
+    {
+      "file": "region-2-NOT-INSTALLABLE.fixture",
+      "offset": 1040384,
+      "size": 4096,
+      "padding_byte": 255,
+      "crc32": 2618553092,
+      "sha256": "0905950ad661147aa5de2cc1a16ae39f252814af8a48a7065c8d3915f8e5f0ed",
+      "record_slots": [
+        {
+          "flash_offset": 1044224,
+          "tag_at_plus6": 65535
+        }
+      ]
+    }
+  ]
+}

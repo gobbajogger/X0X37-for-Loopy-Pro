@@ -35,6 +35,9 @@ def seal(elf, image):
     ui=sections.get('.app_ui')
     if not ui or ui[1]!=1 or ui[2]&4 or ui[3]!=UI or ui[5]!=8192: raise ValueError('exact immutable UI region required')
     data=span(ui[4],ui[5])
+    for at in (0xF00, 0x1F00):
+        if struct.unpack_from('<H', data, at+6)[0]==0x5441:
+            raise ValueError('UI sector contains an update-record tag')
     if not 0<len(image)<=LIMIT or len(image)%4: raise ValueError('app partition overflow/alignment')
     reconstructed=bytearray(b'\xff'*len(image)); covered=set()
     for name,s in sections.items():

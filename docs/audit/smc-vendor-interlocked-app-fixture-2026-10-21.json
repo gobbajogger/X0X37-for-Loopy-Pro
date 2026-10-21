@@ -1,0 +1,16 @@
+{
+  "descriptor_vma": 33772324,
+  "descriptor_image_offset": 217604,
+  "descriptor_flash_offset": 234276,
+  "app_size": 521156,
+  "sealed_plaintext_app_crc32": 3021521323,
+  "ui_crc32": 1997393108,
+  "installable": false,
+  "bundle_generated": false,
+  "source_elf_sha256": "61cd9a1d4557afda36ef07722ebf01f7cc3c6f38a9e52efd31162cfa4b9ec62e",
+  "source_app_sha256": "7d6b633d84a40ae776117a44a4d952c343bc13404d0bc0c5ac2b64fdcbe66267",
+  "private_artifacts": {
+    "app-NOT-INSTALLABLE.fixture": "324435040ba2773e8f45edebd84ec5b2e1497746db23f90c9d9edee32aef15f6",
+    "ui-NOT-INSTALLABLE.fixture": "b3f4184cdb6c7bd52c50a7df644bdf7f813a090a0a5b0f2a7607901210ab48a9"
+  }
+}

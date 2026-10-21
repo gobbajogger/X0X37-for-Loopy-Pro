@@ -21,6 +21,18 @@ def crc(data):
     return zlib.crc32(data) & 0xffffffff
 
 
+def record_slots(region, flash_offset):
+    records = []
+    if len(region) % 0x1000:
+        raise ValueError('whole sectors required')
+    for pos in range(0xF00, len(region), 0x1000):
+        tag = struct.unpack_from('<H', region, pos + 6)[0]
+        if tag == 0x5441:
+            raise ValueError('external sector contains update-record tag')
+        records.append({'flash_offset': flash_offset + pos, 'tag_at_plus6': tag})
+    return records
+
+
 def extract(elf, model):
     def read(fmt, off):
         size = struct.calcsize(fmt)
@@ -169,10 +181,21 @@ def main():
     a.out.mkdir(parents=True)
     meta.update(installable=False, bundle_generated=False, elf_sha256=hashlib.sha256(a.elf.read_bytes()).hexdigest())
     meta['segments'] = []
+    meta['materialized_regions'] = []
     for i, image in enumerate(images):
         name = f'segment-{i}-NOT-INSTALLABLE.fixture'
         (a.out / name).write_bytes(image)
         meta['segments'].append(dict(file=name, offset=RANGES[i][0], size=len(image), sha256=hashlib.sha256(image).hexdigest()))
+        # Whole-sector bytes are explicit input to the separate bundle writer.
+        # The manifest still describes actual stored bytes; the bundle binds all
+        # padding as well, so stale sector-end update records cannot hide there.
+        region = bytes(image) + b'\xff' * (RANGES[i][1] - len(image))
+        records = record_slots(region, RANGES[i][0]) if i else []
+        full_name = f'region-{i}-NOT-INSTALLABLE.fixture'
+        (a.out / full_name).write_bytes(region)
+        meta['materialized_regions'].append(dict(file=full_name, offset=RANGES[i][0],
+            size=len(region), padding_byte=255, crc32=crc(region),
+            sha256=hashlib.sha256(region).hexdigest(), record_slots=records))
     (a.out / 'NON-INSTALLABLE.txt').write_text('Manifest validation fixture only. No all-piece updater, app admission, live-memory or hardware approval. NEVER INSTALL.\n')
     (a.out / 'manifest.json').write_text(json.dumps(meta, indent=2) + '\n')
     print(json.dumps(meta, indent=2))

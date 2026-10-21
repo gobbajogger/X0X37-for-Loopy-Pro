@@ -39,3 +39,26 @@ Private ELF/map/bin hashes are in the companion JSON. These artifacts remain
 outside Git. Reproduce with the README's baseline archive + prepare/admission/
 bridge scripts and exact pinned toolchain. The ordinary build ceiling printed by
 the diagnostic export is not a substitute for comparing against524000 here.
+
+## Update interlock continuation
+
+Commit4b38a2b wires a never-started recovery latch before OTA staging, refuses
+legacy loaders or staging over existing records, and prevents TEST app cleanup
+from deleting persistent recovery records. Actual `ota_session` native tests
+verify no host requests, commit, NOR changes or cleanup erase on denied paths.
+This costs48 B: the current real app is **521156 B**, leaving **2844 B**, with main
+RAM/pool unchanged. It does not prove warm-reset RF/DMA quiescence: installation
+still requires explicitly admitted cold recovery. Full loader/bundle admission
+and rollback are separate pending work.
+
+The updated app fixture metadata binds the exact new ELF and sealed app/UI bytes;
+the font glyph data is unchanged, while two primary charset pointers necessarily
+move with the app layout. Exact app/UI pairing is therefore mandatory.
+
+Full controller region fixtures now materialize and hash every padding byte.
+AEF00/FEF00 are explicitly FF in those fixtures rather than unknown old contents.
+Every external sector-end record position is checked. Any eventual rollback
+that leaves these known inert bytes must be called **logical baseline rollback**,
+not original/byte-for-byte flash restoration; no historical spare bytes are
+invented. Samples, store objects, owner tag, calibration and key remain outside
+this operation's authority.
