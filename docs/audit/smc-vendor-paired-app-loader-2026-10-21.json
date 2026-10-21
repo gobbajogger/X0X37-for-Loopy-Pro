@@ -1,0 +1,30 @@
+{
+  "installable": false,
+  "app_partition": 524000,
+  "app_margin": 2844,
+  "baseline": "816e0d3987bcb69be972cff2cd4df4469969f196",
+  "loader_source_baseline": "ca6c21be5de21b990674dcf315be41262285dd10",
+  "source_commit": "f57f73904737432306311ddecde6e043bf9a8798",
+  "artifacts": {
+    "x0x.bin": {
+      "bytes": 521156,
+      "sha256": "7d6b633d84a40ae776117a44a4d952c343bc13404d0bc0c5ac2b64fdcbe66267"
+    },
+    "x0x.elf": {
+      "bytes": 575728,
+      "sha256": "61cd9a1d4557afda36ef07722ebf01f7cc3c6f38a9e52efd31162cfa4b9ec62e"
+    },
+    "x0x.map": {
+      "bytes": 97528,
+      "sha256": "1001960ef108c629cfb9bd4ea8c1abde95fed210751c7d83a6b15daea4d4a46e"
+    },
+    "loader/loader.bin": {
+      "bytes": 11776,
+      "sha256": "d68487a8d31b92508f80fb67c18de214820ad7c14c3398f26e4668b4f7c71de8"
+    },
+    "loader/ota.bin": {
+      "bytes": 10051,
+      "sha256": "492625579e42af2c5773912bed71cfb8989b5682dbc506b4c06b497a141e0937"
+    }
+  }
+}
