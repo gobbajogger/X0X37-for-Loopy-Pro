@@ -1,0 +1,11 @@
+In file included from /workspace/scratch/92f983668cdd/sequencer-repair/host/x0x_host.c:259,
+                 from /workspace/scratch/92f983668cdd/sequencer-repair/tests/host/motion_ui_test.c:5:
+/workspace/scratch/92f983668cdd/sequencer-repair/host/../firmware/src/app/ui.c: In function ‘pref_set’:
+/workspace/scratch/92f983668cdd/sequencer-repair/host/../firmware/src/app/ui.c:513:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  513 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+/workspace/scratch/92f983668cdd/sequencer-repair/host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+/workspace/scratch/92f983668cdd/sequencer-repair/host/../firmware/src/app/ui.c:2059:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2059 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+motion UI/engine: 54 checks, 0 failures

@@ -91,19 +91,30 @@ static uint32_t rng_next(uint32_t *r)
 static int next_pos(seq_t *s, int t, int p, int commit)
 {
     seq_track_t *tr = &s->t[t];
-    int len = seq_part_len(s, t), dir = is_bass(t) ? bpart(s, t - TRK_BASS0)->dir : DIR_FWD, n;
+    int len = seq_part_len(s, t), dir = is_bass(t) ? bpart(s, t - TRK_BASS0)->dir : DIR_FWD, n, d;
     switch (dir & 3) {
     case DIR_REV:
         return (p - 1 + len) % len;
     case DIR_PINGPONG:
-        if (len == 1)
-            return 0;
-        n = p + tr->pp_dir;
-        if (n >= len || n < 0) {
-            n = p - tr->pp_dir;
+        if (len == 1) {
             if (commit)
-                tr->pp_dir = (int8_t)-tr->pp_dir;
+                tr->pp_dir = 1;
+            return 0;
         }
+        /* A live length edit may leave the old playhead beyond the new end.
+         * Normalize locally so look-ahead and committed playback agree. */
+        if (p >= len)
+            p = len - 1;
+        if (p < 0)
+            p = 0;
+        d = tr->pp_dir < 0 ? -1 : 1;
+        n = p + d;
+        if (n >= len || n < 0) {
+            d = -d;
+            n = p + d;
+        }
+        if (commit)
+            tr->pp_dir = (int8_t)d;
         return n;
     case DIR_RANDOM:
         if (!commit)
@@ -352,7 +363,7 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         wrapped = 0;
     } else {
         p = next_pos(s, t, tr->pos, 1);
-        wrapped = !bass ? p == 0 : p == 0 || (bpart(s, t - TRK_BASS0)->dir == DIR_REV && p == seq_part_len(s, t) - 1);
+        wrapped = p == ((bass && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0);
     }
     if (wrapped && t == TRK_DRUM && (changed = bar_end(s, 0)) != 0) {
         rate = part_rate(s, t);                       /* the 909's new pattern */

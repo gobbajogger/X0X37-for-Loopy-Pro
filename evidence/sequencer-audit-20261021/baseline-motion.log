@@ -1,0 +1,18 @@
+  FAIL motion (see build/host/motion.log)
+         FAIL tests/host/motion_test.c:78: incoming pattern owns target, order=0 equal=1 step=14 actual=60
+         FAIL tests/host/motion_test.c:78: incoming pattern owns target, order=0 equal=1 step=15 actual=60
+         FAIL tests/host/motion_test.c:82: return pattern owns target, order=1 equal=0
+         FAIL tests/host/motion_test.c:82: return pattern owns target, order=1 equal=1
+         FAIL tests/host/motion_test.c:102: clear restores original base, path=0
+         FAIL tests/host/motion_test.c:102: clear restores original base, path=1
+         FAIL tests/host/motion_test.c:102: clear restores original base, path=2
+         FAIL tests/host/motion_test.c:115: tick releases only the retired target
+         FAIL tests/host/motion_test.c:118: reuse releases old target then applies new, path=0
+         FAIL tests/host/motion_test.c:120: Stop releases the new target
+         FAIL tests/host/motion_test.c:118: reuse releases old target then applies new, path=1
+         FAIL tests/host/motion_test.c:120: Stop releases the new target
+         FAIL tests/host/motion_test.c:129: deleting last probability lock restores 100
+       motion runtime: lane=11 bytes, all lanes=1760 bytes, motion=1864 bytes
+       motion: FAIL
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED

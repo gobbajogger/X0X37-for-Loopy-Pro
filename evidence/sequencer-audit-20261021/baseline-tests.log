@@ -1,0 +1,42 @@
+  FAIL sequencer (see build/host/sequencer.log)
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=23 actual=63
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=24 actual=62
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=25 actual=63
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=26 actual=62
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=27 actual=63
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=28 actual=62
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=29 actual=63
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=30 actual=62
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=31 actual=63
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=32 actual=62
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=33 actual=63
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=34 actual=62
+         FAIL tests/host/seq_test.c:1216: playback stays inside shortened length=16 old direction=1 step=35 actual=63
+         ping-pong live length edits, both directions and one-step patterns: checked
+       seq: FAIL
+  FAIL motion (see build/host/motion.log)
+         FAIL tests/host/motion_test.c:78: incoming pattern owns target, order=0 equal=1 step=13 actual=60
+         FAIL tests/host/motion_test.c:78: incoming pattern owns target, order=0 equal=1 step=14 actual=60
+         FAIL tests/host/motion_test.c:78: incoming pattern owns target, order=0 equal=1 step=15 actual=60
+         FAIL tests/host/motion_test.c:82: return pattern owns target, order=1 equal=0
+         FAIL tests/host/motion_test.c:82: return pattern owns target, order=1 equal=1
+         FAIL tests/host/motion_test.c:102: clear restores original base, path=0
+         FAIL tests/host/motion_test.c:102: clear restores original base, path=1
+         FAIL tests/host/motion_test.c:102: clear restores original base, path=2
+         FAIL tests/host/motion_test.c:115: tick releases only the retired target
+         FAIL tests/host/motion_test.c:118: reuse releases old target then applies new, path=0
+         FAIL tests/host/motion_test.c:120: Stop releases the new target
+         FAIL tests/host/motion_test.c:118: reuse releases old target then applies new, path=1
+         FAIL tests/host/motion_test.c:120: Stop releases the new target
+         FAIL tests/host/motion_test.c:129: deleting last probability lock restores 100
+       motion: FAIL
+  FAIL project-stage (see build/host/project-stage.log)
+       tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+       tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+       tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+       tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+       tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+       tests/host/project_stage_test.c:604: legacy kick-pan migration survives load and resave: l->used && l->t == targets[k] && l->v == 0 && l->i == new_pan[k]
+       project staging: 24857 checks, 6 failures; real storage, defaults and sample metadata
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+TESTS FAILED
