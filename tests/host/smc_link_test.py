@@ -45,7 +45,7 @@ harness = r'''
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
 typedef struct { uint8_t kind, a, b, c; } pref_t;
-enum { O_NONE, O_ASK };
+enum { O_NONE, O_ASK, NKIT = 2 };
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { uint8_t overlay, help; } ui;
 static int locked, interrupt_at, interrupt_up;
@@ -55,7 +55,8 @@ static int perf_testing(void);
 static int ui_project_busy(void);
 static void engine_smc_solo(int n) { solo = (unsigned)n; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; notices++; }
-''' + prefix + "\n" + "\n".join(function(source, name) for name in (
+''' + prefix + "\n" + "\n".join(function(source, name) for name in
+    ("smc_project_active", "smc_solo_clear") if "smc_solo_clear" in source) + "\n" + "\n".join(function(source, name) for name in (
     "smc_project_drop", "smc_project_reset", "smc_ble_midi", "smc_ble_link")) + r'''
 static uint8_t ble_central_link_seen;
 ''' + function(transport, "ble_central_link_notify") + r'''
