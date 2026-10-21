@@ -47,6 +47,12 @@ extern xb_mbox_t *ctl_mb;
 
 /* Scheduler and timer internals */
 void ctl_os_init(void);
+#if defined(CTL_VENDOR_HOST_TEST) && CTL_VENDOR_HOST_TEST
+int ctl_os_bootstrap_begin(u32 timeout_ms); /* once around vendor btstack_init, at most 5000 ms */
+void ctl_os_bootstrap_end(void);
+void ctl_vendor_events_reset(void);
+int ctl_vendor_host_ready(void);
+#endif
 int  ctl_os_run_once(void);       /* one pass: timers, host mailbox, each runnable task; 1 = a task ran */
 void ctl_timer_poll(void);
 u32  ctl_ms(void);

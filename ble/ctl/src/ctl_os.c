@@ -8,7 +8,10 @@
 #include "ctl_port.h"
 
 
-#define CTL_MAX_TASKS   1   /* btctrler_task_init creates one controller task */
+#ifndef CTL_VENDOR_HOST_TEST
+#define CTL_VENDOR_HOST_TEST 0
+#endif
+#define CTL_MAX_TASKS (CTL_VENDOR_HOST_TEST ? 2 : 1)
 #define CTL_TASKQ_WORDS 64
 
 struct ctl_task {
@@ -27,6 +30,40 @@ struct ctl_task {
 static struct ctl_task tasks[CTL_MAX_TASKS];
 static struct ctl_task *cur;           /* NULL = idle context */
 static struct ctl_ctx idle_ctx;
+#if CTL_VENDOR_HOST_TEST
+static u32 bootstrap_deadline;
+static u8 bootstrap_active, bootstrap_running;
+
+/* Only ctl_init may enable this window, around the single btstack_init call.
+ * The vendor waits for controller-ready before creating its host task. Running
+ * the existing scheduler on the already-owned init stack avoids a third task. */
+int ctl_os_bootstrap_begin(u32 timeout_ms)
+{
+    if (cur || bootstrap_active || !timeout_ms || timeout_ms > 5000u) return -1;
+    bootstrap_deadline = ctl_ms() + timeout_ms;
+    bootstrap_active = 1;
+    return 0;
+}
+void ctl_os_bootstrap_end(void) { bootstrap_active = 0; }
+
+static int bootstrap_pump(void)
+{
+    if (!bootstrap_active || bootstrap_running) { ctl_fail(XB_E_ASSERT); return -1; }
+    if ((s32)(ctl_ms() - bootstrap_deadline) >= 0) { ctl_fail(XB_E_TASK); return -1; }
+    bootstrap_running = 1;
+    ctl_os_run_once();
+    bootstrap_running = 0;
+    ctl_port_wdt_feed();
+    return 0;
+}
+
+static void bootstrap_delay(u32 end)
+{
+    while ((s32)(ctl_ms() - end) < 0)
+        if (bootstrap_pump()) return;
+}
+#endif
+
 
 /* Stack size by task name. The SDK uses a name table; this image has
  * only the controller task, so one default is enough. */
@@ -35,8 +72,14 @@ static struct ctl_ctx idle_ctx;
 static struct ctl_task *find(const char *name)
 {
     if (!name) return cur;
-    /* This image has one controller task. The SDK's named queue always addresses it. */
+#if CTL_VENDOR_HOST_TEST
+    for (int i = 0; i < CTL_MAX_TASKS; ++i)
+        if (tasks[i].used && !strcmp(tasks[i].name, name)) return &tasks[i];
+    return NULL;
+#else
+    /* The ABI-2 controller image has only one task. */
     return tasks[0].used ? &tasks[0] : NULL;
+#endif
 }
 
 static void task_trampoline(void)
@@ -48,6 +91,9 @@ static void task_trampoline(void)
 
 int task_create(void (*fn)(void *p), void *p, const char *name)
 {
+#if CTL_VENDOR_HOST_TEST
+    if (!fn || !name || find(name)) return -1;
+#endif
     for (int i = 0; i < CTL_MAX_TASKS; i++) {
         struct ctl_task *t = &tasks[i];
         if (t->used) continue;
@@ -68,6 +114,9 @@ int task_kill(const char *name)
     t->used = 0;
     if (t == cur) ctl_port_ctx_switch(&t->ctx, &idle_ctx);
     free(t->stack);
+#if CTL_VENDOR_HOST_TEST
+    t->stack = NULL;
+#endif
     return 0;
 }
 
@@ -99,6 +148,9 @@ int os_taskq_post_type(const char *name, int type, int argc, int *argv)
 {
     struct ctl_task *t = find(name);
     if (!t) return OS_TASK_NOT_EXIST;
+#if CTL_VENDOR_HOST_TEST
+    if (argc < 0 || argc > CTL_TASKQ_WORDS - 3 || (argc && !argv)) return OS_Q_FULL;
+#endif
     u32 f = ctl_port_irq_save();
     if (CTL_TASKQ_WORDS - 1 - taskq_count(t) < argc + 2) { ctl_port_irq_restore(f); return OS_Q_FULL; }
     t->q[t->qhead++ & (CTL_TASKQ_WORDS - 1)] = argc + 1;
@@ -155,6 +207,17 @@ int os_sem_pend(void *sem, int timeout)   /* timeout in ticks (10 ms), 0 = forev
     for (;;) {
         u32 f = ctl_port_irq_save();
         if (s->count > 0) { s->count--; ctl_port_irq_restore(f); return OS_NO_ERR; }
+#if CTL_VENDOR_HOST_TEST
+        if (!cur) {
+            ctl_port_irq_restore(f);
+            /* btctrler_task_ready posts a controller message then waits on an
+             * 80-byte SDK semaphore. Only the explicit startup window may
+             * pump that task; timer/normal-idle waits still fail closed. */
+            if (timeout && (s32)(ctl_ms() - end) >= 0) return OS_TIMEOUT;
+            if (bootstrap_pump()) return OS_TIMEOUT;
+            continue;
+        }
+#endif
         if (timeout && (s32)(ctl_ms() - end) >= 0) {
             ctl_port_irq_restore(f);
             return OS_TIMEOUT;
@@ -172,6 +235,10 @@ int os_mutex_del(void *m, int force) { (void)m; (void)force; return OS_NO_ERR; }
 
 void os_time_dly(int ticks)
 {
+#if CTL_VENDOR_HOST_TEST
+    if (ticks < 0) { ctl_fail(XB_E_ASSERT); return; }
+    if (!cur && ticks) { bootstrap_delay(ctl_ms() + (u32)ticks * (1000u / OS_TICKS_PER_SEC)); return; }
+#endif
     u32 end = ctl_ms() + (u32)ticks * (1000u / OS_TICKS_PER_SEC);
     for (;;) {
         u32 f = ctl_port_irq_save();
@@ -180,7 +247,13 @@ void os_time_dly(int ticks)
     }
 }
 
-void ctl_os_init(void) { memset(tasks, 0, sizeof(tasks)); cur = NULL; }
+void ctl_os_init(void)
+{
+    memset(tasks, 0, sizeof(tasks)); cur = NULL;
+#if CTL_VENDOR_HOST_TEST
+    bootstrap_active = bootstrap_running = 0;
+#endif
+}
 
 /* One pass: timers and the host mailbox, then each task that may be runnable.
  * A task re-checks its own wait condition. */
@@ -201,6 +274,9 @@ int ctl_os_run_once(void)
         cur = t;
         ctl_port_ctx_switch(&idle_ctx, &t->ctx);
         cur = NULL;
+#if CTL_VENDOR_HOST_TEST
+        if (!t->used && t->stack) { free(t->stack); t->stack = NULL; }
+#endif
         ran = 1;
     }
     return ran;
