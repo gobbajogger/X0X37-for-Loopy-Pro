@@ -1,18 +1,20 @@
 # Task ownership and shared work
 
-- Start each task in a fresh chat. This includes work continued from another chat.
-  Complete the task in its assigned fresh chat. Do not create another copy of that task.
-
-  Apply [chat routing](routing.md) before choosing its destination.
-  Logical workflow stages do not each need another chat; use [rules 17 and 18](../../x0x37-workflow/SKILL.md).
-- Use old chats for context and handoff details. The owner permits new agents to request that information.
-  The owner permits requests for a completion notice from a working chat. The owner also permits that reply.
-
-  Continue in the fresh chat when the notice arrives. Do not use polling or a timer automation.
-  Do not assign new execution work to an old chat.
-- At task start, check other project chats. Read their current status and scope before shared work.
-  Check again before shared changes if that information can be out of date.
-
-  Do not duplicate work or compete for ownership.
-- Use a separate lane for each task. Preserve other work.
-  Stop only your own processes by PID. Never use `pkill -f` or `killall` on shared scripts.
+- Keep each assigned task with its current owner in an isolated lane. Use fresh
+  bounded tasks for genuinely independent work or required review, not every stage
+  or continuation. Do not duplicate running work to change chat type or machine.
+  Apply [development routing](routing.md) and [rules 17 and 18](../../x0x37-workflow/SKILL.md).
+- At task start, check available project activity and handoffs. Read relevant
+  current status and scope before shared work; refresh them when they may be stale.
+  If visibility is missing, state it and do not assume that another task is idle.
+- Prior chats are evidence, not new assignments. Existing permission covers needed
+  context, handoff details, and requested completion notices, unless the owner has
+  restricted contact. Do not send unrelated messages or assign duplicate work.
+  Use a supported completion notice when possible; do not add a timer automation
+  merely to wait for a running task. An uncertain handoff remains pending.
+- The assigned integrator alone controls firmware candidate assembly and branch order.
+  A task or machine change does not transfer that role. Before another owner continues,
+  verify the receiving owner and record either the final result or an explicit transfer
+  with the current result/state. Do not silently take over or duplicate active work.
+- Preserve other work. Stop only your own processes by PID. Never use `pkill -f`
+  or `killall` on shared scripts. Do not share device writes or overwrite live checks.

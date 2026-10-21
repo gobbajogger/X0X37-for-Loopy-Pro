@@ -1,42 +1,46 @@
-# Start in classic ChatGPT
+# Develop on dot's cloud machine
 
-Start every new project task in a fresh classic ChatGPT thread inside **LoopyX0X37**.
-Use the ChatGPT project `g-p-ad9d6d4ab04c8191af6aa22fd752707e`, verified with `list_projects` on 2026-10-21.
-The local Codex project has the same name and is a different destination.
-Keep discussion, requirements, planning, research, explanations, supplied-code review, and drafts in classic ChatGPT.
-Use available project context or supplied evidence; never claim access to local files or tools that the chat lacks.
+The owner's 2026-10-21 choice is development on dot's cloud machine with native
+subagents where the current interface exposes them. Keep project context and
+verified inputs together. Ordinary ChatGPT may supply discussion or context;
+it is not a mandatory starting point, return destination, or manual relay.
+Do not automatically launch Codex tasks or new agents for workflow stages.
+These project instructions do not change platform rules, tool permissions,
+custom approval settings, or account limits. Do not promise quota resets or savings.
 
-Use Codex only when an authorized task needs execution unavailable in classic ChatGPT:
-local repository inspection or edits, commands, tests, builds, integration, artifact verification, or device installation.
-Before starting it, identify the exact operation, why its tools are needed, inputs, existing permission, and completion condition.
-Installation is a normal example. A code topic or workflow stage alone is not a reason to start Codex.
-An explicit owner instruction to use Codex takes priority.
+Preserve Audit → Implement → Test → Validate → Merge → Install → Push as applicable.
+Stages are logical checks, not required new chats. Keep necessary authorized work
+together under one integration owner. Use a fresh bounded task or reviewer when
+its independent scope, context, tools, or required review makes it useful.
+Use [helper scope](../../x0x37-shared-work/SKILL.md); do not create helper churn.
+Available tools and permissions govern execution. If delegation is unavailable,
+continue independent work sequentially; report a required independent review as pending.
 
-Preserve the Audit → Implement → Test → Validate → Merge → Install → Push workflow.
-Classic chat can follow sequential steps and prepare handoffs. A stage change alone needs no new agent.
-Use autonomous chains or subagents only where the current interface exposes those tools and the work justifies them.
-Official documentation confirms subagents for eligible ChatGPT Work and Codex accounts; classic-chat support is unverified.
-Keep classic chat sequential when delegation is unavailable. Do not pretend that a prompt creates a subagent.
-Work and Codex share usage limits; subagents add model/tool work. A different chat label proves no saving.
-Use [helper scope](../../x0x37-shared-work/SKILL.md) for permitted delegation.
+Use isolated worktrees or independent clones for independent edits. Do not infer
+shared files or permissions across executors. Verify readable local inputs before
+starting dependent work. Reuse approved SDK, toolchain, reference, capture, sample,
+and controller assets only after their exact identity and compatibility are checked
+under [build setup](../../x0x37-check/references/build-environment.md).
+Apply [evidence reuse](../../x0x37-check/references/validation.md): distinguish a fresh
+application build with a retained verified controller from a fresh controller build,
+and historical evidence from checks actually rerun. Missing inputs block only their
+dependent work; do not weaken ABI, source, model, data, sample-quality, or budget guards.
 
-Give one bounded Codex task a compact handoff with the project, lane, revision, requested operations,
-relevant skill paths, evidence, and result needed. Keep necessary edits and checks together when ownership permits.
-Reuse matching evidence. Avoid repeated context gathering, duplicate checks, unnecessary successor agents, and idle monitoring.
-Supported, authorized chains and helpers remain available; they are not mandatory for each stage.
-Return the execution result and evidence to the originating classic project thread for the next decision.
-Check its project membership before a permitted message; carry the result as a handoff if messaging is unavailable.
-Preserve data safeguards, sole firmware integration ownership, and existing action permissions.
+Reserve the local Mac for installation and hardware access that the cloud machine
+cannot provide. Transfer exact validated artifacts and evidence to its designated
+installer under [install scope](../../x0x37-install/references/artifacts.md).
+A cloud build is not an install or hardware PASS. A blocked installation stays pending;
+do not skip it to push. Existing specific action permissions still apply.
 
-For a new task received in Codex without a concrete execution need, provide a short ready-to-paste prompt
-and the [LoopyX0X37 project](https://chatgpt.com/g/g-p-ad9d6d4ab04c8191af6aa22fd752707e/project), then stop agentic work.
-Do not silently replace classic project chat with general ChatGPT, ChatGPT Work, or a cloud agent.
-Use Work only for separately authorized, necessary agentic work with verified tools and project scope.
-If supported tools cannot create a classic project thread, say so and leave that launch to the owner.
-Do not report a saved prompt as a started thread. Local instructions cannot enforce the app's New chat default,
-install themselves into classic ChatGPT project instructions, or guarantee any usage saving.
-The project instruction text for classic ChatGPT is [saved here](../../../docs/chatgpt-project-instructions.txt).
+A routing change does not move running work. Its current owner finishes the assigned
+candidate or explicitly transfers it before another owner begins. Never duplicate
+an active firmware candidate. The transition assignment is recorded in the
+[owner decision](../../../docs/USER_PREFERENCES.md#cloud-development-and-native-subagents).
+Return results directly to the coordinating task or owner with exact revisions,
+checks, gaps, artifacts, and one receiving owner. No ordinary-chat relay is required.
+Use [handoff verification](../../x0x37-workflow/references/handoff.md) only for a necessary transfer.
 
-This supersedes mandatory Codex stage launches and one execution thread per stage, not the staged workflow itself.
-Finish already authorized execution and required safety checks in its assigned lane.
-Apply this routing at its next handoff; do not migrate or duplicate running work just to change chat type.
+This supersedes classic-chat-first/manual-return routing and mandatory fresh-chat
+continuations, not the staged workflow or source and action safeguards. The saved
+[project instruction text](../../../docs/chatgpt-project-instructions.txt) reflects
+this choice; changing repository files does not install app-level project settings.
