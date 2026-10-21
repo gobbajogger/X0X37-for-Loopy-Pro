@@ -134,8 +134,8 @@ def main():
     write(workspace / 'AGENTS.md', f'''# x0x37 workspace
 
 Initialize [$x0x37-task](.agents/skills/x0x37-task/SKILL.md) at task start.
-Apply [chat routing](.agents/skills/x0x37-task/references/routing.md): start in classic ChatGPT inside LoopyX0X37.
-Reserve Codex for necessary tool execution; do not automatically launch Codex stage chains.
+Apply [development routing](.agents/skills/x0x37-task/references/routing.md): develop on dot's cloud machine with supported native subagents.
+Keep one integration owner; no ordinary-chat relay or automatic Codex stage launches.
 Initialize [$x0x37-writing](.agents/skills/x0x37-writing/SKILL.md) before output.
 Use [skill triggers](agent-rules.md) when each later step begins.
 Read the selected `SKILL.md`. Do not load the old rule files.

@@ -1,0 +1,249 @@
+[
+  {
+    "path": "AGENTS.md",
+    "before": {
+      "bytes": 1055,
+      "words": 134,
+      "sha256": "04d45e967e955154dc916f1c49f1a288c762e4502824f0b5ff4a11e1d97b6534"
+    },
+    "after": {
+      "bytes": 600,
+      "words": 67,
+      "sha256": "fdae001badc14bd4169898cd9bc5c5eeca5ed6b199250ce88da2a30f2382666e"
+    }
+  },
+  {
+    "path": "docs/agent-rules.md",
+    "before": {
+      "bytes": 1817,
+      "words": 179,
+      "sha256": "1dc89305d33d85ae4195908cf57586ccc388e41b814155d9c718a0c371d4a920"
+    },
+    "after": {
+      "bytes": 1830,
+      "words": 178,
+      "sha256": "cb6af282cdf67cb80fd0a0fed97f9d59a3c7fee9999722ba79b1da441009c074"
+    }
+  },
+  {
+    "path": "docs/AGENTS_AND_ROOMS.md",
+    "before": {
+      "bytes": 567,
+      "words": 63,
+      "sha256": "abf7c73da6a32687e9d285c6047904698d8c5d5d480e4fd54ef2d3abec494ccd"
+    },
+    "after": {
+      "bytes": 746,
+      "words": 91,
+      "sha256": "c0b7ce994de376f284dd04e6f5a8eec288b3060f4f40ce77c0cba94fff1e63a7"
+    }
+  },
+  {
+    "path": "docs/SKILLS.md",
+    "before": {
+      "bytes": 2104,
+      "words": 248,
+      "sha256": "3148e67ed9dcff76d0367b7d14c801aceb5462e0f3eca230c50d6ef8ce976528"
+    },
+    "after": {
+      "bytes": 1774,
+      "words": 206,
+      "sha256": "ea5e818a8ab0b0ba8a8cb40e98746968b85e2b2f6e5256278a51372897ca3bc2"
+    }
+  },
+  {
+    "path": "docs/chatgpt-project-instructions.txt",
+    "before": {
+      "bytes": 1894,
+      "words": 268,
+      "sha256": "2a7e6c16577630a800ad61a5bb913b5a03bd4c68552d93b202f163096d1c0ce5"
+    },
+    "after": {
+      "bytes": 2022,
+      "words": 291,
+      "sha256": "99a18f792d6ac74fbf10a6ebbd3711734a93c60ecf95a10f6b869318511b0228"
+    }
+  },
+  {
+    "path": "docs/USER_PREFERENCES.md",
+    "before": {
+      "bytes": 51461,
+      "words": 7920,
+      "sha256": "8232ed0bb9990c28e349dc4d1510536b2e28206fa2c235f51a359debdf0fa9a4"
+    },
+    "after": {
+      "bytes": 53948,
+      "words": 8223,
+      "sha256": "002840d2173a3b99c063de2eadc16431f6543a58e481bcecf0fded50a7f6dd53"
+    }
+  },
+  {
+    "path": "skills/workflows.json",
+    "before": {
+      "bytes": 2639,
+      "words": 262,
+      "sha256": "f81db9b22c3662d4bab8988b7f4deb3e4ef6ea2ea06e44cab807d99865cd2d9c"
+    },
+    "after": {
+      "bytes": 2638,
+      "words": 261,
+      "sha256": "956e382d26ca5ac7a0eaa6fc78e21f641c4d9d10f2a6fa286b098d4bf6bee28e"
+    }
+  },
+  {
+    "path": "skills/x0x37-task/SKILL.md",
+    "before": {
+      "bytes": 2505,
+      "words": 364,
+      "sha256": "c3ae0d6f762214064e9a43fe3b5192e64bb891ee5ae736bf8d232397527891c0"
+    },
+    "after": {
+      "bytes": 2655,
+      "words": 376,
+      "sha256": "9560aa1023d65d8c15d6ec24be769cae66cbf488a51117db03052fc62f6bfc6c"
+    }
+  },
+  {
+    "path": "skills/x0x37-task/references/routing.md",
+    "before": {
+      "bytes": 3696,
+      "words": 520,
+      "sha256": "2f413daf468230f8fb1dc8215929f983bb224f105e2b8e4160feb79984b19a70"
+    },
+    "after": {
+      "bytes": 3256,
+      "words": 417,
+      "sha256": "4bb682312d5470c76af47e53d8eca99389b52f35e5bbfaf0cdf255c93fae61ef"
+    }
+  },
+  {
+    "path": "skills/x0x37-task/references/ownership.md",
+    "before": {
+      "bytes": 1127,
+      "words": 186,
+      "sha256": "e85e66fb8451e1717a9456f0743a9d9169e58d0039eaa42bce9f3cd882d561a1"
+    },
+    "after": {
+      "bytes": 1535,
+      "words": 236,
+      "sha256": "b231da17ece95956e231f2b54706dda4d9e8a0bab568443e6e2649f53be7b232"
+    }
+  },
+  {
+    "path": "skills/x0x37-shared-work/SKILL.md",
+    "before": {
+      "bytes": 2064,
+      "words": 303,
+      "sha256": "dfe3ca37cde061195d638c02d1b7f4b15d82997a554ab6f68af3a5c00a33ce91"
+    },
+    "after": {
+      "bytes": 1962,
+      "words": 285,
+      "sha256": "7d508af048db864e46c1de72379818df26149f3e78f64a74c3e10eae76db7a57"
+    }
+  },
+  {
+    "path": "skills/x0x37-owner-decisions/SKILL.md",
+    "before": {
+      "bytes": 2640,
+      "words": 365,
+      "sha256": "6a0382297f39cf25ae582a7fd581cfc628ad8dbf70b26067e907b26b2859b9d4"
+    },
+    "after": {
+      "bytes": 2653,
+      "words": 366,
+      "sha256": "159d704c1c810a63483a208a15c0524444d7a45d8df42aea9f05095c19af1d9d"
+    }
+  },
+  {
+    "path": "skills/x0x37-workflow/SKILL.md",
+    "before": {
+      "bytes": 1559,
+      "words": 209,
+      "sha256": "691beaaecc7c6a1104f49c636d57332e685698c6a75b4819efe057d9c3efc38d"
+    },
+    "after": {
+      "bytes": 1626,
+      "words": 218,
+      "sha256": "763e8daaafc1f1a1f1e08896e2938da8d30226c91910c20cebb9f9f189741e73"
+    }
+  },
+  {
+    "path": "skills/x0x37-workflow/references/handoff.md",
+    "before": {
+      "bytes": 2850,
+      "words": 403,
+      "sha256": "0d5bdea5a5932ca0e6f84ac60941b77d38795ebdf96088c7b80d4b4c91b3ee8c"
+    },
+    "after": {
+      "bytes": 2324,
+      "words": 319,
+      "sha256": "5ad2d6fb4d5e0bb9cc27faefb52efbfe958c9d875b7fad3b34de2bdd2a648dfe"
+    }
+  },
+  {
+    "path": "skills/x0x37-workflow/references/stages.md",
+    "before": {
+      "bytes": 2834,
+      "words": 358,
+      "sha256": "43f85fdc977a39005b9c0513b4c188a243d780428122e0092bbfff2f66cf8e25"
+    },
+    "after": {
+      "bytes": 2920,
+      "words": 370,
+      "sha256": "d345f727f5400fbb8c6d6191a3268477b660e1a9ffbc9072f3aa4c7f4f370a93"
+    }
+  },
+  {
+    "path": "skills/x0x37-check/references/build-environment.md",
+    "before": {
+      "bytes": 552,
+      "words": 83,
+      "sha256": "273349ed2cf1e5f96648f5e756ffc505332b22ebe7f87c9f032081600d1a8a07"
+    },
+    "after": {
+      "bytes": 1253,
+      "words": 169,
+      "sha256": "e5a5fad0bd4176fff7ef9b518f42749c44ffa3dca90f43edc199aeb92049aa5d"
+    }
+  },
+  {
+    "path": "skills/x0x37-check/references/validation.md",
+    "before": {
+      "bytes": 885,
+      "words": 137,
+      "sha256": "adaa43db88f32e713c3134ceaeb07932eae2d8e0ce61c3e6a490f46e3a1850ef"
+    },
+    "after": {
+      "bytes": 1505,
+      "words": 226,
+      "sha256": "508baf45cabf8b88c180e4295d2145f0432d3cbd081c8f236e7306305cb6a1de"
+    }
+  },
+  {
+    "path": "tools/rollout_rules.py",
+    "before": {
+      "bytes": 11940,
+      "words": 1192,
+      "sha256": "a5534771048ece560d3a99b8518a9a3d48dd9265122989ac0907f0b18288f4b1"
+    },
+    "after": {
+      "bytes": 11961,
+      "words": 1194,
+      "sha256": "fa50cd26d9579e7bfd779015417b7dffd88703fcb6e8558889f8c721b7437a14"
+    }
+  },
+  {
+    "path": "tests/host/test_rules_rollout.py",
+    "before": {
+      "bytes": 7766,
+      "words": 616,
+      "sha256": "6175b9598214fb67bfb8c934f9655bbf22540dfb36ac3b08d394c5220fba703c"
+    },
+    "after": {
+      "bytes": 7986,
+      "words": 642,
+      "sha256": "6571c71cdf9fb73dfc4b3925c8edd270b1a83a3ae7d81254dc04bfd943aa9780"
+    }
+  }
+]
