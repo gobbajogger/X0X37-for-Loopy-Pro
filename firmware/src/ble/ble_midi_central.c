@@ -166,10 +166,14 @@ static void blec_signal_flush(blec_t *c)
 {
     if (c->sig_count) {
         const uint8_t *s = c->sig[c->sig_read];
+        /* The same bounded reply queue also carries a two-byte SMP refusal.
+         * No pairing, bonds, extra buffers or timer are needed. */
         uint8_t b[8] = {s[0], s[1], 2, 0, s[2], 0, sizeof c->rx, 0};
-        unsigned n = s[0] == 1u && s[2] == 1u ? 8u : 6u;
-        b[2] = (uint8_t)(n - 4u);
-        if (blec_acl_cid(c, 5, b, n)) {
+        unsigned smp = s[0] == 5u;
+        unsigned n = smp ? 2u : s[0] == 1u && s[2] == 1u ? 8u : 6u;
+        if (smp) b[1] = s[2];
+        else b[2] = (uint8_t)(n - 4u);
+        if (blec_acl_cid(c, smp ? 6u : 5u, b, n)) {
             c->sig_read = (uint8_t)((c->sig_read + 1u) % 4u);
             c->sig_count--;
         }
@@ -229,6 +233,32 @@ static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
     c->sig_count++;
     blec_signal_flush(c);
 }
+/* A connected peer can request pairing even after a successful MIDI CCCD
+ * subscription. This central intentionally has no pairing/bond storage, but
+ * the Security Manager still requires an explicit Pairing Failed response.
+ * A peer's Pairing Failed is terminal and must not provoke a reply loop. */
+static void blec_smp_in(blec_t *c, const uint8_t *p, unsigned n)
+{
+    unsigned slot;
+    if (!n) { blec_reject(c, BLEC_RX_LENGTH); return; }
+    /* Peer Pairing Failed terminates the exchange; 0, 0x0a, and >0x0e
+     * are reserved SMP codes and must be ignored, not answered. */
+    if (p[0] == 5u || p[0] == 0u || p[0] == 0x0au || p[0] > 14u) return;
+    blec_signal_flush(c);
+    if (c->sig_count == 4u) {
+        blec_note(c, BLEC_TRACE_SIGNAL_FAILURE, 1, p[0], c->conn,
+                  (uint32_t)c->sig_count << 8 | (uint32_t)n << 16, 1);
+        blec_fail(c); return;
+    }
+    if (!c->sig_count) c->sig_deadline = c->now_ms + 3000u;
+    slot = (c->sig_read + c->sig_count) % 4u;
+    c->sig[slot][0] = 5u; /* SMP Pairing Failed */
+    c->sig[slot][1] = 0u;
+    c->sig[slot][2] = 5u; /* Pairing Not Supported */
+    c->sig_count++;
+    blec_signal_flush(c);
+}
+
 static void blec_progress(blec_t *c)
 {
     uint8_t b[25] = {0};
@@ -490,7 +520,7 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
         if (pb == 3u || len < 4u) goto reject;
         reason = BLEC_RX_CID;
         need = blec_rd16(p + 6);
-        if (need != 4u && need != 5u) goto reject;
+        if (need != 4u && need != 5u && need != 6u) goto reject;
         c->rx_cid = (uint8_t)need;
         need = blec_rd16(p + 4); have = len - 4u;
         reason = BLEC_RX_SIZE;
@@ -503,6 +533,7 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
         unsigned complete = c->rx_need;
         c->rx_have = c->rx_need = 0;
         if (c->rx_cid == 5u) blec_signal_in(c, c->rx, complete);
+        else if (c->rx_cid == 6u) blec_smp_in(c, c->rx, complete);
         else blec_att_in(c, c->rx, complete);
     }
     return;

@@ -49,7 +49,7 @@ int main(void)
  feed(&c,first,sizeof note-1);feed(&c,end,sizeof end);
  assert(c.rx_reason==BLEC_RX_FRAGMENT && !c.rx_need && count==before);
  end[2]=1;feed(&c,end,5);assert(c.rx_reason==BLEC_RX_FRAGMENT);
- memcpy(first,note,sizeof note);first[6]=6;feed(&c,first,sizeof first);
+ memcpy(first,note,sizeof note);first[6]=7;feed(&c,first,sizeof first);
  assert(c.rx_reason==BLEC_RX_CID);
  assert(c.reject_reason==BLEC_RX_CID && c.reject_n==sizeof first);
  assert(!memcmp(c.reject_head,first,8));

@@ -22,7 +22,8 @@ typedef struct {
     uint8_t state, step, waiting, att_waiting, credits, acl_total, addr_type, link_name[21];
     uint8_t addr[6], target[6], target_type, found, running, sx[8], sx_len, in_sysex, rx[64], rx_cid;
     uint16_t rx_have, rx_need; /* Oversized signaling is drained; only rx[] is stored. */
-    /* TIMER5 owns this bounded reply queue. Entries contain code, identifier, reason. */
+    /* TIMER5 owns this bounded reply queue. CID 5 entries contain code,
+     * identifier, reason; code 5 represents CID 6 / SMP Pairing Failed. */
     uint8_t sig[4][3], sig_read, sig_count;
     /* One peer request and one indication may be outstanding independently. */
     uint8_t att_reply[5], att_reply_n, att_confirm;
