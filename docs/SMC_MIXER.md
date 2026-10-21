@@ -20,6 +20,8 @@ Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not anothe
 
 ## Drum buttons and SMK pads
 
+For live switching, open MIX and use **Left/Right** to move through **PARTS → 909 MIX → 808 MIX → MASTER**, without opening a menu. PARTS uses the X0X main strip layout; the two drum pages use their individual sounds. Bank Left/Right changes the eight-strip drum bank. Drum SEQ follows its selected kit. This is a page-following map: other sound and effect pages retain the main faders and visible-field knobs.
+
 On **909 MIX**, **808 MIX**, **909 SEQ** and **808 SEQ**, all four button rows follow the same kit and bank as the faders and knobs. MIX uses the kit shown by its page; SEQ uses the selected drum part.
 
 | Button | Action on the visible drum strip | Light |
@@ -31,7 +33,7 @@ On **909 MIX**, **808 MIX**, **909 SEQ** and **808 SEQ**, all four button rows f
 
 The **SMK pads sequence the selected drum in either drum SEQ or drum MIX**, and the current view stays open. The pad step lights follow that drum. Record and SELECT focus the visible kit as well as its drum, even if a different part was previously selected. Record uses the existing recording mode; it does not create separate record-arm states for individual drums.
 
-Several held Solo buttons can isolate several drums together. Each release belongs to the target selected when its button was pressed, even after changing the page, kit or bank. Solo is temporary runtime state: it does not rewrite drum or part mutes, and it clears on disconnect, blocked input and project reset. Stock User MMC has no release event, so Solo uses its existing latch fallback there.
+Several held Solo buttons can isolate several drums together. Each release belongs to the target selected when its button was pressed, even after changing the page, kit or bank. Solo is temporary runtime state: it does not rewrite drum or part mutes, and it clears on disconnect, blocked input and project reset. Stock User MMC has no release event, so Solo uses its existing latch fallback there: pressing the same target again clears it; pressing that physical Solo key in another bank replaces its previous target. Existing reverb and delay tails are preserved.
 
 R6–R8 and S6–S8 are drum controls on these pages. Use Up/Down to change views and Left/Right to change pages. The navigation shortcuts below apply outside drum MIX and drum SEQ; open menus, help, confirmations and clip editors keep their own button priority.
 
