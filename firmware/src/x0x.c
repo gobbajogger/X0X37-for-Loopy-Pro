@@ -120,6 +120,11 @@ static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
 #define OTA_DEC_OFF 0xD00u
 #define LZ_SCRATCH x0x_main_scratch
 #define PERF_SCRATCH x0x_main_scratch
+#if defined(X0X_SMC_VENDOR_TEST) && X0X_SMC_VENDOR_TEST
+#include "x0x_bundle_gate.h"
+static bp_update_gate smc_update_gate;
+#define X0X_BUNDLE_UPDATE_ALLOWED() bp_update_allowed(&smc_update_gate)
+#endif
 #include "ota.c"
 static uint32_t ota_now_ms(void) { return fm1_ms; }
 static void ota_idle(void) { fm1_wdt_feed(); }

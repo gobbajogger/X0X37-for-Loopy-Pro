@@ -2032,6 +2032,11 @@ static void enter_uboot(const char *why)
  * reach it. PLAY tries X0X again. The chip's own update mode stays the last resort (fm1_cstart). */
 static void safe_main(void)
 {
+#if X0X_SMC_VENDOR_TEST
+    /* This path precedes engine/controller startup. It does not certify a warm
+     * reset's opaque RF state; the TEST installer requires cold recovery. */
+    bp_update_recovery(&smc_update_gate);
+#endif
     char b[24];
     uint32_t t0, play;
     lcd_fill(0, 0, 240, 240, C_BLACK);

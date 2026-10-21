@@ -103,6 +103,8 @@ static void ble_start(void)
     ble_c0_ready = 0;
     if (!ble_boot_on)
         return;
+    /* Irreversible for this boot, including failed initialization attempts. */
+    bp_update_attempt(&smc_update_gate);
     {
         uint8_t *z = (uint8_t *)mb;
         uint32_t i;
