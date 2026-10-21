@@ -15,7 +15,7 @@ static uint32_t fixture_app_crc;
 static uint8_t src[0x100000+96],flash[0x100000],before[0x100000];
 static uint8_t hdr[1024] __attribute__((aligned(4))),sec[4096],cur[4096];
 static jmp_buf power_loss;
-static unsigned cut_at,mutation,inject,record_mode,torn;
+static unsigned cut_at,mutation,inject,record_mode,torn,erase_prefix;
 static void cut(void) { if(inject && ++mutation==cut_at)longjmp(power_loss,1); }
 static unsigned flash_reads,fail_flash_at;
 static unsigned erases,finish_bad,fail_read,ab_reads,mutate_source;
@@ -28,7 +28,7 @@ static int ota_read(uint32_t off,uint8_t *p,uint32_t n)
 }
 static int ldr_fread(uint32_t off,uint8_t *p,uint32_t n){if(++flash_reads==fail_flash_at)return -1;assert(off+n<=sizeof flash);memcpy(p,flash+off,n);return 0;}
 static int allowed(uint32_t off){return (record_mode && off>=0xBF000 && off<0xC0000)||(off>=0x4000&&off<0x9D000)||(off>=0xAB000&&off<0xAF000)||(off>=0xFE000&&off<0xFF000);}
-static int ldr_erase(uint32_t off){assert(allowed(off)&&!(off&4095));if(torn&&inject&&mutation+1==cut_at)memset(flash+off,255,2048);cut();memset(flash+off,255,4096);cut();erases++;return 0;}
+static int ldr_erase(uint32_t off){assert(allowed(off)&&!(off&4095));if(torn&&inject&&mutation+1==cut_at)memset(flash+off,255,erase_prefix?erase_prefix:2048);cut();memset(flash+off,255,4096);cut();erases++;return 0;}
 static int ldr_prog(uint32_t off,const uint8_t *p,uint32_t n){assert(allowed(off)&&!(off&255)&&n<=256);if(torn&&inject&&mutation+1==cut_at)for(unsigned i=0;i<n/2;i++)flash[off+i]&=p[i];cut();for(unsigned i=0;i<n;i++)flash[off+i]&=p[i];cut();return 0;}
 static void ldr_progress(uint32_t a,uint32_t b){(void)a;(void)b;}
 static int ota_memeq(const uint8_t*a,const uint8_t*b,uint32_t n){return !memcmp(a,b,n);}

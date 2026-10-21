@@ -56,5 +56,15 @@ int main(void)
     record_mode=1;flash_reads=0;fail_flash_at=2;
     assert(bp_record_finish(hdr+384,sec)==-71&&!cleared);
     for(unsigned i=0;i<112;i++)assert(flash[OTA_RES+i]==255); /* uncertain committed */
+    /* Partial final-sector erase entering the record itself: final payload is
+     * already committed; the uncertain record is NOT accepted as owned. The
+     * staged loader body below BF000 remains intact. No SPL behavior asserted. */
+    record_fixture();assert(!bp_record_admit(0xC4000,544,hdr+384,sec,cur));
+    record_mode=inject=torn=1;cut_at=1;erase_prefix=0xF01;
+    if(!setjmp(power_loss)){(void)bp_record_finish(hdr+384,sec);assert(0);}
+    inject=torn=0;erase_prefix=0;assert(!cleared);
+    assert(memcmp(flash+OTA_RES,hdr+384,112));
+    assert(!memcmp(flash+OTA_AREA+32,src+0xC4000+32,512));
+    assert(bp_record_admit(0xC4000,544,hdr+384,sec,cur)==-72);
     puts("record ownership, foreign valid-CRC record, source-loader mismatch, legacy marker, lifecycle gate PASS");
 }

@@ -28,7 +28,11 @@ Packed loader SHA256:
 `492625579e42af2c5773912bed71cfb8989b5682dbc506b4c06b497a141e0937`.
 The separately measured default app stays548480. Parent owns actual TEST app
 integration; its current521156-byte image is the source of the loader's pins,
-not the default app emitted by this isolated loader build.
+not the default app emitted by this isolated loader build. The loader is a
+separate type100 UFW entry, not embedded in x0x.bin: its2771-byte packed growth
+uses existing staging storage, **not app primary margin**. There is no app/loader
+CRC self-reference. Final TEST app521156 retains2844 bytes below524000 before
+any further app-side changes.
 
 ## Forward binding and lifecycle
 
@@ -105,10 +109,14 @@ Native results:
   alternate chip key passed; changed app/controller, policy mismatch and non-FF
   spare negatives pass (latest added negatives rerun separately).
 - Record identity/foreign validCRC/source-loader mismatch/capability/lifecycle,
-  cleanup before/after erase and read-failure cases pass; ASan/UBSan pass with
+  cleanup before/after erase, partial erasure entering the record CRC (loader body intact), and read-failure cases pass; ASan/UBSan pass with
   unsupported LeakSanitizer disabled.
 - Actual disposable-export ota.c: denied session makes no request/commit/write;
   bootcleanup, rejected old loader, and uncertain record preserve staging NOR.
+  Positive actual ota_session stages the resolved10051-byte bundle-capable
+  loader, verifies its bytes and creates matching valid flash/RAM records. The
+  test adjusts UFW entry framing only in memory; no package file is emitted and
+  staged loader execution/payload writing is tested separately.
   Reused baseline test harness has existing signedness/uninitialized warnings.
 - ELF/sealed-image provenance accepts exact pair and rejects changed app byte,
   below-image descriptor symbol and truncation.
@@ -137,7 +145,8 @@ include directories `$EXPORT/firmware/loader` and`$EXPORT/firmware/hal`.
 Generate private rollback native input with`rollback_fixture.py APPROVED_ZIP OUT`
 and pass OUT to rollback_test. `test_pin.py FINAL_ELF SEALED_APP` tests provenance.
 For stage_test define `BP_BASE_OTA_TEST` to the export's `tests/ota_test.c`, compile
-without `-Werror` for its inherited warnings, and pass the approved old FWSC.
+without `-Werror` for its inherited warnings, and pass the approved old FWSC
+followed by the newly resolved private `loader/ota.bin`.
 No generated binaries, vendor bytes or device key are committed.
 
 ## Local workflow incident
