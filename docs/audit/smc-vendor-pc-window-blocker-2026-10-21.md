@@ -31,7 +31,7 @@ safety for concurrent core execution and vendor interrupts.
 
 The runtime owner's non-installable `runtime-link-central-roles` measurement
 reports a resolved link, no undefined symbols, 104,536 bytes total flash extent,
-and 28,664 bytes static RAM extent. Its `.text` section is `0x16618` = 91,672
+and 28,664 bytes whole RAM extent (including reserved heap and stacks). Its `.text` section is `0x16618` = 91,672
 bytes. The candidate primary is 84 KiB = 86,016 bytes.
 
 - Text alone exceeds primary by **5,656 bytes**.
@@ -78,3 +78,9 @@ Independent source review confirmed the two-window constraint and found no
 source-backed third window. It identified low-RAM execution with secondary load
 storage as a structural possibility only, not a demonstrated fit; high-RAM code
 would broaden the RAM interval across unrelated application memory.
+
+Subsequent supported AVRCP-extra-command0 measurement reduces text to90,504 B
+and total flash to103,188 B; text plus128 B manifest still exceeds84 KiB by4616 B.
+Relocating existing application immutable data into the data-only spare could
+free contiguous primary space without increasing total capacity. That bounded
+layout discriminator is being evaluated separately; no placement is admitted.
