@@ -35,6 +35,8 @@ static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) { (v
 #include "app/smk_clip_colour.h"
 static uint32_t irq_save(void) { return 0u; }
 static void irq_restore(uint32_t f) { (void)f; }
+#define PROJ_BT_SMC_USER 32u
+static struct { struct { uint8_t bt; } set; } proj;
 #include "apc_a.inc"
 static volatile uint8_t ck_start_req;
 void smk_ck_midi_stop(void) {}

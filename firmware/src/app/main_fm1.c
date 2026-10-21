@@ -294,10 +294,15 @@ void smk_apc_led_set(uint8_t note, uint8_t type, uint8_t velocity)
  * about 240 events in one burst; queue overflow dropped some of them, and old
  * colors stayed on the pads. Return 1 when the event must not go to the queue. */
 void smk_apc_transport_led_set(uint8_t note, uint8_t velocity);
+#include "app/smc_protocol.h"
 uint8_t smk_apc_usb_event(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), d1 = (uint8_t)((pkt >> 16) & 0x7Fu);
     uint8_t d2 = (uint8_t)((pkt >> 24) & 0x7Fu), ty = st & 0xF0u;
+    /* The opted-in SMC User channel belongs to the engine's SMC dispatcher.
+     * Both USB and peripheral BLE use this hook; do not consume it as APC LEDs. */
+    if (smc_host_accept(st, d1, proj.set.bt & PROJ_BT_SMC_USER))
+        return 0u;
     /* Store feedback on either link. Outside clip mode, only a link that completed
      * the APC handshake owns these messages; the other link still plays notes. */
     uint8_t owned = (uint8_t)(clip_grid_mode || (apc_host_on & (1u << apc_in_ble)));
@@ -377,6 +382,11 @@ static void smk_inlog_reply(uint32_t arg)
 uint8_t smk_apc_ble_event(uint32_t pkt, uint8_t notifying)
 {
     uint8_t r;
+    /* This source has no APC colour ownership for the reserved User messages,
+     * including while the peripheral notification subscription is off. */
+    if (smc_host_accept((uint8_t)(pkt >> 8), (uint8_t)((pkt >> 16) & 0x7Fu),
+                        proj.set.bt & PROJ_BT_SMC_USER))
+        return 0u;
     if (smk_apc40_ble_colour_unheard(pkt, notifying)) {
         smk_inlog(3u, pkt);
         return (uint8_t)(clip_grid_mode || (apc_host_on & 2u));
@@ -1310,7 +1320,11 @@ CK_FN static void ck_set(uint32_t f, uint32_t v)
         cp->nk = 0;                                         /* (a strum: its key plays all its notes below) */
     if (nt)
         ck_voice(0x80u);
-    *b = (uint8_t)((*b & ~m) | (v << CK_FLD[f][1] & m));
+    uint8_t next = (uint8_t)((*b & ~m) | (v << CK_FLD[f][1] & m));
+    if (*b != next) {
+        *b = next;
+        mark_dirty();
+    }
     if (nt)
         ck_voice(0x90u);
 }
@@ -1351,7 +1365,6 @@ int smk_ck_smc_turn(int n, int delta)
     v = v < 0 ? 0 : v > CK_FMAX[f] ? CK_FMAX[f] : v;
     if ((uint32_t)v != ck_get(f)) {
         ck_set(f, (uint32_t)v);
-        mark_dirty();
     }
     put_s(put_s(name, ck_nm(CK_FLD_N, f)), " ");
     ui_say(name, ck_val_txt(f, ck_get(f), value));
@@ -1376,7 +1389,7 @@ int smk_ck_smc_nav(uint8_t note)
             ck.pg = (uint8_t)(pg | ck_page_field(pg, f, d) << 4);
         else {
             uint32_t v = ck_step(ck_get(f), d, CK_FMAX[f]);
-            if (v != ck_get(f)) { ck_set(f, v); mark_dirty(); }
+            if (v != ck_get(f)) ck_set(f, v);
         }
     }
     ui.act_t = plat_ms();
