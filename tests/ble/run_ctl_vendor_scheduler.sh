@@ -10,3 +10,6 @@ ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_scheduler_test
 
 ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_events_test.c" -o "$OUT/events"
 "$OUT/events"
+
+${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_profile_test.c" -o "$OUT/profile"
+"$OUT/profile"

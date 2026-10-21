@@ -53,10 +53,26 @@ control. Reset this state before initializing the stack.
 
 ## Remaining integration obligations
 
-This helper does not implement profile discovery, the application bridge, flash
-segments, timers, allocator, package admission or host library linkage. Prefer
-exact vendor `user_client_init` and profile-search helpers with the SDK's
-Apache-licensed application example over a new host protocol state machine.
+`ctl_vendor_profile.c` now supplies the application frontend using actual vendor
+`btstack_init`, `user_client_init`, profile-search and ATT command helpers. It
+selects only the exact advertised SMC-Mixer name, matches the BLE-MIDI service and
+characteristic, and enables the vendor's descriptor discovery callback to locate
+CCCD 2902 within that characteristic's range. It does not assume value-handle+1.
+The public SDK report structures have target layout assertions. No HCI/L2CAP/
+SM/GATT engine is rewritten.
+
+The required `ctl_vendor_address` callback supplies the app's per-device address;
+there is no tick-derived identity. `ctl_vendor_command` accepts only radio 0/1 and
+one-to-three-byte MIDI feedback. Exact SDK BUSY−100 and BUFFER_FULL−97 normalize
+to positive retry; stale/disconnected/off feedback is terminally rejected. Radio
+off returns accepted immediately and retries its stop independently. The caller
+must run `ctl_vendor_poll` regularly to retry pending stop/scan/link messages.
+The bridge must preserve link-reset ordering before notifications and count
+copy congestion. New linkup is generated on a real notification, not CCCD command
+acceptance; that still is not proof of physical control dispatch.
+
+These files do not implement the application mailbox bridge, flash segments,
+timers, allocator, package admission or complete host library linkage.
 The current timer `_to_task` functions ignore task names. Before admission,
 confirm retained-library call paths or implement proper task-context callbacks;
 the successful reference consumes queued callbacks inside `os_taskq_pend`.
@@ -70,7 +86,10 @@ initialization or introduce private structure guesses to meet a limit.
 - `sh tests/ble/run_ctl_vendor_scheduler.sh`: actual scheduler source executed
   with native `ucontext`: independent named queues, wrap/full, invalid arguments,
   semaphore/time wake, returned stacks, idle blocking, bootstrap limit/expiry;
-  event adapter copy ownership, startup status and congestion.
+  event adapter copy ownership, startup status and congestion. The separate
+  frontend mock test covers actual adapter source startup/profile ordering,
+  SMC selection, handle-zero discovery, nonadjacent CCCD, notification copying,
+  feedback, exact busy statuses and radio-off cancellation.
 - JieLi target compilation of `ctl_os.c` and `ctl_vendor_events.c` with profile 0
   and 1, warnings as errors, is separate from a full target link.
 - Native contexts use larger libc stacks. These tests do **not** measure target
