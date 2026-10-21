@@ -16,7 +16,24 @@ The eight faders use pickup. A fader starts changing a value when it reaches the
 
 The three mixer modes are the keyboard-equivalent main mix, 909 tracks and 808 tracks. In these modes, knobs 1–8 trim the same destinations as faders 1–8. Each control type has unique destinations; a paired fader and knob may share one. Turning a knob resets pickup for its paired fader when the value changes. Other sound pages, menus and clip editors retain their visible-field controls. Duplicate fields within the visible knob bank use the first position only.
 
-Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not another drum. Earlier SMC documentation and a test fixture incorrectly claimed twelve tracks. Two banks remain: **Bank Left** selects tracks **1–8** and **Bank Right** selects **9–11** on drum MIX pages. Faders, knobs and SELECT buttons 4–8 are inactive in the second bank. SELECT 1–8 chooses the track within the current bank, so the page and deep menu can edit each track's pan and sends. The SELECT lights show the chosen track. Keyboard selection also sets the bank. Each kit keeps its selection.
+Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not another drum. Earlier SMC documentation and a test fixture incorrectly claimed twelve tracks. Two banks remain: **Bank Left** selects tracks **1–8** and **Bank Right** selects **9–11** on drum MIX pages. Faders, knobs and all four button rows on strips 4–8 are inactive and unlit in the second bank. Keyboard selection also sets the bank. Each kit keeps its selection.
+
+## Drum buttons and SMK pads
+
+On **909 MIX** and **808 MIX**, all four button rows follow the same visible kit and bank as the faders and knobs.
+
+| Button | Action on the visible drum strip | Light |
+| --- | --- | --- |
+| Record | Select that kit and drum, then toggle the existing recording mode | Recording is on and this drum is selected for that kit |
+| Solo | Isolate that drum while held; release restores the ordinary mix | This drum has an active Solo target |
+| Mute | Toggle that drum's mute | That drum is muted |
+| SELECT | Select that kit and drum without changing recording | This drum is selected |
+
+The **SMK pads sequence the selected drum while the drum MIX page stays open**. The pad step lights follow that drum. Record and SELECT focus the visible kit as well as its drum, even if a different part was previously selected. Record uses the existing recording mode; it does not create separate record-arm states for individual drums.
+
+Several held Solo buttons can isolate several drums together. Each release belongs to the target selected when its button was pressed, even after changing the page, kit or bank. Solo is temporary runtime state: it does not rewrite drum or part mutes, and it clears on disconnect, blocked input and project reset. Stock User MMC has no release event, so Solo uses its existing latch fallback there.
+
+R6–R8 and S6–S8 are drum controls on these pages. Use Up/Down to change views and Left/Right to change MIX pages. The navigation shortcuts below apply outside drum MIX; open menus, help, confirmations and clip editors keep their own button priority.
 
 ## Navigation
 
@@ -30,10 +47,10 @@ All required paths use buttons present in both the factory DAW and stock User pr
 | Bank Left / Right, drum sound page | Previous / next drum track, bounded at 1 and 11 |
 | Bank Left / Right, drum MIX | First / second bank; SELECT then chooses the track |
 | Bank Left / Right, other ordinary pages | Previous / next part |
-| R6 | Open the current view's deep menu; activate its selected action. In clip mode, open Global |
-| R7 | Back / close menu, cancel confirmation, dismiss help; close a clip editor to the grid |
-| R8 | HOME |
-| S6 / S7 / S8 | MIX / Global menu / selected part's sound |
+| R6 outside drum MIX | Open the current view's deep menu; activate its selected action. In clip mode, open Global |
+| R7 outside drum MIX | Back / close menu, cancel confirmation, dismiss help; close a clip editor to the grid |
+| R8 outside drum MIX | HOME |
+| S6 / S7 / S8 outside drum MIX | MIX / Global menu / selected part's sound |
 | SELECT 6 / 7 / 8 outside drum MIX | Reverb / delay / master page |
 | Up / Down, menu | Select previous / next row; the list scrolls to expose all rows |
 | Left / Right, menu | Edit selected row, including rows also assigned to faders |
@@ -44,7 +61,7 @@ All required paths use buttons present in both the factory DAW and stock User pr
 
 Channel Left/Right messages, if supplied by a custom mapping, also select drum tracks or clip fields. The stock 43-button preset does not require them. Returning from a Global menu restores the clip editor underneath it.
 
-For strips 1–5, **M** toggles the part's mute, **S** solos it while held, and **R** selects the part and toggles recording. Several held **S** buttons can solo several parts together. Solo clears on disconnect and while help or confirmation blocks input. Stock User MMC has no release event, so **S** latches there. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY**, **STOP** and **REC** control X0X transport and recording; rewind and fast-forward move the selected part's pattern. These actions do not send APC40 clip commands. Performance tests own the controls and drain SMC input without editing.
+Outside drum MIX, strips 1–5 retain their part controls: **M** toggles the part's mute, **S** solos it while held, and **R** selects the part and toggles recording. Several held **S** buttons can solo several parts together. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY**, **STOP** and **REC** control X0X transport and recording; rewind and fast-forward move the selected part's pattern. These actions do not send APC40 clip commands. Performance tests own the controls, clear temporary Solo and drain SMC input without editing.
 
 Fader 8's main-mixer master filter matches the keyboard's bank-B filter: low-pass below the middle, neutral in the middle, and high-pass above it. Strip 8's M button toggles master output, and its light reflects that output mute. Drum MIX temporarily assigns fader 8 to track 8 in the first bank and leaves it inactive in the second bank.
 
