@@ -2,6 +2,8 @@
 """Verify exact approved kit and produce PRIVATE native input, never a package.
 Usage: rollback_fixture.py APPROVED_816_INSTALLER_ZIP NEW_PRIVATE_OUTPUT
 """
+if not __debug__:
+    raise SystemExit("refuse optimized Python: fixture provenance assertions must remain enabled")
 from pathlib import Path
 import hashlib,sys,zipfile,struct,zlib
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))

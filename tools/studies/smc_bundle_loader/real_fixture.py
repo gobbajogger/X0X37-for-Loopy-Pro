@@ -3,6 +3,8 @@
 Usage: real_fixture.py KIT_ZIP APP_ELF APP_FIXTURE_DIR VENDOR_FIXTURE_DIR OUT_DIR
 Explicit test key0x1234 only; no device backup/key is consumed or produced.
 """
+if not __debug__:
+    raise SystemExit("refuse optimized Python: fixture provenance assertions must remain enabled")
 from pathlib import Path
 import hashlib,json,struct,sys,zipfile,zlib
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
@@ -23,6 +25,8 @@ for name,data in (('app-NOT-INSTALLABLE.fixture',app),('ui-NOT-INSTALLABLE.fixtu
     assert hashlib.sha256(data).hexdigest()==am['private_artifacts'][name]
 a=bytearray(app);struct.pack_into('<5I',a,am['descriptor_image_offset'],0,1,0xAB000,8192,0)
 sealed,elf_ui,meta=seal(elf.read_bytes(),a);assert sealed==app and elf_ui==ui
+if len(vm['materialized_regions'])!=3:
+    raise SystemExit("exactly three materialized vendor regions required")
 regions=[]
 for i,r in enumerate(vm['materialized_regions']):
     b=(vd/r['file']).read_bytes();assert len(b)==r['size'] and hashlib.sha256(b).hexdigest()==r['sha256'] and zlib.crc32(b)==r['crc32']
