@@ -1,0 +1,16 @@
+UTC: 2026-10-21T06:02:28.570659+00:00
+Hardware: NOT TESTED
+Environment: PYTHONDONTWRITEBYTECODE=1
+
+Command: python3 tests/ble_central_diag_test.py
+Return code: 0
+PASS: central receive and unchanged peripheral diagnostic formats
+PASS: old and extended DIAG decoding, handles and bounded rejected header
+
+Command: python3 tests/smc_connection_watch_test.py
+Return code: 0
+PASS: DIAG-only retry timeline, transient timeout, raw/decoded JSONL, timestamps, source identity, bounded finish
+
+SHA256 9094e28ae9f5f3813c728a9ed063a1f66cde645c7cf290aa7fbbd54c191bbc90  tools/ble_autotest.py
+SHA256 9ce9aaf1fce4828d60b0efd93d0a05296ed461e1fb8a81db60019f62f53b471f  tools/smc_connection_watch.py
+SHA256 4c7c1a63054ce876d521ce0519ea8bebd686f0252199a891665f957c354815eb  tests/smc_connection_watch_test.py

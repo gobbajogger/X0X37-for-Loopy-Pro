@@ -5,6 +5,8 @@
 
 enum { BLEC_OFF, BLEC_STOPPING, BLEC_STARTING, BLEC_SCANNING, BLEC_CONNECTING,
        BLEC_DISCOVERING, BLEC_CONNECTED, BLEC_DISCONNECTING, BLEC_FAILED };
+/* HCI connection handle zero is valid. Keep absence outside the wire range. */
+enum { BLEC_NO_CONN = 0xffff };
 /* No MTU exchange is initiated: ATT uses the default 23-byte MTU. The 64-byte
  * assembly buffer tolerates larger peer PDUs without advertising a larger MTU. */
 enum { BLEC_RX_OK, BLEC_RX_HEADER, BLEC_RX_LINK, BLEC_RX_LENGTH,

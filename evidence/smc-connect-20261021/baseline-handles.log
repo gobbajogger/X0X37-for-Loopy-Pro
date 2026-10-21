@@ -1,0 +1,7 @@
+stop: /workspace/scratch/f3a54aa67aa7/x0x37-smc-regression/tests/host/ble_midi_stop_test.c:194: handle_lifecycle: Assertion `c->state == BLEC_OFF && !c->waiting && c->credits == 5' failed.
+Traceback (most recent call last):
+  File "/workspace/scratch/f3a54aa67aa7/x0x37-smc-regression/tests/host/ble_midi_stop_test.py", line 30, in <module>
+    subprocess.run([str(binary)] + ([args.case] if args.case else []), check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/tmp/ble-stop-e4kuqr10/stop', 'handles']' died with <Signals.SIGABRT: 6>.

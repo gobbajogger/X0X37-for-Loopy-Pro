@@ -1,0 +1,51 @@
+{
+  "recorded_utc": "2026-10-21T06:03:01.070499+00:00",
+  "base_commit": "6eaf01f9d4c5325b1cc66e45e7033179b87affef",
+  "scope": "Read-only ED_DIAG connection timeline recorder; existing decoder extraction and source audit",
+  "checked_inputs": {
+    "tools/ble_autotest.py": "9094e28ae9f5f3813c728a9ed063a1f66cde645c7cf290aa7fbbd54c191bbc90",
+    "tools/smc_connection_watch.py": "9ce9aaf1fce4828d60b0efd93d0a05296ed461e1fb8a81db60019f62f53b471f",
+    "tests/smc_connection_watch_test.py": "4c7c1a63054ce876d521ce0519ea8bebd686f0252199a891665f957c354815eb",
+    "tests/ble_central_diag_test.py": "259c501482f87a077cb1193502e31b5fb14b5108b47e076a8f9e223a3e864839",
+    "tools/inlog_fmt.py": "134358ac0308a50863ee0743d0d186d102230fb8313b7d356682f4f1eb20e06e"
+  },
+  "checks": [
+    {
+      "command": "python3 tests/ble_central_diag_test.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "host-checks.log",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "command": "python3 tests/smc_connection_watch_test.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "host-checks.log",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    }
+  ],
+  "review": {
+    "reviewer": "parent agent",
+    "source_review": "PASS",
+    "reviewed": "Watcher, pure decoder extraction, fixture, source comparisons, and diagnostic interpretation limits",
+    "firmware_and_controller_source_unchanged_from_base": true
+  },
+  "new_firmware_build": false,
+  "device_commands_run_in_this_session": [],
+  "hardware_result": "NOT TESTED; no native USB access",
+  "original_connection_root_cause": "UNKNOWN",
+  "limits": [
+    "Fixture simulates snapshot responses and time, not a physical connection.",
+    "DIAG snapshots can miss fast transitions and retain ATT/rejection fields across attempts.",
+    "Installed firmware identity is not inferred from the collection tool source checkout.",
+    "Current DIAG lacks HCI connection status, disconnect reason, and complete signaling payload."
+  ],
+  "next_action": "The native device owner records ED_DIAG snapshots during a normal failing connection attempt; inspect the observed boundary before another firmware change.",
+  "receiving_owner": "Firmware Main Builder",
+  "external_push": false
+}
