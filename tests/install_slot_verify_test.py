@@ -126,6 +126,38 @@ class SlotVerification(unittest.TestCase):
         self.assert_backup()
         self.assertEqual({cmd for post, cmd in dev.slot_cmds if post}, {xs.CMD_INFO, xs.CMD_READ})
 
+    def test_exact_capacity_is_kept_without_spurious_migration(self):
+        for model in ("Pro", "Elite"):
+            for k, (_, capacity) in enumerate(SMK_MAP):
+                with self.subTest(model=model, slot=k + 1):
+                    payload = capacity - xs.DATA_OFF
+                    hdr, data = sio.user_slot("EXACT", [([1000, -1000] * payload, 60, None, None)],
+                                              slot_size=capacity)
+                    self.images = [None] * len(SMK_MAP)
+                    self.images[k] = hdr.ljust(xs.DATA_OFF, b"\xff") + data
+                    self.assertEqual(len(self.images[k]), capacity)
+                    dev = self.device(model)
+                    rc, out, err = self.run_install(dev)
+                    self.assertEqual(rc, 0, err)
+                    self.assert_backup()
+                    self.assertNotIn("written back to slot", out)
+                    self.assertIn(f"(backup slot {k + 1}): OK", out)
+                    self.assertEqual({cmd for post, cmd in dev.slot_cmds if post}, {xs.CMD_INFO, xs.CMD_READ})
+
+    def test_exact_image_still_migrates_if_selected_capacity_is_smaller(self):
+        payload = SMK_MAP[2][1] - xs.DATA_OFF
+        hdr, data = sio.user_slot("EXACT", [([1000, -1000] * payload, 60, None, None)])
+        self.images = [None, None, hdr.ljust(xs.DATA_OFF, b"\xff") + data]
+        # Move and shrink slot 3; slot 1 is the free, sufficiently large destination.
+        smaller = [*SMK_MAP[:2], (0xB1000, 0xA000)]
+        dev = self.device(after=smaller)
+        rc, out, err = self.run_install(dev)
+        self.assertEqual(rc, 0, err)
+        self.assertIn("slot 3 written back to slot 1 and read back: ok", out)
+        self.assertIn("(backup slot 3): OK", out)
+        self.assert_backup()
+        self.assertEqual(sum(cmd == xs.CMD_BEGIN for _, cmd in dev.slot_cmds), 1)
+
     def test_unexpected_sample_in_empty_slot_fails_without_erase(self):
         dev = self.device(mutate=lambda f: populate(f, [None, image("UNEXPECTED"), None]))
         rc, out, err = self.run_install(dev)
