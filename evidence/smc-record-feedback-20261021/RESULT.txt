@@ -1,0 +1,34 @@
+SMC Record feedback correction
+
+Base: 513574131879ff1f26a2f9ca44a2d11a68de3afc.
+Lane: lane/opt-smc-record-feedback-20261021.
+Receiving owner: root integration task in LoopyX0X37.
+
+Confirmed defect: the Record strip lamp used the part cached by the last SMC
+Record action. Panel Record and both panel/SMC selection can change the actual
+recording destination without updating that cache. Recording follows ui.part:
+key_event selects the active instrument; bass_kbd uses bidx() from ui.part and
+bass_write writes cur_pat()->bass[b]. drum_key also uses ui.part directly.
+There is no independent retained Record arm represented by smc.rec_part.
+
+Repair: one production expression in smc_led now reads ui.part. Record and
+Solo actions, routing, all three mixer modes and per-track mute/selection
+semantics are unchanged. The older cache is not removed in this scoped fix.
+
+The new host regression uses production panel input, SMC queue/dispatch,
+key_event, bass_kbd and bass_write. It verifies four real bass-pattern writes
+and that the other bass pattern stays unchanged, then checks emitted MIDI
+Record lamps. The exact base fails three of seven feedback projections while
+all four actual recording destinations pass. The candidate passes all seven.
+The existing feedback regression deliberately makes the stale SMC cache differ
+from ui.part and retains all 892 navigation, main/drum, transport and wire checks.
+
+Checks: X0X_TEST_JOBS=1 bash tests/run_tests.sh smc-record-feedback smc-feedback.
+Both pass. git diff --check passes. Exact input and log hashes, compiler and
+environment are recorded in host-evidence.json. The reuse wrapper checks them
+without repeating the tests. Generated-header hashes are retained as evidence.
+Compiler warnings in unchanged UI signedness expressions remain in the logs.
+
+Limits: no target build, device, radio, installation, audio or sanitizer result
+is claimed. This repairs a proven feedback defect, not the original physical
+all-input silence. The integrator owns final candidate and artifact validation.
