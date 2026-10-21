@@ -265,3 +265,46 @@ for inputs, outputs, expected in (([], [], 'No complete USB MIDI'),
     assert failed_rows[-1]['attempts'] == 0 and failed_rows[-1]['human_summary'] == report
     assert expected in report and report in printed.getvalue()
 print('PASS: explicit case-insensitive USB selection, pinned requests, no fallback, and saved early-failure reports')
+
+# The SMC1 tail is the retained rejected ACL header, NOT receive counters.
+# Use the live rx0/rx1 words for MIDI ingress and dispatch. The physical
+# capture recorded an SMP CID 6 / length-2 rejection, and zero MIDI input.
+physical = watch.ble.decode_diag(reply(6, 14, 0))
+physical.update(rx0=0x01000009, rx1=0, smc_acl0=0x00062050,
+                smc_acl1=0x00060002, smc_reject=0x1305000A)
+parsed = watch.input_counters(physical)
+assert parsed['acl'] == 9 and parsed['rejected'] == 1
+assert not parsed['notifications'] and not parsed['midi'] and not parsed['dispatched']
+assert watch.rejected_smp(physical) == {'acl_length': 6, 'smp_length': 2}
+activity = watch.input_activity([physical] * 3)
+assert activity['samples'] == 3 and set(activity['minimum_increments'].values()) == {0}
+report = watch.human_report(physical, rows[-1], True, 'duration_complete', [physical] * 3)
+assert 'notifications 0, decoded MIDI 0, application enqueued 0, dispatched 0' in report
+assert 'No receive/dispatch counter changes' in report
+assert 'Security Manager (L2CAP CID 0x0006), 2-byte payload' in report
+assert 'command bytes were not captured' in report
+assert watch.input_counters({'h_step': 0}) is None
+assert watch.rejected_smp({'smc_trace': 0}) is None
+
+# The counters roll every 256 messages, so compare consecutive snapshots,
+# discard reboot boundaries and report minimum increments, never exact totals.
+shift = dict(physical)
+shift.update(rx0=(2 << 16) | (1 << 8) | 10, rx1=(3 << 16) | 3)
+roll = dict(shift)
+roll.update(rx0=(4 << 16) | (2 << 8) | 11, rx1=(5 << 16) | 5)
+activity = watch.input_activity([physical, shift, roll])
+assert activity['minimum_increments']['midi'] == 4
+assert activity['minimum_increments']['notifications'] == 2
+assert activity['minimum_increments']['dispatched'] == 5
+wrapped = dict(physical)
+wrapped.update(rx0=(3 << 16) | (2 << 8) | 0, rx1=(4 << 16) | 4)
+prewrap = dict(physical)
+prewrap.update(rx0=(253 << 16) | (254 << 8) | 255, rx1=(250 << 16) | 253)
+activity = watch.input_activity([prewrap, wrapped])
+assert activity['minimum_increments']['midi'] == 6
+assert activity['minimum_increments']['notifications'] == 4
+assert activity['minimum_increments']['dispatched'] == 10
+reboot = dict(wrapped, reset_now=1)
+assert watch.input_activity([prewrap, reboot])['boot_discontinuities'] == 1
+assert not any(watch.input_activity([prewrap, reboot])['minimum_increments'].values())
+print('PASS: actual physical counter fields, retained SMP header, no-input warning, wrap and reboot safety')

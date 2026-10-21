@@ -99,7 +99,67 @@ def central_state(d):
     return out
 
 
-def human_report(last, counts, observed_connected, reason):
+def input_counters(d):
+    """Extract SMC receive counters; the SMC1 ACL words are *rejection bytes*, not counters."""
+    if not d or d.get("smc_trace") != 0x534D4301 or not d.get("h_step", 0) & 0x80000000:
+        return None
+    transport, consumer = d["rx0"], d["rx1"]
+    return {
+        "acl": transport & 255,
+        "notifications": transport >> 8 & 255,
+        "midi": transport >> 16 & 255,
+        "rejected": transport >> 24 & 255,
+        "enqueued": consumer & 255,
+        "dropped": consumer >> 8 & 255,
+        "dispatched": consumer >> 16 & 255,
+        "last_dispatch_reason": consumer >> 24 & 255,
+        "last_receive_reason": d["h_step"] >> 24 & 127,
+    }
+
+
+def input_activity(snapshots):
+    """Accumulate minimum counter changes between adjacent snapshots, modulo 256.
+
+    A host reboot breaks continuity. Values can wrap more than once between
+    reads, so the result is *not* an exact number of messages on the air.
+    """
+    keys = ("acl", "notifications", "midi", "rejected", "enqueued", "dropped", "dispatched")
+    totals = dict.fromkeys(keys, 0)
+    previous = None
+    valid = 0
+    discontinuities = 0
+    for d in snapshots:
+        current = input_counters(d)
+        if current is None:
+            previous = None
+            continue
+        valid += 1
+        if previous is not None:
+            prior, reset_now = previous
+            if reset_now != d.get("reset_now"):
+                discontinuities += 1
+            else:
+                for key in keys:
+                    totals[key] += (current[key] - prior[key]) & 255
+        previous = (current, d.get("reset_now"))
+    return {"samples": valid, "minimum_increments": totals,
+            "boot_discontinuities": discontinuities} if valid else None
+
+
+def rejected_smp(d):
+    """Return the retained rejected SMP *header*. The two-byte payload was not saved."""
+    if not d or d.get("smc_trace") != 0x534D4301:
+        return None
+    if (d["smc_reject"] >> 16 & 255) != 5 or (d["smc_reject"] & 65535) < 8:
+        return None  # BLEC_RX_CID
+    head = d["smc_acl0"].to_bytes(4, "little") + d["smc_acl1"].to_bytes(4, "little")
+    if int.from_bytes(head[6:8], "little") != 6:
+        return None
+    return {"acl_length": int.from_bytes(head[2:4], "little"),
+            "smp_length": int.from_bytes(head[4:6], "little")}
+
+
+def human_report(last, counts, observed_connected, reason, input_history=None):
     lines = ["SMC CONNECTION TEST REPORT", ""]
     controller_lines = []
     if last is not None:
@@ -159,6 +219,29 @@ def human_report(last, counts, observed_connected, reason):
         else:
             lines += ["This firmware has no sticky connection-failure trace. Retained ATT/rejection fields alone do not identify the failed attempt."]
     lines += controller_lines
+    counters = input_counters(last)
+    if counters is not None:
+        lines += ["SMC receive counters (each modulo 256 since host initialization): "
+                  f"notifications {counters['notifications']}, decoded MIDI {counters['midi']}, "
+                  f"application enqueued {counters['enqueued']}, dispatched {counters['dispatched']}, "
+                  f"dropped {counters['dropped']}, rejected ACL {counters['rejected']}."]
+        activity = input_activity(input_history) if input_history is not None else None
+        if activity and activity["samples"] > 1:
+            changes = activity["minimum_increments"]
+            lines += ["Observed counter increments during this watch (minimum modulo-256): "
+                      f"notifications {changes['notifications']}, decoded MIDI {changes['midi']}, "
+                      f"application dispatched {changes['dispatched']}, "
+                      f"queue dropped {changes['dropped']}, rejected ACL {changes['rejected']}."]
+            if activity["boot_discontinuities"]:
+                lines += ["One or more host restarts interrupted these counters; increments across a restart were excluded."]
+            if not changes["notifications"] and not changes["midi"] and not changes["dispatched"]:
+                lines += ["No receive/dispatch counter changes were observed during sampling. "
+                          "This does not establish whether a control was operated or whether input works."]
+        smp = rejected_smp(last)
+        if smp is not None:
+            lines += ["Retained rejected ACL frame: Bluetooth Security Manager (L2CAP CID 0x0006), "
+                      f"{smp['smp_length']}-byte payload. Its SMP command bytes were not captured; "
+                      "this is not a MIDI notification and may predate this watch."]
     lines += ["", f"Collection ended: {reason}. Diagnostic replies: {counts['replies']}; "
               f"missing replies: {counts['no_replies']}; read errors: {counts['read_errors']}; "
               f"invalid replies: {counts['invalid_replies']}.",
@@ -173,6 +256,7 @@ def record(output, seconds, interval, metadata, report_output=None, port_pair=No
     counts = {"attempts": 0, "replies": 0, "no_replies": 0, "read_errors": 0, "invalid_replies": 0}
     baseline = None
     last = None
+    input_history = []
     observed_connected = False
 
     def write(row):
@@ -222,6 +306,7 @@ def record(output, seconds, interval, metadata, report_output=None, port_pair=No
                     else:
                         baseline = d if baseline is None else baseline
                         last = d
+                        input_history.append(d)
                         observed_connected |= bool(d["h_step"] & 0x80000000 and d["h_state"] == 6 and d.get("plat_state") == 5)
                         row["outcome"] = "reply"
                         counts["replies"] += 1
@@ -232,7 +317,7 @@ def record(output, seconds, interval, metadata, report_output=None, port_pair=No
     except KeyboardInterrupt:
         reason = "interrupted"
     finally:
-        report = human_report(last, counts, observed_connected, reason)
+        report = human_report(last, counts, observed_connected, reason, input_history)
         write({"kind": "finish", "reason": reason, "human_summary": report, **counts})
         if report_output is not None:
             report_output.write(report)
