@@ -764,7 +764,8 @@ static void smk_pads(void)
         padled_flush();
         return;
     }
-    uint16_t c = PART_COL[ui.part % NPARTS];
+    int drum = drum_mix_page();
+    uint16_t c = PART_COL[drum >= 0 ? drum : ui.part % NPARTS];
     uint32_t r = (uint32_t)(c >> 11) * 255u / 31u, g = (uint32_t)((c >> 5) & 63u) * 255u / 63u,
              b = (uint32_t)(c & 31u) * 255u / 31u;
     for (w = 0; w < SMK_NPAD; w++) {
@@ -1743,6 +1744,7 @@ CK_FN void smk_ck_poll(void)
 static void smk_grid(void)
 {
     smk_pad_grid = (uint8_t)(clip_grid_mode || ui.view == V_HOME || ui.view == V_SONG ||
+                             drum_mix_page() >= 0 ||
                              (ui.btn & (1u << B_HOME | 1u << B_SAVE)) || !(is_303() && ui.rec));
     if (clip_grid_mode)
         smk_pad_piano = 0;
