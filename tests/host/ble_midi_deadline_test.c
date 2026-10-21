@@ -55,7 +55,7 @@ static void stopped(blec_t *c, uint32_t deadline, unsigned before)
     down(c, 0x0c, 0x50); down(c, 0, 0x51);
     assert(c->conn == 0x50 && !c->credits);
     down(c, 0, 0x50);
-    assert(c->state == BLEC_OFF && !c->conn && c->credits == 5);
+    assert(c->state == BLEC_OFF && c->conn == BLEC_NO_CONN && c->credits == 5);
 }
 static void cutoff(unsigned overflow, uint32_t start, int offset, unsigned service)
 {
@@ -85,7 +85,7 @@ static void cutoff(unsigned overflow, uint32_t start, int offset, unsigned servi
 }
 static void cancel_cutoff(uint32_t start, int offset, unsigned enhanced)
 {
-    blec_t c; setup(&c, start); c.conn = 0; c.state = BLEC_CONNECTING;
+    blec_t c; setup(&c, start); c.conn = BLEC_NO_CONN; c.state = BLEC_CONNECTING;
     c.step = 8; c.waiting = 0;
     blec_stop(&c);
     uint32_t deadline = c.deadline;

@@ -12,7 +12,7 @@ import tempfile
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source-root', type=Path, default=Path(__file__).resolve().parents[2])
-parser.add_argument('case', nargs='?', choices=['cancel', 'scan', 'failed-status', 'edges'])
+parser.add_argument('case', nargs='?', choices=['cancel', 'scan', 'failed-status', 'edges', 'handles'])
 args = parser.parse_args()
 root = args.source_root.resolve()
 source = (root / 'firmware/src/ble.c').read_text()
