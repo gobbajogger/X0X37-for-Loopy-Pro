@@ -51,6 +51,7 @@ def main():
     dirty=subprocess.check_output(['git','-C',str(repo),'status','--porcelain','--untracked-files=no'],text=True)
     if dirty:
         parser.error('tracked source inputs must be clean; commit the study inputs first')
+    source_commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
     if out.exists() or out.is_relative_to(repo):
         parser.error('output must be new and outside source repository')
     out.mkdir(parents=True)
@@ -74,9 +75,13 @@ def main():
     build(app,out/'app-paired-loader.log')
     if digest(target/'x0x.bin') != before:
         raise RuntimeError('separate loader unexpectedly changed pinned app')
+    final_commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    dirty=subprocess.check_output(['git','-C',str(repo),'status','--porcelain','--untracked-files=no'],text=True)
+    if final_commit != source_commit or dirty:
+        raise RuntimeError('source changed during replay; output cannot be attributed to one commit')
     result={'installable':False,'app_partition':524000,'app_margin':524000-before['bytes'],
             'baseline':BASE,'loader_source_baseline':LOADER_BASE,
-            'source_commit':subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip(),
+            'source_commit':source_commit,
             'artifacts':{name:digest(target/name) for name in
                          ('x0x.bin','x0x.elf','x0x.map','loader/loader.bin','loader/ota.bin')}}
     (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
