@@ -1,0 +1,4 @@
+exit=1
+FAIL stop must retain Create status prerequisite after timeout line=20: !wire.cancels state=1 step=9 waiting=1 handle=ffff scans=1 creates=1 cancels=1
+FAIL stop must retain Create status prerequisite after timeout line=20: !wire.cancels state=1 step=9 waiting=1 handle=ffff scans=1 creates=1 cancels=1
+2 failing scenarios

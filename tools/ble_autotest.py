@@ -50,6 +50,110 @@ WHY = ["-", "TIMEOUT", "WRONG JOB", "NOT READY", "RESET", "NO TICK"]
 MB = ["OFF", "INIT", "READY", "FAILED"]
 ERR = ["NONE", "BOOT", "HEAP", "TASK", "ASSERT", "RESET"]
 
+SMC_STATES = ("OFF", "STOPPING", "STARTING", "SCANNING", "CONNECTING",
+              "DISCOVERING", "CONNECTED", "DISCONNECTING", "FAILED")
+SMC_STEPS = ("RESET", "SET_EVENT_MASK", "SET_LE_EVENT_MASK", "READ_BUFFER_SIZE",
+             "SET_RANDOM_ADDRESS", "SET_SCAN_PARAMETERS", "SCAN_ON", "SCAN_OFF",
+             "CREATE_CONNECTION", "CANCEL_CONNECTION", "DISCOVER_MIDI_SERVICE",
+             "DISCOVER_MIDI_CHARACTERISTIC", "DISCOVER_CCCD",
+             "SUBSCRIBE_NOTIFICATIONS", "READY")
+SMC_TRACE_MAGIC, SMC_TRACE_WORDS = 0x534D4302, 26
+SMC_TRACE_KINDS = {0: "NONE", 1: "HCI_ERROR", 2: "CONNECT_FAIL", 3: "DISCONNECT",
+                   4: "ATT_ERROR", 5: "TIMEOUT", 6: "TRANSPORT_BLOCKED",
+                   7: "PROTOCOL_ERROR", 8: "SIGNAL_FAILURE", 9: "NO_PEER",
+                   16: "START", 17: "CREATE", 18: "LINK", 19: "READY", 20: "CANCEL"}
+SMC_TIMEOUTS = {1: "controller command completion", 2: "link establishment",
+                3: "connection cancellation outcome", 4: "ATT response",
+                5: "signaling reply", 6: "disconnection completion",
+                7: "transport acceptance", 8: "ATT control reply"}
+HCI_ERRORS = {0x01: "unknown HCI command", 0x02: "unknown connection identifier",
+              0x05: "authentication failure", 0x08: "connection timeout",
+              0x0C: "command disallowed", 0x0D: "connection rejected: limited resources",
+              0x0E: "connection rejected: security", 0x0F: "connection rejected: address",
+              0x12: "invalid HCI command parameters", 0x13: "remote user terminated connection",
+              0x16: "local host terminated connection", 0x1A: "unsupported remote feature",
+              0x1F: "unspecified controller error", 0x22: "link-layer response timeout",
+              0x28: "instant passed", 0x3B: "unacceptable connection parameters",
+              0x3E: "connection failed to establish / synchronization timeout"}
+ATT_ERRORS = {0x01: "invalid handle", 0x02: "read not permitted", 0x03: "write not permitted",
+              0x04: "invalid PDU", 0x05: "insufficient authentication", 0x06: "request not supported",
+              0x07: "invalid offset", 0x08: "insufficient authorization", 0x09: "prepare queue full",
+              0x0A: "attribute not found", 0x0B: "attribute not long",
+              0x0C: "insufficient encryption key size", 0x0D: "invalid attribute value length",
+              0x0E: "unlikely error", 0x0F: "insufficient encryption",
+              0x10: "unsupported group type", 0x11: "insufficient resources"}
+
+
+def smc_trace_record(words):
+    ms, context, operation, detail = words
+    kind, state, step, status = [(context >> shift) & 255 for shift in (0, 8, 16, 24)]
+    record = {"ms": ms, "kind": kind, "kind_name": SMC_TRACE_KINDS.get(kind, f"UNKNOWN_{kind}"),
+              "state": state, "state_name": SMC_STATES[state] if state < len(SMC_STATES) else f"UNKNOWN_{state}",
+              "step": step, "step_name": SMC_STEPS[step] if step < len(SMC_STEPS) else f"UNKNOWN_{step}",
+              "status": status, "opcode": operation & 65535, "handle": operation >> 16, "detail": detail}
+    if kind == 5:
+        record["timeout_detail"] = dict(zip(("hci_waiting", "att_waiting", "acl_credits", "command_retry"),
+                                           ((detail >> shift) & 255 for shift in (0, 8, 16, 24))))
+    return record
+
+
+def smc_failure_text(record):
+    """Describe recorded software/controller evidence without guessing the RF cause."""
+    kind, status = record["kind"], record["status"]
+    phase = f"{record['state_name']}/{record['step_name']} at {record['ms']} ms after boot"
+    operation = f"opcode 0x{record['opcode']:04X}, handle 0x{record['handle']:04X}"
+    if kind in (1, 2, 3):
+        label = {1: "Controller command failed", 2: "Connection attempt failed", 3: "Link disconnected"}[kind]
+        reason = HCI_ERRORS.get(status, "unlisted HCI status/reason")
+        text = f"{label}: 0x{status:02X} ({reason}); {operation}"
+        if status in (0x08, 0x22):
+            text += ". The controller reports a timeout; the underlying radio/peer cause is not identified"
+        elif status == 0x3E:
+            text += ". The controller reports failed establishment; the underlying radio/peer cause is not identified"
+    elif kind == 4:
+        text = (f"Peer returned ATT error 0x{status:02X} ({ATT_ERRORS.get(status, 'unlisted ATT error')}) "
+                f"for request 0x{record['opcode']:02X}, attribute 0x{record['handle']:04X}")
+    elif kind == 5:
+        detail = record['detail']
+        att_waiting, credits, command_retry = ((detail >> shift) & 255 for shift in (8, 16, 24))
+        if status == 4 and not att_waiting:
+            boundary = f": ATT request was not submitted (ACL credits {credits})"
+        elif status in (3, 6, 7) and command_retry:
+            command = {3: 'cancellation', 6: 'disconnection', 7: 'HCI'}[status]
+            boundary = f" awaiting {command} command submission: controller transport refused the command"
+        else:
+            boundary = f" waiting for {SMC_TIMEOUTS.get(status, 'an unspecified operation')}"
+        text = (f"Firmware deadline expired{boundary}; {operation}. "
+                "This records the stalled boundary, not its underlying cause")
+    elif kind == 6:
+        text = f"Controller transport did not accept an outgoing packet; {operation}"
+    elif kind == 7:
+        text = f"Firmware rejected protocol input (reason {status}); {operation}, detail 0x{record['detail']:08X}"
+    elif kind == 8:
+        text = f"Signaling response failed (reason {status}); {operation}, detail 0x{record['detail']:08X}"
+    elif kind == 9:
+        text = "No matching SMC advertisement was observed before the scan deadline; this does not identify the radio or peer cause"
+    else:
+        text = f"{record['kind_name']}; {operation}, status 0x{status:02X}"
+    return f"{text} [{phase}]"
+
+
+def decode_smc_trace(words):
+    if len(words) != SMC_TRACE_WORDS or words[0] != SMC_TRACE_MAGIC or words[-1] != SMC_TRACE_WORDS:
+        raise ValueError("invalid SMC connection trace block")
+    next_slot, count = words[4] & 255, (words[4] >> 8) & 255
+    if next_slot >= 3 or count > 3:
+        raise ValueError("invalid SMC connection trace ring metadata")
+    failures = words[3] & 65535
+    slots = [smc_trace_record(words[13 + 4 * i:17 + 4 * i]) for i in range(3)]
+    recent = [slots[(next_slot - count + i) % 3] for i in range(count)]
+    return {"version": 2, "events_modulo_2_32": words[1], "attempts": words[2] & 65535,
+            "ready_count": words[2] >> 16, "failure_count": failures, "disconnect_count": words[3] >> 16,
+            "counter_limit": "16-bit counters saturate at 65535; records remain current",
+            "first_failure": smc_trace_record(words[5:9]) if failures else None,
+            "latest_failure": smc_trace_record(words[9:13]) if failures else None,
+            "recent_events": recent}
+
 
 def ports():
     i = [n for n in mido.get_input_names() if any(k in n for k in PORT_KEYS)]
@@ -57,18 +161,18 @@ def ports():
     return (i[0], o[0]) if i and o else None
 
 
-def ask(cmd, args=(), timeout=3.0, tries=2):
+def ask(cmd, args=(), timeout=3.0, tries=2, port_pair=None):
     """one request; again once if no reply (after idle the first reply can be lost: the host
     does not read the USB IN endpoint at once, and the unit gives a SysEx reply 200 ms)"""
     for _ in range(tries):
-        r = _ask(cmd, args, timeout)
+        r = _ask(cmd, args, timeout, port_pair=port_pair)
         if r is not None:
             return r
     return None
 
 
-def _ask(cmd, args=(), timeout=3.0):
-    p = ports()
+def _ask(cmd, args=(), timeout=3.0, port_pair=None):
+    p = ports() if port_pair is None else port_pair
     if not p:
         return None
     with mido.open_input(p[0]) as i, mido.open_output(p[1]) as o:
@@ -107,6 +211,9 @@ def decode_diag(r):
     if len(rest) >= len(LIVE):                     # the live words are always the last len(LIVE)
         d.update(zip(LIVE, rest[-len(LIVE):]))
         rest = rest[:-len(LIVE)]
+    if len(rest) >= SMC_TRACE_WORDS and rest[-SMC_TRACE_WORDS] == SMC_TRACE_MAGIC:
+        d["smc_connection_trace"] = decode_smc_trace(rest[-SMC_TRACE_WORDS:])
+        rest = rest[:-SMC_TRACE_WORDS]
     d.update(trace)
     d.update(zip(GUARD, rest))                     # an older firmware sends fewer guard words
     for k in GUARD + LIVE:
@@ -243,6 +350,15 @@ def summary(d, before):
                             f"last ATT opcode 0x{d['smc_reject'] >> 24:02X}, notify handle {d['smc_att'] & 65535}; "
                             f"last rejected ACL: reason {d['smc_reject'] >> 16 & 255}, bytes {d['smc_reject'] & 65535}, "
                             f"header {hdr.hex(' ')}, CID 0x{d['smc_acl1'] >> 16:04X} (CID valid for start packets of at least 8 bytes)")
+    connection_trace = d.get("smc_connection_trace")
+    if connection_trace and d["h_step"] & 0x80000000:
+        out["smc_connection_trace"] = connection_trace
+        failure = connection_trace["latest_failure"]
+        state = d["h_state"]
+        prefix = ("Currently CONNECTED; retained earlier failure: " if state == 6 and d.get("plat_state") == 5 else
+                  "Bluetooth is OFF; retained failure: " if state == 0 else
+                  "Latest recorded failure: ")
+        out["smc_failure"] = prefix + smc_failure_text(failure) if failure else "No connection failure recorded since host initialization."
     return out
 
 

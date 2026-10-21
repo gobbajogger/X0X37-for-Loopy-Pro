@@ -178,9 +178,12 @@ static void inflight(void)
     setup(0, 100); c->step = 7; c->waiting = 1; c->cmd_op = 0x200c;
     stop(0); response(0x200c, 0, 1);
     assert(c->state == BLEC_OFF && !accepted[1]);
-    setup(1, 100); c->step = 9; c->cmd_op = 0x200e; c->waiting = 1;
-    c->deadline = 200; stop(0); response(0x200e, 0, 1); ble_central_service();
-    assert(!accepted[0] && c->state == BLEC_STOPPING && c->deadline == 200);
+    /* Reach the accepted automatic Cancel through the actual public service.
+     * cmd_op alone no longer proves transport acceptance. */
+    setup(1, 100); fm1_ms = c->deadline; ble_central_service();
+    assert(accepted[0] == 1 && c->waiting); cutoff = c->deadline;
+    stop(0); response(0x200e, 0, 1); ble_central_service();
+    assert(accepted[0] == 1 && c->state == BLEC_STOPPING && c->deadline == cutoff);
 }
 static void handle_lifecycle(unsigned handle, unsigned enhanced, uint32_t at)
 {

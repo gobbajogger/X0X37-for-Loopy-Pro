@@ -1,0 +1,43 @@
+Hardware NOT TESTED; simulated public-API HCI/ATT only.
+ASAN_OPTIONS=detect_leaks=0: container blocks LeakSanitizer process inspection; no dynamic allocation in this test. ASan and UBSan remain enabled.
+COMMAND cc -std=c99 -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -I/workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/base /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/att_setup_test.c /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/base/ble_midi_central.c -o /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/base/test
+compile return 0
+
+base fragmented return 0
+PASS fragmented: simulated public-API ATT setup
+
+base mtu return 1
+FAIL /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/att_setup_test.c:80: c.state==BLEC_DISCOVERING&&c.step==10&&c.att_waiting (state=7 step=10 pending=0 errors=1)
+
+base indication return 1
+FAIL /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/att_setup_test.c:84: c.state==BLEC_DISCOVERING&&c.step==13&&c.att_waiting (state=7 step=13 pending=0 errors=1)
+
+base unrelated_error return 1
+FAIL /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/att_setup_test.c:89: c.state==BLEC_DISCOVERING&&c.att_waiting (state=7 step=10 pending=0 errors=1)
+
+base expected_error return 0
+PASS expected_error: simulated public-API ATT setup
+
+base pressure return 1
+FAIL /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/att_setup_test.c:96: c.state==BLEC_DISCOVERING&&c.att_waiting&&tx_count==before (state=7 step=10 pending=0 errors=1)
+
+COMMAND cc -std=c99 -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -I/workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/patched /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/att_setup_test.c /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/patched/ble_midi_central.c -o /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/patched/test
+compile return 0
+
+patched fragmented return 0
+PASS fragmented: simulated public-API ATT setup
+
+patched mtu return 0
+PASS mtu: simulated public-API ATT setup
+
+patched indication return 0
+PASS indication: simulated public-API ATT setup
+
+patched unrelated_error return 0
+PASS unrelated_error: simulated public-API ATT setup
+
+patched expected_error return 0
+PASS expected_error: simulated public-API ATT setup
+
+patched pressure return 0
+PASS pressure: simulated public-API ATT setup

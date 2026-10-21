@@ -1,0 +1,24 @@
+ASAN_OPTIONS=detect_leaks=0 (sandbox /proc restriction; no heap allocation in fixture)
+exit=1
+FAIL successful Cancel waits for required terminal event line=83: c.state == BLEC_CONNECTING && wire.scans == 1 state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+FAIL successful Cancel waits for required terminal event line=83: c.state == BLEC_CONNECTING && wire.scans == 1 state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+FAIL connection wins automatic Cancel line=102: c.state == BLEC_DISCOVERING && c.conn == 0x50 && wire.scans == 1 && c.att_waiting state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+PASS connection wins automatic Cancel enhanced=0 connection_first=1
+PASS terminal failure before Cancel refusal enhanced=0 connection_first=1
+FAIL late original Create result remains owned line=116: c.state == BLEC_SCANNING && wire.scans == 2 state=8 step=9 waiting=0 handle=ffff scans=1 creates=1 cancels=1
+PASS late original Create result remains owned enhanced=0 success=0 complete_first=1
+FAIL late original Create result remains owned line=115: c.state == BLEC_DISCOVERING && c.conn == 0x50 state=8 step=9 waiting=0 handle=ffff scans=1 creates=1 cancels=1
+FAIL late original Create result remains owned line=115: c.state == BLEC_DISCOVERING && c.conn == 0x50 state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+FAIL successful Cancel waits for required terminal event line=83: c.state == BLEC_CONNECTING && wire.scans == 1 state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+FAIL successful Cancel waits for required terminal event line=83: c.state == BLEC_CONNECTING && wire.scans == 1 state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+FAIL connection wins automatic Cancel line=102: c.state == BLEC_DISCOVERING && c.conn == 0x50 && wire.scans == 1 && c.att_waiting state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+PASS connection wins automatic Cancel enhanced=1 connection_first=1
+PASS terminal failure before Cancel refusal enhanced=1 connection_first=1
+FAIL late original Create result remains owned line=116: c.state == BLEC_SCANNING && wire.scans == 2 state=8 step=9 waiting=0 handle=ffff scans=1 creates=1 cancels=1
+PASS late original Create result remains owned enhanced=1 success=0 complete_first=1
+FAIL late original Create result remains owned line=115: c.state == BLEC_DISCOVERING && c.conn == 0x50 state=8 step=9 waiting=0 handle=ffff scans=1 creates=1 cancels=1
+FAIL late original Create result remains owned line=115: c.state == BLEC_DISCOVERING && c.conn == 0x50 state=3 step=6 waiting=1 handle=ffff scans=2 creates=1 cancels=1
+PASS late Cancel refusal does not disturb discovery
+PASS stop after automatic Cancel transport refusal
+FAIL stop after original Create failed line=143: c.state == BLEC_OFF && wire.cancels == 1 state=8 step=9 waiting=0 handle=ffff scans=1 creates=1 cancels=1
+13 failing scenarios
