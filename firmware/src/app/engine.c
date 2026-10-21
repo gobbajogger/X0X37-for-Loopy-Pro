@@ -106,8 +106,23 @@ static const x0x_param_t MIX_P[MX_NPARAMS] = {{"LEVEL", 127, 100, 0}, {"REV", 12
                                                {"PAN", 127, 64, 0}};
 static const char *const PART_NAMES[NPARTS] = {"909", "808", "303 A", "303 B", "BREAK"};
 static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS];
-static volatile uint8_t smc_solo_mask;
-void engine_smc_solo(uint8_t mask) { smc_solo_mask = (uint8_t)(mask & 0x1Fu); }
+/* Main-loop publication is one aligned word; each render stretch snapshots it
+ * once for both audio cores. This never changes the sequencer's saved mutes. */
+static volatile uint32_t smc_solo_state;
+void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808)
+{
+    smc_solo_state = (uint32_t)(parts & 0x1Fu) | (uint32_t)(kit909 & 0x7FFu) << 5 |
+                     (uint32_t)(kit808 & 0x7FFu) << 16;
+}
+void engine_smc_solo(uint8_t mask) { engine_smc_solo_targets(mask, 0, 0); }
+
+static uint16_t smc_audible_drums(uint32_t solo, int kit)
+{
+    /* Whole-part Solo alone retains its existing part-gain glide. A whole kit
+     * in the union also includes all of its voices beside any drum targets. */
+    return !(solo & ~0x1Fu) || (solo & (1u << kit)) ? 0x7FFu :
+           (uint16_t)(solo >> (5 + kit * 11) & 0x7FFu);
+}
 /* pan: a balance law. Centre is full level on both sides (a centred mix is the mono one exactly);
  * turning toward a side fades the other out along a quarter cosine, the near side stays at 1 */
 static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
@@ -701,9 +716,9 @@ static glide_t mix_glide[NPARTS][GL_N] = {
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}, {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}},
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}, {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}},
     {{-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}, {-1, 0}}};
-static void mix_targets(int p, float g)                     /* g: the part level */
+static void mix_targets(int p, float g, uint8_t solo)        /* g: the part level */
 {
-    if (smc_solo_mask && !(smc_solo_mask & (1u << p)))
+    if (solo && !(solo & (1u << p)))
         g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
     glide_set(&mix_glide[p][GL_R], g * mix_pr[p]);
@@ -744,7 +759,8 @@ __attribute__((noinline)) static void scale_glide(float *buf, glide_t *g, uint32
 
 /* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
  * and the break into kbuf; arg bit 8: not timed (the cycle counter is the first core's). Nothing
- * here is mixed: the first core does that afterwards, in one core's order */
+ * here is mixed: the first core does that afterwards, in one core's order.
+ * Bits 9..19 carry this stretch's audible 808 tracks. */
 static int brk_silent_now = 1;
 static uint8_t d808_was_active;
 static void core2_job(uint32_t arg)
@@ -754,7 +770,7 @@ static void core2_job(uint32_t arg)
     if (d808_was_active) {                                /* silent, it does nothing (and is not mixed) */
         for (i = 0; i < n; i++)
             t0[i] = t1[i] = t2[i] = tr[i] = 0.0f;
-        drum808_render_st(&d808, t0, tr, t1, t2, (int)n);
+        drum808_render_st_masked(&d808, t0, tr, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
     } else
         drum808_pan_settle(&d808);
     if (timed) {
@@ -784,7 +800,11 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
 {
     float *bb[NBASS] = {out_l, out_r};
     int idle[NBASS], b;
-    uint32_t arg = n & 0xFFu, i, pt;
+    uint32_t solo = smc_solo_state;
+    uint32_t arg = (n & 0xFFu) | (uint32_t)smc_audible_drums(solo, PART_808) << 9, i, pt;
+    uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
+    if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
+    if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
     int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
@@ -794,8 +814,8 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
             drum909_render(&d909, mono, mono, mono, (int)n);   /* writes nothing; advances the noise */
             drum909_pan_settle(&d909);                    /* silent: pans move at once, no glide */
         } else {
-            drum909_render_st(&d909, dry_l, dry_r, rev, dly, (int)n);
-            mix_targets(PART_909, mix_level[PART_909]);
+            drum909_render_st_masked(&d909, dry_l, dry_r, rev, dly, (int)n, smc_audible_drums(solo, PART_909));
+            mix_targets(PART_909, mix_level[PART_909], solo_parts);
             for (i = 0; i < n; i++)                       /* the kit send: the whole machine, both sides */
                 mono[i] = (dry_l[i] + dry_r[i]) * 0.5f;   /* (centred: L exactly) */
             scale_glide(dry_l, &mix_glide[PART_909][GL_L], n);   /* then the part's PAN over the kit */
@@ -830,7 +850,7 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
     else
         PROF_ADD(PR_808, pt);                             /* what the first core waited for the second */
     if (d808_was_active) {
-        mix_targets(PART_808, mix_level[PART_808]);
+        mix_targets(PART_808, mix_level[PART_808], solo_parts);
         add_glide(dry_l, t0, &mix_glide[PART_808][GL_L], n);
         add_glide(dry_r, tr, &mix_glide[PART_808][GL_R], n);
         add_glide(rev, t1, &mix_glide[PART_808][GL_VREV], n);
@@ -843,7 +863,7 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
         int p = PART_303A + b;
         if (idle[b])
             continue;
-        mix_targets(p, mix_level[p]);
+        mix_targets(p, mix_level[p], solo_parts);
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
         add_glide(dry_r, bb[b], &mix_glide[p][GL_R], n);
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
@@ -852,7 +872,7 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
     }
     if (!brk_hold && !brk_silent_now) {
         float g = mix_level[PART_BRK];
-        mix_targets(PART_BRK, g);
+        mix_targets(PART_BRK, g, solo_parts);
         add_glide(dry_l, kbuf, &mix_glide[PART_BRK][GL_L], n);
         add_glide(dry_r, kbuf, &mix_glide[PART_BRK][GL_R], n);
         add_glide(rev, kbuf, &mix_glide[PART_BRK][GL_REV], n);
@@ -1105,7 +1125,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     guard_enabled = 1;
     guard_avg_q8 = guard_calm = 0;
     drum808_quiet = 3.2e-5f;
-    smc_solo_mask = 0;
+    smc_solo_state = 0;
     prob_rng = 0x2545F491u;
     brk_silent_now = 1;
     d808_was_active = 0;
