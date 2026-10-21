@@ -79,16 +79,29 @@ def parse_info(r):
     if len(r) < 2:
         raise SlotError("short SMP_INFO reply")
     count, size, i, slots = r[0], r[1] * 1024, 2, []
+    if not 1 <= count <= 16 or size < DATA_OFF:
+        raise SlotError("invalid SMP_INFO slot count or capacity")
     for _ in range(count):
+        if i >= len(r) or not 0 <= r[i] <= 16:
+            raise SlotError("invalid SMP_INFO zone count")
         nz = r[i]
-        j = r.index(0, i + 1)
+        try:
+            j = r.index(0, i + 1)
+        except ValueError as e:
+            raise SlotError("unterminated SMP_INFO slot name") from e
+        if j + 1 >= len(r):
+            raise SlotError("short SMP_INFO slot entry")
         slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": r[j + 1], "size": size, "off": None,
                       "used": r[j + 1]})
         i = j + 2
     ext = len(r) >= i + 2 + 6 * count and r[i] == ord("X") and r[i + 1] == 1
+    if i != len(r) and (not ext or len(r) != i + 2 + 6 * count):
+        raise SlotError("invalid SMP_INFO layout extension")
     if ext:
         for k, sl in enumerate(slots):
             v = [r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7 for m in range(3)]
+            if not v[1] or v[2] * 1024 > v[1] * 0x1000:
+                raise SlotError("invalid SMP_INFO slot capacity or usage")
             sl.update({"off": v[0] * 0x1000, "size": v[1] * 0x1000, "used": v[2]})
     return {"count": count, "size": size, "ext": ext, "slots": slots}
 
@@ -225,6 +238,26 @@ def plan_restore(lay, meta, images, only=None):
     return todo, skipped
 
 
+def header_for_write(link, img):
+    """Preserve the whole header; reject unsupported reserved bytes before erase.
+
+    Legacy firmware accepts 480 bytes and leaves the final 32 erased. The project
+    protocol (QUERY v1) shipped with support for a full 512-byte SMP_END header.
+    Probe that read-only capability only when an archive actually needs it.
+    """
+    if len(img) < DATA_OFF:
+        raise SlotError("short sample slot image")
+    if all(b == 0xFF for b in img[HDR_LEN:DATA_OFF]):
+        return img[:HDR_LEN]
+    try:
+        r = req(link, 9, [64], 1.0, 1)
+    except TimeoutError as e:
+        raise SlotError("this archive needs a full 512-byte header; update the keyboard to firmware with Projects support before restoring it") from e
+    if len(r) != 7 or r[:3] != [64, 0, 1] or not 0 <= r[6] <= 3 or (r[3] | r[4] << 7 | r[5] << 14) < 32:
+        raise SlotError("the keyboard did not confirm full sample-header support; nothing was erased")
+    return img[:DATA_OFF]
+
+
 def write_slot(link, k, img, progress=None):
     """erase slot k and write the image (None: erase only); raises SlotError on a device error"""
     if img is None:
@@ -232,6 +265,7 @@ def write_slot(link, k, img, progress=None):
         if r[1]:
             raise SlotError(f"slot {k + 1}: erase failed")
         return
+    header = header_for_write(link, img)
     r = req(link, CMD_BEGIN, [k], 10.0)
     if r[1]:
         raise SlotError(f"slot {k + 1}: begin (erase) failed")
@@ -244,7 +278,7 @@ def write_slot(link, k, img, progress=None):
             raise SlotError(f"slot {k + 1}: write at {adr:#x} failed ({r[4]})")
         if progress:
             progress(min(off + WRITE_LEN, len(data)), len(data))
-    r = req(link, CMD_END, [k] + pack7(img[:HDR_LEN]), 5.0)
+    r = req(link, CMD_END, [k] + pack7(header), 5.0)
     if r[1]:
         raise SlotError(f"slot {k + 1}: the device refused the header ({r[1]}, {RC.get(r[1], '?')})")
 

@@ -307,16 +307,23 @@ export function asciiName(b) {
 export function parseInfo(r) {
   if (r.length < 2) throw new Error("short SMP_INFO reply");
   const count = r[0], size = r[1] * 1024, slots = [];
+  if (!Number.isInteger(count) || count < 1 || count > 16 || size < SLOT_DATA_OFF)
+    throw new Error("invalid SMP_INFO slot count or capacity");
   let i = 2;
   for (let k = 0; k < count; k++) {
     const nz = r[i], j = r.indexOf(0, i + 1);
+    if (!Number.isInteger(nz) || nz < 0 || nz > 16 || j < i + 1 || j + 1 >= r.length)
+      throw new Error("invalid SMP_INFO slot entry");
     slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1], size, off: null, used: r[j + 1] });
     i = j + 2;
   }
   const ext = r.length >= i + 2 + 6 * count && r[i] === 0x58 && r[i + 1] === 1;
+  if (i !== r.length && (!ext || r.length !== i + 2 + 6 * count))
+    throw new Error("invalid SMP_INFO layout extension");
   if (ext)
     slots.forEach((sl, k) => {
       const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
+      if (!v[1] || v[2] * 1024 > v[1] * 0x1000) throw new Error("invalid SMP_INFO capacity or usage");
       Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
     });
   return { count, size, ext, slots };
@@ -531,11 +538,27 @@ export async function backupSlots(link, onPart) {
 }
 
 // erase slot k and write the image (null: erase only); throws on a device error (x0x_slots.write_slot)
+export async function slotHeaderForWrite(img, query) {
+  if (img.length < SLOT_HDR_AREA) throw new Error("Short sample slot image.");
+  if (img.subarray(SLOT_HDR_LEN, SLOT_HDR_AREA).every((b) => b === 0xFF)) return img.subarray(0, SLOT_HDR_LEN);
+  // Projects QUERY v1 and full 512-byte SMP_END headers shipped together.
+  // An old device can still restore images whose reserved bytes are all erased.
+  let r;
+  try { r = await query(); } catch (_) {
+    throw new Error("This archive needs a full 512-byte header. Update the keyboard to firmware with Projects support before restoring it; nothing was erased.");
+  }
+  if (r.length !== 7 || r[0] !== 64 || r[1] !== 0 || r[2] !== 1 || r[6] < 0 || r[6] > 3 ||
+      (r[3] | r[4] << 7 | r[5] << 14) < 32)
+    throw new Error("The keyboard did not confirm full sample-header support; nothing was erased.");
+  return img.subarray(0, SLOT_HDR_AREA);
+}
+
 export async function writeSlotImage(link, k, img, onPart) {
   if (!img) {
     if ((await slotReq(link, 14, [k], 30000))[1]) throw new Error(`slot ${k + 1}: erase failed`);
     return;
   }
+  const header = await slotHeaderForWrite(img, () => slotReq(link, 9, [64], 1000, 1));
   if ((await slotReq(link, 11, [k], 10000))[1]) throw new Error(`slot ${k + 1}: begin (erase) failed`);
   const data = img.subarray(SLOT_HDR_AREA);
   for (let off = 0; off < data.length; off += 256) {
@@ -544,7 +567,7 @@ export async function writeSlotImage(link, k, img, onPart) {
     if (r[4]) throw new Error(`slot ${k + 1}: write at 0x${adr.toString(16)} failed (${r[4]})`);
     if (onPart) onPart(Math.min(off + 256, data.length), data.length);
   }
-  const e = await slotReq(link, 13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  const e = await slotReq(link, 13, [k, ...pack78(header)], 5000);
   if (e[1]) throw new Error(`slot ${k + 1}: the keyboard refused the header (${e[1]})`);
 }
 
@@ -580,8 +603,15 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   const dev = await up.find((id) => !/^ota-/i.test(id.model));
   if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
   else if (dev) {
+    up.bind(dev);
     try {
-      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
+      let layout;
+      try { layout = await readSlotLayout(dev.link, 1000, 2); }
+      catch (e) {
+        const stock = dev.id.text === "FM-1_015" || (dev.id.version === 16 && /^(SMK-37[ +].*|MKE-P37|STARRYKEY-37.*)$/i.test(dev.id.model));
+        if (stock && /did not answer \(slot command 15\)/.test(e.message)) layout = null;
+        else throw fail("slotbackup", `The sample layout is unknown (${e.message}). Reconnect and retry; no update was started.`);
+      }
       if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
