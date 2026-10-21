@@ -90,7 +90,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -172,6 +172,7 @@ run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
 run host-build sh host/build_host.sh   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
+run project-protocol sh tests/host/run_project_protocol.sh
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
