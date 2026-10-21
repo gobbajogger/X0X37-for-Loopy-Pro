@@ -17,8 +17,9 @@ struct ctl_task {
     void *arg;
     struct ctl_ctx ctx;
     u32 *stack;
-    u32 wake_ms;          /* for os_time_dly / timed pend */
-    u8 used, waiting;
+    u32 wake_ms;          /* for os_time_dly / timed pend (zero is a valid deadline) */
+    u8 used, timed;
+    volatile u8 waiting;
     u16 qhead, qtail;     /* message ring (words); a message = [count, type, args...] */
     int q[CTL_TASKQ_WORDS];
 };
@@ -73,12 +74,20 @@ int task_kill(const char *name)
 const char *os_current_task(void) { return cur ? cur->name : "idle"; }
 const char *os_current_task_rom(void) { return os_current_task(); }
 
-/* Give the CPU back to the idle loop until 'ready' says the wait is over. */
-static void block_current(void)
+/* The caller checked its wait condition with interrupts disabled. Publish the
+ * wait before restoring them: an ISR posted at restore must leave us runnable.
+ * Restore the caller's IRQ state before switching to the idle context. */
+static void block_current(u32 flags, u32 deadline, int timed)
 {
-    if (!cur) { ctl_port_cpu_relax(); return; }   /* idle context (a timer callback): it cannot block, it spins */
-    cur->waiting = 1;
-    ctl_port_ctx_switch(&cur->ctx, &idle_ctx);
+    struct ctl_task *t = cur;
+    if (t) {
+        t->wake_ms = deadline;
+        t->timed = (u8)timed;
+        t->waiting = 1;
+    }
+    ctl_port_irq_restore(flags);
+    if (t) ctl_port_ctx_switch(&t->ctx, &idle_ctx);
+    else ctl_port_cpu_relax();   /* a timer callback cannot block */
 }
 
 static int taskq_count(struct ctl_task *t)
@@ -118,8 +127,7 @@ int os_taskq_pend(const char *fmt, int *argv, int argc)
             ctl_port_irq_restore(f);
             return OS_TASKQ;
         }
-        ctl_port_irq_restore(f);
-        block_current();
+        block_current(f, 0, 0);
     }
 }
 
@@ -135,8 +143,9 @@ int os_sem_create(void *sem, int count)
 int os_sem_post(void *sem)
 {
     struct ctl_sem *s = sem;
-    u32 f = ctl_port_irq_save(); s->count++; ctl_port_irq_restore(f);
+    u32 f = ctl_port_irq_save(); s->count++;
     for (int i = 0; i < CTL_MAX_TASKS; i++) tasks[i].waiting = 0;   /* re-check waiters */
+    ctl_port_irq_restore(f);
     return OS_NO_ERR;
 }
 int os_sem_pend(void *sem, int timeout)   /* timeout in ticks (10 ms), 0 = forever */
@@ -146,10 +155,11 @@ int os_sem_pend(void *sem, int timeout)   /* timeout in ticks (10 ms), 0 = forev
     for (;;) {
         u32 f = ctl_port_irq_save();
         if (s->count > 0) { s->count--; ctl_port_irq_restore(f); return OS_NO_ERR; }
-        ctl_port_irq_restore(f);
-        if (timeout && (s32)(ctl_ms() - end) >= 0) return OS_TIMEOUT;
-        if (cur && timeout) cur->wake_ms = end;
-        block_current();
+        if (timeout && (s32)(ctl_ms() - end) >= 0) {
+            ctl_port_irq_restore(f);
+            return OS_TIMEOUT;
+        }
+        block_current(f, end, timeout != 0);
     }
 }
 int os_sem_set(void *sem, int count) { ((struct ctl_sem *)sem)->count = count; return OS_NO_ERR; }
@@ -163,9 +173,10 @@ int os_mutex_del(void *m, int force) { (void)m; (void)force; return OS_NO_ERR; }
 void os_time_dly(int ticks)
 {
     u32 end = ctl_ms() + (u32)ticks * (1000u / OS_TICKS_PER_SEC);
-    while ((s32)(ctl_ms() - end) < 0) {
-        if (cur) cur->wake_ms = end;
-        block_current();
+    for (;;) {
+        u32 f = ctl_port_irq_save();
+        if ((s32)(ctl_ms() - end) >= 0) { ctl_port_irq_restore(f); return; }
+        block_current(f, end, 1);
     }
 }
 
@@ -183,9 +194,10 @@ int ctl_os_run_once(void)
     for (int i = 0; i < CTL_MAX_TASKS; i++) {
         struct ctl_task *t = &tasks[i];
         if (!t->used) continue;
-        if (t->waiting && t->wake_ms && (s32)(now - t->wake_ms) >= 0) t->waiting = 0;
+        if (t->waiting && t->timed && (s32)(now - t->wake_ms) >= 0) t->waiting = 0;
         if (t->waiting) continue;
         t->wake_ms = 0;
+        t->timed = 0;
         cur = t;
         ctl_port_ctx_switch(&idle_ctx, &t->ctx);
         cur = NULL;
