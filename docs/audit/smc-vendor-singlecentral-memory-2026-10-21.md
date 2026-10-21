@@ -14,15 +14,16 @@ private inspection only, extract each member with `ar x`, then use
 `clang -target pi32v2 -S -emit-llvm -x ir MEMBER -o MEMBER.ll`.
 Do not commit vendor objects, IR, or generated vendor source.
 
-Configuration: private HCI; LE modules=2, roles=31, features=1; one hardware link,
+Configuration: private HCI; LE modules=2, features=1; one hardware link,
 five RX buffers, five ACL buffers, ACL length27; one host LE connection, one GATT
 client, zero GATT servers; SM enabled, secure-connections extension disabled.
 The reference frontend uses ATT MTU128 and a512-byte discovery buffer.
 
-The integration owner's `runtime-link-with-profile` diagnostic reports image
-108708 bytes, static RAM28760 bytes, and no unresolved symbols. Its RAM includes
+The integration owner's latest `runtime-link-central-roles` diagnostic selects
+roles25 (central, observer and initiator; no peripheral or advertiser). It reports
+image104536 bytes, static RAM28664 bytes, and no unresolved symbols. Its RAM includes
 10112 bytes of heap and separate2048-byte run and ISR stacks. These numbers are
-not the admitted layout. The existing low-RAM window is26368 bytes: excess2392.
+not the admitted layout. The existing low-RAM window is26368 bytes: excess2296.
 
 ## Allocations that cannot be omitted from the budget
 
@@ -71,7 +72,7 @@ The independently identified high region `[0x01c7d400,0x01c7f000)` is7168 bytes,
 subject to new ABI, loader lifetime, overlap and zero-initialization validation.
 Do not move task stacks or RF DMA pools there. Own CPU-only static candidates are
 ATT storage828, search storage512, task records576 (not stacks), software timers320:
-2236 bytes total. Moving these alone still leaves156 bytes of the current low-RAM
+2236 bytes total. Moving these alone still leaves60 bytes of the current low-RAM
 excess, before increasing the insufficient heap. Host globals such as the184-byte
 `btstack_global_info` are further candidates only after individual pointer-use and
 section-placement validation. Generic "host task" allocation routing is unsafe:
@@ -84,6 +85,34 @@ connect, discovery, subscription, MIDI burst, peer security request, disconnect,
 reconnect, and radio-off while congested. Record both minimum free space and
 largest free block. Preserve the8192-byte app pool guard and all sample capacity.
 No current evidence establishes enough heap or a safe reduced heap limit.
+
+### Allocation phases and scoped CPU-pool option
+
+| Phase | Ownership / additional demand |
+| --- | --- |
+| Controller startup | RF and linklayer pools; controller task stack; temporary readiness semaphore88 charged |
+| Host startup | Host task stack; `btstack_mem_init` calls `btstack_le_memory_init` for LE connection and GATT pools1384 charged |
+| Profile initialization | Public `le_device_db_init` allocates64 charged; `sm_init` allocates488; `gatt_client_init` registers static objects, no direct allocation |
+| Scan | Scan state40 and open state32 charged; check lifetime through scan stop |
+| Create connection | Initiator40+72 charged; do not assume overlap with all scan allocations |
+| Connected / discovery / security | Connection344 and hardware state48 charged, plus variable event/ACL allocations; ATT/search already static |
+
+A narrowly scoped CPU-pool context around DB/SM initialization could relocate552
+charged bytes without altering vendor structures. DB initialization directly
+allocates and clears its CPU table. SM also calls persistence helpers, event and
+fixed-channel registration, and key setters. Those nested helpers and the actual
+shim persistence implementation must be checked before admitting this scope.
+The scope must not survive a yield, nested scheduler entry, callback, or error;
+free must recognize the correct owning pool. GATT initialization alone does not
+move the128-byte GATT pool: that pool is allocated earlier in vendor memory init.
+Routing all host allocations by task name is not an acceptable substitute.
+
+Relocating these552 bytes would reduce the10440 lower bound in the low heap to
+9888, leaving224 of the current10112 before all later phase allocations. That
+still does not establish runtime fit. A public-function wrapper around the earlier
+`btstack_mem_init` could be investigated separately, but requires exact-link
+interposition proof and complete nested-call ownership, not a private-layout
+replacement or vendor binary modification.
 
 ## Stack evidence and limitations
 
