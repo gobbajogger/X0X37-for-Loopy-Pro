@@ -466,6 +466,20 @@ class Updater:
                 continue
             fl, addr, n = r
             last = time.monotonic()
+            if getattr(self, "read_policy", None):
+                try:
+                    data, done = self.read_policy(image, fl, addr, n, finish)
+                except ValueError as e:
+                    raise InstallError("badreq", str(e)) from e
+                if not done:
+                    time.sleep(DELAY["reply"])
+                if not link.send(response(addr, data, fl)):
+                    return served, False, True
+                if done:
+                    return served, True, False
+                served += 1
+                progress(served, addr + n)
+                continue
             if addr in (FINISH_CHECK, FINISH_WRITE):
                 link.send(response(addr, b"success\0"))
                 if addr == finish:
@@ -762,6 +776,18 @@ def head_compare(image, ref_path):
 def head_guard(a, out=None, env=None):
     """check 4: 0 = same head, or no reference; 11 = refused. A package that does not load is left to run()."""
     out = out or sys.stderr
+    if getattr(a, "smc_vendor_dev", False):
+        try:
+            import smc_vendor_install
+            _, image, _, _ = smc_vendor_install.prepare(a)
+            same, text = head_compare(image, a.head_ref)
+            if not same:
+                raise ValueError(text)
+            print(f"bootloader guard: converted head OK, {text}", file=out)
+            return 0
+        except (ValueError, KeyError, OSError, InstallError) as e:
+            print(f"bootloader guard: SMC DEV REFUSED: {e}", file=out)
+            return EXIT["head"]
     ref = head_ref_path(a, env)
     if ref is None:
         print("bootloader guard: no reference head (--head-ref, X0X_HEAD_REF or ~/.config/x0x/flash-head.bin); "
@@ -891,6 +917,9 @@ def check_ctl(link, ctl, out):
 
 
 def run(a, backend, out, ask):
+    if getattr(a, "smc_vendor_dev", False):
+        import smc_vendor_install
+        return smc_vendor_install.run(a, backend, out, ask, sys.modules[__name__])
     up = Updater(backend, a.port)
     if a.info:
         dev = up.find()
@@ -1001,13 +1030,22 @@ def gate_guard(a):
         print("REFUSED: give --commit HASH (the gate guard needs the commit of the package)", file=sys.stderr)
         return 9
     dev_record = getattr(a, "dev_record", None)
-    if dev_record and (a.config != "dev" or (not a.ctl and not a.no_ctl)):
+    if dev_record and (a.config != "dev" or (not a.ctl and not a.no_ctl and not getattr(a, "smc_vendor_dev", False))):
         print("REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl", file=sys.stderr)
         return 9
     guard = Path(__file__).resolve().parent / "require_gate_pass.sh"
     cmd = ["bash", str(guard), commit, "--fwsc", a.package, "--config", a.config] + (["--ctl", a.ctl] if a.ctl else [])
     if dev_record:
         cmd += ["--dev-record", dev_record]
+    if getattr(a, "smc_vendor_dev", False):
+        try:
+            import smc_vendor_install
+            smc_vendor_install.prerequisites(a)
+            a._smc_record_sha = hashlib.sha256(Path(dev_record).read_bytes()).hexdigest()
+        except (ValueError, OSError) as e:
+            print(f"REFUSED: {e}", file=sys.stderr)
+            return 9
+        cmd += ["--smc-vendor-dev"]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True)
     except OSError as e:
@@ -1080,7 +1118,13 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--head-check", action="store_true", help="compare the package head with the reference only (no device)")
     ap.add_argument("--config", choices=("dev", "rel"), default="dev",
                     help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
+    ap.add_argument("--smc-vendor-dev", action="store_true", help="explicit Elite segmented central-only DEV profile; never --no-ctl")
+    ap.add_argument("--smc-logical-rollback", action="store_true", help="explicit pinned 816 logical rollback using the paired bundle loader")
+    ap.add_argument("--smc-cold-recovery", action="store_true", help="confirm physical cold power-up directly into recovery before controller/audio start")
+    ap.add_argument("--smc-receipt", metavar="FILE", help="durable exact-package/head/backup transaction receipt, retained for resume")
     a = ap.parse_args(argv)
+    if not a.smc_vendor_dev and (a.smc_cold_recovery or a.smc_receipt or a.smc_logical_rollback):
+        ap.error("SMC transaction options require --smc-vendor-dev")
     if (a.backup or a.verify_slots) and a.no_slots:
         ap.error("--backup/--verify-slots and --no-slots cannot be used together")
     if bool(a.info) == bool(a.package):

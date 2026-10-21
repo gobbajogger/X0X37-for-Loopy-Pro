@@ -37,10 +37,11 @@
 set -u
 RESULTS=${X0X_RESULTS_DIR:-/workspace/x0x37-results}
 [ -n "${X0X_RESULTS_DIR:-}" ] || [ -d "$RESULTS" ] || RESULTS="$HOME/Documents/x0x37/gate-results"
-C=""; FWSC=""; CTL=""; CONFIG=dev; DEV_RECORD=""
+C=""; FWSC=""; CTL=""; CONFIG=dev; DEV_RECORD=""; SMC_VENDOR_DEV=0
 USAGE="usage: $0 <commit> [--fwsc FILE] [--config dev|rel] [--ctl FILE] [--dev-record FILE]"
 while [ $# -gt 0 ]; do
     case "$1" in
+    --smc-vendor-dev) SMC_VENDOR_DEV=1 ;;
     --fwsc) FWSC=${2:-}; shift ;;
     --ctl) CTL=${2:-}; shift ;;
     --dev-record) DEV_RECORD=${2:-}; [ -n "$DEV_RECORD" ] || { echo "$USAGE" >&2; exit 2; }; shift ;;
@@ -76,12 +77,14 @@ queue_check() {
     done < "$Q"
     QNOTE="; queue: $nl open lines in $S"
 }
+[ "$SMC_VENDOR_DEV" = 0 ] || { [ -n "$DEV_RECORD" ] && [ "$CONFIG" = dev ] && [ -z "$CTL" ]; } || refuse "SMC vendor selector requires dev record/config dev and forbids --ctl"
 # Development evidence is separate from the release gate and never enters its index.
 if [ -n "$DEV_RECORD" ]; then
     [ "$CONFIG" = dev ] || refuse "development evidence cannot authorize a release install"
     [ -n "$FWSC" ] || refuse "development validation requires --fwsc"
     DEV_ARGS=(--repo "$REPO" --commit "$H" --record "$DEV_RECORD" --fwsc "$FWSC")
     [ -z "$CTL" ] || DEV_ARGS+=(--ctl "$CTL")
+    [ "$SMC_VENDOR_DEV" = 0 ] || DEV_ARGS+=(--smc-vendor-dev)
     python3 "$(dirname "$0")/dev_validate.py" verify "${DEV_ARGS[@]}" || refuse "invalid development evidence"
     queue_check
     echo "DEV OK $S $DEV_RECORD (config dev$QNOTE)"

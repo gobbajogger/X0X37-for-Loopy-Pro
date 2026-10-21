@@ -98,7 +98,7 @@ class BundleTest(unittest.TestCase):
         with self.assertRaises(b.BundleError):b.response_bytes(bytearray(b'abc'),0,0,1,0xE0000000)
 
 
-def actual(root,sdk):
+def actual(root,sdk,kit=None):
     root=Path(root);d=root/'components';m=json.loads((root/'components.json').read_text())
     b.pm.set_board('smk37');b.pm.SDK=Path(sdk)
     app=(d/'app.bin').read_bytes();ui=(d/'ui.bin').read_bytes();rs=[(d/f'vendor-{i}.bin').read_bytes() for i in range(3)];ota=(d/'ota.bin').read_bytes()
@@ -107,8 +107,24 @@ def actual(root,sdk):
         b.need(len(data)==meta['size'] and b.sha(data)==meta['sha256'],'component input identity')
     raw=b.build_bundle(b.pm.flash_image(app,0x1234),app,ui,rs,ota,descriptor_off=m['loader_binding']['descriptor_off'],loader_binding=m['loader_binding'])
     out,receipt=b.bind_head(raw,b.pm.flash_image(app,0x5678)[:0x4000],loader_binding=m['loader_binding'])
-    print(json.dumps({'in_memory_only':True,'source_sha256':b.sha(raw),'converted_sha256':b.sha(out),'receipt':receipt},sort_keys=True))
+    if kit:
+        import zipfile
+        b.need(b.sha(Path(kit).read_bytes()) == 'c9ef5aa79d50189646703a046000c0b3e4e517c00f7df5ecaf4fc13f36a63907','approved baseline kit')
+        with zipfile.ZipFile(kit) as z:
+            names=[n for n in z.namelist() if n.endswith('/firmware/x0x-smk37-elite-with-bt.fwsc')]
+            b.need(len(names)==1,'unique approved baseline member')
+            baseline=z.read(names[0])
+        rollback=b.build_rollback(baseline,ota,loader_binding=m['loader_binding'])
+        rbmeta=b.validate_bundle(rollback,loader_binding=m['loader_binding'])
+        converted,rb_receipt=b.bind_head(rollback,b.pm.flash_image(app,0x5678)[:0x4000],loader_binding=m['loader_binding'])
+        b.need(rbmeta['policy']==2 and rbmeta['controller']['kind']=='baseline-abi2','logical rollback metadata')
+        altered=bytearray(baseline);altered[-1]^=1
+        try:b.build_rollback(altered,ota,loader_binding=m['loader_binding'])
+        except b.BundleError:pass
+        else:raise RuntimeError('altered baseline accepted')
+        print(json.dumps({'logical_rollback_in_memory_only':True,'metadata':rbmeta,'converted_sha256':b.sha(converted)},sort_keys=True))
+    print(json.dumps({'in_memory_only' :True,'source_sha256':b.sha(raw),'converted_sha256':b.sha(out),'receipt':receipt},sort_keys=True))
 
 if __name__=='__main__':
-    if len(sys.argv)==3:actual(*sys.argv[1:])
+    if len(sys.argv) in (3,4):actual(*sys.argv[1:])
     else:unittest.main()

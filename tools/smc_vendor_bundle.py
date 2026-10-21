@@ -22,6 +22,10 @@ APP_OFF, APP_MAX = 0x4120, 0x7FEE0
 MAIN_OFF, MAIN_SIZE, CRYPT_SIZE = 0x4000, 0x99000, 0x9796E
 PIECES = ((MAIN_OFF, MAIN_SIZE), (0xAB000, 8192), (0xAD000, 8192), (0xFE000, 4096))
 REGIONS = ((0x84000, 94208), (0xAD000, 8192), (0xFE000, 4096))
+BASELINE_FWSC_SHA = '6f89a299deb2304a89e3094f25ba22dd70214a3ce935c770a6e2ccff39e9b65a'
+BASELINE_MAIN_SHA = '55e9e093d4adc7a2b303a807873cae536c6547013dd2c36af152ba92653ce446'
+BASELINE_APP_SHA = '4b7c76e4bdeca3d8b1ce366e868406b8d554b0ae7d87beb282bd99254dcd0ec9'
+BASELINE_CTL_SHA = '9d6855e47791b3cab698af95d9625c35d2ea7b01d1fa7216e72ea622683a8245'
 BINDING_KEYS = {'app_size', 'app_sha256', 'app_crc32', 'descriptor_off', 'ota_sha256'}
 
 
@@ -61,7 +65,10 @@ def head_key(head):
 
 def unpack(raw):
     """Strict existing UFW container: exactly flash.bin and paired ota.bin."""
-    product, lg = add_ctl.logical_of(raw)
+    try:
+        product, lg = add_ctl.logical_of(raw)
+    except add_ctl.PkgError as e:
+        raise BundleError(str(e)) from e
     need(product == PRODUCT, 'Elite DEV product identity required')
     h = add_ctl._dec(lg[:64])
     need(len(h) == 64 and pm.crc16(h[2:]) == struct.unpack_from('<H', h)[0], 'UFW header CRC')
@@ -149,8 +156,8 @@ def _manifest(regions):
     return h[7]
 
 
-def _suffix(f, descriptor_off, image_id):
-    h = [0x31425058,1,MODEL_ID,1,0x84000,128,0,0,descriptor_off,image_id,0,0]
+def _suffix(f, descriptor_off, image_id, policy=1):
+    h = [0x31425058,1,MODEL_ID,policy,0x84000 if policy == 1 else 0x8B000,128,0,0,descriptor_off,image_id,0,0]
     aggregate = 0
     for off, n in PIECES:
         b = f[off:off+n]
@@ -172,6 +179,10 @@ def validate_bundle(raw, *, loader_binding):
     _loader(ota, loader_binding)
     need(len(f) == 0x100060, 'whole-bundle flash plus exact 96-byte record required')
     m, _, _ = _main(f)
+    policy = struct.unpack_from('<I', f, 0x100000+12)[0]
+    need(policy in (1,2), 'unsupported bundle policy')
+    if policy == 2:
+        return _validate_rollback(raw, f, m, loader_binding)
     app = m[0x120:0x120+loader_binding['app_size']]
     need(sha(app) == loader_binding['app_sha256'] and zlib.crc32(app) == loader_binding['app_crc32'], 'app does not match paired loader pin')
     need(m[0x120+len(app):0x80000] == b'\xff'*(APP_MAX-len(app)), 'non-erased app tail')
@@ -189,6 +200,43 @@ def validate_bundle(raw, *, loader_binding):
                                 regions=[_info(o,b) for (o,_),b in zip(REGIONS,regions)]),
                 ui=_info(0xAB000,ui))
 
+
+
+def _validate_rollback(raw, f, m, loader_binding):
+    """Exact logical baseline restore, not original spare-byte restoration."""
+    app = m[0x120:0x120+548480]
+    block = bytes(m[0x87000:0x97000])
+    ctl = block[:65524]
+    need(sha(m) == BASELINE_MAIN_SHA and zlib.crc32(m) == 0x53F84577, 'rollback requires exact approved canonical baseline main')
+    need(sha(app) == BASELINE_APP_SHA and sha(ctl) == BASELINE_CTL_SHA and add_ctl.ctl_problem(ctl) is None and block[65524:] == b'\xff'*12, 'rollback approved app/ABI2 pair')
+    for off,n in PIECES[1:]:
+        need(f[off:off+n] == b'\xff'*n, 'logical rollback must clear only proven unused secondary extents')
+    need(f[0x100000:] == _suffix(f,0,0x0816E0D3,2), 'rollback metadata identity/CRC')
+    return dict(profile=PROFILE,model=MODEL,product=PRODUCT,policy=2,
+                package_sha256=sha(raw),canonical_main_sha256=sha(m),
+                app_size=len(app),app_sha256=sha(app),app_crc32=zlib.crc32(app),descriptor_off=0,
+                ota_sha256=loader_binding['ota_sha256'],paired_loader_app=dict(loader_binding),
+                controller=dict(kind='baseline-abi2',image_id=0x0816E0D3,regions=[_info(0x8B000,block)]),
+                cleared_regions=[_info(off,f[off:off+n]) for off,n in PIECES[1:]])
+
+
+def build_rollback(approved_baseline_fwsc, paired_ota, *, loader_binding):
+    """Package the pinned 816 pair with the SAME bundle loader, never old updater.
+
+    Clears AB000..AEFFF and FE000..FEFFF (unused by the baseline). Samples,
+    owner tag, calibration, key and head are untouched. Not byte-for-byte rollback.
+    """
+    _binding(loader_binding)
+    _loader(paired_ota,loader_binding)
+    need(sha(approved_baseline_fwsc) == BASELINE_FWSC_SHA, 'exact approved 816 baseline package required')
+    st = add_ctl._open(add_ctl.logical_of(approved_baseline_fwsc)[1])
+    f = bytearray(b'\xff'*0x100000)
+    need(len(st['flash']) == 0x9D000, 'baseline flash extent')
+    f[:len(st['flash'])] = st['flash']
+    f += _suffix(f,0,0x0816E0D3,2)
+    raw = pm.ufw(f,paired_ota,PRODUCT)
+    validate_bundle(raw,loader_binding=loader_binding)
+    return raw
 
 def build_bundle(flash_template, sealed_app, ui, vendor_regions, ota, *, descriptor_off, loader_binding):
     """Construct DEV bytes; caller controls explicit publication after review."""
@@ -225,7 +273,7 @@ def bind_head(raw, actual_head, *, loader_binding):
     f = bytearray(f[:0x100000])
     f[:0x4000] = actual_head
     f[MAIN_OFF:MAIN_OFF+MAIN_SIZE] = m
-    f += _suffix(f, before['descriptor_off'], before['controller']['image_id'])
+    f += _suffix(f, before['descriptor_off'], before['controller']['image_id'], before['policy'])
     converted = pm.ufw(f, ota, PRODUCT)
     after = validate_bundle(converted, loader_binding=loader_binding)
     need({k:v for k,v in before.items() if k != 'package_sha256'} == {k:v for k,v in after.items() if k != 'package_sha256'}, 'conversion changed canonical component identity')
