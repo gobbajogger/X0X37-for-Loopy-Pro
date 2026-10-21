@@ -26,7 +26,13 @@
 # Reference sources (read-only): NINEW9_DIR, EIGHTW8_DIR, SCHWUNG303, TB3PO_REF (see tests/host/run_*.sh).
 set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
-[ $# -gt 0 ] && X0X_TESTS="$*"
+EXPLICIT_SELECTION=0
+if [ $# -gt 0 ]; then
+    X0X_TESTS="$*"
+    EXPLICIT_SELECTION=1
+elif [ -n "${X0X_TESTS:-}" ]; then
+    EXPLICIT_SELECTION=1
+fi
 X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
@@ -40,6 +46,8 @@ export X0X_TEST_RUN=1   # tools/status.sh (check 30): a test run never writes th
 case "$JOBS" in ''|*[!0-9]*) JOBS=1 ;; esac
 PHASE=0                 # parallel mode: W = class W, 1 = class P and G (parallel), 2 = class S (serial), 3 = class C (serial)
 T_SEQ=0
+T_EXECUTED=0
+TEST_NAMES=""
 RES="$OUT/.results"
 # The class of a test. S: serial and alone (install, update, package, BLE, mocked device).
 # W: install-slots-web (a long node test with a temp folder and a mocked keyboard, no port): it starts with
@@ -49,11 +57,11 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-targets|installer-slots|slot-backup|upload-tools|\
+    installer|installer-targets|installer-slots|installer-safety|installer-safety-web|slot-backup|upload-tools|\
     breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|motion-ui|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -102,9 +110,11 @@ gen_lock() { until mkdir "$OUT/iso/.lock-gen" 2>/dev/null; do sleep 0.1; done; }
 gen_unlock() { rmdir "$OUT/iso/.lock-gen"; }
 run() {
     name="$1"; shift
+    if [ "$PHASE" = L ]; then TEST_NAMES="$TEST_NAMES $name"; return; fi
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
     if [ "$JOBS" -le 1 ]; then
+        T_EXECUTED=$((T_EXECUTED + 1))
         if run_test "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
         else
@@ -117,6 +127,7 @@ run() {
     test_class "$name"
     cls=$TEST_CLASS
     case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+    T_EXECUTED=$((T_EXECUTED + 1))
     key=$(printf '%04d' "$T_SEQ")
     if [ "$cls" = S ] || [ "$cls" = C ]; then
         run_one "$key" "$name" "$@"
@@ -139,6 +150,7 @@ run() {
     ) &
 }
 note() {                # a skip line, in the serial order
+    [ "$PHASE" = L ] && return
     T_SEQ=$((T_SEQ + 1))
     if [ "$JOBS" -le 1 ]; then echo "$1"
     elif [ "$PHASE" = 2 ]; then echo "$1" > "$RES/$(printf '%04d' "$T_SEQ")"
@@ -170,6 +182,7 @@ run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tes
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
+run motion-ui sh tests/host/motion_ui_test.sh
 run host-build sh host/build_host.sh   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
@@ -213,6 +226,8 @@ run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
 run runner-admission python3 tests/host/test_runner_admission.py
+run runner-selections python3 -B tests/host/test_runner_selections.py
+run controller-wait sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/ctl_os_wait_test tests/host/ctl_os_wait_test.c && $OUT/ctl_os_wait_test"
 run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
 run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 27): each owner-rule entry of USER_PREFERENCES.md names a rule that covers it
 run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
@@ -272,6 +287,8 @@ run smk-clip-dark sh tests/smk_clip_dark_test.sh   # a76: real clip and pad LED 
 run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a link end clears only the cells of that link (real usb.c)
 run smk-clip-isolation python3 tests/host/smk_clip_isolation_test.py
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
+run smk-clip-settings sh tests/host/smk_clip_audit_test.sh settings
+run smc-host-ingress sh tests/host/smk_clip_audit_test.sh ingress
 run smk-fader-pickup sh tests/host/smk_fader_pickup_test.sh   # fader pickup and input draining across project holds
 run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
@@ -308,6 +325,8 @@ command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
+run installer-safety python3 tests/installer_safety_test.py
+command -v node >/dev/null 2>&1 && run installer-safety-web node web/test_installer_safety.mjs
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
@@ -334,6 +353,24 @@ run perf-scratch sh -c "X0X_HOST_DEFS='-include $OUT/scratch_defs.h' X0X_HOST_OU
     $OUT/x0x_host_scratch tests/scenarios/perfsave.x0x $OUT/perf-scratch && \
     cmp $OUT/perf-scratch/perfsave.wav build/scenarios/perfsave/perfsave.wav"
 }
+PHASE=L
+tests_body                 # inventory only: run/note do not execute any test
+PHASE=0
+T_SEQ=0
+if [ "$EXPLICIT_SELECTION" = 1 ]; then
+    T_REQUESTED=0
+    for selected in $X0X_TESTS; do
+        T_REQUESTED=$((T_REQUESTED + 1))
+        case " $TEST_NAMES " in
+            *" $selected "*) ;;
+            *) echo "Unknown or unavailable test selection: $selected" >&2; exit 2 ;;
+        esac
+    done
+    if [ "$T_REQUESTED" -eq 0 ]; then
+        echo "An explicit test selection must name at least one test" >&2
+        exit 2
+    fi
+fi
 if [ "$JOBS" -le 1 ]; then
     tests_body
 else
@@ -349,5 +386,10 @@ else
     for f in $(ls "$RES" | grep -v -e '\.fail$' -e '\.time$' | sort); do cat "$RES/$f"; done
     ls "$RES" | grep -q '\.fail$' && FAIL=1
 fi
+if [ "$T_EXECUTED" -eq 0 ]; then
+    echo "No tests executed" >&2
+    FAIL=1
+fi
+echo "executed $T_EXECUTED tests"
 [ $FAIL -eq 0 ] && echo "all tests passed" || echo "TESTS FAILED"
 exit $FAIL

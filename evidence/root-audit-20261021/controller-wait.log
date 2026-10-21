@@ -1,0 +1,11 @@
+PASS boundary post kind=1 point=1 timeout=0
+PASS boundary post kind=2 point=1 timeout=0
+PASS boundary post kind=2 point=1 timeout=3
+PASS boundary post kind=3 point=1 timeout=0
+PASS boundary post kind=3 point=1 timeout=3
+PASS boundary post kind=1 point=2 timeout=0
+PASS boundary post kind=2 point=2 timeout=0
+PASS boundary post kind=2 point=2 timeout=3
+PASS boundary post kind=3 point=2 timeout=0
+PASS boundary post kind=3 point=2 timeout=3
+controller wait regression: 19 cases passed
