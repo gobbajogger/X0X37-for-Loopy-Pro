@@ -1,0 +1,32 @@
+{
+  "status": "INTEGRATED_STUDY_ONLY",
+  "source": "8ae22d1",
+  "app_image_bytes": 521108,
+  "app_partition_capacity": 524000,
+  "app_partition_margin": 2892,
+  "main_ram_bytes": 98100,
+  "main_ram_capacity": 98304,
+  "ble_ram_bytes": 2936,
+  "pool_used": 335484,
+  "pool_capacity": 344064,
+  "pool_guard": 8192,
+  "controller_stored_bytes": 103976,
+  "controller_low_ram": 26352,
+  "controller_high_cpu_used": 6444,
+  "package_generated": false,
+  "hardware_tested": false,
+  "private_artifacts": {
+    "x0x.bin": {
+      "bytes": 521108,
+      "sha256": "d608dd0ea8d70962812f5c0a15582ebf0a04fe9c83377d66653861f256cbd0b7"
+    },
+    "x0x.elf": {
+      "bytes": 575716,
+      "sha256": "17e6781a6b0863c7bc54c7656a267481b0e64f88bed534dae0a3069a3d767d1b"
+    },
+    "x0x.map": {
+      "bytes": 97562,
+      "sha256": "264868ca2b1800c9d2981c032c4c6387e6e0090582c1ef7bb0f1e0d1a67638fe"
+    }
+  }
+}
