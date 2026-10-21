@@ -1,0 +1,83 @@
+{
+  "scope": "Normal startup and automatic retry investigation; no manual stop assumed",
+  "working_source_reference": "53d5654c9bbaec10b64c55fb60d0e7d857ba8156",
+  "working_physical_package_identity": "NOT RETAINED",
+  "last_verified_installed": "a5cb24dd08b40b80e802e03ff0d9c848315a9751",
+  "reviewed_candidate": "6eaf01f9d4c5325b1cc66e45e7033179b87affef",
+  "owner_clarification": "Repeated attempts describe the earlier failure; latest candidate has not been tested.",
+  "same_old_installed_blobs": [
+    {
+      "path": "firmware/src/app/project.c",
+      "old_github_blob": "7874245f74113cc0c7caac3beeae849d66780809",
+      "installed_git_blob": "7874245f74113cc0c7caac3beeae849d66780809",
+      "byte_identical_by_git_blob": true
+    },
+    {
+      "path": "firmware/src/ble/ble_glue.h",
+      "old_github_blob": "d30343e367b0c4ad08b2a1a59c8e976b3d8c2bb2",
+      "installed_git_blob": "d30343e367b0c4ad08b2a1a59c8e976b3d8c2bb2",
+      "byte_identical_by_git_blob": true
+    },
+    {
+      "path": "firmware/app.ld",
+      "old_github_blob": "a7c859343fc5f1bf218cf5330dbd3553239a92ee",
+      "installed_git_blob": "a7c859343fc5f1bf218cf5330dbd3553239a92ee",
+      "byte_identical_by_git_blob": true
+    },
+    {
+      "path": "firmware/hal/fm1_cpu1.h",
+      "old_github_blob": "a3724275dc18a7642f16c56920b2be2dfa848aca",
+      "installed_git_blob": "a3724275dc18a7642f16c56920b2be2dfa848aca",
+      "byte_identical_by_git_blob": true
+    }
+  ],
+  "reviewed_sources": [
+    {
+      "path": "firmware/src/ble/ble_midi_central.c",
+      "installed_sha256": "4fbc29db6f9fb97f5598bdd3eb960f097c08567e63bba6b000a12fe0a24c3b27",
+      "reviewed_candidate_sha256": "be98eed993efeb1d36f48df842757ee14f0488d3332d1d14201500fab503353a",
+      "production_worktree_unchanged_from_candidate": true
+    },
+    {
+      "path": "firmware/src/ble/ble_midi_central.h",
+      "installed_sha256": "614679c594e9483464c9503c4049765c3d8ff32e349e5c92765e036d4d8a363b",
+      "reviewed_candidate_sha256": "9927319836dec7325b117c3d4dd554070406d6bc6a68d9bfb85a18839dfd7f40",
+      "production_worktree_unchanged_from_candidate": true
+    },
+    {
+      "path": "firmware/src/ble.c",
+      "installed_sha256": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba",
+      "reviewed_candidate_sha256": "3fe5f16f4e06a39290277bd51c21dbfc11a502cadba98ef777e43413a32d1bba",
+      "production_worktree_unchanged_from_candidate": true
+    },
+    {
+      "path": "firmware/src/app/main_fm1.c",
+      "installed_sha256": "74de15cd0ee2e9456420fae16d8eaf4d5b11c1ae9badc3e2b07e6d1b94fa22e2",
+      "reviewed_candidate_sha256": "b691d3639cea5a605e4f127b9d01368e4dfd2ac0fca61a9e588e7001146d89f8",
+      "production_worktree_unchanged_from_candidate": true
+    }
+  ],
+  "retained_evidence": [
+    {
+      "path": "evidence/latest-install/install-record.json",
+      "sha256": "b2c516cb20dcb6f8a5a120cc3769292378a87cb4285996bd82d38b3f7256a2f0"
+    },
+    {
+      "path": "evidence/session-audit/audit.json",
+      "sha256": "f725306aaa0c99bd88766b41410637abe95ebcad6c9884f4b1fca59d5a0dbfdf"
+    },
+    {
+      "path": "docs/smc-device-investigation-2026-10-20.md",
+      "sha256": "9fa3a5e7089a6587d85122a304d0c1d103b9dd9252596e1625c05fbd990dcdad"
+    },
+    {
+      "path": "cloud-handoff/2026-10-20/smc_filter_fix/evidence/smc-raw-ble-retry.json",
+      "sha256": "a92f72f54c6aba7004e2c3a29759fa38818bb72a976486fb272b38c61d9d245a"
+    }
+  ],
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "root_cause": "UNKNOWN",
+  "latest_candidate_hardware": "NOT TESTED",
+  "new_firmware_changes": false,
+  "live_device_access": false
+}
