@@ -8,7 +8,8 @@
 #define CTL_PORT_H
 #define CTL_VENDOR_HOST_TEST 1
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32;
-static int command_error;
+static int command_error, confirmations;
+static u16 confirmed_handle;
 static int ready, boot_open, last_command, notify_count, link_count, blocked, stage;
 static u8 notified[128], sent[128];
 static u16 sent_len;
@@ -29,6 +30,8 @@ void sm_set_io_capabilities(int v) { assert(v == 3); }
 void sm_set_authentication_requirements(u8 v) { assert(v == 0); }
 void sm_set_encryption_key_size_range(u8 min, u8 max) { assert(min == 7 && max == 16); }
 void sm_set_master_request_pair(int v) { assert(v == 0); }
+void sm_event_callback_set(packet_cb cb) { assert(stage == 3 && cb == security_event); }
+void sm_just_works_confirm(u16 h) { ++confirmations; confirmed_handle = h; }
 void gatt_client_init(void) { assert(stage == 3); stage = 4; }
 void gatt_client_register_packet_handler(packet_cb cb) { assert(stage == 4 && cb == packet_event); }
 void hci_event_callback_set(packet_cb cb) { assert(cb == packet_event); }
@@ -54,9 +57,26 @@ int main(void)
     /* Exact SMC name; handle zero remains valid. */
     u8 ad[23] = {0xe2,21,0,1,1,2,3,4,5,6,0,11,10,9,'S','M','C','-','M','i','x','e','r'};
     packet_event(4,0,ad,sizeof(ad)); assert(connecting && last_command == CMD_CONNECT);
-    u8 connected[21] = {0x3e,19,1,0,0,0};
+    u8 connected[21] = {0x3e,19,1,0,0,0,0,1,1,2,3,4,5,6};
+    connected[6]=1;packet_event(4,0,connected,sizeof connected);
+    assert(connection==ABSENT && last_command==CMD_DISCONNECT);
+    packet_event(4,0,ad,sizeof ad);connected[6]=0;connected[8]^=1;
+    packet_event(4,0,connected,sizeof connected);assert(connection==ABSENT);
+    packet_event(4,0,ad,sizeof ad);connected[8]^=1;connected[7]=0;
+    packet_event(4,0,connected,sizeof connected);assert(connection==ABSENT);
+    packet_event(4,0,ad,sizeof ad);connected[7]=1;
     packet_event(4,0,connected,sizeof(connected));
     assert(connection == 0 && discovering && last_command == CMD_SEARCH);
+    u8 jw[16]={0xd0,14,0,0,1,1,2,3,4,5,6};
+    security_event(4,0,jw,sizeof jw);assert(confirmations==1 && confirmed_handle==0);
+    for(unsigned n=0;n<16;n++) security_event(4,0,jw,n);
+    security_event(2,0,jw,16);security_event(4,0,0,16);
+    jw[0]=0xd1;security_event(4,0,jw,16);jw[0]=0xd0;
+    jw[1]=9;security_event(4,0,jw,16);jw[1]=14;
+    jw[2]=1;security_event(4,0,jw,16);jw[2]=0;
+    jw[4]=0;security_event(4,0,jw,16);jw[4]=1;
+    jw[5]^=1;security_event(4,0,jw,16);jw[5]^=1;
+    assert(confirmations==1);
     struct search_report found = {0};
     const u8 uuid[16] = {0x77,0x72,0xe5,0xdb,0x38,0x68,0x41,0x12,0xa1,0xa9,0xf2,0x66,0x9d,0x10,0x6b,0xf3};
     memcpy(found.characteristic.uuid128,uuid,16); found.characteristic.value=6;
@@ -81,13 +101,15 @@ int main(void)
     command_error = -95; assert(ctl_vendor_command(0x73,feedback,3)==-95);
     u8 off=0; command_error=-100;
     assert(ctl_vendor_command(0x74,&off,1)==0 && off_pending);
+    security_event(4,0,jw,16);assert(confirmations==1);
     assert(ctl_vendor_command(0x73,feedback,3)==-1);
     command_error=0; ctl_vendor_poll(); assert(!off_pending);
     assert(ctl_vendor_command(0x74,&on,1)==0);
     data.connection=1; user_client_report_data_callback(&data); assert(notify_count==1);
     u8 down[6]={5,4,0,0,0,0x13}; blocked=1;
     packet_event(4,0,down,sizeof(down)); assert(down_pending && connection==ABSENT);
+    security_event(4,0,jw,16);assert(confirmations==1);
     blocked=0; ctl_vendor_poll(); assert(!down_pending && link_count==11);
     assert(ctl_vendor_command(0x73,feedback,3)==-1);
-    puts("vendor profile: startup hook, SMC selection, discovery, copy/feedback, link reset PASS");
+    puts("vendor profile: startup hook, SMC peer ownership, JustWorks callback, discovery, copy/feedback, link reset PASS");
 }

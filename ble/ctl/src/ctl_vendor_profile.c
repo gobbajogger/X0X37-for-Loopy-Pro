@@ -21,6 +21,8 @@ extern void sm_set_io_capabilities(int);
 extern void sm_set_authentication_requirements(u8);
 extern void sm_set_encryption_key_size_range(u8, u8);
 extern void sm_set_master_request_pair(int);
+extern void sm_event_callback_set(packet_cb);
+extern void sm_just_works_confirm(u16);
 extern void gatt_client_register_packet_handler(packet_cb);
 extern void hci_event_callback_set(packet_cb);
 extern void le_l2cap_register_packet_handler(packet_cb);
@@ -57,6 +59,20 @@ extern int ctl_vendor_address(u8 address[6]);
 extern void os_time_dly(int);
 
 static u16 read16(const u8 *p) { return (u16)p[0] | (u16)p[1] << 8; }
+/* Exact64afb SDK emits D0 as16 bytes (length14), not the generic11-byte
+ * upstream shape. It dispatches synchronously from its SM engine. The callback
+ * only confirms the currently owned requested peer; vendor SM retains all key
+ * exchange/encryption state and resumes itself through its public confirm API. */
+static void security_event(u8 type, u16 channel, u8 *p, u16 n)
+{
+    (void)channel;
+    if (type != 4 || !p || n != 16 || p[0] != 0xd0 || p[1] != 14 ||
+        !wanted || off_pending || down_pending || connecting || connection == ABSENT ||
+        read16(p + 2) != connection || p[4] != request.address_type ||
+        memcmp(p + 5, request.address, 6)) return;
+    sm_just_works_confirm(connection);
+}
+
 static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
 {
     if (type != 4 || !p || n < 2 || (u16)p[1] + 2u > n) return;
@@ -83,8 +99,10 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
         if (p[3]) { connecting = 0; if (wanted) { scan_pending = 1; ctl_vendor_poll(); } }
         else {
             u16 handle = read16(p + 4);
-            if (!connecting || connection != ABSENT) {
+            if (!wanted || !connecting || connection != ABSENT || p[6] != 0 ||
+                p[7] != request.address_type || memcmp(p + 8, request.address, 6)) {
                 ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)handle);
+                if (connection == ABSENT) { connecting = 0; if (wanted) scan_pending = 1; }
             } else {
                 connection = handle; connecting = 0; midi_handle = midi_end = cccd = 0; receiving = 0;
                 if (ble_user_cmd_prepare(CMD_ATT_INIT, 4, (int)handle, att_storage,
@@ -123,6 +141,7 @@ void ble_profile_init(void)
     sm_set_authentication_requirements(0);
     sm_set_encryption_key_size_range(7, 16);
     sm_set_master_request_pair(0);
+    sm_event_callback_set(security_event);
     gatt_client_init();
     gatt_client_register_packet_handler(packet_event);
     hci_event_callback_set(packet_event);
