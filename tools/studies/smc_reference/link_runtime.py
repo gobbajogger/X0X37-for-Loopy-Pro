@@ -21,6 +21,16 @@ p.add_argument('--avctp-extra-commands', choices=(0, 1), type=int, default=1)
 p.add_argument('--placement', choices=('oversized', 'data-only-92k', 'data-only-92k-ramload'), default='oversized')
 p.add_argument('--high-cpu-bss', action='store_true')
 p.add_argument('--cpu-init-pool', action='store_true')
+p.add_argument('--tail-merge-probe', action='store_true',
+               help='Compiler experiment only: enable disabled-by-default backend tail merging')
+p.add_argument('--no-classic-lmp', action='store_true',
+               help='Disable Classic LMP name/passkey/eSCO compile-time paths only')
+p.add_argument('--no-classic-key-sniff', action='store_true',
+               help='Disable Classic-only link-key deletion and auto-sniff paths; LE SM unchanged')
+p.add_argument('--no-classic-test-modes', action='store_true',
+               help='Disable exact vendor DUT/FCC Classic certification branches only')
+p.add_argument('--inlinehint-threshold', type=int, choices=(0,), default=None,
+               help='Bounded link-only size discriminator; vendor bitcode unchanged')
 a = p.parse_args()
 if a.cpu_init_pool and not a.high_cpu_bss: p.error('cpu-init-pool requires high-cpu-bss')
 repo, tc, libs, rf, system, out = [x.resolve() for x in
@@ -51,6 +61,12 @@ lines = ['#include <stdint.h>']
 for row in rows:
     section = (' __attribute__((section("' + row['section'] + '")))' if 'section' in row else '')
     value = 25 if a.controller_roles == 'central' and row['name'] == 'config_btctler_le_roles' else row['value']
+    if a.no_classic_test_modes and row['name'] in ('CONFIG_TEST_DUT_CODE', 'CONFIG_TEST_FCC_CODE'):
+        value = 0
+    if a.no_classic_key_sniff and row['name'] in ('config_delete_link_key', 'config_btstask_auto_exit_sniff'):
+        value = 0
+    if a.no_classic_lmp and row['name'] in ('CONFIG_LMP_NAME_REQ_ENABLE', 'CONFIG_LMP_PASSKEY_ENABLE', 'CONFIG_LMP_MASTER_ESCO_ENABLE'):
+        value = 0
     if row['name'] == 'more_avctp_cmd_support':
         value = a.avctp_extra_commands
     lines.append(f"{row['type']} {row['name']}{section} = {value};")
@@ -116,9 +132,14 @@ command = [str(tool / 'ld'), '--plugin', str(tool / 'LLVMgold.so'),
            '--unresolved-symbols=report-all', '--gc-sections', '-T', 'ctl.ld',
            '-Map', 'resolved.map', '-o', 'resolved-NOT-FIRMWARE.elf', *objects,
            '--start-group', *['lib/' + name for name in pins['libraries']], 'lib/circular_buf.c.o', '--end-group']
+if a.tail_merge_probe:
+    command.insert(3, '--plugin-opt=-enable-tail-merge=true')
+if a.inlinehint_threshold is not None:
+    command.insert(3, '--plugin-opt=-inlinehint-threshold=' + str(a.inlinehint_threshold))
+(out / 'link-command.json').write_text(json.dumps(command, indent=2) + '\n')
 rc = invoke(command, out, out / 'link.log')
 unresolved = sorted(set(re.findall(r"undefined reference to [`']([^']+)'", (out / 'link.log').read_text())))
-result = {'cpu_init_pool': a.cpu_init_pool, 'high_cpu_bss': a.high_cpu_bss, 'placement': a.placement, 'controller_roles': a.controller_roles, 'avctp_extra_commands': a.avctp_extra_commands, 'installable': False, 'resolved': rc == 0, 'link_exit': rc, 'unresolved': unresolved,
+result = {'tail_merge_probe': a.tail_merge_probe, 'no_classic_lmp': a.no_classic_lmp, 'no_classic_key_sniff': a.no_classic_key_sniff, 'no_classic_test_modes': a.no_classic_test_modes, 'inlinehint_threshold': a.inlinehint_threshold, 'cpu_init_pool': a.cpu_init_pool, 'high_cpu_bss': a.high_cpu_bss, 'placement': a.placement, 'controller_roles': a.controller_roles, 'avctp_extra_commands': a.avctp_extra_commands, 'installable': False, 'resolved': rc == 0, 'link_exit': rc, 'unresolved': unresolved,
           'input_hashes': expected,
           'study_hashes': {name: digest(HERE / name) for name in
                            ('link_runtime.py', 'run.py', 'config-values.json', 'input-hashes.json')},
