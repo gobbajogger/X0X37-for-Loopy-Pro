@@ -19,8 +19,8 @@ m,_,_=b._main(f);app=bytes(m[0x120:0x120+bind['app_size']]);ui=f[0xAB000:0xAD000
 regions=[bytes(m[0x80000:0x97000]),f[0xAD000:0xAF000],f[0xFE000:0xFF000]]
 # A different structurally valid vendor image, with every internal CRC repaired.
 rs=list(regions);rs[1]=bytes([rs[1][0]^1])+rs[1][1:]
-h=bytearray(rs[0]);used=struct.unpack_from('<I',h,84)[0]
-struct.pack_into('<I',h,92,zlib.crc32(rs[1][:used]));struct.pack_into('<I',h,116,0)
+h=bytearray(rs[0]);used=struct.unpack_from('<I',h,88)[0]
+struct.pack_into('<I',h,96,zlib.crc32(rs[1][:used]));struct.pack_into('<I',h,116,0)
 struct.pack_into('<I',h,116,zlib.crc32(h[:128]));rs[0]=bytes(h)
 alternate=b.build_bundle(f[:0x9D000],app,ui,rs,ota,descriptor_off=bind['descriptor_off'],loader_binding=bind)
 # Different canonical padding/template data, not an app/loader pin violation.
