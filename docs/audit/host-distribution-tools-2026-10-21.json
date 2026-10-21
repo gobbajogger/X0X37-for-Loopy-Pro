@@ -1,0 +1,52 @@
+{
+  "schema": "x0x37-host-distribution-import-v1",
+  "runtime_changed": false,
+  "scope": "Reusable source imports/adaptations, not raw logs or binary payloads. Historical input paths are relative artifact labels, not personal filesystem paths.",
+  "inputs": [
+    {
+      "label": "combined-firmware-packaging/prepare.py",
+      "bytes": 625,
+      "sha256": "384f961efe129dc8451b139a32c8a10744271d2894693aaf4e687ebdf7c1eb7b"
+    },
+    {
+      "label": "combined-firmware-packaging/finalize.py",
+      "bytes": 1703,
+      "sha256": "832111aea9473c68a0c3386e130d18e2ddf3363a3bc2ca3705d268905617f50d"
+    },
+    {
+      "label": "combined-firmware-packaging/update_metadata.py",
+      "bytes": 6560,
+      "sha256": "aabf77bf47e9d441f94b9f98e6c665ca221001d9f5e5e203003f04249f1c8039"
+    },
+    {
+      "label": "combined-firmware-packaging/test_combined.py",
+      "bytes": 2040,
+      "sha256": "28cd691dcfa85f530dea4db468661222d4a13972c766d0dd481dfc7a796aff81"
+    },
+    {
+      "label": "combined-firmware-packaging/LoopyX0X37-DEV-SMP-Elite-816e0d3/verify_combined.py",
+      "bytes": 2852,
+      "sha256": "a4f742ec455238e48664f95811a7223583b093b56dc75c67abaded087eec57fb"
+    },
+    {
+      "label": "combined-firmware-packaging/LoopyX0X37-DEV-SMP-Elite-816e0d3/Install.command",
+      "bytes": 12027,
+      "sha256": "cdb9c44e5275c5dc9a617c052e97f28e5414a426b950518e67e61fdfac4f73a3"
+    },
+    {
+      "label": "installer-dependency-repair/backend-selection/test_backend_selection.py",
+      "bytes": 6139,
+      "sha256": "b60e1c50ca03917b04d889b887e001edf1b72c6957603cbed7a9f10422556b89"
+    },
+    {
+      "label": "installer-dependency-repair/test_dependency_setup.py",
+      "bytes": 5790,
+      "sha256": "d9bf338932cd8bafdba10ba40db463d437a883c360b0b6a1a0aaa8172ba41da7"
+    },
+    {
+      "label": "forward-package-review/reviewer_launcher_contract.py",
+      "bytes": 6667,
+      "sha256": "8670f1e6bd306256981a3b04133e93d1a3cdd382fb8b149adb1705a5af38cd86"
+    }
+  ]
+}

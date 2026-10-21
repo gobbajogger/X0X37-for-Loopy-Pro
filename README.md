@@ -33,9 +33,12 @@ The factory sound is set up for big beat, so it should make noise the moment you
 Each part has its own step length (up to 64 steps) and rate, so parts can drift against each
 other. Pattern changes wait for the end of the bar, and patterns can be chained.
 
-On the SMK-37, X0X can also do Bluetooth MIDI, with a controller image that you build on your own
-computer (it cannot be shipped with X0X): see the manual's "Bluetooth MIDI" section and
-[ble/README.md](ble/README.md). Not yet tested on the keyboard.
+On the SMK-37, Bluetooth MIDI uses a separate matching controller image. For an
+owner-authorized private Elite development transfer, use the
+[guarded development kit](docs/distribution/DEVELOPMENT_KITS.md): its one user-facing
+firmware includes that controller. Vendor terms still apply; this is not public
+redistribution permission or proof of device behavior. See [LICENSING.md](LICENSING.md)
+and [ble/README.md](ble/README.md).
 
 X0X is a fork of [Felucca](https://github.com/hugelton/Felucca) by Leo Kuroshita (Hügelton
 Instruments). It keeps Felucca's foundations (the hardware layer, USB, the update loader, the web

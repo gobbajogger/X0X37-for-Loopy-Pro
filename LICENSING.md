@@ -78,12 +78,13 @@ You must include `LICENSES/Apache-2.0.txt` with each package that you distribute
 applies to a `.fwsc` file, a release download and an installer ZIP. Also include `LICENSE`
 (GPL-3.0) and this file.
 
-## The Bluetooth controller image (SMK-37, optional)
+## The Bluetooth controller image (SMK-37)
 
 Bluetooth MIDI on the SMK-37 needs JieLi's Bluetooth controller (`btctrler.a`, `wl_rf_common.a`,
 the crypto libraries, the newlib and compiler runtime of the JieLi toolchain). These files are
-closed or not GPL-compatible. X0X does not contain them, does not distribute them and does not
-link them into the GPL app.
+closed or not GPL-compatible. The source repository does not contain those library files
+and the GPL application does not link them. Controller images remain separate programs
+under the applicable vendor terms.
 
 - `ble/ctl/build_ctl.sh` runs on **your** computer. It fetches the files from JieLi's own
   repository (gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK, pinned to commit `d179b44`) and checks
@@ -95,8 +96,11 @@ link them into the GPL app.
   shared-RAM mailbox, as an app processor and a separate Bluetooth chip do. The only file that
   both sides compile is `firmware/hal/x0x_ble_abi.h` (MPL-2.0).
 - `tools/add_ctl.py`, `tools/fm1_install.py --ctl` and the web installer put your `ctl.img`
-  into a package on your computer, just before the install. The packages and installers that
-  X0X distributes never contain it.
+  into a package on the build or install computer. For an owner-authorized private development
+  transfer, `tools/distribution/package_dev.py` makes an embedded matching controller the
+  required user-facing package format. It retains the original raw DEV evidence internally.
+  This private packaging policy does not grant public redistribution rights to vendor code;
+  any other distribution still requires the applicable permissions and licensing review.
 - The shim is MPL-2.0 so that you may link it with JieLi's files. The image that you build
   contains JieLi's files under JieLi's terms (the SDK's `LICENSE`, fetched with them). If you
   give that image to anyone else, those terms apply to it. X0X's GPL does not cover it.

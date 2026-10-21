@@ -474,6 +474,15 @@ The script runs these tests on the build machine:
 `host/build_host.sh` builds the simulator alone. `build/host/x0x_host SCRIPT OUTDIR` runs one
 script (the command list is at the top of `host/x0x_host.c`).
 
+## Private SMK-37 development transfer
+
+Use [guarded development kits](docs/distribution/DEVELOPMENT_KITS.md) for an
+owner-authorized Elite DEV handoff. `tools/distribution/package_dev.py` retains
+the original validated runtime and record, embeds the matching Bluetooth
+controller in the sole user-facing firmware, and includes the guarded Mac
+launcher. Packaging tools do not rebuild or relabel the firmware. No Pro
+artifact, release result, or device PASS follows from this packaging step.
+
 ## Install
 
 X0X's web installer is <https://charlesvestal.github.io/fm1-x0x/install/> (Felucca's, at

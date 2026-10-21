@@ -1,0 +1,243 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-only
+# Personal development-test launcher; all device writes use the native installer.
+set -euo pipefail
+
+KIT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+COMMIT=@RUNTIME_COMMIT@
+VERIFY_ONLY=0
+EXTRA_ARGS=(--config dev)
+WATCH_ARGS=(--seconds 45 --interval 0.25)
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --verify-only) VERIFY_ONLY=1; shift ;;
+        --port)
+            [ "$#" -ge 2 ] || { echo "Missing value for $1" >&2; exit 2; }
+            EXTRA_ARGS+=("$1" "$2"); WATCH_ARGS+=("$1" "$2"); shift 2 ;;
+        --head-ref)
+            [ "$#" -ge 2 ] || { echo "Missing value for $1" >&2; exit 2; }
+            case "$2" in /*) ;; *) echo "--head-ref requires an absolute path." >&2; exit 2 ;; esac
+            EXTRA_ARGS+=("$1" "$2"); shift 2 ;;
+        *) echo "Usage: $0 [--verify-only] [--port NAME] [--head-ref FILE]" >&2; exit 2 ;;
+    esac
+done
+finish() {
+    local rc=$?
+    trap - EXIT
+    if [ "$VERIFY_ONLY" = 0 ] && [ -t 0 ]; then
+        echo
+        [ "$rc" = 0 ] || echo "Stopped with exit code $rc. Keep the log shown above."
+        read -r -p "Press Return to close this window. " _answer || true
+    fi
+    exit "$rc"
+}
+trap finish EXIT
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PYTHONDONTWRITEBYTECODE=1
+export X0X_REPO="$KIT_DIR/x0x37"
+# Keep the owner's queue, flash-head reference and hardware-lock settings.
+cd "$KIT_DIR"
+command -v git >/dev/null || { echo "Git is required on this Mac." >&2; exit 2; }
+command -v python3 >/dev/null || { echo "Python 3.9 or later is required." >&2; exit 2; }
+python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else "Python 3.9 or later is required.")'
+
+mkdir -p "$KIT_DIR/logs"
+RUN_DIR="$(mktemp -d "$KIT_DIR/logs/install-$(date +%Y%m%d-%H%M%S)-XXXXXX")"
+echo "SMK-37 Elite | development test | source $COMMIT"
+echo "One firmware with Bluetooth included; explicit macOS CoreMIDI."
+echo "Log directory: $RUN_DIR"
+if ! shasum -a 256 -c SHA256SUMS >"$RUN_DIR/checksums.log" 2>&1; then
+    cat "$RUN_DIR/checksums.log"
+    echo "Package verification failed. Nothing was installed." >&2
+    exit 2
+fi
+[ "$(git -C "$X0X_REPO" rev-parse HEAD)" = "$COMMIT" ] || {
+    echo "The bundled source is not at the recorded commit." >&2; exit 2;
+}
+# A clean extracted checkout has different file stat data. Check its contents
+# without refreshing .git/index, which is covered by the package manifest.
+git --no-optional-locks -c diff.autoRefreshIndex=false -C "$X0X_REPO" diff --quiet HEAD -- || {
+    echo "The bundled source has been changed. Nothing was installed." >&2; exit 2;
+}
+echo "Package checksums and source identity: OK"
+echo "Development candidate: host validation does not establish device behavior."
+echo "Read BUILD_REPORT.txt for the original validation scope and limitations."
+RESULTS_PATH="${X0X_RESULTS_DIR:-/workspace/x0x37-results}"
+[ -n "${X0X_RESULTS_DIR:-}" ] || [ -d "$RESULTS_PATH" ] || RESULTS_PATH="$HOME/Documents/x0x37/gate-results"
+QUEUE_PATH="${X0X_QUEUE_FILE:-$RESULTS_PATH/QUEUE.md}"
+if [ -f "$QUEUE_PATH" ]; then
+    echo "Using the existing install queue: $QUEUE_PATH"
+else
+    echo "WARNING: no authoritative install queue is available at $QUEUE_PATH."
+    echo "QUEUE NOT CHECKED: native guard semantics are unchanged; no queue is fabricated."
+fi
+python3 -B "$KIT_DIR/verify_combined.py" 2>&1 | tee "$RUN_DIR/combined-verification.log"
+bash "$X0X_REPO/tools/require_gate_pass.sh" "$COMMIT" \
+    --fwsc "$KIT_DIR/evidence/validated-build/x0x-smk37-elite.fwsc" \
+    --config dev --dev-record "$KIT_DIR/evidence/validated-build/record.json" \
+    --ctl "$KIT_DIR/evidence/validated-build/ctl.img" 2>&1 | tee "$RUN_DIR/validation.log"
+if [ "$VERIFY_ONLY" = 1 ]; then
+    echo "Verification finished. No MIDI device was opened."
+    exit 0
+fi
+[ "$(uname -s)" = Darwin ] || { echo "Use this install launcher on your Mac." >&2; exit 2; }
+
+if [ ! -x "$KIT_DIR/.venv/bin/python3" ]; then
+    echo "Preparing a Python environment inside this folder."
+    python3 -m venv "$KIT_DIR/.venv"
+fi
+export PATH="$KIT_DIR/.venv/bin:$PATH"
+VENV_PYTHON="$KIT_DIR/.venv/bin/python3"
+if ! "$VENV_PYTHON" -c 'import mido' >/dev/null 2>&1; then
+    echo "Installing the missing USB MIDI dependency: mido."
+    "$VENV_PYTHON" -m pip install mido 2>&1 | tee -a "$RUN_DIR/dependencies.log"
+fi
+if ! "$VENV_PYTHON" -c 'import rtmidi' >/dev/null 2>&1; then
+    echo "Installing python-rtmidi for macOS CoreMIDI (without JACK)."
+    # Keep compatible wheels available. If pip builds from source, disable
+    # JACK: its auto-detected macOS backend can fail on sem_timedwait.
+    # CoreMIDI stays enabled by default and is checked below. Use one setting
+    # so older pip versions cannot discard JACK=false when keys repeat.
+    # Pin only this missing package to the version with this verified Meson
+    # option. Do not pass Meson settings to mido or replace working imports.
+    "$VENV_PYTHON" -m pip install 'python-rtmidi==1.5.8' \
+        --config-settings=setup-args=-Djack=false \
+        2>&1 | tee -a "$RUN_DIR/dependencies.log"
+fi
+# Use CoreMIDI for this launcher and its child processes, regardless of an
+# inherited MIDO_BACKEND. This does not change the user's shell configuration.
+PREVIOUS_MIDO_BACKEND="${MIDO_BACKEND-}"
+export MIDO_BACKEND=mido.backends.rtmidi/MACOSX_CORE
+# Log enumeration only: clients are created and deleted, but no MIDI port is
+# opened and no message is sent. The native installer still owns all selection,
+# binding, model, lock, backup and write guards.
+"$VENV_PYTHON" - "$PREVIOUS_MIDO_BACKEND" <<'MIDI_PYTHON' 2>&1 | tee "$RUN_DIR/midi-environment.log"
+import os
+import sys
+import mido
+import rtmidi
+
+print("Python:", sys.version.replace("\n", " "))
+print("Inherited MIDO_BACKEND:", repr(sys.argv[1]))
+print("Selected MIDO_BACKEND:", repr(os.environ.get("MIDO_BACKEND")))
+print("RTMIDI_API (not used by Mido's explicit API):", repr(os.environ.get("RTMIDI_API")))
+print("Mido backend:", repr(mido.backend))
+api_names = {getattr(rtmidi, name): name for name in dir(rtmidi) if name.startswith("API_")}
+try:
+    core = rtmidi.API_MACOSX_CORE
+    compiled = list(rtmidi.get_compiled_api())
+    print("Compiled RtMidi APIs:", [api_names.get(api, str(api)) for api in compiled])
+    if core not in compiled:
+        raise RuntimeError("CoreMIDI is unavailable in python-rtmidi")
+    if mido.backend.name != "mido.backends.rtmidi" or mido.backend.api != "MACOSX_CORE":
+        raise RuntimeError("Mido did not select the required CoreMIDI backend")
+    for direction, constructor in (("input", rtmidi.MidiIn), ("output", rtmidi.MidiOut)):
+        client = constructor(rtapi=core)
+        try:
+            actual = client.get_current_api()
+            print(f"RtMidi {direction} API:", api_names.get(actual, str(actual)))
+            if actual != core:
+                raise RuntimeError(f"RtMidi {direction} did not select CoreMIDI")
+            names = list(client.get_ports())
+            print(f"CoreMIDI {direction} ports: {len(names)}")
+            for index, name in enumerate(names):
+                print(f"  [{index}] {name!r}")
+        finally:
+            client.delete()
+    print("Mido input names:", repr(mido.get_input_names()))
+    print("Mido output names:", repr(mido.get_output_names()))
+except Exception as exc:
+    print(f"MIDI environment check failed: {exc}. Nothing was installed on the keyboard.", file=sys.stderr)
+    sys.exit(2)
+MIDI_PYTHON
+
+BACKUP="$RUN_DIR/slots-before-install.x0xslots"
+echo
+echo "This installs the exact recorded runtime and controller, not the packaging-tool commit."
+echo "Successful packaging checks do not prove that an SMC symptom is fixed."
+echo "Connect the SMK-37 Elite over USB and keep its power connected."
+echo "Disconnect other SMK, FM-1 and Felucca keyboards: reboot has no per-unit serial identity."
+echo "Every loop/sample slot will be backed up before the firmware is written:"
+echo "$BACKUP"
+echo "After installing, saved headers and used sample data will be read back on the same keyboard."
+echo "Per-slot CRC32 results are saved in install.log; a mismatch stops without another rewrite."
+echo "The native installer will show the device identity and ask whether to install."
+echo "After a successful install, a 45-second read-only connection check starts automatically."
+echo "Keep the SMC powered on. During the post-install capture, try the intended controls and note what you moved."
+echo "Record the gesture timing separately; diagnostic counters do not prove physical movement."
+echo
+set +e
+python3 "$X0X_REPO/tools/fm1_install.py" \
+    "$KIT_DIR/evidence/validated-build/x0x-smk37-elite.fwsc" \
+    --commit "$COMMIT" \
+    --dev-record "$KIT_DIR/evidence/validated-build/record.json" \
+    --ctl "$KIT_DIR/evidence/validated-build/ctl.img" --backup "$BACKUP" --verify-slots \
+    "${EXTRA_ARGS[@]}" 2>&1 | tee "$RUN_DIR/install.log"
+INSTALL_CODES=("${PIPESTATUS[@]}")
+set -e
+INSTALL_STATUS=${INSTALL_CODES[0]}
+INSTALL_APPEND_STATUS=0
+echo "Native installer exit code: $INSTALL_STATUS" | tee -a "$RUN_DIR/install.log" || INSTALL_APPEND_STATUS=$?
+if [ "$INSTALL_STATUS" != 0 ]; then
+    echo "Installation did not complete successfully. Automatic connection collection was skipped."
+    exit "$INSTALL_STATUS"
+fi
+if [ "${INSTALL_CODES[1]}" != 0 ] || [ "$INSTALL_APPEND_STATUS" != 0 ]; then
+    echo "Installation completed, but the install log could not be saved. Check the log directory." >&2
+    exit 74
+fi
+
+CAPTURE="$RUN_DIR/smc-connection.jsonl"
+echo
+echo "Installation completed. Collecting read-only SMC connection diagnostics for 45 seconds..."
+set +e
+python3 -B "$X0X_REPO/tools/smc_connection_watch.py" \
+    "${WATCH_ARGS[@]}" --output "$CAPTURE" 2>&1 | tee "$RUN_DIR/connection-watch.log"
+WATCH_CODES=("${PIPESTATUS[@]}")
+set -e
+WATCH_STATUS=${WATCH_CODES[0]}
+WATCH_APPEND_STATUS=0
+echo "Diagnostic collector exit code: $WATCH_STATUS" | tee -a "$RUN_DIR/connection-watch.log" || WATCH_APPEND_STATUS=$?
+
+# Preserve a readable explanation even if the collector exits before it can
+# create its normal report (for example a Python import or startup failure).
+if [ ! -s "$CAPTURE.summary.txt" ]; then
+    python3 - "$CAPTURE" "$WATCH_STATUS" "$COMMIT" "$RUN_DIR/connection-watch.log" <<'PYTHON'
+from datetime import datetime, timezone
+import json
+from pathlib import Path
+import sys
+
+capture, status, commit, log = sys.argv[1:]
+path = Path(capture)
+report_path = path.with_name(path.name + '.summary.txt')
+details = Path(log).read_text(encoding='utf-8', errors='replace')[-8000:]
+report = ('SMC CONNECTION TEST REPORT\n\n'
+          'Firmware installation completed. Automatic diagnostic collection did not produce its normal report '
+          f'(collector exit {status}). The SMC connection result is not established.\n\n'
+          'Collector output:\n' + details + '\n')
+report_path.write_text(report, encoding='utf-8')
+if not path.exists():
+    path.write_text(json.dumps({'kind': 'launcher_capture_error', 'utc': datetime.now(timezone.utc).isoformat(),
+                               'install_commit': commit, 'collector_exit': int(status),
+                               'human_summary': report}, sort_keys=True) + '\n', encoding='utf-8')
+print(report, end='')
+PYTHON
+    [ "$WATCH_STATUS" != 0 ] || WATCH_STATUS=1
+fi
+echo
+echo "Connection report: $CAPTURE.summary.txt"
+echo "Raw diagnostics: $CAPTURE"
+echo "Keep this folder: it contains the slot backup, installation log, and automatic connection report."
+if [ "$WATCH_STATUS" != 0 ]; then
+    echo "Firmware installation completed, but automatic diagnostic collection was incomplete. Read the report above."
+    [ "$WATCH_STATUS" != 130 ] || exit 130
+    exit 20
+fi
+if [ "${WATCH_CODES[1]}" != 0 ] || [ "$WATCH_APPEND_STATUS" != 0 ]; then
+    echo "The diagnostic collector completed, but its terminal log could not be saved." >&2
+    exit 74
+fi
+echo "Automatic collection completed. The connection result is stated in the report above."
+exit 0
