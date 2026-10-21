@@ -617,6 +617,13 @@ class SlotMove:
         self.path.write_bytes(arch)
         if xs.read_archive(self.path.read_bytes())[1] != self.images:
             raise xs.SlotError(f"{self.path}: the saved backup does not read back")
+        # SMP_INFO rounds payload usage up to KiB. Near capacity, adding the
+        # header to that estimate can falsely mark a retained slot as at risk.
+        # Refine only after every full image and the saved archive are verified.
+        self.old_map = xs.flash_map(lay, self.board)
+        self.risk = [k for k, img in enumerate(self.images) if img is not None
+                     and not any(off == self.old_map[k][0] and size >= len(img)
+                                 for off, size in self.new_map)]
         print(f"slots saved: {self.path} ({len(arch)} B)", file=out)
 
     def restore(self, link, out):
@@ -917,7 +924,8 @@ def run(a, backend, out, ask):
             dev.link.close()
             raise InstallError("slots", "--verify-slots needs a package with X0X sample slots; nothing was written")
         if move and move.risk:
-            print(f"This install changes the sample slot map. These slots would lose their samples: {move.describe()}.",
+            print(f"Based on rounded layout sizes, these slots may lose their samples: {move.describe()}. "
+                  "Exact image lengths are checked in the backup.",
                   file=out)
             print("They are saved to a file first and written back after the install." if move.new_map else
                   "They are saved to a file first. This firmware has no X0X slots: restore them later in X0X.", file=out)

@@ -20,6 +20,13 @@ The saved archive is retained. Verification never triggers another erase or
 restore. The option is incompatible with `--no-slots` and refuses an already
 running loader or a package without X0X sample slots before writing.
 
+The initial layout check conservatively uses rounded KiB usage from `SMP_INFO`.
+After all full images and the saved archive are verified, the migration decision
+uses each image's exact length, including its 512-byte header, and the selected
+package's destination capacities. A valid image that fills a retained slot must
+stay there; rounding must not cause an unnecessary copy into another slot. If
+the backup is unavailable, installation still stops before firmware writes.
+
 The same updater remains responsible for every stage. Its verified MIDI port
 name is frozen after reboot. A new bystander or a replacement port is refused
 before another unit is opened. As documented in the earlier installer audit,
@@ -31,11 +38,14 @@ keyboards must be disconnected for the update.
 Tested on this addendum's source, based on installer repair commit
 `c01629eeba48c5fd05aabf3af5eb6511083ef84e`:
 
-- `python3 -B tests/install_slot_verify_test.py`: 7 tests passed, with Pro and
+- `python3 -B tests/install_slot_verify_test.py`: 9 tests passed, with Pro and
   Elite subcases. Covers normal port renaming, every logical sample image,
   empty-slot metadata, a reserved-header byte mismatch, unexpected sample data,
   slot migration, an unexpected map, post-verification bystanders and replacement
-  ports, implicit backup, and refusal of unverifiable targets.
+  ports, implicit backup, and refusal of unverifiable targets. Boundary subcases
+  fill each of the three dynamic slots exactly on Pro and Elite and prove that
+  no sample erase or write occurs. A moved destination with smaller capacity
+  still triggers a necessary migration into a sufficiently large free slot.
 - `python3 -B tests/install_slots_test.py`: passed, including backup, migration,
   partial restoration, stock firmware and explicit opt-out behavior.
 - `python3 -B tests/install_ctl_test.py`: passed, including complete controller
