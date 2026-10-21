@@ -87,8 +87,8 @@ class BundleTest(unittest.TestCase):
         for rs in (self.regions[:2],self.regions+[self.regions[2]]):
             with self.assertRaises(b.BundleError):b._manifest(rs)
         with self.assertRaises(b.BundleError):b.bind_head(self.raw,self.other_head[:-1],loader_binding=self.binding)
-        h=bytearray(self.other_head);h[0x100]^=1
-        with self.assertRaises(b.BundleError):b.bind_head(self.raw,h,loader_binding=self.binding)
+        h=bytearray(self.other_head);h[64]^=1
+        with self.assertRaisesRegex(b.BundleError,'JLFS entry CRC'):b.bind_head(self.raw,bytes(h),loader_binding=self.binding)
 
     def test_immutable_response(self):
         self.assertEqual(b.response_bytes(b'abc',0,1,2,0xE0000000),(b'bc',False))

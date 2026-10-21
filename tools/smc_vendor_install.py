@@ -43,7 +43,9 @@ def prepare(a):
     # A full-unit readback may be supplied; only the immutable 16 KiB head is used.
     with open(a.head_ref, 'rb') as f:
         head = f.read(0x4000)
-    converted, receipt = bundle.bind_head(raw, head, loader_binding=binding)
+    diagnostics = []
+    converted, receipt = bundle.bind_head(raw, head, loader_binding=binding, diagnostics=diagnostics.append)
+    a._smc_head_diagnostics = diagnostics[0]
     product, logical = bundle.add_ctl.logical_of(converted)
     receipt.update(dev_record_sha256=bundle.sha(record_bytes), source_commit=a.commit)
     a._smc_prepared = (product, bytes(logical), receipt, meta)
@@ -64,6 +66,11 @@ def save_receipt(path, data):
         finally: os.close(d)
     finally:
         if os.path.exists(tmp): os.unlink(tmp)
+
+
+def head_validation_report(a):
+    """Non-secret contract/CRC metadata, separate from immutable transaction identity."""
+    return 'Physical head validation: '+json.dumps(a._smc_head_diagnostics, sort_keys=True)
 
 
 def read_region(ed, region, size, fi):
@@ -126,6 +133,8 @@ def run(a, backend, out, ask, fi):
     """Use Updater, SlotMove, same-port binding and existing MIDI backend only."""
     try:
         product,image,identity,meta = prepare(a)
+        print(head_validation_report(a), file=out)
+        checked_map = bundle.fixed_slot_map()
         class EliteUpdater(fi.Updater):
             def find(self, want=None, only_port=True):
                 dev = super().find(want,only_port)
@@ -150,7 +159,7 @@ def run(a, backend, out, ask, fi):
             _,images = fi.xs.read_archive(backup)
             old = [tuple(x) for x in transaction['old_map']]
             new = [tuple(x) for x in transaction['new_map']]
-            bundle.need(old == new == fi.package_slot_map(image,product), 'resume sample layout mismatch')
+            bundle.need(old == new == checked_map, 'resume sample layout mismatch')
             move = fi.SlotMove(transaction['layout'],old,new,[],'smk')
             move.images,move.path = images,Path(a.backup)
             bundle.need(len(images) == len(old), 'resume backup slot count')
@@ -158,7 +167,7 @@ def run(a, backend, out, ask, fi):
             bundle.need(not dev.id.loader, 'loader resume requires the original saved transaction receipt and backup')
             bundle.need(not Path(a.backup).exists(), 'refuse to overwrite an existing sample backup')
             check_cold(dev.link,fi)
-            move = fi.plan_slots(dev,image,product,require_backup=True)
+            move = fi.plan_slots(dev,image,product,require_backup=True,checked_package_map=checked_map)
             bundle.need(move is not None and move.old_map == move.new_map and not move.risk, 'SMC DEV must preserve the exact sample layout')
             if not a.yes and not ask('Install central-only DEV from physical cold recovery? [y/N] '):
                 dev.link.close(); return 1

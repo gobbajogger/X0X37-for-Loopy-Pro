@@ -48,8 +48,8 @@ def _entry(b):
     return d
 
 
-def head_key(head):
-    """Validate actual readback head/key blob; never write or synthesize a unit head."""
+def _head_entries(head):
+    """The supported fixed two-file head layout; no writes or key repair."""
     need(len(head) == 0x4000, 'exact 16 KiB unit head required')
     _entry(head[:32])
     spl, isd = _entry(head[32:64]), _entry(head[64:96])
@@ -57,10 +57,48 @@ def head_key(head):
         need(e[16:32].rstrip(b'\0\xff') == name, 'unexpected head entry')
         off, size = struct.unpack_from('<II', e, 4)
         need(0xA0 <= off <= 0x4000 and 0 < size <= 0x4000-off, 'head entry outside head')
-        need(pm.crc16(head[off:off+size]) == struct.unpack_from('<H', e, 2)[0], 'head data CRC')
+    return spl, isd
+
+
+def _key_blob(head, isd):
     off, size = struct.unpack_from('<II', isd, 4)
     need(size >= 34 and pm.crc16(head[off:off+32]) == struct.unpack_from('<H', head, off+32)[0], 'key blob CRC')
     return pm.chipkey_decode(head[off:off+32])
+
+
+def head_key(head):
+    """Strict generated/source-template contract, including both payload CRCs."""
+    spl, isd = _head_entries(head)
+    for e in (spl, isd):
+        off, size = struct.unpack_from('<II', e, 4)
+        need(pm.crc16(head[off:off+size]) == struct.unpack_from('<H', e, 2)[0], 'head data CRC')
+    return _key_blob(head, isd)
+
+
+def physical_head_key(head, *, diagnostics=None):
+    """Native key contract for an immutable physical readback, NOT boot validation.
+
+    Only the pinned native bundle route may use this key: it re-reads the live
+    key and never writes the head. Whole SPL/isd payloads are opaque preserved
+    bytes, not installed components. Their CRCs remain visible diagnostics.
+    CRC-valid keys are not independently attested against hardware/old app.
+    """
+    spl, isd = _head_entries(head)
+    # Match ldr_chip_key's traversal/name semantics, in addition to host bounds.
+    need(struct.unpack_from('<H', spl, 14)[0] == 0, 'native key path ends before isd_config.ini')
+    need(isd[16:31] == b'isd_config.ini\0', 'native key entry name')
+    key = _key_blob(head, isd)
+    if diagnostics is not None:
+        rows = []
+        for e, name in ((spl, 'uboot.boot'), (isd, 'isd_config.ini')):
+            off, size = struct.unpack_from('<II', e, 4)
+            expected = struct.unpack_from('<H', e, 2)[0]
+            actual = pm.crc16(head[off:off+size])
+            rows.append(dict(entry=name, offset=off, size=size, expected_crc16=expected,
+                             actual_crc16=actual, matches=expected == actual))
+        diagnostics(dict(contract='native-key-preserved-head-v1', key_blob_crc_valid=True,
+                         payload_crc_admission=False, payloads=rows))
+    return key
 
 
 def unpack(raw):
@@ -91,9 +129,13 @@ def unpack(raw):
     return entries[0], entries[100]
 
 
-def _main(flash):
+def _main(flash, *, physical_head=None):
     need(len(flash) >= 0x9D000, 'short flash template')
-    key = head_key(flash[:0x4000])
+    if physical_head is None:
+        key = head_key(flash[:0x4000])
+    else:
+        need(flash[:0x4000] == physical_head, 'bound physical head changed')
+        key = physical_head_key(physical_head)
     m = bytearray(flash[MAIN_OFF:MAIN_OFF+MAIN_SIZE])
     pm.sfc(m, 0, CRYPT_SIZE, 0, key)
     blk = struct.unpack_from('<I', m, 8)[0]
@@ -172,13 +214,12 @@ def _info(off, b):
     return dict(offset=off, size=len(b), sha256=sha(b), crc32=zlib.crc32(b))
 
 
-def validate_bundle(raw, *, loader_binding):
-    """Return complete identities; build-record binding is mandatory, not guessed."""
+def _validate_bundle(raw, *, loader_binding, physical_head=None):
     _binding(loader_binding)
     f, ota = unpack(raw)
     _loader(ota, loader_binding)
     need(len(f) == 0x100060, 'whole-bundle flash plus exact 96-byte record required')
-    m, _, _ = _main(f)
+    m, _, _ = _main(f, physical_head=physical_head)
     policy = struct.unpack_from('<I', f, 0x100000+12)[0]
     need(policy in (1,2), 'unsupported bundle policy')
     if policy == 2:
@@ -199,6 +240,33 @@ def validate_bundle(raw, *, loader_binding):
                 controller=dict(kind='segmented-abi4', image_id=image_id,
                                 regions=[_info(o,b) for (o,_),b in zip(REGIONS,regions)]),
                 ui=_info(0xAB000,ui))
+
+
+def validate_bundle(raw, *, loader_binding):
+    """Strict SOURCE/generated bundle validation; no physical-head exceptions."""
+    return _validate_bundle(raw, loader_binding=loader_binding)
+
+
+def validate_bound_bundle(raw, *, source_raw, actual_head, loader_binding):
+    """Explicit native-only per-unit result; exact immutable head is mandatory.
+
+    The strict source bytes are required again: physical-head admission cannot
+    turn an arbitrary converted package into independently checked source.
+    The caller still needs the checked DEV record for the loader build recipe.
+    """
+    need(type(actual_head) is bytes, 'immutable bound physical head required')
+    need(type(source_raw) is bytes, 'immutable strict source package required')
+    before = validate_bundle(source_raw, loader_binding=loader_binding)
+    after = _validate_bundle(raw, loader_binding=loader_binding, physical_head=actual_head)
+    need({k:v for k,v in before.items() if k != 'package_sha256'} ==
+         {k:v for k,v in after.items() if k != 'package_sha256'},
+         'conversion changed canonical component identity')
+    return after
+
+
+def fixed_slot_map():
+    """Map already checked at flash 0x9CF00 by _main; never scan opaque head."""
+    return list(pm.SLOTMAP['smk37'])
 
 
 
@@ -263,19 +331,20 @@ def build_bundle(flash_template, sealed_app, ui, vendor_regions, ota, *, descrip
     return raw
 
 
-def bind_head(raw, actual_head, *, loader_binding):
+def bind_head(raw, actual_head, *, loader_binding, diagnostics=None):
     """Convert encryption to this unit; preserve its entire readback head exactly."""
     before = validate_bundle(raw, loader_binding=loader_binding)
     f, ota = unpack(raw)
     m, _, _ = _main(f)
-    key = head_key(actual_head)
+    need(type(actual_head) is bytes, 'immutable physical head required')
+    key = physical_head_key(actual_head, diagnostics=diagnostics)
     pm.sfc(m, 0, CRYPT_SIZE, 0, key)
     f = bytearray(f[:0x100000])
     f[:0x4000] = actual_head
     f[MAIN_OFF:MAIN_OFF+MAIN_SIZE] = m
     f += _suffix(f, before['descriptor_off'], before['controller']['image_id'], before['policy'])
     converted = pm.ufw(f, ota, PRODUCT)
-    after = validate_bundle(converted, loader_binding=loader_binding)
+    after = validate_bound_bundle(converted, source_raw=raw, actual_head=actual_head, loader_binding=loader_binding)
     need({k:v for k,v in before.items() if k != 'package_sha256'} == {k:v for k,v in after.items() if k != 'package_sha256'}, 'conversion changed canonical component identity')
     receipt = dict(schema=1, profile=PROFILE, source_sha256=sha(raw), converted_sha256=sha(converted),
                    head_sha256=sha(actual_head), loader_binding=dict(loader_binding), components=after)

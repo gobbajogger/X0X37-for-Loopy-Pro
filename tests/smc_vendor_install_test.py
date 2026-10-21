@@ -147,8 +147,9 @@ class InstallTest(unittest.TestCase):
             calls.append('cold-check')
             w=[0]*63;w[-3]=0x534D4347;w[-2]=1
             return [len(w)]+[(v>>(7*j))&127 for v in w for j in range(5)]
-        with patch.object(fi.xs,'req',side_effect=cold_reply),patch.object(fi,'Updater',Up),patch.object(fi,'plan_slots',return_value=Move()),patch.object(fi,'SlotMove',Move),patch.object(fi.xs,'read_archive',return_value=({},[None]*3)),patch.object(si,'check_regions',side_effect=lambda *_:calls.append('regions-read')):
+        with patch.object(fi.xs,'req',side_effect=cold_reply),patch.object(fi,'Updater',Up),patch.object(fi,'plan_slots',return_value=Move()) as plan,patch.object(fi,'package_slot_map',side_effect=AssertionError('opaque head search forbidden')),patch.object(fi,'SlotMove',Move),patch.object(fi.xs,'read_archive',return_value=({},[None]*3)),patch.object(si,'check_regions',side_effect=lambda *_:calls.append('regions-read')):
             self.assertEqual(si.run(self.a,None,io.StringIO(),lambda _:True,fi),0)
+            self.assertEqual(plan.call_args.kwargs['checked_package_map'],mapping)
             self.assertEqual(calls,['cold-check','backup','cold-check','install','regions-read','slots-read'])
             # Written/verified receipt: only verification, no duplicate update.
             calls.clear();self.assertEqual(si.run(self.a,None,io.StringIO(),lambda _:True,fi),0)

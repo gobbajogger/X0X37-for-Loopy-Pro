@@ -47,10 +47,12 @@ def source(raw, expected_sha, ota_sha):
     return bytes(image)
 
 
-def run(backend, raw, expected_sha, ota_sha, output, receipt, *, acknowledge, cold_check, port=None, protected_paths=(), validate_head=None):
+def run(backend, raw, expected_sha, ota_sha, output, receipt, *, acknowledge, cold_check, port=None, protected_paths=(), validate_head=None, validation_provenance=None):
     image=source(raw,expected_sha,ota_sha)
     output=Path(output);receipt=Path(receipt)
     paths=[output,Path(str(output)+'.json'),receipt,*map(Path,protected_paths)]
+    if validation_provenance is not None:
+        paths.append(Path(str(output)+'.validation.json'))
     for i,p in enumerate(paths):
         for q in paths[:i]:
             bundle.need(p.resolve()!=q.resolve() and not(p.exists() and q.exists() and p.samefile(q)), 'head-export paths must not alias')
@@ -81,7 +83,8 @@ def run(backend, raw, expected_sha, ota_sha, output, receipt, *, acknowledge, co
         _,done,lost=up.serve(dev.link,image,fi.FINISH_CHECK,fi.DELAY['idle_write'],lambda *a:None)
         bundle.need(done and not lost,'exporter source/owned record admission incomplete')
         return capture(lambda r:exchange(dev.link,r),output,validate_head=validate_head or bundle.head_key,
-                       protected_paths=[receipt,*protected_paths],nonce=nonce)
+                       protected_paths=[receipt,*protected_paths],nonce=nonce,
+                       validation_provenance=validation_provenance)
     finally:dev.link.close()
 
 

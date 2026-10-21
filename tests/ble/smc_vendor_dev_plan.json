@@ -68,6 +68,22 @@
         "-O",
         "tools/studies/smc_head_export/test_acquire.py"
       ]
+    },
+    {
+      "reason": "Separate strict generated and bounded native physical-head contracts; keep fixed SMC slot map and no-persist negatives",
+      "argv": [
+        "python3",
+        "-O",
+        "tests/smc_physical_head_test.py"
+      ]
+    },
+    {
+      "reason": "Resume-only original exporter receipt/source binding, exact reviewed host inventory and durable provenance before FINISH",
+      "argv": [
+        "python3",
+        "-O",
+        "tools/studies/smc_head_export/test_resume_physical.py"
+      ]
     }
   ]
 }

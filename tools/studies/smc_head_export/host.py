@@ -59,7 +59,7 @@ def _persist(path,data):
     need(path.read_bytes()==data,'local capture readback failed')
 
 
-def capture(exchange,output,*,validate_head,protected_paths=(),nonce=None):
+def capture(exchange,output,*,validate_head,protected_paths=(),nonce=None,validation_provenance=None):
     """Capture+CRC+validate+persist before FINISH. A lost cleanup reply is explicit.
 
     validate_head is the reviewed head_key integrity parser (return ignored).
@@ -68,8 +68,15 @@ def capture(exchange,output,*,validate_head,protected_paths=(),nonce=None):
     nonce; an already identical complete file is retained, never replaced.
     """
     path=Path(output);receipt=path.with_name(path.name+'.json')
-    paths=[path,receipt,*map(Path,protected_paths)]
-    for i,p in enumerate(paths[:2]):
+    outputs=[path,receipt]
+    if validation_provenance is not None:
+        need(type(validation_provenance) is dict,'validation provenance must be an object')
+        validation_provenance=json.loads(json.dumps(validation_provenance,sort_keys=True))
+        # Separate sidecar: neither original stage receipt nor established head
+        # metadata is rewritten to pretend it came from the revised host code.
+        outputs.append(path.with_name(path.name+'.validation.json'))
+    paths=[*outputs,*map(Path,protected_paths)]
+    for i,p in enumerate(outputs):
         for q in paths[i+1:]:
             need(p.resolve()!=q.resolve() and not(p.exists() and q.exists() and os.path.samefile(p,q)),'capture path aliases protected input')
     nonce=nonce if nonce is not None else secrets.randbelow(2**32-1)+1
@@ -87,6 +94,9 @@ def capture(exchange,output,*,validate_head,protected_paths=(),nonce=None):
     metadata=dict(schema=1,model='SMK-37 Elite',size=SIZE,crc32=crc,sha256=sha,scope='raw head only; no main/sample writes')
     _persist(path,bytes(data))
     _persist(receipt,(json.dumps(metadata,sort_keys=True,indent=2)+'\n').encode())
+    if validation_provenance is not None:
+        provenance=dict(schema=1,head_sha256=sha,validation=validation_provenance)
+        _persist(outputs[2],(json.dumps(provenance,sort_keys=True,indent=2)+'\n').encode())
     last=None
     for _ in range(3):
         try:

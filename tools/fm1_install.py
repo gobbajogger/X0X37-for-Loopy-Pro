@@ -699,7 +699,7 @@ class SlotMove:
                 f"or: python3 tools/x0x_slots.py restore {self.path}")
 
 
-def plan_slots(dev, image, product, require_backup=False):
+def plan_slots(dev, image, product, require_backup=False, *, checked_package_map=None):
     """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup."""
     try:
         lay = slot_probe(dev.link)
@@ -713,7 +713,9 @@ def plan_slots(dev, image, product, require_backup=False):
     if not require_backup and not any(sl["nz"] for sl in lay["slots"]):
         return None
     old_map = xs.flash_map(lay, board_of(dev.id.text))
-    new_map = package_slot_map(image, product)
+    # The explicit SMC route has already validated a fixed-location slot map.
+    # Generic callers retain the existing package lookup unchanged.
+    new_map = package_slot_map(image, product) if checked_package_map is None else list(checked_package_map)
     risk = xs.at_risk(lay, old_map, new_map)
     return SlotMove(lay, old_map, new_map, risk, board_of(dev.id.text)) if risk or require_backup else None
 
@@ -783,6 +785,7 @@ def head_guard(a, out=None, env=None):
         try:
             import smc_vendor_install
             _, image, _, _ = smc_vendor_install.prepare(a)
+            print(smc_vendor_install.head_validation_report(a),file=out)
             same, text = head_compare(image, a.head_ref)
             if not same:
                 raise ValueError(text)

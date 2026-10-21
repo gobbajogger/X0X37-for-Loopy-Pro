@@ -92,3 +92,96 @@ as sole argument. Repeat with `-fsanitize=address,undefined`.
   It is not exhaustive byte-tear, hardware/SPL, or physical USB proof.
 
 No generated binaries, private heads or proprietary inputs belong in Git.
+
+## Physical head versus generated template contract
+
+Generated templates and source bundles retain strict whole-SPL and whole-isd
+payload CRC checks. The explicit native per-unit route instead validates the
+flash/entry header CRCs, existing bounded ranges, native entry traversal/name,
+and the independent 34-byte key blob. It reports both unused payload CRCs as
+non-secret diagnostic metadata. It never repairs or writes any physical-head
+byte. This is not a claim that the SPL is healthy or that the key was independently
+attested against eFuse or previous application encryption.
+
+`bind_head` first validates the strict source package and paired loader binding.
+The converted result must preserve the exact head and every canonical component;
+`validate_bound_bundle` requires those original strict source bytes explicitly.
+Ordinary `validate_bundle` never accepts the physical exception. The SMC installer
+uses the already-validated fixed slot map, not a whole-image magic search that
+could accidentally read SPL/isd data as host metadata. Generic installer behavior
+is unchanged when no checked map is explicitly supplied.
+
+### Continuing an already staged exporter
+
+`resume_physical.py` is a **host-only, resume-only overlay**. Its record must have
+an independently reviewed exact inventory of all local host dependencies, the
+original exporter source/OTA hashes above, and a review evidence digest. The
+record's externally checked SHA256 is supplied separately. A proposal marked
+`review-required` is deliberately refused before MIDI is opened. The delivery
+owner must provide an independently checked isolated launcher: clear
+`PYTHONHOME`/`PYTHONPATH`, use Python `-I` (no user-site or current-directory
+imports), and insert only the verified overlay directories into `sys.path`
+before importing host code. Post-import file checks are not a substitute for
+this launch boundary. Keep the original checked-source inventory separate from
+the revised overlay inventory.
+
+The operator must retain the original exporter package, original private receipt,
+and original head-output path. Do not copy transaction state into a new kit, stage
+another exporter, or power-cycle merely to apply the host overlay. Continuation
+requires the original pending exporter to be currently detected. If the device
+is already off, this tool neither starts nor restores that exporter and gives
+no guarantee about the mode after power-up. Do not power-cycle again during a
+continuation attempt. The receipt is checked unchanged; no migration or receipt editing occurs. The receipt never
+stored a nonce: continuation uses a fresh nonce, consistent within that complete
+read session, as before. A normal application instead of the pending exporter is
+refused before any staging request.
+
+After independent review, pass these arguments through the verified isolated
+launcher supplied with the overlay (do not invoke the script directly):
+
+```sh
+REVIEWED_ISOLATED_RESUME_LAUNCHER \
+  --resume-original-physical-head \
+  --source ORIGINAL_EXPORTER --source-sha256 ORIGINAL_SOURCE_SHA \
+  --ota-sha256 ORIGINAL_OTA_SHA --receipt ORIGINAL_PRIVATE_RECEIPT \
+  --output ORIGINAL_PRIVATE_OUTPUT \
+  --overlay-record REVIEWED_OVERLAY_RECORD --overlay-sha256 REVIEWED_RECORD_SHA
+```
+
+A separate `OUTPUT.validation.json` binds saved head identity to the reviewed host
+record, contract, and original exporter hashes. It is atomically saved and read
+back **after** the complete head and its existing metadata, **before** FINISH.
+Failure to persist any of these sends no FINISH. Existing files are never replaced;
+partial completion can be retried with the same identities. Lost FINISH remains
+an explicitly uncertain cleanup result. Original stage-receipt bytes and existing
+head-metadata schema remain unchanged.
+
+This record authorizes neither a firmware install nor reuse of an old `DEV CHECKED`
+record as evidence for changed host code. Standard `checked_tools` still refuses
+an old source commit with revised invoking tools. Firmware installation needs its
+own matching reviewed tool/source provenance; do not disable that guard.
+
+Source-only regressions:
+
+```sh
+python3 tests/smc_physical_head_test.py
+python3 tools/studies/smc_head_export/test_resume_physical.py
+```
+
+### Matching firmware kit after the continuation
+
+The integration owner must include this host repair in the reviewed firmware
+candidate **before** generating the next DEV package and validation records.
+The new kit's `COMMIT`, installation-tool subset, forward/rollback artifacts and
+records must all refer to that integrated source. Its normal `checked_tools`
+verification is unchanged and must pass. A resume-only overlay is not a complete
+replacement firmware kit.
+
+After the original export finishes with confirmed cleanup, the new kit uses
+`--head-ref ORIGINAL_PRIVATE_OUTPUT`; this intentionally skips its acquisition
+path. Use the original `--state-dir` in place to retain pending-transaction checks,
+and start a new commit-specific firmware transaction only when none is pending.
+Do not resume a firmware transaction under a different commit. Do not run the old
+8145957 installer, copy its state, invent an acquisition completion marker, or
+rewrite its receipts. Perform the normal explicit cold power-cycle/audio steps
+only after exporter continuation has ended; no automatic install follows capture.
