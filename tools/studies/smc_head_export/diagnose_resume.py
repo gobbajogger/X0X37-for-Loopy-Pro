@@ -9,8 +9,8 @@ import json
 from pathlib import Path
 import struct
 import sys
-import acquire
-from acquire import bundle, fi
+import diagnostic_acquire_core as acquire
+from diagnostic_acquire_core import bundle, fi
 
 
 def diagnose(head, emit=print):
