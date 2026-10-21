@@ -48,6 +48,9 @@ def main():
     parser.add_argument('--repo',type=Path,required=True)
     parser.add_argument('--out',type=Path,required=True)
     a=parser.parse_args(); repo=a.repo.resolve(); out=a.out.resolve()
+    dirty=subprocess.check_output(['git','-C',str(repo),'status','--porcelain','--untracked-files=no'],text=True)
+    if dirty:
+        parser.error('tracked source inputs must be clean; commit the study inputs first')
     if out.exists() or out.is_relative_to(repo):
         parser.error('output must be new and outside source repository')
     out.mkdir(parents=True)
