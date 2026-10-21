@@ -9,7 +9,7 @@ step 2, the loader reads the whole package and writes it. In both steps the
 device asks (SysEx read requests on the logical image) and we answer. Then
 the FM-1 restarts and the installed identity is checked.
 
-  fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots] [--ctl FILE | --no-ctl]
+  fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--verify-slots | --no-slots] [--ctl FILE | --no-ctl]
   fm1_install.py --info [--port NAME]
 
 If the FM-1 is still in update mode (an earlier install was cut off), the
@@ -24,11 +24,16 @@ installs; (3) when the new firmware is back, it writes those slots into the new 
 slot N if it fits, else to a free slot that is large enough; others are reported) and reads them back
 to compare; (4) if that fails, the archive stays and the message says how to restore it with
 tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flash: no install writes them.
+--verify-slots saves every slot before writing and, after native/controller verification and any required
+restore, reads every resulting sample image from the same bound keyboard. It compares the complete
+512-byte header and used ADPCM data against the saved images, logs per-slot CRC32 values and checks
+empty-slot metadata. Unused flash padding is not compared. A mismatch stops with exit 7 and keeps
+the backup; it never triggers another erase or restore.
 
 Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
-7 installed, but the slots were not written back (the backup file stays),
+7 sample backup, restore or post-install comparison failed (the backup file stays),
 8 installed, but the Bluetooth controller block read-back failed or its CRC32 is not the expected full-block CRC32,
 9 refused by the gate guard (no install was started),
 10 refused by the foreground guard or the hardware lock (no device was opened),
@@ -598,6 +603,7 @@ class SlotMove:
     def __init__(self, lay, old_map, new_map, risk, board):
         self.lay, self.old_map, self.new_map, self.risk, self.board = lay, old_map, new_map, risk, board
         self.images = self.path = None
+        self.restored = []
 
     def describe(self):
         return ", ".join(f"slot {k + 1} ({self.lay['slots'][k]['name'] or '-'}, {self.lay['slots'][k]['used']} KiB)"
@@ -620,11 +626,49 @@ class SlotMove:
         new_map = xs.flash_map(new_lay, self.board)
         todo, skipped = xs.plan_migration(self.images, self.risk, self.old_map, new_lay, new_map)
         xs.restore_mapped(el, todo, self.images)
+        self.restored = todo
         for k, j in todo:
             print(f"slot {k + 1} written back to slot {j + 1} and read back: ok", file=out)
         for t in skipped:
             print(f"not written back: {t}", file=out)
         return todo, skipped
+
+    def verify(self, link, out):
+        """Compare all logical slots after install; INFO/READ only, no repair writes."""
+        el = EditorLink(link)
+        lay = xs.layout(el)
+        if xs.flash_map(lay, self.board) != self.new_map:
+            raise xs.SlotError("the running slot map differs from the checked package")
+        expected, sources = [None] * lay["count"], {}
+        for k, img in enumerate(self.images):
+            if img is None or k in self.risk:
+                continue
+            matches = [j for j, (off, size) in enumerate(self.new_map)
+                       if off == self.old_map[k][0] and size >= len(img)]
+            if len(matches) != 1:
+                raise xs.SlotError(f"slot {k + 1}: no unambiguous preserved destination")
+            j = matches[0]
+            expected[j], sources[j] = img, k
+        for k, j in self.restored:
+            expected[j], sources[j] = self.images[k], k
+        missing = [k + 1 for k in self.risk if k not in sources.values()]
+        if missing:
+            raise xs.SlotError("saved slots have no restored destination: " + ", ".join(map(str, missing)))
+        for j, img in enumerate(expected):
+            want = f"CRC32 {zlib.crc32(img) & 0xFFFFFFFF:08x}" if img is not None else "empty"
+            try:
+                got = xs.read_slot(el, j, lay["slots"][j]["nz"])
+            except (xs.SlotError, TimeoutError, IndexError) as e:
+                print(f"slot {j + 1} read back: FAILED ({e}); expected {want}", file=out, flush=True)
+                raise
+            actual = f"CRC32 {zlib.crc32(got) & 0xFFFFFFFF:08x}" if got is not None else "empty"
+            source = f" (backup slot {sources[j] + 1})" if j in sources else ""
+            print(f"slot {j + 1} read back: {actual}, expected {want}{source}: "
+                  f"{'OK' if got == img else 'MISMATCH'}", file=out, flush=True)
+            if got != img:
+                raise xs.SlotError(f"slot {j + 1}: full image differs from the saved backup")
+        print(f"all {lay['count']} sample slots compared: OK (512-byte headers and used ADPCM data; empty-slot metadata checked)",
+              file=out, flush=True)
 
     def help(self):
         return (f"The slots are in {self.path}. Restore them with the break loops page (Restore a backup) "
@@ -859,16 +903,19 @@ def run(a, backend, out, ask):
     print(f"device:  {dev.id.text}  ({dev.name})" + ("  in update mode: the write will be finished" if dev.id.loader else ""),
           file=out)
     move = None
-    if a.backup and dev.id.loader:
+    if (a.backup or a.verify_slots) and dev.id.loader:
         dev.link.close()
-        raise InstallError("slots", "--backup needs the running firmware; the device is already in update mode. "
+        raise InstallError("slots", "--backup/--verify-slots need the running firmware; the device is already in update mode. "
                                     "Nothing was written")
     if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
         try:
-            move = plan_slots(dev, image, product, require_backup=bool(a.backup))
+            move = plan_slots(dev, image, product, require_backup=bool(a.backup or a.verify_slots))
         except (xs.SlotError, TimeoutError) as e:
             dev.link.close()
             raise InstallError("slots", f"the requested slot backup cannot start ({e}); nothing was written")
+        if a.verify_slots and (move is None or not move.new_map):
+            dev.link.close()
+            raise InstallError("slots", "--verify-slots needs a package with X0X sample slots; nothing was written")
         if move and move.risk:
             print(f"This install changes the sample slot map. These slots would lose their samples: {move.describe()}.",
                   file=out)
@@ -913,6 +960,20 @@ def run(a, backend, out, ask):
             check_ctl(back.link, ctl, out)
         finally:
             back.link.close()
+    if a.verify_slots:
+        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        try:
+            if not back:
+                raise TimeoutError("the bound keyboard did not answer for the full slot readback")
+            if back.id.text != product:
+                raise xs.SlotError("the verified keyboard's firmware identity changed before the full slot readback")
+            move.verify(back.link, out)
+        except (xs.SlotError, TimeoutError, KeyError, IndexError) as e:
+            raise InstallError("slots", f"installed, but the full slot readback/CRC comparison failed ({e}). "
+                               f"No automatic rewrite was attempted. {move.help()}")
+        finally:
+            if back:
+                back.link.close()
     return 0
 
 
@@ -999,6 +1060,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
     ap.add_argument("--backup", metavar="FILE", help="save and verify every slot here before writing, even if none is at risk")
+    ap.add_argument("--verify-slots", action="store_true",
+                    help="back up every slot, then compare full sample images and CRCs on the bound keyboard after installing")
     ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true",
@@ -1010,8 +1073,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--config", choices=("dev", "rel"), default="dev",
                     help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
     a = ap.parse_args(argv)
-    if a.backup and a.no_slots:
-        ap.error("--backup and --no-slots cannot be used together")
+    if (a.backup or a.verify_slots) and a.no_slots:
+        ap.error("--backup/--verify-slots and --no-slots cannot be used together")
     if bool(a.info) == bool(a.package):
         ap.error("give a PACKAGE.fwsc or --info")
     if a.head_check:                        # no device: only the bootloader guard
