@@ -1,0 +1,90 @@
+name: Import checked native audit history
+
+on:
+  push:
+    branches:
+      - lane/mb-native-transfer-20261021
+
+permissions: {}
+
+concurrency:
+  group: import-native-audit-history-20261021
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.repository == 'gobbajogger/X0X37-for-Loopy-Pro' && github.ref == 'refs/heads/lane/mb-native-transfer-20261021' && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the isolated transfer branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify source objects and create the integration branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'gobbajogger/X0X37-for-Loopy-Pro'
+          test "$GITHUB_REF" = 'refs/heads/lane/mb-native-transfer-20261021'
+
+          bundle='source-transfer/audit-ab1694e.bundle'
+          tip='ab1694ea6275826799de9912d8df0e8b4a2d05f2'
+          tree='d284e8929122eebf3319220013c28b789fa8425b'
+          base='f8420eb3749c03e4ba2e24a0fb6ba7b97f627f97'
+          sync='8f1818645e142784cd5fe1a35939eb16ea988e2a'
+          boundary='a5cb24dd08b40b80e802e03ff0d9c848315a9751'
+          target='refs/heads/lane/mb-audit-integration-20261021'
+
+          printf '%s  %s\n' '65e381806eb4029c672e9a9cb1d8d2f6c824292a24953b4c5e0a03fdaade47f1' "$bundle" | sha256sum --check --strict
+          git fetch --no-tags origin "$sync"
+          for prerequisite in "$base" "$sync" "$boundary"; do
+            git cat-file -e "$prerequisite^{commit}"
+          done
+          git bundle verify "$bundle"
+          git fetch --no-tags "$bundle" "$target:refs/native-import/audit"
+          test "$(git rev-parse refs/native-import/audit)" = "$tip"
+          test "$(git rev-parse "$tip^{tree}")" = "$tree"
+          git merge-base --is-ancestor "$base" "$tip"
+          git merge-base --is-ancestor "$sync" "$tip"
+          test "$(git rev-list --count "$tip" --not "$base" "$sync")" = '72'
+          git fsck --full --no-reflogs "$tip"
+
+          set +e
+          existing=$(git ls-remote --exit-code --heads origin "$target")
+          lookup_status=$?
+          set -e
+          case "$lookup_status" in
+            0)
+              test "$existing" = "$(printf '%s\t%s' "$tip" "$target")" || {
+                echo 'Refusing to change an existing integration branch with a different tip.' >&2
+                exit 1
+              }
+              echo "The integration branch already points to $tip."
+              ;;
+            2)
+              # An empty expected lease atomically requires the target to be absent.
+              # It cannot overwrite an existing branch, even if another writer races.
+              if ! git push --porcelain --force-with-lease="$target:" origin "$tip:$target"; then
+                # A lost reply or a concurrent identical import is successful only
+                # when a fresh remote read proves the exact intended tip exists.
+                after_push=$(git ls-remote --exit-code --heads origin "$target")
+                test "$after_push" = "$(printf '%s\t%s' "$tip" "$target")" || {
+                  echo 'The create-only push did not establish the intended branch.' >&2
+                  exit 1
+                }
+              fi
+              ;;
+            *)
+              echo 'Cannot establish whether the destination branch exists.' >&2
+              exit "$lookup_status"
+              ;;
+          esac
+
+          actual=$(git ls-remote --exit-code --heads origin "$target")
+          test "$actual" = "$(printf '%s\t%s' "$tip" "$target")"
+          printf 'Published native commit: %s\nExact source tree: %s\nOriginal commits imported: %s\n' "$tip" "$tree" '72'
