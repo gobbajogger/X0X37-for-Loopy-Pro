@@ -60,5 +60,9 @@ python3 tools/studies/smc_bundle_loader/build_combined.py \
 The runner refuses an existing/in-repository output, checks unconditional
 packaging suppression, enforces the actual524000-byte app ceiling, and requires
 app byte identity after the separately pinned loader is integrated. Final
-component response binding is being tested separately. No UFW/FWSC writer,
+component response binding now passes the actual-component native protocol replay
+retained in `smc-vendor-actual-response-replay-2026-10-21.json` (3779 reads,159
+erases). It calls actual `ldr_session` and the real response parser, including
+staged-loader/record binding, source changes and malformed responses. This is
+not a physical USB or SPL test. No UFW/FWSC writer,
 installer activation, hardware/cold-RF/SPL proof, or firmware admission is implied.

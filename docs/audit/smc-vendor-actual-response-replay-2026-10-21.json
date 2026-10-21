@@ -1,0 +1,20 @@
+{
+  "installable": false,
+  "package_generated": false,
+  "fixture_key": 4660,
+  "source_size": 1048672,
+  "source_sha256": "4fc83a935b198f409701ed1c8debcd7db97c3848c087e524a3be551c90351273",
+  "app_sha256": "324435040ba2773e8f45edebd84ec5b2e1497746db23f90c9d9edee32aef15f6",
+  "ui_sha256": "b3f4184cdb6c7bd52c50a7df644bdf7f813a090a0a5b0f2a7607901210ab48a9",
+  "vendor_region_sha256": [
+    "f932189d1ef6d61b60693347b5fb54d7a0dc7001c2c83e573d98836139b64414",
+    "3c3fa1f88b5a080788fce673738c9110bd9c41a78170ca1e6d1d078f6ad63b10",
+    "0905950ad661147aa5de2cc1a16ae39f252814af8a48a7065c8d3915f8e5f0ed"
+  ],
+  "source_checkpoint": "1acc11b",
+  "native_replay": "PASS: actual ota.c + ldr_core.c, rc0,3779 requests,159 erases",
+  "native_log_sha256": "5559aec3ca7a84881a0f1a8896ad1a0cc93db5170f20a2bd484aae9c8a6d0306",
+  "hardware_tested": false,
+  "package_admitted": false,
+  "independent_review": "source-only ACCEPT44a1e04+78415fe (integrated d35eaab+1acc11b)"
+}
