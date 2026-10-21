@@ -47,7 +47,7 @@ def source(raw, expected_sha, ota_sha):
     return bytes(image)
 
 
-def run(backend, raw, expected_sha, ota_sha, output, receipt, *, acknowledge, cold_check, port=None, protected_paths=()):
+def run(backend, raw, expected_sha, ota_sha, output, receipt, *, acknowledge, cold_check, port=None, protected_paths=(), validate_head=None):
     image=source(raw,expected_sha,ota_sha)
     output=Path(output);receipt=Path(receipt)
     paths=[output,Path(str(output)+'.json'),receipt,*map(Path,protected_paths)]
@@ -80,7 +80,7 @@ def run(backend, raw, expected_sha, ota_sha, output, receipt, *, acknowledge, co
         bundle.need(dev.link.send(fi.UPGRADE),'exporter admission request failed')
         _,done,lost=up.serve(dev.link,image,fi.FINISH_CHECK,fi.DELAY['idle_write'],lambda *a:None)
         bundle.need(done and not lost,'exporter source/owned record admission incomplete')
-        return capture(lambda r:exchange(dev.link,r),output,validate_head=bundle.head_key,
+        return capture(lambda r:exchange(dev.link,r),output,validate_head=validate_head or bundle.head_key,
                        protected_paths=[receipt,*protected_paths],nonce=nonce)
     finally:dev.link.close()
 
