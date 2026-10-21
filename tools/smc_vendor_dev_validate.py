@@ -18,6 +18,7 @@ PROFILE='smc-vendor-central-dev'
 def verify(repo,commit,record,fwsc):
     import dev_validate as dv
     import smc_vendor_bundle as bundle
+    import smc_vendor_dev_build as builder
     path=Path(record).resolve();data=json.loads(path.read_text())
     if (data.get('schema')!=3 or data.get('result')!='DEV CHECKED' or data.get('profile')!=PROFILE or
         data.get('config')!='dev' or data.get('model')!='elite' or data.get('hardware_tested') is not False):
@@ -41,6 +42,8 @@ def verify(repo,commit,record,fwsc):
     if dv.digest(fwsc)!=data['artifacts']['package']['sha256']:
         raise ValueError('SMC package differs from checked artifact')
     actual=bundle.validate_bundle(Path(fwsc).read_bytes(),loader_binding=data['loader_binding'])
+    if tuple(r['sha256'] for r in actual['controller']['regions'])!=builder.REGION_SHA:
+        raise ValueError('controller regions differ from reviewed pinned ELF')
     if actual!=data['smc_vendor'] or actual['controller']['kind']!='segmented-abi4' or data['controller']!={'kind':'segmented-abi4','retained_elf_sha256':__import__('smc_vendor_dev_build').ELF_SHA}:
         raise ValueError('SMC paired component identity mismatch')
     return data
@@ -98,6 +101,9 @@ def run(a):
             '--out',str(out/'component-build'),'--vendor-dir',str(vendor),
             '--profile',PROFILE,'--model','elite','--config','dev'])
         root=out/'component-build';c=root/'components';meta=json.loads((root/'components.json').read_text())
+        for name,info in meta['artifacts'].items():
+            if (c/name).stat().st_size!=info['size'] or dv.digest(c/name)!=info['sha256']:
+                raise ValueError('component changed after checked build: '+name)
         # No SDK or toolchain is distributed. Only ordinary generated firmware
         # bytes enter this explicitly named constructor; protected head is never written.
         pm.set_board('smk37');pm.SDK=env['AC79_SDK']
@@ -107,6 +113,8 @@ def run(a):
             descriptor_off=meta['loader_binding']['descriptor_off'],loader_binding=meta['loader_binding'])
         package=out/'x0x-smk37-elite-smc-central-dev.fwsc';package.write_bytes(raw)
         bundlemeta=bundle.validate_bundle(raw,loader_binding=meta['loader_binding'])
+        if tuple(r['sha256'] for r in bundlemeta['controller']['regions'])!=builder.REGION_SHA:
+            raise ValueError('constructed controller is not the reviewed pinned image')
         # Real budget lines, not the component wrapper's prose, are authoritative.
         buildlog=(root/'build.log').read_text()
         with (out/'build.log').open('a') as f:f.write('\nFINAL TARGET BUDGETS\n'+buildlog)

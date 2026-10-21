@@ -18,6 +18,9 @@ import zlib
 PROFILE='smc-vendor-central-dev'
 ELF_SHA='32270ce1ee210959e8376205916742f00d54b07815b926f1c44ccc17123c9501'
 RESULT_SHA='b1bb745f4505016f87827e9570583405a67f4271b2eb113b9e45df5bfa7b16df'
+REGION_SHA=('f932189d1ef6d61b60693347b5fb54d7a0dc7001c2c83e573d98836139b64414',
+            '3c3fa1f88b5a080788fce673738c9110bd9c41a78170ca1e6d1d078f6ad63b10',
+            '0905950ad661147aa5de2cc1a16ae39f252814af8a48a7065c8d3915f8e5f0ed')
 
 def module(path,name):
     spec=importlib.util.spec_from_file_location(name,path)
@@ -84,6 +87,7 @@ def build(repo,out,vendor):
     require(len(images)==3 and len(segseal.RANGES)==3,'exactly three controller regions required')
     for i,(image,(off,capacity)) in enumerate(zip(images,segseal.RANGES)):
         region=bytes(image)+b'\xff'*(capacity-len(image))
+        require(hashlib.sha256(region).hexdigest()==REGION_SHA[i],'materialized controller differs from reviewed retained image')
         if i:segseal.record_slots(region,off)
         (components/f'vendor-{i}.bin').write_bytes(region)
     pin=(app/'firmware/loader/bp_pin.h').read_text()
