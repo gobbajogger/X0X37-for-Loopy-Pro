@@ -13,7 +13,7 @@ if 'NON-INSTALLABLE: unsealed app-data descriptor' not in (export / 'tools/build
     raise SystemExit('first prepare relocation and admission export')
 for name in ('firmware/src/x0x.c', 'firmware/src/ble_vendor.c',
              'firmware/src/ota.c', 'firmware/hal/x0x_bundle_gate.h',
-             'firmware/src/app/editor.c', 'firmware/hal/x0x_smc_readback.h',
+             'firmware/src/app/editor.c', 'firmware/src/app/plat.h', 'firmware/hal/x0x_smc_readback.h',
              'firmware/hal/x0x_smc_profile.h',
              'firmware/hal/fm1_smc_vendor.h', 'firmware/hal/x0x_ble_segment.h',
              'firmware/hal/x0x_smc_host_messages.h', 'firmware/src/ble/smc_host_ingress.h',

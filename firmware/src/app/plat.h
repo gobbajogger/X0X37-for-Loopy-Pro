@@ -79,6 +79,10 @@ const char *plat_ble_name(void);
 void plat_ble_set(int on);
 /* SMC-Mixer central LED/pickup feedback; 1 queued, 0 disconnected/full. */
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
+#if X0X_SMC_VENDOR_TEST
+uint32_t plat_ble_smc_session(void);
+int plat_ble_smc_send_session(uint32_t epoch, const uint8_t *msg, uint8_t len);
+#endif
 
 /* performance (the PERF screen; firmware/hal/fm1_perf.h): a counter for timing stages, the CPU's
  * clock cycles when its counter runs, else the 24 MHz timer; which one it is; the 24 MHz timer;

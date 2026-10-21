@@ -14,6 +14,14 @@ static const char *ck_val_txt(uint32_t f, uint32_t v, char *s) { (void)f; sprint
 #include "clip_smc.inc"
 uint8_t smk_clip_mode_on(void) { return clip_grid_mode; }
 static unsigned feedback_sent;
+#if X0X_SMC_VENDOR_TEST
+static uint32_t feedback_session = 1;
+uint32_t plat_ble_smc_session(void) { return feedback_session; }
+int plat_ble_smc_send_session(uint32_t epoch, const uint8_t *msg, uint8_t len)
+{
+    (void)msg; (void)len; assert(epoch == feedback_session); ++feedback_sent; return 1;
+}
+#endif
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; ++feedback_sent; return 1; }
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
@@ -48,6 +56,12 @@ int main(void)
     proj.set.bt=PROJ_BT_SMC_CENTRAL;
 #endif
     smc_ble_link(1);smc_poll();smc_hi_link(&s,1);
+#if X0X_SMC_VENDOR_TEST
+    /* Even a wrapped/aliased link generation cannot reuse feedback state. */
+    assert(smc_feedback_epoch_seen == 1); feedback_session = 2;
+    unsigned sent_before = feedback_sent; smc_frame(); assert(feedback_sent == sent_before);
+    smc_poll(); assert(smc_feedback_epoch_seen == 2); smc_frame(); assert(feedback_sent > sent_before);
+#endif
     const uint8_t select[]={0x90,24,127};incoming(&s,select,sizeof select);
     assert(ui.view==V_PART && ui.part==0);assert(feedback_sent);
     pref_t r=smc_knob_target(0);const x0x_param_t *d=pref_desc(r);assert(d&&d->max);

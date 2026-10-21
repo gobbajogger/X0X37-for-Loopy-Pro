@@ -143,7 +143,7 @@ def extract(elf, model):
     if len(images[0]) >= 0x7004 and images[0][0x7000:0x7004] == b'X0BC':
         raise ValueError('legacy ABI2 location accidentally begins with valid magic')
     old = struct.unpack_from('<IHHIIIIIIIIIIII3I', images[0])
-    if old[:3] != (0x43423058, 2, 68) or old[6] != 4:
+    if old[:3] != (0x43423058, 2, 68) or old[6] != 5:
         raise ValueError('unexpected diagnostic controller header')
     if old[7:13] != (init, poll, slo, shi, rlo, rhi):
         raise ValueError('header/symbol ownership mismatch')
@@ -153,7 +153,7 @@ def extract(elf, model):
     image_id = crc(b''.join(images)) or 1
     h = bytearray(HEADER)
     struct.pack_into('<IHH', h, 0, 0x53423058, 1, HEADER)
-    fields = [4, crc(model.encode('ascii')), 0x534D4302, 1, image_id, init, poll,
+    fields = [4, crc(model.encode('ascii')), 0x534D4303, 1, image_id, init, poll,
               slo, shi, rlo, rhi, dlo, dhi, irq_lo, irq_hi]
     struct.pack_into('<15I', h, 8, *fields)
     for i, (image, (off, _)) in enumerate(zip(images, RANGES)):

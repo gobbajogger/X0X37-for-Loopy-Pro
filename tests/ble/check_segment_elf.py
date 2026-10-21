@@ -26,6 +26,10 @@ size,count=struct.unpack_from('<HH',b,46)
 for i in range(count):
     at=shoff+i*size
     row=struct.unpack_from('<10I',b,at)
+    if row[5] == 128 and b[row[4]:row[4]+8] == struct.pack('<IHH',0x43423058,2,68):
+        # Repaired fixture CRCs must never relabel an old runtime as ABI5.
+        for abi in (2, 4, 6):
+            x=bytearray(b); struct.pack_into('<I',x,row[4]+20,abi); reject(x)
     if row[2]&2 and row[5]:
         x=bytearray(b);struct.pack_into('<I',x,at+12,0x01c7fd50);reject(x)
 print('ELF fixture extractor: malformed tables, truncation, type and protected VMA rejection PASS')

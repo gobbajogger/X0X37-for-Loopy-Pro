@@ -7,14 +7,32 @@
 /* Return0 accepted, positive busy (retry unchanged), negative rejected. */
 extern int ctl_vendor_command(u8 type, const u8 *data, u32 len);
 extern void ctl_vendor_poll(void);
-static u8 pending[3], pending_type, pending_len, have_pending, radio_seen;
+static u8 pending[7], pending_type, pending_len, have_pending, radio_seen;
 
+static xsm_boot_t *session_boot(void)
+{
+    /* Check the base ABI before accessing any extended bytes. */
+    if (!ctl_bp || ctl_bp->abi != XSM_ABI) return 0;
+    xsm_boot_t *boot = (xsm_boot_t *)(uintptr_t)ctl_bp;
+    return boot->ext_magic == XSM_BOOT_EXT_MAGIC && boot->ext_size == sizeof(*boot) ? boot : 0;
+}
+u32 ctl_vendor_session_next(void)
+{
+    xsm_boot_t *boot = session_boot();
+    if (!boot) return 0;
+    u32 f = ctl_port_irq_save();
+    u32 epoch = boot->feedback_epoch;
+    if (epoch != UINT32_MAX) {
+        boot->feedback_epoch = ++epoch;
+        XB_SYNC();
+    } else epoch = 0; /* exhausted: fail closed until coordinated app restart */
+    ctl_port_irq_restore(f);
+    return epoch;
+}
 int ctl_vendor_address(u8 address[6])
 {
-    if (!ctl_bp || ctl_bp->abi != XSM_ABI) return -1;
-    const xsm_boot_t *boot = (const xsm_boot_t *)ctl_bp;
-    if (boot->ext_magic != XSM_BOOT_EXT_MAGIC || boot->ext_size != sizeof(*boot) ||
-        (boot->address[5] & 0xc0u) != 0xc0u) return -1;
+    const xsm_boot_t *boot = session_boot();
+    if (!boot || (boot->address[5] & 0xc0u) != 0xc0u) return -1;
     u8 any = 0, non_ff = (u8)((boot->address[5] & 0x3fu) ^ 0x3fu);
     for (unsigned i = 0; i < 5; ++i) {
         any |= boot->address[i]; non_ff |= (u8)(boot->address[i] ^ 0xffu);
@@ -47,29 +65,26 @@ int ctl_vendor_notification_copy(const u8 *data, u32 len)
     if (!data || len < 3u || len > XSM_NOTIFY_MAX) return -1;
     return copy_out(XSM_NOTIFY, data, len);
 }
-int ctl_vendor_link_copy(u8 up, u8 reason)
+int ctl_vendor_link_copy(u32 epoch, u8 up, u8 reason)
 {
-    u8 copy[2] = {!!up, reason};
-    return copy_out(XSM_LINK, copy, sizeof copy);
+    if (!epoch) return -1;
+    u8 copy[6]; xsm_epoch_write(copy, epoch);
+    copy[4] = !!up; copy[5] = reason;
+    return copy_out(XSM_LINK_SESSION, copy, sizeof copy);
 }
 void ctl_vendor_mailbox_reset(void) { have_pending = 0; radio_seen = 0xffu; }
 void ctl_vendor_mailbox_poll(void)
 {
-    if (!ctl_mb) return;
-    int authoritative_radio = 0;
-    if (ctl_bp && ctl_bp->abi == XSM_ABI) {
-        const xsm_boot_t *boot = (const xsm_boot_t *)ctl_bp;
-        if (boot->ext_magic == XSM_BOOT_EXT_MAGIC && boot->ext_size == sizeof(*boot)) {
-            authoritative_radio = 1;
-            XB_SYNC();
-            u32 desired = boot->radio_desired;
-            if (desired <= 1u && desired != radio_seen) {
-                u8 on = (u8)desired;
-                if (ctl_vendor_command(XSM_RADIO, &on, 1u) == 0) {
-                    radio_seen = on;
-                    if (!on) have_pending = 0; /* user off cancels unsent feedback */
-                }
-            }
+    const xsm_boot_t *boot = session_boot();
+    if (!ctl_mb || !boot) return;
+    XB_SYNC();
+    u32 desired = boot->radio_desired;
+    if (desired > 1u) { have_pending = 0; return; }
+    if (desired != radio_seen) {
+        u8 on = (u8)desired;
+        if (ctl_vendor_command(XSM_RADIO, &on, 1u) == 0) {
+            radio_seen = on;
+            if (!on) have_pending = 0; /* user off cancels unsent feedback */
         }
     }
     ctl_vendor_poll();
@@ -79,7 +94,7 @@ void ctl_vendor_mailbox_poll(void)
         u32 n; u8 type;
         int rc = xb_frame_peek(&ctl_mb->h2c, &type, &n);
         if (!rc) return;
-        if (rc < 0 || !((type == XSM_MIDI_OUT && n >= 1u && n <= 3u) ||
+        if (rc < 0 || !((type == XSM_MIDI_SESSION && n >= 5u && n <= 7u) ||
                         (type == XSM_RADIO && n == 1u))) {
             /* Existing ring decoder flushes malformed/oversized input. A valid
              * unknown short frame is consumed and rejected, never sent as HCI. */
@@ -92,9 +107,10 @@ void ctl_vendor_mailbox_poll(void)
         if (pending_type == XSM_RADIO && pending[0] > 1u) return;
         have_pending = 1;
     }
-    /* ABI4 control has one authoritative source. A stale queued ON must never
+    /* Desired radio state has one authoritative source. A stale queued ON must never
      * override a newer desired OFF after congestion. */
-    if (authoritative_radio && pending_type == XSM_RADIO) {
+    if (pending_type == XSM_RADIO || !desired || !xsm_epoch_read(pending) ||
+        xsm_epoch_read(pending) != boot->feedback_epoch) {
         have_pending = 0;
         return;
     }

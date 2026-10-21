@@ -28,6 +28,7 @@ static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));
 static uint8_t ble_img, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
 static uint8_t ble_c0_ready, ble_central_link_seen;
 static uint32_t ble_ok_at;
+static volatile uint32_t ble_feedback_epoch;
 ble_guard_t ble_guard __attribute__((section(".noinit")));
 extern uint32_t _ram_sink[], _ram_sink_end[];
 #define BLE_SINK_FILL(i) (0x5A17C0DEu ^ ((i) * 0x01010101u))
@@ -122,6 +123,7 @@ static void ble_start(void)
     memcpy(ble_r.boot.address, addr, sizeof addr);
     ble_r.boot.reserved[0] = ble_r.boot.reserved[1] = 0;
     ble_r.boot.radio_desired = 0;
+    ble_r.boot.feedback_epoch = 0; ble_feedback_epoch = 0;
     fm1_ble_sync();
     ble_guard.start_ms = fm1_ms;
     ble_guard.sink_n = ble_guard.sink_at = ble_guard.sink_val = ble_guard.wait_end = 0;
@@ -240,24 +242,32 @@ static void ble_service(void)
 {
     uint32_t k;
     uint8_t type;
-    if (!ble_up) { smc_hi_link(&ble_r.ingress, 0); ble_central_link_notify(0); return; }
+    if (!ble_up) { ble_feedback_epoch = 0; smc_hi_link(&ble_r.ingress, 0); ble_central_link_notify(0); return; }
     if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
-        ble_record(); ble_fail(); smc_hi_link(&ble_r.ingress, 0); ble_central_link_notify(0); return;
+        ble_record(); ble_fail(); ble_feedback_epoch = 0; smc_hi_link(&ble_r.ingress, 0); ble_central_link_notify(0); return;
     }
     ble_alive[0] = fm1_ms; ble_alive[1] = ble_r.mb.polls;
     if (ble_guard.trying && fm1_ms - ble_ok_at > BLE_GUARD_OK_MS) ble_guard_ok(&ble_guard);
     ble_r.boot.radio_desired = ble_want; fm1_ble_sync();
     ble_host_on = ble_want;
-    if (!ble_want) { smc_hi_link(&ble_r.ingress, 0); ble_central_link_notify(0); }
+    if (!ble_want || ble_feedback_epoch != ble_r.boot.feedback_epoch) {
+        ble_feedback_epoch = 0; smc_hi_link(&ble_r.ingress, 0); ble_central_link_notify(0); }
     for (k = 0; k < 8u; ++k) {
         int n = xb_frame_get(&ble_r.mb.c2h, &type, ble_r.fr, sizeof ble_r.fr);
         if (!n) break;
         if (n < 0) { ble_r.ingress.rejected++; continue; }
-        if (type == XSM_LINK && n == 2 && ble_r.fr[0] <= 1u) {
-            int up = ble_want && ble_r.fr[0];
+        if (type == XSM_LINK_SESSION && n == 6 && ble_r.fr[4] <= 1u) {
+            uint32_t epoch = xsm_epoch_read(ble_r.fr);
+            if (!epoch || epoch != ble_r.boot.feedback_epoch) continue;
+            int up = ble_want && ble_r.fr[4];
+            /* Duplicate up publications can occur when the following notify is
+             * full. Do not reset the decoder or replace the producer snapshot. */
+            if (up && ble_feedback_epoch == epoch && ble_r.ingress.connected) continue;
+            ble_feedback_epoch = up ? epoch : 0;
             smc_hi_link(&ble_r.ingress, up);
             ble_central_link_notify(up);
-        } else if (type == XSM_NOTIFY && ble_want && ble_r.ingress.connected) {
+        } else if (type == XSM_NOTIFY && ble_want && ble_r.ingress.connected &&
+                   ble_feedback_epoch == ble_r.boot.feedback_epoch) {
             smc_hi_notification(&ble_r.ingress, ble_r.fr, (uint32_t)n, ble_vendor_emit, 0);
         } else if (type != XSM_EVENT) {
             ble_r.ingress.rejected++;
@@ -275,10 +285,22 @@ int plat_ble_state(void)
     return ble_r.ingress.connected ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
 }
 const char *plat_ble_name(void) { return "SMC-Mixer TEST"; }
+uint32_t plat_ble_smc_session(void)
+{
+    uint32_t epoch = ble_feedback_epoch;
+    fm1_ble_sync();
+    return epoch;
+}
+int plat_ble_smc_send_session(uint32_t epoch, const uint8_t *msg, uint8_t len)
+{
+    fm1_ble_sync();
+    return epoch && epoch == ble_feedback_epoch && ble_up && ble_host_on && ble_want && ble_r.ingress.connected &&
+           xsm_feedback_put(&ble_r.mb.h2c, epoch, msg, len) == 0;
+}
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 {
-    return ble_up && ble_host_on && ble_want && ble_r.ingress.connected &&
-           msg && len >= 1u && len <= 3u && xb_frame_put(&ble_r.mb.h2c, XSM_MIDI_OUT, msg, len) == 0;
+    (void)msg; (void)len;
+    return 0; /* This profile requires identity captured before producing MIDI. */
 }
 void plat_ble_set(int on)
 {

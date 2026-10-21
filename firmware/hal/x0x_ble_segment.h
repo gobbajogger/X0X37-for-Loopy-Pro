@@ -11,7 +11,7 @@
 #define XB4_MAGIC        0x53423058u /* "X0BS", deliberately unlike ABI-2 X0BC */
 #define XB4_ABI          4u          /* ABI 3 was a discarded historical experiment */
 #define XB4_VERSION      1u
-#define XB4_CONTRACT     0x534D4302u /* revision 2: 92K primary, data-only secondaries, app UI excluded */
+#define XB4_CONTRACT     0x534D4303u /* revision 3: same placement, ABI5 session-bound feedback */
 #define XB4_CENTRAL_TEST  1u
 #define XB4_SEGMENTS      3u
 #define XB4_PRIMARY_OFF   0x00084000u

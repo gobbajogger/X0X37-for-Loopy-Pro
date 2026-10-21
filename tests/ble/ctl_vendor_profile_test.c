@@ -22,6 +22,8 @@ int ctl_vendor_host_ready(void) { return ready; }
 void ctl_vendor_events_reset(void) { ready = 0; }
 int ctl_os_bootstrap_begin(u32 ms) { assert(ms == 5000); boot_open = 1; return 0; }
 void ctl_os_bootstrap_end(void) { boot_open = 0; }
+static u32 test_epoch;
+u32 ctl_vendor_session_next(void) { return ++test_epoch; }
 #include "../../ble/ctl/src/ctl_vendor_profile.c"
 int le_controller_set_mac(void *p) { assert(((u8 *)p)[5] == 0xc1); return 0; }
 int btstack_init(void) { assert(boot_open); ble_profile_init(); return 0; }
@@ -53,7 +55,7 @@ int ble_user_cmd_prepare(int cmd, int argc, ...)
     }
     va_end(ap); return command_error ? command_error : command_errors[cmd];
 }
-int ctl_vendor_link_copy(u8 up, u8 reason) { (void)reason; if (blocked) return -1; link_count += up ? 1 : 10; return 0; }
+int ctl_vendor_link_copy(u32 epoch, u8 up, u8 reason) { assert(epoch); (void)reason; if (blocked) return -1; link_count += up ? 1 : 10; return 0; }
 int ctl_vendor_notification_copy(const u8 *p, u32 n) { if (blocked) return -1; memcpy(notified,p,n); ++notify_count; return 0; }
 
 /* Exercise cleanup from four real adapter paths, not an HCI-stack replay.
@@ -211,11 +213,11 @@ int main(void)
     blocked=1; user_client_report_data_callback(&data); assert(!receiving && !notify_count);
     blocked=0; user_client_report_data_callback(&data); assert(receiving && notify_count==1 && link_count==1);
     midi[4]=99; assert(notified[4]==2);
-    u8 feedback[3]={0xb0,8,127}; assert(ctl_vendor_command(0x73,feedback,3)==0);
+    u8 feedback[7]={0,0,0,0,0xb0,8,127}; xsm_epoch_write(feedback,connection_epoch); assert(ctl_vendor_command(XSM_MIDI_SESSION,feedback,7)==0);
     assert(sent_len==5 && sent[2]==0xb0 && sent[4]==127);
-    command_error = -100; assert(ctl_vendor_command(0x73,feedback,3)==1);
-    command_error = -97; assert(ctl_vendor_command(0x73,feedback,3)==1);
-    command_error = -95; assert(ctl_vendor_command(0x73,feedback,3)==-95);
+    command_error = -100; assert(ctl_vendor_command(XSM_MIDI_SESSION,feedback,7)==1);
+    command_error = -97; assert(ctl_vendor_command(XSM_MIDI_SESSION,feedback,7)==1);
+    command_error = -95; assert(ctl_vendor_command(XSM_MIDI_SESSION,feedback,7)==-95);
     /* A disconnect request retires ownership even when the SDK reports busy;
      * security must not be confirmed while failure cleanup waits for HCI down. */
     command_error=-100;assert(ctl_vendor_disconnect()==-100 && retiring);
@@ -223,12 +225,12 @@ int main(void)
       user_client_report_data_callback(&data);
       assert(notify_count==notifications && link_count==links);
       assert(ctl_vendor_write(feedback,3)==-1);
-      assert(ctl_vendor_command(0x73,feedback,3)==-1); }
+      assert(ctl_vendor_command(XSM_MIDI_SESSION,feedback,7)==-1); }
     security_event(4,0,jw,16);assert(confirmations==1);
     u8 off=0; command_error=-100;
     assert(ctl_vendor_command(0x74,&off,1)==0 && off_pending);
     security_event(4,0,jw,16);assert(confirmations==1);
-    assert(ctl_vendor_command(0x73,feedback,3)==-1);
+    assert(ctl_vendor_command(XSM_MIDI_SESSION,feedback,7)==-1);
     command_error=0; now += 20; ctl_vendor_poll(); assert(!off_pending);
     assert(ctl_vendor_command(0x74,&on,1)==0);
     data.connection=1; user_client_report_data_callback(&data); assert(notify_count==1);
@@ -236,7 +238,7 @@ int main(void)
     packet_event(4,0,down,sizeof(down)); assert(down_pending && connection==ABSENT);
     security_event(4,0,jw,16);assert(confirmations==1);
     blocked=0; ctl_vendor_poll(); assert(!down_pending && link_count==11);
-    assert(ctl_vendor_command(0x73,feedback,3)==-1);
+    assert(ctl_vendor_command(XSM_MIDI_SESSION,feedback,7)==-1);
     for (int failure = 0; failure < 4; ++failure)
         for (int busy = 0; busy < 2; ++busy)
             retirement_case(failure, busy ? -97 : -100, failure == 2 ? 2 : failure & 1,

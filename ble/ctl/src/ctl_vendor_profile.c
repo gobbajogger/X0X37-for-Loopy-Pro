@@ -10,6 +10,7 @@
 #include "ctl_highcpu.h"
 #include "ctl_vendor_profile.h"
 #if defined(CTL_VENDOR_HOST_TEST) && CTL_VENDOR_HOST_TEST
+#include "x0x_smc_host_messages.h"
 
 extern int memcmp(const void *, const void *, size_t);
 typedef void (*packet_cb)(u8, u16, u8 *, u16);
@@ -58,6 +59,7 @@ static u16 connection = ABSENT; /* initialized data deliberately stays low */
 static u16 midi_handle CTL_HIGHCPU_BSS, midi_end CTL_HIGHCPU_BSS, cccd CTL_HIGHCPU_BSS;
 static u8 retiring CTL_HIGHCPU_BSS, connecting CTL_HIGHCPU_BSS, discovering CTL_HIGHCPU_BSS, wanted CTL_HIGHCPU_BSS, receiving CTL_HIGHCPU_BSS, down_pending CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, started CTL_HIGHCPU_BSS, off_pending CTL_HIGHCPU_BSS, scan_pending CTL_HIGHCPU_BSS;
 static u32 disconnect_retry_at CTL_HIGHCPU_BSS;
+static u32 connection_epoch CTL_HIGHCPU_BSS, down_epoch CTL_HIGHCPU_BSS;
 extern int ctl_vendor_address(u8 address[6]);
 extern void os_time_dly(int);
 
@@ -125,13 +127,19 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
         if (p[3]) { connecting = 0; if (wanted) { scan_pending = 1; ctl_vendor_poll(); } }
         else {
             u16 handle = read16(p + 4);
+            if (connection != ABSENT && handle == connection && p[6] == 0 &&
+                p[7] == request.address_type && !memcmp(p + 8, request.address, 6))
+                return; /* duplicate completion is not a new session */
             if (!wanted || !connecting || connection != ABSENT || p[6] != 0 ||
                 p[7] != request.address_type || memcmp(p + 8, request.address, 6)) {
                 retire_connection(handle);
                 if (connection == ABSENT) { connecting = 0; if (wanted) scan_pending = 1; }
             } else {
                 connection = handle; retiring = 0; connecting = 0; midi_handle = midi_end = cccd = 0; receiving = 0;
-                if (ble_user_cmd_prepare(CMD_ATT_INIT, 4, (int)handle, att_storage,
+                connection_epoch = ctl_vendor_session_next();
+                if (!connection_epoch) {
+                    retire_connection(handle);
+                } else if (ble_user_cmd_prepare(CMD_ATT_INIT, 4, (int)handle, att_storage,
                                          (int)sizeof(att_storage), MTU)) {
                     retire_connection(handle);
                 } else {
@@ -144,10 +152,15 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
                 }
             }
         }
-    } else if (p[0] == 5 && n >= 6 && read16(p + 3) == connection) {
+    } else if (p[0] == 5 && n >= 6 && connection != ABSENT && read16(p + 3) == connection) {
         connection = ABSENT; midi_handle = 0; discovering = receiving = retiring = 0;
         ble_user_cmd_prepare(CMD_ATT_INIT, 4, 0, (void *)0, 0, 0);
-        down_reason = p[5]; down_pending = 1;
+        /* An epoch-exhausted rejected link never published UP. Do not erase
+         * the last valid session's pending DOWN under mailbox pressure. */
+        if (connection_epoch) {
+            down_reason = p[5]; down_epoch = connection_epoch; down_pending = 1;
+        }
+        connection_epoch = 0;
         ctl_vendor_poll();
         if (wanted) { scan_pending = 1; ctl_vendor_poll(); }
     }
@@ -229,7 +242,7 @@ void user_client_report_data_callback(struct data_report *r)
         ctl_vendor_poll();
         if (down_pending || retiring) return;
         if (!receiving) {
-            if (ctl_vendor_link_copy(1, 0)) return;
+            if (ctl_vendor_link_copy(connection_epoch, 1, 0)) return;
         }
         if (!ctl_vendor_notification_copy(r->data, r->length)) receiving = 1;
     }
@@ -241,7 +254,7 @@ int ctl_vendor_startup(void)
     u8 address[6];
     if (ctl_vendor_address(address) || (address[5] & 0xc0) != 0xc0) return -1;
     ctl_vendor_events_reset();
-    connection = ABSENT; midi_handle = 0;
+    connection = ABSENT; midi_handle = 0; connection_epoch = down_epoch = 0;
     connecting = discovering = wanted = receiving = down_pending = 0;
     if (le_controller_set_mac(address)) return -1;
     if (ctl_os_bootstrap_begin(5000)) return -1;
@@ -286,7 +299,7 @@ int ctl_vendor_write(const u8 *payload, u16 length)
 }
 void ctl_vendor_poll(void)
 {
-    if (down_pending && !ctl_vendor_link_copy(0, down_reason)) down_pending = 0;
+    if (down_pending && !ctl_vendor_link_copy(down_epoch, 0, down_reason)) down_pending = 0;
     if (retiring == RETIRING_RETRY && connection != ABSENT &&
         (int32_t)(ctl_ms() - disconnect_retry_at) >= 0)
         (void)retire_connection(connection);
@@ -303,7 +316,7 @@ int ctl_vendor_command(u8 type, const u8 *payload, u32 length)
     ctl_vendor_poll();
     if (!payload) return -1;
     if (!ctl_vendor_host_ready()) return 1; /* keep queued during startup */
-    if (type == 0x74) {
+    if (type == XSM_RADIO) {
         if (length != 1 || payload[0] > 1) return -1;
         wanted = payload[0];
         if (!wanted) {
@@ -315,9 +328,11 @@ int ctl_vendor_command(u8 type, const u8 *payload, u32 length)
         ctl_vendor_poll();
         return 0;
     }
-    if (type == 0x73) {
-        if (!length || length > 3) return -1;
-        if (!wanted || !receiving) return -1; /* never retain stale feedback across a link */
+    if (type == XSM_MIDI_SESSION) {
+        if (length < 5u || length > 7u || !connection_epoch ||
+            xsm_epoch_read(payload) != connection_epoch) return -1;
+        if (!wanted || !receiving || off_pending || down_pending) return -1;
+        payload += 4; length -= 4;
         u8 packet[5];
         u32 timestamp = ctl_ms() & 8191u;
         packet[0] = (u8)(0x80u | (timestamp >> 7));

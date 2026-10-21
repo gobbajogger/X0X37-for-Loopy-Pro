@@ -6,6 +6,10 @@
 
 #define SMC_Q 32u
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
+#if X0X_SMC_VENDOR_TEST
+extern uint32_t plat_ble_smc_session(void);
+extern int plat_ble_smc_send_session(uint32_t epoch, const uint8_t *msg, uint8_t len);
+#endif
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
@@ -21,6 +25,9 @@ static volatile uint8_t smc_qw, smc_qr;
  * keeps a reconnect visible even if its final state equals the previous one. */
 static volatile uint32_t smc_link_published;
 static uint32_t smc_link_seen;
+#if X0X_SMC_VENDOR_TEST
+static uint32_t smc_feedback_epoch_seen;
+#endif
 /* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
 static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
 uint32_t smc_rx_diag(void)
@@ -579,6 +586,9 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
 
 void smc_poll(void)
 {
+#if X0X_SMC_VENDOR_TEST
+    uint32_t feedback_epoch = plat_ble_smc_session();
+#endif
     uint32_t link = smc_link_published;
     uint8_t r, count = 0;
     int allow = !perf_testing();
@@ -587,7 +597,14 @@ void smc_poll(void)
         smc_project_drop();
         return;
     }
-    if (link != smc_link_seen) {
+    if (link != smc_link_seen
+#if X0X_SMC_VENDOR_TEST
+        || feedback_epoch != smc_feedback_epoch_seen
+#endif
+    ) {
+#if X0X_SMC_VENDOR_TEST
+        smc_feedback_epoch_seen = feedback_epoch;
+#endif
         /* Never clear the ISR's publication: it may already contain a newer
          * link edge than this snapshot. The next poll must still see it. */
         smc_link_seen = link;
@@ -702,7 +719,12 @@ void smc_frame(void)
     uint8_t msg[3];
     int i, n, want;
 #if X0X_SMC_VENDOR_TEST
-    if (ui_project_busy() || !smc.up || !smc_ble_role_get())
+    /* Snapshot before constructing any LED/fader data. A TIMER5 reconnect
+     * during this frame may retire it, but can never retag it as the new peer.
+     * The main-loop state must first acknowledge the same published link. */
+    uint32_t epoch = plat_ble_smc_session();
+    if (!epoch || epoch != smc_feedback_epoch_seen || smc_link_seen != smc_link_published ||
+        ui_project_busy() || !smc.up || !smc_ble_role_get())
 #else
     if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
 #endif
@@ -715,7 +737,11 @@ void smc_frame(void)
         msg[0] = 0x90;
         msg[1] = (uint8_t)n;
         msg[2] = (uint8_t)(want ? 127 : 0);
+#if X0X_SMC_VENDOR_TEST
+        if (!plat_ble_smc_send_session(epoch, msg, 3)) return;
+#else
         if (!plat_ble_smc_send(msg, 3)) return;
+#endif
         smc.known[n] = 1;
         smc.lit[n] = (uint8_t)want;
     }
@@ -724,7 +750,11 @@ void smc_frame(void)
             msg[0] = (uint8_t)(0xE0u + i);
             msg[1] = smc.value[i];
             msg[2] = smc.value[i];
+#if X0X_SMC_VENDOR_TEST
+            if (!plat_ble_smc_send_session(epoch, msg, 3)) return;
+#else
             if (!plat_ble_smc_send(msg, 3)) return;
+#endif
             smc.pending &= (uint8_t)~(1u << i);
         }
 }

@@ -14,5 +14,6 @@ uint16_t ctl_vendor_connection(void); /* 0xffff means absent; handle0 is valid *
 uint16_t ctl_vendor_midi_handle(void);
 /* Required bridge: copy before returning; no pointer may cross cores. */
 int ctl_vendor_notification_copy(const uint8_t *payload, uint32_t length);
-int ctl_vendor_link_copy(uint8_t up, uint8_t reason);
+uint32_t ctl_vendor_session_next(void);
+int ctl_vendor_link_copy(uint32_t epoch, uint8_t up, uint8_t reason);
 #endif

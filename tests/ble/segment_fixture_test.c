@@ -6,10 +6,10 @@
 #include <string.h>
 #include "../../firmware/hal/x0x_ble_segment.h"
 static unsigned char *part[3];
-static unsigned length[3];
+static unsigned length[3], read_calls;
 static const uint8_t *reader(void *ctx, uint32_t off, uint32_t n)
 {
-    (void)ctx;
+    (void)ctx; ++read_calls;
     for (unsigned i=0;i<3;i++) {
         uint32_t base=xb4_segment_off(i);
         if (off>=base && off-base<=length[i] && n<=length[i]-(off-base))
@@ -30,6 +30,11 @@ int main(int argc,char **argv)
     uint32_t model=xb4_crc32((const uint8_t *)"SMK-37 Elite",12);
     assert(xb4_validate(&h,sizeof h,model,reader,NULL)==XB4_OK);
     assert(xb4_validate(&h,sizeof h,model^1,reader,NULL)!=XB4_OK);
+    xb4_manifest_t legacy = h; legacy.contract = 0x534D4302u;
+    legacy.manifest_crc32 = xb4_manifest_crc(&legacy); read_calls = 0;
+    assert(xb4_validate(&legacy,sizeof legacy,model,reader,NULL)==XB4_E_HEADER && !read_calls);
+    legacy = h; legacy.abi = 5; legacy.manifest_crc32 = xb4_manifest_crc(&legacy);
+    assert(xb4_validate(&legacy,sizeof legacy,model,reader,NULL)==XB4_E_HEADER && !read_calls);
     for(unsigned i=0;i<sizeof h;i++) {
         ((unsigned char *)&h)[i]^=1;
         assert(xb4_validate(&h,sizeof h,model,reader,NULL)!=XB4_OK);
