@@ -1,0 +1,10 @@
+{
+  "base": "7537a46ab49419920428299db8f3321d01e6fd16",
+  "scope": "Repair BLE central connection ownership for valid HCI handle zero. Use an explicit no-connection sentinel in init, stop, failure, disconnect and credit handling. Preserve the original stop deadline, transport acceptance, parser, radio configuration, controller, mappings, all accumulated SMC/project features, and storage layout. Validate the shared transport and its application input consumer, then build the exact Elite development application and selected controller under existing code/RAM/pool budgets. Host HCI events and time are simulated; this does not establish the cause of the owner's physical failure or a device PASS. Prior 7537a46 evidence covers unchanged application and storage behavior.",
+  "checks": [
+    {
+      "reason": "The no-link representation affects the central startup, discovery, receive, signaling, abort, stop/restart and deadline paths. Run their existing address/undefined-sanitized suite including the new handle-zero regression, nonzero/highest handle controls, both connection event formats, clock wrap and unrelated-event checks. Verify the existing actual-UI SMC input consumer once. LeakSanitizer is unavailable in this sandbox, so disable only leak detection explicitly.",
+      "argv": ["env", "ASAN_OPTIONS=detect_leaks=0", "X0X_TEST_JOBS=1", "X0X_HOST_DEFS=-D_POSIX_C_SOURCE=200809L", "sh", "tests/run_tests.sh", "ble-midi-receive", "smc-reachability"]
+    }
+  ]
+}

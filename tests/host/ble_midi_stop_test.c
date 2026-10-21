@@ -50,17 +50,23 @@ static void response(unsigned op, unsigned status, unsigned complete)
     const uint8_t cs[] = {0x0f, 4, (uint8_t)status, 1, (uint8_t)op, (uint8_t)(op >> 8)};
     event(complete ? cc : cs, 6);
 }
-static void connection(unsigned enhanced, unsigned status, unsigned service)
+static void connection_handle(unsigned enhanced, unsigned status, unsigned service, unsigned handle)
 {
     uint8_t p[33] = {0x3e, enhanced ? 31 : 19, enhanced ? 0x0a : 1,
-        (uint8_t)status, 0x50, 0, 0};
+        (uint8_t)status, (uint8_t)handle, (uint8_t)(handle >> 8), 0};
     unsigned n = enhanced ? 33 : 21;
+    unsigned interval = enhanced ? 26 : 14;
+    p[7] = 1;
+    for (unsigned i = 0; i < 6; i++) p[8 + i] = (uint8_t)(i + 1);
+    p[interval] = 24; p[interval + 4] = 0x90; p[interval + 5] = 1;
     if (service) { memcpy(pending, p, n); pending_n = n; ble_central_service(); }
     else event(p, n);
 }
+static void connection(unsigned enhanced, unsigned status, unsigned service)
+{ connection_handle(enhanced, status, service, 0x50); }
 static void down(unsigned status, unsigned handle)
 {
-    const uint8_t p[] = {5, 4, (uint8_t)status, (uint8_t)handle, 0, 0x13};
+    const uint8_t p[] = {5, 4, (uint8_t)status, (uint8_t)handle, (uint8_t)(handle >> 8), 0x13};
     event(p, sizeof p);
 }
 static void setup(unsigned create, uint32_t at)
@@ -113,7 +119,7 @@ static void retry(unsigned create, unsigned enhanced, uint32_t at)
         down(0x0c, 0x50); down(0, 0x51); assert(c->conn == 0x50 && !c->credits);
         down(0, 0x50); assert(c->credits == 5);
     }
-    assert(c->state == BLEC_OFF && !c->conn && !linked);
+    assert(c->state == BLEC_OFF && c->conn == BLEC_NO_CONN && !linked);
     ble_want = 1; fm1_ms++; ble_central_service(); assert(c->state == BLEC_STARTING);
 }
 static void expiry(unsigned create, unsigned enhanced, uint32_t at, unsigned accept, int offset)
@@ -163,7 +169,7 @@ static void inflight(void)
     fm1_ms = cutoff - 1; busy = 0; connection(0, 0, 1);
     assert(c->conn == 0x50 && accepted[2] == 1 && c->deadline == cutoff);
     setup(1, 100); stop(0); connection(0, 2, 1);
-    assert(c->state == BLEC_OFF && !c->conn);
+    assert(c->state == BLEC_OFF && c->conn == BLEC_NO_CONN);
     setup(0, 100); stop(1); connection(0, 2, 1);
     assert(c->state == BLEC_STOPPING); /* Unrelated failed connection is not scan-disable evidence. */
     setup(1, 100); c->waiting = 1; c->cmd_op = 0x200d;
@@ -176,10 +182,60 @@ static void inflight(void)
     c->deadline = 200; stop(0); response(0x200e, 0, 1); ble_central_service();
     assert(!accepted[0] && c->state == BLEC_STOPPING && c->deadline == 200);
 }
+static void handle_lifecycle(unsigned handle, unsigned enhanced, uint32_t at)
+{
+    blec_t *c = &ble_r.host.c;
+    /* A connection can win an accepted Cancel, including valid HCI handle zero. */
+    setup(1, at); uint32_t cutoff = stop(0);
+    connection_handle(enhanced, 0, 1, handle);
+    assert(c->state == BLEC_STOPPING && c->conn == handle && accepted[2] == 1);
+    response(0x200e, 0x0c, 1); /* Late Cancel failure cannot replace Disconnect. */
+    assert(accepted[2] == 1 && c->deadline == cutoff);
+    response(0x0406, 0, 0);
+    down(0x0c, handle); down(0, handle ^ 1u);
+    assert(c->state == BLEC_STOPPING && c->conn == handle);
+    down(0, handle);
+    assert(c->state == BLEC_OFF && !c->waiting && c->credits == 5);
+    ble_want = 1; fm1_ms++; ble_central_service();
+    assert(c->state == BLEC_STARTING && accepted[3] == 1);
+
+    /* An established link also needs Disconnect, never an immediate OFF. */
+    setup(1, at); connection_handle(enhanced, 0, 1, handle);
+    assert(c->state == BLEC_DISCOVERING && c->att_waiting);
+    cutoff = stop(1); assert(!accepted[2]);
+    busy = 0; fm1_ms++; ble_central_service();
+    assert(c->state == BLEC_STOPPING && accepted[2] == 1 && c->deadline == cutoff);
+    response(0x0406, 0, 0); down(0, handle);
+    assert(c->state == BLEC_OFF && c->credits == 5);
+
+    /* A discovery timeout must release the link before retrying discovery. */
+    setup(1, at); connection_handle(enhanced, 0, 1, handle);
+    fm1_ms = c->deadline; ble_central_service();
+    assert(c->state == BLEC_DISCONNECTING && c->conn == handle && accepted[2] == 1);
+    response(0x0406, 0, 0); down(0, handle);
+    assert(c->state == BLEC_SCANNING && accepted[1] == 1 && c->credits == 5);
+}
+static void unowned_handle(void)
+{
+    blec_t *c = &ble_r.host.c;
+    const uint8_t completed[] = {0x13, 5, 1, 0, 0, 5, 0};
+    setup(1, 100); c->credits = 0;
+    event(completed, sizeof completed); down(0, 0);
+    assert(c->state == BLEC_CONNECTING && !c->credits && !accepted[1]);
+    setup(0, 100); stop(0); down(0, 0);
+    assert(c->state == BLEC_STOPPING && c->waiting);
+    response(0x200c, 0, 1); assert(c->state == BLEC_OFF);
+}
 int main(int argc, char **argv)
 {
     for (unsigned wrap = 0; wrap <= 1; wrap++) {
         uint32_t at = wrap ? 0xfffffff0u : 100;
+        if (argc == 1 || !strcmp(argv[1], "handles"))
+            for (unsigned enhanced = 0; enhanced <= 1; enhanced++) {
+                handle_lifecycle(0, enhanced, at);
+                handle_lifecycle(0x50, enhanced, at);
+                handle_lifecycle(0x0eff, enhanced, at);
+            }
         if (argc == 1 || !strcmp(argv[1], "cancel"))
             for (unsigned enhanced = 0; enhanced <= 1; enhanced++) retry(1, enhanced, at);
         if (argc == 1 || !strcmp(argv[1], "scan")) retry(0, 0, at);
@@ -193,6 +249,7 @@ int main(int argc, char **argv)
         for (unsigned create = 0; create <= 1; create++)
             for (unsigned complete = 0; complete <= 1; complete++) failure(create, complete);
     if (argc == 1 || !strcmp(argv[1], "edges")) inflight();
+    if (argc == 1 || !strcmp(argv[1], "handles")) unowned_handle();
     puts("Stop acceptance, status, original cutoff, late events and production service: PASS");
     return 0;
 }

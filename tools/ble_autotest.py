@@ -86,7 +86,11 @@ def _ask(cmd, args=(), timeout=3.0):
 
 
 def diag():
-    r = ask(ED_DIAG)
+    return decode_diag(ask(ED_DIAG))
+
+
+def decode_diag(r):
+    """Decode an ED_DIAG reply without issuing a device command."""
     if not r:
         return None
     n, w = r[0], []
