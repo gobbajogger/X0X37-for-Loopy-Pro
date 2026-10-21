@@ -99,8 +99,8 @@ mkdir "$SCRATCH/app-ceiling"
 git -C "$REPO" archive 816e0d3987bcb69be972cff2cd4df4469969f196 |
   tar -x -C "$SCRATCH/app-ceiling"
 (cd "$SCRATCH/app-ceiling" &&
-  git apply --check "$REPO/tools/studies/smc_reference/app-ceiling.patch" &&
-  git apply "$REPO/tools/studies/smc_reference/app-ceiling.patch" &&
+  git apply --unidiff-zero --check "$REPO/tools/studies/smc_reference/app-ceiling.patch" &&
+  git apply --unidiff-zero "$REPO/tools/studies/smc_reference/app-ceiling.patch" &&
   JIELI_TOOLCHAIN="$TC" AC79_SDK="$SDK" SDK_LOCAL="$SDK" \
     X0X_DEV_PADCAL=1 CC=cc CXX=c++ python3 tools/build.py --board smk37 --model elite)
 ```
