@@ -31,12 +31,13 @@ def build(out, log):
     text = (out/'tools/build.py').read_text()
     # The opt-in recipes must insert an unconditional return before packaging.
     package = text.index('    pkg = fm1pkg_make.ufw')
-    assert 'NON-INSTALLABLE' in text[:package]
-    assert text[:package].rstrip().endswith('return 0')
+    if 'NON-INSTALLABLE' not in text[:package] or not text[:package].rstrip().endswith('return 0'):
+        raise RuntimeError('packaging suppression is absent')
     env = dict(os.environ, BOARD='smk37', MODEL='elite', X0X_DEV_PADCAL='1')
     with log.open('w') as f:
         run('python3', 'tools/build.py', cwd=out, env=env, stdout=f, stderr=subprocess.STDOUT)
-    assert not list((out/'build').glob('*.fwsc'))
+    if list((out/'build').glob('*.fwsc')):
+        raise RuntimeError('unexpected package output')
 
 def digest(p):
     b=p.read_bytes()
@@ -68,7 +69,8 @@ def main():
         shutil.copyfile(loader/'firmware/loader'/name,app/'firmware/loader'/name)
     shutil.copyfile(loader/'firmware/hal/bp_loader_quiesce.h',app/'firmware/hal/bp_loader_quiesce.h')
     build(app,out/'app-paired-loader.log')
-    assert digest(target/'x0x.bin')==before, 'separate loader unexpectedly changed pinned app'
+    if digest(target/'x0x.bin') != before:
+        raise RuntimeError('separate loader unexpectedly changed pinned app')
     result={'installable':False,'app_partition':524000,'app_margin':524000-before['bytes'],
             'baseline':BASE,'loader_source_baseline':LOADER_BASE,
             'source_commit':subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip(),
