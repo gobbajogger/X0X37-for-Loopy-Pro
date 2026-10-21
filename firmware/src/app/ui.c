@@ -4659,6 +4659,7 @@ X0X_COLD void ui_project_end(int apply)
         project_apply_io();
         seq.clk_src = PROJ_CLK_SRC(proj.set.bt);
 #if BOARD_SMK37
+        extern uint8_t smk_clip_mode_on(void);
         if (smk_clip_mode_on())
             seq.clk_src = SEQ_CLK_AUTO;
 #endif
