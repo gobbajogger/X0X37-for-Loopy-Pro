@@ -405,7 +405,7 @@ static void ed_handle(const uint8_t *f, uint32_t n)
         ed_b(0);
         break;
     case ED_DIAG: {                                   /* read only: the crash record and the Bluetooth start */
-        uint32_t w[103], nw = 0, k;           /* Includes the 26-word central trace; checked against ed_out. */
+        uint32_t w[114], nw = 0, k;           /* Includes SMC2 trace and sticky SMP metadata; checked against ed_out. */
         const uint32_t *c = (const uint32_t *)&fm1_crash;
         for (k = 0; k < sizeof fm1_crash / 4u; k++)
             w[nw++] = c[k];

@@ -3,6 +3,7 @@
 #pragma once
 #include <stdint.h>
 
+enum { BLEC_SMP_TRACE_MAGIC = 0x534d4303u, BLEC_SMP_TRACE_WORDS = 11u };
 enum { BLEC_TRACE_MAGIC = 0x534d4302u, BLEC_TRACE_WORDS = 26u, BLEC_TRACE_RECENT = 3u };
 enum {
     BLEC_TRACE_NONE, BLEC_TRACE_HCI_ERROR, BLEC_TRACE_CONNECT_FAIL,
@@ -32,6 +33,12 @@ typedef struct {
 
 typedef struct {
     blec_trace_record_t first, latest, recent[BLEC_TRACE_RECENT];
+    /* Last complete SMP metadata, retained across stop/start/retry, cleared by init.
+     * It may belong to an earlier connection; its timestamp/handle are retained. */
+    blec_trace_record_t last_smp;
+    uint32_t smp_seen; /* opcode bits 0..30; bit31 means another opcode. */
+    /* Packed permitted field: handle high16, validity bit8, auth/reason low8. */
+    uint32_t smp_security_ms, smp_security, smp_failure_ms, smp_failure;
     uint32_t events;
     uint16_t attempts, ready, failures, disconnects;
     uint8_t next, count;
@@ -59,6 +66,17 @@ static inline void blec_trace_note(blec_trace_t *t, uint32_t ms,
         t->latest = r;
         blec_trace_inc(&t->failures);
     }
+    if (kind == BLEC_TRACE_SMP) {
+        t->last_smp = r;
+        t->smp_seen |= 1u << (opcode < 31u ? opcode : 31u);
+        if (detail == 2u && opcode == 0x0bu) {
+            t->smp_security_ms = ms;
+            t->smp_security = (uint32_t)handle << 16 | 0x100u | status;
+        } else if (detail == 2u && opcode == 5u) {
+            t->smp_failure_ms = ms;
+            t->smp_failure = (uint32_t)handle << 16 | 0x100u | status;
+        }
+    }
     t->recent[t->next] = r;
     t->next = (uint8_t)((t->next + 1u) % BLEC_TRACE_RECENT);
     if (t->count < BLEC_TRACE_RECENT) t->count++;
@@ -84,4 +102,16 @@ static inline void blec_trace_words(const blec_trace_t *t, uint32_t *w)
     for (i = 0; i < BLEC_TRACE_RECENT; i++)
         blec_trace_record_words(&t->recent[i], w + 13u + 4u * i);
     w[25] = BLEC_TRACE_WORDS;
+}
+
+/* Prepend before the unchanged SMC2 block: legacy decoders take LIVE/SMC2
+ * from the end and GUARD from the front, ignoring this additive middle block. */
+static inline void blec_smp_trace_words(const blec_trace_t *t, uint32_t *w)
+{
+    w[0] = BLEC_SMP_TRACE_MAGIC;
+    blec_trace_record_words(&t->last_smp, w + 1);
+    w[5] = t->smp_seen;
+    w[6] = t->smp_security_ms; w[7] = t->smp_security;
+    w[8] = t->smp_failure_ms; w[9] = t->smp_failure;
+    w[10] = BLEC_SMP_TRACE_WORDS;
 }

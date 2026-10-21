@@ -60,7 +60,7 @@ static void dump(const blec_trace_t *t) {
 }
 int main(void) {
     blec_trace_t t = {0};
-    assert(sizeof t == 96u && BLEC_TRACE_WORDS == 26u);
+    assert(sizeof t == 132u && BLEC_TRACE_WORDS == 26u);
     dump(&t);
     blec_trace_note(&t, 0, 4, 8, BLEC_TRACE_HCI_ERROR, 0x0c, 0x200d, 0xffff, 0, 1);
     dump(&t);
@@ -151,7 +151,7 @@ except ValueError:
     pass
 else:
     raise AssertionError('malformed trace length accepted')
-print('PASS: 96-byte passive model, sticky first/latest failures, retry retention, ring order, saturation, old/new DIAG alignment and precise failure text')
+print('PASS: 132-byte passive model, sticky first/latest failures, retry retention, ring order, saturation, old/new DIAG alignment and precise failure text')
 
 # A DISCOVERING deadline is also used while waiting for send credit. Do not
 # attribute silence to the peer if no ATT request reached the transport.
@@ -186,3 +186,29 @@ for opcode in range(256):
         assert ("smp_security_request_auth_flags" in r) == (length == 2 and opcode == 0x0B)
         assert ("smp_pairing_failed_reason" in r) == (length == 2 and opcode == 5)
 print("PASS: SMP trace decoder exposes only permitted metadata")
+
+# Additive SMC3 precedes SMC2, retaining both newer and legacy tail alignment.
+for present in (False, True):
+    smp = ([0, 21 | 6 << 8 | 14 << 16 | 9 << 24, 0x0B | 0x50 << 16, 2]
+           if present else [0, 0, 0, 0])
+    latch = ([b.SMC_SMP_TRACE_MAGIC] + smp + [1 << 11, 0, 0x50 << 16 | 0x100 | 9, 0, 0]
+             + [b.SMC_SMP_TRACE_WORDS]) if present else [b.SMC_SMP_TRACE_MAGIC] + [0] * 9 + [11]
+    parsed = with_trace(latch + blocks[7], 6)
+    last = parsed['smc_connection_trace']['last_smp']
+    assert (last is not None) == present
+    if present:
+        assert last['ms'] == 0 and last['smp_security_request_auth_flags'] == 9
+        assert 'may predate the current link' in b.summary(parsed, None)['smc_last_smp']
+    else:
+        assert 'No SMP command recorded' in b.summary(parsed, None)['smc_last_smp']
+    # An SMC2-only decoder takes exactly the final 26 words before LIVE.
+    assert b.decode_smc_trace((latch + blocks[7])[-26:])['failure_count'] == 6
+for invalid in ([b.SMC_SMP_TRACE_MAGIC, 0, 21, 11, 2, 0, 0, 0, 0, 0, 10],
+                [b.SMC_SMP_TRACE_MAGIC, 0, 99, 11, 2, 0, 0, 0, 0, 0, 11]):
+    try:
+        with_trace(invalid + blocks[7], 6)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('malformed sticky SMP block accepted')
+print('PASS: sticky SMP append-only extension, empty/valid metadata, old trace and LIVE/GUARD alignment')

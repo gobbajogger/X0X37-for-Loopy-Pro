@@ -537,13 +537,14 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     for (i = 0; i < sizeof ble_guard / 4u && n < max; i++)
         w[n++] = g[i];
     if (central_ready) {
-        if (n + 26u > max)
+        if (n + 37u > max)
             return n;
         /* TIMER5 writes the trace; export a coherent snapshot without allocation. */
         uint32_t flags = irq_save();
-        blec_trace_words(&ble_r.host.c.trace, w + n);
+        blec_smp_trace_words(&ble_r.host.c.trace, w + n);
+        blec_trace_words(&ble_r.host.c.trace, w + n + BLEC_SMP_TRACE_WORDS);
         irq_restore(flags);
-        n += BLEC_TRACE_WORDS;
+        n += BLEC_SMP_TRACE_WORDS + BLEC_TRACE_WORDS;
     }
     if (n + 17u > max)
         return n;
