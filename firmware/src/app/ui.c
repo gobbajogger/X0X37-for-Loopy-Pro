@@ -1272,7 +1272,7 @@ static int help_lines(int b, const char *l[HELP_LINES])
         break;
     case B_EDIT: L("THE PART'S SOUND"); L("AGAIN: THE NEXT PAGE"); L("HOLD A STEP + KNOB: P-LOCK");
         L("HOLD A STEP + SELECT: ITS CHANCE"); break;
-    case B_GLO: L("SETTINGS, SAVE, CLEAR,"); L("FACTORY RESET, PERFORMANCE"); L("AGAIN: CLOSE"); break;
+    case B_GLO: L("SETTINGS, SAVE, LOAD,"); L("RESET, CLEAR, PERFORMANCE"); L("AGAIN: CLOSE"); break;
     case B_HOME:
         L("THE PATTERN: ALL FIVE PARTS"); L("AGAIN: THE SONG   + SELECT: TEMPO"); L("+ WHITE KEY: PATTERN");
         if (is_drum() && part_view()) L("+ BLACK KEY: MUTE THE TRACK");
