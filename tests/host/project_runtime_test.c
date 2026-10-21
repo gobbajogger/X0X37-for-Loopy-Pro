@@ -245,6 +245,49 @@ static void busy_and_save_status(void)
     check_samples();
 }
 
+static void performance_save_window(void)
+{
+    seq.bpm = 171.0f;
+    proj.sound.v[T_303][0][BASS303_CUTOFF]++;
+    mark_dirty();
+    seq_start(&seq);
+    render();
+    uint32_t writes = store_writes;
+    perf_test_start();
+    render();                                      /* consume the performance test's initial stop */
+    assert(perf.phase == 0 && !seq.playing && !seq.req_stop && seq.pat == proj.pat);
+    now_ms += AUTOSAVE_QUIET + AUTOSAVE_GAP;
+    autosave();                                    /* ordinary quiet-time autosave stays disabled throughout the test */
+    assert(ui.dirty && !save_wait && store_writes == writes);
+    assert(ui_project_begin() == UI_PROJECT_BUSY); /* phase 0 allows the queued save, not a project replacement */
+    save_project();                                /* an explicit save is safe before perf_build */
+    assert(store_writes > writes && !save_wait && !ui.dirty);
+    ui_frame();
+    assert(perf.phase == 1 && seq.pat != proj.pat);
+    render();
+    assert(seq.playing);
+
+    proj.sound.v[T_303][0][BASS303_CUTOFF]++;
+    mark_dirty();
+    save_project();
+    assert(save_wait);
+    writes = store_writes;
+    perf_test_abort();
+    render();                                      /* stopped, but temporary sound/settings still own the runtime */
+    assert(perf.phase == 3 && !seq.playing && !seq.req_stop && seq.pat != proj.pat);
+    assert(ui_project_save() == UI_PROJECT_BUSY);
+    assert(ui_project_begin() == UI_PROJECT_BUSY);
+    save_project();
+    autosave();
+    assert(save_wait && ui.dirty && store_writes == writes);
+    perf_test_tick();
+    assert(perf.phase == 4 && seq.pat == proj.pat && seq.bpm == 171.0f);
+    ui_frame();
+    assert(!save_wait && !ui.dirty && store_writes > writes);
+    assert(project_load_stage() == 0 && project_stage.set.bpm_x10 == 1710);
+    check_samples();
+}
+
 int main(void)
 {
     memset(slot_img, 0xA5, sizeof slot_img);
@@ -267,6 +310,7 @@ int main(void)
     invalid_load_and_undo();
     abort_and_apply_transfer();
     busy_and_save_status();
+    performance_save_window();
     puts("project_runtime: reset, load, cancel, invalid, transfer, save and sample preservation ok");
     return 0;
 }

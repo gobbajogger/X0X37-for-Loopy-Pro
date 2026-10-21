@@ -1249,6 +1249,7 @@ static void clear_part(pattern_t *p, int part)
 #define HELP_HOLD 900u
 #define HELP_HOLD_SAVE 400u                    /* SAVE is held to copy: its card says what will be copied */
 static int perf_testing(void);
+static int perf_save_busy(void);
 #define HELP_LINES 6
 static const char *const BTN_LABEL[NB] = {"FX", "SEL", "ENV", "LFO", "EDIT", "GLO", "HOME", "SAVE", "ARP", "SEQ",
                                           "PLAY / STOP", "REC", "OCT-", "OCT+"};
@@ -1461,7 +1462,7 @@ X0X_COLD int ui_project_save(void)
 #if BOARD_SMK37
     extern uint8_t smk_ck_flash_busy(void);
 #endif
-    if (project_busy || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_testing()
+    if (project_busy || seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
 #if BOARD_SMK37
         || smk_ck_flash_busy()
 #endif
@@ -1485,7 +1486,7 @@ static void save_project(void)
         say("PROJECT TRANSFER BUSY", 0);
         return;
     }
-    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_testing()
+    if (seq.playing || seq.req_start || seq.req_cont || seq.req_stop || ui.rec || perf_save_busy()
 #if BOARD_SMK37
         || (smk_clip_mode_on() && (smk_ck_flash_busy() || plat_ms() - ui.act_t < AUTOSAVE_QUIET))
 #endif
@@ -2273,6 +2274,9 @@ static const uint32_t MUTE_MASK[NPARTS] = {(1u << NDRUM) - 1u, ((1u << NDRUM) - 
 static int part_muted(int p) { return (seq.mute & MUTE_MASK[p]) == MUTE_MASK[p]; }
 
 static int perf_testing(void) { return perf.test >= 0 && perf.phase != 4; }
+/* A queued SAVE runs in phase 0, before perf_build borrows the save scratch and runtime state.
+ * From phase 1 through restoration, neither the scratch nor the live settings may be saved. */
+static int perf_save_busy(void) { return perf_testing() && perf.phase != 0; }
 
 /* the held 303 step's note, moved by `by` semitones (KNOB 1: one; OCT: twelve); a rest or a tie
  * becomes a note of its own */
@@ -4717,7 +4721,7 @@ static void autosave(void)
 #endif
     if (project_busy)
         return;
-    if (save_wait && !seq.playing && !seq.req_start && !seq.req_cont && !seq.req_stop && !ui.rec && !perf_testing()) {
+    if (save_wait && !seq.playing && !seq.req_start && !seq.req_cont && !seq.req_stop && !ui.rec && !perf_save_busy()) {
 #if BOARD_SMK37
         if (smk_clip_mode_on() && (smk_ck_flash_busy() || now - ui.act_t < AUTOSAVE_QUIET))
             return;                                    /* keep the queued SAVE until clip playing has gone quiet */
