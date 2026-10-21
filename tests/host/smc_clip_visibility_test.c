@@ -9,7 +9,7 @@
 #include "app/smk_clip_keys.h"
 
 enum { O_NONE, O_LIST, O_ASK, R_NONE, R_HDR, R_ACT, R_ENG, EN_K1,
-       B_HOME, PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
+       B_HOME, NKIT = 2, PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
 typedef struct { uint8_t kind; } pref_t;
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { uint8_t overlay, help; uint32_t act_t; } ui;
