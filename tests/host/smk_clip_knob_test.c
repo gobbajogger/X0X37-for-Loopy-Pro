@@ -22,8 +22,9 @@ void smc_mmc_host(uint8_t cmd, uint8_t src) { (void)cmd; (void)src; }
 #include "app/plat.h"
 typedef struct {                    /* the clip keys fields of settings_t (app/x0x.h) */
     uint8_t ck_ch, ck_root, ck_scale, ck_snap, ck_chord, ck_inv, ck_ord, ck_rate, ck_oct, ck_gate, ck_x1, ck_x2;
-    uint8_t autosave_off;
+    uint8_t autosave_off, bt;
 } settings_t;
+#define PROJ_BT_SMC_USER 32u
 static struct { settings_t set; } proj;
 static struct { uint16_t bpm; uint8_t playing, req_start, req_cont, req_stop; } seq;
 static uint8_t project_busy;
