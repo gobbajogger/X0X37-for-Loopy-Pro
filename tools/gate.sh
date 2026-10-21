@@ -357,7 +357,7 @@ check_tests() {
 expected_tests() {
 python3 - "$1" "$2" <<'PY' > "$3"
 import glob, os, re, shutil, sys
-src = [l for l in open("tests/run_tests.sh").read().split("\n") if not l.lstrip().startswith("#")]
+src = [re.sub(r'(^|\s)#.*$', '', l) for l in open("tests/run_tests.sh").read().split("\n")]   # drop comments, also at the end of a line
 names = set()
 for l in src:
     for n in re.findall(r'(?:^|[\s;&|])run "?([A-Za-z0-9_.-]+)"?\s', l + " "):
