@@ -67,6 +67,64 @@
     "direct_core_central_private_transport": {
       "flash_extent_bytes": 97724,
       "ram_extent_bytes": 26928
+    },
+    "central_private_with_real_task_init": {
+      "flash_extent_bytes": 104276,
+      "ram_extent_bytes": 27016,
+      "roots": [
+        "btstack_hci_init",
+        "btstack_mem_init",
+        "bt_profile_loop",
+        "hci_event_handler",
+        "hci_acl_handler",
+        "hci_transport_h4_controller_instance",
+        "le_device_db_init",
+        "l2cap_init",
+        "sm_init",
+        "sm_set_io_capabilities",
+        "sm_set_authentication_requirements",
+        "sm_set_encryption_key_size_range",
+        "sm_set_master_request_pair",
+        "gatt_client_init",
+        "gatt_client_register_packet_handler",
+        "hci_event_callback_set",
+        "le_l2cap_register_packet_handler",
+        "gatt_client_discover_primary_services_by_uuid128",
+        "gatt_client_discover_characteristics_for_service",
+        "gatt_client_discover_characteristic_descriptors_by_handle",
+        "gatt_client_write_characteristic_descriptor_using_descriptor_handle",
+        "gatt_client_listen_for_characteristic_value_updates",
+        "gatt_client_write_value_of_characteristic_without_response",
+        "ll_hci_scan_set_params",
+        "ll_hci_scan_enable",
+        "ll_hci_create_conn",
+        "ll_hci_create_conn_cancel",
+        "ll_hci_disconnect",
+        "btstack_task_init"
+      ],
+      "unresolved": [
+        "a2dp_sink_media_codec_begin",
+        "a2dp_sink_media_codec_end",
+        "bt_event_notify",
+        "cbuf_clear",
+        "cbuf_get_data_size",
+        "cbuf_init",
+        "cbuf_read",
+        "cbuf_write",
+        "chip_crc16",
+        "lbuf_realloc",
+        "usr_timeout_add",
+        "usr_timeout_del"
+      ],
+      "report_all_exit": 1
+    },
+    "all_app_bluetooth_disabled_ceiling": {
+      "image_bytes": 529492,
+      "code_free_bytes": 23180,
+      "main_ram_used_bytes": 97844,
+      "pool_used_bytes": 335484,
+      "packaged": false,
+      "functional": false
     }
   },
   "unresolved_combined_imports": [

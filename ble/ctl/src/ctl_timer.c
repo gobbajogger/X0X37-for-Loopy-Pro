@@ -101,3 +101,15 @@ void ctl_timer_poll(void)
         fn(priv);
     }
 }
+
+#if CTL_VENDOR_HOST_TEST
+/* SDK user timeouts are one-shot software timers. This port runs on one BLE
+ * core; priority is not a preemption request. Task-specific timers require the
+ * named-task callback path separately and must not be aliased to this API. */
+u16 usr_timeout_add(void *priv, void (*fn)(void *), u32 msec, u8 priority)
+{
+    (void)priority;
+    return add(priv, fn, msec, 0);
+}
+void usr_timeout_del(u16 id) { sys_timer_del(id); }
+#endif

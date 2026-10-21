@@ -19,6 +19,9 @@ void ctl_heap_init(void)
 
 void *malloc(size_t n)
 {
+#if CTL_VENDOR_HOST_TEST
+    if (n > UINT32_MAX - sizeof(struct blk) - 7u) return NULL;
+#endif
     u32 need = ((u32)n + sizeof(struct blk) + 7u) & ~7u;
     u32 f = ctl_port_irq_save();
     for (struct blk *b = heap_first; b; b = b->next) {
@@ -58,6 +61,9 @@ struct lbuff_head;
 void *lbuf_alloc(struct lbuff_head *head, u32 len)
 {
     (void)head;
+#if CTL_VENDOR_HOST_TEST
+    if (len > UINT32_MAX - 4u) return NULL;
+#endif
     u32 *p = malloc(len + 4u);
     if (!p) return NULL;
     p[0] = len;
@@ -67,3 +73,30 @@ int  lbuf_free(void *lbuf) { if (lbuf) free((u32 *)lbuf - 1); return 0; }
 int  lbuf_real_size(void *lbuf) { return lbuf ? (int)((u32 *)lbuf)[-1] : 0; }
 void lbuf_free_check(void *lbuf, u32 rets) { (void)lbuf; (void)rets; }
 void lbuf_dump(struct lbuff_head *head) { (void)head; }
+
+#if CTL_VENDOR_HOST_TEST
+/* Exact SDK lbuf_realloc is shrink-only, keeps the address, and returns NULL
+ * without freeing on an equal-size request. Adapt that contract to this shim's
+ * own allocation header; never link the SDK realloc against our different lbuf
+ * layout. A genuine split releases the tail; no caller-size/zeroing deception. */
+void *lbuf_realloc(void *packet, u32 len)
+{
+    if (!packet) return NULL;
+    u32 *size = (u32 *)packet - 1;
+    u32 f = ctl_port_irq_save();
+    if (len >= *size) { ctl_port_irq_restore(f); return NULL; }
+    struct blk *b = (struct blk *)size - 1;
+    u32 need = (len + 4u + sizeof(struct blk) + 7u) & ~7u;
+    u32 old = b->size & ~1u;
+    if (old - need >= sizeof(struct blk) + 8u) {
+        struct blk *tail = (struct blk *)((u8 *)b + need);
+        tail->size = old - need;
+        tail->next = b->next;
+        b->next = tail;
+        b->size = need | 1u;
+    }
+    *size = len;
+    ctl_port_irq_restore(f);
+    return packet;
+}
+#endif

@@ -139,3 +139,52 @@ char measured_blec[sizeof(blec_t)];
 
 Common-symbol sizes are 0x300 (768) and 0x1bc (444). The host union is 768 B, not
 all BLERAM. No memory guard, sample region or feature is changed by these probes.
+
+## Current runtime adapters: fully resolved diagnostic link
+
+`link_runtime.py` compiles the **current conditional host sources**, not the
+pinned baseline export. It enables `CTL_VENDOR_HOST_TEST=1`, retains real calls
+rather than artificial API roots, and allows **no unresolved imports**. It still
+uses oversized contiguous diagnostic regions and never emits an image/package;
+its ELF is **not installable** and does not implement the segmented update path.
+
+Provide the exact donor SDK `cpu/wl82/liba/system.a` privately. Its pinned SHA is
+`a71bdc75e5afbcffaf7d79bc2b27f2b65fec63d94d2261b584744d3e9b9098ea`.
+Only its `circular_buf.c.o` member is linked. Linking the whole archive pulls
+unrelated RTOS/IRQ definitions before LTO and conflicts with the separate shim.
+
+```sh
+python3 "$REPO/tools/studies/smc_reference/link_runtime.py" \
+  --repo "$REPO" --toolchain "$TC" --libs "$SCRATCH/libs" \
+  --rf-tables "$SCRATCH/baseline/ble/ctl/gen/rf_tables.c" \
+  --system-lib /path/to/exact-donor-system.a --out "$SCRATCH/resolved-runtime"
+python3 "$REPO/tools/studies/smc_reference/compression.py" --repo "$REPO" \
+  "$SCRATCH/resolved-runtime/resolved-NOT-FIRMWARE.elf"
+```
+
+The first October 21 assembled checkpoint resolved with **108708 B flash / 28760 B RAM
+extent**, including 10112 B heap and 4096 B run/ISR stack reservations. Flash exceeds
+the most optimistic 106496 B sector budget by 2212 B **before** manifest, placement
+and remaining app-side work. Exact RAM-load compression saves 1763 B gross before
+its decoder/metadata—still 449 B short. Do not treat resolution as fit or execution.
+Input/source hashes and the failure boundaries are retained in
+`docs/audit/smc-vendor-resolved-link-2026-10-21.json`.
+
+For the complete app Bluetooth-removal upper bound only, create another fresh
+inert-app export as above, add `"-DX0X_BLE=0"` to the application `flags` list
+(the one beginning `[*CFLAGS, *FPU, ...]`) in its disposable `tools/build.py`, and
+run the same Elite development build. Do not change the loader flags or guarded
+source defaults. Expected image 529492 B, code slack 23180 B. Bluetooth is entirely
+absent: the spare room must fund all replacement startup/bridge/parser features.
+This is not a supported build profile or an installation candidate.
+
+The resolved diagnostic also accepts `--controller-roles central` (role mask25,
+central-only approved temporary profile) and `--avctp-extra-commands 0` (supported
+scalar disabling extra AVRCP commands; not a vendor LE-only-library claim).
+Defaults preserve role31 and extra-command1 comparison. These are oversized
+link measurements, NOT executable placement or firmware admission.
+
+After the authoritative-radio regression fix, all-role comparison is108724 B;
+central-only is104536 B, and central-only with AVRCP extra-command0 is103188 B.
+The last variant still needs4616 B more contiguous executable primary room
+(text plus manifest) under existing PC guards; total-byte arithmetic is not fit.

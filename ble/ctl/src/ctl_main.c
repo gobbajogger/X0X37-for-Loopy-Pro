@@ -4,7 +4,14 @@
  * The image header, init() and poll() (the two entries the app calls on core 1), and the H4
  * transport between the controller and the app's mailbox (x0x_ble_abi.h). */
 #include "ctl_port.h"
+#if CTL_VENDOR_HOST_TEST
+#include "x0x_smc_host_messages.h"
+#define CTL_BUILD_ABI XSM_ABI
+#else
+#define CTL_BUILD_ABI XB_ABI
+#endif
 
+#if !CTL_VENDOR_HOST_TEST
 typedef struct {
     const char *name;
     void (*init)(const void *cfg);
@@ -42,6 +49,11 @@ static const hci_transport_t ctl_transport = {
     .send_packet = ctl_tr_send,
 };
 extern int btctrler_task_init(const void *transport, const void *config);
+#else
+extern int ctl_vendor_startup(void);
+extern void ctl_vendor_mailbox_reset(void);
+extern void ctl_vendor_mailbox_poll(void);
+#endif
 extern void bt_max_pwr_set(u8 pwr, u8 pg, u8 iq, u8 ble);
 void ctl_delay_init(void);
 void ctl_port_irq_enable_core(void);
@@ -69,7 +81,7 @@ __attribute__((section(".ctl_header"), used))
 const xb_header_t ctl_image_header = {
     .magic = XB_HDR_MAGIC, .hdr_version = XB_HDR_VERSION, .hdr_size = sizeof(xb_header_t),
     .fw_version = 0x00020000u,
-    .abi = XB_ABI,
+    .abi = CTL_BUILD_ABI,
     .init = (u32)(uintptr_t)ctl_entry_init,
     .poll = (u32)(uintptr_t)ctl_entry_poll,
     .isr_stack_lo = (u32)(uintptr_t)__ctl_isr_stack_lo, .isr_stack_hi = (u32)(uintptr_t)__ctl_isr_stack_hi,
@@ -81,6 +93,7 @@ const xb_header_t ctl_image_header = {
 };
 
 /* ---- controller -> app ---- */
+#if !CTL_VENDOR_HOST_TEST
 void hci_packet_handler(int type, const u8 *packet, int size)
 {
     u32 f = ctl_port_irq_save();
@@ -115,6 +128,10 @@ void ctl_host_poll(void)
     }
 }
 
+#else
+void ctl_host_poll(void) { ctl_vendor_mailbox_poll(); }
+#endif
+
 /* the controller stops for good: its interrupts off on core 1, state FAILED. The app sees it
  * and stops calling poll(). */
 void ctl_fail(u32 err)
@@ -138,7 +155,7 @@ void ctl_fail(u32 err)
 
 static int boot_ok(const xb_boot_t *bp)
 {
-    return bp && bp->magic == XB_BOOT_MAGIC && bp->abi == XB_ABI && bp->mbox &&
+    return bp && bp->magic == XB_BOOT_MAGIC && bp->abi == CTL_BUILD_ABI && bp->mbox &&
            bp->tick_addr && bp->vec_base && bp->icfg_base;
 }
 
@@ -165,7 +182,12 @@ static u32 ctl_init(u32 arg)
     ctl_port_tick_start(1000);
     t_init = ctl_ms();
     bt_max_pwr_set(bp->pwr_max, 6, 6, bp->pwr_ble);
+#if CTL_VENDOR_HOST_TEST
+    ctl_vendor_mailbox_reset();
+    if (ctl_vendor_startup()) return XB_E_TASK;
+#else
     btctrler_task_init(&ctl_transport, NULL);
+#endif
     /* The RF trim runs in the controller task during the settle loop. Its inner loops are in RAM, but
      * JieLi's interrupt handlers are in the flash, and flash reads can come back wrong under the trim's
      * high current (felucca-bsp#2). Core 1 died twice at the same place in the trim (rd_adc_peak).

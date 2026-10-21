@@ -3,8 +3,8 @@
 **No new runtime candidate is admitted.** None of the measured vendor-host layouts
 fits the current controller region. The bounded redesign study below also has
 not demonstrated a feature-preserving, fully resolved fit.
-The baseline, approved mappings, UI, feedback, samples, loader and model guards
-are unchanged. MTU/interval-only tuning was considered and rejected before any
+The default baseline, approved mappings, UI, feedback, samples, loader and model
+guards are preserved; later inactive test-only adapter sources are recorded below. MTU/interval-only tuning was considered and rejected before any
 runtime edit: it would retain the unproven host without addressing the observed
 pre-decoder receive boundary.
 
@@ -275,3 +275,115 @@ using USB to Loopy. Both Bluetooth modes remain the desired final product. This
 approval permits investigation, not dropping more features or claiming fit; the
 default dual-mode baseline remains protected. No runtime implementation is part
 of this source-only study checkpoint.
+
+### Follow-on faithful-startup discriminator
+
+Retaining the actual vendor `btstack_task_init` in the central-private root study
+raises the linked flash extent from 97724 to **104276 B**, and static RAM from 26928
+to **27016 B**. The report-all link fails with 12 imports (adds `cbuf_read`). This
+proves that the 97 KiB direct-root number omitted real initialization reachability;
+it must not be used as a complete port size. The exact task wrapper preserves the
+private L2CAP pool/dispatcher and ATT initialization; no private structure guesses
+are accepted as a replacement merely to recover the smaller figure.
+
+A final nonfunctional app ceiling, using `-DX0X_BLE=0` only in a disposable
+non-packaging baseline build, measures 529492 B image, **23180 B code slack**,
+97844 B main RAM and 335484 B pool. Compared with the inert-host ceiling, another
+6284 B belongs to BLE orchestration and related state. At most 20 KiB whole-sector
+primary expansion would then leave 2700 B app room to restore safe startup,
+parser, controls and bridge, and provide 106496 B total controller capacity. This
+is an upper bound with **all Bluetooth removed**, not an implemented layout or
+permission to omit guards. The fixed 80+16+4 KiB manifest helper has not been
+silently changed to this potential 84+16+4 KiB layout.
+
+The subsequent source adapters are opt-in scaffolding. Native scheduler, event,
+heap/CRC/timer and copy-bridge checks are not execution of the proprietary protocol
+engine and do not establish a full resolved link, memory fit or hardware success.
+
+### Fully resolved adapter checkpoint — does not fit
+
+The actual conditional runtime adapter sources now link with **zero undefined
+imports**, retaining vendor startup/task dispatch, HCI/private DMA transport,
+SM/L2CAP/GATT, public central discovery and the exact vendor circular-buffer
+implementation. The MPL hardware adapters provide real queues, bounded bootstrap
+waits, timeout/CRC/allocation support and copied messages; no protocol engine is
+reimplemented. This is the first resolved link, not a fit or hardware success.
+
+The diagnostic image measures **108708 B flash and 28760 B RAM extent**. RAM extent
+includes 10112 B heap plus 4096 B run/ISR stacks; it is not all static objects. It
+exceeds the current low RAM window by 2392 B. The conservative donor heap plus
+allocated task-stack allowance requires another 7808 B, so even the candidate
+7168 B high region plus host union 768 and existing BLERAM slack 240 is 2024 B short,
+before new app state. Reclaiming more old orchestration storage would require a
+real lifetime/ownership layout, not counting all BLERAM as free.
+
+Flash exceeds even the all-Bluetooth-removed app ceiling's 106496 B sector budget
+by **2212 B before the 632 B standalone manifest validator, placement and app-side
+restoration**. Exact-image RAM-load compression roundtrips 3524→3141 and 1824→444 B,
+saving 1763 B gross: still 449 B over before decoder/metadata. The bounded fit gate
+therefore fails. Do not begin hardware installation or claim an admitted package.
+
+[Resolved metrics and source/input hashes](smc-vendor-resolved-link-2026-10-21.json)
+and [reproduction commands](../../tools/studies/smc_reference/README.md) retain
+this result. No sample capacity, pool minimum, stock/boot/calibration/key range or
+default musical mapping was reduced. The separate default controller remains
+ABI2; test-only sources reject ABI2 startup and are not enabled by default.
+
+Native tests cover scheduler wait/queue ownership, ready-event copies, vendor
+frontend API ordering with mocks, real shim allocation-tail release, CRC vectors,
+one-shot timeouts, mailbox copies/congestion/busy retry/priority radio-off, and
+the segmented validator. Exact Mac replay and actual SMC queue/UI host tests pass,
+but do not execute the vendor binary or prove physical controls/feedback. The
+parser retains the documented existing SysEx timestamp/realtime ambiguity.
+
+### Central-role and actual placement gates
+
+A stale queued radio-ON behind a newer priority radio-OFF was corrected: a valid
+ABI4 extension is now the sole authoritative radio-control source. The final
+all-role diagnostic measures 108724 B flash (16 B more), 28760 B RAM extent.
+Regression tests cover that ordering; the default ABI2 controller rebuild remains
+byte-identical to the recorded baseline SHA.
+
+The temporary approved central-only profile can legitimately use the exact SDK
+controller role mask 25 (master, scan, initiate), rather than 31 (also peripheral
+advertising/slave). This is a declared reference-configuration deviation, not a
+new protocol engine. Encryption remains explicitly enabled, mask 1. With this
+single change the same actual adapters fully resolve at **104536 B flash / 28664 B
+RAM extent**, saving 4188 B flash. Thus total-byte arithmetic has 1960 B headroom
+against 106496 B, before manifest, app restoration and placement. It does not meet
+the owner's eventual both-Bluetooth-modes goal.
+
+**Placement is still blocked under existing PC guards.** The current guard has
+two PC windows, occupied by contiguous app/controller XIP and RAM text. Admitting
+executable secondary/tertiary segments would broaden the XIP window across store
+and sample flash. No such guard weakening is implemented. Keeping those segments
+data-only requires all executable code in the primary; this candidate's `.text`
+is 91672 B, exceeding an 84 KiB primary 86016 B by 5656 B, or **5784 B including a 128 B
+manifest**, even before other primary content. A total-size fit must never be
+confused with safe executable placement. Further hardware-window confirmation and
+an explicit architecture decision are required before startup/packaging work.
+
+The only eligible cold-code compiler change (`pattern_init` from -O2 to -Oz) saves
+16 B in a real full-feature app. All UI/config/routing already compile with -Oz;
+no extra 4 KiB sector is available from this bounded flag test. Audio/DSP hot paths
+were not changed. Actual single-central allocation analysis is separate from the
+later donor's generic heap reservation; neither live heap nor task-stack safety
+has been certified by a device run.
+
+### Final bounded Classic-command discriminator
+
+The exact SDK supports `more_avctp_cmd_support=0`; its documented configuration
+uses this for dual A2DP source, not as an official LE-only library switch. Exact
+IR review bounds its six branches to extra AVRCP operations, not BLE/GATT/SM.
+With central controller roles25, this scalar change fully resolves at **103188 B
+flash / 28648 B whole RAM extent**, saving1348/16 B. Reproduce with
+`link_runtime.py --controller-roles central --avctp-extra-commands 0` and the same
+pinned inputs. No opaque functions were patched or protocol handlers stubbed.
+
+Its `.text` is **90504 B**, so text plus128 B manifest still exceeds the optimistic
+84 KiB primary by **4616 B**, before other primary content. Both PC windows remain
+occupied. This closes the bounded Classic-config check without demonstrating a
+guard-preserving fit. Independent allocation analysis separately establishes a
+10440 B simultaneous heap lower bound versus10112 B available, before transients;
+see the single-central memory and PC-window reports. No app startup, segmented
+installer or firmware package is claimed. Baseline dual-mode remains default.
