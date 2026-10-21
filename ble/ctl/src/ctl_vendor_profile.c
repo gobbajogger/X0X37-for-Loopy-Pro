@@ -56,6 +56,8 @@ static u8 search_storage[512] __attribute__((aligned(4))) CTL_HIGHCPU_BSS;
 static struct connection_parameters request CTL_HIGHCPU_BSS;
 static u16 connection = ABSENT; /* initialized data deliberately stays low */
 static u16 midi_handle CTL_HIGHCPU_BSS, midi_end CTL_HIGHCPU_BSS, cccd CTL_HIGHCPU_BSS;
+enum { SUB_NONE, SUB_PENDING, SUB_ENABLED, SUB_SECURITY_PENDING };
+static u8 subscription CTL_HIGHCPU_BSS;
 static u8 retiring CTL_HIGHCPU_BSS, connecting CTL_HIGHCPU_BSS, discovering CTL_HIGHCPU_BSS, wanted CTL_HIGHCPU_BSS, receiving CTL_HIGHCPU_BSS, down_pending CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, started CTL_HIGHCPU_BSS, off_pending CTL_HIGHCPU_BSS, scan_pending CTL_HIGHCPU_BSS;
 static u32 disconnect_retry_at CTL_HIGHCPU_BSS;
 extern int ctl_vendor_address(u8 address[6]);
@@ -131,6 +133,7 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
                 if (connection == ABSENT) { connecting = 0; if (wanted) scan_pending = 1; }
             } else {
                 connection = handle; retiring = 0; connecting = 0; midi_handle = midi_end = cccd = 0; receiving = 0;
+                subscription = SUB_NONE;
                 if (ble_user_cmd_prepare(CMD_ATT_INIT, 4, (int)handle, att_storage,
                                          (int)sizeof(att_storage), MTU)) {
                     retire_connection(handle);
@@ -146,6 +149,7 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
         }
     } else if (p[0] == 5 && n >= 6 && read16(p + 3) == connection) {
         connection = ABSENT; midi_handle = 0; discovering = receiving = retiring = 0;
+        subscription = SUB_NONE;
         ble_user_cmd_prepare(CMD_ATT_INIT, 4, 0, (void *)0, 0, 0);
         down_reason = p[5]; down_pending = 1;
         ctl_vendor_poll();
@@ -188,16 +192,20 @@ static int uuid_equal(const u8 *uuid, const u8 expected[16])
 }
 void user_client_report_search_result(struct search_report *r)
 {
-    if (!discovering || connection == ABSENT) return;
+    if (!wanted || retiring || off_pending || down_pending ||
+        !discovering || connection == ABSENT) return;
     if ((uintptr_t)r == UINTPTR_MAX) {
         discovering = 0;
         if (midi_handle && cccd) {
             static const u8 enable_notify[2] = {1, 0};
             /* Use the descriptor discovered by the vendor, never value+1.
              * Command acceptance is NOT an ATT acknowledgment / control PASS. */
+            subscription = SUB_PENDING;
             if (ble_user_cmd_prepare(CMD_ATT_SEND, 4, (int)cccd,
-                                     enable_notify, 2, 5))
+                                     enable_notify, 2, 5)) {
+                subscription = SUB_NONE;
                 retire_connection(connection);
+            }
         } else retire_connection(connection);
     } else if (r && !midi_handle && !r->characteristic.uuid16 && !r->service.uuid16 &&
                (r->characteristic.properties & 0x14) == 0x14) {
@@ -217,13 +225,36 @@ void user_client_report_search_result(struct search_report *r)
 u8 user_client_search_descriptor_is_enable(void) { return 1; }
 void user_client_report_descriptor_result(struct descriptor_report *d)
 {
-    if (discovering && d && midi_handle && d->uuid16 == 0x2902 &&
+    if (wanted && !retiring && !off_pending && !down_pending &&
+        discovering && connection != ABSENT && d && midi_handle && d->uuid16 == 0x2902 &&
         d->handle > midi_handle && d->handle <= midi_end) cccd = d->handle;
 }
 
 void user_client_report_data_callback(struct data_report *r)
 {
+    /* The exact SDK reports ATT query completion as kind A0, a one-byte
+     * status, and the connection/attribute handles. Queue acceptance is not
+     * a successful CCCD write. Only this pending write owns its completion;
+     * unrelated reads, stale completions and other links cannot change it. */
+    if (wanted && !retiring && !off_pending && !down_pending && r &&
+        connection != ABSENT && r->connection == connection &&
+        subscription == SUB_PENDING && r->kind == 0xa0 &&
+        cccd && r->handle == cccd && !r->offset && r->length == 1 && r->data) {
+        u8 status = r->data[0];
+        if (status == 0x05 || status == 0x08 || status == 0x0c || status == 0x0f) {
+            /* Security-related ATT failure: the SDK starts pairing for 05.
+             * Do not cancel that exchange or claim the CCCD enabled. Its
+             * completion/retry policy is a separate unresolved integration
+             * step; retain existing notification and Just Works behavior. */
+            subscription = SUB_SECURITY_PENDING;
+        } else {
+            subscription = status ? SUB_NONE : SUB_ENABLED;
+            if (status) retire_connection(connection);
+        }
+        return;
+    }
     if (wanted && !retiring && r && r->kind == 0xa7 && r->connection == connection &&
+        !off_pending && subscription != SUB_NONE &&
         midi_handle && r->handle == midi_handle && !r->offset &&
         r->data && r->length >= 3 && r->length <= MTU - 3) {
         ctl_vendor_poll();
@@ -242,6 +273,7 @@ int ctl_vendor_startup(void)
     if (ctl_vendor_address(address) || (address[5] & 0xc0) != 0xc0) return -1;
     ctl_vendor_events_reset();
     connection = ABSENT; midi_handle = 0;
+    subscription = SUB_NONE;
     connecting = discovering = wanted = receiving = down_pending = 0;
     if (le_controller_set_mac(address)) return -1;
     if (ctl_os_bootstrap_begin(5000)) return -1;
@@ -253,14 +285,17 @@ int ctl_vendor_startup(void)
 }
 int ctl_vendor_scan(int enable)
 {
-    if (!ctl_vendor_host_ready() || connection != ABSENT || connecting) return -1;
+    /* Finish publishing the old link-down before starting a new peer. This
+     * also keeps its one-shot discovery/security callbacks out of old backlog. */
+    if (!ctl_vendor_host_ready() || connection != ABSENT || connecting ||
+        (enable && down_pending)) return -1;
     if (enable && ble_user_cmd_prepare(CMD_SCAN_PARAM, 3, 1, 80, 48)) return -1;
     return ble_user_cmd_prepare(CMD_SCAN, 2, !!enable, 1);
 }
 int ctl_vendor_connect(u8 address_type, const u8 address[6])
 {
     if (!address || address_type > 1 || !ctl_vendor_host_ready() ||
-        connection != ABSENT || connecting) return -1;
+        connection != ABSENT || connecting || down_pending) return -1;
     if (ble_user_cmd_prepare(CMD_SCAN, 2, 0, 1)) return -1;
     request.interval = 12; request.latency = 0; request.timeout = 400;
     request.address_type = address_type; memcpy(request.address, address, 6);

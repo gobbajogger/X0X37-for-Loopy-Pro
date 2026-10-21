@@ -14,6 +14,9 @@ ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_events_test.c"
 ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_profile_test.c" -o "$OUT/profile"
 "$OUT/profile"
 
+${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_subscription_test.c" -o "$OUT/subscription"
+"$OUT/subscription"
+
 ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_highcpu_test.c" -o "$OUT/highcpu"
 "$OUT/highcpu"
 
