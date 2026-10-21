@@ -34,6 +34,13 @@ def check_cold(link, fi):
 
 
 def main():
+    if not acquire.fi.ask_tty(
+        "Before connecting: stop playback; set BLUETOOTH OFF; use GLO > SAVE PROJECT "
+        "and wait for SAVED (not queued or failed). Disconnect ALL keyboard power, "
+        "then reconnect with Bluetooth still OFF. Have you completed these steps? [y/N] "
+    ):
+        print("Cancelled before device access.", file=sys.stderr)
+        return 2
     original = acquire.install.check_cold
     acquire.install.check_cold = check_cold
     try:

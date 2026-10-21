@@ -25,9 +25,15 @@ class Test(unittest.TestCase):
         self.assertIn('invalid framing',d.describe([71]))
         self.assertIn('unsupported',d.describe(frame([0]*70)))
 
+    def test_instructions_before_device_access(self):
+        with patch.object(d.acquire.fi,'ask_tty',return_value=False) as ask,patch.object(d.acquire,'main') as run:
+            self.assertEqual(d.main(),2)
+            run.assert_not_called()
+            self.assertIn('wait for SAVED',ask.call_args.args[0])
+
     def test_no_traceback_and_restore(self):
         original=d.acquire.install.check_cold
-        with patch.object(d.acquire,'main',side_effect=d.acquire.bundle.BundleError('cold refused')),contextlib.redirect_stderr(io.StringIO()) as out:
+        with patch.object(d.acquire.fi,'ask_tty',return_value=True),patch.object(d.acquire,'main',side_effect=d.acquire.bundle.BundleError('cold refused')),contextlib.redirect_stderr(io.StringIO()) as out:
             self.assertEqual(d.main(),2)
         self.assertIn('Head acquisition refused',out.getvalue())
         self.assertNotIn('Traceback',out.getvalue())
