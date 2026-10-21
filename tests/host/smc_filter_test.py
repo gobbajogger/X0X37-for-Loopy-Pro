@@ -19,7 +19,7 @@ harness = r'''
 #include <assert.h>
 #include <stdint.h>
 enum { R_ENG, T_MIX, T_FX, T_MST, MX_LEVEL, FX_RV_LEVEL, FX_DL_LEVEL,
-       FX_VOLUME, MST_DJF, V_FX, V_MIX, V_HOME, V_GLO, O_NONE, NDRUM = 11, NPARTS = 5 };
+       FX_VOLUME, MST_DJF, V_FX, V_MIX, V_HOME, V_GLO, V_PART, O_NONE, NDRUM = 11, NPARTS = 5 };
 typedef struct { int kind, a, b, c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 static struct { int rec, part, view, overlay, help, sel[2]; } ui;
