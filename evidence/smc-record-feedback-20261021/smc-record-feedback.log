@@ -1,0 +1,15 @@
+In file included from tests/host/../../host/x0x_host.c:259,
+                 from tests/host/smc_record_feedback_test.c:7:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:511:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  511 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2043:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2043 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+PASS actual recording: panel REC on 303A writes 303A step=1 note=41; other bass unchanged
+PASS actual recording: SMC SELECT changes active recorder to 303B writes 303B step=1 note=43; other bass unchanged
+PASS actual recording: SMC strip REC on 303A writes 303A step=1 note=45; other bass unchanged
+PASS actual recording: panel selection changes active recorder to 303B writes 303B step=2 note=46; other bass unchanged
+PASS: 4 real pattern writes, 7 emitted Record projections, 0 failures
