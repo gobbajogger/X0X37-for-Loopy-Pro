@@ -528,11 +528,15 @@ LIM-12. We maintain only the SMK-37 build. We do not maintain the FM-1 build. It
 
 SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank. In HOME and main MIX, knobs trim the same eight main-mix destinations as the faders. In 909 MIX and 808 MIX, knobs trim the matching track levels in the active bank. A paired fader and knob may share a destination. Each control type has unique destinations. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
 
-SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
+SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. Outside drum MIX, R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. On drum MIX, their strips follow SMC-05. Open menus, help and confirmation keep their own priority. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
 
 SMC-03. Outside the three mixer modes in SMC-01, encoders edit visible fields. Open menus take precedence over the mixer modes. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
 
 SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
+
+SMC-05. On visible 909 MIX and 808 MIX pages, Record, Solo, Mute and SELECT follow the visible drum bank on every strip. Record selects the visible kit and drum and toggles the existing recording mode. SELECT selects the same target without toggling recording. Solo isolates the drum while held; multiple Solo targets combine. A release clears its original target after a page, kit or bank change. Solo does not change saved mute state and clears on disconnect, blocked input and project reset. Stock User MMC retains its latch fallback because that preset has no release message. The five unused strips in bank 2 are inactive and unlit. Other pages retain the existing whole-part Record/Solo behavior. [USER 2026-10-21 individual-drum choice] [CODE firmware/src/app/smc_mixer.c firmware/src/app/engine.c]
+
+SMC-06. On a visible drum MIX page, the SMK pads edit the steps of that page's selected drum while the mixer remains open. Step lights follow that drum. SMC Record and SELECT focus both the visible kit and its selected drum so pad edits reach the requested sound. Main MIX and FX retain their existing pad behavior. [USER 2026-10-21: "It can select a drum to seq on smk pads"] [CODE firmware/src/app/ui.c]
 
 ## 18. Open questions
 
