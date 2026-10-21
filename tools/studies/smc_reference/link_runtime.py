@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MPL-2.0
-"""Fully resolve current conditional host sources in oversized DIAGNOSTIC regions.
+"""Fully resolve current conditional host sources in a selected DIAGNOSTIC layout.
 
 Unlike run.py this does NOT ignore imports or add API roots. It is still NOT
-installable: no segmented placement/admission, no image/package generation.
+installable: no complete app/update admission and no firmware package generation.
 """
 import argparse
 import json
@@ -48,7 +48,7 @@ for name, path in inputs.items():
     if digest(path) != expected[name]:
         p.error('Pinned hash mismatch: ' + name)
 out.mkdir(parents=True)
-(out / 'NON-INSTALLABLE.txt').write_text('Resolved-link diagnostic ONLY. Oversized regions; no segmented admission or app. NEVER INSTALL.\n')
+(out / 'NON-INSTALLABLE.txt').write_text('Resolved-link diagnostic ONLY. Selected study layout; no complete app/update admission. NEVER INSTALL.\n')
 shutil.copytree(repo / 'ble/ctl/src', out / 'src')
 for name in ('x0x_ble_abi.h', 'x0x_smc_host_messages.h'):
     shutil.copy(repo / 'firmware/hal' / name, out / 'src' / name)
