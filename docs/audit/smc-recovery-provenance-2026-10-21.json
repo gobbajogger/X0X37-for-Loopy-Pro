@@ -1,0 +1,286 @@
+{
+  "schema": "x0x-smc-recovery-provenance-v1",
+  "snapshot_utc": "2026-10-21T12:53:00Z",
+  "purpose": "Sanitized source and artifact identity index, not an installation certificate or raw evidence archive.",
+  "privacy": "No private captures, personal file contents, absolute personal paths, SDK/toolchain files or firmware payloads included. The source reports and archives remain private and are identified only by hashes.",
+  "evidence_reports": [
+    {
+      "id": "binary-inspection-report",
+      "name": "REPORT.md",
+      "bytes": 4030,
+      "sha256": "387ebaa1191d9bf4979b6d224104d1c5b7c1408bc4628faa086c441194c5940d",
+      "included_in_repository": false
+    },
+    {
+      "id": "binary-inspection-data",
+      "name": "oct19-artifacts.json",
+      "bytes": 24818,
+      "sha256": "8f4403509fc1faa02db6b4e3f37966156381878f03c26b6f63a36b1cc8f25df8",
+      "included_in_repository": false
+    },
+    {
+      "id": "reconstruction-comparison",
+      "name": "reconstruction-comparison.json",
+      "bytes": 19638,
+      "sha256": "a314b78be4a69ac087cb29c98e694fec94ae2a09cfe3f95831c1b2b612cd64eb",
+      "included_in_repository": false
+    },
+    {
+      "id": "source-and-install-linkage-report",
+      "name": "ZIP-SOURCE-INSTALL-FINDINGS.md",
+      "bytes": 4797,
+      "sha256": "c3a9609ae58fd872745f2dcd98304b6a083773993009712d3abec7468eda05d3",
+      "included_in_repository": false
+    }
+  ],
+  "archive_identity": {
+    "name": "project.zip",
+    "bytes": 53411940,
+    "sha256": "275f0c28237cb64e98fed7841549e2a7ece4c311d29631bfc893598a207e24e8",
+    "included_in_repository": false
+  },
+  "source_records": {
+    "validation_commit": "532d91fc69232fdc932d516e9190028fb9a699da",
+    "formal_gate_commit_prefix": "4346c87",
+    "formal_gate_non_markdown_tree": "84d81d4b36cf7fcbc2bb495380142271c1816eaf",
+    "formal_gate_git_tree_prefix": "c2d0c631ac36",
+    "approval_associated_source_prefix": "53d5654",
+    "limits": "These labels and the historical owner response do not bind an original native install command to a recovered package."
+  },
+  "recovered_elite_artifacts": [
+    {
+      "size": 651396,
+      "sha256": "a64fffc677d1ac3a2e2c685f35bb80b216d20052b6a4964ef597623e8cdf24d9",
+      "crc32": "aa7a7b79",
+      "product": "SMK-37 Elite_900",
+      "without_ctl_sha256": "a64fffc677d1ac3a2e2c685f35bb80b216d20052b6a4964ef597623e8cdf24d9",
+      "controller": null,
+      "archive_member": "project/integration_validation_20261019/dev/x0x-smk37-elite.fwsc",
+      "evidence_scope": "Retained bytes; neither filename nor hash proves a physical installation."
+    },
+    {
+      "size": 651396,
+      "sha256": "0a7cff9775aeb74caa84715af4ce36244c6a95249fcfb8743cc24c2577233469",
+      "crc32": "e3bcfd5e",
+      "product": "SMK-37 Elite_900",
+      "without_ctl_sha256": "a64fffc677d1ac3a2e2c685f35bb80b216d20052b6a4964ef597623e8cdf24d9",
+      "controller": {
+        "size": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67",
+        "header_version": 2,
+        "header_size": 68,
+        "header_crc32": "77b7a496",
+        "abi": 2,
+        "problem": null
+      },
+      "archive_member": "project/integration_validation_20261019/dev/x0x-smk37-elite-ble.fwsc",
+      "evidence_scope": "Retained bytes; neither filename nor hash proves a physical installation."
+    },
+    {
+      "size": 651396,
+      "sha256": "fca1c6c95f0eca166e6d6137a3cf40f8d675ca48543ff75adb4cbf9f67becc16",
+      "crc32": "dbb22910",
+      "product": "SMK-37 Elite_900",
+      "without_ctl_sha256": "fca1c6c95f0eca166e6d6137a3cf40f8d675ca48543ff75adb4cbf9f67becc16",
+      "controller": null,
+      "archive_member": "project/integration_validation_20261019/rel/x0x-smk37-elite.fwsc",
+      "evidence_scope": "Retained bytes; neither filename nor hash proves a physical installation."
+    },
+    {
+      "size": 651396,
+      "sha256": "d80ff2a9e1ccb74beb1f287cbfdec616e0ae7e687a6ccb41ff922e9327d06053",
+      "crc32": "9274af37",
+      "product": "SMK-37 Elite_900",
+      "without_ctl_sha256": "fca1c6c95f0eca166e6d6137a3cf40f8d675ca48543ff75adb4cbf9f67becc16",
+      "controller": {
+        "size": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67",
+        "header_version": 2,
+        "header_size": 68,
+        "header_crc32": "77b7a496",
+        "abi": 2,
+        "problem": null
+      },
+      "archive_member": "project/integration_validation_20261019/rel/x0x-smk37-elite-ble.fwsc",
+      "evidence_scope": "Retained bytes; neither filename nor hash proves a physical installation."
+    },
+    {
+      "size": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67",
+      "controller": {
+        "size": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67",
+        "header_version": 2,
+        "header_size": 68,
+        "header_crc32": "77b7a496",
+        "abi": 2,
+        "problem": null
+      },
+      "archive_member": "project/integration_validation_20261019/dev/ctl.img",
+      "evidence_scope": "Retained bytes; neither filename nor hash proves a physical installation."
+    },
+    {
+      "size": 651396,
+      "sha256": "cdf35540865b03598127135084a782114ea3de4f66b42cf42ff982bdb585bb36",
+      "crc32": "805eb97d",
+      "product": "SMK-37 Elite_900",
+      "without_ctl_sha256": "a02a8111f36d600a232ea41c2753a2cccba639138dd7646f9ed7a0baf3d1f30e",
+      "controller": {
+        "size": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67",
+        "header_version": 2,
+        "header_size": 68,
+        "header_crc32": "77b7a496",
+        "abi": 2,
+        "problem": null
+      },
+      "archive_member": "project/hardware_smc_install_20261020/installed-elite-with-controller.fwsc",
+      "evidence_scope": "Retained bytes; neither filename nor hash proves a physical installation."
+    }
+  ],
+  "historical_reconstruction_comparison": {
+    "reconstruction_commit_prefix": "4e921fe",
+    "raw_fwsc": {
+      "lengths": [
+        651396,
+        651396
+      ],
+      "sha256": [
+        "a64fffc677d1ac3a2e2c685f35bb80b216d20052b6a4964ef597623e8cdf24d9",
+        "69e65e0c786c4a778d15f55b1e708f5d0d5d5d875e6c3bbc7c72941b11d308d3"
+      ],
+      "different_byte_count": 67,
+      "range_count": 45
+    },
+    "app_code_area": {
+      "lengths": [
+        552672,
+        552672
+      ],
+      "sha256": [
+        "f9a2f19850471e515bfa477a58fa8b79e1adb602c072a1a125e040df7bd72576",
+        "276275187804dc6fcff03ab12e8e455ba17d09d1ee2a8eff5208e9cf6577df2b"
+      ],
+      "different_byte_count": 53,
+      "range_count": 41
+    },
+    "app_difference_offset_inclusive": [
+      222504,
+      227965
+    ],
+    "controller": "Byte-identical to recovered 65492-byte controller; app is not an exact reproduction.",
+    "semantic_cause": "Not established; no relevant original ELF/map available in the inspected evidence."
+  },
+  "current_runtime_distinction": {
+    "commit": "816e0d3987bcb69be972cff2cd4df4469969f196",
+    "tree": "74db8ca92ab208c3a8fd963ad02e5e60a509d3a8",
+    "controller_bytes": 65524,
+    "controller_sha256": "9d6855e47791b3cab698af95d9625c35d2ea7b01d1fa7216e72ea622683a8245",
+    "meaning": "Different controller from the recovered historical one. Packaging/tool commits do not relabel unchanged runtime binaries."
+  },
+  "unresolved": [
+    "Original native physical installation record linking the approved early SMC behavior to an exact dev/rel package was not present in the reviewed archives.",
+    "Several requested native install logs were omitted by the original collector budget; the narrower install-record collector exists to recover them.",
+    "Historical gate FAIL was a gate-trap host self-test failure, not proof of failed firmware builds or proof that no installation occurred.",
+    "No reconstruction or current candidate is promoted to proven historical hardware behavior by this index."
+  ],
+  "collector_imports": [
+    {
+      "original_collector": "collector",
+      "file": "tools/recovery/artifact_evidence/Collect-SMC-Evidence.command",
+      "bytes": 741,
+      "sha256": "d883e5e8aaedac34668cda597ca3b2dda532bc340114aa7bc2d508537d691bb8",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "collector",
+      "file": "tools/recovery/artifact_evidence/README.txt",
+      "bytes": 5000,
+      "sha256": "7c82334c9c4cd70938df010f8a76da69f26bfb2143e91f4b70583fe11c76cf53",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "collector",
+      "file": "tools/recovery/artifact_evidence/collect.py",
+      "bytes": 13674,
+      "sha256": "7b40765f7c3d2c2992f3802837f51b7d24463ceb9140dc5c399562d8cfc256d5",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "collector",
+      "file": "tools/recovery/artifact_evidence/test_collect.py",
+      "bytes": 5108,
+      "sha256": "d657fcffad454ec5f5c3a7d89a5e27a8631cdb1da4ece217ee497f9f5f470753",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "install-record-collector",
+      "file": "tools/recovery/install_records/Collect-SMC-Install-Records.command",
+      "bytes": 757,
+      "sha256": "1e3a40e09be49b30b012ab2eba915538d897e83141232771e300714dbf43cb2d",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "install-record-collector",
+      "file": "tools/recovery/install_records/README.txt",
+      "bytes": 2474,
+      "sha256": "ce334939fc0ca6e948768b5a715facebba12d385a431d3d33c58d8d978b1d2ce",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "install-record-collector",
+      "file": "tools/recovery/install_records/collect_install_records.py",
+      "bytes": 6927,
+      "sha256": "752b41573945b5fcdda2674c4d23d74d01badfc33170dcd9205974869310f36e",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "install-record-collector",
+      "file": "tools/recovery/install_records/safe_reads.py",
+      "bytes": 1650,
+      "sha256": "f27cb59013fff1008bfc4a7e22a2ce60cffed9ee80e814a55e5563e70b230cc3",
+      "import": "byte-identical"
+    },
+    {
+      "original_collector": "install-record-collector",
+      "file": "tools/recovery/install_records/test_collect.py",
+      "bytes": 2931,
+      "sha256": "f2cf219201393808140499e54df1fa62cafb28b8b7611608e30d04824c66f130",
+      "import": "byte-identical"
+    }
+  ],
+  "fresh_checks": {
+    "scope": "Temporary fixtures only; source import and documentation checks. No real-home collection, device, network, firmware build or install.",
+    "results": [
+      [
+        "python3 -B tools/recovery/artifact_evidence/test_collect.py",
+        "PASS: 11 tests"
+      ],
+      [
+        "python3 -B tools/recovery/install_records/test_collect.py",
+        "PASS: 8 tests"
+      ],
+      [
+        "python3 -B tools/recovery/test_recovery_safety.py",
+        "PASS: 3 shared boundary tests (both collectors)"
+      ],
+      [
+        "bash -n tools/recovery/artifact_evidence/Collect-SMC-Evidence.command",
+        "PASS"
+      ],
+      [
+        "bash -n tools/recovery/install_records/Collect-SMC-Install-Records.command",
+        "PASS"
+      ]
+    ],
+    "limitations": [
+      "Actual macOS execution not run in this integration task.",
+      "Binary inspection/source-linkage results above are reused from the hashed prior reports, not rerun target or device checks."
+    ]
+  }
+}
