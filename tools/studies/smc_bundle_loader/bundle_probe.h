@@ -3,6 +3,7 @@
  * Requires existing ota_read/ldr_fread/erase/prog/poll, preserved chip-key check,
  * RAM loader ownership, held core1, stopped DMA and no flash/XIP readers.
  * No standalone piece writes. Header lives after a 1 MiB logical flash entry. */
+#include "rollback_pins.h"
 #define BP_MAGIC 0x31425058u
 #define BP_VERSION 1u
 #define BP_COMMIT_OFF 0x84000u /* sizing contract only; final layout must bind this */
@@ -22,6 +23,7 @@ static int bp_scan(const bp_header *h,uint32_t base,uint8_t *buf,int installed)
             if(installed ? ldr_fread(h->p[i].off+k,buf,512) : ota_read(base+h->p[i].off+k,buf,512))return -61;
             if(installed==2 && h->p[i].off+k==h->commit_off)
                 for(unsigned j=0;j<128;j++)buf[j]=((const uint8_t *)h)[128+j];
+            if(h->policy==2 && i)for(unsigned j=0;j<512;j++)if(buf[j]!=255)return -77;
             c=bp_crc(c,buf,512);all=bp_crc(all,buf,512);ldr_progress(k,h->p[i].size);
         }
         if(~c!=h->p[i].crc)return -62;
@@ -40,6 +42,21 @@ static int bp_sector(uint32_t off,uint8_t *sec,uint8_t *cur)
     }
     return -67;
 }
+/* Logical rollback is the exact approved baseline main, not arbitrary ABI2.
+ * Its 68-byte ABI2 header is inside a withheld 128-byte commit PREFIX. */
+static int bp_rollback_bind(uint32_t base,uint32_t key,uint8_t *buf)
+{
+    uint32_t c=~0u;
+    for(uint32_t k=0;k<0x99000u;k+=512) {
+        if(ota_read(base+0x4000u+k,buf,512))return -61;
+        if(k<BP_RB_CRYPT_SIZE) {
+            uint32_t n=BP_RB_CRYPT_SIZE-k;if(n>512)n=512;
+            ldr_sfc(buf,n,k,key);
+        }
+        c=bp_crc(c,buf,512);ldr_progress(k,0x99000u);
+    }
+    return ~c==BP_RB_MAIN_CRC?0:-76;
+}
 /* Decrypt only existing SFC-encrypted main; external immutable data is plain.
  * bp_manifest_structure is generated from the existing XB4 validator's exact
  * structural prefix; streaming payload validation replaces its XIP callback. */
@@ -47,6 +64,15 @@ static int bp_bind(const bp_header *h,uint32_t base,uint32_t key,uint8_t *vmem,u
 {
     xb4_manifest_t *v=(xb4_manifest_t *)(void *)vmem;
     uint32_t a=h->appdesc_off&~31u,delta=h->appdesc_off-a;
+    uint32_t app_crc=~0u;
+    for(uint32_t k=0;k<BP_APP_SIZE;) {
+        uint32_t n=BP_APP_SIZE-k;if(n>512)n=512;
+        if(ota_read(base+BP_APP_OFF+k,buf,n))return -61;
+        ldr_sfc(buf,n,BP_APP_OFF+k-0x4000u,key);
+        app_crc=bp_crc(app_crc,buf,n);k+=n;ldr_progress(k,BP_APP_SIZE);
+    }
+    if(~app_crc!=BP_APP_CRC)return -75;
+
     if(ota_read(base+a,buf,64))return -61;
     ldr_sfc(buf,64,a-0x4000u,key);
     if(ota_rd32(buf+delta)!=0x55493058u||ota_rd32(buf+delta+4)!=1||
@@ -82,14 +108,20 @@ static int bp_install(uint32_t base,uint32_t fl_size,uint32_t key,uint8_t *hdr,u
     hc=h->header_crc;h->header_crc=0;
     if(~bp_crc(~0u,hdr,sizeof *h)!=hc)return -62;
     h->header_crc=hc;
-    if(h->magic!=BP_MAGIC||h->version!=BP_VERSION||h->policy!=1||
+    if(h->magic!=BP_MAGIC||h->version!=BP_VERSION||(h->policy!=1&&h->policy!=2)||
        h->model!=~bp_crc(~0u,(const uint8_t *)SMK_MODEL,sizeof(SMK_MODEL)-1)||
-       h->reserved[0]||h->reserved[1]||!h->image_id||h->appdesc_off<0x4000u||h->appdesc_off>BP_COMMIT_OFF-20||
-       h->commit_off!=BP_COMMIT_OFF||h->commit_size!=128)return -60;
+       h->reserved[0]||h->reserved[1]||!h->image_id||h->commit_size!=128)return -60;
     for(unsigned i=0;i<4;i++)if(h->p[i].off!=off[i]||h->p[i].size!=size[i])return -60;
+    if(h->policy==1) {
+        if(h->appdesc_off!=BP_APPDESC_OFF||h->commit_off!=BP_COMMIT_OFF)return -60;
+    } else {
+        if(h->appdesc_off||h->commit_off!=BP_RB_COMMIT||h->image_id!=BP_RB_IMAGE_ID||
+           h->p[1].crc!=BP_FF_8K_CRC||h->p[2].crc!=BP_FF_8K_CRC||h->p[3].crc!=BP_FF_4K_CRC)return -60;
+    }
+
     if((rc=bp_scan(h,base,sec,0)))return rc;
     if(ota_read(base+h->commit_off,commit,128))return -61;
-    if((rc=bp_bind(h,base,key,hdr+256,sec)))return rc;
+    if((rc=h->policy==1?bp_bind(h,base,key,hdr+256,sec):bp_rollback_bind(base,key,sec)))return rc;
     /* Stage app data + secondary vendor loads before whole main rewrite. */
     for(unsigned pass=0;pass<4;pass++) {
         unsigned i=pass==3?0:pass+1;
