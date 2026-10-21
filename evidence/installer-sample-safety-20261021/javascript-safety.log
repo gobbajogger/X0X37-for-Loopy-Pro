@@ -1,0 +1,20 @@
+ok 1 Pro: two keyboards, both enumeration orders and loader/running bystanders
+ok 2 Pro: one keyboard completes across changed port names
+ok 3 Elite: two keyboards, both enumeration orders and loader/running bystanders
+ok 4 Elite: one keyboard completes across changed port names
+ok 5 duplicate port names are ambiguous
+ok 6 FM-1 reference keeps its own model through the loader
+ok 7 resume rejects an incompatible package before writing
+ok 8 bystander appearing during reboot receives no write
+ok 9 loader model is checked before the write command
+ok 10 verified target name remains bound for sample restore
+ok 11 unknown, empty and malformed sample layouts stop before update
+ok 12 documented stock identity can install without sample commands
+ok 13 library: complete header and audio bytes restored exactly
+ok 14 library: erased header tail retains legacy firmware compatibility
+ok 15 library: unsupported header tail is rejected before erasure
+ok 16 page: complete header and audio bytes restored exactly
+ok 17 page: erased header tail retains legacy firmware compatibility
+ok 18 page: unsupported header tail is rejected before erasure
+ok 19 malformed slot layouts are rejected
+19 installer/sample safety regressions passed

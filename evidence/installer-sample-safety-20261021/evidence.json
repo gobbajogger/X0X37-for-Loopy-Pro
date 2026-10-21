@@ -1,0 +1,35 @@
+{
+  "base": "7b0bce55c5446a709fc3eecdafb993181654dcab",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "tests/installer_safety_test.py"
+      ],
+      "exit_code": 0,
+      "log": "evidence/installer-sample-safety-20261021/python-safety.log"
+    },
+    {
+      "command": [
+        "node",
+        "web/test_installer_safety.mjs"
+      ],
+      "exit_code": 0,
+      "log": "evidence/installer-sample-safety-20261021/javascript-safety.log"
+    }
+  ],
+  "sha256": {
+    "tools/fm1_install.py": "b83323f0e2cb5953f8ea0e7c1789c04aefdcea0f09e04cf5e69af2c0b59bfb8e",
+    "tools/fm1_sample_upload.py": "e8ec8532705f70aa1f2862b6ed9fb0eabd457769e01553fbdde1d426c12496f7",
+    "tools/x0x_slots.py": "be1872bb3293f3edcf12b5c2b12243ad9c35fc8de6e9c41b664098d5c3694d63",
+    "web/fm1ota.js": "caf0b39a6aba739340e04af4b4605ae231268f34d6324089bdc07a3f7410661d",
+    "web/x0x_breaks.js": "2a3c7f1403a7453e164ec0a56aec22663e97fe2ea43aecc6911661db2281c104",
+    "web/x0x_breaks.html": "2e99b23677de4501d70dd927db54a012a29f29f9ab0526dc88fd562099ca0a7e",
+    "tests/installer_safety_test.py": "945ae29442defe651d9b2835050b70b2b1bda23636d24bf5e77bf3575350fa72",
+    "web/test_installer_safety.mjs": "8ae2fdc913beddf700e336f0df3938533799e4a4e6a7686580dfd21c81b789b2",
+    "tests/slot_mock.py": "ad619db8cc97efd7c124f0f8d30cc469937ff1c19d5947d6b13b35ddf887afaf",
+    "tests/install_test.py": "49375a90dc5dc734076a72458b6c60e2e2e0e183640de361eb7becaf6b247060"
+  },
+  "device_io": false,
+  "target_build": false
+}

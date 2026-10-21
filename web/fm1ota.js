@@ -11,6 +11,7 @@ const UPGRADE = [0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7];
 const MAXDATA = 512;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const IS_OTA = (id) => /^ota-/i.test(id.model);
+const PORT_RE = /fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i;
 // the SMK-37 Pro, SMK-37 Elite, MKE-P37, Starrykey 37 Play and the SMK-37+VA mod: one keyboard under several model
 // names, so a package for one runs on all of them; an FM-1 is another device
 const SMK_FAMILY = /^(ota-)?(SMK-37[ +].*|MKE-P37|STARRYKEY-37.*)$/i;
@@ -115,19 +116,50 @@ export class Updater {
   constructor(access, log) {
     this.access = access;
     this.log = log || (() => {});
+    this.target = null;
+    this.targetName = null;
+    this.verified = false;
+    this.product = null;
+  }
+
+  ports() {
+    return [...this.access.inputs.values()].filter((p) => p.state !== "disconnected" && PORT_RE.test(p.name || ""));
+  }
+
+  singlePort(selected = null) {
+    // Model/version has no unit serial. A sole keyboard may rename its port on
+    // reboot; multiple update-compatible ports cannot be safely distinguished.
+    const ports = this.ports();
+    if (ports.length > 1 || (selected !== null && (ports.length !== 1 || ports[0].name !== selected)))
+      throw fail("ambiguous", "Cannot bind this update to one keyboard across reboot. Disconnect the other update-compatible keyboards and select the target again.");
+    if (this.verified && ports.length && ports[0].name !== this.targetName)
+      throw fail("ambiguous", "The verified keyboard's MIDI port changed before readback or sample restore; refusing another port.");
+    return ports;
+  }
+
+  bind(dev) {
+    try {
+      this.singlePort(dev.name);
+      if (this.target && (this.targetName !== dev.name || !sameKeyboard(this.target.model, dev.id.model)))
+        throw fail("ambiguous", "The selected keyboard changed before the update.");
+    } catch (e) { dev.link.close(); throw e; }
+    this.target = dev.id;
+    this.targetName = dev.name;
   }
 
   // every in/out pair with the same port name that answers the handshake
   async find(filter) {
     const outs = [...this.access.outputs.values()];
-    for (const input of this.access.inputs.values()) {
-      if (input.state === "disconnected") continue;
-      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
+    for (const input of (this.target ? this.singlePort() : this.ports())) {
       const output = outs.find((o) => o.name === input.name) || (outs.length === 1 ? outs[0] : null);
       if (!output) continue;
       try { await input.open(); await output.open(); } catch (_) { continue; }
       const link = new Link(input, output);
       const id = await handshake(link, 2);
+      if (id && this.target && !sameKeyboard(this.target.model.replace(/^ota-/i, ""), id.model.replace(/^ota-/i, ""))) {
+        link.close();
+        throw fail("model", `The selected keyboard changed model during the update: ${id.text}`);
+      }
       if (id && (!filter || filter(id))) return { link, id, name: input.name };
       link.close();
     }
@@ -180,6 +212,8 @@ export class Updater {
     if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
     const [model] = product.split("_");
     if (!sameKeyboard(dev.id.model, model)) { dev.link.close(); throw fail("model", `the device is ${dev.id.text}, the package is for ${product}`); }
+    this.bind(dev);
+    this.product = product;
     step("start", dev.id.text);
     dev.link.send(UPGRADE);
     await sleep(2000);
@@ -198,12 +232,19 @@ export class Updater {
     if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
     back.link.close();
     if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
+    this.targetName = back.name;
+    this.verified = true;
     step("done", back.id.text);
     return back.id.text;
   }
 
   // step 2 with the loader found by find()/waitFor()
   async write(ota, image, step) {
+    try {
+      this.singlePort(ota.name);
+      if (!this.product || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), this.product.split("_")[0]))
+        throw fail("model", `the loader is ${ota.id.text}, the package is for ${this.product || "an unknown model"}`);
+    } catch (e) { ota.link.close(); throw e; }
     ota.link.send(UPGRADE);
     await sleep(2000);
     const s2 = await this.serve(ota.link, image, 0xF0000000, 180000, (n) => step("write", n));
@@ -221,6 +262,8 @@ export class Updater {
       ota.link.close();
       throw fail("model", `the device is in the update mode of ${ota.id.text}, the package is for ${product || "an unknown model"}`, ota.id.text);
     }
+    this.bind(ota);
+    this.product = product;
     return (await this.write(ota, image, onStep || (() => {}))).finished;
   }
 }

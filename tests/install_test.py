@@ -107,7 +107,11 @@ class FakeSMK:
                 link.q.put(bytes(pkt))
 
     def rx(self, d):
-        if d == I.HS_QUERY:
+        if d == I.ED_HDR + bytes([15, 0xF7]) and self.identity.split("_")[-1].startswith("9"):
+            # Transport-only X0X fixtures have two empty legacy slots. A lost
+            # layout reply is deliberately tested by installer_safety_test.py.
+            self.tx(I.ED_HDR + bytes([15, 2, 80, 0, 0, 0, 0, 0, 0, 0xF7]))
+        elif d == I.HS_QUERY:
             t = self.identity.encode()
             self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + t + bytes(28 - len(t))) + b"\xF7")
         elif d == I.UPGRADE:
