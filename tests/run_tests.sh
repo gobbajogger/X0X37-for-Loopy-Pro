@@ -179,6 +179,7 @@ run font-pack python3 tests/font_pack_test.py
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
+run smc-queue python3 tests/host/smc_queue_test.py
 run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
 run smc-reachability sh tests/host/smc_reachability_test.sh

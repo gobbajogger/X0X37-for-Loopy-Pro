@@ -1,0 +1,23 @@
+project_update_guard: held restart, BEGIN/COMMIT update discard and idle updates ok
+In file included from tests/host/../../host/x0x_host.c:259,
+                 from tests/host/project_runtime_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:511:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  511 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2043:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2043 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+project_runtime: reset, load, cancel, invalid, transfer, save and sample preservation ok
+In file included from tests/host/../../host/x0x_host.c:259,
+                 from tests/host/project_smc_runtime_test.c:6:
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘pref_set’:
+tests/host/../../host/../firmware/src/app/ui.c:511:57: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  511 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function ‘prob_turn’:
+tests/host/../../host/../firmware/src/app/ui.c:2043:43: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+ 2043 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+project_smc_runtime: reset drops all queued routes; lock/abort/solo/pickup state ok
