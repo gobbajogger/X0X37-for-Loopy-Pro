@@ -12,6 +12,18 @@ class Link:
     def send(self,p):self.events.append('upgrade');return True
     def close(self):pass
 class Test(unittest.TestCase):
+    def test_wire_frame_validation(self):
+        payload=struct.pack('<7I',0x31455848,a.bundle.MODEL_ID,123,0,0,0,5)
+        wire=bytes([0,0x59,0x40,len(payload),0,0])+payload+bytes([(~sum(payload))&255])
+        class WireLink:
+            def send(self,p):return True
+            def read(self,t):return self.packet
+        link=WireLink();link.packet=b'\xf0'+a.fi.pack7(wire)+b'\xf7'
+        self.assertEqual(a.exchange(link,b'\0'*16),payload)
+        for offset in (3,5,len(wire)-1):
+            bad=bytearray(wire);bad[offset]^=1;link.packet=b'\xf0'+a.fi.pack7(bad)+b'\xf7'
+            with self.assertRaises(ValueError):a.exchange(link,b'\0'*16)
+
     def test_order_and_unknown_loader(self):
         for mode in ('normal','resume','unknown','no-cap','cancel'):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as td:

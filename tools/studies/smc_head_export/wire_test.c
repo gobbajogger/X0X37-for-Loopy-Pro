@@ -44,7 +44,10 @@ int main(int argc,char**argv){assert(argc==2);FILE*f=fopen(argv[1],"rb");assert(
  assert(!ota_stage()); /* exact old app staging primitives, no main writes */
  uint8_t rec[112]={0};ota_wr16(rec+2,0x5A0D);ota_wr16(rec+4,0x5A01);ota_wr16(rec+6,0x5441);memcpy(rec+8,OTA_PARM_ID,sizeof OTA_PARM_ID-1);ota_wr32(rec+72,OTA_AREA);ota_wr16(rec,ota_crc16(rec+2,78,0));memcpy(nor+OTA_RES,rec,112);
  memcpy(before,nor,sizeof nor);req(0,123,0,0);assert(replylen==28&&ota_rd32(reply+24)==5);
- req(HX_INFO,123,0,0);assert(!replylen);assert(!hx_admit());
+ req(HX_INFO,123,0,0);assert(!replylen);
+ uint32_t fo,fs,oo,os;uint8_t h[1024];assert(!ota_ufw(h,&fo,&fs,&oo,&os));
+ source[oo+1000]^=1;assert(hx_admit()==-72&&!hx_admitted&&!erases);source[oo+1000]^=1;
+ assert(!hx_admit());
  req(HX_INFO,123,0,0);assert(replylen==28);uint32_t crc=ota_rd32(reply+12);
  for(unsigned off=0;off<HX_SIZE;off+=HX_CHUNK){unsigned n=HX_SIZE-off;if(n>HX_CHUNK)n=HX_CHUNK;req(HX_READ,123,off,n);assert(replylen==28+n&&!memcmp(reply+28,nor+off,n));}
  nor[OTA_RES+20]^=1;req(HX_FINISH,123,crc,0);assert(!replylen&&!erases&&!clears);nor[OTA_RES+20]^=1;
