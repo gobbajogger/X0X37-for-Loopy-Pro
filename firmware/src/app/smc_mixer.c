@@ -581,7 +581,10 @@ static int smc_led(int note)
     int strip = note & 7, row = note >> 3;
     if (note == 5) return ui.overlay != O_NONE;
     if (note == 6) return 0;
+    if (note == 7) return ui.view == V_HOME;
+    if (note == 13) return ui.view == V_MIX;
     if (note == 14) return ui.view == V_GLO;
+    if (note == 15) return ui.view == V_PART;
     if (note >= 16 && note < 32) {
         int kit = smc_drum_mix();
         if (kit >= 0) {
@@ -601,8 +604,10 @@ static int smc_led(int note)
         }
         if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
                                      smc_home_target(strip)) == 0;
-        return (strip == 5 && ui.view == V_FX) || (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
-               (strip == 7 && (ui.view == V_MIX || ui.view == V_HOME));
+        /* SELECT 6/7/8 open reverb, delay and master; drum SELECT was handled above. */
+        return (strip == 5 && ui.view == V_FX && cur_page() == 0) ||
+               (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
+               (strip == 7 && ui.view == V_MIX && cur_page() == 3);
     }
     if (note == 0x5D) return !seq.playing;
     if (note == 0x5E) return seq.playing;
