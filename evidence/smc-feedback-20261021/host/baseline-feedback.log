@@ -1,0 +1,90 @@
+FAIL S8 PART: note=15 view=0 page=0 got=1 expected=0
+FAIL SELECT8 MASTER: note=31 view=0 page=0 got=1 expected=0
+FAIL S8 PART: note=15 view=1 page=0 got=0 expected=1
+FAIL S8 PART: note=15 view=1 page=2 got=0 expected=1
+FAIL S6 MIX: note=13 view=3 page=0 got=1 expected=0
+FAIL S6 MIX: note=13 view=3 page=1 got=1 expected=0
+FAIL SELECT6 REVERB: note=29 view=3 page=1 got=1 expected=0
+FAIL R8 HOME: note=7 view=4 page=0 got=1 expected=0
+FAIL S6 MIX: note=13 view=4 page=0 got=0 expected=1
+FAIL S8 PART: note=15 view=4 page=0 got=1 expected=0
+FAIL SELECT8 MASTER: note=31 view=4 page=0 got=1 expected=0
+FAIL R8 HOME: note=7 view=4 page=3 got=1 expected=0
+FAIL S6 MIX: note=13 view=4 page=3 got=0 expected=1
+FAIL S8 PART: note=15 view=4 page=3 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=1 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=1 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=1 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL S6 remains MIX in drum mode: note=13 view=4 page=2 got=0 expected=1
+FAIL R8 is not HOME in drum mode: note=7 view=4 page=2 got=1 expected=0
+FAIL S8 is not PART in drum mode: note=15 view=4 page=2 got=1 expected=0
+FAIL PART inactive: wire note=15 got=127 expected=0
+FAIL HOME extinguishes: wire note=7 got=-1 expected=0
+FAIL MIX lights: wire note=13 got=-1 expected=127
+FAIL: 892 SMC feedback expectations, 83 failures; navigation, main/drum banks, transport and emitted MIDI
+Traceback (most recent call last):
+  File "/workspace/scratch/9d5aa4f082c9/x0x37-feedback/tests/host/smc_feedback_test.py", line 199, in <module>
+    subprocess.run([str(binary)], check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/tmp/smc-feedback-_806vca9/feedback']' returned non-zero exit status 1.

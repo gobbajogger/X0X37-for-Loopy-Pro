@@ -1,0 +1,16 @@
+{
+  "base": "cb3c0502ae405af0a76325727d92ba1667d2982d",
+  "scope": "Align SMC navigation LED feedback with existing shortcut destinations in smc_led only. Preserve drum mute/selection precedence, part recording/solo/mute status, transport feedback, pickup, input dispatch and controller firmware. Test fixture enum gains V_PART to compile the changed production function. No new Record/Solo per-drum policy or persistent mode is introduced.",
+  "checks": [
+    {
+      "reason": "Changed navigation LED semantics, their emitted MIDI transitions and existing mode/ownership boundaries; affected filter fixture; existing full production UI and drum mute/selection feedback consumer.",
+      "argv": [
+        "sh",
+        "tests/run_tests.sh",
+        "smc-feedback",
+        "smc-filter",
+        "smc-drum-mutes"
+      ]
+    }
+  ]
+}

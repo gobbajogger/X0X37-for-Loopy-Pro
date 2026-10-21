@@ -25,9 +25,12 @@ typedef struct {                    /* the clip keys fields of settings_t (app/x
     uint8_t autosave_off;
 } settings_t;
 static struct { settings_t set; } proj;
-static struct { uint16_t bpm; uint8_t playing, req_stop; } seq;
+static struct { uint16_t bpm; uint8_t playing, req_start, req_cont, req_stop; } seq;
+static uint8_t project_busy;
+static int ui_project_busy(void) { return project_busy; }
 #include "fm1_opt.h"
 #define SMK_KEY_F3 5u
+#define SMK_BTN_KNOB_BANK 0
 #define SMK_BTN_FADER_BANK 1
 #define SMK_BTN_LEFT 2
 static volatile uint32_t fm1_ms;
@@ -87,6 +90,7 @@ static void ck_page_draw(void) {}
 static uint8_t save_wait;
 static uint32_t save_calls;
 static uint8_t perf_testing(void) { return 0u; }
+static uint8_t perf_save_busy(void) { return 0u; }
 static int project_save(void) { save_calls++; return 0; }
 static void say(const char *s, uint32_t t) { (void)s; (void)t; }
 static void save_project(void) { save_wait = 0u; project_save(); }
@@ -406,6 +410,35 @@ int main(void)
     run(AUTOSAVE_QUIET);
     autosave();
     check("K11 queued SAVE runs once performance is quiet", save_calls == 3u && !save_wait);
+    {
+        settings_t saved = proj.set;
+        unsigned u0 = fake_tx_n, b0 = ble_tx_n;
+        uint8_t page = ck.pg, on = ck.on;
+        project_busy = 1;
+        ck_start_req = 1;
+        fm1_in.keys = (uint64_t)1u << 36;
+        fm1_in.buttons = 1u << panel.btn[B_ARP];
+        fm1_in.enc_steps[0] = 3;
+        run(20);
+        check("K12 project hold suppresses key, stage and knob MIDI/edits",
+              !memcmp(&saved, &proj.set, sizeof saved) && ck.pg == page && ck.on == on &&
+              fake_tx_n == u0 && ble_tx_n == b0);
+        check("K12 project hold consumes raw key edges and stale start",
+              ck.keys[1] == 16u && ck.btn_prev == 0x7Fu && !ck_start_req && ck.ext_seen == (uint8_t)apc_clock_count);
+        save_wait = 1;
+        autosave();
+        check("K12 project hold blocks queued SAVE", save_calls == 3u && save_wait);
+        /* The production UI drains encoders separately while held; this fixture only polls clip keys. */
+        for (i = 0; i < NE; i++)
+            (void)fm1_enc_take(panel.enc[i]);
+        project_busy = 0;
+        run(20);
+        check("K12 held key and stage button do not retrigger on release",
+              !ck.snd[0] && !ck.snd[1] && ck.pg == page && ck.on == on);
+        fm1_in.keys = fm1_in.buttons = 0;
+        run(20);
+        knob("K12 fresh knob turns resume after project hold", 1);
+    }
     printf("%s %d fail\n", fails ? "FAIL" : "PASS", fails);
     return fails != 0;
 }

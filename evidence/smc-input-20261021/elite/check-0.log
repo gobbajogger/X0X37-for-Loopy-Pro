@@ -1,0 +1,5 @@
+PASS: retained host checks match all 339 source inputs, compiler and 7 logs
+REUSED: project-runtime project-runtime.log
+REUSED: smc-reachability smc-reachability.log
+REUSED: smc-performance-abort smc-performance-abort.log
+REUSED: smc-queue ASan/UBSan queue-asan-ubsan.log

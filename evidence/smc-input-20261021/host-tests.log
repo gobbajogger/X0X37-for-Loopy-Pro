@@ -1,0 +1,6 @@
+  ok   project-runtime
+  ok   smc-queue
+  ok   smc-reachability
+  ok   smc-performance-abort
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
