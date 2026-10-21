@@ -15,6 +15,16 @@ import tempfile
 
 PROFILE='smc-vendor-central-dev'
 
+
+def checked_tools(repo,commit):
+    """Constructor/validator implementation must be the selected source, too."""
+    here=Path(__file__).resolve().parent
+    for name in ('smc_vendor_dev_validate.py','smc_vendor_dev_build.py','smc_vendor_bundle.py',
+                 'dev_validate.py','validation_inputs.py','fm1pkg_make.py','add_ctl.py'):
+        expected=subprocess.check_output(['git','-C',str(repo),'show',str(commit)+':tools/'+name])
+        if (here/name).read_bytes()!=expected:
+            raise ValueError('invoking tool differs from selected commit: '+name)
+
 def verify(repo,commit,record,fwsc):
     import dev_validate as dv
     import smc_vendor_bundle as bundle
@@ -23,6 +33,7 @@ def verify(repo,commit,record,fwsc):
     if (data.get('schema')!=3 or data.get('result')!='DEV CHECKED' or data.get('profile')!=PROFILE or
         data.get('config')!='dev' or data.get('model')!='elite' or data.get('hardware_tested') is not False):
         raise ValueError('not an Elite SMC central DEV record')
+    checked_tools(repo,commit)
     if data.get('tree')!=dv.tree(repo,commit):raise ValueError('SMC evidence source tree mismatch')
     dv.validation_inputs.validate(data.get('validation_inputs'))
     inputs=data['validation_inputs']['inputs']
@@ -58,6 +69,7 @@ def run(a):
     if platform.system()!='Linux' or platform.machine() not in ('x86_64','AMD64'):
         raise ValueError('SMC DEV target build requires Linux x86-64')
     repo=Path(a.repo).resolve();commit=dv.git(repo,'rev-parse','--verify',a.commit+'^{commit}')
+    checked_tools(repo,commit)
     plan=json.loads(Path(a.plan).read_text());checks=dv.check_plan(plan)
     if 'worker' in plan:raise ValueError('worker provenance is not accepted for this native profile')
     base=dv.git(repo,'rev-parse','--verify',plan['base']+'^{commit}')

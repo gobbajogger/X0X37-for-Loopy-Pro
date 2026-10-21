@@ -27,3 +27,12 @@ with tempfile.TemporaryDirectory() as d:
     except ValueError:pass
     else:raise RuntimeError('ABI2 argument accepted in segmented route')
 print('SMC DEV validation: ambient selectors removed, explicit schema/profile/model/config/controller refusal PASS')
+# A record cannot attribute a constructor from this checkout to another commit.
+original=sv.subprocess.check_output
+try:
+    sv.subprocess.check_output=lambda *a,**kw:b'other revision of the selected tool'
+    try:sv.checked_tools(root,'old-commit')
+    except ValueError:pass
+    else:raise RuntimeError('different invoking implementation accepted')
+finally:sv.subprocess.check_output=original
+print('SMC DEV validation: invoking tool mismatch to selected commit rejected PASS')
