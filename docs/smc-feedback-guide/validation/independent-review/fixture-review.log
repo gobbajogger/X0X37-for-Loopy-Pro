@@ -1,0 +1,7 @@
+baseline: exit=1; PASS lines=0; FAIL lines=0
+remove-only: exit=1; PASS lines=129; FAIL lines=9
+repaired: exit=0; PASS lines=138; FAIL lines=0
+repaired-test-profile: exit=0; PASS lines=138; FAIL lines=0
+negative-hidden-edits: exit=1; PASS lines=117; FAIL lines=21
+negative-replay: exit=1; PASS lines=93; FAIL lines=45
+Review controls passed: original failure, 9 stale assertions, repaired success, hidden-edit and replay sensitivity.

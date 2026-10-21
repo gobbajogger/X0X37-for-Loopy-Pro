@@ -15,11 +15,11 @@ static struct { struct { uint8_t bt; } set; } proj;
 static struct { uint8_t overlay, help; uint32_t act_t; } ui;
 static struct { uint8_t pg; } ck;
 static uint8_t clip_grid_mode, fields[CK_NE];
-static unsigned dirty, notices, fallback_turns;
+static unsigned field_writes, notices, fallback_turns;
 static int page_value;
 static uint32_t ck_get(uint32_t f) { return fields[f]; }
-static void ck_set(uint32_t f, uint32_t v) { fields[f] = (uint8_t)v; }
-static void mark_dirty(void) { dirty++; }
+/* Count setter calls: production ck_set owns persistence, and ON/LATCH are runtime-only. */
+static void ck_set(uint32_t f, uint32_t v) { fields[f] = (uint8_t)v; field_writes++; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; notices++; }
 static char *put_s(char *d, const char *s) { while ((*d++ = *s++)) {} return d - 1; }
 static const char *ck_val_txt(uint32_t f, uint32_t v, char *s)
@@ -69,7 +69,7 @@ static void turn(int n, uint8_t value)
 static void covered(uint8_t overlay, uint8_t help)
 {
     uint8_t before[CK_NE];
-    unsigned d = dirty, nt = notices, ft = fallback_turns;
+    unsigned d = field_writes, nt = notices, ft = fallback_turns;
     int pv = page_value;
     uint32_t act = ui.act_t;
     memcpy(before, fields, sizeof before);
@@ -79,23 +79,23 @@ static void covered(uint8_t overlay, uint8_t help)
         turn(n, 1);
     if (overlay == O_LIST && !help) {
         check("menu owns encoders without editing covered clip fields",
-              !memcmp(before, fields, sizeof before) && dirty == d &&
+              !memcmp(before, fields, sizeof before) && field_writes == d &&
               fallback_turns == ft + 8 && page_value == pv + 8);
     } else {
         check(help ? "help blocks clip fields and X0X fallback" : "confirmation blocks clip fields and X0X fallback",
-              !memcmp(before, fields, sizeof before) && dirty == d && notices == nt &&
+              !memcmp(before, fields, sizeof before) && field_writes == d && notices == nt &&
               fallback_turns == ft && page_value == pv && ui.act_t == act);
     }
     check("covered encoder events are drained", smc_qr == smc_qw && smc_host_r == smc_host_w);
     memcpy(before, fields, sizeof before);
-    d = dirty;
+    d = field_writes;
     ft = fallback_turns;
     pv = page_value;
     ui.overlay = O_NONE;
     ui.help = 0;
     smc_poll();
     check("closing the overlay does not replay turns", !memcmp(before, fields, sizeof before) &&
-          dirty == d && fallback_turns == ft && page_value == pv);
+          field_writes == d && fallback_turns == ft && page_value == pv);
 }
 int main(void)
 {
@@ -105,12 +105,12 @@ int main(void)
         smc_poll();
         clip_grid_mode = 1;
         for (unsigned page = 1; page <= 3; page++) {
-            unsigned d = dirty, ft = fallback_turns;
+            unsigned d = field_writes, ft = fallback_turns;
             uint32_t f = CK_PAGE_FIELDS[page - 1][0];
             memset(fields, 0, sizeof fields);
             ck.pg = (uint8_t)page;
             turn(0, 1);
-            check("visible stage edits its first field", fields[f] == 1 && dirty == d + 1 && fallback_turns == ft);
+            check("visible stage edits its first field", fields[f] == 1 && field_writes == d + 1 && fallback_turns == ft);
             covered(O_LIST, 0);
             covered(O_NONE, 1);
             covered(O_ASK, 0);

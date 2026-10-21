@@ -1,0 +1,4 @@
+tests/host/smc_clip_visibility_test.c:22:13: error: ‘mark_dirty’ defined but not used [-Werror=unused-function]
+   22 | static void mark_dirty(void) { dirty++; }
+      |             ^~~~~~~~~~
+cc1: all warnings being treated as errors

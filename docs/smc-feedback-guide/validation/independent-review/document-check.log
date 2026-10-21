@@ -1,0 +1,3 @@
+PASS: 47 local Markdown links/anchors resolve; both guides have six sections and all nine source-reference groups; no TODO/TBD markers; tables terminate correctly.
+PASS: all recorded reference inputs match SHA-256 manifest; reference checkout remains clean at 4cf8c2f.
+Manual review: EN/RU claims agree on layouts, selection/REC, pickup, indicators, TEST role, notification/output gating, and untested hardware scope.
