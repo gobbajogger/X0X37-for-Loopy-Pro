@@ -171,14 +171,14 @@ static void priority_regression(void)
         }
         message(0x90, 0x2E, 127);
         for (int strip = 0; strip < 8; strip++) assert(smc.lit[16 + strip] == 1);
-        /* R2 and S2 remain whole-part controls under the approved scope. */
+        /* The owner-selected drum R/S layout follows the same visible bank. */
         setup(kit + 1, 1);
         message(0x90, 1, 127);
-        assert(ui.part == 1 && ui.rec);
+        assert(ui.part == kit && ui.sel[kit] == 9 && ui.rec);
         message(0x90, 9, 127);
-        assert(smc.solo == 2);
+        assert(smc_project_active() && smc.lit[9] == 1);
         message(0x80, 9, 0);
-        assert(smc.solo == 0);
+        assert(!smc_project_active() && smc.lit[9] == 0);
     }
 }
 

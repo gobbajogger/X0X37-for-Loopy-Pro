@@ -19,11 +19,16 @@ source = SOURCE.read_text()
 
 
 def function(name):
-    match = re.search(r"^(?:X0X_COLD )?(?:static )?[^\n]+\b" + name +
-                      r"\([^\n]*\)\n\{.*?^\}", source, re.M | re.S)
+    match = re.search(r"^[^\n]*\b" + name + r"\([^\n]*\)\s*\{", source, re.M)
     if not match:
         raise RuntimeError(f"Production function not found: {name}")
-    return match[0]
+    depth, end = 1, match.end()
+    while depth:
+        if end == len(source):
+            raise RuntimeError(f"Unterminated production function: {name}")
+        depth += (source[end] == "{") - (source[end] == "}")
+        end += 1
+    return source[match.start():end]
 
 
 prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
@@ -45,7 +50,7 @@ harness = r'''
 #define PROJ_BT_SMC_CENTRAL 16u
 #define PROJ_BT_SMC_USER 32u
 typedef struct { uint8_t kind, a, b, c; } pref_t;
-enum { O_NONE, O_ASK };
+enum { O_NONE, O_ASK, NKIT = 2 };
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { uint8_t overlay, help; } ui;
 static int locked, testing, inject, route, mmc_src, reset_on_first;
@@ -55,7 +60,8 @@ static int perf_testing(void) { return testing; }
 static int ui_project_busy(void) { return locked; }
 static void engine_smc_solo(int n) { (void)n; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; }
-''' + prefix + "\n" + "\n".join(function(name) for name in (
+''' + prefix + "\n" + "\n".join(function(name) for name in
+    ("smc_project_active", "smc_solo_clear") if "smc_solo_clear" in source) + "\n" + "\n".join(function(name) for name in (
     "smc_project_drop", "smc_ble_midi", "smc_midi_host", "smc_mmc_host")) + r'''
 
 static void record(const uint8_t *m, uint8_t n)

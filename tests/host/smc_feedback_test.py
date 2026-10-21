@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check production SMC LED destinations and emitted feedback without a device.
 
-Navigation expectations follow the existing button actions in SMC_MIXER.md.
+Navigation and drum-strip expectations follow the actions in SMC_MIXER.md.
 Production LED/frame functions are compiled verbatim; UI/sound/transport are substitutes.
 SMC_SOURCE selects an older smc_mixer.c for a source-negative control.
 """
@@ -45,7 +45,7 @@ typedef struct { int kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 seq_t seq;
 static struct { int rec,part,view,overlay,help,sel[NKIT]; } ui;
-static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8]; } smc;
+static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8]; uint16_t drum_solo[NKIT]; } smc;
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
@@ -62,6 +62,7 @@ static int track_muted(int kit,int track) {
     return (drum_mutes[kit]>>track)&1;
 }
 static int smk_clip_mode_on(void) { return clip; }
+#define is_drum() (ui.part < NKIT)
 static int cur_page(void) { return page; }
 static int drum_mix_page(void) { return ui.view==V_MIX && page>=1 && page<=NKIT ? page-1 : -1; }
 static int ui_project_busy(void) { return locked; }
@@ -126,25 +127,26 @@ static void main_strips(void) {
     filter=0;expect("filter endpoint does not mute master",23,0);filter=64;
 }
 static void drums(void) {
-    for(int kit=0;kit<NKIT;kit++) for(int selected=0;selected<NDRUM;selected++) {
-        ui.view=V_MIX;page=kit+1;ui.sel[kit]=selected;
+    for(int mode=0;mode<2;mode++) for(int kit=0;kit<NKIT;kit++) for(int selected=0;selected<NDRUM;selected++) {
+        ui.view=mode?V_SEQ:V_MIX;page=mode?0:kit+1;ui.sel[kit]=selected;
+        ui.part=kit;ui.rec=1;smc.rec_part=3;smc.solo=4;
+        smc.drum_solo[kit]=(uint16_t)(1u<<selected);
         drum_mutes[kit]=(uint16_t)(1u<<selected);
         for(int strip=0;strip<8;strip++) {
             int track=(selected/8)*8+strip;
+            expect("drum REC bank",strip,track==selected);
+            expect("drum SOLO bank",8+strip,track==selected);
             expect("drum MUTE bank",16+strip,track==selected);
             expect("drum SELECT takes priority over shortcuts",24+strip,track==selected);
         }
-        expect("S6 remains MIX in drum mode",13,1);
-        expect("R8 is not HOME in drum mode",7,0);
-        expect("S8 is not PART in drum mode",15,0);
-        /* REC/SOLO keep their existing whole-part behavior. */
-        ui.part=2;ui.rec=1;smc.rec_part=3;smc.solo=4;
-        for(int strip=0;strip<NPARTS;strip++) {
-            expect("drum-view whole-part REC",strip,strip==2);
-            expect("drum-view whole-part SOLO",8+strip,strip==2);
+        /* A visible kit can differ from the actual recording part. */
+        if(!mode) {
+            ui.part=2;
+            for(int strip=0;strip<8;strip++) expect("other part records: no drum REC lamp",strip,0);
         }
     }
     ui.rec=smc.solo=0;drum_mutes[0]=drum_mutes[1]=0;
+    smc.drum_solo[0]=smc.drum_solo[1]=0;
     /* Overlay/clip ownership keeps the existing main-map projection. */
     ui.view=V_MIX;page=1;ui.part=3;part_mutes=8;
     for(int owner=0;owner<2;owner++) {
