@@ -203,11 +203,11 @@ void user_client_report_descriptor_result(struct descriptor_report *d)
 
 void user_client_report_data_callback(struct data_report *r)
 {
-    if (wanted && r && r->kind == 0xa7 && r->connection == connection &&
+    if (wanted && !retiring && r && r->kind == 0xa7 && r->connection == connection &&
         midi_handle && r->handle == midi_handle && !r->offset &&
         r->data && r->length >= 3 && r->length <= MTU - 3) {
         ctl_vendor_poll();
-        if (down_pending) return;
+        if (down_pending || retiring) return;
         if (!receiving) {
             if (ctl_vendor_link_copy(1, 0)) return;
         }
@@ -261,7 +261,7 @@ int ctl_vendor_disconnect(void)
 }
 int ctl_vendor_write(const u8 *payload, u16 length)
 {
-    if (!payload || !length || length > MTU-3 || connection == ABSENT || !midi_handle || discovering) return -1;
+    if (!payload || !length || length > MTU-3 || connection == ABSENT || !midi_handle || discovering || retiring) return -1;
     return ble_user_cmd_prepare(CMD_ATT_SEND, 4, (int)midi_handle, payload, (int)length, 6);
 }
 void ctl_vendor_poll(void)

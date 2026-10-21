@@ -102,6 +102,11 @@ int main(void)
     /* A disconnect request retires ownership even when the SDK reports busy;
      * security must not be confirmed while failure cleanup waits for HCI down. */
     command_error=-100;assert(ctl_vendor_disconnect()==-100 && retiring);
+    { int notifications=notify_count, links=link_count;
+      user_client_report_data_callback(&data);
+      assert(notify_count==notifications && link_count==links);
+      assert(ctl_vendor_write(feedback,3)==-1);
+      assert(ctl_vendor_command(0x73,feedback,3)==-1); }
     security_event(4,0,jw,16);assert(confirmations==1);
     u8 off=0; command_error=-100;
     assert(ctl_vendor_command(0x74,&off,1)==0 && off_pending);
