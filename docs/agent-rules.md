@@ -1,11 +1,11 @@
 # x0x37 skill triggers
 
-Start with `x0x37-task` and its [chat routing](../skills/x0x37-task/references/routing.md). Use `x0x37-writing` before output.
+Start with `x0x37-task` and its [development routing](../skills/x0x37-task/references/routing.md). Use `x0x37-writing` before output.
 The task skill defines skill use and instruction priority. Read selected `SKILL.md` files, not old rule entries.
 
 - [$x0x37-task](../skills/x0x37-task/SKILL.md): Task start, ownership, source protection, and completion.
 - [$x0x37-writing](../skills/x0x37-writing/SKILL.md): All output and saved text.
-- [$x0x37-workflow](../skills/x0x37-workflow/SKILL.md): Bounded code execution and return to classic ChatGPT. Excludes docs-only tasks.
+- [$x0x37-workflow](../skills/x0x37-workflow/SKILL.md): Cloud development, native delegation, and checked handoffs. Excludes docs-only tasks.
 - [$x0x37-check](../skills/x0x37-check/SKILL.md): Scoped checks, tests, builds, commits, and handoffs.
 - [$x0x37-integrate](../skills/x0x37-integrate/SKILL.md): Firmware integration, candidate validation, release builds, and full gates.
 - [$x0x37-install](../skills/x0x37-install/SKILL.md): Device installation, artifact transfer, and requested release packages.

@@ -1,12 +1,3 @@
-<!-- x0x37-current-rules -->
-# Current skill discovery
-
-Inside the x0x37 workspace use [maintained skill status](../../x0x37/docs/SKILLS.md). The older
-status below is retained as history and is superseded there. Outside the
-workspace use the local installed skills and verify their source/status.
-
-<!-- /x0x37-current-rules -->
-
 # Skill sources and discovery
 
 Use [project skill triggers](agent-rules.md) to initialize workflow skills when needed.

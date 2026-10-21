@@ -5,24 +5,25 @@ description: "Start an x0x37 task or continuation with current ownership, isolat
 
 # Start a task
 
-First apply [chat routing](references/routing.md). Start in classic ChatGPT inside the LoopyX0X37 project.
-Use Codex only for the bounded execution that needs its tools.
+First apply [development routing](references/routing.md). Use dot's cloud machine
+and available native subagents for authorized project development.
 
 Search relevant product decisions and behavior. Do not load the full decision history by default.
 Old plans, rosters, logs, and archives are evidence. They do not assign work or grant approval.
 
 ### Rule 1: protect data and sources
 
-- Keep code on owner machines and approved local repositories.
+- Keep code on owner-approved machines, including dot's cloud machine, and approved repositories.
 - Push externally only when the owner requests that destination.
 - Never push, merge, or package `refs-oscuro`.
 - Keep proprietary JieLi SDK and toolchain files out of commits and bundles.
-- Preserve licensing, model guards, flash and RAM limits, features, and sample quality.
+- Preserve licensing, model guards, controller/application ABI, flash and RAM limits, features, and sample quality.
 
 ### Rule 2: process and edit ownership
 
-Use a fresh chat and isolated lane per task. Finish the assigned task there; do not create another copy.
-At task start, check other project chats. Read their current scopes before shared work; refresh stale information.
+Use an isolated lane for each independent task. Keep assigned work with its current owner; do not create another copy.
+At task start, check available project activity and handoffs. Read relevant scopes before shared work; refresh stale information.
+If activity cannot be checked, state that limit and avoid conflicting changes.
 Before thread contact, shared changes, or process cleanup, read [ownership](references/ownership.md).
 It defines context requests, completion notices, task handoffs, process ownership, and permitted contact.
 

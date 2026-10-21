@@ -8,7 +8,7 @@
   {
     "legacy": "workflow.md",
     "name": "x0x37-workflow",
-    "description": "Run bounded x0x37 code execution and hand results back to classic ChatGPT, preserving stage checks and ownership. Excludes docs-only tasks.",
+    "description": "Develop x0x37 on dot's cloud machine with supported native delegation, staged checks, and one integration owner. Excludes docs-only tasks.",
     "source": "skills/x0x37-workflow/SKILL.md"
   },
   {

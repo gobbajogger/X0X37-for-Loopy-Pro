@@ -1,10 +1,12 @@
 # Work ownership
 
-Current tasks assign scope; the [old roster](archive/rules-2026-10-17/AGENTS_AND_ROOMS.md)
-is historical. Read [agent rules](agent-rules.md); helper prompts and handoffs
-follow [shared work](rules/shared-work.md) and [commits](rules/commit.md).
+Current assignments define scope. The [old roster](archive/rules-2026-10-17/AGENTS_AND_ROOMS.md)
+is historical, not a live owner list. Read [agent rules](agent-rules.md),
+[development routing](../skills/x0x37-task/references/routing.md), and
+[shared work](../skills/x0x37-shared-work/SKILL.md) before overlap.
 
-The rules task owns rules/docs and authorized enforcement repairs. "Integrate
-and review x0x37 work" owns firmware integration in `flash_review_integration`;
-UX uses `ux_combined_review`. Preserve their work. Each remaining action has one
-owner; absent retired roles do not block authorized completion.
+The rules lane owns only assigned rules, documentation, and scoped discovery repairs.
+One integration owner controls firmware candidate assembly and branch order.
+A route or machine change does not transfer that ownership. Keep active work in
+its assigned lane until its final result or an explicit transfer; do not duplicate it.
+Record the receiving owner in each handoff. Retired roles add no approval requirement.
