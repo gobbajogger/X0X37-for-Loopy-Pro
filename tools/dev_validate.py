@@ -74,7 +74,11 @@ def check_plan(plan):
     return checks
 
 
-def verify(repo, commit, record, fwsc, ctl=None):
+def verify(repo, commit, record, fwsc, ctl=None, smc_vendor_dev=False):
+    if smc_vendor_dev:
+        if ctl: raise ValueError("SMC segmented selection cannot use an ABI2 controller")
+        import smc_vendor_dev_validate
+        return smc_vendor_dev_validate.verify(repo, commit, record, fwsc)
     record = Path(record).resolve()
     data = json.loads(record.read_text())
     if (data.get('schema') != 2 or data.get('result') != 'DEV CHECKED' or
@@ -116,7 +120,7 @@ def verify(repo, commit, record, fwsc, ctl=None):
 def development_env(env, model):
     env = dict(env)
     for key in list(env):
-        if key.startswith('X0X_DEV_') or key in ('X0X_CDC', 'X0X_DEBUG', 'X0X_BREAK_BANK', 'X0X_RAM_CANARY',
+        if key.startswith(('X0X_DEV_', 'X0X_SMC_')) or key in ('X0X_CDC', 'X0X_DEBUG', 'X0X_BREAK_BANK', 'X0X_RAM_CANARY',
                 'X0X_SMK_LCD_BAUD', 'X0X_FONTSET', 'X0X_FONT_DIRS',
                 'FELUCCA_DATA_FAMILY', 'FELUCCA_DATA_UNTAGGED_OK', 'BOARD', 'MODEL', 'JIELI_DOCKER'):
             env.pop(key)
@@ -210,6 +214,11 @@ class LinuxWorker:
 
 
 def run(a):
+    if getattr(a, "smc_vendor_dev", False):
+        import smc_vendor_dev_validate
+        return smc_vendor_dev_validate.run(a)
+    if getattr(a, "smc_vendor_dir", None):
+        raise ValueError("vendor directory requires explicit --smc-vendor-dev")
     system = platform.system()
     if not a.worker_image and (system != 'Linux' or platform.machine() not in ('x86_64', 'AMD64')):
         raise ValueError('use --worker-image on macOS, or run inside Linux x86-64')
@@ -344,11 +353,13 @@ def main():
         p = sub.add_parser(action)
         p.add_argument('--repo', default=os.environ.get('X0X_REPO', '.'))
         p.add_argument('--commit', required=True)
+        p.add_argument('--smc-vendor-dev', action='store_true', help='explicit Elite central-only segmented DEV profile')
         if action == 'run':
             p.add_argument('--model', choices=('elite', 'pro'), required=True)
             p.add_argument('--plan', required=True)
             p.add_argument('--output', required=True)
             p.add_argument('--no-controller', action='store_true')
+            p.add_argument('--smc-vendor-dir', help='retained reviewed vendor ELF/build-record directory')
             p.add_argument('--timeout', type=int, default=1800)
             p.add_argument('--worker-image', help='local immutable Linux/amd64 image or local image tag')
             p.add_argument('--worker-mount', action='append', default=[], help='additional same-path worker mount')
@@ -365,7 +376,7 @@ def main():
         if a.action == 'run':
             run(a)
         else:
-            verify(a.repo, a.commit, a.record, a.fwsc, a.ctl)
+            verify(a.repo, a.commit, a.record, a.fwsc, a.ctl, a.smc_vendor_dev)
             print('DEV CHECKED ' + a.commit)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as e:
         print('REFUSED: ' + str(e), file=sys.stderr)

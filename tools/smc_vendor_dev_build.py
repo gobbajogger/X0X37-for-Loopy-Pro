@@ -81,6 +81,7 @@ def build(repo,out,vendor):
     require((target/'x0x.bin').read_bytes()==original,'paired loader changed pinned app')
     shutil.copyfile(target/'loader/ota.bin',components/'ota.bin')
     images,vmeta=segseal.extract((vendor/'resolved-NOT-FIRMWARE.elf').read_bytes(),'SMK-37 Elite')
+    require(len(images)==3 and len(segseal.RANGES)==3,'exactly three controller regions required')
     for i,(image,(off,capacity)) in enumerate(zip(images,segseal.RANGES)):
         region=bytes(image)+b'\xff'*(capacity-len(image))
         if i:segseal.record_slots(region,off)
