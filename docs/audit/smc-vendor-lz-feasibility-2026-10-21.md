@@ -106,3 +106,10 @@ mutation, appended data even with resealed source CRC, wrong decoded CRC,
 overlap, initial invalid back-reference and oversized literals. Guard bytes
 around malformed output remain intact. Hardware execution, manifest loader
 integration and stack high-water tests remain pending.
+
+Independent source review accepted this as non-installable sizing only. The
+wrapper does not check whether its metadata pointer aliases the destination:
+a real caller must pin or snapshot metadata outside the output range and bind
+both CRCs to the admitted manifest/app version. The 123-byte residual uses the
+older stated aggregate budget, not the runtime owner's later generation/layout
+changes. No complete fit or executable activation was approved.
