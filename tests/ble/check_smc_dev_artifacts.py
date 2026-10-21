@@ -33,6 +33,7 @@ canonical=b.build_bundle(template,app,ui,regions,ota,descriptor_off=bind['descri
 with tempfile.TemporaryDirectory() as tmp:
     out=Path(tmp)
     for name in r['logs']:shutil.copyfile(root/(name+'.log'),out/(name+'.log'))
+    head=r['artifacts']['head_export']['file'];shutil.copyfile(root/head,out/head)
     for label,raw,rebind_metadata in (('alternate vendor',alternate,True),('canonical main',canonical,False)):
         d=copy.deepcopy(r);p=out/'changed.fwsc';p.write_bytes(raw)
         d['artifacts']['package']['sha256']=b.sha(raw)
@@ -40,6 +41,8 @@ with tempfile.TemporaryDirectory() as tmp:
         if rebind_metadata:d['smc_vendor']=meta
         q=out/'record.json';q.write_text(json.dumps(d))
         try:v.verify(repo,r['commit'],q,p)
-        except ValueError:pass
+        except ValueError as exc:
+            expected='reviewed pinned ELF' if rebind_metadata else 'paired component identity'
+            if expected not in str(exc):raise RuntimeError(label+' refused for wrong reason: '+str(exc))
         else:raise RuntimeError(label+' accepted after repaired framing/hash')
 print('Actual forward/rollback schema3 PASS; alternate valid vendor and canonical-main payloads rejected')

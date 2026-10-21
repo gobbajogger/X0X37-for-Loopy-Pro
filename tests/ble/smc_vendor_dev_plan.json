@@ -52,6 +52,22 @@
         "python3",
         "tests/ble/check_smc_update_entry.py"
       ]
+    },
+    {
+      "reason": "Head capture atomicity, protected aliases and partial/lost cleanup",
+      "argv": [
+        "python3",
+        "-O",
+        "tools/studies/smc_head_export/test_host.py"
+      ]
+    },
+    {
+      "reason": "Capability-first locked acquisition and source/frame refusal",
+      "argv": [
+        "python3",
+        "-O",
+        "tools/studies/smc_head_export/test_acquire.py"
+      ]
     }
   ]
 }

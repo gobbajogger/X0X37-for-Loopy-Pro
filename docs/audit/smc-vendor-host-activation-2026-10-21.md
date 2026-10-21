@@ -71,3 +71,27 @@ The top-level controller and budgets describe the built central TEST profile;
 is separately recorded in `smc_vendor`, never relabeled as ABI4. Logical rollback
 restores the approved 816 main image and clears only the proven unused external
 extents; it is not a byte-for-byte restoration of arbitrary prior spare bytes.
+
+## Reviewed first-acquisition component
+
+The final integrated route also requires the fixed `elite-head-export-dev`
+source package. `smc_head_export_record.py` pins its reviewed package, OTA and
+recipe input hashes; schema3 binds that metadata and the complete copied
+artifact. It is not authorized merely because a caller supplies matching hashes
+for arbitrary bytes. Invoking exporter host/tool bytes must match the selected
+source commit, and the outer launcher must verify the immutable kit inventory
+before invoking the explicit exporter CLI.
+
+`head-replay` is a mandatory additional validation log: it reconstructs exact
+816 source with the reviewed exporter preparation and runs actual legacy
+`ota_session` and the read-only exporter wire path, both native and sanitized.
+The exporter is first-acquisition only from supported legacy firmware, never a
+fallback writer. A versioned HELLO precedes its second UPGRADE. Only admitted
+staging/record bytes may change; the full validated head is durably saved
+locally before owned-record cleanup. Do not upload the captured head/key.
+
+The final normal firmware and logical rollback still require their own full
+package replays. Software validation does not establish physical SMC operation,
+USB/SPL timing, runtime heap/stack high-water, or silence during the legacy
+SPL transition. Disconnect headphones and amplified outputs; retain explicit
+physical cold power-cycle and single attached Elite requirements.

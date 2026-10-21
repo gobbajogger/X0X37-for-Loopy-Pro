@@ -20,7 +20,10 @@ def checked_tools(repo,commit):
     """Constructor/validator implementation must be the selected source, too."""
     here=Path(__file__).resolve().parent
     for name in ('smc_vendor_dev_validate.py','smc_vendor_dev_build.py','smc_vendor_bundle.py',
-                 'dev_validate.py','validation_inputs.py','fm1pkg_make.py','add_ctl.py','smc_vendor_replay.py','smc_vendor_install.py','fm1_install.py','require_gate_pass.sh'):
+                 'dev_validate.py','validation_inputs.py','fm1pkg_make.py','add_ctl.py','smc_vendor_replay.py','smc_vendor_install.py','fm1_install.py','require_gate_pass.sh','smc_head_export_record.py','smc_head_export_replay.py',
+                 'studies/smc_head_export/acquire.py','studies/smc_head_export/host.py',
+                 'studies/smc_head_export/prepare.py','studies/smc_head_export/head_export.h',
+                 'studies/smc_head_export/loader_core.h','studies/smc_head_export/build_source.py'):
         expected=subprocess.check_output(['git','-C',str(repo),'show',str(commit)+':tools/'+name])
         if (here/name).read_bytes()!=expected:
             raise ValueError('invoking tool differs from selected commit: '+name)
@@ -43,7 +46,7 @@ def verify(repo,commit,record,fwsc):
     if inputs.get('source')!=data['tree'] or inputs.get('mode')!='dev' or inputs.get('configuration')!=config:
         raise ValueError('SMC validation input profile/layout mismatch')
     dv.check_plan(data['plan'])
-    expected={'build','bundle-replay','rollback-replay'}|{f'check-{i}' for i in range(len(data['plan'].get('checks',[])))}
+    expected={'build','bundle-replay','rollback-replay','head-replay'}|{f'check-{i}' for i in range(len(data['plan'].get('checks',[])))}
     if set(data['logs'])!=expected:raise ValueError('missing SMC build/check logs')
     for name,info in data['logs'].items():
         if info['returncode']!=0 or dv.digest(path.parent/(name+'.log'))!=info['sha256']:
@@ -52,6 +55,11 @@ def verify(repo,commit,record,fwsc):
         raise ValueError('SMC build budget evidence mismatch')
     if dv.digest(fwsc)!=data['artifacts']['package']['sha256']:
         raise ValueError('SMC package differs from checked artifact')
+    import smc_head_export_record as head_record
+    hi=data['artifacts']['head_export']
+    hp=path.parent/hi['file']
+    if dv.digest(hp)!=hi['sha256'] or head_record.validate(repo,hp)!=data['head_export']:
+        raise ValueError('reviewed exporter identity mismatch')
     actual=bundle.validate_bundle(Path(fwsc).read_bytes(),loader_binding=data['loader_binding'])
     policy=actual['policy']
     if policy == 1:
@@ -73,7 +81,7 @@ def run(a):
     import smc_vendor_dev_build as builder
     import smc_vendor_bundle as bundle
     import fm1pkg_make as pm
-    if a.model!='elite' or a.no_controller or a.worker_image or not a.smc_vendor_dir or not a.smc_rollback_fwsc:
+    if a.model!='elite' or a.no_controller or a.worker_image or not a.smc_vendor_dir or not a.smc_rollback_fwsc or not a.smc_head_export_source:
         raise ValueError('SMC DEV needs Elite, explicit vendor directory and native Linux; no --no-controller/worker')
     if platform.system()!='Linux' or platform.machine() not in ('x86_64','AMD64'):
         raise ValueError('SMC DEV target build requires Linux x86-64')
@@ -86,9 +94,11 @@ def run(a):
     plan['base']=base
     vendor=Path(a.smc_vendor_dir).resolve()
     baseline=Path(a.smc_rollback_fwsc).resolve()
+    head_source=Path(a.smc_head_export_source).resolve()
     if dv.digest(baseline)!=bundle.BASELINE_FWSC_SHA:raise ValueError('exact approved rollback package required')
     dependencies=list(plan.get('dependencies',[]))
-    if str(baseline) not in dependencies:dependencies.append(str(baseline))
+    for p in (baseline,head_source):
+        if str(p) not in dependencies:dependencies.append(str(p))
     for name in ('result.json','resolved-NOT-FIRMWARE.elf'):
         p=str(vendor/name)
         if p not in dependencies:dependencies.append(p)
@@ -120,7 +130,11 @@ def run(a):
                     process.wait();raise
             logs[name]={'argv':args,'returncode':rc,'sha256':dv.digest(out/(name+'.log'))}
             if rc:raise ValueError(name+' failed; see '+str(out/(name+'.log')))
+        import smc_head_export_record as head_record
+        headmeta=head_record.validate(work,head_source)
+        headcopy=out/'elite-head-export-dev.fwsc';shutil.copyfile(head_source,headcopy)
         for i,check in enumerate(checks):command(f'check-{i}',check['argv'])
+        command('head-replay',[sys.executable,'tools/smc_head_export_replay.py',str(headcopy),str(out/'head-replay-private')])
         command('build',[sys.executable,'tools/smc_vendor_dev_build.py','--repo',str(work),
             '--out',str(out/'component-build'),'--vendor-dir',str(vendor),
             '--profile',PROFILE,'--model','elite','--config','dev'])
@@ -154,17 +168,18 @@ def run(a):
             raise ValueError('checks changed sources')
         dv.validation_inputs.validate(inputs,identity())
         data={'artifact_role':'forward','budget_scope':'built-central-test-profile','schema':3,'result':'DEV CHECKED','profile':PROFILE,'model':'elite','config':'dev',
-            'hardware_tested':False,'commit':commit,'tree':dv.tree(repo,commit),'plan':plan,
+            'hardware_tested':False,'head_export':headmeta,'commit':commit,'tree':dv.tree(repo,commit),'plan':plan,
             'validation_inputs':inputs,'controller':controller,'smc_vendor':bundlemeta,
             'loader_binding':meta['loader_binding'],'budgets':limits,'logs':logs,
-            'artifacts':{'package':{'file':package.name,'sha256':dv.digest(package)}},
+            'artifacts':{'package':{'file':package.name,'sha256':dv.digest(package)},
+                         'head_export':{'file':headcopy.name,'sha256':dv.digest(headcopy)}},
             'changed_files':dv.git(repo,'diff','--name-only',base,commit).splitlines()}
         # Keep the validation input controller identity stable, but separately
         # bind complete segment identities in bundle metadata.
         data['controller']=controller
         (out/'record.json').write_text(json.dumps(data,indent=2)+'\n')
         rollbackdata=dict(data,artifact_role='logical-rollback',smc_vendor=rollbackmeta,
-            artifacts={'package':{'file':rollback.name,'sha256':dv.digest(rollback)}})
+            artifacts={'package':{'file':rollback.name,'sha256':dv.digest(rollback)},'head_export':data['artifacts']['head_export']})
         (out/'rollback-record.json').write_text(json.dumps(rollbackdata,indent=2)+'\n')
     finally:
         if added:subprocess.run(['git','-C',str(repo),'worktree','remove','--force',str(work)],check=True)

@@ -217,7 +217,7 @@ def run(a):
     if getattr(a, "smc_vendor_dev", False):
         import smc_vendor_dev_validate
         return smc_vendor_dev_validate.run(a)
-    if getattr(a, "smc_vendor_dir", None) or getattr(a, "smc_rollback_fwsc", None):
+    if getattr(a, "smc_vendor_dir", None) or getattr(a, "smc_rollback_fwsc", None) or getattr(a, "smc_head_export_source", None):
         raise ValueError("vendor directory requires explicit --smc-vendor-dev")
     system = platform.system()
     if not a.worker_image and (system != 'Linux' or platform.machine() not in ('x86_64', 'AMD64')):
@@ -361,6 +361,7 @@ def main():
             p.add_argument('--no-controller', action='store_true')
             p.add_argument('--smc-vendor-dir', help='retained reviewed vendor ELF/build-record directory')
             p.add_argument('--smc-rollback-fwsc', help='exact reviewed 816 paired rollback source package')
+            p.add_argument('--smc-head-export-source', help='exact reviewed first-stage read-only exporter package')
             p.add_argument('--timeout', type=int, default=1800)
             p.add_argument('--worker-image', help='local immutable Linux/amd64 image or local image tag')
             p.add_argument('--worker-mount', action='append', default=[], help='additional same-path worker mount')
