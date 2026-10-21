@@ -100,7 +100,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
          "poll": 1.0, "hs": 1.0, "idle_check": 8.0, "idle_write": 180.0,
          "wait_loader": 30.0, "wait_reboot": 40.0}
 
-EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
+EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "ambiguous": 6, "lost": 4, "stopped": 4, "badreq": 4,
         "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
 
 
@@ -330,10 +330,10 @@ class MidoBackend:
         self.mido = mido
 
     def input_names(self):
-        return list(dict.fromkeys(self.mido.get_input_names()))
+        return list(self.mido.get_input_names())
 
     def output_names(self):
-        return list(dict.fromkeys(self.mido.get_output_names()))
+        return list(self.mido.get_output_names())
 
     def open(self, in_name, out_name):
         return MidoLink(self, in_name, out_name)
@@ -376,6 +376,35 @@ class Updater:
     def __init__(self, backend, port=None):
         self.backend = backend
         self.port = port
+        self.target = None
+        self.target_name = None
+        self.verified = False
+
+    def single_port(self, selected=None):
+        """The update handshake has no unit serial. Never guess between keyboards.
+
+        The sole target may change its port name during reboot. After verification
+        no further reboot is expected, so restores/readbacks keep that exact name.
+        """
+        names = self.candidates(False)
+        if len(names) > 1 or (selected is not None and names != [selected]):
+            raise InstallError("ambiguous", "cannot bind this update to one keyboard across reboot: "
+                               "more than one update-compatible MIDI port is present, or the selected port changed. "
+                               "Disconnect the other keyboards and select the target again; nothing was sent to another port")
+        if self.verified and names and names[0] != self.target_name:
+            raise InstallError("ambiguous", "the verified keyboard's MIDI port changed before readback or sample restore; "
+                               "refusing to use another port")
+        return names
+
+    def bind(self, dev):
+        try:
+            self.single_port(dev.name)
+            if self.target and (dev.name != self.target_name or not same_keyboard(self.target, dev.id.text)):
+                raise InstallError("ambiguous", "the selected keyboard changed before the update")
+        except InstallError:
+            dev.link.close()
+            raise
+        self.target, self.target_name = dev.id.text, dev.name
 
     def candidates(self, only_port):
         names = self.backend.input_names()
@@ -389,7 +418,8 @@ class Updater:
     def find(self, want=None, only_port=True):
         """the first matching port that answers the handshake (and want(identity))"""
         outs = self.backend.output_names()
-        for name in self.candidates(only_port):
+        names = self.single_port() if self.target else self.candidates(only_port)
+        for name in names:
             out = pair_output(name, outs)
             if not out:
                 continue
@@ -398,6 +428,9 @@ class Updater:
             except Exception:
                 continue
             ident = handshake(link, 2)
+            if ident and self.target and not same_keyboard(self.target, ident.text):
+                link.close()
+                raise InstallError("model", f"the selected keyboard changed model during the update: {ident.text}")
             if ident and (want is None or want(ident)):
                 return Device(link, ident, name)
             link.close()
@@ -484,6 +517,7 @@ class Updater:
         back.link.close()
         if back.id.text != product:
             raise InstallError("mismatch", f"written, but the FM-1 reports {back.id.text} (expected {product})")
+        self.target_name, self.verified = back.name, True
         step("done", back.id.text)
         return back.id.text
 
@@ -493,7 +527,15 @@ class Updater:
         if not same_keyboard(dev.id.text, product):
             dev.link.close()
             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
+        self.bind(dev)
         ota = dev if dev.id.loader else self.check(dev, image, step)
+        try:
+            self.single_port(ota.name)
+            if not same_keyboard(ota.id.text, product):
+                raise InstallError("model", f"the loader is {ota.id.text}, the package is for {product}")
+        except InstallError:
+            ota.link.close()
+            raise
         self.write(ota, image, step)
         return self.verify(product, step)
 
@@ -541,11 +583,13 @@ def package_slot_map(image, product):
 
 
 def slot_probe(link):
-    """the running firmware's slot layout (SMP_INFO), or None if it does not answer (not X0X)"""
-    try:
-        return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
-    except (TimeoutError, xs.SlotError, ValueError, IndexError):
-        return None
+    """Read the layout. A lost or malformed reply is unknown, never an empty map."""
+    return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
+
+
+def known_stock(identity):
+    """Only the documented stock identities are known to lack X0X slot commands."""
+    return identity.text == "FM-1_015" or (identity.version == 16 and bool(SMK_FAMILY.fullmatch(identity.model)))
 
 
 class SlotMove:
@@ -589,11 +633,15 @@ class SlotMove:
 
 def plan_slots(dev, image, product, require_backup=False):
     """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup."""
-    lay = slot_probe(dev.link)
-    if not lay:
-        if require_backup:
-            raise xs.SlotError("the running firmware did not provide its slot layout")
-        return None
+    try:
+        lay = slot_probe(dev.link)
+    except TimeoutError as e:
+        if known_stock(dev.id) and not require_backup:
+            return None
+        raise xs.SlotError("the running firmware did not provide its slot layout; sample preservation is unknown. "
+                           "Retry the connection, or use the explicit --no-slots option only if preservation is not required") from e
+    except (xs.SlotError, ValueError, IndexError) as e:
+        raise xs.SlotError(f"the slot layout reply is invalid ({e}); sample preservation is unknown") from e
     if not require_backup and not any(sl["nz"] for sl in lay["slots"]):
         return None
     old_map = xs.flash_map(lay, board_of(dev.id.text))
@@ -807,6 +855,7 @@ def run(a, backend, out, ask):
     dev = up.find()
     if not dev:
         raise not_found(up)
+    up.bind(dev)
     print(f"device:  {dev.id.text}  ({dev.name})" + ("  in update mode: the write will be finished" if dev.id.loader else ""),
           file=out)
     move = None

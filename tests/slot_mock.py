@@ -34,13 +34,15 @@ class Flash:
 class MockDevice:
     """slots: [(flash offset, size)]; default: count slots of `size` side by side from 0xC2000"""
 
-    def __init__(self, count=2, size=0x14000, drop_every=0, slots=None, ext=True, flash=None, fail_write_at=None):
+    def __init__(self, count=2, size=0x14000, drop_every=0, slots=None, ext=True, flash=None, fail_write_at=None,
+                 full_header=True):
         self.slots = list(slots) if slots is not None else [(0xC2000 + k * size, size) for k in range(count)]
         self.count = len(self.slots)
         self.ext, self.fl = ext, flash or Flash()
         self.log = []
         self.drop_every, self.n = drop_every, 0
         self.fail_write_at = fail_write_at              # (slot, offset): that SMP_WRITE returns rc 3 (flash)
+        self.full_header = full_header
         self.nz = [0] * self.count
         for k in range(self.count):
             self.scan(k)
@@ -71,6 +73,10 @@ class MockDevice:
             raise TimeoutError(f"no reply to cmd {cmd}")     # a lost frame
         if cmd == 1:
             return [0]
+        if cmd == 9 and a == [64]:
+            if not self.full_header:
+                raise TimeoutError("legacy firmware has no Projects query")
+            return [64, 0, 1, 64, 0, 1, 0]
         if cmd == xs.CMD_INFO:
             r = [self.count, min(127, self.size // 1024)]
             for k, (o, _) in enumerate(self.slots):
@@ -116,7 +122,7 @@ class MockDevice:
         if cmd == xs.CMD_END:
             h = xs.unpack7(a[1:])
             p = xs.parse_header(h)
-            if len(h) != xs.HDR_LEN:
+            if len(h) not in ((xs.HDR_LEN, xs.DATA_OFF) if self.full_header else (xs.HDR_LEN,)):
                 return [k, 1]
             if not p or p["data_len"] > size - xs.DATA_OFF:
                 return [k, 2]

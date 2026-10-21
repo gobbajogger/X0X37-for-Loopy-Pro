@@ -357,6 +357,7 @@ async function writeImage(k, img, onPart) {
     if (r[1]) throw new Error("The FM-1 couldn't clear its memory.");
     return;
   }
+  const header = await slotHeaderForWrite(img, () => link.req(9, [64], 1000));
   const b = await link.req(11, [k], 10000);
   if (b[1]) throw new Error("The FM-1 couldn't erase its memory.");
   const data = img.subarray(SLOT_DATA_OFF);
@@ -366,7 +367,7 @@ async function writeImage(k, img, onPart) {
     if (r[4]) throw new Error("Writing to the FM-1 failed.");
     if (onPart) onPart(Math.min(256, data.length - off));
   }
-  const e = await link.req(13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  const e = await link.req(13, [k, ...pack78(header)], 5000);
   if (e[1]) throw new Error("The FM-1 didn't accept the loops.");
 }
 

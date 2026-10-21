@@ -14,7 +14,8 @@ as the built-in sets and the web editor). ROOT is a MIDI note (default: from the
 name, C4 = 60, else 60); without LO-HI the zones split the keyboard between their roots.
 These are one-shots: the silence at both ends is cut first (sampleio.trim_silence: -60 dBFS, 1 ms
 kept before the sound, 5 ms fade at the end); --no-trim keeps it. For loops use upload_breaks.py.
-A slot holds 80 KiB (about 7 s at 22050 Hz). Protocol: web/EDITOR_PROTOCOL.md, cmds 11..15.
+Device loads use the selected slot's reported capacity. Offline builds default to 80 KiB.
+Protocol: web/EDITOR_PROTOCOL.md, cmds 11..15.
 Needs mido (and a backend such as python-rtmidi) for the device commands.
 """
 import sys
@@ -23,6 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import sampleio as sio  # noqa: E402
+import x0x_slots as xs  # noqa: E402
 
 HDR = [0x7D, 0x46, 0x4C]
 RC = {1: "size", 2: "header", 3: "data CRC", 4: "flash", 5: "zones"}
@@ -71,7 +73,7 @@ class Link:
         raise TimeoutError(f"no reply to cmd {cmd}")
 
 
-def build(name, specs, trim=True):
+def build(name, specs, trim=True, slot_size=sio.SLOT_SIZE):
     """specs: "file.wav[:ROOT[:LO-HI]]" -> (header, ADPCM data) for SMP_END / SMP_WRITE. trim: cut the
     silence at both ends (one-shots)"""
     zones = []
@@ -87,7 +89,7 @@ def build(name, specs, trim=True):
         if not x:
             raise ValueError(f"{path}: no audio")
         zones.append((sio.to_int16(x), root, lo, hi))
-    return sio.user_slot(name, zones)
+    return sio.user_slot(name, zones, slot_size=slot_size)
 
 
 def main():
@@ -100,15 +102,15 @@ def main():
     if cmd in ("load", "build"):
         if len(sys.argv) < 5:
             sys.exit(__doc__)
+    if cmd == "build":
         try:
-            hdr, data = build(sys.argv[3] if cmd == "load" else sys.argv[2], sys.argv[4:], trim)
+            hdr, data = build(sys.argv[2], sys.argv[4:], trim)
         except (OSError, ValueError) as e:
             sys.exit(f"cannot build the slot: {e}")
-        if cmd == "build":
-            Path(sys.argv[3] + ".hdr").write_bytes(hdr)
-            Path(sys.argv[3] + ".bin").write_bytes(data)
-            print(f"{sys.argv[2]}: {len(data)} B ADPCM, {hdr[6]} zones")
-            return
+        Path(sys.argv[3] + ".hdr").write_bytes(hdr)
+        Path(sys.argv[3] + ".bin").write_bytes(data)
+        print(f"{sys.argv[2]}: {len(data)} B ADPCM, {hdr[6]} zones")
+        return
     if cmd != "info":
         if len(sys.argv) < 3 or sys.argv[2] not in ("1", "2", "3"):
             sys.exit("SLOT is 1, 2 or 3")
@@ -126,6 +128,13 @@ def main():
     if cmd == "erase":
         print("erase:", "ok" if link.req(14, [slot], 10)[1] == 0 else "FAILED")
         return
+    try:
+        lay = xs.layout(link)
+        if slot >= lay["count"]:
+            raise ValueError(f"the keyboard has only {lay['count']} sample slot(s)")
+        hdr, data = build(sys.argv[3], sys.argv[4:], trim, slot_size=lay["slots"][slot]["size"])
+    except (OSError, ValueError, xs.SlotError) as e:
+        sys.exit(f"cannot build the slot; nothing was erased: {e}")
     print(f"USR{slot + 1} {sys.argv[3]}: {len(data)} B ADPCM, {hdr[6]} zones")
     if link.req(11, [slot])[1]:
         sys.exit("begin failed")
