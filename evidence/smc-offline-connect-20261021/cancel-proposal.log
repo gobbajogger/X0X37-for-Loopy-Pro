@@ -1,0 +1,24 @@
+ASAN_OPTIONS=detect_leaks=0 (sandbox /proc restriction; no heap allocation in fixture)
+exit=0
+PASS successful Cancel waits for required terminal event enhanced=0 wrap=0
+PASS successful Cancel waits for required terminal event enhanced=0 wrap=1
+PASS connection wins automatic Cancel enhanced=0 connection_first=0
+PASS connection wins automatic Cancel enhanced=0 connection_first=1
+PASS terminal failure before Cancel refusal enhanced=0 connection_first=1
+PASS late original Create result remains owned enhanced=0 success=0 complete_first=0
+PASS late original Create result remains owned enhanced=0 success=0 complete_first=1
+PASS late original Create result remains owned enhanced=0 success=1 complete_first=0
+PASS late original Create result remains owned enhanced=0 success=1 complete_first=1
+PASS successful Cancel waits for required terminal event enhanced=1 wrap=0
+PASS successful Cancel waits for required terminal event enhanced=1 wrap=1
+PASS connection wins automatic Cancel enhanced=1 connection_first=0
+PASS connection wins automatic Cancel enhanced=1 connection_first=1
+PASS terminal failure before Cancel refusal enhanced=1 connection_first=1
+PASS late original Create result remains owned enhanced=1 success=0 complete_first=0
+PASS late original Create result remains owned enhanced=1 success=0 complete_first=1
+PASS late original Create result remains owned enhanced=1 success=1 complete_first=0
+PASS late original Create result remains owned enhanced=1 success=1 complete_first=1
+PASS late Cancel refusal does not disturb discovery
+PASS stop after automatic Cancel transport refusal
+PASS stop after original Create failed
+0 failing scenarios

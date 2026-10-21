@@ -1,0 +1,33 @@
+Read-only independent review. Hardware NOT TESTED.
+SHA256 e4c54683906249c8229c672b2c0e14ec4f11b0cdf40df01318c8742b27995d4d ble_midi_central.c
+SHA256 45c3b809190b1c1b66be2ce16784cd3e9df4fbff8c5d67cb26dc225f7ddfee52 ble_midi_central.h
+SHA256 d5a99b532af8f0be768c64a729cdb95d74c0968ca1275801c3ae31c4187470d4 ble_central_trace.h
+SHA256 b957fa6513c08e32326dc46a149d22d5d6685d815711dce1b87376d178b6cda1 ble_midi_host.h
+COMMAND python3 -B /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/review_false_success.py
+return 1
+SMC CONNECTION TEST REPORT
+
+SMC connection established: the latest firmware snapshot is CONNECTED.
+This confirms connection setup; it does not by itself verify control mapping or long-term stability.
+Latest phase: CONNECTED / READY.
+This firmware has no sticky connection-failure trace. Retained ATT/rejection fields alone do not identify the failed attempt.
+Bluetooth controller/platform: FAILED.
+Controller mailbox: READY; reported error: NONE.
+Bluetooth boot guard is blocking startup: RESET.
+
+Collection ended: duration_complete. Diagnostic replies: 1; missing replies: 0; read errors: 0; invalid replies: 0.
+Source checkout metadata identifies the collection tools, not the installed firmware.
+Full raw replies and decoded values are retained in the companion JSONL file.
+
+Traceback (most recent call last):
+  File "/workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/review_false_success.py", line 13, in <module>
+    assert 'SMC connection established:' not in report, 'FAILED platform was reported as an established connection'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FAILED platform was reported as an established connection
+
+COMMAND cc -std=c99 -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -I/workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/review_snapshot /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/review_att_lifetime.c /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/review_snapshot/ble_midi_central.c -o /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/review_att_lifetime
+return 0
+
+COMMAND /workspace/scratch/f3a54aa67aa7/offline-connect-audit/att/review_att_lifetime
+return 0
+PASS: deferred ATT reply deadline, local teardown preserves cause, reset lifetime; host sizes central=456 peripheral=784 trace=96

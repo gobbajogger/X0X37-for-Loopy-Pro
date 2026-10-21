@@ -1,0 +1,14 @@
+{
+  "baseline_commit": "d9d7953b34c6e045b14ff08770df78fa9bc2d34f",
+  "firmware_equivalent_to": "6eaf01f9d4c5325b1cc66e45e7033179b87affef",
+  "hardware": "NOT TESTED",
+  "evidence": {
+    "baseline-command-retry.log": "834211affe532d0d3e30aefc4cf916fb752368f96c60a47fb2e35f8ba097dabc",
+    "baseline-cancel.log": "ae264c43b0562480484620dde80f89c76a95e016fe69c4ecb5d243403e6ae865",
+    "cancel-proposal.log": "9a332b1f69872966a6aeb8c4245ad6aa21ebff1e8932cde36cd71eea4a0e9b37",
+    "att-baseline-comparison.log": "d0058a2fefdf995631bc699955cfd7ba1359ce7bacb963b39a4f343e38808e16",
+    "review-att.log": "b3ff4067a9dbc7d905ed308ea7f30fb0b878f999fa8304e4da66ba05ba5fe710",
+    "review-create-status-before.log": "4f1ed9781e44c938da67a0d3bd557c3c7cbb9f26845624e5030f38067b47cd24",
+    "review-create-status-after.log": "ed582c8470484f65dfd35156471a9f3edc6651dc992d6da072bf6c1f074601ae"
+  }
+}

@@ -1,0 +1,19 @@
+Source: d9d7953 (firmware identical 6eaf01f)
+Simulated public-API HCI; no hardware
+Command: cc -std=c99 -g -O1 -Wall -Wextra -Werror -I/workspace/scratch/f3a54aa67aa7/offline-connect-audit/backpressure/original tests/host/ble_midi_command_retry_test.c /workspace/scratch/f3a54aa67aa7/offline-connect-audit/backpressure/original/ble_midi_central.c -o /workspace/scratch/f3a54aa67aa7/offline-connect-audit/backpressure/baseline
+Phase 0 exit -6
+
+baseline: tests/host/ble_midi_command_retry_test.c:48: require_submission: Assertion `accepted == before + 1' failed.
+
+Phase 6 exit -6
+
+baseline: tests/host/ble_midi_command_retry_test.c:48: require_submission: Assertion `accepted == before + 1' failed.
+
+Phase 7 exit -6
+
+baseline: tests/host/ble_midi_command_retry_test.c:48: require_submission: Assertion `accepted == before + 1' failed.
+
+Phase 8 exit -6
+
+baseline: tests/host/ble_midi_command_retry_test.c:48: require_submission: Assertion `accepted == before + 1' failed.
+

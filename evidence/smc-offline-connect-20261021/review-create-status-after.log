@@ -1,0 +1,13 @@
+ASAN_OPTIONS=detect_leaks=0
+exit=0
+PASS late Create Status retains stop deadline and command ownership wrap=0 late=0 rejected=0 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=0 late=0 rejected=1 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=0 late=1 rejected=0 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=0 late=1 rejected=1 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=0 late=1 rejected=0 late_link=1
+PASS late Create Status retains stop deadline and command ownership wrap=1 late=0 rejected=0 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=1 late=0 rejected=1 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=1 late=1 rejected=0 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=1 late=1 rejected=1 late_link=0
+PASS late Create Status retains stop deadline and command ownership wrap=1 late=1 rejected=0 late_link=1
+0 failing scenarios

@@ -80,14 +80,17 @@ int main(void)
     { const uint8_t out[] = {0x90,0x5e,0x7f}; assert(blec_midi_send(&c,out,3)); }
     { const uint8_t done[] = {0x13,5,1,1,0,5,0}; blec_rx(&c,4,done,sizeof done,110); }
     blec_poll(&c, 111); assert(tx_type == 2 && tx[8] == 0x52);
-    /* A timed-out create waits for Cancel Complete before scanning again. */
+    /* A timed-out Create waits for both Cancel Complete and its terminal result. */
     blec_init(&c, send_h4, got_midi, 0, addr);
     c.state = BLEC_CONNECTING; c.step = 8; c.deadline = 1;
     blec_poll(&c, 10); assert(c.state == BLEC_CONNECTING && tx_type == 1 && tx[0] == 0x0e);
-    cc(&c, 0x200e, 0, 0); assert(c.state == BLEC_SCANNING && tx[0] == 0x0c);
+    cc(&c, 0x200e, 0, 0); assert(c.state == BLEC_CONNECTING);
+    { uint8_t failed_conn[sizeof conn]; memcpy(failed_conn, conn, sizeof conn);
+      failed_conn[3] = 2; blec_rx(&c,4,failed_conn,sizeof failed_conn,20); }
+    assert(c.state == BLEC_SCANNING && tx[0] == 0x0c);
     /* Discovery failure disconnects before restarting the scan. */
     blec_init(&c, send_h4, got_midi, 0, addr);
-    c.state = BLEC_DISCOVERING; c.step = 10; c.conn = 1;
+    c.state = BLEC_DISCOVERING; c.step = 10; c.conn = 1; c.att_waiting = 1;
     { const uint8_t error[] = {1,0x10,1,0,0x0a}; att(&c, error, sizeof error); }
     assert(c.state == BLEC_DISCONNECTING && tx_type == 1 && tx[0] == 0x06);
     { const uint8_t down[] = {5,4,0,1,0,0x13}; blec_rx(&c,4,down,sizeof down,120); }
