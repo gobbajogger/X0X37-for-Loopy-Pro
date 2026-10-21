@@ -1,4 +1,4 @@
-# SMC feedback and incomplete layout investigation
+# SMC feedback and layout investigation
 
 ## Result
 
@@ -31,6 +31,16 @@ role is enabled. An application link stuck down cannot explain fresh outgoing
 feedback during the reported failure. The previously found reconnect race is a
 real, separately repaired defect, but it is not a sufficient explanation of this
 observation.
+
+The owner then corrected the approval-history conclusion:
+
+> That's strange. I remember approving
+
+This is evidence of an earlier approval. It supersedes this report's initial
+classification of the Record/Solo behavior as an unfinished or unapproved part
+of the layout. The exact approval and its preceding proposal have not yet been
+recovered. Missing retrieval does not establish that approval was absent. The
+confirmed navigation LED/action mismatch is independent of that history.
 
 Working outgoing feedback does not establish that incoming SMC notifications
 reach the application. Subscription and feedback use separate ATT operations.
@@ -71,7 +81,7 @@ text in that file matches the integration base. The patch preserves drum MUTE
 and SELECT precedence, existing Record/Solo behavior, input decoding, pickup,
 transport handling and controller firmware.
 
-## The agreed button layout is still incomplete
+## Record/Solo approval detail remains unrecovered
 
 The preserved owner decision explicitly asks for three modes for faders and
 buttons, followed by “Map knobs too.” The implementation provides main-mix and
@@ -85,11 +95,24 @@ The earliest retained deferral is an implementation report:
 
 > R/S per-track policy is deferred. R2/S2 retain their whole-part behavior.
 
-Later reports and tests repeat the deferral. The reviewed material contains no
-direct owner approval for narrowing the three-mode button requirement this way.
-Therefore the whole agreed button layout must not be described as completed or
-the deferral as owner-approved. This feedback repair preserves existing R/S
-actions; it does not invent missing per-drum record/solo semantics.
+Later reports and tests repeat the deferral. Earlier investigation treated the
+absence of a retrieved approval as evidence of an incomplete requirement. That
+conclusion was too strong and is superseded by the owner's correction above.
+The known facts are the actual whole-part R/S implementation and the owner's
+recollection of approval. Whether this behavior matches the approved proposal
+remains unresolved until the original detail is recovered. This repair preserves
+existing R/S actions; it does not invent a replacement policy or ask the owner to
+approve the same layout again.
+
+There is positive retained context for the remembered approval:
+`evidence/smc-stage2/OWNER-CORRECTION.txt` records the owner's intended three
+fader/button modes and “Map knobs too.” The later
+`evidence/mapping-stage3/stage4-prompt.txt` places retained whole-part R/S behavior
+under “APPROVED SCOPE” and states there are no missing decisions within those
+fixes. That handoff is secondary evidence, not the original proposal-and-approval
+exchange, but it must not be omitted when interpreting the history. The bounded
+local search and two focused Personal Context searches did not recover the
+original complete exchange.
 
 The current three-mode selection is page-dependent: individual drum routing
 requires a visible 909 MIX or 808 MIX page, no overlay, and clip mode off. This is
@@ -180,8 +203,10 @@ task. No external push, device write or cross-thread notification was performed.
 
 Two items remain separate from the checked LED correction:
 
-1. Complete the agreed per-drum button behavior after recovering or resolving the
-   actual R/S semantics; do not treat implementation notes as owner approval.
+1. Recover the original approved layout and compare its R/S details with the
+   implementation. Treat the layout as approved, preserve current R/S behavior
+   during this LED repair, and do not infer an unauthorized deferral from missing
+   retrieval. Implementation notes alone cannot settle what the user approved.
 2. Locate a failure-period incoming control event in existing runtime evidence or
    supported device access. The decisive boundary is whether it was transmitted,
    received, decoded/enqueued and applied. Fresh outgoing lights alone cannot
