@@ -91,6 +91,8 @@ rc = invoke(command, out, out / 'link.log')
 unresolved = sorted(set(re.findall(r"undefined reference to [`']([^']+)'", (out / 'link.log').read_text())))
 result = {'controller_roles': a.controller_roles, 'avctp_extra_commands': a.avctp_extra_commands, 'installable': False, 'resolved': rc == 0, 'link_exit': rc, 'unresolved': unresolved,
           'input_hashes': expected,
+          'study_hashes': {name: digest(HERE / name) for name in
+                           ('link_runtime.py', 'run.py', 'config-values.json', 'input-hashes.json')},
           'source_hashes': {str(f.relative_to(out)): digest(f) for f in sorted((out / 'src').glob('*')) if f.is_file()}}
 if not rc:
     for flag, name in [('-t', 'symbols.txt'), ('-h', 'sections.txt')]:
