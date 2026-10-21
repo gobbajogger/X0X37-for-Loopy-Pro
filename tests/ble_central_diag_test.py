@@ -175,3 +175,14 @@ for status, command, completed in ((3, 'cancellation', 'connection cancellation 
     assert 'waiting for ' + completed not in text
     assert 'waiting for ' + completed in b.smc_failure_text(timeout(status, 0))
 print('PASS: ATT unsent/awaiting-response deadlines, ACL credits, and refused cancel/disconnect/HCI submission stay distinct')
+
+# SMP trace metadata must not be mislabelled as HCI errors or raw key material.
+for opcode in range(256):
+    for length in (1, 2, 17, 56):
+        safe = 0xA5 if length == 2 and opcode in (5, 0x0B) else 0
+        r = b.smc_trace_record([123, 21 | 6 << 8 | 14 << 16 | safe << 24,
+                                opcode | 0x50 << 16, length])
+        assert r["kind_name"] == "SMP" and r["smp_length"] == length
+        assert ("smp_security_request_auth_flags" in r) == (length == 2 and opcode == 0x0B)
+        assert ("smp_pairing_failed_reason" in r) == (length == 2 and opcode == 5)
+print("PASS: SMP trace decoder exposes only permitted metadata")

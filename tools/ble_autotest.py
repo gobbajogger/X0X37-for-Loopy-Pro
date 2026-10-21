@@ -61,7 +61,7 @@ SMC_TRACE_MAGIC, SMC_TRACE_WORDS = 0x534D4302, 26
 SMC_TRACE_KINDS = {0: "NONE", 1: "HCI_ERROR", 2: "CONNECT_FAIL", 3: "DISCONNECT",
                    4: "ATT_ERROR", 5: "TIMEOUT", 6: "TRANSPORT_BLOCKED",
                    7: "PROTOCOL_ERROR", 8: "SIGNAL_FAILURE", 9: "NO_PEER",
-                   16: "START", 17: "CREATE", 18: "LINK", 19: "READY", 20: "CANCEL"}
+                   16: "START", 17: "CREATE", 18: "LINK", 19: "READY", 20: "CANCEL", 21: "SMP"}
 SMC_TIMEOUTS = {1: "controller command completion", 2: "link establishment",
                 3: "connection cancellation outcome", 4: "ATT response",
                 5: "signaling reply", 6: "disconnection completion",
@@ -91,6 +91,12 @@ def smc_trace_record(words):
               "state": state, "state_name": SMC_STATES[state] if state < len(SMC_STATES) else f"UNKNOWN_{state}",
               "step": step, "step_name": SMC_STEPS[step] if step < len(SMC_STEPS) else f"UNKNOWN_{step}",
               "status": status, "opcode": operation & 65535, "handle": operation >> 16, "detail": detail}
+    if kind == 21:
+        record["smp_length"] = detail
+        if detail == 2 and record["opcode"] == 0x0B:
+            record["smp_security_request_auth_flags"] = status
+        elif detail == 2 and record["opcode"] == 0x05:
+            record["smp_pairing_failed_reason"] = status
     if kind == 5:
         record["timeout_detail"] = dict(zip(("hci_waiting", "att_waiting", "acl_credits", "command_retry"),
                                            ((detail >> shift) & 255 for shift in (0, 8, 16, 24))))

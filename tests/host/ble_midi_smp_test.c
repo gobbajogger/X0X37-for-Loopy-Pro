@@ -44,6 +44,18 @@ static void acl(blec_t *c, uint8_t cid, const uint8_t *payload, unsigned n, uint
     memcpy(p + 8, payload, n);
     blec_rx(c, 2, p, (uint16_t)(n + 8), at);
 }
+static void assert_smp_trace(const blec_t *c, unsigned opcode, unsigned length,
+                             unsigned safe_status, uint32_t at)
+{
+    unsigned i = (c->trace.next + BLEC_TRACE_RECENT - 1u) % BLEC_TRACE_RECENT;
+    const blec_trace_record_t *r = &c->trace.recent[i];
+    assert((r->context & 255u) == BLEC_TRACE_SMP);
+    assert((r->context >> 24) == safe_status);
+    assert(r->operation == (opcode | 0x50u << 16));
+    assert(r->detail == length && r->ms == at);
+    assert(!c->trace.failures); /* Receiving SMP is not itself a failure. */
+}
+
 static void assert_pairing_not_supported(void)
 {
     static const uint8_t expected[] = {0x50,0, 6,0, 2,0, 6,0, 5,5};
@@ -67,12 +79,14 @@ int main(void)
     acl(&c, 6, security_request, sizeof security_request, 100);
     assert(sends == 1 && !c.rx_reject && !c.sig_count);
     assert_pairing_not_supported();
+    assert_smp_trace(&c, 0x0b, 2, 0, 100);
     notification(&c);
 
     /* Peer Pairing Failed is terminal; do not ping-pong responses. */
     ready(&c);
     acl(&c, 6, failed, sizeof failed, 100);
     assert(sends == 0 && c.sig_count == 0);
+    assert_smp_trace(&c, 5, 2, 5, 100);
     /* Reserved codes must be ignored rather than answered. */
     const uint8_t reserved[] = {0x0a,0};
     acl(&c, 6, reserved, sizeof reserved, 101);
@@ -84,8 +98,10 @@ int main(void)
     const uint8_t smp_last[] = {0x50,0x10,1,0,0};
     blec_rx(&c, 2, smp_first, sizeof smp_first, 100);
     assert(sends == 0 && c.rx_need == 2 && c.rx_have == 1);
+    assert(c.trace.events == 0); /* No partial-PDU trace or payload leak. */
     blec_rx(&c, 2, smp_last, sizeof smp_last, 101);
     assert(sends == 1 && !c.rx_need && !c.rx_have);
+    assert_smp_trace(&c, 0x0b, 2, 0, 101);
     assert_pairing_not_supported();
     notification(&c);
 
@@ -139,6 +155,21 @@ int main(void)
     ready(&c);
     acl(&c, 7, security_request, sizeof security_request, 100);
     assert(sends == 0 && c.rx_reject == 1 && c.rx_reason == BLEC_RX_CID);
-    puts("PASS: captured SMP CID, no-pairing response, retry, no ping-pong, MIDI receive and CID guard");
+    /* Exhaust every opcode with truncated, exact-two-byte and longer payloads.
+     * All payload bytes use a marker. Only the two explicitly allowed fields
+     * may appear in trace status; confirms/randoms/keys and malformed payloads
+     * retain opcode/length only. Protocol decisions above remain unchanged. */
+    for (unsigned opcode = 0; opcode < 256u; opcode++) {
+        const unsigned lengths[] = {1, 2, 17, 56};
+        for (unsigned j = 0; j < sizeof lengths / sizeof lengths[0]; j++) {
+            uint8_t secret[56];
+            memset(secret, 0xa5, sizeof secret); secret[0] = (uint8_t)opcode;
+            ready(&c);
+            acl(&c, 6, secret, lengths[j], 123);
+            assert_smp_trace(&c, opcode, lengths[j],
+                lengths[j] == 2 && (opcode == 0x0b || opcode == 5) ? 0xa5 : 0, 123);
+        }
+    }
+    puts("PASS: SMP refusal behavior, reassembly, passive opcode/length and non-secret-only trace");
     return 0;
 }

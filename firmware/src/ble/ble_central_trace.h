@@ -10,7 +10,7 @@ enum {
     BLEC_TRACE_TRANSPORT_BLOCKED, BLEC_TRACE_PROTOCOL_ERROR,
     BLEC_TRACE_SIGNAL_FAILURE, BLEC_TRACE_NO_PEER,
     BLEC_TRACE_START = 16, BLEC_TRACE_CREATE, BLEC_TRACE_LINK,
-    BLEC_TRACE_READY, BLEC_TRACE_CANCEL
+    BLEC_TRACE_READY, BLEC_TRACE_CANCEL, BLEC_TRACE_SMP
 };
 enum {
     BLEC_TRACE_WAIT_HCI = 1, BLEC_TRACE_WAIT_CREATE, BLEC_TRACE_WAIT_CANCEL,
@@ -21,6 +21,9 @@ enum {
 /* status is an HCI status/reason, ATT error, or a kind-specific reason.
  * operation: opcode in low16; connection handle in high16, except ATT_ERROR
  * uses its attribute handle. detail is an additional caller-defined raw word.
+ * SMP: opcode is the received command, detail is its complete PDU length.
+ * Only a well-sized (2-byte) Security Request or Pairing Failed has status
+ * copied from its non-secret auth flags/reason; every other status is zero.
  * Records and counters survive automatic retry and explicit start; the owning
  * host's initialization clears them. Timestamp zero is valid. */
 typedef struct {
