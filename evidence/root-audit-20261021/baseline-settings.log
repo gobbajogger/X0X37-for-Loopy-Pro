@@ -1,0 +1,49 @@
+PASS local knob selects ROOT
+FAIL local ROOT knob edit marks the clean project dirty
+FAIL local ROOT knob edit reaches autosave
+FAIL local ROOT arrow edit marks the clean project dirty
+FAIL unsaved edit remains dirty during confirmation
+FAIL local ROOT arrow edit reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+FAIL persistent SCALE/CHORD/ARP field marks dirty once
+FAIL unchanged persistent field adds no dirty mark
+FAIL persistent field reaches autosave
+PASS runtime ON/LATCH changes do not dirty the saved project
+FAIL SMC runtime ON navigation does not dirty the project
+FAIL SMC persistent edit uses one shared dirty mark
+clip settings persistence: FAIL

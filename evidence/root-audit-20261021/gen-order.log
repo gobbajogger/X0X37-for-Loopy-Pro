@@ -1,0 +1,9 @@
+ok   jobs=8: drum_pan_test gen=yes host=yes
+ok   jobs=8: stereo_test gen=yes host=yes
+ok   jobs=8: run_tests.sh passed
+rm: cannot remove '/workspace/scratch/92f983668cdd/x0x37-integration/build/host/iso/gen-order/tmp/gord.iwoimm/tree/cloud-handoff/2026-10-20': Directory not empty
+rm: cannot remove '/workspace/scratch/92f983668cdd/x0x37-integration/build/host/iso/gen-order/tmp/gord.iwoimm/tree/evidence/smc-link-20261021': Directory not empty
+ok   jobs=1: drum_pan_test gen=yes host=yes
+ok   jobs=1: stereo_test gen=yes host=yes
+ok   jobs=1: run_tests.sh passed
+gen order: all passed

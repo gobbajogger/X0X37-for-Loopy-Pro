@@ -63,7 +63,8 @@ os.execvp(sys.argv[4], sys.argv[4:])
 def fixture(source):
     """Keep runner functions, loop and scenario setup; replace expensive probe bodies."""
     start = source.index("tests_body() {")
-    end = source.rindex('if [ "$JOBS" -le 1 ]; then\n    tests_body')
+    inventory = source.find("\nPHASE=L\n", start)
+    end = inventory + 1 if inventory >= 0 else source.rindex('if [ "$JOBS" -le 1 ]; then\n    tests_body')
     scenario = source[source.index("for s in tests/scenarios/"):source.index("run perf-scratch ")]
     body = "tests_body() {\n"
     body += "".join(f"run {n} python3 worker.py {n}\n" for n in NAMES[:NAMES.index("scenario-alpha")])
@@ -124,7 +125,10 @@ def check(r, selected, *, fail="", setup=""):
     assert sorted(starts) == sorted(n for n in chosen if not setup or n != bad), starts
     dirs = [a for call in r["mkdir"] for a in call if a.startswith("build/scenarios/")]
     assert sorted(dirs) == sorted("build/scenarios/" + n[9:] for n in chosen if n.startswith("scenario-")), dirs
-    assert r["scratch_writes"] == int("perf-scratch" in chosen), r["scratch_writes"]
+    # A blocked redirect fails before dash invokes/traces printf. The fixture
+    # must retain the failure and execute no worker, rather than expect a write.
+    expected_writes = int("perf-scratch" in chosen and setup != "perf")
+    assert r["scratch_writes"] == expected_writes, r["scratch_writes"]
     if "perf-scratch" in chosen and setup != "perf":
         assert r["scratch_sha256"] == hashlib.sha256(SCRATCH).hexdigest()
     assert r["scenario_basename_substitutions"] == 0

@@ -1,0 +1,127 @@
+{
+  "base": "7b0bce55c5446a709fc3eecdafb993181654dcab",
+  "runs": [
+    {
+      "name": "baseline-controller-compile",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-o",
+        "/workspace/scratch/92f983668cdd/root-audit-baseline/ctl_wait",
+        "tests/host/ctl_os_wait_test.c"
+      ],
+      "returncode": 0,
+      "expected": "pass"
+    },
+    {
+      "name": "baseline-controller",
+      "argv": [
+        "./ctl_wait"
+      ],
+      "returncode": -6,
+      "expected": "failure"
+    },
+    {
+      "name": "baseline-settings",
+      "argv": [
+        "sh",
+        "tests/host/smk_clip_audit_test.sh",
+        "settings"
+      ],
+      "returncode": 1,
+      "expected": "failure"
+    },
+    {
+      "name": "baseline-ingress",
+      "argv": [
+        "sh",
+        "tests/host/smk_clip_audit_test.sh",
+        "ingress"
+      ],
+      "returncode": 1,
+      "expected": "failure"
+    },
+    {
+      "name": "baseline-fastmath-compile",
+      "argv": [
+        "cc",
+        "-O1",
+        "-g",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=undefined",
+        "-o",
+        "/workspace/scratch/92f983668cdd/root-audit-baseline/fastmath",
+        "tests/host/fastmath_test.c",
+        "-lm"
+      ],
+      "returncode": 0,
+      "expected": "pass"
+    },
+    {
+      "name": "baseline-fastmath-ubsan",
+      "argv": [
+        "./fastmath"
+      ],
+      "returncode": 1,
+      "expected": "failure"
+    },
+    {
+      "name": "fastmath-compile",
+      "argv": [
+        "cc",
+        "-O2",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=undefined",
+        "-o",
+        "build/host/fastmath_ubsan",
+        "tests/host/fastmath_test.c",
+        "-lm"
+      ],
+      "returncode": 0,
+      "expected": "pass"
+    },
+    {
+      "name": "fastmath-ubsan",
+      "argv": [
+        "build/host/fastmath_ubsan"
+      ],
+      "returncode": 0,
+      "expected": "pass"
+    },
+    {
+      "name": "controller-compile",
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=undefined",
+        "-o",
+        "build/host/ctl_wait_ubsan",
+        "tests/host/ctl_os_wait_test.c"
+      ],
+      "returncode": 0,
+      "expected": "pass"
+    },
+    {
+      "name": "controller-ubsan",
+      "argv": [
+        "build/host/ctl_wait_ubsan"
+      ],
+      "returncode": 0,
+      "expected": "pass"
+    }
+  ],
+  "host_selection_result": "13 selected tests executed, all passed"
+}
