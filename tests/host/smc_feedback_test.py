@@ -105,7 +105,8 @@ static void navigation(void) {
 static void main_strips(void) {
     ui.view=V_HOME;page=0;
     for(int selected=0;selected<NPARTS;selected++) {
-        ui.part=selected;ui.rec=1;smc.rec_part=selected;
+        ui.part=selected;ui.rec=1;smc.rec_part=(selected+1)%NPARTS;
+        /* Panel REC and part changes need not update the last SMC REC cache. */
         part_mutes=smc.solo=1u<<selected;
         for(int strip=0;strip<NPARTS;strip++) {
             expect("main REC",strip,strip==selected);
@@ -137,7 +138,7 @@ static void drums(void) {
         expect("R8 is not HOME in drum mode",7,0);
         expect("S8 is not PART in drum mode",15,0);
         /* REC/SOLO keep their existing whole-part behavior. */
-        ui.rec=1;smc.rec_part=2;smc.solo=4;
+        ui.part=2;ui.rec=1;smc.rec_part=3;smc.solo=4;
         for(int strip=0;strip<NPARTS;strip++) {
             expect("drum-view whole-part REC",strip,strip==2);
             expect("drum-view whole-part SOLO",8+strip,strip==2);

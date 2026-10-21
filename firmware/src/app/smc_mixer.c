@@ -597,7 +597,7 @@ static int smc_led(int note)
     }
     if (note < 32) {
         if (strip < NPARTS) {
-            if (row == 0) return ui.rec && smc.rec_part == strip;
+            if (row == 0) return ui.rec && ui.part == strip;
             if (row == 1) return !!(smc.solo & (1u << strip));
             if (row == 2) return part_muted(strip);
             return ui.part == strip;
