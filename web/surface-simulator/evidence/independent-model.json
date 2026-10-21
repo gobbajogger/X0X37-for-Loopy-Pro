@@ -1,0 +1,46 @@
+{
+  "checks": 10,
+  "passed": 10,
+  "results": [
+    {
+      "name": "SMC PLAY idempotent",
+      "pass": true
+    },
+    {
+      "name": "External encoder resets pickup",
+      "pass": true
+    },
+    {
+      "name": "Drum bank selects visible kit",
+      "pass": true
+    },
+    {
+      "name": "Held solo release original bank target",
+      "pass": true
+    },
+    {
+      "name": "FX mute changes value and pickup",
+      "pass": true
+    },
+    {
+      "name": "Select FX retains part",
+      "pass": true
+    },
+    {
+      "name": "APC release original note after off and page move",
+      "pass": true
+    },
+    {
+      "name": "Down from drum MIX goes SONG",
+      "pass": true
+    },
+    {
+      "name": "Drum sound bank changes drum not part",
+      "pass": true
+    },
+    {
+      "name": "Stage parameter change leaves APC pad held",
+      "pass": true
+    }
+  ]
+}

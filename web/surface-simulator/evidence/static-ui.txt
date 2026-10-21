@@ -1,0 +1,2 @@
+Static DOM-stub execution and three changed UI flows PASS. Not a browser/render test.
+Three final cleanup regressions PASS: menu priority, blur transport, reset surface state.

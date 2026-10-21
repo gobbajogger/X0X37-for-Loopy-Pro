@@ -1,0 +1,114 @@
+{
+  "passed": 27,
+  "total": 27,
+  "results": [
+    {
+      "name": "pickup waits, captures at target, preserves own write",
+      "pass": true
+    },
+    {
+      "name": "crossing pickup and reset after encoder",
+      "pass": true
+    },
+    {
+      "name": "new target discards old crossing",
+      "pass": true
+    },
+    {
+      "name": "11 drums, second bank blanks five strips",
+      "pass": true
+    },
+    {
+      "name": "held solo releases original bank target",
+      "pass": true
+    },
+    {
+      "name": "multiple solo and disconnect cleanup",
+      "pass": true
+    },
+    {
+      "name": "USER Solo latches without invented release packet",
+      "pass": true
+    },
+    {
+      "name": "SMC PLAY starts without toggling",
+      "pass": true
+    },
+    {
+      "name": "USER global MMC",
+      "pass": true
+    },
+    {
+      "name": "return mute changes actual level, restore, invalidates pickup",
+      "pass": true
+    },
+    {
+      "name": "master mute is not master filter",
+      "pass": true
+    },
+    {
+      "name": "SELECT effects retains selected part",
+      "pass": true
+    },
+    {
+      "name": "mixer cycle uses parent view and page nav clamps",
+      "pass": true
+    },
+    {
+      "name": "drum SOUND bank arrows choose drums",
+      "pass": true
+    },
+    {
+      "name": "clip grid blocks encoder and bank mutation",
+      "pass": true
+    },
+    {
+      "name": "menu owns navigation",
+      "pass": true
+    },
+    {
+      "name": "source physical 4x4 pad fold",
+      "pass": true
+    },
+    {
+      "name": "8x4 physical fold and local viewport",
+      "pass": true
+    },
+    {
+      "name": "pad release preserves original note through viewport/clear",
+      "pass": true
+    },
+    {
+      "name": "pad press no feedback when host simulation disabled",
+      "pass": true
+    },
+    {
+      "name": "clip mode exit releases held pad",
+      "pass": true
+    },
+    {
+      "name": "stage changes do not release held clip pads",
+      "pass": true
+    },
+    {
+      "name": "scale snap tie down, filter, full seventh/13th chords",
+      "pass": true
+    },
+    {
+      "name": "shared pitch released only after last key",
+      "pass": true
+    },
+    {
+      "name": "stage ON ends key notes without revoice",
+      "pass": true
+    },
+    {
+      "name": "LED selected drum/record, inactive strips dark",
+      "pass": true
+    },
+    {
+      "name": "all bundle scripts parse; no external dependencies",
+      "pass": true
+    }
+  ]
+}
