@@ -143,9 +143,13 @@ class InstallTest(unittest.TestCase):
                 self_test.assertTrue(Path(self_test.a.smc_receipt).exists());calls.append('install')
             def wait_for(self,*_):return NS(id=NS(loader=False,text=b.PRODUCT),link=Link(),name='only')
         self_test=self
-        with patch.object(fi,'Updater',Up),patch.object(fi,'plan_slots',return_value=Move()),patch.object(fi,'SlotMove',Move),patch.object(fi.xs,'read_archive',return_value=({},[None]*3)),patch.object(si,'check_regions',side_effect=lambda *_:calls.append('regions-read')):
+        def cold_reply(*args):
+            calls.append('cold-check')
+            w=[0]*63;w[-3]=0x534D4347;w[-2]=1
+            return [len(w)]+[(v>>(7*j))&127 for v in w for j in range(5)]
+        with patch.object(fi.xs,'req',side_effect=cold_reply),patch.object(fi,'Updater',Up),patch.object(fi,'plan_slots',return_value=Move()),patch.object(fi,'SlotMove',Move),patch.object(fi.xs,'read_archive',return_value=({},[None]*3)),patch.object(si,'check_regions',side_effect=lambda *_:calls.append('regions-read')):
             self.assertEqual(si.run(self.a,None,io.StringIO(),lambda _:True,fi),0)
-            self.assertEqual(calls,['backup','install','regions-read','slots-read'])
+            self.assertEqual(calls,['cold-check','backup','cold-check','install','regions-read','slots-read'])
             # Written/verified receipt: only verification, no duplicate update.
             calls.clear();self.assertEqual(si.run(self.a,None,io.StringIO(),lambda _:True,fi),0)
             self.assertEqual(calls,['regions-read','slots-read'])
