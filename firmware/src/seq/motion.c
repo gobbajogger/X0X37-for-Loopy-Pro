@@ -17,14 +17,18 @@ static void put(motion_t *m, const lane_t *l, lane_rt_t *r, int v)
 {
     if (r->applied != v) {
         m->apply(m->ctx, l->t, l->v, l->i, v);
+        r->target = (uint8_t)((l->t << 4) | l->i);
+        r->voice = l->v;
         r->applied = (uint8_t)v;
     }
 }
 
-static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
+static void to_base(motion_t *m, lane_rt_t *r)
 {
-    if (r->applied != MOT_NONE)
-        m->apply(m->ctx, l->t, l->v, l->i, m->base(m->ctx, l->t, l->v, l->i));
+    if (r->applied != MOT_NONE) {
+        int t = r->target >> 4, i = r->target & 15;
+        m->apply(m->ctx, t, r->voice, i, m->base(m->ctx, t, r->voice, i));
+    }
     r->applied = MOT_NONE;
     r->ramp = 0;
 }
@@ -40,25 +44,37 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
     m->last[part] = (uint8_t)step;
     if (next < 0 || next >= NSTEPS)
         next = 0;
+    /* Finish old-pattern restoration before any incoming lane claims its target.
+     * The lane pool is allocation order, not parameter ownership order. */
     for (k = 0; k < NLANE; k++) {
         lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
-        int v, nv;
-        if (!l->used || l->part != part)
+        if (!l->used) {
+            to_base(m, r);                             /* the last lock was removed */
             continue;
+        }
         if (r->gen != l->gen) {                        /* a reused slot: a fresh runtime */
+            to_base(m, r);                             /* release the old target before taking the new one */
             r->gen = l->gen;
             r->applied = MOT_NONE;
             r->ramp = 0;
             r->rec_last = MOT_NONE;
             r->hold_left = 0;
         }
+        if (l->part != part)
+            continue;
         if (l->pat != pat) {                           /* not this part's pattern now: the knob */
-            to_base(m, l, r);
+            to_base(m, r);
             r->rec_last = MOT_NONE;
             r->hold_left = 0;
-            continue;
         }
+    }
+    for (k = 0; k < NLANE; k++) {
+        lane_t *l = &m->lane[k];
+        lane_rt_t *r = &m->rt[k];
+        int v, nv;
+        if (!l->used || l->part != part || l->pat != pat)
+            continue;
         if (r->hold_req) {
             r->hold_req = 0;
             r->hold_left = (uint8_t)pass;
@@ -95,10 +111,9 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
         v = l->val[step];
         put(m, l, r, v == MOT_NONE ? m->base(m->ctx, l->t, l->v, l->i) : v);
         nv = l->val[next];
-        r->ramp = (uint8_t)(v != MOT_NONE && nv != MOT_NONE && nv != v);
+        r->ramp = (uint8_t)((v != MOT_NONE && nv != MOT_NONE && nv != v) ? 1 | ((step & 1) << 1) : 0);
         r->from = (uint8_t)v;
         r->to = (uint8_t)nv;
-        r->part_parity = (uint8_t)(step & 1);
     }
 }
 
@@ -111,9 +126,15 @@ void motion_tick(motion_t *m, uint32_t n)
         const lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         uint32_t L, a;
-        if (!r->ramp || !l->used || r->gen != l->gen || l->part >= MOT_PARTS)
+        if (!l->used || r->gen != l->gen) {
+            /* Main can clear/reuse a slot between blocks. Restore the target
+             * saved by the audio owner, never the replacement lane's target. */
+            to_base(m, r);
             continue;
-        L = m->len[l->part][r->part_parity];
+        }
+        if (!r->ramp || l->part >= MOT_PARTS)
+            continue;
+        L = m->len[l->part][(r->ramp >> 1) & 1];
         if (!L)
             continue;                                  /* the first step: no length yet */
         a = m->age[l->part];
@@ -128,8 +149,7 @@ void motion_release(motion_t *m)
     int k, p;
     for (k = 0; k < NLANE; k++) {
         lane_rt_t *r = &m->rt[k];
-        if (m->lane[k].used && r->gen == m->lane[k].gen)
-            to_base(m, &m->lane[k], r);
+        to_base(m, r);                                 /* includes cleared/reused slots not seen by a step */
         r->rec_last = MOT_NONE;
         r->hold_left = 0;
     }
