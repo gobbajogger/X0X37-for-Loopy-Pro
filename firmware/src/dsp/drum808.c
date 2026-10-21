@@ -67,8 +67,20 @@
 /* maths                                                                   */
 /* ======================================================================= */
 
+/* Share coefficient routines in the constrained vendor-host study, including
+ * envelope segment transitions. Keep the hot shaper arithmetic inlined. */
+#if X0X_SMC_VENDOR_TEST
+#define D8_SET_NOINLINE __attribute__((noinline))
+#else
+#define D8_SET_NOINLINE
+#endif
+
 /* expm1 with full relative accuracy near 0, where 1 - exp(x) is what matters */
+#if X0X_SMC_VENDOR_TEST
+static inline __attribute__((always_inline)) float d8_expm1_inline(float x)
+#else
 static float d8_expm1(float x)
+#endif
 {
     if (x > -0.5f && x < 0.5f) {
         float p = 1.0f / 362880.0f;
@@ -85,7 +97,14 @@ static float d8_expm1(float x)
     return fm_expf(x) - 1.0f;
 }
 
-static float d8_exp(float x) { return (x > -0.5f && x < 0.5f) ? 1.0f + d8_expm1(x) : fm_expf(x); }
+#if X0X_SMC_VENDOR_TEST
+static D8_SET_NOINLINE float d8_expm1(float x) { return d8_expm1_inline(x); }
+#define D8_SHAPER_EXPM1 d8_expm1_inline
+#else
+#define D8_SHAPER_EXPM1 d8_expm1
+#endif
+
+static D8_SET_NOINLINE float d8_exp(float x) { return (x > -0.5f && x < 0.5f) ? 1.0f + d8_expm1(x) : fm_expf(x); }
 
 /* float-float (double-single) arithmetic, for set-time values that must match
  * a double or a correctly rounded libm result. Needs strict float evaluation and
@@ -231,7 +250,7 @@ D8_TICK float shaper(float *st, float gate)
         *st = 0.0f;                               /* 8W8 carries a -400 dB tail here */
     v = (gate - *st) + SH_DC * *st;
     if (v < 0.0f)
-        v = 0.71f * d8_expm1(v > -20.0f ? v : -20.0f);
+        v = 0.71f * D8_SHAPER_EXPM1(v > -20.0f ? v : -20.0f);
     return v;
 }
 
@@ -823,7 +842,7 @@ static const d8ff_t k_bank_inc[6] = {             /* oscHz / sr * 2^32 */
     {7.821515200e+07f, 7.305577993e-01f}, {5.275700000e+07f, 1.910276651e+00f}};
 #define BANK_DUTY 2060725309u                     /* phase < 0.4798 */
 
-static void bank_ratio(d8_bank_t *b, float r)
+static D8_SET_NOINLINE void bank_ratio(d8_bank_t *b, float r)
 {
     int i;
     r = r < 0.25f ? 0.25f : (r > 4.0f ? 4.0f : r);
