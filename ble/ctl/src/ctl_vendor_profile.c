@@ -55,11 +55,26 @@ static u8 att_storage[188 + MTU + 512] __attribute__((aligned(4))) CTL_HIGHCPU_B
 static u8 search_storage[512] __attribute__((aligned(4))) CTL_HIGHCPU_BSS;
 static struct connection_parameters request CTL_HIGHCPU_BSS;
 static u16 connection = ABSENT; /* initialized data deliberately stays low */
+enum { SUB_NONE, SUB_PENDING, SUB_ENABLED, SUB_SECURITY_PENDING, SUB_RETRY };
 static u16 midi_handle CTL_HIGHCPU_BSS, midi_end CTL_HIGHCPU_BSS, cccd CTL_HIGHCPU_BSS;
-enum { SUB_NONE, SUB_PENDING, SUB_ENABLED, SUB_SECURITY_PENDING };
-static u8 subscription CTL_HIGHCPU_BSS;
-static u8 retiring CTL_HIGHCPU_BSS, connecting CTL_HIGHCPU_BSS, discovering CTL_HIGHCPU_BSS, wanted CTL_HIGHCPU_BSS, receiving CTL_HIGHCPU_BSS, down_pending CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, started CTL_HIGHCPU_BSS, off_pending CTL_HIGHCPU_BSS, scan_pending CTL_HIGHCPU_BSS;
-static u32 disconnect_retry_at CTL_HIGHCPU_BSS;
+static u32 subscription_deadline CTL_HIGHCPU_BSS, disconnect_retry_at CTL_HIGHCPU_BSS;
+static u8 started CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, retiring CTL_HIGHCPU_BSS, subscription CTL_HIGHCPU_BSS;
+/* Private core-1 state: callbacks run synchronously in the cooperative host,
+ * never from an ISR or the application core. Only genuine 0/1 flags are packed;
+ * subscription, retirement and reason codes remain full bytes. No layout escapes
+ * this file. Local aliases keep the state-machine expressions readable. */
+static struct {
+    unsigned wanted:1, off_pending:1, connecting:1, security_retry_used:1;
+    unsigned down_pending:1, discovering:1, receiving:1, scan_pending:1;
+} profile_state CTL_HIGHCPU_BSS;
+#define security_retry_used profile_state.security_retry_used
+#define connecting profile_state.connecting
+#define discovering profile_state.discovering
+#define wanted profile_state.wanted
+#define receiving profile_state.receiving
+#define down_pending profile_state.down_pending
+#define off_pending profile_state.off_pending
+#define scan_pending profile_state.scan_pending
 extern int ctl_vendor_address(u8 address[6]);
 extern void os_time_dly(int);
 
@@ -86,7 +101,33 @@ static int retire_connection(u16 handle)
     return result;
 }
 
-static u16 read16(const u8 *p) { return (u16)p[0] | (u16)p[1] << 8; }
+/* Share cold actions and ownership predicates without weakening any caller's
+ * guards. Inlining choices are measured with the pinned target toolchain. */
+static __attribute__((noinline)) void retire_subscription(void)
+{
+    subscription = SUB_NONE;
+    retire_connection(connection);
+}
+static __attribute__((noinline)) int send_subscription(void)
+{
+    static const u8 enable_notify[2] = {1, 0};
+    subscription = SUB_PENDING;
+    return ble_user_cmd_prepare(CMD_ATT_SEND, 4, (int)cccd, enable_notify, 2, 5);
+}
+static __attribute__((always_inline)) inline u16 read16(const u8 *p) { return (u16)p[0] | (u16)p[1] << 8; }
+static __attribute__((always_inline)) inline int profile_enabled(void)
+{
+    return wanted && !off_pending && !retiring;
+}
+static __attribute__((noinline)) int profile_owned(void)
+{
+    return profile_enabled() && connection != ABSENT;
+}
+static __attribute__((always_inline)) inline int security_recovery_pending(void)
+{
+    return subscription == SUB_SECURITY_PENDING || subscription == SUB_RETRY ||
+           (subscription == SUB_PENDING && security_retry_used);
+}
 /* Exact64afb SDK emits D0 as16 bytes (length14), not the generic11-byte
  * upstream shape. It dispatches synchronously from its SM engine. The callback
  * only confirms the currently owned requested peer; vendor SM retains all key
@@ -94,16 +135,24 @@ static u16 read16(const u8 *p) { return (u16)p[0] | (u16)p[1] << 8; }
 static void security_event(u8 type, u16 channel, u8 *p, u16 n)
 {
     (void)channel;
-    if (type != 4 || !p || n != 16 || p[0] != 0xd0 || p[1] != 14 ||
-        !wanted || off_pending || down_pending || retiring || connecting || connection == ABSENT ||
+    if (type != 4 || !p || n != 16 || (p[0] != 0xd0 && p[0] != 0xdf) || p[1] != 14 ||
+        !profile_owned() || connecting ||
         read16(p + 2) != connection || p[4] != request.address_type ||
         memcmp(p + 5, request.address, 6)) return;
-    sm_just_works_confirm(connection);
+    if (p[0] == 0xd0) sm_just_works_confirm(connection);
+    else if (security_recovery_pending() &&
+             ((p[11] == 3 && p[13] <= 1 && !p[14]) ||
+              (p[11] == 4 && !p[12] && !p[13] && !p[14]))) {
+        /* Exact SDK PAIR_PROCESS tag: reason<<8 | origin<<16 | 3 for
+         * local/received Pairing Failed, or exactly 4 for SM timeout. */
+        retire_subscription();
+    }
 }
 
 static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
 {
     if (type != 4 || !p || n < 2 || (u16)p[1] + 2u > n) return;
+    if (p[0] == 8 && n != 6) return;
     n = (u16)p[1] + 2u;
     (void)channel;
     /* SDK GAP_EVENT_ADVERTISING_REPORT contains one bounded AD payload. Never
@@ -134,6 +183,7 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
             } else {
                 connection = handle; retiring = 0; connecting = 0; midi_handle = midi_end = cccd = 0; receiving = 0;
                 subscription = SUB_NONE;
+                security_retry_used = 0;
                 if (ble_user_cmd_prepare(CMD_ATT_INIT, 4, (int)handle, att_storage,
                                          (int)sizeof(att_storage), MTU)) {
                     retire_connection(handle);
@@ -150,10 +200,22 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
     } else if (p[0] == 5 && n >= 6 && read16(p + 3) == connection) {
         connection = ABSENT; midi_handle = 0; discovering = receiving = retiring = 0;
         subscription = SUB_NONE;
+        security_retry_used = 0;
         ble_user_cmd_prepare(CMD_ATT_INIT, 4, 0, (void *)0, 0, 0);
         down_reason = p[5]; down_pending = 1;
         ctl_vendor_poll();
         if (wanted) { scan_pending = 1; ctl_vendor_poll(); }
+    } else if (p[0] == 8 && n == 6 && profile_owned() && !connecting && read16(p + 3) == connection &&
+               security_recovery_pending()) {
+        /* HCI Encryption Change: act only after this peer's CCCD security
+         * error. Do not start pairing. Wait until all SDK HCI handlers return
+         * before the next poll submits the one allowed retry. */
+        if (p[2] || !p[5]) {
+            retire_subscription();
+        } else if (p[5] == 1 && subscription == SUB_SECURITY_PENDING) {
+            subscription = SUB_RETRY;
+            subscription_deadline = ctl_ms() + 5000u;
+        }
     }
 }
 
@@ -180,31 +242,25 @@ void ble_profile_init(void)
 }
 
 /* SDK UUID arrays use canonical byte order; accept reverse representation as
- * well for compatibility with its discovery report variants. */
+ * well for compatibility with its discovery report variants. These public UUIDs
+ * need equality, not a constant-time secret comparison. */
 static int uuid_equal(const u8 *uuid, const u8 expected[16])
 {
-    int forward = 1, reverse = 1;
-    for (int i = 0; i < 16; ++i) {
-        forward &= uuid[i] == expected[i];
-        reverse &= uuid[i] == expected[15-i];
-    }
-    return forward || reverse;
+    if (!memcmp(uuid, expected, 16)) return 1;
+    for (int i = 0; i < 16; ++i)
+        if (uuid[i] != expected[15-i]) return 0;
+    return 1;
 }
 void user_client_report_search_result(struct search_report *r)
 {
-    if (!wanted || retiring || off_pending || down_pending ||
-        !discovering || connection == ABSENT) return;
+    if (!profile_owned() || down_pending || !discovering) return;
     if ((uintptr_t)r == UINTPTR_MAX) {
         discovering = 0;
         if (midi_handle && cccd) {
-            static const u8 enable_notify[2] = {1, 0};
             /* Use the descriptor discovered by the vendor, never value+1.
              * Command acceptance is NOT an ATT acknowledgment / control PASS. */
-            subscription = SUB_PENDING;
-            if (ble_user_cmd_prepare(CMD_ATT_SEND, 4, (int)cccd,
-                                     enable_notify, 2, 5)) {
-                subscription = SUB_NONE;
-                retire_connection(connection);
+            if (send_subscription()) {
+                retire_subscription();
             }
         } else retire_connection(connection);
     } else if (r && !midi_handle && !r->characteristic.uuid16 && !r->service.uuid16 &&
@@ -225,8 +281,7 @@ void user_client_report_search_result(struct search_report *r)
 u8 user_client_search_descriptor_is_enable(void) { return 1; }
 void user_client_report_descriptor_result(struct descriptor_report *d)
 {
-    if (wanted && !retiring && !off_pending && !down_pending &&
-        discovering && connection != ABSENT && d && midi_handle && d->uuid16 == 0x2902 &&
+    if (profile_owned() && !down_pending && discovering && d && midi_handle && d->uuid16 == 0x2902 &&
         d->handle > midi_handle && d->handle <= midi_end) cccd = d->handle;
 }
 
@@ -236,25 +291,27 @@ void user_client_report_data_callback(struct data_report *r)
      * status, and the connection/attribute handles. Queue acceptance is not
      * a successful CCCD write. Only this pending write owns its completion;
      * unrelated reads, stale completions and other links cannot change it. */
-    if (wanted && !retiring && !off_pending && !down_pending && r &&
-        connection != ABSENT && r->connection == connection &&
+    if (profile_owned() && !down_pending && r && r->connection == connection &&
         subscription == SUB_PENDING && r->kind == 0xa0 &&
         cccd && r->handle == cccd && !r->offset && r->length == 1 && r->data) {
         u8 status = r->data[0];
         if (status == 0x05 || status == 0x08 || status == 0x0c || status == 0x0f) {
-            /* Security-related ATT failure: the SDK starts pairing for 05.
-             * Do not cancel that exchange or claim the CCCD enabled. Its
-             * completion/retry policy is a separate unresolved integration
-             * step; retain existing notification and Just Works behavior. */
-            subscription = SUB_SECURITY_PENDING;
+            if (security_retry_used) {
+                retire_subscription();
+            } else {
+                /* SDK may pair for 05, or the peer may already be pairing.
+                 * Its SM timer is 30s; allow 5s scheduling margin, then stop
+                 * rather than retain an unusable link indefinitely. */
+                subscription = SUB_SECURITY_PENDING;
+                subscription_deadline = ctl_ms() + 35000u;
+            }
         } else {
             subscription = status ? SUB_NONE : SUB_ENABLED;
             if (status) retire_connection(connection);
         }
         return;
     }
-    if (wanted && !retiring && r && r->kind == 0xa7 && r->connection == connection &&
-        !off_pending && subscription != SUB_NONE &&
+    if (profile_enabled() && r && r->kind == 0xa7 && r->connection == connection && subscription != SUB_NONE &&
         midi_handle && r->handle == midi_handle && !r->offset &&
         r->data && r->length >= 3 && r->length <= MTU - 3) {
         ctl_vendor_poll();
@@ -274,6 +331,7 @@ int ctl_vendor_startup(void)
     ctl_vendor_events_reset();
     connection = ABSENT; midi_handle = 0;
     subscription = SUB_NONE;
+    security_retry_used = 0;
     connecting = discovering = wanted = receiving = down_pending = 0;
     if (le_controller_set_mac(address)) return -1;
     if (ctl_os_bootstrap_begin(5000)) return -1;
@@ -327,6 +385,24 @@ void ctl_vendor_poll(void)
         (void)retire_connection(connection);
     if (off_pending && !ctl_vendor_disconnect()) off_pending = 0;
     if (scan_pending && wanted && !connecting && connection == ABSENT && !ctl_vendor_scan(1)) scan_pending = 0;
+    if (profile_owned() && !connecting && (subscription == SUB_SECURITY_PENDING || subscription == SUB_RETRY)) {
+        if ((int32_t)(ctl_ms() - subscription_deadline) >= 0) {
+            retire_subscription();
+        } else if (subscription == SUB_RETRY && !down_pending) {
+            /* Reserve the one accepted retry before sending: a completion
+             * callback can run synchronously. BUSY/FULL never enqueue it. */
+            security_retry_used = 1;
+            int status = send_subscription();
+            if (status == -100 || status == -97) {
+                if (!retiring && subscription == SUB_PENDING) {
+                    subscription = SUB_RETRY;
+                    security_retry_used = 0;
+                }
+            } else if (status) {
+                retire_subscription();
+            }
+        }
+    }
 }
 static int command_result(int status)
 {
@@ -335,7 +411,9 @@ static int command_result(int status)
 }
 int ctl_vendor_command(u8 type, const u8 *payload, u32 length)
 {
-    ctl_vendor_poll();
+    /* Apply desired radio state before polling: OFF cancels a scheduled CCCD
+     * retry rather than allowing that retry immediately before retirement. */
+    if (type != 0x74) ctl_vendor_poll();
     if (!payload) return -1;
     if (!ctl_vendor_host_ready()) return 1; /* keep queued during startup */
     if (type == 0x74) {

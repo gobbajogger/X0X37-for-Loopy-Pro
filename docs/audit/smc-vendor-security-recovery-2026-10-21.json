@@ -1,0 +1,139 @@
+{
+  "base_commit": "12ea396ba4902331b6f058e99d3175e8ed72e552",
+  "scope": "Owned bounded security-dependent CCCD retry plus equivalent source compaction; source-only, no package",
+  "source_sha256": "f7e8f9ff41467acdc24951faa34f49daba67228f63482a721098d46daf2af794",
+  "preferred_v2_source_sha256": "bea226ae6b9c6a1494d3624e71a75264abd7088c716c4c03c52f740c24904b31",
+  "preferred_v2_patch_sha256": "08161c096490fab49a110a75a17b293879f81e70ed5326d85f415a6928b817cd",
+  "changed_compiled_sources": [
+    "src/ctl_vendor_profile.c"
+  ],
+  "negative_control": {
+    "base": "12ea396",
+    "failed_assertions": 26,
+    "exit": 1
+  },
+  "independent_review": {
+    "source": "PASS",
+    "callback_and_uuid_runs": 14,
+    "differential_snapshots": 102000,
+    "differential_sha256": "e6bf5053763ece4db5d3e24ac5143d4643fdde6fdc10d504c14b1b0f58858363",
+    "uuid_cases": 32768
+  },
+  "tests": {
+    "ctl_vendor_bridge_test.c": "215e83116df6fa6b5f3a4f629a8f3a3dfd1eedd2a9f3124c4141bac7314be0b9",
+    "ctl_vendor_events_test.c": "28366d9b6d527c57e830376cc6d7f740c826978ce69f9227a21fe938e697821d",
+    "ctl_vendor_profile_test.c": "f18d16677400aa1b22f03ab8047f10fa016acf1d33489c867174ae9f2174829b",
+    "ctl_vendor_scheduler_test.c": "ad884608ea3f51d3d26eab15f28e4024bd9d6ee551cc26a9ca229091d502a694",
+    "ctl_vendor_security_backpressure_test.c": "6b94c8fb610d3288a628de5076936cb2b655e9ba4c6392dff2a61c1510924083",
+    "ctl_vendor_security_edge_test.c": "f516c661eddc452a5fac99bf6b2938f4d24d8342a1c0ec1abef33ba11a6f9a31",
+    "ctl_vendor_security_mailbox_test.c": "28850a9eb8e91251e940fc4fedeaf88d2fb340d35b73cdb0b18417bd59e317d9",
+    "ctl_vendor_security_retry_test.c": "6e374556974888f17d3cdb70d040af42626f67fd74abfde18efb699e2eec5e7b",
+    "ctl_vendor_subscription_test.c": "cc1eb5784021d38dc70c99103e1fce9a040ad54dffe8ffa0af37022900cf121d",
+    "ctl_vendor_uuid_test.c": "31bf7e95a28a3b67df0b244fc32f43d0a7f42235dfd64fdb88d1c9aa1cdd859d"
+  },
+  "runners": {
+    "run_ctl_vendor_scheduler.sh": "30baf00986249f0695dfbdfaed1226fd7ae239a57ac93dfe68c8389fc9219c2a",
+    "run_ctl_vendor_security.sh": "c92af12d8379b968fcff5a349bc6f52765924dbb50a1d19115664fbffea1c6e5"
+  },
+  "private_logs": {
+    "final-scheduler.log": "9312c0f5f096c0be48fc85b78fa694ac25e908020fac71ca5a92e5489d3823ec",
+    "final-security-sanitized.log": "00d11a991267b4b2180b038c3bbfea59d62aaaa1abfd4ee5dcd8eb00b85832d0",
+    "final-elf-admission.log": "98699783ab5d7fd75abb4948fef406a880439172b842bbdec4c742bdaad8f1d1",
+    "integrated-negative.log": "48f4a86593e150f821e7e02853a6f83e9bdc517d29bb1265888298b6e096aba6"
+  },
+  "frozen_v2_failed_fit": {
+    "primary_bytes": 94600,
+    "primary_capacity": 94208,
+    "overflow_bytes": 392,
+    "high_cpu_bytes": 6464
+  },
+  "final_target": {
+    "tail_merge_probe": false,
+    "no_classic_lmp": false,
+    "no_classic_key_sniff": true,
+    "no_classic_test_modes": true,
+    "inlinehint_threshold": null,
+    "cpu_init_pool": true,
+    "high_cpu_bss": true,
+    "placement": "data-only-92k-ramload",
+    "controller_roles": "central",
+    "avctp_extra_commands": 0,
+    "installable": false,
+    "resolved": true,
+    "link_exit": 0,
+    "unresolved": [],
+    "input_hashes": {
+      "btstack.a": "d4c02f42e1be97a5288ecbcb5d42e6d0727e2ca4ffa2e0e2e6bb2ae61fede4bc",
+      "btctrler.a": "885cd53747753488b380f761318bf30d691f75541dd28adc72457690aa51506a",
+      "wl_rf_common.a": "1e6f7cdf0f0956282d251cdf23dffc2dae39c4ca498cb314801dde35b00e1769",
+      "crypto_toolbox_Osize.a": "373251c39f8de0851204b623601b348254023e98b3d0b062ecab743b0c3aa35e",
+      "lib_ccm_aes.a": "bd3dd110197ae0084826538bfb5e432a6fadb3a001acadfdbd5f3a409fb5da2c",
+      "libc.a": "1170ac6819b2574bb78c89ab88c2f62074f0be227714f926e4d7c035ac1566a4",
+      "libcompiler_rt.a": "141997ab6977c0c4abfb857bc32a897eb345f8d593e27e74c33bdebcf3fd5009",
+      "clang": "c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f",
+      "ld": "fd61aff15616bb6f6b58fd2e9ede7af741c7bf05facb3e0cb3d3c9817c268fd9",
+      "rf_tables.c": "335c1ca89c333a0dbae61afd40f14f7417d94a488caaed76e9bb12cd57ecdd9f",
+      "LLVMgold.so": "2ca8dafde18070d6a42fc47fc2ec4723946cf3d2404ca25981de5070beb1aa12",
+      "objdump": "f7e449e2c8001d5ed4493a45d1f5f304c8910418e4074acdc8715079ef64e08a",
+      "system.a": "a71bdc75e5afbcffaf7d79bc2b27f2b65fec63d94d2261b584744d3e9b9098ea"
+    },
+    "study_hashes": {
+      "link_runtime.py": "f1414477837b0fa0fa63d6bb15eb498df88ca2649bf6122602ab50faa414677b",
+      "run.py": "5ceb727530d1b76d3c560159ba61eb2859a10ded1fad7d439a063b1bf79351c1",
+      "config-values.json": "903ba197a280efabb988c459a38d5236cb626bbee2859d81493d43c795ce8b72",
+      "input-hashes.json": "5d4dc616eafb50b066fffd14830c6b55420f5ad6d5fa6879ee1f2ac38999def2"
+    },
+    "source_hashes": {
+      "src/config.c": "8df50a50d5c25c566bf08e41fd120b17aa1a6809ee1c34ec49b0cc15de7375ff",
+      "src/ctl_heap.c": "12961b8a5853b22cc3b98b52731da358bed6b0e87962162bf2626a16c4b51a88",
+      "src/ctl_highcpu.c": "4375d98484d77ace5008df70f4310bb1a6d8f8b346489b330b6c2d28f7b193f7",
+      "src/ctl_highcpu.h": "a9b88d6ad74dc739323e9315f7520294ee7d8a2cec8306414dfe935f89642e3e",
+      "src/ctl_host_scope.c": "6bb3baee25d3fbeee2491ac734511533635270c585ceb49ff558f8b11972af94",
+      "src/ctl_host_scope.h": "1aa0d44f63e933c351b631ef7982ab8ee7170a781a15f1df5ec846e5bc51ed44",
+      "src/ctl_main.c": "571045c55d523f14611a9f46e50c2c222b8cd20e8c40b6b4f26c55ae2e00512b",
+      "src/ctl_os.c": "f3e23c896b5655452f203aadea75845c9d28e17e5c9f3021e1890026a3b8453d",
+      "src/ctl_platform.c": "1925274b730ccd9cb07d435b0372c8b0fb2559c67c916aa144f71d2b7f8e7664",
+      "src/ctl_port.c": "7d0212831f5695146d6565ddfc8d3688d5199a7a7c26ab5c6b890a1d33bba8cb",
+      "src/ctl_port.h": "381ee8e5f0fbd3620d9d06545b3f570aefbe8d410e1c3adebf771d2dd5e121fc",
+      "src/ctl_port_asm.S": "446b646ab299250ddcc2efaf1c7dee567c157542b7a51d919b02a363b483a12f",
+      "src/ctl_syscfg.c": "a0ffd9207cb36f4510082973ab4e94525efd966d67a60f2f9afc7070b3472f02",
+      "src/ctl_timer.c": "83b5c294f1ff09606715b619ffef734b4520f094a7c108677bad1bd00f06b8fe",
+      "src/ctl_vendor_bridge.c": "65f85a14bb6393cf9ed3aab91fdaa8ff3a8079539be3049cf09ef64373df79e4",
+      "src/ctl_vendor_crc.c": "87fb3d30e7d54fa86d227305326fe439ad88c4392dba9f2582cea74c3819584c",
+      "src/ctl_vendor_events.c": "7490e8d8eaffbb65e05f60d12b721657b7ac365876eb613f1110556217655401",
+      "src/ctl_vendor_profile.c": "f7e8f9ff41467acdc24951faa34f49daba67228f63482a721098d46daf2af794",
+      "src/ctl_vendor_profile.h": "fb5fa79251687fbdcd406a84e78e2babe54903a313cd7e10df83470c5e44fcfa",
+      "src/log_tags.c": "6d356eff814fc4ee09ae80de5d043f21e559cd697d055a0193b3d921c9c9026c",
+      "src/x0x_ble_abi.h": "be763aee1add23690d5d42d27bf9a37615ae90b53c86ed99100e6b7ceb669867",
+      "src/x0x_smc_host_messages.h": "7964aaf34d1a636fd268ba6bae6aede29cfaac010c88783c0ef9ddd99246c366"
+    },
+    "flash_extent_bytes": null,
+    "ram_extent_bytes": 26352,
+    "placed_flash": {
+      "primary_bytes": 94200,
+      "primary_capacity": 94208,
+      "rodata_bytes": 7272,
+      "rodata_capacity": 8192,
+      "data_load_bytes": 3524,
+      "data_load_capacity": 4096,
+      "total_loaded_bytes": 104996,
+      "ram_still_oversized": false,
+      "manifest_placeholder_only": true
+    },
+    "high_cpu_bytes": 6436,
+    "private_artifact_hashes": {
+      "resolved-NOT-FIRMWARE.elf": "965bbd3ab7f04d62ca2d9c1bae2a3e2236b325edb69f4d85c3d90630ea3fa37b",
+      "resolved.map": "328624813892a1297d08f3135097e329ca22724ead72efbe25a329bf927af6ec",
+      "symbols.txt": "38110ba6a42fdf854653da3ca685e49f7fd3af725ec085aa1c9b42866212c50e",
+      "sections.txt": "2c3b4d9130f7160b5fe502210a8bb3f5ce26cd0c141253df1f317007fd50c833",
+      "ctl.ld": "29d31b8b6be5a7af4b33bc8ff609a4767cf6affae1e205c9d77dd275f6d7f5c7"
+    }
+  },
+  "margins": {
+    "primary_flash": 8,
+    "read_only_flash": 920,
+    "ramcode_load_flash": 572,
+    "low_ram": 16,
+    "high_cpu_ram": 732
+  }
+}

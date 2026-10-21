@@ -17,6 +17,12 @@ ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_profile_test.c
 ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_vendor_subscription_test.c" -o "$OUT/subscription"
 "$OUT/subscription"
 
+for TEST in ctl_vendor_security_retry ctl_vendor_security_backpressure ctl_vendor_security_edge ctl_vendor_security_mailbox ctl_vendor_uuid; do
+    ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror -DCHECK_INTERNAL_BUDGET=1 -I"$HERE/../../firmware/hal" \
+        "$HERE/${TEST}_test.c" -o "$OUT/$TEST"
+    "$OUT/$TEST"
+done
+
 ${CC:-cc} -std=c11 -O1 -g -Wall -Wextra -Werror "$HERE/ctl_highcpu_test.c" -o "$OUT/highcpu"
 "$OUT/highcpu"
 
