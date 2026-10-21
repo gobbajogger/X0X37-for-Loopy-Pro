@@ -175,9 +175,9 @@ static void ota_commit(const uint8_t *parm)
 #ifndef X0X_SMC_VENDOR_TEST
 #define X0X_SMC_VENDOR_TEST 0
 #endif
+#include "x0x_smc_profile.h"
 #if X0X_BLE
 #if X0X_SMC_VENDOR_TEST
-#include "x0x_smc_profile.h"
 #include "ble_vendor.c"
 #else
 #include "ble.c"
