@@ -44,3 +44,16 @@ shared diagnostic uploads.
 The candidate's current `safe_main` is crash-triggered and lacks editor service,
 so it cannot be presented as a manual sample-backup entry. No invented button
 sequence or deliberately induced crash is part of this plan.
+
+## Implemented subsequent TEST update route
+
+The dedicated profile now latches eligibility only after loading saved Bluetooth
+OFF, before controller prepare. Current ON denies admission; every controller
+attempt still revokes it irreversibly until reboot. Normal initialized editor
+service remains available for sample backup. TEST commit explicitly stops ALNK
+before the existing CPU1 hold/reset, and loader-side quiescence remains.
+A versioned DIAG tail exposes this exact gate. The installer rejects malformed
+or unknown layouts and rejects warm OFF-after-start before backup and again
+before staging. Physical cold power-cycle acknowledgment remains necessary.
+This fixes the later-profile path; it does not assert that the separate first
+53d head-export transition has yet passed review.

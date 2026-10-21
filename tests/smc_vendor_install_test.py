@@ -37,6 +37,21 @@ class InstallTest(unittest.TestCase):
         Path(self.a.dev_record).write_text(json.dumps(self.record))
     def tearDown(self):self.temp.cleanup()
 
+    def test_cold_never_started_not_currently_off(self):
+        def frame(w):return [len(w)]+[(v>>(7*j))&127 for v in w for j in range(5)]
+        w=[0]*71;w[48]=1;w[51]=1
+        self.assertEqual(si.cold_state(frame(w))['layout'],'abi2-live-v1')
+        for at,value in ((48,257),(48,65537),(49,1),(49,256),(51,2)):
+            bad=w.copy();bad[at]=value
+            with self.subTest(at=at),self.assertRaises(b.BundleError):si.cold_state(frame(bad))
+        w=[0]*63;w[-3]=0x534D4347;w[-2]=1
+        self.assertEqual(si.cold_state(frame(w))['layout'],'vendor-update-gate-v1')
+        for flags in (0,2,3,5,9,255):
+            w[-2]=flags
+            with self.assertRaises(b.BundleError):si.cold_state(frame(w))
+        for bad in ([1], [1,0,0,0,0,16], [128]):
+            with self.assertRaises(b.BundleError):si.cold_state(bad)
+
     def test_prepare_freezes_identity(self):
         product,image,receipt,meta=si.prepare(self.a)
         self.assertEqual(product,b.PRODUCT);self.assertIs(type(image),bytes)

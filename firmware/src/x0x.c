@@ -166,6 +166,9 @@ static void ota_commit(const uint8_t *parm)
     bootguard.failed = 0;                               /* a new install starts with a clean slate */
     usb_detach();
     fm1_delay_ms(30);
+#if X0X_SMC_VENDOR_TEST
+    fm1_audio_stop();  /* before CPU1 hold/reset and SPL loader decompression */
+#endif
     fm1_enter_update(parm);
 }
 

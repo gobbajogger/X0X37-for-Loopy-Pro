@@ -45,6 +45,13 @@
         "-c",
         "set -e; p=$(mktemp); trap 'rm -f \"$p\"' EXIT; cc -std=c11 -O2 -Wall -Wextra -Werror tests/ble/smc_readback_test.c -o \"$p\"; \"$p\""
       ]
+    },
+    {
+      "reason": "Saved OFF never-started gate, current ON/retired refusal and pre-SPL audio stop wiring",
+      "argv": [
+        "python3",
+        "tests/ble/check_smc_update_entry.py"
+      ]
     }
   ]
 }

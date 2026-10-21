@@ -21,6 +21,11 @@ static void denied_without_io(void)
 int main(void)
 {
     denied_without_io();
+    bp_update_boot(&gate,1); denied_without_io();
+    bp_update_request(&gate,0); denied_without_io(); /* saved ON never admitted */
+    bp_update_boot(&gate,0); assert(bp_update_allowed(&gate));
+    bp_update_request(&gate,1); denied_without_io();
+    bp_update_request(&gate,0); assert(bp_update_allowed(&gate));
     bp_update_recovery(&gate);assert(bp_update_allowed(&gate));
     bp_update_attempt(&gate);denied_without_io();
     bp_update_recovery(&gate);denied_without_io();

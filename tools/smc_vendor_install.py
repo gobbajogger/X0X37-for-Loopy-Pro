@@ -100,6 +100,28 @@ def check_regions(link, meta, out, fi):
         print(f'SMC region {i}: all {len(got)} bytes read back and matched',file=out)
 
 
+def cold_state(reply):
+    """Exact supported DIAG layouts; OFF-after-start must not pass.
+    Raw reset cause is retained, not interpreted as proof of a physical cycle.
+    """
+    bundle.need(reply and all(type(x) is int and 0 <= x < 128 for x in reply), 'malformed cold-state reply')
+    n=reply[0]
+    bundle.need(len(reply)==1+5*n and all(reply[5+5*i]<16 for i in range(n)), 'invalid DIAG word framing')
+    w=[sum(reply[1+5*i+j] << (7*j) for j in range(5)) for i in range(n)]
+    if n==63 and w[-3]==0x534D4347:
+        bundle.need(w[-2]==1, 'TEST radio attempted, requested ON, or recovery not admitted; save OFF and power cycle')
+        return dict(layout='vendor-update-gate-v1',flags=w[-2],reset_raw=w[-1])
+    bundle.need(n==71 or (n==77 and w[-6]==0x534D4301), 'unsupported DIAG layout; no guessed cold-state admission')
+    # 17 crash + 2 bootguard + 29 retained guard words; current live flags follow.
+    flags,want,state=w[48],w[49],w[51]
+    bundle.need(flags & 0xFFFFFF00 == 0 and want & 0xFFFF == 0 and state==1,
+                'controller started or Bluetooth requested ON; save OFF and physically power cycle')
+    return dict(layout='abi2-live-v1',flags=flags,want=want,reset_raw=w[58])
+
+def check_cold(link,fi):
+    return cold_state(list(fi.xs.req(fi.EditorLink(link),33,[],fi.CTL_READ['timeout'],fi.CTL_READ['tries'])))
+
+
 def run(a, backend, out, ask, fi):
     """Use Updater, SlotMove, same-port binding and existing MIDI backend only."""
     try:
@@ -135,6 +157,7 @@ def run(a, backend, out, ask, fi):
         else:
             bundle.need(not dev.id.loader, 'loader resume requires the original saved transaction receipt and backup')
             bundle.need(not Path(a.backup).exists(), 'refuse to overwrite an existing sample backup')
+            check_cold(dev.link,fi)
             move = fi.plan_slots(dev,image,product,require_backup=True)
             bundle.need(move is not None and move.old_map == move.new_map and not move.risk, 'SMC DEV must preserve the exact sample layout')
             if not a.yes and not ask('Install central-only DEV from physical cold recovery? [y/N] '):
@@ -157,6 +180,7 @@ def run(a, backend, out, ask, fi):
         if transaction['state'] not in ('written','verified'):
             if resuming and not a.yes and not ask('Continue the exact saved DEV transaction from cold recovery? [y/N] '):
                 dev.link.close(); return 1
+            if not dev.id.loader:transaction['cold_preflight']=check_cold(dev.link,fi)
             transaction['state']='writing';save_receipt(rp,transaction)
             prog=fi.Progress(out)
             try:up.install(dev,image,product,prog)

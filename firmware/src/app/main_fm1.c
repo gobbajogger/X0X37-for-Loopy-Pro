@@ -2172,6 +2172,10 @@ static void fm1_main(void)
     project_apply_io();                             /* clock and notes out, the MIDI channels, the output */
     engine_brk_loops();
 #if X0X_BLE
+#if X0X_SMC_VENDOR_TEST
+    /* Loaded OFF and never-started this boot; normal editor keeps sample backup available. */
+    bp_update_boot(&smc_update_gate, proj.set.bt & 1u);
+#endif
     ble_prepare(proj.set.bt & 1u);                  /* a controller image, BLUETOOTH ON: core 1 starts ready for it */
     ble_start();                                    /* its init on core 0, before core 1 starts (about 0.6 s) */
 #endif

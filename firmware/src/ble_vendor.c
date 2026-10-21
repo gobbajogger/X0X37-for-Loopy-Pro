@@ -283,6 +283,7 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 void plat_ble_set(int on)
 {
     ble_want = (uint8_t)(on != 0);
+    bp_update_request(&smc_update_gate, on);
     if (!on && ble_guard.blocked) {             /* BLUETOOTH OFF: the next power-on tries again */
         ble_guard_user_off(&ble_guard);
         if (ble_blocked) {
@@ -296,7 +297,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     const uint32_t *g = (const uint32_t *)&ble_guard;
     uint32_t i, n = 0;
     for (i = 0; i < sizeof ble_guard / 4u && n < max; ++i) w[n++] = g[i];
-    if (max - n < 12u) return n;
+    if (max - n < 15u) return n;
     w[n++] = XSM_ABI;
     w[n++] = ble_img | (uint32_t)ble_up << 8 | (uint32_t)ble_dead << 16;
     w[n++] = ble_r.mb.state; w[n++] = ble_r.mb.err; w[n++] = ble_r.mb.polls;
@@ -304,5 +305,9 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.ingress.notifications; w[n++] = ble_r.ingress.messages;
     w[n++] = ble_r.ingress.rejected; w[n++] = ble_r.ingress.dropped;
     w[n++] = ble_alive[0]; w[n++] = ble_alive[1];
+    w[n++] = 0x534D4347u; /* versioned never-started update admission */
+    w[n++] = (uint32_t)bp_update_allowed(&smc_update_gate) |
+        (uint32_t)smc_update_gate.attempted << 1 | (uint32_t)smc_update_gate.requested_on << 2 | (uint32_t)ble_boot_on << 3;
+    w[n++] = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;
     return n;
 }
