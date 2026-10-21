@@ -60,7 +60,7 @@ static void recovered(unsigned overflow, uint32_t start, unsigned delay, unsigne
     down_event(&c, 0x0c, 0x50); down_event(&c, 0, 0x51);
     assert(c.state == BLEC_DISCONNECTING && c.conn == 0x50 && !c.credits);
     down_event(&c, 0, 0x50);
-    assert(c.state == BLEC_SCANNING && !c.conn && c.credits == 5);
+    assert(c.state == BLEC_SCANNING && c.conn == BLEC_NO_CONN && c.credits == 5);
     assert(!c.sig_count && !c.rx_need && !c.rx_have);
     /* Reconnect without completion credits from the old link. */
     const uint8_t conn[] = {0x3e, 0x13, 1, 0, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -87,7 +87,7 @@ static void failed(unsigned overflow, unsigned accepted, unsigned complete)
     assert(c.state == BLEC_FAILED && !c.waiting && c.conn == 0x50 && !c.credits);
     assert(attempts == before); /* No late submission or renewed deadline. */
     down_event(&c, 0, 0x50);
-    assert(c.state == BLEC_SCANNING && !c.conn && c.credits == 5);
+    assert(c.state == BLEC_SCANNING && c.conn == BLEC_NO_CONN && c.credits == 5);
 }
 static void accepted_timeout(void)
 {
@@ -104,7 +104,7 @@ static void accepted_timeout(void)
         command_event(&c, complete, 0x0c);
         assert(c.state == BLEC_FAILED && c.conn == 0x50 && !c.credits);
         blec_stop(&c); blec_poll(&c, c.deadline + 1); assert(sent == 1);
-        down_event(&c, 0, 0x50); assert(c.state == BLEC_OFF && !c.conn && c.credits == 5);
+        down_event(&c, 0, 0x50); assert(c.state == BLEC_OFF && c.conn == BLEC_NO_CONN && c.credits == 5);
     }
 }
 static void lifecycle_abort(void)
@@ -121,7 +121,7 @@ static void lifecycle_abort(void)
         command_event(&c, 0, 0); blec_poll(&c, c.deadline - 1);
         assert(sent == 1 && c.conn == 0x50 && !c.credits);
         down_event(&c, 0, 0x50);
-        assert(c.state == BLEC_OFF && !c.conn && c.credits == 5);
+        assert(c.state == BLEC_OFF && c.conn == BLEC_NO_CONN && c.credits == 5);
     }
     abort_ready(&c); busy = 1; blec_stop(&c);
     uint32_t deadline = c.deadline;
@@ -130,17 +130,17 @@ static void lifecycle_abort(void)
     assert(c.state == BLEC_FAILED && c.conn == 0x50 && !c.credits && !sent);
     blec_stop(&c); blec_poll(&c, deadline + 10000u);
     assert(c.state == BLEC_FAILED && c.deadline == deadline && !sent && c.conn == 0x50);
-    down_event(&c, 0, 0x50); assert(c.state == BLEC_OFF && c.credits == 5 && !c.conn);
+    down_event(&c, 0, 0x50); assert(c.state == BLEC_OFF && c.credits == 5 && c.conn == BLEC_NO_CONN);
     blec_start(&c, deadline + 10001u);
     c.state = BLEC_CONNECTED; c.step = 14; c.conn = 0x50; c.waiting = 0;
     unsigned before = attempts; blec_stop(&c); assert(attempts == before + 1);
     /* A connection can win the cancellation race during stop. */
-    abort_ready(&c); c.conn = 0; c.state = BLEC_STOPPING; c.deadline = now + 3000; busy = 1;
+    abort_ready(&c); c.conn = BLEC_NO_CONN; c.state = BLEC_STOPPING; c.deadline = now + 3000; busy = 1;
     const uint8_t conn[] = {0x3e, 0x13, 1, 0, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     blec_rx(&c, 4, conn, sizeof conn, now);
     assert(c.conn == 0x50 && !sent && attempts == 1);
     busy = 0; blec_poll(&c, now + 1); assert(sent == 1 && attempts == 2);
-    down_event(&c, 0, 0x50); assert(c.state == BLEC_OFF && !c.conn);
+    down_event(&c, 0, 0x50); assert(c.state == BLEC_OFF && c.conn == BLEC_NO_CONN);
 }
 int main(int argc, char **argv)
 {
