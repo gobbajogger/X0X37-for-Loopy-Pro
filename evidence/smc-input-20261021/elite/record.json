@@ -1,0 +1,190 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "bc766d4a4db6c48a425ff6fd7fc8c8ca9324a68df571f6ce75f7b55050ccd827",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "b8452c679faca2475406a5faad6a7a2490d018b36b6e279f23ec3a71e3f3b3a6",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": false,
+        "plan": {
+          "base": "6e458c9d51be010f1573e08bda1dfadb985f71d9",
+          "scope": "Application-only SMC queue lifetime repair. Reuse the completed, independently reviewed production-derived ISR, project reset, navigation and performance-abort checks only after verifying exact source, compiler and log hashes. Build shared Elite development firmware and enforce code, static RAM and pool budgets. BLE controller source, radio protocol, models, loader and install tools are unchanged; no new controller or Pro artifact is selected.",
+          "checks": [
+            {
+              "reason": "Preserve the validated event-order/reset behavior and reuse four completed scoped host checks with exact input identities instead of rerunning unchanged tests.",
+              "argv": [
+                "python3",
+                "evidence/smc-input-20261021/reuse-host-checks.py"
+              ]
+            }
+          ]
+        },
+        "dependencies": []
+      },
+      "environment": {
+        "CXX": "c++",
+        "CC": "cc",
+        "NODE_PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.18.55"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "3341b5f29aa352adecc8b7e6002f9966c8a2fa3c3767640076ab28c937253dc1",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "618310cee42f469d7136bc3cd65e1993bb63b6e810c1927c36b5ea8d11cd9fc0",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "2dae8066ef4d6a926561b4b0eaca7b458d4f5b56bb83760656e6baa7fc3e974f",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "6117c52522997d2aaccb2b52b3c6bf42c0a6c5edb1d718431fed6b2fc5fec234",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "52f1ddb33fe78b9441e0f42e9cd22c571f1101938e046c8a26582494e041cc73",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "5b674ea1d7017c2929f3c52c43487478bb240ecdd7197a25cce3813a70329a5c",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "ab3ec9fd1f53ec6b0ebc927ac253750c0a9f6738c3b7c6826dd4b455d6c3d57c",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "5dc8fbfabcd338efd14bf29f7e13c5d558bd029725f21632c56bfd53e1330100",
+          "executable": true
+        },
+        "python": {
+          "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+          "executable": true
+        },
+        "python3": {
+          "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "2.3.5",
+          "sha256": "33899bddedcc34ed6dff45f16493b38af2d4a2dd7f768d209a3bd6b31d4e855a"
+        },
+        "pillow": {
+          "version": "12.3.0",
+          "sha256": "2e0581398ad83af176995b57b45112bd7fe22579e326e58e7c8420eb009cd220"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "d086a489a1f4677597e085c93d08f8f7b329f9bbad0f9d0fc56ac512626b3697"
+        },
+        "sdk": {
+          "sha256": "751354e4ce79a3c3a77986cc6aa5cc14d177d02cf4eef6efc525c4ef682e2609"
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "6fc256598651a71009518bc1c8ea92c564baa8be",
+  "tree": "b8452c679faca2475406a5faad6a7a2490d018b36b6e279f23ec3a71e3f3b3a6",
+  "plan": {
+    "base": "6e458c9d51be010f1573e08bda1dfadb985f71d9",
+    "scope": "Application-only SMC queue lifetime repair. Reuse the completed, independently reviewed production-derived ISR, project reset, navigation and performance-abort checks only after verifying exact source, compiler and log hashes. Build shared Elite development firmware and enforce code, static RAM and pool budgets. BLE controller source, radio protocol, models, loader and install tools are unchanged; no new controller or Pro artifact is selected.",
+    "checks": [
+      {
+        "reason": "Preserve the validated event-order/reset behavior and reuse four completed scoped host checks with exact input identities instead of rerunning unchanged tests.",
+        "argv": [
+          "python3",
+          "evidence/smc-input-20261021/reuse-host-checks.py"
+        ]
+      }
+    ]
+  },
+  "changed_files": [
+    "evidence/smc-input-20261021/HOST_RESULT.txt",
+    "evidence/smc-input-20261021/base-queue.log",
+    "evidence/smc-input-20261021/host-evidence.json",
+    "evidence/smc-input-20261021/host-tests.log",
+    "evidence/smc-input-20261021/project-runtime.log",
+    "evidence/smc-input-20261021/queue-asan-ubsan.log",
+    "evidence/smc-input-20261021/queue-sanitizers.log",
+    "evidence/smc-input-20261021/reuse-host-checks.py",
+    "evidence/smc-input-20261021/smc-performance-abort.log",
+    "evidence/smc-input-20261021/smc-reachability.log",
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_queue_test.py",
+    "tests/run_tests.sh"
+  ],
+  "controller": false,
+  "budgets": {
+    "code_free": 8400,
+    "ram_free": 524,
+    "pool_free": 8324
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "python3",
+        "evidence/smc-input-20261021/reuse-host-checks.py"
+      ],
+      "returncode": 0,
+      "sha256": "c7771e19e130e9e9bd10fb1590d396053bef27e93e5b703219409e1b51aca9a9"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "0def476e2dbfada6b6a3c8eaee7cd1aa0567e02d1ab31332a7d0935ff57792ce"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "8b7c590f63b22b9b61610e11ab3d42fba271e6261417d2cb2ea8793b86c1e9af"
+    }
+  }
+}
