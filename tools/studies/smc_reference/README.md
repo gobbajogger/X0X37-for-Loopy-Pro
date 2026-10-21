@@ -259,3 +259,28 @@ byte, segment truncation and payload corruption. Repeat with ASan/UBSan as neede
 Private fixture hashes are in the generated `manifest.json`; do not commit the
 vendor bytes. This tests admission format only, not hardware transport or live
 heap/stack sufficiency.
+
+### Independently bound app/UI fixtures
+
+`tools/studies/smc_app_data/seal_fixture.py --elf APP_OUT/x0x.elf --app
+APP_OUT/x0x.bin --out NEW_PRIVATE_DIR` reconstructs every app ELF load byte and
+requires exact agreement with the unsealed app binary. It locates the unique
+20-byte descriptor symbol, validates its original unsealed contents, then patches
+only that descriptor using the exact 8192-byte external section. The generated
+JSON records the physical descriptor address, whole patched plaintext app CRC,
+length, input ELF/app SHA256 and output hashes. These pins are intended for the
+separate loader admission study, not caller-selected descriptor metadata.
+
+The output is explicitly NOT INSTALLABLE. It creates no bundle and does not remove
+compile-time activation interlocks. Test with:
+
+```sh
+python3 tests/ble/check_app_ui_fixture.py APP_OUT/x0x.elf APP_OUT/x0x.bin
+cc -std=c11 -O2 -Wall -Wextra -Werror tests/ble/app_ui_fixture_test.c -o /tmp/app-ui-fixture
+/tmp/app-ui-fixture NEW_PRIVATE_DIR/app-NOT-INSTALLABLE.fixture NEW_PRIVATE_DIR/ui-NOT-INSTALLABLE.fixture DESCRIPTOR_IMAGE_OFFSET
+```
+
+Use `descriptor_image_offset` from `fixture.json`. The native test runs the actual
+app validator against every descriptor byte and every UI payload byte corrupted
+individually. ASan/UBSan also passed on the retained actual fixture. Re-sealing or
+substituting an app binary that differs from the ELF is rejected.
