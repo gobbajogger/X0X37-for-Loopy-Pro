@@ -26,6 +26,8 @@ The regression covers handles zero, `0x50` and `0x0eff`; ordinary and enhanced c
 
 This is a reproduced connection-lifecycle defect. No retained hardware record establishes that the current device used handle zero or hit this race. Do not report the owner's connection failure fixed on hardware until the selected build is installed and its connection behavior is verified.
 
+The owner subsequently clarified that the repeated connection attempts describe the older failure and that the latest candidate has not been tested. Ordinary automatic retries do not establish the stop/cancel sequence reproduced above. The follow-up investigation is recorded in [SMC normal connection investigation](smc-normal-connection-20261021.md).
+
 Firmware Main Builder remains the integration and device-write owner. Hand off this lane commit and its exact development artifacts to that owner. The cloud lane does not claim an installation or device PASS.
 
 Protocol reference: [STMicroelectronics HCI event documentation](https://dev.st.com/stm32cube-docs/mw-bluenrg2/4.0.0/en/docs/markup/Host/bluenrg2_event_callbacks.html), `hci_le_connection_complete_event`, `hci_le_enhanced_connection_complete_event` and `hci_disconnection_complete_event`: valid handles include `0x0000` through `0x0eff`.
