@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* X0X audio engine; see engine.h. */
 #include "engine.h"
+/* The motion runtime retains an applied target/index in two four-bit fields. */
+typedef char motion_target_fits[(T_PROB < 16 && NPARAMS_MAX <= 16) ? 1 : -1];
 #include "plat.h"
 #include "../x0x_cold.h"
 #include "../dsp/drum909.h"
