@@ -1,0 +1,11 @@
+--- a/tools/build.py
++++ b/tools/build.py
+@@ -262,7 +262,7 @@
+     (OUT / "o2").mkdir(parents=True, exist_ok=True)
+     for u in O2_UNITS:
+         o = OUT / "o2" / (u.replace("/", "_")[:-2] + ".o")
+-        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u == "dsp/bass303.c" else o2
++        unit_flags = [f if f != "-O2" else "-Oz" for f in o2] if u in ("dsp/bass303.c", "seq/pattern.c") else o2
+         units.append(("cc", *unit_flags, "-c", FW / "src" / u, "-o", o))
+         objs.append(o)
+     tc_all(*units)
