@@ -21,7 +21,7 @@ The reference frontend uses ATT MTU128 and a512-byte discovery buffer.
 
 The integration owner's latest `runtime-link-central-roles` diagnostic selects
 roles25 (central, observer and initiator; no peripheral or advertiser). It reports
-image104536 bytes, static RAM28664 bytes, and no unresolved symbols. Its RAM includes
+image104536 bytes, whole RAM extent28664 bytes, and no unresolved symbols. Its RAM includes
 10112 bytes of heap and separate2048-byte run and ISR stacks. These numbers are
 not the admitted layout. The existing low-RAM window is26368 bytes: excess2296.
 
@@ -102,7 +102,10 @@ charged bytes without altering vendor structures. DB initialization directly
 allocates and clears its CPU table. SM also calls persistence helpers, event and
 fixed-channel registration, and key setters. Those nested helpers and the actual
 shim persistence implementation must be checked before admitting this scope.
-The scope must not survive a yield, nested scheduler entry, callback, or error;
+The current diagnostic `ctl_syscfg.c` read/write return -1 synchronously, with no
+allocation or yield. Thus there is no persistent bond/key store in this candidate;
+secure reconnect must not be claimed. Recheck the scope when real persistence is
+introduced. The scope must not survive a yield, nested scheduler entry, callback, or error;
 free must recognize the correct owning pool. GATT initialization alone does not
 move the128-byte GATT pool: that pool is allocated earlier in vendor memory init.
 Routing all host allocations by task name is not an acceptable substitute.
