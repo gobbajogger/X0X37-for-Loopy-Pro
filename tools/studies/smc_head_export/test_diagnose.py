@@ -21,6 +21,9 @@ class Test(unittest.TestCase):
         self.assertNotEqual(rows[0]['expected_crc16'],rows[0]['actual_crc16']);self.assertTrue(rows[1]['key_blob_crc_valid'])
         self.assertEqual(set(rows[0]),{'entry','offset','size','expected_crc16','actual_crc16'})
         self.assertEqual(set(rows[1]),set(rows[0])|{'key_blob_crc_valid'})
+    def test_success_still_stops(self):
+        with patch.object(d.bundle,'_entry',side_effect=[d.bundle.pm.entry(0,0xA0,1,0,0,0,'uboot.boot'),d.bundle.pm.entry(0,0xB0,34,0,0,0,'isd_config.ini')]),patch.object(d.bundle,'head_key',return_value=123):
+            with self.assertRaisesRegex(ValueError,'diagnostic-only stop'):d.diagnose(bytes(0x4000),lambda x:None)
     def test_no_new_stage(self):
         with self.assertRaisesRegex(ValueError,'existing exporter'):d.loader_only(None,None)
 if __name__=='__main__':unittest.main()

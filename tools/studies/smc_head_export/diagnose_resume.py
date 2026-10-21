@@ -25,7 +25,8 @@ def diagnose(head, emit=print):
         if name=='isd_config.ini':
             row['key_blob_crc_valid']=size>=34 and bundle.pm.crc16(head[off:off+32])==struct.unpack_from('<H',head,off+32)[0]
         emit(json.dumps(row,sort_keys=True))
-    return bundle.head_key(head)  # unchanged authoritative rejection; no bypass
+    bundle.head_key(head)  # unchanged authoritative rejection; no bypass
+    raise ValueError('diagnostic-only stop after successful validation; no persistence or FINISH')
 
 
 def loader_only(*args):
