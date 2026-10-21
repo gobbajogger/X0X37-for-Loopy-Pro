@@ -41,8 +41,7 @@ static uint32_t ldr_ms(void){return now;}
 static void req(unsigned cmd,unsigned nonce,unsigned off,unsigned n){uint8_t b[23]={0,0x59,0x40,16,0,0};ota_wr32(b+6,cmd);ota_wr32(b+10,nonce);ota_wr32(b+14,off);ota_wr32(b+18,n);unsigned sum=0;for(unsigned i=6;i<22;i++)sum+=b[i];b[22]=~sum;rxlen=pack(b,23,rx);ready=1;replylen=0;hx_service();}
 int main(int argc,char**argv){assert(argc==2);FILE*f=fopen(argv[1],"rb");assert(f);slen=fread(source,1,sizeof source,f);fclose(f);assert(slen>0x10000);
  for(unsigned i=0;i<sizeof nor;i++)nor[i]=(uint8_t)(i*31+7);
- assert(!ota_stage()); /* exact old app staging primitives, no main writes */
- uint8_t rec[112]={0};ota_wr16(rec+2,0x5A0D);ota_wr16(rec+4,0x5A01);ota_wr16(rec+6,0x5441);memcpy(rec+8,OTA_PARM_ID,sizeof OTA_PARM_ID-1);ota_wr32(rec+72,OTA_AREA);ota_wr16(rec,ota_crc16(rec+2,78,0));memcpy(nor+OTA_RES,rec,112);
+ assert(!ota_session()); /* actual old app staging and persistent record publication */
  memcpy(before,nor,sizeof nor);req(0,123,0,0);assert(replylen==28&&ota_rd32(reply+24)==5);
  req(HX_INFO,123,0,0);assert(!replylen);
  uint32_t fo,fs,oo,os;uint8_t h[1024];assert(!ota_ufw(h,&fo,&fs,&oo,&os));
@@ -54,5 +53,5 @@ int main(int argc,char**argv){assert(argc==2);FILE*f=fopen(argv[1],"rb");assert(
  failfinish=1;req(HX_FINISH,123,crc,0);assert(!replylen&&!clears);failfinish=0;
  req(HX_FINISH,123,crc,0);assert(replylen==28&&clears==1);
  for(unsigned i=0;i<sizeof nor;i++)assert(nor[i]==(i>=0xBF000&&i<0xC0000?255:before[i]));
- puts("actual ota_stage + exporter wire: capability/admission, full head, foreign record, torn erase retry, protected NOR PASS");
+ puts("actual ota_session + exporter wire: capability/admission, full head, foreign record, torn erase retry, protected NOR PASS");
 }
