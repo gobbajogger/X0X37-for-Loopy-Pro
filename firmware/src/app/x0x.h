@@ -109,6 +109,7 @@ void ui_say(const char *a, const char *b);
 #if BOARD_SMK37
 /* BLE TIMER5 producer; smc_poll and smc_frame consume from the main loop. */
 void smc_ble_midi(const uint8_t *msg, uint8_t len);
+int smc_ble_midi_accept(const uint8_t *msg, uint8_t len);
 void smc_ble_link(int up);
 int smc_ble_role_get(void);
 int smc_connected(void);

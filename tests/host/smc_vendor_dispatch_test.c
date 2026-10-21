@@ -13,7 +13,8 @@ static void ck_set(uint32_t f, uint32_t v) { fields[f] = v; }
 static const char *ck_val_txt(uint32_t f, uint32_t v, char *s) { (void)f; sprintf(s,"%u",v); return s; }
 #include "clip_smc.inc"
 uint8_t smk_clip_mode_on(void) { return clip_grid_mode; }
-int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 1; }
+static unsigned feedback_sent;
+int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; ++feedback_sent; return 1; }
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -21,9 +22,7 @@ int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; r
 #include "ble/smc_host_ingress.h"
 static int queue_smc(void *ctx, const uint8_t *p, uint8_t n)
 {
-    uint32_t before=smc_enqueued;
-    (void)ctx; smc_ble_midi(p,n);
-    return smc_enqueued != before;
+    (void)ctx; return smc_ble_midi_accept(p,n);
 }
 static void incoming(smc_host_ingress_t *s,const uint8_t *p,unsigned n)
 {
@@ -39,9 +38,18 @@ int main(void)
 {
     smc_host_ingress_t s={0};
     clip_grid_mode=0;boot();
-    proj.set.bt=PROJ_BT_SMC_CENTRAL;smc_ble_link(1);smc_poll();smc_hi_link(&s,1);
+#if X0X_SMC_VENDOR_TEST
+    proj.set.bt=0; /* legacy DEVICE project must still work in explicitly fixed test profile */
+    assert(smc_ble_role_get());
+    pref_t role=PR(R_SMC_ROLE,0,0,0);
+    assert(pref_desc(role)->max==0 && pref_get(role)==0);
+    pref_set(role,1);assert(!(proj.set.bt&PROJ_BT_SMC_CENTRAL));
+#else
+    proj.set.bt=PROJ_BT_SMC_CENTRAL;
+#endif
+    smc_ble_link(1);smc_poll();smc_hi_link(&s,1);
     const uint8_t select[]={0x90,24,127};incoming(&s,select,sizeof select);
-    assert(ui.view==V_PART && ui.part==0);
+    assert(ui.view==V_PART && ui.part==0);assert(feedback_sent);
     pref_t r=smc_knob_target(0);const x0x_param_t *d=pref_desc(r);assert(d&&d->max);
     int old=pref_get(r);uint8_t knob[]={0xB0,16,old==d->max?0x41:1};
     incoming(&s,knob,sizeof knob);assert(pref_get(r)!=old);
@@ -60,6 +68,17 @@ int main(void)
     unsigned cmd;for(cmd=1;cmd<=43&&smc_mmc_note(cmd)!=25;cmd++);assert(cmd<=43);
     command[4]=(uint8_t)cmd;incoming(&s,command,sizeof command);
     assert(ui.view==V_PART&&ui.part==1);
+#if X0X_SMC_VENDOR_TEST
+    /* A queued packet from a dead connection cannot act after a coalesced down/up. */
+    uint8_t dispatched=smc_dispatched;
+    const uint8_t stale[]={0x90,26,127};
+    assert(smc_ble_midi_accept(stale,3));
+    smc_ble_link(0);smc_hi_link(&s,0);
+    smc_ble_link(1);smc_hi_link(&s,1);
+    assert(smc_ble_midi_accept(select,3));
+    smc_poll();assert((uint8_t)(smc_dispatched-dispatched)==1);
+    assert(ui.view==V_PART && ui.part==0);
+#endif
     /* Count real queue saturation; callback success is not fabricated. */
     smc_qr=smc_qw;unsigned before=s.dropped;
     const uint8_t note_packet[]={0x80,0x81,0x90,24,127};

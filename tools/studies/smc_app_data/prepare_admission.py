@@ -16,7 +16,7 @@ if 'NON-INSTALLABLE: app relocation sizing only' not in s:
 for rel in ('firmware/hal/x0x_app_ui_data.h', 'firmware/hal/fm1_flash_map.h',
             'firmware/src/app/main_fm1.c', 'firmware/src/storage.c'):
     shutil.copyfile(root / rel, export / rel)
-s = s.replace('CFLAGS = ["-Os",', 'CFLAGS = ["-DX0X_SMC_VENDOR_TEST=1", "-Os",')
+s = s.replace('CFLAGS = ["-Os",', 'CFLAGS = ["-DX0X_SMC_VENDOR_TEST=1", "-DX0X_SMC_VENDOR_STUDY_ONLY=1", "-Os",')
 s = s.replace('NON-INSTALLABLE: app relocation sizing only; no data admission or package',
               'NON-INSTALLABLE: unsealed app-data descriptor; no update transaction or package')
 build.write_text(s)

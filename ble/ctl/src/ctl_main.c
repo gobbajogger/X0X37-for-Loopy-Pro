@@ -4,6 +4,8 @@
  * The image header, init() and poll() (the two entries the app calls on core 1), and the H4
  * transport between the controller and the app's mailbox (x0x_ble_abi.h). */
 #include "ctl_port.h"
+#include "ctl_highcpu.h"
+#include "ctl_host_scope.h"
 #if CTL_VENDOR_HOST_TEST
 #include "x0x_smc_host_messages.h"
 #define CTL_BUILD_ABI XSM_ABI
@@ -144,6 +146,10 @@ void ctl_fail(u32 err)
         for (n = 0; n < 64u && cfg; n++)
             if (ctl_mb->irqs_routed[n >> 5] & (1u << (n & 31u)))
                 cfg[n >> 3] &= ~(1u << ((n & 7u) * 4u));
+#if CTL_VENDOR_CPUPOOL_TEST
+        /* ABI4 failure-only bounded phase/ordinal/request-size, never packet/key bytes. */
+        ctl_mb->dbg[XB_DBG_STALL] = ctl_scope_diagnostic();
+#endif
         ctl_mb->err = err;
         XB_SYNC();
         ctl_mb->state = XB_ST_FAILED;
@@ -176,6 +182,16 @@ static u32 ctl_init(u32 arg)
     ctl_mb->err = XB_E_NONE;
     ctl_mb->state = XB_ST_INIT;
     XB_SYNC();
+#if CTL_VENDOR_HIGHCPU_TEST
+    if (ctl_highcpu_init()) {
+        /* No high-BSS diagnostic read is safe until this admission succeeds. */
+        ctl_mb->err = XB_E_BOOT;
+        XB_SYNC();
+        ctl_mb->state = XB_ST_FAILED;
+        XB_SYNC();
+        return XB_E_BOOT;
+    }
+#endif
     ctl_heap_init();
     ctl_delay_init();
     ctl_os_init();

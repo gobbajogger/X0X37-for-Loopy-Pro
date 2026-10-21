@@ -11,6 +11,9 @@ extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
 typedef struct {
     uint8_t n, b[6];
+#if X0X_SMC_VENDOR_TEST
+    uint32_t generation;
+#endif
 } smc_event_t;
 static smc_event_t smc_q[SMC_Q];
 static volatile uint8_t smc_qw, smc_qr;
@@ -96,6 +99,9 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
         smc_dropped++; return;
     }
     smc_q[w % SMC_Q].n = len;
+#if X0X_SMC_VENDOR_TEST
+    smc_q[w % SMC_Q].generation = smc_link_published;
+#endif
     for (i = 0; i < len; i++)
         smc_q[w % SMC_Q].b[i] = msg[i];
     __asm__ volatile("" ::: "memory");
@@ -103,12 +109,27 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
     smc_enqueued++;
 }
 
+#if X0X_SMC_VENDOR_TEST || defined(X0X_HOST)
+int smc_ble_midi_accept(const uint8_t *msg, uint8_t len)
+{
+    uint32_t before = smc_enqueued;
+    smc_ble_midi(msg, len);
+    return smc_enqueued != before;
+}
+
+#endif
 void smc_ble_link(int up)
 {
     uint32_t next = (smc_link_published + 2u) & ~1u;
     smc_link_published = next | (uint32_t)(up != 0);
 }
-int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
+int smc_ble_role_get(void) {
+#if X0X_SMC_VENDOR_TEST
+    return 1; /* Explicit temporary test profile: USB carries Loopy traffic. */
+#else
+    return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL);
+#endif
+}
 int smc_connected(void) { return smc.up && smc_ble_role_get(); }
 
 /* USB or peripheral BLE through the existing MIDI ring: only the explicitly enabled
@@ -594,8 +615,15 @@ void smc_poll(void)
          * a project action can still discard the remaining queued input. */
         __asm__ volatile("" ::: "memory");
         smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
+#if X0X_SMC_VENDOR_TEST
+        if (msg.generation != link || link != smc_link_published) { smc_reason = 2; continue; }
+#endif
         if (!smc.up) smc_reason = 2;
+#if X0X_SMC_VENDOR_TEST
+        else if (!smc_ble_role_get()) smc_reason = 3;
+#else
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
+#endif
         else {
             if (allow && !perf_testing()) smc_dispatched++;
             smc_reason = smc_message(msg.b, msg.n, allow);
@@ -673,7 +701,11 @@ void smc_frame(void)
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
+#if X0X_SMC_VENDOR_TEST
+    if (ui_project_busy() || !smc.up || !smc_ble_role_get())
+#else
     if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
+#endif
         return;
     for (i = 0; i < 8; i++) smc_notice(i);
     for (i = 0; i < 43; i++) {

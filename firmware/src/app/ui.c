@@ -286,9 +286,17 @@ static const char *const BATT_N[] = {"EMPTY", "1/3", "2/3", "FULL", "USB POWER",
 static const x0x_param_t BATT_P = {"BATTERY", 5, 0, BATT_N};   /* read only (plat_battery) */
 static const char *const BT_N[] = {"OFF", "ON"};
 static const x0x_param_t BT_P = {"BLUETOOTH", 1, 0, BT_N};      /* Bluetooth MIDI (SMK-37) */
+#if X0X_SMC_VENDOR_TEST
+static const char *const SMC_ROLE_N[] = {"SMC TEST / USB"};
+#else
 static const char *const SMC_ROLE_N[] = {"DEVICE", "SMC HOST"};
+#endif
 static const char *const SMC_MAP_N[] = {"DAW", "USER"};
+#if X0X_SMC_VENDOR_TEST
+static const x0x_param_t SMC_ROLE_P = {"BT ROLE", 0, 0, SMC_ROLE_N};
+#else
 static const x0x_param_t SMC_ROLE_P = {"BT ROLE", 1, 0, SMC_ROLE_N};
+#endif
 static const x0x_param_t SMC_MAP_P = {"SMC PRESET", 1, 0, SMC_MAP_N};
 static const x0x_param_t CKCH_P = {"CLIP KEYS CH", 13, 0, 0};  /* clip mode keybed channel 2-15 (0 = 2) */
 static const char *const CLKSRC_N[] = {"AUTO", "INTERNAL", "EXTERNAL"};   /* SEQ_CLK_* order */
@@ -435,7 +443,12 @@ static int pref_get(pref_t r)
     case R_SREP: return ui.song_sel < song()->len ? song()->bar[ui.song_sel].mute >> 5 : 0;
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
-    case R_SMC_ROLE: return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL);
+    case R_SMC_ROLE:
+#if X0X_SMC_VENDOR_TEST
+        return 0;
+#else
+        return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL);
+#endif
     case R_SMC_MAP: return !!(proj.set.bt & PROJ_BT_SMC_USER);
     case R_CKCH: return proj.set.ck_ch - 2;
     case R_CLKSRC: return PROJ_CLK_SRC(proj.set.bt);
@@ -524,8 +537,12 @@ X0X_COLD static void pref_set(pref_t r, int v)
             say("RESTART TO TURN ON", 0);             /* the controller starts only at power-on */
         break;
     case R_SMC_ROLE:
+#if X0X_SMC_VENDOR_TEST
+        say("SMC TEST: LOOPY USB", 0);
+#else
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_CENTRAL) | (v ? PROJ_BT_SMC_CENTRAL : 0u));
         say("RESTART FOR BT ROLE", 0);
+#endif
         break;
     case R_SMC_MAP:
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_USER) | (v ? PROJ_BT_SMC_USER : 0u));

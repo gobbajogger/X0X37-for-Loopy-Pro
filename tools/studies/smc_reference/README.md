@@ -196,3 +196,40 @@ reviewed8 KiB app-data relocation at0xAB000. It does NOT generate a manifest,
 implement app-data admission, bound RAM, or produce an installable image.
 The result records per-region capacities instead of a misleading contiguous
 flash extent; ELF/map/symbol hashes identify retained private diagnostics.
+
+## Frozen complete-profile sizing checkpoint
+
+The latest status is **paused and non-installable**, not the earlier root-only
+ceiling. See `docs/audit/smc-vendor-frozen-checkpoint-2026-10-21.md` and its JSON.
+
+For the strict final controller measurement, use the same pinned inputs with:
+
+```sh
+python3 tools/studies/smc_reference/link_runtime.py \
+  --repo "$REPO" --toolchain "$TOOLCHAIN" --libs "$PRIVATE_LIBS" \
+  --rf-tables "$PRIVATE_RF_C" --system-lib "$PRIVATE_SYSTEM_A" --out "$NEW_OUT" \
+  --controller-roles central --avctp-extra-commands 0 \
+  --placement data-only-92k-ramload --high-cpu-bss --cpu-init-pool
+```
+
+This placement keeps initialized data in primary and stores the RAM-code load in
+tertiary; its execution address stays low RAM. Both RAM regions are actually
+bounded, but live heap/stack adequacy is not certified. No `--wrap` substitution,
+undefined-import suppression or vendor IR patch is used.
+
+For the real app budget, start a **new disposable non-Git** directory:
+
+```sh
+git -C "$REPO" archive 816e0d3987bcb69be972cff2cd4df4469969f196 | tar -x -C "$EXPORT"
+python3 "$REPO/tools/studies/smc_app_data/prepare.py" "$EXPORT"
+python3 "$REPO/tools/studies/smc_app_data/prepare_admission.py" "$EXPORT"
+python3 "$REPO/tools/studies/smc_app_data/prepare_bridge.py" "$EXPORT"
+(cd "$EXPORT" && BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 X0X_JOBS=4 python3 tools/build.py)
+```
+
+Use the same verified native SDK/toolchain environment as the earlier studies.
+The recipe overlays current source, preserves the exact UI-data annotation,
+retains an ELF/map, explicitly unlocks compilation for study only, and suppresses
+packaging. Its ordinary app-area check is **not** the proposed smaller app limit:
+compare the measured527460 B against524000 B; the profile fails by3460 B.
+The unsealed descriptor must not be mistaken for a firmware ready to install.

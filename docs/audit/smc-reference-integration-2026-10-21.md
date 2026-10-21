@@ -412,3 +412,13 @@ RAM remains deliberately oversized at28648 B; app bridge/admission/update code
 and target stack/live-heap evidence are still missing. No package was generated.
 Earlier placement-blocked findings above describe the preceding84 KiB layout,
 not this later bounded92 KiB discriminator. Default dual-mode firmware is unchanged.
+
+## Frozen outcome
+
+This lane is now paused at the complete-profile budget, not the preceding
+controller-only fit. The final report is
+`smc-vendor-frozen-checkpoint-2026-10-21.md` with reproducible JSON provenance.
+Actual app/controller integration still exceeds safe placement; optional load
+compression and shared-sector arithmetic do not establish a complete fit.
+Default app/controller byte identity is preserved. No installable port or physical
+SMC success is claimed. Source-only publication is separate from hardware admission.

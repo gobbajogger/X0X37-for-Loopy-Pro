@@ -18,8 +18,11 @@ for name in ('repo', 'toolchain', 'libs', 'rf-tables', 'system-lib', 'out'):
     p.add_argument('--' + name, required=True, type=Path)
 p.add_argument('--controller-roles', choices=('all', 'central'), default='all')
 p.add_argument('--avctp-extra-commands', choices=(0, 1), type=int, default=1)
-p.add_argument('--placement', choices=('oversized', 'data-only-92k'), default='oversized')
+p.add_argument('--placement', choices=('oversized', 'data-only-92k', 'data-only-92k-ramload'), default='oversized')
+p.add_argument('--high-cpu-bss', action='store_true')
+p.add_argument('--cpu-init-pool', action='store_true')
 a = p.parse_args()
+if a.cpu_init_pool and not a.high_cpu_bss: p.error('cpu-init-pool requires high-cpu-bss')
 repo, tc, libs, rf, system, out = [x.resolve() for x in
     (a.repo, a.toolchain, a.libs, a.rf_tables, a.system_lib, a.out)]
 if out.exists() or out == repo or repo in out.parents:
@@ -61,7 +64,7 @@ ld = '\n'.join(line for line in ld.splitlines() if 'ASSERT(__ctl_image_end' not 
 # LE-only config has no classic codec registrations. These are an empty linker
 # collection, not empty runtime callbacks. If roles/config change, re-review.
 ld += '\na2dp_sink_media_codec_begin = 0;\na2dp_sink_media_codec_end = 0;\n'
-if a.placement == 'data-only-92k':
+if a.placement != 'oversized':
     # Placement-only proof. RAM remains oversized; no executable package exists.
     ld = ld.replace('ORIGIN = 0x02087000, LENGTH = 0x100000',
                     'ORIGIN = 0x02080000, LENGTH = 0x17000')
@@ -74,6 +77,16 @@ if a.placement == 'data-only-92k':
                     '    } > CDATA\n\n    /* Code')
     ld = ld.replace('    } > CRAM AT > CFLASH\n    __ctl_data_lma',
                     '    } > CRAM AT > CLOAD\n    __ctl_data_lma')
+if a.placement == 'data-only-92k-ramload':
+    ld = ld.replace('    } > CRAM AT > CFLASH\n    __ctl_ramtext_lma',
+                    '    } > CRAM AT > CLOAD\n    __ctl_ramtext_lma')
+    ld = ld.replace('    } > CRAM AT > CLOAD\n    __ctl_data_lma',
+                    '    } > CRAM AT > CFLASH\n    __ctl_data_lma')
+if a.high_cpu_bss:
+    ld = ld.replace('    CRAM   (rwx)', '    HIGHCPU (rw) : ORIGIN = 0x01C7D400, LENGTH = 0x1C00\n    CRAM   (rwx)')
+    ld = ld.replace('LENGTH = 0x100000\n}', 'LENGTH = 0x6700\n}')
+    ld = ld.replace('    .bss (NOLOAD)',
+                    '    .highcpu (NOLOAD) : { __ctl_highcpu_start = .; *(.ctl_highcpu_bss) . = ALIGN(4); __ctl_highcpu_end = .; } > HIGHCPU\n    .bss (NOLOAD)')
 (out / 'ctl.ld').write_text(ld)
 tool = tc / 'pi32v2/bin'; (out / 'obj').mkdir()
 # The full system archive eagerly selects RTOS/IRQ duplicates before LTO drops
@@ -85,6 +98,8 @@ flags = ('-target pi32v2 -integrated-as -mcpu=r3 -mfprev1 -Oz -flto -fno-common 
          '-fallow-pointer-null -fprefer-gnu-section -mllvm -pi32v2-large-program=true '
          '-ffunction-sections -fdata-sections -fms-extensions -ffreestanding -Wall '
          '-Wextra -Wno-unused-parameter -Werror -DCTL_VENDOR_HOST_TEST=1 -Isrc').split()
+if a.high_cpu_bss: flags.append('-DCTL_VENDOR_HIGHCPU_TEST=1')
+if a.cpu_init_pool: flags.append('-DCTL_VENDOR_CPUPOOL_TEST=1')
 objects = []
 for source in sorted((out / 'src').glob('*.c')) + sorted((out / 'src').glob('*.S')) + list((out / 'gen').glob('*.c')):
     target = 'obj/' + source.name + '.o'
@@ -103,7 +118,7 @@ command = [str(tool / 'ld'), '--plugin', str(tool / 'LLVMgold.so'),
            '--start-group', *['lib/' + name for name in pins['libraries']], 'lib/circular_buf.c.o', '--end-group']
 rc = invoke(command, out, out / 'link.log')
 unresolved = sorted(set(re.findall(r"undefined reference to [`']([^']+)'", (out / 'link.log').read_text())))
-result = {'placement': a.placement, 'controller_roles': a.controller_roles, 'avctp_extra_commands': a.avctp_extra_commands, 'installable': False, 'resolved': rc == 0, 'link_exit': rc, 'unresolved': unresolved,
+result = {'cpu_init_pool': a.cpu_init_pool, 'high_cpu_bss': a.high_cpu_bss, 'placement': a.placement, 'controller_roles': a.controller_roles, 'avctp_extra_commands': a.avctp_extra_commands, 'installable': False, 'resolved': rc == 0, 'link_exit': rc, 'unresolved': unresolved,
           'input_hashes': expected,
           'study_hashes': {name: digest(HERE / name) for name in
                            ('link_runtime.py', 'run.py', 'config-values.json', 'input-hashes.json')},
@@ -117,16 +132,19 @@ if not rc:
         return int(next(line.split()[0] for line in symbols.splitlines() if line.split() and line.split()[-1] == name), 16)
     result.update(flash_extent_bytes=(addr('__ctl_image_end') - 0x02087000) if a.placement == 'oversized' else None,
                   ram_extent_bytes=addr('__ctl_ram_hi') - 0x01C01800)
-    if a.placement == 'data-only-92k':
+    if a.placement != 'oversized':
         sections = {fields[1]: int(fields[2], 16) for line in (out / 'sections.txt').read_text().splitlines()
                     if len(fields := line.split()) >= 5 and fields[1].startswith('.')}
-        primary = addr('__ctl_ramtext_lma') + sections['.ramtext'] - 0x02080000
+        primary = (addr('__ctl_data_lma') + sections['.data'] if a.placement == 'data-only-92k-ramload' else addr('__ctl_ramtext_lma') + sections['.ramtext']) - 0x02080000
+        tertiary = sections['.ramtext'] if a.placement == 'data-only-92k-ramload' else sections['.data']
         result['placed_flash'] = {'primary_bytes': primary, 'primary_capacity': 94208,
                                   'rodata_bytes': sections['.rodata'], 'rodata_capacity': 8192,
-                                  'data_load_bytes': sections['.data'], 'data_load_capacity': 4096,
-                                  'total_loaded_bytes': primary + sections['.rodata'] + sections['.data'],
-                                  'ram_still_oversized': True, 'manifest_placeholder_only': True}
+                                  'data_load_bytes': tertiary, 'data_load_capacity': 4096,
+                                  'total_loaded_bytes': primary + sections['.rodata'] + tertiary,
+                                  'ram_still_oversized': not a.high_cpu_bss, 'manifest_placeholder_only': True}
 
+if not rc and a.high_cpu_bss:
+    result['high_cpu_bytes'] = addr('__ctl_highcpu_end') - addr('__ctl_highcpu_start')
 if not rc:
     result['private_artifact_hashes'] = {name: digest(out / name) for name in
                                        ('resolved-NOT-FIRMWARE.elf', 'resolved.map', 'symbols.txt', 'sections.txt', 'ctl.ld')}

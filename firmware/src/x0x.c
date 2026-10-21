@@ -167,8 +167,21 @@ static void ota_commit(const uint8_t *parm)
 #ifndef X0X_BLE
 #define X0X_BLE BOARD_SMK37          /* Bluetooth MIDI through a separate controller image (src/ble.c) */
 #endif
+#ifndef X0X_SMC_VENDOR_TEST
+#define X0X_SMC_VENDOR_TEST 0
+#endif
 #if X0X_BLE
+#if X0X_SMC_VENDOR_TEST
+#if !defined(X0X_SMC_VENDOR_STUDY_ONLY) || !X0X_SMC_VENDOR_STUDY_ONLY
+#error "Vendor TEST is not installable: use the packaging-disabled sizing study only"
+#endif
+#if !BOARD_SMK37
+#error "SMC vendor TEST requires SMK-37"
+#endif
+#include "ble_vendor.c"
+#else
 #include "ble.c"
+#endif
 #endif
 
 #include "app/slots.c"
