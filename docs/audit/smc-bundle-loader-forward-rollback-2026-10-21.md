@@ -102,7 +102,8 @@ No test pretends to execute the vendor SPL.
 
 Native results:
 - Strict forward checks; full operation-boundary sweep5374 cuts/resumes passed
-  before policy2 addition. Same final-source sweep is being rerun at checkpoint.
+  before policy2 addition and again on the final paired helper source: both
+  terminal runs passed all5374 cuts/resumes.
 - Forward representative torn-prefix sweep317 cuts passed: each sector half
   erase/first page half program and final prefix half program.
 - Actual approved baseline rollback317 equivalent torn cuts/resumes passed;
