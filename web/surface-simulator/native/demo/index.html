@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><title>X0X actual firmware host</title><style>body{background:#17202b;color:#eee;font:16px system-ui;padding:2rem}button{padding:1rem;margin:.3rem}img{width:480px;image-rendering:pixelated}pre{white-space:pre-wrap}</style></head><body><h1>Actual X0X host firmware</h1><p>Native firmware UI and engine; simulated FM-1 platform, not full SMK hardware.</p><img id="lcd" width="240" height="240"><div id="buttons"></div><div id="encoders"></div><pre id="state"></pre><script type="module">
+import {FirmwareCore} from './native-core.js';const core=new FirmwareCore();const info=await core.info();
+async function refresh(){lcd.src=core.frameURL();state.textContent=JSON.stringify(await core.state(),null,2);}
+for(const [id,name] of info.buttons.entries()){const b=document.createElement('button');b.textContent=name;b.onpointerdown=async e=>{b.setPointerCapture(e.pointerId);await core.input(0,id,1);await refresh();};b.onpointerup=b.onpointercancel=async()=>{await core.input(0,id,0);await refresh();};buttons.append(b);}
+for(const [id,name] of info.encoders.entries())for(const d of [-1,1]){const b=document.createElement('button');b.textContent=name+(d>0?' +':' −');b.onclick=async()=>{await core.input(2,id,d);await refresh();};encoders.append(b);}
+window.addEventListener('blur',()=>core.releaseAll());setInterval(async()=>{await core.advance(100);await refresh();},100);await refresh();
+</script></body></html>

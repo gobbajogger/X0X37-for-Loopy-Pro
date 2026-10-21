@@ -1,1 +1,81 @@
 :root{color-scheme:light;--paper:#f3f1ea;--ink:#242824;--muted:#68706a;--line:#d3d8ce;--accent:#c25423;--soft:#e7e9e1;--green:#467950}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.45 system-ui,-apple-system,sans-serif}header,main{max-width:1320px;margin:auto;padding:26px 32px}header{display:flex;justify-content:space-between;gap:20px;align-items:center;padding-bottom:20px}h1{font-size:clamp(26px,3.5vw,44px);font-weight:550;letter-spacing:-1.8px;margin:6px 0}h2{font-size:19px;font-weight:600;margin:0}h2 span{font:12px ui-monospace,monospace;color:var(--accent);margin-right:12px}h2 small{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px}h3{margin:7px 0 10px;font-weight:600}p{margin:6px 0;color:var(--muted)}.eyebrow{font:10px ui-monospace,monospace;letter-spacing:1.7px;color:var(--muted)}.dev{border:1px solid var(--line);border-radius:30px;padding:7px 12px;font:11px ui-monospace,monospace;white-space:nowrap}main{padding-top:0}button,select,input{font:inherit}button,select{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:5px;padding:8px 11px;cursor:pointer}button:hover{background:var(--soft)}button[aria-pressed=true]{border-color:var(--green);background:#e4ecdf}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #4b84bd;outline-offset:3px}.route{display:flex;align-items:center;gap:16px;padding:15px 0;border-block:1px solid var(--line);font-size:12px;flex-wrap:wrap}.route strong{font-size:10px;font-weight:500;color:var(--muted);margin-left:6px}.wire{color:var(--accent);font-size:22px}.route-note{margin-left:auto;color:var(--muted);font-size:11px}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px}.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:20px 0}.toolbar label{display:flex;gap:8px;align-items:center;font-size:12px}.toolbar #reset{margin-left:auto}.section-title{display:flex;align-items:center;justify-content:space-between;margin:12px 0 16px}.zoom{display:flex;gap:4px}.zoom button{font-size:11px;padding:4px 8px}.device-section{min-width:0}.device-scroll{overflow:auto;padding:12px 6px 20px}.device{width:100%;filter:drop-shadow(0 12px 10px #00000017);transform-origin:top left}.device svg{width:100%;display:block;touch-action:pan-y;user-select:none}.device [data-control]{cursor:pointer;outline:none;touch-action:none}.device [data-control]:focus-visible{filter:drop-shadow(0 0 3px #006eea)}.device [data-control].selected{filter:drop-shadow(0 0 3px #ffe5b3)}.device [data-control].pressed{filter:brightness(.75)}.device [data-control] [data-face]{transition:fill .08s}.device-caption{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.lower{display:grid;grid-template-columns:1.4fr 1fr;gap:30px;margin-top:22px;border-top:1px solid var(--line);padding-top:10px}.strips{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;font:10px/1.5 ui-monospace,monospace;padding:8px 10px}.strip{text-align:center;padding:4px 0;border-top:2px solid var(--line);min-width:0}.strip.picked{border-color:var(--green)}.strip.inactive{opacity:.35}.strip strong{font-size:10px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.strip span{color:var(--muted)}.small{font-size:11px}.host-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:12px 0}.host-controls button,.host-controls label{font-size:11px}.clips{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;padding:15px;background:#202722;border-radius:12px}.clip{aspect-ratio:1;border-radius:50%;padding:0;border:3px solid var(--clip,#414a43);box-shadow:inset 0 0 0 4px #202722;background:color-mix(in srgb,var(--clip,#414a43) 40%,#202722);color:#e5e8df;font:9px ui-monospace,monospace;min-width:0}.clip.queued{border-style:dashed}.clip.onpads{outline:1px solid #a9b8a2;outline-offset:2px}.inspector{margin-top:24px;padding:20px 0;border-block:1px solid var(--line);display:grid;grid-template-columns:1.5fr 1fr;gap:22px}.inspector h3{font-size:18px}.inspector p{font-size:12px;max-width:700px}#control-editor{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}#control-editor input{width:min(240px,100%)}.lcd-detail{display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:24px 0}.state-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.state-value{background:var(--soft);border-radius:5px;padding:9px;font-size:11px}.state-value strong{display:block;font:20px ui-monospace,monospace}.field-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.field-list button{text-align:left;font-size:11px}.field-list button strong{display:block;font-size:16px}.field-list button.selected{border-color:var(--accent)}#events{height:150px;overflow:auto;font:10px/1.6 ui-monospace,monospace}#events>div{border-bottom:1px solid var(--line);padding:5px 0}#events .route-label{color:var(--accent);margin-right:8px}#status{font-size:13px;min-height:38px;color:var(--ink)}details{border-block:1px solid var(--line);padding:14px 0}summary{cursor:pointer;font-size:13px}.guide{max-width:900px;font-size:12px;padding:10px 0}.guide li{margin:8px 0}.guide code{font-size:10px;overflow-wrap:anywhere}footer{font:9px ui-monospace,monospace;letter-spacing:1px;color:var(--muted);padding-top:18px}@media(max-width:800px){header,main{padding-left:16px;padding-right:16px}.lower{grid-template-columns:1fr}.route-note{margin-left:0}.lcd-detail{grid-template-columns:1fr}.dev{display:none}.inspector{grid-template-columns:1fr}#control-editor{justify-content:flex-start}.device-caption span{display:none}h2 small{display:block;margin-left:30px}.toolbar #reset{margin-left:0}.route{gap:8px}.route button{font-size:10px;padding:6px}.field-list{grid-template-columns:repeat(2,1fr)}}@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.native-panel{display:grid;grid-template-columns:1fr 240px;gap:24px;border-block:1px solid var(--line);padding:24px 0;margin-top:24px}.native-panel img{background:#14191c;border:8px solid #30393c;border-radius:8px;image-rendering:pixelated}.native-panel pre{font:10px monospace;max-height:130px;overflow:auto;white-space:pre-wrap}.native-panel p{font-size:12px}@media(max-width:700px){.native-panel{grid-template-columns:1fr}.native-panel img{justify-self:center}}
+/* Original geometry helper. See README for Apple measurements and approximations.
+   No dependency, no global selectors, no controller / firmware side effects. */
+.lp-ipad13-stage {
+  --ipad-width: min(72vw, 760px);
+  perspective: 1700px;
+  display: grid;
+  place-items: center;
+  padding: 36px 20px 60px;
+  overflow: visible;
+}
+.lp-ipad13 {
+  --ipad-depth: calc(var(--ipad-width) * .0181108);
+  position: relative;
+  width: var(--ipad-width);
+  aspect-ratio: 281.6 / 215.5;
+  transform-style: preserve-3d;
+  transform: rotateX(29deg) rotateZ(-6deg);
+  /* Front-panel radius is illustrative, not a measured Apple corner radius. */
+  border-radius: 4%;
+}
+.lp-ipad13__back,
+.lp-ipad13__front,
+.lp-ipad13__edge { position: absolute; pointer-events: none; }
+.lp-ipad13__back {
+  inset: 0;
+  border-radius: inherit;
+  background: #25272b;
+  border: 1px solid #777b80;
+  transform: translateZ(calc(-1 * var(--ipad-depth)));
+  box-shadow: 0 35px 40px #0009, 0 10px 18px #0008;
+}
+.lp-ipad13__edge--bottom {
+  left: 4%; right: 4%; top: 100%;
+  height: var(--ipad-depth);
+  background: linear-gradient(#81858b, #272a2e);
+  transform-origin: top;
+  transform: rotateX(-90deg);
+}
+.lp-ipad13__edge--right {
+  left: 100%; top: 4%; bottom: 4%;
+  width: var(--ipad-depth);
+  background: linear-gradient(90deg, #70747a, #22252a);
+  transform-origin: left;
+  transform: rotateY(90deg);
+}
+.lp-ipad13__front {
+  inset: 0;
+  border-radius: inherit;
+  background: #101114;
+  border: 1px solid #85898e;
+  box-shadow: inset 0 0 0 2px #272a30, inset 0 0 0 4px #050607;
+}
+.lp-ipad13__camera {
+  position: absolute;
+  width: 1.1%;
+  aspect-ratio: 1;
+  top: 1.15%; left: 49.45%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #253c52 0 12%, #080a0d 26% 65%, #292d33 70%);
+  pointer-events: none;
+}
+.lp-ipad13__display {
+  position: absolute;
+  /* Display rectangle derived from 2752x2064 at 264ppi, not a bezel drawing. */
+  inset: 3.9253% 2.9873%;
+  background: #000;
+  border-radius: 2.2%;
+  overflow: hidden;
+  color: #f6f6f6;
+  isolation: isolate;
+  /* Deliberately no pointer-events:none and no CSS overlay on live controls. */
+}
+.lp-ipad13-stage.is-flat .lp-ipad13 { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-ipad13 { transition: none; }
+}
+
+.connected-setup{background:radial-gradient(ellipse at 50% 60%,#e1e4dc,transparent 75%);border-radius:20px;padding:8px 14px}.connected-setup .lower{border-top:0;margin-top:-30px}.lp-ipad13-stage{--ipad-width:100%;width:100%;padding:25px 12px 42px}.lp-ipad13{width:100%;--ipad-depth:8px}.lp-ipad13__display{display:flex;flex-direction:column}.lp-appbar,.lp-appbottom{display:flex;justify-content:space-between;background:#242626;font-size:clamp(5px,.65vw,9px);padding:7px;color:#bbb}.lp-appbottom{margin-top:auto}.lp-ipad13 .clips{border-radius:0;flex:1;background:#090a0a;padding:12px 10px;gap:6px;align-content:center}.lp-ipad13 .clip{background:#090a0a;box-shadow:inset 0 0 0 3px #090a0a;border-width:2px;position:relative;font-size:6px}.lp-ipad13 .clip:after{content:'';position:absolute;inset:13%;border:3px dotted var(--clip);border-radius:50%;opacity:.65;pointer-events:none}.lp-ipad13 .clip.queued{background:color-mix(in srgb,var(--clip) 45%,#000);border-style:solid}.lp-ipad13 .clip.queued:before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(transparent 0 75%,#ffffff44 75%);pointer-events:none}.lp-ipad13 .clip.onpads{outline-color:#bbb5}.loopy .small{max-width:420px}.device svg{transition:filter .15s}.device [data-control].pressed{filter:brightness(.88)}@media(max-width:800px){.connected-setup{padding:0}.connected-setup .lower{margin-top:0}.lp-appbar,.lp-appbottom{font-size:8px}}

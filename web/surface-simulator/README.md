@@ -1,68 +1,86 @@
-# x0x Surface Lab
+# X0X Surface Lab — isometric hardware and actual C host
 
-Open **index.html** in a desktop or mobile browser. It is a self-contained, offline interactive field guide. No server, account, dependencies, network calls, hardware permissions or firmware installation are required. It never connects to MIDI/Bluetooth/USB devices.
+Open `index.html` for the self-contained offline interactive guide. No install,
+network access or hardware connection is required in that mode.
 
-## What is implemented
+The raised SMK-37 Elite and SMC-Mixer are original, photo-referenced vector
+solids, not a skewed flat drawing. The 13-inch iPad Pro frame contains an
+explicitly modeled Loopy example, not the owner's saved project. See
+`REFERENCES.md`, `geometry-notes.md` and `evidence/loopy/REFERENCES.md`.
 
-- Photo-referenced SMK-37 Elite and SMC-Mixer surfaces: 146 individually addressable controls. Original vector artwork, not embedded manufacturer photos. Fit/2× zoom and a large selected-control editor supplement the detailed surface on phones.
-- Mouse/touch press/release; drag faders, drag/wheel encoders, focused control arrow keys. The computer keyboard A W S E D F T G Y H U J K plays the first octave; Space operates play.
-- Source-informed SMC main mix, 909/808 MIX and SEQ, 11-track banks, ±2/crossing fader pickup, pickup reset after external edits, held Solo ownership across page/bank changes, User MMC latch fallback, mute/record/select, transport and navigation. Source-led button feedback is shown on the mixer.
-- Elite fader banks and pickup, clip-mode toggle, physical pad fold, stored-note pad releases, source palette/idle lifting, explicit simulated host response, host-owned clip colors, example 8×4 and 4×4 layouts, local viewport, transport press/release.
-- SCALE/CHORD/ARP settings pages, source scale/chord calculations and note lifecycle examples. Source-backed SCALE/CHORD calculation passed 10,000 comparisons against the unchanged firmware C header.
-- Signal monitor distinguishes direct SMC input, local x0x actions, USB/APC output and illustrative Loopy feedback. The depicted candidate uses one direct SMC BLE link and USB Loopy, not simultaneous Loopy BLE or three physical SMC links.
+## Two deliberately distinct execution modes
 
-## Try it
+**Offline model:** all 146 physical controls can be inspected; source-informed
+SMC pickup/mapping, clip routing, SCALE/CHORD settings and simulated host LED
+feedback are interactive. Full sound engine/menu/ARP timing are not implemented.
+Loopy replies and all transport are in-memory examples.
 
-1. Move SMC F1 away from its target. It says PICK and leaves the destination unchanged. Reach/cross the target; it takes over. Turn K1: pickup resets.
-2. Choose 909 MIX. SELECT a drum; pads edit its steps. Hold Solo while changing bank, then release. The original target clears. Bank 9–11 leaves strips4–8 inactive.
-3. Press KNOB BANK, then Load8×4 feedback. Pad presses emit APC events. Disable “Simulate host response”: the firmware-side press no longer changes returned clip state. OCT controls switch local pad rows; no APC navigation commands are sent.
-4. In clip mode press SCALE or CHORD. Use the visible ON field, an SMC encoder, or the selected-control +/- buttons; play keys and inspect the processed notes. SMC encoders do nothing on the bare clip grid rather than changing hidden x0x fields.
-5. Change SMC preset to USER. Solo is now a press-toggle; the stock MMC preset has no release message. The monitor shows the six-byte envelope.
+**Actual C host:** compile the bundled adapter against the project checkout,
+serve this directory locally, and press **Connect actual C firmware**. The real
+unchanged x0x UI, project, sequencer, DSP and SMC mixer source executes. The
+screen is the C framebuffer, not HTML text. Physical middle 27 keys, K1–K8,
+function buttons, arrows and SMC MIDI controls route to C. Actual SMC pickup and
+LED output is displayed. Unsupported controls are reported, with no silent
+fallback to the model. Clip/Loopy fixture controls are disabled in this mode.
 
-## Accuracy and limits
+This host is not the Elite hardware main loop, JieLi CPU, BLE radio, USB driver
+or hardware-timing emulator. SMK clip callbacks are not hosted. C pure clip-key
+and APC mapping endpoints exist but are not a claim of complete integration.
+DSP runs, but browser audio is not streamed. A successful native gesture does
+not prove hardware BLE or stability. See `native/README.md` for precise coverage.
 
-Firmware reference: `81459573792a68edd02fa1ee5658796b55597ba0`, with `smc_mixer.c`, `smc_protocol.h`, `smk_apc40.h`, `smk_clip_keys.h`, `smk_clip_colour.h` and committed palette tables as the implementation authority. `BEHAVIOR-MATRIX.md` gives file/line references. Older APC implementation notes and SMK docs contain superseded behavior; this guide follows checked source for its modeled cases.
+## Run actual C locally
 
-This is **not compiled firmware, an audio engine, a hardware emulator, an installer, or proof that BLE works**. It does not model hardware security/GATT, queues/IRQ timing, latency, stability, stored samples, audio synthesis, all sound/menu/song actions, full APC footprint inference/flash-detection, ARP scheduling, strum timing, swing or humanization. ARP settings are inspectable but played keys show a chord/note preview rather than timed arp output. General sound-field edits are normalized illustrations, not complete parameter emulation. Demo note velocity is100, not a measured pad velocity. Local x0x key behavior is indicated rather than a complete key/UI command interpreter. LED bytes are source-derived, but display pixels cannot predict physical LED color.
+From a complete project checkout containing this directory:
 
-The user's **actual current Loopy project/layout was not found**. The Loopy panel is clearly marked provisional and is not an asserted 1:1 replica. Fixture layout mapping covers origin0, 8×4 and4×4 only. The host response checkbox is browser simulation, not firmware-side local clip-state prediction.
-
-Physical counts, layout, labels and approximate proportions are based on inspected official photographs/manual diagrams. See `REFERENCES.md`. The drawings are not measured engineering CAD. The detailed device remains photo-referenced; LCD content is an enlarged teaching abstraction, not a pixel-identical firmware screen.
-
-The requested Anatomy skill was read at commit `1482e8469b0a9e0d8cc18ea2740a01423d29ae80` (SKILL, craft/motion/verify references and desk-computer example). Its truth-first model, purposeful physical parts, coherent geometry, accessible interaction and close-up checks informed this implementation. Its invented-object/isometric aesthetic was deliberately subordinated to the owner's request for actual surface anatomy. No Anatomy installer, supplied kit or third-party script was executed. All application/build/test code here is locally authored.
-
-## Validation
-
-- 27/27 local model checks passed (`evidence/model-tests.json`).
-- 10/10 independent source-focused regressions passed (`evidence/independent-model.json`).
-- 10,000/10,000 scale/chord calculations matched compiled unmodified source (`evidence/key-differential.json`).
-- Full app execution with a minimal DOM stub and 6 specific UI-flow checks passed (`evidence/static-ui.txt`). This is **not** a browser test.
-- Anatomy count/identity checks passed: 146 unique controls,37 keys,16 pads,8+8 encoders,4+8 faders,43 assignable SMC buttons plus BT/SHIFT (`evidence/anatomy.txt`).
-- SVG surface renders and a2× detailed Elite view were visually inspected.
-
-**Real browser interaction, responsive layout and accessibility verification remain pending.** Local Chromium could not create its process socket in the execution sandbox. The supported escalation failed during environment setup with a read-only denied-path error; that path was not accessed or changed. The cloud browser disallowed file URLs; an authorized localhost-only server was unreachable from that browser. No restriction was bypassed. `tests/browser.cjs` is supplied for the next permitted browser environment, not claimed as run. The included surface PNG is a vector render, **not** a browser screenshot.
-
-## Build / tests
-
-Uses Node built-ins only, plus installed C compiler for the optional source oracle. From this folder:
-
-```sh
-node build.mjs
-node test-model.cjs
-node tests/independent-model.cjs
-node tests/static-ui-smoke.cjs
-node tests/anatomy.mjs
+```
+sh web/surface-simulator/native/build.sh
+python3 web/surface-simulator/native/test_core.py
+python3 web/surface-simulator/native/server.py --web web/surface-simulator --port 8765
 ```
 
-Within the full repository, run the source oracle from repository root:
+Open `http://127.0.0.1:8765`, then **Connect actual C firmware**.
+Requires existing C compiler, Python 3.9+ and Pillow (font generator). No
+installer or download is executed. Build outputs stay under `native/build/`.
+The source-only delivery does not include the full firmware checkout or compiled
+libraries: keep this folder under its project `web/` directory. Standalone HTML
+on iPhone/iPad runs the model only, not native C. No public hosting or tunnel.
+The server only binds loopback and rejects foreign Host/Origin requests.
 
-```sh
-cc -Wno-attributes -I . web/surface-simulator/tests/key-oracle.c -o /tmp/x0x-key-oracle
-node web/surface-simulator/tests/key-differential.cjs /tmp/x0x-key-oracle
+## Interactions
+
+- Touch/drag faders; drag or wheel encoders; keyboard arrows adjust focused controls.
+- Press/release keys, pads and buttons. Keyboard A W S E D F T G Y H U J K maps
+  physical keybed positions 0–12 (only 5–12 fall inside the native host key range).
+- Native host advances bounded simulated time, not a real-time clock. Its
+  **Advance 100 ms** button and **Save gesture trace** support reproducible tests.
+- Host connection events are simulated at the queue boundary; unplugging the
+  link clears actual SMC temporary Solo state. Blur/release-all clears holds.
+- Offline clip mode: load an example feedback layout, press a lit Elite pad,
+  inspect APC events and modeled return LEDs. Turn automatic response off to
+  see that firmware pad presses alone cannot create host feedback.
+
+## Rebuild and test
+
+```
+node web/surface-simulator/build.mjs
+node web/surface-simulator/test-model.cjs
+node web/surface-simulator/tests/independent-model.cjs
+node web/surface-simulator/tests/static-ui-smoke.cjs
+node web/surface-simulator/tests/native-ui.cjs
+node web/surface-simulator/tests/anatomy.mjs
+node web/surface-simulator/tests/geometry.mjs
 ```
 
-`extract-data.py` reads only the committed firmware color/note tables and regenerates `data.js`. The standalone archive includes generated tables; no SDK/toolchain, raw capture or firmware binary is included. Run `node render-preview.mjs OUTPUT_DIR` to render SVG evidence. Browser tests require an existing trusted Playwright/Chromium installation; no automatic install occurs.
+Geometry: 146 unique controls; 1,704 bounded projected polygons; projection
+round trips and full fader travel tested. Native C and HTTP security tests pass.
+Native UI dispatch is tested with DOM stubs/fake transport, not a real browser.
+The SVG preview PNGs are static geometry renders, **not browser screenshots**.
+Browser interaction/layout QA remains pending: local Chromium sandbox launch and
+separate browser access to loopback were unavailable; no bypass was attempted.
 
-## License and scope
-
-Simulator source: GPL-3.0-only, aligned with derived x0x source behavior/tables. Manufacturer names identify referenced hardware; no endorsement is implied. Original photos/manuals are provenance links, not bundled assets. No firmware or install-artifact file was changed.
+Firmware inputs match baseline `81459573792a68edd02fa1ee5658796b55597ba0` for
+inspected core files. Native build creates a SHA-256 source manifest. Anatomy
+methodology pinned at `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`; our own SVG
+implementation uses fitProjection, real volumes, four-tone shading and depth
+ordering. No remote Anatomy installer or kit scripts were executed.
