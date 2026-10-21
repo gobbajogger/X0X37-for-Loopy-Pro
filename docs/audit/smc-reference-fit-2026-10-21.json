@@ -118,7 +118,7 @@
     "usr_timeout_del"
   ],
   "central_only_option": {
-    "owner_approval": "pending",
+    "owner_approval": "approved temporary test profile; both Bluetooth modes remain final goal",
     "implemented": false,
     "omitted_feature": "SMK Bluetooth peripheral / Loopy wireless",
     "flash_headroom_before_costs_bytes": 4676,
@@ -273,5 +273,25 @@
       "private-transport variants replace ctl_transport init argument with vendor hci_transport_h4_controller_instance and permit dead raw transport to be eliminated.",
       "App ceiling retains guarded source settings but renames old host API implementations and replaces public APIs with inert wrappers; package generation disabled."
     ]
+  },
+  "reproduction": {
+    "runner": "tools/studies/smc_reference/run.py",
+    "baseline_export": "git archive 816e0d3987bcb69be972cff2cd4df4469969f196",
+    "verified_variants": [
+      "donor",
+      "one-link",
+      "central",
+      "both",
+      "central-private",
+      "both-private"
+    ],
+    "app_ceiling_patch_rebuild": {
+      "code_free_bytes": 16896,
+      "main_ram_used_bytes": 97956,
+      "pool_used_bytes": 335740,
+      "package_generated": false
+    },
+    "strict_links": "All six report-all probes failed with explicit unresolved imports before relaxed sizing.",
+    "source_review": "Independent reproducibility review PASS; not runtime admission."
   }
 }

@@ -258,6 +258,20 @@ exact app/controller/package identities and submit independent review.
 
 Only the designated Mac installer performs installation and keyboard checks.
 Hardware completion means observed physical faders, encoders, buttons, transport,
-feedback and reconnect—not just a CONNECTED flag or notification count. All
-hardware work, installation, merge and external push remain pending. The parent
+feedback and reconnect—not just a CONNECTED flag or notification count. At study completion, all
+hardware work, installation, merge and external push were pending. Source-only
+audit publication does not change hardware or runtime admission status. The parent
 is the receiving owner of this audit and architecture decision.
+
+## Reproduction and subsequent owner decision
+
+The committed [study runner and instructions](../../tools/studies/smc_reference/README.md)
+contain the numeric configuration, roots, pinned input hashes, inert app patch and
+compression probe. They reproduce measurements without relying on private scratch
+script hashes. They never create installable controller images or packages.
+
+After this audit, the owner approved a temporary central-only **test profile**,
+using USB to Loopy. Both Bluetooth modes remain the desired final product. This
+approval permits investigation, not dropping more features or claiming fit; the
+default dual-mode baseline remains protected. No runtime implementation is part
+of this source-only study checkpoint.

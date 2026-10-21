@@ -1,0 +1,206 @@
+--- a/firmware/src/ble/ble_midi_host.c
++++ b/firmware/src/ble/ble_midi_host.c
+@@ -1,3 +1,15 @@
++/* INERT LINK CEILING STUDY: original guarded settings retained in unreachable implementation. NEVER INSTALL. */
++#include "ble_midi_host.h"
++void study_removed_bleh_init(bleh_t *h, bleh_send_fn send, void *ctx, const char *name, const uint8_t addr[6]);
++void study_removed_bleh_set_sysex(bleh_t *h, bleh_sysex_fn fn);
++void study_removed_bleh_start(bleh_t *h);
++void study_removed_bleh_rx(bleh_t *h, uint8_t h4_type, const uint8_t *p, uint16_t n);
++int study_removed_bleh_midi_send(bleh_t *h, const uint8_t *msg, uint8_t len, uint16_t ts13);
++int study_removed_bleh_sysex_send(bleh_t *h, const uint8_t *msg, uint32_t len, uint16_t ts13);
++int study_removed_bleh_midi_next(bleh_t *h, bleh_msg_t *msg);
++void study_removed_bleh_poll(bleh_t *h);
++int study_removed_bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16_t to);
++void study_removed_bleh_radio(bleh_t *h, int on);
+ /* SPDX-License-Identifier: MPL-2.0
+  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
+  * X0X changes: Copyright (C) 2026 M. Geisler (genkigenki/makkuro) */
+@@ -458,7 +470,7 @@
+ }
+ 
+ /* ---- public ---- */
+-void bleh_init(bleh_t *h, bleh_send_fn send, void *ctx, const char *name, const uint8_t addr[6])
++void study_removed_bleh_init(bleh_t *h, bleh_send_fn send, void *ctx, const char *name, const uint8_t addr[6])
+ {
+     unsigned i;
+     uint8_t *z = (uint8_t *)h;
+@@ -470,26 +482,26 @@
+     h->addr[5] |= 0xC0u;                            /* a random static address */
+     h->acl_total = 4;
+ }
+-void bleh_set_sysex(bleh_t *h, bleh_sysex_fn fn) { h->sysex = fn; }
+-void bleh_start(bleh_t *h)
++void study_removed_bleh_set_sysex(bleh_t *h, bleh_sysex_fn fn) { h->sysex = fn; }
++void study_removed_bleh_start(bleh_t *h)
+ {
+     h->state = BLEH_STARTING; h->step = ST_RESET; h->cmd_wait = 0; h->want_adv = 0;
+     next_cmd(h);
+ }
+-void bleh_rx(bleh_t *h, uint8_t t, const uint8_t *p, uint16_t n)
++void study_removed_bleh_rx(bleh_t *h, uint8_t t, const uint8_t *p, uint16_t n)
+ {
+     if (t == BLEH_H4_EVT) evt_in(h, p, n);
+     else if (t == BLEH_H4_ACL && h->state == BLEH_CONNECTED) acl_in(h, p, n);
+ }
+-void bleh_radio(bleh_t *h, int on)
+-{
+-    h->radio_off = (uint8_t)!on;                    /* bleh_poll does the rest */
+-}
+-int bleh_midi_send(bleh_t *h, const uint8_t *m, uint8_t len, uint16_t ts)
++void study_removed_bleh_radio(bleh_t *h, int on)
++{
++    h->radio_off = (uint8_t)!on;                    /* study_removed_bleh_poll does the rest */
++}
++int study_removed_bleh_midi_send(bleh_t *h, const uint8_t *m, uint8_t len, uint16_t ts)
+ {
+     bleh_msg_t *q;
+     unsigned i;
+-    if (!len || len > 3 || !(m[0] & 0x80u) || m[0] == 0xF0 || m[0] == 0xF7) return -1;   /* SysEx: bleh_sysex_send */
++    if (!len || len > 3 || !(m[0] & 0x80u) || m[0] == 0xF0 || m[0] == 0xF7) return -1;   /* SysEx: study_removed_bleh_sysex_send */
+     if (len != msg_need(m[0])) return -1;
+     for (i = 1; i < len; i++) if (m[i] & 0x80u) return -1;
+     if ((uint8_t)(h->q_w - h->q_r) >= BLEH_MIDIQ) return -2;
+@@ -500,7 +512,7 @@
+     h->q_w++;
+     return 0;
+ }
+-int bleh_sysex_send(bleh_t *h, const uint8_t *m, uint32_t len, uint16_t ts)
++int study_removed_bleh_sysex_send(bleh_t *h, const uint8_t *m, uint32_t len, uint16_t ts)
+ {
+     uint32_t i;
+     if (len < 2 || m[0] != 0xF0 || m[len - 1] != 0xF7 || len - 2 > BLEH_SYSEX_MAX) return -1;
+@@ -510,7 +522,7 @@
+     h->sx_len = (uint8_t)(len - 2); h->sx_pos = 0; h->sx_ts = ts & 0x1FFFu; h->sx_on = 1;
+     return 0;
+ }
+-int bleh_midi_next(bleh_t *h, bleh_msg_t *m)
++int study_removed_bleh_midi_next(bleh_t *h, bleh_msg_t *m)
+ {
+     if (h->in_r == h->in_w) return 0;
+     *m = h->in_q[h->in_r++ % BLEH_INQ];
+@@ -539,7 +551,7 @@
+ 
+ /* attempt 34: an L2CAP connection parameter update request (peripheral to central), once per link.
+  * 1 sent, 0 not now (not connected, or sent already). */
+-int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16_t to)
++int study_removed_bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16_t to)
+ {
+     uint8_t r[12] = {0x12, 0x31, 8, 0};
+     if (h->state != BLEH_CONNECTED || h->cpu_state) return 0;
+@@ -548,7 +560,7 @@
+     l2cap_send(h, CID_SIG, r, 12);
+     return 1;
+ }
+-void bleh_poll(bleh_t *h)
++void study_removed_bleh_poll(bleh_t *h)
+ {
+     uint8_t r[BLEH_MTU];
+     unsigned len = 4, hi, last = 0;
+@@ -587,3 +599,14 @@
+     }
+     att_send(h, r, len);
+ }
++
++void bleh_init(bleh_t *h, bleh_send_fn send, void *ctx, const char *name, const uint8_t addr[6]) {  }
++void bleh_set_sysex(bleh_t *h, bleh_sysex_fn fn) {  }
++void bleh_start(bleh_t *h) {  }
++void bleh_rx(bleh_t *h, uint8_t h4_type, const uint8_t *p, uint16_t n) {  }
++int bleh_midi_send(bleh_t *h, const uint8_t *msg, uint8_t len, uint16_t ts13) { return 0; }
++int bleh_sysex_send(bleh_t *h, const uint8_t *msg, uint32_t len, uint16_t ts13) { return 0; }
++int bleh_midi_next(bleh_t *h, bleh_msg_t *msg) { return 0; }
++void bleh_poll(bleh_t *h) {  }
++int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16_t to) { return 0; }
++void bleh_radio(bleh_t *h, int on) {  }
+--- a/firmware/src/ble/ble_midi_central.c
++++ b/firmware/src/ble/ble_midi_central.c
+@@ -1,3 +1,11 @@
++/* INERT LINK CEILING STUDY: original guarded settings retained in unreachable implementation. NEVER INSTALL. */
++#include "ble_midi_central.h"
++void study_removed_blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const uint8_t addr[6]);
++void study_removed_blec_start(blec_t *c, uint32_t now_ms);
++void study_removed_blec_stop(blec_t *c);
++void study_removed_blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now_ms);
++void study_removed_blec_poll(blec_t *c, uint32_t now_ms);
++int study_removed_blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n);
+ /* SPDX-License-Identifier: GPL-3.0-only */
+ /* Direct HCI central. The controller image enables master/scan/init roles; this host never
+  * advertises, so a central link and the X0X BLE peripheral link cannot coexist. */
+@@ -302,7 +310,7 @@
+     default: break;
+     }
+ }
+-void blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const uint8_t addr[6])
++void study_removed_blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const uint8_t addr[6])
+ {
+     unsigned i;
+     uint8_t *z = (uint8_t *)c;
+@@ -311,7 +319,7 @@
+     c->send = send; c->midi = midi; c->ctx = ctx;
+     for (i = 0; i < 6; i++) c->addr[i] = addr[i];
+ }
+-void blec_start(blec_t *c, uint32_t now)
++void study_removed_blec_start(blec_t *c, uint32_t now)
+ {
+     /* Do not erase an unresolved stop or its controller handle. */
+     if ((c->disconnect_flags & D_STOP) && c->state != BLEC_OFF) return;
+@@ -326,7 +334,7 @@
+     blec_note(c, BLEC_TRACE_START, 0, COP_RESET, c->conn, 0, 0);
+     c->deadline = now + 3000u; blec_progress(c);
+ }
+-void blec_stop(blec_t *c)
++void study_removed_blec_stop(blec_t *c)
+ {
+     if (c->state == BLEC_OFF || (c->disconnect_flags & D_STOP)) return;
+     if (c->step == S_CREATE && c->command_retry) {
+@@ -730,13 +738,13 @@
+             }
+     }
+ }
+-void blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now)
++void study_removed_blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now)
+ {
+     c->now_ms = now;
+     if (h4 == H4_EVT) blec_event(c, p, n, now);
+     else if (h4 == H4_ACL) blec_acl_in(c, p, n);
+ }
+-int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n)
++int study_removed_blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n)
+ {
+     unsigned i;
+     if (!blec_connected(c) || n < 1u || n > 3u || (uint8_t)(c->qw - c->qr) == 32u) {
+@@ -748,7 +756,7 @@
+     c->qw++;
+     return 1;
+ }
+-void blec_poll(blec_t *c, uint32_t now)
++void study_removed_blec_poll(blec_t *c, uint32_t now)
+ {
+     c->now_ms = now;
+     if (c->state == BLEC_STOPPING) { blec_stop_progress(c); return; }
+@@ -823,3 +831,10 @@
+         if (blec_acl(c, p, 5u + n)) c->qr++;
+     }
+ }
++
++void blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const uint8_t addr[6]) {  }
++void blec_start(blec_t *c, uint32_t now_ms) {  }
++void blec_stop(blec_t *c) {  }
++void blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now_ms) {  }
++void blec_poll(blec_t *c, uint32_t now_ms) {  }
++int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n) { return 0; }
+--- a/tools/build.py
++++ b/tools/build.py
+@@ -465,11 +465,7 @@
+         print("  FAIL ", e)
+     if errors:
+         raise SystemExit("build: checks failed")
+-    pkg = fm1pkg_make.ufw(fm1pkg_make.flash_image(img, fm1pkg_make.KEY), ota, PRODUCT)
+-    (pkg_dir / name).write_bytes(pkg)
+-    print(f"app      {OUT / 'x0x.bin'}  {len(img)} B")
+-    print(f"loader   {LDR / 'ota.bin'}  {len(ota)} B")
+-    print(f"package  {pkg_dir / name}  {len(pkg)} B, identity {PRODUCT}" + ("" if BOARD == "fm1" else f", board {BOARD}"))
++    print("INERT HOST LINK STUDY ONLY: NO PACKAGE GENERATED; NEVER INSTALL")
+     return 0
+ 
+ 
