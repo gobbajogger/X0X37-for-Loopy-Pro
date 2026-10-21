@@ -116,3 +116,8 @@ binary alone is intentionally incomplete and must not be installed. The safe
 mode heading uses retained FONT_S with unchanged text; its visual appearance
 has not been tested on hardware. Active profile-to-profile data replacement
 also requires quiescing every reader, not merely a safe first-install order.
+
+A byte comparison also passed for all seven relocated non-pointer arrays
+(offsets, advances, corner offsets and both pixel streams) against the prior
+full-feature pattern-Oz ELF's extracted text, indexed by its symbol addresses.
+Only the font structs require address relocation; glyph contents are unchanged.
