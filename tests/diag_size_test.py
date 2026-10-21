@@ -16,6 +16,7 @@ editor = (ROOT / "firmware/src/app/editor.c").read_text()
 ble = (ROOT / "firmware/src/ble.c").read_text()
 irq = (ROOT / "firmware/hal/fm1_irq.h").read_text()
 glue = (ROOT / "firmware/src/ble/ble_glue.h").read_text()
+trace = (ROOT / "firmware/src/ble/ble_central_trace.h").read_text()
 
 
 def struct_words(src, name):
@@ -38,7 +39,8 @@ boot = len(re.findall(r"w\[nw\+\+\] = bootguard", case))
 out = int(re.search(r"static uint8_t ed_out\[(\d+)\];", editor).group(1))
 
 body = re.search(r"static uint32_t ble_diag\(uint32_t \*w, uint32_t max\)\n\{(.*?)\n\}", ble, re.S).group(1)
-live, k, writes = 0, None, 0
+trace_words = int(re.search(r"BLEC_TRACE_WORDS = (\d+)u", trace).group(1))
+live, k, writes, bulk = 0, None, 0, 0
 for ln in body.split("\n"):
     m = re.search(r"if \(n \+ (\d+)u > max\)", ln)
     if m:
@@ -49,12 +51,18 @@ for ln in body.split("\n"):
     elif "w[n++] =" in ln and "g[i]" not in ln:
         writes += 1
         live += 1
+    elif "blec_trace_words(" in ln:
+        writes += trace_words
+        bulk += trace_words
 if k is not None and writes > k:
     print(f"FAIL ble_diag: a check for {k} words, then {writes} words")
     fails += 1
 
-total = crash + boot + guard + live
-print(f"DIAG words: crash {crash} + boot {boot} + guard {guard} + live {live} = {total}, w[{size}]")
+total = crash + boot + guard + bulk + live
+print(f"DIAG words: crash {crash} + boot {boot} + guard {guard} + trace {bulk} + live {live} = {total}, w[{size}]")
+if total > 127:
+    print(f"FAIL ED_DIAG: {total} words, but the count is one 7-bit byte")
+    fails += 1
 if total > size:
     print(f"FAIL ED_DIAG: {total} words, but w[] has {size}")
     fails += 1

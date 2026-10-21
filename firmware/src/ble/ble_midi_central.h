@@ -2,6 +2,7 @@
 /* One-link HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
 #pragma once
 #include <stdint.h>
+#include "ble_central_trace.h"
 
 enum { BLEC_OFF, BLEC_STOPPING, BLEC_STARTING, BLEC_SCANNING, BLEC_CONNECTING,
        BLEC_DISCOVERING, BLEC_CONNECTED, BLEC_DISCONNECTING, BLEC_FAILED };
@@ -23,7 +24,10 @@ typedef struct {
     uint16_t rx_have, rx_need; /* Oversized signaling is drained; only rx[] is stored. */
     /* TIMER5 owns this bounded reply queue. Entries contain code, identifier, reason. */
     uint8_t sig[4][3], sig_read, sig_count;
-    uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
+    /* One peer request and one indication may be outstanding independently. */
+    uint8_t att_reply[5], att_reply_n, att_confirm;
+    uint8_t disconnect_flags; /* Stop/disconnect intent; separate Cancel and Create completions. */
+    uint8_t command_retry; /* HCI submission refused; no completion is outstanding yet. */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
     /* Last rejected ACL header, zero-padded; bounded, no payload log or allocation. */
@@ -32,7 +36,8 @@ typedef struct {
     uint8_t q[32][3], qlen[32];
     volatile uint8_t qr, qw; /* main-loop producer, TIMER5 consumer */
     uint16_t conn, cmd_op, svc_end, query_start, midi_handle, cccd_handle, ts;
-    uint32_t deadline, now_ms, drops, errors, connects, sig_deadline;
+    uint32_t deadline, now_ms, drops, errors, connects, sig_deadline, att_reply_deadline;
+    blec_trace_t trace; /* Passive history retained until blec_init, including across retries. */
 } blec_t;
 
 void blec_init(blec_t *c, blec_send_fn send, blec_midi_fn midi, void *ctx, const uint8_t addr[6]);

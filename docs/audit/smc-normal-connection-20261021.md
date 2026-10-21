@@ -1,5 +1,7 @@
 # SMC normal connection investigation — 21 October 2026
 
+Follow-up: the owner requested an offline repair pass before their hardware test. The [subsequent repair and diagnostic audit](smc-offline-connection-repair-20261021.md) records newly reproduced connection faults and the instrumented candidate. This document preserves the earlier investigation's evidence boundary.
+
 ## Result and corrected scope
 
 The cause of the owner's historical repeated connection attempts is **not established**. The owner clarified that the latest candidate has not been tested. No new physical failure of that candidate is asserted.
