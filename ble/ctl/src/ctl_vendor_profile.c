@@ -47,7 +47,9 @@ _Static_assert(offsetof(struct data_report, data) == 8, "SDK data pointer");
 
 enum { ABSENT = 0xffff, MTU = 128, CMD_DISCONNECT = 5, CMD_ATT_INIT = 7,
        CMD_ATT_SEND = 10, CMD_SCAN_PARAM = 13, CMD_CONNECT = 15,
-       CMD_CANCEL = 16, CMD_SCAN = 22, CMD_SEARCH = 128 };
+       CMD_CANCEL = 16, CMD_SCAN = 22, CMD_SEARCH = 128,
+       RETIRING_WAIT = 1, RETIRING_RETRY = 2, RETIRING_FAILED = 3,
+       DISCONNECT_RETRY_MS = 20 };
 /* Exact reference application allocation sizes; no speculative shrink. */
 static u8 att_storage[188 + MTU + 512] __attribute__((aligned(4))) CTL_HIGHCPU_BSS;
 static u8 search_storage[512] __attribute__((aligned(4))) CTL_HIGHCPU_BSS;
@@ -55,13 +57,31 @@ static struct connection_parameters request CTL_HIGHCPU_BSS;
 static u16 connection = ABSENT; /* initialized data deliberately stays low */
 static u16 midi_handle CTL_HIGHCPU_BSS, midi_end CTL_HIGHCPU_BSS, cccd CTL_HIGHCPU_BSS;
 static u8 retiring CTL_HIGHCPU_BSS, connecting CTL_HIGHCPU_BSS, discovering CTL_HIGHCPU_BSS, wanted CTL_HIGHCPU_BSS, receiving CTL_HIGHCPU_BSS, down_pending CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, started CTL_HIGHCPU_BSS, off_pending CTL_HIGHCPU_BSS, scan_pending CTL_HIGHCPU_BSS;
+static u32 disconnect_retry_at CTL_HIGHCPU_BSS;
 extern int ctl_vendor_address(u8 address[6]);
 extern void os_time_dly(int);
 
 static int retire_connection(u16 handle)
 {
-    if (handle == connection) retiring = 1;
-    return ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)handle);
+    if (handle == connection) {
+        if (retiring == RETIRING_WAIT) return 0; /* await actual down event */
+        if (retiring == RETIRING_FAILED) return -1; /* terminal refusal, not success */
+        if (retiring == RETIRING_RETRY &&
+            (int32_t)(ctl_ms() - disconnect_retry_at) < 0) return -100;
+        retiring = RETIRING_FAILED; /* stop input/security before the command */
+    }
+    int result = ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)handle);
+    /* Only this owned connection may be retried. A rejected unrelated peer
+     * must never transfer its handle or retirement state onto the active link.
+     * Preserve the exact SDK's transient statuses; do not spin on other errors. */
+    if (handle == connection) {
+        if (!result) retiring = RETIRING_WAIT;
+        else if (result == -100 || result == -97) {
+            retiring = RETIRING_RETRY;
+            disconnect_retry_at = ctl_ms() + DISCONNECT_RETRY_MS;
+        }
+    }
+    return result;
 }
 
 static u16 read16(const u8 *p) { return (u16)p[0] | (u16)p[1] << 8; }
@@ -125,7 +145,7 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
             }
         }
     } else if (p[0] == 5 && n >= 6 && read16(p + 3) == connection) {
-        connection = ABSENT; midi_handle = 0; discovering = receiving = 0;
+        connection = ABSENT; midi_handle = 0; discovering = receiving = retiring = 0;
         ble_user_cmd_prepare(CMD_ATT_INIT, 4, 0, (void *)0, 0, 0);
         down_reason = p[5]; down_pending = 1;
         ctl_vendor_poll();
@@ -267,6 +287,9 @@ int ctl_vendor_write(const u8 *payload, u16 length)
 void ctl_vendor_poll(void)
 {
     if (down_pending && !ctl_vendor_link_copy(0, down_reason)) down_pending = 0;
+    if (retiring == RETIRING_RETRY && connection != ABSENT &&
+        (int32_t)(ctl_ms() - disconnect_retry_at) >= 0)
+        (void)retire_connection(connection);
     if (off_pending && !ctl_vendor_disconnect()) off_pending = 0;
     if (scan_pending && wanted && !connecting && connection == ABSENT && !ctl_vendor_scan(1)) scan_pending = 0;
 }
