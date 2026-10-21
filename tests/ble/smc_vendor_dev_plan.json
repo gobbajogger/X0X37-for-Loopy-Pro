@@ -1,0 +1,50 @@
+{
+  "base": "2695701",
+  "scope": "Explicit Elite central-only vendor DEV profile: bounded readback and compile selectors, exact bundle construction/keys, copied protocol/runtime adapters, native final payload transaction; no release or hardware claim.",
+  "checks": [
+    {
+      "reason": "Reject missing/mixed/non-Elite diagnostic selectors",
+      "argv": [
+        "python3",
+        "tests/ble/check_smc_profile.py"
+      ]
+    },
+    {
+      "reason": "Bind schema/profile/controller/tool revision and sanitize ambient flags",
+      "argv": [
+        "python3",
+        "tests/ble/check_smc_dev_validation.py"
+      ]
+    },
+    {
+      "reason": "Bundle integrity, wrong model, rekey and response phase negatives",
+      "argv": [
+        "python3",
+        "tests/smc_vendor_bundle_test.py"
+      ]
+    },
+    {
+      "reason": "Opt-in installer: immutable transaction, backup and receipt aliases, bounded readback and framing",
+      "argv": [
+        "python3",
+        "-O",
+        "tests/smc_vendor_install_test.py"
+      ]
+    },
+    {
+      "reason": "Vendor scheduler/events/profile/high CPU/scoped heap ownership regressions",
+      "argv": [
+        "bash",
+        "tests/ble/run_ctl_vendor_scheduler.sh"
+      ]
+    },
+    {
+      "reason": "Every fixed readback region offset and malformed request rejection",
+      "argv": [
+        "bash",
+        "-c",
+        "set -e; p=$(mktemp); trap 'rm -f \"$p\"' EXIT; cc -std=c11 -O2 -Wall -Wextra -Werror tests/ble/smc_readback_test.c -o \"$p\"; \"$p\""
+      ]
+    }
+  ]
+}

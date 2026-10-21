@@ -60,3 +60,14 @@ python3 tests/smc_vendor_bundle_test.py COMPONENTS_ROOT SDK_ROOT APPROVED_816_KI
 ```
 
 The actual check used owner v2 components: app521348, descriptor393c4, sealed app SHA01cdfb8f..., paired ota10051 SHA b0821880..., and the reviewed full vendor regions. Both forward and exact baseline rollback round-tripped from explicit test key1234 to5678 with canonical identities unchanged. The actual source/loader replay is a separate required validation owned by integration; these host tests do not substitute for it.
+
+The schema3 runner requires the exact approved baseline FWSC as
+`--smc-rollback-fwsc`, records it among immutable input dependencies and constructs
+both forward and logical-rollback packages with the same paired loader. Each
+has its own record, artifact role, package SHA and complete component metadata.
+Both records require native and sanitized actual-package replay of both policies.
+The top-level controller and budgets describe the built central TEST profile;
+`budget_scope` makes this explicit. The rollback's actual baseline ABI2 identity
+is separately recorded in `smc_vendor`, never relabeled as ABI4. Logical rollback
+restores the approved 816 main image and clears only the proven unused external
+extents; it is not a byte-for-byte restoration of arbitrary prior spare bytes.

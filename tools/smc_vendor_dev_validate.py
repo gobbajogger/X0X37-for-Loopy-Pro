@@ -20,7 +20,7 @@ def checked_tools(repo,commit):
     """Constructor/validator implementation must be the selected source, too."""
     here=Path(__file__).resolve().parent
     for name in ('smc_vendor_dev_validate.py','smc_vendor_dev_build.py','smc_vendor_bundle.py',
-                 'dev_validate.py','validation_inputs.py','fm1pkg_make.py','add_ctl.py','smc_vendor_replay.py'):
+                 'dev_validate.py','validation_inputs.py','fm1pkg_make.py','add_ctl.py','smc_vendor_replay.py','smc_vendor_install.py','fm1_install.py','require_gate_pass.sh'):
         expected=subprocess.check_output(['git','-C',str(repo),'show',str(commit)+':tools/'+name])
         if (here/name).read_bytes()!=expected:
             raise ValueError('invoking tool differs from selected commit: '+name)
@@ -43,7 +43,7 @@ def verify(repo,commit,record,fwsc):
     if inputs.get('source')!=data['tree'] or inputs.get('mode')!='dev' or inputs.get('configuration')!=config:
         raise ValueError('SMC validation input profile/layout mismatch')
     dv.check_plan(data['plan'])
-    expected={'build','bundle-replay'}|{f'check-{i}' for i in range(len(data['plan'].get('checks',[])))}
+    expected={'build','bundle-replay','rollback-replay'}|{f'check-{i}' for i in range(len(data['plan'].get('checks',[])))}
     if set(data['logs'])!=expected:raise ValueError('missing SMC build/check logs')
     for name,info in data['logs'].items():
         if info['returncode']!=0 or dv.digest(path.parent/(name+'.log'))!=info['sha256']:
@@ -53,9 +53,18 @@ def verify(repo,commit,record,fwsc):
     if dv.digest(fwsc)!=data['artifacts']['package']['sha256']:
         raise ValueError('SMC package differs from checked artifact')
     actual=bundle.validate_bundle(Path(fwsc).read_bytes(),loader_binding=data['loader_binding'])
-    if tuple(r['sha256'] for r in actual['controller']['regions'])!=builder.REGION_SHA:
-        raise ValueError('controller regions differ from reviewed pinned ELF')
-    if actual!=data['smc_vendor'] or actual['controller']['kind']!='segmented-abi4' or data['controller']!={'kind':'segmented-abi4','retained_elf_sha256':__import__('smc_vendor_dev_build').ELF_SHA}:
+    policy=actual['policy']
+    if policy == 1:
+        if tuple(r['sha256'] for r in actual['controller']['regions'])!=builder.REGION_SHA:
+            raise ValueError('controller regions differ from reviewed pinned ELF')
+        role='forward'
+    elif policy == 2:
+        # validate_bundle authorizes ONLY the exact approved 816 canonical pair.
+        role='logical-rollback'
+    else:raise ValueError('unsupported paired package policy')
+    if (actual!=data['smc_vendor'] or data.get('artifact_role')!=role or
+        data.get('budget_scope')!='built-central-test-profile' or
+        data['controller']!={'kind':'segmented-abi4','retained_elf_sha256':builder.ELF_SHA}):
         raise ValueError('SMC paired component identity mismatch')
     return data
 
@@ -64,7 +73,7 @@ def run(a):
     import smc_vendor_dev_build as builder
     import smc_vendor_bundle as bundle
     import fm1pkg_make as pm
-    if a.model!='elite' or a.no_controller or a.worker_image or not a.smc_vendor_dir:
+    if a.model!='elite' or a.no_controller or a.worker_image or not a.smc_vendor_dir or not a.smc_rollback_fwsc:
         raise ValueError('SMC DEV needs Elite, explicit vendor directory and native Linux; no --no-controller/worker')
     if platform.system()!='Linux' or platform.machine() not in ('x86_64','AMD64'):
         raise ValueError('SMC DEV target build requires Linux x86-64')
@@ -76,7 +85,10 @@ def run(a):
     subprocess.run(['git','-C',str(repo),'merge-base','--is-ancestor',base,commit],check=True)
     plan['base']=base
     vendor=Path(a.smc_vendor_dir).resolve()
+    baseline=Path(a.smc_rollback_fwsc).resolve()
+    if dv.digest(baseline)!=bundle.BASELINE_FWSC_SHA:raise ValueError('exact approved rollback package required')
     dependencies=list(plan.get('dependencies',[]))
+    if str(baseline) not in dependencies:dependencies.append(str(baseline))
     for name in ('result.json','resolved-NOT-FIRMWARE.elf'):
         p=str(vendor/name)
         if p not in dependencies:dependencies.append(p)
@@ -127,6 +139,10 @@ def run(a):
         bundlemeta=bundle.validate_bundle(raw,loader_binding=meta['loader_binding'])
         if tuple(r['sha256'] for r in bundlemeta['controller']['regions'])!=builder.REGION_SHA:
             raise ValueError('constructed controller is not the reviewed pinned image')
+        rollback=out/'x0x-smk37-elite-logical-rollback-816.fwsc'
+        rollback.write_bytes(bundle.build_rollback(baseline.read_bytes(),(c/'ota.bin').read_bytes(),loader_binding=meta['loader_binding']))
+        rollbackmeta=bundle.validate_bundle(rollback.read_bytes(),loader_binding=meta['loader_binding'])
+        command('rollback-replay',[sys.executable,'tools/smc_vendor_replay.py',str(rollback),str(root)])
         command('bundle-replay',[sys.executable,'tools/smc_vendor_replay.py',str(package),str(root)])
         # Real budget lines, not the component wrapper's prose, are authoritative.
         buildlog=(root/'build.log').read_text()
@@ -137,7 +153,7 @@ def run(a):
         if dv.git(work,'status','--porcelain') or dv.git(work,'rev-parse','HEAD')!=commit:
             raise ValueError('checks changed sources')
         dv.validation_inputs.validate(inputs,identity())
-        data={'schema':3,'result':'DEV CHECKED','profile':PROFILE,'model':'elite','config':'dev',
+        data={'artifact_role':'forward','budget_scope':'built-central-test-profile','schema':3,'result':'DEV CHECKED','profile':PROFILE,'model':'elite','config':'dev',
             'hardware_tested':False,'commit':commit,'tree':dv.tree(repo,commit),'plan':plan,
             'validation_inputs':inputs,'controller':controller,'smc_vendor':bundlemeta,
             'loader_binding':meta['loader_binding'],'budgets':limits,'logs':logs,
@@ -147,6 +163,9 @@ def run(a):
         # bind complete segment identities in bundle metadata.
         data['controller']=controller
         (out/'record.json').write_text(json.dumps(data,indent=2)+'\n')
+        rollbackdata=dict(data,artifact_role='logical-rollback',smc_vendor=rollbackmeta,
+            artifacts={'package':{'file':rollback.name,'sha256':dv.digest(rollback)}})
+        (out/'rollback-record.json').write_text(json.dumps(rollbackdata,indent=2)+'\n')
     finally:
         if added:subprocess.run(['git','-C',str(repo),'worktree','remove','--force',str(work)],check=True)
         shutil.rmtree(tmp)
