@@ -44,9 +44,9 @@ The selected runner invocation executed 13 tests and returned zero:
 X0X_TEST_JOBS=4 sh tests/run_tests.sh controller-wait smk-clip-settings smc-host-ingress smk-clip-knob smk-clip-wait smk-clip-dark smk-clip-usb-clear smk-clip-chord-display smk-arrows-owner smc-protocol runner-selections runner-admission gen-order
 ```
 
-Per-test logs are alongside this file. The earlier overlapping exploratory
-runner invocation had stale result interference; the isolated rerun above
-completed with all 13 tests passing. It supplied the retained evidence.
+Per-test logs are alongside this file. Earlier exploratory output contained
+inconsistent result lines and was not used. The isolated rerun above completed
+with all 13 tests passing and supplied the retained evidence.
 
 The unchanged input fails the new controller wait assertion, settings and
 ingress assertions, and the existing numerical suite under strict UBSan.
