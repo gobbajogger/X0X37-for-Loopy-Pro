@@ -54,9 +54,15 @@ static u8 search_storage[512] __attribute__((aligned(4))) CTL_HIGHCPU_BSS;
 static struct connection_parameters request CTL_HIGHCPU_BSS;
 static u16 connection = ABSENT; /* initialized data deliberately stays low */
 static u16 midi_handle CTL_HIGHCPU_BSS, midi_end CTL_HIGHCPU_BSS, cccd CTL_HIGHCPU_BSS;
-static u8 connecting CTL_HIGHCPU_BSS, discovering CTL_HIGHCPU_BSS, wanted CTL_HIGHCPU_BSS, receiving CTL_HIGHCPU_BSS, down_pending CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, started CTL_HIGHCPU_BSS, off_pending CTL_HIGHCPU_BSS, scan_pending CTL_HIGHCPU_BSS;
+static u8 retiring CTL_HIGHCPU_BSS, connecting CTL_HIGHCPU_BSS, discovering CTL_HIGHCPU_BSS, wanted CTL_HIGHCPU_BSS, receiving CTL_HIGHCPU_BSS, down_pending CTL_HIGHCPU_BSS, down_reason CTL_HIGHCPU_BSS, started CTL_HIGHCPU_BSS, off_pending CTL_HIGHCPU_BSS, scan_pending CTL_HIGHCPU_BSS;
 extern int ctl_vendor_address(u8 address[6]);
 extern void os_time_dly(int);
+
+static int retire_connection(u16 handle)
+{
+    if (handle == connection) retiring = 1;
+    return ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)handle);
+}
 
 static u16 read16(const u8 *p) { return (u16)p[0] | (u16)p[1] << 8; }
 /* Exact64afb SDK emits D0 as16 bytes (length14), not the generic11-byte
@@ -67,7 +73,7 @@ static void security_event(u8 type, u16 channel, u8 *p, u16 n)
 {
     (void)channel;
     if (type != 4 || !p || n != 16 || p[0] != 0xd0 || p[1] != 14 ||
-        !wanted || off_pending || down_pending || connecting || connection == ABSENT ||
+        !wanted || off_pending || down_pending || retiring || connecting || connection == ABSENT ||
         read16(p + 2) != connection || p[4] != request.address_type ||
         memcmp(p + 5, request.address, 6)) return;
     sm_just_works_confirm(connection);
@@ -101,19 +107,19 @@ static void packet_event(u8 type, u16 channel, u8 *p, u16 n)
             u16 handle = read16(p + 4);
             if (!wanted || !connecting || connection != ABSENT || p[6] != 0 ||
                 p[7] != request.address_type || memcmp(p + 8, request.address, 6)) {
-                ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)handle);
+                retire_connection(handle);
                 if (connection == ABSENT) { connecting = 0; if (wanted) scan_pending = 1; }
             } else {
-                connection = handle; connecting = 0; midi_handle = midi_end = cccd = 0; receiving = 0;
+                connection = handle; retiring = 0; connecting = 0; midi_handle = midi_end = cccd = 0; receiving = 0;
                 if (ble_user_cmd_prepare(CMD_ATT_INIT, 4, (int)handle, att_storage,
                                          (int)sizeof(att_storage), MTU)) {
-                    ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)handle);
+                    retire_connection(handle);
                 } else {
                     discovering = 1;
                     user_client_init(handle, search_storage, sizeof(search_storage));
                     if (ble_user_cmd_prepare(CMD_SEARCH, 2, 3, 0)) {
                         discovering = 0;
-                        ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)handle);
+                        retire_connection(handle);
                     }
                 }
             }
@@ -171,8 +177,8 @@ void user_client_report_search_result(struct search_report *r)
              * Command acceptance is NOT an ATT acknowledgment / control PASS. */
             if (ble_user_cmd_prepare(CMD_ATT_SEND, 4, (int)cccd,
                                      enable_notify, 2, 5))
-                ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)connection);
-        } else ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)connection);
+                retire_connection(connection);
+        } else retire_connection(connection);
     } else if (r && !midi_handle && !r->characteristic.uuid16 && !r->service.uuid16 &&
                (r->characteristic.properties & 0x14) == 0x14) {
         static const u8 service_uuid[16] = {0x03,0xb8,0x0e,0x5a,0xed,0xe8,0x4b,0x33,0xa7,0x51,0x6c,0xe3,0x4e,0xc4,0xc7,0x00};
@@ -251,7 +257,7 @@ int ctl_vendor_disconnect(void)
         return result;
     }
     if (connection == ABSENT) return ble_user_cmd_prepare(CMD_SCAN, 2, 0, 1);
-    return ble_user_cmd_prepare(CMD_DISCONNECT, 1, (int)connection);
+    return retire_connection(connection);
 }
 int ctl_vendor_write(const u8 *payload, u16 length)
 {

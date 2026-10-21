@@ -99,6 +99,10 @@ int main(void)
     command_error = -100; assert(ctl_vendor_command(0x73,feedback,3)==1);
     command_error = -97; assert(ctl_vendor_command(0x73,feedback,3)==1);
     command_error = -95; assert(ctl_vendor_command(0x73,feedback,3)==-95);
+    /* A disconnect request retires ownership even when the SDK reports busy;
+     * security must not be confirmed while failure cleanup waits for HCI down. */
+    command_error=-100;assert(ctl_vendor_disconnect()==-100 && retiring);
+    security_event(4,0,jw,16);assert(confirmations==1);
     u8 off=0; command_error=-100;
     assert(ctl_vendor_command(0x74,&off,1)==0 && off_pending);
     security_event(4,0,jw,16);assert(confirmations==1);
