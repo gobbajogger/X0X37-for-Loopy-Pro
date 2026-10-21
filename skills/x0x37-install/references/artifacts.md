@@ -9,10 +9,16 @@ Before each install:
 2. Back up every loop slot.
 3. Send the owner a short install notice.
 
-Record the commit, validation record, configuration, model, and CRCs in the install ledger.
-After installation, read back the image and compare every loop slot CRC.
+Record the commit, validation record, configuration, model, and checked CRCs in the install ledger.
+Keep the native loader and selected-controller verification after an actual firmware write.
+Repeat full loop-slot readback and CRC comparisons only when committed edits affect loop storage,
+its layout or serialization, installer writes, or flash boundaries, or when a mismatch or failure needs investigation.
+For unchanged inputs, reuse matching slot-test evidence. An install or stage change alone does not trigger another full-slot readback.
+Record which checks ran and which prior evidence was reused; do not claim a fresh slot CRC that was not read.
+Report every observed mismatch immediately.
 
-Report each mismatch immediately. Claim data preservation only after those checks pass.
+If the package and controller are byte-identical to an already verified install, reuse that install evidence
+unless the owner requests a reinstall or the current device state needs verification.
 
 For transfer between machines, use Git or bundles to preserve commits and required validation records and logs.
 Local build and device access do not require transfer to another machine.

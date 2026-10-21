@@ -1,0 +1,32 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "latest-a5cb24d-dev",
+    "--platform",
+    "linux/amd64",
+    "--user",
+    "501:20",
+    "workspace mounted at actual path",
+    "SDK/toolchain read-only",
+    "x0x37-validation:local",
+    "python3",
+    "-B",
+    "tools/dev_validate.py",
+    "run",
+    "--commit",
+    "a5cb24dd08b40b80e802e03ff0d9c848315a9751",
+    "--model",
+    "elite",
+    "--plan",
+    "evidence/latest-install/dev-plan-linux.json",
+    "--output",
+    "evidence/latest-install/elite-linux"
+  ],
+  "image_id": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "source": "a5cb24dd08b40b80e802e03ff0d9c848315a9751",
+  "host": "macOS with local Linux/amd64 container",
+  "device_in_build_container": false
+}
