@@ -125,6 +125,6 @@ show that the device is an Akai product.
 
 ## Radio
 
-X0X enables the Bluetooth radio only on an SMK-37 that has a user-built controller image
-(above) and only when GLOBAL > BLUETOOTH MIDI > BLUETOOTH is ON (it is OFF by default). Then it
+X0X starts a good Bluetooth controller image at power-on on an SMK-37. It enables the Bluetooth
+radio only when GLOBAL > BLUETOOTH MIDI > BLUETOOTH is ON (it is OFF by default). Then it
 runs Bluetooth Low Energy (BLE MIDI) only. X0X never enables Wi-Fi or Bluetooth Classic.

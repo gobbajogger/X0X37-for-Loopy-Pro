@@ -155,10 +155,16 @@ static void ota_show(uint32_t step, int32_t code)
     draw_text_box(0, 124, 240, &FONT_S, code == 1 ? "DRY RUN OK" : "FAILED", C_HI, 1);
     fm1_delay_ms(1500);
 }
+#if BOARD_SMK37
+static void ble_stack_clear(void);                  /* ble.c: drop a stack an install must not keep */
+#endif
 static void ota_commit(const uint8_t *parm)
 {
     bootguard.pending = 0;                              /* intentional reset */
     bootguard.failed = 0;                               /* a new install starts with a clean slate */
+#if BOARD_SMK37
+    ble_stack_clear();                                  /* .noinit and BLERAM survive this reset */
+#endif
     usb_detach();
     fm1_delay_ms(30);
     fm1_enter_update(parm);

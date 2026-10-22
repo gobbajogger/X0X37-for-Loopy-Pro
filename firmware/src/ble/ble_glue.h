@@ -113,9 +113,10 @@ static void ble_addr_of(const uint8_t *rec, uint32_t n, uint8_t addr[6], char na
  * Before the controller's init the app sets trying. A failed start (it did not come back, a wrong
  * job, not READY) sets blocked at once. A start that resets or freezes the unit leaves trying set:
  * the next boot sees it and sets blocked. While blocked, the controller does not start (STATUS
- * FAILED). BLUETOOTH OFF in GLO clears blocked: the next power-on tries again. trying ends when the
+ * FAILED while BLUETOOTH is ON). BLUETOOTH OFF in GLO clears blocked. The next power-on starts a
+ * good image, and ON then opens the radio without another restart. trying ends when the
  * controller has run BLE_GUARD_OK_MS after its start. */
-#define BLE_GUARD_MAGIC 0x44524742u              /* "BGRD" */
+#define BLE_GUARD_MAGIC 0x44524743u              /* "BGRC": not BGRD, so an older or uncommitted stack is cleared */
 #define BLE_GUARD_OK_MS 10000u
 enum { BLE_WHY_NONE = 0, BLE_WHY_TIMEOUT = 1, BLE_WHY_WRONG_JOB = 2, BLE_WHY_NOT_READY = 3, BLE_WHY_RESET = 4,
        BLE_WHY_NO_TICK = 5 };
@@ -170,7 +171,7 @@ static void ble_guard_ok(ble_guard_t *g)
     g->trying = 0;
     g->fails = 0;
 }
-/* BLUETOOTH set OFF in GLO: the next power-on tries again */
+/* BLUETOOTH set OFF in GLO: clear the block. The next power-on may start the controller. */
 static void ble_guard_user_off(ble_guard_t *g)
 {
     g->blocked = 0;

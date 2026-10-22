@@ -7,7 +7,7 @@ enum { H4_CMD = 1, H4_ACL = 2, H4_EVT = 4 };
 enum { COP_RESET = 0x0c03, COP_EV_MASK = 0x0c01, COP_LE_MASK = 0x2001,
        COP_LE_BUF = 0x2002, COP_RAND = 0x2005, COP_SCAN_PARAM = 0x200b,
        COP_SCAN_ENABLE = 0x200c, COP_CREATE = 0x200d, COP_CANCEL = 0x200e,
-       COP_DISCONNECT = 0x0406 };
+       COP_UPDATE = 0x2013, COP_DISCONNECT = 0x0406 };
 enum { S_RESET, S_EVENT, S_LE_EVENT, S_BUFFER, S_RANDOM, S_SCAN_PARAM,
        S_SCAN_ON, S_SCAN_OFF, S_CREATE, S_CANCEL, S_SERVICE, S_CHAR, S_CCCD, S_SUBSCRIBE, S_READY };
 enum { D_SENT = 1, D_STOP = 2, D_CONTROL = 4 };
@@ -22,6 +22,7 @@ static void blec_rx_reset(blec_t *c)
 {
     c->running = c->in_sysex = c->sx_len = c->rx_have = c->rx_need = 0;
     c->sig_read = c->sig_count = 0;
+    c->mtu_need = c->mtu_rsp = c->smp_reply = 0;
 }
 static void blec_reject(blec_t *c, uint8_t reason)
 {
@@ -51,6 +52,15 @@ static void blec_command(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
         c->cmd_op = (uint16_t)op;
         c->waiting = 1;
     }
+}
+/* Connection update must not occupy the discovery command slot or advance step. */
+static int blec_command_quiet(blec_t *c, unsigned op, const uint8_t *p, unsigned n)
+{
+    uint8_t b[32];
+    unsigned i;
+    blec_wr16(b, op); b[2] = (uint8_t)n;
+    for (i = 0; i < n; i++) b[3 + i] = p[i];
+    return !c->send(H4_CMD, b, (uint16_t)(n + 3u), c->ctx);
 }
 static int blec_acl_cid(blec_t *c, unsigned cid, const uint8_t *p, unsigned n)
 {
@@ -135,6 +145,26 @@ static void blec_signal_flush(blec_t *c)
         }
     }
 }
+static int blec_param_ok(unsigned min, unsigned max, unsigned lat, unsigned to)
+{
+    if (min < 6u || max < 6u || min > max || min > 0x0c80u || max > 0x0c80u)
+        return 0;
+    if (lat > 0x01f3u || to < 10u || to > 0x0c80u)
+        return 0;
+    /* Timeout is 10 ms; interval is 1.25 ms. Spec: timeout > (1 + latency) * max * 2. */
+    return (uint32_t)to * 4u > (1u + (uint32_t)lat) * max;
+}
+static int blec_conn_update(blec_t *c, unsigned min, unsigned max, unsigned lat, unsigned to)
+{
+    uint8_t b[14];
+    if ((c->state != BLEC_CONNECTED && c->state != BLEC_DISCOVERING) || !c->conn)
+        return 0;
+    blec_wr16(b, c->conn);
+    blec_wr16(b + 2, min); blec_wr16(b + 4, max);
+    blec_wr16(b + 6, lat); blec_wr16(b + 8, to);
+    blec_wr16(b + 10, 0); blec_wr16(b + 12, 0);
+    return blec_command_quiet(c, COP_UPDATE, b, 14);
+}
 static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
 {
     unsigned slot;
@@ -148,8 +178,14 @@ static void blec_signal_in(blec_t *c, const uint8_t *p, unsigned n)
         if (blec_rd16(p + 2) != n - 4u || (p[0] == 0x12u && n != 12u)) {
             blec_reject(c, BLEC_RX_LENGTH); return;
         }
-        /* Reject parameters: accepting them also requires an HCI controller update. */
-        if (p[0] == 0x12u) { code = 0x13; reason = 1; }
+        /* In-range requests are applied. Illegal values are still refused. */
+        if (p[0] == 0x12u) {
+            unsigned min = blec_rd16(p + 4), max = blec_rd16(p + 6);
+            unsigned lat = blec_rd16(p + 8), to = blec_rd16(p + 10);
+            code = 0x13; reason = 1;
+            if (blec_param_ok(min, max, lat, to) && blec_conn_update(c, min, max, lat, to))
+                reason = 0;
+        }
     }
     blec_signal_flush(c);
     if (c->sig_count == 4u) { blec_fail(c); return; }
@@ -285,6 +321,17 @@ static void blec_midi_packet(blec_t *c, const uint8_t *p, unsigned n)
         blec_emit(c, m, len);
     }
 }
+static int blec_att_tx(blec_t *c, uint8_t op)
+{
+    uint8_t b[3] = {op, (uint8_t)sizeof c->rx, (uint8_t)(sizeof c->rx >> 8)};
+    return blec_acl(c, b, 3);
+}
+static void blec_smp_in(blec_t *c, const uint8_t *p, unsigned n)
+{
+    uint8_t b[2] = {0x05, 0x05}; /* Pairing Failed: Pairing Not Supported */
+    if (!n || p[0] != 0x01u) return;
+    if (!blec_acl_cid(c, 6, b, 2)) c->smp_reply = 1;
+}
 static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
 {
     unsigned i, es;
@@ -300,6 +347,11 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
         return;
     }
     c->att_waiting = 0;
+    if (p[0] == 0x02u && n >= 3u) {
+        if (!blec_att_tx(c, 0x03)) c->mtu_rsp = 1; /* answer; do not drop the link */
+        return;
+    }
+    if (p[0] == 0x03u) return; /* peer MTU response */
     if (p[0] == 0x01) { blec_fail(c); return; }
     if (c->step == S_SERVICE && p[0] == 0x11 && n >= 2u) {
         es = p[1];
@@ -347,6 +399,8 @@ static void blec_att_in(blec_t *c, const uint8_t *p, unsigned n)
         }
     } else if (c->step == S_SUBSCRIBE && p[0] == 0x13) {
         c->step = S_READY; c->state = BLEC_CONNECTED; c->connects++;
+        c->mtu_need = 1;
+        if (blec_att_tx(c, 0x02)) c->mtu_need = 0;
         return;
     }
     blec_fail(c);
@@ -370,14 +424,15 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
         c->rx_have = (uint16_t)(c->rx_have + len);
     } else {
         c->rx_have = c->rx_need = 0;
-        if (pb == 3u || len < 4u) goto reject;
+        /* Flags 0, 2 and 3 start a PDU. Flag 3 is one complete L2CAP PDU. */
+        if (len < 4u) goto reject;
         reason = BLEC_RX_CID;
         need = blec_rd16(p + 6);
-        if (need != 4u && need != 5u) goto reject;
+        if (need != 4u && need != 5u && need != 6u) goto reject;
         c->rx_cid = (uint8_t)need;
         need = blec_rd16(p + 4); have = len - 4u;
         reason = BLEC_RX_SIZE;
-        if (!need || (c->rx_cid == 4u && need > sizeof c->rx) || have > need) goto reject;
+        if (!need || (c->rx_cid != 5u && need > sizeof c->rx) || have > need) goto reject;
         c->rx_need = (uint16_t)need;
         c->rx_have = (uint16_t)have;
         for (i = 0; i < have && i < sizeof c->rx; i++) c->rx[i] = p[8 + i];
@@ -386,6 +441,7 @@ static void blec_acl_in(blec_t *c, const uint8_t *p, unsigned n)
         unsigned complete = c->rx_need;
         c->rx_have = c->rx_need = 0;
         if (c->rx_cid == 5u) blec_signal_in(c, c->rx, complete);
+        else if (c->rx_cid == 6u) blec_smp_in(c, c->rx, complete);
         else blec_att_in(c, c->rx, complete);
     }
     return;
@@ -469,6 +525,10 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
         }
         return;
     }
+    /* A connection-update status must not advance discovery or drop the link. */
+    if ((code == 0x0e || code == 0x0f) && pl >= 4u &&
+        blec_rd16(p + (code == 0x0e ? 1u : 2u)) == COP_UPDATE)
+        return;
     if (code == 0x0e && pl >= 4u) {
         op = blec_rd16(p + 1); status = p[3];
         if (!c->waiting || op != c->cmd_op) return;
@@ -570,6 +630,19 @@ void blec_poll(blec_t *c, uint32_t now)
         }
     }
     if (c->state == BLEC_DISCOVERING) blec_progress(c);
+    if (c->smp_reply) {
+        uint8_t b[2] = {0x05, 0x05};
+        if (!blec_acl_cid(c, 6, b, 2)) return;
+        c->smp_reply = 0;
+    }
+    if (c->mtu_rsp) {
+        if (!blec_att_tx(c, 0x03)) return;
+        c->mtu_rsp = 0;
+    }
+    if (c->mtu_need && c->state == BLEC_CONNECTED) {
+        if (!blec_att_tx(c, 0x02)) return;
+        c->mtu_need = 0;
+    }
     if (c->state == BLEC_CONNECTED && c->credits && c->qr != c->qw) {
         uint8_t p[23], n = c->qlen[c->qr % 32u], i;
         __asm__ volatile("" ::: "memory"); /* acquire the message published by the UI */

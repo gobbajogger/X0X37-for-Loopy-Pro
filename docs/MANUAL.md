@@ -653,7 +653,7 @@ The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk
 | PERFORMANCE | Opens the performance page (below). |
 | ABOUT X0X | Shows the version, how full the memory for patterns is (MEM), and the audio load. |
 | BATTERY | The battery's charge: FULL, 2/3, 1/3 or EMPTY; USB POWER while a computer powers the FM-1. Read only. |
-| BLUETOOTH | SMK-37 only. OFF (the default) or ON: Bluetooth MIDI. Turning it ON takes effect at the next power-on ("RESTART TO TURN ON"); turning it OFF drops the connection at once. |
+| BLUETOOTH | SMK-37 only. OFF (the default) or ON: Bluetooth MIDI. When this boot started the controller, ON opens the radio at once and OFF drops the connection at once. ON again does not need a restart. ON when this boot did not start the controller shows "RESTART TO TURN ON". |
 | STATUS | SMK-37 only, read only. NO IMAGE (no Bluetooth controller installed), OFF, RESTART, STARTING, READY (waiting for a connection), CONNECTED, FAILED or BAD IMAGE (the installed controller is damaged or does not fit this X0X). |
 | NAME | SMK-37 only, read only. The name the keyboard shows to Bluetooth apps: X0X- and four characters of its own. |
 
@@ -762,7 +762,7 @@ include it, so you build it on your own computer once, and the installer adds it
 2. Install X0X with `tools/fm1_install.py` (it adds `ctl.img` by itself), or in the web
    installer choose the `ctl.img` file under "Bluetooth MIDI (optional)" before you press Install.
    Do this again for every update: an update without it removes Bluetooth.
-3. On the keyboard, set GLO > BLUETOOTH MIDI > BLUETOOTH to ON and switch it off and on again.
+3. On the keyboard, set GLO > BLUETOOTH MIDI > BLUETOOTH to ON. When this boot started the controller, the radio opens without a restart.
 
 STATUS then shows READY. Connect from your app's Bluetooth MIDI settings (on an iPad or a Mac:
 "Bluetooth MIDI" or Audio MIDI Setup), where the keyboard appears under its NAME. There is no

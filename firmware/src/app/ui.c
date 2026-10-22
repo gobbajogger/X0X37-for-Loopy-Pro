@@ -506,7 +506,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         proj.set.bt = (uint8_t)((proj.set.bt & ~1u) | (v > 0 ? 1u : 0u));
         plat_ble_set(v > 0);
         if (plat_ble_state() == PLAT_BLE_RESTART)
-            say("RESTART TO TURN ON", 0);             /* the controller starts only at power-on */
+            say("RESTART TO TURN ON", 0);             /* this boot did not start the controller */
         break;
     case R_SMC_ROLE:
         proj.set.bt = (uint8_t)((proj.set.bt & ~PROJ_BT_SMC_CENTRAL) | (v ? PROJ_BT_SMC_CENTRAL : 0u));

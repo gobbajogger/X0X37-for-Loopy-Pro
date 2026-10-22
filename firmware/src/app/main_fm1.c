@@ -2072,7 +2072,7 @@ static void fm1_main(void)
     project_apply_io();                             /* clock and notes out, the MIDI channels, the output */
     engine_brk_loops();
 #if X0X_BLE
-    ble_prepare(proj.set.bt & 1u);                  /* a controller image, BLUETOOTH ON: core 1 starts ready for it */
+    ble_prepare(proj.set.bt & 1u);                  /* a good image starts now; ON and OFF only open the radio */
     ble_start();                                    /* its init on core 0, before core 1 starts (about 0.6 s) */
 #endif
     plat_cpu2_set(1);                               /* the second core: at power-on, before the audio and the

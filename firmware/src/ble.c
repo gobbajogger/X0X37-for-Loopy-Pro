@@ -9,8 +9,10 @@
  *   - talks to it only through standard HCI packets in the mailbox rings (x0x_ble_abi.h), with
  *     the BLE-MIDI host (ble/ble_midi_host.c, MPL-2.0, from felucca-bsp);
  *   - puts BLE-MIDI in into the USB MIDI in queue and mirrors the MIDI out (clock, notes) to BLE.
- * Without an image, or with BLUETOOTH OFF at power-on, nothing of this runs and core 1 starts as
- * before. Service: the TIMER5 interrupt, next to usb_poll (2 kHz, never inside the render). */
+ * A good image starts at power-on even when BLUETOOTH is OFF. ON and OFF then only open and close
+ * the radio, so the menu does not need a restart. Without an image, or when the start guard
+ * blocks the start, nothing of this runs and core 1 starts as before. Service: the TIMER5
+ * interrupt, next to usb_poll (2 kHz, never inside the render). */
 #include "fm1_ble.h"
 #include "fm1_supply.h"
 #include "ble/ble_midi_host.c"
@@ -40,6 +42,7 @@ static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* attempt 
                                                                       * (CON5 | CON6 << 8 | CON9 << 16 | CON0 << 24) */
 
 static void ble_record(void);
+static void ble_stack_clear(void);
 static uint8_t ble_central_role;                 /* settings bit 4 at boot; one HCI role per run */
 /* attempt 34 (DIAG): interval | end reason << 16 | pairing refusals << 24;
  * MIDI in drops | asked MTU << 8 (10 bits) | request sent << 18 | result << 19 | latency << 21 (3) | L2CAP requests << 24 */
@@ -66,6 +69,18 @@ static uint32_t ble_ok_at;                      /* fm1_ms when the controller be
 /* the start guard (ble_glue.h): survives a reset, so a start that crashes or freezes the unit is not
  * tried again at the next power-on */
 ble_guard_t ble_guard __attribute__((section(".noinit")));
+static void ble_stack_clear(void)
+{
+    uint8_t *z = (uint8_t *)&ble_guard;
+    uint32_t i;
+    for (i = 0; i < sizeof ble_guard; i++)
+        z[i] = 0;
+    z = (uint8_t *)&ble_r;
+    for (i = 0; i < sizeof ble_r; i++)
+        z[i] = 0;
+    ble_alive[0] = ble_alive[1] = 0;
+    ble_rails[0] = ble_rails[1] = 0;
+}
 extern uint32_t _ram_sink[], _ram_sink_end[];   /* app.ld: 1 KiB at 0x01C00000 that nothing uses */
 #define BLE_SINK_FILL(i) (0x5A17C0DEu ^ ((i) * 0x01010101u))
 static void ble_sink_fill(void)
@@ -164,13 +179,15 @@ static void ble_sx_answer(bleh_t *h)
         ble_sx_reply = 0;                         /* sent (or refused): busy only waits */
 }
 
-/* power-on, before core 1 starts (plat_cpu2_set): the image check, and with BLUETOOTH ON core 1's
- * stacks and the PC limits for it */
+/* power-on, before core 1 starts (plat_cpu2_set): the image check. A good image prepares core 1
+ * whether BLUETOOTH is ON or OFF. The setting only opens the radio later. */
 static void ble_prepare(int on)
 {
     const xb_header_t *h = FM1_BLE_HDR;
     fm1_t5w_boot();                             /* before TIMER5 starts: keep the last boot's frame watch */
     ble_img = (uint8_t)ble_img_check(FM1_BLE_IMG, XB_FLASH_SIZE, XB_FLASH_XIP);
+    if (ble_guard.magic != BLE_GUARD_MAGIC)
+        ble_stack_clear();                  /* uncommitted or older RAM must not block this boot */
     ble_want = (uint8_t)(on != 0);
     ble_central_role = (uint8_t)(smc_ble_role_get() != 0);
     if (ble_guard.magic == BLE_GUARD_MAGIC && ble_guard.trying) {
@@ -182,7 +199,8 @@ static void ble_prepare(int on)
         ble_guard.wait_end = fm1_c1_wait_end;   /* how core 0's wait ended (RAM code) */
         ble_wait_record();
     }
-    if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, on)) {
+    /* Start whenever the image is good. ON and OFF must not need another power-on. */
+    if (!ble_guard_boot(&ble_guard, ble_img == BLE_IMG_OK, ble_img == BLE_IMG_OK)) {
         if (ble_img == BLE_IMG_OK && on && ble_guard.blocked) {
             ble_blocked = 1;                    /* the last start failed: not now (STATUS FAILED) */
             ble_dead = 1;
@@ -444,7 +462,7 @@ static void ble_service(void)
         ble_guard_ok(&ble_guard);               /* it ran: the next power-on starts it again */
     if (!ble_host_on) {
         if (!ble_want)
-            return;                             /* OFF since power-on: the host never starts */
+            return;                             /* radio stays down until BLUETOOTH is ON */
         ble_host_on = 1;
         bleh_start(h);
     }
