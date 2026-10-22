@@ -8,7 +8,7 @@ Stage-2 owner: `bc-14736e19-2d5a-5b06-97af-527185058605`.
 
 ## Candidate
 
-Candidate SHA: `80dd4b7dceba5f3797719acfa58d6b9e572dc0ce` (`80dd4b7`). Branch tip must match the pushed stage-2 commit.
+Candidate: tip of `cursor/smc-mixer-ui-popup-stage2-5686` after push (implementation `ad4f311`, tests/evidence `d91a489`). Stage 3 must `git fetch` and test that tip; do not test an unpushed tree.
 
 ## Implemented
 
