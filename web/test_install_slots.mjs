@@ -297,28 +297,87 @@ const strip = (src) => src.replace(/^export\s+/gm, "").replace(/^import .*?;\n/g
 async function page(pkg, product, firmware, from, fill, opts = {}) {
   const lib = ["fm1pkg.js", "fm1ota.js", "x0x_breaks.js"].map((f) => strip(readFileSync(new URL(f, import.meta.url), "utf8"))).join("\n");
   const html = readFileSync(new URL("x0x_installer.html", import.meta.url), "utf8");
-  const meta = JSON.stringify({ version: "test", product, pkg: "x.fwsc", stock: false });
-  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*META*/", meta))[1];
+  const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
+    : /^FM-1/i.test(product) ? "fm1" : "pro";
+  const catalog = JSON.stringify({
+    repo: "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+    latest: "test",
+    versions: [{ version: "test", models: { [model]: { product, pkg: "x.fwsc", size: pkg.raw.length } } }],
+  });
+  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
   const dev = new FakeX0X(pkg.image, from, product, firmware, flash, opts);
-  const ids = {}, downloads = [];
-  const el = () => ({ textContent: "", value: 0, disabled: false, hidden: false, dataset: {}, handlers: {},
-    addEventListener(t, f) { this.handlers[t] = f; }, click() { if (this.download) downloads.push({ name: this.download, blob: this.blob }); }, remove() {} });
-  globalThis.document = { getElementById: (id) => (ids[id] ||= el()), querySelectorAll: () => [], documentElement: {},
-    body: { appendChild() {} }, createElement: () => el() };
-  globalThis.window = { addEventListener() {} };
-  globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => pkg.raw.buffer.slice(0) });
+  const ids = {}, downloads = [], radios = [];
+  const el = (tag = "div") => {
+    const o = {
+      tag, textContent: "", value: "", disabled: false, hidden: false, checked: false, className: "",
+      dataset: {}, handlers: {}, children: [], style: {},
+      addEventListener(t, f) { this.handlers[t] = f; },
+      append(...nodes) { for (const n of nodes) this.children.push(n); },
+      appendChild(n) { this.children.push(n); return n; },
+      remove() {},
+      removeAttribute() {},
+      click() { if (this.download) downloads.push({ name: this.download, href: this.href, blob: this.blob }); },
+      set innerHTML(v) { this._html = v; this.children = []; this.value = ""; },
+      get innerHTML() { return this._html || ""; },
+    };
+    if (tag === "input") radios.push(o);
+    return o;
+  };
+  globalThis.document = {
+    getElementById: (id) => (ids[id] ||= el(id === "version" ? "select" : id === "models" ? "div" : "div")),
+    querySelectorAll: () => [],
+    querySelector: (sel) => {
+      const m = /input\[value="([^"]+)"\]/.exec(sel);
+      if (m) return radios.find((r) => r.value === m[1] && r.checked) || radios.find((r) => r.value === m[1]) || null;
+      return null;
+    },
+    documentElement: {},
+    body: { appendChild() {} },
+    createElement: (tag) => el(tag),
+    createTextNode: (t) => ({ textContent: t }),
+  };
+  // createElement("label") then append(input, text) — make label.append wire the radio value
+  const realCreate = globalThis.document.createElement;
+  globalThis.document.createElement = (tag) => {
+    const node = realCreate(tag);
+    if (tag === "label") {
+      node.append = (...nodes) => {
+        for (const n of nodes) {
+          node.children.push(n);
+          if (n && n.tag === "input") radios.push(n);
+        }
+      };
+    }
+    return node;
+  };
+  globalThis.window = { addEventListener() {}, confirm: () => true };
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("api.github.com")) return { ok: false, status: 404, json: async () => [] };
+    return { ok: true, arrayBuffer: async () => pkg.raw.buffer.slice(pkg.raw.byteOffset, pkg.raw.byteOffset + pkg.raw.byteLength) };
+  };
   const blobs = new Map();
   URL.createObjectURL = (b) => { const u = `blob:${blobs.size}`; blobs.set(u, b); return u; };
   URL.revokeObjectURL = () => {};
   Object.defineProperty(globalThis, "navigator", { configurable: true, value: { requestMIDIAccess: async () => dev.access } });
   await import("data:text/javascript;base64," + Buffer.from(js + `\n//${Math.random()}`).toString("base64"));
-  for (let i = 0; i < 100 && ids.go.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
-  await ids.go.handlers.click();
-  for (let i = 0; i < 3000 && (ids.go.disabled || !ids.status.textContent); i++) await new Promise((r) => setTimeout(r, 10));
+  for (let i = 0; i < 200 && ids.go?.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
+  if (!ids.go || ids.go.disabled !== false) throw new Error("installer page did not enable Install");
+  if (!ids.go.handlers.click) throw new Error("installer page has no Install click handler");
+  const before = ids.status.textContent;
+  const clicked = ids.go.handlers.click();
+  for (let i = 0; i < 3000; i++) {
+    if (ids.status.textContent && ids.status.textContent !== before && ids.go.disabled === false) break;
+    if (/written back|Restore|Done|slots|error|Error/i.test(ids.status.textContent || "") && ids.go.disabled === false) break;
+    await new Promise((r) => setTimeout(r, 10));
+  }
+  await Promise.resolve(clicked).catch(() => {});
   const files = [];
-  for (const d of downloads) files.push({ name: d.name, b: new Uint8Array(await blobs.get(d.href || [...blobs.keys()].pop()).arrayBuffer()) });
+  for (const d of downloads) {
+    const key = d.href || [...blobs.keys()].pop();
+    files.push({ name: d.name, b: new Uint8Array(await blobs.get(key).arrayBuffer()) });
+  }
   dump("page", flash, files.map((x) => x.b));
   return { status: ids.status.textContent, files, flash };
 }
