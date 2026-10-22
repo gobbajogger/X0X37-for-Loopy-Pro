@@ -1,8 +1,8 @@
 # Stage 5 merge-resolve handoff
 
 ## Tip
- on  (PR #13).
-Ancestor  preserved (no rebase/force-push of that tip).
+`e894804dfdb0bb66c7247eb1846313a215422c9f` on `cursor/smc-mixer-ui-popup-stage2-repair-5686` (PR #13).
+Ancestor `828298d9` preserved (no rebase/force-push of that tip).
 
 ## What landed in the merge
 - Main #9 drum solo/SEQ/link/project mixer behavior retained.
