@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Black-box test of safe GitHub Pages publication against local bare Git."""
 import hashlib
+import os
 import json
 from pathlib import Path
 import shutil
@@ -13,8 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 PUBLISH = ROOT / 'tools' / 'publish_pages_ff.sh'
 
 
-def run(*args, cwd=None, check=True):
-    p = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+def run(*args, cwd=None, check=True, env=None):
+    p = subprocess.run(args, cwd=cwd, capture_output=True, text=True, env=env)
     if check and p.returncode:
         raise AssertionError(f"{args} exited {p.returncode}: {p.stdout} {p.stderr}")
     return p
@@ -200,6 +201,35 @@ class PagesPublish(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(self.head(), self.base)
 
+    def test_refuses_changed_existing_history(self):
+        updated = json.loads(json.dumps(self.expected_catalog))
+        updated['history'][0]['id'] = 'previous-audit'
+        updated['history'][0]['title'] = 'unsubstantiated PASS'
+        self.set_catalog(updated)
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.head(), self.base)
+
+    def test_refuses_unexpected_nested_source(self):
+        (self.site / 'install' / 'private-build-inputs.zip').write_bytes(b'do not publish')
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.head(), self.base)
+
+    def test_refuses_previous_site_symlink(self):
+        # Historical shared Pages root must not contain symlinks, even if
+        # generated site itself is clean (copying into them can escape).
+        run('git', 'checkout', '-q', 'gh-pages', cwd=self.repo)
+        (self.repo / 'unsafe').symlink_to('/tmp')
+        run('git', 'add', 'unsafe', cwd=self.repo)
+        run('git', 'commit', '-qm', 'malformed prior site symlink', cwd=self.repo)
+        run('git', 'push', '-q', 'origin', 'gh-pages', cwd=self.repo)
+        self.base = self.head()
+        run('git', 'checkout', '-q', 'main', cwd=self.repo)
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.head(), self.base)
+
     def test_shell_wrapper_uses_history_preserving_publisher(self):
         # Isolated orchestration smoke: a minimal stand-in for make_pages.py.
         tools = self.repo / 'tools'
@@ -216,7 +246,13 @@ out = pathlib.Path(args[args.index('--out')+1]); out.mkdir(parents=True, exist_o
 merge = pathlib.Path(args[args.index('--merge')+1])
 shutil.copy2(merge / 'versions.json', out / 'versions.json')
 """)
-        result = run('sh', 'tools/publish_pages.sh', '--shell', cwd=self.repo, check=False)
+        # Preview-only invocation cannot accidentally publish. The owner must
+        # make a separate affirmative choice after all test/build gates pass.
+        denied = run('sh', 'tools/publish_pages.sh', '--shell', cwd=self.repo, check=False)
+        self.assertNotEqual(denied.returncode, 0)
+        self.assertEqual(self.head(), self.base)
+        approved_env = {**os.environ, 'X0X_PAGES_CHECKED_DEV_PUBLISH': 'YES'}
+        result = run('sh', 'tools/publish_pages.sh', '--shell', cwd=self.repo, check=False, env=approved_env)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.old_remote_asset('firmware/old-elite.fwsc'), self.old_bytes)
         self.assertEqual(self.old_remote_asset('manual/index.html'), b'must preserve')
@@ -224,7 +260,7 @@ shutil.copy2(merge / 'versions.json', out / 'versions.json')
         self.assertNotEqual(self.head(), self.base)
 
     def test_ci_workflow_is_read_only_preview(self):
-        workflow = (ROOT / '.github-pages.yml').read_text()
+        workflow = (ROOT / '.github/workflows/pages.yml').read_text()
         self.assertIn('contents: read', workflow)
         self.assertNotIn('contents: write', workflow)
         self.assertIn('actions/upload-artifact@v4', workflow)
