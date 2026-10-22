@@ -3,25 +3,37 @@ name: SMC Linux host regressions
 on:
   pull_request:
     branches:
-      - lane/mb-cloud-transfer-20261020
+      - main
     paths:
       - .github/workflows/smc-host-regressions.yml
       - tests/run_tests.sh
       - tests/host/smc_*.py
-      - tests/host/smc_protocol_test.c
+      - tests/host/smc_*.c
+      - tests/host/smc_*.sh
+      - tests/host/project_*.c
+      - tests/host/project_*.sh
+      - tests/host/run_project_*.sh
       - firmware/src/app/smc_mixer.c
       - firmware/src/app/smc_protocol.h
+      - firmware/src/app/project.c
+      - firmware/src/ble/ble_midi_central.c
       - firmware/src/seq/pattern.h
   push:
     branches:
-      - lane/mb-cloud-transfer-20261020
+      - main
     paths:
       - .github/workflows/smc-host-regressions.yml
       - tests/run_tests.sh
       - tests/host/smc_*.py
-      - tests/host/smc_protocol_test.c
+      - tests/host/smc_*.c
+      - tests/host/smc_*.sh
+      - tests/host/project_*.c
+      - tests/host/project_*.sh
+      - tests/host/run_project_*.sh
       - firmware/src/app/smc_mixer.c
       - firmware/src/app/smc_protocol.h
+      - firmware/src/app/project.c
+      - firmware/src/ble/ble_midi_central.c
       - firmware/src/seq/pattern.h
   workflow_dispatch:
 
@@ -46,6 +58,10 @@ jobs:
           mkdir -p build/ci
           X0X_TEST_JOBS=1 sh tests/run_tests.sh \
             smc-protocol smc-fader smc-buttons smc-mapping \
+            smc-reachability smc-queue smc-link smc-drum-mutes \
+            smc-drum-rs smc-feedback smc-record-feedback smc-filter \
+            smc-part-select smc-clip-visibility \
+            project-protocol project-stage project-runtime \
             2>&1 | tee build/ci/smc-host-regressions.log
 
       - name: Preserve regression logs
