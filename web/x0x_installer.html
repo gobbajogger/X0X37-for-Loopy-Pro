@@ -1037,6 +1037,7 @@ async function run(img, product, opts = {}) {
         sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
       }
     }
+    writing = false;  // The scan must run after releasing the update/write guard.
     await scan();
   } catch (e) {
     // Stock / other custom firmware often reports a different identity string than the package marker.
