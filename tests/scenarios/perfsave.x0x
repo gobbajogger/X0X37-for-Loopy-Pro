@@ -8,9 +8,10 @@ expect store_writes 0
 tap SAVE
 wait 300
 expect store_writes 0
-# GLO > PERFORMANCE (the eleventh row)
+# GLO > PERFORMANCE (+18 selectable rows from CLOCK SOURCE).
 tap GLO
-turn SELECT 17
+turn SELECT 18
+expect listsel 23
 tap SEL
 expect view 7
 # SEL > RUN PERF TEST: it stops the sequencer, the save runs, then the test plays

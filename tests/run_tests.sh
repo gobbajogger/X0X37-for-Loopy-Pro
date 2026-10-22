@@ -50,10 +50,10 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|slot-backup|upload-tools|\
-    breaks-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|smc-reachability|smc-drum-mutes|smc-performance-abort) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -90,7 +90,7 @@ lk() {                  # name command...: start the command. An install-path te
     fi
 }
 needs_gen() {           # name: the test includes the headers in build/gen (host-build writes them)
-    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream) return 0 ;; *) return 1 ;; esac
+    case "$1" in drum-pan|stereo|rec-live|copy-semantics|song-actions|ui-feedback|project-303-stream|project-protocol|project-runtime|project-stage) return 0 ;; *) return 1 ;; esac
 }
 gen_wait() {            # name: 0 if the test must wait for host-build (host-build runs in this run and did not end)
     needs_gen "$1" || return 1
@@ -172,16 +172,25 @@ run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
 run host-build sh host/build_host.sh   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
+run project-protocol sh tests/host/run_project_protocol.sh
+run project-stage sh tests/host/run_project_stage.sh
+run project-runtime sh tests/host/project_runtime_test.sh
+run font-pack python3 tests/font_pack_test.py
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
+run smc-queue python3 tests/host/smc_queue_test.py
+run smc-link python3 tests/host/smc_link_test.py
 run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
 run smc-reachability sh tests/host/smc_reachability_test.sh
 run smc-mapping python3 tests/host/smc_mapping_test.py
 run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh
+run smc-drum-rs sh tests/host/smc_drum_rs_test.sh
 run smc-performance-abort sh tests/host/smc_performance_abort_test.sh
 run smc-filter python3 tests/host/smc_filter_test.py
+run smc-feedback python3 tests/host/smc_feedback_test.py
+run smc-record-feedback sh tests/host/smc_record_feedback_test.sh
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
 run drum-pan sh -c "$CC -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -Ibuild/gen -o $OUT/drum_pan_test tests/host/drum_pan_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c -lm && $OUT/drum_pan_test"
@@ -253,6 +262,7 @@ run smk-clip-dark sh tests/smk_clip_dark_test.sh   # a76: real clip and pad LED 
 run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a link end clears only the cells of that link (real usb.c)
 run smk-clip-isolation python3 tests/host/smk_clip_isolation_test.py
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
+run smk-fader-pickup sh tests/host/smk_fader_pickup_test.sh   # fader pickup and input draining across project holds
 run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
 if [ -f build/smk37/x0x.bin ] && [ -f build/smk37/loader/ota.bin ] && [ -n "${AC79_SDK:-}" ]; then
@@ -283,6 +293,8 @@ run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops 
 run upload-tools python3 tests/upload_tools_test.py   # upload_breaks.py on a mocked device; one-shot trim
 command -v node >/dev/null 2>&1 && run breaks-web node web/test_breaks.mjs   # the browser uploader: upload_breaks.py's bytes
 command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs   # the page against a mocked device
+command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
+command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change

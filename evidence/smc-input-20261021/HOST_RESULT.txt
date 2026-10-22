@@ -1,0 +1,36 @@
+SMC input queue repair: host validation
+
+Input: 6e458c9d51be010f1573e08bda1dfadb985f71d9, lane/mb-projects-20261021.
+Repair lane: lane/mb-smc-input-20261021.
+Introduced by: d96e5c108c542db7829087c08702e99a098a4643.
+
+Confirmed defect: smc_poll releases each ring slot before reading its event.
+At capacity, an ISR can overwrite that event before dispatch. The original
+event is lost and the replacement can be delivered twice. BLE, USB/peripheral
+BLE and both MMC producer queues are affected.
+
+Repair: take a complete local copy before publishing the read index. Keep
+publication before action dispatch so reset can discard remaining events.
+Compiler memory barriers preserve this order for the single-core ISR model.
+Mappings, pickup, queue capacity, radio and controller code are unchanged.
+
+The production-derived interrupt regression rejects the exact base in all
+24 cases and passes the repaired source with ASan and UBSan. Initial counters
+0, 240 and 255 cover wrap. Normal consumption and reset discard are checked
+for every producer. A six-byte BLE message is overwritten by a three-byte
+message at the injected scheduling boundary. The original must survive.
+
+Four selected host checks passed: project-runtime, smc-queue, smc-reachability
+and smc-performance-abort. Detailed logs and exact source hashes accompany
+this result. LeakSanitizer could not run in this sandbox; its infrastructure
+failure and the ASan/UBSan rerun with leak checking disabled are retained.
+
+An independent read-only review found no blocking issue in the production
+repair or deterministic interrupt schedule. No duplicate suite was run by
+the reviewer. Target validation is recorded separately.
+
+Limit: this is a proven queue-pressure regression, not a proven explanation
+for continuous silence while LED feedback works. The earlier install ledger
+explicitly leaves that original failure unresolved. The available physical
+receive trace was idle and contains no control event to trace. No hardware
+input PASS or install is claimed by this repair.

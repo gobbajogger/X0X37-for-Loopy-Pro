@@ -31,6 +31,7 @@
 #define PROJ_BT_CLK_IN 8u
 #define PROJ_BT_SMC_CENTRAL 16u  /* connect to an SMC-Mixer instead of advertising at next boot */
 #define PROJ_BT_SMC_USER 32u     /* SMC's editable User preset, rather than factory DAW mode */
+#define PROJ_DEVICE_BT (1u | PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER)
 #define PROJ_CLK_SRC(bt) ((uint8_t)((bt) >> 1 & 3u))
 #define PROJ_A74_CLK_OFF 38u
 
@@ -74,6 +75,7 @@ typedef struct {
 } project_t;
 
 extern project_t proj;
+extern project_t project_stage;          /* exclusive staging, otherwise the UI undo shadow */
 
 void project_defaults(void);
 int project_load(void);                  /* 0 = loaded; else defaults are in place */
@@ -81,10 +83,28 @@ int project_save(void);                  /* 0 = saved and verified; -7 = too muc
 void project_apply_io(void);             /* the settings into the sequencer and the engine: MIDI, the output */
 int project_mem_pct(void);               /* how full the room for patterns, song and motion is, % */
 
+/* Call only between ui_project_begin/end: these never change the live project. */
+void project_reset_stage(void);
+int project_load_stage(void);
+void project_capture_stage(void);
+int project_validate_stage(void);         /* 0 good, -1 invalid, -7 storage capacity */
+void project_commit_stage(void);          /* adopt with the audio engine held */
+#define PROJECT_FILE_HDR 32u
+#define PROJECT_FILE_SIZE (PROJECT_FILE_HDR + sizeof(project_t))
+void project_file_header(uint8_t *header);
+int project_file_validate(const uint8_t *header); /* also -4 for a payload CRC mismatch */
+
 void ui_init(void);
 void ui_frame(void);
 void ui_input_only(void);
 int ui_dirty(void);
+#define UI_PROJECT_BUSY (-8)
+int ui_project_begin(void);               /* 0 acquired, UI_PROJECT_BUSY otherwise */
+void ui_project_end(int apply);           /* 0 abort, 1 commit and reset the runtime */
+int ui_project_busy(void);
+int ui_project_load(void);
+int ui_project_reset(void);
+int ui_project_save(void);
 void ui_say(const char *a, const char *b);
 #if BOARD_SMK37
 /* BLE TIMER5 producer; smc_poll and smc_frame consume from the main loop. */

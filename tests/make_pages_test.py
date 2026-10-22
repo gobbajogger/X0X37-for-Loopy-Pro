@@ -102,6 +102,8 @@ with tempfile.TemporaryDirectory() as td:
     make_pages_main(["--shell", "--out", str(out_shell)])
     assert (out_shell / "install" / "index.html").is_file()
     assert (out_shell / "breaks" / "index.html").is_file()
+    assert (out_shell / "projects" / "index.html").is_file()
+    assert (out_shell / "projects" / "x0x_projects.js").is_file()
     shell_cat = json.loads((out_shell / "versions.json").read_text())
     assert shell_cat["versions"] == []
     shell_inst = (out_shell / "install" / "index.html").read_text(encoding="utf-8")

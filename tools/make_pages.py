@@ -3,9 +3,10 @@
 """Make the X0X site for GitHub Pages
 (https://gobbajogger.github.io/X0X37-for-Loopy-Pro/):
 
-  index.html                  landing: install, breaks (sample importer), manual, source
+  index.html                  landing: install, breaks, projects, manual, source
   install/index.html          web installer with version + model pickers (Web MIDI)
   breaks/index.html           sample importer for break loops
+  projects/index.html         project save/load/reset and portable files (JS modules beside it)
   manual/, new/               from docs/MANUAL.md and docs/NEW.md
   firmware/*.fwsc             packages for every published version/model kept on the site
   versions.json               catalog the installer loads (also inlined into install/)
@@ -145,6 +146,7 @@ keyboard's model name so M-UPGRADE still works.</div>
 <nav class="ways" aria-label="Get X0X">
   <div class="card"><strong><a href="install/">Install__VERSION_LABEL__</a> <a class="new" href="new/">What's new?</a></strong><span>Upgrade, downgrade, or switch: pick a published version and model, or drop any .fwsc (stock / other custom). Nothing to install on the computer.</span></div>
   <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part from Chrome or Edge.</span></a>
+  <a href="projects/"><strong>Projects</strong><span>Save, load and reset on the keyboard, or export a project with its original samples.</span></a>
   <a href="manual/"><strong>Manual</strong><span>Getting started, then everything else — including the SMK-37 map.</span></a>
   <a href="__REPO__/releases"><strong>All releases</strong><span>Firmware files for the command line: <code>python3 tools/fm1_install.py …</code></span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. Built on Felucca by Hügelton Instruments.</span></a>
@@ -194,7 +196,7 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     """Build OUT from catalog; copy_pkgs maps firmware filename -> source path for this publish."""
     if out.exists():
         shutil.rmtree(out)
-    for d in ("install", "manual", "firmware", "breaks", "new"):
+    for d in ("install", "manual", "firmware", "breaks", "projects", "new"):
         (out / d).mkdir(parents=True)
 
     # Carry forward every firmware file still referenced, plus new packages.
@@ -234,9 +236,13 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
         raise SystemExit("x0x_breaks.html must contain /*LIB*/ once")
     lib = strip_module((SRC / "web" / "x0x_breaks.js").read_text(encoding="utf-8"))
     (out / "breaks" / "index.html").write_text(breaks.replace("/*LIB*/", lib), encoding="utf-8")
-
+    # The project page keeps its testable modules intact; it also runs from web/ on localhost.
+    shutil.copy(SRC / "web" / "x0x_projects.html", out / "projects" / "index.html")
+    for module in ("x0x_projects.js", "x0x_breaks.js"):
+        shutil.copy(SRC / "web" / module, out / "projects" / module)
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "MANUAL.md"),
                     str(out / "manual" / "index.html")], check=True, capture_output=True)
+    shutil.copy(SRC / "docs" / "PROJECT_FILES.md", out / "manual" / "PROJECT_FILES.md")
     shutil.copytree(SRC / "docs" / "img", out / "manual" / "img")
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "NEW.md"),
                     str(out / "new" / "index.html")], check=True, capture_output=True)

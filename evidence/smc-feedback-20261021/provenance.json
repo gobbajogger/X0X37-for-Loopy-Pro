@@ -1,0 +1,19 @@
+{
+  "source_commit": "513574131879ff1f26a2f9ca44a2d11a68de3afc",
+  "handoff_commit": "f1d358715da2475bdbd0e5c1f5fa04124a060243",
+  "base_commit": "cb3c0502ae405af0a76325727d92ba1667d2982d",
+  "origin": "Completed SMC feedback thread /workspace/scratch/9d5aa4f082c9/x0x37-feedback",
+  "note": "Original scoped feedback logs and application-only development record, retained without rewriting. The precommit host manifest identifies the exact source file hashes subsequently committed as 5135741. The final integrated installer has a separate development record and selected controller.",
+  "files_sha256": {
+    "host/validation.json": "6a6e35e6510acb4f479805e2f5ee89efa1059d63e7a39233b9385ede30376694",
+    "host/baseline-feedback.log": "d28bfe3156e4337250aa5173e8c6f89f36e08b89f9c771f1550aa7ecbe79ad3b",
+    "host/baseline-smc_mixer.c": "8768b6eada2690dd10f3ab6afd63575a0308f25d5b0432035d77a99808f40053",
+    "host/smc-feedback.log": "53fb99cc56e67e84457e629a8f211d72760f385c5ff890df1089d6a7fdb508a7",
+    "host/smc-filter.log": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92",
+    "host/fixed-scoped-runner.log": "6e400c55dcb54de2396e6f21a38a3caf74f3864caa3175fb2a65861c382c8fd8",
+    "elite/record.json": "2d11faac2da5abe86bde787b4bedc1fba3e685292421efb98bbb9a32add48f0f",
+    "elite/build.log": "28d7a854c69a182f57d923e2bacc010e6337cbc892c477d5d0eaed78e9a063bf",
+    "elite/check-0.log": "4ab5b30a67a0103e4452f645dea1f75dd03b358bdac6e6a1bc1a43b23678beec",
+    "dev-plan.json": "7c71acfb1a60a80481ec8de51a9261b24bf893ca264e68f75dcabb11ff3c895d"
+  }
+}

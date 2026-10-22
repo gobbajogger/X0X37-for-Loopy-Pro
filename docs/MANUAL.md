@@ -169,8 +169,9 @@ Hold HOME and press REC to take back your last change; the screen says what it u
 example UNDO 909 P1. HOME + PLAY redoes it. You can go back up to 32 steps (fewer after very big
 changes). A step is whatever you did before pausing for a moment: a few steps tapped in a row,
 one turn of a knob, or a whole recording pass. Undo covers the sounds, patterns, song and knob
-motion, even CLEAR PATTERN and FACTORY RESET, but not the tempo or the settings. The history is
-cleared when you switch off.
+motion, including CLEAR PATTERN, but not the tempo or the settings. Loading a saved project,
+importing a project or choosing RESET PROJECT clears the history; you cannot undo those
+replacements. The history is also cleared when you switch off.
 
 <details><summary>What the key lights show</summary>
 
@@ -647,9 +648,10 @@ The SMK-37 has a sixth, BLUETOOTH MIDI (see [Bluetooth MIDI](#bluetooth-midi-smk
 | KEY SOUND | STOPPED (the default): picking a drum or editing a 303 step is silent while the pattern plays, unless REC is on. ALWAYS: you always hear it. The 303 keyboard always plays either way. |
 | THEME | The screen colour: green, amber, cyan, red or mono. |
 | SAVE PROJECT | Saves everything. |
+| LOAD SAVED | Loads the last saved project. Stop playback and recording first. Asks before discarding unsaved edits. Keeps the sample slots and clears undo history. |
 | AUTOSAVE | ON (the default): while the pattern is stopped, changes are saved by themselves once nothing has been touched for four seconds. OFF: only SAVE saves. |
 | CLEAR PATTERN | Clears all five parts of the current pattern. |
-| FACTORY RESET | Goes back to the factory sounds and empty patterns, with no song and no knob motion. Your saved project is kept until you save over it. |
+| RESET PROJECT | Asks before resetting the live project to factory sounds, empty patterns and default settings, with no song or knob motion. Keeps the sample slots and clears undo history. AUTOSAVE returns to ON, so the reset state can replace your saved project automatically. |
 | PERFORMANCE | Opens the performance page (below). |
 | ABOUT X0X | Shows the version, how full the memory for patterns is (MEM), and the audio load. |
 | BATTERY | The battery's charge: FULL, 2/3, 1/3 or EMPTY; USB POWER while a computer powers the FM-1. Read only. |
@@ -690,6 +692,18 @@ keeps what was saved before; clearing patterns you don't need makes room. Projec
 earlier versions load as they were, with their steps on 1–32 and their patterns on 1–16.
 
 </details>
+
+### Portable project files
+
+The **Projects** companion page exports and imports `.x0xproject` files over USB MIDI.
+Export includes the project and the original samples by default, preserving their encoded
+bytes and slot positions. A smaller project-only file is also available; it can be imported
+only when every sample slot matches, including empty slots.
+
+Choose **Projects** in the generated site's home page, or serve the repository over localhost
+and open `web/x0x_projects.html`. See the [project files guide](PROJECT_FILES.md) for browser
+requirements, backups, import confirmation and recovery. Import replaces the live project
+and uses the file's autosave setting. Use SAVE to store the new project while stopped.
 
 <details><summary>Performance: how hard the FM-1 is working</summary>
 
