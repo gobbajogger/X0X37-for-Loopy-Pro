@@ -168,6 +168,26 @@ class PagesPublish(unittest.TestCase):
         self.assertEqual(self.head(), newer_sha)
         self.assertIn('advanced', result.stderr)
 
+    def test_concurrent_remote_commit_causes_non_fast_forward_refusal(self):
+        # A second writer advances gh-pages after our fetch, while push is in
+        # progress. Git must reject our detached worktree's divergent tip.
+        hook = self.repo / '.git/hooks/pre-push'
+        hook.write_text("#!/bin/sh\n" +
+                        "set -eu\n" +
+                        f"REMOTE='{self.remote}'\n" +
+                        'BASE=$(git --git-dir="$REMOTE" rev-parse refs/heads/gh-pages)\n' +
+                        'TREE=$(git --git-dir="$REMOTE" rev-parse "${BASE}^{tree}")\n' +
+                        'TIP=$(GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.invalid '
+                        'GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.invalid '
+                        'git --git-dir="$REMOTE" commit-tree "$TREE" -p "$BASE" -m "concurrent writer")\n' +
+                        'git --git-dir="$REMOTE" update-ref refs/heads/gh-pages "$TIP" "$BASE"\n')
+        hook.chmod(0o755)
+        result = self.publish()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotEqual(self.head(), self.base)  # second writer succeeded
+        self.assertEqual(self.old_remote_asset('firmware/old-elite.fwsc'), self.old_bytes)
+        self.assertIn('non-fast-forward', result.stderr.lower())
+
     def test_rejects_private_top_level_source(self):
         (self.site / 'secrets.txt').write_text('must not distribute')
         result = self.publish()
