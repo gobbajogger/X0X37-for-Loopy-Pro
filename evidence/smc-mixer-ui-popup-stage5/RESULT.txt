@@ -27,8 +27,9 @@ Blockers to landing on main from this Stage-5 thread:
    firmware/src/app/smc_mixer.c, tests/run_tests.sh.
    Resolving smc_mixer.c changes checked firmware sources → Stage-4 budgets
    must be re-opened on the merge tip before install of a merged package.
-2. ManagePullRequest tool UNAVAILABLE; gh PR write APIs 403
-   (cannot undraft, comment, or merge). gh pr merge forbidden by rules anyway.
+2. ManagePullRequest tool UNAVAILABLE; gh createPullRequest/comment 403.
+   gh pr ready / --undo worked: #13 kept draft because mergeable=CONFLICTING
+   (not ready for merge review until conflicts resolve). gh pr merge forbidden.
 3. Validated tip 828298d9 preserved (not rewritten). Stage-5 evidence sits
    on cursor/smc-mixer-ui-popup-stage5-5686 as ancestor-preserving commits
    on top of 828298d9 (evidence only; no firmware source edits in Stage 5).
