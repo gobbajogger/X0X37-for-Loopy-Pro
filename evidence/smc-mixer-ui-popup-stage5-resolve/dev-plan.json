@@ -1,6 +1,6 @@
 {
-  "base": "73d25b6d431aa5eaabaab54a0d640df2526fead4",
-  "scope": "SMC mixer UI popup merge resolution: origin/main (#9 drum solo/SEQ/link/project) into validated peek tip 828298d9. Peek kept as SMC-07 on main mixer; drum SEQ uses drum banks (no peek). Merge tip 116d9030f18ec251c37c3bd09ffcad2eb0a613be. Re-validate Elite/Pro DEV packages after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
+  "base": "4a219ff423a5a158434e39d7872772ae7c9df20c",
+  "scope": "SMC mixer UI popup merge-resolve onto main (#9+#8). Peek as SMC-07 on main-mixer; help is a card (#8); drum SEQ banks from #9. Tip e894804dfdb0bb66c7247eb1846313a215422c9f. Re-validate Elite/Pro DEV after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
   "checks": [
     {
       "reason": "SMC-07 peek map, hold refresh, restore without set_view, and clip/help/overlay/perf_testing guards (synth SEQ).",

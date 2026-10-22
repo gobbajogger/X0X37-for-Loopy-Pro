@@ -2,18 +2,18 @@
   "schema": 2,
   "validation_inputs": {
     "schema": 1,
-    "sha256": "ed86551739de24aa6e619f8af295d18d925375639d573a70d02e161cc2977b41",
+    "sha256": "8383ea3ef5a87342538d5fa0b5cbf5626540d10e7f7cd54d93f5bc0f64db727a",
     "inputs": {
       "schema": 1,
       "mode": "dev",
-      "source": "7410ae3fcbf9aaec59f56f4f43c7bd3cb6f3c76891bdb0d4eb2d7709784f083c",
+      "source": "67c15750402e5ea6a5893d422e5ade1ce023001953bbe04378f34fc6cf774097",
       "configuration": {
         "model": "elite",
         "config": "dev",
         "controller": true,
         "plan": {
-          "base": "73d25b6d431aa5eaabaab54a0d640df2526fead4",
-          "scope": "SMC mixer UI popup merge resolution: origin/main (#9 drum solo/SEQ/link/project) into validated peek tip 828298d9. Peek kept as SMC-07 on main mixer; drum SEQ uses drum banks (no peek). Merge tip 116d9030f18ec251c37c3bd09ffcad2eb0a613be. Re-validate Elite/Pro DEV packages after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
+          "base": "4a219ff423a5a158434e39d7872772ae7c9df20c",
+          "scope": "SMC mixer UI popup merge-resolve onto main (#9+#8). Peek as SMC-07 on main-mixer; help is a card (#8); drum SEQ banks from #9. Tip e894804dfdb0bb66c7247eb1846313a215422c9f. Re-validate Elite/Pro DEV after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
           "checks": [
             {
               "reason": "SMC-07 peek map, hold refresh, restore without set_view, and clip/help/overlay/perf_testing guards (synth SEQ).",
@@ -144,11 +144,11 @@
   "result": "DEV CHECKED",
   "config": "dev",
   "model": "elite",
-  "commit": "116d9030f18ec251c37c3bd09ffcad2eb0a613be",
-  "tree": "7410ae3fcbf9aaec59f56f4f43c7bd3cb6f3c76891bdb0d4eb2d7709784f083c",
+  "commit": "e894804dfdb0bb66c7247eb1846313a215422c9f",
+  "tree": "67c15750402e5ea6a5893d422e5ade1ce023001953bbe04378f34fc6cf774097",
   "plan": {
-    "base": "73d25b6d431aa5eaabaab54a0d640df2526fead4",
-    "scope": "SMC mixer UI popup merge resolution: origin/main (#9 drum solo/SEQ/link/project) into validated peek tip 828298d9. Peek kept as SMC-07 on main mixer; drum SEQ uses drum banks (no peek). Merge tip 116d9030f18ec251c37c3bd09ffcad2eb0a613be. Re-validate Elite/Pro DEV packages after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
+    "base": "4a219ff423a5a158434e39d7872772ae7c9df20c",
+    "scope": "SMC mixer UI popup merge-resolve onto main (#9+#8). Peek as SMC-07 on main-mixer; help is a card (#8); drum SEQ banks from #9. Tip e894804dfdb0bb66c7247eb1846313a215422c9f. Re-validate Elite/Pro DEV after smc_mixer.c changed vs 828298d9. No page-lock/multi-SMC.",
     "checks": [
       {
         "reason": "SMC-07 peek map, hold refresh, restore without set_view, and clip/help/overlay/perf_testing guards (synth SEQ).",
@@ -227,7 +227,37 @@
     "evidence/smc-mixer-ui-popup-stage4/size-tests.log",
     "evidence/smc-mixer-ui-popup-stage4/stage2-repair-prompt.txt",
     "evidence/smc-mixer-ui-popup-stage4/toolchain-preflight.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/FINAL-TIP.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/HANDOFF.md",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/HEAD.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/MERGE-INSTRUCTIONS-PRIOR.md",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/SHA256SUMS",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/SUCCESSOR-STAGE6-PARENT.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/SUCCESSOR-STAGE6.txt",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/dev-plan.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite-dev_validate-build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/check-0.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/check-1.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/controller.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/ctl.img",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/elite/x0x-smk37-elite.fwsc",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/environment.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/host-suite.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pr-and-successor.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro-dev_validate-build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/build.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/check-0.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/check-1.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/controller.log",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/ctl.img",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/pro/x0x-smk37.fwsc",
+    "evidence/smc-mixer-ui-popup-stage5-resolve/stage6-prompt.txt",
     "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_drum_rs_test.c",
     "tests/host/smc_feedback_test.py",
     "tests/host/smc_reachability_test.c",
     "tests/host/smc_ui_popup_test.c",
@@ -236,7 +266,7 @@
   ],
   "controller": true,
   "budgets": {
-    "code_free": 6144,
+    "code_free": 6244,
     "ram_free": 492,
     "pool_free": 8324
   },
@@ -265,7 +295,7 @@
         "smk37"
       ],
       "returncode": 0,
-      "sha256": "a66a7d979e5b4252e0154bba0b00c2fef59542535f1dceed82797f2742d77fec"
+      "sha256": "7562d3d6aefdc25bc4cb2bf57458cebe46f3580a0e7440151683861949004bf9"
     },
     "controller": {
       "argv": [
@@ -273,13 +303,13 @@
         "ble/ctl/build_ctl.sh"
       ],
       "returncode": 0,
-      "sha256": "5a2f2ca355857b0e035e566943bd03bbec59b67f3ee787ba7ebe08e6ebcf1c9a"
+      "sha256": "e0dac15b9e1579a35e0e1f494c53f27e7514f772b558f642740f8fd4f8c78529"
     }
   },
   "artifacts": {
     "package": {
       "file": "x0x-smk37-elite.fwsc",
-      "sha256": "b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c"
+      "sha256": "19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64"
     },
     "controller": {
       "file": "ctl.img",

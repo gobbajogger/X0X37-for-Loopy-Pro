@@ -14,5 +14,5 @@ ld exit 0, undefined symbols: 0
   load 02094250  vma 02094250    6328 B
   load 02095b08  vma 01c01800    3512 B
   load 020968c0  vma 01c025b8    1812 B
-/home/ubuntu/dev-check-54p61jiz/source/ble/ctl/out/ctl.img: 65492 B of 65536, crc32 77b7a496, RAM 0x1c01800..0x1c07ce0 (25824 B of 26368)
-Done: /home/ubuntu/dev-check-54p61jiz/source/ble/ctl/out/ctl.img
+/home/ubuntu/dev-check-0bp00yr_/source/ble/ctl/out/ctl.img: 65492 B of 65536, crc32 77b7a496, RAM 0x1c01800..0x1c07ce0 (25824 B of 26368)
+Done: /home/ubuntu/dev-check-0bp00yr_/source/ble/ctl/out/ctl.img

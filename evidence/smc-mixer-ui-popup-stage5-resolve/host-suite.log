@@ -1,5 +1,5 @@
-MERGE TIP (pre-evidence): 629403a1ef9f8b55be3698f38fa3d4e8ac1373af
-UTC: 2026-10-22T16:26:09Z
+MERGE TIP: e894804dfdb0bb66c7247eb1846313a215422c9f
+UTC: 2026-10-22T16:35:45Z
 TESTS: smc-fader smc-buttons smc-mapping smc-filter smc-clip-visibility smc-part-select smc-drum-mutes smc-performance-abort smc-reachability smc-ui-popup smc-drum-rs smc-queue smc-link smc-feedback smc-record-feedback
 
   ok   smc-fader
