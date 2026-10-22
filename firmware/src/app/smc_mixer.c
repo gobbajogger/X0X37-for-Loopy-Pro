@@ -37,6 +37,8 @@ static struct {
     uint16_t drum_solo[NKIT];
     uint8_t lit[128], known[128];
     uint8_t fx_restore[3];
+    uint32_t knob_t;                   /* acceleration of the knob now turning, not a panel encoder */
+    uint8_t knob_run, knob_i;
 } smc;
 
 int smc_project_active(void) { return smc.solo || smc.drum_solo[0] || smc.drum_solo[1]; }
@@ -291,6 +293,8 @@ show:
 
 static void smc_knob(int n, int delta)
 {
+    uint32_t saved_t;
+    uint8_t saved_run;
     if (ui.overlay == O_ASK || ui.help)
         return;
     if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
@@ -298,7 +302,23 @@ static void smc_knob(int n, int delta)
     pref_t r = smc_knob_target(n);
     if (r.kind == R_NONE || r.kind == R_HDR || r.kind == R_ACT)
         return;
-    turn_ref(r, delta, EN_K1 + n % 4);
+    /* Eight strips share one acceleration slot. Keep it off the panel encoders, and
+     * start again when the finger moves to another strip. */
+    saved_t = ui.enc_t[EN_K1];
+    saved_run = ui.enc_run[EN_K1];
+    if (smc.knob_i != (uint8_t)(n + 1)) {
+        ui.enc_t[EN_K1] = 0;
+        ui.enc_run[EN_K1] = 0;
+        smc.knob_i = (uint8_t)(n + 1);
+    } else {
+        ui.enc_t[EN_K1] = smc.knob_t;
+        ui.enc_run[EN_K1] = smc.knob_run;
+    }
+    turn_ref(r, delta, EN_K1);
+    smc.knob_t = ui.enc_t[EN_K1];
+    smc.knob_run = ui.enc_run[EN_K1];
+    ui.enc_t[EN_K1] = saved_t;
+    ui.enc_run[EN_K1] = saved_run;
     ui.act_t = plat_ms();
     smc_show(n, 1, r);
 }
@@ -573,6 +593,7 @@ void smc_poll(void)
         smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
         smc.picked = smc.seen = 0;
+        smc.knob_i = 0;
         smc.pending = 0xFFu;
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         smc_solo_clear();              /* also covers a down/up pair coalesced before this poll */
@@ -583,7 +604,15 @@ void smc_poll(void)
     }
     if (!allow || ui.overlay == O_ASK || ui.help) {
         smc.picked = smc.seen = 0;
+<<<<<<< HEAD
         if (smc_project_active()) smc_solo_clear();
+=======
+        smc.knob_i = 0;
+        if (smc.solo) {
+            smc.solo = 0;
+            engine_smc_solo(0);
+        }
+>>>>>>> fc23ca2 (Separate SMC mixer knob acceleration from the panel encoders.)
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
