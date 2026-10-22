@@ -1,0 +1,5 @@
+firmware_candidate=828298d9db1a403919e7e4c8176db83512281bb2
+stage3_branch_tip=06ffbe4b51216975a7fe5b0f81eeb423db8a7439
+branch=cursor/smc-mixer-ui-popup-stage3-repair-5686
+stage4_prompt=evidence/smc-mixer-ui-popup-stage3-repair/stage4-prompt.txt
+parent_must_launch_stage4=yes
