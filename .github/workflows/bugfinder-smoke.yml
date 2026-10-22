@@ -1,0 +1,93 @@
+# Read-only, deterministic regressions. The separate hourly AI bugfinder is not
+# run by this workflow; firmware builds, hardware flashes and Pages publication
+# are explicitly out of scope.
+name: LoopyX0X37 20-minute smoke bugfinder
+
+on:
+  schedule:
+    # Offset from :00, where GitHub Actions scheduled runs are often delayed.
+    - cron: '7,27,47 * * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/bugfinder-smoke.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bugfinder-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: Read-only web and sample-safety regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source without write credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run independent regression checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/bugfinder/logs
+          passed=0
+          failed=0
+          printf '## LoopyX0X37 smoke checks\n\n' >> "$GITHUB_STEP_SUMMARY"
+          printf 'Source commit: `%s`\n\n' "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          printf '| Check | Result |\n| --- | --- |\n' >> "$GITHUB_STEP_SUMMARY"
+
+          check() {
+            local name="$1"; shift
+            local logfile="build/bugfinder/logs/${name}.log"
+            if "$@" > "$logfile" 2>&1; then
+              passed=$((passed + 1))
+              printf '| `%s` | PASS |\n' "$name" >> "$GITHUB_STEP_SUMMARY"
+              printf 'PASS %s\n' "$name"
+            else
+              local rc=$?
+              failed=$((failed + 1))
+              printf '| `%s` | FAIL (exit %s) |\n' "$name" "$rc" >> "$GITHUB_STEP_SUMMARY"
+              printf 'FAIL %s (exit %s)\n' "$name" "$rc"
+              tail -n 15 "$logfile" || true
+            fi
+          }
+
+          # Explicit named coverage, not the firmware release gate or a device PASS.
+          check js-breaks-syntax node --check web/x0x_breaks.js
+          check js-projects-syntax node --check web/x0x_projects.js
+          check breaks-web node web/test_breaks.mjs
+          check projects-web node web/test_projects.mjs
+          check projects-page node web/test_projects_page.mjs
+          check slot-backup python3 tests/x0x_slots_test.py
+          check installer-slots python3 tests/install_slots_test.py
+
+          printf '\nResults: %s passed; %s failed. The checks do not build firmware, test hardware, or publish Pages.\n' "$passed" "$failed" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Check summary: %s passed; %s failed\n' "$passed" "$failed"
+          if (( failed > 0 )); then
+            exit 1
+          fi
+
+      - name: Attach check logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bugfinder-smoke-logs
+          path: build/bugfinder/logs/
+          if-no-files-found: warn
+          retention-days: 7
