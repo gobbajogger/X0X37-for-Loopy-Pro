@@ -530,6 +530,8 @@ SMC-03. Outside the three mixer modes in SMC-01, encoders edit visible fields. O
 
 SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
 
+SMC-05. A main-mixer fader or knob move that shows PICK F / SMC F / SMC K also peeks the mapped meter page for about 1200 ms from the last move, then restores the prior view, page, mixsel and prev_view. Strips 1–5 → MIX PARTS with mixsel = strip; strip 6 → FX REVERB; strip 7 → FX DELAY; strip 8 → MIX MASTER. Peek and restore assign view/page and call build_pages only (not set_view). No peek during clip mode, help, any overlay (menu/ASK), or performance tests; drum MIX pages skip peek. Continued moves on the same peek refresh the hold. [CODE firmware/src/app/smc_mixer.c smc_peek_begin]
+
 ## 18. Open questions
 
 These are disagreements between the code and a source document, or behavior that needs an owner decision. Do not report them as defects. Do not fix them without an owner decision.

@@ -1,0 +1,24 @@
+You are Stage 4 (Validate) of the seven-stage fresh-thread workflow for X0X37 SMC mixer UI popup.
+
+## Context
+Owner request: SMC mixer temporarily pops the real mapped UI page, holds ~1200 ms, then restores. Stage 2 implemented peek/hold/restore; Stage 3 re-ran the focused SMC host suite and recorded PASS. Stage 6 install must be LOCAL later. Do not install firmware in this thread.
+
+Read first:
+- `docs/audit/smc-mixer-ui-popup-2026-10-22.md`
+- `evidence/smc-mixer-ui-popup-stage2/HANDOFF.md`
+- `evidence/smc-mixer-ui-popup-stage3/HANDOFF.md`
+- `evidence/smc-mixer-ui-popup-stage3/stage4-prompt.txt`
+
+## Your job (stage 4 only)
+1. `git fetch origin cursor/smc-mixer-ui-popup-stage3-5686` and check out that branch tip (evidence on tested code). Record `git rev-parse HEAD`. Tested code tip is `5109ef613d212ce8a261ddf75ee1f0e844b0bbbc` (implementation `ad4f311`; tests from `d91a489`).
+2. Create branch `cursor/smc-mixer-ui-popup-stage4-5686` from that tip for stage-4 evidence commits.
+3. Validate Elite and Pro DEV package identities if the toolchain is available. Save build/identity logs under `evidence/smc-mixer-ui-popup-stage4/`. If the toolchain is missing, record the exact gap and do not invent PASS package records.
+4. Dispose failures: fix on a repair path or start exactly one fresh stage-2 repair thread (then fresh stage 3) with a clear defect report. Do not ignore failures.
+5. On PASS: commit stage-4 evidence, push, update/create draft PR with ManagePullRequest (not `gh pr create` if it 403s), and start exactly one fresh Stage 5 (Merge) cloud thread with the validated SHA and evidence paths. If you cannot create a cloud successor, record the Stage 5 prompt under `evidence/smc-mixer-ui-popup-stage4/` and state clearly that the parent must launch Stage 5.
+6. Do NOT install firmware. Do NOT merge to main. Do NOT implement page-lock/multi-SMC.
+
+## Behavior under test (SMC-05) — already host-PASSed in stage 3
+Strips 1–5 → V_MIX PARTS mixsel=strip; 6 → V_FX REVERB; 7 → V_FX DELAY; 8 → V_MIX MASTER; hold 1200 ms with refresh; peek on PICK/SMC; restore without set_view; no peek in clip/help/overlay/perf_testing.
+
+Stage-3 evidence: `evidence/smc-mixer-ui-popup-stage3/` (RESULTS.txt, SUMMARY.txt, logs, SHA256SUMS).
+Draft implementation PR (if present): https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/10

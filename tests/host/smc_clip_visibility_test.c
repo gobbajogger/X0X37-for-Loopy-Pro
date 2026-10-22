@@ -44,6 +44,8 @@ static void turn_ref(pref_t r, int delta, int enc)
 }
 static uint32_t plat_ms(void) { return 1234u; }
 static void smc_show(int n, int knob, pref_t r) { (void)n; (void)knob; (void)r; notices++; }
+static void smc_peek_tick(void) {}
+static void smc_peek_cancel(void) {}
 #include "smc_input.inc"
 #include "smc_turn.inc"
 

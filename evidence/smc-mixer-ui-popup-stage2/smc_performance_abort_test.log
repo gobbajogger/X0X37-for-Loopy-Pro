@@ -1,0 +1,5 @@
+PASS: DAW STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: direct User MMC STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: host User note STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: host User MMC0 STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+PASS: host User MMC1 STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
