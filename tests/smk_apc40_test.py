@@ -73,7 +73,16 @@ assert "smk_clip_pages" not in main
 assert "note != 0xFFu && apc_led_velocity[note] != 0u" in main
 assert "smk_apc40_physical_pad_for_logical((uint8_t)logical)" in main
 assert "smk_apc40_logical_pad_for_physical((uint8_t)i)" in main
-assert "sent_note[i] = note" in main and "apc_note(sent_note[i], 0u)" in main
+# Keep the press-time note until release, even if the view or feedback changes.
+clip_pads = main.split("        /* simple pad press: send note on rising edge, note-off on falling */", 1)[1].split("    smk_grid();", 1)[0]
+assert "clip_pad_keys = fm1_in.pnotes;   /* suppress false rising edges from pads held at entry */" in clip_pads
+assert "edge = now & ~clip_pad_keys, fall = clip_pad_keys & ~now" in clip_pads
+assert re.search(r"if \(edge & bit\).*?clip_pad_note\[i\] = note;\s*apc_note\(note, fm1_in.pad_vel\[i\]\);", clip_pads, re.S)
+assert re.search(r"if \(\(fall & bit\) && clip_pad_note\[i\] != 0xFFu\).*?apc_note\(clip_pad_note\[i\], 0u\);\s*clip_pad_note\[i\] = 0xFFu;", clip_pads, re.S)
+# Mode exit releases only notes that were sent, then clears the edge history.
+clip_exit = clip_pads.split("/* mode exit: send note-off only for pads that received a note-on */", 1)[1]
+assert re.search(r"if \(clip_pad_note\[i\] != 0xFFu\).*?apc_note\(clip_pad_note\[i\], 0u\);\s*clip_pad_note\[i\] = 0xFFu;", clip_exit, re.S)
+assert "clip_pad_active = 0;" in clip_exit and "clip_pad_keys = 0;" in clip_exit
 assert "if (d1 <= 98u)\n        return owned;" in main
 print("PASS origin-normalized sparse maps and single-view pad rendering")
 
@@ -134,7 +143,9 @@ assert "clip_mode && panel.btn[i] <= FM1_BTN_OCT_UP" in plat
 # clip keys: the keybed stays out of the X0X UI; a held pad still blocks its white key (main_fm1.c)
 assert "if (smk_clip_mode_on() || smk_padcal_on())\n#else\n    if (smk_clip_mode_on())\n#endif\n        return;" in ui   # CLP-79: also in the pad calibration (dev build)
 assert "w >= 0 && ((fm1_in.pnotes >> (k - SMK_KEY_F3)) & 1u)" in main
-assert "if (smk_clip_mode_on())" in main and "enter_uboot(\"UBOOT\")" in main
+update_hold = main.split("/* OCT- + OCT+ held 5 s: update mode (Felucca's, unchanged) */", 1)[1].split("/* Project transfers cannot queue an update across COMMIT or ABORT. */", 1)[0]
+assert re.search(r"if \(ui_project_busy\(\)\s*#if BOARD_SMK37\s*\|\| smk_clip_mode_on\(\)\s*#endif\s*\)\s*\{\s*t0 = fm1_ms;\s*shown = 0;\s*\} else", update_hold)
+assert 'else if (fm1_ms - t0 > 5000u)' in update_hold and 'enter_uboot("UBOOT");' in update_hold
 assert "0xF0, 0x47, 0x7F, 0x29, 0x61, 0x00, 0x09" in usb
 assert "apc40_introduction_reply();" in usb
 print("PASS clip input isolation and APC40 initialization handshake")
