@@ -76,6 +76,19 @@
   .drop input { display: none; }
   ol { margin: 0 0 16px; padding-left: 20px; }
   .meta { font-size: 12px; color: var(--dim); margin: 0 0 14px; }
+
+  .build-detail {border-left:3px solid var(--busy);padding:8px 12px;margin:12px 0;background:var(--card)}
+  .build-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .build-badge{border:1px solid var(--rule);border-radius:5px;padding:2px 7px;font-size:12px;font-weight:bold}
+  .build-badge.important{border-color:var(--busy);color:var(--busy)}
+  .build-badge.blocked{border-color:var(--err);color:var(--err)}
+  #devagreewrap{display:block;font-weight:bold;margin:12px 0}
+  #devagreewrap[hidden]{display:none}
+  .build-item{border-top:1px solid var(--rule);padding:12px 0}
+  .build-item h3{font-size:16px;margin:0 0 5px}
+  .build-item p{margin:5px 0}
+  .build-item button{margin:5px 0;padding:7px 12px}
+  .build-item .meta,#buildprovenance{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -104,6 +117,14 @@
       </label>
     </div>
     <p class="meta" id="pkgmeta"></p>
+    <div class="build-detail" id="builddetail" hidden>
+      <div class="build-badges" id="buildbadges"></div>
+      <p class="small" id="buildsummary"></p>
+      <p class="meta" id="buildprovenance"></p>
+      <p class="small"><a id="buildevidence" href="#" rel="noopener noreferrer" target="_blank" data-t="evidencelink">Build evidence</a></p>
+      <p class="small" data-t="ctrlwarning">Direct SMC Bluetooth requires a separately built ctl.img; it is not bundled.</p>
+      <label id="devagreewrap" hidden><input type="checkbox" id="devagree"> <span data-t="devagree">I understand this is hardware-untested development firmware; I must verify the exact model and make a backup before flashing.</span></label>
+    </div>
     <details class="model" id="modeldetails">
       <summary data-t="flashother">Flash another keyboard version</summary>
       <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
@@ -119,6 +140,12 @@
     <pre id="log"></pre>
   </section>
 
+
+  <section class="panel" id="buildarchive">
+    <h2 data-t="archiveheading">Build history</h2>
+    <p class="small" data-t="archiveintro">SHA-verified packages are distinguished from source-only checkpoints, missing archives and failed builds. A source commit is not a flashable firmware image.</p>
+    <div id="buildhistory"></div>
+  </section>
   <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a></p>
   <p class="small"><a href="../manual/" data-t="manual">The manual</a>
     · <a href="../new/" data-t="whatsnew">What's new</a>
@@ -1171,6 +1198,11 @@ const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
 const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
+    latestdev: "最新の利用可能な DEV", devchecked: "DEV CHECKED", hardwareuntested: "実機未テスト", superseded: "旧ビルド・非推奨",
+    devagree: "実機未テストの開発版であることを理解し、機種ID・サンプルのバックアップ・ローカル検証を確認します。",
+    ctrlwarning: "SMC Bluetoothには別途ビルドした ctl.img が必要です。上で選択してください。付属していません。",
+    evidencelink: "開発検証記録", archiveheading: "ビルド履歴", archiveintro: "SHA確認済みビルドとソースのみの状態・未入手アーカイブ・失敗ビルドを区別します。コミットだけではインストールできません。",
+    choosebuild: "このビルドを選ぶ", otherbuilds: "その他のチェックポイント (インストール不可)", unapproved: "このパッケージには機種別検証記録がないため、自動インストールできません。",
     title: "X0X をインストール",
     intro: "USB で機器を接続し、バージョンと機種を選んでください。（Chrome か Edge）",
     warn: "書き込み中は USB を抜かないでください。",
@@ -1233,6 +1265,11 @@ const TEXT = {
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
+    latestdev: "LATEST AVAILABLE DEV", devchecked: "DEV CHECKED", hardwareuntested: "HARDWARE UNTESTED", superseded: "SUPERSEDED",
+    devagree: "I understand this is hardware-untested development firmware. I must verify the exact model, back up samples and use guarded local validation.",
+    ctrlwarning: "Direct SMC Bluetooth requires a separately built ctl.img (select it above). The controller image is not bundled.",
+    evidencelink: "Development validation record", archiveheading: "Build history", archiveintro: "SHA-verified builds are separated from source-only checkpoints, unavailable archives and failed builds. A source commit alone is not flashable firmware.",
+    choosebuild: "Select this build", otherbuilds: "Other checkpoints — not available for installation", unapproved: "No model-specific development/release validation for this package. Automatic installation is disabled.",
     title: "Install X0X",
     intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
     warn: "Do not unplug the USB cable while writing.",
@@ -1305,13 +1342,14 @@ function applyLang() {
   $("conn").textContent = connected ? t("connected") : t("notconnected");
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
   refreshMeta();
+  renderBuildHistory();
 }
 $("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
 const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (txt) => { $("log").textContent += txt + "\n"; };
 
-const catalog = {"repo":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro","pages":"https://gobbajogger.github.io/X0X37-for-Loopy-Pro","latest":null,"versions":[]};
+const catalog = {"schema":2,"repo":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro","pages":"https://gobbajogger.github.io/X0X37-for-Loopy-Pro","latest":"dev-20261022-1638-e894804","versions":[{"version":"dev-20261022-1638-e894804","title":"SMC-07 mixer popup + main help-card merge","built_at":"2026-10-22T16:38:00Z","source_commit":"e894804dfdb0bb66c7247eb1846313a215422c9f","status":"dev-checked","lifecycle":"current","hardware_tested":false,"description":"SMC mixer peek/hold/restore integrated with main 909/808 drum mixer, record feedback and help card. Newest recovered DEV CHECKED packages; physical installation remains pending.","notes":"DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.","evidence_url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt","models":{"elite":{"product":"SMK-37 Elite_900","pkg":"../firmware/x0x37-dev-20261022-1638-e894804-elite.fwsc","size":651396,"sha256":"19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"},"pro":{"product":"SMK-37 Pro_900","pkg":"../firmware/x0x37-dev-20261022-1638-e894804-pro.fwsc","size":651392,"sha256":"ca458e0e4fe216ec349566d4a122ad65498d78aabc21c9e01dfe8d7e8494d56f","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"}}},{"version":"dev-20261022-1629-116d903","title":"SMC-07 mixer popup: pre-help-card checkpoint","built_at":"2026-10-22T16:29:31Z","source_commit":"116d9030f18ec251c37c3bd09ffcad2eb0a613be","status":"dev-checked","lifecycle":"superseded","hardware_tested":false,"description":"Previously validated merge candidate; replaced by the 16:38 UTC build after integrating the main help-card. Keep only for regression comparison.","notes":"DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.","evidence_url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt","models":{"elite":{"product":"SMK-37 Elite_900","pkg":"../firmware/x0x37-dev-20261022-1629-116d903-elite.fwsc","size":651396,"sha256":"b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"},"pro":{"product":"SMK-37 Pro_900","pkg":"../firmware/x0x37-dev-20261022-1629-116d903-pro.fwsc","size":651392,"sha256":"8008b633b96e5c33a4bb7dbb7adb98b5e7315720c1d64446664209aadeccee57","validation_record":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"}}}],"history":[{"id":"smc-peek-later","title":"SMC peek-overlay guard","source_commit":"877f512b384fa4e903dd5b868af1fee1f7007362","status":"source-only","date":"2026-10-22","models":["elite","pro"],"description":"Newer source/PR #19; no matching validated firmware package. Existing archived binaries in this branch predate the new source.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19"},{"id":"current-main","title":"Current main source","source_commit":"c9718ae833eb64a5191c350922593df8a36017c9","status":"source-only","date":"2026-10-23","models":[],"description":"Repository source head only. Do not confuse branch recency with the latest verified firmware artifact.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main"},{"id":"older-integrated-smc","title":"Integrated SMC and project management","source_commit":"ab121324455e06e5fad0a8a2f16d897177965acf","status":"not-hosted","date":"2026-10-22","models":["elite","pro"],"description":"Earlier Elite/Pro DEV CHECKED installer archives are mentioned in development handoffs; original package bytes are not hosted in the GitHub installer. No flash link.","url":null},{"id":"direct-smc-elite","title":"Direct-SMC Elite development reference","source_commit":"81459573792a68edd02fa1ee5658796b55597ba0","status":"not-hosted","date":"2026-10-21","models":["elite"],"description":"Previous Elite-only installer ZIP verified in a separate environment; original package is not hosted here and physical link behavior was not established.","url":null},{"id":"project-save-stage","title":"Project reset/save/load/export stage","source_commit":"68e1117262aba958f96b6eb65cb3bfb1b3cc94ce","status":"evidence-only","date":"2026-10-21","models":["elite","pro"],"description":"DEV CHECKED results recorded; original binaries are not recovered as accessible GitHub firmware packages.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/audit/project-management-dev-validation.md"},{"id":"xip-failed","title":"SMC mixer popup XIP overflow","source_commit":"df1b204745e78784cccfe41b03e75ac4f105eb2b","status":"failed","date":"2026-10-22","models":["elite","pro"],"description":"DEV build failed the XIP budget. Not installable; retained to explain why the subsequent repair was needed.","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/12"},{"id":"smc-physical-ref","title":"Earlier SMC connected reference","source_commit":"53d5654c9bbaec10b64c55fb60d0e7d857ba8156","status":"reference","date":"2026-10-21","models":["elite"],"description":"SMC connection and RX controls were observed in a prior device report, but the exact installed firmware attribution is unproven. Not a verified flash artifact.","url":null}]};
 let catalogLive = catalog;
 const repo = catalog.repo || "https://github.com/gobbajogger/X0X37-for-Loopy-Pro";
 $("repolink").href = repo;
@@ -1320,6 +1358,7 @@ $("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
 let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
+let loadSerial = 0;
 
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
@@ -1448,11 +1487,73 @@ function refreshModelUi() {
 function refreshMeta() {
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); return; }
+  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("builddetail").hidden = true; updateInstallGate(); return; }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
   $("download").href = pkg.pkg;
   $("download").download = pkg.pkg.split("/").pop();
+  renderBuildInfo(ver,pkg);
+}
+
+function isCatalogChecked(v,p) {
+  return !!v && !!p && (v.status === "dev-checked" || v.status === "release-checked")
+    && /^[0-9a-f]{64}$/.test(p.sha256 || "");
+}
+function updateInstallGate() {
+  const v = currentVersion(), p = v && v.models && v.models[chosenModel];
+  $("go").disabled = writing || !image || !isCatalogChecked(v,p)
+    || (v.status === "dev-checked" && !$("devagree").checked);
+}
+function buildBadge(txt,kind) {
+  const x = document.createElement("span"); x.className="build-badge"+(kind?" "+kind:""); x.textContent=txt;return x;
+}
+function renderBuildInfo(v,p) {
+  $("builddetail").hidden=false;
+  const b=$("buildbadges");b.replaceChildren();
+  if(v.version===catalogLive.latest && v.status==="dev-checked") b.append(buildBadge(t("latestdev"),"important"));
+  if(v.status==="dev-checked") b.append(buildBadge(t("devchecked")));
+  if(v.hardware_tested!==true) b.append(buildBadge(t("hardwareuntested"),"important"));
+  if(v.lifecycle==="superseded") b.append(buildBadge(t("superseded"),"blocked"));
+  $("buildsummary").textContent=v.description||v.title||"";
+  $("buildprovenance").textContent="Source: "+(v.source_commit||"unknown")+
+    " · "+(v.built_at||"undated")+" · SHA-256: "+(p.sha256||"not recorded");
+  const link=$("buildevidence");link.hidden=!v.evidence_url;
+  if(v.evidence_url)link.href=v.evidence_url;else link.removeAttribute("href");
+  $("devagreewrap").hidden=v.status!=="dev-checked";
+  updateInstallGate();
+}
+function renderBuildHistory() {
+  const box=$("buildhistory");box.replaceChildren();
+  for(const v of versions()) {
+    const el=document.createElement("article");el.className="build-item";
+    const h=document.createElement("h3");h.textContent=(v.title||v.version)+" · "+v.version;el.append(h);
+    const badges=document.createElement("div");badges.className="build-badges";
+    if(v.version===catalogLive.latest && v.status==="dev-checked")badges.append(buildBadge(t("latestdev"),"important"));
+    if(v.status==="dev-checked")badges.append(buildBadge(t("devchecked")));
+    if(v.hardware_tested!==true)badges.append(buildBadge(t("hardwareuntested"),"important"));
+    if(v.lifecycle==="superseded")badges.append(buildBadge(t("superseded"),"blocked"));
+    el.append(badges);
+    const p=document.createElement("p");p.textContent=v.description||"";el.append(p);
+    const m=document.createElement("p");m.className="meta";
+    m.textContent=(v.built_at||"")+" · "+(v.source_commit||"")+" · Models: "+Object.keys(v.models||{}).join(", ");
+    el.append(m);
+    if(["dev-checked","release-checked"].includes(v.status)){
+      const btn=document.createElement("button");btn.type="button";btn.textContent=t("choosebuild");
+      btn.addEventListener("click",()=>{$("version").value=v.version;refreshModelUi();loadSelectedPackage();$("pick").scrollIntoView({block:"start"});});
+      el.append(btn);
+    }
+    box.append(el);
+  }
+  if((catalog.history||[]).length){const h=document.createElement("h3");h.textContent=t("otherbuilds");box.append(h);}
+  for(const b of catalog.history||[]){
+    const el=document.createElement("article");el.className="build-item";
+    const h=document.createElement("h3");h.textContent=b.title||b.id;el.append(h);
+    const m=document.createElement("p");m.className="meta";
+    m.textContent=(b.status||"unknown").toUpperCase().replace(/-/g," ")+" · "+(b.source_commit||"")+" · "+(b.models||[]).join(", ");el.append(m);
+    const p=document.createElement("p");p.textContent=b.description||"";el.append(p);
+    if(b.url){const a=document.createElement("a");a.href=b.url;a.rel="noopener noreferrer";a.target="_blank";a.textContent="Source / evidence";el.append(a);}
+    box.append(el);
+  }
 }
 async function sha256Hex(buf) {
   const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))]
@@ -1460,20 +1561,23 @@ async function sha256Hex(buf) {
   return hex;
 }
 async function loadSelectedPackage() {
+  const requestId = ++loadSerial;
+  $("devagree").checked = false;
   image = null; selectedProduct = null;
   $("go").disabled = true;
   refreshMeta();
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
   if (!pkg) { sayK("noproduct"); return; }
+  if (!isCatalogChecked(ver,pkg)) { sayK("unapproved"); return; }
   try {
     const r = await fetch(pkg.pkg);
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
     const raw = new Uint8Array(await r.arrayBuffer());
-    if (pkg.sha256) {
-      const hex = await sha256Hex(raw.buffer);
-      if (hex !== pkg.sha256) { sayK("badpkg"); return; }
-    }
+    if (requestId !== loadSerial) return;
+    const hex = await sha256Hex(raw.buffer);
+    if (requestId !== loadSerial) return;
+    if (hex !== pkg.sha256) { sayK("badpkg"); return; }
     const product = productOf(raw);
     if (!pkg.fromRelease && product !== pkg.product) { sayK("badpkg"); return; }
     if (pkg.fromRelease) {
@@ -1484,8 +1588,8 @@ async function loadSelectedPackage() {
     image = logicalImage(raw);
     selectedProduct = product;
     say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
-    $("go").disabled = writing;
     refreshMeta();
+    updateInstallGate();
   } catch (e) { sayK("loadfail", e.message); }
 }
 
@@ -1514,7 +1618,7 @@ function fillVersions() {
   for (const v of list) {
     const o = document.createElement("option");
     o.value = v.version;
-    o.textContent = v.version + (v.version === catalogLive.latest ? " (latest)" : "");
+    o.textContent = v.version + (v.version === catalogLive.latest ? " · LATEST AVAILABLE DEV" : "") + (v.lifecycle === "superseded" ? " · SUPERSEDED" : "") + (v.status === "dev-checked" ? " · DEV CHECKED · HARDWARE UNTESTED" : " · NOT VERIFIED");
     sel.append(o);
   }
   const prefer = cur && list.some((v) => v.version === cur) ? cur
@@ -1522,6 +1626,7 @@ function fillVersions() {
   if (prefer) sel.value = prefer;
   refreshModelUi();
   loadSelectedPackage();
+  renderBuildHistory();
 }
 
 function confirmWrite(product) {
@@ -1529,6 +1634,7 @@ function confirmWrite(product) {
   return window.confirm(t("confirm") + from + t("confirmto") + product + t("confirmrisk"));
 }
 $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
+$("devagree").addEventListener("change", updateInstallGate);
 
 async function mergeGitHubReleases() {
   // Optional: add release assets not already in the catalog so any GitHub Release is installable.
@@ -1686,12 +1792,12 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
-  $("go").disabled = !image;
+  updateInstallGate();
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
 }
 
 $("go").addEventListener("click", () => {
-  if (!image || !selectedProduct || writing) return;
+  if (!image || !selectedProduct || writing || $("go").disabled) return;
   if (!confirmWrite(selectedProduct)) return;
   let img = image;
   if (ctl) {
