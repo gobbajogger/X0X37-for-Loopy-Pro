@@ -17,5 +17,8 @@
   "stage5_blocked_reason": "Stage 4 FAIL \u2014 must repair flash fit before merge",
   "agent_source": "internal",
   "stage4_owner": "bc-03fb7159-af1e-5d80-837b-f4bec84f0cb4",
-  "parent_action_required": "Launch exactly one fresh Stage-2 REPAIR cloud agent with SUCCESSOR-STAGE2-REPAIR.txt / stage2-repair-prompt.txt. Do not launch Stage 5 on 5109ef6."
+  "parent_action_required": "Launch exactly one fresh Stage-2 REPAIR cloud agent with SUCCESSOR-STAGE2-REPAIR.txt / stage2-repair-prompt.txt. Do not launch Stage 5 on 5109ef6.",
+  "tip": "75b53dbb24ea7cee4a6416236e230583d5d42f72",
+  "pushed": true,
+  "remote": "origin/cursor/smc-mixer-ui-popup-stage4-5686"
 }
