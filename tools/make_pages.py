@@ -140,7 +140,7 @@ a { color: var(--accent); }
 <p class="lede">Groovebox firmware for the M-VAVE SMK-37 (Pro, Elite, MKE-P37) and the FM-1.
 A 909, an 808, two 303s with TB-3PO, and a breakbeat player — with an APC40-style clip launcher
 for Loopy Pro on the SMK-37.</p>
-<div class="status">Install any published version from Chrome or Edge over USB. The sample importer
+<div class="status">Install only after checking the model and sample backup. Development builds are available for evaluation but have not passed physical-device tests. Chrome or Edge, USB. The sample importer
 puts your own loops into the BREAK slots. Installing is at your own risk; packages keep the
 keyboard's model name so M-UPGRADE still works.</div>
 <nav class="ways" aria-label="Get X0X">
@@ -148,7 +148,7 @@ keyboard's model name so M-UPGRADE still works.</div>
   <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part from Chrome or Edge.</span></a>
   <a href="projects/"><strong>Projects</strong><span>Save, load and reset on the keyboard, or export a project with its original samples.</span></a>
   <a href="manual/"><strong>Manual</strong><span>Getting started, then everything else — including the SMK-37 map.</span></a>
-  <a href="__REPO__/releases"><strong>All releases</strong><span>Firmware files for the command line: <code>python3 tools/fm1_install.py …</code></span></a>
+  <a href="install/#buildarchive"><strong>Build history</strong><span>Compare DEV CHECKED packages, superseded versions, source-only checkpoints and verification evidence.</span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. Built on Felucca by Hügelton Instruments.</span></a>
 </nav>
 <p class="small">SMK-37 control map: see <a href="__REPO__/blob/main/SMK37.md">SMK37.md</a>.
@@ -163,7 +163,9 @@ M-VAVE, FM-1 and SMK-37 are trademarks of their owners. Loopy Pro is a product o
 
 def load_catalog(path: Path | None) -> dict:
     if not path or not path.is_file():
-        return {"repo": REPO, "pages": PAGES, "latest": None, "versions": []}
+        path = SRC / "data" / "installer-builds.json"
+        if not path.is_file():
+            return {"repo": REPO, "pages": PAGES, "latest": None, "versions": []}
     data = json.loads(path.read_text(encoding="utf-8"))
     data.setdefault("repo", REPO)
     data.setdefault("pages", PAGES)
@@ -174,7 +176,7 @@ def load_catalog(path: Path | None) -> dict:
 def merge_version(catalog: dict, version: str, models: dict) -> dict:
     """Insert or replace one version entry; keep other versions' packages."""
     versions = [v for v in catalog.get("versions", []) if v.get("version") != version]
-    entry = {"version": version, "models": {}}
+    entry = {"version": version, "title": version, "status": "pending-verification", "hardware_tested": False, "models": {}}
     for key, meta in models.items():
         entry["models"][key] = {
             "product": meta["product"],
@@ -210,6 +212,9 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
                     shutil.copy2(f, out / "firmware" / f.name)
     for name, src in copy_pkgs.items():
         shutil.copy2(src, out / "firmware" / name)
+    missing = sorted(name for name in keep if not (out / "firmware" / name).is_file())
+    if missing:
+        raise SystemExit("missing referenced catalog firmware; merge the previous gh-pages site: " + ", ".join(missing))
 
     # Installer: inline libraries + catalog (paths relative to install/)
     page = (SRC / "web" / "x0x_installer.html").read_text(encoding="utf-8")
@@ -250,7 +255,10 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
         shutil.copytree(SRC / "docs" / "img" / "new", out / "new" / "img" / "new")
 
     latest = catalog.get("latest") or (catalog["versions"][0]["version"] if catalog["versions"] else "")
-    ver_label = f" v{html.escape(str(latest))}" if latest else ""
+    ver_label = (" (latest DEV)" if any(
+        v.get("version") == latest and v.get("status") == "dev-checked"
+        for v in catalog["versions"]) else
+        (f" v{html.escape(str(latest))}" if latest else ""))
     landing = (LANDING.replace("__VERSION_LABEL__", ver_label)
                       .replace("__REPO__", REPO))
     (out / "index.html").write_text(landing, encoding="utf-8")

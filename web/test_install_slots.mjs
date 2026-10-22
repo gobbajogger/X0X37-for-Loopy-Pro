@@ -7,6 +7,8 @@
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import { execFileSync } from "node:child_process";
+import { createHash, webcrypto } from "node:crypto";
+if (!globalThis.crypto) globalThis.crypto = webcrypto;
 import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -302,7 +304,9 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   const catalog = JSON.stringify({
     repo: "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
     latest: "test",
-    versions: [{ version: "test", models: { [model]: { product, pkg: "x.fwsc", size: pkg.raw.length } } }],
+    versions: [{ version: "test", title: "Synthetic DEV checked slot test", status: "dev-checked", hardware_tested: false,
+      models: { [model]: { product, pkg: "x.fwsc", size: pkg.raw.length,
+        sha256: createHash("sha256").update(pkg.raw).digest("hex") } } }],
   });
   const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
   const flash = new Flash();
@@ -317,6 +321,8 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
       append(...nodes) { for (const n of nodes) this.children.push(n); },
       appendChild(n) { this.children.push(n); return n; },
       remove() {},
+      replaceChildren(...nodes) { this.children = [...nodes]; },
+      scrollIntoView() {},
       removeAttribute() {},
       click() { if (this.download) downloads.push({ name: this.download, href: this.href, blob: this.blob }); },
       set innerHTML(v) { this._html = v; this.children = []; this.value = ""; },
@@ -362,8 +368,16 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   URL.revokeObjectURL = () => {};
   Object.defineProperty(globalThis, "navigator", { configurable: true, value: { requestMIDIAccess: async () => dev.access } });
   await import("data:text/javascript;base64," + Buffer.from(js + `\n//${Math.random()}`).toString("base64"));
-  for (let i = 0; i < 200 && ids.go?.disabled !== false; i++) await new Promise((r) => setTimeout(r, 10));
-  if (!ids.go || ids.go.disabled !== false) throw new Error("installer page did not enable Install");
+  // The synthetic DEV package must remain blocked until explicit consent.
+  for (let i = 0; i < 200 && !/X0X test/.test(ids.status?.textContent || ""); i++)
+    await new Promise((r) => setTimeout(r, 10));
+  if (!/X0X test/.test(ids.status?.textContent || "")) throw new Error("installer did not verify test package");
+  if (!ids.go?.disabled) throw new Error("DEV page allowed install without acknowledgment");
+  ids.go.handlers.click(); // a disabled programmatic click must not start a hardware write
+  if (dev.upgrades !== 0) throw new Error("DEV page wrote before acknowledgment");
+  ids.devagree.checked = true;
+  ids.devagree.handlers.change();
+  if (ids.go.disabled) throw new Error("DEV page did not enable Install after verified hash and acknowledgment");
   if (!ids.go.handlers.click) throw new Error("installer page has no Install click handler");
   const before = ids.status.textContent;
   const clicked = ids.go.handlers.click();
