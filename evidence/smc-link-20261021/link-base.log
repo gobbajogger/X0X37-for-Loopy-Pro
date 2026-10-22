@@ -1,0 +1,13 @@
+FAIL: transport=1 application=0 dispatched=0 reason=2
+FAIL reconnect
+FAIL: transport=1 application=0 dispatched=0 reason=2
+FAIL reconnect-late
+FAIL: transport=0 application=1 dispatched=3 reason=0
+FAIL disconnect
+FAIL: transport=0 application=1 dispatched=3 reason=0
+FAIL disconnect-late
+PASS stable-pickup
+PASS coalesced-edges
+PASS project-reset
+PASS disconnect-clears-solo
+FAIL: 4/8 SMC link cases: [('reconnect', 1), ('reconnect-late', 1), ('disconnect', 1), ('disconnect-late', 1)]

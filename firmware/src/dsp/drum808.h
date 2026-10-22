@@ -201,6 +201,9 @@ void drum808_render(drum808_t *d, float *dry, float *rev, float *dly, int n);
 /* X0X stereo: each track placed by its PAN into dry_l / dry_r (sends mono); all centred, both are
  * drum808_render's dry exactly */
 void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly, int n);
+/* Only selected tracks reach dry/send buses; every voice still advances normally. */
+void drum808_render_st_masked(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly,
+                             int n, uint16_t audible_tracks);
 void drum808_pan_settle(drum808_t *d);   /* every pan to its target at once (the kit is silent: no zipper) */
      /* ADDS this block (mono, n <= 256) into the dry bus and the reverb / delay send buses */
 int drum808_nparams(int track);                           /* D8_KIT = kit-wide */

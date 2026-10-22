@@ -1,0 +1,73 @@
+{
+  "timestamp_utc": "2026-10-21T04:09:51.513204+00:00",
+  "repository": "/workspace/scratch/9d5aa4f082c9/x0x37-feedback",
+  "base_commit": "cb3c0502ae405af0a76325727d92ba1667d2982d",
+  "head": "cb3c0502ae405af0a76325727d92ba1667d2982d",
+  "branch": "lane/mb-smc-feedback-20261021",
+  "baseline_source_sha256": "8768b6eada2690dd10f3ab6afd63575a0308f25d5b0432035d77a99808f40053",
+  "files_sha256": {
+    "firmware/src/app/smc_mixer.c": "83f97c302008ea032709df5fe0baab2a7de8292c077c1bfe54787042f73c91f6",
+    "tests/host/smc_feedback_test.py": "e65e60e75b8192c265d9c1804122bc669c5ffc9e7f337564af36c5464ff53aa3",
+    "tests/host/smc_filter_test.py": "6516bfabd8290b1dc96b62109c810464c3e8ff1a506228a652930b4a311828d7",
+    "tests/run_tests.sh": "e904e058d63eeda0b3a6daaa634ccb1ad9c4cc9a9783b6e81fbd9b78456ad405",
+    "firmware/src/app/ui.c": "c635a038f494c1d415b4f3e1e150d3113fef68a79bb52c565532c0d1ec4d3201",
+    "firmware/src/app/x0x.h": "aab43b60afe3e201f0a7ea76f4f9fdc3dadf25cbb7c662b2b13c3326a4757036",
+    "firmware/src/app/engine.h": "c06a8e6b98de2339c1492827ddd170855057695fab6f84344517a4d6d7e0e9dc",
+    "firmware/src/dsp/fxbus.h": "7dcb0a570ee66b956fd9aae5c10ee04021e50dc6d931a5e5519ab72baa2fb63e",
+    "firmware/src/dsp/master.h": "09f9df5b769c1576b77047aacb72789a19f1c4527c874eb29850ba561d7b54c0"
+  },
+  "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "runs": [
+    {
+      "name": "baseline-feedback",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_test.py"
+      ],
+      "environment": {
+        "SMC_SOURCE": "/workspace/scratch/9d5aa4f082c9/feedback-validation/baseline-smc_mixer.c"
+      },
+      "cwd": "/workspace/scratch/9d5aa4f082c9/x0x37-feedback",
+      "exit_code": 1,
+      "log": "/workspace/scratch/9d5aa4f082c9/feedback-validation/baseline-feedback.log"
+    },
+    {
+      "name": "fixed-scoped-runner",
+      "argv": [
+        "bash",
+        "tests/run_tests.sh",
+        "smc-feedback",
+        "smc-filter"
+      ],
+      "environment": {
+        "X0X_TEST_JOBS": "1"
+      },
+      "cwd": "/workspace/scratch/9d5aa4f082c9/x0x37-feedback",
+      "exit_code": 0,
+      "log": "/workspace/scratch/9d5aa4f082c9/feedback-validation/fixed-scoped-runner.log"
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "environment": {},
+      "cwd": "/workspace/scratch/9d5aa4f082c9/x0x37-feedback",
+      "exit_code": 0,
+      "log": "/workspace/scratch/9d5aa4f082c9/feedback-validation/diff-check.log"
+    }
+  ],
+  "scope": "Native production-function feedback regression; no target firmware build, installation, hardware test, commit or push.",
+  "production_scope_check": "Bytes outside smc_led match exact cb3c0502ae405af0a76325727d92ba1667d2982d source.",
+  "results": {
+    "baseline_expectations": 892,
+    "baseline_failures": 83,
+    "fixed_expectations": 892,
+    "fixed_failures": 0,
+    "smc_filter": "PASS",
+    "registered_scoped_runner": "PASS",
+    "diff_check": "PASS"
+  }
+}

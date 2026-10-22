@@ -73,9 +73,43 @@ static void edit(pref_t r, int n) {
     int old=pref_get(r), delta=old==d->max?-1:1;
     turn(n,delta); assert(pref_get(r)!=old);
 }
+/* A fast spin on strip 5 must not accelerate strip 1, or the panel's first knob. */
+static void knob_accel_isolated(void) {
+    pref_t slow, fast;
+    const x0x_param_t *ds, *df;
+    int before;
+    uint8_t panel_run;
+    smc_view(V_HOME, 0);
+    slow = smc_knob_target(0);
+    fast = smc_knob_target(4);
+    ds = pref_desc(slow);
+    df = pref_desc(fast);
+    assert(ds && df && ds->max >= 24 && df->max >= 24);
+    pref_set(slow, 40);
+    pref_set(fast, 40);
+    ui.enc_run[EN_K1] = 9;
+    ui.enc_t[EN_K1] = now_ms;
+    panel_run = ui.enc_run[EN_K1];
+    for (int i = 0; i < 6; i++) {
+        uint8_t msg[3] = {0xB0, 20, 1};
+        now_ms += 10;
+        smc_ble_midi(msg, 3);
+        smc_poll();
+    }
+    before = pref_get(slow);
+    now_ms += 10;
+    {
+        uint8_t msg[3] = {0xB0, 16, 1};
+        smc_ble_midi(msg, 3);
+        smc_poll();
+    }
+    assert(pref_get(slow) == before + 1);
+    assert(ui.enc_run[EN_K1] == panel_run);
+}
 static void scenario(void) {
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
     memset(&ui,0,sizeof ui); boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
+    knob_accel_isolated();
     if(route>=3) {
         uint8_t addr[6]={0};blec_init(&receiver,hci_send,hci_midi,0,addr);receive_ready();
         const uint8_t partial[]={0xF0,0x7F,0x7F};hci_input(partial,3,0);
