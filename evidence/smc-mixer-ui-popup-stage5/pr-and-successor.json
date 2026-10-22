@@ -36,5 +36,7 @@
     "ram_free": 508,
     "pool_free": 8364
   },
-  "recorded_utc": "2026-10-22T16:14:30Z"
+  "recorded_utc": "2026-10-22T16:14:30Z",
+  "evidence_tip": "5977f55ebdedec6c668325df72930c7082d840ed",
+  "pushed": false
 }
