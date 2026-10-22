@@ -21,5 +21,7 @@
   "pro_package_sha256": "7081aee83af0d923ff7b502f3f40e95898703334c821544244a9e21c4ab6d7a9",
   "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
   "tree": "d006ab424770b3afb13523bb54e360ee13c1b1e89b7c3e58dafa0ab6c88424ab",
-  "recorded_utc": "2026-10-22T16:09:52Z"
+  "recorded_utc": "2026-10-22T16:09:52Z",
+  "evidence_tip": "1c262296a41b5c9262d628e4494848bcbb1f0ed1",
+  "pushed": false
 }
