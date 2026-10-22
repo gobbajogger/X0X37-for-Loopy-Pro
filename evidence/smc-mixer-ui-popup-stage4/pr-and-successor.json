@@ -17,8 +17,10 @@
   "stage5_blocked_reason": "Stage 4 FAIL \u2014 must repair flash fit before merge",
   "agent_source": "internal",
   "stage4_owner": "bc-03fb7159-af1e-5d80-837b-f4bec84f0cb4",
-  "parent_action_required": "Launch exactly one fresh Stage-2 REPAIR cloud agent with SUCCESSOR-STAGE2-REPAIR.txt / stage2-repair-prompt.txt. Do not launch Stage 5 on 5109ef6.",
-  "tip": "75b53dbb24ea7cee4a6416236e230583d5d42f72",
+  "parent_action_required": "Launch exactly one fresh Stage-2 REPAIR cloud agent with evidence/smc-mixer-ui-popup-stage4/SUCCESSOR-STAGE2-REPAIR.txt and stage2-repair-prompt.txt. Fetch tip of origin/cursor/smc-mixer-ui-popup-stage4-5686. Do not launch Stage 5. Prefer noting draft PR #10; token cannot comment/create PRs.",
+  "tip": "4f896067328225fe94bd5c6e9267c78ad272aa15",
   "pushed": true,
-  "remote": "origin/cursor/smc-mixer-ui-popup-stage4-5686"
+  "remote": "origin/cursor/smc-mixer-ui-popup-stage4-5686",
+  "gh_pr_comment": "403 Resource not accessible by integration (addComment)",
+  "cloud_agents_api": "POST api.cursor.com/v0/agents -> 401 Invalid User API Key; no CURSOR_API_KEY"
 }

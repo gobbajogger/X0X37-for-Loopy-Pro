@@ -12,4 +12,4 @@ elite_baseline_free_bytes=488
 pro_baseline_free_bytes=504
 recorded_utc=2026-10-22T15:42:25Z
 successor=stage2-repair (NOT stage5)
-stage4_evidence_tip="'75b53dbb24ea7cee4a6416236e230583d5d42f72'"
+stage4_evidence_tip=4f896067328225fe94bd5c6e9267c78ad272aa15
