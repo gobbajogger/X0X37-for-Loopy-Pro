@@ -36,8 +36,11 @@
     "ram_free": 508,
     "pool_free": 8364
   },
-  "recorded_utc": "2026-10-22T16:16:34Z",
-  "evidence_tip": "5bea4c55edb808cb5d4b8fc423a3722389120bb4",
+  "recorded_utc": "2026-10-22T16:16:55Z",
+  "evidence_tip": "4b4082a0fd2740603a5bbb835c4882d1d93a0fe8",
   "pushed": true,
-  "pr_create_log": "evidence/smc-mixer-ui-popup-stage5/pr-create-attempt.log"
+  "pr_create_log": "evidence/smc-mixer-ui-popup-stage5/pr-create-attempt.log",
+  "pr13_isDraft": true,
+  "pr13_ready_attempt": "gh pr ready succeeded then --undo because mergeable=CONFLICTING; draft restored until integrator resolves conflicts",
+  "pr13_mergeable": "CONFLICTING"
 }

@@ -6,9 +6,9 @@ bb415f64c6420956c3593e0dc741b7950845e7a390adb6db0f1221c73396b6c0  evidence/smc-m
 8dbddbecd336e20190d7433f25455ced5d63b6bf03907e30cad07b66cbc491e3  evidence/smc-mixer-ui-popup-stage5/MERGE-INSTRUCTIONS.md
 dba509962c6444da3487c31310a27413ac6576ee750255c57c575cd071e15bec  evidence/smc-mixer-ui-popup-stage5/merge-status.txt
 a55e3b8f311e4f29b4f853cf1be81d7cce9170ba7ea0cbc079fe2a368adf39c6  evidence/smc-mixer-ui-popup-stage5/pr13-snapshot.json
-fb6e67b4e34b54c6c9e9baf4cf01f6a13c1f79929a50b731ba9df59f9844f0ed  evidence/smc-mixer-ui-popup-stage5/pr-and-successor.json
-5d09959edd576afbeca729319d0d9bf427d5d74b5c21be7a5f0bf22e902a78c7  evidence/smc-mixer-ui-popup-stage5/pr-create-attempt.log
-862a69423b14600cb186800cdf0ca56263ebf6730fc9d935974755232cd96f65  evidence/smc-mixer-ui-popup-stage5/RESULT.txt
+2226c0539b288379e98ab14cb91bfd3034995e3446b6a8a5fc4ded4931710b3e  evidence/smc-mixer-ui-popup-stage5/pr-and-successor.json
+efcc57a8fad8f23af0bdc70fe406849b22a591c18ee03e57147972d344d0472a  evidence/smc-mixer-ui-popup-stage5/pr-create-attempt.log
+c2d0e1793d97e930dcea5eb260e2814aa8a9c5d523e233eda7284214d416e5aa  evidence/smc-mixer-ui-popup-stage5/RESULT.txt
 3a574f4788228b0569674cdf584164956ddf876ed6e3b1f3cc6cfaaf4f6f6d97  evidence/smc-mixer-ui-popup-stage5/stage6-prompt.txt
 01f39fce46d5f770ca1f4ade950c4a25fe5536d2d872b2c9a051915c1f5a4423  evidence/smc-mixer-ui-popup-stage5/SUCCESSOR-STAGE6-PARENT.txt
 e7ca89d7efe2c13fd474f7bd8d20b8182d3ce4fef26a4ed6a74cdc083693d6b6  evidence/smc-mixer-ui-popup-stage5/SUCCESSOR-STAGE6.txt

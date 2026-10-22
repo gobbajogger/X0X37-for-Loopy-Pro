@@ -42,3 +42,7 @@ Disposition:
 - Do NOT implement page-lock/multi-SMC.
 - Do NOT re-open Stage-4 budgets on 828298d9 (unchanged). Re-open only
   after an integrator resolves firmware conflicts into a new tip.
+
+PR #13 write probe: gh pr ready briefly set isDraft=false, then --undo restored draft
+because mergeable remains CONFLICTING (not ready for merge review until conflicts resolve).
+Stage-5 evidence PR create: FAIL (createPullRequest 403). ManagePullRequest: UNAVAILABLE.
