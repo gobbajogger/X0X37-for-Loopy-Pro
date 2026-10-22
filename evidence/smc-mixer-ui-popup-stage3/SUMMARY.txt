@@ -1,0 +1,52 @@
+candidate_sha=5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
+stage3_branch=cursor/smc-mixer-ui-popup-stage3-5686
+stage3_owner=bc-eb2cd134-02cf-5366-b36c-e1c3258ad760
+started=2026-10-22T15:27:52Z
+finished=2026-10-22T15:28:16Z
+totals: suite_commands PASS=10 FAIL=0
+
+=== RUN smc_fader_test ===
+PASS smc_fader_test (exit=0)
+--- tail ---
+PASS: fader pickup, motion, inactive inputs and one final-value display
+
+=== RUN smc_buttons_test ===
+PASS smc_buttons_test (exit=0)
+--- tail ---
+PASS: strip shortcuts and page/menu arrows use explicit view/page/menu mappings
+
+=== RUN smc_mapping_test ===
+PASS smc_mapping_test (exit=0)
+--- tail ---
+PASS: both drum kits, 11 tracks, bank bounds, three knob modes, unique targets within each type, menus and stage isolation
+
+=== RUN smc_filter_test ===
+PASS smc_filter_test (exit=0)
+--- tail ---
+PASS: SMC filter destination and independent master mute light
+
+=== RUN smc_clip_visibility_test ===
+PASS smc_clip_visibility_test (exit=0)
+--- tail (last lines) ---
+(see smc_clip_visibility_test.log; suite exit 0)
+
+=== RUN smc_part_select_test ===
+PASS smc_part_select_test (exit=0)
+
+=== RUN smc_drum_mutes_test ===
+PASS smc_drum_mutes_test (exit=0)
+
+=== RUN smc_performance_abort_test ===
+PASS smc_performance_abort_test (exit=0)
+
+=== RUN smc_reachability_test ===
+PASS smc_reachability_test (exit=0)
+--- tail ---
+Route 0..4 each: PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths
+
+=== RUN smc_ui_popup_test ===
+PASS smc_ui_popup_test (exit=0)
+--- tail ---
+PASS: SMC UI peek map, hold refresh, restore and guards
+
+VERDICT=PASS
