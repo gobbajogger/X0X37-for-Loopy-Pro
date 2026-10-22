@@ -1,0 +1,14 @@
+{
+  "base": "e00741e2c1e8a018e7a7229dfd279e26aec34126",
+  "scope": "SMC mixer temporary mapped-page peek/hold/restore (SMC-05) after Stage-2 XIP repair. Firmware tip 828298d9db1a403919e7e4c8176db83512281bb2 on cursor/smc-mixer-ui-popup-stage2-repair-5686. Stage-3 host suite PASS (bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305). Prior Stage-4 FAIL on ad4f311 (XIP overflow). Stage 4 repair validates complete Elite and Pro DEV packages with controller for the repaired tip. No page-lock/multi-SMC.",
+  "checks": [
+    {
+      "reason": "SMC-05 peek map, hold refresh, restore without set_view, and clip/help/overlay/perf_testing guards.",
+      "argv": ["sh", "tests/host/smc_ui_popup_test.sh"]
+    },
+    {
+      "reason": "Existing SMC destination reachability remains intact after peek hooks.",
+      "argv": ["sh", "tests/host/smc_reachability_test.sh"]
+    }
+  ]
+}

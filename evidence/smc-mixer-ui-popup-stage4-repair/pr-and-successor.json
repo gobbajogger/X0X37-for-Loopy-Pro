@@ -1,0 +1,25 @@
+{
+  "stage": 4,
+  "verdict": "PASS",
+  "validated_firmware_sha": "828298d9db1a403919e7e4c8176db83512281bb2",
+  "stage4_branch": "cursor/smc-mixer-ui-popup-stage4-repair-5686",
+  "stage2_repair_branch": "cursor/smc-mixer-ui-popup-stage2-repair-5686",
+  "stage4_owner": "bc-ab3a29e8-bb90-5a5c-81a6-88320d3b99a3",
+  "successor": "stage5-merge",
+  "successor_prompt": "evidence/smc-mixer-ui-popup-stage4-repair/stage5-prompt.txt",
+  "create_agent_available": false,
+  "manage_pull_request_available": false,
+  "parent_must_launch_stage5": true,
+  "budgets": {
+    "code_free": 56,
+    "ram_free": 508,
+    "pool_free": 8364
+  },
+  "elite_identity": "SMK-37 Elite_900",
+  "pro_identity": "SMK-37 Pro_900",
+  "elite_package_sha256": "dfe17da6a21075caaf2661c6e7701e1c94761357d53e6456cebde7c3d1afe6d7",
+  "pro_package_sha256": "7081aee83af0d923ff7b502f3f40e95898703334c821544244a9e21c4ab6d7a9",
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "tree": "d006ab424770b3afb13523bb54e360ee13c1b1e89b7c3e58dafa0ab6c88424ab",
+  "recorded_utc": "2026-10-22T16:09:52Z"
+}

@@ -1,0 +1,14 @@
+Stage 5 MERGE — SMC mixer UI popup after Stage-4 repair PASS.
+
+Fresh stage-5 thread. Read evidence/smc-mixer-ui-popup-stage4-repair/HANDOFF.md and
+stage5-prompt.txt (full assignment).
+
+Validated firmware SHA: 828298d9db1a403919e7e4c8176db83512281bb2
+Stage-4 evidence branch: cursor/smc-mixer-ui-popup-stage4-repair-5686
+Stage-4 owner: bc-ab3a29e8-bb90-5a5c-81a6-88320d3b99a3
+Elite/Pro DEV CHECKED: 56 B code free, pool_free 8364, identities Elite_900 / Pro_900.
+Do not install in Stage 5. Stage 6 install is local only.
+Do not merge page-lock/multi-SMC scope.
+
+NOTE: This Stage-4 thread has no CreateAgent / ManagePullRequest tool.
+Parent must launch Stage 5 with stage5-prompt.txt if a cloud successor was not started.
