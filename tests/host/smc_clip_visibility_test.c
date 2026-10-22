@@ -84,8 +84,19 @@ static void covered(uint8_t overlay, uint8_t help)
         check("menu owns encoders without editing covered clip fields",
               !memcmp(before, fields, sizeof before) && dirty == d &&
               fallback_turns == ft + 8 && page_value == pv + 8);
+    } else if (help) {
+        if (clip_grid_mode && !(ck.pg & 3u)) {
+            /* Grid itself still swallows encoders; help must not become a second lock. */
+            check("help leaves clip-grid encoders inactive",
+                  !memcmp(before, fields, sizeof before) && dirty == d &&
+                  fallback_turns == ft && page_value == pv && ui.help == 1);
+        } else {
+            check("help leaves encoders working under the card",
+                  (dirty != d || fallback_turns != ft || page_value != pv ||
+                   memcmp(before, fields, sizeof before)) && ui.help == 1);
+        }
     } else {
-        check(help ? "help blocks clip fields and X0X fallback" : "confirmation blocks clip fields and X0X fallback",
+        check("confirmation blocks clip fields and X0X fallback",
               !memcmp(before, fields, sizeof before) && dirty == d && notices == nt &&
               fallback_turns == ft && page_value == pv && ui.act_t == act);
     }

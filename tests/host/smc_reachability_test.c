@@ -157,11 +157,10 @@ static void nav_strip_lamps(void) {
     assert(led_vel[7] == 127);
     assert(led_vel[31] == 0);
 }
-/* Help keeps fader targets and pickup so a strip can finish reaching its value.
- * Knobs stay parked (smc_knob_target returns NONE). */
-static void help_allows_fader_pickup(void) {
+/* Help is only a card: faders and knobs keep working, and the card stays up. */
+static void help_keeps_controls(void) {
     pref_t r;
-    int user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+    int user = !!(proj.set.bt & PROJ_BT_SMC_USER), after;
     uint8_t at, msg[3];
     smc_view(V_HOME, 0);
     r = smc_target(0);
@@ -179,10 +178,15 @@ static void help_allows_fader_pickup(void) {
     assert(ui.help && (smc.picked & 1));
     msg[2] = (uint8_t)(at < 120 ? at + 8 : at - 8);
     smc_ble_midi(msg, 3); smc_poll();
-    assert(pref_get(r) != 64);
-    turn(0, 1);
-    assert(pref_get(r) != 64);         /* knob still ignored under help */
-    ui.help = 0;
+    assert(ui.help && pref_get(r) != 64);
+    after = pref_get(r);
+    if (user) { msg[0] = 0xBF; msg[1] = 16; msg[2] = 1; }
+    else { msg[0] = 0xB0; msg[1] = 16; msg[2] = 1; }
+    smc_ble_midi(msg, 3); smc_poll();
+    assert(ui.help && pref_get(r) != after);
+    msg[0] = 0x90; msg[1] = 6; msg[2] = 127; /* R7 closes help; inject before HCI routes are armed */
+    smc_ble_midi(msg, 3); smc_poll();
+    assert(!ui.help);
 }
 static void scenario(void) {
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
@@ -191,7 +195,7 @@ static void scenario(void) {
     knob_accel_isolated();
     record_lamp_follows_part();
     nav_strip_lamps();
-    help_allows_fader_pickup();
+    help_keeps_controls();
     if(route>=3) {
         uint8_t addr[6]={0};blec_init(&receiver,hci_send,hci_midi,0,addr);receive_ready();
         const uint8_t partial[]={0xF0,0x7F,0x7F};hci_input(partial,3,0);
@@ -300,9 +304,9 @@ pickup: ;
     fader(0,127); turn(0,1); press(24);
     assert(pref_get(r)==old && smc_qr==smc_qw && smc_host_r==smc_host_w);
     perf.test=saved_test; perf.phase=saved_phase;
-    ui.help=1; int part=ui.part; old=pref_get(r); press(24); turn(0,1);
-    assert(ui.part==part && pref_get(r)==old); /* buttons and knobs stay blocked */
-    fader(0,0); fader(0,smc_scaled(r));       /* faders may still acquire under help */
+    ui.help=1; press(24); assert(ui.help && ui.part==0 && ui.view==V_PART);
+    old=pref_get(smc_knob_target(0)); turn(0,1);
+    assert(ui.help && pref_get(smc_knob_target(0))!=old); /* card stays; knob still edits */
     press(6); assert(!ui.help);
     /* Clip grid hides ordinary parameters; all three editors and nine ARP fields reachable. */
     clip_grid_mode=1; ck.pg=0; old=pref_get(pg.r[cur_page()][0]); turn(0,1);

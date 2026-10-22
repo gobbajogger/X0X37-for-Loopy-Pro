@@ -128,8 +128,8 @@ static int smc_drum_track(int kit, int strip)
 static pref_t smc_target(int n)
 {
     int kit, track;
-    /* Confirmation still parks faders. Help does not: physical faders must keep
-     * their targets so pickup can finish while the help card is up. */
+    /* Only a confirmation parks the surface. Help is a card only: controls keep
+     * working under it, including fader pickup toward the live target. */
     if (ui.overlay == O_ASK)
         return NONE;
     kit = smc_drum_mix();
@@ -145,7 +145,7 @@ static pref_t smc_target(int n)
 static pref_t smc_knob_target(int n)
 {
     pref_t r;
-    if (ui.help || ui.overlay == O_ASK)
+    if (ui.overlay == O_ASK)
         return NONE;
     if (ui.overlay == O_NONE && !smk_clip_mode_on() &&
         (ui.view == V_HOME || (ui.view == V_MIX && (cur_page() == 0 || drum_mix_page() >= 0))))
@@ -234,7 +234,7 @@ static void smc_knob(int n, int delta)
 {
     uint32_t saved_t;
     uint8_t saved_run;
-    if (ui.overlay == O_ASK || ui.help)
+    if (ui.overlay == O_ASK)
         return;
     if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
         return;                          /* a SCALE / CHORD / ARP page owns its visible fields */
@@ -322,8 +322,8 @@ static int smc_bank(uint8_t note)
 static void smc_button(uint8_t note, int mmc)
 {
     int row, strip;
-    if (ui.help) {
-        if (note == 6) ui.help = 0;       /* R7: back */
+    if (ui.help && note == 6) {          /* R7 closes the card; every other control keeps working under it */
+        ui.help = 0;
         return;
     }
     if (ui.overlay == O_ASK) {
@@ -517,16 +517,9 @@ void smc_poll(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
-    /* Help leaves fader pickup alone so a held strip can still reach its target.
-     * Confirmation and performance tests still drop pickup and solos. */
+    /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
         smc.picked = smc.seen = 0;
-        smc.knob_i = 0;
-        if (smc.solo) {
-            smc.solo = 0;
-            engine_smc_solo(0);
-        }
-    } else if (ui.help) {
         smc.knob_i = 0;
         if (smc.solo) {
             smc.solo = 0;

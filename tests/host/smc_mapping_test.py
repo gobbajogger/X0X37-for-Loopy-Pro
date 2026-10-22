@@ -101,6 +101,8 @@ int main(void) {
     }
     unique();
     ui.help=1;
+    for(int n=0;n<8;n++) assert(smc_same(smc_target(n),smc_home_target(n)));
+    ui.overlay=O_ASK;
     for(int n=0;n<8;n++) assert(smc_target(n).kind==R_NONE && smc_knob_target(n).kind==R_NONE);
     ui.help=0; ui.overlay=O_NONE; clip=1; stage=1;
     for(int n=0;n<8;n++) assert(smc_same(smc_target(n),smc_home_target(n)));

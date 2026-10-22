@@ -4,7 +4,7 @@ Receiving owner: the assigned firmware integration chat.
 
 The SMC faders use the main mixer mapping outside 909 MIX and 808 MIX. In those two pages, Bank Left selects tracks **1–8** and Bank Right selects tracks **9–11** (eleven drum tracks; engine slot 12 is kit-wide, not a twelfth drum). Faders, knobs and SELECT buttons 4–8 are inactive in the second bank. Keyboard track selection also selects the corresponding bank. Pickup resets when a target changes.
 
-Encoders edit visible page or menu fields. In the three mixer modes, knobs trim the same destinations as the faders. Unused positions do nothing. Clip editor encoders retain their visible fields. Confirmation screens block fader and encoder edits. Help blocks encoders but leaves fader pickup running so strips can still reach their targets. The main mixer faders remain available over ordinary menus and clip editor pages.
+Encoders edit visible page or menu fields. In the three mixer modes, knobs trim the same destinations as the faders. Unused positions do nothing. Clip editor encoders retain their visible fields. Confirmation screens block fader and encoder edits. Help is only a card: controls keep working under it until R7 closes it. The main mixer faders remain available over ordinary menus and clip editor pages.
 
 ## Input and changes
 

@@ -12,7 +12,7 @@ The eight faders use pickup. A fader starts changing a value when it reaches the
 | Open menu | Main mixer, same as HOME | Six visible rows. Headings, actions and unused positions are inactive |
 | Clip grid | Main mixer, same as HOME | Inactive; the hidden X0X page cannot receive edits |
 | SCALE / CHORD / ARP editor | Main mixer, same as HOME | First four / four / eight visible fields; ARP LATCH is accessible through field navigation |
-| Help | Main mixer, same as HOME (pickup still runs so faders can reach their targets) | Inactive |
+| Help | Same as the page underneath; the card stays until R7 | Same as the page underneath; the card stays until R7 |
 | Confirmation | Inactive | Inactive |
 
 The three mixer modes are the keyboard-equivalent main mix, 909 tracks and 808 tracks. In these modes, knobs 1–8 trim the same destinations as faders 1–8. Each control type has unique destinations; a paired fader and knob may share one. Turning a knob resets pickup for its paired fader when the value changes. Other sound pages, menus and clip editors retain their visible-field controls. Duplicate fields within the visible knob bank use the first position only.

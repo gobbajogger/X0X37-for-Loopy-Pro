@@ -154,8 +154,10 @@ static void priority_regression(void)
         if (owner == 2) ui.overlay = O_LIST;
         if (owner == 3) clip_mode = 1;
         message(0x90, 17, 127);
-        assert(seq.vmute == 0);
-        assert(seq.mute == (owner < 2 ? 0 : MUTE_MASK[1]));
+        /* Help leaves drum MIX mutes working; confirmation parks the surface;
+         * menu/clip fall through to whole-part mute instead. */
+        assert(seq.vmute == (owner == 0 ? (1u << 1) : 0));
+        assert(seq.mute == (owner >= 2 ? MUTE_MASK[1] : 0));
     }
     for (int kit = 0; kit < 2; kit++) {
         setup(kit + 1, 0);
