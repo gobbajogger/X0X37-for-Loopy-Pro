@@ -12,6 +12,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/bugfinder-smoke.yml
+      - tools/run_bugfinder_smoke.sh
 
 permissions:
   contents: read
