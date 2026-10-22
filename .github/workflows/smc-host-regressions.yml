@@ -58,7 +58,7 @@ jobs:
           mkdir -p build/ci
           X0X_TEST_JOBS=1 sh tests/run_tests.sh \
             smc-protocol smc-fader smc-buttons smc-mapping \
-            smc-reachability smc-queue smc-link smc-drum-mutes \
+            smc-reachability smc-ui-popup smc-queue smc-link smc-drum-mutes \
             smc-drum-rs smc-feedback smc-record-feedback smc-filter \
             smc-part-select smc-clip-visibility \
             project-protocol project-stage project-runtime \

@@ -177,6 +177,41 @@ int main(void)
         perf.phase = saved_phase;
     }
 
+    /* Opening a deep menu during a live peek cancels the timed restore.
+     * Dismissing the menu must reveal the mapped page, not the pre-peek SEQ. */
+    setup();
+    fader(0, 0);
+    assert_peek(V_MIX, 0, 0);
+    press(5);                         /* R6 opens the currently shown MIX menu */
+    assert(ui.overlay == O_LIST && ui.view == V_MIX);
+    assert(!smc_peek->on);
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.overlay == O_LIST && ui.view == V_MIX);
+    press(6);                         /* R7 closes the menu */
+    assert(ui.overlay == O_NONE && ui.view == V_MIX);
+
+    /* Help and clip mode arriving after the peek starts also take the screen.
+     * Neither may leave a delayed restore waiting after they are dismissed. */
+    setup();
+    fader(0, 0);
+    assert_peek(V_MIX, 0, 0);
+    ui.help = 1;
+    advance(100);
+    assert(!smc_peek->on && ui.view == V_MIX);
+    ui.help = 0;
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_MIX);
+
+    setup();
+    fader(0, 0);
+    assert_peek(V_MIX, 0, 0);
+    clip_grid_mode = 1;
+    advance(100);
+    assert(!smc_peek->on && ui.view == V_MIX);
+    clip_grid_mode = 0;
+    advance(SMC_PEEK_MS + 50);
+    assert(ui.view == V_MIX);
+
     /* Already on mapped page: no nested peek save. */
     setup();
     set_view(V_MIX);
