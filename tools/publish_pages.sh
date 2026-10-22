@@ -9,6 +9,13 @@
 #   tools/publish_pages.sh 0.2 --pro PATH --elite PATH [--mke PATH]
 set -eu
 cd "$(dirname "$0")/.."
+# Accident prevention: merely running `--shell` or specifying a version must
+# never publish. Publication is a distinct, owner-controlled action after the
+# external complete DEV test/build/artifact and legal gates have passed.
+[ "${X0X_PAGES_CHECKED_DEV_PUBLISH:-}" = "YES" ] || {
+    echo "refusing publish: set X0X_PAGES_CHECKED_DEV_PUBLISH=YES only after the DEV candidate publication gates pass" >&2
+    exit 1
+}
 SHELL_ONLY=0
 V=""
 if [ "${1:-}" = "--shell" ]; then
