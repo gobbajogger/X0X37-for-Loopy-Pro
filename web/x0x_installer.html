@@ -420,6 +420,7 @@ const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99d
 const TEXT = {
   ja: {
     navinstaller: "インストール", navmanual: "マニュアル", navsamples: "サンプル",
+    verlatest: "最新 DEV", verolder: "旧 DEV", verdev: "DEV", verrelease: "リリース", verunverified: "未検証",
     eyebrow: "デバイスファームウェア / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
     stage1: "手順 01 / 接続", stage2: "手順 02 / ファームウェア", stage3: "手順 03 / インストール",
     pickheading: "ビルドを選択", versionlabel: "ファームウェアのバージョン", modelheading: "機種を選択",
@@ -506,6 +507,7 @@ const TEXT = {
   },
   en: {
     navinstaller: "Installer", navmanual: "Manual", navsamples: "Samples",
+    verlatest: "latest DEV", verolder: "older DEV", verdev: "DEV", verrelease: "release", verunverified: "unverified",
     eyebrow: "DEVICE SOFTWARE / WEB MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
     stage1: "Step 01 / Connection", stage2: "Step 02 / Firmware", stage3: "Step 03 / Install",
     pickheading: "Choose your build", versionlabel: "Firmware version", modelheading: "Choose your keyboard model",
@@ -602,6 +604,7 @@ function applyLang() {
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
   refreshMeta();
   renderBuildHistory();
+  refreshVersionLabels(); // Captions change without reloading firmware or resetting DEV consent.
 }
 $("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
 const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
@@ -860,6 +863,19 @@ async function loadSelectedPackage() {
   } catch (e) { sayK("loadfail", e.message); }
 }
 
+function versionOptionCaption(v) {
+  const kind = v.status === "dev-checked"
+    ? (v.lifecycle === "superseded" ? "verolder" : (v.version === catalogLive.latest ? "verlatest" : "verdev"))
+    : (v.status === "release-checked" ? "verrelease" : "verunverified");
+  return v.version + " · " + t(kind);
+}
+function refreshVersionLabels() {
+  const byVersion = new Map(versions().map((v) => [v.version, v]));
+  for (const option of $("version").children) {
+    const v = byVersion.get(option.value);
+    if (v) option.textContent = versionOptionCaption(v);
+  }
+}
 function fillVersions() {
   const sel = $("version");
   const cur = sel.value;
@@ -885,7 +901,7 @@ function fillVersions() {
   for (const v of list) {
     const o = document.createElement("option");
     o.value = v.version;
-    o.textContent = v.version + (v.version === catalogLive.latest ? " · LATEST AVAILABLE DEV" : "") + (v.lifecycle === "superseded" ? " · SUPERSEDED" : "") + (v.status === "dev-checked" ? " · DEV CHECKED · HARDWARE UNTESTED" : " · NOT VERIFIED");
+    o.textContent = versionOptionCaption(v); // Full safety badges remain visible below the picker.
     sel.append(o);
   }
   const prefer = cur && list.some((v) => v.version === cur) ? cur
