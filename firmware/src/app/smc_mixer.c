@@ -54,7 +54,6 @@ struct smc_peek_state {
 static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
 static struct smc_peek_state *const smc_peek =
     (struct smc_peek_state *)(void *)smc_peek_raw;
-static void smc_peek_cancel(void) { smc_peek->on = 0; }
 
 int smc_project_active(void) { return smc.solo || smc.drum_solo[0] || smc.drum_solo[1]; }
 static void smc_solo_clear(void)
@@ -103,7 +102,6 @@ X0X_COLD void smc_project_reset(void)
     memset(&smc, 0, sizeof smc);
     smc.up = smc.fresh = up;
     smc.pending = 0xFFu;
-    smc_peek_cancel();                 /* peek lives outside smc; drop any held restore */
     engine_smc_solo(0);
 }
 
@@ -207,7 +205,9 @@ static int smc_drum_track(int kit, int strip)
 static pref_t smc_target(int n)
 {
     int kit, track;
-    if (ui.help || ui.overlay == O_ASK)
+    /* Only a confirmation parks the surface. Help is a card only: controls keep
+     * working under it, including fader pickup toward the live target. */
+    if (ui.overlay == O_ASK)
         return NONE;
     kit = smc_drum_mix();
     if (kit >= 0) {
@@ -222,7 +222,7 @@ static pref_t smc_target(int n)
 static pref_t smc_knob_target(int n)
 {
     pref_t r;
-    if (ui.help || ui.overlay == O_ASK)
+    if (ui.overlay == O_ASK)
         return NONE;
     if (ui.overlay == O_NONE && !smk_clip_mode_on() &&
         (ui.view == V_HOME || (ui.view == V_MIX && cur_page() == 0) || smc_drum_mix() >= 0))
@@ -243,9 +243,11 @@ static uint8_t smc_scaled(pref_t r)
     return (uint8_t)((v * 127 + d->max / 2) / d->max);
 }
 
+static void smc_peek_cancel(void) { smc_peek->on = 0; }
+
 /* view in low nibble, page in high (MASTER = SMC_PEEK_MASTER).
- * Caller only invokes for main-mixer home targets, so help/ASK/perf/drum-mix
- * are already excluded; clip and O_LIST still reach smc_show with home refs. */
+ * Main-mixer home targets only. Help still allows fader/knob edits (SMC-02) but
+ * must not steal the screen; ASK/clip/list overlays and drum MIX/SEQ skip peek. */
 static void smc_peek_begin(int n)
 {
     static const uint8_t map[8] = {
@@ -253,7 +255,7 @@ static void smc_peek_begin(int n)
         V_FX, V_FX | 0x10, V_MIX | (SMC_PEEK_MASTER << 4)
     };
     uint8_t view, page, mix;
-    if ((unsigned)n > 7u || ui.overlay || smk_clip_mode_on())
+    if ((unsigned)n > 7u || ui.help || ui.overlay || smk_clip_mode_on())
         return;
     view = map[n] & 15u;
     page = map[n] >> 4;
@@ -376,7 +378,7 @@ static void smc_knob(int n, int delta)
 {
     uint32_t saved_t;
     uint8_t saved_run;
-    if (ui.overlay == O_ASK || ui.help)
+    if (ui.overlay == O_ASK)
         return;
     if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
         return;                          /* a SCALE / CHORD / ARP page owns its visible fields */
@@ -458,7 +460,7 @@ static void smc_select_drum(int kit, int track)
 
 static int smc_bank(uint8_t note)
 {
-    if ((note == 0x2E || note == 0x2F) && !ui.help && ui.overlay == O_NONE &&
+    if ((note == 0x2E || note == 0x2F) && ui.overlay == O_NONE &&
         !smk_clip_mode_on() && smc_drum_mix() >= 0) {
         int kit = smc_drum_mix();
         smc_select_drum(kit, note == 0x2E ? 0 : 8);
@@ -473,8 +475,8 @@ static int smc_bank(uint8_t note)
 static void smc_button(uint8_t note, int mmc)
 {
     int row, strip;
-    if (ui.help) {
-        if (note == 6) ui.help = 0;       /* R7: back */
+    if (ui.help && note == 6) {          /* R7 closes the card; every other control keeps working under it */
+        ui.help = 0;
         return;
     }
     if (ui.overlay == O_ASK) {
@@ -666,7 +668,6 @@ void smc_poll(void)
     if (ui_project_busy()) {
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
-        smc_peek_cancel();
         return;
     }
     if (link != smc_link_seen) {
@@ -686,10 +687,11 @@ void smc_poll(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
-    if (!allow || ui.overlay == O_ASK || ui.help) {
+    /* Confirmation parks pickup and solos. Help does not. */
+    if (!allow || ui.overlay == O_ASK) {
         smc.picked = smc.seen = 0;
-        smc.knob_i = 0;
         smc_peek_cancel();            /* block holds; leave the current page as-is */
+        smc.knob_i = 0;
         if (smc_project_active()) smc_solo_clear();
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
@@ -731,7 +733,7 @@ void smc_poll(void)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
     }
-    if ((perf_testing() || ui.help || ui.overlay == O_ASK) && smc_project_active())
+    if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
 }
 
@@ -742,7 +744,7 @@ static int smc_led(int note)
         int kit = smc_drum_mix();
         if (kit >= 0) {
             int track = smc_drum_track(kit, strip);
-            if (track < 0 || ui.help) return 0;
+            if (track < 0) return 0;
             if (row == 0) return ui.rec && ui.part == kit && ui.sel[kit] == track;
             if (row == 1) return !!(smc.drum_solo[kit] & (1u << track));
             if (row == 2) return track_muted(kit, track);
@@ -757,14 +759,16 @@ static int smc_led(int note)
     if (note == 15) return ui.view == V_PART;
     if (note < 32) {
         if (strip < NPARTS) {
+            /* Panel REC and part changes update ui.part / ui.rec without smc.rec_part. */
             if (row == 0) return ui.rec && ui.part == strip;
             if (row == 1) return !!(smc.solo & (1u << strip));
             if (row == 2) return part_muted(strip);
             return ui.part == strip;
         }
+        /* Strips 6–8: M = mute/zero. R8/S6/S7/S8 are handled above; SELECT 6/7/8
+         * open reverb, delay and master (drum SELECT was handled above). */
         if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
                                      smc_home_target(strip)) == 0;
-        /* SELECT 6/7/8 open reverb, delay and master; drum SELECT was handled above. */
         return (strip == 5 && ui.view == V_FX && cur_page() == 0) ||
                (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
                (strip == 7 && ui.view == V_MIX && cur_page() == 3);
