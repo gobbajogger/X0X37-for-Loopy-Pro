@@ -128,7 +128,9 @@ static int smc_drum_track(int kit, int strip)
 static pref_t smc_target(int n)
 {
     int kit, track;
-    if (ui.help || ui.overlay == O_ASK)
+    /* Confirmation still parks faders. Help does not: physical faders must keep
+     * their targets so pickup can finish while the help card is up. */
+    if (ui.overlay == O_ASK)
         return NONE;
     kit = smc_drum_mix();
     if (kit >= 0) {
@@ -200,10 +202,6 @@ static void smc_fader(int n, uint8_t v)
     uint8_t bit, old;
     int crossed, nv;
     if (n < 0 || n >= 8)
-        return;
-    /* Match knobs and docs: help / confirmation leave faders inactive even when
-     * the physical position is already within pickup of the target. */
-    if (ui.overlay == O_ASK || ui.help)
         return;
     smc_notice(n);
     bit = (uint8_t)(1u << n);
@@ -519,8 +517,16 @@ void smc_poll(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
-    if (!allow || ui.overlay == O_ASK || ui.help) {
+    /* Help leaves fader pickup alone so a held strip can still reach its target.
+     * Confirmation and performance tests still drop pickup and solos. */
+    if (!allow || ui.overlay == O_ASK) {
         smc.picked = smc.seen = 0;
+        smc.knob_i = 0;
+        if (smc.solo) {
+            smc.solo = 0;
+            engine_smc_solo(0);
+        }
+    } else if (ui.help) {
         smc.knob_i = 0;
         if (smc.solo) {
             smc.solo = 0;
