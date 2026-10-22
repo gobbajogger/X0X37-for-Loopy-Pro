@@ -287,11 +287,16 @@ static void smc_peek_begin(int n)
     smc_peek->until = plat_ms() + SMC_PEEK_MS;
 }
 
-/* noinline: keep restore out of smc_frame's hot LED path. Overlay/help cancel is in smc_poll. */
+/* noinline: keep restore out of smc_frame's hot LED path.
+ * A menu, help card, or clip view takes ownership of the visible screen. */
 static __attribute__((noinline)) void smc_peek_tick(void)
 {
     if (!smc_peek->on)
         return;
+    if (ui.overlay != O_NONE || ui.help || smk_clip_mode_on()) {
+        smc_peek_cancel();          /* never restore the saved page behind another view */
+        return;
+    }
     if (ui.view != smc_peek->view || cur_page() != smc_peek->page ||
         (smc_peek->view == V_MIX && !smc_peek->page && ui.mixsel != smc_peek->mixsel)) {
         smc_peek->on = 0;              /* user navigated; leave their page alone */
