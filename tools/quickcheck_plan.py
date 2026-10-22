@@ -12,11 +12,8 @@ import re
 import subprocess
 import sys
 
-RULE_PATHS = ('docs/rules', 'docs/agent-rules.md', 'docs/USER_PREFERENCES.md',
-              'USER_PREFERENCES.md', 'AGENTS.md', 'agent-rules.md', 'skills',
-              '.agents/skills', 'workflows.json')
 FAST = set('fastmath sequencer encoder uac trs undo lz motion smk-flash smk-storage smk-apc40-map smk-clip-keys locked-settings'.split())
-RULES = [
+TEST_ROUTES = [
     ('firmware/src/dsp/drum909', 'drum909 drum909-adpcm drum-pan'),
     ('firmware/src/dsp/drum808', 'drum808 drum-pan'),
     ('firmware/src/dsp/bass303', 'bass303 bass303_lite'),
@@ -39,9 +36,6 @@ def under(path, prefix):
     return path == prefix or path.startswith(prefix + '/')
 
 
-def is_rule(path):
-    return any(under(path, prefix) for prefix in RULE_PATHS)
-
 
 def route(path):
     # Unusual names are valid Git input, but not proven non-target inputs.
@@ -49,7 +43,7 @@ def route(path):
         return 'target'
     if path.startswith(('tests/', 'host/', 'web/')):
         return 'checks'
-    if (is_rule(path) or path.startswith('docs/') or
+    if (path.startswith('docs/') or
             ('/' not in path and path.endswith('.md'))):
         return 'docs'
     return 'target'
@@ -131,7 +125,7 @@ def select(root, changed, target):
         for rel, text, names in index:
             if rel != path and base in text:
                 hit |= names
-        for prefix, names in RULES:
+        for prefix, names in TEST_ROUTES:
             if path.startswith(prefix):
                 hit.update(names.split())
         if path.startswith('tests/scenarios/') and path.endswith('.x0x'):
@@ -167,7 +161,6 @@ def main():
     plan = {'changed': changed, 'target': target,
             'reason': 'empty scope or target/unknown input' if target else 'proven documentation/web/host/test inputs',
             'checks': target or any(route(p) != 'docs' for p in changed),
-            'rules': any(is_rule(p) for p in changed),
             'docs': any(route(p) == 'docs' or p.startswith('docs/') for p in changed),
             'tests': [] if args.scope_only else select(args.root, changed, target)}
     json.dump(plan, sys.stdout, indent=2, ensure_ascii=True)

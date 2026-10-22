@@ -48,12 +48,12 @@
 # On SIGTERM, SIGINT or SIGHUP the gate stops all its builds and tests (each runs in its own process group),
 # releases the lock, writes "KILLED <commit> <signal> (no result)", writes no result file and exits with 143, 130 or 129.
 # No child gets the lock file descriptor, so a child that stays alive cannot keep the lock.
-# Sender of a stop signal (check 5 of rules v4, rule 2): the gate runs itself through tools/gate_sigwrap.py (exec, the
+# Sender of a stop signal: the gate runs itself through tools/gate_sigwrap.py (exec, the
 # same PID), when that file is beside the gate. The wrapper reads the PID, working folder and command line of the process
 # that sent the signal. The KILLED lines then name them: gate.log "gate: KILLED by SIGTERM from pid N (cwd C; cmd X)
 # (no result)" and the output "KILLED <commit> SIGTERM from pid N cwd C (no result)". No wrapper (or a signal sent to the
 # inner gate process): "sender unknown". X0X_GATE_INNER=1 runs the gate with no wrapper.
-# Script change (check 13 of rules v4, rule 3): the gate keeps the mtime of its own script and of gate_flashmap.py at the
+# Script change: the gate keeps the mtime of its own script and of gate_flashmap.py at the
 # start. If one changes during the run, gate.log gets "gate: SCRIPT CHANGED during the run: <file> <old> -> <new>" (at
 # the end of the run and on a stop signal), and stderr gets the same line. The result does not change.
 # The install-path tests in run_tests.sh take a shared lock (flock -s) on the same file, so the gate waits for them.

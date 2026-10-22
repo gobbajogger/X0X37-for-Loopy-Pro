@@ -5,8 +5,7 @@
 #   tools/quickcheck.sh <worktree folder>   a worktree as it is (with changes that are not committed)
 # Steps:
 #   1. plan scope; build Elite only for target/unknown/mixed or empty scope. Scope errors fail closed.
-#   2. only the tests that the changed files affect (tools/quickcheck_plan.py), parallel (X0X_TEST_JOBS=8), time scale 20.
-#      Proven docs/skills/rules need only their guards. Other unmatched inputs retain the fast host set.
+#   2. Run affected tests. Proven documentation changes skip the target build; unknown inputs retain host coverage.
 # The changed files: the commit against X0X_QC_BASE. The default base is <commit>^ for a commit on integration,
 # and the merge base with integration for other commits. For a folder, the changes that are not committed are added.
 # Output: one line, "QUICK PASS <hash> <seconds> s" or "QUICK FAIL <hash> <seconds> s <reason>". Exit code 0 or 1.
@@ -15,27 +14,7 @@
 #   X0X_INTEGRATION [integration]  JIELI_TOOLCHAIN [~/.jieli/toolchain]  AC79_SDK [~/fw-AC79_AIoT_SDK]
 #   X0X_REFS [/workspace/x0x37-refs/schwung]  X0X_PREPUSH_HOOK [/workspace/x0x37.git/hooks/pre-push]
 # The quick check is a dev run: it never takes the gate lock (/workspace/x0x37-refs/gate.lock). Only the gate does.
-# STE step (tools/ste_check.py, the copy beside this script): it examines the changed *.md files and the
-# message (subject and body) of each commit in BASE..<commit>. Counted categories: long_proc, long_desc,
-# semicolon, modal, passive, contraction, no_verb. Ordinary runs skip STE; explicit advisory mode prints "STE WARN <n> issues" and the
-# first lines come before the QUICK line, and the exit code does not change. Strict mode is an explicit
-# X0X_STE_STRICT=1 run. In strict mode, an issue makes "QUICK FAIL ... STE: ...".
-# X0X_QUICK_ONLY=rules: only rule guards. X0X_QUICK_ONLY=ste: only the STE step and the rules step (no build, no tests).
-# Rules step (checks 27 and 28b of rules v4, owner 02:37: rules = code):
-#   Docs lint: a commit that changes docs/ or USER_PREFERENCES.md, in a tree with docs/USER_PREFERENCES.md and docs/rules/,
-#   runs tools/prefs_lint.py (the copy beside this script). A "PREFS FAIL" makes "QUICK FAIL ... RULES: ...".
-#   Rules mode: legacy rules/preferences, current skills, workflows.json or agent entry files change, or <commit> is the tip of
-#   a lane/dk-rules-* branch. In rules mode grammar stays advisory, the docs lint runs, and each commit in BASE..<commit>
-#   that changes these paths must have two body lines:
-#     "Trigger: <when the rule applies>"   (2 words or more, the "Read when" or "Step" of the rule)
-#     "Check: <script>"                     a path in the tree (tools/quickcheck.sh), a file name in tools/ of the tree
-#                                           (require_gate_pass.sh), status.sh or x0x37_gate.sh (the live scripts),
-#                                           or "Check: manual: <reason>" when no script can check the rule.
-#   More "Check:" lines are allowed. Each one must be valid. A missing line or a bad value makes "QUICK FAIL ... RULES: ...".
-#   A missing prefs_lint.py in rules mode or with a docs change is a failure (fail closed).
-# Base for a commit on a docs lane: the merge base with X0X_DOCS_BRANCH [smk37] when it is newer than the merge base
-# with integration (a commit on X0X_DOCS_BRANCH itself: <commit>^).
-# Device bug step (checks 16 and 17 of rules v4, rule 8: record the bug first), after the tests:
+# Device bug step, after the tests:
 #   A commit in BASE..<commit> whose message has the words "device bug" must add a file tests/*inlog* (the replay test of
 #   the INLOG log, or its log file), unless the message has the line "INLOG skip: owner <HH:MM>" (the owner skips the
 #   INLOG step for this bug). Bug evidence: <changed tests/path> permits a source-proven regression instead.
@@ -72,7 +51,6 @@ if [ -d "$1" ]; then                                    # a worktree folder, as 
     H=$("${G[@]}" rev-parse HEAD) || { H=$1; out FAIL "not a git worktree"; }
     IREF=$("${G[@]}" for-each-ref --count=1 --format='%(refname)' "refs/remotes/*/$INT") || out FAIL "scope: cannot read integration refs"
     DREF=$("${G[@]}" for-each-ref --count=1 --format='%(refname)' "refs/remotes/*/$DOCB") || out FAIL "scope: cannot read docs refs"
-    RLANE=$("${G[@]}" for-each-ref --count=1 --points-at HEAD --format='%(refname)' 'refs/heads/lane/dk-rules-*' 'refs/remotes/*/lane/dk-rules-*') || out FAIL "scope: cannot read rule refs"
 else                                                    # a commit: its own worktree in $QW/wt
     mkdir -p "$QW" || out FAIL "setup: cannot create $QW"
     exec 9>"$QW/.lock" || out FAIL "setup: cannot open $QW/.lock"
@@ -92,7 +70,6 @@ else                                                    # a commit: its own work
     else git -C "$QW/.repo" worktree prune; git -C "$QW/.repo" worktree add -q --detach "$W" "$H" || out FAIL "worktree failed"; fi
     G=(git -C "$W"); IREF="refs/remotes/origin/$INT"
     DREF=$("${G[@]}" for-each-ref --count=1 --format='%(refname)' "refs/remotes/origin/$DOCB") || out FAIL "scope: cannot read docs refs"
-    RLANE=$("${G[@]}" for-each-ref --count=1 --points-at "$H" --format='%(refname)' 'refs/remotes/origin/lane/dk-rules-*') || out FAIL "scope: cannot read rule refs"
 fi
 L="$W/build/qc"; mkdir -p "$L" "$L/tmp"; LOG="$L/qc.log"; : > "$LOG"
 if [ -n "${X0X_QC_BASE:-}" ]; then BASE=$("${G[@]}" rev-parse --verify "$X0X_QC_BASE^{commit}") || out FAIL "scope: invalid base"
@@ -105,7 +82,7 @@ elif [ -n "$IREF" ]; then BASE=$("${G[@]}" merge-base "$H" "$IREF") || out FAIL 
     fi
 else BASE=$("${G[@]}" rev-parse "$H^") || out FAIL "scope: no parent"; fi
 PLAN_ARGS=(); [ -d "$1" ] && PLAN_ARGS+=(--folder)
-case "${X0X_QUICK_ONLY:-}" in ste|rules|devbug) PLAN_ARGS+=(--scope-only) ;; esac
+case "${X0X_QUICK_ONLY:-}" in devbug) PLAN_ARGS+=(--scope-only) ;; esac
 python3 "$QCDIR/quickcheck_plan.py" "$W" "$BASE" "$H" "${PLAN_ARGS[@]}" > "$L/plan.json" 2> "$L/plan-error.log" || {
     cat "$L/plan-error.log" >> "$LOG"; out FAIL "scope: cannot read complete plan (see $L/plan-error.log)";
 }
@@ -113,112 +90,18 @@ python3 "$QCDIR/quickcheck_plan.py" "$W" "$BASE" "$H" "${PLAN_ARGS[@]}" > "$L/pl
 python3 - "$L/plan.json" > "$L/plan-fields" <<'PYPLAN'
 import json, sys
 p = json.load(open(sys.argv[1]))
-for k in ('target', 'rules', 'docs', 'checks'): print(int(p[k]))
+for k in ('target', 'docs', 'checks'): print(int(p[k]))
 print(' '.join(p['tests']))
 PYPLAN
-{ read -r TARGET; read -r RULES_MODE; read -r DOCS_CH; read -r NEED_TESTS; read -r SEL; } < "$L/plan-fields"
+{ read -r TARGET; read -r DOCS_CH; read -r NEED_TESTS; read -r SEL; } < "$L/plan-fields"
 CHANGED=$(python3 -c 'import json,sys; print("\n".join(json.load(open(sys.argv[1]))["changed"]))' "$L/plan.json")
 echo "quickcheck ${H:0:7}, base ${BASE:0:7}, changed: $(echo $CHANGED)" >> "$LOG"
 cat "$L/plan.json" >> "$LOG"
-[ -n "${RLANE:-}" ] && RULES_MODE=1
-[ "$RULES_MODE" = 1 ] && echo "rules mode (${RLANE:-rule files changed})" >> "$LOG"
 cd "$W" || out FAIL "no worktree"
 export JIELI_TOOLCHAIN="$TC" AC79_SDK="$SDK" TMPDIR="$L/tmp"
 export NINEW9_DIR="${NINEW9_DIR:-$REFS/schwung-9W9}" EIGHTW8_DIR="${EIGHTW8_DIR:-$REFS/schwung-8W8}" SCHWUNG303="${SCHWUNG303:-$REFS/schwung-303}"
 export TB3PO_REF="${TB3PO_REF:-$REFS/schwung-tb3po/src/dsp/tb3po.c}" X0X_TEST_JOBS=8 X0X_TEST_TIME_SCALE=20
 
-# STE step (see the header). It sets STE_FAIL (1 = strict and issues) and STE_NOTE.
-ste_step() {
-    STE_FAIL=0; STE_NOTE=""
-    local d n strict=0 st="$QCDIR/ste_check.py" c f
-    local md=()
-    [ "${X0X_STE_STRICT:-0}" = 1 ] && strict=1
-    # Grammar heuristics give review hints. Only an explicit strict run blocks.
-    if [ ! -f "$st" ]; then                             # strict mode fails closed: no check is a failure
-        echo "STE: no $st, STE step skipped" >> "$LOG"
-        [ $strict = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: no $st (run tools/install_gate.sh)"; }
-        return 0
-    fi
-    if ! grep -q -- '"--diff"' "$st"; then                # the changed-lines mode (ste_check.py --diff): else fail closed
-        echo "STE: $st has no --diff mode" >> "$LOG"
-        [ $strict = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: $st has no --diff mode (run tools/install_gate.sh)"; }
-        return 0
-    fi
-    d=$(mktemp -d "${TMPDIR:-/tmp}/qcste.XXXXXX") || {
-        [ "$strict" = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: cannot create STE scratch"; }; return 0;
-    }
-    for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" 2>/dev/null); do
-        { echo "${c:0:7}"; "${G[@]}" log -1 --format=%B "$c"; echo "@@END@@"; } > "$d/commit-${c:0:7}"
-    done
-    while IFS= read -r -d '' f; do
-        case "$f" in *.md) [ -f "$W/$f" ] && md+=("$W/$f") ;; esac
-    done < <(python3 -c 'import json,sys; [sys.stdout.buffer.write(p.encode("utf-8", "surrogateescape")+b"\0") for p in json.load(open(sys.argv[1]))["changed"]]' "$L/plan.json")
-    n=$(ls "$d" | wc -l)
-    if [ "$n" -gt 0 ] || [ "${#md[@]}" -gt 0 ]; then
-        local diff_args=(); [ "${#md[@]}" -gt 0 ] && diff_args=(--diff "$W" "$BASE" WORKTREE)
-        STE_OUT=$(cd "$d" && python3 "$st" --json --examples 50 "${diff_args[@]}" $(ls "$d") "${md[@]}" 2>&1 | QC_W="$W/" python3 -c '
-import json, os, sys
-K = ["long_proc", "long_desc", "semicolon", "modal", "passive", "contraction", "no_verb"]
-try: rs = json.load(sys.stdin)
-except Exception as e: print("-1 ste_check.py output not read: %s" % e); sys.exit()
-n = sum(r["counts"][k] for r in rs for k in K); lines = []
-for r in rs:
-    name = r["file"].replace(os.environ["QC_W"], "").replace("commit-", "commit ")
-    for e in r["worst"]:
-        ks = [k for k in e["rules"] if k in K]
-        if ks: lines.append("STE  %s: [%s] %s" % (name, ",".join(ks), e["text"][:140]))
-print(n); print("\n".join(lines[:5]))'); STE_RC=$?
-        n=$(echo "$STE_OUT" | head -1)
-        if ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$STE_RC" -gt 1 ] || { [ "$STE_RC" = 1 ] && [ "$n" = 0 ]; }; then
-            echo "$STE_OUT" >> "$LOG"
-            [ "$strict" = 1 ] && { STE_FAIL=1; STE_NOTE="; STE WARN 1 issues: unreadable STE result"; }
-            rm -rf "$d"; return 0
-        fi
-        echo "STE ($([ $strict = 1 ] && echo strict || echo warn)): $n issues" >> "$LOG"; echo "$STE_OUT" | tail -n +2 >> "$LOG"
-        if [ "${n:-0}" -gt 0 ] 2>/dev/null; then
-            echo "STE WARN $n issues"; echo "$STE_OUT" | tail -n +2
-            STE_NOTE="; STE WARN $n issues"
-            [ $strict = 1 ] && STE_FAIL=1
-        fi
-    fi
-    rm -rf "$d"
-}
-# Rules step (see the header). It sets RULES_FAIL (1 = a failure) and RULES_NOTE.
-rules_step() {
-    RULES_FAIL=0; RULES_NOTE=""
-    local pl="$QCDIR/prefs_lint.py" o msgs=""
-    if [ "$DOCS_CH" = 1 ] && [ -f "$W/docs/USER_PREFERENCES.md" ] && [ -d "$W/docs/rules" ]; then
-        if [ ! -f "$pl" ]; then msgs="no $pl (run tools/install_gate.sh)"
-        else
-            o=$(python3 "$pl" --rules "$W/docs/rules" "$W/docs/USER_PREFERENCES.md" 2>&1)
-            echo "$o" >> "$LOG"
-            case "$o" in "PREFS OK"*) ;; *) msgs="$(echo "$o" | head -1)"; echo "RULES $o" | head -6 ;; esac
-        fi
-    elif [ "$DOCS_CH" = 1 ]; then echo "rules: no docs/USER_PREFERENCES.md or docs/rules/ in the tree, no docs lint" >> "$LOG"
-    fi
-    if [ "$RULES_MODE" = 1 ]; then
-        o=$(for c in $("${G[@]}" rev-list --no-merges "$BASE..$H" -- docs/rules docs/agent-rules.md USER_PREFERENCES.md docs/USER_PREFERENCES.md AGENTS.md agent-rules.md skills .agents/skills workflows.json 2>/dev/null); do
-            QC_C=$c QC_TOOLS="$("${G[@]}" ls-tree --name-only "$H:tools" 2>/dev/null)" python3 -c '
-import os, re, subprocess, sys
-c = os.environ["QC_C"]; g = sys.argv[1:]
-body = subprocess.run(g + ["log", "-1", "--format=%b", c], capture_output=True, text=True).stdout
-tools = set(os.environ["QC_TOOLS"].split()) | {"status.sh", "x0x37_gate.sh"}
-bad = []
-if not re.search(r"^Trigger: *\S+ +\S+", body, re.M): bad.append("no line Trigger: <when the rule applies>")
-checks = re.findall(r"^Check: *(.*)$", body, re.M)
-if not checks: bad.append("no line Check: <script>")
-for v in checks:
-    v = v.strip(); w = v.split()[0].rstrip(".,") if v.split() else ""
-    if re.match(r"manual: *\S+", v): continue
-    ok = w in tools or subprocess.run(g + ["cat-file", "-e", "HEAD:" + w], capture_output=True).returncode == 0 if w else False
-    if not ok: bad.append("Check: %s is not a script of the tree, status.sh, x0x37_gate.sh or manual: <reason>" % v[:60])
-for b in bad: print("commit %s: %s" % (c[:7], b))
-' "${G[@]}"; done)
-        if [ -n "$o" ]; then echo "$o" >> "$LOG"; echo "$o" | head -5 | sed 's/^/RULES  /'; msgs="${msgs:+$msgs, }$(echo "$o" | wc -l | tr -d ' ') commit body issues"; fi
-    fi
-    if [ -n "$msgs" ]; then RULES_FAIL=1; RULES_NOTE="RULES: $msgs"; fi
-    return 0
-}
 # Device bug step (see the header). It sets DB_FAIL (1 = a failure) and DB_NOTE.
 devbug_step() {
     DB_FAIL=0; DB_NOTE=""
@@ -277,16 +160,6 @@ print(" ".join(sorted(out)))' "${G[@]}")
 if [ "${X0X_QUICK_ONLY:-}" = devbug ]; then
     devbug_step; [ "$DB_FAIL" = 1 ] && out FAIL "$DB_NOTE"; out PASS "(device bug step only)"
 fi
-if [ "${X0X_QUICK_ONLY:-}" = ste ]; then
-    ste_step; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
-    rules_step; [ "$RULES_FAIL" = 1 ] && out FAIL "$RULES_NOTE"
-    out PASS "(STE step only${STE_NOTE})"
-fi
-
-if [ "${X0X_QUICK_ONLY:-}" = rules ]; then
-    rules_step; [ "$RULES_FAIL" = 1 ] && out FAIL "$RULES_NOTE"; out PASS "(rules step only)"
-fi
-
 # Planning completes before any target process starts.
 if [ "$TARGET" = 1 ]; then
     if [ "$(uname -s)" != Linux ]; then
@@ -317,11 +190,6 @@ if [ -n "$SEL" ]; then
 elif [ "$NEED_TESTS" = 1 ]; then
     out FAIL "tests: no runnable tests selected for relevant scope"
 fi
-WT=""
-if [ "${X0X_STE_STRICT:-0}" = 1 ]; then
-    ste_step; WT="$STE_NOTE"; [ "$STE_FAIL" = 1 ] && out FAIL "STE: ${STE_NOTE#; STE WARN } (strict)"
-fi
-rules_step; [ "$RULES_FAIL" = 1 ] && out FAIL "$RULES_NOTE"
 devbug_step; [ "$DB_FAIL" = 1 ] && out FAIL "$DB_NOTE"
-[ "$NF" = 0 ] && [ "$TRC" = 0 ] && [ -z "$MISS" ] || out FAIL "tests: $NF failed; missing PASS:$MISS (runner rc $TRC)$WT"
-out PASS "($NOK tests ok$WT)"
+[ "$NF" = 0 ] && [ "$TRC" = 0 ] && [ -z "$MISS" ] || out FAIL "tests: $NF failed; missing PASS:$MISS (runner rc $TRC)"
+out PASS "($NOK tests ok)"

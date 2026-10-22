@@ -70,7 +70,6 @@ tests/run_tests.sh      # the maths, the sequencer, every engine against its ori
 ./build.sh              # build/x0x.fwsc
 ```
 
-x0x37 team: for a single change, run only the affected tests and tools/quickcheck.sh. Build and Test Runner runs the full suite (tests/run_tests.sh) only in the gate.
 
 `host/x0x_host` runs the whole app on a computer from a script (`tests/scenarios/*.x0x`). Button
 presses, keys, knob turns and MIDI go in; audio and screenshots come out. That's how most of

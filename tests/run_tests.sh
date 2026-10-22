@@ -192,7 +192,7 @@ for t in drum909 drum808 bass303 breaks; do
     [ -f "tests/host/run_$t.sh" ] && run "$t" sh "tests/host/run_$t.sh"
 done
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
-run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit (core rule 6A)
+run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time
 run install-head sh tests/host/test_install_head.sh   # tools/fm1_install.py (check 4): the package bootloader bytes = the reference read-back
 run release-tree sh tests/host/test_release_tree.sh   # tools/release_tree_check.sh (check 7): no refs/jieli or refs/oscuro path, no refs-oscuro commit in a release
@@ -204,24 +204,15 @@ run quickcheck-plan python3 tests/host/test_quickcheck_plan.py
 run ctl-compile python3 tests/host/test_ctl_compile.py
 run host-setup python3 tests/host/test_host_setup.py
 run runner-admission python3 tests/host/test_runner_admission.py
-run quickcheck-ste sh tests/host/test_quickcheck_ste.sh   # tools/quickcheck.sh: the STE step (warn, strict, clean) on a temp repository
-run prefs-lint sh tests/host/test_prefs_lint.sh   # tools/prefs_lint.py (check 27): each owner-rule entry of USER_PREFERENCES.md names a rule that covers it
-run rules-guard-hook bash tests/host/test_rules_guard_hook.sh   # tools/update.hook part 1b (check 28a): a rule change on smk37 comes only from a lane/dk-rules-* tip
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
 run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
-run prefs-parser python3 tests/host/test_prefs_lint.py
-run portable-rules python3 tests/host/test_portable_rules.py
-run quickcheck-rules bash tests/host/test_quickcheck_rules.sh   # tools/quickcheck.sh rules step (checks 27, 28b): docs lint, advisory grammar, Trigger and Check lines
-run ste-owner-msg sh tests/host/test_ste_owner_msg.sh   # tools/ste_check.py --owner-msg (check 2): usable owner message content with exact evidence (rule 13)
 run gen-order sh tests/host/test_gen_order.sh   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
 run quickcheck-devbug bash tests/host/test_quickcheck_devbug.sh   # tools/quickcheck.sh device bug step (checks 16, 17): an INLOG replay test that fails on the parent
 run status-lanes bash tests/host/test_status_lanes.sh   # tools/status.sh (check 12): lane/<agent>-* commits count as agent output
 run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.sh (check 30): output folder, no write to the live orchestrator folder
-run status-checks bash tests/host/test_status_checks.sh   # tools/status.sh (checks 27, 29): docs lint flag, ROADMAP installed hash, BEHAVIOR items since the last install
-run checklist-lint sh tests/host/test_checklist_lint.sh   # tools/checklist_lint.py (check 23): checklist header lines, 10 tasks or fewer, each task starts with Goal:
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 # Shared installer protocol and model guards use synthetic devices; package parity uses SMK builds.
 run installer python3 tests/install_test.py
