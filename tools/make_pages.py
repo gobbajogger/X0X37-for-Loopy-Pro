@@ -19,6 +19,9 @@ Multi-model SMK release (keeps older versions when --merge points at an existing
       --elite build/x0x-smk37-elite-0.2.fwsc \\
       --mke build/x0x-smk37-mke-0.2.fwsc \\
       [--merge EXISTING_SITE]
+
+Hostable shell (no packages yet; drop-.fwsc + Releases API still work):
+  tools/make_pages.py --shell --out OUT_DIR [--merge EXISTING_SITE]
 """
 from __future__ import annotations
 
@@ -140,7 +143,7 @@ for Loopy Pro on the SMK-37.</p>
 puts your own loops into the BREAK slots. Installing is at your own risk; packages keep the
 keyboard's model name so M-UPGRADE still works.</div>
 <nav class="ways" aria-label="Get X0X">
-  <div class="card"><strong><a href="install/">Install v__VERSION__</a> <a class="new" href="new/">What's new?</a></strong><span>Pick a version and model (Pro / Elite / MKE-P37 / FM-1). Nothing to install on the computer.</span></div>
+  <div class="card"><strong><a href="install/">Install__VERSION_LABEL__</a> <a class="new" href="new/">What's new?</a></strong><span>Upgrade, downgrade, or switch: pick a published version and model, or drop any .fwsc (stock / other custom). Nothing to install on the computer.</span></div>
   <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part from Chrome or Edge.</span></a>
   <a href="manual/"><strong>Manual</strong><span>Getting started, then everything else — including the SMK-37 map.</span></a>
   <a href="__REPO__/releases"><strong>All releases</strong><span>Firmware files for the command line: <code>python3 tools/fm1_install.py …</code></span></a>
@@ -241,7 +244,8 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
         shutil.copytree(SRC / "docs" / "img" / "new", out / "new" / "img" / "new")
 
     latest = catalog.get("latest") or (catalog["versions"][0]["version"] if catalog["versions"] else "")
-    landing = (LANDING.replace("__VERSION__", html.escape(str(latest)))
+    ver_label = f" v{html.escape(str(latest))}" if latest else ""
+    landing = (LANDING.replace("__VERSION_LABEL__", ver_label)
                       .replace("__REPO__", REPO))
     (out / "index.html").write_text(landing, encoding="utf-8")
     (out / ".nojekyll").write_text("")
@@ -255,6 +259,14 @@ def main_legacy(pkg: Path, version: str, out: Path, merge: Path | None):
     catalog = load_catalog((merge / "versions.json") if merge else None)
     catalog = merge_version(catalog, version, {key: meta})
     write_site(out, catalog, {meta["file"]: meta["src"]}, merge)
+
+
+def main_shell(out: Path, merge: Path | None):
+    """Hostable site with installer + sample importer; catalog may be empty until a release."""
+    catalog = load_catalog((merge / "versions.json") if merge else None)
+    catalog["repo"] = REPO
+    catalog["pages"] = PAGES
+    write_site(out, catalog, {}, merge)
 
 
 def main_multi(args):
@@ -281,7 +293,9 @@ def main(argv=None):
         main_legacy(Path(argv[0]), argv[1], Path(argv[2]), None)
         return
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--version", required=True, help="release version label, e.g. 0.2 or 1.0.6")
+    ap.add_argument("--shell", action="store_true",
+                    help="build hostable site without new packages (drop-.fwsc + Releases still work)")
+    ap.add_argument("--version", help="release version label, e.g. 0.2 or 1.0.6")
     ap.add_argument("--out", required=True, help="output site directory")
     ap.add_argument("--pro", help="SMK-37 Pro .fwsc")
     ap.add_argument("--elite", help="SMK-37 Elite .fwsc")
@@ -289,6 +303,12 @@ def main(argv=None):
     ap.add_argument("--fm1", help="FM-1 .fwsc")
     ap.add_argument("--merge", help="existing site dir whose firmware/ and versions.json to keep")
     args = ap.parse_args(argv)
+    merge = Path(args.merge) if args.merge else None
+    if args.shell:
+        main_shell(Path(args.out), merge)
+        return
+    if not args.version:
+        raise SystemExit("--version is required unless --shell")
     main_multi(args)
 
 

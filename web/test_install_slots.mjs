@@ -352,7 +352,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     }
     return node;
   };
-  globalThis.window = { addEventListener() {} };
+  globalThis.window = { addEventListener() {}, confirm: () => true };
   globalThis.fetch = async (url) => {
     if (String(url).includes("api.github.com")) return { ok: false, status: 404, json: async () => [] };
     return { ok: true, arrayBuffer: async () => pkg.raw.buffer.slice(pkg.raw.byteOffset, pkg.raw.byteOffset + pkg.raw.byteLength) };

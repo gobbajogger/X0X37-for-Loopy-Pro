@@ -98,4 +98,14 @@ with tempfile.TemporaryDirectory() as td:
     assert (out3 / "firmware" / "x0x-1.0.fwsc").is_file()
     assert "X0X37-for-Loopy-Pro" in (out2 / "index.html").read_text(encoding="utf-8")
 
-print("PASS installer identities, multi-version merge, sample-importer page, legacy FM-1 site")
+    out_shell = td / "shell"
+    make_pages_main(["--shell", "--out", str(out_shell)])
+    assert (out_shell / "install" / "index.html").is_file()
+    assert (out_shell / "breaks" / "index.html").is_file()
+    shell_cat = json.loads((out_shell / "versions.json").read_text())
+    assert shell_cat["versions"] == []
+    shell_inst = (out_shell / "install" / "index.html").read_text(encoding="utf-8")
+    assert "noversion" in shell_inst and "stockdrop" in shell_inst
+    assert "confirmWrite" in shell_inst or "confirm" in shell_inst
+
+print("PASS installer identities, multi-version merge, sample-importer page, legacy FM-1 site, shell site")

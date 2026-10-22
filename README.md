@@ -10,11 +10,13 @@ The factory sound is set up for big beat, so it should make noise the moment you
 
 [![X0X running on the FM-1 (watch on YouTube)](https://img.youtube.com/vi/cZLYrZaLDUk/maxresdefault.jpg)](https://www.youtube.com/watch?v=cZLYrZaLDUk)
 
-- **Install it** (Chrome or Edge, USB): <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/> — any published version, SMK-37 Pro / Elite / MKE-P37 or FM-1
+- **Install it** (Chrome or Edge, USB): <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/> — upgrade, downgrade, or switch: pick a published version/model, or drop any `.fwsc` (stock / other custom / local build)
 - **Sample importer** (your own break loops): <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/breaks/>
 - **Read the manual**: <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/manual/>
 - **Download firmware**: [releases](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases)
 - **M-Vave SMK-37 / Loopy Pro:** see [SMK-37 instructions](SMK37.md).
+
+The site is the `gh-pages` branch (same hosting pattern as other FM-1/SMK projects). If the URL 404s, turn on **Settings → Pages → Deploy from a branch → `gh-pages` / root** (private repos need a plan that allows Pages, or make the repo public). First publish: `tools/publish_pages.sh --shell`, then attach `.fwsc` files to a Release.
 
 > **X0X is in beta.** It's solid for everyday playing, but a very busy pattern can push the FM-1
 > to its limit. When that happens, X0X trades a little sound quality to keep playing rather than

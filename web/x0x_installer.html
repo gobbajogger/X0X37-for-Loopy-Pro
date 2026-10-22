@@ -97,7 +97,8 @@
   </div>
 
   <section class="panel" id="pick">
-    <div class="row">
+    <p class="small" id="noversion" hidden data-t="noversion"></p>
+    <div class="row" id="versionrow">
       <label class="field">Version
         <select id="version" aria-label="Firmware version"></select>
       </label>
@@ -137,6 +138,7 @@
       <input type="file" id="stockfile" accept=".fwsc">
       <span data-t="stockdrop"></span>
     </label>
+    <p class="meta" id="dropmeta"></p>
     <p class="small"><label><input type="checkbox" id="stockconfirm"> <span data-t="stockconfirm"></span></label></p>
     <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
   </section>
@@ -163,6 +165,7 @@ const TEXT = {
     install: "インストール", other: "English", connect: "接続",
     connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
     connected: "接続済み", notconnected: "未接続", looking: "探しています…",
+    otahelp: "書き込みモードです。パッケージを選んでインストールを押すと続きから書けます。",
     flashother: "別の機種名で書き込む",
     modelwhy: "同じファームウェアを別の機種名で書き込みます。キーボード本来の機種（古い Elite は Pro と出ることがあります）を選ぶと、あとで M-VAVE の純正に戻せます。Starrykey 37 Play は SMK-37 Pro を使います。",
     manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
@@ -172,18 +175,22 @@ const TEXT = {
     brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
     bricklink: "起動しない FM-1 の復旧（マニュアル）",
     beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
-    back: "公式ファームウェアに戻すには、下の手順か M-VAVE の M-UPGRADE を使います。",
-    stockh: "純正ファームウェアに戻す",
-    stockwhy: "キーボードの機種名は保たれるので、通常は M-UPGRADE がそのまま使えます。別のファームのあとで拒否されるときは、純正の .fwsc を落として書き込みます。キャリブレーションとペアリングは触りません。",
-    stock1: "機種の純正ファームウェア（.fwsc）を入手:",
-    stock2: "下にドロップするか選ぶ。",
-    stock3: "USB で接続し、「これは自分のキーボードのファームウェアです」にチェックして書き込む。",
+    back: "公式や他のカスタムへ移すには、下に .fwsc を落とすか M-VAVE の M-UPGRADE を使います。",
+    noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
+    stockh: "任意の .fwsc（純正・他カスタム・手元のビルド）",
+    stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
+    stock1: "純正が必要なら機種の公式 .fwsc を入手:",
+    stock2: "任意の .fwsc を下にドロップ（または選択）。",
+    stock3: "USB で接続し、確認にチェックして書き込む。途中で止まったら挿し直して同じファイルでもう一度。",
     stockdrop: "ここに .fwsc をドロップ、またはクリックして選択",
-    stockconfirm: "これは自分のキーボードのファームウェアです",
-    stockinstall: "純正ファームウェアを書き込む",
+    stockconfirm: "これはこのキーボード向けのファームウェアです（機種が合っている）",
+    stockinstall: "このパッケージを書き込む",
     stockok: "パッケージを確認しました。ボタンを押してください。",
     stockbad: "使える .fwsc ではありません。",
-    stockdone: "完了。純正ファームウェアで起動しました。",
+    stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
+    confirm: "書き込みますか？\n\n接続中: ",
+    confirmto: "\n書き込む: ",
+    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。サンプル・スロットが消える場合は先にファイルへ保存します。USB を抜かないでください。",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
     reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
@@ -220,6 +227,7 @@ const TEXT = {
     install: "Install", other: "日本語", connect: "Connect",
     connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
     connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
+    otahelp: "Update mode. Choose a package and press Install to finish (or resume) the write.",
     flashother: "Flash another keyboard version",
     modelwhy: "The same firmware under another model name. Pick your keyboard's own model (an Elite running an older build may report SMK-37 Pro), so M-VAVE's updater accepts its factory firmware again. Starrykey 37 Play: use SMK-37 Pro.",
     manual: "The manual", whatsnew: "What's new", download: "Download this package",
@@ -229,18 +237,22 @@ const TEXT = {
     brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
     bricklink: "recovering an FM-1 that won't start (manual)",
     beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
-    back: "To go back to the official firmware, use the section below, or M-VAVE's updater, M-UPGRADE.",
-    stockh: "Back to the stock firmware",
-    stockwhy: "Our packages keep your keyboard's model name, so M-UPGRADE usually works directly. If another firmware left M-UPGRADE refusing the unit, download the official .fwsc for your model, drop it here, and install. Calibration and pairing are never touched.",
-    stock1: "Get the official .fwsc for your model:",
-    stock2: "Drop it below, or click to choose it.",
-    stock3: "Connect by USB, tick “This is the firmware for my keyboard”, and install.",
+    back: "To move to stock or another custom firmware, drop its .fwsc below, or use M-VAVE's M-UPGRADE.",
+    noversion: "No published packages on this site yet. Drop any .fwsc below to upgrade, downgrade, restore stock, or switch to another custom build.",
+    stockh: "Any .fwsc (stock, other custom, or a local build)",
+    stockwhy: "Upgrade, downgrade, switch to another custom firmware, or return to stock the same way. Packages keep the keyboard's model name; calibration and pairing are never touched. If sample slots would be lost, they are saved to a .x0xslots file first.",
+    stock1: "For stock, get the official .fwsc for your model:",
+    stock2: "Drop any .fwsc below (or click to choose it).",
+    stock3: "Connect by USB, tick the confirmation, and install. If a write stops halfway, replug and install the same file again to resume.",
     stockdrop: "Drop the .fwsc file here, or click to choose it",
-    stockconfirm: "This is the firmware for my keyboard",
-    stockinstall: "Install the stock firmware",
+    stockconfirm: "This package is for this keyboard (matching model)",
+    stockinstall: "Install this package",
     stockok: "Package checked. Press the button to install it.",
     stockbad: "That is not a usable .fwsc package.",
-    stockdone: "Done. The device has restarted with its original firmware.",
+    stockdone: "Done. The device has restarted with the new firmware.",
+    confirm: "Install this firmware?\n\nConnected: ",
+    confirmto: "\nWill write: ",
+    confirmrisk: "\n\nCalibration and pairing are never touched. If sample slots would be lost, they are saved to a file first. Keep USB connected until Done.",
     nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
@@ -331,16 +343,26 @@ async function scan() {
   $("conn").textContent = t("looking");
   try {
     const up = new Updater(await midiAccess(), () => {});
-    const dev = await up.find();
+    // Prefer a running app; if only the update loader is present, resume from there.
+    let dev = await up.find((id) => !/^ota-/i.test(id.model));
+    let inOta = false;
+    if (!dev) {
+      dev = await up.find((id) => /^ota-/i.test(id.model));
+      inOta = !!dev;
+    }
     if (!dev) {
       lastId = null;
       setConnected(false, t("notfound"));
       return;
     }
     lastId = dev.id;
-    const detail = `${dev.id.text}${dev.name ? " · " + dev.name : ""}`;
+    const bare = inOta ? dev.id.model.replace(/^ota-/i, "") : dev.id.model;
+    const detail = inOta
+      ? `${dev.id.text}${dev.name ? " · " + dev.name : ""} — ${t("otahelp")}`
+      : `${dev.id.text}${dev.name ? " · " + dev.name : ""}`;
     setConnected(true, detail);
-    suggestModel(dev.id.model);
+    if (inOta) led("busy");
+    suggestModel(bare);
     dev.link.close();
   } catch (e) {
     lastId = null;
@@ -460,6 +482,23 @@ function fillVersions() {
   const cur = sel.value;
   sel.innerHTML = "";
   const list = versions();
+  $("noversion").hidden = list.length > 0;
+  $("versionrow").hidden = list.length === 0;
+  $("modeldetails").hidden = list.length === 0;
+  $("go").hidden = list.length === 0;
+  if (!list.length) {
+    image = null; selectedProduct = null;
+    $("go").disabled = true;
+    $("pkgmeta").textContent = "";
+    say(t("noversion"));
+    // Still show SMK stock links when the catalog is empty.
+    $("stock").hidden = false;
+    $("stocklinks").innerHTML = " · "
+      + `<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`
+      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`
+      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`;
+    return;
+  }
   for (const v of list) {
     const o = document.createElement("option");
     o.value = v.version;
@@ -471,6 +510,11 @@ function fillVersions() {
   if (prefer) sel.value = prefer;
   refreshModelUi();
   loadSelectedPackage();
+}
+
+function confirmWrite(product) {
+  const from = lastId ? lastId.text : "(not connected yet — Connect first if you can)";
+  return window.confirm(t("confirm") + from + t("confirmto") + product + t("confirmrisk"));
 }
 $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
 
@@ -532,16 +576,23 @@ window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault
 async function acceptStock(raw) {
   stock = null;
   $("stockgo").disabled = true;
+  $("dropmeta").textContent = "";
   try {
     const product = productOf(raw);
     const model = product.split("_")[0];
-    // FM-1 V15: keep the known hash when that is what was chosen.
     const hex = await sha256Hex(raw.buffer);
     const isFm1Stock = hex === STOCK_SHA256_FM1;
-    if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY)/i.test(model)) {
+    // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
+    if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
       sayK("stockbad"); return;
     }
-    stock = { image: logicalImage(raw), product, fm1Stock: isFm1Stock };
+    // If a device is connected, refuse a package for the other keyboard family (FM-1 vs SMK).
+    if (lastId && !sameKeyboard(lastId.model.replace(/^ota-/i, ""), model)) {
+      sayK("model", ` ${lastId.text} → ${product}`);
+      return;
+    }
+    stock = { image: logicalImage(raw), product, foreign: true, fm1Stock: isFm1Stock };
+    $("dropmeta").textContent = `${product} · ${(raw.length / 1024).toFixed(0)} KB`;
     $("stockgo").disabled = writing || !$("stockconfirm").checked;
     sayK("stockok");
   } catch (err) { sayK("stockbad"); }
@@ -563,7 +614,8 @@ drop.addEventListener("drop", async (e) => {
   await acceptStock(new Uint8Array(await f.arrayBuffer()));
 });
 
-async function run(img, product, isStock) {
+async function run(img, product, opts = {}) {
+  const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
   catch (e) { sayK(e.code || "denied"); return; }
@@ -580,12 +632,15 @@ async function run(img, product, isStock) {
       if (k === "loader") sayK("loader");
       if (k === "write") { sayK("write"); $("bar").value = ((74 + a) / total) * 100; }
       if (k === "reboot") sayK("reboot");
-      if (k === "done") { $("bar").value = 100; sayK(isStock ? "stockdone" : "done"); }
+      if (k === "done") { $("bar").value = 100; sayK(foreign ? "stockdone" : "done"); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
     if (ota) {
+      // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
       ota.link.close();
-      sayK((await up.resume(img, step, product)) ? (isStock ? "stockdone" : "done") : "stopped");
+      const ok = await up.resume(img, step, product);
+      $("bar").value = ok ? 100 : $("bar").value;
+      sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");
     } else {
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
@@ -611,7 +666,8 @@ async function run(img, product, isStock) {
     }
     await scan();
   } catch (e) {
-    if (isStock && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
+    // Stock / other custom firmware often reports a different identity string than the package marker.
+    if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
     else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
@@ -624,17 +680,19 @@ async function run(img, product, isStock) {
 
 $("go").addEventListener("click", () => {
   if (!image || !selectedProduct || writing) return;
+  if (!confirmWrite(selectedProduct)) return;
   let img = image;
   if (ctl) {
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
   }
   $("go").disabled = true;   // sync before the first await in run()
-  run(img, selectedProduct, false);
+  run(img, selectedProduct, { foreign: false });
 });
 $("stockgo").addEventListener("click", () => {
   if (!stock || !$("stockconfirm").checked || writing) return;
+  if (!confirmWrite(stock.product)) return;
   $("stockgo").disabled = true;
-  run(stock.image, stock.product, true);
+  run(stock.image, stock.product, { foreign: true });
 });
 
 (async () => {
