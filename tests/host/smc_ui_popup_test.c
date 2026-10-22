@@ -36,7 +36,7 @@ static void setup(void)
     ck.pg = 0;
     memset(fields, 0, sizeof fields);
     memset(&smc, 0, sizeof smc);
-    memset(&smc_peek, 0, sizeof smc_peek);
+    memset(smc_peek, 0, sizeof *smc_peek);
     memset(&ui, 0, sizeof ui);
     boot();
     proj.set.bt = PROJ_BT_SMC_CENTRAL;
@@ -51,7 +51,7 @@ static void setup(void)
 
 static void assert_peek(uint8_t view, int page, uint8_t mixsel)
 {
-    assert(smc_peek.on);
+    assert(smc_peek->on);
     assert(ui.view == view);
     assert(cur_page() == page);
     if (view == V_MIX && page == 0)
@@ -78,21 +78,21 @@ int main(void)
     fader(0, 0);                      /* waiting pickup still peeks */
     assert(!strncmp(ui.msg, "PICK F1", 7));
     assert_peek(V_MIX, 0, 0);
-    assert(smc_peek.saved_view == V_SEQ);
-    assert(smc_peek.saved_mixsel == saved_mix);
-    assert(smc_peek.saved_prev == saved_prev);
+    assert(smc_peek->saved_view == V_SEQ);
+    assert(smc_peek->saved_mixsel == saved_mix);
+    assert(smc_peek->saved_prev == saved_prev);
     {
-        uint32_t until = smc_peek.until;
+        uint32_t until = smc_peek->until;
         now_ms += 400;
         fader(0, 10);                 /* same peek refreshes hold */
-        assert(smc_peek.on && smc_peek.until > until);
+        assert(smc_peek->on && smc_peek->until > until);
         assert_peek(V_MIX, 0, 0);
     }
     fader(2, 0);                      /* switch strip keeps original restore point */
     assert_peek(V_MIX, 0, 2);
-    assert(smc_peek.saved_view == V_SEQ);
+    assert(smc_peek->saved_view == V_SEQ);
     advance(SMC_PEEK_MS + 50);
-    assert(!smc_peek.on);
+    assert(!smc_peek->on);
     assert(ui.view == V_SEQ && ui.mixsel == saved_mix && ui.prev_view == saved_prev);
 
     /* Strip 6 → FX REVERB; strip 7 → FX DELAY; strip 8 → MIX MASTER. */
@@ -114,7 +114,7 @@ int main(void)
     assert_peek(V_MIX, master_page, ui.mixsel);
     assert(!strcmp(pg.title[cur_page()], "MASTER"));
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_SONG && !smc_peek.on);
+    assert(ui.view == V_SONG && !smc_peek->on);
 
     /* Knob on HOME also peeks (SMC K path). */
     setup();
@@ -131,33 +131,33 @@ int main(void)
     assert(!strncmp(ui.msg, "SMC K1", 6));
     assert_peek(V_MIX, 0, 0);
     advance(SMC_PEEK_MS + 50);
-    assert(ui.view == V_HOME && !smc_peek.on);
+    assert(ui.view == V_HOME && !smc_peek->on);
 
     /* Guards: help, ASK, clip, perf — no peek; header may still update where allowed. */
     setup();
     ui.help = 1;
     fader(0, 127);
-    assert(!smc_peek.on && ui.view == V_SEQ);
+    assert(!smc_peek->on && ui.view == V_SEQ);
     ui.help = 0;
 
     setup();
     ask(ACT_SONG_CLR, 0, "TEST", 0);
     assert(ui.overlay == O_ASK);
     fader(0, 127);
-    assert(!smc_peek.on && ui.overlay == O_ASK && ui.view == V_SEQ);
+    assert(!smc_peek->on && ui.overlay == O_ASK && ui.view == V_SEQ);
     press(6);                         /* cancel */
 
     setup();
     press(5);                         /* deep menu on SEQ */
     assert(ui.overlay == O_LIST);
     fader(0, 0);
-    assert(!smc_peek.on && ui.overlay == O_LIST && ui.view == V_SEQ);
+    assert(!smc_peek->on && ui.overlay == O_LIST && ui.view == V_SEQ);
     press(6);
 
     setup();
     clip_grid_mode = 1;
     fader(0, 0);
-    assert(!smc_peek.on && ui.view == V_SEQ);
+    assert(!smc_peek->on && ui.view == V_SEQ);
     assert(!strncmp(ui.msg, "PICK F1", 7)); /* notice remains */
     clip_grid_mode = 0;
 
@@ -168,7 +168,7 @@ int main(void)
         perf.phase = 0;
         assert(perf_testing());
         fader(0, 127);
-        assert(!smc_peek.on && ui.view == V_SEQ);
+        assert(!smc_peek->on && ui.view == V_SEQ);
         perf.test = saved_test;
         perf.phase = saved_phase;
     }
@@ -180,7 +180,7 @@ int main(void)
     build_pages();
     *page_of(V_MIX) = 0;
     fader(1, 0);
-    assert(!smc_peek.on);
+    assert(!smc_peek->on);
     assert(ui.view == V_MIX && cur_page() == 0 && ui.mixsel == 1);
 
     /* Navigation while peeking abandons restore. */
@@ -188,7 +188,7 @@ int main(void)
     fader(0, 0);
     assert_peek(V_MIX, 0, 0);
     press(0x61);                      /* Down: leave MIX via smc_view */
-    assert(!smc_peek.on);
+    assert(!smc_peek->on);
     assert(ui.view != V_SEQ);         /* navigated forward, not restored to SEQ */
 
     puts("PASS: SMC UI peek map, hold refresh, restore and guards");

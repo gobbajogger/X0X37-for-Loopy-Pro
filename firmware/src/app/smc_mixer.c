@@ -31,14 +31,20 @@ static struct {
     uint8_t lit[128], known[128];
     uint8_t fx_restore[3];
 } smc;
-/* Temporary mapped-page peek: hold the MIX/FX page for a strip, then restore. */
+/* Temporary mapped-page peek: hold the MIX/FX page for a strip, then restore.
+ * MIX MASTER is always page index 1+NKIT (PARTS + kits + MASTER). */
 #define SMC_PEEK_MS 1200u
-static struct {
-    uint8_t on;
-    uint8_t view, page, mixsel;
+#define SMC_PEEK_MASTER (1 + NKIT)
+/* Byte buffer (not a naked struct): IPA-SRA must not split fields into
+ * separate BSS symbols — each split field costs a 6-byte abs load on pi32. */
+struct smc_peek_state {
+    uint8_t on, view, page, mixsel;
     uint8_t saved_view, saved_page, saved_mixsel, saved_prev;
     uint32_t until;
-} smc_peek;
+};
+static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
+static struct smc_peek_state *const smc_peek =
+    (struct smc_peek_state *)(void *)smc_peek_raw;
 
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
@@ -170,122 +176,69 @@ static uint8_t smc_scaled(pref_t r)
     return (uint8_t)((v * 127 + d->max / 2) / d->max);
 }
 
-/* Strip → page map for main-mixer destinations. Page -1 means last MIX page (MASTER). */
-static int smc_peek_map(int n, uint8_t *view, int *page, uint8_t *mixsel)
-{
-    if (n < 0 || n >= 8)
-        return 0;
-    if (n < 5) {
-        *view = V_MIX;
-        *page = 0;
-        *mixsel = (uint8_t)n;
-        return 1;
-    }
-    if (n == 5) {
-        *view = V_FX;
-        *page = 0;
-        *mixsel = ui.mixsel;
-        return 1;
-    }
-    if (n == 6) {
-        *view = V_FX;
-        *page = 1;
-        *mixsel = ui.mixsel;
-        return 1;
-    }
-    *view = V_MIX;
-    *page = -1;                       /* MASTER: resolved after build_pages */
-    *mixsel = ui.mixsel;
-    return 1;
-}
+static void smc_peek_cancel(void) { smc_peek->on = 0; }
 
-static int smc_peek_here(uint8_t view, int page, uint8_t mixsel)
-{
-    return ui.view == view && cur_page() == page &&
-           (view != V_MIX || page != 0 || ui.mixsel == mixsel);
-}
-
-static void smc_peek_cancel(void)
-{
-    smc_peek.on = 0;
-}
-
-static void smc_peek_apply(uint8_t view, int page, uint8_t mixsel)
-{
-    ui.view = view;
-    if (view == V_MIX && page == 0)
-        ui.mixsel = mixsel;
-    build_pages();
-    if (page < 0)
-        page = pg.n > 0 ? pg.n - 1 : 0;
-    if (page >= 0 && page < pg.n)
-        *page_of(view) = (uint8_t)page;
-    smc_peek.view = view;
-    smc_peek.page = (uint8_t)page;
-    smc_peek.mixsel = ui.mixsel;
-    smc_peek.until = plat_ms() + SMC_PEEK_MS;
-}
-
+/* view in low nibble, page in high (MASTER = SMC_PEEK_MASTER).
+ * Caller only invokes for main-mixer home targets, so help/ASK/perf/drum-mix
+ * are already excluded; clip and O_LIST still reach smc_show with home refs. */
 static void smc_peek_begin(int n)
 {
-    uint8_t view, mixsel;
-    int page;
-    if (perf_testing() || ui.help || ui.overlay != O_NONE || smk_clip_mode_on())
+    static const uint8_t map[8] = {
+        V_MIX, V_MIX, V_MIX, V_MIX, V_MIX,
+        V_FX, V_FX | 0x10, V_MIX | (SMC_PEEK_MASTER << 4)
+    };
+    uint8_t view, page, mix;
+    if ((unsigned)n > 7u || ui.overlay || smk_clip_mode_on())
         return;
-    if (smc_drum_mix() >= 0)
-        return;
-    if (!smc_peek_map(n, &view, &page, &mixsel))
-        return;
-    if (smc_peek.on) {
-        int want = page;
-        if (want < 0) {
-            /* Compare against the resolved MASTER page without rebuilding yet. */
-            if (ui.view == V_MIX)
-                want = pg.n > 0 ? pg.n - 1 : 0;
-            else
-                want = 3;             /* PARTS + two drum MIX + MASTER */
-        }
-        if (smc_peek.view == view && smc_peek.page == (uint8_t)want &&
-            (view != V_MIX || want != 0 || smc_peek.mixsel == mixsel)) {
-            smc_peek.until = plat_ms() + SMC_PEEK_MS;
+    view = map[n] & 15u;
+    page = map[n] >> 4;
+    mix = n < 5 ? (uint8_t)n : ui.mixsel;
+    if (smc_peek->on) {
+        if (smc_peek->view == view && smc_peek->page == page &&
+            (n >= 5 || smc_peek->mixsel == mix)) {
+            smc_peek->until = plat_ms() + SMC_PEEK_MS;
             return;
         }
-    } else if (page >= 0 && smc_peek_here(view, page, mixsel)) {
+    } else if (ui.view == view && cur_page() == page &&
+               (n >= 5 || ui.mixsel == mix)) {
         return;                       /* already on the mapped page; no nested save */
-    } else if (page < 0 && ui.view == V_MIX && pg.n > 0 && cur_page() == pg.n - 1) {
-        return;
+    } else {
+        smc_peek->saved_view = ui.view;
+        smc_peek->saved_page = (uint8_t)cur_page();
+        smc_peek->saved_mixsel = ui.mixsel;
+        smc_peek->saved_prev = ui.prev_view;
+        smc_peek->on = 1;
     }
-    if (!smc_peek.on) {
-        smc_peek.saved_view = ui.view;
-        smc_peek.saved_page = (uint8_t)cur_page();
-        smc_peek.saved_mixsel = ui.mixsel;
-        smc_peek.saved_prev = ui.prev_view;
-        smc_peek.on = 1;
-    }
-    smc_peek_apply(view, page, mixsel);
+    ui.view = view;
+    if (n < 5)
+        ui.mixsel = mix;
+    build_pages();
+    *page_of(view) = page;
+    smc_peek->view = view;
+    smc_peek->page = page;
+    smc_peek->mixsel = ui.mixsel;
+    smc_peek->until = plat_ms() + SMC_PEEK_MS;
 }
 
-static void smc_peek_tick(void)
+/* noinline: keep restore out of smc_frame's hot LED path. Overlay/help cancel is in smc_poll. */
+static __attribute__((noinline)) void smc_peek_tick(void)
 {
-    if (!smc_peek.on)
+    if (!smc_peek->on)
         return;
-    if (ui.overlay != O_NONE || ui.help) {
-        smc_peek_cancel();            /* menu/help owns the stage; do not restore under it */
-        return;
-    }
-    if (!smc_peek_here(smc_peek.view, smc_peek.page, smc_peek.mixsel)) {
-        smc_peek_cancel();            /* user navigated; leave their page alone */
+    if (ui.view != smc_peek->view || cur_page() != smc_peek->page ||
+        (smc_peek->view == V_MIX && !smc_peek->page && ui.mixsel != smc_peek->mixsel)) {
+        smc_peek->on = 0;              /* user navigated; leave their page alone */
         return;
     }
-    if ((int32_t)(plat_ms() - smc_peek.until) < 0)
+    if ((int32_t)(plat_ms() - smc_peek->until) < 0)
         return;
-    ui.view = smc_peek.saved_view;
-    ui.mixsel = smc_peek.saved_mixsel;
-    ui.prev_view = smc_peek.saved_prev;
+    ui.view = smc_peek->saved_view;
+    ui.mixsel = smc_peek->saved_mixsel;
+    ui.prev_view = smc_peek->saved_prev;
     build_pages();
-    if (smc_peek.saved_page < pg.n)
-        *page_of(ui.view) = smc_peek.saved_page;
-    smc_peek_cancel();
+    if (smc_peek->saved_page < pg.n)
+        *page_of(ui.view) = smc_peek->saved_page;
+    smc_peek->on = 0;
 }
 
 static void smc_show(int n, int knob, pref_t r)
@@ -301,7 +254,7 @@ static void smc_show(int n, int knob, pref_t r)
     put_i(q, pref_get(r));
     say(t, 0);                        /* the header remains visible above the clip grid */
     ui.touched = -1;                   /* an encoder on the next page is not a local knob cell */
-    if (n >= 0 && n < 8 && smc_same(r, smc_home_target(n)))
+    if ((unsigned)n < 8u && smc_same(r, smc_home_target(n)))
         smc_peek_begin(n);            /* PICK F and SMC F both peek the mapped meters */
 }
 
@@ -658,7 +611,6 @@ void smc_poll(void)
             smc_mmc_r[src] = (uint8_t)(r + 1u);
         }
     }
-    smc_peek_tick();
 }
 
 static int smc_led(int note)
