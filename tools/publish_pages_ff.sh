@@ -25,6 +25,16 @@ for file in "$SITE"/* "$SITE"/.[!.]* "$SITE"/..?*; do
     esac
 done
 [ -z "$(find "$SITE" \( -type l -o -name .git \) -print -quit)" ] || fail "generated tree contains a symlink or Git metadata"
+# Allow only generated public HTML/assets and model-specific firmware.
+# This fails closed if a future site change introduces a new asset type: the
+# owner must review that addition before publishing.
+find "$SITE" -type f -print | while IFS= read -r path; do
+    rel=${path#"$SITE"/}
+    case "$rel" in
+      .nojekyll|index.html|versions.json|install/index.html|breaks/index.html|projects/index.html|projects/x0x_breaks.js|projects/x0x_projects.js|manual/index.html|manual/PROJECT_FILES.md|new/index.html|manual/img/*.png|manual/img/*.svg|new/img/*.png|new/img/*.svg|firmware/*.fwsc) ;;
+      *) fail "unexpected public-site asset: $rel" ;;
+    esac
+done
 
 # Fetch without forced remote-tracking ref updates; a non-FF or concurrent
 # publication must be explicitly reconciled and revalidated, never overwritten.
@@ -39,6 +49,9 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 1' HUP INT TERM
 git worktree add --quiet --detach "$TMP/site" "$BASE" || fail "cannot stage history-preserving site"
+# Reject malicious or accidental symlinks in the *existing* Pages branch as
+# well as new generated assets.  Otherwise cp -R can follow the old link.
+[ -z "$(find "$TMP/site" -type l -print -quit)" ] || fail "existing gh-pages contains symlinks"
 
 # Overlay new generated files; NEVER delete old pages or firmware by mirroring
 # directory deletions. Reject overwrite of existing binaries and catalog loss.
@@ -92,10 +105,13 @@ for version, previous in old_entries.items():
         for key in ("pkg", "product", "sha256", "size"):
             if key in prev_model and prev_model[key] != current_model.get(key):
                 reject("changed existing " + version + "/" + model + "/" + key)
-old_history = {str(x.get("id")) for x in old.get("history", [])}
-new_history = {str(x.get("id")) for x in new.get("history", [])}
-if not old_history.issubset(new_history):
-    reject("previous build-history entries disappeared")
+old_history = {str(x.get("id")): x for x in old.get("history", [])}
+new_history = {str(x.get("id")): x for x in new.get("history", [])}
+if len(old_history) != len(old.get("history", [])) or len(new_history) != len(new.get("history", [])):
+    reject("duplicate build-history identifiers")
+for identity, previous in old_history.items():
+    if new_history.get(identity) != previous:
+        reject("previous build-history evidence changed or disappeared: " + identity)
 
 # No archive may silently disappear or change its bytes under the same filename.
 old_archives = subprocess.run(["git", "ls-tree", "-r", "--name-only", base, "firmware/"],
