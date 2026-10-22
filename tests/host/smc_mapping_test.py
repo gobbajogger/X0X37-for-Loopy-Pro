@@ -23,12 +23,12 @@ harness = r'''
 #include <string.h>
 #include "seq/pattern.h"
 enum { R_NONE, R_ENG, R_HDR, R_ACT, T_909, T_808, T_MIX, T_FX, T_MST,
-       MX_LEVEL, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART,
+       MX_LEVEL, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART, V_SEQ,
        O_NONE, O_LIST, O_ASK, NPARTS=5 };
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 #define NONE PR(R_NONE,0,0,0)
-static struct { int help,overlay,list_top,list_n,view,sel[2]; } ui;
+static struct { int help,overlay,list_top,list_n,view,part,sel[2]; } ui;
 static struct { pref_t r[1][4]; } pg;
 static pref_t list_rows[12];
 static const char *const PART_N[] = {"909","808"};
@@ -38,6 +38,7 @@ static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
 static int cur_page(void) { return 0; }
 static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }
 static int smk_clip_mode_on(void) { return clip; }
+#define is_drum() (ui.part < 2)
 static pref_t find_ref(int t,int track,const char *name) {
     assert(track>=0 && track<NDRUM && !strcmp(name,"Level"));
     return PR(R_ENG,t,track,0);
@@ -45,6 +46,7 @@ static pref_t find_ref(int t,int track,const char *name) {
 static void build_pages(void) {
     for(int n=0;n<4;n++) pg.r[0][n]=PR(R_ENG,kit ? T_808 : T_909,ui.sel[kit],n);
 }
+#define smc_select_drum(k,t) (ui.sel[k]=(t),build_pages())
 static void say(const char *a,const char *b) { (void)a;(void)b; }
 '''
 harness += '\n'.join(functions)

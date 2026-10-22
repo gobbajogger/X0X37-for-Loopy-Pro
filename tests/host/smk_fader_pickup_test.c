@@ -9,9 +9,10 @@ typedef struct { uint8_t kind, a, b, c; } pref_t;
 #define PR(k, a, b, c) ((pref_t){(k), (a), (b), (c)})
 static struct { uint32_t buttons, frames; uint8_t fader[4]; } fm1_in;
 static struct { uint32_t act_t; } ui;
-static uint8_t smk_fbank, val[2][4];
+static uint8_t smk_fbank, val[2][4], project_busy;
 static unsigned writes[2][4], touches;
 static char message[64];
+static int ui_project_busy(void) { return project_busy; }
 static uint32_t plat_ms(void) { return 1000u; }
 static char *put_s(char *d, const char *s) { while (*s) *d++ = *s++; *d = 0; return d; }
 static char *put_i(char *d, int n) { return d + sprintf(d, "%d", n); }
@@ -92,5 +93,29 @@ int main(void)
     smk_faders();
     check("re-armed filter takes over at new target", val[1][3] == 20 && writes[1][3] == 2);
     check("accepted moves touched automation", touches == 6u);
+    {
+        uint8_t saved[2][4];
+        unsigned before[2][4];
+        memcpy(saved, val, sizeof saved);
+        memcpy(before, writes, sizeof before);
+        project_busy = 1;
+        fm1_in.buttons = 1u << SMK_BTN_FADER_BANK;
+        fm1_in.fader[0] = 120;
+        smk_faders();
+        check("project hold consumes faders and bank button without edits",
+              smk_fbank == 1 && !memcmp(saved, val, sizeof saved) &&
+              !memcmp(before, writes, sizeof before) && touches == 6u);
+        project_busy = 0;
+        smk_faders();
+        check("held bank button and fader position do not replay after release",
+              smk_fbank == 1 && !memcmp(before, writes, sizeof before));
+        fm1_in.buttons = 0;
+        fm1_in.fader[0] = 119;
+        smk_faders();
+        check("project hold re-arms pickup at the saved target", val[1][0] == 79 && writes[1][0] == before[1][0]);
+        fm1_in.fader[0] = 79;
+        smk_faders();
+        check("fresh target crossing resumes fader writes", writes[1][0] == before[1][0] + 1 && touches == 7u);
+    }
     return failed ? 1 : 0;
 }

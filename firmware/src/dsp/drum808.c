@@ -1649,7 +1649,8 @@ static const uint8_t k_lane_track[L_NUM] = {D8_BD, D8_SD, D8_LT, D8_MT, D8_HT, D
                                             D8_CB, D8_CH, D8_OH, D8_CY};
 static float *d8_dry_r;         /* the render in progress: its right side (0: mono) */
 
-static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float *dry, float *rev, float *dly)
+static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float *dry, float *rev, float *dly,
+                     uint16_t audible_tracks)
 {
     const int tr = k_lane_track[l - d->lane];
     float *dry_r = d8_dry_r;
@@ -1659,6 +1660,7 @@ static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float 
     float trim = k_trim[s], g = d->potv[s][D8P_LEVEL] * l->hit * d->vol;
     float ra = d->potv[s][D8P_REV], da = d->potv[s][D8P_DLY];
     int bypass = p->drive < 1.0e-3f;
+    if (!(audible_tracks & (1u << tr))) g = 0.0f; /* retain envelope, choke and crush state while inaudible */
     if (l->cstep == 0.0f && bypass) {             /* the common case */
         float k = trim * g * l->cg;
         if (dry_r) {
@@ -1700,7 +1702,7 @@ static void lane_mix(drum808_t *d, d8_lane_t *l, const float *buf, int m, float 
     }
 }
 
-static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
+static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n, uint16_t audible_tracks)
 {
     float buf[CHUNK], bus[CHUNK], pair[CHUNK];
     int off, l, i;
@@ -1740,7 +1742,7 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
             {
                 float *dr = d8_dry_r;                     /* the chunk's slice of the right side */
                 d8_dry_r = dr ? dr + off : 0;
-                lane_mix(d, ln, buf, got, dry + off, rev + off, dly + off);
+                lane_mix(d, ln, buf, got, dry + off, rev + off, dly + off, audible_tracks);
                 d8_dry_r = dr;
             }
 #if D8_TAIL_DB
@@ -1753,7 +1755,7 @@ static void d8_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
 void drum808_render(drum808_t *d, float *dry, float *rev, float *dly, int n)
 {
     d8_dry_r = 0;
-    d8_render(d, dry, rev, dly, n);
+    d8_render(d, dry, rev, dly, n, 0x7FFu);
 }
 
 void drum808_pan_settle(drum808_t *d)
@@ -1765,9 +1767,15 @@ void drum808_pan_settle(drum808_t *d)
     }
 }
 
-void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly, int n)
+void drum808_render_st_masked(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly,
+                             int n, uint16_t audible_tracks)
 {
     d8_dry_r = dry_r;
-    d8_render(d, dry_l, rev, dly, n);
+    d8_render(d, dry_l, rev, dly, n, audible_tracks);
     d8_dry_r = 0;
+}
+
+void drum808_render_st(drum808_t *d, float *dry_l, float *dry_r, float *rev, float *dly, int n)
+{
+    drum808_render_st_masked(d, dry_l, dry_r, rev, dly, n, 0x7FFu);
 }

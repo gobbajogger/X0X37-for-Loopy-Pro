@@ -28,7 +28,7 @@ int main(void)
         memcpy(raw + (uint32_t)p * sizeof old, &old, sizeof old);
     }
     memcpy(raw + NPAT * sizeof(pattern2_t), &arr, sizeof arr);
-    stream_from2();
+    stream_from2(&proj);
     for (p = 0; p < NPAT; p++)
         if (proj.pat[p].drum[0].hit[0][0] != (uint32_t)p + 1u ||
             proj.pat[p].bass[0].step[0].note != 36 + p ||
