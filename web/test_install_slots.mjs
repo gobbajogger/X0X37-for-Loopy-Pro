@@ -300,7 +300,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
     : /^FM-1/i.test(product) ? "fm1" : "pro";
   const catalog = JSON.stringify({
-    repo: "https://github.com/gobbajogger/x0x37-for-loopy-pro",
+    repo: "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
     latest: "test",
     versions: [{ version: "test", models: { [model]: { product, pkg: "x.fwsc", size: pkg.raw.length } } }],
   });

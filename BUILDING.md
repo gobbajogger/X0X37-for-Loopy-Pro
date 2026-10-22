@@ -477,7 +477,7 @@ script (the command list is at the top of `host/x0x_host.c`).
 ## Install
 
 X0X's web installer for this repo is
-<https://gobbajogger.github.io/x0x37-for-loopy-pro/install/> (version + model picker, sample
+<https://gobbajogger.github.io/X0X37-for-Loopy-Pro/install/> (version + model picker, sample
 importer at `/breaks/`). Felucca's own installer is on hugelton.github.io. To install your own
 build, use the command line, or a local copy of the site (below).
 
@@ -515,7 +515,7 @@ Troubleshooting). Otherwise, recovery needs [FM-1-transporter](https://github.co
 2. `tools/publish_pages.sh X.Y`: builds the site (landing, installer with every kept version,
    sample importer, manual, firmware) via `tools/make_pages.py`, merges older packages already on
    `gh-pages`, and pushes the branch. The site is
-   <https://gobbajogger.github.io/x0x37-for-loopy-pro/>. Publishing a GitHub Release with the
+   <https://gobbajogger.github.io/X0X37-for-Loopy-Pro/>. Publishing a GitHub Release with the
    `.fwsc` assets also runs `.github/workflows/pages.yml` to rebuild Pages the same way.
 3. `gh release create vX.Y build/x0x-smk37-X.Y.fwsc build/x0x-smk37-elite-X.Y.fwsc build/x0x-smk37-mke-X.Y.fwsc --prerelease`
    for command-line downloads (the installer can also pick these up from the Releases API).

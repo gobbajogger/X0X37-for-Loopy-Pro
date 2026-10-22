@@ -62,4 +62,4 @@ git push -q -f "$REMOTE" gh-pages
 rm -rf .git
 REPO="$(printf %s "$REMOTE" | sed -E 's#(git@github.com:|https://[^@]+@github.com/|https://github.com/)##; s#\.git$##')"
 gh api -X POST "repos/$REPO/pages/builds" >/dev/null 2>&1 || echo "(could not ask GitHub Pages to build: check the repository's Pages settings)"
-echo "pushed the site for $V to gh-pages (https://gobbajogger.github.io/x0x37-for-loopy-pro/)"
+echo "pushed the site for $V to gh-pages (https://gobbajogger.github.io/X0X37-for-Loopy-Pro/)"

@@ -96,5 +96,6 @@ with tempfile.TemporaryDirectory() as td:
     assert cat3["latest"] == "1.0"
     assert "fm1" in cat3["versions"][0]["models"]
     assert (out3 / "firmware" / "x0x-1.0.fwsc").is_file()
+    assert "X0X37-for-Loopy-Pro" in (out2 / "index.html").read_text(encoding="utf-8")
 
 print("PASS installer identities, multi-version merge, sample-importer page, legacy FM-1 site")
