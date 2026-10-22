@@ -42,6 +42,9 @@ static void setup(void)
     proj.set.bt = PROJ_BT_SMC_CENTRAL;
     smc_ble_link(1);
     smc_poll();
+    /* Drum SEQ uses the drum-bank faders (SMC-05); peek is main-mixer only.
+     * Hold a synth part so SEQ still exercises restore from a non-MIX view. */
+    ui.part = PART_303A;
     set_view(V_SEQ);
     build_pages();
     *page_of(V_SEQ) = 0;

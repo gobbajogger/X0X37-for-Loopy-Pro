@@ -54,7 +54,7 @@ struct smc_peek_state {
 static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
 static struct smc_peek_state *const smc_peek =
     (struct smc_peek_state *)(void *)smc_peek_raw;
-static void smc_peek_cancel(void);
+static void smc_peek_cancel(void) { smc_peek->on = 0; }
 
 int smc_project_active(void) { return smc.solo || smc.drum_solo[0] || smc.drum_solo[1]; }
 static void smc_solo_clear(void)
@@ -242,8 +242,6 @@ static uint8_t smc_scaled(pref_t r)
     v = pref_get(r);
     return (uint8_t)((v * 127 + d->max / 2) / d->max);
 }
-
-static void smc_peek_cancel(void) { smc_peek->on = 0; }
 
 /* view in low nibble, page in high (MASTER = SMC_PEEK_MASTER).
  * Caller only invokes for main-mixer home targets, so help/ASK/perf/drum-mix
