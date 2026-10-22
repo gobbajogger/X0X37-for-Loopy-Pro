@@ -37,3 +37,28 @@ After the keyboard returned on USB, repeated DIAG reads reported `plat_state=4` 
 The owner confirmed the X0X screen showed CONNECTED. A fresh USB DIAG then agreed: central state 6, step 14, no mailbox drops. During the control test, controller receive counts increased from 668 to 904 while connected. The owner answered “Controls now work” and added “and smc drives them too.” This confirms response on the existing installed firmware; it does not validate the uninstalled fader-8 correction.
 
 The counter watch also recorded the link leaving CONNECTED later, entering CONNECTING and then SCANNING. The cause is unknown; continuous link stability is not established. No transport firmware change was necessary to obtain the confirmed control response. Do not attribute the original failure conclusively to the Mac connection.
+
+## 23 October 2026 — owner follow-up: no visible SMC connection issues
+
+The owner reports having tested the SMC connection to X0X sufficiently to
+observe **no visible connection issues** in the currently tested setup. The
+earlier symptom of the SMC not reaching X0X controls is not apparent in this
+manual test. This supersedes the earlier *current-status concern* about
+connection reachability; it does not erase the historical link-state transitions
+recorded above.
+
+**Scope of the observation:** owner-reported physical test of the connection
+and basic reachability, not a claim that every SMC fader, knob, button, LED,
+feedback route, both-controller configuration or long-duration link behavior has
+passed exhaustive validation. No new independent hardware test or host regression
+was run for this note.
+
+**Repository reference:** GitHub `main` was
+`c9718ae833eb64a5191c350922593df8a36017c9` when this report was recorded
+on 2026-10-23. The installed firmware and BLE-controller image hashes were not
+provided, so this is **not** proof that an artifact built from that exact commit
+was flashed and hardware-validated. Do not treat this observation as a blanket
+bug-free or release-gate PASS.
+
+No firmware, MIDI routing, Bluetooth or installer behavior changed in recording
+this observation.
