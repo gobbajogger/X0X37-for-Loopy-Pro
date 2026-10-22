@@ -42,6 +42,10 @@ static void setup(void)
     proj.set.bt = PROJ_BT_SMC_CENTRAL;
     smc_ble_link(1);
     smc_poll();
+    /* V_SEQ + a drum part maps faders to the drum bank (SMC-05), not the main
+     * mixer home targets that peek (SMC-07). Use a 303 SEQ page so strips stay
+     * on the main-mixer map under test. */
+    ui.part = PART_303A;
     set_view(V_SEQ);
     build_pages();
     *page_of(V_SEQ) = 0;

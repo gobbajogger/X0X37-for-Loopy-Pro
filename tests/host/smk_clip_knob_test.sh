@@ -24,7 +24,7 @@ cp $SRC/usb.c $OUT/src/usb.c
 cp tests/host/smk_clip_knob_fake_usb.h $OUT/hal/fm1_usb.h
 M=$SRC/app/main_fm1.c
 awk '/^static volatile uint8_t clip_grid_mode;/{on=1} /^#include "app\/smk_clip_keys.h"/{on=0} on' $M > $OUT/apc_a.inc
-awk '/^\/\* Loopy Undo \/ Redo/{on=0} on; /^static uint8_t knob_bank_prev;/{on=1}' $M > $OUT/apc_b.inc
+awk '/^\/\* Loopy Undo \/ Redo/{on=0} /^static uint8_t knob_bank_prev;/{on=1} on' $M > $OUT/apc_b.inc
 awk '/^\/\* -+ clip mode keybed/{on=1} /^\/\* ------- clip mode screen/{on=0} on' $M > $OUT/ck_a.inc
 awk '/^CK_FN void smk_ck_poll\(void\)/{on=1} on; on && /^}/{exit}' $M > $OUT/ck_b.inc
 awk '/^#define AUTOSAVE_QUIET/{print} /^\/\* AUTOSAVE:/{on=1} /^void ui_frame\(void\)/{on=0} on' $SRC/app/ui.c > $OUT/autosave.inc

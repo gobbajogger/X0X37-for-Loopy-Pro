@@ -9,10 +9,15 @@ extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
-static struct {
+typedef struct {
     uint8_t n, b[6];
-} smc_q[SMC_Q];
-static volatile uint8_t smc_qw, smc_qr, smc_link_pending;
+} smc_event_t;
+static smc_event_t smc_q[SMC_Q];
+static volatile uint8_t smc_qw, smc_qr;
+/* TIMER5 owns publication; the main loop owns acknowledgment. A generation
+ * keeps a reconnect visible even if its final state equals the previous one. */
+static volatile uint32_t smc_link_published;
+static uint32_t smc_link_seen;
 /* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
 static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
 uint32_t smc_rx_diag(void)
@@ -28,8 +33,12 @@ static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
     uint8_t up, fresh, solo, rec_part;
+    uint8_t solo_target[8];            /* physical S key: 1..5 parts, then 909/808 tracks; 0 released */
+    uint16_t drum_solo[NKIT];
     uint8_t lit[128], known[128];
     uint8_t fx_restore[3];
+    uint32_t knob_t;                   /* acceleration of the knob now turning, not a panel encoder */
+    uint8_t knob_run, knob_i;
 } smc;
 /* Temporary mapped-page peek: hold the MIX/FX page for a strip, then restore.
  * MIX MASTER is always page index 1+NKIT (PARTS + kits + MASTER). */
@@ -46,6 +55,56 @@ static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
 static struct smc_peek_state *const smc_peek =
     (struct smc_peek_state *)(void *)smc_peek_raw;
 
+int smc_project_active(void) { return smc.solo || smc.drum_solo[0] || smc.drum_solo[1]; }
+static void smc_solo_clear(void)
+{
+    memset(smc.solo_target, 0, sizeof smc.solo_target);
+    smc.solo = 0;
+    smc.drum_solo[0] = smc.drum_solo[1] = 0;
+    engine_smc_solo(0);
+}
+
+static void smc_solo_publish(void)
+{
+    smc.solo = 0;
+    smc.drum_solo[0] = smc.drum_solo[1] = 0;
+    for (int i = 0; i < 8; i++) {
+        int target = smc.solo_target[i];
+        if (target > 0 && target <= NPARTS)
+            smc.solo |= (uint8_t)(1u << (target - 1));
+        else if (target > NPARTS) {
+            target -= NPARTS + 1;
+            smc.drum_solo[target / NDRUM] |= (uint16_t)(1u << (target % NDRUM));
+        }
+    }
+    engine_smc_solo_targets(smc.solo, smc.drum_solo[0], smc.drum_solo[1]);
+}
+
+static void smc_solo_press(int strip, int target, int mmc)
+{
+    if (mmc)                           /* no key-up: another press toggles, a new bank replaces this key's latch */
+        smc.solo_target[strip] = smc.solo_target[strip] == target ? 0 : (uint8_t)target;
+    else if (!smc.solo_target[strip])    /* repeats must not move a held key to a different bank or page */
+        smc.solo_target[strip] = (uint8_t)target;
+    smc_solo_publish();
+}
+X0X_COLD static void smc_project_drop(void)
+{
+    smc_qr = smc_qw;
+    smc_host_r = smc_host_w;
+    smc_mmc_r[0] = smc_mmc_w[0];
+    smc_mmc_r[1] = smc_mmc_w[1];
+}
+X0X_COLD void smc_project_reset(void)
+{
+    uint8_t up = smc.up;
+    smc_project_drop();
+    memset(&smc, 0, sizeof smc);
+    smc.up = smc.fresh = up;
+    smc.pending = 0xFFu;
+    engine_smc_solo(0);
+}
+
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
     uint8_t w = smc_qw, i;
@@ -60,7 +119,11 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
     smc_enqueued++;
 }
 
-void smc_ble_link(int up) { smc_link_pending = (uint8_t)(up ? 1u : 2u); }
+void smc_ble_link(int up)
+{
+    uint32_t next = (smc_link_published + 2u) & ~1u;
+    smc_link_published = next | (uint32_t)(up != 0);
+}
 int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
 int smc_connected(void) { return smc.up && smc_ble_role_get(); }
 
@@ -126,7 +189,9 @@ static pref_t smc_page_target(int n)
 
 static int smc_drum_mix(void)
 {
-    return ui.overlay == O_NONE && !smk_clip_mode_on() ? drum_mix_page() : -1;
+    if (ui.overlay != O_NONE || smk_clip_mode_on()) return -1;
+    /* SEQ follows its selected drum part; MIX follows the kit actually shown. */
+    return ui.view == V_SEQ && is_drum() ? ui.part : drum_mix_page();
 }
 
 static int smc_drum_track(int kit, int strip)
@@ -135,12 +200,14 @@ static int smc_drum_track(int kit, int strip)
     return track < NDRUM ? track : -1;
 }
 
-/* Faders use the main mixer except on the visible drum MIX pages. The
+/* Faders use the main mixer except on drum SEQ and visible drum MIX pages. The
  * sample bank follows selection, including the final three of eleven tracks. */
 static pref_t smc_target(int n)
 {
     int kit, track;
-    if (ui.help || ui.overlay == O_ASK)
+    /* Only a confirmation parks the surface. Help is a card only: controls keep
+     * working under it, including fader pickup toward the live target. */
+    if (ui.overlay == O_ASK)
         return NONE;
     kit = smc_drum_mix();
     if (kit >= 0) {
@@ -155,10 +222,10 @@ static pref_t smc_target(int n)
 static pref_t smc_knob_target(int n)
 {
     pref_t r;
-    if (ui.help || ui.overlay == O_ASK)
+    if (ui.overlay == O_ASK)
         return NONE;
     if (ui.overlay == O_NONE && !smk_clip_mode_on() &&
-        (ui.view == V_HOME || (ui.view == V_MIX && (cur_page() == 0 || drum_mix_page() >= 0))))
+        (ui.view == V_HOME || (ui.view == V_MIX && cur_page() == 0) || smc_drum_mix() >= 0))
         return smc_target(n);
     r = smc_page_target(n);
     for (int i = 0; i < n; i++)
@@ -179,8 +246,8 @@ static uint8_t smc_scaled(pref_t r)
 static void smc_peek_cancel(void) { smc_peek->on = 0; }
 
 /* view in low nibble, page in high (MASTER = SMC_PEEK_MASTER).
- * Caller only invokes for main-mixer home targets, so help/ASK/perf/drum-mix
- * are already excluded; clip and O_LIST still reach smc_show with home refs. */
+ * Main-mixer home targets only. Help still allows fader/knob edits (SMC-02) but
+ * must not steal the screen; ASK/clip/list overlays and drum MIX/SEQ skip peek. */
 static void smc_peek_begin(int n)
 {
     static const uint8_t map[8] = {
@@ -188,7 +255,7 @@ static void smc_peek_begin(int n)
         V_FX, V_FX | 0x10, V_MIX | (SMC_PEEK_MASTER << 4)
     };
     uint8_t view, page, mix;
-    if ((unsigned)n > 7u || ui.overlay || smk_clip_mode_on())
+    if ((unsigned)n > 7u || ui.help || ui.overlay || smk_clip_mode_on())
         return;
     view = map[n] & 15u;
     page = map[n] >> 4;
@@ -309,14 +376,32 @@ show:
 
 static void smc_knob(int n, int delta)
 {
-    if (ui.overlay == O_ASK || ui.help)
+    uint32_t saved_t;
+    uint8_t saved_run;
+    if (ui.overlay == O_ASK)
         return;
     if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
         return;                          /* a SCALE / CHORD / ARP page owns its visible fields */
     pref_t r = smc_knob_target(n);
     if (r.kind == R_NONE || r.kind == R_HDR || r.kind == R_ACT)
         return;
-    turn_ref(r, delta, EN_K1 + n % 4);
+    /* Eight strips share one acceleration slot. Keep it off the panel encoders, and
+     * start again when the finger moves to another strip. */
+    saved_t = ui.enc_t[EN_K1];
+    saved_run = ui.enc_run[EN_K1];
+    if (smc.knob_i != (uint8_t)(n + 1)) {
+        ui.enc_t[EN_K1] = 0;
+        ui.enc_run[EN_K1] = 0;
+        smc.knob_i = (uint8_t)(n + 1);
+    } else {
+        ui.enc_t[EN_K1] = smc.knob_t;
+        ui.enc_run[EN_K1] = smc.knob_run;
+    }
+    turn_ref(r, delta, EN_K1);
+    smc.knob_t = ui.enc_t[EN_K1];
+    smc.knob_run = ui.enc_run[EN_K1];
+    ui.enc_t[EN_K1] = saved_t;
+    ui.enc_run[EN_K1] = saved_run;
     ui.act_t = plat_ms();
     smc_show(n, 1, r);
 }
@@ -354,8 +439,10 @@ static void smc_record_toggle(void)
 
 static void smc_select_part(int part)
 {
-    if (part != ui.part)
+    if (part != ui.part) {
         bass_step_cancel();             /* restore a held 303 step's sound before the page changes */
+        drum_step_cancel();
+    }
     ui.part = (uint8_t)part;
     ui.mixsel = (uint8_t)part;
     if (ui.view == V_GEN && !is_303())
@@ -364,26 +451,32 @@ static void smc_select_part(int part)
     build_pages();
 }
 
+static void smc_select_drum(int kit, int track)
+{
+    if (ui.sel[kit] != track) drum_step_cancel();
+    ui.sel[kit] = (uint8_t)track;
+    smc_select_part(kit);               /* the SMK pads and recording now share the visible drum's selection */
+}
+
 static int smc_bank(uint8_t note)
 {
-    if ((note == 0x2E || note == 0x2F) && !ui.help && ui.overlay == O_NONE &&
-        !smk_clip_mode_on() && drum_mix_page() >= 0) {
-        int kit = drum_mix_page();
-        ui.sel[kit] = note == 0x2E ? 0 : 8;
-        build_pages();
+    if ((note == 0x2E || note == 0x2F) && ui.overlay == O_NONE &&
+        !smk_clip_mode_on() && smc_drum_mix() >= 0) {
+        int kit = smc_drum_mix();
+        smc_select_drum(kit, note == 0x2E ? 0 : 8);
         say(PART_N[kit], note == 0x2E ? "1-8" : "9-11");
         return 1;
     }
     return 0;
 }
 
-/* Main strips address parts and FX. Drum MIX pages pair M and SELECT with
- * the visible fader/knob bank. Reserved and global buttons navigate X0X. */
+/* All four drum SEQ/MIX rows follow the visible fader/knob bank. Outside those
+ * pages the strips retain their whole-part, FX and navigation functions. */
 static void smc_button(uint8_t note, int mmc)
 {
     int row, strip;
-    if (ui.help) {
-        if (note == 6) ui.help = 0;       /* R7: back */
+    if (ui.help && note == 6) {          /* R7 closes the card; every other control keeps working under it */
+        ui.help = 0;
         return;
     }
     if (ui.overlay == O_ASK) {
@@ -393,33 +486,46 @@ static void smc_button(uint8_t note, int mmc)
     }
     if (ui.overlay == O_NONE && smk_ck_smc_nav(note))
         return;
+    if (!mmc && note >= 8u && note < 16u && smc.solo_target[note - 8u])
+        return;                        /* a held Solo's repeat cannot turn into a navigation shortcut */
+    if (note < 32u) {
+        int kit = smc_drum_mix();
+        if (kit >= 0) {
+            int track = smc_drum_track(kit, note & 7);
+            if (track < 0) return;      /* bank 2's empty positions never become navigation shortcuts */
+            switch (note >> 3) {
+            case 0:
+                smc_select_drum(kit, track);
+                smc_record_toggle();
+                break;
+            case 1:
+                smc_solo_press(note & 7, NPARTS + 1 + kit * NDRUM + track, mmc);
+                say(smc.drum_solo[kit] & (1u << track) ? "SOLO" : "UNSOLO",
+                    engine_voice_name(kit ? T_808 : T_909, track));
+                break;
+            case 2:
+                mute_track(kit, track);
+                break;
+            default:
+                smc_select_drum(kit, track);
+                break;
+            }
+            return;
+        }
+    }
     if (note == 5 || note == 6 || note == 14) {
         button_tap(note == 5 ? (smk_clip_mode_on() && ui.overlay == O_NONE ? B_GLO : B_SEL) :
                    note == 6 ? B_HOME : B_GLO);
         return;
     }
-    if (note >= 16 && note < 32) {
-        int kit = smc_drum_mix();
-        if (kit >= 0) {
-            int track = smc_drum_track(kit, note & 7);
-            if (note < 24) {
-                if (track >= 0) mute_track(kit, track);
-            } else {
-                if (track >= 0) ui.sel[kit] = (uint8_t)track;
-                build_pages();
-            }
-            return;
-        }
-    }
     if ((note == 0x30 || note == 0x31 ||
          ((note == 0x2E || note == 0x2F) && ui.view == V_PART && is_drum())) &&
         ui.overlay == O_NONE && !smk_clip_mode_on()) {
-        int kit = drum_mix_page();
+        int kit = smc_drum_mix();
         if (kit < 0 && ui.view == V_PART && is_drum()) kit = ui.part;
         if (kit >= 0) {
             int track = ui.sel[kit] + ((note & 1) ? 1 : -1);
-            if (track >= 0 && track < NDRUM) ui.sel[kit] = (uint8_t)track;
-            build_pages();
+            if (track >= 0 && track < NDRUM) smc_select_drum(kit, track);
             return;
         }
     }
@@ -431,11 +537,7 @@ static void smc_button(uint8_t note, int mmc)
                 smc_select_part(strip);
                 smc_record_toggle();
             } else if (row == 1) {      /* SOLO */
-                if (mmc)                /* stock User MMC has no release: latch as fallback */
-                    smc.solo ^= (uint8_t)(1u << strip);
-                else
-                    smc.solo |= (uint8_t)(1u << strip);
-                engine_smc_solo(smc.solo);
+                smc_solo_press(strip, strip + 1, mmc);
                 say((smc.solo & (1u << strip)) ? "SOLO" : "UNSOLO", PART_N[strip]);
             } else if (row == 2)       /* MUTE */
                 mute_part(strip);
@@ -508,9 +610,9 @@ static void smc_button(uint8_t note, int mmc)
 
 static void smc_release(uint8_t note)
 {
-    if (note >= 8u && note < 8u + NPARTS) {
-        smc.solo &= (uint8_t)~(1u << (note - 8u));
-        engine_smc_solo(smc.solo);
+    if (note >= 8u && note < 16u && smc.solo_target[note - 8u]) {
+        smc.solo_target[note - 8u] = 0; /* release the original target, even after navigation */
+        smc_solo_publish();
     }
 }
 
@@ -560,86 +662,116 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
 
 void smc_poll(void)
 {
-    uint8_t link = smc_link_pending, r, count = 0;
+    uint32_t link = smc_link_published;
+    uint8_t r, count = 0;
     int allow = !perf_testing();
-    if (link) {
-        smc_link_pending = 0;
-        smc.up = link == 1u;
+    if (ui_project_busy()) {
+        if (smc_project_active()) smc_solo_clear();
+        smc_project_drop();
+        return;
+    }
+    if (link != smc_link_seen) {
+        /* Never clear the ISR's publication: it may already contain a newer
+         * link edge than this snapshot. The next poll must still see it. */
+        smc_link_seen = link;
+        smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
         smc.picked = smc.seen = 0;
+        smc.knob_i = 0;
         smc.pending = 0xFFu;
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
+        smc_solo_clear();              /* also covers a down/up pair coalesced before this poll */
         if (!smc.up) {
-            smc.solo = 0;
-            engine_smc_solo(0);
             smc_peek_cancel();
             ui_say("SMC LOST", 0);
         } else
             ui_say("SMC CONNECTED", 0);
     }
-    if (!allow || ui.overlay == O_ASK || ui.help) {
+    /* Confirmation parks pickup and solos. Help does not. */
+    if (!allow || ui.overlay == O_ASK) {
         smc.picked = smc.seen = 0;
         smc_peek_cancel();            /* block holds; leave the current page as-is */
-        if (smc.solo) {
-            smc.solo = 0;
-            engine_smc_solo(0);
-        }
+        smc.knob_i = 0;
+        if (smc_project_active()) smc_solo_clear();
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
+        __asm__ volatile("" ::: "memory");
+        smc_event_t msg = smc_q[r % SMC_Q];
+        /* The ISR may reuse a full ring's slot as soon as the read index moves.
+         * Keep a private event before releasing it. Release before dispatch so
+         * a project action can still discard the remaining queued input. */
+        __asm__ volatile("" ::: "memory");
+        smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
         else {
             if (allow && !perf_testing()) smc_dispatched++;
-            smc_reason = smc_message(smc_q[r % SMC_Q].b, smc_q[r % SMC_Q].n, allow);
+            smc_reason = smc_message(msg.b, msg.n, allow);
         }
-        smc_qr = (uint8_t)(r + 1u);
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
         r = smc_host_r;
-        if (proj.set.bt & PROJ_BT_SMC_USER)
-            smc_message(smc_host_q[r % SMC_Q], 3, allow);
+        uint8_t msg[3];
+        __asm__ volatile("" ::: "memory");
+        memcpy(msg, smc_host_q[r % SMC_Q], sizeof msg);
+        __asm__ volatile("" ::: "memory");
         smc_host_r = (uint8_t)(r + 1u);
+        if (proj.set.bt & PROJ_BT_SMC_USER)
+            smc_message(msg, sizeof msg, allow);
     }
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
             r = smc_mmc_r[src];
-            if (proj.set.bt & PROJ_BT_SMC_USER)
-                smc_guarded_button(smc_mmc_note(smc_mmc_q[src][r % 16u]), 1, allow);
+            __asm__ volatile("" ::: "memory");
+            uint8_t cmd = smc_mmc_q[src][r % 16u];
+            __asm__ volatile("" ::: "memory");
             smc_mmc_r[src] = (uint8_t)(r + 1u);
+            if (proj.set.bt & PROJ_BT_SMC_USER)
+                smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
     }
+    if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
+        smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
 }
 
 static int smc_led(int note)
 {
     int strip = note & 7, row = note >> 3;
-    if (note == 5) return ui.overlay != O_NONE;
-    if (note == 6) return 0;
-    if (note == 14) return ui.view == V_GLO;
-    if (note >= 16 && note < 32) {
+    if (note < 32) {
         int kit = smc_drum_mix();
         if (kit >= 0) {
-            if (note >= 24) return strip == ui.sel[kit] % 8;
-            if (!ui.help) {
-                int track = smc_drum_track(kit, strip);
-                return track >= 0 && track_muted(kit, track);
-            }
+            int track = smc_drum_track(kit, strip);
+            if (track < 0) return 0;
+            if (row == 0) return ui.rec && ui.part == kit && ui.sel[kit] == track;
+            if (row == 1) return !!(smc.drum_solo[kit] & (1u << track));
+            if (row == 2) return track_muted(kit, track);
+            return ui.sel[kit] == track;
         }
     }
+    if (note == 5) return ui.overlay != O_NONE;
+    if (note == 6) return 0;
+    if (note == 7) return ui.view == V_HOME;
+    if (note == 13) return ui.view == V_MIX;
+    if (note == 14) return ui.view == V_GLO;
+    if (note == 15) return ui.view == V_PART;
     if (note < 32) {
         if (strip < NPARTS) {
-            if (row == 0) return ui.rec && smc.rec_part == strip;
+            /* Panel REC and part changes update ui.part / ui.rec without smc.rec_part. */
+            if (row == 0) return ui.rec && ui.part == strip;
             if (row == 1) return !!(smc.solo & (1u << strip));
             if (row == 2) return part_muted(strip);
             return ui.part == strip;
         }
+        /* Strips 6–8: M = mute/zero. R8/S6/S7/S8 are handled above; SELECT 6/7/8
+         * open reverb, delay and master (drum SELECT was handled above). */
         if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
                                      smc_home_target(strip)) == 0;
-        return (strip == 5 && ui.view == V_FX) || (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
-               (strip == 7 && (ui.view == V_MIX || ui.view == V_HOME));
+        return (strip == 5 && ui.view == V_FX && cur_page() == 0) ||
+               (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
+               (strip == 7 && ui.view == V_MIX && cur_page() == 3);
     }
     if (note == 0x5D) return !seq.playing;
     if (note == 0x5E) return seq.playing;
@@ -653,7 +785,7 @@ void smc_frame(void)
     uint8_t msg[3];
     int i, n, want;
     smc_peek_tick();
-    if (!smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
+    if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
         return;
     for (i = 0; i < 8; i++) smc_notice(i);
     for (i = 0; i < 43; i++) {

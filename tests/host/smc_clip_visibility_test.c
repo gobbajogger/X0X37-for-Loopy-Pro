@@ -3,15 +3,21 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "x0x_cold.h"
 #include "app/smc_protocol.h"
 #define CK_FN __attribute__((unused))
 #include "app/smk_clip_keys.h"
 
-enum { O_NONE, O_LIST, O_ASK, R_NONE, R_HDR, R_ACT, R_ENG, EN_K1,
-       B_HOME, PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
+enum { O_NONE, O_LIST, O_ASK, R_NONE, R_HDR, R_ACT, R_ENG, EN_K1, NE,
+       B_HOME, NKIT = 2, PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
 typedef struct { uint8_t kind; } pref_t;
 static struct { struct { uint8_t bt; } set; } proj;
-static struct { uint8_t overlay, help; uint32_t act_t; } ui;
+static struct {
+    uint8_t overlay, help;
+    uint32_t act_t;
+    uint32_t enc_t[NE];
+    uint8_t enc_run[NE];
+} ui;
 static struct { uint8_t pg; } ck;
 static uint8_t clip_grid_mode, fields[CK_NE];
 static unsigned dirty, notices, fallback_turns;
@@ -30,6 +36,7 @@ static const char *ck_val_txt(uint32_t f, uint32_t v, char *s)
 #include "clip_turn.inc"
 
 static uint8_t perf_testing(void) { return 0; }
+static int ui_project_busy(void) { return 0; }
 static void button_tap(int button) { (void)button; }
 static void engine_smc_solo(uint8_t solo) { (void)solo; }
 static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
@@ -80,8 +87,19 @@ static void covered(uint8_t overlay, uint8_t help)
         check("menu owns encoders without editing covered clip fields",
               !memcmp(before, fields, sizeof before) && dirty == d &&
               fallback_turns == ft + 8 && page_value == pv + 8);
+    } else if (help) {
+        if (clip_grid_mode && !(ck.pg & 3u)) {
+            /* Grid itself still swallows encoders; help must not become a second lock. */
+            check("help leaves clip-grid encoders inactive",
+                  !memcmp(before, fields, sizeof before) && dirty == d &&
+                  fallback_turns == ft && page_value == pv && ui.help == 1);
+        } else {
+            check("help leaves encoders working under the card",
+                  (dirty != d || fallback_turns != ft || page_value != pv ||
+                   memcmp(before, fields, sizeof before)) && ui.help == 1);
+        }
     } else {
-        check(help ? "help blocks clip fields and X0X fallback" : "confirmation blocks clip fields and X0X fallback",
+        check("confirmation blocks clip fields and X0X fallback",
               !memcmp(before, fields, sizeof before) && dirty == d && notices == nt &&
               fallback_turns == ft && page_value == pv && ui.act_t == act);
     }

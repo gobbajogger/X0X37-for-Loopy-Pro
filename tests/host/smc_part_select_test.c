@@ -22,6 +22,7 @@ static void bass_step_cancel(void)
         old_sounding = old_saved;      /* lock_release restores the selected page's sound */
     ui.held_step = -1;
 }
+#define drum_step_cancel() ((void)0) /* no drum gesture in this 303-focused fixture */
 static void set_view(int v) { ui.view = (uint8_t)v; }
 static void build_pages(void) { page_part = ui.part; }
 #include "smc_select_part.inc"

@@ -257,6 +257,11 @@ void plat_stalls_enable(int on) { (void)on; }
 #include "../firmware/src/app/x0x.h"
 #include "../firmware/src/app/project.c"
 #include "../firmware/src/app/ui.c"
+#if BOARD_SMK37
+/* Native SMC fixtures provide clip input substitutes; real keybed/pad reset is hardware-only. */
+int smk_project_active(void) { extern uint8_t smk_ck_flash_busy(void); return smk_ck_flash_busy(); }
+void smk_project_reset(void) {}
+#endif
 
 /* The SMK-37 "<" and ">" as main_fm1.c smk_arrows does them (the same smk_arrows.h), after each frame.
  * Script: "arrow L|R down|up|tap", "clipmode 0|1" (the route only: the host has no clip mode screen). */
