@@ -132,9 +132,12 @@ select:hover { border-color: #718769; }
 .models label:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
 .models input { flex: none; width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
 .model-select p { font-size: 11px; color: var(--muted); line-height: 1.7; margin: 10px 0 0; }
-#ble { border-top: 1px solid var(--rule); padding-top: 18px; margin-top: 14px; }
-#ble p { color: var(--dim); font-size: 12px; }
-#ctlfile { max-width: 100%; font-size: 11px; }
+#ble { border: 1px dashed #566657; border-radius: 8px; padding: 15px 17px; margin: 15px 0; background: var(--card-raised); }
+#ble .step-kicker { margin-bottom: 7px; }
+#ble p { color: var(--dim); font-size: 11px; line-height: 1.6; margin: 0 0 11px; }
+#ctlfile { max-width: 100%; width: 100%; font-size: 11px; color: var(--dim); }
+#ctlfile::file-selector-button { border: 1px solid var(--rule); border-radius: 6px; padding: 8px 11px; margin-right: 10px; background: var(--soft); color: var(--accent); font: 700 11px var(--mono); cursor: pointer; }
+#ctlfile::file-selector-button:hover { border-color: var(--accent); }
 .build-detail { padding: 15px 17px; border: 1px solid #566647; border-radius: 7px; background: var(--soft); margin: 15px 0; }
 .build-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 10px; }
 .build-badge { border: 1px solid var(--rule); border-radius: 4px; padding: 4px 7px; font: 700 10px/1.3 var(--mono); text-transform: uppercase; color: var(--fg); }
@@ -314,6 +317,11 @@ progress::-moz-progress-bar { background: var(--accent); }
           </label>
         </div>
     <p class="meta" id="pkgmeta"></p>
+    <fieldset class="model-select" id="modeldetails">
+      <legend data-t="modelheading">Choose your keyboard model</legend>
+      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
+      <p data-t="modelwhy"></p>
+    </fieldset>
     <div class="build-detail" id="builddetail" hidden>
       <div class="build-badges" id="buildbadges"></div>
       <p class="small" id="buildsummary"></p>
@@ -322,12 +330,8 @@ progress::-moz-progress-bar { background: var(--accent); }
       <p class="small" data-t="ctrlwarning">Direct SMC Bluetooth requires a separately built ctl.img; it is not bundled.</p>
       <label id="devagreewrap" hidden><input type="checkbox" id="devagree"> <span data-t="devagree">I understand this is hardware-untested development firmware; I must verify the exact model and make a backup before flashing.</span></label>
     </div>
-    <fieldset class="model-select" id="modeldetails">
-      <legend data-t="modelheading">Choose your keyboard model</legend>
-      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
-      <p data-t="modelwhy"></p>
-    </fieldset>
     <section id="ble" hidden>
+      <div class="step-kicker" data-t="controlleroptional">Optional / SMC Bluetooth</div>
       <p class="small" data-t="blewhy"></p>
       <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
     </section>
@@ -420,6 +424,7 @@ const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99d
 const TEXT = {
   ja: {
     navinstaller: "インストール", navmanual: "マニュアル", navsamples: "サンプル",
+    controlleroptional: "任意 / SMC Bluetooth",
     verlatest: "最新 DEV", verolder: "旧 DEV", verdev: "DEV", verrelease: "リリース", verunverified: "未検証",
     eyebrow: "デバイスファームウェア / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
     stage1: "手順 01 / 接続", stage2: "手順 02 / ファームウェア", stage3: "手順 03 / インストール",
@@ -507,6 +512,7 @@ const TEXT = {
   },
   en: {
     navinstaller: "Installer", navmanual: "Manual", navsamples: "Samples",
+    controlleroptional: "Optional / SMC Bluetooth",
     verlatest: "latest DEV", verolder: "older DEV", verdev: "DEV", verrelease: "release", verunverified: "unverified",
     eyebrow: "DEVICE SOFTWARE / WEB MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
     stage1: "Step 01 / Connection", stage2: "Step 02 / Firmware", stage3: "Step 03 / Install",
