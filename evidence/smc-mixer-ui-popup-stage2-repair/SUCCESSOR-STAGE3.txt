@@ -1,0 +1,11 @@
+Stage 3 TEST — SMC mixer UI popup after Stage-2 XIP repair.
+
+Fresh stage-3 thread. Read evidence/smc-mixer-ui-popup-stage2-repair/HANDOFF.md and
+stage3-prompt.txt (full assignment).
+
+Candidate branch: cursor/smc-mixer-ui-popup-stage2-repair-5686 (repair of 5109ef6/ad4f311).
+Elite/Pro DEV linked with 56 B free on the repair machine; re-run host suite, then Stage 4.
+Do not install. Do not merge to main.
+
+NOTE: This Stage-2 repair thread could not create a cloud successor (no agent-spawn /
+ManagePullRequest tool in this environment). Parent must launch Stage 3 with stage3-prompt.txt.
