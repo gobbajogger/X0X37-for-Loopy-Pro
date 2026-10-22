@@ -11,237 +11,277 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Install · X0X</title>
 <style>
-  :root {
-    --bg: #f4f5f6; --fg: #1c1f23; --dim: #5b626a; --rule: #d9dde1; --accent: #c8700a;
-    --card: #fff; --ok: #1a7f4b; --busy: #b45309; --err: #b42318; color-scheme: light;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #131518; --fg: #e6e8eb; --dim: #9aa1a9; --rule: #2d3137; --accent: #f0a043;
-      --card: #1a1d21; --ok: #3dd68c; --busy: #f0a043; --err: #f97066; color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #131518; --fg: #e6e8eb; --dim: #9aa1a9; --rule: #2d3137; --accent: #f0a043;
-    --card: #1a1d21; --ok: #3dd68c; --busy: #f0a043; --err: #f97066; color-scheme: dark;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg);
-         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
-  main { max-width: 560px; margin: 0 auto; padding: 48px 16px 64px; }
-  h1 { font-size: 24px; font-weight: 600; margin: 0 0 12px; }
-  h2 { font-size: 18px; font-weight: 600; margin: 40px 0 12px; }
-  .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; }
-  p { margin: 0 0 16px; }
-  .small { color: var(--dim); font-size: 13px; }
-  a { color: var(--accent); }
-  .home { display: inline-block; font-weight: 700; letter-spacing: .03em; color: var(--dim); text-decoration: none; margin: 0 0 12px; }
-  .home:hover, .home:focus-visible { color: var(--fg); }
-  .connect {
-    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
-    margin: 0 0 24px; padding: 12px 14px; background: color-mix(in srgb, var(--card) 92%, transparent);
-    border: 1px solid var(--rule); backdrop-filter: blur(8px);
-  }
-  .led { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--dim); }
-  .led.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
-  .led.busy { background: var(--busy); animation: blink .8s infinite; }
-  .led.err { background: var(--err); }
-  @keyframes blink { 50% { opacity: .35; } }
-  .ctext { flex: 1; min-width: 0; display: grid; gap: 2px; }
-  .ctext b { font-size: 14px; }
-  .ctext span { color: var(--dim); font-size: 12px; overflow-wrap: anywhere; }
-  .panel { background: var(--card); border: 1px solid var(--rule); padding: 16px; margin: 0 0 20px; }
-  .row { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin: 0 0 14px; }
-  label.field { display: grid; gap: 4px; font-size: 13px; color: var(--dim); }
-  select, input[type=file] { font: inherit; font-size: 14px; color: var(--fg); max-width: 100%; }
-  select { background: var(--bg); border: 1px solid var(--rule); padding: 6px 10px; }
-  .models { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--fg); }
-  .models label { cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
-  .models input { accent-color: var(--accent); margin: 0; }
-  details.model { margin: 0 0 14px; color: var(--dim); }
-  details.model summary { cursor: pointer; width: max-content; font-size: 13px; }
-  details.model summary:hover { color: var(--accent); }
-  details.model p { margin: 8px 0 0; font-size: 12px; }
-  button { font: inherit; background: var(--fg); color: var(--bg); border: 0; padding: 8px 20px; cursor: pointer; }
-  button.quiet { background: none; color: var(--fg); border: 1px solid var(--rule); }
-  button:disabled { opacity: .3; cursor: default; }
-  #status { margin-top: 12px; min-height: 1.6em; }
-  progress { width: 100%; height: 4px; margin-top: 12px; }
-  pre { color: var(--dim); font-size: 12px; white-space: pre-wrap; margin-top: 12px; max-height: 12em; overflow: auto; }
-  .drop {
-    border: 1px dashed var(--rule); padding: 18px 14px; text-align: center; color: var(--dim);
-    font-size: 13px; margin: 0 0 12px; cursor: pointer;
-  }
-  .drop.over { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
-  .drop input { display: none; }
-  ol { margin: 0 0 16px; padding-left: 20px; }
-  .meta { font-size: 12px; color: var(--dim); margin: 0 0 14px; }
+/* X0X37 / firmware control desk. Source-only skin: no flashing logic. */
+:root {
+  --bg: #0b0e10;
+  --card: #14191c;
+  --card-raised: #1b2225;
+  --fg: #eff3ef;
+  --dim: #a1ada9;
+  --muted: #77847f;
+  --rule: #343e3a;
+  --accent: #ccfc76;
+  --accent-ink: #121c0b;
+  --soft: #202e24;
+  --ok: #a6e79b;
+  --busy: #f6c582;
+  --err: #ff877f;
+  --radius: 14px;
+  --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f0f0e9; --card: #fffefa; --card-raised: #f7f8f0;
+  --fg: #171c19; --dim: #4c5950; --muted: #69766c; --rule: #cbd2c5;
+  --accent: #355a05; --accent-ink: #fff; --soft: #edf2d6;
+  --ok: #24763d; --busy: #a06112; --err: #b6372e;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+main { width: min(1160px, 100%); margin: 0 auto; padding: 0 30px 56px; }
+a { color: var(--accent); text-underline-offset: 4px; }
+a:hover { text-decoration-thickness: 2px; }
+button, select, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .46; cursor: not-allowed; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+p { margin: 0 0 13px; }
+h1, h2, h3 { margin: 0; }
+.small { font-size: 12px; color: var(--dim); line-height: 1.65; }
+.meta { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.7; margin: 8px 0 13px; overflow-wrap: anywhere; }
 
-  .build-detail {border-left:3px solid var(--busy);padding:8px 12px;margin:12px 0;background:var(--card)}
-  .build-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-  .build-badge{border:1px solid var(--rule);border-radius:5px;padding:2px 7px;font-size:12px;font-weight:bold}
-  .build-badge.important{border-color:var(--busy);color:var(--busy)}
-  .build-badge.blocked{border-color:var(--err);color:var(--err)}
-  #devagreewrap{display:block;font-weight:bold;margin:12px 0}
-  #devagreewrap[hidden]{display:none}
-  .build-item{border-top:1px solid var(--rule);padding:12px 0}
-  .build-item h3{font-size:16px;margin:0 0 5px}
-  .build-item p{margin:5px 0}
-  .build-item button{margin:5px 0;padding:7px 12px}
-  .build-item .meta,#buildprovenance{overflow-wrap:anywhere}
+/* Compact utility navigation, oversized editorial heading, device-inspired graphic. */
+.site-head { position: relative; padding: 0 0 32px; margin-bottom: 24px; border-bottom: 1px solid var(--rule); }
+.header-top { min-height: 76px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--rule); margin-bottom: 32px; }
+.home { display: inline-flex; align-items: center; gap: 13px; font: 850 19px/1 var(--mono); color: var(--fg); letter-spacing: -.065em; text-decoration: none; white-space: nowrap; }
+.home::before { content:""; width: 30px; height: 26px; flex: none; display: block;
+  background: linear-gradient(135deg, transparent 0 22%, var(--accent) 22% 30%, transparent 30% 46%, var(--accent) 46% 54%, transparent 54% 70%, var(--accent) 70% 78%, transparent 78%);
+}
+.head-nav { margin-left: auto; display: flex; align-items: center; gap: 19px; }
+.head-nav a { text-decoration: none; font-size: 12px; font-weight: 650; color: var(--dim); }
+.head-nav a:hover, .head-nav a[aria-current="page"] { color: var(--fg); }
+.head-nav a[aria-current="page"]::after { content:""; display: block; background: var(--accent); height: 2px; margin-top: 3px; }
+.lang { background: transparent; border: 1px solid var(--rule); border-radius: 6px; color: var(--fg); padding: 8px 12px; min-height: 38px; font: 700 11px var(--mono); letter-spacing: .02em; }
+.lang:hover { border-color: var(--accent); }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 335px; align-items: center; gap: 28px; }
+.eyebrow, .step-kicker { font: 700 11px/1.5 var(--mono); letter-spacing: .09em; text-transform: uppercase; color: var(--accent); }
+.eyebrow { margin: 0 0 13px; }
+h1 { font-size: clamp(46px, 5.8vw, 74px); letter-spacing: -.07em; line-height: .98; font-weight: 800; margin: 0 0 19px; }
+.lead { font-size: 16px; line-height: 1.6; color: var(--dim); max-width: 620px; margin-bottom: 0; }
+.device-visual { align-self: center; border: 1px solid #3d4941; background: #1c2322; border-radius: 15px; padding: 19px; box-shadow: 0 26px 42px #0004, inset 0 1px #ffffff18; transform: rotate(-3deg); }
+.device-visual .device-top { display: flex; align-items: center; justify-content: space-between; color: #aeb5b0; font: 650 10px var(--mono); letter-spacing: .07em; }
+.device-visual .device-top b { color: #d7f5aa; font-weight: 850; }
+.device-screen { border: 1px solid #405e49; border-radius: 4px; background: #111b13; margin: 15px 0 16px; padding: 14px 15px; display: flex; justify-content: space-between; align-items: center; }
+.device-screen strong { color: #d6f99b; font: 750 23px/.9 var(--mono); letter-spacing: -.04em; }
+.device-screen small { color: #b4c8a5; font: 9px/1.5 var(--mono); letter-spacing: .07em; text-align: right; }
+.device-pads { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.device-pads span { height: 20px; background: #3d493f; border: 1px solid #647263; border-radius: 3px; box-shadow: inset 0 1px #ffffff20; }
+.device-pads span:nth-child(8n + 1), .device-pads span:nth-child(8n + 5) { background: #bfea70; border-color: #e7ffba; box-shadow: 0 0 14px #bfea7033; }
+.device-pads span:nth-child(8n + 3) { background: #79a6a1; border-color: #a2ccc7; }
+.device-visual .device-bottom { display: flex; justify-content: space-between; margin-top: 13px; color: #77877e; font: 9px var(--mono); letter-spacing: .07em; }
+.journey { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; list-style: none; margin: 32px 0 0; padding: 0; }
+.journey li { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 11px 17px 11px 0; color: var(--dim); font: 650 12px var(--mono); }
+.journey li + li { border-left: 1px solid var(--rule); padding-left: 18px; }
+.journey .stepnum { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid #526046; border-radius: 6px; color: var(--accent); background: var(--soft); font: 750 11px var(--mono); }
 
-  /* Presentation-only installer redesign. Keep Web MIDI and flash guards in the script. */
-  :root {
-    --bg: #f3f6f6; --fg: #19242a; --dim: #586872; --rule: #dbe4e5;
-    --card: #ffffff; --accent: #086b59; --ok: #16805c; --busy: #995807;
-    --err: #bd352e; --soft: #eaf5f1; --radius: 17px; color-scheme: light;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0f171b; --fg: #edf3f2; --dim: #acbcbe; --rule: #33464a;
-      --card: #19262b; --accent: #81e3c2; --ok: #76dbb1; --busy: #ffcb7a;
-      --err: #ff8d83; --soft: #243b38; color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0f171b; --fg: #edf3f2; --dim: #acbcbe; --rule: #33464a;
-    --card: #19262b; --accent: #81e3c2; --ok: #76dbb1; --busy: #ffcb7a;
-    --err: #ff8d83; --soft: #243b38; color-scheme: dark;
-  }
-  [hidden] { display: none !important; }
-  body {
-    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-    background: radial-gradient(ellipse 850px 350px at 65% -130px, var(--soft), transparent 85%), var(--bg);
-  }
-  main { max-width: 1130px; padding: 32px 24px 64px; }
-  :focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
-  a { text-underline-offset: 3px; }
-  a:hover { text-decoration-thickness: 2px; }
-  button, select, input { font: inherit; }
-  button { min-height: 44px; border-radius: 9px; font-weight: 650; transition: filter .15s, transform .15s; }
-  button:hover:not(:disabled) { filter: brightness(.9); }
-  button:active:not(:disabled) { transform: translateY(1px); }
-  button:disabled { opacity: .47; }
-  .site-head { margin: 0 0 26px; }
-  .header-top { display: flex; align-items: center; justify-content: space-between; margin: 0 0 34px; }
-  .home { font-size: 17px; color: var(--fg); letter-spacing: .14em; margin: 0; }
-  .lang { float: none; padding: 7px 10px; min-height: 38px; border: 1px solid var(--rule); border-radius: 8px; text-decoration: none; }
-  .eyebrow, .step-kicker { color: var(--accent); font-weight: 750; font-size: 11px; letter-spacing: .13em; text-transform: uppercase; }
-  .eyebrow { margin: 0 0 9px; }
-  h1 { font-size: clamp(32px, 4vw, 48px); line-height: 1.13; letter-spacing: -.042em; margin: 0 0 12px; font-weight: 760; }
-  .lead { color: var(--dim); font-size: 16px; max-width: 690px; margin: 0 0 22px; }
-  .journey { list-style: none; display: flex; flex-wrap: wrap; gap: 9px; margin: 0; padding: 0; }
-  .journey li {
-    display: inline-flex; align-items: center; gap: 9px; padding: 8px 13px;
-    background: var(--card); border: 1px solid var(--rule); border-radius: 999px;
-    font-size: 13px; font-weight: 650;
-  }
-  .journey .stepnum { font-size: 11px; font-weight: 800; color: var(--accent); }
-  .install-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(265px, 315px); gap: 22px; align-items: start; }
-  .install-primary, .install-sidebar { min-width: 0; }
-  .panel, .connect {
-    border: 1px solid var(--rule); background: var(--card); border-radius: var(--radius);
-    box-shadow: 0 10px 36px rgba(15, 41, 39, .035); padding: 24px;
-  }
-  .panel { margin: 0 0 18px; }
-  .connect { position: static; display: block; margin: 0 0 18px; border-left: 4px solid var(--accent); }
-  .connect-line { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
-  .connect .ctext { flex: 1; }
-  .connect .ctext b { font-size: 16px; }
-  .connect .ctext span { font-size: 13px; }
-  .connect .led { width: 12px; height: 12px; }
-  .connect button { white-space: nowrap; }
-  .panel-heading { margin-bottom: 16px; }
-  .panel-heading h2, .sidebar-card h2 { margin: 5px 0 0; font-size: 21px; line-height: 1.3; letter-spacing: -.02em; }
-  #versionrow { margin: 0 0 14px; }
-  label.field { width: 100%; font-size: 13px; font-weight: 700; gap: 7px; color: var(--fg); }
-  #version { width: 100%; min-height: 46px; border-radius: 9px; padding: 8px 12px; }
-  #pkgmeta { overflow-wrap: anywhere; }
-  .model-select { border: 0; margin: 16px 0 20px; padding: 0; min-width: 0; }
-  .model-select legend { padding: 0; margin: 0 0 9px; color: var(--fg); font-weight: 700; font-size: 13px; }
-  .models { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
-  .models label {
-    padding: 11px 12px; min-height: 46px; border: 1px solid var(--rule); border-radius: 9px;
-    font-size: 13px; font-weight: 650; background: var(--bg);
-  }
-  .models label:has(input:checked) { border-color: var(--accent); background: var(--soft); }
-  .models label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .model-select p { margin: 12px 0 0; color: var(--dim); font-size: 12px; }
-  .build-detail { border-left: 3px solid var(--busy); background: var(--soft); padding: 12px 14px; border-radius: 0 9px 9px 0; }
-  .build-badge { border-radius: 999px; padding: 3px 9px; }
-  #devagreewrap { font-size: 13px; line-height: 1.5; }
-  #devagree { width: 18px; height: 18px; vertical-align: middle; margin-right: 5px; accent-color: var(--accent); }
-  .flash-action { border-top: 1px solid var(--rule); padding-top: 20px; margin-top: 22px; }
-  #go { display: block; width: 100%; padding: 12px 24px; background: var(--accent); color: var(--card); }
-  :root[data-theme="dark"] #go { color: #10201c; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #go { color: #10201c; } }
-  .flash-action .step-kicker { margin-bottom: 12px; }
-  .install-hint { color: var(--dim); margin: 10px 0 4px; font-size: 12px; }
-  progress { height: 9px; margin-top: 14px; border-radius: 9px; overflow: hidden; accent-color: var(--accent); }
-  progress::-webkit-progress-bar { background: var(--bg); }
-  progress::-webkit-progress-value { background: var(--accent); }
-  #status { margin: 12px 0 0; overflow-wrap: anywhere; font-weight: 650; font-size: 13px; min-height: 1.8em; }
-  .diagnostics { border-top: 1px solid var(--rule); margin-top: 12px; padding-top: 9px; }
-  .diagnostics summary { cursor: pointer; color: var(--dim); font-size: 12px; }
-  .diagnostics pre { margin-bottom: 0; max-height: 240px; }
-  .sidebar-card h2 { font-size: 19px; margin: 8px 0 12px; }
-  .sidebar-card p, .sidebar-card li { font-size: 13px; color: var(--dim); }
-  .sidebar-card a { display: inline-block; font-size: 13px; font-weight: 700; margin-top: 3px; }
-  .safety-list { margin: 12px 0 10px; padding-left: 19px; }
-  .safety-list li { padding-left: 2px; margin: 0 0 12px; }
-  .install-sidebar .small { margin: 14px 0 0; }
-  .archive-panel { display: block; margin-top: 6px; }
-  .archive-toggle { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-  .archive-toggle::-webkit-details-marker { display: none; }
-  .archive-toggle strong { font-size: 19px; }
-  .archive-toggle .small { display: block; margin: 6px 0 0; max-width: 790px; }
-  .archive-chevron { font-size: 25px; color: var(--accent); transition: transform .2s; }
-  .archive-panel[open] .archive-chevron { transform: rotate(180deg); }
-  #buildhistory { margin-top: 18px; border-top: 1px solid var(--rule); }
-  .build-item { padding: 16px 0; }
-  .build-item h3 { font-size: 16px; }
-  .resource-links { margin: 10px 0 26px; font-size: 13px; display: flex; flex-wrap: wrap; gap: 10px 18px; }
-  .alternative h2 { margin: 0 0 10px; font-size: 19px; }
-  .alternative ol { padding-left: 23px; }
-  .drop { display: block; border-radius: 11px; border-width: 2px; background: var(--bg); padding: 24px 16px; }
-  .drop input { display: block; position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
-  .drop:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .site-footer { padding: 20px 2px 4px; border-top: 1px solid var(--rule); margin-top: 26px; }
-  .site-footer p { max-width: 820px; }
-  @media (max-width: 770px) {
-    main { padding: 18px 16px 46px; }
-    .header-top { margin-bottom: 24px; }
-    .install-layout { grid-template-columns: minmax(0,1fr); gap: 0; }
-    .install-sidebar { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
-    .install-sidebar .panel { margin-bottom: 18px; }
-    .panel, .connect { padding: 19px; }
-  }
-  @media (max-width: 520px) {
-    .journey { gap: 7px; }
-    .journey li { font-size: 12px; padding: 6px 10px; }
-    .install-sidebar { display: block; }
-    .models { grid-template-columns: minmax(0,1fr); }
-    .connect-line { gap: 9px; flex-wrap: wrap; }
-    .connect .ctext { min-width: 160px; }
-    .connect #connbtn { width: 100%; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    button, .archive-chevron { transition: none; }
-    .led.busy { animation: none; }
-  }
+/* Main path: left workspace, right pre-flight reference. */
+.install-layout { display: grid; grid-template-columns: minmax(0, 1fr) 305px; gap: 22px; align-items: start; }
+.install-primary, .install-sidebar { min-width: 0; }
+.panel, .connect { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); margin: 0 0 18px; }
+.panel { padding: 27px 30px; }
+.connect { display: flex; align-items: center; gap: 22px; padding: 23px 27px; }
+.connect .step-kicker { min-width: 97px; }
+.connect-line { flex: 1; display: flex; align-items: center; gap: 11px; min-width: 0; }
+.led { flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 4px #ffffff07; }
+.led.on { background: var(--ok); box-shadow: 0 0 0 4px #86eaaa25; }
+.led.busy { background: var(--busy); animation: pulse 1.1s ease-in-out infinite; }
+.led.err { background: var(--err); }
+@keyframes pulse { 50% { opacity: .48; } }
+.ctext { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.ctext b { font-size: 14px; font-weight: 700; color: var(--fg); }
+.ctext span { font-size: 11px; color: var(--dim); overflow-wrap: anywhere; }
+button.quiet, .build-item button { border: 1px solid var(--rule); background: var(--card-raised); color: var(--fg); border-radius: 7px; padding: 9px 16px; min-height: 41px; font-weight: 680; font-size: 12px; }
+button.quiet:hover, .build-item button:hover:not(:disabled) { border-color: var(--accent); }
+.panel-heading { margin-bottom: 23px; }
+.panel-heading h2 { margin-top: 7px; font-size: 26px; line-height: 1.2; letter-spacing: -.04em; }
+#versionrow { margin: 0 0 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+label.field { display: grid; gap: 8px; width: 100%; font-size: 12px; font-weight: 720; color: var(--dim); }
+select { appearance: none; border-radius: 7px; padding: 11px 42px 11px 15px; border: 1px solid var(--rule); min-height: 49px; background: var(--card-raised) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a4c3ac' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 15px center; color: var(--fg); font-size: 13px; }
+select:hover { border-color: #718769; }
+#version { width: 100%; }
+#pkgmeta { margin: 6px 0 18px; }
+.model-select { border: 0; padding: 0; margin: 23px 0 21px; min-width: 0; }
+.model-select legend { font-size: 12px; font-weight: 740; color: var(--dim); margin-bottom: 10px; }
+.models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.models label { cursor: pointer; min-height: 59px; display: flex; align-items: center; gap: 11px; padding: 12px 14px; font-size: 13px; font-weight: 720; background: var(--card-raised); border: 1px solid var(--rule); border-radius: 8px; transition: background .16s, border-color .16s; }
+.models label:hover { border-color: #748870; }
+.models label:has(input:checked) { background: var(--soft); color: var(--accent); border-color: var(--accent); }
+.models label:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+.models input { flex: none; width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.model-select p { font-size: 11px; color: var(--muted); line-height: 1.7; margin: 10px 0 0; }
+#ble { border-top: 1px solid var(--rule); padding-top: 18px; margin-top: 14px; }
+#ble p { color: var(--dim); font-size: 12px; }
+#ctlfile { max-width: 100%; font-size: 11px; }
+.build-detail { padding: 15px 17px; border: 1px solid #566647; border-radius: 7px; background: var(--soft); margin: 15px 0; }
+.build-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 10px; }
+.build-badge { border: 1px solid var(--rule); border-radius: 4px; padding: 4px 7px; font: 700 10px/1.3 var(--mono); text-transform: uppercase; color: var(--fg); }
+.build-badge.important { color: var(--busy); border-color: var(--busy); }
+.build-badge.blocked { color: var(--err); border-color: var(--err); }
+#buildsummary { margin-bottom: 8px; }
+#buildprovenance { font-size: 10px; color: var(--dim); }
+#devagreewrap { display: flex; gap: 10px; font-size: 12px; font-weight: 650; line-height: 1.5; color: var(--fg); padding-top: 11px; border-top: 1px solid #40513f; margin-top: 9px; }
+#devagreewrap[hidden] { display: none; }
+#devagree { flex: none; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+.flash-action { border-top: 1px solid var(--rule); padding: 21px 0 0; margin: 12px 0 0; }
+.flash-action .step-kicker { margin: 0 0 13px; }
+#go { width: 100%; min-height: 59px; display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; font: 800 14px var(--mono); text-transform: uppercase; letter-spacing: .055em; padding: 13px 20px; }
+#go:hover:not(:disabled) { filter: brightness(1.1); }
+#go:disabled { filter: saturate(.45); }
+#go::after { content: '  ↗'; margin-left: 15px; font-size: 18px; line-height: 1; }
+.install-hint { color: var(--dim); font-size: 11px; margin: 12px 0 4px; }
+progress { width: 100%; display: block; height: 7px; border-radius: 8px; overflow: hidden; accent-color: var(--accent); margin-top: 12px; }
+progress::-webkit-progress-bar { background: #27302b; }
+progress::-webkit-progress-value { background: var(--accent); }
+progress::-moz-progress-bar { background: var(--accent); }
+#status { margin: 12px 0 0; min-height: 1.65em; font: 650 12px/1.55 var(--mono); overflow-wrap: anywhere; }
+.diagnostics { border-top: 1px solid var(--rule); margin-top: 14px; padding-top: 12px; }
+.diagnostics summary { cursor: pointer; font-size: 11px; color: var(--dim); }
+.diagnostics pre { margin: 13px 0 0; color: var(--dim); font: 11px/1.5 var(--mono); white-space: pre-wrap; max-height: 250px; overflow: auto; }
 
+/* Useful context stays visible but secondary. */
+.install-sidebar .panel { padding: 24px 23px; }
+.sidebar-card { background: var(--card); }
+.sidebar-card h2 { margin: 9px 0 15px; font-size: 20px; font-weight: 750; line-height: 1.25; letter-spacing: -.025em; }
+.sidebar-card p, .sidebar-card li { font-size: 12px; color: var(--dim); }
+.sidebar-card li { line-height: 1.62; }
+.safety-list { margin: 15px 0; padding-left: 19px; }
+.safety-list li { padding-left: 4px; margin-bottom: 13px; }
+.sidebar-card a { font-size: 12px; font-weight: 700; }
+.install-sidebar .small { margin: 16px 0 0; font-size: 11px; }
+.sidebar-card:last-child { border-color: #45524a; }
+
+/* Archive and alternative firmware are available, not competing with install. */
+.archive-panel { margin-top: 18px; padding: 20px 25px; }
+.archive-toggle { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; cursor: pointer; }
+.archive-toggle::-webkit-details-marker { display: none; }
+.archive-toggle strong { font-size: 15px; font-weight: 730; }
+.archive-toggle .small { display: block; font-size: 11px; max-width: 800px; margin-top: 5px; }
+.archive-chevron { color: var(--accent); font-size: 24px; }
+.archive-panel[open] .archive-chevron { transform: rotate(180deg); }
+#buildhistory { border-top: 1px solid var(--rule); margin-top: 17px; }
+.build-item { border-bottom: 1px solid var(--rule); padding: 15px 0; }
+.build-item:last-child { border-bottom: 0; }
+.build-item h3 { font-size: 15px; margin-bottom: 7px; }
+.build-item p { margin: 5px 0; font-size: 12px; color: var(--dim); }
+.build-item button { margin: 10px 0 4px; }
+.resource-links { margin: 17px 0 24px; display: flex; flex-wrap: wrap; gap: 10px 25px; align-items: center; }
+.resource-links a { font-size: 12px; color: var(--dim); font-weight: 650; }
+.resource-links a:hover { color: var(--accent); }
+.alternative { background: #11171a; }
+.alternative h2 { margin-bottom: 9px; font-size: 19px; letter-spacing: -.02em; }
+.alternative .small { color: var(--dim); }
+.alternative ol { padding-left: 18px; font-size: 11px; }
+.alternative li { margin-bottom: 7px; }
+.drop { position: relative; cursor: pointer; border: 1px dashed #607362; border-radius: 8px; background: #17201b; padding: 21px; display: block; text-align: center; color: var(--accent); font-size: 12px; font-weight: 690; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--soft); }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.drop:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+#stockconfirm { accent-color: var(--accent); }
+#stockgo { min-height: 43px; border: 1px solid var(--rule); background: var(--card-raised); border-radius: 7px; padding: 9px 17px; color: var(--fg); font-size: 12px; font-weight: 700; }
+#stockgo:hover:not(:disabled) { border-color: var(--accent); }
+.site-footer { border-top: 1px solid var(--rule); padding: 25px 0 0; margin-top: 26px; }
+.site-footer p { font-size: 11px; color: var(--muted); }
+.site-footer a { color: var(--dim); }
+@media (max-width: 990px) {
+  main { padding: 0 22px 50px; }
+  .hero { grid-template-columns: minmax(0, 1fr) 250px; gap: 20px; }
+  .device-visual { padding: 14px; }
+  .install-layout { grid-template-columns: minmax(0, 1fr) 265px; gap: 16px; }
+  .panel { padding: 22px; }
+  .connect { padding: 21px 19px; }
+  .connect .step-kicker { min-width: 0; }
+}
+@media (max-width: 760px) {
+  main { padding: 0 20px 48px; }
+  .header-top { margin-bottom: 26px; }
+  .hero { grid-template-columns: 1fr; }
+  .device-visual { display: none; }
+  h1 { font-size: clamp(46px, 8vw, 68px); }
+  .journey { margin-top: 23px; }
+  .install-layout { grid-template-columns: 1fr; }
+  .install-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; }
+  .install-sidebar .panel { margin-bottom: 0; }
+  .install-sidebar .panel:last-child { border-color: var(--rule); }
+  .connect { justify-content: space-between; }
+  .connect .step-kicker { display: none; }
+}
+@media (max-width: 530px) {
+  main { padding: 0 15px 45px; }
+  .header-top { min-height: 67px; }
+  .head-nav { gap: 11px; }
+  .head-nav a { font-size: 11px; }
+  .head-nav a:nth-child(2) { display: none; }
+  .lang { padding: 7px 8px; font-size: 10px; }
+  .site-head { padding-bottom: 22px; margin-bottom: 17px; }
+  .hero { gap: 0; }
+  h1 { font-size: 46px; }
+  .lead { font-size: 14px; }
+  .journey li { gap: 7px; padding: 6px 8px 6px 0; font-size: 9px; }
+  .journey li + li { padding-left: 9px; }
+  .journey .stepnum { width: 22px; height: 22px; font-size: 10px; }
+  .install-sidebar { display: block; }
+  .install-sidebar .panel { margin-bottom: 14px; }
+  .panel { padding: 23px 18px; }
+  .connect { display: block; padding: 18px; }
+  .connect-line { flex-wrap: wrap; }
+  .connect .ctext { min-width: 160px; }
+  .connect #connbtn { width: 100%; margin-top: 7px; }
+  .models { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .models label { padding: 10px 9px; font-size: 11px; min-height: 55px; }
+  .flash-action { padding-top: 17px; }
+  .archive-panel { padding: 17px 18px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .led.busy { animation: none; } * { transition: none !important; } }
 </style>
 </head>
 <body>
 <main>
   <header class="site-head">
     <div class="header-top">
-      <a class="home" href="../" aria-label="X0X home">X0X</a>
+      <a class="home" href="../" aria-label="X0X37 home">X0X37</a>
+      <nav class="head-nav" aria-label="Site navigation">
+        <a href="./" aria-current="page" data-t="navinstaller">Installer</a>
+        <a href="../manual/" data-t="navmanual">Manual</a>
+        <a href="../breaks/" data-t="navsamples">Samples</a>
+      </nav>
       <button class="lang" id="lang" type="button"></button>
     </div>
-    <p class="eyebrow" data-t="eyebrow">Firmware manager / Web MIDI</p>
-    <h1 data-t="title">Install X0X</h1>
-    <p class="lead" data-t="intro"></p>
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow" data-t="eyebrow">Device software / Web MIDI</p>
+        <h1 data-t="title">Install X0X.</h1>
+        <p class="lead" data-t="intro"></p>
+      </div>
+      <div class="device-visual" aria-hidden="true">
+        <div class="device-top"><b>X0X / 37</b><span>SMK SERIES</span></div>
+        <div class="device-screen"><strong>READY_</strong><small>909 / 808<br>303 / MIDI</small></div>
+        <div class="device-pads"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="device-bottom"><span>16 STEP PERFORMANCE</span><span>USB / MIDI</span></div>
+      </div>
+    </div>
     <ol class="journey" aria-label="Install workflow">
       <li><span class="stepnum">01</span><span data-t="journey1">Connect keyboard</span></li>
       <li><span class="stepnum">02</span><span data-t="journey2">Select firmware</span></li>
@@ -379,9 +419,10 @@ const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
 const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
-    eyebrow: "ファームウェア管理 / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
+    navinstaller: "インストール", navmanual: "マニュアル", navsamples: "サンプル",
+    eyebrow: "デバイスファームウェア / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
     stage1: "手順 01 / 接続", stage2: "手順 02 / ファームウェア", stage3: "手順 03 / インストール",
-    pickheading: "正しいファームウェアを選択", versionlabel: "ファームウェアのバージョン", modelheading: "機種を選択",
+    pickheading: "ビルドを選択", versionlabel: "ファームウェアのバージョン", modelheading: "機種を選択",
     diagnostics: "技術情報・動作ログ", guidelabel: "始める前に", guideheading: "サンプルを安全に保管",
     guide1: "PC の Chrome または Edge と USB データケーブルを使用してください。",
     guide2: "大切なサンプルは先に個別に書き出してください。必要時に自動バックアップしますが、別のコピーも推奨します。",
@@ -399,9 +440,9 @@ const TEXT = {
     evidencelink: "開発検証記録", archiveheading: "ビルド履歴", archiveintro: "SHA確認済みビルドとソースのみの状態・未入手アーカイブ・失敗ビルドを区別します。コミットだけではインストールできません。",
     choosebuild: "このビルドを選ぶ", otherbuilds: "その他のチェックポイント (インストール不可)", unapproved: "このパッケージには機種別検証記録がないため、自動インストールできません。",
     title: "X0X をインストール",
-    intro: "USB で機器を接続し、バージョンと機種を選んでください。（Chrome か Edge）",
+    intro: "SMK-37 と FM-1 向けファームウェア。USB で接続して機種とビルドを選び、サンプルのバックアップ保護を確認してインストールします。PC の Chrome または Edge をご使用ください。",
     warn: "書き込み中は USB を抜かないでください。",
-    install: "インストール", other: "English", connect: "接続",
+    install: "ファームウェアを書き込む", other: "English", connect: "USB 接続",
     connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
     connected: "接続済み", notconnected: "未接続", looking: "探しています…",
     otahelp: "書き込みモードです。パッケージを選んでインストールを押すと続きから書けます。",
@@ -464,9 +505,10 @@ const TEXT = {
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
-    eyebrow: "Firmware manager / Web MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
+    navinstaller: "Installer", navmanual: "Manual", navsamples: "Samples",
+    eyebrow: "DEVICE SOFTWARE / WEB MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
     stage1: "Step 01 / Connection", stage2: "Step 02 / Firmware", stage3: "Step 03 / Install",
-    pickheading: "Choose the right firmware", versionlabel: "Firmware version", modelheading: "Choose your keyboard model",
+    pickheading: "Choose your build", versionlabel: "Firmware version", modelheading: "Choose your keyboard model",
     diagnostics: "Technical details / activity log", guidelabel: "Before you begin", guideheading: "Keep your samples safe",
     guide1: "Use Chrome or Edge on a computer with a USB data cable.",
     guide2: "Export important samples first. Automatic slot backup runs when needed, but keep a separate copy.",
@@ -483,10 +525,10 @@ const TEXT = {
     ctrlwarning: "Direct SMC Bluetooth requires a separately built ctl.img (select it above). The controller image is not bundled.",
     evidencelink: "Development validation record", archiveheading: "Build history", archiveintro: "SHA-verified builds are separated from source-only checkpoints, unavailable archives and failed builds. A source commit alone is not flashable firmware.",
     choosebuild: "Select this build", otherbuilds: "Other checkpoints — not available for installation", unapproved: "No model-specific development/release validation for this package. Automatic installation is disabled.",
-    title: "Install X0X",
-    intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
+    title: "Install X0X.",
+    intro: "Firmware for SMK-37 and FM-1. Connect over USB, choose your build, and install with sample-backup safeguards. Use Chrome or Edge on a computer.",
     warn: "Do not unplug the USB cable while writing.",
-    install: "Install", other: "日本語", connect: "Connect",
+    install: "Install firmware", other: "日本語", connect: "Connect USB",
     connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
     connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
     otahelp: "Update mode. Choose a package and press Install to finish (or resume) the write.",
