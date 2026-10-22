@@ -1,0 +1,3 @@
+Parent/owner: start Stage 6 LOCAL install on a Mac with hardware
+(Mac mini worker available). Use tip 116d9030f18ec251c37c3bd09ffcad2eb0a613be and package hashes in stage6-prompt.txt.
+Do NOT flash superseded 828298d9 packages. Do NOT spawn Stage 6 as a cloud agent.

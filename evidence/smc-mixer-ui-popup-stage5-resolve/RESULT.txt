@@ -1,0 +1,37 @@
+Stage 5 MERGE-RESOLVE: PASS (PR #13 conflicts cleared; Elite+Pro DEV CHECKED)
+
+Validated merge tip: 116d9030f18ec251c37c3bd09ffcad2eb0a613be
+  (cursor/smc-mixer-ui-popup-stage2-repair-5686; history-preserving merge of origin/main
+   into prior validated tip 828298d9db1a403919e7e4c8176db83512281bb2 — tip preserved as ancestor)
+Prior tip 828298d9: SUPERSEDED for install (sources changed by conflict resolution)
+Main merged: 73d25b6d431aa5eaabaab54a0d640df2526fead4 (#9)
+Evidence dir: evidence/smc-mixer-ui-popup-stage5-resolve/
+Recorded UTC: 2026-10-22T16:29:31Z
+
+Conflict resolution:
+- BEHAVIOR.md: main SMC-05 drum Record/Solo, SMC-06 pads; repair peek as SMC-07
+- firmware/src/app/smc_mixer.c: main solo/link/project/drum SEQ + validated peek
+  (byte-buffer state, table map, MASTER=1+NKIT, 1200 ms, no set_view for peek/restore)
+- tests/run_tests.sh: main new tests + smc-ui-popup
+- Host adaptations: synth SEQ for popup test; isolation stubs for peek_tick/cancel
+
+Focused SMC host suite: PASS (host-suite.log)
+  smc-fader, smc-buttons, smc-mapping, smc-filter, smc-clip-visibility,
+  smc-part-select, smc-drum-mutes, smc-performance-abort, smc-reachability,
+  smc-ui-popup, smc-drum-rs, smc-queue, smc-link, smc-feedback, smc-record-feedback
+
+Formal DEV validate (tools/dev_validate.py, X0X_DEV_PADCAL=1, board smk37):
+- Elite: DEV CHECKED — identity SMK-37 Elite_900
+  code_free 6144 B, ram_free 492 B, pool_free 8324 (>= 8192)
+  package SHA256 b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c
+  controller SHA256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- Pro: DEV CHECKED — identity SMK-37 Pro_900
+  code_free 6144 B, ram_free 492 B, pool_free 8324 (>= 8192)
+  package SHA256 8008b633b96e5c33a4bb7dbb7adb98b5e7315720c1d64446664209aadeccee57
+  controller SHA256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+
+Disposition:
+- PR #13 head updated; conflicts resolved; ready for human merge review when CI green.
+- Do NOT flash old 828298d9 packages — use this merge tip's package SHA256s.
+- Stage 6 INSTALL must be LOCAL (hardware / Mac mini worker). Do NOT flash from cloud.
+- Do NOT implement page-lock/multi-SMC. Do NOT merge to main from this cloud thread if tools forbid.

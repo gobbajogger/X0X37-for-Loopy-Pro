@@ -1,0 +1,56 @@
+You are a fresh Stage 6 INSTALL thread for X0X37 SMC mixer UI popup (seven-stage workflow).
+
+## CRITICAL
+This stage is LOCAL only (hardware on the desk). Do not run as a cloud agent.
+Do not flash from Cursor Cloud. Parent/owner must start this thread on a machine
+with the device, toolchain/packages, and USB/BLE path available.
+A Mac mini worker is available for this local install.
+
+## Why
+Stage 5 MERGE-RESOLVE PASS. Conflicts with main (#9) resolved on PR #13.
+Validated merge tip 116d9030f18ec251c37c3bd09ffcad2eb0a613be passed focused SMC host suite and Elite/Pro DEV CHECKED.
+Do not install packages from superseded tip 828298d9 (sources changed).
+Do not implement page-lock/multi-SMC.
+
+## Read first
+- docs/audit/smc-mixer-ui-popup-2026-10-22.md
+- evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage5-resolve/HANDOFF.md
+- evidence/smc-mixer-ui-popup-stage5/MERGE-INSTRUCTIONS.md
+- evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json
+- evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json
+
+## Validated identities (merge tip — use these, not 828298d9)
+- Firmware SHA: 116d9030f18ec251c37c3bd09ffcad2eb0a613be
+- Branch tip: cursor/smc-mixer-ui-popup-stage2-repair-5686 (PR #13 head)
+- Elite: SMK-37 Elite_900
+  package SHA256 b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c
+- Pro: SMK-37 Pro_900
+  package SHA256 8008b633b96e5c33a4bb7dbb7adb98b5e7315720c1d64446664209aadeccee57
+- Controller SHA256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- Budgets at validate: code_free 6144 B, ram_free 492, pool_free 8324
+
+## Job
+1. Confirm local workspace firmware SHA matches 116d9030f18ec251c37c3bd09ffcad2eb0a613be (or install from the
+   Stage-5-resolve recorded package bytes whose SHA256 matches above).
+2. Flash Elite DEV (preferred) or Pro DEV to the attached SMK-37; verify
+   package/controller SHA256 before and after prepare.
+3. Device check list (peek / hold / restore):
+   - From a non-drum SEQ (or other non-MIX) view with a synth part selected,
+     move main-mixer fader strips 1–5: screen peeks MIX PARTS with that part
+     selected; holds ~1.2 s after last move; restores prior view/page/mixsel.
+   - Drum SEQ/MIX: drum-bank faders (SMC-05); no main-mixer peek.
+   - Strip 6 peeks FX REVERB; strip 7 peeks FX DELAY; strip 8 peeks MIX MASTER.
+   - Continued moves on the same peek refresh the hold (no early restore).
+   - PICK F (waiting pickup) and SMC F/K (acquired) both peek.
+   - Clip mode: header notice only — no peek.
+   - Help / menu / ASK open: no peek.
+   - Already on the mapped page: refresh hold only; no nested save glitch.
+   - User navigation (SMC/panel button) during peek: do not force old page back.
+4. Record install evidence under evidence/smc-mixer-ui-popup-stage6/ (local).
+5. On PASS: hand off to Stage 7 push per workflow (remote ref matches intended commit).
+6. Do NOT merge page-lock/multi-SMC. Do NOT re-open Stage-4 on 828298d9.
+
+Merge-resolve owner: this Stage-5 resolve thread
+Prior Stage-5 merge-prep: bc-9c0a7607-f7c1-569a-b2d1-b9f35d58cdc1
+PR merge vehicle: #13
