@@ -1,0 +1,6 @@
+=== gh pr create stage5 ===
+pull request create failed: GraphQL: Resource not accessible by integration (createPullRequest)
+=== gh pr ready 13 ===
+✓ Pull request gobbajogger/x0x37-for-loopy-pro#13 is marked as "ready for review"
+=== gh pr edit 13 title note ===
+{"isDraft":false,"mergeable":"CONFLICTING","url":"https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/13"}

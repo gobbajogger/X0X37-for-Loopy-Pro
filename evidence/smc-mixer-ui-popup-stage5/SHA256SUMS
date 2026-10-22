@@ -1,12 +1,13 @@
 b0d69c6f6aecf90eb1cdc06dac82c13ceb84e60509931f5e564a7823db092412  evidence/smc-mixer-ui-popup-stage5/capabilities.txt
 2e9972d4f8f343daab66c8c35b60677f6a3ac3214027b9380597cc80369b4348  evidence/smc-mixer-ui-popup-stage5/conflict-analysis.txt
-ae478a127732b0628657bec94388d0b4d5e1d73db8fa5732e741e77e168a94cb  evidence/smc-mixer-ui-popup-stage5/FINAL-TIP.txt
+ec38a3080e6df91425d994d590cfed1186bff83da20d519441d9e87e47c5c0a8  evidence/smc-mixer-ui-popup-stage5/FINAL-TIP.txt
 bb415f64c6420956c3593e0dc741b7950845e7a390adb6db0f1221c73396b6c0  evidence/smc-mixer-ui-popup-stage5/HANDOFF.md
 42ace24a8a8b536b2314fbae7e92c421fd6c813a09dfa39432462455566c7575  evidence/smc-mixer-ui-popup-stage5/HEAD.txt
 8dbddbecd336e20190d7433f25455ced5d63b6bf03907e30cad07b66cbc491e3  evidence/smc-mixer-ui-popup-stage5/MERGE-INSTRUCTIONS.md
 dba509962c6444da3487c31310a27413ac6576ee750255c57c575cd071e15bec  evidence/smc-mixer-ui-popup-stage5/merge-status.txt
 a55e3b8f311e4f29b4f853cf1be81d7cce9170ba7ea0cbc079fe2a368adf39c6  evidence/smc-mixer-ui-popup-stage5/pr13-snapshot.json
-60d2dc781e92a698dca959725ca6b90d10e842674d44fc730649ac26061931e0  evidence/smc-mixer-ui-popup-stage5/pr-and-successor.json
+fb6e67b4e34b54c6c9e9baf4cf01f6a13c1f79929a50b731ba9df59f9844f0ed  evidence/smc-mixer-ui-popup-stage5/pr-and-successor.json
+5d09959edd576afbeca729319d0d9bf427d5d74b5c21be7a5f0bf22e902a78c7  evidence/smc-mixer-ui-popup-stage5/pr-create-attempt.log
 862a69423b14600cb186800cdf0ca56263ebf6730fc9d935974755232cd96f65  evidence/smc-mixer-ui-popup-stage5/RESULT.txt
 3a574f4788228b0569674cdf584164956ddf876ed6e3b1f3cc6cfaaf4f6f6d97  evidence/smc-mixer-ui-popup-stage5/stage6-prompt.txt
 01f39fce46d5f770ca1f4ade950c4a25fe5536d2d872b2c9a051915c1f5a4423  evidence/smc-mixer-ui-popup-stage5/SUCCESSOR-STAGE6-PARENT.txt

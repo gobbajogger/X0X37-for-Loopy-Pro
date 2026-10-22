@@ -1,6 +1,7 @@
-Stage-5 evidence tip: 5977f55ebdedec6c668325df72930c7082d840ed
-Branch: cursor/smc-mixer-ui-popup-stage5-5686
+Stage-5 evidence tip: 5bea4c55edb808cb5d4b8fc423a3722389120bb4
+Branch: cursor/smc-mixer-ui-popup-stage5-5686 (pushed)
 Validated firmware ancestor: 828298d9db1a403919e7e4c8176db83512281bb2
 Do not treat Stage-5 evidence commits as a new Stage-4 package identity.
 Stage-6 prompt: evidence/smc-mixer-ui-popup-stage5/stage6-prompt.txt
 Parent must launch LOCAL Stage 6 (cloud Stage 6 forbidden).
+See pr-create-attempt.log for ManagePullRequest/gh write results.

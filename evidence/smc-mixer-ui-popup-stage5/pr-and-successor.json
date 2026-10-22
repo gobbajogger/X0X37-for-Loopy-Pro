@@ -36,7 +36,8 @@
     "ram_free": 508,
     "pool_free": 8364
   },
-  "recorded_utc": "2026-10-22T16:14:30Z",
-  "evidence_tip": "5977f55ebdedec6c668325df72930c7082d840ed",
-  "pushed": false
+  "recorded_utc": "2026-10-22T16:16:34Z",
+  "evidence_tip": "5bea4c55edb808cb5d4b8fc423a3722389120bb4",
+  "pushed": true,
+  "pr_create_log": "evidence/smc-mixer-ui-popup-stage5/pr-create-attempt.log"
 }
