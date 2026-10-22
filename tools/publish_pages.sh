@@ -81,3 +81,4 @@ gh api -X POST "repos/$REPO/pages/builds" >/dev/null 2>&1 || echo "(enable Setti
 echo "pushed to gh-pages → https://gobbajogger.github.io/X0X37-for-Loopy-Pro/"
 echo "  install:  …/install/   (version picker + drop any .fwsc for upgrade/downgrade/stock/custom)"
 echo "  samples:  …/breaks/"
+echo "  projects: …/projects/"
