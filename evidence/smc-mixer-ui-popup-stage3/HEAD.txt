@@ -1,5 +1,5 @@
-HEAD=5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
+TESTED_CODE_TIP=5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
+EVIDENCE_COMMIT=3097c76be672e734558e86b2fc8e3eb88b7db043
 BRANCH=cursor/smc-mixer-ui-popup-stage3-5686
 BASE_TIP=origin/cursor/smc-mixer-ui-popup-stage2-5686
-TESTED_CODE_TIP=5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
 STAGE3_OWNER=bc-eb2cd134-02cf-5366-b36c-e1c3258ad760

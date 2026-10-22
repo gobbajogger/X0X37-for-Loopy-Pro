@@ -3,7 +3,7 @@ Stage 4 — Validate SMC mixer UI page popup/hold/restore.
 You are a fresh stage-4 validate thread in the seven-stage workflow.
 Read evidence/smc-mixer-ui-popup-stage3/HANDOFF.md and stage4-prompt.txt (full assignment).
 Fetch and check out origin/cursor/smc-mixer-ui-popup-stage3-5686 tip
-(after stage-3 evidence push). Tested code tip:
+(after stage-3 evidence push; tip below). Tested code tip:
   5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
 
 Validate Elite/Pro DEV package identities if toolchain available; save logs under
