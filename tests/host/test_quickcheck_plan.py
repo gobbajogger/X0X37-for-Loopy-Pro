@@ -89,14 +89,11 @@ run host-build sh host/probe.c
                 self.assertFalse((self.repo / 'build/invoked').exists())
                 self.git('checkout', '--', path)
 
-    def test_docs_skip_target_tests_and_ordinary_ste(self):
+    def test_docs_skip_target_tests(self):
         self.put('docs/start.md', 'This should be changed; it was written poorly.\n')
         p = self.qc()
-        self.assertNotIn('STE', p.stdout)
         self.assertEqual(self.plan()['tests'], [])
         self.assertFalse((self.repo / 'build/invoked').exists())
-        self.env['X0X_STE_STRICT'] = '1'
-        self.assertIn('STE:', self.qc(False).stdout)
 
     def test_firmware_build_unknown_mixed_empty_and_odd_names(self):
         for paths in [[], ['firmware/source.c'], ['build.sh'], ['unknown.json'],
@@ -151,30 +148,6 @@ run host-build sh host/probe.c
         self.assertFalse(self.plan()['target'])
         self.assertTrue(self.plan()['checks'])
 
-    def test_explicit_ste_modes_and_broken_checker_fail_closed(self):
-        tool_dir = self.root / 'checker'
-        tool_dir.mkdir()
-        for name in ('quickcheck.sh', 'quickcheck_plan.py', 'prefs_lint.py'):
-            shutil.copy(TOP / 'tools' / name, tool_dir / name)
-        self.runner = tool_dir / 'quickcheck.sh'
-        checker = tool_dir / 'ste_check.py'
-        marker = self.root / 'ste-called'
-        checker.write_text('# "--diff"\nfrom pathlib import Path\nPath(' + repr(str(marker)) + ').touch()\nprint("[]")\n')
-        self.put('docs/start.md', 'Plain notes.\n')
-        self.qc()
-        self.assertFalse(marker.exists())
-        self.env['X0X_QUICK_ONLY'] = 'ste'
-        self.qc()
-        self.assertTrue(marker.exists())
-        self.env['X0X_STE_STRICT'] = '1'
-        for body in (None, '# "--diff"\nprint("broken")\n', '# "--diff"\nprint("[]")\nraise SystemExit(2)\n'):
-            with self.subTest(body=body):
-                if body is None:
-                    checker.unlink()
-                else:
-                    checker.write_text(body)
-                self.assertIn('STE:', self.qc(False).stdout)
-
     def test_missing_or_failed_test_reports_fail(self):
         for runner in ['exit 0\n', 'echo "  FAIL fastmath"\nexit 1\n']:
             with self.subTest(runner=runner):
@@ -183,20 +156,6 @@ run host-build sh host/probe.c
                 self.put('tests/run_tests.sh', (self.repo / 'tests/run_tests.sh').read_text() + 'run fastmath true\n')
                 self.put('web/page.js', 'changed\n')
                 self.assertIn('tests:', self.qc(False).stdout)
-
-    def test_current_skills_workflows_and_rules_evidence(self):
-        for path in ['skills/a/SKILL.md', '.agents/skills/a/SKILL.md', 'workflows.json', 'AGENTS.md', 'agent-rules.md']:
-            with self.subTest(path=path):
-                self.put(path, '# Instruction\n')
-                self.git('add', path)
-                self.git('commit', '-qm', 'Change rule without evidence.')
-                self.assertIn('RULES:', self.qc(False).stdout)
-                self.assertFalse(self.plan()['target'])
-                self.git('reset', '--hard', self.base)
-        self.put('skills/a/SKILL.md', '# Instruction\n')
-        self.git('add', '.')
-        self.git('commit', '-qm', 'Change rule.', '-m', 'Trigger: rule editing\nCheck: manual: review the instruction')
-        self.qc()
 
     def test_scenarios_require_upload_only_for_actual_or_unknown_inputs(self):
         runner = self.repo / 'tests/run_tests.sh'

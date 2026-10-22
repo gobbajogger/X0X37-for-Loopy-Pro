@@ -1,7 +1,0 @@
-STE WARN 16 issues
-STE  docs/USER_PREFERENCES.md: [contraction] And there's no need in that.
-STE  docs/USER_PREFERENCES.md: [passive] We have previous captures that can be reused and we can stimulate sends without ever needing them"; then "Make it a rule too".
-STE  docs/audit/controller-capture-reuse-2026-10-20.md: [semicolon] It checked controller capture reuse; exact payload replay with simulated HCI; resegmented supported-MTU input; idle zero-packet evidence; an
-STE  docs/audit/controller-capture-reuse-2026-10-20.md: [passive,semicolon] The preference entry records the exact quotes and narrow supersession; historical text is unchanged.
-STE  docs/audit/controller-capture-reuse-2026-10-20.md: [passive,semicolon] The added rule costs 67 words; startup entry points are unchanged.
-QUICK PASS 2592a00 0 s (STE step only; STE WARN 16 issues)

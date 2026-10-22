@@ -1,9 +1,0 @@
-.......REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
-REFUSED: --dev-record needs --config dev and explicit --ctl or --no-ctl
-.....
-----------------------------------------------------------------------
-Ran 12 tests in 10.979s
-
-OK
-DEV CHECKED 936bf80be15bd14ef7a4d99b6d19afdbc6608f3e
-DEV OK 936bf80 /var/folders/d2/76xvt4xj1612x2z74j0p6k6c0000gn/T/tmpmvz4r_1a/result/record.json (config dev; queue: 0 open lines in 936bf80)

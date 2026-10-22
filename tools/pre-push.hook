@@ -4,7 +4,7 @@
 # 1. Clone check: a shallow clone, or a git error (exit code or error text), blocks the push.
 # 2. Block any push that sends refs-oscuro or its commits (JieLi files, not for distribution).
 # 3. Quick check: a push to integration runs /workspace/x0x37-refs/gate/prepush-check.sh (fail closed; skip env only with a reason).
-# 0. Remote allowlist (check 6 of rules v4, rule 1: push only to the box or the Mac repository), before all other parts.
+# 0. Remote allowlist, before all other parts.
 #    The push URL ($2) must not have "://" or "git@" in it. After symlinks and ".." are resolved, it must be the box
 #    repository /workspace/x0x37.git, or a value of "git config --get-all x0x37.allowedRemote" (the Mac sets
 #    /Users/mac/Documents/x0x37/x0x37). That path must also be inside a root: /workspace/x0x37.git or /Users/mac/Documents/x0x37.
@@ -27,23 +27,23 @@ canon() {   # canon PATH: the real path (symlinks and ".." resolved), or nothing
 URL=${2:-}
 ALLOWTXT="$BOXR$(git config --get-all x0x37.allowedRemote 2>/dev/null </dev/null | sed 's/^/ or /' | tr -d '\n')"
 case "$URL" in
-  "") block "no push URL (rule 1: push only to the box or the Mac repository)";;
-  *://*|*git@*) block "push URL $URL is not allowed: no network push (rule 1). Allowed: $ALLOWTXT";;
+  "") block "no push URL";;
+  *://*|*git@*) block "push URL $URL is not allowed: no network push. Allowed: $ALLOWTXT";;
 esac
 case "$URL" in file:*) URL=${URL#file:};; esac
-RU=$(canon "$URL") || block "push URL $URL is not a path on this computer (rule 1). Allowed: $ALLOWTXT"
+RU=$(canon "$URL") || block "push URL $URL is not a path on this computer. Allowed: $ALLOWTXT"
 inroot=0
 for r in $ROOTS; do
   rr=$(canon "$r") || continue
   case "$RU/" in "$rr"/*) inroot=1;; esac
 done
-[ "$inroot" = 1 ] || block "push URL $URL ($RU) is outside $ROOTS (rule 1). Allowed: $ALLOWTXT"
+[ "$inroot" = 1 ] || block "push URL $URL ($RU) is outside $ROOTS. Allowed: $ALLOWTXT"
 ok=0
 for a in "$BOXR" $(git config --get-all x0x37.allowedRemote 2>/dev/null </dev/null); do
   ra=$(canon "$a") || continue
   [ "$RU" = "$ra" ] && ok=1
 done
-[ "$ok" = 1 ] || block "push URL $URL ($RU) is not the box repository or x0x37.allowedRemote (rule 1). Allowed: $ALLOWTXT"
+[ "$ok" = 1 ] || block "push URL $URL ($RU) is not the box repository or x0x37.allowedRemote. Allowed: $ALLOWTXT"
 
 TMPD=$(mktemp -d "${TMPDIR:-/tmp}/x0x-prepush.XXXXXX") || block "pre-push check cannot make a temp folder"
 trap 'rm -rf "$TMPD"' EXIT
@@ -64,7 +64,7 @@ osc=$(git rev-parse -q --verify refs/heads/refs-oscuro 2>"$ERR" </dev/null || gi
 [ ! -s "$ERR" ] || block "pre-push check cannot read history (git rev-parse refs-oscuro: $(tr '\n' ' ' < "$ERR" | cut -c1-300)); $FIX"
 [ -z "$osc" ] || g cat-file -e "$osc^{commit}"
 while read lref lsha rref rsha; do
-  case "$lref$rref" in *refs-oscuro*) echo "BLOCKED: refs-oscuro must never be pushed (owner rule)." >&2; exit 1;; esac
+  case "$lref$rref" in *refs-oscuro*) echo "BLOCKED: refs-oscuro must never be pushed." >&2; exit 1;; esac
   [ "$lsha" = "$z" ] && continue
   git cat-file -e "$lsha^{commit}" 2>/dev/null </dev/null || block "missing object for the pushed sha $lsha ($lref); $FIX"
   if [ "$rsha" != "$z" ]; then
@@ -79,7 +79,7 @@ while read lref lsha rref rsha; do
   if [ "$rsha" = "$z" ]; then range="$lsha"; else range="$lsha ^$rsha"; fi
   g rev-list $range
   for c in $G_OUT; do
-    if echo "$uniq" | grep -qx "$c"; then echo "BLOCKED: push contains refs-oscuro commit $c (owner rule)." >&2; exit 1; fi
+    if echo "$uniq" | grep -qx "$c"; then echo "BLOCKED: push contains refs-oscuro commit $c." >&2; exit 1; fi
   done
 done < "$PUSHED_REFS"
 

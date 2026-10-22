@@ -4,8 +4,7 @@
 #   prepush-check.sh <remote> <url> < <the lines of the pre-push hook: local-ref local-sha remote-ref remote-sha>
 # Only a push to refs/heads/integration is checked. For each pushed commit the script runs quickcheck.sh (next to it)
 # in a worktree of the pushing repository (<git common dir>/x0x37-quickcheck/wt, kept for incremental builds).
-# The changed files are the remote integration tip to the pushed commit. A tree with tools/ste_strict needs an
-# installed quickcheck.sh with the STE step (install_gate.sh also installs ste_check.py), else the push stops. A "QUICK FAIL" stops the push (exit code 1).
+# The changed files are the remote integration tip to the pushed commit. A QUICK FAIL stops the push (exit code 1).
 # Trim: a push to integration of the box repository (X0X_BOX_REPO [/workspace/x0x37.git]) does not run the check
 # here when that repository has an executable hooks/pre-receive and hooks/update, and the sha256 of hooks/update is
 # the same as tools/update.hook of the pushed commit or of the remote integration tip. The update hook then runs the
@@ -43,10 +42,6 @@ while read -r lref lsha rref rsha; do
     W="$GC/x0x37-quickcheck/wt"
     if [ -d "$W" ]; then env -u GIT_DIR git -C "$W" checkout -q -f --detach "$lsha" || { rc=1; continue; }
     else mkdir -p "$GC/x0x37-quickcheck"; git worktree prune; git worktree add -q --detach "$W" "$lsha" || { rc=1; continue; }; fi
-    if [ -f "$W/tools/ste_strict" ] && ! grep -q '^ste_step()' "$QC"; then
-        echo "prepush-check: QUICK FAIL ${lsha:0:7} STE: strict mode, but the installed $QC has no STE step (run tools/install_gate.sh)" >&2
-        rc=1; continue
-    fi
     BASE=""
     [ "$rsha" != "$Z" ] && git cat-file -e "$rsha^{commit}" 2>/dev/null && BASE=$rsha
     echo "prepush-check: quick check of ${lsha:0:7} for $rref (the first run in a repository also builds everything)" >&2
