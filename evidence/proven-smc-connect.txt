@@ -1,0 +1,12 @@
+PROVEN SMC connect
+
+Owner mark, 2026-10-23: "can you please commit this build and mark it as PROVEN SMC connect".
+
+The marked firmware is 4bac1e5e46f906c88f6ca582a0e5b6c99e6ee750 on lane/mb-smc-reach-20261022.
+That development Elite build was installed on the connected keyboard. The application read back
+equal to the checked image before the restart. The bootloader and the saved loop area were not
+written. After the restart the keyboard answered on USB MIDI as X0X DEV. Bluetooth was on, not
+blocked, and connected. The running guard is the new one, with no failed start.
+
+Host SMC reachability for this source had already passed. This file records the owner's name
+for that installed build.
