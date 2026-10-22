@@ -1,0 +1,38 @@
+Stage 6 INSTALL: BLOCKED (not a PASS)
+
+Disposition: This thread ran as a Cursor Cloud agent without attached SMK-37
+hardware. Stage 6 is LOCAL-only per stage6-prompt.txt. No flash, no device
+peek/hold/restore checklist, and no install PASS were performed.
+
+Recorded UTC: 2026-10-22T16:41:08Z
+Cloud agent: bc-1e4531fe-f724-5647-8778-5459cf9f8e03
+  https://cursor.com/agents/bc-1e4531fe-f724-5647-8778-5459cf9f8e03
+Host: hostname=cursor OS=Linux x86_64 6.12.94+
+privateWorkerId: null (not a Mac mini / self-hosted worker)
+USB/serial: no /dev/ttyACM*, /dev/ttyUSB*, or /dev/cu.usb* present
+lsusb: not available / no SMK-37 observed
+
+Intended install tip (do not flash from this cloud run):
+  Firmware SHA: e894804dfdb0bb66c7247eb1846313a215422c9f
+  PR #13 branch: cursor/smc-mixer-ui-popup-stage2-repair-5686
+  PR head at block record: d3f4269c19d5d3597a6185e414ed6c8dc9b30c05
+    (evidence-only commits after validated firmware tip e894804; e894804 is ancestor)
+  Elite package SHA256: 19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64
+  Pro package SHA256:   ca458e0e4fe216ec349566d4a122ad65498d78aabc21c9e01dfe8d7e8494d56f
+  Controller SHA256:    956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+  Superseded tip (do not install): 828298d9
+
+Why blocked:
+- CRITICAL in evidence/smc-mixer-ui-popup-stage5-resolve/stage6-prompt.txt and
+  SUCCESSOR-STAGE6-PARENT.txt: LOCAL only; do not flash from Cursor Cloud.
+- This workspace is a cloud Linux VM, not the desk Mac mini with the device.
+- Inventing an install PASS would be false evidence.
+
+Next:
+- Parent/owner must re-run Stage 6 on the Mac mini (or other local machine) with
+  the SMK-37 attached, using the prompt in
+  evidence/smc-mixer-ui-popup-stage5-resolve/SUCCESSOR-STAGE6.txt
+  (or stage6-prompt.txt at tip — prefer SUCCESSOR-STAGE6.txt if hashes diverge).
+- Prefer Elite DEV flash; verify package/controller SHA256 before/after prepare.
+- On local PASS, record under evidence/smc-mixer-ui-popup-stage6/ and hand off
+  Stage 7. Parent/integrator merges PR #13 — this cloud thread does not merge main.

@@ -1,0 +1,18 @@
+Stage 6 host probe (cloud block record)
+UTC: 2026-10-22T16:41:08Z
+bcId: bc-1e4531fe-f724-5647-8778-5459cf9f8e03
+hostname: cursor
+uname: Linux cursor 6.12.94+ #1 SMP PREEMPT_DYNAMIC Mon Oct 19 22:12:29 UTC 2026 x86_64 GNU/Linux
+pwd: /workspace
+git HEAD (evidence branch base): d3f4269c19d5d3597a6185e414ed6c8dc9b30c05
+git intended firmware tip: e894804dfdb0bb66c7247eb1846313a215422c9f
+privateWorkerId: null
+usePrivateWorker: false
+
+USB/serial probe:
+- /dev/ttyACM*: absent
+- /dev/ttyUSB*: absent
+- /dev/cu.usb*: absent
+- lsusb: command not found
+
+Conclusion: not a local install host; Stage 6 must stop without flashing.

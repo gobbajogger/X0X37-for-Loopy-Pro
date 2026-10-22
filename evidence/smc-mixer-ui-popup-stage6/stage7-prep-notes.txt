@@ -1,0 +1,19 @@
+Stage 7 prep notes (written during Stage 6 BLOCKED cloud stop)
+
+Status: Stage 6 did NOT PASS — Stage 7 push/merge handoff is NOT ready.
+
+When local Stage 6 PASSes on Mac mini:
+1. Confirm remote branch tip for PR #13 still contains firmware SHA
+   e894804dfdb0bb66c7247eb1846313a215422c9f (or document if tip moved with
+   evidence-only commits; package hashes must still match Stage-5-resolve).
+2. Confirm install evidence under evidence/smc-mixer-ui-popup-stage6/ shows
+   result PASS with matching Elite (preferred) package SHA256
+   19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64
+   and controller SHA256
+   956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a.
+3. Parent/integrator merges PR #13 to main — prefer human merge ownership;
+   do not merge from an unauthorized cloud Stage 6 thread.
+4. Do not merge page-lock/multi-SMC work with this PR.
+
+PR at block: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/13
+mergeable=MERGEABLE head=d3f4269c19d5d3597a6185e414ed6c8dc9b30c05

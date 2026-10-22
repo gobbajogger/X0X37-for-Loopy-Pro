@@ -1,0 +1,30 @@
+You are a fresh Stage 6 INSTALL thread for X0X37 SMC mixer UI popup.
+
+## CRITICAL
+LOCAL only (Mac mini / desk with SMK-37). Do not run as a Cursor Cloud agent.
+Do not flash from Cursor Cloud. A prior cloud attempt
+bc-1e4531fe-f724-5647-8778-5459cf9f8e03 correctly recorded BLOCKED —
+see evidence/smc-mixer-ui-popup-stage6/RESULT.txt.
+
+## Why
+Stage 5 MERGE-RESOLVE PASS. PR #13 MERGEABLE. Validated tip
+e894804dfdb0bb66c7247eb1846313a215422c9f (Elite/Pro DEV CHECKED).
+Do not install superseded 828298d9 packages. Do not implement page-lock/multi-SMC.
+
+## Read first
+- evidence/smc-mixer-ui-popup-stage5-resolve/SUCCESSOR-STAGE6.txt
+- evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage5-resolve/HANDOFF.md
+- evidence/smc-mixer-ui-popup-stage6/RESULT.txt (prior BLOCKED cloud attempt)
+
+## Validated identities
+- Firmware SHA: e894804dfdb0bb66c7247eb1846313a215422c9f
+- Branch: cursor/smc-mixer-ui-popup-stage2-repair-5686 (PR #13)
+- Elite package SHA256: 19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64
+- Pro package SHA256: ca458e0e4fe216ec349566d4a122ad65498d78aabc21c9e01dfe8d7e8494d56f
+- Controller SHA256: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+
+## Job
+Follow SUCCESSOR-STAGE6.txt / stage6-prompt.txt device checklist on attached SMK-37.
+Prefer Elite DEV. Record PASS evidence under evidence/smc-mixer-ui-popup-stage6/.
+On PASS, Stage 7 push handoff; parent/integrator merges #13.
