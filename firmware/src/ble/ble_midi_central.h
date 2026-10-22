@@ -5,8 +5,8 @@
 
 enum { BLEC_OFF, BLEC_STOPPING, BLEC_STARTING, BLEC_SCANNING, BLEC_CONNECTING,
        BLEC_DISCOVERING, BLEC_CONNECTED, BLEC_DISCONNECTING, BLEC_FAILED };
-/* No MTU exchange is initiated: ATT uses the default 23-byte MTU. The 64-byte
- * assembly buffer tolerates larger peer PDUs without advertising a larger MTU. */
+/* ATT MTU is the 64-byte assembly buffer. One Exchange MTU request follows
+ * subscribe. A peer MTU request is answered and does not drop the link. */
 enum { BLEC_RX_OK, BLEC_RX_HEADER, BLEC_RX_LINK, BLEC_RX_LENGTH,
        BLEC_RX_FRAGMENT, BLEC_RX_CID, BLEC_RX_SIZE, BLEC_RX_HANDLE, BLEC_RX_MIDI };
 typedef int (*blec_send_fn)(uint8_t h4, const uint8_t *p, uint16_t n, void *ctx);
@@ -21,6 +21,7 @@ typedef struct {
     uint16_t rx_have, rx_need; /* Oversized signaling is drained; only rx[] is stored. */
     /* TIMER5 owns this bounded reply queue. Entries contain code, identifier, reason. */
     uint8_t sig[4][3], sig_read, sig_count;
+    uint8_t mtu_need, mtu_rsp, smp_reply; /* subscribe request, owed MTU answer, owed SMP refusal */
     uint8_t disconnect_flags; /* Transport acceptance and stop intent, not link completion. */
     /* Modulo-256 counters, retained across reconnects; TIMER5 is sole writer. */
     uint8_t rx_acl, rx_notify, rx_midi, rx_reject, rx_reason;
