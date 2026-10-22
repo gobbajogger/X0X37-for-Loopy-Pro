@@ -1,0 +1,40 @@
+{
+  "stage": 5,
+  "verdict": "MERGE_PREP_COMPLETE",
+  "landed_on_main": false,
+  "validated_firmware_sha": "828298d9db1a403919e7e4c8176db83512281bb2",
+  "stage5_branch": "cursor/smc-mixer-ui-popup-stage5-5686",
+  "merge_vehicle_pr": 13,
+  "merge_vehicle_branch": "cursor/smc-mixer-ui-popup-stage2-repair-5686",
+  "merge_vehicle_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/13",
+  "main_sha": "73d25b6d431aa5eaabaab54a0d640df2526fead4",
+  "mergeable": "CONFLICTING",
+  "mergeStateStatus": "DIRTY",
+  "conflict_paths": [
+    "BEHAVIOR.md",
+    "firmware/src/app/smc_mixer.c",
+    "tests/run_tests.sh"
+  ],
+  "stage5_owner": "bc-9c0a7607-f7c1-569a-b2d1-b9f35d58cdc1",
+  "stage4_owner": "bc-ab3a29e8-bb90-5a5c-81a6-88320d3b99a3",
+  "stage3_owner": "bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305",
+  "manage_pull_request_available": false,
+  "create_agent_available": false,
+  "gh_pr_write": false,
+  "successor": "stage6-install-local",
+  "successor_prompt": "evidence/smc-mixer-ui-popup-stage5/stage6-prompt.txt",
+  "spawn_stage6_as_cloud": false,
+  "parent_must_launch_local_stage6": true,
+  "elite_identity": "SMK-37 Elite_900",
+  "pro_identity": "SMK-37 Pro_900",
+  "elite_package_sha256": "dfe17da6a21075caaf2661c6e7701e1c94761357d53e6456cebde7c3d1afe6d7",
+  "pro_package_sha256": "7081aee83af0d923ff7b502f3f40e95898703334c821544244a9e21c4ab6d7a9",
+  "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+  "tree_stage4": "d006ab424770b3afb13523bb54e360ee13c1b1e89b7c3e58dafa0ab6c88424ab",
+  "budgets": {
+    "code_free": 56,
+    "ram_free": 508,
+    "pool_free": 8364
+  },
+  "recorded_utc": "2026-10-22T16:14:30Z"
+}

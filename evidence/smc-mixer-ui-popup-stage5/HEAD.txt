@@ -1,0 +1,8 @@
+Validated firmware SHA (unchanged): 828298d9db1a403919e7e4c8176db83512281bb2
+Stage-5 evidence branch: cursor/smc-mixer-ui-popup-stage5-5686
+Stage-5 owner: bc-9c0a7607-f7c1-569a-b2d1-b9f35d58cdc1
+PR merge vehicle: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/13
+main at merge-prep: 73d25b6d431aa5eaabaab54a0d640df2526fead4
+mergeable: CONFLICTING
+Stage-6: LOCAL only — see stage6-prompt.txt / SUCCESSOR-STAGE6.txt
+Parent must start local Stage 6 (no CreateAgent / no cloud Stage 6).

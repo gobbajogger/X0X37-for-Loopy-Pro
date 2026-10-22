@@ -1,0 +1,8 @@
+branch=cursor/smc-mixer-ui-popup-stage3-repair-5686
+tested_firmware_sha=828298d9db1a403919e7e4c8176db83512281bb2
+stage3_evidence_tip=d03389639847b5e8e5792334d5e195fef1ce69e6
+stage2_repair_tip=828298d9db1a403919e7e4c8176db83512281bb2
+stage3_owner=bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305
+recorded_utc=2026-10-22T16:03:20Z
+base_repair_branch=cursor/smc-mixer-ui-popup-stage2-repair-5686
+pushed=yes

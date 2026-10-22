@@ -1,0 +1,53 @@
+=== SMC host suite 2026-10-22T16:00:42Z ===
+HEAD=828298d9db1a403919e7e4c8176db83512281bb2
+BRANCH=cursor/smc-mixer-ui-popup-stage3-repair-5686
+
+--- smc_fader_test ---
+PASS: smc_fader_test
+  PASS: fader pickup, motion, inactive inputs and one final-value display
+
+--- smc_buttons_test ---
+PASS: smc_buttons_test
+  PASS: strip shortcuts and page/menu arrows use explicit view/page/menu mappings
+
+--- smc_mapping_test ---
+PASS: smc_mapping_test
+  PASS: both drum kits, 11 tracks, bank bounds, three knob modes, unique targets within each type, menus and stage isolation
+
+--- smc_filter_test ---
+PASS: smc_filter_test
+  PASS: SMC filter destination and independent master mute light
+
+--- smc_clip_visibility_test ---
+PASS: smc_clip_visibility_test
+  PASS host USER page 1: closing the overlay does not replay turns
+  PASS host USER page 1: visible X0X fallback still edits
+  smc_clip_visibility: ok (0 failures)
+
+--- smc_part_select_test ---
+PASS: smc_part_select_test
+  smc_part_select: ok
+
+--- smc_drum_mutes_test ---
+PASS: smc_drum_mutes_test
+  PASS: 808 bank 2 M7 action, light and SELECT
+  PASS: 808 bank 2 M8 action, light and SELECT
+  PASS: 22 active drum mute/light destinations, 10 inactive positions, 30 knob/fader writes, main mute/FX and ownership priorities.
+
+--- smc_performance_abort_test ---
+PASS: smc_performance_abort_test
+  PASS: host User note STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+  PASS: host User MMC0 STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+  PASS: host User MMC1 STOP/PLAY/back abort phases 0-2; guards, deferred restore and queued start/abort
+
+--- smc_reachability_test ---
+PASS: smc_reachability_test
+  PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths
+  Route 4
+  PASS: complete SMC navigation, edits, pickup/frame, confirmation/help and clip paths
+
+--- smc_ui_popup_test ---
+PASS: smc_ui_popup_test
+  PASS: SMC UI peek map, hold refresh, restore and guards
+
+=== OVERALL PASS ===

@@ -1,0 +1,10 @@
+Parent/owner action required:
+
+1. Do NOT spawn Stage 6 as a Cursor Cloud agent.
+2. Start exactly one LOCAL Stage 6 install thread using:
+   evidence/smc-mixer-ui-popup-stage5/stage6-prompt.txt
+3. In parallel (optional), human/integrator may resolve PR #13 conflicts per
+   evidence/smc-mixer-ui-popup-stage5/MERGE-INSTRUCTIONS.md and undraft/merge
+   when ready. Cloud Stage-5 cannot ManagePullRequest or gh-write the PR.
+
+Stage-5 owner: bc-9c0a7607-f7c1-569a-b2d1-b9f35d58cdc1

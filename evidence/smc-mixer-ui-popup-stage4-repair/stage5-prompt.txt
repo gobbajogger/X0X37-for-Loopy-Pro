@@ -1,0 +1,37 @@
+You are a fresh Stage 5 MERGE thread for X0X37 SMC mixer UI popup (seven-stage workflow).
+
+## Why
+Stage 4 VALIDATE (post Stage-2 XIP repair) PASS on firmware SHA
+828298d9db1a403919e7e4c8176db83512281bb2. Elite and Pro DEV packages both DEV CHECKED with
+56 B code free, ram_free 508, pool_free 8364 (identity Elite_900 / Pro_900).
+Prior Stage-4 FAIL on ad4f311 (XIP overflow) is superseded. Stage-3 host suite
+PASS on the same SHA (bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305).
+
+## Read first
+- docs/audit/smc-mixer-ui-popup-2026-10-22.md
+- evidence/smc-mixer-ui-popup-stage4-repair/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage4-repair/HANDOFF.md
+- evidence/smc-mixer-ui-popup-stage4-repair/environment.json
+- evidence/smc-mixer-ui-popup-stage3-repair/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage2-repair/RESULT.txt
+
+## Job
+1. Fetch validated firmware SHA 828298d9db1a403919e7e4c8176db83512281bb2
+   (tip of cursor/smc-mixer-ui-popup-stage2-repair-5686; Stage-4 evidence on
+   cursor/smc-mixer-ui-popup-stage4-repair-5686).
+2. Merge that validated lane toward main per integrator / workflow rules.
+   Preserve history; do not rewrite the validated tip.
+3. Record merge evidence under evidence/smc-mixer-ui-popup-stage5/ (or
+   stage5-repair naming if required). Commit and push the merge lane.
+4. On successful merge preparation: start exactly one fresh Stage 6 INSTALL
+   thread — Stage 6 must be LOCAL (hardware). Do not flash from cloud.
+5. Do NOT install in this Stage-5 thread. Do NOT implement page-lock/multi-SMC.
+6. Do NOT re-open Stage-4 budgets unless merge changes checked firmware sources.
+
+Validated package identities (for install handoff, not for Stage-5 flash):
+- Elite: SMK-37 Elite_900, package SHA256 dfe17da6a21075caaf2661c6e7701e1c94761357d53e6456cebde7c3d1afe6d7
+- Pro:   SMK-37 Pro_900, package SHA256 7081aee83af0d923ff7b502f3f40e95898703334c821544244a9e21c4ab6d7a9
+- Controller SHA256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- Tree d006ab424770b3afb13523bb54e360ee13c1b1e89b7c3e58dafa0ab6c88424ab
+
+Stage-4 owner: bc-ab3a29e8-bb90-5a5c-81a6-88320d3b99a3

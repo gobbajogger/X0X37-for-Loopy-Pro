@@ -1,0 +1,5 @@
+Stage-5 evidence tip will be the tip of cursor/smc-mixer-ui-popup-stage5-5686 after push.
+Validated firmware ancestor: 828298d9db1a403919e7e4c8176db83512281bb2
+Do not treat Stage-5 evidence commits as a new Stage-4 package identity.
+Stage-6 prompt: evidence/smc-mixer-ui-popup-stage5/stage6-prompt.txt
+Parent must launch LOCAL Stage 6 (cloud Stage 6 forbidden).

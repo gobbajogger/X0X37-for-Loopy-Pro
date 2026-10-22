@@ -1,0 +1,7 @@
+firmware_candidate=828298d9db1a403919e7e4c8176db83512281bb2
+stage3_branch=cursor/smc-mixer-ui-popup-stage3-repair-5686
+stage4_prompt=evidence/smc-mixer-ui-popup-stage3-repair/stage4-prompt.txt
+parent_must_launch_stage4=yes
+pr_create=403
+create_agent=unavailable
+note=Stage 4 must validate firmware SHA 828298d9db1a403919e7e4c8176db83512281bb2 (Stage-2 repair tip). Fetch the Stage-3 branch for evidence only.

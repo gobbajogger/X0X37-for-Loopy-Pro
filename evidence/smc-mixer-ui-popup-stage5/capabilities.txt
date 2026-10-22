@@ -1,0 +1,10 @@
+ManagePullRequest: UNAVAILABLE (not in dynamic tool catalog)
+CreateAgent: UNAVAILABLE
+gh pr comment: FAIL GraphQL Resource not accessible by integration
+gh pr edit --draft: unsupported / no write
+gh api user: 403
+repo permissions via gh api: admin=false maintain=false push=false pull=false triage=false
+git push: to be probed
+gh pr merge: FORBIDDEN by Stage-5 rules (read-only / unauthorized)
+stage5_owner: bc-9c0a7607-f7c1-569a-b2d1-b9f35d58cdc1
+recorded_utc: 2026-10-22T16:14:31Z

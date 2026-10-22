@@ -1,0 +1,13 @@
+merge-base: e00741e2c1e8a018e7a7229dfd279e26aec34126
+main: 73d25b6d431aa5eaabaab54a0d640df2526fead4
+validated: 828298d9db1a403919e7e4c8176db83512281bb2
+pr13: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/13
+mergeable: CONFLICTING
+conflict_paths:
+  BEHAVIOR.md
+  firmware/src/app/smc_mixer.c
+  tests/run_tests.sh
+auto_merged_or_added:
+  docs/SMC_MIXER.md
+  docs/audit/smc-mixer-ui-popup-2026-10-22.md
+  tests/host/smc_* (partial)

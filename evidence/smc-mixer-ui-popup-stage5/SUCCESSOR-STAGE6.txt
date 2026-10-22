@@ -1,0 +1,16 @@
+Stage 6 INSTALL — SMC mixer UI popup after Stage-5 merge-prep.
+
+LOCAL THREAD ONLY. Do not spawn as cloud. Parent/owner must start local install.
+Full assignment: evidence/smc-mixer-ui-popup-stage5/stage6-prompt.txt
+
+Validated firmware SHA: 828298d9db1a403919e7e4c8176db83512281bb2
+Elite package SHA256: dfe17da6a21075caaf2661c6e7701e1c94761357d53e6456cebde7c3d1afe6d7
+Pro package SHA256:   7081aee83af0d923ff7b502f3f40e95898703334c821544244a9e21c4ab6d7a9
+Controller SHA256:    956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+
+Device check: peek/hold/restore for strips 1–8; clip/help/overlay guards.
+Do not flash from cloud. Do not implement page-lock/multi-SMC.
+
+Stage-5 owner: bc-9c0a7607-f7c1-569a-b2d1-b9f35d58cdc1
+PR #13 still CONFLICTING with main — integrator uses MERGE-INSTRUCTIONS.md;
+Stage-6 may still install the validated tip packages for UX check.

@@ -1,0 +1,44 @@
+Stage 5 MERGE: MERGE-PREP COMPLETE (not landed on main)
+
+Validated firmware SHA: 828298d9db1a403919e7e4c8176db83512281bb2
+  (tip of cursor/smc-mixer-ui-popup-stage2-repair-5686; PR #13 head)
+Stage-5 evidence branch: cursor/smc-mixer-ui-popup-stage5-5686
+Stage-5 owner: bc-9c0a7607-f7c1-569a-b2d1-b9f35d58cdc1
+Recorded UTC: 2026-10-22T16:14:30Z
+
+Prior chain (PASS):
+- Stage 2 repair: bc-a9596c35-cd3d-534c-b570-4a5800957829 → tip 828298d9
+- Stage 3 host: bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305 PASS on 828298d9
+- Stage 4 validate: bc-ab3a29e8-bb90-5a5c-81a6-88320d3b99a3 PASS on 828298d9
+  Elite/Pro DEV CHECKED: 56 B code free, ram_free 508, pool_free 8364
+  Elite package SHA256 dfe17da6a21075caaf2661c6e7701e1c94761357d53e6456cebde7c3d1afe6d7
+  Pro package SHA256   7081aee83af0d923ff7b502f3f40e95898703334c821544244a9e21c4ab6d7a9
+  Controller SHA256    956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- Prior Stage-4 FAIL ad4f311 superseded (not re-validated)
+
+Merge vehicle: PR #13
+  URL: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/13
+  head: cursor/smc-mixer-ui-popup-stage2-repair-5686 @ 828298d9
+  base: main @ 73d25b6d431aa5eaabaab54a0d640df2526fead4 (#9 since merge-base e00741e)
+  state: OPEN, isDraft: true, mergeable: CONFLICTING, mergeStateStatus: DIRTY
+
+Blockers to landing on main from this Stage-5 thread:
+1. Content conflicts with main (#9 SMC/project merge): BEHAVIOR.md,
+   firmware/src/app/smc_mixer.c, tests/run_tests.sh.
+   Resolving smc_mixer.c changes checked firmware sources → Stage-4 budgets
+   must be re-opened on the merge tip before install of a merged package.
+2. ManagePullRequest tool UNAVAILABLE; gh PR write APIs 403
+   (cannot undraft, comment, or merge). gh pr merge forbidden by rules anyway.
+3. Validated tip 828298d9 preserved (not rewritten). Stage-5 evidence sits
+   on cursor/smc-mixer-ui-popup-stage5-5686 as ancestor-preserving commits
+   on top of 828298d9 (evidence only; no firmware source edits in Stage 5).
+
+Disposition:
+- Merge-prep COMPLETE for Stage 5 (integrator instructions recorded).
+- Do NOT install in this cloud thread.
+- Stage 6 INSTALL must be LOCAL (hardware). Parent/owner must start a
+  local Stage 6 thread from stage6-prompt.txt / SUCCESSOR-STAGE6.txt.
+- Do NOT spawn Stage 6 as a cloud agent.
+- Do NOT implement page-lock/multi-SMC.
+- Do NOT re-open Stage-4 budgets on 828298d9 (unchanged). Re-open only
+  after an integrator resolves firmware conflicts into a new tip.

@@ -1,0 +1,109 @@
+=== BEHAVIOR.md: main (ours in merge-tree) SMC rules ===
+  - In clip mode, X0X does not echo a MIDI Start, Continue or Stop (seq midi_req). Until the first incoming tick it can still send internal clock ticks (0xF8) to the USB host. With clip mode off, X0X sends Start (0xFA) and clock ticks back to the USB host until the first incoming tick, as before (agent-rules 14). [CODE app/engine.c:472-475 midi_in] [CODE seq/sequencer.c:378-379] [CODE seq/sequencer.c:392-393] [CODE seq/sequencer.c:470] [CODE seq/sequencer.c:446-455] [CODE seq/sequencer.c:511-512] If the clock then starts while X0X plays, the first tick is tick 0 of the step that plays.
+  - The next step comes 6 ticks later (16ths). (Changed 2026-10-16, a72: before, the first tick played the next step at once. Thus X0X played one step ahead of the clock.) [CODE seq/sequencer.c seq_advance] INTERNAL always sends CLOCK OUT when CLOCK OUT is ON. EXTERNAL never sends clock, Start or Stop (MID-13).
+LIM-13. Bluetooth MIDI (BLE-01 to BLE-16) has only part of its hardware tests (Stage 3: docs/plans/2026-10-15-ble-stage3-test-plan.md). The Mac link passed 3 rounds of 600 s with no disconnect (a59). The return path to the Mac works (a60). The iPhone link works on a67 (94285b5, owner test 2026-10-16 19:18).
+  - BLE-16 is in code (2026-10-16), with a host test only. The RF calibration values are the AC79 SDK demo board values, not the unit's own. X0X gives clocks to the image (system 360 MHz, HSB 180 MHz, LSB 60 MHz). We measured them on an FM-1, not on an SMK-37. [CODE ../hal/fm1_ble.h]
+LIM-14. The controller's poll and its interrupts run on core 1 between and inside audio jobs. A long poll can delay an audio job past the 8 ms limit, and then X0X holds core 1 (one core, no Bluetooth). Long flash operations park core 1, and a long park can drop the Bluetooth connection. Units that cannot run core 1 (fm1-x0x#10) have no Bluetooth. [CODE ../hal/fm1_cpu1.h]
+LIM-12. We maintain only the SMK-37 build. We do not maintain the FM-1 build. Its link step fails because the XIP region overflows by about 648 B. The owner accepts this. It is not a defect. [USER]
+
+### SMC-Mixer navigation and pickup
+
+SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX and drum SEQ pages instead use two banks for all eleven drum tracks. SELECT chooses the kit and track within the bank. In HOME and main MIX, knobs trim the same eight main-mix destinations as the faders. In 909 MIX, 808 MIX, 909 SEQ and 808 SEQ, knobs trim the matching track levels in the active bank. A paired fader and knob may share a destination. Each control type has unique destinations. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. Outside drum MIX and drum SEQ, R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. On drum MIX and drum SEQ, their strips follow SMC-05. Open menus, help and confirmation keep their own priority. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-03. Outside the three mixer modes in SMC-01, encoders edit visible fields. Open menus take precedence over the mixer modes. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
+
+SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
+
+SMC-05. On 909 MIX, 808 MIX, 909 SEQ and 808 SEQ pages, Record, Solo, Mute and SELECT follow the drum bank on every strip. MIX uses its visible kit; SEQ uses the selected drum part. Record selects that kit and drum and toggles the existing recording mode. SELECT selects the same target without toggling recording. Solo isolates the drum while held; multiple Solo targets combine. A release clears its original target after a page, kit or bank change. Solo does not change saved mute state and clears on disconnect, blocked input and project reset. Stock User MMC retains its latch fallback because that preset has no release message. The five unused strips in bank 2 are inactive and unlit. Other pages retain the existing whole-part Record/Solo behavior. [USER 2026-10-21 individual-drum choice and SEQ follow-up] [CODE firmware/src/app/smc_mixer.c firmware/src/app/engine.c]
+
+SMC-06. On drum MIX and drum SEQ, the SMK pads edit the steps of the selected kit and drum while the current view remains open. Step lights follow that drum. SMC Record and SELECT focus both the visible kit and its selected drum so pad edits reach the requested sound. Main MIX and FX retain their existing pad behavior. [USER 2026-10-21: "It can select a drum to seq on smk pads" and SEQ follow-up] [CODE firmware/src/app/ui.c]
+
+## 18. Open questions
+
+These are disagreements between the code and a source document, or behavior that needs an owner decision. Do not report them as defects. Do not fix them without an owner decision.
+
+OQ-11. The GLOBAL menu has no "forget pairing" row. X0X never pairs (and keeps no bonds) (BLE-07), so there is nothing to forget. Needs an owner decision: keep it so, or add pairing (then BTIF writes and a forget row are needed). [USER task 2026-10-15]
+
+=== BEHAVIOR.md: validated tip SMC rules ===
+LIM-14. The controller's poll and its interrupts run on core 1 between and inside audio jobs. A long poll can delay an audio job past the 8 ms limit, and then X0X holds core 1 (one core, no Bluetooth). Long flash operations park core 1, and a long park can drop the Bluetooth connection. Units that cannot run core 1 (fm1-x0x#10) have no Bluetooth. [CODE ../hal/fm1_cpu1.h]
+LIM-12. We maintain only the SMK-37 build. We do not maintain the FM-1 build. Its link step fails because the XIP region overflows by about 648 B. The owner accepts this. It is not a defect. [USER]
+
+### SMC-Mixer navigation and pickup
+
+SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank. In HOME and main MIX, knobs trim the same eight main-mix destinations as the faders. In 909 MIX and 808 MIX, knobs trim the matching track levels in the active bank. A paired fader and knob may share a destination. Each control type has unique destinations. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-03. Outside the three mixer modes in SMC-01, encoders edit visible fields. Open menus take precedence over the mixer modes. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
+
+SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
+
+SMC-05. A main-mixer fader or knob move that shows PICK F / SMC F / SMC K also peeks the mapped meter page for about 1200 ms from the last move, then restores the prior view, page, mixsel and prev_view. Strips 1–5 → MIX PARTS with mixsel = strip; strip 6 → FX REVERB; strip 7 → FX DELAY; strip 8 → MIX MASTER. Peek and restore assign view/page and call build_pages only (not set_view). No peek during clip mode, help, any overlay (menu/ASK), or performance tests; drum MIX pages skip peek. Continued moves on the same peek refresh the hold. [CODE firmware/src/app/smc_mixer.c smc_peek_begin]
+
+## 18. Open questions
+
+These are disagreements between the code and a source document, or behavior that needs an owner decision. Do not report them as defects. Do not fix them without an owner decision.
+
+OQ-11. The GLOBAL menu has no "forget pairing" row. X0X never pairs (and keeps no bonds) (BLE-07), so there is nothing to forget. Needs an owner decision: keep it so, or add pairing (then BTIF writes and a forget row are needed). [USER task 2026-10-15]
+OQ-12. tools/fm1_install.py adds ~/.config/x0x/ctl.img to an SMK-37 install by itself when the file exists and the package has a free Bluetooth block (BLE-11). It says so. Needs an owner decision: keep this default, or add the image only with --ctl. [CODE ../../tools/fm1_install.py with_ctl]
+
+=== run_tests.sh: lines differing ===
+-- main G-class and smc runs --
+53:    breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+56:    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
+186:run smc-reachability sh tests/host/smc_reachability_test.sh
+189:run smc-drum-rs sh tests/host/smc_drum_rs_test.sh
+297:command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
+-- validated --
+56:    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|smc-reachability|smc-ui-popup|smc-drum-mutes|smc-performance-abort) TEST_CLASS=G ;;
+180:run smc-reachability sh tests/host/smc_reachability_test.sh
+181:run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
+
+=== smc_mixer.c size ===
+main: 720 lines
+validated: 678 lines
+peek symbols on validated:
+36:#define SMC_PEEK_MS 1200u
+37:#define SMC_PEEK_MASTER (1 + NKIT)
+40:struct smc_peek_state {
+45:static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
+46:static struct smc_peek_state *const smc_peek =
+47:    (struct smc_peek_state *)(void *)smc_peek_raw;
+179:static void smc_peek_cancel(void) { smc_peek->on = 0; }
+181:/* view in low nibble, page in high (MASTER = SMC_PEEK_MASTER).
+184:static void smc_peek_begin(int n)
+188:        V_FX, V_FX | 0x10, V_MIX | (SMC_PEEK_MASTER << 4)
+196:    if (smc_peek->on) {
+197:        if (smc_peek->view == view && smc_peek->page == page &&
+198:            (n >= 5 || smc_peek->mixsel == mix)) {
+199:            smc_peek->until = plat_ms() + SMC_PEEK_MS;
+206:        smc_peek->saved_view = ui.view;
+207:        smc_peek->saved_page = (uint8_t)cur_page();
+208:        smc_peek->saved_mixsel = ui.mixsel;
+209:        smc_peek->saved_prev = ui.prev_view;
+210:        smc_peek->on = 1;
+217:    smc_peek->view = view;
+218:    smc_peek->page = page;
+219:    smc_peek->mixsel = ui.mixsel;
+220:    smc_peek->until = plat_ms() + SMC_PEEK_MS;
+224:static __attribute__((noinline)) void smc_peek_tick(void)
+226:    if (!smc_peek->on)
+228:    if (ui.view != smc_peek->view || cur_page() != smc_peek->page ||
+229:        (smc_peek->view == V_MIX && !smc_peek->page && ui.mixsel != smc_peek->mixsel)) {
+230:        smc_peek->on = 0;              /* user navigated; leave their page alone */
+233:    if ((int32_t)(plat_ms() - smc_peek->until) < 0)
+235:    ui.view = smc_peek->saved_view;
+236:    ui.mixsel = smc_peek->saved_mixsel;
+237:    ui.prev_view = smc_peek->saved_prev;
+239:    if (smc_peek->saved_page < pg.n)
+240:        *page_of(ui.view) = smc_peek->saved_page;
+241:    smc_peek->on = 0;
+258:        smc_peek_begin(n);            /* PICK F and SMC F both peek the mapped meters */
+326:    smc_peek_cancel();                /* intentional nav: do not force the pre-peek page back */
+575:            smc_peek_cancel();
+582:        smc_peek_cancel();            /* block holds; leave the current page as-is */
+655:    smc_peek_tick();
+peek symbols on main:
+(none)

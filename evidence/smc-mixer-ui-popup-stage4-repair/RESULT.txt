@@ -1,0 +1,35 @@
+Stage 4 Validate (post Stage-2 XIP repair): PASS
+
+Validated firmware SHA: 828298d9db1a403919e7e4c8176db83512281bb2
+  (tip of cursor/smc-mixer-ui-popup-stage2-repair-5686; ancestor of stage3-repair tip 4f8d311)
+Stage-4 evidence branch: cursor/smc-mixer-ui-popup-stage4-repair-5686
+Stage-4 owner: bc-ab3a29e8-bb90-5a5c-81a6-88320d3b99a3
+Recorded UTC: 2026-10-22T16:09:52Z
+Prior Stage-4 FAIL tip: ad4f311 (XIP overflow Elite 248 B / Pro 232 B) — not re-validated
+Stage-3 host PASS: bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305 on same firmware SHA
+Stage-2 repair: bc-a9596c35-cd3d-534c-b570-4a5800957829
+
+Toolchain: AVAILABLE (native Linux x86_64)
+- JIELI clang SHA256 c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f
+- AC79 SDK d179b4484759423312073f5fbb232501aa491047
+- DSP refs pinned (environment.json)
+
+Formal DEV package validation (tools/dev_validate.py, X0X_DEV_PADCAL=1, board smk37):
+- Elite: DEV CHECKED — identity SMK-37 Elite_900
+  code_free 56 B, ram_free 508 B, pool_free 8364 (>= 8192)
+  package SHA256 dfe17da6a21075caaf2661c6e7701e1c94761357d53e6456cebde7c3d1afe6d7
+  controller SHA256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+  record: elite/record.json
+- Pro: DEV CHECKED — identity SMK-37 Pro_900
+  code_free 56 B, ram_free 508 B, pool_free 8364 (>= 8192)
+  package SHA256 7081aee83af0d923ff7b502f3f40e95898703334c821544244a9e21c4ab6d7a9
+  controller SHA256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+  record: pro/record.json
+
+Plan checks (both models): smc_ui_popup PASS, smc_reachability PASS.
+
+Budgets: pool_free >= 8192 ✓; positive code free ✓; positive RAM free ✓.
+Matches Stage-2 repair and Stage-3 spot-check sizes on this tip.
+
+Disposition: advance to exactly one fresh Stage 5 Merge thread on validated SHA 828298d9db1a403919e7e4c8176db83512281bb2.
+Do not install. Do not merge to main from this Stage-4 thread. Do not implement page-lock/multi-SMC.
