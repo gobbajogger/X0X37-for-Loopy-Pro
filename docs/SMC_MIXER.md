@@ -4,6 +4,8 @@ Choose **GLOBAL → BLUETOOTH MIDI → BT ROLE → SMC HOST**, enable Bluetooth,
 
 The eight faders use pickup. A fader starts changing a value when it reaches the X0X target (within two MIDI steps, or crossing it). **PICK F1 …** means fader 1 is waiting; its number is the target value, not a successful edit. **SMC F1 …** means the fader has pickup. Changing the target or changing its value elsewhere resets pickup and discards the old crossing history. X0X sends the target position back to the SMC. A frame after the fader's own write preserves pickup.
 
+While a main-mixer fader or knob is waiting on pickup (**PICK F**) or has acquired it (**SMC F** / **SMC K**), X0X briefly shows the real meter page for that strip, holds it for about 1.2 s after the last move, then restores the previous view, page and MIX selection. Strips 1–5 open MIX PARTS with that part selected; strip 6 opens FX REVERB; strip 7 opens FX DELAY; strip 8 opens MIX MASTER. Peek uses a direct view/page assignment (not the ordinary view change path), so held steps and HOME restore stay intact. Clip mode, help, open menus, confirmation and performance tests do not peek; the header notice still appears. Drum MIX pages already show their meters, so they do not peek.
+
 | Screen | Faders | Encoders |
 | --- | --- | --- |
 | HOME | 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter | Same eight strip destinations as faders |
