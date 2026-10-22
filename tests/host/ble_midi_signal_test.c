@@ -6,8 +6,8 @@
 #include "../../firmware/src/ble/ble_midi_central.h"
 
 static unsigned sent, messages, busy, now;
-static uint8_t last[40], last_type;
-static unsigned last_n;
+static uint8_t last[40], last_type, cmd[24];
+static unsigned last_n, cmd_n;
 static uint8_t reply_ids[16];
 static unsigned replies;
 static int send_h4(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
@@ -16,6 +16,7 @@ static int send_h4(uint8_t t, const uint8_t *p, uint16_t n, void *ctx)
     if (busy) return -1;
     assert(n <= sizeof last);
     memcpy(last, p, n); last_n = n; last_type = t; sent++;
+    if (t == 1 && n <= sizeof cmd) { memcpy(cmd, p, n); cmd_n = n; }
     if (t == 2 && n >= 14 && p[6] == 5) {
         assert(replies < sizeof reply_ids); reply_ids[replies++] = p[9];
     }
@@ -34,7 +35,7 @@ static void ready(blec_t *c)
     c->state = BLEC_CONNECTED; c->step = 14; c->conn = 0x50;
     c->midi_handle = 114; c->cccd_handle = 115;
     c->acl_total = c->credits = 5;
-    sent = messages = busy = replies = 0; now = 100;
+    sent = messages = busy = replies = cmd_n = 0; now = 100;
 }
 static void acl(blec_t *c, unsigned pb, unsigned cid, const uint8_t *p,
                 unsigned n, unsigned total)
@@ -100,16 +101,20 @@ int main(int argc, char **argv)
     blec_t c;
     if (argc > 1 && !strcmp(argv[1], "lifecycle")) { lifecycle(); return 0; }
     ready(&c); request(&c, 0xa7);
-    assert(sent == 1); reply(0x13, 0xa7, 1, 0);
+    assert(sent == 2 && cmd_n == 17 && cmd[0] == 0x13 && cmd[1] == 0x20 && cmd[2] == 14);
+    assert(cmd[3] == 0x50 && cmd[4] == 0 && cmd[5] == 6 && cmd[6] == 0);
+    assert(cmd[7] == 12 && cmd[8] == 0 && cmd[11] == 0x90 && cmd[12] == 1);
+    reply(0x13, 0xa7, 0, 0);
     assert(c.credits == 4 && blec_connected(&c)); notification(&c);
     /* Every split includes a short final fragment and preserves the identifier. */
     for (unsigned split = 0; split < 12; split++) {
         uint8_t p[] = {0x12, 0xfe, 8, 0, 6, 0, 12, 0, 0, 0, 0x90, 1};
         ready(&c); acl(&c, 2, 5, p, split, sizeof p);
         assert(!sent); acl(&c, 1, 0, p + split, sizeof p - split, 0);
-        assert(sent == 1); reply(0x13, 0xfe, 1, 0); notification(&c);
+        assert(sent == 2 && cmd[0] == 0x13 && cmd[1] == 0x20);
+        reply(0x13, 0xfe, 0, 0); notification(&c);
     }
-    /* Supported and invalid parameter values both receive an explicit refusal. */
+    /* An illegal update is still refused. An in-range update was accepted above. */
     ready(&c);
     uint8_t p[80] = {0x12, 1, 8, 0}; signal(&c, p, 12);
     assert(sent == 1); reply(0x13, 1, 1, 0);
@@ -150,26 +155,28 @@ int main(int argc, char **argv)
     /* The queue survives no credits and a busy transport; feedback waits. */
     ready(&c); c.credits = 0;
     for (unsigned id = 1; id <= 4; id++) request(&c, (uint8_t)id);
-    assert(!sent); notification(&c);
+    assert(sent == 4 && last_type == 1); notification(&c);
     const uint8_t feedback[] = {0x90, 60, 127}; assert(blec_midi_send(&c, feedback, 3));
-    done(&c, 0x51, 5); blec_poll(&c, now); assert(!sent && !c.credits);
-    done(&c, 0x50, 5); busy = 1; blec_poll(&c, now); assert(!sent && c.credits == 5);
+    unsigned held = sent;
+    done(&c, 0x51, 5); blec_poll(&c, now); assert(sent == held && !c.credits);
+    done(&c, 0x50, 5); busy = 1; blec_poll(&c, now); assert(sent == held && c.credits == 5);
     busy = 0;
     for (unsigned id = 1; id <= 4; id++) {
         blec_poll(&c, now); /* The last reply can share a poll with feedback. */
-        if (id < 4) { assert(sent == id); reply(0x13, id, 1, 0); }
+        if (id < 4) { assert(sent == held + id); reply(0x13, id, 0, 0); }
     }
-    assert(sent == 5 && last[6] == 4 && last[8] == 0x52);
+    assert(sent == held + 5 && last[6] == 4 && last[8] == 0x52);
     assert(replies == 4 && reply_ids[0] == 1 && reply_ids[1] == 2 && reply_ids[2] == 3 && reply_ids[3] == 4);
     /* Discovery resumes after its pending signaling reply consumes the sole credit. */
     ready(&c); c.state = BLEC_DISCOVERING; c.step = 10; c.query_start = 1;
     c.deadline = now + 5000; c.credits = 0; request(&c, 9);
+    assert(sent == 1 && last_type == 1 && cmd[0] == 0x13 && cmd[1] == 0x20);
     done(&c, 0x50, 1); blec_poll(&c, now);
-    assert(sent == 1 && !c.att_waiting); reply(0x13, 9, 1, 0);
+    assert(sent == 2 && !c.att_waiting); reply(0x13, 9, 0, 0);
     done(&c, 0x50, 1); blec_poll(&c, now);
-    assert(sent == 2 && c.att_waiting && last[6] == 4 && last[8] == 0x10);
-    /* Duplicate requests receive duplicate replies. */
-    ready(&c); request(&c, 7); request(&c, 7); assert(sent == 2); reply(0x13, 7, 1, 0);
+    assert(sent == 3 && c.att_waiting && last[6] == 4 && last[8] == 0x10);
+    /* Duplicate in-range requests each get an update command and an acceptance. */
+    ready(&c); request(&c, 7); request(&c, 7); assert(sent == 4); reply(0x13, 7, 0, 0);
     /* Queue overflow and stalled credits abort the link, with an error. */
     ready(&c); c.credits = 0;
     for (unsigned id = 1; id <= 5; id++) request(&c, (uint8_t)id);
@@ -186,6 +193,32 @@ int main(int argc, char **argv)
     blec_rx(&c, 4, down, sizeof down, now);
     c.state = BLEC_CONNECTED; c.step = 14; c.waiting = 0; c.conn = 0x51;
     before = sent; blec_poll(&c, now); assert(sent == before);
+    /* Pairing is refused once. The link stays up and a later control still arrives. */
+    ready(&c);
+    const uint8_t pair[] = {0x01, 0x03, 0x00, 0x01, 0x10, 0x00, 0x01};
+    const uint8_t smp_want[] = {0x50, 0, 6, 0, 2, 0, 6, 0, 0x05, 0x05};
+    acl(&c, 2, 6, pair, sizeof pair, sizeof pair);
+    assert(sent == 1 && blec_connected(&c) && last_type == 2 && last_n == sizeof smp_want);
+    assert(!memcmp(last, smp_want, sizeof smp_want));
+    notification(&c);
+    /* A peer MTU request is answered. Its response does not disconnect. */
+    ready(&c);
+    const uint8_t mtu_req[] = {0x02, 23, 0};
+    const uint8_t mtu_rsp[] = {0x03, 64, 0};
+    acl(&c, 2, 4, mtu_req, sizeof mtu_req, sizeof mtu_req);
+    assert(blec_connected(&c) && sent == 1 && last_type == 2);
+    assert(last[6] == 4 && last[8] == 0x03 && last[9] == 64 && last[10] == 0);
+    before = sent;
+    acl(&c, 2, 4, mtu_rsp, sizeof mtu_rsp, sizeof mtu_rsp);
+    assert(blec_connected(&c) && sent == before);
+    notification(&c);
+    /* Subscribe sends one MTU request and leaves the link connected. */
+    ready(&c); c.step = 13; /* S_SUBSCRIBE */
+    const uint8_t wr[] = {0x13};
+    acl(&c, 2, 4, wr, sizeof wr, sizeof wr);
+    assert(blec_connected(&c) && c.step == 14 && sent == 1);
+    assert(last_type == 2 && last[6] == 4 && last[8] == 0x02 && last[9] == 64 && last[10] == 0);
+    notification(&c);
     puts("LE signaling, bounds, priority, backpressure, lifecycle: PASS");
     lifecycle();
     return 0;

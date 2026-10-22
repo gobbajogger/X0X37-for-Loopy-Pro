@@ -39,7 +39,8 @@ int main(void)
  uint8_t bad[sizeof note+1];memcpy(bad,note,sizeof note);bad[sizeof note]=0;
  feed(&c,bad,sizeof bad);assert(count==before && c.rx_reason==BLEC_RX_LENGTH);
  bad[2]++;feed(&c,bad,sizeof bad);assert(count==before && c.rx_reason==BLEC_RX_SIZE);
- bad[1]=0x30;feed(&c,bad,sizeof bad);assert(c.rx_reason==BLEC_RX_FRAGMENT);
+ /* Flag 3 is a complete PDU. This one is still too long for its L2CAP length. */
+ bad[1]=0x30;feed(&c,bad,sizeof bad);assert(c.rx_reason==BLEC_RX_SIZE);
  /* Oversized ATT cannot be silently truncated. Existing 64-byte tolerance stays bounded. */
  uint8_t large[73]={1,0,69,0,65,0,4,0};feed(&c,large,sizeof large);
  assert(c.rx_reason==BLEC_RX_SIZE && !c.rx_need);
@@ -49,7 +50,8 @@ int main(void)
  feed(&c,first,sizeof note-1);feed(&c,end,sizeof end);
  assert(c.rx_reason==BLEC_RX_FRAGMENT && !c.rx_need && count==before);
  end[2]=1;feed(&c,end,5);assert(c.rx_reason==BLEC_RX_FRAGMENT);
- memcpy(first,note,sizeof note);first[6]=6;feed(&c,first,sizeof first);
+ /* CID 6 is SMP. An unused channel is still rejected. */
+ memcpy(first,note,sizeof note);first[6]=7;feed(&c,first,sizeof first);
  assert(c.rx_reason==BLEC_RX_CID);
  assert(c.reject_reason==BLEC_RX_CID && c.reject_n==sizeof first);
  assert(!memcmp(c.reject_head,first,8));
@@ -62,6 +64,15 @@ int main(void)
  assert(c.att_op==0x1b && c.att_handle==7);
  feed(&c,note,sizeof note);assert(count==before+1);
  assert(c.att_handle==6 && c.att_op==0x1b);
+ /* Complete PDUs: captured DAW pitch bend, then a channel-1 note. */
+ { const uint8_t bend[]={1,0x30,12,0,8,0,4,0,0x1b,6,0,0xae,0xce,0xe0,0x00,0x7e};
+   const uint8_t key[]={1,0x30,12,0,8,0,4,0,0x1b,6,0,0xae,0xce,0x90,24,127};
+   unsigned at=count;
+   feed(&c,bend,sizeof bend);
+   assert(count==at+1 && last[0]==0xe0 && last[1]==0x00 && last[2]==0x7e);
+   feed(&c,key,sizeof key);
+   assert(count==at+2 && last[0]==0x90 && last[1]==24 && last[2]==127);
+   assert(c.state==BLEC_CONNECTED); }
  /* Partial SysEx AND partial ACL must not survive any link lifetime boundary. */
  const uint8_t sx[]={1,0,12,0,8,0,4,0,0x1b,6,0,0x80,0x81,0xf0,0x7f,0x7f};
  const uint8_t down[]={5,4,0,1,0,0x13};
