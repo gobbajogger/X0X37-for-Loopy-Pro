@@ -1,0 +1,21 @@
+{
+  "stage": 4,
+  "branch": "cursor/smc-mixer-ui-popup-stage4-5686",
+  "tested_code_tip": "5109ef613d212ce8a261ddf75ee1f0e844b0bbbc",
+  "implementation": "ad4f311",
+  "verdict": "FAIL",
+  "fail_reason": "Elite XIP overflow 248B; Pro XIP overflow 232B",
+  "toolchain": "available",
+  "evidence": "evidence/smc-mixer-ui-popup-stage4/",
+  "existing_impl_pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/10",
+  "draft_pr_create": "403 Resource not accessible by integration expected",
+  "manage_pull_request_tool": "not present in this agent's exposed tool catalog",
+  "stage2_repair_prompt": "evidence/smc-mixer-ui-popup-stage4/stage2-repair-prompt.txt",
+  "successor_text": "evidence/smc-mixer-ui-popup-stage4/SUCCESSOR-STAGE2-REPAIR.txt",
+  "create_thread_callable": false,
+  "stage5_started": false,
+  "stage5_blocked_reason": "Stage 4 FAIL \u2014 must repair flash fit before merge",
+  "agent_source": "internal",
+  "stage4_owner": "bc-03fb7159-af1e-5d80-837b-f4bec84f0cb4",
+  "parent_action_required": "Launch exactly one fresh Stage-2 REPAIR cloud agent with SUCCESSOR-STAGE2-REPAIR.txt / stage2-repair-prompt.txt. Do not launch Stage 5 on 5109ef6."
+}
