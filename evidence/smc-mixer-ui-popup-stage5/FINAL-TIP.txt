@@ -1,4 +1,4 @@
-Stage-5 evidence tip: 6e7b118f577d34753cfcdbe15d729c4c397f8cde
+Stage-5 evidence tip: 46c9e6ee068cf3e8ea2c5c450489d2967e14784a
 Branch: cursor/smc-mixer-ui-popup-stage5-5686 (pushed)
 Validated firmware ancestor: 828298d9db1a403919e7e4c8176db83512281bb2
 PR #13 remains draft + CONFLICTING; integrator: MERGE-INSTRUCTIONS.md
