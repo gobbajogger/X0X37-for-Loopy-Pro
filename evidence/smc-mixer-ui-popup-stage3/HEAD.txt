@@ -1,5 +1,5 @@
 TESTED_CODE_TIP=5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
-EVIDENCE_TIP=db01671a027e2a98167248d454f7b82f2d85617e
 BRANCH=cursor/smc-mixer-ui-popup-stage3-5686
 BASE_TIP=origin/cursor/smc-mixer-ui-popup-stage2-5686
 STAGE3_OWNER=bc-eb2cd134-02cf-5366-b36c-e1c3258ad760
+NOTE=EVIDENCE_TIP is the stage-3 branch tip after push; do not chase self-SHA in commits.
