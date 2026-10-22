@@ -333,7 +333,7 @@ progress::-moz-progress-bar { background: var(--accent); }
     <section id="ble" hidden>
       <div class="step-kicker" data-t="controlleroptional">Optional / SMC Bluetooth</div>
       <p class="small" data-t="blewhy"></p>
-      <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
+      <p class="small"><label class="field"><span data-t="ctlchoose">Controller image (.img)</span><input type="file" id="ctlfile" accept=".img"></label></p>
     </section>
     <div class="flash-action">
           <div class="step-kicker" data-t="stage3">Step 03 / Install</div>
@@ -424,7 +424,7 @@ const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99d
 const TEXT = {
   ja: {
     navinstaller: "インストール", navmanual: "マニュアル", navsamples: "サンプル",
-    controlleroptional: "任意 / SMC Bluetooth",
+    controlleroptional: "任意 / SMC Bluetooth", ctlchoose: "コントローラー画像 (.img)",
     verlatest: "最新 DEV", verolder: "旧 DEV", verdev: "DEV", verrelease: "リリース", verunverified: "未検証",
     eyebrow: "デバイスファームウェア / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
     stage1: "手順 01 / 接続", stage2: "手順 02 / ファームウェア", stage3: "手順 03 / インストール",
@@ -512,7 +512,7 @@ const TEXT = {
   },
   en: {
     navinstaller: "Installer", navmanual: "Manual", navsamples: "Samples",
-    controlleroptional: "Optional / SMC Bluetooth",
+    controlleroptional: "Optional / SMC Bluetooth", ctlchoose: "Controller image (.img)",
     verlatest: "latest DEV", verolder: "older DEV", verdev: "DEV", verrelease: "release", verunverified: "unverified",
     eyebrow: "DEVICE SOFTWARE / WEB MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
     stage1: "Step 01 / Connection", stage2: "Step 02 / Firmware", stage3: "Step 03 / Install",
