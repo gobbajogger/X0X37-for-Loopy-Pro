@@ -12,7 +12,12 @@ enum { O_NONE, O_LIST, O_ASK, R_NONE, R_HDR, R_ACT, R_ENG, EN_K1,
        B_HOME, NKIT = 2, PROJ_BT_SMC_CENTRAL = 16, PROJ_BT_SMC_USER = 32 };
 typedef struct { uint8_t kind; } pref_t;
 static struct { struct { uint8_t bt; } set; } proj;
-static struct { uint8_t overlay, help; uint32_t act_t; } ui;
+static struct {
+    uint8_t overlay, help;
+    uint32_t act_t;
+    uint32_t enc_t[8];
+    uint8_t enc_run[8];
+} ui;
 static struct { uint8_t pg; } ck;
 static uint8_t clip_grid_mode, fields[CK_NE];
 static unsigned dirty, notices, fallback_turns;
