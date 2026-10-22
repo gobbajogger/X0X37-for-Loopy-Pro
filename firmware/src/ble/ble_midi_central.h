@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* One-link HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation. */
+/* HCI BLE-MIDI central for the SMC-Mixer. No SDK host or allocation.
+ * One central is the proven path. A second central can scan without resetting the first. */
 #pragma once
 #include <stdint.h>
 
@@ -40,4 +41,15 @@ void blec_stop(blec_t *c);
 void blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now_ms);
 void blec_poll(blec_t *c, uint32_t now_ms);
 int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n);
+/* Join an already-running controller. Enables scan once. Does not send HCI Reset. */
+void blec_scan_join(blec_t *c, uint32_t now_ms);
+/* While set, a lost scan does not enable a second scan. NULL or 0 restores the one-central path. */
+void blec_avoid(const uint8_t addr[6]);
+void blec_scan_hold(int hold);
+/* Other centrals share this object's controller buffer count. NULL keeps each central on its own count. */
+void blec_credit_pool(blec_t *owner);
+/* Deliver one controller frame to the central that owns it. The second must already be active. */
+void blec_rx_pair(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now_ms);
+/* Start a scan on idle when held is connected or discovering and is not waiting for a command. */
+void blec_scan_other(blec_t *idle, const blec_t *held, blec_t *pool_owner, uint32_t now_ms);
 static inline int blec_connected(const blec_t *c) { return c->state == BLEC_CONNECTED; }

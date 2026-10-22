@@ -41,6 +41,8 @@ static int transport(uint8_t h4, const uint8_t *p, uint16_t n, void *ctx)
     accepted[index]++;
     return 0;
 }
+static blec_t *ble_c2;
+static void ble_central_link_notify2(int up) { (void)up; }
 #include "ble_central_service.inc"
 static void event(const uint8_t *p, unsigned n)
 { blec_rx(&ble_r.host.c, 4, p, (uint16_t)n, fm1_ms); }

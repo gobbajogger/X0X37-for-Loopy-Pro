@@ -23,7 +23,7 @@ enum { R_ENG, T_MIX, T_FX, T_MST, MX_LEVEL, FX_RV_LEVEL, FX_DL_LEVEL,
 typedef struct { int kind, a, b, c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 static struct { int rec, part, view, overlay, help, sel[2]; } ui;
-static struct { int rec_part, solo; } smc;
+static struct { int rec_part, solo, lock; } smc;
 static struct { int playing; } seq;
 static int volume, filter;
 static int pref_get(pref_t r) { return r.a == T_MST ? filter : volume; }

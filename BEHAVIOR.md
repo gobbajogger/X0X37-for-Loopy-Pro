@@ -522,13 +522,17 @@ LIM-12. We maintain only the SMK-37 build. We do not maintain the FM-1 build. It
 
 ### SMC-Mixer navigation and pickup
 
-SMC-01. The SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank. In HOME and main MIX, knobs trim the same eight main-mix destinations as the faders. In 909 MIX and 808 MIX, knobs trim the matching track levels in the active bank. A paired fader and knob may share a destination. Each control type has unique destinations. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
+SMC-01. With the page lock off, the SMC uses the main mixer faders, including the master filter on fader 8. Drum MIX pages instead use two banks for all eleven drum tracks. SELECT chooses the track within the bank. In HOME and main MIX, knobs trim the same eight main-mix destinations as the faders. In 909 MIX and 808 MIX, knobs trim the matching track levels in the active bank. A paired fader and knob may share a destination. Each control type has unique destinations. Unused positions are inactive. [CODE firmware/src/app/smc_mixer.c]
 
 SMC-02. SMC navigation reaches part sound pages, sequence, generator, FX, MIX, song and deep menus. R6 opens or activates a menu; R7 backs out or cancels; S7 opens Global. Only explicit R6 confirms a question. Help blocks edits. [Mapping](docs/SMC_MIXER.md) defines the complete button map. [CODE firmware/src/app/smc_mixer.c]
 
 SMC-03. Outside the three mixer modes in SMC-01, encoders edit visible fields. Open menus take precedence over the mixer modes. Clip-grid encoders cannot edit the hidden X0X page. Clip navigation reaches SCALE, CHORD and all nine ARP fields. [CODE firmware/src/app/main_fm1.c smk_ck_smc_nav]
 
 SMC-04. PICK F feedback means waiting for pickup; SMC F means pickup is acquired. A changed target or external value resets pickup and crossing history. The fader's own write survives the following feedback frame. These statements describe code and host tests; device behavior remains untested on this repair. [CODE firmware/src/app/smc_mixer.c smc_notice]
+
+SMC-05. One Pause press on an SMC locks that SMC to the mix it is already using. A visible 909 MIX page stores 909 MIX. A visible 808 MIX page stores 808 MIX. Any other screen stores the main mix. While locked, that SMC's faders and knobs stay on the stored mix when the keyboard screen changes. A 909 or 808 lock keeps Bank Left and Bank Right on that kit's two banks. Another Pause press clears the lock and the SMC follows the screen again. Pause does not stop playback. PLAY still starts playback. The keyboard's own stop control is unchanged. During a performance test, Pause, PLAY and back still abort the test. The Pause light shows the lock. Help and a confirmation still block faders and knobs. [CODE firmware/src/app/smc_mixer.c]
+
+SMC-06. The keyboard can connect two SMC mixers at the same time. Each has its own lock, its own mix mode, its own pickup and its own solo hold. Button lights and fader positions go back to the SMC that owns them. Disconnect clears that SMC's lock, pickup and solo, then keeps whatever solo the other SMC still holds. Two SMCs locked to the same kit share that kit's one track selection. USB and a peripheral User stream have no sender identity, so those bytes stay on the first mixer. The second connection uses spare room in the existing Bluetooth RAM object. The controller configuration allows two links. A unit keeps its installed one-link controller image until that image is rebuilt. [CODE firmware/src/ble.c] [CODE ble/ctl/src/config.c]
 
 ## 18. Open questions
 

@@ -128,6 +128,19 @@ int main(void)
             turn(0, 1);
             check("visible X0X fallback still edits", fallback_turns == ft + 1 && page_value == pv + 1);
         }
+        {
+            unsigned d = dirty;
+            uint8_t before[CK_NE];
+            memcpy(before, fields, sizeof before);
+            clip_grid_mode = 1;
+            ck.pg = 1;
+            smc.lock = 1;
+            turn(0, 1);
+            check("a locked knob stays off the clip editor",
+                  !memcmp(before, fields, sizeof before) && dirty == d);
+            smc.lock = 0;
+            clip_grid_mode = 0;
+        }
     }
     printf("smc_clip_visibility: %s (%d failures)\n", fails ? "failed" : "ok", fails);
     return fails != 0;

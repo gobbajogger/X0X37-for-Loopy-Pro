@@ -24,13 +24,24 @@
 #define BLE_OQ 64u                              /* MIDI out to mirror: USB-MIDI packets */
 typedef struct {
     xb_mbox_t mb;                               /* first: 64-byte aligned (the rings' cache lines) */
-    union { bleh_t h; blec_t c; } host;
+    /* A second blec_t does not fit beside this object: it is 340 bytes and BLERAM has at most
+     * 300 bytes free. The peripheral host object is larger than two centrals, and the two roles
+     * never run together, so the second SMC uses that spare room. host.c stays the first object. */
+    union {
+        bleh_t h;
+        struct {
+            blec_t c;
+            blec_t c2;
+        };
+    } host;
     xb_boot_t boot;
     uint8_t fr[XB_FRAME_MAX];                   /* one frame from the controller */
     volatile uint32_t ow, orr;
     uint32_t sysex_drops;
     char nm[9];                                 /* the name it advertises */
 } ble_ram_t;
+_Static_assert(sizeof(blec_t) * 2u <= sizeof(bleh_t), "second central does not fit the host object");
+_Static_assert(sizeof(((ble_ram_t *)0)->host) == sizeof(bleh_t), "second central must not grow BLERAM");
 static ble_ram_t ble_r __attribute__((section(".ble_ram"), aligned(64)));
 /* attempt 32: the MIDI out mirror in the pool (zeroed at boot), so BLERAM has room for a 64-message
  * MIDI in queue. Written by the audio ISR and read by ble_service, both on core 0. */
@@ -44,6 +55,7 @@ static uint32_t ble_rails[2] __attribute__((section(".ble_ram")));   /* attempt 
 static void ble_record(void);
 static void ble_stack_clear(void);
 static uint8_t ble_central_role;                 /* settings bit 4 at boot; one HCI role per run */
+static blec_t *ble_c2;                           /* second SMC, or NULL before the central starts */
 /* attempt 34 (DIAG): interval | end reason << 16 | pairing refusals << 24;
  * MIDI in drops | asked MTU << 8 (10 bits) | request sent << 18 | result << 19 | latency << 21 (3) | L2CAP requests << 24 */
 static uint32_t ble_sat(uint32_t v, uint32_t m) { return v > m ? m : v; }
@@ -62,8 +74,9 @@ static uint32_t ble_h_link1(void)
 }
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
 extern int smc_ble_role_get(void);
-extern void smc_ble_midi(const uint8_t *msg, uint8_t len);
-extern void smc_ble_link(int up);
+extern void smc_ble_midi_slot(unsigned slot, const uint8_t *msg, uint8_t len);
+extern void smc_ble_link_slot(int slot, int up);
+extern int smc_tx_slot;
 extern void smc_mmc_host(uint8_t cmd, uint8_t src);
 static uint32_t ble_ok_at;                      /* fm1_ms when the controller became READY */
 /* the start guard (ble_glue.h): survives a reset, so a start that crashes or freezes the unit is not
@@ -222,13 +235,13 @@ static void ble_prepare(int on)
 static uint8_t ble_c0_ready;
 static void ble_central_midi(const uint8_t *p, uint8_t n, void *ctx)
 {
-    (void)ctx;
+    unsigned slot = ctx == (void *)1 ? 1u : 0u;
     /* Reuse the bounded ISR-owned INLOG ring; MMC records command in d1. */
     if (n == 3u)
         smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 24);
     else if (n == 6u)
         smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[4] << 16);
-    smc_ble_midi(p, n);                       /* TIMER5: SMC queues for the UI main loop */
+    smc_ble_midi_slot(slot, p, n);            /* TIMER5: SMC queues for the UI main loop */
 }
 static void ble_start(void)
 {
@@ -260,9 +273,12 @@ static void ble_start(void)
     xb_ring_init(&mb->h2c);
     xb_ring_init(&mb->c2h);
     fm1_ble_boot_fill(&ble_r.boot, mb);
-    if (ble_central_role)
+    if (ble_central_role) {
+        ble_c2 = &ble_r.host.c2;
         blec_init(&ble_r.host.c, ble_send, ble_central_midi, 0, addr);
-    else {
+        blec_init(ble_c2, ble_send, ble_central_midi, (void *)1, addr);
+    } else {
+        ble_c2 = 0;
         bleh_init(&ble_r.host.h, ble_send, 0, ble_r.nm, addr);
         bleh_set_sysex(&ble_r.host.h, ble_sysex_in);
     }
@@ -382,25 +398,43 @@ static void ble_fail(void)
  * queue. The engine then releases the notes that came from Bluetooth and the clock of Bluetooth. It goes after
  * the MIDI in of this tick, so no note of the old link comes after it. */
 static uint8_t ble_link_st;
-static uint8_t ble_central_link_seen;
+static uint8_t ble_central_link_seen, ble_central_link_seen2;
 static void ble_central_link_notify(int up)
 {
     uint8_t next = (uint8_t)(up != 0);
     if (next != ble_central_link_seen) {
         ble_central_link_seen = next;
-        smc_ble_link(next);
+        smc_ble_link_slot(0, next);
+    }
+}
+static void ble_central_link_notify2(int up)
+{
+    uint8_t next = (uint8_t)(up != 0);
+    if (next != ble_central_link_seen2) {
+        ble_central_link_seen2 = next;
+        smc_ble_link_slot(1, next);
     }
 }
 
-/* SMC central: HCI, ATT and MIDI run in TIMER5 beside the original peripheral host. */
+/* SMC central: HCI, ATT and MIDI run in TIMER5 beside the original peripheral host.
+ * With no second central, every frame still goes to the first central only. */
 static void ble_central_service(void)
 {
     blec_t *c = &ble_r.host.c;
+    blec_t *c2 = ble_c2;
     uint32_t k;
     uint8_t t;
-    if (!ble_up) { ble_central_link_notify(0); return; }
+    int second = c2 && c2->state != BLEC_OFF && c2->state != BLEC_FAILED;
+    if (!ble_up) {
+        ble_central_link_notify(0);
+        if (c2) ble_central_link_notify2(0);
+        return;
+    }
     if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
-        ble_record(); ble_fail(); ble_central_link_notify(0); return;
+        ble_record(); ble_fail();
+        ble_central_link_notify(0);
+        if (c2) ble_central_link_notify2(0);
+        return;
     }
     ble_alive[0] = fm1_ms;
     ble_alive[1] = ble_r.mb.polls;
@@ -412,30 +446,66 @@ static void ble_central_service(void)
     }
     /* Stop can submit Disconnect before receive or poll supplies the current time. */
     c->now_ms = fm1_ms;
+    if (c2) c2->now_ms = fm1_ms;
     if (!ble_want && c->state != BLEC_OFF && c->state != BLEC_STOPPING)
         blec_stop(c);
+    if (second && !ble_want && c2->state != BLEC_STOPPING)
+        blec_stop(c2);
     for (k = 0; k < 8u; k++) {
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
         if (n == 0) break;
-        if (n > 0) blec_rx(c, t, ble_r.fr, (uint16_t)n, fm1_ms);
+        if (n > 0) {
+            if (second)
+                blec_rx_pair(c, c2, t, ble_r.fr, (uint16_t)n, fm1_ms);
+            else
+                blec_rx(c, t, ble_r.fr, (uint16_t)n, fm1_ms);
+        }
     }
     if (!ble_want) {
         blec_poll(c, fm1_ms); /* finish disable/cancel/disconnect while radio is OFF */
+        if (second) blec_poll(c2, fm1_ms);
         ble_central_link_notify(0);
+        if (c2) ble_central_link_notify2(0);
         return;
     }
-    if (c->state == BLEC_STOPPING) {
+    if (!second) {
+        if (c->state == BLEC_STOPPING) {
+            blec_poll(c, fm1_ms);
+            ble_central_link_notify(0);
+            return;
+        }
+        if (c->state == BLEC_OFF) {
+            /* Drain old HCI events before a fresh Reset starts a new command sequence.
+             * Do not reset while the second central still holds a link. */
+            if (c2 && (c2->state == BLEC_CONNECTED || c2->state == BLEC_DISCOVERING))
+                blec_scan_other(c, c2, c, fm1_ms);
+            else {
+                if (xb_ring_used(&ble_r.mb.c2h)) return;
+                blec_start(c, fm1_ms);
+            }
+        }
         blec_poll(c, fm1_ms);
-        ble_central_link_notify(0);
+        if (c2 && (c->state == BLEC_CONNECTED || c->state == BLEC_DISCOVERING))
+            blec_scan_other(c2, c, c, fm1_ms);
+        else if (c2)
+            blec_credit_pool(0);
+        ble_central_link_notify(blec_connected(c));
+        if (c2) ble_central_link_notify2(blec_connected(c2));
         return;
     }
-    if (c->state == BLEC_OFF) {
-        /* Drain old HCI events before a fresh Reset starts a new command sequence. */
-        if (xb_ring_used(&ble_r.mb.c2h)) return;
-        blec_start(c, fm1_ms);
+    if (c->state == BLEC_STOPPING)
+        blec_poll(c, fm1_ms);
+    else if (c->state == BLEC_OFF || c->state == BLEC_FAILED)
+        blec_scan_other(c, c2, c, fm1_ms);
+    else
+        blec_poll(c, fm1_ms);
+    blec_poll(c2, fm1_ms);
+    if (c2->state == BLEC_OFF || c2->state == BLEC_FAILED) {
+        blec_credit_pool(0);
+        blec_scan_other(c2, c, c, fm1_ms);
     }
-    blec_poll(c, fm1_ms);
     ble_central_link_notify(blec_connected(c));
+    ble_central_link_notify2(blec_connected(c2));
 }
 
 /* TIMER5, next to usb_poll (same context: the MIDI in queue has one writer) */
@@ -514,9 +584,12 @@ int plat_ble_state(void)
     if (!ble_want)
         return PLAT_BLE_OFF;
     if (ble_central_role) {
+        int second_down = !ble_c2 || ble_c2->state == BLEC_OFF || ble_c2->state == BLEC_FAILED;
         if (!ble_up || ble_r.host.c.state == BLEC_STARTING) return PLAT_BLE_STARTING;
-        if (ble_r.host.c.state == BLEC_FAILED) return PLAT_BLE_FAILED;
-        return blec_connected(&ble_r.host.c) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
+        if (blec_connected(&ble_r.host.c) || (ble_c2 && blec_connected(ble_c2)))
+            return PLAT_BLE_CONNECTED;
+        if (ble_r.host.c.state == BLEC_FAILED && second_down) return PLAT_BLE_FAILED;
+        return PLAT_BLE_READY;
     }
     if (!ble_up || ble_r.host.h.state == BLEH_STARTING || ble_r.host.h.state == BLEH_IDLE)
         return PLAT_BLE_STARTING;
@@ -526,12 +599,18 @@ int plat_ble_state(void)
 }
 const char *plat_ble_name(void)
 {
-    return ble_central_role ? (ble_r.host.c.link_name[0] ? (const char *)ble_r.host.c.link_name : "SMC-Mixer") : ble_r.nm;
+    if (!ble_central_role) return ble_r.nm;
+    if (ble_r.host.c.link_name[0]) return (const char *)ble_r.host.c.link_name;
+    if (ble_c2 && ble_c2->link_name[0]) return (const char *)ble_c2->link_name;
+    return "SMC-Mixer";
 }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 {
-    return ble_central_role && ble_up && ble_host_on && ble_want &&
-           blec_midi_send(&ble_r.host.c, msg, len);
+    blec_t *c;
+    if (!ble_central_role || !ble_up || !ble_host_on || !ble_want)
+        return 0;
+    c = smc_tx_slot == 1 && ble_c2 ? ble_c2 : &ble_r.host.c;
+    return blec_midi_send(c, msg, len);
 }
 void plat_ble_set(int on)
 {
