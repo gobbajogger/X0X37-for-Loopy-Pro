@@ -23,5 +23,6 @@
   "tree": "d006ab424770b3afb13523bb54e360ee13c1b1e89b7c3e58dafa0ab6c88424ab",
   "recorded_utc": "2026-10-22T16:09:52Z",
   "evidence_tip": "1c262296a41b5c9262d628e4494848bcbb1f0ed1",
-  "pushed": false
+  "pushed": false,
+  "evidence_tip_pre_final": "75a0e284028b1cc2e5019d1096d3eaa7f30d0aab"
 }
