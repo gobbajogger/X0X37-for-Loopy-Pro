@@ -1,0 +1,29 @@
+You are Stage 3 (Test) of the seven-stage fresh-thread workflow for X0X37 SMC mixer UI popup.
+
+## Context
+Owner request: SMC mixer temporarily pops the real mapped UI page, holds ~1200 ms, then restores. Stage 2 implemented peek/hold/restore on branch `cursor/smc-mixer-ui-popup-stage2-5686`. Stage 6 install must be LOCAL later. Do not install firmware in this thread.
+
+Read first:
+- `docs/audit/smc-mixer-ui-popup-2026-10-22.md`
+- `evidence/smc-mixer-ui-popup-stage1/HANDOFF.md`
+- `evidence/smc-mixer-ui-popup-stage2/HANDOFF.md`
+
+## Your job (stage 3 only)
+1. Check out candidate SHA on `cursor/smc-mixer-ui-popup-stage2-5686` (use the SHA recorded in stage-2 HANDOFF after commit; verify it matches `origin/cursor/smc-mixer-ui-popup-stage2-5686`).
+2. Re-run the focused SMC host suite and save logs under `evidence/smc-mixer-ui-popup-stage3/`:
+   - `python3 tests/host/smc_fader_test.py`
+   - `python3 tests/host/smc_buttons_test.py`
+   - `python3 tests/host/smc_mapping_test.py`
+   - `python3 tests/host/smc_filter_test.py`
+   - `sh tests/host/smc_clip_visibility_test.sh`
+   - `sh tests/host/smc_part_select_test.sh`
+   - `sh tests/host/smc_drum_mutes_test.sh`
+   - `sh tests/host/smc_performance_abort_test.sh`
+   - `sh tests/host/smc_reachability_test.sh`
+   - `sh tests/host/smc_ui_popup_test.sh`
+3. Dispose failures: fix on a repair branch or start exactly one fresh stage-2 repair thread with a clear defect report. Do not ignore failures.
+4. On PASS: commit stage-3 evidence, push, update the draft PR if needed, and start exactly one fresh Stage 4 (Validate) cloud thread with the candidate SHA and evidence paths.
+5. Do NOT install firmware. Do NOT merge to main. Do NOT implement page-lock/multi-SMC.
+
+## Behavior under test (SMC-05)
+Strips 1–5 → V_MIX PARTS mixsel=strip; 6 → V_FX REVERB; 7 → V_FX DELAY; 8 → V_MIX MASTER; hold 1200 ms with refresh; peek on PICK/SMC; restore without set_view; no peek in clip/help/overlay/perf_testing.
