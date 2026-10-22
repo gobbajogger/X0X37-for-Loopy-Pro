@@ -5,6 +5,7 @@ Audit: [docs/audit/smc-mixer-ui-popup-2026-10-22.md](../../docs/audit/smc-mixer-
 Base: `e00741e2c1e8a018e7a7229dfd279e26aec34126`.
 Stage-1 branch: `cursor/smc-mixer-ui-popup-stage1-5686`.
 Stage-1 owner: `bc-01a16423-4043-76bd-8bc4-e110c6d15686`.
+Stage-2 successor started: `bc-14736e19-2d5a-5b06-97af-527185058605`.
 
 ## Do
 
