@@ -13,3 +13,6 @@ Do not install. Do not merge to main.
 NOTE: This Stage-3 thread could not create a cloud successor (no CreateAgent /
 ManagePullRequest tool). Parent must launch Stage 4 with stage4-prompt.txt.
 PR: gh createPullRequest 403. Parent may open draft PR from the Stage-3 branch if needed.
+
+Pushed Stage-3 branch tip (after metadata): will be recorded post-push as origin/cursor/smc-mixer-ui-popup-stage3-repair-5686.
+Firmware validate SHA remains 828298d9db1a403919e7e4c8176db83512281bb2.
