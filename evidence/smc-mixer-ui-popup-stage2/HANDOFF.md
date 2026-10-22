@@ -8,7 +8,7 @@ Stage-2 owner: `bc-14736e19-2d5a-5b06-97af-527185058605`.
 
 ## Candidate
 
-Candidate SHA: `3b964b006bfa28f86d43e8893744c1422623da34` (`3b964b0`). Branch tip must match the pushed stage-2 commit.
+Candidate SHA: `80dd4b7dceba5f3797719acfa58d6b9e572dc0ce` (`80dd4b7`). Branch tip must match the pushed stage-2 commit.
 
 ## Implemented
 
