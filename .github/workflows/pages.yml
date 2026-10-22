@@ -1,6 +1,7 @@
-# Host the install site on GitHub Pages (gh-pages branch + Actions deploy),
-# the same pattern other FM-1/SMK firmware projects use.
-name: GitHub Pages
+# Generate and TEST a Pages preview. This workflow must NEVER publish firmware.
+# The designated site owner publishes fully gated DEV candidates separately,
+# using tools/publish_pages.sh (normal history-preserving gh-pages push only).
+name: GitHub Pages preview
 
 on:
   push:
@@ -9,6 +10,7 @@ on:
       - "web/**"
       - "tools/make_pages.py"
       - "tools/publish_pages.sh"
+      - "tools/publish_pages_ff.sh"
       - "docs/MANUAL.md"
       - "docs/NEW.md"
       - "docs/img/**"
@@ -18,17 +20,15 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Optional release version to merge (tag without v)"
+        description: "Optional existing release version to preview (tag without v)"
         required: false
         type: string
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 concurrency:
-  group: pages
+  group: pages-preview
   cancel-in-progress: true
 
 jobs:
@@ -41,14 +41,13 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Fetch previous gh-pages site for version merge
-        continue-on-error: true
+      - name: Fetch existing Pages catalog and assets (preview only)
         run: |
+          set -euo pipefail
           mkdir -p build/pages-prev
-          git fetch origin gh-pages --depth=1 || true
-          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
-            git archive origin/gh-pages | tar -x -C build/pages-prev
-          fi
+          git fetch -q origin gh-pages --depth=1
+          SHA="$(git rev-parse --verify FETCH_HEAD)"
+          git archive "$SHA" | tar -xf - -C build/pages-prev
 
       - name: Resolve optional release packages
         id: pkgs
@@ -79,7 +78,7 @@ jobs:
           echo "mke=$MKE" >> "$GITHUB_OUTPUT"
           echo "fm1=$FM1" >> "$GITHUB_OUTPUT"
 
-      - name: Build site
+      - name: Build and test preview
         run: |
           set -euo pipefail
           V="${{ steps.pkgs.outputs.version }}"
@@ -95,38 +94,15 @@ jobs:
             [ -n "${{ steps.pkgs.outputs.fm1 }}" ] && ARGS+=(--fm1 "${{ steps.pkgs.outputs.fm1 }}")
             python3 tools/make_pages.py "${ARGS[@]}"
           else
-            # Hostable shell: installer + sample importer; drop any .fwsc; Releases API fills versions later.
             python3 tools/make_pages.py --shell --out build/pages "${MERGE[@]}"
           fi
           python3 tests/make_pages_test.py
+          python3 tests/host/pages_publish_ff_test.py
 
-      - name: Push gh-pages branch (classic Pages source)
-        run: |
-          set -euo pipefail
-          cd build/pages
-          rm -rf .git
-          git init -q -b gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -q -m "GitHub Pages site from ${GITHUB_SHA}"
-          git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/upload-pages-artifact@v3
-        continue-on-error: true
+      - name: Upload preview artifact (not a site deployment)
+        uses: actions/upload-artifact@v4
         with:
+          name: x0x-pages-preview
           path: build/pages
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    # Succeeds once Pages is enabled for the repo; gh-pages push above already hosts the files.
-    continue-on-error: true
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          if-no-files-found: error
+          retention-days: 7
