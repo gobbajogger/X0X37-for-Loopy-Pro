@@ -3,7 +3,7 @@ Stage 3 — Test SMC mixer UI page popup/hold/restore.
 You are a fresh stage-3 test thread in the seven-stage workflow.
 Read evidence/smc-mixer-ui-popup-stage2/HANDOFF.md and stage3-prompt.txt (full assignment).
 Fetch and check out origin/cursor/smc-mixer-ui-popup-stage2-5686 tip:
-  c02768c59837ce3d75d4a73df6d9be591b0d8e11
+  00d6ea0a6ff625bd7cdda754355c2c36509fb21b
 
 Re-run the focused SMC host suite listed in the handoff; save logs under
 evidence/smc-mixer-ui-popup-stage3/. Dispose failures. Do not install firmware.

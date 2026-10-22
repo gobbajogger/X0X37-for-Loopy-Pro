@@ -1,7 +1,7 @@
 {
   "stage": 2,
   "branch": "cursor/smc-mixer-ui-popup-stage2-5686",
-  "tip": "c02768c59837ce3d75d4a73df6d9be591b0d8e11",
+  "tip": "00d6ea0a6ff625bd7cdda754355c2c36509fb21b",
   "pushed": true,
   "remote": "origin/cursor/smc-mixer-ui-popup-stage2-5686",
   "draft_pr_create": "403 Resource not accessible by integration (gh pr create / REST pulls)",
