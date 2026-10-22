@@ -26,6 +26,8 @@ static void ble_central_link_notify(int up) { assert(!up); }
 static int xb_frame_get(void *q, uint8_t *t, uint8_t *p, unsigned n)
 { (void)q; (void)t; (void)p; (void)n; return 0; }
 static unsigned xb_ring_used(void *q) { (void)q; return 0; }
+static blec_t *ble_c2;
+static void ble_central_link_notify2(int up) { (void)up; }
 #include "ble_central_service.inc"
 
 static void setup(blec_t *c, uint32_t start)

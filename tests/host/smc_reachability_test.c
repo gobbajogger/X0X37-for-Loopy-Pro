@@ -168,7 +168,8 @@ pickup: ;
     int mp=engine_motion_part(r.a,r.b);
     assert(motion_find(proj.arr.lane,seq.ppat[mp],mp,r.a,r.b,r.c)>=0);
     seq.playing=0; ui.rec=0;
-    smc_ble_link(0); smc_poll(); assert(!smc.picked && !smc.seen && !smc.solo);
+    smc.lock = 1; smc.mode = 1;
+    smc_ble_link(0); smc_poll(); assert(!smc.picked && !smc.seen && !smc.solo && !smc.lock);
     smc_ble_link(1); smc_poll(); assert(!smc.picked && !smc.seen);
     if(getenv("SMC_PICKUP_ONLY")) return;
     /* View navigation reaches all ordinary views and Global's actions. */
@@ -217,5 +218,32 @@ int main(void) {
     unsigned drops=(smc_rx_diag()>>8)&255;
     for(unsigned i=0;i<SMC_Q+1;i++) smc_ble_midi(m,3);
     assert(((smc_rx_diag()>>8)&255)==((drops+1)&255));smc_poll();
+    /* A second SMC locks itself. Pause does not stop playback. Disconnect clears only that record. */
+    proj.set.bt = PROJ_BT_SMC_CENTRAL;
+    seq.playing = 1;
+    memset(smc_slot, 0, sizeof smc_slot);
+    smc_view(V_HOME, 0);
+    smc_ble_link_slot(0, 1);
+    smc_ble_link_slot(1, 1);
+    smc_poll();
+    assert(smc_slot[0].up && smc_slot[1].up && !smc_host_lock(0) && !smc_host_lock(1));
+    smc_slot[0].lock = 1;
+    smc_slot[0].mode = 1;
+    {
+        uint8_t pause[3] = {0x90, 0x5D, 127};
+        uint8_t solo[3] = {0x90, 8, 127};
+        smc_ble_midi_slot(1, pause, 3);
+        smc_poll();
+        assert(seq.playing);
+        assert(smc_host_lock(1) == 1 && smc_host_mode(1) == 0);
+        assert(smc_host_lock(0) == 1 && smc_host_mode(0) == 1);
+        smc_ble_midi_slot(1, solo, 3);
+        smc_poll();
+    }
+    assert((smc_host_solo(1) & 1u) && smc_host_solo(0) == 0);
+    smc_ble_link_slot(1, 0);
+    smc_poll();
+    assert(!smc_host_lock(1) && !smc_host_solo(1) && smc_slot[0].up && seq.playing);
+    assert(smc_host_lock(0) == 1);
     return 0;
 }

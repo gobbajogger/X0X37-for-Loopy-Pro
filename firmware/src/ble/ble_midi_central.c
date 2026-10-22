@@ -17,6 +17,21 @@ static unsigned blec_rd16(const uint8_t *p) { return (unsigned)p[0] | (unsigned)
 static void blec_wr16(uint8_t *p, unsigned v) { p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); }
 static int blec_eq(const uint8_t *a, const uint8_t *b, unsigned n)
 { unsigned i; for (i = 0; i < n; i++) if (a[i] != b[i]) return 0; return 1; }
+/* Defaults keep the one-central path: no avoided address, no scan hold, private buffer counts. */
+static const uint8_t *blec_avoid_addr;
+static int blec_hold;
+static blec_t *blec_pool;
+static uint8_t *blec_creditp(blec_t *c)
+{
+    return blec_pool && c != blec_pool ? &blec_pool->credits : &c->credits;
+}
+static uint8_t blec_credit_cap(const blec_t *c)
+{
+    return blec_pool && c != blec_pool ? blec_pool->acl_total : c->acl_total;
+}
+void blec_avoid(const uint8_t addr[6]) { blec_avoid_addr = addr; }
+void blec_scan_hold(int hold) { blec_hold = hold ? 1 : 0; }
+void blec_credit_pool(blec_t *owner) { blec_pool = owner; }
 
 static void blec_rx_reset(blec_t *c)
 {
@@ -66,12 +81,13 @@ static int blec_acl_cid(blec_t *c, unsigned cid, const uint8_t *p, unsigned n)
 {
     uint8_t b[35];
     unsigned i;
-    if (!c->credits || n > 23u) return 0;
+    uint8_t *credits = blec_creditp(c);
+    if (!*credits || n > 23u) return 0;
     blec_wr16(b, c->conn); blec_wr16(b + 2, n + 4u);
     blec_wr16(b + 4, n); blec_wr16(b + 6, cid);
     for (i = 0; i < n; i++) b[i + 8u] = p[i];
     if (c->send(H4_ACL, b, (uint16_t)(n + 8u), c->ctx)) return 0;
-    c->credits--;
+    (*credits)--;
     return 1;
 }
 static int blec_acl(blec_t *c, const uint8_t *p, unsigned n)
@@ -126,10 +142,16 @@ static void blec_fail(blec_t *c)
 }
 static void blec_scan_again(blec_t *c, uint32_t now)
 {
-    c->state = BLEC_SCANNING;
-    c->step = S_SCAN_ON;
     c->waiting = 0;
     c->found = 0;
+    /* Another central already owns the single scanner. Stay down until that scan finishes. */
+    if (blec_hold) {
+        c->state = BLEC_OFF;
+        c->step = S_READY;
+        return;
+    }
+    c->state = BLEC_SCANNING;
+    c->step = S_SCAN_ON;
     c->deadline = now + 10000u;
 }
 static void blec_signal_flush(blec_t *c)
@@ -462,6 +484,9 @@ static void blec_adv_report(blec_t *c, const uint8_t *p, unsigned n)
             if ((p[k + 1u] == 8u || p[k + 1u] == 9u) && p[k] >= 4u &&
                 p[k + 2u] == 'S' && p[k + 3u] == 'M' && p[k + 4u] == 'C') {
                 unsigned z, name_len = p[k] - 1u;
+                /* The other link already owns this address. Keep looking for a second SMC. */
+                if (blec_avoid_addr && blec_eq(blec_avoid_addr, p + i + 2u, 6))
+                    continue;
                 c->target_type = p[i + 1u];
                 for (z = 0; z < 6; z++) c->target[z] = p[i + 2u + z];
                 if (name_len > 20u) name_len = 20u;
@@ -505,7 +530,7 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
                 else if (c->state == BLEC_STOPPING) blec_stop_progress(c);
             } else if (op == COP_CREATE && c->state == BLEC_STOPPING) blec_stop_progress(c);
         } else if (code == 0x05 && pl >= 4u && c->conn && !p[0] && blec_rd16(p + 1) == c->conn) {
-            c->credits = c->acl_total;
+            if (!blec_pool) c->credits = c->acl_total;
             c->conn = 0;
             c->disconnect_flags = 0;
             c->waiting = 0;
@@ -570,8 +595,8 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
         }
     } else if (code == 0x05 && pl >= 4u && !p[0] && c->state != BLEC_OFF && blec_rd16(p + 1) == c->conn) {
         blec_rx_reset(c);
-        /* HCI disconnection frees this sole link's outstanding controller buffers. */
-        c->credits = c->acl_total;
+        /* A sole link gets its buffers back here. A shared pool must not refill both links. */
+        if (!blec_pool) c->credits = c->acl_total;
         c->conn = 0; c->qr = c->qw; c->att_waiting = c->waiting = 0;
         if (c->disconnect_flags & D_STOP) c->state = BLEC_OFF;
         else { blec_scan_again(c, now); blec_progress(c); }
@@ -580,8 +605,10 @@ static void blec_event(blec_t *c, const uint8_t *p, unsigned n, uint32_t now)
         unsigned i;
         for (i = 0; i < p[0] && 1u + 4u * (i + 1u) <= pl; i++)
             if ((blec_rd16(p + 1u + 4u * i) & 0x0fffu) == c->conn) {
-                unsigned credits = c->credits + blec_rd16(p + 3u + 4u * i);
-                c->credits = (uint8_t)(credits > c->acl_total ? c->acl_total : credits);
+                uint8_t *credits = blec_creditp(c);
+                uint8_t cap = blec_credit_cap(c);
+                unsigned sum = (unsigned)*credits + blec_rd16(p + 3u + 4u * i);
+                *credits = (uint8_t)(sum > cap ? cap : sum);
             }
     }
 }
@@ -643,7 +670,7 @@ void blec_poll(blec_t *c, uint32_t now)
         if (!blec_att_tx(c, 0x02)) return;
         c->mtu_need = 0;
     }
-    if (c->state == BLEC_CONNECTED && c->credits && c->qr != c->qw) {
+    if (c->state == BLEC_CONNECTED && *blec_creditp(c) && c->qr != c->qw) {
         uint8_t p[23], n = c->qlen[c->qr % 32u], i;
         __asm__ volatile("" ::: "memory"); /* acquire the message published by the UI */
         p[0] = 0x52; blec_wr16(p + 1, c->midi_handle);
@@ -652,4 +679,102 @@ void blec_poll(blec_t *c, uint32_t now)
         for (i = 0; i < n; i++) p[5u + i] = c->q[c->qr % 32u][i];
         if (blec_acl(c, p, 5u + n)) c->qr++;
     }
+}
+void blec_scan_join(blec_t *c, uint32_t now)
+{
+    if (!c || (c->state != BLEC_OFF && c->state != BLEC_FAILED)) return;
+    if ((c->disconnect_flags & D_STOP) && c->state != BLEC_OFF) return;
+    blec_rx_reset(c);
+    c->midi_handle = c->cccd_handle = c->svc_end = 0;
+    c->now_ms = now;
+    c->waiting = c->att_waiting = c->conn = 0;
+    c->disconnect_flags = 0;
+    c->qr = c->qw = 0;
+    c->found = 0;
+    /* The pool owner still holds the buffers of the link that stayed up. */
+    if (!blec_pool || c != blec_pool)
+        c->credits = 0;
+    c->state = BLEC_SCANNING;
+    c->step = S_SCAN_ON;
+    c->query_start = 1;
+    c->deadline = now + 10000u;
+    blec_progress(c);
+}
+static int blec_peer_known(const blec_t *c)
+{
+    return c->found && (c->state == BLEC_CONNECTED || c->state == BLEC_DISCOVERING ||
+                        c->state == BLEC_DISCONNECTING || c->state == BLEC_STOPPING);
+}
+static void blec_rx_guarded(blec_t *dest, blec_t *other, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now)
+{
+    if (other->state == BLEC_SCANNING || other->state == BLEC_CONNECTING)
+        blec_scan_hold(1);
+    if (blec_peer_known(other))
+        blec_avoid(other->target);
+    blec_rx(dest, h4, p, n, now);
+    blec_scan_hold(0);
+    blec_avoid(0);
+}
+void blec_rx_pair(blec_t *a, blec_t *b, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now)
+{
+    if (!a || !b) return;
+    if (h4 == H4_ACL && n >= 2u) {
+        unsigned handle = ((unsigned)p[0] | (unsigned)p[1] << 8) & 0x0fffu;
+        if (b->conn && handle == b->conn) blec_rx_guarded(b, a, h4, p, n, now);
+        else if (a->conn && handle == a->conn) blec_rx_guarded(a, b, h4, p, n, now);
+        return;
+    }
+    if (h4 == H4_EVT && n >= 2u && p[0] == 0x13) {
+        blec_rx_guarded(a, b, h4, p, n, now);
+        blec_rx_guarded(b, a, h4, p, n, now);
+        return;
+    }
+    if (h4 == H4_EVT && n >= 6u && p[0] == 0x05) {
+        unsigned handle = ((unsigned)p[3] | (unsigned)p[4] << 8) & 0x0fffu;
+        if (b->conn && handle == b->conn) blec_rx_guarded(b, a, h4, p, n, now);
+        else blec_rx_guarded(a, b, h4, p, n, now);
+        return;
+    }
+    if (h4 == H4_EVT && n >= 3u && p[0] == 0x3e) {
+        unsigned sub = p[2];
+        if (sub == 2u) {
+            blec_t *scan = b->state == BLEC_SCANNING ? b : a;
+            blec_rx_guarded(scan, scan == a ? b : a, h4, p, n, now);
+            return;
+        }
+        if (sub == 1u || sub == 0x0au) {
+            int a_init = a->state == BLEC_CONNECTING ||
+                ((a->state == BLEC_STOPPING || a->state == BLEC_FAILED) && !a->conn &&
+                 (a->step == S_CREATE || a->step == S_CANCEL));
+            int b_init = b->state == BLEC_CONNECTING ||
+                ((b->state == BLEC_STOPPING || b->state == BLEC_FAILED) && !b->conn &&
+                 (b->step == S_CREATE || b->step == S_CANCEL));
+            blec_t *dest = b_init && !a_init ? b : a;
+            blec_rx_guarded(dest, dest == a ? b : a, h4, p, n, now);
+            return;
+        }
+    }
+    if (h4 == H4_EVT && n >= 6u && (p[0] == 0x0e || p[0] == 0x0f)) {
+        unsigned op = p[0] == 0x0e ? ((unsigned)p[3] | (unsigned)p[4] << 8)
+                                    : ((unsigned)p[4] | (unsigned)p[5] << 8);
+        int await = a->waiting && a->cmd_op == op;
+        int bwait = b->waiting && b->cmd_op == op;
+        blec_t *dest = bwait && !await ? b : a;
+        blec_rx_guarded(dest, dest == a ? b : a, h4, p, n, now);
+        return;
+    }
+    blec_rx_guarded(a, b, h4, p, n, now);
+}
+void blec_scan_other(blec_t *idle, const blec_t *held, blec_t *pool_owner, uint32_t now)
+{
+    if (!idle || !held || !pool_owner) return;
+    if (idle->state != BLEC_OFF && idle->state != BLEC_FAILED) return;
+    if (held->state != BLEC_CONNECTED && held->state != BLEC_DISCOVERING) return;
+    if (held->waiting) return;
+    /* A rejected scan waits out its deadline instead of sending a new enable every tick. */
+    if (idle->state == BLEC_FAILED && (int32_t)(now - idle->deadline) < 0) return;
+    blec_credit_pool(pool_owner);
+    if (held->found) blec_avoid(held->target);
+    blec_scan_join(idle, now);
+    blec_avoid(0);
 }

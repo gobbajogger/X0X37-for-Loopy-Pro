@@ -5,14 +5,16 @@
 #include "smc_protocol.h"
 
 #define SMC_Q 32u
+/* Stored while Pause is held down: main mix, the 909 MIX page, or the 808 MIX page. */
+enum { SMC_MAIN = 0, SMC_909 = 1, SMC_808 = 2 };
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
 static struct {
-    uint8_t n, b[6];
+    uint8_t n, slot, b[6];
 } smc_q[SMC_Q];
-static volatile uint8_t smc_qw, smc_qr, smc_link_pending;
+static volatile uint8_t smc_qw, smc_qr, smc_link_pending[2];
 /* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
 static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
 uint32_t smc_rx_diag(void)
@@ -24,21 +26,34 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
-static struct {
+/* Two mixer records. USB and the peripheral User stream stay on record 0.
+ * smc is the record currently being handled; outside poll and frame it is record 0. */
+static struct smc_rec {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
     uint8_t up, fresh, solo, rec_part;
     uint8_t lit[128], known[128];
     uint8_t fx_restore[3];
-} smc;
+    uint8_t lock, mode;
+} smc_slot[2];
+static struct smc_rec *smc_io = &smc_slot[0];
+#define smc (*smc_io)
+int smc_tx_slot;
 
-void smc_ble_midi(const uint8_t *msg, uint8_t len)
+static uint8_t smc_solo_mask(void)
+{
+    return (uint8_t)(smc_slot[0].solo | smc_slot[1].solo);
+}
+
+void smc_ble_midi_slot(unsigned slot, const uint8_t *msg, uint8_t len)
 {
     uint8_t w = smc_qw, i;
+    if (slot > 1u) slot = 0;
     if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q) {
         smc_dropped++; return;
     }
     smc_q[w % SMC_Q].n = len;
+    smc_q[w % SMC_Q].slot = (uint8_t)slot;
     for (i = 0; i < len; i++)
         smc_q[w % SMC_Q].b[i] = msg[i];
     __asm__ volatile("" ::: "memory");
@@ -46,9 +61,24 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
     smc_enqueued++;
 }
 
-void smc_ble_link(int up) { smc_link_pending = (uint8_t)(up ? 1u : 2u); }
+void smc_ble_midi(const uint8_t *msg, uint8_t len) { smc_ble_midi_slot(0, msg, len); }
+
+void smc_ble_link_slot(int slot, int up)
+{
+    if ((unsigned)slot > 1u) return;
+    smc_link_pending[slot] = (uint8_t)(up ? 1u : 2u);
+}
+void smc_ble_link(int up) { smc_ble_link_slot(0, up); }
 int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
-int smc_connected(void) { return smc.up && smc_ble_role_get(); }
+int smc_connected(void)
+{
+    return (smc_slot[0].up || smc_slot[1].up) && smc_ble_role_get();
+}
+#ifdef X0X_HOST
+uint8_t smc_host_lock(unsigned slot) { return slot < 2u ? smc_slot[slot].lock : 0; }
+uint8_t smc_host_mode(unsigned slot) { return slot < 2u ? smc_slot[slot].mode : 0; }
+uint8_t smc_host_solo(unsigned slot) { return slot < 2u ? smc_slot[slot].solo : 0; }
+#endif
 
 /* USB or peripheral BLE through the existing MIDI ring: only the explicitly enabled
  * User preset, channel 16. The separate ring has one audio-ISR producer; the BLE
@@ -121,13 +151,28 @@ static int smc_drum_track(int kit, int strip)
     return track < NDRUM ? track : -1;
 }
 
+/* A locked 909 or 808 record keeps that kit. Main mix is the eight home strips. */
+static pref_t smc_mode_target(int n)
+{
+    int kit, track;
+    if (smc.mode == SMC_909 || smc.mode == SMC_808) {
+        kit = smc.mode == SMC_808;
+        track = smc_drum_track(kit, n);
+        return track >= 0 ? find_ref(kit ? T_808 : T_909, track, "Level") : NONE;
+    }
+    return smc_home_target(n);
+}
+
 /* Faders use the main mixer except on the visible drum MIX pages. The
- * sample bank follows selection, including the final three of eleven tracks. */
+ * sample bank follows selection, including the final three of eleven tracks.
+ * A lock keeps the mode stored for this SMC instead of the screen. */
 static pref_t smc_target(int n)
 {
     int kit, track;
     if (ui.help || ui.overlay == O_ASK)
         return NONE;
+    if (smc.lock)
+        return smc_mode_target(n);
     kit = smc_drum_mix();
     if (kit >= 0) {
         track = smc_drum_track(kit, n);
@@ -143,6 +188,8 @@ static pref_t smc_knob_target(int n)
     pref_t r;
     if (ui.help || ui.overlay == O_ASK)
         return NONE;
+    if (smc.lock)
+        return smc_target(n);            /* locked knobs stay on this SMC's mix strips */
     if (ui.overlay == O_NONE && !smk_clip_mode_on() &&
         (ui.view == V_HOME || (ui.view == V_MIX && (cur_page() == 0 || drum_mix_page() >= 0))))
         return smc_target(n);
@@ -230,7 +277,7 @@ static void smc_knob(int n, int delta)
 {
     if (ui.overlay == O_ASK || ui.help)
         return;
-    if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
+    if (!smc.lock && ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
         return;                          /* a SCALE / CHORD / ARP page owns its visible fields */
     pref_t r = smc_knob_target(n);
     if (r.kind == R_NONE || r.kind == R_HDR || r.kind == R_ACT)
@@ -284,15 +331,19 @@ static void smc_select_part(int part)
 
 static int smc_bank(uint8_t note)
 {
-    if ((note == 0x2E || note == 0x2F) && !ui.help && ui.overlay == O_NONE &&
-        !smk_clip_mode_on() && drum_mix_page() >= 0) {
-        int kit = drum_mix_page();
-        ui.sel[kit] = note == 0x2E ? 0 : 8;
-        build_pages();
-        say(PART_N[kit], note == 0x2E ? "1-8" : "9-11");
-        return 1;
-    }
-    return 0;
+    int kit = -1;
+    if ((note != 0x2E && note != 0x2F) || ui.help || ui.overlay == O_ASK)
+        return 0;
+    if (smc.lock && (smc.mode == SMC_909 || smc.mode == SMC_808))
+        kit = smc.mode == SMC_808;
+    else if (ui.overlay == O_NONE && !smk_clip_mode_on() && drum_mix_page() >= 0)
+        kit = drum_mix_page();
+    else
+        return 0;
+    ui.sel[kit] = note == 0x2E ? 0 : 8;
+    build_pages();
+    say(PART_N[kit], note == 0x2E ? "1-8" : "9-11");
+    return 1;
 }
 
 /* Main strips address parts and FX. Drum MIX pages pair M and SELECT with
@@ -311,6 +362,8 @@ static void smc_button(uint8_t note, int mmc)
     }
     if (ui.overlay == O_NONE && smk_ck_smc_nav(note))
         return;
+    if (smc.lock && smc_bank(note))
+        return;                           /* a 909 or 808 lock keeps that kit's two banks */
     if (note == 5 || note == 6 || note == 14) {
         button_tap(note == 5 ? (smk_clip_mode_on() && ui.overlay == O_NONE ? B_GLO : B_SEL) :
                    note == 6 ? B_HOME : B_GLO);
@@ -353,7 +406,7 @@ static void smc_button(uint8_t note, int mmc)
                     smc.solo ^= (uint8_t)(1u << strip);
                 else
                     smc.solo |= (uint8_t)(1u << strip);
-                engine_smc_solo(smc.solo);
+                engine_smc_solo(smc_solo_mask());
                 say((smc.solo & (1u << strip)) ? "SOLO" : "UNSOLO", PART_N[strip]);
             } else if (row == 2)       /* MUTE */
                 mute_part(strip);
@@ -393,7 +446,13 @@ static void smc_button(uint8_t note, int mmc)
             seq_cue_part(&seq, ui.part, next);
         break;
     }
-    case 0x5D: seq_stop(&seq); break;
+    case 0x5D:                        /* Pause toggles this SMC's page lock. It does not stop playback. */
+        smc.lock = (uint8_t)!smc.lock;
+        if (smc.lock) {
+            int kit = smc_drum_mix();
+            smc.mode = (uint8_t)(kit == 0 ? SMC_909 : kit == 1 ? SMC_808 : SMC_MAIN);
+        }
+        break;
     case 0x5E:
         if (!seq.playing) {
             seq.song_start = ui.song_sel < song()->len ? ui.song_sel : 0;
@@ -428,7 +487,7 @@ static void smc_release(uint8_t note)
 {
     if (note >= 8u && note < 8u + NPARTS) {
         smc.solo &= (uint8_t)~(1u << (note - 8u));
-        engine_smc_solo(smc.solo);
+        engine_smc_solo(smc_solo_mask());
     }
 }
 
@@ -478,31 +537,38 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
 
 void smc_poll(void)
 {
-    uint8_t link = smc_link_pending, r, count = 0;
-    int allow = !perf_testing();
-    if (link) {
-        smc_link_pending = 0;
+    uint8_t r, count = 0;
+    int allow = !perf_testing(), slot;
+    for (slot = 0; slot < 2; slot++) {
+        uint8_t link = smc_link_pending[slot];
+        if (!link) continue;
+        smc_link_pending[slot] = 0;
+        smc_io = &smc_slot[slot];
         smc.up = link == 1u;
         smc.fresh = smc.up;
         smc.picked = smc.seen = 0;
         smc.pending = 0xFFu;
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         if (!smc.up) {
+            smc.lock = 0;
             smc.solo = 0;
-            engine_smc_solo(0);
+            engine_smc_solo(smc_solo_mask());
             ui_say("SMC LOST", 0);
-        } else
+        } else {
+            smc.lock = 0;
             ui_say("SMC CONNECTED", 0);
+        }
     }
     if (!allow || ui.overlay == O_ASK || ui.help) {
-        smc.picked = smc.seen = 0;
-        if (smc.solo) {
-            smc.solo = 0;
-            engine_smc_solo(0);
+        for (slot = 0; slot < 2; slot++) {
+            smc_slot[slot].picked = smc_slot[slot].seen = 0;
+            if (smc_slot[slot].solo) smc_slot[slot].solo = 0;
         }
+        engine_smc_solo(0);
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
+        smc_io = &smc_slot[smc_q[r % SMC_Q].slot & 1u];
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
         else {
@@ -511,6 +577,7 @@ void smc_poll(void)
         }
         smc_qr = (uint8_t)(r + 1u);
     }
+    smc_io = &smc_slot[0];            /* USB and peripheral User bytes stay on the first record */
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
         r = smc_host_r;
@@ -527,6 +594,7 @@ void smc_poll(void)
             smc_mmc_r[src] = (uint8_t)(r + 1u);
         }
     }
+    smc_io = &smc_slot[0];
 }
 
 static int smc_led(int note)
@@ -557,19 +625,17 @@ static int smc_led(int note)
         return (strip == 5 && ui.view == V_FX) || (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
                (strip == 7 && (ui.view == V_MIX || ui.view == V_HOME));
     }
-    if (note == 0x5D) return !seq.playing;
+    if (note == 0x5D) return smc.lock ? 1 : 0;
     if (note == 0x5E) return seq.playing;
     if (note == 0x5F) return ui.rec;
     return 0;
 }
 
-void smc_frame(void)
+static void smc_frame_one(void)
 {
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
-    if (!smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
-        return;
     for (i = 0; i < 8; i++) smc_notice(i);
     for (i = 0; i < 43; i++) {
         n = i < 32 ? i : global[i - 32];
@@ -590,4 +656,19 @@ void smc_frame(void)
             if (!plat_ble_smc_send(msg, 3)) return;
             smc.pending &= (uint8_t)~(1u << i);
         }
+}
+
+void smc_frame(void)
+{
+    int slot;
+    if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL))
+        return;
+    for (slot = 0; slot < 2; slot++) {
+        smc_io = &smc_slot[slot];
+        if (!smc.up) continue;
+        smc_tx_slot = slot;           /* lamps and fader positions return on this connection */
+        smc_frame_one();
+    }
+    smc_io = &smc_slot[0];
+    smc_tx_slot = 0;
 }
