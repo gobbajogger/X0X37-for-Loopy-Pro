@@ -10,10 +10,11 @@ The factory sound is set up for big beat, so it should make noise the moment you
 
 [![X0X running on the FM-1 (watch on YouTube)](https://img.youtube.com/vi/cZLYrZaLDUk/maxresdefault.jpg)](https://www.youtube.com/watch?v=cZLYrZaLDUk)
 
-- **Install it** (Chrome or Edge, with the FM-1 plugged in): <https://charlesvestal.github.io/fm1-x0x/install/>
-- **Read the manual**: <https://charlesvestal.github.io/fm1-x0x/manual/>
-- **Download the firmware file**: [releases](https://github.com/charlesvestal/fm1-x0x/releases)
-- **M-Vave SMK-37:** see [SMK-37 instructions](SMK37.md).
+- **Install it** (Chrome or Edge, USB): <https://gobbajogger.github.io/x0x37-for-loopy-pro/install/> — any published version, SMK-37 Pro / Elite / MKE-P37 or FM-1
+- **Sample importer** (your own break loops): <https://gobbajogger.github.io/x0x37-for-loopy-pro/breaks/>
+- **Read the manual**: <https://gobbajogger.github.io/x0x37-for-loopy-pro/manual/>
+- **Download firmware**: [releases](https://github.com/gobbajogger/x0x37-for-loopy-pro/releases)
+- **M-Vave SMK-37 / Loopy Pro:** see [SMK-37 instructions](SMK37.md).
 
 > **X0X is in beta.** It's solid for everyday playing, but a very busy pattern can push the FM-1
 > to its limit. When that happens, X0X trades a little sound quality to keep playing rather than

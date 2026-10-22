@@ -476,25 +476,32 @@ script (the command list is at the top of `host/x0x_host.c`).
 
 ## Install
 
-X0X's web installer is <https://charlesvestal.github.io/fm1-x0x/install/> (Felucca's, at
-hugelton.github.io, installs Felucca). To install your own build, use the command line, or a local
-copy of the site (below).
+X0X's web installer for this repo is
+<https://gobbajogger.github.io/x0x37-for-loopy-pro/install/> (version + model picker, sample
+importer at `/breaks/`). Felucca's own installer is on hugelton.github.io. To install your own
+build, use the command line, or a local copy of the site (below).
 
 From the command line (needs `pip3 install mido python-rtmidi`):
 
 ```
-python3 tools/fm1_install.py build/x0x.fwsc
-python3 tools/fm1_install.py --info          # identity of the connected FM-1
+python3 tools/fm1_install.py build/x0x-smk37.fwsc
+python3 tools/fm1_install.py --info          # identity of the connected device
 ```
 
 Or, to install your own build from the web installer, make a local copy of the site. Open it from
 `localhost` (Web MIDI needs a secure context):
 
 ```
-./build.sh --release 0.1-beta                     # the site wants a release build (identity FM-1_9XY)
-python3 tools/make_pages.py build/x0x-0.1-beta.fwsc 0.1-beta build/pages
+tools/build_smk_release.sh 0.2                # Pro + Elite + MKE packages and build/pages/
 cd build/pages && python3 -m http.server 8000
-# open http://localhost:8000/install/
+# open http://localhost:8000/install/  and  http://localhost:8000/breaks/
+```
+
+A single package still works:
+
+```
+./build.sh --release 0.1-beta
+python3 tools/make_pages.py build/x0x-0.1-beta.fwsc 0.1-beta build/pages
 ```
 
 You install firmware at your own risk. Sometimes the FM-1 does not start but still reaches the chip's
@@ -503,12 +510,15 @@ Troubleshooting). Otherwise, recovery needs [FM-1-transporter](https://github.co
 
 ## Publishing a release
 
-1. `./build.sh --release X.Y-beta` (the identity, FM-1_9XY, is what the installers check).
-2. `tools/publish_pages.sh X.Y-beta`: builds the site (landing page, web installer, manual,
-   firmware) with `tools/make_pages.py`. It pushes the site to the `gh-pages` branch. The site
-   is then on GitHub Pages at <https://charlesvestal.github.io/fm1-x0x/>.
-3. `gh release create vX.Y-beta build/x0x-X.Y-beta.fwsc --prerelease` for the command-line
-   download.
+1. `tools/build_smk_release.sh X.Y` (or `./build.sh --release X.Y` for a single target). Release
+   identities are what the installers check (`SMK-37 Pro_9…`, `SMK-37 Elite_9…`, `MKE-P37_9…`).
+2. `tools/publish_pages.sh X.Y`: builds the site (landing, installer with every kept version,
+   sample importer, manual, firmware) via `tools/make_pages.py`, merges older packages already on
+   `gh-pages`, and pushes the branch. The site is
+   <https://gobbajogger.github.io/x0x37-for-loopy-pro/>. Publishing a GitHub Release with the
+   `.fwsc` assets also runs `.github/workflows/pages.yml` to rebuild Pages the same way.
+3. `gh release create vX.Y build/x0x-smk37-X.Y.fwsc build/x0x-smk37-elite-X.Y.fwsc build/x0x-smk37-mke-X.Y.fwsc --prerelease`
+   for command-line downloads (the installer can also pick these up from the Releases API).
 4. Attach `LICENSE`, `LICENSING.md` and the `LICENSES/` folder to the release. Each package
    contains three Apache-2.0 files from the JieLi SDK (LICENSING.md). Thus
    `LICENSES/Apache-2.0.txt` must go with each package.
@@ -517,12 +527,18 @@ Troubleshooting). Otherwise, recovery needs [FM-1-transporter](https://github.co
 
 The SMK-37 Pro and Elite builds include an APC40 mkII-compatible MIDI identity handshake. They also include the 40-cell APC clip-note/LED protocol and the APC velocity color palette. Clip feedback on MIDI channels 0–15 carries the same color. The firmware trims empty outer margins but preserves internal empty cells. An 8-wide layout shows one local 8×2 view (two rows) at a time. OCTAVE− and OCTAVE+ move it down and up by two rows within the latched clip area. A layout of 3 or 4 rows and 4 or fewer columns folds onto one 8×2 view. Source rows 0–1 (the lowest APC rows) map to physical pads 5–8 and 13–16. Rows 2–3 map to pads 1–4 and 9–12. The order of the pad rows is upside down (vertical flip), and the columns stay left-to-right. Pressing KNOB BANK toggles clip mode. FADER BANK switches the four faders between banks in clip mode too. Press SCALE, CHORD or ARP to open its settings page. Knob 2 selects a field; knob 3 and `<` / `>` change its value. The ON field controls the stage. The keybed plays while a page is open (BEHAVIOR.md CLP-76). The firmware sends no APC navigation messages. Change the Loopy page to reach clips outside its 8×5 APC box. The firmware stores APC feedback as it arrives (there is no staged feedback). It latches the layout 250 ms after the first burst. Seq PLAY and Seq REC send momentary APC40 Play and Record messages in clip mode. Their LEDs follow Loopy's Play and Record/overdub feedback. Configure the Loopy Record binding and overdub behavior in Loopy Pro. Loopy Pro stays the source of clip state and color.
 
-After you install the JieLi toolchain and AC79 SDK (above), use this command. It builds the two model-specific firmware packages and two matching web installers:
+After you install the JieLi toolchain and AC79 SDK (above), use this command. It builds the Pro,
+Elite and MKE packages and one combined web site (install + sample importer):
 
 ```
 tools/build_smk_release.sh 0.2-apc40
 ```
 
-This writes the Pro and Elite release packages plus `build/pages-smk37-pro/` and `build/pages-smk37-elite/`. Each generated installer embeds the matching model-specific firmware. Each installer ZIP must contain `LICENSE`, `LICENSING.md` and the `LICENSES/` folder. The reason: each package contains Apache-2.0 files from the JieLi SDK (LICENSING.md). The script does not add these files at this time. Add them to each ZIP before you publish it. For SMK packages, the installer hides the FM-1-only stock-firmware restore and recovery controls. Do not use an FM-1 stock image to recover an SMK keyboard.
+This writes the three release packages plus `build/pages/` and
+`build/x0x37-installer-VERSION.zip`. The ZIP must also contain `LICENSE`, `LICENSING.md` and the
+`LICENSES/` folder before you hand it out (each package embeds Apache-2.0 JieLi SDK files;
+LICENSING.md). On the install page, pick your keyboard's model so M-UPGRADE still accepts a later
+stock restore. Do not use an FM-1 stock image to recover an SMK keyboard — drop that model's own
+V016 `.fwsc` on the install page instead.
 
 If Pillow has no optional `libraqm` support, the font generator puts proportional digits in the center of the widest digit cell. Thus numeric fields stay tabular.

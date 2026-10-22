@@ -1,0 +1,108 @@
+# Deploy the install site (version picker + sample importer) to GitHub Pages.
+# Trigger after a release that attaches .fwsc assets, or manually with package URLs / paths.
+name: GitHub Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label (defaults to the release tag without v)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Resolve version and download release firmware
+        id: pkgs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          V="${{ github.event.inputs.version }}"
+          if [ -z "$V" ]; then
+            if [ "${{ github.event_name }}" = "release" ]; then
+              V="${{ github.event.release.tag_name }}"
+            else
+              V="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
+            fi
+          fi
+          V="${V#v}"
+          if [ -z "$V" ]; then
+            echo "No version: publish a release with .fwsc assets, or pass version=" >&2
+            exit 1
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          mkdir -p build/dl
+          # Prefer assets on this release; names from tools/build_smk_release.sh / build.py
+          TAG="v$V"
+          gh release download "$TAG" -D build/dl -p "*.fwsc" || gh release download "$V" -D build/dl -p "*.fwsc"
+          ls -la build/dl
+          PRO=$(ls build/dl/x0x-smk37-"$V".fwsc build/dl/x0x37-"$V".fwsc 2>/dev/null | head -1 || true)
+          ELITE=$(ls build/dl/x0x-smk37-elite-"$V".fwsc build/dl/x0x37-"$V"-elite.fwsc 2>/dev/null | head -1 || true)
+          MKE=$(ls build/dl/x0x-smk37-mke-"$V".fwsc build/dl/x0x37-"$V"-mke.fwsc 2>/dev/null | head -1 || true)
+          FM1=$(ls build/dl/x0x-"$V".fwsc 2>/dev/null | head -1 || true)
+          echo "pro=$PRO" >> "$GITHUB_OUTPUT"
+          echo "elite=$ELITE" >> "$GITHUB_OUTPUT"
+          echo "mke=$MKE" >> "$GITHUB_OUTPUT"
+          echo "fm1=$FM1" >> "$GITHUB_OUTPUT"
+          if [ -z "${PRO}${ELITE}${MKE}${FM1}" ]; then
+            echo "No matching .fwsc on release $TAG" >&2
+            exit 1
+          fi
+
+      - name: Fetch previous Pages site for version merge
+        continue-on-error: true
+        run: |
+          mkdir -p build/pages-prev
+          git fetch origin gh-pages --depth=1 || true
+          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+            git archive origin/gh-pages | tar -x -C build/pages-prev
+          fi
+
+      - name: Build site
+        run: |
+          set -euo pipefail
+          V="${{ steps.pkgs.outputs.version }}"
+          ARGS=(--version "$V" --out build/pages)
+          [ -n "${{ steps.pkgs.outputs.pro }}" ] && ARGS+=(--pro "${{ steps.pkgs.outputs.pro }}")
+          [ -n "${{ steps.pkgs.outputs.elite }}" ] && ARGS+=(--elite "${{ steps.pkgs.outputs.elite }}")
+          [ -n "${{ steps.pkgs.outputs.mke }}" ] && ARGS+=(--mke "${{ steps.pkgs.outputs.mke }}")
+          [ -n "${{ steps.pkgs.outputs.fm1 }}" ] && ARGS+=(--fm1 "${{ steps.pkgs.outputs.fm1 }}")
+          if [ -f build/pages-prev/versions.json ] || [ -d build/pages-prev/firmware ]; then
+            ARGS+=(--merge build/pages-prev)
+          fi
+          python3 tools/make_pages.py "${ARGS[@]}"
+          python3 tests/make_pages_test.py
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

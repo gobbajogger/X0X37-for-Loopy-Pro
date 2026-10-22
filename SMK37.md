@@ -3,8 +3,12 @@
 X0X also builds for the M-Vave SMK-37, a 37-key controller with the same chip as the FM-1. The FM-1 build is
 unchanged; everything for the SMK-37 is behind `BOARD_SMK37`.
 
-Until this project's releases include SMK-37 packages, unofficial builds can be installed with the web installer:
-https://genkigenki.github.io/smk37/
+**Install (any version, Pro / Elite / MKE-P37):** open the project web installer in Chrome or Edge —
+https://gobbajogger.github.io/x0x37-for-loopy-pro/install/ — connect the keyboard by USB, pick the
+version and your model, then Install. The [sample importer](https://gobbajogger.github.io/x0x37-for-loopy-pro/breaks/)
+loads your own break loops the same way.
+
+Unofficial multi-firmware builds also appear on https://genkigenki.github.io/smk37/.
 
 ## Supported models
 

@@ -1,113 +1,200 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
-     X0X installer for FM-1 and SMK-37 family release packages, English first, no editor.
-     tools/make_pages.py inlines fm1pkg.js, fm1ota.js, x0x_breaks.js (the sample slots: an install that
-     changes the slot map saves them to a file first and writes them back after) and the package's metadata. -->
+     X0X installer for FM-1 and SMK-37 family release packages: pick any published version and
+     model, connect once, install over Web MIDI (Chrome or Edge). Sample slots that would move are
+     saved and written back (x0x_breaks.js). tools/make_pages.py inlines fm1pkg.js, fm1ota.js,
+     x0x_breaks.js at LIB and the release catalog at CATALOG. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>X0X installer</title>
+<title>Install · X0X</title>
 <style>
-  :root { --bg: #fff; --fg: #000; --dim: #777; }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --bg: #000; --fg: #fff; --dim: #888; }
+  :root {
+    --bg: #f4f5f6; --fg: #1c1f23; --dim: #5b626a; --rule: #d9dde1; --accent: #c8700a;
+    --card: #fff; --ok: #1a7f4b; --busy: #b45309; --err: #b42318; color-scheme: light;
   }
-  :root[data-theme="dark"] { --bg: #000; --fg: #fff; --dim: #888; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131518; --fg: #e6e8eb; --dim: #9aa1a9; --rule: #2d3137; --accent: #f0a043;
+      --card: #1a1d21; --ok: #3dd68c; --busy: #f0a043; --err: #f97066; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131518; --fg: #e6e8eb; --dim: #9aa1a9; --rule: #2d3137; --accent: #f0a043;
+    --card: #1a1d21; --ok: #3dd68c; --busy: #f0a043; --err: #f97066; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg);
          font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
-  main { max-width: 520px; margin: 0 auto; padding: 48px 16px; }
-  h1 { font-size: 24px; font-weight: 600; margin: 0 0 24px; }
-  .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; padding: 0; color: var(--dim); }
-  p { margin: 0 0 16px; }
-  button { font: inherit; background: var(--fg); color: var(--bg); border: 0; padding: 8px 20px; cursor: pointer; }
-  button:disabled { opacity: .3; cursor: default; }
-  #status { margin-top: 16px; min-height: 1.6em; }
-  .small { color: var(--dim); font-size: 13px; }
-  progress { width: 100%; height: 4px; margin-top: 16px; }
-  pre { color: var(--dim); font-size: 12px; white-space: pre-wrap; margin-top: 16px; }
+  main { max-width: 560px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 12px; }
   h2 { font-size: 18px; font-weight: 600; margin: 40px 0 12px; }
-  ol { margin: 0 0 16px; padding-left: 20px; }
-  input[type=file] { font: inherit; font-size: 13px; color: var(--dim); max-width: 100%; }
+  .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; }
+  p { margin: 0 0 16px; }
+  .small { color: var(--dim); font-size: 13px; }
+  a { color: var(--accent); }
   .home { display: inline-block; font-weight: 700; letter-spacing: .03em; color: var(--dim); text-decoration: none; margin: 0 0 12px; }
   .home:hover, .home:focus-visible { color: var(--fg); }
+  .connect {
+    position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
+    margin: 0 0 24px; padding: 12px 14px; background: color-mix(in srgb, var(--card) 92%, transparent);
+    border: 1px solid var(--rule); backdrop-filter: blur(8px);
+  }
+  .led { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--dim); }
+  .led.on { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
+  .led.busy { background: var(--busy); animation: blink .8s infinite; }
+  .led.err { background: var(--err); }
+  @keyframes blink { 50% { opacity: .35; } }
+  .ctext { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .ctext b { font-size: 14px; }
+  .ctext span { color: var(--dim); font-size: 12px; overflow-wrap: anywhere; }
+  .panel { background: var(--card); border: 1px solid var(--rule); padding: 16px; margin: 0 0 20px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin: 0 0 14px; }
+  label.field { display: grid; gap: 4px; font-size: 13px; color: var(--dim); }
+  select, input[type=file] { font: inherit; font-size: 14px; color: var(--fg); max-width: 100%; }
+  select { background: var(--bg); border: 1px solid var(--rule); padding: 6px 10px; }
+  .models { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--fg); }
+  .models label { cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+  .models input { accent-color: var(--accent); margin: 0; }
+  details.model { margin: 0 0 14px; color: var(--dim); }
+  details.model summary { cursor: pointer; width: max-content; font-size: 13px; }
+  details.model summary:hover { color: var(--accent); }
+  details.model p { margin: 8px 0 0; font-size: 12px; }
+  button { font: inherit; background: var(--fg); color: var(--bg); border: 0; padding: 8px 20px; cursor: pointer; }
+  button.quiet { background: none; color: var(--fg); border: 1px solid var(--rule); }
+  button:disabled { opacity: .3; cursor: default; }
+  #status { margin-top: 12px; min-height: 1.6em; }
+  progress { width: 100%; height: 4px; margin-top: 12px; }
+  pre { color: var(--dim); font-size: 12px; white-space: pre-wrap; margin-top: 12px; max-height: 12em; overflow: auto; }
+  .drop {
+    border: 1px dashed var(--rule); padding: 18px 14px; text-align: center; color: var(--dim);
+    font-size: 13px; margin: 0 0 12px; cursor: pointer;
+  }
+  .drop.over { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .drop input { display: none; }
+  ol { margin: 0 0 16px; padding-left: 20px; }
+  .meta { font-size: 12px; color: var(--dim); margin: 0 0 14px; }
 </style>
 </head>
 <body>
 <main>
-  <button class="lang" id="lang"></button>
+  <button class="lang" id="lang" type="button"></button>
   <a class="home" href="../">X0X</a>
-  <h1>Install X0X</h1>
+  <h1 data-t="title">Install X0X</h1>
   <p data-t="intro"></p>
-  <p data-t="warn"></p>
   <p class="small" data-t="direct"></p>
-  <p class="small" data-t="untested"></p>
   <p class="small" data-t="beta"></p>
-  <p class="small" id="recovery"><span data-t="brick"></span>
-    <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
-  <p class="small" data-t="back"></p>
-  <p class="small"><a href="https://www.m-vave.com/download" target="_blank" rel="noopener" style="color:inherit">www.m-vave.com/download</a></p>
-  <p><button id="go" disabled data-t="install"></button></p>
-  <progress id="bar" max="100" value="0"></progress>
-  <p id="status"></p>
-  <pre id="log"></pre>
-  <section id="ble" hidden>
-    <h2 data-t="bleh"></h2>
-    <p class="small" data-t="blewhy"></p>
-    <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
+
+  <div class="connect" id="connectbar">
+    <span class="led" id="led" aria-hidden="true"></span>
+    <div class="ctext">
+      <b id="conn">Not connected</b>
+      <span id="connDetail" data-t="connhelp"></span>
+    </div>
+    <button class="quiet" id="connbtn" type="button" data-t="connect">Connect</button>
+  </div>
+
+  <section class="panel" id="pick">
+    <div class="row">
+      <label class="field">Version
+        <select id="version" aria-label="Firmware version"></select>
+      </label>
+    </div>
+    <p class="meta" id="pkgmeta"></p>
+    <details class="model" id="modeldetails">
+      <summary data-t="flashother">Flash another keyboard version</summary>
+      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
+      <p data-t="modelwhy"></p>
+    </details>
+    <section id="ble" hidden>
+      <p class="small" data-t="blewhy"></p>
+      <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
+    </section>
+    <p><button id="go" disabled data-t="install">Install</button></p>
+    <progress id="bar" max="100" value="0"></progress>
+    <p id="status"></p>
+    <pre id="log"></pre>
   </section>
+
+  <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a></p>
+  <p class="small"><a href="../manual/" data-t="manual">The manual</a>
+    · <a href="../new/" data-t="whatsnew">What's new</a>
+    · <a id="download" href="#" data-t="download">Download this package</a></p>
+
   <section id="stock">
     <h2 data-t="stockh"></h2>
     <p class="small" data-t="stockwhy"></p>
-    <ol class="small">
-      <li><span data-t="stock1"></span> <a id="stocklink" href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" style="color:inherit">FM-1.fwsc</a></li>
-      <li><span data-t="stock2"></span><br><input type="file" id="stockfile" accept=".fwsc"></li>
+    <ol class="small" id="stocksteps">
+      <li><span data-t="stock1"></span>
+        <a id="stocklink" href="https://www.m-vave.com/download" target="_blank" rel="noopener">m-vave.com/download</a>
+        <span id="stocklinks"></span></li>
+      <li data-t="stock2"></li>
       <li data-t="stock3"></li>
     </ol>
+    <label class="drop" id="stockdrop">
+      <input type="file" id="stockfile" accept=".fwsc">
+      <span data-t="stockdrop"></span>
+    </label>
+    <p class="small"><label><input type="checkbox" id="stockconfirm"> <span data-t="stockconfirm"></span></label></p>
     <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
   </section>
-  <p><a href="../manual/" style="color:inherit" data-t="manual"></a></p>
-  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener" style="color:inherit">Hügelton Instruments</a>,
-    with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator. The manual's Credits list them all.<br>
-    Fonts: Barlow Semi Condensed and Terminus (SIL OFL 1.1). M-VAVE and FM-1 are trademarks of their respective owners.<br>
-    <span data-t="license"></span> <a href="https://github.com/charlesvestal/fm1-x0x" target="_blank" rel="noopener" style="color:inherit">github.com/charlesvestal/fm1-x0x</a></p>
+
+  <p class="small" id="recovery"><span data-t="brick"></span>
+    <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
+  <p class="small" data-t="back"></p>
+
+  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
+    with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.<br>
+    <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/x0x37-for-loopy-pro" target="_blank" rel="noopener">github.com/gobbajogger/x0x37-for-loopy-pro</a></p>
 </main>
 <script type="module">
 /*LIB*/
 const $ = (id) => document.getElementById(id);
+const MODELS = { pro: "SMK-37 Pro", elite: "SMK-37 Elite", mke: "MKE-P37", fm1: "FM-1" };
+const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
+const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
-    intro: "FM-1 を USB で接続してください。（Chrome か Edge で使えます）",
+    title: "X0X をインストール",
+    intro: "USB で機器を接続し、バージョンと機種を選んでください。（Chrome か Edge）",
     warn: "書き込み中は USB を抜かないでください。",
-    install: "インストール", other: "English",
-    manual: "マニュアル（英語）",
-    untested: "X0X はベータ版です。FM-1 で動作しますが、全パートを同時に密に鳴らすと処理が追いつかないことがあります。",
-    direct: "USB ケーブルはパソコンに直接つないでください。Probe や Transporter などの機材は不要です。",
+    install: "インストール", other: "English", connect: "接続",
+    connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
+    connected: "接続済み", notconnected: "未接続", looking: "探しています…",
+    flashother: "別の機種名で書き込む",
+    modelwhy: "同じファームウェアを別の機種名で書き込みます。キーボード本来の機種（古い Elite は Pro と出ることがあります）を選ぶと、あとで M-VAVE の純正に戻せます。Starrykey 37 Play は SMK-37 Pro を使います。",
+    manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
+    breaks: "サンプル・インポーター：自分のブレイク・ループ",
+    untested: "X0X はベータ版です。",
+    direct: "USB ケーブルはパソコンに直接つないでください。",
     brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
     bricklink: "起動しない FM-1 の復旧（マニュアル）",
-    beta: "これはベータ版で、不安定な場合があります。このカスタムファームウェアを使ったことで FM-1 が壊れたり不具合が起きたりしても、作者は一切の責任を負いません。自己責任でお使いください。",
-    back: "公式ファームウェアに戻すには、このページ下の「純正ファームウェアに戻す」か、M-VAVE 公式のアップデーター M-UPGRADE（Downloads → PC Software → M-UPGRADE）を使います。",
+    beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
+    back: "公式ファームウェアに戻すには、下の手順か M-VAVE の M-UPGRADE を使います。",
     stockh: "純正ファームウェアに戻す",
-    stockwhy: "M-VAVE の FM-1 V15 を、X0X（またはそのセーフモード）から同じ USB ケーブルで書き込みます。X0X で保存したパターンは消えることがあります。",
-    stock1: "M-VAVE の FM-1 V15 をダウンロード:",
-    stock2: "ダウンロードしたファイルを選ぶ:",
-    stock3: "FM-1 を USB で接続し、下のボタンを押す。",
+    stockwhy: "キーボードの機種名は保たれるので、通常は M-UPGRADE がそのまま使えます。別のファームのあとで拒否されるときは、純正の .fwsc を落として書き込みます。キャリブレーションとペアリングは触りません。",
+    stock1: "機種の純正ファームウェア（.fwsc）を入手:",
+    stock2: "下にドロップするか選ぶ。",
+    stock3: "USB で接続し、「これは自分のキーボードのファームウェアです」にチェックして書き込む。",
+    stockdrop: "ここに .fwsc をドロップ、またはクリックして選択",
+    stockconfirm: "これは自分のキーボードのファームウェアです",
     stockinstall: "純正ファームウェアを書き込む",
-    stockok: "M-VAVE の FM-1 V15 です。ボタンを押してください。",
-    stockbad: "これは M-VAVE の FM-1 V15 のファイルではありません。上のリンクのファイルを選んでください。",
-    stockdone: "完了。FM-1 は純正ファームウェアで起動しました。",
+    stockok: "パッケージを確認しました。ボタンを押してください。",
+    stockbad: "使える .fwsc ではありません。",
+    stockdone: "完了。純正ファームウェアで起動しました。",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
     reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
     error: "エラー: ",
     denied: "MIDI（SysEx）の使用が許可されませんでした。アドレスバーのサイト設定で MIDI を許可して、もう一度押してください。",
-    notfound: "FM-1 が見つかりません。USB ケーブル（データ通信用か）を確かめ、MIDI を使う他のアプリを閉じてから、もう一度押してください。",
-    model: "接続されている機器は FM-1 ではありません。",
+    notfound: "機器が見つかりません。USB ケーブル（データ通信用か）を確かめ、MIDI を使う他のアプリを閉じてから、もう一度押してください。",
+    model: "接続されている機器はこのパッケージ向けではありません。",
     lost: "USB の接続が切れました。挿し直してもう一度押してください。",
-    noloader: "書き込みモードの FM-1 が見つかりません。USB を挿し直してもう一度押してください（終わるまで書き込みモードのままです）。",
-    noreturn: "FM-1 が戻ってきません。電源を入れ直してください。",
-    mismatch: "書き込みは終わりましたが、FM-1 が別のバージョンを報告しています: ",
+    noloader: "書き込みモードの機器が見つかりません。USB を挿し直してもう一度押してください。",
+    noreturn: "機器が戻ってきません。電源を入れ直してください。",
+    mismatch: "書き込みは終わりましたが、別のバージョンを報告しています: ",
     badpkg: "インストールするファイルが壊れています。ページを再読み込みしてください。",
     leave: "書き込み中です。ページを閉じないでください。",
     slotsave: "新しいファームウェアではスロットのサンプルが消えます（スロット ",
@@ -120,42 +207,51 @@ const TEXT = {
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
     license: "GPL-3.0、無保証。ソース:",
-    bleh: "Bluetooth MIDI（任意）",
-    blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。X0X とは別のプログラムで、X0X には含まれていません。選ばなければ Bluetooth なしでインストールします。アップデートのたびに選び直してください。",
+    blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。選ばなければ Bluetooth なしでインストールします。",
     ctlok: "ctl.img を確認しました。インストールに含めます。",
     ctlbad: "この ctl.img は使えません: ",
+    noproduct: "このバージョンには選んだ機種のパッケージがありません。",
+    releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
-    intro: "Connect the FM-1 by USB. (Works in Chrome or Edge.)",
+    title: "Install X0X",
+    intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
     warn: "Do not unplug the USB cable while writing.",
-    install: "Install", other: "日本語",
-    manual: "The manual",
-    untested: "X0X is a beta. It runs on the FM-1, but every part playing a dense pattern at once can still overload it.",
+    install: "Install", other: "日本語", connect: "Connect",
+    connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
+    connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
+    flashother: "Flash another keyboard version",
+    modelwhy: "The same firmware under another model name. Pick your keyboard's own model (an Elite running an older build may report SMK-37 Pro), so M-VAVE's updater accepts its factory firmware again. Starrykey 37 Play: use SMK-37 Pro.",
+    manual: "The manual", whatsnew: "What's new", download: "Download this package",
+    breaks: "Sample importer: your own break loops",
+    untested: "X0X is a beta.",
     direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
     brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
     bricklink: "recovering an FM-1 that won't start (manual)",
-    beta: "This is a beta and may be unstable. The author accepts no responsibility if your FM-1 is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
-    back: "To go back to the official firmware, use \"Back to the stock firmware\" below, or M-VAVE's own updater, M-UPGRADE (Downloads → PC Software → M-UPGRADE).",
+    beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
+    back: "To go back to the official firmware, use the section below, or M-VAVE's updater, M-UPGRADE.",
     stockh: "Back to the stock firmware",
-    stockwhy: "This writes M-VAVE's own FM-1 V15 back, from X0X (or its safe mode, or Felucca) over the same USB cable. Patterns saved in X0X may be lost.",
-    stock1: "Download M-VAVE's FM-1 V15:",
-    stock2: "Choose the file you downloaded:",
-    stock3: "Connect the FM-1 by USB and press the button below.",
+    stockwhy: "Our packages keep your keyboard's model name, so M-UPGRADE usually works directly. If another firmware left M-UPGRADE refusing the unit, download the official .fwsc for your model, drop it here, and install. Calibration and pairing are never touched.",
+    stock1: "Get the official .fwsc for your model:",
+    stock2: "Drop it below, or click to choose it.",
+    stock3: "Connect by USB, tick “This is the firmware for my keyboard”, and install.",
+    stockdrop: "Drop the .fwsc file here, or click to choose it",
+    stockconfirm: "This is the firmware for my keyboard",
     stockinstall: "Install the stock firmware",
-    stockok: "That is M-VAVE's FM-1 V15. Press the button to install it.",
-    stockbad: "That is not M-VAVE's FM-1 V15 file. Choose the file from the link above.",
-    stockdone: "Done. The FM-1 has restarted with its original firmware.",
+    stockok: "Package checked. Press the button to install it.",
+    stockbad: "That is not a usable .fwsc package.",
+    stockdone: "Done. The device has restarted with its original firmware.",
     nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
     error: "Error: ",
     denied: "MIDI (SysEx) access was not allowed. Allow MIDI in the site settings (address bar) and press Install again.",
-    notfound: "FM-1 not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
-    model: "The connected device is not an FM-1.",
+    notfound: "Device not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
+    model: "The connected device does not match this package.",
     lost: "The USB connection was lost. Replug it and press Install again.",
-    noloader: "The FM-1 in update mode was not found. Replug the USB cable and press Install again (it stays in update mode until it is finished).",
-    noreturn: "The FM-1 did not come back. Power-cycle it.",
-    mismatch: "Written, but the FM-1 reports another version: ",
+    noloader: "The device in update mode was not found. Replug the USB cable and press Install again.",
+    noreturn: "The device did not come back. Power-cycle it.",
+    mismatch: "Written, but the device reports another version: ",
     badpkg: "The file to install is damaged. Reload the page.",
     leave: "Writing. Do not close the page.",
     slotsave: "The new firmware does not keep the samples in slot ",
@@ -168,33 +264,256 @@ const TEXT = {
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
     license: "GPL-3.0, no warranty. Source:",
-    bleh: "Bluetooth MIDI (optional)",
-    blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. It is a separate program, not part of X0X. Without it, X0X installs without Bluetooth. Select it again for each update.",
+    blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. Without it, X0X installs without Bluetooth. Select it again for each update.",
     ctlok: "ctl.img checked: the install includes it.",
     ctlbad: "This ctl.img cannot be used: ",
+    noproduct: "No package for that model in this version.",
+    releasehint: "The same files are also on the GitHub Releases page.",
   },
 };
-let lang = "en";                                 /* X0X: English first (the manual is English); 日本語 is a click away */
+let lang = "en";
 const t = (k) => TEXT[lang][k];
 let lastKey = null, lastArg = "";
 function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
   $("lang").textContent = t("other");
+  $("conn").textContent = connected ? t("connected") : t("notconnected");
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
+  refreshMeta();
 }
 $("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
-applyLang();
 const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
 const say = (txt) => { lastKey = null; $("status").textContent = txt; };
-const log = (t) => { $("log").textContent += t + "\n"; };
-let image = null;
-const meta = /*META*/;
-/* The stock restore link is specific to the FM-1; never offer it for SMK builds. */
-if (!meta.stock) { $("stock").hidden = true; $("recovery").hidden = true; }
-/* SMK-37 family: an optional Bluetooth controller image, built by the user (never served from here) */
-let ctl = null;
-if (/^(SMK|MKE)/i.test(meta.product)) $("ble").hidden = false;
+const log = (txt) => { $("log").textContent += txt + "\n"; };
+
+const catalog = /*CATALOG*/;
+let catalogLive = catalog;
+const repo = catalog.repo || "https://github.com/gobbajogger/x0x37-for-loopy-pro";
+$("repolink").href = repo;
+$("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
+
+let midi = null, connected = false, lastId = null, writing = false;
+let image = null, selectedProduct = null, ctl = null, stock = null;
+let chosenModel = null;
+
+function led(state) {
+  $("led").className = "led" + (state ? " " + state : "");
+}
+function setConnected(on, detail) {
+  connected = on;
+  led(on ? "on" : (detail && detail.startsWith("No ") ? "err" : ""));
+  $("conn").textContent = on ? t("connected") : t("notconnected");
+  $("connDetail").textContent = detail || t("connhelp");
+  $("connbtn").textContent = t("connect");
+}
+
+async function midiAccess() {
+  if (midi) return midi;
+  if (!navigator.requestMIDIAccess) throw Object.assign(new Error(t("nomidi")), { code: "nomidi" });
+  try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
+  catch (e) { throw Object.assign(new Error(t("denied")), { code: "denied" }); }
+  const ports = () => [...midi.inputs.values(), ...midi.outputs.values()]
+    .filter((p) => p.state === "connected").map((p) => p.id).sort().join();
+  midiAccess.ports = ports();
+  midi.onstatechange = () => {
+    const now = ports();
+    if (now === midiAccess.ports) return;
+    midiAccess.ports = now;
+    if (!writing) { clearTimeout(midiAccess.t); midiAccess.t = setTimeout(scan, 800); }
+  };
+  return midi;
+}
+
+async function scan() {
+  if (writing) return;
+  led("busy");
+  $("conn").textContent = t("looking");
+  try {
+    const up = new Updater(await midiAccess(), () => {});
+    const dev = await up.find();
+    if (!dev) {
+      lastId = null;
+      setConnected(false, t("notfound"));
+      return;
+    }
+    lastId = dev.id;
+    const detail = `${dev.id.text}${dev.name ? " · " + dev.name : ""}`;
+    setConnected(true, detail);
+    suggestModel(dev.id.model);
+    dev.link.close();
+  } catch (e) {
+    lastId = null;
+    setConnected(false, (e && e.message) || t("error"));
+  }
+}
+
+$("connbtn").addEventListener("click", () => { scan(); });
+
+function versions() {
+  return (catalogLive.versions || []).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+}
+function currentVersion() {
+  const v = $("version").value;
+  return versions().find((x) => x.version === v) || versions()[0] || null;
+}
+function modelKeyForProduct(product) {
+  if (/^FM-1/i.test(product)) return "fm1";
+  if (/^SMK-37 Elite/i.test(product)) return "elite";
+  if (/^MKE-P37/i.test(product)) return "mke";
+  if (/^SMK-37/i.test(product)) return "pro";
+  return null;
+}
+function availableModels(ver) {
+  if (!ver || !ver.models) return [];
+  return MODEL_KEYS.filter((k) => ver.models[k]);
+}
+function suggestModel(deviceModel) {
+  const ver = currentVersion();
+  if (!ver) return;
+  const avail = availableModels(ver);
+  let want = "pro";
+  if (/Elite/i.test(deviceModel)) want = "elite";
+  else if (/MKE/i.test(deviceModel)) want = "mke";
+  else if (/^FM-1/i.test(deviceModel)) want = "fm1";
+  if (!avail.includes(want)) want = avail[0];
+  if (want) {
+    chosenModel = want;
+    const input = document.querySelector(`#models input[value="${want}"]`);
+    if (input) input.checked = true;
+    loadSelectedPackage();
+  }
+}
+function refreshModelUi() {
+  const ver = currentVersion();
+  const box = $("models");
+  box.innerHTML = "";
+  const avail = availableModels(ver);
+  if (!avail.length) return;
+  if (!chosenModel || !avail.includes(chosenModel)) chosenModel = avail.includes("pro") ? "pro" : avail[0];
+  for (const k of avail) {
+    const lab = document.createElement("label");
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "model"; inp.value = k;
+    inp.checked = k === chosenModel;
+    inp.addEventListener("change", () => { chosenModel = k; loadSelectedPackage(); });
+    lab.append(inp, document.createTextNode(MODELS[k] || k));
+    box.append(lab);
+  }
+  $("modeldetails").hidden = avail.length <= 1 && avail[0] === "fm1";
+  $("ble").hidden = !avail.some((k) => k !== "fm1");
+  $("recovery").hidden = !avail.includes("fm1") || avail.some((k) => k !== "fm1");
+  // Stock section always useful for SMK; for FM-1-only catalogs keep the SHA check path.
+  $("stock").hidden = false;
+  const links = [];
+  if (avail.includes("pro")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`);
+  if (avail.includes("elite")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`);
+  if (avail.includes("fm1")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`);
+  $("stocklinks").innerHTML = links.length ? " · " + links.join(" · ") : "";
+}
+function refreshMeta() {
+  const ver = currentVersion();
+  const pkg = ver && chosenModel && ver.models[chosenModel];
+  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); return; }
+  const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
+  $("pkgmeta").textContent = `${pkg.product}${size}`;
+  $("download").href = pkg.pkg;
+  $("download").download = pkg.pkg.split("/").pop();
+}
+async function sha256Hex(buf) {
+  const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))]
+    .map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hex;
+}
+async function loadSelectedPackage() {
+  image = null; selectedProduct = null;
+  $("go").disabled = true;
+  refreshMeta();
+  const ver = currentVersion();
+  const pkg = ver && chosenModel && ver.models[chosenModel];
+  if (!pkg) { sayK("noproduct"); return; }
+  try {
+    const r = await fetch(pkg.pkg);
+    if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
+    const raw = new Uint8Array(await r.arrayBuffer());
+    if (pkg.sha256) {
+      const hex = await sha256Hex(raw.buffer);
+      if (hex !== pkg.sha256) { sayK("badpkg"); return; }
+    }
+    const product = productOf(raw);
+    if (!pkg.fromRelease && product !== pkg.product) { sayK("badpkg"); return; }
+    if (pkg.fromRelease) {
+      const want = modelKeyForProduct(product);
+      if (want && want !== chosenModel) { sayK("badpkg"); return; }
+      pkg.product = product;
+    }
+    image = logicalImage(raw);
+    selectedProduct = product;
+    say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
+    $("go").disabled = writing;
+    refreshMeta();
+  } catch (e) { sayK("loadfail", e.message); }
+}
+
+function fillVersions() {
+  const sel = $("version");
+  const cur = sel.value;
+  sel.innerHTML = "";
+  const list = versions();
+  for (const v of list) {
+    const o = document.createElement("option");
+    o.value = v.version;
+    o.textContent = v.version + (v.version === catalogLive.latest ? " (latest)" : "");
+    sel.append(o);
+  }
+  const prefer = cur && list.some((v) => v.version === cur) ? cur
+    : (catalogLive.latest || (list[0] && list[0].version));
+  if (prefer) sel.value = prefer;
+  refreshModelUi();
+  loadSelectedPackage();
+}
+$("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
+
+async function mergeGitHubReleases() {
+  // Optional: add release assets not already in the catalog so any GitHub Release is installable.
+  const m = /github\.com\/([^/]+)\/([^/#?]+)/.exec(repo);
+  if (!m) return;
+  const api = `https://api.github.com/repos/${m[1]}/${m[2]}/releases?per_page=30`;
+  try {
+    const r = await fetch(api, { headers: { Accept: "application/vnd.github+json" } });
+    if (!r.ok) return;
+    const releases = await r.json();
+    const byVer = new Map((catalogLive.versions || []).map((v) => [v.version, { ...v, models: { ...v.models } }]));
+    for (const rel of releases) {
+      const version = String(rel.tag_name || "").replace(/^v/i, "");
+      if (!version) continue;
+      const entry = byVer.get(version) || { version, models: {} };
+      for (const asset of rel.assets || []) {
+        const name = asset.name || "";
+        let key = null;
+        if (/smk37-elite|-elite\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "elite";
+        else if (/smk37-mke|-mke\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "mke";
+        else if (/x0x-smk37-|smk37/i.test(name) && /\.fwsc$/i.test(name)) key = "pro";
+        else if (/^x0x-[\w.-]+\.fwsc$/i.test(name) && !/smk/i.test(name)) key = "fm1";
+        if (!key || entry.models[key]) continue;
+        entry.models[key] = {
+          product: key === "fm1" ? "FM-1_9000000" : `${MODELS[key]}_9000000`,
+          pkg: asset.browser_download_url,
+          size: asset.size,
+          fromRelease: true,
+        };
+      }
+      if (Object.keys(entry.models).length) byVer.set(version, entry);
+    }
+    catalogLive = {
+      ...catalogLive,
+      versions: [...byVer.values()],
+      latest: catalogLive.latest
+        || (releases[0] && String(releases[0].tag_name || "").replace(/^v/i, "")),
+    };
+  } catch (_) { /* offline / rate limit: keep embedded catalog */ }
+}
+
 $("ctlfile").addEventListener("change", async (e) => {
   ctl = null;
   const f = e.target.files && e.target.files[0];
@@ -208,49 +527,51 @@ $("ctlfile").addEventListener("change", async (e) => {
   } catch (err) { sayK("ctlbad", err && err.message); }
 });
 
-let writing = false;
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
 
-(async () => {
-  if (!navigator.requestMIDIAccess) { sayK("nomidi"); return; }
-  try {
-    const r = await fetch(meta.pkg);
-    if (!r.ok) throw new Error(`${meta.pkg}: HTTP ${r.status}`);
-    const pkg = new Uint8Array(await r.arrayBuffer());
-    if (productOf(pkg) !== meta.product) { sayK("badpkg"); return; }
-    image = logicalImage(pkg);
-    say(`X0X ${meta.version}`);
-    $("go").disabled = false;
-  } catch (e) { sayK("loadfail", e.message); }
-})();
-
-/* stock firmware: M-VAVE's FM-1 V15, chosen by the user (M-VAVE's server allows no cross-site
-   download) and checked against its SHA-256 before anything is written */
-const STOCK_SHA256 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
-let stock = null;
-$("stockfile").addEventListener("change", async (e) => {
+async function acceptStock(raw) {
   stock = null;
   $("stockgo").disabled = true;
+  try {
+    const product = productOf(raw);
+    const model = product.split("_")[0];
+    // FM-1 V15: keep the known hash when that is what was chosen.
+    const hex = await sha256Hex(raw.buffer);
+    const isFm1Stock = hex === STOCK_SHA256_FM1;
+    if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY)/i.test(model)) {
+      sayK("stockbad"); return;
+    }
+    stock = { image: logicalImage(raw), product, fm1Stock: isFm1Stock };
+    $("stockgo").disabled = writing || !$("stockconfirm").checked;
+    sayK("stockok");
+  } catch (err) { sayK("stockbad"); }
+}
+$("stockfile").addEventListener("change", async (e) => {
   const f = e.target.files && e.target.files[0];
   if (!f) return;
-  try {
-    const raw = new Uint8Array(await f.arrayBuffer());
-    const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("");
-    if (hex !== STOCK_SHA256) { sayK("stockbad"); return; }
-    stock = { image: logicalImage(raw), product: productOf(raw) };
-    $("stockgo").disabled = writing;
-    sayK("stockok");
-  } catch (err) { sayK("error", err && err.message); }
+  await acceptStock(new Uint8Array(await f.arrayBuffer()));
+});
+$("stockconfirm").addEventListener("change", () => {
+  $("stockgo").disabled = writing || !stock || !$("stockconfirm").checked;
+});
+const drop = $("stockdrop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", async (e) => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!f) return;
+  await acceptStock(new Uint8Array(await f.arrayBuffer()));
 });
 
 async function run(img, product, isStock) {
-  let midi;
-  try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
-  catch (e) { sayK("denied"); return; }
+  let access;
+  try { access = await midiAccess(); }
+  catch (e) { sayK(e.code || "denied"); return; }
   writing = true;
   $("go").disabled = $("stockgo").disabled = true;
+  led("busy");
   try {
-    const up = new Updater(midi, log);
+    const up = new Updater(access, log);
     const total = 74 + 1167;
     const step = (k, a) => {
       log(`${k} ${a ?? ""}`);
@@ -266,7 +587,6 @@ async function run(img, product, isStock) {
       ota.link.close();
       sayK((await up.resume(img, step, product)) ? (isStock ? "stockdone" : "done") : "stopped");
     } else {
-      /* the sample slots: saved to a file first when the new firmware would lose them, written back after */
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
         step, sameKeyboard,
@@ -289,25 +609,42 @@ async function run(img, product, isStock) {
         sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
       }
     }
+    await scan();
   } catch (e) {
-    if (isStock && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }   /* stock names itself its own way */
+    if (isStock && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
     else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
+    led("err");
   }
   writing = false;
   $("go").disabled = !image;
-  $("stockgo").disabled = !stock;
+  $("stockgo").disabled = !stock || !$("stockconfirm").checked;
 }
 
 $("go").addEventListener("click", () => {
+  if (!image || !selectedProduct || writing) return;
   let img = image;
   if (ctl) {
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
   }
-  run(img, meta.product, false);
+  $("go").disabled = true;   // sync before the first await in run()
+  run(img, selectedProduct, false);
 });
-$("stockgo").addEventListener("click", () => { if (stock) run(stock.image, stock.product, true); });
+$("stockgo").addEventListener("click", () => {
+  if (!stock || !$("stockconfirm").checked || writing) return;
+  $("stockgo").disabled = true;
+  run(stock.image, stock.product, true);
+});
+
+(async () => {
+  applyLang();
+  await mergeGitHubReleases();
+  fillVersions();
+  if (navigator.requestMIDIAccess) {
+    // Soft probe without prompting until Connect, unless the browser already granted MIDI.
+  }
+})();
 </script>
 </body>
 </html>
