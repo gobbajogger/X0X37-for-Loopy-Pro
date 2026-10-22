@@ -9,7 +9,7 @@ Read first:
 - `evidence/smc-mixer-ui-popup-stage2/HANDOFF.md`
 
 ## Your job (stage 3 only)
-1. Check out candidate SHA on `cursor/smc-mixer-ui-popup-stage2-5686` (use the SHA recorded in stage-2 HANDOFF after commit; verify it matches `origin/cursor/smc-mixer-ui-popup-stage2-5686`).
+1. Check out candidate SHA on `cursor/smc-mixer-ui-popup-stage2-5686` (candidate `d91a489d3e3588a693332bc9334ffdc6fc91a76b`; verify it matches `origin/cursor/smc-mixer-ui-popup-stage2-5686`).
 2. Re-run the focused SMC host suite and save logs under `evidence/smc-mixer-ui-popup-stage3/`:
    - `python3 tests/host/smc_fader_test.py`
    - `python3 tests/host/smc_buttons_test.py`
