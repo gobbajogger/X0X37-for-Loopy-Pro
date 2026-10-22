@@ -1,0 +1,14 @@
+{
+  "stage": 3,
+  "verdict": "PASS",
+  "candidate_sha": "828298d9db1a403919e7e4c8176db83512281bb2",
+  "stage3_branch": "cursor/smc-mixer-ui-popup-stage3-repair-5686",
+  "stage2_repair_branch": "cursor/smc-mixer-ui-popup-stage2-repair-5686",
+  "stage3_owner": "bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305",
+  "successor": "stage4-validate",
+  "successor_prompt": "evidence/smc-mixer-ui-popup-stage3-repair/stage4-prompt.txt",
+  "create_agent_available": false,
+  "manage_pull_request_available": false,
+  "parent_must_launch_stage4": true,
+  "recorded_utc": "2026-10-22T16:02:39Z"
+}

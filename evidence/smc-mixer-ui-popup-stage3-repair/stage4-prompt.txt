@@ -1,0 +1,31 @@
+You are a fresh Stage 4 VALIDATE thread for X0X37 SMC mixer UI popup (seven-stage workflow).
+
+## Why
+Stage 3 TEST (bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305) independently re-verified the Stage-2 XIP repair tip after the
+prior Stage 4 FAIL on ad4f311 (Elite overflow 248 B / Pro 232 B). Host suite PASS
+and optional Elite/Pro DEV spot-checks both show 56 B code free / pool_free 8364
+on the Stage-3 machine. Formal package validate is this stage's job.
+
+## Read first
+- docs/audit/smc-mixer-ui-popup-2026-10-22.md
+- evidence/smc-mixer-ui-popup-stage4/DEFECT.txt (prior FAIL — do not re-validate ad4f311)
+- evidence/smc-mixer-ui-popup-stage2-repair/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage3-repair/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage3-repair/HANDOFF.md
+- BUILDING.md / tools/dev_validate.py
+
+## Job
+1. Fetch and check out candidate SHA 828298d9db1a403919e7e4c8176db83512281bb2
+   (tip of cursor/smc-mixer-ui-popup-stage2-repair-5686; also on
+   cursor/smc-mixer-ui-popup-stage3-repair-5686). Create evidence branch
+   cursor/smc-mixer-ui-popup-stage4-repair-5686 from that tip if needed.
+2. Formal Elite + Pro DEV package validation with X0X_DEV_PADCAL=1 (dev_validate /
+   build.sh --board smk37). Record identities, code/RAM/pool free, package hashes.
+3. Budgets: pool_free >= 8192; positive code and RAM free (prefer non-zero code free).
+4. Record under evidence/smc-mixer-ui-popup-stage4-repair/ (preferred) or continue a
+   clearly named stage-4 evidence dir. Commit, push, draft PR if tools allow.
+5. On PASS: start exactly one fresh Stage 5 Merge thread with the validated SHA.
+   On FAIL: start exactly one Stage 2 repair thread with a DEFECT (or record prompt).
+6. Do NOT install. Do NOT merge to main. Do NOT implement page-lock/multi-SMC.
+
+Host suite already PASS on this SHA (Stage 3). Re-run only if you change sources.

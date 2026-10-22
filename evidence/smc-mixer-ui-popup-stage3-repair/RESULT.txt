@@ -1,0 +1,32 @@
+Stage 3 TEST (post Stage-2 XIP repair): PASS
+
+Stage-3 branch: cursor/smc-mixer-ui-popup-stage3-repair-5686
+Firmware candidate tested: 828298d9db1a403919e7e4c8176db83512281bb2
+  (tip of cursor/smc-mixer-ui-popup-stage2-repair-5686 at test time)
+Recorded UTC: 2026-10-22T16:02:39Z
+Stage-3 owner: bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305
+Prior Stage-2 repair: bc-a9596c35-cd3d-534c-b570-4a5800957829
+Prior Stage-4 FAIL tip: ad4f311 (XIP overflow Elite 248 B / Pro 232 B)
+
+Host suite: PASS (host-suite.log) — all ten focused checks:
+  smc_fader, smc_buttons, smc_mapping, smc_filter, smc_clip_visibility,
+  smc_part_select, smc_drum_mutes, smc_performance_abort, smc_reachability,
+  smc_ui_popup.
+
+SMC-05 confirmation (source + smc_ui_popup_test PASS):
+  - Strips 1–5 → V_MIX PARTS page 0, mixsel = strip
+  - Strip 6 → V_FX REVERB page 0; strip 7 → V_FX DELAY page 1
+  - Strip 8 → V_MIX MASTER (SMC_PEEK_MASTER = 1+NKIT)
+  - SMC_PEEK_MS = 1200; hold refreshed on continued same-peek moves
+  - Peek on PICK F and SMC F/K (smc_show → smc_peek_begin for home targets)
+  - Restore via assign + build_pages in smc_peek_tick (not set_view)
+  - No peek: clip, help, any overlay, perf_testing; already-on-page skips nested save
+  - Drum MIX excluded by caller (home-target path only)
+
+Optional size spot-check (not Stage-4 formal validate):
+  Elite DEV: PASS, 56 B code free, pool_free 8364, identity SMK-37 Elite_900
+  Pro DEV:   PASS, 56 B code free, pool_free 8364, identity SMK-37 Pro_900
+  Matches Stage-2 repair machine link proof.
+
+Disposition: advance to exactly one fresh Stage 4 Validate thread on candidate 828298d9db1a403919e7e4c8176db83512281bb2.
+Do not install. Do not merge to main. Do not implement page-lock/multi-SMC.
