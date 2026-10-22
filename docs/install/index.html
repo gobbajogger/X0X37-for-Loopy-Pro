@@ -1,0 +1,2158 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only
+     Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
+     X0X installer for FM-1 and SMK-37 family release packages: pick any published version and
+     model, connect once, install over Web MIDI (Chrome or Edge). Sample slots that would move are
+     saved and written back (x0x_breaks.js). tools/make_pages.py inlines fm1pkg.js, fm1ota.js,
+     x0x_breaks.js at LIB and the release catalog at CATALOG. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install · X0X</title>
+<style>
+/* X0X37 / firmware control desk. Source-only skin: no flashing logic. */
+:root {
+  --bg: #0b0e10;
+  --card: #14191c;
+  --card-raised: #1b2225;
+  --fg: #eff3ef;
+  --dim: #a1ada9;
+  --muted: #77847f;
+  --rule: #343e3a;
+  --accent: #ccfc76;
+  --accent-ink: #121c0b;
+  --soft: #202e24;
+  --ok: #a6e79b;
+  --busy: #f6c582;
+  --err: #ff877f;
+  --radius: 14px;
+  --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f0f0e9; --card: #fffefa; --card-raised: #f7f8f0;
+  --fg: #171c19; --dim: #4c5950; --muted: #69766c; --rule: #cbd2c5;
+  --accent: #355a05; --accent-ink: #fff; --soft: #edf2d6;
+  --ok: #24763d; --busy: #a06112; --err: #b6372e;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+main { width: min(1160px, 100%); margin: 0 auto; padding: 0 30px 56px; }
+a { color: var(--accent); text-underline-offset: 4px; }
+a:hover { text-decoration-thickness: 2px; }
+button, select, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .46; cursor: not-allowed; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+p { margin: 0 0 13px; }
+h1, h2, h3 { margin: 0; }
+.small { font-size: 12px; color: var(--dim); line-height: 1.65; }
+.meta { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.7; margin: 8px 0 13px; overflow-wrap: anywhere; }
+
+/* Compact utility navigation, oversized editorial heading, device-inspired graphic. */
+.site-head { position: relative; padding: 0 0 32px; margin-bottom: 24px; border-bottom: 1px solid var(--rule); }
+.header-top { min-height: 76px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--rule); margin-bottom: 32px; }
+.home { display: inline-flex; align-items: center; gap: 13px; font: 850 19px/1 var(--mono); color: var(--fg); letter-spacing: -.065em; text-decoration: none; white-space: nowrap; }
+.home::before { content:""; width: 30px; height: 26px; flex: none; display: block;
+  background: linear-gradient(135deg, transparent 0 22%, var(--accent) 22% 30%, transparent 30% 46%, var(--accent) 46% 54%, transparent 54% 70%, var(--accent) 70% 78%, transparent 78%);
+}
+.head-nav { margin-left: auto; display: flex; align-items: center; gap: 19px; }
+.head-nav a { text-decoration: none; font-size: 12px; font-weight: 650; color: var(--dim); }
+.head-nav a:hover, .head-nav a[aria-current="page"] { color: var(--fg); }
+.head-nav a[aria-current="page"]::after { content:""; display: block; background: var(--accent); height: 2px; margin-top: 3px; }
+.lang { background: transparent; border: 1px solid var(--rule); border-radius: 6px; color: var(--fg); padding: 8px 12px; min-height: 38px; font: 700 11px var(--mono); letter-spacing: .02em; }
+.lang:hover { border-color: var(--accent); }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 335px; align-items: center; gap: 28px; }
+.eyebrow, .step-kicker { font: 700 11px/1.5 var(--mono); letter-spacing: .09em; text-transform: uppercase; color: var(--accent); }
+.eyebrow { margin: 0 0 13px; }
+h1 { font-size: clamp(46px, 5.8vw, 74px); letter-spacing: -.07em; line-height: .98; font-weight: 800; margin: 0 0 19px; }
+.lead { font-size: 16px; line-height: 1.6; color: var(--dim); max-width: 620px; margin-bottom: 0; }
+.device-visual { align-self: center; border: 1px solid #3d4941; background: #1c2322; border-radius: 15px; padding: 19px; box-shadow: 0 26px 42px #0004, inset 0 1px #ffffff18; transform: rotate(-3deg); }
+.device-visual .device-top { display: flex; align-items: center; justify-content: space-between; color: #aeb5b0; font: 650 10px var(--mono); letter-spacing: .07em; }
+.device-visual .device-top b { color: #d7f5aa; font-weight: 850; }
+.device-screen { border: 1px solid #405e49; border-radius: 4px; background: #111b13; margin: 15px 0 16px; padding: 14px 15px; display: flex; justify-content: space-between; align-items: center; }
+.device-screen strong { color: #d6f99b; font: 750 23px/.9 var(--mono); letter-spacing: -.04em; }
+.device-screen small { color: #b4c8a5; font: 9px/1.5 var(--mono); letter-spacing: .07em; text-align: right; }
+.device-pads { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.device-pads span { height: 20px; background: #3d493f; border: 1px solid #647263; border-radius: 3px; box-shadow: inset 0 1px #ffffff20; }
+.device-pads span:nth-child(8n + 1), .device-pads span:nth-child(8n + 5) { background: #bfea70; border-color: #e7ffba; box-shadow: 0 0 14px #bfea7033; }
+.device-pads span:nth-child(8n + 3) { background: #79a6a1; border-color: #a2ccc7; }
+.device-visual .device-bottom { display: flex; justify-content: space-between; margin-top: 13px; color: #77877e; font: 9px var(--mono); letter-spacing: .07em; }
+.journey { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; list-style: none; margin: 32px 0 0; padding: 0; }
+.journey li { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 11px 17px 11px 0; color: var(--dim); font: 650 12px var(--mono); }
+.journey li + li { border-left: 1px solid var(--rule); padding-left: 18px; }
+.journey .stepnum { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid #526046; border-radius: 6px; color: var(--accent); background: var(--soft); font: 750 11px var(--mono); }
+
+/* Main path: left workspace, right pre-flight reference. */
+.install-layout { display: grid; grid-template-columns: minmax(0, 1fr) 305px; gap: 22px; align-items: start; }
+.install-primary, .install-sidebar { min-width: 0; }
+.panel, .connect { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); margin: 0 0 18px; }
+.panel { padding: 27px 30px; }
+.connect { display: flex; align-items: center; gap: 22px; padding: 23px 27px; }
+.connect .step-kicker { min-width: 97px; }
+.connect-line { flex: 1; display: flex; align-items: center; gap: 11px; min-width: 0; }
+.led { flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 4px #ffffff07; }
+.led.on { background: var(--ok); box-shadow: 0 0 0 4px #86eaaa25; }
+.led.busy { background: var(--busy); animation: pulse 1.1s ease-in-out infinite; }
+.led.err { background: var(--err); }
+@keyframes pulse { 50% { opacity: .48; } }
+.ctext { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.ctext b { font-size: 14px; font-weight: 700; color: var(--fg); }
+.ctext span { font-size: 11px; color: var(--dim); overflow-wrap: anywhere; }
+button.quiet, .build-item button { border: 1px solid var(--rule); background: var(--card-raised); color: var(--fg); border-radius: 7px; padding: 9px 16px; min-height: 41px; font-weight: 680; font-size: 12px; }
+button.quiet:hover, .build-item button:hover:not(:disabled) { border-color: var(--accent); }
+.panel-heading { margin-bottom: 23px; }
+.panel-heading h2 { margin-top: 7px; font-size: 26px; line-height: 1.2; letter-spacing: -.04em; }
+#versionrow { margin: 0 0 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+label.field { display: grid; gap: 8px; width: 100%; font-size: 12px; font-weight: 720; color: var(--dim); }
+select { appearance: none; border-radius: 7px; padding: 11px 42px 11px 15px; border: 1px solid var(--rule); min-height: 49px; background: var(--card-raised) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a4c3ac' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 15px center; color: var(--fg); font-size: 13px; }
+select:hover { border-color: #718769; }
+#version { width: 100%; }
+#pkgmeta { margin: 6px 0 18px; }
+.model-select { border: 0; padding: 0; margin: 23px 0 21px; min-width: 0; }
+.model-select legend { font-size: 12px; font-weight: 740; color: var(--dim); margin-bottom: 10px; }
+.models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.models label { cursor: pointer; min-height: 59px; display: flex; align-items: center; gap: 11px; padding: 12px 14px; font-size: 13px; font-weight: 720; background: var(--card-raised); border: 1px solid var(--rule); border-radius: 8px; transition: background .16s, border-color .16s; }
+.models label:hover { border-color: #748870; }
+.models label:has(input:checked) { background: var(--soft); color: var(--accent); border-color: var(--accent); }
+.models label:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+.models input { flex: none; width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.model-select p { font-size: 11px; color: var(--muted); line-height: 1.7; margin: 10px 0 0; }
+#ble { border: 1px dashed #566657; border-radius: 8px; padding: 15px 17px; margin: 15px 0; background: var(--card-raised); }
+#ble .step-kicker { margin-bottom: 7px; }
+#ble p { color: var(--dim); font-size: 11px; line-height: 1.6; margin: 0 0 11px; }
+#ctlfile { max-width: 100%; width: 100%; font-size: 11px; color: var(--dim); }
+#ctlfile::file-selector-button { border: 1px solid var(--rule); border-radius: 6px; padding: 8px 11px; margin-right: 10px; background: var(--soft); color: var(--accent); font: 700 11px var(--mono); cursor: pointer; }
+#ctlfile::file-selector-button:hover { border-color: var(--accent); }
+.build-detail { padding: 15px 17px; border: 1px solid #566647; border-radius: 7px; background: var(--soft); margin: 15px 0; }
+.build-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 10px; }
+.build-badge { border: 1px solid var(--rule); border-radius: 4px; padding: 4px 7px; font: 700 10px/1.3 var(--mono); text-transform: uppercase; color: var(--fg); }
+.build-badge.important { color: var(--busy); border-color: var(--busy); }
+.build-badge.blocked { color: var(--err); border-color: var(--err); }
+#buildsummary { margin-bottom: 8px; }
+#buildprovenance { font-size: 10px; color: var(--dim); }
+#devagreewrap { display: flex; gap: 10px; font-size: 12px; font-weight: 650; line-height: 1.5; color: var(--fg); padding-top: 11px; border-top: 1px solid #40513f; margin-top: 9px; }
+#devagreewrap[hidden] { display: none; }
+#devagree { flex: none; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+.flash-action { border-top: 1px solid var(--rule); padding: 21px 0 0; margin: 12px 0 0; }
+.flash-action .step-kicker { margin: 0 0 13px; }
+#go { width: 100%; min-height: 59px; display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; font: 800 14px var(--mono); text-transform: uppercase; letter-spacing: .055em; padding: 13px 20px; }
+#go:hover:not(:disabled) { filter: brightness(1.1); }
+#go:disabled { filter: saturate(.45); }
+#go::after { content: '  ↗'; margin-left: 15px; font-size: 18px; line-height: 1; }
+.install-hint { color: var(--dim); font-size: 11px; margin: 12px 0 4px; }
+progress { width: 100%; display: block; height: 7px; border-radius: 8px; overflow: hidden; accent-color: var(--accent); margin-top: 12px; }
+progress::-webkit-progress-bar { background: #27302b; }
+progress::-webkit-progress-value { background: var(--accent); }
+progress::-moz-progress-bar { background: var(--accent); }
+#status { margin: 12px 0 0; min-height: 1.65em; font: 650 12px/1.55 var(--mono); overflow-wrap: anywhere; }
+.diagnostics { border-top: 1px solid var(--rule); margin-top: 14px; padding-top: 12px; }
+.diagnostics summary { cursor: pointer; font-size: 11px; color: var(--dim); }
+.diagnostics pre { margin: 13px 0 0; color: var(--dim); font: 11px/1.5 var(--mono); white-space: pre-wrap; max-height: 250px; overflow: auto; }
+
+/* Useful context stays visible but secondary. */
+.install-sidebar .panel { padding: 24px 23px; }
+.sidebar-card { background: var(--card); }
+.sidebar-card h2 { margin: 9px 0 15px; font-size: 20px; font-weight: 750; line-height: 1.25; letter-spacing: -.025em; }
+.sidebar-card p, .sidebar-card li { font-size: 12px; color: var(--dim); }
+.sidebar-card li { line-height: 1.62; }
+.safety-list { margin: 15px 0; padding-left: 19px; }
+.safety-list li { padding-left: 4px; margin-bottom: 13px; }
+.sidebar-card a { font-size: 12px; font-weight: 700; }
+.install-sidebar .small { margin: 16px 0 0; font-size: 11px; }
+.sidebar-card:last-child { border-color: #45524a; }
+
+/* Archive and alternative firmware are available, not competing with install. */
+.archive-panel { margin-top: 18px; padding: 20px 25px; }
+.archive-toggle { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; cursor: pointer; }
+.archive-toggle::-webkit-details-marker { display: none; }
+.archive-toggle strong { font-size: 15px; font-weight: 730; }
+.archive-toggle .small { display: block; font-size: 11px; max-width: 800px; margin-top: 5px; }
+.archive-chevron { color: var(--accent); font-size: 24px; }
+.archive-panel[open] .archive-chevron { transform: rotate(180deg); }
+#buildhistory { border-top: 1px solid var(--rule); margin-top: 17px; }
+.build-item { border-bottom: 1px solid var(--rule); padding: 15px 0; }
+.build-item:last-child { border-bottom: 0; }
+.build-item h3 { font-size: 15px; margin-bottom: 7px; }
+.build-item p { margin: 5px 0; font-size: 12px; color: var(--dim); }
+.build-item button { margin: 10px 0 4px; }
+.resource-links { margin: 17px 0 24px; display: flex; flex-wrap: wrap; gap: 10px 25px; align-items: center; }
+.resource-links a { font-size: 12px; color: var(--dim); font-weight: 650; }
+.resource-links a:hover { color: var(--accent); }
+.alternative { background: #11171a; }
+.alternative h2 { margin-bottom: 9px; font-size: 19px; letter-spacing: -.02em; }
+.alternative .small { color: var(--dim); }
+.alternative ol { padding-left: 18px; font-size: 11px; }
+.alternative li { margin-bottom: 7px; }
+.drop { position: relative; cursor: pointer; border: 1px dashed #607362; border-radius: 8px; background: #17201b; padding: 21px; display: block; text-align: center; color: var(--accent); font-size: 12px; font-weight: 690; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--soft); }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.drop:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+#stockconfirm { accent-color: var(--accent); }
+#stockgo { min-height: 43px; border: 1px solid var(--rule); background: var(--card-raised); border-radius: 7px; padding: 9px 17px; color: var(--fg); font-size: 12px; font-weight: 700; }
+#stockgo:hover:not(:disabled) { border-color: var(--accent); }
+.site-footer { border-top: 1px solid var(--rule); padding: 25px 0 0; margin-top: 26px; }
+.site-footer p { font-size: 11px; color: var(--muted); }
+.site-footer a { color: var(--dim); }
+@media (max-width: 990px) {
+  main { padding: 0 22px 50px; }
+  .hero { grid-template-columns: minmax(0, 1fr) 250px; gap: 20px; }
+  .device-visual { padding: 14px; }
+  .install-layout { grid-template-columns: minmax(0, 1fr) 265px; gap: 16px; }
+  .panel { padding: 22px; }
+  .connect { padding: 21px 19px; }
+  .connect .step-kicker { min-width: 0; }
+}
+@media (max-width: 760px) {
+  main { padding: 0 20px 48px; }
+  .header-top { margin-bottom: 26px; }
+  .hero { grid-template-columns: 1fr; }
+  .device-visual { display: none; }
+  h1 { font-size: clamp(46px, 8vw, 68px); }
+  .journey { margin-top: 23px; }
+  .install-layout { grid-template-columns: 1fr; }
+  .install-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; }
+  .install-sidebar .panel { margin-bottom: 0; }
+  .install-sidebar .panel:last-child { border-color: var(--rule); }
+  .connect { justify-content: space-between; }
+  .connect .step-kicker { display: none; }
+}
+@media (max-width: 530px) {
+  main { padding: 0 15px 45px; }
+  .header-top { min-height: 67px; }
+  .head-nav { gap: 11px; }
+  .head-nav a { font-size: 11px; }
+  .head-nav a:nth-child(2) { display: none; }
+  .lang { padding: 7px 8px; font-size: 10px; }
+  .site-head { padding-bottom: 22px; margin-bottom: 17px; }
+  .hero { gap: 0; }
+  h1 { font-size: 46px; }
+  .lead { font-size: 14px; }
+  .journey li { gap: 7px; padding: 6px 8px 6px 0; font-size: 9px; }
+  .journey li + li { padding-left: 9px; }
+  .journey .stepnum { width: 22px; height: 22px; font-size: 10px; }
+  .install-sidebar { display: block; }
+  .install-sidebar .panel { margin-bottom: 14px; }
+  .panel { padding: 23px 18px; }
+  .connect { display: block; padding: 18px; }
+  .connect-line { flex-wrap: wrap; }
+  .connect .ctext { min-width: 160px; }
+  .connect #connbtn { width: 100%; margin-top: 7px; }
+  .models { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .models label { padding: 10px 9px; font-size: 11px; min-height: 55px; }
+  .flash-action { padding-top: 17px; }
+  .archive-panel { padding: 17px 18px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .led.busy { animation: none; } * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="site-head">
+    <div class="header-top">
+      <a class="home" href="../" aria-label="X0X37 home">X0X37</a>
+      <nav class="head-nav" aria-label="Site navigation">
+        <a href="./" aria-current="page" data-t="navinstaller">Installer</a>
+        <a href="../manual/" data-t="navmanual">Manual</a>
+        <a href="../breaks/" data-t="navsamples">Samples</a>
+      </nav>
+      <button class="lang" id="lang" type="button"></button>
+    </div>
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow" data-t="eyebrow">Device software / Web MIDI</p>
+        <h1 data-t="title">Install X0X.</h1>
+        <p class="lead" data-t="intro"></p>
+      </div>
+      <div class="device-visual" aria-hidden="true">
+        <div class="device-top"><b>X0X / 37</b><span>SMK SERIES</span></div>
+        <div class="device-screen"><strong>X0X_37</strong><small>909 / 808<br>303 / MIDI</small></div>
+        <div class="device-pads"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="device-bottom"><span>16 STEP PERFORMANCE</span><span>USB / MIDI</span></div>
+      </div>
+    </div>
+    <ol class="journey" aria-label="Install workflow">
+      <li><span class="stepnum">01</span><span data-t="journey1">Connect keyboard</span></li>
+      <li><span class="stepnum">02</span><span data-t="journey2">Select firmware</span></li>
+      <li><span class="stepnum">03</span><span data-t="journey3">Review and install</span></li>
+    </ol>
+  </header>
+  <div class="install-layout">
+    <div class="install-primary">
+      <div class="connect" id="connectbar" role="region" aria-label="Keyboard connection">
+        <div class="step-kicker" data-t="stage1">Step 01 / Connection</div>
+        <div class="connect-line">
+          <span class="led" id="led" aria-hidden="true"></span>
+          <div class="ctext">
+            <b id="conn">Not connected</b>
+            <span id="connDetail" data-t="connhelp"></span>
+          </div>
+          <button class="quiet" id="connbtn" type="button" data-t="connect">Connect</button>
+        </div>
+      </div>
+
+  <section class="panel" id="pick">
+        <div class="panel-heading">
+          <div class="step-kicker" data-t="stage2">Step 02 / Firmware</div>
+          <h2 data-t="pickheading">Choose the right firmware</h2>
+        </div>
+        <p class="small" id="noversion" hidden data-t="noversion"></p>
+        <div class="row" id="versionrow">
+          <label class="field"><span data-t="versionlabel">Firmware version</span>
+            <select id="version" aria-label="Firmware version"></select>
+          </label>
+        </div>
+    <p class="meta" id="pkgmeta"></p>
+    <fieldset class="model-select" id="modeldetails">
+      <legend data-t="modelheading">Choose your keyboard model</legend>
+      <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
+      <p data-t="modelwhy"></p>
+    </fieldset>
+    <div class="build-detail" id="builddetail" hidden>
+      <div class="build-badges" id="buildbadges"></div>
+      <p class="small" id="buildsummary"></p>
+      <p class="meta" id="buildprovenance"></p>
+      <p class="small"><a id="buildevidence" href="#" rel="noopener noreferrer" target="_blank" data-t="evidencelink">Build evidence</a></p>
+      <p class="small" data-t="ctrlwarning">Direct SMC Bluetooth requires a separately built ctl.img; it is not bundled.</p>
+      <label id="devagreewrap" hidden><input type="checkbox" id="devagree"> <span data-t="devagree">I understand this is hardware-untested development firmware; I must verify the exact model and make a backup before flashing.</span></label>
+    </div>
+    <section id="ble" hidden>
+      <div class="step-kicker" data-t="controlleroptional">Optional / SMC Bluetooth</div>
+      <p class="small" data-t="blewhy"></p>
+      <p class="small"><label class="field"><span data-t="ctlchoose">Controller image (.img)</span><input type="file" id="ctlfile" accept=".img"></label></p>
+    </section>
+    <div class="flash-action">
+          <div class="step-kicker" data-t="stage3">Step 03 / Install</div>
+          <button id="go" disabled data-t="install">Install</button>
+          <p class="install-hint" id="installhint" aria-live="polite"></p>
+          <progress id="bar" max="100" value="0" aria-label="Firmware installation progress"></progress>
+          <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+          <details class="diagnostics">
+            <summary data-t="diagnostics">Technical details / activity log</summary>
+            <pre id="log"></pre>
+          </details>
+        </div>
+      </section>
+    </div>
+    <aside class="install-sidebar" aria-label="Installation guidance">
+      <section class="panel sidebar-card">
+        <div class="step-kicker" data-t="guidelabel">Before you begin</div>
+        <h2 data-t="guideheading">Keep your samples safe</h2>
+        <ol class="safety-list">
+          <li data-t="guide1">Use Chrome or Edge on a computer and a USB data cable.</li>
+          <li data-t="guide2">Export your important samples first. Automatic slot backup runs when needed, but a separate copy is safer.</li>
+          <li data-t="guide3">Keep USB connected until the installation finishes.</li>
+        </ol>
+        <a href="../breaks/" data-t="guidebackup">Backup and restore samples</a>
+        <p class="small" data-t="direct"></p>
+      </section>
+      <section class="panel sidebar-card">
+        <div class="step-kicker" data-t="helpbadge">Need help?</div>
+        <h2 data-t="helpheading">Connection or recovery</h2>
+        <p data-t="helptext">Close other MIDI apps if the keyboard is not detected. An interrupted update can be resumed.</p>
+        <a href="../manual/" data-t="helpmanual">Open the manual</a>
+        <p class="small" data-t="beta"></p>
+      </section>
+    </aside>
+  </div>
+  <details class="panel archive-panel" id="buildarchive">
+    <summary class="archive-toggle">
+      <span>
+        <strong data-t="archiveheading">Build history</strong>
+        <span class="small" data-t="archiveintro">SHA-verified packages are distinguished from source-only checkpoints, missing archives and failed builds. A source commit is not a flashable firmware image.</span>
+      </span>
+      <span class="archive-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div id="buildhistory"></div>
+  </details>
+  <nav class="resource-links" aria-label="Other resources">
+    <a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a>
+    <a href="../manual/" data-t="manual">The manual</a>
+    <a href="../new/" data-t="whatsnew">What's new</a>
+    <a id="download" href="#" data-t="download">Download this package</a>
+  </nav>
+
+  <section id="stock" class="panel alternative">
+    <h2 data-t="stockh"></h2>
+    <p class="small" data-t="stockwhy"></p>
+    <ol class="small" id="stocksteps">
+      <li><span data-t="stock1"></span>
+        <a id="stocklink" href="https://www.m-vave.com/download" target="_blank" rel="noopener">m-vave.com/download</a>
+        <span id="stocklinks"></span></li>
+      <li data-t="stock2"></li>
+      <li data-t="stock3"></li>
+    </ol>
+    <label class="drop" id="stockdrop">
+      <input type="file" id="stockfile" accept=".fwsc">
+      <span data-t="stockdrop"></span>
+    </label>
+    <p class="meta" id="dropmeta"></p>
+    <p class="small"><label><input type="checkbox" id="stockconfirm"> <span data-t="stockconfirm"></span></label></p>
+    <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
+  </section>
+
+  <div class="site-footer">
+  <p class="small" id="recovery"><span data-t="brick"></span>
+    <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
+  <p class="small" data-t="back"></p>
+
+  <p class="small">X0X is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>,
+    with the 909 from 9W9 and ER-99, the 808 from 8W8, the 303 from schwung-303 (Open303), TB-3PO, and BB Gen's break generator.<br>
+    <span data-t="license"></span> <a id="repolink" href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro" target="_blank" rel="noopener">github.com/gobbajogger/X0X37-for-Loopy-Pro</a></p>
+  </div>
+</main>
+<script type="module">
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
+//
+// X0X .fwsc packages in the browser (FM-1 and SMK-37 family): the package identity,
+// the image the device reads during an update, and the SMK-37's Bluetooth controller image.
+
+const BLOCKS = 20, BLK = 0x30, KEEP = 0x2F;
+
+// the package identity ("FM-1_904"): one marker byte after each of the first 20 blocks
+function productOf(fwsc) {
+  if (fwsc.length < BLOCKS * BLK) throw new Error("not an FM-1 package (too short)");
+  let s = "";
+  for (let i = 0; i < BLOCKS; i++) {
+    const m = fwsc[i * BLK + KEEP];
+    if (m !== 0x7D) s += String.fromCharCode((m - i - 1) & 0xFF);
+  }
+  return s;
+}
+
+// the image the device addresses during an update: the .fwsc without the 20 marker bytes
+function logicalImage(fwsc) {
+  const out = new Uint8Array(fwsc.length - BLOCKS);
+  for (let i = 0; i < BLOCKS; i++) out.set(fwsc.subarray(i * BLK, i * BLK + KEEP), i * KEEP);
+  out.set(fwsc.subarray(BLOCKS * BLK), BLOCKS * KEEP);
+  return out;
+}
+
+// ---- the SMK-37 Bluetooth controller image (ctl.img, built by the user: ble/ctl) ----
+// insertCtl puts it into the Bluetooth block of a package's logical image (flash 0x8B000, inside
+// the encrypted app area) and writes the checksums again, as tools/add_ctl.py does (the same bytes:
+// tests/ble_pkg_test.py). ctl = null writes an empty block.
+const CTL_CODE_MAX = 0x86EE0, CTL_SIZE = 0x10000, CTL_SLOT = 0x97400, CTL_XIP = 0x02087000;
+const CTL_RAM_LO = 0x01C01800, CTL_RAM_HI = 0x01C07F00;
+const CTL_IRQ_TAKEN = [1, 11, 16, 20, 24, 37, 62, 63];
+
+function pkCrc16(d, lo = 0, hi = d.length) {
+  let c = 0;
+  for (let i = lo; i < hi; i++) {
+    c ^= d[i] << 8;
+    for (let b = 0; b < 8; b++) c = c & 0x8000 ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF;
+  }
+  return c;
+}
+function pkEnc(d, off, n, key = 0xFFFF) {
+  for (let i = 0; i < n; i++) {
+    d[off + i] ^= key & 0xFF;
+    key = ((key << 1) ^ (key & 0x8000 ? 0x1021 : 0)) & 0xFFFF;
+  }
+}
+function pkSfc(d, off, n, key) {
+  for (let i = 0; i < n; i += 32) pkEnc(d, off + i, Math.min(n - i, 32), (key ^ (i >> 2)) & 0xFFFF);
+}
+function pkChipKey(d) {
+  let s = 0;
+  for (let i = 0; i < 16; i++) s += d[i];
+  s &= 0xFF;
+  s = s >= 0xE0 ? 0xAA : s <= 0x10 ? 0x55 : s;
+  let k = 0;
+  for (let i = 0; i < 16; i++) if ((d[16 + i] ^ d[15 - i]) < s) k |= 1 << i;
+  return k;
+}
+function pkCrc32(d, lo, hi, crc = 0) {
+  crc = ~crc >>> 0;
+  for (let i = lo; i < hi; i++) {
+    crc ^= d[i];
+    for (let b = 0; b < 8; b++) crc = (crc >>> 1) ^ (0xEDB88320 & -(crc & 1));
+  }
+  return ~crc >>> 0;
+}
+const pkU16 = (d, o) => d[o] | (d[o + 1] << 8);
+const pkU32 = (d, o) => (d[o] | (d[o + 1] << 8) | (d[o + 2] << 16) | (d[o + 3] << 24)) >>> 0;
+const pkPut16 = (d, o, v) => { d[o] = v & 0xFF; d[o + 1] = (v >> 8) & 0xFF; };
+const pkStarts = (d, o, s) => [...s].every((c, i) => d[o + i] === c.charCodeAt(0));
+
+// what is wrong with a controller image (src/ble/ble_glue.h ble_img_check), or null
+function ctlProblem(img) {
+  if (img.length < 68) return "too short for a controller image";
+  if (img.length > CTL_SIZE) return `${img.length} B: larger than the 64 KiB Bluetooth block`;
+  if (pkU32(img, 0) !== 0x43423058) return "not a controller image (no X0BC header)";
+  if (pkU16(img, 4) !== 2 || pkU16(img, 6) !== 68 || pkU32(img, 20) !== 2) return "another header version or ABI";
+  const size = pkU32(img, 12);
+  if (size < 68 || size > img.length) return "image size does not fit the file";
+  let c = pkCrc32(img, 0, 16);
+  c = pkCrc32(new Uint8Array(4), 0, 4, c);
+  c = pkCrc32(img, 20, size, c);
+  if (c !== pkU32(img, 16)) return "CRC mismatch (a damaged file)";
+  for (const o of [24, 28]) { const a = pkU32(img, o); if (a < CTL_XIP + 68 || a >= CTL_XIP + size) return "an entry outside the image"; }
+  const slo = pkU32(img, 32), shi = pkU32(img, 36), rlo = pkU32(img, 40), rhi = pkU32(img, 44);
+  if (!(CTL_RAM_LO <= rlo && rlo < rhi && rhi <= CTL_RAM_HI)) return "RAM outside the controller window";
+  if (!(rlo <= slo && slo < shi && shi <= rhi) || shi & 7) return "interrupt stack outside its RAM";
+  const ilo = pkU32(img, 48), ihi = pkU32(img, 52);
+  for (const n of CTL_IRQ_TAKEN) if (((n < 32 ? ilo : ihi) >>> (n & 31)) & 1) return `it routes interrupt ${n}, which X0X uses`;
+  return null;
+}
+
+// the slot map record (fm1pkg_make.slotmap_of): magic, u32 count, count x (u32 offset, u32 size), CRC-32
+const CTL_SLOTMAP = [..."X0X-SLOTMAP-1\0\0\0"].map((c) => c.charCodeAt(0));
+function pkHasSlotMap(d) {
+  outer: for (let i = d.indexOf(CTL_SLOTMAP[0]); i >= 0 && i + 24 <= d.length; i = d.indexOf(CTL_SLOTMAP[0], i + 1)) {
+    for (let j = 1; j < CTL_SLOTMAP.length; j++) if (d[i + j] !== CTL_SLOTMAP[j]) continue outer;
+    const n = pkU32(d, i + 16), end = i + 20 + 8 * n;
+    return n <= 16 && end + 4 <= d.length && pkU32(d, end) === pkCrc32(d, i, end);
+  }
+  return false;
+}
+const CTL_NO_BLOCK = "the app code of this package goes into the Bluetooth block (flash 0x8B000-0x9AFFF). "
+  + "It is an X0X from before the block. It takes no controller image (install it without one)";
+
+// the logical image (logicalImage) with ctl in the Bluetooth block; throws on anything unexpected
+function insertCtl(logical, ctl) {
+  if (ctl && ctlProblem(ctl)) throw new Error("ctl.img: " + ctlProblem(ctl));
+  const lg = new Uint8Array(logical);
+  const hdr = lg.slice(0, 0x40);
+  pkEnc(hdr, 0, 0x40);
+  if (pkCrc16(hdr, 2, 0x40) !== pkU16(hdr, 0)) throw new Error("package header CRC");
+  const count = pkU16(hdr, 8);
+  const lst = lg.slice(0x40, 0x40 + 0x50 * count);
+  if (pkCrc16(lst) !== pkU16(hdr, 2)) throw new Error("package file list CRC");
+  let i = 0, e = null;
+  for (; i < count; i++) {
+    e = lst.slice(i * 0x50, (i + 1) * 0x50);
+    pkEnc(e, 0, 0x50);
+    if (pkU16(e, 0) === 0) break;
+  }
+  if (i === count) throw new Error("no flash.bin in the package");
+  const off = pkU32(e, 8), size = pkU32(e, 12);
+  const flash = lg.subarray(off, off + size);
+  if (pkCrc16(flash) !== pkU16(e, 4)) throw new Error("flash.bin CRC");
+  const isd = flash.slice(64, 96);
+  pkEnc(isd, 0, 32);
+  if (!pkStarts(isd, 16, "isd_config.ini")) throw new Error("no isd_config.ini in the flash head");
+  const key = pkChipKey(flash.subarray(pkU32(isd, 4), pkU32(isd, 4) + 32));
+  const head = flash.slice(0x4000, 0x4020);
+  pkSfc(head, 0, 32, key);
+  const blk = pkU32(head, 8);
+  if (pkU32(head, 4) !== 0x02000120 || !pkStarts(head, 16, "app_area_head")) throw new Error("no app area head");
+  const n = (blk + 31) & ~31;
+  const area = flash.slice(0x4000, 0x4000 + n);
+  pkSfc(area, 0, n, key);
+  if (!pkStarts(area, 48, "app.bin") || pkU32(area, 36) !== 0x120) throw new Error("no app.bin in the app area");
+  const slot = pkU32(area, 40);
+  if (slot !== CTL_SLOT) throw new Error("not an SMK-37 package (the Bluetooth block is on the SMK-37 only)");
+  const lo = 0x120 + CTL_CODE_MAX;
+  // the block must be free: empty, a controller image, or a package with the slot map record (the build
+  // limits the app code since then). An older X0X has app code there: writing it would stop the unit.
+  const blockFree = area.subarray(lo, lo + CTL_SIZE).every((b) => b === 0xFF) || pkU32(area, lo) === 0x43423058
+    || pkHasSlotMap(lg);
+  if (!blockFree) throw new Error(CTL_NO_BLOCK);
+  area.fill(0xFF, lo, lo + CTL_SIZE);
+  if (ctl) area.set(ctl, lo);
+  pkPut16(area, 34, pkCrc16(area, 0x120, 0x120 + slot));
+  pkPut16(area, 32, pkCrc16(area, 34, 64));
+  pkPut16(area, 2, pkCrc16(area, 32, blk));
+  pkPut16(area, 0, pkCrc16(area, 2, 32));
+  pkSfc(area, 0, n, key);
+  flash.set(area, 0x4000);
+  pkPut16(e, 4, pkCrc16(flash));
+  pkEnc(e, 0, 0x50);
+  lst.set(e, i * 0x50);
+  pkPut16(hdr, 2, pkCrc16(lst));
+  pkPut16(hdr, 0, pkCrc16(hdr, 2, 0x40));
+  pkEnc(hdr, 0, 0x40);
+  lg.set(hdr, 0);
+  lg.set(lst, 0x40);
+  return lg;
+}
+
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
+//
+// The FM-1 USB-MIDI update protocol (M-UPGRADE compatible) over WebMIDI.
+// Step 1: the running firmware reads parts of the package and stages the update
+// loader. Step 2: the loader reads the whole image and writes it. In both steps
+// the device sends cmd 0x30 read requests on the logical image and we answer.
+
+const HS_QUERY = [0xF0, 0x00, 0x32, 0x45, 0x00, 0x00, 0x00, 0x40, 0x7F, 0xF7];
+const UPGRADE = [0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7];
+const MAXDATA = 512;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const IS_OTA = (id) => /^ota-/i.test(id.model);
+// the SMK-37 Pro, SMK-37 Elite, MKE-P37, Starrykey 37 Play and the SMK-37+VA mod: one keyboard under several model
+// names, so a package for one runs on all of them; an FM-1 is another device
+const SMK_FAMILY = /^(ota-)?(SMK-37[ +].*|MKE-P37|STARRYKEY-37.*)$/i;
+const sameKeyboard = (a, b) => a === b || (SMK_FAMILY.test(a) && SMK_FAMILY.test(b));   // two models
+
+// errors carry a code the pages translate: notfound, model, stopped, noloader, lost, noreturn,
+// mismatch (detail: the identity the device reports), badreq
+function fail(code, msg, detail = "") { const e = new Error(msg); e.code = code; e.detail = detail; return e; }
+
+function pack7(data) {
+  const out = []; let acc = 0, nb = 0;
+  for (const b of data) {
+    acc |= b << nb; nb += 8;
+    while (nb >= 7) { out.push(acc & 0x7F); acc >>>= 7; nb -= 7; }
+  }
+  if (nb) out.push(acc & 0x7F);
+  return out;
+}
+
+function unpack7(s) {
+  const out = []; let acc = 0, nb = 0;
+  for (const b of s) {
+    acc |= (b & 0x7F) << nb; nb += 7;
+    while (nb >= 8) { out.push(acc & 0xFF); acc >>>= 8; nb -= 8; }
+  }
+  return out;
+}
+
+function response(addr, data, fl = 0) {
+  const len = data.length;
+  const body = [0x00, 0x59, 0x30, (len + 8) & 0xFF, ((len + 8) >> 8) & 0xFF, 0, fl,
+    addr & 0xFF, (addr >>> 8) & 0xFF, (addr >>> 16) & 0xFF, (addr >>> 24) & 0xFF,
+    len & 0xFF, (len >> 8) & 0xFF, 0, ...data];
+  let s = 0;
+  for (let i = 6; i < body.length; i++) s += body[i];
+  body.push(~s & 0xFF);
+  return [0xF0, ...pack7(body), 0xF7];
+}
+
+function parseRequest(pkt) {
+  if (pkt[0] !== 0xF0 || pkt[pkt.length - 1] !== 0xF7) return null;
+  const u = unpack7(pkt.slice(1, -1));
+  if (u.length !== 15 || u[0] !== 0 || u[1] !== 0x59 || u[2] !== 0x30) return null;
+  let s = 0;
+  for (let i = 6; i < 14; i++) s += u[i];
+  if ((~s & 0xFF) !== u[14]) return null;
+  return { fl: u[6], addr: (u[7] | (u[8] << 8) | (u[9] << 16) | (u[10] << 24)) >>> 0, len: u[11] | (u[12] << 8) | (u[13] << 16) };
+}
+
+function parseIdentity(pkt) {
+  const d = unpack7(pkt.slice(1, -1));
+  if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
+  const txt = String.fromCharCode(...d.slice(6, 33)).replace(/\0+$/, "");
+  const m = /^([^_]+)_(\d+)$/.exec(txt);
+  return m ? { text: txt, model: m[1], version: parseInt(m[2], 10) } : null;
+}
+
+// one MIDI in/out pair with a SysEx queue
+class Link {
+  constructor(input, output) {
+    this.input = input; this.output = output; this.q = []; this.waiter = null;
+    input.onmidimessage = (ev) => {
+      if (ev.data[0] !== 0xF0) return;
+      this.q.push(Array.from(ev.data));
+      if (this.waiter) { const w = this.waiter; this.waiter = null; w(); }
+    };
+  }
+  get lost() { return this.input.state === "disconnected" || this.output.state === "disconnected"; }
+  // false when the port is gone (unplugged): WebMIDI throws on a disconnected output
+  send(bytes) {
+    try { this.output.send(bytes); return true; } catch (_) { return false; }
+  }
+  drain() { this.q.length = 0; }
+  async read(ms) {
+    if (!this.q.length) {
+      let tm;
+      await Promise.race([new Promise((r) => { this.waiter = r; }), new Promise((r) => { tm = setTimeout(r, ms); })]);
+      clearTimeout(tm);
+      this.waiter = null;
+    }
+    return this.q.shift() || null;
+  }
+  close() { this.input.onmidimessage = null; }
+}
+
+async function handshake(link, tries = 3) {
+  link.drain();
+  for (let t = 0; t < tries; t++) {
+    if (!link.send(HS_QUERY)) return null;
+    const end = Date.now() + 1000;
+    while (Date.now() < end) {
+      const p = await link.read(end - Date.now());
+      if (!p) break;
+      const id = parseIdentity(p);
+      if (id) return id;
+    }
+  }
+  return null;
+}
+
+class Updater {
+  constructor(access, log) {
+    this.access = access;
+    this.log = log || (() => {});
+  }
+
+  // every in/out pair with the same port name that answers the handshake
+  async find(filter) {
+    const outs = [...this.access.outputs.values()];
+    for (const input of this.access.inputs.values()) {
+      if (input.state === "disconnected") continue;
+      if (!/fm-1|smk|elite|mke-p37|starry|felucca|melodee|fomni|x0x|makkuro|snoop|vector|vox|ota|composite|sinco|usb-midi/i.test(input.name || "")) continue;   // never probe other gear
+      const output = outs.find((o) => o.name === input.name) || (outs.length === 1 ? outs[0] : null);
+      if (!output) continue;
+      try { await input.open(); await output.open(); } catch (_) { continue; }
+      const link = new Link(input, output);
+      const id = await handshake(link, 2);
+      if (id && (!filter || filter(id))) return { link, id, name: input.name };
+      link.close();
+    }
+    return null;
+  }
+
+  async waitFor(filter, ms) {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      const dev = await this.find(filter);
+      if (dev) return dev;
+      await sleep(1000);
+    }
+    return null;
+  }
+
+  // serve read requests until the device asks for one of the finish addresses; stops early
+  // when the port disappears (lost: true) instead of waiting out idleMs
+  async serve(link, image, finishAddr, idleMs, onProgress) {
+    let served = 0, last = Date.now();
+    for (;;) {
+      const pkt = await link.read(1000);
+      if (!pkt) {
+        if (link.lost) return { served, finished: false, lost: true };
+        if (Date.now() - last > idleMs) return { served, finished: false };
+        continue;
+      }
+      const r = parseRequest(pkt);
+      if (!r) continue;
+      last = Date.now();
+      if (r.addr === 0xE0000000 || r.addr === 0xF0000000) {
+        link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]));
+        if (r.addr === finishAddr) return { served, finished: true };
+        continue;
+      }
+      if (r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
+      await sleep(10);
+      if (!link.send(response(r.addr, Array.from(image.subarray(r.addr, r.addr + r.len)), r.fl))) {
+        return { served, finished: false, lost: true };
+      }
+      served++;
+      if (onProgress) onProgress(served, r.addr);
+    }
+  }
+
+  // full install: running firmware -> loader -> new firmware
+  async install(image, product, onStep) {
+    const step = onStep || (() => {});
+    const dev = await this.find((id) => !IS_OTA(id));
+    if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
+    const [model] = product.split("_");
+    if (!sameKeyboard(dev.id.model, model)) { dev.link.close(); throw fail("model", `the device is ${dev.id.text}, the package is for ${product}`); }
+    step("start", dev.id.text);
+    dev.link.send(UPGRADE);
+    await sleep(2000);
+    const s1 = await this.serve(dev.link, image, 0xE0000000, 8000, (n) => step("verify", n));
+    dev.link.close();
+    if (!s1.finished) throw fail(s1.lost ? "lost" : "stopped", `the device ${s1.lost ? "was disconnected" : "stopped"} after ${s1.served} requests: nothing was written`);
+    step("loader");
+    await sleep(3000);
+    const ota = await this.waitFor(IS_OTA, 30000);
+    if (!ota) throw fail("noloader", "the update loader did not appear. Replug the USB cable and press Install again: the device stays in update mode until it is finished.");
+    const s2 = await this.write(ota, image, step);
+    if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
+    step("reboot");
+    await sleep(3000);
+    const back = await this.waitFor((id) => !IS_OTA(id), 40000);
+    if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
+    back.link.close();
+    if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
+    step("done", back.id.text);
+    return back.id.text;
+  }
+
+  // step 2 with the loader found by find()/waitFor()
+  async write(ota, image, step) {
+    ota.link.send(UPGRADE);
+    await sleep(2000);
+    const s2 = await this.serve(ota.link, image, 0xF0000000, 180000, (n) => step("write", n));
+    ota.link.close();
+    return s2;
+  }
+
+  // resume: the device is already in update mode (loader) -> true when the write finished. product: the
+  // package's identity; the loader's model must match it by install()'s rule (sameKeyboard): an SMK's loader
+  // never gets an FM-1 image, and without the identity nothing is written
+  async resume(image, onStep, product = "") {
+    const ota = await this.find(IS_OTA);
+    if (!ota) return false;
+    if (!product || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), product.split("_")[0])) {
+      ota.link.close();
+      throw fail("model", `the device is in the update mode of ${ota.id.text}, the package is for ${product || "an unknown model"}`, ota.id.text);
+    }
+    return (await this.write(ota, image, onStep || (() => {}))).finished;
+  }
+}
+
+// SPDX-License-Identifier: GPL-3.0-only
+// X0X break loops in the browser: tools/upload_breaks.py and its helpers (tools/sampleio.py,
+// Felucca's encoder; tools/import_breaks.py's bar guess) as plain functions, so the page
+// (web/x0x_breaks.html) builds the same slot images the command line does, byte for byte
+// (web/test_breaks.mjs checks it against upload_breaks.py --dry-run).
+//
+// The float arithmetic follows sampleio.py's order of operations: keep it when touching these.
+
+const SLOT_SIZE = 0x14000, SLOT_DATA_OFF = 512, SLOT_ZONES = 16;
+const SLOT_HDR_LEN = 32 + SLOT_ZONES * 28;
+const SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF;
+const ROOT_BASE = 36;              // loop i is zone root 36 + i: the slot sorts its zones by root
+const RATE = 44100, RATE_HALF = 22050;   // 44.1 kHz by default; 22.05 kHz only when asked for
+const DRY_SLOT_KB = [80, 120, 44]; // upload_breaks.py --dry-run's default layout: the SMK-37's slots (KiB)
+
+const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
+  97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658,
+  724, 796, 876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327, 3660,
+  4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899, 15289, 16818,
+  18500, 20350, 22385, 24623, 27086, 29794, 32767];
+const IMA_IDX = [-1, -1, -1, -1, 2, 4, 6, 8];
+
+// import_breaks.bars_of: the bar count (1, 2 or 4) that puts the loop's tempo nearest 120 inside 80-180
+function barsOf(seconds) {
+  let best = null;
+  for (const b of [1, 2, 4]) {
+    const bpm = b * 240.0 / seconds;
+    if (bpm >= 80 && bpm <= 180 && (best === null || Math.abs(bpm - 120) < Math.abs(best[1] - 120))) best = [b, bpm];
+  }
+  return best || [1, 240.0 / seconds];
+}
+
+// sampleio.resample: a moving average over the ratio, then linear interpolation
+function resample(x, sr, to) {
+  if (sr === to) return x;
+  if (sr > to) {
+    const k = Math.max(1, Math.round(sr / to));
+    if (k === 2) {
+      const y = new Array(x.length);
+      for (let i = 0; i + 1 < x.length; i++) y[i] = (x[i] + x[i + 1]) / 2;
+      if (x.length) y[x.length - 1] = x[x.length - 1] / 2;
+      x = y;
+    } else if (k > 1) {
+      const y = new Array(x.length);
+      for (let i = 0; i < x.length; i++) {
+        let acc = x[i];                           // reduce(add, x[i:i + k]): left to right
+        for (let j = i + 1; j < i + k && j < x.length; j++) acc += x[j];
+        y[i] = acc / k;
+      }
+      x = y;
+    }
+  }
+  const step = sr / to, out = [], last = x.length - 1;
+  let p = 0.0;
+  while (p < last) {
+    const i = Math.trunc(p), f = p - i;
+    out.push(x[i] * (1 - f) + x[i + 1] * f);
+    p += step;
+  }
+  return out;
+}
+
+function peak(x, floor = 1e-9) {
+  let m = floor;
+  for (const v of x) { const a = Math.abs(v); if (a > m) m = a; }
+  return m;
+}
+
+// sampleio.to_int16: peak normalised to 30000
+function toInt16(x) {
+  const pk = peak(x), out = new Int16Array(x.length);
+  for (let i = 0; i < x.length; i++) out[i] = Math.max(-32768, Math.min(32767, Math.trunc(x[i] / pk * 30000)));
+  return out;
+}
+
+// sampleio.trim_silence: cut the silence at both ends (floor 0.001 = -60 dBFS), keep 1 ms before the
+// sound, keep 5 ms after it and fade that tail to 0
+function trimSilence(x, sr, floor = 0.001, preMs = 1, fadeMs = 5) {
+  let first = -1, last = -1;
+  for (let i = 0; i < x.length; i++) if (Math.abs(x[i]) > floor) { if (first < 0) first = i; last = i; }
+  if (first < 0) return x;
+  const pre = Math.floor(sr * preMs / 1000), nf = Math.floor(sr * fadeMs / 1000);
+  const y = x.slice(Math.max(0, first - pre), Math.min(x.length, last + 1 + nf)), m = Math.min(nf, y.length);
+  for (let j = 0; j < m; j++) { const k = y.length - m + j; y[k] = y[k] * ((m - 1 - j) / m); }
+  return y;
+}
+
+// upload_breaks.cut: mono floats at their rate -> int16 at `rate` (one bar if bars; silence cut if trim)
+function cut(x, sr, bars, rate = RATE, trim = false) {
+  if (trim) x = trimSilence(x, sr);
+  if (bars) {
+    const n = barsOf(x.length / sr)[0];
+    x = x.slice(0, Math.round(x.length / n));
+  }
+  const y = resample(x, sr, rate);
+  const pk = peak(y);
+  return toInt16(y.map((v) => v * (0.95 / pk)));
+}
+
+// sampleio.ima_encode: 4-bit IMA ADPCM, low nibble first, from predictor 0 / index 0
+function imaEncode(s) {
+  let pred = 0, idx = 0;
+  const out = new Uint8Array((s.length + 1) >> 1);
+  for (let n = 0; n < s.length; n++) {
+    const step = IMA_STEP[idx];
+    let diff = s[n] - pred, code = 0;
+    if (diff < 0) { code = 8; diff = -diff; }
+    let vd = step >> 3;
+    if (diff >= step) { code |= 4; diff -= step; vd += step; }
+    if (diff >= step >> 1) { code |= 2; diff -= step >> 1; vd += step >> 1; }
+    if (diff >= step >> 2) { code |= 1; vd += step >> 2; }
+    pred = code & 8 ? pred - vd : pred + vd;
+    if (pred > 32767) pred = 32767; else if (pred < -32768) pred = -32768;
+    idx += IMA_IDX[code & 7];
+    if (idx < 0) idx = 0; else if (idx > 88) idx = 88;
+    out[n >> 1] |= n & 1 ? code << 4 : code;
+  }
+  return out;
+}
+
+// the reverse, for drawing a slot read back from the FM-1: nibbles -> int16, from predictor 0 / index 0
+function imaDecode(b, n) {
+  let pred = 0, idx = 0;
+  const out = new Int16Array(n);
+  for (let i = 0; i < n; i++) {
+    const code = (b[i >> 1] >> (i & 1 ? 4 : 0)) & 15, step = IMA_STEP[idx];
+    let vd = step >> 3;
+    if (code & 4) vd += step;
+    if (code & 2) vd += step >> 1;
+    if (code & 1) vd += step >> 2;
+    pred = code & 8 ? pred - vd : pred + vd;
+    if (pred > 32767) pred = 32767; else if (pred < -32768) pred = -32768;
+    idx += IMA_IDX[code & 7];
+    if (idx < 0) idx = 0; else if (idx > 88) idx = 88;
+    out[i] = pred;
+  }
+  return out;
+}
+
+// a slot header (userSlot's layout) -> {nz, name, dataLen, zones: [{off, n, rate}]}, or null if not a slot
+function parseSlot(hdr) {
+  const v = new DataView(hdr.buffer || hdr, hdr.byteOffset || 0, hdr.byteLength);
+  if (hdr.byteLength < SLOT_HDR_LEN || v.getUint32(0, true) !== 0x504D5346) return null;
+  const nz = hdr[6], zones = [];
+  let name = "";
+  for (let i = 8; i < 16 && hdr[i]; i++) name += String.fromCharCode(hdr[i]);
+  for (let i = 0; i < nz && i < SLOT_ZONES; i++)
+    zones.push({ off: v.getUint32(32 + i * 28, true), n: v.getUint32(32 + i * 28 + 4, true),
+      rate: Math.round(v.getUint32(32 + i * 28 + 16, true) * 44100 / 65536) });
+  return { nz, name, dataLen: v.getUint32(16, true), zones };
+}
+
+let CRC_T = null;
+function crc32(b) {                    // zlib.crc32
+  if (!CRC_T) {
+    CRC_T = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+      CRC_T[n] = c >>> 0;
+    }
+  }
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < b.length; i++) c = CRC_T[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function keySplit(roots) {
+  const n = roots.length;
+  return roots.map((r, j) => [j === 0 ? 0 : ((roots[j - 1] + r) >> 1) + 1, j === n - 1 ? 127 : (r + roots[j + 1]) >> 1]);
+}
+
+// sampleio.user_slot for loops at `rate` (each its own zone, roots ROOT_BASE + i): -> {hdr, data}
+function userSlot(name, loops, rate = RATE, slotSize = SLOT_SIZE) {
+  return userSlotRaw(name, loops.map((s) => ({ adpcm: imaEncode(s), n: s.length, rate })), slotSize);
+}
+
+// the same from loops already encoded ({adpcm, n, rate}: the break page keeps a loop read back as it is,
+// at its own rate)
+function userSlotRaw(name, parts, slotSize = SLOT_SIZE) {
+  const total = parts.reduce((a, p) => a + p.adpcm.length, 0), max = slotSize - SLOT_DATA_OFF;
+  if (total > max) throw new Error(`too long: ${total} B of ADPCM, a slot holds ${max} B`);
+  if (parts.length < 1 || parts.length > SLOT_ZONES) throw new Error(`1..${SLOT_ZONES} loops per slot`);
+  const data = new Uint8Array(total);
+  const zs = [];
+  let off = 0;
+  parts.forEach((p, i) => {
+    data.set(p.adpcm, off);
+    zs.push({ off, n: p.n, root: ROOT_BASE + i, q16: Math.round(p.rate / 44100 * 65536) });
+    off += p.adpcm.length;
+  });
+  const split = keySplit(zs.map((z) => z.root));
+  const hdr = new Uint8Array(SLOT_HDR_LEN), v = new DataView(hdr.buffer);
+  v.setUint32(0, 0x504D5346, true);
+  v.setUint16(4, 1, true);
+  hdr[6] = zs.length;
+  const nm = name.toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 8);
+  for (let i = 0; i < nm.length; i++) hdr[8 + i] = nm.charCodeAt(i);
+  v.setUint32(16, data.length, true);
+  v.setUint32(20, crc32(data), true);
+  zs.forEach((z, i) => {
+    const o = 32 + i * 28;
+    v.setUint32(o, z.off, true);
+    v.setUint32(o + 4, z.n, true);
+    v.setUint32(o + 8, 0, true);               // loop start
+    v.setUint32(o + 12, z.n - 1, true);        // loop end
+    v.setUint32(o + 16, z.q16, true);
+    v.setInt16(o + 20, z.root * 16, true);
+    v.setInt16(o + 22, 0, true);               // predictor and index at the loop start: from 0
+    hdr[o + 24] = 0;
+    hdr[o + 25] = split[i][0];
+    hdr[o + 26] = split[i][1];
+  });
+  return { hdr, data };
+}
+
+// upload_breaks.pack: loops [{label, s}] in order into at most nslots slots; cap: ADPCM bytes a slot, one
+// number or one per slot -> {slots: one list per slot (empty ones included, none after the last used one),
+// skipped}. A loop goes into the current slot if it fits, else into the next slot that can take it.
+function pack(loops, nslots, cap = SLOT_MAX_DATA) {
+  const caps = Array.isArray(cap) ? cap : new Array(nslots).fill(cap);
+  const slots = Array.from({ length: nslots }, () => []), skipped = [];
+  let cur = 0, used = 0;
+  for (const l of loops) {
+    const need = (l.s.length + 1) >> 1;
+    let j = cur;
+    while (j < nslots && !((j === cur ? used : 0) + need <= caps[j] && slots[j].length < SLOT_ZONES)) j++;
+    if (j >= nslots) { skipped.push(l.label); continue; }
+    if (j !== cur) { cur = j; used = 0; }
+    slots[cur].push(l);
+    used += need;
+  }
+  while (slots.length && !slots[slots.length - 1].length) slots.pop();
+  return { slots, skipped };
+}
+
+// fm1_sample_upload.pack7: groups of up to 7 bytes, each preceded by their top bits (7 to 8: the slot
+// commands' packing; fm1ota.js's pack7 is the update protocol's bit stream, another thing)
+function pack78(b) {
+  const out = [];
+  for (let i = 0; i < b.length; i += 7) {
+    const g = b.slice(i, i + 7);
+    let m = 0;
+    g.forEach((x, j) => { m |= ((x >> 7) & 1) << j; });
+    out.push(m);
+    for (const x of g) out.push(x & 0x7F);
+  }
+  return out;
+}
+
+// a 16-bit / 24-bit / float WAV -> {rate, x: mono floats} (sampleio.read_any_wav; the page decodes
+// other formats with the browser's decoder)
+function readWav(buf) {
+  const d = new DataView(buf.buffer || buf, buf.byteOffset || 0, buf.byteLength);
+  const tag4 = (o) => String.fromCharCode(d.getUint8(o), d.getUint8(o + 1), d.getUint8(o + 2), d.getUint8(o + 3));
+  if (d.byteLength < 12 || tag4(0) !== "RIFF" || tag4(8) !== "WAVE") throw new Error("not a WAV file");
+  const ch = {};
+  for (let i = 12; i + 8 <= d.byteLength;) {
+    const id = tag4(i), n = d.getUint32(i + 4, true);
+    if (!(id in ch)) ch[id] = [i + 8, n];
+    i += 8 + n + (n & 1);
+  }
+  if (!ch["fmt "]) throw new Error("WAV without a fmt chunk");
+  const fo = ch["fmt "][0];
+  let tag = d.getUint16(fo, true);
+  const nch = d.getUint16(fo + 2, true), sr = d.getUint32(fo + 4, true), bits = d.getUint16(fo + 14, true);
+  if (tag === 0xFFFE) tag = d.getUint16(fo + 24, true);
+  const bps = bits >> 3;
+  if ((tag !== 1 && tag !== 3) || !bps || !nch) throw new Error(`unsupported WAV (tag ${tag}, ${bits} bit)`);
+  const [o, n] = ch.data || [0, 0];
+  const frame = bps * nch, nfr = Math.floor(Math.min(n, d.byteLength - o) / frame);
+  const val = (p) => {
+    if (tag === 3) return bps === 4 ? d.getFloat32(p, true) : d.getFloat64(p, true);
+    if (bps === 2) return d.getInt16(p, true) / 32768;
+    if (bps === 3) return ((d.getUint8(p) << 8 | d.getUint8(p + 1) << 16 | d.getUint8(p + 2) << 24) >> 0) / 2147483648;
+    if (bps === 4) return d.getInt32(p, true) / 2147483648;
+    return (d.getUint8(p) - 128) / 128;
+  };
+  const x = new Array(nfr);
+  for (let f = 0; f < nfr; f++) {
+    const p = o + f * frame;
+    if (nch === 1) x[f] = val(p);
+    else if (nch === 2) x[f] = (val(p) + val(p + bps)) / 2;
+    else { let acc = 0.0; for (let c = 0; c < nch; c++) acc += val(p + c * bps); x[f] = acc / nch; }
+  }
+  return { rate: sr, x };
+}
+
+// ---- slot backup and restore: tools/x0x_slots.py's .x0xslots archive, byte for byte ----------
+// "X0XSLOTS", u16 version 1, u16 0, u32 L, L bytes of JSON, the slot images, u32 CRC-32 of all before.
+// An image is a slot from its start: the 512-byte header area, then the ADPCM data.
+
+const SLOT_HDR_AREA = 512;
+const ARCH_MAGIC = "X0XSLOTS";
+
+// a slot name as text: printable ASCII kept, anything else "?" (x0x_slots.ascii_name)
+function asciiName(b) {
+  let s = "";
+  for (const c of b) s += c >= 32 && c < 127 ? String.fromCharCode(c) : "?";
+  return s;
+}
+
+// SMP_INFO reply (the bytes after the command) -> {count, size, ext, slots: [{nz, name, kb, size, off, used}]}
+// (x0x_slots.parse_info). size: the reply's one size (KiB, 7 bits: the smallest slot). Per slot size, flash
+// offset (null if unknown) and used KiB come from X0X's extension ('X', 1, then per slot offset and size in
+// 4 KiB sectors and used KiB, 14 bits each); without it every slot has the one size.
+function parseInfo(r) {
+  if (r.length < 2) throw new Error("short SMP_INFO reply");
+  const count = r[0], size = r[1] * 1024, slots = [];
+  let i = 2;
+  for (let k = 0; k < count; k++) {
+    const nz = r[i], j = r.indexOf(0, i + 1);
+    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1], size, off: null, used: r[j + 1] });
+    i = j + 2;
+  }
+  const ext = r.length >= i + 2 + 6 * count && r[i] === 0x58 && r[i + 1] === 1;
+  if (ext)
+    slots.forEach((sl, k) => {
+      const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
+      Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
+    });
+  return { count, size, ext, slots };
+}
+
+// a slot's first 480 bytes -> {nz, name, dataLen, crc, zones: [{off, n, rate}]} or null (x0x_slots.parse_header)
+function parseHeader(b) {
+  if (b.length < SLOT_HDR_LEN) return null;
+  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  const nz = b[6];
+  if (v.getUint32(0, true) !== 0x504D5346 || v.getUint16(4, true) !== 1 || nz < 1 || nz > 16) return null;
+  let e = 8;
+  while (e < 16 && b[e]) e++;
+  const zones = [];
+  for (let z = 0; z < nz; z++) {
+    const o = 32 + z * 28, q16 = v.getUint32(o + 16, true);
+    zones.push({ off: v.getUint32(o, true), n: v.getUint32(o + 4, true), rate: Number((BigInt(q16) * 44100n + 32768n) >> 16n) });
+  }
+  return { nz, name: asciiName(b.subarray(8, e)), dataLen: v.getUint32(16, true), crc: v.getUint32(20, true), zones };
+}
+
+// layout: parseInfo(); images: per slot, Uint8Array or null -> the archive (x0x_slots.make_archive)
+function makeArchive(layout, images, created) {
+  const entries = [], blobs = [];
+  let off = 0;
+  images.forEach((img, k) => {
+    const sl = layout.slots[k] || {};
+    const e = { slot: k + 1, size: sl.size ?? layout.size, empty: img === null };
+    if (sl.off !== null && sl.off !== undefined) e.flash = sl.off;
+    if (img !== null) {
+      const h = parseHeader(img);
+      Object.assign(e, { name: h.name, zones: h.nz, samples: h.zones.map((z) => z.n), rates: h.zones.map((z) => z.rate),
+        data_len: h.dataLen, data_crc32: h.crc, offset: off, length: img.length, crc32: crc32(img) });
+      blobs.push(img);
+      off += img.length;
+    }
+    entries.push(e);
+  });
+  const meta = { format: "x0xslots", version: 1, created, count: layout.count, size: layout.size, slots: entries };
+  const js = new TextEncoder().encode(JSON.stringify(meta));
+  const out = new Uint8Array(16 + js.length + off + 4), v = new DataView(out.buffer);
+  for (let i = 0; i < 8; i++) out[i] = ARCH_MAGIC.charCodeAt(i);
+  v.setUint16(8, 1, true);
+  v.setUint16(10, 0, true);
+  v.setUint32(12, js.length, true);
+  out.set(js, 16);
+  let p = 16 + js.length;
+  for (const b of blobs) { out.set(b, p); p += b.length; }
+  v.setUint32(p, crc32(out.subarray(0, p)), true);
+  return out;
+}
+
+// archive bytes -> {meta, images}; throws on any damage (x0x_slots.read_archive)
+function readArchive(b) {
+  const bad = (m) => { throw new Error(m); };
+  if (b.length < 20 || String.fromCharCode(...b.subarray(0, 8)) !== ARCH_MAGIC) bad("This is not an .x0xslots backup.");
+  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  if (v.getUint32(b.length - 4, true) !== crc32(b.subarray(0, b.length - 4))) bad("The backup file is damaged (CRC).");
+  if (v.getUint16(8, true) !== 1) bad("This backup has a newer format.");
+  const n = v.getUint32(12, true), meta = JSON.parse(new TextDecoder().decode(b.subarray(16, 16 + n)));
+  const base = 16 + n, images = [];
+  for (const e of meta.slots) {
+    if (e.empty) { images.push(null); continue; }
+    const img = b.slice(base + e.offset, base + e.offset + e.length), h = parseHeader(img);
+    if (img.length !== e.length || crc32(img) !== e.crc32) bad(`Slot ${e.slot} in the backup is damaged.`);
+    if (!h || img.length !== SLOT_HDR_AREA + h.dataLen || crc32(img.subarray(SLOT_HDR_AREA)) !== h.crc)
+      bad(`Slot ${e.slot} in the backup is not a valid slot.`);
+    images.push(img);
+  }
+  return { meta, images };
+}
+
+// a slot's size on a device with this layout (per slot with X0X's SMP_INFO extension)
+const slotSize = (layout, k) => (layout.slots[k] && layout.slots[k].size) || layout.size;
+
+// which archive slots go where on a device with this layout -> {todo: [{k, img}], skipped: [text]}
+function planRestore(layout, images) {
+  const todo = [], skipped = [];
+  images.forEach((img, k) => {
+    if (k >= layout.count) skipped.push(`slot ${k + 1}: this device has ${layout.count} slots`);
+    else if (img !== null && img.length > slotSize(layout, k)) skipped.push(`slot ${k + 1}: too large for this device's slot ${k + 1}`);
+    else todo.push({ k, img });
+  });
+  return { todo, skipped };
+}
+
+// ---- an install that changes the slot map (tools/x0x_slots.py and tools/fm1_install.py, the same rules) ----
+// A slot keeps its data over an install when the new firmware has a slot at the same flash offset that is
+// large enough: no install writes the slots. The others are saved first and written back after.
+const LEGACY_BASE = { smk: 0xC2000, fm1: 0xA0000 };   // X0X before the SMP_INFO extension: equal slots
+const SLOTMAP_MAGIC = "X0X-SLOTMAP-1\0\0\0", LOADER_MARK = "FELUCCA-LOADER-1";
+
+function findBytes(b, text) {
+  const t = [...text].map((c) => c.charCodeAt(0));
+  outer: for (let i = b.indexOf(t[0]); i >= 0 && i + t.length <= b.length; i = b.indexOf(t[0], i + 1)) {
+    for (let j = 1; j < t.length; j++) if (b[i + j] !== t[j]) continue outer;
+    return i;
+  }
+  return -1;
+}
+
+// [{off, size}] per slot of a parseInfo() layout (x0x_slots.flash_map)
+function flashMap(layout, board = "smk") {
+  if (layout.ext) return layout.slots.map((sl) => ({ off: sl.off, size: sl.size }));
+  return layout.slots.map((_, k) => ({ off: LEGACY_BASE[board] + k * layout.size, size: layout.size }));
+}
+
+// the slot map of a package's logical image (fm1pkg_make.slotmap_of): its slot map record; for an older X0X
+// (Felucca loader, no record) the equal 80 KiB slots of that time; [] for any other package (stock firmware)
+function packageSlotMap(image, board = "smk") {
+  const i = findBytes(image, SLOTMAP_MAGIC);
+  if (i >= 0 && i + 24 <= image.length) {
+    const v = new DataView(image.buffer, image.byteOffset, image.byteLength), n = v.getUint32(i + 16, true);
+    const end = i + 20 + 8 * n;
+    if (n <= 16 && end + 4 <= image.length && v.getUint32(end, true) === crc32(image.subarray(i, end))) {
+      const m = [];
+      for (let k = 0; k < n; k++) m.push({ off: v.getUint32(i + 20 + 8 * k, true), size: v.getUint32(i + 24 + 8 * k, true) });
+      return m;
+    }
+  }
+  if (findBytes(image, LOADER_MARK) < 0) return [];
+  return Array.from({ length: board === "smk" ? 2 : 3 }, (_, k) => ({ off: LEGACY_BASE[board] + k * 0x14000, size: 0x14000 }));
+}
+
+// slot indexes that hold samples and that the new map does not keep (x0x_slots.at_risk)
+function atRisk(layout, oldMap, newMap) {
+  const risk = [];
+  layout.slots.forEach((sl, k) => {
+    if (!sl.nz) return;
+    const off = oldMap[k].off, need = SLOT_HDR_AREA + sl.used * 1024;
+    if (!newMap.some((m) => m.off === off && m.size >= need)) risk.push(k);
+  });
+  return risk;
+}
+
+// -> {todo: [{k: old slot, j: new slot}], skipped: [text]} (x0x_slots.plan_migration): a slot at risk goes back
+// to the slot with its number if it fits there, else to the first other slot that is empty, not kept and large enough
+function planMigration(images, risk, oldMap, newLayout, newMap) {
+  const kept = new Set();
+  newMap.forEach((m, j) => oldMap.forEach((o, k) => { if (images[k] !== null && !risk.includes(k) && o.off === m.off) kept.add(j); }));
+  const taken = new Set(kept), todo = [], skipped = [];
+  for (const k of risk) {
+    const img = images[k], order = (k < newMap.length ? [k] : []).concat(newMap.map((_, j) => j).filter((j) => j !== k));
+    const j = order.find((j) => !taken.has(j) && img.length <= newMap[j].size && !newLayout.slots[j].nz);
+    if (j === undefined) skipped.push(`slot ${k + 1} (${img.length} B): no free slot of that size on the new firmware`);
+    else { todo.push({ k, j }); taken.add(j); }
+  }
+  return { todo, skipped };
+}
+
+// ---- the slot commands over a link with send / read / drain (fm1ota.js's Link): SysEx F0 7D 46 4C cmd .. F7 ----
+const ED = [0xF0, 0x7D, 0x46, 0x4C];
+
+function unpack78(a) {
+  const out = [];
+  for (let i = 0; i < a.length;) {
+    const m = a[i++];
+    for (let j = 0; j < 7 && i < a.length; j++) out.push(a[i++] | ((m >> j) & 1) << 7);
+  }
+  return new Uint8Array(out);
+}
+
+// one command -> the reply's bytes after the command; a lost frame is sent again (every slot command is safe to repeat)
+async function slotReq(link, cmd, args, ms = 3000, tries = 3) {
+  for (let t = 0; t < tries; t++) {
+    link.drain();
+    if (!link.send([...ED, cmd, ...args, 0xF7])) throw new Error("The USB connection was lost.");
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      const p = await link.read(end - Date.now());
+      if (!p) break;
+      if (p.length > 5 && p[1] === ED[1] && p[2] === ED[2] && p[3] === ED[3] && p[4] === cmd) return p.slice(5, p.length - 1);
+    }
+  }
+  throw new Error(`The keyboard did not answer (slot command ${cmd}).`);
+}
+
+async function readSlotLayout(link, ms = 3000, tries = 3) { return parseInfo(await slotReq(link, 15, [], ms, tries)); }
+
+async function readSlotBytes(link, k, off, n, onPart) {
+  const out = new Uint8Array(n);
+  for (let at = 0; at < n;) {
+    const want = Math.min(224, n - at), adr = off + at;
+    const b = unpack78((await slotReq(link, 16, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])).slice(4));
+    if (!b.length) throw new Error(`slot ${k + 1}: no data`);
+    out.set(b.subarray(0, Math.min(b.length, n - at)), at);
+    at += Math.min(b.length, n - at);
+    if (onPart) onPart(at, n);
+  }
+  return out;
+}
+
+// slot k as an image (the 512-byte header area, then the data), or null if it is empty. Reads only.
+async function readSlotImage(link, k, nz, onPart) {
+  if (!nz) return null;
+  const area = await readSlotBytes(link, k, 0, SLOT_HDR_AREA), h = parseHeader(area.subarray(0, SLOT_HDR_LEN));
+  if (!h) return null;
+  const data = await readSlotBytes(link, k, SLOT_HDR_AREA, h.dataLen, onPart);
+  if (crc32(data) !== h.crc) throw new Error(`slot ${k + 1}: the data read back does not match its CRC`);
+  const img = new Uint8Array(SLOT_HDR_AREA + data.length);
+  img.set(area);
+  img.set(data, SLOT_HDR_AREA);
+  return img;
+}
+
+// every slot -> {layout, images} (x0x_slots.backup): SMP_INFO and SMP_READ only
+async function backupSlots(link, onPart) {
+  const layout = await readSlotLayout(link), images = [];
+  for (let k = 0; k < layout.count; k++)
+    images.push(await readSlotImage(link, k, layout.slots[k].nz, onPart && ((d, n) => onPart(k, d, n))));
+  return { layout, images };
+}
+
+// erase slot k and write the image (null: erase only); throws on a device error (x0x_slots.write_slot)
+async function writeSlotImage(link, k, img, onPart) {
+  if (!img) {
+    if ((await slotReq(link, 14, [k], 30000))[1]) throw new Error(`slot ${k + 1}: erase failed`);
+    return;
+  }
+  if ((await slotReq(link, 11, [k], 10000))[1]) throw new Error(`slot ${k + 1}: begin (erase) failed`);
+  const data = img.subarray(SLOT_HDR_AREA);
+  for (let off = 0; off < data.length; off += 256) {
+    const adr = SLOT_HDR_AREA + off;
+    const r = await slotReq(link, 12, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, ...pack78(data.subarray(off, off + 256))]);
+    if (r[4]) throw new Error(`slot ${k + 1}: write at 0x${adr.toString(16)} failed (${r[4]})`);
+    if (onPart) onPart(Math.min(off + 256, data.length), data.length);
+  }
+  const e = await slotReq(link, 13, [k, ...pack78(img.subarray(0, SLOT_HDR_LEN))], 5000);
+  if (e[1]) throw new Error(`slot ${k + 1}: the keyboard refused the header (${e[1]})`);
+}
+
+// write images[k] into new slot j for each {k, j}, then read each back and compare (x0x_slots.restore_mapped)
+async function restoreMapped(link, todo, images, onPart) {
+  for (const { k, j } of todo) await writeSlotImage(link, j, images[k], onPart && ((d, n) => onPart(j, d, n)));
+  const after = await readSlotLayout(link);
+  for (const { k, j } of todo) {
+    const got = await readSlotImage(link, j, after.slots[j].nz);
+    if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]))
+      throw new Error(`slot ${j + 1}: read back differs from the backup of slot ${k + 1}`);
+  }
+}
+
+// an archive file name for now: x0x-slots-before-install-YYYYMMDD-HHMMSS.x0xslots, and its "created" text
+function archiveStamp(t = new Date()) {
+  const p = (v) => String(v).padStart(2, "0");
+  const created = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
+  return { created, name: `x0x-slots-before-install-${created.replace(/[-:]/g, "").replace("T", "-")}.x0xslots` };
+}
+
+// The install with the slots kept (fm1_install.py's flow, for the installer page). up: fm1ota.js's Updater;
+// hooks: {step(k, a) for up.install, say(key, detail), save(bytes, name) (the download), progress(f),
+// sameKeyboard(model, packageModel) (fm1ota.js's: the slots are read only when the install can go ahead)}.
+// 1. If a slot holds samples the new firmware does not keep: read every slot into an .x0xslots archive and
+//    save it. 2. Install. 3. Reconnect to the new firmware, write the slots back into its map, read them back.
+// Throws the install's errors as they are; a failure in step 3 throws code "slots" (the archive is saved).
+// -> {product, move: null or {risk, todo, skipped, name}}
+async function installKeepingSlots(up, image, product, board, hooks) {
+  const h = Object.assign({ step() {}, say() {}, save() {}, progress() {}, sameKeyboard: () => true }, hooks);
+  const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
+  let move = null;
+  const dev = await up.find((id) => !/^ota-/i.test(id.model));
+  if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
+  else if (dev) {
+    try {
+      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
+      if (layout && layout.slots.some((sl) => sl.nz)) {
+        const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
+        const risk = atRisk(layout, oldMap, newMap);
+        if (risk.length) {
+          h.say("slotsave", risk.map((k) => k + 1).join(", "));
+          let saved;
+          try {
+            saved = await backupSlots(dev.link, (k, d, n) => h.progress((k + d / n) / layout.count));
+          } catch (e) { throw fail("slotbackup", e.message); }
+          const st = archiveStamp(), file = makeArchive(saved.layout, saved.images, st.created);
+          readArchive(file);                                  // what was saved reads back
+          h.save(file, st.name);
+          move = { risk, oldMap, newMap, images: saved.images, name: st.name, todo: [], skipped: [] };
+        }
+      }
+    } finally { dev.link.close(); }
+  }
+  const ran = await up.install(image, product, h.step);
+  if (!move || !move.newMap.length) return { product: ran, move };
+  h.say("slotback");
+  const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
+  if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
+  try {
+    const layout = await readSlotLayout(back.link);
+    const plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
+    move.todo = plan.todo;
+    move.skipped = plan.skipped;
+    const total = plan.todo.length || 1;
+    await restoreMapped(back.link, plan.todo, move.images, (j, d, n) => h.progress(d / n / total));
+  } catch (e) {
+    throw fail("slots", e.message, move.name);
+  } finally { back.link.close(); }
+  return { product: ran, move };
+}
+
+const $ = (id) => document.getElementById(id);
+const MODELS = { pro: "SMK-37 Pro", elite: "SMK-37 Elite", mke: "MKE-P37", fm1: "FM-1" };
+const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
+const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
+const TEXT = {
+  ja: {
+    navinstaller: "インストール", navmanual: "マニュアル", navsamples: "サンプル",
+    controlleroptional: "任意 / SMC Bluetooth", ctlchoose: "コントローラー画像 (.img)",
+    verlatest: "最新 DEV", verolder: "旧 DEV", verdev: "DEV", verrelease: "リリース", verunverified: "未検証",
+    eyebrow: "デバイスファームウェア / Web MIDI", journey1: "機器を接続", journey2: "ファームウェアを選択", journey3: "確認して書き込む",
+    stage1: "手順 01 / 接続", stage2: "手順 02 / ファームウェア", stage3: "手順 03 / インストール",
+    pickheading: "ビルドを選択", versionlabel: "ファームウェアのバージョン", modelheading: "機種を選択",
+    diagnostics: "技術情報・動作ログ", guidelabel: "始める前に", guideheading: "サンプルを安全に保管",
+    guide1: "PC の Chrome または Edge と USB データケーブルを使用してください。",
+    guide2: "大切なサンプルは先に個別に書き出してください。必要時に自動バックアップしますが、別のコピーも推奨します。",
+    guide3: "完了するまで USB ケーブルを抜かないでください。",
+    guidebackup: "サンプルのバックアップと復元", helpbadge: "ヘルプ", helpheading: "接続と復旧",
+    helptext: "見つからない場合は他の MIDI アプリを閉じてください。中断した更新は再開できます。",
+    helpmanual: "マニュアルを開く", hintblocked: "検証済みの機種別パッケージが必要です。",
+    hintverifying: "パッケージの読み込み・整合性確認を待ってください。",
+    hintack: "開発版の注意事項を確認し、チェックを入れてください。",
+    hintready: "書き込む準備ができました。開始前に機種と内容をもう一度確認します。",
+    hintbusy: "書き込み中です。USB を抜かず、ページを閉じないでください。",
+    latestdev: "最新の利用可能な DEV", devchecked: "DEV CHECKED", hardwareuntested: "実機未テスト", superseded: "旧ビルド・非推奨",
+    devagree: "実機未テストの開発版であることを理解し、機種ID・サンプルのバックアップ・ローカル検証を確認します。",
+    ctrlwarning: "SMC Bluetoothには別途ビルドした ctl.img が必要です。上で選択してください。付属していません。",
+    evidencelink: "開発検証記録", archiveheading: "ビルド履歴", archiveintro: "SHA確認済みビルドとソースのみの状態・未入手アーカイブ・失敗ビルドを区別します。コミットだけではインストールできません。",
+    choosebuild: "このビルドを選ぶ", otherbuilds: "その他のチェックポイント (インストール不可)", unapproved: "このパッケージには機種別検証記録がないため、自動インストールできません。",
+    title: "X0X をインストール",
+    intro: "SMK-37 と FM-1 向けファームウェア。USB で接続して機種とビルドを選び、サンプルのバックアップ保護を確認してインストールします。PC の Chrome または Edge をご使用ください。",
+    warn: "書き込み中は USB を抜かないでください。",
+    install: "ファームウェアを書き込む", other: "English", connect: "USB 接続",
+    connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
+    connected: "接続済み", notconnected: "未接続", looking: "探しています…",
+    otahelp: "書き込みモードです。パッケージを選んでインストールを押すと続きから書けます。",
+    flashother: "別の機種名で書き込む",
+    modelwhy: "同じファームウェアを別の機種名で書き込みます。キーボード本来の機種（古い Elite は Pro と出ることがあります）を選ぶと、あとで M-VAVE の純正に戻せます。Starrykey 37 Play は SMK-37 Pro を使います。",
+    manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
+    breaks: "サンプル・インポーター：自分のブレイク・ループ",
+    untested: "X0X はベータ版です。",
+    direct: "USB ケーブルはパソコンに直接つないでください。",
+    brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
+    bricklink: "起動しない FM-1 の復旧（マニュアル）",
+    beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
+    back: "公式や他のカスタムへ移すには、下に .fwsc を落とすか M-VAVE の M-UPGRADE を使います。",
+    noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
+    stockh: "任意の .fwsc（純正・他カスタム・手元のビルド）",
+    stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
+    stock1: "純正が必要なら機種の公式 .fwsc を入手:",
+    stock2: "任意の .fwsc を下にドロップ（または選択）。",
+    stock3: "USB で接続し、確認にチェックして書き込む。途中で止まったら挿し直して同じファイルでもう一度。",
+    stockdrop: "ここに .fwsc をドロップ、またはクリックして選択",
+    stockconfirm: "これはこのキーボード向けのファームウェアです（機種が合っている）",
+    stockinstall: "このパッケージを書き込む",
+    stockloading: "選択したファームウェアを読み込み、確認しています…",
+    stockloadfail: "ファイルを読み込めませんでした。もう一度選択してください。",
+    stockok: "パッケージを確認しました。ボタンを押してください。",
+    stockbad: "使える .fwsc ではありません。",
+    stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
+    confirm: "書き込みますか？\n\n接続中: ",
+    confirmto: "\n書き込む: ",
+    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。サンプル・スロットが消える場合は先にファイルへ保存します。USB を抜かないでください。",
+    nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
+    start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
+    reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
+    error: "エラー: ",
+    denied: "MIDI（SysEx）の使用が許可されませんでした。アドレスバーのサイト設定で MIDI を許可して、もう一度押してください。",
+    notfound: "機器が見つかりません。USB ケーブル（データ通信用か）を確かめ、MIDI を使う他のアプリを閉じてから、もう一度押してください。",
+    model: "接続されている機器はこのパッケージ向けではありません。",
+    lost: "USB の接続が切れました。挿し直してもう一度押してください。",
+    noloader: "書き込みモードの機器が見つかりません。USB を挿し直してもう一度押してください。",
+    noreturn: "機器が戻ってきません。電源を入れ直してください。",
+    mismatch: "書き込みは終わりましたが、別のバージョンを報告しています: ",
+    badpkg: "インストールするファイルが壊れています。ページを再読み込みしてください。",
+    leave: "書き込み中です。ページを閉じないでください。",
+    slotsave: "新しいファームウェアではスロットのサンプルが消えます（スロット ",
+    slotsave2: "）。先に全スロットをファイルに保存します。",
+    slotsaved: "スロットを保存しました（ダウンロード）: ",
+    slotback: "スロットを書き戻しています",
+    slotsdone: "完了。スロットを書き戻して確認しました。",
+    slotskip: " 書き戻せなかったスロット（入りきらない）: ",
+    slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
+    slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
+    slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
+    license: "GPL-3.0、無保証。ソース:",
+    blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。選ばなければ Bluetooth なしでインストールします。",
+    ctlreading: "コントローラー画像を読み込み、確認しています…",
+    ctlreadfail: "コントローラー画像を読み込めませんでした。もう一度選択してください。",
+    ctlok: "ctl.img を確認しました。インストールに含めます。",
+    ctlbad: "この ctl.img は使えません: ",
+    noproduct: "このバージョンには選んだ機種のパッケージがありません。",
+    releasehint: "GitHub の Releases からも同じファイルを取れます。",
+  },
+  en: {
+    navinstaller: "Installer", navmanual: "Manual", navsamples: "Samples",
+    controlleroptional: "Optional / SMC Bluetooth", ctlchoose: "Controller image (.img)",
+    verlatest: "latest DEV", verolder: "older DEV", verdev: "DEV", verrelease: "release", verunverified: "unverified",
+    eyebrow: "DEVICE SOFTWARE / WEB MIDI", journey1: "Connect keyboard", journey2: "Select firmware", journey3: "Review and install",
+    stage1: "Step 01 / Connection", stage2: "Step 02 / Firmware", stage3: "Step 03 / Install",
+    pickheading: "Choose your build", versionlabel: "Firmware version", modelheading: "Choose your keyboard model",
+    diagnostics: "Technical details / activity log", guidelabel: "Before you begin", guideheading: "Keep your samples safe",
+    guide1: "Use Chrome or Edge on a computer with a USB data cable.",
+    guide2: "Export important samples first. Automatic slot backup runs when needed, but keep a separate copy.",
+    guide3: "Keep USB connected until the installation finishes.",
+    guidebackup: "Backup and restore samples", helpbadge: "Need help?", helpheading: "Connection or recovery",
+    helptext: "Close other MIDI apps if the keyboard is not detected. Interrupted updates can be resumed.",
+    helpmanual: "Open the manual", hintblocked: "Choose a verified package for the selected keyboard model.",
+    hintverifying: "Waiting for the firmware download and integrity check.",
+    hintack: "Review and acknowledge the development firmware warning to continue.",
+    hintready: "Ready. Device and package identity will be confirmed again before writing.",
+    hintbusy: "Writing is in progress. Keep USB connected and this page open.",
+    latestdev: "LATEST AVAILABLE DEV", devchecked: "DEV CHECKED", hardwareuntested: "HARDWARE UNTESTED", superseded: "SUPERSEDED",
+    devagree: "I understand this is hardware-untested development firmware. I must verify the exact model, back up samples and use guarded local validation.",
+    ctrlwarning: "Direct SMC Bluetooth requires a separately built ctl.img (select it above). The controller image is not bundled.",
+    evidencelink: "Development validation record", archiveheading: "Build history", archiveintro: "SHA-verified builds are separated from source-only checkpoints, unavailable archives and failed builds. A source commit alone is not flashable firmware.",
+    choosebuild: "Select this build", otherbuilds: "Other checkpoints — not available for installation", unapproved: "No model-specific development/release validation for this package. Automatic installation is disabled.",
+    title: "Install X0X.",
+    intro: "Firmware for SMK-37 and FM-1. Connect over USB, choose your build, and install with sample-backup safeguards. Use Chrome or Edge on a computer.",
+    warn: "Do not unplug the USB cable while writing.",
+    install: "Install firmware", other: "日本語", connect: "Connect USB",
+    connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
+    connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
+    otahelp: "Update mode. Choose a package and press Install to finish (or resume) the write.",
+    flashother: "Flash another keyboard version",
+    modelwhy: "The same firmware under another model name. Pick your keyboard's own model (an Elite running an older build may report SMK-37 Pro), so M-VAVE's updater accepts its factory firmware again. Starrykey 37 Play: use SMK-37 Pro.",
+    manual: "The manual", whatsnew: "What's new", download: "Download this package",
+    breaks: "Sample importer: your own break loops",
+    untested: "X0X is a beta.",
+    direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
+    brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
+    bricklink: "recovering an FM-1 that won't start (manual)",
+    beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
+    back: "To move to stock or another custom firmware, drop its .fwsc below, or use M-VAVE's M-UPGRADE.",
+    noversion: "No published packages on this site yet. Drop any .fwsc below to upgrade, downgrade, restore stock, or switch to another custom build.",
+    stockh: "Any .fwsc (stock, other custom, or a local build)",
+    stockwhy: "Upgrade, downgrade, switch to another custom firmware, or return to stock the same way. Packages keep the keyboard's model name; calibration and pairing are never touched. If sample slots would be lost, they are saved to a .x0xslots file first.",
+    stock1: "For stock, get the official .fwsc for your model:",
+    stock2: "Drop any .fwsc below (or click to choose it).",
+    stock3: "Connect by USB, tick the confirmation, and install. If a write stops halfway, replug and install the same file again to resume.",
+    stockdrop: "Drop the .fwsc file here, or click to choose it",
+    stockconfirm: "This package is for this keyboard (matching model)",
+    stockinstall: "Install this package",
+    stockloading: "Reading and checking the selected firmware file…",
+    stockloadfail: "Could not read that file. Choose it again.",
+    stockok: "Package checked. Press the button to install it.",
+    stockbad: "That is not a usable .fwsc package.",
+    stockdone: "Done. The device has restarted with the new firmware.",
+    confirm: "Install this firmware?\n\nConnected: ",
+    confirmto: "\nWill write: ",
+    confirmrisk: "\n\nCalibration and pairing are never touched. If sample slots would be lost, they are saved to a file first. Keep USB connected until Done.",
+    nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
+    start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
+    reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
+    error: "Error: ",
+    denied: "MIDI (SysEx) access was not allowed. Allow MIDI in the site settings (address bar) and press Install again.",
+    notfound: "Device not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
+    model: "The connected device does not match this package.",
+    lost: "The USB connection was lost. Replug it and press Install again.",
+    noloader: "The device in update mode was not found. Replug the USB cable and press Install again.",
+    noreturn: "The device did not come back. Power-cycle it.",
+    mismatch: "Written, but the device reports another version: ",
+    badpkg: "The file to install is damaged. Reload the page.",
+    leave: "Writing. Do not close the page.",
+    slotsave: "The new firmware does not keep the samples in slot ",
+    slotsave2: ". Saving every slot to a file first.",
+    slotsaved: "Slots saved (downloaded): ",
+    slotback: "Writing the slots back",
+    slotsdone: "Done. The slots were written back and checked.",
+    slotskip: " Not written back (no room): ",
+    slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
+    slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
+    slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
+    license: "GPL-3.0, no warranty. Source:",
+    blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. Without it, X0X installs without Bluetooth. Select it again for each update.",
+    ctlreading: "Reading and checking the controller image…",
+    ctlreadfail: "Could not read that controller image. Choose it again.",
+    ctlok: "ctl.img checked: the install includes it.",
+    ctlbad: "This ctl.img cannot be used: ",
+    noproduct: "No package for that model in this version.",
+    releasehint: "The same files are also on the GitHub Releases page.",
+  },
+};
+let lang = "en";
+const t = (k) => TEXT[lang][k];
+let lastKey = null, lastArg = "";
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
+  $("lang").textContent = t("other");
+  $("conn").textContent = connected ? t("connected") : t("notconnected");
+  if (lastKey) $("status").textContent = t(lastKey) + lastArg;
+  refreshMeta();
+  renderBuildHistory();
+  refreshVersionLabels(); // Captions change without reloading firmware or resetting DEV consent.
+}
+$("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
+const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
+const say = (txt) => { lastKey = null; $("status").textContent = txt; };
+const log = (txt) => { $("log").textContent += txt + "\n"; };
+
+const catalog = {"schema":1,"repo":"https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly","pages":"","latest":null,"versions":[],"history":[]};
+let catalogLive = catalog;
+const repo = catalog.repo || "https://github.com/gobbajogger/X0X37-for-Loopy-Pro";
+$("repolink").href = repo;
+$("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
+
+let midi = null, connected = false, lastId = null, writing = false;
+let image = null, selectedProduct = null, ctl = null, stock = null;
+let chosenModel = null;
+let loadSerial = 0;
+
+function led(state) {
+  $("led").className = "led" + (state ? " " + state : "");
+}
+function setConnected(on, detail) {
+  connected = on;
+  led(on ? "on" : (detail && detail.startsWith("No ") ? "err" : ""));
+  $("conn").textContent = on ? t("connected") : t("notconnected");
+  $("connDetail").textContent = detail || t("connhelp");
+  $("connbtn").textContent = t("connect");
+}
+
+async function midiAccess() {
+  if (midi) return midi;
+  if (!navigator.requestMIDIAccess) throw Object.assign(new Error(t("nomidi")), { code: "nomidi" });
+  try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
+  catch (e) { throw Object.assign(new Error(t("denied")), { code: "denied" }); }
+  const ports = () => [...midi.inputs.values(), ...midi.outputs.values()]
+    .filter((p) => p.state === "connected").map((p) => p.id).sort().join();
+  midiAccess.ports = ports();
+  midi.onstatechange = () => {
+    const now = ports();
+    if (now === midiAccess.ports) return;
+    midiAccess.ports = now;
+    if (!writing) { clearTimeout(midiAccess.t); midiAccess.t = setTimeout(scan, 800); }
+  };
+  return midi;
+}
+
+async function scan() {
+  if (writing) return;
+  led("busy");
+  $("conn").textContent = t("looking");
+  try {
+    const up = new Updater(await midiAccess(), () => {});
+    // Prefer a running app; if only the update loader is present, resume from there.
+    let dev = await up.find((id) => !/^ota-/i.test(id.model));
+    let inOta = false;
+    if (!dev) {
+      dev = await up.find((id) => /^ota-/i.test(id.model));
+      inOta = !!dev;
+    }
+    if (!dev) {
+      lastId = null;
+      setConnected(false, t("notfound"));
+      return;
+    }
+    lastId = dev.id;
+    const bare = inOta ? dev.id.model.replace(/^ota-/i, "") : dev.id.model;
+    const detail = inOta
+      ? `${dev.id.text}${dev.name ? " · " + dev.name : ""} — ${t("otahelp")}`
+      : `${dev.id.text}${dev.name ? " · " + dev.name : ""}`;
+    setConnected(true, detail);
+    if (inOta) led("busy");
+    suggestModel(bare);
+    dev.link.close();
+  } catch (e) {
+    lastId = null;
+    setConnected(false, (e && e.message) || t("error"));
+  }
+}
+
+$("connbtn").addEventListener("click", () => { scan(); });
+
+function versions() {
+  return (catalogLive.versions || []).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+}
+function currentVersion() {
+  const v = $("version").value;
+  return versions().find((x) => x.version === v) || versions()[0] || null;
+}
+function modelKeyForProduct(product) {
+  if (/^FM-1/i.test(product)) return "fm1";
+  if (/^SMK-37 Elite/i.test(product)) return "elite";
+  if (/^MKE-P37/i.test(product)) return "mke";
+  if (/^SMK-37/i.test(product)) return "pro";
+  return null;
+}
+function availableModels(ver) {
+  if (!ver || !ver.models) return [];
+  return MODEL_KEYS.filter((k) => ver.models[k]);
+}
+function suggestModel(deviceModel) {
+  const ver = currentVersion();
+  if (!ver) return;
+  const avail = availableModels(ver);
+  let want = "pro";
+  if (/Elite/i.test(deviceModel)) want = "elite";
+  else if (/MKE/i.test(deviceModel)) want = "mke";
+  else if (/^FM-1/i.test(deviceModel)) want = "fm1";
+  if (!avail.includes(want)) want = avail[0];
+  if (want) {
+    chosenModel = want;
+    const input = document.querySelector(`#models input[value="${want}"]`);
+    if (input) input.checked = true;
+    loadSelectedPackage();
+  }
+}
+function refreshModelUi() {
+  const ver = currentVersion();
+  const box = $("models");
+  box.innerHTML = "";
+  const avail = availableModels(ver);
+  if (!avail.length) return;
+  if (!chosenModel || !avail.includes(chosenModel)) chosenModel = avail.includes("pro") ? "pro" : avail[0];
+  for (const k of avail) {
+    const lab = document.createElement("label");
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "model"; inp.value = k;
+    inp.checked = k === chosenModel;
+    inp.addEventListener("change", () => { chosenModel = k; loadSelectedPackage(); });
+    lab.append(inp, document.createTextNode(MODELS[k] || k));
+    box.append(lab);
+  }
+  $("modeldetails").hidden = avail.length <= 1 && avail[0] === "fm1";
+  $("ble").hidden = !avail.some((k) => k !== "fm1");
+  $("recovery").hidden = !avail.includes("fm1") || avail.some((k) => k !== "fm1");
+  // Stock section always useful for SMK; for FM-1-only catalogs keep the SHA check path.
+  $("stock").hidden = false;
+  const links = [];
+  if (avail.includes("pro")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`);
+  if (avail.includes("elite")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`);
+  if (avail.includes("fm1")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`);
+  $("stocklinks").innerHTML = links.length ? " · " + links.join(" · ") : "";
+}
+function refreshMeta() {
+  const ver = currentVersion();
+  const pkg = ver && chosenModel && ver.models[chosenModel];
+  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("download").hidden = true; $("builddetail").hidden = true; updateInstallGate(); return; }
+  const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
+  $("pkgmeta").textContent = `${pkg.product}${size}`;
+  $("download").href = pkg.pkg;
+  $("download").hidden = false;
+  $("download").download = pkg.pkg.split("/").pop();
+  renderBuildInfo(ver,pkg);
+}
+
+function isCatalogChecked(v,p) {
+  return !!v && !!p && (v.status === "dev-checked" || v.status === "release-checked")
+    && /^[0-9a-f]{64}$/.test(p.sha256 || "");
+}
+function updateInstallGate() {
+  const v = currentVersion(), p = v && v.models && v.models[chosenModel];
+  const checked = isCatalogChecked(v,p);
+  const needsAck = !!v && v.status === "dev-checked" && !$("devagree").checked;
+  $("go").disabled = writing || !image || !checked || needsAck;
+  // This is explanatory UI only; the existing hash, package and write guards remain authoritative.
+  $("installhint").textContent = t(writing ? "hintbusy"
+    : !checked ? "hintblocked"
+    : !image ? "hintverifying"
+    : needsAck ? "hintack"
+    : "hintready");
+}
+function buildBadge(txt,kind) {
+  const x = document.createElement("span"); x.className="build-badge"+(kind?" "+kind:""); x.textContent=txt;return x;
+}
+function renderBuildInfo(v,p) {
+  $("builddetail").hidden=false;
+  const b=$("buildbadges");b.replaceChildren();
+  if(v.version===catalogLive.latest && v.status==="dev-checked") b.append(buildBadge(t("latestdev"),"important"));
+  if(v.status==="dev-checked") b.append(buildBadge(t("devchecked")));
+  if(v.hardware_tested!==true) b.append(buildBadge(t("hardwareuntested"),"important"));
+  if(v.lifecycle==="superseded") b.append(buildBadge(t("superseded"),"blocked"));
+  $("buildsummary").textContent=v.description||v.title||"";
+  $("buildprovenance").textContent="Source: "+(v.source_commit||"unknown")+
+    " · "+(v.built_at||"undated")+" · SHA-256: "+(p.sha256||"not recorded");
+  const link=$("buildevidence");link.hidden=!v.evidence_url;
+  if(v.evidence_url)link.href=v.evidence_url;else link.removeAttribute("href");
+  $("devagreewrap").hidden=v.status!=="dev-checked";
+  updateInstallGate();
+}
+function renderBuildHistory() {
+  const box=$("buildhistory");box.replaceChildren();
+  for(const v of versions()) {
+    const el=document.createElement("article");el.className="build-item";
+    const h=document.createElement("h3");h.textContent=(v.title||v.version)+" · "+v.version;el.append(h);
+    const badges=document.createElement("div");badges.className="build-badges";
+    if(v.version===catalogLive.latest && v.status==="dev-checked")badges.append(buildBadge(t("latestdev"),"important"));
+    if(v.status==="dev-checked")badges.append(buildBadge(t("devchecked")));
+    if(v.hardware_tested!==true)badges.append(buildBadge(t("hardwareuntested"),"important"));
+    if(v.lifecycle==="superseded")badges.append(buildBadge(t("superseded"),"blocked"));
+    el.append(badges);
+    const p=document.createElement("p");p.textContent=v.description||"";el.append(p);
+    const m=document.createElement("p");m.className="meta";
+    m.textContent=(v.built_at||"")+" · "+(v.source_commit||"")+" · Models: "+Object.keys(v.models||{}).join(", ");
+    el.append(m);
+    if(["dev-checked","release-checked"].includes(v.status)){
+      const btn=document.createElement("button");btn.type="button";btn.textContent=t("choosebuild");
+      btn.addEventListener("click",()=>{$("version").value=v.version;refreshModelUi();loadSelectedPackage();$("pick").scrollIntoView({block:"start"});});
+      el.append(btn);
+    }
+    box.append(el);
+  }
+  if((catalog.history||[]).length){const h=document.createElement("h3");h.textContent=t("otherbuilds");box.append(h);}
+  for(const b of catalog.history||[]){
+    const el=document.createElement("article");el.className="build-item";
+    const h=document.createElement("h3");h.textContent=b.title||b.id;el.append(h);
+    const m=document.createElement("p");m.className="meta";
+    m.textContent=(b.status||"unknown").toUpperCase().replace(/-/g," ")+" · "+(b.source_commit||"")+" · "+(b.models||[]).join(", ");el.append(m);
+    const p=document.createElement("p");p.textContent=b.description||"";el.append(p);
+    if(b.url){const a=document.createElement("a");a.href=b.url;a.rel="noopener noreferrer";a.target="_blank";a.textContent="Source / evidence";el.append(a);}
+    box.append(el);
+  }
+}
+async function sha256Hex(buf) {
+  const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))]
+    .map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hex;
+}
+async function loadSelectedPackage() {
+  const requestId = ++loadSerial;
+  $("devagree").checked = false;
+  image = null; selectedProduct = null;
+  $("go").disabled = true;
+  refreshMeta();
+  const ver = currentVersion();
+  const pkg = ver && chosenModel && ver.models[chosenModel];
+  if (!pkg) { sayK("noproduct"); return; }
+  if (!isCatalogChecked(ver,pkg)) { sayK("unapproved"); return; }
+  try {
+    const r = await fetch(pkg.pkg);
+    if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
+    const raw = new Uint8Array(await r.arrayBuffer());
+    if (requestId !== loadSerial) return;
+    const hex = await sha256Hex(raw.buffer);
+    if (requestId !== loadSerial) return;
+    if (hex !== pkg.sha256) { sayK("badpkg"); return; }
+    const product = productOf(raw);
+    if (!pkg.fromRelease && product !== pkg.product) { sayK("badpkg"); return; }
+    if (pkg.fromRelease) {
+      const want = modelKeyForProduct(product);
+      if (want && want !== chosenModel) { sayK("badpkg"); return; }
+      pkg.product = product;
+    }
+    image = logicalImage(raw);
+    selectedProduct = product;
+    say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
+    refreshMeta();
+    updateInstallGate();
+  } catch (e) { sayK("loadfail", e.message); }
+}
+
+function versionOptionCaption(v) {
+  const kind = v.status === "dev-checked"
+    ? (v.lifecycle === "superseded" ? "verolder" : (v.version === catalogLive.latest ? "verlatest" : "verdev"))
+    : (v.status === "release-checked" ? "verrelease" : "verunverified");
+  return v.version + " · " + t(kind);
+}
+function refreshVersionLabels() {
+  const byVersion = new Map(versions().map((v) => [v.version, v]));
+  for (const option of $("version").children) {
+    const v = byVersion.get(option.value);
+    if (v) option.textContent = versionOptionCaption(v);
+  }
+}
+function fillVersions() {
+  const sel = $("version");
+  const cur = sel.value;
+  sel.innerHTML = "";
+  const list = versions();
+  $("noversion").hidden = list.length > 0;
+  $("versionrow").hidden = list.length === 0;
+  $("modeldetails").hidden = list.length === 0;
+  $("go").hidden = list.length === 0;
+  if (!list.length) {
+    image = null; selectedProduct = null;
+    $("go").disabled = true;
+    $("pkgmeta").textContent = "";
+    say(t("noversion"));
+    // Still show SMK stock links when the catalog is empty.
+    $("stock").hidden = false;
+    $("stocklinks").innerHTML = " · "
+      + `<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`
+      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`
+      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`;
+    return;
+  }
+  for (const v of list) {
+    const o = document.createElement("option");
+    o.value = v.version;
+    o.textContent = versionOptionCaption(v); // Full safety badges remain visible below the picker.
+    sel.append(o);
+  }
+  const prefer = cur && list.some((v) => v.version === cur) ? cur
+    : (catalogLive.latest || (list[0] && list[0].version));
+  if (prefer) sel.value = prefer;
+  refreshModelUi();
+  loadSelectedPackage();
+  renderBuildHistory();
+}
+
+function confirmWrite(product) {
+  const from = lastId ? lastId.text : "(not connected yet — Connect first if you can)";
+  return window.confirm(t("confirm") + from + t("confirmto") + product + t("confirmrisk"));
+}
+$("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
+$("devagree").addEventListener("change", updateInstallGate);
+
+async function mergeGitHubReleases() {
+  // Optional: add release assets not already in the catalog so any GitHub Release is installable.
+  const m = /github\.com\/([^/]+)\/([^/#?]+)/.exec(repo);
+  if (!m) return;
+  const api = `https://api.github.com/repos/${m[1]}/${m[2]}/releases?per_page=30`;
+  try {
+    const r = await fetch(api, { headers: { Accept: "application/vnd.github+json" } });
+    if (!r.ok) return;
+    const releases = await r.json();
+    const byVer = new Map((catalogLive.versions || []).map((v) => [v.version, { ...v, models: { ...v.models } }]));
+    for (const rel of releases) {
+      const version = String(rel.tag_name || "").replace(/^v/i, "");
+      if (!version) continue;
+      const entry = byVer.get(version) || { version, models: {} };
+      for (const asset of rel.assets || []) {
+        const name = asset.name || "";
+        let key = null;
+        if (/smk37-elite|-elite\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "elite";
+        else if (/smk37-mke|-mke\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "mke";
+        else if (/x0x-smk37-|smk37/i.test(name) && /\.fwsc$/i.test(name)) key = "pro";
+        else if (/^x0x-[\w.-]+\.fwsc$/i.test(name) && !/smk/i.test(name)) key = "fm1";
+        if (!key || entry.models[key]) continue;
+        entry.models[key] = {
+          product: key === "fm1" ? "FM-1_9000000" : `${MODELS[key]}_9000000`,
+          pkg: asset.browser_download_url,
+          size: asset.size,
+          fromRelease: true,
+        };
+      }
+      if (Object.keys(entry.models).length) byVer.set(version, entry);
+    }
+    catalogLive = {
+      ...catalogLive,
+      versions: [...byVer.values()],
+      latest: catalogLive.latest
+        || (releases[0] && String(releases[0].tag_name || "").replace(/^v/i, "")),
+    };
+  } catch (_) { /* offline / rate limit: keep embedded catalog */ }
+}
+
+let ctlLoadSerial = 0;
+$("ctlfile").addEventListener("change", async (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f || writing) return;
+  const requestId = ++ctlLoadSerial;
+  ctl = null;
+  e.target.value = ""; // Allow retrying the same controller image.
+  sayK("ctlreading");
+  let raw;
+  try { raw = new Uint8Array(await f.arrayBuffer()); }
+  catch (err) {
+    if (requestId === ctlLoadSerial && !writing) sayK("ctlreadfail");
+    return;
+  }
+  if (requestId !== ctlLoadSerial || writing) return;
+  try {
+    const p = ctlProblem(raw);
+    if (p) { sayK("ctlbad", p); return; }
+    ctl = raw;
+    sayK("ctlok");
+  } catch (err) {
+    if (requestId === ctlLoadSerial && !writing) sayK("ctlbad", err && err.message);
+  }
+});
+
+window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
+
+let stockLoadSerial = 0;
+async function acceptStock(raw, requestId) {
+  try {
+    const product = productOf(raw);
+    const model = product.split("_")[0];
+    const hex = await sha256Hex(raw.buffer);
+    if (requestId !== stockLoadSerial || writing) return;
+    const isFm1Stock = hex === STOCK_SHA256_FM1;
+    // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
+    if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
+      sayK("stockbad"); return;
+    }
+    // If a device is connected, refuse a package for the other keyboard family (FM-1 vs SMK).
+    if (lastId && !sameKeyboard(lastId.model.replace(/^ota-/i, ""), model)) {
+      sayK("model", ` ${lastId.text} → ${product}`);
+      return;
+    }
+    stock = { image: logicalImage(raw), product, foreign: true, fm1Stock: isFm1Stock };
+    $("dropmeta").textContent = `${product} · ${(raw.length / 1024).toFixed(0)} KB`;
+    $("stockconfirm").disabled = false;
+    $("stockgo").disabled = writing || !$("stockconfirm").checked;
+    sayK("stockok");
+  } catch (err) { if (requestId === stockLoadSerial && !writing) sayK("stockbad"); }
+}
+async function selectStockFile(f) {
+  if (!f || writing) return;
+  const requestId = ++stockLoadSerial;
+  stock = null;
+  $("stockconfirm").checked = false;
+  $("stockconfirm").disabled = true;
+  $("stockgo").disabled = true;
+  $("dropmeta").textContent = "";
+  sayK("stockloading");
+  try {
+    const raw = new Uint8Array(await f.arrayBuffer());
+    if (requestId !== stockLoadSerial || writing) return;
+    await acceptStock(raw, requestId);
+  } catch (err) {
+    if (requestId === stockLoadSerial && !writing) sayK("stockloadfail");
+  }
+}
+$("stockfile").addEventListener("change", async (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  e.target.value = ""; // Allow choosing the same file again after a failed read.
+  await selectStockFile(f);
+});
+$("stockconfirm").addEventListener("change", () => {
+  $("stockgo").disabled = writing || !stock || !$("stockconfirm").checked;
+});
+const drop = $("stockdrop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", async (e) => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!f) return;
+  await selectStockFile(f);
+});
+
+async function run(img, product, opts = {}) {
+  const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
+  let access;
+  try { access = await midiAccess(); }
+  catch (e) { sayK(e.code || "denied"); return; }
+  writing = true;
+  $("go").disabled = $("stockgo").disabled = true;
+  led("busy");
+  try {
+    const up = new Updater(access, log);
+    const total = 74 + 1167;
+    const step = (k, a) => {
+      log(`${k} ${a ?? ""}`);
+      if (k === "start") sayK("start");
+      if (k === "verify") { sayK("verify"); $("bar").value = (a / total) * 100; }
+      if (k === "loader") sayK("loader");
+      if (k === "write") { sayK("write"); $("bar").value = ((74 + a) / total) * 100; }
+      if (k === "reboot") sayK("reboot");
+      if (k === "done") { $("bar").value = 100; sayK(foreign ? "stockdone" : "done"); }
+    };
+    const ota = await up.find((id) => /^ota-/i.test(id.model));
+    if (ota) {
+      // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
+      ota.link.close();
+      const ok = await up.resume(img, step, product);
+      $("bar").value = ok ? 100 : $("bar").value;
+      sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");
+    } else {
+      const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
+      const r = await installKeepingSlots(up, img, product, board, {
+        step, sameKeyboard,
+        say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
+        progress: (f) => { $("bar").value = Math.min(100, f * 100); },
+        save: (file, name) => {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+          log(t("slotsaved") + name);
+        },
+      });
+      if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
+      else if (r.move) {
+        $("bar").value = 100;
+        sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
+      }
+    }
+    await scan();
+  } catch (e) {
+    // Stock / other custom firmware often reports a different identity string than the package marker.
+    if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
+    else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
+    else sayK("error", e && e.message);
+    log(String(e && e.stack || e));
+    led("err");
+  }
+  writing = false;
+  updateInstallGate();
+  $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+}
+
+$("go").addEventListener("click", () => {
+  if (!image || !selectedProduct || writing || $("go").disabled) return;
+  if (!confirmWrite(selectedProduct)) return;
+  let img = image;
+  if (ctl) {
+    try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
+  }
+  $("go").disabled = true;   // sync before the first await in run()
+  run(img, selectedProduct, { foreign: false });
+});
+$("stockgo").addEventListener("click", () => {
+  if (!stock || !$("stockconfirm").checked || writing) return;
+  if (!confirmWrite(stock.product)) return;
+  $("stockgo").disabled = true;
+  run(stock.image, stock.product, { foreign: true });
+});
+
+(async () => {
+  if (typeof location !== "undefined" && location.hash === "#buildarchive") $("buildarchive").open = true;
+  applyLang();
+  await mergeGitHubReleases();
+  fillVersions();
+  if (navigator.requestMIDIAccess) {
+    // Soft probe without prompting until Connect, unless the browser already granted MIDI.
+  }
+})();
+</script>
+</body>
+</html>

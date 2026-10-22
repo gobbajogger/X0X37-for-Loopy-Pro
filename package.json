@@ -1,0 +1,10 @@
+{
+  "name": "x0x37-nightly-installer-preview",
+  "version": "0.0.0-dev",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-preview.mjs",
+    "test": "node scripts/build-preview.mjs --check && node tests/nightly-preview.test.mjs"
+  }
+}
