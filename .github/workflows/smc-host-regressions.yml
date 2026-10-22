@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - main
-      - cursor/smc-mixer-ui-popup-stage2-repair-5686
     paths:
       - .github/workflows/smc-host-regressions.yml
       - tests/run_tests.sh
