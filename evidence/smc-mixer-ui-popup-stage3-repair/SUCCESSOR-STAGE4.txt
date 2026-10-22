@@ -3,12 +3,13 @@ Stage 4 VALIDATE — SMC mixer UI popup after Stage-2 XIP repair + Stage-3 PASS.
 Fresh stage-4 thread. Read evidence/smc-mixer-ui-popup-stage3-repair/HANDOFF.md and
 stage4-prompt.txt (full assignment).
 
-Candidate SHA: 828298d9db1a403919e7e4c8176db83512281bb2
-Branches: cursor/smc-mixer-ui-popup-stage2-repair-5686 /
-          cursor/smc-mixer-ui-popup-stage3-repair-5686
+Firmware candidate SHA: 828298d9db1a403919e7e4c8176db83512281bb2
+Stage-3 evidence tip (pushed): d1b8903c7cb578422e002bf1eb9a682b25d9e04c on cursor/smc-mixer-ui-popup-stage3-repair-5686
+Also on: cursor/smc-mixer-ui-popup-stage2-repair-5686 @ 828298d9db1a403919e7e4c8176db83512281bb2
 Stage-3 owner: bc-8182b9ce-4a8d-5e10-a8e3-195f08d5e305
 Elite/Pro spot-check on Stage-3 machine: 56 B free, pool_free 8364 (informational).
 Do not install. Do not merge to main.
 
-NOTE: This Stage-3 thread has no CreateAgent / ManagePullRequest tool in this
-environment. Parent must launch Stage 4 with stage4-prompt.txt.
+NOTE: This Stage-3 thread could not create a cloud successor (no CreateAgent /
+ManagePullRequest tool). Parent must launch Stage 4 with stage4-prompt.txt.
+PR: gh createPullRequest 403. Parent may open draft PR from the Stage-3 branch if needed.
