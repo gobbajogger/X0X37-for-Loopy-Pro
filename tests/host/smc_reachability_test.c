@@ -13,7 +13,12 @@ static void ck_set(uint32_t f, uint32_t v) { fields[f] = v; }
 static const char *ck_val_txt(uint32_t f, uint32_t v, char *s) { (void)f; sprintf(s,"%u",v); return s; }
 #include "clip_smc.inc"
 uint8_t smk_clip_mode_on(void) { return clip_grid_mode; }
-int plat_ble_smc_send(const uint8_t *msg, uint8_t len) { (void)msg; (void)len; return 1; }
+static uint8_t led_vel[128];
+int plat_ble_smc_send(const uint8_t *msg, uint8_t len) {
+    if (msg && len >= 3 && (msg[0] & 0xF0) == 0x90 && msg[1] < 128)
+        led_vel[msg[1]] = msg[2];
+    return 1;
+}
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -73,9 +78,117 @@ static void edit(pref_t r, int n) {
     int old=pref_get(r), delta=old==d->max?-1:1;
     turn(n,delta); assert(pref_get(r)!=old);
 }
+/* A fast spin on strip 5 must not accelerate strip 1, or the panel's first knob. */
+static void knob_accel_isolated(void) {
+    pref_t slow, fast;
+    const x0x_param_t *ds, *df;
+    int before;
+    uint8_t panel_run;
+    smc_view(V_HOME, 0);
+    slow = smc_knob_target(0);
+    fast = smc_knob_target(4);
+    ds = pref_desc(slow);
+    df = pref_desc(fast);
+    assert(ds && df && ds->max >= 24 && df->max >= 24);
+    pref_set(slow, 40);
+    pref_set(fast, 40);
+    ui.enc_run[EN_K1] = 9;
+    ui.enc_t[EN_K1] = now_ms;
+    panel_run = ui.enc_run[EN_K1];
+    for (int i = 0; i < 6; i++) {
+        uint8_t msg[3] = {0xB0, 20, 1};
+        now_ms += 10;
+        smc_ble_midi(msg, 3);
+        smc_poll();
+    }
+    before = pref_get(slow);
+    now_ms += 10;
+    {
+        uint8_t msg[3] = {0xB0, 16, 1};
+        smc_ble_midi(msg, 3);
+        smc_poll();
+    }
+    assert(pref_get(slow) == before + 1);
+    assert(ui.enc_run[EN_K1] == panel_run);
+}
+/* Panel part change must move the lit Record strip even if smc.rec_part is stale. */
+static void record_lamp_follows_part(void) {
+    memset(led_vel, 0, sizeof led_vel);
+    smc_view(V_HOME, 0);
+    ui.rec = 1;
+    ui.part = 0;
+    smc.rec_part = 0;
+    smc_frame();
+    assert(led_vel[0] == 127);
+    assert(led_vel[2] == 0);
+    ui.part = 2;                       /* panel SELECT / part change; no SMC Record press */
+    for (int i = 0; i < 128; i++) smc.known[i] = 0;
+    smc_frame();
+    assert(led_vel[0] == 0);
+    assert(led_vel[2] == 127);
+    ui.rec = 0;
+    for (int i = 0; i < 128; i++) smc.known[i] = 0;
+    smc_frame();
+    assert(led_vel[2] == 0);
+}
+/* Nav lamps on strips 6–8 must follow their own shortcut, not one shared page formula. */
+static void nav_strip_lamps(void) {
+    memset(led_vel, 0, sizeof led_vel);
+    for (int i = 0; i < 128; i++) smc.known[i] = 0;
+    smc_view(V_FX, 0);
+    smc_frame();
+    assert(led_vel[29] == 127);        /* SELECT 6 = reverb */
+    assert(led_vel[30] == 0);          /* SELECT 7 stays dark on reverb */
+    assert(led_vel[13] == 0);          /* S6 is MIX, not FX */
+    smc_view(V_FX, 1);
+    for (int i = 0; i < 128; i++) smc.known[i] = 0;
+    smc_frame();
+    assert(led_vel[29] == 0);
+    assert(led_vel[30] == 127);
+    smc_view(V_MIX, 3);
+    for (int i = 0; i < 128; i++) smc.known[i] = 0;
+    smc_frame();
+    assert(led_vel[31] == 127);        /* SELECT 8 = master MIX page */
+    assert(led_vel[7] == 0);           /* R8 only on HOME */
+    assert(led_vel[13] == 127);        /* S6 on any MIX page */
+    smc_view(V_HOME, 0);
+    for (int i = 0; i < 128; i++) smc.known[i] = 0;
+    smc_frame();
+    assert(led_vel[7] == 127);
+    assert(led_vel[31] == 0);
+}
+/* Help must block a fader that already sits on the target (pickup would otherwise fire).
+ * Inject the active preset's fader format directly (skip HCI fragment assembly). */
+static void help_blocks_near_fader(void) {
+    pref_t r = smc_target(0);
+    int old, user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+    uint8_t at, msg[3];
+    smc_view(V_HOME, 0);
+    pref_set(r, 64);
+    smc.picked = smc.seen = 0;
+    smc_frame();
+    at = smc_scaled(r);
+    if (user) { msg[0] = 0xBF; msg[1] = 40; msg[2] = 0; }
+    else { msg[0] = 0xE0; msg[1] = 0; msg[2] = 0; }
+    smc_ble_midi(msg, 3); smc_poll();
+    msg[2] = at;
+    smc_ble_midi(msg, 3); smc_poll();
+    assert(smc.picked & 1);
+    old = pref_get(r);
+    ui.help = 1;
+    msg[2] = (uint8_t)(at < 127 ? at + 1 : at - 1);
+    smc_ble_midi(msg, 3); smc_poll();
+    assert(ui.help && pref_get(r) == old);
+    ui.help = 0;
+}
 static void scenario(void) {
     clip_grid_mode=0; ck.pg=0; memset(fields,0,sizeof fields); memset(&smc,0,sizeof smc);
-    memset(&ui,0,sizeof ui); boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
+    memset(&ui,0,sizeof ui); memset(led_vel,0,sizeof led_vel);
+    boot(); proj.set.bt=PROJ_BT_SMC_CENTRAL | (user_route()?PROJ_BT_SMC_USER:0); smc_ble_link(1); smc_poll();
+    knob_accel_isolated();
+    record_lamp_follows_part();
+    nav_strip_lamps();
+    help_blocks_near_fader();
     if(route>=3) {
         uint8_t addr[6]={0};blec_init(&receiver,hci_send,hci_midi,0,addr);receive_ready();
         const uint8_t partial[]={0xF0,0x7F,0x7F};hci_input(partial,3,0);

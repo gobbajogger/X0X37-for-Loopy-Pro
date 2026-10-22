@@ -30,6 +30,8 @@ static struct {
     uint8_t up, fresh, solo, rec_part;
     uint8_t lit[128], known[128];
     uint8_t fx_restore[3];
+    uint32_t knob_t;                   /* acceleration of the knob now turning, not a panel encoder */
+    uint8_t knob_run, knob_i;
 } smc;
 
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
@@ -199,6 +201,10 @@ static void smc_fader(int n, uint8_t v)
     int crossed, nv;
     if (n < 0 || n >= 8)
         return;
+    /* Match knobs and docs: help / confirmation leave faders inactive even when
+     * the physical position is already within pickup of the target. */
+    if (ui.overlay == O_ASK || ui.help)
+        return;
     smc_notice(n);
     bit = (uint8_t)(1u << n);
     r = smc.target[n];
@@ -228,6 +234,8 @@ show:
 
 static void smc_knob(int n, int delta)
 {
+    uint32_t saved_t;
+    uint8_t saved_run;
     if (ui.overlay == O_ASK || ui.help)
         return;
     if (ui.overlay == O_NONE && smk_ck_smc_turn(n, delta))
@@ -235,7 +243,23 @@ static void smc_knob(int n, int delta)
     pref_t r = smc_knob_target(n);
     if (r.kind == R_NONE || r.kind == R_HDR || r.kind == R_ACT)
         return;
-    turn_ref(r, delta, EN_K1 + n % 4);
+    /* Eight strips share one acceleration slot. Keep it off the panel encoders, and
+     * start again when the finger moves to another strip. */
+    saved_t = ui.enc_t[EN_K1];
+    saved_run = ui.enc_run[EN_K1];
+    if (smc.knob_i != (uint8_t)(n + 1)) {
+        ui.enc_t[EN_K1] = 0;
+        ui.enc_run[EN_K1] = 0;
+        smc.knob_i = (uint8_t)(n + 1);
+    } else {
+        ui.enc_t[EN_K1] = smc.knob_t;
+        ui.enc_run[EN_K1] = smc.knob_run;
+    }
+    turn_ref(r, delta, EN_K1);
+    smc.knob_t = ui.enc_t[EN_K1];
+    smc.knob_run = ui.enc_run[EN_K1];
+    ui.enc_t[EN_K1] = saved_t;
+    ui.enc_run[EN_K1] = saved_run;
     ui.act_t = plat_ms();
     smc_show(n, 1, r);
 }
@@ -485,6 +509,7 @@ void smc_poll(void)
         smc.up = link == 1u;
         smc.fresh = smc.up;
         smc.picked = smc.seen = 0;
+        smc.knob_i = 0;
         smc.pending = 0xFFu;
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         if (!smc.up) {
@@ -496,6 +521,7 @@ void smc_poll(void)
     }
     if (!allow || ui.overlay == O_ASK || ui.help) {
         smc.picked = smc.seen = 0;
+        smc.knob_i = 0;
         if (smc.solo) {
             smc.solo = 0;
             engine_smc_solo(0);
@@ -547,15 +573,22 @@ static int smc_led(int note)
     }
     if (note < 32) {
         if (strip < NPARTS) {
-            if (row == 0) return ui.rec && smc.rec_part == strip;
+            /* Panel REC and part changes update ui.part / ui.rec without smc.rec_part. */
+            if (row == 0) return ui.rec && ui.part == strip;
             if (row == 1) return !!(smc.solo & (1u << strip));
             if (row == 2) return part_muted(strip);
             return ui.part == strip;
         }
+        /* Strips 6–8: M = mute/zero; R/S/SELECT are the nav shortcuts in SMC_MIXER.md.
+         * Do not reuse one page formula for Rec/Solo/Select — that over-lit FX and MIX. */
         if (row == 2) return pref_get(strip == 7 ? PR(R_ENG, T_FX, 0, FX_VOLUME) :
                                      smc_home_target(strip)) == 0;
-        return (strip == 5 && ui.view == V_FX) || (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
-               (strip == 7 && (ui.view == V_MIX || ui.view == V_HOME));
+        if (row == 0) return strip == 7 && ui.view == V_HOME;                 /* R8 */
+        if (row == 1) return (strip == 5 && ui.view == V_MIX) ||              /* S6 */
+                             (strip == 7 && ui.view == V_PART);               /* S8; S7 is note 14 */
+        return (strip == 5 && ui.view == V_FX && cur_page() == 0) ||          /* SELECT 6 */
+               (strip == 6 && ui.view == V_FX && cur_page() == 1) ||          /* SELECT 7 */
+               (strip == 7 && ui.view == V_MIX && cur_page() == 3);           /* SELECT 8 */
     }
     if (note == 0x5D) return !seq.playing;
     if (note == 0x5E) return seq.playing;

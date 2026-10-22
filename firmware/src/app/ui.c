@@ -4078,7 +4078,7 @@ static uint16_t footer_text(const char **a, const char **b, const char **c)
 #if BOARD_SMK37
         if (smc_connected()) {
             *a = "SMC F1-5: PART LEVEL";
-            *b = "F6: REV  F7: DLY  F8: MST";
+            *b = "F6: REV  F7: DLY  F8: FILT"; /* fader 8 = master filter; M8 mutes master out */
             return C_AMB;
         }
 #endif
