@@ -604,15 +604,8 @@ void smc_poll(void)
     }
     if (!allow || ui.overlay == O_ASK || ui.help) {
         smc.picked = smc.seen = 0;
-<<<<<<< HEAD
-        if (smc_project_active()) smc_solo_clear();
-=======
         smc.knob_i = 0;
-        if (smc.solo) {
-            smc.solo = 0;
-            engine_smc_solo(0);
-        }
->>>>>>> fc23ca2 (Separate SMC mixer knob acceleration from the panel encoders.)
+        if (smc_project_active()) smc_solo_clear();
     }
     while (smc_qr != smc_qw && count++ < SMC_Q) {
         r = smc_qr;
