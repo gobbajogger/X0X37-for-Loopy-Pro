@@ -18,8 +18,8 @@
   "cloud_agents_api": "POST /v0|/v1/agents rejected OIDC pod token as Invalid User API Key; no CURSOR_API_KEY in environment",
   "agent_source": "AS_SUBAGENT_FROM_CLOUD",
   "stage3_owner": "bc-eb2cd134-02cf-5366-b36c-e1c3258ad760",
-  "parent_action_required": "Launch exactly one fresh Stage 4 Validate cloud agent with SUCCESSOR-STAGE4.txt / stage4-prompt.txt on tip f0cc9b86024d63a2ebc8a955348bcba8d3cb512a of cursor/smc-mixer-ui-popup-stage3-5686. Prefer updating draft PR #10 (or opening a draft PR from stage-3 tip against main); token here cannot create/update PRs.",
-  "tip": "f0cc9b86024d63a2ebc8a955348bcba8d3cb512a",
+  "parent_action_required": "Launch exactly one fresh Stage 4 Validate cloud agent with SUCCESSOR-STAGE4.txt / stage4-prompt.txt on tip db01671a027e2a98167248d454f7b82f2d85617e of cursor/smc-mixer-ui-popup-stage3-5686. Prefer updating draft PR #10 (or opening a draft PR from stage-3 tip against main); token here cannot create/update PRs.",
+  "tip": "db01671a027e2a98167248d454f7b82f2d85617e",
   "pushed": false,
   "remote": "origin/cursor/smc-mixer-ui-popup-stage3-5686"
 }
