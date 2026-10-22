@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X0X for the SMK-37 · Loopy Pro</title>
+<meta name="description" content="Groovebox firmware for the M-VAVE SMK-37 (and FM-1): install any version in the browser, import your own break samples.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<style>
+:root { --ground: #f4f5f6; --ink: #1c1f23; --muted: #5b626a; --rule: #d9dde1; --accent: #c8700a; --card: #fff; color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ground: #131518; --ink: #e6e8eb; --muted: #9aa1a9; --rule: #2d3137; --accent: #f0a043; --card: #1a1d21; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --ground: #131518; --ink: #e6e8eb; --muted: #9aa1a9; --rule: #2d3137; --accent: #f0a043; --card: #1a1d21; color-scheme: dark; }
+body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 48px 64px;
+       font: 400 17px/1.6 "Barlow", "Helvetica Neue", Arial, sans-serif; }
+main { max-width: 40rem; margin: 0 auto; }
+h1 { font: 700 2.6rem/1.1 "Barlow Semi Condensed", "Barlow", sans-serif; margin: 0 0 .4rem; }
+.lede { color: var(--muted); margin: 0 0 1.6rem; max-width: 34rem; }
+.status { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; padding: 12px 16px; margin: 0 0 2rem; }
+.ways { display: grid; gap: 12px; margin: 0 0 2rem; }
+.ways a { display: block; text-decoration: none; color: var(--ink); background: var(--card); border: 1px solid var(--rule);
+          border-radius: 10px; padding: 14px 18px; }
+.ways a:hover, .ways a:focus-visible { border-color: var(--accent); outline: none; }
+.ways .card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 18px; }
+.ways .card a { color: var(--accent); text-decoration: none; border: 0; padding: 0; background: none; display: inline; }
+.ways .card a:hover, .ways .card a:focus-visible { text-decoration: underline; }
+.ways .card a.new { font: 400 .95rem "Barlow", sans-serif; margin-left: .5rem; }
+.ways strong { font: 600 1.25rem "Barlow Semi Condensed", "Barlow", sans-serif; color: var(--accent); display: block; }
+.ways span { color: var(--muted); font-size: .95rem; }
+p.small { color: var(--muted); font-size: .9rem; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<h1>X0X</h1>
+<p class="lede">Groovebox firmware for the M-VAVE SMK-37 (Pro, Elite, MKE-P37) and the FM-1.
+A 909, an 808, two 303s with TB-3PO, and a breakbeat player — with an APC40-style clip launcher
+for Loopy Pro on the SMK-37.</p>
+<div class="status">Install any published version from Chrome or Edge over USB. The sample importer
+puts your own loops into the BREAK slots. Installing is at your own risk; packages keep the
+keyboard's model name so M-UPGRADE still works.</div>
+<nav class="ways" aria-label="Get X0X">
+  <div class="card"><strong><a href="install/">Install</a> <a class="new" href="new/">What's new?</a></strong><span>Upgrade, downgrade, or switch: pick a published version and model, or drop any .fwsc (stock / other custom). Nothing to install on the computer.</span></div>
+  <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part from Chrome or Edge.</span></a>
+  <a href="projects/"><strong>Projects</strong><span>Save, load and reset on the keyboard, or export a project with its original samples.</span></a>
+  <a href="manual/"><strong>Manual</strong><span>Getting started, then everything else — including the SMK-37 map.</span></a>
+  <a href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases"><strong>All releases</strong><span>Firmware files for the command line: <code>python3 tools/fm1_install.py …</code></span></a>
+  <a href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro"><strong>Source</strong><span>GitHub, GPL-3.0. Built on Felucca by Hügelton Instruments.</span></a>
+</nav>
+<p class="small">SMK-37 control map: see <a href="https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/SMK37.md">SMK37.md</a>.
+To go back to the official firmware, use M-VAVE's M-UPGRADE from
+<a href="https://www.m-vave.com/download">m-vave.com/download</a>, or drop the stock .fwsc on the install page.
+M-VAVE, FM-1 and SMK-37 are trademarks of their owners. Loopy Pro is a product of A Tasty Pixel.</p>
+</main>
+</body>
+</html>
