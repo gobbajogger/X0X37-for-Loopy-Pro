@@ -29,6 +29,10 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
+/* MMC STOP must survive a saturated, per-source queue. The audio ISR only
+ * publishes generations; the main loop acknowledges them after queued input. */
+static volatile uint32_t smc_mmc_stop_published[2];
+static uint32_t smc_mmc_stop_seen[2];
 static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
@@ -80,6 +84,8 @@ X0X_COLD static void smc_project_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
+    smc_mmc_stop_seen[0] = smc_mmc_stop_published[0];
+    smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
 }
 X0X_COLD void smc_project_reset(void)
 {
@@ -138,8 +144,11 @@ void smc_mmc_host(uint8_t cmd, uint8_t src)
     if (src > 1u || cmd < 1u || cmd > 43u)
         return;
     w = smc_mmc_w[src];
-    if ((uint8_t)(w - smc_mmc_r[src]) >= 16u)
+    if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
+        /* User-preset MMC command 34 is STOP. Never drop it on overload. */
+        if (cmd == 34u) smc_mmc_stop_published[src]++;
         return;
+    }
     smc_mmc_q[src][w % 16u] = cmd;
     __asm__ volatile("" ::: "memory");
     smc_mmc_w[src] = (uint8_t)(w + 1u);
@@ -647,6 +656,14 @@ void smc_poll(void)
             smc_mmc_r[src] = (uint8_t)(r + 1u);
             if (proj.set.bt & PROJ_BT_SMC_USER)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
+        }
+        /* STOP follows older queued PLAYs; compare a published snapshot so
+         * a newer ISR write remains visible on the next main-loop poll. */
+        uint32_t lost_stop = smc_mmc_stop_published[src];
+        if (lost_stop != smc_mmc_stop_seen[src]) {
+            smc_mmc_stop_seen[src] = lost_stop;
+            if (proj.set.bt & PROJ_BT_SMC_USER)
+                smc_guarded_button(0x5Du, 1, allow);
         }
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
