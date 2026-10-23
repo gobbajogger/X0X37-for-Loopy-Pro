@@ -165,7 +165,9 @@ const TEXT = {
     install: "インストール", other: "English", connect: "接続",
     connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
     connected: "接続済み", notconnected: "未接続", looking: "探しています…",
-    otahelp: "書き込みモードです。パッケージを選んでインストールを押すと続きから書けます。",
+    otahelp: "復旧用の書き込みモードです。この状態ではサンプルを自動保存できません。既存の .x0xslots バックアップがあるか、保存するサンプルがなかった場合にのみ続行してください。",
+    otaconfirm: "復旧モード：今はサンプルを読み出してバックアップできません。\n\n外部に保存済みの .x0xslots バックアップを自分で確認した、または保存すべきサンプルがなかったと確信している場合のみ［OK］を押してください。\n\nそうでない場合、続けるとサンプルが失われる可能性があります。［キャンセル］なら書き込みません。確認しましたか？",
+    otabackup: "何も書き込んでいません。復旧モードではサンプルを確認・保存できません。既存の .x0xslots バックアップかサンプルがなかったことを確認し、同じパッケージでもう一度実行してください。",
     flashother: "別の機種名で書き込む",
     modelwhy: "同じファームウェアを別の機種名で書き込みます。キーボード本来の機種（古い Elite は Pro と出ることがあります）を選ぶと、あとで M-VAVE の純正に戻せます。Starrykey 37 Play は SMK-37 Pro を使います。",
     manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
@@ -181,7 +183,7 @@ const TEXT = {
     stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
     stock1: "純正が必要なら機種の公式 .fwsc を入手:",
     stock2: "任意の .fwsc を下にドロップ（または選択）。",
-    stock3: "USB で接続し、確認にチェックして書き込む。途中で止まったら挿し直して同じファイルでもう一度。",
+    stock3: "USB で接続して確認にチェックし、書き込みます。途中で止まったら同じファイルで再試行できますが、復旧モードでは以前のサンプルバックアップ（またはサンプルがないこと）の追加確認が必要です。",
     stockdrop: "ここに .fwsc をドロップ、またはクリックして選択",
     stockconfirm: "これはこのキーボード向けのファームウェアです（機種が合っている）",
     stockinstall: "このパッケージを書き込む",
@@ -191,7 +193,7 @@ const TEXT = {
     stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
     confirm: "書き込みますか？\n\n接続中: ",
     confirmto: "\n書き込む: ",
-    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。サンプル・スロットが消える場合は先にファイルへ保存します。USB を抜かないでください。",
+    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。通常モードで読み出せるスロットは、必要なら書き込み前に保存します。復旧モードでは自動保存できないため、別途確認が必要です。USB を抜かないでください。",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
     reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
@@ -230,7 +232,9 @@ const TEXT = {
     install: "Install", other: "日本語", connect: "Connect",
     connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
     connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
-    otahelp: "Update mode. Choose a package and press Install to finish (or resume) the write.",
+    otahelp: "Recovery/update loader. Automatic sample backup is unavailable in this mode. Resume only if you have an existing .x0xslots backup or know there were no samples to preserve.",
+    otaconfirm: "RECOVERY MODE: Sample slots cannot be read or backed up while the device is in the update loader.\n\nPress OK ONLY if you personally verified that a .x0xslots backup is already safely saved outside this browser, or know there were no samples to preserve.\n\nContinuing without that protection can permanently erase samples. Cancel stops without writing. Have you verified this?",
+    otabackup: "Nothing was written. Sample slots cannot be checked in update mode. Verify your previously saved .x0xslots backup or that there were no samples, then retry with the same package.",
     flashother: "Flash another keyboard version",
     modelwhy: "The same firmware under another model name. Pick your keyboard's own model (an Elite running an older build may report SMK-37 Pro), so M-VAVE's updater accepts its factory firmware again. Starrykey 37 Play: use SMK-37 Pro.",
     manual: "The manual", whatsnew: "What's new", download: "Download this package",
@@ -246,7 +250,7 @@ const TEXT = {
     stockwhy: "Upgrade, downgrade, switch to another custom firmware, or return to stock the same way. Packages keep the keyboard's model name; calibration and pairing are never touched. If sample slots would be lost, they are saved to a .x0xslots file first.",
     stock1: "For stock, get the official .fwsc for your model:",
     stock2: "Drop any .fwsc below (or click to choose it).",
-    stock3: "Connect by USB, tick the confirmation, and install. If a write stops halfway, replug and install the same file again to resume.",
+    stock3: "Connect by USB, confirm the model, and install. After an interrupted write, replug and choose the same file; recovery mode additionally requires verifying a previous sample backup or no samples.",
     stockdrop: "Drop the .fwsc file here, or click to choose it",
     stockconfirm: "This package is for this keyboard (matching model)",
     stockinstall: "Install this package",
@@ -256,7 +260,7 @@ const TEXT = {
     stockdone: "Done. The device has restarted with the new firmware.",
     confirm: "Install this firmware?\n\nConnected: ",
     confirmto: "\nWill write: ",
-    confirmrisk: "\n\nCalibration and pairing are never touched. If sample slots would be lost, they are saved to a file first. Keep USB connected until Done.",
+    confirmrisk: "\n\nCalibration and pairing are never touched. The normal installer backs up at-risk readable slots before writing; update-loader recovery cannot do so and requires separate confirmation. Keep USB connected until Done.",
     nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
@@ -709,6 +713,11 @@ async function run(img, product, opts = {}) {
     if (ota) {
       // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
       ota.link.close();
+      // Already in the loader: SMP_INFO and prewrite slot backup are unavailable.
+      // This is a deliberate manual recovery override, never an inferred backup PASS.
+      if (!window.confirm(t("otaconfirm"))) {
+        throw Object.assign(new Error(t("otabackup")), { code: "otabackup" });
+      }
       const ok = await up.resume(img, step, product);
       $("bar").value = ok ? 100 : $("bar").value;
       sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");

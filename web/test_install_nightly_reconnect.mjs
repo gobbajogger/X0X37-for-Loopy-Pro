@@ -15,15 +15,18 @@ const scan = extract("async function scan(allowPostWrite = false) {");
 const run = extract("async function run(img, product, opts = {}) {");
 assert.match(scan, /if \(writing && !allowPostWrite\) return;/);
 assert.match(run, /await scan\(true\)/);
+assert.match(run, /!window\.confirm\(t\("otaconfirm"\)\)/);
+assert.match(html, /otaconfirm: "RECOVERY MODE/);
+assert.match(html, /otaconfirm: "復旧モード/);
 assert.match(run, /if \(writing\) return;/);
 assert.match(html, /if \(!image \|\| !selectedProduct \|\| writing \|\| \$\("go"\)\.disabled \|\|/);
 let passed = 0;
 for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
-  for (const mode of ["normal", "resume", "missing", "failure", "denied", "pending", "revoked"]) {
+  for (const mode of ["normal", "resume", "resume-cancel", "missing", "failure", "denied", "pending", "revoked"]) {
     let grant;
     const permission = new Promise(resolve => { grant = resolve; });
     const state = { writes: 0, postScan: 0, connected: null, lockHeld: true,
-      messages: [], midiCalls: 0 };
+      messages: [], midiCalls: 0, otaPrompts: 0 };
     const ui = Object.fromEntries(["go", "stockgo", "stockconfirm", "conn", "bar"]
       .map(id => [id, { disabled: false, checked: true, textContent: "", value: 0 }]));
     let ctx;
@@ -44,7 +47,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
             return predicate(id) ? { id, name: "Keyboard", link: { close() {} } } : null;
           }
           const ota = { model: "ota-" + model.split("_")[0], text: "ota" };
-          return mode === "resume" && predicate(ota)
+          return ["resume", "resume-cancel"].includes(mode) && predicate(ota)
             ? { id: ota, link: { close() {} } } : null;
         }
         async resume() { state.writes++; return true; }
@@ -61,7 +64,8 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       currentVersion: () => ({ models: { elite: {}, pro: {} } }),
       isCatalogChecked: () => mode !== "revoked",
       sampleImage: new Uint8Array([1]),
-      stock: null, TEXT: { en: { lost: "lost" } }, lang: "en",
+      stock: null, TEXT: { en: { lost: "lost", otabackup: "Prior backup needed" } }, lang: "en",
+      window: { confirm: () => { state.otaPrompts++; return mode !== "resume-cancel"; } },
       Blob, URL, setTimeout,
       document: { createElement: () => ({ click() {}, remove() {} }),
         body: { appendChild() {} } }
@@ -81,11 +85,18 @@ globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writi
       await Promise.all([first, second]);
     } else await first;
     assert.equal(ctx.isWriting(), false, model + " " + mode + ": leaked write lock");
+    assert.equal(state.otaPrompts, ["resume", "resume-cancel"].includes(mode) ? 1 : 0,
+      model + " " + mode + ": unexpected recovery confirmation");
     if (mode === "denied") {
       assert.equal(state.writes, 0, "permission refused after write started");
       assert.equal(state.messages.at(-1), "denied");
       assert.equal(ui.go.disabled, false, "permission denial retry blocked");
       assert.equal(state.postScan, 0);
+    } else if (mode === "resume-cancel") {
+      assert.equal(state.writes, 0, "cancelled loader recovery performed a write");
+      assert.equal(state.postScan, 0, "cancelled loader recovery rescanned after a write");
+      assert.equal(state.messages.at(-1), "otabackup", "missing actionable recovery refusal");
+      assert.equal(ui.go.disabled, false, "rejected loader recovery left retry disabled");
     } else if (mode === "failure") {
       assert.equal(state.postScan, 0, "failed write masked by rescan");
       assert.equal(state.messages.at(-1), "lost");

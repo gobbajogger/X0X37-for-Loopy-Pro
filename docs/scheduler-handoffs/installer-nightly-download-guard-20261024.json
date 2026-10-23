@@ -474,5 +474,80 @@
       "separate NIGHTLY site equivalent source PR and independent QA",
       "sole publisher independent HTTP bytes/source/license/model/controller gates"
     ]
+  },
+  "latest_ota_recovery": {
+    "evidence_revision": "installer-ota-loader-manual-backup-consent-20261024-r1",
+    "consumed": {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_commit": "57fb8f1ae90ec9ce23051c86e5e8bc0224fc68dd",
+      "root_tree": "21d79dbc3b1120667f2935b0c9691a90c1a21412",
+      "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "installer_blob": "10d3c3c8565872bfbbc6a2dd4b6cd1c30a0a3776",
+      "reconnect_test_blob": "682c10fe224e76c26c2913d7400a7d99b1d17598",
+      "cli_pr104_source": "0482ca12a008eb69b278512979e48f1af47d2da9"
+    },
+    "deliverables": {
+      "source_path": "web/x0x_installer.html",
+      "test_path": "web/test_install_nightly_reconnect.mjs",
+      "report_path": "docs/installer-nightly-download-guard-20261024.md",
+      "manifest_path": "docs/scheduler-handoffs/installer-nightly-download-guard-20261024.json",
+      "firmware_subtree_unchanged": true
+    },
+    "behavior": {
+      "old": "already-loader OTA resume without prior backup acknowledgement",
+      "new": "explicit owner-backed existing archive/no-samples acknowledgement, cancel before Updater.resume; normal running prewrite unchanged",
+      "archive_provenance": "UNKNOWN_NOT_VERIFIED"
+    },
+    "executed": [
+      {
+        "executor": "connected GitHub V8",
+        "command": "exact source run() mocked old-loader cancellation Elite/Pro",
+        "exit_code": null,
+        "result": "2/2 expected prior unsafe writes"
+      },
+      {
+        "executor": "connected GitHub V8 Node boundary shims",
+        "command": "full edited web/test_install_nightly_reconnect.mjs using full edited web/x0x_installer.html source",
+        "exit_code": null,
+        "result": "16/16 Web MIDI/OTA/reconnect plus 10/10 restoration scenarios PASS"
+      },
+      {
+        "executor": "connected GitHub V8",
+        "command": "new Function(full inline module after generator LIB/catalog placeholder substitution)",
+        "exit_code": null,
+        "result": "PASS syntax, EN/JA keys present"
+      },
+      {
+        "executor": "native Linux x86_64",
+        "command": "node --version",
+        "exit_code": 0,
+        "result": "v22.16.0"
+      },
+      {
+        "executor": "native Linux x86_64",
+        "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+        "exit_code": 128,
+        "result": "DNS could not resolve github.com"
+      },
+      {
+        "executor": "native full checkout",
+        "command": "node web/test_install_nightly_reconnect.mjs && node web/test_install_slots.mjs; OTA/backup full browser EN/JA 320/390/1280",
+        "exit_code": null,
+        "result": "NOT_RUN"
+      }
+    ],
+    "stage": "SOURCE_PRODUCER_CHECKED_V8__INDEPENDENT_NATIVE_QA_PENDING",
+    "next_owner": "Independent QA",
+    "remaining_gate": "whole-branch native Node and real browser/OTA/backup/interrupt regression, independent source review, then sole Safe Merge; separate NIGHTLY website source/QA/merger/publisher; immutable model-controller-license-host check before install",
+    "publication": {
+      "firmware_nightly": false,
+      "website_main": false,
+      "website_gh_pages": false,
+      "download_http_verified": false,
+      "elite_installable": false,
+      "pro_installable": false,
+      "physical_pass": false
+    }
   }
 }
