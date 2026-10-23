@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build-preview.mjs",
-    "test": "node scripts/build-preview.mjs --check && node tests/nightly-preview.test.mjs"
+    "test": "node scripts/build-preview.mjs --check && node tests/nightly-preview.test.mjs && npm run catalog:check",
+    "catalog:check": "node scripts/verify-build-status.mjs"
   }
 }
