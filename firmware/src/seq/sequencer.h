@@ -149,6 +149,7 @@ typedef struct {
     uint32_t ext_beat[SEQ_EXT_BEATS]; /* ext_now at the last beats (24 external clocks each), a ring */
     uint8_t ext_nb, ext_bi, ext_q;    /* beats in the ring, the next ring slot, clocks into this beat */
     volatile uint32_t ext_pending;    /* external clocks received, not yet consumed */
+    volatile uint32_t req_prior_ticks;/* ticks queued before latest Start/Continue request */
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */

@@ -726,6 +726,11 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             s->ext_now - s->start_at < (seq_step_q8(s, part_rate(s, TRK_DRUM)) >> 8))
             s->req_start = s->req_cont = 0;
         else {
+            /* MIDI packets in one audio block may bracket Start/Continue.
+             * Count only ticks after an accepted request for its new phase.
+             * An ignored Loopy PLAY echo must retain every queued tick. */
+            s->ext_pending = s->ext_pending >= s->req_prior_ticks
+                ? s->ext_pending - s->req_prior_ticks : 0;
             if (s->req_start) {
                 s->req_start = 0;
                 do_start(s, 1, o);
@@ -798,12 +803,14 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 /* Publish the request type last: seq_advance must see its matching origin. */
 static void request_start(seq_t *s, int remote)
 {
+    s->req_prior_ticks = s->ext_pending; /* clocks before this request belong to the older epoch */
     s->req_cont = 0;
     s->req_rt = (uint8_t)remote;
     s->req_start = 1;
 }
 static void request_continue(seq_t *s, int remote)
 {
+    s->req_prior_ticks = s->ext_pending;
     s->req_start = 0;
     s->req_rt = (uint8_t)remote;
     s->req_cont = 1;
