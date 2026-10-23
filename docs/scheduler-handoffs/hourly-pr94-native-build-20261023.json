@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:52:15Z",
+  "role": "LoopyX0X37 Hourly Build — sole native Elite/Pro and private controller compiler",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/smc-ble-acl-start-pb0-pb3-20261023-1406",
+    "tested_commit": "9083dc35a5e270930323b44dde7bdc5916f826f1",
+    "tested_tree": "447582f9bf505c2d448010b7ab23dd36e1ed7a33",
+    "pr": 94
+  },
+  "summary": "Real pinned Linux JieLi DEV Elite and Pro native builds and local controller EXIT 0 on Git-verified PR94 firmware subtree 9f6861806861251e3dde3b2a929f1b6634d1862c; 12 BLE sanitizer/native combinations, 17 isolated host selectors, both model package CRC guards passed. SCOPED BUILD SUCCEEDED UNREVIEWED; full root/QA/distribution NOT INSTALLABLE.",
+  "outputs": [
+    {
+      "kind": "build-manifest",
+      "location": "docs/scheduler-handoffs/hourly-pr94-native-build-20261023.json",
+      "description": "Truthful per-model full SHA256/byte sizes, command exits, budgets, source scope and remaining gates"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/hourly-pr94-native-build-20261023.md",
+      "description": "Reproducible new compiled source PR94 build report, exact pinned inputs, independent QA and Safe Merge handoff"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Pinned SDK V1.2.1 kit",
+      "status": "PASS",
+      "command": "python3 kit.py verify",
+      "exit_code": 0,
+      "evidence": "SDK subset all 11 pins checked; private owner kit; not full source refs",
+      "log_sha256": "acca17584d226851f7f8b4e90e5988569ffb023781641f505d79edf609b2cabe"
+    },
+    {
+      "name": "Elite native target",
+      "status": "PASS",
+      "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "evidence": "Real JieLi Clang 4.0.1 firmware target build, 651396B, Pro separate",
+      "log_sha256": "26d47d3b2a76a82122adf1406a7dc01df68b357c39b752ab4743bed9e3986ec5"
+    },
+    {
+      "name": "Pro native target",
+      "status": "PASS",
+      "command": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "evidence": "Real JieLi Clang 4.0.1 firmware target build, 651392B",
+      "log_sha256": "c2009c1be4f35235fac5ab395e0b05d4c56008bf17f0c828843c3076fcf3ecf8"
+    },
+    {
+      "name": "Bluetooth controller native build",
+      "status": "PASS",
+      "command": "CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+      "exit_code": 0,
+      "evidence": "Locally compiled image only, controller not publicly distributable",
+      "log_sha256": "8b00678d168f230f27c5eadccbd3c5473f0b19d6f26938ee4f4a0bc3127deb26"
+    },
+    {
+      "name": "BLE ACL and SysEx matrix",
+      "status": "PASS",
+      "command": "gcc/clang -std=c11 -O1 -g -Wall -Wextra -Werror [plain|UBSan|ASan+UBSan] -Ifirmware/src -Ifirmware/src/ble tests/host/{ble_acl_start_flags_test,ble_sysex_bounds_test}.c firmware/src/ble/ble_midi_host.c && <binary>",
+      "exit_code": 0,
+      "evidence": "12 real native compile/run pairs; two exact PR94 source-matched test blobs and exact PR94 BLE C blob",
+      "log_sha256": "1248be741178b0041b7bbdda897eddfd4a719f7b1da28ca6211339d6d8159fe0"
+    },
+    {
+      "name": "OTA/package host group",
+      "status": "PASS",
+      "command": "bash tests/run_tests.sh ble-midi-receive smk-package smk-ota-entry smk-ota-entry-model1 smk-ota-entry-model2 smk-update-loader smk-build-package smk-build-package-elite",
+      "exit_code": 0,
+      "evidence": "8/8 named selectors; older runner but current selected test sources verified",
+      "log_sha256": "c902be33e1ce4fcd15c837f484ad29151cdfc382b49c40771531b73ecada1efc"
+    },
+    {
+      "name": "SMC host group",
+      "status": "PASS",
+      "command": "bash tests/run_tests.sh smc-reachability smc-mapping smc-drum-mutes smc-clip-visibility",
+      "exit_code": 0,
+      "evidence": "4/4 named selectors; source-pinned tests",
+      "log_sha256": "e4b3bcbf28b2ba45139f59caf5fd614ca3090b527d8300c92cf1cd1b02b3e71c"
+    },
+    {
+      "name": "BLE standalone",
+      "status": "PASS",
+      "command": "bash tests/run_tests.sh ble",
+      "exit_code": 0,
+      "evidence": "BLE selector finished OK before aggregate worker timeout; no aggregate suite PASS claimed",
+      "log_sha256": "48d923d5b8db4378b7e18fb106f64d5aef0a037de0752521a752ac1732623030"
+    },
+    {
+      "name": "BLE package",
+      "status": "PASS",
+      "command": "timeout 25 bash tests/run_tests.sh ble-package",
+      "exit_code": 0,
+      "evidence": "Single selector 1/1 completed independently",
+      "log_sha256": "0b3659142ffcb4184dbfc6e1d3e9c07a0d3bc5f3fc7e051016c87d0fbf4c7ec2"
+    },
+    {
+      "name": "Slot backup",
+      "status": "PASS",
+      "command": "timeout 25 bash tests/run_tests.sh slot-backup",
+      "exit_code": 0,
+      "evidence": "Single selector 1/1 completed independently",
+      "log_sha256": "c726a9a010a45623b014a4ad897d534dd5ec0f67ba5dfc899cffff758c797100"
+    },
+    {
+      "name": "Installer slot negative",
+      "status": "PASS",
+      "command": "timeout 25 bash tests/run_tests.sh installer-slots",
+      "exit_code": 0,
+      "evidence": "Single selector 1/1 completed independently",
+      "log_sha256": "bfaa2f8691fcc9ed646d0d8c999407d5e391f4ca5a2874377feef09356c1c8a0"
+    },
+    {
+      "name": "Installer controller",
+      "status": "PASS",
+      "command": "timeout 25 bash tests/run_tests.sh installer-ctl",
+      "exit_code": 0,
+      "evidence": "Single selector 1/1 completed independently",
+      "log_sha256": "8870643c396a89feb7714586dd0a5cf60200008dc62b193800e17116eec8e4b5"
+    },
+    {
+      "name": "Controller CRC/check",
+      "status": "PASS",
+      "command": "python3 tools/add_ctl.py ctl.img --check",
+      "exit_code": 0,
+      "evidence": "Native built controller passed CRC/header/image check",
+      "log_sha256": "981c4f76402c135b2b3e33506badec7ba55257e61789b6fcf7fdf457d4aeb17b"
+    },
+    {
+      "name": "Damaged controller negative",
+      "status": "PASS",
+      "command": "bash -c \"python3 tools/add_ctl.py disposable-corrupt-controller.img --check; rc=$?; test $rc -eq 1 && grep -qi \"CRC mismatch\" log\" (wrapper after intentional mutation; exit 0)",
+      "exit_code": 0,
+      "evidence": "Independently re-executed: disposable corrupt controller rejected (inner tool exit 1, CRC mismatch), wrapper asserted expected error and exited 0; damaged copy removed.",
+      "log_sha256": "3708625362ad525e327f2abec24527be11633ce53477d0ad1dbec6edaa726360"
+    },
+    {
+      "name": "Elite package CRC identity",
+      "status": "PASS",
+      "command": "python3 tests/smk_pkg_test.py elite.fwsc 'SMK-37 Elite_900'",
+      "exit_code": 0,
+      "evidence": "20 blocks CRCs and loader/model/product/regions checked",
+      "log_sha256": "8e7ffb6b973257e15e2c05331715507d2ce866dfe9d87f414d506f235856653b"
+    },
+    {
+      "name": "Pro package CRC identity",
+      "status": "PASS",
+      "command": "python3 tests/smk_pkg_test.py pro.fwsc 'SMK-37 Pro_900'",
+      "exit_code": 0,
+      "evidence": "20 blocks CRCs and loader/model/product/regions checked",
+      "log_sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418"
+    },
+    {
+      "name": "Build-source blob/tree recheck",
+      "status": "PASS",
+      "command": "git hash-object 15 pinned files; git write-tree; git ls-tree firmware assets ble",
+      "exit_code": 0,
+      "evidence": "PR94 exact remote firmware 9f686..., assets 0e721..., ble d047..., and 15 pinned build-tool blobs matched",
+      "log_sha256": "b545552bd09d247579881e2ee40e406b00c5df9f5021ca5626e05a4ced922cd3"
+    },
+    {
+      "name": "Full repository native source identity",
+      "status": "NOT_RUN",
+      "command": "git checkout --detach 9083dc35a5e270930323b44dde7bdc5916f826f1 && git rev-parse HEAD HEAD^{tree}",
+      "evidence": "Shell github.com DNS failed (git ls-remote exit 128). Only exact firmware subtree and named build inputs reconstructed; historical root differs."
+    },
+    {
+      "name": "Four external DSP validation refs",
+      "status": "NOT_RUN",
+      "command": "python3 tools/dev_validate.py run --commit <source> --model elite/pro ...",
+      "evidence": "Pinned 9W9/8W8/303/TB3PO checkouts absent; DEV full gate not run."
+    },
+    {
+      "name": "Independent QA",
+      "status": "NOT_RUN",
+      "command": "Review exact source SHA 9083dc35a5e270930323b44dde7bdc5916f826f1 and private artifact SHA256/logs",
+      "evidence": "No independent reviewer disposition on this new compiled PR94 artifact pair."
+    },
+    {
+      "name": "Physical device/HTTP publication",
+      "status": "NOT_RUN",
+      "command": "Owner-operated model-specific flash and independent HTTP byte verification",
+      "evidence": "No hardware/website/publication action attempted; no public immutable artifact URL authorized."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "dev X0X_DEV_PADCAL=1",
+      "artifact": "pr94-SMK37-Elite-BUILD-ONLY.fwsc (private local only, not distributed)",
+      "artifact_bytes": 651396,
+      "artifact_sha256": "ae190f16ce8f546cf8a12d0841d783c4f6c41556266172dff5c6aecb4fea8597",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "BUILD_SUCCEEDED_UNREVIEWED; scoped exact PR94 firmware tree, full root unchecked; product version DEV / semver UNASSIGNED; controller CRC32 77b7a496; not installable"
+    },
+    {
+      "model": "pro",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "dev X0X_DEV_PADCAL=1",
+      "artifact": "pr94-SMK37-Pro-BUILD-ONLY.fwsc (private local only, not distributed)",
+      "artifact_bytes": 651392,
+      "artifact_sha256": "0671629e27489dcaf06f6a23a164a1806788c2b3280e337d9ff36160cacfc2c9",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "BUILD_SUCCEEDED_UNREVIEWED; scoped exact PR94 firmware tree, full root unchecked; product version DEV / semver UNASSIGNED; controller CRC32 77b7a496; not installable"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Fetch PR94 source/tree 9083dc35...; independently rerun full-root BLE/host/data tests and verify private artifact hashes, then Safe Merge to reconcile PR89/#94 with other BLE producers",
+    "gate": "Full-tree QA and complete automatic software/data/license/immutable HTTP checks before any NIGHTLY test publication"
+  },
+  "dependencies": [
+    "PR #89 head ca777a056e7de0075aac30927a4f6b158d55c465 is PR94 parent; both draft, not merged to NIGHTLY",
+    "Firmware NIGHTLY head 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e remains unchanged at build; original firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf.",
+    "Build source obtained through owner bootstrap Git bundle plus independently Git-blob-verified fail-closed baseline projections and PR89/PR94 BLE exact blob; full root remains historical.",
+    "Toolchain ZIP SHA256 ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19; pinned SDK kit ZIP 2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805 11/11.",
+    "PR93 firmware subtree 3fe98ec515b3abafd50a62280632839c2910dd80 previously BUILD_FAILED_BUDGET; NOT rebuilt or relabeled.",
+    "NIGHTLY website versions.json remains empty; no immutable hosted build. Controller is user-built from private JieLi objects and cannot be distributed until licensed."
+  ],
+  "publication": "NOT_PUBLISHED"
+}
