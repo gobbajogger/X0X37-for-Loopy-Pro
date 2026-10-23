@@ -1427,7 +1427,7 @@
       "source_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
       "source_time": "2026-10-23T12:36:42Z",
       "date": "2026-10-23",
-      "status": "not-hosted",
+      "status": "build-succeeded-unreviewed",
       "models": [
         "elite",
         "pro"
@@ -1439,10 +1439,10 @@
       "reported_checks": {
         "origin": "Firmware producer PR #84, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
         "command": null,
-        "result": "Producer PR #84 reports native pinned JieLi 4.0.1 and SDK V1.2.1 Elite/Pro/controller builds EXIT 0 and 17 selected host regressions EXIT 0 on verified firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf; catalog did NOT receive or rehash actual package bytes and full repository source was historical."
+        "result": "PR84: Elite/Pro/controller pinned native build PASS and 17 selected host PASS per producer; newer PR85 independently matching package digest metadata, 13 focused host PASS and stale local SMC reachability FAIL exit 134. Catalog rechecked remote records, NOT package bytes, native tests or exact-full-root QA."
       },
-      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
-      "missing_gate": "Per-model independent complete-root-SHA QA, independently obtained and rehashed exact packages and matching private controller, controller licensing/local-user strategy, archive/readback/rollback/installer safety, lawful immutable hosting and HTTP-served checksum missing.",
+      "description": "Producer native Elite/Pro/controller build succeeded on verified firmware subtree; QA pending with one stale host-test failure; not installable or HTTP tested.",
+      "missing_gate": "Exact full root checkout, current SMC reachability rerun, independent complete QA, package and private-controller rehash/model/CRC, slot backup/readback/installer safety, license, immutable host and served HTTP SHA256 all outstanding.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/84",
       "evidence_commit": "a24120979a2c196d3e9ff105bccb8dabf739d978",
       "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
@@ -1465,7 +1465,230 @@
         }
       },
       "artifact_bytes_independently_verified": false,
-      "build_target_tests_independently_reexecuted": false
+      "build_target_tests_independently_reexecuted": false,
+      "build_pipeline": {
+        "build": "BUILD_SUCCEEDED_UNREVIEWED",
+        "qa": "QA_PENDING",
+        "installability": "NOT_INSTALLABLE",
+        "live_http": "NOT_VERIFIED",
+        "hardware": "DEVICE_NOT_TESTED",
+        "source_scope": "FIRMWARE_SUBTREE_MATCH_FULL_ROOT_NOT_ATTESTED",
+        "builder_selected_host_checks_pass": 17,
+        "followup_native_checks_pass": 13,
+        "followup_native_checks_fail": [
+          {
+            "name": "smc-reachability",
+            "exit_code": 134
+          }
+        ],
+        "evidence_commit": "fc4ef6961e90c88212eded96182a1b7f1df6f120",
+        "evidence_manifest_blob_sha": "191920237cb3c113a6f4f2fcfed1f26e8162625e",
+        "package_bytes_independently_received_and_rehashed": false
+      }
+    },
+    {
+      "id": "producer-pr85-20261023",
+      "title": "build: reconstruct exact NIGHTLY Git commit and tree from GitHub REST API",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/github-api-source-byte-bridge-20261023-1240",
+      "source_commit": "fc4ef6961e90c88212eded96182a1b7f1df6f120",
+      "source_tree": "f9b9c8c1e4af825447ed356cd7c19533fe6172d8",
+      "source_time": "2026-10-23T13:24:32Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "Build manifest matches PR84 packages and records new PASS/FAIL; not a distinct model build.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/85"
+    },
+    {
+      "id": "producer-pr86-20261023",
+      "title": "fix(seq): keep only last Start/Continue request in one audio block",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/seq-transport-coalesce-20261023-1250",
+      "source_commit": "b680720d4031f73fe22143edaf1c6c55208f886e",
+      "source_tree": "7e518dc174ac2146cf6643189334e0818be033e6",
+      "source_time": "2026-10-23T12:52:41Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "Unmerged sequencer coalescing repair; focused regression only.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/86"
+    },
+    {
+      "id": "producer-pr87-20261023",
+      "title": "build: retrieve SHA-pinned NIGHTLY source through GitHub REST API",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/nightly-rest-exact-source-bridge-20261023",
+      "source_commit": "6fbeac18fe3e92190c0683dc091595fff5c48e2e",
+      "source_tree": "fb61e613dc6c4f825083bcaac2a194fa6573e0e6",
+      "source_time": "2026-10-23T12:56:46Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "Source transfer tooling on an isolated draft; not a firmware build.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/87"
+    },
+    {
+      "id": "producer-pr88-20261023",
+      "title": "perf(test): profile BREAK/909 IMA decoder across adversarial native workloads",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/performance-ima-host-benchmark-20261023-1306",
+      "source_commit": "45d78ffafc2d0733c50327703784b3b22acb657f",
+      "source_tree": "0c19512732019e4313980ec73a3f95255225b97b",
+      "source_time": "2026-10-23T13:12:43Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "Host IMA profiling, not microcontroller benchmarking or firmware build.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/88"
+    },
+    {
+      "id": "producer-pr89-20261023",
+      "title": "fix(ble): reject oversized SysEx lengths before packet-tail reads",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-ble-sysex-length-guard-20261023-1310",
+      "source_commit": "ca777a056e7de0075aac30927a4f6b158d55c465",
+      "source_tree": "83bfff30c28ce641884c5d1d9b13330ced3aaa79",
+      "source_time": "2026-10-23T13:12:55Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "BLE SysEx bounds guard, ASan source regression repro and focused tests, unmerged.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/89"
+    },
+    {
+      "id": "producer-pr90-20261023",
+      "title": "fix(seq): preserve last transport request origin for PLAY echo",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/seq-transport-origin-20261023-run3-1317",
+      "source_commit": "04cce762dda5fa473f44fb2463cb47b14f236fd5",
+      "source_tree": "9073285b1b3203a13a2d0553e84db6686eb4cc5a",
+      "source_time": "2026-10-23T13:21:42Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "Sequencer clock echo fix stacked on unmerged PR86.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/90"
+    },
+    {
+      "id": "producer-pr91-20261023",
+      "title": "fix(data-safety): refuse preinstall sample-backup overwrite and truncation",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-installer-backup-noclobber-20261023-1324",
+      "source_commit": "595fe8748c808d9f20671b6be35cfac6560a4a1f",
+      "source_tree": "388c71a372359f8c5f8ea2eb72598d2351c7090a",
+      "source_time": "2026-10-23T13:26:30Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "Backup no-clobber fix stacked on unmerged PR81 helper.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/91"
+    },
+    {
+      "id": "producer-pr92-20261023",
+      "title": "UX: highlight current and completed firmware installer steps",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/installer-ux-journey-state-20261023-run15",
+      "source_commit": "46299fb0f2a38af5fabc1372790e1b0f84e50dc3",
+      "source_tree": "b417526152125c9c2632190b11ccb6ee49126a89",
+      "source_time": "2026-10-23T13:34:04Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Connected GitHub source SHA and tree independently checked; producer host claims not rerun by Catalog",
+        "command": null,
+        "result": "Exact-current-full-source native tests not run by Catalog"
+      },
+      "description": "Installer visual step-state improvement stacked on PR83, not published.",
+      "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/92"
     }
   ],
   "policy": {
@@ -1476,7 +1699,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 61
+    "source_or_historical_checkpoints": 69
   },
   "versioning": {
     "firmware_product_version": {

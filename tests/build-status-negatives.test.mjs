@@ -48,6 +48,12 @@ for (const [name, fn] of [
   ['history-unknown-status',j=>j.history[0].status='stable'],
   ['history-bad-source-SHA',j=>j.history[0].source_commit='bad'],
   ['model-bad-hash',j=>j.builds[0].models.elite.sha256='bad'],
+  ['build-unreviewed-qa-forgery',j=>j.history.find(x=>x.status==='build-succeeded-unreviewed').build_pipeline.qa='QA_PASSED'],
+  ['build-unreviewed-http-forgery',j=>j.history.find(x=>x.status==='build-succeeded-unreviewed').build_pipeline.live_http='LIVE_HTTP_VERIFIED'],
+  ['build-unreviewed-installable-forgery',j=>j.history.find(x=>x.status==='build-succeeded-unreviewed').build_pipeline.installability='READY_FOR_FLASH'],
+  ['build-unreviewed-silenced-failure',j=>j.history.find(x=>x.status==='build-succeeded-unreviewed').build_pipeline.followup_native_checks_fail=[]],
+  ['build-unreviewed-missing-pro',j=>delete j.history.find(x=>x.status==='build-succeeded-unreviewed').producer_reported_artifacts.pro],
+  ['build-unreviewed-forged-rehash',j=>j.history.find(x=>x.status==='build-succeeded-unreviewed').artifact_bytes_independently_verified=true],
   ['firmware-link',j=>j.history[0].pkg='https://evil.example/evil.fwsc'],
 ]) run(name,edit(fn));
 run('nonempty-preview',dir=>{
@@ -59,4 +65,4 @@ run('source-docs-mismatch',dir=>{
   const p=join(dir,'docs/build-status.json');
   fs.appendFileSync(p,' ');
 });
-console.log('PASS: 15 native positive/negative cases');
+console.log('PASS: 21 native positive/negative cases');

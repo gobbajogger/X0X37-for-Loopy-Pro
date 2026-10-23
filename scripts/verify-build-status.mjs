@@ -59,7 +59,7 @@ for (const id of publicProven) assert.ok(seen.has(id), 'unknown public build ' +
 const ids = new Set();
 const historicalStatuses = new Set([
   'source-only', 'not-hosted', 'evidence-only', 'failed', 'reference',
-  'validation-evidence-only', 'offline-projection-artifact-unattributed'
+  'validation-evidence-only', 'offline-projection-artifact-unattributed', 'build-succeeded-unreviewed'
 ]);
 for (const item of catalog.history) {
   assert.equal(ids.has(item.id), false, 'duplicate historical item ' + item.id);
@@ -67,6 +67,34 @@ for (const item of catalog.history) {
   assert.ok(historicalStatuses.has(item.status), 'unverified or invalid history status ' + item.status);
   assert.match(item.source_commit, /^[a-f0-9]{40}$/, 'history requires immutable source SHA');
   if (item.source_tree !== undefined) assert.match(item.source_tree, /^[a-f0-9]{40}$/);
+  if (item.status === 'build-succeeded-unreviewed') {
+    const x = item.build_pipeline;
+    assert.ok(x && typeof x === 'object');
+    assert.equal(x.build, 'BUILD_SUCCEEDED_UNREVIEWED');
+    assert.equal(x.qa, 'QA_PENDING');
+    assert.equal(x.installability, 'NOT_INSTALLABLE');
+    assert.equal(x.live_http, 'NOT_VERIFIED');
+    assert.equal(x.hardware, 'DEVICE_NOT_TESTED');
+    assert.equal(x.source_scope, 'FIRMWARE_SUBTREE_MATCH_FULL_ROOT_NOT_ATTESTED');
+    assert.match(x.evidence_commit, /^[a-f0-9]{40}$/);
+    assert.match(x.evidence_manifest_blob_sha, /^[a-f0-9]{40}$/);
+    assert.ok(Number.isInteger(x.builder_selected_host_checks_pass) && x.builder_selected_host_checks_pass > 0);
+    assert.ok(Number.isInteger(x.followup_native_checks_pass) && x.followup_native_checks_pass >= 0);
+    assert.ok(Array.isArray(x.followup_native_checks_fail) && x.followup_native_checks_fail.length > 0);
+    for (const failure of x.followup_native_checks_fail) {
+      assert.ok(typeof failure.name === 'string' && failure.name.length > 0);
+      assert.ok(Number.isInteger(failure.exit_code) && failure.exit_code !== 0);
+    }
+    assert.equal(x.package_bytes_independently_received_and_rehashed, false);
+    assert.equal(item.artifact_bytes_independently_verified, false);
+    assert.match(item.firmware_subtree, /^[a-f0-9]{40}$/);
+    for (const model of ['elite','pro']) {
+      const pkg = item.producer_reported_artifacts?.[model];
+      assert.ok(pkg);
+      assert.match(pkg.sha256, /^[a-f0-9]{64}$/);
+      assert.ok(Number.isInteger(pkg.bytes) && pkg.bytes > 0);
+    }
+  }
   assert.ok(Array.isArray(item.models) && item.models.every(m => m === 'elite' || m === 'pro'),
     'history models must be Elite/Pro or empty');
   assert.equal(item.installable ?? false, false, 'history record cannot be flashable');
