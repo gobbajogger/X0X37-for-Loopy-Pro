@@ -697,8 +697,44 @@ async function scan() {
 
 $("connbtn").addEventListener("click", () => { scan(); });
 
+// Production approvals are intentionally compiled into the reviewed site source,
+// never populated by remote catalog metadata or the Releases API. No hardware
+// build has received independently reviewed model-specific public approval yet.
+// The publisher must add exact approved tuples after physical owner PASS, reviewed
+// device evidence, package/controller hash checks and separate PUBLIC approval.
+const PRODUCTION_DEVICE_APPROVALS = Object.freeze({});
+const PRODUCTION_PRODUCTS = Object.freeze({ elite: "SMK-37 Elite_900", pro: "SMK-37 Pro_900" });
+const SHA256_HEX = /^[0-9a-f]{64}$/;
+function approvedModels(v, approvals = PRODUCTION_DEVICE_APPROVALS) {
+  if (!v || v.status !== "dev-checked" || v.lifecycle !== "current" ||
+      v.hardware_tested !== true || v.owner_publication_approved !== true ||
+      !/^[0-9a-f]{40}$/.test(v.source_commit || "")) return [];
+  return ["elite", "pro"].filter((model) => {
+    const pkg = v.models && v.models[model];
+    const report = v.device_evidence && v.device_evidence[model];
+    const approval = approvals && approvals[`${v.version}/${model}`];
+    return !!pkg && !!report && !!approval &&
+      pkg.fromRelease !== true && pkg.product === PRODUCTION_PRODUCTS[model] &&
+      Number.isSafeInteger(pkg.size) && pkg.size > 0 &&
+      SHA256_HEX.test(pkg.sha256 || "") && SHA256_HEX.test(pkg.controller_sha256 || "") &&
+      typeof pkg.pkg === "string" && /^\.\.\/firmware\/[A-Za-z0-9._-]+\.fwsc$/.test(pkg.pkg) &&
+      report.hardware_pass === true && SHA256_HEX.test(report.sha256 || "") &&
+      typeof report.url === "string" && /^https:\/\/[^\s]+$/.test(report.url) &&
+      approval.owner_publication_approved === true &&
+      approval.model === model && approval.product === pkg.product &&
+      approval.source_commit === v.source_commit &&
+      approval.package_sha256 === pkg.sha256 &&
+      approval.controller_sha256 === pkg.controller_sha256 &&
+      approval.device_report_sha256 === report.sha256 &&
+      approval.device_report_url === report.url;
+  });
+}
 function versions() {
-  return (catalogLive.versions || []).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+  return (Array.isArray(catalogLive.versions) ? catalogLive.versions : [])
+    .filter((v) => approvedModels(v).length > 0)
+    .map((v) => ({ ...v,
+      models: Object.fromEntries(approvedModels(v).map((m) => [m, v.models[m]])) }))
+    .sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
 }
 function currentVersion() {
   const v = $("version").value;
@@ -712,8 +748,7 @@ function modelKeyForProduct(product) {
   return null;
 }
 function availableModels(ver) {
-  if (!ver || !ver.models) return [];
-  return MODEL_KEYS.filter((k) => ver.models[k]);
+  return approvedModels(ver);
 }
 function suggestModel(deviceModel) {
   const ver = currentVersion();
@@ -761,7 +796,7 @@ function refreshModelUi() {
 function refreshMeta() {
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("download").hidden = true; $("builddetail").hidden = true; updateInstallGate(); return; }
+  if (!pkg || !isCatalogChecked(ver, pkg)) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("download").hidden = true; $("builddetail").hidden = true; updateInstallGate(); return; }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
   $("download").href = pkg.pkg;
@@ -770,9 +805,9 @@ function refreshMeta() {
   renderBuildInfo(ver,pkg);
 }
 
-function isCatalogChecked(v,p) {
-  return !!v && !!p && (v.status === "dev-checked" || v.status === "release-checked")
-    && /^[0-9a-f]{64}$/.test(p.sha256 || "");
+function isCatalogChecked(v, p) {
+  return !!v && !!p && approvedModels(v).includes(chosenModel) &&
+    v.models && v.models[chosenModel] === p;
 }
 function updateInstallGate() {
   const v = currentVersion(), p = v && v.models && v.models[chosenModel];
@@ -826,8 +861,15 @@ function renderBuildHistory() {
     }
     box.append(el);
   }
-  if((catalog.history||[]).length){const h=document.createElement("h3");h.textContent=t("otherbuilds");box.append(h);}
-  for(const b of catalog.history||[]){
+  const ineligible = (Array.isArray(catalogLive.versions) ? catalogLive.versions : [])
+    .filter((v) => !versions().some((eligible) => eligible.version === v.version))
+    .map((v) => ({ id: v.version, title: v.title || v.version,
+      status: v.hardware_tested === true ? "not-public-approved" : "hardware-untested",
+      source_commit: v.source_commit, models: Object.keys(v.models || {}),
+      description: v.description || "Not approved for public installation.", url: v.evidence_url }));
+  const archived = [...ineligible, ...(catalog.history || [])];
+  if(archived.length){const h=document.createElement("h3");h.textContent=t("otherbuilds");box.append(h);}
+  for(const b of archived){
     const el=document.createElement("article");el.className="build-item";
     const h=document.createElement("h3");h.textContent=b.title||b.id;el.append(h);
     const m=document.createElement("p");m.className="meta";
@@ -901,6 +943,11 @@ function fillVersions() {
     image = null; selectedProduct = null;
     $("go").disabled = true;
     $("pkgmeta").textContent = "";
+    $("download").removeAttribute("href");
+    $("download").hidden = true;
+    $("builddetail").hidden = true;
+    $("devagree").checked = false;
+    renderBuildHistory(); // Show non-installable history; never offer a flash link.
     say(t("noversion"));
     // Still show SMK stock links when the catalog is empty.
     $("stock").hidden = false;
@@ -932,43 +979,8 @@ $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPa
 $("devagree").addEventListener("change", updateInstallGate);
 
 async function mergeGitHubReleases() {
-  // Optional: add release assets not already in the catalog so any GitHub Release is installable.
-  const m = /github\.com\/([^/]+)\/([^/#?]+)/.exec(repo);
-  if (!m) return;
-  const api = `https://api.github.com/repos/${m[1]}/${m[2]}/releases?per_page=30`;
-  try {
-    const r = await fetch(api, { headers: { Accept: "application/vnd.github+json" } });
-    if (!r.ok) return;
-    const releases = await r.json();
-    const byVer = new Map((catalogLive.versions || []).map((v) => [v.version, { ...v, models: { ...v.models } }]));
-    for (const rel of releases) {
-      const version = String(rel.tag_name || "").replace(/^v/i, "");
-      if (!version) continue;
-      const entry = byVer.get(version) || { version, models: {} };
-      for (const asset of rel.assets || []) {
-        const name = asset.name || "";
-        let key = null;
-        if (/smk37-elite|-elite\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "elite";
-        else if (/smk37-mke|-mke\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "mke";
-        else if (/x0x-smk37-|smk37/i.test(name) && /\.fwsc$/i.test(name)) key = "pro";
-        else if (/^x0x-[\w.-]+\.fwsc$/i.test(name) && !/smk/i.test(name)) key = "fm1";
-        if (!key || entry.models[key]) continue;
-        entry.models[key] = {
-          product: key === "fm1" ? "FM-1_9000000" : `${MODELS[key]}_9000000`,
-          pkg: asset.browser_download_url,
-          size: asset.size,
-          fromRelease: true,
-        };
-      }
-      if (Object.keys(entry.models).length) byVer.set(version, entry);
-    }
-    catalogLive = {
-      ...catalogLive,
-      versions: [...byVer.values()],
-      latest: catalogLive.latest
-        || (releases[0] && String(releases[0].tag_name || "").replace(/^v/i, "")),
-    };
-  } catch (_) { /* offline / rate limit: keep embedded catalog */ }
+  // Unreviewed Release assets must never become production picker options.
+  // Safe, immutable archive and rollback links remain accessible independently.
 }
 
 let ctlLoadSerial = 0;
