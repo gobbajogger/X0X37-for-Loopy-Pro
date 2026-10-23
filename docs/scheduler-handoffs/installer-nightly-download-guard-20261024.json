@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T15:42:32.943Z",
+  "role": "X0X37 Installer Improvements — sole firmware-repository browser installer UX/safety producer",
+  "outcome": "SOURCE_PRODUCER_CHECKED__INDEPENDENT_QA_PENDING",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-nightly-download-guard-20261024",
+    "consumed_producer_ref": "nightly",
+    "consumed_producer_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "consumed_producer_full_tree_sha": "71b759dd206d844cceed9e40ae68966142720e9c",
+    "consumed_producer_firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "before_installer_blob_sha": "45e9533dcc4e80cd60c4db726a3eda8b32bf977c",
+    "checked_source_commit": "614d66a6ace7ef62d64eca4ac1230eabef8e67e9",
+    "checked_source_tree_sha": "e11b488ec675a396d8f380c612b160d6355a30a2",
+    "checked_source_firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "checked_installer_blob_sha": "4a4d56013ef4183e28cec5c4b0c2248a99021afa",
+    "checked_regression_blob_sha": "a67fce5e1c9bd884fdb6734fba40c0322709bf52",
+    "registered_slot_test_blob_sha": "4891a101f38993ec28c0fb141d87cc9db0e9533b",
+    "tested_scope": "GitHub-vetted source excerpts and parser; native full combined checkout unavailable"
+  },
+  "consumed_evidence": [
+    {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 92,
+      "comment_id": 6367240651,
+      "kind": "firmware installer source cross-repo safety finding"
+    },
+    {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "pr": 3,
+      "comment_id": 6366881761,
+      "kind": "sole publisher Chromium conditional future release download hazard"
+    },
+    {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 100,
+      "producer_sha": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "kind": "existing stacked source UX draft, not changed or superseded"
+    }
+  ],
+  "outputs": [
+    {
+      "kind": "source",
+      "path": "web/x0x_installer.html",
+      "blob_sha": "4a4d56013ef4183e28cec5c4b0c2248a99021afa",
+      "role": "explicit compiled approval gate; direct link and auto-install share model eligibility; no Release auto import"
+    },
+    {
+      "kind": "regression",
+      "path": "web/test_install_nightly_download_guard.mjs",
+      "blob_sha": "a67fce5e1c9bd884fdb6734fba40c0322709bf52",
+      "role": "new exact-source Node excerpt tests for approved/unapproved URLs and Releases"
+    },
+    {
+      "kind": "regression",
+      "path": "web/test_install_slots.mjs",
+      "blob_sha": "4891a101f38993ec28c0fb141d87cc9db0e9533b",
+      "role": "register safety test and allow synthetic independently approved integration fixture; real compiled approvals remain empty"
+    },
+    {
+      "kind": "findings",
+      "path": "docs/installer-nightly-download-guard-20261024.md"
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline vulnerability reproduced from exact nightly source functions",
+      "executor": "connected GitHub V8",
+      "command": "new Function(exact baseline versions()/refreshMeta()/mergeGitHubReleases(), mocked synthetic matching Elite Release)",
+      "exit_code": 0,
+      "status": "PASS_EXPECTED_VULNERABILITY_REPRO",
+      "observed": "one unapproved .fwsc inserted and direct #download href visible; Release fetch mocked; auto-flash not tested"
+    },
+    {
+      "name": "publisher approval predicate synthetic positives and negatives",
+      "executor": "connected GitHub V8",
+      "command": "new Function(exact GitHub-source candidate approvedNightlyModels block); 12 case assertions",
+      "exit_code": 0,
+      "status": "PASS",
+      "cases_passed": 12,
+      "coverage": "approved hardware-untested Elite positive and unknown Release/QA/source/subtree/model/controller/hash/host/traversal negative"
+    },
+    {
+      "name": "native Node syntax excerpt",
+      "executor": "native Linux x86_64 Node 22.16.0",
+      "command": "node --check /mnt/data/installer_gate_exact_excerpt.js && node --check /mnt/data/test_excerpt_native.cjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "coverage": "copied exact GitHub source excerpts, not whole HTML checkout"
+    },
+    {
+      "name": "native Node source-excerpt behavior",
+      "executor": "native Linux x86_64 Node 22.16.0",
+      "command": "node /mnt/data/test_excerpt_native.cjs",
+      "exit_code": 0,
+      "status": "PASS",
+      "cases_passed": 14,
+      "coverage": "unapproved release, approved tuple, stale href, wrong model/hash/host/QA/source negative and positive"
+    },
+    {
+      "name": "Chromium 144 real browser DOM excerpts",
+      "executor": "native Linux x86_64 Python 3 Playwright Chromium 144.0.7559.96",
+      "command": "python3 /mnt/data/test_chromium_installer_guard_excerpt.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "contexts_passed": 6,
+      "coverage": "320/390/1280px no approval and synthetic approved; zero Release fetch, links hidden/visible as appropriate, no overflow/errors; not full site EN/JA"
+    },
+    {
+      "name": "remote full inline source script syntax",
+      "executor": "connected GitHub V8",
+      "command": "new Function(extracted inline <script> from exact web/x0x_installer.html Git blob, substitute /*LIB*/ and /*CATALOG*/ only)",
+      "exit_code": 0,
+      "status": "PASS",
+      "coverage": "parse only"
+    },
+    {
+      "name": "remote Node test syntax transform only",
+      "executor": "connected GitHub V8",
+      "command": "new Function(async wrapper, import statements removed and import.meta.url substituted)",
+      "exit_code": 0,
+      "status": "PASS",
+      "coverage": "parse only; no actual test module execution"
+    },
+    {
+      "name": "full branch Node installer, backup, updater, negative and browser suites",
+      "executor": "native local runner",
+      "command": "node web/test_install_nightly_download_guard.mjs; node web/test_install_slots.mjs; affected whole-suite/browser tests",
+      "exit_code": null,
+      "status": "NOT_RUN",
+      "reason": "full GitHub checkout unavailable in native shell; curl raw GitHub failed DNS with exit 6"
+    },
+    {
+      "name": "native firmware builds Elite + Pro",
+      "executor": "native firmware build owner",
+      "command": "not applicable to browser-only source edit",
+      "exit_code": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "name": "independent QA, NIGHTLY website separate PR, immutable HTTP, device",
+      "executor": "respective independent owners",
+      "command": "not yet performed",
+      "exit_code": null,
+      "status": "PENDING"
+    }
+  ],
+  "model_status": {
+    "elite": "NO_INSTALLABLE_YET__synthetic_positive_only",
+    "pro": "NO_INSTALLABLE_YET__no_real_package_or_host_proof",
+    "physical_device": "NOT_TESTED_OR_FLASHED"
+  },
+  "channel": {
+    "branch_only": true,
+    "firmware_nightly_merged": false,
+    "website_main_changed": false,
+    "website_gh_pages_changed": false,
+    "http_published": false,
+    "source_licensing_private_inputs_untouched": true,
+    "production_promotion": false
+  },
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Replay exact GH branch Node/combined OTA backup negative/browser EN/JA checks and inspect model/source/publisher guard",
+      "gate": "complete exact-checkouts and independent code review"
+    },
+    {
+      "owner": "sole firmware Safe Merge",
+      "action": "Reconcile QA-approved source-only fix into firmware nightly, preserving separate UX draft stack",
+      "gate": "QA approval, full relevant installer/backup test"
+    },
+    {
+      "owner": "NIGHTLY website source developer and independent QA then NIGHTLY Main Merger",
+      "action": "Create separate reviewed equivalent website source fix, reconcile actual empty-only preview builder gate",
+      "gate": "reviewed tested separate PR, no protected ref direct edit"
+    },
+    {
+      "owner": "sole NIGHTLY Pages publisher",
+      "action": "On first real fully checked/hosted Elite or Pro firmware release, approve explicit byte/model/site gate and publish safe DEV/HARDWARE TEST link",
+      "gate": "native per-model build, package/controller CRC/SHA256, source/licensing, independent QA, backups/rollback, immutable GET/HEAD hosted hash, own gh-pages and HTTP checks"
+    }
+  ],
+  "note": "Ready-for-review transition, if subsequently performed, is not QA acceptance, approved hosted package, source merge, compiled firmware, HTTP PASS or device PASS."
+}
