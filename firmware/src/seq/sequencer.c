@@ -606,6 +606,7 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
     s->clk_lost = 0;
     if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
         s->ext_pending = 0;
+        s->clk_lock = 0;                              /* MID-13/MID-15: INTERNAL owns no external clock */
         if (s->ext)
             switch_internal(s);
     } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
