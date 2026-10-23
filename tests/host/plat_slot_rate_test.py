@@ -47,8 +47,8 @@ def run(cc: str, flags: list[str]):
         cases = [22050, 44100, 65536, 88200, 96000, 176400]
         for rate in cases:
             header, data = sampleio.user_slot("RATE", [([0] * 64, 60, None, None)], rate=rate, slot_size=0x14000)
-            assert len(header) == 480, (len(header), rate)
-            assert zlib.crc32(data) == struct.unpack_from("<I", header, 20)[0]
+            if len(header) != 480 or zlib.crc32(data) != struct.unpack_from("<I", header, 20)[0]:
+                raise RuntimeError(f"invalid serialized fixture for {rate} Hz; NOT TESTED")
             (tmp / f"slot-{rate}.bin").write_bytes(header.ljust(512, b'\0') + data)
         src = tmp / "slot_rate.c"
         src.write_text('''#include <stdint.h>
