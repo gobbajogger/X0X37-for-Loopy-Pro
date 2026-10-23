@@ -555,6 +555,9 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     }
     if (len < 3)
         return 4;
+    /* Never alias malformed BLE MIDI data bytes into SMC notes/CCs. */
+    if ((m[1] | m[2]) & 0x80u)
+        return 4;
     type = m[0] & 0xF0u;
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
