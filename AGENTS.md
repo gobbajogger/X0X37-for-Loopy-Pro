@@ -6,3 +6,10 @@
 - After UI changes run `npm run build`, `npm test`, and an applicable responsive browser preview before pushing.
 - The production `gobbajogger/X0X37-for-Loopy-Pro` repository, its `main`, and `gh-pages` remain separate destinations; do not modify them from here.
 - Never force-push, publish stable firmware or flash hardware. Main updates here require explicit owner approval.
+
+## Remote-first development delivery (owner instruction, 2026-10-23)
+
+- After applicable checks, **every substantive validated commit must be pushed** to an authorized isolated development branch (create a new isolated branch when needed), with a remote branch SHA/read-back verified against the intended commit and diff. A commit existing only in a local checkout or ZIP is **not delivered**. Do not finish a Git-delivery stage or claim 'pushed' until that verification passes.
+- To avoid stranded local commits, do not make a final local commit unless it can be delivered through a permitted branch. An unfinished patch can be retained as a clearly labeled **not-yet-committed draft** with tests/evidence; if a committed patch cannot be pushed, mark **GIT DELIVERY PENDING — NOT PUSHED** and preserve the exact error. Never claim an unpushed candidate was integrated or published.
+- One safety-rejected GitHub edit is a **specific rejected operation**, not evidence that other authorized Git writes or future scheduled development are unavailable. Do not evade that refusal with a different API, endpoint, disguised payload, or branch. Continue other independently safe native work and permitted Git deliveries. Retry the refused content only after legitimate resolution of the refusal.
+- A development-branch push is **not** a merge to `main`, an edit to `gh-pages`, a deployed site, firmware distribution, or hardware verification. Existing review, licensing, empty installable catalog, physical safety, branch-ownership and Pages-publisher gates remain in force.
