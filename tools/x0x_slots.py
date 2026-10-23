@@ -253,19 +253,22 @@ def _rename_backup_noreplace(staged, path):
     if sys.platform.startswith("linux"):
         fn = getattr(libc, "renameat2", None)
         flags = 1  # Linux RENAME_NOREPLACE
+        at_fdcwd = -100
     elif sys.platform == "darwin":
         fn = getattr(libc, "renameatx_np", None)
         flags = 4  # Darwin RENAME_EXCL
+        at_fdcwd = -2
     else:
         fn = None
         flags = None
+        at_fdcwd = None
     if fn is None:
         raise SlotError("filesystem cannot atomically publish backup without hard links; "
                         "choose a filesystem supporting exclusive rename or hard links")
     fn.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int,
                    ctypes.c_char_p, ctypes.c_uint]
     fn.restype = ctypes.c_int
-    if fn(-100, os.fsencode(staged), -100, os.fsencode(path), flags) == 0:
+    if fn(at_fdcwd, os.fsencode(staged), at_fdcwd, os.fsencode(path), flags) == 0:
         return
     code = ctypes.get_errno()
     if code == errno.EEXIST:
