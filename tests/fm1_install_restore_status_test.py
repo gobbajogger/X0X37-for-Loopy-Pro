@@ -42,7 +42,7 @@ plan_migration = actual_function(SLOTS, "plan_migration", {})
 
 class Fixture:
     def __init__(self, sizes=(82000,), new_sizes=(4000,), at_risk=True, require_backup=False,
-                 fail_backup=False, fail_restore=False, no_slots=False):
+                 fail_backup=False, fail_restore=False, no_slots=False, loader=False):
         self.events = []
         self.skipped = []
         self.sizes = sizes
@@ -50,6 +50,7 @@ class Fixture:
         self.at_risk = at_risk
         self.fail_backup = fail_backup
         self.fail_restore = fail_restore
+        self.loader = loader
         self.out = io.StringIO()
         self.args = SimpleNamespace(info=False, package="mock.fwsc", force=False, port=None,
             backup="qa-preserved-samples.x0xslots" if require_backup else None,
@@ -68,7 +69,7 @@ class Fixture:
                 pass
 
             def find(self):
-                return SimpleNamespace(id=SimpleNamespace(text="SMK-37 Elite_900", loader=False),
+                return SimpleNamespace(id=SimpleNamespace(text="SMK-37 Elite_900", loader=outer.loader),
                                        name="virtual-no-device", link=Link())
 
             def install(self, *args):
@@ -205,6 +206,45 @@ class RestoreStatus(unittest.TestCase):
         self.assertEqual(f.run(), 0)
         self.assertNotIn("backup", f.events)
         self.assertNotIn("plan", f.events)
+
+    def test_update_loader_requires_explicit_preservation_decision(self):
+        f = Fixture(loader=True)
+        with self.assertRaises(InstallError) as cm:
+            f.run()
+        self.assertEqual(cm.exception.code, "slots")
+        self.assertIn("--no-slots", str(cm.exception))
+        self.assertIn("backup", str(cm.exception))
+        self.assertNotIn("flash", f.events)
+        self.assertNotIn("plan", f.events)
+        self.assertIn("close", f.events)
+
+    def test_loader_yes_does_not_override_sample_guard(self):
+        f = Fixture(loader=True)
+        f.args.yes = True
+        with self.assertRaises(InstallError) as cm:
+            f.run()
+        self.assertEqual(cm.exception.code, "slots")
+        self.assertNotIn("flash", f.events)
+
+    def test_loader_with_explicit_no_slots_can_resume(self):
+        f = Fixture(loader=True, no_slots=True)
+        self.assertEqual(f.run(), 0)
+        self.assertEqual(f.events.count("flash"), 1)
+        self.assertNotIn("plan", f.events)
+        self.assertNotIn("backup", f.events)
+
+    def test_loader_explicit_backup_cannot_be_created_in_update_mode(self):
+        f = Fixture(loader=True, require_backup=True)
+        with self.assertRaises(InstallError) as cm:
+            f.run()
+        self.assertEqual(cm.exception.code, "slots")
+        self.assertNotIn("flash", f.events)
+
+    def test_loader_explicit_optout_still_honors_cancellation(self):
+        f = Fixture(loader=True, no_slots=True)
+        f.args.yes = False
+        self.assertEqual(f.run(lambda prompt: False), 1)
+        self.assertNotIn("flash", f.events)
 
 
 if __name__ == "__main__":
