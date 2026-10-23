@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T13:42:00Z",
+  "role": "LoopyX0X37 Performance Engineering",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "nightly",
+    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+  },
+  "summary": "Propose 480->960 BREAK reverse ADPCM checkpoints; source-matched host reverse sampler/seek regression and GCC+Clang 9-trial benchmarks show fewer worst-case on-demand decodes with +3840 B two-bank pool tradeoff. Exact firmware target budget/build and real audio performance NOT RUN.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/dsp/breaks.h",
+      "description": "Double BREAK ADPCM checkpoint table length, leave audio algorithm unchanged"
+    },
+    {
+      "kind": "benchmark",
+      "location": "tests/host/breaks_reverse_seek_perf_test.c",
+      "description": "Deterministic full reverse output + random seek equality checks and native host benchmark"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/audit/performance-engineering-2026-10-23-break-reverse-checkpoints.md",
+      "description": "Measured GCC/Clang host comparison, memory delta, checks, limitations and QA/build handoff"
+    }
+  ],
+  "checks": [
+    {
+      "name": "GCC O2 baseline/candidate correctness and throughput",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -ffp-contract=off -DBRK_PROFILE_NCK=480|960 tests/host/breaks_reverse_seek_perf_test.c -o gcc-brk-480|960 && ./gcc-brk-480|960 --check && ./gcc-brk-480|960 --bench (two individually executed variants)",
+      "exit_code": 0,
+      "evidence": "native command exit log sha256=f54c6f334ef2fa9fc9a9ad145eb4b027bcd63e8ffec060b3ce7b405fe074907d; report table",
+      "coverage": "all reverse sample outputs plus 1024 randomized seeks at each of 4 loop lengths; nine-trial host timings"
+    },
+    {
+      "name": "Clang O2 baseline/candidate correctness and throughput",
+      "status": "PASS",
+      "command": "clang -std=c11 -O2 -Wall -Wextra -Werror -pedantic -ffp-contract=off -DBRK_PROFILE_NCK=480|960 tests/host/breaks_reverse_seek_perf_test.c -o clang-brk-480|960 && ./clang-brk-480|960 --check && ./clang-brk-480|960 --bench (two individually executed variants)",
+      "exit_code": 0,
+      "evidence": "same native exit ledger sha256=f54c6f334ef2fa9fc9a9ad145eb4b027bcd63e8ffec060b3ce7b405fe074907d",
+      "coverage": "4 loop lengths, 1024 random positions and full reverse output, source-matched model"
+    },
+    {
+      "name": "GCC and Clang O1 ASan+UBSan candidate",
+      "status": "PASS",
+      "command": "gcc/clang -std=c11 -O1 -g -Wall -Wextra -Werror -pedantic -fno-omit-frame-pointer -fsanitize=address,undefined -DBRK_PROFILE_NCK=960 tests/host/breaks_reverse_seek_perf_test.c -o respective-asan && respective-asan --check",
+      "exit_code": 0,
+      "evidence": "native exit ledger sha256=f54c6f334ef2fa9fc9a9ad145eb4b027bcd63e8ffec060b3ce7b405fe074907d",
+      "coverage": "exact 960 host-model correctness and no triggered sanitizers"
+    },
+    {
+      "name": "Bad CLI selectors",
+      "status": "PASS",
+      "command": "./gcc-brk-960 --invalid; ./clang-brk-960 --invalid",
+      "exit_code": 2,
+      "evidence": "both observed exit=2 in native exit ledger (expected negative status)",
+      "coverage": "unknown benchmark selectors rejected rather than silently treated PASS"
+    },
+    {
+      "name": "Full firmware renderer and pinned Elite/Pro DEV+controller",
+      "status": "NOT_RUN",
+      "command": "NOT_RUN",
+      "exit_code": null,
+      "evidence": "This producer does not own target firmware builds or independently approve QA.",
+      "coverage": "Per-model RAM/flash/pool and end-to-end audio remain unverified"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Exact SHA BUILD_ONLY and pool headroom requested from Hourly Build"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Exact SHA BUILD_ONLY and pool headroom requested from Hourly Build"
+    }
+  ],
+  "next": {
+    "owner": "Hourly Build and Independent QA",
+    "action": "Build draft source exact SHA Elite/Pro DEV+controller immediately as BUILD_ONLY, record pool/RAM/flash delta; separately QA full BREAK playback and regression before Safe Merge.",
+    "gate": "Both-model native build budget and full independent QA before firmware NIGHTLY integration"
+  },
+  "dependencies": [
+    "NIGHTLY parent 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "Unmerged draft scheduler evidence contract PR #78"
+  ],
+  "publication": "SOURCE_ONLY"
+}

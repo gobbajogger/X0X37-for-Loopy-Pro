@@ -20,7 +20,7 @@
 #include "../seq/pattern.h"           /* BRK_* settings order */
 
 #define BRK_FS 44100                  /* output sample rate */
-#define BRK_NCK 480                   /* ADPCM checkpoints per loop (4 bytes each) */
+#define BRK_NCK 960                   /* ADPCM checkpoints per loop (4 bytes each), smaller reverse seek budget */
 #define BRK_RCH 512                   /* reverse playback decodes this many samples at a time */
 #ifndef BRK_FADE
 #define BRK_FADE 88                   /* crossfade / gate ramp: 2 ms at 44.1 kHz */
