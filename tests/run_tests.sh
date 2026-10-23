@@ -28,6 +28,8 @@ set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 [ $# -gt 0 ] && X0X_TESTS="$*"
 X0X_TESTS="${X0X_TESTS:-}"
+X0X_EXECUTED_TESTS=""  # names actually admitted for execution, not merely requested
+X0X_QUEUED_RESULTS=""  # parallel worker slots requiring a terminal result
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
@@ -105,6 +107,7 @@ run() {
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
     if [ "$JOBS" -le 1 ]; then
+        X0X_EXECUTED_TESTS="$X0X_EXECUTED_TESTS $name"
         if run_test "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
         else
@@ -117,7 +120,9 @@ run() {
     test_class "$name"
     cls=$TEST_CLASS
     case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+    X0X_EXECUTED_TESTS="$X0X_EXECUTED_TESTS $name"
     key=$(printf '%04d' "$T_SEQ")
+    X0X_QUEUED_RESULTS="$X0X_QUEUED_RESULTS $key:$name"
     if [ "$cls" = S ] || [ "$cls" = C ]; then
         run_one "$key" "$name" "$@"
         return
@@ -340,6 +345,34 @@ else
     exec 3>&-
     for f in $(ls "$RES" | grep -v -e '\.fail$' -e '\.time$' | sort); do cat "$RES/$f"; done
     ls "$RES" | grep -q '\.fail$' && FAIL=1
+fi
+# The parent can observe a worker interrupted before run_one writes .results/$key.
+# POSIX `wait` without a specific PID need not report an individual failed job;
+# never translate a missing or partial worker result into an overall PASS.
+if [ "$JOBS" -gt 1 ]; then
+    for slot in $X0X_QUEUED_RESULTS; do
+        key=${slot%%:*}
+        test_name=${slot#*:}
+        first_line=""
+        if [ -f "$RES/$key" ]; then
+            IFS= read -r first_line < "$RES/$key" || :
+        fi
+        case "$first_line" in
+            "  ok   $test_name") ;;
+            "  FAIL $test_name (see $OUT/$test_name.log)") FAIL=1 ;;
+            *) echo "  FAIL $test_name (missing or incomplete worker result: $RES/$key)"; FAIL=1 ;;
+        esac
+    done
+fi
+# A misspelled, skipped, or unavailable requested selector is not a PASS.
+# In particular, an absent optional firmware package may silently omit its test.
+if [ -n "$X0X_TESTS" ]; then
+    for requested in $X0X_TESTS; do
+        case " $X0X_EXECUTED_TESTS " in
+            *" $requested "*) ;;
+            *) echo "  FAIL $requested (requested test did not execute)"; FAIL=1 ;;
+        esac
+    done
 fi
 [ $FAIL -eq 0 ] && echo "all tests passed" || echo "TESTS FAILED"
 exit $FAIL
