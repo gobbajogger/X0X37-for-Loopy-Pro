@@ -31,7 +31,16 @@ done
 find "$SITE" -type f -print | while IFS= read -r path; do
     rel=${path#"$SITE"/}
     case "$rel" in
-      .nojekyll|index.html|versions.json|install/index.html|breaks/index.html|projects/index.html|projects/x0x_breaks.js|projects/x0x_projects.js|manual/index.html|manual/PROJECT_FILES.md|new/index.html|manual/img/*.png|manual/img/*.svg|new/img/*.png|new/img/*.svg|firmware/*.fwsc) ;;
+      .nojekyll|index.html|versions.json|install/index.html|breaks/index.html|projects/index.html|projects/x0x_breaks.js|projects/x0x_projects.js|manual/index.html|manual/PROJECT_FILES.md|new/index.html) ;;
+      manual/img/*.png|manual/img/*.svg)
+        leaf=${rel#manual/img/}
+        case "$leaf" in ''|*/*) fail "nested manual image is not allowed: $rel" ;; esac ;;
+      new/img/*.png|new/img/*.svg)
+        leaf=${rel#new/img/}
+        case "$leaf" in ''|*/*) fail "nested what's-new image is not allowed: $rel" ;; esac ;;
+      firmware/*.fwsc)
+        leaf=${rel#firmware/}
+        case "$leaf" in ''|*/*) fail "nested firmware package is not allowed: $rel" ;; esac ;;
       *) fail "unexpected public-site asset: $rel" ;;
     esac
 done
@@ -91,6 +100,22 @@ if len(old_entries) != len(old.get("versions", [])) or len(new_entries) != len(n
     reject("duplicate firmware version identifiers")
 if new.get("latest") and str(new["latest"]) not in new_entries:
     reject("latest firmware version has no catalog entry")
+old_latest, new_latest = old.get("latest"), new.get("latest")
+if old_latest != new_latest:
+    # A DEV publication may select a genuinely new DEV candidate but must not
+    # silently roll back to an earlier version or clear the default. Both are
+    # separate owner decisions with their own approval and regression gate.
+    if not new_latest or str(new_latest) in old_entries:
+        reject("existing default changed without an approved rollback")
+    previous_default = old_entries.get(str(old_latest), {})
+    candidate = new_entries.get(str(new_latest), {})
+    # A historical hardware-qualified/stable default must never be silently
+    # replaced by a DEVICE NOT TESTED candidate. Display DEV separately.
+    if (previous_default.get("hardware_tested") is True or
+            previous_default.get("status") in ("stable", "release")) and (
+            candidate.get("hardware_tested") is not True or
+            candidate.get("status") not in ("stable", "release")):
+        reject("unchecked DEV cannot replace the stable default")
 for entry in new["versions"]:
     if not isinstance(entry.get("models"), dict) or not entry["models"]:
         reject("firmware version lacks model packages")
@@ -98,13 +123,14 @@ for version, previous in old_entries.items():
     current = new_entries.get(version)
     if current is None:
         reject("lost existing firmware version " + version)
-    for model, prev_model in previous.get("models", {}).items():
-        current_model = current.get("models", {}).get(model)
-        if current_model is None:
-            reject("lost previous model " + version + "/" + model)
-        for key in ("pkg", "product", "sha256", "size"):
-            if key in prev_model and prev_model[key] != current_model.get(key):
-                reject("changed existing " + version + "/" + model + "/" + key)
+    # The prior catalog is evidence: a package's digest alone does not attest
+    # hardware PASS, stable status, source SHA, validation record or title.
+    if current != previous:
+        reject("changed existing firmware version metadata " + version)
+for version, candidate in new_entries.items():
+    if version not in old_entries:
+        if candidate.get("hardware_tested") is True or candidate.get("status") in ("stable", "release"):
+            reject("new stable/device-PASS publication requires its separate formal gate")
 old_history = {str(x.get("id")): x for x in old.get("history", [])}
 new_history = {str(x.get("id")): x for x in new.get("history", [])}
 if len(old_history) != len(old.get("history", [])) or len(new_history) != len(new.get("history", [])):
@@ -123,6 +149,19 @@ for rel in old_archives:
     if not current_path.is_file() or current_path.read_bytes() != old_content:
         reject("modified or missing published package " + rel)
 
+# Documentation/media images are retained byte-for-byte just like published
+# packages. HTML/JS may legitimately change through an audited site preview.
+old_images = subprocess.run(["git", "ls-tree", "-r", "--name-only", base,
+                             "manual/img/", "new/img/"], capture_output=True,
+                            text=True, check=True).stdout.splitlines()
+for rel in old_images:
+    old_content = subprocess.run(["git", "show", base + ":" + rel],
+                                 capture_output=True, check=True).stdout
+    current_path = merged_root / rel
+    if not current_path.is_file() or current_path.read_bytes() != old_content:
+        reject("modified or missing published image " + rel)
+
+catalog_firmware = set()
 for entry in new["versions"]:
     for model, spec in entry.get("models", {}).items():
         package = spec.get("pkg")
@@ -131,6 +170,7 @@ for entry in new["versions"]:
         segments = PurePosixPath(package).parts
         if ".." in segments or not package.endswith(".fwsc") or len(segments) != 2:
             reject("unsafe firmware path " + package)
+        catalog_firmware.add(package)
         payload_path = merged_root / package
         if not payload_path.is_file():
             reject("catalog references absent package " + package)
@@ -152,6 +192,14 @@ for entry in new["versions"]:
             reject("catalog model does not match firmware identity " + package)
         if decoded != spec.get("product"):
             reject("catalog product does not match embedded firmware identity " + package)
+
+# A valid-looking header or self-consistent SHA is not an admission ticket for
+# an unlisted firmware download. Every NEW staged .fwsc must be in the catalog;
+# older unlisted files in the historical site remain byte-for-byte preserved.
+for payload_path in (new_root / "firmware").glob("*.fwsc") if (new_root / "firmware").is_dir() else ():
+    rel = "firmware/" + payload_path.name
+    if rel not in catalog_firmware:
+        reject("unlisted firmware package in generated site " + rel)
 print("Pages preservation, embedded model and package catalog: PASS")
 PY
 
