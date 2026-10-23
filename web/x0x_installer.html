@@ -95,6 +95,11 @@ h1 { font-size: clamp(46px, 5.8vw, 74px); letter-spacing: -.07em; line-height: .
 .journey li { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 11px 17px 11px 0; color: var(--dim); font: 650 12px var(--mono); }
 .journey li + li { border-left: 1px solid var(--rule); padding-left: 18px; }
 .journey .stepnum { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid #526046; border-radius: 6px; color: var(--accent); background: var(--soft); font: 750 11px var(--mono); }
+/* Current location is visible; completed steps are marked only from actual UI state. */
+.journey li[data-state="current"] { color: var(--fg); }
+.journey li[data-state="current"] .stepnum { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.journey li[data-state="complete"] { color: var(--ok); }
+.journey li[data-state="complete"] .stepnum { color: var(--ok); border-color: var(--ok); background: transparent; }
 
 /* Main path: left workspace, right pre-flight reference. */
 .install-layout { display: grid; grid-template-columns: minmax(0, 1fr) 305px; gap: 22px; align-items: start; }
@@ -299,9 +304,9 @@ progress::-moz-progress-bar { background: var(--accent); }
       </div>
     </div>
     <ol class="journey" aria-label="Install workflow">
-      <li><span class="stepnum">01</span><span data-t="journey1">Connect keyboard</span></li>
-      <li><span class="stepnum">02</span><span data-t="journey2">Select firmware</span></li>
-      <li><span class="stepnum">03</span><span data-t="journey3">Review and install</span></li>
+      <li data-step="connect" data-state="current" aria-current="step"><span class="stepnum">01</span><span data-t="journey1">Connect keyboard</span></li>
+      <li data-step="select" data-state="pending"><span class="stepnum">02</span><span data-t="journey2">Select firmware</span></li>
+      <li data-step="review" data-state="pending"><span class="stepnum">03</span><span data-t="journey3">Review and install</span></li>
     </ol>
   </header>
   <div class="install-layout">
@@ -661,6 +666,17 @@ let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
 let loadSerial = 0;
+// The journey is a view of verified UI state, not an alternate install gate.
+function refreshJourney() {
+  const selected = !!(stock || (image && selectedProduct));
+  const current = writing ? 2 : !connected ? 0 : selected ? 2 : 1;
+  document.querySelectorAll(".journey li[data-step]").forEach((item, index) => {
+    item.dataset.state = index === current ? "current"
+      : (index === 0 && connected) || (index === 1 && selected) ? "complete" : "pending";
+    if (index === current) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+}
 // Connection button describes the next action, without changing the guarded MIDI scan.
 let connectionState = "idle";
 function renderConnectionAction() {
@@ -682,6 +698,7 @@ function setConnected(on, detail, failed = false) {
   $("conn").textContent = on ? t("connected") : t("notconnected");
   $("connDetail").textContent = detail || t("connhelp");
   renderConnectionAction();
+  refreshJourney();
 }
 
 async function midiAccess() {
@@ -867,6 +884,7 @@ function updateInstallGate() {
     : !image ? "hintverifying"
     : needsAck ? "hintack"
     : "hintready");
+  refreshJourney();
 }
 function buildBadge(txt,kind) {
   const x = document.createElement("span"); x.className="build-badge"+(kind?" "+kind:""); x.textContent=txt;return x;
@@ -1003,6 +1021,7 @@ function fillVersions() {
       + `<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`
       + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`
       + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`;
+    refreshJourney();
     return;
   }
   for (const v of list) {
@@ -1076,6 +1095,7 @@ async function acceptStock(raw, requestId) {
       return;
     }
     stock = { image: logicalImage(raw), product, foreign: true, fm1Stock: isFm1Stock };
+    refreshJourney();
     $("dropmeta").textContent = `${product} · ${(raw.length / 1024).toFixed(0)} KB`;
     $("stockconfirm").disabled = false;
     $("stockgo").disabled = writing || !$("stockconfirm").checked;
@@ -1086,6 +1106,7 @@ async function selectStockFile(f) {
   if (!f || writing) return;
   const requestId = ++stockLoadSerial;
   stock = null;
+  refreshJourney();
   $("stockconfirm").checked = false;
   $("stockconfirm").disabled = true;
   $("stockgo").disabled = true;
@@ -1153,6 +1174,7 @@ async function run(img, product, opts = {}) {
   try { access = await midiAccess(); }
   catch (e) { sayK(e.code || "denied"); return; }
   writing = true;
+  refreshJourney();
   $("go").disabled = $("stockgo").disabled = true;
   renderConnectionAction();
   led("busy");
@@ -1208,6 +1230,7 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
+  refreshJourney();
   // An interrupted background scan must not leave the Connect button disabled.
   if (connectionState === "scanning") connectionState = connected ? "connected" : "idle";
   renderConnectionAction();
