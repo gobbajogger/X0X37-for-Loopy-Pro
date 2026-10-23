@@ -28,6 +28,8 @@ set -u
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX GIT_QUARANTINE_PATH GIT_NAMESPACE   # a hook sets these; a scratch repository must not use the repository of the hook
 [ $# -gt 0 ] && X0X_TESTS="$*"
 X0X_TESTS="${X0X_TESTS:-}"
+X0X_EXECUTED_TESTS=""  # names actually admitted for execution, not merely requested
+X0X_QUEUED_RESULTS=""  # parallel worker slots requiring a terminal result
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
@@ -53,7 +55,7 @@ test_class() {
     breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui-popup|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -105,6 +107,7 @@ run() {
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
     if [ "$JOBS" -le 1 ]; then
+        X0X_EXECUTED_TESTS="$X0X_EXECUTED_TESTS $name"
         if run_test "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
         else
@@ -117,7 +120,9 @@ run() {
     test_class "$name"
     cls=$TEST_CLASS
     case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+    X0X_EXECUTED_TESTS="$X0X_EXECUTED_TESTS $name"
     key=$(printf '%04d' "$T_SEQ")
+    X0X_QUEUED_RESULTS="$X0X_QUEUED_RESULTS $key:$name"
     if [ "$cls" = S ] || [ "$cls" = C ]; then
         run_one "$key" "$name" "$@"
         return
@@ -147,6 +152,7 @@ note() {                # a skip line, in the serial order
 tests_body() {
 W="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
 run fastmath sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fastmath_test tests/host/fastmath_test.c -lm && $OUT/fastmath_test"   # its reference is double on purpose
+run fastmath-ubsan sh tests/host/run_fastmath_ubsan.sh  # negative exponent shifts must be defined
 TB3PO_REF="${TB3PO_REF:-../schwung-tb3po/src/dsp/tb3po.c}"
 seq_test() {
     if [ -f "$TB3PO_REF" ]; then
@@ -162,6 +168,7 @@ seq_test() {
 }
 run sequencer seq_test
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
+run clk-handover sh -c "$CC -O1 -g -fsanitize=undefined -fno-sanitize-recover=all -Wall -Wextra -Werror -o $OUT/clk_handover_test tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/clk_handover_test"   # BF-005: queued clocks from disconnected owner
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
@@ -184,6 +191,7 @@ run smc-link python3 tests/host/smc_link_test.py
 run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
 run smc-reachability sh tests/host/smc_reachability_test.sh
+run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-mapping python3 tests/host/smc_mapping_test.py
 run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh
 run smc-drum-rs sh tests/host/smc_drum_rs_test.sh
@@ -338,6 +346,34 @@ else
     exec 3>&-
     for f in $(ls "$RES" | grep -v -e '\.fail$' -e '\.time$' | sort); do cat "$RES/$f"; done
     ls "$RES" | grep -q '\.fail$' && FAIL=1
+fi
+# The parent can observe a worker interrupted before run_one writes .results/$key.
+# POSIX `wait` without a specific PID need not report an individual failed job;
+# never translate a missing or partial worker result into an overall PASS.
+if [ "$JOBS" -gt 1 ]; then
+    for slot in $X0X_QUEUED_RESULTS; do
+        key=${slot%%:*}
+        test_name=${slot#*:}
+        first_line=""
+        if [ -f "$RES/$key" ]; then
+            IFS= read -r first_line < "$RES/$key" || :
+        fi
+        case "$first_line" in
+            "  ok   $test_name") ;;
+            "  FAIL $test_name (see $OUT/$test_name.log)") FAIL=1 ;;
+            *) echo "  FAIL $test_name (missing or incomplete worker result: $RES/$key)"; FAIL=1 ;;
+        esac
+    done
+fi
+# A misspelled, skipped, or unavailable requested selector is not a PASS.
+# In particular, an absent optional firmware package may silently omit its test.
+if [ -n "$X0X_TESTS" ]; then
+    for requested in $X0X_TESTS; do
+        case " $X0X_EXECUTED_TESTS " in
+            *" $requested "*) ;;
+            *) echo "  FAIL $requested (requested test did not execute)"; FAIL=1 ;;
+        esac
+    done
 fi
 [ $FAIL -eq 0 ] && echo "all tests passed" || echo "TESTS FAILED"
 exit $FAIL
