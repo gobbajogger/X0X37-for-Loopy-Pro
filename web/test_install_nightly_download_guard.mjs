@@ -56,6 +56,7 @@ function runtime(publisher = {}) {
   let requests = 0;
   const context = createContext({
     console, Object, Array, Number, document:{}, dom,
+    fetchCount: () => requests,
     fetch: async () => { requests++; throw Error("unapproved release fetch"); }
   });
   new Script(`let catalogLive={versions:[]}, chosenModel="elite";
@@ -70,7 +71,7 @@ function runtime(publisher = {}) {
     globalThis.evaluation = (v,a) => approvedNightlyModels(v,a);
     globalThis.present = () => {refreshMeta();return {hidden:dom.download.hidden,href:dom.download.href};};
     globalThis.tryRelease = () => mergeGitHubReleases();
-    globalThis.reqCount = () => requests;`).runInContext(context);
+    globalThis.reqCount = () => fetchCount();`).runInContext(context);
   return context;
 }
 const noApproval = runtime();
@@ -79,13 +80,13 @@ test("unreviewed all-green catalog still hides direct download", () => {
   assert.deepEqual(Array.from(noApproval.available()),[]);
   assert.deepEqual({...noApproval.present()}, {hidden:true,href:null});
 });
-test("unapproved GitHub release asset cannot appear or request network", async () => {
-  const fake = structuredClone(good);
-  fake.version = "unreviewed-release";
-  fake.models.elite.fromRelease = true;
-  fake.models.elite.pkg = "https://github.com/unknown/releases/download/x.fwsc";
-  noApproval.setCatalog(fake);
-  await noApproval.tryRelease();
+const fakeRelease = structuredClone(good);
+fakeRelease.version = "unreviewed-release";
+fakeRelease.models.elite.fromRelease = true;
+fakeRelease.models.elite.pkg = "https://github.com/unknown/releases/download/x.fwsc";
+noApproval.setCatalog(fakeRelease);
+await noApproval.tryRelease();
+test("unapproved GitHub release asset cannot appear or request network", () => {
   assert.equal(noApproval.reqCount(),0);
   assert.equal(noApproval.present().hidden,true);
 });
