@@ -117,6 +117,44 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
  for(const item of catalog.history){
    shape(item,approvedHistoryFields,'history');
    if(item.source_repo!==undefined)assert.equal(item.source_repo,officialRepo,'historical source repo');
+
+    // Metadata booleans never grant distribution, exact-source build or full QA.
+    for (const flag of ['artifact_distribution_approved','exact_remote_native_build',
+      'artifact_bytes_independently_verified','build_target_tests_independently_reexecuted']) {
+      if (Object.prototype.hasOwnProperty.call(item,flag))
+        assert.equal(typeof item[flag],'boolean','history '+item.id+': '+flag+' must be boolean');
+    }
+    if(item.artifact_distribution_approved!==undefined)
+      assert.equal(item.artifact_distribution_approved,false,'read-only history cannot approve distribution');
+    if(item.exact_remote_native_build!==undefined)
+      assert.equal(item.exact_remote_native_build,false,'no independent exact-full-root compiler attestation');
+    if(item.build_target_tests_independently_reexecuted!==undefined)
+      assert.equal(item.build_target_tests_independently_reexecuted,false,'no independent full-root QA receipt');
+    if(item.artifact_bytes_independently_verified===true){
+      // Preserve the one REAL private byte rehash, tied to the prior committed
+      // 23/23 audit and exact source/model/controller SHA, never to installability.
+      const r4=JSON.parse(read('docs/scheduler-handoffs/catalog-sync-20261024.json')).closed_loop_cycle_20261024_r4;
+      const proof=r4?.catalog_private_zip;
+      const source=r4?.consumed_firmware?.[0];
+      assert.equal(item.id,'integration-pr103-model-builds-20261024','unattributed independent-byte claim');
+      assert.equal(item.status,'evidence-only','independent byte audit remains noninstallable evidence');
+      assert.equal(source?.sha,item.source_commit,'private audit source commit mismatch');
+      assert.equal(source?.root_tree,item.source_tree,'private audit full root mismatch');
+      assert.equal(source?.firmware_subtree,item.firmware_subtree,'private audit firmware subtree mismatch');
+      assert.equal(proof?.scoped,'CATALOG_PRIVATE_BYTE_REHASH_ONLY__NO_NATIVE_COMPILER_OR_FIRMWARE_CRC_PARSER_QA');
+      assert.equal(proof?.exit_code,0,'private-byte audit must exit zero');
+      assert.equal(proof?.checks_pass,23,'private-byte audit pass count');
+      assert.equal(proof?.total_checks,23,'private-byte audit total count');
+      assert.match(proof?.producer_manifest_sha256,/^[a-f0-9]{64}$/,'private-byte audit manifest SHA256');
+      assert.equal(proof?.controller_redistribution_cleared,false,'controller redistribution remains unapproved');
+      for(const model of ['elite','pro','private_controller']){
+        assert.equal(item.producer_reported_artifacts?.[model]?.sha256,proof?.sha256?.[model],
+          model+': private-byte audit SHA256 mismatch');
+        assert.equal(item.producer_reported_artifacts?.[model]?.bytes,proof?.bytes?.[model],
+          model+': private-byte audit byte length mismatch');
+      }
+    }
+
    for(const key of ['url','evidence_url','handoff_source'])if(item[key]!=null)(key==='url'?navigationURL:evidenceURL)(item[key],'history.'+key);
    assert.equal(item.models.length,new Set(item.models).size,'duplicate historical model');
    if(item.reported_checks!==undefined)shape(item.reported_checks,'origin command result','reported_checks');

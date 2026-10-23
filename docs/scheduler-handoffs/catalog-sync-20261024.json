@@ -458,5 +458,119 @@
     "next_gate": "Data Safety PR96 skipped restore fix, independent exact full-root QA, safe merge, lawfully hosted immutable HTTP; for website independent full-root npm/negative/browser before merger.",
     "protected_refs_untouched": true,
     "firmware_vendor_bytes_public": false
+  },
+  "closed_loop_cycle_20261024_r5": {
+    "revision": "catalog-pr3-proof-flags-pr96-restoration-source-20261024-r5",
+    "role": "X0X37 Build Catalog Sync",
+    "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+    "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+    "consumed_site_head": "4783cb943505c202c5b4543da068bf9b11364394",
+    "consumed_site_full_root_tree": "25b2c62de445caa70a8b260899ab91d77e10f0b5",
+    "website_main": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+    "website_pages": "9c5d3b6b0846f89436492851fef89ed3829b7ad7",
+    "firmware_nightly": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "consumed": {
+      "website_reviews": [
+        {
+          "head": "e0b28198cb35f9bc850138539be6ed1b879b815d",
+          "revision": "merger-pr3-proof-flags-e0b2819-20261024-r1",
+          "finding": "7 unbound proof-claim mutations accepted"
+        },
+        {
+          "head": "4783cb943505c202c5b4543da068bf9b11364394",
+          "revision": "pipeline-pr3-head4783-proof-replay-20261024-r3",
+          "finding": "7 failures reproduced on current head"
+        }
+      ],
+      "firmware_producer": [
+        {
+          "pr": 96,
+          "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+          "head": "74f18fe19a95cb885280a373cb0dd9d53500c193",
+          "full_root_tree": "e251041a97b1e1cd2fd5174c20b2723d641ad157",
+          "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+          "evidence_revision": "independent-qa-pr96-restore-current-sha-r2",
+          "producer_scoped_host": "prior failure 7 pass/3 fail EXIT1 => 10/10 PASS EXIT0",
+          "independent_scoped_host": "restoration 9/9 and optimized 9/9; SMP_INFO 14/14 and optimized 14/14; all exit0; combined-root QA NOT RUN"
+        },
+        {
+          "pr": 103,
+          "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+          "head": "9ed3cce9ed420c46b1ebab86101f7145a8da5995",
+          "full_root_tree": "f724088d91a340057a21e1b64e1a82d4d183ad07",
+          "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+          "evidence_revision": "catalog-private-byte-audit-and-pr96-restore-skipped-20261024-r4",
+          "data_safety_pr96_repair_integrated": false
+        }
+      ]
+    },
+    "schema_repair": {
+      "typed_proof_fields": [
+        "artifact_distribution_approved",
+        "exact_remote_native_build",
+        "artifact_bytes_independently_verified",
+        "build_target_tests_independently_reexecuted"
+      ],
+      "unsupported_distribution_or_remote_build_or_full_root_qa_true_rejected": true,
+      "previous_truthful_pr103_independently_rehashed_private_bytes_preserved": true,
+      "source_root_subtree_models_and_controller_sha_bound_to": "closed_loop_cycle_20261024_r4.catalog_private_zip",
+      "no_public_binary_urls": true
+    },
+    "counts": {
+      "dev_generations": 2,
+      "history_prior": 83,
+      "history_now": 84,
+      "nightly_installable_entries": 0
+    },
+    "commands": [
+      {
+        "command": "fetch exact Git source blobs + adapt Node file-read/assert/script boundary into in-memory V8; dispatch 114 positive/malicious cases in existing source-defined fixtures",
+        "exit": 0,
+        "passed": 114,
+        "failed": 0,
+        "scope": "SCOPED_V8_NOT_NATIVE_NODE_SPAWN_OR_INDEPENDENT_QA"
+      },
+      {
+        "command": "node --version",
+        "exit": 0,
+        "output": "v22.16.0"
+      },
+      {
+        "command": "npm --version",
+        "exit": 0,
+        "output": "10.9.2"
+      },
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "stderr": "Could not resolve host: github.com"
+      },
+      {
+        "command": "npm run build",
+        "status": "NOT_RUN_EXACT_COMPLETE_TREE_UNAVAILABLE_IN_NATIVE_RUNTIME"
+      },
+      {
+        "command": "npm test",
+        "status": "NOT_RUN_EXACT_COMPLETE_TREE_UNAVAILABLE_IN_NATIVE_RUNTIME"
+      },
+      {
+        "command": "responsive Chromium",
+        "status": "NOT_RUN_EXACT_COMPLETE_TREE_UNAVAILABLE_IN_NATIVE_RUNTIME"
+      }
+    ],
+    "source_generated_manifest_byte_identical": true,
+    "publisher_catalog_versions_empty": true,
+    "source_status": "SOURCE_COMPLETE_CHECKED_SCOPED_NON_DRAFT_FOR_REVIEW",
+    "independent_website_qa": "PENDING",
+    "actual_firmware_qa": "INDEPENDENT_SCOPED_PASSED_PR96_NOT_FULL_INTEGRATED",
+    "firmware_compiler_in_this_catalog_cycle": "NOT_RUN",
+    "pub_http": "NOT_VERIFIED",
+    "physical_device": "UNKNOWN",
+    "elite": "NO_INSTALLABLE_YET",
+    "pro": "NO_INSTALLABLE_YET",
+    "next_site_owner": "Independent NIGHTLY Website QA",
+    "site_next_exact_gate": "current PR3 complete-source native npm build/test/explicit negative-fixture Node/browser responsive and independent review before sole website main merger",
+    "next_firmware_owner": "Sole Safe Merge after Independent firmware QA",
+    "firmware_next_exact_gate": "reviewed ordered #81→#91→#96 + PR103 in firmware NIGHTLY, complete combined source safety/regressions/model/controller/backup/OTA/rollback, lawful immutable external packages and sole publisher actual HTTP SHA"
   }
 }

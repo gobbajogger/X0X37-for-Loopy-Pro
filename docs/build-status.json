@@ -2129,6 +2129,35 @@
       "description": "Data Safety stacked source #81→#91→#96: initial malformed/timeout fail-closed repair scoped verified; current QA proves sample restore skip falsely reported successful, so not eligible for hardware installation.",
       "missing_gate": "Next owner Data Safety: correct run()/SlotMove.restore skipped-slot success accounting in existing PR96 and commit exact-source regression. Independent QA retest full-current-root backup/readback/restore/OTA/model/CRC negatives; sole Safe Merge ordered stack into PR103; Hourly Build exact-source BUILD_ONLY in parallel; Publisher controls future source/license/controller+immutable external HTTP. Hardware result UNKNOWN.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96"
+    },
+    {
+      "id": "data-safety-pr96-restoration-repaired-20261024",
+      "title": "PR96 installer skipped-restore success-accounting repair; independent scoped host QA",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+      "source_commit": "74f18fe19a95cb885280a373cb0dd9d53500c193",
+      "source_tree": "e251041a97b1e1cd2fd5174c20b2723d641ad157",
+      "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Data Safety PR96 source-matched producer repair and separate Independent QA scoped current-SHA host replays; no complete full-root approval.",
+        "command": "python3 tests/fm1_install_restore_status_test.py -v; python3 -O tests/fm1_install_restore_status_test.py -v; python3 tests/x0x_slots_info_preflight_test.py -v; python3 -O tests/x0x_slots_info_preflight_test.py -v",
+        "result": "Producer fail-before 7 PASS/3 safety FAIL exit 1; repair 10/10 PASS exit 0. Independent QA current SHA: restore 9/9 and -O 9/9, SMP_INFO probe 14/14 and -O 14/14 PASS, all exit 0. No exact combined full-root/OTA/backup/model release QA; no device observation."
+      },
+      "description": "After installation, skipped sample restoration and absent target slot map now produce InstallError(\"slots\"), documented exit 7 with backup retained. This is an unmerged stacked source repair; independently scoped host-checked, not installable.",
+      "missing_gate": "Independent integrated full-root and model/backup/readback/restore/OTA interruption/rollback QA on ordered #81→#91→#96 and PR103; target input identity/build check, lawful controller/corresponding source, immutable hosted per-model HTTP SHA; owner device feedback unknown.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96",
+      "evidence_commit": "74f18fe19a95cb885280a373cb0dd9d53500c193",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/74f18fe19a95cb885280a373cb0dd9d53500c193"
     }
   ],
   "policy": {
@@ -2139,7 +2168,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 83
+    "source_or_historical_checkpoints": 84
   },
   "versioning": {
     "firmware_product_version": {

@@ -9,7 +9,8 @@ import { spawnSync } from 'node:child_process';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const required = [
   'scripts/verify-build-status.mjs', 'build-status.json', 'docs/build-status.json',
-  'preview-catalog.json', 'docs/versions.json', 'docs/builds/index.html', 'docs/index.html'
+  'preview-catalog.json', 'docs/versions.json', 'docs/builds/index.html', 'docs/index.html',
+  'docs/scheduler-handoffs/catalog-sync-20261024.json'
 ];
 function run(label, mutate, shouldPass = false) {
   const dir = fs.mkdtempSync(join(tmpdir(), 'x0x37-status-'));
@@ -228,5 +229,50 @@ run('PR96-current-history-rejects-device-PASS',edit(j=>
  j.history.find(x=>x.id==='data-safety-pr96-restoration-status-20261024').device_verified=true));
 run('PR103-private-rehash-does-not-make-installable',edit(j=>
  j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').installable=true));
+
+
+run('PR103-real-private-byte-audit-stays-noninstallable',edit(j=>{
+  const x=j.history.find(x=>x.id==='integration-pr103-model-builds-20261024');
+  assert.equal(x.artifact_bytes_independently_verified,true);
+  assert.equal(x.build_target_tests_independently_reexecuted,false);
+  assert.equal(x.installable,false);
+}),true);
+for(const [name,change] of [
+  ['PR64-no-distribution-approval',j=>j.history.find(x=>x.id==='native-build-probe-historical-pr64').artifact_distribution_approved=true],
+  ['PR64-no-string-approval',j=>j.history.find(x=>x.id==='native-build-probe-historical-pr64').artifact_distribution_approved='true'],
+  ['PR64-no-exact-remote-claim',j=>j.history.find(x=>x.id==='native-build-probe-historical-pr64').exact_remote_native_build=true],
+  ['PR64-no-string-remote-claim',j=>j.history.find(x=>x.id==='native-build-probe-historical-pr64').exact_remote_native_build='true'],
+  ['PR84-no-independent-QA-claim',j=>j.history.find(x=>x.id==='native-elite-pro-current-firmware-subtree-pr84').build_target_tests_independently_reexecuted=true],
+  ['PR103-no-independent-QA-claim',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').build_target_tests_independently_reexecuted=true],
+  ['PR103-byte-proof-not-string',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').artifact_bytes_independently_verified='true'],
+  ['PR103-byte-proof-not-null',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').artifact_bytes_independently_verified=null],
+  ['PR84-no-unattributed-byte-proof',j=>j.history.find(x=>x.id==='native-elite-pro-current-firmware-subtree-pr84').artifact_bytes_independently_verified=true],
+  ['PR103-byte-hash-must-match-audit',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').producer_reported_artifacts.elite.sha256='f'.repeat(64)],
+  ['PR103-source-identity-must-match-audit',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').source_commit='f'.repeat(40)],
+  ['new-history-no-unattributed-target-QA',j=>j.history[0].build_target_tests_independently_reexecuted=true]
+])run(name,edit(change));
+run('PR103-audit-exit-cannot-be-forged',dir=>{
+  const p=join(dir,'docs/scheduler-handoffs/catalog-sync-20261024.json');
+  const e=JSON.parse(fs.readFileSync(p,'utf8'));
+  e.closed_loop_cycle_20261024_r4.catalog_private_zip.exit_code=1;
+  fs.writeFileSync(p,JSON.stringify(e,null,2)+'\n');
+});
+run('PR103-audit-hash-must-match-receipt',dir=>{
+  const p=join(dir,'docs/scheduler-handoffs/catalog-sync-20261024.json');
+  const e=JSON.parse(fs.readFileSync(p,'utf8'));
+  e.closed_loop_cycle_20261024_r4.catalog_private_zip.sha256.elite='f'.repeat(64);
+  fs.writeFileSync(p,JSON.stringify(e,null,2)+'\n');
+});
+run('PR96-new-source-repair-stays-read-only',edit(j=>{
+  const x=j.history.find(x=>x.id==='data-safety-pr96-restoration-repaired-20261024');
+  assert.ok(x,'current source repair record required');
+  assert.equal(x.status,'validation-evidence-only');
+  assert.equal(x.installable,false);
+  assert.equal(x.source_commit,'74f18fe19a95cb885280a373cb0dd9d53500c193');
+}),true);
+run('PR96-new-repair-no-hardware-PASS',edit(j=>
+  j.history.find(x=>x.id==='data-safety-pr96-restoration-repaired-20261024').device_verified=true));
+run('PR96-new-repair-no-download',edit(j=>
+  j.history.find(x=>x.id==='data-safety-pr96-restoration-repaired-20261024').download_url='https://evil.invalid/download.fwsc'));
 
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');
