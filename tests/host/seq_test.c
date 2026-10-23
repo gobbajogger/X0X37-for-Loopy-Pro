@@ -1311,7 +1311,9 @@ static void test_rec_swing_midpoint(void)
     S.t[TRK_BASS0].to_next = L * 3u / 8u;
     CHECK(seq_rec_step(&S, TRK_BASS0) == 15, "ping-pong short step at endpoint");
 
+    P[0].drum[0].rate = RATE_16;            /* restore rate after the RATE_32 cases */
     P[0].drum[0].len = 3;                      /* even step 2 -> even step 0: no swing */
+    L = seq_step_q8(&S, RATE_16);
     S.t[TRK_DRUM].pos = 2;
     S.t[TRK_DRUM].to_next = L * 2u / 5u;
     CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "odd-length even-to-even wrap midpoint");
