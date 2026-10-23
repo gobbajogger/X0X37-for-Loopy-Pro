@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "data-safety-pr75-zone-guards-20261024-r1",
+  "role": "Data Safety",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-archive-zone-preflight-20261023-1119",
+  "consumed": {
+    "source_head": "1d8bea36673942c8c6be2c37af2ac3cb1223de4b",
+    "root_tree": "48fdb2acaa3a1ee60063db706a637257f655e155",
+    "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "base_pr_66": "618eb189f6e25987d1b99b7e5279931425b480f8",
+    "source_blob": "8fe0d4e21ce00beaa0283cd63d720497dd5cf228",
+    "test_blob": "2eb8a3df8473290660511b0da89e41194acfc9e5",
+    "runner_blob": "f682eaa5fd8ef24b8a7688319e6ce12fb9e003d9",
+    "source_mode_before": "100644",
+    "source_mode_restored": "100755"
+  },
+  "candidate": {
+    "pr": 103,
+    "head": "41d65c9f0ff987ea984eaec20262d2855e599777",
+    "root_tree": "ce4194fe40dd1b3399e8eb4b06e059ecd6ca456d",
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "slot_source_blob": "78b041ab3e0c736517dbf2f509c9776c7c632f10",
+    "note": "Unsafe CRC-valid/malformed slot archives still not rejected by candidate's existing read_archive(). Integrate dependent #56→#66→#75, preserve newer matching/backup/snapshot source."
+  },
+  "tests": [
+    {
+      "command": "git hash-object pr75_exact/tools/x0x_slots.py pr75_exact/tests/x0x_slots_zone_guard_test.py",
+      "expected_source_blob": "8fe0d4e21ce00beaa0283cd63d720497dd5cf228",
+      "expected_test_blob": "2eb8a3df8473290660511b0da89e41194acfc9e5",
+      "result": "BOTH MATCH LIVE PR #75 EXACT CHANGED SOURCE BYTES"
+    },
+    {
+      "command": "python3 pr66_exact/tests/x0x_slots_zone_guard_test.py",
+      "exit": 1,
+      "checks": 8,
+      "failed": 6,
+      "expected_failure": true,
+      "log_sha256": "50d59af04c1b4b4b17129c19c28a3e38e371e037eca335a695fd6c6c21cc75d4"
+    },
+    {
+      "command": "python3 pr75_exact/tests/x0x_slots_zone_guard_test.py",
+      "exit": 0,
+      "checks": 8,
+      "failed": 0,
+      "log_sha256": "8ef22e86f92eae70cba0c41d45e22ee4d041279e9b011bcba35892ffb7307bf0"
+    },
+    {
+      "command": "python3 -O pr75_exact/tests/x0x_slots_zone_guard_test.py",
+      "exit": 0,
+      "checks": 8,
+      "failed": 0,
+      "log_sha256": "8ef22e86f92eae70cba0c41d45e22ee4d041279e9b011bcba35892ffb7307bf0"
+    },
+    {
+      "command": "python3 -m py_compile pr75_exact/tools/x0x_slots.py pr75_exact/tests/x0x_slots_zone_guard_test.py",
+      "exit": 0
+    }
+  ],
+  "scope": "Exact PR #75 changed source+test blob locally reconstructed and executed, with mocked flash; not a complete repository runner or hardware test; candidate comparisons are Git SHA source inspection.",
+  "current_work": [
+    "Restore accidentally removed executable mode on tools/x0x_slots.py.",
+    "Register already committed source-specific negative test in serial test runner.",
+    "Commit structured exact-SHA test handoff."
+  ],
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_READY_FOR_QA_BUILD_ONLY_ELIGIBLE_NOT_INSTALLABLE",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Replay exact full PR #75 stack #56+#66+zone guard and current combined candidate; check zone bounds/CRC/restore refusal."
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Safely integrate #56→#66→#75 alongside current #103 backup/matching/snapshot corrections through its own candidate branch."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Elite+Pro+controller compile BUILD_ONLY against exact source SHA or prove compiled-input equivalence; no merge or QA prerequisite."
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Do not expose unqualified candidate. Preserve already safe nightly builds."
+    }
+  ],
+  "unrun": [
+    "whole-root tests/run_tests.sh",
+    "physical device/model flash tests",
+    "new Elite/Pro/controller compilation",
+    "immutable download HTTP/license/model qualification"
+  ]
+}
