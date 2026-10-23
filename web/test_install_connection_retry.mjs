@@ -18,21 +18,23 @@ for (const fragment of ['retryconnection: "Try again"','scanningconnection: "Sca
   'rescanconnection: "Rescan"','retryconnection: "もう一度接続"',
   'connectionnotfound:', 'connectiondenied:']) assert.ok(html.includes(fragment),fragment);
 const buttons = {}, mock = {};
-for (const id of ['connbtn','led','conn','connDetail']) {
+for (const id of ['connbtn','led','conn','connDetail','browserhelp']) {
   buttons[id] = {textContent:'',className:'',disabled:false,attrs:{},setAttribute(name,value){this.attrs[name]=value;}};
 }
 const stateFns = segment('let connectionState = "idle";', 'async function midiAccess()');
 const scans = segment('let scanSerial = 0;', '$("connbtn").addEventListener("click"');
-const ctx = createContext({buttons,mock});
+const ctx = createContext({buttons,mock,navigator:{requestMIDIAccess:async()=>({})}});
 new Script(`
 const $=id=>buttons[id];
 let connected=false, writing=false, lastId=null, lang='en';
 const TEXT={ en: {connect:'Connect USB',retryconnection:'Try again',
   scanningconnection:'Scanning…',rescanconnection:'Rescan',connected:'Connected',
   notconnected:'Not connected',looking:'Looking…',error:'Error',
-  connectionnotfound:'No keyboard. Try again',connectiondenied:'Allow MIDI then Try again'},
+  connectionnotfound:'No keyboard. Try again',connectiondenied:'Allow MIDI then Try again',
+  unsupportedtitle:'Web MIDI unavailable',unsupportedaction:'Unavailable'},
   ja: {connect:'USB 接続',retryconnection:'もう一度接続',scanningconnection:'検索中…',
-  rescanconnection:'再検索', connected:'接続済み',notconnected:'未接続',looking:'探しています…'} };
+  rescanconnection:'再検索', connected:'接続済み',notconnected:'未接続',looking:'探しています…',
+  unsupportedtitle:'Web MIDI を使用できません',unsupportedaction:'接続不可'} };
 const t = k => TEXT[lang][k];
 let onFind = async () => null;
 let findCalls=0;
@@ -46,6 +48,7 @@ ${scans}
 globalThis.control={
  setLanguage(v){lang=v;renderConnectionAction();},
  setWriting(v){writing=v;renderConnectionAction();},
+ setSupported(v){navigator.requestMIDIAccess=v?async()=>({}):undefined;renderConnectionAction();},
  connected(on,detail,bad){setConnected(on,detail,bad);},
  setFind(v){onFind=v;},
  async scan(){return scan();},
@@ -90,3 +93,19 @@ assert.equal(buttons.connbtn.textContent,'Try again');
 assert.equal(buttons.led.className,'led err');
 assert.equal(buttons.connDetail.textContent,'No keyboard. Try again');
 console.log('PASS missing keyboard shows actionable retry in place');
+
+control.setSupported(false);
+assert.equal(buttons.browserhelp.hidden,false,'unsupported browser guidance is displayed');
+assert.equal(buttons.connDetail.hidden,true,'old USB instructions are not duplicated');
+assert.equal(buttons.connbtn.disabled,true,'unsupported Connect cannot start');
+assert.equal(buttons.connbtn.attrs['aria-disabled'],'true');
+assert.equal(buttons.connbtn.textContent,'Unavailable');
+assert.equal(buttons.conn.textContent,'Web MIDI unavailable');
+control.setLanguage('ja');
+assert.equal(buttons.connbtn.textContent,'接続不可');
+assert.equal(buttons.conn.textContent,'Web MIDI を使用できません');
+control.setLanguage('en');
+control.setSupported(true);
+assert.equal(buttons.browserhelp.hidden,true,'supported browsers must not show warning');
+assert.equal(buttons.connbtn.disabled,false);
+console.log('PASS unsupported-browser preflight EN/JA and supported restoration');
