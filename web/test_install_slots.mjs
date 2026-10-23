@@ -7,6 +7,7 @@
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -299,12 +300,30 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   const html = readFileSync(new URL("x0x_installer.html", import.meta.url), "utf8");
   const model = /^SMK-37 Elite/i.test(product) ? "elite" : /^MKE-P37/i.test(product) ? "mke"
     : /^FM-1/i.test(product) ? "fm1" : "pro";
+  // Only this simulated-device test injects a reviewed-source permission.
+  // The real NIGHTLY source keeps its immutable publisher allowlist EMPTY.
+  // This tests the full backup/write/restore journey *after* the picker gate.
+  const pkgSha = createHash("sha256").update(pkg.raw).digest("hex");
+  const ctlSha = "b".repeat(64), rootSha = "1".repeat(40), treeSha = "2".repeat(40);
+  const pkgUrl = "https://nightly.example.test/sha256/test.fwsc";
+  const entry = { product, pkg: pkgUrl, size: pkg.raw.length, sha256: pkgSha, controller_sha256: ctlSha };
   const catalog = JSON.stringify({
     repo: "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
     latest: "test",
-    versions: [{ version: "test", models: { [model]: { product, pkg: "x.fwsc", size: pkg.raw.length } } }],
+    versions: [{ version: "test", status: "dev-checked", source_commit: rootSha,
+      firmware_tree_sha: treeSha, qa_pass: true, source_licenses_approved: true,
+      models: { [model]: entry } }],
   });
-  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
+  const approval = {
+    prehardware_qa_pass: true, license_and_source_ok: true, backup_integrity_pass: true,
+    model_and_controller_pass: true, immutable_http_pass: true, model, product,
+    source_root_sha: rootSha, firmware_tree_sha: treeSha,
+    package_url: pkgUrl, package_sha256: pkgSha, controller_sha256: ctlSha, host_sha256: pkgSha,
+  };
+  const source = html.replace("const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});",
+    `const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze(${JSON.stringify({ [`test/${model}`]: approval })});`);
+  if (source === html) throw new Error("test source publisher guard not found");
+  const js = /<script type="module">([\s\S]*)<\/script>/.exec(source.replace("/*LIB*/", lib).replace("/*CATALOG*/", catalog))[1];
   const flash = new Flash();
   fill.forEach(([k, img]) => load(flash, firmware[from], k, img));
   const dev = new FakeX0X(pkg.image, from, product, firmware, flash, opts);
