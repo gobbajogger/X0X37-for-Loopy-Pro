@@ -283,4 +283,28 @@ run('PR96-new-repair-no-hardware-PASS',edit(j=>
 run('PR96-new-repair-no-download',edit(j=>
   j.history.find(x=>x.id==='data-safety-pr96-restoration-repaired-20261024').download_url='https://evil.invalid/download.fwsc'));
 
+
+ // OTA-loader producer and combined current-source IDs stay evidence-only.
+run('PR104-source-window-not-device',edit(j=>{
+ const x=j.history.find(x=>x.id==='data-safety-pr104-loader-guard-20261024');
+ assert.ok(x); assert.equal(x.status,'validation-evidence-only');
+ assert.equal(x.installable,false); assert.equal(x.device_verified,false);
+ assert.notEqual(x.source_tree,x.firmware_subtree);
+}),true);
+run('PR103-latest-combined-not-new-build',edit(j=>{
+ const x=j.history.find(x=>x.id==='integration-pr103-303-data-safety-loader-20261024');
+ assert.ok(x); assert.equal(x.status,'source-only'); assert.equal(x.installable,false);
+ assert.notEqual(x.source_tree,x.firmware_subtree);
+}),true);
+for(const [name,mutate] of [
+ ['PR104-hidden-download-any-extension',j=>j.history.find(x=>x.id==='data-safety-pr104-loader-guard-20261024').download_url='https://example.net/not-firmware.txt'],
+ ['PR103-hidden-picker-any-extension',j=>j.history.find(x=>x.id==='integration-pr103-303-data-safety-loader-20261024').picker_url='https://example.net/archive.dat'],
+ ['PR104-forged-device-PASS',j=>j.history.find(x=>x.id==='data-safety-pr104-loader-guard-20261024').device_verified=true],
+ ['PR103-fake-independent-byte-claim',j=>j.history.find(x=>x.id==='integration-pr103-303-data-safety-loader-20261024').artifact_bytes_independently_verified=true],
+ ['PR104-invalid-firmware-subtree',j=>j.history.find(x=>x.id==='data-safety-pr104-loader-guard-20261024').firmware_subtree='main'],
+ ['PR103-unapproved-QA-promote',j=>j.history.find(x=>x.id==='integration-pr103-303-data-safety-loader-20261024').build_pipeline={
+   build:'BUILD_SUCCEEDED_UNREVIEWED',qa:'QA_PASSED',installability:'READY_FOR_FLASH',
+   live_http:'VERIFIED',hardware:'DEVICE_VERIFIED',source_scope:'FULL_ROOT'
+ }]
+])run(name,edit(mutate));
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');

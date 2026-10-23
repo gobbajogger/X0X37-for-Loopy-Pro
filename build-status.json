@@ -2186,6 +2186,64 @@
       "description": "Corrected backup/restore skipped-slot failure handling now integrated into the isolated first candidate. Firmware/ subtree unchanged but full root/installer has changed. Not installable; no owner hardware result.",
       "missing_gate": "Independent QA exact current combined-root sample/OTA/backup/readback/restore/CRC/wrong-model and 303 regressions; Hourly Build exact compiler-input/private Elite/Pro/controller hash qualification or new build; reviewed sole Safe Merge then sole Publisher lawful source/controller licensing and immutable external per-model HTTP GET+SHA. Device UNKNOWN.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103"
+    },
+    {
+      "id": "data-safety-pr104-loader-guard-20261024",
+      "title": "Data Safety #104: fail closed on implicit OTA loader resume without known sample preservation",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-ota-loader-resume-20261024-0614",
+      "source_commit": "0482ca12a008eb69b278512979e48f1af47d2da9",
+      "source_tree": "283d5031f1746b9ff12cac9e1a40c753b2f1c9ce",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Verified Git #104 producer head/root/subtree; producer and Independent QA source-window checks attributed to source PR103 comments, not rerun by Catalog.",
+        "command": null,
+        "result": "BEFORE producer 13/15 PASS, two safety FAIL (exit 1); AFTER producer 15/15 PASS (exit 0), optimized 15/15 (exit 0); Independent QA source-window 15/15 and loader matrix 5/5 PASS (SCOPED); full-root host QA INCOMPLETE."
+      },
+      "description": "Implicit --yes OTA loader retry previously bypassed SMP_INFO and sample backup. Repaired to refuse unknown preservation before update command (InstallError slots, exit 7); --no-slots remains deliberate operator risk. Integrated later into draft #103; hardware observations UNKNOWN.",
+      "missing_gate": "Independent exact PR103 full-root OTA/USB/backups/readback/restore/303/wrong-model/controller/CRC tests and review; Hourly Build complete compiler input + bytes; source/license/controller lawful distribution, immutable per-model HTTP GET+SHA by sole Publisher. NIGHTLY no owner physical PASS prerequisite.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/104",
+      "evidence_commit": "0482ca12a008eb69b278512979e48f1af47d2da9",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/0482ca12a008eb69b278512979e48f1af47d2da9"
+    },
+    {
+      "id": "integration-pr103-303-data-safety-loader-20261024",
+      "title": "Combined NIGHTLY #103 integrates Data Safety OTA-loader protection with 303 repair",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "94c093e01680d69e22b64a176b3dc27b7fffdd7f",
+      "source_tree": "c95bf58439d4b5fc3a438dc91cbebc97f7ecae2b",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact Git #103 draft head/root/two-parent ancestry and unchanged firmware subtree checked by Catalog; native full-root QA/build not rerun.",
+        "command": null,
+        "result": "Integrator Git static 21/21 PASS, readback 15/15 PASS (reported); Independent QA source-matched loader 15/15 and matrix 5/5 PASS (SCOPED), full-root QA INCOMPLETE. Existing private model/controller bytes from OLDER full root with matching firmware subtree; not recompiled or qualified for this root."
+      },
+      "description": "First isolated NIGHTLY candidate source integrating 303 + preservation + loader guard. Actual full root differs from known compiled firmware subtree. This is NOT a new Elite/Pro build or firmware eligibility, device observations UNKNOWN.",
+      "missing_gate": "Independent full exact-root safety and functional 303/installer regression; Hourly Build compiler input/bytes attestation; reviewed sole Safe Merge protected NIGHTLY integration; source/license/controller and immutable HTTP/model/backup/CRC checks before sole Publisher DEV firmware. Device UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "94c093e01680d69e22b64a176b3dc27b7fffdd7f",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94c093e01680d69e22b64a176b3dc27b7fffdd7f"
     }
   ],
   "policy": {
@@ -2196,7 +2254,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 85
+    "source_or_historical_checkpoints": 87
   },
   "versioning": {
     "firmware_product_version": {

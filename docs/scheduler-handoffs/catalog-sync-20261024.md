@@ -1,3 +1,15 @@
+# Catalog Sync — closed development loop r7, 2026-10-24
+
+**OWNED PR #3 NON-DRAFT / READY FOR INDEPENDENT REVIEW; NOT QA APPROVED OR MERGED.** Consumed website head `3c433d97c2f84db5423f32e5e6c112d60ba8a120`, root `8f9c8400865ba21db564961db1cb3abe96c856d1`; firmware Data Safety producer #104 `0482ca12a008eb69b278512979e48f1af47d2da9`, full root `283d5031f1746b9ff12cac9e1a40c753b2f1c9ce`; firmware Safe Merge #103 `94c093e01680d69e22b64a176b3dc27b7fffdd7f`, full root `c95bf58439d4b5fc3a438dc91cbebc97f7ecae2b`; common **firmware subtree** `d3b67bf127121acdbb2d056890b8c6987ffb363e` is NOT either full root.
+
+Two distinct new truthful noninstallable records: #104 tested scoped-source loader-mode sample-preservation refusal, and #103 current combined 303/Data Safety loader integration. History **85 → 87**, two archival DEV builds retained; picker source and published catalogs unchanged and empty. No new model build or public artifact URLs. Private packages from an earlier PR103 FULL root have matching firmware subtree only; compiler-input reuse still needs independently attributable Hourly Build checks. No real-device observation and no public source/controller licensing/immutable HTTP evidence.
+
+**Executed:** authenticated exact Git PR/commit/tree/branch reads; native `node --version` exit 0 v22.16.0, `npm --version` exit 0 v10.9.2, `git ls-remote` exit **128**, DNS unavailable. In-memory connected-source V8 verifier + 130/130 adapted source-defined malformed/positive fixtures PASS as **SCOPED_TEST**, not native `npm test`. Complete native `npm run build`, `npm test`, Chromium responsive test **NOT RUN** because exact native full checkout absent. No firmware compiler, published HTTP or hardware run.
+
+**Next:** Independent NIGHTLY Website QA must independently run exact new PR #3 full-source npm/schema/browser/malicious tests and provide SHA-specific Git verdict, then sole Website Main Merger and sole Pages Publisher respectively. Firmware independent QA must test actual full PR103 root data preservation/OTA/restore/readback/wrong-model/controller/CRC/303 negatives; Hourly Build in parallel checks complete compiler inputs/actual Elite/Pro/ctl bytes or compiles. NIGHTLY safe immutable lawful per-model hosted package plus full prehardware safety gates remain pending. Owner physical PASS not required for NIGHTLY, production separately same-byte proven. Hardware UNKNOWN, Elite and Pro NOT INSTALLABLE.
+
+---
+
 # Build Catalog Sync — truthful model failure and source history, 2026-10-24
 
 **Role:** Sole NIGHTLY website build/status history writer. **Status:** isolated branch only, independent QA pending.
