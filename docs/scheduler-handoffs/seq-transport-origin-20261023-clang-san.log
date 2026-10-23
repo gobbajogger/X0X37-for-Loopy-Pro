@@ -1,0 +1,4 @@
+COMPILE clang -std=c11 -Wall -Wextra -Werror -O1 -fsanitize=address,undefined -fno-sanitize-recover=all /tmp/seq-origin-host-lucu6o04/test.c -o /tmp/seq-origin-host-lucu6o04/test
+COMPILE_EXIT 0
+16/16 transport provenance checks passed
+TEST_EXIT 0
