@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T17:17:10Z",
+  "role": "LoopyX0X37 Hourly Bugfinder",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/bugfinder-bf015-tb3po-anchor-20261023-run11",
+    "tested_commit": "9506a68aa2d1f0e04eca23871368d18ab2a070cd",
+    "tested_tree": "b8b429bfffa251994b64a3066f90bcf5aea833a7",
+    "pr": 98
+  },
+  "summary": "BF-015 source-complete producer evidence compatibility repair: add machine-readable Git scheduler handoff without modifying the independently scoped-host-reviewed TB-3PO source or regression. Existing producer and independent QA tests are historical, not re-executed here. Root and firmware subtree SHAs differ; integration PR #103 is separate.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/tb3po.c",
+      "description": "Original BF-015 repaired Git blob 8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d (unchanged)."
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/tb3po_mutate_anchor_test.c",
+      "description": "Existing exact BF-015 host regression blob 043c25da8095de30b2652905e1111f98a4c3e034 (unchanged)."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/bf015-tb3po-mutation.json",
+      "description": "Preserved original detailed BF-015 producer host test results and limitations."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/bf015-tb3po-git-handoff-v1.json",
+      "description": "Added proposed schema-v1-compatible exact-SHA handoff, statuses and next dependency owner; evidence-only change."
+    }
+  ],
+  "checks": [
+    {
+      "name": "Exact immutable producer source identity",
+      "status": "PASS",
+      "command": "GitHub REST GET git/ref/heads/lane/bugfinder-bf015-tb3po-anchor-20261023-run11 + git/commits/9506a68aa2d1f0e04eca23871368d18ab2a070cd; in-process equality assertions",
+      "exit_code": 0,
+      "evidence": "Verified branch commit 9506a68aa2d1f0e04eca23871368d18ab2a070cd, full root tree b8b429bfffa251994b64a3066f90bcf5aea833a7; firmware/ subtree ed462bf36a6f6c65b967b449d1194ddd0491460f is DISTINCT from root."
+    },
+    {
+      "name": "Producer source and regression blob identity",
+      "status": "PASS",
+      "command": "GitHub fetch_file firmware/src/seq/tb3po.c and tests/host/tb3po_mutate_anchor_test.c at 9506a68aa2d1f0e04eca23871368d18ab2a070cd + in-process equality assertions",
+      "exit_code": 0,
+      "evidence": "Returned source blob 8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d and regression blob 043c25da8095de30b2652905e1111f98a4c3e034; neither changed in this evidence-only revision."
+    },
+    {
+      "name": "Machine-readable scheduler handoff contract",
+      "status": "PASS",
+      "command": "V8 JSON validation against unmerged PR #78 docs/scheduler-evidence.schema.json@244263f1d5f6f38b957fa55a5f745ff13e49eac8",
+      "exit_code": 0,
+      "evidence": "Proposed schema is DRAFT/unmerged, reference only; validation covers required fields, property types, allowed enums, SHA forms, allOf and conditional exit codes; does not assert production gate."
+    },
+    {
+      "name": "Previous BF-015 host before/after regression",
+      "status": "NOT_RUN",
+      "command": "GCC 14.2 and Clang 17 at O0/O2 with host tb3po_mutate_anchor_test.c (prior producer evidence only)",
+      "evidence": "No GCC/Clang rerun in this manifest-only pass. Existing docs/scheduler-handoffs/bf015-tb3po-mutation.json records producer baseline 4/4 expected exit 1 and corrected 4/4 exit 0. Independent QA COMMENTED scoped 4/4 ASan+UBSan exit 0 at PR #98 review; neither is full-tree approval."
+    },
+    {
+      "name": "Exact combined integration and Elite/Pro/controller builds",
+      "status": "NOT_RUN",
+      "command": "Hourly Build exact integration PR #103 model-specific native build and independent QA combined regression",
+      "evidence": "Separate Git-owned integration #103@9ed3cce9ed420c46b1ebab86101f7145a8da5995 includes identical BF-015 source blob, has Hourly Build BUILD_ONLY receipts; those do NOT mean this producer PR root was independently target-built, nor certify QA/public delivery."
+    },
+    {
+      "name": "Owner-installable NIGHTLY safety and immutable HTTP",
+      "status": "NOT_RUN",
+      "command": "QA + model/controller integrity/budgets/backup/OTA negatives + lawful immutable HTTP publisher gates",
+      "evidence": "Separate critical QA, full candidate/package/model/backup and distribution gates remain pending; nightly main preview-catalog.json currently has latest null and versions []; owner hardware feedback UNKNOWN."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "This producer PR's exact root not target-built here; separate combined PR #103 has BUILT_ONLY receipt, pending independent QA and public gates."
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "This producer PR's exact root not target-built here; separate combined PR #103 has BUILT_ONLY receipt, pending independent QA and public gates."
+    }
+  ],
+  "next": {
+    "owner": "Independent QA (parallel: Hourly Build; integration: sole Safe Merge)",
+    "action": "ACK exact PR #98 tested source 9506a68aa2d1f0e04eca23871368d18ab2a070cd and this evidence revision; independently verify exact combined PR #103 root and its before/after negative host tests. Hourly Build retains exact-source BUILD_ONLY ownership, and Safe Merge alone integrates checked firmware nightly.",
+    "gate": "Complete independent exact-combined-source QA and applicable model/controller/source/backup/OTA/installer/license/immutable HTTP gates before first owner-installable NIGHTLY; physical device PASS is not a NIGHTLY prerequisite."
+  },
+  "dependencies": [
+    "firmware NIGHTLY base 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "BF-015 producer PR #98 source 9506a68aa2d1f0e04eca23871368d18ab2a070cd",
+    "combined first 303 integration PR #103 9ed3cce9ed420c46b1ebab86101f7145a8da5995",
+    "unmerged evidence schema PR #78 67df140182b08394c10e5edc6f37de43cc5a48d2"
+  ],
+  "publication": "SOURCE_ONLY"
+}
