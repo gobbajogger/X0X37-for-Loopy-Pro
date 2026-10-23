@@ -824,8 +824,15 @@ int seq_rec_step(seq_t *s, int t)
         return (is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
     if (s->ext)
         late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= TICKS_PER_STEP[rate] / 2u);
-    else
-        late = tr->to_next != NEVER && tr->to_next < seq_step_q8(s, rate) / 2u;
+    else {
+        /* Record against the actual swung internal step duration, not an unswung half-step. */
+        uint32_t L = seq_step_q8(s, rate), sw = swing_q8(s, rate, L);
+        int np = next_pos(s, t, tr->pos, 0);
+        uint32_t span = (np & 1) ? L + sw : L - sw;
+        if (!(np & 1) && !(tr->pos & 1))   /* even -> even on an odd-length wrap: no swing */
+            span = L;
+        late = tr->to_next != NEVER && tr->to_next < span / 2u;
+    }
     return late ? next_pos(s, t, tr->pos, 0) : tr->pos;
 }
 /* a live hit (voice v; 303: 0) recorded on step p: if p did not play yet on this pass, p does not sound
