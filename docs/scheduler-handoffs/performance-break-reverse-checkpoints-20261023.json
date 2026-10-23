@@ -64,7 +64,6 @@
       "name": "Full firmware renderer and pinned Elite/Pro DEV+controller",
       "status": "NOT_RUN",
       "command": "NOT_RUN",
-      "exit_code": null,
       "evidence": "This producer does not own target firmware builds or independently approve QA.",
       "coverage": "Per-model RAM/flash/pool and end-to-end audio remain unverified"
     }
