@@ -186,4 +186,32 @@ for (const [label,mutate] of [
       'https://example.net/unreviewed-image.dat']
 ])run(label,edit(mutate));
 
+
+ // Permanent negative fixtures reproducing independent Main Merger's 9040bd1
+ // eight exact-source fail-open data-integrity findings; no firmware download.
+for(const [name,fn] of [
+ ['top-source-commit-mutable',j=>j.source.commit='main'],
+ ['top-source-commit-null',j=>j.source.commit=null],
+ ['top-source-commit-number',j=>j.source.commit=18],
+ ['history-firmware-subtree-mutable',j=>j.history.find(x=>x.firmware_subtree).firmware_subtree='main'],
+ ['historical-model-package-sha-invalid',j=>j.history.find(x=>x.reported_package_sha256).reported_package_sha256.elite='not-a-SHA256'],
+ ['failed-model-exit-status-string',j=>j.history.find(x=>x.failed_build).failed_build.elite.exit_code='1'],
+ ['failed-controller-sha-invalid',j=>j.history.find(x=>x.failed_build).failed_build.controller.sha256='not-a-SHA256'],
+ ['failed-controller-crc-invalid',j=>j.history.find(x=>x.failed_build).failed_build.controller.crc32='not-a-CRC'],
+ ['failed-pool-accounting-corruption',j=>j.history.find(x=>x.failed_build).failed_build.pool_used_bytes+=1],
+ ['offline-controller-crc-invalid',j=>j.history.find(x=>x.reported_offline_artifacts).reported_offline_artifacts.controller.crc32='not-a-CRC'],
+ ['producer-Elite-hash-invalid',j=>j.history.find(x=>x.producer_reported_artifacts).producer_reported_artifacts.elite.sha256='not-a-SHA256'],
+ ['producer-Pro-product-swapped',j=>j.history.find(x=>x.producer_reported_artifacts).producer_reported_artifacts.pro.product='SMK-37 Elite_900'],
+ ['producer-private-controller-crc-invalid',j=>j.history.find(x=>x.producer_reported_artifacts).producer_reported_artifacts.private_controller.crc32='not-a-CRC'],
+ ['PR103-download-hidden-any-extension',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').download_url='https://example.net/unapproved.bin'],
+ ['PR103-firmware-subtree-not-a-SHA',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').firmware_subtree='main'],
+ ['PR103-cross-history-duplicate',j=>j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').id=j.history[0].id],
+]) run(name,edit(fn));
+run('PR103-independent-build-receipt-stays-noninstallable',edit(j=>{
+  const b=j.history.find(x=>x.id==='integration-pr103-model-builds-20261024');
+  assert.ok(b,'source/evidence history must include the actual model builder receipt');
+  assert.equal(b.status,'evidence-only');
+  assert.equal(b.installable,false);
+}),true);
+
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');

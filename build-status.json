@@ -1731,7 +1731,7 @@
         "pro": {
           "exit_code": 1,
           "artifact_created": false,
-          "log_sha256": "0bfc208e37a7d72390ac6b740a94524f53ba4eb1f13ffec702bdbc0ea17d17b"
+          "log_sha256": "0bfc208e37a7d72390ac6b740a94524f53ba4eb1f13ffec702b7dbc0ea17d17b"
         },
         "controller": {
           "exit_code": 0,
@@ -2055,6 +2055,53 @@
       "missing_gate": "Build owner BUILD_ONLY exact source candidate, independent combined QA, then sole firmware nightly integration; later public prehardware host/model/backup/license/HTTP gates.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e"
+    },
+    {
+      "id": "integration-pr103-model-builds-20261024",
+      "title": "PR103 combined 303 repair: native Elite and Pro build receipt (unreviewed)",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "9ed3cce9ed420c46b1ebab86101f7145a8da5995",
+      "source_tree": "f724088d91a340057a21e1b64e1a82d4d183ad07",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "date": "2026-10-24",
+      "status": "evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_bytes_independently_verified": false,
+      "build_target_tests_independently_reexecuted": false,
+      "reported_checks": {
+        "origin": "Hourly Build PR103 r1/r2 model builds and regressions; independent QA private binary integrity and prehardware CLI safety; Catalog did not re-run compiler or rehash private PR103 bytes",
+        "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37; BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37; CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+        "result": "BUILD_SUCCEEDED_UNREVIEWED: producer native Elite/Pro/private controller exits 0/0/0 and 12 source-matched GCC/Clang positive configurations PASS; independent binary-integrity tests 12/12 PASS. FULL_ROOT_QA_INCOMPLETE; independent CLI slot-preservation source-window regression exit 1 with 4 PASS and 2 safety-invariant FAIL. NOT INSTALLABLE."
+      },
+      "description": "PR103 scoped compiler bytes separately attributable to integrated 303 firmware subtree; unmerged, noninstallable, private artifacts. Independently confirmed integrity is not a safe installation or source-QA PASS.",
+      "missing_gate": "Data Safety owner must repair CLI slot_probe malformed/timeout fail-open; independent QA rerun exact full-root and backup/readback/OTA/rollback negatives; model/controller legal source/redistribution and publisher independent immutable external HTTP bytes gates. Owner device result UNKNOWN; physical PASS not NIGHTLY prerequisite.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "producer_reported_artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "1cb7d432d3149559bf6330ab53443fbe8939382369185b9063fe1f08f85a8cd5"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "a8cd8b856001d446fa0c92074dc296ea454a02a75ce7332a10b8a8cb94b144f6"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "77b7a496",
+          "redistribution_permitted": false
+        }
+      }
     }
   ],
   "policy": {
@@ -2065,7 +2112,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 81
+    "source_or_historical_checkpoints": 82
   },
   "versioning": {
     "firmware_product_version": {

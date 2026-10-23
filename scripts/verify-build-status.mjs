@@ -91,6 +91,7 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
  shape(catalog.source,'repo ref commit versions_blob_sha','source');
  assert.equal(catalog.source.repo,officialRepo,'source repo');
  assert.equal(catalog.source.ref,'gh-pages','source ref');
+assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinned SHA');
  shape(catalog.policy,'nightly public public_device_proven_versions public_latest','policy');
  shape(catalog.counts,'actual_build_generations source_or_historical_checkpoints','counts');
  shape(catalog.versioning,'firmware_product_version build_id channel_rules web_preview_package_version web_preview_package_version_is_firmware_version','versioning');
@@ -119,21 +120,38 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
    for(const key of ['url','evidence_url','handoff_source'])if(item[key]!=null)(key==='url'?navigationURL:evidenceURL)(item[key],'history.'+key);
    assert.equal(item.models.length,new Set(item.models).size,'duplicate historical model');
    if(item.reported_checks!==undefined)shape(item.reported_checks,'origin command result','reported_checks');
-   if(item.reported_package_sha256!==undefined)shape(item.reported_package_sha256,'elite pro','reported hashes');
+   if(item.reported_package_sha256!==undefined){
+     shape(item.reported_package_sha256,'elite pro','reported hashes');
+     for(const [model,sha] of Object.entries(item.reported_package_sha256))
+       assert.match(sha,/^[a-f0-9]{64}$/,model+': reported historical package SHA256');
+   }
    if(item.offline_source!==undefined){
      shape(item.offline_source,'synthetic_commit synthetic_tree firmware_nightly_tree identical_to_firmware_nightly','offline projection');
      assert.equal(item.offline_source.identical_to_firmware_nightly,false,'unverified source equality');
+     for(const key of ['synthetic_commit','synthetic_tree','firmware_nightly_tree'])
+       assert.match(item.offline_source[key],/^[a-f0-9]{40}$/,'offline '+key);
    }
    if(item.reported_offline_artifacts!==undefined){
      shape(item.reported_offline_artifacts,'elite pro controller','offline artifacts');
-     for(const [model,artifact] of Object.entries(item.reported_offline_artifacts))
+     for(const [model,artifact] of Object.entries(item.reported_offline_artifacts)){
        shape(artifact,model==='controller'?'size sha256 crc32':'size sha256','offline artifact');
+       assert.ok(Number.isInteger(artifact.size)&&artifact.size>0,'offline artifact size must be positive integer');
+       assert.match(artifact.sha256,/^[a-f0-9]{64}$/,'offline artifact SHA256');
+       if(model==='controller')assert.match(artifact.crc32,/^[a-f0-9]{8}$/,'offline controller CRC32');
+     }
    }
    if(item.producer_reported_artifacts!==undefined){
      shape(item.producer_reported_artifacts,'elite pro private_controller','reported artifacts');
      for(const [model,artifact] of Object.entries(item.producer_reported_artifacts)){
        shape(artifact,model==='private_controller'?'bytes sha256 crc32 redistribution_permitted':'product bytes sha256','reported artifact');
-       if(model==='private_controller')assert.equal(artifact.redistribution_permitted,false,'controller redistribution not cleared');
+       assert.ok(Number.isInteger(artifact.bytes)&&artifact.bytes>0,'producer artifact byte count');
+       assert.match(artifact.sha256,/^[a-f0-9]{64}$/,'producer artifact SHA256');
+       if(model==='private_controller'){
+         assert.match(artifact.crc32,/^[a-f0-9]{8}$/,'private controller CRC32');
+         assert.equal(artifact.redistribution_permitted,false,'controller redistribution not cleared');
+       } else {
+         assert.equal(artifact.product,model==='elite'?'SMK-37 Elite_900':'SMK-37 Pro_900','producer model/product mismatch');
+       }
      }
    }
    if(item.build_pipeline!==undefined){
@@ -144,13 +162,22 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
    if(item.failed_build!==undefined){
      shape(item.failed_build,'scope firmware_subtree pool_used_bytes pool_capacity_bytes pool_free_bytes pool_minimum_bytes elite pro controller','failed build');
      assert.ok(item.failed_build.pool_free_bytes<item.failed_build.pool_minimum_bytes,'unexpected pool eligibility');
+     for(const key of ['pool_used_bytes','pool_capacity_bytes','pool_free_bytes','pool_minimum_bytes'])
+       assert.ok(Number.isInteger(item.failed_build[key])&&item.failed_build[key]>=0,'invalid pool '+key);
+     assert.equal(item.failed_build.pool_capacity_bytes-item.failed_build.pool_used_bytes,item.failed_build.pool_free_bytes,'failed source pool accounting mismatch');
+     assert.match(item.failed_build.firmware_subtree,/^[a-f0-9]{40}$/,'failed build firmware subtree');
      for(const model of ['elite','pro']){
        shape(item.failed_build[model],'exit_code artifact_created log_sha256','failed '+model);
        assert.equal(item.failed_build[model].artifact_created,false,'failed build cannot claim package');
-       assert.ok(item.failed_build[model].exit_code!==0,'failed build cannot claim success');
+       assert.ok(Number.isInteger(item.failed_build[model].exit_code)&&item.failed_build[model].exit_code!==0,'failed model exit must be a nonzero integer');
+       assert.match(item.failed_build[model].log_sha256,/^[a-f0-9]{64}$/,'failed model log SHA256');
      }
      shape(item.failed_build.controller,'exit_code size_bytes sha256 crc32 redistribution_allowed','failed controller');
      assert.equal(item.failed_build.controller.redistribution_allowed,false);
+     assert.ok(Number.isInteger(item.failed_build.controller.exit_code),'failed-source controller exit must be integer');
+     assert.ok(Number.isInteger(item.failed_build.controller.size_bytes)&&item.failed_build.controller.size_bytes>0,'failed-source controller size');
+     assert.match(item.failed_build.controller.sha256,/^[a-f0-9]{64}$/,'failed-source controller SHA256');
+     assert.match(item.failed_build.controller.crc32,/^[a-f0-9]{8}$/,'failed-source controller CRC32');
    }
  }
 
@@ -205,6 +232,7 @@ for (const item of catalog.history) {
   assert.ok(historicalStatuses.has(item.status), 'unverified or invalid history status ' + item.status);
   assert.match(item.source_commit, /^[a-f0-9]{40}$/, 'history requires immutable source SHA');
   if (item.source_tree !== undefined) assert.match(item.source_tree, /^[a-f0-9]{40}$/);
+  if (item.firmware_subtree !== undefined) assert.match(item.firmware_subtree,/^[a-f0-9]{40}$/,'firmware subtree must be exact Git tree SHA');
   if (item.status === 'build-succeeded-unreviewed') {
     const x = item.build_pipeline;
     assert.ok(x && typeof x === 'object');
