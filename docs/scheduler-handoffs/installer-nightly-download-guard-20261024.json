@@ -316,5 +316,50 @@
       }
     ],
     "boundary": "PR ready for independent review is neither QA approval, native Node/browser PASS, hardware build, legal immutable HTTP link, installation, nor production approval."
+  },
+  "latest_download_race_reconciliation": {
+    "evidence_revision": "installer-download-race-20261024-r2",
+    "producer": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "consumed_previous_head": "33b1f10afbe1399eb7c3439f7ef1623b0a0ba0e8",
+      "consumed_existing_generation_guard_pr39": "8a5f1a6aa55c659fd92dbc30b9d49f44bb70d28e",
+      "consumed_stacked_ux_pr100": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "original_installer_blob": "5752659df12c7d89a328c44687f84c6e2652e73b",
+      "nightly_base_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "nightly_base_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "nightly_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "status": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_INDEPENDENT_QA_PENDING",
+    "checks": [
+      {
+        "command": "node /mnt/data/test_install_nightly_load_race.mjs /mnt/data/x0x_loader_before_excerpt.html",
+        "exit_code": 1,
+        "expected": "RED stale Elite replaced Pro"
+      },
+      {
+        "command": "node /mnt/data/test_install_nightly_load_race.mjs /mnt/data/x0x_loader_after_excerpt.html",
+        "exit_code": 0,
+        "passed": 5
+      },
+      {
+        "command": "python /mnt/data/test_installer_browser_load_race.py /mnt/data/x0x_loader_before_excerpt.html before",
+        "exit_code": 1,
+        "expected": "RED stale Elite replaced Pro"
+      },
+      {
+        "command": "python /mnt/data/test_installer_browser_load_race.py /mnt/data/x0x_loader_after_excerpt.html after",
+        "exit_code": 0,
+        "widths": [
+          320,
+          390,
+          1280
+        ]
+      }
+    ],
+    "scope": "Exact native Node and Chromium mocked source excerpts, not full remote branch, device, or HTTP.",
+    "next_owner": "Independent QA then sole firmware Safe Merge; NIGHTLY website source owner separately",
+    "remaining_gate": "complete exact remote Node/backup/OTA and browser EN/JA independent QA plus website prehardware model/controller/license/immutable-host gate",
+    "full_branch_tests": "NOT_RUN"
   }
 }

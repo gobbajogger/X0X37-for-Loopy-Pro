@@ -308,6 +308,7 @@ $("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
 let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
+let loadSerial = 0;
 
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
@@ -501,30 +502,44 @@ async function sha256Hex(buf) {
   return hex;
 }
 async function loadSelectedPackage() {
+  const requestId = ++loadSerial;
   image = null; selectedProduct = null;
   $("go").disabled = true;
   refreshMeta();
   const ver = currentVersion();
-  const pkg = ver && chosenModel && ver.models[chosenModel];
+  const model = chosenModel;
+  const pkg = ver && model && ver.models[model];
   if (!isCatalogChecked(ver, pkg)) { sayK("noproduct"); return; }
+  // A verified response is usable only while the SAME model/version/package
+  // remains selected and publisher-approved. An old request cannot re-enable Install.
+  const isLatest = () => {
+    if (requestId !== loadSerial || chosenModel !== model) return false;
+    const current = currentVersion();
+    return !!current && current.version === ver.version &&
+      current.models && current.models[model] === pkg && isCatalogChecked(current, pkg);
+  };
   try {
     const r = await fetch(pkg.pkg);
+    if (!isLatest()) return;
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
     const raw = new Uint8Array(await r.arrayBuffer());
+    if (!isLatest()) return;
     // Approved downloads require a SHA and the exact product/model identity.
     const hex = await sha256Hex(raw.buffer);
+    if (!isLatest()) return;
     if (hex !== pkg.sha256) { sayK("badpkg"); return; }
     const product = productOf(raw);
     if (product !== pkg.product) { sayK("badpkg"); return; }
     image = logicalImage(raw);
     selectedProduct = product;
-    say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
+    say(`X0X ${ver.version} · ${MODELS[model] || model}`);
     $("go").disabled = writing;
     refreshMeta();
-  } catch (e) { sayK("loadfail", e.message); }
+  } catch (e) { if (isLatest()) sayK("loadfail", e.message); }
 }
 
 function fillVersions() {
+  loadSerial++; // Also invalidate a pending download when the picker becomes empty.
   const sel = $("version");
   const cur = sel.value;
   sel.innerHTML = "";

@@ -134,3 +134,52 @@ test("default embedded publisher list cannot self-authorize", () => {
   assert.deepEqual(Array.from(noApproval.evaluation(good,{})),[]);
 });
 console.log(`PASS ${checks} NIGHTLY installer source-excerpt assertions; device/host HTTP not tested`);
+
+// Request order regression, controlled HTTP/model fixture (no real device/HTTP).
+assert.match(html,/let loadSerial = 0;/);
+assert.match(chooser,/function fillVersions\(\) \{\s*loadSerial\+\+;/);
+const racePkgs={
+  elite:{product:"SMK-37 Elite_9001100",pkg:"https://nightly.example.test/elite.fwsc",sha256:"a".repeat(64)},
+  pro:{product:"SMK-37 Pro_9001100",pkg:"https://nightly.example.test/pro.fwsc",sha256:"b".repeat(64)}
+};
+function makeRace(){
+  const pending=new Map(),errors=[],go={disabled:true},version={version:"synthetic",models:racePkgs};
+  const ctx=createContext({
+    $:()=>go,refreshMeta(){},currentVersion:()=>version,
+    isCatalogChecked:(v,p)=>!!v&&Object.values(v.models).includes(p),
+    sayK:k=>errors.push(k),say(){},MODELS:{elite:"Elite",pro:"Pro"},
+    sha256Hex:async raw=>new Uint8Array(raw)[0]===1?"a".repeat(64):"b".repeat(64),
+    productOf:raw=>new Uint8Array(raw)[0]===1?racePkgs.elite.product:racePkgs.pro.product,
+    logicalImage:raw=>new Uint8Array(raw)[0],
+    fetch:url=>new Promise((resolve,reject)=>pending.set(url,{resolve,reject})),Uint8Array
+  });
+  new Script("let loadSerial=0,chosenModel='elite',image=null,selectedProduct=null,writing=false;\n"
+    +loader+"\n"
+    +"globalThis.choose=m=>{chosenModel=m;return loadSelectedPackage()};\n"
+    +"globalThis.result=()=>({image,selectedProduct,disabled:$('go').disabled});")
+    .runInContext(ctx);
+  return {ctx,pending,errors};
+}
+{
+  const r=makeRace(),first=r.ctx.choose("elite"),second=r.ctx.choose("pro");
+  r.pending.get(racePkgs.pro.pkg).resolve({ok:true,arrayBuffer:async()=>new Uint8Array([2]).buffer});
+  await second;
+  r.pending.get(racePkgs.elite.pkg).resolve({ok:true,arrayBuffer:async()=>new Uint8Array([1]).buffer});
+  await first;
+  assert.equal(r.ctx.result().image,2);
+  assert.equal(r.ctx.result().selectedProduct,racePkgs.pro.product);
+  assert.equal(r.ctx.result().disabled,false);
+  console.log("PASS latest approved model wins in-flight race");
+}
+{
+  const r=makeRace(),first=r.ctx.choose("elite"),second=r.ctx.choose("pro");
+  r.pending.get(racePkgs.elite.pkg).reject(Error("stale failure"));
+  await first;
+  assert.equal(r.errors.includes("loadfail"),false);
+  assert.equal(r.ctx.result().disabled,true);
+  r.pending.get(racePkgs.pro.pkg).resolve({ok:true,arrayBuffer:async()=>new Uint8Array([2]).buffer});
+  await second;
+  assert.equal(r.ctx.result().selectedProduct,racePkgs.pro.product);
+  console.log("PASS stale HTTP error does not hide current selection");
+}
+
