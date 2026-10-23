@@ -667,6 +667,14 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
     if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
         s->ext_pending = 0;
         s->clk_lock = 0;                              /* MID-13/MID-15: INTERNAL owns no external clock */
+        /* CLOCK SOURCE INTERNAL supersedes pending MIDI transport from the
+         * previous mode, but must not cancel a newer local PLAY/STOP. */
+        if (s->req_rt) {
+            s->req_start = s->req_cont = s->req_rt = 0;
+            s->req_prior_ticks = 0;
+        }
+        if (s->req_stop_rt)
+            s->req_stop = s->req_stop_rt = 0;
         if (s->ext)
             switch_internal(s);
     } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
@@ -714,6 +722,7 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     }
     if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
         s->req_stop = 0;
+        s->req_stop_rt = 0;
         if (s->playing)
             do_stop(s, o);
     }
@@ -820,6 +829,7 @@ void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start
 {
     s->req_start = s->req_cont = s->req_rt = 0;
     s->req_stop = 1;
+    s->req_stop_rt = 0; /* local Stop supersedes any queued remote Stop */
 }
 void seq_continue(seq_t *s) { request_continue(s, 0); }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
@@ -830,7 +840,10 @@ int seq_midi_rt(seq_t *s, uint8_t st)
     case 0xF8: if (!internal) seq_ext_clock(s); return 1;
     case 0xFA: if (!internal) request_start(s, 1); return 1;
     case 0xFB: if (!internal) request_continue(s, 1); return 1;
-    case 0xFC: if (!internal) seq_stop(s); return 1;
+    case 0xFC: if (!internal) {
+        seq_stop(s);
+        s->req_stop_rt = 1; /* preserve remote Stop origin until audio apply */
+    } return 1;
     default: return 0;
     }
 }
