@@ -109,11 +109,13 @@ h1 { font-size: clamp(46px, 5.8vw, 74px); letter-spacing: -.07em; line-height: .
 .led.busy { background: var(--busy); animation: pulse 1.1s ease-in-out infinite; }
 .led.err { background: var(--err); }
 @keyframes pulse { 50% { opacity: .48; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .led.busy { animation: none; } }
 .ctext { flex: 1; min-width: 0; display: grid; gap: 1px; }
 .ctext b { font-size: 14px; font-weight: 700; color: var(--fg); }
 .ctext span { font-size: 11px; color: var(--dim); overflow-wrap: anywhere; }
 button.quiet, .build-item button { border: 1px solid var(--rule); background: var(--card-raised); color: var(--fg); border-radius: 7px; padding: 9px 16px; min-height: 41px; font-weight: 680; font-size: 12px; }
 button.quiet:hover, .build-item button:hover:not(:disabled) { border-color: var(--accent); }
+button.quiet[aria-disabled="true"] { opacity: .65; cursor: progress; }
 .panel-heading { margin-bottom: 23px; }
 .panel-heading h2 { margin-top: 7px; font-size: 26px; line-height: 1.2; letter-spacing: -.04em; }
 /* Offer the local firmware path where a visitor first looks for a build. */
@@ -304,7 +306,7 @@ progress::-moz-progress-bar { background: var(--accent); }
         <div class="step-kicker" data-t="stage1">Step 01 / Connection</div>
         <div class="connect-line">
           <span class="led" id="led" aria-hidden="true"></span>
-          <div class="ctext">
+          <div class="ctext" role="status" aria-live="polite" aria-atomic="true">
             <b id="conn">Not connected</b>
             <span id="connDetail" data-t="connhelp"></span>
           </div>
@@ -498,6 +500,9 @@ const TEXT = {
     error: "エラー: ",
     denied: "MIDI（SysEx）の使用が許可されませんでした。アドレスバーのサイト設定で MIDI を許可して、もう一度押してください。",
     notfound: "機器が見つかりません。USB ケーブル（データ通信用か）を確かめ、MIDI を使う他のアプリを閉じてから、もう一度押してください。",
+    retryconnection: "もう一度接続", scanningconnection: "検索中…", rescanconnection: "再検索",
+    connectionnotfound: "機器を検出できません。USB データケーブルと他の MIDI アプリを確認し、「もう一度接続」を押してください。",
+    connectiondenied: "MIDI（SysEx）が許可されていません。サイト設定で許可してから、「もう一度接続」を押してください。",
     model: "接続されている機器はこのパッケージ向けではありません。",
     lost: "USB の接続が切れました。挿し直してもう一度押してください。",
     noloader: "書き込みモードの機器が見つかりません。USB を挿し直してもう一度押してください。",
@@ -588,6 +593,9 @@ const TEXT = {
     error: "Error: ",
     denied: "MIDI (SysEx) access was not allowed. Allow MIDI in the site settings (address bar) and press Install again.",
     notfound: "Device not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
+    retryconnection: "Try again", scanningconnection: "Scanning…", rescanconnection: "Rescan",
+    connectionnotfound: "Keyboard not detected. Check the USB data cable, close other MIDI apps, then select Try again.",
+    connectiondenied: "MIDI (SysEx) permission denied. Allow MIDI in site settings, then select Try again.",
     model: "The connected device does not match this package.",
     lost: "The USB connection was lost. Replug it and press Install again.",
     noloader: "The device in update mode was not found. Replug the USB cable and press Install again.",
@@ -621,7 +629,8 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
   $("lang").textContent = t("other");
-  $("conn").textContent = connected ? t("connected") : t("notconnected");
+  $("conn").textContent = connectionState === "scanning" ? t("looking") : connected ? t("connected") : t("notconnected");
+  renderConnectionAction();
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
   refreshMeta();
   renderBuildHistory();
@@ -642,16 +651,27 @@ let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
 let loadSerial = 0;
-
+// Connection button describes the next action, without changing the guarded MIDI scan.
+let connectionState = "idle";
+function renderConnectionAction() {
+  const btn = $("connbtn");
+  const action = connectionState === "scanning" ? "scanningconnection"
+    : connectionState === "retry" ? "retryconnection"
+    : connectionState === "connected" ? "rescanconnection" : "connect";
+  btn.textContent = t(action);
+  // aria-disabled preserves keyboard focus and keeps progress/status announcements audible.
+  btn.setAttribute("aria-disabled", String(connectionState === "scanning" || writing));
+}
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
 }
-function setConnected(on, detail) {
+function setConnected(on, detail, failed = false) {
   connected = on;
-  led(on ? "on" : (detail && detail.startsWith("No ") ? "err" : ""));
+  connectionState = on ? "connected" : failed ? "retry" : "idle";
+  led(on ? "on" : failed ? "err" : "");
   $("conn").textContent = on ? t("connected") : t("notconnected");
   $("connDetail").textContent = detail || t("connhelp");
-  $("connbtn").textContent = t("connect");
+  renderConnectionAction();
 }
 
 async function midiAccess() {
@@ -675,6 +695,8 @@ let scanSerial = 0;
 async function scan() {
   const requestId = ++scanSerial;
   if (writing) return;
+  connectionState = "scanning";
+  renderConnectionAction();
   led("busy");
   $("conn").textContent = t("looking");
   try {
@@ -691,7 +713,7 @@ async function scan() {
     }
     if (!dev) {
       lastId = null;
-      setConnected(false, t("notfound"));
+      setConnected(false, t("connectionnotfound"), true);
       return;
     }
     lastId = dev.id;
@@ -706,11 +728,11 @@ async function scan() {
   } catch (e) {
     if (requestId !== scanSerial || writing) return;
     lastId = null;
-    setConnected(false, (e && e.message) || t("error"));
+    setConnected(false, e && e.code === "denied" ? t("connectiondenied") : (e && e.message) || t("error"), true);
   }
 }
 
-$("connbtn").addEventListener("click", () => { scan(); });
+$("connbtn").addEventListener("click", () => { if (connectionState !== "scanning" && !writing) scan(); });
 
 // Production approvals are intentionally compiled into the reviewed site source,
 // never populated by remote catalog metadata or the Releases API. No hardware
@@ -1105,6 +1127,7 @@ async function run(img, product, opts = {}) {
   catch (e) { sayK(e.code || "denied"); return; }
   writing = true;
   $("go").disabled = $("stockgo").disabled = true;
+  renderConnectionAction();
   led("busy");
   try {
     const up = new Updater(access, log);
@@ -1158,6 +1181,9 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
+  // An interrupted background scan must not leave the Connect button disabled.
+  if (connectionState === "scanning") connectionState = connected ? "connected" : "idle";
+  renderConnectionAction();
   updateInstallGate();
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
 }
