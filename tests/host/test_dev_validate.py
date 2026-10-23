@@ -356,10 +356,12 @@ class NativeLinuxValidation(DevelopmentValidation):
         self.fixture_parent.mkdir(parents=True, exist_ok=True)
         super().setUp()
 
-    def run_validation(self, controller=False, timeout=1800):
+    def run_validation(self, controller=False, timeout=1800, version=None, model='elite'):
         return subprocess.run([sys.executable, '-B', str(RUNNER), 'run', '--repo', str(self.repo),
-            '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
-            '--output', str(self.out), '--timeout', str(timeout)] + ([] if controller else ['--no-controller']),
+            '--commit', self.commit, '--model', model, '--plan', str(self.plan),
+            '--output', str(self.out), '--timeout', str(timeout)]
+            + (['--firmware-version', version] if version is not None else [])
+            + ([] if controller else ['--no-controller']),
             capture_output=True, text=True, env=self.env)
 
 
@@ -371,16 +373,18 @@ class WorkerValidation(DevelopmentValidation):
         super().setUp()
 
     # Reuse all consumer, mutation and failure tests with real worker commands.
-    def run_validation(self, controller=False, timeout=1800):
+    def run_validation(self, controller=False, timeout=1800, version=None, model='elite'):
         plan = json.loads(self.plan.read_text())
         for check in plan.get('checks', []):
             if check['argv'][0] == sys.executable:
                 check['argv'][0] = 'python3'
         self.plan.write_text(json.dumps(plan))
         return subprocess.run([sys.executable, '-B', str(RUNNER), 'run', '--repo', str(self.repo),
-            '--commit', self.commit, '--model', 'elite', '--plan', str(self.plan),
+            '--commit', self.commit, '--model', model, '--plan', str(self.plan),
             '--output', str(self.out), '--timeout', str(timeout),
-            '--worker-image', os.environ['X0X_TEST_WORKER_IMAGE']] + ([] if controller else ['--no-controller']),
+            '--worker-image', os.environ['X0X_TEST_WORKER_IMAGE']]
+            + (['--firmware-version', version] if version is not None else [])
+            + ([] if controller else ['--no-controller']),
             capture_output=True, text=True, env=self.env)
 
     def test_worker_provenance_and_consumer_authentication(self):
