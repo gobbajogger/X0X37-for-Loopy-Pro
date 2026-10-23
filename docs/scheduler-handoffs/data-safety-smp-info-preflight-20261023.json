@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:17:00Z",
+  "role": "LoopyX0X37 Data Safety",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+    "tested_commit": "595fe8748c808d9f20671b6be35cfac6560a4a1f",
+    "tested_tree": "388c71a372359f8c5f8ea2eb72598d2351c7090a"
+  },
+  "summary": "Prevent silently bypassing sample-slot preservation before OTA on truncated or corrupt SMP_INFO flash maps; reject malformed packets before firmware write and preserve valid 120 KiB extension behavior.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/x0x_slots.py",
+      "description": "Strict valid SMP_INFO layout and non-overlapping extended flash slots"
+    },
+    {
+      "kind": "source",
+      "location": "tools/fm1_install.py",
+      "description": "Propagate malformed slot layout as preinstall backup safety failure"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/x0x_slots_info_preflight_test.py",
+      "description": "19 focused model/packet/boundary/failure mock host checks"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/data-safety-smp-info-preflight-20261023.md",
+      "description": "Reproduced prewrite backup bypass, source identity, QA and Build-first handoff"
+    }
+  ],
+  "checks": [
+    {
+      "name": "original malformed SMP_INFO regression",
+      "status": "FAIL",
+      "command": "python3 test_smp_info_safety.py QA-NIGHTLY-PR71-tools--x0x_slots.py fm1_probe_fixture.py",
+      "exit_code": 1,
+      "evidence": "Local baseline_final.log (original source-window; reproduction noted in Git findings)",
+      "log_sha256": "06ad063cc8b287ad66e5c4d4948c859689a05b0d2e9a7ce3728dce877ed61d04",
+      "coverage": "19 tests: 13 expected failures and 2 expected errors on original malformed-layout flow"
+    },
+    {
+      "name": "patched malformed SMP_INFO regression",
+      "status": "PASS",
+      "command": "python3 test_smp_info_safety.py patched_x0x_slots.py patched_fm1_probe_fixture.py",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/data-safety-smp-info-preflight-20261023-patched.log",
+      "log_sha256": "b029af8b69d8646b44b5f00ccf3eda5f92d8e343efd5accfd9c69ebacbd418de",
+      "coverage": "19/19 positive/negative/boundary tests; last-word mock no SMP_BEGIN/ERASE/WRITE/END"
+    },
+    {
+      "name": "Python compilation",
+      "status": "PASS",
+      "command": "python3 -m py_compile patched_x0x_slots.py patched_fm1_probe_fixture.py test_smp_info_safety.py",
+      "exit_code": 0,
+      "evidence": "Verified actual subprocess exit 0 in local Linux fixture; source-window only"
+    },
+    {
+      "name": "exact complete repository test",
+      "status": "NOT_RUN",
+      "command": "python3 tests/x0x_slots_info_preflight_test.py",
+      "evidence": "Complete current PR checkout is not locally present; Independent QA must re-run against exact HEAD"
+    },
+    {
+      "name": "Elite/Pro + controller compile",
+      "status": "NOT_RUN",
+      "command": "bash tools/quickcheck.sh",
+      "evidence": "Different Hourly Build worker owns build; draft source immediately BUILD_ONLY eligible without independent QA prerequisite"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Data Safety source-only; Hourly Build can compile immediately"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Data Safety source-only; Hourly Build can compile immediately"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA; Hourly Build; sole firmware Safe Merge",
+    "action": "Execute exact-PR-root host and integration negatives; compile BUILD_ONLY immediately in parallel; integrate reviewed source through authorized nightly PR.",
+    "gate": "Full-tree QA, exact pinned model builds, backup/OTA/rollback and source qualification pending"
+  },
+  "dependencies": [
+    "#81 057009814e63dbb34b8f7f3de03aa9391bd00306",
+    "#91 595fe8748c808d9f20671b6be35cfac6560a4a1f"
+  ],
+  "publication": "SOURCE_ONLY"
+}

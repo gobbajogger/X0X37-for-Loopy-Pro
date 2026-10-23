@@ -1,0 +1,52 @@
+{
+  "schema": "loopyx0x37-data-safety-stack-ack/v1",
+  "recorded_date": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer": "Data Safety",
+  "consumed": {
+    "pr96_prior": "5270ab9dd4b5699871486e63e45662bc8ab2e892",
+    "pr96_prior_root": "91d3e8dca9603a39a53fae754d3563c996dacbbf",
+    "pr91_current": "981b5829a46c09f1a6382754dbd988173ca6d092",
+    "pr91_current_root": "fd78a72cae76dfe70a14b5a7c560b45f2ec8f9f1",
+    "pr81_darwin_head": "411e510cee1dc3fa63b9e51a1d4bf10803eb3843",
+    "darwin_slots_blob": "6ff8697ef04abc994354b4c704d735b7cd45e7bd",
+    "prior_pr96_combined_blob": "221c9c8ad611f2062c363e25f419fd04c830b6b8"
+  },
+  "result": {
+    "composed_slots_blob": "2d62f8aa3ab5615fc2680b7a9de858e895ed81f6",
+    "mode": "100755",
+    "features": [
+      "latest PR81 portable backup incl. macOS AT_FDCWD -2 / Linux -100",
+      "PR91 preinstall refusal and atomic archives",
+      "PR96 SMP_INFO parser validation and OTA prewrite refusal",
+      "all previous PR96 source/tests/docs, new PR81 platform regression"
+    ],
+    "firmware_tree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+  },
+  "native_producer_tests": {
+    "scope": "source-matched offline stitched functions, NOT complete remote root",
+    "commands": [
+      {
+        "argv": "X0X_SLOTS_SOURCE=combined_x0x_slots_darwin_fixed.py python3 -m unittest test_portable_backup -v",
+        "exit": 0,
+        "result": "9/9"
+      },
+      {
+        "argv": "X0X_SLOTS_SOURCE=combined_x0x_slots_darwin_fixed.py python3 test_darwin_fd.py",
+        "exit": 0,
+        "result": "3/3"
+      },
+      {
+        "argv": "python3 importlib unittest from qa_smp_info_invariants.py",
+        "exit": 0,
+        "result": "10/10"
+      },
+      {
+        "argv": "python3 -m py_compile combined_x0x_slots_darwin_fixed.py test_darwin_fd.py",
+        "exit": 0
+      }
+    ]
+  },
+  "status": "SOURCE COMPLETED (scoped producer tests) / INDEPENDENT FULL ROOT QA PENDING / BUILD_ONLY ALLOWED / MODEL+CONTROLLER+BACKUP+OTA+LICENSE+IMMUTABLE HTTP PREHARDWARE GATES OPEN / DEVICE NOT TESTED",
+  "next_owners": "Independent QA, Hourly Build, sole Safe Merge"
+}

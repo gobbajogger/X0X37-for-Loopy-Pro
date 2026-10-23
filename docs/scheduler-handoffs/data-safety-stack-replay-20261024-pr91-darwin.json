@@ -1,0 +1,27 @@
+{
+  "schema": "loopyx0x37-data-safety-stack-ack/v1",
+  "recorded_date": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Data Safety",
+  "consumed": {
+    "pr91_parent": "be552c04cffac1ca34f19e1fe871634ce82448ac",
+    "pr91_parent_tree": "0201a093939649937517078f1fffb39f463d58f9",
+    "pr81_updated_head": "411e510cee1dc3fa63b9e51a1d4bf10803eb3843",
+    "pr81_updated_tree": "1c946fd8511ffd6c109a49c36cfb7634835b884f"
+  },
+  "change": "Bring PR81 platform-correct renameatx_np AT_FDCWD=-2 plus dedicated host negative regression into preinstall PR91; preserve PR91 preinstall backup source and prior evidence.",
+  "checked_local": [
+    {
+      "argv": "python3 test_darwin_fd.py",
+      "baseline_exit": 1,
+      "corrected_exit": 0
+    },
+    {
+      "argv": "X0X_SLOTS_SOURCE=combined_x0x_slots_darwin_fixed.py python3 -m unittest test_portable_backup -v",
+      "exit": 0
+    }
+  ],
+  "scope": "source-matched host fixtures, complete Git root not executed",
+  "disposition": "SOURCE MERGED / FULL ROOT INDEPENDENT QA PENDING / BUILD_ONLY ALLOWED / NO PUBLIC DOWNLOAD",
+  "next": "Independent QA, Hourly Build exact source BUILD_ONLY, Safe Merge firmware integration"
+}

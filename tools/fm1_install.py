@@ -541,11 +541,14 @@ def package_slot_map(image, product):
 
 
 def slot_probe(link):
-    """the running firmware's slot layout (SMP_INFO), or None if it does not answer (not X0X)"""
+    """Verified SMP_INFO or an error; silence is NOT proof of factory-stock firmware."""
     try:
         return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
-    except (TimeoutError, xs.SlotError, ValueError, IndexError):
-        return None
+    except TimeoutError as e:
+        raise xs.SlotError("SMP_INFO timed out: sample layout UNKNOWN. Nothing was written. "
+                           "Use --no-slots only after independently confirming no X0X samples need preservation") from e
+    except (ValueError, IndexError) as e:
+        raise xs.SlotError(f"malformed SMP_INFO reply: {e}") from e
 
 
 class SlotMove:
@@ -564,7 +567,7 @@ class SlotMove:
         self.lay = lay
         arch = xs.make_archive(lay, self.images)
         self.path = Path(path)
-        self.path.write_bytes(arch)
+        xs.save_backup_archive(self.path, arch)
         if xs.read_archive(self.path.read_bytes())[1] != self.images:
             raise xs.SlotError(f"{self.path}: the saved backup does not read back")
         print(f"slots saved: {self.path} ({len(arch)} B)", file=out)
@@ -591,9 +594,7 @@ def plan_slots(dev, image, product, require_backup=False):
     """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup."""
     lay = slot_probe(dev.link)
     if not lay:
-        if require_backup:
-            raise xs.SlotError("the running firmware did not provide its slot layout")
-        return None
+        raise xs.SlotError("the running firmware did not provide a verified sample layout")
     if not require_backup and not any(sl["nz"] for sl in lay["slots"]):
         return None
     old_map = xs.flash_map(lay, board_of(dev.id.text))
@@ -848,13 +849,16 @@ def run(a, backend, out, ask):
             if not back:
                 raise TimeoutError("the device did not answer after the install")
             try:
-                move.restore(back.link, out)
+                _, skipped = move.restore(back.link, out)
+                if skipped:
+                    raise xs.SlotError(f"{len(skipped)} backed-up sample slot(s) could not be restored")
             finally:
                 back.link.close()
         except (xs.SlotError, TimeoutError, KeyError, IndexError) as e:
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
     elif move and move.risk:
-        print(move.help(), file=out)
+        raise InstallError("slots", f"installed, but this firmware has no X0X sample slots for restoration. "
+                                    f"The backed-up slots were not written back. {move.help()}")
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
@@ -950,7 +954,7 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
     ap.add_argument("--backup", metavar="FILE", help="save and verify every slot here before writing, even if none is at risk")
-    ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
+    ap.add_argument("--no-slots", action="store_true", help="explicit risk opt-out: skip sample checking and backup only after confirming no X0X samples need saving")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true",
                     help="SMK-37: use only a valid controller already embedded in the package (never preserves the unit block)")

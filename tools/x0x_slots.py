@@ -26,8 +26,11 @@ length, the header's data CRC, and the image's offset, length and CRC-32. An ima
 its start: the 512-byte header area, then the ADPCM data. The final CRC-32 (zlib) covers every byte
 before it. web/x0x_breaks.js (makeArchive, readArchive) reads and writes the same format.
 Needs mido (and a backend such as python-rtmidi) for the device commands."""
+import errno
 import json
+import os
 import struct
+import tempfile
 import sys
 import time
 import zlib
@@ -73,23 +76,58 @@ def ascii_name(b):
 
 
 def parse_info(r):
-    """SMP_INFO reply -> {"count", "size", "ext", "slots": [{"nz", "name", "kb", "size", "off", "used"}]}.
-    size: the reply's one size (KiB, 7 bits: the smallest slot). Per slot size, flash offset (None if
-    unknown) and used KiB come from the X0X extension; without it every slot has the one size."""
+    """Decode a complete SMP_INFO layout; never guess legacy offsets from a broken extension.
+
+    An ambiguous layout is unsafe for sample-preservation decisions made before OTA.
+    """
     if len(r) < 2:
         raise SlotError("short SMP_INFO reply")
     count, size, i, slots = r[0], r[1] * 1024, 2, []
-    for _ in range(count):
+    if not count or not size:
+        raise SlotError("invalid SMP_INFO slot count or size")
+    for k in range(count):
+        if i >= len(r):
+            raise SlotError(f"slot {k + 1}: truncated SMP_INFO reply")
         nz = r[i]
-        j = r.index(0, i + 1)
-        slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": r[j + 1], "size": size, "off": None,
-                      "used": r[j + 1]})
+        try:
+            j = r.index(0, i + 1)
+            used = r[j + 1]
+        except (ValueError, IndexError) as e:
+            raise SlotError(f"slot {k + 1}: truncated SMP_INFO descriptor") from e
+        if nz > 16 or j - i - 1 > 8:
+            raise SlotError(f"slot {k + 1}: invalid zones or used size")
+        # On-device SMP_INFO reports zero used KiB and an empty name for an empty slot.
+        if nz == 0 and (used != 0 or j != i + 1):
+            raise SlotError(f"slot {k + 1}: contradictory empty-slot descriptor")
+        slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": used, "size": size,
+                      "off": None, "used": used})
         i = j + 2
-    ext = len(r) >= i + 2 + 6 * count and r[i] == ord("X") and r[i + 1] == 1
+    # A partially received / unknown extension must not be misread as a legacy layout.
+    has_marker = i < len(r) and r[i] == ord("X")
+    if has_marker and (i + 2 + 6 * count > len(r) or r[i + 1] != 1):
+        raise SlotError("truncated or unsupported SMP_INFO flash-map extension")
+    if i < len(r) and not has_marker:
+        raise SlotError("unknown SMP_INFO trailing metadata")
+    ext = has_marker
+    if ext and i + 2 + 6 * count != len(r):
+        raise SlotError("invalid SMP_INFO extension length")
+    if not ext and any(sl["used"] * 1024 > size for sl in slots):
+        raise SlotError("legacy SMP_INFO used size exceeds slot size")
     if ext:
+        ranges = []
         for k, sl in enumerate(slots):
             v = [r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7 for m in range(3)]
-            sl.update({"off": v[0] * 0x1000, "size": v[1] * 0x1000, "used": v[2]})
+            off, slot_size, used = v[0] * 0x1000, v[1] * 0x1000, v[2]
+            end = off + slot_size
+            if (off == 0 or slot_size < DATA_OFF or used * 1024 > slot_size
+                    or any(off < hi and lo < end for lo, hi in ranges)):
+                raise SlotError(f"slot {k + 1}: invalid or overlapping SMP_INFO flash range")
+            # Legacy used KiB is capped to 7 bits; extension carries full 14-bit count.
+            # Both are derived from the same on-device sample header data_len.
+            if sl["kb"] != min(127, used):
+                raise SlotError(f"slot {k + 1}: legacy/extended used-size disagreement")
+            ranges.append((off, end))
+            sl.update({"off": off, "size": slot_size, "used": used})
     return {"count": count, "size": size, "ext": ext, "slots": slots}
 
 
@@ -199,6 +237,86 @@ def read_archive(b):
             raise SlotError(f"slot {e['slot']}: the image is not a valid slot")
         images.append(img)
     return meta, images
+
+
+
+def _rename_backup_noreplace(staged, path):
+    """Atomically publish a validated backup without clobbering an existing path.
+
+    Some filesystems do not implement hard links.  Use only the native exclusive
+    rename operations; a check-then-rename or direct-write fallback could expose
+    a partial archive or overwrite a concurrently created backup.
+    """
+    import ctypes
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    if sys.platform.startswith("linux"):
+        fn = getattr(libc, "renameat2", None)
+        flags = 1  # Linux RENAME_NOREPLACE
+        at_fdcwd = -100
+    elif sys.platform == "darwin":
+        fn = getattr(libc, "renameatx_np", None)
+        flags = 4  # Darwin RENAME_EXCL
+        at_fdcwd = -2
+    else:
+        fn = None
+        flags = None
+        at_fdcwd = None
+    if fn is None:
+        raise SlotError("filesystem cannot atomically publish backup without hard links; "
+                        "choose a filesystem supporting exclusive rename or hard links")
+    fn.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int,
+                   ctypes.c_char_p, ctypes.c_uint]
+    fn.restype = ctypes.c_int
+    if fn(at_fdcwd, os.fsencode(staged), at_fdcwd, os.fsencode(path), flags) == 0:
+        return
+    code = ctypes.get_errno()
+    if code == errno.EEXIST:
+        raise FileExistsError(code, os.strerror(code), str(path))
+    if code in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.ENOSYS, errno.EINVAL):
+        raise SlotError("filesystem cannot atomically publish backup without hard links; "
+                        "save to a filesystem supporting exclusive rename or hard links")
+    raise OSError(code, os.strerror(code), str(path))
+
+
+def _publish_backup_noreplace(staged, path):
+    try:
+        os.link(staged, path)
+    except OSError as error:
+        # Unsupported syscall is NOT an authorization failure. Do not retry
+        # permission errors, destination collisions, or unrelated I/O errors.
+        if error.errno not in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.ENOSYS):
+            raise
+        _rename_backup_noreplace(staged, path)
+    else:
+        staged.unlink()
+
+
+def save_backup_archive(path, archive, *, replace=False):
+    """Stage, read back and fsync a backup before publishing it at the destination.
+
+    Never truncate the old archive if writing fails. For a new path, use
+    hard links or an exclusive atomic rename to prevent concurrent clobbering.
+    """
+    read_archive(archive)  # Reject corrupt source before any filesystem change.
+    staged = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="wb", prefix=f".{path.name}.", suffix=".tmp",
+                                         dir=path.parent, delete=False) as out:
+            staged = Path(out.name)
+            out.write(archive)
+            out.flush()
+            os.fsync(out.fileno())
+        if staged.read_bytes() != archive:
+            raise SlotError("temporary sample backup failed readback")
+        if replace:
+            os.replace(staged, path)
+        else:
+            _publish_backup_noreplace(staged, path)
+        staged = None
+    finally:
+        if staged is not None:
+            staged.unlink(missing_ok=True)
 
 
 def backup(link, progress=None):
@@ -361,7 +479,7 @@ def main(argv):
         link = up.Link()
         lay, images = backup(link, _bar)
         b = make_archive(lay, images)
-        path.write_bytes(b)
+        save_backup_archive(path, b, replace="--force" in rest)
         print(f"\n{path}: {len(b)} B\n" + describe(read_archive(b)[0]))
         return
     meta, images = read_archive(path.read_bytes())
