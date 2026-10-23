@@ -337,8 +337,8 @@ async function midiAccess() {
   return midi;
 }
 
-async function scan() {
-  if (writing) return;
+async function scan(allowPostWrite = false) {
+  if (writing && !allowPostWrite) return;
   led("busy");
   $("conn").textContent = t("looking");
   try {
@@ -630,12 +630,20 @@ drop.addEventListener("drop", async (e) => {
 });
 
 async function run(img, product, opts = {}) {
+  // Lock both install paths before an asynchronous MIDI permission request.
+  if (writing) return;
+  writing = true;
+  $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
-  catch (e) { sayK(e.code || "denied"); return; }
-  writing = true;
-  $("go").disabled = $("stockgo").disabled = true;
+  catch (e) {
+    writing = false;
+    sayK(e.code || "denied");
+    $("go").disabled = !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    return;
+  }
   led("busy");
   try {
     const up = new Updater(access, log);
@@ -679,7 +687,7 @@ async function run(img, product, opts = {}) {
         sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
       }
     }
-    await scan();
+    await scan(true); // Re-detect after reboot without releasing the single-writer lock.
   } catch (e) {
     // Stock / other custom firmware often reports a different identity string than the package marker.
     if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
@@ -689,12 +697,13 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
-  $("go").disabled = !image;
+  $("go").disabled = !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
 }
 
 $("go").addEventListener("click", () => {
-  if (!image || !selectedProduct || writing) return;
+  if (!image || !selectedProduct || writing || $("go").disabled ||
+      !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
   if (!confirmWrite(selectedProduct)) return;
   let img = image;
   if (ctl) {
