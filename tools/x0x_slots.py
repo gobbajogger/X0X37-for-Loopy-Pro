@@ -26,6 +26,7 @@ length, the header's data CRC, and the image's offset, length and CRC-32. An ima
 its start: the 512-byte header area, then the ADPCM data. The final CRC-32 (zlib) covers every byte
 before it. web/x0x_breaks.js (makeArchive, readArchive) reads and writes the same format.
 Needs mido (and a backend such as python-rtmidi) for the device commands."""
+import errno
 import json
 import os
 import struct
@@ -239,11 +240,60 @@ def read_archive(b):
 
 
 
+def _rename_backup_noreplace(staged, path):
+    """Atomically publish a validated backup without clobbering an existing path.
+
+    Some filesystems do not implement hard links.  Use only the native exclusive
+    rename operations; a check-then-rename or direct-write fallback could expose
+    a partial archive or overwrite a concurrently created backup.
+    """
+    import ctypes
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    if sys.platform.startswith("linux"):
+        fn = getattr(libc, "renameat2", None)
+        flags = 1  # Linux RENAME_NOREPLACE
+    elif sys.platform == "darwin":
+        fn = getattr(libc, "renameatx_np", None)
+        flags = 4  # Darwin RENAME_EXCL
+    else:
+        fn = None
+        flags = None
+    if fn is None:
+        raise SlotError("filesystem cannot atomically publish backup without hard links; "
+                        "choose a filesystem supporting exclusive rename or hard links")
+    fn.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int,
+                   ctypes.c_char_p, ctypes.c_uint]
+    fn.restype = ctypes.c_int
+    if fn(-100, os.fsencode(staged), -100, os.fsencode(path), flags) == 0:
+        return
+    code = ctypes.get_errno()
+    if code == errno.EEXIST:
+        raise FileExistsError(code, os.strerror(code), str(path))
+    if code in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.ENOSYS, errno.EINVAL):
+        raise SlotError("filesystem cannot atomically publish backup without hard links; "
+                        "save to a filesystem supporting exclusive rename or hard links")
+    raise OSError(code, os.strerror(code), str(path))
+
+
+def _publish_backup_noreplace(staged, path):
+    try:
+        os.link(staged, path)
+    except OSError as error:
+        # Unsupported syscall is NOT an authorization failure. Do not retry
+        # permission errors, destination collisions, or unrelated I/O errors.
+        if error.errno not in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.ENOSYS):
+            raise
+        _rename_backup_noreplace(staged, path)
+    else:
+        staged.unlink()
+
+
 def save_backup_archive(path, archive, *, replace=False):
     """Stage, read back and fsync a backup before publishing it at the destination.
 
-    Never truncate the old archive if writing fails.  For a new path, use an
-    atomic hard link so a concurrent creator cannot be silently overwritten.
+    Never truncate the old archive if writing fails. For a new path, use
+    hard links or an exclusive atomic rename to prevent concurrent clobbering.
     """
     read_archive(archive)  # Reject corrupt source before any filesystem change.
     staged = None
@@ -259,8 +309,7 @@ def save_backup_archive(path, archive, *, replace=False):
         if replace:
             os.replace(staged, path)
         else:
-            os.link(staged, path)  # Must not replace a concurrently created file.
-            staged.unlink()
+            _publish_backup_noreplace(staged, path)
         staged = None
     finally:
         if staged is not None:
