@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:55:00Z",
+  "role": "Hourly Bugfinder",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/bugfinder-bf016-bass303-fenv-idempotence-20261023-1455",
+    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+  },
+  "summary": "BF-016: repeated TB-303 FEnv mode writes restart a held filter envelope; narrowly guard equal clamped mode. Negative-baseline/positive-fix tests ran on a faithful isolated source-window projection only; exact full-engine tests, QA, and target builds remain NOT_RUN / NO-GO.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/dsp/bass303.c",
+      "description": "Skip identical clamped FEnv mode updates, preserving active envelope stage"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/bass303_lite_test.c",
+      "description": "Add full-engine assertions for identical/clamped FEnv, actual mode changes and release"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/audit/bf016-bass303-fenv-idempotence-20261023.md",
+      "description": "Evidence, limitation and full-source regression procedure"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/audit/bf016-bass303-fenv-window-results-20261023.txt",
+      "description": "Local GCC/Clang modeled source-window command exits and log hashes"
+    }
+  ],
+  "checks": [
+    {
+      "name": "gcc-O0-baseline-source-window",
+      "status": "FAIL",
+      "command": "gcc -std=c99 -Wall -Wextra -Werror -O0 -g -fsanitize=undefined -fno-sanitize-recover=all /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O0_baseline && /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O0_baseline",
+      "exit_code": 1,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: expected negative failure; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "0ab8c0ca19ff58e2159a67cd0d1c8e5f69bd13d7ea6f5c768920a9404e97fabd",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "gcc-O0-fixed-source-window",
+      "status": "PASS",
+      "command": "gcc -std=c99 -Wall -Wextra -Werror -O0 -g -fsanitize=undefined -fno-sanitize-recover=all -DFIX_FENV=1 /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O0_fixed && /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O0_fixed",
+      "exit_code": 0,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: modeled correction passes; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "9548de312edd162f73f62a0ca79f122e0c31d75d3d296f0190e9e7b5221b9366",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "gcc-O2-baseline-source-window",
+      "status": "FAIL",
+      "command": "gcc -std=c99 -Wall -Wextra -Werror -O2 -g -fsanitize=undefined -fno-sanitize-recover=all /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O2_baseline && /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O2_baseline",
+      "exit_code": 1,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: expected negative failure; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "4e2c3dd13f6a46a2f6b57b582536da02156ce62196d94ff2338a4fef269c7293",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "gcc-O2-fixed-source-window",
+      "status": "PASS",
+      "command": "gcc -std=c99 -Wall -Wextra -Werror -O2 -g -fsanitize=undefined -fno-sanitize-recover=all -DFIX_FENV=1 /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O2_fixed && /mnt/data/loopy-bugfinder-fenv-20261024/gcc_O2_fixed",
+      "exit_code": 0,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: modeled correction passes; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "5e28861c8e3375e985b357d0d0111af0c19b396e441638ec509de7e5a192a3fd",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "clang-O0-baseline-source-window",
+      "status": "FAIL",
+      "command": "clang -std=c99 -Wall -Wextra -Werror -O0 -g -fsanitize=undefined -fno-sanitize-recover=all /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/clang_O0_baseline && /mnt/data/loopy-bugfinder-fenv-20261024/clang_O0_baseline",
+      "exit_code": 1,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: expected negative failure; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "fe783bca5bf891bd8545bfb4a2953e78fab403a2026b409326ada5f0275bcd8e",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "clang-O0-fixed-source-window",
+      "status": "PASS",
+      "command": "clang -std=c99 -Wall -Wextra -Werror -O0 -g -fsanitize=undefined -fno-sanitize-recover=all -DFIX_FENV=1 /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/clang_O0_fixed && /mnt/data/loopy-bugfinder-fenv-20261024/clang_O0_fixed",
+      "exit_code": 0,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: modeled correction passes; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "b38dd5039cf290e76cc81c86e2228984c5083292177963d71508616d4529262c",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "clang-O2-baseline-source-window",
+      "status": "FAIL",
+      "command": "clang -std=c99 -Wall -Wextra -Werror -O2 -g -fsanitize=undefined -fno-sanitize-recover=all /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/clang_O2_baseline && /mnt/data/loopy-bugfinder-fenv-20261024/clang_O2_baseline",
+      "exit_code": 1,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: expected negative failure; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "03d6445943bf477978d08cbf378f7a5c3711a73026e315982ef8154254b6ffe1",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "clang-O2-fixed-source-window",
+      "status": "PASS",
+      "command": "clang -std=c99 -Wall -Wextra -Werror -O2 -g -fsanitize=undefined -fno-sanitize-recover=all -DFIX_FENV=1 /mnt/data/loopy-bugfinder-fenv-20261024/fenv_source_window_regression.c -o /mnt/data/loopy-bugfinder-fenv-20261024/clang_O2_fixed && /mnt/data/loopy-bugfinder-fenv-20261024/clang_O2_fixed",
+      "exit_code": 0,
+      "evidence": "bf016-bass303-fenv-window-results-20261023.txt: modeled correction passes; local standalone projection of real FEnv branch, not linked full engine",
+      "log_sha256": "9364cce1c69d5e329b4678d96279ac234713f8f2167265781d1e8f5faa7b57f4",
+      "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
+    },
+    {
+      "name": "exact-full-engine-bass303-lite",
+      "status": "NOT_RUN",
+      "command": "gcc -std=c99 -O2 -Ifirmware/src/dsp -Ifirmware/src tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm",
+      "evidence": "Exact Git blob read via connector, but complete source was not executed locally; QA required."
+    },
+    {
+      "name": "elite-pro-dev-target",
+      "status": "NOT_RUN",
+      "command": "BOARD=smk37 MODEL=elite sh build.sh; BOARD=smk37 MODEL=pro sh build.sh",
+      "evidence": "Build-first Hourly Build owns exact pinned Elite/Pro/controller compiler stage; no target artifacts produced this run."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA / Hourly Build / Safe Merge",
+    "action": "Run full Git-checked bass303_lite regression under GCC/Clang sanitizers and both firmware targets; review and integrate only after independent QA.",
+    "gate": "SOURCE-WINDOW-CHECKED; FULL ENGINE / TARGET BUILD / QA PENDING"
+  },
+  "dependencies": [
+    "firmware NIGHTLY 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "draft evidence schema PR #78, not merged"
+  ],
+  "publication": "SOURCE_ONLY"
+}

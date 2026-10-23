@@ -66,6 +66,18 @@ static void test_filter_adsr(void)
         CHECK(fabsf(b.fenv_y - 0.5f) < 0.002f, "filter attack reaches half after one second");
         CHECK(b.amp_y == stock.amp_y && b.env_y == stock.env_y, "filter ADSR changes amp envelope");
         y = b.fenv_y;
+        {
+            uint32_t before_samples = b.fenv_samples;
+            int before_stage = b.fenv_stage;
+            bass303_set(&b, BASS303_FENV, 1);
+            CHECK(b.fenv_y == y && b.fenv_samples == before_samples &&
+                  b.fenv_stage == before_stage,
+                  "unchanged FEnv update restarts a held filter sweep");
+            bass303_set(&b, BASS303_FENV, 127); /* clamps to mode 1 */
+            CHECK(b.fenv_y == y && b.fenv_samples == before_samples &&
+                  b.fenv_stage == before_stage,
+                  "clamped duplicate FEnv update restarts the filter sweep");
+        }
         bass303_note_on_velocity(&b, 48, 0, 1, 30);
         CHECK(b.fenv_y == y, "legato slide retriggers filter ADSR");
         render_samples(&b, 44100);
@@ -89,6 +101,16 @@ static void test_filter_adsr(void)
         bass303_all_off(&b);
         render_samples(&b, 4);
         CHECK(b.fenv_y == 0.0f, "zero release closes filter envelope");
+        b.fenv_y = 0.5f;
+        b.fenv_samples = 16;
+        bass303_set(&b, BASS303_FENV, 0); /* actual 1 -> 0 transition resets */
+        CHECK(b.fenv_y == 0.0f && b.fenv_samples == 0 && b.fenv_stage == 0,
+              "changing FEnv mode does not reset the envelope");
+        b.fenv_y = 0.375f;
+        b.fenv_samples = 32;
+        bass303_set(&b, BASS303_FENV, 0);
+        CHECK(b.fenv_y == 0.375f && b.fenv_samples == 32,
+              "duplicate FEnv off-mode update interrupts envelope release");
     }
 }
 
