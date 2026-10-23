@@ -143,11 +143,17 @@ int main(int argc, char **argv)
                "static const x0x_break_t X0X_BREAKS[X0X_NBREAKS] = {\n"
                "    {\"909 GR\", X0X_BREAK_0, X0X_BREAK_0_N, %d},\n    {\"909 FL\", X0X_BREAK_1, X0X_BREAK_1_N, %d},\n};\n",
             BARS, BARS);
-    fclose(f);
-    printf("builtin break: A %u + B %u samples, %u bytes of flash\n", na, nb, (na + 1) / 2 + (nb + 1) / 2);
+    int write_failed = ferror(f);
+    if (fclose(f) != 0)
+        write_failed = 1;
     free(a);
     free(b);
     free(ea);
     free(eb);
+    if (write_failed) {
+        fputs("gen_builtin_break: output write or close failed\n", stderr);
+        return 1;
+    }
+    printf("builtin break: A %u + B %u samples, %u bytes of flash\n", na, nb, (na + 1) / 2 + (nb + 1) / 2);
     return 0;
 }
