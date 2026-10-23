@@ -11,6 +11,7 @@ This is the **development-preview repository** for the X0X37 web firmware instal
 - More readable firmware version labels, safety badges, and backup/recovery information.
 - The local firmware and optional controller-image pickers keep the latest file selection authoritative and require fresh confirmation.
 - English/Japanese labels and keyboard-accessible status and controls.
+- Nightly-only permission-stage single-writer guard: retries reset stale progress; denied Web MIDI access restores eligible install controls. The upstream PR #32 source and original blob identity remain documented in `SOURCE_PROVENANCE.json`.
 
 The visual design is inspired by the *interaction patterns*, not the code or assets, of [Meshtastic Flasher](https://flasher.meshtastic.org/), [WLED Installer](https://install.wled.me/) and [qFlipper](https://docs.flipper.net/zero/basics/firmware-update).
 

@@ -1052,12 +1052,20 @@ drop.addEventListener("drop", async (e) => {
 });
 
 async function run(img, product, opts = {}) {
+  if (writing) return;
+  writing = true; // Reserve the only writer before Web MIDI permissions can suspend this handler.
+  $("go").disabled = $("stockgo").disabled = true;
+  $("bar").value = 0; // A new attempt must not inherit a previous installation's 100%.
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
-  catch (e) { sayK(e.code || "denied"); return; }
-  writing = true;
-  $("go").disabled = $("stockgo").disabled = true;
+  catch (e) {
+    writing = false;
+    sayK(e.code || "denied");
+    updateInstallGate();
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    return;
+  }
   led("busy");
   try {
     const up = new Updater(access, log);
