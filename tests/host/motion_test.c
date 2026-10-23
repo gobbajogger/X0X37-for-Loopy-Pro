@@ -33,6 +33,58 @@ static void pass(int pat, int per, int (*f)(int), int k)
 }
 static int sweep(int s) { return s * 8; }
 
+/* A queued knob event must not survive transport stop/project-lane replacement.
+ * A new post-stop event is still allowed to record or override the lane. */
+static void test_stop_cancels_pending_knob_events(void)
+{
+    static lane_t lanes[NLANE];
+    motion_t m;
+    int k;
+    memset(lanes, 0, sizeof lanes);
+    motion_init(&m, lanes);
+    m.base = base;
+    m.apply = apply;
+    k = motion_alloc(lanes, 0, 0, 2, 0, 0);
+    CHECK(k >= 0, "stop cancellation lane allocated");
+    if (k < 0)
+        return;
+
+    /* Recording event arrives, transport stops before that step fires, then restarts.
+     * The previously programmed 37 must not be overwritten with the live knob 88. */
+    lanes[k].val[1] = 37;
+    eng = knob = 88;
+    motion_req_rec(&m, k);
+    motion_release(&m);
+    motion_step(&m, 0, 0, 1, 2, 16);
+    CHECK(lanes[k].val[1] == 37, "stopped record request changed saved lock (%u)", lanes[k].val[1]);
+    CHECK(eng == 37, "stopped record request suppressed first playback (%d)", eng);
+
+    /* A pending nonrecording override must not suppress the next pass. */
+    motion_release(&m);
+    lanes[k].val[2] = 46;
+    eng = knob = 99;
+    motion_req_hold(&m, k);
+    motion_release(&m);
+    motion_step(&m, 0, 0, 2, 3, 16);
+    CHECK(eng == 46, "stopped hold request suppressed next pass (%d)", eng);
+
+    /* Controls: a genuine event raised after release still works. */
+    motion_release(&m);
+    eng = knob = 79;
+    motion_req_rec(&m, k);
+    motion_step(&m, 0, 0, 3, 4, 16);
+    CHECK(lanes[k].val[3] == 79, "fresh post-stop record discarded (%u)", lanes[k].val[3]);
+    motion_release(&m);
+    lanes[k].val[4] = 25;
+    eng = knob = 82;
+    motion_req_hold(&m, k);
+    motion_step(&m, 0, 0, 4, 5, 16);
+    CHECK(eng == 82, "fresh post-stop hold failed (%d)", eng);
+    motion_release(&m);
+    motion_step(&m, 0, 0, 4, 5, 16);
+    CHECK(eng == 25, "released hold did not restore lane (%d)", eng);
+}
+
 int main(void)
 {
     int k, k2, v;
@@ -124,6 +176,7 @@ int main(void)
             break;
     CHECK(v == NLANE - 2 && motion_alloc(L, 3, 1, 1, 0, 0) == -1, "pool of %d: full after %d more", NLANE, v);
     CHECK(motion_find(L, 3, 1, 0, 2, 1) >= 0 && motion_find(L, 4, 1, 0, 2, 1) < 0, "find keys on the pattern");
+    test_stop_cancels_pending_knob_events();
     printf("motion: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }
