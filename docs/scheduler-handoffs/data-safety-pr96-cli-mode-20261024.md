@@ -1,0 +1,11 @@
+# Data Safety — PR #96 direct CLI executable-mode correction
+
+Producer scope: restore the exact POSIX Git file modes of the two existing command-line programs. This consumes Independent QA's new mode finding at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96#issuecomment-6368649888 on commit `82009d16feb6008e3c0391cd3a236fd1c031e910`. Corrected parser source content and its prior scoped tests are unchanged.
+
+Restored `100755` for `tools/x0x_slots.py` (unchanged content Git blob `9cef869cbbf5e49d5e3280edd06abd11cdee07fa`) and `tools/fm1_install.py` (unchanged content Git blob `e42c7b9387f118fd3389e1764e8157c0b8ee81e2`). The before state used `100644` for each and prevented direct POSIX invocation.
+
+Effective `tests/x0x_cli_executable_mode_test.py` regression blob `ee53bd389f18c874108b66fea0bff73c50380fea`: Linux host synthetic fixture at Git modes `0644` -> 2 failures exit 1, changing only the fixture mode to `0755` -> 2/2 PASS exit 0; `python3 -m py_compile` exit 0. Passing log blob `3fc5b6ecabbbaf20a43be2888eb644dbd454ab93`, SHA256 `120caa4ccbac8f0c6932e2b69ea7993c1be71a6db3c90d76911c10a1e2e9aaff`. Tests intentionally use a filesystem fixture and do **not** claim an actual complete Git checkout, firmware build, or physical device pass. Git remote tree readback must independently confirm repository modes.
+
+Git baseline: full root tree `ac12fb4f3b73d4980be05ee45d19982d59221371`, compiled `firmware/` subtree `19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf`. The mode repair changes neither Python source contents nor compiled firmware subtree. Stacked dependency: #81 (newer owner head now `93e6254082cd487bd76c3ffbe7505dede4d6cfff`) → #91 `595fe8748c808d9f20671b6be35cfac6560a4a1f` → this PR #96; sole Safe Merge must reconcile without flattening or force push.
+
+**Disposition: SOURCE MODE CHECKED in producer scope, READY FOR INDEPENDENT QA, not QA_PASSED or public installable.** QA must verify actual exact full-root checkout modes and combined backup/restore/OTA/preflight negatives. Build may compile BUILD_ONLY from exact PR head without awaiting QA; no device flash or site publication was performed.
