@@ -142,33 +142,41 @@ def main() -> int:
         ]
         for name, command in checks:
             manifest['checks'].append(run_check(name, command, scratch, env, logs, args.timeout))
-        for model, basename in PRODUCTS.items():
-            stage_env = env.copy()
-            stage_env['MODEL'] = model
-            step = run_check(f'native-build-{model}', ['bash', 'build.sh', '--board', 'smk37'],
-                             scratch, stage_env, logs, args.timeout)
-            manifest['checks'].append(step)
-            artifact = scratch / 'build' / basename
-            if step['exit'] == 0 and artifact.is_file() and artifact.stat().st_size > 0:
-                dst = output / basename
-                shutil.copyfile(artifact, dst)
-                manifest['models'][model] = {'status': 'BUILT — NOT QA/INSTALL APPROVED',
-                                              'file': basename, 'bytes': dst.stat().st_size,
-                                              'sha256': sha256(dst)}
-            else:
-                manifest['models'][model] = {'status': 'BUILD FAILED/NO ARTIFACT', 'file': None}
-        cenv = env.copy()
-        cenv.update({'CTL_NATIVE': '1', 'CTL_NO_CACHE': '1'})
-        controller = run_check('native-controller', ['bash', 'ble/ctl/build_ctl.sh'],
-                               scratch, cenv, logs, args.timeout)
-        manifest['checks'].append(controller)
-        image = scratch / 'ble/ctl/out/ctl.img'
-        if controller['exit'] == 0 and image.is_file() and image.stat().st_size > 0:
-            dst = output / 'ctl.img'
-            shutil.copyfile(image, dst)
-            manifest['controller'] = {'status': 'BUILT — PRIVATE INPUT, DISTRIBUTION NOT CLEARED',
-                                       'file': dst.name, 'bytes': dst.stat().st_size,
-                                       'sha256': sha256(dst)}
+        failed_preflights = [step['name'] for step in manifest['checks'] if step['exit'] != 0]
+        if failed_preflights:
+            # Do not compile/export firmware after a required source, sample or
+            # installer-safety preflight fails, even if a later stage might pass.
+            manifest['blocked_by'] = failed_preflights
+            for model in PRODUCTS:
+                manifest['models'][model] = {'status': 'NOT RUN — prerequisite failed', 'file': None}
+        else:
+            for model, basename in PRODUCTS.items():
+                stage_env = env.copy()
+                stage_env['MODEL'] = model
+                step = run_check(f'native-build-{model}', ['bash', 'build.sh', '--board', 'smk37'],
+                                 scratch, stage_env, logs, args.timeout)
+                manifest['checks'].append(step)
+                artifact = scratch / 'build' / basename
+                if step['exit'] == 0 and artifact.is_file() and artifact.stat().st_size > 0:
+                    dst = output / basename
+                    shutil.copyfile(artifact, dst)
+                    manifest['models'][model] = {'status': 'BUILT — NOT QA/INSTALL APPROVED',
+                                                  'file': basename, 'bytes': dst.stat().st_size,
+                                                  'sha256': sha256(dst)}
+                else:
+                    manifest['models'][model] = {'status': 'BUILD FAILED/NO ARTIFACT', 'file': None}
+            cenv = env.copy()
+            cenv.update({'CTL_NATIVE': '1', 'CTL_NO_CACHE': '1'})
+            controller = run_check('native-controller', ['bash', 'ble/ctl/build_ctl.sh'],
+                                   scratch, cenv, logs, args.timeout)
+            manifest['checks'].append(controller)
+            image = scratch / 'ble/ctl/out/ctl.img'
+            if controller['exit'] == 0 and image.is_file() and image.stat().st_size > 0:
+                dst = output / 'ctl.img'
+                shutil.copyfile(image, dst)
+                manifest['controller'] = {'status': 'BUILT — PRIVATE INPUT, DISTRIBUTION NOT CLEARED',
+                                           'file': dst.name, 'bytes': dst.stat().st_size,
+                                           'sha256': sha256(dst)}
         result_code = 0 if (all(x['exit'] == 0 for x in manifest['checks'])
                              and len(manifest['models']) == len(PRODUCTS)
                              and all(x['file'] for x in manifest['models'].values())

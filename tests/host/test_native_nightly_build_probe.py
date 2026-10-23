@@ -39,7 +39,8 @@ class NativeProbeTests(unittest.TestCase):
         self.head = call(self.repo, 'rev-parse', 'HEAD')
         self.tree = call(self.repo, 'rev-parse', 'HEAD^{tree}')
 
-    def _mock_probe_call(self, output: Path, simulate_cleanup_failure: bool = False):
+    def _mock_probe_call(self, output: Path, simulate_cleanup_failure: bool = False,
+                         failed_preflight: str | None = None):
         """Execute real Git worktree lifecycle with fake build stages only."""
         arguments = ['native_nightly_build_probe.py', '--source', str(self.repo),
                      '--expected-head', self.head, '--expected-tree', self.tree,
@@ -57,7 +58,8 @@ class NativeProbeTests(unittest.TestCase):
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 dst.write_bytes(b'MOCK CTL - NOT INSTALLABLE')
             (logs / (name + '.log')).write_text('mock stage, not native build\n')
-            return {'name': name, 'exit': 0, 'log': name + '.log'}
+            return {'name': name, 'exit': 19 if name == failed_preflight else 0,
+                    'log': name + '.log'}
 
         genuine_subprocess_run = subprocess.run
 
@@ -76,6 +78,25 @@ class NativeProbeTests(unittest.TestCase):
              redirect_stdout(stdout), redirect_stderr(stderr):
             result = PROBE.main()
         return result, stdout.getvalue(), stderr.getvalue()
+
+    def test_failed_required_preflight_skips_both_models_and_controller(self):
+        for preflight in ('locked-settings', 'slot-backup', 'installer-slots'):
+            with self.subTest(preflight=preflight):
+                output = Path(self.dir.name) / ('fail-' + preflight)
+                code, stdout, stderr = self._mock_probe_call(output, failed_preflight=preflight)
+                self.assertEqual(code, 1, stderr)
+                manifest = json.loads((output / 'probe.json').read_text())
+                self.assertFalse(manifest['native_probe_pass'])
+                self.assertFalse(json.loads(stdout)['native_probe_pass'])
+                for model, basename in PROBE.PRODUCTS.items():
+                    self.assertFalse((output / basename).exists(), model)
+                    self.assertIsNone(manifest['models'][model]['file'])
+                self.assertIsNone(manifest['controller'])
+                self.assertFalse((output / 'ctl.img').exists())
+                self.assertFalse(list((output / 'logs').glob('native-build-*.log')))
+                self.assertFalse((output / 'logs' / 'native-controller.log').exists())
+                self.assertEqual(manifest['blocked_by'], [preflight])
+                self.assertEqual(call(self.repo, 'status', '--porcelain', '--untracked-files=normal'), '')
 
     def test_cleanup_failure_cannot_publish_positive_manifest_or_stdout(self):
         output = Path(self.dir.name) / 'fresh-output'

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:50:44Z",
+  "role": "Hourly Build (native Elite/Pro DEV and preflight producer)",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/native-nightly-build-probe-source-gate-20261023",
+    "tested_commit": "bf96bbc631d2029ac7541707687addda19e70654",
+    "tested_tree": "d66d64bf56af5b334e752805cec387ab350e8062",
+    "pr": 64
+  },
+  "summary": "Resolved newly reproduced preflight fail-open: failed locked-settings, sample-backup or installer-slots no longer permits native model/controller compilation or mock package copies; this is a source-only tested tool repair, not an exact-current Elite/Pro firmware build.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/native_nightly_build_probe.py",
+      "description": "Stop both target models and native controller when any required preflight failed."
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/test_native_nightly_build_probe.py",
+      "description": "Three injected negative preflight failures plus original cleanup/symlink regressions."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/pr64-preflight-failclosed-20261023.md",
+      "description": "Fail-before/pass-after exits, log hashes, source identities and remaining gates."
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline 8 cases",
+      "status": "PASS",
+      "command": "python3 -m unittest discover -s tests/host -p 'test_native_nightly_build_probe.py' -v",
+      "exit_code": 0,
+      "evidence": "logs/pr64-original-regression.log (local evidence archive)",
+      "log_sha256": "d90abc6772b134ba3a2e8cac48c41153d816a6682cd53d3ae65e2f3a27ffc549",
+      "coverage": "Prior 8/8 tool-only tests on exact two-blob original."
+    },
+    {
+      "name": "failure reproduction",
+      "status": "FAIL",
+      "command": "python3 -m unittest discover -s tests/host -p 'test_native_nightly_build_probe.py' -v",
+      "exit_code": 1,
+      "evidence": "logs/before-preflight-gate.log (local evidence archive)",
+      "log_sha256": "278ad58bc2e22aeec498fa288913a26a876f7786fda10f63473f3890fad3f711",
+      "coverage": "Three expected negative failures: each original failed preflight incorrectly generated fake firmware."
+    },
+    {
+      "name": "repaired regression",
+      "status": "PASS",
+      "command": "python3 -m unittest discover -s tests/host -p 'test_native_nightly_build_probe.py' -v",
+      "exit_code": 0,
+      "evidence": "logs/after-preflight-gate.log (local evidence archive)",
+      "log_sha256": "fcd56a60998238532bc2e3f227463fcc164549e5fc0b667bc78649ea4163d36c",
+      "coverage": "9/9 tests; 3 failed-preflight scenarios, retained cleanup and symlink tests."
+    },
+    {
+      "name": "strict regression",
+      "status": "PASS",
+      "command": "python3 -W error -m unittest discover -s tests/host -p 'test_native_nightly_build_probe.py' -v",
+      "exit_code": 0,
+      "evidence": "logs/strict-preflight-gate.log (local evidence archive)",
+      "log_sha256": "38371c60e9ec3f5afb2f57feb9ef33eaa0614f3818df0105d1ee8997580c9027",
+      "coverage": "9/9 under warning-as-error runtime."
+    },
+    {
+      "name": "Python syntax",
+      "status": "PASS",
+      "command": "python3 -m py_compile tools/native_nightly_build_probe.py tests/host/test_native_nightly_build_probe.py",
+      "exit_code": 0,
+      "evidence": "Native Linux x86-64 local command completed exit 0."
+    },
+    {
+      "name": "exact-current native checkout",
+      "status": "BLOCKED",
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit_code": 128,
+      "evidence": "Shell DNS resolution failed; no mounted current exact source .git; GitHub connected ref succeeded.",
+      "coverage": "Full firmware current nightly source tree not mounted."
+    },
+    {
+      "name": "real target build/model validation",
+      "status": "NOT_RUN",
+      "command": "native pinned Elite/Pro and ctl.img dev_validate",
+      "evidence": "No complete exact-current approved source checkout; model CRC, package hashes and budgets unavailable.",
+      "coverage": "Native firmware target/model/controller/installer checks not exercised."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "BLOCKED",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Current eligible full Git source bytes not mounted. No current exact-source .fwsc/ctl.img/model/CRC/budget."
+    },
+    {
+      "model": "pro",
+      "build_status": "BLOCKED",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Current eligible full Git source bytes not mounted. No current exact-source .fwsc/ctl.img/model/CRC/budget."
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Independently rerun the fail-closed prerequisite regression on the newly pushed PR #64 exact head and confirm original two QA fixes remain intact.",
+    "gate": "Scoped tool review; Safe Merge then separately approves integration; exact-source firmware build remains pending."
+  },
+  "dependencies": [
+    "Firmware nightly currently 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e policy-only",
+    "Complete clean approved current remote source not mounted",
+    "Current pinned DSP refs and exact native package validation not run"
+  ],
+  "publication": "SOURCE_ONLY"
+}
