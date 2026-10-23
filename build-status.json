@@ -366,6 +366,192 @@
       "description": "gh-pages proposal hides unverified builds and preserves archives; NOT deployed or approved; real production picker remains unfiltered.",
       "missing_gate": "Full independent QA/changed-site negative/browser regression and owner Pages publication NOT RUN; no firmware package or device claim.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/46"
+    },
+    {
+      "id": "safe-merge-smc-clock-integration-8557",
+      "title": "Combined SMC/clock WIP integration",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/integration-smc-clock-routes-20261023-1736",
+      "source_commit": "8557b698156f4d5ac6e19d6ad7f58c4d296bcebe",
+      "source_tree": "c5f713a4f4a35f3d1f7772606a1be40cb3ccfe68",
+      "source_time": "2026-10-23T07:51:01Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "producer PR / handoff only; catalog worker DID NOT rerun",
+        "command": null,
+        "result": "Focused checks claimed; independent full exact-tree verification NOT RUN"
+      },
+      "description": "Git commit/tree checkpoint; no firmware bytes validated at this source identity.",
+      "missing_gate": "Partial host checks; one aggregate timed out; combined exact Git tree QA and native Elite/Pro target, model/controller/package/hash/CRC/slot-preservation gates NOT RUN",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/8557b698156f4d5ac6e19d6ad7f58c4d296bcebe",
+      "handoff_source": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/8557b698156f4d5ac6e19d6ad7f58c4d296bcebe/docs/scheduler-handoffs/integration-smc-clock-routes-20261023.md"
+    },
+    {
+      "id": "bugfinder-project-quickcheck-pr47",
+      "title": "Projects web quickcheck routing; PR #47",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-quickcheck-projects-20261023",
+      "source_commit": "f1cfcda95c1f9197ea67d2018364c2f2017acf8a",
+      "source_tree": "8dbd6477ec4690597f9b91ddeba6a49c8fafe1de",
+      "source_time": "2026-10-23T07:59:22Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "producer PR / handoff only; catalog worker DID NOT rerun",
+        "command": "python3 -m unittest tests.host.test_quickcheck_plan.QuickcheckPlan.test_projects_page_routes_to_project_regressions -v",
+        "result": "Focused checks claimed; independent full exact-tree verification NOT RUN"
+      },
+      "description": "Git commit/tree checkpoint; no firmware bytes validated at this source identity.",
+      "missing_gate": "Focused unittest reportedly exit 0; full fixture suite did not complete; exact-source QA and integration pending; no firmware artifact",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/f1cfcda95c1f9197ea67d2018364c2f2017acf8a"
+    },
+    {
+      "id": "seq-queued-stop-takeover-pr48",
+      "title": "Stop-grace stale clock ticks; PR #48",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/seq-stop-clock-takeover-queued-ticks-20261023-1803",
+      "source_commit": "3e75a5690a9dc0a085c2d4221f4d64b7e3d4a4b8",
+      "source_tree": "74a4f2e57f791043434d2a460976b933fb9e0939",
+      "source_time": "2026-10-23T08:14:17Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "producer PR / handoff only; catalog worker DID NOT rerun",
+        "command": "X0X_TEST_JOBS=1 bash tests/run_tests.sh sequencer clk-lock",
+        "result": "Focused checks claimed; independent full exact-tree verification NOT RUN"
+      },
+      "description": "Git commit/tree checkpoint; no firmware bytes validated at this source identity.",
+      "missing_gate": "Focused native clock suite reportedly exit 0; exact combined-tree QA and Elite/Pro/controller/CRC/data-preservation target gates NOT RUN",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/3e75a5690a9dc0a085c2d4221f4d64b7e3d4a4b8"
+    },
+    {
+      "id": "data-safety-postreplace-sync-pr49",
+      "title": "Post-replace controller-directory fsync errors; PR #49",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-postreplace-sync-20261023-1810",
+      "source_commit": "1a1efce1df56c5fc48485e430f55d8bf8a03e0bf",
+      "source_tree": "7074847b08c5c3db30e3e0feb83cc18864106446",
+      "source_time": "2026-10-23T08:16:21Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "producer PR / handoff only; catalog worker DID NOT rerun",
+        "command": "python3 patched/tests/add_ctl_atomic_test.py",
+        "result": "Focused checks claimed; independent full exact-tree verification NOT RUN"
+      },
+      "description": "Git commit/tree checkpoint; no firmware bytes validated at this source identity.",
+      "missing_gate": "Stacked PR #42; 15 extracted-function Python assertions reportedly exit 0; full package/target/backup QA NOT RUN",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/1a1efce1df56c5fc48485e430f55d8bf8a03e0bf"
+    },
+    {
+      "id": "smc-ble-mailbox-backpressure-pr50",
+      "title": "BLE mailbox Note Off and HCI control retry; PR #50",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+      "source_commit": "4aa93f62b5f08eb5df9663747ada84fef590a014",
+      "source_tree": "c599c141d52db54798ae95b4fa530b7616fffebe",
+      "source_time": "2026-10-23T08:16:13Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "producer PR / handoff only; catalog worker DID NOT rerun",
+        "command": null,
+        "result": "Focused checks claimed; independent full exact-tree verification NOT RUN"
+      },
+      "description": "Git commit/tree checkpoint; no firmware bytes validated at this source identity.",
+      "missing_gate": "GCC/Clang ASan/UBSan mailbox negatives reportedly exit 0; full exact-tree QA, native target/backup, model/controller/CRC gates NOT RUN",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/4aa93f62b5f08eb5df9663747ada84fef590a014",
+      "handoff_source": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/4aa93f62b5f08eb5df9663747ada84fef590a014/docs/scheduler-handoffs/smc-ble-hci-mailbox-backpressure-20261023.md"
+    },
+    {
+      "id": "stage4-gen-output-write-pr51",
+      "title": "909 generator write/close error guard; PR #51",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/stage4-gen-output-failclosed-20261023",
+      "source_commit": "367c57e4404cb9d45a35ee92a8bd030301534ff7",
+      "source_tree": "cfdacfbd10df72c234757c3ecf20c3b48c02c318",
+      "source_time": "2026-10-23T08:30:26Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "producer PR / handoff only; catalog worker DID NOT rerun",
+        "command": "CC=clang X0X_GEN_SANITIZE=1 python3 tests/host/gen_builtin_break_output_test.py",
+        "result": "Focused checks claimed; independent full exact-tree verification NOT RUN"
+      },
+      "description": "Git commit/tree checkpoint; no firmware bytes validated at this source identity.",
+      "missing_gate": "Stacked PR #37; producer reports /dev/full negative plus sanitizers PASS; full exact-ref native Elite/Pro dev_validate, controller, model, CRC/flash, DSP and backups NOT COMPLETE",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/367c57e4404cb9d45a35ee92a8bd030301534ff7",
+      "handoff_source": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/367c57e4404cb9d45a35ee92a8bd030301534ff7/docs/scheduler-handoffs/stage4-break-generator-output-write-20261023.md"
+    },
+    {
+      "id": "installer-device-proof-source-pr52",
+      "title": "Source-level fail-closed production picker; PR #52",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/installer-public-device-proof-browser-20261023-run10",
+      "source_commit": "c305b7cec490e0f8fd623784c2b87ef0553cb2c8",
+      "source_tree": "bf0126b77513da171dbd3592834b47de976c8ba7",
+      "source_time": "2026-10-23T08:39:41Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "producer PR / handoff only; catalog worker DID NOT rerun",
+        "command": null,
+        "result": "Focused checks claimed; independent full exact-tree verification NOT RUN"
+      },
+      "description": "Git commit/tree checkpoint; no firmware bytes validated at this source identity.",
+      "missing_gate": "Producer reports scoped Node/desktop/mobile Chromium regressions; full installer backup-interruption/recovery and independent merged-source QA NOT RUN; production Pages PR #46 only DRAFT",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/c305b7cec490e0f8fd623784c2b87ef0553cb2c8"
     }
   ],
   "policy": {
@@ -376,6 +562,33 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 21
+    "source_or_historical_checkpoints": 28
+  },
+  "versioning": {
+    "firmware_product_version": {
+      "format": "MAJOR.MINOR.PATCH[-dev.N|-rc.N]",
+      "monotonic": true,
+      "historical_assignment": "UNASSIGNED; no version inferred from timestamp or commit hash",
+      "prerelease_iteration": "explicit numeric iteration only when a real firmware product version is assigned"
+    },
+    "build_id": {
+      "legacy_format": "dev-YYYYMMDD-HHMM-shortGitSHA",
+      "legacy_ids_are_firmware_product_versions": false,
+      "model_artifact_identity_requires": [
+        "source_commit",
+        "source_tree",
+        "target_model",
+        "package_sha256",
+        "controller_sha256",
+        "build_configuration",
+        "toolchain_pin"
+      ]
+    },
+    "channel_rules": {
+      "nightly": "complete noninstallable history unless exact model/package/QA distribution gates passed",
+      "production": "only approved same-byte per-model owner physical PASS plus independent automatic gates"
+    },
+    "web_preview_package_version": "0.0.0-dev",
+    "web_preview_package_version_is_firmware_version": false
   }
 }
