@@ -1001,5 +1001,102 @@
     "owner_device_evidence": "UNKNOWN",
     "no_public_download_links": true,
     "no_protected_ref_write": true
+  },
+  "closed_loop_cycle_20261024_r10": {
+    "evidence_revision": "catalog-pr3-pr103-smc50-slot76-critical-path-r10-20261024",
+    "result": "OWNED_SOURCE_COMPLETE_REVIEW_READY_NOT_QA_APPROVED_NO_INSTALLABLE",
+    "consumed_website": {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+      "sha": "a219234e8613a266eea3b8b92f89c304cce9f76b",
+      "root_tree": "f53e40079f703583b9d18d072b6e53719a018971",
+      "status_blob": "aa1573c45c23344ac92cea4f35f9aa878d44f985",
+      "previous_evidence": "catalog-pr3-pr106-snapshot-and-smc-qa-no-go-r9-20261024"
+    },
+    "consumed_firmware": [
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+        "sha": "dabd3f98a7d00e439c2cf1d2b44c799c22fb13c7",
+        "full_root_tree": "d4f05f04cf43edb7a3b8d9a6a61b92d89d908020",
+        "firmware_subtree": "8d8e6cc40f0e4e7a52aab8e55b9d2b1dd05a8952",
+        "evidence_revision": "smc-ble-disconnect-failure-recovery-20261024-r1"
+      },
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/data-safety-per-slot-readback-20261023-1135",
+        "sha": "15253f7b96e15720d1c243712805df197ab14846",
+        "full_root_tree": "fdf54a6c606ebdf9e69fb678ace9621757f23164",
+        "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+        "evidence_revision": "data-safety-pr76-per-slot-runner-20261024-r1"
+      },
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+        "sha": "db64bef866e28d2297948a0368e26753833e714f",
+        "full_root_tree": "897620b142285d41b3012d5e522ea0f1e7f1d82b",
+        "firmware_subtree": "3949ee05f4f7fd2e6c863766e2a7c2503bb5c5a5",
+        "evidence_revision": "safe-merge-pr103-smc50-slot76-safety-intake-20261024-r6"
+      }
+    ],
+    "history_before": 91,
+    "history_after": 94,
+    "actual_dev_generations": 2,
+    "added_ids": [
+      "smc-pr50-sysex-mailbox-repair-source-20261024-r2",
+      "data-safety-pr76-per-slot-readback-regression-20261024-r2",
+      "integration-pr103-smc50-slot76-review-ready-20261024-r6"
+    ],
+    "changed_compiler_source": {
+      "previous_exact_compiled_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "current_integrated_subtree": "3949ee05f4f7fd2e6c863766e2a7c2503bb5c5a5",
+      "old_private_binaries_match_new_source": false
+    },
+    "checks": [
+      {
+        "command": "GitHub API exact remote Git commits/ROOT/firmware subtrees PR50,PR76,PR103",
+        "exit": 0
+      },
+      {
+        "command": "exact source/docs byte parity and 91 unchanged historical rows",
+        "exit": 0
+      },
+      {
+        "command": "Git-exact V8 in-memory Node validator adapted at fs/assert/vm boundaries",
+        "exit": 0,
+        "status": "SCOPED_TEST",
+        "details": "3 positive incl empty history, 10 malformed negatives rejected (V8 SCOPED only)"
+      },
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git 'refs/heads/*'",
+        "exit": 128,
+        "result": "Native DNS unavailable"
+      },
+      {
+        "command": "npm run build",
+        "status": "NOT_RUN_NO_NATIVE_FULL_REPO"
+      },
+      {
+        "command": "npm test",
+        "status": "NOT_RUN_NO_NATIVE_FULL_REPO"
+      },
+      {
+        "command": "responsive Chromium",
+        "status": "NOT_RUN"
+      },
+      {
+        "command": "firmware compiler/external immutable HTTP/owner device",
+        "status": "NOT_RUN_BY_CATALOG"
+      }
+    ],
+    "next_owner": "Independent NIGHTLY Website QA",
+    "next_action": "Review exact newest PR3 HEAD, run native npm test/build and responsive browser negative QA and ACK through SHA Git evidence. Then sole Nightly Website Main Merger and sole Pages Publisher.",
+    "parallel_owners": "Hourly Build compiles CHANGED exact PR103 Elite/Pro/private controller BUILD_ONLY; Independent Firmware QA current FULL ROOT BLE/303/backup/OTA/CRC and archive PR56/66/75; Data Safety owns archive repairs; Safe Merge sole integration.",
+    "remaining_gates": "No eligible live firmware until safety+model+controller+backup+integrity+source/license and separately immutable externally hosted HTTP SHA verified. Device hardware evidence UNKNOWN. Production different approved same-byte physical proof.",
+    "elite_installable": false,
+    "pro_installable": false,
+    "owner_hardware": "UNKNOWN",
+    "download_url_added": false,
+    "no_protected_writes": true
   }
 }

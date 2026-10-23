@@ -2361,6 +2361,96 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "41d65c9f0ff987ea984eaec20262d2855e599777",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/41d65c9f0ff987ea984eaec20262d2855e599777"
+    },
+    {
+      "id": "smc-pr50-sysex-mailbox-repair-source-20261024-r2",
+      "title": "PR50 repaired BLE SysEx, ACL and reconnect mailbox transport",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+      "source_commit": "dabd3f98a7d00e439c2cf1d2b44c799c22fb13c7",
+      "source_tree": "d4f05f04cf43edb7a3b8d9a6a61b92d89d908020",
+      "firmware_subtree": "8d8e6cc40f0e4e7a52aab8e55b9d2b1dd05a8952",
+      "source_time": "2026-10-23T21:07:20Z",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Verified exact Git source+producer handoff smc-ble-disconnect-failure-recovery-20261024-r1; Catalog did NOT rerun producer native tests",
+        "command": null,
+        "result": "SMC producer source tests and sole Safe Merge static handoff attributed. Corrected transport is present in integrated PR103; current exact ROOT independent BLE QA has not been rerun."
+      },
+      "description": "Evidence/source-only, NOT flashable/downloadable, hardware result UNKNOWN.",
+      "missing_gate": "Independent new PR103 full-root BLE negative/sanitizer QA and current Elite/Pro/controller compilation; host/source/license/immutable HTTP.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/50",
+      "evidence_commit": "dabd3f98a7d00e439c2cf1d2b44c799c22fb13c7",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/dabd3f98a7d00e439c2cf1d2b44c799c22fb13c7"
+    },
+    {
+      "id": "data-safety-pr76-per-slot-readback-regression-20261024-r2",
+      "title": "PR76 per-slot restore readback-before-next-write regression registered",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-per-slot-readback-20261023-1135",
+      "source_commit": "15253f7b96e15720d1c243712805df197ab14846",
+      "source_tree": "fdf54a6c606ebdf9e69fb678ace9621757f23164",
+      "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "source_time": "2026-10-23T23:17:20Z",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Verified exact Git source+producer handoff data-safety-pr76-per-slot-runner-20261024-r1; Catalog did NOT rerun producer native tests",
+        "command": null,
+        "result": "Data Safety producer projected 13 host checks fail-before/pass-after and registered regression; integrated PR103, but full-root sample test and hardware are UNKNOWN."
+      },
+      "description": "Evidence/source-only, NOT flashable/downloadable, hardware result UNKNOWN.",
+      "missing_gate": "Full-root sample backup/readback/restore/OTA and archive/zone guard safety regressions; PR56/66/75 outstanding; independent QA.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/76",
+      "evidence_commit": "15253f7b96e15720d1c243712805df197ab14846",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/15253f7b96e15720d1c243712805df197ab14846"
+    },
+    {
+      "id": "integration-pr103-smc50-slot76-review-ready-20261024-r6",
+      "title": "First combined NIGHTLY 303, SMC and sample safety SOURCE ready for QA",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "db64bef866e28d2297948a0368e26753833e714f",
+      "source_tree": "897620b142285d41b3012d5e522ea0f1e7f1d82b",
+      "firmware_subtree": "3949ee05f4f7fd2e6c863766e2a7c2503bb5c5a5",
+      "source_time": "2026-10-23T23:45:32Z",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Verified exact Git source+producer handoff safe-merge-pr103-smc50-slot76-safety-intake-20261024-r6; Catalog did NOT rerun producer native tests",
+        "command": null,
+        "result": "Integrator 15/15 source windows, 12/12 staging and 11/11 remote assertions were Git/static only; QA on older source NEEDS_CHANGES cannot approve changed source. Current firmware subtree CHANGED, older private binary bytes are NOT exact-source artifacts."
+      },
+      "description": "Evidence/source-only, NOT flashable/downloadable, hardware result UNKNOWN.",
+      "missing_gate": "Hourly Build new changed-firmware-subtree Elite/Pro/controller actual BUILD_ONLY; independent full current ROOT BLE+slot+backup/OTA+303+model/CRC negatives and PR56/66/75; reviewed Safe Merge; lawful source/host/controller HTTP gate.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "db64bef866e28d2297948a0368e26753833e714f",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/db64bef866e28d2297948a0368e26753833e714f"
     }
   ],
   "policy": {
@@ -2371,7 +2461,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 91
+    "source_or_historical_checkpoints": 94
   },
   "versioning": {
     "firmware_product_version": {
