@@ -544,8 +544,10 @@ def slot_probe(link):
     """the running firmware's slot layout (SMP_INFO), or None if it does not answer (not X0X)"""
     try:
         return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
-    except (TimeoutError, xs.SlotError, ValueError, IndexError):
+    except TimeoutError:
         return None
+    except (ValueError, IndexError) as e:
+        raise xs.SlotError(f"malformed SMP_INFO reply: {e}") from e
 
 
 class SlotMove:
