@@ -266,10 +266,12 @@ static void banks_and_owners(void)
         CHECK(ui.sel[kit] == 0 && smc_target(7).b == 7);
         ui.help = 1;
         tap(0);
-        CHECK(!ui.rec && ui.sel[kit] == 0);
-        ui.help = 0; ui.overlay = O_ASK;
+        CHECK(ui.rec && ui.sel[kit] == 0); /* help is a card: Record still works; kit line stays */
+        ui.help = 0;
+        ui.rec = 0;
+        ui.overlay = O_ASK;
         tap(0);
-        CHECK(!ui.rec && ui.sel[kit] == 0);
+        CHECK(!ui.rec && ui.sel[kit] == 0); /* confirmation alone parks Record */
     }
     strip_view = V_MIX;
     context = "303 SEQ retains the main mixer map";
@@ -356,7 +358,10 @@ static void cleanup(void)
             smc_project_reset();
         }
         poll();
-        CHECK(!smc_project_active());
+        if (kind == 2)
+            CHECK(smc_project_active()); /* help card does not clear Solo */
+        else
+            CHECK(!smc_project_active());
         CHECK(kind == 4 || (seq.mute == 0x80u && seq.vmute == 0x400u));
         if (kind == 4) {
             button_tap(B_HOME);

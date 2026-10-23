@@ -116,6 +116,23 @@ int main(int argc, char **argv)
     for (int i = 0; i < 2; i++) smc_mmc_r[i] = smc_mmc_w[i] = (uint8_t)start;
     smc.up = 1;
     proj.set.bt = PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER;
+    /* Only legitimate seven-bit payload bytes may become SMC controls.
+     * Before this guard an invalid data1 0x88 was silently decoded as
+     * Solo 1 (0x08), and invalid CC values were still accepted. */
+    if (route == 1) {
+        const uint32_t base = 0x0Bu | (0xBFu << 8);
+        const uint32_t note = 0x09u | (0x9Fu << 8);
+        uint8_t before = smc_host_w;
+        assert(!smc_midi_host(base | (0x90u << 16) | (1u << 24)));
+        assert(!smc_midi_host(base | (16u << 16) | (0x81u << 24)));
+        assert(!smc_midi_host(note | (0x88u << 16) | (127u << 24)));
+        assert(!smc_midi_host(note | (8u << 16) | (0xFFu << 24)));
+        assert(smc_host_w == before);
+        proj.set.bt &= (uint8_t)~PROJ_BT_SMC_USER;
+        assert(!smc_midi_host(base | (16u << 16) | (1u << 24)));
+        assert(smc_host_w == before);
+        proj.set.bt |= PROJ_BT_SMC_USER;
+    }
     unsigned capacity = route == 2 ? 16 : SMC_Q;
     for (unsigned i = 0; i < capacity; i++) enqueue(i);
     inject = 1;

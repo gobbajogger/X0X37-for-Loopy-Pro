@@ -269,9 +269,16 @@ static void scenario(void) {
         press(0x2E); press(0x2F); assert(ui.sel[kit]==8);
     }
 pickup: ;
-    /* Real notice/frame: feedback must not rearm pickup after our own write. */
+    /* Real notice/frame: feedback must not rearm pickup after our own write.
+     * Mapped-page peek may leave MIX/FX after a strip move; return to HOME so
+     * each strip still compares main-mixer knob and fader targets together. */
     smc_view(V_HOME,0);
-    for(int n=0;n<8;n++) { assert(smc_same(smc_knob_target(n),smc_target(n))); edit(smc_knob_target(n),n); }
+    for(int n=0;n<8;n++) {
+        smc_view(V_HOME,0);
+        assert(smc_same(smc_knob_target(n),smc_target(n)));
+        edit(smc_knob_target(n),n);
+    }
+    smc_view(V_HOME,0);
     pref_t r=smc_target(0); pref_set(r,64); smc_frame();
     fader(0,0); assert(!(smc.picked&1) && !strncmp(ui.msg,"PICK F1",7));
     int old=pref_get(r); smc_frame(); assert(pref_get(r)==old);

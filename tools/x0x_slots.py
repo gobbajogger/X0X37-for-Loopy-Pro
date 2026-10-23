@@ -186,6 +186,13 @@ def read_archive(b):
     if ver != ARCH_VERSION:
         raise SlotError(f"archive version {ver}, this tool reads {ARCH_VERSION}")
     meta = json.loads(b[16:16 + n].decode("ascii"))
+    slots = meta.get("slots") if isinstance(meta, dict) else None
+    if (not isinstance(slots, list) or type(meta.get("count")) is not int
+            or meta["count"] != len(slots)):
+        raise SlotError("archive slot count mismatch")
+    for k, e in enumerate(slots):
+        if not isinstance(e, dict) or type(e.get("slot")) is not int or e["slot"] != k + 1:
+            raise SlotError(f"archive slot {k + 1}: noncanonical slot number")
     base, images = 16 + n, []
     for e in meta["slots"]:
         if e["empty"]:

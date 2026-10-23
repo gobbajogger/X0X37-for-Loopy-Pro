@@ -15,8 +15,10 @@ installer has a file field for it). web/fm1pkg.js insertCtl does the same in the
 (tests/ble_pkg_test.py checks that both give the same bytes).
 """
 import argparse
+import os
 import struct
 import sys
+import tempfile
 import zlib
 from pathlib import Path
 
@@ -224,6 +226,42 @@ def add(raw, ctl):
     return fwsc_of(insert(logical, ctl), product)
 
 
+def write_package(path, data):
+    """Durably publish a checked package without partially replacing an existing one.
+
+    The output can intentionally equal the input path.  No existing package is
+    truncated until the full new bytes have been written, synced and read back.
+    """
+    path = Path(path)
+    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            fd = -1
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        if Path(tmp).read_bytes() != data:
+            raise OSError("temporary controller package did not read back")
+        os.replace(tmp, path)  # same directory / filesystem: atomic replacement
+        try:
+            dirfd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(dirfd)
+            finally:
+                os.close(dirfd)
+        except OSError as exc:
+            raise OSError(
+                f"{path}: replacement completed, but directory finalization failed; "
+                "durability is uncertain. Inspect the output before retrying: "
+                f"{exc}"
+            ) from exc
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("package", type=Path, help="X0X package for the SMK-37 (.fwsc), or ctl.img with --check")
@@ -240,7 +278,7 @@ def main(argv=None):
         if bool(a.ctl) == bool(a.remove) or not a.out:
             ap.error("give PACKAGE CTL -o OUT, or PACKAGE --remove -o OUT")
         out = add(a.package.read_bytes(), None if a.remove else a.ctl.read_bytes())
-        a.out.write_bytes(out)
+        write_package(a.out, out)
         print(f"{a.out}: {'empty Bluetooth block' if a.remove else 'with ' + str(a.ctl)}")
         return 0
     except (OSError, PkgError) as e:

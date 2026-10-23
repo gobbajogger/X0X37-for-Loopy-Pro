@@ -568,11 +568,12 @@ static void midi_in(uint32_t pkt)
     if (seq_midi_rt(&seq, st))      /* Clock, Start, Continue, Stop: GLO > MIDI > CLOCK SOURCE */
         return;
 #if BOARD_SMK37
-    /* A host-routed SMC User preset uses its own channel. Consume before APC feedback
-     * or instrument note routing; direct BLE central input has its own callback. */
+    /* Only USB and peripheral BLE can carry a host-routed SMC User preset.
+     * TRS input (or an invalid source) must retain normal instrument routing.
+     * Direct SMC central input has its own callback. */
     {
         extern int smc_midi_host(uint32_t pkt);
-        if (smc_midi_host(pkt))
+        if (src < 2 && smc_midi_host(pkt))
             return;
     }
 #endif
