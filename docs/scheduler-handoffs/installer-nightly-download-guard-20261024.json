@@ -549,5 +549,116 @@
       "pro_installable": false,
       "physical_pass": false
     }
+  },
+  "latest_scan_generation_reconciliation": {
+    "evidence_revision": "installer-scan-generation-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "producer_full_sha": "fc9c4c55eac6c6e358575355d24c5a10bce39122",
+      "producer_full_root_tree": "e8300f6b2ea26800d84ad991b7f3cb67592fbb9d",
+      "installer_blob": "35c0b47180358f15acdfd118c557c6a12222f2e3",
+      "reconnect_test_blob": "24b38e4ff26112417f2f70187c9f67289b91c2b2",
+      "slots_test_blob": "6659f13819f86027fd07df1420f05622158d02f6",
+      "existing_source_scan_pr": 44,
+      "existing_source_scan_pr_full_sha": "3f44e56f3d0dbb59e2f74612e4d62c89e18c1106",
+      "existing_scan_test_blob": "c601cd371834c4640a23c186161ef67505f9ab85",
+      "firmware_nightly_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "firmware_nightly_full_root": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "delivered_blobs": {
+      "web/x0x_installer.html": "db8cdb6dd6fbd1b177c3c121d3fdec2e8306a857",
+      "web/test_install_nightly_reconnect.mjs": "b31efec5caeedcd727f0d5fe7a5f46e1a24425b5",
+      "web/test_install_nightly_scan_order.mjs": "03a8e802fa163d9541e98130a0b335cf65c0eba0",
+      "web/test_install_slots.mjs": "95a237a5d716ed119dcba866fdc2d8a747a2c40c"
+    },
+    "producer_status": "SOURCE_COMPLETE_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+    "checks": [
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute exact old HTML against adapted scan-order suite",
+        "process_exit_code": null,
+        "status": "EXPECTED_RED",
+        "detail": "missing scan generation guard"
+      },
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute complete adapted test_install_nightly_scan_order.mjs on exact candidate HTML",
+        "process_exit_code": null,
+        "status": "PASS",
+        "passed": 7,
+        "total": 7
+      },
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute complete test_install_nightly_reconnect.mjs on candidate HTML",
+        "process_exit_code": null,
+        "status": "PASS",
+        "web_midi_cases": 16,
+        "slot_restore_cases": 10
+      },
+      {
+        "executor": "connected GitHub V8, Node API shims",
+        "command": "execute complete test_install_nightly_download_guard.mjs on candidate HTML",
+        "process_exit_code": null,
+        "status": "PASS",
+        "approval_cases": 21,
+        "download_order_cases": 2
+      },
+      {
+        "executor": "Linux shell",
+        "command": "node --version",
+        "exit_code": 0,
+        "result": "v22.16.0"
+      },
+      {
+        "executor": "Linux shell",
+        "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+        "exit_code": 128,
+        "status": "DNS_FAIL_COULD_NOT_RESOLVE_GITHUB",
+        "not_a_code_failure": true
+      },
+      {
+        "executor": "native Node exact checkout",
+        "command": "node web/test_install_nightly_scan_order.mjs && node web/test_install_nightly_reconnect.mjs && node web/test_install_nightly_download_guard.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "status": "NOT_RUN_PENDING_INDEPENDENT_QA"
+      },
+      {
+        "executor": "actual Chromium",
+        "command": "full source browser EN/JA × 320/390/1280; Web MIDI/OTA/backup/connection negatives",
+        "exit_code": null,
+        "status": "NOT_RUN_PENDING_INDEPENDENT_QA"
+      }
+    ],
+    "next": [
+      {
+        "owner": "Independent QA",
+        "action": "Review and run exact committed full Node+browser source regressions",
+        "gate": "independent full-checkout safety and responsive EN/JA evidence"
+      },
+      {
+        "owner": "sole firmware Safe Merge",
+        "action": "Reconcile #44/#102 into nightly after QA",
+        "gate": "independent QA and integration check"
+      },
+      {
+        "owner": "separate NIGHTLY website source owner / QA / Main Merger",
+        "action": "review equivalent release/download guard and scan ordering in own PR route",
+        "gate": "website source parity and owned integration"
+      },
+      {
+        "owner": "sole NIGHTLY Pages publisher",
+        "action": "publish only verified model/controller, backup, source, immutable same-byte HTTP candidate",
+        "gate": "prehardware independent gates; no prior physical owner PASS required"
+      }
+    ],
+    "model_status": {
+      "elite": "NO_NEW_INSTALLABLE_NIGHTLY_CANDIDATE_FROM_THIS_BROWSER_ONLY_CHANGE",
+      "pro": "NO_NEW_INSTALLABLE_NIGHTLY_CANDIDATE_FROM_THIS_BROWSER_ONLY_CHANGE"
+    },
+    "unchanged_firmware_subtree": true,
+    "source_only": true
   }
 }

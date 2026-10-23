@@ -71,7 +71,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
         body: { appendChild() {} } }
     };
     ctx = createContext(mock);
-    new Script(`let writing=false,lastId=null,image=sampleImage,stock=null,chosenModel="elite",ctlLoadSerial=0;
+    new Script(`let writing=false,lastId=null,image=sampleImage,stock=null,chosenModel="elite",ctlLoadSerial=0,scanSerial=0;
 ${scan}
 ${run}
 globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writing;`).runInContext(ctx);
@@ -149,7 +149,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       document: { createElement: () => ({}), body: { appendChild() {} } },
     };
     const ctx = createContext(mock);
-    new Script(`let writing=false,lastId=null,image=null,stock=null,chosenModel="elite",ctlLoadSerial=0;
+    new Script(`let writing=false,lastId=null,image=null,stock=null,chosenModel="elite",ctlLoadSerial=0,scanSerial=0;
 ${run}
 globalThis.runRestoreTest=run;`).runInContext(ctx);
     await ctx.runRestoreTest(new Uint8Array([1]), model);

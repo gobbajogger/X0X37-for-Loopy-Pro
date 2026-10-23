@@ -348,17 +348,23 @@ async function midiAccess() {
   return midi;
 }
 
+let scanSerial = 0;
 async function scan(allowPostWrite = false) {
   if (writing && !allowPostWrite) return;
+  const requestId = ++scanSerial;
+  const isCurrent = () => requestId === scanSerial && (!writing || allowPostWrite);
   led("busy");
   $("conn").textContent = t("looking");
   try {
     const up = new Updater(await midiAccess(), () => {});
+    if (!isCurrent()) return;
     // Prefer a running app; if only the update loader is present, resume from there.
     let dev = await up.find((id) => !/^ota-/i.test(id.model));
+    if (!isCurrent()) { if (dev) dev.link.close(); return; }
     let inOta = false;
     if (!dev) {
       dev = await up.find((id) => /^ota-/i.test(id.model));
+      if (!isCurrent()) { if (dev) dev.link.close(); return; }
       inOta = !!dev;
     }
     if (!dev) {
@@ -376,6 +382,7 @@ async function scan(allowPostWrite = false) {
     suggestModel(bare);
     dev.link.close();
   } catch (e) {
+    if (!isCurrent()) return;
     lastId = null;
     setConnected(false, (e && e.message) || t("error"));
   }
@@ -684,6 +691,7 @@ async function run(img, product, opts = {}) {
   // Lock both install paths before an asynchronous MIDI permission request.
   if (writing) return;
   writing = true;
+  scanSerial++; // Invalidate any pre-write lookup before Web MIDI/OTA operations.
   ctlLoadSerial++; // Ignore controller file reads pending before the write.
   $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
