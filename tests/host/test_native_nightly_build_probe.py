@@ -40,7 +40,8 @@ class NativeProbeTests(unittest.TestCase):
         self.tree = call(self.repo, 'rev-parse', 'HEAD^{tree}')
 
     def _mock_probe_call(self, output: Path, simulate_cleanup_failure: bool = False,
-                         failed_preflight: str | None = None):
+                         failed_preflight: str | None = None,
+                         failed_output_guard: str | None = None):
         """Execute real Git worktree lifecycle with fake build stages only."""
         arguments = ['native_nightly_build_probe.py', '--source', str(self.repo),
                      '--expected-head', self.head, '--expected-tree', self.tree,
@@ -58,7 +59,7 @@ class NativeProbeTests(unittest.TestCase):
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 dst.write_bytes(b'MOCK CTL - NOT INSTALLABLE')
             (logs / (name + '.log')).write_text('mock stage, not native build\n')
-            return {'name': name, 'exit': 19 if name == failed_preflight else 0,
+            return {'name': name, 'exit': 19 if name in (failed_preflight, failed_output_guard) else 0,
                     'log': name + '.log'}
 
         genuine_subprocess_run = subprocess.run
@@ -97,6 +98,26 @@ class NativeProbeTests(unittest.TestCase):
                 self.assertFalse((output / 'logs' / 'native-controller.log').exists())
                 self.assertEqual(manifest['blocked_by'], [preflight])
                 self.assertEqual(call(self.repo, 'status', '--porcelain', '--untracked-files=normal'), '')
+
+    def test_failed_output_integrity_does_not_claim_native_probe_pass(self):
+        for stage in ('package-integrity-elite', 'package-integrity-pro',
+                      'controller-integrity'):
+            with self.subTest(stage=stage):
+                output = Path(self.dir.name) / ('invalid-' + stage)
+                code, stdout, stderr = self._mock_probe_call(
+                    output, failed_output_guard=stage)
+                self.assertEqual(code, 1, stderr)
+                result = json.loads((output / 'probe.json').read_text())
+                self.assertFalse(result['native_probe_pass'])
+                self.assertFalse(json.loads(stdout)['native_probe_pass'])
+                matches = [check for check in result['checks'] if check['name'] == stage]
+                self.assertEqual(len(matches), 1)
+                self.assertEqual(matches[0]['exit'], 19)
+                # Compilation was still an actual attempted stage; a downstream
+                # validation failure is recorded, never relabelled build failure.
+                self.assertEqual(len([check for check in result['checks']
+                                      if check['name'].startswith('native-build-')]), 2)
+                self.assertEqual(call(self.repo, 'status', '--porcelain'), '')
 
     def test_cleanup_failure_cannot_publish_positive_manifest_or_stdout(self):
         output = Path(self.dir.name) / 'fresh-output'

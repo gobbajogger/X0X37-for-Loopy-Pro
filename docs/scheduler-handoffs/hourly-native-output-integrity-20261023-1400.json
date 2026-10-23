@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:00:00Z",
+  "role": "Hourly Build native SMK-37 Elite/Pro and controller",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/native-nightly-build-probe-source-gate-20261023",
+    "tested_commit": "cf30539ddddda46a5b6f7dd35d93dfbbb18f8311",
+    "tested_tree": "8d1ab7916740d7e6dfef303c8f72d73cd1947e52",
+    "pr": 64
+  },
+  "summary": "Fix build-probe fail-open model/controller integrity: before 3 independently failed negative subtests; patched 15/15 native unit cases pass. Prior actual firmware-subtree-only Elite/Pro builds in PR #84 retain BUILT, not recompiled or DEV CHECKED. New output guard also validated unchanged private prior binaries and rejects wrong model. No current complete checkout, toolchain materialization was denied; QA, lawful hosting, HTTP and device tests pending.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/native_nightly_build_probe.py",
+      "description": "Run postcompiler package and controller integrity, mark native probe failed on any negative output check, retain build status as compiled"
+    },
+    {
+      "kind": "source",
+      "location": "tools/check_native_build_output.py",
+      "description": "Fail-closed parser checks exact model, UFW/flash/OTA CRC, sample-slot map and controller ABI/header/CRC"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/test_native_build_output_guard.py",
+      "description": "Synthetic valid and invalid model, OTA, flash and controller CRC regression without proprietary binary inputs"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/test_native_nightly_build_probe.py",
+      "description": "Invalid model/controller output guards cannot return probe PASS even after compile success"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/hourly-native-output-integrity-20261023-1400.json",
+      "description": "Source SHA, checked model package identities, real command exits and next-owner evidence"
+    }
+  ],
+  "checks": [
+    {
+      "name": "fail-before three negative output paths",
+      "status": "FAIL",
+      "command": "python3 -m unittest discover -s tests/host -p test_native_nightly_build_probe.py -v [old source with new tests]",
+      "exit_code": 1,
+      "evidence": "Expected negative regression failures (3 subtests): invalid Elite/Pro/controller outputs incorrectly claimed native_probe_pass on previous producer code",
+      "log_sha256": "7cc0d0676fffd9f2a92da7eed410e184138fc256cbcb26eb15eecfe80f4c7dae"
+    },
+    {
+      "name": "patched native output+probe regressions",
+      "status": "PASS",
+      "command": "python3 -m unittest discover -s tests/host -p 'test_native*_*.py' -v",
+      "exit_code": 0,
+      "evidence": "15/15 tests pass on exact four produced Git blobs in Linux x86-64; isolated mocked builds for probe regression, synthetic packages for format checks",
+      "log_sha256": "d8ee53703407c72ec4068741c2b5d96a5a2b0c08dbed781aa59cf00a8281016a"
+    },
+    {
+      "name": "prior real Elite binary independent package check",
+      "status": "PASS",
+      "command": "python3 tools/check_native_build_output.py package /mnt/data/native-probe-source/known-bytes/elite.fwsc --model elite",
+      "exit_code": 0,
+      "evidence": "Real unchanged private PR84 binary 651396 B; model Elite, UFW/flash/OTA/slotmap CRC valid; packaging check is not native firmware compilation this run",
+      "log_sha256": "34ce301454aeca7d8befbaa2a52796ff8203ea46e7c85cf2251f7810ce7f89c7"
+    },
+    {
+      "name": "prior real Pro binary independent package check",
+      "status": "PASS",
+      "command": "python3 tools/check_native_build_output.py package /mnt/data/native-probe-source/known-bytes/pro.fwsc --model pro",
+      "exit_code": 0,
+      "evidence": "Real unchanged private PR84 binary 651392 B; model Pro, UFW/flash/OTA/slotmap CRC valid; packaging check is not native firmware compilation this run",
+      "log_sha256": "00ee691cd44d3970228b205d4f825d45f3dccb9a10a9ca39d55753bb1bed1044"
+    },
+    {
+      "name": "cross-model negative real package",
+      "status": "PASS",
+      "command": "python3 tools/check_native_build_output.py package /mnt/data/native-probe-source/known-bytes/pro.fwsc --model elite [expected exit 1]",
+      "exit_code": 0,
+      "evidence": "Negative-path expectation satisfied, actual process exit 1 with wrong-model refusal; status PASS reflects assertion and not command exit0",
+      "log_sha256": "8b83b93687b11e56b4390b42072bda7b517270223b412d71193e026a10a7868b"
+    },
+    {
+      "name": "11 pinned SDK 1.2.1 inputs",
+      "status": "PASS",
+      "command": "python3 kit.py verify [private owner V1.2.1 kit]",
+      "exit_code": 0,
+      "evidence": "All 11 verified; compiler not reexecuted this run",
+      "log_sha256": "acca17584d226851f7f8b4e90e5988569ffb023781641f505d79edf609b2cabe"
+    },
+    {
+      "name": "new full-source target compilation",
+      "status": "BLOCKED",
+      "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37; BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37; CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+      "evidence": "No newly eligible merged firmware; existing current firmware subtree previously built in PR84. Owner JieLi ZIP raw-byte materialization denied this runtime; no executable crosscompiler mounted, full Git root checkout absent; therefore no new target command was run."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "SMK37 DEV X0X_DEV_PADCAL=1 (PR84 prior scoped compiled tree only)",
+      "artifact": "Private Library LoopyX0X37-Elite-Pro-BUILD-ONLY-20261023.zip!/elite.fwsc",
+      "artifact_bytes": 651396,
+      "artifact_sha256": "d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "package_crc32": "577fd25b",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "PR84 previously built only exact firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf. Not recompiled; controller SHA historical producer assertion; NOT matching controller bytes independently checked this run."
+    },
+    {
+      "model": "pro",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "SMK37 DEV X0X_DEV_PADCAL=1 (PR84 prior scoped compiled tree only)",
+      "artifact": "Private Library LoopyX0X37-Elite-Pro-BUILD-ONLY-20261023.zip!/pro.fwsc",
+      "artifact_bytes": 651392,
+      "artifact_sha256": "0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "package_crc32": "29551834",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "PR84 previously built only exact firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf. Not recompiled; controller SHA historical producer assertion; NOT matching controller bytes independently checked this run."
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Reconstruct exact new owned PR64 HEAD, run 15/15 native regressions and independently review UFW/model/controller validation and scoped PR84 build provenance; mark PASS/NEEDS CHANGES against new SHA",
+    "gate": "Independent QA followed by exact eligible integrated root builds, sample/OTA/install negative tests, lawful external hosting and HTTP parity"
+  },
+  "publication": "NOT_PUBLISHED",
+  "dependencies": [
+    "firmware-nightly@58b5b45a2dd90581de7a674c331ca5cbe8a67c7e; unchanged firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "producer PR84 @a24120979a2c196d3e9ff105bccb8dabf739d978, actual prior scoped native build evidence",
+    "SDK pin kit archive SHA256 2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805",
+    "native toolchain archive SHA256 historical ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19; bytes not accessible in this run"
+  ]
+}

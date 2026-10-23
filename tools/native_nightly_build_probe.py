@@ -160,9 +160,17 @@ def main() -> int:
                 if step['exit'] == 0 and artifact.is_file() and artifact.stat().st_size > 0:
                     dst = output / basename
                     shutil.copyfile(artifact, dst)
-                    manifest['models'][model] = {'status': 'BUILT — NOT QA/INSTALL APPROVED',
-                                                  'file': basename, 'bytes': dst.stat().st_size,
-                                                  'sha256': sha256(dst)}
+                    guard = run_check(f'package-integrity-{model}',
+                                      ['python3', 'tools/check_native_build_output.py',
+                                       'package', str(artifact), '--model', model],
+                                      scratch, stage_env, logs, args.timeout)
+                    manifest['checks'].append(guard)
+                    manifest['models'][model] = {
+                        'status': ('BUILT — PACKAGE MODEL/CRC VERIFIED; QA PENDING'
+                                   if guard['exit'] == 0 else
+                                   'BUILT — PACKAGE INVALID; NOT INSTALLABLE'),
+                        'file': basename, 'bytes': dst.stat().st_size,
+                        'sha256': sha256(dst), 'package_check_exit': guard['exit']}
                 else:
                     manifest['models'][model] = {'status': 'BUILD FAILED/NO ARTIFACT', 'file': None}
             cenv = env.copy()
@@ -174,9 +182,17 @@ def main() -> int:
             if controller['exit'] == 0 and image.is_file() and image.stat().st_size > 0:
                 dst = output / 'ctl.img'
                 shutil.copyfile(image, dst)
-                manifest['controller'] = {'status': 'BUILT — PRIVATE INPUT, DISTRIBUTION NOT CLEARED',
-                                           'file': dst.name, 'bytes': dst.stat().st_size,
-                                           'sha256': sha256(dst)}
+                guard = run_check('controller-integrity',
+                                  ['python3', 'tools/check_native_build_output.py',
+                                   'controller', str(image)],
+                                  scratch, cenv, logs, args.timeout)
+                manifest['checks'].append(guard)
+                manifest['controller'] = {
+                    'status': ('BUILT — HEADER/CRC VERIFIED; PRIVATE/DISTRIBUTION NOT CLEARED'
+                               if guard['exit'] == 0 else
+                               'BUILT — CONTROLLER INVALID; NOT INSTALLABLE'),
+                    'file': dst.name, 'bytes': dst.stat().st_size,
+                    'sha256': sha256(dst), 'controller_check_exit': guard['exit']}
         result_code = 0 if (all(x['exit'] == 0 for x in manifest['checks'])
                              and len(manifest['models']) == len(PRODUCTS)
                              and all(x['file'] for x in manifest['models'].values())
