@@ -27,6 +27,7 @@ TEST_ROUTES = [
     ('tools/fm1_install.py', 'installer installer-slots installer-ctl installer-targets'),
     ('tools/fm1pkg_make.py', 'smk-package'),
     ('tools/upload_breaks.py', 'upload-images upload-tools breaks-web'),
+    ('web/x0x_projects', 'projects-web projects-page'),
     ('web/', 'breaks-web breaks-page install-slots-web'),
     ('tools/locked_settings.json', 'locked-settings'),
 ]
