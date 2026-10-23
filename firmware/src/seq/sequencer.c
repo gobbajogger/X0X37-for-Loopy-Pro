@@ -766,9 +766,14 @@ int seq_midi_rt(seq_t *s, uint8_t st)
  * as seq_advance. The order of the messages decides when two inputs send at the same time. */
 int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
 {
-    uint8_t me = (uint8_t)(src + 1u);
+    uint8_t me;
     if (st != 0xF8u && st != 0xF2u && (st < 0xFAu || st > 0xFCu))
         return 1;
+    /* Packet origins 0/1/2 are USB/Bluetooth/TRS. Origin 3 is reserved.
+     * Reject it before narrowing src+1 to uint8_t: wrapped values can alias a real owner. */
+    if (src > 2u)
+        return 0;
+    me = (uint8_t)(src + 1u);
     if (s->clk_src == SEQ_CLK_INT) {                  /* seq_midi_rt drops them */
         s->clk_lock = 0;
         return 1;

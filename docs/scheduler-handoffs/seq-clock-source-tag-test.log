@@ -1,0 +1,27 @@
+SOURCE NIGHTLY: c9718ae833eb64a5191c350922593df8a36017c9
+SOURCE TREE: 715fbd98d427c8ddd6b64d1b923e9d1fb8ae64ea
+SEQ SOURCE BLOB: 83b03f73139d8e679c94526c66b390b6e5bc2f39
+TEST SOURCE SHA256: 488519c3298400f98d5a7ad95528acc0dfba69f525176eeb08bb5c1e25ef07e8
+TEST SOURCE GIT BLOB: 5adda4a77e07614038e64ce8a96987271dc6d0a3
+ENV: Linux x86_64; GCC and Clang native; extracted exact baseline seq_clk_take logic / seq_midi_rt; NOT complete Git checkout.
+WORKDIR: /mnt/data/loopy_seq_clock_run5
+BASELINE:
+CMD: gcc -std=c11 -O2 -Wall -Wextra -Werror -DPATCH_GUARD=0 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-baseline && ./repo-baseline
+EXIT: 1 (expected failing before patch)
+CHECKS: 137; FAILURES: 82; source 3 acquired clock; source 256 collided with source 0.
+RAW LOG SHA256: 95a5acbc774c8f9777000eaefc50056598aef935692e2d2f186c13180c78066a
+PATCHED GCC:
+CMD: gcc -std=c11 -O2 -Wall -Wextra -Werror -DPATCH_GUARD=1 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-gcc && ./repo-gcc
+EXIT: 0; CHECKS: 137; FAILURES: 0
+RAW LOG SHA256: afaaec56df030745ad9e404de1ee0a84d679f67cb089b2e808605d2191f2778b
+PATCHED CLANG:
+CMD: clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -DPATCH_GUARD=1 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-clang_san && ./repo-clang_san
+EXIT: 0; CHECKS: 137; FAILURES: 0
+RAW LOG SHA256: 618e56ef04d1b43a55471d590686f12a32ec1149cf9e388e3d895706f2d72b19
+PATCHED GCC UBSAN:
+CMD: gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DPATCH_GUARD=1 repo/tests/host/clk_source_tag_test.c repo/firmware/src/seq/sequencer.c -o ./repo-gcc_ubsan && ./repo-gcc_ubsan
+EXIT: 0; CHECKS: 137; FAILURES: 0
+RAW LOG SHA256: 0bb46edfacd21e2aec3d993adac101faf492e91621d32652b8fc0e83c3c65274
+FULL TREE: NOT RUN; shell git ls-remote exited 128 (Could not resolve host: github.com). Connected GitHub app source/commit/blob read succeeded. Exact-tree QA pending.
+TARGET BUILD ELITE/PRO: NOT RUN, outside sequencer source-owner scope.
+PHYSICAL DEVICE: NOT TESTED.
