@@ -80,7 +80,35 @@ class Guard(TestCase):
         self.assertEqual([s['size'] for s in lay['slots']],[80*1024,120*1024,44*1024])
     def test_oversized_slot_name(self):self.negative(reply([(1,'TOO-LONG-NAME',2)]))
     def test_unknown_extension_marker(self):self.negative(reply(ONE,tail=[ord('Y'),1]))
-    def test_legacy_timeout_retained(self):self.assertIsNone(fm.slot_probe(Link(None)))
+    def test_timeout_is_unknown_not_stock(self):
+        l=Link(None)
+        with self.assertRaisesRegex(xs.SlotError, 'SMP_INFO'):
+            fm.plan_slots(Device(l), b'image', 'SMK-37 Elite_900')
+        self.assertTrue(l.commands)
+        self.assertTrue(all(cmd==xs.CMD_INFO for cmd in l.commands), 'no destructive cmd after timeout')
+    def test_timeout_explicit_backup_also_refuses(self):
+        l=Link(None)
+        with self.assertRaises(xs.SlotError):
+            fm.plan_slots(Device(l), b'image', 'SMK-37 Elite_900', require_backup=True)
+        self.assertTrue(all(cmd==xs.CMD_INFO for cmd in l.commands))
+    def test_stock_looking_id_cannot_justify_unknown_flash(self):
+        l=Link(None);d=Device(l);d.id.text='SMK-37 Pro_016'
+        with self.assertRaises(xs.SlotError):
+            fm.plan_slots(d, b'image', 'SMK-37 Pro_900')
+        self.assertTrue(all(cmd==xs.CMD_INFO for cmd in l.commands))
+    def test_none_parser_layout_must_not_skip_backup(self):
+        l=Link(GOOD_EXT);old=fm.xs.parse_info
+        try:
+            fm.xs.parse_info=lambda _raw:None
+            with self.assertRaises(xs.SlotError):
+                fm.plan_slots(Device(l), b'image', 'SMK-37 Elite_900')
+        finally:
+            fm.xs.parse_info=old
+        self.assertEqual(l.commands,[xs.CMD_INFO])
+    def test_known_empty_slot_is_safe_without_backup(self):
+        l=Link(reply([(0,'',0)]))
+        self.assertIsNone(fm.plan_slots(Device(l), b'image', 'SMK-37 Elite_900'))
+        self.assertEqual(l.commands,[xs.CMD_INFO])
     def test_truncated_slot_descriptor(self):self.negative([1,80,1,65,0])
     def test_missing_slot_name_nul(self):self.negative([1,80,1,65,70,80])
     def test_slot_zero_count(self):self.negative([0,80])
