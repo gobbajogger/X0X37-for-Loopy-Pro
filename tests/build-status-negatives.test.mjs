@@ -307,4 +307,25 @@ for(const [name,mutate] of [
    live_http:'VERIFIED',hardware:'DEVICE_VERIFIED',source_scope:'FULL_ROOT'
  }]
 ])run(name,edit(mutate));
+// Keep the source-only picker empty AND lock all approved top-level/provenance fields.
+// Mutate both copies so source/generated equality alone cannot mask a forged catalog.
+const editPickerCopies = mutate => dir => {
+  const p = join(dir, 'preview-catalog.json');
+  const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+  mutate(data);
+  const same = JSON.stringify(data, null, 2) + '\n';
+  fs.writeFileSync(p, same);
+  fs.writeFileSync(join(dir, 'docs/versions.json'), same);
+};
+run('picker-canonical-empty-positive', editPickerCopies(()=>{}), true);
+for (const [label, mutation] of [
+  ['picker-hidden-downloads-array', p => p.downloads=[{model:'elite',url:'https://untrusted.invalid/fwsc'}]],
+  ['picker-hidden-nested-package-link', p => p.package={download_url:'https://untrusted.invalid/firmware'}],
+  ['picker-hidden-approval', p => p.distribution_approved=true],
+  ['picker-forged-repository', p => p.repo='https://untrusted.invalid/owner'],
+  ['picker-forged-pages-host', p => p.pages='https://untrusted.invalid/installer'],
+  ['picker-unsupported-schema', p => p.schema=999],
+  ['picker-extra-nonbinary-url', p => p.metadata_url='https://untrusted.invalid/readme.txt'],
+  ['picker-forged-repo-non-url', p => p.repo='gobbajogger/X0X37-for-Loopy-Pro'],
+]) run(label, editPickerCopies(mutation));
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');

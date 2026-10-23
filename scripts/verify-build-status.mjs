@@ -8,6 +8,15 @@ assert.equal(read('docs/build-status.json'), text, 'source and docs build status
 const catalog = JSON.parse(text);
 const preview = JSON.parse(read('preview-catalog.json'));
 const published = JSON.parse(read('docs/versions.json'));
+// The empty source-only picker is an exact schema, not an extensible download surface.
+// Both source and generated picker files must use the approved provenance values.
+const approvedPickerKeys = ['schema', 'repo', 'pages', 'latest', 'versions', 'history'];
+assert.deepEqual(Object.keys(preview).sort(), approvedPickerKeys.sort(),
+  'unapproved NIGHTLY picker field (including hidden download/approval metadata)');
+assert.equal(preview.schema, 1, 'unsupported NIGHTLY picker schema');
+assert.equal(preview.repo, 'https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly',
+  'NIGHTLY picker must identify the correct public browser-source repository');
+assert.equal(preview.pages, '', 'NIGHTLY picker must not advertise an unapproved hosting target');
 assert.equal(catalog.schema, 1);
 assert.equal(catalog.kind, 'nightly-read-only-build-history');
 assert.equal(catalog.installable, false);
