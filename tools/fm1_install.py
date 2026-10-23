@@ -849,13 +849,16 @@ def run(a, backend, out, ask):
             if not back:
                 raise TimeoutError("the device did not answer after the install")
             try:
-                move.restore(back.link, out)
+                _, skipped = move.restore(back.link, out)
+                if skipped:
+                    raise xs.SlotError(f"{len(skipped)} backed-up sample slot(s) could not be restored")
             finally:
                 back.link.close()
         except (xs.SlotError, TimeoutError, KeyError, IndexError) as e:
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
     elif move and move.risk:
-        print(move.help(), file=out)
+        raise InstallError("slots", f"installed, but this firmware has no X0X sample slots for restoration. "
+                                    f"The backed-up slots were not written back. {move.help()}")
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
         back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
