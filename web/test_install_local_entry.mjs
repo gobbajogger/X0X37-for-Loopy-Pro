@@ -13,13 +13,14 @@ const cut = (a, b) => {
 assert.match(source, /id="localempty" hidden/);
 assert.match(source, /<button[^>]+id="chooseLocal"[^>]+type="button"/);
 assert.match(source, /id="stockfile" accept="\.fwsc"/);
+assert.match(source, /id="localfeedback" role="status" aria-live="polite"/, 'inline accessible file feedback');
 assert.match(cut('function fillVersions()', '\nfunction confirmWrite('), /\$\("localempty"\)\.hidden = list\.length > 0/);
 assert.equal((source.match(/localchoose: "/g) || []).length, 2, 'English and Japanese translations');
 assert.match(source, /\.local-pick \{[^}]+min-height: 51px/);
 const sourceHandlers = cut('let localPickerFromEmptyState = false;', '$("stockconfirm").addEventListener("change"');
 const events = {}, observations = [];
-const elements = Object.fromEntries(['chooseLocal', 'stockfile', 'stock', 'stockconfirm', 'stockgo'].map(id => [id, {
-  checked: false, disabled: true,
+const elements = Object.fromEntries(['chooseLocal', 'stockfile', 'stock', 'stockconfirm', 'stockgo', 'localfeedback'].map(id => [id, {
+  checked: false, disabled: true, hidden: true, textContent: '', dataset: {},
   addEventListener(name, fn) { events[`${id}:${name}`] = fn; },
   click() { observations.push(`${id}.click`); },
   scrollIntoView() { observations.push(`${id}.scroll`); },
@@ -28,6 +29,7 @@ const elements = Object.fromEntries(['chooseLocal', 'stockfile', 'stock', 'stock
 const context = createContext({ elements, events, observations });
 new Script(`
 const $ = id => elements[id];
+const t = key => ({localchecking: 'Checking the selected firmware file…', localinvalid: 'This file could not be used.'}[key] || key);
 let stock = null, writing = false, stockLoadSerial = 0;
 async function selectStockFile(file) {
   const request = ++stockLoadSerial;
@@ -63,7 +65,10 @@ events['chooseLocal:click']();
 await events['stockfile:change']({target:{files:[{valid:false}],value:'broken.fwsc'}});
 assert.deepEqual(observations, ['stockfile.click']);
 assert.equal(context.checkStock(), null);
-console.log('PASS invalid package does not advance to confirmation');
+assert.equal(elements.localfeedback.hidden, false, 'invalid file reports error beside the picker');
+assert.equal(elements.localfeedback.dataset.state, 'error');
+assert.match(elements.localfeedback.textContent, /could not be used/);
+console.log('PASS invalid package reports actionable inline error and does not advance');
 observations.length = 0;
 context.setWriting(true);
 events['chooseLocal:click']();
