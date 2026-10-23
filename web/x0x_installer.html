@@ -139,7 +139,7 @@
       <span data-t="stockdrop"></span>
     </label>
     <p class="meta" id="dropmeta"></p>
-    <p class="small"><label><input type="checkbox" id="stockconfirm"> <span data-t="stockconfirm"></span></label></p>
+    <p class="small"><label><input type="checkbox" id="stockconfirm" disabled> <span data-t="stockconfirm"></span></label></p>
     <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
   </section>
 
@@ -186,6 +186,7 @@ const TEXT = {
     stockconfirm: "これはこのキーボード向けのファームウェアです（機種が合っている）",
     stockinstall: "このパッケージを書き込む",
     stockok: "パッケージを確認しました。ボタンを押してください。",
+    stockloading: "選択したファームウェアを読み込み、確認しています…", stockloadfail: "ファイルを読み込めませんでした。もう一度選択してください。",
     stockbad: "使える .fwsc ではありません。",
     stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
     confirm: "書き込みますか？\n\n接続中: ",
@@ -248,6 +249,7 @@ const TEXT = {
     stockconfirm: "This package is for this keyboard (matching model)",
     stockinstall: "Install this package",
     stockok: "Package checked. Press the button to install it.",
+    stockloading: "Reading and checking the selected firmware file…", stockloadfail: "Could not read that file. Choose it again.",
     stockbad: "That is not a usable .fwsc package.",
     stockdone: "Done. The device has restarted with the new firmware.",
     confirm: "Install this firmware?\n\nConnected: ",
@@ -603,14 +605,14 @@ $("ctlfile").addEventListener("change", async (e) => {
 
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
 
-async function acceptStock(raw) {
-  stock = null;
-  $("stockgo").disabled = true;
-  $("dropmeta").textContent = "";
+let stockLoadSerial = 0;
+async function acceptStock(raw, requestId) {
+  if (requestId !== stockLoadSerial || writing) return;
   try {
     const product = productOf(raw);
     const model = product.split("_")[0];
     const hex = await sha256Hex(raw.buffer);
+    if (requestId !== stockLoadSerial || writing) return;
     const isFm1Stock = hex === STOCK_SHA256_FM1;
     // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
     if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
@@ -623,14 +625,33 @@ async function acceptStock(raw) {
     }
     stock = { image: logicalImage(raw), product, foreign: true, fm1Stock: isFm1Stock };
     $("dropmeta").textContent = `${product} · ${(raw.length / 1024).toFixed(0)} KB`;
+    $("stockconfirm").disabled = false;
     $("stockgo").disabled = writing || !$("stockconfirm").checked;
     sayK("stockok");
-  } catch (err) { sayK("stockbad"); }
+  } catch (err) { if (requestId === stockLoadSerial && !writing) sayK("stockbad"); }
+}
+async function selectStockFile(f) {
+  if (!f || writing) return;
+  const requestId = ++stockLoadSerial;
+  stock = null;
+  $("stockconfirm").checked = false;
+  $("stockconfirm").disabled = true;
+  $("stockgo").disabled = true;
+  $("dropmeta").textContent = "";
+  sayK("stockloading");
+  try {
+    const raw = new Uint8Array(await f.arrayBuffer());
+    if (requestId !== stockLoadSerial || writing) return;
+    await acceptStock(raw, requestId);
+  } catch (err) {
+    if (requestId === stockLoadSerial && !writing) sayK("stockloadfail");
+  }
 }
 $("stockfile").addEventListener("change", async (e) => {
   const f = e.target.files && e.target.files[0];
   if (!f) return;
-  await acceptStock(new Uint8Array(await f.arrayBuffer()));
+  e.target.value = ""; // Selecting the same file after failure must retry.
+  await selectStockFile(f);
 });
 $("stockconfirm").addEventListener("change", () => {
   $("stockgo").disabled = writing || !stock || !$("stockconfirm").checked;
@@ -641,7 +662,7 @@ const drop = $("stockdrop");
 drop.addEventListener("drop", async (e) => {
   const f = e.dataTransfer.files && e.dataTransfer.files[0];
   if (!f) return;
-  await acceptStock(new Uint8Array(await f.arrayBuffer()));
+  await selectStockFile(f);
 });
 
 async function run(img, product, opts = {}) {
