@@ -1077,8 +1077,9 @@ $("stockfile").addEventListener("change", async (e) => {
   localPickerFromEmptyState = false;
   if (!f) return;
   e.target.value = ""; // Allow choosing the same file again after a failed read.
+  const expectedSerial = stockLoadSerial + 1;
   await selectStockFile(f);
-  if (fromEmpty && stock && !writing) {
+  if (fromEmpty && expectedSerial === stockLoadSerial && stock && !writing) {
     $("stock").scrollIntoView({ block: "start" });
     $("stockconfirm").focus({ preventScroll: true }); // Confirmation stays unchecked and install stays guarded.
   }
