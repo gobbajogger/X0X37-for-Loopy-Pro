@@ -843,6 +843,10 @@ void seq_rec_skip(seq_t *s, int t, int p, int v)
 }
 void seq_chain(seq_t *s, int a, int b)
 {
+    /* Reject invalid endpoints before narrowing to uint8_t: an out-of-range
+     * chain otherwise selects a non-existent pattern at the next bar. */
+    if (a < 0 || a >= NPAT || b < 0 || b >= NPAT)
+        return;
     s->chain_a = (uint8_t)a;
     s->chain_b = (uint8_t)b;
 }

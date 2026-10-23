@@ -1183,8 +1183,47 @@ static void test_tb3po_matches_reference(void)
 }
 #endif
 
+/* A malformed chain range must not become an out-of-bounds pattern index at
+ * the next bar, including endpoint values that would wrap when cast to u8. */
+static void test_chain_endpoint_bounds(void)
+{
+    static const int INVALID[][2] = {
+        {-1, 5}, {3, -1}, {NPAT, 5}, {3, NPAT},
+        {NPAT + 256, 5}, {3, NPAT + 256}, {-256, 5}, {3, -256}
+    };
+    unsigned i;
+    int t;
+    reset();
+    S.bpm = 120.0f;
+    seq_chain(&S, 3, 5);
+    CHECK(S.chain_a == 3 && S.chain_b == 5, "valid chain endpoints accepted");
+    for (i = 0; i < sizeof INVALID / sizeof INVALID[0]; i++) {
+        seq_chain(&S, INVALID[i][0], INVALID[i][1]);
+        CHECK(S.chain_a == 3 && S.chain_b == 5,
+              "invalid chain endpoints %d,%d preserved valid range (got %u,%u)",
+              INVALID[i][0], INVALID[i][1],
+              (unsigned)S.chain_a, (unsigned)S.chain_b);
+        seq_chain(&S, 3, 5);             /* baseline must not index a bad pattern */
+    }
+    for (t = 0; t < NTRACKS; t++)
+        S.ppat[t] = 3;
+    seq_chain(&S, -1, NPAT);
+    if (S.chain_a == 3 && S.chain_b == 5) {
+        seq_start(&S);
+        run(FS * 2u + 2048u);           /* bar boundary at 120 BPM */
+        CHECK(S.ppat[TRK_DRUM] == 4 && S.ppat[TRK_BRK] == 4,
+              "rejected chain leaves valid 909/break bar transition");
+    }
+    seq_chain(&S, 5, 3);
+    CHECK(S.chain_a == 5 && S.chain_b == 3, "valid reversed endpoints accepted");
+    seq_chain(&S, 3, 3);
+    CHECK(S.chain_a == 3 && S.chain_b == 3, "equal endpoints disable chain");
+    printf("  chain endpoints: valid, reversed, disabled and eight invalid ranges checked\n");
+}
+
 int main(void)
 {
+    test_chain_endpoint_bounds();
     test_drum_timing();
     test_swing_and_rates();
     test_303();
