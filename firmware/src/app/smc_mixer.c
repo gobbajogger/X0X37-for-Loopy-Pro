@@ -119,13 +119,17 @@ int smc_connected(void) { return smc.up && smc_ble_role_get(); }
 int smc_midi_host(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), w = smc_host_w;
-    uint8_t a = (uint8_t)(pkt >> 16) & 0x7Fu;
+    uint8_t a = (uint8_t)(pkt >> 16), b = (uint8_t)(pkt >> 24);
+    /* A malformed data byte must never be masked into an SMC button or CC.
+     * In particular 0x88 must not turn into held Solo 1 (note 0x08). */
+    if ((a | b) & 0x80u)
+        return 0;
     if (!smc_host_accept(st, a, proj.set.bt & PROJ_BT_SMC_USER))
         return 0;
     if ((uint8_t)(w - smc_host_r) < SMC_Q) {
         smc_host_q[w % SMC_Q][0] = st;
-        smc_host_q[w % SMC_Q][1] = (uint8_t)(pkt >> 16);
-        smc_host_q[w % SMC_Q][2] = (uint8_t)(pkt >> 24);
+        smc_host_q[w % SMC_Q][1] = a;
+        smc_host_q[w % SMC_Q][2] = b;
         __asm__ volatile("" ::: "memory");
         smc_host_w = (uint8_t)(w + 1u);
     }
