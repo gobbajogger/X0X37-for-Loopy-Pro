@@ -151,6 +151,16 @@ void master_set(master_t *m, int i, int v)
         filt_coefs(m);
         return;
     }
+    /* Bypass does not advance the look-ahead ring. Re-enabling the limiter must not
+     * replay audio left in that ring before it was switched off. */
+    if (i == MST_LIMIT && v > 0 && !m->pot[MST_LIMIT]) {
+        int j;
+        for (j = 0; j < MST_LA; ++j)
+            m->la[j] = m->la_r[j] = 0.0f;
+        m->la_pos = m->hold = 0;
+        m->env = m->inv_env = 0.0f;
+        m->gain = 1.0f;
+    }
     m->pot[i] = (uint8_t)(v < 0 ? 0 : v > MST_P[i].max ? MST_P[i].max : v);
     if (i <= MST_PUMPSRC)
         comp_coefs(m);
