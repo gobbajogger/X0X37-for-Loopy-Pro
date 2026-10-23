@@ -370,12 +370,13 @@ static void acl_in(bleh_t *h, const uint8_t *p, unsigned n)
     hd = rd16(p); pb = (hd >> 12) & 3u; dl = rd16(p + 2);
     if ((hd & 0x0FFFu) != h->conn || dl > n - 4) return;
     p += 4;
-    if (pb == 2) {                                  /* start */
+    if (pb != 1u) {                                /* PB 0/2: first, PB 3: complete PDU */
         unsigned ll, cid;
         h->rx_on = 0;
         if (dl < 4) return;
         ll = rd16(p); cid = rd16(p + 2);
-        if (ll > BLEH_MTU || (cid != CID_ATT && cid != CID_SIG && cid != CID_SMP)) return;
+        if (ll > BLEH_MTU || (cid != CID_ATT && cid != CID_SIG && cid != CID_SMP) ||
+            (pb == 3u && dl != ll + 4u)) return;  /* complete PDU cannot be fragmented */
         h->rx_need = (uint8_t)(ll + 4); h->rx_have = 0; h->rx_on = 1; h->rx_cid = (uint16_t)cid;
     } else if (pb != 1 || !h->rx_on) {
         return;
