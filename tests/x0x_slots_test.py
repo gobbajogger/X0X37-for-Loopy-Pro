@@ -7,6 +7,7 @@ MockDevice follows firmware/src/app/editor.c (SMP_BEGIN .. SMP_READ, 11-16) and 
 offset and refuses a slot that holds samples, END checks the header and the data CRC, INFO lists
 the slots. The slot count and size are parameters: the tool must not assume 2 or 3 slots of 80 KiB.
   tests/x0x_slots_test.py"""
+import json
 import random
 import struct
 import sys
@@ -57,6 +58,28 @@ def main():
           and e["samples"] == [40000, 30000] and e["data_crc32"] == zlib.crc32(data) and meta["slots"][1]["empty"],
           "archive header: count, sizes, names, rates, samples, CRC")
     check(back == images, "archive round trip")
+
+    # A well-formed outer CRC must not let altered slot labels erase/overwrite the wrong device slot.
+    # The restore planner indexes images by position, so count and canonical slot numbers are binding.
+    archive_json_len = struct.unpack_from("<I", arch, 12)[0]
+    for label, ids, declared_count in (
+        ("swapped slot identities", (2, 1), 2),
+        ("duplicate slot identities", (1, 1), 2),
+        ("skipped slot identity", (1, 3), 2),
+        ("inconsistent slot count", (1, 2), 3),
+    ):
+        bad_meta = json.loads(arch[16:16 + archive_json_len])
+        bad_meta["count"] = declared_count
+        for entry, slot_num in zip(bad_meta["slots"], ids):
+            entry["slot"] = slot_num
+        bad_json = json.dumps(bad_meta, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+        bad_body = arch[:12] + struct.pack("<I", len(bad_json)) + bad_json + arch[16 + archive_json_len:-4]
+        bad_archive = bad_body + struct.pack("<I", zlib.crc32(bad_body))
+        try:
+            xs.read_archive(bad_archive)
+            check(False, f"archive refuses {label} even with a valid outer CRC")
+        except xs.SlotError:
+            check(True, f"archive refuses {label} even with a valid outer CRC")
 
     # 2. damage is detected
     bad = bytearray(arch)
