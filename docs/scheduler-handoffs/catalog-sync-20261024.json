@@ -572,5 +572,96 @@
     "site_next_exact_gate": "current PR3 complete-source native npm build/test/explicit negative-fixture Node/browser responsive and independent review before sole website main merger",
     "next_firmware_owner": "Sole Safe Merge after Independent firmware QA",
     "firmware_next_exact_gate": "reviewed ordered #81→#91→#96 + PR103 in firmware NIGHTLY, complete combined source safety/regressions/model/controller/backup/OTA/rollback, lawful immutable external packages and sole publisher actual HTTP SHA"
+  },
+  "closed_loop_cycle_20261024_r6": {
+    "revision": "catalog-pr3-pr93-failed-immutable-and-pr103-combined-r6-20261024",
+    "role": "X0X37 Build Catalog Sync",
+    "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+    "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+    "consumed_website": {
+      "sha": "1759bf191efe035ccf6721625c85889441d75e93",
+      "root_tree": "3d541bc3d9f1c604ebdc94faccc066e1ce973918",
+      "evidence_revision": "catalog-pr3-proof-flags-pr96-restoration-source-20261024-r5"
+    },
+    "consumed_review": {
+      "sha": "4783cb943505c202c5b4543da068bf9b11364394",
+      "evidence_revision": "merger-pr3-failed-record-discriminator-head4783-r1",
+      "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/3#issuecomment-6373515398"
+    },
+    "consumed_firmware": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "sha": "bc9bebc7b505a936c16134cf1be112e05fcb6fb3",
+      "root_tree": "5807287b882bf2d58e8221ccb898c50b3078642d",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "parents": [
+        "9ed3cce9ed420c46b1ebab86101f7145a8da5995",
+        "74f18fe19a95cb885280a373cb0dd9d53500c193"
+      ],
+      "producer_evidence_revision": "safe-merge-pr103-pr96-combined-20261024-r2",
+      "build_evidence_revision": "hourly-build-pr103-combined-current-root-private-artifact-reuse-20261024-r1",
+      "status": "DRAFT_SOURCE_COMBINED_QA_PENDING_PRIVATE_COMPILER_INPUT_REUSE_NOT_NEW_COMPILE"
+    },
+    "heads_unchanged": {
+      "website_main": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+      "website_gh_pages": "9c5d3b6b0846f89436492851fef89ed3829b7ad7",
+      "firmware_nightly": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+    },
+    "catalog": {
+      "dev_generations": 2,
+      "history_before": 84,
+      "history_after": 85,
+      "installable_entries": 0,
+      "source_generated_identical": true,
+      "preview_empty": true
+    },
+    "schema": "Typed native failed_build must remain status failed; archived producer-pr93-20261023 source/root/subtree/compiler exits/log checksums pinned; other legitimately failed evidence-only history and empty manifest allowed.",
+    "fixtures_added": 8,
+    "commands": [
+      {
+        "command": "node --version",
+        "exit": 0,
+        "output": "v22.16.0"
+      },
+      {
+        "command": "npm --version",
+        "exit": 0,
+        "output": "10.9.2"
+      },
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "stderr": "Could not resolve host: github.com"
+      },
+      {
+        "command": "GitHub exact source: in-process V8 full verifier body with only Node import/fs/assert/vm shims; positive, malformed historical/QA/download negatives",
+        "exit": 0,
+        "scope": "SCOPED_TEST_NOT_NATIVE_NPM_OR_INDEPENDENT_QA",
+        "passed": 14,
+        "failed": 0
+      },
+      {
+        "command": "npm run build",
+        "status": "NOT_RUN_NATIVE_EXACT_COMPLETE_TREE_UNAVAILABLE"
+      },
+      {
+        "command": "npm test",
+        "status": "NOT_RUN_NATIVE_EXACT_COMPLETE_TREE_UNAVAILABLE"
+      },
+      {
+        "command": "responsive Chromium",
+        "status": "NOT_RUN_EXACT_RECONSTRUCTED_TREE_UNAVAILABLE"
+      }
+    ],
+    "disposition": "SOURCE_CHECKED_SCOPED_NON_DRAFT_READY_FOR_INDEPENDENT_REVIEW_NOT_APPROVED",
+    "next_site_owner": "Independent NIGHTLY Website QA",
+    "site_next_gate": "full exact PR3 head native npm run build, npm test with permanent malformed fixtures, responsive browser/Chromium and independent code review before sole NIGHTLY Website Main Merger",
+    "next_firmware_owners": "Independent Firmware QA and Hourly Build in parallel",
+    "firmware_next_gate": "PR103 exact combined full root 303/sample preservation/OTA/restore/CRC/wrong-model negatives; confirm per-model compiler inputs/model/controller bytes and independent QA; lawful corresponding source/controller plus external immutable HTTP before publisher",
+    "pub_http": "NOT_VERIFIED",
+    "physical_device": "UNKNOWN",
+    "elite": "NO_INSTALLABLE_YET",
+    "pro": "NO_INSTALLABLE_YET",
+    "no_firmware_files_or_download_urls": true
   }
 }

@@ -198,6 +198,7 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
      for(const failure of item.build_pipeline.followup_native_checks_fail)shape(failure,'name exit_code','reported host check');
    }
    if(item.failed_build!==undefined){
+     assert.equal(item.status,'failed','typed compiler-failure receipt may not be relabeled');
      shape(item.failed_build,'scope firmware_subtree pool_used_bytes pool_capacity_bytes pool_free_bytes pool_minimum_bytes elite pro controller','failed build');
      assert.ok(item.failed_build.pool_free_bytes<item.failed_build.pool_minimum_bytes,'unexpected pool eligibility');
      for(const key of ['pool_used_bytes','pool_capacity_bytes','pool_free_bytes','pool_minimum_bytes'])
@@ -216,6 +217,20 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
      assert.ok(Number.isInteger(item.failed_build.controller.size_bytes)&&item.failed_build.controller.size_bytes>0,'failed-source controller size');
      assert.match(item.failed_build.controller.sha256,/^[a-f0-9]{64}$/,'failed-source controller SHA256');
      assert.match(item.failed_build.controller.crc32,/^[a-f0-9]{8}$/,'failed-source controller CRC32');
+   }
+   // Bind the original real PR93 native failed-build receipt to immutable Git
+   // source and compiler logs; older 'failed' non-build evidence remains legal.
+   if(item.id==='producer-pr93-20261023'){
+     assert.equal(item.status,'failed','PR93 compiler failure cannot be hidden by relabeling');
+     assert.ok(item.failed_build,'PR93 historical compiler-failure receipt is required');
+     assert.equal(item.source_commit,'74389d4bb4abc2f8a36b91bc16d1822b63264986','PR93 failed source commit');
+     assert.equal(item.source_tree,'aeacf2c81bd19a33dd50ba0bf3a6e72b1131271a','PR93 failed full root tree');
+     assert.equal(item.failed_build.firmware_subtree,'3fe98ec515b3abafd50a62280632839c2910dd80','PR93 failed firmware subtree');
+     assert.equal(item.failed_build.elite.exit_code,1,'PR93 Elite compiler failed');
+     assert.equal(item.failed_build.pro.exit_code,1,'PR93 Pro compiler failed');
+     assert.equal(item.failed_build.elite.log_sha256,'9bdf740b6aeac19d6cb9264fb5143fee986296b49913fca9165eb81b341213db','PR93 Elite failure log');
+     assert.equal(item.failed_build.pro.log_sha256,'0bfc208e37a7d72390ac6b740a94524f53ba4eb1f13ffec702b7dbc0ea17d17b','PR93 Pro failure log');
+     assert.equal(item.failed_build.controller.exit_code,0,'PR93 private controller succeeded separately');
    }
  }
 

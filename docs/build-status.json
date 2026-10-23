@@ -2158,6 +2158,34 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96",
       "evidence_commit": "74f18fe19a95cb885280a373cb0dd9d53500c193",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/74f18fe19a95cb885280a373cb0dd9d53500c193"
+    },
+    {
+      "id": "integration-pr103-303-data-safety-combined-20261024",
+      "title": "First NIGHTLY 303 source integration now includes repaired Data Safety #81→#91→#96",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "bc9bebc7b505a936c16134cf1be112e05fcb6fb3",
+      "source_tree": "5807287b882bf2d58e8221ccb898c50b3078642d",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "source_time": "2026-10-23T19:50:05Z",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Current Git REST commit/tree/PR exact-source intake; compilation, independent combined-root QA and hardware NOT RUN by Catalog.",
+        "command": null,
+        "result": "SOURCE_COMBINED only: two Git parents 9ed3cce9ed420c46b1ebab86101f7145a8da5995 (prior 303) and 74f18fe19a95cb885280a373cb0dd9d53500c193 (Data Safety); existing private Elite/Pro/controller native bytes reuse identical known firmware compiler inputs but are NOT newly compiled, QA-qualified or lawful public downloads for this root."
+      },
+      "description": "Corrected backup/restore skipped-slot failure handling now integrated into the isolated first candidate. Firmware/ subtree unchanged but full root/installer has changed. Not installable; no owner hardware result.",
+      "missing_gate": "Independent QA exact current combined-root sample/OTA/backup/readback/restore/CRC/wrong-model and 303 regressions; Hourly Build exact compiler-input/private Elite/Pro/controller hash qualification or new build; reviewed sole Safe Merge then sole Publisher lawful source/controller licensing and immutable external per-model HTTP GET+SHA. Device UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103"
     }
   ],
   "policy": {
@@ -2168,7 +2196,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 84
+    "source_or_historical_checkpoints": 85
   },
   "versioning": {
     "firmware_product_version": {

@@ -62,6 +62,14 @@ for (const [name, fn] of [
   ['build-unreviewed-missing-pro',j=>delete j.history.find(x=>x.status==='build-succeeded-unreviewed').producer_reported_artifacts.pro],
   ['build-unreviewed-forged-rehash',j=>j.history.find(x=>x.status==='build-succeeded-unreviewed').artifact_bytes_independently_verified=true],
   ['firmware-link',j=>j.history[0].pkg='https://evil.example/evil.fwsc'],
+  ['real-failed-build-relabel-source',j=>j.history.find(x=>x.id==='producer-pr93-20261023').status='source-only'],
+  ['real-failed-build-relabel-evidence',j=>j.history.find(x=>x.id==='producer-pr93-20261023').status='evidence-only'],
+  ['real-failed-build-remove-receipt',j=>delete j.history.find(x=>x.id==='producer-pr93-20261023').failed_build],
+  ['real-failed-build-remove-receipt-and-relabel',j=>{const x=j.history.find(x=>x.id==='producer-pr93-20261023');delete x.failed_build;x.status='source-only';}],
+  ['real-failed-build-forge-source-root',j=>j.history.find(x=>x.id==='producer-pr93-20261023').source_tree='a'.repeat(40)],
+  ['real-failed-build-forge-valid-log-hash',j=>j.history.find(x=>x.id==='producer-pr93-20261023').failed_build.elite.log_sha256='a'.repeat(64)],
+  ['real-failed-build-forge-pro-compiler-exit',j=>j.history.find(x=>x.id==='producer-pr93-20261023').failed_build.pro.exit_code=2],
+  ['other-source-only-with-typed-failure',j=>{const f=j.history.find(x=>x.id==='producer-pr93-20261023').failed_build;j.history.find(x=>x.status==='source-only').failed_build=JSON.parse(JSON.stringify(f));}],
 ]) run(name,edit(fn));
 run('nonempty-preview',dir=>{
   const p=join(dir,'preview-catalog.json');
