@@ -23,6 +23,10 @@ SDK_PINS = {
     'cpu/wl82/tools/cfg_tool.bin': '276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b',
     'cpu/wl82/tools/cfg/eq_cfg_hw.bin': '41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d',
 }
+# SHA-256 of the independently verified native JieLi pi32v2 Clang 4.0.1 ELF
+# from owner-pinned jieli-linux-toolchains-20260730.1.zip. A spoofed
+# '--version' banner must never establish executable build provenance.
+JIELI_COMPILER_SHA256 = 'c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f'
 PRODUCTS = {'elite': 'x0x-smk37-elite.fwsc', 'pro': 'x0x-smk37.fwsc'}
 HEX40 = re.compile(r'^[0-9a-f]{40}$')
 
@@ -59,6 +63,10 @@ def verify_inputs(toolchain: Path, sdk: Path) -> dict:
     compiler = toolchain / 'pi32v2/bin/clang'
     if not compiler.is_file() or not os.access(compiler, os.X_OK):
         raise ValueError('Missing runnable JieLi pi32v2 clang; toolchain archive and symlinks must be restored')
+    compiler_sha256 = sha256(compiler)
+    if compiler_sha256 != JIELI_COMPILER_SHA256:
+        raise ValueError('pinned JieLi compiler SHA-256 mismatch: '
+                         f'expected {JIELI_COMPILER_SHA256}; observed {compiler_sha256}')
     check = subprocess.run([str(compiler), '--version'], text=True, capture_output=True, timeout=15)
     if check.returncode or 'clang version 4.0.1' not in check.stdout:
         raise ValueError('Expected pinned JieLi clang 4.0.1 executable did not run')
@@ -68,7 +76,7 @@ def verify_inputs(toolchain: Path, sdk: Path) -> dict:
         if not file.is_file() or sha256(file) != want:
             raise ValueError(f'SDK V1.2.1 pin mismatch: {relative}')
         sdk_files[relative] = want
-    return {'compiler_sha256': sha256(compiler), 'compiler_version': check.stdout.splitlines()[0],
+    return {'compiler_sha256': compiler_sha256, 'compiler_version': check.stdout.splitlines()[0],
             'sdk_pins_sha256': sdk_files}
 
 

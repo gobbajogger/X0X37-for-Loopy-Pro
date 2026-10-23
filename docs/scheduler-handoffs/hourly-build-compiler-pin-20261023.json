@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T15:03:00Z",
+  "role": "LoopyX0X37 Hourly Build",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/native-nightly-build-probe-source-gate-20261023",
+    "tested_commit": "d318508887ec6b6810d764ed6334e5a71a54ab0c",
+    "tested_tree": "9c04305208115b409ea1c898142874668bf71c3a",
+    "pr": 64
+  },
+  "summary": "Close a demonstrated compiler-version-spoof preflight defect with SHA-256 pinning of the genuine owner-approved JieLi pi32v2 Clang executable; scoped native Elite/Pro/controller builds and targeted host logs recorded, but no exact-full-checkout or installable release claimed.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/native_nightly_build_probe.py",
+      "description": "Reject unexpected compiler ELF SHA-256 before SDK and target build stages"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/test_native_nightly_build_probe.py",
+      "description": "Fail-before/pass-after compiler version-spoof negative, mocked digest branch test, original 10 regression tests"
+    },
+    {
+      "kind": "build-manifest",
+      "location": "docs/scheduler-handoffs/hourly-build-compiler-pin-20261023.json",
+      "description": "True model-specific source, compiler, controller, build, CRC, size, test log and missing QA/hosting gates"
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline-spoof negative",
+      "status": "FAIL",
+      "command": "python3 -m unittest discover -s tests/host -p test_native_nightly_build_probe.py -v",
+      "exit_code": 1,
+      "evidence": "Expected fail-before: version-banner shim accepted until missing SDK, missing pin constant; native private baseline log",
+      "log_sha256": "4411bbbe739efe1fa135d6a01f245babe539b4f1313fc18d6ef1f5247e0cba04",
+      "coverage": "Deliberate negative baseline, not a final stage FAIL"
+    },
+    {
+      "name": "strict Python host regression",
+      "status": "PASS",
+      "command": "python3 -W error -m unittest discover -s tests/host -p test_native_nightly_build_probe.py -v",
+      "exit_code": 0,
+      "evidence": "Exact tested PR #64 script and tests Git blob SHA readback; 12 of 12 native unit cases; private after log",
+      "log_sha256": "3ec210424af990f99fbbfb1263e0e97572ed77d132455f9891ce05cf6f61017c",
+      "coverage": "Spoof rejection, matching-pin unit path, cleanup, symlink, package/controller failed admission, Git source identity"
+    },
+    {
+      "name": "real compiler and SDK inputs",
+      "status": "PASS",
+      "command": "python3 -c 'from tools.native_nightly_build_probe import verify_inputs; verify_inputs(real_pinned_toolchain,real_pinned_sdk)'",
+      "exit_code": 0,
+      "evidence": "Private x0x37-compiler-pin-positive.log; actual JieLi Clang ELF c45189ee624de0430deb0db02e6dce171fb5538e7fe323e3964dc8ac6236240f and SDK V1.2.1 SHA pins",
+      "coverage": "Genuine native compiler runnable; 3 directly checked SDK package inputs; owner kit 11/11 verified"
+    },
+    {
+      "name": "Elite actual native scoped build",
+      "status": "PASS",
+      "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "evidence": "Native output at verified nightly firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf; private log SHA",
+      "log_sha256": "f3f092f9486f46409dc7bfb083dd71b538b0e3b859fdf294a193c671a1671530",
+      "coverage": "Firmware subtree exact; full repository snapshot is historical, so not exact-root dev_validate"
+    },
+    {
+      "name": "Pro actual native scoped build",
+      "status": "PASS",
+      "command": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "evidence": "Native output at same verified nightly firmware subtree; private log SHA",
+      "log_sha256": "a765470cd6da70487be4453468733ddf5326d3422e02f03aaa138c7c9c52ac9c",
+      "coverage": "Firmware subtree exact; full repository snapshot is historical"
+    },
+    {
+      "name": "controller native link/image check",
+      "status": "PASS",
+      "command": "python3 ble/ctl/mkimage.py ble/ctl/out/ctl.elf ble/ctl/out/ctl.img && python3 tools/add_ctl.py ble/ctl/out/ctl.img --check",
+      "exit_code": 0,
+      "evidence": "Private native controller link/image logs, actual 65492 bytes, CRC32 77b7a496; no right to distribute established",
+      "log_sha256": "8673c15b44d0021ec0ca0668f22ae412a349325a636ae7d15516d0af9d861590",
+      "coverage": "Controller format native image check only, no installer or user-device proof"
+    },
+    {
+      "name": "8 BLE OTA package selectors",
+      "status": "PASS",
+      "command": "bash tests/run_tests.sh ble-midi-receive smk-package smk-ota-entry smk-ota-entry-model1 smk-ota-entry-model2 smk-update-loader smk-build-package smk-build-package-elite",
+      "exit_code": 0,
+      "evidence": "Private executed host runner with explicit exit 0 and all tests passed",
+      "log_sha256": "c902be33e1ce4fcd15c837f484ad29151cdfc382b49c40771531b73ecada1efc",
+      "coverage": "Selected exact-matched test projections, not full root"
+    },
+    {
+      "name": "4 SMC selectors",
+      "status": "BLOCKED",
+      "command": "bash tests/run_tests.sh smc-reachability smc-mapping smc-drum-mutes smc-clip-visibility",
+      "evidence": "All 4 ok markers and terminal all tests passed in private log; aggregate subprocess exit not observed after outer replay timeout",
+      "log_sha256": "e4b3bcbf28b2ba45139f59caf5fd614ca3090b527d8300c92cf1cd1b02b3e71c",
+      "coverage": "Individual positive logs only"
+    },
+    {
+      "name": "5 backup installer selectors",
+      "status": "BLOCKED",
+      "command": "bash tests/run_tests.sh ble ble-package slot-backup installer-slots installer-ctl",
+      "evidence": "All 5 ok markers and terminal all tests passed in private log; aggregate subprocess exit not observed after outer replay timeout",
+      "log_sha256": "738c30c9437f23abf8b7f0fa7e20eb88cf67d364a8410fb800a445ac18020a49",
+      "coverage": "Selected negative/positive log evidence only"
+    },
+    {
+      "name": "exact native full root checkout",
+      "status": "BLOCKED",
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "evidence": "exit 128 DNS shell transport failure; verified current firmware subtree from source blobs while full local Git root remains historical synthetic commit f58d62f0b622b9c5792bda81793e0031d8be8747",
+      "coverage": "No exact-full-repo dev_validate, full-test, independent QA, DSP ref pin check"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "SMK-37 DEV X0X_DEV_PADCAL=1; SCOPED verified firmware NIGHTLY subtree only",
+      "artifact": "SMK37-Elite-BUILD-ONLY.fwsc (private, no URL)",
+      "artifact_bytes": 651396,
+      "artifact_sha256": "d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "package_crc32": "577fd25b",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "No full HEAD verification, QA, numeric version ledger or lawful immutable HTTP. NOT INSTALLABLE."
+    },
+    {
+      "model": "pro",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "SMK-37 DEV X0X_DEV_PADCAL=1; SCOPED verified firmware NIGHTLY subtree only",
+      "artifact": "SMK37-Pro-BUILD-ONLY.fwsc (private, no URL)",
+      "artifact_bytes": 651392,
+      "artifact_sha256": "0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "package_crc32": "29551834",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "No full HEAD verification, QA, numeric version ledger or lawful immutable HTTP. NOT INSTALLABLE."
+    }
+  ],
+  "dependencies": [
+    "Firmware NIGHTLY 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e; root Git tree 71b759dd206d844cceed9e40ae68966142720e9c; firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "JieLi toolchain ZIP SHA-256 ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "private SDK V1.2.1 kit SHA-256 2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805, 11/11 verified",
+    "Four DSP references 9W9 10cbe5c, 8W8 94aa271, schwung-303 7680578, tb3po f49d81d still unverified on full root",
+    "Private user-visible (logs only, no binaries) bundle SHA-256 502ad9fe25331d662231421a09775bf03dec31d0bd270698724307ddb8779bc0",
+    "Unmerged Safe Merge #71 and other producer drafts are not part of source NIGHTLY HEAD",
+    "Product version VERSION UNASSIGNED; no real physical device passed"
+  ],
+  "publication": "NOT_PUBLISHED",
+  "next": {
+    "owner": "Independent QA; sole Safe Merge; NIGHTLY Catalog Sync",
+    "action": "Review pinned compiler negative and actual source/head, then obtain exact full root source and independently qualify model package and installer before any catalog/publisher action",
+    "gate": "SCOPED MODELS BUILT; FULL-ROOT QA, DSP pins, version, licensable immutable hosting, HTTP all remain pending"
+  }
+}

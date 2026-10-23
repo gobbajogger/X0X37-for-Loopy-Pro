@@ -175,6 +175,43 @@ class NativeProbeTests(unittest.TestCase):
                                  self.repo, os.environ.copy(), logs, 10)
         self.assertEqual(passed['exit'], 0)
 
+    def test_version_spoofed_compiler_rejected_before_sdk_or_build(self):
+        fake_toolchain = Path(self.dir.name) / 'spoofed-jieli'
+        bin_dir = fake_toolchain / 'pi32v2' / 'bin'
+        bin_dir.mkdir(parents=True)
+        compiler = bin_dir / 'clang'
+        compiler.write_text('#!/bin/sh\necho "clang version 4.0.1 (NOT JIELI)"\n')
+        compiler.chmod(0o755)
+        # A version string alone is not provenance. The compiler digest must
+        # fail before any SDK path or firmware work is attempted.
+        with self.assertRaisesRegex(ValueError, 'pinned JieLi compiler SHA-256'):
+            PROBE.verify_inputs(fake_toolchain, Path(self.dir.name) / 'missing-sdk')
+
+    def test_pinned_digest_path_allows_further_sdk_identity_checks(self):
+        fake_toolchain = Path(self.dir.name) / 'mocked-toolchain'
+        bin_dir = fake_toolchain / 'pi32v2' / 'bin'
+        bin_dir.mkdir(parents=True)
+        compiler = bin_dir / 'clang'
+        compiler.write_text('#!/bin/sh\necho "clang version 4.0.1 (UNIT MOCK)"\n')
+        compiler.chmod(0o755)
+        sdk = Path(self.dir.name) / 'mocked-sdk'
+        for relative in PROBE.SDK_PINS:
+            file = sdk / relative
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_bytes(b'UNTRUSTED TEST DATA')
+        actual_hash = PROBE.sha256(compiler)
+        def mock_pin(path):
+            if Path(path) == compiler:
+                return PROBE.JIELI_COMPILER_SHA256
+            return PROBE.SDK_PINS[str(Path(path).relative_to(sdk))]
+        # Synthetic digest fixtures test the decision path only. Real positive
+        # compiler/SDK bytes must be checked separately in the native build run.
+        with mock.patch.object(PROBE, 'sha256', side_effect=mock_pin):
+            found = PROBE.verify_inputs(fake_toolchain, sdk)
+        self.assertEqual(found['compiler_sha256'], PROBE.JIELI_COMPILER_SHA256)
+        self.assertNotEqual(actual_hash, PROBE.JIELI_COMPILER_SHA256)
+        self.assertEqual(found['sdk_pins_sha256'], PROBE.SDK_PINS)
+
     def test_sdk_pin_absence_refused_before_tool_execution(self):
         with self.assertRaisesRegex(ValueError, 'Missing runnable JieLi'):
             PROBE.verify_inputs(Path(self.dir.name) / 'no-toolchain',
