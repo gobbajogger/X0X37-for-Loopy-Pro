@@ -414,6 +414,10 @@ static void link_reset(bleh_t *h)
 {
     h->cccd[0] = h->cccd[1] = 0;
     h->att_rsp_len = 0;
+    /* A new accepted BLE link starts a fresh MIDI epoch, even when the old
+     * disconnect event was lost. Never replay old Note Off or SysEx. */
+    h->q_r = h->q_w;
+    h->sx_on = h->sx_len = h->sx_pos = 0;
     h->cpu_state = 0;
     h->rx_on = 0;
     h->in_r = h->in_w = h->in_running = 0;
