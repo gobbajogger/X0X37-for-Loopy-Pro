@@ -50,7 +50,7 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|slot-backup|upload-tools|\
-    breaks-page|projects-page|ble-hci-completed|ble-acl-zero-credit|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble-hci-completed|ble-acl-zero-credit|ble-acl-start-flags|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
@@ -183,6 +183,7 @@ run smc-queue python3 tests/host/smc_queue_test.py
 run smc-link python3 tests/host/smc_link_test.py
 run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
+run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
 run ble-hci-completed sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_hci_completed_packets_test tests/host/ble_hci_completed_packets_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_hci_completed_packets_test"
 run ble-acl-zero-credit sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_zero_credit_test tests/host/ble_acl_zero_credit_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_zero_credit_test"
 run ble-link-epoch-reset sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_link_epoch_reset_test tests/host/ble_link_epoch_reset_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_link_epoch_reset_test"
@@ -287,6 +288,7 @@ fi
 [ -f build/x0x-smk37-mke.fwsc ] && run smk-build-package-mke python3 tests/smk_pkg_test.py build/x0x-smk37-mke.fwsc "MKE-P37_900"
 # SMK-37 Bluetooth MIDI: the HCI mailbox, the BLE-MIDI host, the image check, the park handshake (tests/ble_test.c);
 # the controller image in a package, Python and JavaScript (tests/ble_pkg_test.py, needs the SMK build)
+run ble-sysex-bounds sh -c "$CC -std=c11 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/ble_sysex_bounds_test tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_sysex_bounds_test"
 run ble sh -c "$CC $W -Ifirmware/hal -Ifirmware/src/ble -o $OUT/ble_test tests/ble_test.c -lpthread && $OUT/ble_test"
 [ -f build/x0x-smk37.fwsc ] && run ble-package python3 tests/ble_pkg_test.py
 run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops && \
