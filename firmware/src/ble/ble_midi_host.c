@@ -463,12 +463,12 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
         } else if (h->state == BLEH_ADVERTISING) {
             h->want_adv = 0;                        /* attempt 28: a link the host did not see ended: advertise again */
         }
-    } else if (code == 0x13 && pl >= 1) {           /* number of completed packets: all handles, then all counts */
+    } else if (code == 0x13 && pl >= 1) {           /* HCI handle/completion pairs, four bytes each */
         unsigned i, c = p[0];
         if (pl < 1 + 4 * c) return;
         for (i = 0; i < c; i++)
-            if ((rd16(p + 1 + 2 * i) & 0x0FFFu) == h->conn) {
-                unsigned k = (unsigned)h->credits + rd16(p + 1 + 2 * c + 2 * i);
+            if ((rd16(p + 1 + 4 * i) & 0x0FFFu) == h->conn) {
+                unsigned k = (unsigned)h->credits + rd16(p + 3 + 4 * i);
                 h->credits = (uint8_t)(k > h->acl_total ? h->acl_total : k);
             }
     }
