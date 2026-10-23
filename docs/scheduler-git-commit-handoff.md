@@ -2,6 +2,8 @@
 
 Status: owner-proposed coordination protocol, 2026-10-23. Scope: the existing recurring LoopyX0X37 workers in `gobbajogger/X0X37-for-Loopy-Pro` and `gobbajogger/x0x37-for-Loopy-Pro_nightly`. This is a read/write *development coordination* protocol. It does not change build gates, turn a branch into a deployed website, or permit a firmware flash, `main` merge, publication, force push or private input upload.
 
+**Parallel-worker and hardware policy:** see `docs/scheduler-agent-pipeline.md` in the same proposed documentation lane. Source edits, applicable host/logic regressions, reviews, isolated source integration and authorized development-branch commits/pushes do **not** require physical SMK-37 access or a `DEVICE VERIFIED` claim. The owner performs physical testing **after** an individually approved, software/package-safe nightly DEV test candidate is available; production installable selection still requires exact hardware evidence and separate approval.
+
 ## Reason and priority
 
 Every existing hourly scheduler should use **live Git refs/commits and linked evidence as its durable primary cross-worker inbox**. Relevant active and completed Project conversations and Library reports remain useful read-only background, but missing chat transcript access is a narrow context gap, never an automatic blocker to independently verified work. Treat a Git commit as evidence of *what bytes were pushed*, not proof that a test was run, device was verified or site was published.
