@@ -117,7 +117,7 @@ static int l2cap_send(bleh_t *h, unsigned cid, const uint8_t *d, unsigned n)
     uint8_t b[8 + BLEH_MTU];
     unsigned i;
     int rc;
-    if (n > BLEH_MTU) return -1;
+    if (n > BLEH_MTU || !h->credits) return -1;
     wr16(b, h->conn & 0x0FFFu);                     /* PB = 0: first packet, host to controller */
     wr16(b + 2, 4 + n);
     wr16(b + 4, n);                                 /* L2CAP length, then the channel */
