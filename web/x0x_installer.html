@@ -590,17 +590,24 @@ async function mergeGitHubReleases() {
   // Only explicit per-model, source-checked and hosted-hash-approved catalog
   // entries can be shown after review of NIGHTLY_PUBLISHER_APPROVALS.
 }
+let ctlLoadSerial = 0;
 $("ctlfile").addEventListener("change", async (e) => {
+  if (writing) { e.target.value = ""; return; }
+  const requestId = ++ctlLoadSerial;
   ctl = null;
   const f = e.target.files && e.target.files[0];
   if (!f) return;
+  e.target.value = ""; // Allow choosing the same file again after a read failure.
   try {
     const raw = new Uint8Array(await f.arrayBuffer());
+    if (requestId !== ctlLoadSerial || writing) return;
     const p = ctlProblem(raw);
     if (p) { sayK("ctlbad", p); return; }
     ctl = raw;
     sayK("ctlok");
-  } catch (err) { sayK("ctlbad", err && err.message); }
+  } catch (err) {
+    if (requestId === ctlLoadSerial && !writing) sayK("ctlbad", err && err.message);
+  }
 });
 
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
@@ -669,6 +676,7 @@ async function run(img, product, opts = {}) {
   // Lock both install paths before an asynchronous MIDI permission request.
   if (writing) return;
   writing = true;
+  ctlLoadSerial++; // Ignore controller file reads pending before the write.
   $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
