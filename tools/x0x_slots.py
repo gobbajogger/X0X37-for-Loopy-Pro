@@ -409,21 +409,41 @@ def at_risk(lay, old_map, new_map):
 
 
 def plan_migration(images, risk, old_map, new_lay, new_map):
-    """-> ([(old slot, new slot)], [skipped text]): each slot at risk goes back to the slot with its
-    number if it fits there, else to the first other slot that is empty, not a kept slot and large enough"""
+    """Maximize safe sample restoration without touching occupied or kept new slots.
+
+    Prefer the same slot number when possible, but allow reassignment so an early
+    small image cannot consume the only slot that fits a later large image.
+    """
     kept = {j for j, (o, _) in enumerate(new_map)
             for k, (ok_, _) in enumerate(old_map) if images[k] is not None and k not in risk and ok_ == o}
-    taken, todo, skipped = set(kept), [], []
+    choices = {}
     for k in risk:
-        img = images[k]
-        for j in ([k] if k < len(new_map) else []) + [j for j in range(len(new_map)) if j != k]:
-            if j in taken or len(img) > new_map[j][1] or new_lay["slots"][j]["nz"]:
+        order = ([k] if k < len(new_map) else []) + [j for j in range(len(new_map)) if j != k]
+        choices[k] = [j for j in order if j not in kept and not new_lay["slots"][j]["nz"]
+                      and len(images[k]) <= new_map[j][1]]
+
+    # Most-constrained images first, then the larger ones. If the preferred
+    # destination is in use, recursively move its occupant to another safe slot.
+    # This finds a maximum-cardinality matching, unlike first-fit placement.
+    assigned = {}  # destination slot -> original image index
+
+    def place(k, seen):
+        for j in choices[k]:
+            if j in seen:
                 continue
-            todo.append((k, j))
-            taken.add(j)
-            break
-        else:
-            skipped.append(f"slot {k + 1} ({len(img)} B): no free slot of that size on the new firmware")
+            seen.add(j)
+            if j not in assigned or place(assigned[j], seen):
+                assigned[j] = k
+                return True
+        return False
+
+    for k in sorted(risk, key=lambda k: (len(choices[k]), -len(images[k]), k)):
+        place(k, set())
+
+    destinations = {k: j for j, k in assigned.items()}
+    todo = [(k, destinations[k]) for k in risk if k in destinations]
+    skipped = [f"slot {k + 1} ({len(images[k])} B): no free slot of that size on the new firmware"
+               for k in risk if k not in destinations]
     return todo, skipped
 
 
