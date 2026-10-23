@@ -1,0 +1,143 @@
+{
+  "artifacts_private_only": {
+    "controller": {
+      "build_exit": 0,
+      "bytes": 65492,
+      "log_sha256": "a38fb02b9c3c93e28463c358d6d2d919b8170b64a7668c6cdfad344ac764f654",
+      "model": "SMK-37 BLE controller",
+      "private_basename": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    },
+    "elite": {
+      "build_exit": 0,
+      "bytes": 651396,
+      "log_sha256": "80a257c634b0c30425cdb87961a07bfadc534c37c632aa866e2a1160202cea97",
+      "model": "SMK-37 Elite_900",
+      "private_basename": "elite.fwsc",
+      "sha256": "d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b"
+    },
+    "pro": {
+      "build_exit": 0,
+      "bytes": 651392,
+      "log_sha256": "594e0a67598523c038863ad44cc8436016d723e8dd8e7c6e6e54482db845a263",
+      "model": "SMK-37 Pro_900",
+      "private_basename": "pro.fwsc",
+      "sha256": "0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9"
+    }
+  },
+  "binary_publication_authorized": false,
+  "budgets": {
+    "app_bytes": 545996,
+    "code_area_available_bytes": 6676,
+    "controller_free_bytes": 44,
+    "controller_max_bytes": 65536,
+    "pool_limit": 344064,
+    "pool_used": 335740,
+    "static_ram_limit": 98304,
+    "static_ram_used": 97812
+  },
+  "build_commands": {
+    "controller": "CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+    "elite": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+    "pro": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37"
+  },
+  "build_tool_blob_shas": {
+    "ble/ctl/build_ctl.sh": "72739d02157c3bcd00823486601f32e17c793ffd",
+    "ble/ctl/fetch_sdk.sh": "739e1581b0fe933a571612372040d23b0d07325f",
+    "ble/ctl/mkimage.py": "6a3ca63844961e690dc1cc4d0a57bd5420223236",
+    "build.sh": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+    "tools/add_ctl.py": "6618e9ea1da12b41bcf3df4558849fb0f94ccf62",
+    "tools/build.py": "93b6070a8323f5cbf90f355f7432a6b634b175ba",
+    "tools/check_locked_settings.py": "f1ac9fe3f1535c01cfd37016e158472740a1bc8d",
+    "tools/fm1pkg_make.py": "c8fa41d75e36f32fa59516d9cc25ddbd5a975057",
+    "tools/gen_break_bank.py": "e857d938fd6d337a156dae8d1e9b920b2c264a46",
+    "tools/gen_builtin_break.c": "0a5bdc4e91219da9cc854034682897112e8aa6b0",
+    "tools/gen_builtin_break.sh": "6d81d57289cfa98725b29c6be32ff9ca51164a6d",
+    "tools/gen_drum_samples.py": "dd669ee780590ec27578515ec0ee0c4db5d88535",
+    "tools/gen_font.py": "b68b07c5938e9571c5590e1e878a1dfcf3446e5d",
+    "tools/locked_settings.json": "01b36850050ae2de9b7f973b16bac5823aaef4cb",
+    "tools/lz4blk.py": "43fbdaaa0d5c4ac1d321464d77fec702ca983818"
+  },
+  "classification": "BUILD_SUCCEEDED_UNREVIEWED_SCOPED_SOURCE_VERIFIED",
+  "controller_crc32": "77b7a496",
+  "download_http_verified": false,
+  "full_root_git_head_verified": false,
+  "host_checks": {
+    "ble_backup_install": {
+      "count": 5,
+      "exit": 0,
+      "log_sha256": "738c30c9437f23abf8b7f0fa7e20eb88cf67d364a8410fb800a445ac18020a49",
+      "test_names": [
+        "ble",
+        "ble-package",
+        "slot-backup",
+        "installer-slots",
+        "installer-ctl"
+      ]
+    },
+    "firmware_package_ota": {
+      "count": 8,
+      "exit": 0,
+      "log_sha256": "c902be33e1ce4fcd15c837f484ad29151cdfc382b49c40771531b73ecada1efc",
+      "test_names": [
+        "ble-midi-receive",
+        "smk-package",
+        "smk-ota-entry",
+        "smk-ota-entry-model1",
+        "smk-ota-entry-model2",
+        "smk-update-loader",
+        "smk-build-package",
+        "smk-build-package-elite"
+      ]
+    },
+    "rest_source_unit_tests": {
+      "count": 12,
+      "exit": 0,
+      "log_sha256": "1a9096bb528528493f6b2e5ad26407ec72655532cbef91ccbd3b61e7bc5bb0ae"
+    },
+    "smc_midi_regressions": {
+      "count": 5,
+      "exit": 0,
+      "log_sha256": "0e010c90fb26e677c0a69f32c487b3ff728ea952df475092836cae90a1211958",
+      "test_names": [
+        "ble-midi-receive",
+        "smc-reachability",
+        "smc-mapping",
+        "smc-drum-mutes",
+        "smc-clip-visibility"
+      ]
+    },
+    "source_bridge_unit_tests": {
+      "count": 13,
+      "exit": 0,
+      "log_sha256": "da919978482362b00c847211029609a3d6aa602c240be2b875de27eb196648f2"
+    }
+  },
+  "host_distinct_named_tests": 17,
+  "independent_qa_approved": false,
+  "input_archive_sha256": {
+    "sdk": "2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805",
+    "toolchain": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19"
+  },
+  "installable": false,
+  "native_runner": "Linux x86_64; user-supplied pinned toolchain Clang 4.0.1 and SDK V1.2.1",
+  "physical_device_tested": false,
+  "recorded_at_utc": "2026-10-23T15:15:13.005608+00:00",
+  "remaining_gates": [
+    "complete full Git repo HEAD/tree for full-repository QA",
+    "independent critical QA and broader host/static/negative verification",
+    "package model/controller preservation/backup/flash testing and installer browser test",
+    "distribution licensing and immutable external hosting",
+    "sole NIGHTLY publisher catalog/site/http byte checks"
+  ],
+  "remote_nightly_commit_at_build": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "remote_nightly_root_tree_at_build": "71b759dd206d844cceed9e40ae68966142720e9c",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "schema": "LoopyX0X37 scoped native build evidence v1",
+  "source_checkout": "Synthetic historical Git checkout with exact Git-verified compiled source and build inputs; not exact full current remote HEAD",
+  "verified_remote_trees": {
+    "assets": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "ble": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "firmware": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+  }
+}
