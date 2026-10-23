@@ -5,6 +5,7 @@
 ## Identity and actual source boundary
 
 - Repository: `gobbajogger/X0X37-for-Loopy-Pro`; producer PR #99, isolated lane `lane/bugfinder-bf016-bass303-fenv-idempotence-20261023-1455`; unchanged PRODUCER SOURCE HEAD before this evidence-only change: `93d0851f2430714eede3851561b40d5d166356c6`.
+- Producer source commit `93d0851f2430714eede3851561b40d5d166356c6` has **full root Git tree** `1619356530a569ea2643fdff189215670ae3e5c0` and **separate firmware/ subtree** `ffdeb23003a1d17b840a1fbe43857d6783a1be01`, independently fetched via GitHub immutable commit/tree API. Later evidence-only commits change the full root tree but preserve that compiled firmware subtree. Matching specific executable input blobs is verified below; a complete exact native PR root checkout is still NOT_RUN.
 - Immutable firmware `nightly` base commit: `58b5b45a2dd90581de7a674c331ca5cbe8a67c7e`; **base full root tree** `71b759dd206d844cceed9e40ae68966142720e9c`; distinctly **base firmware/ subtree** `19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf`. Neither base tree denotes the PR head tree.
 - GitHub PR-head producer source `firmware/src/dsp/bass303.c` blob: `66c9851e3bc538e6b9932d6eb65c97229a79b308`; complete regression `tests/host/bass303_lite_test.c` blob: `8aacb0b31b20b5912dddc7e950b80bb8bebdb97a`. Both local tested inputs matched `git hash-object` exactly.
 - Unchanged included `firmware/src/dsp/bass303.h`: `085b8521f7410ef03bd53aa82961ace51eaf5b60`; `firmware/src/dsp/fastmath.h`: `7d2e41bf70590bafa8af0a7376bb912bf763b098`. Both matched the corresponding GitHub producer HEAD blobs.
