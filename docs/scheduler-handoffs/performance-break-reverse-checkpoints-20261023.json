@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "run_utc": "2026-10-23T15:28:06.821Z",
+  "run_utc": "2026-10-23T18:29:04Z",
   "role": "LoopyX0X37 Performance Engineering",
-  "outcome": "SOURCE_COMPLETE_REVIEW_READY__BUILD_QA_NOT_RUN",
+  "outcome": "SOURCE_COMPLETE_REVIEW_READY__SCOPED_NATIVE_DEV_BUILDS_SUCCEEDED_UNREVIEWED__FULL_ROOT_QA_PENDING",
   "source": {
     "repository": "gobbajogger/X0X37-for-Loopy-Pro",
     "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
@@ -13,9 +13,12 @@
     "compiled_input_firmware_tree": "a87a83e15116422eed84528d95f52ddef5029927",
     "producer_test_blob": "32ea476365f6d19bbc6f6cf1a85117c1463262c5",
     "prior_failed_root_commit": "74389d4bb4abc2f8a36b91bc16d1822b63264986",
-    "tested_commit_qualification": "SOURCE CHECKED HOST MODEL at root e5cc; evidence-only followup adds no firmware source edits; always independently verify current full PR tip and compiled subtree."
+    "tested_commit_qualification": "SOURCE CHECKED HOST MODEL at root e5cc; evidence-only followup adds no firmware source edits; always independently verify current full PR tip and compiled subtree.",
+    "last_readback_full_pr_head_before_evidence_update": "2c5f6a0c6cb4c5e2f6d856af2743969d2e6971d3",
+    "last_readback_full_pr_root_tree": "f427b9ba9c8c391f8758db277bcb99b6690e24ec",
+    "build_scope": "Entire compiled firmware/ subtree byte-matched; full root assembled build checkout was historical/synthetic and does not match PR root."
   },
-  "summary": "Supersede FAILED 960-checkpoint PR93 target build: restore BRK_NCK=480 and reuse one adjacent reverse cache decoder state per voice (+16 B expected pool). Native host source-algorithm model: 20.18%/33.43% fewer calls on long reverse, exact PCM at 11 lengths incl 2048 random jumps, GCC/Clang O2 & ASan+UBSan PASS. NEW model builds/full renderer NOT_RUN.",
+  "summary": "Repaired rejected 960-checkpoint BREAK regression with 480 checkpoints and +16 B reverse seek state; source-model producer GCC/Clang and sanitizers PASS. Build worker consumed byte-matched compiled firmware subtree a87a83e1 and actually compiled Elite+Pro DEV and ctl exit 0; each model pool free 8308 B (minimum 8192 B, only 116 B margin). Private package and log hashes verified. This is scoped BUILD_ONLY, not full-root QA, public installability or hardware PASS.",
   "outputs": [
     {
       "kind": "source",
@@ -64,38 +67,57 @@
       "coverage": "expected 2, no false PASS"
     },
     {
-      "name": "Current full source/native Elite+Pro and controller target build",
+      "name": "Native Elite+Pro DEV + matching controller on identical compiled input firmware subtree",
+      "status": "PASS_SCOPED_BUILD_ONLY_REPORTED_BY_BUILD_OWNER",
+      "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37; BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37; CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+      "evidence": "Build owner exact-SHA receipt https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93#issuecomment-6369182051 ; separate private archive verification https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93#issuecomment-6369196784",
+      "coverage": "Elite and Pro each actual target compile exit 0, model package CRC check exit 0; matching controller compile completed retry exit 0. Source scoped to verified firmware/ tree, NOT current full-root regression suite or device.",
+      "exit_code": 0,
+      "executed_by": "Hourly Build worker, not Performance Engineering in this evidence-reconciliation run"
+    },
+    {
+      "name": "Current complete PR93 root independent renderer/SMC/BLE/phase/NoteOff QA",
       "status": "NOT_RUN",
       "command": "NOT_RUN",
-      "evidence": "previous 960 proposal actual target builds failed pool with exit 1; new compact saved-state source not target-built",
-      "coverage": "actual model-specific code/RAM/pool, hardware audio and current full renderer unverified"
+      "exit_code": null,
+      "evidence": "No independent exact-full-root QA acknowledgment or review for producer full-root SHA 2c5f6a0c6cb4c5e2f6d856af2743969d2e6971d3 at reconciliation",
+      "coverage": "Full tests/host/run_breaks.sh; previous five SMC/BLE failures used mismatched historical host test blobs and cannot be attributed to this source; current test inputs must be reconstructed",
+      "owner": "Independent NIGHTLY QA"
     }
   ],
   "models": [
     {
       "model": "elite",
-      "build_status": "NOT_RUN",
+      "build_status": "BUILD_SUCCEEDED_SCOPED_UNREVIEWED",
       "device_status": "DEVICE_NOT_TESTED",
-      "notes": "New revision BUILD_ONLY pending; previous model exit1 pertains to prior SHA"
+      "pool_free_bytes": 8308,
+      "pool_min_free_bytes": 8192,
+      "package_bytes": 651396,
+      "package_sha256": "adc035e576ca3778cf90b63e7c3ed3539f3a2df388bcf37229ebb351d294b313",
+      "native_exit": 0
     },
     {
       "model": "pro",
-      "build_status": "NOT_RUN",
+      "build_status": "BUILD_SUCCEEDED_SCOPED_UNREVIEWED",
       "device_status": "DEVICE_NOT_TESTED",
-      "notes": "New revision BUILD_ONLY pending; previous model exit1 pertains to prior SHA"
+      "pool_free_bytes": 8308,
+      "pool_min_free_bytes": 8192,
+      "package_bytes": 651392,
+      "package_sha256": "79f46c5b7bb9dded5c538dd23359343259dc40c4b5928eb5e87a4401274e3eaf",
+      "native_exit": 0
     }
   ],
   "next": {
-    "owner": "Hourly Build (BUILD_ONLY) + Independent QA, then sole firmware Safe Merge",
-    "action": "Compile Elite & Pro DEV + matching controller on code-checked full root e5cc2c720af5f815cbb6bf0774971a41594b9574 (firmware subtree a87a83e15116422eed84528d95f52ddef5029927), or latest evidence-only branch tip after verifying identical firmware subtree; measure actual >=8192 B pool reserve. Independent QA runs full BREAK renderer/phase/NoteOff and controller/backup/model/integrity negatives before Safe Merge. No device/HTTP PASS claimed.",
-    "gate": "Real Elite+Pro target builds on compact source, actual reserve >=8192 B, and independent renderer/phase/NoteOff QA for NIGHTLY merge; further distributor/installer model/controller/backup/integrity/license/immutable-HTTP gates before owner-installable Nightly."
+    "owner": "Independent NIGHTLY QA, then sole firmware Safe Merge; downstream Catalog / authorized Publisher only after gates",
+    "action": "Consume immutable producer source root 2c5f6a0c6cb4c5e2f6d856af2743969d2e6971d3 and unchanged firmware subtree a87a83e15116422eed84528d95f52ddef5029927, private Build receipts, rerun full-root current test blobs with BREAK renderer, phase/NoteOff, historical SMC/BLE discrepancy, model/controller/backup/OTA negatives, record reviewed or needs-changes exact-SHA evidence; Safe Merge owns nightly integration and rebuild for any compiled-input change.",
+    "gate": "Independent source/full-root QA and firmware Safe Merge review/integration. Public owner-installable nightly additionally requires model/controller/backup/integrity/source/license and lawful immutable HTTP checks. Prior owner device PASS is NOT needed for NIGHTLY; production separately approved same-byte hardware proven."
   },
   "dependencies": [
     "firmware nightly 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
     "superseded PR93 parent 74389d4bb4abc2f8a36b91bc16d1822b63264986 target build exit1 pool"
   ],
-  "publication": "SOURCE_ONLY_REVIEW_READY; NOT_BUILT; NO_DEVICE_OR_HTTP_PASS",
-  "evidence_revision": "pr93-compact-reverse-state-source-ready-20261024-r2",
+  "publication": "BUILD_SUCCEEDED_SCOPED_UNREVIEWED; INSTALLABLE=false; PUBLIC_HTTP_NOT_PUBLISHED; DEVICE_NOT_TESTED; PRODUCTION_NOT_AUTHORIZED",
+  "evidence_revision": "pr93-producer-consumed-build-receipts-20261024-r3",
   "correction": {
     "kind": "source-identity-disposition",
     "prior": "Earlier handoff accidentally left source.tested_commit pointing to rejected 960-checkpoint root, even after the compact revision was pushed.",
@@ -107,6 +129,60 @@
     },
     "producer_checks": "Historical source-model GCC/Clang O2, ASan+UBSan and negative-selector checks with actual exit logs already documented; not re-executed in this evidence-only change.",
     "present_run": "GitHub exact-ref/blob/PR-state readback and static structural review; not a new native compiler, model, or device execution.",
-    "review_state": "PR93 marked ready for independent review (not approved/merged)."
+    "review_state": "PR93 marked ready for independent review (not approved/merged).",
+    "build_status": "The r2 handoff predates Build; previous NOT_RUN applies only before the separately attributed native BUILD_ONLY receipts. Full-root QA and PUBLIC_HTTP remain NOT_RUN."
+  },
+  "build_receipt": {
+    "owner": "Hourly Build (BUILD_ONLY)",
+    "identity": {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "producer_branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+      "producer_full_root_sha_consumed": "2c5f6a0c6cb4c5e2f6d856af2743969d2e6971d3",
+      "producer_root_tree": "f427b9ba9c8c391f8758db277bcb99b6690e24ec",
+      "compiled_firmware_tree": "a87a83e15116422eed84528d95f52ddef5029927",
+      "evidence_revision": "native-dev-elite-pro-ctl-20261024-rev1"
+    },
+    "commands": [
+      {
+        "argv": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+        "exit_code": 0
+      },
+      {
+        "argv": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+        "exit_code": 0
+      },
+      {
+        "argv": "CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+        "exit_code": 0,
+        "qualifier": "completed retry; initial interrupted attempt outcome UNKNOWN"
+      }
+    ],
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "77b7a496",
+      "flash_free_bytes": 44,
+      "public_distribution_allowed": false
+    },
+    "both_models_budget": {
+      "pool_used_bytes": 335756,
+      "pool_limit_bytes": 344064,
+      "pool_free_bytes": 8308,
+      "pool_required_free_bytes": 8192,
+      "margin_above_minimum_bytes": 116,
+      "static_ram_free_bytes": 492,
+      "code_area_free_bytes": 6468
+    },
+    "private_library_archive": {
+      "path": "/LoopyX0X37/LoopyX0X37-PR93-Repaired-Private-Elite-Pro-Controller-20261024.zip",
+      "bytes": 1234141,
+      "sha256": "32ac7fd4869428eef1f9aa74d2affd80b954ea084d8c6829fa0fdfcc02d9dee2",
+      "integrity": "3/3 artifact SHA+length and 13/13 raw log SHA+length matched, ZIP CRC succeeded, previously checked by Performance Engineering (not rerun in this update)"
+    },
+    "git_receipts": [
+      "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93#issuecomment-6369182051",
+      "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93#issuecomment-6369196784"
+    ],
+    "scope_limitations": "Compiler was executed by Build, not this producer. Scoped compiled firmware inputs match exact subtree, but synthetic checkout root differs from live PR root. Full-root independent QA, target device and public immutable HTTP are not attested."
   }
 }
