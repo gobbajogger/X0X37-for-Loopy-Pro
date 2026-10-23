@@ -111,11 +111,31 @@ int main(int argc, char **argv)
     route = atoi(argv[1]); mmc_src = atoi(argv[2]);
     unsigned start = (unsigned)atoi(argv[3]);
     reset_on_first = atoi(argv[4]);
-    assert(route >= 0 && route <= 2 && mmc_src >= 0 && mmc_src < 2);
+    assert(route >= 0 && route <= 3 && mmc_src >= 0 && mmc_src < 2);
     smc_qr = smc_qw = smc_host_r = smc_host_w = (uint8_t)start;
     for (int i = 0; i < 2; i++) smc_mmc_r[i] = smc_mmc_w[i] = (uint8_t)start;
     smc.up = 1;
     proj.set.bt = PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER;
+    if (route == 3) {
+        /* First sixteen queued PLAY commands occupy the whole source ring.
+         * The seventeenth STOP must run last, never be silently lost. */
+        for (unsigned i = 0; i < 16; ++i) smc_mmc_host(33, (uint8_t)mmc_src);
+        smc_mmc_host(34, (uint8_t)mmc_src);
+        if (reset_on_first) {
+            smc_project_drop(); /* a discarded project must not inherit STOP */
+            smc_poll();
+            assert(count == 0);
+            return 0;
+        }
+        smc_poll();
+        assert(count == 17);
+        for (unsigned i = 0; i < 16; ++i)
+            assert(observed[i][0] == 1 && observed[i][1] == 0x5E);
+        assert(observed[16][0] == 1 && observed[16][1] == 0x5D);
+        smc_poll();
+        assert(count == 17); /* the lost STOP is acknowledged only once */
+        return 0;
+    }
     unsigned capacity = route == 2 ? 16 : SMC_Q;
     for (unsigned i = 0; i < capacity; i++) enqueue(i);
     inject = 1;
@@ -158,7 +178,7 @@ with tempfile.TemporaryDirectory(prefix="smc-queue-") as tmp:
                     "-I" + str(ROOT / "firmware/src"), str(c), "-o", str(executable)], check=True)
     failures = []
     cases = 0
-    for route, src in ((0, 0), (1, 0), (2, 0), (2, 1)):
+    for route, src in ((0, 0), (1, 0), (2, 0), (2, 1), (3, 0), (3, 1)):
         for start in (0, 240, 255):
             for reset in (0, 1):
                 args = [str(route), str(src), str(start), str(reset)]
@@ -168,4 +188,4 @@ with tempfile.TemporaryDirectory(prefix="smc-queue-") as tmp:
                     failures.append((args, result.returncode))
     if failures:
         raise SystemExit(f"FAIL: {len(failures)}/{cases} SMC queue interleavings: {failures}")
-print(f"PASS: {cases} full-queue ISR interleavings preserve BLE/USB/MMC events, wrap and reset discard")
+print(f"PASS: {cases} full-queue ISR interleavings, MMC STOP priority, wrap and reset discard")
