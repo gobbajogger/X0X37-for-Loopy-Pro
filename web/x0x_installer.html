@@ -605,8 +605,8 @@ async function midiAccess() {
   return midi;
 }
 
-async function scan() {
-  if (writing) return;
+async function scan(allowPostWrite = false) {
+  if (writing && !allowPostWrite) return;
   led("busy");
   $("conn").textContent = t("looking");
   try {
@@ -988,12 +988,19 @@ drop.addEventListener("drop", async (e) => {
 });
 
 async function run(img, product, opts = {}) {
+  if (writing) return;
+  writing = true;
+  $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
-  catch (e) { sayK(e.code || "denied"); return; }
-  writing = true;
-  $("go").disabled = $("stockgo").disabled = true;
+  catch (e) {
+    writing = false;
+    sayK(e.code || "denied");
+    updateInstallGate();
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    return;
+  }
   led("busy");
   try {
     const up = new Updater(access, log);
@@ -1037,8 +1044,7 @@ async function run(img, product, opts = {}) {
         sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
       }
     }
-    writing = false;  // The scan must run after releasing the update/write guard.
-    await scan();
+    await scan(true);  // Refresh status after reboot, while retaining the single-writer lock.
   } catch (e) {
     // Stock / other custom firmware often reports a different identity string than the package marker.
     if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
