@@ -743,21 +743,34 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     }
 }
 
-void seq_start(seq_t *s) { s->req_cont = 0; s->req_start = 1; }
+/* Publish the request type last: seq_advance must see its matching origin. */
+static void request_start(seq_t *s, int remote)
+{
+    s->req_cont = 0;
+    s->req_rt = (uint8_t)remote;
+    s->req_start = 1;
+}
+static void request_continue(seq_t *s, int remote)
+{
+    s->req_start = 0;
+    s->req_rt = (uint8_t)remote;
+    s->req_cont = 1;
+}
+void seq_start(seq_t *s) { request_start(s, 0); }
 void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start or Continue, not a later one */
 {
-    s->req_start = s->req_cont = 0;
+    s->req_start = s->req_cont = s->req_rt = 0;
     s->req_stop = 1;
 }
-void seq_continue(seq_t *s) { s->req_start = 0; s->req_cont = 1; }
+void seq_continue(seq_t *s) { request_continue(s, 0); }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
 int seq_midi_rt(seq_t *s, uint8_t st)
 {
     int internal = s->clk_src == SEQ_CLK_INT;
     switch (st) {
     case 0xF8: if (!internal) seq_ext_clock(s); return 1;
-    case 0xFA: if (!internal) { s->req_rt = 1; seq_start(s); } return 1;
-    case 0xFB: if (!internal) { s->req_rt = 1; seq_continue(s); } return 1;
+    case 0xFA: if (!internal) request_start(s, 1); return 1;
+    case 0xFB: if (!internal) request_continue(s, 1); return 1;
     case 0xFC: if (!internal) seq_stop(s); return 1;
     default: return 0;
     }
