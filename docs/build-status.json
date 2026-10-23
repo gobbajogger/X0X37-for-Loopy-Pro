@@ -1075,6 +1075,397 @@
       "description": "Read-only source/build evidence checkpoint. No exact current firmware-nightly per-model installable artifact.",
       "missing_gate": "Unmerged into firmware nightly; exact remote integrated tree materialization, full host/QA, native Elite/Pro+controller package checks, license, rollback, external hosting and served byte verification.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/9564d183eba77c62fbd1af8555499c9c7e73c931"
+    },
+    {
+      "id": "smc-nightly-qa-solo-ble-pr71",
+      "title": "SMC Solo overflow and BLE MIDI input guards: stacked QA integration",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/qa-smc-ble-solo-pr70-20261023-1100",
+      "source_commit": "4012987db3f04a2f3b062181fd6dd50a8adb6582",
+      "source_tree": "537d53e11fc84d34fea40a6b5b9839fed69d845a",
+      "source_time": "2026-10-23T12:02:34Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #71, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports SMC 19 Solo scenarios, 22 BLE checks, 24 queue interleavings and 9 sender-isolation checks; compiled firmware subtree is not a complete independent tree or hardware attestation."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Stacked on unmerged integration #70; exact combined full-tree independent QA, Elite/Pro/controller package/provenance, license and external delivery checks outstanding.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/71"
+    },
+    {
+      "id": "seq-chain-endpoint-guard-pr72",
+      "title": "Pattern-chain malformed endpoint bounds guard",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/seq-chain-endpoint-guard-20261023-run4-1103",
+      "source_commit": "c445c83330c8045ec507ee5612c00958ee73bc92",
+      "source_tree": "d3c0efdb8bde25a0dcbdd2c2ae3fbb1e20351894",
+      "source_time": "2026-10-23T11:10:59Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #72, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports function-window GCC/Clang 12/12 checks including malformed and valid endpoints; full exact-tree sequencer suite NOT RUN."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent full-tree sequencer and clock regressions, integration into firmware NIGHTLY and source-matched target/controller QA missing.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/72"
+    },
+    {
+      "id": "smc-mmc-overflow-stop-pr73",
+      "title": "SMC User-mode MMC STOP survives saturated queue",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-mmc-stop-overflow-20261023-1101",
+      "source_commit": "d1ed0b99f6278bd9f62f8da03015b5a7143d691c",
+      "source_tree": "b34d14ced7cca5d989e3bd49bacf231a386786d5",
+      "source_time": "2026-10-23T11:15:56Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #73, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports extracted-function 42/42 GCC/Clang/UBSan/ASan checks and expected baseline failure; full exact branch tests NOT RUN."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Sole SMC integrator to reconcile #58/#63, independent full-tree queue and transport regression, model/controller build and publication gates missing.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/73"
+    },
+    {
+      "id": "fx-delay-min-tempo-bf013-pr74",
+      "title": "Delay synchronization at supported 20 BPM",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-fx-delay-min-tempo-20261023-2115",
+      "source_commit": "31dd638897eadb555ac82cd6a8fdd6cfa17f53ea",
+      "source_tree": "bc4b36888c4f67165e37c7f3b197bd41fa6b0f51",
+      "source_time": "2026-10-23T11:25:14Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #74, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports GCC/Clang six-function tests pass corrected variant and baseline fails three assertions; complete FX suite NOT RUN."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Full stereo/FX and memory tests plus integrated Nightly Elite/Pro target, controller and QA not run.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/74"
+    },
+    {
+      "id": "slot-zone-preflight-pr75",
+      "title": "Reject CRC-valid invalid sample-zone headers before restore writes",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-archive-zone-preflight-20261023-1119",
+      "source_commit": "1d8bea36673942c8c6be2c37af2ac3cb1223de4b",
+      "source_tree": "48fdb2acaa3a1ee60063db706a637257f655e155",
+      "source_time": "2026-10-23T11:25:42Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #75, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports 8/8 extracted Python zone rejection checks and negative control; full source archive/restore suites NOT RUN."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Stacked dependencies #66/#56, independent full-tree slot backup/restore/interrupt and real controller/package QA still pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/75"
+    },
+    {
+      "id": "slot-per-target-readback-pr76",
+      "title": "Verify restored slot before erasing the next target slot",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-per-slot-readback-20261023-1135",
+      "source_commit": "e01e5652efc9265ec24b31d3291591932ad17477",
+      "source_tree": "909fccdf843505a10897db50c9a1acb9c350d63d",
+      "source_time": "2026-10-23T11:35:05Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #76, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports 13/13 focused restore-order assertions and expected original failures; complete current-tree slot test/firmware builds NOT RUN."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent full restore/mapped restore regression and reconciliation with #56/#66/#75 before integrated QA.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/76"
+    },
+    {
+      "id": "installer-midi-retry-rescan-pr77",
+      "title": "Accessible Web MIDI scanning/retry/rescan states",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/installer-ux-midi-retry-states-20261023-run13",
+      "source_commit": "bbe325d48c5d4d2de2d48823bcaec69e45a524ec",
+      "source_tree": "e0010b2b84ba263886d34a166e14e5f8ed08cef1",
+      "source_time": "2026-10-23T11:36:54Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #77, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports responsive Chromium at 320/390/1280 and scoped Node state/negative checks; stacked installer PR not published."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent full installer/backup/browser regression on exact combined Nightly tree and sole publisher review pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/77"
+    },
+    {
+      "id": "scheduler-evidence-contract-pr78",
+      "title": "Proposed structured scheduler evidence schema and deliverables",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/scheduler-evidence-contract-20261023",
+      "source_commit": "67df140182b08394c10e5edc6f37de43cc5a48d2",
+      "source_tree": "21e2e16a793b7e063dc893a95581420d5ab5e0b2",
+      "source_time": "2026-10-23T11:46:51Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #78, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports Draft 2020-12 schema validation with 3 negative examples; PR remains unmerged proposal, current installed plugin contract governs."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent workflow-schema review and approved eventual integration, not a firmware target build.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/78"
+    },
+    {
+      "id": "smc-ble-reconnect-epoch-pr79",
+      "title": "Discard pre-reconnect stale SMC Bluetooth commands",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-ble-link-epoch-20261023-1210",
+      "source_commit": "3e430691dcfecb8dba8e9c6963ccb6ba4616e648",
+      "source_tree": "9708d4ee023635fcf03b0f8afcbdfc1b31edf1f3",
+      "source_time": "2026-10-23T12:14:43Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #79, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports 48/48 native extracted-function tests with GCC, Clang, UBSan and ASan, original negative case fails; complete firmware tree not tested."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent full SMC/BLE link/queue/STOP integration review and model-specific firmware/controller/package tests pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/79"
+    },
+    {
+      "id": "sequencer-invalid-midi-source-pr80",
+      "title": "Reject reserved MIDI clock-source tags before ownership",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/seq-clock-reserved-source-tag-20261023-1226",
+      "source_commit": "70e10cfa068a1caceb446984459b220f3e110ad5",
+      "source_tree": "19a4f47a91a6a44035ef99160383821451b31f85",
+      "source_time": "2026-10-23T12:30:05Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #80, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports 137/137 extracted C host checks including invalid origin tags and alias prevention; entire `tests/run_tests.sh` exact branch suite NOT RUN."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent full current-tree clk-src-tag/clk-lock/sequencer tests, Safe Merge, target/controller and download safeguards pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/80"
+    },
+    {
+      "id": "data-safety-atomic-backup-pr81",
+      "title": "Atomically publish sample backup without truncating prior archive",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-backup-atomic-20261023-run4-1215",
+      "source_commit": "057009814e63dbb34b8f7f3de03aa9391bd00306",
+      "source_tree": "2eeff330c66d3e3f8da0473eef026bc0fdcfe5d3",
+      "source_time": "2026-10-23T12:31:49Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #81, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports 11/11 focused Python host cases for failed replace/sync/readback preservation; full current-tree restore tests NOT RUN."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent full archive/restore/data preservation regression, version compatibility and firmware install preflight pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/81"
+    },
+    {
+      "id": "bugfinder-panel-map-bf014-pr82",
+      "title": "Reject duplicate persisted panel-calibration mappings",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-bf014-panel-calibration-20261023-run11",
+      "source_commit": "52a10a6955155a2fb6038d8cfcbb459de8a8b7ba",
+      "source_tree": "c7797c3476cdcd27af5e2811dd91fb8b9aec590a",
+      "source_time": "2026-10-23T12:31:33Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #82, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports GCC/Clang with UBSan/ASan host panel-mapping tests across board configurations; not firmware/hardware tests."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Independent current-tree control-preservation QA, integrated model builds/controller and physical owner testing separate.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/82"
+    },
+    {
+      "id": "installer-local-feedback-pr83",
+      "title": "Inline validation feedback for local firmware selection",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/installer-ux-local-feedback-20261023-run14",
+      "source_commit": "ed3fc80a084a4ab39de3335075e31be505e84750",
+      "source_tree": "56defe7f92a7cbde2ccf15125efa82c5730a7641",
+      "source_time": "2026-10-23T12:44:58Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #83, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer reports Chromium 320/390/1280 plus 5 local-file and 20 eligibility Node checks; stacked on PR #77, not full current-site QA."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Unmerged installer chain #77/#67/#59; full combined browser/model/backup checks and sole Pages review pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/83"
+    },
+    {
+      "id": "native-elite-pro-current-firmware-subtree-pr84",
+      "title": "Native Elite and Pro DEV/controller builds on exact firmware NIGHTLY subtree",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "nightly",
+      "source_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "source_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "source_time": "2026-10-23T12:36:42Z",
+      "date": "2026-10-23",
+      "status": "not-hosted",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Firmware producer PR #84, independently checked Git ref/tree and report only; NOT rerun by Catalog Sync",
+        "command": null,
+        "result": "Producer PR #84 reports native pinned JieLi 4.0.1 and SDK V1.2.1 Elite/Pro/controller builds EXIT 0 and 17 selected host regressions EXIT 0 on verified firmware subtree 19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf; catalog did NOT receive or rehash actual package bytes and full repository source was historical."
+      },
+      "description": "Noninstallable Nightly status/history checkpoint. Source or test evidence does not alone authorize firmware download or installation.",
+      "missing_gate": "Per-model independent complete-root-SHA QA, independently obtained and rehashed exact packages and matching private controller, controller licensing/local-user strategy, archive/readback/rollback/installer safety, lawful immutable hosting and HTTP-served checksum missing.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/84",
+      "evidence_commit": "a24120979a2c196d3e9ff105bccb8dabf739d978",
+      "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "producer_reported_artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "77b7a496",
+          "redistribution_permitted": false
+        }
+      },
+      "artifact_bytes_independently_verified": false,
+      "build_target_tests_independently_reexecuted": false
     }
   ],
   "policy": {
@@ -1085,7 +1476,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 47
+    "source_or_historical_checkpoints": 61
   },
   "versioning": {
     "firmware_product_version": {
