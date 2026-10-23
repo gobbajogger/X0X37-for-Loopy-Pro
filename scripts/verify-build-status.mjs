@@ -39,4 +39,16 @@ for (const item of catalog.history) {
   ids.add(item.id);
 }
 assert.doesNotMatch(text, /"pkg"\s*:|\.fwsc|ctl\.img|"download"\s*:/i);
+
+const page = read('docs/builds/index.html');
+const home = read('docs/index.html');
+assert.match(home, /href="builds\/"/, 'nightly landing page must link build history');
+assert.match(page, /fetch\('\.\.\/build-status\.json'/, 'read-only page must fetch the published status manifest');
+assert.match(page, /role="status" aria-live="polite"/, 'history loading and errors need live status');
+assert.match(page, /textContent/, 'history page must render JSON via textContent');
+assert.doesNotMatch(page, /href=["'][^"']*\.fwsc/i, 'history must never link directly to firmware packages');
+const js = page.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1];
+assert.ok(js, 'build history page must have its renderer');
+new (await import('node:vm')).Script(js, {filename:'nightly-build-history.js'});
+
 console.log('PASS: ' + catalog.builds.length + ' nightly builds + ' + catalog.history.length + ' history; no unapproved installer entries');
