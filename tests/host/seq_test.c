@@ -1225,8 +1225,104 @@ static void test_tb3po_matches_reference(void)
 }
 #endif
 
+/* REC-06: midpoint of actual swung internal step, adapted from producer PR #65. */
+static void test_rec_swing_midpoint(void)
+{
+    static const int tracks[] = {TRK_DRUM, 1, TRK_BASS0, TRK_BASS0 + 1, TRK_BRK};
+    uint32_t L;
+    int i;
+    reset();
+    S.bpm = 120.0f;
+    P[0].swing = 100;
+    L = seq_step_q8(&S, RATE_16);
+    for (i = 0; i < (int)(sizeof tracks / sizeof tracks[0]); i++) {
+        seq_track_t *tr = &S.t[tracks[i]];
+        tr->started = 1;
+        tr->pos = 0;
+        tr->to_next = L * 3u / 5u;
+        CHECK(seq_rec_step(&S, tracks[i]) == 1, "swung long midpoint track %d", tracks[i]);
+        tr->pos = 1;
+        tr->to_next = L * 3u / 8u;
+        CHECK(seq_rec_step(&S, tracks[i]) == 1, "swung short first quarter track %d", tracks[i]);
+        tr->to_next = L / 8u;
+        CHECK(seq_rec_step(&S, tracks[i]) == 2, "swung short last quarter track %d", tracks[i]);
+    }
+    P[0].drum[0].rate = RATE_32;
+    P[0].bass[0].rate = RATE_32;
+    L = seq_step_q8(&S, RATE_32);
+    S.t[TRK_DRUM].pos = 0;
+    S.t[TRK_DRUM].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 1, "1/32 swung long midpoint drum");
+    S.t[TRK_BASS0].pos = 1;
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 1, "1/32 swung short midpoint 303");
+    P[0].bass[0].rate = RATE_16;
+    P[0].bass[0].dir = DIR_REV;
+    P[0].bass[0].len = 16;
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_BASS0].pos = 4;
+    S.t[TRK_BASS0].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 3, "reverse 303 long step");
+    S.t[TRK_BASS0].pos = 5;
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 5, "reverse 303 short step");
+    P[0].bass[0].dir = DIR_PINGPONG;
+    S.t[TRK_BASS0].pos = 15;
+    S.t[TRK_BASS0].pp_dir = 1;
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 15, "ping-pong short step at endpoint");
+    P[0].drum[0].len = 3;
+    P[0].drum[0].rate = RATE_16;  /* restore 16th rate after earlier RATE_32 test */
+    S.t[TRK_DRUM].pos = 2;
+    S.t[TRK_DRUM].to_next = L * 2u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "odd-length even-to-even wrap midpoint");
+    P[0].drum[0].len = 16;
+    P[0].drum[0].rate = RATE_16T;
+    L = seq_step_q8(&S, RATE_16T);
+    S.t[TRK_DRUM].pos = 0;
+    S.t[TRK_DRUM].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "triplet retains unswung midpoint");
+    P[0].swing = 0;
+    P[0].drum[0].rate = RATE_16;
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_DRUM].to_next = L * 2u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 1, "straight rate retains nearest-step midpoint");
+    S.t[TRK_DRUM].to_next = 0xFFFFFFFFu;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "no next event stays on current step");
+    S.t[TRK_DRUM].started = 0;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "before first step remains step 0");
+    printf("  recording midpoint follows swung internal step durations: checked\n");
+}
+
+
+/* A malformed chain range must never narrow into an invalid pattern index. */
+static void test_chain_endpoint_bounds(void)
+{
+    static const int invalid[][2] = {
+        {-1, 5}, {3, -1}, {NPAT, 5}, {3, NPAT},
+        {NPAT + 256, 5}, {3, NPAT + 256}, {-256, 5}, {3, -256}
+    };
+    unsigned i;
+    reset();
+    S.bpm = 120.0f;
+    seq_chain(&S, 3, 5);
+    CHECK(S.chain_a == 3 && S.chain_b == 5, "valid chain endpoints accepted");
+    for (i = 0; i < sizeof invalid / sizeof invalid[0]; i++) {
+        seq_chain(&S, invalid[i][0], invalid[i][1]);
+        CHECK(S.chain_a == 3 && S.chain_b == 5,
+              "invalid chain endpoints %d,%d preserved valid range (got %u,%u)",
+              invalid[i][0], invalid[i][1], (unsigned)S.chain_a, (unsigned)S.chain_b);
+    }
+    seq_chain(&S, 5, 3);
+    CHECK(S.chain_a == 5 && S.chain_b == 3, "reversed chain endpoints accepted");
+    seq_chain(&S, 3, 3);
+    CHECK(S.chain_a == 3 && S.chain_b == 3, "equal endpoints disable chain");
+    printf("  pattern-chain bounds: eight malformed and valid/reversed/disabled cases checked\n");
+}
+
 int main(void)
 {
+    test_chain_endpoint_bounds();
     test_drum_timing();
     test_swing_and_rates();
     test_303();
@@ -1240,6 +1336,7 @@ int main(void)
     test_ext_transport_ble();
     test_ext_burst_steps();
     test_rec_nearest();
+    test_rec_swing_midpoint();
     test_rec_32nd_tick_midpoint();
     test_clksrc_internal();
     test_clksrc_external();
