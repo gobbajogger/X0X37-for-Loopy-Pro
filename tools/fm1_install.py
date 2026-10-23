@@ -569,6 +569,10 @@ class SlotMove:
     def backup(self, link, path, out):
         lay, self.images = xs.backup(EditorLink(link))
         self.lay = lay
+        # SMP_INFO may have changed since the preflight probe. Plan restoration
+        # from the same verified snapshot whose slot bytes are archived.
+        self.old_map = xs.flash_map(lay, self.board)
+        self.risk = xs.at_risk(lay, self.old_map, self.new_map)
         arch = xs.make_archive(lay, self.images)
         self.path = Path(path)
         xs.save_backup_archive(self.path, arch)
