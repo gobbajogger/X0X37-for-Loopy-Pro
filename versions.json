@@ -2,66 +2,33 @@
   "schema": 2,
   "repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
   "pages": "https://gobbajogger.github.io/X0X37-for-Loopy-Pro",
-  "latest": "dev-20261022-1638-e894804",
-  "versions": [
+  "latest": null,
+  "versions": [],
+  "history": [
     {
-      "version": "dev-20261022-1638-e894804",
+      "id": "dev-20261022-1638-e894804",
       "title": "SMC-07 mixer popup + main help-card merge",
-      "built_at": "2026-10-22T16:38:00Z",
       "source_commit": "e894804dfdb0bb66c7247eb1846313a215422c9f",
-      "status": "dev-checked",
-      "lifecycle": "current",
-      "hardware_tested": false,
-      "description": "SMC mixer peek/hold/restore integrated with main 909/808 drum mixer, record feedback and help card. Newest recovered DEV CHECKED packages; physical installation remains pending.",
-      "notes": "DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.",
-      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt",
-      "models": {
-        "elite": {
-          "product": "SMK-37 Elite_900",
-          "pkg": "firmware/x0x37-dev-20261022-1638-e894804-elite.fwsc",
-          "size": 651396,
-          "sha256": "19cf000582b67f6e66295c4f0c70512c493432e87f3c88c817f938f67e138c64",
-          "validation_record": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"
-        },
-        "pro": {
-          "product": "SMK-37 Pro_900",
-          "pkg": "firmware/x0x37-dev-20261022-1638-e894804-pro.fwsc",
-          "size": 651392,
-          "sha256": "ca458e0e4fe216ec349566d4a122ad65498d78aabc21c9e01dfe8d7e8494d56f",
-          "validation_record": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/d3f4269c19d5d3597a6185e414ed6c8dc9b30c05/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"
-        }
-      }
+      "status": "dev-checked-device-not-tested",
+      "date": "2026-10-22T16:38:00Z",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "description": "Archived development firmware only; exact per-model hardware PASS and production publication approval are missing. Not a selectable version."
     },
     {
-      "version": "dev-20261022-1629-116d903",
+      "id": "dev-20261022-1629-116d903",
       "title": "SMC-07 mixer popup: pre-help-card checkpoint",
-      "built_at": "2026-10-22T16:29:31Z",
       "source_commit": "116d9030f18ec251c37c3bd09ffcad2eb0a613be",
-      "status": "dev-checked",
-      "lifecycle": "superseded",
-      "hardware_tested": false,
-      "description": "Previously validated merge candidate; replaced by the 16:38 UTC build after integrating the main help-card. Keep only for regression comparison.",
-      "notes": "DEV CHECKED is a development validation result, not a device test. A separate locally built ctl.img is needed for direct SMC Bluetooth. Use the appropriate model and the guarded local installation procedure.",
-      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/RESULT.txt",
-      "models": {
-        "elite": {
-          "product": "SMK-37 Elite_900",
-          "pkg": "firmware/x0x37-dev-20261022-1629-116d903-elite.fwsc",
-          "size": 651396,
-          "sha256": "b14ae4145359743d62b1cb789b7c9f8b2b83664b79bcc462ba4e1be29ff4402c",
-          "validation_record": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/elite/record.json"
-        },
-        "pro": {
-          "product": "SMK-37 Pro_900",
-          "pkg": "firmware/x0x37-dev-20261022-1629-116d903-pro.fwsc",
-          "size": 651392,
-          "sha256": "8008b633b96e5c33a4bb7dbb7adb98b5e7315720c1d64446664209aadeccee57",
-          "validation_record": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e894804dfdb0bb66c7247eb1846313a215422c9f/evidence/smc-mixer-ui-popup-stage5-resolve/pro/record.json"
-        }
-      }
-    }
-  ],
-  "history": [
+      "status": "dev-checked-device-not-tested",
+      "date": "2026-10-22T16:29:31Z",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "description": "Archived development firmware only; exact per-model hardware PASS and production publication approval are missing. Not a selectable version."
+    },
     {
       "id": "smc-peek-later",
       "title": "SMC peek-overlay guard",
