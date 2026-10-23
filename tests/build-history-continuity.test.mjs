@@ -34,4 +34,4 @@ mustReject('latest source receipt removed',rows=>rows.pop());
 const appended=clone();
 appended.push({...appended.at(-1),id:'continuity-synthetic-future-source',source_commit:'f'.repeat(40)});
 check(appended);
-console.log('PASS: 89 SHA256-pinned historical records; 6 malicious continuity negatives; safe append');
+console.log('PASS: ' + lock.rows.length + ' SHA256-pinned historical records; 6 malicious continuity negatives; safe append');

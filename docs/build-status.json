@@ -2303,6 +2303,64 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "5493044eb663b931fddd13f847c370b6971df623",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/5493044eb663b931fddd13f847c370b6971df623"
+    },
+    {
+      "id": "data-safety-pr106-prewrite-snapshot-20261024",
+      "title": "Data Safety PR106: re-evaluate sample risk from actual verified prewrite backup snapshot",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "source_ref": "lane/data-safety-prewrite-snapshot-reconcile-20261024-0819",
+      "source_commit": "bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f",
+      "source_tree": "098e3fdd1a7a385395ba3776100b5a01d7b3a829",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "reported_checks": {
+        "origin": "Data Safety source-window producer; independent QA rechecked on integrated head (SCOPED, not full-root).",
+        "command": "python3 tests/fm1_install_backup_snapshot_test.py -v; python3 -O tests/fm1_install_backup_snapshot_test.py -v",
+        "result": "Before: 4/7 PASS exit 1 (3 safety failures); after 7/7 PASS exit 0; optimized 7/7 PASS exit 0; independent scoped host 7/7 PASS exit 0. Installer POSIX executable mode restored to 100755 by sole integrator; device UNKNOWN."
+      },
+      "description": "Pre-OTA backup plan now reflects actual SMP_INFO snapshot to avoid skipped at-risk sample restoration. Source ready/merged into isolated first candidate, not independent full-root QA or a fresh build.",
+      "missing_gate": "Independent exact integrated full-root backup/restore/OTA interruption/CRC/model/controller and BLE safety negatives; source/license/immutable per-model HTTP; physical feedback UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/106",
+      "evidence_commit": "bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f"
+    },
+    {
+      "id": "integration-pr103-pr106-independent-ble-no-go-20261024",
+      "title": "First NIGHTLY PR103 absorbs PR106; independent BLE SysEx malformed-length safety NO-GO",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "41d65c9f0ff987ea984eaec20262d2855e599777",
+      "source_tree": "ce4194fe40dd1b3399e8eb4b06e059ecd6ca456d",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "reported_checks": {
+        "origin": "Independent firmware QA current exact root r2 plus Catalog private historical BUILD_ONLY archive byte rehash (not firmware build/QA).",
+        "command": "Independent QA: bash replay.sh (GCC/Clang ASan+UBSan source windows); Catalog: python3 /mnt/data/catalog-r9/verify_private_bytes.py",
+        "result": "Candidate bleh_sysex_send malformed SysEx length causes ASan SEGV exit 1 on both GCC and Clang; isolated corrected SMC PR50 source exits 0 but is NOT integrated. Installer backup snapshot independently scoped 7/7 PASS. Catalog archived private Elite/Pro/controller bytes SHA256+CRC32+model rehash exit 0, log SHA256 9bb6beffb829b392d8203709fe7cacbe259be2848e5a97874394b09a5fa6c189. Historical native compiles 0/0/0, not recompiled for this exact full root; no physical device."
+      },
+      "description": "Open non-draft integration has an actionable independent safety FAIL; private existing binaries are BUILD_ONLY, NOT installer-qualified, lawfully hosted or device-proven.",
+      "missing_gate": "Sole Safe Merge integrates source-reviewed SMC PR89→PR94→PR50 stack; Independent Firmware QA reruns full exact new root BLE/SysEx/NoteOff/installer/OTA/sample/model/controller negatives; Hourly Build qualifies changed true compiler inputs and model/controller bytes; sole Publisher requires lawful source/license/controller and immutable external HTTP GET+SHA. Device UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "41d65c9f0ff987ea984eaec20262d2855e599777",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/41d65c9f0ff987ea984eaec20262d2855e599777"
     }
   ],
   "policy": {
@@ -2313,7 +2371,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 89
+    "source_or_historical_checkpoints": 91
   },
   "versioning": {
     "firmware_product_version": {

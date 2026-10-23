@@ -363,6 +363,14 @@
     {
       "id": "integration-pr103-restoration-ota-ack-reviewed-source-20261024",
       "sha256": "eadbb247b3d7f3e84656b83d0ebf78f19d25acea3316452660f2f578a8a56cc5"
+    },
+    {
+      "id": "data-safety-pr106-prewrite-snapshot-20261024",
+      "sha256": "cfb6996b9dbe6b7f9bef8228580021e719cd1777f182e19a8884e7444718797a"
+    },
+    {
+      "id": "integration-pr103-pr106-independent-ble-no-go-20261024",
+      "sha256": "236717a9ad4602ee48bf672110121441ef85016723179c351f5065791ea9c7fd"
     }
   ]
 }

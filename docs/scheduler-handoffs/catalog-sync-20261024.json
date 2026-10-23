@@ -868,5 +868,138 @@
     "owner_hardware": "UNKNOWN",
     "protected_ref_writes": false,
     "firmware_bytes_published": false
+  },
+  "closed_loop_cycle_20261024_r9": {
+    "evidence_revision": "catalog-pr3-pr106-snapshot-and-smc-qa-no-go-r9-20261024",
+    "consumed_website": {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+      "full_sha": "2eae45b8bacef588cb08eb41f06cd0fd8a3bbc8b",
+      "root_tree": "2c94489b705ce4cdb472ccc6e3c52d8a025d71c7",
+      "evidence_revision": "catalog-pr3-pr105-integrated-and-appendonly-r8-20261024"
+    },
+    "consumed_firmware": [
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/data-safety-prewrite-snapshot-reconcile-20261024-0819",
+        "full_sha": "bfda1394d9642bef9a9224e7f0d6cb6d5b85f64f",
+        "root_tree": "098e3fdd1a7a385395ba3776100b5a01d7b3a829",
+        "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+        "evidence_revision": "data-safety-prewrite-backup-snapshot-20261024-0819-v1"
+      },
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+        "full_sha": "41d65c9f0ff987ea984eaec20262d2855e599777",
+        "root_tree": "ce4194fe40dd1b3399e8eb4b06e059ecd6ca456d",
+        "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+        "evidence_revision": "safe-merge-pr103-data-safety-pr106-intake-20261024-r5"
+      },
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+        "full_sha": "41d65c9f0ff987ea984eaec20262d2855e599777",
+        "root_tree": "ce4194fe40dd1b3399e8eb4b06e059ecd6ca456d",
+        "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+        "evidence_revision": "independent-qa-pr103-snapshot-integrated-smc-no-go-20261024-r2"
+      }
+    ],
+    "checkpoints_before": 89,
+    "checkpoints_after": 91,
+    "historical_dev_generations": 2,
+    "baseline_89_record_preservation": "PASS",
+    "new_lock_91_records": "SCOPED SHA256 CHECK PASS",
+    "malicious_history_mutations_rejected": 7,
+    "append_positive": true,
+    "private_prior_build_bytes": {
+      "source": "Private exact Library ZIP, read-only local rehash; NOT new exact-root native compile",
+      "archive_sha256": "cbd696346d03f14bfed2b3554b9449e32204161420b0e3eff8a8ca91cd5a57d9",
+      "archive_size": 1209528,
+      "elite": {
+        "model": "SMK-37 Elite_900",
+        "bytes": 651396,
+        "sha256": "1cb7d432d3149559bf6330ab53443fbe8939382369185b9063fe1f08f85a8cd5",
+        "crc32": "f353c9ec"
+      },
+      "pro": {
+        "model": "SMK-37 Pro_900",
+        "bytes": 651392,
+        "sha256": "a8cd8b856001d446fa0c92074dc296ea454a02a75ce7332a10b8a8cb94b144f6",
+        "crc32": "3bba7954"
+      },
+      "private_controller": {
+        "bytes": 65492,
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "crc32": "9c07ae67",
+        "public_redistribution_permission": false
+      },
+      "archived_native_compiler_exits": [
+        0,
+        0,
+        0
+      ],
+      "local_rehash_exit": 0,
+      "local_script_sha256": "bb4f3bf950bbedb97e29e6517264a0b3cc02e7503720e31bda7201e5bf25e9ca",
+      "local_log_sha256": "9bb6beffb829b392d8203709fe7cacbe259be2848e5a97874394b09a5fa6c189",
+      "independent_full_root_qa": false,
+      "hardware": "UNKNOWN"
+    },
+    "independent_qa": {
+      "verdict": "NEEDS_CHANGES_NO_GO",
+      "candidate_ble_blob": "ece7f0cb3c2ba878dc4a351fcb864fcb2da5b8f7",
+      "source_repair_blob": "70dc093d1613d684f5a67be01acc118eded1a6f8",
+      "malformed_sysex_gcc_exit": 1,
+      "malformed_sysex_clang_exit": 1,
+      "source_window_only": true,
+      "full_root_qa": false
+    },
+    "actual_checks": [
+      {
+        "command": "node --version",
+        "exit": 0,
+        "result": "v22.16.0"
+      },
+      {
+        "command": "npm --version",
+        "exit": 0,
+        "result": "10.9.2"
+      },
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "result": "Native DNS could not resolve github.com"
+      },
+      {
+        "command": "python3 /mnt/data/catalog-r9/verify_private_bytes.py",
+        "exit": 0,
+        "scope": "PRIVATE BUILD_ONLY integrity only, not full firmware/website QA"
+      },
+      {
+        "command": "scoped V8 SHA256 abc vector + 89 original/91 new locked history + 7 malformed mutations + future append",
+        "exit": 0,
+        "status": "SCOPED_TEST"
+      },
+      {
+        "command": "npm run build",
+        "status": "NOT_RUN_NO_EXACT_LOCAL_ROOT"
+      },
+      {
+        "command": "npm test",
+        "status": "NOT_RUN_NO_EXACT_LOCAL_ROOT"
+      },
+      {
+        "command": "responsive Chromium",
+        "status": "NOT_RUN"
+      }
+    ],
+    "next_owner": "Independent NIGHTLY Website QA",
+    "next_action": "Review exact new PR3 head, execute full-root native npm test/build and responsive/browser negative suite and source/generated parity; then sole NIGHTLY Website Main Merger",
+    "parallel_owner": "Sole firmware Safe Merge must integrate SMC PR89→94→50 into first candidate, Independent Firmware QA + Hourly Build must requalify changed exact source",
+    "missing_publication_gates": "Independent full root model/controller/sample/OTA/CRC QA, lawful corresponding source/controller redistribution, external immutable per-model HTTP GET SHA and publisher verification; production same-byte hardware approval separate",
+    "elite_installable": false,
+    "pro_installable": false,
+    "owner_device_evidence": "UNKNOWN",
+    "no_public_download_links": true,
+    "no_protected_ref_write": true
   }
 }
