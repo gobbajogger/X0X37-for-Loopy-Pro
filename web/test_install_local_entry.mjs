@@ -12,10 +12,10 @@ const cut = (a, b) => {
 };
 assert.match(source, /id="localempty" hidden/);
 assert.match(source, /<button[^>]+id="chooseLocal"[^>]+type="button"/);
-assert.match(source, /id="stockfile" accept="\\.fwsc"/);
-assert.match(cut('function fillVersions()', '\\nfunction confirmWrite('), /\\$\\("localempty"\\)\\.hidden = list\\.length > 0/);
+assert.match(source, /id="stockfile" accept="\.fwsc"/);
+assert.match(cut('function fillVersions()', '\nfunction confirmWrite('), /\$\("localempty"\)\.hidden = list\.length > 0/);
 assert.equal((source.match(/localchoose: "/g) || []).length, 2, 'English and Japanese translations');
-assert.match(source, /\\.local-pick \\{[^}]+min-height: 51px/);
+assert.match(source, /\.local-pick \{[^}]+min-height: 51px/);
 const sourceHandlers = cut('let localPickerFromEmptyState = false;', '$("stockconfirm").addEventListener("change"');
 const events = {}, observations = [];
 const elements = Object.fromEntries(['chooseLocal', 'stockfile', 'stock', 'stockconfirm', 'stockgo'].map(id => [id, {
