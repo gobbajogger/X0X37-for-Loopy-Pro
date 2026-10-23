@@ -81,6 +81,61 @@ def main():
         except xs.SlotError:
             check(True, f"archive refuses {label} even with a valid outer CRC")
 
+    # A CRC-valid archive can still lie about whether a populated slot is empty or alias
+    # another image. Restore must never silently erase/copy user samples from such metadata.
+    def reseal(mutate, payload_suffix=b""):
+        n = struct.unpack_from("<I", arch, 12)[0]
+        altered = json.loads(arch[16:16 + n])
+        mutate(altered)
+        raw_json = json.dumps(altered, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+        body = (arch[:12] + struct.pack("<I", len(raw_json)) + raw_json
+                + arch[16 + n:-4] + payload_suffix)
+        return body + struct.pack("<I", zlib.crc32(body))
+
+    def poison_empty_string(m):
+        m["slots"][0]["empty"] = "false"   # truthy in Python -> silently erase a populated slot
+
+    def poison_empty_integer(m):
+        m["slots"][0]["empty"] = 1
+
+    def poison_empty_descriptor(m):
+        m["slots"][1].update({"offset": 0, "length": len(images[0]),
+                               "crc32": zlib.crc32(images[0])})
+
+    def poison_image_alias(m):
+        m["slots"][1] = dict(m["slots"][0], slot=2)  # both point at slot one's data
+
+    def unchanged(m):
+        pass
+
+    for label, mutation, suffix in (
+        ("string false silently erases a populated slot", poison_empty_string, b""),
+        ("numeric empty flag erases a populated slot", poison_empty_integer, b""),
+        ("empty entry carrying hidden image pointers", poison_empty_descriptor, b""),
+        ("aliased image regions copy slot one's bytes into slot two", poison_image_alias, b""),
+        ("orphan payload bytes after referenced images", unchanged, b"orphan"),
+    ):
+        malformed = reseal(mutation, suffix)
+        try:
+            xs.read_archive(malformed)
+            check(False, f"CRC-valid archive refuses {label}")
+        except xs.SlotError:
+            check(True, f"CRC-valid archive refuses {label}")
+
+    # End-to-end refusal: bad metadata must fail before any SMP_BEGIN/ERASE/WRITE/END.
+    guarded = MockDevice(2, 0x14000)
+    guarded.load(0, hdr, data)
+    guarded.load(1, hdr, data)
+    untouched = [bytes(f) for f in guarded.flash]
+    try:
+        bad_meta, bad_images = xs.read_archive(reseal(poison_empty_string))
+        xs.restore(guarded, bad_meta, bad_images)
+    except xs.SlotError:
+        pass
+    check([bytes(f) for f in guarded.flash] == untouched
+          and not any(cmd in guarded.log for cmd in (xs.CMD_BEGIN, xs.CMD_ERASE, xs.CMD_WRITE, xs.CMD_END)),
+          "false-string empty flag cannot erase samples or send flash-write commands")
+
     # 2. damage is detected
     bad = bytearray(arch)
     bad[len(bad) // 2] ^= 1
