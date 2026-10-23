@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:54:27Z",
+  "role": "LoopyX0X37 Classic Build native source-transfer recovery",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/github-api-source-byte-bridge-20261023-1240",
+    "tested_commit": "7ff777f40c9962941932a84cc1c71187aa689117",
+    "tested_tree": "a11bf833ba3d7a6ac8dec75537a6c4c9cf8786a1",
+    "pr": 85
+  },
+  "summary": "New tested GitHub REST Git Data API exact SHA/tree checkout code with native loopback negative regressions pushed to owned isolated firmware branch. Whole latest firmware checkout blocked on container DNS; no current target builds or live firmware claimed.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/github_api_checkout.py",
+      "description": "Fail-closed exact GitHub signed or unsigned SHA, full tree and Git blob content reconstruction into a clean shallow checkout; remote blob 6463edc2e5eb4fb3df1491677bb622810ba9e18d."
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/test_github_api_checkout.py",
+      "description": "Native Git and loopback REST positive and negative scenarios, 10 passed; remote blob ba36887b7ff498855f736da183d1bf963d5a0b3a."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/github-api-nightly-checkout.md",
+      "description": "Exact source checkout instructions, pinned historical source baseline, and truthful DNS-boundary status."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/github-api-source-bridge-native-test.log",
+      "description": "Native Python unittest suite 10/10 PASS stdout/stderr transcript on exact source tool/test blobs."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/github-api-source-bridge-live-preflight.log",
+      "description": "Actual current firmware nightly API call failed DNS before checkout; no binary claimed."
+    }
+  ],
+  "checks": [
+    {
+      "name": "native-signed-unsigned-mock-api-checkout-regressions",
+      "status": "PASS",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/host -p 'test_github_api_checkout.py' -v",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/github-api-source-bridge-native-test.log; 10 tests, actual local Git and loopback GitHub REST server",
+      "log_sha256": "75da91ccad7d6dd89a6511ae11b85c599eb3b22f8a6c9907603de818ee870bd8",
+      "coverage": "signed/unsigned true Git commit identity, blob cache, binary bytes, executable and safe symlink, ref movement, bad blob, truncated tree, malicious path, external symlink and origin URL refusal"
+    },
+    {
+      "name": "native-python-syntax",
+      "status": "PASS",
+      "command": "python3 -m py_compile tools/github_api_checkout.py tests/host/test_github_api_checkout.py",
+      "exit_code": 0,
+      "evidence": "local Python 3 Linux x86_64 py_compile on exact two submitted source blobs"
+    },
+    {
+      "name": "live-pinned-github-api-checkout",
+      "status": "BLOCKED",
+      "command": "python3 tools/github_api_checkout.py --repo gobbajogger/X0X37-for-Loopy-Pro --commit 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e --expected-tree 71b759dd206d844cceed9e40ae68966142720e9c --verify-ref nightly --seed /mnt/data/x0x37-source-audit/base --output /mnt/data/x0x37-source-audit/native-github-api-source-run",
+      "exit_code": 1,
+      "evidence": "docs/scheduler-handoffs/github-api-source-bridge-live-preflight.log: temporary failure in name resolution for api.github.com; connected GitHub app read separate from native local runner",
+      "log_sha256": "27946fb2e34899b2308b6aad10e6f7813572b39a7b8365fbfa546148cdbe1d86",
+      "coverage": "no checkout created, no firmware build inferred"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "No full current exact source checked out in native runtime; controller/package/flash/RAM/HTTP not checked."
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "No full current exact source checked out in native runtime; controller/package/flash/RAM/HTTP not checked."
+    }
+  ],
+  "next": {
+    "owner": "Independent QA; sole Safe Merge; LoopyX0X37 Hourly Build",
+    "action": "Independently test reviewed PR #85 at exact updated SHA, integrate normally to firmware nightly, then run pinned API checkout where native network or approved byte bridge actually works and build both models plus matching controller.",
+    "gate": "EXACT_SOURCE_CHECKOUT before DEV BUILT and QA/installable/HTTP gates"
+  },
+  "dependencies": [
+    "GitHub REST Git Data API source transfer to native execution",
+    "Owner private JieLi V1.2.1 kit outside public Git",
+    "Safe Merge and independent QA"
+  ],
+  "publication": "SOURCE_ONLY"
+}
