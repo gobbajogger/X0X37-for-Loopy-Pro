@@ -71,4 +71,49 @@ run('source-docs-mismatch',dir=>{
   const p=join(dir,'docs/build-status.json');
   fs.appendFileSync(p,' ');
 });
-console.log('PASS: 27 native positive/negative cases');
+
+run('empty-history-and-builds-allowed-without-device-firmware-or-QA',edit(j=>{
+  j.history=[]; j.builds=[];
+  j.counts.actual_build_generations=0;
+  j.counts.source_or_historical_checkpoints=0;
+  j.policy.public_latest=null; j.policy.public_device_proven_versions=[];
+}),true);
+run('approved-GitHub-source-evidence-remains-allowed',edit(j=>{
+  j.history[0].evidence_url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/58b5b45a2dd90581de7a674c331ca5cbe8a67c7e';
+}),true);
+for(const [label,mutation] of [
+ ['nested-history-download-bin',j=>j.history[0].download_url='https://example.net/firmware.bin'],
+ ['nested-history-picker',j=>j.history[0].picker_url='https://example.net/file'],
+ ['nested-history-artifact-text',j=>j.history[0].artifact_url='https://example.net/readme.txt'],
+ ['nested-history-assets',j=>j.history[0].assets={url:'https://example.net/file'}],
+ ['nested-reported-check-download',j=>j.history.find(x=>x.reported_checks).reported_checks.download_url='https://example.net/file'],
+ ['nested-build-pipeline-release',j=>j.history.find(x=>x.build_pipeline).build_pipeline.release_url='https://example.net/file'],
+ ['nested-failed-check-link',j=>j.history.find(x=>x.build_pipeline).build_pipeline.followup_native_checks_fail[0].download_url='https://example.net/file'],
+ ['nested-reported-package-link',j=>j.history.find(x=>x.producer_reported_artifacts).producer_reported_artifacts.elite.download_url='https://example.net/file'],
+ ['nested-controller-link',j=>j.history.find(x=>x.producer_reported_artifacts).producer_reported_artifacts.private_controller.download_url='https://example.net/file'],
+ ['nested-offline-controller-link',j=>j.history.find(x=>x.reported_offline_artifacts).reported_offline_artifacts.controller.download_url='https://example.net/file'],
+ ['nested-failed-native-build-link',j=>j.history.find(x=>x.failed_build).failed_build.elite.download_url='https://example.net/file'],
+ ['nested-build-model-link',j=>j.builds[0].models.elite.picker_url='https://example.net/file'],
+ ['top-level-binary-link',j=>j.download_url='https://example.net/file'],
+ ['unrecognized-build-release-checked',j=>j.builds[0].status='release-checked'],
+ ['unrecognized-build-lifecycle',j=>j.builds[0].lifecycle='live'],
+ ['duplicate-history-ids',j=>j.history[1].id=j.history[0].id],
+ ['unapproved-download-on-github',j=>j.history[0].url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/v1/firmware.bin'],
+ ['unapproved-binary-blob',j=>j.history[0].url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/firmware.bin'],
+ ['forged-GitHub-host',j=>j.history[0].url='https://github.com.evil.invalid/gobbajogger/X0X37-for-Loopy-Pro/pull/1'],
+ ['github-query-forced-download',j=>j.history[0].url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/1?download=1'],
+ ['wrong-source-repository',j=>j.history.find(x=>x.source_repo).source_repo='https://example.net/sources'],
+ ['unknown-source-download-field',j=>j.source.download_url='https://example.net/file'],
+ ['versioning-picker-url',j=>j.versioning.picker_url='https://example.net/file'],
+ ['unreviewed-controller-redistribution',j=>j.history.find(x=>x.producer_reported_artifacts).producer_reported_artifacts.private_controller.redistribution_permitted=true],
+ ['failed-build-forged-artifact',j=>j.history.find(x=>x.failed_build).failed_build.elite.artifact_created=true]
+]) run(label,edit(mutation));
+run('synthetic-malicious-Release-does-not-become-an-installable-catalog',dir=>{
+  const p=join(dir,'preview-catalog.json');
+  const j=JSON.parse(fs.readFileSync(p,'utf8'));
+  j.versions=[{model:'elite',source_commit:'f'.repeat(40),sha256:'f'.repeat(64),
+    status:'DEVICE_VERIFIED',download_url:'https://evil.invalid/unapproved.bin'}];
+  fs.writeFileSync(p,JSON.stringify(j));
+});
+
+console.log('PASS: 54 scoped history-positive/negative cases, no artifacts');

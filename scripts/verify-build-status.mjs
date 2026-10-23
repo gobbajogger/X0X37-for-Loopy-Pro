@@ -25,8 +25,96 @@ assert.equal(preview.latest, null);
 assert.deepEqual(published, preview);
 assert.equal(catalog.counts.actual_build_generations, catalog.builds.length);
 assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.length);
+
+ // A history record may describe a build, but may not introduce any installer picker,
+ // download, or artifact URL. Only explicitly reviewed source-evidence fields exist.
+ const shape=(value,allowed,at)=>{
+   assert.ok(value && typeof value==='object' && !Array.isArray(value),at+': object required');
+   const names=new Set(allowed.split(' '));
+   for(const key of Object.keys(value)) assert.ok(names.has(key),at+': forbidden field '+key);
+ };
+ const officialRepo='https://github.com/gobbajogger/X0X37-for-Loopy-Pro';
+ const evidenceURL=(value,at)=>{
+   assert.equal(typeof value,'string',at+': source URL must be a string');
+   assert.ok(value.startsWith(officialRepo+'/'),at+': untrusted source');
+   const tail=value.slice(officialRepo.length+1);
+   const valid=(
+     /^pull\/[0-9]+$/.test(tail) ||
+     /^commit\/[a-f0-9]{40}$/.test(tail) ||
+     /^tree\/[A-Za-z0-9._/-]+$/.test(tail) ||
+     /^blob\/[A-Za-z0-9._/-]+\.(?:md|json)$/.test(tail)
+   );
+   assert.ok(valid,at+': unapproved source evidence route');
+   assert.ok(!tail.split('/').includes('..') && !tail.includes('%') &&
+      !tail.includes('?') && !tail.includes('#') && !tail.includes('\\'),at+': unsafe source path');
+ };
+ shape(catalog,'schema kind installable source builds history policy counts versioning','manifest');
+ shape(catalog.source,'repo ref commit versions_blob_sha','source');
+ assert.equal(catalog.source.repo,officialRepo,'source repo');
+ assert.equal(catalog.source.ref,'gh-pages','source ref');
+ shape(catalog.policy,'nightly public public_device_proven_versions public_latest','policy');
+ shape(catalog.counts,'actual_build_generations source_or_historical_checkpoints','counts');
+ shape(catalog.versioning,'firmware_product_version build_id channel_rules web_preview_package_version web_preview_package_version_is_firmware_version','versioning');
+ shape(catalog.versioning.firmware_product_version,'format monotonic historical_assignment prerelease_iteration','firmware version');
+ shape(catalog.versioning.build_id,'legacy_format legacy_ids_are_firmware_product_versions model_artifact_identity_requires','build-id');
+ shape(catalog.versioning.channel_rules,'nightly production','channel rules');
+ assert.equal(catalog.versioning.web_preview_package_version_is_firmware_version,false);
+ for(const build of catalog.builds){
+   shape(build,'id title built_at source_commit status lifecycle hardware_tested installable_from_nightly_status models','build');
+   assert.equal(build.status,'dev-checked','unreviewed or unsupported build status');
+   assert.ok(['current','superseded'].includes(build.lifecycle),'unknown build lifecycle');
+   for(const model of Object.values(build.models||{})){
+     shape(model,'product size sha256 validation_record device_verified physical_evidence','build model');
+     evidenceURL(model.validation_record,'model validation record');
+     if(model.physical_evidence!==undefined){
+       shape(model.physical_evidence,'report_sha256 report_url controller_sha256 owner_publication_approved','hardware evidence');
+       evidenceURL(model.physical_evidence.report_url,'hardware report');
+     }
+   }
+ }
+ const approvedHistoryFields='id title source_repo source_ref source_commit source_tree source_time date status models firmware_product_version build_id installable device_verified reported_checks description missing_gate url evidence_commit evidence_url handoff_source source_identity_note reported_package_sha256 reported_offline_artifacts offline_source exact_remote_native_build artifact_distribution_approved firmware_subtree producer_reported_artifacts artifact_bytes_independently_verified build_target_tests_independently_reexecuted build_pipeline failed_build';
+ for(const item of catalog.history){
+   shape(item,approvedHistoryFields,'history');
+   if(item.source_repo!==undefined)assert.equal(item.source_repo,officialRepo,'historical source repo');
+   for(const key of ['url','evidence_url','handoff_source'])if(item[key]!=null)evidenceURL(item[key],'history.'+key);
+   assert.equal(item.models.length,new Set(item.models).size,'duplicate historical model');
+   if(item.reported_checks!==undefined)shape(item.reported_checks,'origin command result','reported_checks');
+   if(item.reported_package_sha256!==undefined)shape(item.reported_package_sha256,'elite pro','reported hashes');
+   if(item.offline_source!==undefined){
+     shape(item.offline_source,'synthetic_commit synthetic_tree firmware_nightly_tree identical_to_firmware_nightly','offline projection');
+     assert.equal(item.offline_source.identical_to_firmware_nightly,false,'unverified source equality');
+   }
+   if(item.reported_offline_artifacts!==undefined){
+     shape(item.reported_offline_artifacts,'elite pro controller','offline artifacts');
+     for(const [model,artifact] of Object.entries(item.reported_offline_artifacts))
+       shape(artifact,model==='controller'?'size sha256 crc32':'size sha256','offline artifact');
+   }
+   if(item.producer_reported_artifacts!==undefined){
+     shape(item.producer_reported_artifacts,'elite pro private_controller','reported artifacts');
+     for(const [model,artifact] of Object.entries(item.producer_reported_artifacts)){
+       shape(artifact,model==='private_controller'?'bytes sha256 crc32 redistribution_permitted':'product bytes sha256','reported artifact');
+       if(model==='private_controller')assert.equal(artifact.redistribution_permitted,false,'controller redistribution not cleared');
+     }
+   }
+   if(item.build_pipeline!==undefined){
+     shape(item.build_pipeline,'build qa installability live_http hardware source_scope builder_selected_host_checks_pass followup_native_checks_pass followup_native_checks_fail evidence_commit evidence_manifest_blob_sha package_bytes_independently_received_and_rehashed','reported build pipeline');
+     for(const failure of item.build_pipeline.followup_native_checks_fail)shape(failure,'name exit_code','reported host check');
+   }
+   if(item.failed_build!==undefined){
+     shape(item.failed_build,'scope firmware_subtree pool_used_bytes pool_capacity_bytes pool_free_bytes pool_minimum_bytes elite pro controller','failed build');
+     assert.ok(item.failed_build.pool_free_bytes<item.failed_build.pool_minimum_bytes,'unexpected pool eligibility');
+     for(const model of ['elite','pro']){
+       shape(item.failed_build[model],'exit_code artifact_created log_sha256','failed '+model);
+       assert.equal(item.failed_build[model].artifact_created,false,'failed build cannot claim package');
+       assert.ok(item.failed_build[model].exit_code!==0,'failed build cannot claim success');
+     }
+     shape(item.failed_build.controller,'exit_code size_bytes sha256 crc32 redistribution_allowed','failed controller');
+     assert.equal(item.failed_build.controller.redistribution_allowed,false);
+   }
+ }
+
 const seen = new Set();
-const allowedBuildStatuses = new Set(['dev-checked', 'release-checked']);
+const allowedBuildStatuses = new Set(['dev-checked']);
 for (const build of catalog.builds) {
   assert.ok(typeof build.id === 'string' && build.id.trim().length > 0, 'blank build id');
   assert.equal(seen.has(build.id), false, 'duplicate build ' + build.id);
