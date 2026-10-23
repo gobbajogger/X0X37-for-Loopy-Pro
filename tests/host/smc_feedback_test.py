@@ -73,6 +73,11 @@ int plat_ble_smc_send(const uint8_t *msg,uint8_t len) {
 '''
 harness += "\n".join(function(name) for name in (
     "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_led", "smc_frame"))
+# smc_frame ticks mapped-page peek; this harness only checks LED destinations.
+harness = harness.replace(
+    "void smc_frame(void)",
+    "static void smc_peek_tick(void) {}\nvoid smc_frame(void)",
+    1)
 harness += r'''
 static void expect(const char *label,int note,int expected) {
     int got=smc_led(note)!=0;checks++;

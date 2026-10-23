@@ -1,0 +1,35 @@
+DEFECT: SMC-05 peek/hold/restore does not fit SMK-37 Elite/Pro DEV XIP budget
+
+Severity: blocks Stage 4 package validation and any install.
+
+Symptom
+- MODEL=elite X0X_DEV_PADCAL=1 ./build.sh --board smk37
+  ld: section .data will not fit in region XIP; region XIP overflowed by 248 bytes
+- MODEL=pro same: overflowed by 232 bytes
+
+Reproducing tip
+- Commit with failure: ad4f311 (also 5109ef6 / stage-2 tip containing it)
+- Passing baseline: e00741e (main) — Elite 488 B free, Pro 504 B free
+
+Root cause (validated)
+- Stage 2 added ~133 lines of peek helpers in firmware/src/app/smc_mixer.c without a
+  target link/budget check. Stage 3 host suite PASS does not measure XIP.
+- Growth exceeds remaining XIP headroom on current main (~0.5 KiB free).
+
+Required repair (Stage 2 repair thread)
+1. Keep SMC-05 behavior required by tests/host/smc_ui_popup_test.c and the audit.
+2. Reduce XIP use so Elite and Pro DEV builds link with pool_free >= 8192 and
+   positive code/RAM free (prefer leaving some code free, not zero).
+3. Re-run focused SMC host suite including smc_ui_popup.
+4. Prove Elite and Pro DEV link sizes in stage-2 evidence before handing to stage 3.
+
+Out of scope for the repair: page-lock, multi-SMC, install, merge to main.
+
+Evidence paths
+- evidence/smc-mixer-ui-popup-stage4/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage4/environment.json
+- evidence/smc-mixer-ui-popup-stage4/size-main-base.log (Elite baseline PASS)
+- evidence/smc-mixer-ui-popup-stage4/size-pro-e00741e.log (Pro baseline PASS)
+- evidence/smc-mixer-ui-popup-stage4/elite-dev_validate-build.log
+- evidence/smc-mixer-ui-popup-stage4/size-pro-ad4f311.log
+- Stage-3 host PASS: evidence/smc-mixer-ui-popup-stage3/

@@ -53,7 +53,7 @@ test_class() {
     breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui-popup|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -184,6 +184,7 @@ run smc-link python3 tests/host/smc_link_test.py
 run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
 run smc-reachability sh tests/host/smc_reachability_test.sh
+run smc-ui-popup sh tests/host/smc_ui_popup_test.sh
 run smc-mapping python3 tests/host/smc_mapping_test.py
 run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh
 run smc-drum-rs sh tests/host/smc_drum_rs_test.sh

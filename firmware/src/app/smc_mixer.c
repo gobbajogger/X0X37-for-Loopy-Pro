@@ -40,6 +40,21 @@ static struct {
     uint32_t knob_t;                   /* acceleration of the knob now turning, not a panel encoder */
     uint8_t knob_run, knob_i;
 } smc;
+/* Temporary mapped-page peek: hold the MIX/FX page for a strip, then restore.
+ * MIX MASTER is always page index 1+NKIT (PARTS + kits + MASTER). */
+#define SMC_PEEK_MS 1200u
+#define SMC_PEEK_MASTER (1 + NKIT)
+/* Byte buffer (not a naked struct): IPA-SRA must not split fields into
+ * separate BSS symbols — each split field costs a 6-byte abs load on pi32. */
+struct smc_peek_state {
+    uint8_t on, view, page, mixsel;
+    uint8_t saved_view, saved_page, saved_mixsel, saved_prev;
+    uint32_t until;
+};
+static uint8_t smc_peek_raw[sizeof(struct smc_peek_state)];
+static struct smc_peek_state *const smc_peek =
+    (struct smc_peek_state *)(void *)smc_peek_raw;
+static void smc_peek_cancel(void) { smc_peek->on = 0; }
 
 int smc_project_active(void) { return smc.solo || smc.drum_solo[0] || smc.drum_solo[1]; }
 static void smc_solo_clear(void)
@@ -88,6 +103,7 @@ X0X_COLD void smc_project_reset(void)
     memset(&smc, 0, sizeof smc);
     smc.up = smc.fresh = up;
     smc.pending = 0xFFu;
+    smc_peek_cancel();                 /* peek lives outside smc; drop any held restore */
     engine_smc_solo(0);
 }
 
@@ -229,6 +245,69 @@ static uint8_t smc_scaled(pref_t r)
     return (uint8_t)((v * 127 + d->max / 2) / d->max);
 }
 
+/* view in low nibble, page in high (MASTER = SMC_PEEK_MASTER).
+ * Main-mixer home targets only. Help still allows fader/knob edits (SMC-02) but
+ * must not steal the screen; ASK/clip/list overlays and drum MIX/SEQ skip peek. */
+static void smc_peek_begin(int n)
+{
+    static const uint8_t map[8] = {
+        V_MIX, V_MIX, V_MIX, V_MIX, V_MIX,
+        V_FX, V_FX | 0x10, V_MIX | (SMC_PEEK_MASTER << 4)
+    };
+    uint8_t view, page, mix;
+    if ((unsigned)n > 7u || ui.help || ui.overlay || smk_clip_mode_on())
+        return;
+    view = map[n] & 15u;
+    page = map[n] >> 4;
+    mix = n < 5 ? (uint8_t)n : ui.mixsel;
+    if (smc_peek->on) {
+        if (smc_peek->view == view && smc_peek->page == page &&
+            (n >= 5 || smc_peek->mixsel == mix)) {
+            smc_peek->until = plat_ms() + SMC_PEEK_MS;
+            return;
+        }
+    } else if (ui.view == view && cur_page() == page &&
+               (n >= 5 || ui.mixsel == mix)) {
+        return;                       /* already on the mapped page; no nested save */
+    } else {
+        smc_peek->saved_view = ui.view;
+        smc_peek->saved_page = (uint8_t)cur_page();
+        smc_peek->saved_mixsel = ui.mixsel;
+        smc_peek->saved_prev = ui.prev_view;
+        smc_peek->on = 1;
+    }
+    ui.view = view;
+    if (n < 5)
+        ui.mixsel = mix;
+    build_pages();
+    *page_of(view) = page;
+    smc_peek->view = view;
+    smc_peek->page = page;
+    smc_peek->mixsel = ui.mixsel;
+    smc_peek->until = plat_ms() + SMC_PEEK_MS;
+}
+
+/* noinline: keep restore out of smc_frame's hot LED path. Overlay/help cancel is in smc_poll. */
+static __attribute__((noinline)) void smc_peek_tick(void)
+{
+    if (!smc_peek->on)
+        return;
+    if (ui.view != smc_peek->view || cur_page() != smc_peek->page ||
+        (smc_peek->view == V_MIX && !smc_peek->page && ui.mixsel != smc_peek->mixsel)) {
+        smc_peek->on = 0;              /* user navigated; leave their page alone */
+        return;
+    }
+    if ((int32_t)(plat_ms() - smc_peek->until) < 0)
+        return;
+    ui.view = smc_peek->saved_view;
+    ui.mixsel = smc_peek->saved_mixsel;
+    ui.prev_view = smc_peek->saved_prev;
+    build_pages();
+    if (smc_peek->saved_page < pg.n)
+        *page_of(ui.view) = smc_peek->saved_page;
+    smc_peek->on = 0;
+}
+
 static void smc_show(int n, int knob, pref_t r)
 {
     char t[28], *q = t;
@@ -242,6 +321,8 @@ static void smc_show(int n, int knob, pref_t r)
     put_i(q, pref_get(r));
     say(t, 0);                        /* the header remains visible above the clip grid */
     ui.touched = -1;                   /* an encoder on the next page is not a local knob cell */
+    if ((unsigned)n < 8u && smc_same(r, smc_home_target(n)))
+        smc_peek_begin(n);            /* PICK F and SMC F both peek the mapped meters */
 }
 
 static void smc_notice(int n)
@@ -327,6 +408,7 @@ static void smc_knob(int n, int delta)
 
 static void smc_view(int v, int page)
 {
+    smc_peek_cancel();                /* intentional nav: do not force the pre-peek page back */
     set_view(v);
     build_pages();
     if (page >= 0 && page < pg.n)
@@ -600,6 +682,7 @@ void smc_poll(void)
         for (int i = 0; i < 128; i++) smc.known[i] = 0;
         smc_solo_clear();              /* also covers a down/up pair coalesced before this poll */
         if (!smc.up) {
+            smc_peek_cancel();
             ui_say("SMC LOST", 0);
         } else
             ui_say("SMC CONNECTED", 0);
@@ -607,6 +690,7 @@ void smc_poll(void)
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
         smc.picked = smc.seen = 0;
+        smc_peek_cancel();            /* block holds; leave the current page as-is */
         smc.knob_i = 0;
         if (smc_project_active()) smc_solo_clear();
     }
@@ -700,6 +784,7 @@ void smc_frame(void)
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
+    smc_peek_tick();
     if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
         return;
     for (i = 0; i < 8; i++) smc_notice(i);
