@@ -200,6 +200,34 @@
       ],
       "description": "Draft PR #37 changes test-selector and sample generator guards. Its reported offline-projection package hashes duplicate PR #28, so no new independently attested firmware generation is counted; no device PASS.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/37"
+    },
+    {
+      "id": "dual-smc-pause-mix-lock-pr18",
+      "title": "Dual-SMC routing and per-controller Pause mix lock — unbuilt branch",
+      "source_commit": "d29f365df8b60436749b6712ca9d605d2f912708",
+      "source_tree": "a6368f7bf781ca853d950fe59cee852172521f65",
+      "status": "source-only",
+      "date": "2026-10-22",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "description": "Draft PR #18 adds per-SMC mixer locking and two-controller link support. Reported host checks are not an attestation for an exact-byte Elite/Pro target package. No matching new firmware or controller image, package CRC/model/backup/readback record, device PASS or distribution approval has been independently verified.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/18"
+    },
+    {
+      "id": "clock-handover-bf005-pr35",
+      "title": "Clock handover BF-005 queued USB ticks repair — unbuilt branch",
+      "source_commit": "32364a9524dd1ac6857d46b409af66029805d4ce",
+      "source_tree": "26277feee8efeb0acabe2836b1e6b53b35f69a33",
+      "status": "source-only",
+      "date": "2026-10-23",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "description": "Draft PR #35 reports local GCC/Clang sanitizer regression passes for clearing external queued ticks at source-disconnect. No exact merged-tree Elite/Pro firmware build, model/controller/package attestation, independent QA, device PASS or publication approval is established.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/35"
     }
   ],
   "policy": {
@@ -210,6 +238,6 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 11
+    "source_or_historical_checkpoints": 13
   }
 }
