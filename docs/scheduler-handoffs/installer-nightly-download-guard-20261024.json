@@ -439,5 +439,40 @@
       "pro": "NOT_NEWLY_INSTALLABLE"
     },
     "no_protected_ref_or_website_device_firmware_write": true
+  },
+  "followup_slot_prewrite_20261024": {
+    "evidence_revision": "installer-slot-prewrite-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_source_sha": "9c57637c6d8d4d681d9e46084ea0c5b4e7a2b3f0",
+      "full_root_tree_sha": "0722e6de2397d645474ae63ec51b2b0434085fe8",
+      "helper_blob_sha": "8489f4ca358cf78e3f80181c9d7984bebb4cdeef",
+      "installer_blob_sha": "8f36ca0f4d70f92ed6835443fcb3437bada5fa32",
+      "firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "changed_paths": [
+      "web/x0x_breaks.js",
+      "web/x0x_installer.html",
+      "web/test_install_nightly_slot_prewrite.mjs",
+      "web/test_install_slots.mjs",
+      "docs/installer-slot-prewrite-20261024.md",
+      "docs/scheduler-handoffs/installer-nightly-download-guard-20261024.json"
+    ],
+    "status": "SOURCE_CHECKED_INDEPENDENT_QA_PENDING",
+    "node_command": "node web/test_install_nightly_slot_prewrite.mjs",
+    "node_exit": "NOT_RUN_FULL_REMOTE_CHECKOUT_UNAVAILABLE_IN_NATIVE_CONTAINER",
+    "chromium_exit": "NOT_RUN_FULL_BROWSER_EN_JA_PENDING",
+    "v8_command": "GitHub connector fetch_file exact remote helper -> new AsyncFunction executing committed prewrite test with export/import adaptation",
+    "device": "NOT_TESTED",
+    "firmware_compilation": "NOT_APPLICABLE_BROWSER_ONLY",
+    "next_owner": "Independent QA then sole firmware Safe Merge",
+    "remaining_gates": [
+      "native complete exact Node relevant tests",
+      "browser EN/JA 320/390/1280",
+      "backup/OTA/model/USB negative review",
+      "separate NIGHTLY site equivalent source PR and independent QA",
+      "sole publisher independent HTTP bytes/source/license/model/controller gates"
+    ]
   }
 }

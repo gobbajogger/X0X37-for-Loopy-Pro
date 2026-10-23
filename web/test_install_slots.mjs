@@ -10,6 +10,7 @@ import "./test_install_nightly_download_guard.mjs";
 import "./test_install_nightly_reconnect.mjs";
 import "./test_install_nightly_local_selection.mjs";
 import "./test_install_nightly_controller_selection.mjs";
+import "./test_install_nightly_slot_prewrite.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";

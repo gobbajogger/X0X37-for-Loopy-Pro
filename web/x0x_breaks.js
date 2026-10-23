@@ -305,20 +305,34 @@ export function asciiName(b) {
 // offset (null if unknown) and used KiB come from X0X's extension ('X', 1, then per slot offset and size in
 // 4 KiB sectors and used KiB, 14 bits each); without it every slot has the one size.
 export function parseInfo(r) {
-  if (r.length < 2) throw new Error("short SMP_INFO reply");
+  if (!r || r.length < 2) throw new Error("short SMP_INFO reply");
   const count = r[0], size = r[1] * 1024, slots = [];
+  if (count < 1 || count > 16 || !size || r[1] > 127)
+    throw new Error("invalid SMP_INFO slot count or size");
   let i = 2;
   for (let k = 0; k < count; k++) {
+    if (i >= r.length || r[i] > 16) throw new Error("invalid SMP_INFO slot record");
     const nz = r[i], j = r.indexOf(0, i + 1);
-    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1], size, off: null, used: r[j + 1] });
+    // Device names have at most eight bytes and must end before used-KiB.
+    if (j < 0 || j > i + 9 || j + 1 >= r.length || r[j + 1] > 127)
+      throw new Error("truncated SMP_INFO slot record");
+    slots.push({ nz, name: asciiName(r.slice(i + 1, j)), kb: r[j + 1],
+      size, off: null, used: r[j + 1] });
     i = j + 2;
   }
-  const ext = r.length >= i + 2 + 6 * count && r[i] === 0x58 && r[i + 1] === 1;
-  if (ext)
+  // Valid legacy X0X layouts can omit the extension altogether. If any
+  // extension bytes exist, they MUST describe all declared slots completely.
+  const ext = i < r.length;
+  if (ext) {
+    if (r[i] !== 0x58 || r[i + 1] !== 1 || r.length !== i + 2 + 6 * count)
+      throw new Error("malformed or truncated SMP_INFO extension");
     slots.forEach((sl, k) => {
       const v = [0, 1, 2].map((m) => r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7);
+      if (!v[1] || v[2] > v[1] * 4)
+        throw new Error("invalid SMP_INFO extended slot size");
       Object.assign(sl, { off: v[0] * 0x1000, size: v[1] * 0x1000, used: v[2] });
     });
+  }
   return { count, size, ext, slots };
 }
 
@@ -581,7 +595,17 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
   else if (dev) {
     try {
-      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
+      let layout = null;
+      try { layout = await readSlotLayout(dev.link, 1000, 2); }
+      catch (e) {
+        // Only the independently exercised stock Pro _016 no-response path
+        // lacks SMP_INFO. Corrupt replies, USB failures, current X0X and
+        // unclassified firmware must NEVER bypass the prewrite backup gate.
+        const knownStockNoReply = dev.id && dev.id.text === "SMK-37 Pro_016" &&
+          e && e.message === "The keyboard did not answer (slot command 15).";
+        if (!knownStockNoReply)
+          throw fail("slotlayout", "Cannot verify the current sample layout before install: " + (e && e.message || e));
+      }
       if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
