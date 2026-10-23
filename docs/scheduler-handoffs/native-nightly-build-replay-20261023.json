@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:06:21Z",
+  "role": "Classic native build reproduction",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/classic-native-nightly-build-evidence-20261023",
+    "pr": 84,
+    "tested_commit": "c9718ae833eb64a5191c350922593df8a36017c9",
+    "tested_tree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+  },
+  "summary": "Fresh offline complete scoped firmware build replay, pinned JieLi clang 4.0.1 and AC79 SDK V1.2.1, byte-identical Elite Pro controller images, and 17/17 actual host test checks.",
+  "outputs": [
+    {
+      "kind": "findings",
+      "location": "docs/native-nightly-build-reproduction-20261023.md",
+      "description": "Exact replay inputs, source identity, verified build outputs, commands, negative guard and stage boundaries"
+    },
+    {
+      "kind": "regression",
+      "location": "Private Library /LoopyX0X37/LoopyX0X37-NIGHTLY-Build-Reproduction-Verified-20261023.zip",
+      "description": "Re-executed exact offline build/test scripts with SHA256 8d3e01539e897168ccd3288565f21b451506ae324688899180ef65da47cecc02"
+    },
+    {
+      "kind": "build-manifest",
+      "location": "Private Library replay ZIP: verified-replay-manifest.json",
+      "description": "SHA-identical firmware and controller outputs with independent run metadata"
+    }
+  ],
+  "checks": [
+    {
+      "name": "native-offline-replay",
+      "status": "PASS",
+      "command": "bash /mnt/data/LoopyX0X37-NIGHTLY-Build-Reproduction-20261023/reproduce_20261023.sh",
+      "exit_code": 0,
+      "evidence": "/mnt/data/LoopyX0X37-Replay-VERIFY3.exit=0; private Library ZIP verification-logs plus verified-replay-manifest.json",
+      "coverage": "Exact source subtree tree, pinned input hash, actual three native builds, 17 host regressions"
+    },
+    {
+      "name": "elite-model",
+      "status": "PASS",
+      "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "evidence": "Private replay ZIP verification-logs/elite-build.log",
+      "log_sha256": "b90fa6d6d42265160810a7f9cd5524d3d71bb2d0d16d4ef8dc88a660ad131993"
+    },
+    {
+      "name": "pro-model",
+      "status": "PASS",
+      "command": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "evidence": "Private replay ZIP verification-logs/pro-build.log",
+      "log_sha256": "27fe3e3045055970efcc7cfd337ef021da348a1ba5394ba7d43c6dda14a275b0"
+    },
+    {
+      "name": "controller",
+      "status": "PASS",
+      "command": "CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+      "exit_code": 0,
+      "evidence": "Private replay ZIP verification-logs/controller-build.log",
+      "log_sha256": "3596157071a1179aed17d590f63bb7b809c936c579e987137e9d4be909d7f4f1"
+    },
+    {
+      "name": "17-regression-checks",
+      "status": "PASS",
+      "command": "bash tests/run_tests.sh with the documented 17 selectors across 3 groups",
+      "exit_code": 0,
+      "evidence": "Private replay ZIP verification-logs/test-ble-ota-package.log, test-smc.log, test-backup-installer.log",
+      "coverage": "17 ok selectors; all three groups say all tests passed"
+    },
+    {
+      "name": "safe-no-overwrite-negative",
+      "status": "PASS",
+      "command": "bash -c 'X0X_REPLAY_DIR=/mnt/data/LoopyX0X37-Scoped-Replay-VERIFY3-20261023 bash /mnt/data/LoopyX0X37-NIGHTLY-Build-Reproduction-20261023/reproduce_20261023.sh >/dev/null 2>&1; test \"$?\" -eq 2'",
+      "exit_code": 0,
+      "evidence": "Exit 2 expected and observed from occupied-output-dir refusal, outer assertion exits zero",
+      "coverage": "Never overwrite previous build evidence"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1",
+      "artifact": "Private replay output SMK37-Elite-BUILD-ONLY.fwsc",
+      "artifact_bytes": 651396,
+      "artifact_sha256": "d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "SCOPED firmware source tree verified; full remote repository QA not complete"
+    },
+    {
+      "model": "pro",
+      "build_status": "BUILT",
+      "device_status": "DEVICE_NOT_TESTED",
+      "config": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1",
+      "artifact": "Private replay output SMK37-Pro-BUILD-ONLY.fwsc",
+      "artifact_bytes": 651392,
+      "artifact_sha256": "0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "flash_headroom_bytes": 6676,
+      "ram_headroom_bytes": 492,
+      "pool_headroom_bytes": 8324,
+      "notes": "SCOPED firmware source tree verified; full remote repository QA not complete"
+    }
+  ],
+  "next": {
+    "owner": "Hourly Build and Independent QA",
+    "action": "Reproduce pinned artifact bytes; rebuild any newer candidate SHA immediately and independently qualify exact full-root plus safety before downloadable NIGHTLY",
+    "gate": "BUILD_ONLY -> independent full-source QA -> lawful distribution and HTTP verified Pages"
+  },
+  "publication": "NOT_PUBLISHED"
+}
