@@ -76,6 +76,19 @@
   .drop input { display: none; }
   ol { margin: 0 0 16px; padding-left: 20px; }
   .meta { font-size: 12px; color: var(--dim); margin: 0 0 14px; }
+
+  .build-detail {border-left:3px solid var(--busy);padding:8px 12px;margin:12px 0;background:var(--card)}
+  .build-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .build-badge{border:1px solid var(--rule);border-radius:5px;padding:2px 7px;font-size:12px;font-weight:bold}
+  .build-badge.important{border-color:var(--busy);color:var(--busy)}
+  .build-badge.blocked{border-color:var(--err);color:var(--err)}
+  #devagreewrap{display:block;font-weight:bold;margin:12px 0}
+  #devagreewrap[hidden]{display:none}
+  .build-item{border-top:1px solid var(--rule);padding:12px 0}
+  .build-item h3{font-size:16px;margin:0 0 5px}
+  .build-item p{margin:5px 0}
+  .build-item button{margin:5px 0;padding:7px 12px}
+  .build-item .meta,#buildprovenance{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -104,6 +117,14 @@
       </label>
     </div>
     <p class="meta" id="pkgmeta"></p>
+    <div class="build-detail" id="builddetail" hidden>
+      <div class="build-badges" id="buildbadges"></div>
+      <p class="small" id="buildsummary"></p>
+      <p class="meta" id="buildprovenance"></p>
+      <p class="small"><a id="buildevidence" href="#" rel="noopener noreferrer" target="_blank" data-t="evidencelink">Build evidence</a></p>
+      <p class="small" data-t="ctrlwarning">Direct SMC Bluetooth requires a separately built ctl.img; it is not bundled.</p>
+      <label id="devagreewrap" hidden><input type="checkbox" id="devagree"> <span data-t="devagree">I understand this is hardware-untested development firmware; I must verify the exact model and make a backup before flashing.</span></label>
+    </div>
     <details class="model" id="modeldetails">
       <summary data-t="flashother">Flash another keyboard version</summary>
       <div class="models" id="models" role="radiogroup" aria-label="Keyboard model"></div>
@@ -119,6 +140,12 @@
     <pre id="log"></pre>
   </section>
 
+
+  <section class="panel" id="buildarchive">
+    <h2 data-t="archiveheading">Build history</h2>
+    <p class="small" data-t="archiveintro">SHA-verified packages are distinguished from source-only checkpoints, missing archives and failed builds. A source commit is not a flashable firmware image.</p>
+    <div id="buildhistory"></div>
+  </section>
   <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a></p>
   <p class="small"><a href="../manual/" data-t="manual">The manual</a>
     · <a href="../new/" data-t="whatsnew">What's new</a>
@@ -159,6 +186,11 @@ const MODEL_KEYS = ["pro", "elite", "mke", "fm1"];
 const STOCK_SHA256_FM1 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
 const TEXT = {
   ja: {
+    latestdev: "最新の利用可能な DEV", devchecked: "DEV CHECKED", hardwareuntested: "実機未テスト", superseded: "旧ビルド・非推奨",
+    devagree: "実機未テストの開発版であることを理解し、機種ID・サンプルのバックアップ・ローカル検証を確認します。",
+    ctrlwarning: "SMC Bluetoothには別途ビルドした ctl.img が必要です。上で選択してください。付属していません。",
+    evidencelink: "開発検証記録", archiveheading: "ビルド履歴", archiveintro: "SHA確認済みビルドとソースのみの状態・未入手アーカイブ・失敗ビルドを区別します。コミットだけではインストールできません。",
+    choosebuild: "このビルドを選ぶ", otherbuilds: "その他のチェックポイント (インストール不可)", unapproved: "このパッケージには機種別検証記録がないため、自動インストールできません。",
     title: "X0X をインストール",
     intro: "USB で機器を接続し、バージョンと機種を選んでください。（Chrome か Edge）",
     warn: "書き込み中は USB を抜かないでください。",
@@ -221,6 +253,11 @@ const TEXT = {
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
+    latestdev: "LATEST AVAILABLE DEV", devchecked: "DEV CHECKED", hardwareuntested: "HARDWARE UNTESTED", superseded: "SUPERSEDED",
+    devagree: "I understand this is hardware-untested development firmware. I must verify the exact model, back up samples and use guarded local validation.",
+    ctrlwarning: "Direct SMC Bluetooth requires a separately built ctl.img (select it above). The controller image is not bundled.",
+    evidencelink: "Development validation record", archiveheading: "Build history", archiveintro: "SHA-verified builds are separated from source-only checkpoints, unavailable archives and failed builds. A source commit alone is not flashable firmware.",
+    choosebuild: "Select this build", otherbuilds: "Other checkpoints — not available for installation", unapproved: "No model-specific development/release validation for this package. Automatic installation is disabled.",
     title: "Install X0X",
     intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
     warn: "Do not unplug the USB cable while writing.",
@@ -293,6 +330,7 @@ function applyLang() {
   $("conn").textContent = connected ? t("connected") : t("notconnected");
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
   refreshMeta();
+  renderBuildHistory();
 }
 $("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
 const sayK = (k, arg = "") => { lastKey = k; lastArg = arg; $("status").textContent = t(k) + arg; };
@@ -308,6 +346,7 @@ $("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
 let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
+let loadSerial = 0;
 
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
@@ -436,11 +475,73 @@ function refreshModelUi() {
 function refreshMeta() {
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); return; }
+  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("builddetail").hidden = true; updateInstallGate(); return; }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
   $("download").href = pkg.pkg;
   $("download").download = pkg.pkg.split("/").pop();
+  renderBuildInfo(ver,pkg);
+}
+
+function isCatalogChecked(v,p) {
+  return !!v && !!p && (v.status === "dev-checked" || v.status === "release-checked")
+    && /^[0-9a-f]{64}$/.test(p.sha256 || "");
+}
+function updateInstallGate() {
+  const v = currentVersion(), p = v && v.models && v.models[chosenModel];
+  $("go").disabled = writing || !image || !isCatalogChecked(v,p)
+    || (v.status === "dev-checked" && !$("devagree").checked);
+}
+function buildBadge(txt,kind) {
+  const x = document.createElement("span"); x.className="build-badge"+(kind?" "+kind:""); x.textContent=txt;return x;
+}
+function renderBuildInfo(v,p) {
+  $("builddetail").hidden=false;
+  const b=$("buildbadges");b.replaceChildren();
+  if(v.version===catalogLive.latest && v.status==="dev-checked") b.append(buildBadge(t("latestdev"),"important"));
+  if(v.status==="dev-checked") b.append(buildBadge(t("devchecked")));
+  if(v.hardware_tested!==true) b.append(buildBadge(t("hardwareuntested"),"important"));
+  if(v.lifecycle==="superseded") b.append(buildBadge(t("superseded"),"blocked"));
+  $("buildsummary").textContent=v.description||v.title||"";
+  $("buildprovenance").textContent="Source: "+(v.source_commit||"unknown")+
+    " · "+(v.built_at||"undated")+" · SHA-256: "+(p.sha256||"not recorded");
+  const link=$("buildevidence");link.hidden=!v.evidence_url;
+  if(v.evidence_url)link.href=v.evidence_url;else link.removeAttribute("href");
+  $("devagreewrap").hidden=v.status!=="dev-checked";
+  updateInstallGate();
+}
+function renderBuildHistory() {
+  const box=$("buildhistory");box.replaceChildren();
+  for(const v of versions()) {
+    const el=document.createElement("article");el.className="build-item";
+    const h=document.createElement("h3");h.textContent=(v.title||v.version)+" · "+v.version;el.append(h);
+    const badges=document.createElement("div");badges.className="build-badges";
+    if(v.version===catalogLive.latest && v.status==="dev-checked")badges.append(buildBadge(t("latestdev"),"important"));
+    if(v.status==="dev-checked")badges.append(buildBadge(t("devchecked")));
+    if(v.hardware_tested!==true)badges.append(buildBadge(t("hardwareuntested"),"important"));
+    if(v.lifecycle==="superseded")badges.append(buildBadge(t("superseded"),"blocked"));
+    el.append(badges);
+    const p=document.createElement("p");p.textContent=v.description||"";el.append(p);
+    const m=document.createElement("p");m.className="meta";
+    m.textContent=(v.built_at||"")+" · "+(v.source_commit||"")+" · Models: "+Object.keys(v.models||{}).join(", ");
+    el.append(m);
+    if(["dev-checked","release-checked"].includes(v.status)){
+      const btn=document.createElement("button");btn.type="button";btn.textContent=t("choosebuild");
+      btn.addEventListener("click",()=>{$("version").value=v.version;refreshModelUi();loadSelectedPackage();$("pick").scrollIntoView({block:"start"});});
+      el.append(btn);
+    }
+    box.append(el);
+  }
+  if((catalog.history||[]).length){const h=document.createElement("h3");h.textContent=t("otherbuilds");box.append(h);}
+  for(const b of catalog.history||[]){
+    const el=document.createElement("article");el.className="build-item";
+    const h=document.createElement("h3");h.textContent=b.title||b.id;el.append(h);
+    const m=document.createElement("p");m.className="meta";
+    m.textContent=(b.status||"unknown").toUpperCase().replace(/-/g," ")+" · "+(b.source_commit||"")+" · "+(b.models||[]).join(", ");el.append(m);
+    const p=document.createElement("p");p.textContent=b.description||"";el.append(p);
+    if(b.url){const a=document.createElement("a");a.href=b.url;a.rel="noopener noreferrer";a.target="_blank";a.textContent="Source / evidence";el.append(a);}
+    box.append(el);
+  }
 }
 async function sha256Hex(buf) {
   const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))]
@@ -448,20 +549,23 @@ async function sha256Hex(buf) {
   return hex;
 }
 async function loadSelectedPackage() {
+  const requestId = ++loadSerial;
+  $("devagree").checked = false;
   image = null; selectedProduct = null;
   $("go").disabled = true;
   refreshMeta();
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
   if (!pkg) { sayK("noproduct"); return; }
+  if (!isCatalogChecked(ver,pkg)) { sayK("unapproved"); return; }
   try {
     const r = await fetch(pkg.pkg);
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
     const raw = new Uint8Array(await r.arrayBuffer());
-    if (pkg.sha256) {
-      const hex = await sha256Hex(raw.buffer);
-      if (hex !== pkg.sha256) { sayK("badpkg"); return; }
-    }
+    if (requestId !== loadSerial) return;
+    const hex = await sha256Hex(raw.buffer);
+    if (requestId !== loadSerial) return;
+    if (hex !== pkg.sha256) { sayK("badpkg"); return; }
     const product = productOf(raw);
     if (!pkg.fromRelease && product !== pkg.product) { sayK("badpkg"); return; }
     if (pkg.fromRelease) {
@@ -472,8 +576,8 @@ async function loadSelectedPackage() {
     image = logicalImage(raw);
     selectedProduct = product;
     say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
-    $("go").disabled = writing;
     refreshMeta();
+    updateInstallGate();
   } catch (e) { sayK("loadfail", e.message); }
 }
 
@@ -502,7 +606,7 @@ function fillVersions() {
   for (const v of list) {
     const o = document.createElement("option");
     o.value = v.version;
-    o.textContent = v.version + (v.version === catalogLive.latest ? " (latest)" : "");
+    o.textContent = v.version + (v.version === catalogLive.latest ? " · LATEST AVAILABLE DEV" : "") + (v.lifecycle === "superseded" ? " · SUPERSEDED" : "") + (v.status === "dev-checked" ? " · DEV CHECKED · HARDWARE UNTESTED" : " · NOT VERIFIED");
     sel.append(o);
   }
   const prefer = cur && list.some((v) => v.version === cur) ? cur
@@ -510,6 +614,7 @@ function fillVersions() {
   if (prefer) sel.value = prefer;
   refreshModelUi();
   loadSelectedPackage();
+  renderBuildHistory();
 }
 
 function confirmWrite(product) {
@@ -517,6 +622,7 @@ function confirmWrite(product) {
   return window.confirm(t("confirm") + from + t("confirmto") + product + t("confirmrisk"));
 }
 $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
+$("devagree").addEventListener("change", updateInstallGate);
 
 async function mergeGitHubReleases() {
   // Optional: add release assets not already in the catalog so any GitHub Release is installable.
@@ -674,12 +780,12 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
-  $("go").disabled = !image;
+  updateInstallGate();
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
 }
 
 $("go").addEventListener("click", () => {
-  if (!image || !selectedProduct || writing) return;
+  if (!image || !selectedProduct || writing || $("go").disabled) return;
   if (!confirmWrite(selectedProduct)) return;
   let img = image;
   if (ctl) {

@@ -86,7 +86,10 @@ def pkg_entry(path: Path, version: str, key: str | None = None) -> tuple[str, di
         raise SystemExit(f"{path}: identity {product!r}: make a release build") from e
     if b"FELUCCA-LOADER-1" not in raw:
         raise SystemExit(f"{path}: no update loader in it")
-    key = key or model_key(product)
+    actual_key = model_key(product)
+    if key is not None and key != actual_key:
+        raise SystemExit(f"{path}: package model {actual_key} does not match selected --{key} flag")
+    key = actual_key
     name = MODEL_FILE[key].format(ver=safe_version(version))
     return key, {
         "product": product,
@@ -140,7 +143,7 @@ a { color: var(--accent); }
 <p class="lede">Groovebox firmware for the M-VAVE SMK-37 (Pro, Elite, MKE-P37) and the FM-1.
 A 909, an 808, two 303s with TB-3PO, and a breakbeat player — with an APC40-style clip launcher
 for Loopy Pro on the SMK-37.</p>
-<div class="status">Install any published version from Chrome or Edge over USB. The sample importer
+<div class="status">Install only after checking the model and sample backup. Development builds are available for evaluation but have not passed physical-device tests. Chrome or Edge, USB. The sample importer
 puts your own loops into the BREAK slots. Installing is at your own risk; packages keep the
 keyboard's model name so M-UPGRADE still works.</div>
 <nav class="ways" aria-label="Get X0X">
@@ -148,7 +151,7 @@ keyboard's model name so M-UPGRADE still works.</div>
   <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part from Chrome or Edge.</span></a>
   <a href="projects/"><strong>Projects</strong><span>Save, load and reset on the keyboard, or export a project with its original samples.</span></a>
   <a href="manual/"><strong>Manual</strong><span>Getting started, then everything else — including the SMK-37 map.</span></a>
-  <a href="__REPO__/releases"><strong>All releases</strong><span>Firmware files for the command line: <code>python3 tools/fm1_install.py …</code></span></a>
+  <a href="install/#buildarchive"><strong>Build history</strong><span>Compare DEV CHECKED packages, superseded versions, source-only checkpoints and verification evidence.</span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. Built on Felucca by Hügelton Instruments.</span></a>
 </nav>
 <p class="small">SMK-37 control map: see <a href="__REPO__/blob/main/SMK37.md">SMK37.md</a>.
@@ -161,32 +164,68 @@ M-VAVE, FM-1 and SMK-37 are trademarks of their owners. Loopy Pro is a product o
 """
 
 
-def load_catalog(path: Path | None) -> dict:
-    if not path or not path.is_file():
+def load_catalog(path: Path | None, *, canonical_fallback: bool = True) -> dict:
+    """Load either a previous browser catalog or the canonical development registry.
+
+    Prior Pages catalogs store paths relative to /, whereas the inlined installer
+    needs paths relative to /install/. Convert only local firmware URLs.
+    """
+    if path is None:
+        path = SRC / "data" / "installer-builds.json" if canonical_fallback else None
+    if path is None:
+        return {"repo": REPO, "pages": PAGES, "latest": None, "versions": []}
+    if not path.is_file():
+        if path.name == "versions.json":
+            raise SystemExit(f"cannot merge missing installer catalog: {path}")
         return {"repo": REPO, "pages": PAGES, "latest": None, "versions": []}
     data = json.loads(path.read_text(encoding="utf-8"))
     data.setdefault("repo", REPO)
     data.setdefault("pages", PAGES)
     data.setdefault("versions", [])
+    for version in data["versions"]:
+        for package in version.get("models", {}).values():
+            url = package.get("pkg", "")
+            if url.startswith("firmware/"):
+                package["pkg"] = "../" + url
     return data
 
 
 def merge_version(catalog: dict, version: str, models: dict) -> dict:
-    """Insert or replace one version entry; keep other versions' packages."""
-    versions = [v for v in catalog.get("versions", []) if v.get("version") != version]
-    entry = {"version": version, "models": {}}
+    """Preserve unmodified model assets; never inherit approval for changed bytes."""
+    old = next((v for v in catalog.get("versions", []) if v.get("version") == version), None)
+    prior_models = dict(old.get("models", {})) if old else {}
+    new_models = dict(prior_models)
     for key, meta in models.items():
-        entry["models"][key] = {
+        new_models[key] = {
             "product": meta["product"],
             "pkg": f"../firmware/{meta['file']}" if not str(meta["pkg"]).startswith("http") else meta["pkg"],
             "sha256": meta["sha256"],
             "size": meta["size"],
         }
+    unchanged = (old is not None and new_models == prior_models)
+    if unchanged:
+        entry = {**old, "models": new_models}
+    else:
+        # A changed package needs a new development/release validation record;
+        # do not carry a prior DEV CHECKED, hardware or release label over.
+        entry = {
+            "version": version, "title": version, "status": "pending-verification",
+            "lifecycle": "pending", "hardware_tested": False,
+            "description": "New or modified package bytes; validation is required before installation.",
+            "models": new_models,
+        }
+    versions = [v for v in catalog.get("versions", []) if v.get("version") != version]
     versions.append(entry)
     versions.sort(key=lambda v: str(v["version"]), reverse=True)
     catalog = dict(catalog)
     catalog["versions"] = versions
-    catalog["latest"] = version
+    valid = [v for v in versions if v.get("status") in {"dev-checked", "release-checked"}
+             and v.get("models") and all(
+                 re.fullmatch(r"[0-9a-f]{64}", p.get("sha256", ""))
+                 for p in v["models"].values())]
+    preferred = catalog.get("latest")
+    catalog["latest"] = (preferred if any(v["version"] == preferred for v in valid)
+                         else (valid[0]["version"] if valid else None))
     catalog["repo"] = REPO
     catalog["pages"] = PAGES
     return catalog
@@ -194,6 +233,9 @@ def merge_version(catalog: dict, version: str, models: dict) -> dict:
 
 def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from: Path | None):
     """Build OUT from catalog; copy_pkgs maps firmware filename -> source path for this publish."""
+    if merge_from and (merge_from.resolve() == out.resolve()
+                       or merge_from.resolve().is_relative_to(out.resolve())):
+        raise SystemExit("--merge directory may not be the output or inside the output")
     if out.exists():
         shutil.rmtree(out)
     for d in ("install", "manual", "firmware", "breaks", "projects", "new"):
@@ -209,7 +251,24 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
                 if f.name in keep:
                     shutil.copy2(f, out / "firmware" / f.name)
     for name, src in copy_pkgs.items():
-        shutil.copy2(src, out / "firmware" / name)
+        dst = out / "firmware" / name
+        if dst.is_file() and sha256_file(dst) != sha256_file(src):
+            raise SystemExit(f"refusing to overwrite historical firmware {name}; choose a new version")
+        shutil.copy2(src, dst)
+    missing = sorted(name for name in keep if not (out / "firmware" / name).is_file())
+    if missing:
+        raise SystemExit("missing referenced catalog firmware; merge the previous gh-pages site: " + ", ".join(missing))
+    # Check the *copied* site bytes, not merely the source before publication.
+    for version in catalog["versions"]:
+        for key, meta in version.get("models", {}).items():
+            if str(meta.get("pkg", "")).startswith(("https://", "http://")):
+                continue
+            path = out / "firmware" / str(meta["pkg"]).split("/")[-1]
+            if meta.get("size") is not None and path.stat().st_size != meta["size"]:
+                raise SystemExit(f"catalog size mismatch for {version['version']} / {key}")
+            digest = meta.get("sha256")
+            if digest and sha256_file(path) != digest:
+                raise SystemExit(f"catalog SHA-256 mismatch for {version['version']} / {key}")
 
     # Installer: inline libraries + catalog (paths relative to install/)
     page = (SRC / "web" / "x0x_installer.html").read_text(encoding="utf-8")
@@ -250,7 +309,10 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
         shutil.copytree(SRC / "docs" / "img" / "new", out / "new" / "img" / "new")
 
     latest = catalog.get("latest") or (catalog["versions"][0]["version"] if catalog["versions"] else "")
-    ver_label = f" v{html.escape(str(latest))}" if latest else ""
+    ver_label = (" (latest DEV)" if any(
+        v.get("version") == latest and v.get("status") == "dev-checked"
+        for v in catalog["versions"]) else
+        (f" v{html.escape(str(latest))}" if latest else ""))
     landing = (LANDING.replace("__VERSION_LABEL__", ver_label)
                       .replace("__REPO__", REPO))
     (out / "index.html").write_text(landing, encoding="utf-8")
@@ -262,7 +324,7 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
 
 def main_legacy(pkg: Path, version: str, out: Path, merge: Path | None):
     key, meta = pkg_entry(pkg, version)
-    catalog = load_catalog((merge / "versions.json") if merge else None)
+    catalog = load_catalog((merge / "versions.json") if merge else None, canonical_fallback=False)
     catalog = merge_version(catalog, version, {key: meta})
     write_site(out, catalog, {meta["file"]: meta["src"]}, merge)
 
@@ -288,7 +350,7 @@ def main_multi(args):
     if not models:
         raise SystemExit("pass at least one of --pro / --elite / --mke / --fm1")
     merge = Path(args.merge) if args.merge else None
-    catalog = load_catalog((merge / "versions.json") if merge else None)
+    catalog = load_catalog((merge / "versions.json") if merge else None, canonical_fallback=False)
     catalog = merge_version(catalog, version, models)
     write_site(Path(args.out), catalog, {m["file"]: m["src"] for m in models.values()}, merge)
 
