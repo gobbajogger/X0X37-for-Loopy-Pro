@@ -141,6 +141,65 @@
         "elite"
       ],
       "url": null
+    },
+    {
+      "id": "smc-popup-stage4-repair-pr15",
+      "title": "SMC UI popup: reported Elite/Pro DEV check, no device install",
+      "source_commit": "00ed8a361ce481e21c3f9a663c56a257d2053ef2",
+      "source_identity_note": "This is the evidence PR head, not an attested firmware build-source SHA. PR #15 describes validation for an earlier 828298d source; original exact package bytes are not admitted here.",
+      "status": "validation-evidence-only",
+      "date": "2026-10-22",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "description": "PR #15 reports DEV validation and a passing XIP budget after an earlier failure. No matching published package, controller, slot-preservation readback or physical-device PASS is established.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/15"
+    },
+    {
+      "id": "smc-peek-pr19-latest-source",
+      "title": "SMC overlay guard: current PR #19 source-only head",
+      "source_commit": "2b310479c73c1c7dad8feb64c94109fd757c6110",
+      "status": "source-only",
+      "date": "2026-10-22",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "description": "Current draft PR #19 head adds SMC overlay cancellation. Older archives do not attest binaries from this new commit; physical test and complete target build absent.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/19"
+    },
+    {
+      "id": "smc-fastmath-pr28-offline-projection",
+      "title": "SMC fastmath: offline-projection Elite/Pro binaries",
+      "source_commit": "832f8dbb0655cba8b9fd512be34c1e89ace185aa",
+      "source_identity_note": "PR #28 HEAD labels the change; the listed package hashes were reported from an offline source projection, NOT an exact checked PR #28 checkout. Do not attribute these bytes to the complete remote commit.",
+      "status": "offline-projection-artifact-unattributed",
+      "date": "2026-10-23",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "reported_package_sha256": {
+        "elite": "aacdb860b03cdca8b5e1b8949c269623aafdc8e8b326ba43f17f5cda0e73773b",
+        "pro": "05ae8b726ad0896c48dbedeffc02ebfbe874f9a329cb239c874a95d3e4648b4b"
+      },
+      "device_verified": false,
+      "description": "Offline Elite/Pro DEV builds are reported, but full-ref source attribution, independent complete build validation, model/controller safeguards and device PASS are outstanding. Not downloadable.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/28"
+    },
+    {
+      "id": "stage4-pr37-test-failclosed-and-breakgen",
+      "title": "Stage 4 host-test fail-closed and 909 sample generator repair",
+      "source_commit": "a67023a19c158fc24ae855ae6b848c870f705a91",
+      "status": "source-only",
+      "date": "2026-10-23",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "description": "Draft PR #37 changes test-selector and sample generator guards. Its reported offline-projection package hashes duplicate PR #28, so no new independently attested firmware generation is counted; no device PASS.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/37"
     }
   ],
   "policy": {
@@ -151,6 +210,6 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 7
+    "source_or_historical_checkpoints": 11
   }
 }
