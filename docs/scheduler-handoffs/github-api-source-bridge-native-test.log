@@ -1,0 +1,15 @@
+test_bad_remote_ref_fails_closed (test_github_api_checkout.GithubAPICheckoutTests.test_bad_remote_ref_fails_closed) ... ok
+test_corrupt_blob_rejected_no_partial_output (test_github_api_checkout.GithubAPICheckoutTests.test_corrupt_blob_rejected_no_partial_output) ... ok
+test_malicious_tree_path_rejected_before_output (test_github_api_checkout.GithubAPICheckoutTests.test_malicious_tree_path_rejected_before_output) ... ok
+test_refuse_existing_output_and_insecure_transport (test_github_api_checkout.GithubAPICheckoutTests.test_refuse_existing_output_and_insecure_transport) ... ok
+test_seed_cache_reuses_blobs_without_network_download (test_github_api_checkout.GithubAPICheckoutTests.test_seed_cache_reuses_blobs_without_network_download) ... ok
+test_signed_exact_remote_sha_tree_permissions_symlink_and_binary (test_github_api_checkout.GithubAPICheckoutTests.test_signed_exact_remote_sha_tree_permissions_symlink_and_binary) ... ok
+test_symlink_escaping_source_refused (test_github_api_checkout.GithubAPICheckoutTests.test_symlink_escaping_source_refused) ... ok
+test_truncated_tree_rejected_before_output (test_github_api_checkout.GithubAPICheckoutTests.test_truncated_tree_rejected_before_output) ... ok
+test_unsigned_exact_commit_timezone_reconstruction (test_github_api_checkout.GithubAPICheckoutTests.test_unsigned_exact_commit_timezone_reconstruction) ... ok
+test_unsigned_payload_tamper_rejected (test_github_api_checkout.GithubAPICheckoutTests.test_unsigned_payload_tamper_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 5.533s
+
+OK
