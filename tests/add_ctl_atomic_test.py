@@ -46,6 +46,50 @@ def main():
             verify(pkg.read_bytes() == before, "disk flush failure preserves original firmware")
             verify(not list(folder.glob(".original.fwsc.*.tmp")), "sync failure cleans temporary files")
 
+            # The rename has already committed before parent-directory finalization.
+            # A nonzero result must NOT suggest the old package was preserved.
+            original_fsync = os.fsync
+            calls = [0]
+
+            def fail_post_replace_sync(fd):
+                calls[0] += 1
+                if calls[0] == 2:
+                    raise OSError("injected parent directory fsync failure")
+                return original_fsync(fd)
+
+            pkg.write_bytes(before)
+            failure_text = io.StringIO()
+            with patch("os.fsync", side_effect=fail_post_replace_sync):
+                with contextlib.redirect_stderr(failure_text):
+                    rc = add_ctl.main(command)
+            verify(rc == 1 and calls[0] == 2 and pkg.read_bytes() == after,
+                   "failed directory fsync occurs after replacement and keeps new output")
+            verify("replacement completed" in failure_text.getvalue()
+                   and "durability is uncertain" in failure_text.getvalue(),
+                   "post-replace fsync failure explicitly warns about uncertain durability")
+            verify(not list(folder.glob(".original.fwsc.*.tmp")),
+                   "post-replace fsync failure leaves no temporary file")
+
+            # Parent directory may also fail to open after rename.
+            original_open = os.open
+            def fail_parent_directory_open(path, flags, *args, **kwargs):
+                if Path(path) == folder:
+                    raise OSError("injected parent directory open failure")
+                return original_open(path, flags, *args, **kwargs)
+
+            pkg.write_bytes(before)
+            failure_text = io.StringIO()
+            with patch("os.open", side_effect=fail_parent_directory_open):
+                with contextlib.redirect_stderr(failure_text):
+                    rc = add_ctl.main(command)
+            verify(rc == 1 and pkg.read_bytes() == after,
+                   "failed directory open occurs after replacement and keeps new output")
+            verify("replacement completed" in failure_text.getvalue()
+                   and "durability is uncertain" in failure_text.getvalue(),
+                   "post-replace directory open failure warns about uncertain durability")
+            verify(not list(folder.glob(".original.fwsc.*.tmp")),
+                   "post-replace directory open failure leaves no temporary file")
+
             with contextlib.redirect_stdout(io.StringIO()):
                 rc = add_ctl.main(command)
             verify(rc == 0 and pkg.read_bytes() == after, "successful in-place controller package replace")
