@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "role": "nightly-browser-catalog-sync",
+  "result": "DELIVERED_PENDING_INDEPENDENT_QA",
+  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+  "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+  "parent_commit": "dd4555657aa0c40f9ae220df7ca4b7e545fb53d2",
+  "firmware_source_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "firmware_nightly_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "website_main_commit": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "website_pages_commit": "9c5d3b6b0846f89436492851fef89ed3829b7ad7",
+  "history_before": 69,
+  "history_after": 75,
+  "legacy_build_generations": 2,
+  "added_source_prs": [
+    {
+      "number": 93,
+      "head": "74389d4bb4abc2f8a36b91bc16d1822b63264986",
+      "root_tree": "aeacf2c81bd19a33dd50ba0bf3a6e72b1131271a",
+      "status": "failed"
+    },
+    {
+      "number": 94,
+      "head": "9083dc35a5e270930323b44dde7bdc5916f826f1",
+      "root_tree": "447582f9bf505c2d448010b7ab23dd36e1ed7a33",
+      "status": "source-only"
+    },
+    {
+      "number": 95,
+      "head": "17631165c251aca1c6183e0b0fe85876887bea49",
+      "root_tree": "5bcfa5f8b54c4982b0d41351a724c1ad06c9d048",
+      "status": "source-only"
+    },
+    {
+      "number": 96,
+      "head": "3473d86ec88c079a6c69f133774104ba4ec8c4de",
+      "root_tree": "c42534d8540ec278d3c3f2c1753f37021abef2d8",
+      "status": "source-only"
+    },
+    {
+      "number": 97,
+      "head": "8344f586e57512f651965f3ac21545b24a6c6241",
+      "root_tree": "f73dd236fd1788a87c4e5d1a55a4f5e5158a2303",
+      "status": "evidence-only"
+    },
+    {
+      "number": 98,
+      "head": "9506a68aa2d1f0e04eca23871368d18ab2a070cd",
+      "root_tree": "b8b429bfffa251994b64a3066f90bcf5aea833a7",
+      "status": "source-only"
+    }
+  ],
+  "native_model_builds": {
+    "elite": "NO_INSTALLABLE_YET",
+    "pro": "NO_INSTALLABLE_YET",
+    "pr93": {
+      "elite_exit": 1,
+      "pro_exit": 1,
+      "controller_exit": 0,
+      "pool_free_bytes": 4484,
+      "minimum_bytes": 8192,
+      "full_root_retested": false
+    }
+  },
+  "checks": [
+    {
+      "label": "exact remote Git source/ref/tree",
+      "method": "connected GitHub Git Data API",
+      "result": "PASS"
+    },
+    {
+      "label": "source/generated manifest content parity",
+      "method": "GitHub blobs before, identical text new sources",
+      "result": "PASS"
+    },
+    {
+      "label": "complete 75-history manifest shape, provenance, no binary URL",
+      "method": "local V8 metadata checks",
+      "result": "PASS"
+    },
+    {
+      "label": "malformed 12/12 negative mutations",
+      "method": "local V8 metadata checks",
+      "result": "PASS"
+    },
+    {
+      "label": "native focused metadata reconstruction",
+      "method": "node /mnt/data/x0x37-catalog-cycle13/local-metadata-check.mjs",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "label": "full exact-branch npm run build + npm test",
+      "result": "NOT_RUN",
+      "reason": "Native git ls-remote for site HEAD failed exit 128: Could not resolve host github.com; GitHub connector allowed source reads; no complete exact local checkout used."
+    },
+    {
+      "label": "responsive Chromium on new combined tree",
+      "result": "NOT_RUN",
+      "reason": "No UI renderer changed; combined tree not locally reconstructed."
+    },
+    {
+      "label": "firmware target build or device test by catalog",
+      "result": "NOT_RUN"
+    }
+  ],
+  "blockers": [
+    {
+      "gate": "Independent exact-branch site npm/schema/browser review",
+      "next_consumer": "Independent QA"
+    },
+    {
+      "gate": "Website PR #3 merged and approved source",
+      "next_consumer": "Nightly Main Merger"
+    },
+    {
+      "gate": "Independent exact-byte qualified firmware/immutable hosting/HTTP",
+      "next_consumer": "Sole Nightly Pages Publisher"
+    }
+  ],
+  "no_firmware_bytes_in_browser_repo": true,
+  "installable_preview_latest": null,
+  "nightly_models": {
+    "elite": "NO_INSTALLABLE_YET",
+    "pro": "NO_INSTALLABLE_YET"
+  },
+  "device_testing": "NOT_RUN",
+  "publication": "NOT_PERFORMED"
+}

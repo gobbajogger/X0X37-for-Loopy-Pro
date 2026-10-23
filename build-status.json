@@ -1689,6 +1689,190 @@
       "description": "Installer visual step-state improvement stacked on PR83, not published.",
       "missing_gate": "Unmerged candidate; independent full-source QA, valid matching native target/model and controller/backup/download gates only if a new firmware build is proposed.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/92"
+    },
+    {
+      "id": "producer-pr93-20261023",
+      "title": "BREAK reverse checkpoint native Elite/Pro pool budget failure",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/performance-break-reverse-checkpoints-20261023-1342",
+      "source_commit": "74389d4bb4abc2f8a36b91bc16d1822b63264986",
+      "source_tree": "aeacf2c81bd19a33dd50ba0bf3a6e72b1131271a",
+      "source_time": "2026-10-23T13:53:03Z",
+      "date": "2026-10-23",
+      "status": "failed",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "GitHub PR #93 independent actual native scoped model build with complete checksums; Catalog did NOT recompile or materialize private ZIP.",
+        "command": null,
+        "result": "Elite EXIT 1 / Pro EXIT 1; pool free 4484 below 8192; private controller EXIT 0. No qualified model package."
+      },
+      "description": "Real scoped native model builds both EXIT 1: required pool margin breached (4484 B free, 8192 B minimum). Matching controller build EXIT 0. No candidate model firmware generated.",
+      "missing_gate": "Fix pool memory reserve, recompile and verify both models; no build PASS, independent QA or distribution.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93",
+      "failed_build": {
+        "scope": "EXACT_FIRMWARE_SUBTREE_ONLY_FULL_ROOT_QA_PENDING",
+        "firmware_subtree": "3fe98ec515b3abafd50a62280632839c2910dd80",
+        "pool_used_bytes": 339580,
+        "pool_capacity_bytes": 344064,
+        "pool_free_bytes": 4484,
+        "pool_minimum_bytes": 8192,
+        "elite": {
+          "exit_code": 1,
+          "artifact_created": false,
+          "log_sha256": "9bdf740b6aeac19d6cb9264fb5143fee986296b49913fca9165eb81b341213db"
+        },
+        "pro": {
+          "exit_code": 1,
+          "artifact_created": false,
+          "log_sha256": "0bfc208e37a7d72390ac6b740a94524f53ba4eb1f13ffec702bdbc0ea17d17b"
+        },
+        "controller": {
+          "exit_code": 0,
+          "size_bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "77b7a496",
+          "redistribution_allowed": false
+        }
+      }
+    },
+    {
+      "id": "producer-pr94-20261023",
+      "title": "SMC BLE ACL PB0/PB3 valid first-packet handling",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-ble-acl-start-pb0-pb3-20261023-1406",
+      "source_commit": "9083dc35a5e270930323b44dde7bdc5916f826f1",
+      "source_tree": "447582f9bf505c2d448010b7ab23dd36e1ed7a33",
+      "source_time": "2026-10-23T14:11:30Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "GitHub PR metadata and commit/tree independently fetched; producer host checks NOT rerun by Catalog.",
+        "command": null,
+        "result": "SOURCE/EVIDENCE ONLY: no model firmware package, no complete independent QA or device test."
+      },
+      "description": "Producer reports scoped BLE ACL sanitizer regression passes; firmware model target builds and full independent QA NOT_RUN. Stacked on PR #89.",
+      "missing_gate": "Integrate with PR #89 and conflicting PR #50 through sole Safe Merge; native model+QA and distribution gates pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/94"
+    },
+    {
+      "id": "producer-pr95-20261023",
+      "title": "303 ping-pong live pattern shrink boundary repair",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/seq-pingpong-live-length-shrink-20261023-run4-1410",
+      "source_commit": "17631165c251aca1c6183e0b0fe85876887bea49",
+      "source_tree": "5bcfa5f8b54c4982b0d41351a724c1ad06c9d048",
+      "source_time": "2026-10-23T14:21:51Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "GitHub PR metadata and commit/tree independently fetched; producer host checks NOT rerun by Catalog.",
+        "command": null,
+        "result": "SOURCE/EVIDENCE ONLY: no model firmware package, no complete independent QA or device test."
+      },
+      "description": "Producer reports source-window native tests; whole sequencer/clock/note-off host and Elite/Pro target builds NOT_RUN.",
+      "missing_gate": "Independent full-source QA, sequencer conflict reconciliation and pinned target model builds remain open.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/95"
+    },
+    {
+      "id": "producer-pr96-20261023",
+      "title": "Reject malformed SMP_INFO slot maps before OTA backup",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+      "source_commit": "3473d86ec88c079a6c69f133774104ba4ec8c4de",
+      "source_tree": "c42534d8540ec278d3c3f2c1753f37021abef2d8",
+      "source_time": "2026-10-23T14:28:06Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "GitHub PR metadata and commit/tree independently fetched; producer host checks NOT rerun by Catalog.",
+        "command": null,
+        "result": "SOURCE/EVIDENCE ONLY: no model firmware package, no complete independent QA or device test."
+      },
+      "description": "Producer reports 19/19 focused native Python checks. Stacked #81 then #91 then #96. Full-source independent QA and target firmware builds NOT_RUN.",
+      "missing_gate": "Independent sample-backup/readback/restore negatives and ordered integration, firmware build and installer gates remain open.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96"
+    },
+    {
+      "id": "producer-pr97-20261023",
+      "title": "Installer EN/JA screen-reader label localization",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/installer-ux-aria-language-20261023-run16",
+      "source_commit": "8344f586e57512f651965f3ac21545b24a6c6241",
+      "source_tree": "f73dd236fd1788a87c4e5d1a55a4f5e5158a2303",
+      "source_time": "2026-10-23T14:31:50Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "GitHub PR metadata and commit/tree independently fetched; producer host checks NOT rerun by Catalog.",
+        "command": null,
+        "result": "SOURCE/EVIDENCE ONLY: no model firmware package, no complete independent QA or device test."
+      },
+      "description": "Producer reports responsive Chromium screen-reader assertion checks and Node checks on stacked UX source. No model firmware or Pages publication.",
+      "missing_gate": "Independent stacked browser/negative QA, single firmware-source integrator and designated Pages publisher pending.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/97"
+    },
+    {
+      "id": "producer-pr98-20261023",
+      "title": "TB-3PO mutation audible root-note preservation",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-bf015-tb3po-anchor-20261023-run11",
+      "source_commit": "9506a68aa2d1f0e04eca23871368d18ab2a070cd",
+      "source_tree": "b8b429bfffa251994b64a3066f90bcf5aea833a7",
+      "source_time": "2026-10-23T14:34:47Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "GitHub PR metadata and commit/tree independently fetched; producer host checks NOT rerun by Catalog.",
+        "command": null,
+        "result": "SOURCE/EVIDENCE ONLY: no model firmware package, no complete independent QA or device test."
+      },
+      "description": "Producer reports ASan+UBSan native focused tests and existing sequencer host checks, not independently rerun by Catalog. No target model build.",
+      "missing_gate": "Independent RNG/model correctness QA and native target model builds pending on this source-only repair.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/98"
     }
   ],
   "policy": {
@@ -1699,7 +1883,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 69
+    "source_or_historical_checkpoints": 75
   },
   "versioning": {
     "firmware_product_version": {

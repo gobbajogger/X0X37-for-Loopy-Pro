@@ -39,6 +39,12 @@ run('baseline',()=>{},true);
 for (const [name, fn] of [
   ['aggregate-device-flag',j=>j.builds[0].hardware_tested=true],
   ['forged-history-device-pass',j=>j.history[0].status='device-verified'],
+  ['build-forged-device-status',j=>j.builds[0].status='device-verified'],
+  ['build-forged-stable-status',j=>j.builds[0].status='stable'],
+  ['build-forged-hardware-proven',j=>j.builds[0].status='hardware-proven'],
+  ['empty-build-id',j=>j.builds[0].id=''],
+  ['empty-history-id',j=>j.history[0].id=''],
+  ['cross-build-history-duplicate-id',j=>j.history[0].id=j.builds[0].id],
   ['empty-build-models',j=>j.builds[0].models={}],
   ['script-URL',j=>j.history[0].url='javascript:alert(1)'],
   ['insecure-URL',j=>j.history[0].url='http://github.com/'],
@@ -65,4 +71,4 @@ run('source-docs-mismatch',dir=>{
   const p=join(dir,'docs/build-status.json');
   fs.appendFileSync(p,' ');
 });
-console.log('PASS: 21 native positive/negative cases');
+console.log('PASS: 27 native positive/negative cases');

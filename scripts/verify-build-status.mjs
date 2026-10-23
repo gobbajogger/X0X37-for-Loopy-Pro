@@ -26,9 +26,12 @@ assert.deepEqual(published, preview);
 assert.equal(catalog.counts.actual_build_generations, catalog.builds.length);
 assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.length);
 const seen = new Set();
+const allowedBuildStatuses = new Set(['dev-checked', 'release-checked']);
 for (const build of catalog.builds) {
+  assert.ok(typeof build.id === 'string' && build.id.trim().length > 0, 'blank build id');
   assert.equal(seen.has(build.id), false, 'duplicate build ' + build.id);
   seen.add(build.id);
+  assert.ok(allowedBuildStatuses.has(build.status), 'unsupported build status ' + build.status);
   assert.match(build.source_commit, /^[a-f0-9]{40}$/);
   assert.equal(build.installable_from_nightly_status, false);
   assert.equal(typeof build.hardware_tested, 'boolean', 'hardware status must be explicit');
@@ -62,6 +65,8 @@ const historicalStatuses = new Set([
   'validation-evidence-only', 'offline-projection-artifact-unattributed', 'build-succeeded-unreviewed'
 ]);
 for (const item of catalog.history) {
+  assert.ok(typeof item.id === 'string' && item.id.trim().length > 0, 'blank historical id');
+  assert.equal(seen.has(item.id), false, 'duplicate build/history id ' + item.id);
   assert.equal(ids.has(item.id), false, 'duplicate historical item ' + item.id);
   ids.add(item.id);
   assert.ok(historicalStatuses.has(item.status), 'unverified or invalid history status ' + item.status);
