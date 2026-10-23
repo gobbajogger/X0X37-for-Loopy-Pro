@@ -39,6 +39,8 @@ let findCalls=0;
 async function midiAccess() {return {};}
 class Updater {async find(predicate){findCalls++;return onFind(predicate);}}
 function suggestModel() {}
+// Connection test isolates the MIDI-button state machine, not the page-wide journey DOM.
+function refreshJourney() {}
 ${stateFns}
 ${scans}
 globalThis.control={
