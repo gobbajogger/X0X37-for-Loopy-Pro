@@ -128,11 +128,21 @@ static int l2cap_send(bleh_t *h, unsigned cid, const uint8_t *d, unsigned n)
     return rc;
 }
 static int att_send(bleh_t *h, const uint8_t *att, unsigned n) { return l2cap_send(h, CID_ATT, att, n); }
+/* A full mailbox must not silently discard an ATT request response. Neither
+ * CCCD nor MTU replies may depend on notifications having been enabled. */
+static void att_reply(bleh_t *h, const uint8_t *p, unsigned n)
+{
+    unsigned i;
+    if (n > BLEH_MTU || h->att_rsp_len) return;
+    if (h->credits && att_send(h, p, n) == 0) return;
+    for (i = 0; i < n; i++) h->att_rsp[i] = p[i];
+    h->att_rsp_len = (uint8_t)n;
+}
 static void att_err(bleh_t *h, unsigned op, unsigned hd, unsigned code)
 {
     uint8_t r[5] = {A_ERR, (uint8_t)op, 0, 0, (uint8_t)code};
     wr16(r + 2, hd);
-    att_send(h, r, 5);
+    att_reply(h, r, 5);
 }
 
 /* ---- MIDI in: a BLE-MIDI packet written by the central ----
@@ -264,13 +274,14 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
         if (n >= 4 && rd16(p + 1) == H_MIDI) midi_write(h, p + 3, n - 3);
         return;
     }
+    if (h->att_rsp_len) return; /* preserve first pending response until delivered */
     if (op & 0x40u) return;
     switch (op) {
     case A_MTU:
         if (n != 3) { att_err(h, op, 0, E_PDU); return; }
         h->mtu_req = (uint16_t)rd16(p + 1);
         r[0] = A_MTU_R; wr16(r + 1, BLEH_MTU);
-        att_send(h, r, 3);
+        att_reply(h, r, 3);
         return;
     case A_INFO:
     case A_GROUP:
@@ -300,7 +311,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             for (k = 0; k < ATTR[hd - 1].tlen; k++) r[len + 2 + k] = ATTR[hd - 1].type[k];
             len += el;
         }
-        if (!fmt) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!fmt) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_GROUP) {
         unsigned len = 2, el = 0;
         if (n != 7 || rd16(p + 5) != 0x2800) { att_err(h, op, s, E_GROUP); return; }
@@ -316,7 +327,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             for (k = 0; k < vl; k++) r[len + 4 + k] = v[k];
             len += el;
         }
-        if (!el) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!el) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_FVAL) {
         unsigned len = 1, found = 0;
         if (n < 7 || rd16(p + 5) != 0x2800) { att_err(h, op, s, E_NOTFOUND); return; }
@@ -330,7 +341,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             wr16(r + len, hd); wr16(r + len + 2, group_end(hd));
             len += 4; found = 1;
         }
-        if (!found) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!found) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_RTYPE) {
         unsigned len = 2, el = 0, tl = n - 5;
         if (tl != 2 && tl != 16) { att_err(h, op, s, E_PDU); return; }
@@ -347,7 +358,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             for (k = 0; k < vl; k++) r[len + 2 + k] = v[k];
             len += el;
         }
-        if (!el) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!el) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_READ) {
         const uint8_t *v;
         unsigned vl;
@@ -356,14 +367,14 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
         if (vl > BLEH_MTU - 1) vl = BLEH_MTU - 1;
         r[0] = A_READ_R;
         for (k = 0; k < vl; k++) r[1 + k] = v[k];
-        att_send(h, r, 1 + vl);
+        att_reply(h, r, 1 + vl);
     } else {                                        /* A_WRITE */
         if (s != H_CCCD) { att_err(h, op, s, s >= 1 && s <= H_LAST ? E_WRITE : E_HANDLE); return; }
         rl = n - 3;
         if (rl != 2) { att_err(h, op, s, E_PDU); return; }
         h->cccd[0] = p[3] & 1u; h->cccd[1] = 0;     /* notifications only */
         r[0] = A_WRITE_R;
-        att_send(h, r, 1);
+        att_reply(h, r, 1);
     }
 }
 
@@ -402,6 +413,7 @@ static void acl_in(bleh_t *h, const uint8_t *p, unsigned n)
 static void link_reset(bleh_t *h)
 {
     h->cccd[0] = h->cccd[1] = 0;
+    h->att_rsp_len = 0;
     h->cpu_state = 0;
     h->rx_on = 0;
     h->in_r = h->in_w = h->in_running = 0;
@@ -574,6 +586,11 @@ void bleh_poll(bleh_t *h)
     }
     if (h->state != BLEH_CONNECTED && h->cmd_op == OP_DISC && !h->cmd_wait)
         h->cmd_op = 0;
+    if (h->state == BLEH_CONNECTED && h->att_rsp_len) {
+        if (h->credits && att_send(h, h->att_rsp, h->att_rsp_len) == 0)
+            h->att_rsp_len = 0;
+        return;
+    }
     if (!bleh_notifying(h)) return;
     if (h->credits < (h->acl_total > 1 ? 2u : 1u)) return;                  /* keep one buffer for ATT answers */
     r[0] = A_NOTIFY; wr16(r + 1, H_MIDI);
