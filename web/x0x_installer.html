@@ -122,7 +122,7 @@
   <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a></p>
   <p class="small"><a href="../manual/" data-t="manual">The manual</a>
     · <a href="../new/" data-t="whatsnew">What's new</a>
-    · <a id="download" href="#" data-t="download">Download this package</a></p>
+    · <a id="download" hidden data-t="download">Download this package</a></p>
 
   <section id="stock">
     <h2 data-t="stockh"></h2>
@@ -372,8 +372,50 @@ async function scan() {
 
 $("connbtn").addEventListener("click", () => { scan(); });
 
+// Only publisher-reviewed, immutable, independently checked per-model artifacts
+// may be offered for download OR for installation. Never trust remote catalog or
+// GitHub Releases fields to grant publication. Keep empty until independent
+// source/QA/license/backup/controller and hosted-byte verification is recorded.
+// NIGHTLY device testing does NOT require a prior owner physical-device PASS.
+const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});
+const NIGHTLY_SHA256 = /^[0-9a-f]{64}$/;
+const NIGHTLY_SHA40 = /^[0-9a-f]{40}$/;
+const NIGHTLY_PRODUCTS = Object.freeze({ elite: /^SMK-37 Elite_900[0-9]+$/, pro: /^SMK-37 Pro_900[0-9]+$/ });
+function approvedNightlyModels(v, approvals = NIGHTLY_PUBLISHER_APPROVALS) {
+  if (!v || v.status !== "dev-checked" || v.revoked === true ||
+      !NIGHTLY_SHA40.test(v.source_commit || "") ||
+      !NIGHTLY_SHA40.test(v.firmware_tree_sha || "") ||
+      v.qa_pass !== true || v.source_licenses_approved !== true) return [];
+  return ["elite", "pro"].filter((model) => {
+    const p = v.models && v.models[model];
+    const a = approvals && approvals[`${v.version}/${model}`];
+    return !!p && !!a && p.fromRelease !== true &&
+      NIGHTLY_PRODUCTS[model].test(p.product || "") &&
+      Number.isSafeInteger(p.size) && p.size > 0 &&
+      NIGHTLY_SHA256.test(p.sha256 || "") &&
+      NIGHTLY_SHA256.test(p.controller_sha256 || "") &&
+      typeof p.pkg === "string" &&
+      /^https:\/\/[a-zA-Z0-9][a-zA-Z0-9.-]*\/[a-zA-Z0-9_./%-]+\.fwsc$/.test(p.pkg) &&
+      !p.pkg.includes("..") &&
+      a.prehardware_qa_pass === true &&
+      a.license_and_source_ok === true &&
+      a.backup_integrity_pass === true &&
+      a.model_and_controller_pass === true &&
+      a.immutable_http_pass === true &&
+      a.model === model && a.product === p.product &&
+      a.source_root_sha === v.source_commit &&
+      a.firmware_tree_sha === v.firmware_tree_sha &&
+      a.package_url === p.pkg && a.package_sha256 === p.sha256 &&
+      a.controller_sha256 === p.controller_sha256 &&
+      a.host_sha256 === p.sha256;
+  });
+}
 function versions() {
-  return (catalogLive.versions || []).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+  return (Array.isArray(catalogLive.versions) ? catalogLive.versions : [])
+    .filter((v) => approvedNightlyModels(v).length > 0)
+    .map((v) => ({ ...v,
+      models: Object.fromEntries(approvedNightlyModels(v).map((m) => [m, v.models[m]])) }))
+    .sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
 }
 function currentVersion() {
   const v = $("version").value;
@@ -387,8 +429,7 @@ function modelKeyForProduct(product) {
   return null;
 }
 function availableModels(ver) {
-  if (!ver || !ver.models) return [];
-  return MODEL_KEYS.filter((k) => ver.models[k]);
+  return approvedNightlyModels(ver);
 }
 function suggestModel(deviceModel) {
   const ver = currentVersion();
@@ -433,14 +474,26 @@ function refreshModelUi() {
   if (avail.includes("fm1")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`);
   $("stocklinks").innerHTML = links.length ? " · " + links.join(" · ") : "";
 }
+function isCatalogChecked(v, p) {
+  return !!v && !!p && approvedNightlyModels(v).includes(chosenModel) &&
+    v.models && v.models[chosenModel] === p;
+}
 function refreshMeta() {
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); return; }
+  const link = $("download");
+  if (!isCatalogChecked(ver, pkg)) {
+    $("pkgmeta").textContent = "";
+    link.removeAttribute("href");
+    link.removeAttribute("download");
+    link.hidden = true;
+    return;
+  }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
-  $("download").href = pkg.pkg;
-  $("download").download = pkg.pkg.split("/").pop();
+  link.href = pkg.pkg;
+  link.download = pkg.pkg.split("/").pop();
+  link.hidden = false;
 }
 async function sha256Hex(buf) {
   const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))]
@@ -453,22 +506,16 @@ async function loadSelectedPackage() {
   refreshMeta();
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { sayK("noproduct"); return; }
+  if (!isCatalogChecked(ver, pkg)) { sayK("noproduct"); return; }
   try {
     const r = await fetch(pkg.pkg);
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
     const raw = new Uint8Array(await r.arrayBuffer());
-    if (pkg.sha256) {
-      const hex = await sha256Hex(raw.buffer);
-      if (hex !== pkg.sha256) { sayK("badpkg"); return; }
-    }
+    // Approved downloads require a SHA and the exact product/model identity.
+    const hex = await sha256Hex(raw.buffer);
+    if (hex !== pkg.sha256) { sayK("badpkg"); return; }
     const product = productOf(raw);
-    if (!pkg.fromRelease && product !== pkg.product) { sayK("badpkg"); return; }
-    if (pkg.fromRelease) {
-      const want = modelKeyForProduct(product);
-      if (want && want !== chosenModel) { sayK("badpkg"); return; }
-      pkg.product = product;
-    }
+    if (product !== pkg.product) { sayK("badpkg"); return; }
     image = logicalImage(raw);
     selectedProduct = product;
     say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
@@ -490,6 +537,9 @@ function fillVersions() {
     image = null; selectedProduct = null;
     $("go").disabled = true;
     $("pkgmeta").textContent = "";
+    $("download").removeAttribute("href");
+    $("download").removeAttribute("download");
+    $("download").hidden = true;
     say(t("noversion"));
     // Still show SMK stock links when the catalog is empty.
     $("stock").hidden = false;
@@ -519,45 +569,10 @@ function confirmWrite(product) {
 $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
 
 async function mergeGitHubReleases() {
-  // Optional: add release assets not already in the catalog so any GitHub Release is installable.
-  const m = /github\.com\/([^/]+)\/([^/#?]+)/.exec(repo);
-  if (!m) return;
-  const api = `https://api.github.com/repos/${m[1]}/${m[2]}/releases?per_page=30`;
-  try {
-    const r = await fetch(api, { headers: { Accept: "application/vnd.github+json" } });
-    if (!r.ok) return;
-    const releases = await r.json();
-    const byVer = new Map((catalogLive.versions || []).map((v) => [v.version, { ...v, models: { ...v.models } }]));
-    for (const rel of releases) {
-      const version = String(rel.tag_name || "").replace(/^v/i, "");
-      if (!version) continue;
-      const entry = byVer.get(version) || { version, models: {} };
-      for (const asset of rel.assets || []) {
-        const name = asset.name || "";
-        let key = null;
-        if (/smk37-elite|-elite\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "elite";
-        else if (/smk37-mke|-mke\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "mke";
-        else if (/x0x-smk37-|smk37/i.test(name) && /\.fwsc$/i.test(name)) key = "pro";
-        else if (/^x0x-[\w.-]+\.fwsc$/i.test(name) && !/smk/i.test(name)) key = "fm1";
-        if (!key || entry.models[key]) continue;
-        entry.models[key] = {
-          product: key === "fm1" ? "FM-1_9000000" : `${MODELS[key]}_9000000`,
-          pkg: asset.browser_download_url,
-          size: asset.size,
-          fromRelease: true,
-        };
-      }
-      if (Object.keys(entry.models).length) byVer.set(version, entry);
-    }
-    catalogLive = {
-      ...catalogLive,
-      versions: [...byVer.values()],
-      latest: catalogLive.latest
-        || (releases[0] && String(releases[0].tag_name || "").replace(/^v/i, "")),
-    };
-  } catch (_) { /* offline / rate limit: keep embedded catalog */ }
+  // Intentionally no-op: unreviewed GitHub Releases never change the picker.
+  // Only explicit per-model, source-checked and hosted-hash-approved catalog
+  // entries can be shown after review of NIGHTLY_PUBLISHER_APPROVALS.
 }
-
 $("ctlfile").addEventListener("change", async (e) => {
   ctl = null;
   const f = e.target.files && e.target.files[0];
