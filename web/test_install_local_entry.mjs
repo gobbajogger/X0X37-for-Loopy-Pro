@@ -72,7 +72,6 @@ assert.deepEqual(observations, ['stockfile.click']);
 assert.equal(context.checkStock(), null);
 console.log('PASS writing lock cannot be bypassed by file CTA');
 
-
 // An earlier primary-picker read must not steal focus from a newer direct selection.
 context.setWriting(false);
 observations.length = 0;
