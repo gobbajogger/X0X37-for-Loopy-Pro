@@ -31,6 +31,12 @@ for (const build of catalog.builds) {
   seen.add(build.id);
   assert.match(build.source_commit, /^[a-f0-9]{40}$/);
   assert.equal(build.installable_from_nightly_status, false);
+  assert.equal(typeof build.hardware_tested, 'boolean', 'hardware status must be explicit');
+  assert.ok(build.models && typeof build.models === 'object' && !Array.isArray(build.models) &&
+    Object.keys(build.models).length > 0, 'firmware generation requires a model');
+  assert.equal(build.hardware_tested,
+    Object.values(build.models).some(m => m.device_verified === true),
+    'aggregate hardware PASS requires attributable per-model PASS');
   for (const [model, data] of Object.entries(build.models)) {
     assert.ok(['elite', 'pro'].includes(model));
     assert.match(data.sha256, /^[a-f0-9]{64}$/);
@@ -51,9 +57,22 @@ for (const build of catalog.builds) {
 }
 for (const id of publicProven) assert.ok(seen.has(id), 'unknown public build ' + id);
 const ids = new Set();
+const historicalStatuses = new Set([
+  'source-only', 'not-hosted', 'evidence-only', 'failed', 'reference',
+  'validation-evidence-only', 'offline-projection-artifact-unattributed'
+]);
 for (const item of catalog.history) {
   assert.equal(ids.has(item.id), false, 'duplicate historical item ' + item.id);
   ids.add(item.id);
+  assert.ok(historicalStatuses.has(item.status), 'unverified or invalid history status ' + item.status);
+  assert.match(item.source_commit, /^[a-f0-9]{40}$/, 'history requires immutable source SHA');
+  if (item.source_tree !== undefined) assert.match(item.source_tree, /^[a-f0-9]{40}$/);
+  assert.ok(Array.isArray(item.models) && item.models.every(m => m === 'elite' || m === 'pro'),
+    'history models must be Elite/Pro or empty');
+  assert.equal(item.installable ?? false, false, 'history record cannot be flashable');
+  assert.equal(item.device_verified ?? false, false, 'history item cannot assert unsupported physical PASS');
+  assert.ok(item.url == null || (typeof item.url === 'string' &&
+    /^https:\/\/github\.com\//.test(item.url)), 'history URL must be a trusted HTTPS GitHub link');
 }
 assert.doesNotMatch(text, /"pkg"\s*:|\.fwsc|ctl\.img|"download"\s*:/i);
 
