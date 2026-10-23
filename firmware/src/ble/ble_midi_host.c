@@ -503,7 +503,9 @@ int bleh_midi_send(bleh_t *h, const uint8_t *m, uint8_t len, uint16_t ts)
 int bleh_sysex_send(bleh_t *h, const uint8_t *m, uint32_t len, uint16_t ts)
 {
     uint32_t i;
-    if (len < 2 || m[0] != 0xF0 || m[len - 1] != 0xF7 || len - 2 > BLEH_SYSEX_MAX) return -1;
+    /* Check the advertised length before dereferencing the caller's tail. */
+    if (!m || len < 2u || len - 2u > BLEH_SYSEX_MAX ||
+        m[0] != 0xF0u || m[len - 1u] != 0xF7u) return -1;
     for (i = 1; i + 1 < len; i++) if (m[i] & 0x80u) return -1;
     if (h->sx_on) return -2;
     for (i = 0; i + 2 < len; i++) h->sx[i] = m[i + 1];
