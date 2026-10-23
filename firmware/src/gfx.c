@@ -97,9 +97,9 @@ static inline void cv_pset(int32_t x, int32_t y, uint16_t c)
 
 static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c)
 {
-    int32_t x1 = x + w, y1 = y + h + cv_oy, i;
+    int32_t x1 = x + w, y1 = y + h + cv_oy;
     uint16_t sc = swap16(c);
-    y += cv_oy;                             /* clipped once, then filled row by row */
+    y += cv_oy;
     if (x < 0)
         x = 0;
     if (y < cv_y0)
@@ -108,9 +108,24 @@ static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c)
         x1 = (int32_t)cv_w;
     if (y1 > cv_y1)
         y1 = cv_y1;
-    for (; y < y1; y++)
-        for (i = x; i < x1; i++)
-            cv_px[(uint32_t)y * cv_w + (uint32_t)i] = sc;
+    if (x >= x1 || y >= y1)
+        return;
+    {
+        uint32_t width = (uint32_t)(x1 - x);
+        /* A full-width bar is one contiguous DMA-canvas memory span. */
+        if (!x && width == cv_w) {
+            uint32_t count = (uint32_t)(y1 - y) * cv_w;
+            uint16_t *p = cv_px + (uint32_t)y * cv_w;
+            for (uint32_t i = 0; i < count; i++)
+                p[i] = sc;
+            return;
+        }
+        for (; y < y1; y++) {
+            uint16_t *row = cv_px + (uint32_t)y * cv_w + (uint32_t)x;
+            for (uint32_t i = 0; i < width; i++)
+                row[i] = sc;
+        }
+    }
 }
 
 static void cv_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t c)
