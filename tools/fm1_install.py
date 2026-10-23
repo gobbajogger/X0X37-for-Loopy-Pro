@@ -12,8 +12,10 @@ the FM-1 restarts and the installed identity is checked.
   fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots] [--ctl FILE | --no-ctl]
   fm1_install.py --info [--port NAME]
 
-If the FM-1 is still in update mode (an earlier install was cut off), the
-install finishes the write. Needs mido with python-rtmidi.
+If the FM-1 is still in update mode (an earlier install was cut off), sample slots
+cannot be inspected or backed up there. Resume requires explicit --no-slots, only
+after verifying a prior slot backup or confirming no samples require preservation.
+Restore any saved slots manually afterward. Needs mido with python-rtmidi.
 
 Sample slots: before the install, the running X0X lists its slots (SMP_INFO). If a slot holds samples
 that the package's firmware will not keep (no slot at the same flash offset with room for them: the
@@ -28,7 +30,7 @@ tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flas
 Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
-7 installed, but the slots were not written back (the backup file stays),
+7 sample protection refused before writing, or installed but slots were not restored,
 8 installed, but the Bluetooth controller block read-back failed or its CRC32 is not the expected full-block CRC32,
 9 refused by the gate guard (no install was started),
 10 refused by the foreground guard or the hardware lock (no device was opened),
@@ -472,7 +474,8 @@ class Updater:
         if not finished:
             raise InstallError("lost" if lost else "stopped",
                                f"the loader {'was disconnected' if lost else 'stopped answering'} after "
-                               f"{served} requests. Replug the USB cable and run the install again to finish")
+                               f"{served} requests. Replug the USB cable and run the install again to finish; "
+                               "if already in update mode, use --no-slots only with a verified backup or no X0X samples")
         step("write", 100)
 
     def verify(self, product, step):
@@ -815,6 +818,13 @@ def run(a, backend, out, ask):
         dev.link.close()
         raise InstallError("slots", "--backup needs the running firmware; the device is already in update mode. "
                                     "Nothing was written")
+    if dev.id.loader and not a.no_slots:
+        dev.link.close()
+        raise InstallError("slots", "the device is already in update mode, where sample layout and backup "
+                                    "cannot be checked. No update was started by this attempt. "
+                                    "Resume with --no-slots only after verifying an existing slot backup "
+                                    "or confirming that no X0X samples need preservation; restore "
+                                    "any saved slots after the firmware update")
     if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
         try:
             move = plan_slots(dev, image, product, require_backup=bool(a.backup))
