@@ -815,6 +815,13 @@ def run(a, backend, out, ask):
         dev.link.close()
         raise InstallError("slots", "--backup needs the running firmware; the device is already in update mode. "
                                     "Nothing was written")
+    if dev.id.loader and not a.no_slots:
+        dev.link.close()
+        raise InstallError("slots", "the device is already in update mode, where sample layout and backup "
+                                    "cannot be checked. No update was started by this attempt. "
+                                    "Resume with --no-slots only after verifying an existing slot backup "
+                                    "or confirming that no X0X samples need preservation; restore "
+                                    "any saved slots after the firmware update")
     if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
         try:
             move = plan_slots(dev, image, product, require_backup=bool(a.backup))
