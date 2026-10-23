@@ -298,8 +298,10 @@ command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs  
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
+run slot-migration-matching python3 tests/x0x_slots_migration_matching_test.py   # safe maximum matching for pre-OTA slot backup restoration
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
 run installer-restore-status python3 tests/fm1_install_restore_status_test.py   # installed-but-unrestored slots are never a successful install
+run installer-ota-finish-ack python3 tests/fm1_install_finish_ack_test.py   # failed FINISH_CHECK/WRITE reply is not completion
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \

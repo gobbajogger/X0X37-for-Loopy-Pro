@@ -1,0 +1,119 @@
+{
+  "schema": "loopyx0x37.data-safety.ota-finish-ack.v1",
+  "evidence_revision": "data-safety-ota-finish-ack-20261024-0726-v1",
+  "owner": "LoopyX0X37 Data Safety",
+  "status": "SOURCE_REPAIR_PRODUCER_SCOPED_PASS_REVIEW_READY",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "head": "94c093e01680d69e22b64a176b3dc27b7fffdd7f",
+    "full_root": "c95bf58439d4b5fc3a438dc91cbebc97f7ecae2b",
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "cli_blob": "5b60164f056352f763b53053fa5635fb036821fc",
+    "bugfinder_evidence": {
+      "pr": 104,
+      "comment_id": 6374997866,
+      "revision": "bugfinder-pr103-ota-finish-ack-send-20261024-r1"
+    }
+  },
+  "produced": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 105,
+    "branch": "lane/data-safety-restore-max-matching-20261024-0715",
+    "cli_blob": "5498084bed95985f091f9525a936e4c4bef154af",
+    "test_blob": "df0b4cd1cc8400fa26e5d3d36f5f66116145f799",
+    "runner_blob": "a9d246c6b78564086d60b391284da8c49de6a39a",
+    "other_data_safety_fix": "tools/x0x_slots.py@78b041ab3e0c736517dbf2f509c9776c7c632f10",
+    "unchanged_firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "source_window": {
+      "old_length": 1229,
+      "old_fnv1a64": "be3363ac1dc37ad1",
+      "new_length": 1284,
+      "new_fnv1a64": "fad11c7cbe116cd5"
+    }
+  },
+  "finding": "MidoLink.send can return False. Updater.serve previously ignored False for FINISH_CHECK and FINISH_WRITE, potentially reporting a stage finished without ACK or continuing after failure. No device outcome observed.",
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "fm1_install_finish_ack_test.py",
+        "fm1_install_serve_before.py"
+      ],
+      "exit": 1,
+      "status": "EXPECTED_FAIL_BEFORE",
+      "total": 9,
+      "failed": 3,
+      "log_sha256": "a1cc45eb9e1c27998db13ec0c915630157682c20fa63f384ede59f323384b2fe"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "fm1_install_finish_ack_test.py",
+        "fm1_install_serve_after.py"
+      ],
+      "exit": 0,
+      "status": "PRODUCER_SCOPED_PASS",
+      "passed": 9,
+      "total": 9,
+      "log_sha256": "34638e03dcd2dc2ad3ea48f5ad2ded8cded05202ff44a247cc9bc7c1cbf8754b"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "fm1_install_finish_ack_test.py",
+        "fm1_install_serve_after.py"
+      ],
+      "exit": 0,
+      "status": "PRODUCER_SCOPED_PASS",
+      "passed": 9,
+      "total": 9,
+      "log_sha256": "34638e03dcd2dc2ad3ea48f5ad2ded8cded05202ff44a247cc9bc7c1cbf8754b"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "fm1_install_serve_after.py",
+        "fm1_install_finish_ack_test.py"
+      ],
+      "exit": 0,
+      "status": "SYNTAX_PASS"
+    }
+  ],
+  "scope": "Exact complete Updater.serve function copied from remote, contained inside simulated mini-module, parser/encoder/USB ports mocked; not complete project checkout or hardware.",
+  "not_run": [
+    "Independent complete exact source root installer suite",
+    "Native target build or exact compiler input reuse checks",
+    "Physical Elite/Pro/controller flash",
+    "HTTP/package source license/immutable hosted check"
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Review exact new PR105 complete root and rerun both new effective regressions plus full backup/OTA/controller/wrong-model/CRC/negative suite"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY exact root immediately; verify full compiler inputs, Elite+Pro+ctl package identities and attest reuse or compile fresh"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Review source complete PR105 and integrate into PR103 only after independent QA, without direct protected ref writes"
+    },
+    {
+      "owner": "Catalog/sole Publisher",
+      "action": "Preserve old safe builds; NO new installable candidate until all software/model/controller/source/license/HTTP gates pass"
+    }
+  ],
+  "hardware": "UNKNOWN",
+  "device_not_tested": true,
+  "public_nightly": "NO_GO",
+  "protected_refs": "UNCHANGED",
+  "owner_feedback": "NONE_ATTRIBUTABLE"
+}
