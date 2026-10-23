@@ -67,7 +67,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
         body: { appendChild() {} } }
     };
     ctx = createContext(mock);
-    new Script(`let writing=false,lastId=null,image=sampleImage,stock=null,chosenModel="elite";
+    new Script(`let writing=false,lastId=null,image=sampleImage,stock=null,chosenModel="elite",ctlLoadSerial=0;
 ${scan}
 ${run}
 globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writing;`).runInContext(ctx);
