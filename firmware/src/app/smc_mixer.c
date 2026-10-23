@@ -29,6 +29,10 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
+/* Each audio-ISR producer publishes a generation when STOP overflows;
+ * the main loop acknowledges it after draining older queued PLAY events. */
+static volatile uint32_t smc_mmc_stop_published[2];
+static uint32_t smc_mmc_stop_seen[2];
 /* Separate single-writer generation counters: TIMER5 (central), audio ISR (host).
  * Main-loop snapshots never clear a producer-owned flag. */
 static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
@@ -106,6 +110,8 @@ X0X_COLD static void smc_project_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
+    smc_mmc_stop_seen[0] = smc_mmc_stop_published[0];
+    smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
     /* An already cleared Solo must not inherit a previous project's lost release. */
     smc_ble_solo_release_seen = smc_ble_solo_release_lost;
     smc_host_solo_release_seen = smc_host_solo_release_lost;
@@ -181,8 +187,11 @@ void smc_mmc_host(uint8_t cmd, uint8_t src)
     if (src > 1u || cmd < 1u || cmd > 43u)
         return;
     w = smc_mmc_w[src];
-    if ((uint8_t)(w - smc_mmc_r[src]) >= 16u)
+    if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
+        /* A full MMC ring must not silently discard STOP (command 34). */
+        if (cmd == 34u) smc_mmc_stop_published[src]++;
         return;
+    }
     smc_mmc_q[src][w % 16u] = cmd;
     __asm__ volatile("" ::: "memory");
     smc_mmc_w[src] = (uint8_t)(w + 1u);
@@ -766,6 +775,13 @@ void smc_poll(void)
             smc_mmc_r[src] = (uint8_t)(r + 1u);
             if (proj.set.bt & PROJ_BT_SMC_USER)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
+        }
+        /* STOP follows older queued PLAYs, with snapshot acknowledgement. */
+        uint32_t lost_stop = smc_mmc_stop_published[src];
+        if (lost_stop != smc_mmc_stop_seen[src]) {
+            smc_mmc_stop_seen[src] = lost_stop;
+            if (proj.set.bt & PROJ_BT_SMC_USER)
+                smc_guarded_button(0x5Du, 1, allow);
         }
     }
     /* A saturated input ring can lose Solo Note Off. Snapshot after draining all
