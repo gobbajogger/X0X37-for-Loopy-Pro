@@ -210,6 +210,7 @@ const TEXT = {
     slotsaved: "スロットを保存しました（ダウンロード）: ",
     slotback: "スロットを書き戻しています",
     slotsdone: "完了。スロットを書き戻して確認しました。",
+    slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
     slotskip: " 書き戻せなかったスロット（入りきらない）: ",
     slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
@@ -273,6 +274,7 @@ const TEXT = {
     slotsaved: "Slots saved (downloaded): ",
     slotback: "Writing the slots back",
     slotsdone: "Done. The slots were written back and checked.",
+    slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
     slotskip: " Not written back (no room): ",
     slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
@@ -728,7 +730,12 @@ async function run(img, product, opts = {}) {
       if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
       else if (r.move) {
         $("bar").value = 100;
-        sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
+        if (r.move.skipped.length) {
+          // Firmware completed, but restoration did not. Never show a clean
+          // success: preserve the skipped-slot list and backup filename.
+          sayK("slotspartial", r.move.skipped.join("; ") + ` (${r.move.name})`);
+          log(t("slotspartial") + r.move.skipped.join("; ") + ` (${r.move.name})`);
+        } else sayK("slotsdone");
       }
     }
     await scan(true); // Re-detect after reboot without releasing the single-writer lock.

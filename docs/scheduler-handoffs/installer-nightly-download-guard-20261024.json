@@ -361,5 +361,83 @@
     "next_owner": "Independent QA then sole firmware Safe Merge; NIGHTLY website source owner separately",
     "remaining_gate": "complete exact remote Node/backup/OTA and browser EN/JA independent QA plus website prehardware model/controller/license/immutable-host gate",
     "full_branch_tests": "NOT_RUN"
+  },
+  "latest_restore_disposition": {
+    "evidence_revision": "installer-restore-disposition-20261024-r1",
+    "consumed_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "consumed_branch": "lane/installer-nightly-download-guard-20261024",
+    "consumed_head_sha": "e28f3939c442f178ebc3229764c113a9604f7b64",
+    "consumed_html_blob_sha": "6c289af54975ca332ff5f6eaa613b24adcafa984",
+    "consumed_test_blob_sha": "e6808d49b05017d47c979d4f2c4aafcfd29c049a",
+    "consumed_firmware_nightly_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "unchanged_firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "scope": "firmware repository browser installer caller/status only; does not edit sample/slot helper, firmware or website",
+    "source_producer_status": "SOURCE_COMPLETE_PRODUCER_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+    "check_results": [
+      {
+        "command": "Connected JS V8 exact baseline run()/Elite Pro partial/total + controls",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "EXPECTED_RED",
+        "cases_passed": 6,
+        "cases_total": 10
+      },
+      {
+        "command": "Connected JS V8 exact edited run()/Elite Pro partial/total + controls",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "cases_passed": 10,
+        "cases_total": 10
+      },
+      {
+        "command": "Connected JS V8 execute entire original reconnect .mjs using Node-API shims",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "cases_passed": 14,
+        "cases_total": 14
+      },
+      {
+        "command": "Connected JS V8 execute entire updated reconnect .mjs using Node-API shims",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "cases_passed": 24,
+        "cases_total": 24
+      },
+      {
+        "command": "new Function() on exact edited inline installer module, replace only LIB/CATALOG",
+        "executor": "in-process JavaScript V8",
+        "exit_code": null,
+        "status": "PASS",
+        "coverage": "syntax only"
+      },
+      {
+        "command": "node web/test_install_nightly_reconnect.mjs && node web/test_install_slots.mjs",
+        "executor": "native Node whole checkout",
+        "exit_code": null,
+        "status": "NOT_RUN"
+      },
+      {
+        "command": "Chromium EN/JA 320/390/1280 and actual hardware",
+        "executor": "independent QA/owner",
+        "exit_code": null,
+        "status": "NOT_RUN"
+      }
+    ],
+    "qa_pending": [
+      "full checked-out native Node/OTA/backup/reconnect/source tests",
+      "complete Chromium EN/JA 320/390/1280",
+      "separate fail-closed malformed SMP_INFO prewrite safety defect in helper",
+      "approved website source equivalent fix",
+      "sole Safe Merge integration",
+      "independent immutable HTTP model/source/controller/license/backup checks"
+    ],
+    "model_status": {
+      "elite": "NOT_NEWLY_INSTALLABLE",
+      "pro": "NOT_NEWLY_INSTALLABLE"
+    },
+    "no_protected_ref_or_website_device_firmware_write": true
   }
 }

@@ -102,3 +102,56 @@ globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writi
   }
 }
 console.log("PASS " + passed + " exact-source Web MIDI mock scenarios");
+
+
+// ---- Partial/total skipped restoration must NOT claim complete sample recovery.
+//      Execute exact source run() against synthetic Elite/Pro, no MIDI hardware. ----
+assert.match(html, /slotspartial: "Installed, but some samples were NOT restored/);
+assert.match(html, /slotspartial: "インストールは完了しましたが/);
+let restorePassed = 0;
+for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
+  for (const mode of ["all", "partial", "total", "stock", "backup-error"]) {
+    const records = [], ui = {}, name = "before.x0xslots";
+    let writes = 0, scans = 0;
+    const move = mode === "stock" ? { newMap: [], skipped: [], name }
+      : mode === "all" ? { newMap: [{}], skipped: [], name }
+      : mode === "partial" ? { newMap: [{}], skipped: ["slot 2: no room"], name }
+      : { newMap: [{}], skipped: ["slot 1: no room", "slot 2: no room"], name };
+    const mock = {
+      $: id => ui[id] ||= { value: 0, checked: true, disabled: false },
+      midiAccess: async () => ({}),
+      Updater: class { async find() { return null; } },
+      installKeepingSlots: async () => {
+        writes++;
+        if (mode === "backup-error")
+          throw Object.assign(Error("backup could not finish"), { code: "slotbackup" });
+        return { move };
+      },
+      scan: async () => { scans++; },
+      sayK: (key, suffix = "") => { records.push({ key, suffix }); },
+      sameKeyboard: () => true,
+      log() {}, led() {}, t: key => key,
+      currentVersion: () => ({ models: { elite: {}, pro: {} } }),
+      isCatalogChecked: () => false,
+      TEXT: { en: { slotbackup: "Backup error" } }, lang: "en",
+      Blob, URL, setTimeout,
+      document: { createElement: () => ({}), body: { appendChild() {} } },
+    };
+    const ctx = createContext(mock);
+    new Script(`let writing=false,lastId=null,image=null,stock=null,chosenModel="elite",ctlLoadSerial=0;
+${run}
+globalThis.runRestoreTest=run;`).runInContext(ctx);
+    await ctx.runRestoreTest(new Uint8Array([1]), model);
+    const wanted = { all: "slotsdone", partial: "slotspartial", total: "slotspartial",
+      stock: "slotstock", "backup-error": "slotbackup" }[mode];
+    assert.equal(writes, 1, "write not called exactly once");
+    assert.equal(scans, mode === "backup-error" ? 0 : 1, "failed backup masked by scan");
+    assert.equal(records.at(-1)?.key, wanted, model + " " + mode);
+    if (mode === "partial" || mode === "total") {
+      assert.ok(records.at(-1).suffix.includes("before.x0xslots"));
+      assert.ok(records.at(-1).suffix.includes("slot 2: no room"));
+    }
+    restorePassed++;
+  }
+}
+console.log("PASS " + restorePassed + "/10 sample-restore disposition scenarios (Elite/Pro)");
