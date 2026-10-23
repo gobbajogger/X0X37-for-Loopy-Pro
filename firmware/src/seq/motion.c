@@ -132,6 +132,9 @@ void motion_release(motion_t *m)
             to_base(m, &m->lane[k], r);
         r->rec_last = MOT_NONE;
         r->hold_left = 0;
+        /* Stop/load boundary: discard requests queued by the preceding transport. */
+        r->rec_req = 0;
+        r->hold_req = 0;
     }
     for (p = 0; p < MOT_PARTS; p++)
         m->age[p] = m->len[p][0] = m->len[p][1] = 0;
