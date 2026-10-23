@@ -34,7 +34,9 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
    for(const key of Object.keys(value)) assert.ok(names.has(key),at+': forbidden field '+key);
  };
  const officialRepo='https://github.com/gobbajogger/X0X37-for-Loopy-Pro';
- const evidenceURL=(value,at)=>{
+ // Navigational history may link to a moving PR/branch; actual evidence of
+ // test, build or physical PASS must identify immutable Git source bytes.
+ const navigationURL=(value,at)=>{
    assert.equal(typeof value,'string',at+': source URL must be a string');
    assert.ok(value.startsWith(officialRepo+'/'),at+': untrusted source');
    const tail=value.slice(officialRepo.length+1);
@@ -44,9 +46,18 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
      /^tree\/[A-Za-z0-9._/-]+$/.test(tail) ||
      /^blob\/[A-Za-z0-9._/-]+\.(?:md|json)$/.test(tail)
    );
-   assert.ok(valid,at+': unapproved source evidence route');
+   assert.ok(valid,at+': unapproved source navigation route');
    assert.ok(!tail.split('/').includes('..') && !tail.includes('%') &&
       !tail.includes('?') && !tail.includes('#') && !tail.includes('\\'),at+': unsafe source path');
+ };
+ const evidenceURL=(value,at)=>{
+   navigationURL(value,at);
+   const tail=value.slice(officialRepo.length+1);
+   assert.ok(
+     /^commit\/[a-f0-9]{40}$/.test(tail) ||
+     /^tree\/[a-f0-9]{40}(?:\/[A-Za-z0-9._/-]+)?$/.test(tail) ||
+     /^blob\/[a-f0-9]{40}\/[A-Za-z0-9._/-]+\.(?:md|json)$/.test(tail),
+     at+': immutable Git commit SHA is required for evidence');
  };
 
  // Read-only status cannot carry download/picker/Release links, even when an
@@ -61,13 +72,13 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
      if(/(?:url|uri|href|link)$/i.test(key) ||
         /^(?:download|downloads|pkg|picker|assets?|release_assets|firmware_file|binary_file)$/i.test(key)){
        assert.ok(evidenceKeys.has(key),path+': forbidden artifact/download/picker link field');
-       if(child!=null)evidenceURL(child,path);
+       if(child!=null)(key==='url'?navigationURL:evidenceURL)(child,path);
        else assert.ok(['url','evidence_url','handoff_source'].includes(key),path+': missing evidence');
      }
      if(typeof child==='string'&&/https?:\/\//i.test(child)){
        assert.ok(evidenceKeys.has(key)||repoKeys.has(key),path+': unapproved URL value');
        if(repoKeys.has(key))assert.equal(child,officialRepo,path+': unapproved source repo');
-       else evidenceURL(child,path);
+       else (key==='url'?navigationURL:evidenceURL)(child,path);
      }
      checkNestedLinks(child,path);
    }
@@ -95,6 +106,7 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
      shape(model,'product size sha256 validation_record device_verified physical_evidence','build model');
      evidenceURL(model.validation_record,'model validation record');
      if(model.physical_evidence!==undefined){
+       assert.equal(model.device_verified,true,'unverified model cannot attach physical PASS evidence');
        shape(model.physical_evidence,'report_sha256 report_url controller_sha256 owner_publication_approved','hardware evidence');
        evidenceURL(model.physical_evidence.report_url,'hardware report');
      }
@@ -104,7 +116,7 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
  for(const item of catalog.history){
    shape(item,approvedHistoryFields,'history');
    if(item.source_repo!==undefined)assert.equal(item.source_repo,officialRepo,'historical source repo');
-   for(const key of ['url','evidence_url','handoff_source'])if(item[key]!=null)evidenceURL(item[key],'history.'+key);
+   for(const key of ['url','evidence_url','handoff_source'])if(item[key]!=null)(key==='url'?navigationURL:evidenceURL)(item[key],'history.'+key);
    assert.equal(item.models.length,new Set(item.models).size,'duplicate historical model');
    if(item.reported_checks!==undefined)shape(item.reported_checks,'origin command result','reported_checks');
    if(item.reported_package_sha256!==undefined)shape(item.reported_package_sha256,'elite pro','reported hashes');
@@ -125,6 +137,7 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
      }
    }
    if(item.build_pipeline!==undefined){
+     assert.equal(item.status,'build-succeeded-unreviewed','non-build status cannot claim QA, live HTTP or firmware build pipeline');
      shape(item.build_pipeline,'build qa installability live_http hardware source_scope builder_selected_host_checks_pass followup_native_checks_pass followup_native_checks_fail evidence_commit evidence_manifest_blob_sha package_bytes_independently_received_and_rehashed','reported build pipeline');
      for(const failure of item.build_pipeline.followup_native_checks_fail)shape(failure,'name exit_code','reported host check');
    }

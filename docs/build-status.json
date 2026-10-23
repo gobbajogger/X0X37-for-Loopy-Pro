@@ -1873,6 +1873,188 @@
       "description": "Producer reports ASan+UBSan native focused tests and existing sequencer host checks, not independently rerun by Catalog. No target model build.",
       "missing_gate": "Independent RNG/model correctness QA and native target model builds pending on this source-only repair.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/98"
+    },
+    {
+      "id": "producer-pr93-repaired-native-20261024",
+      "title": "Repaired BREAK reverse cache — native Elite/Pro/controller BUILD_ONLY success",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/performance-break-reverse-checkpoints-20261023-1342",
+      "source_commit": "2c5f6a0c6cb4c5e2f6d856af2743969d2e6971d3",
+      "source_tree": "f427b9ba9c8c391f8758db277bcb99b6690e24ec",
+      "source_time": "2026-10-23T15:28:14Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact live GitHub commit/tree and PR #93 checked by Catalog; prior producer checks are attributed, not rerun",
+        "command": null,
+        "result": "Genuine later repaired PR93 BUILD_SUCCEEDED_UNREVIEWED on firmware subtree a87a83e15116422eed84528d95f52ddef5029927; real native Elite/Pro/controller commands exit 0, selected 7+5 host selectors PASS; historical broader suite has 5 failing SMC/BLE tests on MISMATCHED earlier test blobs with aggregate exit UNKNOWN. Source/whole-root QA pending, private payloads unavailable for authorized public distribution. Prior 960-checkpoint failed source remains separate."
+      },
+      "description": "Genuine later repaired PR93 BUILD_SUCCEEDED_UNREVIEWED on firmware subtree a87a83e15116422eed84528d95f52ddef5029927; real native Elite/Pro/controller commands exit 0, selected 7+5 host selectors PASS; historical broader suite has 5 failing SMC/BLE tests on MISMATCHED earlier test blobs with aggregate exit UNKNOWN. Source/whole-root QA pending, private payloads unavailable for authorized public distribution. Prior 960-checkpoint failed source remains separate.",
+      "missing_gate": "Independent current full-root QA and retest historical mismatched SMC/BLE checks, tight pool/controller budgets, backup/OTA/rollback, source/license/controller-lawful strategy, external immutable host and actual served HTTP hashes. No physical PASS required for NIGHTLY; no live candidate.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93",
+      "firmware_subtree": "a87a83e15116422eed84528d95f52ddef5029927",
+      "producer_reported_artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "adc035e576ca3778cf90b63e7c3ed3539f3a2df388bcf37229ebb351d294b313"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "79f46c5b7bb9dded5c538dd23359343259dc40c4b5928eb5e87a4401274e3eaf"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "77b7a496",
+          "redistribution_permitted": false
+        }
+      }
+    },
+    {
+      "id": "producer-pr99-20261024",
+      "title": "BF-016 repeated bass303 FEnv mode writes preserve envelope",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-bf016-bass303-fenv-idempotence-20261023-1455",
+      "source_commit": "f910a761e87561c28a362a0d0fb47493c56cdc38",
+      "source_tree": "28c55f89c22e716456552998b1ca1c46846f8922",
+      "source_time": "2026-10-23T16:24:58Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact live GitHub commit/tree and PR #99 checked by Catalog; prior producer checks are attributed, not rerun",
+        "command": null,
+        "result": "Host checked producer source of bass303 filter envelope idempotence, not integrated/rebuilt/independently QA-approved."
+      },
+      "description": "Host checked producer source of bass303 filter envelope idempotence, not integrated/rebuilt/independently QA-approved.",
+      "missing_gate": "Exact combined NIGHTLY source QA and model target build; no installed bytes.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/99"
+    },
+    {
+      "id": "producer-pr100-20261024",
+      "title": "Installer Web MIDI unsupported-browser preflight UX",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/installer-ux-webmidi-preflight-20261024-run17",
+      "source_commit": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "source_tree": "f06c78309a60bc7c6c6d26ae2db1ebf4c56e32c7",
+      "source_time": "2026-10-23T14:59:20Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact live GitHub commit/tree and PR #100 checked by Catalog; prior producer checks are attributed, not rerun",
+        "command": null,
+        "result": "Stacked installer-source UX PR with producer-reported Node and Chromium checks; no site merge or HTTP publish."
+      },
+      "description": "Stacked installer-source UX PR with producer-reported Node and Chromium checks; no site merge or HTTP publish.",
+      "missing_gate": "Installer source owner integration, independent site checks, sole publisher HTTP verification.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/100"
+    },
+    {
+      "id": "producer-pr101-20261024",
+      "title": "BF-017 clear pending motion knob requests at STOP boundary",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-bf017-motion-stop-pending-20261024-0120",
+      "source_commit": "08aef212e064b0db89312a9fd30fcd0d1c6454fc",
+      "source_tree": "ad4d45bbbcd0f1bbb5c6a2e854429d5b94d66def",
+      "source_time": "2026-10-23T15:39:26Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact live GitHub commit/tree and PR #101 checked by Catalog; prior producer checks are attributed, not rerun",
+        "command": null,
+        "result": "Producer host reproduction and motion stop queue guard on isolated source. Independent integration QA and build pending."
+      },
+      "description": "Producer host reproduction and motion stop queue guard on isolated source. Independent integration QA and build pending.",
+      "missing_gate": "Safe Merge integration, full-root independent QA, Elite/Pro/current controller build.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/101"
+    },
+    {
+      "id": "producer-pr102-20261024",
+      "title": "Installer block unapproved direct Release firmware links",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/installer-nightly-download-guard-20261024",
+      "source_commit": "68415dc2c280cd9b57c8b883f73eba47fff376c6",
+      "source_tree": "f7e6a5940a40c5c19c998f1810f5e8b5fae32d23",
+      "source_time": "2026-10-23T15:42:34Z",
+      "date": "2026-10-23",
+      "status": "evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact live GitHub commit/tree and PR #102 checked by Catalog; prior producer checks are attributed, not rerun",
+        "command": null,
+        "result": "Installer SOURCE owner proposes fail-closed direct download and unverified GitHub Release exclusion with empty allowlist. Not merged, no release hosted."
+      },
+      "description": "Installer SOURCE owner proposes fail-closed direct download and unverified GitHub Release exclusion with empty allowlist. Not merged, no release hosted.",
+      "missing_gate": "Independent model/picker/backup/browser safety tests, normal installer source merge and Pages publication.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/102"
+    },
+    {
+      "id": "integration-pr103-303-small-20261024",
+      "title": "First isolated 303 NIGHTLY source integration (#95 + #98)",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "9ed3cce9ed420c46b1ebab86101f7145a8da5995",
+      "source_tree": "f724088d91a340057a21e1b64e1a82d4d183ad07",
+      "source_time": "2026-10-23T15:49:01Z",
+      "date": "2026-10-23",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact live GitHub commit/tree and PR #103 checked by Catalog; prior producer checks are attributed, not rerun",
+        "command": null,
+        "result": "Small source-only 303 nightly integration with distinct compiled-target subtree d3b67bf127121acdbb2d056890b8c6987ffb363e. Static producer checks reported PASS; combined native tests and Elite/Pro/controller compilation not yet verified."
+      },
+      "description": "Small source-only 303 nightly integration with distinct compiled-target subtree d3b67bf127121acdbb2d056890b8c6987ffb363e. Static producer checks reported PASS; combined native tests and Elite/Pro/controller compilation not yet verified.",
+      "missing_gate": "Build owner BUILD_ONLY exact source candidate, independent combined QA, then sole firmware nightly integration; later public prehardware host/model/backup/license/HTTP gates.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e"
     }
   ],
   "policy": {
@@ -1883,7 +2065,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 75
+    "source_or_historical_checkpoints": 81
   },
   "versioning": {
     "firmware_product_version": {

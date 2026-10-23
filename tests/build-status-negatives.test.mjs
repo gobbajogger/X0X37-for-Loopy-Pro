@@ -147,4 +147,43 @@ for(const [label,mutate] of [
  ['public-list-needs-each-model-approval',j=>{setProof(j,{eliteApproved:false,proVerified:true,proApproved:true});j.policy.public_latest=j.builds[0].id;j.policy.public_device_proven_versions=[j.builds[0].id]}]
 ])run(label,edit(mutate));
 
+ // Evidence is SHA-pinned. Mutable routes are allowed ONLY for navigation, not proof.
+run('mutable-history-navigation-is-not-a-proof-claim',edit(j=>{
+  j.history[0].url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main';
+}),true);
+run('pinned-source-validation-record-remains-valid',edit(j=>{
+  j.builds[0].models.elite.validation_record=
+    'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/'+
+    'e5cc2c720af5f815cbb6bf0774971a41594b9574'+'/docs/build-proof.json';
+}),true);
+for (const [label,mutate] of [
+  ['mutable-history-evidence-tree',j=>j.history[0].evidence_url=
+    'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main'],
+  ['mutable-model-validation-record',j=>j.builds[0].models.elite.validation_record=
+    'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main'],
+  ['mutable-physical-report',j=>{j.builds[0].models.elite.device_verified=true;
+    j.builds[0].hardware_tested=true;
+    j.builds[0].models.elite.physical_evidence={
+      report_sha256:'a'.repeat(64),
+      report_url:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main',
+      controller_sha256:'b'.repeat(64)};
+  }],
+  ['forged-physical-report-on-untested-model',j=>j.builds[0].models.elite.physical_evidence={
+    report_sha256:'bogus',controller_sha256:'bogus',
+    report_url:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main',
+    owner_publication_approved:'approved'}],
+  ['nonbuilt-source-forges-QA-live-device-status',j=>{
+    const base=j.history.find(x=>x.status==='build-succeeded-unreviewed').build_pipeline;
+    j.history.find(x=>x.status==='source-only').build_pipeline={
+      ...base,qa:'QA_PASSED',live_http:'LIVE_HTTP_VERIFIED',
+      installability:'READY_FOR_FLASH',hardware:'DEVICE_VERIFIED'};
+  }],
+  ['source-only-cannot-borrow-even-truthful-unreviewed-build-pipeline',j=>
+    j.history.find(x=>x.status==='source-only').build_pipeline=
+      {...j.history.find(x=>x.status==='build-succeeded-unreviewed').build_pipeline}],
+  ['unapproved-artifact-link-in-new-repaired-history',j=>
+    j.history.find(x=>x.id==='producer-pr93-repaired-native-20261024').artifact_url=
+      'https://example.net/unreviewed-image.dat']
+])run(label,edit(mutate));
+
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');
