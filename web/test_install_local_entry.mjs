@@ -28,8 +28,13 @@ const elements = Object.fromEntries(['chooseLocal', 'stockfile', 'stock', 'stock
 const context = createContext({ elements, events, observations });
 new Script(`
 const $ = id => elements[id];
-let stock = null, writing = false;
-async function selectStockFile(file) { stock = file.valid && !writing ? {product:'SMK-37 Pro_900'} : null; }
+let stock = null, writing = false, stockLoadSerial = 0;
+async function selectStockFile(file) {
+  const request = ++stockLoadSerial;
+  stock = null;
+  if (file.hold) await file.hold;
+  if (request === stockLoadSerial && !writing) stock = file.valid ? {product:'SMK-37 Pro_900'} : null;
+}
 ${sourceHandlers}
 globalThis.checkStock=()=>stock;
 globalThis.setWriting=v=>{ writing=v; };
@@ -66,3 +71,17 @@ await events['stockfile:change']({target:{files:[{valid:true}],value:'valid.fwsc
 assert.deepEqual(observations, ['stockfile.click']);
 assert.equal(context.checkStock(), null);
 console.log('PASS writing lock cannot be bypassed by file CTA');
+
+
+// An earlier primary-picker read must not steal focus from a newer direct selection.
+context.setWriting(false);
+observations.length = 0;
+let finishOld;
+const waitForOld = new Promise(resolve => { finishOld = resolve; });
+events['chooseLocal:click']();
+const oldChange = events['stockfile:change']({target:{files:[{valid:true,hold:waitForOld}],value:'old.fwsc'}});
+await events['stockfile:change']({target:{files:[{valid:true}],value:'new.fwsc'}});
+finishOld();
+await oldChange;
+assert.deepEqual(observations, ['stockfile.click']);
+console.log('PASS superseded local-file read cannot steal focus');
