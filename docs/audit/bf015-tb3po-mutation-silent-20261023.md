@@ -7,13 +7,13 @@
 
 ## Verified before
 
-The generator supplies an audible root note even when density is zero, but mutation may replace its last gate with a rest. With one step, density 0 and RNG seed 1, the very first mutation silences the pattern. At zero density later mutations cannot restore the note.
+The generator supplies an audible root note even when density is zero, but mutation may replace its last gate with a rest. With one step, density 0 and RNG seed 1, the very first mutation silences the pattern. At zero density later mutations almost never restore the note (the 24-bit random draw can exceptionally be exactly zero).
 
 New regression tests compiled from the exact baseline source blob. GCC 14.2 and Clang 17.0 with -O0 and -O2, -fsanitize=undefined: all 4 baseline runs exited 1 with "silent generated line len=1 seed=1 mutation=0". This is an expected negative reproduction, not a compiler crash.
 
 ## Corrected behavior and native checks
 
-Track whether a gate existed before mutation and after mutation. Only when mutation removed the last gate, restore the root note on step 0 with default velocity. Explicitly user-cleared all-rest lines remain silent. The correction adds no PRNG draws and does not change RNG order/seed or step probability.
+Track whether a gate existed before mutation and after mutation. Only when mutation removed the last gate, restore the root note on step 0 with default velocity. The deterministic manual all-rest regression stays silent across its 512 selected mutations; exceptionally rare zero-valued draws are a separate unchanged edge case. The correction adds no PRNG draws and does not change RNG order/seed or step probability.
 
 With GCC and Clang, -O0 and -O2, -Wall -Wextra -Werror -fsanitize=address,undefined and -fno-sanitize-recover=all: 4/4 corrected runs exit 0. Each run checked density=0 generated patterns with 1, 16 and 64 steps and seeds 1, 91 and 113 for 4096 mutations per configuration; a manually cleared silent line across 512 mutations; and density=100 at 64 steps across 512 mutations.
 
