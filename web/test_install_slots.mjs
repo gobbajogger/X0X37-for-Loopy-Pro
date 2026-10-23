@@ -6,6 +6,7 @@
 // firmware/src/app/editor.c over one NOR flash model, so the slots stay over an install as on the device.
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
+import "./test_install_nightly_download_guard.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
