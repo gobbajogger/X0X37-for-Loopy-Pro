@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:25:45Z",
+  "role": "LoopyX0X37 Hourly Bugfinder",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "nightly",
+    "tested_commit": "c9718ae833eb64a5191c350922593df8a36017c9",
+    "tested_tree": "715fbd98d427c8ddd6b64d1b923e9d1fb8ae64ea"
+  },
+  "summary": "BF-014 LOW: Valid-range but duplicate physical input IDs in saved panel calibration, including SMK master encoder reuse, bypassed fallback; enforce unique physical mapping while preserving legitimate custom permutations.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/app/panel.c",
+      "description": "Reject persisted duplicate panel mappings and SMK reserved K1."
+    },
+    {
+      "kind": "regression",
+      "location": "tests/panel_mapping_test.c",
+      "description": "13/14 host assertions of invalid and valid persisted maps, both board variants."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/audit/bf014-panel-calibration-20261023.md",
+      "description": "Exact source IDs, before/after execution, limitations, QA handoff."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/bf014-panel-calibration.json",
+      "description": "Draft v1 structured scheduler run evidence."
+    }
+  ],
+  "checks": [
+    {
+      "name": "original gcc SMK=0 negative regression",
+      "status": "FAIL",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 baseline/tests/panel_mapping_test.c -o /tmp/x0x-bf014-before-gcc-0; /tmp/x0x-bf014-before-gcc-0",
+      "exit_code": 1,
+      "evidence": "Expected source-negative test; before-final-gcc-0.log; 4 assertion failures",
+      "log_sha256": "36ac3720b3d19adac4bb5ee901582c275ae74516771fb7cd95323009110032b4",
+      "coverage": "Original duplicate persisted calibration and reserved encoder accepted erroneously."
+    },
+    {
+      "name": "original gcc SMK=1 negative regression",
+      "status": "FAIL",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 baseline/tests/panel_mapping_test.c -o /tmp/x0x-bf014-before-gcc-1; /tmp/x0x-bf014-before-gcc-1",
+      "exit_code": 1,
+      "evidence": "Expected source-negative test; before-final-gcc-1.log; 5 assertion failures",
+      "log_sha256": "0df7d354d961340b33371517513c2a0ccde4fe0e7a33b81b58d4d65379337f0a",
+      "coverage": "Original duplicate persisted calibration and reserved encoder accepted erroneously."
+    },
+    {
+      "name": "original clang SMK=0 negative regression",
+      "status": "FAIL",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 baseline/tests/panel_mapping_test.c -o /tmp/x0x-bf014-before-clang-0; /tmp/x0x-bf014-before-clang-0",
+      "exit_code": 1,
+      "evidence": "Expected source-negative test; before-final-clang-0.log; 4 assertion failures",
+      "log_sha256": "36ac3720b3d19adac4bb5ee901582c275ae74516771fb7cd95323009110032b4",
+      "coverage": "Original duplicate persisted calibration and reserved encoder accepted erroneously."
+    },
+    {
+      "name": "original clang SMK=1 negative regression",
+      "status": "FAIL",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 baseline/tests/panel_mapping_test.c -o /tmp/x0x-bf014-before-clang-1; /tmp/x0x-bf014-before-clang-1",
+      "exit_code": 1,
+      "evidence": "Expected source-negative test; before-final-clang-1.log; 5 assertion failures",
+      "log_sha256": "0df7d354d961340b33371517513c2a0ccde4fe0e7a33b81b58d4d65379337f0a",
+      "coverage": "Original duplicate persisted calibration and reserved encoder accepted erroneously."
+    },
+    {
+      "name": "repaired gcc SMK=0 O0 UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 tests/panel_mapping_test.c -o /tmp/x0x-bf014-gcc-0-O0; /tmp/x0x-bf014-gcc-0-O0",
+      "exit_code": 0,
+      "evidence": "after-gcc-0-O0.log: 13 passing assertions, 0 failures",
+      "log_sha256": "3a7d95017bc12594178e5086e84fa010f1c7437316c5c15ccd7fe7525ba8d1f9",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired gcc SMK=0 O2 UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O2 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 tests/panel_mapping_test.c -o /tmp/x0x-bf014-gcc-0-O2; /tmp/x0x-bf014-gcc-0-O2",
+      "exit_code": 0,
+      "evidence": "after-gcc-0-O2.log: 13 passing assertions, 0 failures",
+      "log_sha256": "3a7d95017bc12594178e5086e84fa010f1c7437316c5c15ccd7fe7525ba8d1f9",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired gcc SMK=1 O0 UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 tests/panel_mapping_test.c -o /tmp/x0x-bf014-gcc-1-O0; /tmp/x0x-bf014-gcc-1-O0",
+      "exit_code": 0,
+      "evidence": "after-gcc-1-O0.log: 14 passing assertions, 0 failures",
+      "log_sha256": "bf9039c5068ba83b6badaa2df9be1cb669408b962086e8e90189127fcecade8a",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired gcc SMK=1 O2 UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O2 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 tests/panel_mapping_test.c -o /tmp/x0x-bf014-gcc-1-O2; /tmp/x0x-bf014-gcc-1-O2",
+      "exit_code": 0,
+      "evidence": "after-gcc-1-O2.log: 14 passing assertions, 0 failures",
+      "log_sha256": "bf9039c5068ba83b6badaa2df9be1cb669408b962086e8e90189127fcecade8a",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired clang SMK=0 O0 UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 tests/panel_mapping_test.c -o /tmp/x0x-bf014-clang-0-O0; /tmp/x0x-bf014-clang-0-O0",
+      "exit_code": 0,
+      "evidence": "after-clang-0-O0.log: 13 passing assertions, 0 failures",
+      "log_sha256": "3a7d95017bc12594178e5086e84fa010f1c7437316c5c15ccd7fe7525ba8d1f9",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired clang SMK=0 O2 UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O2 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 tests/panel_mapping_test.c -o /tmp/x0x-bf014-clang-0-O2; /tmp/x0x-bf014-clang-0-O2",
+      "exit_code": 0,
+      "evidence": "after-clang-0-O2.log: 13 passing assertions, 0 failures",
+      "log_sha256": "3a7d95017bc12594178e5086e84fa010f1c7437316c5c15ccd7fe7525ba8d1f9",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired clang SMK=1 O0 UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 tests/panel_mapping_test.c -o /tmp/x0x-bf014-clang-1-O0; /tmp/x0x-bf014-clang-1-O0",
+      "exit_code": 0,
+      "evidence": "after-clang-1-O0.log: 14 passing assertions, 0 failures",
+      "log_sha256": "bf9039c5068ba83b6badaa2df9be1cb669408b962086e8e90189127fcecade8a",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired clang SMK=1 O2 UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O2 -fsanitize=undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 tests/panel_mapping_test.c -o /tmp/x0x-bf014-clang-1-O2; /tmp/x0x-bf014-clang-1-O2",
+      "exit_code": 0,
+      "evidence": "after-clang-1-O2.log: 14 passing assertions, 0 failures",
+      "log_sha256": "bf9039c5068ba83b6badaa2df9be1cb669408b962086e8e90189127fcecade8a",
+      "coverage": "Reject duplicates/reserved master, preserve valid calibration permutations, range, direction and defaults."
+    },
+    {
+      "name": "repaired gcc SMK=0 O0 ASan+UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=address,undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 tests/panel_mapping_test.c -o /tmp/x0x-bf014-after-asan-gcc-0; ASAN_OPTIONS=detect_leaks=1 /tmp/x0x-bf014-after-asan-gcc-0",
+      "exit_code": 0,
+      "evidence": "after-asan-gcc-0.log: 13 passing assertions, 0 failures",
+      "log_sha256": "3a7d95017bc12594178e5086e84fa010f1c7437316c5c15ccd7fe7525ba8d1f9",
+      "coverage": "Address + UB sanitizer regression on saved calibration and negative cases."
+    },
+    {
+      "name": "repaired gcc SMK=1 O0 ASan+UBSan",
+      "status": "PASS",
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=address,undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 tests/panel_mapping_test.c -o /tmp/x0x-bf014-after-asan-gcc-1; ASAN_OPTIONS=detect_leaks=1 /tmp/x0x-bf014-after-asan-gcc-1",
+      "exit_code": 0,
+      "evidence": "after-asan-gcc-1.log: 14 passing assertions, 0 failures",
+      "log_sha256": "bf9039c5068ba83b6badaa2df9be1cb669408b962086e8e90189127fcecade8a",
+      "coverage": "Address + UB sanitizer regression on saved calibration and negative cases."
+    },
+    {
+      "name": "repaired clang SMK=0 O0 ASan+UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=address,undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=0 tests/panel_mapping_test.c -o /tmp/x0x-bf014-after-asan-clang-0; ASAN_OPTIONS=detect_leaks=1 /tmp/x0x-bf014-after-asan-clang-0",
+      "exit_code": 0,
+      "evidence": "after-asan-clang-0.log: 13 passing assertions, 0 failures",
+      "log_sha256": "3a7d95017bc12594178e5086e84fa010f1c7437316c5c15ccd7fe7525ba8d1f9",
+      "coverage": "Address + UB sanitizer regression on saved calibration and negative cases."
+    },
+    {
+      "name": "repaired clang SMK=1 O0 ASan+UBSan",
+      "status": "PASS",
+      "command": "clang -std=c11 -Wall -Wextra -Werror -g -O0 -fsanitize=address,undefined -fno-sanitize-recover=undefined -DBOARD_SMK37=1 tests/panel_mapping_test.c -o /tmp/x0x-bf014-after-asan-clang-1; ASAN_OPTIONS=detect_leaks=1 /tmp/x0x-bf014-after-asan-clang-1",
+      "exit_code": 0,
+      "evidence": "after-asan-clang-1.log: 14 passing assertions, 0 failures",
+      "log_sha256": "bf9039c5068ba83b6badaa2df9be1cb669408b962086e8e90189127fcecade8a",
+      "coverage": "Address + UB sanitizer regression on saved calibration and negative cases."
+    },
+    {
+      "name": "elite firmware/controller DEV build",
+      "status": "NOT_RUN",
+      "command": "python3 tools/dev_validate.py run --commit c9718ae833eb64a5191c350922593df8a36017c9 --model elite --plan [approved exact-source plan] --output [isolated result]",
+      "evidence": "This is a host-tested source repair, not target build; delegated to Hourly Build only after independent QA/approved integration."
+    },
+    {
+      "name": "pro firmware/controller DEV build",
+      "status": "NOT_RUN",
+      "command": "python3 tools/dev_validate.py run --commit c9718ae833eb64a5191c350922593df8a36017c9 --model pro --plan [approved exact-source plan] --output [isolated result]",
+      "evidence": "This is a host-tested source repair, not target build; delegated to Hourly Build only after independent QA/approved integration."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "SMK37 conditional host tested; exact Elite target build, controller, budgets, install/backup/readback gates pending."
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "SMK37 conditional host tested; exact Pro target build, controller, budgets, install/backup/readback gates pending."
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Retrieve exact Git PR HEAD and independently review/retest panel validation before Safe Merge/Hourly Build.",
+    "gate": "Independent host QA, then approved NIGHTLY integration and exact Elite/Pro model-specific build/CRC/controller/backup validation."
+  },
+  "publication": "SOURCE_ONLY"
+}
