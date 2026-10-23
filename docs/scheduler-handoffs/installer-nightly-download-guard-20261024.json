@@ -182,5 +182,139 @@
       "gate": "native per-model build, package/controller CRC/SHA256, source/licensing, independent QA, backups/rollback, immutable GET/HEAD hosted hash, own gh-pages and HTTP checks"
     }
   ],
-  "note": "Ready-for-review transition, if subsequently performed, is not QA acceptance, approved hosted package, source merge, compiled firmware, HTTP PASS or device PASS."
+  "note": "Ready-for-review transition, if subsequently performed, is not QA acceptance, approved hosted package, source merge, compiled firmware, HTTP PASS or device PASS.",
+  "latest_reconciliation": {
+    "evidence_revision": "installer-reconnect-reconciliation-20261024-r1",
+    "run_local_date": "2026-10-24",
+    "status": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW__NOT_QA_APPROVAL",
+    "producer": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "target_base_branch": "nightly",
+      "consumed_base_full_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "consumed_base_full_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "consumed_base_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "consumed_own_previous_sha": "68415dc2c280cd9b57c8b883f73eba47fff376c6",
+      "consumed_own_previous_installer_blob": "4a4d56013ef4183e28cec5c4b0c2248a99021afa",
+      "consumed_existing_reconnect_pr": 34,
+      "consumed_existing_reconnect_branch": "lane/installer-postflash-reconnect-20261023",
+      "consumed_existing_reconnect_full_sha": "59add18387a2e0809898b215e26d606559ef01c6",
+      "consumed_existing_reconnect_blob": "dcce1ae636a66cd8149bb9db431e6eca48d48d02",
+      "consumed_existing_larger_ux_pr": 100,
+      "consumed_existing_larger_ux_sha": "3899e09a4b959b5a36a43f8dd1f3a9d328eb6951",
+      "consumed_existing_larger_ux_installer_blob": "2085be1b58281241596a408fe5ee3842dfa74ccc",
+      "source_edit_full_commit": "8835f3dfae606df377a1e041016c587b4d62f219",
+      "new_regression_full_commit": "3dfe4920dfefe013bc28d750e4792fb45e638665",
+      "registered_full_source_and_tests_checkpoint": "fc400e2300beac38453fe1d5ad572c333e4a17c8",
+      "report_commit": "1ecf295c357235e59355edb91e1aa107b9e9a9c2",
+      "report_commit_full_root_tree": "6e98d708bd463b272de2d094ffd41106430aeee6",
+      "unchanged_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "head_source_blob": "5752659df12c7d89a328c44687f84c6e2652e73b",
+      "existing_download_test_blob": "a67fce5e1c9bd884fdb6734fba40c0322709bf52",
+      "new_reconnect_test_blob": "94dad4c68cecf39a7b2f69e6e16ad043ba7a56a9",
+      "registered_slots_runner_blob": "9756a9a7c1c0efeecc20dd99573e4254b675c891"
+    },
+    "source_change": [
+      "install run() acquires exclusive writing lock synchronously before Web MIDI permission",
+      "post-completion scan(true) permits exactly internal post-write rediscovery while writing remains true, normal scan() still blocked",
+      "permission denial releases lock and only restores eligible Install buttons",
+      "initial and restored catalog Install button conditions enforce current publisher-approved package eligibility",
+      "new exact-source Web MIDI mock regression added and included in existing slot runner"
+    ],
+    "executed_checks": [
+      {
+        "runner": "connected GitHub V8 (in process)",
+        "command": "new Function(exact GitHub run()+scan() bodies, instrumented fake Updater/find/resume/Web MIDI/DOM); Elite/Pro × five paths",
+        "process_exit_code": null,
+        "inprocess_exception_count": 0,
+        "assertions_passed": 10,
+        "assertions_total": 10,
+        "disposition": "PASS_SCOPED_MOCK"
+      },
+      {
+        "runner": "connected GitHub V8 with node:assert/node:fs/node:vm in-memory shims",
+        "command": "new AsyncFunction(full committed web/test_install_nightly_reconnect.mjs body against exact blob 5752659df...; imports and import.meta adapted only to available V8 API shims)",
+        "process_exit_code": null,
+        "inprocess_exception_count": 0,
+        "assertions_passed": 14,
+        "assertions_total": 14,
+        "disposition": "PASS_SCOPED_MOCK_NOT_NATIVE_NODE"
+      },
+      {
+        "runner": "connected GitHub V8 with node:assert/node:fs/node:vm in-memory shims",
+        "command": "new AsyncFunction(full committed web/test_install_nightly_download_guard.mjs body against exact blob 5752659df...; imports and import.meta adapted only to available V8 API shims)",
+        "process_exit_code": null,
+        "inprocess_exception_count": 0,
+        "assertions_passed": 21,
+        "assertions_total": 21,
+        "disposition": "PASS_SCOPED_MOCK_NOT_NATIVE_NODE"
+      },
+      {
+        "runner": "connected GitHub API",
+        "command": "fetch_file every changed path by immutable commit SHA; compare UTF-8 exact content and Git blob SHA; fetch current Git commit root tree and firmware subtree",
+        "process_exit_code": null,
+        "disposition": "PASS_REMOTE_READBACK"
+      },
+      {
+        "runner": "native Linux Node (NOT RUN)",
+        "command": "node web/test_install_nightly_reconnect.mjs && node web/test_install_nightly_download_guard.mjs && node web/test_install_slots.mjs",
+        "process_exit_code": null,
+        "disposition": "PENDING_EXACT_CHECKOUT",
+        "reason": "native container cannot resolve GitHub network to construct full remote checkout"
+      },
+      {
+        "runner": "native Chromium (NOT RUN)",
+        "command": "full exact combined source at 320/390/1280px EN/JA, positive/negative browser and backup/OTA interruption",
+        "process_exit_code": null,
+        "disposition": "PENDING_INDEPENDENT_QA"
+      },
+      {
+        "runner": "native target Elite/Pro (not stage-required)",
+        "command": "target compilation and controller artifact checks belong to Hourly Build",
+        "process_exit_code": null,
+        "disposition": "NOT_APPLICABLE_BROWSER_ONLY_SOURCE"
+      }
+    ],
+    "website": {
+      "separate_owned_source_repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "consumed_main_full_sha": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+      "consumed_installer_blob": "b4c31daabeaa0219960ef0628a1fd81bfda4e54d",
+      "source_fix": "NOT_PERFORMED_IN_FIRMWARE_ROLE",
+      "next": "separate NIGHTLY website source owner on independently reviewed source PR; do not edit main or gh-pages"
+    },
+    "disposition": {
+      "producer": "SOURCE_COMPLETE_RECONNECT_RECONCILED",
+      "independent_QA": "PENDING",
+      "firmware_safe_merge": "PENDING",
+      "nightly_website_equivalent_fix_and_main_merge": "PENDING",
+      "nightly_gh_pages_and_http": "PENDING",
+      "elite": "NO_NEW_INSTALLABLE_CANDIDATE",
+      "pro": "NO_NEW_INSTALLABLE_CANDIDATE",
+      "production": "NOT_PROMOTED",
+      "owner_physical_device_test": "UNKNOWN_NOT_RUN",
+      "firmware_binary_or_controller_changed": false
+    },
+    "next": [
+      {
+        "owner": "Independent QA",
+        "action": "clone exact PR #102 current head and run native Node source guard/reconnect/full slot+OTA+backup/interruption, approved/local/foreign negative, responsive Chromium EN/JA 320/390/1280; code review",
+        "gate": "actual complete exact-checkout tests, UI/backup/model negative evidence and QA disposition"
+      },
+      {
+        "owner": "sole firmware Safe Merge",
+        "action": "integrate exact reviewed installer source to firmware nightly; reconcile independent PR #34/duplicate #33 and large UX PR #100 without overwriting producer lanes",
+        "gate": "independent QA and applicable combined safety checks; no direct main/gh-pages write"
+      },
+      {
+        "owner": "separate NIGHTLY website source owner, website QA and Nightly Main Merger",
+        "action": "independently fix direct release download leakage and post-OTA reconnect in reviewed website source lane",
+        "gate": "own tested reviewed PR source generated parity and native browser/security negatives"
+      },
+      {
+        "owner": "sole NIGHTLY Pages publisher",
+        "action": "publish first prehardware-verified matching model package via lawful immutable host only after source integrated and HTTP byte proof",
+        "gate": "real per-model firmware+controller package/CRC/SHA, backup/readback, licensing/source, independent QA and served same-byte HTTP; no prior owner hardware PASS required"
+      }
+    ],
+    "boundary": "PR ready for independent review is neither QA approval, native Node/browser PASS, hardware build, legal immutable HTTP link, installation, nor production approval."
+  }
 }
