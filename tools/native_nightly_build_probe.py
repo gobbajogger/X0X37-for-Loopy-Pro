@@ -107,9 +107,14 @@ def main() -> int:
     # Verify everything before allocating or modifying any build tree/output.
     source_identity = verify_source(source, args.expected_head, args.expected_tree)
     build_inputs = verify_inputs(tc, sdk)
-    output = args.output.expanduser().absolute()
-    if output.exists() or output.is_symlink():
+    # Canonicalize every existing parent link before enforcing source isolation.
+    # absolute() leaves symlink parents intact and can dirty the verified checkout.
+    requested_output = args.output.expanduser()
+    if requested_output.exists() or requested_output.is_symlink():
         raise ValueError('Output directory already exists: refuses to overwrite prior candidate/evidence')
+    output = requested_output.resolve(strict=False)
+    if output.exists() or output.is_symlink():
+        raise ValueError('Resolved output directory already exists: refusing overwrite')
     if output == source or source in output.parents:
         raise ValueError('Output must live outside the source checkout')
     if not output.parent.is_dir():
@@ -168,16 +173,22 @@ def main() -> int:
                              and len(manifest['models']) == len(PRODUCTS)
                              and all(x['file'] for x in manifest['models'].values())
                              and manifest['controller']) else 1
-        manifest['native_probe_pass'] = result_code == 0
     finally:
-        (output / 'probe.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
         if scratch.exists():
-            # Nonforced worktree removal is safe: only this private scratch checkout was created.
-            remove = subprocess.run(['git', '-C', str(source), 'worktree', 'remove', '--force', str(scratch)],
-                                    capture_output=True, text=True)
-            if remove.returncode:
-                print('WARNING: private checkout cleanup incomplete: ' + remove.stderr.strip(), file=sys.stderr)
+            # A positive result is not authoritative until private cleanup succeeds.
+            try:
+                remove = subprocess.run(['git', '-C', str(source), 'worktree', 'remove', '--force', str(scratch)],
+                                        capture_output=True, text=True)
+                if remove.returncode:
+                    print('WARNING: private checkout cleanup incomplete: ' + remove.stderr.strip(), file=sys.stderr)
+                    result_code = 1
+            except OSError as exc:
+                print('WARNING: private checkout cleanup incomplete: ' + str(exc), file=sys.stderr)
                 result_code = 1
+        # Emit the final result only AFTER cleanup; an exit-1 run must never
+        # leave either manifest or stdout claiming native_probe_pass=true.
+        manifest['native_probe_pass'] = result_code == 0
+        (output / 'probe.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
     print(json.dumps({'native_probe_pass': bool(manifest.get('native_probe_pass')),
                       'source': source_identity, 'output': str(output),
                       'release_permission': 'NONE; NOT INSTALLABLE'}, sort_keys=True))

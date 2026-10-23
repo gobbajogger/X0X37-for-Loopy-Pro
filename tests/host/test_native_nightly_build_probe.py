@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import importlib.util
+import io
+import json
 import os
 from pathlib import Path
 import subprocess
 import tempfile
+from contextlib import redirect_stderr, redirect_stdout
+from unittest import mock
 import unittest
 
 SCRIPT = Path(__file__).resolve().parents[2] / 'tools' / 'native_nightly_build_probe.py'
@@ -34,6 +38,62 @@ class NativeProbeTests(unittest.TestCase):
         call(self.repo, 'commit', '-qm', 'test source snapshot')
         self.head = call(self.repo, 'rev-parse', 'HEAD')
         self.tree = call(self.repo, 'rev-parse', 'HEAD^{tree}')
+
+    def _mock_probe_call(self, output: Path, simulate_cleanup_failure: bool = False):
+        """Execute real Git worktree lifecycle with fake build stages only."""
+        arguments = ['native_nightly_build_probe.py', '--source', str(self.repo),
+                     '--expected-head', self.head, '--expected-tree', self.tree,
+                     '--toolchain', self.dir.name, '--sdk', self.dir.name,
+                     '--output', str(output)]
+
+        def stage(name, _argv, scratch, _env, logs, _timeout):
+            if name.startswith('native-build-'):
+                basename = PROBE.PRODUCTS[name.removeprefix('native-build-')]
+                dst = scratch / 'build' / basename
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_bytes(b'MOCK FIRMWARE - NOT INSTALLABLE')
+            elif name == 'native-controller':
+                dst = scratch / 'ble/ctl/out/ctl.img'
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_bytes(b'MOCK CTL - NOT INSTALLABLE')
+            (logs / (name + '.log')).write_text('mock stage, not native build\n')
+            return {'name': name, 'exit': 0, 'log': name + '.log'}
+
+        genuine_subprocess_run = subprocess.run
+
+        def intercept_cleanup(argv, *args, **kwargs):
+            if (simulate_cleanup_failure and len(argv) >= 6
+                    and argv[0] == 'git' and 'worktree' in argv
+                    and 'remove' in argv):
+                return subprocess.CompletedProcess(argv, 1, '', 'injected cleanup failure')
+            return genuine_subprocess_run(argv, *args, **kwargs)
+
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with mock.patch.object(PROBE, 'verify_inputs', return_value={'mock': True}), \
+             mock.patch.object(PROBE, 'run_check', side_effect=stage), \
+             mock.patch.object(PROBE.subprocess, 'run', side_effect=intercept_cleanup), \
+             mock.patch.object(PROBE.sys, 'argv', arguments), \
+             redirect_stdout(stdout), redirect_stderr(stderr):
+            result = PROBE.main()
+        return result, stdout.getvalue(), stderr.getvalue()
+
+    def test_cleanup_failure_cannot_publish_positive_manifest_or_stdout(self):
+        output = Path(self.dir.name) / 'fresh-output'
+        exit_code, stdout, stderr = self._mock_probe_call(output, simulate_cleanup_failure=True)
+        self.assertEqual(exit_code, 1)
+        self.assertIn('injected cleanup failure', stderr)
+        self.assertFalse(json.loads((output / 'probe.json').read_text())['native_probe_pass'])
+        self.assertFalse(json.loads(stdout)['native_probe_pass'])
+        self.assertEqual(call(self.repo, 'status', '--porcelain', '--untracked-files=normal'), '')
+
+    def test_symlink_output_parent_cannot_alias_source_checkout(self):
+        alias = Path(self.dir.name) / 'symlink-to-source'
+        alias.symlink_to(self.repo, target_is_directory=True)
+        nested = alias / 'new-build-output'
+        with self.assertRaisesRegex(ValueError, 'outside the source checkout'):
+            self._mock_probe_call(nested)
+        self.assertFalse((self.repo / 'new-build-output').exists())
+        self.assertEqual(call(self.repo, 'status', '--porcelain', '--untracked-files=normal'), '')
 
     def test_exact_commit_and_tree_permitted(self):
         self.assertEqual(PROBE.verify_source(self.repo, self.head, self.tree),
