@@ -660,5 +660,93 @@
     },
     "unchanged_firmware_subtree": true,
     "source_only": true
+  },
+  "latest_occupied_header_reconciliation": {
+    "evidence_revision": "installer-occupied-header-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_source_sha": "904e6bcd2bebd15ba32d8278d5f8d0ec048929ad",
+      "full_root_tree": "b1eaddb0f4d2f9f95d6bb03713d021875c5d0fa9",
+      "helper_sha": "db8cfc219e63ed25da4302403bd27c9c0b46fd04",
+      "prior_slot_test_sha": "dda19a7367830b8ca882435120675a31cf37f92b",
+      "publisher_website_pr": 1,
+      "publisher_website_comment_id": 6376425041,
+      "publisher_evidence_revision": "publisher-nightly-nonempty-header-archive-failopen-20261024-r1",
+      "base_nightly_full_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "base_nightly_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "unchanged_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "scope": "firmware repository browser slot helper + exact Node-oriented regression only; website out of scope",
+    "status": "SOURCE_COMPLETE_SCOPED_PRODUCER_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+    "checks": [
+      {
+        "executor": "connected V8 exact prior helper + modified test",
+        "command": "AsyncFunction(full test_install_nightly_slot_prewrite.mjs with import shims on original helper blob db8cfc...)",
+        "exit_code": null,
+        "result": "EXPECTED_RED",
+        "detail": "source-occupied bad-magic header wrongly allowed synthetic install"
+      },
+      {
+        "executor": "connected V8 exact patched helper + test",
+        "command": "AsyncFunction(full test_install_nightly_slot_prewrite.mjs with import shims on proposed changed full helper)",
+        "exit_code": null,
+        "result": "PASS_SCOPED_V8_MOCK",
+        "passed": 100,
+        "total": 100,
+        "model_cases": [
+          "Elite",
+          "Pro"
+        ],
+        "header_cases": [
+          "empty",
+          "valid",
+          "invalid-magic",
+          "invalid-version",
+          "zone-mismatch",
+          "oversized-data",
+          "zero-data",
+          "bad-CRC"
+        ],
+        "hardware": false
+      },
+      {
+        "executor": "native Node",
+        "command": "node web/test_install_nightly_slot_prewrite.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "result": "NOT_RUN_PEND_INDEPENDENT_QA"
+      },
+      {
+        "executor": "Chromium",
+        "command": "whole source EN/JA 320/390/1280, OTA/backup/interrupt/wrong-model",
+        "exit_code": null,
+        "result": "NOT_RUN_PEND_INDEPENDENT_QA"
+      }
+    ],
+    "next": [
+      {
+        "owner": "Independent QA",
+        "action": "native exact-source slot+installer/OTA/backup and browser negatives; recorded pass/fail per exact head",
+        "gate": "actual native and browser independent QA"
+      },
+      {
+        "owner": "sole firmware Safe Merge",
+        "action": "reconcile reviewed own PR #102 onto nightly",
+        "gate": "independent QA and combined source validations"
+      },
+      {
+        "owner": "sole NIGHTLY website source owner",
+        "action": "independently implement equivalent occupied-header guard and tests on website PR #1",
+        "gate": "separate reviewed website source and native checks"
+      },
+      {
+        "owner": "website QA / Main Merger / sole Publisher",
+        "action": "review site then publish only immutable bytes after prehardware per-model gates",
+        "gate": "independent source/model/controller/backup/license/HTTP byte checks"
+      }
+    ],
+    "no_firmware_build_claim": true,
+    "no_hardware_claim": true,
+    "website_code_not_modified": true
   }
 }

@@ -359,6 +359,10 @@ export function makeArchive(layout, images, created) {
   images.forEach((img, k) => {
     const sl = layout.slots[k] || {};
     const e = { slot: k + 1, size: sl.size ?? layout.size, empty: img === null };
+    // Source occupancy is authoritative: a CRC-valid archive marked empty
+    // must never conceal a slot that SMP_INFO reported as occupied.
+    if (sl.nz > 0 && img === null)
+      throw new Error(`slot ${k + 1}: occupied source slot is missing from the backup`);
     if (sl.off !== null && sl.off !== undefined) e.flash = sl.off;
     if (img !== null) {
       const h = parseHeader(img);
@@ -524,10 +528,13 @@ async function readSlotBytes(link, k, off, n, onPart) {
 }
 
 // slot k as an image (the 512-byte header area, then the data), or null if it is empty. Reads only.
-export async function readSlotImage(link, k, nz, onPart) {
+export async function readSlotImage(link, k, nz, onPart, slotSize = null) {
   if (!nz) return null;
   const area = await readSlotBytes(link, k, 0, SLOT_HDR_AREA), h = parseHeader(area.subarray(0, SLOT_HDR_LEN));
-  if (!h) return null;
+  if (!h || h.nz !== nz)
+    throw new Error(`slot ${k + 1}: occupied sample header is unreadable, unsupported or mismatches SMP_INFO`);
+  if (h.dataLen === 0 || (slotSize !== null && h.dataLen > slotSize - SLOT_HDR_AREA))
+    throw new Error(`slot ${k + 1}: occupied sample data length exceeds the slot or is empty`);
   const data = await readSlotBytes(link, k, SLOT_HDR_AREA, h.dataLen, onPart);
   if (crc32(data) !== h.crc) throw new Error(`slot ${k + 1}: the data read back does not match its CRC`);
   const img = new Uint8Array(SLOT_HDR_AREA + data.length);
@@ -540,7 +547,8 @@ export async function readSlotImage(link, k, nz, onPart) {
 export async function backupSlots(link, onPart) {
   const layout = await readSlotLayout(link), images = [];
   for (let k = 0; k < layout.count; k++)
-    images.push(await readSlotImage(link, k, layout.slots[k].nz, onPart && ((d, n) => onPart(k, d, n))));
+    images.push(await readSlotImage(link, k, layout.slots[k].nz,
+      onPart && ((d, n) => onPart(k, d, n)), layout.slots[k].size));
   return { layout, images };
 }
 
@@ -567,7 +575,7 @@ export async function restoreMapped(link, todo, images, onPart) {
   for (const { k, j } of todo) await writeSlotImage(link, j, images[k], onPart && ((d, n) => onPart(j, d, n)));
   const after = await readSlotLayout(link);
   for (const { k, j } of todo) {
-    const got = await readSlotImage(link, j, after.slots[j].nz);
+    const got = await readSlotImage(link, j, after.slots[j].nz, undefined, after.slots[j].size);
     if (!got || got.length !== images[k].length || crc32(got) !== crc32(images[k]))
       throw new Error(`slot ${j + 1}: read back differs from the backup of slot ${k + 1}`);
   }
