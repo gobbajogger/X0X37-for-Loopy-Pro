@@ -1,0 +1,203 @@
+{
+  "build_environment": {
+    "controller_bytes": 65492,
+    "controller_crc32": "77b7a496",
+    "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "controller_undefined_symbols": 0,
+    "jieli_clang_version": "4.0.1",
+    "jieli_toolchain_archive_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "platform": "Linux x86_64",
+    "sdk_kit_pins_checked": 11,
+    "sdk_pinned_archive_sha256": "2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805"
+  },
+  "complete_root_matches_nightly": false,
+  "created_utc": "2026-10-23T13:23:00Z",
+  "distribution": "NONE; no firmware or controller binary committed into Git or night website",
+  "historic_source_cache_tree": "152ca944e9cd3d0913906a1d3fa9d8d2826ea639",
+  "known_incomplete_gates": [
+    "Reconstruct every remaining changed/deleted/added Git object and exact true root tree/commit, match remote source HEAD SHA before final source attribution",
+    "Re-run whole current remote host regressions, including current reachability test, and independently review any failures",
+    "Formal per-model DEV validate record and packages/OTA/backup/wrong-model/negative checks",
+    "Independent code and package QA plus licensing and controller acquisition/redistribution",
+    "Lawful immutable external artifact delivery and served HTTP hash verification",
+    "Physical owner DEVICE NOT TESTED; only needed later for production"
+  ],
+  "local_reconstructed_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "local_work_in_progress_root_tree": "852e902f6d9fdc5db46e72f8c967e61c47f7c08b",
+  "models": [
+    {
+      "build_result": "SCOPED_NATIVE_BUILT_NO_FULL_CHECKOUT_ATTESTATION",
+      "config": "SMK37 dev X0X_DEV_PADCAL=1",
+      "device_identity": "SMK-37 Elite_900",
+      "device_tested": false,
+      "flash_app_headroom_bytes": 6676,
+      "format": "fwsc",
+      "http_installer_available": false,
+      "model": "elite",
+      "package_bytes": 651396,
+      "package_file": "x0x-smk37-elite.fwsc",
+      "package_sha256": "d3b4cac3d7b7be7a72732d4dd00c3120c053dbffc9137ffb7c151a5fd5355f2b",
+      "pool_headroom_bytes": 8324,
+      "private_controller_embedded_package_sha256": "8ba23a89f50c70b631927077ec4cfe7c98593870035455261842f1b245b82278",
+      "qa_approved": false,
+      "ram_free_bytes": 492,
+      "source_firmware_tree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    {
+      "build_result": "SCOPED_NATIVE_BUILT_NO_FULL_CHECKOUT_ATTESTATION",
+      "config": "SMK37 dev X0X_DEV_PADCAL=1",
+      "device_identity": "SMK-37 Pro_900",
+      "device_tested": false,
+      "flash_app_headroom_bytes": 6676,
+      "format": "fwsc",
+      "http_installer_available": false,
+      "model": "pro",
+      "package_bytes": 651392,
+      "package_file": "x0x-smk37.fwsc",
+      "package_sha256": "0b09605f357cd0accd5c5109dfb61138eb300945ffe05e6ff46942f5c5e076b9",
+      "pool_headroom_bytes": 8324,
+      "private_controller_embedded_package_sha256": "d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb",
+      "qa_approved": false,
+      "ram_free_bytes": 492,
+      "source_firmware_tree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    }
+  ],
+  "next_owner": "Hourly Build + Independent QA + sole Safe Merge",
+  "reference_git_nightly_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "reference_git_nightly_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+  "reference_remote_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "result": "Proven real pinned native compiler path and firmware-subtree match; not a checked integrated firmware version, no installer publication",
+  "role": "Classic native source bridge / scoped build probe",
+  "schema_version": 1,
+  "source_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_transfer": "GitHub app old/new Git blob SHA-validated offline byte deltas; partial repository with exact entire firmware subtree; native Github DNS inaccessible",
+  "status": "BUILD_PROVENANCE_INCOMPLETE_DO_NOT_INSTALL",
+  "tests": [
+    {
+      "command": "python3 tools/check_locked_settings.py",
+      "exit_code": 0,
+      "log_filename": "locked-settings.log",
+      "log_sha256": "82f10fc3f906cea581f2c2717f57bc70e6de5e320a72625ede9b4401e1d38589",
+      "name": "locked-settings",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "log_filename": "native-elite.log",
+      "log_sha256": "87b3022e83987b34bd2eb044ddaef40df7567f4d2fc081a38fa151d45fcdbd6a",
+      "name": "elite-target",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit_code": 0,
+      "log_filename": "native-pro.log",
+      "log_sha256": "f9c1137e46a04ce3be8b689b3bfc672a16ea4351dc286c4a1b89129fe69d939b",
+      "name": "pro-target",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
+      "exit_code": 0,
+      "log_filename": "native-controller.log",
+      "log_sha256": "61f53ee72b050414420df051e76df55ff16df30c644cde547e7a9eac7fb3e199",
+      "name": "controller",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 tests/x0x_slots_test.py",
+      "exit_code": 0,
+      "log_filename": "slot-backup.log",
+      "log_sha256": "cde76c51e4f7df5bc4ef1319e75e49d4c567165e7429b9ee9bf7b823255f152f",
+      "name": "slot-backup",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 tests/install_slots_test.py",
+      "exit_code": 0,
+      "log_filename": "installer-slots.log",
+      "log_sha256": "dc1d7f2adcd6218e598ec7bc39c0ec4ecc7cfe47b1a4210150930c26361145d1",
+      "name": "installer-slots",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 tests/ble_pkg_test.py",
+      "exit_code": 0,
+      "log_filename": "ble-pkg-test.log",
+      "log_sha256": "f4f4a4502181893d710d210cd5a40b3b9d1ea31c077f2f5650c9d12d7cd8016f",
+      "name": "controller-package-format",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 tools/add_ctl.py ctl.img --check",
+      "exit_code": 0,
+      "log_filename": "controller-validation.log",
+      "log_sha256": "1d3ace3b1602aae540047d314e9c17637fff0e1dcfbbdac2e8b45399f53e67ba",
+      "name": "controller-validation",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "bash tests/host/ble_midi_receive_test.sh",
+      "exit_code": 0,
+      "log_filename": "ble_midi_receive_test.log",
+      "log_sha256": "3450c2bf940bdc93ae74f862c5e01253c29a106b215d069e22bafcba2f7c6a9d",
+      "name": "ble-midi-receive",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "bash tests/host/smc_clip_visibility_test.sh",
+      "exit_code": 0,
+      "log_filename": "smc_clip_visibility_test.log",
+      "log_sha256": "1069e67bd4b28e47b02b5a8f7560e276cd956dd8a5e78589cd57cba15724e00d",
+      "name": "smc-clip-visibility",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "bash tests/host/smc_drum_mutes_test.sh",
+      "exit_code": 0,
+      "log_filename": "smc_drum_mutes_test.log",
+      "log_sha256": "bc7cdee5f4efff89f9d5bdf82c98c6706029b80df7f2475155e670a01a638e5f",
+      "name": "smc-drum-mutes",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 tests/host/smc_mapping_test.py",
+      "exit_code": 0,
+      "log_filename": "smc_mapping_test.py.log",
+      "log_sha256": "1d0965c197dbedb144b294c81dac5bae105fadae6704dd6d74ac1aeb4d4c3938",
+      "name": "smc-mapping",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 tests/host/ble_midi_stop_test.py",
+      "exit_code": 0,
+      "log_filename": "ble_midi_stop_test.py.log",
+      "log_sha256": "b24671cb2a16308f441e136140a4619b1d3798b4c393f3c9b56fe0ff4291f206",
+      "name": "ble-midi-stop",
+      "notes": "",
+      "status": "PASS"
+    },
+    {
+      "command": "bash tests/host/smc_reachability_test.sh",
+      "exit_code": 134,
+      "log_filename": "smc_reachability_test.log",
+      "log_sha256": "2b6fbbdbac7763b6fe24a3e33c970ded06184bd4390bae7b9d1eb03ac6d0510c",
+      "name": "smc-reachability",
+      "notes": "Old cached host regression file; remote NIGHTLY tests/host/smc_reachability_test.c SHA 38d05dc... must be reconstructed and rerun before any QA PASS",
+      "status": "FAIL"
+    }
+  ]
+}

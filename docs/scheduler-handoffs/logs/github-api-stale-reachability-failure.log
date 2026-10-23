@@ -1,0 +1,12 @@
+In file included from tests/host/../../host/x0x_host.c:259,
+                 from tests/host/smc_reachability_test.c:4:
+tests/host/../../host/../firmware/src/app/ui.c: In function 'pref_set':
+tests/host/../../host/../firmware/src/app/ui.c:513:57: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+  513 |     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
+      |                                                         ^~~~~
+tests/host/../../host/../firmware/src/app/ui.c: In function 'prob_turn':
+tests/host/../../host/../firmware/src/app/ui.c:2059:43: warning: operand of '?:' changes signedness from 'int' to 'unsigned int' due to unsignedness of other operand [-Wsign-compare]
+ 2059 |         l->val[s] = (uint8_t)(nv != 100 ? nv : MOT_NONE);
+      |                                           ^~
+test: tests/host/smc_reachability_test.c:188: scenario: Assertion `ui.part==part && pref_get(r)==old' failed.
+tests/host/smc_reachability_test.sh: line 19:  4329 Aborted                 "$OUT/test"
