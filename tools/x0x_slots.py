@@ -27,7 +27,9 @@ its start: the 512-byte header area, then the ADPCM data. The final CRC-32 (zlib
 before it. web/x0x_breaks.js (makeArchive, readArchive) reads and writes the same format.
 Needs mido (and a backend such as python-rtmidi) for the device commands."""
 import json
+import os
 import struct
+import tempfile
 import sys
 import time
 import zlib
@@ -201,6 +203,35 @@ def read_archive(b):
     return meta, images
 
 
+
+def save_backup_archive(path, archive, *, replace=False):
+    """Stage, read back and fsync a backup before publishing it at the destination.
+
+    Never truncate the old archive if writing fails.  For a new path, use an
+    atomic hard link so a concurrent creator cannot be silently overwritten.
+    """
+    read_archive(archive)  # Reject corrupt source before any filesystem change.
+    staged = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="wb", prefix=f".{path.name}.", suffix=".tmp",
+                                         dir=path.parent, delete=False) as out:
+            staged = Path(out.name)
+            out.write(archive)
+            out.flush()
+            os.fsync(out.fileno())
+        if staged.read_bytes() != archive:
+            raise SlotError("temporary sample backup failed readback")
+        if replace:
+            os.replace(staged, path)
+        else:
+            os.link(staged, path)  # Must not replace a concurrently created file.
+            staged.unlink()
+        staged = None
+    finally:
+        if staged is not None:
+            staged.unlink(missing_ok=True)
+
+
 def backup(link, progress=None):
     """read every slot -> (layout, images); sends SMP_INFO and SMP_READ only"""
     lay = layout(link)
@@ -361,7 +392,7 @@ def main(argv):
         link = up.Link()
         lay, images = backup(link, _bar)
         b = make_archive(lay, images)
-        path.write_bytes(b)
+        save_backup_archive(path, b, replace="--force" in rest)
         print(f"\n{path}: {len(b)} B\n" + describe(read_archive(b)[0]))
         return
     meta, images = read_archive(path.read_bytes())
