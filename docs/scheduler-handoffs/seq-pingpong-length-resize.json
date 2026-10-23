@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:06:30Z",
+  "role": "LoopyX0X37 Sequencer Clock",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/seq-pingpong-live-length-shrink-20261023-run4-1410",
+    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+  },
+  "summary": "Repair reproducible out-of-range 303 ping-pong step progression immediately after live part length shrinking; source-window host only.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/sequencer.c",
+      "description": "Clamp stale PINGPONG runtime positions after length changes"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/seq_pingpong_resize_test.py",
+      "description": "Native compiled production-function regression with boundary, normal-direction and sanitizer checks"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-pingpong-length-resize.md",
+      "description": "Root cause, limits, integration and Build+QA handoff"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-pingpong-length-resize-native.log",
+      "description": "Real executed checks and local log SHA-256 identities"
+    }
+  ],
+  "checks": [
+    {
+      "name": "original before repair expected failure",
+      "status": "FAIL",
+      "command": "python3 tests/host/seq_pingpong_resize_test.py --source source/firmware/src/seq/sequencer-before.c --cc gcc",
+      "evidence": "logs/baseline-current-test-full.log (local raw); summary committed",
+      "exit_code": 1,
+      "log_sha256": "4cbf567c8a7d10ef4175bf0ecfa86b97f2388b33c0f01d72d906e6a6f019a6e3",
+      "coverage": "99498 pass, 79427 fail; 16->4 edited pingpong out of range"
+    },
+    {
+      "name": "gcc plain",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_pingpong_resize_test.py --source source/firmware/src/seq/sequencer.c --cc gcc --sanitize none",
+      "evidence": "logs/patched-gcc-none.log (local raw); summary committed",
+      "exit_code": 0,
+      "log_sha256": "f27ab7e2a982e0b92ccab97d4d0b6f4b4ace58191e32e1b125e85274876f4929",
+      "coverage": "178925 assertions; shrink up to 64, reverse/forward/random, no committed lookahead flip"
+    },
+    {
+      "name": "gcc ubsan",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_pingpong_resize_test.py --source source/firmware/src/seq/sequencer.c --cc gcc --sanitize ubsan",
+      "evidence": "logs/patched-gcc-ubsan.log (local raw); summary committed",
+      "exit_code": 0,
+      "log_sha256": "b35bfb1bd4d6fabab39c8db54a2f3b6cfe2c4592a81612b72b507eabb5af4e10",
+      "coverage": "178925 assertions; shrink up to 64, reverse/forward/random, no committed lookahead flip"
+    },
+    {
+      "name": "gcc asan ubsan",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_pingpong_resize_test.py --source source/firmware/src/seq/sequencer.c --cc gcc --sanitize asan-ubsan",
+      "evidence": "logs/patched-gcc-asan-ubsan.log (local raw); summary committed",
+      "exit_code": 0,
+      "log_sha256": "2a8dc69459cc1ae0e4c32eb8056857beb400719789b8edda93e56a359210d3de",
+      "coverage": "178925 assertions; shrink up to 64, reverse/forward/random, no committed lookahead flip"
+    },
+    {
+      "name": "clang plain",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_pingpong_resize_test.py --source source/firmware/src/seq/sequencer.c --cc clang --sanitize none",
+      "evidence": "logs/patched-clang-none.log (local raw); summary committed",
+      "exit_code": 0,
+      "log_sha256": "5552036ec0b69d4624134b2079abd5d6113bdb9fcf0a0f1c3cbb1a1a4dc34f6c",
+      "coverage": "178925 assertions; shrink up to 64, reverse/forward/random, no committed lookahead flip"
+    },
+    {
+      "name": "clang asan ubsan",
+      "status": "PASS",
+      "command": "python3 tests/host/seq_pingpong_resize_test.py --source source/firmware/src/seq/sequencer.c --cc clang --sanitize asan-ubsan",
+      "evidence": "logs/patched-clang-asan-ubsan.log (local raw); summary committed",
+      "exit_code": 0,
+      "log_sha256": "b526da44020954c1285091b93d97d8197ed326c73624453957eff4bbde9824cb",
+      "coverage": "178925 assertions; shrink up to 64, reverse/forward/random, no committed lookahead flip"
+    },
+    {
+      "name": "malformed source expected negative",
+      "status": "FAIL",
+      "command": "python3 tests/host/seq_pingpong_resize_test.py --source source/bad.c",
+      "evidence": "logs/bad-source.log, expected process exit 1; harness fails closed",
+      "exit_code": 1,
+      "coverage": "The negative test was expected to exit 1; status PASS is conceptual expected-failure, see summary"
+    },
+    {
+      "name": "Python bytecode compile",
+      "status": "PASS",
+      "command": "python3 -m py_compile tests/host/seq_pingpong_resize_test.py",
+      "evidence": "local command, exit 0",
+      "exit_code": 0,
+      "coverage": "Python syntax"
+    },
+    {
+      "name": "full exact-tree and Note Off integration",
+      "status": "NOT_RUN",
+      "command": "bash tests/run_tests.sh sequencer clk-lock seq-pingpong-resize",
+      "evidence": "No complete remote checkout in native runner; independent QA required",
+      "coverage": "Full source, MIDI Note Off"
+    },
+    {
+      "name": "Elite/Pro native firmware/controller builds",
+      "status": "NOT_RUN",
+      "command": "./build.sh (per-model), ble/ctl/build_ctl.sh",
+      "evidence": "Build ownership Hourly Build, no pinned SDK in this scoped runner",
+      "coverage": "No target or device test"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    }
+  ],
+  "next": {
+    "owner": "LoopyX0X37 Independent QA",
+    "action": "Independently run complete PR tree regressions for 303, clock, MIDI Note Off; parallel Hourly Build may immediately compile draft BUILD_ONLY Elite/Pro/ctl; sole Safe Merge integrates validated changes.",
+    "gate": "Full exact-source QA and model build integrity remain pending"
+  },
+  "dependencies": [
+    "#35",
+    "#41",
+    "#48",
+    "#55",
+    "#65",
+    "#72",
+    "#80",
+    "#86",
+    "#90"
+  ],
+  "publication": "SOURCE_ONLY"
+}
