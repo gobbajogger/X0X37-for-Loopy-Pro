@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:10:00Z",
+  "role": "LoopyX0X37 SMC Transport",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "nightly",
+    "tested_commit": "c9718ae833eb64a5191c350922593df8a36017c9",
+    "tested_tree": "715fbd98d427c8ddd6b64d1b923e9d1fb8ae64ea"
+  },
+  "summary": "BLE central stale queued controls were dispatched after coalesced reconnect; link publication now embeds last-edge queue cutoff while retaining current-session and USB controls.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/app/smc_mixer.c",
+      "description": "SMC central link epoch and queue cutoff source guard"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/smc_ble_reconnect_epoch_test.py",
+      "description": "Forty-eight per-compiler native positive, overflow and reconnect cases"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/smc-ble-link-epoch-20261023.md",
+      "description": "Reproducer, exact checked windows, limitations and QA handoff"
+    }
+  ],
+  "checks": [
+    {
+      "name": "original GCC expected negative",
+      "status": "FAIL",
+      "command": "SMC_SOURCE=work/smc_source_before.c CC=gcc python3 tests/host/smc_ble_reconnect_epoch_test.py",
+      "exit_code": 1,
+      "evidence": "24/48 original-source cases failed as expected; log sha256 59c7974e38498bdb464e917413b674b37a12843fe626938a946c84ffbbb146a3",
+      "log_sha256": "59c7974e38498bdb464e917413b674b37a12843fe626938a946c84ffbbb146a3",
+      "coverage": "Stale queued BLE input survives reconnect in baseline"
+    },
+    {
+      "name": "patched GCC 48 cases",
+      "status": "PASS",
+      "command": "SMC_SOURCE=work/smc_source_fixture.c CC=gcc python3 tests/host/smc_ble_reconnect_epoch_test.py",
+      "exit_code": 0,
+      "evidence": "48/48 source-extracted synchronous host cases; log sha256 c0dfa1c7...",
+      "log_sha256": "c0dfa1c7b1e830b3e8d7f8b91bb3d2b69ec1dcd471579b3519ad7c9bcc357a0d",
+      "coverage": "BLE stale/new queue separation, wrap, host isolation"
+    },
+    {
+      "name": "patched GCC UBSan",
+      "status": "PASS",
+      "command": "SAN_FLAGS='-fsanitize=undefined -fno-omit-frame-pointer' CC=gcc SMC_SOURCE=work/smc_source_fixture.c python3 tests/host/smc_ble_reconnect_epoch_test.py",
+      "exit_code": 0,
+      "evidence": "48/48 extracted cases; UBSan no diagnostic",
+      "log_sha256": "11aecccc2918ec3ebf90eea363ea43e52eebf30838832d6b10defe351e9b89bd",
+      "coverage": "Undefined behavior checks on extracted functions"
+    },
+    {
+      "name": "patched GCC ASan UBSan",
+      "status": "PASS",
+      "command": "SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' CC=gcc SMC_SOURCE=work/smc_source_fixture.c python3 tests/host/smc_ble_reconnect_epoch_test.py",
+      "exit_code": 0,
+      "evidence": "48/48 extracted cases; ASan and UBSan no diagnostic",
+      "log_sha256": "9885a01614dae7399466a22d4f594c320be8552ca84d039abbd654fb270560a9",
+      "coverage": "Buffer and undefined behavior checks on source-extracted queue"
+    },
+    {
+      "name": "patched Clang ASan UBSan",
+      "status": "PASS",
+      "command": "SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' CC=clang SMC_SOURCE=work/smc_source_fixture.c python3 tests/host/smc_ble_reconnect_epoch_test.py",
+      "exit_code": 0,
+      "evidence": "48/48 extracted cases; ASan and UBSan no diagnostic",
+      "log_sha256": "0c49deeecaf9f54c44b9b79283c1c8a799706203d40a9acbb6fbbf0b61fba60e",
+      "coverage": "Compiler-independent extracted-window memory and reconnect checks"
+    },
+    {
+      "name": "exact remote tree native suite",
+      "status": "NOT_RUN",
+      "command": "python3 tests/host/smc_ble_reconnect_epoch_test.py",
+      "evidence": "No complete firmware Git checkout; local shell DNS git clone failed (exit 128)"
+    },
+    {
+      "name": "Elite Pro firmware DEV and controllers",
+      "status": "NOT_RUN",
+      "command": "tools/dev_validate.py run --commit <exact-integrated-commit> --model elite/pro",
+      "evidence": "This SMC producer owns source only; no exact-tree pinned build inputs/artifacts in local runtime"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA, then Safe Merge and Hourly Build",
+    "action": "Run exact-branch SMC host regression and review conflict/timing semantics, then integrate on isolated NIGHTLY source lane",
+    "gate": "Exact remote checkout regression and independent approval before firmware development build"
+  },
+  "dependencies": [
+    "Firmware NIGHTLY c9718ae833eb64a5191c350922593df8a36017c9; SMC #40 #43 #50 #58 #63 #71 #73 remain unmerged"
+  ],
+  "publication": "SOURCE_ONLY"
+}
