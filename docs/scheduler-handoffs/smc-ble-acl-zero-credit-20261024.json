@@ -1,0 +1,68 @@
+{
+  "schema": "loopyx0x37-scheduler-evidence/v1",
+  "role": "LoopyX0X37 SMC Transport",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_branch": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+  "consumed": {
+    "producer_head": "faeceb982f891a1f7b557839ad2b5382e0bcb6af",
+    "full_root_tree": "25d0883d08488f793fb915c77f0ed942a6d546c3",
+    "firmware_subtree": "e72b1fea89c755113880172c519d584c2ae9b234",
+    "ble_source_blob": "7e8ad4a268856edd66cf90ebbaa8e38a9ad996df",
+    "runner_blob": "7aab7479ba057eed4d733210ef7f73ffe80cf02b",
+    "prior_evidence_revision": "docs/scheduler-handoffs/smc-ble-hci-completed-packets-20261024.md"
+  },
+  "finding": "l2cap_send submitted outgoing HCI ACL signalling packets at zero controller ACL credits; bleh_conn_update then marked request sent.",
+  "repair": "Refuse L2CAP enqueue if controller ACL credits are zero, retaining cpu_state and retry eligibility; preserve mailbox rejection and nonzero credit behaviour.",
+  "tested": {
+    "source_scope": "Exact source-matched l2cap_send + bleh_conn_update fragments assembled from verified PR50 BLE source; test file is the delivered test source, using a local -include fragment and empty header shim.",
+    "runner": "Linux x86_64 local native gcc and clang",
+    "command_template": "${CC} -std=c99 -O1 -g -Wall -Wextra -Werror ${SANITIZER_FLAGS} -include credit_source_${VARIANT}.c -I<local_native_replay_dir> ble_acl_zero_credit_test.c -o <local_executable> && <local_executable>",
+    "compilers": [
+      "gcc",
+      "clang"
+    ],
+    "modes": [
+      "plain",
+      "ubsan",
+      "asan+ubsan"
+    ],
+    "cases_each": 18,
+    "variants_each": 6,
+    "baseline": {
+      "compiler_exit": 0,
+      "run_exit": 1,
+      "failing_assertions": 4,
+      "checks": 18
+    },
+    "repaired": {
+      "compiler_exit": 0,
+      "run_exit": 0,
+      "failing_assertions": 0,
+      "checks": 18
+    },
+    "test_sha256": "970d602bd920894d3bc536948d13f112b3c7ddc097f4c08ad2c6106ebfe27cbe",
+    "baseline_fragment_sha256": "bd6b92bf3867a1d07def5e1cb8b873ef696a82fedef0784c07bde8afe499ef62",
+    "corrected_fragment_sha256": "779918aaa9ca9d81e9a7204af9309b8ad8d2272fb2cf95e891be7fe132b24f7a",
+    "local_results_json_sha256": "009341e9f52dba3f69e7009886a7ace1c76bf77da4f83196cd3ae6f19c85f377"
+  },
+  "not_run": [
+    "Full exact remote Git tree native test runner",
+    "New test linked against complete firmware/src/ble/ble_midi_host.c",
+    "Other full-source SMC/BLE/reconnect tests on new combined head",
+    "Elite DEV target build",
+    "Pro DEV target build",
+    "matching controller BUILD_ONLY",
+    "independent QA",
+    "integrated #50/#89/#94 tree QA",
+    "license/distribution/HTTP",
+    "physical device"
+  ],
+  "status": "SOURCE_SCOPED_PRODUCER_TEST_PASS; WHOLE_C_AND_TARGET_BUILD_PENDING; NOT_INSTALLABLE",
+  "next": {
+    "build": "Hourly Build compile exact new Git HEAD for Elite/Pro/ctl BUILD_ONLY immediately, without QA or merge.",
+    "qa": "Independent QA inspect exact full remote root and firmware subtree, execute linked regression plus BLE/SysEx/ATT/mailbox/ACL/NoteOff negatives.",
+    "integration": "Sole firmware Safe Merge reconcile independent #50, #89, stacked #94 only after review; do not change protected nightly/main."
+  },
+  "published": false,
+  "device_tested": false
+}

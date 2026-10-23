@@ -1,0 +1,165 @@
+{
+  "schema": "x0x37-smc-transport-producer-evidence/v1",
+  "revision": "2026-10-24-ATT-response-PR50",
+  "role": "LoopyX0X37 SMC Transport",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 50,
+  "consumed": {
+    "head_sha": "4aa93f62b5f08eb5df9663747ada84fef590a014",
+    "root_tree_sha": "c599c141d52db54798ae95b4fa530b7616fffebe",
+    "source_blob_sha": "f4415750533c0e43f1a6c45dcd3a54dac1af6605",
+    "header_blob_sha": "488977fab5e6300e8e2f7ad96cb834fe62c490f1",
+    "combined_dependency_prs": [
+      {
+        "pr": 89,
+        "head_sha": "ca777a056e7de0075aac30927a4f6b158d55c465"
+      },
+      {
+        "pr": 94,
+        "head_sha": "9083dc35a5e270930323b44dde7bdc5916f826f1",
+        "root_tree_sha": "447582f9bf505c2d448010b7ab23dd36e1ed7a33",
+        "firmware_subtree_sha": "9f6861806861251e3dde3b2a929f1b6634d1862c"
+      }
+    ]
+  },
+  "tests": {
+    "environment": "native Linux x86_64",
+    "source_scope": "exact PR94 BLE source blob + exact PR50 modified hunks, not complete remote root",
+    "cases": [
+      {
+        "name": "ATT full-length baseline",
+        "variants": "gcc/clang × plain/ASan+UBSan",
+        "compile_exits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "run_exits": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "assertions": "30 checks / 11 failures each, expected negative"
+      },
+      {
+        "name": "ATT full-length corrected",
+        "variants": "gcc/clang × plain/ASan+UBSan",
+        "compile_exits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "run_exits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "assertions": "31/31 PASS each"
+      },
+      {
+        "name": "committed ATT regression fail before",
+        "variants": "gcc/clang × plain/ASan+UBSan",
+        "compile_exits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "run_exits": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "assertions": "15 checks / 5 failures each, expected negative"
+      },
+      {
+        "name": "committed ATT regression pass after",
+        "variants": "gcc/clang × plain/ASan+UBSan",
+        "compile_exits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "run_exits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "assertions": "16/16 PASS each"
+      },
+      {
+        "name": "combined mailbox+ACL+SysEx after change",
+        "variants": "gcc/clang × plain/ASan+UBSan × 3 test selectors",
+        "compile_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "run_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "assertions": "mailbox 40/40, ACL 80/80, SysEx PASS per combination"
+      }
+    ]
+  },
+  "status": "SOURCE_COMPLETE_PRODUCER_SCOPED_HOST_CHECKED",
+  "qa": "PENDING",
+  "build": "NEW_PATCH_BUILD_PENDING",
+  "device": "NOT_TESTED",
+  "public_installable": false,
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "independent full root and combined ATT/CCCD negative review"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "exact draft PR50 Elite/Pro/ctl BUILD_ONLY attempt now"
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "integrate reviewed #50 + #89 + #94 without flattening, validate combined source"
+    }
+  ],
+  "exact_gates_pending": [
+    "full_exact_root_QA",
+    "combined_50_89_94_native",
+    "actual_new_compiled_tree_model_build",
+    "controller_and_memory_budget",
+    "OTA_backup_restore_negatives",
+    "license_externally_hostable",
+    "immutable_HTTP_hashes"
+  ],
+  "regressions": {
+    "path": "tests/host/ble_att_response_retry_test.c",
+    "git_blob_sha": "54653e49fdc7e879cd4b45b18a85c46e2ed0c01a"
+  },
+  "has_hardware_observation": false
+}
