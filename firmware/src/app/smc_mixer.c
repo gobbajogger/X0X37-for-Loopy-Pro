@@ -29,6 +29,17 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
+/* Separate single-writer generation counters: TIMER5 (central), audio ISR (host).
+ * Main-loop snapshots never clear a producer-owned flag. */
+static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
+static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
+static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
+{
+    uint8_t type = st & 0xF0u;
+    return !(note & 0x80u) && !(velocity & 0x80u) &&
+           note >= 8u && note < 16u &&
+           (type == 0x80u || (type == 0x90u && !velocity));
+}
 static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
@@ -95,6 +106,9 @@ X0X_COLD static void smc_project_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
+    /* An already cleared Solo must not inherit a previous project's lost release. */
+    smc_ble_solo_release_seen = smc_ble_solo_release_lost;
+    smc_host_solo_release_seen = smc_host_solo_release_lost;
 }
 X0X_COLD void smc_project_reset(void)
 {
@@ -110,7 +124,14 @@ X0X_COLD void smc_project_reset(void)
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
     uint8_t w = smc_qw, i;
-    if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q) {
+    if (!msg || !len || len > 6u) {
+        smc_dropped++; return;
+    }
+    if ((uint8_t)(w - smc_qr) >= SMC_Q) {
+        /* A full ring may lose the key-up for a previously held Solo. */
+        if (len == 3u && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
+            (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER)))
+            smc_ble_solo_release_lost++;
         smc_dropped++; return;
     }
     smc_q[w % SMC_Q].n = len;
@@ -148,6 +169,8 @@ int smc_midi_host(uint32_t pkt)
         smc_host_q[w % SMC_Q][2] = b;
         __asm__ volatile("" ::: "memory");
         smc_host_w = (uint8_t)(w + 1u);
+    } else if (smc_is_solo_release(st, a, b)) {
+        smc_host_solo_release_lost++;
     }
     return 1;
 }
@@ -646,6 +669,9 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     }
     if (len < 3)
         return 4;
+    /* Never alias malformed BLE MIDI data bytes into SMC notes/CCs. */
+    if ((m[1] | m[2]) & 0x80u)
+        return 4;
     type = m[0] & 0xF0u;
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
@@ -741,6 +767,16 @@ void smc_poll(void)
             if (proj.set.bt & PROJ_BT_SMC_USER)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
+    }
+    /* A saturated input ring can lose Solo Note Off. Snapshot after draining all
+     * older queued keys, so a later main-loop poll cannot leave them latched. */
+    uint32_t ble_lost = smc_ble_solo_release_lost;
+    uint32_t host_lost = smc_host_solo_release_lost;
+    if (ble_lost != smc_ble_solo_release_seen ||
+        host_lost != smc_host_solo_release_seen) {
+        smc_ble_solo_release_seen = ble_lost;
+        smc_host_solo_release_seen = host_lost;
+        if (smc_project_active()) smc_solo_clear();
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
