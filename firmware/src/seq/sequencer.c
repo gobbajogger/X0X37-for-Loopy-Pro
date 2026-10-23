@@ -743,13 +743,13 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     }
 }
 
-void seq_start(seq_t *s) { s->req_start = 1; }
+void seq_start(seq_t *s) { s->req_cont = 0; s->req_start = 1; }
 void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start or Continue, not a later one */
 {
     s->req_start = s->req_cont = 0;
     s->req_stop = 1;
 }
-void seq_continue(seq_t *s) { s->req_cont = 1; }
+void seq_continue(seq_t *s) { s->req_start = 0; s->req_cont = 1; }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
 int seq_midi_rt(seq_t *s, uint8_t st)
 {
