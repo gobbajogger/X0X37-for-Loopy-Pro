@@ -135,64 +135,64 @@ def main() -> int:
         env.update({'JIELI_TOOLCHAIN': str(tc), 'AC79_SDK': str(sdk), 'SDK_LOCAL': str(sdk),
                     'BOARD': 'smk37', 'X0X_DEV_PADCAL': '1', 'X0X_JOBS': '2',
                     'CC': 'cc', 'CXX': 'c++'})
-        checks = [
+        # Build first. Failure of a noncompiler host/backup/installer check never
+        # suppresses a real target compile or discards its immutable artifact.
+        # Subsequent safety failures only close the candidate admission gate.
+        for model, basename in PRODUCTS.items():
+            stage_env = env.copy()
+            stage_env['MODEL'] = model
+            step = run_check(f'native-build-{model}', ['bash', 'build.sh', '--board', 'smk37'],
+                             scratch, stage_env, logs, args.timeout)
+            manifest['checks'].append(step)
+            artifact = scratch / 'build' / basename
+            if step['exit'] == 0 and artifact.is_file() and artifact.stat().st_size > 0:
+                dst = output / basename
+                shutil.copyfile(artifact, dst)
+                guard = run_check(f'package-integrity-{model}',
+                                  ['python3', 'tools/check_native_build_output.py',
+                                   'package', str(artifact), '--model', model],
+                                  scratch, stage_env, logs, args.timeout)
+                manifest['checks'].append(guard)
+                manifest['models'][model] = {
+                    'status': ('BUILT — PACKAGE MODEL/CRC VERIFIED; QA PENDING'
+                               if guard['exit'] == 0 else
+                               'BUILT — PACKAGE INVALID; NOT INSTALLABLE'),
+                    'file': basename, 'bytes': dst.stat().st_size,
+                    'sha256': sha256(dst), 'package_check_exit': guard['exit']}
+            else:
+                manifest['models'][model] = {'status': 'BUILD FAILED/NO ARTIFACT', 'file': None}
+        cenv = env.copy()
+        cenv.update({'CTL_NATIVE': '1', 'CTL_NO_CACHE': '1'})
+        controller = run_check('native-controller', ['bash', 'ble/ctl/build_ctl.sh'],
+                               scratch, cenv, logs, args.timeout)
+        manifest['checks'].append(controller)
+        image = scratch / 'ble/ctl/out/ctl.img'
+        if controller['exit'] == 0 and image.is_file() and image.stat().st_size > 0:
+            dst = output / 'ctl.img'
+            shutil.copyfile(image, dst)
+            guard = run_check('controller-integrity',
+                              ['python3', 'tools/check_native_build_output.py',
+                               'controller', str(image)],
+                              scratch, cenv, logs, args.timeout)
+            manifest['checks'].append(guard)
+            manifest['controller'] = {
+                'status': ('BUILT — HEADER/CRC VERIFIED; PRIVATE/DISTRIBUTION NOT CLEARED'
+                           if guard['exit'] == 0 else
+                           'BUILT — CONTROLLER INVALID; NOT INSTALLABLE'),
+                'file': dst.name, 'bytes': dst.stat().st_size,
+                'sha256': sha256(dst), 'controller_check_exit': guard['exit']}
+        postbuild = [
             ('locked-settings', ['python3', 'tools/check_locked_settings.py']),
             ('slot-backup', ['python3', 'tests/x0x_slots_test.py']),
             ('installer-slots', ['python3', 'tests/install_slots_test.py']),
         ]
-        for name, command in checks:
+        for name, command in postbuild:
             manifest['checks'].append(run_check(name, command, scratch, env, logs, args.timeout))
-        failed_preflights = [step['name'] for step in manifest['checks'] if step['exit'] != 0]
-        if failed_preflights:
-            # Do not compile/export firmware after a required source, sample or
-            # installer-safety preflight fails, even if a later stage might pass.
-            manifest['blocked_by'] = failed_preflights
-            for model in PRODUCTS:
-                manifest['models'][model] = {'status': 'NOT RUN — prerequisite failed', 'file': None}
-        else:
-            for model, basename in PRODUCTS.items():
-                stage_env = env.copy()
-                stage_env['MODEL'] = model
-                step = run_check(f'native-build-{model}', ['bash', 'build.sh', '--board', 'smk37'],
-                                 scratch, stage_env, logs, args.timeout)
-                manifest['checks'].append(step)
-                artifact = scratch / 'build' / basename
-                if step['exit'] == 0 and artifact.is_file() and artifact.stat().st_size > 0:
-                    dst = output / basename
-                    shutil.copyfile(artifact, dst)
-                    guard = run_check(f'package-integrity-{model}',
-                                      ['python3', 'tools/check_native_build_output.py',
-                                       'package', str(artifact), '--model', model],
-                                      scratch, stage_env, logs, args.timeout)
-                    manifest['checks'].append(guard)
-                    manifest['models'][model] = {
-                        'status': ('BUILT — PACKAGE MODEL/CRC VERIFIED; QA PENDING'
-                                   if guard['exit'] == 0 else
-                                   'BUILT — PACKAGE INVALID; NOT INSTALLABLE'),
-                        'file': basename, 'bytes': dst.stat().st_size,
-                        'sha256': sha256(dst), 'package_check_exit': guard['exit']}
-                else:
-                    manifest['models'][model] = {'status': 'BUILD FAILED/NO ARTIFACT', 'file': None}
-            cenv = env.copy()
-            cenv.update({'CTL_NATIVE': '1', 'CTL_NO_CACHE': '1'})
-            controller = run_check('native-controller', ['bash', 'ble/ctl/build_ctl.sh'],
-                                   scratch, cenv, logs, args.timeout)
-            manifest['checks'].append(controller)
-            image = scratch / 'ble/ctl/out/ctl.img'
-            if controller['exit'] == 0 and image.is_file() and image.stat().st_size > 0:
-                dst = output / 'ctl.img'
-                shutil.copyfile(image, dst)
-                guard = run_check('controller-integrity',
-                                  ['python3', 'tools/check_native_build_output.py',
-                                   'controller', str(image)],
-                                  scratch, cenv, logs, args.timeout)
-                manifest['checks'].append(guard)
-                manifest['controller'] = {
-                    'status': ('BUILT — HEADER/CRC VERIFIED; PRIVATE/DISTRIBUTION NOT CLEARED'
-                               if guard['exit'] == 0 else
-                               'BUILT — CONTROLLER INVALID; NOT INSTALLABLE'),
-                    'file': dst.name, 'bytes': dst.stat().st_size,
-                    'sha256': sha256(dst), 'controller_check_exit': guard['exit']}
+        failed_safety_checks = [step['name'] for step in manifest['checks']
+                                if step['name'] in {name for name, _ in postbuild}
+                                and step['exit'] != 0]
+        if failed_safety_checks:
+            manifest['blocked_by'] = failed_safety_checks
         result_code = 0 if (all(x['exit'] == 0 for x in manifest['checks'])
                              and len(manifest['models']) == len(PRODUCTS)
                              and all(x['file'] for x in manifest['models'].values())

@@ -74,9 +74,9 @@
     {
       "name": "cross-model negative real package",
       "status": "PASS",
-      "command": "python3 tools/check_native_build_output.py package /mnt/data/native-probe-source/known-bytes/pro.fwsc --model elite [expected exit 1]",
+      "command": "bash -c 'python3 tools/check_native_build_output.py package /mnt/data/native-probe-source/known-bytes/pro.fwsc --model elite >/mnt/data/native-probe-source/cross-model-assert.log 2>&1; code=$?; test \"$code\" -eq 1'",
       "exit_code": 0,
-      "evidence": "Negative-path expectation satisfied, actual process exit 1 with wrong-model refusal; status PASS reflects assertion and not command exit0",
+      "evidence": "Observed inner verifier exit 1 (wrong model), shell negative assertion wrapper exit 0 as explicitly executed; PASS represents correct rejection, not package acceptance.",
       "log_sha256": "8b83b93687b11e56b4390b42072bda7b517270223b412d71193e026a10a7868b"
     },
     {

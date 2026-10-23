@@ -80,23 +80,27 @@ class NativeProbeTests(unittest.TestCase):
             result = PROBE.main()
         return result, stdout.getvalue(), stderr.getvalue()
 
-    def test_failed_required_preflight_skips_both_models_and_controller(self):
-        for preflight in ('locked-settings', 'slot-backup', 'installer-slots'):
-            with self.subTest(preflight=preflight):
-                output = Path(self.dir.name) / ('fail-' + preflight)
-                code, stdout, stderr = self._mock_probe_call(output, failed_preflight=preflight)
+    def test_failed_postbuild_safety_does_not_erase_compilation(self):
+        for safety in ('locked-settings', 'slot-backup', 'installer-slots'):
+            with self.subTest(safety=safety):
+                output = Path(self.dir.name) / ('fail-' + safety)
+                code, stdout, stderr = self._mock_probe_call(output, failed_preflight=safety)
                 self.assertEqual(code, 1, stderr)
                 manifest = json.loads((output / 'probe.json').read_text())
                 self.assertFalse(manifest['native_probe_pass'])
                 self.assertFalse(json.loads(stdout)['native_probe_pass'])
+                self.assertEqual(manifest['blocked_by'], [safety])
+                # Safety checks run AFTER compilation; they cannot erase or
+                # prohibit native builds, but do prohibit installable admission.
+                self.assertEqual([step['name'] for step in manifest['checks'][:2]],
+                                 ['native-build-elite', 'package-integrity-elite'])
                 for model, basename in PROBE.PRODUCTS.items():
-                    self.assertFalse((output / basename).exists(), model)
-                    self.assertIsNone(manifest['models'][model]['file'])
-                self.assertIsNone(manifest['controller'])
-                self.assertFalse((output / 'ctl.img').exists())
-                self.assertFalse(list((output / 'logs').glob('native-build-*.log')))
-                self.assertFalse((output / 'logs' / 'native-controller.log').exists())
-                self.assertEqual(manifest['blocked_by'], [preflight])
+                    self.assertTrue((output / basename).exists(), model)
+                    self.assertIsNotNone(manifest['models'][model]['file'])
+                self.assertIsNotNone(manifest['controller'])
+                self.assertTrue((output / 'ctl.img').exists())
+                self.assertTrue((output / 'logs' / 'native-build-elite.log').exists())
+                self.assertTrue((output / 'logs' / 'native-controller.log').exists())
                 self.assertEqual(call(self.repo, 'status', '--porcelain', '--untracked-files=normal'), '')
 
     def test_failed_output_integrity_does_not_claim_native_probe_pass(self):
