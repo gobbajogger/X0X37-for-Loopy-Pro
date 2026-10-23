@@ -161,6 +161,7 @@ typedef struct {
     uint8_t clk_cur;                  /* SEQ_CLK_*: the clock source that seq_advance applied */
     uint8_t clk_lost;                 /* EXTERNAL: no clock now, the pause (or the wait) is done */
     volatile uint8_t req_rt;          /* 1 = the pending Start or Continue came from MIDI in (seq_midi_rt) */
+    volatile uint8_t req_stop_rt;     /* 1 = pending Stop came from MIDI, not local PLAY */
     uint8_t start_local;              /* 1 = the last start came from PLAY (not from MIDI in) */
     uint32_t start_at;                /* ext_now at the last start */
     uint8_t clk_lock;                 /* the input that has the clock (MID-15): 0 none, else input + 1 */
