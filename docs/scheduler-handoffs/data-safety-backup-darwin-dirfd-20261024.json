@@ -1,0 +1,38 @@
+{
+  "schema": "loopyx0x37-data-safety-platform-rename/v1",
+  "recorded_date": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Data Safety",
+  "prior_head": "93e6254082cd487bd76c3ffbe7505dede4d6cfff",
+  "prior_tree": "e5b27176cd21a94bed446d5ba6475fb26c900f6e",
+  "defect": "Darwin fcntl.h AT_FDCWD=-2 while Linux AT_FDCWD=-100. Previous renameatx_np call used -100 on macOS. Relative-path linkless backup publication may fail closed with EBADF; no observed device/data loss.",
+  "reference": "https://github.com/apple/darwin-xnu/blob/main/bsd/sys/fcntl.h",
+  "changes": [
+    "platform-correct cwd descriptor for renameatx_np and renameat2",
+    "dedicated portable mocked libc contract regression",
+    "preserve source CLI mode 100755"
+  ],
+  "producer_tests": {
+    "scope": "source-matched locally reconstructed Python functions; not complete remote repo checkout",
+    "commands": [
+      {
+        "argv": "python3 test_darwin_fd.py",
+        "before_exit": 1,
+        "after_exit": 0,
+        "assertions_after": "3/3"
+      },
+      {
+        "argv": "X0X_SLOTS_SOURCE=combined_x0x_slots_darwin_fixed.py python3 -m unittest test_portable_backup -v",
+        "exit": 0,
+        "assertions": "9/9"
+      },
+      {
+        "argv": "python3 -m py_compile combined_x0x_slots_darwin_fixed.py test_darwin_fd.py",
+        "exit": 0
+      }
+    ],
+    "physical_macos_test": "NOT RUN"
+  },
+  "disposition": "SOURCE CORRECTED / INDEPENDENT QA REQUIRED / TARGET BUILD PENDING / DEVICE NOT TESTED",
+  "next_owner": "Independent QA validate full root, with macOS real-filesystem exclusivity still UNKNOWN; Hourly Build BUILD_ONLY; Safe Merge after QA"
+}
