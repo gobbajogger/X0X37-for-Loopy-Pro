@@ -2074,15 +2074,15 @@
       "build_id": null,
       "installable": false,
       "device_verified": false,
-      "artifact_bytes_independently_verified": false,
+      "artifact_bytes_independently_verified": true,
       "build_target_tests_independently_reexecuted": false,
       "reported_checks": {
-        "origin": "Hourly Build PR103 r1/r2 model builds and regressions; independent QA private binary integrity and prehardware CLI safety; Catalog did not re-run compiler or rehash private PR103 bytes",
+        "origin": "Hourly Build producer native scoped compile; Independent QA/sole Publisher separate integrity checks; Catalog native private ZIP rehash 23/23 PASS exit 0 on exact PR103 model/controller bytes and producer log SHA256, but no Catalog compiler, firmware parser full QA, hardware or external HTTP run.",
         "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37; BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37; CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh",
-        "result": "BUILD_SUCCEEDED_UNREVIEWED: producer native Elite/Pro/private controller exits 0/0/0 and 12 source-matched GCC/Clang positive configurations PASS; independent binary-integrity tests 12/12 PASS. FULL_ROOT_QA_INCOMPLETE; independent CLI slot-preservation source-window regression exit 1 with 4 PASS and 2 safety-invariant FAIL. NOT INSTALLABLE."
+        "result": "BUILDS REPORTED EXIT 0/0/0 (producer), CATALOG PRIVATE ZIP REHASH EXIT 0 (23/23 independent SHA256/size/CRC archive/producer-log checks): ZIP cbd696346d03f14bfed2b3554b9449e32204161420b0e3eff8a8ca91cd5a57d9; Elite 651396B 1cb7d432d3149559bf6330ab53443fbe8939382369185b9063fe1f08f85a8cd5; Pro 651392B a8cd8b856001d446fa0c92074dc296ea454a02a75ce7332a10b8a8cb94b144f6; private ctl 65492B 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a. Firmware SUBTREE vs ROOT distinct. PR103 CLI remains outdated, PR96 latest independent restore-skipped QA 7/9 PASS / 2 safety FAIL exit 1. No independent complete ROOT safety QA, lawful public controller distribution or external HTTP."
       },
-      "description": "PR103 scoped compiler bytes separately attributable to integrated 303 firmware subtree; unmerged, noninstallable, private artifacts. Independently confirmed integrity is not a safe installation or source-QA PASS.",
-      "missing_gate": "Data Safety owner must repair CLI slot_probe malformed/timeout fail-open; independent QA rerun exact full-root and backup/readback/OTA/rollback negatives; model/controller legal source/redistribution and publisher independent immutable external HTTP bytes gates. Owner device result UNKNOWN; physical PASS not NIGHTLY prerequisite.",
+      "description": "Exact producer PR103 firmware/controller BUILD_ONLY bytes newly rehashed from private original archive by Catalog; source/root independent safety QA remains NO-GO due skipped restore accounting and old CLI. Never a public-installable release.",
+      "missing_gate": "Data Safety repair current PR96 source 577d24aebd51db42adb551d79315ac546f884e12 skipped sample restore wrongly returned success (Independent QA 7 PASS + 2 FAIL exit 1). Independent full-root/CLI backup restore OTA CRC/rollback wrong-model review; Safe Merge lineage #81→#91→#96 into #103; Hourly Build exact changed compiler-input identity; licensing, controller legality, external immutable HTTP per-model GET+SHA only by publisher. Missing user device observation UNKNOWN. No physical PASS NIGHTLY prerequisite.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "producer_reported_artifacts": {
         "elite": {
@@ -2102,6 +2102,33 @@
           "redistribution_permitted": false
         }
       }
+    },
+    {
+      "id": "data-safety-pr96-restoration-status-20261024",
+      "title": "Data Safety #96 SMP_INFO source repair — independent skipped-sample-restore safety NO-GO",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+      "source_commit": "577d24aebd51db42adb551d79315ac546f884e12",
+      "source_tree": "39b5aa7a7f8aaed82d140f7b31702f4176405eeb",
+      "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Independent QA exact PR96 source-window negative + Data Safety scoped producer repair (NOT complete native checkout); Catalog read-only Git intake",
+        "command": "X0X_TEST_FM1_SOURCE=\"$PWD/fm1_install_window_after.py\" python3 fm1_install_slot_probe_failclosed_test.py -v; python3 qa_restore_skipped_exit.py -v",
+        "result": "PR96 timeout/malformed SMP_INFO source-window test 14/14 PASS exit 0; new partial/total sample restore skipped source-window 7/9 PASS, 2 invariant FAIL, overall exit 1. No physical device operation/loss. PR103 still has prior vulnerable CLI and does not consume this repair."
+      },
+      "description": "Data Safety stacked source #81→#91→#96: initial malformed/timeout fail-closed repair scoped verified; current QA proves sample restore skip falsely reported successful, so not eligible for hardware installation.",
+      "missing_gate": "Next owner Data Safety: correct run()/SlotMove.restore skipped-slot success accounting in existing PR96 and commit exact-source regression. Independent QA retest full-current-root backup/readback/restore/OTA/model/CRC negatives; sole Safe Merge ordered stack into PR103; Hourly Build exact-source BUILD_ONLY in parallel; Publisher controls future source/license/controller+immutable external HTTP. Hardware result UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96"
     }
   ],
   "policy": {
@@ -2112,7 +2139,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 82
+    "source_or_historical_checkpoints": 83
   },
   "versioning": {
     "firmware_product_version": {

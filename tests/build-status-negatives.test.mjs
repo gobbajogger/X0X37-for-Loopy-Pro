@@ -214,4 +214,19 @@ run('PR103-independent-build-receipt-stays-noninstallable',edit(j=>{
   assert.equal(b.installable,false);
 }),true);
 
+// Newly consumed restore-skip QA stays read-only and cannot certify PR103 binaries.
+run('PR96-new-current-source-stays-noninstallable',edit(j=>{
+ const x=j.history.find(x=>x.id==='data-safety-pr96-restoration-status-20261024');
+ assert.ok(x);
+ assert.equal(x.source_commit,'577d24aebd51db42adb551d79315ac546f884e12');
+ assert.equal(x.status,'source-only');
+ assert.equal(x.installable,false);
+}),true);
+run('PR96-current-history-rejects-private-download',edit(j=>
+ j.history.find(x=>x.id==='data-safety-pr96-restoration-status-20261024').download_url='https://invalid.example/firmware.v1'));
+run('PR96-current-history-rejects-device-PASS',edit(j=>
+ j.history.find(x=>x.id==='data-safety-pr96-restoration-status-20261024').device_verified=true));
+run('PR103-private-rehash-does-not-make-installable',edit(j=>
+ j.history.find(x=>x.id==='integration-pr103-model-builds-20261024').installable=true));
+
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');

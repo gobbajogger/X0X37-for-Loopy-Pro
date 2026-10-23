@@ -377,5 +377,86 @@
       "elite": "NO_INSTALLABLE",
       "pro": "NO_INSTALLABLE"
     }
+  },
+  "closed_loop_cycle_20261024_r4": {
+    "revision": "catalog-private-byte-audit-and-pr96-restore-skipped-20261024-r4",
+    "owner": "X0X37 Build Catalog Sync",
+    "site_repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+    "site_branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+    "consumed_site_sha": "e0b28198cb35f9bc850138539be6ed1b879b815d",
+    "site_root_tree": "b8ba72c63afae2360fce5f61d90eea40b98fccdf",
+    "site_main_sha": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+    "site_pages_sha": "9c5d3b6b0846f89436492851fef89ed3829b7ad7",
+    "consumed_firmware": [
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+        "sha": "9ed3cce9ed420c46b1ebab86101f7145a8da5995",
+        "root_tree": "f724088d91a340057a21e1b64e1a82d4d183ad07",
+        "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+        "evidence_revision": "independent-qa-pr103-consume-pr96-restore-skip-20261024-r1"
+      },
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+        "sha": "577d24aebd51db42adb551d79315ac546f884e12",
+        "root_tree": "39b5aa7a7f8aaed82d140f7b31702f4176405eeb",
+        "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+        "evidence_revision": "independent-qa-pr96-skip-restore-20261024-r1"
+      }
+    ],
+    "catalog_private_zip": {
+      "source": "Owner-private Library LoopyX0X37-PR103-Private-Elite-Pro-Controller-20261024.zip",
+      "sha256": {
+        "elite": "1cb7d432d3149559bf6330ab53443fbe8939382369185b9063fe1f08f85a8cd5",
+        "pro": "a8cd8b856001d446fa0c92074dc296ea454a02a75ce7332a10b8a8cb94b144f6",
+        "private_controller": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+      },
+      "producer_manifest_sha256": "c5ce67cfb96ddf059623a7ed9fb2d8f1b77a652514767d41bb398b6f32173893",
+      "command": "python3 /mnt/data/catalog_pr103_private_audit.py > /mnt/data/catalog_pr103_private_audit_result.json",
+      "exit_code": 0,
+      "checks_pass": 23,
+      "total_checks": 23,
+      "scoped": "CATALOG_PRIVATE_BYTE_REHASH_ONLY__NO_NATIVE_COMPILER_OR_FIRMWARE_CRC_PARSER_QA",
+      "bytes": {
+        "elite": 651396,
+        "pro": 651392,
+        "private_controller": 65492
+      },
+      "controller_redistribution_cleared": false,
+      "original_builder_compiler_exits": "0/0/0 according to verified logs; Catalog did not rerun"
+    },
+    "independent_qa_source_negative": {
+      "owner": "Independent QA",
+      "pr": 96,
+      "sha": "577d24aebd51db42adb551d79315ac546f884e12",
+      "evidence": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96#issuecomment-6372197027",
+      "command": "python3 qa_restore_skipped_exit.py -v",
+      "exit_code": 1,
+      "passed": 7,
+      "failed": 2,
+      "defect": "Partial/total skipped restore slots ignored by CLI success path. BACKUP retained; no observed device loss.",
+      "previous_fix": "SMP_INFO timeout/malformed scoped 14/14 PASS exit 0",
+      "pr103_applied_repair": false
+    },
+    "count_before": 82,
+    "count_after": 83,
+    "dev_generations": 2,
+    "build_status": "BUILD_SUCCEEDED_UNREVIEWED",
+    "independent_full_root_qa": "PENDING_OR_FAILED_SOURCE_WINDOW",
+    "site_preview_latest": null,
+    "site_preview_versions": [],
+    "elite_installability": "NOT_INSTALLABLE",
+    "pro_installability": "NOT_INSTALLABLE",
+    "device_feedback": "UNKNOWN",
+    "public_http": "NOT_VERIFIED",
+    "native_site_git_transport": "git ls-remote exit 128: Could not resolve host: github.com",
+    "native_full_site_npm_build": "NOT_RUN_EXACT_CHECKOUT_NOT_MOUNTED",
+    "native_full_site_npm_test": "NOT_RUN_EXACT_CHECKOUT_NOT_MOUNTED",
+    "responsive_browser": "NOT_RUN_EXACT_CHECKOUT_NOT_MOUNTED",
+    "next_owner": "Data Safety (firmware safety repair) + Independent NIGHTLY Website QA (read-only site status PR3)",
+    "next_gate": "Data Safety PR96 skipped restore fix, independent exact full-root QA, safe merge, lawfully hosted immutable HTTP; for website independent full-root npm/negative/browser before merger.",
+    "protected_refs_untouched": true,
+    "firmware_vendor_bytes_public": false
   }
 }
