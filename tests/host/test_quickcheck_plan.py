@@ -191,5 +191,24 @@ run host-build sh host/probe.c
         self.assertEqual(reads.count(self.repo / 'tests/run_tests.sh'), 1)
 
 
+    def test_projects_page_routes_to_project_regressions(self):
+        # A Projects-specific page change must dispatch both real project suites,
+        # not just the generic Breaks and installer mock tests.
+        with (self.repo / 'tests/run_tests.sh').open('a') as f:
+            f.write('run projects-web node web/test_projects.mjs\n'
+                    'run projects-page node web/test_projects_page.mjs\n')
+        for path in ('web/x0x_projects.js', 'web/x0x_projects.html'):
+            with self.subTest(path=path):
+                selected = PLAN.select(self.repo, [path], False)
+                self.assertIn('projects-web', selected)
+                self.assertIn('projects-page', selected)
+        # An unrelated installer edit still runs its generic tests, without
+        # forcing the two project-transfer suites.
+        unrelated = PLAN.select(self.repo, ['web/x0x_installer.html'], False)
+        self.assertNotIn('projects-web', unrelated)
+        self.assertNotIn('projects-page', unrelated)
+
+
+
 if __name__ == '__main__':
     unittest.main()
