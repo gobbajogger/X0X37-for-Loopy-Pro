@@ -125,6 +125,82 @@ int main(void)
     consume();
     CHECK(starts == 1 && continues == 0);          /* arbitrary burst, last request wins */
 
+
+    /* MID-13: setting INTERNAL before the audio block applies cancels a
+     * previously queued MIDI Start/Continue/Stop, not later local gestures. */
+    reset();
+    CHECK(seq_midi_rt(&S, 0xFA) == 1);
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(!S.playing && starts == 0 && !S.req_start && !S.req_rt);
+
+    reset();
+    CHECK(seq_midi_rt(&S, 0xFB) == 1);
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(!S.playing && continues == 0 && !S.req_cont);
+
+    reset();
+    S.playing = 1;
+    CHECK(seq_midi_rt(&S, 0xFC) == 1);
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(S.playing && stops == 0 && !S.req_stop && !S.req_stop_rt);
+
+    reset();
+    seq_start(&S);
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(S.playing && starts == 1 && S.start_local);
+
+    reset();
+    seq_continue(&S);
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(S.playing && continues == 1 && S.start_local);
+
+    reset();
+    S.playing = 1;
+    seq_stop(&S);
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(!S.playing && stops == 1);
+
+    reset();
+    CHECK(seq_midi_rt(&S, 0xFA) == 1);
+    seq_continue(&S); /* local Continue supersedes remote Start */
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(S.playing && starts == 0 && continues == 1);
+
+    reset();
+    S.playing = 1;
+    CHECK(seq_midi_rt(&S, 0xFC) == 1);
+    seq_start(&S); /* local Start must survive canceled remote Stop */
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(S.playing && starts == 1 && stops == 0);
+
+    reset();
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    S.clk_src = SEQ_CLK_AUTO;
+    consume();
+    CHECK(seq_midi_rt(&S, 0xFA) == 1);
+    consume();
+    CHECK(S.playing); /* MIDI returns when AUTO is selected again */
+
+    reset();
+    seq_stop(&S); /* earlier local Stop superseded by remote Stop */
+    CHECK(seq_midi_rt(&S, 0xFC) == 1);
+    S.playing = 1;
+    S.clk_src = SEQ_CLK_INT;
+    consume();
+    CHECK(S.playing && stops == 0);
+
+    reset();
+    CHECK(seq_midi_rt(&S, 0x80) == 0); /* Note Off is never clock traffic */
+
     fprintf(stderr, "transport-coalesce: %d checks, %d failures\n", checks, failures);
     return failures ? 1 : 0;
 }
