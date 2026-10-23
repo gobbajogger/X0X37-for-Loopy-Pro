@@ -140,5 +140,9 @@ int main(int argc, char **argv)
             BARS, BARS);
     fclose(f);
     printf("builtin break: A %u + B %u samples, %u bytes of flash\n", na, nb, (na + 1) / 2 + (nb + 1) / 2);
+    free(a);
+    free(b);
+    free(ea);
+    free(eb);
     return 0;
 }
