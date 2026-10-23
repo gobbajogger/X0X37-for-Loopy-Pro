@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:52:13Z",
+  "role": "X0X37 Installer Improvements — firmware web source UX",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-ux-webmidi-preflight-20261024-run17",
+    "tested_commit": "8344f586e57512f651965f3ac21545b24a6c6241",
+    "tested_tree": "f73dd236fd1788a87c4e5d1a55a4f5e5158a2303"
+  },
+  "summary": "Immediately explain unsupported Web MIDI browsers in English/Japanese before users click Connect; retain guarded firmware/model behavior and existing supported-browser retry flow.",
+  "dependencies": [
+    "draft firmware PR #97 @ 8344f586e57512f651965f3ac21545b24a6c6241",
+    "firmware nightly development integration, not production main"
+  ],
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "web/x0x_installer.html",
+      "description": "Bilingual unsupported-browser connection notice and disabled impossible connection action"
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_connection_retry.mjs",
+      "description": "Extended Node supported/unsupported preflight and retained MIDI retry/write-lock checks"
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_webmidi_preflight.py",
+      "description": "Chromium 320/390/1280 supported and unsupported Web MIDI preflight/translation/fail-closed checks"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/installer-ux-webmidi-preflight-20261024.md",
+      "description": "Before/after behavior, exact test log SHA256, scope and QA/Pages boundaries"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/installer-webmidi-preflight-20261024.json",
+      "description": "Structured run evidence matched to schema draft PR 78"
+    }
+  ],
+  "checks": [
+    {
+      "name": "before browser regression",
+      "status": "FAIL",
+      "command": "python3 test_install_webmidi_preflight.py candidate_accessible.html before",
+      "exit_code": 1,
+      "evidence": "private before.log expected baseline failure",
+      "log_sha256": "80f7913c500069375897d09aedfa2c4fc60e4116ec662486be5cc880865fa519",
+      "coverage": "Old source lacks unsupported-browser warning, expected red test"
+    },
+    {
+      "name": "Chromium Web MIDI preflight",
+      "status": "PASS",
+      "command": "python3 test_install_webmidi_preflight.py candidate_preflight.html after",
+      "exit_code": 0,
+      "evidence": "private after.log and screenshots",
+      "log_sha256": "44a0d946662ff3098cb0dc4a9635780b0e482940f3d3889c20df599b1ac3d6b5",
+      "coverage": "6 browser contexts at 320/390/1280; supported/unsupported; EN/JA; focus; no overflow; empty installable picker"
+    },
+    {
+      "name": "Node connection UI",
+      "status": "PASS",
+      "command": "node test_install_connection_retry.mjs candidate_preflight.html",
+      "exit_code": 0,
+      "evidence": "private retry-final.log",
+      "log_sha256": "c95ca1e937400ac81af24811f810256be2b27b2267ddfde2f10abfca1864697f",
+      "coverage": "Unsupported browser, EN/JA, mid-scan duplicate prevention, retry, rescan and write lock"
+    },
+    {
+      "name": "Node journey states",
+      "status": "PASS",
+      "command": "node test_install_journey.mjs candidate_preflight.html",
+      "exit_code": 0,
+      "evidence": "private journey-after.log",
+      "log_sha256": "f7c4fe6e5cb7927287fcaade50ba4cd92c463c2fa707498b19a46e04a75a5c60",
+      "coverage": "Seven UI stage transitions and one aria-current"
+    },
+    {
+      "name": "Local firmware chooser",
+      "status": "PASS",
+      "command": "node test_install_local_entry.mjs candidate_preflight.html",
+      "exit_code": 0,
+      "evidence": "private local-entry.log",
+      "log_sha256": "868c394779897d1ff585823212684d53fce79806dad23323116eb2eff17cb7bc",
+      "coverage": "Invalid file, cancellation, explicit unchecked consent, writing lock and stale read"
+    },
+    {
+      "name": "Production picker gate",
+      "status": "PASS",
+      "command": "node source/test_install_public_eligibility.mjs candidate_preflight.html",
+      "exit_code": 0,
+      "evidence": "private eligibility.log",
+      "log_sha256": "bf9e698b4fcfb81f8ba414fa1e38bebd933e7f2d31bafd501f8b905a6c9dbb1b",
+      "coverage": "20 negative eligibility/forged owner evidence/wrong-model/controller/Release-import cases"
+    },
+    {
+      "name": "Node syntax",
+      "status": "PASS",
+      "command": "node --check inline-check.js && node --check test_install_connection_retry.mjs",
+      "exit_code": 0,
+      "evidence": "local native exit 0",
+      "coverage": "inline script with mocked library/catalog and Node test"
+    },
+    {
+      "name": "Python syntax",
+      "status": "PASS",
+      "command": "python3 -m py_compile test_install_webmidi_preflight.py",
+      "exit_code": 0,
+      "evidence": "local native exit 0",
+      "coverage": "Playwright regression module"
+    },
+    {
+      "name": "Firmware target builds",
+      "status": "NOT_RUN",
+      "command": "not applicable: browser source only; firmware/ and build inputs unchanged",
+      "evidence": "Native Elite/Pro builds are Hourly Build owner scope"
+    },
+    {
+      "name": "Independent QA",
+      "status": "NOT_RUN",
+      "command": "not applicable in producing run; separate Independent QA owner must execute",
+      "evidence": "No independent review claimed"
+    },
+    {
+      "name": "Live HTTP Pages verification",
+      "status": "NOT_RUN",
+      "command": "not applicable: no Pages changed in this source-only run",
+      "evidence": "Neither production nor NIGHTLY gh-pages changed"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Browser-only source delta"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Browser-only source delta"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA then sole Safe Merge",
+    "action": "Recheck source and regression on the exact pushed blob, then integrate eligible stacked installer UX PRs into firmware nightly",
+    "gate": "Independent QA and source integration pending; website publication separate"
+  },
+  "publication": "SOURCE_ONLY"
+}

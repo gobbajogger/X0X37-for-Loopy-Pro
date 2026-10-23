@@ -118,6 +118,8 @@ h1 { font-size: clamp(46px, 5.8vw, 74px); letter-spacing: -.07em; line-height: .
 .ctext { flex: 1; min-width: 0; display: grid; gap: 1px; }
 .ctext b { font-size: 14px; font-weight: 700; color: var(--fg); }
 .ctext span { font-size: 11px; color: var(--dim); overflow-wrap: anywhere; }
+/* Unsupported browsers get a useful diagnosis before asking for MIDI access. */
+.ctext .compat-notice { display: block; margin-top: 9px; padding: 10px 12px; border-left: 3px solid var(--busy); border-radius: 5px; background: var(--card-raised); color: var(--fg); font-size: 12px; line-height: 1.5; }
 button.quiet, .build-item button { border: 1px solid var(--rule); background: var(--card-raised); color: var(--fg); border-radius: 7px; padding: 9px 16px; min-height: 41px; font-weight: 680; font-size: 12px; }
 button.quiet:hover, .build-item button:hover:not(:disabled) { border-color: var(--accent); }
 button.quiet[aria-disabled="true"] { opacity: .65; cursor: progress; }
@@ -318,6 +320,7 @@ progress::-moz-progress-bar { background: var(--accent); }
           <div class="ctext" role="status" aria-live="polite" aria-atomic="true">
             <b id="conn">Not connected</b>
             <span id="connDetail" data-t="connhelp"></span>
+            <span class="compat-notice" id="browserhelp" data-t="browserunsupported" hidden></span>
           </div>
           <button class="quiet" id="connbtn" type="button" data-t="connect">Connect</button>
         </div>
@@ -518,6 +521,8 @@ const TEXT = {
     retryconnection: "もう一度接続", scanningconnection: "検索中…", rescanconnection: "再検索",
     connectionnotfound: "機器を検出できません。USB データケーブルと他の MIDI アプリを確認し、「もう一度接続」を押してください。",
     connectiondenied: "MIDI（SysEx）が許可されていません。サイト設定で許可してから、「もう一度接続」を押してください。",
+    unsupportedtitle: "Web MIDI を使用できません", unsupportedaction: "接続不可",
+    browserunsupported: "このブラウザでは Web MIDI を利用できません。パソコンの Chrome または Edge でこのページを開き、USB データケーブルで接続してください。",
     model: "接続されている機器はこのパッケージ向けではありません。",
     lost: "USB の接続が切れました。挿し直してもう一度押してください。",
     noloader: "書き込みモードの機器が見つかりません。USB を挿し直してもう一度押してください。",
@@ -616,6 +621,8 @@ const TEXT = {
     retryconnection: "Try again", scanningconnection: "Scanning…", rescanconnection: "Rescan",
     connectionnotfound: "Keyboard not detected. Check the USB data cable, close other MIDI apps, then select Try again.",
     connectiondenied: "MIDI (SysEx) permission denied. Allow MIDI in site settings, then select Try again.",
+    unsupportedtitle: "Web MIDI unavailable", unsupportedaction: "Unavailable",
+    browserunsupported: "This browser does not support the Web MIDI connection required by this installer. Open this page in Chrome or Edge on a computer, then connect with a USB data cable.",
     model: "The connected device does not match this package.",
     lost: "The USB connection was lost. Replug it and press Install again.",
     noloader: "The device in update mode was not found. Replug the USB cable and press Install again.",
@@ -689,12 +696,17 @@ function refreshJourney() {
 let connectionState = "idle";
 function renderConnectionAction() {
   const btn = $("connbtn");
+  const supported = typeof navigator.requestMIDIAccess === "function";
   const action = connectionState === "scanning" ? "scanningconnection"
     : connectionState === "retry" ? "retryconnection"
     : connectionState === "connected" ? "rescanconnection" : "connect";
-  btn.textContent = t(action);
-  // aria-disabled preserves keyboard focus and keeps progress/status announcements audible.
-  btn.setAttribute("aria-disabled", String(connectionState === "scanning" || writing));
+  btn.textContent = t(supported ? action : "unsupportedaction");
+  $("browserhelp").hidden = supported;
+  $("connDetail").hidden = !supported;
+  if (!supported && !connected) $("conn").textContent = t("unsupportedtitle");
+  // Unsupported browsers cannot connect. Scanning remains aria-disabled to retain keyboard focus.
+  btn.disabled = !supported;
+  btn.setAttribute("aria-disabled", String(!supported || connectionState === "scanning" || writing));
 }
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
@@ -767,7 +779,7 @@ async function scan() {
   }
 }
 
-$("connbtn").addEventListener("click", () => { if (connectionState !== "scanning" && !writing) scan(); });
+$("connbtn").addEventListener("click", () => { if (typeof navigator.requestMIDIAccess === "function" && connectionState !== "scanning" && !writing) scan(); });
 
 // Production approvals are intentionally compiled into the reviewed site source,
 // never populated by remote catalog metadata or the Releases API. No hardware
