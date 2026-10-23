@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T14:28:03Z",
+  "role": "X0X37 Installer Improvements",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-ux-aria-language-20261023-run16",
+    "tested_commit": "46299fb0f2a38af5fabc1372790e1b0f84e50dc3",
+    "tested_tree": "b417526152125c9c2632190b11ccb6ee49126a89"
+  },
+  "summary": "Translate nine previously English-only screen-reader region/control labels to Japanese on language switch, retaining screen-reader and keyboard focus, model and firmware safeguards.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "web/x0x_installer.html",
+      "description": "nine accessible-name translation bindings and EN/JA mapping"
+    },
+    {
+      "kind": "regression",
+      "location": "web/test_install_accessible_language.py",
+      "description": "Playwright Chromium responsive and invalid-firmware negative cases"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/installer-ux-aria-language-20261023-run16.md",
+      "description": "Before/after, test exit evidence, source SHA and pending QA"
+    }
+  ],
+  "checks": [
+    {
+      "name": "chromium_en_ja",
+      "status": "PASS",
+      "command": "python3 web/test_install_accessible_language.py web/x0x_installer.html /tmp/installer-accessible",
+      "evidence": "local run16 logs test-after.log",
+      "log_sha256": "5bec0e42a44e2c77f3f62b4d4327a42283096720074a28e4301d1f4ae7396297",
+      "coverage": "9 names in EN/JA at 320/390/1280; focus, empty catalog, invalid package, no overflow",
+      "exit_code": 0
+    },
+    {
+      "name": "journey",
+      "status": "PASS",
+      "command": "node web/test_install_journey.mjs web/x0x_installer.html",
+      "evidence": "local run16 logs test_install_journey.mjs.log",
+      "log_sha256": "f7c4fe6e5cb7927287fcaade50ba4cd92c463c2fa707498b19a46e04a75a5c60",
+      "coverage": "7 UI journey states",
+      "exit_code": 0
+    },
+    {
+      "name": "connection_retry",
+      "status": "PASS",
+      "command": "node web/test_install_connection_retry.mjs web/x0x_installer.html",
+      "evidence": "local run16 logs test_install_connection_retry.mjs.log",
+      "log_sha256": "f6b5751df59e1237eac2ceda901b21a0ccfafef3db215fa01d7a84c597eeac93",
+      "coverage": "Scan/retry/rescan guarded behavior",
+      "exit_code": 0
+    },
+    {
+      "name": "local_file_entry",
+      "status": "PASS",
+      "command": "node web/test_install_local_entry.mjs web/x0x_installer.html",
+      "evidence": "local run16 logs test_install_local_entry.mjs.log",
+      "log_sha256": "868c394779897d1ff585823212684d53fce79806dad23323116eb2eff17cb7bc",
+      "coverage": "File cancel, invalid file, stale result, unchecked confirmation",
+      "exit_code": 0
+    },
+    {
+      "name": "original_regression",
+      "status": "FAIL",
+      "command": "python3 web/test_install_accessible_language.py ORIGINAL /tmp/installer-before",
+      "exit_code": 1,
+      "evidence": "expected BEFORE assertion on Japanese aria-home untranslated",
+      "coverage": "baseline negative reproduction, not changed-source failure"
+    },
+    {
+      "name": "native_firmware",
+      "status": "NOT_RUN",
+      "command": "native Elite and Pro build",
+      "evidence": "browser-only accessible-label source does not change firmware"
+    },
+    {
+      "name": "full_sample_ota",
+      "status": "NOT_RUN",
+      "command": "full repository backup/OTA suite",
+      "evidence": "full checked-out firmware tree unavailable; display-only labels do not touch OTA/sample code"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "browser-only change"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "browser-only change"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA → sole Safe Merge",
+    "action": "Independently review labels and focus, then integrate accepted dependent browser source via firmware nightly PR.",
+    "gate": "Native browser QA and protected firmware nightly integration"
+  },
+  "dependencies": [
+    "PR #92 @ 46299fb0f2a38af5fabc1372790e1b0f84e50dc3",
+    "firmware nightly @ 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+  ],
+  "publication": "SOURCE_ONLY"
+}
