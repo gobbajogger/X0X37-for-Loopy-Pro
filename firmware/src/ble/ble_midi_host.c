@@ -443,7 +443,12 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
         if (++h->step == ST_DONE) { h->state = BLEH_ADVERTISING; h->want_adv = 0; return; }
         next_cmd(h);
     } else if (code == 0x0F && pl >= 4) {           /* command status (disconnect): status, credits, opcode */
-        if (h->cmd_wait && rd16(p + 2) == h->cmd_op) h->cmd_wait = 0;
+        if (h->cmd_wait && rd16(p + 2) == h->cmd_op) {
+            h->cmd_wait = 0;
+            /* Command Status failure means Disconnect was never accepted. Retry
+             * radio-off on the next ordinary poll, without dropping MIDI. */
+            if (p[0] != 0 && h->cmd_op == OP_DISC) h->cmd_op = 0;
+        }
     } else if (code == 0x3E && pl >= 5 && (p[0] == 0x01 || p[0] == 0x0A)) {     /* (enhanced) connection complete */
         h->want_adv = 0;                            /* the controller stops advertising either way */
         if (p[1] == 0 && p[4] == 1) {               /* success, we are the peripheral */
@@ -458,6 +463,17 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
         h->conn_int = (uint16_t)rd16(p + 4);
         h->conn_lat = (uint16_t)rd16(p + 6);
     } else if (code == 0x05 && pl >= 4) {           /* disconnection complete */
+        /* A failed HCI disconnection is NOT a link-down notification. A live
+         * Note Off/SysEx outbox must survive it. Allow radio-off to retry an
+         * unsuccessful matching Disconnect command instead of parking it. */
+        if (p[0] != 0) {
+            if (h->state == BLEH_CONNECTED && h->cmd_op == OP_DISC &&
+                (rd16(p + 1) & 0x0FFFu) == h->conn) {
+                h->cmd_wait = 0;
+                h->cmd_op = 0;
+            }
+            return;
+        }
         h->disc_reason = p[3];                      /* attempt 34 (DIAG) */
         if (h->state == BLEH_CONNECTED && (rd16(p + 1) & 0x0FFFu) == h->conn) {
             h->state = BLEH_ADVERTISING;
