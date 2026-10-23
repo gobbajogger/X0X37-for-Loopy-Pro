@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Execute the installer's real scan/run functions against fake Web MIDI.
 // No physical device, firmware image or sample data is touched.
+import './test_install_guard.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { Script, createContext } from 'node:vm';
@@ -14,9 +15,10 @@ function extract(anchor) {
   assert.ok(end > start, 'unterminated production function ' + anchor);
   return source.slice(start, end + 2);
 }
-const scan = extract('async function scan() {');
+const scan = extract('async function scan(allowPostWrite = false) {');
 const run = extract('async function run(img, product, opts = {}) {');
-assert.match(scan, /if \(writing\) return;/, 'do not remove active-write guard');
+assert.match(scan, /if \(writing && !allowPostWrite\) return;/,
+  'ordinary MIDI changes must not scan while a write is active');
 
 for (const mode of ['normal', 'resume', 'missing', 'failure']) {
   const state = { connected: false, scans: 0, leds: [], finished: false };
@@ -34,6 +36,7 @@ for (const mode of ['normal', 'resume', 'missing', 'failure']) {
         const ota = { model: 'ota-SMK-37 Pro', text: 'ota-SMK-37 Pro' };
         const app = { model: 'SMK-37 Pro', text: 'SMK-37 Pro' };
         if (state.finished) {
+          assert.equal(ctx.isWriting(), true, mode + ': reconnect must retain the write lock');
           state.scans++;
           if (mode === 'missing') return null;
           return predicate(app) ? { id: app, name: 'Keyboard', link } : null;
