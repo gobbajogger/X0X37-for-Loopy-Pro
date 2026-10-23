@@ -1,71 +1,69 @@
 {
   "schema_version": 1,
-  "run_utc": "2026-10-23T13:42:00Z",
+  "run_utc": "2026-10-23T15:06:42Z",
   "role": "LoopyX0X37 Performance Engineering",
   "outcome": "DELIVERED",
   "source": {
     "repository": "gobbajogger/X0X37-for-Loopy-Pro",
-    "branch": "nightly",
-    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
-    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+    "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+    "tested_commit": "74389d4bb4abc2f8a36b91bc16d1822b63264986",
+    "nightly_parent": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "original_breaks_blob": "1d3d692b6788d9d1f13901cd7ab13df506cdb72f"
   },
-  "summary": "Propose 480->960 BREAK reverse ADPCM checkpoints; source-matched host reverse sampler/seek regression and GCC+Clang 9-trial benchmarks show fewer worst-case on-demand decodes with +3840 B two-bank pool tradeoff. Exact firmware target budget/build and real audio performance NOT RUN.",
+  "summary": "Supersede FAILED 960-checkpoint PR93 target build: restore BRK_NCK=480 and reuse one adjacent reverse cache decoder state per voice (+16 B expected pool). Native host source-algorithm model: 20.18%/33.43% fewer calls on long reverse, exact PCM at 11 lengths incl 2048 random jumps, GCC/Clang O2 & ASan+UBSan PASS. NEW model builds/full renderer NOT_RUN.",
   "outputs": [
     {
       "kind": "source",
       "location": "firmware/src/dsp/breaks.h",
-      "description": "Double BREAK ADPCM checkpoint table length, leave audio algorithm unchanged"
+      "description": "Revert oversized checkpoints and add one saved state per voice"
+    },
+    {
+      "kind": "source",
+      "location": "firmware/src/dsp/breaks.c",
+      "description": "Consume or replace saved adjacent decoder state; invalidate when voice restarts"
     },
     {
       "kind": "benchmark",
       "location": "tests/host/breaks_reverse_seek_perf_test.c",
-      "description": "Deterministic full reverse output + random seek equality checks and native host benchmark"
+      "description": "Host source-model test compares baseline/reuse across 11 loop boundaries, 2048 random jumps"
     },
     {
       "kind": "findings",
-      "location": "docs/audit/performance-engineering-2026-10-23-break-reverse-checkpoints.md",
-      "description": "Measured GCC/Clang host comparison, memory delta, checks, limitations and QA/build handoff"
+      "location": "docs/audit/performance-engineering-2026-10-23-break-reverse-seek-state-reuse.md",
+      "description": "Actual host evidence and unrun exact current Elite/Pro budget gates"
     }
   ],
   "checks": [
     {
-      "name": "GCC O2 baseline/candidate correctness and throughput",
+      "name": "GCC+Clang O2 model baseline/candidate",
       "status": "PASS",
-      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -ffp-contract=off -DBRK_PROFILE_NCK=480|960 tests/host/breaks_reverse_seek_perf_test.c -o gcc-brk-480|960 && ./gcc-brk-480|960 --check && ./gcc-brk-480|960 --bench (two individually executed variants)",
+      "command": "gcc|clang -std=c11 -O2 -Wall -Wextra -Werror -pedantic -ffp-contract=off -DBRK_PROFILE_NCK=480 -DBRK_SEEK_CACHE=0|1 tests/host/breaks_reverse_seek_perf_test.c -o BINARY; BINARY --check; BINARY --bench (each variant independently executed)",
       "exit_code": 0,
-      "evidence": "native command exit log sha256=f54c6f334ef2fa9fc9a9ad145eb4b027bcd63e8ffec060b3ce7b405fe074907d; report table",
-      "coverage": "all reverse sample outputs plus 1024 randomized seeks at each of 4 loop lengths; nine-trial host timings"
+      "evidence": "native command ledger sha256=169ed5c727ce2c568d7c43d138cfb88aace8c07c0e874a01d9d2e2cc51735bf4",
+      "coverage": "11 lengths, every descending sample & 2048 random points per length, four 9-trial benchmarks; model uses exact production IMA decoder"
     },
     {
-      "name": "Clang O2 baseline/candidate correctness and throughput",
+      "name": "GCC+Clang O1 ASan+UBSan model",
       "status": "PASS",
-      "command": "clang -std=c11 -O2 -Wall -Wextra -Werror -pedantic -ffp-contract=off -DBRK_PROFILE_NCK=480|960 tests/host/breaks_reverse_seek_perf_test.c -o clang-brk-480|960 && ./clang-brk-480|960 --check && ./clang-brk-480|960 --bench (two individually executed variants)",
+      "command": "gcc|clang -std=c11 -O1 -g -Wall -Wextra -Werror -pedantic -fno-omit-frame-pointer -fsanitize=address,undefined -DBRK_PROFILE_NCK=480 -DBRK_SEEK_CACHE=1 tests/host/breaks_reverse_seek_perf_test.c -o BINARY; BINARY --check",
       "exit_code": 0,
-      "evidence": "same native exit ledger sha256=f54c6f334ef2fa9fc9a9ad145eb4b027bcd63e8ffec060b3ce7b405fe074907d",
-      "coverage": "4 loop lengths, 1024 random positions and full reverse output, source-matched model"
+      "evidence": "same native ledger",
+      "coverage": "11 lengths full output & 2048 random seeks each"
     },
     {
-      "name": "GCC and Clang O1 ASan+UBSan candidate",
+      "name": "GCC+Clang unrecognized selector",
       "status": "PASS",
-      "command": "gcc/clang -std=c11 -O1 -g -Wall -Wextra -Werror -pedantic -fno-omit-frame-pointer -fsanitize=address,undefined -DBRK_PROFILE_NCK=960 tests/host/breaks_reverse_seek_perf_test.c -o respective-asan && respective-asan --check",
-      "exit_code": 0,
-      "evidence": "native exit ledger sha256=f54c6f334ef2fa9fc9a9ad145eb4b027bcd63e8ffec060b3ce7b405fe074907d",
-      "coverage": "exact 960 host-model correctness and no triggered sanitizers"
-    },
-    {
-      "name": "Bad CLI selectors",
-      "status": "PASS",
-      "command": "./gcc-brk-960 --invalid; ./clang-brk-960 --invalid",
+      "command": "BINARY --bogus",
       "exit_code": 2,
-      "evidence": "both observed exit=2 in native exit ledger (expected negative status)",
-      "coverage": "unknown benchmark selectors rejected rather than silently treated PASS"
+      "evidence": "same native ledger",
+      "coverage": "expected 2, no false PASS"
     },
     {
-      "name": "Full firmware renderer and pinned Elite/Pro DEV+controller",
+      "name": "Current full source/native Elite+Pro and controller target build",
       "status": "NOT_RUN",
       "command": "NOT_RUN",
-      "evidence": "This producer does not own target firmware builds or independently approve QA.",
-      "coverage": "Per-model RAM/flash/pool and end-to-end audio remain unverified"
+      "evidence": "previous 960 proposal actual target builds failed pool with exit 1; new compact saved-state source not target-built",
+      "coverage": "actual model-specific code/RAM/pool, hardware audio and current full renderer unverified"
     }
   ],
   "models": [
@@ -73,23 +71,23 @@
       "model": "elite",
       "build_status": "NOT_RUN",
       "device_status": "DEVICE_NOT_TESTED",
-      "notes": "Exact SHA BUILD_ONLY and pool headroom requested from Hourly Build"
+      "notes": "New revision BUILD_ONLY pending; previous model exit1 pertains to prior SHA"
     },
     {
       "model": "pro",
       "build_status": "NOT_RUN",
       "device_status": "DEVICE_NOT_TESTED",
-      "notes": "Exact SHA BUILD_ONLY and pool headroom requested from Hourly Build"
+      "notes": "New revision BUILD_ONLY pending; previous model exit1 pertains to prior SHA"
     }
   ],
   "next": {
-    "owner": "Hourly Build and Independent QA",
-    "action": "Build draft source exact SHA Elite/Pro DEV+controller immediately as BUILD_ONLY, record pool/RAM/flash delta; separately QA full BREAK playback and regression before Safe Merge.",
-    "gate": "Both-model native build budget and full independent QA before firmware NIGHTLY integration"
+    "owner": "Hourly Build + Independent QA",
+    "action": "Build NEW exact source head (Elite & Pro DEV + matching controller) immediately BUILD_ONLY without prior QA; check pool reserve; independently full BREAK renderer/regressions/restarts/NoteOff/phase before Safe Merge.",
+    "gate": "New current-source native builds and independent QA prior to NIGHTLY merge"
   },
   "dependencies": [
-    "NIGHTLY parent 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
-    "Unmerged draft scheduler evidence contract PR #78"
+    "firmware nightly 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "superseded PR93 parent 74389d4bb4abc2f8a36b91bc16d1822b63264986 target build exit1 pool"
   ],
   "publication": "SOURCE_ONLY"
 }

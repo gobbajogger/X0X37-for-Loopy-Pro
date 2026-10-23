@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* BREAK reverse ADPCM checkpoint/refill bound and native-host throughput PROXY.
- * It reproduces the bank_seek, checkpoint-build, and rev_fetch algorithms
+ * It models bank_seek, checkpoint-build and rev_fetch with an optional saved
+ * adjacent reverse boundary state (not full renderer instrumentation).
  * from firmware/src/dsp/breaks.c at NIGHTLY 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e.
  * It calls the actual shared production ima_decode() from ima_adpcm.h.
  * No firmware is compiled or flashed. Not a target CPU timing or audio XRUN test.
@@ -9,7 +10,7 @@
  *   -o /tmp/brk-rev tests/host/breaks_reverse_seek_perf_test.c
  * /tmp/brk-rev --check
  * /tmp/brk-rev --bench
- * Optionally: -DBRK_PROFILE_NCK=480 for current-NIGHTLY baseline.
+ * Use -DBRK_PROFILE_NCK=480 -DBRK_SEEK_CACHE=0|1 for before/after.
  * The test exercises a faithful model of the unchanged seeks/refills, NOT
  * direct breaks.c instrumentation. Run the existing full BREAK regressions too.
  */
@@ -26,6 +27,9 @@
 #define BRK_PROFILE_NCK BRK_NCK /* candidate header default, override for baseline */
 #endif
 #define BRK_PROFILE_RCH BRK_RCH
+#ifndef BRK_SEEK_CACHE
+#define BRK_SEEK_CACHE 1
+#endif
 #define TRIALS 9u
 #define SPAN 65536u
 #if BRK_PROFILE_NCK < 32 || BRK_PROFILE_NCK > 2048
@@ -46,6 +50,10 @@ typedef struct {
     int16_t rbuf[BRK_PROFILE_RCH];
     uint32_t rbase;
     uint8_t rvalid;
+#if BRK_SEEK_CACHE
+    ck_t prev_seek_state;
+    uint32_t prev_seek_pos;
+#endif
 } voice_t;
 static uint64_t count_decode, max_refill;
 static volatile uint64_t sink;
@@ -73,10 +81,28 @@ static void prepare_bank(bank_t *k, const uint8_t *d, uint32_t n)
     }
 }
 /* These two helpers mirror breaks.c bank_seek and rev_fetch. */
-static void bank_seek(const bank_t *k, uint32_t p, int32_t *pred, int32_t *idx)
+static void bank_seek(const bank_t *k, voice_t *v, uint32_t p, int32_t *pred, int32_t *idx)
 {
+#if BRK_SEEK_CACHE
+    if (v->prev_seek_pos == p) {
+        *pred = v->prev_seek_state.pred;
+        *idx = v->prev_seek_state.idx;
+        v->prev_seek_pos = UINT32_MAX;
+        return;
+    }
+#else
+    (void)v;
+#endif
     uint32_t c=p>>k->ck_shift, i=c<<k->ck_shift;
     *pred=k->ck[c].pred; *idx=k->ck[c].idx;
+#if BRK_SEEK_CACHE
+    if(p >= BRK_PROFILE_RCH && p-BRK_PROFILE_RCH >= i) {
+        uint32_t target=p-BRK_PROFILE_RCH;
+        while(i<target) counted_decode(k->adpcm,i++,pred,idx);
+        v->prev_seek_state=(ck_t){(int16_t)*pred,(uint8_t)*idx,0};
+        v->prev_seek_pos=target;
+    } else v->prev_seek_pos=UINT32_MAX;
+#endif
     while(i<p) counted_decode(k->adpcm,i++,pred,idx);
 }
 static int16_t rev_fetch(voice_t *v, const bank_t *k, uint32_t q)
@@ -86,7 +112,7 @@ static int16_t rev_fetch(voice_t *v, const bank_t *k, uint32_t q)
         uint32_t base=q & ~(uint32_t)(BRK_PROFILE_RCH-1u), m=k->n-base, i;
         int32_t pred,idx;
         if(m>BRK_PROFILE_RCH) m=BRK_PROFILE_RCH;
-        bank_seek(k,base,&pred,&idx);
+        bank_seek(k,v,base,&pred,&idx);
         for(i=0;i<m;i++) v->rbuf[i]=counted_decode(k->adpcm,base+i,&pred,&idx);
         v->rbase=base; v->rvalid=1;
         if(count_decode-before>max_refill) max_refill=count_decode-before;
@@ -105,7 +131,11 @@ static int check_one(uint32_t n)
 {
     bank_t *k=malloc(sizeof(*k)); uint8_t *d; int16_t *pcm;
     if(!k||prepare(n,&d,&pcm,k)){free(k);return 1;}
-    voice_t v={0};count_decode=max_refill=0;
+    voice_t v={0};
+#if BRK_SEEK_CACHE
+    v.prev_seek_pos = UINT32_MAX;
+#endif
+    count_decode=max_refill=0;
     /* Check every sample in a long descending scan. The cache path is exercised. */
     for (uint32_t q=n;q>0;) {--q; if(rev_fetch(&v,k,q)!=pcm[q]) {
         fprintf(stderr,"FAIL descending n=%u pos=%u shift=%u\n",n,q,k->ck_shift);
@@ -113,7 +143,7 @@ static int check_one(uint32_t n)
     }}
     /* Nonadjacent requests exercise both cache misses and odd tail lengths. */
     uint32_t seed=0x791de530u;
-    for(unsigned j=0;j<1024;j++){uint32_t q=rnd(&seed)%n;
+    for(unsigned j=0;j<2048;j++){uint32_t q=rnd(&seed)%n;
         if(rev_fetch(&v,k,q)!=pcm[q]){fprintf(stderr,"FAIL random n=%u pos=%u\n",n,q);free(k);free(d);free(pcm);return 1;}}
     /* A refill starts from a checkpoint, then decodes at most a full checkpoint interval. */
     uint32_t bound=(1u<<k->ck_shift) > BRK_PROFILE_RCH ? (1u<<k->ck_shift) : BRK_PROFILE_RCH;
@@ -122,7 +152,7 @@ static int check_one(uint32_t n)
         free(k);free(d);free(pcm);return 1;
     }
     printf("CHECK PASS n=%u shift=%u scans=%u random=%u peak_refill_decodes=%llu bound=%u\n",
-           n,k->ck_shift,n,1024u,(unsigned long long)max_refill,bound);
+           n,k->ck_shift,n,2048u,(unsigned long long)max_refill,bound);
     free(k);free(d);free(pcm);return 0;
 }
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*1000000000ull+(uint64_t)t.tv_nsec;}
@@ -134,7 +164,11 @@ static int benchmark_one(uint32_t n)
     double samples[TRIALS];uint64_t peaks[TRIALS],decodes[TRIALS];
     const uint32_t len=n<SPAN?n:SPAN;
     for(unsigned t=0;t<TRIALS;t++){
-        voice_t v={0};count_decode=max_refill=0;uint64_t start=ns(),sum=0;
+        voice_t v={0};
+#if BRK_SEEK_CACHE
+        v.prev_seek_pos=UINT32_MAX;
+#endif
+        count_decode=max_refill=0;uint64_t start=ns(),sum=0;
         for(uint32_t q=n;q>n-len;) {--q;sum+=(uint16_t)rev_fetch(&v,k,q);}
         uint64_t end=ns();sink^=sum;if(!start||end<start){free(k);free(d);free(pcm);return 2;}
         samples[t]=(double)(end-start)/len;peaks[t]=max_refill;decodes[t]=count_decode;
@@ -154,8 +188,11 @@ int main(int argc,char **argv)
     if(argc!=2 || (strcmp(argv[1],"--check") && strcmp(argv[1],"--bench"))) {
         fprintf(stderr,"usage: %s --check|--bench\n",argv[0]);return 2;
     }
-    const uint32_t sizes[]={513,176400,705600,1411200};
-    for(unsigned i=0;i<sizeof sizes/sizeof sizes[0];i++) {
+    const uint32_t check_sizes[]={64,65,511,512,513,122880,122881,176400,705600,1411200,2116800};
+    const uint32_t bench_sizes[]={513,176400,705600,1411200};
+    const uint32_t *sizes = !strcmp(argv[1], "--check") ? check_sizes : bench_sizes;
+    size_t n_sizes = !strcmp(argv[1], "--check") ? sizeof check_sizes/sizeof check_sizes[0] : sizeof bench_sizes/sizeof bench_sizes[0];
+    for(size_t i=0;i<n_sizes;i++) {
         int rc=strcmp(argv[1],"--check")==0?check_one(sizes[i]):benchmark_one(sizes[i]);
         if(rc) return rc;
     }
