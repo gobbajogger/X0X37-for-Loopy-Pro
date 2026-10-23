@@ -373,9 +373,9 @@ def restore(link, meta, images, only=None, verify=True, progress=None):
     todo, skipped = plan_restore(lay, meta, images, only)
     for k, img in todo:
         write_slot(link, k, img, progress=(lambda d, n, k=k: progress(k, d, n)) if progress else None)
-    if verify:
-        after = layout(link)
-        for k, img in todo:
+        # Refuse a failed readback before erasing the next slot.
+        if verify:
+            after = layout(link)
             got = read_slot(link, k, after["slots"][k]["nz"])
             if got != img:
                 raise SlotError(f"slot {k + 1}: read back differs from the archive")
@@ -451,8 +451,8 @@ def restore_mapped(link, todo, images, progress=None):
     """write images[old] into new slot j for each (old, j); then read each back and compare (SlotError)"""
     for k, j in todo:
         write_slot(link, j, images[k], progress=(lambda d, n, j=j: progress(j, d, n)) if progress else None)
-    after = layout(link)
-    for k, j in todo:
+        # Stop migration at the first mismatch; later target slots remain untouched.
+        after = layout(link)
         if read_slot(link, j, after["slots"][j]["nz"]) != images[k]:
             raise SlotError(f"slot {j + 1}: read back differs from the backup of slot {k + 1}")
 
