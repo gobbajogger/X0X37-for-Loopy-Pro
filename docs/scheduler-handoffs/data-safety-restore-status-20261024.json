@@ -63,7 +63,7 @@
       "passed": 7,
       "failed": 3,
       "total": 10,
-      "log_sha256": "c3e3a33d9a7f68a6db7389b29f6c39a993718563577660173049ec4f622a23f0",
+      "log_sha256": "77efb20a2aa910fc7fa760765b6100ae7ce17ba4bc51393acb9c466b9c0b125f",
       "expected_negative": true
     },
     {
@@ -77,7 +77,7 @@
       "passed": 10,
       "failed": 0,
       "total": 10,
-      "log_sha256": "44d5579ef30c7e97630b1ec6c6d75c4d5f5ad710e6ff5a4dd5d50145eb52eddc"
+      "log_sha256": "9858b7099ae840cf17de08951ee7c8d5737754c37b754b67995ee69b86b6e2fd"
     },
     {
       "argv": [
@@ -104,7 +104,7 @@
       "passed": 14,
       "failed": 0,
       "total": 14,
-      "log_sha256": "389eb4b6558e509816d3466b2f56dac1a5ae4b325354f16706ff5ea9dfa56e9a"
+      "log_sha256": "6ecfe995118fbf8abac5803a9e8bb0f7ed4c9b6ae609c9603d3cd7be8933b83a"
     },
     {
       "argv": [
@@ -116,6 +116,56 @@
         "qa_exact_plan_migration.py"
       ],
       "exit_code": 0
+    },
+    {
+      "argv": [
+        "X0X_FM1_INSTALL_SOURCE=$PWD/fm1_install_window_after.py",
+        "X0X_X0X_SLOTS_SOURCE=$PWD/qa_exact_plan_migration.py",
+        "python3 -O fm1_install_restore_status_test.py -v"
+      ],
+      "exit_code": 0,
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "log_sha256": "3455ad90c306693c2dc7453f59270c8ccbc97f0b7c7d300882aa691965f1a7b5"
+    },
+    {
+      "argv": [
+        "X0X_FM1_INSTALL_SOURCE=$PWD/fm1_install_window_after.py",
+        "X0X_X0X_SLOTS_SOURCE=$PWD/qa_exact_plan_migration.py",
+        "python3 fm1_install_restore_status_test.py -v"
+      ],
+      "exit_code": 0,
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "log_sha256": "f7606d7c844704fcb90f7c3fb3872b7e5664788db3e74ad8e5f8c182c86527f4",
+      "notes": "Fresh execution replay after Git commit using same source-window and exact Git-matched test blob"
+    },
+    {
+      "argv": [
+        "X0X_FM1_INSTALL_SOURCE=$PWD/fm1_install_before_restore.py",
+        "X0X_X0X_SLOTS_SOURCE=$PWD/qa_exact_plan_migration.py",
+        "python3 fm1_install_restore_status_test.py -v"
+      ],
+      "exit_code": 1,
+      "total": 10,
+      "passed": 7,
+      "failed": 3,
+      "log_sha256": "771a4326c61e2cdc4c691d043a129896875e8a0e4e6bee11df77ae13e64db023",
+      "notes": "Fresh baseline negative replay"
+    },
+    {
+      "argv": [
+        "X0X_TEST_FM1_SOURCE=$PWD/fm1_install_window_after.py",
+        "python3 fm1_install_slot_probe_failclosed_test_updated_expected.py -v"
+      ],
+      "exit_code": 0,
+      "total": 14,
+      "passed": 14,
+      "failed": 0,
+      "log_sha256": "9174cb430e7f3d28cfe251a0aa6539250ba7d9de06818e4877669e152b2c4535",
+      "notes": "Fresh updated expectation regression replay"
     }
   ],
   "verification_scope": "Real exact function bodies extracted/compiled from GitHub source with simulated updater, storage and links. No hardware, whole checkout or firmware build executed in this run.",
@@ -131,5 +181,10 @@
   "build": "NOT RUN IN THIS DATA SAFETY TASK; BUILD_ONLY ELIGIBLE",
   "qa": "NOT INDEPENDENT COMPLETE-ROOT PASS",
   "device": "DEVICE NOT TESTED",
-  "published": false
+  "published": false,
+  "evidence_bundle": {
+    "name": "LoopyX0X37-DataSafety-RestoreStatus-CloseLoop-20261024.zip",
+    "sha256": "4551582596278a56f2693d862375bdd2f48bf8059bf8e2751dcee12817e3a3f6",
+    "notes": "Temporary sandbox bundle of source-matched executable regression and logs, not a distributed firmware package or durable Git attachment. GitHub manifest identifies check evidence."
+  }
 }
