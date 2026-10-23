@@ -48,6 +48,34 @@ assert.equal(catalog.counts.source_or_historical_checkpoints, catalog.history.le
    assert.ok(!tail.split('/').includes('..') && !tail.includes('%') &&
       !tail.includes('?') && !tail.includes('#') && !tail.includes('\\'),at+': unsafe source path');
  };
+
+ // Read-only status cannot carry download/picker/Release links, even when an
+ // ostensibly scalar status/diagnostic field is replaced with nested JSON.
+ const evidenceKeys=new Set(['url','evidence_url','handoff_source','validation_record','report_url']);
+ const repoKeys=new Set(['repo','source_repo']);
+ const checkNestedLinks=(value,at='catalog')=>{
+   if(Array.isArray(value)){value.forEach((entry,i)=>checkNestedLinks(entry,at+'['+i+']'));return;}
+   if(!value||typeof value!=='object')return;
+   for(const [key,child] of Object.entries(value)){
+     const path=at+'.'+key;
+     if(/(?:url|uri|href|link)$/i.test(key) ||
+        /^(?:download|downloads|pkg|picker|assets?|release_assets|firmware_file|binary_file)$/i.test(key)){
+       assert.ok(evidenceKeys.has(key),path+': forbidden artifact/download/picker link field');
+       if(child!=null)evidenceURL(child,path);
+       else assert.ok(['url','evidence_url','handoff_source'].includes(key),path+': missing evidence');
+     }
+     if(typeof child==='string'&&/https?:\/\//i.test(child)){
+       assert.ok(evidenceKeys.has(key)||repoKeys.has(key),path+': unapproved URL value');
+       if(repoKeys.has(key))assert.equal(child,officialRepo,path+': unapproved source repo');
+       else evidenceURL(child,path);
+     }
+     checkNestedLinks(child,path);
+   }
+ };
+ checkNestedLinks(catalog);
+ assert.equal(typeof catalog.policy.nightly,'string','nightly policy must be text');
+ assert.equal(typeof catalog.policy.public,'string','public policy must be text');
+
  shape(catalog,'schema kind installable source builds history policy counts versioning','manifest');
  shape(catalog.source,'repo ref commit versions_blob_sha','source');
  assert.equal(catalog.source.repo,officialRepo,'source repo');
@@ -130,6 +158,7 @@ for (const build of catalog.builds) {
     'aggregate hardware PASS requires attributable per-model PASS');
   for (const [model, data] of Object.entries(build.models)) {
     assert.ok(['elite', 'pro'].includes(model));
+    assert.equal(data.product,model==='elite'?'SMK-37 Elite_900':'SMK-37 Pro_900','build model/product mismatch');
     assert.match(data.sha256, /^[a-f0-9]{64}$/);
     assert.ok(Number.isInteger(data.size) && data.size > 0);
     assert.ok(typeof data.device_verified === 'boolean', 'device verified must be explicit');
@@ -139,11 +168,14 @@ for (const build of catalog.builds) {
       assert.ok(data.physical_evidence && /^[a-f0-9]{64}$/.test(data.physical_evidence.report_sha256), 'missing attributable hardware report digest');
       assert.ok(/^https:\/\//.test(data.physical_evidence.report_url), 'missing physical report link');
       assert.ok(/^[a-f0-9]{64}$/.test(data.physical_evidence.controller_sha256), 'missing controller digest');
-      assert.equal(data.physical_evidence.owner_publication_approved, true, 'owner approval required');
+      assert.ok(data.physical_evidence.owner_publication_approved === undefined || typeof data.physical_evidence.owner_publication_approved === 'boolean', 'recorded owner approval must be boolean if supplied');
     }
   }
   if (publicProven.has(build.id)) {
-    assert.ok(Object.values(build.models).some(m => m.device_verified), 'public admission needs at least one model PASS');
+    for(const [model,data] of Object.entries(build.models)){
+      assert.equal(data.device_verified,true,model+': public build needs same-model hardware proof');
+      assert.equal(data.physical_evidence?.owner_publication_approved,true,model+': public model needs separate production approval');
+    }
   }
 }
 for (const id of publicProven) assert.ok(seen.has(id), 'unknown public build ' + id);

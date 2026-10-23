@@ -125,5 +125,73 @@
     "pro": "NO_INSTALLABLE_YET"
   },
   "device_testing": "NOT_RUN",
-  "publication": "NOT_PERFORMED"
+  "publication": "NOT_PERFORMED",
+  "schema_repair": {
+    "previous_head_sha": "5ce2b7a7ccad75c6664ef223745b248c1fd4cfdb",
+    "previous_validator_blob": "b256439d25be628ef7c805057f224e72c40b0cf1",
+    "candidate_validator_blob": "3013f702c3e475b50f89730942e0cc645de37f87",
+    "candidate_negative_test_blob": "ad5d1d5c63983d7f653258db6305f25ab74c5ac8",
+    "source_generated_status_blob": "f60787299c5a260499cfc0050219c694ee8e2a84",
+    "unchanged_status_counts": {
+      "historical_generations": 2,
+      "noninstallable_checkpoints": 75
+    },
+    "producer_consumed": {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "nightly_root_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "nightly_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "scoped_builder_pr": 84,
+      "scoped_builder_head": "74ce97a93ce18bbf5f8a58a1f9ac49f4842921fc",
+      "builder_result": "BUILD_SUCCEEDED_UNREVIEWED",
+      "independent_QA": "PENDING",
+      "external_host_HTTP": "NOT_VERIFIED",
+      "model_eligibility": {
+        "elite": "NO_INSTALLABLE_YET",
+        "pro": "NO_INSTALLABLE_YET"
+      }
+    },
+    "findings_fixed": [
+      "nested arbitrary metadata URL keys accepted",
+      "truthful model physical PASS required production owner approval",
+      "public build ID improperly accepted single-model proof",
+      "build model-key/product mismatch"
+    ],
+    "tests": [
+      {
+        "command": "GitHub Git SHA-pinned scripts/verify-build-status.mjs evaluated under isolated V8 with Node fs/assert/vm boundary replaced; 14 deliberate current-manifest/mutated-fixture cases",
+        "exit": 0,
+        "cases_passed": 14,
+        "scope": "SCOPED_V8_NOT_NATIVE_NODE_OR_FULL_WEBSITE"
+      },
+      {
+        "command": "V8 parse transformed tests/build-status-negatives.test.mjs module body",
+        "exit": 0,
+        "scope": "SYNTAX_ONLY"
+      },
+      {
+        "command": "GitHub fetch exact build-status.json and docs/build-status.json",
+        "exit": 0,
+        "result": "IDENTICAL_BYTES"
+      },
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "reason": "Could not resolve host: github.com"
+      },
+      {
+        "command": "npm run build && npm test",
+        "result": "NOT_RUN_EXACT_BRANCH_NOT_MOUNTED"
+      },
+      {
+        "command": "responsive browser suite",
+        "result": "NOT_RUN_EXACT_BRANCH_NOT_MOUNTED"
+      }
+    ],
+    "ready_for_independent_review": "SOURCE_CHECKED_SCOPED_ONLY_PENDING_NATIVE_QA",
+    "next_owner": "Independent QA",
+    "next_gate": "Independently reconstruct exact combined PR tree and run native npm run build, npm test, all malformed fixtures and responsive browser; merge only by sole NIGHTLY Main Merger after independent verdict.",
+    "publication": "NOT_AUTHORIZED",
+    "device": "NOT_TESTED",
+    "physical_pass": "UNKNOWN"
+  }
 }

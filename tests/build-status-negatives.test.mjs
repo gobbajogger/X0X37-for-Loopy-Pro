@@ -116,4 +116,35 @@ run('synthetic-malicious-Release-does-not-become-an-installable-catalog',dir=>{
   fs.writeFileSync(p,JSON.stringify(j));
 });
 
-console.log('PASS: 54 scoped history-positive/negative cases, no artifacts');
+
+ // Historical hardware observations and PRODUCTION permission are distinct.
+ // These synthetic fixtures never add firmware or authorize installation.
+const officialReport='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/'+'b'.repeat(40);
+function setProof(j,{eliteApproved=false,proVerified=false,proApproved=false}={}){
+  const b=j.builds[0];b.hardware_tested=true;
+  for(const model of ['elite','pro']){
+    if(model==='pro'&&!proVerified)continue;
+    const m=b.models[model];m.device_verified=true;m.physical_evidence={
+      report_sha256:'a'.repeat(64),report_url:officialReport,
+      controller_sha256:'c'.repeat(64),owner_publication_approved:model==='elite'?eliteApproved:proApproved
+    };
+  }
+}
+run('recorded-Elite-device-PASS-without-production-permission',edit(j=>setProof(j)),true);
+run('both-model-public-proof-synthetic-shape-only',edit(j=>{
+  setProof(j,{eliteApproved:true,proVerified:true,proApproved:true});
+  j.policy.public_latest=j.builds[0].id;j.policy.public_device_proven_versions=[j.builds[0].id];
+}),true);
+for(const [label,mutate] of [
+ ['hidden-description-download-any-extension',j=>j.history[0].description={download_url:'https://example.net/firmware.bin'}],
+ ['hidden-policy-artifact',j=>j.policy.nightly={artifact_url:'https://example.net/file.txt'}],
+ ['hidden-reported-check-picker',j=>j.history.find(x=>x.reported_checks).reported_checks.result={picker_url:'https://example.net/file'}],
+ ['hidden-build-pipeline-Release',j=>j.history.find(x=>x.build_pipeline).build_pipeline.builder_selected_host_checks_pass={release_url:'https://example.net/file'}],
+ ['hidden-generic-link',j=>j.history[0].description={notes:'https://example.net/file'}],
+ ['hidden-blob-URI',j=>j.history[0].description={asset_uri:'blob:unapproved'}],
+ ['mislabelled-Elite-build-model',j=>j.builds[0].models.elite.product='SMK-37 Pro_900'],
+ ['public-single-model-cannot-imply-Pro',j=>{setProof(j,{eliteApproved:true});j.policy.public_latest=j.builds[0].id;j.policy.public_device_proven_versions=[j.builds[0].id]}],
+ ['public-list-needs-each-model-approval',j=>{setProof(j,{eliteApproved:false,proVerified:true,proApproved:true});j.policy.public_latest=j.builds[0].id;j.policy.public_device_proven_versions=[j.builds[0].id]}]
+])run(label,edit(mutate));
+
+console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');
