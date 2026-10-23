@@ -1,15 +1,27 @@
 {
   "schema_version": 1,
-  "run_utc": "2026-10-23T14:55:00Z",
+  "run_utc": "2026-10-23T16:24:13.742Z",
   "role": "Hourly Bugfinder",
   "outcome": "DELIVERED",
   "source": {
     "repository": "gobbajogger/X0X37-for-Loopy-Pro",
     "branch": "lane/bugfinder-bf016-bass303-fenv-idempotence-20261023-1455",
-    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
-    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+    "tested_commit": "93d0851f2430714eede3851561b40d5d166356c6",
+    "tested_tree": "1619356530a569ea2643fdff189215670ae3e5c0",
+    "firmware_subtree": "ffdeb23003a1d17b840a1fbe43857d6783a1be01",
+    "base_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "base_full_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+    "base_firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "actual_execution_scope": "exact-Git-blob-matched complete bass303.c, bass303.h, fastmath.h, complete bass303_lite_test.c; historical bootstrap provided other files, not exact full-root PR checkout",
+    "verified_source_blobs": {
+      "firmware/src/dsp/bass303.c": "66c9851e3bc538e6b9932d6eb65c97229a79b308",
+      "tests/host/bass303_lite_test.c": "8aacb0b31b20b5912dddc7e950b80bb8bebdb97a",
+      "firmware/src/dsp/bass303.h": "085b8521f7410ef03bd53aa82961ace51eaf5b60",
+      "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+      "baseline/firmware/src/dsp/bass303.c": "379981bfc39c1bb368d14b5614e258145192224a"
+    }
   },
-  "summary": "BF-016: repeated TB-303 FEnv mode writes restart a held filter envelope; narrowly guard equal clamped mode. Negative-baseline/positive-fix tests ran on a faithful isolated source-window projection only; exact full-engine tests, QA, and target builds remain NOT_RUN / NO-GO.",
+  "summary": "BF-016 FEnv mode guard retains filter envelope on duplicate normalized writes. All four native exact-Git-blob matched complete bass303.c + complete PR regression GCC/Clang O0/O2 binaries compiled and ran PASS (exit 0); four matching baseline executables compiled and reproducibly FAIL as expected (exit 1, 14 assertions each). ASan+UBSan except separate upstream shift issue PR28. Exact entire root, independent QA, Elite+Pro/ctl target builds, publication, live HTTP and hardware remain PENDING/UNKNOWN.",
   "outputs": [
     {
       "kind": "source",
@@ -106,16 +118,113 @@
       "coverage": "five checks: entry mode change, identical held mode, clamp, changed mode, identical release mode; baseline fails intentionally"
     },
     {
-      "name": "exact-full-engine-bass303-lite",
-      "status": "NOT_RUN",
-      "command": "gcc -std=c99 -O2 -Ifirmware/src/dsp -Ifirmware/src tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm",
-      "evidence": "Exact Git blob read via connector, but complete source was not executed locally; QA required."
-    },
-    {
       "name": "elite-pro-dev-target",
       "status": "NOT_RUN",
       "command": "BOARD=smk37 MODEL=elite sh build.sh; BOARD=smk37 MODEL=pro sh build.sh",
       "evidence": "Build-first Hourly Build owns exact pinned Elite/Pro/controller compiler stage; no target artifacts produced this run."
+    },
+    {
+      "name": "gcc-O0-native-bass303-full-source-baseline",
+      "status": "FAIL",
+      "expected_result": "EXPECTED_FAIL_14_REGRESSION_ASSERTIONS",
+      "command": "gcc -std=c99 -O0 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp testlogs/bass303-baseline.c tests/host/bass303_lite_test.c -lm -o testlogs/gcc_O0_baseline.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/gcc_O0_baseline.bin",
+      "compile_exit_code": 0,
+      "exit_code": 1,
+      "log_location": "/mnt/data/bf016/testlogs/gcc_O0_baseline.log",
+      "log_sha256": "d4fd9f5e0d7705c67b3b8724d9237be4404e5453feb4b495be691b2d529594f4",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "gcc-O0-native-bass303-full-source-fixed",
+      "status": "PASS",
+      "expected_result": "PASS_COMPLETE_ENGINE",
+      "command": "gcc -std=c99 -O0 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp firmware/src/dsp/bass303.c tests/host/bass303_lite_test.c -lm -o testlogs/gcc_O0_fixed.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/gcc_O0_fixed.bin",
+      "compile_exit_code": 0,
+      "exit_code": 0,
+      "log_location": "/mnt/data/bf016/testlogs/gcc_O0_fixed.log",
+      "log_sha256": "e45b981eeb5383e884fa262d334ab71cf47e7ae1208a0f4d878816b6f3872512",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "gcc-O2-native-bass303-full-source-baseline",
+      "status": "FAIL",
+      "expected_result": "EXPECTED_FAIL_14_REGRESSION_ASSERTIONS",
+      "command": "gcc -std=c99 -O2 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp testlogs/bass303-baseline.c tests/host/bass303_lite_test.c -lm -o testlogs/gcc_O2_baseline.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/gcc_O2_baseline.bin",
+      "compile_exit_code": 0,
+      "exit_code": 1,
+      "log_location": "/mnt/data/bf016/testlogs/gcc_O2_baseline.log",
+      "log_sha256": "aac96f033f0baaf0fd5545168bfa689e8a23edcc2d409fb3dc08a2ef8748951d",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "gcc-O2-native-bass303-full-source-fixed",
+      "status": "PASS",
+      "expected_result": "PASS_COMPLETE_ENGINE",
+      "command": "gcc -std=c99 -O2 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp firmware/src/dsp/bass303.c tests/host/bass303_lite_test.c -lm -o testlogs/gcc_O2_fixed.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/gcc_O2_fixed.bin",
+      "compile_exit_code": 0,
+      "exit_code": 0,
+      "log_location": "/mnt/data/bf016/testlogs/gcc_O2_fixed.log",
+      "log_sha256": "76a9d29c2a073b4b18fb29dfec8571f6856a23161a97a8339d32b9e37f658d61",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "clang-O0-native-bass303-full-source-baseline",
+      "status": "FAIL",
+      "expected_result": "EXPECTED_FAIL_14_REGRESSION_ASSERTIONS",
+      "command": "clang -std=c99 -O0 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp testlogs/bass303-baseline.c tests/host/bass303_lite_test.c -lm -o testlogs/clang_O0_baseline.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/clang_O0_baseline.bin",
+      "compile_exit_code": 0,
+      "exit_code": 1,
+      "log_location": "/mnt/data/bf016/testlogs/clang_O0_baseline.log",
+      "log_sha256": "19cc0c07722ebfe28b4810e6015bcf1ac14f7e01cbd2439c5a509ae5249c8620",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "clang-O0-native-bass303-full-source-fixed",
+      "status": "PASS",
+      "expected_result": "PASS_COMPLETE_ENGINE",
+      "command": "clang -std=c99 -O0 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp firmware/src/dsp/bass303.c tests/host/bass303_lite_test.c -lm -o testlogs/clang_O0_fixed.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/clang_O0_fixed.bin",
+      "compile_exit_code": 0,
+      "exit_code": 0,
+      "log_location": "/mnt/data/bf016/testlogs/clang_O0_fixed.log",
+      "log_sha256": "5ef98a613bb4af7071244966666011c77c8ac790b332197347f0026a96867475",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "clang-O2-native-bass303-full-source-baseline",
+      "status": "FAIL",
+      "expected_result": "EXPECTED_FAIL_14_REGRESSION_ASSERTIONS",
+      "command": "clang -std=c99 -O2 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp testlogs/bass303-baseline.c tests/host/bass303_lite_test.c -lm -o testlogs/clang_O2_baseline.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/clang_O2_baseline.bin",
+      "compile_exit_code": 0,
+      "exit_code": 1,
+      "log_location": "/mnt/data/bf016/testlogs/clang_O2_baseline.log",
+      "log_sha256": "6aa0cace9c9150b99d45efae9f71094538a1171202b9c08206214e5cf802dd76",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "clang-O2-native-bass303-full-source-fixed",
+      "status": "PASS",
+      "expected_result": "PASS_COMPLETE_ENGINE",
+      "command": "clang -std=c99 -O2 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize=shift -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp firmware/src/dsp/bass303.c tests/host/bass303_lite_test.c -lm -o testlogs/clang_O2_fixed.bin; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 testlogs/clang_O2_fixed.bin",
+      "compile_exit_code": 0,
+      "exit_code": 0,
+      "log_location": "/mnt/data/bf016/testlogs/clang_O2_fixed.log",
+      "log_sha256": "66dd993a6f4a2dc21eccc58db03604e0dff68d4f09078339ba00d212c9ee1c7b",
+      "coverage": "whole real bass303.c linked with full bass303_lite_test.c: duplicate and clamped mode, true mode change, held attack/release/legato plus existing audio and lite parity; shift UBSan excluded due to separately owned baseline bug PR28."
+    },
+    {
+      "name": "full-shift-ubsan-known-fastmath-blocker",
+      "status": "FAIL",
+      "expected_result": "KNOWN_PREEXISTING_UPSTREAM_DEFECT_NEEDS_PR28",
+      "command": "gcc/clang -std=c99 -O0/-O2 -g -ffp-contract=off -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -Ifirmware/src/dsp firmware/src/dsp/bass303.c tests/host/bass303_lite_test.c -lm -o testlogs/<compiler>_<opt>.bin; run binary",
+      "compile_exit_code": 0,
+      "exit_code": 1,
+      "evidence": "four original strict sanitizer variants fail in fastmath.h:57:14 signed negative shift -2, already PR #28 owner; not a BF-016 regression, strict full UBSan PASS not claimed"
+    },
+    {
+      "name": "exact-full-repo-qa-and-target-build",
+      "status": "NOT_RUN",
+      "command": "full Git checkout quickcheck/affected suites; pinned BOARD=smk37 MODEL=elite|pro; ctl image",
+      "evidence": "Producer host verification limited to source and test exact Git blobs; separate Independent QA, Hourly Build and integrator/publisher ownership; not executed."
     }
   ],
   "models": [
@@ -131,13 +240,36 @@
     }
   ],
   "next": {
-    "owner": "Independent QA / Hourly Build / Safe Merge",
-    "action": "Run full Git-checked bass303_lite regression under GCC/Clang sanitizers and both firmware targets; review and integrate only after independent QA.",
-    "gate": "SOURCE-WINDOW-CHECKED; FULL ENGINE / TARGET BUILD / QA PENDING"
+    "owner": "Independent QA (exact PR source HEAD), Hourly Build (in parallel), then Safe Merge",
+    "action": "Independent QA independently retest exact source against this regression and reconcile known fastmath shift UB from owned PR28; Hourly Build immediately compile exact BF-016 producer firmware subtree for both models/controller BUILD_ONLY without waiting for QA, merge, hosting or device. Safe Merge integrates only when reviewed.",
+    "gate": "SOURCE_COMPLETE / PRODUCER_HOST_SCOPED_PASS / STRICT_UBSAN_SHIFT_KNOWN_FAIL_PR28 / QA_PENDING / BUILDS_NOT_RUN / WEB_HTTP_NOT_RUN / DEVICE_UNKNOWN"
   },
   "dependencies": [
     "firmware NIGHTLY 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
-    "draft evidence schema PR #78, not merged"
+    "draft evidence schema PR #78, not merged",
+    "Known unrelated shift UBSan defect owned by firmware PR #28; not fixed or suppressed in Git source",
+    "Producer source HEAD 93d0851f2430714eede3851561b40d5d166356c6, root tree 1619356530a569ea2643fdff189215670ae3e5c0, firmware/ subtree ffdeb23003a1d17b840a1fbe43857d6783a1be01"
   ],
-  "publication": "SOURCE_ONLY"
+  "publication": "SOURCE_ONLY",
+  "evidence_revision": "BF-016/2026-10-24/v2",
+  "stage": "SOURCE_COMPLETE_PRODUCER_HOST_CHECKED_REVIEW_PENDING",
+  "test_run": {
+    "platform": "Linux x86_64",
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "source_archive_sha256": "ea173ec3afd6adea9219622652ed0dcafe48f8a6cba43395c4dab62895928319",
+    "runner_local_path": "/mnt/data/bf016/testlogs/run_bf016_native.sh",
+    "runner_sha256": "bff591cef04b225d79e42ba3257fcdf40015c2da1568d8c15415546e2aeaa73c",
+    "summary_log_sha256": "5c7f35fe0e0be0afe782ff90c1f176e5eebe2be3e87ae5cf29abc44e0ac08737",
+    "native_actual_full_engine_runs": 8,
+    "baseline_expected_failing_runs": 4,
+    "corrected_passing_runs": 4,
+    "sanitizer_boundary": "ASan+UBSan with -fno-sanitize=shift; known separately owned fastmath.h:57 negative signed shift remains, PR #28"
+  },
+  "owner_hardware_feedback": {
+    "status": "UNKNOWN",
+    "reason": "No attributable live per-model candidate with firmware/controller hashes and immutable served HTTP proof has been confirmed. No flash/test performed."
+  }
 }
