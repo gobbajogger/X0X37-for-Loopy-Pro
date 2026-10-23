@@ -1,6 +1,6 @@
 # LoopyX0X37 — coordinated hourly development pipeline
 
-**Owner direction, 2026-10-23.** Proposal and rollout instructions for the existing LoopyX0X37 recurring workers plus four narrowly scoped hourly workers. This document is development coordination, not `main`-merge, hardware-flash, firmware-distribution, `gh-pages`, or stable-release authorization. Always reread repository-specific `AGENTS.md` and maintained rules before using an action. Any narrower security refusal or genuine validation failure remains binding.
+**Owner direction and activation, 2026-10-23.** This is the active coordination contract for twelve enabled hourly LoopyX0X37 workers (eight existing roles plus four newly created, independently scoped roles). This document is development coordination, not `main`-merge, hardware-flash, firmware-distribution, `gh-pages`, or stable-release authorization. Always reread repository-specific `AGENTS.md` and maintained rules before using an action. Any narrower security refusal or genuine validation failure remains binding.
 
 ## Operating model
 
@@ -9,6 +9,21 @@ Workers are hourly, bounded executions, not literally continuously running proce
 The **hardware rule** is absolute for normal development delivery: **no attached SMK-37 or physical-device PASS is required to create, commit or push source, documentation, host tests, mock MIDI tests, source-only installer improvements, or candidate build records to authorized isolated Git development branches.** Hardware is tested by the owner; `DEVICE NOT TESTED` is a legitimate development status, never an excuse not to push code. This does *not* waive tests relevant to changed code, real required firmware builds for build-certified status, licensing/data safety, remote-write permission, or validated distribution safeguards. An incomplete source fix may be retained as a clearly marked `WIP/NO-GO` isolated branch with exact failed/unrun checks; it must not be advertised as a checked or installable build. Do not leave a completed authorized change local-only or claim a denied push succeeded.
 
 An **owner-testable nightly firmware package** may be considered after independent review, exact-source Elite/Pro DEV build(s), correct matching `ctl.img`, model/CRC/SHA256/budget checks, code and host negative tests, installer data-preservation checks, and individual distribution/Pages-owner authorization under nightly `AGENTS.md`. *Prior physical PASS is not the required gate to prepare such a test candidate.* Until those software/package and distribution gates actually pass, nightly retains a complete **read-only non-installable history** and an empty flashable preview catalog. Production selectable DEV firmware remains restricted to exact same-byte/per-model **owner hardware-verified** builds plus production approval, independently of whether a nightly test candidate exists. Never promote source-only tests to `DEVICE VERIFIED`, stable or published production.
+
+## Verified recurring-worker activation (2026-10-23)
+
+The owner explicitly authorized four new recurring schedules in addition to the eight previously enabled project schedules. The following tasks were created and returned **enabled=true**; all recur exactly once per hour, with UTC start minutes deliberately staggered (not evidence that one completes before the next):
+
+| New enabled task | UTC minute each hour | Role boundary |
+| --- | --- | --- |
+| LoopyX0X37 SMC Transport | :02 | SMC/forwarded MIDI, USB/BLE routing, queue/reconnect source fixes |
+| LoopyX0X37 Sequencer Clock | :07 | Step sequencing, clock/transport phase, gesture and pad timing source fixes |
+| LoopyX0X37 Data Safety | :12 | Storage, model/flash/OTA/CRC/backup/recovery native source safety |
+| LoopyX0X37 Independent QA | :21 | Independent exact-SHA review, host/negative test evidence, no branch takeover |
+
+The existing Bugfinder, Optimization Watch, Hourly Build, Installer Improvements, Safe Merge, Build Catalog Sync, Hourly Installer UX and Blocker Audit prompts were updated to use Git-based cross-worker handoffs and to separate hardware testing from Git commits. Their schedules and role-specific permissions were retained. Plugin `LoopyX0X37 Classic Build` v0.1.13 was read back with `references/scheduler-agent-pipeline.md`, `references/git-commit-handoff.md` and the same physical-hardware-independent source-push rule. A schedule being enabled establishes recurrence instructions, **not proof of a future execution**, verified build or PR merge.
+
+The owner, not these tasks, physically tests keyboards. Source/doc/test commits with truthful evidence can be pushed to approved isolated branches regardless of physical hardware; substantive WIP can be labeled WIP/NO-GO. Independent QA/test and actual checked firmware/software/package gates still control *qualification*, and only sole owners control shared integration and Pages publication. Every worker reads current upstream/live ref and branch ownership at run time; times are advisory and no lock substitute. Never coordinate by writing a common `main`/Pages queue.
 
 ## Roles and file ownership
 
