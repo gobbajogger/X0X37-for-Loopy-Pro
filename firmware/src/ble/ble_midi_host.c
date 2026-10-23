@@ -49,22 +49,25 @@ static int tmatch(unsigned hd, const uint8_t *t, unsigned tl)
 }
 
 /* ---- HCI out ---- */
-static void cmd(bleh_t *h, unsigned op, const uint8_t *p, unsigned n)
+/* The core-to-controller mailbox can refuse an HCI frame while full.  Never
+ * wait for a command-complete event for a command that was not enqueued. */
+static int cmd(bleh_t *h, unsigned op, const uint8_t *p, unsigned n)
 {
     uint8_t b[3 + 32];
     unsigned i;
     wr16(b, op);
     b[2] = (uint8_t)n;
     for (i = 0; i < n; i++) b[3 + i] = p[i];
+    if (h->send(BLEH_H4_CMD, b, (uint16_t)(3 + n), h->ctx) != 0) return 0;
     h->cmd_op = (uint16_t)op;
     h->cmd_wait = 1;
-    h->send(BLEH_H4_CMD, b, (uint16_t)(3 + n), h->ctx);
+    return 1;
 }
 static void adv_enable(bleh_t *h, unsigned on)
 {
     uint8_t e = (uint8_t)on;
-    h->want_adv = (uint8_t)on;                      /* (want_adv: what the controller was last told) */
-    cmd(h, OP_ADV_EN, &e, 1);
+    if (cmd(h, OP_ADV_EN, &e, 1))
+        h->want_adv = (uint8_t)on;                  /* what the controller was last told */
 }
 static void next_cmd(bleh_t *h)
 {
@@ -109,20 +112,22 @@ static void next_cmd(bleh_t *h)
 }
 
 /* ---- L2CAP out (one PDU, no fragmentation: everything here fits the 27-byte LE buffer) ---- */
-static void l2cap_send(bleh_t *h, unsigned cid, const uint8_t *d, unsigned n)
+static int l2cap_send(bleh_t *h, unsigned cid, const uint8_t *d, unsigned n)
 {
     uint8_t b[8 + BLEH_MTU];
     unsigned i;
-    if (n > BLEH_MTU) return;
+    int rc;
+    if (n > BLEH_MTU) return -1;
     wr16(b, h->conn & 0x0FFFu);                     /* PB = 0: first packet, host to controller */
     wr16(b + 2, 4 + n);
     wr16(b + 4, n);                                 /* L2CAP length, then the channel */
     wr16(b + 6, cid);
     for (i = 0; i < n; i++) b[8 + i] = d[i];
-    if (h->credits) h->credits--;
-    h->send(BLEH_H4_ACL, b, (uint16_t)(8 + n), h->ctx);
+    rc = h->send(BLEH_H4_ACL, b, (uint16_t)(8 + n), h->ctx);
+    if (rc == 0 && h->credits) h->credits--;         /* rejected mailbox write consumed no ACL buffer */
+    return rc;
 }
-static void att_send(bleh_t *h, const uint8_t *att, unsigned n) { l2cap_send(h, CID_ATT, att, n); }
+static int att_send(bleh_t *h, const uint8_t *att, unsigned n) { return l2cap_send(h, CID_ATT, att, n); }
 static void att_err(bleh_t *h, unsigned op, unsigned hd, unsigned code)
 {
     uint8_t r[5] = {A_ERR, (uint8_t)op, 0, 0, (uint8_t)code};
@@ -544,14 +549,19 @@ int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16
     uint8_t r[12] = {0x12, 0x31, 8, 0};
     if (h->state != BLEH_CONNECTED || h->cpu_state) return 0;
     wr16(r + 4, min); wr16(r + 6, max); wr16(r + 8, lat); wr16(r + 10, to);
+    if (l2cap_send(h, CID_SIG, r, 12) != 0) return 0;
     h->cpu_state = 1; h->cpu_result = 0;
-    l2cap_send(h, CID_SIG, r, 12);
     return 1;
 }
 void bleh_poll(bleh_t *h)
 {
     uint8_t r[BLEH_MTU];
     unsigned len = 4, hi, last = 0;
+    uint8_t qr;
+    if (h->state == BLEH_STARTING && !h->cmd_wait) {
+        next_cmd(h);                               /* retry rejected startup HCI command once per poll */
+        return;
+    }
     if (h->state == BLEH_CONNECTED && h->radio_off && !h->cmd_wait && h->cmd_op != OP_DISC) {
         uint8_t d[3];
         wr16(d, h->conn); d[2] = 0x13;              /* remote user terminated connection */
@@ -568,14 +578,20 @@ void bleh_poll(bleh_t *h)
     if (h->credits < (h->acl_total > 1 ? 2u : 1u)) return;                  /* keep one buffer for ATT answers */
     r[0] = A_NOTIFY; wr16(r + 1, H_MIDI);
     if (h->sx_on) {
-        att_send(h, r, sysex_packet(h, r));
+        uint8_t pos = h->sx_pos, on = h->sx_on;
+        unsigned n = sysex_packet(h, r);
+        if (att_send(h, r, n) != 0) {
+            h->sx_pos = pos;                        /* restore unsent SysEx frame for next poll */
+            h->sx_on = on;
+        }
         return;
     }
     if (h->q_r == h->q_w) return;
-    hi = (h->q[h->q_r % BLEH_MIDIQ].ts >> 7) & 0x3Fu;
+    qr = h->q_r;
+    hi = (h->q[qr % BLEH_MIDIQ].ts >> 7) & 0x3Fu;
     r[3] = (uint8_t)(0x80u | hi);                   /* header: timestamp high */
-    while (h->q_r != h->q_w) {
-        const bleh_msg_t *q = &h->q[h->q_r % BLEH_MIDIQ];
+    while (qr != h->q_w) {
+        const bleh_msg_t *q = &h->q[qr % BLEH_MIDIQ];
         unsigned i = 0, run = h->tx_running && q->b[0] < 0xF0u && q->b[0] == last;
         if (((q->ts >> 7) & 0x3Fu) != hi || len + 1 + q->len - run > BLEH_MTU) break;
         r[len++] = (uint8_t)(0x80u | (q->ts & 0x7Fu));              /* timestamp low, then the message */
@@ -583,7 +599,8 @@ void bleh_poll(bleh_t *h)
         for (; i < q->len; i++) r[len++] = q->b[i];
         if (q->b[0] < 0xF0u) last = q->b[0];
         else if (q->b[0] < 0xF8u) last = 0;         /* system common ends running status */
-        h->q_r++;
+        qr++;
     }
-    att_send(h, r, len);
+    if (att_send(h, r, len) == 0)
+        h->q_r = qr;                                /* only dequeue MIDI accepted into the mailbox */
 }
