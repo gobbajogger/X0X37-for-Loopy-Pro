@@ -34,7 +34,10 @@ footer{margin-top:45px;border-top:1px solid #34413e;padding-top:20px;font-size:1
 <p class="eyebrow">X0X37 / NIGHTLY / FULL BUILD HISTORY</p>
 <h1>Development build log</h1>
 <p class="muted">This history records known X0X37 development builds, source checkpoints, failed attempts, and superseded versions. It is not a firmware download page.</p>
-<div class="notice" role="note"><strong>Not hardware-verified.</strong> DEV CHECKED only means development checks passed. The public installer will show a build only after matching-model physical-device verification and separate publication approval. This page never offers firmware flashing links.</div>
+<div class="notice" role="note" aria-label="Nightly versus production firmware requirements">
+  <p><strong>NIGHTLY — DEV / HARDWARE TEST, DEVICE NOT TESTED:</strong> A candidate may appear in the Nightly installer after exact-source per-model firmware/controller, SHA-256/CRC, sample-slot backup/readback/recovery, independent QA, licensing and immutable HTTP download checks pass. Prior physical-device PASS and separate per-candidate owner approval are not Nightly prerequisites.</p>
+  <p><strong>PRODUCTION — hardware-proven only:</strong> A selectable build requires the owner's attributable matching-model, same-byte physical-device PASS, all automated safeguards and explicit production publication approval. DEV CHECKED and a history record alone prove neither hardware success nor installability. This read-only history never offers firmware download or flashing links.</p>
+</div>
 <p id="status" role="status" aria-live="polite">Loading verified history…</p>
 <h2 id="buildtitle">Built firmware generations</h2>
 <section class="layout" id="builds" aria-labelledby="buildtitle"></section>
