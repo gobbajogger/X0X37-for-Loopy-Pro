@@ -11,8 +11,13 @@ const published = JSON.parse(read('docs/versions.json'));
 assert.equal(catalog.schema, 1);
 assert.equal(catalog.kind, 'nightly-read-only-build-history');
 assert.equal(catalog.installable, false);
-assert.equal(catalog.policy.public_latest, null);
-assert.deepEqual(catalog.policy.public_device_proven_versions, []);
+assert.ok(Array.isArray(catalog.policy.public_device_proven_versions), 'public-proven list is required');
+const publicProven = new Set(catalog.policy.public_device_proven_versions);
+assert.equal(publicProven.size, catalog.policy.public_device_proven_versions.length, 'duplicate public eligibility');
+assert.equal(catalog.policy.public_latest === null, publicProven.size === 0, 'missing or unexpected public latest');
+if (catalog.policy.public_latest !== null) {
+  assert.ok(publicProven.has(catalog.policy.public_latest), 'latest must have real physical evidence');
+}
 assert.match(catalog.source.versions_blob_sha, /^[a-f0-9]{40}$/);
 assert.deepEqual(preview.versions, []);
 assert.deepEqual(preview.history, []);
@@ -30,9 +35,21 @@ for (const build of catalog.builds) {
     assert.ok(['elite', 'pro'].includes(model));
     assert.match(data.sha256, /^[a-f0-9]{64}$/);
     assert.ok(Number.isInteger(data.size) && data.size > 0);
-    assert.equal(data.device_verified, false);
+    assert.ok(typeof data.device_verified === 'boolean', 'device verified must be explicit');
+    if (data.device_verified) {
+      assert.equal(build.hardware_tested, true, 'device PASS cannot contradict version status');
+      assert.equal(build.status, 'dev-checked', 'device PASS cannot upgrade a failed/unbuilt version');
+      assert.ok(data.physical_evidence && /^[a-f0-9]{64}$/.test(data.physical_evidence.report_sha256), 'missing attributable hardware report digest');
+      assert.ok(/^https:\/\//.test(data.physical_evidence.report_url), 'missing physical report link');
+      assert.ok(/^[a-f0-9]{64}$/.test(data.physical_evidence.controller_sha256), 'missing controller digest');
+      assert.equal(data.physical_evidence.owner_publication_approved, true, 'owner approval required');
+    }
+  }
+  if (publicProven.has(build.id)) {
+    assert.ok(Object.values(build.models).some(m => m.device_verified), 'public admission needs at least one model PASS');
   }
 }
+for (const id of publicProven) assert.ok(seen.has(id), 'unknown public build ' + id);
 const ids = new Set();
 for (const item of catalog.history) {
   assert.equal(ids.has(item.id), false, 'duplicate historical item ' + item.id);
