@@ -1,3 +1,13 @@
+# Catalog Sync r8 — 2026-10-24 closed development loop
+
+Website producer consumed `9c708dcd9060ae9ff57a33bd8105a03823f65f8c`; firmware producer #105 `a99f4992e5bcbc5d677cae5a750d9684c0c78985` full ROOT `964e49852a00b888cde21528e9d040bc46fb8e07`, and integrator #103 `5493044eb663b931fddd13f847c370b6971df623` full ROOT `1ca400ea04a7369c5e056ec80d35dc42c4a42855` (distinct compiled firmware/ subtree `d3b67bf127121acdbb2d056890b8c6987ffb363e`). Source-only integration now READY FOR INDEPENDENT REVIEW, not approved. Build owner reports real prior Elite/Pro/controller bytes independently re-verified and complete compiler-input Git-equivalence, **new compilation not run**; complete native combined-root safety QA still PENDING.
+
+Catalog adds 2 truthful NONINSTALLABLE records (87→89), preserves two archival DEV generations and all old 87 records. New SHA256 continuity lock of 89 history rows plus dedicated npm-test regression catches historical deleted/relabeled/forged failures, while normal schema retains empty fresh history acceptance. No selectable firmware/download URL, no new controller/SDK/sample/public artifact, no device report. Preview source/generated catalog remains EMPTY.
+
+Scoped in-memory V8 schema/negative check and SHA256 baseline check only, no exact native npm build/test, Chromium, independent WEBSITE QA, hardware or publisher HTTP PASS. `git ls-remote` DNS failed exit 128. NEXT Independent Website QA at new exact owned PR #3 HEAD, then sole Website Main Merger; in parallel Independent Firmware QA exact #103 root then sole Safe Merge, Publisher separately clears lawful source/controller/immutable per-model host. Elite and Pro: NO INSTALLABLE YET; owner hardware UNKNOWN.
+
+---
+
 # Catalog Sync — closed development loop r7, 2026-10-24
 
 **OWNED PR #3 NON-DRAFT / READY FOR INDEPENDENT REVIEW; NOT QA APPROVED OR MERGED.** Consumed website head `3c433d97c2f84db5423f32e5e6c112d60ba8a120`, root `8f9c8400865ba21db564961db1cb3abe96c856d1`; firmware Data Safety producer #104 `0482ca12a008eb69b278512979e48f1af47d2da9`, full root `283d5031f1746b9ff12cac9e1a40c753b2f1c9ce`; firmware Safe Merge #103 `94c093e01680d69e22b64a176b3dc27b7fffdd7f`, full root `c95bf58439d4b5fc3a438dc91cbebc97f7ecae2b`; common **firmware subtree** `d3b67bf127121acdbb2d056890b8c6987ffb363e` is NOT either full root.

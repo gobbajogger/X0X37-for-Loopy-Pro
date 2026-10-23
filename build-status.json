@@ -2244,6 +2244,65 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "94c093e01680d69e22b64a176b3dc27b7fffdd7f",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/94c093e01680d69e22b64a176b3dc27b7fffdd7f"
+    },
+    {
+      "id": "data-safety-pr105-restore-matching-finish-ack-20261024",
+      "title": "PR105 Data Safety maximum-safe slot migration + FINISH ACK failures",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-restore-max-matching-20261024-0715",
+      "source_commit": "a99f4992e5bcbc5d677cae5a750d9684c0c78985",
+      "source_tree": "964e49852a00b888cde21528e9d040bc46fb8e07",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Data Safety PR105 producer scoped host test and Safe Merge source-window checks; attributed from immutable Git evidence; NO full-root QA.",
+        "command": "python3 x0x_slots_migration_matching_test.py x0x_slots_full_source_before.py; python3 x0x_slots_migration_matching_test.py x0x_slots_full_source_after.py; python3 -O x0x_slots_migration_matching_test.py x0x_slots_full_source_after.py; python3 -B fm1_install_finish_ack_test.py fm1_install_window_after.py",
+        "result": "Before planner 4/9 tests failed expected exit 1; after 9/9 and optimized 9/9 PASS exit 0 incl 250 randomized matrices; ACK fail-before 3/9 failing expected exit 1, repaired 9/9 and -O 9/9 PASS exit 0; integrator separate source-window matching and ACK tests exit 0. Scoped fixtures, NOT exact combined root."
+      },
+      "description": "Producer closed/reconciled PR105 source READY for independent QA and integrated into #103. No firmware subtree change and no device or public-model build QA.",
+      "missing_gate": "Independent current PR103 ROOT sample migration/OTA finish ACK/backup/readback/restore/CRC/wrong-model and 303 QA. Publisher lawful per-model source/controller/immutable HTTP still unknown; device UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/105",
+      "evidence_commit": "a99f4992e5bcbc5d677cae5a750d9684c0c78985",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/a99f4992e5bcbc5d677cae5a750d9684c0c78985"
+    },
+    {
+      "id": "integration-pr103-restoration-ota-ack-reviewed-source-20261024",
+      "title": "PR103 first NIGHTLY source complete with restored-sample matching, OTA ACK safety and byte-reuse receipts",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "5493044eb663b931fddd13f847c370b6971df623",
+      "source_tree": "1ca400ea04a7369c5e056ec80d35dc42c4a42855",
+      "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+      "source_time": "2026-10-23T21:44:21Z",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Sole Safe Merge integration source tests and separate Hourly Build compiler-input/private-byte reuse evidence on exact 5493044; no native full-root run by Catalog.",
+        "command": "python3 -B /mnt/data/pr105_scoped_integrator_tests.py; python3 -B /mnt/data/pr105_ack_scoped_integrator_tests.py; python3 /mnt/data/loopy-pr105-reuse/verify_pr105_build_reuse.py",
+        "result": "Integrator Git 17/17 PASS and two scoped method-window host scripts exit 0. Hourly Build verified all firmware/assets/BLE/tool/config compiler Git blobs unchanged vs prior real Elite/Pro/controller compile, private ZIP bytes and 3/3 corrupt-package negative rejections exit 0. Older actual model/controller compilation exits 0/0/0; NEW exact full-root native compilation NOT RUN. Full integrated installer QA PENDING; no public HTTP or physical results."
+      },
+      "description": "Source complete NON-DRAFT READY FOR INDEPENDENT REVIEW, NOT approved or merged. Historical private Elite 651396B sha256 1cb7d432d3149559bf6330ab53443fbe8939382369185b9063fe1f08f85a8cd5, Pro 651392B sha256 a8cd8b856001d446fa0c92074dc296ea454a02a75ce7332a10b8a8cb94b144f6, matching private controller 65492B sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a, are BUILD_ONLY reused, NOT installable.",
+      "missing_gate": "Independent QA complete exact 5493044 full-root native host/sample/OTA/CRC/303/model/installer safety suite and review; sole Safe Merge normal nightly protected PR integration. Publisher corresponding source/license/controller public clearance, external immutable per-model HTTP GET/SHA before LIVE. Hardware UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "5493044eb663b931fddd13f847c370b6971df623",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/5493044eb663b931fddd13f847c370b6971df623"
     }
   ],
   "policy": {
@@ -2254,7 +2313,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 87
+    "source_or_historical_checkpoints": 89
   },
   "versioning": {
     "firmware_product_version": {

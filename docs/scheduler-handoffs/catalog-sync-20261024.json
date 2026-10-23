@@ -766,5 +766,107 @@
     "pro": "NO_INSTALLABLE_YET",
     "published": false,
     "device": "UNKNOWN"
+  },
+  "closed_loop_cycle_20261024_r8": {
+    "evidence_revision": "catalog-pr3-pr105-integrated-and-appendonly-r8-20261024",
+    "consumed_website": {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+      "full_sha": "9c708dcd9060ae9ff57a33bd8105a03823f65f8c",
+      "root_tree": "beec2c547a2f45ad1faa76d2c273be72508a2cbe",
+      "evidence_revision": "catalog-pr3-ota-loader-producer-and-303-integration-r7-20261024"
+    },
+    "consumed_firmware": [
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/data-safety-restore-max-matching-20261024-0715",
+        "full_sha": "a99f4992e5bcbc5d677cae5a750d9684c0c78985",
+        "root_tree": "964e49852a00b888cde21528e9d040bc46fb8e07",
+        "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+        "evidence_revision": "data-safety-pr105-combined-two-source-repairs-20261024-r2"
+      },
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+        "full_sha": "5493044eb663b931fddd13f847c370b6971df623",
+        "root_tree": "1ca400ea04a7369c5e056ec80d35dc42c4a42855",
+        "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+        "evidence_revision": "safe-merge-pr103-data-safety-pr105-intake-20261024-r4"
+      },
+      {
+        "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+        "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+        "full_sha": "5493044eb663b931fddd13f847c370b6971df623",
+        "root_tree": "1ca400ea04a7369c5e056ec80d35dc42c4a42855",
+        "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+        "evidence_revision": "hourly-build-pr103-integrated-pr105-byte-reuse-20261024-r1"
+      }
+    ],
+    "checkpoints_before": 87,
+    "checkpoints_after": 89,
+    "historical_dev_generations": 2,
+    "continuity": {
+      "previous_history_preserved": 87,
+      "lock_rows": 89,
+      "sha256_vector_check": "PASS",
+      "malicious_deletions_relabel_rewrite_reorder": 6,
+      "positive_append": true,
+      "lock_fixture": "tests/fixtures/history-appendonly-baseline-20261024.json",
+      "permanent_test": "tests/build-history-continuity.test.mjs"
+    },
+    "build_only": {
+      "scoped_compiler_inputs_identical": true,
+      "private_artifact_integrity_attested_by_hourly_build": true,
+      "new_firmware_compilation": false,
+      "independent_full_root_qa": false,
+      "elite": "BUILD_ONLY_REUSED__NOT_INSTALLABLE",
+      "pro": "BUILD_ONLY_REUSED__NOT_INSTALLABLE",
+      "controller_public_license": "NOT_APPROVED",
+      "external_http": "NOT_VERIFIED",
+      "hardware": "UNKNOWN"
+    },
+    "actual_checks": [
+      {
+        "command": "GitHub connector exact commit/tree and PR head reads",
+        "exit": 0
+      },
+      {
+        "command": "V8 pure JS SHA256 abc test vector and history-lock fixture 89 rows",
+        "exit": 0,
+        "status": "SCOPED_TEST"
+      },
+      {
+        "command": "V8 exact Git-fetched status validator baseline/empty/malicious proof checks",
+        "exit": 0,
+        "status": "SCOPED_TEST"
+      },
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "status": "DNS UNAVAILABLE"
+      },
+      {
+        "command": "npm run build",
+        "status": "NOT_RUN_EXACT_NATIVE_WEBSITE_TREE_ABSENT"
+      },
+      {
+        "command": "npm test",
+        "status": "NOT_RUN_EXACT_NATIVE_WEBSITE_TREE_ABSENT"
+      },
+      {
+        "command": "responsive Chromium",
+        "status": "NOT_RUN"
+      }
+    ],
+    "disposition": "SOURCE_COMPLETE_SCOPED_CHECKED__NON_DRAFT_QA_PENDING",
+    "next_owner": "Independent NIGHTLY Website QA",
+    "next_action": "Run exact full-root native npm test/build and responsive browser and review new continuity fixture/red-green and source/generated parity; then sole Website Main Merger",
+    "parallel_firmware_owner": "Independent Firmware QA on PR103 full ROOT 5493044e; then sole Safe Merge",
+    "publisher_owner": "Sole NIGHTLY Publisher only after source, model, samples, controller redistribution, hashes and immutable HTTP verified",
+    "installable_elite": false,
+    "installable_pro": false,
+    "owner_hardware": "UNKNOWN",
+    "protected_ref_writes": false,
+    "firmware_bytes_published": false
   }
 }
