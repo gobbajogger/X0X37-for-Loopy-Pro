@@ -165,6 +165,58 @@ int main(void)
         CHECK(pk < 0.9f, "limiter: a 60 Hz burst at 1.6, from its peak, comes out at %.2f (ceiling 0.8, soft above 0.89)", pk);
         CHECK(step < 0.5f, "limiter: the gain moves at most %.2f dB a sample", step);
     }
+    /* 7. Bypassing the limiter must not replay stale look-ahead audio when re-enabled. */
+    for (int stereo = 0; stereo <= 1; stereo++) {
+        float l[MST_LA * 2], r[MST_LA * 2], peak = 0.0f;
+        master_init(&M);
+        /* Prime the look-ahead ring with an audible signal. */
+        for (i = 0; i < MST_LA * 2; ++i)
+            l[i] = r[i] = 0.5f;
+        if (stereo)
+            master_process_st(&M, l, r, MST_LA * 2, 1.0f);
+        else
+            master_process(&M, l, MST_LA * 2, 1.0f);
+        master_set(&M, MST_LIMIT, 0);
+        for (i = 0; i < MST_LA * 2; ++i)
+            l[i] = r[i] = 0.0f;
+        if (stereo)
+            master_process_st(&M, l, r, MST_LA * 2, 1.0f);
+        else
+            master_process(&M, l, MST_LA * 2, 1.0f);
+        master_set(&M, MST_LIMIT, 1);
+        for (i = 0; i < MST_LA * 2; ++i)
+            l[i] = r[i] = 0.0f;
+        if (stereo)
+            master_process_st(&M, l, r, MST_LA * 2, 1.0f);
+        else
+            master_process(&M, l, MST_LA * 2, 1.0f);
+        for (i = 0; i < MST_LA * 2; ++i) {
+            if (fabsf(l[i]) > peak) peak = fabsf(l[i]);
+            if (stereo && fabsf(r[i]) > peak) peak = fabsf(r[i]);
+        }
+        CHECK(peak == 0.0f, "limiter OFF->ON (%s): stale look-ahead audio peak %.6f (want silence)",
+              stereo ? "stereo" : "mono", peak);
+        /* A fresh signal still emerges after the normal look-ahead, and assigning
+         * the already enabled value must not reset an active ring. */
+        for (i = 0; i < MST_LA * 2; ++i)
+            l[i] = r[i] = 0.125f;
+        if (stereo)
+            master_process_st(&M, l, r, MST_LA * 2, 1.0f);
+        else
+            master_process(&M, l, MST_LA * 2, 1.0f);
+        CHECK(fabsf(l[MST_LA * 2 - 1] - 0.125f) < 0.00001f &&
+              (!stereo || fabsf(r[MST_LA * 2 - 1] - 0.125f) < 0.00001f),
+              "limiter OFF->ON (%s): fresh signal passes after look-ahead", stereo ? "stereo" : "mono");
+        master_set(&M, MST_LIMIT, 1);                 /* unchanged setting: do not reset */
+        l[0] = r[0] = 0.0f;
+        if (stereo)
+            master_process_st(&M, l, r, 1, 1.0f);
+        else
+            master_process(&M, l, 1, 1.0f);
+        CHECK(fabsf(l[0] - 0.125f) < 0.00001f &&
+              (!stereo || fabsf(r[0] - 0.125f) < 0.00001f),
+              "limiter unchanged (%s): live look-ahead remains intact", stereo ? "stereo" : "mono");
+    }
     printf("master: %s\n", fails ? "FAIL" : "ok");
     return fails != 0;
 }
