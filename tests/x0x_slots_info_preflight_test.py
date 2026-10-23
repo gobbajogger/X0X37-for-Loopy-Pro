@@ -94,6 +94,36 @@ class Guard(TestCase):
     def test_overlapping_flash_ranges(self):self.negative(reply(TWO,[(0xC2,20,2),(0xD0,20,3)]))
     def test_identical_flash_ranges(self):self.negative(reply(TWO,[(0xC2,20,2),(0xC2,20,3)]))
     def test_zone_count_beyond_header(self):self.negative(reply([(17,'A',2)]))
+    def test_zero_zone_legacy_nonzero_used(self):
+        self.negative(reply([(0,'',2)]))
+    def test_zero_zone_extended_nonzero_used(self):
+        self.negative(reply([(0,'',0)],[(0xC2,20,2)]))
+    def test_legacy_extended_used_disagreement(self):
+        self.negative(reply([(1,'A',0)],[(0xC2,20,2)]))
+    def test_nonzero_used_disagreement(self):
+        self.negative(reply([(1,'A',3)],[(0xC2,20,2)]))
+    def test_zero_zone_phantom_name(self):
+        self.negative(reply([(0,'phantom',0)],[(0xC2,20,0)]))
+    def test_valid_7bit_legacy_clamp_at_127_kib(self):
+        # Firmware editor.c clamps legacy used KiB to 127; X0X reports actual 14-bit size.
+        a=xs.parse_info(reply([(1,'A',127)],[(0xC2,40,128)],size_kib=127))
+        self.assertEqual(a['slots'][0]['used'],128)
+        self.assertEqual(a['slots'][0]['kb'],127)
+    def test_invalid_7bit_clamp_disagreement(self):
+        self.negative(reply([(1,'A',126)],[(0xC2,40,128)],size_kib=127))
+    def test_zone_legacy_extended_consistency_matrix(self):
+        # All positive and negative combinations: malformed slots must refuse prewrite.
+        for nz in (0,1,2):
+            for legacy in (0,1,2):
+                for ext_used in (0,1,2):
+                    frame=reply([(nz,'' if nz == 0 else 'A',legacy)],
+                                [(0xC2,20,ext_used)])
+                    with self.subTest(nz=nz,legacy=legacy,ext_used=ext_used):
+                        if (nz != 0 or legacy == 0) and legacy == ext_used:
+                            a=xs.parse_info(frame)
+                            self.assertEqual(a['slots'][0]['used'],ext_used)
+                        else:
+                            self.negative(frame)
 
 suite=__import__('unittest').defaultTestLoader.loadTestsFromTestCase(Guard)
 result=TextTestRunner(verbosity=2).run(suite)

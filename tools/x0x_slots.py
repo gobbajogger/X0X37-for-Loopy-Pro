@@ -95,6 +95,9 @@ def parse_info(r):
             raise SlotError(f"slot {k + 1}: truncated SMP_INFO descriptor") from e
         if nz > 16 or j - i - 1 > 8:
             raise SlotError(f"slot {k + 1}: invalid zones or used size")
+        # On-device SMP_INFO reports zero used KiB and an empty name for an empty slot.
+        if nz == 0 and (used != 0 or j != i + 1):
+            raise SlotError(f"slot {k + 1}: contradictory empty-slot descriptor")
         slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": used, "size": size,
                       "off": None, "used": used})
         i = j + 2
@@ -118,6 +121,10 @@ def parse_info(r):
             if (off == 0 or slot_size < DATA_OFF or used * 1024 > slot_size
                     or any(off < hi and lo < end for lo, hi in ranges)):
                 raise SlotError(f"slot {k + 1}: invalid or overlapping SMP_INFO flash range")
+            # Legacy used KiB is capped to 7 bits; extension carries full 14-bit count.
+            # Both are derived from the same on-device sample header data_len.
+            if sl["kb"] != min(127, used):
+                raise SlotError(f"slot {k + 1}: legacy/extended used-size disagreement")
             ranges.append((off, end))
             sl.update({"off": off, "size": slot_size, "used": used})
     return {"count": count, "size": size, "ext": ext, "slots": slots}
