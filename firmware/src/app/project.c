@@ -84,13 +84,13 @@ static uint8_t io_buf[PLAT_STORE_MAX] __attribute__((aligned(4)));
 
 /* what each object last held on the flash (a hash of its payload), so a save writes only the
  * objects that changed: an autosave usually erases one or two sectors, not six */
-static uint32_t stored_hash[OBJ_NOBJ];
+static uint64_t stored_hash[OBJ_NOBJ];
 static uint8_t stored_known[OBJ_NOBJ];
-static uint32_t hash_of(const uint8_t *p, uint32_t n)        /* FNV-1a */
+static uint64_t hash_of(const uint8_t *p, uint32_t n)        /* FNV-1a, 64-bit */
 {
-    uint32_t h = 2166136261u;
+    uint64_t h = UINT64_C(14695981039346656037);
     while (n--)
-        h = (h ^ *p++) * 16777619u;
+        h = (h ^ *p++) * UINT64_C(1099511628211);
     return h;
 }
 
@@ -123,7 +123,7 @@ static uint32_t crc32_of(const uint8_t *p, uint32_t n)       /* zlib CRC-32, 4 b
 /* the object is the n bytes of io_buf, format word included; written only if they changed */
 static int save_buf(uint32_t obj, uint32_t n)
 {
-    uint32_t h = hash_of(io_buf, n);
+    uint64_t h = hash_of(io_buf, n);
     int rc;
     if (stored_known[obj] && stored_hash[obj] == h)
         return 0;                                    /* the flash already holds exactly this */
