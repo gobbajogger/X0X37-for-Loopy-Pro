@@ -1183,11 +1183,72 @@ static void test_tb3po_matches_reference(void)
 }
 #endif
 
+/* A random 303 step index is not a measure of elapsed musical bars.
+ * Reverse must also count only its actual wrap back to the first-played step.
+ * Tempo 120 -> 16th = 5512.5 samples, so one sample after each boundary
+ * makes the assertions independent of Q8 rounding on the boundary itself. */
+static void test_303_direction_mutation_cycles(void)
+{
+    const int bass = TRK_BASS0;
+    reset();
+    S.bpm = 120.0f;
+    P[0].bass[0].len = 16;
+    P[0].bass[0].dir = DIR_RANDOM;
+    P[0].bass[0].gen.mutate_bars = 2;
+    S.t[bass].rng = 77u;       /* transitions 3 and 4 both pick step 0 */
+    seq_start(&S);
+    run(22051);                /* four random transitions after first step */
+    CHECK(S.t[bass].pos == 0, "random-direction seed must revisit step 0 (got %u)", S.t[bass].pos);
+    CHECK(S.t[bass].bars == 0 && S.mut_rng[0] == 0,
+          "random visits to step 0 must not trigger early bars/mutation: bars=%u mut_rng=%u",
+          S.t[bass].bars, S.mut_rng[0]);
+    run(66150);                /* total 16 transitions, one 16-step cycle */
+    CHECK(S.t[bass].bars == 1 && S.mut_rng[0] == 0,
+          "random 16 transitions must count one bar, not mutate early: bars=%u mut_rng=%u",
+          S.t[bass].bars, S.mut_rng[0]);
+    run(88200);                /* total 32 transitions, two 16-step cycles */
+    CHECK(S.t[bass].bars == 2 && S.mut_rng[0] != 0,
+          "random 32 transitions must count two bars and mutate: bars=%u mut_rng=%u",
+          S.t[bass].bars, S.mut_rng[0]);
+
+    reset();
+    S.bpm = 120.0f;
+    P[0].bass[0].len = 4;
+    P[0].bass[0].dir = DIR_REV;
+    P[0].bass[0].gen.mutate_bars = 2;
+    seq_start(&S);
+    run(16539);                /* reverse: last, 2, 1, 0 is not a completed bar */
+    CHECK(S.t[bass].pos == 0 && S.t[bass].bars == 0 && S.mut_rng[0] == 0,
+          "reverse must not double-count step zero: pos=%u bars=%u mut_rng=%u",
+          S.t[bass].pos, S.t[bass].bars, S.mut_rng[0]);
+    run(27562);                /* total 8 transitions / two 4-step cycles */
+    CHECK(S.t[bass].bars == 2 && S.mut_rng[0] != 0,
+          "reverse must mutate after two complete cycles: bars=%u mut_rng=%u",
+          S.t[bass].bars, S.mut_rng[0]);
+
+    reset();
+    S.bpm = 120.0f;
+    P[0].bass[0].len = 4;
+    P[0].bass[0].dir = DIR_FWD;
+    seq_start(&S);
+    run(44101);
+    CHECK(S.t[bass].bars == 2, "forward cycle count unchanged: bars=%u", S.t[bass].bars);
+
+    reset();
+    S.bpm = 120.0f;
+    P[0].bass[0].len = 4;
+    P[0].bass[0].dir = DIR_PINGPONG;
+    seq_start(&S);
+    run(66151);                /* two round trips back to step zero */
+    CHECK(S.t[bass].bars == 2, "pingpong endpoint count unchanged: bars=%u", S.t[bass].bars);
+}
+
 int main(void)
 {
     test_drum_timing();
     test_swing_and_rates();
     test_303();
+    test_303_direction_mutation_cycles();
     test_303_velocity_slide_overlap();
     test_303_midi_lifecycle();
     test_polymeter_cue_chain();
