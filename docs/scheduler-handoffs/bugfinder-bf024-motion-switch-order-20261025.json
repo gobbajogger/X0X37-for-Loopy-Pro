@@ -1,0 +1,98 @@
+{
+  "schema": "loopyx0x37.handoff.v1",
+  "evidence_revision": "bugfinder-bf024-motion-switch-order-20261025-r1",
+  "date_utc": "2026-10-24",
+  "owner_role": "Hourly Bugfinder",
+  "stage": "SOURCE_COMPLETE_PRODUCER_NATIVE_CHECKED_QA_PENDING_BUILD_PENDING",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "isolated_branch": "lane/bugfinder-bf024-motion-switch-order-20261025",
+  "source_commit": "5c52e1a2107bd432ceb4c0e0cc808b98f5e84e4b",
+  "source_root_tree": "772e41e809f6fbf221f1f8d552a08a52d1bd5d17",
+  "source_base_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "source_base_root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "firmware_compiler_input_tree": "bfbf3c16ab806357a2b4a48a9c69476fd79cb1d0",
+  "previous_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "invariant_unchanged": {
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "build_sh_git_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5"
+  },
+  "changed_paths": [
+    {
+      "path": "firmware/src/seq/motion.c",
+      "mode": "100644",
+      "sha": "328e9ea9ce00c0028455ec0fc223412805b260b2"
+    },
+    {
+      "path": "tests/host/motion_pattern_handoff_test.c",
+      "mode": "100644",
+      "sha": "582e89b658c14a4d9f7c8727f06745ea6e8b2909"
+    },
+    {
+      "path": "tests/run_tests.sh",
+      "mode": "100755",
+      "sha": "30dcd4b7923f09b10d6d2bfadca30934cd312357"
+    }
+  ],
+  "bug": {
+    "title": "Outgoing automation lane restores base after incoming pattern lane applies its p-lock",
+    "impact": "Wrong synth knob value after a pattern switch, despite new lane's reported applied value being correct; dependent on lane allocation order",
+    "reproduction": "Allocate new selected-pattern lane at lower pool index than departing old-pattern lane targeting same control; motion_step uses a single index-order pass; new lane writes the p-lock then the old lane to_base overwrites it",
+    "correction": "First phase resets departures; second phase applies only active pattern lanes, both bounded by NLANE",
+    "exclusions": "No OTA/identity/SMC fixes, no project-file format change, no protected branches",
+    "distinct_from": "PR #130 BF-023 stale motion REC/HOLD; PR #120 BF-018 lane reuse; PR #101 BF-017 STOP"
+  },
+  "native_producer": {
+    "platform": "local Linux x86_64; GCC 14.2.0, Clang 17.0.0",
+    "matrix": {
+      "compilers": [
+        "gcc",
+        "clang"
+      ],
+      "configurations": [
+        "-std=c11 -O2 -Wall -Wextra -Werror -fno-omit-frame-pointer",
+        "-std=c11 -O1 -Wall -Wextra -Werror -fno-omit-frame-pointer -fsanitize=undefined -fno-sanitize-recover=all",
+        "-std=c11 -O1 -Wall -Wextra -Werror -fno-omit-frame-pointer -fsanitize=address,undefined -fno-sanitize-recover=all"
+      ],
+      "test_inputs": "Git-exact nightly motion.c and motion.h; checked in new motion_pattern_handoff_test.c",
+      "original": "6/6 compilations exit 0; 6/6 test runs exit 1 as expected; 7 of 44 regression assertions fail per configuration",
+      "corrected": "6/6 compilations exit 0; 6/6 test runs exit 0; 44/44 assertions pass per configuration",
+      "asan_options": "ASAN_OPTIONS=detect_leaks=0; no LeakSanitizer PASS claimed"
+    },
+    "compatibility": {
+      "comparison": "PR #130 source blob e4c45f54cb5f38ae2b96795c324cb11438dcb26a plus BF-024 two-phase ordering against PR #130 registered motion_pattern_pending_test.c",
+      "result": "6/6 GCC+Clang plain, UBSan, ASan+UBSan compilation/test exits 0 (scoped local composition; not independently QA-approved; integration not performed)"
+    },
+    "reproducible_private_evidence": {
+      "archive_name": "LoopyX0X37-Bugfinder-BF024-MotionHandoff-20261025.zip",
+      "bytes": 21549,
+      "sha256": "c2b5988ca8940a5f76fb8e0e40feb215768e175b5b57d144e072b872039486c4",
+      "zip_crc": "checked all members (testzip None)",
+      "run": "sh REPRODUCE.sh within extracted evidence; produces expected original RED and corrected GREEN"
+    }
+  },
+  "not_run": [
+    "Complete current combined-root tests/run_tests.sh",
+    "Standalone legacy motion_test.c against full checkout",
+    "Native JieLi Elite and Pro firmware/controller BUILD_ONLY; model/CRC/SDK/toolchain/flash/code/RAM/pool",
+    "Independent QA and source integration acceptance",
+    "Real SMK37 hardware, USB/MIDI flashing, backup/restore or Pages/public HTTP"
+  ],
+  "next_stages": [
+    {
+      "owner": "Existing Hourly Build",
+      "action": "Build exact new compiler input tree bfbf3c16ab806357a2b4a48a9c69476fd79cb1d0 Elite+Pro DEV/controller with exact SDK/toolchain/flags and independent hash/CRC/budget evidence; BUILD_ONLY does not wait for QA/hosting/hardware"
+    },
+    {
+      "owner": "Existing Independent QA",
+      "action": "Independently inspect exact branch/root/source, rerun old/new and boundary tests, full-root affected motion/sequencer/rec-live tests and sanitizers, disposition ACCEPT or NEEDS CHANGES; no self-approval"
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Only integrate independently accepted optional change through guarded nightly PR; reconcile PR #130 scope without overwriting either; no public package or production promotion"
+    }
+  ],
+  "safety_no_public_upload": true,
+  "software_source_only": true,
+  "no_hardware_test": true
+}
