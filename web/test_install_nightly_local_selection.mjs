@@ -16,7 +16,7 @@ function defer() {
   return { promise, resolve };
 }
 const tick = async () => { for (let j = 0; j < 12; j++) await Promise.resolve(); };
-const input = (n) => ({ arrayBuffer: async () => Uint8Array.of(n).buffer });
+const input = (n) => ({ size:1, arrayBuffer: async () => Uint8Array.of(n).buffer });
 function scenario() {
   const nodes = new Map(), hashes = new Map(), notices = [];
   const $ = (id) => {
@@ -28,7 +28,7 @@ function scenario() {
     return nodes.get(id);
   };
   const ctx = createContext({
-    $, Uint8Array,
+    $, Uint8Array, t: k=>k,
     productOf: (raw) => raw[0] === 3 ? "BAD_900" :
       raw[0] === 1 ? "SMK-37 Pro_9001001" : "SMK-37 Elite_9001002",
     logicalImage: (raw) => raw[0],
@@ -69,7 +69,7 @@ let passed = 0;
 }
 {
   const x = scenario(), slow = defer();
-  const first = x.ui.choose({ arrayBuffer: () => slow.promise });
+  const first = x.ui.choose({ size:1, arrayBuffer: () => slow.promise });
   const second = x.ui.drop(input(2));
   await tick(); x.hashes.get(2).resolve("second"); await second;
   slow.resolve(Uint8Array.of(1).buffer); await first;
@@ -88,7 +88,7 @@ let passed = 0;
 }
 {
   const x = scenario();
-  await x.ui.choose({ arrayBuffer: async () => { throw Error("read failure"); } });
+  await x.ui.choose({ size:1, arrayBuffer: async () => { throw Error("read failure"); } });
   assert.equal(x.ui.state().product, null);
   assert.ok(x.notices.includes("stockloadfail"));
   passed++;
@@ -108,4 +108,20 @@ let passed = 0;
   assert.ok(x.notices.includes("model"));
   passed++;
 }
-console.log("PASS " + passed + "/6 installer local-selection mock regressions (no hardware)");
+{
+  const x=scenario();let reads=0;
+  await x.ui.choose({size:16*1024*1024+1,arrayBuffer:async()=>{reads++;return Uint8Array.of(2).buffer}});
+  assert.equal(reads,0);assert.equal(x.ui.state().product,null);
+  assert.equal(x.ui.state().enabled,false);assert.equal(x.ui.state().confirmDisabled,true);
+  assert.ok(x.notices.includes("stockbad"));passed++;
+}
+{
+  for(const size of [undefined,0,-1,NaN,Number.MAX_SAFE_INTEGER+1]){
+    const x=scenario();let reads=0;
+    await x.ui.drop({size,arrayBuffer:async()=>{reads++;return Uint8Array.of(2).buffer}});
+    assert.equal(reads,0);assert.equal(x.ui.state().product,null);
+    assert.equal(x.ui.state().confirmDisabled,true);
+    assert.ok(x.notices.includes("stockbad"));
+  }passed++;
+}
+console.log("PASS " + passed + "/8 installer local-selection mock regressions (no hardware)");
