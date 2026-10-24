@@ -205,9 +205,10 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     note = note < 0 ? 0 : note > 127 ? 127 : note;
     if (gate == G_NOTE || !tr->sounding) {
         int slide = tr->sounding && prev_slide;
-        if (!skip)                                   /* (recorded live on this pass: the key sounded it) */
-            o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
-        if (s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
+        /* A chance-rejected step is a rest for both the internal 303 and MIDI out.
+         * REC's live-hit skip still echoes MIDI (REC-06); it is not a chance miss. */
+        int played = skip || o->bass_on(o->ctx, b, note, (st->flags & BS_ACCENT) != 0, slide, bstep_velocity(st));
+        if (played && s->send_notes && s->ch[TRK_BASS0 + b] != SEQ_CH_OFF) {
             uint8_t old = s->bass_notes_out[b], ch = s->ch[TRK_BASS0 + b];
             uint8_t had_old = s->bass_out_valid[b], old_ch = s->bass_out_ch[b];
             if (s->bass_slide_valid[b]) {                  /* only one old MIDI pitch can remain open */

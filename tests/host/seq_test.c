@@ -24,7 +24,7 @@ static void log_ev(int k, int a, int b, int c, int d)
         evs[nev++] = (ev_t){now, k, a, b, c, d};
 }
 static int s_drum(void *x, int k, int v, float vel) { (void)x; log_ev(E_DRUM, k * 100 + v, (int)(vel * 127.0f + 0.5f), 0, 0); return 1; }
-static void s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; last_bass_velocity = velocity; log_ev(E_ON, p, n, acc, sl); }
+static int s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; last_bass_velocity = velocity; log_ev(E_ON, p, n, acc, sl); return 1; }
 static void s_off(void *x, int p) { (void)x; log_ev(E_OFF, p, 0, 0, 0); }
 static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; log_ev(E_BRK, s16, bar, (int)spb, en); }
 static void s_brkstop(void *x) { (void)x; log_ev(E_BRKSTOP, 0, 0, 0, 0); }
