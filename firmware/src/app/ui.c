@@ -1187,7 +1187,7 @@ static void clear_lanes(int pat, int part)
     for (k = 0; k < NLANE; k++) {
         lane_t *l = &proj.arr.lane[k];
         if (l->used && l->pat == pat && l->part == part) {
-            motion_clear(proj.arr.lane, k);
+            engine_motion_clear(k);
             if (l->t < NTARGETS)                      /* (T_PROB: no knob) */
                 engine_set(l->t, l->v, l->i, proj.sound.v[l->t][l->v][l->i]);
         }
@@ -1890,7 +1890,7 @@ static void motion_forget(pref_t r)
         say("NO MOTION ON ", pref_name(r));
         return;
     }
-    motion_clear(proj.arr.lane, k);
+    engine_motion_clear(k);
     engine_set(r.a, r.b, r.c, proj.sound.v[r.a][r.b][r.c]);
     mark_dirty();
     say("MOTION CLEARED: ", pref_name(r));
@@ -1965,7 +1965,7 @@ static void lock_turn(pref_t r, int e, int role)
         for (j = 0; j < NSTEPS; j++)
             any |= l->val[j] != MOT_NONE;
         if (!any)
-            motion_clear(proj.arr.lane, k);
+            engine_motion_clear(k);
         if (!seq.playing)
             engine_set(r.a, r.b, r.c, proj.sound.v[r.a][r.b][r.c]);
         mark_dirty();
@@ -2060,7 +2060,7 @@ static void prob_turn(int e)
         for (j = 0; j < NSTEPS; j++)
             any |= l->val[j] != MOT_NONE;
         if (!any)
-            motion_clear(proj.arr.lane, k);
+            engine_motion_clear(k);
     }
     mark_dirty();
     q = put_s(put_i(put_s(t, "STEP "), s + 1), ": ");

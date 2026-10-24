@@ -174,10 +174,15 @@ int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
     return k;
 }
 
-void motion_clear(lane_t *L, int k)
+void motion_clear(motion_t *m, int k)
 {
-    if (k >= 0 && k < NLANE)
-        L[k].used = 0;
+    if (k >= 0 && k < NLANE) {
+        /* This slot may be reused before the next audio step.  Drop knob
+         * intents from its former owner, not the fresh owner's first event. */
+        m->lane[k].used = 0;
+        m->rt[k].rec_req = 0;
+        m->rt[k].hold_req = 0;
+    }
 }
 
 int motion_count(const lane_t *L)
