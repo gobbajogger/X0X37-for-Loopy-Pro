@@ -1187,5 +1187,133 @@
     "pro_installable": false,
     "owner_device_result": "UNKNOWN",
     "no_protected_branch_writes": true
+  },
+  "closed_loop_cycle_20261024_r12": {
+    "revision": "catalog-pr3-archive75-ctl49-smc79-first-candidate-intake-20261024-r12",
+    "owner": "X0X37 Build Catalog Sync",
+    "role_outcome": "SOURCE_HISTORY_DELIVERED_SCOPED_V8_VERIFIED__AWAIT_INDEPENDENT_QA",
+    "website": {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+      "consumed_head": "de41933ccfd0db2ff1e3b2b2a5f76fadb0cafa18",
+      "consumed_root_tree": "a40533e26ee70d06dbdc5da9b96d59d6edd749e5",
+      "main": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+      "gh_pages": "9c5d3b6b0846f89436492851fef89ed3829b7ad7"
+    },
+    "firmware": {
+      "nightly": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "nightly_root": "71b759dd206d844cceed9e40ae68966142720e9c",
+      "nightly_compiled_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "integration_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "consumed_head": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+      "integrated_root_tree": "17d947417372bf48e8167cd9a3df970093afe3c1",
+      "NEW_compiled_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "evidence_revision": "safe-merge-pr103-archive75-ctl49-smc79-critical-path-20261024-r7",
+      "source_ready_for_review": true,
+      "review_approved": false,
+      "actual_current_elite_pro_controller_compile": "NOT_VERIFIED"
+    },
+    "upstream": [
+      {
+        "pr": 75,
+        "branch": "lane/data-safety-archive-zone-preflight-20261023-1119",
+        "sha": "58e48d015dea7bb0fbb18712ac3ae82ef7f58775",
+        "root_tree": "5388e0aac6c4ce4f082517a071596d31f7978a02",
+        "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+        "disposition": "SOURCE_ONLY_EVIDENCE"
+      },
+      {
+        "pr": 49,
+        "branch": "lane/data-safety-postreplace-sync-20261023-1810",
+        "sha": "1a1efce1df56c5fc48485e430f55d8bf8a03e0bf",
+        "root_tree": "7074847b08c5c3db30e3e0feb83cc18864106446",
+        "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+        "disposition": "SOURCE_ONLY_EVIDENCE"
+      },
+      {
+        "pr": 79,
+        "branch": "lane/smc-ble-link-epoch-20261023-1210",
+        "sha": "3e430691dcfecb8dba8e9c6963ccb6ba4616e648",
+        "root_tree": "9708d4ee023635fcf03b0f8afcbdfc1b31edf1f3",
+        "firmware_subtree": "b0350a36bff8b0965a352f93b12a83ec67d2869e",
+        "disposition": "SOURCE_ONLY_EVIDENCE"
+      }
+    ],
+    "history": {
+      "previous": 94,
+      "after": 98,
+      "append_only": true,
+      "archived_dev_generations": 2,
+      "added_records": [
+        "data-safety-pr75-archive-zone-20261024-r12",
+        "data-safety-pr49-atomic-controller-output-20261024-r12",
+        "smc-pr79-ble-link-epoch-20261024-r12",
+        "integration-pr103-archive75-ctl49-smc79-20261024-r7"
+      ],
+      "installable_new": 0
+    },
+    "actual_checks": [
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "error": "Could not resolve host: github.com"
+      },
+      {
+        "command": "node --version",
+        "exit": 0,
+        "out": "v22.16.0"
+      },
+      {
+        "command": "npm --version",
+        "exit": 0,
+        "out": "10.9.2"
+      },
+      {
+        "command": "Exact GitHub source/ref/tree reads and 94 historical immutable JSON assertions",
+        "exit": 0,
+        "out": "PASS"
+      },
+      {
+        "command": "Scoped in-memory V8 actual Git validator, 2 positive and 8 malformed negative cases",
+        "exit": 0,
+        "out": "PASS",
+        "scope": "SCOPED_V8_NOT_NATIVE_NPM_NOT_INDEPENDENT_QA"
+      },
+      {
+        "command": "npm run build",
+        "status": "NOT_RUN_EXACT_FULL_NATIVE_WEBSITE_CHECKOUT_UNAVAILABLE"
+      },
+      {
+        "command": "npm test",
+        "status": "NOT_RUN_EXACT_FULL_NATIVE_WEBSITE_CHECKOUT_UNAVAILABLE"
+      },
+      {
+        "command": "responsive Chromium",
+        "status": "NOT_RUN_EXACT_FULL_NATIVE_WEBSITE_CHECKOUT_UNAVAILABLE"
+      },
+      {
+        "command": "Immutable external firmware HTTP rehash",
+        "status": "NOT_RUN_NO_APPROVED_LAWFUL_HOST"
+      }
+    ],
+    "status_source_generated_parity": true,
+    "site_preview_empty": true,
+    "elite": "NO_INSTALLABLE_YET",
+    "pro": "NO_INSTALLABLE_YET",
+    "hardware_feedback": "UNKNOWN",
+    "published": false,
+    "next_owner": "Independent NIGHTLY Website QA",
+    "next_action": "Review exact PR3 head and run native npm build/test, malicious schema fixtures and responsive browser, then sole Website Main Merger protected reviewed integration",
+    "firmware_parallel_owners": "Hourly Build compile new exact e33e782 firmware and matching private controller BUILD_ONLY; Independent Firmware QA full new PR103 ROOT tests; Safe Merge controls protected firmware nightly; Publisher lawful host/HTTP after approval",
+    "remaining_gates": [
+      "website independent complete-root native test/Chromium/review",
+      "model-specific changed-compiler-input Elite/Pro/controller bytes",
+      "independent full-root sample/OTA/SMC/model/CRC QA",
+      "reviewed firmware nightly integration",
+      "lawful corresponding source/controller and immutable external package host",
+      "sole Pages Publisher HTTP byte/readback"
+    ],
+    "device_flash": false
   }
 }

@@ -1,3 +1,15 @@
+# Catalog Sync r12 — first-nightly archive/controller/SMC source intake (2026-10-24)
+
+Consumed website PR #3 `de41933ccfd0db2ff1e3b2b2a5f76fadb0cafa18` (full WEBSITE ROOT `a40533e26ee70d06dbdc5da9b96d59d6edd749e5`); firmware Safe Merge #103 `56c5d971b6d1c1864cd0f6153f4399950c223c2d` (firmware-repo ROOT `17d947417372bf48e8167cd9a3df970093afe3c1`, **DIFFERENT compiled firmware/ subtree `e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439`**). Independently read exact source commits/trees and the four-parent integration that incorporates PR75 `58e48d015dea7bb0fbb18712ac3ae82ef7f58775`, PR49 `1a1efce1df56c5fc48485e430f55d8bf8a03e0bf`, SMC PR79 `3e430691dcfecb8dba8e9c6963ccb6ba4616e648`.
+
+Four SOURCE ONLY noninstallable history records appended, **94 -> 98**; 94 historical entries preserved unchanged, 2 legacy DEV generations, zero new selectable firmware or artifact/download URLs, source/generated manifest byte parity, empty source/generated picker. No actual **new** model/controller compilation, independent full-root firmware/website QA, lawful immutable HTTP, owner physical PASS or device flash is claimed. Earlier private model bytes do not match the new compiled subtree.
+
+Checks: native `git ls-remote` exit 128 (GitHub DNS); Node v22.16.0, npm 10.9.2; authenticated Git source/ref verification. Exact Git validator executed in scoped V8 with **2 valid controls** and **8 rejected malicious variants**; native full website `npm run build`, `npm test`, Chromium and independent website QA remain NOT RUN (native exact checkout unavailable). Machine evidence `docs/scheduler-handoffs/catalog-sync-20261024.json`, revision `catalog-pr3-archive75-ctl49-smc79-first-candidate-intake-20261024-r12`.
+
+**NEXT:** Independent NIGHTLY Website QA exact-head native tests, malformed negatives and browser/review, then sole Website Main Merger. In parallel Hourly Build compiles source e33e782 for both models and matched controller BUILD_ONLY while independent firmware QA tests complete PR103 root. Firmware Safe Merge alone integrates reviewed changes, Pages Publisher alone lawfully hosts and verifies public HTTP bytes. Hardware feedback UNKNOWN; production separate owner same-byte physical PASS.
+
+---
+
 # Catalog Sync r8 — 2026-10-24 closed development loop
 
 Website producer consumed `9c708dcd9060ae9ff57a33bd8105a03823f65f8c`; firmware producer #105 `a99f4992e5bcbc5d677cae5a750d9684c0c78985` full ROOT `964e49852a00b888cde21528e9d040bc46fb8e07`, and integrator #103 `5493044eb663b931fddd13f847c370b6971df623` full ROOT `1ca400ea04a7369c5e056ec80d35dc42c4a42855` (distinct compiled firmware/ subtree `d3b67bf127121acdbb2d056890b8c6987ffb363e`). Source-only integration now READY FOR INDEPENDENT REVIEW, not approved. Build owner reports real prior Elite/Pro/controller bytes independently re-verified and complete compiler-input Git-equivalence, **new compilation not run**; complete native combined-root safety QA still PENDING.
