@@ -42,6 +42,12 @@ static volatile uint8_t smc_mmc_stop_boundary[2];
  * (host). Main-loop snapshots never clear a producer-owned flag. */
 static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
 static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
+/* TIMER5 snapshots both lost-release sources at each link boundary.
+ * The link clears ALL held Solo keys, including User/host notes. Retiring
+ * pre-edge host losses prevents those old releases from clearing new-link
+ * presses. Publish both boundaries with the link under one seqlock. */
+static volatile uint32_t smc_link_loss_seq, smc_link_ble_loss_boundary,
+                         smc_link_host_loss_boundary;
 static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
     uint8_t type = st & 0xF0u;
@@ -141,8 +147,16 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
 
 void smc_ble_link(int up)
 {
+    /* TIMER5 is the only writer. An old session's overflowed Note Off must
+     * not release a new session's held Solo after a coalesced reconnect. */
+    smc_link_loss_seq++;
+    __asm__ volatile("" ::: "memory");
+    smc_link_ble_loss_boundary = smc_ble_solo_release_lost;
+    smc_link_host_loss_boundary = smc_host_solo_release_lost;
     uint32_t next = (smc_link_published + 0x200u) & ~0x1FFu;
     smc_link_published = next | ((uint32_t)smc_qw << 1) | (uint32_t)(up != 0);
+    __asm__ volatile("" ::: "memory");
+    smc_link_loss_seq++;
 }
 int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
 int smc_connected(void) { return smc.up && smc_ble_role_get(); }
@@ -644,7 +658,18 @@ static void smc_mmc_drain_stop(int src, int allow)
 
 void smc_poll(void)
 {
-    uint32_t link = smc_link_published;
+    uint32_t seq, link, ble_link_loss, host_link_loss;
+    /* The producer publishes link+release watermark together. Retry if an
+     * interrupt changed either half while the main loop sampled them. */
+    do {
+        seq = smc_link_loss_seq;
+        if (seq & 1u) continue;
+        __asm__ volatile("" ::: "memory");
+        link = smc_link_published;
+        ble_link_loss = smc_link_ble_loss_boundary;
+        host_link_loss = smc_link_host_loss_boundary;
+        __asm__ volatile("" ::: "memory");
+    } while (seq != smc_link_loss_seq || (seq & 1u));
     uint8_t r, count = 0;
     int allow = !perf_testing();
     /* Snapshot producer generations before either input ring drains. An ISR
@@ -663,6 +688,20 @@ void smc_poll(void)
         /* Never clear the ISR's publication: it may already contain a newer
          * link edge than this snapshot. The next poll must still see it. */
         smc_link_seen = link;
+        /* Retire only losses from the old BLE link. A later release dropped
+         * on the NEW link still clears its Solo. Project drop may already
+         * have acknowledged a newer generation; never rewind that cursor. */
+        if ((uint32_t)(ble_link_loss - ble_seen) < 0x80000000u) {
+            ble_seen = ble_link_loss;
+            smc_ble_solo_release_seen = ble_link_loss;
+        }
+        /* The BLE edge clears host-held Solos too. A host NoteOff lost
+         * before that edge cannot cancel an unrelated new-link press.
+         * Do not erase a newer host loss or rewind a project reset. */
+        if ((uint32_t)(host_link_loss - host_seen) < 0x80000000u) {
+            host_seen = host_link_loss;
+            smc_host_solo_release_seen = host_link_loss;
+        }
         /* Skip pre-edge central packets without losing packets queued on the
          * newly connected link. Never rewind if another action already drained. */
         uint8_t cutoff = (uint8_t)(link >> 1);

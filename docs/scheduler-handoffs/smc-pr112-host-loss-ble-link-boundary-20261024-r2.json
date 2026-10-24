@@ -1,0 +1,218 @@
+{
+  "schema": "x0x37.smc-transport-producer-evidence.v1",
+  "evidence_revision": "smc-pr112-host-loss-ble-link-boundary-20261024-r2",
+  "date_utc": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_branch": "lane/smc-solo-ble-link-boundary-20261024-run3",
+  "pr": 112,
+  "consumed_parent_commit": "be36514fe443ddf887921da5b439b789caa5915e",
+  "consumed_parent_root_tree": "be8047590ecc2edafc3bad4991397b1f182f20c3",
+  "consumed_parent_firmware_tree": "cb5605446a2700f3f66e74ebb191d5068a7c9650",
+  "inherited_integration_pr": 103,
+  "inherited_integration_head": "1087ede952f6c6f5f22d1b56b062628f07a6af10",
+  "inherited_integration_root": "ba59448baa98213f2cb75de429a85f156a992efb",
+  "inherited_integration_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "source_identity": {
+    "before_smc_c_blob": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+    "after_smc_c_blob": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+    "before_test_blob": "35baf51e2a02d38f3cb680baedbfc5f9b6976d50",
+    "after_test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+    "after_c_sha256": "a8343ab027e943e019d6b5c8729c70055e8952293279d807af01d923807509d1",
+    "after_test_sha256": "97353f68bdbaad2054281859d4a9c7f8b3bec069537f35bd5dad3a5841416452"
+  },
+  "finding": {
+    "priority": "SMC reconnect correctness; separate own PR112 lane, never append to PR103 during QA",
+    "mechanism": "BLE link edge calls global smc_solo_clear() but only snapshots/acknowledges BLE-dropped release generation. Pre-edge host/User Solo NoteOff dropped on full host queue survives link edge and falsely clears unrelated newly pressed BLE Solo at end of smc_poll.",
+    "reproduced_fail_before": true,
+    "repaired": true,
+    "source_fix": "TIMER5 link seqlock atomically publishes both host and BLE lost-release generation watermarks; consumer retires pre-edge generations only, does not rewind project reset or swallow new-link losses."
+  },
+  "checks": {
+    "machine": "Linux x86_64",
+    "gcc": "14.2.0",
+    "clang": "17.0.0",
+    "python": "3.13.5",
+    "test_mode": "Git-blob-authenticated, source-function-extracted native C harness with mocked I/O; NOT complete Git-root or physical device",
+    "source_replay_zip": "/LoopyX0X37-PR112-be36514-SOURCE-REPLAY-20261024.zip (private Library; Git byte hashes independently confirmed)",
+    "command_template": "SMC_SOURCE=<PR112 original or new source path> CC=<gcc|clang> SAN_FLAGS=<plain | -fsanitize=undefined -fno-sanitize-recover=all | -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all> python3 -B tests/host/smc_ble_solo_reconnect_loss_test.py",
+    "compiler_flags": "-std=c99 -O1 -g -Wall -Wextra -Werror (plus chosen sanitizer)",
+    "python_py_compile": "python3 -B -m py_compile tests/host/smc_ble_solo_reconnect_loss_test.py",
+    "python_py_compile_exit": 0,
+    "old_registered_26_case_suite": "6/6 compiler/sanitizer variants exit 0 (26/26 before new cases added)",
+    "runs": [
+      {
+        "compiler": "gcc",
+        "sanitizer": "plain",
+        "phase": "FAIL_BEFORE",
+        "source_blob": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 1,
+        "expected": "pre-link HOST lost NoteOff wrongly clears new BLE Solo",
+        "stderr_marker": "FAIL: pre-link HOST dropped NoteOff erased a NEW BLE Solo",
+        "log_sha256": "5987c23000544ced602fc275c19ba43891dcc99a90382ea162db23e755425266"
+      },
+      {
+        "compiler": "gcc",
+        "sanitizer": "plain",
+        "phase": "PASS_AFTER",
+        "source_blob": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 0,
+        "scenarios": "29/29 PASS",
+        "log_sha256": "35e3eebece07263e29f97a4b42e36e922148e6beb23e85fc5e869875cf679f81"
+      },
+      {
+        "compiler": "gcc",
+        "sanitizer": "ubsan",
+        "phase": "FAIL_BEFORE",
+        "source_blob": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 1,
+        "expected": "pre-link HOST lost NoteOff wrongly clears new BLE Solo",
+        "stderr_marker": "FAIL: pre-link HOST dropped NoteOff erased a NEW BLE Solo",
+        "log_sha256": "9b7ef423b394813ec6c9625b1700d3eb8aa0736f4eb7ea69fd09fce02edc4fc1"
+      },
+      {
+        "compiler": "gcc",
+        "sanitizer": "ubsan",
+        "phase": "PASS_AFTER",
+        "source_blob": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 0,
+        "scenarios": "29/29 PASS",
+        "log_sha256": "01acfc04f7b9977766535fce3826c0d6691697a8ae350ed176f82af0066be73d"
+      },
+      {
+        "compiler": "gcc",
+        "sanitizer": "asan_ubsan",
+        "phase": "FAIL_BEFORE",
+        "source_blob": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 1,
+        "expected": "pre-link HOST lost NoteOff wrongly clears new BLE Solo",
+        "stderr_marker": "FAIL: pre-link HOST dropped NoteOff erased a NEW BLE Solo",
+        "log_sha256": "85600d464f8a3b9735ea58dda98eb67958467774677eb3fbfb7d287d480015f3"
+      },
+      {
+        "compiler": "gcc",
+        "sanitizer": "asan_ubsan",
+        "phase": "PASS_AFTER",
+        "source_blob": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 0,
+        "scenarios": "29/29 PASS",
+        "log_sha256": "77c394bf4aa5f20729d018ee2fca4f349afcfc772bb7bfa1b4c6072abbc42328"
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "plain",
+        "phase": "FAIL_BEFORE",
+        "source_blob": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 1,
+        "expected": "pre-link HOST lost NoteOff wrongly clears new BLE Solo",
+        "stderr_marker": "FAIL: pre-link HOST dropped NoteOff erased a NEW BLE Solo",
+        "log_sha256": "490777e751a77ee79d54829bad00d6d234a975fa97b6df4db73370e5372e8809"
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "plain",
+        "phase": "PASS_AFTER",
+        "source_blob": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 0,
+        "scenarios": "29/29 PASS",
+        "log_sha256": "38694109a8b39d244c11b8628bd09010e0049836773df1cfd5334e673832026f"
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "ubsan",
+        "phase": "FAIL_BEFORE",
+        "source_blob": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 1,
+        "expected": "pre-link HOST lost NoteOff wrongly clears new BLE Solo",
+        "stderr_marker": "FAIL: pre-link HOST dropped NoteOff erased a NEW BLE Solo",
+        "log_sha256": "632645f17cf4691d881ab91422265f7313eac619406167f2715f261d96d182f6"
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "ubsan",
+        "phase": "PASS_AFTER",
+        "source_blob": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 0,
+        "scenarios": "29/29 PASS",
+        "log_sha256": "bbe2b031ada4e99ce59cf818c2822280d1e8722ff9266e9bf62079e08fc11498"
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "asan_ubsan",
+        "phase": "FAIL_BEFORE",
+        "source_blob": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 1,
+        "expected": "pre-link HOST lost NoteOff wrongly clears new BLE Solo",
+        "stderr_marker": "FAIL: pre-link HOST dropped NoteOff erased a NEW BLE Solo",
+        "log_sha256": "323002d05ae538ec2291486b9f74ca3aea890ff37135801958687dd0985ad028"
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "asan_ubsan",
+        "phase": "PASS_AFTER",
+        "source_blob": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+        "test_blob": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+        "native_compile_exit": 0,
+        "test_driver_exit": 0,
+        "scenarios": "29/29 PASS",
+        "log_sha256": "4a49a28562110e57f21ba1e4e06150a4e8ef31074473c7d210616b1fed9be490"
+      }
+    ],
+    "new_regressions": [
+      "stale host dropped Solo NoteOff before BLE disconnect-reconnect must not clear a new-link BLE press",
+      "a host Solo release rejected after link edge still releases held Solo",
+      "project reset acknowledged newer host release must not rewind cursor to older link boundary"
+    ]
+  },
+  "producer_state": "SOURCE_COMPLETE / PRODUCER_SCOPED_CHECKED / REVIEW_READY, not independent QA",
+  "qa": "INDEPENDENT_QA_PENDING",
+  "build": "NEW_COMPILED_INPUT_REQUIRES_FRESH_ELITE_PRO_BUILD_ONLY; OLD be36514 BUILD_ONLY NOT VALID FOR NEW C",
+  "device": "NOT_TESTED",
+  "installability": "NO_PUBLIC_NIGHTLY_CANDIDATE",
+  "pending": [
+    {
+      "owner": "Independent QA",
+      "action": "Independently execute exact new complete ROOT host SMC/ISR/BLE/host ring/reconnect regressions, boundary and full-root first-candidate interactions; record REVIEWED or NEEDS CHANGES"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile the NEW pinned firmware subtree for Elite and Pro BUILD_ONLY, match controller ABI/bytes and verify full input closures, artifact SHA/CRC/pool; do not use previous be36514 fwsc as same-byte new build"
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "After appropriate independent checks, selectively consume this reviewed SMC fix on OWN integration PR103 lane without overriding unrelated QA failures"
+    },
+    {
+      "owner": "Data Safety/Installer and Independent QA",
+      "action": "Repair/retest separate first-candidate OTA wrong-device reconnect and controller invalid-tail issues before protected nightly integration"
+    },
+    {
+      "owner": "Website Catalog and sole publisher",
+      "action": "Only after independent prehardware model/backup/source/license/immutable HTTP gates; no new installable candidate asserted"
+    }
+  ],
+  "protected_refs_modified": false,
+  "public_binary_published": false,
+  "owner_feedback": "UNKNOWN"
+}
