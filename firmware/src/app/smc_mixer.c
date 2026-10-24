@@ -5,6 +5,12 @@
 #include "smc_protocol.h"
 
 #define SMC_Q 32u
+/* The direct SMC BLE input queue stores a 1-bit preset snapshot in the
+ * otherwise-unused high bit of its length. A preset change is immediate:
+ * frames received under the former DAW/User map must not be reinterpreted
+ * under the new one when the main loop drains the ring. Length is <= 6. */
+#define SMC_EVENT_USER 0x40u
+#define SMC_EVENT_LEN_MASK 0x3Fu
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
@@ -143,7 +149,8 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
             smc_ble_solo_release_lost++;
         smc_dropped++; return;
     }
-    smc_q[w % SMC_Q].n = len;
+    smc_q[w % SMC_Q].n = (uint8_t)(len |
+        ((proj.set.bt & PROJ_BT_SMC_USER) ? SMC_EVENT_USER : 0u));
     for (i = 0; i < len; i++)
         smc_q[w % SMC_Q].b[i] = msg[i];
     __asm__ volatile("" ::: "memory");
@@ -765,9 +772,15 @@ void smc_poll(void)
         smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
-        else {
+        else if (!!(msg.n & SMC_EVENT_USER) !=
+                 !!(proj.set.bt & PROJ_BT_SMC_USER)) {
+            /* Stale frame from the previous preset, even if its bytes would
+             * also be valid in this one. Preserve the new preset's queue. */
+            smc_reason = 4;
+        } else {
             if (allow && !perf_testing()) smc_dispatched++;
-            smc_reason = smc_message(msg.b, msg.n, allow);
+            smc_reason = smc_message(msg.b,
+                                     (uint8_t)(msg.n & SMC_EVENT_LEN_MASK), allow);
         }
     }
     count = 0;
