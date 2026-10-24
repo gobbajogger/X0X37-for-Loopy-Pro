@@ -1,0 +1,436 @@
+[
+  {
+    "case": "cross-list-duplicate-id",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "duplicate-last-history-id",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "top-installable-string-false",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-installable-string-false",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-device-verified-string-false",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "build-hardware-string-false",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-device-string-false",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-physical-claim",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-size-unsafe-integer",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-size-negative",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-size-fraction",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-product-other-family",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-title-array",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-description-object",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-models-object",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-models-unknown",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-source-object",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-source-short-sha",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "history-id-whitespace",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "build-status-DEVICE-VERIFIED",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-map-array",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "unknown-model-key",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "model-sha-object",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "root-null",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "root-array",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "second-list-commit-throws",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "last-card-construction-throws",
+    "pass": true,
+    "state": {
+      "error": true,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "actual-full-positive",
+    "pass": true,
+    "state": {
+      "error": false,
+      "builds": 2,
+      "history": 117,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "empty-lists-positive",
+    "pass": true,
+    "state": {
+      "error": false,
+      "builds": 0,
+      "history": 0,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "text-markup-inert-positive",
+    "pass": true,
+    "state": {
+      "error": false,
+      "builds": 2,
+      "history": 117,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  },
+  {
+    "case": "future-typed-append-positive",
+    "pass": true,
+    "state": {
+      "error": false,
+      "builds": 2,
+      "history": 118,
+      "executable": 0,
+      "ran": false,
+      "width": 375,
+      "scrollWidth": 375
+    },
+    "page_errors": []
+  }
+]

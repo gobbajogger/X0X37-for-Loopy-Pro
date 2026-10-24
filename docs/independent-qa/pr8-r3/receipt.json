@@ -1,0 +1,238 @@
+{
+  "verdict": "NEEDS CHANGES \u2014 R3 history repair verified; known dependency boundaries remain",
+  "candidate_head": "068f3cd15dd4698cd6d609dee54628d73bd51686",
+  "candidate_root": "c39126aac8fcca9e72e5a7c1157b546ecb5366e3",
+  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+  "pr": 8,
+  "base": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "source_edited_by_reviewer": false,
+  "f1_f2_regressions": "PASS,208 registered +82 unchanged independent +22 focused +4 backup boundary checks",
+  "f3_f4": "PASS,34 registered +8 unchanged replay +31 independent extension; baseline RED34 cases19fails reproduced",
+  "commands": [
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r3-qa-evidence/independent_browser.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/pr8-r3-qa-evidence/backup_boundary_checks.mjs"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r3-qa-evidence/r2_focused_checks.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r3-qa-evidence/history_response_negatives.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": "python3 history_adversarial_extension.py",
+      "exit": 0,
+      "checks": 31
+    },
+    {
+      "command": "python3 dependency_boundary_checks.py",
+      "exit": 1,
+      "checks": 8,
+      "failed": 7
+    },
+    {
+      "command": "python3 tests/history-response.py --source before-history.html",
+      "exit": 1,
+      "expected_red_failures": 19
+    }
+  ],
+  "remaining_findings": [
+    {
+      "id": "F5",
+      "priority": "P2",
+      "source": "PR7 #6384589660",
+      "path": "scripts/render-qualified-nightly.mjs",
+      "summary": "Unknown private fields admitted and copied into actual local candidate HTML,versions.json,qualification.json",
+      "actual_candidate_cli_exit": 0,
+      "qualifier": "Synthetic markers, mock fetch Response, real product parser and CLI; no real private data or deployed leak"
+    },
+    {
+      "id": "F6",
+      "priority": "P2",
+      "source": "PR6 #6384617303/#6384842378",
+      "path": "web/x0x_installer.html",
+      "summary": "Browser response fully buffered before size bound; no-reader fallback and oversized stream not canceled",
+      "bodyless_arrayBuffer_calls": 1,
+      "oversized_stream_pulls": 5,
+      "oversized_stream_cancellations": 0,
+      "qualifier": "Safe bounded fixtures(max2MiB+1), final admission still denied; resource bound failure,not wrong firmware admitted"
+    },
+    {
+      "id": "F7",
+      "priority": "P2",
+      "source": "PR3 R27 876adf33d3a96accac3838c21f6f8681d8c1ab39",
+      "path": "scripts/verify-build-status.mjs",
+      "summary": "Future source-only append accepts evidence_commit=main, mismatched40hex or object with exit0",
+      "positive_pinned_append_exit": 0,
+      "bad_appends_exit": [
+        0,
+        0,
+        0
+      ],
+      "qualifier": "Copied temporary data, current117 pinned rows intact, no installability claim"
+    }
+  ],
+  "scope": {
+    "firmware": "NOT VERIFIED",
+    "public_hosting": "NOT VERIFIED",
+    "models": "Elite/Pro NO INSTALLABLE YET",
+    "threads": "F3/F4 verified fixed but left unresolved because requested overall-pass condition not met",
+    "successor": "parent-controlled; none created"
+  },
+  "runtime": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "playwright": "1.62.0",
+    "chromium": "154.0.8037.57"
+  },
+  "integrity": {
+    "producer_blobs_checked": 11,
+    "producer_log_hashes_checked": 6,
+    "retained_policy_data_installer_renderer_validator_lock_files": 15,
+    "fresh_remote_clone_head_root_checked": true,
+    "clean_tested_worktree": true
+  },
+  "logs": {
+    "npm-test-before.log": {
+      "bytes": 9945,
+      "sha256": "0f4f3708aeebe90c9bf513d2ad7a6ebf5994f73c5aef22ad85c0a79797e39dd7"
+    },
+    "npm-build.log": {
+      "bytes": 179,
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a"
+    },
+    "npm-test-after.log": {
+      "bytes": 9945,
+      "sha256": "0f4f3708aeebe90c9bf513d2ad7a6ebf5994f73c5aef22ad85c0a79797e39dd7"
+    },
+    "chromium.log": {
+      "bytes": 19279,
+      "sha256": "0920a874b0776433cb192a5c54c185b36ec22b7754f0a4bf3eb94b2ccf8f6266"
+    },
+    "native-commands.json": {
+      "bytes": 329,
+      "sha256": "b9b1200bf7aa8f993ad1733fe2af6d01376ec035b39f5a2e434befd1b2469a65"
+    },
+    "independent-commands.json": {
+      "bytes": 508,
+      "sha256": "c264d6e91918a8c77d941f7b7d4f08348eed71ffc55cf2a8fee0e4b110a0e627"
+    },
+    "independent_browser.py": {
+      "bytes": 8989,
+      "sha256": "c14d79b78fb865111eee2ed4b5c6bf47a50e4d4755295f282f79d022f0785026"
+    },
+    "backup_boundary_checks.mjs": {
+      "bytes": 2196,
+      "sha256": "701bb08d4b1ca31c8d80ae73244d950580da1ffeb27a47921d12c19418bb417e"
+    },
+    "r2_focused_checks.py": {
+      "bytes": 3232,
+      "sha256": "1c587567b8f0f46bc8b694eb9d708daee6d7d0105e6bda7fb761f3a308a659f9"
+    },
+    "history_response_negatives.py": {
+      "bytes": 3532,
+      "sha256": "a3581d5dc3909b8a17fc0f7cc3e0d4043efb4fc6a74a12320cb61cebd856c818"
+    },
+    "independent-expanded.log": {
+      "bytes": 3380,
+      "sha256": "d409637f4d1e0861754d3a1925100555db91fc40fb72dfeed5095353ed0abf81"
+    },
+    "backup-boundary.log": {
+      "bytes": 262,
+      "sha256": "a0feba612311a9eb91de042a65000671d57d552094e4d2f28f6bfea6b7a09b0b"
+    },
+    "r2-focused.log": {
+      "bytes": 3312,
+      "sha256": "4f99b0f6e8b454eaedfa57bcd0c32a30c31663ae03244a80795e41ca6aefb410"
+    },
+    "f3f4-replay.log": {
+      "bytes": 7574,
+      "sha256": "5f44ef5b3d223898b180dfe62e69aea17b678b929abf21667c945b282bf377a3"
+    },
+    "history_adversarial_extension.py": {
+      "bytes": 6105,
+      "sha256": "1db4cddf90601a4750b9f269075e1bb7159f631e885353bbc105c694d72db051"
+    },
+    "history-extension-results.json": {
+      "bytes": 8000,
+      "sha256": "8fa99b8a7d8dcaf45a5be6ddafd895439d10412b27b4f58613368c534ee972ce"
+    },
+    "history-extension.log": {
+      "bytes": 5847,
+      "sha256": "bfb9e55bee979dcfa3f0c5807c26080612b0067a10d69ac7e1c6ba3f376c4b6f"
+    },
+    "dependency_boundary_checks.py": {
+      "bytes": 6483,
+      "sha256": "914984baaf151ae32317d8d698adf76961eec73f1bc575b293971e72ca3da4c4"
+    },
+    "dependency-boundary-results.json": {
+      "bytes": 3050,
+      "sha256": "2d6caed14fc42e091a76c0083c7ede871a4c4ec7cc1bb7cd68c098f90fa671a3"
+    },
+    "dependency-boundary.log": {
+      "bytes": 2394,
+      "sha256": "92a24643e17794f448a337647d7d56a26902ed354d6090458ce236bd1fe96f33"
+    },
+    "make_qualification_fixture.mjs": {
+      "bytes": 2674,
+      "sha256": "3b54baf9f6d71d69a55a91548d13d6b688c80896666544875725c7021b7efe9a"
+    },
+    "qualification_fixture.json": {
+      "bytes": 7524,
+      "sha256": "9686d2d5f2538165c94f52c169b37c8f24bed29d2d63bb0e7a3adc425ffaea4c"
+    },
+    "history-red.log": {
+      "bytes": 8362,
+      "sha256": "927727b9c2668a64a4127cf4b862d066d646804d9b3b4e836cefc16f463ecfa8"
+    }
+  }
+}
