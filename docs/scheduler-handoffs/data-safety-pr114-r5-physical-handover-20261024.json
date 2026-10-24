@@ -1,0 +1,147 @@
+{
+  "schema": "loopyx0x37.data-safety.git-evidence.v1",
+  "evidence_revision": "data-safety-pr114-r5-authenticated-physical-handover-20261024-r1",
+  "role": "existing hourly :11 UTC Data Safety",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "consumed": {
+    "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+    "full_sha": "1f8d5830c188600c754b8240be4ea52cfe952f4f",
+    "root_tree": "f115ffb68602113fe76076e8b41574fd4bad0fc0",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "fa29d858b63421ad07e0a55fe03f44bcd26a4756",
+    "review_disposition": "NEEDS_CHANGES",
+    "evidence_revision": "data-safety-pr114-r4-physical-port-compatibility-negative-20261024-r1"
+  },
+  "delivered": {
+    "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+    "full_sha": "42ad1fbec91b9dd9ccce81824f203424430bf925",
+    "root_tree": "b5d17c24aaca6c73d877c9a2527b5b58d7035ee1",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "cf432aefd5c707807802e3e2eb5cddcd05173d0f",
+    "changed_paths": [
+      "tools/fm1_install.py",
+      "tests/host/ota_port_binding_test.py",
+      "tests/install_test.py",
+      "tests/host/ota_physical_handover_test.py",
+      "tests/run_tests.sh"
+    ],
+    "registered_selector": "ota-physical-handover"
+  },
+  "actual_native_commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "source": "old-R4-Git-matched-methods",
+      "exit": 1,
+      "summary": "1/6 safe; five failed safety or compatibility cases"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "source": "R5-Git-matched-methods",
+      "exit": 0,
+      "summary": "6/6 safe"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "source": "R5-Git-matched-methods",
+      "exit": 0,
+      "summary": "6/6 safe"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_port_binding_test.py",
+        "tools/fm1_install.py"
+      ],
+      "source": "R5-Git-matched-methods",
+      "exit": 0,
+      "summary": "17/17 safe"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_port_binding_test.py",
+        "tools/fm1_install.py"
+      ],
+      "source": "R5-Git-matched-methods",
+      "exit": 0,
+      "summary": "17/17 safe"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_test.py"
+      ],
+      "source": "R5-Git-matched-OTA-methods+historical-support",
+      "exit": 1,
+      "summary": "29 of 30 fixture checks passed; malformed slot fixture fails"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_ctl_test.py"
+      ],
+      "source": "R5-Git-matched-OTA-methods+historical-support",
+      "exit": 1,
+      "summary": "7 of 11 controller fixture checks passed; four historical support failures"
+    }
+  ],
+  "exact_test_claim": "Linux source-window simulations only, not a complete exact-current-root checkout or physical hardware",
+  "scope_guards": {
+    "compile_only_allowed": true,
+    "source_only_dev_pr": true,
+    "real_MidoBackend_has_physical_id": false,
+    "old_nonverified_port_name_only_selection_no_longer_allowed": true,
+    "full_root_independent_QA_pass": false,
+    "nightly_public_installable": false,
+    "device_verified": false,
+    "production_promoted": false
+  },
+  "disposition": "DRAFT_NO_GO_PENDING_REAL_PHYSICAL_BACKEND_AND_FULL_QA",
+  "blockers": [
+    "Current production MidoBackend exposes MIDI port names, not stable non-reusable physical unit IDs. New safety path intentionally refuses before UPGRADE; must not be called installer readiness.",
+    "QA requires real OS-device identity continuity, same-name replacement and legitimate loader re-enumeration, slot/restore/controller negatives, plus full combined root.",
+    "First-nightly champion PR #103 has not integrated this source; publisher/HTTP/source/licensing gates remain separate."
+  ],
+  "evidence": {
+    "private_main_library_path": "/LoopyX0X37-DataSafety-PR114-R5-Physical-Handover-Evidence-20261024.zip",
+    "zip_sha256": "d191f4f4c07aa9743cca5c9d41f3b034f69abb8946d68277a36f0972e088bf46",
+    "raw_logs_and_source_windows": true,
+    "no_private_data_sdk_or_firmware": true
+  },
+  "next_owner_actions": [
+    {
+      "owner": "Data Safety",
+      "action": "Implement and test a real non-reusable hardware-backed USB identity provider or authoritative handover; keep no-identity fail-closed."
+    },
+    {
+      "owner": "Independent QA",
+      "action": "Independently review this exact new source, complete combined-root positive/negative OTA/backup/readback/CRC/model and failure matrix."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "May BUILD_ONLY exact Elite/Pro/controller sources without waiting for source QA, merge or HTTP; do not call this installer qualified."
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "Keep PR #103 first-nightly integration draft until independent safety/source QA clears; then integrate on own isolated lane."
+    }
+  ]
+}
