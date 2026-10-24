@@ -483,6 +483,8 @@ static void sound_rev2(project_t *pr)
     int th = m[MST_THRESH], cut = m[MST_CUTOFF];
     float thr = (float)th * (48.0f / 127.0f) - 48.0f, x = (-thr - 4.0f) / 28.0f;
     m[MST_COMP1] = (uint8_t)(!m[MST_RATIO] ? 0 : x <= 0.0f ? 1 : x >= 1.0f ? 127 : (int)(x * 127.0f + 0.5f));
+    if (m[MST_MODE] == 3 && cut > 120)   /* HP macro ends at cutoff 120 (value 127) */
+        cut = 120;
     m[MST_DJF] = (uint8_t)(m[MST_MODE] == 0 ? 64 : m[MST_MODE] == 3 ? 69 + cut * 58 / 120
                            : (cut < 8 ? 0 : (cut - 8) * 59 / 119));
     pr->sound.v[T_FX][1][0] = (uint8_t)(pr->sound.v[T_FX][0][FX_DL_TYPE] ? 16 + pr->sound.v[T_FX][0][FX_DL_WEAR] * 111 / 127 : 0);
