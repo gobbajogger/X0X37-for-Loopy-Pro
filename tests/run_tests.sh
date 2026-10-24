@@ -301,6 +301,7 @@ run motion-pattern-pending sh -c "$CC $W -o $OUT/motion_pattern_pending_test tes
 run motion-pattern-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/motion_pattern_handoff_test tests/host/motion_pattern_handoff_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_handoff_test"
 run motion-idle-transport python3 -B tests/host/motion_idle_transport_test.py
 run motion-transport-transition python3 -B tests/host/motion_transport_transition_test.py
+run motion-external-clock-wait python3 -B tests/host/motion_external_clock_wait_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
