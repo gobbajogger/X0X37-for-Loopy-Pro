@@ -1,5 +1,10 @@
 # Native OTA transport repair packet — 2026-10-24
 
+Continuation: [native macOS provider source](native-ota-coremidi-provider-20261024.md)
+adds a read-only installer diagnostic and native pairing observation. The
+original validation/source hashes below describe the earlier diagnostic stage;
+they do not cover this later source revision. Destructive transport stays NO-GO.
+
 **REPAIR HANDOFF — PRODUCTION TRANSPORT INCOMPLETE / NIGHTLY NO-GO.**
 This supplementary lane delivers a bounded contract harness, read-only Linux
 libusb observer and pinned API investigation. It enables investigation, not OTA.
