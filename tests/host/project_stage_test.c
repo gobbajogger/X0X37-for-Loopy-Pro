@@ -562,6 +562,39 @@ static void test_legacy_bd_pan_motion(void)
     }
 }
 
+/* A revision-1 project may contain a valid master high-pass cutoff above 120.
+ * The compact FILTER macro only represents 0..120 on the HP side; migration
+ * must never manufacture a value outside its 0..127 parameter range. */
+static void test_legacy_master_hp_migration(void)
+{
+    static const unsigned cutoff[] = {0, 1, 7, 8, 32, 60, 119, 120, 121, 123, 124, 125, 126, 127};
+    unsigned mode, k;
+    for (mode = 0; mode < 4u; mode++) {
+        for (k = 0; k < sizeof cutoff / sizeof cutoff[0]; k++) {
+            unsigned c = cutoff[k], expected;
+            if (mode == 0u)
+                expected = 64u;
+            else if (mode == 3u)
+                expected = 69u + (c > 120u ? 120u : c) * 58u / 120u;
+            else
+                expected = c < 8u ? 0u : (c - 8u) * 59u / 119u;
+            fixture("legacy master filter valid after sound-revision migration");
+            proj.set.snd_rev = 1;       /* the one-knob FILTER did not exist */
+            proj.sound.v[T_MST][0][MST_MODE] = (uint8_t)mode;
+            proj.sound.v[T_MST][0][MST_CUTOFF] = (uint8_t)c;
+            REQUIRE(project_save() == 0);
+            snapshot();
+            CHECK(project_load_stage() == 0);
+            CHECK(project_stage.set.snd_rev == PROJ_SND_REV);
+            CHECK(project_stage.sound.v[T_MST][0][MST_MODE] == mode);
+            CHECK(project_stage.sound.v[T_MST][0][MST_CUTOFF] == c);
+            CHECK(project_stage.sound.v[T_MST][0][MST_DJF] <= 127u);
+            CHECK(project_stage.sound.v[T_MST][0][MST_DJF] == expected);
+            check_live_unchanged();
+        }
+    }
+}
+
 int main(void)
 {
     test_defaults();
@@ -570,6 +603,7 @@ int main(void)
     test_file_rejection();
     test_semantic_rejection();
     test_storage_rejection();
+    test_legacy_master_hp_migration();
     test_capacity_rejection();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
