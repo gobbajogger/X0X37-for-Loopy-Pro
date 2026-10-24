@@ -1,0 +1,6 @@
+{
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "node": "v24.19.0",
+  "npm": "11.9.0",
+  "playwright": "1.62.0"
+}

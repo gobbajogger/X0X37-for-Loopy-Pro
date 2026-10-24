@@ -1,0 +1,166 @@
+Chromium 154.0.8037.57
+CHECK 1 320/en/pro no link before verification
+FAIL 320/en/pro no link before verification
+CHECK 2 320/en/pro verified Blob only
+FAIL 320/en/pro verified Blob only
+CHECK 3 320/en/pro product parsed
+CHECK 4 320/en/pro requires DEV acknowledgement
+CHECK 5 320/en/pro ack enables verified install
+CHECK 6 320/en/pro no horizontal overflow
+CHECK 7 320/en/pro no page errors
+CHECK 8 320/en/elite no link before verification
+FAIL 320/en/elite no link before verification
+CHECK 9 320/en/elite stale model response ignored
+CHECK 10 320/en/elite verified Blob only
+FAIL 320/en/elite verified Blob only
+CHECK 11 320/en/elite product parsed
+CHECK 12 320/en/elite requires DEV acknowledgement
+CHECK 13 320/en/elite ack enables verified install
+CHECK 14 320/en/elite no horizontal overflow
+CHECK 15 320/en/elite no page errors
+CHECK 16 320/ja/pro no link before verification
+FAIL 320/ja/pro no link before verification
+CHECK 17 320/ja/pro verified Blob only
+FAIL 320/ja/pro verified Blob only
+CHECK 18 320/ja/pro product parsed
+CHECK 19 320/ja/pro requires DEV acknowledgement
+CHECK 20 320/ja/pro ack enables verified install
+CHECK 21 320/ja/pro no horizontal overflow
+CHECK 22 320/ja/pro no page errors
+CHECK 23 320/ja/elite no link before verification
+FAIL 320/ja/elite no link before verification
+CHECK 24 320/ja/elite stale model response ignored
+CHECK 25 320/ja/elite verified Blob only
+FAIL 320/ja/elite verified Blob only
+CHECK 26 320/ja/elite product parsed
+CHECK 27 320/ja/elite requires DEV acknowledgement
+CHECK 28 320/ja/elite ack enables verified install
+CHECK 29 320/ja/elite no horizontal overflow
+CHECK 30 320/ja/elite no page errors
+CHECK 31 390/en/pro no link before verification
+FAIL 390/en/pro no link before verification
+CHECK 32 390/en/pro verified Blob only
+FAIL 390/en/pro verified Blob only
+CHECK 33 390/en/pro product parsed
+CHECK 34 390/en/pro requires DEV acknowledgement
+CHECK 35 390/en/pro ack enables verified install
+CHECK 36 390/en/pro no horizontal overflow
+CHECK 37 390/en/pro no page errors
+CHECK 38 390/en/elite no link before verification
+FAIL 390/en/elite no link before verification
+CHECK 39 390/en/elite stale model response ignored
+CHECK 40 390/en/elite verified Blob only
+FAIL 390/en/elite verified Blob only
+CHECK 41 390/en/elite product parsed
+CHECK 42 390/en/elite requires DEV acknowledgement
+CHECK 43 390/en/elite ack enables verified install
+CHECK 44 390/en/elite no horizontal overflow
+CHECK 45 390/en/elite no page errors
+CHECK 46 390/ja/pro no link before verification
+FAIL 390/ja/pro no link before verification
+CHECK 47 390/ja/pro verified Blob only
+FAIL 390/ja/pro verified Blob only
+CHECK 48 390/ja/pro product parsed
+CHECK 49 390/ja/pro requires DEV acknowledgement
+CHECK 50 390/ja/pro ack enables verified install
+CHECK 51 390/ja/pro no horizontal overflow
+CHECK 52 390/ja/pro no page errors
+CHECK 53 390/ja/elite no link before verification
+FAIL 390/ja/elite no link before verification
+CHECK 54 390/ja/elite stale model response ignored
+CHECK 55 390/ja/elite verified Blob only
+FAIL 390/ja/elite verified Blob only
+CHECK 56 390/ja/elite product parsed
+CHECK 57 390/ja/elite requires DEV acknowledgement
+CHECK 58 390/ja/elite ack enables verified install
+CHECK 59 390/ja/elite no horizontal overflow
+CHECK 60 390/ja/elite no page errors
+CHECK 61 1280/en/pro no link before verification
+FAIL 1280/en/pro no link before verification
+CHECK 62 1280/en/pro verified Blob only
+FAIL 1280/en/pro verified Blob only
+CHECK 63 1280/en/pro product parsed
+CHECK 64 1280/en/pro requires DEV acknowledgement
+CHECK 65 1280/en/pro ack enables verified install
+CHECK 66 1280/en/pro no horizontal overflow
+CHECK 67 1280/en/pro no page errors
+CHECK 68 1280/en/elite no link before verification
+FAIL 1280/en/elite no link before verification
+CHECK 69 1280/en/elite stale model response ignored
+CHECK 70 1280/en/elite verified Blob only
+FAIL 1280/en/elite verified Blob only
+CHECK 71 1280/en/elite product parsed
+CHECK 72 1280/en/elite requires DEV acknowledgement
+CHECK 73 1280/en/elite ack enables verified install
+CHECK 74 1280/en/elite no horizontal overflow
+CHECK 75 1280/en/elite no page errors
+CHECK 76 1280/ja/pro no link before verification
+FAIL 1280/ja/pro no link before verification
+CHECK 77 1280/ja/pro verified Blob only
+FAIL 1280/ja/pro verified Blob only
+CHECK 78 1280/ja/pro product parsed
+CHECK 79 1280/ja/pro requires DEV acknowledgement
+CHECK 80 1280/ja/pro ack enables verified install
+CHECK 81 1280/ja/pro no horizontal overflow
+CHECK 82 1280/ja/pro no page errors
+CHECK 83 1280/ja/elite no link before verification
+FAIL 1280/ja/elite no link before verification
+CHECK 84 1280/ja/elite stale model response ignored
+CHECK 85 1280/ja/elite verified Blob only
+FAIL 1280/ja/elite verified Blob only
+CHECK 86 1280/ja/elite product parsed
+CHECK 87 1280/ja/elite requires DEV acknowledgement
+CHECK 88 1280/ja/elite ack enables verified install
+CHECK 89 1280/ja/elite no horizontal overflow
+CHECK 90 1280/ja/elite no page errors
+CHECK 91 bad hash rejected
+FAIL bad hash rejected
+CHECK 92 missing hash rejected
+CHECK 93 short hash rejected
+CHECK 94 missing controller hash rejected
+FAIL missing controller hash rejected
+CHECK 95 revoked model rejected
+FAIL revoked model rejected
+CHECK 96 revoked version rejected
+FAIL revoked version rejected
+CHECK 97 blocked rejected
+FAIL blocked rejected
+CHECK 98 withdrawn rejected
+FAIL withdrawn rejected
+CHECK 99 unqualified rejected
+FAIL unqualified rejected
+CHECK 100 failed model rejected
+FAIL failed model rejected
+CHECK 101 product suffix rejected
+FAIL product suffix rejected
+CHECK 102 missing version rejected
+FAIL missing version rejected
+CHECK 103 invalid URL rejected
+FAIL invalid URL rejected
+CHECK 104 wrong model rejected
+CHECK 105 string Release rejected
+FAIL string Release rejected
+CHECK 106 version Release rejected
+FAIL version Release rejected
+CHECK 107 device claim rejected
+FAIL device claim rejected
+CHECK 108 superseded rejected
+FAIL superseded rejected
+CHECK 109 credentials rejected
+FAIL credentials rejected
+CHECK 110 truncated fail closed
+FAIL truncated fail closed
+CHECK 111 truncated retry succeeds
+CHECK 112 oversized fail closed
+FAIL oversized fail closed
+CHECK 113 oversized retry succeeds
+CHECK 114 wrong bytes fail closed
+FAIL wrong bytes fail closed
+CHECK 115 wrong bytes retry succeeds
+CHECK 116 http failure fail closed
+FAIL http failure fail closed
+CHECK 117 http failure retry succeeds
+CHECK 118 network interruption fail closed
+FAIL network interruption fail closed
+CHECK 119 network interruption retry succeeds
+{"checks": 119, "failed": 45, "failures": ["320/en/pro no link before verification", "320/en/pro verified Blob only", "320/en/elite no link before verification", "320/en/elite verified Blob only", "320/ja/pro no link before verification", "320/ja/pro verified Blob only", "320/ja/elite no link before verification", "320/ja/elite verified Blob only", "390/en/pro no link before verification", "390/en/pro verified Blob only", "390/en/elite no link before verification", "390/en/elite verified Blob only", "390/ja/pro no link before verification", "390/ja/pro verified Blob only", "390/ja/elite no link before verification", "390/ja/elite verified Blob only", "1280/en/pro no link before verification", "1280/en/pro verified Blob only", "1280/en/elite no link before verification", "1280/en/elite verified Blob only", "1280/ja/pro no link before verification", "1280/ja/pro verified Blob only", "1280/ja/elite no link before verification", "1280/ja/elite verified Blob only", "bad hash rejected", "missing controller hash rejected", "revoked model rejected", "revoked version rejected", "blocked rejected", "withdrawn rejected", "unqualified rejected", "failed model rejected", "product suffix rejected", "missing version rejected", "invalid URL rejected", "string Release rejected", "version Release rejected", "device claim rejected", "superseded rejected", "credentials rejected", "truncated fail closed", "oversized fail closed", "wrong bytes fail closed", "http failure fail closed", "network interruption fail closed"], "source": "/workspace/pr8-qa-evidence/baseline-installer.html", "device_tested": false}

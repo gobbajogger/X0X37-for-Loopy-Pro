@@ -1,0 +1,167 @@
+{
+  "evidence_revision": "pr8-independent-full-root-qa-20261024-r1",
+  "verdict": "NEEDS CHANGES",
+  "stage": "INCOMPLETE \u2014 two browser-source findings",
+  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+  "pr": 8,
+  "candidate_head": "363b128793c3aecf49a6eca293d6ab74a1cd7f0b",
+  "candidate_root": "d50b659b84de5859a3a0bd261221c2ed95ccda73",
+  "base": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "source_changed_by_qa": false,
+  "commands": [
+    {
+      "command": "npm test (before build)",
+      "exit": 0
+    },
+    {
+      "command": "npm run build",
+      "exit": 0
+    },
+    {
+      "command": "npm test (after build)",
+      "exit": 0
+    },
+    {
+      "command": "npm run test:browser",
+      "exit": 0,
+      "checks": 182,
+      "failures": 0
+    },
+    {
+      "command": "python3 independent_browser.py",
+      "exit": 1,
+      "checks": 82,
+      "failures": 6,
+      "distinct_defects": 2
+    },
+    {
+      "command": "python3 focused_repro.py",
+      "exit": 0,
+      "observed": "actual stale Blob download and responsive overflow reproduced"
+    },
+    {
+      "command": "node backup_boundary_checks.mjs",
+      "exit": 0,
+      "checks": 4
+    },
+    {
+      "command": "baseline-admission exact PR7 source using current test harness",
+      "exit": 1,
+      "checks": 119,
+      "failures": 45,
+      "expected_red": true
+    },
+    {
+      "command": "baseline-race exact PR7 source using current test harness",
+      "exit": 1,
+      "checks": 2,
+      "failures": 2,
+      "expected_red": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "priority": "P2",
+      "target": "web/x0x_installer.html:642-654; versions/currentVersion",
+      "summary": "Malformed post-verification selected catalog data throws before preventDefault, leaving stale Blob download active",
+      "fixture": [
+        "versions[0].models=null",
+        "versions={}",
+        "versions[0]=null"
+      ],
+      "real_click_download": {
+        "bytes": 1056,
+        "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"
+      },
+      "qualification": "Injected test-only in-place mutation; not a demonstrated remote attack or firmware leak. Current renderer rejects these malformed initial catalog shapes."
+    },
+    {
+      "id": "F2",
+      "priority": "P2",
+      "target": "docs/builds/index.html:17-24",
+      "summary": "Actual read-only history descriptions and titles with hashes/status tokens overflow cards and viewport",
+      "viewport_to_scrollWidth": {
+        "320": 618,
+        "375": 618,
+        "768": 777,
+        "1280": 1280
+      },
+      "desktop_card_overflow": true
+    }
+  ],
+  "scope_limits": [
+    "All package/controller/receipt fixtures are synthetic",
+    "No real MIDI/device/firmware qualification or public hosting verification",
+    "Firmware, controller, OTA, legal distribution, served-byte and hardware gates remain separate"
+  ],
+  "ownership": {
+    "reviewer": "this independent task; did not author candidate",
+    "repair_owner": "existing PR8 producer, parent coordinates",
+    "sole_merger": "existing NIGHTLY Website Main Merger after new independent acceptance",
+    "publisher": "existing sole NIGHTLY Pages publisher",
+    "successor_creation": "parent only; none created here"
+  },
+  "logs": {
+    "independent_browser.py": {
+      "bytes": 8989,
+      "sha256": "c14d79b78fb865111eee2ed4b5c6bf47a50e4d4755295f282f79d022f0785026"
+    },
+    "independent-browser.log": {
+      "bytes": 3996,
+      "sha256": "2fd7fe6628fb0ef7e55fb88a337c9f348c187ffdefc70851f02834db2284b94b"
+    },
+    "independent-browser-results.json": {
+      "bytes": 9636,
+      "sha256": "5383294a0f204e91be3caf2e2687aea4a0ff994beb8a579b49548f4c942f7c2c"
+    },
+    "focused_repro.py": {
+      "bytes": 1725,
+      "sha256": "d2efeb53f3edd51eabb25617bbb31342f8c814a4ba396a13394dc57eb3c8ecb0"
+    },
+    "focused-repro.log": {
+      "bytes": 4867,
+      "sha256": "bf902b62f211ee3078f0e5143e64e2b3ad9a3850d062ea7690597ece5cf46875"
+    },
+    "backup_boundary_checks.mjs": {
+      "bytes": 2196,
+      "sha256": "701bb08d4b1ca31c8d80ae73244d950580da1ffeb27a47921d12c19418bb417e"
+    },
+    "backup-boundary.log": {
+      "bytes": 262,
+      "sha256": "a0feba612311a9eb91de042a65000671d57d552094e4d2f28f6bfea6b7a09b0b"
+    },
+    "npm-test-before.log": {
+      "bytes": 9945,
+      "sha256": "077605e08ff9f7504fa4f6d836da461f3d4d0aaf56798f112f4c32e604cceab1"
+    },
+    "npm-build.log": {
+      "bytes": 179,
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a"
+    },
+    "npm-test-after.log": {
+      "bytes": 9945,
+      "sha256": "077605e08ff9f7504fa4f6d836da461f3d4d0aaf56798f112f4c32e604cceab1"
+    },
+    "chromium.log": {
+      "bytes": 8309,
+      "sha256": "f0c6e636ac25585a2bb0a805fe6bdfb5df570800e5dac6aa22f547f08d539576"
+    },
+    "runtime.json": {
+      "bytes": 122,
+      "sha256": "ad356211806eb7aaf5fbd49d3877c66070ba40b94dc95807c1731b03eecf2283"
+    },
+    "baseline-admission.log": {
+      "bytes": 8165,
+      "sha256": "0c660a744ac59497e466bb18db94de0e8ebd6023c1b856aa57069390dd2c80ad"
+    },
+    "baseline-race.log": {
+      "bytes": 306,
+      "sha256": "01f4b2f1219626f6af314cc1050a6f2906c6bd9912cb8b4358898addb8856fde"
+    },
+    "baseline-commands.json": {
+      "bytes": 397,
+      "sha256": "a99dacb0e1c046e1a86e8b39a38915b99fe515972c25c53f2455e4c5473d7760"
+    }
+  }
+}

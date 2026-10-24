@@ -1,0 +1,22 @@
+[
+  {
+    "command": [
+      "python3",
+      "tests/browser-admission.py",
+      "--source",
+      "/workspace/pr8-qa-evidence/baseline-installer.html",
+      "--red-only"
+    ],
+    "exit": 1
+  },
+  {
+    "command": [
+      "python3",
+      "tests/browser-admission.py",
+      "--source",
+      "/workspace/pr8-qa-evidence/baseline-installer.html",
+      "--race-only"
+    ],
+    "exit": 1
+  }
+]

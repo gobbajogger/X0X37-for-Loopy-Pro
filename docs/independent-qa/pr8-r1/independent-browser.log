@@ -1,0 +1,84 @@
+Chromium 154.0.8037.57
+PASS 320/en/pro pre-ack disabled
+PASS 320/en/pro UI qualified positive
+PASS 320/en/pro exact network-fixture download
+PASS 320/en/elite pre-ack disabled
+PASS 320/en/elite UI qualified positive
+PASS 320/en/elite exact network-fixture download
+PASS 320/en no overflow
+PASS 320/en keyboard focus
+PASS 320/ja/pro pre-ack disabled
+PASS 320/ja/pro UI qualified positive
+PASS 320/ja/pro exact network-fixture download
+PASS 320/ja/elite pre-ack disabled
+PASS 320/ja/elite UI qualified positive
+PASS 320/ja/elite exact network-fixture download
+PASS 320/ja no overflow
+PASS 320/ja keyboard focus
+PASS 375/en/pro pre-ack disabled
+PASS 375/en/pro UI qualified positive
+PASS 375/en/pro exact network-fixture download
+PASS 375/en/elite pre-ack disabled
+PASS 375/en/elite UI qualified positive
+PASS 375/en/elite exact network-fixture download
+PASS 375/en no overflow
+PASS 375/en keyboard focus
+PASS 375/ja/pro pre-ack disabled
+PASS 375/ja/pro UI qualified positive
+PASS 375/ja/pro exact network-fixture download
+PASS 375/ja/elite pre-ack disabled
+PASS 375/ja/elite UI qualified positive
+PASS 375/ja/elite exact network-fixture download
+PASS 375/ja no overflow
+PASS 375/ja keyboard focus
+PASS 768/en/pro pre-ack disabled
+PASS 768/en/pro UI qualified positive
+PASS 768/en/pro exact network-fixture download
+PASS 768/en/elite pre-ack disabled
+PASS 768/en/elite UI qualified positive
+PASS 768/en/elite exact network-fixture download
+PASS 768/en no overflow
+PASS 768/en keyboard focus
+PASS 768/ja/pro pre-ack disabled
+PASS 768/ja/pro UI qualified positive
+PASS 768/ja/pro exact network-fixture download
+PASS 768/ja/elite pre-ack disabled
+PASS 768/ja/elite UI qualified positive
+PASS 768/ja/elite exact network-fixture download
+PASS 768/ja no overflow
+PASS 768/ja keyboard focus
+PASS 1280/en/pro pre-ack disabled
+PASS 1280/en/pro UI qualified positive
+PASS 1280/en/pro exact network-fixture download
+PASS 1280/en/elite pre-ack disabled
+PASS 1280/en/elite UI qualified positive
+PASS 1280/en/elite exact network-fixture download
+PASS 1280/en no overflow
+PASS 1280/en keyboard focus
+PASS 1280/ja/pro pre-ack disabled
+PASS 1280/ja/pro UI qualified positive
+PASS 1280/ja/pro exact network-fixture download
+PASS 1280/ja/elite pre-ack disabled
+PASS 1280/ja/elite UI qualified positive
+PASS 1280/ja/elite exact network-fixture download
+PASS 1280/ja no overflow
+PASS 1280/ja keyboard focus
+PASS manual local recovery requires acknowledgement
+PASS manual local recovery accepted with empty catalog
+PASS invalid local file clears old authorization
+PASS actual local reader writer lock before permission
+PASS manual local exact parsed target retained
+PASS stale local file success ignored
+PASS stale local file rejection ignored
+FAIL malformed selection fails closed: catalogLive.versions[0].models=null {"allowed": true, "href": "blob:http://127.0.0.1:38955/7e084f29-2df3-492d-bdee-2db75d511397", "errors": ["Cannot read properties of null (reading 'pro')"]}
+FAIL malformed selection fails closed: catalogLive.versions={} {"allowed": true, "href": "blob:http://127.0.0.1:38955/67ee01ac-fe11-4dfc-adb3-917d1a7e916e", "errors": ["(catalogLive.versions || []).slice is not a function"]}
+FAIL malformed selection fails closed: catalogLive.versions[0]=null {"allowed": true, "href": "blob:http://127.0.0.1:38955/56eecc80-92dc-4728-9609-68403057a008", "errors": ["Cannot read properties of null (reading 'version')"]}
+PASS 320 full source history retained
+FAIL 320 history no overflow
+PASS 375 full source history retained
+FAIL 375 history no overflow
+PASS 768 full source history retained
+FAIL 768 history no overflow
+PASS 1280 full source history retained
+PASS 1280 history no overflow
+{"checks": 82, "failed": 6, "failures": ["malformed selection fails closed: catalogLive.versions[0].models=null", "malformed selection fails closed: catalogLive.versions={}", "malformed selection fails closed: catalogLive.versions[0]=null", "320 history no overflow", "375 history no overflow", "768 history no overflow"]}

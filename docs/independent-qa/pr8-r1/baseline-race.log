@@ -1,0 +1,6 @@
+Chromium 154.0.8037.57
+CHECK 1 pre-MIDI lock rejects second path
+FAIL pre-MIDI lock rejects second path
+CHECK 2 exactly one installer entry
+FAIL exactly one installer entry
+{"checks": 2, "failed": 2, "permissions": 2, "installer_entries": 2, "source": "/workspace/pr8-qa-evidence/baseline-installer.html"}
