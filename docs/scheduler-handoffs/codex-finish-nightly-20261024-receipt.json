@@ -1,0 +1,18 @@
+{
+  "deduplication_key": "FINISH-NIGHTLY-20261024-PR124-451cc8f8645bba6463c532c44b7ba23bdc611f96-OWNER-CLOUD",
+  "packet": "docs/scheduler-handoffs/codex-finish-nightly-20261024.md",
+  "packet_sha256": "5314eb6fdfe184cc975c85c02576e957556b951b98efd8a3191b214a7e5b3fd6",
+  "auth": "SUCCESS: supported device login completed; Cloud list exits 0",
+  "tasks_observed": [],
+  "environment_discovery": "Documented Codex Cloud TUI environment picker contains no selectable environments; New Task Env:none",
+  "managed_workspace": "Healthy attached managed workspace exists; no claim that Cloud environment absence means workspace is missing",
+  "task_id": null,
+  "task_url": null,
+  "state": "NOT_CREATED / WAITING_FOR_EXISTING_CLOUD_ENVIRONMENT_URL_OR_ID",
+  "actions_not_taken": [
+    "No guessed managed-shell ID submitted as Cloud env",
+    "No duplicate local CLI thread",
+    "No task submission without actual environment mapping"
+  ],
+  "user_request": "Start one user-accessible Codex thread to finish the complete NIGHTLY goal"
+}
