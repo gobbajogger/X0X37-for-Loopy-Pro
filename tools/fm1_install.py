@@ -339,7 +339,10 @@ class MidoLink:
             return False
         try:
             self.out.send(self.mido.Message("sysex", data=pkt[1:-1]))
-            return True
+            # Detect unit loss observed while the host driver accepted this packet.
+            # An already-delivered packet cannot be recalled; actual OTA needs
+            # an atomic physically bound output transport, still unavailable.
+            return self._same_unit()
         except Exception:
             return False
 
