@@ -625,7 +625,9 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
         smc_guarded_button(a, 1, allow);
         return !allow || perf_testing() ? 1 : 0;
     }
-    if (len < 3)
+    /* Channel controls are exactly three MIDI bytes. Reject truncated or
+     * extended frames rather than dispatching an otherwise valid prefix. */
+    if (len != 3u)
         return 4;
     /* Never alias malformed BLE MIDI data bytes into SMC notes/CCs. */
     if ((m[1] | m[2]) & 0x80u)
