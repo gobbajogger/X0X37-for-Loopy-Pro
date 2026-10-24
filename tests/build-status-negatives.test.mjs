@@ -145,8 +145,14 @@ run('standalone-catalog-check-accepts-truthful-future-noninstallable-history-app
   });
   j.counts.source_or_historical_checkpoints=j.history.length;
 }),true);
-run('approved-GitHub-source-evidence-remains-allowed',edit(j=>{
-  j.history[0].evidence_url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/58b5b45a2dd90581de7a674c331ca5cbe8a67c7e';
+run('approved-GitHub-source-evidence-remains-allowed-on-append',edit(j=>{
+  j.history.push({
+    id:'future-approved-git-source-proof-test',title:'Synthetic future source navigation test',
+    date:'2026-10-25',status:'source-only',models:[],source_commit:'f'.repeat(40),
+    installable:false,device_verified:false,
+    evidence_url:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/58b5b45a2dd90581de7a674c331ca5cbe8a67c7e'
+  });
+  j.counts.source_or_historical_checkpoints=j.history.length;
 }),true);
 for(const [label,mutation] of [
  ['nested-history-download-bin',j=>j.history[0].download_url='https://example.net/firmware.bin'],
@@ -223,13 +229,26 @@ for(const [label,mutate] of [
 ])run(label,edit(mutate));
 
  // Evidence is SHA-pinned. Mutable routes are allowed ONLY for navigation, not proof.
-run('mutable-history-navigation-is-not-a-proof-claim',edit(j=>{
-  j.history[0].url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main';
+run('mutable-history-navigation-is-not-a-proof-claim-on-future-append',edit(j=>{
+  j.history.push({
+    id:'future-mutable-navigation-test',title:'Synthetic future read-only history navigation',
+    date:'2026-10-25',status:'source-only',models:[],source_commit:'f'.repeat(40),
+    installable:false,device_verified:false,
+    url:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/main'
+  });
+  j.counts.source_or_historical_checkpoints=j.history.length;
 }),true);
-run('pinned-source-validation-record-remains-valid',edit(j=>{
-  j.builds[0].models.elite.validation_record=
+run('new-future-DEV-model-may-reference-immutable-validation-record',edit(j=>{
+  const later=structuredClone(j.builds[0]);
+  later.id='dev-future-synthetic-immutable-validation-test';
+  later.title='Synthetic future-only model validation';
+  later.built_at='2026-10-25T00:00:00Z';
+  later.source_commit='f'.repeat(40);
+  later.models.elite.validation_record=
     'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/'+
     'e5cc2c720af5f815cbb6bf0774971a41594b9574'+'/docs/build-proof.json';
+  j.builds.unshift(later);
+  j.counts.actual_build_generations=j.builds.length;
 }),true);
 for (const [label,mutate] of [
   ['mutable-history-evidence-tree',j=>j.history[0].evidence_url=
