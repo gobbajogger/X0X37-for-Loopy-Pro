@@ -1,0 +1,86 @@
+{
+  "commands": [
+    {
+      "command": "python3 -B ota_identity_reconnect_test_r3.py fm1_install_r1_reconnect_projection.py",
+      "exit": 1,
+      "intent": "expected RED: cross-model/wrong-loader resume",
+      "passed": 17,
+      "total": 20
+    },
+    {
+      "command": "python3 -B ota_identity_reconnect_test_r3.py fm1_install_r3_reconnect_projection.py",
+      "exit": 0,
+      "intent": "GREEN",
+      "passed": 20,
+      "total": 20
+    },
+    {
+      "command": "python3 -O -B ota_identity_reconnect_test_r3.py fm1_install_r3_reconnect_projection.py",
+      "exit": 0,
+      "intent": "GREEN optimized",
+      "passed": 20,
+      "total": 20
+    },
+    {
+      "command": "python3 -B -m py_compile ota_identity_reconnect_test_r3.py fm1_install_r1_reconnect_projection.py fm1_install_r3_reconnect_projection.py",
+      "exit": 0
+    }
+  ],
+  "compiler_firmware_subtree_unchanged": "5c209609b770fd13949230aeb80956594fd6b741",
+  "consumed_complete_root_tree": "b408deabdfd295309315896028d721c4620c970f",
+  "consumed_sha": "ed080fe0cc32f02beb4c79581732093fac0ff675",
+  "consumed_tools_fm1_install_blob": "05bcd7934e276db96fe1679aa29cfb56514ae132",
+  "evidence_revision": "data-safety-ota-destination-loader-resume-20261024-r3",
+  "exact_git_ast_windows_fingerprint_fnv1a32": {
+    "Updater.check": "b6c24a7e",
+    "Updater.install": "8457a612",
+    "Updater.verify": "bb5ca5ad"
+  },
+  "files": {
+    "fm1_install_r1_reconnect_projection.py": {
+      "sha256": "72b5fb930e3694737b773c29bc8e69c33db4f82f6c4f4d015e6ce44ca9eb4498",
+      "size": 3027
+    },
+    "fm1_install_r3_reconnect_projection.py": {
+      "sha256": "bdc966d34fc75339511a3a0df7b543f57bc8b9783a14cbd5fce2da0ff0ca810e",
+      "size": 3245
+    },
+    "ota_identity_reconnect_test_r3.py": {
+      "sha256": "69446adf5e67205cb72cc5aafe121b1087fd23f4be8d237ce81998c9aed431e6",
+      "size": 9463
+    },
+    "r3_after.log": {
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815",
+      "size": 1222
+    },
+    "r3_after_optimized.log": {
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815",
+      "size": 1222
+    },
+    "r3_before.log": {
+      "sha256": "81c1fc3f4ab17f33489267bf5f14b1de984defd6e731e593a577f686a1664aba",
+      "size": 1222
+    }
+  },
+  "fix1": "Updater.check accepts package product and selects its destination loader model, preserving supported SMK Elite->Pro/aliases; Updater.install passes product to check.",
+  "fix2": "Updater.install refuses already-in-loader wrong-model resume before firmware write, closing an unchecked --no-slots path.",
+  "full_git_root_checked_out": false,
+  "mock_real_hardware": false,
+  "parent_first_nightly_integration_sha": "1087ede952f6c6f5f22d1b56b062628f07a6af10",
+  "preserved": "verify selects package model and reports wrong-version mismatch; postinstall restoration and Bluetooth controller readback select exact installed product; no source/firmware/controller SDK changes",
+  "producer_owned_pr": 114,
+  "remaining_gates": [
+    "Independent QA exact combined source review and native host test",
+    "Verify real loader aliases and model identity in firmware/native package",
+    "Full backup/restore/OTA/controller/wrong-model negative tests",
+    "Multiple identical device ambiguity must be independently assessed",
+    "Safe Merge sole integration",
+    "Public NIGHTLY independent integrity/source/license/controller/model/backup and immutable HTTP validation"
+  ],
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "schema": "x0x37-data-safety-native-host-regression-v3",
+  "status": "SOURCE-COMPLETE PRODUCER HOST PASS; QA/DEVICE/HTTP UNKNOWN; PUBLIC NIGHTLY NO-GO; BUILD_ONLY OK FOR UNCHANGED COMPILER SUBTREE",
+  "evidence_private_main_library": "/LoopyX0X37-DataSafety-PR114-OTA-Destination-Resume-R3-20261024.zip",
+  "evidence_private_archive_sha256": "33ceae134d1f8aeff8d4facea2dd4a51f262c7f662d3ca3e4dbfe91b9dcb62c7",
+  "expected_test_registration": "tests/run_tests.sh run ota-identity-reconnect registered previously"
+}
