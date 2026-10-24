@@ -31,13 +31,15 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
-/* MMC STOP must survive a saturated, per-source queue. The audio ISR only
- * publishes generations; the main loop acknowledges them after queued input. */
-static volatile uint32_t smc_mmc_stop_published[2];
-static uint32_t smc_mmc_stop_seen[2];
-/* ISR publishes the overflowed STOP only after its FIFO cutoff. The consumer
- * must drain all commands before that cutoff before applying STOP. */
-static volatile uint8_t smc_mmc_stop_boundary[2];
+/* A full MMC queue can reject several STOP commands at DIFFERENT cutoffs
+ * when TIMER/audio refills a freed slot between polls. One overwritten cutoff
+ * incorrectly reorders the first STOP after the next PLAY. Store distinct
+ * stop boundaries in a single-producer/single-consumer FIFO per source. The
+ * 16-command ring admits at most 17 distinct pending cutoffs at once; 32
+ * slots leave room for ISR/main-loop interleavings without overwrite. */
+#define SMC_STOP_Q 32u
+static volatile uint8_t smc_mmc_stop_q[2][SMC_STOP_Q];
+static volatile uint8_t smc_mmc_stop_w[2], smc_mmc_stop_r[2];
 /* Separate single-writer generation counters: TIMER5 (central), audio ISR
  * (host). Main-loop snapshots never clear a producer-owned flag. */
 static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
@@ -106,8 +108,8 @@ X0X_COLD static void smc_project_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
-    smc_mmc_stop_seen[0] = smc_mmc_stop_published[0];
-    smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
+    smc_mmc_stop_r[0] = smc_mmc_stop_w[0];
+    smc_mmc_stop_r[1] = smc_mmc_stop_w[1];
     /* A reset has already cleared all held solos; do not carry stale
      * overflow releases into the new project's queued presses. */
     smc_ble_solo_release_seen = smc_ble_solo_release_lost;
@@ -197,11 +199,16 @@ void smc_mmc_host(uint8_t cmd, uint8_t src)
         return;
     w = smc_mmc_w[src];
     if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
-        /* User-preset MMC command 34 is STOP. Never drop it on overload. */
+        /* Consecutive STOPs at one cutoff are equivalent; a newer cutoff
+         * after an intervening PLAY must remain ordered behind the first. */
         if (cmd == 34u) {
-            smc_mmc_stop_boundary[src] = w;
-            __asm__ volatile("" ::: "memory");
-            smc_mmc_stop_published[src]++;
+            uint8_t stop_w = smc_mmc_stop_w[src];
+            if (stop_w == smc_mmc_stop_r[src] ||
+                smc_mmc_stop_q[src][(uint8_t)(stop_w - 1u) & (SMC_STOP_Q - 1u)] != w) {
+                smc_mmc_stop_q[src][stop_w & (SMC_STOP_Q - 1u)] = w;
+                __asm__ volatile("" ::: "memory");
+                smc_mmc_stop_w[src] = (uint8_t)(stop_w + 1u);
+            }
         }
         return;
     }
@@ -651,10 +658,17 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
  * otherwise a preceding PLAY can execute on the next poll after STOP. */
 static void smc_mmc_drain_stop(int src, int allow)
 {
-    uint32_t lost_stop = smc_mmc_stop_published[src];
-    if (lost_stop != smc_mmc_stop_seen[src] &&
-        smc_mmc_r[src] == smc_mmc_stop_boundary[src]) {
-        smc_mmc_stop_seen[src] = lost_stop;
+    /* A STOP belongs immediately after all commands before its cutoff,
+     * even if a producer refilled the MMC ring while an older STOP waited.
+     * Copy the cutoff, retire this FIFO slot, then dispatch so an ISR may
+     * safely reuse the slot (or a project action may discard all input). */
+    while (smc_mmc_stop_r[src] != smc_mmc_stop_w[src]) {
+        uint8_t r = smc_mmc_stop_r[src];
+        __asm__ volatile("" ::: "memory");
+        uint8_t cutoff = smc_mmc_stop_q[src][r & (SMC_STOP_Q - 1u)];
+        if (smc_mmc_r[src] != cutoff) break;
+        __asm__ volatile("" ::: "memory");
+        smc_mmc_stop_r[src] = (uint8_t)(r + 1u);
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_guarded_button(0x5Du, 1, allow);
     }
