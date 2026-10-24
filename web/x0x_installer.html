@@ -603,7 +603,7 @@ async function loadSelectedPackage() {
     verifiedDownload = { pkg, model, version: ver.version,
       href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
     say(`X0X ${ver.version} · ${MODELS[model] || model}`);
-    $("go").disabled = writing;
+    $("go").disabled = writing || ctlNeedsResolution;
     refreshMeta();
   } catch (e) { if (isLatest()) sayK("loadfail", e.message); }
 }
@@ -661,13 +661,16 @@ async function mergeGitHubReleases() {
 }
 let ctlLoadSerial = 0;
 let ctlHash = null;
+let ctlNeedsResolution = false;
 $("ctlfile").addEventListener("change", async (e) => {
   if (writing) { e.target.value = ""; return; }
+  const f = e.target.files && e.target.files[0];
+  if (!f) return; // Canceling the chooser preserves the previous controller.
   const requestId = ++ctlLoadSerial;
   ctl = null; ctlHash = null;
-  $("ctlclear").disabled = true;
-  const f = e.target.files && e.target.files[0];
-  if (!f) return;
+  ctlNeedsResolution = true;
+  $("ctlclear").disabled = false; // Allows explicit cancellation while reading.
+  $("go").disabled = true;
   e.target.value = ""; // Allow choosing the same file again after a read failure.
   try {
     const raw = new Uint8Array(await f.arrayBuffer());
@@ -677,6 +680,8 @@ $("ctlfile").addEventListener("change", async (e) => {
     const hash = await sha256Hex(raw.buffer);
     if (requestId !== ctlLoadSerial || writing) return;
     ctl = raw; ctlHash = hash;
+    ctlNeedsResolution = false;
+    $("go").disabled = writing || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
     $("ctlclear").disabled = false;
     sayK("ctlok");
   } catch (err) {
@@ -688,6 +693,8 @@ $("ctlclear").addEventListener("click", () => {
   if (writing) return;
   ctlLoadSerial++;
   ctl = null; ctlHash = null;
+  ctlNeedsResolution = false;
+  $("go").disabled = writing || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("ctlfile").value = "";
   $("ctlclear").disabled = true;
   sayK("ctlcleared");
@@ -769,9 +776,9 @@ async function run(img, product, opts = {}) {
   catch (e) {
     writing = false;
     sayK(e.code || "denied");
-    $("go").disabled = !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("go").disabled = ctlNeedsResolution || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
     $("stockgo").disabled = !stock || !$("stockconfirm").checked;
-    $("ctlclear").disabled = !ctl;
+    $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
     return;
   }
   led("busy");
@@ -840,13 +847,13 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
-  $("go").disabled = !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
+  $("go").disabled = ctlNeedsResolution || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
-  $("ctlclear").disabled = !ctl;
+  $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
 }
 
 $("go").addEventListener("click", () => {
-  if (!image || !selectedProduct || writing || $("go").disabled ||
+  if (!image || !selectedProduct || writing || ctlNeedsResolution || $("go").disabled ||
       !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
   if (!confirmWrite(selectedProduct)) return;
   let img = image;

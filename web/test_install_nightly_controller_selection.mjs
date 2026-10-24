@@ -20,11 +20,12 @@ function fixture() {
   const handlers={},notes=[],nodes={};
   const $=id=>nodes[id] ||= {value:"",disabled:false,addEventListener:(name,fn)=>{handlers[name]=fn}};
   const ctx=createContext({handlers,notes,Uint8Array,$,
+    isCatalogChecked:()=>true,currentVersion:()=>({models:{elite:{}}}),
     ctlProblem:raw=>raw[0]===0?"invalid CRC":null,
     sha256Hex:async buf=>"sha-"+new Uint8Array(buf)[0],
     sayK:name=>notes.push(name)});
-  new Script('let ctl=null,writing=false;\n'+selectedSource+'\n'+
-    'globalThis.caseState={choose:e=>handlers.change(e),clear:()=>handlers.click(),ctl:()=>ctl&&ctl[0],hash:()=>ctlHash,clearDisabled:()=>$(\"ctlclear\").disabled,write:x=>writing=x,begin:()=>{writing=true;ctlLoadSerial++},notes:()=>notes};')
+  new Script('let ctl=null,writing=false,image=new Uint8Array([1]),chosenModel="elite";\n'+selectedSource+'\n'+
+    'globalThis.caseState={choose:e=>handlers.change(e),clear:()=>handlers.click(),ctl:()=>ctl&&ctl[0],hash:()=>ctlHash,clearDisabled:()=>$(\"ctlclear\").disabled,goDisabled:()=>$(\"go\").disabled,write:x=>writing=x,begin:()=>{writing=true;ctlLoadSerial++},notes:()=>notes};')
     .runInContext(ctx);
   return ctx.caseState;
 }
@@ -93,7 +94,7 @@ const goSource=html.slice(goBegin,goEnd);
 assert.match(goSource,/ctlHash !== p.controller_sha256/,"SHA authorization check missing");
 assert.match(html,/ctlunapproved: "SHA-256/,"English warning missing");
 assert.match(html,/ctlunapproved: "この機種/,"Japanese warning missing");
-function goCase({hash,approvedHash="sha-2",withCtl=true,approved=true}) {
+function goCase({hash,approvedHash="sha-2",withCtl=true,approved=true,pending=false}) {
   let callback,writes=0,inserts=0,errors=[];
   const ctx=createContext({
     Uint8Array,$:()=>({disabled:false,addEventListener:(_e,f)=>{callback=f}}),
@@ -104,7 +105,7 @@ function goCase({hash,approvedHash="sha-2",withCtl=true,approved=true}) {
   });
   new Script('let image=new Uint8Array([1]),selectedProduct="SMK-37 Elite_9001100",'
     +'writing=false,chosenModel="elite",ctl='+(withCtl?'new Uint8Array([2])':'null')
-    +',ctlHash='+JSON.stringify(hash)+';\n'+goSource).runInContext(ctx);
+    +',ctlHash='+JSON.stringify(hash)+',ctlNeedsResolution='+Boolean(pending)+';\n'+goSource).runInContext(ctx);
   assert.ok(callback,"DEV Install callback missing");callback();
   return {writes,inserts,errors};
 }
@@ -128,4 +129,27 @@ await check("revoked catalog cannot install even with matching ctl",async()=>{
   const x=goCase({hash:"sha-2",approved:false});
   assert.equal(x.writes,0);assert.equal(x.inserts,0);
 });
-console.log("PASS "+passed+"/17 exact-source controller selection/prewrite regression cases; no hardware");
+await check("pending controller read blocks installer until file verification",async()=>{
+  const x=fixture(),d=defer(),p=x.choose(event(d.promise));
+  assert.equal(x.goDisabled(),true);assert.equal(x.clearDisabled(),false);
+  d.resolve(Uint8Array.of(2).buffer);await p;assert.equal(x.goDisabled(),false);
+});
+await check("corrupted ctl.img requires explicit remove before no-Bluetooth install",async()=>{
+  const x=fixture();await x.choose(event(Promise.resolve(Uint8Array.of(0).buffer)));
+  assert.equal(x.goDisabled(),true);assert.equal(x.clearDisabled(),false);
+  x.clear();assert.equal(x.goDisabled(),false);
+});
+await check("failed ctl.img read requires explicit remove before no-Bluetooth install",async()=>{
+  const x=fixture();await x.choose(event(Promise.reject(Error("failed controller read"))));
+  assert.equal(x.goDisabled(),true);x.clear();assert.equal(x.goDisabled(),false);
+});
+await check("canceling file chooser preserves an accepted controller image",async()=>{
+  const x=fixture();await x.choose(event(Promise.resolve(Uint8Array.of(2).buffer)));
+  await x.choose({target:{files:[],value:""}});
+  assert.equal(x.ctl(),2);assert.equal(x.hash(),"sha-2");
+});
+await check("pending controller blocks even if button was programmatically enabled",async()=>{
+  const x=goCase({hash:null,withCtl:false,pending:true});
+  assert.equal(x.writes,0);assert.equal(x.inserts,0);
+});
+console.log("PASS "+passed+"/22 exact-source controller selection/prewrite regression cases; no hardware");
