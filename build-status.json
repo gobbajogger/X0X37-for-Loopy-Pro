@@ -3067,6 +3067,131 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/110",
       "evidence_commit": "9e412020739ded51e0bfba4cabe32cd0fcd91a88",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9e412020739ded51e0bfba4cabe32cd0fcd91a88/docs/scheduler-handoffs/data-safety-slot-echo-7bit-20261024-r1.json"
+    },
+    {
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "id": "integration-pr103-r14-native-elite-pro-20261024",
+      "title": "PR103 R14 new actual Elite/Pro native BUILD_SUCCEEDED_UNREVIEWED; QA_PENDING",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+      "source_tree": "89027dddcc55680d5a218b83e04f0e392ed01283",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "source_time": "2026-10-24T05:50:52Z",
+      "status": "build-succeeded-unreviewed",
+      "artifact_bytes_independently_verified": true,
+      "artifact_distribution_approved": false,
+      "build_target_tests_independently_reexecuted": false,
+      "producer_reported_artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "9c07ae67",
+          "redistribution_permitted": false
+        }
+      },
+      "build_pipeline": {
+        "build": "BUILD_SUCCEEDED_UNREVIEWED",
+        "qa": "QA_PENDING",
+        "installability": "NOT_INSTALLABLE",
+        "live_http": "NOT_VERIFIED",
+        "hardware": "DEVICE_NOT_TESTED",
+        "source_scope": "FIRMWARE_SUBTREE_MATCH_FULL_ROOT_NOT_ATTESTED",
+        "builder_selected_host_checks_pass": 17,
+        "followup_native_checks_pass": 0,
+        "followup_native_checks_fail": [],
+        "evidence_commit": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+        "evidence_manifest_blob_sha": "ab6d37eaa3a9e6be8436cd40d2ceaffd42e09165",
+        "package_bytes_independently_received_and_rehashed": true
+      },
+      "reported_checks": {
+        "origin": "Hourly Build native R14 source/build Git receipt PR103 comment 6380632135; independent Throughput actual private ZIP byte SHA/CRC audit comment 6380743263 and sole Publisher actual private-byte rehash comment 6380770931. Catalog verified immutable Git references, not re-executed compiler or private ZIP.",
+        "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37; BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37 (Hourly Build reported exit 0 each; NOT Catalog run)",
+        "result": "Native Elite 651396 B / Pro 651392 B each compiled exit0, independent exact private-byte hashes and models checked; controller REUSED_NOT_RECOMPILED; no distribution permission; QA_PENDING, NOT_INSTALLABLE, HTTP_NOT_VERIFIED, DEVICE_UNKNOWN."
+      },
+      "description": "Genuine privately rehashed R14 Elite and Pro DEV BUILD_ONLY packages after Solo ISR repair, distinct unsafe R12 bytes. Combined current host/controller root changed later; no public download, model publication, complete QA or device evidence.",
+      "missing_gate": "Independent complete current combined-root SMC/303/controller/slot backup/restore/OTA/wrong-model safety and installer tests; full compiler-input equivalence on new root; lawful corresponding source/controller and immutable external hosting; served HTTP per-model SHA verified by sole Publisher.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/32fc37fdaacbdd2e9791723ee0da9a22193cd947/docs/scheduler-handoffs/safe-merge-pr103-smc58-early-snapshot-r14.json"
+    },
+    {
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "id": "data-safety-pr110-r2-scoped-qa-20261024",
+      "title": "PR110 corrected noncanonical controller echo and slot framing; independently scoped-reviewed",
+      "source_ref": "lane/data-safety-ctl-read-framing-20261024-1456",
+      "source_commit": "b5008faa87c2bb897a48f8a37df10b445bb26b77",
+      "source_tree": "457e75b7e711f978f100dc99995e90fdd59a628f",
+      "firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+      "source_time": "2026-10-24T06:19:49Z",
+      "status": "validation-evidence-only",
+      "reported_checks": {
+        "origin": "Data Safety producer PR110 R2 and exact-head independent QA source-window review #5637207825, verified Git SHA; no Catalog native QA run.",
+        "command": "python3 -B independent_pr110_qa.py; python3 -O -B independent_pr110_qa.py; python3 -B -m py_compile independent_pr110_qa.py (independent QA reported; NOT Catalog executed)",
+        "result": "Independent QA scoped normal and optimized 14/14 exit0 each and py_compile exit0, old R1 high-bit echo bug resolved in scope. NOT complete integrated-root, OTA/backup, device or model QA."
+      },
+      "description": "Safety-source-only controller 7-bit echoed-address and sample-slot guard reviewed in source window. PR110 old compiled subtree differs from R14; no new firmware bytes or release PASS.",
+      "missing_gate": "Safe Merge incorporate reviewed R2 into R14 preserving Solo fix, independent full-root controller/OTA/backup/model negatives and lawful source/host/HTTP gate.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/110",
+      "evidence_commit": "b5008faa87c2bb897a48f8a37df10b445bb26b77",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/b5008faa87c2bb897a48f8a37df10b445bb26b77/docs/scheduler-handoffs/data-safety-pr110-controller-address-echo-7bit-20261024-r2.json"
+    },
+    {
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "id": "integration-pr103-r16-pr110-integrated-current-20261024",
+      "title": "PR103 R16 integrates reviewed PR110 readback repair; current root changed, R14 compiled tree unchanged",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7",
+      "source_tree": "a44bcbda32e831609faab3fbf9b361a8dc45e24e",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "source_time": "2026-10-24T06:57:54Z",
+      "status": "source-only",
+      "reported_checks": {
+        "origin": "Sole Safe Merge R15 PR110 two-parent integration, PR103 R16 executable-mode repair; Git compare f22d05719eed5283d71c71f3fac94e450150ed3d..2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7 checked exact two changed files.",
+        "command": "GitHub exact compare f22d05719eed5283d71c71f3fac94e450150ed3d..2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7 (Catalog Git read EXIT 0); sole Safe Merge producer reports scoped GCC/Clang SMC 20/20 per variant and controller 5/5+11/11, not full current root.",
+        "result": "PR110 reviewed source integrated into isolated PR103, protected firmware NIGHTLY not merged. R16 repairs tools/fm1_install.py executable Git mode 100755 without bytes change and adds manifest; firmware subtree same as true R14 builds but entire root different. No current full-root QA or new native compiler run claimed."
+      },
+      "description": "Current source integration milestone only; matching R14 compiled firmware subtree is not proof of matching all build inputs or fully checked OTA/backup/controller host behavior.",
+      "missing_gate": "Hourly Build verify all build-consumed input/config pins for R16 before identical-byte reuse; independent R16 combined full-root safety/installer/backup/OTA/model negatives; sole Safe Merge review plus lawful source/license/immutable host and publisher HTTP hashes.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7/docs/scheduler-handoffs/safe-merge-pr103-r15-cli-mode-r16.json"
     }
   ],
   "policy": {
@@ -3077,7 +3202,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 112
+    "source_or_historical_checkpoints": 115
   },
   "versioning": {
     "firmware_product_version": {

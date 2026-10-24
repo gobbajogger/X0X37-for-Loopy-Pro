@@ -365,6 +365,50 @@ for(const [name,fn] of [
     fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');
   });
 }
+
+run('r16-immutable-five-audit-proof-fields-positive',dir=>{
+ const x=JSON.parse(fs.readFileSync(join(dir,'docs/scheduler-handoffs/catalog-sync-20261024.json'),'utf8')).closed_loop_cycle_20261024_r16.catalog_private_zip;
+ assert.equal(x.checker_sha256,'76947801c5516442d44f4f345884faa1b5e595f116a33086207f23ec67aa4ac9');
+ assert.equal(x.log_sha256,'c62a5451d68161bca3a73bfc622dd6bfce62399578492589d7b49800160f0fe7');
+ assert.equal(x.results_sha256,'51a46a8b7b45647cdd2f1d7c305feff6f52b4c07038e3b79fb629267859aaff9');
+ assert.equal(x.models.elite.crc32,'96808fe7');assert.equal(x.models.pro.crc32,'3cc9dfeb');
+},true);
+for(const [name,mutation] of [
+ ['r16-forged-checker-digest',x=>x.checker_sha256='f'.repeat(64)],
+ ['r16-forged-log-digest',x=>x.log_sha256='f'.repeat(64)],
+ ['r16-forged-results-digest',x=>x.results_sha256='f'.repeat(64)],
+ ['r16-forged-Elite-CRC32',x=>x.models.elite.crc32='00000000'],
+ ['r16-forged-Pro-CRC32',x=>x.models.pro.crc32='00000000']
+])run(name,dir=>{
+ const p=join(dir,'docs/scheduler-handoffs/catalog-sync-20261024.json');
+ const j=JSON.parse(fs.readFileSync(p,'utf8'));mutation(j.closed_loop_cycle_20261024_r16.catalog_private_zip);
+ fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');
+});
+const r14x='integration-pr103-r14-native-elite-pro-20261024';
+const editR14=fn=>edit(j=>{const x=j.history.find(r=>r.id===r14x);assert.ok(x);fn(x);});
+run('r14-genuine-build-only-history-positive',edit(j=>{
+ const x=j.history.find(r=>r.id===r14x);assert.ok(x);assert.equal(x.status,'build-succeeded-unreviewed');
+ assert.equal(x.installable,false);assert.equal(x.build_pipeline.qa,'QA_PENDING');
+ assert.equal(x.build_pipeline.live_http,'NOT_VERIFIED');
+}),true);
+for(const [name,mutation] of [
+ ['r14-invalid-Elite-SHA',x=>x.producer_reported_artifacts.elite.sha256='f'.repeat(64)],
+ ['r14-invalid-Pro-SHA',x=>x.producer_reported_artifacts.pro.sha256='f'.repeat(64)],
+ ['r14-invalid-Pro-bytes',x=>x.producer_reported_artifacts.pro.bytes++],
+ ['r14-wrong-compiled-tree',x=>x.firmware_subtree='f'.repeat(40)],
+ ['r14-wrong-full-root',x=>x.source_tree='f'.repeat(40)],
+ ['r14-wrong-private-controller',x=>x.producer_reported_artifacts.private_controller.sha256='f'.repeat(64)],
+ ['r14-wrong-immutable-proof',x=>x.build_pipeline.evidence_manifest_blob_sha='f'.repeat(40)],
+ ['r14-fake-QA-PASS',x=>x.build_pipeline.qa='QA_PASSED'],
+ ['r14-fake-external-HTTP',x=>x.build_pipeline.live_http='HTTP_VERIFIED'],
+ ['r14-unapproved-download',x=>x.download_url='https://evil.example/unknown.dat']
+])run(name,editR14(mutation));
+run('r16-combined-source-noninstallable-positive',edit(j=>{
+ const x=j.history.find(r=>r.id==='integration-pr103-r16-pr110-integrated-current-20261024');
+ assert.ok(x);assert.equal(x.status,'source-only');assert.equal(x.installable,false);
+}),true);
+run('r16-wrong-merged-root',edit(j=>j.history.find(r=>r.id==='integration-pr103-r16-pr110-integrated-current-20261024').source_tree='f'.repeat(40)));
+
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');
 
 // Exact SMC79 real native private-byte receipt must remain QA_PENDING and non-installable.

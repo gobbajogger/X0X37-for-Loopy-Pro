@@ -125,6 +125,48 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
  const approvedHistoryFields='id title source_repo source_ref source_commit source_tree source_time date status models firmware_product_version build_id installable device_verified reported_checks description missing_gate url evidence_commit evidence_url handoff_source source_identity_note reported_package_sha256 reported_offline_artifacts offline_source exact_remote_native_build artifact_distribution_approved firmware_subtree producer_reported_artifacts artifact_bytes_independently_verified build_target_tests_independently_reexecuted build_pipeline failed_build';
  for(const item of catalog.history){
    shape(item,approvedHistoryFields,'history');
+   // Authentic separately byte-audited R14 native models: BUILD_ONLY, not QA/hosting.
+   if(item.id==='integration-pr103-r14-native-elite-pro-20261024'){
+     assert.equal(item.status,'build-succeeded-unreviewed');
+     assert.equal(item.source_commit,'32fc37fdaacbdd2e9791723ee0da9a22193cd947');
+     assert.equal(item.source_tree,'89027dddcc55680d5a218b83e04f0e392ed01283');
+     assert.equal(item.firmware_subtree,'5c209609b770fd13949230aeb80956594fd6b741');
+     assert.equal(item.source_ref,'lane/safe-merge-303-first-nightly-20261024-0138');
+     for(const [model,pin] of Object.entries({
+       elite:{bytes:651396,sha256:'d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c'},
+       pro:{bytes:651392,sha256:'cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c'}
+     })){
+       assert.equal(item.producer_reported_artifacts?.[model]?.bytes,pin.bytes,model+': verified R14 byte length');
+       assert.equal(item.producer_reported_artifacts?.[model]?.sha256,pin.sha256,model+': verified R14 SHA256');
+     }
+     const ctl=item.producer_reported_artifacts?.private_controller;
+     assert.equal(ctl?.bytes,65492);
+     assert.equal(ctl?.sha256,'956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a');
+     assert.equal(ctl?.crc32,'9c07ae67');
+     assert.equal(ctl?.redistribution_permitted,false);
+     assert.equal(item.artifact_bytes_independently_verified,true);
+     assert.equal(item.artifact_distribution_approved,false);
+     assert.equal(item.build_target_tests_independently_reexecuted,false);
+     assert.equal(item.build_pipeline?.evidence_commit,item.source_commit);
+     assert.equal(item.build_pipeline?.evidence_manifest_blob_sha,'ab6d37eaa3a9e6be8436cd40d2ceaffd42e09165');
+     assert.equal(item.build_pipeline?.builder_selected_host_checks_pass,17);
+     assert.equal(item.build_pipeline?.followup_native_checks_pass,0);
+     assert.deepEqual(item.build_pipeline?.followup_native_checks_fail,[]);
+     assert.equal(item.build_pipeline?.package_bytes_independently_received_and_rehashed,true);
+   }
+   if(item.id==='data-safety-pr110-r2-scoped-qa-20261024'){
+     assert.equal(item.status,'validation-evidence-only');
+     assert.equal(item.source_commit,'b5008faa87c2bb897a48f8a37df10b445bb26b77');
+     assert.equal(item.source_tree,'457e75b7e711f978f100dc99995e90fdd59a628f');
+     assert.equal(item.firmware_subtree,'a32c68ba72eb21f77bfeccb1f86954db8823b244');
+   }
+   if(item.id==='integration-pr103-r16-pr110-integrated-current-20261024'){
+     assert.equal(item.status,'source-only');
+     assert.equal(item.source_commit,'2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7');
+     assert.equal(item.source_tree,'a44bcbda32e831609faab3fbf9b361a8dc45e24e');
+     assert.equal(item.firmware_subtree,'5c209609b770fd13949230aeb80956594fd6b741');
+   }
+
    // Reject forged readiness objects hidden inside ostensibly textual fields.
    for(const field of ['id','title','date']){
      assert.ok(typeof item[field]==='string'&&item[field].trim().length>0,
@@ -209,6 +251,10 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
         assert.equal(proof?.source_evidence_blob_sha,item.build_pipeline?.evidence_manifest_blob_sha);
         assert.equal(proof?.native_exit_code,0);
         assert.equal(proof?.checks_pass,48);
+        // R10 private checker/log/results SHA256 pinned to independently observed immutable receipts.
+        assert.equal(proof?.checker_sha256,'76947801c5516442d44f4f345884faa1b5e595f116a33086207f23ec67aa4ac9','R10 checker SHA256 proof');
+        assert.equal(proof?.log_sha256,'c62a5451d68161bca3a73bfc622dd6bfce62399578492589d7b49800160f0fe7','R10 log SHA256 proof');
+        assert.equal(proof?.results_sha256,'51a46a8b7b45647cdd2f1d7c305feff6f52b4c07038e3b79fb629267859aaff9','R10 results SHA256 proof');
         assert.equal(proof?.negative_checks_pass,12);
         assert.equal(proof?.controller?.bytes_present_in_r10_zip,false);
         assert.equal(proof?.controller?.redistribution_cleared,false);
@@ -221,8 +267,14 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
           assert.equal(item.producer_reported_artifacts?.[model]?.bytes,proof?.models?.[model]?.bytes,model+' private size');
           assert.equal(proof?.models?.[model]?.controller_blank,true,model+' controller blank');
           assert.match(proof?.models?.[model]?.crc32,/^[a-f0-9]{8}$/);
+          assert.equal(proof.models[model].crc32,model==='elite'?'96808fe7':'3cc9dfeb',
+            model+': immutable actual R10 model package CRC32');
           assert.equal(proof?.models?.[model]?.slot_map_crc32,'0d69aa83');
         }
+        assert.equal(item.artifact_distribution_approved,false);
+        assert.equal(item.build_target_tests_independently_reexecuted,false);
+      } else if(item.id==='integration-pr103-r14-native-elite-pro-20261024'){
+        assert.equal(item.source_commit,'32fc37fdaacbdd2e9791723ee0da9a22193cd947');
         assert.equal(item.artifact_distribution_approved,false);
         assert.equal(item.build_target_tests_independently_reexecuted,false);
       } else assert.ok(false,'unattributed private-byte audit');
@@ -380,7 +432,7 @@ for (const item of catalog.history) {
     assert.match(x.evidence_manifest_blob_sha, /^[a-f0-9]{40}$/);
     assert.ok(Number.isInteger(x.builder_selected_host_checks_pass) && x.builder_selected_host_checks_pass > 0);
     assert.ok(Number.isInteger(x.followup_native_checks_pass) && x.followup_native_checks_pass >= 0);
-    if(item.id==='integration-pr103-r10-native-elite-pro-20261024') assert.deepEqual(x.followup_native_checks_fail,[],'no new full-root test failure recorded');
+    if(['integration-pr103-r10-native-elite-pro-20261024','integration-pr103-r14-native-elite-pro-20261024'].includes(item.id)) assert.deepEqual(x.followup_native_checks_fail,[],'no new full-root test failure recorded');
     else assert.ok(Array.isArray(x.followup_native_checks_fail) && x.followup_native_checks_fail.length > 0);
     if(item.id==='integration-pr103-smc79-native-build-20261024-r13') assert.deepEqual(x.followup_native_checks_fail.map(f=>f.name),["mixed-historical-seed:ble-midi-receive","mixed-historical-seed:smc-reachability","mixed-historical-seed:smc-mapping","mixed-historical-seed:smc-drum-mutes","mixed-historical-seed:smc-clip-visibility"]);
     for (const failure of x.followup_native_checks_fail) {
@@ -389,7 +441,7 @@ for (const item of catalog.history) {
       else assert.ok(Number.isInteger(failure.exit_code) && failure.exit_code !== 0);
     }
     assert.equal(x.package_bytes_independently_received_and_rehashed,item.artifact_bytes_independently_verified===true,'private bytes proof status');
-    if(!['integration-pr103-smc79-native-build-20261024-r13','integration-pr103-r10-native-elite-pro-20261024'].includes(item.id)) assert.equal(item.artifact_bytes_independently_verified,false,'old native build lacked independent byte readback');
+    if(!['integration-pr103-smc79-native-build-20261024-r13','integration-pr103-r10-native-elite-pro-20261024','integration-pr103-r14-native-elite-pro-20261024'].includes(item.id)) assert.equal(item.artifact_bytes_independently_verified,false,'old native build lacked independent byte readback');
     assert.match(item.firmware_subtree, /^[a-f0-9]{40}$/);
     for (const model of ['elite','pro']) {
       const pkg = item.producer_reported_artifacts?.[model];
