@@ -1,0 +1,114 @@
+{
+  "branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "changed_scope": [
+    "tests/host/seq_clock_disconnect_handoff_test.c",
+    "tests/run_tests.sh",
+    "docs/scheduler-handoffs/seq-link-disconnect-handoff-20261025-r31.json"
+  ],
+  "compiled_firmware_inputs": "UNCHANGED against R30; no implementation/config/toolchain/SDK/ctl change",
+  "date_utc": "2026-10-24",
+  "evidence_archive": {
+    "bytes": 42716,
+    "main_library_root_name": "LoopyX0X37-SeqClock-PR90-LinkDisconnect-R31-20261025.zip",
+    "sha256": "a39fa0f5a5765d8b1a75e4eaa31e01749a11a9aee356833b11ec2ee8049cb539",
+    "zip_crc_test": "PASS"
+  },
+  "evidence_revision": "seqclock-pr90-link-disconnect-handoff-20261025-r31",
+  "limitations": [
+    "NOT complete exact repository root checkout; just exact Git blob production C/H inputs and self-contained host tests",
+    "NOT independent QA",
+    "NOT target Elite/Pro build, controller/build-budgets, firmware package or install",
+    "NOT physical hardware test or user approval",
+    "NOT merged into nightly/main",
+    "NO external/public artifact publication"
+  ],
+  "native_host": {
+    "actual_command": "python3 run-r31.py",
+    "command_exit": 0,
+    "compilers": {
+      "clang": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)",
+      "gcc": "gcc (Debian 14.2.0-19) 14.2.0"
+    },
+    "console_sha256": "6c80e534167de89c83c6c8049459f3b981d64489723e78f099e19ff3432aa054",
+    "flags": "-std=c11 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror; plain / UBSan / ASan+UBSan",
+    "linked_inputs": "production sequencer.c,pattern.c,tb3po.c plus matching headers, exact blob SHA against PR90 parent",
+    "negative_mutations": [
+      {
+        "compiler_modes": 6,
+        "expected_exit": 1,
+        "observed_exit": 1,
+        "variant": "negative-drop-does-not-unlock"
+      },
+      {
+        "compiler_modes": 6,
+        "expected_exit": 1,
+        "observed_exit": 1,
+        "variant": "negative-foreign-clock-accepted"
+      },
+      {
+        "compiler_modes": 6,
+        "expected_exit": 1,
+        "observed_exit": 1,
+        "variant": "negative-no-fresh-source-tempo"
+      }
+    ],
+    "neighbor_checks": {
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "compilers": [
+        "gcc",
+        "clang"
+      ],
+      "observations": [
+        "36120/36120 clock-owner",
+        "408/408 stop/restart"
+      ],
+      "regressions": [
+        "seq_clock_owner_handoff_linked_test",
+        "seq_stop_restart_burst_test"
+      ],
+      "run_exits": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "platform": "Linux x86_64",
+    "positive": {
+      "buffer_frames": [
+        1,
+        64,
+        1024
+      ],
+      "checks_per_run": "186/186",
+      "compile_exit": 0,
+      "compiler_modes": 6,
+      "run_exit": 0
+    },
+    "run_results_sha256": "3af0bbd4cf49c1825bcde844de68ac4e128e0d03edaf0dbb3a00c7957ae7d6c9"
+  },
+  "next_owner": "Existing Independent QA, exact new PR90 HEAD: independent complete-root transport-clock-disconnect plus neighbors, source/clock/NoteOff negative review; Safe Merge sole integration owner; Hourly Build has independent BUILD_ONLY role.",
+  "parent_pr": 86,
+  "pr": 90,
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "Sequencer Clock SOURCE producer, owned PR #90, stacked on PR #86",
+  "schema": 1,
+  "source_git_blobs": {
+    "pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "sequencer.c": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+    "sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c"
+  },
+  "test_git_blob": "d5a91d950de954fa1ba1e62b76fb3d6508b0e22e",
+  "test_input_commit": "27a371b0399313e774347d0aca33b348c7066e70",
+  "test_input_firmware_tree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "test_input_full_root": "68c9a34ac7bec3c209612a9267725bb1eb278c2a",
+  "user_outcome": "USB MIDI Clock disconnects mid-step; Bluetooth continues without missing/duplicate steps, outgoing echo, or stuck 303 notes; stale USB messages rejected and explicit later BLE disconnect permits USB reacquisition."
+}
