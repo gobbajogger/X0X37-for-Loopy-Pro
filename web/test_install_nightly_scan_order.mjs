@@ -113,7 +113,9 @@ async function postwriteScanAllowed() {
   state.requests[0].resolve(device());await post;
   assert.equal(state.connected,true);
   assert.equal(state.changes.length,1);
-  return 'internal post-write scan survives blocked Connect';
+  assert.deepEqual(state.selected, [],
+    "postwrite scan must not reload firmware and overwrite saved/restored-slot completion status");
+  return 'post-write scan updates connection without clobbering restoration result';
 }
 async function oldPrewriteCannotReappearAfterWriteEnds() {
   const {state,ctx,device,tick}=setup();
