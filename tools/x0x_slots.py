@@ -319,6 +319,15 @@ def _publish_backup_noreplace(staged, path):
         staged.unlink()
 
 
+def _sync_backup_directory(parent):
+    """Make the published sample-backup filename durable before any OTA starts."""
+    fd = os.open(parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
 def save_backup_archive(path, archive, *, replace=False):
     """Stage, read back and fsync a backup before publishing it at the destination.
 
@@ -341,6 +350,11 @@ def save_backup_archive(path, archive, *, replace=False):
         else:
             _publish_backup_noreplace(staged, path)
         staged = None
+        try:
+            _sync_backup_directory(path.parent)
+        except OSError as e:
+            raise SlotError(f"{path}: backup published, but directory sync failed; "
+                            f"durability unknown. Do not flash until a durable backup is verified ({e})") from e
     finally:
         if staged is not None:
             staged.unlink(missing_ok=True)
