@@ -515,9 +515,57 @@ static void test_capacity_rejection(void)
     check_live_unchanged();
 }
 
+
+/* BF-020: stored pre-BD-send pan motion must follow the sound pan's two-byte
+ * migration. Stream arrangement loads after sound; both must be in memory
+ * before the migration rewrites any motion-lane target indices. */
+static void test_legacy_bd_pan_motion(void)
+{
+    static const struct {uint8_t rev, pan_909, pan_808;} cases[] = {
+        {2, 8, 7}, /* no BD sends on either 909 or 808 */
+        {3, 10, 7}, /* 909 already migrated; 808 not yet migrated */
+        {4, 10, 9}, /* both already migrated: do not migrate twice */
+    };
+    for (size_t c = 0; c < sizeof cases / sizeof cases[0]; c++) {
+        const uint8_t pan909 = cases[c].pan_909, pan808 = cases[c].pan_808;
+        lane_t *lane;
+        fixture("legacy BD PAN motion migration");
+        proj.set.snd_rev = cases[c].rev;
+        proj.set.stereo = PROJ_STEREO;
+        proj.sound.v[T_909][0][pan909] = 31;
+        proj.sound.v[T_808][0][pan808] = 87;
+        lane = &proj.arr.lane[0];
+        lane->used = 1; lane->pat = 3; lane->part = PART_909;
+        lane->t = T_909; lane->v = 0; lane->i = pan909;
+        memset(lane->val, MOT_NONE, NSTEPS); lane->val[2] = 31;
+        lane = &proj.arr.lane[1];
+        lane->used = 1; lane->pat = 4; lane->part = PART_808;
+        lane->t = T_808; lane->v = 0; lane->i = pan808;
+        memset(lane->val, MOT_NONE, NSTEPS); lane->val[4] = 87;
+        lane = &proj.arr.lane[2];
+        lane->used = 1; lane->pat = 3; lane->part = PART_909;
+        lane->t = T_909; lane->v = 1; lane->i = 2; /* unaffected different voice */
+        memset(lane->val, MOT_NONE, NSTEPS); lane->val[2] = 33;
+        REQUIRE(project_save() == 0);
+        snapshot();
+        CHECK(project_load_stage() == 0);
+        CHECK(project_stage.set.snd_rev == PROJ_SND_REV);
+        CHECK(project_stage.arr.lane[0].i == 10);
+        CHECK(project_stage.arr.lane[1].i == 9);
+        CHECK(project_stage.arr.lane[2].i == 2);
+        CHECK(project_stage.arr.lane[0].val[2] == 31);
+        CHECK(project_stage.arr.lane[1].val[4] == 87);
+        CHECK(project_stage.arr.lane[2].val[2] == 33);
+        CHECK(project_stage.sound.v[T_909][0][10] == 31);
+        CHECK(project_stage.sound.v[T_808][0][9] == 87);
+        check_live_unchanged(); /* stage migration never mutates active playback or flash */
+    }
+}
+
 int main(void)
 {
     test_defaults();
+    test_legacy_bd_pan_motion();
     test_save_export_load();
     test_file_rejection();
     test_semantic_rejection();

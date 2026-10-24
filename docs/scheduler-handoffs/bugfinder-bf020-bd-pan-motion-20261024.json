@@ -1,0 +1,75 @@
+{
+  "schema": "loopyx0x37.bugfinder.handoff.v1",
+  "finding_id": "BF-020",
+  "title": "Legacy 909/808 BD PAN motion target corrupted on pre-send project load",
+  "scope": "Independent firmware bug, distinct from Data Safety OTA and SMC; Safe Merge PR103 untouched",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base_branch": "nightly",
+  "base_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "base_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+  "first_nightly_pr": 103,
+  "first_nightly_head_checked": "56c180450393f26859419ce13b479e45cb0c242d",
+  "first_nightly_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "root_cause": "read_project migrated stored sound BD PAN targets before reading the legacy project motion arrangement; lane indices were still default/empty and remained pointed at former PAN locations.",
+  "source_change": "Move the existing old-sound migration and stereo normalization block to immediately after arrangement load and song sanity check, before other sound revision passes. No serialization or asset changes.",
+  "original_blobs": {
+    "firmware/src/app/project.c": "1000a0d88e04553295b82d724a63670434b67748",
+    "tests/host/project_stage_test.c": "199f62a33669de901ca0f95b64ed835e272ce6f0"
+  },
+  "verified_native_expected_blobs": {
+    "firmware/src/app/project.c": "571b052c9405f5be2940566256f0572adf70b09b",
+    "tests/host/project_stage_test.c": "e283b36667f9262fe84ae1ac7958cd61e2868da4"
+  },
+  "negative": {
+    "command": "CC=gcc sh tests/host/run_project_stage.sh",
+    "baseline": "exact project.c Git blob 1000a0d88e04553295b82d724a63670434b67748 plus added regression",
+    "exit": 1,
+    "checks": 24671,
+    "failures": 3,
+    "log_sha256": "5f7a7f5c7762a8f89232493b0f3956820992b93666831bf6bd6aa3300ca4de8c"
+  },
+  "positive": [
+    {
+      "command": "CC=gcc sh tests/host/run_project_stage.sh",
+      "exit": 0,
+      "checks": 24671,
+      "failures": 0,
+      "log_sha256": "729a75917e51357be0956e2ebbcb971a4f2764450f9b9c36c596fe6a39518bad"
+    },
+    {
+      "command": "CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-omit-frame-pointer' sh tests/host/run_project_stage.sh",
+      "exit": 0,
+      "checks": 24671
+    },
+    {
+      "command": "CC=gcc SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' sh tests/host/run_project_stage.sh",
+      "exit": 0,
+      "checks": 24671
+    },
+    {
+      "command": "CC=clang sh tests/host/run_project_stage.sh",
+      "exit": 0,
+      "checks": 24671
+    },
+    {
+      "command": "CC=gcc sh tests/host/project_runtime_test.sh",
+      "exit": 0,
+      "log_sha256": "0d660f36a432941e7f94df2e1fac4fbaf1aaa8f3e6e6159ab4f910792345ba23"
+    }
+  ],
+  "not_run": [
+    "Clang sanitizer matrix: interrupted by container command timeout during compilation; no PASS claimed",
+    "Actual current full Git root checkout/test: blocked by native github.com DNS, scoped baseline relevant Git blobs verified",
+    "Elite/Pro JieLi target builds at proposed updated firmware subtree",
+    "Independent QA, device tests, OTA/public hosting"
+  ],
+  "provenance": "Native tests run on authorized historical source bootstrap whose project.c and project_stage_test.c are byte-identical to exact current protected-nightly and Safe Merge Git source blobs; other dependencies in that native checkout are historical and do not establish full-tree PASS.",
+  "safety": {
+    "public_firmware": false,
+    "private_controller_or_vendor_sdk": false,
+    "samples": false,
+    "device_tested": false,
+    "source_only": true
+  },
+  "handoff": "Independent QA run exact patched source regression and full root; Hourly Build compile fresh Elite and Pro BUILD_ONLY with exact changed firmware subtree; sole Safe Merge decides integration into first NIGHTLY after independent review."
+}
