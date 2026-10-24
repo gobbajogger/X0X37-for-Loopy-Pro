@@ -1,0 +1,56 @@
+{
+  "verdict": "QA PASSED \u2014 SOURCE-ONLY combined candidate",
+  "head": "aeff10622163cb1a7e05eee89238352e9ca0bf71",
+  "root": "2aae49f1c4835733a21c7d98727dfbcc7f371df5",
+  "base": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "prior_checked_head": "081bf121c5f26bb900364bf90fd3e92bbadcbdb7",
+  "prior_evidence_commit": "76948e0bc33bae9ec2d00ed03de3d20e0b7310b3",
+  "delta": "Only tests/browser-admission.py:201-202 expected-count literals117 to122; every other tracked blob identical",
+  "command": {
+    "command": "npm run test:browser",
+    "exit": 0,
+    "duration_seconds": 57.88,
+    "log_sha256": "993f34a2b7eb1fa8e83b5c45b035fcdf94156671b17d3e6f1e423849df16e4ae"
+  },
+  "browser": {
+    "installer_checks": 215,
+    "installer_failures": 0,
+    "history_checks": 34,
+    "history_failures": 0,
+    "chromium": "154.0.8037.57"
+  },
+  "C1": "ADDRESSED",
+  "mapped_unchanged_results": {
+    "native_test_build_test_exits": [
+      0,
+      0,
+      0
+    ],
+    "R6_actual_CLI_control_exit": 0,
+    "R6_actual_CLI_rebind_exit": 1,
+    "shipping_JS_safety_checks": 41,
+    "qualified_flow_extension_checks": 6,
+    "pinned_history_records": 122
+  },
+  "source_worktree_clean": true,
+  "reviewer_authored_source_repair": false,
+  "limits": [
+    "Synthetic networking/MIDI/packages; no device-tested or actual firmware eligibility claim",
+    "Actual immutable hosted firmware/controller/source and final served rendered candidate flow remain downstream publication preparation checks",
+    "No merge, ready transition, protected branch write, Pages publication or scheduler/device action"
+  ],
+  "evidence_files": {
+    "command.json": {
+      "sha256": "7e0cb714bd014440e4b82ecfcde276e9bfaee68ce7592fe72c804bd6279b5fc0",
+      "bytes": 166
+    },
+    "delta-identity.json": {
+      "sha256": "53f3cdc9a3fda7c93b7c6eed1ab3caebbea21062912a3c79d8dfc4965e2bf6fc",
+      "bytes": 301
+    },
+    "registered-browser.log": {
+      "sha256": "993f34a2b7eb1fa8e83b5c45b035fcdf94156671b17d3e6f1e423849df16e4ae",
+      "bytes": 19772
+    }
+  }
+}

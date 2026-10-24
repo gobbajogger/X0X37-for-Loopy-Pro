@@ -1,0 +1,6 @@
+{
+  "command": "npm run test:browser",
+  "exit": 0,
+  "duration_seconds": 57.88,
+  "log_sha256": "993f34a2b7eb1fa8e83b5c45b035fcdf94156671b17d3e6f1e423849df16e4ae"
+}

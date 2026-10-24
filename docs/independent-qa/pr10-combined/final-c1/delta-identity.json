@@ -1,0 +1,8 @@
+{
+  "head": "aeff10622163cb1a7e05eee89238352e9ca0bf71",
+  "root": "2aae49f1c4835733a21c7d98727dfbcc7f371df5",
+  "prior": "081bf121c5f26bb900364bf90fd3e92bbadcbdb7",
+  "only_changed_path": "tests/browser-admission.py",
+  "exact_two_literal_replacement": true,
+  "all_other_git_paths_identical": true
+}
