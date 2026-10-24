@@ -327,6 +327,51 @@ static void mixed_origin_epoch_partition(void)
     CHECK(count(&t, 0xFC, 0) == 0);
 }
 
+
+/* Exhaust the small same-render-block F8/Start/Continue/gesture boundary grid.
+ * Clock source is forced EXTERNAL before queuing traffic so a zero-post-tick
+ * winning gesture MUST stay silent, regardless of stale pre-gesture ticks.
+ * Each scenario checks the outgoing MIDI trace, exact clock epoch, and final
+ * NoteOff idempotency after two physical stops. */
+static void mixed_origin_burst_grid(void)
+{
+    for (int remote = 0; remote < 2; ++remote)
+    for (int local = 0; local < 2; ++local)
+    for (int pre = 0; pre <= 4; ++pre)
+    for (int between = 0; between <= 3; ++between)
+    for (int after = 0; after <= 6; ++after) {
+        seq_t s; trace_t t;
+        init(&s, &t);
+        s.clk_src = SEQ_CLK_EXT;
+        advance(&s, &t); /* commit the source before any queued MIDI bytes */
+        CHECK(s.ext && !s.playing);
+        for (int k = 0; k < pre; ++k)
+            incoming(&s, 0xF8);
+        incoming(&s, remote ? 0xFB : 0xFA);
+        for (int k = 0; k < between; ++k)
+            incoming(&s, 0xF8);
+        if (local)
+            seq_continue(&s);
+        else
+            seq_start(&s);
+        for (int k = 0; k < after; ++k)
+            incoming(&s, 0xF8);
+        advance(&s, &t);
+        CHECK(s.playing && s.start_local && s.ext);
+        CHECK(s.ext_q == (uint8_t)after);
+        CHECK(count(&t, 0x91, 60) == (after ? 1 : 0));
+        CHECK(count(&t, 0x91, 64) == 0);
+        CHECK(count(&t, 0xFA, 0) == 0 && count(&t, 0xFB, 0) == 0);
+        seq_stop(&s);
+        advance(&s, &t);
+        seq_stop(&s); /* duplicate STOP may not release twice */
+        advance(&s, &t);
+        CHECK(!s.playing);
+        CHECK(count(&t, 0x81, 60) == (after ? 1 : 0));
+        CHECK(count(&t, 0xFC, 0) == 0);
+    }
+}
+
 int main(void)
 {
     static const uint32_t blocks[] = {1u, 64u, 1024u};
@@ -340,6 +385,7 @@ int main(void)
         local_play_echo_first_external_tick_phase(0xFA);
         local_play_echo_first_external_tick_phase(0xFB);
         mixed_origin_epoch_partition();
+        mixed_origin_burst_grid();
     }
     fprintf(stderr, "seq epoch/output linked: %d/%d checks %s\n", checks - errors, checks,
             errors ? "FAILED" : "PASSED");
