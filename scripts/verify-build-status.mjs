@@ -125,6 +125,17 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
  const approvedHistoryFields='id title source_repo source_ref source_commit source_tree source_time date status models firmware_product_version build_id installable device_verified reported_checks description missing_gate url evidence_commit evidence_url handoff_source source_identity_note reported_package_sha256 reported_offline_artifacts offline_source exact_remote_native_build artifact_distribution_approved firmware_subtree producer_reported_artifacts artifact_bytes_independently_verified build_target_tests_independently_reexecuted build_pipeline failed_build';
  for(const item of catalog.history){
    shape(item,approvedHistoryFields,'history');
+   // Reject forged readiness objects hidden inside ostensibly textual fields.
+   for(const field of ['id','title','date']){
+     assert.ok(typeof item[field]==='string'&&item[field].trim().length>0,
+       'history '+field+' must be nonempty text');
+   }
+   assert.match(item.date,/^20\d{2}-\d{2}-\d{2}$/,'history date requires YYYY-MM-DD');
+   for(const field of ['description','missing_gate','source_ref','source_time','source_identity_note']){
+     if(item[field]!=null)assert.ok(typeof item[field]==='string'&&item[field].trim().length>0,
+       'history '+field+' must be nonempty text');
+   }
+
    if(item.source_repo!==undefined)assert.equal(item.source_repo,officialRepo,'historical source repo');
 
     // Metadata booleans never grant distribution, exact-source build or full QA.
@@ -219,7 +230,15 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
 
    for(const key of ['url','evidence_url','handoff_source'])if(item[key]!=null)(key==='url'?navigationURL:evidenceURL)(item[key],'history.'+key);
    assert.equal(item.models.length,new Set(item.models).size,'duplicate historical model');
-   if(item.reported_checks!==undefined)shape(item.reported_checks,'origin command result','reported_checks');
+   if(item.reported_checks!==undefined){
+     shape(item.reported_checks,'origin command result','reported_checks');
+     for(const field of ['origin','result'])
+       assert.ok(typeof item.reported_checks[field]==='string'&&
+         item.reported_checks[field].trim().length>0,'reported_checks.'+field+' must be nonempty text');
+     assert.ok(item.reported_checks.command===null||
+       (typeof item.reported_checks.command==='string'&&item.reported_checks.command.trim().length>0),
+       'reported_checks.command must be text or null');
+   }
    if(item.reported_package_sha256!==undefined){
      shape(item.reported_package_sha256,'elite pro','reported hashes');
      for(const [model,sha] of Object.entries(item.reported_package_sha256))

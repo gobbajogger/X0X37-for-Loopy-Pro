@@ -2918,6 +2918,64 @@
       "missing_gate": "Independent full-root ACK, backup/readback/restore/OTA negatives, sole firmware Safe Merge integration and current-root QA.",
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/109",
       "evidence_commit": "0ca385b947fb5317319461f15fe9b9a6f0184db2"
+    },
+    {
+      "id": "smc-solo-overflow-pr58-runner-20261024-r17",
+      "title": "SMC PR58 Solo overflow release runner: source-only check, no new compiled model bytes",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-solo-release-overflow-20261023-run4",
+      "source_commit": "bad8e453b20e4f837a0d8a5f961d517b0b095816",
+      "source_tree": "bf84eae81700c08d8f8db2949da3edcd5212e724",
+      "firmware_subtree": "e42f1fbaa60e02a8d338a54b39c5a57c617813ee",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Producer smc-solo-overflow-runner-registration-20261024-r1 read from exact Git commit/tree; Catalog has not independently run native firmware tests",
+        "command": null,
+        "result": "Producer reports GCC/Clang focused 19/19 tests and Python compile exit 0; this head only registers test runner/docs after earlier PR58 code. Full current-tree QA and target builds not run."
+      },
+      "description": "Noninstallable source-only runner revision. Same firmware subtree as earlier PR58 source; do not double-count as a built Elite/Pro artifact.",
+      "missing_gate": "Independent current-root SMC negative QA; sole firmware PR103 integration review, current Elite/Pro/controller BUILD_ONLY and backups/source/license/HTTP gates.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/58",
+      "evidence_commit": "bad8e453b20e4f837a0d8a5f961d517b0b095816",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/bad8e453b20e4f837a0d8a5f961d517b0b095816/docs/scheduler-handoffs/smc-solo-overflow-runner-registration-20261024-r1.json"
+    },
+    {
+      "id": "integration-pr103-smc58-solo-current-root-20261024-r17",
+      "title": "PR103 R12 Solo/slot ACK first-candidate integration: changed firmware subtree, fresh build required",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "8e8338792ca20508163a2b42b17ae542825da10a",
+      "source_tree": "3609692ed833c5660028d2ed514e255877ca187a",
+      "firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Producer safe-merge-pr103-smc58-solo-overflow-20261024-r12 read from exact Git commit/tree; Catalog has not independently run native firmware tests",
+        "command": null,
+        "result": "Integrator reports scoped GCC UBSan + Clang ASan/UBSan 19/19 each with expected negative control exit 1. New firmware subtree a32c68 differs from R10 native b31798 and also includes host Data Safety #109. Full-root independent QA and updated model/controller build pending."
+      },
+      "description": "Read-only SHA-pinned integrated draft source; preceding privately checked R10 Elite/Pro bytes match prior b3179883 firmware subtree and CANNOT certify this newer a32c68 subtree. Device owner observations UNKNOWN.",
+      "missing_gate": "Hourly Build native Elite/Pro/controller BUILD_ONLY for a32c68 subtree immediately and Independent QA for complete 360969 root in parallel; verify model/slot/backup/OTA/source/license/immutable host + HTTP SHA before NIGHTLY publication.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "8e8338792ca20508163a2b42b17ae542825da10a",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/8e8338792ca20508163a2b42b17ae542825da10a/docs/scheduler-handoffs/integration-smc58-solo-overflow-first-candidate-20261024-r12.json"
     }
   ],
   "policy": {
@@ -2928,7 +2986,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 107
+    "source_or_historical_checkpoints": 109
   },
   "versioning": {
     "firmware_product_version": {
