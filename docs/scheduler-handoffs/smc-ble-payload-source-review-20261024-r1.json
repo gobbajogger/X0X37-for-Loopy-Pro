@@ -1,0 +1,99 @@
+{
+  "schema": "loopyx0x37.smc.source-producer-checked.v1",
+  "evidence_revision": "smc-pr63-direct-ble-payload-source-review-20261024-r1",
+  "date_utc": "2026-10-24",
+  "owner_role": "LoopyX0X37 SMC Transport",
+  "own_pr": 63,
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/smc-central-payload-data7-20261023-run5",
+    "producer_source_commit": "3756613ae967d56c002aa10ccdb45c421575aab9",
+    "source_plus_runner_commit": "96d2bcc404273dabe3bdd67fb372ef05ffa7b926",
+    "full_repo_root_tree": "295b326c49449feae840c585976b690aca00d6ca",
+    "firmware_subtree": "e6e5105ffd0de2055031c6957f167cae33250d5b",
+    "smc_mixer_blob": "b1e412852505c42bd25d495bfc1089cee0242e71",
+    "registered_regression": "tests/host/smc_ble_payload_test.py",
+    "regression_blob": "5aff145c869f93bcfd5cb979bd0c079cebe853fa",
+    "runner_blob": "3f773a07f0a78f55c4e635834292c9a483fb60cb",
+    "new_runner_selector": "smc-ble-payload"
+  },
+  "consumed_candidate": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "commit": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+    "root": "17d947417372bf48e8167cd9a3df970093afe3c1",
+    "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "smc_source_blob": "e662881c6b67ba660d52e7eb221805c1e8765d59",
+    "evidence_revision": "safe-merge-pr103-archive75-ctl49-smc79-critical-path-20261024-r7",
+    "missing_safety_source": "smc_message() accepts high-bit data in length-3 central BLE-MIDI messages and masks with &0x7F, permitting aliased SMC button/CC actions. Corrected OWN PR #63 rejects 7-bit violations before dispatch."
+  },
+  "actual_checks": [
+    {
+      "command": "cd /mnt/data/smc_payload_20261024 && bash replay.sh",
+      "exit_code": 0,
+      "scope": "Native manually Git-matched smc_message() source window with simulated UI/MIDI effects; NOT exact full repository checkout, complete firmware, or physical-device test.",
+      "harness_sha256": "e23a8984a7b095a7b58ccb9a6cfc6e5ae4df403cfd3efa329426f91b0c7fd63f",
+      "script_sha256": "666b60cfac5e06b020129a7e392625fce9fa361f2ce5d1fdcf35cbfc8e0ff4ed",
+      "log_sha256": "e18fb1815206ea151731ef35930450889e8b5c5dd972d7a2b6fdcc4f7fb69393",
+      "compiler_variants": [
+        "gcc UBSan",
+        "gcc ASan+UBSan",
+        "clang UBSan",
+        "clang ASan+UBSan"
+      ],
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "unsafe_candidate_negative": {
+        "each_exit": 1,
+        "each_assertions_total": 51,
+        "each_assertions_failed": 26
+      },
+      "corrected_producer": {
+        "each_exit": 0,
+        "each_assertions_total": 51,
+        "each_assertions_failed": 0
+      },
+      "coverage": "high-bit NoteOn/Off note/velocity, CC number/value, pitch-bend data, valid DAW/User controls, User-mode-off, performance-disabled commands, malformed statuses and truncated messages."
+    },
+    {
+      "command": "GitHub REST compare source/test/runner SHA and exactly one added registered selector",
+      "exit_code": 0,
+      "scope": "Source and test Git blob readback, runner diff check; not execution of registered full-root runner"
+    }
+  ],
+  "prior_historical_producer_tests": "Earlier PR #63 reports source-extracting 26/26 GCC and Clang checks; not rerun by current newly registered runner as full remote checkout.",
+  "status": "SOURCE_COMPLETE; PRODUCER_SCOPED_PASS; OWN PR REVIEW_READY_TRANSITION_INTENDED; INDEPENDENT QA PENDING; BUILD_ONLY ELITE_PRO_CTL PENDING; NO NIGHTLY INSTALLABILITY; DEVICE UNKNOWN",
+  "known_limitations": [
+    "The new eight GCC/Clang binaries only test carefully transcribed function window, not full original Git checkout.",
+    "Current source integrator already includes #79 reconnect+BLE host #50. Safe Merge must merge source windows, not clobber SMC's current full file.",
+    "The registered tests/run_tests.sh selector has remote exact-blob readback, but the full script/complete model build has not been executed against this PR.",
+    "Independent combined-root QA, Elite/Pro/controller actual target builds for own source, OTA/sample/model/controller/license/immutable HTTP prehardware gates remain pending."
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Read source SHA, execute exact Git-root registered smc-ble-payload plus smc-queue/SMC/BLE peer regression with source QA, and review resulting combined candidate after integration."
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Assess malformed central-BLE payload as candidate safety gate; reconcile validated #63 validation check into current #103 without discarding #79 reconnect guards, rerun exact-root tests."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "May compile own #63 firmware tree or next combined #103 SHA BUILD_ONLY immediately, without waiting for QA, merge, hosted HTTP or owner hardware evidence."
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Keep previous safe installable firmware; no new public binary until full independent prehardware qualification and immutable HTTP."
+    }
+  ]
+}
