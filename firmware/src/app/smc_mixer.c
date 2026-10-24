@@ -865,7 +865,12 @@ void smc_frame(void)
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
-    if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
+    /* TIMER5 can disconnect/reconnect while the BLE transmit queue accepts a
+     * frame. Only acknowledge feedback delivered during this same link epoch;
+     * otherwise a former session can consume a fresh session's LED/pitch state. */
+    uint32_t link = smc_link_published;
+    if (ui_project_busy() || !smc.up || !(link & 1u) ||
+        link != smc_link_seen || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
         return;
     for (i = 0; i < 8; i++) smc_notice(i);
     for (i = 0; i < 43; i++) {
@@ -875,7 +880,8 @@ void smc_frame(void)
         msg[0] = 0x90;
         msg[1] = (uint8_t)n;
         msg[2] = (uint8_t)(want ? 127 : 0);
-        if (!plat_ble_smc_send(msg, 3)) return;
+        if (smc_link_published != link || !plat_ble_smc_send(msg, 3)) return;
+        if (smc_link_published != link) return;
         smc.known[n] = 1;
         smc.lit[n] = (uint8_t)want;
     }
@@ -884,7 +890,8 @@ void smc_frame(void)
             msg[0] = (uint8_t)(0xE0u + i);
             msg[1] = smc.value[i];
             msg[2] = smc.value[i];
-            if (!plat_ble_smc_send(msg, 3)) return;
+            if (smc_link_published != link || !plat_ble_smc_send(msg, 3)) return;
+            if (smc_link_published != link) return;
             smc.pending &= (uint8_t)~(1u << i);
         }
 }

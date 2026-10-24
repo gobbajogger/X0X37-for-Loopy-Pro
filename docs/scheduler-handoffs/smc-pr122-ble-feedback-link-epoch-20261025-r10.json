@@ -1,0 +1,92 @@
+{
+  "schema": "x0x37-smc-transport-source-producer-v1",
+  "evidence_revision": "smc-pr122-ble-feedback-link-epoch-r10-20261025-v1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "parent_sha": "4deb94236c9491657ca5e5f243c34272e21375c0",
+  "parent_root": "b37d5c93582059e125ce66d1cead5e05b9c444c7",
+  "parent_compiled_firmware_tree": "8c915bd5072e3e1ffa93a92ac96cc66b3816f108",
+  "baseline_c_blob": "ddad3657ed5a0015bb64ed8446de69302a83d0bc",
+  "new_c_blob": "ff2349f0c4b20da15896b4e0ac0ea734739b2d80",
+  "baseline_regression_blob": "64c32f8b97dc312290fe28a97d716d89612405c6",
+  "new_regression_blob": "c0c14abab9b51da58c6d8d4c36385b28a3172977",
+  "end_user_behavior": "Disconnected/reconnected SMC must not receive stale LED/fader feedback or lose new-session feedback acknowledgement; current values synchronize after new BLE epoch is consumed.",
+  "bug": "A TIMER5 BLE down/up edge during a successful platform send allowed smc_frame to continue sending and acknowledging stale feedback across BLE link generations.",
+  "repair": "Snapshot published BLE link epoch on frame entry; require UP and consumed epoch; check same epoch before each BLE enqueue and immediately after success before changing LED/fader acknowledgement. No MMC/NoteOff/ring ISR or model behavior changed.",
+  "tests": {
+    "method": "Actual production smc_frame and smc_ble_link C extracted and linked with simulated callback+ISR. All 51 feedback positions cause a transient queue failure and all 51 positions also inject both disconnect and coalesced reconnect. Verifies zero stale post-transition output, preserved pending feedback, and resync only after main-loop epoch acknowledgement.",
+    "platform": "Linux x86_64",
+    "gcc_version": "14.2.0",
+    "clang_version": "17.0.0",
+    "python_version": "3.13.5",
+    "configs": [
+      "gcc plain",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang plain",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "command": "SMC_SOURCE=<exact pinned original or patched source> CC=<gcc|clang> SAN_FLAGS=<plain|ubsan|asan+ubsan> ASAN_OPTIONS=detect_leaks=0 python3 -B tests/host/smc_feedback_retry_test.py",
+    "negative_baseline": {
+      "configs": 6,
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "checks_failed_each": 2852
+    },
+    "fixed": {
+      "configs": 6,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "assertions_passed_each": 27884
+    },
+    "existing_per_config": {
+      "smc_mmc_stop_fifo": 96,
+      "smc_ble_midpoll_link": 16,
+      "smc_ble_frame_length_mode": 35,
+      "exits": 0
+    },
+    "total_executions": 30,
+    "all_expected_exits_met": true,
+    "python_syntax": {
+      "command": "python3 -B -m py_compile tests/host/smc_feedback_retry_test.py",
+      "exit": 0
+    },
+    "asan_leak_detection": "DISABLED / LEAK CHECK UNRUN",
+    "native_matrix_log_sha256": {
+      "gcc/plain/old": "723c2066c4a641c6562d90ad7c148498a5afd97f0d0be4e8c6c3dbc509155031",
+      "gcc/plain/fixed": "fb4a9f1a780579faca8e62b59ceacb22fa492aadee7ac7c12e4baa1eb84e3dfd",
+      "gcc/ubsan/old": "034534fc47165e9094f8339b7bd9d164bc55b3311ee588cbb9d2e4fa300c207a",
+      "gcc/ubsan/fixed": "8b340e1c30e37e27d740ab5b22cf5b40a5d19a94405ed478c7b4c7a250dfcfd5",
+      "gcc/asan_ubsan/old": "f444e10b4603b41ea2be619174c21cec6df8d5f548e48b9f78e5cc6411e6355d",
+      "gcc/asan_ubsan/fixed": "a0ef4ed239324289d1efbd8cc132b530a7a330edcc1c43223414dde945b35839",
+      "clang/plain/old": "f233b1afc98eaea4a3f080cd150d68955d35dfa996942a39eb5744a4faa4e693",
+      "clang/plain/fixed": "1bc44ef097125cc232130a1ce9b12f57650a5e3089fe414440b411b41e864335",
+      "clang/ubsan/old": "ce59c12b941b2cf862a7bda4c58a21d6cc35a257ae09bd133ee3b4b907784367",
+      "clang/ubsan/fixed": "b573083b1b78f05fe5a281d5a6913acd43e00979ce047a5e6bbb582c5b57df57",
+      "clang/asan_ubsan/old": "16d236d8e6ef863214c22c8b5c1fcc3d1eec8d01bc955a4ba2acc62c60f05ef8",
+      "clang/asan_ubsan/fixed": "3180a07fe5ef584ef53aa99aeb8302d0049a89bb4526a988580577fb68e89715",
+      "mmc_each": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "midpoll_each": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "frame_each": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec"
+    }
+  },
+  "disposition": "SOURCE PRODUCER NATIVE TESTED; FULL ROOT QA / NEW EXACT-COMPILER ELITE AND PRO BUILD_ONLY / HARDWARE / INSTALLATION NOT DONE",
+  "build_consumed_inputs": "Compiled SMC C changed. R6/R9 compiler subtree and artifact SHA do not apply to R10. Rebuild genuine Elite+Pro DEV with pinned JieLi 4.0.1 AC79 SDK V1.2.1/controller and record package/model/CRC/SHA256/size/RAM/flash.",
+  "next_owners": [
+    "existing Hourly Build: new exact R10 Elite+Pro BUILD_ONLY and matching controller evidence",
+    "existing Independent QA: independently reproduce exact-source C/ISR epoch/NoteOff/clock and full-root scope",
+    "sole firmware Safe Merge: optional integration after independent acceptance"
+  ],
+  "unrun": [
+    "full-root independent QA",
+    "new Elite/Pro target compilation",
+    "BLE physical-radio timing",
+    "OTA backup/readback/restore",
+    "model/controller installer safety",
+    "lawful hosted catalog/live HTTPS",
+    "owner hardware proof",
+    "production approval"
+  ],
+  "no_public_firmware_or_sdk": true
+}
