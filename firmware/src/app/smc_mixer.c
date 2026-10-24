@@ -130,9 +130,13 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
         smc_dropped++; return;
     }
     if ((uint8_t)(w - smc_qr) >= SMC_Q) {
-        /* Never leave a held Solo latched after its key-up was rejected.
-         * A later main-loop poll clears held solos after draining older keys. */
-        if (len == 3u && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
+        /* Register only releases that this BLE central could dispatch.
+         * Disabled/disconnected BLE input must not release a USB/User Solo.
+         * Use ISR-published link-up, not main-loop smc.up: new-link notes
+         * may overflow before the consumer has processed that link edge. */
+        if (len == 3u && (proj.set.bt & PROJ_BT_SMC_CENTRAL) &&
+            (smc_link_published & 1u) &&
+            smc_is_solo_release(msg[0], msg[1], msg[2]) &&
             (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER)))
             smc_ble_solo_release_lost++;
         smc_dropped++; return;
