@@ -378,6 +378,9 @@ class Updater:
     def __init__(self, backend, port=None):
         self.backend = backend
         self.port = port
+        # Exact observed OS MIDI endpoint, not merely product/version text.
+        # A changed/reassigned port cannot be proven the same physical unit.
+        self._bound_port = None
 
     def candidates(self, only_port):
         names = self.backend.input_names()
@@ -389,9 +392,12 @@ class Updater:
         return [n for n in names if PORT_RE.search(n)]
 
     def find(self, want=None, only_port=True):
-        """the first matching port that answers the handshake (and want(identity))"""
+        """Find a unique, reachable MIDI device; never pick the first ambiguity."""
         outs = self.backend.output_names()
+        matches = []
         for name in self.candidates(only_port):
+            if self._bound_port is not None and name != self._bound_port:
+                continue
             out = pair_output(name, outs)
             if not out:
                 continue
@@ -399,15 +405,29 @@ class Updater:
                 link = self.backend.open(name, out)
             except Exception:
                 continue
-            ident = handshake(link, 2)
+            try:
+                ident = handshake(link, 2)
+            except Exception:
+                link.close()
+                raise
             if ident and (want is None or want(ident)):
-                return Device(link, ident, name)
-            link.close()
-        return None
+                matches.append(Device(link, ident, name))
+            else:
+                link.close()
+        if len(matches) > 1:
+            for dev in matches:
+                dev.link.close()
+            raise InstallError("model", "multiple matching MIDI endpoints; disconnect other keyboards "
+                                        "or select one unambiguous --port. Nothing was written")
+        return matches[0] if matches else None
 
     def wait_for(self, want, secs):
+        if self._bound_port is None:
+            raise InstallError("model", "cannot verify physical MIDI endpoint across reconnect; nothing was written")
         end = time.monotonic() + secs
         while time.monotonic() < end:
+            # find is restricted to the original exact endpoint. The unfiltered
+            # candidate list is safe ONLY because find enforces _bound_port.
             dev = self.find(want, only_port=False)
             if dev:
                 return dev
@@ -466,6 +486,10 @@ class Updater:
 
     def write(self, ota, image, step):
         """step 2: the loader reads and writes the whole package, then restarts"""
+        if self._bound_port is None or ota.name != self._bound_port:
+            ota.link.close()
+            raise InstallError("model", "the OTA loader is not on the original verified MIDI endpoint; "
+                                        "refusing to write firmware")
         step("write", 0)
         ota.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -482,18 +506,32 @@ class Updater:
     def verify(self, product, step):
         step("reboot")
         time.sleep(DELAY["reboot"])
-        back = self.wait_for(lambda i: not i.loader and model_of(i.text) == model_of(product), DELAY["wait_reboot"])
+        # A foreign stale same-model sibling must not preempt the correct
+        # version. Poll for the exact package identity on the pinned port.
+        back = self.wait_for(lambda i: not i.loader and i.text == product, DELAY["wait_reboot"])
         if not back:
-            raise InstallError("noreturn", "the FM-1 did not come back: power-cycle it")
+            stale = self.find(lambda i: not i.loader and model_of(i.text) == model_of(product),
+                              only_port=False)
+            if stale:
+                seen = stale.id.text
+                stale.link.close()
+                raise InstallError("mismatch", f"written, but the FM-1 reports {seen} (expected {product})")
+            raise InstallError("noreturn", "the FM-1 did not come back on its original MIDI port: "
+                                          "power-cycle it; do not restore to an unrelated device")
         back.link.close()
-        if back.id.text != product:
-            raise InstallError("mismatch", f"written, but the FM-1 reports {back.id.text} (expected {product})")
         step("done", back.id.text)
         return back.id.text
 
     def install(self, dev, image, product, step=lambda *a: None):
         """running firmware -> loader -> new firmware; dev from find(). A device already in
         update mode only needs the write."""
+        if not getattr(dev, "name", None):
+            dev.link.close()
+            raise InstallError("model", "the selected MIDI device has no verifiable port; refusing OTA write")
+        if self._bound_port is not None and self._bound_port != dev.name:
+            dev.link.close()
+            raise InstallError("model", "the selected MIDI port changed before install; refusing OTA write")
+        self._bound_port = dev.name
         if not same_keyboard(dev.id.text, product):
             dev.link.close()
             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")

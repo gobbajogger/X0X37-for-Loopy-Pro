@@ -37,6 +37,7 @@ class Device:
     def __init__(self, identity):
         self.id = SimpleNamespace(text=identity, loader=identity.startswith("ota-"))
         self.link = Link()
+        self.name = "mock-midi-port"
 
 
 def exact_source_methods(source_path):
@@ -61,6 +62,10 @@ def exact_source_methods(source_path):
     class MockUpdater(ns["SourceMethods"]):
         def __init__(self, devices):
             self.devices = devices
+            self._bound_port = "mock-midi-port"
+
+        def find(self, pred=None, only_port=True):
+            return next((d for d in self.devices if pred is None or pred(d.id)), None)
 
         def serve(self, *args):
             return 1, True, False
