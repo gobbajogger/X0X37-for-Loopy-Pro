@@ -20,19 +20,25 @@ static const int16_t IMA_STEP_T[89] = {
 static const int8_t IMA_IDX_T[8] = {-1, -1, -1, -1, 2, 4, 6, 8};
 
 /* decode nibble i of d; updates the decoder state and returns the new sample */
+static const uint8_t IMA_ROUND_CORR[64] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 0, 1, 0, 1, 0, 1,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 1, 0, 0, 1, 1,
+    0, 1, 0, 1, 0, 1, 0, 1,
+    0, 1, 1, 2, 0, 1, 1, 2,
+};
 static inline int32_t ima_decode(const uint8_t *d, uint32_t i, int32_t *pred, int32_t *idx)
 {
     uint32_t byte = d[i >> 1], code = (i & 1u) ? (byte >> 4) : (byte & 15u);
-    int32_t step = IMA_STEP_T[*idx], vd = step >> 3, p, x;
-    if (code & 4u)
-        vd += step;
-    if (code & 2u)
-        vd += step >> 1;
-    if (code & 1u)
-        vd += step >> 2;
-    p = *pred + ((code & 8u) ? -vd : vd);
+    uint32_t mag = code & 7u;
+    int32_t step = IMA_STEP_T[*idx];
+    int32_t delta = ((step * (int32_t)(2u * mag + 1u)) >> 3) - IMA_ROUND_CORR[((step & 7) << 3) | mag];
+    int32_t p = *pred + ((code & 8u) ? -delta : delta);
     *pred = p < -32768 ? -32768 : p > 32767 ? 32767 : p;
-    x = *idx + IMA_IDX_T[code & 7u];
+    int32_t x = *idx + IMA_IDX_T[mag];
     *idx = x < 0 ? 0 : x > 88 ? 88 : x;
     return *pred;
 }

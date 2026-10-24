@@ -1,0 +1,221 @@
+{
+  "base_ref": "nightly",
+  "base_sha_at_preflight": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "benchmark": {
+    "environment": "Linux x86_64; GCC/Clang -O2, no device CPU or XRUN inference",
+    "medians_ns_by_compiler": {
+      "clang": {
+        "baseline": {
+          "compared_to_baseline_percent": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "workload_median_ns": [
+            3.665,
+            3.72,
+            3.636,
+            3.681
+          ]
+        },
+        "maskbit": {
+          "compared_to_baseline_percent": [
+            -1.39,
+            -0.38,
+            -3.63,
+            -1.22
+          ],
+          "workload_median_ns": [
+            3.716,
+            3.734,
+            3.768,
+            3.726
+          ]
+        },
+        "packed8": {
+          "compared_to_baseline_percent": [
+            4.77,
+            6.59,
+            6.11,
+            5.46
+          ],
+          "workload_median_ns": [
+            3.49,
+            3.475,
+            3.414,
+            3.48
+          ]
+        },
+        "table64": {
+          "compared_to_baseline_percent": [
+            12.69,
+            15.13,
+            10.42,
+            13.88
+          ],
+          "workload_median_ns": [
+            3.2,
+            3.157,
+            3.257,
+            3.17
+          ]
+        }
+      },
+      "gcc": {
+        "baseline": {
+          "compared_to_baseline_percent": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "workload_median_ns": [
+            3.564,
+            3.565,
+            3.58,
+            3.532
+          ]
+        },
+        "maskbit": {
+          "compared_to_baseline_percent": [
+            -11.48,
+            -12.45,
+            -12.54,
+            -10.99
+          ],
+          "workload_median_ns": [
+            3.973,
+            4.009,
+            4.029,
+            3.92
+          ]
+        },
+        "packed8": {
+          "compared_to_baseline_percent": [
+            -5.19,
+            -6.34,
+            -4.92,
+            -4.7
+          ],
+          "workload_median_ns": [
+            3.749,
+            3.791,
+            3.756,
+            3.698
+          ]
+        },
+        "table64": {
+          "compared_to_baseline_percent": [
+            4.46,
+            6.0,
+            6.28,
+            5.29
+          ],
+          "workload_median_ns": [
+            3.405,
+            3.351,
+            3.355,
+            3.345
+          ]
+        }
+      }
+    },
+    "metric": "median nanoseconds per nibble across 5 interleaved complete 9-trial runs, four synthetic workloads",
+    "rejected_alternates": "packed8 GCC slower, maskbit slower, earlier mulcorrect failed bit-exactness; none adopted",
+    "target_performance_measured": false
+  },
+  "candidate_binary_status": "PRIVATE LOCAL BUILD_ONLY NOT INSTALLABLE / DEVICE UNKNOWN",
+  "checks": {
+    "independent_cpp_equal_algebra": "91,168 decoder steps per mode x 2 compilers, native GCC/Clang optimized and ASan+UBSan EXIT 0",
+    "invalid_command": "expected exit 2 for 4 test configurations",
+    "long_decoder_reference": "3,193,789 comparisons per compiler configuration, 4 configurations, EXIT 0; 9 loop lengths 64..2116800 samples",
+    "native_compiles": "both model build.sh exit 0 on R18+LUT projection, not prospective own PR branch",
+    "package_structure": "4 model-package positives across table64/packed8, 28 deliberate corruptions/wrong-model rejections across two variants; independent read-only scanner exit0",
+    "whole_break_renderer": "GCC/Clang optimized plus ASan+UBSan on baseline and LUT, 13 loop lengths 64..2116800, 4,705,792 frames per configuration, output 18,823,168 bytes, exact PCM SHA fe7272407f98fb90c0c892fdeaeb6b7a4e788454483fc8c0ce47e88da06075a6; all exits 0 and cmp exits 0; physical key-release PROXY, NOT transport NoteOff or device"
+  },
+  "consumed_pr88": {
+    "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "head": "45d78ffafc2d0733c50327703784b3b22acb657f",
+    "host_benchmark_git_blob": "68c6cddaedad409a1fd8c8d00196968668fa0588",
+    "original_ima_blob": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+    "root": "0c19512732019e4313980ec73a3f95255225b97b"
+  },
+  "controller_compilation_this_run": "NOT_RUN_CONTROLLER_SOURCE_UNCHANGED",
+  "evidence_revision": "perf-ima-exact-lut-r18-projection-target-host-20261024-r1",
+  "historical_identical_scope_baseline": {
+    "app_code_area_free_bytes": 5620,
+    "app_image_bytes": 547052,
+    "model_builds": "actual R18 original from main Library private native receipt, not recompiled here",
+    "pool_free_bytes": 8324,
+    "ram_used_bytes": 97844
+  },
+  "native_compile_scope": {
+    "assets_subtree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "ble_subtree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "build_script_git_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+    "candidate_header_git_blob": "d1b85b49effdc7997043c837a92c3f6d523a80b5",
+    "candidate_root_local_synthetic_tree": "5f1348d949e57fd248c32b5c1222a0ebe3c475d8",
+    "compiler_version": "JieLi clang 4.0.1 x86-64 host pi32v2 compiler",
+    "git_commit_reference": "dc4669083218f17f8cfb69069e7f32911a232b52",
+    "remote_root_tree_reference_only": "02cba17c78ab0e0334995f63363c4e8c407ae6a0",
+    "sdk_v1_2_1_three_pins": {
+      "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
+      "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4"
+    },
+    "source": "PR103 R18 compiler-source capsule; scoped, NOT current PR103 head, NOT own prospective PR full root",
+    "two_models": {
+      "elite": {
+        "app_code_area_bytes": 552672,
+        "app_code_area_free_bytes": 5572,
+        "app_image_bytes": 547100,
+        "build_command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 JIELI_TOOLCHAIN=<verified JieLi 4.0.1 directory> AC79_SDK=<verified pinned V1.2.1 subset> SDK_LOCAL=$AC79_SDK X0X_JOBS=2 CC=cc CXX=c++ bash build.sh --board smk37",
+        "exit_code": 0,
+        "firmware_package_sha256": "8d1b9503ec6d5cda2725293b9611dba02c125ea0fe525a8b9e6725354ba02c4b",
+        "firmware_package_size_bytes": 651396,
+        "log_sha256": "1e57e71501af57ae02a0acc0bbcd5494e0db27600bf05c8cbff0c744c0032960",
+        "package_positives": "CRC16 UFW payload/app, model, slot-map CRC32 from independent read-only validator; see structural evidence",
+        "pool_capacity_bytes": 344064,
+        "pool_free_bytes": 8324,
+        "pool_used_bytes": 335740,
+        "ram_capacity_bytes": 98304,
+        "ram_free_bytes": 460,
+        "ram_used_bytes": 97844,
+        "target": "SMK-37 Elite_900"
+      },
+      "pro": {
+        "app_code_area_bytes": 552672,
+        "app_code_area_free_bytes": 5572,
+        "app_image_bytes": 547100,
+        "build_command": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 JIELI_TOOLCHAIN=<verified JieLi 4.0.1 directory> AC79_SDK=<verified pinned V1.2.1 subset> SDK_LOCAL=$AC79_SDK X0X_JOBS=2 CC=cc CXX=c++ bash build.sh --board smk37",
+        "exit_code": 0,
+        "firmware_package_sha256": "b885e402287f563371e1fad59a3806c18004da18d9300ea02ad12fbfaa1eb0e9",
+        "firmware_package_size_bytes": 651392,
+        "log_sha256": "b3c8121a8e943b03c44b871876c5be5af33fb2c80d22cb419376a8828501e453",
+        "package_positives": "CRC16 UFW payload/app, model, slot-map CRC32 from independent read-only validator; see structural evidence",
+        "pool_capacity_bytes": 344064,
+        "pool_free_bytes": 8324,
+        "pool_used_bytes": 335740,
+        "ram_capacity_bytes": 98304,
+        "ram_free_bytes": 460,
+        "ram_used_bytes": 97844,
+        "target": "SMK-37 Pro_900"
+      }
+    },
+    "verified_candidate_firmware_subtree": "ff4d405b1a49f9bd6fd01871e48eb94bed1539df",
+    "verified_jieli_toolchain_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "verified_original_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741"
+  },
+  "next": {
+    "action": "if optional source PR is opened, QA review exact branch current head; Hourly Build compile both SMK37 DEV models from exact HEAD compiled inputs, including controller identity without publishing. Never merge into first NIGHTLY champion #103.",
+    "consumer": "Independent QA and Hourly Build",
+    "remaining_gates": "exact new Git branch native build (R18 projection is not exact branch), independent full-root QA, device unknown, lawful hosting HTTP checks and separate Safe Merge integration only after FIRST NIGHTLY candidate qualified"
+  },
+  "operation": "SOURCE_CANDIDATE_RESEARCH_AND_SCOPED_R18_NATIVE_BUILDS",
+  "outcome": "SOURCE_CANDIDATE_CHECKED_NOT_MERGED_NOT_INSTALLABLE",
+  "owned_branch_intent": "lane/performance-ima-delta-correction-20261024",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "Performance Engineering",
+  "schema": "loopyx0x37.performance-ima-delta-lut.v1"
+}
