@@ -1,0 +1,58 @@
+{
+  "schema": "x0x37.qa-handoff/1",
+  "date_utc": "2026-10-24",
+  "role": "Classic independent native QA (nonhuman approval)",
+  "disposition": "SCOPED SMC HOST QA PASS; full combined-root QA INCOMPLETE",
+  "candidate_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer_pr": 118,
+  "integrator_pr": 103,
+  "producing_pr_head": "332975a0c27009c73850110e309fe034264e3e13",
+  "producing_pr_root_tree": "0d686b3232a34ff3eee522f2b84701b10c229b9c",
+  "integration_head_at_test": "dc4669083218f17f8cfb69069e7f32911a232b52",
+  "integration_root_at_test": "02cba17c78ab0e0334995f63363c4e8c407ae6a0",
+  "compiled_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "source_git_blobs": {
+    "firmware/src/app/smc_mixer.c": "deb1fd13416bbbdb6e73ac05d382ef5880664903",
+    "firmware/src/app/smc_protocol.h": "03a642226aae01ffb9bc29888e0f5802d72ced26"
+  },
+  "changed_paths": {
+    "tests/host/smc_host_overflow_data7_test.py": "4f2175b01c3b44c34b4584cda25ef9ea26de36da",
+    "tests/run_tests.sh": "8f91f9310482b6d246796ca0c0b549e778ee8816"
+  },
+  "test_cmd": "CC=<gcc|clang> SAN_FLAGS=<plain|UBSan|ASan+UBSan> ASAN_OPTIONS=detect_leaks=0 python3 -B tests/host/smc_host_overflow_data7_test.py",
+  "test_run_environment": "Linux x86_64; GCC 14.2.0, Clang 17; two sanitizers applied, LeakSanitizer intentionally disabled",
+  "positive_matrix": "GCC and Clang × plain/UBSan/ASan+UBSan: six real native compiler-run pairs exit 0; 16/16 scenarios each",
+  "negatives": [
+    {
+      "mutation": "remove malformed-data-bit7 guard",
+      "exit": 1,
+      "expected_red_failures": 2
+    },
+    {
+      "mutation": "disable full-ring Solo-release overflow counter",
+      "exit": 1,
+      "expected_red_failures": 4
+    }
+  ],
+  "sample_preservation": "NOT TESTED IN THIS SCOPE",
+  "firmware_build_in_this_scope": "NOT RUN",
+  "physical_hardware": "NOT TESTED",
+  "public_nightly": "NOT INSTALLABLE",
+  "library_receipt": {
+    "path": "/LoopyX0X37-PR118-ClassicQA-SMC-Overflow-20261024.zip",
+    "file_id": "libfile_0f30008013388191964abf588a060fc1",
+    "size_bytes": 6919,
+    "sha256": "488dbbf0f043fdbf9bb95d9930b48524a556de9e5c6567c6c4168d768595fcd9",
+    "zip_crc": "PASS",
+    "readback_cmp": "PASS",
+    "members": "test, README, manifest, eight logs"
+  },
+  "limitations": [
+    "test uses source-extracted matched C/protocol Git blobs, not full reconstructed root",
+    "does not assert all SMC/BLE/303 regressions",
+    "does not certify controller, OTA, backup/restore, browser or source distribution",
+    "same Git account does not provide independent human approval"
+  ],
+  "known_critical_gate": "Data Safety PR #114 R4 exact-OS-MIDI-port binding rejects valid modeled running-to-loader port renaming; current full-root installation/slots negative failures; unresolved physical-device replacement/restore identity. Integration #103 remains DRAFT/NO-GO",
+  "next_consumer": "Sole Safe Merge and independent QA assess source-only regression PR; Data Safety separately fixes physical device/OTA cases on #114, then current complete-root QA and build acceptance; publisher only after lawful immutable HTTP gate."
+}
