@@ -1,0 +1,59 @@
+Chromium 154.0.8037.57
+CHECK 1 ctl invalid File.size 0 rejects before arrayBuffer
+FAIL ctl invalid File.size 0 rejects before arrayBuffer
+CHECK 2 ctl invalid File.size -1 rejects before arrayBuffer
+FAIL ctl invalid File.size -1 rejects before arrayBuffer
+CHECK 3 ctl invalid File.size NaN rejects before arrayBuffer
+FAIL ctl invalid File.size NaN rejects before arrayBuffer
+CHECK 4 ctl invalid File.size Infinity rejects before arrayBuffer
+FAIL ctl invalid File.size Infinity rejects before arrayBuffer
+CHECK 5 ctl invalid File.size 1.5 rejects before arrayBuffer
+FAIL ctl invalid File.size 1.5 rejects before arrayBuffer
+CHECK 6 ctl invalid File.size '1024' rejects before arrayBuffer
+FAIL ctl invalid File.size '1024' rejects before arrayBuffer
+CHECK 7 ctl invalid File.size Number.MAX_SAFE_INTEGER+1 rejects before arrayBuffer
+FAIL ctl invalid File.size Number.MAX_SAFE_INTEGER+1 rejects before arrayBuffer
+CHECK 8 ctl invalid File.size 67 rejects before arrayBuffer
+FAIL ctl invalid File.size 67 rejects before arrayBuffer
+CHECK 9 ctl invalid File.size 65537 rejects before arrayBuffer
+FAIL ctl invalid File.size 65537 rejects before arrayBuffer
+CHECK 10 ctl invalid File.size 1073741824 rejects before arrayBuffer
+FAIL ctl invalid File.size 1073741824 rejects before arrayBuffer
+CHECK 11 ctl inclusive size boundary 68 reaches bounded read
+CHECK 12 ctl inclusive size boundary 65536 reaches bounded read
+CHECK 13 ctl valid format accepted
+CHECK 14 ctl invalid new selection clears prior state and defeats stale pending read
+FAIL ctl invalid new selection clears prior state and defeats stale pending read
+CHECK 15 ctl interrupted read can retry valid file
+CHECK 16 stock invalid File.size 0 rejects before arrayBuffer
+FAIL stock invalid File.size 0 rejects before arrayBuffer
+CHECK 17 stock invalid File.size -1 rejects before arrayBuffer
+FAIL stock invalid File.size -1 rejects before arrayBuffer
+CHECK 18 stock invalid File.size NaN rejects before arrayBuffer
+FAIL stock invalid File.size NaN rejects before arrayBuffer
+CHECK 19 stock invalid File.size Infinity rejects before arrayBuffer
+FAIL stock invalid File.size Infinity rejects before arrayBuffer
+CHECK 20 stock invalid File.size 1.5 rejects before arrayBuffer
+FAIL stock invalid File.size 1.5 rejects before arrayBuffer
+CHECK 21 stock invalid File.size '1024' rejects before arrayBuffer
+FAIL stock invalid File.size '1024' rejects before arrayBuffer
+CHECK 22 stock invalid File.size Number.MAX_SAFE_INTEGER+1 rejects before arrayBuffer
+FAIL stock invalid File.size Number.MAX_SAFE_INTEGER+1 rejects before arrayBuffer
+CHECK 23 stock invalid File.size 959 rejects before arrayBuffer
+FAIL stock invalid File.size 959 rejects before arrayBuffer
+CHECK 24 stock invalid File.size 16777217 rejects before arrayBuffer
+FAIL stock invalid File.size 16777217 rejects before arrayBuffer
+CHECK 25 stock invalid File.size 1073741824 rejects before arrayBuffer
+FAIL stock invalid File.size 1073741824 rejects before arrayBuffer
+CHECK 26 stock inclusive size boundary 960 reaches bounded read
+CHECK 27 stock inclusive size boundary 16777216 reaches bounded read
+CHECK 28 stock valid format accepted
+CHECK 29 stock invalid new selection clears prior state and defeats stale pending read
+FAIL stock invalid new selection clears prior state and defeats stale pending read
+CHECK 30 stock interrupted read can retry valid file
+CHECK 31 stock drop preallocation guard 1073741824
+FAIL stock drop preallocation guard 1073741824
+CHECK 32 stock drop preallocation guard 1024
+CHECK 33 valid erased controller padding remains accepted at64KiB
+CHECK 34 local file paths have no uncaught page errors
+{"checks": 34, "failed": 23, "failures": ["ctl invalid File.size 0 rejects before arrayBuffer", "ctl invalid File.size -1 rejects before arrayBuffer", "ctl invalid File.size NaN rejects before arrayBuffer", "ctl invalid File.size Infinity rejects before arrayBuffer", "ctl invalid File.size 1.5 rejects before arrayBuffer", "ctl invalid File.size '1024' rejects before arrayBuffer", "ctl invalid File.size Number.MAX_SAFE_INTEGER+1 rejects before arrayBuffer", "ctl invalid File.size 67 rejects before arrayBuffer", "ctl invalid File.size 65537 rejects before arrayBuffer", "ctl invalid File.size 1073741824 rejects before arrayBuffer", "ctl invalid new selection clears prior state and defeats stale pending read", "stock invalid File.size 0 rejects before arrayBuffer", "stock invalid File.size -1 rejects before arrayBuffer", "stock invalid File.size NaN rejects before arrayBuffer", "stock invalid File.size Infinity rejects before arrayBuffer", "stock invalid File.size 1.5 rejects before arrayBuffer", "stock invalid File.size '1024' rejects before arrayBuffer", "stock invalid File.size Number.MAX_SAFE_INTEGER+1 rejects before arrayBuffer", "stock invalid File.size 959 rejects before arrayBuffer", "stock invalid File.size 16777217 rejects before arrayBuffer", "stock invalid File.size 1073741824 rejects before arrayBuffer", "stock invalid new selection clears prior state and defeats stale pending read", "stock drop preallocation guard 1073741824"], "scope": "actual generated local File handlers; synthetic size/read fixtures, no giant allocation or hardware"}

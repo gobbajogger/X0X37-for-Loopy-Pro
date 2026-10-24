@@ -1539,6 +1539,8 @@ const TEXT = {
     stockloadfail: "ファイルを読み込めませんでした。もう一度選択してください。",
     stockok: "パッケージを確認しました。ボタンを押してください。",
     stockbad: "使える .fwsc ではありません。",
+    stockfilesize: "ファイルサイズは 960 バイト以上、16 MiB 以下である必要があります。",
+    ctlfilesize: "コントローラーのサイズは 68～65,536 バイトである必要があります。",
     stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
     confirm: "書き込みますか？\n\n接続中: ",
     confirmto: "\n書き込む: ",
@@ -1628,6 +1630,8 @@ const TEXT = {
     stockloadfail: "Could not read that file. Choose it again.",
     stockok: "Package checked. Press the button to install it.",
     stockbad: "That is not a usable .fwsc package.",
+    stockfilesize: "File size must be between 960 bytes and 16 MiB.",
+    ctlfilesize: "Controller size must be between 68 and 65,536 bytes.",
     stockdone: "Done. The device has restarted with the new firmware.",
     confirm: "Install this firmware?\n\nConnected: ",
     confirmto: "\nWill write: ",
@@ -2140,6 +2144,11 @@ $("ctlfile").addEventListener("change", async (e) => {
   ctl = null;
   e.target.value = ""; // Allow retrying the same controller image.
   sayK("ctlreading");
+  // Apply ctlProblem's format bounds before allocating the local file contents.
+  if (!Number.isSafeInteger(f.size) || f.size < 68 || f.size > 64 * 1024) {
+    sayK("ctlbad", t("ctlfilesize"));
+    return;
+  }
   let raw;
   try { raw = new Uint8Array(await f.arrayBuffer()); }
   catch (err) {
@@ -2192,6 +2201,12 @@ async function selectStockFile(f) {
   $("stockgo").disabled = true;
   $("dropmeta").textContent = "";
   sayK("stockloading");
+  // PR102's local resource cap, with productOf's complete identity-header minimum.
+  // Shared by chooser and drop; serial/state clearing above invalidates old reads.
+  if (!Number.isSafeInteger(f.size) || f.size < 20 * 48 || f.size > 16 * 1024 * 1024) {
+    sayK("stockbad", " " + t("stockfilesize"));
+    return;
+  }
   try {
     const raw = new Uint8Array(await f.arrayBuffer());
     if (requestId !== stockLoadSerial || writing) return;
