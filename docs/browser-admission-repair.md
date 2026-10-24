@@ -94,3 +94,9 @@ R2 overall source acceptance. PR #8 is draft again. Supported-schema/status/type
 validation and detached atomic rendering now fail closed; see
 [the R3 repair evidence](repair-evidence/r3/README.md). Independent full-head
 re-review remains required before readiness or merger dispatch.
+
+R4 closes the finite remaining F5/F6/F7 source cases and ports existing browser
+loader/binding/backup guards, with a consolidated full-source run. See
+[the R4 receipt](repair-evidence/r4/README.md) for source pins, shipping-path
+coverage, PR9 coordination and the bounded release-route capability result.
+PR #8 remains draft/HOLD MERGE for independent final exact-head review.

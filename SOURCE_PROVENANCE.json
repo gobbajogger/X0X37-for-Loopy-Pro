@@ -3,11 +3,11 @@
   "upstreamCommit": "33c60ee9d3161de48b11ce890410384429983886",
   "upstreamPullRequest": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
   "publicSourceBlobs": {
-    "web/x0x_installer.html": "ad8399392d3584dd2e84858e846cec336a4ff782",
+    "web/x0x_installer.html": "380aba0d5b5e6bdbce92437126494f1060dd7686",
     "web/x0x_breaks.html": "b988c3270ed974639f702900e120297ad0602b60",
     "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
-    "web/fm1ota.js": "014f5fa3490f476554a17b08e941bde04c7eff74",
-    "web/x0x_breaks.js": "8489f4ca358cf78e3f80181c9d7984bebb4cdeef",
+    "web/fm1ota.js": "485a54187e78822847f5cb51088204983caffa71",
+    "web/x0x_breaks.js": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e",
     "LICENSE": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7"
   },
   "sourcePatches": [
@@ -47,6 +47,27 @@
       "reviewEvidenceCommit": "76e059e17db12265bf2062144eb7feee1df7e5f8",
       "description": "Cancel Download default action before any mutable metadata lookup; total shape/predicate checks deny malformed selections and clear cached bytes; positive verified Blob downloads preserved",
       "resultBlob": "ad8399392d3584dd2e84858e846cec336a4ff782"
+    },
+    {
+      "path": "web/x0x_installer.html",
+      "sourceRepository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "sourceCommit": "a48d745b59683eaaf2283aed5ec1ec2187799cfc",
+      "description": "Port existing GPL bounded readable-stream reader; reject no-reader responses before allocation, cancel oversized/stale streams",
+      "resultBlob": "380aba0d5b5e6bdbce92437126494f1060dd7686"
+    },
+    {
+      "path": "web/fm1ota.js",
+      "sourceRepository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "sourceCommit": "c2e63feb11385b91a9dbd3b29b20a368ed948a5a",
+      "description": "Reuse byte-identical existing GPL c2 browser observable-port bind/singlePort/find/write/post-install guards; preserve sameKeyboard aliases, without a new identity scheme",
+      "resultBlob": "485a54187e78822847f5cb51088204983caffa71"
+    },
+    {
+      "path": "web/x0x_breaks.js",
+      "sourceRepository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "sourceCommit": "c2e63feb11385b91a9dbd3b29b20a368ed948a5a",
+      "description": "Port existing bind-before-backup, stock FM1_015/SMK-family v16 no-answer exception and binding check before restore; unknown layout/read errors fail closed",
+      "resultBlob": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e"
     }
   ]
 }

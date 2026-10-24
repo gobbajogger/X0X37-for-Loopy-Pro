@@ -2,7 +2,11 @@
 // Synthetic evidence/bytes exercise preparation; none represents a real approval.
 import assert from 'node:assert/strict';
 import { createHash, webcrypto } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { Script } from 'node:vm';
 import { validateCatalog, verifyDownloads, renderInstaller, installerFingerprint, requiredGates }
   from '../scripts/render-qualified-nightly.mjs';
@@ -78,6 +82,62 @@ for (const value of ['revoked','failed','superseded']) {
   reject(c => c.versions[0].lifecycle = value);
   reject(c => c.versions[0].models.pro.lifecycle = value);
 }
+// F5: reject unknown/private fields at every input schema level.
+for (const inject of [
+  c => c.internal_controller_image_base64 = 'SYNTHETIC_PRIVATE_BINARY_BYTES_DO_NOT_PUBLISH',
+  c => c.versions[0].internal_notes = 'SYNTHETIC_PRIVATE_TOKEN',
+  c => c.versions[0].models.pro.auth_token = 'SYNTHETIC_PRIVATE_TOKEN',
+  (c,q) => q.internal_library_locator = 'SYNTHETIC_PRIVATE_LIBRARY_LOCATOR',
+  (c,q,r) => r.controller.vendor_payload = 'SYNTHETIC_PRIVATE_CTL_IMG',
+  (c,q,r) => r.private_receipt = 'SYNTHETIC_PRIVATE_TOKEN',
+  (c,q,r) => r.integration.auth_token = 'SYNTHETIC_PRIVATE_TOKEN',
+  (c,q,r) => r.budgets.private_path = 'SYNTHETIC_PRIVATE_LIBRARY_LOCATOR',
+  (c,q,r) => r.gates['native-build'].auth_token = 'SYNTHETIC_PRIVATE_TOKEN',
+  c => c.versions[0].description = {auth_token:'SYNTHETIC_PRIVATE_TOKEN'},
+  c => c.versions[0].qualified = {auth_token:'SYNTHETIC_PRIVATE_TOKEN'},
+  c => c.versions[0].models.pro.installable = {auth_token:'SYNTHETIC_PRIVATE_TOKEN'},
+]) reject(inject);
+
+// Exercise the actual preparation CLI and its real size/SHA/product checks.
+// Synthetic fetch bytes stay local; no candidate or private qualification is published.
+const dir = mkdtempSync(join(tmpdir(), 'nightly-public-projection-'));
+try {
+  const catPath = join(dir,'catalog.json'), qualPath = join(dir,'private-qualification.json');
+  const shim = join(dir,'fetch.mjs');
+  writeFileSync(shim, `globalThis.fetch=async()=>new Response(new Uint8Array(${JSON.stringify([...raw])}));`);
+  const cli = (c,q,out) => {
+    writeFileSync(catPath, JSON.stringify(c));writeFileSync(qualPath, JSON.stringify(q));
+    return spawnSync(process.execPath,['--import',shim,fileURLToPath(new URL('../scripts/render-qualified-nightly.mjs',import.meta.url)),
+      '--catalog',catPath,'--qualification',qualPath,'--out',out],{encoding:'utf8',timeout:15000});
+  };
+  const out = join(dir,'valid-public-output');
+  const valid = cli(catalog,qualification,out);
+  assert.equal(valid.status,0,valid.stderr);
+  assert.deepEqual(JSON.parse(readFileSync(join(out,'versions.json'),'utf8')),catalog);
+  assert.equal(existsSync(join(out,'qualification.json')),false,'private/full qualification must not be emitted');
+  assert.ok(readFileSync(join(out,'install/index.html'),'utf8').includes(digest));
+  const root = fileURLToPath(new URL('../',import.meta.url));
+  const inside = join(root,'..candidate-synthetic-'+process.pid);
+  const alias = join(dir,'outside-alias');
+  symlinkSync(root,alias,'dir');
+  for (const target of [inside,join(inside,'site'),join(alias,'.hidden-synthetic-'+process.pid)]) {
+    const rejected=cli(catalog,qualification,target);
+    assert.notEqual(rejected.status,0,'inside/aliased output must be rejected');
+    assert.equal(existsSync(target),false,'rejected path must remain absent');
+  }
+  const nested=join(dir,'new-outside-parent','site');
+  assert.equal(cli(catalog,qualification,nested).status,0,'genuine nested outside output remains valid');
+  const bad = structuredClone(catalog), privateQ = structuredClone(qualification);
+  bad.internal_controller_image_base64='SYNTHETIC_PRIVATE_BINARY_BYTES_DO_NOT_PUBLISH';
+  bad.versions[0].models.pro.auth_token='SYNTHETIC_PRIVATE_TOKEN';
+  privateQ.internal_library_locator='SYNTHETIC_PRIVATE_LIBRARY_LOCATOR';
+  privateQ.packages[digest].controller.vendor_payload='SYNTHETIC_PRIVATE_CTL_IMG';
+  const rejectedOut=join(dir,'rejected-output');
+  assert.notEqual(cli(bad,privateQ,rejectedOut).status,0);
+  assert.equal(existsSync(rejectedOut),false,'invalid input must produce no public folder');
+  assert.doesNotMatch(renderInstaller(bad),/SYNTHETIC_PRIVATE_/,'renderer public projection strips unknown fields');
+} finally { rmSync(dir,{recursive:true,force:true}); }
+
 let calls = 0;
 await verifyDownloads(catalog, async (url, opts) => {
   calls++; assert.equal(url, pkg.pkg); assert.equal(opts.redirect, 'error');

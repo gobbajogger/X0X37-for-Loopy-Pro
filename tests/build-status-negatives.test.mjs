@@ -543,3 +543,24 @@ for(const [name,mutate] of [
   mutate(data.pr120_private_byte_audit);
   fs.writeFileSync(p,JSON.stringify(data,null,2)+'\n');
 });
+
+// Port Catalog R27's narrow provenance guard without importing moving history.
+// The synthetic FUTURE append has an explicit immutable evidence URL; the current
+// R25 tail is a different receipt and must not supply the positive test's pin.
+const futureEvidenceSha='1'.repeat(40);
+const appendEvidenceCommit=commit=>edit(j=>{
+  j.history.push({
+    id:'future-synthetic-evidence-commit-append-test',
+    title:'Synthetic future source receipt',date:'2026-10-25',status:'source-only',models:['pro'],
+    source_repo:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro',
+    source_commit:futureEvidenceSha,source_tree:'2'.repeat(40),
+    device_verified:false,installable:false,evidence_commit:commit,
+    evidence_url:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/'+futureEvidenceSha,
+    description:'Synthetic future noninstallable source evidence'
+  });
+  j.counts.source_or_historical_checkpoints=j.history.length;
+});
+run('future-evidence-commit-valid-pinned-append-PASS',appendEvidenceCommit(futureEvidenceSha),true);
+run('future-evidence-commit-mutable-main-REJECTED',appendEvidenceCommit('main'));
+run('future-evidence-commit-40hex-mismatched-url-REJECTED',appendEvidenceCommit('f'.repeat(40)));
+run('future-evidence-commit-object-REJECTED',appendEvidenceCommit({ref:'main'}));

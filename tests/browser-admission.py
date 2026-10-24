@@ -171,7 +171,7 @@ async def main():
   check((await state(p))['product']=='SMK-37 Elite_900','new model verifies after stale digest')
   await p.close()
   p,e=await fresh(browser)
-  await p.evaluate("pending.shift().resolve({ok:true,arrayBuffer:()=>new Promise((r,j)=>{window.bodyReject=j;})})")
+  await p.evaluate("pending.shift().resolve(new Response(new ReadableStream({start(controller){window.bodyReject=error=>controller.error(error);}})))")
   await p.wait_for_function("typeof bodyReject==='function'");await p.evaluate("()=>{qa.select('elite');}");await reply(p,'elite')
   st=await state(p);await p.evaluate("bodyReject(Error('stale body failure'))");await p.wait_for_timeout(25)
   check((await state(p))==st,'stale response body rejection ignored');await p.close()
@@ -205,6 +205,27 @@ async def main():
      .filter(el=>el.scrollWidth>el.clientWidth+1).map(el=>el.textContent.slice(0,80))})""")
    check(geometry['scrollWidth']<=width and not geometry['overflow'],'full history and card content wrap '+str(width)+' '+json.dumps(geometry))
    await p.close()
+  # F6: bound actual response streams before allocation/digest; no-reader must not buffer.
+  for mode in ['bodyless','oversized-stream','split-valid']:
+   p,e=await fresh(browser)
+   await p.evaluate("window.boundary={buffers:0,pulls:0,cancelled:0}")
+   if mode=='bodyless':
+    await p.evaluate("pending.shift().resolve({ok:true,body:null,arrayBuffer:async()=>{boundary.buffers++;return new Uint8Array(2097153).buffer;}})")
+   elif mode=='oversized-stream':
+    await p.evaluate("pending.shift().resolve(new Response(new ReadableStream({pull(controller){boundary.pulls++;if(boundary.pulls<=4)controller.enqueue(new Uint8Array(1024));else controller.close();},cancel(){boundary.cancelled++;}})))")
+   else:
+    await p.evaluate("bytes=>{let offset=0;pending.shift().resolve(new Response(new ReadableStream({pull(controller){boundary.pulls++;if(offset===bytes.length)controller.close();else {controller.enqueue(new Uint8Array(bytes.slice(offset,offset+128)));offset+=128;}},cancel(){boundary.cancelled++;}})))}",list(RAW['pro']))
+   await p.wait_for_timeout(50)
+   st=await state(p);boundary=await p.evaluate('window.boundary')
+   check(not e and (st['image'] if mode=='split-valid' else not st['image'] and st['href'] is None and st['disabled']),'bounded stream admission '+mode)
+   check(boundary['buffers']==0 and (boundary['cancelled']>0 and boundary['pulls']<5 if mode=='oversized-stream' else True),'bounded resource behavior '+mode+' '+json.dumps(boundary))
+   await p.close()
+  p,e=await fresh(browser)
+  await p.evaluate("window.cancelledStream=0;pending.shift().resolve(new Response(new ReadableStream({start(c){window.streamChunk=()=>c.enqueue(new Uint8Array([1]));},cancel(){cancelledStream++;}})))")
+  await p.wait_for_timeout(25);await p.evaluate("()=>{qa.select('elite');}");await reply(p,'elite')
+  st=await state(p);await p.evaluate('streamChunk()');await p.wait_for_timeout(25)
+  check(await p.evaluate('cancelledStream===1') and (await state(p))==st,'stale in-flight stream cancelled without replacing current model')
+  await p.close()
   # Actual DEV/stock listeners plus run(): no physical MIDI, held permission/install promises.
   for outcome in ['grant','deny','selection-change','revoked','interrupt','lookup-change']:
    p,e=await ready(browser);await p.evaluate('qa.installMocks()');await p.locator('#devagree').check();

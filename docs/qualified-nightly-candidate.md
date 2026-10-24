@@ -40,8 +40,11 @@ records before approving the site. Synthetic test receipts are never approvals.
 After validation the tool fetches every package again, refuses redirects and
 oversized data, and checks actual size, SHA-256 and package model before creating
 any output. It retains the static site's navigation, renders the catalog into
-the installer, and saves the receipts. It never downloads or publishes a
-controller. The browser requires the exact checked local controller hash and
+the installer using an explicit public catalog projection. The full qualification
+file remains a private input and is not emitted as qualification.json. Unknown
+fields at each schema level are rejected before output. It never downloads or publishes a
+controller. The browser reads remote packages through the existing bounded stream path;
+responses without a reader are refused before allocation. It requires the exact checked local controller hash and
 rejects a changed selection while the asynchronous hash is calculated.
 
 Next, independent site QA must inspect the generated site and qualified package

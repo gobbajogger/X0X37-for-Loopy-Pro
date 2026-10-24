@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Local candidate preparation only. The sole publisher still owns review/deployment.
-import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync, rmSync } from 'node:fs';
-import { join, resolve, relative } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync, rmSync, realpathSync } from 'node:fs';
+import { join, resolve, relative, dirname, basename, sep, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { productOf } from '../web/fm1pkg.js';
@@ -36,11 +36,68 @@ function denied(record) {
     (record.lifecycle !== undefined && record.lifecycle !== 'current');
 }
 
+// Only the documented public catalog schema may reach public candidate files.
+const catalogKeys = ['schema', 'repo', 'pages', 'latest', 'versions', 'history'];
+const versionKeys = ['version', 'label', 'status', 'config', 'hardware_tested', 'source_commit', 'source_tree',
+  'models', 'title', 'description', 'built_at', 'evidence_url', 'lifecycle', 'revoked', 'blocked', 'withdrawn',
+  'qualified', 'installable', 'fromRelease', 'device_verified'];
+const packageKeys = ['product', 'sha256', 'size', 'controller_sha256', 'pkg', 'status', 'lifecycle',
+  'revoked', 'blocked', 'withdrawn', 'qualified', 'installable', 'fromRelease', 'device_verified', 'hardware_tested'];
+const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+function checkInputFields(catalog, qualification, need) {
+  const fields = (value, allowed, where) => {
+    if (!record(value)) { need(false, `${where}: object required`); return false; }
+    need(Object.keys(value).every(key => allowed.includes(key)), `${where}: unknown/private field`);
+    return true;
+  };
+  const texts = (value, names, where) => {
+    for (const name of names) if (value[name] !== undefined)
+      need(typeof value[name] === 'string', `${where}/${name}: text required`);
+  };
+  const flags = (value, where) => {
+    for (const name of ['revoked', 'blocked', 'withdrawn', 'qualified', 'installable', 'fromRelease', 'device_verified', 'hardware_tested'])
+      if (value[name] !== undefined) need(typeof value[name] === 'boolean', `${where}/${name}: boolean required`);
+  };
+  if (fields(catalog, catalogKeys, 'catalog')) {
+    texts(catalog, ['repo', 'pages'], 'catalog');
+    for (const v of Array.isArray(catalog.versions) ? catalog.versions : []) {
+      if (!fields(v, versionKeys, 'version')) continue;
+      flags(v, 'version');
+      texts(v, ['title', 'description', 'built_at', 'evidence_url'], 'version');
+      if (fields(v.models, ['elite', 'pro'], 'models'))
+        for (const p of Object.values(v.models)) if (fields(p, packageKeys, 'package')) flags(p, 'package');
+    }
+  }
+  if (!fields(qualification, ['schema', 'installer_sha256', 'packages'], 'qualification') ||
+      !record(qualification.packages)) { need(false, 'qualification/packages: object required'); return; }
+  for (const [digest, r] of Object.entries(qualification.packages)) {
+    need(hex64(digest), 'qualification/packages: SHA-256 key required');
+    if (!fields(r, ['source_commit', 'source_tree', 'size', 'product', 'url', 'integration', 'controller',
+      'budgets', 'gates', 'corresponding_source', 'notices'], 'receipt')) continue;
+    fields(r.integration, ['ref', 'commit', 'tree', 'evidence_url'], 'integration');
+    fields(r.controller, ['strategy', 'sha256', 'size'], 'controller');
+    fields(r.budgets, ['app_code_free', 'ram_free', 'pool_free'], 'budgets');
+    if (fields(r.gates, requiredGates, 'gates'))
+      for (const gate of Object.values(r.gates)) fields(gate, ['status', 'evidence_url'], 'gate');
+  }
+}
+const pick = (value, keys) => Object.fromEntries(keys.filter(key => Object.hasOwn(value, key)).map(key => [key, value[key]]));
+function publicCatalog(catalog) {
+  const result = pick(catalog, catalogKeys);
+  result.versions = catalog.versions.map(v => ({...pick(v, versionKeys),
+    models: Object.fromEntries(Object.entries(v.models).filter(([key]) => ['elite', 'pro'].includes(key))
+      .map(([key, p]) => [key, pick(p, packageKeys)]))}));
+  result.history = []; // Read-only history belongs in build-status, never this picker.
+  return result;
+}
+
 // These are receipts supplied by the existing independent owners, not approvals
 // manufactured by this program. SHA bindings make stale receipts unusable.
 export function validateCatalog(catalog, qualification, fingerprint = installerFingerprint()) {
   const errors = [];
   const need = (ok, msg) => { if (!ok) errors.push(msg); };
+  checkInputFields(catalog, qualification, need);
+  if (errors.length) throw new Error('NOT INSTALLABLE:\n' + errors.join('\n'));
   need(catalog?.schema === 1, 'catalog schema must be 1');
   need(qualification?.schema === 1, 'qualification schema must be 1');
   need(qualification?.installer_sha256 === fingerprint, 'installer safety receipt is stale or missing');
@@ -121,11 +178,31 @@ export function renderInstaller(catalog) {
   const strip = s => s.replace(/^export\s+/gm, '').replace(/^import .*?;\r?\n/gm, '');
   let html = readFileSync(join(root, inputs[0]), 'utf8');
   for (const [marker, content] of [['/*LIB*/', inputs.slice(1).map(p => strip(readFileSync(join(root, p), 'utf8'))).join('\n')],
-    ['/*CATALOG*/', JSON.stringify(catalog).replace(/</g, '\\u003c')]]) {
+    ['/*CATALOG*/', JSON.stringify(publicCatalog(catalog)).replace(/</g, '\\u003c')]]) {
     if (html.split(marker).length !== 2) throw new Error(`expected one ${marker}`);
     html = html.replace(marker, () => content);
   }
   return html;
+}
+
+// Enforce the existing outside-repository contract by path segments and real
+// ancestors, including symlink aliases and absent nested output parents.
+function checkedOutput(value) {
+  const output = resolve(value);
+  if (existsSync(output)) throw new Error('output must be a new directory outside the repository');
+  const tail = [basename(output)];
+  let parent = dirname(output);
+  while (!existsSync(parent)) {
+    tail.unshift(basename(parent));
+    const next = dirname(parent);
+    if (next === parent) throw new Error('output parent cannot be resolved');
+    parent = next;
+  }
+  const canonical = resolve(realpathSync(parent), ...tail);
+  const delta = relative(realpathSync(root), canonical);
+  if (!(isAbsolute(delta) || delta === '..' || delta.startsWith('..' + sep)))
+    throw new Error('output must be a new directory outside the repository');
+  return output;
 }
 
 async function main(argv) {
@@ -135,17 +212,17 @@ async function main(argv) {
   const catalog = JSON.parse(readFileSync(argv[1], 'utf8'));
   const qualification = JSON.parse(readFileSync(argv[3], 'utf8'));
   validateCatalog(catalog, qualification);
-  const output = resolve(argv[5]);
-  if (existsSync(output) || !relative(root, output).startsWith('..')) throw new Error('output must be a new directory outside the repository');
+  const output = checkedOutput(argv[5]);
   await verifyDownloads(catalog);
   // Render before writing anything; retain complete existing site navigation.
-  const html = renderInstaller(catalog);
+  const published = publicCatalog(catalog);
+  const html = renderInstaller(published);
   try {
     cpSync(join(root, 'docs'), output, { recursive: true });
     mkdirSync(join(output, 'install'), { recursive: true });
     writeFileSync(join(output, 'install/index.html'), html);
-    writeFileSync(join(output, 'versions.json'), JSON.stringify(catalog, null, 2) + '\n');
-    writeFileSync(join(output, 'qualification.json'), JSON.stringify(qualification, null, 2) + '\n');
+    writeFileSync(join(output, 'versions.json'), JSON.stringify(published, null, 2) + '\n');
+    // Full qualification remains a private input; it is never copied to public output.
   } catch (err) { rmSync(output, { recursive: true, force: true }); throw err; }
   console.log('PREPARED — HTTP bytes verified; local candidate only. Independent site review and sole publisher deployment/served-byte checks remain required.');
 }
