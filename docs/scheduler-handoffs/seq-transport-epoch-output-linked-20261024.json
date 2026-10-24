@@ -1,0 +1,85 @@
+{
+  "schema": "x0x37-seqclock-test-v1",
+  "evidence_revision": "seqclock-pr90-clock-epoch-echo-linked-20261024-r21",
+  "date_utc": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "Sequencer Clock",
+  "owned_pr": 90,
+  "stacked_parent_pr": 86,
+  "owned_branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "parent_sha": "ccf8ae19cb84ed1ade87c9b14b6a7381ced752e7",
+  "parent_root_tree": "d8160ccfb2e1e18725d7ef06e18a07e63283c1c4",
+  "first_nightly_pr": 103,
+  "first_nightly_head_at_source_check": "56c180450393f26859419ce13b479e45cb0c242d",
+  "first_nightly_compiler_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "unchanged_real_linked_source_blobs": {
+    "sequencer.c": "97d8e456932e32b1b9503f01a7092f3ad555fc4e",
+    "sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+    "engine.c": "555480d9c81ca8b088842bfa6bac93e85865d49a"
+  },
+  "new_test_path": "tests/host/seq_transport_epoch_output_linked_test.c",
+  "new_test_git_blob": "3100153b6811db62af1ef832f42da81d8fec1538",
+  "new_test_sha256": "479d5fc54e9fdf6f141f36e94542d9aa7de4feb7336e1cb8a877c2b52f247d65",
+  "registered_selector": "transport-epoch-output-linked",
+  "native_command": "cc -std=c11 -O1 -g -Wall -Wextra -Werror -fno-omit-frame-pointer [sanitizers] -Ifirmware/src/seq tests/host/seq_transport_epoch_output_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm -o runner; ASAN_OPTIONS=detect_leaks=0 ./runner",
+  "native_configs": [
+    "gcc plain",
+    "gcc UBSan",
+    "gcc ASan+UBSan",
+    "clang plain",
+    "clang UBSan",
+    "clang ASan+UBSan"
+  ],
+  "actual_positive": {
+    "compiled_exit": 0,
+    "run_exit": 0,
+    "configs_passed": 6,
+    "configs_total": 6,
+    "assertions_each": "159/159",
+    "log_sha256": "cebba1c80ab0ad6e97cfac850e5086d8d1cc682a953ff4f2d800700ade463427"
+  },
+  "actual_negative": [
+    {
+      "mutation": "local only: remove prior-tick epoch correction in source copy",
+      "compilers": [
+        "gcc",
+        "clang"
+      ],
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions_passed": "147/159",
+      "log_sha256": "61bf6092828c2ed5eefecd7ccfacca6ad2d3f6ee0ea52e74fe6ba93fd71392eb"
+    },
+    {
+      "mutation": "local only: bypass clip MIDI echo guard in source copy",
+      "compilers": [
+        "gcc",
+        "clang"
+      ],
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions_passed": "153/159",
+      "log_sha256": "819daf397f51d562c7cedefbc454bdf15e862989a734eef767fe11871f74529d"
+    }
+  ],
+  "test_cases": [
+    "incoming clock F8 before queued remote Start excluded from new epoch",
+    "clock F8 after queued remote Start retained",
+    "clip-mode MIDI echo suppressed",
+    "local PLAY followed immediately by remote Start echo preserves phase and NoteOff",
+    "Stop then Continue transport order and NoteOff",
+    "frame blocks 1,64,1024"
+  ],
+  "limits": [
+    "real production C sequencer/pattern/TB3PO native link; engine input flag reproduced from live engine source (not linked whole engine)",
+    "not independent exact-branch complete-root QA",
+    "no new Elite/Pro or controller firmware build; compiler subtree unchanged",
+    "no device validation, sample/OTA or public installer tests"
+  ],
+  "status": "OWN GIT SOURCE PUSHED / SCOPED NATIVE HOST PASS / INDEPENDENT FULL ROOT QA PENDING / BUILD NOT RUN / DEVICE NOT TESTED / NOT INSTALLABLE",
+  "next": "Independent QA should run X0X_TEST_JOBS=1 sh tests/run_tests.sh transport-epoch-output-linked transport-noteoff-linked transport-origin clock-epoch clock-internal-queued-linked transport-coalesce sequencer clk-lock against exact new PR90 Git checkout; sole Safe Merge evaluates existing PR41 defect separately while first NIGHTLY PR103 remains draft/OTA NO-GO."
+}
