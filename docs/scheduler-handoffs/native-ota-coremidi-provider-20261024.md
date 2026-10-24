@@ -22,9 +22,18 @@ Parent-supplied read-only Mac evidence from task
   destination sharing an entity/device, with USB serial index zero and no
   CoreMIDI SerialNumber. Its USB display name does not prove running firmware
   model/version or OTA compatibility.
-- Nonwriting identity and Editor INFO sends returned OSStatus 0 but no valid
-  reply within two seconds. This does not prove successful request/reply or
-  receive failure; passive physical input observation is separate work.
+- Initial nonwriting identity and Editor INFO sends returned OSStatus 0 but no
+  valid reply within two seconds. On retry at **2026-10-24 13:14:31.991 UTC**,
+  Editor INFO returned a valid 20-byte frame with expected `F0 7D 46 4C 01`
+  header and `X0XDEV` payload. Parent reports a serviced CFRunLoop, SDK-verified
+  callback signatures/packet offsets and ARM alignment; the first missed INFO's
+  cause was not isolated. This is successful Editor request/reply evidence from
+  the separate Mac inspection, not execution of this new helper.
+- OTA identity still timed out after two seconds. `X0XDEV` does not establish
+  an Elite/Pro model, package identity, update compatibility or persistent unit
+  identity. Passive windows had no confirmed owner key presses; silence is not
+  a key-input test failure. Parent coordinates native helper compilation and
+  validation after independent review.
 
 These are attributed parent observations, not execution by this cloud lane and
 not qualification of this newly written helper. No Mac code or device commands
