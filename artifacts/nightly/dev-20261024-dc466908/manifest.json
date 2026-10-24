@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "channel": "NIGHTLY",
+  "stage": "ARTIFACT_HOSTING_ONLY",
+  "label": "DEV / HARDWARE TEST — DEVICE NOT TESTED",
+  "installable": false,
+  "hardware_tested": false,
+  "production_promoted": false,
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "accepted_source": {
+    "ref": "nightly",
+    "commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "archive_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/archive/54f2ffbc3124f7449a69067dc8215a2d91a2e675.zip",
+    "integration_evidence": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103#issuecomment-6386112836",
+    "independent_software_review": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103#pullrequestreview-5638784846",
+    "review_scope": "Separate independently reviewed browser-NIGHTLY route only; native RtMidi CLI and firmware repository legacy browser installer excluded."
+  },
+  "original_build": {
+    "commit": "dc4669083218f17f8cfb69069e7f32911a232b52",
+    "tree": "02cba17c78ab0e0334995f63363c4e8c407ae6a0",
+    "source_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/dc4669083218f17f8cfb69069e7f32911a232b52",
+    "configuration": "DEV X0X_DEV_PADCAL=1",
+    "reused_without_rebuild": true,
+    "reason": "Only tests, documentation and licensing notices changed; target source, build tools, inputs and configuration/pin definitions are byte-identical.",
+    "equal_git_inputs": [
+      {
+        "path": "firmware",
+        "sha": "5c209609b770fd13949230aeb80956594fd6b741"
+      },
+      {
+        "path": "tools",
+        "sha": "555fcc70876e6faeddd45e33074f7b4e70de334e"
+      },
+      {
+        "path": "ble",
+        "sha": "d0479e103e206e0e9649a7c734af8f1f11a718ca"
+      },
+      {
+        "path": "assets",
+        "sha": "0e721b227239d885a77a12ef24d9f001604e3eb3"
+      },
+      {
+        "path": "build.sh",
+        "sha": "f78db0774f42d02208a496f32bbbcaa042b485e5"
+      },
+      {
+        "path": "host",
+        "sha": "70d16e6a0fc3d605782af29289d57bd33c27e75f"
+      },
+      {
+        "path": "web",
+        "sha": "4558d776a032b909eb65e1c2f8f534c0752c2fbe"
+      }
+    ],
+    "comparison_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/compare/dc4669083218f17f8cfb69069e7f32911a232b52...54f2ffbc3124f7449a69067dc8215a2d91a2e675"
+  },
+  "packages": [
+    {
+      "model": "elite",
+      "product": "SMK-37 Elite_900",
+      "size": 651396,
+      "sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+      "crc32": "8f8447bb",
+      "git_blob_sha1": "4229de73e19999d508acc700812ce9e65eb66625",
+      "controller_embedded": false,
+      "controller_block_erased_bytes": 65536,
+      "validated_checks": [
+        "length",
+        "sha256",
+        "crc32",
+        "model",
+        "fwsc_roundtrip",
+        "package_header_crc",
+        "package_file_list_crc",
+        "all_package_file_data_crcs",
+        "app_area_header_crc",
+        "app_area_data_crc",
+        "app_entry_header_crc",
+        "app_data_crc",
+        "controller_block_all_ff",
+        "slotmap_crc"
+      ],
+      "package_entries": [
+        "flash.bin",
+        "ota.bin"
+      ],
+      "slot_count": 3,
+      "path": "artifacts/nightly/dev-20261024-dc466908/d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c/x0x37-elite-dev.fwsc"
+    },
+    {
+      "model": "pro",
+      "product": "SMK-37 Pro_900",
+      "size": 651392,
+      "sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c",
+      "crc32": "cfae5bf9",
+      "git_blob_sha1": "462cdf9e10d54cab9a18f0cb74a138e3a9366064",
+      "controller_embedded": false,
+      "controller_block_erased_bytes": 65536,
+      "validated_checks": [
+        "length",
+        "sha256",
+        "crc32",
+        "model",
+        "fwsc_roundtrip",
+        "package_header_crc",
+        "package_file_list_crc",
+        "all_package_file_data_crcs",
+        "app_area_header_crc",
+        "app_area_data_crc",
+        "app_entry_header_crc",
+        "app_data_crc",
+        "controller_block_all_ff",
+        "slotmap_crc"
+      ],
+      "package_entries": [
+        "flash.bin",
+        "ota.bin"
+      ],
+      "slot_count": 3,
+      "path": "artifacts/nightly/dev-20261024-dc466908/cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c/x0x37-pro-dev.fwsc"
+    }
+  ],
+  "notices": [
+    {
+      "source_path": "LICENSE",
+      "artifact_path": "artifacts/nightly/dev-20261024-dc466908/notices/LICENSE",
+      "git_blob_sha": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "size": 35149
+    },
+    {
+      "source_path": "LICENSING.md",
+      "artifact_path": "artifacts/nightly/dev-20261024-dc466908/notices/LICENSING.md",
+      "git_blob_sha": "b2105f61746dc4a205fd0ee64294594acbbb85ad",
+      "size": 11167
+    },
+    {
+      "source_path": "LICENSES/Apache-2.0.txt",
+      "artifact_path": "artifacts/nightly/dev-20261024-dc466908/notices/LICENSES/Apache-2.0.txt",
+      "git_blob_sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "size": 11358
+    },
+    {
+      "source_path": "LICENSES/MPL-2.0.txt",
+      "artifact_path": "artifacts/nightly/dev-20261024-dc466908/notices/LICENSES/MPL-2.0.txt",
+      "git_blob_sha": "14e2f777f6c395e7e04ab4aa306bbcc4b0c1120e",
+      "size": 16726
+    },
+    {
+      "source_path": "docs/notices/schwung-breakbeat-MIT.txt",
+      "artifact_path": "artifacts/nightly/dev-20261024-dc466908/notices/docs/notices/schwung-breakbeat-MIT.txt",
+      "git_blob_sha": "515dfa0b7e7ab10afe9360f6fe2e6dfb49da9da5",
+      "size": 1659
+    },
+    {
+      "source_path": "assets/fonts/Barlow-OFL.txt",
+      "artifact_path": "artifacts/nightly/dev-20261024-dc466908/notices/assets/fonts/Barlow-OFL.txt",
+      "git_blob_sha": "2f22ba6ca4dbc12145ae40b14c3368f387cba0e2",
+      "size": 4377
+    },
+    {
+      "source_path": "assets/fonts/Terminus-LICENSE.txt",
+      "artifact_path": "artifacts/nightly/dev-20261024-dc466908/notices/assets/fonts/Terminus-LICENSE.txt",
+      "git_blob_sha": "d65472b9ec0421b5be370847a54a6fcfb2b25150",
+      "size": 4448
+    }
+  ],
+  "distribution": {
+    "controller": "Not distributed; a compatible lawfully acquired owner-supplied controller is required by the separate reviewed installer route.",
+    "sdk_toolchain_archives": "Not distributed. No proprietary controller or SDK/toolchain archive is uploaded.",
+    "package_notice": "The unmodified controller-free packages contain the separately licensed Apache-2.0 boot/configuration aggregate components documented in LICENSING.md; their required Apache notice is included.",
+    "additional_source_notices": "Preserve copyright and applicable license notices in the complete corresponding source."
+  },
+  "remaining_gates": [
+    "Actual committed HTTP/TLS/no-redirect/size/hash/model/CRC/CORS verification is recorded separately after hosting.",
+    "Independent final generated-site and qualified-flow browser QA.",
+    "Sole NIGHTLY publisher deployment and live served catalog/installer/package verification.",
+    "Owner-operated same-byte physical tests; production promotion requires separate approval."
+  ]
+}
