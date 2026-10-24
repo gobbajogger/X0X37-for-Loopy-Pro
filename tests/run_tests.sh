@@ -51,7 +51,7 @@ test_class() {
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
-    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity|ota-unit-bounce|ota-send-rebind|ota-output-endpoint|sample-link-target) TEST_CLASS=S ;;
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity|ota-unit-bounce|ota-send-rebind|ota-output-endpoint|sample-link-target|slot-read-bounds) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -315,6 +315,7 @@ run slot-backup-durable python3 tests/x0x_slots_durable_backup_test.py   # direc
 run slot-archive-zone python3 tests/x0x_slots_zone_guard_test.py   # CRC-valid malformed slot zones fail before flash writes
 run slot-verify-order python3 tests/x0x_slots_verify_order_test.py   # fail closed before a later slot write
 run slot-read-reply python3 tests/x0x_slots_read_reply_test.py   # malformed/noncanonical SMP_READ backup framing
+run slot-read-bounds python3 -B tests/host/sample_slot_read_bounds_test.py tools/x0x_slots.py  # reject CRC-valid oversized/stale slot headers before backup reads
 run slot-ack-integrity python3 tests/x0x_slots_ack_integrity_test.py   # refuse stale or malformed SMP_WRITE/BEGIN/END/ERASE ACKs
 run slot-echo-7bit python3 tests/x0x_slots_echo_7bit_test.py   # refuse aliased non-7-bit sample-slot read/write echoes
 run slot-migration-matching python3 tests/x0x_slots_migration_matching_test.py   # safe maximum matching for pre-OTA slot backup restoration
