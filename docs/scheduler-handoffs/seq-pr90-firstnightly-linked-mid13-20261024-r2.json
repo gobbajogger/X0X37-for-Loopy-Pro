@@ -1,0 +1,123 @@
+{
+  "schema": "x0x37.scheduler-evidence.v1",
+  "evidence_revision": "seqclock-pr90-firstnightly-mid13-linked-20261024-r2",
+  "role": "Sequencer Clock (producer only)",
+  "timestamp_utc": "2026-10-24",
+  "producer": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/seq-transport-origin-20261023-run3-1317",
+    "consumed_own_sha": "7e2aa0f3c292ca4e35b9bc8ecd06e793826c9e29",
+    "consumed_own_root": "23460bda3106bb4aa4d1e7f6579da91da9d79a16",
+    "consumed_own_firmware_subtree": "86e25cfe6a1563700c5d21951ef976776902edb7",
+    "own_production_sequencer_blob": "97d8e456932e32b1b9503f01a7092f3ad555fc4e",
+    "own_header_blob": "6ff366ed1b36faafab6676498483921d46",
+    "new_production_firmware_edits": false,
+    "new_host_test_blob": "63b5464eb450ad485a1ff6ce22a62467d5d309e1",
+    "new_runner_blob": "c00a601c3acea6b86cc462d739cc8b90bf2a6b58"
+  },
+  "consumed_candidate": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "head": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+    "full_root_tree_REFERENCE_ONLY": "89027dddcc55680d5a218b83e04f0e392ed01283",
+    "compiled_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "source_capsule_sha256": "433b8f44f61472f46b341c9a4f6cfa1baa8bccaa68823791c623a712b1f45eb8",
+    "verified_linked_source_blobs": {
+      "firmware/src/seq/sequencer.c": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+      "firmware/src/seq/sequencer.h": "9bbddbf55438247469816625bd0b07a865aa0dcb",
+      "firmware/src/seq/pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+      "firmware/src/seq/tb3po.c": "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d"
+    }
+  },
+  "test": {
+    "path": "tests/host/seq_internal_queue_firstnightly_test.c",
+    "runner_selector": "clock-internal-queued-linked",
+    "runner": "tests/run_tests.sh",
+    "source_sha256": "397a77f9dbffb6caf4928cc37f4d77b902f56ca9e037a0ece7e7b3a49e47089a",
+    "positive_controls": "AUTO/EXTERNAL x 1/64/1024 frame blocks; remote Start/Continue/Stop canceled at INTERNAL boundary; local PLAY/STOP retained; playing retained; ordinary Note-Off transport passthrough (not MIDI delivery verification)",
+    "native_commands": [
+      "$CC -std=c11 -O2 -Wall -Wextra -Werror -ffp-contract=off $SAN_FLAGS -I$SRC -o $OUT tests/host/seq_internal_queue_firstnightly_test.c $SRC/sequencer.c $SRC/tb3po.c $SRC/pattern.c",
+      "$OUT"
+    ],
+    "compilers": [
+      "gcc",
+      "clang"
+    ],
+    "sanitizer_flags": {
+      "ubsan": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "asan-ubsan": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
+    },
+    "baseline_R14": {
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exits": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_negative": true,
+      "assertions_total_per_run": 183,
+      "assertions_failed_per_run": 18,
+      "log_sha256": "521c04b62b74c177c000452dd65804e3c71e698a4ff75aceb172016879061313"
+    },
+    "diagnostic_mid13_projection": {
+      "exact_PR90_source": false,
+      "actual_original_R14_linked_C": true,
+      "projection_method": "Only MID-13 PR90 source hunks, byte-checked manually against live PR90 source, applied to Git-blob-matched R14 linked source; exact-full-PR90-native-host-run pending",
+      "projection_script_sha256": "676b9b715ad5964b0e48998cd9067ddef78db2274fc5a6060b892ef750e967d7",
+      "compile_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "run_exits": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "assertions_passed_per_run": 183,
+      "assertions_total_per_run": 183,
+      "log_sha256": "c49cee4f2d4675bac0734dfa6fda209f25082e8c8289d1d5b3fda1ed07ef1451"
+    },
+    "complete_root_runner_execute": "NOT RUN",
+    "target_Elite_Pro_controller_build": "NOT RUN by Sequencer Clock; R14 Build worker separate",
+    "physical_device": "NOT TESTED"
+  },
+  "private_logs": {
+    "path": "/LoopyX0X37-SeqClock-PR90-R14-MID13-Linked-Native-20261024.zip",
+    "library_file_id": "libfile_1f9560bcdad081918e69bc08b296f6fc",
+    "zip_bytes": 7725,
+    "sha256": "dc9e3d28c45b68132d098d75603adc2c4973996134feb779674d3cee2086ce67",
+    "rematerialized_byte_exact": true,
+    "summary_log_sha256": "e6f2f9eaa5ad7fd6128cfc1611777e48bb5a995637abe5cc86e33b40ab7388cf"
+  },
+  "disposition": "SOURCE-COMPLETE / REAL LINKED C BASELINE FAIL + DIAGNOSTIC R14+PR90-PARTIAL-PROJECTION PASS / PRODUCER CHECKED; READY FOR INDEPENDENT REVIEW; NOT QA APPROVED; NOT INSTALLABLE",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Run clock-internal-queued-linked and full-root sequencer/clock and Note-Off negatives against exact PR90 head and separately the actual reviewed combined current source; record exact full-root SHA and results."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Build-only exact PR90 compiler inputs/Elite+Pro and matching controller on current producer source in parallel with QA; no merge, Pages, HTTP, device prerequisites. Do not attach R14 bytes to changed compiler inputs."
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Reconcile reviewed PR90 MID-13 fix with PR41 lock release, PR80 clock source guard, PR35/48 handovers and latest first-NIGHTLY PR103; rerun relevant negatives before protected nightly integration."
+    }
+  ],
+  "remaining_gates": [
+    "actual full-root checked source tests and independent QA of changed head and combinations",
+    "safe firmware integration review and authorization",
+    "pinned model-specific compiled builds/controller/preservation/OTA/license/integrity/immutable HTTP checks",
+    "sole publisher installation website acceptance; device feedback UNKNOWN"
+  ]
+}
