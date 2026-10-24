@@ -57,4 +57,22 @@ for (const id of r29Pinned) {
   mustReject('R29 source-SHA proof mutation ' + id,
     rows => { rows[index].source_commit = 'f'.repeat(40); });
 }
-console.log('PASS: ' + lock.rows.length + ' SHA256-pinned historical records; 12 malicious continuity negatives; safe append');
+
+const r30Id = 'integration-pr103-firmware-nightly-merged-browser-route-20261024';
+assert.ok(lock.rows.length >= 123, 'R30 merged NIGHTLY source receipt must be SHA256 pinned');
+const r30Index = original.findIndex(row => row.id === r30Id);
+assert.equal(r30Index, 122, 'R30 new immutable receipt must be appended, not inserted or reordered');
+const r30Row = original[r30Index];
+assert.equal(r30Row.status, 'validation-evidence-only', 'NIGHTLY integration is not a new build');
+assert.equal(r30Row.source_commit, '54f2ffbc3124f7449a69067dc8215a2d91a2e675');
+assert.equal(r30Row.source_tree, '3b5cadafba33f4c1b116660bc9d19a27a892337c');
+assert.equal(r30Row.firmware_subtree, '5c209609b770fd13949230aeb80956594fd6b741');
+assert.equal(r30Row.installable, false, 'merged source is not a hardware-test candidate');
+assert.equal(r30Row.device_verified, false, 'never fabricate physical device QA');
+assert.equal(r30Row.artifact_distribution_approved, false, 'never self-authorize distribution');
+mustReject('R30 confirmed protected NIGHTLY merge removed', rows => rows.splice(r30Index, 1));
+mustReject('R30 merged source Git commit forged', rows => { rows[r30Index].source_commit = 'f'.repeat(40); });
+mustReject('R30 compiled firmware subtree impersonated', rows => { rows[r30Index].firmware_subtree = 'f'.repeat(40); });
+mustReject('R30 hardware flashability fraud', rows => { rows[r30Index].installable = true; });
+
+console.log('PASS: ' + lock.rows.length + ' SHA256-pinned historical records; 16 malicious continuity negatives; safe append');

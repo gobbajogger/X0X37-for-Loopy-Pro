@@ -3440,6 +3440,35 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/128",
       "evidence_commit": "168869eecaa6a8cc4035c33928293131ada40226",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/168869eecaa6a8cc4035c33928293131ada40226/docs/scheduler-handoffs/bugfinder-bf022-legacy-master-highpass-20261024.json"
+    },
+    {
+      "id": "integration-pr103-firmware-nightly-merged-browser-route-20261024",
+      "title": "First firmware NIGHTLY PR103 source merged; independently scoped browser-route artifact QA, NOT public installable",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "nightly",
+      "source_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "source_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "source_time": "2026-10-24T15:36:11Z",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "exact_remote_native_build": false,
+      "artifact_distribution_approved": false,
+      "reported_checks": {
+        "origin": "Independent PR103 review at 7e89df2b71b2b8e4409cc6a489f4939bbe0b71f7 / identical complete ROOT; exact protected NIGHTLY merge independently read back by Catalog; Catalog did not run native firmware or hardware tests.",
+        "command": "Independent reviewer reported fresh native 121/121 selected host tests, actual private Elite/Pro CRC/hash/controller joins and production OTA loader-stage simulations; Catalog live Git commit/tree/PR verification only.",
+        "result": "Firmware source normally merged to protected NIGHTLY at 2026-10-24T15:36:11Z, accepted ROOT unchanged and compiled firmware subtree unchanged. Existing BUILD_ONLY model/controller bytes verified for the scoped browser route by independent QA, NOT new target compiles. Old native RtMidi CLI and bundled legacy installer routes remain unqualified; device NOT tested; no public package, lawful HTTPS hosting or Pages acceptance."
+      },
+      "description": "Real distinct protected-nightly source integration after historical PR103 R23 MIT/docs and PR129 host-fixture updates. Records independent browser-route scoped software/artifact review without retagging old firmware, asserting device identity or approving distribution.",
+      "missing_gate": "Existing sole website Main Merger's PR10 source merged, but final real-package browser admission, independent safety/provenance and sample/backup/restore for selectable NIGHTLY, lawful model/controller/source licensing and immutable-host LIVE HTTPS, separate sole Pages publisher signoff remain pending. Production main still requires matching owner physical PASS. Excluded native routes still NO-GO.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/54f2ffbc3124f7449a69067dc8215a2d91a2e675"
     }
   ],
   "policy": {
@@ -3450,7 +3479,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 122
+    "source_or_historical_checkpoints": 123
   },
   "versioning": {
     "firmware_product_version": {
