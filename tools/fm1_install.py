@@ -775,7 +775,8 @@ def read_ctl(ed, size):
         off, n = len(got), min(CTL_READ_N, size - len(got))
         r = xs.req(ed, ED_CTL_READ, [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, (n + 1) // 2],
                    CTL_READ["timeout"], CTL_READ["tries"])
-        if len(r) < 3 or r[0] | r[1] << 7 | r[2] << 14 != off:
+        if (len(r) < 3 or any(b & 0x80 for b in r[:3])
+                or r[0] | r[1] << 7 | r[2] << 14 != off):
             raise TimeoutError(f"bad ED_CTL_READ reply at {off:#x}")
         wire = r[3:]
         d = xs.unpack7(wire)

@@ -17,9 +17,10 @@ sys.path.insert(0, str(source_root / 'tools'))
 import fm1_install as install
 
 class FakeLink:
-    def __init__(self, data, mode='valid', corrupt_at=0):
+    def __init__(self, data, mode='valid', corrupt_at=0, corrupt_offset=None):
         self.data=bytes(data);self.mode=mode;self.calls=[];self.corrupt_at=corrupt_at
         self.pending=None
+        self.corrupt_offset=corrupt_offset
 
     # Real installer wraps its link with EditorLink. Exercise that framing path,
     # not just read_ctl() directly, before treating readback as installed CRC proof.
@@ -63,6 +64,13 @@ class FakeLink:
             addr[0]^=1
         if self.mode == 'truncated-address' and i>self.corrupt_at:
             addr=addr[:2]
+        if i>self.corrupt_at and (self.corrupt_offset is None or off == self.corrupt_offset):
+            if self.mode == 'nonsevenbit-address-low':
+                addr[0] |= 0x80
+            elif self.mode == 'nonsevenbit-address-middle':
+                addr[1] |= 0x80
+            elif self.mode == 'nonsevenbit-address-high':
+                addr[2] |= 0x80
         return addr+wire
 
 class ControllerReadTests(unittest.TestCase):
@@ -123,6 +131,35 @@ class ControllerReadTests(unittest.TestCase):
         f=FakeLink(b'ABCD',mode='truncated-address')
         with self.assertRaises(TimeoutError):
             install.read_ctl(f,4)
+
+    def test_reject_nonsevenbit_low_address_alias_second_frame(self):
+        # off=224: high bit in low byte aliases valid bit 7 in the next byte.
+        f=FakeLink(bytes(range(256))*3,mode='nonsevenbit-address-low',corrupt_at=1)
+        with self.assertRaisesRegex(TimeoutError,'bad ED_CTL_READ reply'):
+            install.read_ctl(f,768)
+        self.assertEqual([o for o,_ in f.calls],[0,224])
+
+    def test_reject_nonsevenbit_middle_address_alias_high_offset(self):
+        # off=16576: high bit in middle byte aliases valid address bit 14.
+        f=FakeLink(bytes(range(256))*65,mode='nonsevenbit-address-middle',corrupt_offset=16576)
+        with self.assertRaisesRegex(TimeoutError,'bad ED_CTL_READ reply'):
+            install.read_ctl(f,16640)
+        self.assertEqual(f.calls[-1][0],16576)
+
+    def test_reject_nonsevenbit_high_address_byte(self):
+        f=FakeLink(b'ABCD',mode='nonsevenbit-address-high')
+        with self.assertRaisesRegex(TimeoutError,'bad ED_CTL_READ reply'):
+            install.read_ctl(f,4)
+        self.assertEqual(len(f.calls),1)
+
+    def test_check_ctl_rejects_aliased_address_even_with_matching_crc(self):
+        ctl=b'ABC123XYZ'
+        expected=ctl+b'\xFF'*(install.add_ctl.BLE_SIZE-len(ctl))
+        f=FakeLink(expected,mode='nonsevenbit-address-low',corrupt_at=1)
+        with self.assertRaises(install.InstallError) as cm:
+            install.check_ctl(f,ctl,sys.stdout)
+        self.assertEqual(cm.exception.code,'ctlcrc')
+        self.assertEqual([o for o,_ in f.calls],[0,224])
 
     def test_malformed_second_frame_stops_before_third(self):
         f=FakeLink(bytes(range(256))*2,mode='overlong',corrupt_at=1)
