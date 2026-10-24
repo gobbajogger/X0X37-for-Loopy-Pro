@@ -1,0 +1,79 @@
+{
+  "schema": "loopyx0x37.smc.source-reviewed-producer-evidence.v1",
+  "evidence_revision": "smc-pr73-mmc-stop-overflow-git-native-replay-20261024-r1",
+  "date_utc": "2026-10-24",
+  "owner_role": "LoopyX0X37 SMC Transport — source producer",
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/smc-mmc-stop-overflow-20261023-1101",
+    "producer_commit_before_evidence": "d1ed0b99f6278bd9f62f8da03015b5a7143d691c",
+    "original_complete_root_tree": "b34d14ced7cca5d989e3bd49bacf231a386786d5",
+    "original_firmware_subtree": "caec158060981b7a0026116389e01170abc9f9b8",
+    "smc_mixer_blob": "17516d4555d22bade547ba1dcee01ad5c3b694ce",
+    "committed_effective_regression": "tests/host/smc_queue_test.py",
+    "regression_blob": "3baff729cd9e93e70a6dd67a95d75306663b46ad",
+    "registered_runner": "tests/run_tests.sh",
+    "runner_blob": "f682eaa5fd8ef24b8a7688319e6ce12fb9e003d9"
+  },
+  "consumed_current_candidate": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "commit": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+    "complete_root_tree": "17d947417372bf48e8167cd9a3df970093afe3c1",
+    "compiled_firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "smc_mixer_blob": "e662881c6b67ba660d52e7eb221805c1e8765d59",
+    "producer_evidence_revision": "safe-merge-pr103-archive75-ctl49-smc79-critical-path-20261024-r7",
+    "finding": "User-mode MMC STOP (34) is still discarded if its per-source sixteen-item ring is full. PR #73's source has an overflow-generation dispatch repair not present in this combined candidate."
+  },
+  "actual_new_local_checks": [
+    {
+      "command": "cd /mnt/data/smc_stop_20261024 && bash replay.sh",
+      "exit_code": 0,
+      "run_log_sha256": "a22c9310284c9d1136d76a1e0ab755a56c35189dd8d11d121b7cbd8149e44da8",
+      "fixture_sha256": "61c566fe81c4e9368b2bd73e806cda9e849b558bd8983cd13bff9425599670be",
+      "script_sha256": "e2b6fe92e7d07b4a246145037ac3b6fd3c333097e809000e40ba21a554c3103f",
+      "scope": "Standalone manually transcribed Git-matched C source windows for smc_mmc_host, project-drop and main-loop MMC drain, with fake guarded-button/UI and scheduling. Compiled in 8 separate local GCC/Clang UBSan/ASan+UBSan configurations, not linked complete firmware.",
+      "results": {
+        "candidate_negative": {
+          "gcc_ubsan": "compile 0/run 1;71/111 failures",
+          "gcc_asan_ubsan": "compile 0/run 1;71/111 failures",
+          "clang_ubsan": "compile 0/run 1;71/111 failures",
+          "clang_asan_ubsan": "compile 0/run 1;71/111 failures"
+        },
+        "own_repair": {
+          "gcc_ubsan": "compile 0/run 0;111/111",
+          "gcc_asan_ubsan": "compile 0/run 0;111/111",
+          "clang_ubsan": "compile 0/run 0;111/111",
+          "clang_asan_ubsan": "compile 0/run 0;111/111"
+        }
+      },
+      "checked": "full 16 PLAY then STOP, FIFO order, duplicate overflow STOP coalescing, project discard, both input sources, user-mode-off, invalid src/command, uint8 queue cursor wrap and uint32 generation wrap"
+    }
+  ],
+  "prior_producer_evidence": "Historical PR #73 targeted source-window native differential 42/42 for GCC and Clang, not rerun this time; regression registered in existing run_tests.sh.",
+  "disposition": "SOURCE_COMPLETE_PRODUCER_CHECKED_READY_FOR_INDEPENDENT_REVIEW; NOT QA APPROVED; NOT INTEGRATED; BUILD_ONLY PENDING",
+  "limitations": [
+    "No exact whole-root tests/run_tests.sh execution; Git API source windows manually transcribed into local harness; runtime device mocks do not qualify hardware.",
+    "PR #73 is an older source branch based on historical firmware; integrator must reconcile newest #103 SMC reconnection epoch and BLE fixes, not blindly overwrite the complete smc_mixer.c.",
+    "No new Elite/Pro/controller compiler invocation; Hourly Build owns independent BUILD_ONLY.",
+    "No independent QA; no target-model/OTA/backup/controller/public integrity and HTTP gates; DEVICE NOT TESTED; NOT INSTALLABLE."
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Review exact #73 committed smc_queue_test.py/source against current #103 combined-root; run full-root queue, BLE reconnect, STOP saturation, project-drop and ISR concurrency negatives; record exact SHA disposition."
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Evaluate MMC STOP overflow safety for first NIGHTLY candidate; if included, reconcile #73's three source windows into #103 without losing current SMC-central link epochs or other fixes, then request exact-root review."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Eligible to compile #73 original compiled firmware subtree BUILD_ONLY immediately; repeat after integration source changes without awaiting QA/merge/publishing."
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Preserve previous safe builds; no public selection for this source-only proof."
+    }
+  ]
+}
