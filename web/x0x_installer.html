@@ -179,6 +179,10 @@ const TEXT = {
     beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
     back: "公式や他のカスタムへ移すには、下に .fwsc を落とすか M-VAVE の M-UPGRADE を使います。",
     noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
+    nightlymodel: "DEV ファームウェア — 本体モデルの確認\n選択したパッケージ: ",
+    nightlymodelReported: "\n接続機器の表示名: ",
+    nightlymodelEnd: "\n\n本体に記載のモデル（Elite / Pro）を直接確認してください。古い Elite は Pro と表示されることがあり、USB 名だけでは機種は確定しません。実際の機種が選択したファームウェアと一致するときだけ OK を押してください。違う機種に書き込むと起動しなくなる場合があります。キャンセルでは書き込みません。",
+    modelcancel: "本体モデルを確認しなかったため、何も書き込んでいません。",
     stockalias: "機種名が異なります。接続中: ",
     stockaliasTo: "\n選択したパッケージ: ",
     stockaliasEnd: "\n\nSMK-37 系列の機種名が一致しても、本体の正確なモデルは確認できません。古い Elite が Pro と表示されることがあります。本体の型番とファームウェアの対応情報を確認してください。誤った書き込みで使用できなくなるおそれがあります。この違いを理解して続行しますか？",
@@ -249,6 +253,10 @@ const TEXT = {
     beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
     back: "To move to stock or another custom firmware, drop its .fwsc below, or use M-VAVE's M-UPGRADE.",
     noversion: "No published packages on this site yet. Drop any .fwsc below to upgrade, downgrade, restore stock, or switch to another custom build.",
+    nightlymodel: "DEV FIRMWARE — PHYSICAL MODEL CHECK\nSelected package: ",
+    nightlymodelReported: "\nConnected device reports: ",
+    nightlymodelEnd: "\n\nCheck the model printed on the actual keyboard (Elite or Pro), not just its USB name. Older Elite units can report Pro. Only press OK if the physical model matches this approved package. A wrong-model write can make the keyboard unusable. Cancel writes nothing.",
+    modelcancel: "Physical model not confirmed. Nothing was written.",
     stockalias: "MODEL NAME DIFFERENCE\nConnected: ",
     stockaliasTo: "\nSelected file: ",
     stockaliasEnd: "\n\nA shared SMK family identity does not prove the physical model. An older Elite may report Pro; other variants also share identifiers. Verify the keyboard label and firmware compatibility. A wrong package can make the device unusable. Continue with these different model names?",
@@ -729,6 +737,8 @@ async function run(img, product, opts = {}) {
       ota.link.close();
       // Already in the loader: SMP_INFO and prewrite slot backup are unavailable.
       // This is a deliberate manual recovery override, never an inferred backup PASS.
+      if (!foreign && !confirmNightlyModel(ota.id.model, product))
+        throw Object.assign(new Error(t("modelcancel")), { code: "modelcancel" });
       if (!window.confirm(t("otaconfirm"))) {
         throw Object.assign(new Error(t("otabackup")), { code: "otabackup" });
       }
@@ -739,6 +749,7 @@ async function run(img, product, opts = {}) {
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
         step, sameKeyboard,
+        confirmModel: foreign ? null : (id, p) => confirmNightlyModel(id.model, p),
         say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
         progress: (f) => { $("bar").value = Math.min(100, f * 100); },
         save: (file, name) => {
@@ -788,6 +799,12 @@ $("go").addEventListener("click", () => {
   $("go").disabled = true;   // sync before the first await in run()
   run(img, selectedProduct, { foreign: false });
 });
+function confirmNightlyModel(deviceModel, product) {
+  const actual = String(deviceModel || "").replace(/^ota-/i, "");
+  if (!sameKeyboard(actual, product.split("_")[0]))
+    throw Object.assign(new Error(t("model")), { code: "model" });
+  return window.confirm(t("nightlymodel") + product + t("nightlymodelReported") + actual + t("nightlymodelEnd"));
+}
 function confirmStockModel(product) {
   if (!lastId) return true; // Without a scan, Updater still checks the family; manual model confirmation stays mandatory.
   const connectedModel = lastId.model.replace(/^ota-/i, "");

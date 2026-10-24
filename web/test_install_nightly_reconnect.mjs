@@ -57,7 +57,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
         if (mode === "failure") throw Object.assign(Error("test write failure"), { code: "lost" });
         return { move: null };
       },
-      sameKeyboard: () => true, t: key => key,
+      sameKeyboard: () => true, confirmNightlyModel: () => true, t: key => key,
       sayK: key => { state.messages.push(key); },
       log() {}, led() {}, suggestModel() {},
       setConnected: on => { state.connected = on; },

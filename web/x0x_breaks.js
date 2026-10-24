@@ -600,9 +600,12 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   const fail = (code, msg, detail = "") => Object.assign(new Error(msg), { code, detail });
   let move = null;
   const dev = await up.find((id) => !/^ota-/i.test(id.model));
-  if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
-  else if (dev) {
+  // Require a freshly detected device and an informed physical-model decision for published DEV.
+  if (!dev && h.confirmModel) throw fail("notfound", "Verify the keyboard model before DEV installation.");
+  if (dev) {
     try {
+      if (!h.sameKeyboard(dev.id.model, product.split("_")[0])) throw fail("model", "Device family mismatch.");
+      if (h.confirmModel && !h.confirmModel(dev.id, product)) throw fail("modelcancel", "Physical model not confirmed; nothing written.");
       let layout = null;
       try { layout = await readSlotLayout(dev.link, 1000, 2); }
       catch (e) {
