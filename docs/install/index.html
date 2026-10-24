@@ -1642,6 +1642,31 @@ let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
 let loadSerial = 0;
+let scanSerial = 0;
+let verifiedDownload = null;
+function discardVerifiedDownload() {
+  if (verifiedDownload) URL.revokeObjectURL(verifiedDownload.href);
+  verifiedDownload = null;
+  const link = $("download");
+  link.removeAttribute("href");
+  link.removeAttribute("download");
+  link.hidden = true;
+}
+$("download").addEventListener("click", (event) => {
+  const v = currentVersion();
+  const p = v && chosenModel && v.models[chosenModel];
+  if (!hasVerifiedNightlySelection(v, p) || !verifiedDownload ||
+      verifiedDownload.pkg !== p || verifiedDownload.model !== chosenModel ||
+      verifiedDownload.version !== v.version ||
+      typeof verifiedDownload.href !== "string" ||
+      !verifiedDownload.href.startsWith("blob:") ||
+      $("download").href !== verifiedDownload.href) {
+    event.preventDefault();
+    discardVerifiedDownload();
+    updateInstallGate();
+  }
+});
+
 
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
@@ -1673,17 +1698,22 @@ async function midiAccess() {
 
 async function scan() {
   if (writing) return;
+  const requestId = ++scanSerial;
   led("busy");
   $("conn").textContent = t("looking");
   try {
-    const up = new Updater(await midiAccess(), () => {});
+    const access = await midiAccess();
+    if (requestId !== scanSerial || writing) return;
+    const up = new Updater(access, () => {});
     // Prefer a running app; if only the update loader is present, resume from there.
     let dev = await up.find((id) => !/^ota-/i.test(id.model));
+    if (requestId !== scanSerial || writing) { dev?.link.close(); return; }
     let inOta = false;
     if (!dev) {
       dev = await up.find((id) => /^ota-/i.test(id.model));
       inOta = !!dev;
     }
+    if (requestId !== scanSerial || writing) { dev?.link.close(); return; }
     if (!dev) {
       lastId = null;
       setConnected(false, t("notfound"));
@@ -1699,6 +1729,7 @@ async function scan() {
     suggestModel(bare);
     dev.link.close();
   } catch (e) {
+    if (requestId !== scanSerial || writing) return;
     lastId = null;
     setConnected(false, (e && e.message) || t("error"));
   }
@@ -1711,15 +1742,24 @@ function versions() {
 }
 function currentVersion() {
   const v = $("version").value;
-  return versions().find((x) => x.version === v) || versions()[0] || null;
+  return versions().find((x) => x.version === v) || null;
 }
 function modelKeyForProduct(product) {
-  if (/^FM-1/i.test(product)) return "fm1";
-  if (/^SMK-37 Elite/i.test(product)) return "elite";
-  if (/^MKE-P37/i.test(product)) return "mke";
-  if (/^SMK-37/i.test(product)) return "pro";
-  return null;
+  return {"SMK-37 Pro_900":"pro", "SMK-37 Elite_900":"elite"}[product] || null;
 }
+// Revocation is monotonic: any explicit denial wins over a checked status.
+function catalogDenied(record) {
+  return !record || ["revoked", "blocked", "withdrawn"].some(k =>
+    record[k] !== undefined && record[k] !== false) ||
+    record.qualified === false || record.installable === false ||
+    (record.fromRelease !== undefined && record.fromRelease !== false) ||
+    record.device_verified === true || record.hardware_tested === true ||
+    (record.lifecycle !== undefined && record.lifecycle !== "current");
+}
+function selectionIdentity(v, p) {
+  return JSON.stringify([v, chosenModel, p]);
+}
+
 function availableModels(ver) {
   if (!ver || !ver.models) return [];
   return MODEL_KEYS.filter((k) => ver.models[k]);
@@ -1761,35 +1801,52 @@ function refreshModelUi() {
   $("recovery").hidden = !avail.includes("fm1") || avail.some((k) => k !== "fm1");
   // Stock section always useful for SMK; for FM-1-only catalogs keep the SHA check path.
   $("stock").hidden = false;
-  const links = [];
-  if (avail.includes("pro")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`);
-  if (avail.includes("elite")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`);
-  if (avail.includes("fm1")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`);
-  $("stocklinks").innerHTML = links.length ? " · " + links.join(" · ") : "";
+  $("stocklinks").textContent = "";
 }
 function refreshMeta() {
-  const ver = currentVersion();
-  const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg || !isCatalogChecked(ver, pkg)) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); $("download").hidden = true; $("builddetail").hidden = true; updateInstallGate(); return; }
-  const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
-  $("pkgmeta").textContent = `${pkg.product}${size}`;
-  $("download").href = pkg.pkg;
-  $("download").hidden = false;
-  $("download").download = pkg.pkg.split("/").pop();
-  renderBuildInfo(ver,pkg);
+  const ver = currentVersion(), pkg = ver?.models?.[chosenModel];
+  const link = $("download");
+  if (!isCatalogChecked(ver, pkg)) {
+    $("pkgmeta").textContent = "";
+    discardVerifiedDownload();
+    $("builddetail").hidden = true;
+    updateInstallGate();
+    return;
+  }
+  $("pkgmeta").textContent = `${pkg.product} · ${(pkg.size / 1024).toFixed(0)} KB`;
+  if (hasVerifiedNightlySelection(ver, pkg)) {
+    link.href = verifiedDownload.href;
+    link.download = new URL(pkg.pkg).pathname.split("/").pop();
+    link.hidden = false;
+  } else discardVerifiedDownload();
+  renderBuildInfo(ver, pkg);
+}
+function isCatalogChecked(v,p) {
+  if (catalogDenied(v) || catalogDenied(p) || v.status !== "dev-checked" ||
+      (p.status !== undefined && p.status !== "dev-checked") ||
+      p.fromRelease === true || v.models?.[chosenModel] !== p ||
+      modelKeyForProduct(p.product) !== chosenModel ||
+      !/^[0-9a-f]{64}$/.test(p.sha256 || "") ||
+      !/^[0-9a-f]{64}$/.test(p.controller_sha256 || "") ||
+      !Number.isSafeInteger(p.size) || p.size <= 960 || p.size > 2097152) return false;
+  try {
+    const u = new URL(p.pkg);
+    return u.protocol === "https:" && !u.username && !u.password && !u.search && !u.hash &&
+      u.href === p.pkg && u.pathname.includes(p.sha256);
+  } catch { return false; }
+}
+function hasVerifiedNightlySelection(v,p) {
+  return isCatalogChecked(v,p) && !!image && selectedProduct === p.product &&
+    !!verifiedDownload && verifiedDownload.pkg === p && verifiedDownload.model === chosenModel &&
+    verifiedDownload.version === v.version && verifiedDownload.identity === selectionIdentity(v,p) &&
+    verifiedDownload.href.startsWith("blob:");
 }
 
-function isCatalogChecked(v,p) {
-  return !!v && !!p && (v.status === "dev-checked" || v.status === "release-checked")
-    && /^[0-9a-f]{64}$/.test(p.sha256 || "")
-    && /^https:\/\//.test(p.pkg || "") && p.fromRelease !== true
-    && typeof p.product === "string" && modelKeyForProduct(p.product) === chosenModel;
-}
 function updateInstallGate() {
   const v = currentVersion(), p = v && v.models && v.models[chosenModel];
   const checked = isCatalogChecked(v,p);
   const needsAck = !!v && v.status === "dev-checked" && !$("devagree").checked;
-  $("go").disabled = writing || !image || !checked || needsAck;
+  $("go").disabled = writing || !hasVerifiedNightlySelection(v,p) || needsAck;
   // This is explanatory UI only; the existing hash, package and write guards remain authoritative.
   $("installhint").textContent = t(writing ? "hintbusy"
     : !checked ? "hintblocked"
@@ -1856,29 +1913,47 @@ async function sha256Hex(buf) {
 async function loadSelectedPackage() {
   const requestId = ++loadSerial;
   $("devagree").checked = false;
+  discardVerifiedDownload();
   image = null; selectedProduct = null;
   $("go").disabled = true;
   refreshMeta();
   const ver = currentVersion();
-  const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { sayK("noproduct"); return; }
-  if (!isCatalogChecked(ver,pkg)) { sayK("unapproved"); return; }
+  const model = chosenModel;
+  const pkg = ver && model && ver.models[model];
+  if (!isCatalogChecked(ver, pkg)) { sayK("noproduct"); return; }
+  // A verified response is usable only while the SAME model/version/package
+  // remains selected and publisher-approved. An old request cannot re-enable Install.
+  const identity = selectionIdentity(ver, pkg);
+  const isLatest = () => {
+    if (requestId !== loadSerial || chosenModel !== model) return false;
+    const current = currentVersion();
+    return !!current && current.version === ver.version &&
+      current.models && current.models[model] === pkg && isCatalogChecked(current, pkg) &&
+      selectionIdentity(current,pkg) === identity;
+  };
   try {
-    const r = await fetch(pkg.pkg);
-    if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
+    const r = await fetch(pkg.pkg, {redirect: "error"});
+    if (!isLatest()) return;
+    if (!r.ok || r.redirected) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
     const raw = new Uint8Array(await r.arrayBuffer());
-    if (requestId !== loadSerial) return;
+    if (!isLatest()) return;
+    // Catalog byte length is verified metadata, not just a display hint.
+    if (raw.byteLength !== pkg.size) { sayK("badpkg"); return; }
+    // Approved downloads require a SHA and the exact product/model identity.
     const hex = await sha256Hex(raw.buffer);
-    if (requestId !== loadSerial) return;
+    if (!isLatest()) return;
     if (hex !== pkg.sha256) { sayK("badpkg"); return; }
     const product = productOf(raw);
     if (product !== pkg.product) { sayK("badpkg"); return; }
     image = logicalImage(raw);
     selectedProduct = product;
-    say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
+    // Never hand out the unverified remote URL: this Blob contains the bytes
+    // already checked against the immutable package digest and model identity.
+    verifiedDownload = { pkg, model, identity, version: ver.version,
+      href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
+    say(`X0X ${ver.version} · ${MODELS[model] || model}`);
     refreshMeta();
-    updateInstallGate();
-  } catch (e) { sayK("loadfail", e.message); }
+  } catch (e) { if (isLatest()) sayK("loadfail", e.message); }
 }
 
 function versionOptionCaption(v) {
@@ -1895,6 +1970,8 @@ function refreshVersionLabels() {
   }
 }
 function fillVersions() {
+  loadSerial++;
+  discardVerifiedDownload();
   const sel = $("version");
   const cur = sel.value;
   sel.innerHTML = "";
@@ -1910,10 +1987,7 @@ function fillVersions() {
     say(t("noversion"));
     // Still show SMK stock links when the catalog is empty.
     $("stock").hidden = false;
-    $("stocklinks").innerHTML = " · "
-      + `<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`
-      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`
-      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`;
+    $("stocklinks").textContent = "";
     return;
   }
   for (const v of list) {
@@ -2026,14 +2100,24 @@ drop.addEventListener("drop", async (e) => {
 });
 
 async function run(img, product, opts = {}) {
+  if (writing) return;
+  writing = true;
+  scanSerial++;
+  ctlLoadSerial++; stockLoadSerial++;
+  $("go").disabled = $("stockgo").disabled = true;
+  $("bar").value = 0;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
-  catch (e) { sayK(e.code || "denied"); return; }
-  writing = true;
-  $("go").disabled = $("stockgo").disabled = true;
+  catch (e) {
+    writing = false;
+    sayK(e.code || "denied"); updateInstallGate();
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    return;
+  }
   led("busy");
   try {
+    if (opts.admitted && !opts.admitted()) throw new Error(t("unapproved"));
     const up = new Updater(access, log);
     const total = 74 + 1167;
     const step = (k, a) => {
@@ -2046,6 +2130,7 @@ async function run(img, product, opts = {}) {
       if (k === "done") { $("bar").value = 100; sayK(foreign ? "stockdone" : "done"); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
+    if (opts.admitted && !opts.admitted()) { ota?.link.close(); throw new Error(t("unapproved")); }
     if (ota) {
       // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
       ota.link.close();
@@ -2090,7 +2175,7 @@ async function run(img, product, opts = {}) {
 }
 
 $("go").addEventListener("click", async () => {
-  if (!image || !selectedProduct || writing || $("go").disabled) return;
+  if (writing || $("go").disabled || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]) || !$("devagree").checked) return;
   if (!confirmWrite(selectedProduct)) return;
   const ver = currentVersion(), pkg = ver && ver.models && ver.models[chosenModel];
   const selectedImage = image, product = selectedProduct, controller = ctl, serial = loadSerial;
@@ -2103,7 +2188,7 @@ $("go").addEventListener("click", async () => {
         return;
       }
     } catch (e) { sayK("ctlbad", e.message); updateInstallGate(); return; }
-    if (writing || loadSerial !== serial || image !== selectedImage || ctl !== controller || selectedProduct !== product) {
+    if (writing || loadSerial !== serial || image !== selectedImage || ctl !== controller || selectedProduct !== product || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel])) {
       updateInstallGate(); return;
     }
   }
@@ -2112,7 +2197,9 @@ $("go").addEventListener("click", async () => {
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); updateInstallGate(); return; }
   }
   $("go").disabled = true;   // sync before the first await in run()
-  run(img, selectedProduct, { foreign: false });
+  run(img, selectedProduct, { foreign: false, admitted: () => loadSerial === serial &&
+    image === selectedImage && ctl === controller && $("devagree").checked &&
+    hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]) });
 });
 $("stockgo").addEventListener("click", () => {
   if (!stock || !$("stockconfirm").checked || writing) return;

@@ -63,6 +63,21 @@ reject(c => c.latest = 'absent');
 reject(c => c.history.push({ status: 'FAILED' }));
 reject(c => c.versions.push(structuredClone(c.versions[0])));
 
+for (const field of ['revoked','blocked','withdrawn','qualified','installable']) {
+  const value = ['qualified','installable'].includes(field) ? false : true;
+  reject(c => c.versions[0][field] = value);
+  reject(c => c.versions[0].models.pro[field] = value);
+}
+reject(c => c.versions[0].models.pro.status = 'failed');
+
+for (const field of ['device_verified','hardware_tested','fromRelease']) {
+  for (const obj of ['version','model']) reject(c => (obj === 'version' ? c.versions[0] : c.versions[0].models.pro)[field] = true);
+}
+reject(c => c.versions[0].models.pro.fromRelease = 'true');
+for (const value of ['revoked','failed','superseded']) {
+  reject(c => c.versions[0].lifecycle = value);
+  reject(c => c.versions[0].models.pro.lifecycle = value);
+}
 let calls = 0;
 await verifyDownloads(catalog, async (url, opts) => {
   calls++; assert.equal(url, pkg.pkg); assert.equal(opts.redirect, 'error');
@@ -80,26 +95,5 @@ assert.ok(html.includes('DEV / HARDWARE TEST — DEVICE NOT TESTED'));
 assert.doesNotMatch(html, /\/\*CATALOG\*\/|\/\*LIB\*\//);
 new Script(html.match(/<script type="module">([\s\S]*?)<\/script>/)[1]);
 
-// Invoke the actual click handler to prove absent/wrong controller blocks run(),
-// selection changes during asynchronous hashing cannot flash, and a matching one can.
-const source = readFileSync(new URL('../web/x0x_installer.html', import.meta.url), 'utf8');
-const handler = source.slice(source.indexOf('$("go").addEventListener("click", async'),
-  source.indexOf('$("stockgo").addEventListener'));
-let callback, runs, messages;
-const go = { disabled: false, addEventListener: (event, fn) => callback = fn };
-const context = { image: new Uint8Array([7]), selectedProduct: product, writing: false,
-  chosenModel: 'pro', ctl: null, loadSerial: 1, currentVersion: () => catalog.versions[0],
-  $: () => go, confirmWrite: () => true, sayK: (k, v) => messages.push([k, v]), t: k => k,
-  updateInstallGate: () => { go.disabled = false; }, insertCtl: i => i,
-  run: () => { runs++; }, sha256Hex: async b => hash(b) };
-new Script(handler).runInNewContext(context);
-async function click(controller) { runs = 0; messages = []; go.disabled = false; context.ctl = controller; await callback(); }
-await click(null); assert.equal(runs, 0);
-await click(new Uint8Array([9])); assert.equal(runs, 0);
-await click(ctl); assert.equal(runs, 1);
-context.sha256Hex = async b => { context.loadSerial++; return hash(b); };
-await click(ctl); assert.equal(runs, 0);
-context.sha256Hex = async b => hash(b);
-context.insertCtl = () => { throw new Error('controller cannot fit package'); };
-await click(ctl); assert.equal(runs, 0); assert.equal(go.disabled, false);
-console.log(`PASS: qualified local rendering, ${negatives} rejection cases, download-byte verifier and controller/race write guards. Synthetic evidence only; NOT candidate QA.`);
+// Full generated-page Chromium suite covers actual DEV/stock handlers and retries.
+console.log(`PASS: qualified local rendering, ${negatives} rejection cases and download-byte verifier. Synthetic evidence only; NOT candidate QA.`);

@@ -3,7 +3,7 @@
   "upstreamCommit": "33c60ee9d3161de48b11ce890410384429983886",
   "upstreamPullRequest": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
   "publicSourceBlobs": {
-    "web/x0x_installer.html": "0ee4bd958a873116a5c5363a557a7a3bcc5d0c56",
+    "web/x0x_installer.html": "e170e222372ead0a0bcc09a0a519d9a0d7b37b69",
     "web/x0x_breaks.html": "b988c3270ed974639f702900e120297ad0602b60",
     "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
     "web/fm1ota.js": "014f5fa3490f476554a17b08e941bde04c7eff74",
@@ -32,6 +32,13 @@
       "sourceBaseCommit": "ddbd8d89f7c4dfd5afa432dd51e940b6dd428592",
       "sourceBlob": "0ee4bd958a873116a5c5363a557a7a3bcc5d0c56",
       "description": "Require exact qualification-bound owner-supplied controller hash and unchanged selection before candidate install"
+    },
+    {
+      "path": "web/x0x_installer.html",
+      "sourceRepository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "sourceCommit": "22d522a4cde4c18f92a846bc40d504b701cf6d17",
+      "description": "Selectively adapted GPL verified-Blob, byte-size, selection binding, empty-catalog invalidation and pre-MIDI single writer safeguards; stricter NIGHTLY admission/revocation and current site acknowledgement retained",
+      "resultBlob": "e170e222372ead0a0bcc09a0a519d9a0d7b37b69"
     }
   ]
 }

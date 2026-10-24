@@ -28,6 +28,14 @@ function httpsUrl(value) {
   } catch { return false; }
 }
 
+function denied(record) {
+  return !record || ['revoked', 'blocked', 'withdrawn'].some(k => record[k] !== undefined && record[k] !== false) ||
+    record.qualified === false || record.installable === false ||
+    (record.fromRelease !== undefined && record.fromRelease !== false) ||
+    record.device_verified === true || record.hardware_tested === true ||
+    (record.lifecycle !== undefined && record.lifecycle !== 'current');
+}
+
 // These are receipts supplied by the existing independent owners, not approvals
 // manufactured by this program. SHA bindings make stale receipts unusable.
 export function validateCatalog(catalog, qualification, fingerprint = installerFingerprint()) {
@@ -46,6 +54,7 @@ export function validateCatalog(catalog, qualification, fingerprint = installerF
     const tag = v?.version;
     need(typeof tag === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(tag) && !ids.has(tag), 'invalid/duplicate version');
     ids.add(tag);
+    need(!denied(v), `${tag}: version revoked/unqualified`);
     need(v?.status === 'dev-checked' && v?.config === 'dev' && v?.hardware_tested === false,
       `${tag}: only DEV / HARDWARE TEST, DEVICE NOT TESTED is accepted`);
     need(hex40(v?.source_commit) && hex40(v?.source_tree), `${tag}: full firmware source commit/tree required`);
@@ -53,6 +62,7 @@ export function validateCatalog(catalog, qualification, fingerprint = installerF
     const models = v?.models && typeof v.models === 'object' ? Object.entries(v.models) : [];
     need(models.length > 0, `${tag}: no models`);
     for (const [key, p] of models) {
+      need(!denied(p) && (p?.status === undefined || p.status === 'dev-checked'), `${tag}/${key}: model revoked/unqualified`);
       const name = { elite: 'SMK-37 Elite', pro: 'SMK-37 Pro' }[key];
       const where = `${tag}/${key}`;
       need(!!name && p?.product === `${name}_900`, `${where}: wrong DEV package/model identity`);

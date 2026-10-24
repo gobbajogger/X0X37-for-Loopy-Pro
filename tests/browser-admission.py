@@ -1,0 +1,228 @@
+# SPDX-License-Identifier: GPL-3.0-only
+"""Whole generated installer in real Chromium; synthetic bytes, mocked MIDI only.
+No candidate, firmware, controller, external artifact or hardware is published.
+Run --source /path/to/before-installer.html for the identical RED assertions.
+"""
+import argparse, asyncio, hashlib, json, re, subprocess, threading
+from pathlib import Path
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+from playwright.async_api import async_playwright
+ROOT=Path(__file__).resolve().parents[1]
+ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--red-only',action='store_true');ap.add_argument('--race-only',action='store_true');args=ap.parse_args()
+def raw(product):
+    b=bytearray([125]*1024)
+    for i,c in enumerate(product): b[i*48+47]=(ord(c)+i+1)&255
+    return bytes(b)
+RAW={k:raw('SMK-37 '+name+'_900') for k,name in [('pro','Pro'),('elite','Elite')]}
+CTL=hashlib.sha256(bytes([1,2,3])).hexdigest()
+CAT={'schema':1,'latest':'synthetic-test','history':[],'versions':[{'version':'synthetic-test','status':'dev-checked','config':'dev','hardware_tested':False,'models':{k:{'product':'SMK-37 '+name+'_900','sha256':hashlib.sha256(RAW[k]).hexdigest(),'size':1024,'controller_sha256':CTL,'pkg':'https://example.invalid/'+hashlib.sha256(RAW[k]).hexdigest()+'/'+k+'.fwsc'} for k,name in [('pro','Pro'),('elite','Elite')]}}]}
+probe=r'''
+window.$ = $;
+Object.defineProperty(window,"ctl",{get:()=>ctl,set:v=>{ctl=v;}});
+window.qa = {
+ state: () => ({image:!!image, product:selectedProduct, writing, status:$("status").textContent,
+  href:$("download").getAttribute("href"), hidden:$("download").hidden, disabled:$("go").disabled}),
+ select: model => {chosenModel=model; refreshModelUi(); return loadSelectedPackage();},
+ load:()=>loadSelectedPackage(), meta:()=>refreshMeta(),
+ catalog:()=>catalogLive, replace:c=>{catalogLive=c;fillVersions();},
+ language:l=>{lang=l;applyLang();},
+ hashHold:()=>{const old=sha256Hex;sha256Hex=async b=>{const result=await old(b);await new Promise(r=>window.hashRelease=r);return result;};},
+ scan:()=>scan(),
+ holdScanPermission:()=>{midiAccess=()=>new Promise(r=>window.scanMidiGrant=r);scan();},
+ holdScan:()=>{window.closedLinks=0;midiAccess=async()=>({});Updater=class{async find(){return await new Promise(r=>window.scanRelease=r);}};scan();},
+ holdLookup:()=>{Updater=class{async find(){return await new Promise(r=>window.lookupRelease=r);}};},
+ badController:()=>{insertCtl=()=>{throw Error("synthetic controller assembly failure");};},
+ installMocks:()=>{
+  window.entries=[];window.permissions=0;window.midiResolvers=[];window.lookups=0;window.confirm=()=>true;
+  midiAccess=()=>{window.permissions++;return new Promise((r,j)=>{window.midiResolvers.push(()=>r({}));window.midiGrant=()=>r({});window.midiDeny=()=>j({code:'denied'});});};
+  Updater=class{async find(){lookups++;return null;}};
+  installKeepingSlots=async(up,img,product)=>{window.entries.push({product,bytes:Array.from(img)});return await new Promise((r,j)=>{window.installDone=()=>r({});window.installFail=()=>j(new Error('synthetic interruption'));});};
+  insertCtl=img=>img;
+  ctl=new Uint8Array([1,2,3]);
+  stock={image:new Uint8Array([99]),product:'SMK-37 Pro_016'};
+  $("stockconfirm").disabled=false;$("stockconfirm").checked=true;$("stockgo").disabled=false;
+ },
+};
+'''
+def render():
+    if not args.source:
+        s=subprocess.check_output(['node','--input-type=module','-e',
+          "import{readFileSync}from'node:fs';import{renderInstaller}from'./scripts/render-qualified-nightly.mjs';process.stdout.write(renderInstaller(JSON.parse(readFileSync(0,'utf8'))));"],input=json.dumps(CAT).encode(),cwd=ROOT).decode()
+        return s.replace('(async () => {',probe+'\n(async () => {',1)
+    s=Path(args.source).read_text()
+    libs='\n'.join(re.sub(r'^import .*?;\r?\n','',re.sub(r'^export\s+','',(ROOT/p).read_text(),flags=re.M),flags=re.M) for p in ['web/fm1pkg.js','web/fm1ota.js','web/x0x_breaks.js'])
+    s=s.replace('/*LIB*/',libs).replace('/*CATALOG*/',json.dumps(CAT))
+    return s.replace('(async () => {',probe+'\n(async () => {',1)
+HTML=render().encode()
+class Server(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200);self.send_header('Content-Type','text/html');self.end_headers();self.wfile.write((ROOT/'docs/install/index.html').read_bytes() if self.path=='/empty/' else HTML)
+    def log_message(self,*a):pass
+srv=ThreadingHTTPServer(('127.0.0.1',0),Server);threading.Thread(target=srv.serve_forever,daemon=True).start()
+INIT='''window.pending=[];window.fetch=(url,opts)=>new Promise((resolve,reject)=>pending.push({url,opts,resolve,reject}));'''
+checks=0; failures=[]
+def check(ok,label):
+    global checks
+    checks+=1
+    print('CHECK',checks,label,flush=True)
+    if not ok: failures.append(label);print('FAIL',label,flush=True)
+async def state(p):return await p.evaluate('qa.state()')
+async def reply(p,model='pro',data=None,status=200,index=0,reject=False):
+    await p.evaluate('''a=>{const q=pending.splice(a.index,1)[0];if(!q)throw Error('no pending fetch');if(a.reject)q.reject(Error('synthetic network interruption'));else q.resolve(new Response(new Uint8Array(a.bytes),{status:a.status}));}''',{'index':index,'reject':reject,'status':status,'bytes':list(RAW[model] if data is None else data)})
+    await p.wait_for_timeout(25)
+async def fresh(browser,width=390,language='en'):
+    p=await browser.new_page(viewport={'width':width,'height':900},accept_downloads=True)
+    errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
+    await p.add_init_script(INIT);await p.goto(f'http://127.0.0.1:{srv.server_port}/install/',wait_until='domcontentloaded')
+    await p.wait_for_function('window.qa && pending.length===1');await p.evaluate('(l)=>qa.language(l)',language)
+    return p,errors
+async def ready(browser,width=390,language='en',model='pro'):
+    p,e=await fresh(browser,width,language)
+    if model!='pro':
+        await p.evaluate('(m)=>{qa.select(m)}',model);await reply(p,'pro',index=0)
+    await reply(p,model)
+    return p,e
+async def main():
+ async with async_playwright() as pw:
+  browser=await pw.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
+  print('Chromium',browser.version,flush=True)
+  if args.race_only:
+   p,e=await ready(browser);await p.evaluate('qa.installMocks()');await p.locator('#devagree').check();await p.locator('#go').click();await p.wait_for_function('permissions===1')
+   await p.evaluate("$('stockgo').dispatchEvent(new MouseEvent('click'))")
+   check(await p.evaluate('permissions===1 && qa.state().writing'),'pre-MIDI lock rejects second path')
+   await p.evaluate('midiResolvers.forEach(r=>r())');await p.wait_for_timeout(50)
+   check(await p.evaluate('entries.length===1'),'exactly one installer entry')
+   print(json.dumps({'checks':checks,'failed':len(failures),'permissions':await p.evaluate('permissions'),'installer_entries':await p.evaluate('entries.length'),'source':args.source or 'current'}),flush=True)
+   await browser.close();srv.shutdown();raise SystemExit(1 if failures else 0)
+  if not args.source:
+   for width in [320,390,1280]:
+    p=await browser.new_page(viewport={'width':width,'height':900});errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
+    await p.goto(f'http://127.0.0.1:{srv.server_port}/empty/',wait_until='domcontentloaded')
+    check(await p.locator('#go').is_disabled(),'unmodified empty page install disabled '+str(width))
+    check(await p.locator('#stockgo').is_disabled(),'unmodified local file install disabled '+str(width))
+    check(await p.locator('#download').get_attribute('href') is None,'unmodified empty page no download '+str(width))
+    check(await p.evaluate('document.documentElement.scrollWidth<=innerWidth') and not errors,'unmodified empty responsive page '+str(width))
+    await p.close()
+  for width in [320,390,1280]:
+   for language in ['en','ja']:
+    for model in ['pro','elite']:
+     label=f'{width}/{language}/{model}'
+     p,errors=await fresh(browser,width,language)
+     check((await state(p))['href'] is None,label+' no link before verification')
+     if model=='elite':
+      await p.evaluate("()=>{qa.select('elite');}");await reply(p,'pro',index=0)
+      check(not (await state(p))['image'],label+' stale model response ignored')
+     await reply(p,model)
+     st=await state(p);check(bool(st['href'] and st['href'].startswith('blob:')),label+' verified Blob only')
+     check(st['product']==CAT['versions'][0]['models'][model]['product'],label+' product parsed')
+     check(st['disabled'],label+' requires DEV acknowledgement')
+     await p.locator('#devagree').check();check(not (await state(p))['disabled'],label+' ack enables verified install')
+     check(await p.evaluate('document.documentElement.scrollWidth<=innerWidth'),label+' no horizontal overflow')
+     if st['href'] and st['href'].startswith('blob:'):
+      async with p.expect_download() as download:
+       await p.locator('#download').click()
+      d=await download.value;path=await d.path();check(Path(path).read_bytes()==RAW[model],label+' downloaded bytes exact')
+     check(not errors,label+' no page errors')
+     await p.close()
+  # Every rejection exercises the actual generated page and real SHA/product parser.
+  mutations=[('bad hash',"p.sha256='0'.repeat(64);p.pkg='https://example.invalid/'+p.sha256+'/pro.fwsc'"),
+   ('missing hash','delete p.sha256'),('short hash',"p.sha256='a'"),('missing controller hash','delete p.controller_sha256'),
+   ('revoked model','p.revoked=true'),('revoked version','v.revoked=true'),('blocked','v.blocked=true'),('withdrawn','p.withdrawn=true'),
+   ('unqualified','p.qualified=false'),('failed model',"p.status='failed'"),('product suffix',"p.product='SMK-37 ProEVIL_900'"),
+   ('missing version',"p.product='SMK-37 Pro'"),('invalid URL',"p.pkg='https://'"),('wrong model',"p.product='SMK-37 Elite_900'"),
+   ('string Release',"p.fromRelease='true'"),('version Release',"v.fromRelease=true"),('device claim',"p.device_verified=true"),('superseded',"v.lifecycle='superseded'"),('credentials',"p.pkg='https://u:p@example.invalid/'+p.sha256+'/pro.fwsc'")]
+  for name,mutation in mutations:
+   p,e=await fresh(browser)
+   await p.evaluate('()=>{const v=qa.catalog().versions[0],p=v.models.pro;'+mutation+';qa.load();}')
+   await reply(p)
+   if await p.evaluate('pending.length'):await reply(p)
+   st=await state(p);check(not st['image'] and st['href'] is None and st['disabled'],name+' rejected')
+   await p.close()
+  for name,data,status,reject in [('truncated',RAW['pro'][:-1],200,False),('oversized',RAW['pro']+b'x',200,False),('wrong bytes',RAW['elite'],200,False),('http failure',b'',404,False),('network interruption',None,200,True)]:
+   p,e=await fresh(browser);await reply(p,data=data,status=status,reject=reject)
+   st=await state(p);check(not st['image'] and st['href'] is None and st['disabled'],name+' fail closed')
+   await p.evaluate('()=>{qa.load();}');await reply(p);check((await state(p))['image'],name+' retry succeeds')
+   await p.close()
+  if args.red_only:
+   await browser.close();srv.shutdown()
+   print(json.dumps({'checks':checks,'failed':len(failures),'failures':failures,'source':args.source,'device_tested':False}),flush=True)
+   raise SystemExit(1 if failures else 0)
+  # Delayed digest, stale failure, catalog empty/revoked, and in-place metadata changes.
+  p,e=await fresh(browser);await p.evaluate('qa.hashHold()');await reply(p);await p.wait_for_function("typeof window.hashRelease === 'function'")
+  await p.evaluate("qa.replace({versions:[],history:[]});hashRelease()")
+  await p.wait_for_timeout(30);st=await state(p);check(not st['image'] and st['href'] is None,'empty catalog invalidates delayed digest');await p.close()
+  p,e=await fresh(browser);await p.evaluate("()=>{qa.select('elite');}");await reply(p,'elite',index=1)
+  st=await state(p);await reply(p,index=0,reject=True)
+  check((await state(p))==st,'stale failed request cannot overwrite current state');await p.close()
+  p,e=await ready(browser);await p.evaluate('qa.catalog().versions[0].models.pro.size++;qa.meta()')
+  check((await state(p))['href'] is None and (await state(p))['disabled'],'in-place byte identity change clears cached admission');await p.close()
+  p,e=await ready(browser);await p.evaluate('qa.catalog().versions[0].revoked=true')
+  prevented=await p.evaluate('''()=>{const event=new MouseEvent('click',{bubbles:true,cancelable:true});return !$('download').dispatchEvent(event);}''')
+  check(prevented and (await state(p))['href'] is None,'click-time revocation cancels download');await p.close()
+  p,e=await fresh(browser);await p.evaluate('qa.hashHold()');await reply(p);await p.wait_for_function("typeof hashRelease==='function'")
+  await p.evaluate("qa.select('elite');hashRelease()")
+  await p.wait_for_timeout(25);check(not (await state(p))['image'],'model switch invalidates held digest')
+  await reply(p,'elite');await p.wait_for_timeout(25);await p.evaluate('hashRelease()');await p.wait_for_timeout(25)
+  check((await state(p))['product']=='SMK-37 Elite_900','new model verifies after stale digest')
+  await p.close()
+  p,e=await fresh(browser)
+  await p.evaluate("pending.shift().resolve({ok:true,arrayBuffer:()=>new Promise((r,j)=>{window.bodyReject=j;})})")
+  await p.wait_for_function("typeof bodyReject==='function'");await p.evaluate("()=>{qa.select('elite');}");await reply(p,'elite')
+  st=await state(p);await p.evaluate("bodyReject(Error('stale body failure'))");await p.wait_for_timeout(25)
+  check((await state(p))==st,'stale response body rejection ignored');await p.close()
+  # Actual DEV/stock listeners plus run(): no physical MIDI, held permission/install promises.
+  for outcome in ['grant','deny','selection-change','revoked','interrupt','lookup-change']:
+   p,e=await ready(browser);await p.evaluate('qa.installMocks()');await p.locator('#devagree').check();
+   if outcome=='lookup-change':await p.evaluate('qa.holdLookup()')
+   await p.locator('#go').click()
+   await p.wait_for_function('window.permissions===1')
+   await p.evaluate("$('stockgo').dispatchEvent(new MouseEvent('click'));$('go').dispatchEvent(new MouseEvent('click'))")
+   check(await p.evaluate('permissions===1 && qa.state().writing'),'single writer before MIDI '+outcome)
+   if outcome=='selection-change':await p.evaluate("()=>{qa.select('elite');}")
+   if outcome=='revoked':await p.evaluate('qa.catalog().versions[0].revoked=true')
+   await p.evaluate('midiDeny()' if outcome=='deny' else 'midiGrant()');await p.wait_for_timeout(30)
+   if outcome=='lookup-change':
+    await p.wait_for_function("typeof lookupRelease==='function'");await p.evaluate("qa.select('elite');lookupRelease(null)");await p.wait_for_timeout(25)
+   count=await p.evaluate('entries.length')
+   check(count==(0 if outcome in ['deny','selection-change','revoked','lookup-change'] else 1),'install target admission '+outcome)
+   if count:
+    entry=await p.evaluate('entries[0]');check(entry['product']=='SMK-37 Pro_900' and len(entry['bytes'])==1004,'exact logical image and product '+outcome)
+    await p.evaluate('installFail()' if outcome=='interrupt' else 'installDone()');await p.wait_for_timeout(30)
+   check(not (await state(p))['writing'],'write lock released '+outcome)
+   if outcome in ['deny','interrupt']:
+    await p.locator('#go').click();await p.wait_for_function('permissions===2');await p.evaluate('midiGrant()');await p.wait_for_timeout(30)
+    check(await p.evaluate('entries.length')==(1 if outcome=='deny' else 2),'install retry '+outcome)
+    await p.evaluate('installDone()')
+   await p.close()
+  p,e=await ready(browser);await p.evaluate('qa.installMocks()');await p.locator('#devagree').check()
+  await p.locator('#stockgo').click();await p.evaluate("$('go').dispatchEvent(new MouseEvent('click'));$('stockgo').dispatchEvent(new MouseEvent('click'))")
+  check(await p.evaluate('permissions===1 && qa.state().writing'),'stock-first locks both paths')
+  await p.evaluate('midiGrant()');await p.wait_for_timeout(30)
+  check(await p.evaluate("entries.length===1 && entries[0].product==='SMK-37 Pro_016' && entries[0].bytes[0]===99"),'stock target preserved')
+  await p.evaluate('installDone()');await p.close()
+  p,e=await ready(browser);await p.evaluate('qa.holdScan()');await p.wait_for_function("typeof scanRelease==='function'")
+  await p.evaluate('qa.installMocks()');await p.locator('#devagree').check();await p.locator('#go').click();await p.wait_for_function('permissions===1')
+  await p.evaluate("scanRelease({id:{model:'SMK-37 Elite',text:'synthetic'},link:{close(){closedLinks++;}}})");await p.wait_for_timeout(25)
+  check(await p.evaluate("closedLinks===1 && qa.state().product==='SMK-37 Pro_900' && qa.state().writing"),'stale scan cannot switch model during pending write')
+  await p.evaluate('midiDeny()');await p.close()
+  p,e=await ready(browser);await p.evaluate('qa.holdScanPermission()');await p.wait_for_function("typeof scanMidiGrant==='function'")
+  await p.evaluate('qa.installMocks()');await p.locator('#devagree').check();await p.locator('#go').click();await p.wait_for_function('permissions===1')
+  await p.evaluate('scanMidiGrant({})');await p.wait_for_timeout(25)
+  check(await p.evaluate('lookups===0 && qa.state().writing'),'stale scan permission cannot start device lookup during write')
+  await p.evaluate('midiDeny()');await p.close()
+  # Controller rejection/retry and mutation during its actual async digest.
+  for kind in ['missing','wrong','changed','insert-fail']:
+   p,e=await ready(browser);await p.evaluate('qa.installMocks()');await p.locator('#devagree').check()
+   await p.evaluate({'missing':'ctl=null','wrong':'ctl=new Uint8Array([9])','changed':'qa.hashHold()','insert-fail':'qa.badController()'}[kind]);await p.locator('#go').click()
+   if kind=='changed':
+    await p.wait_for_function("typeof window.hashRelease === 'function'");await p.evaluate("qa.select('elite');hashRelease()")
+   await p.wait_for_timeout(30);check(await p.evaluate('permissions===0'),'controller '+kind+' blocks MIDI')
+   if kind not in ['changed','insert-fail']:
+    await p.evaluate('ctl=new Uint8Array([1,2,3])');await p.locator('#go').click();await p.wait_for_function('permissions===1');await p.evaluate('midiDeny()')
+    check(True,'controller '+kind+' retry')
+   await p.close()
+  await browser.close()
+ print(json.dumps({'checks':checks,'failed':len(failures),'failures':failures,'source':args.source or 'current full generated installer','device_tested':False}),flush=True)
+ srv.shutdown()
+ if failures:raise SystemExit(1)
+asyncio.run(main())
