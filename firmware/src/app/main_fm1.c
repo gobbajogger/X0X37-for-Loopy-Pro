@@ -1054,9 +1054,11 @@ CK_FN static void ck_key_send(uint32_t k, uint32_t st)
     CK_BASE;
     uint8_t out[CK_MAXN];
     uint32_t keep[4] = {0, 0, 0, 0}, n, i, q;
-    if (st & 1u)
+    /* Private dispatch bits: single-key events compare all other owners;
+     * whole-voice off/on compares only earlier visited keys (one MIDI event per pitch). */
+    if (st & 3u)
         for (q = 0; q < CK_NKEY; q++)
-            if (q != k && CK_BIT(cp->snd, q))
+            if (q != k && CK_BIT(cp->snd, q) && (!(st & 2u) || q < k))
                 for (i = 0, n = ck_key_notes(q, out); i < n; i++)
                     keep[out[i] >> 5] |= 1u << (out[i] & 31u);
     for (i = 0, n = ck_key_notes(k, out); i < n; i++)
@@ -1074,7 +1076,7 @@ CK_FN static void ck_voice(uint32_t st)
     uint32_t k;
     for (k = 0; k < CK_NKEY; k++)
         if (CK_BIT(cp->snd, k))
-            ck_key_send(k, st);
+            ck_key_send(k, st | 3u);
 }
 /* All notes off: the keys, the arp note, the arp list */
 CK_FN static void ck_all_off(void)
@@ -1146,7 +1148,7 @@ CK_FN static void ck_press(uint32_t k, uint32_t vel)
             ck_strum(0);
             return;
         }
-        ck_key_send(k, 0x90u);
+        ck_key_send(k, 0x91u);  /* bit 0 checks existing owners; ck_on emits real NoteOn */
         return;
     }
     cp->keys[k >> 5] ^= 1u << (k & 31u);                     /* (for a moment: the other keys only) */
