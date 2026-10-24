@@ -7,6 +7,7 @@
 // Each firmware has its slot map: this X0X 80/120/44 KiB with the SMP_INFO extension, an older X0X
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import "./test_install_nightly_download_guard.mjs";
+import "./test_install_nightly_product_identity.mjs";
 import "./test_install_nightly_reconnect.mjs";
 import "./test_install_stock_model_preflight.mjs";
 import "./test_install_nightly_scan_order.mjs";
