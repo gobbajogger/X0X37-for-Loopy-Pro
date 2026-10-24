@@ -994,6 +994,8 @@ enum { CK_F_LATCH = 1u, CK_F_NRUSED = 2u, CK_F_BLE = 4u, CK_F_ACTIVE = 8u };
 #define CK_QN 24u
 static uint16_t ck_qe[CK_QN];
 static uint8_t ck_qt[CK_QN], ck_qn;
+/* A new strum inherits pitches already sounding from earlier held keys. */
+static uint32_t ck_strum_keep[4];
 static void ck_q_run(uint32_t only);
 __attribute__((minsize)) static void ck_send(uint32_t st, uint32_t d1, uint32_t d2)
 {
@@ -1074,6 +1076,9 @@ CK_FN static void ck_voice(uint32_t st)
 {
     CK_BASE;
     uint32_t k;
+    /* Full revoice/panic supersedes any unfinished non-ARP strum. */
+    if (!(cp->on & CK_M_ARP))
+        cp->nk = 0;
     for (k = 0; k < CK_NKEY; k++)
         if (CK_BIT(cp->snd, k))
             ck_key_send(k, st | 3u);
@@ -1112,6 +1117,21 @@ CK_FN void smk_project_reset(void)
     knob_bank_prev = (uint8_t)((fm1_in.buttons >> SMK_BTN_KNOB_BANK) & 1u);
     was_on = 0u;                                    /* redraw clip-key settings after the swap */
 }
+/* Finish the previous strum before snapshotting the tones owned by held keys.
+ * Keep the snapshot through this strum: a previously held key might be released
+ * before a shared delayed note, but its sounding pitch is now owned by this key. */
+CK_FN static void ck_strum_snapshot(uint32_t key)
+{
+    CK_BASE;
+    uint8_t out[CK_MAXN];
+    uint32_t q, i, n;
+    for (q = 0; q < 4u; q++)
+        ck_strum_keep[q] = 0;
+    for (q = 0; q < CK_NKEY; q++)
+        if (q != key && CK_BIT(cp->snd, q))
+            for (i = 0, n = ck_key_notes(q, out); i < n; i++)
+                ck_strum_keep[out[i] >> 5] |= 1u << (out[i] & 31u);
+}
 /* STRUM (ARP off): the notes of the strum key, low to high, one each STRUM x 10 ms after the press.
  * dt: the ms since the last call (a big dt sends all the notes that wait). */
 CK_FN static void ck_strum(uint32_t dt)
@@ -1129,7 +1149,8 @@ CK_FN static void ck_strum(uint32_t dt)
         }
     cp->acc += dt;
     for (; cp->nk <= n && (cp->nk - 1u) * gap <= cp->acc; cp->nk++)
-        ck_on(out[cp->nk - 1u]);
+        if (!CK_BIT(ck_strum_keep, out[cp->nk - 1u]))
+            ck_on(out[cp->nk - 1u]);
     if (cp->nk > n)
         cp->nk = 0;
 }
@@ -1139,15 +1160,17 @@ CK_FN static void ck_press(uint32_t k, uint32_t vel)
     CK_BASE;
     cp->vel = (uint8_t)(vel ? vel : 1u);
     if (!(cp->on & CK_M_ARP)) {
-        cp->snd[k >> 5] |= 1u << (k & 31u);
         if ((sp->ck_x2 >> 4) && (cp->on & CK_M_CHORD)) {     /* STRUM: the last strum ends at once */
             ck_strum(1u << 20);
+            ck_strum_snapshot(k);                       /* before the new physical owner is added */
+            cp->snd[k >> 5] |= 1u << (k & 31u);
             cp->korder[0] = (uint8_t)k;
             cp->nk = 1;
             cp->acc = 0;
             ck_strum(0);
             return;
         }
+        cp->snd[k >> 5] |= 1u << (k & 31u);
         ck_key_send(k, 0x91u);  /* bit 0 checks existing owners; ck_on emits real NoteOn */
         return;
     }
