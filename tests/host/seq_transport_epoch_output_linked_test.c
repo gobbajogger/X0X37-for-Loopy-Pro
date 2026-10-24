@@ -229,6 +229,41 @@ static void mixed_transport_origin_output(void)
     CHECK(count(&t, 0xFA, 0) == 0);
 }
 
+/* A Loopy Start/Continue echo and the first external clock can arrive together after
+ * local PLAY already sounded step 1. Rephase must not sound that step twice,
+ * and the sixth FOLLOWING F8 is the next step boundary (24 ppqn/16th). */
+static void local_play_echo_first_external_tick_phase(uint8_t echo)
+{
+    seq_t s; trace_t t;
+    init(&s, &t);
+    seq_start(&s);
+    advance(&s, &t);
+    CHECK(s.playing && s.start_local);
+    CHECK(count(&t, 0x91, 60) == 1);
+    incoming(&s, echo);
+    incoming(&s, 0xF8);    /* first external tick establishes phase */
+    advance(&s, &t);
+    CHECK(s.playing && s.start_local && s.ext);
+    CHECK(count(&t, 0x91, 60) == 1);
+    CHECK(count(&t, 0x81, 60) == 0);
+    CHECK(count(&t, 0x91, 64) == 0);
+    for (int i = 0; i < 5; ++i) incoming(&s, 0xF8);
+    advance(&s, &t);
+    CHECK(count(&t, 0x91, 60) == 1);
+    CHECK(count(&t, 0x91, 64) == 0);
+    incoming(&s, 0xF8);
+    advance(&s, &t);
+    CHECK(count(&t, 0x91, 60) == 1);
+    CHECK(count(&t, 0x91, 64) == 1);
+    incoming(&s, 0xFC);
+    advance(&s, &t);
+    CHECK(count(&t, 0x81, 60) == 1);
+    CHECK(count(&t, 0x81, 64) == 1);
+    CHECK(count(&t, 0xFA, 0) == 1);
+    CHECK(count(&t, 0xFB, 0) == 0);
+    CHECK(count(&t, 0xFC, 0) == 0);
+}
+
 int main(void)
 {
     static const uint32_t blocks[] = {1u, 64u, 1024u};
@@ -239,6 +274,8 @@ int main(void)
         local_play_echo_must_keep_phase();
         remote_stop_then_continue_preserves_order();
         mixed_transport_origin_output();
+        local_play_echo_first_external_tick_phase(0xFA);
+        local_play_echo_first_external_tick_phase(0xFB);
     }
     fprintf(stderr, "seq epoch/output linked: %d/%d checks %s\n", checks - errors, checks,
             errors ? "FAILED" : "PASSED");
