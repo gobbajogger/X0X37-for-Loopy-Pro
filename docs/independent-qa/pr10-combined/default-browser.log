@@ -1,0 +1,205 @@
+
+> x0x37-nightly-installer-preview@0.0.0-dev test:browser
+> python3 tests/browser-admission.py && python3 tests/history-response.py
+
+Chromium 154.0.8037.57
+CHECK 1 unmodified empty page install disabled 320
+CHECK 2 unmodified local file install disabled 320
+CHECK 3 unmodified empty page no download 320
+CHECK 4 unmodified empty responsive page 320
+CHECK 5 unmodified empty page install disabled 390
+CHECK 6 unmodified local file install disabled 390
+CHECK 7 unmodified empty page no download 390
+CHECK 8 unmodified empty responsive page 390
+CHECK 9 unmodified empty page install disabled 1280
+CHECK 10 unmodified local file install disabled 1280
+CHECK 11 unmodified empty page no download 1280
+CHECK 12 unmodified empty responsive page 1280
+CHECK 13 320/en/pro no link before verification
+CHECK 14 320/en/pro verified Blob only
+CHECK 15 320/en/pro product parsed
+CHECK 16 320/en/pro requires DEV acknowledgement
+CHECK 17 320/en/pro ack enables verified install
+CHECK 18 320/en/pro no horizontal overflow
+CHECK 19 320/en/pro downloaded bytes exact
+CHECK 20 320/en/pro no page errors
+CHECK 21 320/en/elite no link before verification
+CHECK 22 320/en/elite stale model response ignored
+CHECK 23 320/en/elite verified Blob only
+CHECK 24 320/en/elite product parsed
+CHECK 25 320/en/elite requires DEV acknowledgement
+CHECK 26 320/en/elite ack enables verified install
+CHECK 27 320/en/elite no horizontal overflow
+CHECK 28 320/en/elite downloaded bytes exact
+CHECK 29 320/en/elite no page errors
+CHECK 30 320/ja/pro no link before verification
+CHECK 31 320/ja/pro verified Blob only
+CHECK 32 320/ja/pro product parsed
+CHECK 33 320/ja/pro requires DEV acknowledgement
+CHECK 34 320/ja/pro ack enables verified install
+CHECK 35 320/ja/pro no horizontal overflow
+CHECK 36 320/ja/pro downloaded bytes exact
+CHECK 37 320/ja/pro no page errors
+CHECK 38 320/ja/elite no link before verification
+CHECK 39 320/ja/elite stale model response ignored
+CHECK 40 320/ja/elite verified Blob only
+CHECK 41 320/ja/elite product parsed
+CHECK 42 320/ja/elite requires DEV acknowledgement
+CHECK 43 320/ja/elite ack enables verified install
+CHECK 44 320/ja/elite no horizontal overflow
+CHECK 45 320/ja/elite downloaded bytes exact
+CHECK 46 320/ja/elite no page errors
+CHECK 47 390/en/pro no link before verification
+CHECK 48 390/en/pro verified Blob only
+CHECK 49 390/en/pro product parsed
+CHECK 50 390/en/pro requires DEV acknowledgement
+CHECK 51 390/en/pro ack enables verified install
+CHECK 52 390/en/pro no horizontal overflow
+CHECK 53 390/en/pro downloaded bytes exact
+CHECK 54 390/en/pro no page errors
+CHECK 55 390/en/elite no link before verification
+CHECK 56 390/en/elite stale model response ignored
+CHECK 57 390/en/elite verified Blob only
+CHECK 58 390/en/elite product parsed
+CHECK 59 390/en/elite requires DEV acknowledgement
+CHECK 60 390/en/elite ack enables verified install
+CHECK 61 390/en/elite no horizontal overflow
+CHECK 62 390/en/elite downloaded bytes exact
+CHECK 63 390/en/elite no page errors
+CHECK 64 390/ja/pro no link before verification
+CHECK 65 390/ja/pro verified Blob only
+CHECK 66 390/ja/pro product parsed
+CHECK 67 390/ja/pro requires DEV acknowledgement
+CHECK 68 390/ja/pro ack enables verified install
+CHECK 69 390/ja/pro no horizontal overflow
+CHECK 70 390/ja/pro downloaded bytes exact
+CHECK 71 390/ja/pro no page errors
+CHECK 72 390/ja/elite no link before verification
+CHECK 73 390/ja/elite stale model response ignored
+CHECK 74 390/ja/elite verified Blob only
+CHECK 75 390/ja/elite product parsed
+CHECK 76 390/ja/elite requires DEV acknowledgement
+CHECK 77 390/ja/elite ack enables verified install
+CHECK 78 390/ja/elite no horizontal overflow
+CHECK 79 390/ja/elite downloaded bytes exact
+CHECK 80 390/ja/elite no page errors
+CHECK 81 1280/en/pro no link before verification
+CHECK 82 1280/en/pro verified Blob only
+CHECK 83 1280/en/pro product parsed
+CHECK 84 1280/en/pro requires DEV acknowledgement
+CHECK 85 1280/en/pro ack enables verified install
+CHECK 86 1280/en/pro no horizontal overflow
+CHECK 87 1280/en/pro downloaded bytes exact
+CHECK 88 1280/en/pro no page errors
+CHECK 89 1280/en/elite no link before verification
+CHECK 90 1280/en/elite stale model response ignored
+CHECK 91 1280/en/elite verified Blob only
+CHECK 92 1280/en/elite product parsed
+CHECK 93 1280/en/elite requires DEV acknowledgement
+CHECK 94 1280/en/elite ack enables verified install
+CHECK 95 1280/en/elite no horizontal overflow
+CHECK 96 1280/en/elite downloaded bytes exact
+CHECK 97 1280/en/elite no page errors
+CHECK 98 1280/ja/pro no link before verification
+CHECK 99 1280/ja/pro verified Blob only
+CHECK 100 1280/ja/pro product parsed
+CHECK 101 1280/ja/pro requires DEV acknowledgement
+CHECK 102 1280/ja/pro ack enables verified install
+CHECK 103 1280/ja/pro no horizontal overflow
+CHECK 104 1280/ja/pro downloaded bytes exact
+CHECK 105 1280/ja/pro no page errors
+CHECK 106 1280/ja/elite no link before verification
+CHECK 107 1280/ja/elite stale model response ignored
+CHECK 108 1280/ja/elite verified Blob only
+CHECK 109 1280/ja/elite product parsed
+CHECK 110 1280/ja/elite requires DEV acknowledgement
+CHECK 111 1280/ja/elite ack enables verified install
+CHECK 112 1280/ja/elite no horizontal overflow
+CHECK 113 1280/ja/elite downloaded bytes exact
+CHECK 114 1280/ja/elite no page errors
+CHECK 115 bad hash rejected
+CHECK 116 missing hash rejected
+CHECK 117 short hash rejected
+CHECK 118 missing controller hash rejected
+CHECK 119 revoked model rejected
+CHECK 120 revoked version rejected
+CHECK 121 blocked rejected
+CHECK 122 withdrawn rejected
+CHECK 123 unqualified rejected
+CHECK 124 failed model rejected
+CHECK 125 product suffix rejected
+CHECK 126 missing version rejected
+CHECK 127 invalid URL rejected
+CHECK 128 wrong model rejected
+CHECK 129 string Release rejected
+CHECK 130 version Release rejected
+CHECK 131 device claim rejected
+CHECK 132 superseded rejected
+CHECK 133 credentials rejected
+CHECK 134 truncated fail closed
+CHECK 135 truncated retry succeeds
+CHECK 136 oversized fail closed
+CHECK 137 oversized retry succeeds
+CHECK 138 wrong bytes fail closed
+CHECK 139 wrong bytes retry succeeds
+CHECK 140 http failure fail closed
+CHECK 141 http failure retry succeeds
+CHECK 142 network interruption fail closed
+CHECK 143 network interruption retry succeeds
+CHECK 144 empty catalog invalidates delayed digest
+CHECK 145 stale failed request cannot overwrite current state
+CHECK 146 in-place byte identity change clears cached admission
+CHECK 147 click-time revocation cancels download
+CHECK 148 model switch invalidates held digest
+CHECK 149 new model verifies after stale digest
+CHECK 150 stale response body rejection ignored
+CHECK 151 malformed actual click cancels download: qa.catalog().versions[0].models=null
+CHECK 152 malformed click clears cached admission without errors: qa.catalog().versions[0].models=null
+CHECK 153 malformed actual click cancels download: qa.catalog().versions={}
+CHECK 154 malformed click clears cached admission without errors: qa.catalog().versions={}
+CHECK 155 malformed actual click cancels download: qa.catalog().versions[0]=null
+CHECK 156 malformed click clears cached admission without errors: qa.catalog().versions[0]=null
+CHECK 157 malformed actual click cancels download: qa.catalog().versions=null
+CHECK 158 malformed click clears cached admission without errors: qa.catalog().versions=null
+CHECK 159 malformed actual click cancels download: qa.catalog().versions[0].models.pro=null
+CHECK 160 malformed click clears cached admission without errors: qa.catalog().versions[0].models.pro=null
+CHECK 161 malformed actual click cancels download: qa.catalog().versions[0].self=qa.catalog().versions[0]
+CHECK 162 malformed click clears cached admission without errors: qa.catalog().versions[0].self=qa.catalog().versions[0]
+CHECK 163 malformed actual click cancels download: Object.defineProperty(qa.catalog(),'versions',{get(){throw Error('malformed versions')}})
+CHECK 164 malformed click clears cached admission without errors: Object.defineProperty(qa.catalog(),'versions',{get(){throw Error('malformed versions')}})
+CHECK 165 malformed actual click cancels download: Object.defineProperty(qa.catalog().versions[0].models,'pro',{get(){throw Error('malformed model')}})
+CHECK 166 malformed click clears cached admission without errors: Object.defineProperty(qa.catalog().versions[0].models,'pro',{get(){throw Error('malformed model')}})
+CHECK 167 malformed actual click cancels download: Object.defineProperty(qa.catalog().versions[0],'status',{get(){throw Error('malformed status')}})
+CHECK 168 malformed click clears cached admission without errors: Object.defineProperty(qa.catalog().versions[0],'status',{get(){throw Error('malformed status')}})
+Traceback (most recent call last):
+  File "/workspace/pr8-independent-qa/tests/browser-admission.py", line 284, in <module>
+    asyncio.run(main())
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/workspace/pr8-independent-qa/tests/browser-admission.py", line 201, in main
+    await p.wait_for_function("document.querySelector('#history').children.length===117")
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/async_api/_generated.py", line 12687, in wait_for_function
+    await self._impl_obj.wait_for_function(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_page.py", line 1151, in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_frame.py", line 940, in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

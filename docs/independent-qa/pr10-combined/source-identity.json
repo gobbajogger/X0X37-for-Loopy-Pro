@@ -1,0 +1,78 @@
+{
+  "head": "081bf121c5f26bb900364bf90fd3e92bbadcbdb7",
+  "root": "f5b26ba94a6a37bef3c8fa6125931908cceb9388",
+  "parents": [
+    "54720f99d8ab6794d8c95c26be27646d67d90546",
+    "5f7d6a5aa0d878bf267c48494bf5c32352710998"
+  ],
+  "exact_five_integration_paths": [
+    "build-status.json",
+    "docs/build-status.json",
+    "tests/build-history-continuity.test.mjs",
+    "tests/build-status-negatives.test.mjs",
+    "tests/fixtures/history-appendonly-baseline-20261024.json"
+  ],
+  "original117_rows_and_other_fields_preserved": true,
+  "history_count": 122,
+  "lock_count": 122,
+  "browser_runtime_unchanged_from_accepted_R5": [
+    {
+      "path": "web/x0x_installer.html",
+      "blob": "380aba0d5b5e6bdbce92437126494f1060dd7686"
+    },
+    {
+      "path": "web/fm1ota.js",
+      "blob": "485a54187e78822847f5cb51088204983caffa71"
+    },
+    {
+      "path": "web/fm1pkg.js",
+      "blob": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e"
+    },
+    {
+      "path": "web/x0x_breaks.js",
+      "blob": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e"
+    },
+    {
+      "path": "docs/install/index.html",
+      "blob": "8e4b0a3eab5e60f46eaf1ac56cbf9100f70a70ae"
+    },
+    {
+      "path": "docs/breaks/index.html",
+      "blob": "4cf4237ee0612370d97e2070bc16564019aadd56"
+    },
+    {
+      "path": "docs/builds/index.html",
+      "blob": "9cef7ba2a1ffc9894ddb02f5fc657827854c97e6"
+    },
+    {
+      "path": "package.json",
+      "blob": "0f45de3c521a9410e768c3930fc18599a67f9074"
+    },
+    {
+      "path": "AGENTS.md",
+      "blob": "dd6669033ce16d5e5d9c96b90e5137e6c6e064af"
+    },
+    {
+      "path": "LICENSE",
+      "blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7"
+    },
+    {
+      "path": "scripts/verify-build-status.mjs",
+      "blob": "9cd11cf06a1277238d5eafc470ab315177f99264"
+    },
+    {
+      "path": "tests/installer-write-boundaries.test.mjs",
+      "blob": "8e9cef4c60b061ea5698d41d06fca59dceb1d8c0"
+    }
+  ],
+  "adapter_scope": "outside source: ROOT path plus two hardcoded117 expected counts changed to122; no condition removed; official unmodified suite is separate",
+  "pinned_donor_four_paths_match": {
+    "commit": "2219ca0ab20ba5e13f73870937c0370171b5212a",
+    "paths": [
+      "build-status.json",
+      "docs/build-status.json",
+      "tests/fixtures/history-appendonly-baseline-20261024.json",
+      "tests/build-history-continuity.test.mjs"
+    ]
+  }
+}

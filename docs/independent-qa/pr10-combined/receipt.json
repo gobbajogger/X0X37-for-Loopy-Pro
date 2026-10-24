@@ -1,0 +1,184 @@
+{
+  "verdict": "NEEDS CHANGES \u2014 registered browser fixture expects117 while pinned history has122; runtime checks pass",
+  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+  "pr": 10,
+  "head": "081bf121c5f26bb900364bf90fd3e92bbadcbdb7",
+  "root": "f5b26ba94a6a37bef3c8fa6125931908cceb9388",
+  "parents": [
+    "54720f99d8ab6794d8c95c26be27646d67d90546",
+    "5f7d6a5aa0d878bf267c48494bf5c32352710998"
+  ],
+  "base": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "source_edited_by_reviewer": false,
+  "official_commands": [
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "exit": 1
+    }
+  ],
+  "independent_browser_commands": [
+    {
+      "command": [
+        "python3",
+        "/workspace/pr10-combined-qa-evidence/browser_admission_122_adapter.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "tests/history-response.py"
+      ],
+      "exit": 0
+    }
+  ],
+  "final_matrix": {
+    "command": "python3 final_matrix_extension.py",
+    "exit": 0
+  },
+  "runtime_results": {
+    "adapter_preserves_all_assertions_and_uses122_expected_records": {
+      "checks": 215,
+      "failed": 0,
+      "exit": 0
+    },
+    "unmodified_history_response_suite_real122_records": {
+      "checks": 34,
+      "failed": 0,
+      "exit": 0
+    },
+    "unmodified_shipping_JS_tests": {
+      "checks": 41,
+      "failed": 0
+    },
+    "final_F7_size_and_actual_Updater_extension": {
+      "checks": 6,
+      "failed": 0
+    }
+  },
+  "finding": {
+    "id": "C1",
+    "priority": "P2",
+    "path": "tests/browser-admission.py",
+    "lines": [
+      201,
+      202
+    ],
+    "actual": "npm run test:browser exits1 after168 checks, waiting30000ms for children.length===117 on actual122-card page",
+    "required": "Fix only stale expected-count fixture on existing integration lane, retain all assertions and122 immutable records, rerun registered default suite",
+    "classification": "Test integration defect; no unsafe runtime admission demonstrated"
+  },
+  "reviewed_deltas": {
+    "R6_output_parent_race": "VERIFIED fixed by source review and actual CLI stable0/rebind1:no destination inside source/sentinel retained",
+    "history_integration": "122 pinned records, original117/order/fields preserved; four pinned donor files plus fifth immutable-position test union verified",
+    "no_moving_history_imported": true
+  },
+  "runtime": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "playwright": "1.62.0",
+    "chromium": "154.0.8037.57"
+  },
+  "limits": [
+    "Explicit synthetic networking/MIDI/package fixtures, no hardware/physical-unit claim",
+    "No new source safety failure found by these checks; official registered browser fixture remains failing",
+    "No source fix/merge/publication/scheduler/device action; parent controls next owner"
+  ],
+  "logs": {
+    "commands.json": {
+      "bytes": 329,
+      "sha256": "961637db5a9daec38455643fda1fb3d4bcfa9043573a7d2a00ca7e55b77ed1ce"
+    },
+    "npm-test-before.log": {
+      "bytes": 13435,
+      "sha256": "b7777e379cd18e039dbce14ce343ca1bec9880a6e20334f6f186b172ec49ff81"
+    },
+    "npm-build.log": {
+      "bytes": 179,
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a"
+    },
+    "npm-test-after.log": {
+      "bytes": 13435,
+      "sha256": "b7777e379cd18e039dbce14ce343ca1bec9880a6e20334f6f186b172ec49ff81"
+    },
+    "default-browser.log": {
+      "bytes": 11158,
+      "sha256": "08401f9b27aed59f09d76310e5c5fc8011e223b57ef31c87e2b6d4e589e2047d"
+    },
+    "browser_admission_122_adapter.py": {
+      "bytes": 23184,
+      "sha256": "f8a7e387031d7dfbebd7c9d5d748d0f5d1ccc4477d17e4bdcfe5741b4e67fb42"
+    },
+    "chromium-122-adapter.log": {
+      "bytes": 11135,
+      "sha256": "7277a3fc493f079402d17c9bb30b625bf88d1446959241bacc8a0f0c57ea98b2"
+    },
+    "chromium-history-122.log": {
+      "bytes": 8296,
+      "sha256": "24322e137b3dd1367f5a0d4872981ab18221ffd2afa8ae2500d62f892279a3f3"
+    },
+    "independent-browser-commands.json": {
+      "bytes": 242,
+      "sha256": "fe90e04c9722498340943316c2af337ad42b121ab9258a2cb1d69c6c3de1bd0d"
+    },
+    "final_matrix_extension.py": {
+      "bytes": 5918,
+      "sha256": "6ecb7e10ee9b0a8b3975fc54d4d9438c6b72c8148289f9d96c228fde8fa0b7ef"
+    },
+    "final-matrix.log": {
+      "bytes": 3466,
+      "sha256": "1ddbf75a3579e24c99cd66bdf078d93cf19de9b7b731ad13c60b329e653511d7"
+    },
+    "final-matrix-command.json": {
+      "bytes": 65,
+      "sha256": "5890eb0b65117bf36df845e8b079d4fb6297bfdb23a8d21a72a07b0ea1110ffc"
+    },
+    "final-matrix-extension-results.json": {
+      "bytes": 3748,
+      "sha256": "5682a8f7777385c02ce1b1dcb6441361395bc5e5ec7d1adca6bf55741748db73"
+    },
+    "size_binding_check.mjs": {
+      "bytes": 3129,
+      "sha256": "71b02d84ef519a918d2c8c93420f7f9e3e8d3bbedef2970c92c8673968c0d24f"
+    },
+    "additional_browser_write_guards.mjs": {
+      "bytes": 1448,
+      "sha256": "de8e78066e589288b1485a9cefc82d4c73145679f39fe96d7d500990f73d6dc6"
+    },
+    "source-identity.json": {
+      "bytes": 2374,
+      "sha256": "9f394163d1bfb7cc23a0b7fbfae9626f685a0b556b0ac3aad143df36fd41b2cb"
+    },
+    "integrity-summary.json": {
+      "bytes": 163,
+      "sha256": "1565dc7dcd10e1adbc0086b84dc6615157b008182789b91d525651867567b276"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "command": [
+      "python3",
+      "/workspace/pr10-combined-qa-evidence/browser_admission_122_adapter.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "tests/history-response.py"
+    ],
+    "exit": 0
+  }
+]

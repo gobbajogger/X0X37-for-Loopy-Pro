@@ -1,0 +1,64 @@
+[
+  {
+    "case": "F7 existing R28 URL-ref matched-ref",
+    "pass": true,
+    "details": {
+      "exit": 0,
+      "expected_accept": true,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/1111111111111111111111111111111111111111/docs/receipt.json",
+      "stdout": "PASS: 2 nightly builds + 123 history; no unapproved installer entries",
+      "stderr": ""
+    }
+  },
+  {
+    "case": "F7 existing R28 URL-ref claimed-sha-only-in-path",
+    "pass": true,
+    "details": {
+      "exit": 1,
+      "expected_accept": false,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ffffffffffffffffffffffffffffffffffffffff/docs/1111111111111111111111111111111111111111/receipt.json",
+      "stdout": "",
+      "stderr": "e:///tmp/pr8-r4-ref-ooomcnmp/scripts/verify-build-status.mjs:198:16\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 'ffffffffffffffffffffffffffffffffffffffff',\n  expected: '1111111111111111111111111111111111111111',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n"
+    }
+  },
+  {
+    "case": "F7 existing R28 URL-ref wrong-tree-ref",
+    "pass": true,
+    "details": {
+      "exit": 1,
+      "expected_accept": false,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/tree/ffffffffffffffffffffffffffffffffffffffff/docs/receipt.json",
+      "stdout": "",
+      "stderr": "e:///tmp/pr8-r4-ref-3wq9rn8p/scripts/verify-build-status.mjs:198:16\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 'ffffffffffffffffffffffffffffffffffffffff',\n  expected: '1111111111111111111111111111111111111111',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n"
+    }
+  },
+  {
+    "case": "F7 existing R28 URL-ref mutable-ref-sha-in-path",
+    "pass": true,
+    "details": {
+      "exit": 1,
+      "expected_accept": false,
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/main/docs/1111111111111111111111111111111111111111/receipt.json",
+      "stdout": "",
+      "stderr": "ks (file:///tmp/pr8-r4-ref-q09aj8nm/scripts/verify-build-status.mjs:101:6)\n    at file:///tmp/pr8-r4-ref-q09aj8nm/scripts/verify-build-status.mjs:104:2\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n"
+    }
+  },
+  {
+    "case": "PR102 R25 equivalent PR8 size/receipt/actual-byte binding",
+    "pass": true,
+    "details": {
+      "exit": 0,
+      "stdout": "[{\"name\":\"legitimate matching metadata and bytes\",\"pass\":true},{\"name\":\"catalog size 1025 cannot bypass fixed receipt\",\"pass\":true},{\"name\":\"catalog size 9007199254740991 cannot bypass fixed receipt\",\"pass\":true},{\"name\":\"matching altered metadata still requires actual exact bytes\",\"pass\":true}]",
+      "stderr": ""
+    }
+  },
+  {
+    "case": "actual browser wrong-app family and disconnected loader before UPGRADE",
+    "pass": true,
+    "details": {
+      "exit": 0,
+      "stdout": "{\"checks\":3,\"failed\":0,\"scope\":\"actual browser Updater bodies, no Python or device\"}",
+      "stderr": ""
+    }
+  }
+]
