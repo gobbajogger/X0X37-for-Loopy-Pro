@@ -2773,7 +2773,7 @@
       "id": "data-safety-pr108-canonical-smp-read-20261024-r15",
       "title": "Data Safety PR108 strict canonical sample-readback parsing",
       "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
-      "source_ref": "lane/data-safety-smp-read-canonical-20261024-0246",
+      "source_ref": "lane/data-safety-smp-read-bounds-20261024-1211",
       "source_commit": "b85758ed84ee56cf116e782e509753923d02c4df",
       "source_tree": "6e0716b027fec7d71b4de0244fcf4d74e6d28abb",
       "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",

@@ -1607,6 +1607,12 @@
         "malicious": 14,
         "assertions": 53710,
         "scope": "SCOPED_TEST_NOT_NATIVE_NPM_QA"
+      },
+      {
+        "command": "GitHub get_pr_info PR108: head_branch exact verification",
+        "exit": 0,
+        "head": "b85758ed84ee56cf116e782e509753923d02c4df",
+        "branch": "lane/data-safety-smp-read-bounds-20261024-1211"
       }
     ],
     "tests": {
@@ -1632,6 +1638,13 @@
       "no_public_vendor_or_firmware_bytes": true,
       "no_device_flash": true,
       "physical_hardware_pass_is_not_nightly_prerequisite": true
+    },
+    "source_ref_correction": {
+      "target_record": "data-safety-pr108-canonical-smp-read-20261024-r15",
+      "incorrect_prior": "lane/data-safety-smp-read-canonical-20261024-0246",
+      "verified_actual": "lane/data-safety-smp-read-bounds-20261024-1211",
+      "producer_head": "b85758ed84ee56cf116e782e509753923d02c4df",
+      "verification": "GitHub connector get_pr_info PR108 HEAD and head branch; no producer ref changed"
     }
   }
 }
