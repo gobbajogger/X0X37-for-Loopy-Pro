@@ -65,7 +65,7 @@ export function validateCatalog(catalog, qualification, fingerprint = installerF
     const models = v?.models && typeof v.models === 'object' ? Object.entries(v.models) : [];
     need(models.length > 0, `${tag}: no models`);
     for (const [key, p] of models) {
-      const name = { elite: 'SMK-37 Elite', pro: 'SMK-37 Pro' }[key];
+      const name = key === 'elite' ? 'SMK-37 Elite' : key === 'pro' ? 'SMK-37 Pro' : null;
       const where = `${tag}/${key}`;
       need(notRevoked(p) && (p?.status === undefined || p.status === 'dev-checked'),
         `${where}: revoked, blocked or failed model`);

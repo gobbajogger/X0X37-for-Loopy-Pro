@@ -3,7 +3,7 @@
   "upstreamCommit": "33c60ee9d3161de48b11ce890410384429983886",
   "upstreamPullRequest": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
   "publicSourceBlobs": {
-    "web/x0x_installer.html": "e42c0183bf13c6089f00f82b3764fbba1813123b",
+    "web/x0x_installer.html": "873ab59db73a44b74a3392cd097b0faa867df67f",
     "web/x0x_breaks.html": "b988c3270ed974639f702900e120297ad0602b60",
     "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
     "web/fm1ota.js": "014f5fa3490f476554a17b08e941bde04c7eff74",
@@ -37,9 +37,9 @@
       "path": "web/x0x_installer.html",
       "sourceRepository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
       "sourceBaseCommit": "33252473b8725fc124cd20d85f780a85c4f6d4a0",
-      "sourceBlob": "e42c0183bf13c6089f00f82b3764fbba1813123b",
+      "sourceBlob": "873ab59db73a44b74a3392cd097b0faa867df67f",
       "adaptedFromCommit": "78b38f07dc77f5eb8afdffcc2cd565233db1b6a9",
-      "description": "Combine publisher-approved download admission with mandatory exact owner-supplied controller and post-await selection/revocation verification; no approvals or binaries published."
+      "description": "Combine publisher-approved download admission with mandatory exact owner-supplied controller and post-await selection/revocation verification; no approvals or binaries published. Preserve qualified fallback, single-writer lock during MIDI permission, and explicit partial-restoration status."
     }
   ]
 }

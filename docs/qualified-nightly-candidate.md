@@ -12,7 +12,7 @@ No command here pushes Git, merges source, flashes hardware or deploys Pages.
 A catalog uses the existing schema-1 `versions`/`models` structure. Each version
 has `status: dev-checked`, `config: dev`, `hardware_tested: false`, the explicit
 DEV / HARDWARE TEST — DEVICE NOT TESTED label, and full `source_commit` and
-`source_tree`. Each Elite/Pro entry contains the exact `_900` product, size,
+`source_tree`, plus distinct compiled `firmware_tree_sha`. Each Elite/Pro entry contains the exact `_900` product, size,
 SHA-256, digest-addressed immutable HTTPS `pkg` and `controller_sha256`.
 `latest` must identify a qualified version. Noninstallable history stays in the
 separate build-status ledger. Existing qualified versions must be supplied too;
@@ -22,7 +22,7 @@ The separate qualification object has `schema: 1`, `installer_sha256` and a
 `packages` object keyed by package SHA-256. `installerFingerprint()` hashes the
 actual installer HTML/libraries and candidate renderer. Changed installer code
 invalidates the receipt. Each package receipt repeats `source_commit`,
-`source_tree`, `product`, `size` and `url`; identifies accepted firmware
+`source_tree`, `firmware_tree_sha`, `product`, `size` and `url`; identifies accepted firmware
 `integration` (`ref: nightly`, commit, identical tree, evidence_url); records
 `controller` (`strategy: owner-supplied`, sha256, size); and records measured
 `budgets` (`app_code_free`, `ram_free`, `pool_free`). Pool free must be at least
@@ -37,9 +37,11 @@ The tool validates receipts; it does not create independent reviews or prove
 that somebody's PASS claim is authentic. Existing owners must inspect those
 records before approving the site. Synthetic test receipts are never approvals.
 
-After validation the tool fetches every package again, refuses redirects and
+Revoked, blocked, withdrawn, disabled, failed and Release-import records are rejected at both preparation and browser admission.
+
+After validation the tool snapshots the checked inputs, fetches every package again, refuses redirects and
 oversized data, and checks actual size, SHA-256 and package model before creating
-any output. It retains the static site's navigation, renders the catalog into
+any output. It rechecks the installer fingerprint after downloads and compiles per-model publisher approvals only from those validated receipts and checked bytes. The HTML and versions.json receive the same normalized QA/source fields; the ordinary preview retains an empty approval map. It retains the static site's navigation, renders the catalog into
 the installer, and saves the receipts. It never downloads or publishes a
 controller. The browser requires the exact checked local controller hash and
 rejects a changed selection while the asynchronous hash is calculated.

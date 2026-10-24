@@ -46,6 +46,10 @@ for (const key of ['revoked', 'blocked', 'withdrawn', 'disabled', 'fromRelease']
 reject(c => c.versions[0].models.pro.status = 'failed');
 reject(c => delete c.versions[0].firmware_tree_sha);
 reject((c, q, r) => r.firmware_tree_sha = 'f'.repeat(40));
+reject((c, q, r) => {
+  c.versions[0].models = Object.fromEntries([['__proto__', { ...pkg, product: '[object Object]_900' }]]);
+  r.product = '[object Object]_900';
+});
 for (const layer of ['version', 'model', 'qualification', 'receipt']) {
   reject((c, q, r) => {
     const target = { version: c.versions[0], model: c.versions[0].models.pro, qualification: q, receipt: r }[layer];
@@ -139,6 +143,16 @@ await click(new Uint8Array([9])); assert.equal(runs, 0);
 await click(ctl); assert.equal(runs, 1);
 context.sha256Hex = async b => { context.loadSerial++; return hash(b); };
 await click(ctl); assert.equal(runs, 0);
+context.sha256Hex = async b => hash(b);
+context.sha256Hex = async b => { version.revoked = true; return hash(b); };
+await click(ctl); assert.equal(runs, 0);
+delete version.revoked;
+context.sha256Hex = async b => {
+  context.currentVersion = () => structuredClone(version);
+  return hash(b);
+};
+await click(ctl); assert.equal(runs, 0);
+context.currentVersion = () => version;
 context.sha256Hex = async b => hash(b);
 context.insertCtl = () => { throw new Error('controller cannot fit package'); };
 await click(ctl); assert.equal(runs, 0); assert.equal(go.disabled, false);
