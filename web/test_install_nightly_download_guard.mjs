@@ -115,6 +115,26 @@ function reject(name, mutate, customApproval = {[key]:approval}) {
     assert.equal(Array.from(checked.evaluation(v,customApproval)).length,0);
   });
 }
+// A model/release or publisher proof can be revoked without revoking its parent
+// version. Optional and non-boolean markers must not bypass direct-download gating.
+reject("per-model revoked=true", v => { v.models.elite.revoked=true; });
+reject("per-model revoked string", v => { v.models.elite.revoked="true"; });
+reject("catalog revoked string", v => { v.revoked="true"; });
+reject("catalog Release marker", v => { v.fromRelease=true; });
+reject("nonboolean imported-Release marker", v => { v.models.elite.fromRelease="true"; });
+reject("revoked publisher tuple", v => {}, {[key]:{...approval,revoked:true}});
+test("revoked package clears a previously approved direct Download link", () => {
+  checked.setCatalog(good);
+  assert.equal(checked.present().hidden, false);
+  checked.setCatalog({...good,models:{elite:{...pkg,revoked:true}}});
+  assert.deepEqual(Array.from(checked.available()), []);
+  assert.deepEqual({...checked.present()}, {hidden:true,href:null});
+});
+test("explicitly nonrevoked approved package still appears", () => {
+  const explicit = {...good,revoked:false,fromRelease:false,
+    models:{elite:{...pkg,fromRelease:false,revoked:false}}};
+  assert.equal(Array.from(checked.evaluation(explicit,{[key]:{...approval,revoked:false}})).length, 1);
+});
 reject("unapproved Release import", v => v.models.elite.fromRelease=true);
 reject("QA not passed", v => v.qa_pass=false);
 reject("source license not verified", v => v.source_licenses_approved=false);

@@ -420,14 +420,19 @@ const NIGHTLY_SHA256 = /^[0-9a-f]{64}$/;
 const NIGHTLY_SHA40 = /^[0-9a-f]{40}$/;
 const NIGHTLY_PRODUCTS = Object.freeze({ elite: /^SMK-37 Elite_900[0-9]*$/, pro: /^SMK-37 Pro_900[0-9]*$/ });
 function approvedNightlyModels(v, approvals = NIGHTLY_PUBLISHER_APPROVALS) {
-  if (!v || v.status !== "dev-checked" || v.revoked === true ||
+  if (!v || v.status !== "dev-checked" ||
+       (v.revoked !== undefined && v.revoked !== false) ||
+       (v.fromRelease !== undefined && v.fromRelease !== false) ||
       !NIGHTLY_SHA40.test(v.source_commit || "") ||
       !NIGHTLY_SHA40.test(v.firmware_tree_sha || "") ||
       v.qa_pass !== true || v.source_licenses_approved !== true) return [];
   return ["elite", "pro"].filter((model) => {
     const p = v.models && v.models[model];
     const a = approvals && approvals[`${v.version}/${model}`];
-    return !!p && !!a && p.fromRelease !== true &&
+    return !!p && !!a &&
+       (p.fromRelease === undefined || p.fromRelease === false) &&
+       (p.revoked === undefined || p.revoked === false) &&
+       (a.revoked === undefined || a.revoked === false) &&
       NIGHTLY_PRODUCTS[model].test(p.product || "") &&
       Number.isSafeInteger(p.size) && p.size > 0 &&
       NIGHTLY_SHA256.test(p.sha256 || "") &&
