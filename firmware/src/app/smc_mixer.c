@@ -33,6 +33,9 @@ static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
  * publishes generations; the main loop acknowledges them after queued input. */
 static volatile uint32_t smc_mmc_stop_published[2];
 static uint32_t smc_mmc_stop_seen[2];
+/* ISR publishes the overflowed STOP only after its FIFO cutoff. The consumer
+ * must drain all commands before that cutoff before applying STOP. */
+static volatile uint8_t smc_mmc_stop_boundary[2];
 static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
@@ -146,7 +149,11 @@ void smc_mmc_host(uint8_t cmd, uint8_t src)
     w = smc_mmc_w[src];
     if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
         /* User-preset MMC command 34 is STOP. Never drop it on overload. */
-        if (cmd == 34u) smc_mmc_stop_published[src]++;
+        if (cmd == 34u) {
+            smc_mmc_stop_boundary[src] = w;
+            __asm__ volatile("" ::: "memory");
+            smc_mmc_stop_published[src]++;
+        }
         return;
     }
     smc_mmc_q[src][w % 16u] = cmd;
@@ -587,6 +594,20 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     return 0;
 }
 
+/* A full ring can refill while smc_poll drains it. Apply an overflowed STOP
+ * at its original FIFO boundary, not merely at this poll's 16-item limit:
+ * otherwise a preceding PLAY can execute on the next poll after STOP. */
+static void smc_mmc_drain_stop(int src, int allow)
+{
+    uint32_t lost_stop = smc_mmc_stop_published[src];
+    if (lost_stop != smc_mmc_stop_seen[src] &&
+        smc_mmc_r[src] == smc_mmc_stop_boundary[src]) {
+        smc_mmc_stop_seen[src] = lost_stop;
+        if (proj.set.bt & PROJ_BT_SMC_USER)
+            smc_guarded_button(0x5Du, 1, allow);
+    }
+}
+
 void smc_poll(void)
 {
     uint32_t link = smc_link_published;
@@ -649,6 +670,7 @@ void smc_poll(void)
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
+            smc_mmc_drain_stop(src, allow);
             r = smc_mmc_r[src];
             __asm__ volatile("" ::: "memory");
             uint8_t cmd = smc_mmc_q[src][r % 16u];
@@ -657,14 +679,9 @@ void smc_poll(void)
             if (proj.set.bt & PROJ_BT_SMC_USER)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
-        /* STOP follows older queued PLAYs; compare a published snapshot so
-         * a newer ISR write remains visible on the next main-loop poll. */
-        uint32_t lost_stop = smc_mmc_stop_published[src];
-        if (lost_stop != smc_mmc_stop_seen[src]) {
-            smc_mmc_stop_seen[src] = lost_stop;
-            if (proj.set.bt & PROJ_BT_SMC_USER)
-                smc_guarded_button(0x5Du, 1, allow);
-        }
+        /* The generation stays pending if an earlier queued command remains
+         * beyond this poll's budget, preserving STOP-before-next-PLAY order. */
+        smc_mmc_drain_stop(src, allow);
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
