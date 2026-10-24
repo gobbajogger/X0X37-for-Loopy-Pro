@@ -597,6 +597,18 @@ def main(argv):
                     try:
                         opened = os.fstat(fd)
                     except BaseException:
+                        # O_EXCL already created a file. If fstat fails, do not
+                        # leave a silent orphan just because it has not yet been
+                        # registered for rollback. Query the OPEN descriptor via
+                        # os.stat(fd), never via its replaceable pathname.
+                        try:
+                            opened = os.stat(fd)
+                        except BaseException:
+                            os.close(fd)
+                            raise SlotError(f"extract created {name}, but cannot identify "
+                                            "its file handle for safe cleanup; inspect the "
+                                            "private output folder before retrying")
+                        created.append((name, opened.st_dev, opened.st_ino))
                         os.close(fd)
                         raise
                     created.append((name, opened.st_dev, opened.st_ino))

@@ -1,0 +1,72 @@
+{
+  "schema": "x0x37-data-safety-pr114-r18-source-evidence-20261025-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "source_parent": "94b5f0cbb13c2ccdfae154d55252dc98468064a7",
+  "source_parent_root": "8e4e015521b2113b958c52d0eb12c646ef3998fd",
+  "compiled_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "intended_user_behavior": "An injected metadata failure immediately after exclusive sample file creation must not leave a silent incomplete file or unlink a substituted recording. Normal trusted-directory offline extraction still works.",
+  "change_scope": [
+    "tools/x0x_slots.py",
+    "tests/host/sample_extract_safety_test.py"
+  ],
+  "origin_finding": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/114#pullrequestreview-5639958787",
+  "test_method": "Actual Linux/Python 3 POSIX temporary files, production main() Git-source window AST executed with synthetic archive parser. Entire root checkout not run.",
+  "preflight_fingerprints": {
+    "previous_main_window_chars": 6374,
+    "previous_main_fnv1a32": "7db22229",
+    "previous_test_blob": "441de2946d9e1c0d593b290a0809d0bf178ee73a"
+  },
+  "new_main_window_sha256": "c4251064e6d1026f976d68ebe4d0050251521ccbfc8a82cb504bf1e835ff4382",
+  "new_registered_test_sha256": "2487a42495199198ea7840224d5c57f8dd58947bf71a5c80be504bc186df0778",
+  "producer_commands": [
+    {
+      "command": "python3 -B sample_extract_safety_test.py R17-main.py",
+      "exit": 1,
+      "outcome": "18/19; fstat cleanup failed",
+      "log_sha256": "58ace5161d89e29b82410a8a0fc051c52e2abb8d651b739735b73775598cd8bb"
+    },
+    {
+      "command": "python3 -B sample_extract_safety_test.py R18-main.py",
+      "exit": 0,
+      "outcome": "19/19",
+      "log_sha256": "0cee9f1f2a6ccb52939f839213401995356b458c7a913516a45e5be102c93a0c"
+    },
+    {
+      "command": "python3 -O -B sample_extract_safety_test.py R18-main.py",
+      "exit": 0,
+      "outcome": "19/19",
+      "log_sha256": "2f7812f54263260676d9c5a636384d10924eca2cb86b2ccc36259c32f93aa6cb"
+    },
+    {
+      "command": "python3 -B R17-original-registered-test.py R18-main.py",
+      "exit": 0,
+      "outcome": "17/17",
+      "log_sha256": "ab7e081c4bd1846742bf5245dda2e42294cfe501b69a31a3acf2c0bb7f13e17f"
+    },
+    {
+      "command": "python3 -B R16-archived-test.py R18-main.py",
+      "exit": 0,
+      "outcome": "14/14",
+      "log_sha256": "4f64098801d374f4c04298317d52aba10168069ea7dd7cdd053639878f6eb9e7"
+    },
+    {
+      "command": "python3 -B -m py_compile R18-main.py sample_extract_safety_test.py",
+      "exit": 0,
+      "outcome": "syntax checked"
+    }
+  ],
+  "risks_and_limits": [
+    "This tests source-matched main(), not full actual checkout or physical hardware.",
+    "Metadata unavailability from both independent fd-based calls cannot establish inode safety; leave a loud manual-inspection error rather than unlink an unknown replacement.",
+    "Hostile concurrent rename between stat/unlink remains outside proven guarantees. Use a private trusted OUTDIR.",
+    "Native RtMidi OTA/restore remain fail-closed; browser installer separate.",
+    "No independent QA claimed; no firmware/compiler input changes."
+  ],
+  "handoff": {
+    "receiving_role": "existing sole Independent QA",
+    "scope": "full-current-head offline extraction / metadata failure + active filename replacement / rollback; separately existing native installer/OTA/backup/ctl regressions",
+    "next_owner": "sole firmware Safe Merge only after independent acceptance"
+  },
+  "delivery": "DRAFT_NEEDS_CHANGES"
+}

@@ -47,6 +47,14 @@ def call(main, dest, *, mode=None, images=IMAGES):
             (dest / 'slot1.hdr').rename(dest / 'diverted-header.hdr')
             (dest / 'slot1.hdr').symlink_to(dest.parent / 'owner.wav')
         return fd
+    real_fstat = os.fstat
+    def injected_fstat(fd):
+        if mode in ('fstat-fails-after-create', 'fstat-fails-and-name-swapped'):
+            if mode == 'fstat-fails-and-name-swapped':
+                (dest / 'slot1.hdr').rename(dest / 'diverted-header.hdr')
+                (dest.parent / 'owner.wav').rename(dest / 'slot1.hdr')
+            raise OSError(5, 'injected fd metadata failure')
+        return real_fstat(fd)
     class InterruptedFile:
         def __init__(self, f): self.f=f
         def __enter__(self): self.f.__enter__(); return self
@@ -62,7 +70,7 @@ def call(main, dest, *, mode=None, images=IMAGES):
         if mode == 'short-first': return ShortWriteFile(f)
         return f
     with patch.object(Path, 'mkdir', injected_mkdir), patch.object(os, 'open', injected_open), \
-         patch.object(os, 'fdopen', injected_fdopen), contextlib.redirect_stdout(io.StringIO()):
+         patch.object(os, 'fdopen', injected_fdopen), patch.object(os, 'fstat', injected_fstat), contextlib.redirect_stdout(io.StringIO()):
         try:
             scope['main'](['extract', str(src), str(dest)])
             return None
@@ -120,6 +128,13 @@ def run():
         dest12=root/'short-write';dest12.mkdir();e=call(main,dest12,mode='short-first')
         check('silent short write is a failure and incomplete file is removed',
               isinstance(e,SlotError) and not list(dest12.iterdir()),e)
+        dest13=root/'failed-fstat';dest13.mkdir();e=call(main,dest13,mode='fstat-fails-after-create')
+        check('metadata failure immediately after exclusive create rolls back new output',
+              isinstance(e,OSError) and not list(dest13.iterdir()),e)
+        dest14=root/'failed-fstat-swapped';dest14.mkdir();owner.write_bytes(b'ORIGINAL');e=call(main,dest14,mode='fstat-fails-and-name-swapped')
+        check('metadata failure after foreign substitution never deletes owner audio',
+              isinstance(e,OSError) and (dest14/'slot1.hdr').read_bytes()==b'ORIGINAL'
+              and (dest14/'diverted-header.hdr').read_bytes()==b'' and owner.exists() is False,e)
     print(f'SUMMARY {sum(checks)}/{len(checks)}')
     return 0 if all(checks) else 1
 
