@@ -583,9 +583,9 @@ async function sha256Hex(buf) {
 // A wrong/truncated/oversize response never reaches SHA/product parsing.
 async function readApprovedPackage(response, expectedSize, isLatest) {
   if (!response.body || typeof response.body.getReader !== "function") {
-    // Compatibility path for legacy fetch implementations and test mocks.
-    const raw = new Uint8Array(await response.arrayBuffer());
-    return raw.byteLength === expectedSize ? raw : null;
+    // A non-streaming response cannot be bounded before allocation.
+    // Fail closed rather than buffering potentially unbounded remote bytes.
+    return null;
   }
   const reader = response.body.getReader();
   const chunks = [];

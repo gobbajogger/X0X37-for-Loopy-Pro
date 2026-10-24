@@ -16,7 +16,7 @@ const admission = cut("const NIGHTLY_PUBLISHER_APPROVALS =", "\nfunction current
 const downloadGuard = cut("let verifiedDownload = null;", "\nfunction led(");
 const meta = cut("function isCatalogChecked(", "\nasync function sha256Hex(");
 const releases = cut("async function mergeGitHubReleases()", '\n$("ctlfile").addEventListener("change"');
-const loader = cut("async function loadSelectedPackage()", "\nfunction fillVersions()");
+const loader = cut("async function readApprovedPackage(", "\nfunction fillVersions()");
 const chooser = cut("function fillVersions()", "\nfunction confirmWrite(");
 assert.doesNotMatch(releases, /fetch\s*\(/, "GitHub Releases must not be imported");
 assert.match(loader, /if \(!isCatalogChecked\(ver, pkg\)\)/, "missing selected-package guard");
@@ -336,6 +336,14 @@ const racePkgs={
   elite:{product:"SMK-37 Elite_9001100",pkg:"https://nightly.example.test/elite.fwsc",sha256:"a".repeat(64)},
   pro:{product:"SMK-37 Pro_9001100",pkg:"https://nightly.example.test/pro.fwsc",sha256:"b".repeat(64)}
 };
+// Use real streamed responses; no body means deny without arrayBuffer allocation.
+function streamedResponse(data) {
+  let sent = false;
+  return {ok:true,body:{getReader:()=>({
+    async read(){if(sent)return {done:true};sent=true;return {done:false,value:data};},
+    async cancel(){},releaseLock(){}
+  })}};
+}
 function makeRace({eliteSize=1,proSize=1}={}){
   const pending=new Map(),errors=[],created=[],go={disabled:true},
     version={version:"synthetic",models:{
@@ -364,9 +372,9 @@ function makeRace({eliteSize=1,proSize=1}={}){
 }
 {
   const r=makeRace(),first=r.ctx.choose("elite"),second=r.ctx.choose("pro");
-  r.pending.get(racePkgs.pro.pkg).resolve({ok:true,arrayBuffer:async()=>new Uint8Array([2]).buffer});
+  r.pending.get(racePkgs.pro.pkg).resolve(streamedResponse(new Uint8Array([2])));
   await second;
-  r.pending.get(racePkgs.elite.pkg).resolve({ok:true,arrayBuffer:async()=>new Uint8Array([1]).buffer});
+  r.pending.get(racePkgs.elite.pkg).resolve(streamedResponse(new Uint8Array([1])));
   await first;
   assert.equal(r.ctx.result().image,2);
   assert.equal(r.ctx.result().selectedProduct,racePkgs.pro.product);
@@ -379,7 +387,7 @@ function makeRace({eliteSize=1,proSize=1}={}){
   await first;
   assert.equal(r.errors.includes("loadfail"),false);
   assert.equal(r.ctx.result().disabled,true);
-  r.pending.get(racePkgs.pro.pkg).resolve({ok:true,arrayBuffer:async()=>new Uint8Array([2]).buffer});
+  r.pending.get(racePkgs.pro.pkg).resolve(streamedResponse(new Uint8Array([2])));
   await second;
   assert.equal(r.ctx.result().selectedProduct,racePkgs.pro.product);
   console.log("PASS stale HTTP error does not hide current selection");
@@ -389,8 +397,7 @@ function makeRace({eliteSize=1,proSize=1}={}){
 for (const [actual,declared] of [[1,2],[2,1]]) {
   const r=makeRace({eliteSize:declared});
   const attempt=r.ctx.choose("elite");
-  r.pending.get(racePkgs.elite.pkg).resolve({ok:true,
-    arrayBuffer:async()=>new Uint8Array(actual).fill(1).buffer});
+  r.pending.get(racePkgs.elite.pkg).resolve(streamedResponse(new Uint8Array(actual).fill(1)));
   await attempt;
   assert.equal(r.ctx.result().image,null);
   assert.equal(r.ctx.result().selectedProduct,null);
@@ -403,8 +410,7 @@ for (const [actual,declared] of [[1,2],[2,1]]) {
 {
   const r=makeRace();
   const attempt=r.ctx.choose("elite");
-  r.pending.get(racePkgs.elite.pkg).resolve({ok:true,
-    arrayBuffer:async()=>new Uint8Array([1]).buffer});
+  r.pending.get(racePkgs.elite.pkg).resolve(streamedResponse(new Uint8Array([1])));
   await attempt;
   assert.equal(r.ctx.result().image,1);
   assert.equal(r.ctx.result().selectedProduct,racePkgs.elite.product);
@@ -472,12 +478,14 @@ let streamChecks = 0;
   assert.equal(state.canceled,true);assert.equal(state.released,true);streamChecks++;
 }
 {
-  const raw=await streamContext.streamRead({arrayBuffer:async()=>packets(7,8).buffer},2,()=>true);
-  assert.deepEqual([...raw],[7,8]);streamChecks++;
+  let calls=0;
+  const raw=await streamContext.streamRead({body:null,arrayBuffer:async()=>{calls++;return packets(7,8).buffer;}},2,()=>true);
+  assert.equal(raw,null);assert.equal(calls,0);streamChecks++;
 }
 {
-  const raw=await streamContext.streamRead({arrayBuffer:async()=>packets(7,8).buffer},1,()=>true);
-  assert.equal(raw,null);streamChecks++;
+  let calls=0;
+  const raw=await streamContext.streamRead({body:{},arrayBuffer:async()=>{calls++;return packets(7,8).buffer;}},1,()=>true);
+  assert.equal(raw,null);assert.equal(calls,0);streamChecks++;
 }
 {
   const state={};
@@ -485,4 +493,4 @@ let streamChecks = 0;
   assert.equal(raw,null);assert.equal(state.canceled,true);streamChecks++;
 }
 checks += streamChecks;
-console.log("PASS " + streamChecks + "/8 approved firmware streaming bound/abort regressions (source-exact synthetic)");
+console.log("PASS " + streamChecks + "/8 approved firmware streaming bound/abort/no-stream regressions (source-exact synthetic)");

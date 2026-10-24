@@ -383,7 +383,8 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
   globalThis.window = { addEventListener() {}, confirm: () => true };
   globalThis.fetch = async (url) => {
     if (String(url).includes("api.github.com")) return { ok: false, status: 404, json: async () => [] };
-    return { ok: true, arrayBuffer: async () => pkg.raw.buffer.slice(pkg.raw.byteOffset, pkg.raw.byteOffset + pkg.raw.byteLength) };
+    // Mirror modern Fetch: approved remote firmware requires bounded streaming.
+    return { ok: true, body: new Blob([pkg.raw]).stream() };
   };
   const blobs = new Map();
   URL.createObjectURL = (b) => { const u = `blob:${blobs.size}`; blobs.set(u, b); return u; };
