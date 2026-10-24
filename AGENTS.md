@@ -1,6 +1,6 @@
 # x0x37
 
-For firmware or other code changes, follow [the full-cycle workflow](docs/rules/workflow.md). A valid nightly build ends on the nightly installer page.
+For firmware or other code changes, follow [the full-cycle workflow](docs/rules/workflow.md). The process keeps running: a valid nightly build goes to the nightly installer page, and that publish starts the next audit in a new thread.
 
 A docs-only edit stays in the current thread. It does not open an audit, implementation, test, validation, merge, install, or nightly-publish thread.
 
