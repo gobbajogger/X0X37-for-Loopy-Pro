@@ -38,6 +38,9 @@ class Device:
         self.id = SimpleNamespace(text=identity, loader=identity.startswith("ota-"))
         self.link = Link()
         self.name = "mock-midi-port"
+        # Synthetic continuity for model-selection tests only. Real backend
+        # authentication is independently required by the physical-handover suite.
+        self.physical_id = "synthetic-model-selection-unit"
 
 
 def exact_source_methods(source_path):
@@ -63,6 +66,10 @@ def exact_source_methods(source_path):
         def __init__(self, devices):
             self.devices = devices
             self._bound_port = "mock-midi-port"
+            self._bound_id = None
+
+        def _physical(self, name):
+            return "synthetic-model-selection-unit" if name == self._bound_port else None
 
         def find(self, pred=None, only_port=True):
             return next((d for d in self.devices if pred is None or pred(d.id)), None)

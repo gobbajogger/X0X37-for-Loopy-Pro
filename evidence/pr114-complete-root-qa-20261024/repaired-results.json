@@ -1,0 +1,176 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_raw_midi_names_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "ota_raw_midi_names_test-repaired.log",
+    "tail": "\nPASS explicit --port cannot override raw duplicate inputs: result=model, opens=0\nPASS unrelated duplicate names fail closed without pretending device identity: result=model, opens=0\nSUMMARY 8/8 PASS\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_raw_midi_names_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "ota_raw_midi_names_test-optimized-repaired.log",
+    "tail": "\nPASS explicit --port cannot override raw duplicate inputs: result=model, opens=0\nPASS unrelated duplicate names fail closed without pretending device identity: result=model, opens=0\nSUMMARY 8/8 PASS\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_physical_handover_test.py"
+    ],
+    "exit": 0,
+    "log": "ota_physical_handover_test-repaired.log",
+    "tail": "ore-verify: result=None error='noreturn' writes=['unit-A'] verified=[]\nPASS no-hardware-id: result=None error='model' writes=[] verified=[]\nSUMMARY 6/6 safe; 0 failing physical-continuity regressions\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_physical_handover_test.py"
+    ],
+    "exit": 0,
+    "log": "ota_physical_handover_test-optimized-repaired.log",
+    "tail": "ore-verify: result=None error='noreturn' writes=['unit-A'] verified=[]\nPASS no-hardware-id: result=None error='model' writes=[] verified=[]\nSUMMARY 6/6 safe; 0 failing physical-continuity regressions\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_port_binding_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "ota_port_binding_test-repaired.log",
+    "tail": "-in-loader wrong-model resume refused\nPASS correct-model interrupted resume stays on selected physical port\nPASS failed write does not verify or run destructive restore\nSUMMARY 17/17 PASS; 0 failures\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_port_binding_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "ota_port_binding_test-optimized-repaired.log",
+    "tail": "-in-loader wrong-model resume refused\nPASS correct-model interrupted resume stays on selected physical port\nPASS failed write does not verify or run destructive restore\nSUMMARY 17/17 PASS; 0 failures\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_identity_reconnect_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "ota_identity_reconnect_test-repaired.log",
+    "tail": "ily install refused before handover/write\nPASS already in update mode: reject other-model loader before write\nPASS already in update mode: permit matching package-model loader\nCHECKS=20/20 FAILURES=0\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_identity_reconnect_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "ota_identity_reconnect_test-optimized-repaired.log",
+    "tail": "ily install refused before handover/write\nPASS already in update mode: reject other-model loader before write\nPASS already in update mode: permit matching package-model loader\nCHECKS=20/20 FAILURES=0\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/install_test.py"
+    ],
+    "exit": 0,
+    "log": "install_test-repaired.log",
+    "tail": "nd build/x0x-smk37.fwsc)\nmodels: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another ok\nport names: every SMK model and every port firmware probed       ok\ninstall tests passed\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/install_test.py"
+    ],
+    "exit": 0,
+    "log": "install_test-optimized-repaired.log",
+    "tail": "nd build/x0x-smk37.fwsc)\nmodels: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another ok\nport names: every SMK model and every port firmware probed       ok\ninstall tests passed\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/install_ctl_test.py"
+    ],
+    "exit": 0,
+    "log": "install_ctl_test-repaired.log",
+    "tail": "rs: exit 8, error                   ok\ninstall, the unit has no CTL_READ: exit 8                        ok\ninstall without a ctl.img: no read-back                          ok\ninstall ctl tests passed\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/install_ctl_test.py"
+    ],
+    "exit": 0,
+    "log": "install_ctl_test-optimized-repaired.log",
+    "tail": "rs: exit 8, error                   ok\ninstall, the unit has no CTL_READ: exit 8                        ok\ninstall without a ctl.img: no read-back                          ok\ninstall ctl tests passed\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/install_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "install_slots_test-repaired.log",
+    "tail": "o backup                           ok\nanswer no: warning shown, nothing saved or sent                  ok\nold package transport: no controller is selected implicitly      ok\ninstall slot tests passed\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/install_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "install_slots_test-optimized-repaired.log",
+    "tail": "o backup                           ok\nanswer no: warning shown, nothing saved or sent                  ok\nold package transport: no controller is selected implicitly      ok\ninstall slot tests passed\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/x0x_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "x0x_slots_test-repaired.log",
+    "tail": "   an image larger than the slot is skipped\n1 slot image(s) in /workspace/x0x-ota-qa/build/host/x0x_slots_extract\n  ok   extract: slot1.hdr / .bin equal the uploaded header and data\nx0x slots: all ok\n"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/x0x_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "x0x_slots_test-optimized-repaired.log",
+    "tail": "   an image larger than the slot is skipped\n1 slot image(s) in /workspace/x0x-ota-qa/build/host/x0x_slots_extract\n  ok   extract: slot1.hdr / .bin equal the uploaded header and data\nx0x slots: all ok\n"
+  }
+]

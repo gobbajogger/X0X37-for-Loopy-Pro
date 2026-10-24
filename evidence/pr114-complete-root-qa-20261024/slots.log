@@ -1,0 +1,20 @@
+package slot map: the map record, else the old 2 x 80 KiB (Felucca loader), else none (stock) ok
+old X0X -> this X0X: the slots stay, no backup, no slot command but SMP_INFO ok
+explicit --backup: every slot saved and verified with zero at-risk slots ok
+explicit --backup: reads finish before the first update command  ok
+downgrade: every slot saved before install; incomplete restoration returns exit 7 ok
+downgrade: the backup sends SMP_INFO / SMP_READ only, and before the install ok
+downgrade: the warning names the slots at risk                   ok
+downgrade: slot 1 kept, slot 3 restored, oversized slot 2 reported ok
+downgrade: exit 7 exposes retained archive recovery instructions ok
+moved slot: default backup file, slot 2 written back at its new offset, slot 1 kept ok
+failure mid-restore: exit 7, the backup file stays and reads back ok
+failure mid-restore: the message gives the Restore button and the x0x_slots.py command ok
+failure mid-restore: the firmware install itself completed       ok
+failure mid-restore: a later restore from the backup completes   ok
+backup fails: exit 7, nothing installed                          ok
+stock package: archived samples retained, no slot destination, incomplete exit 7 with restore steps ok
+--no-slots: no slot command, no backup                           ok
+answer no: warning shown, nothing saved or sent                  ok
+old package transport: no controller is selected implicitly      ok
+install slot tests passed

@@ -1,0 +1,391 @@
+{
+  "stage": "TEST FIXTURE REPAIR COMPLETE; INSTALLER REPAIR INCOMPLETE / NIGHTLY NO-GO",
+  "base_commit": "523ecb78f27948b6cddb73edb94b27473abc30cd",
+  "base_root_tree": "2fdf38213a8f6aa2b532dd476f5aa1fb9f6a553c",
+  "firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "production_installer_blob": "762d2e74e7a88ec3f5ac7987a722faa7de8effee",
+  "integration_observed": "56c180450393f26859419ce13b479e45cb0c242d",
+  "nightly_observed": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "tests": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_raw_midi_names_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "ota_raw_midi_names_test-repaired.log",
+      "tail": "\nPASS explicit --port cannot override raw duplicate inputs: result=model, opens=0\nPASS unrelated duplicate names fail closed without pretending device identity: result=model, opens=0\nSUMMARY 8/8 PASS\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_raw_midi_names_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "ota_raw_midi_names_test-optimized-repaired.log",
+      "tail": "\nPASS explicit --port cannot override raw duplicate inputs: result=model, opens=0\nPASS unrelated duplicate names fail closed without pretending device identity: result=model, opens=0\nSUMMARY 8/8 PASS\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "exit": 0,
+      "log": "ota_physical_handover_test-repaired.log",
+      "tail": "ore-verify: result=None error='noreturn' writes=['unit-A'] verified=[]\nPASS no-hardware-id: result=None error='model' writes=[] verified=[]\nSUMMARY 6/6 safe; 0 failing physical-continuity regressions\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "exit": 0,
+      "log": "ota_physical_handover_test-optimized-repaired.log",
+      "tail": "ore-verify: result=None error='noreturn' writes=['unit-A'] verified=[]\nPASS no-hardware-id: result=None error='model' writes=[] verified=[]\nSUMMARY 6/6 safe; 0 failing physical-continuity regressions\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_port_binding_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "ota_port_binding_test-repaired.log",
+      "tail": "-in-loader wrong-model resume refused\nPASS correct-model interrupted resume stays on selected physical port\nPASS failed write does not verify or run destructive restore\nSUMMARY 17/17 PASS; 0 failures\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_port_binding_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "ota_port_binding_test-optimized-repaired.log",
+      "tail": "-in-loader wrong-model resume refused\nPASS correct-model interrupted resume stays on selected physical port\nPASS failed write does not verify or run destructive restore\nSUMMARY 17/17 PASS; 0 failures\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_identity_reconnect_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "ota_identity_reconnect_test-repaired.log",
+      "tail": "ily install refused before handover/write\nPASS already in update mode: reject other-model loader before write\nPASS already in update mode: permit matching package-model loader\nCHECKS=20/20 FAILURES=0\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_identity_reconnect_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "ota_identity_reconnect_test-optimized-repaired.log",
+      "tail": "ily install refused before handover/write\nPASS already in update mode: reject other-model loader before write\nPASS already in update mode: permit matching package-model loader\nCHECKS=20/20 FAILURES=0\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_test.py"
+      ],
+      "exit": 0,
+      "log": "install_test-repaired.log",
+      "tail": "nd build/x0x-smk37.fwsc)\nmodels: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another ok\nport names: every SMK model and every port firmware probed       ok\ninstall tests passed\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_test.py"
+      ],
+      "exit": 0,
+      "log": "install_test-optimized-repaired.log",
+      "tail": "nd build/x0x-smk37.fwsc)\nmodels: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another ok\nport names: every SMK model and every port firmware probed       ok\ninstall tests passed\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_ctl_test.py"
+      ],
+      "exit": 0,
+      "log": "install_ctl_test-repaired.log",
+      "tail": "rs: exit 8, error                   ok\ninstall, the unit has no CTL_READ: exit 8                        ok\ninstall without a ctl.img: no read-back                          ok\ninstall ctl tests passed\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_ctl_test.py"
+      ],
+      "exit": 0,
+      "log": "install_ctl_test-optimized-repaired.log",
+      "tail": "rs: exit 8, error                   ok\ninstall, the unit has no CTL_READ: exit 8                        ok\ninstall without a ctl.img: no read-back                          ok\ninstall ctl tests passed\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "install_slots_test-repaired.log",
+      "tail": "o backup                           ok\nanswer no: warning shown, nothing saved or sent                  ok\nold package transport: no controller is selected implicitly      ok\ninstall slot tests passed\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "install_slots_test-optimized-repaired.log",
+      "tail": "o backup                           ok\nanswer no: warning shown, nothing saved or sent                  ok\nold package transport: no controller is selected implicitly      ok\ninstall slot tests passed\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/x0x_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "x0x_slots_test-repaired.log",
+      "tail": "   an image larger than the slot is skipped\n1 slot image(s) in /workspace/x0x-ota-qa/build/host/x0x_slots_extract\n  ok   extract: slot1.hdr / .bin equal the uploaded header and data\nx0x slots: all ok\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "x0x_slots_test-optimized-repaired.log",
+      "tail": "   an image larger than the slot is skipped\n1 slot image(s) in /workspace/x0x-ota-qa/build/host/x0x_slots_extract\n  ok   extract: slot1.hdr / .bin equal the uploaded header and data\nx0x slots: all ok\n"
+    }
+  ],
+  "before": [
+    {
+      "name": "raw-midi",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_raw_midi_names_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "raw-midi.log",
+      "tail": "PASS unique input/output permits one endpoint: result=found, opens=1\nPASS two distinct matching keyboards rejected: result=model, opens=2\nPASS duplicate raw input refused before opening any MIDI endpoint: result=model, opens=0\nPASS duplicate raw output refused before opening any MIDI endpoint: result=model, opens=0\nPASS duplicate loader input refused before opening any MIDI endpoint: result=model, opens=0\nPASS duplicate loader output refused before opening any MIDI endpoint: result=model, opens=0\nPASS explicit --port cannot override raw duplicate inputs: result=model, opens=0\nPASS unrelated duplicate names fail closed without pretending device identity: result=model, opens=0\nSUMMARY 8/8 PASS\n"
+    },
+    {
+      "name": "physical",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "exit": 0,
+      "log": "physical.log",
+      "tail": "PASS stable: result='SMK-37 Pro_900' error=None writes=['unit-A'] verified=['unit-A']\nPASS rename-same-unit: result='SMK-37 Pro_900' error=None writes=['unit-A'] verified=['unit-A']\nPASS swap-before-start: result=None error='model' writes=[] verified=[]\nPASS swap-before-write: result=None error='noloader' writes=[] verified=[]\nPASS swap-before-verify: result=None error='noreturn' writes=['unit-A'] verified=[]\nPASS no-hardware-id: result=None error='model' writes=[] verified=[]\nSUMMARY 6/6 safe; 0 failing physical-continuity regressions\n"
+    },
+    {
+      "name": "binding",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_port_binding_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "log": "binding.log",
+      "tail": "PASS SMK-37 Elite_016 -> SMK-37 Pro_900 keeps SAME physical MIDI port\nPASS SMK-37 Pro_016 -> SMK-37 Elite_900 keeps SAME physical MIDI port\nPASS two same-model initial keyboards: refuse before UPGRADE\nPASS --port with two matching devices refuses selection\nPASS never flash foreign Pro loader at another MIDI port\nPASS unverifiable changed MIDI port at handover must fail closed\nPASS verify cannot count an identical foreign running unit after target remains loader\nPASS verify skips stale same-model sibling before correct unit\nPASS stale firmware on originating port retains mismatch diagnostic\nPASS sample restore binds original physical port\nPASS sample restore refuses wrong sole unit\nPASS controller CRC readback binds original physical port\nPASS controller CRC readback refuses wrong sole unit\nPASS unbound verification fails closed\nPASS already-in-loader wrong-model resume refused\nPASS correct-model interrupted resume stays on selected physical port\nPASS failed write does not verify or run destructive restore\nSUMMARY 17/17 PASS; 0 failures\n"
+    },
+    {
+      "name": "identity",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_identity_reconnect_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 1,
+      "log": "identity.log",
+      "tail": "ver selects exactly the originating model\nPASS initial OTA handover refuses foreign family loader\nPASS initial OTA handover refuses different SMK model loader\nPASS final verify ignores foreign and different-model devices\nPASS restore: select exact installed model and version\nPASS restore: do not run on foreign-only device\nPASS restore: do not run on different SMK model\nPASS restore: do not run on stale firmware version\nPASS controller readback: select exact installed model and version\nPASS controller readback: do not run on foreign-only device\nPASS controller readback: do not run on different SMK model\nPASS controller readback: do not run on stale firmware version\nPASS retain normal model-matched loader recovery\nPASS retain meaningful same-model wrong-version diagnostic\nPASS retain successful exact-version OTA verification\nFAIL Elite to Pro migration selects package Pro loader and verifies installed Pro\nFAIL Elite to Pro refuses stale Elite loader before firmware write\nPASS foreign-family install refused before handover/write\nPASS already in update mode: reject other-model loader before write\nFAIL already in update mode: permit matching package-model loader\nCHECKS=17/20 FAILURES=3\n"
+    },
+    {
+      "name": "installer",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_test.py"
+      ],
+      "exit": 0,
+      "log": "installer.log",
+      "tail": "matches nothing -> exit 3                            ok\n--port picks a port the default match skips                      ok\nunplugged in step 1 -> exit 4 'lost', nothing written            ok\nunplugged during the write -> exit 4 at once                     ok\nloader stops answering -> exit 4 after the idle time             ok\nread past the package -> exit 4                                  ok\nanother identity after the restart -> exit 6                     ok\nanother model -> exit 6, nothing sent                            ok\nSMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent ok\nno loader after step 1 -> exit 5                                 ok\npackage without the loader marker -> exit 2, no MIDI             ok\n... installs with --force                                        ok\nnot a package -> exit 2                                          ok\nmissing file -> exit 2                                           ok\nlogical image vs fm1pkg.js: skipped (needs node and build/x0x-smk37.fwsc)\nmodels: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another ok\nport names: every SMK model and every port firmware probed       ok\ninstall tests passed\n"
+    },
+    {
+      "name": "ctl",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_ctl_test.py"
+      ],
+      "exit": 1,
+      "log": "ctl.log",
+      "tail": "mock CTL_READ: offset 0x10000 (outside the block): no reply      ok\nmock CTL_READ: the count stops at the block end                  ok\nread-back: full 65536 B block in 293 reads, unit CRC32 = expected CRC32 9da9720b ok\nread-back: every request stays inside the Bluetooth block        ok\none changed bit: error, unit CRC32 e8e23747 printed, expected 9da9720b ok\nchanged erased padding byte is detected                          ok\nno CTL_READ on the unit: error, no CRC claimed                   ok\ninstall with a ctl.img: installed, read back, CRC32 ok, exit 0   FAIL\ninstall, the unit block differs: exit 8, error                   FAIL\ninstall, the unit has no CTL_READ: exit 8                        FAIL\ninstall without a ctl.img: no read-back                          FAIL\nINSTALL CTL TESTS FAILED (4)\n"
+    },
+    {
+      "name": "slots",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/install_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "slots.log",
+      "tail": "ds finish before the first update command  ok\ndowngrade: every slot saved before install; incomplete restoration returns exit 7 ok\ndowngrade: the backup sends SMP_INFO / SMP_READ only, and before the install ok\ndowngrade: the warning names the slots at risk                   ok\ndowngrade: slot 1 kept, slot 3 restored, oversized slot 2 reported ok\ndowngrade: exit 7 exposes retained archive recovery instructions ok\nmoved slot: default backup file, slot 2 written back at its new offset, slot 1 kept ok\nfailure mid-restore: exit 7, the backup file stays and reads back ok\nfailure mid-restore: the message gives the Restore button and the x0x_slots.py command ok\nfailure mid-restore: the firmware install itself completed       ok\nfailure mid-restore: a later restore from the backup completes   ok\nbackup fails: exit 7, nothing installed                          ok\nstock package: archived samples retained, no slot destination, incomplete exit 7 with restore steps ok\n--no-slots: no slot command, no backup                           ok\nanswer no: warning shown, nothing saved or sent                  ok\nold package transport: no controller is selected implicitly      ok\ninstall slot tests passed\n"
+    },
+    {
+      "name": "archive",
+      "argv": [
+        "python3",
+        "-B",
+        "tests/x0x_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "archive.log",
+      "tail": "y even with a valid outer CRC\n  ok   archive refuses inconsistent slot count even with a valid outer CRC\n  ok   CRC-valid archive refuses string false silently erases a populated slot\n  ok   CRC-valid archive refuses numeric empty flag erases a populated slot\n  ok   CRC-valid archive refuses empty entry carrying hidden image pointers\n  ok   CRC-valid archive refuses aliased image regions copy slot one's bytes into slot two\n  ok   CRC-valid archive refuses orphan payload bytes after referenced images\n  ok   false-string empty flag cannot erase samples or send flash-write commands\n  ok   a damaged archive is refused\n  ok   restore: slot 1 rewritten, slot 2 erased\n  ok   restore: SMP_INFO after restore lists the archive's zones\n  ok   restore uses SMP_ERASE / SMP_BEGIN, SMP_WRITE, SMP_END\n  ok   restore --slots 2 only\n  ok   3 x 120 KiB layout: backup, 100 KB in one slot, lost frames retried\n  ok   3 x 120 KiB layout: restore, verified\n  ok   3-slot archive on 2 slots: slot 3 skipped\n  ok   an image larger than the slot is skipped\n1 slot image(s) in /workspace/x0x-ota-qa/build/host/x0x_slots_extract\n  ok   extract: slot1.hdr / .bin equal the uploaded header and data\nx0x slots: all ok\n"
+    }
+  ],
+  "limits": [
+    "Complete PR114 R6 source checked out; individual host tests still use their documented AST/mock scope.",
+    "No operational production MidoBackend.physical_id; no hardware authentication or actual install demonstrated.",
+    "No new firmware compile, binary retrieval, independent acceptance of this patch, combined latest integration-root QA, distribution license qualification or live HTTPS validation.",
+    "Main Library file tools and Codex persistent thread creation are not available in this tool set; private binary archives not retrieved.",
+    "Full Project conversation enumeration unverified; live PRs and enabled worker records inspected."
+  ],
+  "logs": {
+    "ctl-after.log": {
+      "bytes": 795,
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    "physical.log": {
+      "bytes": 542,
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696"
+    },
+    "x0x_slots_test-repaired.log": {
+      "bytes": 1669,
+      "sha256": "4201c6db14e91d78d104bb5fe11f4ae44c4c9aebc347288ecab9d605a3f5daa9"
+    },
+    "install_slots_test-repaired.log": {
+      "bytes": 1475,
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    "ota_physical_handover_test-optimized-repaired.log": {
+      "bytes": 542,
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696"
+    },
+    "ota_physical_handover_test-repaired.log": {
+      "bytes": 542,
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696"
+    },
+    "installer.log": {
+      "bytes": 2232,
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+    },
+    "x0x_slots_test-optimized-repaired.log": {
+      "bytes": 1669,
+      "sha256": "4201c6db14e91d78d104bb5fe11f4ae44c4c9aebc347288ecab9d605a3f5daa9"
+    },
+    "install_slots_test-optimized-repaired.log": {
+      "bytes": 1475,
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    "install_test-optimized-repaired.log": {
+      "bytes": 2232,
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+    },
+    "install_ctl_test-optimized-repaired.log": {
+      "bytes": 795,
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    "ota_port_binding_test-optimized-repaired.log": {
+      "bytes": 1052,
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    },
+    "install_ctl_test-repaired.log": {
+      "bytes": 795,
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    "ota_raw_midi_names_test-optimized-repaired.log": {
+      "bytes": 701,
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8"
+    },
+    "slots.log": {
+      "bytes": 1475,
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    "ota_identity_reconnect_test-repaired.log": {
+      "bytes": 1222,
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+    },
+    "ota_raw_midi_names_test-repaired.log": {
+      "bytes": 701,
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8"
+    },
+    "identity.log": {
+      "bytes": 1222,
+      "sha256": "06d272132a5f2f5b3ca91409bec15863d93e4231d0fb83e95daa1c94dd86ec47"
+    },
+    "ota_identity_reconnect_test-optimized-repaired.log": {
+      "bytes": 1222,
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+    },
+    "ctl.log": {
+      "bytes": 807,
+      "sha256": "48e8c9cc7a672fe203590c7c29abf0148269a29a3340cc653a024a767f291e20"
+    },
+    "ota_port_binding_test-repaired.log": {
+      "bytes": 1052,
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    },
+    "raw-midi.log": {
+      "bytes": 701,
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8"
+    },
+    "identity-after.log": {
+      "bytes": 1222,
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+    },
+    "archive.log": {
+      "bytes": 1669,
+      "sha256": "4201c6db14e91d78d104bb5fe11f4ae44c4c9aebc347288ecab9d605a3f5daa9"
+    },
+    "install_test-repaired.log": {
+      "bytes": 2232,
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+    },
+    "binding.log": {
+      "bytes": 1052,
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    }
+  }
+}

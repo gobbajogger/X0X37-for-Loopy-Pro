@@ -1,0 +1,18 @@
+PASS SMK-37 Elite_016 -> SMK-37 Pro_900 keeps SAME physical MIDI port
+PASS SMK-37 Pro_016 -> SMK-37 Elite_900 keeps SAME physical MIDI port
+PASS two same-model initial keyboards: refuse before UPGRADE
+PASS --port with two matching devices refuses selection
+PASS never flash foreign Pro loader at another MIDI port
+PASS unverifiable changed MIDI port at handover must fail closed
+PASS verify cannot count an identical foreign running unit after target remains loader
+PASS verify skips stale same-model sibling before correct unit
+PASS stale firmware on originating port retains mismatch diagnostic
+PASS sample restore binds original physical port
+PASS sample restore refuses wrong sole unit
+PASS controller CRC readback binds original physical port
+PASS controller CRC readback refuses wrong sole unit
+PASS unbound verification fails closed
+PASS already-in-loader wrong-model resume refused
+PASS correct-model interrupted resume stays on selected physical port
+PASS failed write does not verify or run destructive restore
+SUMMARY 17/17 PASS; 0 failures
