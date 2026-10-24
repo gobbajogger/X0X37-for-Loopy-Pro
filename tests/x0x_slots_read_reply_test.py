@@ -34,6 +34,16 @@ class Link:
             raw = b''
         elif self.mode == 'fragment':
             raw = raw[:2]
+        elif self.mode == 'orphan-mask':
+            return [slot, *args[1:4]] + xs.pack7(raw) + [0]
+        elif self.mode == 'unused-mask':
+            encoded = xs.pack7(raw)
+            encoded[0] |= 0x40  # only 2 data bytes; mask bit 6 is undefined
+            return [slot, *args[1:4]] + encoded
+        elif self.mode == 'nonsevenbit-data':
+            encoded = xs.pack7(raw)
+            encoded[1] |= 0x80  # not a valid 7-bit MIDI data byte
+            return [slot, *args[1:4]] + encoded
         return [slot, args[1], args[2], args[3]] + xs.pack7(raw)
 
 
@@ -80,6 +90,35 @@ class ReadReply(unittest.TestCase):
     def test_empty_reply_refused(self):
         with self.assertRaises(xs.SlotError):
             xs.read_bytes(Link(b'AB', mode='empty'), 0, 0, 2)
+
+    def test_orphan_final_pack7_mask_rejected(self):
+        # Exactly 14 decoded bytes fills two seven-byte groups. A third
+        # mask-only group would be silently discarded by unpack7().
+        link = Link(bytes(range(14)), mode='orphan-mask')
+        with self.assertRaises(xs.SlotError):
+            xs.read_bytes(link, 0, 0, 14)
+
+    def test_unused_pack7_mask_bits_rejected(self):
+        # A two-byte final group uses only mask bits 0 and 1.
+        link = Link(b'AB', mode='unused-mask')
+        with self.assertRaises(xs.SlotError):
+            xs.read_bytes(link, 0, 0, 2)
+
+    def test_non_7bit_wire_byte_rejected(self):
+        link = Link(b'AB', mode='nonsevenbit-data')
+        with self.assertRaises(xs.SlotError):
+            xs.read_bytes(link, 0, 0, 2)
+
+    def test_empty_read_never_sends_device_command(self):
+        link = Link(b'AB')
+        self.assertEqual(xs.read_bytes(link, 0, 0, 0), b'')
+        self.assertEqual(link.calls, [])
+
+    def test_canonical_highbit_groups_and_tail(self):
+        data = bytes(range(0x80, 0x91))
+        link = Link(data)
+        self.assertEqual(xs.read_bytes(link, 0, 0, len(data)), data)
+        self.assertEqual(len(link.calls), 1)
 
     def test_wrong_slot_refused(self):
         with self.assertRaises(xs.SlotError):

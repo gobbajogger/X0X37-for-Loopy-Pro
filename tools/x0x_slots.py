@@ -175,6 +175,10 @@ def read_bytes(link, k, off, n, progress=None):
         if len(r) < 6:
             raise SlotError(f"slot {k + 1}: short SMP_READ reply at {adr:#x}")
         got = unpack7(r[4:])
+        # SMP_READ must use the canonical pack7 wire encoding. Unpack7 alone
+        # silently ignores orphan masks and unused high bits in a short group.
+        if pack7(got) != list(r[4:]):
+            raise SlotError(f"slot {k + 1}: noncanonical SMP_READ frame at {adr:#x}")
         if (r[0] != k or (r[1] | r[2] << 7 | r[3] << 14) != adr
                 or not got or len(got) > want + (want & 1)):
             raise SlotError(f"slot {k + 1}: bad SMP_READ reply at {adr:#x}")
