@@ -88,3 +88,9 @@ Download cancellation and actual-history overflow defects. The implementation,
 RED/GREEN logs, 208 registered Chromium assertions and unchanged independent
 82-case replay are recorded in [the R2 receipt](repair-evidence/r2/README.md).
 The PR remains draft pending a new independent exact-head verdict.
+
+R3 responds to supplementary history HTTP-response findings F3/F4 that superseded
+R2 overall source acceptance. PR #8 is draft again. Supported-schema/status/type
+validation and detached atomic rendering now fail closed; see
+[the R3 repair evidence](repair-evidence/r3/README.md). Independent full-head
+re-review remains required before readiness or merger dispatch.

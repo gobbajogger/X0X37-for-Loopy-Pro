@@ -62,17 +62,58 @@ const field = (root, label, value) => {
   add(dl, 'dd', value);
   root.appendChild(dl);
 };
+// Presentation checks supplement the source/provenance validator; they do not
+// authenticate a remote claim. New schema/status values need a reviewed update.
+const historyStatuses = new Set([
+  'source-only', 'not-hosted', 'evidence-only', 'failed', 'reference',
+  'validation-evidence-only', 'offline-projection-artifact-unattributed', 'build-succeeded-unreviewed'
+]);
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const text = value => typeof value === 'string' && value.trim().length > 0;
+const hash = (value, length) => typeof value === 'string' && new RegExp('^[a-f0-9]{'+length+'}$').test(value);
+const requireHistory = ok => {
+  if (!ok) throw new Error('Build history did not pass the read-only schema check');
+};
+function validateHistory(data) {
+  requireHistory(object(data) && data.schema === 1 && data.kind === 'nightly-read-only-build-history' &&
+    data.installable === false && Array.isArray(data.builds) && Array.isArray(data.history));
+  const ids = new Set();
+  const identify = entry => {
+    requireHistory(object(entry) && text(entry.id) && !ids.has(entry.id) && hash(entry.source_commit, 40));
+    ids.add(entry.id);
+  };
+  for (const entry of data.builds) {
+    identify(entry);
+    requireHistory((entry.title === undefined || text(entry.title)) && entry.status === 'dev-checked' &&
+      ['current', 'superseded'].includes(entry.lifecycle) && entry.hardware_tested === false &&
+      entry.installable_from_nightly_status === false && object(entry.models) && Object.keys(entry.models).length > 0);
+    for (const [model, pkg] of Object.entries(entry.models)) {
+      const product = {elite:'SMK-37 Elite_900', pro:'SMK-37 Pro_900'}[model];
+      requireHistory(!!product && object(pkg) && pkg.product === product && hash(pkg.sha256, 64) &&
+        Number.isSafeInteger(pkg.size) && pkg.size > 0 && pkg.device_verified === false &&
+        pkg.physical_evidence === undefined);
+    }
+  }
+  for (const entry of data.history) {
+    identify(entry);
+    requireHistory(text(entry.title) && historyStatuses.has(entry.status) &&
+      (entry.description === undefined || text(entry.description)) &&
+      (entry.installable === undefined || entry.installable === false) &&
+      (entry.device_verified === undefined || entry.device_verified === false) &&
+      Array.isArray(entry.models) && entry.models.every(model => ['elite', 'pro'].includes(model)));
+  }
+  return data;
+}
 async function render() {
   const response = await fetch('../build-status.json', {cache:'no-store'});
   if (!response.ok) throw new Error('History fetch returned HTTP ' + response.status);
-  const data = await response.json();
-  if (!data || data.kind !== 'nightly-read-only-build-history' ||
-      data.installable !== false || !Array.isArray(data.builds) || !Array.isArray(data.history) ||
-      data.builds.some(x => x.installable_from_nightly_status !== false)) {
-    throw new Error('Build history did not pass the read-only schema check');
-  }
+  const data = validateHistory(await response.json());
+  // Build both sections off-DOM. No response can leave a partially populated
+  // build/history list, even if card construction fails after validation.
+  const buildCards = document.createDocumentFragment();
+  const historyCards = document.createDocumentFragment();
   for (const entry of data.builds) {
-    const card = add(builds, 'article', '', 'item');
+    const card = add(buildCards, 'article', '', 'item');
     add(card, 'span', entry.status ?? 'unknown', 'tag');
     add(card, 'h3', entry.title || entry.id);
     field(card, 'Build ID', entry.id);
@@ -88,18 +129,23 @@ async function render() {
     }
   }
   for (const entry of data.history) {
-    const card = add(history, 'article', '', 'item');
+    const card = add(historyCards, 'article', '', 'item');
     add(card, 'span', entry.status ?? 'unknown', 'tag');
     add(card, 'h3', entry.title || entry.id);
     field(card, 'Checkpoint', entry.id);
     if (entry.source_commit) field(card, 'Source commit', entry.source_commit);
     if (entry.description) add(card, 'p', entry.description, 'muted');
   }
-  if (!data.builds.length) add(builds, 'p', 'No checked build records currently available.', 'muted');
-  if (!data.history.length) add(history, 'p', 'No other checkpoints currently indexed.', 'muted');
+  if (!data.builds.length) add(buildCards, 'p', 'No checked build records currently available.', 'muted');
+  if (!data.history.length) add(historyCards, 'p', 'No other checkpoints currently indexed.', 'muted');
+  builds.replaceChildren(buildCards);
+  history.replaceChildren(historyCards);
+  message.classList.remove('error');
   message.textContent = data.builds.length + ' build generation(s) and ' + data.history.length + ' other records · Read-only history, no firmware downloads.';
 }
 render().catch(err => {
+  builds.replaceChildren();
+  history.replaceChildren();
   message.classList.add('error');
   message.textContent = 'Unable to display verified build history: ' + err.message;
 });
