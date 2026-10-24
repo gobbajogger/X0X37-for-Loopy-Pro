@@ -1,0 +1,95 @@
+{
+  "schema": "loopyx0x37-smc-source-regression-evidence-v1",
+  "evidence_revision": "smc-pr122-mmc-same-source-reset-20261025-r7",
+  "date_utc": "2026-10-24",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "LoopyX0X37 SMC Transport",
+  "role": "SMC/BLE/MIDI/transport source producer; no independent QA or integration authority",
+  "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "source_parent_sha": "f8ac1c310b8e2b308086f20574079c3dba3230c8",
+  "source_test_commit_sha": "0952d5230481b8614a5ffc28621bd728663bc94e",
+  "source_test_commit_root_tree": "cbe3582c55a7a392ad2726d665e32575fdf98f90",
+  "compiled_firmware_subtree": "8c915bd5072e3e1ffa93a92ac96cc66b3816f108",
+  "unchanged_consumed_inputs": {
+    "firmware_src_smc_mixer_blob": "ddad3657ed5a0015bb64ed8446de69302a83d0bc",
+    "ble_subtree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_subtree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "tools_subtree": "fbaef8e1eead4ca36c3c971bfac8c6e0de74ab51",
+    "build_sh_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5"
+  },
+  "modified_paths": [
+    "tests/host/smc_mmc_stop_fifo_test.py"
+  ],
+  "test_source_git_blob": "587c6f1752486acd79494fbcc77e2c6b10cb8e22",
+  "test_source_sha256": "87c48d6c37de422915d1422a4b1596daa95f58f0a958ec71aeb37fb7106a61a4",
+  "test_source_bytes": 12988,
+  "scope": "16 new same-source post-project-reset MMC STOP tests; queued/overflow STOP, both USB/peripheral sources, four uint8 wrap cursors, post-reset PLAY and STOP, stale-project-drop/order/drain/resumption",
+  "regression_method": "Unmodified production smc_mixer.c function extraction compiled to host C with mocked ISR/UI; NOT complete-root firmware or hardware",
+  "executed": {
+    "native_matrix": [
+      "gcc plain",
+      "gcc -fsanitize=undefined -fno-omit-frame-pointer",
+      "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "clang plain",
+      "clang -fsanitize=undefined -fno-omit-frame-pointer",
+      "clang -fsanitize=address,undefined -fno-omit-frame-pointer"
+    ],
+    "flags": "ASAN_OPTIONS=detect_leaks=0; native GCC 14.2.0, Clang 17.0.0; SAN_FLAGS as listed; python3 -B",
+    "commands": [
+      "CC=$compiler SAN_FLAGS=$flags ASAN_OPTIONS=detect_leaks=0 python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "CC=$compiler SAN_FLAGS=$flags ASAN_OPTIONS=detect_leaks=0 python3 -B tests/host/smc_ble_midpoll_link_test.py",
+      "CC=$compiler SAN_FLAGS=$flags ASAN_OPTIONS=detect_leaks=0 python3 -B tests/host/smc_ble_frame_length_test.py",
+      "python3 -B -m py_compile tests/host/smc_mmc_stop_fifo_test.py"
+    ],
+    "mmc_fifo": "96/96 assertions in each of 6 configurations; 6/6 command exits 0",
+    "ble_midpoll": "16/16 in each of 6 configurations; 6/6 exits 0",
+    "ble_frame_length": "24/24 in each of 6 configurations; 6/6 exits 0",
+    "python_syntax": "exit 0",
+    "negative_control": "Disposable TEST HARNESS mutation suppressing first fresh same-source MMC ingress: normal gcc compile succeeds but mode10 src0 cursor0 fails log=17 vs expected=19, subprocess exit 1; no production C modified.",
+    "negative_log_sha256": "e8e672b82bac0f7cf27fa1f1a5216047f7ee9a818c1ae6434daf24ac52772856",
+    "positive_log_sha256_by_suite": {
+      "mmc_fifo": "507bab51874d5247d9dc4caa42c29d1286109c79df9a1668a6b530f51419defe",
+      "ble_midpoll": "2bbc97be4964f313c299e9b40411b4d075c9a89e3e928458da6905f0173a1fdf",
+      "ble_frame_length": "2b885220f9429aacc7512c432f6aa3541ad82dc0667f20d336e5133041616ad1"
+    },
+    "limits": "Tests compile selected actual production C functions with mocks; Leap/LeakSanitizer unrun; no hardware timing/physical ISR, compiler firmware build or full ROOT executed this producer turn."
+  },
+  "build_only_existing_consumer": {
+    "owner": "LoopyX0X37 Hourly Build",
+    "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/122#issuecomment-6386954740",
+    "built_source_sha": "f8ac1c310b8e2b308086f20574079c3dba3230c8",
+    "compiled_subtree": "8c915bd5072e3e1ffa93a92ac96cc66b3816f108",
+    "status": "BUILD_SUCCEEDED_UNREVIEWED_SCOPED / QA_PENDING / DEVICE_NOT_TESTED",
+    "elite": {
+      "bytes": 651396,
+      "sha256": "77e02149fae5a282d3739fb998b62d5d68645c0fc456f5bef5f1811bf32ea363",
+      "crc32": "56dcfd41"
+    },
+    "pro": {
+      "bytes": 651392,
+      "sha256": "1781c295f64db5be7e5c1d492eb9a82fcf8688f93bd35c338a0d91284fb69257",
+      "crc32": "053e9a0a"
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    },
+    "toolchain_archive_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "sdk_v1_2_1_archive_sha256": "2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805",
+    "private_library_bundle_id": "libfile_37d4042ed9a881919730acedb43a2e22",
+    "reused_for_r7": "Compiler subtree and all listed consumed firmware inputs unchanged. BUILD_ONLY reuse subject to Hourly Build/Independent QA independently verifying exact consumed toolchain/config/source/controller artifact identities; R7 did NOT perform a fresh target compile."
+  },
+  "permissions": "SMC producer-only test and evidence edits, isolated branch; no protected firmware/nightly/main, website/Pages, auto-merge, device flash, public binary/controller/vendor SDK/DSP/user data.",
+  "unrun": [
+    "R7 complete root host suite",
+    "R7 independent QA of exact new root/test",
+    "physical-device ISR/transport timing",
+    "NIGHTLY installability and firmware Safe Merge acceptance",
+    "OTA/backup/restore/wrong-device negative",
+    "public artifact hosting and exact served HTTPS bytes",
+    "model-matched owner device proof"
+  ],
+  "next_owner": "LoopyX0X37 Independent QA: independently check exact PR122 R7 ROOT source/test, native negative controls and qualifications. Existing Hourly Build: acknowledge unchanged consumed compiler inputs and R6 artifact provenance, no unnecessary recompile. Sole firmware Safe Merge decides separate integration only after required independent acceptance.",
+  "stop_condition": "Producer scoped tests-only regression and authorized remote Git SHA readback, no self-review/integration/publication"
+}
