@@ -1,0 +1,129 @@
+{
+  "schema": "loopyx0x37-scheduler-handoff-v1",
+  "evidence_revision": "smc-pr40-current-candidate-data7-negative-20261024-r1",
+  "date_utc": "2026-10-24",
+  "role": "LoopyX0X37 SMC Transport SOURCE PRODUCER",
+  "source_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "commit_sha": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+    "full_root_tree_sha": "9dc695fb9f4da4069362c24aa866f9b995b1b463",
+    "firmware_subtree_sha": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+    "evidence_revision": "safe-merge-pr103-smc79-63-73-prehardware-critical-repair-20261024-r9",
+    "smc_source_blob_sha": "6d9dcb879c70f4be395197b71cff9e304373e2ce",
+    "smc_midi_host_fn_window_utf8_characters": 519,
+    "smc_midi_host_fn_window_fnv1a32": "82d4835c"
+  },
+  "producer": {
+    "pr": 40,
+    "branch": "lane/smc-reject-invalid-midi-data-20261023",
+    "source_commit_sha": "494cef524395af2a4614e35fafcea3cafece7811",
+    "source_root_tree_sha": "65d875befbaac1b85a14c82a7f58fcb4720ec7db",
+    "source_firmware_subtree_sha": "c88df4c40fe756c57ddcad39112e1d136a3c66c4",
+    "source_blob_sha": "d3d1046b520b435ec83961b1d7aa18f4b4dd57c2",
+    "smc_midi_host_fn_window_utf8_characters": 691,
+    "smc_midi_host_fn_window_fnv1a32": "c0d9e9b4",
+    "test_registration_parent_commit": "ad5930d0cbea15af36b4f855d22966c9d81b4def",
+    "test_registration_parent_full_root_tree": "36462cd2fcbe4e3b7608e9f3affdfe2e8e4ad7e4",
+    "test_script": "tests/host/smc_host_data7_test.py",
+    "test_script_blob_sha": "4843db8c63b5811b3bd6d03b2ddbd90c327697c3",
+    "test_script_sha256_utf8": "72f24d3254ec880c7d103f85fb56c83223bc84b7c77c6309b2dd9bac975f1137",
+    "registered_runner": "tests/run_tests.sh",
+    "registered_runner_blob_sha": "dc4a10c5d831781596f7f7936c1e37c27865f276",
+    "registered_selector": "smc-host-data7",
+    "firmware_compiler_inputs_changed_by_this_run": false
+  },
+  "native_execution": {
+    "host": "local Linux x86_64",
+    "executed_command": "python3 -B /mnt/data/smc_gap_20261024/host_guard_regression.py",
+    "orchestrator_exit_code": 0,
+    "differential_script_sha256": "b075fc89cd6183e79651c140dade7efab6cf6f24f335afb4f6fa1372da5ded1e",
+    "source_verification": "Both source-function windows were matched against authenticated exact Git blobs using UTF-8 character count and independently computed FNV-1a 32-bit. The C harness compiles exact function-window transcriptions, with simulated host queue and protocol admission.",
+    "build_variants": [
+      "GCC -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=undefined",
+      "GCC -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "Clang -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=undefined",
+      "Clang -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer"
+    ],
+    "compile_exits_candidate": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "run_exits_candidate": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "candidate_negative_controls": "5/13 acceptance assertions FAILED as expected in each variant: invalid Solo NoteOn data1 0x88, invalid Solo NoteOff data1 0x88, invalid NoteOn velocity 0x80, invalid CC data1 0xA8, invalid CC value 0x80. These malformed high-bit data bytes can be routed to User-mode SMC from USB/peripheral BLE.",
+    "compile_exits_producer": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "run_exits_producer": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "producer_corrected": "13/13 PASS per variant including valid Solo, valid fader/knob, disabled User, wrong channel and ordinary MIDI passthrough.",
+    "source_selected_registered_test_replay": {
+      "fixture_mode": "fetched-source-matched function-window project fixtures, not complete repository",
+      "command": "CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=undefined' python3 -B tests/host/smc_host_data7_test.py",
+      "producer_compile_exit": 0,
+      "producer_test_exit": 0,
+      "candidate_compile_exit": 0,
+      "candidate_test_exit": 1,
+      "clang_asan_ubsan_producer_test_exit": 0,
+      "clang_asan_ubsan_candidate_test_exit": 1,
+      "python_syntax_exit": 0
+    },
+    "test_runner_registered_but_complete_remote_checkout_executed": false,
+    "logs_sha256": {
+      "candidate_gcc_ubsan": "62eb4c1cbbed3c3a640884110350938db0f151bd506b4b80bbb3e68a1546e1b2",
+      "candidate_gcc_asan_ubsan": "68aa4369ad2b3f6d6540f03d82d2803a6b6c1bca429f94b6beb6595afc33dfcf",
+      "candidate_clang_ubsan": "99d0abba3e757905fc204fc2f175d3930d3227c079017567a7b951e6202447c7",
+      "candidate_clang_asan_ubsan": "c2e70160a3cf05cea1b98d6836d0ef52f1e967df0fd80daa762357d084fbc718",
+      "corrected_gcc_ubsan": "d7700b61441b0e423872bc9bb08aeaacd29660163d7a18536df27557ed38cee4",
+      "corrected_gcc_asan_ubsan": "96fe41ef14b655f079b8b3248a8541062503eb2aab39ef81d30c95a418f04ee4",
+      "corrected_clang_ubsan": "2d379d8fa543976a3a50eb7ea65ef8cec39cf9a9ecad6f58076ca084aca8600e776",
+      "corrected_clang_asan_ubsan": "46f4e7607890e3a50eb7ea65ef8cec39cf9a9ecad6f58076ca084aca8600e776"
+    }
+  },
+  "disposition": "PR40 SOURCE-COMPLETE / PRODUCER SOURCE-WINDOW CHECKED / READY FOR INDEPENDENT REVIEW. PR103 CURRENT HEAD NEEDS GUARD INTEGRATION; NOT INDEPENDENT QA APPROVED; NO PUBLIC INSTALLABLE CANDIDATE.",
+  "resolved_or_acknowledged": "Current integration PR103 already contains producer PR79 BLE first-session repair, PR63 direct BLE malformed data repair, and PR73 saturated MMC STOP ordering repair. Their scope does NOT repair the separate USB/peripheral BLE User-mode host ingress.",
+  "next_handoffs": [
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Reconcile already checked PR40 smc_midi_host guard into existing PR103 integrated source with no overwrite of PR63 direct-BLE and PR73 MMC STOP changes; consume registered tests and preserve existing SMC BLE/303/data safety.",
+      "gate": "Exact newly combined source root and firmware tree; independent native QA before protected nightly merge."
+    },
+    {
+      "owner": "Independent QA",
+      "action": "Independently execute registered smc-host-data7 and smc-queue against combined actual checkout, cover USB, peripheral BLE, wrong-model/controller, unrelated SMC direct central, saturated queue and full first-candidate preservation/OTA negatives.",
+      "gate": "Independent exact-combined-root ACCEPT / NEEDS CHANGES review."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile exact changed Elite and Pro firmware plus local private controller as BUILD_ONLY immediately when updated exact input is available; builder does not await QA/merge/publication/device.",
+      "gate": "Actual pinned native target build, model, memory, source+byte hash logs, not equivalent to public installability."
+    },
+    {
+      "owner": "Catalog & sole Publisher",
+      "action": "Preserve previous safe builds; no owner-installable NIGHTLY until independent prehardware/model/controller/backup/integrity/license/immutable HTTP checks.",
+      "gate": "Verified same-byte lawful immutable URLs and device-not-tested hardware-test labeling."
+    }
+  ],
+  "limits": [
+    "Source-window host mocks only; no full checkout CI/native regression from the exact remote PR HEAD.",
+    "No new Elite/Pro/controller target binaries, device flash, physical MIDI/BLE evidence, approval or HTTP publication.",
+    "Candidate unsafe admission is an independent QA/public qualification block, never a compiler build block.",
+    "Owner hardware observations remain UNKNOWN."
+  ]
+}
