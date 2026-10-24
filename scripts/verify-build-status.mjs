@@ -442,6 +442,21 @@ for (const [id, expected] of immutableBuildIdentities) {
     expected, 'historic DEV firmware identity modified: ' + id);
 }
 
+
+ // Enforce THIS populated catalog's immutable 115-row baseline even in
+ // standalone npm run catalog:check; schema-only empty catalogs are not this repo.
+ const historicLock=JSON.parse(read('tests/fixtures/history-appendonly-baseline-20261024.json'));
+ assert.equal(historicLock.schema,1,'history continuity fixture schema');
+ assert.equal(historicLock.origin.digest,'SHA256(UTF8(JSON.stringify(parsed row)))');
+ assert.ok(historicLock.rows.length>=115,'catalog may not weaken the baseline');
+ assert.ok(catalog.history.length>=historicLock.rows.length,'historical rows deleted');
+ for(let i=0;i<historicLock.rows.length;i++){
+   const pinned=historicLock.rows[i];
+   assert.equal(catalog.history[i].id,pinned.id,'historical row deleted or reordered at '+i);
+   assert.equal(createHash('sha256').update(JSON.stringify(catalog.history[i]),'utf8').digest('hex'),pinned.sha256,
+     'historical row tampered at '+i);
+ }
+
 const ids = new Set();
 const historicalStatuses = new Set([
   'source-only', 'not-hosted', 'evidence-only', 'failed', 'reference',

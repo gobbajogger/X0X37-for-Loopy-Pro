@@ -10,7 +10,8 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const required = [
   'scripts/verify-build-status.mjs', 'build-status.json', 'docs/build-status.json',
   'preview-catalog.json', 'docs/versions.json', 'docs/builds/index.html', 'docs/index.html',
-  'docs/scheduler-handoffs/catalog-sync-20261024.json'
+  'docs/scheduler-handoffs/catalog-sync-20261024.json',
+  'tests/fixtures/history-appendonly-baseline-20261024.json'
 ];
 function run(label, mutate, shouldPass = false) {
   const dir = fs.mkdtempSync(join(tmpdir(), 'x0x37-status-'));
@@ -121,11 +122,28 @@ run('source-docs-mismatch',dir=>{
   fs.appendFileSync(p,' ');
 });
 
-run('empty-history-and-builds-allowed-without-device-firmware-or-QA',edit(j=>{
+run('deleted-DEV-generations-and-entire-pinned-history-cannot-be-accepted',edit(j=>{
   j.history=[]; j.builds=[];
   j.counts.actual_build_generations=0;
   j.counts.source_or_historical_checkpoints=0;
   j.policy.public_latest=null; j.policy.public_device_proven_versions=[];
+}));
+run('standalone-catalog-check-rejects-tail-history-delete-even-with-updated-count',edit(j=>{
+  j.history.pop();j.counts.source_or_historical_checkpoints=j.history.length;
+}));
+run('standalone-catalog-check-rejects-valid-40hex-pinned-history-source-forgery',edit(j=>{
+  j.history[0].source_commit='f'.repeat(40);
+}));
+run('standalone-catalog-check-rejects-two-pinned-history-rows-swapped',edit(j=>{
+  [j.history[0],j.history[1]]=[j.history[1],j.history[0]];
+}));
+run('standalone-catalog-check-accepts-truthful-future-noninstallable-history-append',edit(j=>{
+  j.history.push({
+    id:'catalog-future-noninstallable-positive',title:'Synthetic future SOURCE ONLY evidence',
+    date:'2026-10-25',status:'source-only',models:[],source_commit:'f'.repeat(40),
+    installable:false,device_verified:false
+  });
+  j.counts.source_or_historical_checkpoints=j.history.length;
 }),true);
 run('approved-GitHub-source-evidence-remains-allowed',edit(j=>{
   j.history[0].evidence_url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/58b5b45a2dd90581de7a674c331ca5cbe8a67c7e';
