@@ -50,7 +50,7 @@ test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|ctl-publish-atomic|upload-tools|\
-    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
@@ -181,8 +181,10 @@ run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_proto
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
+run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
 run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
+run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
 run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"

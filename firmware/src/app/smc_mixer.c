@@ -31,6 +31,13 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
+/* MMC STOP must survive a saturated, per-source queue. The audio ISR only
+ * publishes generations; the main loop acknowledges them after queued input. */
+static volatile uint32_t smc_mmc_stop_published[2];
+static uint32_t smc_mmc_stop_seen[2];
+/* ISR publishes the overflowed STOP only after its FIFO cutoff. The consumer
+ * must drain all commands before that cutoff before applying STOP. */
+static volatile uint8_t smc_mmc_stop_boundary[2];
 static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
@@ -82,6 +89,8 @@ X0X_COLD static void smc_project_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
+    smc_mmc_stop_seen[0] = smc_mmc_stop_published[0];
+    smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
 }
 X0X_COLD void smc_project_reset(void)
 {
@@ -140,8 +149,15 @@ void smc_mmc_host(uint8_t cmd, uint8_t src)
     if (src > 1u || cmd < 1u || cmd > 43u)
         return;
     w = smc_mmc_w[src];
-    if ((uint8_t)(w - smc_mmc_r[src]) >= 16u)
+    if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
+        /* User-preset MMC command 34 is STOP. Never drop it on overload. */
+        if (cmd == 34u) {
+            smc_mmc_stop_boundary[src] = w;
+            __asm__ volatile("" ::: "memory");
+            smc_mmc_stop_published[src]++;
+        }
         return;
+    }
     smc_mmc_q[src][w % 16u] = cmd;
     __asm__ volatile("" ::: "memory");
     smc_mmc_w[src] = (uint8_t)(w + 1u);
@@ -557,6 +573,9 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     }
     if (len < 3)
         return 4;
+    /* Never alias malformed BLE MIDI data bytes into SMC notes/CCs. */
+    if ((m[1] | m[2]) & 0x80u)
+        return 4;
     type = m[0] & 0xF0u;
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
@@ -578,6 +597,20 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
         else smc_release(a);
     } else return 4; /* message is outside the selected preset's input format */
     return 0;
+}
+
+/* A full ring can refill while smc_poll drains it. Apply an overflowed STOP
+ * at its original FIFO boundary, not merely at this poll's 16-item limit:
+ * otherwise a preceding PLAY can execute on the next poll after STOP. */
+static void smc_mmc_drain_stop(int src, int allow)
+{
+    uint32_t lost_stop = smc_mmc_stop_published[src];
+    if (lost_stop != smc_mmc_stop_seen[src] &&
+        smc_mmc_r[src] == smc_mmc_stop_boundary[src]) {
+        smc_mmc_stop_seen[src] = lost_stop;
+        if (proj.set.bt & PROJ_BT_SMC_USER)
+            smc_guarded_button(0x5Du, 1, allow);
+    }
 }
 
 void smc_poll(void)
@@ -647,6 +680,7 @@ void smc_poll(void)
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
+            smc_mmc_drain_stop(src, allow);
             r = smc_mmc_r[src];
             __asm__ volatile("" ::: "memory");
             uint8_t cmd = smc_mmc_q[src][r % 16u];
@@ -655,6 +689,9 @@ void smc_poll(void)
             if (proj.set.bt & PROJ_BT_SMC_USER)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
+        /* The generation stays pending if an earlier queued command remains
+         * beyond this poll's budget, preserving STOP-before-next-PLAY order. */
+        smc_mmc_drain_stop(src, allow);
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
