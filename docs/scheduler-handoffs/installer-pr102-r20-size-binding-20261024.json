@@ -1,0 +1,70 @@
+{
+  "schema": "loopyx0x37.installer-source-evidence.v1",
+  "evidence_revision": "installer-pr102-r20-byte-count-download-gate-20261024",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/installer-nightly-download-guard-20261024",
+  "source_parent_sha": "72573244ec3de6035630ec3ef9ba4acbc49d885b",
+  "source_parent_tree": "b059e7f77c7e80d365036d418eeeb746044ddcee",
+  "source_blob_before": "d9aea0fbe57452fc7818b0c152e59033036fc356",
+  "regression_blob_before": "20f767ab8e57e613c385ab8ad99390e90abe8040",
+  "source_loader_window_fnv32_before": "11dd37fb",
+  "source_loader_window_fnv32_after": "4a77479a",
+  "defect": "A catalog-reported .fwsc size inconsistent with returned bytes could still create an approved-looking Blob Download HREF and enable Install in the browser source window if simulated SHA/product returned expected values.",
+  "repair": "Check raw.byteLength === pkg.size before SHA, product parse, logical image and any Blob creation; fail closed using existing badpkg status.",
+  "native": {
+    "environment": "Linux x86-64 Node v22.16.0; Chromium via Python Playwright",
+    "old_node": {
+      "command": "node test_baseline_native.cjs",
+      "exit": 1,
+      "expected_red": true
+    },
+    "old_chromium": {
+      "command": "python3 test_baseline_browser.py",
+      "exit": 1,
+      "expected_red": true
+    },
+    "new_node": {
+      "command": "node test_loader_native.cjs",
+      "exit": 0,
+      "pass": "9/9",
+      "scope": "exact Git loader source window, synthetic"
+    },
+    "new_chromium": {
+      "command": "python3 test_chromium_size_gate.py",
+      "exit": 0,
+      "pass": "72/72",
+      "viewports": [
+        320,
+        390,
+        1280
+      ],
+      "languages": [
+        "en",
+        "ja"
+      ],
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "scope": "source-window minimal DOM; keyboard synthetic Blob; not full website"
+    }
+  },
+  "scoped_evidence_zip": "LoopyX0X37-PR102-R20-Package-Size-Binding-20261024.zip",
+  "scoped_evidence_zip_sha256": "91308b4ec811c5333f6429f9930f650e6578fc6c7d76cbe59eceb664941cdc31",
+  "fixture_note": "Synthetic sha256Hex values deliberately force digest acceptance to isolate metadata-size bypass; not real malicious bytes passing a genuine SHA.",
+  "limitations": {
+    "full_node_checkout": "NOT RUN; shell git ls-remote failed DNS, exit 128; native repo checkout unavailable",
+    "full_site_chromium": "NOT RUN",
+    "physical_webmidi": "NOT RUN",
+    "backup_restore_ota": "NOT RUN",
+    "independent_qa": "PENDING",
+    "downloadable_nightly": "NONE: publisher allowlist still empty"
+  },
+  "next_owner": "Independent Firmware QA: full current-HEAD native tests and controller/model/backup/OTA, then Safe Merge; separate website PR6 site owner handles direct HREF admission without touching this branch.",
+  "constraints": [
+    "source-only, no firmware/ctl/vendor SDK/sample",
+    "own isolated branch PR102 only",
+    "no protected branch/Pages write",
+    "producer-scoped PASS is not QA approval"
+  ]
+}

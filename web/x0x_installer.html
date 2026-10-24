@@ -605,6 +605,8 @@ async function loadSelectedPackage() {
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
     const raw = new Uint8Array(await r.arrayBuffer());
     if (!isLatest()) return;
+    // Catalog byte length is verified metadata, not just a display hint.
+    if (raw.byteLength !== pkg.size) { sayK("badpkg"); return; }
     // Approved downloads require a SHA and the exact product/model identity.
     const hex = await sha256Hex(raw.buffer);
     if (!isLatest()) return;

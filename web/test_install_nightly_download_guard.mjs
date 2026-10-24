@@ -325,12 +325,16 @@ const racePkgs={
   elite:{product:"SMK-37 Elite_9001100",pkg:"https://nightly.example.test/elite.fwsc",sha256:"a".repeat(64)},
   pro:{product:"SMK-37 Pro_9001100",pkg:"https://nightly.example.test/pro.fwsc",sha256:"b".repeat(64)}
 };
-function makeRace(){
-  const pending=new Map(),errors=[],go={disabled:true},version={version:"synthetic",models:racePkgs};
+function makeRace({eliteSize=1,proSize=1}={}){
+  const pending=new Map(),errors=[],created=[],go={disabled:true},
+    version={version:"synthetic",models:{
+      elite:{...racePkgs.elite,size:eliteSize},
+      pro:{...racePkgs.pro,size:proSize}
+    }};
   const ctx=createContext({
     $:()=>go,refreshMeta(){},currentVersion:()=>version,
     verifiedDownload:null, discardVerifiedDownload(){},
-    URL:{createObjectURL:()=> "blob:verified-race",revokeObjectURL(){}},Blob,
+    URL:{createObjectURL:()=>{created.push("blob:verified-race");return "blob:verified-race";},revokeObjectURL(){}},Blob,
     isCatalogChecked:(v,p)=>!!v&&Object.values(v.models).includes(p),
     hasVerifiedNightlySelection:(v,p)=>!!v&&Object.values(v.models).includes(p),
     ctlNeedsResolution:false,
@@ -345,7 +349,7 @@ function makeRace(){
     +"globalThis.choose=m=>{chosenModel=m;return loadSelectedPackage()};\n"
     +"globalThis.result=()=>({image,selectedProduct,disabled:$('go').disabled});")
     .runInContext(ctx);
-  return {ctx,pending,errors};
+  return {ctx,pending,errors,created};
 }
 {
   const r=makeRace(),first=r.ctx.choose("elite"),second=r.ctx.choose("pro");
@@ -370,3 +374,41 @@ function makeRace(){
   console.log("PASS stale HTTP error does not hide current selection");
 }
 
+// Approved catalog length must bind fetched bytes before SHA/product/Blob.
+for (const [actual,declared] of [[1,2],[2,1]]) {
+  const r=makeRace({eliteSize:declared});
+  const attempt=r.ctx.choose("elite");
+  r.pending.get(racePkgs.elite.pkg).resolve({ok:true,
+    arrayBuffer:async()=>new Uint8Array(actual).fill(1).buffer});
+  await attempt;
+  assert.equal(r.ctx.result().image,null);
+  assert.equal(r.ctx.result().selectedProduct,null);
+  assert.equal(r.ctx.result().disabled,true);
+  assert.equal(r.ctx.verifiedDownload,null);
+  assert.equal(r.created.length,0);
+  assert.ok(r.errors.includes("badpkg"));
+  console.log("PASS mismatch: bytes="+actual+", approved size="+declared+" forbids Blob/Install");
+}
+{
+  const r=makeRace();
+  const attempt=r.ctx.choose("elite");
+  r.pending.get(racePkgs.elite.pkg).resolve({ok:true,
+    arrayBuffer:async()=>new Uint8Array([1]).buffer});
+  await attempt;
+  assert.equal(r.ctx.result().image,1);
+  assert.equal(r.ctx.result().selectedProduct,racePkgs.elite.product);
+  assert.equal(r.ctx.result().disabled,false);
+  assert.equal(r.created.length,1);
+  assert.ok(r.ctx.verifiedDownload.href.startsWith("blob:"));
+  console.log("PASS size-matched eligible model still yields verified Blob");
+}
+{
+  const r=makeRace(),attempt=r.ctx.choose("elite");
+  r.pending.get(racePkgs.elite.pkg).resolve({ok:false,status:404});
+  await attempt;
+  assert.equal(r.ctx.result().image,null);
+  assert.equal(r.ctx.result().disabled,true);
+  assert.equal(r.created.length,0);
+  assert.ok(r.errors.includes("loadfail"));
+  console.log("PASS failed HTTP fetch still forbids Blob/Install");
+}
