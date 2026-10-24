@@ -9,7 +9,12 @@ Prompt commit: `e23170227ca4ae4b6cc2700692f4d650fa1b506b`.
 Successor agent id: none.
 Successor URL: none.
 
-`bc-ad31708d-5548-5785-bb62-75a54918e755` is not the successor. Its source is internal, so the owner cannot open it. The handoff is not complete. This stage still owns the work.
+`bc-ad31708d-5548-5785-bb62-75a54918e755` is not an owner-visible successor. Its source is internal. It did finish the stage-1 audit.
+
+Audit branch: `cursor/f02-loader-stage1-e755` at `5293bcd8e9a4152c5dcdbd515390ee3a8e60f945`.
+Audit record: `evidence/f02-loader-stage1/AUDIT.md`.
+Selected defect: **F02**. After the installer sends the selected keyboard into its update loader, the next search can attach to a different keyboard and write the package there. The approved repair is fail-closed: snapshot the loader ports, accept exactly one new loader, and do not write otherwise.
+Stage 2 agent id: none. Stage 2 has not started. This stage still owns the handoff.
 
 ## Scope
 
