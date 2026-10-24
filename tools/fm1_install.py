@@ -458,7 +458,7 @@ class Updater:
                                f"{served} requests; nothing was written")
         step("loader")
         time.sleep(DELAY["loader"])
-        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"])
+        ota = self.wait_for(lambda i: i.loader and same_keyboard(i.text, dev.id.text), DELAY["wait_loader"])
         if not ota:
             raise InstallError("noloader", "the update loader did not appear. Replug the USB cable and "
                                            "run the install again: the FM-1 stays in update mode until it is done")
@@ -482,8 +482,18 @@ class Updater:
     def verify(self, product, step):
         step("reboot")
         time.sleep(DELAY["reboot"])
-        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        mismatch = []
+        def selected(i):
+            if i.loader or not same_keyboard(i.text, product):
+                return False
+            if i.text != product:
+                mismatch.append(i.text)
+                return False
+            return True
+        back = self.wait_for(selected, DELAY["wait_reboot"])
         if not back:
+            if mismatch:
+                raise InstallError("mismatch", f"written, but the FM-1 reports {mismatch[-1]} (expected {product})")
             raise InstallError("noreturn", "the FM-1 did not come back: power-cycle it")
         back.link.close()
         if back.id.text != product:
@@ -866,7 +876,7 @@ def run(a, backend, out, ask):
     finally:
         prog.end()
     if move and move.risk and move.new_map:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.wait_for(lambda i: not i.loader and i.text == product, DELAY["wait_reboot"])
         try:
             if not back:
                 raise TimeoutError("the device did not answer after the install")
@@ -883,7 +893,7 @@ def run(a, backend, out, ask):
                                     f"The backed-up slots were not written back. {move.help()}")
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.wait_for(lambda i: not i.loader and i.text == product, DELAY["wait_reboot"])
         if not back:
             raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
         try:

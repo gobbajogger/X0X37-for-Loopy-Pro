@@ -1,0 +1,72 @@
+{
+  "schema": "x0x37.scheduler-handoff.data-safety.v1",
+  "evidence_revision": "data-safety-ota-family-reconnect-20261024-r1",
+  "actor": "LoopyX0X37 Data Safety",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "consumed": {
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "sha": "1087ede952f6c6f5f22d1b56b062628f07a6af10",
+    "full_root_tree": "ba59448baa98213f2cb75de429a85f156a992efb",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "7e383aed118ff2ee9791b7792a1774b09c3921eb",
+    "runner_blob": "41f28b3d23b28d69e039586a6a16f0ff328969ed",
+    "producer_evidence": "safe-merge-pr103-r17-smp-info-fixture-source-handoff-20261024-r1"
+  },
+  "finding": "Native OTA reconnect accepts unrelated-family loader or unrelated postflash device; sample restore can target wrong model. Original wait_for only checked loader/running state.",
+  "repair": "Bind loader reconnect to expected keyboard family, reject unrelated/wrong-version running identities during final verify, and require exact installed product before restore/controller-readback. Retain a distinct wrong-version mismatch diagnostic.",
+  "source_scope": [
+    "tools/fm1_install.py",
+    "tests/install_ota_reconnect_ast_test.py",
+    "tests/run_tests.sh"
+  ],
+  "tests": [
+    {
+      "command": "python3 -B install_ota_reconnect_ast_test.py base_functions.py",
+      "exit": 1,
+      "expected": "FAIL-BEFORE",
+      "failed_cases": 10,
+      "total": 12,
+      "environment": "Git-source AST method-window projection; synthetic link; no physical MIDI"
+    },
+    {
+      "command": "python3 -B install_ota_reconnect_ast_test.py patched_functions.py",
+      "exit": 0,
+      "passed": 12,
+      "total": 12,
+      "environment": "Git-source AST method-window projection; no complete current-root checkout"
+    },
+    {
+      "command": "python3 -O -B install_ota_reconnect_ast_test.py patched_functions.py",
+      "exit": 0,
+      "passed": 12,
+      "total": 12
+    },
+    {
+      "command": "python3 -B -m py_compile install_ota_reconnect_ast_test.py patched_functions.py",
+      "exit": 0
+    }
+  ],
+  "exposed_limit": "No stable physical serial identity across reboot. Another identical same-product device could be indistinguishable; require an independent device-selection/one-device gate before qualified public install. Missing owner physical observations UNKNOWN.",
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECK_PASS; QA_PENDING; BUILD_ONLY_CAN_RUN; PUBLIC_NIGHTLY_NO_GO; DEVICE_UNKNOWN",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Run registered installer-ota-rebind against complete exact Git root alongside install_test, install_slots_test, controller/OTA/restore interruption/wrong-model negatives; publish exact-head review"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile or byte-equivalence attest current Elite/Pro/controller BUILD_ONLY from exact source and pinned external compiler inputs now; do not wait for merge or QA"
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Integrate after independent source review and current integrated negatives; do not directly write protected nightly"
+    },
+    {
+      "owner": "Catalog and NIGHTLY publisher",
+      "action": "Preserve existing safe candidates; require complete independent prehardware model/controller/backup/integrity/license/source/immutable HTTP gates before exposing downloadable installs"
+    }
+  ],
+  "private_data": false,
+  "no_firmware_binary": true,
+  "never_publicly_installed": true
+}
