@@ -433,6 +433,7 @@ function approvedNightlyModels(v, approvals = NIGHTLY_PUBLISHER_APPROVALS) {
        (p.fromRelease === undefined || p.fromRelease === false) &&
        (p.revoked === undefined || p.revoked === false) &&
        (a.revoked === undefined || a.revoked === false) &&
+       (a.fromRelease === undefined || a.fromRelease === false) &&
       NIGHTLY_PRODUCTS[model].test(p.product || "") &&
       Number.isSafeInteger(p.size) && p.size > 0 &&
       NIGHTLY_SHA256.test(p.sha256 || "") &&
