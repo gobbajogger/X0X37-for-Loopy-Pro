@@ -1,0 +1,263 @@
+{
+  "schema": "x0x37.closed_development_loop.source_evidence.v1",
+  "evidence_revision": "seqclock-pr35-pr41-pr48-threeway-20261024-r2",
+  "date_utc": "2026-10-24",
+  "owner": "LoopyX0X37 Sequencer Clock",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/safe-merge-clock-handover-20261023",
+  "producer_pr": 35,
+  "consumed_producer_sha": "4594b2fa803a1b14d3107c309830f4f53b14cf6f",
+  "checked_repo_commit": "a15bdc6faeaa06588006bcd5c19d0fa5e872d91d",
+  "checked_complete_root": "c540d1a6ff7f663a8d1d8cc05eb1e29d959f3339",
+  "checked_firmware_subtree": "c028ff5306a90b40717066d23c422b20d1591e8d",
+  "registered_source_test": {
+    "path": "docs/scheduler-handoffs/clock_handover_interaction.c",
+    "blob_sha": "c3ef9a351e50b970ed6f7dac0a8fb86e6947a275",
+    "runner": "docs/scheduler-handoffs/clock_handover_interaction.sh",
+    "runner_blob_sha": "bb1c289687a25f6def7fd8d81206ceb7bd80a7c4"
+  },
+  "consumed_dependencies": [
+    {
+      "pr": 35,
+      "commit": "a15bdc6faeaa06588006bcd5c19d0fa5e872d91d",
+      "full_root": "c540d1a6ff7f663a8d1d8cc05eb1e29d959f3339",
+      "firmware_subtree": "c028ff5306a90b40717066d23c422b20d1591e8d",
+      "source_blob": "7345cab17c29ba3c26f58d1b2c042b05c1b55ef4",
+      "behavior": "clear queued old-owner clock ticks on disconnect"
+    },
+    {
+      "pr": 41,
+      "commit": "a716acd9be62f7cd471d397b92767f4c0e7f6c9f",
+      "full_root": "3c7522eef4eafc911c53c95ddb68d00605ac764c",
+      "firmware_subtree": "62dfd6712bd0f00676fb9292e61897fe2f8b8082",
+      "source_blob": "37ee28b8191565f0caa14d91f67accdd32b95cf9",
+      "behavior": "release stale owner immediately on INTERNAL clock mode switch, without a MIDI packet"
+    },
+    {
+      "pr": 48,
+      "commit": "3e75a5690a9dc0a085c2d4221f4d64b7e3d4a4b8",
+      "full_root": "74a4f2e57f791043434d2a460976b933fb9e0939",
+      "firmware_subtree": "8c8b72337754c3e635173f197eba530d26dbf74f",
+      "source_blob": "b02cf26e938fbc58dddcab455b119998e96ce744",
+      "behavior": "clear old-owner queued ticks on STOP grace takeover"
+    }
+  ],
+  "consumed_first_candidate": {
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+    "full_root": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+    "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+    "sequencer_blob": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+    "evidence_revision": "safe-merge-pr103-smc40-43-data108-first-candidate-20261024-r10"
+  },
+  "environment": {
+    "platform": "Linux x86_64",
+    "gcc": "14.2.0",
+    "clang": "17.0.0",
+    "local_runtime": true,
+    "github_hosted_ci": false,
+    "physical_device": false
+  },
+  "native_method": "Git-source-window-aligned C projection from the first NIGHTLY candidate and three independent sequencer producer diffs; clock_source is limited to the relevant mode-switch branch, NOT a whole linked firmware file",
+  "test_scope": [
+    "AUTO and EXTERNAL mode",
+    "USB->BLE and BLE->USB transitions",
+    "owner disconnect and stale queued ticks",
+    "STOP grace takeover and premature takeover rejection",
+    "switch to INTERNAL without incoming MIDI, then restore AUTO/EXTERNAL",
+    "stale disconnect after new owner acquires tick",
+    "foreign STOP and Song Position unchanged",
+    "MIDI Note Off pass-through"
+  ],
+  "commands": [
+    "sh docs/scheduler-handoffs/clock_handover_interaction.sh",
+    "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DHANDOVER_DROP -DSTOP_TAKEOVER -DOWNER_RESET docs/scheduler-handoffs/clock_handover_interaction.c -o /tmp/clk_asan_gcc && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 /tmp/clk_asan_gcc",
+    "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DHANDOVER_DROP -DSTOP_TAKEOVER -DOWNER_RESET docs/scheduler-handoffs/clock_handover_interaction.c -o /tmp/clk_asan_clang && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 /tmp/clk_asan_clang"
+  ],
+  "actual_exits": {
+    "differential_runner": 0,
+    "suite_variants": [
+      {
+        "compiler": "gcc",
+        "configuration": "CANDIDATE",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 80,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "gcc",
+        "configuration": "DROP_ONLY",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 92,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "gcc",
+        "configuration": "TAKEOVER_ONLY",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 100,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "gcc",
+        "configuration": "OWNER_ONLY",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 108,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "gcc",
+        "configuration": "DROP_TAKEOVER",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 104,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "gcc",
+        "configuration": "DROP_OWNER",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 120,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "gcc",
+        "configuration": "TAKEOVER_OWNER",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 128,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "gcc",
+        "configuration": "ALL_THREE",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "passed_assertions": 132,
+        "total_assertions": 132,
+        "expected_negative": false
+      },
+      {
+        "compiler": "clang",
+        "configuration": "CANDIDATE",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 80,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "clang",
+        "configuration": "DROP_ONLY",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 92,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "clang",
+        "configuration": "TAKEOVER_ONLY",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 100,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "clang",
+        "configuration": "OWNER_ONLY",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 108,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "clang",
+        "configuration": "DROP_TAKEOVER",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 104,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "clang",
+        "configuration": "DROP_OWNER",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 120,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "clang",
+        "configuration": "TAKEOVER_OWNER",
+        "compile_exit": 0,
+        "execution_exit": 1,
+        "passed_assertions": 128,
+        "total_assertions": 132,
+        "expected_negative": true
+      },
+      {
+        "compiler": "clang",
+        "configuration": "ALL_THREE",
+        "compile_exit": 0,
+        "execution_exit": 0,
+        "passed_assertions": 132,
+        "total_assertions": 132,
+        "expected_negative": false
+      }
+    ],
+    "asan_ubsan_additional": [
+      {
+        "compiler": "gcc",
+        "baseline_compile": 0,
+        "baseline_execution": 1,
+        "combined_compile": 0,
+        "combined_execution": 0,
+        "combined_pass": "132/132"
+      },
+      {
+        "compiler": "clang",
+        "baseline_compile": 0,
+        "baseline_execution": 1,
+        "combined_compile": 0,
+        "combined_execution": 0,
+        "combined_pass": "132/132"
+      }
+    ]
+  },
+  "logs": {
+    "differential_runner_summary_sha256": "f96ac0eadc1907c667cadb68854e96df82fca1f7ce2dac6fc700df179cdc8184",
+    "logs_reproducible_by_runner": true
+  },
+  "disposition": "SOURCE TEST PUSHED / PRODUCER-SCOPED THREE-WAY PASS / READY FOR INDEPENDENT REVIEW / INTEGRATION PENDING",
+  "remaining_gates": [
+    "Independent QA linked exact combined-root clock tests including MIDI Note Off / transport phase and boundary negatives",
+    "Sole Safe Merge independently selects timing dependency priority; preserve current first NIGHTLY candidate safety protections",
+    "Hourly Build may compile source immediately as BUILD_ONLY; target Elite/Pro/controller build results UNKNOWN for a new combined firmware subtree",
+    "No public download until independent model/controller/sample/OTA/backup/integrity/source-license/immutable-HTTP checks",
+    "Owner physical tests UNKNOWN and not prerequisite for NIGHTLY DEV; production separately proven/approved"
+  ],
+  "next_owners": {
+    "independent_qa": "Review this exact test and real combined root; mark independent disposition",
+    "sole_safe_merge": "Consume PR #35 + #41 + #48 only on authorized integration lane if selected; do not make new blocker to unrelated first-candidate qualification",
+    "hourly_build": "Compile exact changed firmware subtree BUILD_ONLY independently of QA/merge",
+    "catalog_publisher": "Maintain old safe live builds; no public selection from scoped projection"
+  }
+}
