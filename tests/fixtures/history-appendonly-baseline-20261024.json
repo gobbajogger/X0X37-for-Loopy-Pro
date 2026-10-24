@@ -483,6 +483,18 @@
     {
       "id": "bugfinder-bf020-pr123-legacy-bd-pan-motion-20261024",
       "sha256": "b11df151a6bd19773c9267a1ba596d61abaf2b0714a02fc778e29e9498282563"
+    },
+    {
+      "id": "integration-pr103-r23-mit-notice-source-only-20261024",
+      "sha256": "2ee28660cbefda618ba177ff0324a3999f8f6adfbe155ab4994273f87fe341ef"
+    },
+    {
+      "id": "data-safety-pr114-r11-sample-pairing-ota-no-go-20261024",
+      "sha256": "fdbd97d06ccd020643a354beb5a9e0beaa9fb6c74405d420393d86c1183e1fe3"
+    },
+    {
+      "id": "bugfinder-bf022-pr128-legacy-master-highpass-20261024",
+      "sha256": "717dd638ee298a955ce5d29d75ff7356e4e6f2e0d593e336ccb8bb9f32fdd4f6"
     }
   ]
 }

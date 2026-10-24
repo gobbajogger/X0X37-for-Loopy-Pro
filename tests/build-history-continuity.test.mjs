@@ -44,4 +44,17 @@ mustReject('newer pinned tail record deleted', rows => rows.splice(lock.rows.len
 const appended=clone();
 appended.push({...appended.at(-1),id:'continuity-synthetic-future-source',source_commit:'f'.repeat(40)});
 check(appended);
-console.log('PASS: ' + lock.rows.length + ' SHA256-pinned historical records; 9 malicious continuity negatives; safe append');
+
+const r29Pinned = [
+  'integration-pr103-r23-mit-notice-source-only-20261024',
+  'data-safety-pr114-r11-sample-pairing-ota-no-go-20261024',
+  'bugfinder-bf022-pr128-legacy-master-highpass-20261024',
+];
+assert.ok(lock.rows.length >= 122, 'R29 122 immutable historical SHA256 receipts required');
+for (const id of r29Pinned) {
+  const index = original.findIndex(row => row.id === id);
+  assert.ok(index >= 119 && index < lock.rows.length, id + ': R29 source receipt absent');
+  mustReject('R29 source-SHA proof mutation ' + id,
+    rows => { rows[index].source_commit = 'f'.repeat(40); });
+}
+console.log('PASS: ' + lock.rows.length + ' SHA256-pinned historical records; 12 malicious continuity negatives; safe append');
