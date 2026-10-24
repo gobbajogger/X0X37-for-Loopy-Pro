@@ -1,0 +1,82 @@
+{
+  "schema": "x0x37-data-safety-pr114-r19-fdopen-close-20261025-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "parent_source_sha": "8361f45a0becb26426d51a795a9505e675cafd2b",
+  "parent_root_tree": "577e442f9d8a0a17062a845b8be8cd676a232e2e",
+  "compiled_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "owner": "existing hourly Data Safety producer; source-only owned PR #114",
+  "next_owner": "sole Independent QA reviewer; independent exact-SHA extraction negative and broader current-root OTA/backup/model/controller checks",
+  "origin_independent_finding": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/114#pullrequestreview-5640131582",
+  "intended_end_user_behavior": "Extracting a sample backup into an empty trusted directory must not leak a raw file descriptor or strand a partial file when os.fdopen() fails after O_EXCL created a slot output; existing recordings must remain untouched.",
+  "change_scope": [
+    "tools/x0x_slots.py",
+    "tests/host/sample_extract_safety_test.py"
+  ],
+  "new_git_blobs": {
+    "tools/x0x_slots.py": "805786fb32769bbe274de3bdd1897cb926878661",
+    "tests/host/sample_extract_safety_test.py": "b0f499eb3b88b23c7210d2327d0e0c5655a92b7a"
+  },
+  "permissions": "nonforce expected-head update on existing isolated PR114 lane only; no production/nightly protected refs, device, Pages, CI or public binaries",
+  "test_method": "Real POSIX temporary files and failure injection executing the exact Git-matched production main() function source window with a synthetic archive parser; not a complete repository checkout, hardware or independent QA.",
+  "tested_main_source_window_sha256": "6934bb5f9455211d695c8c0dbe0173e8fe850f611e8ced15eefba1165d2d132d",
+  "registered_test_git_blob": "b0f499eb3b88b23c7210d2327d0e0c5655a92b7a",
+  "registered_test_sha256": "3c9f95116478fd60ae20fe50c58c71d013bf02563d33edc4dd6d6c895831b02",
+  "commands": [
+    {
+      "command": "python3 -B R19-test.py R18-main.py",
+      "exit": 1,
+      "checks": "19/20; raw descriptor remained open",
+      "log_sha256": "c462ee184922f6f36cf148a27e93b1aefb800b150adaa476f036cce473fa8c4f"
+    },
+    {
+      "command": "python3 -O -B R19-test.py R18-main.py",
+      "exit": 1,
+      "checks": "19/20; same negative",
+      "log_sha256": "c1934e3ddd7e4f1d85ba0a916c5628eb6e8bb2ea0e68d42ff99308e68adf14dd"
+    },
+    {
+      "command": "python3 -B R19-test.py R19-main.py",
+      "exit": 0,
+      "checks": "20/20; wrapper error closes raw fd and removes just-created output",
+      "log_sha256": "8c384eab27ac538b36e8035a76bcbaa62ac91aea3de04621020d09326b0ea2ef"
+    },
+    {
+      "command": "python3 -O -B R19-test.py R19-main.py",
+      "exit": 0,
+      "checks": "20/20",
+      "log_sha256": "4d16f6324611ae63c936cf022ef0bff340118fa26d5572d0ce5b55bf44157a38"
+    },
+    {
+      "command": "python3 -B sample_extract_safety_test.py R19-main.py",
+      "exit": 0,
+      "checks": "19/19 historical registered R18",
+      "log_sha256": "d9c20bb324ebd2dc9181d8cab180ece64801b34424e57ece9ed1fccf73c8fd82"
+    },
+    {
+      "command": "python3 -B R16-test.py R19-main.py",
+      "exit": 0,
+      "checks": "14/14 historical R16",
+      "log_sha256": "880060bc8164a7298bde21b7b717341ef6b3be757a7307a919f8a3ffc231eb2c"
+    },
+    {
+      "command": "python3 -B -m py_compile R19-main.py R19-test.py",
+      "exit": 0
+    }
+  ],
+  "negative_reasoning": "Instrument os.fdopen to throw OSError after a real exclusive os.open; retain fd number and probe os.fstat after main returns, close any leaked fixture FD to protect test process. R18 failed with a live FD; R19 closes it. Assert no incomplete files and unrelated bytes preserved.",
+  "unrun": [
+    "full current Git checkout test suites",
+    "independent QA on R19",
+    "physical hardware or USB unit identity",
+    "native OTA/ctl/sample restoration hardware",
+    "sanitizers/target compilation",
+    "browser installer, catalog, HTTPS, Pages"
+  ],
+  "remaining_risks": [
+    "Unauthenticated physical MIDI device continuity and non-atomic writes make native destructive operations unsupported.",
+    "Hostile same-user filesystem races outside private trusted destination are not wholly eliminated.",
+    "Both os.fstat(fd) and os.stat(fd) failure retains file for manual inspection by design."
+  ],
+  "status": "PRODUCER SCOPED PASS; PR114 DRAFT/NEEDS CHANGES; no public NIGHTLY/native installation approval"
+}

@@ -16,7 +16,7 @@ IMAGES = [b'A' * 512 + b'FIRST', b'B' * 512 + b'SECOND']
 class SlotError(Exception):
     pass
 
-def call(main, dest, *, mode=None, images=IMAGES):
+def call(main, dest, *, mode=None, images=IMAGES, failed_fdopen_fds=None):
     scope = dict(sys=sys, Path=Path, os=os, SlotError=SlotError, HDR_LEN=480, DATA_OFF=512,
                  read_archive=lambda data: ({}, images), __doc__='usage')
     exec(compile(main, str(SOURCE), 'exec'), scope)
@@ -65,6 +65,10 @@ def call(main, dest, *, mode=None, images=IMAGES):
         def write(self, data):
             return self.f.write(data[:2])
     def injected_fdopen(fd, *args, **kwargs):
+        if mode == 'fdopen-fails-after-create':
+            if failed_fdopen_fds is not None:
+                failed_fdopen_fds.append(fd)
+            raise OSError(5, 'injected fdopen wrapper failure')
         f=real_fdopen(fd,*args,**kwargs)
         if mode == 'partial-first': return InterruptedFile(f)
         if mode == 'short-first': return ShortWriteFile(f)
@@ -135,6 +139,21 @@ def run():
         check('metadata failure after foreign substitution never deletes owner audio',
               isinstance(e,OSError) and (dest14/'slot1.hdr').read_bytes()==b'ORIGINAL'
               and (dest14/'diverted-header.hdr').read_bytes()==b'' and owner.exists() is False,e)
+        safe_owner=root/'keep.wav';safe_owner.write_bytes(b'KEEP')
+        dest15=root/'failed-fdopen';dest15.mkdir();raw_fds=[]
+        e=call(main,dest15,mode='fdopen-fails-after-create',failed_fdopen_fds=raw_fds)
+        leaked=[]
+        for raw_fd in raw_fds:
+            try:
+                os.fstat(raw_fd)
+            except OSError:
+                continue
+            leaked.append(raw_fd)
+        for raw_fd in leaked:
+            os.close(raw_fd)  # fixture cleanup only; a leaked production fd is a failure
+        check('fdopen failure closes raw descriptor and rolls back just-created file',
+              isinstance(e,OSError) and len(raw_fds)==1 and not leaked
+              and not list(dest15.iterdir()) and safe_owner.read_bytes()==b'KEEP',e)
     print(f'SUMMARY {sum(checks)}/{len(checks)}')
     return 0 if all(checks) else 1
 

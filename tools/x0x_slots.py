@@ -612,7 +612,16 @@ def main(argv):
                         os.close(fd)
                         raise
                     created.append((name, opened.st_dev, opened.st_ino))
-                    with os.fdopen(fd, "wb") as file:
+                    # os.fdopen() can fail before taking ownership of fd.
+                    # In that case close the raw descriptor ourselves; the
+                    # outer exception handler will remove this invocation's
+                    # recorded new file without touching a substituted entry.
+                    try:
+                        file = os.fdopen(fd, "wb")
+                    except BaseException:
+                        os.close(fd)
+                        raise
+                    with file:
                         written = file.write(payload)
                         if written != len(payload):
                             raise SlotError(f"extract short write for {name}")
