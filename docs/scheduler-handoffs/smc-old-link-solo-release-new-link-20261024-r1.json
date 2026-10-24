@@ -1,0 +1,137 @@
+{
+  "role": "SMC Transport",
+  "run_date_utc": "2026-10-24",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "consumed": {
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "commit": "2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7",
+    "root_tree": "a44bcbda32e831609faab3fbf9b361a8dc45e24e",
+    "compiled_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "mixer_blob": "deb1fd13416bbbdb6e73ac05d382ef5880664903",
+    "evidence_revision": "safe-merge-pr103-r15-fm1-install-executable-20261024-r16"
+  },
+  "new_blobs": {
+    "mixer": "cf602a1cf00c482a89dbe679608b68d99f5bd0b5",
+    "host_regression": "35baf51e2a02d38f3cb680baedbfc5f9b6976d50"
+  },
+  "finding": "Stale pre-reconnect BLE Solo release overflow generation clears valid new-session Solo pressed by TIMER5 refill during same smc_poll; link epoch queue cutoff without overflow-epoch acknowledgement",
+  "validation": {
+    "source_scope": "exact Git-verified current integrated mixer blob, source-extracted native mock tests; NOT exact full root or device",
+    "runner": "Linux x86_64 native gcc/clang; python3",
+    "script": "./run_reconnect_regression.sh",
+    "test_cmd": "SMC_SOURCE=<before/after mixer> CC=<gcc|clang> SAN_FLAGS=<none|UBSan|ASan+UBSan> python3 tests/host/smc_ble_solo_reconnect_loss_test.py",
+    "cases_after_per_run": 26,
+    "negative_exits": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "positive_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "logs": [
+      {
+        "variant": "before",
+        "compiler": "gcc",
+        "flags": "plain",
+        "exit": 1,
+        "sha256": "5f5a5edc8f7139925fcd8f4cfbee0e3479f954b6982f7ba4d7398a035918f4ac"
+      },
+      {
+        "variant": "after",
+        "compiler": "gcc",
+        "flags": "plain",
+        "exit": 0,
+        "sha256": "7fce57a8a9167b2b3b1567708615de5ee7d08fcfe2241b09510ade2f87f4c4c9"
+      },
+      {
+        "variant": "before",
+        "compiler": "gcc",
+        "flags": "ubsan",
+        "exit": 1,
+        "sha256": "7c2c33e31a8e7926498530fd574978514eb4af7f44f4183f0ea70047f3eb1d65"
+      },
+      {
+        "variant": "after",
+        "compiler": "gcc",
+        "flags": "ubsan",
+        "exit": 0,
+        "sha256": "87421838c71e1886302bf918ad92a2ea96127619eecafdda8bfad6f0c1aa7bb6"
+      },
+      {
+        "variant": "before",
+        "compiler": "gcc",
+        "flags": "asan_ubsan",
+        "exit": 1,
+        "sha256": "50272892eade16fd2236bbb358270608dcd8271196179f0d230ebdae2d44534a"
+      },
+      {
+        "variant": "after",
+        "compiler": "gcc",
+        "flags": "asan_ubsan",
+        "exit": 0,
+        "sha256": "5177ca64c4e540ed1308a80fcbf4de9f73a2d1ce3646def887b75f34d3a6fb2a"
+      },
+      {
+        "variant": "before",
+        "compiler": "clang",
+        "flags": "plain",
+        "exit": 1,
+        "sha256": "1dd265d85d14f5ae36cc56ab8182f872514c6c1a9f248dc72c2055725c37e8b0"
+      },
+      {
+        "variant": "after",
+        "compiler": "clang",
+        "flags": "plain",
+        "exit": 0,
+        "sha256": "9050982be5fccf013a84ed98953fb15cac32317b3f07a007dad52889cca7703d"
+      },
+      {
+        "variant": "before",
+        "compiler": "clang",
+        "flags": "ubsan",
+        "exit": 1,
+        "sha256": "a0019d69ae76f444c52b115d9e3ff2158d2e44eedca5043c4ad693ef2612d3bb"
+      },
+      {
+        "variant": "after",
+        "compiler": "clang",
+        "flags": "ubsan",
+        "exit": 0,
+        "sha256": "cd5ad648653887352b26681437799067732fa55fd9cf242dacd9c980c64b627e"
+      },
+      {
+        "variant": "before",
+        "compiler": "clang",
+        "flags": "asan_ubsan",
+        "exit": 1,
+        "sha256": "8aa95c81e617659077c65305f176fccd7646ef19445f6116c7c68f01fa0bd23e"
+      },
+      {
+        "variant": "after",
+        "compiler": "clang",
+        "flags": "asan_ubsan",
+        "exit": 0,
+        "sha256": "2c58d03a73fd955a393106e25a4279426aea964da682abbeb97b2e44f766cdac"
+      }
+    ],
+    "syntax_cmd": "python3 -m py_compile tests/host/smc_ble_solo_reconnect_loss_test.py",
+    "syntax_exit": 0
+  },
+  "disposition": "SOURCE CHECKED / EXACT FULL ROOT QA PENDING / ELITE PRO CTL BUILD_ONLY PENDING / NOT INSTALLABLE / DEVICE UNKNOWN",
+  "next": {
+    "independent_QA": "Reproduce against full exact new producer root with 26 regressions and independent broader BLE/host/MIDI/backup negative review",
+    "hourly_Build": "Compile new unique firmware subtree Elite+Pro/controller BUILD_ONLY immediately without QA or merge",
+    "safe_Merge": "After independent combined QA, reconcile producer patch into sole owned PR103 source, preserving all producer lanes and rerun model build"
+  },
+  "public_nightly": "NO_GO",
+  "production": "UNCHANGED"
+}

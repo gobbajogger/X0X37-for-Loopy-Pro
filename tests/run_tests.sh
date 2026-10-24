@@ -182,6 +182,7 @@ run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
+run smc-solo-reconnect-loss python3 tests/host/smc_ble_solo_reconnect_loss_test.py
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
 run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
 run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
