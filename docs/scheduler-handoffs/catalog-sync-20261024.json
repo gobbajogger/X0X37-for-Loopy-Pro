@@ -1504,6 +1504,13 @@
       "device_feedback": "UNKNOWN"
     },
     "next_owner": "Independent NIGHTLY Website QA",
-    "next_action": "Review new exact website HEAD and run real npm build/test, negative schema, browser; only sole website merger/publisher deploy. In parallel Hourly Build new 96709ca subtree and Independent firmware QA current 9dc695 root."
+    "next_action": "Review new exact website HEAD and run real npm build/test, negative schema, browser; only sole website merger/publisher deploy. In parallel Hourly Build new 96709ca subtree and Independent firmware QA current 9dc695 root.",
+    "exact_branch_readback_correction": {
+      "record": "smc-pr73-mmc-stop-overflow-20261024-r14",
+      "old": "lane/smc-mmc-stop-overflow-20261023",
+      "live_actual": "lane/smc-mmc-stop-overflow-20261023-1101",
+      "producer_sha": "64d55323192cd40dd269a475e63523164a0e0169",
+      "branch_rediscovered_using": "GitHub get_pr_info(PR #73)"
+    }
   }
 }

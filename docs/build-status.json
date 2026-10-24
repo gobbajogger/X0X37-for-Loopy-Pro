@@ -2715,7 +2715,7 @@
       "id": "smc-pr73-mmc-stop-overflow-20261024-r14",
       "title": "SMC PR73 MMC STOP FIFO/ISR overflow ordering; source only",
       "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
-      "source_ref": "lane/smc-mmc-stop-overflow-20261023",
+      "source_ref": "lane/smc-mmc-stop-overflow-20261023-1101",
       "source_commit": "64d55323192cd40dd269a475e63523164a0e0169",
       "source_tree": "722e23f9d7ffa92e94803b48ac1c79d2e73ee964",
       "firmware_subtree": "1990c0d0a2eaa76574068602d0cd456a8b7ea174",
