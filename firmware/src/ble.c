@@ -202,9 +202,16 @@ static void ble_prepare(int on)
  * into every start (in the TX IQ trim), with its RAM code unchanged; core 1 then went on to READY.
  * ble_attach hands the controller to core 1 after plat_cpu2_set. */
 static uint8_t ble_c0_ready;
+static void ble_central_link_notify(int up);
 static void ble_central_midi(const uint8_t *p, uint8_t n, void *ctx)
 {
     (void)ctx;
+    /* Subscription completion and the first MIDI notification can arrive
+     * within one TIMER5 receive batch. Publish the new connection boundary
+     * BEFORE enqueueing that packet; the late service-level notification
+     * would otherwise cut away genuine new-session controls. */
+    if (blec_connected(&ble_r.host.c))
+        ble_central_link_notify(1);
     /* Reuse the bounded ISR-owned INLOG ring; MMC records command in d1. */
     if (n == 3u)
         smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 24);
