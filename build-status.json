@@ -2681,6 +2681,93 @@
         "evidence_manifest_blob_sha": "f4f865e770ace19af2d484ccc4a5b56699140ae4",
         "package_bytes_independently_received_and_rehashed": true
       }
+    },
+    {
+      "id": "smc-pr63-ble-payload-data7-20261024-r14",
+      "title": "SMC PR63 BLE payload data7 rejection; source only",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-central-payload-data7-20261023-run5",
+      "source_commit": "71761953e149f9f718dceda0f9cac8aaa31b6179",
+      "source_tree": "91d9d8b046803c7ca31bb2e6f4fd89bbc20fb5b8",
+      "firmware_subtree": "e6e5105ffd0de2055031c6957f167cae33250d5b",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Git verified exact source provenance, not independent combined-root QA or firmware compilation",
+        "command": null,
+        "result": "Producer scoped BLE payload regression; Catalog only verified Git commit/root/subtree; no native rerun."
+      },
+      "description": "Live owner PR #63 SOURCE ONLY; independent full-root QA, new matching build and device feedback pending. No installable firmware or public download URL.",
+      "missing_gate": "Independent current-root BLE payload QA, matching compiled Elite/Pro/ctl, lawful immutable HTTP and device UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/63",
+      "evidence_commit": "71761953e149f9f718dceda0f9cac8aaa31b6179",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/71761953e149f9f718dceda0f9cac8aaa31b6179"
+    },
+    {
+      "id": "smc-pr73-mmc-stop-overflow-20261024-r14",
+      "title": "SMC PR73 MMC STOP FIFO/ISR overflow ordering; source only",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-mmc-stop-overflow-20261023",
+      "source_commit": "64d55323192cd40dd269a475e63523164a0e0169",
+      "source_tree": "722e23f9d7ffa92e94803b48ac1c79d2e73ee964",
+      "firmware_subtree": "1990c0d0a2eaa76574068602d0cd456a8b7ea174",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Git verified exact source provenance, not independent combined-root QA or firmware compilation",
+        "command": null,
+        "result": "Producer scoped STOP FIFO regressions; Catalog only verified Git commit/root/subtree; no native rerun."
+      },
+      "description": "Live owner PR #73 SOURCE ONLY; independent full-root QA, new matching build and device feedback pending. No installable firmware or public download URL.",
+      "missing_gate": "Independent current-root FIFO/ISR STOP QA, matching compiled Elite/Pro/ctl, lawful immutable HTTP and device UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/73",
+      "evidence_commit": "64d55323192cd40dd269a475e63523164a0e0169",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/64d55323192cd40dd269a475e63523164a0e0169"
+    },
+    {
+      "id": "integration-pr103-smc79-63-73-current-root-20261024-r14",
+      "title": "PR103 integrates SMC BLE-first-MIDI, data7 and MMC STOP; new build required",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+      "source_tree": "9dc695fb9f4da4069362c24aa866f9b995b1b463",
+      "firmware_subtree": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Git verified exact source provenance, not independent combined-root QA or firmware compilation",
+        "command": null,
+        "result": "Producer 45 Git-backed scoped source/static assertions; Catalog verified exact four-parent Git commit/root/subtree only. No current-root native QA/compilation."
+      },
+      "description": "Live owner PR #103 SOURCE ONLY; independent full-root QA, new matching build and device feedback pending. No installable firmware or public download URL.",
+      "missing_gate": "BUILD_ONLY new firmware/ 96709cae Elite/Pro/controller and independent QA complete ROOT 9dc695 (SMC/303/Data Safety/OTA), Safe Merge review and lawful immutable HTTP; device UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/ecd79cab02a5595cf4e910490720e92e986c95ac"
     }
   ],
   "policy": {
@@ -2691,7 +2778,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 100
+    "source_or_historical_checkpoints": 103
   },
   "versioning": {
     "firmware_product_version": {

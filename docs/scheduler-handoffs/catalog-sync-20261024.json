@@ -1441,5 +1441,69 @@
     "no_binary_in_public_repo": true,
     "next_owner": "Independent NIGHTLY Website QA",
     "next_action": "Complete independent exact PR3 website native npm build/test/malicious fixtures/Chromium, then hand to sole Website Main Merger; parallel firmware Independent QA current PR103 new complete root, then Safe Merge; sole Publisher immutable licensed HTTP after software gates."
+  },
+  "closed_loop_cycle_20261024_r14": {
+    "revision": "catalog-pr3-first-candidate-smc63-73-current-root-continuity-r14-20261024",
+    "website_parent": "535f92d7bac4ccc90df7e2b7f59cc7421ac9d7f7",
+    "website_root": "f295996b063aa17a12f2b4cb013215accf5adbb8",
+    "continuity_test": {
+      "old_blob": "a41a230c66f4942e761be58c41c17bf6ad7f38c2",
+      "new_blob": "a5473dd84294c66e80a92ec451e6b643a23c291a",
+      "fix": "Delete last SHA256-pinned historical row, not unlocked post-fixture append.",
+      "native_scoped": {
+        "command": "node tests/build-history-continuity.test.mjs",
+        "fixture": "SYNTHETIC 91 locked / 100 rows, NOT exact Git status",
+        "original_exit": 1,
+        "patched_exit": 0,
+        "stdout": "PASS: 91 SHA256-pinned historical records; 6 malicious continuity negatives; safe append"
+      },
+      "native_full_repo_npm_test": "NOT_RUN",
+      "native_git_preflight": {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git refs/heads/main",
+        "exit": 128,
+        "reason": "DNS github.com resolution failure"
+      }
+    },
+    "firmware": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "sha": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+      "full_root": "9dc695fb9f4da4069362c24aa866f9b995b1b463",
+      "firmware_subtree": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+      "parent_shas": [
+        "b7b472fd5cae89ca8af3473a19de8e6594692878",
+        "e99dacbb5e7ee8d5e22426f01a226276dc451efd",
+        "71761953e149f9f718dceda0f9cac8aaa31b6179",
+        "64d55323192cd40dd269a475e63523164a0e0169"
+      ],
+      "producer_evidence_revision": "safe-merge-pr103-smc79-63-73-prehardware-critical-repair-20261024-r9",
+      "previous_build_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "previous_build_bytes_current_source_eligible": false
+    },
+    "history": {
+      "prior": 100,
+      "new": 103,
+      "new_ids": [
+        "smc-pr63-ble-payload-data7-20261024-r14",
+        "smc-pr73-mmc-stop-overflow-20261024-r14",
+        "integration-pr103-smc79-63-73-current-root-20261024-r14"
+      ],
+      "prior_prefix_unchanged": true,
+      "legacy_dev_generations": 2,
+      "installable": false,
+      "download_urls_added": 0
+    },
+    "checks": {
+      "git_sha_root_firmware_trees": "READ_ONLY_VERIFIED",
+      "native_website_npm_build": "NOT_RUN",
+      "native_website_npm_test": "NOT_RUN",
+      "responsive_chromium": "NOT_RUN",
+      "firmware_compilation": "NOT_RUN_BY_CATALOG",
+      "firmware_full_root_QA": "PENDING",
+      "external_http": "NOT_VERIFIED",
+      "device_feedback": "UNKNOWN"
+    },
+    "next_owner": "Independent NIGHTLY Website QA",
+    "next_action": "Review new exact website HEAD and run real npm build/test, negative schema, browser; only sole website merger/publisher deploy. In parallel Hourly Build new 96709ca subtree and Independent firmware QA current 9dc695 root."
   }
 }
