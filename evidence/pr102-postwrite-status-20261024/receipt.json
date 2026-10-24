@@ -1,0 +1,73 @@
+{
+  "schema": "x0x37-postwrite-status-regression-v1",
+  "source": "ec73abf78f751648fc8f5515811657552faafc26",
+  "root": "df13c066d01c81c00047cc68ccf2490cdf5b0743",
+  "parent": "22d522a4cde4c18f92a846bc40d504b701cf6d17",
+  "parent_root": "041d51d6563cf8b2f458a07787a1a88c8a43a96d",
+  "scope": "Browser installer only; real Node mocked Web MIDI, no device or firmware writes",
+  "checks": [
+    {
+      "command": "X0X_TEST_TIME_SCALE=20 node web/test_install_slots.mjs",
+      "source": "22d522a4cde4c18f92a846bc40d504b701cf6d17",
+      "exit": 1,
+      "log": "slots.log",
+      "result": "One final-status failure: success overwritten by X0X test \u00b7 SMK-37 Pro"
+    },
+    {
+      "command": "X0X_TEST_TIME_SCALE=20 node web/test_install_slots.mjs",
+      "source": "ec73abf78f751648fc8f5515811657552faafc26",
+      "exit": 0,
+      "log": "slots-final.log",
+      "result": "Full registered Node suite passes, including newly registered 30 product assertions and successful/failed restoration messages"
+    },
+    {
+      "command": "node web/test_install_nightly_download_guard.mjs",
+      "source": "22d522a4cde4c18f92a846bc40d504b701cf6d17",
+      "exit": 0,
+      "log": "download.log"
+    },
+    {
+      "command": "node web/test_install_nightly_product_identity.mjs",
+      "source": "22d522a4cde4c18f92a846bc40d504b701cf6d17",
+      "exit": 0,
+      "log": "product.log"
+    }
+  ],
+  "unchanged_compiled_trees": {
+    "firmware": {
+      "parent": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+      "candidate": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+    },
+    "ble": {
+      "parent": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+      "candidate": "d0479e103e206e0e9649a7c734af8f1f11a718ca"
+    },
+    "assets": {
+      "parent": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+      "candidate": "0e721b227239d885a77a12ef24d9f001604e3eb3"
+    }
+  },
+  "status": "SOURCE REVIEW READY / INDEPENDENT QA PENDING / NOT INSTALLABLE / DEVICE NOT TESTED",
+  "files": {
+    "slots.log": {
+      "bytes": 7425,
+      "sha256": "781fba7eb75cdcc482edad4776a8ecedd83741aa851e4f2ea3871c12725d0e14"
+    },
+    "slots-final.log": {
+      "bytes": 7537,
+      "sha256": "1059af8efb25cbb58b172a4e66d670ec7c518b6fdd84dcd0b16c884d37b480d0"
+    },
+    "download.log": {
+      "bytes": 2687,
+      "sha256": "dae606e99e2fca343c6a64662015741067de1a887a05ec90715e9dd59f7d9c49"
+    },
+    "product.log": {
+      "bytes": 94,
+      "sha256": "81abc6ff00faf818bc308996d5d2a2dba7a78370aad7460f3f5f40d663757644"
+    },
+    "postwrite-status.patch": {
+      "bytes": 482,
+      "sha256": "2837fded4f473b0693bcb5841160872bb03a69cbeee212fd5d3dc1a4ec8cc1cc"
+    }
+  }
+}

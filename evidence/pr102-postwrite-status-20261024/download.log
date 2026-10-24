@@ -1,0 +1,52 @@
+PASS unreviewed all-green catalog still hides direct download
+PASS unapproved GitHub release asset cannot appear or request network
+PASS approved Elite appears only after verified bytes, not before host SHA check
+PASS unapproved Pro cannot borrow Elite proof
+PASS switch from good to bad clears previously displayed href
+PASS reject per-model revoked=true
+PASS reject per-model revoked string
+PASS reject catalog revoked string
+PASS reject catalog Release marker
+PASS reject nonboolean imported-Release marker
+PASS reject revoked publisher tuple
+PASS reject Release-marked publisher tuple
+PASS reject nonboolean Release-marked publisher tuple
+PASS revoked package clears a previously approved direct Download link
+PASS explicitly nonrevoked approved package still appears
+PASS reject unapproved Release import
+PASS reject QA not passed
+PASS reject source license not verified
+PASS reject source root mismatch
+PASS reject firmware subtree mismatch
+PASS reject model swap
+PASS reject package SHA mismatch
+PASS reject controller SHA mismatch
+PASS reject unapproved HTTP origin
+PASS reject relative Pages package without immutable approval
+PASS reject traversal link
+PASS reject revoked build
+PASS reject missing host byte check
+PASS reject missing backup integrity
+PASS reject wrong approved model
+PASS default embedded publisher list cannot self-authorize
+PASS unapproved newest catalog entry falls back to eligible version
+PASS missing latest catalog entry falls back to eligible version
+PASS approved newest catalog entry remains selected
+PASS manual eligible choice survives catalog refresh
+PASS empty eligible catalog keeps picker blank and direct link hidden
+PASS exact approved loaded Blob permits the normal install click
+PASS removed/version-blank DOM selection refuses the previously loaded image
+PASS another eligible selected version cannot authorize previously cached bytes
+PASS different cached package cannot borrow the new version approval
+PASS mismatched cached product identity cannot be flashed
+PASS no verified Blob never creates a usable install candidate
+PASS remote non-Blob href never creates a usable install candidate
+PASS unaltered verified Blob download remains permitted
+PASS altered direct remote Download HREF is vetoed and verified URL revoked
+PASS 45 NIGHTLY installer source-excerpt assertions; device/host HTTP not tested
+PASS latest approved model wins in-flight race
+PASS stale HTTP error does not hide current selection
+PASS mismatch: bytes=1, approved size=2 forbids Blob/Install
+PASS mismatch: bytes=2, approved size=1 forbids Blob/Install
+PASS size-matched eligible model still yields verified Blob
+PASS failed HTTP fetch still forbids Blob/Install
