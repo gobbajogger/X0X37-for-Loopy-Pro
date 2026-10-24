@@ -339,6 +339,25 @@ let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
 let loadSerial = 0;
+let verifiedDownload = null;
+function discardVerifiedDownload() {
+  if (verifiedDownload) URL.revokeObjectURL(verifiedDownload.href);
+  verifiedDownload = null;
+  const link = $("download");
+  link.removeAttribute("href");
+  link.removeAttribute("download");
+  link.hidden = true;
+}
+$("download").addEventListener("click", (event) => {
+  const v = currentVersion();
+  const p = v && chosenModel && v.models[chosenModel];
+  if (!isCatalogChecked(v, p) || !verifiedDownload ||
+      verifiedDownload.pkg !== p || verifiedDownload.model !== chosenModel ||
+      verifiedDownload.version !== v.version) {
+    event.preventDefault();
+    discardVerifiedDownload();
+  }
+});
 
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
@@ -528,14 +547,17 @@ function refreshMeta() {
   const link = $("download");
   if (!isCatalogChecked(ver, pkg)) {
     $("pkgmeta").textContent = "";
-    link.removeAttribute("href");
-    link.removeAttribute("download");
-    link.hidden = true;
+    discardVerifiedDownload();
     return;
   }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
-  link.href = pkg.pkg;
+  if (!verifiedDownload || verifiedDownload.pkg !== pkg ||
+      verifiedDownload.model !== chosenModel || verifiedDownload.version !== ver.version) {
+    discardVerifiedDownload();
+    return;
+  }
+  link.href = verifiedDownload.href;
   link.download = pkg.pkg.split("/").pop();
   link.hidden = false;
 }
@@ -546,6 +568,7 @@ async function sha256Hex(buf) {
 }
 async function loadSelectedPackage() {
   const requestId = ++loadSerial;
+  discardVerifiedDownload();
   image = null; selectedProduct = null;
   $("go").disabled = true;
   refreshMeta();
@@ -575,6 +598,10 @@ async function loadSelectedPackage() {
     if (product !== pkg.product) { sayK("badpkg"); return; }
     image = logicalImage(raw);
     selectedProduct = product;
+    // Never hand out the unverified remote URL: this Blob contains the bytes
+    // already checked against the immutable package digest and model identity.
+    verifiedDownload = { pkg, model, version: ver.version,
+      href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
     say(`X0X ${ver.version} · ${MODELS[model] || model}`);
     $("go").disabled = writing;
     refreshMeta();

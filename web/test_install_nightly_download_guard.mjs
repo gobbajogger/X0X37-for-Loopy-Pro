@@ -13,6 +13,7 @@ function cut(start, end) {
   return html.slice(i, j);
 }
 const admission = cut("const NIGHTLY_PUBLISHER_APPROVALS =", "\nfunction currentVersion()");
+const downloadGuard = cut("let verifiedDownload = null;", "\nfunction led(");
 const meta = cut("function isCatalogChecked(", "\nasync function sha256Hex(");
 const releases = cut("async function mergeGitHubReleases()", '\n$("ctlfile").addEventListener("change"');
 const loader = cut("async function loadSelectedPackage()", "\nfunction fillVersions()");
@@ -21,6 +22,9 @@ assert.doesNotMatch(releases, /fetch\s*\(/, "GitHub Releases must not be importe
 assert.match(loader, /if \(!isCatalogChecked\(ver, pkg\)\)/, "missing selected-package guard");
 assert.match(loader, /if \(hex !== pkg\.sha256\)/, "package SHA comparison required");
 assert.match(loader, /if \(product !== pkg\.product\)/, "exact model/product required");
+assert.match(loader, /URL\.createObjectURL\(new Blob\(\[raw\]/, "download must serve verified package bytes");
+assert.doesNotMatch(meta, /link\.href\s*=\s*pkg\.pkg/, "unverified remote href must not be exposed");
+assert.match(meta, /link\.href = verifiedDownload\.href/, "only verified Blob may be linked");
 assert.match(chooser, /\$\("download"\)\.removeAttribute\("href"\)/, "stale href persists");
 assert.match(chooser, /\$\("download"\)\.hidden = true/, "empty picker must hide link");
 assert.match(html, /id="stockfile"[^>]*accept="\.fwsc"/, "local arbitrary .fwsc import lost");
@@ -51,22 +55,26 @@ function runtime(publisher = {}) {
   const pieces = admission.replace("Object.freeze({})", `Object.freeze(${JSON.stringify(publisher)})`);
   const dom = Object.fromEntries(["download", "pkgmeta"].map((k) => [k, {
     hidden:true, href:null, download:null, textContent:"",
-    removeAttribute(name) {this[name] = null;}
+    removeAttribute(name) {this[name] = null;},
+    addEventListener() {}
   }]));
   let requests = 0;
   const context = createContext({
     console, Object, Array, Number, document:{}, dom,
+    URL: {revokeObjectURL() {}},
     fetchCount: () => requests,
     fetch: async () => { requests++; throw Error("unapproved release fetch"); }
   });
   new Script(`let catalogLive={versions:[]}, chosenModel="elite";
     const $ = (id) => dom[id];
     function currentVersion() { return versions()[0] || null; }
+    ${downloadGuard}
     ${pieces}
     ${meta}
     ${releases}
     globalThis.setCatalog = (v) => { catalogLive={latest:v.version,versions:[v]}; };
     globalThis.setModel = (m) => { chosenModel=m; };
+    globalThis.setVerified = (p, version) => { verifiedDownload = {pkg:p,model:"elite",version,href:"blob:verified"}; };
     globalThis.available = () => versions().map(v=>Object.keys(v.models));
     globalThis.evaluation = (v,a) => approvedNightlyModels(v,a);
     globalThis.present = () => {refreshMeta();return {hidden:dom.download.hidden,href:dom.download.href};};
@@ -91,10 +99,12 @@ test("unapproved GitHub release asset cannot appear or request network", () => {
   assert.equal(noApproval.present().hidden,true);
 });
 const checked = runtime({[key]:approval});
-test("explicit fully QA-checked Elite can download without owner hardware PASS", () => {
+test("approved Elite appears only after verified bytes, not before host SHA check", () => {
   checked.setCatalog(good);
   assert.equal(checked.available().length,1);
-  assert.deepEqual({...checked.present()}, {hidden:false,href:pkg.pkg});
+  assert.deepEqual({...checked.present()}, {hidden:true,href:null});
+  checked.setVerified(pkg,good.version);
+  assert.deepEqual({...checked.present()}, {hidden:false,href:"blob:verified"});
 });
 test("unapproved Pro cannot borrow Elite proof", () => {
   checked.setModel("pro");
@@ -103,6 +113,7 @@ test("unapproved Pro cannot borrow Elite proof", () => {
 });
 test("switch from good to bad clears previously displayed href", () => {
   checked.setCatalog(good);
+  checked.setVerified(pkg,good.version);
   assert.equal(checked.present().hidden,false);
   const bad={...good, models:{elite:{...pkg,sha256:"0".repeat(64)}}};
   checked.setCatalog(bad);
@@ -127,6 +138,7 @@ reject("Release-marked publisher tuple", v => {}, {[key]:{...approval,fromReleas
 reject("nonboolean Release-marked publisher tuple", v => {}, {[key]:{...approval,fromRelease:"true"}});
 test("revoked package clears a previously approved direct Download link", () => {
   checked.setCatalog(good);
+  checked.setVerified(pkg,good.version);
   assert.equal(checked.present().hidden, false);
   checked.setCatalog({...good,models:{elite:{...pkg,revoked:true}}});
   assert.deepEqual(Array.from(checked.available()), []);
@@ -218,6 +230,8 @@ function makeRace(){
   const pending=new Map(),errors=[],go={disabled:true},version={version:"synthetic",models:racePkgs};
   const ctx=createContext({
     $:()=>go,refreshMeta(){},currentVersion:()=>version,
+    verifiedDownload:null, discardVerifiedDownload(){},
+    URL:{createObjectURL:()=> "blob:verified-race",revokeObjectURL(){}},Blob,
     isCatalogChecked:(v,p)=>!!v&&Object.values(v.models).includes(p),
     sayK:k=>errors.push(k),say(){},MODELS:{elite:"Elite",pro:"Pro"},
     sha256Hex:async raw=>new Uint8Array(raw)[0]===1?"a".repeat(64):"b".repeat(64),
