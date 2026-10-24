@@ -1118,7 +1118,15 @@ CK_FN static void ck_all_off(void)
 CK_FN void smk_project_reset(void)
 {
     uint32_t i;
-    ck_qn = 0;                                       /* delayed note-ons never belong to the new project */
+    /* Project reset discards HUMAN notes that never reached MIDI. Releasing
+     * those queued pitches would cut unrelated Loopy voices sharing a note. */
+    for (i = 0; i < ck_qn; i++) {
+        uint32_t note = ck_qe[i] & 127u;
+        ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
+        if (ck.arp_note == note + 1u)
+            ck.arp_note = 0;
+    }
+    ck_qn = 0;
     ck_all_off();
     memset(&ck, 0, sizeof ck);
     ck.keys[0] = ((const volatile uint32_t *)&fm1_in.keys)[0];
