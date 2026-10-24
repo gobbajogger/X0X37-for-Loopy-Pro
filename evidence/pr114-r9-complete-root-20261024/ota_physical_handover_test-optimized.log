@@ -1,0 +1,7 @@
+PASS stable: result='SMK-37 Pro_900' error=None writes=['unit-A'] verified=['unit-A']
+PASS rename-same-unit: result='SMK-37 Pro_900' error=None writes=['unit-A'] verified=['unit-A']
+PASS swap-before-start: result=None error='model' writes=[] verified=[]
+PASS swap-before-write: result=None error='noloader' writes=[] verified=[]
+PASS swap-before-verify: result=None error='noreturn' writes=['unit-A'] verified=[]
+PASS no-hardware-id: result=None error='model' writes=[] verified=[]
+SUMMARY 6/6 safe; 0 failing physical-continuity regressions

@@ -76,10 +76,12 @@ class FakeSMK:
     """a MIDI backend with one SMK-37 Pro on it"""
 
     def __init__(self, image, identity="SMK-37 Pro_016", name="SMK-37 Pro", unplug_after=None, after_write="SMK-37 Pro_900",
-                 stall_after=None, bad_addr=None, slot_info=(2, 80, 0, 0, 0, 0, 0, 0)):
+                 stall_after=None, bad_addr=None, slot_info=(2, 80, 0, 0, 0, 0, 0, 0),
+                 loader_identity="ota-SMK-37 Pro_900"):
         self.image, self.unplug_after, self.after_write = image, unplug_after, after_write
         self.stall_after, self.bad_addr = stall_after, bad_addr
         self.slot_info = slot_info
+        self.loader_identity = loader_identity
         self.served = self.bad = self.upgrades = 0
         self.sent, self.links, self.gen, self.lock = [], [], 0, threading.Lock()
         self.boot(identity, name)
@@ -140,7 +142,7 @@ class FakeSMK:
             if self.stall_after and self.served >= self.stall_after:
                 return
             if addr == I.FINISH_CHECK:
-                threading.Timer(0.05, self.boot, ("ota-SMK-37 Pro_900", "Felucca Update")).start()
+                threading.Timer(0.05, self.boot, (self.loader_identity, "Felucca Update")).start()
             elif addr == I.FINISH_WRITE:
                 threading.Timer(0.05, self.boot, (self.after_write, "Felucca")).start()
             else:

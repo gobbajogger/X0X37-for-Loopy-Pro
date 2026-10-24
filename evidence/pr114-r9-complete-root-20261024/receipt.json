@@ -1,0 +1,243 @@
+{
+  "schema": "x0x37-complete-root-r9-fixture-replay-v1",
+  "tested_source_commit": "a3d1344142f54a90465612e0aa480079c8ab4630",
+  "tested_root_tree": "1bfd95825ddc196c0d469b3ff92fba72ceffe4bb",
+  "upstream_pr114": "5b16ff81ea1dcb731b719f0505ae2349571481cf",
+  "upstream_root": "46c1c7ea78513bdd4a45a90b97d0bde8bc70c452",
+  "fixture_parent": "811c74169e1018f211154b439c7d85b0900623e7",
+  "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "installer_blob": "f1e2a91615b26b3ba84fe63ee9ae8dbfe5f74882",
+  "normal_runner": {
+    "command": "X0X_TEST_JOBS=1 bash tests/run_tests.sh ota-identity-reconnect ota-port-binding ota-physical-handover ota-raw-midi-names ota-mid-session-identity ota-unit-bounce ota-send-rebind installer installer-targets installer-slots installer-ctl",
+    "exit": 0,
+    "selected_suites": 11,
+    "skipped": "SMK target package/JS parity: build/smk37 app/loader and pinned SDK absent"
+  },
+  "optimized": [
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_identity_reconnect_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/ota_identity_reconnect_test-optimized.log",
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_port_binding_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/ota_port_binding_test-optimized.log",
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/ota_physical_handover_test-optimized.log",
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_raw_midi_names_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/ota_raw_midi_names_test-optimized.log",
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_mid_session_identity_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/ota_mid_session_identity_test-optimized.log",
+      "sha256": "38b136eb550805ec9d1bb02c0bd98800a125ccc5ba6e39d5a38cd90cd0019e64"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_unit_bounce_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/ota_unit_bounce_test-optimized.log",
+      "sha256": "f9294c1d49e52ef28a79dbb67f8dba8b3e4618d636b99bb0a3fedf35d75eaf4b"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_send_rebind_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/ota_send_rebind_test-optimized.log",
+      "sha256": "3d55a164e0b34d4d99b95bbec853ce3ba451f669ce063a05a2eb25b410f519b0"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/install_test-optimized.log",
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/install_slots_test-optimized.log",
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_ctl_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/install_ctl_test-optimized.log",
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_test.py"
+      ],
+      "exit": 0,
+      "log": "evidence/pr114-r9-complete-root-20261024/x0x_slots_test-optimized.log",
+      "sha256": "0054d977c176c3fd2810c63fe16552c7fc33c52eca9d11467f1cec6a55236f13"
+    }
+  ],
+  "original_upstream_failures": {
+    "ota-identity-reconnect": "3/20 fail, exit 1",
+    "installer-ctl": "4 install scenarios fail, exit 1"
+  },
+  "production_installer_unchanged_from_upstream": true,
+  "status": "TEST FIXTURES RECONCILED / PRODUCER REPLAY PASS / INDEPENDENT QA PENDING / REAL OTA UNSUPPORTED / NOT INSTALLABLE / DEVICE NOT TESTED",
+  "logs": {
+    "ota_port_binding_test-optimized.log": {
+      "size": 1052,
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    },
+    "install_ctl_test-optimized.log": {
+      "size": 795,
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    "ota-send-rebind.log": {
+      "size": 612,
+      "sha256": "3d55a164e0b34d4d99b95bbec853ce3ba451f669ce063a05a2eb25b410f519b0"
+    },
+    "installer-slots.log": {
+      "size": 1475,
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    "ota-raw-midi-names.log": {
+      "size": 701,
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8"
+    },
+    "ota-identity-reconnect.log": {
+      "size": 1222,
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+    },
+    "ota_raw_midi_names_test-optimized.log": {
+      "size": 701,
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8"
+    },
+    "x0x_slots_test-optimized.log": {
+      "size": 1675,
+      "sha256": "0054d977c176c3fd2810c63fe16552c7fc33c52eca9d11467f1cec6a55236f13"
+    },
+    "ota_mid_session_identity_test-optimized.log": {
+      "size": 816,
+      "sha256": "38b136eb550805ec9d1bb02c0bd98800a125ccc5ba6e39d5a38cd90cd0019e64"
+    },
+    "ota-unit-bounce.log": {
+      "size": 463,
+      "sha256": "f9294c1d49e52ef28a79dbb67f8dba8b3e4618d636b99bb0a3fedf35d75eaf4b"
+    },
+    "ota_physical_handover_test-optimized.log": {
+      "size": 542,
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696"
+    },
+    "installer.log": {
+      "size": 2232,
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+    },
+    "installer-ctl.log": {
+      "size": 795,
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    "ota_unit_bounce_test-optimized.log": {
+      "size": 463,
+      "sha256": "f9294c1d49e52ef28a79dbb67f8dba8b3e4618d636b99bb0a3fedf35d75eaf4b"
+    },
+    "ota-mid-session-identity.log": {
+      "size": 816,
+      "sha256": "38b136eb550805ec9d1bb02c0bd98800a125ccc5ba6e39d5a38cd90cd0019e64"
+    },
+    "ota-port-binding.log": {
+      "size": 1052,
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    },
+    "ota-physical-handover.log": {
+      "size": 542,
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696"
+    },
+    "installer-targets.log": {
+      "size": 415,
+      "sha256": "b8a757b83e6fac4f8ff2212f8d97c65354b9d69d5676583a90d0206f3a793253"
+    },
+    "install_slots_test-optimized.log": {
+      "size": 1475,
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    "installer-ctl-before.log": {
+      "size": 807,
+      "sha256": "48e8c9cc7a672fe203590c7c29abf0148269a29a3340cc653a024a767f291e20"
+    },
+    "ota_send_rebind_test-optimized.log": {
+      "size": 612,
+      "sha256": "3d55a164e0b34d4d99b95bbec853ce3ba451f669ce063a05a2eb25b410f519b0"
+    },
+    "ota-identity-reconnect-before.log": {
+      "size": 1222,
+      "sha256": "06d272132a5f2f5b3ca91409bec15863d93e4231d0fb83e95daa1c94dd86ec47"
+    },
+    "install_test-optimized.log": {
+      "size": 2232,
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+    },
+    "ota_identity_reconnect_test-optimized.log": {
+      "size": 1222,
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+    }
+  }
+}
