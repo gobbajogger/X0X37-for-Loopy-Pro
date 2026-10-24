@@ -1,0 +1,143 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/native_sample_cli_guard_test.py",
+        "before/tools/fm1_sample_upload.py",
+        "before/tools/x0x_slots.py"
+      ],
+      "case_count": 18,
+      "exit_code": 1,
+      "log_path": "evidence/before-normal.log",
+      "log_sha256": "f18a4f5fd7cfcc251d332f3f4f73bcbd861b1a4908f4053b82d64221d174562c",
+      "passed": 6,
+      "working_dir": "source exact AST projection staging directory"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/native_sample_cli_guard_test.py",
+        "before/tools/fm1_sample_upload.py",
+        "before/tools/x0x_slots.py"
+      ],
+      "case_count": 18,
+      "exit_code": 1,
+      "log_path": "evidence/before-opt.log",
+      "log_sha256": "30f800faf8cc42cfd17154c2969a526cee869c1f57744440c8c26096ee533ad7",
+      "passed": 6,
+      "working_dir": "source exact AST projection staging directory"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/native_sample_cli_guard_test.py",
+        "after/tools/fm1_sample_upload.py",
+        "after/tools/x0x_slots.py"
+      ],
+      "case_count": 18,
+      "exit_code": 0,
+      "log_path": "evidence/after-normal.log",
+      "log_sha256": "272c1b02534b244ba5f18f724e5b128a9b1c0156ff966be30fe680825e0be1e9",
+      "passed": 18,
+      "working_dir": "source exact AST projection staging directory"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/native_sample_cli_guard_test.py",
+        "after/tools/fm1_sample_upload.py",
+        "after/tools/x0x_slots.py"
+      ],
+      "case_count": 18,
+      "exit_code": 0,
+      "log_path": "evidence/after-opt.log",
+      "log_sha256": "58bf1b32584ade9c4f44fd12c68fcef7f2e861ecefb558e11b03ebdf9a138bd4",
+      "passed": 18,
+      "working_dir": "source exact AST projection staging directory"
+    }
+  ],
+  "evidence_revision": "data-safety-pr114-r14-native-cli-early-denial-20261025-r1",
+  "handoff": {
+    "receiving_role": "Sole Independent QA",
+    "scope": "independently inspect exact new PR114 full SHA: CLI negative/pre-open, offline and backup positives, full-root installer/OTA/backup/restore/model/controller tests; producer cannot self-approve"
+  },
+  "native_python": "3.13.5",
+  "negative_reproduction": "Before patch destructive sample load/erase and restore CLI entrypoints build/open/parse/prompt despite downstream Link.req denial. After patch they deny before link or filesystem reads.",
+  "original_git_blob_sha": {
+    "tests/run_tests.sh": "cc9d455ceb0c415e75d1572ce72f3c9e216b60df",
+    "tools/fm1_sample_upload.py": "702fd9960540997e7357cc5eaf84bda2a062fef7",
+    "tools/x0x_slots.py": "e1e123d5cba0718dfaff321766850e55f6419244"
+  },
+  "owned_branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "owned_pr": 114,
+  "owner_role": "Existing LoopyX0X37 Data Safety producer",
+  "positive_preserved": "Simulated read-only info and backup and offline build/show/extract; no MIDI or hardware was accessed.",
+  "previous_R13_current_link_unchanged_replay": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "sample_link_readonly_remote.py",
+        "sample_after.py"
+      ],
+      "case_count": 40,
+      "exit_code": 0,
+      "input_provenance": "previous independently retained R13 source projection and regression, not whole current-root",
+      "log_sha256": "788fcd56c6142394aa33e62e808bbdac8ee17b744e840c4a0776dd9607fe62ab",
+      "passed": 40
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "sample_link_readonly_remote.py",
+        "sample_after.py"
+      ],
+      "case_count": 40,
+      "exit_code": 0,
+      "input_provenance": "previous independently retained R13 source projection and regression, not whole current-root",
+      "log_sha256": "788fcd56c6142394aa33e62e808bbdac8ee17b744e840c4a0776dd9607fe62ab",
+      "passed": 40
+    }
+  ],
+  "production_requires": "same-byte matching-model hardware PASS and separately explicit owner approval",
+  "python_py_compile": {
+    "exit_code": 0,
+    "scope": "test script and exact-before/exact-after main-function source projections"
+  },
+  "restrictions": "This does not establish authenticated unit identity, atomic output, end-to-end native OTA success, full-root independent QA, real hardware, immutable HTTPS or lawful binary distribution.",
+  "safe_merge_boundary": "Firmware PR103 browser-route source is already protected-nightly merged; native CLI patch is unmerged optional gated code and must never be treated as first-nightly browser source approval.",
+  "source_ast_main_window": {
+    "fm1_sample_upload.py": {
+      "after_fingerprint_fnv1a32": "18f9353b",
+      "after_utf8_bytes": 2326,
+      "before_fingerprint_fnv1a32": "b5b2274b",
+      "before_utf8_bytes": 2048
+    },
+    "x0x_slots.py": {
+      "after_fingerprint_fnv1a32": "8698a983",
+      "after_utf8_bytes": 2356,
+      "before_fingerprint_fnv1a32": "5a18d5ae",
+      "before_utf8_bytes": 2045
+    }
+  },
+  "source_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_scope": [
+    "tools/fm1_sample_upload.py CLI entrypoint",
+    "tools/x0x_slots.py CLI entrypoint",
+    "tests/host/native_sample_cli_guard_test.py",
+    "tests/run_tests.sh selector"
+  ],
+  "test_code_sha256": "26289739a443c9d1a624416e1f8826846f773f0764401bb6244e290863ada64d",
+  "tested_parent_commit": "d806e255da89bc611622110014ee4f1882e023d5",
+  "tested_parent_root_git_tree": "80522da750b73a17ccfb04848bff521b09c5addb",
+  "unchanged_compiler_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741"
+}

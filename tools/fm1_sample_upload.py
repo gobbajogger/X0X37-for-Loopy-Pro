@@ -129,6 +129,10 @@ def main():
     if len(sys.argv) < 2 or sys.argv[1] not in ("info", "load", "erase", "build"):
         sys.exit(__doc__)
     cmd = sys.argv[1]
+    if cmd in ("load", "erase"):
+        sys.exit("native MIDI sample load/erase disabled: no authenticated physical-device "
+                 "identity or atomic output delivery. No MIDI port was opened or write sent. "
+                 "Use build offline or info read-only.")
     if cmd in ("load", "build"):
         if len(sys.argv) < 5:
             sys.exit(__doc__)

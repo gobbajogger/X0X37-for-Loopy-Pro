@@ -551,6 +551,10 @@ def main(argv):
     if len(argv) < 2 or argv[0] not in ("backup", "restore", "show", "extract"):
         sys.exit(__doc__)
     cmd, path, rest = argv[0], Path(argv[1]), argv[2:]
+    if cmd == "restore":
+        raise SlotError("native MIDI sample restore disabled: no authenticated physical-device "
+                        "identity or atomic output delivery. No MIDI port was opened or "
+                        "sample slot erased. Use offline show/extract; backup remains read-only.")
     if cmd == "show":
         print(describe(read_archive(path.read_bytes())[0]))
         return
