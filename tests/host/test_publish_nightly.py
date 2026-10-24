@@ -173,11 +173,37 @@ def main():
     subprocess.check_call(["git", "clone", "-q", "-b", "nightly-pages", str(bare), str(clone)])
     require((clone / "install" / "index.html").is_file(), "pushed installer")
     require("ctl.img" not in [path.name for path in (clone / "firmware").iterdir()], "controller image was hosted")
+    first_handoff = json.loads((pushed / "handoff.json").read_text())
+    require(first_handoff["live_deploy"] is False, "first handoff claimed a live deploy")
+    require(first_handoff["pages_repository"] == "gobbajogger/x0x37-for-Loopy-Pro_nightly", "pages repo")
+    require(first_handoff["pages_ref"] == "gh-pages", "pages ref")
+    require("PUBLISHED LIVE" not in (pushed / "handoff.json").read_text(), "published-live claim")
+    (repo / "second.txt").write_text("second candidate\n")
+    subprocess.check_call(["git", "-C", str(repo), "add", "second.txt"])
+    subprocess.check_call(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t",
+                           "commit", "-qm", "second"])
+    elite_again = write_record(repo, "elite", elite_fwsc, tmp / "elite-again")
+    pro_again = write_record(repo, "pro", pro_fwsc, tmp / "pro-again")
+    pushed_again = tmp / "pushed-again"
+    publish_valid_nightly(repo, elite_again, pro_again, elite_fwsc, pro_fwsc, pushed_again,
+                          remote=str(bare), push=True)
+    again = git(bare, "rev-parse", "nightly-pages")
+    require(again != published, "second handoff did not move the branch")
+    require(git(bare, "rev-parse", "nightly-pages^") == published, "second handoff is not a child of the first")
+    subprocess.check_call(["git", "-C", str(bare), "merge-base", "--is-ancestor", published, again])
+    again_catalog = json.loads((pushed_again / "versions.json").read_text())
+    again_names = {item["version"] for item in again_catalog["versions"]}
+    require(catalog["latest"] in again_names, "first candidate was dropped: " + str(again_names))
+    require(again_catalog["latest"] in again_names and again_catalog["latest"] != catalog["latest"],
+            "second candidate missing")
+    again_handoff = json.loads((pushed_again / "handoff.json").read_text())
+    require(again_handoff["live_deploy"] is False, "second handoff claimed a live deploy")
+    require("gh-pages" not in git(bare, "show-ref"), "separate repo gained a gh-pages ref")
     blocked = tmp / "blocked"
     refused("gh-pages", lambda: publish_valid_nightly(
         repo, elite_record, pro_record, elite_fwsc, pro_fwsc, blocked,
         remote=str(bare), push=True, branch="gh-pages"))
-    require(git(bare, "rev-parse", "nightly-pages") == published, "refused push moved the nightly branch")
+    require(git(bare, "rev-parse", "nightly-pages") == again, "refused push moved the nightly branch")
     require(not blocked.exists(), "refused branch wrote a page")
     for branch in ("main", "master", "nightly"):
         refused(branch, lambda branch=branch: publish_valid_nightly(
@@ -206,7 +232,7 @@ def main():
     finally:
         publish_nightly.subprocess.run = real_run
     require(not any("push" in cmd for cmd in calls), "qualified ref reached git push: " + repr(calls))
-    require(git(bare, "rev-parse", "nightly-pages") == published, "qualified ref moved the nightly branch")
+    require(git(bare, "rev-parse", "nightly-pages") == again, "qualified ref moved the nightly branch")
 
     previous = json.loads((page / "versions.json").read_text())
     older = json.loads(json.dumps(previous["versions"][0]))

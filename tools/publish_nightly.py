@@ -3,9 +3,12 @@
 """Publish a nightly installer only after Elite and Pro development validation.
 
 publish_valid_nightly() is the function the Validate stage calls when a nightly
-is valid. It checks both development records again, builds the installer page,
-and pushes that page only if every check passed. A failed or invalid build is
-not written and not pushed. Production gh-pages is not a destination.
+is valid. It checks both development records again and writes eligible build
+records. With push=True it also records a non-force handoff commit on the
+named branch of the given remote. That handoff is not a deploy of
+gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages and does not run that
+repository's publisher. Do not report PUBLISHED LIVE. A failed or invalid
+build is not written and not pushed. Production gh-pages is not a destination.
 
 Call site to wire after #134 merges
 ------------------------------------
@@ -19,13 +22,12 @@ handoff() (tools/stage_handoff.py line 168) with the next stage:
 
     handoff(ledger, "Merge", thread_id, timestamp)
 
-Wire the publish immediately before that call, in the Validate completion
-path, and skip the handoff when publish raises:
+Wire the record immediately before that call. It does not publish the live
+installer. Skip the stage handoff when it raises:
 
     from publish_nightly import publish_valid_nightly
     publish_valid_nightly(
-        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out,
-        remote=os.environ["X0X_NIGHTLY_REMOTE"], push=True)
+        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out)
     handoff(ledger, "Merge", thread_id, timestamp)
 """
 import argparse
@@ -50,6 +52,8 @@ BANNER = (
     "A failed or invalid build is not published."
 )
 NIGHTLY_PAGES = "https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/"
+LIVE_REPOSITORY = "gobbajogger/x0x37-for-Loopy-Pro_nightly"
+LIVE_REF = "gh-pages"
 BRANCH = "nightly-pages"
 # gh-pages is production. main/master and the firmware nightly branch are source.
 FORBIDDEN = {"gh-pages", "main", "master", "nightly"}
@@ -215,10 +219,19 @@ def _new_version(commit, verified):
     }, copies
 
 
-def _catalog(commit, verified, merge):
+def _catalog(commit, verified, merges):
     version, entry, copies = _new_version(commit, verified)
-    previous = make_pages.load_catalog((Path(merge) / "versions.json") if merge else None)
-    versions = _kept_versions(previous, merge, version)
+    versions = []
+    seen = set()
+    for merge in merges:
+        if not merge:
+            continue
+        previous = make_pages.load_catalog(Path(merge) / "versions.json")
+        for item in _kept_versions(previous, merge, version):
+            if item["version"] in seen:
+                continue
+            seen.add(item["version"])
+            versions.append(item)
     versions.append(entry)
     versions.sort(key=lambda item: str(item["version"]), reverse=True)
     catalog = {
@@ -253,70 +266,207 @@ def _destination(branch):
     return name
 
 
-def _push(site, remote, branch):
+def _remote_tip(remote, branch):
+    """SHA currently stored on the handoff branch, or None when the branch is absent."""
+    listed = subprocess.run(
+        ["git", "ls-remote", remote, f"refs/heads/{branch}"],
+        capture_output=True, text=True, check=True)
+    line = listed.stdout.strip().splitlines()
+    if not line or not line[0].strip():
+        return None
+    return line[0].split()[0]
+
+
+def _materialize(remote, branch, dest):
+    """Copy the handoff branch's tree. The caller keeps prior candidates from it."""
+    scratch = Path(tempfile.mkdtemp(prefix=".nightly-fetch-"))
+    try:
+        subprocess.run(["git", "init", "-q"], cwd=scratch, check=True)
+        subprocess.run(["git", "remote", "add", "origin", remote], cwd=scratch, check=True)
+        subprocess.run(["git", "fetch", "-q", "origin", branch], cwd=scratch, check=True)
+        subprocess.run(["git", "checkout", "-q", "FETCH_HEAD"], cwd=scratch, check=True)
+        dest.mkdir(parents=True, exist_ok=True)
+        for item in scratch.iterdir():
+            if item.name == ".git":
+                continue
+            target = dest / item.name
+            if item.is_dir():
+                shutil.copytree(item, target)
+            else:
+                shutil.copy2(item, target)
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+
+
+def _prior_tree(dirs):
+    present = [Path(path) for path in dirs if path]
+    if not present:
+        return None
+    if len(present) == 1:
+        return present[0]
+    combined = Path(tempfile.mkdtemp(prefix=".nightly-prior-"))
+    firmware = combined / "firmware"
+    firmware.mkdir()
+    for directory in present:
+        source = directory / "firmware"
+        if not source.is_dir():
+            continue
+        for package in source.glob("*.fwsc"):
+            target = firmware / package.name
+            if not target.exists():
+                shutil.copy2(package, target)
+    return combined
+
+
+def _overlay(work, site):
+    for child in list(work.iterdir()):
+        if child.name == ".git":
+            continue
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+    for item in Path(site).iterdir():
+        target = work / item.name
+        if item.is_dir():
+            shutil.copytree(item, target)
+        else:
+            shutil.copy2(item, target)
+
+
+def _push(site, remote, branch, expected):
+    """Commit the site as a child of expected and fast-forward the handoff branch.
+
+    A new root is only the first commit. Later handoffs fetch the remote tip and
+    use it as the parent, so a non-force push can move the branch. This does not
+    deploy the nightly website repository.
+    """
     branch = _destination(branch)
     if not remote:
         raise NightlyPublishError("nightly remote is not set; production pages are not a nightly destination")
-    subprocess.run(["git", "init", "-q", "-b", branch], cwd=site, check=True)
-    subprocess.run(["git", "add", "-A"], cwd=site, check=True)
-    message = f"Nightly installer ({branch})"
-    subprocess.run(
-        ["git", "-c", "user.name=Nightly publish", "-c", "user.email=nightly@localhost",
-         "commit", "-q", "-m", message],
-        cwd=site, check=True)
-    # No --force. A refused or non-fast-forward update must not replace the remote ref.
-    subprocess.run(["git", "push", "-q", remote, f"HEAD:{branch}"], cwd=site, check=True)
-    shutil.rmtree(site / ".git")
+    work = Path(tempfile.mkdtemp(prefix=".nightly-commit-"))
+    try:
+        tip = _remote_tip(remote, branch)
+        if tip != expected:
+            raise NightlyPublishError("remote handoff moved; the descendant was not pushed")
+        subprocess.run(["git", "init", "-q"], cwd=work, check=True)
+        subprocess.run(["git", "remote", "add", "origin", remote], cwd=work, check=True)
+        if tip:
+            subprocess.run(["git", "fetch", "-q", "origin", branch], cwd=work, check=True)
+            fetched = subprocess.check_output(
+                ["git", "rev-parse", "FETCH_HEAD"], cwd=work, text=True).strip()
+            if fetched != tip:
+                raise NightlyPublishError("remote handoff moved; the descendant was not pushed")
+            subprocess.run(["git", "checkout", "-q", "-B", branch, "FETCH_HEAD"], cwd=work, check=True)
+        else:
+            subprocess.run(["git", "checkout", "-q", "--orphan", branch], cwd=work, check=True)
+        _overlay(work, site)
+        subprocess.run(["git", "add", "-A"], cwd=work, check=True)
+        message = f"Nightly handoff {branch}"
+        subprocess.run(
+            ["git", "-c", "user.name=Nightly publish", "-c", "user.email=nightly@localhost",
+             "commit", "-q", "--allow-empty", "-m", message],
+            cwd=work, check=True)
+        if tip:
+            parent = subprocess.check_output(["git", "rev-parse", "HEAD^"], cwd=work, text=True).strip()
+            if parent != tip:
+                raise NightlyPublishError("handoff is not a descendant of the remote tip")
+        head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=work, text=True).strip()
+        # No --force. A non-fast-forward update is rejected and the remote SHA stays.
+        subprocess.run(["git", "push", "-q", "origin", f"HEAD:{branch}"], cwd=work, check=True)
+        published = _remote_tip(remote, branch)
+        if published != head:
+            raise NightlyPublishError("remote handoff SHA is not the descendant commit")
+        return head
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def _handoff_record():
+    """State that this directory is not the live nightly website."""
+    return {
+        "schema": 1,
+        "result": "HANDOFF",
+        "live_deploy": False,
+        "pages_repository": LIVE_REPOSITORY,
+        "pages_ref": LIVE_REF,
+        "note": (
+            "Not a deploy of gobbajogger/x0x37-for-Loopy-Pro_nightly gh-pages. "
+            "This does not run that repository's publisher."
+        ),
+    }
 
 
 def publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out,
                           elite_ctl=None, pro_ctl=None, remote=None, push=False,
                           branch=BRANCH, merge=None):
-    """Publish the nightly installer when both development builds verify.
+    """Record a validated nightly page. A push is a handoff, not a live deploy.
 
     Returns the page directory. Raises NightlyPublishError without writing `out`
     and without pushing when either build is missing, failed, or not the matching
-    development package. `push` sends the page to `branch` on `remote`.
+    development package. `push` fast-forwards `branch` on `remote` to a descendant
+    commit and keeps candidates already stored on that branch.
     """
+    branch_name = _destination(branch) if push else None
     if push:
         remote = remote or os.environ.get("X0X_NIGHTLY_REMOTE")
-        _destination(branch)
         if not remote:
             raise NightlyPublishError("nightly remote is not set; production pages are not a nightly destination")
-    commit, verified = _verify_records(
-        repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_ctl, pro_ctl)
-    version, catalog, copies = _catalog(commit, verified, merge)
-    out = Path(out)
-    if out.exists() and not out.is_dir():
-        raise NightlyPublishError("nightly output exists and is not a directory")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    staging = Path(tempfile.mkdtemp(prefix=".nightly-", dir=str(out.parent)))
-    backup = None
-    published = False
-    try:
-        try:
-            make_pages.write_site(staging, catalog, copies, Path(merge) if merge else None, banner=BANNER)
-            if push:
-                _push(staging, remote, branch)
-            if out.exists():
-                backup = out.with_name(out.name + ".replaced")
-                if backup.exists():
-                    shutil.rmtree(backup)
-                out.rename(backup)
-            staging.rename(out)
-            published = True
-        except subprocess.CalledProcessError as error:
-            raise NightlyPublishError("nightly page was not pushed") from error
-    finally:
-        if staging.exists():
-            shutil.rmtree(staging, ignore_errors=True)
-        if not published and backup and backup.exists() and not out.exists():
-            backup.rename(out)
-        if published and backup and backup.exists():
-            shutil.rmtree(backup)
-    print(f"nightly page {version} ({commit[:12]}) -> {out}")
+    expected = None
+    remote_site = None
     if push:
-        print(f"pushed nightly installer branch {branch}")
+        expected = _remote_tip(remote, branch_name)
+        if expected:
+            remote_site = Path(tempfile.mkdtemp(prefix=".nightly-remote-"))
+            _materialize(remote, branch_name, remote_site)
+    merges = [Path(merge)] if merge else []
+    if remote_site:
+        merges.append(remote_site)
+    prior = None
+    try:
+        commit, verified = _verify_records(
+            repo, elite_record, pro_record, elite_fwsc, pro_fwsc, elite_ctl, pro_ctl)
+        version, catalog, copies = _catalog(commit, verified, merges)
+        prior = _prior_tree(merges)
+        out = Path(out)
+        if out.exists() and not out.is_dir():
+            raise NightlyPublishError("nightly output exists and is not a directory")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        staging = Path(tempfile.mkdtemp(prefix=".nightly-", dir=str(out.parent)))
+        backup = None
+        recorded = False
+        try:
+            try:
+                make_pages.write_site(staging, catalog, copies, prior, banner=BANNER)
+                (staging / "handoff.json").write_text(
+                    json.dumps(_handoff_record(), indent=2) + "\n", encoding="utf-8")
+                if push:
+                    _push(staging, remote, branch_name, expected)
+                if out.exists():
+                    backup = out.with_name(out.name + ".replaced")
+                    if backup.exists():
+                        shutil.rmtree(backup)
+                    out.rename(backup)
+                staging.rename(out)
+                recorded = True
+            except subprocess.CalledProcessError as error:
+                raise NightlyPublishError("nightly handoff was not recorded") from error
+        finally:
+            if staging.exists():
+                shutil.rmtree(staging, ignore_errors=True)
+            if not recorded and backup and backup.exists() and not out.exists():
+                backup.rename(out)
+            if recorded and backup and backup.exists():
+                shutil.rmtree(backup)
+    finally:
+        if remote_site:
+            shutil.rmtree(remote_site, ignore_errors=True)
+        if prior and prior not in merges:
+            shutil.rmtree(prior, ignore_errors=True)
+    print(f"nightly handoff {version} ({commit[:12]}) -> {out}")
+    print(f"not a live deploy of {LIVE_REPOSITORY} {LIVE_REF}")
+    if push:
+        print(f"recorded non-force handoff on {branch_name}")
     return out
 
 
