@@ -3290,6 +3290,156 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/120",
       "evidence_commit": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/2d5742ee7c271168b6e78fc24100f9bae79e334d/docs/scheduler-handoffs/bugfinder-bf018-motion-clear-20261024.json"
+    },
+    {
+      "id": "smc-pr122-r2-mmc-stop-project-reset-source-20261024",
+      "title": "PR122 R2 deferred STOP/project-reset FIFO safety repair; producer-scoped native PASS, independent QA/target builds pending",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+      "source_commit": "34a265a60921957a32bec6ccc9ad38c9a765fae3",
+      "source_tree": "05a75c9775443eb2849c992d3d92ab7dc4042a39",
+      "firmware_subtree": "62f6e1c9bffc95e57c28d3d579261c2b1f4eab96",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "reported_checks": {
+        "origin": "SMC Transport PR122 R2 source and evidence Git SHAs independently re-read; actual native tests reported by producer, NOT re-executed by Catalog.",
+        "command": "python3 -B tests/host/smc_mmc_stop_fifo_test.py (producer-reported command; Catalog NOT RUN)",
+        "result": "Producer reports old reset-in-STOP 6/6 expected RED; repaired GCC/Clang plain, UBSan and ASan+UBSan 6/6 exits 0, 48/48 cases each; full-root independent QA and newly changed Elite/Pro firmware target compiles NOT RUN."
+      },
+      "description": "Noninstallable SMC source repair: after a deferred STOP callback resets the project, main-loop transport no longer consumes stale queued MIDI. Current branch compiled firmware subtree differs from prior R14/PR103 BUILD_ONLY; no attributable complete model build, downloadable artifact or device PASS.",
+      "missing_gate": "Independent full-root concurrency/ISR project-reset QA; real exact changed-source Elite and Pro plus matching controller BUILD_ONLY; sole Safe Merge review/integration; data/OTA/licensing/immutable-host and HTTP checks by downstream owners.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/122",
+      "evidence_commit": "34a265a60921957a32bec6ccc9ad38c9a765fae3",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/34a265a60921957a32bec6ccc9ad38c9a765fae3/docs/scheduler-handoffs/smc-mmc-stop-callback-project-reset-20261024-r2.json"
+    },
+    {
+      "id": "bugfinder-bf020-pr123-legacy-bd-pan-motion-20261024",
+      "title": "PR123 BF-020 legacy kick PAN motion migration repair; native producer-scoped RED/GREEN, full QA/build pending",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-bf020-legacy-bd-pan-motion-20261024-v1",
+      "source_commit": "5c592ec44638194842ae32d09471ac55901cbe19",
+      "source_tree": "aa281f3300e513791d106f8831f627c8fddb642a",
+      "firmware_subtree": "77146a79a6035e696e2365355362cd953a9c15b0",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "reported_checks": {
+        "origin": "Hourly Bugfinder PR123 source and native-evidence Git SHAs independently re-read; producer native test claims NOT independently re-executed by Catalog.",
+        "command": "CC=gcc sh tests/host/run_project_stage.sh; CC=clang sh tests/host/run_project_stage.sh (producer commands; Catalog NOT RUN)",
+        "result": "Producer baseline GCC RED exit 1: 3 failures/24671 checks; corrected GCC plain/UBSan/ASan+UBSan and Clang plain 4/4 exits 0, 24671/24671 each; Clang sanitizer timed out, no whole-root QA or fresh Elite/Pro target build."
+      },
+      "description": "Noninstallable source repair reorders legacy 909/808 kick PAN migration until after project arrangement loads to preserve stored motion lane targeting. Does not modify OTA or prove physical data restoration. New compiler subtree requires fresh model-specific build evidence.",
+      "missing_gate": "Independent current-root staging/storage/corrupt-project regression QA, fresh Elite/Pro plus matching controller native builds, sole firmware integration safety review, lawful model/package hosting and served HTTP; device not tested.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/123",
+      "evidence_commit": "5c592ec44638194842ae32d09471ac55901cbe19",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/5c592ec44638194842ae32d09471ac55901cbe19/docs/scheduler-handoffs/bugfinder-bf020-bd-pan-motion-20261024.json"
+    },
+    {
+      "id": "integration-pr103-r23-mit-notice-source-only-20261024",
+      "title": "PR103 R23 MIT licence notice integrated; persistent-unit OTA still NO-GO",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "77f77e43ba84b39024183426709f56b0b368394e",
+      "source_tree": "55cfa45acc82e70cdc79aac99fd52828abfbb857",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "source_time": "2026-10-24T14:42:39Z",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "reported_checks": {
+        "origin": "Live Git PR103 R23 SHA/root/two parents/firmware subtree verified",
+        "command": "Read-only authenticated Git source identity; Catalog did not run native compiler or device tests",
+        "result": "Docs-only merged in DRAFT first NIGHTLY source candidate; original BUILD_ONLY identities not new R23 builds."
+      },
+      "description": "Independently scoped-reviewed upstream MIT notice and full terms from PR126 integrated into existing firmware Safe Merge lane without changing compiled firmware subtree. Removes incorrect BB Gen separate permission blocker, not GPL corresponding source/other component rights or OTA/safety/publication gates.",
+      "missing_gate": "Existing Data Safety physical unit authentication, independent combined-root OTA/backup/model/controller QA, sole firmware Safe Merge and lawful immutable-host live-HTTPS and Pages publisher checks.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "77f77e43ba84b39024183426709f56b0b368394e",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/77f77e43ba84b39024183426709f56b0b368394e"
+    },
+    {
+      "id": "data-safety-pr114-r11-sample-pairing-ota-no-go-20261024",
+      "title": "PR114 R11 sample MIDI endpoint pairing guard; physical identity still OTA NO-GO",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-ota-target-identity-20261024-1711",
+      "source_commit": "9966084af6a18c2d4ae03ebb1688ad38146fa3fc",
+      "source_tree": "cad0ea0721c526f59bac93efcc3531484b456e16",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "reported_checks": {
+        "origin": "Exact Git evidence source blob 2a12c9e72372aa710be15a5c5b79d69692ce858e",
+        "command": "Producer Python normal/-O original+repaired fixtures reported only, Catalog NOT rerun",
+        "result": "Producer 5/13 expected RED then 13/13 PASS per mode; full root, physical unit and firmware build NOT RUN."
+      },
+      "description": "Standalone sample uploader refuses disjoint/ambiguous MIDI endpoints and cleans up aborted probe. Name and port pairing are not persistent physical unit identity; cannot safely authorize cross-reconnect destructive OTA or sample restore.",
+      "missing_gate": "Existing Data Safety owner repairs unique persistent physical identity/atomic write and hot-swap restore; independent current-root/negative QA, sole firmware merger and later lawful distribution.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/114",
+      "evidence_commit": "9966084af6a18c2d4ae03ebb1688ad38146fa3fc",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9966084af6a18c2d4ae03ebb1688ad38146fa3fc/docs/scheduler-handoffs/data-safety-pr114-r11-sample-link-pairing-20261024.json"
+    },
+    {
+      "id": "bugfinder-bf022-pr128-legacy-master-highpass-20261024",
+      "title": "PR128 BF-022 preserve valid saved legacy high-pass project; fresh Elite/Pro build pending",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-bf022-legacy-master-hp-migration-20261024",
+      "source_commit": "168869eecaa6a8cc4035c33928293131ada40226",
+      "source_tree": "81bdbb0cfb05b3f0686554e2aba6e2b7054575b7",
+      "firmware_subtree": "fa627883e9153ad4538b89e39dcb28ddbea01609",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "reported_checks": {
+        "origin": "Git source receipt blob 3ffd7d63d97bb74bad0cbfad71bd66d964810440",
+        "command": "Producer reported GCC/Clang project-stage host matrix only; Catalog did not rerun",
+        "result": "Producer reports five RED 15/28422 to GREEN 0/28422 variants; Clang ASAN+UBSAN timeout; target builds/full-root unrun."
+      },
+      "description": "Separate optional Bugfinder repair clamps only temporary rev1 high-pass filter macro input 123..127, without modifying detailed stored cutoff. Compiled firmware subtree differs from first NIGHTLY candidate; no reuse of its old model binaries.",
+      "missing_gate": "Independent full-root persisted-project migration/storage QA plus new compiler-input-matched Elite/Pro/controller builds with budgets/CRC/hash; separate Safe Merge decision, hosting and owner device gates.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/128",
+      "evidence_commit": "168869eecaa6a8cc4035c33928293131ada40226",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/168869eecaa6a8cc4035c33928293131ada40226/docs/scheduler-handoffs/bugfinder-bf022-legacy-master-highpass-20261024.json"
     }
   ],
   "policy": {
@@ -3300,7 +3450,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 117
+    "source_or_historical_checkpoints": 122
   },
   "versioning": {
     "firmware_product_version": {

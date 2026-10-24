@@ -509,16 +509,16 @@ run('smc79-hidden-historical-test-failure',mutateNative(r=>r.build_pipeline.foll
 const auditedR25='producer-pr120-fresh-elite-pro-controller-20261024',sourceR25='integration-pr103-r22-current-smc-host-harness-20261024';
 const editAuditedR25=fn=>edit(j=>{const x=j.history.find(r=>r.id===auditedR25);assert.ok(x);fn(x);});
 run('r25-two-new-noninstallable-history-records-positive',edit(j=>{
-  assert.equal(j.history.at(-2).id,sourceR25);assert.equal(j.history.at(-1).id,auditedR25);
-  assert.equal(j.history.length,117);assert.equal(j.builds.length,2);
-  assert.equal(j.history.at(-1).installable,false);
-  assert.equal(j.history.at(-1).build_pipeline.qa,'QA_PENDING');
-  assert.equal(j.history.at(-1).build_pipeline.live_http,'NOT_VERIFIED');
+  assert.equal(j.history[115].id,sourceR25);assert.equal(j.history[116].id,auditedR25);
+  assert.ok(j.history.length>=117);assert.equal(j.builds.length,2);
+  assert.equal(j.history[116].installable,false);
+  assert.equal(j.history[116].build_pipeline.qa,'QA_PENDING');
+  assert.equal(j.history[116].build_pipeline.live_http,'NOT_VERIFIED');
 }),true);
-run('r25-delete-real-PR120-last-receipt-adjust-count',edit(j=>{j.history.pop();j.counts.source_or_historical_checkpoints--;}));
-run('r25-delete-both-new-tail-receipts-adjust-count',edit(j=>{j.history.splice(-2);j.counts.source_or_historical_checkpoints-=2;}));
+run('r25-delete-real-PR120-receipt-adjust-count',edit(j=>{j.history.splice(116,1);j.counts.source_or_historical_checkpoints--;}));
+run('r25-delete-both-old-tail-receipts-adjust-count',edit(j=>{j.history.splice(115,2);j.counts.source_or_historical_checkpoints-=2;}));
 run('r25-swap-new-source-and-private-build-receipts',edit(j=>{
-  const n=j.history.length;[j.history[n-2],j.history[n-1]]=[j.history[n-1],j.history[n-2]];
+  [j.history[115],j.history[116]]=[j.history[116],j.history[115]];
 }));
 for(const [name,mutation] of [
  ['r25-forged-Elite-package-SHA-valid-shape',x=>x.producer_reported_artifacts.elite.sha256='f'.repeat(64)],
@@ -544,7 +544,35 @@ for(const [name,mutate] of [
   fs.writeFileSync(p,JSON.stringify(data,null,2)+'\n');
 });
 
-// Port Catalog R27's narrow provenance guard without importing moving history.
+// Preserve Catalog R26's receipt-specific negatives across later append-only rows.
+const smcR26='smc-pr122-r2-mmc-stop-project-reset-source-20261024';
+const bfR26='bugfinder-bf020-pr123-legacy-bd-pan-motion-20261024';
+const tamperR26=(id,mutation)=>edit(j=>{
+  const row=j.history.find(h=>h.id===id);
+  assert.ok(row);
+  mutation(row);
+});
+run('r26-pinned-119-noninstallable-prefix-positive',edit(j=>{
+  assert.ok(j.history.length>=119);
+  assert.equal(j.history[117].id,smcR26);
+  assert.equal(j.history[118].id,bfR26);
+  assert.deepEqual(j.history.slice(117,119).map(h=>h.installable),[false,false]);
+  assert.deepEqual(j.history.slice(117,119).map(h=>h.status),['source-only','source-only']);
+  assert.equal(j.counts.actual_build_generations,2);
+  assert.equal(j.counts.source_or_historical_checkpoints,j.history.length);
+}),true);
+run('r26-delete-SMC-PR122-receipt-adjust-count',edit(j=>{j.history.splice(117,1);j.counts.source_or_historical_checkpoints--;}));
+run('r26-delete-BF020-PR123-receipt-adjust-count',edit(j=>{j.history.splice(118,1);j.counts.source_or_historical_checkpoints--;}));
+run('r26-delete-both-new-real-receipts-adjust-count',edit(j=>{j.history.splice(117,2);j.counts.source_or_historical_checkpoints-=2;}));
+run('r26-swap-new-real-receipts',edit(j=>{[j.history[117],j.history[118]]=[j.history[118],j.history[117]];}));
+run('r26-forge-SMC-source-SHA-valid-shape',tamperR26(smcR26,x=>{x.source_commit='f'.repeat(40);}));
+run('r26-forge-BF020-compiled-subtree-SHA-valid-shape',tamperR26(bfR26,x=>{x.firmware_subtree='e'.repeat(40);}));
+run('r26-forge-SMC-nondevice-QA-PASS',tamperR26(smcR26,x=>{x.status='dev-checked';}));
+run('r26-forge-BF020-device-proof',tamperR26(bfR26,x=>{x.device_verified=true;}));
+run('r26-add-hidden-download-HREF',tamperR26(smcR26,x=>{x.download_url='https://evil.example/firmware';}));
+run('r26-false-exact-native-compile',tamperR26(bfR26,x=>{x.exact_remote_native_build=true;}));
+
+// Retain R5's explicit synthetic append helpers; do not clone an audited tail.
 // The synthetic FUTURE append has an explicit immutable evidence URL; the current
 // R25 tail is a different receipt and must not supply the positive test's pin.
 const futureEvidenceSha='1'.repeat(40);
