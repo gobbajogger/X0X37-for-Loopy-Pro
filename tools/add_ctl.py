@@ -53,6 +53,8 @@ def ctl_problem(img):
         return f"header version {ver}, size {hsize}, ABI {abi}: this X0X takes version {HDR_VERSION}, ABI {ABI}"
     if not HDR_SIZE <= size <= len(img):
         return f"image size {size} does not fit the file ({len(img)} B)"
+    if any(byte != 0xFF for byte in img[size:]):
+        return "non-erased bytes after the controller image declared size"
     if zlib.crc32(img[:16] + b"\0\0\0\0" + img[20:size]) != crc:
         return "CRC mismatch (a damaged file)"
     for name, a in (("init", init), ("poll", poll)):
