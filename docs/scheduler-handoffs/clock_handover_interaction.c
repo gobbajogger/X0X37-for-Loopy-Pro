@@ -2,6 +2,7 @@
  * Candidate PR #103 sequencer.c blob 09d9cea9936de02a6e410f80321d1c6c4b400f11.
  * HANDOVER_DROP: PR #35 blob 7345cab17c29ba3c26f58d1b2c042b05c1b55ef4.
  * STOP_TAKEOVER: PR #48 blob b02cf26e938fbc58dddcab455b119998e96ce744.
+ * OWNER_RESET: PR #41 blob 37ee28b8191565f0caa14d91f67accdd32b95cf9.
  * Not a full firmware compile or independent QA. See README.md.
  */
 #include <stdint.h>
@@ -12,7 +13,7 @@
 #define SEQ_CLK_EXT 2u
 
 typedef struct {
-    uint8_t clk_src, clk_lock, clk_last, clk_stop;
+    uint8_t clk_src, clk_cur, clk_lock, clk_last, clk_stop;
     uint8_t ext_nb, ext_bi, ext_q, ext_skip;
     uint32_t ext_now, clk_stop_at, clk_lock_at, ext_pending;
 } seq_t;
@@ -65,12 +66,28 @@ void seq_clk_drop(seq_t *s, uint32_t src)
     }
 }
 
+/* Projection of seq_advance -> clock_source for GLOBAL Clock Source changes.
+ * The tested branch exactly matches PR #41's INTERNAL owner release insertion.
+ * Other seq_advance/clock_source behavior is deliberately outside this scope. */
+static void apply_clock_mode(seq_t *s)
+{
+    if (s->clk_cur == s->clk_src)
+        return;
+    s->clk_cur = s->clk_src;
+    if (s->clk_cur == SEQ_CLK_INT) {
+        s->ext_pending = 0;
+#ifdef OWNER_RESET
+        s->clk_lock = 0; /* PR #41: INTERNAL owns no external clock */
+#endif
+    }
+}
+
 static int checks, fails;
 #define CHECK(condition, label) do {checks++;if(!(condition)){fails++;printf("FAIL: %s\n",label);}} while(0)
 static void clock_packet(seq_t *s, uint8_t st, uint32_t src) {
     if(seq_clk_take(s,st,src) && st==0xF8u) s->ext_pending++;
 }
-static seq_t init(uint8_t mode) {seq_t s={0};s.clk_src=mode;return s;}
+static seq_t init(uint8_t mode) {seq_t s={0};s.clk_src=s.clk_cur=mode;return s;}
 static void disconnect_tests(uint8_t mode, uint32_t old, uint32_t other) {
     seq_t s=init(mode);
     clock_packet(&s,0xFAu,old);
@@ -117,6 +134,30 @@ static void nonowner_stop_and_early_takeover(uint8_t mode, uint32_t old, uint32_
     CHECK(seq_clk_take(&s,0x80u,other)==1,"Note Off remains passthrough");
     CHECK(s.clk_lock==old+1u,"Note Off cannot change lock");
 }
+/* Previously untested combination: INTERNAL selected between two owners, with
+ * unprocessed USB ticks and a delayed original USB disconnect afterwards. */
+static void internal_mode_handover(uint8_t mode, uint32_t old, uint32_t other) {
+    seq_t s=init(mode);
+    clock_packet(&s,0xFAu,old);
+    clock_packet(&s,0xF8u,old);
+    clock_packet(&s,0xF8u,old);
+    CHECK(s.clk_lock==old+1u && s.ext_pending==2u,"setup: USB/BLE owns two ticks");
+    s.clk_src=SEQ_CLK_INT;
+    apply_clock_mode(&s);  /* audio block with no incoming MIDI packet */
+    CHECK(s.ext_pending==0u,"INTERNAL discards stale external ticks");
+    CHECK(s.clk_lock==0u,"INTERNAL releases stale external owner without packet");
+    s.clk_src=mode;
+    apply_clock_mode(&s);
+    CHECK(seq_clk_take(&s,0xFAu,other)==1,"new input Start accepted after INTERNAL");
+    CHECK(s.clk_lock==other+1u,"new input owns clock after INTERNAL");
+    clock_packet(&s,0xF8u,other);
+    CHECK(s.ext_pending==1u,"new input's first tick pending");
+    seq_clk_drop(&s,old); /* stale disconnection callback */
+    CHECK(s.clk_lock==other+1u,"old disconnect retains new owner after INTERNAL");
+    CHECK(s.ext_pending==1u,"old disconnect retains new tick after INTERNAL");
+    CHECK(seq_clk_take(&s,0x80u,old)==1,"Note Off passthrough after INTERNAL");
+    CHECK(seq_clk_take(&s,0xFAu,old)==0,"old source Start cannot steal new lock");
+}
 int main(void){
   const uint8_t modes[]={SEQ_CLK_AUTO,SEQ_CLK_EXT};
   for(unsigned m=0;m<2;m++)for(unsigned i=0;i<2;i++){
@@ -124,6 +165,7 @@ int main(void){
     disconnect_tests(modes[m],old,other);
     graceful_stop_tests(modes[m],old,other);
     nonowner_stop_and_early_takeover(modes[m],old,other);
+    internal_mode_handover(modes[m],old,other);
   }
   printf("RESULT %d/%d assertions PASS\n",checks-fails,checks);
   return fails?1:0;
