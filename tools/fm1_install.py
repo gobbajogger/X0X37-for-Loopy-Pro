@@ -9,6 +9,12 @@ step 2, the loader reads the whole package and writes it. In both steps the
 device asks (SysEx read requests on the logical image) and we answer. Then
 the FM-1 restarts and the installed identity is checked.
 
+Native RtMidi OTA is currently unsupported: the OS MIDI name is not a
+persistent hardware identity and MIDI output is not physically atomic. Real
+installation requests refuse before opening a MIDI port or creating a backup.
+Read-only --info and offline --head-check remain available; separately
+qualified browser WebMIDI installation is a distinct path.
+
   fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots] [--ctl FILE | --no-ctl]
   fm1_install.py --info [--port NAME]
 
@@ -104,6 +110,14 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
 
 EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
         "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
+
+
+NATIVE_RTMIDI_UNSUPPORTED = (
+    "native RtMidi OTA is unsupported: this backend has no authenticated persistent "
+    "physical-device identity across USB loader re-enumeration and cannot atomically "
+    "bind outgoing MIDI to that unit. No MIDI port was opened, sample backup created "
+    "or firmware written. Use a separately qualified browser installer."
+)
 
 
 class InstallError(Exception):
@@ -958,6 +972,11 @@ def check_ctl(link, ctl, out):
 
 
 def run(a, backend, out, ask):
+    # The production RtMidi backend has no persistent physical-unit proof and
+    # cannot guarantee that an outgoing packet still targets the original unit.
+    # Deny before opening MIDI, asking the owner or creating a sample backup.
+    if not a.info and isinstance(backend, MidoBackend):
+        raise InstallError("model", NATIVE_RTMIDI_UNSUPPORTED)
     up = Updater(backend, a.port)
     if a.info:
         dev = up.find()
@@ -1147,6 +1166,11 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
         rc = head_guard(a, out=out)
         print("HEAD OK" if rc == 0 else "HEAD MISMATCH" if rc == EXIT["head"] else "HEAD ERROR", file=out)
         return rc
+    if a.package and backend is None:
+        # Avoid an inevitable late OTA refusal after validation, backup or
+        # confirmation prompts. Read-only --info and offline --head-check remain.
+        print(f"REFUSED: {NATIVE_RTMIDI_UNSUPPORTED}", file=sys.stderr)
+        return EXIT["model"]
     if a.package and backend is None:       # a real device: the gate guard is the first step
         rc = gate_guard(a)
         if rc:

@@ -1,0 +1,88 @@
+{
+  "actual_commands": [
+    {
+      "cmd": "python3 -B native_ota_cli_early_refusal_test.py R19_main_run_window_baseline.py",
+      "exit": 1,
+      "passed": 4,
+      "total": 6
+    },
+    {
+      "cmd": "python3 -O -B native_ota_cli_early_refusal_test.py R19_main_run_window_baseline.py",
+      "exit": 1,
+      "passed": 4,
+      "total": 6
+    },
+    {
+      "cmd": "python3 -B native_ota_cli_early_refusal_test.py R20_main_run_window_patched.py",
+      "exit": 0,
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "cmd": "python3 -O -B native_ota_cli_early_refusal_test.py R20_main_run_window_patched.py",
+      "exit": 0,
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "cmd": "python3 -B -m py_compile native_ota_cli_early_refusal_test.py",
+      "exit": 0
+    }
+  ],
+  "changed_scope": [
+    "tools/fm1_install.py",
+    "tests/host/native_ota_cli_early_refusal_test.py",
+    "tests/run_tests.sh",
+    "docs/scheduler-handoffs/data-safety-pr114-r20-native-preflight-20261025.json"
+  ],
+  "compiled_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "distribution": "no binary/controller/private SDK/samples or external firmware files; no protected ref writes",
+  "evidence_private_zip_contents_sha256": {
+    "R19_main_run_window_baseline.py": {
+      "bytes": 4204,
+      "sha256": "5c464305801486d9cbcd04d1bd69695fe53ab9d82edbf2550bcc4592b26edc6a"
+    },
+    "R20_main_run_window_patched.py": {
+      "bytes": 4828,
+      "sha256": "3f448ada6a85b2f1d1531c622e977b2b41803a95fc19ecd06882c41a432a74e5"
+    },
+    "after-normal.log": {
+      "bytes": 1341,
+      "sha256": "e0801be8e2babbae69021fabdaddf17ab9967f2250bd0446929b0b297e76cf71"
+    },
+    "after-optimized.log": {
+      "bytes": 1341,
+      "sha256": "e0801be8e2babbae69021fabdaddf17ab9967f2250bd0446929b0b297e76cf71"
+    },
+    "before-normal.log": {
+      "bytes": 954,
+      "sha256": "c9c007ae542fb03025fabafab1fc90225601548ac258d0bf9e06244ae7679e8d"
+    },
+    "before-optimized.log": {
+      "bytes": 954,
+      "sha256": "c9c007ae542fb03025fabafab1fc90225601548ac258d0bf9e06244ae7679e8d"
+    },
+    "native_ota_cli_early_refusal_test.py": {
+      "bytes": 7360,
+      "sha256": "1bab4e5a603daa204f92a6e7e3ce161d434d4da3367a76c5fdb1485b90cb43b1"
+    }
+  },
+  "host_test_method": "Python AST extraction of main()/run() under a synthetic MidoBackend, fake backend and read-only info device. Producer ran against source-aligned entrypoint projections, not complete-root actual Git checkout. Registered test itself reads the source file on the target exact checkout; must be independently run there.",
+  "next_existing_role": "sole Independent QA: independently test this exact new PR head on full checkout and confirm user-visible fail-fast, real CLI positive read-only and simulated updater fixtures; then sole Safe Merge decides any integration with its own accepted source",
+  "not_run": [
+    "actual full Git checkout installer/backup/restore/OTA suites",
+    "physical USB re-enumeration and device identity",
+    "Elite/Pro and controller real build",
+    "independent QA of this change",
+    "public NIGHTLY browser and HTTPS artifact checking",
+    "actual device hardware"
+  ],
+  "owner_behavior": "A native RtMidi OTA request should explicitly refuse before package checks, MIDI discovery, sample backup, owner confirmation or firmware writes; read-only --info and offline --head-check remain supported; separate injected fake-backend simulations remain testable.",
+  "owner_lane": "lane/data-safety-ota-target-identity-20261024-1711",
+  "parent_root_tree": "3320d79204ed2cf00ee22a4786874f76654e03aa",
+  "parent_source_sha": "d0e50c39b4e920df0e9180ed7d3128189e36bb4c",
+  "problem": "Real production MidoBackend cannot authenticate a unique physical keyboard across loader re-enumeration or guarantee atomic physically bound outgoing MIDI. Before R20, the CLI could check packages, open the device, prompt, and create a backup before its Updater.install would inevitably refuse.",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "revision": "data-safety-pr114-r20-native-ota-early-refusal-20261025-r1",
+  "source_stage": "producer-scoped red/green on host entrypoint projection; reviewed/qualified/published/device statuses NOT claimed"
+}

@@ -51,7 +51,7 @@ test_class() {
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
-    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity|ota-unit-bounce|ota-send-rebind|ota-output-endpoint|sample-link-target|sample-link-readonly|sample-cli-denial|slot-read-bounds|sample-extract-safe) TEST_CLASS=S ;;
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity|ota-unit-bounce|ota-send-rebind|ota-output-endpoint|sample-link-target|sample-link-readonly|sample-cli-denial|slot-read-bounds|sample-extract-safe|native-ota-preflight) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -313,6 +313,7 @@ run sample-link-target python3 -B tests/host/sample_link_target_test.py tools/fm
 run sample-link-readonly python3 -B tests/host/sample_link_readonly_test.py tools/fm1_sample_upload.py  # native RtMidi read-only allowlist; no unsafe sample erase/write
 run sample-cli-denial python3 -B tests/host/native_sample_cli_guard_test.py tools/fm1_sample_upload.py tools/x0x_slots.py  # no destructive native CLI port open; read-only/offline remains
 run sample-extract-safe python3 -B tests/host/sample_extract_safety_test.py tools/x0x_slots.py  # no silent offline .hdr/.bin overwrite, symlink escapes or partial extraction
+run native-ota-preflight python3 -B tests/host/native_ota_cli_early_refusal_test.py tools/fm1_install.py  # fail before real RtMidi package/port/backup; retain read-only and simulated entry paths
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run slot-backup-durable python3 tests/x0x_slots_durable_backup_test.py   # directory fsync before OTA
 run slot-archive-zone python3 tests/x0x_slots_zone_guard_test.py   # CRC-valid malformed slot zones fail before flash writes
