@@ -31,7 +31,7 @@ static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
 
 void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
 {
-    int k;
+    int k, phase;
     if (part < 0 || part >= MOT_PARTS || step < 0 || step >= NSTEPS)
         return;
     if (m->age[part])
@@ -40,7 +40,9 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
     m->last[part] = (uint8_t)step;
     if (next < 0 || next >= NSTEPS)
         next = 0;
-    for (k = 0; k < NLANE; k++) {
+    /* Restore departing patterns first; a later slot must never overwrite
+     * the active pattern for the same parameter with the base value. */
+    for (phase = 0; phase < 2; phase++) for (k = 0; k < NLANE; k++) {
         lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         int v, nv;
@@ -54,11 +56,15 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
             r->hold_left = 0;
         }
         if (l->pat != pat) {                           /* not this part's pattern now: the knob */
+            if (phase)
+                continue;
             to_base(m, l, r);
             r->rec_last = MOT_NONE;
             r->hold_left = 0;
             continue;
         }
+        if (!phase)
+            continue;
         if (r->hold_req) {
             r->hold_req = 0;
             r->hold_left = (uint8_t)pass;
