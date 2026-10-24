@@ -288,6 +288,7 @@ class MidoLink:
         # discovery. The Updater separately refuses installs without one.
         self._has_unit_provider = callable(getattr(backend, "physical_id", None))
         self._opened_unit = self._current_unit()
+        self._identity_broken = False
         self.q = queue.Queue()
         self.inp = mido.open_input(in_name, callback=self._rx)
         try:
@@ -298,7 +299,9 @@ class MidoLink:
         time.sleep(DELAY["open"])   # CoreMIDI may drop a message sent just after opening
 
     def _rx(self, msg):
-        if msg.type == "sysex":
+        # Observe the unit at callback time. A foreign packet must never sit
+        # in the queue waiting for the original unit to reappear.
+        if msg.type == "sysex" and self._same_unit():
             self.q.put(bytes([0xF0, *msg.data, 0xF7]))
 
     def _current_unit(self):
@@ -316,8 +319,16 @@ class MidoLink:
         # remains an unsupported OTA path, not an invitation to trust names.
         # With a genuine provider, reject a swapped endpoint on *every* send
         # and received reply, not just at the pre-write handshake.
-        return not self._has_unit_provider or (self._opened_unit is not None
-                                               and self._current_unit() == self._opened_unit)
+        if self._identity_broken:
+            return False
+        if not self._has_unit_provider:
+            return True
+        same = self._opened_unit is not None and self._current_unit() == self._opened_unit
+        if not same:
+            # This handle is forever tainted once replacement/disconnect is observed;
+            # returning to the old token does not authenticate queued MIDI replies.
+            self._identity_broken = True
+        return same
 
     @property
     def lost(self):

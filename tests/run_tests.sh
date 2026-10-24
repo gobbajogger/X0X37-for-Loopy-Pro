@@ -51,7 +51,7 @@ test_class() {
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
-    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity) TEST_CLASS=S ;;
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity|ota-unit-bounce) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -325,6 +325,7 @@ run ota-port-binding python3 tests/host/ota_port_binding_test.py tools/fm1_insta
 run ota-physical-handover python3 tests/host/ota_physical_handover_test.py  # USB rename, physical replacement and fail-before-upgrade
 run ota-raw-midi-names python3 tests/host/ota_raw_midi_names_test.py tools/fm1_install.py   # fail closed on duplicate raw input/output OS MIDI port names
 run ota-mid-session-identity python3 tests/host/ota_mid_session_identity_test.py tools/fm1_install.py   # defend every OTA/readback frame against same-name physical swap
+run ota-unit-bounce python3 tests/host/ota_unit_bounce_test.py tools/fm1_install.py   # sticky fail-closed unit swap callback and B->A foreign SysEx reply
 run installer-backup-snapshot python3 tests/fm1_install_backup_snapshot_test.py   # refresh migration plan after verified SMP_INFO backup
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
