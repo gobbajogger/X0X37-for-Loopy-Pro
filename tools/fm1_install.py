@@ -11,6 +11,7 @@ the FM-1 restarts and the installed identity is checked.
 
   fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots] [--ctl FILE | --no-ctl]
   fm1_install.py --info [--port NAME]
+  fm1_install.py --native-endpoints    # read-only native macOS pairing/capability report; no MIDI sends
 
 If the FM-1 is still in update mode (an earlier install was cut off), sample slots
 cannot be inspected or backed up there. Resume requires explicit --no-slots, only
@@ -1093,6 +1094,8 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("package", nargs="?", help="Felucca package (.fwsc)")
     ap.add_argument("--info", action="store_true", help="print the identity of the connected FM-1")
+    ap.add_argument("--native-endpoints", action="store_true",
+                    help="read-only native macOS endpoint pairs and capability limits; no MIDI messages")
     ap.add_argument("--port", metavar="NAME", help="MIDI port to use (part of its name)")
     ap.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
@@ -1108,6 +1111,13 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--config", choices=("dev", "rel"), default="dev",
                     help="the build config of the package for the gate guard: dev (X0X_DEV_PADCAL=1, default) or rel (0)")
     a = ap.parse_args(argv)
+    if a.native_endpoints:
+        if (backend is not None or a.package or a.info or a.port or a.yes or a.force or a.backup
+                or a.no_slots or a.ctl or a.no_ctl or a.commit or a.dev_record or a.head_ref
+                or a.head_check or a.config != 'dev'):
+            ap.error("--native-endpoints is a standalone read-only report; install options are refused")
+        import ota_coremidi
+        return ota_coremidi.report(out)
     if a.backup and a.no_slots:
         ap.error("--backup and --no-slots cannot be used together")
     if bool(a.info) == bool(a.package):

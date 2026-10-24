@@ -1,0 +1,9 @@
+PASS unique input/output permits one endpoint: result=found, opens=1
+PASS two distinct matching keyboards rejected: result=model, opens=2
+PASS duplicate raw input refused before opening any MIDI endpoint: result=model, opens=0
+PASS duplicate raw output refused before opening any MIDI endpoint: result=model, opens=0
+PASS duplicate loader input refused before opening any MIDI endpoint: result=model, opens=0
+PASS duplicate loader output refused before opening any MIDI endpoint: result=model, opens=0
+PASS explicit --port cannot override raw duplicate inputs: result=model, opens=0
+PASS unrelated duplicate names fail closed without pretending device identity: result=model, opens=0
+SUMMARY 8/8 PASS

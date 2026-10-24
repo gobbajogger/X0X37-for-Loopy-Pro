@@ -1,0 +1,26 @@
+  ok   installer
+  ok   installer-targets
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+  ok   slot-backup
+  ok   slot-backup-durable
+  ok   slot-archive-zone
+  ok   slot-verify-order
+  ok   slot-read-reply
+  ok   slot-ack-integrity
+  ok   slot-echo-7bit
+  ok   installer-slots
+  ok   installer-restore-status
+  ok   installer-ota-finish-ack
+  ok   ota-identity-reconnect
+  ok   ota-port-binding
+  ok   ota-physical-handover
+  ok   ota-raw-midi-names
+  ok   ota-mid-session-identity
+  ok   ota-unit-bounce
+  ok   ota-send-rebind
+  ok   ota-coremidi
+  ok   installer-backup-snapshot
+  ok   installer-ctl
+  ok   ctl-read-framing
+  ok   ctl-publish-atomic
+all tests passed

@@ -1,0 +1,21 @@
+PASS initial OTA handover selects exactly the originating model
+PASS initial OTA handover refuses foreign family loader
+PASS initial OTA handover refuses different SMK model loader
+PASS final verify ignores foreign and different-model devices
+PASS restore: select exact installed model and version
+PASS restore: do not run on foreign-only device
+PASS restore: do not run on different SMK model
+PASS restore: do not run on stale firmware version
+PASS controller readback: select exact installed model and version
+PASS controller readback: do not run on foreign-only device
+PASS controller readback: do not run on different SMK model
+PASS controller readback: do not run on stale firmware version
+PASS retain normal model-matched loader recovery
+PASS retain meaningful same-model wrong-version diagnostic
+PASS retain successful exact-version OTA verification
+PASS Elite to Pro migration selects package Pro loader and verifies installed Pro
+PASS Elite to Pro refuses stale Elite loader before firmware write
+PASS foreign-family install refused before handover/write
+PASS already in update mode: reject other-model loader before write
+PASS already in update mode: permit matching package-model loader
+CHECKS=20/20 FAILURES=0
