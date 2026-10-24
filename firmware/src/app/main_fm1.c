@@ -996,6 +996,7 @@ static uint16_t ck_qe[CK_QN];
 static uint8_t ck_qt[CK_QN], ck_qn;
 /* A new strum inherits pitches already sounding from earlier held keys. */
 static uint32_t ck_strum_keep[4];
+static uint32_t ck_clip_live[4];
 static void ck_q_run(uint32_t only);
 __attribute__((minsize)) static void ck_send(uint32_t st, uint32_t d1, uint32_t d2)
 {
@@ -1049,6 +1050,23 @@ CK_FN static void ck_on(uint32_t note)
     ck_qe[ck_qn] = (uint16_t)(note | v << 7);
     ck_qt[ck_qn++] = (uint8_t)(fm1_ms + late);
 }
+/* Non-ARP CLIP KEYS owns only pitches actually triggered or queued.
+ * Queued HUMAN notes are flushed by ck_send before their matching NoteOff. */
+CK_FN static void ck_clip_on(uint32_t note)
+{
+    if (CK_BIT(ck_clip_live, note))
+        return;
+    ck_clip_live[note >> 5] |= 1u << (note & 31u);
+    ck_on(note);
+}
+CK_FN static void ck_clip_off(uint32_t note)
+{
+    CK_BASE;
+    if (!CK_BIT(ck_clip_live, note))
+        return;
+    ck_clip_live[note >> 5] &= ~(1u << (note & 31u));
+    ck_send(0x80u | cp->ch, note, 0u);
+}
 /* key k: note on (st 0x90), note off (0x80), or note off that keeps the notes of the other sounding keys
  * (0x81: a key release) */
 CK_FN static void ck_key_send(uint32_t k, uint32_t st)
@@ -1066,9 +1084,9 @@ CK_FN static void ck_key_send(uint32_t k, uint32_t st)
     for (i = 0, n = ck_key_notes(k, out); i < n; i++)
         if (!CK_BIT(keep, out[i])) {
             if (st & 0x10u)
-                ck_on(out[i]);
+                ck_clip_on(out[i]);
             else
-                ck_send(0x80u | cp->ch, out[i], 0u);
+                ck_clip_off(out[i]);
         }
 }
 /* all keys that sound: note off (0x80) or on again (0x90), round a setting change */
@@ -1092,6 +1110,7 @@ CK_FN static void ck_all_off(void)
     cp->snd[0] = cp->snd[1] = 0;
     ck_arp_stop_note();
     cp->nk = 0;
+    memset(ck_clip_live, 0, sizeof ck_clip_live);
 }
 
 /* Project replacement ends notes using the old scale/chord and channel. Calibration,
@@ -1150,7 +1169,7 @@ CK_FN static void ck_strum(uint32_t dt)
     cp->acc += dt;
     for (; cp->nk <= n && (cp->nk - 1u) * gap <= cp->acc; cp->nk++)
         if (!CK_BIT(ck_strum_keep, out[cp->nk - 1u]))
-            ck_on(out[cp->nk - 1u]);
+            ck_clip_on(out[cp->nk - 1u]);
     if (cp->nk > n)
         cp->nk = 0;
 }

@@ -49,6 +49,7 @@ static void ck_send(uint32_t st, uint32_t n, uint32_t v) {
     else on[n]++;
 }
 static void ck_arp_stop_note(void) {}
+static void ck_q_run(uint32_t only) { (void)only; }
 '''
 TAIL = r'''
 #define CHECK(c, name) do { checks++; if (!(c)) { failures++; \
@@ -120,6 +121,28 @@ int main(void) {
           "no late duplicate after revoice");
     ck_release(0);
     CHECK(on[60] == off[60], "original strum note balanced");
+
+    reset();
+    ck_press(0, 100); ck_release(0);
+    CHECK(on[60] == 1 && off[60] == 1, "short strum sounding root balanced");
+    CHECK(!on[64] && !off[64] && !on[67] && !off[67],
+          "short strum no unplayed tone NoteOff");
+
+    reset();
+    ck_press(0, 100); ck_voice(0x80u); ck_voice(0x90u); ck_release(0);
+    CHECK(on[60] == 2 && off[60] == 2, "revoice strum sounding root balanced");
+    CHECK(on[64] == 1 && off[64] == 1 && on[67] == 1 && off[67] == 1,
+          "revoice strum delayed tones balanced");
+
+    reset();
+    ck_press(0, 100); ck_all_off();
+    CHECK(on[60] == 1 && off[60] == 1, "panic stops sounding root");
+    CHECK(!on[64] && !off[64] && !on[67] && !off[67],
+          "panic does not release unsounded tones");
+    ck_press(0, 100); ck_strum(1000); ck_release(0);
+    CHECK(on[60] == 2 && off[60] == 2 &&
+          on[64] == 1 && off[64] == 1 && on[67] == 1 && off[67] == 1,
+          "reentry after panic plays once");
     printf("clip_key_strum_overlap: %d checks, %d failures\n", checks, failures);
     return failures ? 1 : 0;
 }
@@ -146,7 +169,7 @@ def main():
     ap.add_argument("--cc", default=os.environ.get("CC", "cc"))
     args = ap.parse_args()
     source = Path(args.source).read_text(encoding="utf-8")
-    names = ("ck_key_send", "ck_voice", "ck_strum", "ck_press", "ck_release")
+    names = ("ck_key_send", "ck_voice", "ck_all_off", "ck_strum", "ck_press", "ck_release")
     functions = [window(source, n) for n in names]
     if any(f is None for f in functions):
         raise RuntimeError("production function missing")
@@ -156,7 +179,17 @@ def main():
         if not re.search(r'\bstatic\s+uint32_t\s+ck_strum_keep\s*\[\s*4\s*\]\s*;', source):
             raise RuntimeError("production strum ownership bitmap missing")
         prelude += "\nstatic uint32_t ck_strum_keep[4];\n" + snapshot + "\n"
-    c_source = prelude + "\n".join(functions) + TAIL
+    live = 'static uint32_t ck_clip_live[4];' in source
+    if live:
+        helpers = [window(source, name) for name in ('ck_clip_on', 'ck_clip_off')]
+        if any(h is None for h in helpers):
+            raise RuntimeError("clip MIDI ownership helper missing")
+        prelude += "\nstatic uint32_t ck_clip_live[4];\n" + "\n".join(helpers) + "\n"
+    tail = TAIL
+    if live:
+        tail = tail.replace('    memset(&ck, 0, sizeof ck);',
+                            '    memset(ck_clip_live, 0, sizeof ck_clip_live);\n    memset(&ck, 0, sizeof ck);')
+    c_source = prelude + "\n".join(functions) + tail
     with tempfile.TemporaryDirectory(prefix="x0x37-strum-") as d:
         cfile = Path(d, "strum.c")
         exe = Path(d, "strum")

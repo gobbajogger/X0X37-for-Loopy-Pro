@@ -43,6 +43,8 @@ def main():
     press_status = mark.group(1)
     send_src = function(src, 'ck_key_send')
     voice_src = function(src, 'ck_voice')
+    live = 'static uint32_t ck_clip_live[4];' in src
+    clip_helpers = (function(src, 'ck_clip_on') + '\n' + function(src, 'ck_clip_off')) if live else ''
     host = r'''
 #include <stdint.h>
 #include <stdio.h>
@@ -51,8 +53,9 @@ def main():
 #define CK_NKEY 37u
 #define CK_MAXN 7u
 #define CK_FN
+#define CK_M_ARP 1u
 #define CK_BIT(map, k) (((map)[(k) >> 5] >> ((k) & 31u)) & 1u)
-typedef struct { uint32_t snd[2]; uint8_t ch; } ck_state_t;
+typedef struct { uint32_t snd[2]; uint8_t ch, on, nk; } ck_state_t;
 static ck_state_t ck;
 #define CK_BASE ck_state_t *cp = &ck
 static int on[128], off[128], balance[128], errors, checks;
@@ -126,7 +129,11 @@ static int suite(void) {
 int main(void) { return suite(); }
 '''
     body = host.replace('#define CK_FN', '#define CK_FN\n#define PRESS_STATUS ' + press_status)
-    body = body.replace('static void reset(void)', send_src + '\n' + voice_src + '\nstatic void reset(void)')
+    if live:
+        body = body.replace('static ck_state_t ck;', 'static ck_state_t ck;\nstatic uint32_t ck_clip_live[4];')
+        body = body.replace('memset(&ck, 0, sizeof ck);',
+                            'memset(ck_clip_live, 0, sizeof ck_clip_live); memset(&ck, 0, sizeof ck);')
+    body = body.replace('static void reset(void)', clip_helpers + '\n' + send_src + '\n' + voice_src + '\nstatic void reset(void)')
     with tempfile.TemporaryDirectory(prefix='x0x37-clip-overlap-') as td:
         cfile = Path(td, 'clip_overlap.c')
         exe = Path(td, 'clip_overlap')
