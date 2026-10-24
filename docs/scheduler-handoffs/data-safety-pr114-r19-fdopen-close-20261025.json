@@ -21,7 +21,7 @@
   "test_method": "Real POSIX temporary files and failure injection executing the exact Git-matched production main() function source window with a synthetic archive parser; not a complete repository checkout, hardware or independent QA.",
   "tested_main_source_window_sha256": "6934bb5f9455211d695c8c0dbe0173e8fe850f611e8ced15eefba1165d2d132d",
   "registered_test_git_blob": "b0f499eb3b88b23c7210d2327d0e0c5655a92b7a",
-  "registered_test_sha256": "3c9f95116478fd60ae20fe50c58c71d013bf02563d33edc4dd6d6c895831b02",
+  "registered_test_sha256": "dcb838ffbdee499f017e0e888d655b0f303ebc924037869ff2fb9f3a93e31d57",
   "commands": [
     {
       "command": "python3 -B R19-test.py R18-main.py",
@@ -78,5 +78,6 @@
     "Hostile same-user filesystem races outside private trusted destination are not wholly eliminated.",
     "Both os.fstat(fd) and os.stat(fd) failure retains file for manual inspection by design."
   ],
-  "status": "PRODUCER SCOPED PASS; PR114 DRAFT/NEEDS CHANGES; no public NIGHTLY/native installation approval"
+  "status": "PRODUCER SCOPED PASS; PR114 DRAFT/NEEDS CHANGES; no public NIGHTLY/native installation approval",
+  "provenance_erratum": "R19 initial evidence draft had an incorrect test SHA256 transcription; the actual Git byte-identical registered test is Git blob b0f499eb3b88b23c7210d2327d0e0c5655a92b7a, SHA256 dcb838ffbdee499f017e0e888d655b0f303ebc924037869ff2fb9f3a93e31d57. This expected-head evidence-only followup corrects it; source and tests unchanged."
 }
