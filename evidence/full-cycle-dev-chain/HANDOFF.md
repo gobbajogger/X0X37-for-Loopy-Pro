@@ -5,9 +5,11 @@ Repository: `gobbajogger/X0X37-for-Loopy-Pro`.
 Branch that contains this prompt: `cursor/full-cycle-stage-workflow-d6ff`.
 Procedure: `AGENTS.md` and `docs/rules/workflow.md` on that branch.
 Parent: `bc-01a16f1a-08bd-72eb-b558-6c498238d6ff`.
-Successor agent id: pending until the new thread starts and this file is pushed again.
+Prompt commit: `e23170227ca4ae4b6cc2700692f4d650fa1b506b`.
+Successor agent id: `bc-ad31708d-5548-5785-bb62-75a54918e755`.
+Successor URL: https://cursor.com/agents/bc-ad31708d-5548-5785-bb62-75a54918e755
 
-This push prepares the handoff. It is not complete until the successor agent id below is on the remote.
+The handoff is complete when this id is on the remote.
 
 ## Scope
 
