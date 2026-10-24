@@ -19,7 +19,7 @@ assert.match(run, /!window\.confirm\(t\("otaconfirm"\)\)/);
 assert.match(html, /otaconfirm: "RECOVERY MODE/);
 assert.match(html, /otaconfirm: "復旧モード/);
 assert.match(run, /if \(writing\) return;/);
-assert.match(html, /if \(!image \|\| !selectedProduct \|\| writing \|\| \$\("go"\)\.disabled \|\|/);
+assert.match(html, /if \(writing \|\| ctlNeedsResolution \|\| \$\("go"\)\.disabled \|\|\s*!hasVerifiedNightlySelection/);
 let passed = 0;
 for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
   for (const mode of ["normal", "resume", "resume-cancel", "missing", "failure", "denied", "pending", "revoked"]) {
@@ -63,6 +63,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       setConnected: on => { state.connected = on; },
       currentVersion: () => ({ models: { elite: {}, pro: {} } }),
       isCatalogChecked: () => mode !== "revoked",
+       hasVerifiedNightlySelection: () => mode !== "revoked",
       sampleImage: new Uint8Array([1]),
       stock: null, TEXT: { en: { lost: "lost", otabackup: "Prior backup needed" } }, lang: "en",
       window: { confirm: () => { state.otaPrompts++; return mode !== "resume-cancel"; } },
@@ -144,6 +145,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       log() {}, led() {}, t: key => key,
       currentVersion: () => ({ models: { elite: {}, pro: {} } }),
       isCatalogChecked: () => false,
+       hasVerifiedNightlySelection: () => false,
       TEXT: { en: { slotbackup: "Backup error" } }, lang: "en",
       Blob, URL, setTimeout,
       document: { createElement: () => ({}), body: { appendChild() {} } },
