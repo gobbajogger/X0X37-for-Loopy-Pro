@@ -773,8 +773,12 @@ void smc_poll(void)
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
-            smc_mmc_drain_stop(src, allow);
+            /* A STOP callback can change projects and discard this ring.
+             * Do not read a stale slot or move the reset reader past its
+             * writer after smc_mmc_drain_stop() returns. */
             r = smc_mmc_r[src];
+            smc_mmc_drain_stop(src, allow);
+            if (smc_mmc_r[src] != r) break;
             __asm__ volatile("" ::: "memory");
             uint8_t cmd = smc_mmc_q[src][r % 16u];
             __asm__ volatile("" ::: "memory");

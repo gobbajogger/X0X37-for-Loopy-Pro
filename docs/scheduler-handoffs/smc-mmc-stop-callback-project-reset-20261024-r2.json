@@ -1,0 +1,207 @@
+{
+  "$schema": "x0x37.smc-transport-producer-evidence.v1",
+  "evidence_revision": "smc-mmc-stop-callback-project-reset-20261024-r2",
+  "date_utc": "2026-10-24",
+  "role": "LoopyX0X37 SMC Transport",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 122,
+  "isolated_lane": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "original_pr_head": "9258b4d2c5b2dd27860a51aae46f1a727b5d10de",
+  "original_root_tree": "1e3028a14a008b02bc7e46f5c5447539bae954f4",
+  "original_compiler_firmware_subtree": "665195450e4f03c41219f60498db0a786bc6c47b",
+  "original_source_C_blob": "e970effef45ded88e0599052866c0cefabedc043",
+  "original_test_blob": "7209944009ab3e6ce07ca878e4d4a12c58b38055",
+  "new_source_C_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+  "new_test_blob": "58bfd5b17c4abc7f5c3e6c872ddfbe157cb684d2",
+  "NEW_DISTINCT_compiler_firmware_subtree": "62f6e1c9bffc95e57c28d3d579261c2b1f4eab96",
+  "staged_root_without_this_evidence": "9165ebb9f3065bf18f8a4831249a27ded37ba218",
+  "changed_paths": [
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_mmc_stop_fifo_test.py",
+    "docs/scheduler-handoffs/smc-mmc-stop-callback-project-reset-20261024-r2.json"
+  ],
+  "failure": {
+    "trigger": "First 16 PLAYs fill MMC ring, then one overflowed STOP; 16 ISR-injected refill PLAYs each followed by an overflow STOP queue 17 distinct cutoffs. On second subsequent overflowed STOP callback while main loop still has queued input, mocked UI immediately performs smc_project_drop().",
+    "before": "smc_mmc_drain_stop() advances stop FIFO and executes callback which resets smc_mmc_r to w; smc_poll() continues with new r without rechecking and consumes stale 15 additional PLAYs; old-source native failure shows 34 emitted messages rather than 19; r=47, w=32 makes ring appear full.",
+    "after": "Read the MMC cursor before overflow STOP drain. If a STOP callback changed the reader (project drop), break instead of consuming a stale ring slot. Existing STOP FIFO remains unchanged.",
+    "negative_and_positive": "Runner exercises src=0/1, cursors=0,15,240,255, 40 unchanged prior cases plus 8 new project-reset-inside-STOP/next-project-recovery cases. Project reset from mocked guarded-button is a source-level negative, not physical demonstration."
+  },
+  "native_environment": {
+    "arch": "x86_64",
+    "kernel": "Linux 6.18.55",
+    "gcc": "14.2.0",
+    "clang": "17.0.0",
+    "python": "3.13",
+    "ASAN_OPTIONS": "detect_leaks=0"
+  },
+  "matrix": [
+    {
+      "source": "baseline PR122",
+      "compiler": "gcc",
+      "variant": "plain",
+      "flags": "",
+      "source_git_blob": "e970effef45ded88e0599052866c0cefabedc043",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 1,
+      "reason": "Expected runtime RED: reset-in-STOP resurrected old MMC item, count 34 rather than 19; reader 47 writer 32",
+      "log_sha256": "414a0f8942f8a115ad6db9eb3d86bf9325f2b7f660918652ff102eef9a0d0b5f",
+      "leak_detection": null
+    },
+    {
+      "source": "baseline PR122",
+      "compiler": "gcc",
+      "variant": "ubsan",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "source_git_blob": "e970effef45ded88e0599052866c0cefabedc043",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 1,
+      "reason": "Expected runtime RED: reset-in-STOP resurrected old MMC item, count 34 rather than 19; reader 47 writer 32",
+      "log_sha256": "bea1dff288aacee1da81ab501ec17e551c0926f6c21b9751e63ec502b6ae1da6",
+      "leak_detection": null
+    },
+    {
+      "source": "baseline PR122",
+      "compiler": "gcc",
+      "variant": "asan_ubsan",
+      "flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "source_git_blob": "e970effef45ded88e0599052866c0cefabedc043",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 1,
+      "reason": "Expected runtime RED: reset-in-STOP resurrected old MMC item, count 34 rather than 19; reader 47 writer 32",
+      "log_sha256": "fa4af72db25e02f2315c137d28024f948569165a49ac7ac2b119c1b1c1e9906e",
+      "leak_detection": "disabled"
+    },
+    {
+      "source": "baseline PR122",
+      "compiler": "clang",
+      "variant": "plain",
+      "flags": "",
+      "source_git_blob": "e970effef45ded88e0599052866c0cefabedc043",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 1,
+      "reason": "Expected runtime RED: reset-in-STOP resurrected old MMC item, count 34 rather than 19; reader 47 writer 32",
+      "log_sha256": "f114f4b911a1e26c4a60accf3bf31aed0d399d7df2328b9dc9d1501b67eaaf0b",
+      "leak_detection": null
+    },
+    {
+      "source": "baseline PR122",
+      "compiler": "clang",
+      "variant": "ubsan",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "source_git_blob": "e970effef45ded88e0599052866c0cefabedc043",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 1,
+      "reason": "Expected runtime RED: reset-in-STOP resurrected old MMC item, count 34 rather than 19; reader 47 writer 32",
+      "log_sha256": "61b27b44d818163ef2175bf7c9e009aeefa3a243e240a9732d39f93526fc5e91",
+      "leak_detection": null
+    },
+    {
+      "source": "baseline PR122",
+      "compiler": "clang",
+      "variant": "asan_ubsan",
+      "flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "source_git_blob": "e970effef45ded88e0599052866c0cefabedc043",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 1,
+      "reason": "Expected runtime RED: reset-in-STOP resurrected old MMC item, count 34 rather than 19; reader 47 writer 32",
+      "log_sha256": "44f19bce94d9e1e3c0b9d04bfe272a7e205b2d3112b073fd0cf91fd87ad7ef63",
+      "leak_detection": "disabled"
+    },
+    {
+      "source": "patched PR122",
+      "compiler": "gcc",
+      "variant": "plain",
+      "flags": "",
+      "source_git_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 0,
+      "assertions": "48/48 PASS (40 existing + 8 new)",
+      "log_sha256": "7220f840682ebf006552382ebe553b26140ea8446c4601f024b314adcd3a5277",
+      "leak_detection": null
+    },
+    {
+      "source": "patched PR122",
+      "compiler": "gcc",
+      "variant": "ubsan",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "source_git_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 0,
+      "assertions": "48/48 PASS (40 existing + 8 new)",
+      "log_sha256": "7220f840682ebf006552382ebe553b26140ea8446c4601f024b314adcd3a5277",
+      "leak_detection": null
+    },
+    {
+      "source": "patched PR122",
+      "compiler": "gcc",
+      "variant": "asan_ubsan",
+      "flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "source_git_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 0,
+      "assertions": "48/48 PASS (40 existing + 8 new)",
+      "log_sha256": "7220f840682ebf006552382ebe553b26140ea8446c4601f024b314adcd3a5277",
+      "leak_detection": "disabled"
+    },
+    {
+      "source": "patched PR122",
+      "compiler": "clang",
+      "variant": "plain",
+      "flags": "",
+      "source_git_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 0,
+      "assertions": "48/48 PASS (40 existing + 8 new)",
+      "log_sha256": "7220f840682ebf006552382ebe553b26140ea8446c4601f024b314adcd3a5277",
+      "leak_detection": null
+    },
+    {
+      "source": "patched PR122",
+      "compiler": "clang",
+      "variant": "ubsan",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "source_git_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 0,
+      "assertions": "48/48 PASS (40 existing + 8 new)",
+      "log_sha256": "7220f840682ebf006552382ebe553b26140ea8446c4601f024b314adcd3a5277",
+      "leak_detection": null
+    },
+    {
+      "source": "patched PR122",
+      "compiler": "clang",
+      "variant": "asan_ubsan",
+      "flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "source_git_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+      "runner": "python3 -B tests/host/smc_mmc_stop_fifo_test.py",
+      "exit": 0,
+      "assertions": "48/48 PASS (40 existing + 8 new)",
+      "log_sha256": "7220f840682ebf006552382ebe553b26140ea8446c4601f024b314adcd3a5277",
+      "leak_detection": "disabled"
+    }
+  ],
+  "python_syntax": "python3 -m py_compile tests/host/smc_mmc_stop_fifo_test.py exit 0",
+  "source_verification": {
+    "original_git_blob_checked_local": "e970effef45ded88e0599052866c0cefabedc043",
+    "patched_git_blob_checked_local": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+    "test_git_blob_checked_local": "58bfd5b17c4abc7f5c3e6c872ddfbe157cb684d2"
+  },
+  "private_artifact": {
+    "root_library_path": "/LoopyX0X37-SMC-MMC-StopReset-Producer-20261024.zip",
+    "library_file_id": "libfile_c355145ee0e0819198b65839062b1c55",
+    "size_bytes": 36805,
+    "sha256": "8ae5ebd82a00e2cf1c639d2cd56f7899d842a2a9c8a23ab442647ee509f5724e",
+    "zip_crc": "PASS",
+    "rematerialization_cmp": "PASS",
+    "contents": "GPL C baseline and corrected, test, header, logs, JSON, EN/RU README; no firmware/controller/SDK/DSP samples/user data"
+  },
+  "scope": "PRODUCER NATIVE SOURCE-WINDOW CHECKED; NOT INDEPENDENT FULL ROOT QA",
+  "new_target_build": "NOT RUN / REQUEST HOURLY BUILD EXACT NEW FIRMWARE SUBTREE",
+  "first_nightly_pr103": "DRAFT NO-GO, compiled firmware subtree 5c209609b770fd13949230aeb80956594fd6b741, must not graft automatically",
+  "consumers": [
+    "Independent QA exact new ROOT and project-drop/ISR concurrency",
+    "Hourly Build genuine Elite and Pro pinned native BUILD_ONLY + matching private controller",
+    "Sole firmware Safe Merge decides later after independent QA"
+  ],
+  "no_publication": "No production main/nightly/gh-pages, firmware/controller binary, OTA/flash, sample data, device PASS or installer link"
+}

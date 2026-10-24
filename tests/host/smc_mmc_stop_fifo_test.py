@@ -48,6 +48,7 @@ static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
 static struct { uint8_t up, fresh, picked, seen, knob_i, pending, known[128]; } smc;
 static int busy, testing, inject, injected, inject_source, log_count;
+static int reset_stop_n, stop_seen;
 static uint8_t log_notes[64];
 static int perf_testing(void) { return testing; }
 static int ui_project_busy(void) { return busy; }
@@ -63,6 +64,7 @@ static void smc_guarded_button(uint8_t note, int mmc, int allow)
  assert(mmc == 1);
  assert(log_count < 64);
  log_notes[log_count++] = note;
+ if (note == 0x5Du && ++stop_seen == reset_stop_n) smc_project_drop();
  if (note == 0x5Eu && injected < inject) {
   injected++;
   /* ISR runs after queue reader frees a slot and dispatch begins. */
@@ -74,7 +76,7 @@ static void smc_guarded_button(uint8_t note, int mmc, int allow)
 static void prep(unsigned src, uint8_t start)
 {
  memset(&smc,0,sizeof smc); memset(&ui,0,sizeof ui);
- proj.set.bt=PROJ_BT_SMC_USER;busy=testing=inject=injected=log_count=0;
+ proj.set.bt=PROJ_BT_SMC_USER;busy=testing=inject=injected=log_count=0; reset_stop_n=stop_seen=0;
  smc_qw=smc_qr=smc_host_w=smc_host_r=0;
  smc_mmc_w[0]=smc_mmc_r[0]=0;
  smc_mmc_w[1]=smc_mmc_r[1]=0;
@@ -111,6 +113,23 @@ static int test(unsigned src, uint8_t start, int mode)
     fprintf(stderr,"FAIL 17 unique STOP cutoffs j=%u\n",j);return 0;
    }
   }
+ }else if(mode==5){
+  /* On the second overflow STOP callback, a project change discards the
+   * remaining queue. Never consume an obsolete command or poison the ring. */
+  inject=16; inject_source=(int)src; reset_stop_n=2;
+  smc_poll(); smc_poll();
+  if(log_count!=19 || smc_mmc_r[src]!=smc_mmc_w[src] ||
+     smc_mmc_stop_r[src]!=smc_mmc_stop_w[src]) {
+   fprintf(stderr,"FAIL reset-in-STOP resurrected old MMC item: count=%d q=%u/%u stop=%u/%u src=%u start=%u\n",
+     log_count,smc_mmc_r[src],smc_mmc_w[src],
+     smc_mmc_stop_r[src],smc_mmc_stop_w[src],src,start);return 0;
+  }
+  inject=0;
+  smc_mmc_host(33,(uint8_t)src); smc_poll();
+  if(log_count!=20 || log_notes[19]!=0x5E || smc_mmc_r[src]!=smc_mmc_w[src]) {
+   fprintf(stderr,"FAIL reset poisoned next project MMC queue: count=%d q=%u/%u\n",
+      log_count,smc_mmc_r[src],smc_mmc_w[src]);return 0;
+  }
  }else if(mode==1){
   for(unsigned j=0;j<200;j++)smc_mmc_host(34,(uint8_t)src);
   smc_poll();smc_poll();
@@ -134,13 +153,13 @@ static int test(unsigned src, uint8_t start, int mode)
 int main(void)
 {
  int count=0;
- for(unsigned src=0;src<2;src++)for(unsigned i=0;i<4;i++)for(unsigned mode=0;mode<5;mode++){
+ for(unsigned src=0;src<2;src++)for(unsigned i=0;i<4;i++)for(unsigned mode=0;mode<6;mode++){
   uint8_t start=(const uint8_t[]){0,15,240,255}[i];
   if(!test(src,start,mode))return 1;
   count++;
  }
- assert(count==40);
- printf("SMC MMC STOP FIFO source-window: %d/40 PASS\n",count);
+ assert(count==48);
+ printf("SMC MMC STOP FIFO source-window: %d/48 PASS\n",count);
  return 0;
 }
 '''
