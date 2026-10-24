@@ -161,6 +161,26 @@ static int idle_switch(uint8_t cursor, int user)
        "preset switch must reset DAW/User pickup and feedback cache");
  return 1;
 }
+/* Old host NoteOff queued before a BLE link boundary must not clear a
+ * new direct-BLE Solo held after reconnect, even when User mode stays on. */
+static int stale_host_keyup_link(uint8_t cursor, int fresh_host)
+{
+ reset(cursor,1);
+ host_note(1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],"old User-host press holds Solo");
+ host_note(0);               /* queued but not yet decoded */
+ smc_ble_link(0);
+ smc_ble_link(1);             /* both edges before one poll */
+ if (fresh_host) host_note(1);
+ else ble_note(1,1);          /* fresh BLE press on same strip */
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],"fresh Solo must survive stale pre-edge host NoteOff");
+ if (fresh_host) host_note(0); else ble_note(1,0);
+ smc_poll();
+ CHECK(!solos_on && !smc.solo_target[0],"fresh matched key-up must release Solo");
+ return 1;
+}
 static int ordinary_release(uint8_t cursor, int user, int route)
 {
  reset(cursor,user);
@@ -195,6 +215,10 @@ int main(void)
   }
   if(!ordinary_release(cursors[i],1,1)) return 1;
   ++cases;
+  for(int fresh_host=0;fresh_host<2;fresh_host++) {
+   if(!stale_host_keyup_link(cursors[i],fresh_host)) return 1;
+   ++cases;
+  }
  }
  printf("SMC preset Solo lifetime: %u/%u scenarios PASS, %u checks\n",cases,cases,checks);
  return 0;

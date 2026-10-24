@@ -56,7 +56,7 @@ static int ui_project_busy(void) { return busy; }
 static int smc_project_active(void) { return 0; }
 static void smc_solo_clear(void) {}
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; }
-''' + prefix + '\n' + extract('smc_project_drop') + '\n' + extract('smc_mmc_host') + r'''
+''' + prefix + '\n' + extract('smc_is_solo_release') + '\n' + extract('smc_project_drop') + '\n' + extract('smc_mmc_host') + r'''
 static uint8_t smc_message(const uint8_t *msg, uint8_t len, int allow)
 { (void)msg; (void)len; (void)allow; return 0; }
 static void smc_guarded_button(uint8_t note, int mmc, int allow)

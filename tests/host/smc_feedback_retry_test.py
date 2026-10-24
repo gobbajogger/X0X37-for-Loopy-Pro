@@ -33,7 +33,7 @@ harness = r'''
 /* Actual published-link/ISR state consumed by production link + frame paths. */
 static volatile uint32_t smc_link_loss_seq, smc_link_ble_loss_boundary, smc_link_host_loss_boundary;
 static volatile uint32_t smc_link_published, smc_ble_solo_release_lost, smc_host_solo_release_lost;
-static volatile uint8_t smc_qw;
+static volatile uint8_t smc_qw, smc_host_w, smc_link_host_cutoff;
 static uint32_t smc_link_seen;
 void smc_ble_link(int up);
 #define CHECK(x) do { ++checked; if (!(x)) { ++failed; \
@@ -82,7 +82,7 @@ static void reset(void)
     smc_link_loss_seq = 0; smc_link_published = smc_link_seen = 1;
     smc_link_ble_loss_boundary = smc_link_host_loss_boundary = 0;
     smc_ble_solo_release_lost = smc_host_solo_release_lost = 0;
-    smc_qw = 0;
+    smc_qw = smc_host_w = smc_link_host_cutoff = 0;
 }
 static void expect_message(int idx, int seqidx)
 {

@@ -56,6 +56,10 @@ static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
  * presses. Publish both boundaries with the link under one seqlock. */
 static volatile uint32_t smc_link_loss_seq, smc_link_ble_loss_boundary,
                          smc_link_host_loss_boundary;
+/* At a BLE link boundary, pre-edge host Solo key-ups must not cancel a new
+ * direct-BLE press on the same physical strip. Other host commands remain
+ * queued and valid; the main loop discards only obsolete key-up messages. */
+static volatile uint8_t smc_link_host_cutoff;
 static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
     uint8_t type = st & 0xF0u;
@@ -167,6 +171,7 @@ void smc_ble_link(int up)
     __asm__ volatile("" ::: "memory");
     smc_link_ble_loss_boundary = smc_ble_solo_release_lost;
     smc_link_host_loss_boundary = smc_host_solo_release_lost;
+    smc_link_host_cutoff = smc_host_w;
     uint32_t next = (smc_link_published + 0x200u) & ~0x1FFu;
     smc_link_published = next | ((uint32_t)smc_qw << 1) | (uint32_t)(up != 0);
     __asm__ volatile("" ::: "memory");
@@ -691,6 +696,7 @@ static void smc_mmc_drain_stop(int src, int allow)
 void smc_poll(void)
 {
     uint32_t seq, link, ble_link_loss, host_link_loss;
+    uint8_t host_cutoff;
     /* The producer publishes link+release watermark together. Retry if an
      * interrupt changed either half while the main loop sampled them. */
     do {
@@ -700,6 +706,7 @@ void smc_poll(void)
         link = smc_link_published;
         ble_link_loss = smc_link_ble_loss_boundary;
         host_link_loss = smc_link_host_loss_boundary;
+        host_cutoff = smc_link_host_cutoff;
         __asm__ volatile("" ::: "memory");
     } while (seq != smc_link_loss_seq || (seq & 1u));
     uint8_t r, count = 0;
@@ -716,7 +723,8 @@ void smc_poll(void)
         smc_project_drop();
         return;
     }
-    if (link != smc_link_seen) {
+    int link_changed = link != smc_link_seen;
+    if (link_changed) {
         /* Never clear the ISR's publication: it may already contain a newer
          * link edge than this snapshot. The next poll must still see it. */
         smc_link_seen = link;
@@ -804,6 +812,14 @@ void smc_poll(void)
         memcpy(msg, smc_host_q[r % SMC_Q], sizeof msg);
         __asm__ volatile("" ::: "memory");
         smc_host_r = (uint8_t)(r + 1u);
+        /* A BLE edge already cleared every held Solo, including host-held
+         * keys. A queued pre-edge host NoteOff must not release a new BLE
+         * press dispatched earlier in this poll. Keep non-Solo host events
+         * and all post-edge releases; the 32-slot ring bounds this delta. */
+        if (link_changed && r != host_cutoff &&
+            (uint8_t)(host_cutoff - r) <= SMC_Q &&
+            smc_is_solo_release(msg[0], msg[1], msg[2]))
+            continue;
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_message(msg, sizeof msg, allow);
     }
