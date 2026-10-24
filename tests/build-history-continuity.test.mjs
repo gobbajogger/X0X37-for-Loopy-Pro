@@ -30,7 +30,7 @@ mustReject('deleted failure and forged unrelated failed row',rows=>{
 mustReject('compiler failure relabeled',rows=>rows[failure].status='source-only');
 mustReject('compiler log SHA forged',rows=>rows[failure].failed_build.pro.log_sha256='a'.repeat(64));
 mustReject('history reorder',rows=>{[rows[0],rows[1]]=[rows[1],rows[0]];});
-mustReject('latest source receipt removed',rows=>rows.pop());
+mustReject('last SHA256-pinned historical receipt removed',rows=>rows.splice(lock.rows.length - 1, 1));
 const appended=clone();
 appended.push({...appended.at(-1),id:'continuity-synthetic-future-source',source_commit:'f'.repeat(40)});
 check(appended);
