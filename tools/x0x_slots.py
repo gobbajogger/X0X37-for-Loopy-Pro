@@ -179,7 +179,8 @@ def read_bytes(link, k, off, n, progress=None):
         # silently ignores orphan masks and unused high bits in a short group.
         if pack7(got) != list(r[4:]):
             raise SlotError(f"slot {k + 1}: noncanonical SMP_READ frame at {adr:#x}")
-        if (r[0] != k or (r[1] | r[2] << 7 | r[3] << 14) != adr
+        if (r[0] != k or any(not 0 <= b < 128 for b in r[:4])
+                or (r[1] | r[2] << 7 | r[3] << 14) != adr
                 or not got or len(got) > want + (want & 1)):
             raise SlotError(f"slot {k + 1}: bad SMP_READ reply at {adr:#x}")
         out += got[:n - len(out)]
@@ -403,7 +404,7 @@ def _slot_ack(r, k, command, address=None):
     the command only, so a delayed response must not certify another write.
     """
     count = 5 if address is not None else 2
-    if (len(r) != count or r[0] != k or
+    if (len(r) != count or r[0] != k or any(not 0 <= b < 128 for b in r) or
             (address is not None and (r[1] | r[2] << 7 | r[3] << 14) != address)):
         raise SlotError(f"slot {k + 1}: mismatched or malformed {command} acknowledgement")
     return r[-1]

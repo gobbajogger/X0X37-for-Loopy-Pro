@@ -775,11 +775,18 @@ def read_ctl(ed, size):
         off, n = len(got), min(CTL_READ_N, size - len(got))
         r = xs.req(ed, ED_CTL_READ, [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, (n + 1) // 2],
                    CTL_READ["timeout"], CTL_READ["tries"])
-        if len(r) < 3 or r[0] | r[1] << 7 | r[2] << 14 != off:
+        if (len(r) < 3 or any(b & 0x80 for b in r[:3])
+                or r[0] | r[1] << 7 | r[2] << 14 != off):
             raise TimeoutError(f"bad ED_CTL_READ reply at {off:#x}")
-        d = xs.unpack7(r[3:])
-        if len(d) < n:
-            raise TimeoutError(f"short ED_CTL_READ reply at {off:#x} ({len(d)} of {n} B)")
+        wire = r[3:]
+        d = xs.unpack7(wire)
+        # The reply is a canonical pack7 frame for exactly the requested byte
+        # count; a final odd-byte request may be rounded up by one byte.
+        # Truncating surplus or accepting orphan masks could falsely certify
+        # controller readback after OTA, even if the supplied bytes match.
+        if (len(d) < n or len(d) > n + (n & 1)
+                or xs.pack7(d) != list(wire)):
+            raise TimeoutError(f"malformed ED_CTL_READ payload at {off:#x} ({len(d)} of {n} B)")
         got += d[:n]
     return bytes(got)
 
