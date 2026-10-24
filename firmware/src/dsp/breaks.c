@@ -40,6 +40,11 @@
  * IMA ADPCM tables and decoder step: ima_adpcm.h (from Felucca's eng_sample.c,
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hugelton Instruments, GPL-3.0). */
 #include "breaks.h"
+
+/* Build-time A/B: 0 runs original per-sample reverse advancement. */
+#ifndef BRK_FAST_REV_SKIP
+#define BRK_FAST_REV_SKIP 1
+#endif
 #include "fastmath.h"
 #include "ima_adpcm.h"
 
@@ -656,19 +661,43 @@ void breaks_render(breaks_t *b, float *out, int n)
                 continue;
             }
             v->frac += inc[j];
-            while (v->frac >= 1.0f) {
-                v->frac -= 1.0f;
-                v->s0 = v->s1;
-                if (v->rev) {
-                    v->pos = rev_next(v, v->pos);
-                    v->s1 = rev_fetch(v, k, v->pos);
-                } else {
-                    if (++v->pos >= k->n) {                /* BB Gen loops at the end; state 0/0 */
-                        v->pos = 0;
-                        v->pred = 0;
-                        v->idx = 0;
+            /* Reverse ADPCM is position-addressable. At high playback rates, do
+             * not fetch every skipped interpolation sample. Preserve the final
+             * two samples and the fraction for exactly the same PCM result.
+             * The forward path is stateful and deliberately stays unchanged.
+             * Limit the shortcut to floats with an exactly representable
+             * integral sample count, and retain the original path otherwise. */
+            #if BRK_FAST_REV_SKIP
+            if (v->rev && v->frac >= 32.0f && v->frac < 16777216.0f &&
+                v->hi > v->lo && v->pos >= v->lo && v->pos < v->hi) {
+                uint32_t steps = (uint32_t)v->frac;
+                uint32_t span = v->hi - v->lo;
+                uint32_t shift = steps % span;
+                uint32_t off = v->pos - v->lo;
+                uint32_t next_off = off >= shift ? off - shift : span - (shift - off);
+                uint32_t newpos = v->lo + next_off;
+                uint32_t prevpos = newpos < v->hi - 1u ? newpos + 1u : v->lo;
+                v->frac -= (float)steps;
+                v->s0 = rev_fetch(v, k, prevpos);
+                v->pos = newpos;
+                v->s1 = rev_fetch(v, k, newpos);
+            } else
+            #endif
+            {
+                while (v->frac >= 1.0f) {
+                    v->frac -= 1.0f;
+                    v->s0 = v->s1;
+                    if (v->rev) {
+                        v->pos = rev_next(v, v->pos);
+                        v->s1 = rev_fetch(v, k, v->pos);
+                    } else {
+                        if (++v->pos >= k->n) {                /* BB Gen loops at the end; state 0/0 */
+                            v->pos = 0;
+                            v->pred = 0;
+                            v->idx = 0;
+                        }
+                        v->s1 = (float)ima_decode(k->adpcm, v->pos, &v->pred, &v->idx);
                     }
-                    v->s1 = (float)ima_decode(k->adpcm, v->pos, &v->pred, &v->idx);
                 }
             }
         }
