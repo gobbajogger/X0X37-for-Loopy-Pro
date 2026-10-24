@@ -52,7 +52,7 @@ def extracted_classes(source):
     module = ast.fix_missing_locations(ast.Module(body=[copy.deepcopy(port_expr)] + classes,
                                            type_ignores=[]))
     ns = {'re': re, 'InstallError': InstallError, 'Device': Device,
-          'pair_output': lambda name, outs: name if name in outs else None,
+          'pair_output': lambda name, outs, backend=None: name if name in outs else None,
           'handshake': lambda _link, _tries: SimpleNamespace(text='SMK-37 Pro_900')}
     exec(compile(module, str(source), 'exec'), ns)
     return ns['MidoBackend'], ns['Updater']

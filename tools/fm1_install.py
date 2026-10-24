@@ -283,11 +283,14 @@ class MidoLink:
 
     def __init__(self, backend, in_name, out_name):
         import mido
-        self.backend, self.name, self.mido = backend, in_name, mido
+        self.backend, self.name, self.out_name, self.mido = backend, in_name, out_name, mido
         # A stable, non-reusable hardware unit ID is optional for read-only
         # discovery. The Updater separately refuses installs without one.
         self._has_unit_provider = callable(getattr(backend, "physical_id", None))
         self._opened_unit = self._current_unit()
+        # A matching MIDI label is not a unit identity. Bind BOTH directions.
+        self._has_output_provider = callable(getattr(backend, "output_physical_id", None))
+        self._opened_output_unit = self._current_output_unit()
         self._identity_broken = False
         self.q = queue.Queue()
         self.inp = mido.open_input(in_name, callback=self._rx)
@@ -314,6 +317,16 @@ class MidoLink:
             return None
         return value if isinstance(value, (str, bytes)) and value else None
 
+    def _current_output_unit(self):
+        provider = getattr(self.backend, "output_physical_id", None)
+        if not callable(provider):
+            return None
+        try:
+            value = provider(self.out_name)
+        except (OSError, ValueError):
+            return None
+        return value if isinstance(value, (str, bytes)) and value else None
+
     def _same_unit(self):
         # The native MidoBackend currently supplies no physical ID. That
         # remains an unsupported OTA path, not an invitation to trust names.
@@ -322,8 +335,13 @@ class MidoLink:
         if self._identity_broken:
             return False
         if not self._has_unit_provider:
-            return True
-        same = self._opened_unit is not None and self._current_unit() == self._opened_unit
+            # No physical-ID production backend may discover but not perform OTA.
+            return not self._has_output_provider
+        same = (self._opened_unit is not None
+                and self._has_output_provider
+                and self._opened_output_unit == self._opened_unit
+                and self._current_unit() == self._opened_unit
+                and self._current_output_unit() == self._opened_unit)
         if not same:
             # This handle is forever tainted once replacement/disconnect is observed;
             # returning to the old token does not authenticate queued MIDI replies.
@@ -388,14 +406,25 @@ class MidoBackend:
         return MidoLink(self, in_name, out_name)
 
 
-def pair_output(name, outs):
+def pair_output(name, outs, backend=None):
     if name in outs:
         return name
-    base = re.sub(r"\s+\d+$", "", name)     # Windows numbers each port
+    # Suffix-stripped Windows names are candidates, NOT hardware identity.
+    base = re.sub(r"\s+\d+$", "", name)
     same = [o for o in outs if re.sub(r"\s+\d+$", "", o) == base]
-    if len(same) == 1:
+    if len(same) != 1 or backend is None:
+        return None
+    input_id = getattr(backend, "physical_id", None)
+    output_id = getattr(backend, "output_physical_id", None)
+    if not callable(input_id) or not callable(output_id):
+        return None
+    try:
+        source, target = input_id(name), output_id(same[0])
+    except (OSError, ValueError):
+        return None
+    if isinstance(source, (str, bytes)) and source and source == target:
         return same[0]
-    return outs[0] if len(outs) == 1 else None
+    return None
 
 
 # --------------------------------------------------------------- updater ---
@@ -463,7 +492,7 @@ class Updater:
             token = self._physical(name)
             if self._bound_id is not None and token != self._bound_id:
                 continue
-            out = pair_output(name, outs)
+            out = pair_output(name, outs, self.backend)
             if not out:
                 continue
             try:

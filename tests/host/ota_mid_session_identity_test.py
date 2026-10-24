@@ -26,6 +26,9 @@ class PhysicalBackend:
     def input_names(self):
         return [self.name] if self.name else []
 
+    def output_physical_id(self, name):
+        return self.physical_id(name)
+
     def physical_id(self, name):
         if self.error:
             raise OSError('USB identity unavailable')

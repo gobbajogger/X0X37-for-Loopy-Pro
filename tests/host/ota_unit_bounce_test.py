@@ -31,6 +31,7 @@ class Backend:
     def __init__(self,token='unit-A',name='SMK-37 Pro'):
         self.token,self.name=token,name
     def physical_id(self,name): return self.token if name==self.name else None
+    def output_physical_id(self,name): return self.token if name==self.name else None
     def input_names(self): return [self.name]
 
 def load(path):

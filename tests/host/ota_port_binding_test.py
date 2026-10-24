@@ -91,7 +91,7 @@ def load_source(path):
              'wait_reboot': .4, 'idle_check': 0, 'idle_write': 0, 'retry': .02}
     ns = {'re': re, 'time': clock, 'DELAY': delay, 'Device': Device,
           'UPGRADE': b'upgrade', 'FINISH_CHECK': 111, 'FINISH_WRITE': 222,
-          'InstallError': InstallError, 'pair_output': lambda n, outs: n if n in outs else None,
+          'InstallError': InstallError, 'pair_output': lambda n, outs, backend=None: n if n in outs else None,
           'handshake': lambda link, tries=2: link.ident}
     exec(compile(compiled, str(path), 'exec'), ns)
 
