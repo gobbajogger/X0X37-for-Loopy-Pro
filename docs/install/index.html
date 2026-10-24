@@ -1645,26 +1645,35 @@ let loadSerial = 0;
 let scanSerial = 0;
 let verifiedDownload = null;
 function discardVerifiedDownload() {
-  if (verifiedDownload) URL.revokeObjectURL(verifiedDownload.href);
+  const previous = verifiedDownload;
   verifiedDownload = null;
+  image = null; selectedProduct = null;
   const link = $("download");
   link.removeAttribute("href");
   link.removeAttribute("download");
   link.hidden = true;
+  if (typeof previous?.href === "string") URL.revokeObjectURL(previous.href);
 }
 $("download").addEventListener("click", (event) => {
-  const v = currentVersion();
-  const p = v && chosenModel && v.models[chosenModel];
-  if (!hasVerifiedNightlySelection(v, p) || !verifiedDownload ||
-      verifiedDownload.pkg !== p || verifiedDownload.model !== chosenModel ||
-      verifiedDownload.version !== v.version ||
-      typeof verifiedDownload.href !== "string" ||
-      !verifiedDownload.href.startsWith("blob:") ||
-      $("download").href !== verifiedDownload.href) {
-    event.preventDefault();
-    discardVerifiedDownload();
-    updateInstallGate();
-  }
+  // Cancel before reading mutable catalog data. A malformed selection must
+  // never fall through to the anchor's previously verified Blob default action.
+  event.preventDefault();
+  try {
+    const { version: v, pkg: p } = currentSelection();
+    if (hasVerifiedNightlySelection(v, p) &&
+        $("download").href === verifiedDownload.href) {
+      const link = document.createElement("a");
+      link.href = verifiedDownload.href;
+      link.download = $("download").download;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return;
+    }
+  } catch { /* Any catalog or cached-state exception denies this click. */ }
+  loadSerial++; // Do not let an older async response restore denied admission.
+  discardVerifiedDownload();
+  updateInstallGate();
 });
 
 
@@ -1737,13 +1746,29 @@ async function scan() {
 
 $("connbtn").addEventListener("click", () => { scan(); });
 
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
 function versions() {
-  return (catalogLive.versions || []).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+  try {
+    const list = catalogLive?.versions;
+    if (!Array.isArray(list) || list.some(v => !isRecord(v) ||
+        typeof v.version !== "string" || !isRecord(v.models)) ||
+        new Set(list.map(v => v.version)).size !== list.length) return [];
+    return list.slice().sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true }));
+  } catch { return []; }
 }
 function currentVersion() {
-  const v = $("version").value;
-  return versions().find((x) => x.version === v) || null;
+  try { return versions().find(x => x.version === $("version").value) || null; }
+  catch { return null; }
 }
+function currentSelection() {
+  try {
+    const version = currentVersion();
+    return { version, pkg: version?.models?.[chosenModel] };
+  } catch { return { version: null, pkg: null }; }
+}
+
 function modelKeyForProduct(product) {
   return {"SMK-37 Pro_900":"pro", "SMK-37 Elite_900":"elite"}[product] || null;
 }
@@ -1804,7 +1829,7 @@ function refreshModelUi() {
   $("stocklinks").textContent = "";
 }
 function refreshMeta() {
-  const ver = currentVersion(), pkg = ver?.models?.[chosenModel];
+  const { version: ver, pkg } = currentSelection();
   const link = $("download");
   if (!isCatalogChecked(ver, pkg)) {
     $("pkgmeta").textContent = "";
@@ -1822,30 +1847,36 @@ function refreshMeta() {
   renderBuildInfo(ver, pkg);
 }
 function isCatalogChecked(v,p) {
-  if (catalogDenied(v) || catalogDenied(p) || v.status !== "dev-checked" ||
-      (p.status !== undefined && p.status !== "dev-checked") ||
-      p.fromRelease === true || v.models?.[chosenModel] !== p ||
-      modelKeyForProduct(p.product) !== chosenModel ||
-      !/^[0-9a-f]{64}$/.test(p.sha256 || "") ||
-      !/^[0-9a-f]{64}$/.test(p.controller_sha256 || "") ||
-      !Number.isSafeInteger(p.size) || p.size <= 960 || p.size > 2097152) return false;
   try {
+    if (!isRecord(v) || !isRecord(p) || catalogDenied(v) || catalogDenied(p) || v.status !== "dev-checked" ||
+        (p.status !== undefined && p.status !== "dev-checked") ||
+        p.fromRelease === true || v.models?.[chosenModel] !== p ||
+        modelKeyForProduct(p.product) !== chosenModel ||
+        !/^[0-9a-f]{64}$/.test(p.sha256 || "") ||
+        !/^[0-9a-f]{64}$/.test(p.controller_sha256 || "") ||
+        !Number.isSafeInteger(p.size) || p.size <= 960 || p.size > 2097152) return false;
     const u = new URL(p.pkg);
     return u.protocol === "https:" && !u.username && !u.password && !u.search && !u.hash &&
       u.href === p.pkg && u.pathname.includes(p.sha256);
   } catch { return false; }
 }
 function hasVerifiedNightlySelection(v,p) {
-  return isCatalogChecked(v,p) && !!image && selectedProduct === p.product &&
-    !!verifiedDownload && verifiedDownload.pkg === p && verifiedDownload.model === chosenModel &&
-    verifiedDownload.version === v.version && verifiedDownload.identity === selectionIdentity(v,p) &&
-    verifiedDownload.href.startsWith("blob:");
+  try {
+    return isCatalogChecked(v,p) && !!image && selectedProduct === p.product &&
+      !!verifiedDownload && verifiedDownload.pkg === p && verifiedDownload.model === chosenModel &&
+      verifiedDownload.version === v.version && verifiedDownload.identity === selectionIdentity(v,p) &&
+      typeof verifiedDownload.href === "string" && verifiedDownload.href.startsWith("blob:");
+  } catch { return false; }
 }
 
+function hasCurrentVerifiedSelection() {
+  const { version, pkg } = currentSelection();
+  return hasVerifiedNightlySelection(version, pkg);
+}
 function updateInstallGate() {
-  const v = currentVersion(), p = v && v.models && v.models[chosenModel];
+  const { version: v, pkg: p } = currentSelection();
   const checked = isCatalogChecked(v,p);
-  const needsAck = !!v && v.status === "dev-checked" && !$("devagree").checked;
+  const needsAck = checked && !$("devagree").checked;
   $("go").disabled = writing || !hasVerifiedNightlySelection(v,p) || needsAck;
   // This is explanatory UI only; the existing hash, package and write guards remain authoritative.
   $("installhint").textContent = t(writing ? "hintbusy"
@@ -1917,19 +1948,22 @@ async function loadSelectedPackage() {
   image = null; selectedProduct = null;
   $("go").disabled = true;
   refreshMeta();
-  const ver = currentVersion();
+  const { version: ver, pkg } = currentSelection();
   const model = chosenModel;
-  const pkg = ver && model && ver.models[model];
   if (!isCatalogChecked(ver, pkg)) { sayK("noproduct"); return; }
   // A verified response is usable only while the SAME model/version/package
   // remains selected and publisher-approved. An old request cannot re-enable Install.
-  const identity = selectionIdentity(ver, pkg);
+  let identity;
+  try { identity = selectionIdentity(ver, pkg); }
+  catch { sayK("unapproved"); return; }
   const isLatest = () => {
-    if (requestId !== loadSerial || chosenModel !== model) return false;
-    const current = currentVersion();
-    return !!current && current.version === ver.version &&
-      current.models && current.models[model] === pkg && isCatalogChecked(current, pkg) &&
-      selectionIdentity(current,pkg) === identity;
+    try {
+      if (requestId !== loadSerial || chosenModel !== model) return false;
+      const current = currentVersion();
+      return !!current && current.version === ver.version &&
+        current.models && current.models[model] === pkg && isCatalogChecked(current, pkg) &&
+        selectionIdentity(current,pkg) === identity;
+    } catch { return false; }
   };
   try {
     const r = await fetch(pkg.pkg, {redirect: "error"});
@@ -2175,9 +2209,9 @@ async function run(img, product, opts = {}) {
 }
 
 $("go").addEventListener("click", async () => {
-  if (writing || $("go").disabled || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]) || !$("devagree").checked) return;
+  if (writing || $("go").disabled || !hasCurrentVerifiedSelection() || !$("devagree").checked) return;
   if (!confirmWrite(selectedProduct)) return;
-  const ver = currentVersion(), pkg = ver && ver.models && ver.models[chosenModel];
+  const { version: ver, pkg } = currentSelection();
   const selectedImage = image, product = selectedProduct, controller = ctl, serial = loadSerial;
   $("go").disabled = true;
   if (pkg && pkg.controller_sha256) {
@@ -2188,7 +2222,7 @@ $("go").addEventListener("click", async () => {
         return;
       }
     } catch (e) { sayK("ctlbad", e.message); updateInstallGate(); return; }
-    if (writing || loadSerial !== serial || image !== selectedImage || ctl !== controller || selectedProduct !== product || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel])) {
+    if (writing || loadSerial !== serial || image !== selectedImage || ctl !== controller || selectedProduct !== product || !hasCurrentVerifiedSelection()) {
       updateInstallGate(); return;
     }
   }
@@ -2199,7 +2233,7 @@ $("go").addEventListener("click", async () => {
   $("go").disabled = true;   // sync before the first await in run()
   run(img, selectedProduct, { foreign: false, admitted: () => loadSerial === serial &&
     image === selectedImage && ctl === controller && $("devagree").checked &&
-    hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]) });
+    hasCurrentVerifiedSelection() });
 });
 $("stockgo").addEventListener("click", () => {
   if (!stock || !$("stockconfirm").checked || writing) return;

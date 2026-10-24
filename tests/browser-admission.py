@@ -56,7 +56,12 @@ def render():
 HTML=render().encode()
 class Server(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200);self.send_header('Content-Type','text/html');self.end_headers();self.wfile.write((ROOT/'docs/install/index.html').read_bytes() if self.path=='/empty/' else HTML)
+        path = self.path.split('?')[0]
+        page = {'/empty/':'docs/install/index.html', '/builds/':'docs/builds/index.html', '/build-status.json':'docs/build-status.json'}.get(path)
+        self.send_response(200)
+        self.send_header('Content-Type','application/json' if path.endswith('.json') else 'text/html')
+        self.end_headers()
+        self.wfile.write((ROOT/page).read_bytes() if page else HTML)
     def log_message(self,*a):pass
 srv=ThreadingHTTPServer(('127.0.0.1',0),Server);threading.Thread(target=srv.serve_forever,daemon=True).start()
 INIT='''window.pending=[];window.fetch=(url,opts)=>new Promise((resolve,reject)=>pending.push({url,opts,resolve,reject}));'''
@@ -170,6 +175,36 @@ async def main():
   await p.wait_for_function("typeof bodyReject==='function'");await p.evaluate("()=>{qa.select('elite');}");await reply(p,'elite')
   st=await state(p);await p.evaluate("bodyReject(Error('stale body failure'))");await p.wait_for_timeout(25)
   check((await state(p))==st,'stale response body rejection ignored');await p.close()
+  # Independent QA F1: a real click must cancel before malformed lookup can throw.
+  for mutation in [
+    'qa.catalog().versions[0].models=null', 'qa.catalog().versions={}',
+    'qa.catalog().versions[0]=null', 'qa.catalog().versions=null',
+    'qa.catalog().versions[0].models.pro=null',
+    'qa.catalog().versions[0].self=qa.catalog().versions[0]',
+    "Object.defineProperty(qa.catalog(),'versions',{get(){throw Error('malformed versions')}})",
+    "Object.defineProperty(qa.catalog().versions[0].models,'pro',{get(){throw Error('malformed model')}})",
+    "Object.defineProperty(qa.catalog().versions[0],'status',{get(){throw Error('malformed status')}})",
+  ]:
+   p,e=await ready(browser);downloads=[];p.on('download',lambda d:downloads.append(d))
+   await p.locator('#devagree').check()
+   await p.evaluate("$('download').addEventListener('click',event=>{window.cancelled=event.defaultPrevented})")
+   await p.evaluate('()=>{'+mutation+';}')
+   await p.locator('#download').click();await p.wait_for_timeout(100)
+   st=await state(p)
+   check(await p.evaluate('window.cancelled') and not downloads,'malformed actual click cancels download: '+mutation)
+   check(st['href'] is None and st['disabled'] and not st['image'] and not e,'malformed click clears cached admission without errors: '+mutation)
+   await p.close()
+  # Independent QA F2: render every real immutable row and inspect card content.
+  for width in [320,375,768,1280]:
+   p=await browser.new_page(viewport={'width':width,'height':900})
+   await p.goto(f'http://127.0.0.1:{srv.server_port}/builds/',wait_until='domcontentloaded')
+   await p.wait_for_function("document.querySelector('#history').children.length===117")
+   check(await p.locator('#history article').count()==117 and await p.locator('#builds article').count()==2,'actual history rows retained '+str(width))
+   geometry=await p.evaluate("""()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+    overflow:[...document.querySelectorAll('.item,.item h3,.item p,.item dd,.tag')]
+     .filter(el=>el.scrollWidth>el.clientWidth+1).map(el=>el.textContent.slice(0,80))})""")
+   check(geometry['scrollWidth']<=width and not geometry['overflow'],'full history and card content wrap '+str(width)+' '+json.dumps(geometry))
+   await p.close()
   # Actual DEV/stock listeners plus run(): no physical MIDI, held permission/install promises.
   for outcome in ['grant','deny','selection-change','revoked','interrupt','lookup-change']:
    p,e=await ready(browser);await p.evaluate('qa.installMocks()');await p.locator('#devagree').check();

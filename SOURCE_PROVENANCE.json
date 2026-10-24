@@ -3,7 +3,7 @@
   "upstreamCommit": "33c60ee9d3161de48b11ce890410384429983886",
   "upstreamPullRequest": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
   "publicSourceBlobs": {
-    "web/x0x_installer.html": "e170e222372ead0a0bcc09a0a519d9a0d7b37b69",
+    "web/x0x_installer.html": "ad8399392d3584dd2e84858e846cec336a4ff782",
     "web/x0x_breaks.html": "b988c3270ed974639f702900e120297ad0602b60",
     "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
     "web/fm1ota.js": "014f5fa3490f476554a17b08e941bde04c7eff74",
@@ -39,6 +39,14 @@
       "sourceCommit": "22d522a4cde4c18f92a846bc40d504b701cf6d17",
       "description": "Selectively adapted GPL verified-Blob, byte-size, selection binding, empty-catalog invalidation and pre-MIDI single writer safeguards; stricter NIGHTLY admission/revocation and current site acknowledgement retained",
       "resultBlob": "e170e222372ead0a0bcc09a0a519d9a0d7b37b69"
+    },
+    {
+      "path": "web/x0x_installer.html",
+      "sourceRepository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "sourceBaseCommit": "363b128793c3aecf49a6eca293d6ab74a1cd7f0b",
+      "reviewEvidenceCommit": "76e059e17db12265bf2062144eb7feee1df7e5f8",
+      "description": "Cancel Download default action before any mutable metadata lookup; total shape/predicate checks deny malformed selections and clear cached bytes; positive verified Blob downloads preserved",
+      "resultBlob": "ad8399392d3584dd2e84858e846cec336a4ff782"
     }
   ]
 }

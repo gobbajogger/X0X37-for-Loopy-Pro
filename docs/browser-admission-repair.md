@@ -82,3 +82,9 @@ immutable artifacts, deployed HTTP byte checks and physical devices were not
 part of this source stage. Elite and Pro remain NO INSTALLABLE YET. No main,
 nightly, gh-pages, firmware PR #121, tag, release, scheduler or device was changed.
 Parent owns downstream task creation; this stage creates no competing owner.
+
+R2 continues this repair after independent review found malformed-selection
+Download cancellation and actual-history overflow defects. The implementation,
+RED/GREEN logs, 208 registered Chromium assertions and unchanged independent
+82-case replay are recorded in [the R2 receipt](repair-evidence/r2/README.md).
+The PR remains draft pending a new independent exact-head verdict.

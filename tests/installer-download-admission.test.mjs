@@ -7,13 +7,15 @@ const source=readFileSync(new URL('../web/x0x_installer.html',import.meta.url),'
 assert.doesNotMatch(source,/mergeGitHubReleases|api\.github\.com\/repos\//);
 const span=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
 const context={chosenModel:'pro', URL};
-new Script(span('function modelKeyForProduct','function availableModels')+'\n'+
+new Script(span('function isRecord','function availableModels')+'\n'+
   span('function isCatalogChecked','function hasVerifiedNightlySelection')+'\nthis.admit=isCatalogChecked;').runInNewContext(context);
 const good={product:'SMK-37 Pro_900',sha256:'a'.repeat(64),controller_sha256:'b'.repeat(64),size:1024,pkg:`https://example.org/${'a'.repeat(64)}/test.fwsc`};
 const make=()=>({status:'dev-checked',version:'synthetic',models:{pro:{...good}}});
 let count=0;
 const check=(mutate,expected=false)=>{const v=make();mutate(v,v.models.pro);assert.equal(context.admit(v,v.models.pro),expected);count++;};
 check(()=>{},true);
+check((v,p)=>Object.defineProperty(p,'product',{get(){throw new Error('malformed getter');}}));
+{const v=make(),p=v.models.pro;Object.defineProperty(v,'models',{get(){throw new Error('malformed model map');}});assert.equal(context.admit(v,p),false);count++;}
 for(const field of ['revoked','blocked','withdrawn'])for(const value of [true,'false',1,{}]) {
   check(v=>v[field]=value);check((v,p)=>p[field]=value);
 }
