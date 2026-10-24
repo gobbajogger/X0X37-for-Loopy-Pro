@@ -264,6 +264,69 @@ static void local_play_echo_first_external_tick_phase(uint8_t echo)
     CHECK(count(&t, 0xFC, 0) == 0);
 }
 
+
+/* Same-block MIDI and physical gestures must partition queued F8 ticks at the
+ * LAST winning request, not at the first MIDI request or start of the block.
+ * Test both zero and nonzero post-request clock counts, with held 303 notes. */
+static void mixed_origin_epoch_partition(void)
+{
+    seq_t s; trace_t t;
+    init(&s, &t);
+    for (int i = 0; i < 3; ++i) incoming(&s, 0xF8);
+    incoming(&s, 0xFA);                      /* remote Start is superseded */
+    for (int i = 0; i < 2; ++i) incoming(&s, 0xF8);
+    seq_start(&s);                           /* LAST request is local Start */
+    incoming(&s, 0xF8);                     /* sole new-epoch downbeat */
+    advance(&s, &t);
+    CHECK(s.playing && s.start_local && s.ext);
+    CHECK(s.ext_q == 1u);
+    CHECK(count(&t, 0x91, 60) == 1);
+    CHECK(count(&t, 0x91, 64) == 0);
+    CHECK(count(&t, 0xFA, 0) == 0);         /* external clock: no local echo */
+    for (int i = 0; i < 5; ++i) incoming(&s, 0xF8);
+    advance(&s, &t);
+    CHECK(count(&t, 0x91, 64) == 0);
+    incoming(&s, 0xF8);
+    advance(&s, &t);
+    CHECK(count(&t, 0x91, 64) == 1);
+    seq_stop(&s);
+    advance(&s, &t);
+    CHECK(!s.playing);
+    CHECK(count(&t, 0x81, 60) == 1);
+    CHECK(count(&t, 0x81, 64) == 1);
+
+    init(&s, &t);
+    for (int i = 0; i < 7; ++i) incoming(&s, 0xF8);
+    seq_start(&s);                           /* all ticks belong to old epoch */
+    advance(&s, &t);
+    CHECK(s.playing && s.ext);
+    CHECK(s.ext_q == 0u);
+    CHECK(count(&t, 0x91, 60) == 0);
+    seq_stop(&s);                            /* Stop before the first downbeat */
+    advance(&s, &t);
+    CHECK(count(&t, 0x81, 60) == 0);         /* cannot release a never-sent note */
+    CHECK(!s.playing);
+
+    init(&s, &t);
+    for (int i = 0; i < 4; ++i) incoming(&s, 0xF8);
+    seq_start(&s);
+    incoming(&s, 0xF8);
+    incoming(&s, 0xFB);                      /* remote Continue supersedes Start */
+    incoming(&s, 0xF8);
+    seq_continue(&s);                        /* LAST request local Continue */
+    incoming(&s, 0xF8);
+    advance(&s, &t);
+    CHECK(s.playing && s.start_local && s.ext);
+    CHECK(s.ext_q == 1u);
+    CHECK(count(&t, 0x91, 60) == 1);
+    CHECK(count(&t, 0x91, 64) == 0);
+    CHECK(count(&t, 0xFB, 0) == 0);
+    incoming(&s, 0xFC);
+    advance(&s, &t);
+    CHECK(count(&t, 0x81, 60) == 1);
+    CHECK(count(&t, 0xFC, 0) == 0);
+}
+
 int main(void)
 {
     static const uint32_t blocks[] = {1u, 64u, 1024u};
@@ -276,6 +339,7 @@ int main(void)
         mixed_transport_origin_output();
         local_play_echo_first_external_tick_phase(0xFA);
         local_play_echo_first_external_tick_phase(0xFB);
+        mixed_origin_epoch_partition();
     }
     fprintf(stderr, "seq epoch/output linked: %d/%d checks %s\n", checks - errors, checks,
             errors ? "FAILED" : "PASSED");
