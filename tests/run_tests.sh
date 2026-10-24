@@ -298,6 +298,7 @@ run transport-origin python3 tests/host/seq_transport_origin_test.py --source fi
 run clock-epoch python3 tests/host/seq_clock_epoch_test.py --source firmware/src/seq/sequencer.c
 run seq-random-tie-preview sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_random_tie_lookahead_test tests/host/seq_random_tie_lookahead_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_random_tie_lookahead_test"   # BAS-03/06 RANDOM TIE gate prediction
 run clock-internal-queued-linked sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_internal_queue_firstnightly_test tests/host/seq_internal_queue_firstnightly_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_internal_queue_firstnightly_test"
+run transport-noteoff-linked sh -c "$CC $W -Ifirmware/src/seq -o $OUT/seq_transport_noteoff_linked_test tests/host/seq_transport_noteoff_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c -lm && $OUT/seq_transport_noteoff_linked_test"
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
 run bass303-sustain sh -c "$CC -std=c99 $W -Ifirmware/src/dsp -o $OUT/bass303_sustain_test tests/host/bass303_sustain_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_sustain_test"
