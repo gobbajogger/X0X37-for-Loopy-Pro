@@ -378,9 +378,26 @@ class Updater:
     def __init__(self, backend, port=None):
         self.backend = backend
         self.port = port
-        # Exact observed OS MIDI endpoint, not merely product/version text.
-        # A changed/reassigned port cannot be proven the same physical unit.
+        # Retain the originating name for diagnostics only. Never infer device
+        # continuity from MIDI identity, port display name or model/version.
         self._bound_port = None
+        self._bound_id = None
+
+    def _physical(self, name):
+        """Backend-authenticated stable per-unit ID, across USB re-enumeration.
+
+        A backend MUST use a genuine non-reusable physical identifier, such as
+        a hardware-unique serial, not a MIDI port name or USB location alone.
+        If it cannot, there is no safe cross-reboot write/restore path.
+        """
+        provider = getattr(self.backend, "physical_id", None)
+        if not callable(provider):
+            return None
+        try:
+            value = provider(name)
+        except (OSError, ValueError):
+            return None
+        return value if isinstance(value, (str, bytes)) and value else None
 
     def candidates(self, only_port):
         names = self.backend.input_names()
@@ -396,7 +413,8 @@ class Updater:
         outs = self.backend.output_names()
         matches = []
         for name in self.candidates(only_port):
-            if self._bound_port is not None and name != self._bound_port:
+            token = self._physical(name)
+            if self._bound_id is not None and token != self._bound_id:
                 continue
             out = pair_output(name, outs)
             if not out:
@@ -410,8 +428,15 @@ class Updater:
             except Exception:
                 link.close()
                 raise
+            # Never associate a link with a token if the physical device was
+            # replaced or disconnected while the handshake was in progress.
+            if token != self._physical(name):
+                link.close()
+                continue
             if ident and (want is None or want(ident)):
-                matches.append(Device(link, ident, name))
+                dev = Device(link, ident, name)
+                dev.physical_id = token
+                matches.append(dev)
             else:
                 link.close()
         if len(matches) > 1:
@@ -422,12 +447,13 @@ class Updater:
         return matches[0] if matches else None
 
     def wait_for(self, want, secs):
-        if self._bound_port is None:
-            raise InstallError("model", "cannot verify physical MIDI endpoint across reconnect; nothing was written")
+        if self._bound_id is None:
+            raise InstallError("model", "cannot authenticate physical device across reboot; "
+                                        "no firmware or sample write is allowed")
         end = time.monotonic() + secs
         while time.monotonic() < end:
-            # find is restricted to the original exact endpoint. The unfiltered
-            # candidate list is safe ONLY because find enforces _bound_port.
+            # The loader may legitimately use a new OS MIDI name. Accept only
+            # the original authenticated physical unit, never an identity match.
             dev = self.find(want, only_port=False)
             if dev:
                 return dev
@@ -486,10 +512,11 @@ class Updater:
 
     def write(self, ota, image, step):
         """step 2: the loader reads and writes the whole package, then restarts"""
-        if self._bound_port is None or ota.name != self._bound_port:
+        if (self._bound_id is None or getattr(ota, "physical_id", None) != self._bound_id
+                or self._physical(ota.name) != self._bound_id):
             ota.link.close()
-            raise InstallError("model", "the OTA loader is not on the original verified MIDI endpoint; "
-                                        "refusing to write firmware")
+            raise InstallError("model", "the OTA loader is not the authenticated original physical "
+                                        "keyboard; refusing to write firmware")
         step("write", 0)
         ota.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -528,9 +555,15 @@ class Updater:
         if not getattr(dev, "name", None):
             dev.link.close()
             raise InstallError("model", "the selected MIDI device has no verifiable port; refusing OTA write")
-        if self._bound_port is not None and self._bound_port != dev.name:
+        token = getattr(dev, "physical_id", None)
+        if token is None or token != self._physical(dev.name):
             dev.link.close()
-            raise InstallError("model", "the selected MIDI port changed before install; refusing OTA write")
+            raise InstallError("model", "the MIDI backend cannot authenticate a stable physical "
+                                        "keyboard identity. No update mode entered; nothing was written")
+        if self._bound_id is not None and self._bound_id != token:
+            dev.link.close()
+            raise InstallError("model", "the selected physical keyboard changed; refusing OTA write")
+        self._bound_id = token
         self._bound_port = dev.name
         if not same_keyboard(dev.id.text, product):
             dev.link.close()
