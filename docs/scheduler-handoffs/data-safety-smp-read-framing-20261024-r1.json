@@ -1,0 +1,93 @@
+{
+  "schema": "loopyx0x37/data-safety-source-handoff-v2",
+  "evidence_revision": "data-safety-smp-read-framing-20261024-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-smp-read-bounds-20261024-1211",
+  "consumed": {
+    "first_nightly_integration_pr": 103,
+    "base_commit": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+    "base_full_root": "2a2972589f360c064c7fd9ad51d420128ba56744",
+    "base_compiled_firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "first_candidate_evidence_revision": "safe-merge-pr103-durable-backup-pr107-20261024-r8",
+    "prior_data_safety_pr": 107,
+    "prior_data_safety_commit": "4760dec8d176ca9877413817c9cebcb8e7b4a571",
+    "prior_data_safety_disposition": "PR107 already merged into the existing isolated first-candidate integration branch; no duplicate source PR for that repair",
+    "original_read_source_blob": "6089d373af404997646919611a5445a6137d3561",
+    "original_test_runner_blob": "db0cacc324ef188b0ebc806b75deac6d8fb1d872"
+  },
+  "checked_source": {
+    "code_test_runner_commit": "0e6de9c7d8c70e06cd0af04ca18cd171759afa1d",
+    "code_test_runner_full_root": "3bea0fc5d0c59458bb77fbe88866b010fb23ab26",
+    "firmware_subtree_unchanged": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "changed_files": [
+      "tools/x0x_slots.py",
+      "tests/x0x_slots_read_reply_test.py",
+      "tests/run_tests.sh"
+    ],
+    "source_blob": "d00ad06b3c591a650ba7d5691dbf1e7b31a3601e",
+    "test_blob": "0f62b19120ea241a50df7faac33468d4d7918d06",
+    "runner_blob": "f47c5cb8db1630716363370868c63255ede80709",
+    "runner_mode": "100755",
+    "newly_registered_serial_test": "slot-read-reply",
+    "compiled_firmware_tree_change": false
+  },
+  "defect": "SMP_READ read_bytes() accepted a reply containing more unpacked bytes than the requested 2-byte pair count and silently returned only the prefix, and truncated replies could raise uncaught IndexError instead of a fail-closed SlotError. An invalid or corrupted read frame can therefore pass a readback response-shape check, although subsequent CRC may still detect content corruption. No physical data-loss claim.",
+  "change": "Require at least four echoed reply header bytes plus packed data; allow only the single extra byte required by an odd pair-count request; reject all larger decoded replies as SlotError before returning backup/readback bytes.",
+  "actual_native_host": {
+    "environment": "Linux container, Python 3; no linked firmware/device",
+    "exact_git_test_blob": "0f62b19120ea241a50df7faac33468d4d7918d06",
+    "limitations": "Source-window fixture transcribed from Git-exact helpers and read_bytes. Imports standard library only and uses fake scripted MIDI replies. DOES NOT execute complete Git repository root, real USB, OTA or physical device.",
+    "before": {
+      "command": "cd /mnt/data/datasafety_read_reply/old && python3 -B tests/x0x_slots_read_reply_test.py",
+      "exit": 1,
+      "tests": 10,
+      "failures": 2,
+      "errors": 1,
+      "log_sha256": "34ce5220b748ca09a762c27e2d5228909c18dc68c1a88402b93ce718a04bb502"
+    },
+    "after": {
+      "command": "cd /mnt/data/datasafety_read_reply/new && python3 -B tests/x0x_slots_read_reply_test.py",
+      "exit": 0,
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "log_sha256": "ec369819f07f6907513b8a32e7b1e2d333f738b95"
+    },
+    "optimized": {
+      "command": "cd /mnt/data/datasafety_read_reply/new && python3 -O -B tests/x0x_slots_read_reply_test.py",
+      "exit": 0,
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "log_sha256": "ec369819f07f6907513b8a32e7b1e2d333f738b95"
+    },
+    "syntax": {
+      "command": "cd /mnt/data/datasafety_read_reply/new && python3 -B -m py_compile tools/x0x_slots.py tests/x0x_slots_read_reply_test.py",
+      "exit": 0
+    },
+    "coverage": [
+      "normal even bytes",
+      "odd pair roundup",
+      "224-byte framing across multiple responses",
+      "valid shorter partial response",
+      "overlength even/odd response rejected",
+      "truncated header rejected as SlotError",
+      "no data rejected",
+      "wrong echo slot and address rejected"
+    ]
+  },
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_READY_FOR_INDEPENDENT_REVIEW",
+  "independent_qa": "PENDING actual complete PR checkout & registered host regression; additionally combine OTA backup/readback/restore, wrong-model, CRC, corruption and loss-of-connection negatives against exact first-nightly source.",
+  "build": "ELITE_PRO_CONTROLLER BUILD_ONLY IMMEDIATELY ALLOWED from exact source commit, though source/runner-only change does not alter compiled firmware/ subtree. No new native target compilation in this producer run.",
+  "device": "UNKNOWN — no device attached, read, written or flashed",
+  "publication": "NO_GO — missing independent full combined QA, model/controller/license/backup/integrity/immutable HTTP gates",
+  "next_owner_actions": [
+    "Independent QA: run actual complete-branch tests/x0x_slots_read_reply_test.py and neighboring archive/restore/installer negatives; assess partial SMP_READ response contract.",
+    "Sole Safe Merge: reconcile this producer PR into existing first-NIGHTLY candidate only after independent QA; preserve latest source safeguards and current shared head.",
+    "Hourly Build: can immediately compile exact source revision as BUILD_ONLY, independently of PR merge or QA; attest all inputs and controller/model hashes.",
+    "Catalog/Publisher: continue preserving previous safe live artifacts; do not offer owner install until full prehardware gates and immutable HTTP checks pass."
+  ],
+  "no_protected_writes": true,
+  "no_device_flash": true,
+  "no_public_firmware_publish": true
+}
