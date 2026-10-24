@@ -100,6 +100,7 @@ function goCase({hash,approvedHash="sha-2",withCtl=true,approved=true,pending=fa
     Uint8Array,$:()=>({disabled:false,addEventListener:(_e,f)=>{callback=f}}),
     currentVersion:()=>({models:{elite:{controller_sha256:approvedHash}}}),
     isCatalogChecked:()=>approved,hasVerifiedNightlySelection:()=>approved,confirmWrite:()=>true,
+    guardApprovedSelection:()=>()=>true, // R26 captures approved selection before mocked run().
     insertCtl:img=>{inserts++;return img;},run:()=>{writes++;},
     sayK:k=>errors.push(k),t:()=> "SHA mismatch"
   });
