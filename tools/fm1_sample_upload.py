@@ -49,14 +49,32 @@ class Link:
         ins = [n for n in mido.get_input_names() if "Felucca" in n or "X0X" in n]
         if not outs or not ins:
             sys.exit("no MIDI port named Felucca: connect the FM-1 (running Felucca) by USB")
+        # Never use the first input and first output independently. Even their
+        # shared display name is NOT a hardware-unique physical identity; this
+        # guard only prevents already-visible ambiguity and crossed MIDI ports.
+        if len(outs) != 1 or len(ins) != 1 or outs[0] != ins[0]:
+            sys.exit("ambiguous Felucca/X0X MIDI input/output ports: disconnect other "
+                     "keyboards and use one exact input/output name; no sample write was started")
         self.o = mido.open_output(outs[0])
-        self.i = mido.open_input(ins[0])
-        for _ in range(3):                          # the first frame after opening the port can be lost
-            try:
-                self.req(1, [], 1.0)
-                break
-            except TimeoutError:
-                pass
+        try:
+            self.i = mido.open_input(ins[0])
+        except BaseException:
+            self.o.close()
+            raise
+        try:
+            for _ in range(3):  # the first frame after opening may be lost
+                try:
+                    self.req(1, [], 1.0)
+                    break
+                except TimeoutError:
+                    continue
+            else:
+                sys.exit("selected sample MIDI device did not answer the initial query; "
+                         "refusing erase/restore/write")
+        except BaseException:
+            self.i.close()
+            self.o.close()
+            raise
 
     def req(self, cmd, args, timeout=3.0):
         for _ in self.i.iter_pending():

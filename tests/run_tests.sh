@@ -51,7 +51,7 @@ test_class() {
     install-slots-web) TEST_CLASS=W ;;
     installer|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
-    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity|ota-unit-bounce|ota-send-rebind|ota-output-endpoint) TEST_CLASS=S ;;
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot|ota-identity-reconnect|ota-port-binding|ota-physical-handover|ota-raw-midi-names|ota-mid-session-identity|ota-unit-bounce|ota-send-rebind|ota-output-endpoint|sample-link-target) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -309,6 +309,7 @@ command -v node >/dev/null 2>&1 && run breaks-page node web/test_breaks_page.mjs
 command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs   # exact project and sample bundles, transfer and recovery
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
+run sample-link-target python3 -B tests/host/sample_link_target_test.py tools/fm1_sample_upload.py  # fail closed before selecting sample erase/restore MIDI endpoints
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
 run slot-backup-durable python3 tests/x0x_slots_durable_backup_test.py   # directory fsync before OTA
 run slot-archive-zone python3 tests/x0x_slots_zone_guard_test.py   # CRC-valid malformed slot zones fail before flash writes
