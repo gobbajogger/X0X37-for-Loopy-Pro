@@ -206,6 +206,7 @@ run smc-drum-rs sh tests/host/smc_drum_rs_test.sh
 run smc-performance-abort sh tests/host/smc_performance_abort_test.sh
 run smc-filter python3 tests/host/smc_filter_test.py
 run smc-feedback python3 tests/host/smc_feedback_test.py
+run smc-feedback-retry python3 tests/host/smc_feedback_retry_test.py
 run smc-record-feedback sh tests/host/smc_record_feedback_test.sh
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh
