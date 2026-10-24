@@ -1,0 +1,116 @@
+{
+  "schema": "loopyx0x37-scheduler-handoff-v1",
+  "evidence_revision": "smc-pr43-trs-current-candidate-20261024-r1",
+  "date_utc": "2026-10-24",
+  "role": "LoopyX0X37 SMC Transport source producer",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "commit_sha": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+    "full_root_tree_sha": "9dc695fb9f4da4069362c24aa866f9b995b1b463",
+    "firmware_subtree_sha": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+    "evidence_revision": "safe-merge-pr103-smc79-63-73-prehardware-critical-repair-20261024-r9",
+    "engine_blob": "555480d9c81ca8b088842bfa6bac93e85865d49a",
+    "engine_host_routing_block_chars": 111,
+    "engine_host_routing_block_fnv1a32": "53e97d0e",
+    "defect": "midi_in source variable src is available, but unconditional smc_midi_host(pkt) admission mistakenly consumes source 2 TRS MIDI and source 3 unknown channel 16 User messages."
+  },
+  "producer": {
+    "pr": 43,
+    "branch": "lane/smc-host-trs-source-guard-20261023-1721",
+    "original_source_sha": "b949e7af42a00084eb3b1f695073d3258f8fcd8d",
+    "source_root_tree_sha": "7dfe277ac0df35e4979402faf1b32ed6d7175ff4",
+    "firmware_subtree_sha": "50bac932dc6711e8638eee042699aa08ebc71f33",
+    "engine_blob": "fd11e81d77a0aec1afb395a2ea5b070483d87ec4",
+    "engine_routing_block_chars": 122,
+    "engine_routing_block_fnv1a32": "edf04a3c",
+    "source_repair": "src < 2 && smc_midi_host(pkt) only for USB and peripheral BLE; TRS and unknown sources retain ordinary instrument MIDI.",
+    "regression": "tests/host/smc_sender_isolation_test.py",
+    "regression_blob": "076c3bd3c439b7d366574807264e8e5aeb0c7e98",
+    "registered_runner": "tests/run_tests.sh",
+    "registered_runner_blob": "4cef78c2e225de0fafacceff102b3785c626ebaa",
+    "registered_selector": "smc-sender-isolation",
+    "runner_registration_commit": "e1cfd70ac2d4a09b2a4cf7e16102f76ddf32e13f",
+    "runner_registration_root_tree": "228cff67e7abbf0037da30440ea1156bb85ede94",
+    "firmware_subtree_unchanged_by_new_test_registration": true
+  },
+  "native_execution": {
+    "host": "local Linux x86_64",
+    "command": "python3 -B /mnt/data/smc_gap_20261024/trs_route_regression.py",
+    "script_exit": 0,
+    "script_sha256": "9e3840855946b768a52f76964f9dcc93dd0ba485e1b56eabbf33e56d3dabb76a",
+    "source_match": "Both exact engine.c routing block windows (111 and 122 UTF-8 chars) authenticated against GitHub blobs and rechecked FNV32 53e97d0e and edf04a3c. Mocked smc_host_accept from Git header; not a whole checkout.",
+    "variants": [
+      "GCC UBSan",
+      "GCC ASan+UBSan",
+      "Clang UBSan",
+      "Clang ASan+UBSan"
+    ],
+    "candidate_compile_exits": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "candidate_run_exits": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "candidate_failure_per_variant": "3/9 assertions fail (TRS channel16 CC40, TRS Solo NoteOn, invalid source 3 CC40); expected safety negatives.",
+    "corrected_compile_exits": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "corrected_run_exits": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "corrected_checks_per_variant": "9/9 PASS",
+    "registered_real_full_remote_checkout_test": "NOT RUN",
+    "logs_sha256": {
+      "trs_candidate_gcc_ubsan": "caa5859337b57cfff4d27e23623ce712c26789a427397289f0ad87e872d585df",
+      "trs_candidate_gcc_asan_ubsan": "250e8dd23e69f51079202ff548379613d67f25234dde926620d99dc7a4d9d7fd",
+      "trs_candidate_clang_ubsan": "0b8961b3c12f5f8270ba4a54a0b18e76d69034bb8001532bda94adf6445a2e54",
+      "trs_candidate_clang_asan_ubsan": "48745b322e6288bef846c38c4e5669e1cbe8be23774e0d06f04bcf3d7db100ee",
+      "trs_corrected_gcc_ubsan": "518177159b59d5efa7439c8754f22fa212e85aa010e5fb4b0c6d10840976734a",
+      "trs_corrected_gcc_asan_ubsan": "1896bd79f97d59ba0686cefa6436c80e6cfcb2c6af814d9b67993c1fb683dc84",
+      "trs_corrected_clang_ubsan": "8f21fc10bd044bde48be2dd021452625a01abce91bc91a7f25d68e6aa2bbf5a3",
+      "trs_corrected_clang_asan_ubsan": "2e962420d0bc8c0a117fd967f64448722abd3bebb138dabc8815449794af1c3c"
+    }
+  },
+  "disposition": "PR43 SOURCE COMPLETE; producer-scope checked; READY FOR INDEPENDENT REVIEW, NOT QA APPROVED. PR103 current first NIGHTLY candidate still needs existing source guard integration. Build and publication pending.",
+  "next_handoffs": [
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Reconcile tested existing PR43 src<2 route guard into source integration PR103 without changing other SMC/clock/data-safety owners' code or touching protected NIGHTLY.",
+      "gate": "New exact full root, firmware subtree and independent native QA."
+    },
+    {
+      "owner": "Independent QA",
+      "action": "Execute registered smc-sender-isolation and broader source/model/SMC suites against newly combined actual checkout and review evidence.",
+      "gate": "Independent accepted current-root QA."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Build Elite/Pro and private controller BUILD_ONLY immediately from exact changed compiler inputs without waiting for QA, merge or hosting.",
+      "gate": "Native build and package SHA/model/flash safety evidence."
+    },
+    {
+      "owner": "Catalog & Publisher",
+      "action": "Preserve previous verified builds until independent prehardware safety, licensing and immutable HTTP checks.",
+      "gate": "Installable qualified NIGHTLY; device proof not required for NIGHTLY DEV hardware-test candidate."
+    }
+  ],
+  "limits": [
+    "Window-transcribed host mock only, not target firmware or independent full-source QA.",
+    "No physical TRS device, controller test, hardware PASS, published firmware or new per-build consent.",
+    "No direct protected refs, force writes, other producer source modifications or device flash."
+  ]
+}
