@@ -15,7 +15,11 @@ name, C4 = 60, else 60); without LO-HI the zones split the keyboard between thei
 These are one-shots: the silence at both ends is cut first (sampleio.trim_silence: -60 dBFS, 1 ms
 kept before the sound, 5 ms fade at the end); --no-trim keeps it. For loops use upload_breaks.py.
 A slot holds 80 KiB (about 7 s at 22050 Hz). Protocol: web/EDITOR_PROTOCOL.md, cmds 11..15.
-Needs mido (and a backend such as python-rtmidi) for the device commands.
+Read-only native MIDI info/backup and offline slot-image building remain supported.
+Native MIDI sample writes/erase/restore are intentionally disabled: the RtMidi
+backend cannot authenticate a physical unit or guarantee atomic output delivery.
+Matching MIDI names and successful read-only probes are not sufficient.
+Needs mido (and a backend such as python-rtmidi) for read-only device commands.
 """
 import sys
 import time
@@ -77,6 +81,16 @@ class Link:
             raise
 
     def req(self, cmd, args, timeout=3.0):
+        # RtMidi endpoint names and an SMP_INFO response cannot authenticate a
+        # physical unit, nor make the outgoing send atomic against a USB swap.
+        # Until the production backend provides an authenticated per-unit
+        # transaction, this native link is READ ONLY. This protects the sample
+        # upload, break upload and x0x_slots restore consumers of this Link.
+        if type(cmd) is not int or cmd not in (1, 15, 16):
+            sys.exit("native USB-MIDI sample writes are unsupported: no authenticated "
+                     "physical-device binding or atomic output delivery; no erase/write "
+                     "packet sent. Use offline build/show/extract, or await a separately "
+                     "qualified hardware-bound installer")
         for _ in self.i.iter_pending():
             pass
         self.o.send(self.mido.Message("sysex", data=HDR + [cmd] + list(args)))
