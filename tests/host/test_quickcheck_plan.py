@@ -95,6 +95,21 @@ run host-build sh host/probe.c
         self.assertEqual(self.plan()['tests'], [])
         self.assertFalse((self.repo / 'build/invoked').exists())
 
+    def test_project_skill_files_skip_target_builds(self):
+        for path in (
+            '.cursor/skills/loopyx0x37-classic-build/SKILL.md',
+            '.cursor/skills/loopyx0x37-classic-build/references/builds.md',
+            '.agents/skills/x0x37-workflow/SKILL.md',
+            'skills/x0x37-check/references/validation.md',
+        ):
+            self.assertEqual(PLAN.route(path), 'docs', path)
+        self.assertEqual(PLAN.route('unknown.json'), 'target')
+        self.put('.cursor/skills/loopyx0x37-classic-build/SKILL.md', '# Skill\n')
+        self.qc()
+        self.assertFalse(self.plan()['target'])
+        self.assertEqual(self.plan()['tests'], [])
+        self.assertFalse((self.repo / 'build/invoked').exists())
+
     def test_firmware_build_unknown_mixed_empty_and_odd_names(self):
         for paths in [[], ['firmware/source.c'], ['build.sh'], ['unknown.json'],
                       ['docs/start.md', 'firmware/source.c'], ['docs/odd name.md'],
