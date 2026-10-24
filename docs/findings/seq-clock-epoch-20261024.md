@@ -1,0 +1,8 @@
+# Sequencer Clock: MIDI transport epoch-ordering regression
+Consumed source parent `04cce762dda5fa473f44fb2463cb47b14f236fd5`, full-root tree `9073285b1b3203a13a2d0553e84db6686eb4cc5a`, compiled `firmware/` tree `117f773b11db7db9671329d7d12f30ed859f2e7b`. Exact native regression blob: `fd3f9996d5c55c20e11741137baadcc40cebfd1f`.
+
+The old source processed **all** queued MIDI F8 ticks after its Start/Continue request, even when a packet batch contained pre-Start ticks. Example: 6 ticks before Start + 2 ticks after Start could advance the newly started phase by 8, not 2. The patch records the queued count at the latest request; subtracts it only for an accepted request and clamps on cleared queues. A suppressed Loopy PLAY echo keeps all ticks. Other owners' BLE/SMC/storage/installer files remain untouched.
+
+Actual local Linux x86-64 **source-function projection** (not full firmware): GCC/Clang UBSan pre-fix 9/15 checks, expected execution exit 1, compile exit 0; patched 15/15 checks, execution exit 0, compile exit 0. The new regression Python file has the same Git blob as the locally executed script. `python3 -m py_compile` exit 0. Source windows use modeled sinks/structures; no full-source build, physical keyboard or installability claim.
+
+Hourly Build: compile Elite/Pro/controller BUILD_ONLY at the final exact pushed source SHA, independently of QA. Independent QA: linked source tests on combined #35/#41/#48/#55/#65/#80/#86/#90 paths, including clock ownership, live record and Note Off. Sole Safe Merge owns staged integration after review. Public NIGHTLY still requires complete prehardware/immutable hosting proof.

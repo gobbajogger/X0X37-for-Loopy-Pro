@@ -1,0 +1,75 @@
+{
+  "schema": "x0x37-specialist-test-evidence-v1",
+  "role": "Sequencer Clock",
+  "revision": "seqclock-pr90-mixed-origin-output-r22-20261024",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 90,
+  "parent_commit": "34e2c6cedcba04945e24fb142744406fdaf21ab7",
+  "parent_tree": "03d11ca532803d7f9f4b8e60f77ce1451b0224eb",
+  "source": {
+    "path": "firmware/src/seq/sequencer.c",
+    "before_blob": "97d8e456932e32b1b9503f01a7092f3ad555fc4e",
+    "after_blob": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+    "baseline_sha256": "3732c52189d9997bc79cfdcfeb43218310c946f9235322d20cced9caf8dcb816",
+    "patched_sha256": "a7de20c255cc94aa50acf9fa4dcac89dc172b521702e83dc8ea103d309ae6892",
+    "change": "Bind MIDI transport output suppression to the winning local/remote request while keeping clip-mode-off historical remote transport output. Separate Stop origin retained across Stop->Start.",
+    "affected_firmware_inputs": true
+  },
+  "test": {
+    "path": "tests/host/seq_transport_epoch_output_linked_test.c",
+    "previous_blob": "3100153b6811db62af1ef832f42da81d8fec1538",
+    "after_blob": "25bda45f05a6d378e312c32679e03086a49998ad",
+    "patched_sha256": "655f0a617a102c278e9a239cb985a922e192a372c43abb960118a6a6f97a11db",
+    "already_registered_selector": "transport-epoch-output-linked",
+    "actual_compilation": "-std=c11 -O1 -g -Wall -Wextra -Werror -fno-omit-frame-pointer; production linked sequencer/pattern/TB3PO source",
+    "native_matrix": [
+      "gcc plain",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang plain",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "baseline": {
+      "exit": 1,
+      "results": "243/261, 18 expected failures per variant",
+      "log_sha256": "de4847a83933c0e69b456a5f715aed02bd4f9c574d1550638d268eb1dcbbf214"
+    },
+    "after": {
+      "exit": 0,
+      "results": "261/261 passed per variant",
+      "log_sha256": "d6cd0ba5ddcb3d3d9e0a2de2586a74a6ae104c90ac14d2965b0e17d732ed6143"
+    },
+    "compatible_prior_native_tests": [
+      "seq_transport_noteoff_linked_test.c: gcc+clang 195/195 pass each",
+      "seq_transport_epoch_output_linked_test.c previous variant: gcc+clang 159/159 pass each"
+    ],
+    "cases": [
+      "remote Start -> local PLAY",
+      "remote Continue -> local Continue",
+      "remote Stop -> local Stop",
+      "remote Stop -> local Start",
+      "local Stop -> remote Start",
+      "legacy clip-mode-off remote Start echo",
+      "clip-mode-on remote no echo",
+      "INTERNAL remote ignored -> local Play",
+      "CLOCK OUT OFF",
+      "EXTERNAL no transport output",
+      "303 NoteOff exactly once",
+      "1/64/1024 frame audio block sizes"
+    ]
+  },
+  "known_limited_scope": [
+    "Link uses genuine Git-blob-identical production seq/pattern/tb3po units; does not link entire engine.c/USB/BLE/SMC/app/firmware",
+    "No full exact-root test; independent review is pending",
+    "Target Elite and Pro firmware/controller build not performed; compiled firmware input SHA changed",
+    "No device tested; no flash; no package/installer/Pages distribution"
+  ],
+  "first_nightly_champion": {
+    "pr": 103,
+    "head": "56c180450393f26859419ce13b479e45cb0c242d",
+    "compiled_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "status": "DRAFT OTA PHYSICAL TARGET NEEDS CHANGES, not modified"
+  },
+  "next": "Independent QA reviews exact new PR90 SHA against parent PR86, clock PR41 and candidate PR103; executes full current-root 8-selector tests; Hourly Build only when integrated source tree is eligible must rebuild BOTH Elite+Pro+controller for new compiler input subtree; Safe Merge owns integration. Do NOT publish or flash."
+}

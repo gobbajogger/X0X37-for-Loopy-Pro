@@ -148,6 +148,7 @@ typedef struct {
     uint32_t ext_beat[SEQ_EXT_BEATS]; /* ext_now at the last beats (24 external clocks each), a ring */
     uint8_t ext_nb, ext_bi, ext_q;    /* beats in the ring, the next ring slot, clocks into this beat */
     volatile uint32_t ext_pending;    /* external clocks received, not yet consumed */
+    volatile uint32_t req_prior_ticks;/* ticks queued before latest Start/Continue request */
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
@@ -160,6 +161,7 @@ typedef struct {
     uint8_t clk_cur;                  /* SEQ_CLK_*: the clock source that seq_advance applied */
     uint8_t clk_lost;                 /* EXTERNAL: no clock now, the pause (or the wait) is done */
     volatile uint8_t req_rt;          /* 1 = the pending Start or Continue came from MIDI in (seq_midi_rt) */
+    volatile uint8_t req_stop_rt;     /* 1 = pending Stop came from MIDI, not local PLAY */
     uint8_t start_local;              /* 1 = the last start came from PLAY (not from MIDI in) */
     uint32_t start_at;                /* ext_now at the last start */
     uint8_t clk_lock;                 /* the input that has the clock (MID-15): 0 none, else input + 1 */

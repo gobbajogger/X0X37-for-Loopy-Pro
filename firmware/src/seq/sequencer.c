@@ -409,7 +409,7 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
     }
 }
 
-static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
+static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote)
 {
     int t;
     for (t = 0; t < NBASS; t++)
@@ -431,11 +431,11 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
     }
     s->clk_to_next = 0;
     s->playing = 1;
-    if (!s->ext && s->send_clock && !s->midi_req)
+    if (!s->ext && s->send_clock && (!s->midi_req || !remote))
         midi(o, from_top ? 0xFA : 0xFB, 0, 0);
 }
 
-static void do_stop(seq_t *s, const seq_sink_t *o)
+static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote)
 {
     int b, t;
     s->playing = 0;
@@ -448,7 +448,7 @@ static void do_stop(seq_t *s, const seq_sink_t *o)
         s->t[t].ext_due = 0;
         s->t[t].rec_skip = 0;
     }
-    if (!s->ext && s->send_clock && !s->midi_req)
+    if (!s->ext && s->send_clock && (!s->midi_req || !remote))
         midi(o, 0xFC, 0, 0);
 }
 
@@ -606,6 +606,14 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
     s->clk_lost = 0;
     if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
         s->ext_pending = 0;
+        /* CLOCK SOURCE INTERNAL supersedes pending MIDI transport from the
+         * previous mode, but must not cancel a newer local PLAY/STOP. */
+        if (s->req_rt) {
+            s->req_start = s->req_cont = s->req_rt = 0;
+            s->req_prior_ticks = 0;
+        }
+        if (s->req_stop_rt)
+            s->req_stop = s->req_stop_rt = 0;
         if (s->ext)
             switch_internal(s);
     } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
@@ -652,9 +660,11 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         }
     }
     if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
+        uint8_t rt = s->req_stop_rt;
         s->req_stop = 0;
+        s->req_stop_rt = 0;
         if (s->playing)
-            do_stop(s, o);
+            do_stop(s, o, rt);
     }
     if (s->req_start || s->req_cont) {
         uint8_t rt = s->req_rt;
@@ -665,13 +675,18 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             s->ext_now - s->start_at < (seq_step_q8(s, part_rate(s, TRK_DRUM)) >> 8))
             s->req_start = s->req_cont = 0;
         else {
+            /* MIDI packets in one audio block may bracket Start/Continue.
+             * Count only ticks after an accepted request for its new phase.
+             * An ignored Loopy PLAY echo must retain every queued tick. */
+            s->ext_pending = s->ext_pending >= s->req_prior_ticks
+                ? s->ext_pending - s->req_prior_ticks : 0;
             if (s->req_start) {
                 s->req_start = 0;
-                do_start(s, 1, o);
+                do_start(s, 1, o, rt);
             }
             if (s->req_cont) {
                 s->req_cont = 0;
-                do_start(s, 0, o);
+                do_start(s, 0, o, rt);
             }
             s->start_local = (uint8_t)!rt;
             s->start_at = s->ext_now;
@@ -737,12 +752,14 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
 /* Publish the request type last: seq_advance must see its matching origin. */
 static void request_start(seq_t *s, int remote)
 {
+    s->req_prior_ticks = s->ext_pending; /* clocks before this request belong to the older epoch */
     s->req_cont = 0;
     s->req_rt = (uint8_t)remote;
     s->req_start = 1;
 }
 static void request_continue(seq_t *s, int remote)
 {
+    s->req_prior_ticks = s->ext_pending;
     s->req_start = 0;
     s->req_rt = (uint8_t)remote;
     s->req_cont = 1;
@@ -752,6 +769,7 @@ void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start
 {
     s->req_start = s->req_cont = s->req_rt = 0;
     s->req_stop = 1;
+    s->req_stop_rt = 0; /* local Stop supersedes any queued remote Stop */
 }
 void seq_continue(seq_t *s) { request_continue(s, 0); }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
@@ -762,7 +780,10 @@ int seq_midi_rt(seq_t *s, uint8_t st)
     case 0xF8: if (!internal) seq_ext_clock(s); return 1;
     case 0xFA: if (!internal) request_start(s, 1); return 1;
     case 0xFB: if (!internal) request_continue(s, 1); return 1;
-    case 0xFC: if (!internal) seq_stop(s); return 1;
+    case 0xFC: if (!internal) {
+        seq_stop(s);
+        s->req_stop_rt = 1; /* preserve remote Stop origin until audio apply */
+    } return 1;
     default: return 0;
     }
 }

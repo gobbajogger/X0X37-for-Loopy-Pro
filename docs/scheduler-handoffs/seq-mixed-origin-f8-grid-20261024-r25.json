@@ -1,0 +1,206 @@
+{
+  "schema": "loopyx0x37.seqclock.producer-evidence.v1",
+  "evidence_revision": "seqclock-pr90-mixed-origin-f8-grid-20261024-r25",
+  "producer_role": "LoopyX0X37 Sequencer Clock",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 90,
+  "parent_pr": 86,
+  "stage": "SOURCE TEST / SCOPED NATIVE HOST VERIFIED / INDEPENDENT QA PENDING",
+  "owned_branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "previous_commit": "7b3bccc2c93c0a688fcd93bb35d11d7b4bae7f4e",
+  "producer_test_commit": "32b613807ae5a43097138650208e2e9e1cb572dd",
+  "producer_test_root_tree": "4a1a0783144d20b0996a7b654c5307d4fb19eec9",
+  "firmware_compiler_subtree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "sequencer_source_blob": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+  "pattern_source_blob": "b6b667d023a912b13de8539168c61928182ffa23",
+  "linked_test_path": "tests/host/seq_transport_epoch_output_linked_test.c",
+  "old_test_blob": "2ef7caa3f7eaff4291782c83d7564b3366e8d580",
+  "new_test_blob": "bbf96253e2854bfcfd3df33d563b9ed0a5391ff8",
+  "new_test_sha256": "e72f8033233e779a885dd323ba7def5d145a4fd251d71caca1da46e2dd7d69ba",
+  "negative_source_local_only_sha256": "e47eef7fad6ae86df37a50ce0edebd65f565734c34721b515a600321ae85a91e",
+  "negative_mutation": "Remove pre-request F8 clock subtraction using the intentionally broken local-only earlier R24 sequencer clone (NOT committed)",
+  "coverage": {
+    "scenarios_per_frame_size": 560,
+    "frame_sizes": [
+      1,
+      64,
+      1024
+    ],
+    "total_scenarios": 1680,
+    "assertions_per_run": 28278,
+    "variants": [
+      "remote Start",
+      "remote Continue",
+      "local Play",
+      "local Continue",
+      "old/middle/post F8 counts",
+      "NoteOff after duplicate STOP",
+      "external echo suppression"
+    ]
+  },
+  "environment": {
+    "host": "Linux x86_64",
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "modes": [
+      "plain",
+      "UBSan",
+      "ASan+UBSan"
+    ],
+    "leak_sanitizer": "disabled; no leak-PASS"
+  },
+  "actual_test_results": [
+    {
+      "compiler": "gcc",
+      "sanitizer": "plain",
+      "variant": "positive",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "final_line": "seq epoch/output linked: 28278/28278 checks PASSED",
+      "log_sha256": "bb645435a16ed7beb5b425e13a8beeb6b5a1d8384122ae5a21694109c77bb711",
+      "log_size": 51,
+      "ok": true
+    },
+    {
+      "compiler": "gcc",
+      "sanitizer": "plain",
+      "variant": "negative",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "final_line": "seq epoch/output linked: 25353/28278 checks FAILED",
+      "log_sha256": "dd9ad209030afa99bcf957bf9c0f24bd81cb42d7544d0d07aad69e15f1121fb2",
+      "log_size": 124812,
+      "ok": true
+    },
+    {
+      "compiler": "gcc",
+      "sanitizer": "ubsan",
+      "variant": "positive",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "final_line": "seq epoch/output linked: 28278/28278 checks PASSED",
+      "log_sha256": "bb645435a16ed7beb5b425e13a8beeb6b5a1d8384122ae5a21694109c77bb711",
+      "log_size": 51,
+      "ok": true
+    },
+    {
+      "compiler": "gcc",
+      "sanitizer": "ubsan",
+      "variant": "negative",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "final_line": "seq epoch/output linked: 25353/28278 checks FAILED",
+      "log_sha256": "dd9ad209030afa99bcf957bf9c0f24bd81cb42d7544d0d07aad69e15f1121fb2",
+      "log_size": 124812,
+      "ok": true
+    },
+    {
+      "compiler": "gcc",
+      "sanitizer": "asan-ubsan",
+      "variant": "positive",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "final_line": "seq epoch/output linked: 28278/28278 checks PASSED",
+      "log_sha256": "bb645435a16ed7beb5b425e13a8beeb6b5a1d8384122ae5a21694109c77bb711",
+      "log_size": 51,
+      "ok": true
+    },
+    {
+      "compiler": "gcc",
+      "sanitizer": "asan-ubsan",
+      "variant": "negative",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "final_line": "seq epoch/output linked: 25353/28278 checks FAILED",
+      "log_sha256": "dd9ad209030afa99bcf957bf9c0f24bd81cb42d7544d0d07aad69e15f1121fb2",
+      "log_size": 124812,
+      "ok": true
+    },
+    {
+      "compiler": "clang",
+      "sanitizer": "plain",
+      "variant": "positive",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "final_line": "seq epoch/output linked: 28278/28278 checks PASSED",
+      "log_sha256": "bb645435a16ed7beb5b425e13a8beeb6b5a1d8384122ae5a21694109c77bb711",
+      "log_size": 51,
+      "ok": true
+    },
+    {
+      "compiler": "clang",
+      "sanitizer": "plain",
+      "variant": "negative",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "final_line": "seq epoch/output linked: 25353/28278 checks FAILED",
+      "log_sha256": "dd9ad209030afa99bcf957bf9c0f24bd81cb42d7544d0d07aad69e15f1121fb2",
+      "log_size": 124812,
+      "ok": true
+    },
+    {
+      "compiler": "clang",
+      "sanitizer": "ubsan",
+      "variant": "positive",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "final_line": "seq epoch/output linked: 28278/28278 checks PASSED",
+      "log_sha256": "bb645435a16ed7beb5b425e13a8beeb6b5a1d8384122ae5a21694109c77bb711",
+      "log_size": 51,
+      "ok": true
+    },
+    {
+      "compiler": "clang",
+      "sanitizer": "ubsan",
+      "variant": "negative",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "final_line": "seq epoch/output linked: 25353/28278 checks FAILED",
+      "log_sha256": "dd9ad209030afa99bcf957bf9c0f24bd81cb42d7544d0d07aad69e15f1121fb2",
+      "log_size": 124812,
+      "ok": true
+    },
+    {
+      "compiler": "clang",
+      "sanitizer": "asan-ubsan",
+      "variant": "positive",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "final_line": "seq epoch/output linked: 28278/28278 checks PASSED",
+      "log_sha256": "bb645435a16ed7beb5b425e13a8beeb6b5a1d8384122ae5a21694109c77bb711",
+      "log_size": 51,
+      "ok": true
+    },
+    {
+      "compiler": "clang",
+      "sanitizer": "asan-ubsan",
+      "variant": "negative",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "final_line": "seq epoch/output linked: 25353/28278 checks FAILED",
+      "log_sha256": "dd9ad209030afa99bcf957bf9c0f24bd81cb42d7544d0d07aad69e15f1121fb2",
+      "log_size": 124812,
+      "ok": true
+    }
+  ],
+  "validations_not_run": [
+    "whole Git root/native aggregate",
+    "Independent QA review",
+    "Elite target firmware/controller build",
+    "Pro target firmware/controller build",
+    "firmware RAM/flash budget",
+    "physical device",
+    "OTA backup/restore",
+    "public installer HTTPS/rehost",
+    "production promotion"
+  ],
+  "delivery": "test source Git push verified at producer_test_commit; this manifest delivered in later commit and verified separately",
+  "consumers": [
+    "existing Independent QA reviewer: exact final commit and full-root tests; do not self-approve",
+    "existing Hourly Build: prior compiled firmware subtree unchanged; reuse only if complete source/toolchain/SDK/config/controller input equality proven, otherwise new Elite/Pro BUILD_ONLY",
+    "sole Safe Merge: PR #103 merged separately; own integration gate for #90/#86 only after independent review"
+  ],
+  "notices": "Host source/GPL evidence only; never publish private ctl, SDK, vendor blobs, packages, backup data or samples."
+}
