@@ -395,29 +395,44 @@ def plan_restore(lay, meta, images, only=None):
     return todo, skipped
 
 
+def _slot_ack(r, k, command, address=None):
+    """Reject stale/wrong-slot or truncated write acknowledgements before continuing.
+
+    The device echoes slot for ERASE, BEGIN and END (two bytes), and both
+    slot and 21-bit offset for WRITE (five bytes). The host transport matches
+    the command only, so a delayed response must not certify another write.
+    """
+    count = 5 if address is not None else 2
+    if (len(r) != count or r[0] != k or
+            (address is not None and (r[1] | r[2] << 7 | r[3] << 14) != address)):
+        raise SlotError(f"slot {k + 1}: mismatched or malformed {command} acknowledgement")
+    return r[-1]
+
+
 def write_slot(link, k, img, progress=None):
     """erase slot k and write the image (None: erase only); raises SlotError on a device error"""
     if img is None:
         r = req(link, CMD_ERASE, [k], 30.0)
-        if r[1]:
+        if _slot_ack(r, k, "erase"):
             raise SlotError(f"slot {k + 1}: erase failed")
         return
     r = req(link, CMD_BEGIN, [k], 10.0)
-    if r[1]:
+    if _slot_ack(r, k, "begin"):
         raise SlotError(f"slot {k + 1}: begin (erase) failed")
     data = img[DATA_OFF:]
     for off in range(0, len(data), WRITE_LEN):
         adr = DATA_OFF + off
         args = [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F] + pack7(data[off:off + WRITE_LEN])
         r = req(link, CMD_WRITE, args)
-        if r[4]:
-            raise SlotError(f"slot {k + 1}: write at {adr:#x} failed ({r[4]})")
+        rc = _slot_ack(r, k, "write", adr)
+        if rc:
+            raise SlotError(f"slot {k + 1}: write at {adr:#x} failed ({rc})")
         if progress:
             progress(min(off + WRITE_LEN, len(data)), len(data))
     r = req(link, CMD_END, [k] + pack7(img[:HDR_LEN]), 5.0)
-    if r[1]:
-        raise SlotError(f"slot {k + 1}: the device refused the header ({r[1]}, {RC.get(r[1], '?')})")
-
+    rc = _slot_ack(r, k, "end")
+    if rc:
+        raise SlotError(f"slot {k + 1}: the device refused the header ({rc}, {RC.get(rc, '?')})")
 
 def restore(link, meta, images, only=None, verify=True, progress=None):
     """write the archive's slots back -> list of skipped-slot messages"""
