@@ -1,0 +1,14 @@
+You are the new stage-1 audit thread in the X0X37 full-cycle loop. Do not resume the parent thread bc-01a16f1a-08bd-72eb-b558-6c498238d6ff.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Start from the remote tip of cursor/full-cycle-stage-workflow-d6ff that contains evidence/full-cycle-dev-chain/SUCCESSOR-STAGE1.txt and docs/rules/workflow.md. That tip is the validated SHA for this audit. Fetch that branch. Do not switch to an older nightly commit.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/full-cycle-dev-chain/HANDOFF.md. You are stage 1 only. Inspect that SHA and record defects, evidence, affected scope, proposed fixes, existing approvals, and missing decisions. Make no production edits in the audit.
+
+Choose the next defect without asking: the oldest deferred defect from any cycle that is not already fixed in this SHA, then a recorded failing check that is not already fixed in this SHA, then the oldest open audit or bugfinder finding not already contained in this SHA.
+
+When the audit is recorded, hand off before you stop. Push the successor prompt first. Start exactly one new cloud thread with the Task tool: environment cloud, cloud_base_branch set to your pushed branch, run_in_background true, no resume. A recorded defect goes to stage 2. No recorded defect goes to a new stage 1. Write the returned agent id into your HANDOFF.md, commit it, and push that commit. The handoff is complete only when that id is on the remote. Then stop. Do not wait for the next thread to finish.
+
+If the tool returns no id, you still own the audit. Do not claim the next thread started. Do not call the Cloud Agents HTTP API. Do not use a local helper as the successor.
+
+Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread.
