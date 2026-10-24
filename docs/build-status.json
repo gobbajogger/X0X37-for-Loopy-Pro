@@ -2768,6 +2768,64 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "ecd79cab02a5595cf4e910490720e92e986c95ac",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/ecd79cab02a5595cf4e910490720e92e986c95ac"
+    },
+    {
+      "id": "data-safety-pr108-canonical-smp-read-20261024-r15",
+      "title": "Data Safety PR108 strict canonical sample-readback parsing",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-smp-read-canonical-20261024-0246",
+      "source_commit": "b85758ed84ee56cf116e782e509753923d02c4df",
+      "source_tree": "6e0716b027fec7d71b4de0244fcf4d74e6d28abb",
+      "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact Git source and data-safety-smp-read-canonical-20261024-r2 consumed; Catalog only SCOPED source/schema verification",
+        "command": null,
+        "result": "Producer source-window 15/15 checks exit 0 and Independent QA scoped 7/7 property groups passed, including seeded malformed pack7 reply negatives; no complete-root independent QA."
+      },
+      "description": "Read-only source/evidence milestone; not an eligible exact-source hardware firmware build. Owner device results UNKNOWN.",
+      "missing_gate": "Full PR103 root sample/SMP_READ/backup/restore/OTA QA; current matching Elite/Pro/controller build and licensable immutable HTTP.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/108",
+      "evidence_commit": "b85758ed84ee56cf116e782e509753923d02c4df",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/b85758ed84ee56cf116e782e509753923d02c4df"
+    },
+    {
+      "id": "integration-pr103-smc40-43-datasafety108-20261024-r15",
+      "title": "PR103 integrates SMC data7/TRS guards and strict sample readback; NEW build required",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+      "source_tree": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+      "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Exact Git source and safe-merge-pr103-smc40-43-data108-first-candidate-20261024-r10 consumed; Catalog only SCOPED source/schema verification",
+        "command": null,
+        "result": "Sole Safe Merge merged three reviewed scoped windows and registered tests, Git-verified four source parents and static checks; current compiled subtree CHANGED from 96709cae2835fc8680cfc81b54f01e95893a2b27. R9 private Elite/Pro/ctl bytes DO NOT attest new b3179883a83e9878b65a8a52385aa0210e866f05."
+      },
+      "description": "Read-only source/evidence milestone; not an eligible exact-source hardware firmware build. Owner device results UNKNOWN.",
+      "missing_gate": "Hourly Build exact changed subtree Elite/Pro/controller as BUILD_ONLY; Independent QA full ROOT 0ecdf6c2 all safety negatives; protected review, source/license/backup/model/immutable HTTP.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e"
     }
   ],
   "policy": {
@@ -2778,7 +2836,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 103
+    "source_or_historical_checkpoints": 105
   },
   "versioning": {
     "firmware_product_version": {

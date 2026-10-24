@@ -1512,5 +1512,126 @@
       "producer_sha": "64d55323192cd40dd269a475e63523164a0e0169",
       "branch_rediscovered_using": "GitHub get_pr_info(PR #73)"
     }
+  },
+  "closed_loop_cycle_20261024_r15": {
+    "revision": "catalog-pr3-smc40-43-pr108-first-candidate-r15-20261024",
+    "website": {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+      "consumed_head": "2b9cd0deea53611fb4b3f664ea460b790d2b5d39",
+      "full_root": "7058ee264d163bedeca65514e0cd849ab4906476",
+      "manifest_blob_before": "c8951774e3373b5a7628abcc8b8850bc1f0222e7",
+      "main": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+      "pages": "9c5d3b6b0846f89436492851fef89ed3829b7ad7"
+    },
+    "firmware": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "head": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+      "full_root": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+      "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+      "parents": [
+        "ecd79cab02a5595cf4e910490720e92e986c95ac",
+        "908722735c2040662af3a1263306358eb1eee79e",
+        "defb0d8307a143beb6cb05c5acf5d428fa9b0865",
+        "b85758ed84ee56cf116e782e509753923d02c4df"
+      ],
+      "revision": "safe-merge-pr103-smc40-43-data108-first-candidate-20261024-r10",
+      "prior_build_subtree": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+      "previous_private_binaries_qualify": false,
+      "protected_nightly": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+    },
+    "producers": [
+      {
+        "pr": 40,
+        "sha": "908722735c2040662af3a1263306358eb1eee79e",
+        "root": "329f0a6d9b9d01381aa3a483162bf9255aa311bb",
+        "subtree": "c88df4c40fe756c57ddcad39112e1d136a3c66c4",
+        "revision": "smc-pr40-current-candidate-data7-negative-20261024-r1"
+      },
+      {
+        "pr": 43,
+        "sha": "defb0d8307a143beb6cb05c5acf5d428fa9b0865",
+        "root": "7d4cbf35e6ee6299f0acc590a84b0226beac2677",
+        "subtree": "50bac932dc6711e8638eee042699aa08ebc71f33",
+        "revision": "smc-pr43-trs-current-candidate-20261024-r1"
+      },
+      {
+        "pr": 108,
+        "sha": "b85758ed84ee56cf116e782e509753923d02c4df",
+        "root": "6e0716b027fec7d71b4de0244fcf4d74e6d28abb",
+        "subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+        "revision": "data-safety-smp-read-canonical-20261024-r2"
+      }
+    ],
+    "existing_catalog_pr40_pr43": [
+      "smc-user-malformed-data-pr40",
+      "smc-trs-source-guard-pr43"
+    ],
+    "history": {
+      "before": 103,
+      "after": 105,
+      "added": [
+        "data-safety-pr108-canonical-smp-read-20261024-r15",
+        "integration-pr103-smc40-43-datasafety108-20261024-r15"
+      ],
+      "prior_prefix_unchanged": true,
+      "legacy_dev_generations": 2,
+      "download_urls_added": 0
+    },
+    "actual_commands": [
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "stderr": "Could not resolve host github.com"
+      },
+      {
+        "command": "curl -IL --connect-timeout 5 --max-time 9 https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly",
+        "exit": 6,
+        "stderr": "Could not resolve host api.github.com"
+      },
+      {
+        "command": "node --version",
+        "exit": 0,
+        "stdout": "v22.16.0"
+      },
+      {
+        "command": "GitHub connector GET exact PR refs, Git commits/tree, source/status/validator bytes",
+        "exit": 0,
+        "scope": "Git-identity, not native exact full-root QA"
+      },
+      {
+        "command": "Git-source-exact validator in V8, only Node import/fs/assert/vm boundaries substituted",
+        "exit": 0,
+        "valid": 2,
+        "malicious": 14,
+        "assertions": 53710,
+        "scope": "SCOPED_TEST_NOT_NATIVE_NPM_QA"
+      }
+    ],
+    "tests": {
+      "catalog_validator": "SCOPED_TEST_PASS_IMPORT_FS_ASSERT_VM_BOUNDARY_ADAPTED",
+      "negative_fixtures": "14 malicious synthetics rejected, 2 positives accepted",
+      "native_full_branch_npm_test": "NOT_RUN_NATIVE_GIT_DNS_128",
+      "native_full_branch_npm_build": "NOT_RUN_NATIVE_GIT_DNS_128",
+      "responsive_browser": "NOT_RUN",
+      "firmware_compilation_by_catalog": "NOT_RUN_OTHER_OWNER",
+      "firmware_full_root_independent_QA": "PENDING",
+      "live_immutable_http": "NOT_VERIFIED",
+      "owner_hardware": "UNKNOWN",
+      "source_generated_parity": true,
+      "scoped_assertions": 53710
+    },
+    "status": "SOURCE_ONLY__NO_INSTALLABLE_ELITE_OR_PRO",
+    "next_owner": "Independent NIGHTLY Website QA",
+    "next_action": "Review new exact PR3 head with complete native npm/build/schema/negative/Chromium; then sole Website Main Merger; parallel Hourly Build fresh Elite+Pro+ctl for b3179883, firmware Independent QA root 0ecdf6c2; publisher only after license/model/backup/integrity/immutable HTTP",
+    "safeguards": {
+      "no_force": true,
+      "no_protected_ref": true,
+      "no_gh_pages": true,
+      "no_public_vendor_or_firmware_bytes": true,
+      "no_device_flash": true,
+      "physical_hardware_pass_is_not_nightly_prerequisite": true
+    }
   }
 }
