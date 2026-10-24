@@ -912,7 +912,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
         drain();
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
-        if (mot_on && seq.playing)
+        if (mot_on && seq.playing && !seq_clock_waiting(&seq))
             motion_tick(&mot, n);
         PROF_ADD(7, pt);
     }

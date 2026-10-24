@@ -13,7 +13,7 @@ P.add_argument('root', type=Path, nargs='?', default=Path(__file__).resolve().pa
 args = P.parse_args()
 root = args.root.resolve()
 engine = (root / 'firmware/src/app/engine.c').read_text()
-matches = re.findall(r'if\s*\(\s*mot_on(?:\s*&&\s*seq\.playing)?\s*\)\s*motion_tick\s*\(\s*&mot\s*,\s*n\s*\)\s*;', engine)
+matches = re.findall(r'if\s*\(\s*mot_on(?:\s*&&\s*seq\.playing)?(?:\s*&&\s*!seq_clock_waiting\s*\(\s*&seq\s*\))?\s*\)\s*motion_tick\s*\(\s*&mot\s*,\s*n\s*\)\s*;', engine)
 if len(matches) != 1:
     raise SystemExit(f'Expected one engine motion_tick guard; found {len(matches)}')
 guard = matches[0]
@@ -25,6 +25,7 @@ harness = r'''
 static motion_t mot;
 static int mot_on;
 static struct { int playing; } seq;
+static int seq_clock_waiting(const void *s) { (void)s; return 0; }  /* idle test has no external clock */
 static int applied;
 static int base(void *ctx,int t,int v,int i) { (void)ctx;(void)t;(void)v;(void)i; return 0; }
 static void apply(void *ctx,int t,int v,int i,int val) {
