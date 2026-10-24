@@ -1,0 +1,5 @@
+X0X37 artifact hosting transport probe
+Date: 2026-10-24
+Purpose: verify supported Git blob and commit-pinned raw HTTP transport only.
+This plain-text file is not firmware, a controller image, an SDK, or a toolchain.
+No private data is included. No hardware or installability claim is made.
