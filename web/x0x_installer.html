@@ -1096,7 +1096,7 @@ $("go").addEventListener("click", async () => {
   }
   let img = image;
   if (ctl) {
-    try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
+    try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); updateInstallGate(); return; }
   }
   $("go").disabled = true;   // sync before the first await in run()
   run(img, selectedProduct, { foreign: false });

@@ -99,4 +99,7 @@ await click(new Uint8Array([9])); assert.equal(runs, 0);
 await click(ctl); assert.equal(runs, 1);
 context.sha256Hex = async b => { context.loadSerial++; return hash(b); };
 await click(ctl); assert.equal(runs, 0);
+context.sha256Hex = async b => hash(b);
+context.insertCtl = () => { throw new Error('controller cannot fit package'); };
+await click(ctl); assert.equal(runs, 0); assert.equal(go.disabled, false);
 console.log(`PASS: qualified local rendering, ${negatives} rejection cases, download-byte verifier and controller/race write guards. Synthetic evidence only; NOT candidate QA.`);
