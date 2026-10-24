@@ -1,0 +1,20 @@
+{"case":"stable-parent-control","exit":0,"wrote_inside":false,"stderr":""}
+{"case":"async-parent-rebind","exit":0,"wrote_inside":true,"stderr":""}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: parent rebound inside source during awaited fetch must reject
+    at file:///workspace/nightly-browser-repair/tests/qualified-catalog.test.mjs:166:14
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 0,
+  operator: 'notStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

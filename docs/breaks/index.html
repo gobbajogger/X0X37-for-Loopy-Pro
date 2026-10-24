@@ -684,8 +684,15 @@ async function installKeepingSlots(up, image, product, board, hooks) {
   const dev = await up.find((id) => !/^ota-/i.test(id.model));
   if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
   else if (dev) {
+    up.bind(dev);
     try {
-      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
+      let layout;
+      try { layout = await readSlotLayout(dev.link, 1000, 2); }
+      catch (e) {
+        const stock = dev.id.text === "FM-1_015" || (dev.id.version === 16 && /^(SMK-37[ +].*|MKE-P37|STARRYKEY-37.*)$/i.test(dev.id.model));
+        if (stock && /did not answer \(slot command 15\)/.test(e.message)) layout = null;
+        else throw fail("slotbackup", `The sample layout is unknown (${e.message}). Reconnect and retry; no update was started.`);
+      }
       if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
@@ -709,6 +716,7 @@ async function installKeepingSlots(up, image, product, board, hooks) {
   const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
   if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
   try {
+    up.bind(back);
     const layout = await readSlotLayout(back.link);
     const plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
     move.todo = plan.todo;

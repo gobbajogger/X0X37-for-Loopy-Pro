@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "revision": "pr8-finite-browser-regressions-20261024-r4",
+  "status": "REPAIR HANDOFF \u2014 FINAL INDEPENDENT EXACT-HEAD QA PENDING",
+  "pr": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/8",
+  "owned_branch": "lane/browser-admission-repair-20261024",
+  "source_parent": "068f3cd15dd4698cd6d609dee54628d73bd51686",
+  "parent_root": "c39126aac8fcca9e72e5a7c1157b546ecb5366e3",
+  "review_input": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/8#pullrequestreview-5638498157",
+  "fixture_commit": "255e00f5330409eb5bdb834d488ad8ee51602efc",
+  "finite_matrix_commit": "8357bea49e1b80c1d6b315dc749692c92424b0eb",
+  "reference_pins": {
+    "bounded_stream_pr102": "a48d745b59683eaaf2283aed5ec1ec2187799cfc",
+    "browser_binding_backup": "c2e63feb11385b91a9dbd3b29b20a368ed948a5a",
+    "catalog_r27": "876adf33d3a96accac3838c21f6f8681d8c1ab39"
+  },
+  "source_helper": {
+    "agent": "/root/f7_port",
+    "scope": "F7 and existing browser binding/backup source port plus focused tests",
+    "status": "COMPLETED \u2014 coordinator inspected diffs/hashes and consolidated results",
+    "independent_qa": false
+  },
+  "consolidated_commands": [
+    {
+      "name": "npm-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 0.52
+    },
+    {
+      "name": "npm-test",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 33.12
+    },
+    {
+      "name": "default-browser",
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "exit": 0,
+      "seconds": 84.65
+    },
+    {
+      "name": "dependency-after",
+      "command": [
+        "python3",
+        "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/dependency_boundary_after.py"
+      ],
+      "exit": 0,
+      "seconds": 3.65
+    },
+    {
+      "name": "independent-expanded",
+      "command": [
+        "python3",
+        "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/independent_browser.py"
+      ],
+      "exit": 0,
+      "seconds": 19.05
+    },
+    {
+      "name": "independent-focused",
+      "command": [
+        "python3",
+        "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/r2_focused_checks.py"
+      ],
+      "exit": 0,
+      "seconds": 9.81
+    },
+    {
+      "name": "independent-history",
+      "command": [
+        "python3",
+        "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/history_response_negatives.py"
+      ],
+      "exit": 0,
+      "seconds": 13.96
+    },
+    {
+      "name": "independent-history-extension",
+      "command": [
+        "python3",
+        "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/history_adversarial_extension.py"
+      ],
+      "exit": 0,
+      "seconds": 27.87
+    },
+    {
+      "name": "backup-boundary-compatible",
+      "command": [
+        "node",
+        "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/backup_boundary_compatible.mjs"
+      ],
+      "exit": 0,
+      "seconds": 0.06
+    }
+  ],
+  "results": {
+    "native_suites": 8,
+    "admission_cases": 58,
+    "qualification_negatives": 84,
+    "status_negative_cases": 228,
+    "history_pins": 117,
+    "actual_shipping_write_binding_backup_cases": 41,
+    "default_installer_browser_assertions": 215,
+    "default_history_browser_cases": 34,
+    "supplied_dependency_cases": 8,
+    "expanded_browser_cases": 82,
+    "focused_click_keyboard_history_cases": 22,
+    "supplied_history_response_cases": 8,
+    "history_adversarial_cases": 31,
+    "backup_boundary_cases_with_labeled_bind_fixture_adapter": 4,
+    "failed": 0
+  },
+  "red_evidence": {
+    "original_r3_dependency": {
+      "checks": 8,
+      "failed_expectations": 7
+    },
+    "F7_focused": {
+      "checks": 4,
+      "invalid_appends_previously_admitted": 3
+    },
+    "original_shipping_ota_slot_matrix": {
+      "cases": 19,
+      "failed": 11
+    },
+    "pre_binding_expanded_matrix": {
+      "cases": 41,
+      "failed": 24
+    },
+    "old_output_path_contract": "actual CLI accepted inside ..candidate and outside symlink alias pointing inside repository"
+  },
+  "fixture_adaptations": [
+    "Dependency assertions unchanged; only fixed local root rebound to canonical checkout so actual CLI executes",
+    "Old backup-only mocked Updater given explicit bind API no-op; actual bind guarded in default41 real-source cases",
+    "Stale body mock now real ReadableStream; no-reader is a separate explicit rejection case"
+  ],
+  "effect_on_real_data": "All117 history rows/two historic builds/status/generated data/empty catalog/GPL/main policy unchanged. Valid qualified CLI and native bounded download/manual local recovery remain tested. No new firmware eligibility/UID architecture. Future private/malformed input and observable wrong-loader/ambiguous/unknown-layout paths now refuse.",
+  "tested_blobs": {
+    "web/x0x_installer.html": "380aba0d5b5e6bdbce92437126494f1060dd7686",
+    "web/fm1ota.js": "485a54187e78822847f5cb51088204983caffa71",
+    "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
+    "web/x0x_breaks.js": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e",
+    "docs/install/index.html": "8e4b0a3eab5e60f46eaf1ac56cbf9100f70a70ae",
+    "docs/breaks/index.html": "4cf4237ee0612370d97e2070bc16564019aadd56",
+    "docs/builds/index.html": "9cef7ba2a1ffc9894ddb02f5fc657827854c97e6",
+    "scripts/render-qualified-nightly.mjs": "5203c91f72a59356e223b6ed9a332caca2f89950",
+    "scripts/verify-build-status.mjs": "5309b6a5d9b9fd34a10b447162306ebee648c570",
+    "tests/browser-admission.py": "8da2f233f25f3e8fff449c257727b172e022a5ef",
+    "tests/qualified-catalog.test.mjs": "4fdd3a1644b9992b11263f556492ae27665ad250",
+    "tests/build-status-negatives.test.mjs": "10fc5e5bae7227b1cb7170319c9cd628f1ac3e53",
+    "tests/installer-write-boundaries.test.mjs": "8e9cef4c60b061ea5698d41d06fca59dceb1d8c0",
+    "package.json": "0f45de3c521a9410e768c3930fc18599a67f9074",
+    "SOURCE_PROVENANCE.json": "1895f4e0b0c31e66d4118da6eb351ab4525fe921",
+    "build-status.json": "326ce55e232a9366e34a7cb687505f558ef25022",
+    "docs/build-status.json": "326ce55e232a9366e34a7cb687505f558ef25022",
+    "docs/versions.json": "01f9ec382878335ea9bb92d0bdf294483111de76"
+  },
+  "log_hashes": {
+    "write-boundary-before.log": {
+      "sha256": "46fd1cc63928a26d4ad779b962a51193daff43dded64c823c548ca0a7de309cc",
+      "bytes": 1745
+    },
+    "write-boundary-after.log": {
+      "sha256": "eb7deb2b4f08a08ca67cc632f619382a38f712d1a58b107a58f71a3e8ed221ff",
+      "bytes": 1031
+    },
+    "backup-boundary-compatible.log": {
+      "sha256": "a0feba612311a9eb91de042a65000671d57d552094e4d2f28f6bfea6b7a09b0b",
+      "bytes": 262
+    },
+    "independent-focused.log": {
+      "sha256": "4f99b0f6e8b454eaedfa57bcd0c32a30c31663ae03244a80795e41ca6aefb410",
+      "bytes": 3312
+    },
+    "independent-expanded.log": {
+      "sha256": "d409637f4d1e0861754d3a1925100555db91fc40fb72dfeed5095353ed0abf81",
+      "bytes": 3380
+    },
+    "f7-focused-after.log": {
+      "sha256": "f9c2a4ee844f310fcb887206005ea3114590e7d8e1be864381a93e1186050c87",
+      "bytes": 2242
+    },
+    "default-browser.log": {
+      "sha256": "9f307c7e5bf3d320e4d714d44c61c69cfdc4f15b6d88776e413080a51b3e7141",
+      "bytes": 19772
+    },
+    "consolidated.log": {
+      "sha256": "e3c1dfbc06b2bf35ece95a2e418891639e81632319cbe6237ead3b06c1ab0ae7",
+      "bytes": 1340
+    },
+    "independent-history-extension.log": {
+      "sha256": "bfb9e55bee979dcfa3f0c5807c26080612b0067a10d69ac7e1c6ba3f376c4b6f",
+      "bytes": 5847
+    },
+    "independent-history.log": {
+      "sha256": "b43afa819d4f6d2ee1a6471aed371cbfbf276f81e21892678a7ef8c70a108d65",
+      "bytes": 7606
+    },
+    "npm-test.log": {
+      "sha256": "1f0548e054c1597b2782201b9de90c12ac646c5dd01a395468c2d9e05a459d59",
+      "bytes": 12438
+    },
+    "f7-focused-before.log": {
+      "sha256": "6a169a872d0b0eb600eba5bda9d9c40691fd228f35eb5749fdc7b13477d3df92",
+      "bytes": 391
+    },
+    "write-binding-before.log": {
+      "sha256": "cba7261a7f7037dd940b237805b01d342c70e48eed4ad0a8c04d634bf081e8cb",
+      "bytes": 5154
+    },
+    "dependency-after.log": {
+      "sha256": "efd345266de5eddf8f2b8cd6696c70c561fddf41e52b1f2ae6c95e95fbeb8b9d",
+      "bytes": 3852
+    },
+    "write-binding-after.log": {
+      "sha256": "48c571ba7071425f9db773574e9cea3c5b12b5f443e8097d3baf7769ebfa596a",
+      "bytes": 2238
+    },
+    "dependency-before.log": {
+      "sha256": "92a24643e17794f448a337647d7d56a26902ed354d6090458ce236bd1fe96f33",
+      "bytes": 2394
+    },
+    "npm-build.log": {
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a",
+      "bytes": 179
+    },
+    "f7-native-after.log": {
+      "sha256": "03e4ec09f7dd302547df5e1001153be60c093b097d4a080f22915e535e11bf32",
+      "bytes": 8723
+    },
+    "f7-native-before.log": {
+      "sha256": "ea1960c9a2e71f622d59bf88209ddcdbbd89babb2bc67faf917f58dd5767ec4b",
+      "bytes": 9284
+    },
+    "output-path-before.log": {
+      "sha256": "cc3fa32038d10bd6a01620f3ac3b52a772f476f670c006f8ff2e0c62ed4dcd91",
+      "bytes": 286
+    }
+  },
+  "pr9": {
+    "head": "47cc6eaaa43655192c9ee88d9e1217473fe4f2f4",
+    "root": "fd5a9f26fe886cf787e6d82825656b7091a8b8f9",
+    "state": "separate unmerged combined proposal with publisher NO-GO; no ownership transfer recorded",
+    "action": "No edits/rebase/overwrite; parent/sole merger chooses and freshly validates actual combined tree, never reuse superseded PR8 QA"
+  },
+  "release_capability": "Source/Git connector authorization works. User-approved tiny unpublished draft upload test was received by helper, but documented gh release-list preflight GET /repos/gobbajogger/X0X37-for-Loopy-Pro/releases?per_page=3 returned Forbidden/exit1. No write/upload attempted, no uncertain outcome, no alternate route or credential change. See release-route-helper-receipt.json; not a claim of global GitHub auth failure.",
+  "publication": "NOT RUN",
+  "firmware_device_qualification": "NOT VERIFIED by browser synthetic fixtures",
+  "elite": "NO INSTALLABLE YET",
+  "pro": "NO INSTALLABLE YET",
+  "next_owner": "existing independent Website QA, parent-controlled final matrix review",
+  "next_action": "Fetch final new SHA/root in PR body; inspect finite F1-F7+B/S matrix and rerun native/default/supplied actual shipping paths; keep draft/HOLD MERGE until independent acceptance. Parent retains integration/publisher routing.",
+  "successor_created": false,
+  "protected_ref_change": false
+}
