@@ -1,0 +1,60 @@
+{
+  "schema": "loopyx0x37.data_safety.native_host.v1",
+  "evidence_revision": "data-safety-pr114-r16-dirfd-extract-20261025-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "existing_branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "previous_head": "9a9becdf5951eb04de2df0777ac4d84aa26de9f7",
+  "previous_root_tree": "2911ff6262d1db96ead9330821f096e5b99a8ae8",
+  "previous_source_blob": "eda48edd078070bec9fa6d27c4f176ee68ec08bb",
+  "compiler_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "consumer_behavior": "Offline sample extraction preserves owner files, rejects symlinks swapped into OUTDIR during directory creation, pins all new sample writes and cleanup to one no-follow directory handle, and refuses success if OUTDIR was replaced after binding.",
+  "independent_finding": "Cycle10 Independent QA on R15 observed two unsafe outcomes under injected concurrent symlink substitution during mkdir: extract did not refuse and wrote into foreign directory. Review is NEEDS CHANGES; not hardware/browser evidence.",
+  "changes": [
+    "tools/x0x_slots.py extract: bind output directory via O_DIRECTORY | O_NOFOLLOW and dir_fd; preflight all names with no-follow stat; create each slot file with dir_fd + O_EXCL + O_NOFOLLOW; cleanup using pinned dir_fd; post-write verify OUTDIR still points to bound inode",
+    "tests/host/sample_extract_safety_test.py: maintain normal extraction, no-clobber and interrupted cleanup tests, add mkdir-time symlink substitution, post-bind substitution and partial write failures on real Linux temporary filesystem",
+    "tests/run_tests.sh sample-extract-safe already registered and remains unchanged"
+  ],
+  "input_source_projection": {
+    "R15_main_sha256": "b6ffa5f561b0ad883712171d0eaa9f3bad01575729f2e14f91cab65c2628099e",
+    "R16_main_sha256": "a2b7d1841678392334b847559150d9916f2e8c4c3b165746f2fad3341de8f740",
+    "R16_test_sha256": "f7f750877acac632c6e8a15c7f1fa6a07742c0b679cf54492d069570fca79361",
+    "R16_test_expected_git_blob": "80944e4bdfff4a5cbfa61954b72953cfcce678c9"
+  },
+  "host_environment": "Linux x86_64 Python 3.13.5, actual temporary directories and POSIX O_NOFOLLOW/dir_fd operations, archive parsing mocked, no physical MIDI; AST main source window matched previously verified R15 Git blob",
+  "checks": [
+    {
+      "command": "python3 -B tests/host/sample_extract_safety_test.py R15_main.py",
+      "exit": 1,
+      "summary": "7/14, seven observed failures",
+      "sha256": "bb14a1f05f5cd84484a93f32b1578dae0686007f57a5ea27c839654d0a73352a"
+    },
+    {
+      "command": "python3 -O -B tests/host/sample_extract_safety_test.py R15_main.py",
+      "exit": 1,
+      "summary": "7/14, seven observed failures",
+      "sha256": "98dbbadfa8ac4b27f4ba1ff1011aef96152961b69cc34048c8ff5bcd62d7e3e0"
+    },
+    {
+      "command": "python3 -B tests/host/sample_extract_safety_test.py R16_main.py",
+      "exit": 0,
+      "summary": "14/14 PASS",
+      "sha256": "716024c9cfa3fa9345b239bc7599b8dc879367bec324e7bc316706fac619082d"
+    },
+    {
+      "command": "python3 -O -B tests/host/sample_extract_safety_test.py R16_main.py",
+      "exit": 0,
+      "summary": "14/14 PASS",
+      "sha256": "7c55b303990f58e8f135bd4808a3eac09658a6f17507be4c3145aab6d4fe895a"
+    }
+  ],
+  "python_syntax": "python3 -B -m py_compile R16_main.py R16_extract_test.py exit 0",
+  "not_run": [
+    "Full checked-out tests/run_tests.sh or complete-root native suite (GitHub DNS unavailable to local runtime)",
+    "Independent QA; physical-device and compiler tests; browser installer and live HTTPS",
+    "Concurrent malicious replacement of an individual created file after creation (no atomic inode-conditional unlink available); arbitrary parent directory rename attacks"
+  ],
+  "status": "PRODUCER_SCOPED_PASS, INDEPENDENT_QA_REQUIRED, PR_DRAFT_NEEDS_CHANGES",
+  "next_owner": "existing sole Independent QA; existing firmware Safe Merge only after independently accepted source",
+  "no_target_firmware_compiler_input_change": true,
+  "caveat": "Does not authenticate physical USB/MIDI keyboard; native OTA and destructive sample write remain intentionally unsupported. Browser Web MIDI result independent."
+}

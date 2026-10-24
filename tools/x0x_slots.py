@@ -568,25 +568,52 @@ def main(argv):
         targets = []
         for k, img in enumerate(images):
             if img is not None:
-                targets.extend(((out / f"slot{k + 1}.hdr", img[:HDR_LEN]),
-                                (out / f"slot{k + 1}.bin", img[DATA_OFF:])))
-        # Preflight every destination before touching any extracted sample data.
-        # The exclusive open also refuses concurrent creation and dangling links.
-        for dest, _ in targets:
-            if dest.exists() or dest.is_symlink():
-                raise SlotError(f"extract refuses to overwrite {dest}")
+                targets.extend(((f"slot{k + 1}.hdr", img[:HDR_LEN]),
+                                (f"slot{k + 1}.bin", img[DATA_OFF:])))
+        # Path.exists() and Path.open() can cross into a replacement directory
+        # between preflight and write. Hold one no-follow directory descriptor
+        # for preflight, exclusive creates, and failure cleanup.
+        if not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_DIRECTORY"):
+            raise SlotError("safe extraction requires POSIX no-follow directory handles")
         out.mkdir(parents=True, exist_ok=True)
-        created = []
+        directory = None
         try:
-            for dest, payload in targets:
-                with dest.open("xb") as file:
-                    created.append(dest)
-                    file.write(payload)
-        except BaseException:
-            # An interrupted/failed extraction must not leave partial slot files.
-            for dest in created:
-                dest.unlink(missing_ok=True)
-            raise
+            try:
+                directory = os.open(out, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            except OSError as error:
+                raise SlotError(f"extract cannot safely open output directory {out}: {error}") from error
+            for name, _ in targets:
+                try:
+                    os.stat(name, dir_fd=directory, follow_symlinks=False)
+                except FileNotFoundError:
+                    pass
+                else:
+                    raise SlotError(f"extract refuses to overwrite {out / name}")
+            created = []
+            try:
+                for name, payload in targets:
+                    fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                                 0o600, dir_fd=directory)
+                    created.append(name)
+                    with os.fdopen(fd, "wb") as file:
+                        file.write(payload)
+                # Do not report success if OUTDIR was renamed or replaced while
+                # writing. Cleanup remains relative to the pinned directory fd.
+                bound = os.fstat(directory)
+                try:
+                    current = os.stat(out, follow_symlinks=False)
+                except OSError as error:
+                    raise SlotError(f"extract output path changed during writing: {error}") from error
+                if (bound.st_dev, bound.st_ino) != (current.st_dev, current.st_ino):
+                    raise SlotError("extract output path changed during writing")
+            except BaseException:
+                # Descriptor-relative cleanup cannot be redirected by replacing OUTDIR.
+                for name in created:
+                    os.unlink(name, dir_fd=directory)
+                raise
+        finally:
+            if directory is not None:
+                os.close(directory)
         print(f"{sum(i is not None for i in images)} slot image(s) in {out}")
         return
     import fm1_sample_upload as up                     # the MIDI link (mido)
