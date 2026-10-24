@@ -546,16 +546,6 @@ static int read_project(project_t *pr)
     sound_ok = load_obj(OBJ_SOUND, &pr->sound, sizeof pr->sound) == 0;
     if (!sound_ok)
         bad = 1;
-    if (sound_ok && pr->set.snd_rev < 3)             /* before the 909 BD's sends: its pan moves up two */
-        sound_bd_sends(pr, T_909, 8);                     /* (first: the pans' own fixes below see the new place) */
-    if (sound_ok && pr->set.snd_rev < 4)             /* the 808 BD's, the same */
-        sound_bd_sends(pr, T_808, 7);
-    if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
-        for (i = 0; i < NPARTS; i++)
-            pr->sound.v[T_MIX][i][MX_PAN] = 64;
-    if (pr->set.stereo < 2)                          /* saved before the drum voices had pans */
-        engine_sound_centre_drum_pans(&pr->sound);
-    pr->set.stereo = PROJ_STEREO;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
     if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_OLD)) {
         if (load_stream(pr, n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
@@ -577,6 +567,18 @@ static int read_project(project_t *pr)
         bad = 1;
         pr->arr.song.len = NSONG;
     }
+    /* Stored motion lanes are not present until the pattern/arrangement stream has loaded.
+     * Migrate their BD PAN indices together with sound values, before subsequent sound revisions. */
+    if (sound_ok && pr->set.snd_rev < 3)             /* before the 909 BD's sends: its pan moves up two */
+        sound_bd_sends(pr, T_909, 8);                     /* (first: the pans' own fixes below see the new place) */
+    if (sound_ok && pr->set.snd_rev < 4)             /* the 808 BD's, the same */
+        sound_bd_sends(pr, T_808, 7);
+    if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
+        for (i = 0; i < NPARTS; i++)
+            pr->sound.v[T_MIX][i][MX_PAN] = 64;
+    if (pr->set.stereo < 2)                          /* saved before the drum voices had pans */
+        engine_sound_centre_drum_pans(&pr->sound);
+    pr->set.stereo = PROJ_STEREO;
     if (sound_ok && pr->set.snd_rev < 1)             /* saved before the 909 SD's DECAY: its pots move up one */
         sound_rev1(pr);
     if (sound_ok && pr->set.snd_rev < 2)             /* before the one-knob COMP, FILTER, TAPE */
