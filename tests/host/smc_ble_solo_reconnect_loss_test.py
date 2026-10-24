@@ -215,7 +215,32 @@ int main(void)
  prepare(); smc_ble_link(1); smc_ble_solo_release_lost++;
  smc_project_drop(); inject_new_ble_on_link=1;
  smc_poll();assert(injected_ble==1);assert(smc.solo_target[0]==1&&output_solo);cases++;
- assert(cases==26);printf("SMC combined source-window Solo+reconnect: %d/26 PASS\n",cases);
+ /* An old USB/User NoteOff lost before BLE reconnect must not clear an
+  * unrelated new BLE Solo. A BLE edge globally clears both Solo sources. */
+ prepare(); smc_ble_link(1); smc_poll();
+ saturate(0); emit(0,0x80,8,0);
+ assert(smc_host_solo_release_lost != smc_host_solo_release_seen);
+ smc_ble_link(0); smc_ble_link(1);
+ emit(1,0x90,8,127); smc_poll();
+ if (!(smc.solo_target[0]==1 && output_solo)) {
+  fprintf(stderr,"FAIL: pre-link HOST dropped NoteOff erased a NEW BLE Solo\n");
+  return 1;
+ }
+ smc_poll(); assert(smc.solo_target[0]==1 && output_solo);
+ emit(1,0x80,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
+ /* An overflowed host release on the NEW link must still clear Solo. */
+ prepare();smc_ble_link(1);smc_poll();
+ smc_ble_link(0);smc_ble_link(1);
+ emit(1,0x90,8,127);
+ saturate(0);emit(0,0x80,8,0);
+ smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
+ /* Project reset after link publication may have already acknowledged
+  * a newer host loss; an older link boundary must not rewind seen. */
+ prepare();smc_host_solo_release_lost++;
+ smc_ble_link(1);smc_host_solo_release_lost++;
+ smc_project_drop();
+ smc_poll();assert(smc_host_solo_release_seen==smc_host_solo_release_lost);cases++;
+ assert(cases==29);printf("SMC combined source-window Solo+reconnect: %d/29 PASS\n",cases);
  return 0;
 }
 '''
