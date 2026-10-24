@@ -1,6 +1,6 @@
 {
   "evidence_revision": "seqclock-pr90-clock-wrap-lease-20261025-r32",
-  "date_utc": "2026-10-25",
+  "date_utc": "2026-10-24",
   "repository": "gobbajogger/X0X37-for-Loopy-Pro",
   "branch": "lane/seq-transport-origin-20261023-run3-1317",
   "pr": 90,
