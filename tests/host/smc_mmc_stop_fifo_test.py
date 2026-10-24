@@ -49,7 +49,7 @@ static struct { int overlay; } ui;
 static struct { uint8_t up, fresh, picked, seen, knob_i, pending, known[128]; } smc;
 static int busy, testing, inject, injected, inject_source, log_count;
 static int reset_stop_n, stop_seen;
-static int reset_cross_source, reset_fresh_other, primary_source;
+static int reset_cross_source, reset_fresh_other, reset_fresh_same, primary_source;
 static uint8_t log_notes[64];
 static int perf_testing(void) { return testing; }
 static int ui_project_busy(void) { return busy; }
@@ -75,6 +75,12 @@ static void smc_guarded_button(uint8_t note, int mmc, int allow)
   }
   if (stop_seen == reset_stop_n) {
    smc_project_drop();
+   if (reset_fresh_same) {
+    /* The ISR's first post-reset messages on the SAME source must not be
+     * consumed under the stale reader snapshot or discarded as old work. */
+    smc_mmc_host(33,(uint8_t)primary_source);
+    smc_mmc_host(34,(uint8_t)primary_source);
+   }
    if (reset_fresh_other) {
     /* An ISR callback after the project's drop is NEW input and survives. */
     smc_mmc_host(33,(uint8_t)(primary_source ^ 1));
@@ -93,7 +99,7 @@ static void prep(unsigned src, uint8_t start)
 {
  memset(&smc,0,sizeof smc); memset(&ui,0,sizeof ui);
  proj.set.bt=PROJ_BT_SMC_USER;busy=testing=inject=injected=log_count=0;
- reset_stop_n=stop_seen=reset_cross_source=reset_fresh_other=primary_source=0;
+ reset_stop_n=stop_seen=reset_cross_source=reset_fresh_other=reset_fresh_same=primary_source=0;
  smc_qw=smc_qr=smc_host_w=smc_host_r=0;
  smc_mmc_w[0]=smc_mmc_r[0]=0;
  smc_mmc_w[1]=smc_mmc_r[1]=0;
@@ -128,6 +134,47 @@ static int test(unsigned src, uint8_t start, int mode)
       smc_mmc_r[src] != smc_mmc_w[src]) {
    fprintf(stderr,"FAIL enabled User STOP after disabled frame mode=%d src=%u\n",mode,src);
    return 0;
+  }
+  return 1;
+ }
+ if (mode == 10 || mode == 11) {
+  /* An MMC STOP that loads a new project is allowed to receive new-project
+   * MIDI immediately from the ISR, before this poll returns. Do not replay
+   * stale pre-reset PLAYs, lose fresh PLAY/STOP, or poison the same-source
+   * queue at uint8 reader/writer wrap boundaries. */
+  if (mode == 10) {
+   for (unsigned i=0;i<16;i++) smc_mmc_host(33,(uint8_t)src);
+   smc_mmc_host(34,(uint8_t)src); /* overflow STOP, pending cutoff */
+   inject = 16; inject_source = (int)src; /* refill during dispatch */
+  } else {
+   smc_mmc_host(33,(uint8_t)src); /* old project PLAY */
+   smc_mmc_host(34,(uint8_t)src); /* queued STOP resets project */
+   smc_mmc_host(33,(uint8_t)src); /* old project PLAY must be dropped */
+  }
+  reset_stop_n = 1; reset_fresh_same = 1; primary_source = (int)src;
+  smc_poll(); smc_poll(); smc_poll();
+  const int old_plays = mode == 10 ? 16 : 1;
+  const int expected = old_plays + 3; /* old STOP, new PLAY, new STOP */
+  if (log_count != expected || stop_seen != 2 ||
+      smc_mmc_r[src] != smc_mmc_w[src] ||
+      smc_mmc_stop_r[src] != smc_mmc_stop_w[src]) {
+   fprintf(stderr,"FAIL same-source STOP project handover mode=%d src=%u start=%u log=%d expected=%d stop=%d q=%u/%u\n",
+           mode,src,start,log_count,expected,stop_seen,smc_mmc_r[src],smc_mmc_w[src]);
+   return 0;
+  }
+  for (int i=0;i<old_plays;i++) if (log_notes[i] != 0x5Eu) return 0;
+  if (log_notes[old_plays] != 0x5Du ||
+      log_notes[old_plays+1] != 0x5Eu ||
+      log_notes[old_plays+2] != 0x5Du) {
+   fprintf(stderr,"FAIL same-source stale/new project boundary mode=%d src=%u start=%u\n",
+           mode,src,start); return 0;
+  }
+  smc_mmc_host(33,(uint8_t)src); /* next independent new-project MIDI */
+  smc_poll();
+  if (log_count != expected+1 || log_notes[expected] != 0x5Eu ||
+      smc_mmc_r[src] != smc_mmc_w[src]) {
+   fprintf(stderr,"FAIL same-source queue resumption mode=%d src=%u start=%u\n",
+           mode,src,start); return 0;
   }
   return 1;
  }
@@ -242,13 +289,13 @@ static int test(unsigned src, uint8_t start, int mode)
 int main(void)
 {
  int count=0;
- for(unsigned src=0;src<2;src++)for(unsigned i=0;i<4;i++)for(unsigned mode=0;mode<10;mode++){
+ for(unsigned src=0;src<2;src++)for(unsigned i=0;i<4;i++)for(unsigned mode=0;mode<12;mode++){
   uint8_t start=(const uint8_t[]){0,15,240,255}[i];
   if(!test(src,start,mode))return 1;
   count++;
  }
- assert(count==80);
- printf("SMC MMC STOP FIFO source-window: %d/80 PASS\n",count);
+ assert(count==96);
+ printf("SMC MMC STOP FIFO source-window: %d/96 PASS\n",count);
  return 0;
 }
 '''
