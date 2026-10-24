@@ -579,6 +579,42 @@ async function sha256Hex(buf) {
     .map((b) => b.toString(16).padStart(2, "0")).join("");
   return hex;
 }
+// Stream modern Fetch responses within the catalog-approved byte budget.
+// A wrong/truncated/oversize response never reaches SHA/product parsing.
+async function readApprovedPackage(response, expectedSize, isLatest) {
+  if (!response.body || typeof response.body.getReader !== "function") {
+    // Compatibility path for legacy fetch implementations and test mocks.
+    const raw = new Uint8Array(await response.arrayBuffer());
+    return raw.byteLength === expectedSize ? raw : null;
+  }
+  const reader = response.body.getReader();
+  const chunks = [];
+  let length = 0, reject = false;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (!isLatest()) { reject = true; break; }
+      if (done) break;
+      if (!(value instanceof Uint8Array) || value.byteLength > expectedSize - length) {
+        reject = true; break;
+      }
+      chunks.push(value);
+      length += value.byteLength;
+    }
+  } catch (error) {
+    reject = true;
+    throw error;
+  } finally {
+    if (reject) { try { await reader.cancel(); } catch (_) {} }
+    try { reader.releaseLock(); } catch (_) {}
+  }
+  if (reject || length !== expectedSize) return null;
+  const raw = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) { raw.set(chunk, offset); offset += chunk.byteLength; }
+  return raw;
+}
+
 async function loadSelectedPackage() {
   const requestId = ++loadSerial;
   discardVerifiedDownload();
@@ -601,10 +637,10 @@ async function loadSelectedPackage() {
     const r = await fetch(pkg.pkg);
     if (!isLatest()) return;
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
-    const raw = new Uint8Array(await r.arrayBuffer());
+    const raw = await readApprovedPackage(r, pkg.size, isLatest);
     if (!isLatest()) return;
-    // Catalog byte length is verified metadata, not just a display hint.
-    if (raw.byteLength !== pkg.size) { sayK("badpkg"); return; }
+    // Streaming enforces the approved byte budget before digest/product parsing.
+    if (!raw) { sayK("badpkg"); return; }
     // Approved downloads require a SHA and the exact product/model identity.
     const hex = await sha256Hex(raw.buffer);
     if (!isLatest()) return;
