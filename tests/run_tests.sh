@@ -217,6 +217,8 @@ run update-names bash tests/host/test_update_names.sh   # tools/update.hook part
 run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
+run nightly-publish python3 tests/host/test_publish_nightly.py
+run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
 run gen-order sh tests/host/test_gen_order.sh   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
 run quickcheck-devbug bash tests/host/test_quickcheck_devbug.sh   # tools/quickcheck.sh device bug step (checks 16, 17): an INLOG replay test that fails on the parent
