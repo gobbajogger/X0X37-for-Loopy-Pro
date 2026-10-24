@@ -564,3 +564,37 @@ run('future-evidence-commit-valid-pinned-append-PASS',appendEvidenceCommit(futur
 run('future-evidence-commit-mutable-main-REJECTED',appendEvidenceCommit('main'));
 run('future-evidence-commit-40hex-mismatched-url-REJECTED',appendEvidenceCommit('f'.repeat(40)));
 run('future-evidence-commit-object-REJECTED',appendEvidenceCommit({ref:'main'}));
+
+
+// R28: the pinned Git reference is the SHA after /blob/, /tree/ or /commit/.
+// Never accept an evidence_commit that appears only in a later pathname.
+const r28AppendEvidence=(route,gitRef,suffix,reportedCommit)=>edit(j=>{
+  // Use an explicit future source-only row: R25's audit tail has its own
+  // fixed attribution and must not become a synthetic route fixture.
+  const next={
+    id:'future-synthetic-r28-evidence-route-test',
+    title:'Synthetic future source receipt',date:'2026-10-25',status:'source-only',models:['pro'],
+    source_repo:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro',
+    source_commit:futureEvidenceSha,source_tree:'2'.repeat(40),
+    evidence_commit:reportedCommit,description:'Synthetic future noninstallable source evidence'
+  };
+  next.evidence_url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/'+route+'/'+gitRef+suffix;
+  next.installable=false;
+  next.device_verified=false;
+  j.history.push(next);
+  j.counts.source_or_historical_checkpoints=j.history.length;
+});
+const r28FalseRef='a'.repeat(40), r28Claim='f'.repeat(40);
+run('r28-legitimate-pinned-blob-append-PASS',
+  r28AppendEvidence('blob',r28Claim,'/docs/receipt.json',r28Claim),true);
+run('r28-legitimate-pinned-tree-append-PASS',
+  r28AppendEvidence('tree',r28Claim,'/docs/receipt.json',r28Claim),true);
+run('r28-legitimate-pinned-commit-append-PASS',
+  r28AppendEvidence('commit',r28Claim,'',r28Claim),true);
+run('r28-blob-path-contains-claimed-SHA-but-Git-ref-differs-REJECTED',
+  r28AppendEvidence('blob',r28FalseRef,'/docs/'+r28Claim+'/receipt.json',r28Claim));
+run('r28-tree-path-contains-claimed-SHA-but-Git-ref-differs-REJECTED',
+  r28AppendEvidence('tree',r28FalseRef,'/'+r28Claim+'/receipt.json',r28Claim));
+
+run('r28-mutable-blob-ref-with-claimed-SHA-in-path-REJECTED',
+  r28AppendEvidence('blob','main','/docs/'+r28Claim+'/receipt.json',r28Claim));

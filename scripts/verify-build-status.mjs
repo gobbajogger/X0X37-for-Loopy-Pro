@@ -190,9 +190,14 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
    if(item.source_repo!==undefined)assert.equal(item.source_repo,officialRepo,'historical source repo');
     if(item.evidence_commit!==undefined){
       assert.match(item.evidence_commit,/^[a-f0-9]{40}$/,'historical evidence_commit must be a pinned Git SHA');
-      if(item.evidence_url!=null)assert.ok(
-        item.evidence_url.includes('/'+item.evidence_commit+'/') || item.evidence_url.endsWith('/'+item.evidence_commit),
-        'historical evidence_commit must agree with immutable evidence_url source SHA');
+      if(item.evidence_url!=null){
+        // Match the Git commit immediately after /commit/, /tree/ or /blob/.
+        // The same SHA elsewhere in a pathname cannot authenticate the link.
+        const evidenceGitRoute=item.evidence_url.slice(officialRepo.length+1);
+        const pinnedRef=/^(?:commit|tree|blob)\/([a-f0-9]{40})(?:\/|$)/.exec(evidenceGitRoute);
+        assert.equal(pinnedRef?.[1],item.evidence_commit,
+          'historical evidence_commit must equal the immutable Git URL reference SHA');
+      }
     }
 
     // Metadata booleans never grant distribution, exact-source build or full QA.

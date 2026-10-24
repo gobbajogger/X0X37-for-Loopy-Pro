@@ -1,0 +1,83 @@
+{
+  "stage": "PR8 R5 finite F7 URL-reference repair",
+  "parent": "02a5a05ee0aa9677884aadf1e0bb48e1b31d6cad",
+  "reference_commit": "9d03fe036220c02b224a91a90c0bb09b66fd29fe",
+  "independent_R4_evidence": "7318f2affd81c52827e5aa3c45c234440f4f55d3",
+  "tested_blobs": {
+    "scripts/verify-build-status.mjs": "9cd11cf06a1277238d5eafc470ab315177f99264",
+    "tests/build-status-negatives.test.mjs": "63fc1ebf6f9b5cb11c6e90313e7dc5532103648c"
+  },
+  "commands": [
+    {
+      "name": "npm-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 0.42
+    },
+    {
+      "name": "npm-test",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 26.64
+    },
+    {
+      "name": "default-browser",
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "exit": 0,
+      "seconds": 89.43
+    },
+    {
+      "name": "final-matrix-green",
+      "command": [
+        "python3",
+        "/workspace/nightly-repair-evidence/r5/final_matrix_extension.py"
+      ],
+      "exit": 0,
+      "seconds": 0.67
+    }
+  ],
+  "red": {
+    "supplied_matrix": "5/6, wrong-ref blob accepted exit0",
+    "registered_new_cases": "all3 positive routes pass, nested-blob negative fails because oldguard accepts"
+  },
+  "green": {
+    "supplied_matrix": "6/6",
+    "default_browser": "215 installer assertions and34 history cases",
+    "native": "full npm tests include six new route cases and41 shipping write/binding/backup cases"
+  },
+  "unchanged_from_R4": [
+    "all browser source and generated HTML",
+    "qualified preparation",
+    "117 historical records and two historic build generations",
+    "empty picker",
+    "package scripts and all prior test registrations"
+  ],
+  "next_gates": [
+    "independent exact-head review",
+    "parent reconciliation with sole merger119-row integration request6385653457; no moving history imported per parent R5 scope",
+    "sole merger and publisher gates"
+  ],
+  "log_sha256": {
+    "consolidated-commands.json": "65bb9c88467664b0ccf8beae6677f5a3711a95232a73219b09bc8ee2fec78be4",
+    "npm-build.log": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a",
+    "npm-test.log": "68eeb7ad21cd3dd4de6955b60e0b127b07fa58e1858c54087588f0857d489e71",
+    "default-browser.log": "9f307c7e5bf3d320e4d714d44c61c69cfdc4f15b6d88776e413080a51b3e7141",
+    "final-matrix-red.log": "0a982417f873ff2aecf7af10b126bfd28f3ac175110eff275de3d82a92839047",
+    "status-red.log": "ecf9a704052e8945ab71bb51c28d9c1cccc11a92fa0f050c28b2e6e42af5ecb8",
+    "final-matrix-green.log": "891f9609479f110a7994a607299fe0fadc2abf9214dd672252f32b4691a94496",
+    "final_matrix_extension.py": "6ecb7e10ee9b0a8b3975fc54d4d9438c6b72c8148289f9d96c228fde8fa0b7ef",
+    "final-matrix-extension-results.json": "d017dbdeaa5a653699ddf607eda50b8c95e1032fb9f98b6c216e45ddc0df0f23",
+    "run-consolidated.py": "dc8cd0b48596143cbd62633c88358b1f1abc3c4faf3534770b5b34c32fd49eed"
+  }
+}
