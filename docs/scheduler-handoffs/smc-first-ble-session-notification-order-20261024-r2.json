@@ -1,0 +1,153 @@
+{
+  "schema": "loopyx0x37.smc.source-reviewed-producer-evidence.v1",
+  "evidence_revision": "smc-pr79-initial-ble-session-notification-order-20261024-r2",
+  "date_utc": "2026-10-24T02:11:28Z",
+  "owner_role": "LoopyX0X37 SMC Transport",
+  "outcome": "DELIVERED",
+  "pr": 79,
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/smc-ble-link-epoch-20261023-1210",
+    "source_commit_before_evidence": "c70dc308fcc4dc1177114754bd9002616fa87178",
+    "full_root": "30881df72ed31d0f63c161dc333aa4c5d94b9001",
+    "firmware_subtree": "37035d6670d63b682cf408c11593c9c31067c96b",
+    "compiled_inputs_changed": true,
+    "changed_paths": [
+      "firmware/src/ble.c",
+      "tests/host/ble_central_first_notification_test.py",
+      "tests/run_tests.sh"
+    ],
+    "blobs": {
+      "firmware/src/ble.c": "9907c76b31894363b9739c7819af6eac005d737c",
+      "tests/host/ble_central_first_notification_test.py": "d6a19e28f630635ac3c11ea6e6fa0ed641639fdf",
+      "tests/run_tests.sh": "9918c50a839584646764c7f02a07ffb438874b61"
+    }
+  },
+  "consumed": {
+    "prior_pr": 79,
+    "prior_commit": "3e430691dcfecb8dba8e9c6963ccb6ba4616e648",
+    "review_thread": "PRRT_kwDOVQzWEM6vz1jK",
+    "finding": "ble_central_service() published SMC link-up after up to eight blec_rx() frames; first fresh MIDI notification in the same TIMER5 batch was queued before that cutoff then purged as pre-session input.",
+    "integration": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "pr": 103,
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "commit": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+      "root": "2a2972589f360c064c7fd9ad51d420128ba56744",
+      "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "evidence_revision": "safe-merge-pr103-durable-backup-pr107-20261024-r8"
+    }
+  },
+  "repair": "Inside the existing BLE central MIDI callback, when the BLE connection is actually established, publish idempotent smc_ble_link(1) through ble_central_link_notify before smc_ble_midi queues the message. The final service-level notifier remains for link changes without incoming MIDI. No repeated link epoch for steady-state notes.",
+  "checks": [
+    {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all ble_callback_boundary_fixture.c -o ble_gcc_original; ./ble_gcc_original",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions": 49,
+      "failures": 8,
+      "expected_fail": true,
+      "log_sha256": "fb8edcad3d40238f778b0c3486c332c546837d63dbecdc81e1eb936baa9fde8b"
+    },
+    {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DFIXED ble_callback_boundary_fixture.c -o ble_gcc_fixed; ./ble_gcc_fixed",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": 49,
+      "failures": 0,
+      "expected_fail": false
+    },
+    {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all ble_callback_boundary_fixture.c -o ble_clang_original; ./ble_clang_original",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions": 49,
+      "failures": 8,
+      "expected_fail": true
+    },
+    {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DFIXED ble_callback_boundary_fixture.c -o ble_clang_fixed; ./ble_clang_fixed",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": 49,
+      "failures": 0,
+      "expected_fail": false
+    },
+    {
+      "command": "BLE_SOURCE=firmware/src/ble_original.c CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 tests/host/ble_central_first_notification_test.py",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions": 49,
+      "failures": 8,
+      "log_sha256": "fb8edcad3d40238f778b0c3486c332c546837d63dbecdc81e1eb936baa9fde8b",
+      "scope": "local unmodified historical callback-window replica and independently recreated test script, not clean Git checkout"
+    },
+    {
+      "command": "BLE_SOURCE=firmware/src/ble.c CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 tests/host/ble_central_first_notification_test.py",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": 49,
+      "failures": 0,
+      "log_sha256": "877582b658a46d0ec6d112bab08f428b3d30018a6db277d3b420a4d26074c7e7",
+      "scope": "local patched callback-window replica, not exact complete Git checkout"
+    },
+    {
+      "command": "BLE_SOURCE=firmware/src/ble_original.c CC=clang SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 tests/host/ble_central_first_notification_test.py",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions": 49,
+      "failures": 8,
+      "log_sha256": "0e6ce88afee1667d55bacfe41dda4005c25e45fbc9382c08b3d65f96cf2cfc4e",
+      "scope": "local historical callback-window replica"
+    },
+    {
+      "command": "BLE_SOURCE=firmware/src/ble.c CC=clang SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 tests/host/ble_central_first_notification_test.py",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": 49,
+      "failures": 0,
+      "log_sha256": "e42fee9658a027623d6d470dd73d91fd4edd0ff531a3335964241687068978e2",
+      "scope": "local patched callback-window replica"
+    },
+    {
+      "command": "python3 -m py_compile tests/host/ble_central_first_notification_test.py",
+      "exit": 0,
+      "scope": "local recreated script"
+    }
+  ],
+  "verified_git_checks": {
+    "count": 8,
+    "passes": 8,
+    "command": "GitHub exact-ref readback of BLE, Python regression and runner blobs and source registration/publish-before-enqueue invariants"
+  },
+  "not_executed": [
+    "complete exact-root host registered Python run from Git checkout",
+    "full native firmware and controller model builds",
+    "independent QA of first combined root",
+    "hardware MIDI/BLE timing or connection device test",
+    "public installer/hash/HTTP validation"
+  ],
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW; QA_PENDING; BUILD_ONLY_PENDING; INTEGRATION_PENDING; DEVICE_NOT_TESTED; NOT_INSTALLABLE",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Run exact PR79 host ble-central-first-notification and existing smc BLE reconnect epoch (including coalesced ISR link transitions) and SMC/clock/NoteOff negatives; review exact source/root.",
+      "gate": "independent exact-root native QA"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Reconcile only new ble.c callback notification plus registered test/runner into PR103, preserve source tree and #79 smc_mixer epoch fix; request fresh combined QA.",
+      "gate": "reviewed combined source"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile Elite DEV, Pro DEV and matching private controller BUILD_ONLY immediately from changed PR79 firmware subtree, independently of QA and merge.",
+      "gate": "actual exact model build outputs and evidence"
+    },
+    {
+      "owner": "Catalog/Sole Publisher",
+      "action": "Retain previously safe binaries and no new flashable listing until qualified.",
+      "gate": "all prehardware/package/legal/immutable HTTP requirements"
+    }
+  ]
+}
