@@ -1,0 +1,212 @@
+{
+  "schema": "x0x37.smc-transport-producer-evidence.v1",
+  "evidence_revision": "smc-ble-overflow-inactive-central-20261024-r1",
+  "date_utc": "2026-10-24",
+  "role": "LoopyX0X37 SMC Transport",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/smc-ble-overflow-inactive-central-20261024-run5",
+  "stacked_dependency": {
+    "pr": 112,
+    "branch": "lane/smc-solo-ble-link-boundary-20261024-run3",
+    "full_source_sha": "746181325297f72f0a175bf2c7b1aeea65c77869",
+    "full_root_tree": "aa4cb5ba87a746fad8bff4a03ed8ca958905cfdd",
+    "compiled_firmware_subtree": "275a59017cda5cb0b392a845f97d65f068233026"
+  },
+  "source_blobs": {
+    "smc_before": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
+    "smc_after": "12b41f1934b3370a35298185c0289ddf5ca962da",
+    "test_before": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
+    "test_after": "172482a92727aa758123a42c9d9a35b9a9da02bd"
+  },
+  "reproduced_failure": "With USB/User channel-16 Solo held, a saturated BLE central ring still increments the lost NoteOff generation when BLE central is disabled or its link is down. smc_poll correctly ignores those BLE messages but incorrectly clears host-held Solo based on the ignored overflow signal.",
+  "fix": "Count BLE-overflow lost releases only when PROJ_BT_SMC_CENTRAL is configured and TIMER5's ISR-published link-up bit is set. Do not use lagging main-loop smc.up for new-link-before-poll events.",
+  "new_cases": [
+    "Disabled BLE central channel 1 lost release must not clear host Solo",
+    "Disabled BLE central User-mode channel 16 lost release must not clear host Solo",
+    "Disconnected BLE central lost release must not clear host Solo",
+    "Enabled and connected central overflowed release still clears Solo",
+    "New ISR BLE link-up before main-loop poll still records dropped new-link release"
+  ],
+  "source_test_scope": "Exact verified source blobs loaded into registered source-extracting host harness with mocked UI/ISR and actual GCC/Clang native C compilation. Not an exact complete repository checkout, not complete QA, not target build and not physical device.",
+  "test_matrix": [
+    {
+      "phase": "before",
+      "compiler": "gcc",
+      "sanitizer": "plain",
+      "command": "SMC_SOURCE=pr112-after/firmware/src/app/smc_mixer.c CC=gcc SAN_FLAGS= python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 1,
+      "runner_exit": 41,
+      "log_sha256": "7c4b9ecb094399244d8b71f1b4dd832c47bd9bbef11f4b863ab3a8a425f9fab0",
+      "observation": "EXPECTED FAIL: disabled BLE CENTRAL dropped NoteOff erased HOST Solo"
+    },
+    {
+      "phase": "before",
+      "compiler": "gcc",
+      "sanitizer": "ubsan",
+      "command": "SMC_SOURCE=pr112-after/firmware/src/app/smc_mixer.c CC=gcc SAN_FLAGS=-fsanitize=undefined -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 1,
+      "runner_exit": 41,
+      "log_sha256": "a77b10ec522633c34902463b15829315bc5a51072f8409a2f2374db336122f85",
+      "observation": "EXPECTED FAIL: disabled BLE CENTRAL dropped NoteOff erased HOST Solo"
+    },
+    {
+      "phase": "before",
+      "compiler": "gcc",
+      "sanitizer": "asan_ubsan",
+      "command": "SMC_SOURCE=pr112-after/firmware/src/app/smc_mixer.c CC=gcc SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 1,
+      "runner_exit": 41,
+      "log_sha256": "0a9bbdd319f4edb91f8cbf47223039b713a7c31a43bc2d5cb67cb38ff4330442",
+      "observation": "EXPECTED FAIL: disabled BLE CENTRAL dropped NoteOff erased HOST Solo"
+    },
+    {
+      "phase": "before",
+      "compiler": "clang",
+      "sanitizer": "plain",
+      "command": "SMC_SOURCE=pr112-after/firmware/src/app/smc_mixer.c CC=clang SAN_FLAGS= python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 1,
+      "runner_exit": 41,
+      "log_sha256": "2c8bf66cfd1c1c7f0836acb08e853d09b13865435d1610d83b6af5762d0cf839",
+      "observation": "EXPECTED FAIL: disabled BLE CENTRAL dropped NoteOff erased HOST Solo"
+    },
+    {
+      "phase": "before",
+      "compiler": "clang",
+      "sanitizer": "ubsan",
+      "command": "SMC_SOURCE=pr112-after/firmware/src/app/smc_mixer.c CC=clang SAN_FLAGS=-fsanitize=undefined -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 1,
+      "runner_exit": 41,
+      "log_sha256": "dc5be09c2fb48d43b5f0234aa55204e41f0926aefbff2f8ef295b76cff2149cd",
+      "observation": "EXPECTED FAIL: disabled BLE CENTRAL dropped NoteOff erased HOST Solo"
+    },
+    {
+      "phase": "before",
+      "compiler": "clang",
+      "sanitizer": "asan_ubsan",
+      "command": "SMC_SOURCE=pr112-after/firmware/src/app/smc_mixer.c CC=clang SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 1,
+      "runner_exit": 41,
+      "log_sha256": "89493427afea1de902bb0ca1276194fa17e7a7e3952c75c547a6fc134b075a71",
+      "observation": "EXPECTED FAIL: disabled BLE CENTRAL dropped NoteOff erased HOST Solo"
+    },
+    {
+      "phase": "after",
+      "compiler": "gcc",
+      "sanitizer": "plain",
+      "command": "SMC_SOURCE=smc_fixed.c CC=gcc SAN_FLAGS= python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 0,
+      "runner_exit": 0,
+      "log_sha256": "973254b29fcd7a7e1494361fdf8b651e6c441e1321760302d5437cd269784c79",
+      "observation": "34/34 SOURCE-WINDOW HOST CASES PASS"
+    },
+    {
+      "phase": "after",
+      "compiler": "gcc",
+      "sanitizer": "ubsan",
+      "command": "SMC_SOURCE=smc_fixed.c CC=gcc SAN_FLAGS=-fsanitize=undefined -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 0,
+      "runner_exit": 0,
+      "log_sha256": "987ee709c267223d9d3023fc72a5e26b4b8b4c9832f551600a6f9dfdcd1ab6ef",
+      "observation": "34/34 SOURCE-WINDOW HOST CASES PASS"
+    },
+    {
+      "phase": "after",
+      "compiler": "gcc",
+      "sanitizer": "asan_ubsan",
+      "command": "SMC_SOURCE=smc_fixed.c CC=gcc SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 0,
+      "runner_exit": 0,
+      "log_sha256": "c729ad6fca4901a959465f02f62ee33be8d5cadb793191d6c6c96263b0c5e5e6",
+      "observation": "34/34 SOURCE-WINDOW HOST CASES PASS"
+    },
+    {
+      "phase": "after",
+      "compiler": "clang",
+      "sanitizer": "plain",
+      "command": "SMC_SOURCE=smc_fixed.c CC=clang SAN_FLAGS= python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 0,
+      "runner_exit": 0,
+      "log_sha256": "d9010a86789b5d248ac3f76deeed71340db3b021c0de7876587fe38dd5150415",
+      "observation": "34/34 SOURCE-WINDOW HOST CASES PASS"
+    },
+    {
+      "phase": "after",
+      "compiler": "clang",
+      "sanitizer": "ubsan",
+      "command": "SMC_SOURCE=smc_fixed.c CC=clang SAN_FLAGS=-fsanitize=undefined -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 0,
+      "runner_exit": 0,
+      "log_sha256": "3c17ae1a1a1b6f6d9315df2de8a62674a1548aa96acb3229f5a0e22a7a21e8f1",
+      "observation": "34/34 SOURCE-WINDOW HOST CASES PASS"
+    },
+    {
+      "phase": "after",
+      "compiler": "clang",
+      "sanitizer": "asan_ubsan",
+      "command": "SMC_SOURCE=smc_fixed.c CC=clang SAN_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all python3 -B tests/host/smc_instrumented.py",
+      "compile_exit": 0,
+      "binary_exit": 0,
+      "runner_exit": 0,
+      "log_sha256": "61ea219ec9b7fb5feec90a62d96e9ff69cc66bc510f038d914651d89173e6a23",
+      "observation": "34/34 SOURCE-WINDOW HOST CASES PASS"
+    }
+  ],
+  "additional_commands": [
+    {
+      "command": "SMC_SOURCE=pr112-after/firmware/src/app/smc_mixer.c CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_original_29_consistent_link.py",
+      "exit": 0,
+      "result": "Unmodified 29/29 after fixture state realism adjustment"
+    },
+    {
+      "command": "python3 -B run_matrix.py",
+      "exit": 0,
+      "result": "6/6 old native binaries fail EXPECTED; 6/6 patched native binaries pass 34/34; compiler exits 0"
+    },
+    {
+      "command": "python3 -B -m py_compile tests/host/smc_ble_solo_reconnect_loss_test.py",
+      "exit": 0
+    }
+  ],
+  "runner_note": "smc_instrumented.py is a local derivative of the Git-committed Python test with subprocess.run changed only to print compile/run exits and stop with 41 on expected native failure. Exact complete before/after C source blobs and committed test file Git SHA were compared with git hash-object; raw logs retained in private reproducibility evidence; log_sha256 entries above.",
+  "first_candidate_reference": {
+    "pr": 103,
+    "last_checked_commit": "dc4669083218f17f8cfb69069e7f32911a232b52",
+    "last_checked_root": "02cba17c78ab0e0334995f63363c4e8c407ae6a0",
+    "last_checked_firmware": "5c209609b770fd13949230aeb80956594fd6b741",
+    "not_changing_pr": true,
+    "known_critical_gate": "Data Safety physically wrong-device OTA loader/reconnect/sample-restore negatives in PR #114, 5/19 unsafe QA cases; controller-tail scoped fixed in R18"
+  },
+  "handoff": {
+    "status": "SOURCE_COMPLETE_PRODUCER_CHECKED_REVIEW_READY",
+    "next_owners": [
+      "Independent QA: independently validate this exact branch/root and BLE role-link negatives",
+      "Hourly Build: run immediate BUILD_ONLY Elite and Pro + matching controller on exact new compiled source subtree (no QA wait)",
+      "Sole firmware Safe Merge: integrate only independently accepted actual candidate blocker when compatible; do not edit champion PR103 speculatively"
+    ],
+    "qa": "PENDING_FULL_ROOT",
+    "build": "PENDING_NEW_COMPILED_INPUT",
+    "model": "UNKNOWN",
+    "device": "UNKNOWN",
+    "public_nightly": "NO_GO",
+    "published_website": "UNCHANGED"
+  },
+  "safety": {
+    "production_main": "UNTOUCHED",
+    "nightly_protected": "UNTOUCHED",
+    "website": "UNTOUCHED",
+    "hardware_flash": false,
+    "hosted_runner": false,
+    "proprietary_binary_published": false
+  }
+}
