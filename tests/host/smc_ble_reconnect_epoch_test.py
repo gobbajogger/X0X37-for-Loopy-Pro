@@ -34,7 +34,8 @@ def function(name):
 
 prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
 functions = "\n".join(function(n) for n in (
-    "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link", "smc_poll"
+    "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link",
+    "smc_mmc_drain_stop", "smc_poll"
 ))
 harness = r'''
 #include <stdint.h>

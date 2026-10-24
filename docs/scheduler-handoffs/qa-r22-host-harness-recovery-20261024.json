@@ -1,0 +1,361 @@
+{
+  "schema": 1,
+  "date": "2026-10-24",
+  "stage": "TEST_ONLY_SOURCE_REPAIR_REVIEWED_NOT_FIRMWARE_ACCEPTANCE",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base": {
+    "commit": "77f77e43ba84b39024183426709f56b0b368394e",
+    "root_tree": "55cfa45acc82e70cdc79aac99fd52828abfbb857",
+    "r22_commit": "56c180450393f26859419ce13b479e45cb0c242d",
+    "r22_root_tree": "b3cd9031c4ec1693b5a0d1566a51d1c12054d5dd",
+    "change_from_r22": [
+      "LICENSING.md",
+      "docs/notices/schwung-breakbeat-MIT.txt"
+    ]
+  },
+  "patch": {
+    "sha256": "39b43b3e78c6efed24b10d5c97203345162547f8784051065a2be707e50bae8a",
+    "files": [
+      {
+        "path": "tests/host/rec_live_test.c",
+        "before_blob": "05aacd77ede1e81f24ea758318e3192e3011137e",
+        "after_blob": "6892031cb7ede79b029353aa6088e82b47474115"
+      },
+      {
+        "path": "tests/host/smc_ble_reconnect_epoch_test.py",
+        "before_blob": "d36141afdaa47b620ac0049d1f81560e7e2844a7",
+        "after_blob": "166e919bf37245947692b8cd27fe986270b06408"
+      },
+      {
+        "path": "tests/host/smc_clip_visibility_test.sh",
+        "before_blob": "37bd753262abab66a7da2d7cd023e88e765983af",
+        "after_blob": "b3738aee7ef5d771cf3255b4ff44ae678603df12"
+      },
+      {
+        "path": "tests/host/smc_drum_rs_test.c",
+        "before_blob": "927df4988fdd7483f536574a16875a494d4d7b05",
+        "after_blob": "6939a7a99c297b1eadc574fac19d4c74750ebe59"
+      },
+      {
+        "path": "tests/host/smc_link_test.py",
+        "before_blob": "5b4af7e18085049a2a6b2d63d366235bd4fc7204",
+        "after_blob": "f2206a9ab8f7d123399681f2c2bedcc7817e9b5f"
+      },
+      {
+        "path": "tests/smk_apc40_test.py",
+        "before_blob": "918ac3b0a95aef6da0e2622971aaa6499a83e2a7",
+        "after_blob": "a07ee479dac12a61bb11947f3c5d51a4c9d74813"
+      }
+    ],
+    "review": "Separate independent agent accepted this exact six-file patch and reran all six affected fixtures; parent-verified receipt, not human approval or firmware qualification. Patch stayed byte-identical after docs-only base fast-forward."
+  },
+  "unchanged_trees": {
+    "firmware": "5c209609b770fd13949230aeb80956594fd6b741",
+    "tools": "555fcc70876e6faeddd45e33074f7b4e70de334e",
+    "ble": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "host": "70d16e6a0fc3d605782af29289d57bd33c27e75f",
+    "web": "4558d776a032b909eb65e1c2f8f534c0752c2fbe",
+    ".github": "aa95a88abeab8f69aba74812ef0e61c677f3d0ea",
+    "build.sh": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+    "LICENSE": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7"
+  },
+  "native_execution": {
+    "platform": "Linux x86_64",
+    "gcc": "14.2.0",
+    "python": "Python 3.12.14",
+    "node": "v24.22.1",
+    "hardware": "No hardware; simulated MIDI/device tests only",
+    "release_gate": "Not run; no release build authorized",
+    "leak_sanitizer": "Disabled: ASAN_OPTIONS=detect_leaks=0; no leak PASS claimed"
+  },
+  "results": {
+    "r22_baseline_host": {
+      "selectors": 95,
+      "passed": 89,
+      "failed": 6,
+      "exit": 1,
+      "failures": [
+        "smc-link: omitted existing smc_mmc_drain_stop in extracted harness",
+        "smc-reconnect-epoch: omitted existing smc_mmc_drain_stop in extracted harness",
+        "smc-clip-visibility: omitted existing smc_mmc_drain_stop in extracted harness",
+        "smc-drum-rs: 9 stale help/REC/Solo assertions contradict current BEHAVIOR SMC-02",
+        "smk-apc40: stale sent_note source identifier and update guard assertion; existing PR69 repair",
+        "rec-live-smk: disconnected-SMC fixture omits project-active/reset link symbols"
+      ]
+    },
+    "r22_baseline_install_data": {
+      "selectors": 22,
+      "passed": 22,
+      "exit": 0
+    },
+    "r22_pinned_dsp": {
+      "selectors": 5,
+      "passed": 5,
+      "exit": 0
+    },
+    "repaired_r22_aggregate": {
+      "selectors": 121,
+      "passed": 121,
+      "exit": 0
+    },
+    "repaired_new_base_affected_and_controls": {
+      "selectors": 8,
+      "passed": 8,
+      "exit": 0
+    },
+    "repaired_link_sanitizers": "Both link/reconnect scripts passed GCC UBSan and ASan+UBSan (4 commands, all exit 0)",
+    "direct_packages": "Real Elite and Pro identity, 20-block CRC, stock-region map and boot-head checks PASS; synthetic-controller malformed/roundtrip matrices PASS for both models",
+    "actual_private_controller_join": [
+      {
+        "model": "SMK-37 Elite_900",
+        "base_bytes": 651396,
+        "base_sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+        "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "joined_bytes": 651396,
+        "joined_sha256": "735094f847ba236aa6e95b14bb32ce7af9948dc2929840ccad23caca2f96be3f",
+        "joined_logical_sha256": "767e83b407f0192472291446ecb726591fcadc0050021ca067fe944357e6a247",
+        "python_js_byte_equivalence": true,
+        "controller_readback_exact": true,
+        "remove_roundtrip_exact": true,
+        "package_crc_pass": true
+      },
+      {
+        "model": "SMK-37 Pro_900",
+        "base_bytes": 651392,
+        "base_sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c",
+        "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "joined_bytes": 651392,
+        "joined_sha256": "928dd896e1753d122919e750556528354184534ca5585a2b76f439b15d47bf97",
+        "joined_logical_sha256": "242674c62b2bc1b8a1509732085b6bf8311ec990b17c9ac4a8143452373dcc37",
+        "python_js_byte_equivalence": true,
+        "controller_readback_exact": true,
+        "remove_roundtrip_exact": true,
+        "package_crc_pass": true
+      }
+    ],
+    "syntax_diff": "git diff --check, Python py_compile and shell syntax exit 0"
+  },
+  "references": {
+    "schwung-tb3po": {
+      "commit": "f49d81d05d1e29ae37728a08e30f193892be3bc9",
+      "tree": "2d87c9ef8a0fe1fca4b0af524e8939fbdf6fb904"
+    },
+    "schwung-9W9": {
+      "commit": "10cbe5c1e1c9e65b0818bb34644ab1a13092082c",
+      "tree": "2a32b748456d4f162010932771f2ca26fc5d34d6"
+    },
+    "schwung-8W8": {
+      "commit": "94aa2716d4c2e5851fc7c5dbb4c17adfd133c997",
+      "tree": "a042961b65cb420bd1555de3cd93cbb7c807652f"
+    },
+    "schwung-303": {
+      "commit": "7680578cdecd91e512cfddb9c9eb07b287fb64f4",
+      "tree": "5ca9b1d6504fde78c7ddc89944f0b99aa40a0cd4"
+    }
+  },
+  "aggregate_command": {
+    "argv": [
+      "sh",
+      "tests/run_tests.sh",
+      "fastmath",
+      "sequencer",
+      "seq-pingpong-resize",
+      "clk-lock",
+      "encoder",
+      "bass303_lite",
+      "uac",
+      "trs",
+      "undo",
+      "undo-capacity",
+      "lz",
+      "motion",
+      "host-build",
+      "project-303-stream",
+      "project-protocol",
+      "project-stage",
+      "project-runtime",
+      "font-pack",
+      "smc-protocol",
+      "smc-fader",
+      "smc-buttons",
+      "smc-queue",
+      "smc-solo-overflow",
+      "smc-host-data7",
+      "smc-host-overflow-data7",
+      "smc-sender-isolation",
+      "smc-ble-payload",
+      "smc-link",
+      "smc-reconnect-epoch",
+      "ble-central-first-notification",
+      "ble-midi-receive",
+      "ble-capture-replay",
+      "ble-acl-start-flags",
+      "ble-hci-completed",
+      "ble-acl-zero-credit",
+      "ble-link-epoch-reset",
+      "ble-disconnect-status",
+      "smc-reachability",
+      "smc-mapping",
+      "smc-drum-mutes",
+      "smc-drum-rs",
+      "smc-performance-abort",
+      "smc-filter",
+      "smc-feedback",
+      "smc-record-feedback",
+      "smc-part-select",
+      "smc-clip-visibility",
+      "drum-pan",
+      "stereo",
+      "master",
+      "breaks",
+      "loop-bars",
+      "locked-settings",
+      "smk-flash",
+      "smk-storage",
+      "smk-apc40-map",
+      "smk-apc40",
+      "smk-clip-ble-clear",
+      "smk-clip-keys",
+      "smk-chord-recognize",
+      "smk-clip-chord-display",
+      "smk-ck-page-layout",
+      "smk-arrows",
+      "smk-arrows-owner",
+      "apc40-tables",
+      "smk-clip-idle",
+      "smk-clip-idle-pad",
+      "apc40-pad-owner",
+      "smk-padcal",
+      "padcal-view",
+      "smk-padcal-export",
+      "smk-padcal-wiring",
+      "pad-placement-doc",
+      "padcal-flag",
+      "apc40-lcd565-csv",
+      "apc-palette",
+      "diag-size",
+      "smk-inlog",
+      "ble-central-diag",
+      "inlog-tool",
+      "smk-clip-ble-notify",
+      "smk-clip-dark",
+      "smk-clip-usb-clear",
+      "smk-clip-isolation",
+      "smk-clip-knob",
+      "smk-fader-pickup",
+      "smk-clip-wait",
+      "smk-apc40-violet",
+      "ble-sysex-bounds",
+      "ble",
+      "rec-live",
+      "rec-live-smk",
+      "copy-semantics",
+      "song-actions",
+      "ui-feedback",
+      "installer",
+      "ble-package",
+      "breaks-web",
+      "breaks-page",
+      "projects-web",
+      "projects-page",
+      "install-slots-web",
+      "slot-backup",
+      "slot-backup-durable",
+      "slot-archive-zone",
+      "slot-verify-order",
+      "slot-read-reply",
+      "slot-ack-integrity",
+      "slot-echo-7bit",
+      "slot-migration-matching",
+      "installer-slots",
+      "installer-restore-status",
+      "installer-ota-finish-ack",
+      "installer-backup-snapshot",
+      "installer-ctl",
+      "ctl-read-framing",
+      "ctl-publish-atomic",
+      "drum909-adpcm",
+      "drum909",
+      "drum808",
+      "bass303"
+    ],
+    "environment": {
+      "ASAN_OPTIONS": "detect_leaks=0",
+      "X0X_TEST_JOBS": "4",
+      "X0X_DEV_PADCAL": "1",
+      "X0X_GATE_LOCK": "<isolated-checkout>/build/test-only.lock",
+      "NINEW9_DIR": "<pinned-refs>/schwung-9W9",
+      "EIGHTW8_DIR": "<pinned-refs>/schwung-8W8",
+      "SCHWUNG303": "<pinned-refs>/schwung-303",
+      "TB3PO_REF": "<pinned-refs>/schwung-tb3po/src/dsp/tb3po.c"
+    }
+  },
+  "retained_log_hashes": {
+    "r22-firmware-host-suite.log": {
+      "bytes": 7787,
+      "sha256": "f07e48f5ce9749fdc0213733d842f808229fe825c12cdf94a7eb797a02b685e8"
+    },
+    "r22-install-data-suite.log": {
+      "bytes": 651,
+      "sha256": "a69b8afa9e9e1fd154f10cba5d5d384e1c971bc23d137f89aa983d083a0afc2b"
+    },
+    "r22-pinned-dsp-suite.log": {
+      "bytes": 206,
+      "sha256": "cdaab002f31265c72c802ffc62935b00388d4c03bd2778981879fe3a6e6c2c3f"
+    },
+    "repaired-harness-suite.log": {
+      "bytes": 288,
+      "sha256": "788efc4a1203bca86a2e53200989f26846b80b1f4e03ab81532abd8af5496ac5"
+    },
+    "repaired-full-applicable-suite.log": {
+      "bytes": 2738,
+      "sha256": "2cba742189c8bab84c999502717275cc540dc813374016a2027bad86570503d2"
+    },
+    "r23-repaired-harness-suite.log": {
+      "bytes": 288,
+      "sha256": "788efc4a1203bca86a2e53200989f26846b80b1f4e03ab81532abd8af5496ac5"
+    },
+    "r22-elite-package.log": {
+      "bytes": 439,
+      "sha256": "8e7ffb6b973257e15e2c05331715507d2ce866dfe9d87f414d506f235856653b"
+    },
+    "r22-pro-package.log": {
+      "bytes": 439,
+      "sha256": "a704dd6928ea926bd6a7681aa11831a2acc4959c8a5345a4a02809f98dc96418"
+    },
+    "r22-elite-controller-tests.log": {
+      "bytes": 17,
+      "sha256": "f4f4a4502181893d710d210cd5a40b3b9d1ea31c077f2f5650c9d12d7cd8016f"
+    },
+    "actual-model-controller-join.json": {
+      "bytes": 1213,
+      "sha256": "f3a7946f0e68e40752e10b56dc7a853c9afe908b3540d0a2558ded5d4f48bbf5"
+    },
+    "repaired-smc_ble_reconnect_epoch_test-asan-ubsan.log": {
+      "bytes": 123,
+      "sha256": "40c48dc67ac4e34a8b253a28bbfbb280a2814895973a0ba22d7718e0205ef8fe"
+    },
+    "repaired-smc_ble_reconnect_epoch_test-ubsan.log": {
+      "bytes": 123,
+      "sha256": "40c48dc67ac4e34a8b253a28bbfbb280a2814895973a0ba22d7718e0205ef8fe"
+    },
+    "repaired-smc_link_test-asan-ubsan.log": {
+      "bytes": 266,
+      "sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc"
+    },
+    "repaired-smc_link_test-ubsan.log": {
+      "bytes": 266,
+      "sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc"
+    }
+  },
+  "limitations": [
+    "121 selected applicable host checks on an exact complete checkout, not every repository selector or full release gate.",
+    "Runner target-generation smk-package/loader path skipped without raw app/loader/SDK inputs; real supplied Elite/Pro packages separately checked.",
+    "Native Python first-responder/wrong-device OTA hazards are NOT repaired or certified by these existing positive tests. PR114 physical_id architecture is separate from actual browser WebMIDI route.",
+    "Browser PR8 loader/target/backup/restore safety, exact accepted combined source, independent package/source QA, lawful hosting and sole-publisher served HTTP verification still required.",
+    "No new native target compile, protected branch merge, website write, public binary upload, actual device readback or physical owner test.",
+    "No SDK, toolchain, firmware, controller, raw user captures, credentials or sample data included in this source delivery."
+  ],
+  "next_owner": "Existing sole Independent QA and Safe Merge. Consume exact new test source and carried licensing record, issue browser-route-specific source acceptance, integrate through PR103 protected nightly workflow only after actual applicable gates. Do not infer entire candidate acceptance from this test repair."
+}
