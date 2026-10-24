@@ -353,7 +353,10 @@ $("download").addEventListener("click", (event) => {
   const p = v && chosenModel && v.models[chosenModel];
   if (!isCatalogChecked(v, p) || !verifiedDownload ||
       verifiedDownload.pkg !== p || verifiedDownload.model !== chosenModel ||
-      verifiedDownload.version !== v.version) {
+      verifiedDownload.version !== v.version ||
+      typeof verifiedDownload.href !== "string" ||
+      !verifiedDownload.href.startsWith("blob:") ||
+      $("download").href !== verifiedDownload.href) {
     event.preventDefault();
     discardVerifiedDownload();
   }
@@ -482,7 +485,7 @@ function versions() {
 }
 function currentVersion() {
   const v = $("version").value;
-  return versions().find((x) => x.version === v) || versions()[0] || null;
+  return versions().find((x) => x.version === v) || null;
 }
 function modelKeyForProduct(product) {
   if (/^FM-1/i.test(product)) return "fm1";
@@ -541,6 +544,16 @@ function isCatalogChecked(v, p) {
   return !!v && !!p && approvedNightlyModels(v).includes(chosenModel) &&
     v.models && v.models[chosenModel] === p;
 }
+// Cached bytes belong only to the exact approved package that was hashed and
+// parsed. Stale DOM selection or another package cannot authorize this image.
+function hasVerifiedNightlySelection(v, p) {
+  return isCatalogChecked(v, p) && !!image && selectedProduct === p.product &&
+    !!verifiedDownload && verifiedDownload.pkg === p &&
+    verifiedDownload.model === chosenModel &&
+    verifiedDownload.version === v.version &&
+    typeof verifiedDownload.href === "string" &&
+    verifiedDownload.href.startsWith("blob:");
+}
 function refreshMeta() {
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
@@ -553,7 +566,9 @@ function refreshMeta() {
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
   if (!verifiedDownload || verifiedDownload.pkg !== pkg ||
-      verifiedDownload.model !== chosenModel || verifiedDownload.version !== ver.version) {
+      verifiedDownload.model !== chosenModel || verifiedDownload.version !== ver.version ||
+      typeof verifiedDownload.href !== "string" ||
+      !verifiedDownload.href.startsWith("blob:")) {
     discardVerifiedDownload();
     return;
   }
@@ -603,7 +618,8 @@ async function loadSelectedPackage() {
     verifiedDownload = { pkg, model, version: ver.version,
       href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
     say(`X0X ${ver.version} · ${MODELS[model] || model}`);
-    $("go").disabled = writing || ctlNeedsResolution;
+    $("go").disabled = writing || ctlNeedsResolution ||
+      !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
     refreshMeta();
   } catch (e) { if (isLatest()) sayK("loadfail", e.message); }
 }
@@ -679,7 +695,7 @@ $("ctlfile").addEventListener("change", async (e) => {
     if (requestId !== ctlLoadSerial || writing) return;
     ctl = raw; ctlHash = hash;
     ctlNeedsResolution = false;
-    $("go").disabled = writing || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("go").disabled = writing || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
     $("ctlclear").disabled = false;
     sayK("ctlok");
   } catch (err) {
@@ -692,7 +708,7 @@ $("ctlclear").addEventListener("click", () => {
   ctlLoadSerial++;
   ctl = null; ctlHash = null;
   ctlNeedsResolution = false;
-  $("go").disabled = writing || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
+  $("go").disabled = writing || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("ctlfile").value = "";
   $("ctlclear").disabled = true;
   sayK("ctlcleared");
@@ -774,7 +790,7 @@ async function run(img, product, opts = {}) {
   catch (e) {
     writing = false;
     sayK(e.code || "denied");
-    $("go").disabled = ctlNeedsResolution || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
     $("stockgo").disabled = !stock || !$("stockconfirm").checked;
     $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
     return;
@@ -845,14 +861,14 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
-  $("go").disabled = ctlNeedsResolution || !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
+  $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
   $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
 }
 
 $("go").addEventListener("click", () => {
-  if (!image || !selectedProduct || writing || ctlNeedsResolution || $("go").disabled ||
-      !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
+  if (writing || ctlNeedsResolution || $("go").disabled ||
+      !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
   if (!confirmWrite(selectedProduct)) return;
   let img = image;
   if (ctl) {
