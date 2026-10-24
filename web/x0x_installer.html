@@ -418,7 +418,7 @@ $("connbtn").addEventListener("click", () => { scan(); });
 const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});
 const NIGHTLY_SHA256 = /^[0-9a-f]{64}$/;
 const NIGHTLY_SHA40 = /^[0-9a-f]{40}$/;
-const NIGHTLY_PRODUCTS = Object.freeze({ elite: /^SMK-37 Elite_900[0-9]+$/, pro: /^SMK-37 Pro_900[0-9]+$/ });
+const NIGHTLY_PRODUCTS = Object.freeze({ elite: /^SMK-37 Elite_900[0-9]*$/, pro: /^SMK-37 Pro_900[0-9]*$/ });
 function approvedNightlyModels(v, approvals = NIGHTLY_PUBLISHER_APPROVALS) {
   if (!v || v.status !== "dev-checked" || v.revoked === true ||
       !NIGHTLY_SHA40.test(v.source_commit || "") ||
