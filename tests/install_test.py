@@ -136,7 +136,7 @@ class FakeSMK:
             if self.stall_after and self.served >= self.stall_after:
                 return
             if addr == I.FINISH_CHECK:
-                threading.Timer(0.05, self.boot, ("ota-SMK-37 Pro_900", "Felucca Update")).start()
+                threading.Timer(0.05, self.boot, ("ota-" + self.after_write, "Felucca Update")).start()
             elif addr == I.FINISH_WRITE:
                 threading.Timer(0.05, self.boot, (self.after_write, "Felucca")).start()
             else:

@@ -1,0 +1,43 @@
+{
+  "schema": "loopyx0x37.nightly_first_ota_unique_target.scoped_evidence.v1",
+  "source_repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base_source_sha": "704ccaf972fbb4d409afd4cfd8e605eac14b04bc",
+  "base_source_tree": "af1b4236da527642d0cc328084a15d4984561566",
+  "base_fm1_install_blob": "a3a300192cdd526d87cec8c629080932dbd59042",
+  "source_scope": "Native installer Python (no firmware compiler inputs changed)",
+  "tested_environment": "Linux x86_64 Python 3; ZIP-backed historical R17 support modules with PR114 exact changed OTA method windows overlaid, not complete current Git root checkout",
+  "checks": [
+    {
+      "command": "python3 -B tests/host/ota_no_ambiguous_target_test.py [PR114 baseline projection]",
+      "exit": 1,
+      "result": "expected RED: 7/14 checked, 7 failures"
+    },
+    {
+      "command": "python3 -B tests/host/ota_no_ambiguous_target_test.py [patched projection]",
+      "exit": 0,
+      "result": "14/14 PASS"
+    },
+    {
+      "command": "python3 -B tests/install_test.py [patched prototype and corrected mocked Elite loader]",
+      "exit": 0,
+      "result": "all listed host cases PASS; optional external JS/package comparison skipped"
+    },
+    {
+      "command": "python3 -B tests/install_ctl_test.py [patched prototype and corrected mocked Elite loader]",
+      "exit": 0,
+      "result": "all listed mocked controller readback and negative cases PASS"
+    },
+    {
+      "command": "python3 -B -m py_compile tools/fm1_install.py tests/install_test.py tests/host/ota_no_ambiguous_target_test.py [patched projection]",
+      "exit": 0,
+      "result": "syntax PASS"
+    }
+  ],
+  "known_limitations": [
+    "The shared MIDI identity contains model/version, not an immutable physical serial across loader reboot; swapping a different sole identical device can remain undetectable.",
+    "The selected initial --port intentionally scopes initial discovery; subsequent wait_for scans all candidate ports to detect multiple identical devices.",
+    "Full exact PR114 root suite and independently reviewed complete firmware candidate were NOT run in this scoped producer work.",
+    "No physical hardware test or FLASH; no Elite/Pro target recompilation; no code or artifacts for public download."
+  ],
+  "next": "Independent QA fetch this exact PR branch and run full current-root registered host/installer backup/OTA/controller tests; Data Safety/Safe Merge integrate only after reviewed acceptance. Native build and legal immutable external hosting/HTTP still pending."
+}

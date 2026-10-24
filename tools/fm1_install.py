@@ -103,7 +103,7 @@ DELAY = {"open": 0.3, "start": 2.0, "reply": 0.01, "loader": 3.0, "reboot": 3.0,
          "wait_loader": 30.0, "wait_reboot": 40.0}
 
 EXIT = {"usage": 2, "badpkg": 2, "notfound": 3, "model": 6, "lost": 4, "stopped": 4, "badreq": 4,
-        "noloader": 5, "noreturn": 5, "mismatch": 6, "slots": 7, "ctlcrc": 8, "head": 11}
+        "noloader": 5, "noreturn": 5, "mismatch": 6, "ambiguous": 6, "slots": 7, "ctlcrc": 8, "head": 11}
 
 
 class InstallError(Exception):
@@ -389,8 +389,14 @@ class Updater:
         return [n for n in names if PORT_RE.search(n)]
 
     def find(self, want=None, only_port=True):
-        """the first matching port that answers the handshake (and want(identity))"""
+        """Find a uniquely identified device, never silently choose one of two matches.
+
+        Loader and firmware identities are *not* physical serial numbers. Scanning
+        all matching ports before continuing prevents an ordinary multiple-device
+        setup from selecting another keyboard for an OTA write or sample restore.
+        """
         outs = self.backend.output_names()
+        selected = None
         for name in self.candidates(only_port):
             out = pair_output(name, outs)
             if not out:
@@ -399,11 +405,23 @@ class Updater:
                 link = self.backend.open(name, out)
             except Exception:
                 continue
-            ident = handshake(link, 2)
+            try:
+                ident = handshake(link, 2)
+            except Exception:
+                link.close()
+                if selected:
+                    selected.link.close()
+                raise
             if ident and (want is None or want(ident)):
-                return Device(link, ident, name)
-            link.close()
-        return None
+                if selected is not None:
+                    link.close()
+                    selected.link.close()
+                    raise InstallError("ambiguous", "multiple matching keyboards answered MIDI discovery; "
+                                       "disconnect other keyboards and retry. Nothing was written by this step")
+                selected = Device(link, ident, name)
+            else:
+                link.close()
+        return selected
 
     def wait_for(self, want, secs):
         end = time.monotonic() + secs
@@ -482,12 +500,19 @@ class Updater:
     def verify(self, product, step):
         step("reboot")
         time.sleep(DELAY["reboot"])
-        back = self.wait_for(lambda i: not i.loader and model_of(i.text) == model_of(product), DELAY["wait_reboot"])
+        # A stale same-model keyboard may respond first while the real target
+        # is still rebooting; look for the *exact* installed product throughout
+        # the deadline. Only on timeout use a stale identity for diagnostics.
+        back = self.wait_for(lambda i: not i.loader and i.text == product, DELAY["wait_reboot"])
         if not back:
+            stale = self.wait_for(lambda i: not i.loader and model_of(i.text) == model_of(product),
+                                  DELAY["retry"])
+            if stale:
+                reported = stale.id.text
+                stale.link.close()
+                raise InstallError("mismatch", f"written, but the FM-1 reports {reported} (expected {product})")
             raise InstallError("noreturn", "the FM-1 did not come back: power-cycle it")
         back.link.close()
-        if back.id.text != product:
-            raise InstallError("mismatch", f"written, but the FM-1 reports {back.id.text} (expected {product})")
         step("done", back.id.text)
         return back.id.text
 
