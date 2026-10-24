@@ -98,6 +98,14 @@ static int next_pos(seq_t *s, int t, int p, int commit)
     case DIR_PINGPONG:
         if (len == 1)
             return 0;
+        /* A live length edit can put the old playhead beyond the new range.
+         * Return directly to its last step, then play backwards; never walk
+         * through the disabled steps outside the newly selected length. */
+        if (p < 0 || p >= len) {
+            if (commit)
+                tr->pp_dir = (int8_t)(p < 0 ? 1 : -1);
+            return p < 0 ? 0 : len - 1;
+        }
         n = p + tr->pp_dir;
         if (n >= len || n < 0) {
             n = p - tr->pp_dir;
