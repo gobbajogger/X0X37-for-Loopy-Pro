@@ -1,0 +1,115 @@
+{
+  "schema": "x0x37.closed_development_loop.source_evidence.v1",
+  "evidence_revision": "seqclock-pr41-matched-linked-native-20261024-r6",
+  "date_utc": "2026-10-24",
+  "role_owner": "Sequencer Clock",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/seq-internal-clock-owner-reset-20261023-1701",
+  "consumed_producer_sha": "e0582ccb685f1adb0dc42e8ce1282b5394493982",
+  "consumed_full_root": "7d09e378a596002123d7f58a71cee1ee64a3f1f9",
+  "consumed_firmware_subtree": "62dfd6712bd0f00676fb9292e61897fe2f8b8082",
+  "registered_native_runner_commit": "b5316bea3a9e45bbcd1e4eaa453d938e7678c98f",
+  "registered_runner_full_root": "07381a14c4948da7246406f0bae8b5b834e8884b",
+  "registered_firmware_subtree": "62dfd6712bd0f00676fb9292e61897fe2f8b8082",
+  "registered_runner_blob": "7abdd1814cad7c2c4bc59610d297dc054205ec1b",
+  "changed_runner_suite": "clk-source-owner",
+  "production_exact_git_blobs": {
+    "firmware/src/seq/sequencer.c": "37ee28b8191565f0caa14d91f67accdd32b95cf9",
+    "firmware/src/seq/sequencer.h": "9bbddbf55438247469816625bd0b07a865aa0dcb",
+    "firmware/src/seq/tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "firmware/src/seq/pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "tests/host/clk_lock_test.c": "9735fb14dfe2c135721271bc9fbcbda760298b5e",
+    "tests/host/seq_test.c": "fbbab350b612675fcef31aaaa9570eccc73d5504",
+    "tests/host/clk_source_owner_reset_test.c": "7e62fa075bfe77b11447132e599c5b4f1c846f8a"
+  },
+  "baseline_bug_blob": "83b03f73139d8e679c94526c66b390b6e5bc2f39",
+  "native_method": "Private extracted historical archive with each compiled C source and test independently verified by GitHub SHA/blob and local git hash-object; actual linked C units, not transcribed function windows; whole historical checkout is not the current PR root",
+  "compiler_flags": "-O2 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all (sequencer suite omits -Werror)",
+  "commands": [
+    "gcc -O2 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o <out> tests/host/clk_source_owner_reset_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c",
+    "gcc -O2 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o <out> tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c",
+    "gcc -O2 -ffp-contract=off -Wall -Wextra -fsanitize=undefined -fno-sanitize-recover=all -o <out> tests/host/seq_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c",
+    "same three commands with clang in place of gcc",
+    "bash tests/run_tests.sh clk-source-owner (registered on PR HEAD; complete exact runner execution NOT performed)"
+  ],
+  "actual_exits": [
+    {
+      "compiler": "gcc",
+      "suite": "clock-source-owner-baseline",
+      "compile": 0,
+      "run": 1,
+      "failures": 8,
+      "expected_failure": true
+    },
+    {
+      "compiler": "clang",
+      "suite": "clock-source-owner-baseline",
+      "compile": 0,
+      "run": 1,
+      "failures": 8,
+      "expected_failure": true
+    },
+    {
+      "compiler": "gcc",
+      "suite": "clk-source-owner",
+      "compile": 0,
+      "run": 0
+    },
+    {
+      "compiler": "clang",
+      "suite": "clk-source-owner",
+      "compile": 0,
+      "run": 0
+    },
+    {
+      "compiler": "gcc",
+      "suite": "clk-lock",
+      "compile": 0,
+      "run": 0
+    },
+    {
+      "compiler": "clang",
+      "suite": "clk-lock",
+      "compile": 0,
+      "run": 0
+    },
+    {
+      "compiler": "gcc",
+      "suite": "sequencer",
+      "compile": 0,
+      "run": 0
+    },
+    {
+      "compiler": "clang",
+      "suite": "sequencer",
+      "compile": 0,
+      "run": 0
+    }
+  ],
+  "runner_style_direct_command": [
+    {
+      "compiler": "gcc",
+      "compile": 0,
+      "run": 0
+    },
+    {
+      "compiler": "clang",
+      "compile": 0,
+      "run": 0
+    }
+  ],
+  "evidence_archive_sha256": "1bb1d3fe80915095f4c0640ba05cae45dfe82a84ae5fbfe52c066736c49aea67",
+  "evidence_archive_contents": "manifest, exact new repo host test, positive/negative stdout and compiler output SHA256s",
+  "no_new_target_build": true,
+  "no_device_run": true,
+  "no_current_combined_root_qa": true,
+  "producer_disposition": "SOURCE_COMPLETE; LINKED_NATIVE_PRODUCER_PASS; READY_FOR_INDEPENDENT_REVIEW",
+  "pending": {
+    "independent_qa": "Review/test exact integrated full root for combined clock/transport/NoteOff and safety negatives",
+    "hourly_build": "Parallel BUILD_ONLY from exact source; track model/controller/build SHA",
+    "safe_merge": "Integrate source only on sole authorized isolated integration branch when selected, preserving stacked producer ancestry",
+    "catalog_publisher": "Prehardware model/controller/backup/OTA/integrity/license/source/immutable HTTP gates remain; no public installable claim"
+  },
+  "first_nightly_candidate_seen": "db64bef866e28d2297948a0368e26753833e714f",
+  "note": "PR41 clock patch not asserted as a new first NIGHTLY hard publication prerequisite. Original pre-patch source control is a separate expected-fail control; this manifest records real tests, not QA or hardware approval."
+}
