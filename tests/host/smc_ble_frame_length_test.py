@@ -43,6 +43,13 @@ int main(void)
  const uint8_t off[7] = {0x8F,8,0,0,0,0,0};
  const uint8_t cc[7] = {0xBF,40,77,0,0,0,0};
  const uint8_t pitch[7] = {0xE0,2,4,0,0,0,0};
+ const uint8_t daw_on[3] = {0x90,8,127};
+ const uint8_t daw_off[3] = {0x80,8,0};
+ const uint8_t daw_knob[3] = {0xB0,16,1};
+ const uint8_t foreign_on[3] = {0x91,8,127};
+ const uint8_t foreign_knob[3] = {0xB1,16,1};
+ const uint8_t invalid_status[3] = {0xF8,8,127};
+ const uint8_t invalid_data[3] = {0x90,0x88,127};
  const uint8_t mmc[6] = {0xF0,0x7F,0x7F,0x06,34,0xF7};
  proj.set.bt = PROJ_BT_SMC_USER;
  CHECK(smc_message(on,3,1)==0 && buttons==1);
@@ -64,7 +71,21 @@ int main(void)
  CHECK(smc_message(pitch,3,1)==0 && faders==2);
  CHECK(smc_message(pitch,4,1)==4 && faders==2);
  CHECK(smc_message(mmc,6,1)==4 && mmcs==1);
- CHECK(buttons==1 && releases==1 && knobs==0 && guarded==1);
+ /* With User preset disabled, DAW controls (channel 1) still work, but
+  * channel-16 User keys and unrelated MIDI channels must not move controls.
+  * Test the real production dispatch, not only the protocol helper. */
+ CHECK(smc_message(on,3,1)==4 && buttons==1);
+ CHECK(smc_message(off,3,1)==4 && releases==1);
+ CHECK(smc_message(cc,3,1)==4 && faders==2);
+ CHECK(smc_message(foreign_on,3,1)==4 && buttons==1);
+ CHECK(smc_message(foreign_knob,3,1)==4 && knobs==0);
+ CHECK(smc_message(invalid_status,3,1)==4 && buttons==1);
+ CHECK(smc_message(invalid_data,3,1)==4 && buttons==1);
+ CHECK(smc_message(daw_on,3,1)==0 && buttons==2);
+ CHECK(smc_message(daw_off,3,1)==0 && releases==2);
+ CHECK(smc_message(daw_knob,3,1)==0 && knobs==1);
+ CHECK(smc_message(pitch,3,1)==0 && faders==3);
+ CHECK(buttons==2 && releases==2 && knobs==1 && faders==3 && guarded==1);
  printf("SMC BLE exact-frame length: %u/%u PASS\n",checks,checks);
  return 0;
 }

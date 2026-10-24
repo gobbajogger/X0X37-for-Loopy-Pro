@@ -1,0 +1,243 @@
+{
+  "change_type": "tests-and-evidence-only; no firmware, BLE, controller, SDK, config or build scripts changed",
+  "compiler_firmware_git_tree": "8c915bd5072e3e1ffa93a92ac96cc66b3816f108",
+  "coverage_boundaries": {
+    "native": "actual production smc_message and stop/poll extracted into host programs with mocked UI/ISR",
+    "not_run": [
+      "independent full-root QA",
+      "target Elite/Pro native compilation this revision (compiler inputs unchanged)",
+      "hardware",
+      "OTA/backup/restore",
+      "installer browser/live hosting",
+      "production approval"
+    ],
+    "sanitizer": "ASan+UBSan and UBSan run with leak detection off; no LeakSanitizer claim"
+  },
+  "evidence_revision": "smc-pr122-ble-daw-user-mode-isolation-20261025-r8",
+  "intent": "SMC owners switching DAW/User mode must not have channel-16 User or foreign MIDI move DAW controls; valid DAW controls must remain functional.",
+  "native_test_matrix": [
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 35,
+      "expected_pass_observed": true,
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "sanitizer": "plain",
+      "suite": "smc_ble_frame_length_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 96,
+      "expected_pass_observed": true,
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "sanitizer": "plain",
+      "suite": "smc_mmc_stop_fifo_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 16,
+      "expected_pass_observed": true,
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "sanitizer": "plain",
+      "suite": "smc_ble_midpoll_link_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 35,
+      "expected_pass_observed": true,
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "sanitizer": "ubsan",
+      "suite": "smc_ble_frame_length_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 96,
+      "expected_pass_observed": true,
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "sanitizer": "ubsan",
+      "suite": "smc_mmc_stop_fifo_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 16,
+      "expected_pass_observed": true,
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "sanitizer": "ubsan",
+      "suite": "smc_ble_midpoll_link_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 35,
+      "expected_pass_observed": true,
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "sanitizer": "asan_ubsan",
+      "suite": "smc_ble_frame_length_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 96,
+      "expected_pass_observed": true,
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "sanitizer": "asan_ubsan",
+      "suite": "smc_mmc_stop_fifo_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 0,
+      "expected_cases": 16,
+      "expected_pass_observed": true,
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "sanitizer": "asan_ubsan",
+      "suite": "smc_ble_midpoll_link_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 35,
+      "expected_pass_observed": true,
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "sanitizer": "plain",
+      "suite": "smc_ble_frame_length_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 96,
+      "expected_pass_observed": true,
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "sanitizer": "plain",
+      "suite": "smc_mmc_stop_fifo_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 16,
+      "expected_pass_observed": true,
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "sanitizer": "plain",
+      "suite": "smc_ble_midpoll_link_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 35,
+      "expected_pass_observed": true,
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "sanitizer": "ubsan",
+      "suite": "smc_ble_frame_length_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 96,
+      "expected_pass_observed": true,
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "sanitizer": "ubsan",
+      "suite": "smc_mmc_stop_fifo_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 16,
+      "expected_pass_observed": true,
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "sanitizer": "ubsan",
+      "suite": "smc_ble_midpoll_link_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 35,
+      "expected_pass_observed": true,
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "sanitizer": "asan_ubsan",
+      "suite": "smc_ble_frame_length_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 96,
+      "expected_pass_observed": true,
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "sanitizer": "asan_ubsan",
+      "suite": "smc_mmc_stop_fifo_test.py"
+    },
+    {
+      "compiler": "clang",
+      "exit_code": 0,
+      "expected_cases": 16,
+      "expected_pass_observed": true,
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "sanitizer": "asan_ubsan",
+      "suite": "smc_ble_midpoll_link_test.py"
+    },
+    {
+      "compiler": "gcc",
+      "exit_code": 1,
+      "expected_failure_observed": true,
+      "log_bytes": 562,
+      "log_sha256": "40dfe5b9635bd85414eb21ce7a5b0d096d0f39dffaf606d02cb98bb1475bb7d2",
+      "negative_mutation": "DAW-mode accepts channel-16 User note",
+      "sanitizer": "plain",
+      "suite": "smc_ble_frame_length_test.py"
+    }
+  ],
+  "negative_control": "Intentionally remove production DAW channel gate in throwaway local source; GCC plain test fails with channel-16 User NoteOn unexpectedly accepted.",
+  "next_roles": {
+    "Hourly Build": "verify source-input-equivalent R6 bytes and retained BUILD_ONLY records; no rebuild needed unless any consumed input differs",
+    "Independent QA": "independently replay exact new ROOT and DAW/User routing negative cases; record scoped verdict",
+    "Publisher": "only after independent qualification and lawful hosting",
+    "Safe Merge": "sole owner of later integration after independent QA, no automatic graft"
+  },
+  "own_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "owner": "LoopyX0X37 SMC Transport source specialist",
+  "prior_head": "340426bd5bd42dde2d8ff0652d160723e41458c7",
+  "prior_root_tree": "586f1581a135af8ea33b0d0d538ef64954f3b109",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "reuse_request": "Hourly Build independently verify complete compiler SDK/tools/config controller input identity before reusing R6 Elite/Pro/controller BUILD_ONLY; do not relabel artifacts as fresh R8 builds.",
+  "schema": "x0x37-source-scope-producer-v1",
+  "scoped_tests": [
+    {
+      "expected_positive": "35/35 valid/malformed frame and DAW-vs-User routing assertions for each native compiler/sanitizer",
+      "new_checks": 11,
+      "test": "tests/host/smc_ble_frame_length_test.py"
+    },
+    {
+      "expected_positive": "96/96 boundary and reset cases per configuration; unchanged",
+      "test": "tests/host/smc_mmc_stop_fifo_test.py"
+    },
+    {
+      "expected_positive": "16/16 mid-poll reconnect cases per configuration; unchanged",
+      "test": "tests/host/smc_ble_midpoll_link_test.py"
+    }
+  ],
+  "source_c_git_blob": "ddad3657ed5a0015bb64ed8446de69302a83d0bc",
+  "stop_condition": "No source integration or physical install until independent acceptance and stage-specific prehardware/hardware gates.",
+  "test_source_git_blob": "789594e8f399d94315d478dcb41dbb7accd4bfcc",
+  "test_source_path": "tests/host/smc_ble_frame_length_test.py"
+}
