@@ -1,0 +1,80 @@
+{
+  "schema": "x0x37-scheduler-handoff/v1",
+  "revision": "data-safety-pr114-r10-dual-midi-endpoint-physical-identity-20261024-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "Data Safety",
+  "owner_branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "producer_parent_sha": "5b16ff81ea1dcb731b719f0505ae2349571481cf",
+  "producer_parent_root_tree": "46c1c7ea78513bdd4a45a90b97d0bde8bc70c452",
+  "unchanged_compiled_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "status": "PRODUCER_SCOPED_PASS__DRAFT_NEEDS_CHANGES__PUBLIC_NIGHTLY_NO_GO",
+  "reported_by": "sole Safe Merge PR114 comment 6384486370",
+  "finding": "pair_output may choose a foreign MIDI output on numbered-name heuristic or lone unrelated-output fallback. Previous authenticated input physical token alone cannot constrain outgoing send.",
+  "source_changes": "Authenticate BOTH independently reported input physical_id and output_physical_id; enforce identical token throughout MidoLink session with sticky fail-closed taint. Remove unrelated-output fallback; only choose unique matching Windows-numbered output with authenticated same token. Pass backend to pair_output. Update synthetic fixtures/test runner and add 14-case registered new native regression.",
+  "native_evidence": {
+    "host": "Classic Linux Python x86_64 source-AST projection only; not full-root independent QA",
+    "test_sha256": "a7ac45497a5a310f1f39b07e300eb253ee150fc3fea8545fcc996f970f1555e2",
+    "library_path": "/LoopyX0X37/LoopyX0X37-DataSafety-PR114-R10-OutputEndpoint-HostNative-20261024.zip",
+    "library_file_id": "libfile_f3ca642b339081918fe7f9e9197cbd6d",
+    "zip_sha256": "88f6b38a9590347d379a8f55a5f6f2856049a90b9e030477c331f4b50cf8adc2",
+    "zip_bytes": 16579,
+    "zip_crc": "PASS",
+    "commands": [
+      [
+        "python3 -B -m py_compile ota_output_endpoint_identity_test.py before_projection.py after_projection.py",
+        0,
+        "syntax"
+      ],
+      [
+        "python3 -B ota_output_endpoint_identity_test.py before_projection.py",
+        1,
+        "6/14 expected RED"
+      ],
+      [
+        "python3 -O -B ota_output_endpoint_identity_test.py before_projection.py",
+        1,
+        "6/14 expected RED"
+      ],
+      [
+        "python3 -B ota_output_endpoint_identity_test.py after_projection.py",
+        0,
+        "14/14 producer PASS"
+      ],
+      [
+        "python3 -O -B ota_output_endpoint_identity_test.py after_projection.py",
+        0,
+        "14/14 producer PASS"
+      ],
+      [
+        "python3 -B ota_send_rebind_test.py after_projection.py",
+        0,
+        "10/10 producer PASS"
+      ],
+      [
+        "python3 -O -B ota_send_rebind_test.py after_projection.py",
+        0,
+        "10/10 producer PASS"
+      ],
+      [
+        "python3 -B ota_unit_bounce_test.py after_projection.py",
+        0,
+        "9/9 producer PASS"
+      ],
+      [
+        "python3 -O -B ota_unit_bounce_test.py after_projection.py",
+        0,
+        "9/9 producer PASS"
+      ]
+    ]
+  },
+  "nonnegotiable_residuals": [
+    "Production MidoBackend lacks actual per-unit physical_id AND output_physical_id. Read-only enumeration permitted; normal OTA remains deliberately unsupported before UPGRADE.",
+    "Even independently queried physical output ID is not atomic with host MIDI output send; in-send swap may deliver first destructive packet to foreign keyboard; this regression explicitly demonstrates residual.",
+    "Independent QA MUST run full exact new root normal+optimized installer/ctl/OTA/sample backup/restore, slot, model/CRC, output split and cross-model negatives before Safe Merge integration.",
+    "No owner device PASS, lawful public NIGHTLY approval or production promotion; private model BUILDs remain BUILD_ONLY."
+  ],
+  "next_roles": "sole Independent QA; Data Safety real transport/atomic continuity; sole Safe Merge PR103 only after independent acceptance",
+  "firmware_compile_inputs_changed": false,
+  "controller_source_changed": false,
+  "proprietary_assets_added": false
+}

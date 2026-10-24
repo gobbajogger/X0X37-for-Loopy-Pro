@@ -1,0 +1,75 @@
+{
+  "schema": "x0x37-data-safety-native-host-regression-v1",
+  "evidence_revision": "data-safety-pr114-r8-sticky-midi-physical-bounce-20261024-r1",
+  "date_utc": "2026-10-24",
+  "owner": "Existing LoopyX0X37 hourly Data Safety",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 114,
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "consumed": {
+    "head": "010b5b8f3ddb9ff51a816b099cb31a8d7df305ea",
+    "root_tree": "8e26bc1983806358cbae3688fabd266087d530af",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "99331803262ceafc24c77516c9c517283e3f6459",
+    "runner_blob": "0f5f2394507c82429c1321afb5afdf471136a9ff",
+    "source_window_MidoLink_fvn1a32": "e0cc5331"
+  },
+  "source_change": "R7 callback queues foreign B SysEx under original A endpoint's unchanged MIDI display name. If physical A reappears before read, original _same_unit falsely accepts queued B packet. Guard the callback against observed foreign token and permanently taint a link when token mismatch is observed, disallowing B->A revival. Legitimate new authenticated Felucca Update handle remains allowed.",
+  "source_method_window_after_fvn1a32": "3f6a6ced",
+  "new_test": "tests/host/ota_unit_bounce_test.py",
+  "new_registered_selector": "ota-unit-bounce",
+  "local_linux_native": {
+    "platform": "Linux x86_64 Python 3.13.5 (no real MIDI/USB/flash)",
+    "scope": "Git MidoLink exact original source window, reconstructed with stdlib imports and synthetic fake-mido interface; standalone new registered AST host test; NOT full current Git root",
+    "tests": [
+      {
+        "cmd": "python3 -B ota_unit_bounce_test.py midolink_before.py",
+        "exit": 1,
+        "passed": 4,
+        "total": 9,
+        "phase": "expected RED"
+      },
+      {
+        "cmd": "python3 -O -B ota_unit_bounce_test.py midolink_before.py",
+        "exit": 1,
+        "passed": 4,
+        "total": 9,
+        "phase": "expected RED"
+      },
+      {
+        "cmd": "python3 -B ota_unit_bounce_test.py midolink_after.py",
+        "exit": 0,
+        "passed": 9,
+        "total": 9,
+        "phase": "GREEN"
+      },
+      {
+        "cmd": "python3 -O -B ota_unit_bounce_test.py midolink_after.py",
+        "exit": 0,
+        "passed": 9,
+        "total": 9,
+        "phase": "GREEN"
+      },
+      {
+        "cmd": "python3 -B -m py_compile ota_unit_bounce_test.py midolink_before.py midolink_after.py",
+        "exit": 0
+      }
+    ]
+  },
+  "unresolved_critical": [
+    "Production MidoBackend still has no trustworthy stable unique physical_id provider; standard SMK-37 Pro app-to-Felucca Update native OTA and sample restores remain UNSUPPORTED and fail closed before UPGRADE.",
+    "A source-check immediately before mido.out.send is non-atomic: independently demonstrated in-send B rebind can receive destructive bytes before host notices. No transport-bound atomic unit-authenticated output operation exists. This repair does NOT close this race.",
+    "Full exact current-root legacy installer/CTL/backup/restore/OTA negative+positive suites have NOT run at this R8 head. Historical R4/R5 failing normal fixtures are not proof of cleared conditions; PR #121 separate fixture candidate cannot be silently merged.",
+    "No physical USB continuity verified. Without a non-reusable physical unit proof the updater must keep no-public-install status.",
+    "Model/cross-model/CRC/package/controller/source/license/immutable HTTPS/public NIGHTLY safety gates and Independent QA remain outstanding."
+  ],
+  "source_status": "DRAFT / NEEDS CHANGES / SOURCE-WINDOW HOST-TESTED ONLY",
+  "compiled_firmware_changed": false,
+  "target_build": "BUILDER ONLY: native Elite/Pro BUILD_ONLY may proceed from exact source after complete compiler-input SHA verification",
+  "independent_qa": "Request sole Independent QA recheck exact new HEAD both normal and optimized host suite, early and in-send physical swaps, normal loader rename, complete installer/backup/restore/ctl/controller/CRC/wrong-model/root; no mocked token treated as real unit serial.",
+  "safe_merge": "Sole Safe Merge owns first NIGHTLY PR #103; do not integrate without independently accepted current exact-source repair.",
+  "hardware": "NOT TESTED",
+  "nightly": "NOT INSTALLABLE",
+  "production": "NOT APPROVED",
+  "restricted_actions": "No protected ref, Pages, compiled binaries, SDK/vendor assets, device flash or host CI"
+}

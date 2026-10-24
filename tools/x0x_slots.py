@@ -189,14 +189,19 @@ def read_bytes(link, k, off, n, progress=None):
     return bytes(out)
 
 
-def read_slot(link, k, nz, progress=None):
-    """slot k's image (header area + data), or None for an empty slot"""
+def read_slot(link, k, nz, progress=None, *, slot_size=None):
+    """slot k's image; reject an inconsistent/out-of-slot header before SMP_READ data."""
     if not nz:
         return None
     head = read_bytes(link, k, 0, DATA_OFF)
     h = parse_header(head)
     if not h:
         raise SlotError(f"slot {k + 1}: the device lists {nz} zone(s) but the header does not parse")
+    if h["nz"] != nz:
+        raise SlotError(f"slot {k + 1}: SMP_INFO zone count differs from the slot header")
+    if (type(slot_size) is not int or slot_size < DATA_OFF
+            or h["data_len"] > slot_size - DATA_OFF):
+        raise SlotError(f"slot {k + 1}: the header would read outside the declared slot size")
     data = read_bytes(link, k, DATA_OFF, h["data_len"], progress=progress)
     if zlib.crc32(data) != h["crc"]:
         raise SlotError(f"slot {k + 1}: the data read back does not match the header CRC")
@@ -377,7 +382,8 @@ def backup(link, progress=None):
     lay = layout(link)
     images = []
     for k, s in enumerate(lay["slots"]):
-        images.append(read_slot(link, k, s["nz"], (lambda d, n, k=k: progress(k, d, n)) if progress else None))
+        images.append(read_slot(link, k, s["nz"], (lambda d, n, k=k: progress(k, d, n)) if progress else None,
+                                slot_size=s["size"]))
     return lay, images
 
 
@@ -444,7 +450,7 @@ def restore(link, meta, images, only=None, verify=True, progress=None):
         # Refuse a failed readback before erasing the next slot.
         if verify:
             after = layout(link)
-            got = read_slot(link, k, after["slots"][k]["nz"])
+            got = read_slot(link, k, after["slots"][k]["nz"], slot_size=after["slots"][k]["size"])
             if got != img:
                 raise SlotError(f"slot {k + 1}: read back differs from the archive")
     return skipped
@@ -521,7 +527,7 @@ def restore_mapped(link, todo, images, progress=None):
         write_slot(link, j, images[k], progress=(lambda d, n, j=j: progress(j, d, n)) if progress else None)
         # Stop migration at the first mismatch; later target slots remain untouched.
         after = layout(link)
-        if read_slot(link, j, after["slots"][j]["nz"]) != images[k]:
+        if read_slot(link, j, after["slots"][j]["nz"], slot_size=after["slots"][j]["size"]) != images[k]:
             raise SlotError(f"slot {j + 1}: read back differs from the backup of slot {k + 1}")
 
 

@@ -1,0 +1,116 @@
+{
+  "schema": "x0x37-data-safety-native-host-regression-v1",
+  "evidence_revision": "data-safety-pr114-r7-mid-session-physical-swap-20261024-r1",
+  "owner": "Existing hourly LoopyX0X37 Data Safety",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "pr": 114,
+  "consumed": {
+    "sha": "523ecb78f27948b6cddb73edb94b27473abc30cd",
+    "root_tree": "2fdf38213a8f6aa2b532dd476f5aa1fb9f6a553c",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "762d2e74e7a88ec3f5ac7987a722faa7de8effee"
+  },
+  "proposed": {
+    "installer_blob": "99331803262ceafc24c77516c9c517283e3f6459",
+    "new_test_blob": "4e906612d03fa7a6828b9225303c63a36b09ac26",
+    "runner_blob": "0f5f2394507c82429c1321afb5afdf471136a9ff",
+    "registered_selector": "ota-mid-session-identity",
+    "compiled_firmware_changes": false
+  },
+  "reason": "A continuously open native MIDI port can be silently reassigned to another physical keyboard under the same OS name. Existing MidoLink.lost checked only presence of that name, and send/read accepted swapped-unit traffic after preflight. With a backend-supplied stable non-reusable physical unit token, guard every outgoing packet and received reply and report loss on replacement; fail closed when a present provider cannot identify the unit. Preserve read-only discovery with the currently unverified MidoBackend, whose Updater install still refuses pre-UPGRADE.",
+  "native": {
+    "architecture": "Classic Linux x86_64, Python 3.13.5; real MidoLink AST source-window projection from exact PR114 R6 Git blob, no USB/MIDI/flash device access",
+    "source_window_fvn1a32_before": "205dce6d",
+    "source_window_fvn1a32_after": "e0cc5331",
+    "test_blob_matches_local_git_hash_object": true,
+    "commands": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "tests/host/ota_mid_session_identity_test.py",
+          "before_midolink.py"
+        ],
+        "exit": 1,
+        "passed": 6,
+        "total": 14,
+        "phase": "expected RED original exact Git MidoLink"
+      },
+      {
+        "argv": [
+          "python3",
+          "-O",
+          "-B",
+          "tests/host/ota_mid_session_identity_test.py",
+          "before_midolink.py"
+        ],
+        "exit": 1,
+        "passed": 6,
+        "total": 14,
+        "phase": "expected RED optimized"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "tests/host/ota_mid_session_identity_test.py",
+          "tools/fm1_install.py"
+        ],
+        "exit": 0,
+        "passed": 14,
+        "total": 14,
+        "phase": "GREEN patched exact source window"
+      },
+      {
+        "argv": [
+          "python3",
+          "-O",
+          "-B",
+          "tests/host/ota_mid_session_identity_test.py",
+          "tools/fm1_install.py"
+        ],
+        "exit": 0,
+        "passed": 14,
+        "total": 14,
+        "phase": "GREEN optimized"
+      },
+      {
+        "argv": [
+          "python3",
+          "-m",
+          "py_compile",
+          "tools/fm1_install.py",
+          "tests/host/ota_mid_session_identity_test.py"
+        ],
+        "exit": 0,
+        "phase": "projection syntax"
+      }
+    ],
+    "covered": [
+      "same authenticated unit normal send/receive",
+      "same-name physical replacement while link remains open",
+      "replacement between OTA SysEx replies",
+      "queued wrong-unit reply rejection",
+      "physical token disappears",
+      "physical identity provider errors",
+      "positive loader port rename for same physical unit",
+      "foreign loader replacement",
+      "provider available but token invalid",
+      "read-only discovery remains when provider unavailable"
+    ]
+  },
+  "status": "DRAFT / NEEDS_CHANGES / public NIGHTLY NO-GO",
+  "hard_limits": [
+    "No actual physical_id() exists in production MidoBackend. Normal native physical OTA is unsupported/fails closed before UPGRADE.",
+    "Fake unit token is not a real hardware identity or a USB descriptor attestation. USB path/name/model/version are not sufficient.",
+    "The check before sending is defense in depth but does not certify atomic USB write routing against swaps during the same send.",
+    "Full exact-root installer/OTA/slot/ctl native regression and independent QA have not run for this revision.",
+    "No hardware flash or sample restore was attempted; no real firmware image was built this run; no public binary/site branch touched."
+  ],
+  "handoff": {
+    "independent_QA": "Sole Independent QA independently run exact-root registered host tests, normal Elite/Pro installer/OTA/sample restore/controller readback/CRC/physical switch, normal and -O, including mid-send races and real backend identity.",
+    "safe_merge": "Sole Safe Merge only after independent acceptance; integrate into its own PR #103. This DRAFT PR remains not approved.",
+    "hourly_build": "Firmware subtree unchanged, reusing pinned private BUILD_ONLY only after complete consumed-input hash identity, never infer installation readiness."
+  }
+}

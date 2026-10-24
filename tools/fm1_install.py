@@ -283,7 +283,15 @@ class MidoLink:
 
     def __init__(self, backend, in_name, out_name):
         import mido
-        self.backend, self.name, self.mido = backend, in_name, mido
+        self.backend, self.name, self.out_name, self.mido = backend, in_name, out_name, mido
+        # A stable, non-reusable hardware unit ID is optional for read-only
+        # discovery. The Updater separately refuses installs without one.
+        self._has_unit_provider = callable(getattr(backend, "physical_id", None))
+        self._opened_unit = self._current_unit()
+        # A matching MIDI label is not a unit identity. Bind BOTH directions.
+        self._has_output_provider = callable(getattr(backend, "output_physical_id", None))
+        self._opened_output_unit = self._current_output_unit()
+        self._identity_broken = False
         self.q = queue.Queue()
         self.inp = mido.open_input(in_name, callback=self._rx)
         try:
@@ -294,25 +302,76 @@ class MidoLink:
         time.sleep(DELAY["open"])   # CoreMIDI may drop a message sent just after opening
 
     def _rx(self, msg):
-        if msg.type == "sysex":
+        # Observe the unit at callback time. A foreign packet must never sit
+        # in the queue waiting for the original unit to reappear.
+        if msg.type == "sysex" and self._same_unit():
             self.q.put(bytes([0xF0, *msg.data, 0xF7]))
+
+    def _current_unit(self):
+        provider = getattr(self.backend, "physical_id", None)
+        if not callable(provider):
+            return None
+        try:
+            value = provider(self.name)
+        except (OSError, ValueError):
+            return None
+        return value if isinstance(value, (str, bytes)) and value else None
+
+    def _current_output_unit(self):
+        provider = getattr(self.backend, "output_physical_id", None)
+        if not callable(provider):
+            return None
+        try:
+            value = provider(self.out_name)
+        except (OSError, ValueError):
+            return None
+        return value if isinstance(value, (str, bytes)) and value else None
+
+    def _same_unit(self):
+        # The native MidoBackend currently supplies no physical ID. That
+        # remains an unsupported OTA path, not an invitation to trust names.
+        # With a genuine provider, reject a swapped endpoint on *every* send
+        # and received reply, not just at the pre-write handshake.
+        if self._identity_broken:
+            return False
+        if not self._has_unit_provider:
+            # No physical-ID production backend may discover but not perform OTA.
+            return not self._has_output_provider
+        same = (self._opened_unit is not None
+                and self._has_output_provider
+                and self._opened_output_unit == self._opened_unit
+                and self._current_unit() == self._opened_unit
+                and self._current_output_unit() == self._opened_unit)
+        if not same:
+            # This handle is forever tainted once replacement/disconnect is observed;
+            # returning to the old token does not authenticate queued MIDI replies.
+            self._identity_broken = True
+        return same
 
     @property
     def lost(self):
-        return self.name not in self.backend.input_names()
+        return not self._same_unit() or self.name not in self.backend.input_names()
 
     def send(self, pkt):
+        if not self._same_unit():
+            return False
         try:
             self.out.send(self.mido.Message("sysex", data=pkt[1:-1]))
-            return True
+            # Detect unit loss observed while the host driver accepted this packet.
+            # An already-delivered packet cannot be recalled; actual OTA needs
+            # an atomic physically bound output transport, still unavailable.
+            return self._same_unit()
         except Exception:
             return False
 
     def read(self, timeout):
+        if not self._same_unit():
+            return None
         try:
-            return self.q.get(timeout=max(timeout, 0))
+            packet = self.q.get(timeout=max(timeout, 0))
         except queue.Empty:
             return None
+        return packet if self._same_unit() else None
 
     def drain(self):
         while not self.q.empty():
@@ -332,23 +391,40 @@ class MidoBackend:
         self.mido = mido
 
     def input_names(self):
-        return list(dict.fromkeys(self.mido.get_input_names()))
+        names = list(self.mido.get_input_names())
+        if len(names) != len(set(names)):
+            raise InstallError("model", "duplicate raw MIDI input port names; physical device identity is ambiguous. Nothing was written")
+        return names
 
     def output_names(self):
-        return list(dict.fromkeys(self.mido.get_output_names()))
+        names = list(self.mido.get_output_names())
+        if len(names) != len(set(names)):
+            raise InstallError("model", "duplicate raw MIDI output port names; physical device identity is ambiguous. Nothing was written")
+        return names
 
     def open(self, in_name, out_name):
         return MidoLink(self, in_name, out_name)
 
 
-def pair_output(name, outs):
+def pair_output(name, outs, backend=None):
     if name in outs:
         return name
-    base = re.sub(r"\s+\d+$", "", name)     # Windows numbers each port
+    # Suffix-stripped Windows names are candidates, NOT hardware identity.
+    base = re.sub(r"\s+\d+$", "", name)
     same = [o for o in outs if re.sub(r"\s+\d+$", "", o) == base]
-    if len(same) == 1:
+    if len(same) != 1 or backend is None:
+        return None
+    input_id = getattr(backend, "physical_id", None)
+    output_id = getattr(backend, "output_physical_id", None)
+    if not callable(input_id) or not callable(output_id):
+        return None
+    try:
+        source, target = input_id(name), output_id(same[0])
+    except (OSError, ValueError):
+        return None
+    if isinstance(source, (str, bytes)) and source and source == target:
         return same[0]
-    return outs[0] if len(outs) == 1 else None
+    return None
 
 
 # --------------------------------------------------------------- updater ---
@@ -378,6 +454,26 @@ class Updater:
     def __init__(self, backend, port=None):
         self.backend = backend
         self.port = port
+        # Retain the originating name for diagnostics only. Never infer device
+        # continuity from MIDI identity, port display name or model/version.
+        self._bound_port = None
+        self._bound_id = None
+
+    def _physical(self, name):
+        """Backend-authenticated stable per-unit ID, across USB re-enumeration.
+
+        A backend MUST use a genuine non-reusable physical identifier, such as
+        a hardware-unique serial, not a MIDI port name or USB location alone.
+        If it cannot, there is no safe cross-reboot write/restore path.
+        """
+        provider = getattr(self.backend, "physical_id", None)
+        if not callable(provider):
+            return None
+        try:
+            value = provider(name)
+        except (OSError, ValueError):
+            return None
+        return value if isinstance(value, (str, bytes)) and value else None
 
     def candidates(self, only_port):
         names = self.backend.input_names()
@@ -389,25 +485,51 @@ class Updater:
         return [n for n in names if PORT_RE.search(n)]
 
     def find(self, want=None, only_port=True):
-        """the first matching port that answers the handshake (and want(identity))"""
+        """Find a unique, reachable MIDI device; never pick the first ambiguity."""
         outs = self.backend.output_names()
+        matches = []
         for name in self.candidates(only_port):
-            out = pair_output(name, outs)
+            token = self._physical(name)
+            if self._bound_id is not None and token != self._bound_id:
+                continue
+            out = pair_output(name, outs, self.backend)
             if not out:
                 continue
             try:
                 link = self.backend.open(name, out)
             except Exception:
                 continue
-            ident = handshake(link, 2)
+            try:
+                ident = handshake(link, 2)
+            except Exception:
+                link.close()
+                raise
+            # Never associate a link with a token if the physical device was
+            # replaced or disconnected while the handshake was in progress.
+            if token != self._physical(name):
+                link.close()
+                continue
             if ident and (want is None or want(ident)):
-                return Device(link, ident, name)
-            link.close()
-        return None
+                dev = Device(link, ident, name)
+                dev.physical_id = token
+                matches.append(dev)
+            else:
+                link.close()
+        if len(matches) > 1:
+            for dev in matches:
+                dev.link.close()
+            raise InstallError("model", "multiple matching MIDI endpoints; disconnect other keyboards "
+                                        "or select one unambiguous --port. Nothing was written")
+        return matches[0] if matches else None
 
     def wait_for(self, want, secs):
+        if self._bound_id is None:
+            raise InstallError("model", "cannot authenticate physical device across reboot; "
+                                        "no firmware or sample write is allowed")
         end = time.monotonic() + secs
         while time.monotonic() < end:
+            # The loader may legitimately use a new OS MIDI name. Accept only
+            # the original authenticated physical unit, never an identity match.
             dev = self.find(want, only_port=False)
             if dev:
                 return dev
@@ -444,7 +566,7 @@ class Updater:
             served += 1
             progress(served, addr + n)
 
-    def check(self, dev, image, step):
+    def check(self, dev, image, product, step):
         """step 1: the running firmware checks the package and starts the loader"""
         step("start", dev.id.text)
         dev.link.send(UPGRADE)
@@ -458,7 +580,7 @@ class Updater:
                                f"{served} requests; nothing was written")
         step("loader")
         time.sleep(DELAY["loader"])
-        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"])
+        ota = self.wait_for(lambda i: i.loader and model_of(i.text) == model_of(product), DELAY["wait_loader"])
         if not ota:
             raise InstallError("noloader", "the update loader did not appear. Replug the USB cable and "
                                            "run the install again: the FM-1 stays in update mode until it is done")
@@ -466,6 +588,11 @@ class Updater:
 
     def write(self, ota, image, step):
         """step 2: the loader reads and writes the whole package, then restarts"""
+        if (self._bound_id is None or getattr(ota, "physical_id", None) != self._bound_id
+                or self._physical(ota.name) != self._bound_id):
+            ota.link.close()
+            raise InstallError("model", "the OTA loader is not the authenticated original physical "
+                                        "keyboard; refusing to write firmware")
         step("write", 0)
         ota.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -482,22 +609,45 @@ class Updater:
     def verify(self, product, step):
         step("reboot")
         time.sleep(DELAY["reboot"])
-        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        # A foreign stale same-model sibling must not preempt the correct
+        # version. Poll for the exact package identity on the pinned port.
+        back = self.wait_for(lambda i: not i.loader and i.text == product, DELAY["wait_reboot"])
         if not back:
-            raise InstallError("noreturn", "the FM-1 did not come back: power-cycle it")
+            stale = self.find(lambda i: not i.loader and model_of(i.text) == model_of(product),
+                              only_port=False)
+            if stale:
+                seen = stale.id.text
+                stale.link.close()
+                raise InstallError("mismatch", f"written, but the FM-1 reports {seen} (expected {product})")
+            raise InstallError("noreturn", "the FM-1 did not come back on its original MIDI port: "
+                                          "power-cycle it; do not restore to an unrelated device")
         back.link.close()
-        if back.id.text != product:
-            raise InstallError("mismatch", f"written, but the FM-1 reports {back.id.text} (expected {product})")
         step("done", back.id.text)
         return back.id.text
 
     def install(self, dev, image, product, step=lambda *a: None):
         """running firmware -> loader -> new firmware; dev from find(). A device already in
         update mode only needs the write."""
+        if not getattr(dev, "name", None):
+            dev.link.close()
+            raise InstallError("model", "the selected MIDI device has no verifiable port; refusing OTA write")
+        token = getattr(dev, "physical_id", None)
+        if token is None or token != self._physical(dev.name):
+            dev.link.close()
+            raise InstallError("model", "the MIDI backend cannot authenticate a stable physical "
+                                        "keyboard identity. No update mode entered; nothing was written")
+        if self._bound_id is not None and self._bound_id != token:
+            dev.link.close()
+            raise InstallError("model", "the selected physical keyboard changed; refusing OTA write")
+        self._bound_id = token
+        self._bound_port = dev.name
         if not same_keyboard(dev.id.text, product):
             dev.link.close()
             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
-        ota = dev if dev.id.loader else self.check(dev, image, step)
+        if dev.id.loader and model_of(dev.id.text) != model_of(product):
+            dev.link.close()
+            raise InstallError("model", f"the loader is {dev.id.text}, the package is for {product}")
+        ota = dev if dev.id.loader else self.check(dev, image, product, step)
         self.write(ota, image, step)
         return self.verify(product, step)
 
@@ -866,7 +1016,7 @@ def run(a, backend, out, ask):
     finally:
         prog.end()
     if move and move.risk and move.new_map:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.wait_for(lambda i: not i.loader and i.text == product, DELAY["wait_reboot"])
         try:
             if not back:
                 raise TimeoutError("the device did not answer after the install")
@@ -883,7 +1033,7 @@ def run(a, backend, out, ask):
                                     f"The backed-up slots were not written back. {move.help()}")
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.wait_for(lambda i: not i.loader and i.text == product, DELAY["wait_reboot"])
         if not back:
             raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
         try:

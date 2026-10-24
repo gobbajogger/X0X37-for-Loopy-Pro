@@ -1,0 +1,95 @@
+{
+  "schema": "x0x37-scheduler-handoff/v1",
+  "revision": "data-safety-pr114-r12-slot-read-bounds-20261025-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Data Safety",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "producer_parent_sha": "760a1d767560e170bf7e2fc5b5391982feb7dc2d",
+  "producer_parent_root_tree": "906ec0d95b2aa28a166a6c7fe8e9d3aee563ccb0",
+  "previous_producer_sha": "9966084af6a18c2d4ae03ebb1688ad38146fa3fc",
+  "previous_producer_root_tree": "cad0ea0721c526f59bac93efcc3531484b456e16",
+  "compiled_firmware_tree_unchanged": "5c209609b770fd13949230aeb80956594fd6b741",
+  "source_blob": "e1e123d5cba0718dfaff321766850e55f6419244",
+  "test_blob": "12d0a32117913dc91e19758095b4ac007731b702",
+  "runner_blob": "8c43f627616fce6cc25097915a6cb9f98a0c755f",
+  "changes": [
+    "tools/x0x_slots.py: refuse any nonempty sample read if the declared SMP_INFO per-slot size was unavailable or smaller than header data length plus 512; validate header zone count matches previously queried SMP_INFO; thread real slot sizes through backup, restore and migration readback callers",
+    "tests/host/sample_slot_read_bounds_test.py: 8 native source-AST regression scenarios, failing before the fix on 3 key security negatives, green after",
+    "tests/run_tests.sh: register serial slot-read-bounds fixture"
+  ],
+  "source_exact_evidence": {
+    "read_slot_prepatch_chars": 564,
+    "read_slot_prepatch_fnv1a32": "bb038531",
+    "read_slot_after_chars": 921,
+    "read_slot_after_fnv1a32": "c4a1303d",
+    "fixture_local_sha256": "cef0d335f89bde583c32ec541df70a142f7ce4efa678b0884129e35d3f78d240",
+    "fixture_matches_remote_git_blob": true
+  },
+  "native_host_scope": "Linux Python AST extraction of actual Git-read read_slot + parse_header from PR114 R11, patched exact new function matched through 921-char FNV to delivered Git R12 source; mocked read_bytes records attempted read offsets, no complete checkout, no USB hardware",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "sample_slot_read_bounds_test.py",
+        "read_slot_before.py"
+      ],
+      "exit": 1,
+      "pass": 5,
+      "total": 8,
+      "log_sha256": "ce2fe43d77bc9f00e7aa0d1a4a8914d46c9ece3e2a9a035d85c67b64197edcb6"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "sample_slot_read_bounds_test.py",
+        "read_slot_before.py"
+      ],
+      "exit": 1,
+      "pass": 5,
+      "total": 8,
+      "log_sha256": "ce2fe43d77bc9f00e7aa0d1a4a8914d46c9ece3e2a9a035d85c67b64197edcb6"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "sample_slot_read_bounds_test.py",
+        "read_slot_after.py"
+      ],
+      "exit": 0,
+      "pass": 8,
+      "total": 8,
+      "log_sha256": "41562b950588dae58eb91b39c4064aa7a75681c83788087542ccb8de3a4530d0"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "sample_slot_read_bounds_test.py",
+        "read_slot_after.py"
+      ],
+      "exit": 0,
+      "pass": 8,
+      "total": 8,
+      "log_sha256": "41562b950588dae58eb91b39c4064aa7a75681c83788087542ccb8de3a4530d0"
+    }
+  ],
+  "private_bundle": {
+    "container_name": "LoopyX0X37-DataSafety-PR114-R12-SlotBounds-HostNative-20261025.zip",
+    "sha256": "858f3ef19eaed422a37eddd61f6099915fcf088c679c77d6b3937442eaaf754c",
+    "size_bytes": 5388
+  },
+  "remaining_failures": [
+    "No authenticated physically immutable keyboard unit binding or atomic/non-rebindable destructive MIDI transport. Same-name foreign keyboard physical swaps remain independently reproduced FAIL-OPEN on R11; this patch does not repair that.",
+    "Old normal OTA installer positive fixtures and full current-root installer/controller/backup/restore suites unverified here; no claims of overall QA PASS.",
+    "Same-name sample restore / destructive operations remain physically unauthenticated. Fail-close visible ambiguous ports does not prevent time-of-check/use replacement.",
+    "No manufacturer device flashes, SDK/compiler builds, firmware binaries, controller publish, independent full-root QA or immutable HTTPS admission tested here."
+  ],
+  "gate": "DRAFT_NEEDS_CHANGES__SOURCE_SCOPED_RED_GREEN__INDEPENDENT_QA_PENDING__NIGHTLY_NO_GO",
+  "next_owner": "Existing sole Independent QA: independent exact-source full-current-root and physical-switch/OTA/sample-backup/restore/CRC/controller verification; sole firmware Safe Merge evaluates only after QA acceptance; Hourly Build can reuse firmware BUILD_ONLY only after complete all-input hash parity; Pages publisher retains public candidate NO-GO.",
+  "dedupe_key": "gobbajogger/X0X37-for-Loopy-Pro:760a1d767560e170bf7e2fc5b5391982feb7dc2d:data-safety-pr114-r12-slot-read-bounds-20261025-r1:sole-independent-qa:slot-backup-boundary"
+}

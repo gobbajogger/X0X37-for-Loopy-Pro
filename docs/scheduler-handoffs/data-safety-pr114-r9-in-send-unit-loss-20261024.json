@@ -1,0 +1,133 @@
+{
+  "schema": "x0x37-data-safety-native-host-regression-v1",
+  "evidence_revision": "data-safety-pr114-r9-observed-in-send-unit-loss-20261024-r1",
+  "date_utc": "2026-10-24",
+  "owner": "Existing hourly LoopyX0X37 Data Safety",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 114,
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "consumed": {
+    "source_commit": "c0f34578e3eb9f49e07933f2bf3e0622d8078275",
+    "root_tree": "c8045c164644f5052166223be8c9f3ecd201e932",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "b56e8ca688b409ef6badc2f4da3e79d41ad45b03",
+    "runner_blob": "25cb9f264ae2e86371b43a9e161438ab787ae2f5"
+  },
+  "change": "After the backend sends a SysEx packet, re-check the same authenticated unit before reporting success. A detected A->B swap now taints the open MIDI link permanently, preventing further packets; an already transmitted first packet cannot be undone. No real MidoBackend physical-ID implementation has been added.",
+  "registered_test": "tests/host/ota_send_rebind_test.py",
+  "registered_selector": "ota-send-rebind",
+  "native_execution": {
+    "platform": "Linux x86_64 Python (synthetic fake-mido; no USB/device)",
+    "source_scope": "R8 exact MidoLink AST projection from Git-matched archived class, R9 same class plus narrowly scoped send change; not full-root QA",
+    "tests": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "ota_send_rebind_test.py",
+          "midolink_r8.py"
+        ],
+        "exit": 1,
+        "passed": 5,
+        "total": 10,
+        "stage": "expected RED"
+      },
+      {
+        "argv": [
+          "python3",
+          "-O",
+          "-B",
+          "ota_send_rebind_test.py",
+          "midolink_r8.py"
+        ],
+        "exit": 1,
+        "passed": 5,
+        "total": 10,
+        "stage": "expected RED"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "ota_send_rebind_test.py",
+          "midolink_r9.py"
+        ],
+        "exit": 0,
+        "passed": 10,
+        "total": 10,
+        "stage": "GREEN"
+      },
+      {
+        "argv": [
+          "python3",
+          "-O",
+          "-B",
+          "ota_send_rebind_test.py",
+          "midolink_r9.py"
+        ],
+        "exit": 0,
+        "passed": 10,
+        "total": 10,
+        "stage": "GREEN"
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "r8/ota_unit_bounce_test.py",
+          "midolink_r9.py"
+        ],
+        "exit": 0,
+        "passed": 9,
+        "total": 9
+      },
+      {
+        "argv": [
+          "python3",
+          "-O",
+          "-B",
+          "r8/ota_unit_bounce_test.py",
+          "midolink_r9.py"
+        ],
+        "exit": 0,
+        "passed": 9,
+        "total": 9
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "py_compile",
+          "ota_send_rebind_test.py",
+          "midolink_r8.py",
+          "midolink_r9.py"
+        ],
+        "exit": 0
+      }
+    ],
+    "test_sha256": "21c91f4f6a7d6a11bc4dcfff732b5b6f716cafd7e0406cf5fb6bed3fa85f5242",
+    "source_before_class_sha256": "a9cbefa98eb3d8724b8fee7c806a68b959bb433a3d414c0e548df32a08e863dd",
+    "source_after_projection_sha256": "3340498ed4fbb726872a119b8ace6caa1c60499e1d38b768b7ba35e17efcdcdd"
+  },
+  "limitations": [
+    "Already delivered output to a switched unit is irreversible: this check is not an atomic physically authenticated send and cannot qualify firmware writes.",
+    "The production MidoBackend currently has no non-reusable physical_id across app -> Felucca Update USB re-enumeration. Normal OTA remains UNSUPPORTED, refused before UPGRADE.",
+    "Same-name physical rebind and transient swaps between independent checks still cannot be ruled out without transport-level identity/atomicity.",
+    "Synthetic token provider is mock-only; no hardware serial or actual transport continuity demonstrated.",
+    "Full exact current-root normal installer, controller, backup/restore, CRC and physical-switch tests and sole Independent QA remain pending.",
+    "No change to compiled firmware subtree, private builds remain BUILD_ONLY, no public NIGHTLY/production hardware qualification."
+  ],
+  "status": {
+    "source": "DRAFT / NEEDS CHANGES / producer-scoped native HOST only",
+    "nightly": "NOT INSTALLABLE",
+    "device": "NOT TESTED",
+    "production": "NOT APPROVED"
+  },
+  "handoff": [
+    "Independent QA: rerun current HEAD registered physical binding, unit-bounce, send-rebind, normal native installer, controller, backup/restore, model/version and interrupted OTA including malicious in-send rebind.",
+    "Safe Merge: do not incorporate before independently accepted whole-source and physical-unit safety qualification.",
+    "Hourly Build: unchanged compiled subtree permits exact-input-pinned Elite/Pro/controller BUILD_ONLY without waiting for physical PASS."
+  ],
+  "private_library_test_source": "/LoopyX0X37/LoopyX0X37-DataSafety-R9-OTA-SendRebind-HostNative-20261024.py"
+}

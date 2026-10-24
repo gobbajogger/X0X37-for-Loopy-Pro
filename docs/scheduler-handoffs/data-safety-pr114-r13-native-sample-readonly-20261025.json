@@ -1,0 +1,126 @@
+{
+  "schema": "loopyx0x37-data-safety-handoff/v1",
+  "revision": "data-safety-pr114-r13-native-sample-readonly-20261025-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owned_branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "base_commit": "fa05d6375d7517b22e0682de5bee6a1d4666befb",
+  "base_root_tree": "47dc1b77ad499e860c683486630c05ac32942816",
+  "original_sample_blob": "e75aa8669ab3f145dc93a7675e3c230e061d1714",
+  "original_runner_blob": "8c43f627616fce6cc25097915a6cb9f98a0c755f",
+  "candidate_paths": [
+    "tools/fm1_sample_upload.py",
+    "tests/host/sample_link_readonly_test.py",
+    "tests/run_tests.sh",
+    "docs/scheduler-handoffs/data-safety-pr114-r13-native-sample-readonly-20261025.json"
+  ],
+  "scope": "Standalone native RtMidi sample transport only; reject all commands other than identity 1, info 15 and read 16, including BEGIN/WRITE/END/ERASE 11-14. Backup read-only, info and offline build remain allowed.",
+  "threat_model": "MIDI display names, single input/output, responding probe and a same-model loader are not authenticated physical continuity; an endpoint can be swapped before sending or stale replies can be spoofed.",
+  "tests": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "sample_link_readonly_test.py",
+        "sample_before.py"
+      ],
+      "exit": 1,
+      "passed": 16,
+      "total": 40,
+      "log_sha256": "daf162f6163004846b5b6af044105bb3c0ecf8edfddd1e2aa3a4a8c6d4d0599f"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "sample_link_readonly_test.py",
+        "sample_before.py"
+      ],
+      "exit": 1,
+      "passed": 16,
+      "total": 40,
+      "log_sha256": "daf162f6163004846b5b6af044105bb3c0ecf8edfddd1e2aa3a4a8c6d4d0599f"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "sample_link_readonly_test.py",
+        "sample_after.py"
+      ],
+      "exit": 0,
+      "passed": 40,
+      "total": 40,
+      "log_sha256": "788fcd56c6142394aa33e62e808bbdac8ee17b744e840c4a0776dd9607fe62ab"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "sample_link_readonly_test.py",
+        "sample_after.py"
+      ],
+      "exit": 0,
+      "passed": 40,
+      "total": 40,
+      "log_sha256": "788fcd56c6142394aa33e62e808bbdac8ee17b744e840c4a0776dd9607fe62ab"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "sample_link_target_test.py",
+        "sample_after.py"
+      ],
+      "exit": 0,
+      "passed": 13,
+      "total": 13,
+      "log_sha256": "edf1f6f0af0392c1293e7d25075bfe98744cf0a2af979564f496c45f3c957452"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "sample_link_target_test.py",
+        "sample_after.py"
+      ],
+      "exit": 0,
+      "passed": 13,
+      "total": 13,
+      "log_sha256": "edf1f6f0af0392c1293e7d25075bfe98744cf0a2af979564f496c45f3c957452"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "sample_link_readonly_test.py",
+        "sample_before.py",
+        "sample_after.py"
+      ],
+      "exit": 0
+    }
+  ],
+  "evidence_type": "Native Linux scoped AST-exact Link class, simulated device changes, not complete repo or physical hardware.",
+  "registered_test_source_sha256": "f82386f3c7a49dbd2f93a8136029379d1c2b8c2ffe01bcd47f3a4fd48b78612c",
+  "checked_prior_link_ast": {
+    "bytes_with_terminal_newlines": 2154,
+    "fnv1a32": "9dd8d356",
+    "current_blob": "e75aa8669ab3f145dc93a7675e3c230e061d1714"
+  },
+  "compiler_firmware_tree_expected": "5c209609b770fd13949230aeb80956594fd6b741",
+  "disposition": "SOURCE ONLY / DRAFT / NEEDS CHANGES. Native sample destructive commands disabled; physical secure write path remains unsupported. Browser NIGHTLY eligibility and installer safety are separate gates.",
+  "unrun": [
+    "full current-root suites",
+    "independent full source QA",
+    "physical-device USB serial/atomicity",
+    "native OTA/model/controller/samples end to end",
+    "Elite and Pro firmware SDK/budget/rebuild",
+    "public immutable HTTPS and licensing qualification"
+  ],
+  "next_owner": "sole Independent QA, then sole firmware Safe Merge only if independently qualifying a genuinely needed source integration",
+  "no_public_binary": true,
+  "no_device_flash": true
+}

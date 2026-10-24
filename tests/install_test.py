@@ -95,6 +95,10 @@ class FakeSMK:
 
     output_names = input_names
 
+    def physical_id(self, name):
+        # This synthetic object's physical identity survives its name changes.
+        return f"mock-unit:{id(self)}" if name == self.name and self.connected else None
+
     def open(self, in_name, out_name):
         if in_name != self.name or not self.connected:
             raise IOError("no such port")

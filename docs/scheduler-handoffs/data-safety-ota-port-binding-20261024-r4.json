@@ -1,0 +1,104 @@
+{
+  "schema": "x0x37-data-safety-native-host-regression-v4",
+  "evidence_revision": "data-safety-ota-port-binding-pr114-20261024-r4",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer": "Data Safety",
+  "role": "firmware/native slot preservation, OTA/restore/controller",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "pr": 114,
+  "consumed_sha": "704ccaf972fbb4d409afd4cfd8e605eac14b04bc",
+  "consumed_complete_root_tree": "af1b4236da527642d0cc328084a15d4984561566",
+  "consumed_tools_fm1_install_blob": "a3a300192cdd526d87cec8c629080932dbd59042",
+  "consumed_registered_test_blob": "c92436016a9e5f2869cbaeacfefcce78f01ec163",
+  "consumed_qa_review": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/114#pullrequestreview-5637561816",
+  "consumed_qa_disposition": "NEEDS_CHANGES: 5 same-model physical-identity and stale-version negative failures at exact R3",
+  "fix": "Pin OTA loader/write/verification/slot restoration/controller CRC readback to exact original OS MIDI input port name; refuse ambiguous first-match selection, changed port, or unbound reconnect/write; verify exact package/version first; report stale same-model mismatch only if originating port reports it; preserve bidirectional Pro/Elite cross-model package-loader selection and already-in-loader wrong-package guard.",
+  "source_effective_files": [
+    "tools/fm1_install.py",
+    "tests/host/ota_identity_reconnect_test.py",
+    "tests/host/ota_port_binding_test.py",
+    "tests/run_tests.sh"
+  ],
+  "firmware_compiler_subtree_unchanged": "5c209609b770fd13949230aeb80956594fd6b741",
+  "local_source_scope": "Exact live PR114 R3 Updater methods and identity helpers transcribed to Linux host AST/projection; source comparisons exact before replacement; no full latest Git checkout",
+  "commands": [
+    {
+      "argv": "python3 -B ota_port_binding_test.py pr114_current_projected.py",
+      "exit": 1,
+      "passed": 6,
+      "total": 17,
+      "disposition": "expected fail-before 11 unsafe cases"
+    },
+    {
+      "argv": "python3 -B ota_port_binding_test.py pr114_fixed_projected.py",
+      "exit": 0,
+      "passed": 17,
+      "total": 17
+    },
+    {
+      "argv": "python3 -O -B ota_port_binding_test.py pr114_fixed_projected.py",
+      "exit": 0,
+      "passed": 17,
+      "total": 17
+    },
+    {
+      "argv": "python3 -B legacy_identity_test.py pr114_fixed_projected.py",
+      "exit": 0,
+      "passed": 20,
+      "total": 20
+    },
+    {
+      "argv": "python3 -O -B legacy_identity_test.py pr114_fixed_projected.py",
+      "exit": 0,
+      "passed": 20,
+      "total": 20
+    },
+    {
+      "argv": "python3 -B -m py_compile pr114_fixed_projected.py ota_port_binding_test.py",
+      "exit": 0
+    }
+  ],
+  "negative_coverage": [
+    "two same-product initial devices",
+    "too-broad --port",
+    "foreign same-model loader",
+    "loader changes physical port",
+    "verify foreign sibling",
+    "stale sibling before valid version",
+    "same-model stale mismatch original port",
+    "post-flash sample restore wrong model/version/port",
+    "controller CRC readback foreign original model/version",
+    "unbound device",
+    "wrong-model already in loader",
+    "interrupted firmware write"
+  ],
+  "private_evidence_library_path": "/LoopyX0X37/LoopyX0X37-DataSafety-PR114-R4-Private-Native-20261024.zip",
+  "private_evidence_zip_sha256": "ffed78d9441deacb29a43f1945fc3448d75cec3cde7cac26842c967b656e885f",
+  "safety_limitation": "OS MIDI endpoint name is not a cryptographically authenticated USB serial. Port renames or ambiguous simultaneous devices fail closed; silent same-name physical replacement remains unverifiable without hardware/serial evidence.",
+  "full_current_root_host_test": "NOT_RUN",
+  "independent_new_head_qa": "PENDING",
+  "elite_pro_compilation": "NOT_RUN by Data Safety; unchanged firmware subtree is not full build input equivalence",
+  "device_hardware_feedback": "UNKNOWN",
+  "public_nightly": "NO_GO",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Independently retrieve new exact PR114 HEAD, verify full current root and affected native OTA/backup/restore/ctl/port+model negatives; examine endpoint identity limits; comment SHA verdict."
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "Only after independently accepted Data Safety repair, reconcile one nonduplicated PR114 OTA patch (not overlapping PR113 blindly) into sole integrator PR103; run exact combined-root independent QA."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compare complete compiled inputs/config and reuse proven unchanged matching Elite/Pro/controller native bytes BUILD_ONLY; draft/QA/merge/public URLs are not compile prerequisites."
+    }
+  ],
+  "remaining_public_gates": [
+    "new exact-head independent affected and full combined-root QA",
+    "native model/controller/SHA/CRC/backup/restore/interruption negatives",
+    "lawful corresponding source and SDK/controller strategy",
+    "immutable HTTPS GET bytes/hash plus guarded website publisher"
+  ],
+  "pr_ready_policy": "mark own source-complete PR ready for review only after actual producer tests; readiness is NOT QA approval or public installability"
+}

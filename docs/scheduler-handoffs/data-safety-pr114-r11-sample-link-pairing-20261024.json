@@ -1,0 +1,71 @@
+{
+  "schema": "x0x37-scheduler-handoff/v1",
+  "revision": "data-safety-pr114-r11-standalone-sample-midi-pairing-20261024-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "Data Safety",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "producer_parent_sha": "77d571587fe91b5357ab7914e39e04715d737023",
+  "producer_parent_root_tree": "34ed69cfd7e4002acb077d4605a00dfb6fcd9c09",
+  "original_tool_blob": "d98ad292c6d657bffee434d2e520ddbf370d3425",
+  "original_runner_blob": "4fb5e0cf600dc33e76d829645abdce692b782403",
+  "original_Link_source_chars": 1296,
+  "original_Link_source_fnv1a32": "4d7439a8",
+  "compiled_firmware_subtree_unchanged": "5c209609b770fd13949230aeb80956594fd6b741",
+  "source_changes": [
+    "tools/fm1_sample_upload.py: refuse multiple/disjoint native sample MIDI endpoints before opening either port, require initial response, release opened ports on failure",
+    "tests/host/sample_link_target_test.py: 13 source-AST host fixtures, including matched single-device positives, crossed/duplicate inputs, missing output, unanswered probe, and partial-open cleanup",
+    "tests/run_tests.sh: register sample-link-target as serial install-path test"
+  ],
+  "producer_native_scope": "Linux Python source-AST exact Link class projection, BEFORE class 1296 chars FNV1a32 4d7439a8 matched remote source. Not a full-root native checkout, no device.",
+  "native_results": [
+    {
+      "command": "python3 -B sample_link_target_test.py fm1_sample_upload_before.py",
+      "exit": 1,
+      "result": "5/13 expected RED",
+      "log_sha256": "af8ebcccb57d867dbcf1d7770e14e15a18c4ba3138a497d9801d7d78ddeb3a4d"
+    },
+    {
+      "command": "python3 -O -B sample_link_target_test.py fm1_sample_upload_before.py",
+      "exit": 1,
+      "result": "5/13 expected RED",
+      "log_sha256": "af8ebcccb57d867dbcf1d7770e14e15a18c4ba3138a497d9801d7d78ddeb3a4d"
+    },
+    {
+      "command": "python3 -B sample_link_target_test.py fm1_sample_upload_after.py",
+      "exit": 0,
+      "result": "13/13 scoped producer PASS",
+      "log_sha256": "edf1f6f0af0392c1293e7d25075bfe98744cf0a2af979564f496c45f3c957452"
+    },
+    {
+      "command": "python3 -O -B sample_link_target_test.py fm1_sample_upload_after.py",
+      "exit": 0,
+      "result": "13/13 scoped producer PASS",
+      "log_sha256": "edf1f6f0af0392c1293e7d25075bfe98744cf0a2af979564f496c45f3c957452"
+    },
+    {
+      "command": "python3 -B -m py_compile fm1_sample_upload_before.py fm1_sample_upload_after.py sample_link_target_test.py",
+      "exit": 0,
+      "result": "Syntax pass"
+    }
+  ],
+  "test_python_sha256": "ff68cf6ddfaa8c757a08e38345ef08675c099fa5ed32782044bb2d34077dbff8",
+  "native_evidence_zip": "/LoopyX0X37-DataSafety-PR114-R11-SampleLinkPair-HostNative-20261024.zip",
+  "native_evidence_library_id": "libfile_0c22c1d106208191bd4efb0bf51ea2e8",
+  "native_evidence_zip_sha256": "185d604e71b4de3918378211edc34fecb4f8894c973779d5255048988feeba17",
+  "native_evidence_bytes": 7356,
+  "native_evidence_private_library_readback": "byte-exact SHA256 verified",
+  "output_limitations": [
+    "Matching MIDI display names still do NOT authenticate unique physical hardware, nor protect against two same-name devices or hot-swapping between checks. Same-name atomic output binding remains unsolved.",
+    "Standalone sample utility would still permit destructive writes without authenticated persistent unit identity; NOT end-to-end physical safety approval.",
+    "No full exact-root QA, independent QA, firmware/native target compilation, installed device evidence, lawful public hosting, or hardware flash."
+  ],
+  "gate": "PRODUCER_SCOPED_RED_GREEN__DRAFT__NEEDS_CHANGES__NIGHTLY_NO_GO",
+  "receiving_roles": [
+    "existing sole Independent QA: complete current-root normal/-O sample import, standalone archive backup/restore, interrupted writes, source/OTA/model/CTL QA",
+    "existing sole Safe Merge: consider integration ONLY after independently accepted source, preserve protected nightly",
+    "Hourly Build: firmware compile inputs unchanged; reuse only with all consumed-input and actual byte hash identity"
+  ],
+  "no_compiler_inputs_changed": true,
+  "no_controller_inputs_changed": true,
+  "no_public_binaries_added": true
+}
