@@ -1,0 +1,168 @@
+{
+  "schema": "loopyx0x37.build-only.git-receipt.v1",
+  "date_utc": "2026-10-24",
+  "owner_role": "LoopyX0X37 Hourly Build (sole native Elite/Pro DEV builder)",
+  "stage": "BUILD_SUCCEEDED_UNREVIEWED_SCOPED",
+  "evidence_revision": "hourly-build-bf025-c9e9c8c-native-eliproctl-20261025-v1",
+  "user_visible_intent": "303 bass random and reverse direction mutation counts reflect real complete musical cycles; no premature zero-hit mutation or double reverse wraps",
+  "producer": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/bugfinder-bf025-bass-direction-cycles-20261025",
+    "full_commit": "c9e9c8c16a5e7125490a8d6ec3a4461e8ce4bcad",
+    "full_root_git_tree": "3d30f4e8a03bc7b059f73be040474639ad6b509a",
+    "firmware_compiler_tree": "4e4e7831ce8db878607782c5d58fd50436c93c8a",
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "build_sh_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+    "remote_full_tools_tree": "555fcc70876e6faeddd45e33074f7b4e70de334e",
+    "all_11_consumed_tools_match_git_blobs": true,
+    "source_blobs": {
+      "firmware/src/seq/sequencer.c": "2591b51b227ba99371331fe5d008f3f89965b6e5",
+      "firmware/src/seq/sequencer.h": "74c7fbec097a6f75e5c0970baf0df1c6e0288bc0"
+    },
+    "source_scope": "Full source root metadata verified remotely, LOCAL build source reconstructed Git-tree-exact firmware/BLE/assets/build.sh with source patches; local root is a scoped synthetic source worktree, NOT the complete producer Git root."
+  },
+  "inputs": {
+    "toolchain": "JieLi pi32v2 clang 4.0.1",
+    "toolchain_archive_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "sdk": "AC79 V1.2.1, 11 pinned inputs kit.py verify exit 0",
+    "sdk_archive_sha256": "2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805",
+    "build_config": "MODEL elite/pro; BOARD smk37; X0X_DEV_PADCAL=1",
+    "controller_config": "CTL_NATIVE=1 CTL_NO_CACHE=1 SDK_LOCAL=pinned AC79 V1.2.1"
+  },
+  "artifacts": {
+    "elite": {
+      "bytes": 651396,
+      "sha256": "0f76884e70d16b1fe311ba6d5e21cafb2d5b98547ee85f7642249d095f062b03",
+      "crc32": "055caa68",
+      "embedded_crc16": {
+        "flash": "d3e1",
+        "ota": "7093"
+      },
+      "model": "SMK-37 Elite_900",
+      "fresh_native_exit": 0
+    },
+    "pro": {
+      "bytes": 651392,
+      "sha256": "cd57c97c2ec82b49f23e5a2956247ea81ee2f2b56453a1c591306d3bc28890eb",
+      "crc32": "0245c480",
+      "embedded_crc16": {
+        "flash": "6e0c",
+        "ota": "cae8"
+      },
+      "model": "SMK-37 Pro_900",
+      "fresh_native_exit": 0
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "whole_crc32": "9c07ae67",
+      "embedded_crc32": "77b7a496",
+      "fresh_native_exit": 0,
+      "reused": false,
+      "joined_into_packages": false
+    }
+  },
+  "budget": {
+    "pool_free_bytes": 8324,
+    "pool_min_bytes": 8192,
+    "pool_margin_bytes": 132,
+    "app_code_headroom_bytes": 5492,
+    "static_ram_headroom_bytes": 460,
+    "controller_flash_headroom_bytes": 44,
+    "controller_ram_headroom_bytes": 544
+  },
+  "checks": [
+    {
+      "command": "git write-tree; git ls-tree $(git write-tree); git hash-object firmware/src/seq/sequencer.c firmware/src/seq/sequencer.h tools/build.py tools/fm1pkg_make.py",
+      "exit": 0,
+      "observation": "exact firmware/BLE/assets trees and build script plus 11 consumed tool blobs match authenticated Git"
+    },
+    {
+      "command": "python3 -B kit.py verify",
+      "exit": 0,
+      "observation": "11 pinned AC79 V1.2.1 files verified"
+    },
+    {
+      "command": "pi32v2/bin/clang --version",
+      "exit": 0,
+      "observation": "clang 4.0.1"
+    },
+    {
+      "command": "MODEL=elite BOARD=smk37 X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit": 0,
+      "log_sha256": "5d42b2043f58d9dfa19d6c0ccc6c78ca39f7f47e6cd2d71d096c217f12404765"
+    },
+    {
+      "command": "MODEL=pro BOARD=smk37 X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit": 0,
+      "log_sha256": "707d61e1807f3a5e54b78cb9c6e3a48b10ab6872d9120d1ad4a00c0855ed8e45"
+    },
+    {
+      "command": "CTL_NATIVE=1 CTL_NO_CACHE=1 SDK_LOCAL=pinned bash ble/ctl/build_ctl.sh",
+      "exit": 0,
+      "log_sha256": "9818046e500d39cb6f51a5dee689aadf4ca99cd0d9f9ed1ad72a1a27269e130b"
+    },
+    {
+      "command": "sh REPRODUCE.sh",
+      "exit": 0,
+      "log_sha256": "9f94b821ce9ab76ee724bdc1d8126d0fdd1f47ce13a44064dc8e9fa8701acb8f",
+      "observations": "six source-window historical baseline expected 1; corrected six GCC/Clang plain/UBSan/ASan+UBSan exit 0; scoped, not whole repo"
+    },
+    {
+      "command": "python3 -B check_firmware.py",
+      "exit": 0,
+      "log_sha256": "510b6501b576e1343fd8171c8051003e2ea6101904af315b0e3f8d9852ff3113",
+      "observations": "both true firmware package headers, model IDs, flash/OTA CRC16, slotmaps; 22/22 corrupt, wrong-model, truncated, tail cases correctly rejected; 65492 controller SHA correct"
+    },
+    {
+      "command": "MAIN Library upload, separate materialization and ZIP member CRC/SHA256 verification",
+      "exit": 0,
+      "observations": "independent byte equality for both saved root Library objects and Elite/Pro/controller members"
+    }
+  ],
+  "private_main_library": {
+    "archive": {
+      "path": "/LoopyX0X37-HourlyBuild-BF025-c9e9c8c-FRESH-ELITE-PRO-CTL-PRIVATE-20261025.zip",
+      "file_id": "file_00000000521081f8acc733c7b0c6abb9",
+      "library_file_id": "libfile_d2cc9694da588191a0d4d17fc2fb8c83",
+      "bytes": 2029101,
+      "sha256": "5f8d6bcb95b2cd2dcb7121a60d193290dafecc8caa00a105554581cbe55203f0",
+      "retrieved_independently": true,
+      "zip_crc": "PASS",
+      "members": 19
+    },
+    "provenance": {
+      "path": "/LoopyX0X37-HourlyBuild-BF025-c9e9c8c-PROVENANCE-20261025.json",
+      "file_id": "file_00000000b5ec81f8abf3b7fe4a40b367",
+      "library_file_id": "libfile_58892094372081919a618f947bc91d69",
+      "bytes": 11623,
+      "sha256": "657bd1242454e69657f627f37953ab68f286426d12c0d2a8068784d71cd65cad",
+      "retrieved_independently": true
+    }
+  },
+  "restrictions": {
+    "not_full_git_root_host_qa": true,
+    "not_independent_qa": true,
+    "not_hardware_tested": true,
+    "not_public_installable": true,
+    "not_controller_joined_into_package": true,
+    "no_protected_branch_or_pages_write": true,
+    "no_public_binary_or_vendor_sdk_upload": true
+  },
+  "unrun": [
+    "full-root BF025 tests/run_tests.sh and actual tests/host/seq_test.c on exact Git root",
+    "OTA/backup/readback/restore/interruption real-path end-to-end",
+    "independent QA source and package/license/notices review",
+    "lawful immutable hosting and live HTTPS download/model/CRC/hash checks",
+    "same-byte matching-model owner hardware PASS, production separate approval"
+  ],
+  "handoff": {
+    "next_owner": "existing Independent QA",
+    "next_action": "Independently review BF025 exact full source/root sequencer direction reset, RANDOM/REV 303 mut_rng on real host suite, plus OTA/backup/model/CRC/hash scoped where relevant; do not treat builder as QA.",
+    "secondary_owner": "sole firmware Safe Merge after independent acceptance",
+    "integration_unperformed": true,
+    "nightly_current_at_build": "54f2ffbc3124f7449a69067dc8215a2d91a2e675"
+  },
+  "initial_wrapper_note": "One initial package-copy filename error/overall execution timeout; fresh final builds rerun/collected exited zero; interrupted files were not delivered."
+}
