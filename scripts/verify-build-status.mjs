@@ -22,6 +22,14 @@ assert.equal(catalog.kind, 'nightly-read-only-build-history');
 assert.equal(catalog.installable, false);
 assert.ok(Array.isArray(catalog.policy.public_device_proven_versions), 'public-proven list is required');
 const publicProven = new Set(catalog.policy.public_device_proven_versions);
+// No model has attributable, independently verified owner hardware evidence
+// in this read-only status snapshot. SHA/URL-shaped strings alone are not
+// proof. Genuine later model-specific device feedback needs a separately
+// reviewed admission of exact owner report + same firmware/controller bytes.
+assert.deepEqual(catalog.policy.public_device_proven_versions, [],
+  'unauthenticated public-proven hardware versions forbidden');
+assert.equal(catalog.policy.public_latest, null,
+  'no approved public latest without independently verified same-byte owner proof');
 assert.equal(publicProven.size, catalog.policy.public_device_proven_versions.length, 'duplicate public eligibility');
 assert.equal(catalog.policy.public_latest === null, publicProven.size === 0, 'missing or unexpected public latest');
 if (catalog.policy.public_latest !== null) {
@@ -377,6 +385,8 @@ for (const build of catalog.builds) {
   assert.match(build.source_commit, /^[a-f0-9]{40}$/);
   assert.equal(build.installable_from_nightly_status, false);
   assert.equal(typeof build.hardware_tested, 'boolean', 'hardware status must be explicit');
+  assert.equal(build.hardware_tested, false,
+    'no authenticated historical build hardware results admitted');
   assert.ok(build.models && typeof build.models === 'object' && !Array.isArray(build.models) &&
     Object.keys(build.models).length > 0, 'firmware generation requires a model');
   assert.equal(build.hardware_tested,
@@ -388,6 +398,10 @@ for (const build of catalog.builds) {
     assert.match(data.sha256, /^[a-f0-9]{64}$/);
     assert.ok(Number.isInteger(data.size) && data.size > 0);
     assert.ok(typeof data.device_verified === 'boolean', 'device verified must be explicit');
+    assert.equal(data.device_verified, false,
+      'model hardware PASS not independently verified against owner observation');
+    assert.equal(data.physical_evidence, undefined,
+      'unverified model must not carry apparent physical report');
     if (data.device_verified) {
       assert.equal(build.hardware_tested, true, 'device PASS cannot contradict version status');
       assert.equal(build.status, 'dev-checked', 'device PASS cannot upgrade a failed/unbuilt version');

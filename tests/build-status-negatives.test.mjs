@@ -37,6 +37,26 @@ const edit = fn => dir => {
   fs.writeFileSync(join(dir,'docs/build-status.json'),s);
 };
 run('baseline',()=>{},true);
+// Simulated hashes and Git links are not verified device observations.
+const fictionalOwnerReport = () => ({
+  report_sha256:'f'.repeat(64),
+  report_url:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/'+'e'.repeat(40),
+  controller_sha256:'d'.repeat(64),
+  owner_publication_approved:true
+});
+const forgeOwnerHardware = (j,models) => {
+  const b=j.builds[0]; b.hardware_tested=true;
+  for(const m of models){
+    b.models[m].device_verified=true;
+    b.models[m].physical_evidence=fictionalOwnerReport();
+  }
+};
+run('forged-Elite-hardware-proof-is-not-owner-verification',
+  edit(j=>forgeOwnerHardware(j,['elite'])));
+run('forged-both-model-hardware-proofs-are-not-owner-verification',
+  edit(j=>forgeOwnerHardware(j,['elite','pro'])));
+run('forged-public-latest-and-both-models-are-not-owner-authorization',
+  edit(j=>{forgeOwnerHardware(j,['elite','pro']);j.policy.public_device_proven_versions=[j.builds[0].id];j.policy.public_latest=j.builds[0].id;}));
 for (const [name, fn] of [
   ['aggregate-device-flag',j=>j.builds[0].hardware_tested=true],
   ['forged-history-device-pass',j=>j.history[0].status='device-verified'],
@@ -147,11 +167,11 @@ function setProof(j,{eliteApproved=false,proVerified=false,proApproved=false}={}
     };
   }
 }
-run('recorded-Elite-device-PASS-without-production-permission',edit(j=>setProof(j)),true);
-run('both-model-public-proof-synthetic-shape-only',edit(j=>{
+run('synthetic-Elite-device-report-without-owner-attestation-REJECTED',edit(j=>setProof(j)));
+run('synthetic-both-model-production-proof-shape-not-attestation-REJECTED',edit(j=>{
   setProof(j,{eliteApproved:true,proVerified:true,proApproved:true});
   j.policy.public_latest=j.builds[0].id;j.policy.public_device_proven_versions=[j.builds[0].id];
-}),true);
+}));
 for(const [label,mutate] of [
  ['hidden-description-download-any-extension',j=>j.history[0].description={download_url:'https://example.net/firmware.bin'}],
  ['hidden-policy-artifact',j=>j.policy.nightly={artifact_url:'https://example.net/file.txt'}],
