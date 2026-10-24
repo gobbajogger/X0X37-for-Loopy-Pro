@@ -332,10 +332,16 @@ class MidoBackend:
         self.mido = mido
 
     def input_names(self):
-        return list(dict.fromkeys(self.mido.get_input_names()))
+        names = list(self.mido.get_input_names())
+        if len(names) != len(set(names)):
+            raise InstallError("model", "duplicate raw MIDI input port names; physical device identity is ambiguous. Nothing was written")
+        return names
 
     def output_names(self):
-        return list(dict.fromkeys(self.mido.get_output_names()))
+        names = list(self.mido.get_output_names())
+        if len(names) != len(set(names)):
+            raise InstallError("model", "duplicate raw MIDI output port names; physical device identity is ambiguous. Nothing was written")
+        return names
 
     def open(self, in_name, out_name):
         return MidoLink(self, in_name, out_name)

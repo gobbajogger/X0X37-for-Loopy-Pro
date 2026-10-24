@@ -1,0 +1,87 @@
+{
+  "schema": "x0x37-data-safety-native-host-regression-v1",
+  "evidence_revision": "data-safety-pr114-r6-raw-duplicate-midi-names-20261024-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer": "Data Safety",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "pr": 114,
+  "consumed": {
+    "sha": "93080f4ff8e0a30ed1b20801d99ec00167db0005",
+    "root_tree": "319eb6c76cf9654d6e21428497968fc675dd4d23",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "cf432aefd5c707807802e3e2eb5cddcd05173d0f",
+    "runner_blob": "47a00880fe5fb0bb691be6b8785167f17568441b",
+    "prior_comment": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/114#issuecomment-6382869131"
+  },
+  "repair": "Stop collapsing raw duplicate MIDI endpoint names. Reject any duplicate input/output name before MIDI open/handshake. This cannot prove physical continuity after USB re-enumeration, cannot provide a hardware serial, and does not qualify public install.",
+  "changed_files": [
+    "tools/fm1_install.py",
+    "tests/run_tests.sh",
+    "tests/host/ota_raw_midi_names_test.py",
+    "docs/scheduler-handoffs/data-safety-pr114-r6-raw-duplicate-midi-names-20261024.json"
+  ],
+  "tests": {
+    "path": "tests/host/ota_raw_midi_names_test.py",
+    "git_blob": "5926b61a7b4d848f9afe1ac418424d4e5088f1d0",
+    "cases": 8,
+    "scope": "AST-loaded original MidoBackend enumeration and current Updater discovery methods against source-matched Linux projections, not full current-root execution",
+    "commands": [
+      {
+        "argv": "python3 -B ota_raw_midi_names_test.py ota_r5_backend_baseline_projection.py",
+        "exit": 1,
+        "passed": 2,
+        "total": 8,
+        "disposition": "expected RED"
+      },
+      {
+        "argv": "python3 -O -B ota_raw_midi_names_test.py ota_r5_backend_baseline_projection.py",
+        "exit": 1,
+        "passed": 2,
+        "total": 8,
+        "disposition": "expected RED"
+      },
+      {
+        "argv": "python3 -B ota_raw_midi_names_test.py ota_r5_backend_guard_projection.py",
+        "exit": 0,
+        "passed": 8,
+        "total": 8,
+        "disposition": "scoped GREEN"
+      },
+      {
+        "argv": "python3 -O -B ota_raw_midi_names_test.py ota_r5_backend_guard_projection.py",
+        "exit": 0,
+        "passed": 8,
+        "total": 8,
+        "disposition": "scoped GREEN"
+      },
+      {
+        "argv": "python3 -m py_compile ota_raw_midi_names_test.py ota_r5_backend_guard_projection.py",
+        "exit": 0
+      }
+    ]
+  },
+  "remaining_source_gate": "Native MidoBackend does NOT implement authenticated unique physical_id; normal SMK-37 Pro -> Felucca Update rename is unsupported and fails closed before initiating flash. Need verified stable hardware identity or reviewed owner-confirmed safe recovery design. Do NOT loosen target guard.",
+  "legacy_full_install_status": "At R4 source-matched historic normal fixtures tests/install_test.py 5 fails and tests/install_ctl_test.py 4 fails; R5/R6 complete exact checkout NOT RUN. Independent QA pending; no claim failures cleared.",
+  "firmware_compile": "NOT RUN by Data Safety; builder may compile BUILD_ONLY on exact source and full pinned inputs, independent of QA or hosting",
+  "physical_device": "NOT TESTED",
+  "public_nightly": "NO_GO",
+  "production": "UNAUTHORIZED",
+  "next": [
+    {
+      "owner": "Data Safety",
+      "action": "Determine genuine physical serial/USB identity backend support; retain fail-closed limitation if unavailable. Independently reproduce normal rename and physical-swap positives/negatives before source-ready."
+    },
+    {
+      "owner": "Independent QA",
+      "action": "Run full root installer, OTA, backup/restore, slots, model/controller CRC, concurrent duplicate-name and hardware identity negative tests from new exact SHA; report review disposition."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "May compile Elite/Pro/controller from draft exact SHA with pinned private inputs, no public installer implications."
+    },
+    {
+      "owner": "sole firmware Safe Merge",
+      "action": "Consume only independently accepted source into first NIGHTLY integrator #103. Leave original draft/source NO-GO meanwhile."
+    }
+  ]
+}
