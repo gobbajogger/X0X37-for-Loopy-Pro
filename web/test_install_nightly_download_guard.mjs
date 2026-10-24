@@ -333,6 +333,7 @@ function makeRace(){
     URL:{createObjectURL:()=> "blob:verified-race",revokeObjectURL(){}},Blob,
     isCatalogChecked:(v,p)=>!!v&&Object.values(v.models).includes(p),
     hasVerifiedNightlySelection:(v,p)=>!!v&&Object.values(v.models).includes(p),
+    ctlNeedsResolution:false,
     sayK:k=>errors.push(k),say(){},MODELS:{elite:"Elite",pro:"Pro"},
     sha256Hex:async raw=>new Uint8Array(raw)[0]===1?"a".repeat(64):"b".repeat(64),
     productOf:raw=>new Uint8Array(raw)[0]===1?racePkgs.elite.product:racePkgs.pro.product,
