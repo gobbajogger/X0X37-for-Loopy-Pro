@@ -461,7 +461,7 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
     }
 }
 
-static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
+static void do_start(seq_t *s, int from_top, const seq_sink_t *o, uint8_t remote)
 {
     int t;
     for (t = 0; t < NBASS; t++)
@@ -484,11 +484,11 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
     }
     s->clk_to_next = 0;
     s->playing = 1;
-    if (!s->ext && s->send_clock && !s->midi_req)
+    if (!s->ext && s->send_clock && (!s->midi_req || !remote))
         midi(o, from_top ? 0xFA : 0xFB, 0, 0);
 }
 
-static void do_stop(seq_t *s, const seq_sink_t *o)
+static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote)
 {
     int b, t;
     s->playing = 0;
@@ -501,7 +501,7 @@ static void do_stop(seq_t *s, const seq_sink_t *o)
         s->t[t].ext_due = 0;
         s->t[t].rec_skip = 0;
     }
-    if (!s->ext && s->send_clock && !s->midi_req)
+    if (!s->ext && s->send_clock && (!s->midi_req || !remote))
         midi(o, 0xFC, 0, 0);
 }
 
@@ -721,10 +721,11 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
         }
     }
     if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
+        uint8_t rt = s->req_stop_rt;
         s->req_stop = 0;
         s->req_stop_rt = 0;
         if (s->playing)
-            do_stop(s, o);
+            do_stop(s, o, rt);
     }
     if (s->req_start || s->req_cont) {
         uint8_t rt = s->req_rt;
@@ -742,11 +743,11 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
                 ? s->ext_pending - s->req_prior_ticks : 0;
             if (s->req_start) {
                 s->req_start = 0;
-                do_start(s, 1, o);
+                do_start(s, 1, o, rt);
             }
             if (s->req_cont) {
                 s->req_cont = 0;
-                do_start(s, 0, o);
+                do_start(s, 0, o, rt);
             }
             s->start_local = (uint8_t)!rt;
             s->start_at = s->ext_now;
