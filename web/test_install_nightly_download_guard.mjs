@@ -423,3 +423,66 @@ for (const [actual,declared] of [[1,2],[2,1]]) {
   assert.ok(r.errors.includes("loadfail"));
   console.log("PASS failed HTTP fetch still forbids Blob/Install");
 }
+
+// R23: streaming source guard. The production Fetch body is bounded before SHA
+// or product parsing, and stale/error responses never authorize an old package.
+const streamHelper = cut("async function readApprovedPackage(", "\nasync function loadSelectedPackage()");
+assert.match(loader, /const raw = await readApprovedPackage\(r, pkg\.size, isLatest\)/,
+  "approved download must use bounded stream reader");
+const streamContext = createContext({ Uint8Array });
+new Script(`${streamHelper}\nglobalThis.streamRead = readApprovedPackage;`).runInContext(streamContext);
+const packets = (...values) => Uint8Array.from(values);
+function streamResponse(parts, state = {}) {
+  let index = 0;
+  return { body: { getReader: () => ({
+    async read() {
+      if (state.failAt === index) throw new Error("network cut");
+      return index < parts.length ? { done: false, value: parts[index++] } : { done: true };
+    },
+    async cancel() { state.canceled = true; },
+    releaseLock() { state.released = true; }
+  }) } };
+}
+let streamChecks = 0;
+{
+  const state = {};
+  const raw = await streamContext.streamRead(streamResponse([packets(1,2), packets(3,4,5)], state), 5, () => true);
+  assert.deepEqual([...raw], [1,2,3,4,5]);
+  assert.equal(state.canceled, undefined);
+  assert.equal(state.released, true);
+  streamChecks++;
+}
+{
+  const state = {};
+  const raw = await streamContext.streamRead(streamResponse([packets(1,2,3),packets(4,5)],state),4,()=>true);
+  assert.equal(raw,null);assert.equal(state.canceled,true);streamChecks++;
+}
+{
+  const raw = await streamContext.streamRead(streamResponse([packets(1,2)]),4,()=>true);
+  assert.equal(raw,null);streamChecks++;
+}
+{
+  const state={};let read=0;
+  const raw=await streamContext.streamRead(streamResponse([packets(1),packets(2)],state),2,()=>++read===1);
+  assert.equal(raw,null);assert.equal(state.canceled,true);streamChecks++;
+}
+{
+  const state={failAt:1};
+  await assert.rejects(streamContext.streamRead(streamResponse([packets(1)],state),2,()=>true),/network cut/);
+  assert.equal(state.canceled,true);assert.equal(state.released,true);streamChecks++;
+}
+{
+  const raw=await streamContext.streamRead({arrayBuffer:async()=>packets(7,8).buffer},2,()=>true);
+  assert.deepEqual([...raw],[7,8]);streamChecks++;
+}
+{
+  const raw=await streamContext.streamRead({arrayBuffer:async()=>packets(7,8).buffer},1,()=>true);
+  assert.equal(raw,null);streamChecks++;
+}
+{
+  const state={};
+  const raw=await streamContext.streamRead(streamResponse([packets(1,2,3,4)],state),2,()=>true);
+  assert.equal(raw,null);assert.equal(state.canceled,true);streamChecks++;
+}
+checks += streamChecks;
+console.log("PASS " + streamChecks + "/8 approved firmware streaming bound/abort regressions (source-exact synthetic)");
