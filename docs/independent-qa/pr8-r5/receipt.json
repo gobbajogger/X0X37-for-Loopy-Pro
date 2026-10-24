@@ -1,0 +1,135 @@
+{
+  "status": "SOURCE-ONLY QA PASSED",
+  "scope": "Exact PR8 R5 repair with unchanged117-row snapshot; not119-row combined-tree integration or firmware/hardware/publication approval",
+  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+  "pr": 8,
+  "head": "3b626af4d0b0314c1349094699be14fc781c9bcc",
+  "root": "40d4faab200df125d901f58b08cbece9b7697c4b",
+  "reviewed_base": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "source_changed_by_reviewer": false,
+  "findings": {
+    "F1": "VERIFIED ADDRESSED",
+    "F2": "VERIFIED ADDRESSED",
+    "F3": "VERIFIED ADDRESSED",
+    "F4": "VERIFIED ADDRESSED",
+    "F5": "VERIFIED ADDRESSED",
+    "F6": "VERIFIED ADDRESSED",
+    "F7": "VERIFIED ADDRESSED"
+  },
+  "R5_independent_commands": [
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": "python3 final_matrix_extension.py",
+      "exit": 0
+    }
+  ],
+  "R5_F7_result": "prior shadowed URL reference rejects exit1; matched actual reference accepts exit0;6/6 final matrix passes; six default route cases pass native suite",
+  "validator_blob": "9cd11cf06a1277238d5eafc470ab315177f99264",
+  "retained_independent_browser_evidence": {
+    "source": "02a5a05ee0aa9677884aadf1e0bb48e1b31d6cad",
+    "root": "eb903cc7a8ae658e99894b0e7b7b995eb9437c74",
+    "evidence_commit": "7318f2affd81c52827e5aa3c45c234440f4f55d3",
+    "mapping": "runtime-byte-identity.json proves109 prior paths unchanged, only validator/status test and new evidence differ",
+    "browser_independently_rerun_R5": false,
+    "R4_verified_coverage": {
+      "Chromium_installer": 215,
+      "Chromium_history": 34,
+      "expanded": 82,
+      "focused": 22,
+      "history_response": 8,
+      "history_extension": 31,
+      "dependency_boundaries": 8,
+      "backup_adapter": 4
+    },
+    "actual_JS_write_binding_backup_41_cases": "Independently rerun in full R5 native tests; all pass"
+  },
+  "data": {
+    "history_rows": 117,
+    "historical_builds": 2,
+    "actual_picker_versions": 0,
+    "119_row_merge": "Separate merger request; preserve later records and recheck actual combined tree"
+  },
+  "next_owner": "existing sole Website Main Merger, parent dispatches after producer-owned readiness",
+  "successor_created": false,
+  "readiness_changed": false,
+  "merge_or_publication_performed": false,
+  "hardware_tested": false,
+  "integrity": {
+    "producer_blob_pins_verified": 2,
+    "producer_log_hashes_verified": 10,
+    "tested_candidate_clean": true,
+    "head": "3b626af4d0b0314c1349094699be14fc781c9bcc",
+    "root": "40d4faab200df125d901f58b08cbece9b7697c4b"
+  },
+  "logs": {
+    "commands.json": {
+      "bytes": 235,
+      "sha256": "1187df27a1f288e7c8f67278f91338c8dbeb3c2263e0b6278346f4d271ea62bb"
+    },
+    "npm-test-before.log": {
+      "bytes": 12770,
+      "sha256": "68eeb7ad21cd3dd4de6955b60e0b127b07fa58e1858c54087588f0857d489e71"
+    },
+    "npm-build.log": {
+      "bytes": 179,
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a"
+    },
+    "npm-test-after.log": {
+      "bytes": 12770,
+      "sha256": "68eeb7ad21cd3dd4de6955b60e0b127b07fa58e1858c54087588f0857d489e71"
+    },
+    "final_matrix_extension.py": {
+      "bytes": 5918,
+      "sha256": "6ecb7e10ee9b0a8b3975fc54d4d9438c6b72c8148289f9d96c228fde8fa0b7ef"
+    },
+    "final-matrix.log": {
+      "bytes": 3466,
+      "sha256": "10f4948d4041b8c37589e8520831cc978704ccaaf0e2c0a4cd917e830f1e50e7"
+    },
+    "final-matrix-command.json": {
+      "bytes": 65,
+      "sha256": "5890eb0b65117bf36df845e8b079d4fb6297bfdb23a8d21a72a07b0ea1110ffc"
+    },
+    "final-matrix-extension-results.json": {
+      "bytes": 3748,
+      "sha256": "479a3769459483888c20195744b44cbe672a26b5e80d870751c39450c8b3b8b0"
+    },
+    "size_binding_check.mjs": {
+      "bytes": 3110,
+      "sha256": "ca7f90871e388cd33975b07ea1f5be78e3a2e75dc3305a7349432a9fb90b1594"
+    },
+    "additional_browser_write_guards.mjs": {
+      "bytes": 1448,
+      "sha256": "de8e78066e589288b1485a9cefc82d4c73145679f39fe96d7d500990f73d6dc6"
+    },
+    "runtime-byte-identity.json": {
+      "bytes": 14828,
+      "sha256": "3a4a7b56e5285dceb596279a04bc68ba7811920069b4ea5bc981ad1d07f2511e"
+    },
+    "integrity-summary.json": {
+      "bytes": 219,
+      "sha256": "b7cc0184312f76751c4350e7669c4b8e916318198981babc63bc242f8d3cce4d"
+    }
+  }
+}

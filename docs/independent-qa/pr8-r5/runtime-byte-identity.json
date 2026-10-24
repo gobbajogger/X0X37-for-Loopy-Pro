@@ -1,0 +1,460 @@
+{
+  "from": "02a5a05ee0aa9677884aadf1e0bb48e1b31d6cad",
+  "to": "3b626af4d0b0314c1349094699be14fc781c9bcc",
+  "root": "40d4faab200df125d901f58b08cbece9b7697c4b",
+  "changed_paths": [
+    "docs/repair-evidence/r5/README.md",
+    "docs/repair-evidence/r5/consolidated-commands.json",
+    "docs/repair-evidence/r5/default-browser.log",
+    "docs/repair-evidence/r5/final-matrix-extension-results.json",
+    "docs/repair-evidence/r5/final-matrix-green.log",
+    "docs/repair-evidence/r5/final-matrix-red.log",
+    "docs/repair-evidence/r5/final_matrix_extension.py",
+    "docs/repair-evidence/r5/npm-build.log",
+    "docs/repair-evidence/r5/npm-test.log",
+    "docs/repair-evidence/r5/receipt.json",
+    "docs/repair-evidence/r5/run-consolidated.py",
+    "docs/repair-evidence/r5/status-red.log",
+    "scripts/verify-build-status.mjs",
+    "tests/build-status-negatives.test.mjs"
+  ],
+  "unchanged_prior_paths": [
+    {
+      "path": "AGENTS.md",
+      "blob": "dd6669033ce16d5e5d9c96b90e5137e6c6e064af"
+    },
+    {
+      "path": "LICENSE",
+      "blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7"
+    },
+    {
+      "path": "README.md",
+      "blob": "3a652d9c4dd56551521c0875fa2161f917242a80"
+    },
+    {
+      "path": "SOURCE_PROVENANCE.json",
+      "blob": "1895f4e0b0c31e66d4118da6eb351ab4525fe921"
+    },
+    {
+      "path": "build-status.json",
+      "blob": "326ce55e232a9366e34a7cb687505f558ef25022"
+    },
+    {
+      "path": "docs/.nojekyll",
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/breaks/index.html",
+      "blob": "4cf4237ee0612370d97e2070bc16564019aadd56"
+    },
+    {
+      "path": "docs/browser-admission-repair.md",
+      "blob": "45bc973d90c23b3ebdba3d94b0d7fa49de7d9d42"
+    },
+    {
+      "path": "docs/browser-admission-repair.ru.md",
+      "blob": "14bc82855d3c9c57c5e9c5507dfa98068f31563f"
+    },
+    {
+      "path": "docs/build-status.json",
+      "blob": "326ce55e232a9366e34a7cb687505f558ef25022"
+    },
+    {
+      "path": "docs/builds/index.html",
+      "blob": "9cef7ba2a1ffc9894ddb02f5fc657827854c97e6"
+    },
+    {
+      "path": "docs/index.html",
+      "blob": "f8e168c7f96eedb9685fd21a45158f969cbd711e"
+    },
+    {
+      "path": "docs/install/index.html",
+      "blob": "8e4b0a3eab5e60f46eaf1ac56cbf9100f70a70ae"
+    },
+    {
+      "path": "docs/manual/index.html",
+      "blob": "cc4a2b0fae5593134c87abbf5a076b8b7d03cbc2"
+    },
+    {
+      "path": "docs/new/index.html",
+      "blob": "993eb75856fe257b3515a5c73b5300ae7da89a98"
+    },
+    {
+      "path": "docs/nightly-first-development-gate.md",
+      "blob": "5aaed200eee86b9cc29dd558b78dd06243daa5ef"
+    },
+    {
+      "path": "docs/qualified-nightly-candidate.md",
+      "blob": "466c11042ee5c160c2727c6f3cc5c9305dba8738"
+    },
+    {
+      "path": "docs/qualified-nightly-candidate.ru.md",
+      "blob": "7a8d2fdda432d90714d74df90545d66c1a3c7e4f"
+    },
+    {
+      "path": "docs/qualified-nightly-repair-evidence.json",
+      "blob": "287afc8322e5c9c028eed9b9ec0e74d8511cc5a4"
+    },
+    {
+      "path": "docs/repair-evidence/chromium-before.log",
+      "blob": "4a38f84cc15e173b1d266b6e3c6607497cb2fc9e"
+    },
+    {
+      "path": "docs/repair-evidence/chromium-race-before.log",
+      "blob": "e449958f9ba783220952b4dbbe552201ed3e7309"
+    },
+    {
+      "path": "docs/repair-evidence/chromium.log",
+      "blob": "51192198b79f53ca190af399a5aa01fc2c4b97ae"
+    },
+    {
+      "path": "docs/repair-evidence/npm-build.log",
+      "blob": "e43628e80007f590c8280fdc454aad5f8586bf5e"
+    },
+    {
+      "path": "docs/repair-evidence/npm-test.log",
+      "blob": "a3a5d5fed66269de76174b3450eb2aa6e0a7b3cb"
+    },
+    {
+      "path": "docs/repair-evidence/qualification-before.log",
+      "blob": "cc1a936ab7ff0d5183e47d66d2f852344c936214"
+    },
+    {
+      "path": "docs/repair-evidence/r2/README.md",
+      "blob": "d62a50cc0706cb37b3df38876a928aa475c63bec"
+    },
+    {
+      "path": "docs/repair-evidence/r2/backup-boundary-after.log",
+      "blob": "327c90ff017432f46ac0b5069ec8d1ca865720f2"
+    },
+    {
+      "path": "docs/repair-evidence/r2/chromium.log",
+      "blob": "51aa6c97fb24e02ebc9b909db5f86160dc938af2"
+    },
+    {
+      "path": "docs/repair-evidence/r2/expanded-after.log",
+      "blob": "b4a885dab281be60f26e48d3850394be797ae081"
+    },
+    {
+      "path": "docs/repair-evidence/r2/expanded-before.log",
+      "blob": "cc7d4557d5bedd14e8587b3162ef2974e73f37bd"
+    },
+    {
+      "path": "docs/repair-evidence/r2/focused-after.log",
+      "blob": "576a60bacac39ffe848e41f8112d53258719c5fe"
+    },
+    {
+      "path": "docs/repair-evidence/r2/focused-before.log",
+      "blob": "9870b8566a7030401950e4af9fac05ac2ae49df9"
+    },
+    {
+      "path": "docs/repair-evidence/r2/focused_after.py",
+      "blob": "3f51a404f4ae44db5fe62018d2807d9e2c121a36"
+    },
+    {
+      "path": "docs/repair-evidence/r2/npm-build.log",
+      "blob": "e43628e80007f590c8280fdc454aad5f8586bf5e"
+    },
+    {
+      "path": "docs/repair-evidence/r2/npm-test-after-build.log",
+      "blob": "5538d5adb5955b7f867387defffc3622f6c77156"
+    },
+    {
+      "path": "docs/repair-evidence/r2/npm-test-before-build.log",
+      "blob": "5538d5adb5955b7f867387defffc3622f6c77156"
+    },
+    {
+      "path": "docs/repair-evidence/r2/receipt.json",
+      "blob": "2f724ea59a8df9e1e391a607f46f64d9c26d62f1"
+    },
+    {
+      "path": "docs/repair-evidence/r3/README.md",
+      "blob": "313d774a049d6f19980ec0a935b940009dba5632"
+    },
+    {
+      "path": "docs/repair-evidence/r3/chromium.log",
+      "blob": "795802cd810f093e98cf5094caa8e3c376140727"
+    },
+    {
+      "path": "docs/repair-evidence/r3/history-before.log",
+      "blob": "7d55a64b86edbdcc7876335a64b0c49b3a590987"
+    },
+    {
+      "path": "docs/repair-evidence/r3/independent-history-after.log",
+      "blob": "91813d9a52eabe170edf0d1424e15fba41c92e7a"
+    },
+    {
+      "path": "docs/repair-evidence/r3/npm-build.log",
+      "blob": "e43628e80007f590c8280fdc454aad5f8586bf5e"
+    },
+    {
+      "path": "docs/repair-evidence/r3/npm-test-after-build.log",
+      "blob": "5538d5adb5955b7f867387defffc3622f6c77156"
+    },
+    {
+      "path": "docs/repair-evidence/r3/npm-test-before-build.log",
+      "blob": "7a4487cce8f34dcdfbc84b21b23de8172eb5cc09"
+    },
+    {
+      "path": "docs/repair-evidence/r3/receipt.json",
+      "blob": "e79dc6549e49d0d44051b3d241d4562f96032243"
+    },
+    {
+      "path": "docs/repair-evidence/r4/README.md",
+      "blob": "d0816ef915ef61aa40f0389803717befa9b8d856"
+    },
+    {
+      "path": "docs/repair-evidence/r4/backup-boundary-compatible.log",
+      "blob": "327c90ff017432f46ac0b5069ec8d1ca865720f2"
+    },
+    {
+      "path": "docs/repair-evidence/r4/consolidated-commands.json",
+      "blob": "edcd218794200eb807638f8015ff54f0f625ed30"
+    },
+    {
+      "path": "docs/repair-evidence/r4/consolidated.log",
+      "blob": "5a472f6a9b6d3fc68e78ee7dfc1b1e3031a756de"
+    },
+    {
+      "path": "docs/repair-evidence/r4/default-browser.log",
+      "blob": "2e10eef341284a7fd6094561af8abc55bb106179"
+    },
+    {
+      "path": "docs/repair-evidence/r4/dependency-after.log",
+      "blob": "84f44dce5262cb550cfeb9062b689bb8244bd125"
+    },
+    {
+      "path": "docs/repair-evidence/r4/dependency-before.log",
+      "blob": "fc1c87616a10d4a55f620d87924e5f9aead0fe94"
+    },
+    {
+      "path": "docs/repair-evidence/r4/f7-focused-after.log",
+      "blob": "dd361a1b25be29f71b0effb9b75c72230ceec1c0"
+    },
+    {
+      "path": "docs/repair-evidence/r4/f7-focused-before.log",
+      "blob": "903595ecee6fd2a84c7837b24c3cc2ab71772dea"
+    },
+    {
+      "path": "docs/repair-evidence/r4/f7-native-after.log",
+      "blob": "a942166afdcca3e6c6eb668da32ccc7358483e8c"
+    },
+    {
+      "path": "docs/repair-evidence/r4/f7-native-before.log",
+      "blob": "340743cd71afc6541b3d7d640226b494ddc25b9c"
+    },
+    {
+      "path": "docs/repair-evidence/r4/independent-expanded.log",
+      "blob": "b4a885dab281be60f26e48d3850394be797ae081"
+    },
+    {
+      "path": "docs/repair-evidence/r4/independent-focused.log",
+      "blob": "101ca27a5f1fba0ba10d81876d779712f97b97bc"
+    },
+    {
+      "path": "docs/repair-evidence/r4/independent-history-extension.log",
+      "blob": "b6e00a3df24bce32cc4b303f78141a13903d365a"
+    },
+    {
+      "path": "docs/repair-evidence/r4/independent-history.log",
+      "blob": "7f5718963a31e5f76417b7c40863cee548e7ea63"
+    },
+    {
+      "path": "docs/repair-evidence/r4/npm-build.log",
+      "blob": "e43628e80007f590c8280fdc454aad5f8586bf5e"
+    },
+    {
+      "path": "docs/repair-evidence/r4/npm-test.log",
+      "blob": "b37597baf9dbfa79419bac213763dbeb3f45de00"
+    },
+    {
+      "path": "docs/repair-evidence/r4/output-path-before.log",
+      "blob": "534c46067dc07b0ba5a869ac6030cf9b419eed25"
+    },
+    {
+      "path": "docs/repair-evidence/r4/receipt.json",
+      "blob": "b470d5f49fb74b397e831a9ce60d9c981aa83e61"
+    },
+    {
+      "path": "docs/repair-evidence/r4/release-capability.json",
+      "blob": "422a042882725efc14a3b9b1447e784532ab9ff0"
+    },
+    {
+      "path": "docs/repair-evidence/r4/release-route-helper-receipt.json",
+      "blob": "0538cfea5a531e5bb908ba21cbc725e8fa58a85d"
+    },
+    {
+      "path": "docs/repair-evidence/r4/write-binding-after.log",
+      "blob": "d9cdb896ada6393967b31c95040ea56a356b6069"
+    },
+    {
+      "path": "docs/repair-evidence/r4/write-binding-before.log",
+      "blob": "e66e7bff010e079975a2dfc6e07349d57bcab1f6"
+    },
+    {
+      "path": "docs/repair-evidence/r4/write-boundary-after.log",
+      "blob": "8735358e33dcc0c2398e0f7c26b07444c83781d8"
+    },
+    {
+      "path": "docs/repair-evidence/r4/write-boundary-before.log",
+      "blob": "13b6377416ad4b953b110faae57ee703eaef8f68"
+    },
+    {
+      "path": "docs/repair-evidence/receipt.json",
+      "blob": "9ed5bf38ff60c270c46df4b74f302683f303a554"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-pr103-native-smc79-bytecheck-20261024-r13.json",
+      "blob": "f4f865e770ace19af2d484ccc4a5b56699140ae4"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261023-1246.json",
+      "blob": "7b66e354508a4479c80da44d33d8cd38ca7fd164"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261023-1246.md",
+      "blob": "d7dcc1e61e990a43bbb73a35e8bfed751ab6a783"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261023-1346.json",
+      "blob": "1cd57567b313ef1c3ec501d94ac94530ca25f425"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261023-1346.md",
+      "blob": "99747049c7344cbd3447ce134b2cc4049586d5a9"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r16.md",
+      "blob": "a9400d4336d015de31f78f4871faa4cff19cb307"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r17.json",
+      "blob": "fed07643e7933c05d206e7646b806d8457aab482"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r18.json",
+      "blob": "95f7df4c0da564cf958523e38ad55b339923b789"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r19.json",
+      "blob": "19ed863f0927a92b1d6d8476aea280201a577332"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r20.json",
+      "blob": "2fa22f9f6760cfddcc61019fd64682786b687cfc"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r21.json",
+      "blob": "713a22c4e8ee3b69b8405e207c9b8836b94364e2"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r22.json",
+      "blob": "b77c4311a9c75d9d4f609df04fde4dfff75b0667"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r23.json",
+      "blob": "f56be65f72ab1e5f6c747af13a28cbefbc0a9789"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r24.json",
+      "blob": "b9aee53979af188fd386845a9ddbbf110bf7ffe3"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024-r25.json",
+      "blob": "ead7e1f59baae12800cbdfddf0216b6d84d07987"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024.json",
+      "blob": "ae63379c68f3d035550385ede1a1f8b71d30d663"
+    },
+    {
+      "path": "docs/scheduler-handoffs/catalog-sync-20261024.md",
+      "blob": "8b7260258170c3a7468de94be18d683c8dca807a"
+    },
+    {
+      "path": "docs/scheduler-handoffs/nightly-controller-padding-source-20261024.json",
+      "blob": "06e21ddb5a28c85faccf539419187d6e8fd39ce3"
+    },
+    {
+      "path": "docs/scheduler-handoffs/nightly-release-download-source-20261024.json",
+      "blob": "e62637f3b877000b23c1537a76af55d8a65759f9"
+    },
+    {
+      "path": "docs/versions.json",
+      "blob": "01f9ec382878335ea9bb92d0bdf294483111de76"
+    },
+    {
+      "path": "package.json",
+      "blob": "0f45de3c521a9410e768c3930fc18599a67f9074"
+    },
+    {
+      "path": "preview-catalog.json",
+      "blob": "01f9ec382878335ea9bb92d0bdf294483111de76"
+    },
+    {
+      "path": "scripts/build-preview.mjs",
+      "blob": "eb109932f40b1255e6bf249815b00ce700112fa4"
+    },
+    {
+      "path": "scripts/render-qualified-nightly.mjs",
+      "blob": "5203c91f72a59356e223b6ed9a332caca2f89950"
+    },
+    {
+      "path": "tests/browser-admission.py",
+      "blob": "8da2f233f25f3e8fff449c257727b172e022a5ef"
+    },
+    {
+      "path": "tests/build-history-continuity.test.mjs",
+      "blob": "19f55aeaf476e4c6ce515f2b9a066bfdc58e56ef"
+    },
+    {
+      "path": "tests/controller-padding.test.mjs",
+      "blob": "6b1779a4ef37bdfb7de4d570b06a1d6b146a33af"
+    },
+    {
+      "path": "tests/fixtures/history-appendonly-baseline-20261024.json",
+      "blob": "eb2ae7a633abda51ada3d9a0bbcf2317c8eb2fa2"
+    },
+    {
+      "path": "tests/history-response.py",
+      "blob": "beb97297c43d9c0d760802dcbaae267edee5c41c"
+    },
+    {
+      "path": "tests/installer-download-admission.test.mjs",
+      "blob": "ad068df7f613563cb7695573b4e0091a14e08eda"
+    },
+    {
+      "path": "tests/installer-write-boundaries.test.mjs",
+      "blob": "8e9cef4c60b061ea5698d41d06fca59dceb1d8c0"
+    },
+    {
+      "path": "tests/nightly-preview.test.mjs",
+      "blob": "00e0f443a72dbf5d44343b4428bacb535e813c3e"
+    },
+    {
+      "path": "tests/qualified-catalog.test.mjs",
+      "blob": "4fdd3a1644b9992b11263f556492ae27665ad250"
+    },
+    {
+      "path": "web/fm1ota.js",
+      "blob": "485a54187e78822847f5cb51088204983caffa71"
+    },
+    {
+      "path": "web/fm1pkg.js",
+      "blob": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e"
+    },
+    {
+      "path": "web/x0x_breaks.html",
+      "blob": "b988c3270ed974639f702900e120297ad0602b60"
+    },
+    {
+      "path": "web/x0x_breaks.js",
+      "blob": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e"
+    },
+    {
+      "path": "web/x0x_installer.html",
+      "blob": "380aba0d5b5e6bdbce92437126494f1060dd7686"
+    }
+  ],
+  "validator": "9cd11cf06a1277238d5eafc470ab315177f99264"
+}
