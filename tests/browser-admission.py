@@ -198,8 +198,8 @@ async def main():
   for width in [320,375,768,1280]:
    p=await browser.new_page(viewport={'width':width,'height':900})
    await p.goto(f'http://127.0.0.1:{srv.server_port}/builds/',wait_until='domcontentloaded')
-   await p.wait_for_function("document.querySelector('#history').children.length===117")
-   check(await p.locator('#history article').count()==117 and await p.locator('#builds article').count()==2,'actual history rows retained '+str(width))
+   await p.wait_for_function("document.querySelector('#history').children.length===122")
+   check(await p.locator('#history article').count()==122 and await p.locator('#builds article').count()==2,'actual history rows retained '+str(width))
    geometry=await p.evaluate("""()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
     overflow:[...document.querySelectorAll('.item,.item h3,.item p,.item dd,.tag')]
      .filter(el=>el.scrollWidth>el.clientWidth+1).map(el=>el.textContent.slice(0,80))})""")
