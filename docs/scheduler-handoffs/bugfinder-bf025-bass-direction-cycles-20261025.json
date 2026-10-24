@@ -1,0 +1,97 @@
+{
+  "schema": "loopyx0x37.handoff.v1",
+  "evidence_revision": "bugfinder-bf025-bass-direction-cycles-20261025-r1",
+  "date_utc": "2026-10-24",
+  "owner_role": "Hourly Bugfinder",
+  "stage": "SOURCE_READY_SCOPED_NATIVE_CHECKED_QA_AND_BUILD_PENDING",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "isolated_branch": "lane/bugfinder-bf025-bass-direction-cycles-20261025",
+  "source_commit": "731584854c1453047cd9f284383ff3addf8c7736",
+  "source_root_tree": "6551318eb64b619abb7018fdf87fd7dde903cc89",
+  "source_base_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "source_base_root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "firmware_compiler_input_tree": "4e4e7831ce8db878607782c5d58fd50436c93c8a",
+  "previous_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "invariant_unchanged": {
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "build_sh_git_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5"
+  },
+  "changed_paths": [
+    {
+      "path": "firmware/src/seq/sequencer.c",
+      "sha": "2591b51b227ba99371331fe5d008f3f89965b6e5"
+    },
+    {
+      "path": "firmware/src/seq/sequencer.h",
+      "sha": "74c7fbec097a6f75e5c0970baf0df1c6e0288bc0"
+    },
+    {
+      "path": "tests/host/seq_test.c",
+      "sha": "770a8fab1366985e819bdcd659328c2e09b5dab6"
+    }
+  ],
+  "bug": {
+    "title": "303 bass auto-mutation cycle counts were driven by random note addresses and double-counted in reverse",
+    "impact": "RANDOM direction jumping onto step zero could mutate notes/probability before a complete bar; REVERSE direction counted reaching step zero and returning to the final step as two bars, doubling effective mutation rate.",
+    "reproduction": "seed 77, 16-step random 303: picks 9,1,0,0 on first four transitions, old bars=2 and one mutation after only five played steps. Reverse len4: old increments bars on both 0 and 3 each cycle.",
+    "correction": "Track elapsed random transitions in an unused seq_track_t alignment byte; wrap only after part len transitions. For reverse count only return to last/first-played step. Leave forward, pingpong, drum, clocks, RNG selected pitch, SMC, OTA and project serialization unchanged.",
+    "original_live_blob": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+    "duplicate_check": "No matching active owner or PR found; separate from BF024 motion, PR95 pingpong bounds, clock, SMC and Data Safety."
+  },
+  "native_producer": {
+    "environment": "Linux x86_64; GCC 14.2.0 and Clang 17.0.0, -std=c11 -O1 -g -Wall -Wextra -Werror; plain, -fsanitize=undefined, -fsanitize=address,undefined each with -fno-sanitize-recover=all",
+    "test_type": "Focused mocked production sequencer.c next_pos/fire_step source-window replay; NOT complete Git source compilation",
+    "run": "sh REPRODUCE.sh inside Library private evidence ZIP; stdout reproduce.log",
+    "scenarios": "seed77 early random zero revisits; 16/32 transitions mutation, forward/reverse/pingpong, length1, restart; random lengths1..64, 16 seeds each, 201728 property checks per executable",
+    "matrix": {
+      "gcc_plain": "old_exit_1 new_exit_0",
+      "gcc_ubsan": "old_exit_1 new_exit_0",
+      "gcc_asan_ubsan": "old_exit_1 new_exit_0",
+      "clang_plain": "old_exit_1 new_exit_0",
+      "clang_ubsan": "old_exit_1 new_exit_0",
+      "clang_asan_ubsan": "old_exit_1 new_exit_0"
+    },
+    "baseline_failure_count_per_executable": 89368,
+    "corrected_failure_count_per_executable": 0,
+    "source_window_sha256": "1a927d635b98bc6d03ca0bf4ef641e0dba38b142ed5bb806419f8693a8fb1b01",
+    "reproduce_log_sha256": "9f94b821ce9ab76ee724bdc1d8126d0fdd1f47ce13a44064dc8e9fa8701acb8f",
+    "baseline_log_sha256": "b2da210eaff5fc416aaf6890da49327de8531fa67408aa7ae483cf3cadcb0b17",
+    "corrected_log_sha256": "4bea69fe57b6a4684e0af7cc0237a80b5d97ffe4448fef7c99f23d64",
+    "model_layout_probe": "Scoped seq_track_t 28 bytes, rec_skip offset 26 before and after on native GCC; target ABI not independently checked.",
+    "asan_options": "ASAN_OPTIONS=detect_leaks=0; no LeakSanitizer verification claimed.",
+    "archive": {
+      "path": "/LoopyX0X37-Bugfinder-BF025-BassCycles-20261025.zip",
+      "library_file_id": "libfile_7c90ae0d0f7c8191b950eb39b836ee12",
+      "bytes": 10086,
+      "sha256": "17598a69c8527fab8030090d754a42086e975b86b41d30acaf9f891fe98955c5",
+      "zip_crc": "PASS",
+      "materialized_byte_identical": true
+    }
+  },
+  "not_run": [
+    "Actual complete-root tests/host/seq_test.c regression and tests/run_tests.sh against this branch",
+    "Native JieLi pi32v2 Elite and Pro firmware and matching controller compilation, model/SDK pins/hash/CRC/budgets",
+    "Independent QA full-root negative/boundary review",
+    "Source integration via sole Safe Merge",
+    "Real device testing, restore or installer/publication verification"
+  ],
+  "next_stages": [
+    {
+      "owner": "Existing Hourly Build",
+      "action": "Build authenticated exact compiled firmware/ tree 4e4e7831ce8db878607782c5d58fd50436c93c8a for Elite/Pro and matching controller, with source/sdk/toolchain/model/config, real test/compile exits, hash/CRC/budget evidence; BUILD_ONLY does not wait for QA/hosting/device."
+    },
+    {
+      "owner": "Existing Independent QA",
+      "action": "Independently test new actual seq_test.c with real source and host runner, randomized direction/time/length edits, compare counters and mutation under GCC/Clang sanitizers; accept/reject exact SHA. Do not conflate mock scope with complete root."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Only integrate after independent review, recheck current guarded nightly refs and ownership. No main/Pages/public binary or hardware promotion."
+    }
+  ],
+  "software_source_only": true,
+  "no_public_binary": true,
+  "no_device_test": true,
+  "safety_no_public_upload": true
+}
