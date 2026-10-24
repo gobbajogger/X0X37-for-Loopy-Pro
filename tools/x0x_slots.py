@@ -594,9 +594,27 @@ def main(argv):
                 for name, payload in targets:
                     fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                                  0o600, dir_fd=directory)
-                    created.append(name)
+                    try:
+                        opened = os.fstat(fd)
+                    except BaseException:
+                        os.close(fd)
+                        raise
+                    created.append((name, opened.st_dev, opened.st_ino))
                     with os.fdopen(fd, "wb") as file:
-                        file.write(payload)
+                        written = file.write(payload)
+                        if written != len(payload):
+                            raise SlotError(f"extract short write for {name}")
+                # A concurrent rename/replace of an individual output name must
+                # not turn a successful fd write into a false successful extraction.
+                # This detects observed substitution; it is not a lock against
+                # hostile same-user writes after checking. Use a private OUTDIR.
+                for name, dev, ino in created:
+                    try:
+                        on_disk = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                    except OSError as error:
+                        raise SlotError(f"extract output entry changed: {name}: {error}") from error
+                    if (on_disk.st_dev, on_disk.st_ino) != (dev, ino):
+                        raise SlotError(f"extract output entry changed: {name}")
                 # Do not report success if OUTDIR was renamed or replaced while
                 # writing. Cleanup remains relative to the pinned directory fd.
                 bound = os.fstat(directory)
@@ -607,9 +625,17 @@ def main(argv):
                 if (bound.st_dev, bound.st_ino) != (current.st_dev, current.st_ino):
                     raise SlotError("extract output path changed during writing")
             except BaseException:
-                # Descriptor-relative cleanup cannot be redirected by replacing OUTDIR.
-                for name in created:
-                    os.unlink(name, dir_fd=directory)
+                # Only remove names still referring to files this invocation created.
+                # Never unlink a substituted symlink or another owner's recording.
+                for name, dev, ino in created:
+                    try:
+                        on_disk = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                    except FileNotFoundError:
+                        continue
+                    except OSError:
+                        continue  # fail closed: do not guess what the name contains
+                    if (on_disk.st_dev, on_disk.st_ino) == (dev, ino):
+                        os.unlink(name, dir_fd=directory)
                 raise
         finally:
             if directory is not None:

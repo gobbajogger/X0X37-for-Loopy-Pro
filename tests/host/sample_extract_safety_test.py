@@ -38,16 +38,28 @@ def call(main, dest, *, mode=None, images=IMAGES):
             if not dest.is_symlink():
                 dest.rename(transferred)
                 dest.symlink_to(outsider, target_is_directory=True)
-        return real_open(file, flags, *args, **kwargs)
+        if mode == 'replace-before-rollback' and file == 'slot1.bin' and kwargs.get('dir_fd') is not None:
+            (dest / 'slot1.hdr').rename(dest / 'diverted-header.hdr')
+            (dest.parent / 'owner.wav').rename(dest / 'slot1.hdr')
+            raise OSError('injected interruption after another writer replaced slot filename')
+        fd = real_open(file, flags, *args, **kwargs)
+        if mode == 'replace-after-open' and file == 'slot1.hdr' and kwargs.get('dir_fd') is not None:
+            (dest / 'slot1.hdr').rename(dest / 'diverted-header.hdr')
+            (dest / 'slot1.hdr').symlink_to(dest.parent / 'owner.wav')
+        return fd
     class InterruptedFile:
         def __init__(self, f): self.f=f
         def __enter__(self): self.f.__enter__(); return self
         def write(self, data):
             self.f.write(data[:2]); raise OSError('injected partial write failure')
         def __exit__(self, *args): return self.f.__exit__(*args)
+    class ShortWriteFile(InterruptedFile):
+        def write(self, data):
+            return self.f.write(data[:2])
     def injected_fdopen(fd, *args, **kwargs):
         f=real_fdopen(fd,*args,**kwargs)
         if mode == 'partial-first': return InterruptedFile(f)
+        if mode == 'short-first': return ShortWriteFile(f)
         return f
     with patch.object(Path, 'mkdir', injected_mkdir), patch.object(os, 'open', injected_open), \
          patch.object(os, 'fdopen', injected_fdopen), contextlib.redirect_stdout(io.StringIO()):
@@ -95,6 +107,19 @@ def run():
         dest9=root/'partial';dest9.mkdir();e=call(main,dest9,mode='partial-first')
         check('interrupted partial file write cleans opened output',isinstance(e,OSError) and not list(dest9.iterdir()),e)
         check('unrelated owner WAV remains untouched',owner.read_bytes()==b'ORIGINAL')
+        dest10=root/'replaced-name';dest10.mkdir();e=call(main,dest10,mode='replace-after-open')
+        check('renamed output and symlink replacement cannot falsely succeed',
+              isinstance(e,SlotError) and (dest10/'slot1.hdr').is_symlink()
+              and (dest10/'diverted-header.hdr').read_bytes()==b'A'*480
+              and owner.read_bytes()==b'ORIGINAL',e)
+        dest11=root/'foreign-rollback';dest11.mkdir();e=call(main,dest11,mode='replace-before-rollback')
+        check('interrupted cleanup does not delete a recording moved into created filename',
+              isinstance(e,OSError) and (dest11/'slot1.hdr').is_file()
+              and (dest11/'slot1.hdr').read_bytes()==b'ORIGINAL'
+              and (dest11/'diverted-header.hdr').read_bytes()==b'A'*480,e)
+        dest12=root/'short-write';dest12.mkdir();e=call(main,dest12,mode='short-first')
+        check('silent short write is a failure and incomplete file is removed',
+              isinstance(e,SlotError) and not list(dest12.iterdir()),e)
     print(f'SUMMARY {sum(checks)}/{len(checks)}')
     return 0 if all(checks) else 1
 

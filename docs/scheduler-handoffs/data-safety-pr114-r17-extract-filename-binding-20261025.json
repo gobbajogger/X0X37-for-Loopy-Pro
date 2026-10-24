@@ -1,0 +1,75 @@
+{
+  "schema": "x0x37-data-safety-source-evidence-v1",
+  "evidence_revision": "data-safety-pr114-r17-extract-filename-binding-20261025-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owning_role": "Data Safety",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "parent_commit": "757c6e5b168c8c737e758346eb26e23134a5bcbd",
+  "parent_root_tree": "9aa0d0d32a657c3b7a8a6e4150f290954fa19cf6",
+  "firmware_subtree_unchanged": "5c209609b770fd13949230aeb80956594fd6b741",
+  "paths": [
+    {
+      "path": "tools/x0x_slots.py",
+      "sha": "49a49944a4cc277075100aa8b9cb51e65ece8f90",
+      "mode": "100755",
+      "main_window_sha256": "3291c69c3ad407a9754c7545325facc19dbf0cc8696839fd4b4d4b807a3b4eb3",
+      "main_window_fnv1a32": "7db22229"
+    },
+    {
+      "path": "tests/host/sample_extract_safety_test.py",
+      "sha": "441de2946d9e1c0d593b290a0809d0bf178ee73a",
+      "mode": "100755",
+      "sha256": "b925723a26db14327d84d7a8125583166d56a02bce98032f6630e46c08ccb63f"
+    }
+  ],
+  "intended_owner_result": "A sample extract must reject an observed output filename substitution, retain any substituted recording during failure cleanup, refuse silent short disk writes, and keep extraction into new or empty directories usable.",
+  "findings": "Independent QA Cycle11 source R16 reproduced two per-file races in synthetic adversarial checks. Producer added negative regression, before 14/17 exit1, after 17/17 exit0 (normal and Python -O). Original R16 14/14 baseline preserved.",
+  "checks": [
+    {
+      "command": "python3 -B tests/host/sample_extract_safety_test_r17.py source-projections/R16-main.py",
+      "exit": 1,
+      "pass": "14/17",
+      "log_sha256": "8332042f5c6ad2023c18a71df180c8687cb13b0e1585b57b20c39197ecb78518"
+    },
+    {
+      "command": "python3 -O -B tests/host/sample_extract_safety_test_r17.py source-projections/R16-main.py",
+      "exit": 1,
+      "pass": "14/17",
+      "log_sha256": "62295fd4355e56734c8cd6e5731b7fd11c6811c3967d488ad85ce06071422057"
+    },
+    {
+      "command": "python3 -B tests/host/sample_extract_safety_test_r17.py source-projections/R17-main.py",
+      "exit": 0,
+      "pass": "17/17",
+      "log_sha256": "a951d8bfdd3b6907a216ff2da3cd60cdcc72f143713200f920c5ce7e07a8af36"
+    },
+    {
+      "command": "python3 -O -B tests/host/sample_extract_safety_test_r17.py source-projections/R17-main.py",
+      "exit": 0,
+      "pass": "17/17",
+      "log_sha256": "8e9114752b3baba607ccd8696f454ffd76f1b17e6c5c25f6dab43a262fbac94f"
+    },
+    {
+      "command": "python3 -B tests/host/sample_extract_safety_test.py source-projections/R17-main.py",
+      "exit": 0,
+      "pass": "old tests 14/14",
+      "log_sha256": "9b6ec09f93f718abc746fa11dc809341cab531629fbca19de73a5ac6cd1c61b0"
+    },
+    {
+      "command": "python3 -m py_compile source-projections/R17-main.py tests/host/sample_extract_safety_test_r17.py",
+      "exit": 0
+    }
+  ],
+  "test_scope": "Python3.13 Linux real temporary POSIX filesystem. Actual Git main function AST window verified against R16 exact blob, and new 6374-byte window patched identically to source; synthetic archive data and injected rename/symlink/interrupt/short-write. No physical MIDI; no complete-root run.",
+  "limits": "Inode comparison then unlink is not an atomic unlink-if-matching-inode. Same-user malicious writer swapping between check and unlink, untrusted ancestor directories and post-return modifications remain unsupported. Extract to a private trusted directory. An external actor moving an owner file may remove its original pathname: no tool can guarantee original path if the actor changed it.",
+  "disposition": {
+    "producer_scoped": "PASS",
+    "independent_new_head": "PENDING",
+    "whole_root": "NOT_RUN",
+    "native_OTA": "NO_GO",
+    "browser_installer": "OUT_OF_SCOPE",
+    "physical_device": "NOT_TESTED"
+  },
+  "next_owner": "sole Independent QA",
+  "required_checks": "Repeat registered native 17-case test against full exact Git file, attempt adversarial inode-swap-at-unlink and parent mutations; run affected full-root native CLI/update/backup/controller suites and report scoped failures honestly. Only sole Safe Merge integrates QA-accepted change."
+}
