@@ -3192,6 +3192,104 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7/docs/scheduler-handoffs/safe-merge-pr103-r15-cli-mode-r16.json"
+    },
+    {
+      "id": "integration-pr103-r22-current-smc-host-harness-20261024",
+      "title": "PR103 R22 scoped host harness repair; physical OTA identity QA NEEDS CHANGES",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "56c180450393f26859419ce13b479e45cb0c242d",
+      "source_tree": "b3cd9031c4ec1693b5a0d1566a51d1c12054d5dd",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "build_target_tests_independently_reexecuted": false,
+      "reported_checks": {
+        "origin": "Sole Safe Merge PR103 R22 with scoped host reviewer receipt 6383472256; Catalog re-read immutable source SHA/root/tree only",
+        "command": "SMC data7 13/13 and overflow 16/16 six GCC/Clang sanitizer variants, reported by independent source consumer",
+        "result": "Source-only scoped host QA reported PASS; full integrated-root QA pending and OTA physical identity NEEDS CHANGES; compiled firmware subtree unchanged from prior BUILD_ONLY"
+      },
+      "description": "Latest exact PR103 R22 source-only integration checkpoint; no new Elite/Pro binary generation and no separately licensed external package. Independent full-root QA not complete.",
+      "missing_gate": "Data Safety PR114 physical OTA identity repair, full-root combined native tests and independent review, lawful model-specific external hosting; only Safe Merge may integrate firmware.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "56c180450393f26859419ce13b479e45cb0c242d",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/56c180450393f26859419ce13b479e45cb0c242d"
+    },
+    {
+      "id": "producer-pr120-fresh-elite-pro-controller-20261024",
+      "title": "PR120 BF-018 native Elite/Pro + fresh controller BUILD_ONLY; private bytes independently SHA/CRC checked",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/bugfinder-bf018-motion-clear-stale-20261024",
+      "source_commit": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
+      "source_tree": "20b4d99b62473c57a13f1facfde6b214360fff45",
+      "firmware_subtree": "5fe09b05151ebff1af5e5a176374bc1a96cdea58",
+      "source_time": "2026-10-24T11:00:50Z",
+      "date": "2026-10-24",
+      "status": "build-succeeded-unreviewed",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "artifact_bytes_independently_verified": true,
+      "build_target_tests_independently_reexecuted": false,
+      "producer_reported_artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "1a12ecebc5b93efd6e5c0f3cf31a242f9ff8a29a4aa695e3236b74b4c92c55bf"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "fc6f13a50baee5cd09b69f2dcf0ac282afa76735ef2b01a8c68c07f9f27a1a7d"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "9c07ae67",
+          "redistribution_permitted": false
+        }
+      },
+      "build_pipeline": {
+        "build": "BUILD_SUCCEEDED_UNREVIEWED",
+        "qa": "QA_PENDING",
+        "installability": "NOT_INSTALLABLE",
+        "live_http": "NOT_VERIFIED",
+        "hardware": "DEVICE_NOT_TESTED",
+        "source_scope": "FIRMWARE_SUBTREE_MATCH_FULL_ROOT_NOT_ATTESTED",
+        "builder_selected_host_checks_pass": 6,
+        "followup_native_checks_pass": 0,
+        "followup_native_checks_fail": [],
+        "evidence_commit": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
+        "evidence_manifest_blob_sha": "0d5404a3aad27e1bda1fe68b6d26fc7e19db8da0",
+        "package_bytes_independently_received_and_rehashed": true
+      },
+      "reported_checks": {
+        "origin": "Builder GitHub PR120 issuecomment-6383995752 reports compiled packages. Catalog independently rehashed real PRIVATE main Library ZIP and firmware/controller members in Linux with Python hashlib/zipfile/zlib",
+        "command": "Native compiler model/controller exit 0 reported by separate Builder, not Catalog; Catalog independently SHA256+CRC32 rehashed private ZIP and three binary members",
+        "result": "Private 3/3 member hashes+CRCs MATCH; builder-reported 6/6 native motion host variants and 28/28 package negatives; full-root OTA/backup/physical QA NOT RUN, no legal public distribution or hosted bytes"
+      },
+      "description": "Distinct BF-018 motion source NOT integrated by sole Safe Merge, not same as first NIGHTLY PR103. Private builder package hashes genuinely inspected, but compiler full-root/OTA safety/device/license/HTTP and distribution gates pending.",
+      "missing_gate": "Independent PR120 full-root and backup/OTA/model QA, sole firmware integration decision, lawful corresponding source/controller distribution, verified immutable external hosted firmware and per-model HTTP SHA; do not publish or install.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/120",
+      "evidence_commit": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/2d5742ee7c271168b6e78fc24100f9bae79e334d/docs/scheduler-handoffs/bugfinder-bf018-motion-clear-20261024.json"
     }
   ],
   "policy": {
@@ -3202,7 +3300,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 115
+    "source_or_historical_checkpoints": 117
   },
   "versioning": {
     "firmware_product_version": {

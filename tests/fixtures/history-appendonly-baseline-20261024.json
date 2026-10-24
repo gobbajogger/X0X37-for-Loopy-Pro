@@ -467,6 +467,14 @@
     {
       "id": "integration-pr103-r16-pr110-integrated-current-20261024",
       "sha256": "df7e90d50fd56951dc130c54bd29ce15f2e38e15d7005d31a85e57dd7a51382f"
+    },
+    {
+      "id": "integration-pr103-r22-current-smc-host-harness-20261024",
+      "sha256": "3d7b43f94b1fcdae18663f4cdb99fcdf91702483566ca1a769cf1d792412d046"
+    },
+    {
+      "id": "producer-pr120-fresh-elite-pro-controller-20261024",
+      "sha256": "badd8a9f9a9eb448fb201ed769ad3798b2da5bbc83e71260f290c128908a3afd"
     }
   ]
 }

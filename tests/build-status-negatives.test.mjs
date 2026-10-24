@@ -11,6 +11,7 @@ const required = [
   'scripts/verify-build-status.mjs', 'build-status.json', 'docs/build-status.json',
   'preview-catalog.json', 'docs/versions.json', 'docs/builds/index.html', 'docs/index.html',
   'docs/scheduler-handoffs/catalog-sync-20261024.json',
+  'docs/scheduler-handoffs/catalog-sync-20261024-r25.json',
   'tests/fixtures/history-appendonly-baseline-20261024.json'
 ];
 function run(label, mutate, shouldPass = false) {
@@ -503,3 +504,42 @@ run('smc79-fake-HTTP-PASS',mutateNative(r=>r.build_pipeline.live_http='HTTP_VERI
 run('smc79-false-audit-state',mutateNative(r=>r.artifact_bytes_independently_verified=false));
 run('smc79-invented-historical-test-exit',mutateNative(r=>r.build_pipeline.followup_native_checks_fail[0].exit_code=1));
 run('smc79-hidden-historical-test-failure',mutateNative(r=>r.build_pipeline.followup_native_checks_fail.pop()));
+
+
+const auditedR25='producer-pr120-fresh-elite-pro-controller-20261024',sourceR25='integration-pr103-r22-current-smc-host-harness-20261024';
+const editAuditedR25=fn=>edit(j=>{const x=j.history.find(r=>r.id===auditedR25);assert.ok(x);fn(x);});
+run('r25-two-new-noninstallable-history-records-positive',edit(j=>{
+  assert.equal(j.history.at(-2).id,sourceR25);assert.equal(j.history.at(-1).id,auditedR25);
+  assert.equal(j.history.length,117);assert.equal(j.builds.length,2);
+  assert.equal(j.history.at(-1).installable,false);
+  assert.equal(j.history.at(-1).build_pipeline.qa,'QA_PENDING');
+  assert.equal(j.history.at(-1).build_pipeline.live_http,'NOT_VERIFIED');
+}),true);
+run('r25-delete-real-PR120-last-receipt-adjust-count',edit(j=>{j.history.pop();j.counts.source_or_historical_checkpoints--;}));
+run('r25-delete-both-new-tail-receipts-adjust-count',edit(j=>{j.history.splice(-2);j.counts.source_or_historical_checkpoints-=2;}));
+run('r25-swap-new-source-and-private-build-receipts',edit(j=>{
+  const n=j.history.length;[j.history[n-2],j.history[n-1]]=[j.history[n-1],j.history[n-2]];
+}));
+for(const [name,mutation] of [
+ ['r25-forged-Elite-package-SHA-valid-shape',x=>x.producer_reported_artifacts.elite.sha256='f'.repeat(64)],
+ ['r25-forged-Pro-package-SHA-valid-shape',x=>x.producer_reported_artifacts.pro.sha256='f'.repeat(64)],
+ ['r25-forged-private-controller-SHA',x=>x.producer_reported_artifacts.private_controller.sha256='f'.repeat(64)],
+ ['r25-forged-private-controller-CRC',x=>x.producer_reported_artifacts.private_controller.crc32='00000000'],
+ ['r25-forged-package-model',x=>x.producer_reported_artifacts.elite.product='SMK-37 Pro_900'],
+ ['r25-forged-root-SHA-valid-shape',x=>x.source_tree='f'.repeat(40)],
+ ['r25-forged-firmware-tree-SHA-valid-shape',x=>x.firmware_subtree='f'.repeat(40)],
+ ['r25-forged-QA-PASS',x=>x.build_pipeline.qa='QA_PASSED'],
+ ['r25-forged-public-HTTP',x=>x.build_pipeline.live_http='LIVE_HTTP_VERIFIED'],
+ ['r25-hidden-unapproved-download',x=>x.download_url='https://untrusted.invalid/package']
+])run(name,editAuditedR25(mutation));
+for(const [name,mutate] of [
+ ['r25-audit-forged-ZIP-SHA',x=>x.archive_sha256='f'.repeat(64)],
+ ['r25-audit-forged-controller-CRC',x=>x.artifacts.private_controller.crc32='00000000'],
+ ['r25-audit-false-distribution',x=>x.distribution_approved=true],
+ ['r25-audit-false-independent-QA',x=>x.independent_site_QA='PASSED']
+])run(name,dir=>{
+  const p=join(dir,'docs/scheduler-handoffs/catalog-sync-20261024-r25.json');
+  const data=JSON.parse(fs.readFileSync(p,'utf8'));
+  mutate(data.pr120_private_byte_audit);
+  fs.writeFileSync(p,JSON.stringify(data,null,2)+'\n');
+});
