@@ -8,7 +8,7 @@
 #include "../../firmware/src/seq/sequencer.h"
 
 static int fails, midi_on[128], midi_off[128], on_count, off_count;
-static int allow[128];
+static int allow[128], received_slide[128];
 #define CHECK(x, msg) do { if (!(x)) { fprintf(stderr, "FAIL: %s\n", msg); fails++; } } while (0)
 
 static void bass_off(void *ctx, int p);
@@ -21,7 +21,8 @@ static void bass_on(void *ctx, int part, int note, int accent, int slide, int ve
 static int bass_on(void *ctx, int part, int note, int accent, int slide, int velocity)
 #endif
 {
-    (void)ctx; (void)part; (void)accent; (void)slide; (void)velocity;
+    (void)ctx; (void)part; (void)accent; (void)velocity;
+    received_slide[note] = slide;
     on_count++;
 #ifdef BF028_BASELINE
     if (!allow[note]) bass_off(ctx, part);
@@ -48,6 +49,7 @@ static void reset(void)
     memset(midi_on, 0, sizeof midi_on);
     memset(midi_off, 0, sizeof midi_off);
     memset(allow, 0, sizeof allow);
+    memset(received_slide, 0x7f, sizeof received_slide);
     on_count = off_count = 0;
     for (int i=0; i<NPAT; i++) pattern_init(&patterns[i], 100u + (uint32_t)i, 200u + (uint32_t)i);
     seq_init(&seq, patterns);
@@ -81,6 +83,7 @@ static void test_skipped_first_note(void)
     CHECK(on_count == 1, "probability callback reached for first step");
     CHECK(midi_on[40] == 0, "a rejected 303 step must have no external MIDI NoteOn");
     CHECK(!seq.bass_out_valid[0], "skipped note must not have an active MIDI voice");
+    CHECK(!seq.t[TRK_BASS0].sounding, "rejected 303 note must not leave a phantom internal voice");
 }
 static void test_reject_after_audible_note(void)
 {
@@ -97,6 +100,8 @@ static void test_reject_after_audible_note(void)
     CHECK(midi_on[41] == 0, "rejected slide target cannot produce MIDI NoteOn");
     CHECK(midi_off[40] == 1, "old external note ended on a skipped slide target");
     CHECK(!seq.bass_out_valid[0] && !seq.bass_slide_valid[0], "skipped slide target clears both tracked MIDI voices");
+    CHECK(!seq.t[TRK_BASS0].sounding && !seq.t[TRK_BASS0].held_note && !seq.t[TRK_BASS0].to_off,
+          "rejected slide target restores silent 303 sequencer state");
 }
 static void test_both_accepted(void)
 {
@@ -110,6 +115,23 @@ static void test_both_accepted(void)
           "accepting both notes preserves existing external MIDI playback");
     CHECK(seq.bass_out_valid[0], "accepted second note is still tracked");
 }
+static void test_reject_then_clean_attack(void)
+{
+    reset();
+    patterns[0].bass[0].step[0] = (bstep_t){40, G_NOTE, 100};
+    patterns[0].bass[0].step[1] = (bstep_t){41, G_NOTE | BS_SLIDE, 100};
+    patterns[0].bass[0].step[2] = (bstep_t){42, G_NOTE, 100};
+    allow[40] = 1;
+    allow[41] = 0;
+    allow[42] = 1;
+    seq_start(&seq);
+    advance_samples(11500);
+    CHECK(midi_on[40] == 1 && midi_on[41] == 0 && midi_on[42] == 1,
+          "accepted 303 note after skipped slide is the only new MIDI voice");
+    CHECK(received_slide[42] == 0,
+          "accepted note after skipped slide starts with clean attack, not phantom glide");
+}
+
 static void test_live_rec_echo_survives(void)
 {
     reset();
@@ -144,6 +166,7 @@ int main(void)
     test_skipped_first_note();
     test_reject_after_audible_note();
     test_both_accepted();
+    test_reject_then_clean_attack();
     test_live_rec_echo_survives();
     test_tie_after_rejection_is_silent();
     if (fails) { printf("BF028: %d failed assertions\n", fails); return 1; }

@@ -17,17 +17,17 @@
   },
   "proposed_blobs": {
     "firmware/src/seq/sequencer.h": "83f2ea67bcd1e4dd4f077c1faf7eff2ca4e44921",
-    "firmware/src/seq/sequencer.c": "bdf717a95aa38fb3755640824a9e01692114bf8d",
+    "firmware/src/seq/sequencer.c": "47e0fafba445e3524e6be61c71b6e775850d08cb",
     "firmware/src/app/engine.c": "9b3ba23cf5c1a772e582c09b287b400b9a6eacd7",
     "tests/host/seq_test.c": "c58364936ef6468a41233ba4e5444fbea8aa41a1",
     "tests/run_tests.sh": "4f6a6e88accc8d1aab1d5da138a662a80431d091",
-    "tests/host/bass_probability_midi_test.c": "5744a2cb428303fdf14ef7ea2dcb924bfca51697"
+    "tests/host/bass_probability_midi_test.c": "9e61be36bdf552d901d792d3ca4058408360d783"
   },
   "methods": "GCC 14.2 and Clang 17; original and corrected real sequencer function and actual callback boundary tested with true C compiler in plain, UBSan, ASan+UBSan. Original and fixed function windows byte-verified against exact Git blobs. The remainder of build uses captured Clock R30 source and has not been rebuilt from entire current root.",
-  "regression": "Five scenarios: rejected first 303 note has no MIDI NoteOn; rejection after an audible slide cleans old NoteOff; accepted slide emits both MIDI notes; live-recorded hit retains MIDI echo without internal duplicate; rejected note followed by TIE remains silent.",
-  "fail_before": "All six baseline configurations exited nonzero with seven expected assertions failing each; no passing baseline falsely represented.",
-  "pass_after": "Six corrected configurations exited zero with regression assertions passing, no observed UBSan/ASan errors. ASAN_OPTIONS=detect_leaks=0 was used.",
-  "native_archive_sha256": "78c79050eb581a20ddda4f96ddd23fffc9dd906578c382d55b001ee3d1c6fe22",
+  "regression": "Six scenarios: reject first note, release earlier audible slide and both external note trackers, accepted slides, preserve live-rec MIDI echo, reject TIE case, reject slide followed by accepted note with clean attack rather than phantom glide.",
+  "fail_before": "Six GCC14.2/Clang17 plain, UBSan, ASan+UBSan original-source configurations: each exits 1 and fails the same 11 expected negative assertions.",
+  "pass_after": "Six corrected GCC14.2/Clang17 plain, UBSan, ASan+UBSan configurations: each exits 0; no sanitizer diagnostics observed. ASAN_OPTIONS=detect_leaks=0.",
+  "native_archive_sha256": "c8d7a7846649058ef7d4f30b1e8a7ffd79ba35f9293924f004dc32f7d49164a2",
   "limitations": [
     "Native source boundary reproduction only, NOT full current-root or target device build",
     "No full CLI suite, final Elite/Pro controller build, independent QA, installer qualification, hardware flash, OTA, or device PASS",
@@ -38,5 +38,14 @@
     "Existing Independent QA: independent fail-before/pass-after/current-root review",
     "Sole firmware Safe Merge: approval and guarded integration"
   ],
-  "library_delivery": "Attempted private Library evidence upload, but files.manage_library returned container_session_unavailable and no session. Do not claim delivered."
+  "library_delivery": "Attempted private Library evidence upload, but files.manage_library returned container_session_unavailable and no session. Do not claim delivered.",
+  "revision": "BF-028 R2; later than R1 commit d10149d05c7448ea86f29d35d586ae01557d0f55",
+  "r1_archive_sha256": "78c79050eb581a20ddda4f96ddd23fffc9dd906578c382d55b001ee3d1c6fe22",
+  "root_source_window_verification": {
+    "scope": "fire_bass function in patched Git and native replay only; surrounding native Clock R30 snapshot reused",
+    "fnv1a32_utf8": "d32296e9",
+    "native_window_bytes": 3142,
+    "exact_window_match": true
+  },
+  "new_negative_stimulus": "A pattern plays note 40, chance-rejects sliding note 41, then permits note 42; callback slide for 42 must be 0, rejected state sounding=0/held_note=0/to_off=0; otherwise ghost glide after silent step."
 }
