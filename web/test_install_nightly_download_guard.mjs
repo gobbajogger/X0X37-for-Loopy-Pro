@@ -133,6 +133,56 @@ reject("wrong approved model", v => {}, {[key]:{...approval,model:"pro"}});
 test("default embedded publisher list cannot self-authorize", () => {
   assert.deepEqual(Array.from(noApproval.evaluation(good,{})),[]);
 });
+// NIGHTLY_ELIGIBLE_LATEST_FALLBACK_BEGIN
+// Filtered version lists must not select an unapproved catalog.latest.
+function eligiblePickerResult(eligible, latest, current = "") {
+  const select = {
+    _value: current, options: [],
+    get value() { return this._value; },
+    set value(v) { this._value = this.options.some((o) => o.value === v) ? v : ""; },
+    set innerHTML(_markup) { this.options = []; this._value = ""; },
+    append(option) { this.options.push(option);
+      if (this.options.length === 1) this._value = option.value; }
+  };
+  const dom = {version: select, noversion: {}, versionrow: {},
+    modeldetails: {}, go: {}, pkgmeta: {}, stock: {}, stocklinks: {},
+    download: {removeAttribute(name) {this[name] = null;}}};
+  const context = createContext({dom, eligible, latest,
+    document: {createElement: () => ({value: "", textContent: ""})}});
+  new Script(`let loadSerial=0, image=null, selectedProduct=null, catalogLive={latest};
+    const $ = (id) => dom[id];
+    const versions = () => eligible;
+    const refreshModelUi = () => {};
+    const loadSelectedPackage = () => {};
+    const say = () => {}, t = () => "";
+    ${chooser}
+    fillVersions();`).runInContext(context);
+  return {selected: select.value, options: select.options.map((o) => o.value),
+    hidden: dom.download.hidden};
+}
+const eligibleList = [{version: "dev-approved-1"}, {version: "dev-approved-0"}];
+test("unapproved newest catalog entry falls back to eligible version", () => {
+  const r = eligiblePickerResult(eligibleList, "source-only-newer");
+  assert.equal(r.selected, "dev-approved-1");
+  assert.deepEqual(r.options, ["dev-approved-1", "dev-approved-0"]);
+});
+test("missing latest catalog entry falls back to eligible version", () => {
+  assert.equal(eligiblePickerResult(eligibleList, "deleted-latest").selected, "dev-approved-1");
+});
+test("approved newest catalog entry remains selected", () => {
+  assert.equal(eligiblePickerResult(eligibleList, "dev-approved-0").selected, "dev-approved-0");
+});
+test("manual eligible choice survives catalog refresh", () => {
+  assert.equal(eligiblePickerResult(eligibleList, "dev-approved-1", "dev-approved-0").selected, "dev-approved-0");
+});
+test("empty eligible catalog keeps picker blank and direct link hidden", () => {
+  const r = eligiblePickerResult([], "source-only-newer");
+  assert.equal(r.selected, "");
+  assert.equal(r.options.length, 0);
+  assert.equal(r.hidden, true);
+});
+// NIGHTLY_ELIGIBLE_LATEST_FALLBACK_END
+
 console.log(`PASS ${checks} NIGHTLY installer source-excerpt assertions; device/host HTTP not tested`);
 
 // Request order regression, controlled HTTP/model fixture (no real device/HTTP).

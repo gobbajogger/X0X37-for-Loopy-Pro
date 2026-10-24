@@ -795,5 +795,60 @@
     "physical_feedback": "UNKNOWN",
     "firmware_build": "NOT_APPLICABLE_BROWSER_ONLY",
     "site_published": false
+  },
+  "latest_eligible_version_picker_20261024": {
+    "evidence_revision": "installer-nightly-eligible-latest-picker-20261024-r1",
+    "consumed_source": {
+      "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_commit_sha": "0b77ca70fa420fe4c8cd75edd501abdb0ebe3441",
+      "full_root_tree_sha": "a44021f0a1c661095b3b43ff2117768ffa8af40c",
+      "installer_blob_sha": "42e9565646162319c8e65146552f93180a1291af",
+      "evidence_revision": "installer-nightly-physical-model-prewrite-20261024-r1"
+    },
+    "finding": "catalog.latest can name noninstallable version filtered out by approvedNightlyModels; browser selector blank although fallback package/currentVersion nonblank",
+    "scope": "firmware-repository browser-only chooser plus permanent Node VM regression; no firmware subtree/catalog/website/device mutation",
+    "changes": [
+      "web/x0x_installer.html",
+      "web/test_install_nightly_download_guard.mjs",
+      "docs/installer-nightly-download-guard-20261024.md",
+      "docs/scheduler-handoffs/installer-nightly-download-guard-20261024.json"
+    ],
+    "checks": [
+      {
+        "executor": "connected V8 full inline installer JS, mock DOM/cases with synthetic approved package",
+        "command": "new Function(full Git-exact <script type=module> with only /*CATALOG*/ injection) on prior HTML and corrected HTML",
+        "exit_code": 0,
+        "previous_expected_red": 2,
+        "modified_pass": 5,
+        "scenarios": [
+          "empty",
+          "unapproved release only",
+          "eligible plus newer ineligible",
+          "eligible latest",
+          "missing latest"
+        ],
+        "real_network": false,
+        "real_flash": false
+      },
+      {
+        "executor": "native Node",
+        "command": "node web/test_install_nightly_download_guard.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "result": "PENDING independent QA; no native checkout"
+      },
+      {
+        "executor": "Chromium",
+        "command": "complete generated installer 320/390/1280 EN/JA and keyboard/mobile, approved and unapproved fixtures",
+        "exit_code": null,
+        "result": "PENDING independent QA"
+      }
+    ],
+    "status": "SOURCE_COMPLETED_PRODUCER_SCOPED_V8_CHECKED_READY_FOR_INDEPENDENT_QA",
+    "next_owner": "Independent QA → sole firmware Safe Merge; separate NIGHTLY website source owner → independent Website QA/Main Merger/Publisher",
+    "remaining_gate": "Native Node complete installer/backup/OTA and full-browser QA on exact HEAD; reviewed NIGHTLY website source; model/controller/source/license/immutable HTTP safety for each actual public DEV candidate",
+    "physical_feedback": "UNKNOWN",
+    "native_firmware_build": "NOT_APPLICABLE_BROWSER_ONLY",
+    "public_nightly_installability": "NOT_ESTABLISHED"
   }
 }
