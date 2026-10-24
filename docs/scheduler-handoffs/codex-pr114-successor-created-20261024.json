@@ -11,8 +11,14 @@
   "error": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
   "cloud_list": "401 Unauthorized; could not parse authentication token",
   "do_not_duplicate": true,
-  "plugin_version": "0.1.36",
-  "plugin_release": "pluginrel_6adc923c3a68819186b68946b36092f5",
+  "plugin_version": "0.1.37",
+  "plugin_release": "pluginrel_6adc938776b081919755fd6f76665c9a",
   "resume_command": "codex exec resume 01a16d99-a2fd-7f13-a0ea-a5fb6e3062e3",
-  "plugin_readback": "VERIFIED; original inventory retained; new CLI reference and entrypoint links present"
+  "plugin_readback": "VERIFIED; original inventory retained; new CLI reference and entrypoint links present",
+  "requested_handoff": "USER_ACCESSIBLE_CODEX_ACCOUNT_OR_CLOUD_TASK",
+  "cloud_handoff": "INCOMPLETE_AUTHENTICATION_BLOCKED",
+  "user_facing_task_url": null,
+  "local_session_disposition": "LOCAL SESSION ONLY \u2014 NOT ACCEPTED AS REQUESTED CLOUD SUCCESSOR",
+  "recovery": "Supported Codex device login requested; owner account sign-in pending. Never persist device code in Git. Verify Cloud read and discover authorized environment before submission.",
+  "continuation_owner": "Current accessible conversation until a real user-accessible task is verified"
 }

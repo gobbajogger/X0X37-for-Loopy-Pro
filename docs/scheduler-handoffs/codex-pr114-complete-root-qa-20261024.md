@@ -1,5 +1,9 @@
 # PR114 complete-root replay and fixture repair
 
+## User-accessibility correction — v0.1.37
+
+The owner cannot access the local CLI session. It does **not** satisfy the requested account/cloud successor. Requested handoff status is **CLOUD HANDOFF INCOMPLETE — AUTHENTICATION BLOCKED**; no user-facing task URL exists. Preserve the local session as diagnostic evidence only. A fresh supported Cloud read still returns 401. Normal Codex device authentication has been initiated and requires owner sign-in; the temporary device code is deliberately not stored here. After successful account authentication, discover the actual authorized Cloud environment, deduplicate tasks, submit the saved packet once, and verify/return the server-issued account task URL and observed state. Continue ownership in the current accessible conversation until that succeeds. Plugin v0.1.37 / release `pluginrel_6adc938776b081919755fd6f76665c9a` was saved and source-readback verified to enforce this acceptance criterion. This supersedes any prior statement that the local session completed the requested handoff.
+
 PR114 R6 `523ecb78f27948b6cddb73edb94b27473abc30cd` was fetched into a complete native Linux Git worktree. Its root is `2fdf38213a8f6aa2b532dd476f5aa1fb9f6a553c`. This clears the previously reported inability to replay current complete source in this environment. It does not establish access in other workers.
 
 The unmodified checkout passed raw-name 8/8, physical-handover 6/6, port-binding 17/17, installer, slot migration and archive suites. Identity-model selection failed 3/20 and controller installation failed four scenarios. These failures have separate fixture causes:
