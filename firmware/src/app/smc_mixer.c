@@ -612,6 +612,13 @@ void smc_poll(void)
     uint32_t link = smc_link_published;
     uint8_t r, count = 0;
     int allow = !perf_testing();
+    /* Capture overflow generations before draining either MIDI input ring.
+     * TIMER5/audio ISR can refill an already-drained ring during this poll;
+     * its new press must be processed before we acknowledge its lost release. */
+    uint32_t ble_lost = smc_ble_solo_release_lost;
+    uint32_t host_lost = smc_host_solo_release_lost;
+    uint32_t ble_seen = smc_ble_solo_release_seen;
+    uint32_t host_seen = smc_host_solo_release_seen;
     if (ui_project_busy()) {
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
@@ -678,17 +685,20 @@ void smc_poll(void)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
     }
-    /* A saturated ring can lose a Solo Note Off. Clear held solos only
-     * after processing older queued presses, and do not acknowledge an
-     * ISR write newer than our snapshot (it belongs to the next poll). */
-    uint32_t ble_lost = smc_ble_solo_release_lost;
-    uint32_t host_lost = smc_host_solo_release_lost;
-    if (ble_lost != smc_ble_solo_release_seen ||
-        host_lost != smc_host_solo_release_seen) {
+    /* A dropped Solo release is effective only after all presses queued
+     * before the START-of-poll snapshot have been drained. Never consume a
+     * newer ISR generation: its preceding press may still be queued. A
+     * project drop may already have advanced a cursor; do not rewind it. */
+    uint8_t missed_solo = 0;
+    if (ble_lost != ble_seen && smc_ble_solo_release_seen == ble_seen) {
         smc_ble_solo_release_seen = ble_lost;
-        smc_host_solo_release_seen = host_lost;
-        if (smc_project_active()) smc_solo_clear();
+        missed_solo = 1;
     }
+    if (host_lost != host_seen && smc_host_solo_release_seen == host_seen) {
+        smc_host_solo_release_seen = host_lost;
+        missed_solo = 1;
+    }
+    if (missed_solo && smc_project_active()) smc_solo_clear();
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
 }
