@@ -111,7 +111,7 @@
     </details>
     <section id="ble" hidden>
       <p class="small" data-t="blewhy"></p>
-      <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
+      <p class="small"><label for="ctlfile" data-t="ctlchoose">Controller image (.img):</label> <input type="file" id="ctlfile" accept=".img"> <button class="quiet" id="ctlclear" type="button" data-t="ctlclear" disabled>Remove controller</button></p>
     </section>
     <p><button id="go" disabled data-t="install">Install</button></p>
     <progress id="bar" max="100" value="0"></progress>
@@ -226,8 +226,11 @@ const TEXT = {
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
     slotlayout: "既存のサンプルスロット情報を確認できません。ファームウェアは書き込まれていません。接続し直し、バックアップを確認してから再試行してください。",
     license: "GPL-3.0、無保証。ソース:",
-    blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。選ばなければ Bluetooth なしでインストールします。",
-    ctlok: "ctl.img を確認しました。インストールに含めます。",
+    blewhy: "Bluetooth MIDI 用 ctl.img は、この DEV ファームウェアと機種で承認された SHA-256 と一致するものだけ選択できます。選ばなければ Bluetooth なしでインストールします。",
+    ctlchoose: "コントローラー画像 (.img):", ctlclear: "解除",
+    ctlcleared: "コントローラー画像を解除しました。",
+    ctlunapproved: "この機種向けに承認された ctl.img の SHA-256 と一致しません。対応するファイルを選ぶか、解除して Bluetooth なしでインストールしてください。",
+    ctlok: "ctl.img の形式を確認しました。書き込み前に機種別 SHA-256 と照合します。",
     ctlbad: "この ctl.img は使えません: ",
     noproduct: "このバージョンには選んだ機種のパッケージがありません。",
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
@@ -300,8 +303,11 @@ const TEXT = {
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
     slotlayout: "Cannot verify existing sample-slot information. Nothing was installed. Reconnect, check your backup and retry before flashing.",
     license: "GPL-3.0, no warranty. Source:",
-    blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. Without it, X0X installs without Bluetooth. Select it again for each update.",
-    ctlok: "ctl.img checked: the install includes it.",
+    blewhy: "For Bluetooth MIDI, select the ctl.img matching the approved SHA-256 for this DEV firmware and keyboard model. Without it, X0X installs without Bluetooth.",
+    ctlchoose: "Controller image (.img):", ctlclear: "Remove controller",
+    ctlcleared: "Controller image removed.",
+    ctlunapproved: "SHA-256 does not match the approved controller for this model. Select its matching ctl.img or remove the controller to install without Bluetooth.",
+    ctlok: "ctl.img format checked. SHA-256 will be checked against the model before installation.",
     ctlbad: "This ctl.img cannot be used: ",
     noproduct: "No package for that model in this version.",
     releasehint: "The same files are also on the GitHub Releases page.",
@@ -621,10 +627,12 @@ async function mergeGitHubReleases() {
   // entries can be shown after review of NIGHTLY_PUBLISHER_APPROVALS.
 }
 let ctlLoadSerial = 0;
+let ctlHash = null;
 $("ctlfile").addEventListener("change", async (e) => {
   if (writing) { e.target.value = ""; return; }
   const requestId = ++ctlLoadSerial;
-  ctl = null;
+  ctl = null; ctlHash = null;
+  $("ctlclear").disabled = true;
   const f = e.target.files && e.target.files[0];
   if (!f) return;
   e.target.value = ""; // Allow choosing the same file again after a read failure.
@@ -633,11 +641,23 @@ $("ctlfile").addEventListener("change", async (e) => {
     if (requestId !== ctlLoadSerial || writing) return;
     const p = ctlProblem(raw);
     if (p) { sayK("ctlbad", p); return; }
-    ctl = raw;
+    const hash = await sha256Hex(raw.buffer);
+    if (requestId !== ctlLoadSerial || writing) return;
+    ctl = raw; ctlHash = hash;
+    $("ctlclear").disabled = false;
     sayK("ctlok");
   } catch (err) {
     if (requestId === ctlLoadSerial && !writing) sayK("ctlbad", err && err.message);
   }
+});
+
+$("ctlclear").addEventListener("click", () => {
+  if (writing) return;
+  ctlLoadSerial++;
+  ctl = null; ctlHash = null;
+  $("ctlfile").value = "";
+  $("ctlclear").disabled = true;
+  sayK("ctlcleared");
 });
 
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
@@ -708,6 +728,7 @@ async function run(img, product, opts = {}) {
   writing = true;
   scanSerial++; // Invalidate any pre-write lookup before Web MIDI/OTA operations.
   ctlLoadSerial++; // Ignore controller file reads pending before the write.
+  $("ctlclear").disabled = true;
   $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
@@ -717,6 +738,7 @@ async function run(img, product, opts = {}) {
     sayK(e.code || "denied");
     $("go").disabled = !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
     $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    $("ctlclear").disabled = !ctl;
     return;
   }
   led("busy");
@@ -787,6 +809,7 @@ async function run(img, product, opts = {}) {
   writing = false;
   $("go").disabled = !image || !isCatalogChecked(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+  $("ctlclear").disabled = !ctl;
 }
 
 $("go").addEventListener("click", () => {
@@ -795,6 +818,12 @@ $("go").addEventListener("click", () => {
   if (!confirmWrite(selectedProduct)) return;
   let img = image;
   if (ctl) {
+    const v = currentVersion(), p = v && v.models && v.models[chosenModel];
+    // Valid format alone does not prove the controller matches the approved DEV build.
+    if (!isCatalogChecked(v, p) || ctlHash !== p.controller_sha256) {
+      sayK("ctlbad", t("ctlunapproved"));
+      return;
+    }
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
   }
   $("go").disabled = true;   // sync before the first await in run()
