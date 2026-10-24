@@ -181,6 +181,9 @@ run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_proto
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
+run smc-mmc-stop-fifo python3 tests/host/smc_mmc_stop_fifo_test.py
+run smc-ble-midpoll-link python3 tests/host/smc_ble_midpoll_link_test.py
+run smc-ble-frame-length python3 tests/host/smc_ble_frame_length_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
 run smc-solo-reconnect-loss python3 tests/host/smc_ble_solo_reconnect_loss_test.py
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
