@@ -357,10 +357,24 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
     if (!tr->started) {
         p = (bass && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
         tr->started = 1;
+        tr->random_steps = 0;
         wrapped = 0;
     } else {
         p = next_pos(s, t, tr->pos, 1);
-        wrapped = !bass ? p == 0 : p == 0 || (bpart(s, t - TRK_BASS0)->dir == DIR_REV && p == seq_part_len(s, t) - 1);
+        if (bass) {
+            int dir = bpart(s, t - TRK_BASS0)->dir;
+            if (dir == DIR_RANDOM) {
+                /* One cycle is len elapsed steps, not an accidental visit to step 0. */
+                wrapped = ++tr->random_steps >= seq_part_len(s, t);
+                if (wrapped)
+                    tr->random_steps = 0;
+            } else {
+                tr->random_steps = 0;
+                /* Reverse completes its loop at the last step; not at step 0 too. */
+                wrapped = dir == DIR_REV ? p == seq_part_len(s, t) - 1 : p == 0;
+            }
+        } else
+            wrapped = p == 0;
     }
     if (wrapped && t == TRK_DRUM && (changed = bar_end(s, 0)) != 0) {
         rate = part_rate(s, t);                       /* the 909's new pattern */
