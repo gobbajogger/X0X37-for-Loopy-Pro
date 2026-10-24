@@ -1,6 +1,6 @@
 {
   "schema": "x0x37.smc-transport-producer-evidence.v1",
-  "evidence_revision": "smc-ble-overflow-inactive-central-20261024-r1",
+  "evidence_revision": "smc-ble-overflow-inactive-central-20261024-r2",
   "date_utc": "2026-10-24",
   "role": "LoopyX0X37 SMC Transport",
   "repository": "gobbajogger/X0X37-for-Loopy-Pro",
@@ -16,7 +16,9 @@
     "smc_before": "c5b322e2cdc304eab6e6b9ada00f3c8bdf9fde5e",
     "smc_after": "12b41f1934b3370a35298185c0289ddf5ca962da",
     "test_before": "f8179b0119da0d9e376f6bacbf58ab5a118adab6",
-    "test_after": "172482a92727aa758123a42c9d9a35b9a9da02bd"
+    "test_after": "172482a92727aa758123a42c9d9a35b9a9da02bd",
+    "legacy_overflow_before": "fd973599147d9d591476a7131e0cecf6c6f7d1e2",
+    "legacy_overflow_after": "62e89d5a22e0c7b5371e0fe77948fd668a67a69c"
   },
   "reproduced_failure": "With USB/User channel-16 Solo held, a saturated BLE central ring still increments the lost NoteOff generation when BLE central is disabled or its link is down. smc_poll correctly ignores those BLE messages but incorrectly clears host-held Solo based on the ignored overflow signal.",
   "fix": "Count BLE-overflow lost releases only when PROJ_BT_SMC_CENTRAL is configured and TIMER5's ISR-published link-up bit is set. Do not use lagging main-loop smc.up for new-link-before-poll events.",
@@ -188,14 +190,14 @@
     "known_critical_gate": "Data Safety physically wrong-device OTA loader/reconnect/sample-restore negatives in PR #114, 5/19 unsafe QA cases; controller-tail scoped fixed in R18"
   },
   "handoff": {
-    "status": "SOURCE_COMPLETE_PRODUCER_CHECKED_REVIEW_READY",
+    "status": "SOURCE_COMPLETE_FIXTURE_REPAIRED_REVIEW_READY",
     "next_owners": [
-      "Independent QA: independently validate this exact branch/root and BLE role-link negatives",
-      "Hourly Build: run immediate BUILD_ONLY Elite and Pro + matching controller on exact new compiled source subtree (no QA wait)",
-      "Sole firmware Safe Merge: integrate only independently accepted actual candidate blocker when compatible; do not edit champion PR103 speculatively"
+      "Independent QA: exact PR117 root regression/reconnect/BLE route review",
+      "Hourly Build: exact PR117 firmware subtree BUILD_ONLY Elite+Pro, no QA/merge wait",
+      "Sole Safe Merge: maintain PR103 candidate; do not integrate optional SMC absent verified necessity"
     ],
-    "qa": "PENDING_FULL_ROOT",
-    "build": "PENDING_NEW_COMPILED_INPUT",
+    "qa": "PENDING_EXACT_FULL_ROOT",
+    "build": "PENDING_PR117_FIRMWARE_TREE_BUILD_ONLY; R2_ONLY_TESTS_UNCHANGED_COMPILER_INPUT",
     "model": "UNKNOWN",
     "device": "UNKNOWN",
     "public_nightly": "NO_GO",
@@ -208,5 +210,75 @@
     "hardware_flash": false,
     "hosted_runner": false,
     "proprietary_binary_published": false
+  },
+  "registered_suite_review_followup": {
+    "issue": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/117#discussion_r4366674733",
+    "consumed_parent_commit": "a548d08b345dee1c64e1b339cbe1d4c6ce2c011d",
+    "consumed_root": "94ca0a78ba25f762bdad605228ac0fa67b83b190",
+    "changed_path": "tests/host/smc_solo_overflow_test.py",
+    "source_C_unchanged_blob": "12b41f1934b3370a35298185c0289ddf5ca962da",
+    "firmware_tree_unchanged": "56706c2f41166566eec3dcfdabc90a044410e611",
+    "reconnect_registered_fixture_unchanged_blob": "172482a92727aa758123a42c9d9a35b9a9da02bd",
+    "failure": "Existing registered overflow regression had polled smc.up=1 but authoritative ISR smc_link_published=0, so it wrongly expected dropped BLE central NoteOff to clear held Solo on an unpublished link.",
+    "correction": "Fixture prepare() now publishes BLE link-up via smc_link_published=smc_link_seen=1 and documents distinction; no target C input change.",
+    "source_scope": "PR117 exact Git C and header blobs + both registered host Python tests verified with git hash-object from historical source capsule, NOT full original checkout.",
+    "environment": "Linux x86_64 native GCC / Clang, plain, -fsanitize=undefined -fno-sanitize-recover=all, -fsanitize=address,undefined -fno-sanitize-recover=all.",
+    "commands": [
+      "CC=gcc SAN_FLAGS='' python3 -B tests/host/smc_solo_overflow_test.py",
+      "CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "CC=gcc SAN_FLAGS='-fsanitize=address,undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "CC=clang SAN_FLAGS='' python3 -B tests/host/smc_solo_overflow_test.py",
+      "CC=clang SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "CC=clang SAN_FLAGS='-fsanitize=address,undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py"
+    ],
+    "exits": {
+      "overflow_before": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "overflow_after": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconnect_after": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "native_compile_all": 0,
+      "python_py_compile": 0
+    },
+    "observations": {
+      "before": "6/6 expected RED: FAIL route=1 zero=0 full=1",
+      "overflow_after": "6/6 passed 20/20 each",
+      "reconnect_after": "6/6 passed 34/34 each"
+    },
+    "main_library_artifact": {
+      "path": "/LoopyX0X37-SMC-PR117-Link-Guard-Fixture-R2-20261024.zip",
+      "id": "libfile_af0752da1cc481919b078eadbdc17500",
+      "bytes": 32391,
+      "sha256": "87a74883a49744077d8dc6374962ee490ed14c61c6871a252787dbf6cb183945",
+      "materialized_cmp_exit": 0,
+      "contents": "exact before/after fixtures; source Git blobs; per-execution original log paths, exit records and SHA256 in EVIDENCE.json; 18 raw logs"
+    },
+    "qa": "EXACT_FULL_ROOT_PENDING; this is own producer native source-window validation only",
+    "build": "EXISTING_PR117_FIRMWARE_TREE_HAS_CHANGED_FROM_PR112; ELITE_PRO_FOR_PR117_TREE_NOT VERIFIED; R2_ONLY_TEST_FIXTURE DOES_NOT_REQUIRE_REBUILD",
+    "publication": "NO INSTALLABLE NIGHTLY; DEVICE UNKNOWN",
+    "next_roles": [
+      "Independent QA exact new PR117 root and all BLE/SMC regressions",
+      "Hourly Build BUILD_ONLY Elite and Pro on current PR117 firmware subtree if still pending",
+      "Sole Safe Merge: decide only independently checked actual first-candidate repairs"
+    ]
   }
 }
