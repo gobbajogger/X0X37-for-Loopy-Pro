@@ -75,4 +75,24 @@ mustReject('R30 merged source Git commit forged', rows => { rows[r30Index].sourc
 mustReject('R30 compiled firmware subtree impersonated', rows => { rows[r30Index].firmware_subtree = 'f'.repeat(40); });
 mustReject('R30 hardware flashability fraud', rows => { rows[r30Index].installable = true; });
 
+// R33: a publisher Pages Git manifest observation is not a new firmware build or flash approval.
+const pagesGitId='nightly-pages-git-dev-candidate-54f2ffbc-20261024';
+assert.ok(lock.rows.length >= 124, 'R33 Pages Git record must be pinned');
+const pagesIndex=original.findIndex(row=>row.id===pagesGitId);
+assert.equal(pagesIndex,123,'R33 Pages Git receipt must append without reordering');
+const pagesRow=original[pagesIndex];
+assert.equal(pagesRow.status,'validation-evidence-only');
+assert.equal(pagesRow.source_commit,'54f2ffbc3124f7449a69067dc8215a2d91a2e675');
+assert.equal(pagesRow.source_tree,'3b5cadafba33f4c1b116660bc9d19a27a892337c');
+assert.equal(pagesRow.firmware_subtree,'5c209609b770fd13949230aeb80956594fd6b741');
+assert.equal(pagesRow.installable,false);
+assert.equal(pagesRow.device_verified,false);
+assert.equal(pagesRow.artifact_distribution_approved,false);
+assert.match(pagesRow.source_identity_note,/b7af05f00a91056ca732b21cbe1dc719edbcb585/);
+mustReject('R33 Pages Git receipt deleted',rows=>rows.splice(pagesIndex,1));
+mustReject('R33 Pages Git SHA forged',rows=>{rows[pagesIndex].source_identity_note=rows[pagesIndex].source_identity_note.replace('b7af05f00a91056ca732b21cbe1dc719edbcb585','f'.repeat(40));});
+mustReject('R33 download falsely granted',rows=>{rows[pagesIndex].installable=true;});
+mustReject('R33 hardware PASS falsely granted',rows=>{rows[pagesIndex].device_verified=true;});
+mustReject('R33 distribution permission falsely granted',rows=>{rows[pagesIndex].artifact_distribution_approved=true;});
+
 console.log('PASS: ' + lock.rows.length + ' SHA256-pinned historical records; 16 malicious continuity negatives; safe append');

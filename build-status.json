@@ -3469,6 +3469,41 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/54f2ffbc3124f7449a69067dc8215a2d91a2e675"
+    },
+    {
+      "id": "nightly-pages-git-dev-candidate-54f2ffbc-20261024",
+      "title": "NIGHTLY Pages Git catalog declares Elite/Pro DEV candidate; live delivery not verified by Catalog",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "nightly",
+      "source_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "source_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "source_time": "2026-10-24T15:36:11Z",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "artifact_bytes_independently_verified": false,
+      "build_target_tests_independently_reexecuted": false,
+      "reported_checks": {
+        "origin": "Exact Git Pages commit b7af05f00a91056ca732b21cbe1dc719edbcb585 / tree 9e192c467973368c407cf148099e35c6280b2eae / versions.json Git blob 519d9500c57848d5ed103fbd88befb5f43f6d020 observed by connected GitHub.",
+        "command": "Read-only immutable Git fetch of publisher Pages ref; compare declared model/package sizes, SHA256 and controller SHA256 against previously independently byte-audited R14 receipt. No new compiler/npm/browser/HTTP byte acquisition.",
+        "result": "Pages Git manifest declares nightly-54f2ffbc-dev, Elite/Pro, DEVICE NOT TESTED, matching prior R14 model identity metadata 2/2. LIVE_HTTPS_NOT_VERIFIED; ARTIFACT_BYTES_NOT_REHASHED; DEVICE_NOT_TESTED."
+      },
+      "description": "Separate publisher-controlled gh-pages Git commit b7af05f00a91056ca732b21cbe1dc719edbcb585 dated 2026-10-24T18:08:58Z declares one DEV firmware candidate at versions.json blob 519d9500c57848d5ed103fbd88befb5f43f6d020. This is a Git-only publisher status observation, NOT a new firmware build, independently served HTTPS qualification, physical PASS or Catalog Sync permission to expose package URLs.",
+      "missing_gate": "Catalog has not verified live HTTPS immutable bytes, actual owner-local controller or owner device. Independent Website QA, sole Main Merger and sole Pages Publisher retain distinct decisions; production requires same-byte hardware PASS plus explicit approval.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "source_identity_note": "Firmware source 54f2ffbc3124f7449a69067dc8215a2d91a2e675 reused without recompilation. Pages source Git b7af05f00a91056ca732b21cbe1dc719edbcb585 and versions blob 519d9500c57848d5ed103fbd88befb5f43f6d020 are separate, independently observed metadata identities, not requalified bytes."
     }
   ],
   "policy": {
@@ -3479,7 +3514,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 123
+    "source_or_historical_checkpoints": 124
   },
   "versioning": {
     "firmware_product_version": {

@@ -499,6 +499,10 @@
     {
       "id": "integration-pr103-firmware-nightly-merged-browser-route-20261024",
       "sha256": "947cf62d42db972250fbbfd32c7f2dd266b1505f9f43c4bbc8f54178b2ac3e67"
+    },
+    {
+      "id": "nightly-pages-git-dev-candidate-54f2ffbc-20261024",
+      "sha256": "a51e81dbf891f719a0a9a80c76e6374cac361c6536df5b64ac9e33ddd1ad1b2c"
     }
   ]
 }
