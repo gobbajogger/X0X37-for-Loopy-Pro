@@ -68,11 +68,15 @@ class Backend:
         assert name == out_name
         return Link(self, name)
 
+    def physical_id(self, name):
+        # Fake-only unit identity; never infer this value from a real port name.
+        return ('simulated-unit:' + name) if name in self.ports else None
+
 
 def load_source(path):
     tree = ast.parse(pathlib.Path(path).read_text())
     src = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'Updater')
-    names = ('__init__', 'candidates', 'find', 'wait_for', 'check', 'write', 'verify', 'install')
+    names = ('__init__', '_physical', 'candidates', 'find', 'wait_for', 'check', 'write', 'verify', 'install')
     methods = [copy.deepcopy(n) for n in src.body if isinstance(n, ast.FunctionDef) and n.name in names]
     assert [n.name for n in methods] == list(names), [n.name for n in methods]
     helper = [copy.deepcopy(n) for n in tree.body if isinstance(n, ast.FunctionDef)
@@ -194,6 +198,7 @@ def evaluate(path):
     b = Backend({'smk-port-B': 'SMK-37 Pro_899', 'smk-port-A': 'SMK-37 Pro_900'})
     up = Updater(b)
     up._bound_port = 'smk-port-A'
+    up._bound_id = 'simulated-unit:smk-port-A'
     try:
         ok = up.verify('SMK-37 Pro_900', lambda *a: None) == 'SMK-37 Pro_900'
     except InstallError:
@@ -202,6 +207,7 @@ def evaluate(path):
     b = Backend({'smk-port-A': 'SMK-37 Pro_899', 'smk-port-B': 'SMK-37 Pro_900'})
     up = Updater(b)
     up._bound_port = 'smk-port-A'
+    up._bound_id = 'simulated-unit:smk-port-A'
     try:
         up.verify('SMK-37 Pro_900', lambda *a: None)
         err = None
@@ -214,6 +220,7 @@ def evaluate(path):
         b = Backend({'smk-port-B': 'SMK-37 Pro_900', 'smk-port-A': 'SMK-37 Pro_900'})
         up = Updater(b)
         up._bound_port = 'smk-port-A'
+        up._bound_id = 'simulated-unit:smk-port-A'
         try:
             dev = up.wait_for(selector, .4)
         except InstallError:
@@ -225,6 +232,7 @@ def evaluate(path):
         b = Backend({'smk-port-B': 'SMK-37 Pro_900'})
         up = Updater(b)
         up._bound_port = 'smk-port-A'
+        up._bound_id = 'simulated-unit:smk-port-A'
         try:
             dev = up.wait_for(selector, .4)
         except InstallError:
