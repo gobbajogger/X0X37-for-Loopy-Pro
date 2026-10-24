@@ -17,7 +17,7 @@ recipients its complete corresponding source under the same licence.
 | 303 (`dsp/bass303*`) | ported from [schwung-303](https://github.com/charlesvestal/schwung-303): Open303 by Robin Schmidt (MIT), Devilfish extensions after jc303 (midilab), RAT drive after dm-Rat (Dave Mollen) | GPL-3.0 (Open303 parts MIT) |
 | TB-3PO (`seq/tb3po*`) | ported from [schwung-tb3po](https://github.com/charlesvestal/schwung-tb3po), itself a port of the Phazerville Hemisphere Suite `TB_3PO` applet (djphazer and contributors) | GPL-3.0 |
 | Clip chord recognition (`app/smk_chord_detect.h`) | adapted from [Polly](https://github.com/charlesvestal/fm1-polly/tree/62cd07ea7c95c30021c31e957cea8be448415fa7), `app/dsp/chords.c` and `chords.h`; extended chord shapes, compact note summaries and bounded text formatting for X0X | GPL-3.0-only |
-| Break generator (`dsp/breaks*`, `tests/host/breaks_test.c`) | ported from [schwung-breakbeat](https://github.com/mestela/schwung-breakbeat) (BB Gen) by mestela, **used with the author's permission** (that repository carries no licence file; see "Break generator provenance" below) | GPL-3.0-only here, by permission |
+| Break generator (`dsp/breaks*`, `tests/host/breaks_test.c`) | ported from [schwung-breakbeat](https://github.com/mestela/schwung-breakbeat) (BB Gen) by mestela; upstream declares MIT in `src/module.json`; the inherited port records the author's permission (see "Break generator provenance" below) | GPL-3.0-only port; upstream MIT terms and notice retained |
 | BLE-MIDI host (`firmware/src/ble/ble_midi_host.{c,h}`) | from [felucca-bsp](https://github.com/hugelton/felucca-bsp) `ble/ble_midi_host` (Leo Kuroshita, Hügelton Instruments), extended for X0X | MPL-2.0 (`LICENSES/MPL-2.0.txt`), compiled into the GPL app (MPL-2.0 section 3.3 allows it) |
 | The app/controller interface (`firmware/hal/x0x_ble_abi.h`) and the controller shim (`ble/ctl/`: `src/`, `ctl.ld`, the build and fetch scripts, `mkimage.py`) | X0X | MPL-2.0 |
 | Everything else in `firmware/src/{app,dsp,seq,ble}`, `host/`, `tests/` | X0X | GPL-3.0-only |
@@ -30,18 +30,32 @@ of your choosing into a build or onto a device; those recordings keep their own 
 ## Break generator provenance
 
 - Origin: <https://github.com/mestela/schwung-breakbeat> (BB Gen), by mestela.
-- That repository has no licence file. GitHub shows no licence for it (checked 2026-10-15).
-  Without a licence, the default copyright of the author applies to that code.
-- X0X uses the generator code in `firmware/src/dsp/breaks.c`, `firmware/src/dsp/breaks.h`
-  and `tests/host/breaks_test.c`. This use relies on permission that the author gave to the
-  X0X / fm1-x0x authors. This tree has no copy or record of that permission.
+- Upstream explicitly declares `"author": "mestela"` and `"license": "MIT"` in
+  `src/module.json`, lines 7–8: [initial commit](https://github.com/mestela/schwung-breakbeat/blob/cb205ada577c4b4d54e6ce28ad83d32c75ad08b9/src/module.json#L7-L8),
+  [matching historical implementation](https://github.com/mestela/schwung-breakbeat/blob/c3ea85da9025a3694c167e096cb09d0efb60420c/src/module.json#L7-L8),
+  and [checked upstream head](https://github.com/mestela/schwung-breakbeat/blob/c6e5b94dad1c0c5644c6a68052ba110d6a5a2c85/src/module.json#L7-L8).
+  The absence of a standalone licence file does not negate this declaration.
+- X0X retains adapted generator logic in `firmware/src/dsp/breaks.c`, with its interface
+  in `firmware/src/dsp/breaks.h` and tests in `tests/host/breaks_test.c`. The anchor table,
+  fill equations, MOVE/STAY branches and random draw order match the historical
+  [slice selector](https://github.com/mestela/schwung-breakbeat/blob/c3ea85da9025a3694c167e096cb09d0efb60420c/src/dsp/slice_select.c).
+  This identifies matching source, not the exact upstream checkout used by the original porter.
+- The [initial fm1-x0x licensing record](https://github.com/charlesvestal/fm1-x0x/blob/2377537582b8d9a236edde8c2bf4e9ae83f4792c/LICENSING.md)
+  labels the port GPL-3.0-only here, by permission. Its
+  [source header](https://github.com/charlesvestal/fm1-x0x/blob/2377537582b8d9a236edde8c2bf4e9ae83f4792c/firmware/src/dsp/breaks.c#L1-L38)
+  and [README credits](https://github.com/charlesvestal/fm1-x0x/blob/54194c54bb01e9d9b3fe9d641b3ddfa512ac04a3/README.md#L67-L72)
+  retain mestela's attribution and record permission. Those inherited notices remain.
+- Include [the BB Gen MIT notice](docs/notices/schwung-breakbeat-MIT.txt) with copies or
+  substantial portions of the adapted generator, including distributed firmware and its
+  corresponding source. X0X and the port remain GPL-3.0-only; complete corresponding-source
+  and other component licence requirements still apply. This corrects only the former
+  requirement to obtain a separate BB Gen permission record: the explicit upstream MIT
+  declaration supplies the licence evidence. It does not clear QA, OTA, hosting or publication
+  gates, or change the private, locally built controller policy below.
 - The built-in break loops (`tools/gen_builtin_break.c`, `tools/gen_builtin_break.sh`) are
   output of the X0X 909 code. They contain no BB Gen code and no BB Gen samples.
 - `tools/import_breaks.py` and `tools/upload_breaks.py --bbgen` can read BB Gen's sample
   folder from a separate checkout. Those samples are not in this tree or in a package.
-
-**TODO:** Get a written licence from mestela (for example, a licence file in the upstream
-repository) or a written record of the permission. Keep that record with this tree.
 
 ## Felucca Assets
 
