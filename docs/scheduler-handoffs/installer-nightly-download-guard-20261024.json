@@ -748,5 +748,52 @@
     "no_firmware_build_claim": true,
     "no_hardware_claim": true,
     "website_code_not_modified": true
+  },
+  "followup_stock_model_preflight_20261024": {
+    "evidence_revision": "installer-stock-model-alias-preflight-20261024-r1",
+    "consumed": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/installer-nightly-download-guard-20261024",
+      "full_root_commit": "44ef634431ad779beb9da166531657f4c4aaf4b3",
+      "full_root_tree": "091d529662609ec27bb86ea68f6133d3268d23a2",
+      "installer_blob": "db8cdb6dd6fbd1b177c3c121d3fdec2e8306a857",
+      "ota_blob": "014f5fa3490f476554a17b08e941bde04c7eff74",
+      "publisher_finding": "publisher-nightly-stock-model-alias-20261024-r1"
+    },
+    "disposition": "SOURCE_COMPLETE_PRODUCER_V8_SCOPED_CHECKED_PENDING_INDEPENDENT_QA",
+    "scope": "browser-only local .fwsc stock selection; unchanged release authorization, firmware subtree, generated website and publisher",
+    "checks": [
+      {
+        "command": "connected V8 execute permanent test source + Git exact stock handler and fm1ota.js with Node VM/readFileSync shims",
+        "exit_code": 0,
+        "passed": 17,
+        "total": 17
+      },
+      {
+        "command": "same test against original source (expected RED)",
+        "exit_code": 1,
+        "status": "EXPECTED_FAIL"
+      },
+      {
+        "command": "new Function on modified exact inline HTML script (only build-time LIB/CATALOG substitution)",
+        "exit_code": 0,
+        "status": "SYNTAX_PASS"
+      },
+      {
+        "command": "node web/test_install_stock_model_preflight.mjs && node web/test_install_slots.mjs",
+        "exit_code": null,
+        "status": "NOT_RUN_NATIVE_EXACT_CHECKOUT"
+      },
+      {
+        "command": "full generated Chromium EN/JA 320/390/1280, backup/OTA interruption",
+        "exit_code": null,
+        "status": "PENDING_INDEPENDENT_QA"
+      }
+    ],
+    "next_owner": "Independent QA then sole firmware Safe Merge; separate NIGHTLY website source owner",
+    "remaining_gate": "full exact-tree native Node, browser EN/JA and backup/OTA negative QA; separate website review; lawful immutable download/source/license/controller/HTTP for public nightly. Model owner physical PASS is NOT nightly prerequisite.",
+    "physical_feedback": "UNKNOWN",
+    "firmware_build": "NOT_APPLICABLE_BROWSER_ONLY",
+    "site_published": false
   }
 }

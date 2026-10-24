@@ -8,6 +8,7 @@
 // 2 x 80 KiB without it, stock firmware none. Run from the repo root: node web/test_install_slots.mjs
 import "./test_install_nightly_download_guard.mjs";
 import "./test_install_nightly_reconnect.mjs";
+import "./test_install_stock_model_preflight.mjs";
 import "./test_install_nightly_scan_order.mjs";
 import "./test_install_nightly_local_selection.mjs";
 import "./test_install_nightly_controller_selection.mjs";
