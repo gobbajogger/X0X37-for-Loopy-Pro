@@ -1,0 +1,449 @@
+{
+  "schema": "x0x37-native-transport-contract-repair-v1",
+  "tested_source_commit": "8e366b6c388e45a71074c133861cb6a003615fab",
+  "tested_root_tree": "8a25b824a7ef9c5a1220c0c6ea609d43f7774e98",
+  "firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "installer_blob": "f1e2a91615b26b3ba84fe63ee9ae8dbfe5f74882",
+  "status": "HARNESS DELIVERED / PRODUCTION TRANSPORT INCOMPLETE / DEVICE NOT TESTED / NIGHTLY NO-GO",
+  "commands": [
+    {
+      "argv": [
+        "bash",
+        "tests/run_tests.sh",
+        "ota-identity-reconnect",
+        "ota-port-binding",
+        "ota-physical-handover",
+        "ota-raw-midi-names",
+        "ota-mid-session-identity",
+        "ota-unit-bounce",
+        "ota-send-rebind",
+        "installer",
+        "installer-targets",
+        "installer-slots",
+        "installer-ctl",
+        "installer-restore-status",
+        "installer-ota-finish-ack",
+        "slot-backup",
+        "slot-backup-durable",
+        "slot-archive-zone",
+        "slot-verify-order",
+        "slot-read-reply",
+        "slot-ack-integrity",
+        "slot-echo-7bit",
+        "ctl-publish-atomic",
+        "ctl-read-framing",
+        "installer-backup-snapshot"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/normal-runner.log",
+      "sha256": "f8a99690124306cd9937fa525808adff2c0627835037d57ae9c2050bcf139bbd",
+      "bytes": 710,
+      "environment": {
+        "X0X_TEST_JOBS": "1"
+      }
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_identity_reconnect_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ota-identity-reconnect-optimized.log",
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815",
+      "bytes": 1222
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_port_binding_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ota-port-binding-optimized.log",
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a",
+      "bytes": 1052
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ota-physical-handover-optimized.log",
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696",
+      "bytes": 542
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_raw_midi_names_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ota-raw-midi-names-optimized.log",
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8",
+      "bytes": 701
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_mid_session_identity_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ota-mid-session-identity-optimized.log",
+      "sha256": "38b136eb550805ec9d1bb02c0bd98800a125ccc5ba6e39d5a38cd90cd0019e64",
+      "bytes": 816
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_unit_bounce_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ota-unit-bounce-optimized.log",
+      "sha256": "f9294c1d49e52ef28a79dbb67f8dba8b3e4618d636b99bb0a3fedf35d75eaf4b",
+      "bytes": 463
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_send_rebind_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ota-send-rebind-optimized.log",
+      "sha256": "3d55a164e0b34d4d99b95bbec853ce3ba451f669ce063a05a2eb25b410f519b0",
+      "bytes": 612
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/installer-optimized.log",
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b",
+      "bytes": 2232
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/make_pages_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/installer-targets-optimized.log",
+      "sha256": "bced436266e00965831724c4446505e2c6d0234f4c33bc6ad54ade40673eecde",
+      "bytes": 415
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_slots_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/installer-slots-optimized.log",
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3",
+      "bytes": 1475
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_ctl_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/installer-ctl-optimized.log",
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914",
+      "bytes": 795
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/fm1_install_restore_status_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/installer-restore-status-optimized.log",
+      "sha256": "5fb55158f2a3e3c09e6d857d3d7614e3e90afc0c469819f17b6217a55095e591",
+      "bytes": 1869
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/fm1_install_finish_ack_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/installer-ota-finish-ack-optimized.log",
+      "sha256": "507e87388dcc46c7ef723972c95cba90c48f6c08421d9d31846dee2bce4845b0",
+      "bytes": 1198
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/slot-backup-optimized.log",
+      "sha256": "f2afb51116e8d35767500b6a57f35d1ae07d2976a1cd059a3f338d5e5e4a4f0d",
+      "bytes": 1677
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_durable_backup_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/slot-backup-durable-optimized.log",
+      "sha256": "b9499986cea8d62e079107782d19c79bf23696d4308739c3a72757caefc9614c",
+      "bytes": 876
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_zone_guard_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/slot-archive-zone-optimized.log",
+      "sha256": "8ef22e86f92eae70cba0c41d45e22ee4d041279e9b011bcba35892ffb7307bf0",
+      "bytes": 310
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_verify_order_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/slot-verify-order-optimized.log",
+      "sha256": "2bf9411d25983664e883c761f3ff9891944ee8891e7dbec21d9ffd4487bbe4cf",
+      "bytes": 730
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_read_reply_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/slot-read-reply-optimized.log",
+      "sha256": "851db3075b70c88ebce10f56df1a7cd78e7bd0af4f302b2e463d4e103f66aecb",
+      "bytes": 1535
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_ack_integrity_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/slot-ack-integrity-optimized.log",
+      "sha256": "1cd30b52c00e2cb2671f6ed5a019bc37f423955cca6c5f345c728f7a72de0689",
+      "bytes": 1755
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_echo_7bit_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/slot-echo-7bit-optimized.log",
+      "sha256": "009ebb48843c0126779d10d608c5c33a1e939cbcb4aba8a4125ae0e37cc13e97",
+      "bytes": 1500
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/add_ctl_atomic_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ctl-publish-atomic-optimized.log",
+      "sha256": "aeea3e0a18060a244c732e0a51969651b85d5611bc6b3cab6823713c77670e82",
+      "bytes": 910
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/ctl_read_framing_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/ctl-read-framing-optimized.log",
+      "sha256": "fb7654c071756fdfe344c715247b9282cf2cb0a787e760eb3581961299d6cd4b",
+      "bytes": 2315
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/fm1_install_backup_snapshot_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/installer-backup-snapshot-optimized.log",
+      "sha256": "a324a31b7dce1460baeef4fbec4a60f47cb891938d280152deb264d3c6a43cea",
+      "bytes": 1141
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_usb_observe_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/observer-normal.log",
+      "sha256": "42f237d7abc9eb371abada54db94861f647b2fd2e4008b692ec18dfdcc2e00d5",
+      "bytes": 107
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_transport_boundary_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "docs/transport-evidence-20261024/strict-boundary-normal.log",
+      "sha256": "289bacde4b0878871197fc44f486a2ff467a5aae2b5d1c83a209973708b42dd9",
+      "bytes": 9852
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_usb_observe_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/observer-optimized.log",
+      "sha256": "42f237d7abc9eb371abada54db94861f647b2fd2e4008b692ec18dfdcc2e00d5",
+      "bytes": 107
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_transport_boundary_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "docs/transport-evidence-20261024/strict-boundary-optimized.log",
+      "sha256": "44439df2eccf20a338f2fa8932608854e855eed294d8cc8baa740257fea6f052",
+      "bytes": 9852
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tools/ota_usb_observe.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/transport-evidence-20261024/native-enumeration.json",
+      "sha256": "678ce51ed11a30a431dd4bc531ac42666029e977d783d99ab45ac2b8b799b809",
+      "bytes": 264
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tools/ota_usb_observe.py",
+        "--device",
+        "1:2"
+      ],
+      "exit": 2,
+      "expected_exit": 2,
+      "log": "docs/transport-evidence-20261024/native-absent-selection.json",
+      "sha256": "f497375bb65d6407a228c6271c4066f64f66b60a768ab2240b4a5717d98d0349",
+      "bytes": 110
+    }
+  ],
+  "private_artifacts": [],
+  "normal_selected_suites": 23,
+  "optimized_direct_suites": 23,
+  "strict_boundary": {
+    "cases": 15,
+    "passing": 6,
+    "failing": 9,
+    "status": "FAIL / NO-GO; simulated transport, not physical damage"
+  },
+  "skipped": "SMK target package/JS parity (built app/loader and pinned SDK not present); no firmware changed so fresh target builds not required by this source-only observation stage",
+  "native_hardware": "NOT RUN: no /dev/snd or /dev/bus/usb; libusb enumeration returned no devices",
+  "review": "Independent read-only subagent source/API review; no blocking diagnostic-delivery findings. Not sole Independent QA acceptance.",
+  "expected_results_reproduced": true,
+  "environment": {
+    "os": "Linux x86_64",
+    "python": "3.12.14",
+    "node": "24.19.0",
+    "libusb_debian_package": "2:1.0.28-1",
+    "audit_libusb_source": "v1.0.29; audited source is distinct from installed runtime"
+  },
+  "evidence_scope": "Complete checkout exact source, 23 selected normal suites and 23 direct Python -O suites. Existing AST/mock suites retain their narrower fixture scope; strict boundary imports full installer."
+}

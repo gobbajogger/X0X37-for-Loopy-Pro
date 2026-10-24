@@ -1,0 +1,11 @@
+PASS stable physical A permits outbound packet
+PASS stable A packet and link status retained
+PASS post-send identity check reports an observed A-to-B in-send rebind
+PASS host admits first packet was already handed to output; not atomic protection
+PASS observed in-send swap permanently taints the opened link after A returns
+PASS tainted link never sends a second packet
+PASS identity disappearing during output returns failure
+PASS failed identity provider cannot revive the tainted link
+PASS fresh authenticated loader rename remains usable
+PASS failed native output still reports False
+SUMMARY 10 / 10 passed

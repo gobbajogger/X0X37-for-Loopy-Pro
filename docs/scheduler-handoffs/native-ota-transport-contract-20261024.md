@@ -162,6 +162,40 @@ only. No private artifacts, vendor source/binaries, controller/firmware bytes,
 credentials or user sample archives were created or uploaded. Private main
 Library artifact IDs/hashes are therefore not applicable to this stage.
 
+## Executed validation receipt
+
+Tested source commit: `8e366b6c388e45a71074c133861cb6a003615fab`;
+root tree: `8a25b824a7ef9c5a1220c0c6ea609d43f7774e98`.
+This section and text logs are an evidence-only follow-up to that tested source.
+The [machine-readable receipt](../transport-evidence-20261024/receipt.json)
+contains every argv, exit, log byte count and SHA256. It records Linux x86_64,
+Python 3.12.14, Node 24.19.0 and installed libusb 1.0.28 (the separately audited
+upstream source is v1.0.29).
+
+- `X0X_TEST_JOBS=1 bash tests/run_tests.sh` with the receipt's 23 explicit
+  installer/data-safety selectors: **exit 0, all 23 selected suites passed**.
+- Every selected suite's Python script run directly with `python3 -O -B`:
+  **23 commands, all exit 0**. This includes PR121 fixture reconciliation,
+  Elite/Pro model paths, foreign loaders, slot integrity, interrupted
+  backup/write/restore, finish ACK and controller readback/publication guards.
+- New observer tests normally and with `-O`: **9 tests each, exit 0**.
+- New strict boundary tests normally and with `-O`: **15 tests each, 9 assertion
+  failures, exit 1**. Six zero-foreign-message checks fail, one callback check
+  fails, and two further foreign package-response/sample-erase checks fail.
+  These are real failed contract assertions, not xfails or reported PASS.
+- Actual native libusb enumeration: **exit 0, devices=[]**; explicitly selected
+  absent `--device 1:2`: **exit 2**, structured refusal, no fallback.
+- Python AST parsing and staged `git diff --check`: **exit 0**.
+- SMK target package/JS parity is explicitly **SKIPPED** by the selected runner
+  because built app/loader and pinned SDK are not present. No firmware source
+  changed, so this observation/diagnostic stage does not require fresh target
+  compilation. New Elite/Pro/controller artifacts, actual native hotplug traffic,
+  cross-reboot proof, flashing and publication are **NOT RUN**.
+
+Independent subagent source/API review found no blocking issue for delivering
+this explicitly failing diagnostic and read-only tool. This is not the sole
+Independent QA role's acceptance of production OTA.
+
 RU: Этот этап добавляет проверяемые тесты границы транспорта и инструмент
 наблюдения USB без записи. Рабочая OTA-установка и связь одного устройства после
 перезагрузки не доказаны. Требуются отдельные доказательства транспорта и
