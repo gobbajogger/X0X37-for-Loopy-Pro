@@ -1,0 +1,886 @@
+{
+  "schema": "x0x37.smc-transport.source-producer-evidence.v1",
+  "evidence_revision": "smc-pr122-preset-solo-lifetime-r12-20261025-v1",
+  "intended_user_behavior": "Changing SMC DAW/User preset while a momentary Solo is held must return previously isolated tracks to their normal mix and permit new-preset Solo presses without stale key ownership or pickup/LED state.",
+  "scope": "SMC firmware input/poll control and native mocked-host regression only",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "LoopyX0X37 SMC Transport",
+  "owned_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "pull_request": 122,
+  "tested_parent_head": "3474641a5d460fc4e5119479ecc302eeb13fb8fc",
+  "parent_complete_root_tree": "20aa48a0dc785e413f89954dda663e941c7dd1f7",
+  "parent_compiled_firmware_tree": "f4d7c2311190f1d120a493226a97074e16c89ff0",
+  "parent_production_c_blob": "2a3c460d4a453064e21f27d8b2e4e6327e619fba",
+  "source_and_regression_blobs": {
+    "firmware/src/app/smc_mixer.c": {
+      "git_blob": "c982e2c2adcf7a0579bffb50beee100f1a1a9662",
+      "sha256": "d9cec6d49db3f981729d09f906afb4f1edce8709690adab8ddcc4fc4ee87f4f9"
+    },
+    "tests/host/smc_preset_solo_lifetime_test.py": {
+      "git_blob": "67778362fadb8c2ae1df54cfda8b7ff4e3ff5dfc",
+      "sha256": "076899eee86eabaff55f487c1aff51e71f6532f1305cadf02161c9f02a553995"
+    },
+    "tests/host/smc_ble_preset_queue_test.py": {
+      "git_blob": "905d232b1c01eb4b1ae88e1ed4ed4e47771cf5df",
+      "sha256": "b0c0fc5a4371321d057d265f26f9785bb44a392f998b4e0db1bb7c0a6fb2e7db"
+    },
+    "tests/host/smc_ble_midpoll_link_test.py": {
+      "git_blob": "889352dd56cfb4915fa09edc5128ce00e63962c9",
+      "sha256": "edd3d05d9c59bf3a5c33a4774a9aba4d6384eadb922d86038f865b8dc06b8606"
+    },
+    "tests/host/smc_mmc_stop_fifo_test.py": {
+      "git_blob": "fd35af322652d945ace88dda0f01dff9991cdb1b",
+      "sha256": "8e503022daeef23bc2807ce42330cf1f4a3e4528532ff2945a5ae15866e02e21"
+    }
+  },
+  "baseline_git_blob": "2a3c460d4a453064e21f27d8b2e4e6327e619fba",
+  "suite_command_matrix": [
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-plain-smc_preset_solo_lifetime_test.py.log",
+      "log_sha256": "9809a5be2cc02e004ccbcb7ea30ff83bc0ac7155a48997a3ff2ac88071e3a03b",
+      "observed": "SMC preset Solo lifetime: 66/66 scenarios PASS, 348 checks"
+    },
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "test": "smc_ble_preset_queue_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-plain-smc_ble_preset_queue_test.py.log",
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "test": "smc_ble_midpoll_link_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-plain-smc_ble_midpoll_link_test.py.log",
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "test": "smc_ble_frame_length_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-plain-smc_ble_frame_length_test.py.log",
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-plain-smc_mmc_stop_fifo_test.py.log",
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "test": "smc_feedback_retry_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-plain-smc_feedback_retry_test.py.log",
+      "log_sha256": "42cc20c8600f3d608941edd2ceeb7e1359e72000e6c08df07f1aef1a57966b88",
+      "observed": "SMC BLE retry/feedback: 51 injected TX backpressure and 102 ISR disconnect/reconnect positions + state/connection gates, 27884 checks, 0 failed"
+    },
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "test": "R11-original-Solo-held-after-preset-negative",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "SMC_SOURCE": "baseline_R11.c"
+      },
+      "exit": 1,
+      "expected_runtime_failure": true,
+      "log_path": "results/gcc-plain-R11-original-negative.log",
+      "log_sha256": "c7b74a1cce528653772db5b88f1e209aadac2ab256444d2442317b2ae748f82b",
+      "observed": "FAIL preset boundary must end old Solo before new input line 459: solos_off==1, mode=48 solo=0 counts=1/0 q=2/2 host=0/0"
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_sha256": "9809a5be2cc02e004ccbcb7ea30ff83bc0ac7155a48997a3ff2ac88071e3a03b",
+      "observed": "SMC preset Solo lifetime: 66/66 scenarios PASS, 348 checks"
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-ubsan-smc_ble_preset_queue_test.py.log",
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-ubsan-smc_ble_frame_length_test.py.log",
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-ubsan-smc_feedback_retry_test.py.log",
+      "log_sha256": "92839a916f8587cfd742e6ca3e92c10b92b0c59cfd57eb847ca53441fb477084",
+      "observed": "SMC BLE retry/feedback: 51 injected TX backpressure and 102 ISR disconnect/reconnect positions + state/connection gates, 27884 checks, 0 failed"
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "test": "R11-original-Solo-held-after-preset-negative",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "SMC_SOURCE": "baseline_R11.c"
+      },
+      "exit": 1,
+      "expected_runtime_failure": true,
+      "log_path": "results/gcc-ubsan-R11-original-negative.log",
+      "log_sha256": "231955ae4c775f5abfc13e02ca8c7f8d0e88004aae76e4f605536d01155c3375",
+      "observed": "FAIL preset boundary must end old Solo before new input line 459: solos_off==1, mode=48 solo=0 counts=1/0 q=2/2 host=0/0"
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan_ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-asan_ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_sha256": "9809a5be2cc02e004ccbcb7ea30ff83bc0ac7155a48997a3ff2ac88071e3a03b",
+      "observed": "SMC preset Solo lifetime: 66/66 scenarios PASS, 348 checks"
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan_ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-asan_ubsan-smc_ble_preset_queue_test.py.log",
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan_ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-asan_ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan_ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-asan_ubsan-smc_ble_frame_length_test.py.log",
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan_ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-asan_ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS"
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan_ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/gcc-asan_ubsan-smc_feedback_retry_test.py.log",
+      "log_sha256": "5b7e6785bb43793988a66944e6b9f6ba26559fb5ab555a609e4d9a82ac0acc19",
+      "observed": "SMC BLE retry/feedback: 51 injected TX backpressure and 102 ISR disconnect/reconnect positions + state/connection gates, 27884 checks, 0 failed"
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan_ubsan",
+      "test": "R11-original-Solo-held-after-preset-negative",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "SMC_SOURCE": "baseline_R11.c"
+      },
+      "exit": 1,
+      "expected_runtime_failure": true,
+      "log_path": "results/gcc-asan_ubsan-R11-original-negative.log",
+      "log_sha256": "58d7c1d515ce81d91d80ff82bdfda515050715a78e13653d46745df7a5267c6e",
+      "observed": "FAIL preset boundary must end old Solo before new input line 459: solos_off==1, mode=48 solo=0 counts=1/0 q=2/2 host=0/0"
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-plain-smc_preset_solo_lifetime_test.py.log",
+      "log_sha256": "9809a5be2cc02e004ccbcb7ea30ff83bc0ac7155a48997a3ff2ac88071e3a03b",
+      "observed": "SMC preset Solo lifetime: 66/66 scenarios PASS, 348 checks"
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "test": "smc_ble_preset_queue_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-plain-smc_ble_preset_queue_test.py.log",
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "test": "smc_ble_midpoll_link_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-plain-smc_ble_midpoll_link_test.py.log",
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "test": "smc_ble_frame_length_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-plain-smc_ble_frame_length_test.py.log",
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-plain-smc_mmc_stop_fifo_test.py.log",
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "test": "smc_feedback_retry_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-plain-smc_feedback_retry_test.py.log",
+      "log_sha256": "29b5d1b94f7f8908fe8625e7ed3ad010a9088193d28041af288395a8761ef58b",
+      "observed": "SMC BLE retry/feedback: 51 injected TX backpressure and 102 ISR disconnect/reconnect positions + state/connection gates, 27884 checks, 0 failed"
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "test": "R11-original-Solo-held-after-preset-negative",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "SMC_SOURCE": "baseline_R11.c"
+      },
+      "exit": 1,
+      "expected_runtime_failure": true,
+      "log_path": "results/clang-plain-R11-original-negative.log",
+      "log_sha256": "78372ca07b98efa6916252f47bd987237b916a28a74e72e67b2abf7f2b3c0604",
+      "observed": "FAIL preset boundary must end old Solo before new input line 459: solos_off==1, mode=48 solo=0 counts=1/0 q=2/2 host=0/0"
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_sha256": "9809a5be2cc02e004ccbcb7ea30ff83bc0ac7155a48997a3ff2ac88071e3a03b",
+      "observed": "SMC preset Solo lifetime: 66/66 scenarios PASS, 348 checks"
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-ubsan-smc_ble_preset_queue_test.py.log",
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-ubsan-smc_ble_frame_length_test.py.log",
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-ubsan-smc_feedback_retry_test.py.log",
+      "log_sha256": "5140c50005380ac277f586c560fcf31466b4c2946f4359818c26fd41aa5f666f",
+      "observed": "SMC BLE retry/feedback: 51 injected TX backpressure and 102 ISR disconnect/reconnect positions + state/connection gates, 27884 checks, 0 failed"
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "test": "R11-original-Solo-held-after-preset-negative",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "SMC_SOURCE": "baseline_R11.c"
+      },
+      "exit": 1,
+      "expected_runtime_failure": true,
+      "log_path": "results/clang-ubsan-R11-original-negative.log",
+      "log_sha256": "b2e120551c16a8b860787f95b28ea99c4abe00a40051ea41c7b027e3e562623a",
+      "observed": "FAIL preset boundary must end old Solo before new input line 459: solos_off==1, mode=48 solo=0 counts=1/0 q=2/2 host=0/0"
+    },
+    {
+      "compiler": "clang",
+      "config": "asan_ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-asan_ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_sha256": "9809a5be2cc02e004ccbcb7ea30ff83bc0ac7155a48997a3ff2ac88071e3a03b",
+      "observed": "SMC preset Solo lifetime: 66/66 scenarios PASS, 348 checks"
+    },
+    {
+      "compiler": "clang",
+      "config": "asan_ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-asan_ubsan-smc_ble_preset_queue_test.py.log",
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "asan_ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-asan_ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "asan_ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-asan_ubsan-smc_ble_frame_length_test.py.log",
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "asan_ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-asan_ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS"
+    },
+    {
+      "compiler": "clang",
+      "config": "asan_ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "log_path": "results/clang-asan_ubsan-smc_feedback_retry_test.py.log",
+      "log_sha256": "339cb27253d5c9a47bcdbdc0c9abf293b9739b004b31b9ed07db21c72e77d0f0",
+      "observed": "SMC BLE retry/feedback: 51 injected TX backpressure and 102 ISR disconnect/reconnect positions + state/connection gates, 27884 checks, 0 failed"
+    },
+    {
+      "compiler": "clang",
+      "config": "asan_ubsan",
+      "test": "R11-original-Solo-held-after-preset-negative",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "SMC_SOURCE": "baseline_R11.c"
+      },
+      "exit": 1,
+      "expected_runtime_failure": true,
+      "log_path": "results/clang-asan_ubsan-R11-original-negative.log",
+      "log_sha256": "7c5cadca115b6ca2167506ab2a86eefa0f7759254e6efe4c20257abad5dfcaeb",
+      "observed": "FAIL preset boundary must end old Solo before new input line 459: solos_off==1, mode=48 solo=0 counts=1/0 q=2/2 host=0/0"
+    }
+  ],
+  "summary": {
+    "expected_negative_runtime_failures": 6,
+    "positive_source_extraction_executions": 36,
+    "new_regression_scenarios_per_configuration": 66,
+    "new_regression_checks_per_configuration": 348,
+    "existing_preset_regressions_per_configuration": 84,
+    "existing_link_regressions_per_configuration": 16,
+    "existing_frame_length_per_configuration": 35,
+    "existing_MMC_STOP_per_configuration": 96,
+    "existing_feedback_checks_per_configuration": 27884
+  },
+  "actual_compilers": {
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+    "clang": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)"
+  },
+  "python_version": "3.13.5",
+  "host_platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "runner_registration": "tests/run_tests.sh smc-preset-solo-lifetime (to be registered in the same Git change)",
+  "source_ready_disposition": "PRODUCER NATIVE HOST CHECKED; full-root independent QA and new changed-compiler-input native Elite/Pro/controller BUILD_ONLY pending",
+  "not_run": [
+    "native target Elite/Pro/controller compilation for this change",
+    "independent current-root QA",
+    "complete app simulation/hardware",
+    "install/backup/readback/restore/OTA/browser/hosted HTTPS",
+    "physical-device tests"
+  ],
+  "consumer_roles": [
+    "existing LoopyX0X37 Hourly Build (immediate exact new Elite/Pro/controller BUILD_ONLY)",
+    "existing LoopyX0X37 Independent QA (independent current full-root and ISR/phase/mode review)",
+    "sole firmware Safe Merge (optional subsequent integration after QA, not self-approval)"
+  ],
+  "private_data_policy": "Only GPL source, Python host regressions and evidence logs included; no SDK/toolchain/DSP/controller/firmware binaries, private samples or owner data.",
+  "risk_notes": [
+    "The regression executes real C extracted into a host harness with simulated queues and transport callbacks, not a target firmware build.",
+    "R11 already had genuine separately recorded native BUILD_ONLY results, but changed R12 compiler subtree invalidates equivalence.",
+    "A preset switched twice back to its original state between consecutive main-loop polls has no persistent mode-change epoch; behavior not claimed verified."
+  ]
+}

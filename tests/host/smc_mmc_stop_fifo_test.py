@@ -46,7 +46,7 @@ code = r'''
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
-static struct { uint8_t up, fresh, picked, seen, knob_i, pending, known[128]; } smc;
+static struct { uint8_t up, fresh, picked, seen, knob_i, pending, known[128], preset_user_seen; } smc;
 static int busy, testing, inject, injected, inject_source, log_count;
 static int reset_stop_n, stop_seen;
 static int reset_cross_source, reset_fresh_other, reset_fresh_same, primary_source;

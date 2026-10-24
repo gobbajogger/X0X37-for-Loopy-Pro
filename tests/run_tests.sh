@@ -185,6 +185,7 @@ run smc-mmc-stop-fifo python3 tests/host/smc_mmc_stop_fifo_test.py
 run smc-ble-midpoll-link python3 tests/host/smc_ble_midpoll_link_test.py
 run smc-ble-frame-length python3 tests/host/smc_ble_frame_length_test.py
 run smc-ble-preset-queue python3 tests/host/smc_ble_preset_queue_test.py
+run smc-preset-solo-lifetime python3 tests/host/smc_preset_solo_lifetime_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
 run smc-solo-reconnect-loss python3 tests/host/smc_ble_solo_reconnect_loss_test.py
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py

@@ -51,7 +51,7 @@ code = r'''
 #define O_ASK 1
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
-static struct { uint8_t up, fresh, picked, seen, knob_i, pending, known[128]; } smc;
+static struct { uint8_t up, fresh, picked, seen, knob_i, pending, known[128], preset_user_seen; } smc;
 static int busy, testing, calls, knobs, faders, buttons, releases;
 static uint8_t last_note;
 static int perf_testing(void) { return testing; }

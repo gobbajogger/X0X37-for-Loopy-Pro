@@ -67,6 +67,7 @@ static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
     uint8_t up, fresh, solo, rec_part;
+    uint8_t preset_user_seen;            /* main-loop decoder epoch for held controls */
     uint8_t solo_target[8];            /* physical S key: 1..5 parts, then 909/808 tracks; 0 released */
     uint16_t drum_solo[NKIT];
     uint8_t lit[128], known[128];
@@ -749,6 +750,18 @@ void smc_poll(void)
             ui_say("SMC LOST", 0);
         } else
             ui_say("SMC CONNECTED", 0);
+    }
+    /* A DAW/User preset change applies before the old key release can be
+     * decoded. Release held Solo from the previous map immediately,
+     * including host-routed User MIDI. Do not change ISR release handling. */
+    uint8_t preset_user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+    if (smc.preset_user_seen != preset_user) {
+        smc.preset_user_seen = preset_user;
+        smc.picked = smc.seen = 0;
+        smc.knob_i = 0;
+        if (smc_project_active()) smc_solo_clear();
+        smc.pending = 0xFFu;
+        for (int i = 0; i < 128; i++) smc.known[i] = 0;
     }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
