@@ -233,6 +233,7 @@ const TEXT = {
     ctlok: "ctl.img の形式を確認しました。書き込み前に機種別 SHA-256 と照合します。",
     ctlbad: "この ctl.img は使えません: ",
     noproduct: "このバージョンには選んだ機種のパッケージがありません。",
+    selectionstale: "書き込み前にファームウェアの選択または承認が変更されました。何も書き込んでいません。パッケージをもう一度確認してください。",
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
@@ -310,6 +311,7 @@ const TEXT = {
     ctlok: "ctl.img format checked. SHA-256 will be checked against the model before installation.",
     ctlbad: "This ctl.img cannot be used: ",
     noproduct: "No package for that model in this version.",
+    selectionstale: "Firmware selection or approval changed before writing. Nothing was installed. Check the package and try again.",
     releasehint: "The same files are also on the GitHub Releases page.",
   },
 };
@@ -552,6 +554,25 @@ function hasVerifiedNightlySelection(v, p) {
     verifiedDownload.version === v.version &&
     typeof verifiedDownload.href === "string" &&
     verifiedDownload.href.startsWith("blob:");
+}
+// Bind approved selection across the asynchronous MIDI permission/scan.
+// Never write a replaced, revoked or different controller/package choice.
+function guardApprovedSelection() {
+  const v = currentVersion(), version = v && v.version, model = chosenModel;
+  const pkg = v && v.models && v.models[model];
+  const serial = loadSerial, bytes = image, product = selectedProduct;
+  const download = verifiedDownload, href = download && download.href;
+  const controller = ctl, hash = ctlHash;
+  return () => {
+    const current = currentVersion();
+    const candidate = current && current.models && current.models[chosenModel];
+    return !!version && serial === loadSerial && chosenModel === model &&
+      !!current && current.version === version && candidate === pkg &&
+      hasVerifiedNightlySelection(current, candidate) &&
+      image === bytes && selectedProduct === product &&
+      verifiedDownload === download && verifiedDownload?.href === href &&
+      ctl === controller && ctlHash === hash;
+  };
 }
 function refreshMeta() {
   const ver = currentVersion();
@@ -832,6 +853,10 @@ async function run(img, product, opts = {}) {
   }
   led("busy");
   try {
+    // Permission and loader discovery may outlive the verified selection.
+    const selectionValid = () => foreign ||
+      (typeof opts.selectionGuard === "function" && opts.selectionGuard());
+    if (!selectionValid()) throw Object.assign(new Error(t("selectionstale")), { code: "selectionstale" });
     const up = new Updater(access, log);
     const total = 74 + 1167;
     const step = (k, a) => {
@@ -844,6 +869,10 @@ async function run(img, product, opts = {}) {
       if (k === "done") { $("bar").value = 100; sayK(foreign ? "stockdone" : "done"); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
+    if (!selectionValid()) {
+      if (ota) ota.link.close();
+      throw Object.assign(new Error(t("selectionstale")), { code: "selectionstale" });
+    }
     if (ota) {
       // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
       ota.link.close();
@@ -916,7 +945,7 @@ $("go").addEventListener("click", () => {
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
   }
   $("go").disabled = true;   // sync before the first await in run()
-  run(img, selectedProduct, { foreign: false });
+  run(img, selectedProduct, { foreign: false, selectionGuard: guardApprovedSelection() });
 });
 function confirmNightlyModel(deviceModel, product) {
   const actual = String(deviceModel || "").replace(/^ota-/i, "");

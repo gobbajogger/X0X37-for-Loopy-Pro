@@ -22,8 +22,9 @@ assert.match(run, /if \(writing\) return;/);
 assert.match(html, /if \(writing \|\| ctlNeedsResolution \|\| \$\("go"\)\.disabled \|\|\s*!hasVerifiedNightlySelection/);
 let passed = 0;
 for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
-  for (const mode of ["normal", "resume", "resume-cancel", "missing", "failure", "denied", "pending", "revoked"]) {
+  for (const mode of ["normal", "resume", "resume-cancel", "missing", "failure", "denied", "pending", "pending-stale", "revoked"]) {
     let grant;
+    let approvalActive = mode !== "revoked";
     const permission = new Promise(resolve => { grant = resolve; });
     const state = { writes: 0, postScan: 0, connected: null, lockHeld: true,
       messages: [], midiCalls: 0, otaPrompts: 0 };
@@ -35,7 +36,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       midiAccess: async () => {
         state.midiCalls++;
         if (mode === "denied") throw Object.assign(Error("denied"), { code: "denied" });
-        return mode === "pending" ? permission : {};
+        return mode.startsWith("pending") ? permission : {};
       },
       Updater: class {
         async find(predicate) {
@@ -65,7 +66,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
       isCatalogChecked: () => mode !== "revoked",
        hasVerifiedNightlySelection: () => mode !== "revoked",
       sampleImage: new Uint8Array([1]),
-      stock: null, TEXT: { en: { lost: "lost", otabackup: "Prior backup needed" } }, lang: "en",
+      stock: null, TEXT: { en: { lost: "lost", otabackup: "Prior backup needed", selectionstale: "Changed" } }, lang: "en",
       window: { confirm: () => { state.otaPrompts++; return mode !== "resume-cancel"; } },
       Blob, URL, setTimeout,
       document: { createElement: () => ({ click() {}, remove() {} }),
@@ -76,12 +77,13 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
 ${scan}
 ${run}
 globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writing;`).runInContext(ctx);
-    const first = ctx.start(new Uint8Array([1]), model);
-    if (mode === "pending") {
+    const first = ctx.start(new Uint8Array([1]), model, { selectionGuard: () => approvalActive });
+    if (mode.startsWith("pending")) {
       assert.equal(ctx.isWriting(), true, "permission request left write unlocked");
       assert.equal(ui.stockgo.disabled, true, "second install button was enabled");
       await ctx.manualScan();
       const second = ctx.start(new Uint8Array([1]), model, { foreign: true });
+      if (mode === "pending-stale") approvalActive = false;
       grant({});
       await Promise.all([first, second]);
     } else await first;
@@ -98,6 +100,11 @@ globalThis.start=run; globalThis.manualScan=scan; globalThis.isWriting=()=>writi
       assert.equal(state.postScan, 0, "cancelled loader recovery rescanned after a write");
       assert.equal(state.messages.at(-1), "otabackup", "missing actionable recovery refusal");
       assert.equal(ui.go.disabled, false, "rejected loader recovery left retry disabled");
+    } else if (mode === "revoked" || mode === "pending-stale") {
+      assert.equal(state.writes, 0, "stale/revoked selection wrote firmware");
+      assert.equal(state.postScan, 0, "stale selection started post-write scan");
+      assert.equal(state.messages.at(-1), "selectionstale");
+      assert.equal(ui.go.disabled, mode === "revoked");
     } else if (mode === "failure") {
       assert.equal(state.postScan, 0, "failed write masked by rescan");
       assert.equal(state.messages.at(-1), "lost");
@@ -154,7 +161,7 @@ for (const model of ["SMK-37 Elite_9001100", "SMK-37 Pro_9001100"]) {
     new Script(`let writing=false,lastId=null,image=null,stock=null,chosenModel="elite",ctl=null,ctlLoadSerial=0,scanSerial=0,ctlNeedsResolution=false;
 ${run}
 globalThis.runRestoreTest=run;`).runInContext(ctx);
-    await ctx.runRestoreTest(new Uint8Array([1]), model);
+    await ctx.runRestoreTest(new Uint8Array([1]), model, { selectionGuard: () => true });
     const wanted = { all: "slotsdone", partial: "slotspartial", total: "slotspartial",
       stock: "slotstock", "backup-error": "slotbackup" }[mode];
     assert.equal(writes, 1, "write not called exactly once");
