@@ -1,0 +1,167 @@
+{
+  "schema": "loopyx0x37.smc.source-reviewed-producer-evidence.v1",
+  "evidence_revision": "smc-pr73-mmc-stop-boundary-review-fix-20261024-r2",
+  "timestamp_utc": "2026-10-24T02:07:01Z",
+  "owner_role": "LoopyX0X37 SMC Transport",
+  "outcome": "DELIVERED",
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/smc-mmc-stop-overflow-20261023-1101",
+    "pr": 73,
+    "producer_source_and_test_commit": "b5b2c47c8c8faab3c026edb1026fa45332b5f7fa",
+    "complete_root_tree": "5bdc8d428e371e53f5aa12de34a5151ad6adf49a",
+    "firmware_subtree": "1990c0d0a2eaa76574068602d0cd456a8b7ea174",
+    "source_blob": "cfcfb79a380129138cce5b2c276bcf3c4e4f0a95",
+    "regression_blob": "903148cd199262c5b01ea1ef741126290efcd872",
+    "sources": [
+      "firmware/src/app/smc_mixer.c",
+      "tests/host/smc_queue_test.py"
+    ]
+  },
+  "consumed": {
+    "pr": 73,
+    "prior_commit": "3dd637fd10ea639591385e4b9a65597a9a344fdc",
+    "prior_finding_thread": "PRRT_kwDOVQzWEM6v0WNw",
+    "finding": "After producer ISR refills one freed MMC PLAY slot and publishes overflowed STOP, old code dispatches STOP before the pre-STOP PLAY remaining beyond this poll's 16-command limit.",
+    "candidate": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "pr": 103,
+      "commit": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+      "complete_root_tree": "2a2972589f360c064c7fd9ad51d420128ba56744",
+      "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "evidence_revision": "safe-merge-pr103-durable-backup-pr107-20261024-r8"
+    }
+  },
+  "change": "Defer overflowed MMC STOP acknowledgment until the corresponding 8-bit FIFO write cursor is reached; check at each command and after the poll budget. Continue preserving project-drop invalidation, full-queue STOP, and post-STOP command ordering.",
+  "checks": [
+    {
+      "name": "stop_fifo_gcc_ubsan_prior_pr73",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DPATCHED smc_mmc_stop_boundary_regression.c -o smc_gcc_ubsan_old; ASAN_OPTIONS=detect_leaks=0 ./smc_gcc_ubsan_old",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "scoped_checks": 271,
+      "failed_checks": 64,
+      "result": "EXPECTED_FAIL",
+      "log_sha256": "b4f61367bb844641367439a2acaf29d5924f708f5b1d0567f77d7576610a515d"
+    },
+    {
+      "name": "stop_fifo_gcc_ubsan_corrected",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DPATCHED -DFIXED smc_mmc_stop_boundary_regression.c -o smc_gcc_ubsan_fixed; ASAN_OPTIONS=detect_leaks=0 ./smc_gcc_ubsan_fixed",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "scoped_checks": 271,
+      "failed_checks": 0,
+      "result": "PASS",
+      "log_sha256": "e287929eb81a0ecc00aa2573a1237345a0326a09d893bb9cba466cf77787434b"
+    },
+    {
+      "name": "stop_fifo_gcc_asan_ubsan_prior_pr73",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DPATCHED smc_mmc_stop_boundary_regression.c -o smc_gcc_asan_ubsan_old; ASAN_OPTIONS=detect_leaks=0 ./smc_gcc_asan_ubsan_old",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "scoped_checks": 271,
+      "failed_checks": 64,
+      "result": "EXPECTED_FAIL",
+      "log_sha256": "b4f61367bb844641367439a2acaf29d5924f708f5b1d0567f77d7576610a515d"
+    },
+    {
+      "name": "stop_fifo_gcc_asan_ubsan_corrected",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DPATCHED -DFIXED smc_mmc_stop_boundary_regression.c -o smc_gcc_asan_ubsan_fixed; ASAN_OPTIONS=detect_leaks=0 ./smc_gcc_asan_ubsan_fixed",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "scoped_checks": 271,
+      "failed_checks": 0,
+      "result": "PASS",
+      "log_sha256": "e287929eb81a0ecc00aa2573a1237345a0326a09d893bb9cba466cf77787434b"
+    },
+    {
+      "name": "stop_fifo_clang_ubsan_prior_pr73",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DPATCHED smc_mmc_stop_boundary_regression.c -o smc_clang_ubsan_old; ASAN_OPTIONS=detect_leaks=0 ./smc_clang_ubsan_old",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "scoped_checks": 271,
+      "failed_checks": 64,
+      "result": "EXPECTED_FAIL",
+      "log_sha256": "b4f61367bb844641367439a2acaf29d5924f708f5b1d0567f77d7576610a515d"
+    },
+    {
+      "name": "stop_fifo_clang_ubsan_corrected",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -DPATCHED -DFIXED smc_mmc_stop_boundary_regression.c -o smc_clang_ubsan_fixed; ASAN_OPTIONS=detect_leaks=0 ./smc_clang_ubsan_fixed",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "scoped_checks": 271,
+      "failed_checks": 0,
+      "result": "PASS",
+      "log_sha256": "e287929eb81a0ecc00aa2573a1237345a0326a09d893bb9cba466cf77787434b"
+    },
+    {
+      "name": "stop_fifo_clang_asan_ubsan_prior_pr73",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DPATCHED smc_mmc_stop_boundary_regression.c -o smc_clang_asan_ubsan_old; ASAN_OPTIONS=detect_leaks=0 ./smc_clang_asan_ubsan_old",
+      "compile_exit": 0,
+      "run_exit": 1,
+      "scoped_checks": 271,
+      "failed_checks": 64,
+      "result": "EXPECTED_FAIL",
+      "log_sha256": "b4f61367bb844641367439a2acaf29d5924f708f5b1d0567f77d7576610a515d"
+    },
+    {
+      "name": "stop_fifo_clang_asan_ubsan_corrected",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DPATCHED -DFIXED smc_mmc_stop_boundary_regression.c -o smc_clang_asan_ubsan_fixed; ASAN_OPTIONS=detect_leaks=0 ./smc_clang_asan_ubsan_fixed",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "scoped_checks": 271,
+      "failed_checks": 0,
+      "result": "PASS",
+      "log_sha256": "e287929eb81a0ecc00aa2573a1237345a0326a09d893bb9cba466cf77787434b"
+    }
+  ],
+  "fixture": {
+    "path": "local scoped replay archive; not committed as a full-source reproduction",
+    "sha256": "f903edebe1d66a9c3c3a174861233c64f5352bc1a310f71c6dc9dbae70da0a61",
+    "scope": "manually transcribed and Git-window checked C queue functions with simulated ISR/UI; not linked complete firmware; no controller or device executed"
+  },
+  "git_source_checks": {
+    "count": 11,
+    "passed": 11,
+    "mechanism": "authenticated remote C/Python blob and required source pattern assertions",
+    "command": "mcp__GitHub__fetch_file exact ref plus JavaScript source/test assertions",
+    "result": "PASS"
+  },
+  "not_executed": [
+    "newly registered test on a complete clean exact Git checkout",
+    "full-root host regression suite",
+    "target firmware Elite/Pro/controller compilation",
+    "independent QA",
+    "device flash or hardware observations",
+    "public hosting/HTTP verification"
+  ],
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW; BUILD_ONLY_PENDING; INDEPENDENT_QA_PENDING; NOT_INTEGRATED; DEVICE_NOT_TESTED; NOT_INSTALLABLE",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Run registered smc-queue native tests from exact revised #73 head; exercise full queue, ISR-refill-before-STOP, boundary wrap, project discard and SMC/central cross-effects.",
+      "remaining_gate": "full-root independent safety QA"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Reconcile minimal STOP boundary source/test into #103 current SMC blob without overwriting link-epoch or other transport guards; request fresh exact combined-root QA.",
+      "remaining_gate": "reviewed integrated source and qualified protected PR"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Immediately compile Elite/Pro and matching controller BUILD_ONLY from new compiled subtree 1990c0d0a2eaa76574068602d0cd456a8b7ea174, or later integrated changed head; never wait on QA.",
+      "remaining_gate": "actual target compiler/model/controller evidence"
+    },
+    {
+      "owner": "SMC Transport",
+      "action": "Address separate unresolved PR #79 initial-new-session event cutoff review with native negative tests on OWN lane.",
+      "remaining_gate": "reconnect boundary source repair"
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Keep previous safe builds retained, do not offer this unqualified new source as installable.",
+      "remaining_gate": "full independent prehardware/legality/integrity/immutable HTTP checks"
+    }
+  ]
+}
