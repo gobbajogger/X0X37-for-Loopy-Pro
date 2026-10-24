@@ -1,6 +1,6 @@
 {
   "schema": "loopyx0x37.smc.source-reviewed-producer-evidence.v1",
-  "evidence_revision": "smc-pr79-initial-ble-session-notification-order-20261024-r2",
+  "evidence_revision": "smc-pr79-initial-ble-session-notification-order-20261024-r3",
   "date_utc": "2026-10-24T02:11:28Z",
   "owner_role": "LoopyX0X37 SMC Transport",
   "outcome": "DELIVERED",
@@ -8,19 +8,21 @@
   "source": {
     "repo": "gobbajogger/X0X37-for-Loopy-Pro",
     "branch": "lane/smc-ble-link-epoch-20261023-1210",
-    "source_commit_before_evidence": "c70dc308fcc4dc1177114754bd9002616fa87178",
-    "full_root": "30881df72ed31d0f63c161dc333aa4c5d94b9001",
+    "source_commit_before_evidence": "75a0806fc4669a54a9db689b039a5b8aa18a824b",
+    "full_root": "753aece036b5dcb1b54a0576bbfa80eaac020458",
     "firmware_subtree": "37035d6670d63b682cf408c11593c9c31067c96b",
     "compiled_inputs_changed": true,
     "changed_paths": [
       "firmware/src/ble.c",
       "tests/host/ble_central_first_notification_test.py",
-      "tests/run_tests.sh"
+      "tests/run_tests.sh",
+      "tests/host/smc_ble_reconnect_epoch_test.py (existing unchanged regression now registered)"
     ],
     "blobs": {
       "firmware/src/ble.c": "9907c76b31894363b9739c7819af6eac005d737c",
       "tests/host/ble_central_first_notification_test.py": "d6a19e28f630635ac3c11ea6e6fa0ed641639fdf",
-      "tests/run_tests.sh": "9918c50a839584646764c7f02a07ffb438874b61"
+      "tests/run_tests.sh": "fe64d3a3e6a4e143e6931a7dbf3b63fa129ff1ff",
+      "tests/host/smc_ble_reconnect_epoch_test.py": "d36141afdaa47b620ac0049d1f81560e7e2844a7"
     }
   },
   "consumed": {
@@ -113,6 +115,12 @@
       "command": "python3 -m py_compile tests/host/ble_central_first_notification_test.py",
       "exit": 0,
       "scope": "local recreated script"
+    },
+    {
+      "command": "mcp__GitHub__fetch_file exact HEAD of tests/run_tests.sh and tests/host/smc_ble_reconnect_epoch_test.py, check test selector and blob SHA",
+      "exit": 0,
+      "result": "PASS",
+      "scope": "Git source/runner registration check, NOT native execution"
     }
   ],
   "verified_git_checks": {
@@ -125,13 +133,14 @@
     "full native firmware and controller model builds",
     "independent QA of first combined root",
     "hardware MIDI/BLE timing or connection device test",
-    "public installer/hash/HTTP validation"
+    "public installer/hash/HTTP validation",
+    "original existing smc-ble-reconnect-epoch native regression on revised complete exact head"
   ],
   "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_CHECKED_READY_FOR_INDEPENDENT_REVIEW; QA_PENDING; BUILD_ONLY_PENDING; INTEGRATION_PENDING; DEVICE_NOT_TESTED; NOT_INSTALLABLE",
   "next": [
     {
       "owner": "Independent QA",
-      "action": "Run exact PR79 host ble-central-first-notification and existing smc BLE reconnect epoch (including coalesced ISR link transitions) and SMC/clock/NoteOff negatives; review exact source/root.",
+      "action": "Run both registered native checks ble-central-first-notification and smc-ble-reconnect-epoch from exact current PR79 full root under GCC/Clang and negative interleavings, then independent review.",
       "gate": "independent exact-root native QA"
     },
     {
@@ -149,5 +158,6 @@
       "action": "Retain previously safe binaries and no new flashable listing until qualified.",
       "gate": "all prehardware/package/legal/immutable HTTP requirements"
     }
-  ]
+  ],
+  "revised_runner_registration": "Existing tests/host/smc_ble_reconnect_epoch_test.py was previously unregistered on this PR; the same owned runner now includes both ble-central-first-notification and smc-ble-reconnect-epoch, no test source rewrite."
 }
