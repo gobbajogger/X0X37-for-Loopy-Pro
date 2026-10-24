@@ -1,0 +1,116 @@
+{
+  "evidence_revision": "seqclock-pr90-clock-wrap-lease-20261025-r32",
+  "date_utc": "2026-10-25",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "pr": 90,
+  "parent_pr": 86,
+  "preflight_parent_commit": "3d2bc36a46ed7529677e5cf2220161a078f7b80f",
+  "preflight_root_tree": "6b9593026d461f12dddbca739c672fa5686b1196",
+  "compiler_firmware_tree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "compiled_inputs_changed": false,
+  "maintained_behavior": "MID-15: after 32-bit 44.1-kHz free-running clock wraps near 27h, clock source lease must not expire early, 0.4-second Stop handoff must work across wrap, and 303 MIDI notes must terminate exactly once",
+  "source_blobs_verified_live": {
+    "pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+    "sequencer.c": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+    "pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd"
+  },
+  "new_test_path": "tests/host/seq_clock_uptime_wrap_test.c",
+  "new_test_blob": "d5e37e88aee1f8f1126011e96616986601191570",
+  "test_registration_path": "tests/run_tests.sh",
+  "test_selector": "transport-clock-uptime-wrap",
+  "producer_native": {
+    "command": "python3 run-r32.py",
+    "exit": 0,
+    "compilers": {
+      "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+      "clang": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)"
+    },
+    "variants": [
+      {
+        "variant": "positive",
+        "runs": 6,
+        "compile_exit_codes": [
+          0
+        ],
+        "run_exit_codes": [
+          0
+        ],
+        "expected_exit_codes": [
+          0
+        ],
+        "all_expected": true,
+        "observed_last_line": "seq uptime clock wrap: 36328/36328 checks PASSED"
+      },
+      {
+        "variant": "negative-naive-clock-lease",
+        "runs": 6,
+        "compile_exit_codes": [
+          0
+        ],
+        "run_exit_codes": [
+          1
+        ],
+        "expected_exit_codes": [
+          1
+        ],
+        "all_expected": true,
+        "observed_last_line": "seq uptime clock wrap: 36314/36334 checks FAILED"
+      },
+      {
+        "variant": "negative-naive-stop-lease",
+        "runs": 6,
+        "compile_exit_codes": [
+          0
+        ],
+        "run_exit_codes": [
+          1
+        ],
+        "expected_exit_codes": [
+          1
+        ],
+        "all_expected": true,
+        "observed_last_line": "seq uptime clock wrap: 36322/36337 checks FAILED"
+      }
+    ],
+    "assertions_positive_per_run": 36328,
+    "neighbor_r31": {
+      "gcc": {
+        "compile_exit": 0,
+        "run_exit": 0,
+        "assertions": "186/186"
+      },
+      "clang": {
+        "compile_exit": 0,
+        "run_exit": 0,
+        "assertions": "186/186"
+      }
+    },
+    "source_scope": "linked real sequencer.c,pattern.c,tb3po.c with six exact live Git blobs, NOT full repo",
+    "sanitizers": "GCC/Clang plain, UBSan, ASan+UBSan (ASAN detect_leaks=0, no leak PASS)",
+    "negative_mutations_committed": false,
+    "replay_console_sha256": "a5edbdc04a03fb1f10902f01401fb2cac4089e152ea867018758a8e6a9cf9fd0",
+    "raw_log_records_in_zip": true
+  },
+  "private_archive": {
+    "main_library_root": "/LoopyX0X37-SeqClock-PR90-UptimeWrap-R32-20261025.zip",
+    "size_bytes": 40866,
+    "sha256": "b3b2c508427b177e6e7cfc956bc3201a2ef24fb4fa581056e9ab2cfa61cbfc5f",
+    "zip_crc": "PASS",
+    "note": "private checked replay text only, not firmware/controller distributable"
+  },
+  "failed_checks": [],
+  "not_run": [
+    "full complete-root tests",
+    "independent source/OTA/firmware QA",
+    "Elite/Pro target build and budgets",
+    "physical-device test",
+    "installer/browser QA",
+    "NIGHTLY/production publication"
+  ],
+  "next_owner": "existing independent QA specialist; exact final commit/tree and complete-tree tests with real logs, no self approval; sole Safe Merge integration after independent review",
+  "status": "PRODUCER LINKED HOST TESTED / QA PENDING / DEVICE NOT TESTED / NOT INSTALLABLE"
+}
