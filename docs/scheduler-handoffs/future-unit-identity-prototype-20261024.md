@@ -5,6 +5,16 @@ This continues PR125 on the existing supplementary lane. PR114 Data Safety,
 Independent QA and sole Safe Merge retain their roles; parent coordinates Mac
 execution and any hardware action. No new task, protected ref or device write.
 
+**Fresh ownership checkpoint during final validation:** PR114 advanced to R10
+`77d571587fe91b5357ab7914e39e04715d737023`, root
+`34ed69cfd7e4002acb077d4605a00dfb6fcd9c09`. That owner added separate output-token
+guards and an `ota-output-endpoint` regression. This lane does not duplicate or
+overwrite that implementation. PR125's tested base remains PR121 plus R9;
+none of its reported whole-root counts or nine strict failures qualify R10.
+Data Safety/Independent QA must reconcile the read-only CLI/runner additions
+with R10 and test their actual combined tree. This future protocol prototype
+does not modify production output selection or supply either physical provider.
+
 ## Sanitized actual Mac result supplied by parent
 
 The parent reports validation of **exact commit
@@ -145,3 +155,27 @@ or a general development blocker. Portable host source/testing proceeded.
 Firmware tree/build inputs are unchanged by the prototype because it is not
 included in app/loader. No target binary was produced or relabeled. Target
 integration/build and physical UID observations remain explicit next gates.
+
+## Exact prototype validation receipt
+
+Tested source: `c22932e6bb74dc978d0c466614d086b31eaa8c23`, root
+`1c5501c9aa4942efe954add21364eaf9ccbf268a`; firmware tree unchanged
+`5c209609b770fd13949230aeb80956594fd6b741`.
+The [command/log-hash receipt](../future-identity-evidence-20261024/receipt.json)
+records:
+
+- **25 selected normal runner suites**, exit 0, including the registered C
+  prototype, PR121 fixtures and existing installer/backup/restore/controller
+  tests on this exact complete checkout.
+- **24 direct Python -O suites**, exit 0 each.
+- Prototype **201/201** in the normal runner; separate GCC14.2 build with
+  `-DNDEBUG -fsanitize=address,undefined`: compile exit 0, **201/201**, exit 0.
+- Original strict transport diagnostic: exit 1, nine failed assertions in 15
+  cases in each Python mode, on this lane's R9-derived installer. Still NO-GO.
+- Explicit Elite and Pro development `sh build.sh --board smk37` attempts:
+  both exit 1 at `no toolchain in /workspace/ota-private-inputs/toolchain`,
+  **before compiler execution**. These are failed prechecks, not builds.
+
+No production code changed after that tested source; later receipt text/logs
+are evidence-only. Native source/API review found no blocking issue for this
+default-unavailable prototype, not acceptance of an actual hardware UID or OTA.
