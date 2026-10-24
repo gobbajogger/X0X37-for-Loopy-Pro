@@ -5,9 +5,11 @@
 Stages run in order: Audit, Implement, Test, Validate, Merge, Publish.
 The caller starts a new top-level thread for a stage and passes that thread
 id here. record_thread() stores the stage, thread id, timestamp, and status
-in the ledger. advance() reads the ledger and moves the current stage only
-when that id is already on disk. note_helper() records a subagent on the
-stage that is already running. A subagent id never satisfies advance().
+in the ledger. Each stage needs its own thread id; an id already stored on
+any transition is rejected before the ledger is saved. advance() reads the
+ledger and moves the current stage only when that new id is already on disk.
+note_helper() records a subagent on the stage that is already running.
+A missing, null, subagent, or already-used id never changes the current stage.
 
 The ledger is cloud-handoff/pipeline.json. Historical HANDOFF directories
 stay evidence; this file is the record the pipeline consults.
@@ -151,6 +153,8 @@ def record_thread(path, stage, thread_id, timestamp):
     thread_id = _plain_id(thread_id, 'thread id required')
     if thread_id in _helper_ids(state):
         raise HandoffError('stage handoff requires a new thread, not a subagent')
+    if any(item.get('thread_id') == thread_id for item in state['transitions']):
+        raise HandoffError('each stage requires its own thread')
     state['transitions'].append({
         'stage': stage,
         'thread_id': thread_id,
@@ -174,6 +178,8 @@ def _recorded_thread(state, stage):
         return None
     if thread_id in _helper_ids(state):
         raise HandoffError('stage handoff requires a new thread, not a subagent')
+    if any(other is not item and other.get('thread_id') == thread_id for other in state['transitions']):
+        raise HandoffError('each stage requires its own thread')
     return item
 
 

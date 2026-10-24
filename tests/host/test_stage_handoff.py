@@ -109,6 +109,46 @@ class StageHandoff(unittest.TestCase):
             stage_handoff.record_thread(self.path, 'Audit', 'thread-again', TS)
         self.assertEqual(self.ledger()['current'], 'Publish')
 
+    def test_one_thread_id_cannot_walk_every_stage(self):
+        stage_handoff.init(self.path)
+        shared = 'thread-shared'
+        stage_handoff.handoff(self.path, 'Audit', shared, TS)
+        self.assertEqual(self.ledger()['current'], 'Audit')
+        before = self.path.read_bytes()
+        with self.assertRaisesRegex(stage_handoff.HandoffError, 'its own thread'):
+            stage_handoff.handoff(self.path, 'Implement', shared, '2026-10-24T19:21:00Z')
+        self.assertEqual(self.path.read_bytes(), before)
+        for index, stage in enumerate(stage_handoff.STAGES[2:], start=2):
+            with self.assertRaises(stage_handoff.HandoffError):
+                stage_handoff.handoff(self.path, stage, shared, f'2026-10-24T19:2{index}:00Z')
+            self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(self.ledger()['current'], 'Audit')
+        self.assertNotEqual(self.ledger()['current'], 'Publish')
+
+        state = self.ledger()
+        state['transitions'].append({
+            'stage': 'Implement',
+            'thread_id': shared,
+            'timestamp': TS,
+            'status': 'recorded',
+            'kind': 'thread',
+        })
+        self.path.write_text(json.dumps(state, indent=2) + '\n', encoding='utf-8')
+        reused = self.path.read_bytes()
+        with self.assertRaisesRegex(stage_handoff.HandoffError, 'its own thread'):
+            stage_handoff.advance(self.path)
+        self.assertEqual(self.path.read_bytes(), reused)
+        self.assertEqual(self.ledger()['current'], 'Audit')
+
+        distinct = Path(self.tmp.name) / 'distinct.json'
+        stage_handoff.init(distinct)
+        for index, stage in enumerate(stage_handoff.STAGES):
+            stage_handoff.handoff(distinct, stage, f'thread-{index}', f'2026-10-24T19:3{index}:00Z')
+        done = json.loads(distinct.read_text(encoding='utf-8'))
+        self.assertEqual(done['current'], 'Publish')
+        self.assertEqual([item['thread_id'] for item in done['transitions']],
+                         [f'thread-{index}' for index in range(len(stage_handoff.STAGES))])
+
     def test_handoff_persists_the_thread_before_advance_saves(self):
         stage_handoff.init(self.path)
         seen = []
