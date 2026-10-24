@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:15:35Z",
+  "role": "Data Safety",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/data-safety-backup-atomic-20261023-run4-1215",
+    "tested_commit": "c9718ae833eb64a5191c350922593df8a36017c9",
+    "tested_tree": "715fbd98d427c8ddd6b64d1b923e9d1fb8ae64ea"
+  },
+  "summary": "Prevent destructively truncating an existing .x0xslots backup on --force when a save encounters a disk-full, partial-write, fsync, readback, or rename failure; use same-directory staged write and no-force no-clobber publication. Targeted extracted-function/source-window host checked only; independent exact-tree QA pending.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/x0x_slots.py",
+      "description": "Staged checked atomic publish for backup CLI; no change to on-device sample commands"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/x0x_slots_backup_atomic_test.py",
+      "description": "Eleven positive, interrupt, corruption, boundary, race, and rollback mock tests"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/data-safety-backup-atomic-20261023.md",
+      "description": "Original destructive reproduction, tested source identity, status and QA/merger handoff"
+    },
+    {
+      "kind": "regression",
+      "location": "docs/scheduler-handoffs/data-safety-backup-atomic-20261023-patched.log",
+      "description": "Actual patched local Python regression execution log, 11 passing"
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline data loss reproduction",
+      "status": "FAIL",
+      "command": "python3 /mnt/data/datasafety_atomic_run4/x0x_slots_backup_atomic_test.py /mnt/data/files/QA-NIGHTLY-PR71-tools--x0x_slots.py",
+      "exit_code": 1,
+      "evidence": "Local /mnt/data/datasafety_atomic_run4/before.log (not Git committed); failure is expected RED baseline, original direct CLI write truncates preexisting archive",
+      "log_sha256": "4dfc81ec3456aabfa6bad54839686a25d6d65c8cef23fabd303e8c3bcd84dbcf",
+      "coverage": "11 attempted: 10 missing helper errors and one original destructive simulated interrupted/partial write failure. Affected original main/backup function windows match current nightly exact text."
+    },
+    {
+      "name": "patched Python data preservation regression",
+      "status": "PASS",
+      "command": "python3 /mnt/data/datasafety_atomic_run4/x0x_slots_backup_atomic_test.py /mnt/data/datasafety_atomic_run4/x0x_slots.py",
+      "exit_code": 0,
+      "evidence": "docs/scheduler-handoffs/data-safety-backup-atomic-20261023-patched.log",
+      "log_sha256": "928458a5133e1c155207a114c461aca8e126cf95c1f5c1c369a6881a56fbe42f",
+      "coverage": "11/11 PASS; positive create/force, negative races/corrupted source, fsync/rename/readback/short-write faults, symlink target preserved, CLI disk-full, no temp leaks. Patched function source was local derived from PR71 blob but same patch delivered against current nightly original exact affected-window identity."
+    },
+    {
+      "name": "Python syntax compilation",
+      "status": "PASS",
+      "command": "python3 -m py_compile /mnt/data/datasafety_atomic_run4/x0x_slots.py /mnt/data/datasafety_atomic_run4/x0x_slots_backup_atomic_test.py",
+      "exit_code": 0,
+      "evidence": "Local command exited 0; no syntax diagnostics",
+      "coverage": "Modified Python tool and regression test"
+    },
+    {
+      "name": "complete exact-remote PR tree host tests",
+      "status": "NOT_RUN",
+      "command": "python3 tests/x0x_slots_backup_atomic_test.py && python3 tests/x0x_slots_test.py",
+      "evidence": "Native git clone requires github.com DNS which failed in current container; connected GitHub read/write verified precise blobs, but full remote PR source tree has not been executed",
+      "coverage": "Independent QA must run exact tree and examine filesystem-specific atomic link support, durability and compatibility with other slot PRs"
+    },
+    {
+      "name": "Elite/Pro firmware target builds and controller qualification",
+      "status": "NOT_RUN",
+      "command": "tools/build_smk_release.sh (not invoked: exclusive Hourly Build ownership)",
+      "evidence": "Source-only Python host tool change. No exact-source target package, ctl.img, CRC/SHA256/budget or backup/OTA target gate completed",
+      "coverage": "Both models remain BUILD PENDING / DEVICE NOT TESTED"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-only Python tests are not an Elite firmware build or hardware PASS"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-only Python tests are not a Pro firmware build or hardware PASS"
+    }
+  ],
+  "dependencies": [
+    "Firmware nightly baseline c9718ae833eb64a5191c350922593df8a36017c9",
+    "Unmerged sample archive fixes #56, #66, #75, #76 require independent compatibility review",
+    "Controller atomic #42 and #49 owned separately; no overlap"
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Rerun committed tests from exact remote PR head, validate fsync/no-clobber filesystem assumptions and overlap with data safety source PRs, then hand checked source to sole Safe Merge",
+    "gate": "Complete-tree independent QA and sole Safe Merge review"
+  },
+  "publication": "SOURCE_ONLY"
+}

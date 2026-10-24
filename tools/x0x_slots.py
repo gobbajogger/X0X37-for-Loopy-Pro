@@ -26,8 +26,11 @@ length, the header's data CRC, and the image's offset, length and CRC-32. An ima
 its start: the 512-byte header area, then the ADPCM data. The final CRC-32 (zlib) covers every byte
 before it. web/x0x_breaks.js (makeArchive, readArchive) reads and writes the same format.
 Needs mido (and a backend such as python-rtmidi) for the device commands."""
+import errno
 import json
+import os
 import struct
+import tempfile
 import sys
 import time
 import zlib
@@ -73,23 +76,58 @@ def ascii_name(b):
 
 
 def parse_info(r):
-    """SMP_INFO reply -> {"count", "size", "ext", "slots": [{"nz", "name", "kb", "size", "off", "used"}]}.
-    size: the reply's one size (KiB, 7 bits: the smallest slot). Per slot size, flash offset (None if
-    unknown) and used KiB come from the X0X extension; without it every slot has the one size."""
+    """Decode a complete SMP_INFO layout; never guess legacy offsets from a broken extension.
+
+    An ambiguous layout is unsafe for sample-preservation decisions made before OTA.
+    """
     if len(r) < 2:
         raise SlotError("short SMP_INFO reply")
     count, size, i, slots = r[0], r[1] * 1024, 2, []
-    for _ in range(count):
+    if not count or not size:
+        raise SlotError("invalid SMP_INFO slot count or size")
+    for k in range(count):
+        if i >= len(r):
+            raise SlotError(f"slot {k + 1}: truncated SMP_INFO reply")
         nz = r[i]
-        j = r.index(0, i + 1)
-        slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": r[j + 1], "size": size, "off": None,
-                      "used": r[j + 1]})
+        try:
+            j = r.index(0, i + 1)
+            used = r[j + 1]
+        except (ValueError, IndexError) as e:
+            raise SlotError(f"slot {k + 1}: truncated SMP_INFO descriptor") from e
+        if nz > 16 or j - i - 1 > 8:
+            raise SlotError(f"slot {k + 1}: invalid zones or used size")
+        # On-device SMP_INFO reports zero used KiB and an empty name for an empty slot.
+        if nz == 0 and (used != 0 or j != i + 1):
+            raise SlotError(f"slot {k + 1}: contradictory empty-slot descriptor")
+        slots.append({"nz": nz, "name": ascii_name(r[i + 1:j]), "kb": used, "size": size,
+                      "off": None, "used": used})
         i = j + 2
-    ext = len(r) >= i + 2 + 6 * count and r[i] == ord("X") and r[i + 1] == 1
+    # A partially received / unknown extension must not be misread as a legacy layout.
+    has_marker = i < len(r) and r[i] == ord("X")
+    if has_marker and (i + 2 + 6 * count > len(r) or r[i + 1] != 1):
+        raise SlotError("truncated or unsupported SMP_INFO flash-map extension")
+    if i < len(r) and not has_marker:
+        raise SlotError("unknown SMP_INFO trailing metadata")
+    ext = has_marker
+    if ext and i + 2 + 6 * count != len(r):
+        raise SlotError("invalid SMP_INFO extension length")
+    if not ext and any(sl["used"] * 1024 > size for sl in slots):
+        raise SlotError("legacy SMP_INFO used size exceeds slot size")
     if ext:
+        ranges = []
         for k, sl in enumerate(slots):
             v = [r[i + 2 + 6 * k + 2 * m] | r[i + 3 + 6 * k + 2 * m] << 7 for m in range(3)]
-            sl.update({"off": v[0] * 0x1000, "size": v[1] * 0x1000, "used": v[2]})
+            off, slot_size, used = v[0] * 0x1000, v[1] * 0x1000, v[2]
+            end = off + slot_size
+            if (off == 0 or slot_size < DATA_OFF or used * 1024 > slot_size
+                    or any(off < hi and lo < end for lo, hi in ranges)):
+                raise SlotError(f"slot {k + 1}: invalid or overlapping SMP_INFO flash range")
+            # Legacy used KiB is capped to 7 bits; extension carries full 14-bit count.
+            # Both are derived from the same on-device sample header data_len.
+            if sl["kb"] != min(127, used):
+                raise SlotError(f"slot {k + 1}: legacy/extended used-size disagreement")
+            ranges.append((off, end))
+            sl.update({"off": off, "size": slot_size, "used": used})
     return {"count": count, "size": size, "ext": ext, "slots": slots}
 
 
@@ -130,8 +168,20 @@ def read_bytes(link, k, off, n, progress=None):
     while len(out) < n:
         want, adr = min(READ_MAX, n - len(out)), off + len(out)
         r = req(link, CMD_READ, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])
+        # Every reply must have the four echoed address bytes and packed data.
+        # SMP_READ requests pairs, so only a final odd-byte request may be
+        # rounded up by one. Never silently consume surplus bytes from a
+        # malformed frame as if they belonged to a requested flash range.
+        if len(r) < 6:
+            raise SlotError(f"slot {k + 1}: short SMP_READ reply at {adr:#x}")
         got = unpack7(r[4:])
-        if r[0] != k or (r[1] | r[2] << 7 | r[3] << 14) != adr or not got:
+        # SMP_READ must use the canonical pack7 wire encoding. Unpack7 alone
+        # silently ignores orphan masks and unused high bits in a short group.
+        if pack7(got) != list(r[4:]):
+            raise SlotError(f"slot {k + 1}: noncanonical SMP_READ frame at {adr:#x}")
+        if (r[0] != k or any(not 0 <= b < 128 for b in r[:4])
+                or (r[1] | r[2] << 7 | r[3] << 14) != adr
+                or not got or len(got) > want + (want & 1)):
             raise SlotError(f"slot {k + 1}: bad SMP_READ reply at {adr:#x}")
         out += got[:n - len(out)]
         if progress:
@@ -186,19 +236,140 @@ def read_archive(b):
     if ver != ARCH_VERSION:
         raise SlotError(f"archive version {ver}, this tool reads {ARCH_VERSION}")
     meta = json.loads(b[16:16 + n].decode("ascii"))
+    slots = meta.get("slots") if isinstance(meta, dict) else None
+    if (not isinstance(slots, list) or type(meta.get("count")) is not int
+            or meta["count"] != len(slots)):
+        raise SlotError("archive slot count mismatch")
+    for k, e in enumerate(slots):
+        if not isinstance(e, dict) or type(e.get("slot")) is not int or e["slot"] != k + 1:
+            raise SlotError(f"archive slot {k + 1}: noncanonical slot number")
     base, images = 16 + n, []
-    for e in meta["slots"]:
+    if base > len(b) - 4:
+        raise SlotError("archive metadata exceeds file length")
+    used = 0
+    for e in slots:
+        if type(e.get("empty")) is not bool:
+            raise SlotError(f"slot {e['slot']}: invalid empty flag")
         if e["empty"]:
+            if any(k in e for k in ("offset", "length", "crc32")):
+                raise SlotError(f"slot {e['slot']}: empty slot has image data pointers")
             images.append(None)
             continue
-        img = b[base + e["offset"]:base + e["offset"] + e["length"]]
-        if len(img) != e["length"] or zlib.crc32(img) != e["crc32"]:
+        if (type(e.get("offset")) is not int or e["offset"] != used
+                or type(e.get("length")) is not int or e["length"] < DATA_OFF
+                or e["length"] > len(b) - 4 - base - used):
+            raise SlotError(f"slot {e['slot']}: noncanonical image offset or length")
+        img = b[base + used:base + used + e["length"]]
+        if zlib.crc32(img) != e["crc32"]:
             raise SlotError(f"slot {e['slot']}: image CRC mismatch")
         h = parse_header(img)
         if not h or zlib.crc32(img[DATA_OFF:]) != h["crc"] or len(img) != DATA_OFF + h["data_len"]:
             raise SlotError(f"slot {e['slot']}: the image is not a valid slot")
+        # Match smp_user_scan() before restore can erase the target slot.
+        for z in range(h["nz"]):
+            zone = 32 + z * 28
+            off, samples, _, _, rate_q16 = struct.unpack_from("<5I", img, zone)
+            if (off > h["data_len"] or (samples + 1) // 2 > h["data_len"] - off
+                    or img[zone + 24] > 88 or not 0 < rate_q16 <= (4 << 16)):
+                raise SlotError(f"slot {e['slot']}: invalid sample zone {z + 1}")
         images.append(img)
+        used += len(img)
+    if base + used != len(b) - 4:
+        raise SlotError("archive contains unreferenced sample data")
     return meta, images
+
+
+def _rename_backup_noreplace(staged, path):
+    """Atomically publish a validated backup without clobbering an existing path.
+
+    Some filesystems do not implement hard links.  Use only the native exclusive
+    rename operations; a check-then-rename or direct-write fallback could expose
+    a partial archive or overwrite a concurrently created backup.
+    """
+    import ctypes
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    if sys.platform.startswith("linux"):
+        fn = getattr(libc, "renameat2", None)
+        flags = 1  # Linux RENAME_NOREPLACE
+        at_fdcwd = -100
+    elif sys.platform == "darwin":
+        fn = getattr(libc, "renameatx_np", None)
+        flags = 4  # Darwin RENAME_EXCL
+        at_fdcwd = -2
+    else:
+        fn = None
+        flags = None
+        at_fdcwd = None
+    if fn is None:
+        raise SlotError("filesystem cannot atomically publish backup without hard links; "
+                        "choose a filesystem supporting exclusive rename or hard links")
+    fn.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int,
+                   ctypes.c_char_p, ctypes.c_uint]
+    fn.restype = ctypes.c_int
+    if fn(at_fdcwd, os.fsencode(staged), at_fdcwd, os.fsencode(path), flags) == 0:
+        return
+    code = ctypes.get_errno()
+    if code == errno.EEXIST:
+        raise FileExistsError(code, os.strerror(code), str(path))
+    if code in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.ENOSYS, errno.EINVAL):
+        raise SlotError("filesystem cannot atomically publish backup without hard links; "
+                        "save to a filesystem supporting exclusive rename or hard links")
+    raise OSError(code, os.strerror(code), str(path))
+
+
+def _publish_backup_noreplace(staged, path):
+    try:
+        os.link(staged, path)
+    except OSError as error:
+        # Unsupported syscall is NOT an authorization failure. Do not retry
+        # permission errors, destination collisions, or unrelated I/O errors.
+        if error.errno not in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.ENOSYS):
+            raise
+        _rename_backup_noreplace(staged, path)
+    else:
+        staged.unlink()
+
+
+def _sync_backup_directory(parent):
+    """Make the published sample-backup filename durable before any OTA starts."""
+    fd = os.open(parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def save_backup_archive(path, archive, *, replace=False):
+    """Stage, read back and fsync a backup before publishing it at the destination.
+
+    Never truncate the old archive if writing fails. For a new path, use
+    hard links or an exclusive atomic rename to prevent concurrent clobbering.
+    """
+    read_archive(archive)  # Reject corrupt source before any filesystem change.
+    staged = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="wb", prefix=f".{path.name}.", suffix=".tmp",
+                                         dir=path.parent, delete=False) as out:
+            staged = Path(out.name)
+            out.write(archive)
+            out.flush()
+            os.fsync(out.fileno())
+        if staged.read_bytes() != archive:
+            raise SlotError("temporary sample backup failed readback")
+        if replace:
+            os.replace(staged, path)
+        else:
+            _publish_backup_noreplace(staged, path)
+        staged = None
+        try:
+            _sync_backup_directory(path.parent)
+        except OSError as e:
+            raise SlotError(f"{path}: backup published, but directory sync failed; "
+                            f"durability unknown. Do not flash until a durable backup is verified ({e})") from e
+    finally:
+        if staged is not None:
+            staged.unlink(missing_ok=True)
 
 
 def backup(link, progress=None):
@@ -225,29 +396,44 @@ def plan_restore(lay, meta, images, only=None):
     return todo, skipped
 
 
+def _slot_ack(r, k, command, address=None):
+    """Reject stale/wrong-slot or truncated write acknowledgements before continuing.
+
+    The device echoes slot for ERASE, BEGIN and END (two bytes), and both
+    slot and 21-bit offset for WRITE (five bytes). The host transport matches
+    the command only, so a delayed response must not certify another write.
+    """
+    count = 5 if address is not None else 2
+    if (len(r) != count or r[0] != k or any(not 0 <= b < 128 for b in r) or
+            (address is not None and (r[1] | r[2] << 7 | r[3] << 14) != address)):
+        raise SlotError(f"slot {k + 1}: mismatched or malformed {command} acknowledgement")
+    return r[-1]
+
+
 def write_slot(link, k, img, progress=None):
     """erase slot k and write the image (None: erase only); raises SlotError on a device error"""
     if img is None:
         r = req(link, CMD_ERASE, [k], 30.0)
-        if r[1]:
+        if _slot_ack(r, k, "erase"):
             raise SlotError(f"slot {k + 1}: erase failed")
         return
     r = req(link, CMD_BEGIN, [k], 10.0)
-    if r[1]:
+    if _slot_ack(r, k, "begin"):
         raise SlotError(f"slot {k + 1}: begin (erase) failed")
     data = img[DATA_OFF:]
     for off in range(0, len(data), WRITE_LEN):
         adr = DATA_OFF + off
         args = [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F] + pack7(data[off:off + WRITE_LEN])
         r = req(link, CMD_WRITE, args)
-        if r[4]:
-            raise SlotError(f"slot {k + 1}: write at {adr:#x} failed ({r[4]})")
+        rc = _slot_ack(r, k, "write", adr)
+        if rc:
+            raise SlotError(f"slot {k + 1}: write at {adr:#x} failed ({rc})")
         if progress:
             progress(min(off + WRITE_LEN, len(data)), len(data))
     r = req(link, CMD_END, [k] + pack7(img[:HDR_LEN]), 5.0)
-    if r[1]:
-        raise SlotError(f"slot {k + 1}: the device refused the header ({r[1]}, {RC.get(r[1], '?')})")
-
+    rc = _slot_ack(r, k, "end")
+    if rc:
+        raise SlotError(f"slot {k + 1}: the device refused the header ({rc}, {RC.get(rc, '?')})")
 
 def restore(link, meta, images, only=None, verify=True, progress=None):
     """write the archive's slots back -> list of skipped-slot messages"""
@@ -255,9 +441,9 @@ def restore(link, meta, images, only=None, verify=True, progress=None):
     todo, skipped = plan_restore(lay, meta, images, only)
     for k, img in todo:
         write_slot(link, k, img, progress=(lambda d, n, k=k: progress(k, d, n)) if progress else None)
-    if verify:
-        after = layout(link)
-        for k, img in todo:
+        # Refuse a failed readback before erasing the next slot.
+        if verify:
+            after = layout(link)
             got = read_slot(link, k, after["slots"][k]["nz"])
             if got != img:
                 raise SlotError(f"slot {k + 1}: read back differs from the archive")
@@ -291,21 +477,41 @@ def at_risk(lay, old_map, new_map):
 
 
 def plan_migration(images, risk, old_map, new_lay, new_map):
-    """-> ([(old slot, new slot)], [skipped text]): each slot at risk goes back to the slot with its
-    number if it fits there, else to the first other slot that is empty, not a kept slot and large enough"""
+    """Maximize safe sample restoration without touching occupied or kept new slots.
+
+    Prefer the same slot number when possible, but allow reassignment so an early
+    small image cannot consume the only slot that fits a later large image.
+    """
     kept = {j for j, (o, _) in enumerate(new_map)
             for k, (ok_, _) in enumerate(old_map) if images[k] is not None and k not in risk and ok_ == o}
-    taken, todo, skipped = set(kept), [], []
+    choices = {}
     for k in risk:
-        img = images[k]
-        for j in ([k] if k < len(new_map) else []) + [j for j in range(len(new_map)) if j != k]:
-            if j in taken or len(img) > new_map[j][1] or new_lay["slots"][j]["nz"]:
+        order = ([k] if k < len(new_map) else []) + [j for j in range(len(new_map)) if j != k]
+        choices[k] = [j for j in order if j not in kept and not new_lay["slots"][j]["nz"]
+                      and len(images[k]) <= new_map[j][1]]
+
+    # Most-constrained images first, then the larger ones. If the preferred
+    # destination is in use, recursively move its occupant to another safe slot.
+    # This finds a maximum-cardinality matching, unlike first-fit placement.
+    assigned = {}  # destination slot -> original image index
+
+    def place(k, seen):
+        for j in choices[k]:
+            if j in seen:
                 continue
-            todo.append((k, j))
-            taken.add(j)
-            break
-        else:
-            skipped.append(f"slot {k + 1} ({len(img)} B): no free slot of that size on the new firmware")
+            seen.add(j)
+            if j not in assigned or place(assigned[j], seen):
+                assigned[j] = k
+                return True
+        return False
+
+    for k in sorted(risk, key=lambda k: (len(choices[k]), -len(images[k]), k)):
+        place(k, set())
+
+    destinations = {k: j for j, k in assigned.items()}
+    todo = [(k, destinations[k]) for k in risk if k in destinations]
+    skipped = [f"slot {k + 1} ({len(images[k])} B): no free slot of that size on the new firmware"
+               for k in risk if k not in destinations]
     return todo, skipped
 
 
@@ -313,8 +519,8 @@ def restore_mapped(link, todo, images, progress=None):
     """write images[old] into new slot j for each (old, j); then read each back and compare (SlotError)"""
     for k, j in todo:
         write_slot(link, j, images[k], progress=(lambda d, n, j=j: progress(j, d, n)) if progress else None)
-    after = layout(link)
-    for k, j in todo:
+        # Stop migration at the first mismatch; later target slots remain untouched.
+        after = layout(link)
         if read_slot(link, j, after["slots"][j]["nz"]) != images[k]:
             raise SlotError(f"slot {j + 1}: read back differs from the backup of slot {k + 1}")
 
@@ -361,7 +567,7 @@ def main(argv):
         link = up.Link()
         lay, images = backup(link, _bar)
         b = make_archive(lay, images)
-        path.write_bytes(b)
+        save_backup_archive(path, b, replace="--force" in rest)
         print(f"\n{path}: {len(b)} B\n" + describe(read_archive(b)[0]))
         return
     meta, images = read_archive(path.read_bytes())

@@ -1,0 +1,107 @@
+{
+  "schema": "loopyx0x37.data-safety.restore-max-matching.v1",
+  "evidence_revision": "data-safety-restore-max-matching-20261024-0715-v1",
+  "owner": "LoopyX0X37 Data Safety",
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_REVIEW_READY",
+  "consumed": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "full_head": "94c093e01680d69e22b64a176b3dc27b7fffdd7f",
+    "full_root": "c95bf58439d4b5fc3a438dc91cbebc97f7ecae2b",
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "source_blob": "2d62f8aa3ab5615fc2680b7a9de858e895ed81f6"
+  },
+  "produced": {
+    "branch": "lane/data-safety-restore-max-matching-20261024-0715",
+    "source_blob": "78b041ab3e0c736517dbf2f509c9776c7c632f10",
+    "test_blob": "f02aab647564ee96e70c45ed6bafb31471255e2a",
+    "original_function_bytes": 943,
+    "corrected_function_bytes": 1729,
+    "original_function_fnv1a64": "ab4138f9a779a35b",
+    "corrected_function_fnv1a64": "d53582c532f45edc",
+    "firmware_compiled_subtree_unchanged": "d3b67bf127121acdbb2d056890b8c6987ffb363e"
+  },
+  "finding": "First-fit mapping may skip a restorable sample image after OTA even when a full size-compatible placement exists. No device loss observed.",
+  "tests_environment": "Linux x86_64, Python 3, PR71 complete Python fixture with 943-byte plan_migration window matched byte-for-byte to consumed PR103 Git blob; not a complete PR103 checkout",
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "x0x_slots_migration_matching_test.py",
+        "x0x_slots_full_source_before.py"
+      ],
+      "exit": 1,
+      "expected": "FAIL_BEFORE",
+      "tests": 9,
+      "failures": 4,
+      "log_sha256": "f8dd429fa0a44de74847e25cda0ece030bf95babfec370af2302e6836bc53aee"
+    },
+    {
+      "argv": [
+        "python3",
+        "x0x_slots_migration_matching_test.py",
+        "x0x_slots_full_source_after.py"
+      ],
+      "exit": 0,
+      "status": "PRODUCER_SCOPED_PASS",
+      "passed": 9,
+      "total": 9,
+      "log_sha256": "b50bf60e9dc71fcd1e22b26f26ec572ebe510f35edeb9476ec0a94fb96c4ab89"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "x0x_slots_migration_matching_test.py",
+        "x0x_slots_full_source_after.py"
+      ],
+      "exit": 0,
+      "status": "PRODUCER_SCOPED_PASS",
+      "passed": 9,
+      "total": 9,
+      "log_sha256": "b50bf60e9dc71fcd1e22b26f26ec572ebe510f35edeb9476ec0a94fb96c4ab89"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "plan_migration.after.py",
+        "x0x_slots_migration_matching_test.py"
+      ],
+      "exit": 0,
+      "status": "SYNTAX_PASS"
+    }
+  ],
+  "coverage": "9 host cases incl 250 deterministic brute-force optimal cardinality property trials, kept/occupied/wrong-size/no-dest safety",
+  "not_run": [
+    "exact-remote-root full Python regression suite",
+    "independent full-root QA",
+    "Elite/Pro/controller exact build or attested reuse",
+    "owner hardware test",
+    "immutable artifact HTTP and lawful publication"
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Review exact produced root and execute full source sample restore/OTA negative suite; qualify only on independently verified behavior"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY exact source now; verify unchanged firmware subtree and complete compiler input equivalence per model/controller"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Reconcile ready stacked source into candidate PR103 only through authorized review/integration workflow"
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Preserve known-safe downloads; hold new NIGHTLY installability until independent source/backup/model/controller/license/hash/HTTP gates complete"
+    }
+  ],
+  "nightly_publication": "NO_NEW_INSTALLABLE_CANDIDATE",
+  "hardware": "UNKNOWN_DEVICE_NOT_TESTED",
+  "protected_refs": "UNCHANGED",
+  "owner_feedback": "NONE_ATTRIBUTABLE_THIS_RUN"
+}

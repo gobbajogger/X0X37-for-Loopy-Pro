@@ -117,6 +117,11 @@ void tb3po_mutate(bpart_t *b, uint32_t *rng)
     const scale_t *sc = &SCALES[g->scale < TB3PO_NSCALES ? g->scale : 0];
     int range = clampi(g->oct_range, 1, 3), len = clampi(b->len, 1, NSTEPS), i;
     uint32_t r = *rng ? *rng : (g->seed ? g->seed : 1);
+    int had_gate = 0, any_gate = 0;
+    for (i = 0; i < len; i++) {
+        if (bstep_gate(&b->step[i]) != G_REST)
+            had_gate = 1;
+    }
     for (i = 0; i < len; i++) {
         if (rng_f(&r) >= 0.25f)
             continue;
@@ -134,6 +139,15 @@ void tb3po_mutate(bpart_t *b, uint32_t *rng)
         int nx = (i + 1) % len;
         if ((b->step[i].flags & BS_SLIDE) && bstep_gate(&b->step[nx]) == G_REST)
             b->step[i].flags = G_NOTE;
+        if (bstep_gate(&b->step[i]) != G_REST)
+            any_gate = 1;
+    }
+    /* Preserve the generator's audible anchor when mutations remove the last note.
+     * Leave intentionally cleared (all-rest) user patterns untouched. */
+    if (had_gate && !any_gate) {
+        b->step[0].note = note_of(g, 0, 0);
+        b->step[0].flags = G_NOTE;
+        b->step[0].velocity = 0;
     }
     *rng = r;
 }

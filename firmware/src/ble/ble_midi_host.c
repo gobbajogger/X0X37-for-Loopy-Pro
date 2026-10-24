@@ -49,22 +49,25 @@ static int tmatch(unsigned hd, const uint8_t *t, unsigned tl)
 }
 
 /* ---- HCI out ---- */
-static void cmd(bleh_t *h, unsigned op, const uint8_t *p, unsigned n)
+/* The core-to-controller mailbox can refuse an HCI frame while full.  Never
+ * wait for a command-complete event for a command that was not enqueued. */
+static int cmd(bleh_t *h, unsigned op, const uint8_t *p, unsigned n)
 {
     uint8_t b[3 + 32];
     unsigned i;
     wr16(b, op);
     b[2] = (uint8_t)n;
     for (i = 0; i < n; i++) b[3 + i] = p[i];
+    if (h->send(BLEH_H4_CMD, b, (uint16_t)(3 + n), h->ctx) != 0) return 0;
     h->cmd_op = (uint16_t)op;
     h->cmd_wait = 1;
-    h->send(BLEH_H4_CMD, b, (uint16_t)(3 + n), h->ctx);
+    return 1;
 }
 static void adv_enable(bleh_t *h, unsigned on)
 {
     uint8_t e = (uint8_t)on;
-    h->want_adv = (uint8_t)on;                      /* (want_adv: what the controller was last told) */
-    cmd(h, OP_ADV_EN, &e, 1);
+    if (cmd(h, OP_ADV_EN, &e, 1))
+        h->want_adv = (uint8_t)on;                  /* what the controller was last told */
 }
 static void next_cmd(bleh_t *h)
 {
@@ -109,25 +112,37 @@ static void next_cmd(bleh_t *h)
 }
 
 /* ---- L2CAP out (one PDU, no fragmentation: everything here fits the 27-byte LE buffer) ---- */
-static void l2cap_send(bleh_t *h, unsigned cid, const uint8_t *d, unsigned n)
+static int l2cap_send(bleh_t *h, unsigned cid, const uint8_t *d, unsigned n)
 {
     uint8_t b[8 + BLEH_MTU];
     unsigned i;
-    if (n > BLEH_MTU) return;
+    int rc;
+    if (n > BLEH_MTU || !h->credits) return -1;
     wr16(b, h->conn & 0x0FFFu);                     /* PB = 0: first packet, host to controller */
     wr16(b + 2, 4 + n);
     wr16(b + 4, n);                                 /* L2CAP length, then the channel */
     wr16(b + 6, cid);
     for (i = 0; i < n; i++) b[8 + i] = d[i];
-    if (h->credits) h->credits--;
-    h->send(BLEH_H4_ACL, b, (uint16_t)(8 + n), h->ctx);
+    rc = h->send(BLEH_H4_ACL, b, (uint16_t)(8 + n), h->ctx);
+    if (rc == 0 && h->credits) h->credits--;         /* rejected mailbox write consumed no ACL buffer */
+    return rc;
 }
-static void att_send(bleh_t *h, const uint8_t *att, unsigned n) { l2cap_send(h, CID_ATT, att, n); }
+static int att_send(bleh_t *h, const uint8_t *att, unsigned n) { return l2cap_send(h, CID_ATT, att, n); }
+/* A full mailbox must not silently discard an ATT request response. Neither
+ * CCCD nor MTU replies may depend on notifications having been enabled. */
+static void att_reply(bleh_t *h, const uint8_t *p, unsigned n)
+{
+    unsigned i;
+    if (n > BLEH_MTU || h->att_rsp_len) return;
+    if (h->credits && att_send(h, p, n) == 0) return;
+    for (i = 0; i < n; i++) h->att_rsp[i] = p[i];
+    h->att_rsp_len = (uint8_t)n;
+}
 static void att_err(bleh_t *h, unsigned op, unsigned hd, unsigned code)
 {
     uint8_t r[5] = {A_ERR, (uint8_t)op, 0, 0, (uint8_t)code};
     wr16(r + 2, hd);
-    att_send(h, r, 5);
+    att_reply(h, r, 5);
 }
 
 /* ---- MIDI in: a BLE-MIDI packet written by the central ----
@@ -259,13 +274,14 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
         if (n >= 4 && rd16(p + 1) == H_MIDI) midi_write(h, p + 3, n - 3);
         return;
     }
+    if (h->att_rsp_len) return; /* preserve first pending response until delivered */
     if (op & 0x40u) return;
     switch (op) {
     case A_MTU:
         if (n != 3) { att_err(h, op, 0, E_PDU); return; }
         h->mtu_req = (uint16_t)rd16(p + 1);
         r[0] = A_MTU_R; wr16(r + 1, BLEH_MTU);
-        att_send(h, r, 3);
+        att_reply(h, r, 3);
         return;
     case A_INFO:
     case A_GROUP:
@@ -295,7 +311,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             for (k = 0; k < ATTR[hd - 1].tlen; k++) r[len + 2 + k] = ATTR[hd - 1].type[k];
             len += el;
         }
-        if (!fmt) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!fmt) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_GROUP) {
         unsigned len = 2, el = 0;
         if (n != 7 || rd16(p + 5) != 0x2800) { att_err(h, op, s, E_GROUP); return; }
@@ -311,7 +327,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             for (k = 0; k < vl; k++) r[len + 4 + k] = v[k];
             len += el;
         }
-        if (!el) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!el) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_FVAL) {
         unsigned len = 1, found = 0;
         if (n < 7 || rd16(p + 5) != 0x2800) { att_err(h, op, s, E_NOTFOUND); return; }
@@ -325,7 +341,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             wr16(r + len, hd); wr16(r + len + 2, group_end(hd));
             len += 4; found = 1;
         }
-        if (!found) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!found) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_RTYPE) {
         unsigned len = 2, el = 0, tl = n - 5;
         if (tl != 2 && tl != 16) { att_err(h, op, s, E_PDU); return; }
@@ -342,7 +358,7 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
             for (k = 0; k < vl; k++) r[len + 2 + k] = v[k];
             len += el;
         }
-        if (!el) att_err(h, op, s, E_NOTFOUND); else att_send(h, r, len);
+        if (!el) att_err(h, op, s, E_NOTFOUND); else att_reply(h, r, len);
     } else if (op == A_READ) {
         const uint8_t *v;
         unsigned vl;
@@ -351,14 +367,14 @@ static void att_in(bleh_t *h, const uint8_t *p, unsigned n)
         if (vl > BLEH_MTU - 1) vl = BLEH_MTU - 1;
         r[0] = A_READ_R;
         for (k = 0; k < vl; k++) r[1 + k] = v[k];
-        att_send(h, r, 1 + vl);
+        att_reply(h, r, 1 + vl);
     } else {                                        /* A_WRITE */
         if (s != H_CCCD) { att_err(h, op, s, s >= 1 && s <= H_LAST ? E_WRITE : E_HANDLE); return; }
         rl = n - 3;
         if (rl != 2) { att_err(h, op, s, E_PDU); return; }
         h->cccd[0] = p[3] & 1u; h->cccd[1] = 0;     /* notifications only */
         r[0] = A_WRITE_R;
-        att_send(h, r, 1);
+        att_reply(h, r, 1);
     }
 }
 
@@ -370,12 +386,13 @@ static void acl_in(bleh_t *h, const uint8_t *p, unsigned n)
     hd = rd16(p); pb = (hd >> 12) & 3u; dl = rd16(p + 2);
     if ((hd & 0x0FFFu) != h->conn || dl > n - 4) return;
     p += 4;
-    if (pb == 2) {                                  /* start */
+    if (pb != 1u) {                                /* PB 0/2: first, PB 3: complete PDU */
         unsigned ll, cid;
         h->rx_on = 0;
         if (dl < 4) return;
         ll = rd16(p); cid = rd16(p + 2);
-        if (ll > BLEH_MTU || (cid != CID_ATT && cid != CID_SIG && cid != CID_SMP)) return;
+        if (ll > BLEH_MTU || (cid != CID_ATT && cid != CID_SIG && cid != CID_SMP) ||
+            (pb == 3u && dl != ll + 4u)) return;  /* complete PDU cannot be fragmented */
         h->rx_need = (uint8_t)(ll + 4); h->rx_have = 0; h->rx_on = 1; h->rx_cid = (uint16_t)cid;
     } else if (pb != 1 || !h->rx_on) {
         return;
@@ -397,6 +414,11 @@ static void acl_in(bleh_t *h, const uint8_t *p, unsigned n)
 static void link_reset(bleh_t *h)
 {
     h->cccd[0] = h->cccd[1] = 0;
+    h->att_rsp_len = 0;
+    /* A new accepted BLE link starts a fresh MIDI epoch, even when the old
+     * disconnect event was lost. Never replay old Note Off or SysEx. */
+    h->q_r = h->q_w;
+    h->sx_on = h->sx_len = h->sx_pos = 0;
     h->cpu_state = 0;
     h->rx_on = 0;
     h->in_r = h->in_w = h->in_running = 0;
@@ -421,7 +443,12 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
         if (++h->step == ST_DONE) { h->state = BLEH_ADVERTISING; h->want_adv = 0; return; }
         next_cmd(h);
     } else if (code == 0x0F && pl >= 4) {           /* command status (disconnect): status, credits, opcode */
-        if (h->cmd_wait && rd16(p + 2) == h->cmd_op) h->cmd_wait = 0;
+        if (h->cmd_wait && rd16(p + 2) == h->cmd_op) {
+            h->cmd_wait = 0;
+            /* Command Status failure means Disconnect was never accepted. Retry
+             * radio-off on the next ordinary poll, without dropping MIDI. */
+            if (p[0] != 0 && h->cmd_op == OP_DISC) h->cmd_op = 0;
+        }
     } else if (code == 0x3E && pl >= 5 && (p[0] == 0x01 || p[0] == 0x0A)) {     /* (enhanced) connection complete */
         h->want_adv = 0;                            /* the controller stops advertising either way */
         if (p[1] == 0 && p[4] == 1) {               /* success, we are the peripheral */
@@ -436,6 +463,17 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
         h->conn_int = (uint16_t)rd16(p + 4);
         h->conn_lat = (uint16_t)rd16(p + 6);
     } else if (code == 0x05 && pl >= 4) {           /* disconnection complete */
+        /* A failed HCI disconnection is NOT a link-down notification. A live
+         * Note Off/SysEx outbox must survive it. Allow radio-off to retry an
+         * unsuccessful matching Disconnect command instead of parking it. */
+        if (p[0] != 0) {
+            if (h->state == BLEH_CONNECTED && h->cmd_op == OP_DISC &&
+                (rd16(p + 1) & 0x0FFFu) == h->conn) {
+                h->cmd_wait = 0;
+                h->cmd_op = 0;
+            }
+            return;
+        }
         h->disc_reason = p[3];                      /* attempt 34 (DIAG) */
         if (h->state == BLEH_CONNECTED && (rd16(p + 1) & 0x0FFFu) == h->conn) {
             h->state = BLEH_ADVERTISING;
@@ -446,12 +484,12 @@ static void evt_in(bleh_t *h, const uint8_t *p, unsigned n)
         } else if (h->state == BLEH_ADVERTISING) {
             h->want_adv = 0;                        /* attempt 28: a link the host did not see ended: advertise again */
         }
-    } else if (code == 0x13 && pl >= 1) {           /* number of completed packets: all handles, then all counts */
+    } else if (code == 0x13 && pl >= 1) {           /* HCI handle/completion pairs, four bytes each */
         unsigned i, c = p[0];
         if (pl < 1 + 4 * c) return;
         for (i = 0; i < c; i++)
-            if ((rd16(p + 1 + 2 * i) & 0x0FFFu) == h->conn) {
-                unsigned k = (unsigned)h->credits + rd16(p + 1 + 2 * c + 2 * i);
+            if ((rd16(p + 1 + 4 * i) & 0x0FFFu) == h->conn) {
+                unsigned k = (unsigned)h->credits + rd16(p + 3 + 4 * i);
                 h->credits = (uint8_t)(k > h->acl_total ? h->acl_total : k);
             }
     }
@@ -503,7 +541,9 @@ int bleh_midi_send(bleh_t *h, const uint8_t *m, uint8_t len, uint16_t ts)
 int bleh_sysex_send(bleh_t *h, const uint8_t *m, uint32_t len, uint16_t ts)
 {
     uint32_t i;
-    if (len < 2 || m[0] != 0xF0 || m[len - 1] != 0xF7 || len - 2 > BLEH_SYSEX_MAX) return -1;
+    /* Check the advertised length before dereferencing the caller's tail. */
+    if (!m || len < 2u || len - 2u > BLEH_SYSEX_MAX ||
+        m[0] != 0xF0u || m[len - 1u] != 0xF7u) return -1;
     for (i = 1; i + 1 < len; i++) if (m[i] & 0x80u) return -1;
     if (h->sx_on) return -2;
     for (i = 0; i + 2 < len; i++) h->sx[i] = m[i + 1];
@@ -544,14 +584,19 @@ int bleh_conn_update(bleh_t *h, uint16_t min, uint16_t max, uint16_t lat, uint16
     uint8_t r[12] = {0x12, 0x31, 8, 0};
     if (h->state != BLEH_CONNECTED || h->cpu_state) return 0;
     wr16(r + 4, min); wr16(r + 6, max); wr16(r + 8, lat); wr16(r + 10, to);
+    if (l2cap_send(h, CID_SIG, r, 12) != 0) return 0;
     h->cpu_state = 1; h->cpu_result = 0;
-    l2cap_send(h, CID_SIG, r, 12);
     return 1;
 }
 void bleh_poll(bleh_t *h)
 {
     uint8_t r[BLEH_MTU];
     unsigned len = 4, hi, last = 0;
+    uint8_t qr;
+    if (h->state == BLEH_STARTING && !h->cmd_wait) {
+        next_cmd(h);                               /* retry rejected startup HCI command once per poll */
+        return;
+    }
     if (h->state == BLEH_CONNECTED && h->radio_off && !h->cmd_wait && h->cmd_op != OP_DISC) {
         uint8_t d[3];
         wr16(d, h->conn); d[2] = 0x13;              /* remote user terminated connection */
@@ -564,18 +609,29 @@ void bleh_poll(bleh_t *h)
     }
     if (h->state != BLEH_CONNECTED && h->cmd_op == OP_DISC && !h->cmd_wait)
         h->cmd_op = 0;
+    if (h->state == BLEH_CONNECTED && h->att_rsp_len) {
+        if (h->credits && att_send(h, h->att_rsp, h->att_rsp_len) == 0)
+            h->att_rsp_len = 0;
+        return;
+    }
     if (!bleh_notifying(h)) return;
     if (h->credits < (h->acl_total > 1 ? 2u : 1u)) return;                  /* keep one buffer for ATT answers */
     r[0] = A_NOTIFY; wr16(r + 1, H_MIDI);
     if (h->sx_on) {
-        att_send(h, r, sysex_packet(h, r));
+        uint8_t pos = h->sx_pos, on = h->sx_on;
+        unsigned n = sysex_packet(h, r);
+        if (att_send(h, r, n) != 0) {
+            h->sx_pos = pos;                        /* restore unsent SysEx frame for next poll */
+            h->sx_on = on;
+        }
         return;
     }
     if (h->q_r == h->q_w) return;
-    hi = (h->q[h->q_r % BLEH_MIDIQ].ts >> 7) & 0x3Fu;
+    qr = h->q_r;
+    hi = (h->q[qr % BLEH_MIDIQ].ts >> 7) & 0x3Fu;
     r[3] = (uint8_t)(0x80u | hi);                   /* header: timestamp high */
-    while (h->q_r != h->q_w) {
-        const bleh_msg_t *q = &h->q[h->q_r % BLEH_MIDIQ];
+    while (qr != h->q_w) {
+        const bleh_msg_t *q = &h->q[qr % BLEH_MIDIQ];
         unsigned i = 0, run = h->tx_running && q->b[0] < 0xF0u && q->b[0] == last;
         if (((q->ts >> 7) & 0x3Fu) != hi || len + 1 + q->len - run > BLEH_MTU) break;
         r[len++] = (uint8_t)(0x80u | (q->ts & 0x7Fu));              /* timestamp low, then the message */
@@ -583,7 +639,8 @@ void bleh_poll(bleh_t *h)
         for (; i < q->len; i++) r[len++] = q->b[i];
         if (q->b[0] < 0xF0u) last = q->b[0];
         else if (q->b[0] < 0xF8u) last = 0;         /* system common ends running status */
-        h->q_r++;
+        qr++;
     }
-    att_send(h, r, len);
+    if (att_send(h, r, len) == 0)
+        h->q_r = qr;                                /* only dequeue MIDI accepted into the mailbox */
 }

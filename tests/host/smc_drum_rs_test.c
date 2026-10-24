@@ -266,8 +266,13 @@ static void banks_and_owners(void)
         CHECK(ui.sel[kit] == 0 && smc_target(7).b == 7);
         ui.help = 1;
         tap(0);
-        CHECK(!ui.rec && ui.sel[kit] == 0);
-        ui.help = 0; ui.overlay = O_ASK;
+        /* SMC-02: help is a card, not an input owner. REC still toggles. */
+        CHECK(ui.help && ui.rec && ui.sel[kit] == 0);
+        tap(0);
+        CHECK(ui.help && !ui.rec && ui.sel[kit] == 0);
+        tap(6);                       /* R7 alone closes the help card. */
+        CHECK(!ui.help && !ui.rec && ui.sel[kit] == 0);
+        ui.overlay = O_ASK;
         tap(0);
         CHECK(!ui.rec && ui.sel[kit] == 0);
     }
@@ -356,7 +361,8 @@ static void cleanup(void)
             smc_project_reset();
         }
         poll();
-        CHECK(!smc_project_active());
+        /* Help keeps live controls/Solo; the other owners clear it. */
+        CHECK(kind == 2 ? smc_project_active() : !smc_project_active());
         CHECK(kind == 4 || (seq.mute == 0x80u && seq.vmute == 0x400u));
         if (kind == 4) {
             button_tap(B_HOME);

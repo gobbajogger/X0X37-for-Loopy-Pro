@@ -76,12 +76,21 @@ def main():
     ctl = make_ctl()
     # the image checks
     ok(add_ctl.ctl_problem(ctl) is None, "a good image passes")
+    ok(add_ctl.ctl_problem(ctl + b"\xff" * 44) is None, "erased controller tail is permitted")
+    for suffix in (b"\x00", b"\x80", b"\xff\x00", b"\x00" * 44):
+        ok(add_ctl.ctl_problem(ctl + suffix) is not None, "non-erased controller tail refused")
     for what, bad in (("CRC", make_ctl(badcrc=True)), ("ABI", make_ctl(abi=1)), ("init", make_ctl(init=0x02000000)),
                       ("RAM", make_ctl(rhi=0x01C08000)), ("TIMER5", make_ctl(ihi=1 << 31)), ("ALNK0", make_ctl(ilo=1 << 11)),
                       ("magic", b"\xFF" * 100), ("big", make_ctl(size=0x10001)), ("short", b"X0BC")):
         ok(add_ctl.ctl_problem(bad) is not None, f"refused: {what}")
     # in, and out again
     out = add_ctl.add(raw, ctl)
+    ok(add_ctl.add(raw, ctl + b"\xff" * 44) == out, "erased padding does not change package bytes")
+    try:
+        add_ctl.add(raw, ctl + b"\x00")
+        ok(False, "non-erased controller tail rejected before package write")
+    except add_ctl.PkgError:
+        pass
     ok(len(out) == len(raw), "same length")
     product, logical = add_ctl.logical_of(out)
     ok(product.startswith("SMK-37 "), "identity kept")
@@ -157,7 +166,8 @@ def main():
             (td / "old.fwsc").write_bytes(old_fwsc)
             (td / "map.fwsc").write_bytes(add_ctl.fwsc_of(with_map, product))
             (td / "ctl.img").write_bytes(ctl)
-            bads = {"crc": make_ctl(badcrc=True), "irq": make_ctl(ihi=1 << 31), "ram": make_ctl(rlo=0x01C00000)}
+            bads = {"crc": make_ctl(badcrc=True), "irq": make_ctl(ihi=1 << 31), "ram": make_ctl(rlo=0x01C00000),
+                    "tail": ctl + b"\x00", "tail_after_erase": ctl + b"\xff\x00"}
             for k, v in bads.items():
                 (td / f"bad_{k}.img").write_bytes(v)
             js = f"""
@@ -168,7 +178,7 @@ const pkg = new Uint8Array(readFileSync(d + "/pkg.fwsc")), ctl = new Uint8Array(
 writeFileSync(d + "/js_with.bin", insertCtl(logicalImage(pkg), ctl));
 writeFileSync(d + "/js_without.bin", insertCtl(insertCtl(logicalImage(pkg), ctl), null));
 const v = {{ good: ctlProblem(ctl) }};
-for (const k of ["crc", "irq", "ram"]) v[k] = ctlProblem(new Uint8Array(readFileSync(d + "/bad_" + k + ".img")));
+for (const k of ["crc", "irq", "ram", "tail", "tail_after_erase"]) v[k] = ctlProblem(new Uint8Array(readFileSync(d + "/bad_" + k + ".img")));
 for (const k of ["old", "map"]) {{
   try {{ writeFileSync(d + "/js_" + k + ".bin", insertCtl(logicalImage(new Uint8Array(readFileSync(d + "/" + k + ".fwsc"))), ctl)); v[k] = null; }}
   catch (e) {{ v[k] = e.message; }}
@@ -183,7 +193,7 @@ writeFileSync(d + "/js.json", JSON.stringify(v));
                 ok((td / "js_with.bin").read_bytes() == add_ctl.insert(logical0, ctl), "JS insertCtl = Python insert")
                 ok((td / "js_without.bin").read_bytes() == bytes(logical0), "JS remove = the original")
                 v = json.loads((td / "js.json").read_text())
-                ok(v["good"] is None and all(v[k] for k in ("crc", "irq", "ram")), f"JS ctlProblem verdicts {v}")
+                ok(v["good"] is None and all(v[k] for k in ("crc", "irq", "ram", "tail", "tail_after_erase")), f"JS ctlProblem verdicts {v}")
                 ok(v["old"] == v["noblock"] == add_ctl.NO_BLOCK, f"JS insertCtl refuses code in the block: {v['old']}")
                 ok(v["map"] is None and (td / "js_map.bin").read_bytes() == add_ctl.insert(with_map, ctl),
                    "JS insertCtl with the slot map record = Python insert")

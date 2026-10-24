@@ -49,9 +49,9 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-targets|installer-slots|slot-backup|upload-tools|\
-    breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
-    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
+    installer|installer-targets|installer-slots|installer-restore-status|slot-backup|slot-backup-durable|slot-archive-zone|slot-verify-order|slot-read-reply|slot-ack-integrity|slot-echo-7bit|ctl-publish-atomic|upload-tools|\
+    breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
+    smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
     drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
@@ -161,6 +161,7 @@ seq_test() {
     $OUT/seq_test
 }
 run sequencer seq_test
+run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 live-length shrink never emits disabled steps
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
@@ -180,9 +181,21 @@ run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_proto
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
+run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
+run smc-host-data7 python3 tests/host/smc_host_data7_test.py
+run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py
+run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
+run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
+run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # prevent stale central MIDI after BLE reconnect
+run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
 run ble-midi-receive sh tests/host/ble_midi_receive_test.sh
 run ble-capture-replay python3 tests/host/ble_capture_replay_test.py
+run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
+run ble-hci-completed sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_hci_completed_packets_test tests/host/ble_hci_completed_packets_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_hci_completed_packets_test"
+run ble-acl-zero-credit sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_zero_credit_test tests/host/ble_acl_zero_credit_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_zero_credit_test"
+run ble-link-epoch-reset sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_link_epoch_reset_test tests/host/ble_link_epoch_reset_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_link_epoch_reset_test"
+run ble-disconnect-status sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_disconnect_status_test tests/host/ble_disconnect_status_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_disconnect_status_test"
 run smc-reachability sh tests/host/smc_reachability_test.sh
 run smc-mapping python3 tests/host/smc_mapping_test.py
 run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh
@@ -284,6 +297,7 @@ fi
 [ -f build/x0x-smk37-mke.fwsc ] && run smk-build-package-mke python3 tests/smk_pkg_test.py build/x0x-smk37-mke.fwsc "MKE-P37_900"
 # SMK-37 Bluetooth MIDI: the HCI mailbox, the BLE-MIDI host, the image check, the park handshake (tests/ble_test.c);
 # the controller image in a package, Python and JavaScript (tests/ble_pkg_test.py, needs the SMK build)
+run ble-sysex-bounds sh -c "$CC -std=c11 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/ble_sysex_bounds_test tests/host/ble_sysex_bounds_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_sysex_bounds_test"
 run ble sh -c "$CC $W -Ifirmware/hal -Ifirmware/src/ble -o $OUT/ble_test tests/ble_test.c -lpthread && $OUT/ble_test"
 [ -f build/x0x-smk37.fwsc ] && run ble-package python3 tests/ble_pkg_test.py
 run upload-images sh -c "python3 tests/host/make_test_loops.py build/test_loops && \
@@ -297,8 +311,20 @@ command -v node >/dev/null 2>&1 && run projects-web node web/test_projects.mjs  
 command -v node >/dev/null 2>&1 && run projects-page node web/test_projects_page.mjs   # actual project page handlers against a mocked device
 command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_slots.mjs   # the installer keeps the slots over a slot map change
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device
+run slot-backup-durable python3 tests/x0x_slots_durable_backup_test.py   # directory fsync before OTA
+run slot-archive-zone python3 tests/x0x_slots_zone_guard_test.py   # CRC-valid malformed slot zones fail before flash writes
+run slot-verify-order python3 tests/x0x_slots_verify_order_test.py   # fail closed before a later slot write
+run slot-read-reply python3 tests/x0x_slots_read_reply_test.py   # malformed/noncanonical SMP_READ backup framing
+run slot-ack-integrity python3 tests/x0x_slots_ack_integrity_test.py   # refuse stale or malformed SMP_WRITE/BEGIN/END/ERASE ACKs
+run slot-echo-7bit python3 tests/x0x_slots_echo_7bit_test.py   # refuse aliased non-7-bit sample-slot read/write echoes
+run slot-migration-matching python3 tests/x0x_slots_migration_matching_test.py   # safe maximum matching for pre-OTA slot backup restoration
 run installer-slots python3 tests/install_slots_test.py   # fm1_install.py: backup, install, restore over a slot map change
+run installer-restore-status python3 tests/fm1_install_restore_status_test.py   # installed-but-unrestored slots are never a successful install
+run installer-ota-finish-ack python3 tests/fm1_install_finish_ack_test.py   # failed FINISH_CHECK/WRITE reply is not completion
+run installer-backup-snapshot python3 tests/fm1_install_backup_snapshot_test.py   # refresh migration plan after verified SMP_INFO backup
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
+run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC
+run ctl-publish-atomic python3 tests/add_ctl_atomic_test.py   # atomic controller-package publication and failure handling
 # live recording on the whole app (host/x0x_host.c without its script main; needs build/gen from host-build)
 run rec-live sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen \
     -o $OUT/rec_live_test tests/host/rec_live_test.c firmware/src/dsp/drum909.c firmware/src/dsp/drum808.c \

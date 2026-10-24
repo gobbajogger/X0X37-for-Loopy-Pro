@@ -1,0 +1,79 @@
+{
+  "schema": "LoopyX0X37.SafeMerge.ExactSourceFixtureRepair.v1",
+  "evidence_revision": "safe-merge-pr103-r17-smp-info-fixture-source-handoff-20261024-r1",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner_role": "sole firmware NIGHTLY Safe Merge",
+  "pr": 103,
+  "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "consumed": {
+    "source_head": "2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7",
+    "root_tree": "a44bcbda32e831609faab3fbf9b361a8dc45e24e",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "installer_blob": "7e383aed118ff2ee9791b7792a1774b09c3921eb",
+    "test_before_blob": "f67b5923e4f676b3221c89ed994b2c613565a22c"
+  },
+  "changed": {
+    "path": "tests/install_test.py",
+    "old_blob": "f67b5923e4f676b3221c89ed994b2c613565a22c",
+    "new_blob": "a2d9a983c9d59d2abe17bb27ad293b3298bfe8df",
+    "mode": "100755",
+    "old_lines": 320,
+    "new_lines": 334
+  },
+  "reason": "Earlier FakeSMK never answered current fail-closed installer SMP_INFO preflight. Update test-only mock to respond with canonical two empty legacy slots and add negative no-SMP_INFO / truncated-SMP_INFO checks proving no UPGRADE was requested.",
+  "checks": [
+    {
+      "command": "GitHub get_pr_info(103) + fetch_file(tests/install_test.py, HEAD) + Git trees",
+      "exit": 0,
+      "result": "exact HEAD, Git tree, source blob and executable mode identity matched"
+    },
+    {
+      "command": "Authenticated exact-source JavaScript unique-occurrence patch assertions and SMP_INFO two-empty-slot tuple descriptor verification",
+      "exit": 0,
+      "result": "four unique replacements, 14 added source lines; correct synthetic empty-slot descriptor; fail-closed negative cases present"
+    },
+    {
+      "command": "git ls-remote --heads https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git nightly",
+      "exit": 128,
+      "result": "local Linux x86_64 cannot resolve github.com; exact complete-root checkout unavailable in this run"
+    },
+    {
+      "command": "python3 -B tests/install_test.py",
+      "exit": null,
+      "result": "NOT_RUN; no authenticated full-root local checkout"
+    },
+    {
+      "command": "python3 -B tests/install_slots_test.py",
+      "exit": null,
+      "result": "NOT_RUN; no authenticated full-root local checkout"
+    }
+  ],
+  "disposition": "TEST_SOURCE_REPAIR_STAGED / STATIC_SOURCE_CONTRACT_CHECKED / NATIVE_TESTS_NOT_RUN / INDEPENDENT_QA_PENDING / BUILD_ONLY_UNCHANGED / NIGHTLY_NOT_MERGED / NOT_INSTALLABLE / DEVICE_UNKNOWN",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "fetch complete exact next integration commit root; execute original full installer fake-device suite with updated SMP_INFO fixture plus installer slots/restore/backup/OTA/CTL negative and positive paths; return SHA-anchored disposition"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "acknowledge new full-root HEAD and compare all exact native compiler inputs/config/model/controller with prior R14 built bytes; build exact Elite+Pro as needed in parallel; never claim web/device PASS"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "after combined exact-root independent QA and applicable checks, ready/review and safely merge guarded PR to firmware nightly; report actual nightly SHA"
+    },
+    {
+      "owner": "Catalog/NIGHTLY Publisher",
+      "action": "only after full prehardware safety/model/controller/backup/CRC/hash/source/license/immutable HTTP gates, make qualified DEV hardware-test candidate selectable; never publish private controller/vendor SDK"
+    }
+  ],
+  "prohibitions": [
+    "force",
+    "direct protected refs",
+    "producer branch edits",
+    "Codex/Work/hosted CI",
+    "device flashing",
+    "production main promotion",
+    "public private controller or proprietary SDK files"
+  ]
+}

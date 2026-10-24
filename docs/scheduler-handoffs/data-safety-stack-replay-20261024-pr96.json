@@ -1,0 +1,42 @@
+{
+  "schema": "loopyx0x37-data-safety-stack-ack/v1",
+  "recorded_date": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "producer": "Data Safety",
+  "lane": "PR #96",
+  "consumed": {
+    "pr96_prior_head": "9cc36cc8d3f38f4a8be4fb19b80f9e520e16a1b9",
+    "pr96_prior_full_root": "f83ef3401b1e00567c6cbb6b6bc12cdc3d098aad",
+    "pr91_merged_head": "be552c04cffac1ca34f19e1fe871634ce82448ac",
+    "pr91_merged_full_root": "0201a093939649937517078f1fffb39f463d58f9",
+    "pr81_portability_blob": "c51c948394cf97c83a6237a467764a7822f098a0",
+    "pr96_smp_parser_blob": "9cef869cbbf5e49d5e3280edd06abd11cdee07fa"
+  },
+  "result": {
+    "source_combined_blob": "221c9c8ad611f2062c363e25f419fd04c830b6b8",
+    "source_mode": "100755",
+    "strategy": "PR96 parser and OTA refusal from immutable PR96 source + PR81 exclusive-rename portability code; all PR96-only files over exact new PR91 source root",
+    "firmware_subtree_sha": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf"
+  },
+  "producer_tests": {
+    "scope": "locally reconstructed function windows; exact remote complete source not executed",
+    "commands": [
+      {
+        "argv": "X0X_SLOTS_SOURCE=combined_x0x_slots.py python3 -m unittest test_portable_backup -v",
+        "exit": 0,
+        "cases": "9/9"
+      },
+      {
+        "argv": "python3 -m unittest via importlib from qa_smp_info_invariants.py",
+        "exit": 0,
+        "cases": "10/10"
+      },
+      {
+        "argv": "python3 -m py_compile combined_x0x_slots.py",
+        "exit": 0
+      }
+    ]
+  },
+  "qualification": "SOURCE-COMBINED, QA REQUIRED, BUILD_ONLY ALLOWED, DEVICE NOT TESTED, NO PUBLIC DOWNLOAD",
+  "next_owner": "Independent QA independently run complete current root and negatives; sole Safe Merge owns integration; Hourly Build compiles exact tree on draft/ready without waiting"
+}

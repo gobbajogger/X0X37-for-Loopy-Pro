@@ -1,0 +1,137 @@
+{
+  "schema": "loopyx0x37.smc-stack-source-v1",
+  "role": "SMC Transport — source producer",
+  "created_local_date": "2026-10-24",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "base_nightly_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "own_pr": 50,
+    "own_previous_head": "ed03519ccb59f945814efd51bf3ec7486cdd7439",
+    "own_previous_full_tree": "6fc6bc8cc8854f28ea3b36e7b544873083fe22bc",
+    "own_previous_firmware_tree": "d5c2794105dfb776f8ead7de983f282c2cddfeb1",
+    "own_ble_source_blob": "b36bce3ece2e55fb673cebcbefc43dc9e22fc6b4",
+    "stacked_prs": [
+      89,
+      94
+    ],
+    "stacked_tip": "9083dc35a5e270930323b44dde7bdc5916f826f1",
+    "stacked_tip_full_tree": "447582f9bf505c2d448010b7ab23dd36e1ed7a33",
+    "stacked_tip_firmware_tree": "9f6861806861251e3dde3b2a929f1b6634d1862c",
+    "stacked_ble_blob": "74bfdaafd3a1329b996258d3a1314618c8b07fd0",
+    "own_runner_blob": "8f9ae8c2df6f834eefb1ea675a0b1fa0ff6fc601",
+    "stacked_runner_blob": "5bcf66f20ecc311b4cbe022ff93085f5af490a2e"
+  },
+  "changes": [
+    "Merge #89 SysEx preflight and #94 ACL PB0/PB3 guards into own #50 BLE mailbox/reconnect source without discarding either fix",
+    "Retain all existing #50 BLE host changes and host tests",
+    "Inherit stacked #89/#94 native tests and factual evidence with exact unchanged Git blobs",
+    "Register BOTH BLE SysEx bounds and BLE ACL start-flags source tests in tests/run_tests.sh",
+    "Retain nightly promotion policy file absent from own old pre-nightly branch"
+  ],
+  "producer_checks": [
+    {
+      "argv": [
+        "bash",
+        "replay.sh"
+      ],
+      "cwd": "evidence ZIP LoopyX0X37-SMC-Link-Epoch-20261024-Evidence.zip",
+      "exit": 0,
+      "scope": "source-lifted link_reset positive/negative replay, not full combined file",
+      "gcc_plain": [
+        1,
+        0
+      ],
+      "gcc_ubsan": [
+        1,
+        0
+      ],
+      "gcc_asan_ubsan": [
+        1,
+        0
+      ],
+      "clang_plain": [
+        1,
+        0
+      ],
+      "clang_ubsan": [
+        1,
+        0
+      ],
+      "clang_asan_ubsan": [
+        1,
+        0
+      ],
+      "compile_exits": "all 0",
+      "assertions_before": "15/20 per execution",
+      "assertions_after": "20/20 per execution"
+    },
+    {
+      "argv": [
+        "bash",
+        "replay.sh"
+      ],
+      "cwd": "evidence ZIP LoopyX0X37-SMC-Zero-ACL-Credit-20261024-Evidence.zip",
+      "exit": 0,
+      "scope": "source-lifted ACL credit negative/positive replay, not full combined file",
+      "gcc_plain": [
+        1,
+        0
+      ],
+      "gcc_ubsan": [
+        1,
+        0
+      ],
+      "gcc_asan_ubsan": [
+        1,
+        0
+      ],
+      "clang_plain": [
+        1,
+        0
+      ],
+      "clang_ubsan": [
+        1,
+        0
+      ],
+      "clang_asan_ubsan": [
+        1,
+        0
+      ],
+      "compile_exits": "all 0",
+      "assertions_before": "14/18 per execution",
+      "assertions_after": "18/18 per execution"
+    },
+    {
+      "command": "GitHub exact-byte code assertion",
+      "exit": 0,
+      "scope": "source patch match unique 3/3 and exact corresponding PR94 code, runner additions 2/2"
+    }
+  ],
+  "historical_upstream_checks": "PR #89 and #94 report separate native compile/run evidence; do not count those as newly executed in this combined full source.",
+  "qualification": {
+    "source": "SOURCE_RECONCILED_FOR_QA",
+    "current_full_native_linked_compile": "NOT_RUN",
+    "current_elite_pro_controller_build": "PENDING",
+    "independent_qa": "PENDING",
+    "physical_device": "NOT_TESTED",
+    "public_installability": "NO_GO"
+  },
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Run exact combined root BLE ACL PB0/PB3, rejected/oversized SysEx, ACL credit/mailbox saturation, ATT retry, reconnect/outbox NoteOff tests against full linked source and existing critical negatives."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile exact combined full-root source for Elite, Pro and local controller BUILD_ONLY immediately, separate from QA/merger/site."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "After independent qualification, reconcile stacked #89→#94→#50 and Data Safety into first candidate PR #103; maintain same-byte immutable tree provenance."
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "No public install link until independent prehardware, model, backup/OTA, license and immutable HTTP checks pass."
+    }
+  ]
+}

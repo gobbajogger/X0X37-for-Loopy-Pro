@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "role": "LoopyX0X37 Data Safety",
+  "date_utc": "2026-10-23",
+  "evidence_revision": "data-safety-pr76-per-slot-runner-20261024-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owned_branch": "lane/data-safety-per-slot-readback-20261023-1135",
+  "consumed": {
+    "producer_sha": "e01e5652efc9265ec24b31d3291591932ad17477",
+    "full_root_tree": "909fccdf843505a10897db50c9a1acb9c350d63d",
+    "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "source_blob": "a426bf3d77b8ef2301a7ca86cfab0d7ff3b88764",
+    "regression_blob": "e46ab3e657dd0f1b123480f2a63463c7014da2f5",
+    "runner_blob": "f682eaa5fd8ef24b8a7688319e6ce12fb9e003d9"
+  },
+  "candidate_first_nightly": {
+    "pr": 103,
+    "head": "41d65c9f0ff987ea984eaec20262d2855e599777",
+    "full_root_tree": "ce4194fe40dd1b3399e8eb4b06e059ecd6ca456d",
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "current_x0x_slots_blob": "78b041ab3e0c736517dbf2f509c9776c7c632f10",
+    "defect": "per-slot restore and migration perform writes to later slots before verifying earlier slot readback; repair is in own PR #76 but absent from first-candidate PR #103"
+  },
+  "test_scope": "Local Linux Python host/source-function projection from archived baseline with exact PR #76 changed restore/restore_mapped function blocks; simulated device and filesystem, NOT full exact source checkout, NOT target compilation or hardware.",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "restore_old.py",
+        "restore_pr76.py",
+        "replay_pr76.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "replay_pr76.py",
+        "restore_old.py"
+      ],
+      "exit_code": 1,
+      "assertions_pass": 9,
+      "assertions_total": 13,
+      "expected_negative": true,
+      "log_sha256": "338f155de4262e31d1de3664edb987b9a3eee12d1327443062d3a0f02e0cc27a"
+    },
+    {
+      "argv": [
+        "python3",
+        "replay_pr76.py",
+        "restore_pr76.py"
+      ],
+      "exit_code": 0,
+      "assertions_pass": 13,
+      "assertions_total": 13,
+      "log_sha256": "2b3bdaa2ebb9ba39c36ec8324ed8847569f681d64ca135f019d658269735303b"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "replay_pr76.py",
+        "restore_pr76.py"
+      ],
+      "exit_code": 0,
+      "assertions_pass": 13,
+      "assertions_total": 13,
+      "log_sha256": "2b3bdaa2ebb9ba39c36ec8324ed8847569f681d64ca135f019d658269735303b"
+    }
+  ],
+  "checks_not_run": [
+    "tests/run_tests.sh in exact complete PR checkout",
+    "existing slots/install/OTA/CRC/wrong-model negative suite on candidate combined head",
+    "JieLi Elite/Pro/CTL compilation",
+    "physical-device tests"
+  ],
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_REVIEW_READY_QA_PENDING_BUILD_PENDING_NOT_INSTALLABLE",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Independently review exact PR #76 head and full-candidate combined-source slot/readback/restore/OTA negatives."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Integrate source-complete PR #76 on authorized isolated integration lane, reconcile first-candidate #103 with competing slot-source changes."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile BUILD_ONLY Elite+Pro+controller from exact PR #76 source or demonstrate compiled-input identity; don't wait for QA or merge."
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Retain existing safe bytes; new candidate not selectable absent complete QA/model/data/integrity/license/immutable HTTP gates."
+    }
+  ],
+  "notes": [
+    "This producer source fix existed prior to this evidence revision; new source code is unchanged. This commit registers its previously unrun regression in the full test runner and provides new exact-SHA test handoff.",
+    "PR ready-for-review is NOT QA approval or installation consent."
+  ]
+}
