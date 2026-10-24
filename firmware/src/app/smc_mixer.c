@@ -874,9 +874,9 @@ void smc_poll(void)
     uint32_t link = smc_link_published;
     uint8_t r, count = 0;
     int allow = !perf_testing();
-    /* Snapshot producer generations before either input ring drains. An ISR
-     * can enqueue a press then lose its release while another ring drains;
-     * acknowledging that new loss in this poll would leave Solo latched. */
+    /* Capture overflow generations before draining either MIDI input ring.
+     * TIMER5/audio ISR can refill an already-drained ring during this poll;
+     * its new press must be processed before we acknowledge its lost release. */
     uint32_t ble_lost = smc_ble_solo_release_lost;
     uint32_t host_lost = smc_host_solo_release_lost;
     uint32_t ble_seen = smc_ble_solo_release_seen;
@@ -956,9 +956,10 @@ void smc_poll(void)
          * beyond this poll's budget, preserving STOP-before-next-PLAY order. */
         smc_mmc_drain_stop(src, allow);
     }
-    /* Clear held Solo after draining presses preceding START-of-poll loss
-     * snapshots, without swallowing an ISR refill that belongs to the next
-     * poll. Project reset may have advanced seen: never rewind its cursor. */
+    /* A dropped Solo release is effective only after all presses queued
+     * before the START-of-poll snapshot have been drained. Never consume a
+     * newer ISR generation: its preceding press may still be queued. A
+     * project drop may already have advanced a cursor; do not rewind it. */
     uint8_t missed_solo = 0;
     if (ble_lost != ble_seen && smc_ble_solo_release_seen == ble_seen) {
         smc_ble_solo_release_seen = ble_lost;
