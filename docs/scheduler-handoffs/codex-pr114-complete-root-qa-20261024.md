@@ -17,7 +17,13 @@ Data Safety remains the source owner for one real continuity solution on existin
 
 Safe Merge remains the sole integrator. Its observed head advanced during this run to `56c180450393f26859419ce13b479e45cb0c242d`; these tests do not certify that combined root. Firmware nightly was observed at `58b5b45a2dd90581de7a674c331ca5cbe8a67c7e`. Existing build-worker records show native BUILD_ONLY outputs; they are not evidence of installer readiness. No production, nightly, Pages, binaries or devices were modified by this patch.
 
-## NEXT CODEX THREAD NOT OPENED — HANDOFF READY
+## Successor correction — 2026-10-24
+
+The initial missing-capability conclusion below was incorrect: the installed native Codex CLI was not checked. A supported `codex exec --json` call created persistent thread `01a16d99-a2fd-7f13-a0ea-a5fb6e3062e3`, bound to `/workspace/x0x-ota-successor` and isolated branch `lane/codex-ota-continuity-repair-20261024`. Saved metadata and the full initial packet were verified. Status: **SUCCESSOR CREATED, PACKET DELIVERED — EXECUTION FAILED AUTHENTICATION**. The first turn returned a token-refresh error; cloud task listing independently returned 401. No repair work ran in that thread. Restore normal supported CLI authentication, then resume the same ID rather than creating another thread. This is a native persisted thread, not a verified cloud/UI task URL. Full prompt/events/receipt are committed alongside this document.
+
+Plugin `plugins_6ada4bd5c1d4819182a1093d9aa5a136` was updated and source-readback verified at version 0.1.36 / release `pluginrel_6adc923c3a68819186b68946b36092f5`, adding mandatory CLI creation discovery and separate created/delivered/execution-failed status. Existing roles, schedules and safety gates are preserved. This corrects and supersedes the initial fallback below.
+
+## Superseded initial discovery result — corrected by actual CLI creation
 
 No documented persistent Codex thread/task creation action is available. Subagents and scheduled runs are not successor threads. Existing enabled workers retain their IDs, roles and schedules. Main Library file tools are unavailable here; all deliverable bytes are textual mock-test evidence retained in Git.
 
