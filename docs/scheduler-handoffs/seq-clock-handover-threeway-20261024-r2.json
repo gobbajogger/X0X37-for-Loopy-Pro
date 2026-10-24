@@ -71,9 +71,15 @@
     "MIDI Note Off pass-through"
   ],
   "commands": [
-    "sh docs/scheduler-handoffs/clock_handover_interaction.sh",
-    "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DHANDOVER_DROP -DSTOP_TAKEOVER -DOWNER_RESET docs/scheduler-handoffs/clock_handover_interaction.c -o /tmp/clk_asan_gcc && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 /tmp/clk_asan_gcc",
-    "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DHANDOVER_DROP -DSTOP_TAKEOVER -DOWNER_RESET docs/scheduler-handoffs/clock_handover_interaction.c -o /tmp/clk_asan_clang && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 /tmp/clk_asan_clang"
+    "cd /mnt/data/seqclock_now && sh clock_handover_interaction.sh > threeway_full.log 2>&1",
+    "cd /mnt/data/seqclock_now && gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all clock_handover_interaction.c -o threeway-logs/gcc_BASELINE_asan",
+    "cd /mnt/data/seqclock_now && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 threeway-logs/gcc_BASELINE_asan",
+    "cd /mnt/data/seqclock_now && gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DHANDOVER_DROP -DSTOP_TAKEOVER -DOWNER_RESET clock_handover_interaction.c -o threeway-logs/gcc_ALL_THREE_asan",
+    "cd /mnt/data/seqclock_now && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 threeway-logs/gcc_ALL_THREE_asan",
+    "cd /mnt/data/seqclock_now && clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all clock_handover_interaction.c -o threeway-logs/clang_BASELINE_asan",
+    "cd /mnt/data/seqclock_now && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 threeway-logs/clang_BASELINE_asan",
+    "cd /mnt/data/seqclock_now && clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -DHANDOVER_DROP -DSTOP_TAKEOVER -DOWNER_RESET clock_handover_interaction.c -o threeway-logs/clang_ALL_THREE_asan",
+    "cd /mnt/data/seqclock_now && ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 threeway-logs/clang_ALL_THREE_asan"
   ],
   "actual_exits": {
     "differential_runner": 0,
@@ -259,5 +265,6 @@
     "sole_safe_merge": "Consume PR #35 + #41 + #48 only on authorized integration lane if selected; do not make new blocker to unrelated first-candidate qualification",
     "hourly_build": "Compile exact changed firmware subtree BUILD_ONLY independently of QA/merge",
     "catalog_publisher": "Maintain old safe live builds; no public selection from scoped projection"
-  }
+  },
+  "command_scope_note": "Literal effective GCC/Clang argv for local source checkout at /mnt/data/seqclock_now. Shell redirection to separate compile/execute logs omitted from argv text; all compilation and execution exits separately recorded. Repository replay shell is content-identical to tested script."
 }
