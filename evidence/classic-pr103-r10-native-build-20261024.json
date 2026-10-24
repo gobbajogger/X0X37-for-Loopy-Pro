@@ -1,0 +1,101 @@
+{
+  "schema": "loopyx0x37.native-dev-build.evidence.v1",
+  "recorded_date": "2026-10-24",
+  "role": "Classic independent native recovery / exact source build",
+  "evidence_status": "BUILD_ONLY / REAL ELITE AND PRO COMPILED / NOT NIGHTLY LIVE / NO DEVICE TEST",
+  "upstream": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "head": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+    "git_root_tree": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+    "compiled_firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05"
+  },
+  "build_scope": "All 100 exact firmware blob objects verified by local git tree, exact matching assets/ and ble/ trees, matching build.sh and build.py SHA. Historical non-build support files from owner bootstrap; current full-root tests not yet all reconstructed. Do not call this full-root QA.",
+  "tools": {
+    "os": "Linux x86_64",
+    "compiler": "JieLi clang 4.0.1 native",
+    "compiler_archive_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "sdk": "AC79NN V1.2.1 SHA256 pinned 3 placement files recovered privately from owner provided FWSC; no vendor binary committed or published",
+    "sdk_pins": {
+      "uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    }
+  },
+  "builds": {
+    "elite": {
+      "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit": 0,
+      "product": "SMK-37 Elite_900",
+      "package": "x0x-smk37-elite.fwsc",
+      "bytes": 651396,
+      "sha256": "6abb8656379d84bfbee6f31f59f11ae80b04b2af7c0e61be9fa88c46772f6810",
+      "native_log_sha256": "1262aa64ef6bce453bbe7bb44d7c4676fe7b1b882424eb3ef67439bc78d7bb16"
+    },
+    "pro": {
+      "command": "BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+      "exit": 0,
+      "product": "SMK-37 Pro_900",
+      "package": "x0x-smk37.fwsc",
+      "bytes": 651392,
+      "sha256": "fbbc5cf92e303797bc7b361a4e510b8ac89e4710067f9b717c2d4bc17ee32ca0",
+      "native_log_sha256": "8a83c8d62c0e598944d42a1ebc0f4b657e73d99203be9e5134736500a770453a"
+    }
+  },
+  "budgets": {
+    "code_area_free_bytes": 5892,
+    "static_ram_free_bytes": 476,
+    "pool_free_bytes": 8324,
+    "pool_required_bytes": 8192,
+    "pool_margin_bytes": 132,
+    "locked_settings": "20/20 PASS"
+  },
+  "controller": {
+    "bytes": 65492,
+    "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "status": "REUSED owner private existing identical SHA image; Git ble/ sources unchanged, not freshly recompiled. Vendor redistribution rights must be established separately."
+  },
+  "checked": {
+    "model_package_integrity": "elite+pro PASS",
+    "outer_inner_CRC_sample_regions": "PASS",
+    "corrupt_wrong_model_rejections": "15/15 PASS",
+    "OTA_simulated_pro": "PASS",
+    "OTA_simulated_elite": "PASS",
+    "mock_ble_package": "PASS",
+    "mock_slot_backup": "PASS",
+    "mock_install_slots": "PASS",
+    "mock_controller_readback": "PASS",
+    "selected_legacy_smc_host_tests": "mixed; some stale tests fail; do not count as whole-root QA PASS"
+  },
+  "rejected_old_fixture_tests": [
+    "smc-queue",
+    "smc-link",
+    "ble-midi-receive",
+    "smc-reachability",
+    "smc-mapping",
+    "smc-drum-mutes",
+    "smc-drum-rs"
+  ],
+  "private_evidence": {
+    "audit_zip": "LoopyX0X37-PR103-R10-Native-Build-Evidence-20261024.zip",
+    "audit_zip_sha256": "e50377effe0b95a9d54d63dbf0cc40e23313e115e297cc9035a4b5db07de6b3d",
+    "private_owner_firmware_zip": "LoopyX0X37-PR103-R10-PRIVATE-BUILD-ONLY-20261024.zip",
+    "private_owner_firmware_zip_sha256": "0b88e2dce13560a94db06d79170d9ba3c4453b4258a1196e91120ea8a4345cdc",
+    "full_local_manifest_sha256": "2954170dca3e2129458b0d5926a09007ddb8deb37d7664ea86a04a2159faaaa1",
+    "access": "Private ChatGPT conversation output, not public GitHub download or approved firmware artifact host."
+  },
+  "next": {
+    "qa": "Independent QA: full current PR head source/OTA/backup/recovery/negative tests and exact artifacts",
+    "integration": "Sole Safe Merge: protected firmware nightly PR merge after QA, not blocked just to compile",
+    "catalog": "Catalog + sole NIGHTLY publisher: legally distributable immutable hosted Elite/Pro bytes, controller strategy, exact HTTP verification, version picker and mock/negative checks; prior owner physical PASS not required for NIGHTLY"
+  },
+  "publication": {
+    "firmware_nightly_branch_unchanged": true,
+    "public_nightly_installer_unchanged": true,
+    "external_verified_package_url": null,
+    "flashable": false,
+    "owner_device_tested": false,
+    "production_promotion": false
+  },
+  "safety": "Do not publish firmware/vendor/controller to browser-only NIGHTLY Git; do not flash, force-push or treat build-only as installable."
+}
