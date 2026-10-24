@@ -78,7 +78,7 @@ typedef struct {
 
 typedef struct {
     int (*drum)(void *ctx, int kit, int voice, float vel);      /* 0: the hit did not play (its chance) */
-    void (*bass_on)(void *ctx, int part, int note, int accent, int slide, int velocity);
+    int (*bass_on)(void *ctx, int part, int note, int accent, int slide, int velocity); /* 0: chance skipped; do not echo MIDI */
     void (*bass_off)(void *ctx, int part);
     void (*brk)(void *ctx, int step16, int bar, float samples_per_16th, int enabled);
     void (*brk_stop)(void *ctx);
