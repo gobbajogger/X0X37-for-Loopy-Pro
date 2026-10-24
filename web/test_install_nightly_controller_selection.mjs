@@ -20,7 +20,7 @@ function fixture() {
   const handlers={},notes=[],nodes={};
   const $=id=>nodes[id] ||= {value:"",disabled:false,addEventListener:(name,fn)=>{handlers[name]=fn}};
   const ctx=createContext({handlers,notes,Uint8Array,$,
-    isCatalogChecked:()=>true,currentVersion:()=>({models:{elite:{}}}),
+    isCatalogChecked:()=>true,hasVerifiedNightlySelection:()=>true,currentVersion:()=>({models:{elite:{}}}),
     ctlProblem:raw=>raw[0]===0?"invalid CRC":null,
     sha256Hex:async buf=>"sha-"+new Uint8Array(buf)[0],
     sayK:name=>notes.push(name)});
@@ -99,7 +99,7 @@ function goCase({hash,approvedHash="sha-2",withCtl=true,approved=true,pending=fa
   const ctx=createContext({
     Uint8Array,$:()=>({disabled:false,addEventListener:(_e,f)=>{callback=f}}),
     currentVersion:()=>({models:{elite:{controller_sha256:approvedHash}}}),
-    isCatalogChecked:()=>approved,confirmWrite:()=>true,
+    isCatalogChecked:()=>approved,hasVerifiedNightlySelection:()=>approved,confirmWrite:()=>true,
     insertCtl:img=>{inserts++;return img;},run:()=>{writes++;},
     sayK:k=>errors.push(k),t:()=> "SHA mismatch"
   });
