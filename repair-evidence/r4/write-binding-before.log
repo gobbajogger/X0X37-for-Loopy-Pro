@@ -1,0 +1,109 @@
+PASS install rejects ota-FM-1 before loader write for Elite package
+PASS install rejects ota-SMK before loader write for FM-1 package
+PASS install preserves Elite package with Pro loader family alias
+PASS install preserves Pro package with Elite loader family alias
+PASS install preserves FM-1 loader positive
+PASS write cross-family refusal
+PASS write requires a known package identity
+PASS write allows SMK alias
+PASS resume preserves legitimate SMK loader alias
+FAIL X0X no slot response blocks install: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Cannot verify the current sample layout before install: The keyboard did not answer (slot command 15).
+FAIL USB send failure blocks install: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Cannot verify the current sample layout before install: The USB connection was lost.
+FAIL USB read failure blocks install: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Cannot verify the current sample layout before install: synthetic USB read failure
+FAIL malformed SMP_INFO blocks install: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Cannot verify the current sample layout before install: short SMP_INFO reply
+FAIL stock corrupt reply is not unsupported: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Cannot verify the current sample layout before install: short SMP_INFO reply
+FAIL stock USB loss is not unsupported: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Cannot verify the current sample layout before install: The USB connection was lost.
+FAIL unclassified no response is not unsupported: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Cannot verify the current sample layout before install: The keyboard did not answer (slot command 15).
+FAIL stock Elite016 no SMP_INFO retains supported path: Cannot verify the current sample layout before install: The keyboard did not answer (slot command 15).
+FAIL stock MKE016 no SMP_INFO retains supported path: Cannot verify the current sample layout before install: The keyboard did not answer (slot command 15).
+FAIL stock Starry016 no SMP_INFO retains supported path: Cannot verify the current sample layout before install: The keyboard did not answer (slot command 15).
+FAIL stock FM1_015 no SMP_INFO retains supported path: Cannot verify the current sample layout before install: The keyboard did not answer (slot command 15).
+PASS required slot backup failure blocks install
+PASS known stock Pro016 no SMP_INFO retains existing manual path
+PASS valid empty slot layout retains install
+PASS resume refuses foreign/missing package SMK-37 Elite_900/ota-FM-1
+PASS resume refuses foreign/missing package FM-1_900/ota-SMK-37 Pro
+PASS resume refuses foreign/missing package /ota-SMK-37 Elite
+PASS sameKeyboard preserves all existing named family aliases
+FAIL bind single selected observable port positive: up.bind is not a function
+FAIL bind ambiguity refuses before app UPGRADE: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: the update loader did not appear. Replug the USB cable and press Install again: the device stays in update mode until it is finished.
+FAIL selected port name change refuses before app UPGRADE: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: the device stopped after 0 requests: nothing was written
+FAIL real find/wait permits sole compatible loader rename: up.bind is not a function
+FAIL real bound find refuses changed family: up.bind is not a function
+FAIL real bound wait refuses observable ambiguity before handshake: up.bind is not a function
+FAIL verified find blocks name-change before readback: up.bind is not a function
+FAIL verified find blocks extra-port before readback: up.bind is not a function
+FAIL binding ambiguity blocks sample-layout query and backup: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: synthetic slot backup read failure
+FAIL post-install restore binding positive: up.bind is not a function
+FAIL post-install restore binding name-change: Expected values to be strictly equal:
+
+0 !== 1
+
+FAIL post-install restore binding extra-port: Expected values to be strictly equal:
+
+0 !== 1
+
+PASS post-install restore binding archive-error
+FAIL post-install restore binding readback-mismatch: Expected values to be strictly equal:
+
+0 !== 1
+
+{"cases":41,"failed":24,"scope":"actual browser shipping bodies; synthetic discovery/serve/MIDI boundaries, no hardware"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: shipping write boundary regressions
+
+24 !== 0
+
+    at file:///workspace/nightly-browser-repair/tests/installer-write-boundaries.test.mjs:219:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 24,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

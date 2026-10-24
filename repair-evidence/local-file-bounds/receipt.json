@@ -1,0 +1,83 @@
+{
+  "scope": "local File preallocation bounds only; sourceQA not candidate/hardware/publication approval",
+  "base": "5d1cf4db62f8700da7671b6b44a6c7dea989228c",
+  "base_root": "2aae49f1c4835733a21c7d98727dfbcc7f371df5",
+  "proven_existing_fix": "firmware PR102 commit e77cd4dfdf970bd1e47490ed304c4c22e8e58564, read-only reference; no firmware edit or denied R29 retry",
+  "bounds": {
+    "controller": "safe integer,68..65536 inclusive from existing ctlProblem format",
+    "stock": "safe integer,960..16777216 inclusive from productOf header and existing PR102 local resource cap"
+  },
+  "tested_blobs": {
+    "web/x0x_installer.html": "e34761acfb6687a424269f132f89dedb4eb20875",
+    "docs/install/index.html": "2b475b9148834333d846b39725faf1a9dfb4daf3",
+    "tests/browser-admission.py": "f0343f9e87a1d0eba548458dfdbd62068d2bbbaa",
+    "SOURCE_PROVENANCE.json": "7057bd242d8c715f7ef886aa27571abc0e7664c7"
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "tests/browser-admission.py",
+        "--source",
+        "/workspace/nightly-local-file-evidence/before.html",
+        "--local-files-only"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "seconds": 3.03
+    },
+    {
+      "command": [
+        "python3",
+        "tests/browser-admission.py",
+        "--local-files-only"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "seconds": 3.18
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "tests/nightly-preview.test.mjs"
+      ],
+      "exit": 0,
+      "note": "final provenance metadata after adding source attribution"
+    }
+  ],
+  "red": "34checks,23failures on exact base template; matching assertions/fixtures",
+  "green": "34/34 real Chromium generated-handler checks; only File metadata/read timing synthetic",
+  "metadata_boundaries": "Exact min/max metadata checks prove read admission, not format validity of synthetic metadata differing from body. Separate actual valid160byte controller and real65536byte erased-padded controller pass parser; synthetic1024byte stock passes existing identity parser. No giant allocation.",
+  "unchanged": [
+    "all122historyrecords",
+    "catalog/empty picker",
+    "firmware/controller/vendor bytes",
+    "allbrowserlibraries",
+    "model/hash/CRC/consent checks",
+    "writing/serial/errorcleanup ordering"
+  ],
+  "next_owner": "existing independent Chromium reviewer, then existing sole merger/publisher; no competing downstream owner",
+  "logs": {
+    "browser-red.log": "7ca79c92adda9ed03adc107c8760d09b873fd74cf7a0863000f71dab7cf47071",
+    "browser-green.log": "37371819cdafafa941bdda414fc31def15008997a08332bf5243aff768c8588b",
+    "focused-commands.json": "f855b71cbdf14e758a14be041e654fad055d3ac6c0413cb57bbc3c6033cc39f4",
+    "npm-build.log": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a",
+    "npm-test.log": "b7777e379cd18e039dbce14ce343ca1bec9880a6e20334f6f186b172ec49ff81",
+    "provenance-final.log": "8a3e288c2eee1f7f2db0e83de4b30e4abcfa7cffbce765de880ecdfd1d9c7337"
+  }
+}

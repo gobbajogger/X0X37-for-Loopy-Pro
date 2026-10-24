@@ -1,0 +1,5 @@
+{"case": "pinned-match", "exit": 0, "expected_accept": true, "pass": true, "stderr": ""}
+{"case": "mutable-main", "exit": 0, "expected_accept": false, "pass": false, "stderr": ""}
+{"case": "mismatched-sha", "exit": 0, "expected_accept": false, "pass": false, "stderr": ""}
+{"case": "object-value", "exit": 0, "expected_accept": false, "pass": false, "stderr": ""}
+{"checks": 4, "failed": 3}

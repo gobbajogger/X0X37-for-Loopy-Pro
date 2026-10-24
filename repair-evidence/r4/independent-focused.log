@@ -1,0 +1,24 @@
+Chromium 154.0.8037.57
+PASS real click denies and revokes c.versions[0].models=null {"downloads": 0, "errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "revoked": true}
+PASS valid retry restores install admission c.versions[0].models=null null
+PASS keyboard valid retry downloads exact bytes c.versions[0].models=null {"bytes": 1056, "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"}
+PASS real click denies and revokes c.versions={} {"downloads": 0, "errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "revoked": true}
+PASS valid retry restores install admission c.versions={} null
+PASS keyboard valid retry downloads exact bytes c.versions={} {"bytes": 1056, "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"}
+PASS real click denies and revokes c.versions[0]=null {"downloads": 0, "errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "revoked": true}
+PASS valid retry restores install admission c.versions[0]=null null
+PASS keyboard valid retry downloads exact bytes c.versions[0]=null {"bytes": 1056, "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"}
+PASS real click denies and revokes c.versions.push(c.versions[0]) {"downloads": 0, "errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "revoked": true}
+PASS valid retry restores install admission c.versions.push(c.versions[0]) null
+PASS keyboard valid retry downloads exact bytes c.versions.push(c.versions[0]) {"bytes": 1056, "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"}
+PASS real click denies and revokes c.versions[0].models.pro={...c.versions[0].models.pro} {"downloads": 0, "errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "revoked": true}
+PASS valid retry restores install admission c.versions[0].models.pro={...c.versions[0].models.pro} null
+PASS keyboard valid retry downloads exact bytes c.versions[0].models.pro={...c.versions[0].models.pro} {"bytes": 1056, "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"}
+PASS real click denies and revokes c.versions[0].self=c.versions[0] {"downloads": 0, "errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "revoked": true}
+PASS valid retry restores install admission c.versions[0].self=c.versions[0] null
+PASS keyboard valid retry downloads exact bytes c.versions[0].self=c.versions[0] {"bytes": 1056, "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"}
+PASS real history viewport and card contents 320 {"width": 320, "scrollWidth": 320, "history": 117, "builds": 2, "overflow": []}
+PASS real history viewport and card contents 375 {"width": 375, "scrollWidth": 375, "history": 117, "builds": 2, "overflow": []}
+PASS real history viewport and card contents 768 {"width": 768, "scrollWidth": 768, "history": 117, "builds": 2, "overflow": []}
+PASS real history viewport and card contents 1280 {"width": 1280, "scrollWidth": 1280, "history": 117, "builds": 2, "overflow": []}
+{"checks": 22, "failed": 0}

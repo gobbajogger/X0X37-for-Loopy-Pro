@@ -1,0 +1,21 @@
+{
+  "native_git_source_authorization": "working; fetch and owned branch pushes have succeeded",
+  "connected_github_source_app": "working; repository/PR reads and owned source writes succeeded",
+  "gh_cli": "2.46.0",
+  "gh_auth_status": "reports GH_TOKEN invalid; exit0 despite failed login diagnostic",
+  "gh_user_read": {
+    "command": "gh api user --jq .login",
+    "exit": 1,
+    "response": "GET https://api.github.com/user: Forbidden"
+  },
+  "configuration_metadata": {
+    "GH_TOKEN": "present, value not inspected",
+    "HTTP_and_HTTPS_PROXY": "configured",
+    "GH_HOST": "not set",
+    "documented_release_api_proxy_route": "not exposed by available tools or configuration metadata"
+  },
+  "token_origin_or_release_scope": "UNVERIFIED; proxy rejection does not establish missing global GitHub authorization",
+  "release_create_or_upload_tool": "none exposed",
+  "release_operation": "NOT ATTEMPTED; no credential/security changes or secret output",
+  "publisher_dependency": "existing sole publisher needs a supported authenticated release-upload route; parent checks Work separately"
+}

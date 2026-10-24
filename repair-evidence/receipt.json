@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "evidence_revision": "browser-admission-repair-20261024-r1",
+  "status": "REPAIR HANDOFF \u2014 PRIOR WEBSITE GATE INCOMPLETE",
+  "role": "bounded website source repair producer",
+  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+  "visibility": "public",
+  "branch": "lane/browser-admission-repair-20261024",
+  "dependencies": {
+    "main": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+    "pages_observed": "9c5d3b6b0846f89436492851fef89ed3829b7ad7",
+    "pr6": "ddbd8d89f7c4dfd5afa432dd51e940b6dd428592",
+    "pr7": "33252473b8725fc124cd20d85f780a85c4f6d4a0",
+    "pr3": "2d4134b1922079adfd346361758b3ed86b01e638",
+    "pr3_tree": "727c5cab036769f2cc631cbe196e630c57719033",
+    "gpl_browser_reference_pr102": "22d522a4cde4c18f92a846bc40d504b701cf6d17"
+  },
+  "tests": [
+    {
+      "command": "npm run build",
+      "exit": 0
+    },
+    {
+      "command": "npm test",
+      "exit": 0,
+      "coverage": "all seven suites, 56 admission cases, 72 qualification negatives, 117 locked history rows"
+    },
+    {
+      "command": "npm run test:browser",
+      "exit": 0,
+      "checks": 182,
+      "failures": 0,
+      "browser": "Chromium 154.0.8037.57",
+      "coverage": "whole rendered page, 320/390/1280, EN/JA, Elite/Pro, exact Blob bytes, stale fetch/body/digest/scan/permission/lookup, download and real click-handler targets, deny/interrupt/controller/retry with mock MIDI"
+    },
+    {
+      "command": "python3 tests/browser-admission.py --source /tmp/before-installer.html --red-only",
+      "exit": 1,
+      "checks": 119,
+      "expected_failures": 45
+    },
+    {
+      "command": "python3 tests/browser-admission.py --source /tmp/before-installer.html --race-only",
+      "exit": 1,
+      "expected_failures": 2,
+      "permissions": 2,
+      "installer_entries": 2
+    },
+    {
+      "command": "node /tmp/nightly-pr7-baseline/tests/qualified-catalog.test.mjs",
+      "exit": 1,
+      "expected_failure": "old renderer accepts first version.revoked=true negative"
+    }
+  ],
+  "runtime": {
+    "os": "Linux x86_64",
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "python_playwright": "1.62.0"
+  },
+  "tested_blobs": {
+    "web/x0x_installer.html": "e170e222372ead0a0bcc09a0a519d9a0d7b37b69",
+    "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
+    "web/fm1ota.js": "014f5fa3490f476554a17b08e941bde04c7eff74",
+    "web/x0x_breaks.js": "8489f4ca358cf78e3f80181c9d7984bebb4cdeef",
+    "scripts/render-qualified-nightly.mjs": "ee50117e0deed0aab40cf29b78edcef6805c8443",
+    "tests/browser-admission.py": "df5909b6d18b553fd97a1848e522a7348d151245",
+    "package.json": "04b10bd624cdc60cb6408f64b4f84166b7d60069",
+    "build-status.json": "326ce55e232a9366e34a7cb687505f558ef25022",
+    "docs/versions.json": "01f9ec382878335ea9bb92d0bdf294483111de76"
+  },
+  "logs": {
+    "npm-test.log": {
+      "sha256": "077605e08ff9f7504fa4f6d836da461f3d4d0aaf56798f112f4c32e604cceab1",
+      "bytes": 9945
+    },
+    "chromium.log": {
+      "sha256": "f0c6e636ac25585a2bb0a805fe6bdfb5df570800e5dac6aa22f547f08d539576",
+      "bytes": 8309
+    },
+    "chromium-race-before.log": {
+      "sha256": "b37eac1fe49b960787695b876190f5f626306808c80eaf1b7538724d1957c95e",
+      "bytes": 312
+    },
+    "chromium-before.log": {
+      "sha256": "30ba4a290d0bbfd59fe1b71c117135c3c1ac369f8c7ede7321282ceaebf05d76",
+      "bytes": 8171
+    },
+    "qualification-before.log": {
+      "sha256": "35bf2166b6aef8410b536425a067d06465274acdb694d7126d266fe7e2411678",
+      "bytes": 667
+    },
+    "npm-build.log": {
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a",
+      "bytes": 179
+    }
+  },
+  "reviews_consumed": [
+    "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/6#issuecomment-6384218281",
+    "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/6#pullrequestreview-5638209579",
+    "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/6#issuecomment-6384022527",
+    "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/7#issuecomment-6383563920"
+  ],
+  "independent_qa": "PENDING \u2014 producer tests do not approve own changes",
+  "firmware_build": "NOT RUN \u2014 browser-only assignment",
+  "controller_ota_backup_device": "NOT VERIFIED \u2014 device/installation calls mocked; real qualification remains separate",
+  "publication": "NOT RUN",
+  "elite": "NO INSTALLABLE YET",
+  "pro": "NO INSTALLABLE YET",
+  "next_owner": "existing independent website QA, dispatched only by parent",
+  "next_action": "Independently fetch final draft PR head/root, inspect diff and live instructions/licensing, run build/test/test:browser; record exact-SHA verdict for sole website Main Merger, then sole Pages publisher only after package and HTTP qualification.",
+  "succession": "No successor created: parent explicitly retains sole downstream coordination.",
+  "protected_changes": false
+}

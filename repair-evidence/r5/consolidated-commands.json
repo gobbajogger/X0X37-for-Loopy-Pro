@@ -1,0 +1,40 @@
+[
+  {
+    "name": "npm-build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exit": 0,
+    "seconds": 0.42
+  },
+  {
+    "name": "npm-test",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "exit": 0,
+    "seconds": 26.64
+  },
+  {
+    "name": "default-browser",
+    "command": [
+      "npm",
+      "run",
+      "test:browser"
+    ],
+    "exit": 0,
+    "seconds": 89.43
+  },
+  {
+    "name": "final-matrix-green",
+    "command": [
+      "python3",
+      "/workspace/nightly-repair-evidence/r5/final_matrix_extension.py"
+    ],
+    "exit": 0,
+    "seconds": 0.67
+  }
+]
