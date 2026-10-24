@@ -249,6 +249,37 @@ static float brk_inc(const breaks_t *b, const brk_bank_t *k)
     return k->sp16 / sp16 * fm_exp2f(semi * (1.0f / 12.0f)) * b->perf.rate_mult;
 }
 
+/* Only one decoder state is cached for the preceding reverse-cache block.
+ * An unrelated seek still starts from authoritative bank checkpoints; the saved
+ * state is invalidated when a voice is started on any bank or direction. */
+static void bank_seek_reverse(brk_voice_t *v, const brk_bank_t *k, uint32_t p, int32_t *pred,
+                              int32_t *idx)
+{
+    uint32_t c, i;
+    if (v->seek_pos == p) {
+        *pred = v->seek_state.pred;
+        *idx = v->seek_state.idx;
+        v->seek_pos = UINT32_MAX;
+        return;
+    }
+    c = p >> k->ck_shift;
+    i = c << k->ck_shift;
+    *pred = k->ck[c].pred;
+    *idx = k->ck[c].idx;
+    if (p >= BRK_RCH && p - BRK_RCH >= i) {
+        uint32_t prev = p - BRK_RCH;
+        while (i < prev)
+            ima_decode(k->adpcm, i++, pred, idx);
+        v->seek_state.pred = (int16_t)*pred;
+        v->seek_state.idx = (uint8_t)*idx;
+        v->seek_pos = prev;
+    } else {
+        v->seek_pos = UINT32_MAX;
+    }
+    while (i < p)
+        ima_decode(k->adpcm, i++, pred, idx);
+}
+
 static float rev_fetch(brk_voice_t *v, const brk_bank_t *k, uint32_t q)
 {
     if (!v->rvalid || q < v->rbase || q >= v->rbase + BRK_RCH) {
@@ -256,7 +287,7 @@ static float rev_fetch(brk_voice_t *v, const brk_bank_t *k, uint32_t q)
         int32_t pred, idx;
         if (m > BRK_RCH)
             m = BRK_RCH;
-        bank_seek(k, base, &pred, &idx);
+        bank_seek_reverse(v, k, base, &pred, &idx);
         for (i = 0; i < m; i++)
             v->rbuf[i] = (int16_t)ima_decode(k->adpcm, base + i, &pred, &idx);
         v->rbase = base;
@@ -283,6 +314,7 @@ static void voice_start(breaks_t *b, int bk, int sl, uint32_t p, int rev, int ha
     v->bank = (uint8_t)bk;
     v->gen = k->gen;
     v->rev = (uint8_t)rev;
+    v->seek_pos = UINT32_MAX;       /* never reuse state from a prior voice */
     v->lo = k->start[sl];
     v->hi = k->start[sl + 1];
     v->frac = 0.0f;
