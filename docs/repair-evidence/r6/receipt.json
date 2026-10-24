@@ -1,0 +1,57 @@
+{
+  "stage": "PR8 R6 publisher output-parent async race",
+  "base": "3b626af4d0b0314c1349094699be14fc781c9bcc",
+  "base_root": "40d4faab200df125d901f58b08cbece9b7697c4b",
+  "finding": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/8#issuecomment-6385802554",
+  "tested_blobs": {
+    "scripts/render-qualified-nightly.mjs": "75bd94eecd1ac8a098bf0238deeff198565552eb",
+    "tests/qualified-catalog.test.mjs": "ebf54694560cd1f8f0c851fc039615ffccd8fa3b"
+  },
+  "commands": [
+    {
+      "name": "npm-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 0.37
+    },
+    {
+      "name": "npm-test",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 43.11
+    },
+    {
+      "name": "default-browser",
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "exit": 0,
+      "seconds": 77.26
+    }
+  ],
+  "red": "stable control exit0; rebound parent exit0 and versions.json wrongly inside scratch source; new regression fails",
+  "green": "stable control exit0 exact public catalog/installer; rebound parent exit1, no destination/source sentinel retained",
+  "independent_acceptance": "previous R5 acceptance applies to exact R5; new renderer/test delta requires separate independent review",
+  "scope": "trusted local preparation tooling; no claimed defense against arbitrary hostile same-user OS mutation between synchronous syscalls",
+  "unchanged": "browser runtime/generated HTML,117history,twohistoricbuilds,empty picker,validator,status tests,allotherpriortrackedpaths",
+  "next_owner": "parent-coordinated independent QA, then existing pinned122-row integration owner and sole merger/publisher; no competing successor",
+  "log_sha256": {
+    "README.md": "0ab6e2b34880fd795858ef810148c0f3cec94ac029de3d0f85955a3ed5c46147",
+    "qualified-red.log": "a1dbdd84dfb0f90f157b1600d41b4a1937e21a78f0d7121aa6e56a4dfc745b93",
+    "qualified-green.log": "252129774147fe8744fddc5176815c2db0717907df8b7bbc84fb231cc6290bf3",
+    "npm-build.log": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a",
+    "npm-test.log": "810412758f7acc6ccfeb598b0a42b4eb4bec7b73c283a974aa805abd379d755f",
+    "default-browser.log": "9f307c7e5bf3d320e4d714d44c61c69cfdc4f15b6d88776e413080a51b3e7141",
+    "consolidated-commands.json": "9eaabc6d2dc3166aa23668a6f617554dbe053e0ca52f368f62d1d9d17abe0c19",
+    "run-consolidated.py": "46fb20669778691de73b650d3d690aacbacdc34b5edbcb7e2c5262448c74ee6b"
+  }
+}

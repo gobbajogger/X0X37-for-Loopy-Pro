@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "revision": "pr8-history-response-repair-20261024-r3",
+  "status": "REPAIR HANDOFF \u2014 PRIOR WEBSITE QA INCOMPLETE",
+  "pr": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/8",
+  "branch": "lane/browser-admission-repair-20261024",
+  "source_parent": "b0d3c2b88587948a428305210d8b76ebd4d40535",
+  "parent_tree": "5b5305ae79d109c87c5f5004fb81b2d3780f65cf",
+  "qa_review": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/8#pullrequestreview-5638417379",
+  "qa_evidence_commit": "809965b4ddc4e2363e7344227adcf1b93f68005b",
+  "catalog_checked": [
+    "234cd59437137002565b22376b0d2a7a24e8053e",
+    "876adf33d3a96accac3838c21f6f8681d8c1ab39"
+  ],
+  "catalog_disposition": "No runtime fix available to reuse; no other producer branch edited/rebased. Separate R27 provenance guard remains for dependency reconciliation by existing merger.",
+  "tests": [
+    {
+      "command": "python3 tests/history-response.py --source /workspace/nightly-repair-evidence/r3/before-history.html",
+      "exit": 1,
+      "source": "b0d3c2b88587948a428305210d8b76ebd4d40535",
+      "cases": 34,
+      "expected_failures": 19
+    },
+    {
+      "command": "npm test (before build)",
+      "exit": 0
+    },
+    {
+      "command": "npm run build",
+      "exit": 0
+    },
+    {
+      "command": "npm test (after build)",
+      "exit": 0,
+      "suites": 7,
+      "admission_cases": 58,
+      "qualification_negatives": 72,
+      "pinned_history_rows": 117
+    },
+    {
+      "command": "npm run test:browser",
+      "exit": 0,
+      "existing_assertions_pass": 208,
+      "history_response_cases_pass": 34,
+      "failed": 0
+    },
+    {
+      "command": "python3 QA_EVIDENCE/history_response_negatives.py",
+      "exit": 0,
+      "cases": 8,
+      "failed": 0,
+      "script": "byte-unchanged independent source, fixed path bound to current checkout by local symlink"
+    }
+  ],
+  "tested_blobs": {
+    "docs/builds/index.html": "9cef7ba2a1ffc9894ddb02f5fc657827854c97e6",
+    "package.json": "b34f5f5e2d8c17fcc31a443b13d622b6fd9d8834",
+    "tests/history-response.py": "beb97297c43d9c0d760802dcbaae267edee5c41c",
+    "web/x0x_installer.html": "ad8399392d3584dd2e84858e846cec336a4ff782",
+    "docs/install/index.html": "348e6313d5d5445f6fdd746d2bcd77cca4cb0fd8",
+    "tests/browser-admission.py": "d079684094cdbe96f6f452cae1e93a32103d575c",
+    "SOURCE_PROVENANCE.json": "6338dc34b08b8cda161e2c0266bc57167e018ce4",
+    "build-status.json": "326ce55e232a9366e34a7cb687505f558ef25022",
+    "docs/build-status.json": "326ce55e232a9366e34a7cb687505f558ef25022",
+    "preview-catalog.json": "01f9ec382878335ea9bb92d0bdf294483111de76",
+    "docs/versions.json": "01f9ec382878335ea9bb92d0bdf294483111de76"
+  },
+  "log_hashes": {
+    "history-before.log": {
+      "sha256": "927727b9c2668a64a4127cf4b862d066d646804d9b3b4e836cefc16f463ecfa8",
+      "bytes": 8362
+    },
+    "npm-test-before-build.log": {
+      "sha256": "2654012705502fd10bc41c35fdcf8af7410dfd6e72744154c6d00c5fbf6ce88b",
+      "bytes": 10153
+    },
+    "chromium.log": {
+      "sha256": "0920a874b0776433cb192a5c54c185b36ec22b7754f0a4bf3eb94b2ccf8f6266",
+      "bytes": 19279
+    },
+    "independent-history-after.log": {
+      "sha256": "6b5458edc90f8919c848d7138cc298c025489c13c51dfa544f51572a3b96efe9",
+      "bytes": 7620
+    },
+    "npm-build.log": {
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a",
+      "bytes": 179
+    },
+    "npm-test-after-build.log": {
+      "sha256": "0f4f3708aeebe90c9bf513d2ad7a6ebf5994f73c5aef22ad85c0a79797e39dd7",
+      "bytes": 9945
+    }
+  },
+  "runtime": "Linux x86_64; Node24.19.0/npm11.9.0; Playwright1.62.0; Chromium154.0.8037.57",
+  "data": "117 rows/two historical builds; all data/provenance/installer bytes unchanged; real picker empty",
+  "qualification": "browser synthetic/mock fixtures only; firmware/controller/device/hosting not verified",
+  "independent_qa": "PENDING on new final head; historical acceptance superseded for overall QA",
+  "next_owner": "existing distinct Website QA, dispatched only by parent",
+  "next_action": "Independently fetch exact new head/root from PR body, review F3/F4 repair and retained F1/F2, rerun full native/default Chromium and supplementary response fixtures, record exact-head verdict. Keep draft/no merge until accepted.",
+  "protected_ref_changes": false,
+  "successor_created": false
+}

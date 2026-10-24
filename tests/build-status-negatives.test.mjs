@@ -510,7 +510,7 @@ const auditedR25='producer-pr120-fresh-elite-pro-controller-20261024',sourceR25=
 const editAuditedR25=fn=>edit(j=>{const x=j.history.find(r=>r.id===auditedR25);assert.ok(x);fn(x);});
 run('r25-two-new-noninstallable-history-records-positive',edit(j=>{
   assert.equal(j.history[115].id,sourceR25);assert.equal(j.history[116].id,auditedR25);
-  assert.equal(j.history.length,119);assert.equal(j.builds.length,2);
+  assert.ok(j.history.length>=117);assert.equal(j.builds.length,2);
   assert.equal(j.history[116].installable,false);
   assert.equal(j.history[116].build_pipeline.qa,'QA_PENDING');
   assert.equal(j.history[116].build_pipeline.live_http,'NOT_VERIFIED');
@@ -544,8 +544,7 @@ for(const [name,mutate] of [
   fs.writeFileSync(p,JSON.stringify(data,null,2)+'\n');
 });
 
-
-// R26: lock two NEW real source receipts without erasing R25's native-private audit.
+// Preserve Catalog R26's receipt-specific negatives across later append-only rows.
 const smcR26='smc-pr122-r2-mmc-stop-project-reset-source-20261024';
 const bfR26='bugfinder-bf020-pr123-legacy-bd-pan-motion-20261024';
 const tamperR26=(id,mutation)=>edit(j=>{
@@ -553,17 +552,17 @@ const tamperR26=(id,mutation)=>edit(j=>{
   assert.ok(row);
   mutation(row);
 });
-run('r26-current-119-noninstallable-row-positive',edit(j=>{
-  assert.equal(j.history.length,119);
+run('r26-pinned-119-noninstallable-prefix-positive',edit(j=>{
+  assert.ok(j.history.length>=119);
   assert.equal(j.history[117].id,smcR26);
   assert.equal(j.history[118].id,bfR26);
-  assert.deepEqual(j.history.slice(-2).map(h=>h.installable),[false,false]);
-  assert.deepEqual(j.history.slice(-2).map(h=>h.status),['source-only','source-only']);
+  assert.deepEqual(j.history.slice(117,119).map(h=>h.installable),[false,false]);
+  assert.deepEqual(j.history.slice(117,119).map(h=>h.status),['source-only','source-only']);
   assert.equal(j.counts.actual_build_generations,2);
-  assert.equal(j.counts.source_or_historical_checkpoints,119);
+  assert.equal(j.counts.source_or_historical_checkpoints,j.history.length);
 }),true);
 run('r26-delete-SMC-PR122-receipt-adjust-count',edit(j=>{j.history.splice(117,1);j.counts.source_or_historical_checkpoints--;}));
-run('r26-delete-BF020-PR123-trailing-receipt-adjust-count',edit(j=>{j.history.pop();j.counts.source_or_historical_checkpoints--;}));
+run('r26-delete-BF020-PR123-receipt-adjust-count',edit(j=>{j.history.splice(118,1);j.counts.source_or_historical_checkpoints--;}));
 run('r26-delete-both-new-real-receipts-adjust-count',edit(j=>{j.history.splice(117,2);j.counts.source_or_historical_checkpoints-=2;}));
 run('r26-swap-new-real-receipts',edit(j=>{[j.history[117],j.history[118]]=[j.history[118],j.history[117]];}));
 run('r26-forge-SMC-source-SHA-valid-shape',tamperR26(smcR26,x=>{x.source_commit='f'.repeat(40);}));
@@ -573,29 +572,40 @@ run('r26-forge-BF020-device-proof',tamperR26(bfR26,x=>{x.device_verified=true;})
 run('r26-add-hidden-download-HREF',tamperR26(smcR26,x=>{x.download_url='https://evil.example/firmware';}));
 run('r26-false-exact-native-compile',tamperR26(bfR26,x=>{x.exact_remote_native_build=true;}));
 
-// R27: a FUTURE append may not forge a mutable or mismatched Git evidence commit.
+// Retain R5's explicit synthetic append helpers; do not clone an audited tail.
+// The synthetic FUTURE append has an explicit immutable evidence URL; the current
+// R25 tail is a different receipt and must not supply the positive test's pin.
+const futureEvidenceSha='1'.repeat(40);
 const appendEvidenceCommit=commit=>edit(j=>{
-  const next=structuredClone(j.history.at(-1));
-  next.id='future-synthetic-evidence-commit-append-test';
-  next.evidence_commit=commit;
-  next.installable=false;
-  next.device_verified=false;
-  j.history.push(next);
+  j.history.push({
+    id:'future-synthetic-evidence-commit-append-test',
+    title:'Synthetic future source receipt',date:'2026-10-25',status:'source-only',models:['pro'],
+    source_repo:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro',
+    source_commit:futureEvidenceSha,source_tree:'2'.repeat(40),
+    device_verified:false,installable:false,evidence_commit:commit,
+    evidence_url:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/'+futureEvidenceSha,
+    description:'Synthetic future noninstallable source evidence'
+  });
   j.counts.source_or_historical_checkpoints=j.history.length;
 });
+run('future-evidence-commit-valid-pinned-append-PASS',appendEvidenceCommit(futureEvidenceSha),true);
 run('future-evidence-commit-mutable-main-REJECTED',appendEvidenceCommit('main'));
 run('future-evidence-commit-40hex-mismatched-url-REJECTED',appendEvidenceCommit('f'.repeat(40)));
 run('future-evidence-commit-object-REJECTED',appendEvidenceCommit({ref:'main'}));
-run('future-evidence-commit-valid-pinned-append-PASS',appendEvidenceCommit(
-  JSON.parse(fs.readFileSync(join(root,'build-status.json'),'utf8')).history.at(-1).evidence_commit),true);
 
 
 // R28: the pinned Git reference is the SHA after /blob/, /tree/ or /commit/.
 // Never accept an evidence_commit that appears only in a later pathname.
 const r28AppendEvidence=(route,gitRef,suffix,reportedCommit)=>edit(j=>{
-  const next=structuredClone(j.history.at(-1));
-  next.id='future-synthetic-r28-evidence-route-test';
-  next.evidence_commit=reportedCommit;
+  // Use an explicit future source-only row: R25's audit tail has its own
+  // fixed attribution and must not become a synthetic route fixture.
+  const next={
+    id:'future-synthetic-r28-evidence-route-test',
+    title:'Synthetic future source receipt',date:'2026-10-25',status:'source-only',models:['pro'],
+    source_repo:'https://github.com/gobbajogger/X0X37-for-Loopy-Pro',
+    source_commit:futureEvidenceSha,source_tree:'2'.repeat(40),
+    evidence_commit:reportedCommit,description:'Synthetic future noninstallable source evidence'
+  };
   next.evidence_url='https://github.com/gobbajogger/X0X37-for-Loopy-Pro/'+route+'/'+gitRef+suffix;
   next.installable=false;
   next.device_verified=false;
@@ -603,13 +613,46 @@ const r28AppendEvidence=(route,gitRef,suffix,reportedCommit)=>edit(j=>{
   j.counts.source_or_historical_checkpoints=j.history.length;
 });
 const r28FalseRef='a'.repeat(40), r28Claim='f'.repeat(40);
-run('r28-blob-path-contains-claimed-SHA-but-Git-ref-differs-REJECTED',
-  r28AppendEvidence('blob',r28FalseRef,'/docs/'+r28Claim+'/receipt.json',r28Claim));
-run('r28-tree-path-contains-claimed-SHA-but-Git-ref-differs-REJECTED',
-  r28AppendEvidence('tree',r28FalseRef,'/'+r28Claim+'/receipt.json',r28Claim));
 run('r28-legitimate-pinned-blob-append-PASS',
   r28AppendEvidence('blob',r28Claim,'/docs/receipt.json',r28Claim),true);
 run('r28-legitimate-pinned-tree-append-PASS',
   r28AppendEvidence('tree',r28Claim,'/docs/receipt.json',r28Claim),true);
 run('r28-legitimate-pinned-commit-append-PASS',
   r28AppendEvidence('commit',r28Claim,'',r28Claim),true);
+run('r28-blob-path-contains-claimed-SHA-but-Git-ref-differs-REJECTED',
+  r28AppendEvidence('blob',r28FalseRef,'/docs/'+r28Claim+'/receipt.json',r28Claim));
+run('r28-tree-path-contains-claimed-SHA-but-Git-ref-differs-REJECTED',
+  r28AppendEvidence('tree',r28FalseRef,'/'+r28Claim+'/receipt.json',r28Claim));
+
+run('r28-mutable-blob-ref-with-claimed-SHA-in-path-REJECTED',
+  r28AppendEvidence('blob','main','/docs/'+r28Claim+'/receipt.json',r28Claim));
+
+
+// The protected firmware NIGHTLY source merge is append-only history;
+// it is not a new flashable build, a physical PASS, or distribution approval.
+const r30Id='integration-pr103-firmware-nightly-merged-browser-route-20261024';
+const editR30=fn=>edit(j=>{
+  const row=j.history.find(entry=>entry.id===r30Id);
+  assert.ok(row,'R30 merged source record must exist');
+  fn(row,j);
+});
+run('r30-real-noninstallable-merged-source-history-positive',editR30((row,j)=>{
+  assert.equal(j.history[122].id,r30Id);
+  assert.equal(j.counts.source_or_historical_checkpoints,123);
+  assert.equal(row.status,'validation-evidence-only');
+  assert.equal(row.source_commit,'54f2ffbc3124f7449a69067dc8215a2d91a2e675');
+  assert.equal(row.source_tree,'3b5cadafba33f4c1b116660bc9d19a27a892337c');
+  assert.equal(row.firmware_subtree,'5c209609b770fd13949230aeb80956594fd6b741');
+  assert.equal(row.installable,false);
+  assert.equal(row.device_verified,false);
+  assert.equal(row.artifact_distribution_approved,false);
+}),true);
+run('r30-delete-merge-receipt-and-adjust-count-REJECT',editR30((row,j)=>{
+  j.history.splice(122,1);j.counts.source_or_historical_checkpoints--;
+}));
+run('r30-forge-merged-source-SHA-REJECT',editR30(row=>{row.source_commit='f'.repeat(40);}));
+run('r30-forge-compiled-subtree-REJECT',editR30(row=>{row.firmware_subtree='f'.repeat(40);}));
+run('r30-claim-downloadable-package-REJECT',editR30(row=>{row.installable=true;}));
+run('r30-claim-hardware-PASS-REJECT',editR30(row=>{row.device_verified=true;}));
+run('r30-claim-distribution-approved-REJECT',editR30(row=>{row.artifact_distribution_approved=true;}));
+run('r30-claim-new-native-build-REJECT',editR30(row=>{row.status='dev-checked';}));

@@ -1,0 +1,8 @@
+{"case": "malformed-selection-real-click", "mutation": "c.versions[0].models=null", "downloads": 0, "page_errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "old_blob_revoked": true}
+{"case": "malformed-selection-real-click", "mutation": "c.versions={}", "downloads": 0, "page_errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "old_blob_revoked": true}
+{"case": "malformed-selection-real-click", "mutation": "c.versions[0]=null", "downloads": 0, "page_errors": [], "state": {"writing": false, "image": false, "product": null, "href": null, "disabled": true}, "old_blob_revoked": true}
+{"case": "real-history-layout", "width": 320, "scrollWidth": 320, "history": 117, "builds": 2, "overflow": []}
+{"case": "real-history-layout", "width": 375, "scrollWidth": 375, "history": 117, "builds": 2, "overflow": []}
+{"case": "real-history-layout", "width": 768, "scrollWidth": 768, "history": 117, "builds": 2, "overflow": []}
+{"case": "real-history-layout", "width": 1280, "scrollWidth": 1280, "history": 117, "builds": 2, "overflow": []}
+PASS: all three actual-click regressions revoke old Blob without download/errors; all four full-history widths and card contents fit

@@ -1,0 +1,9 @@
+{"name": "npm-build", "command": ["npm", "run", "build"], "exit": 0, "seconds": 0.52}
+{"name": "npm-test", "command": ["npm", "test"], "exit": 0, "seconds": 33.12}
+{"name": "default-browser", "command": ["npm", "run", "test:browser"], "exit": 0, "seconds": 84.65}
+{"name": "dependency-after", "command": ["python3", "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/dependency_boundary_after.py"], "exit": 0, "seconds": 3.65}
+{"name": "independent-expanded", "command": ["python3", "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/independent_browser.py"], "exit": 0, "seconds": 19.05}
+{"name": "independent-focused", "command": ["python3", "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/r2_focused_checks.py"], "exit": 0, "seconds": 9.81}
+{"name": "independent-history", "command": ["python3", "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/history_response_negatives.py"], "exit": 0, "seconds": 13.96}
+{"name": "independent-history-extension", "command": ["python3", "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/history_adversarial_extension.py"], "exit": 0, "seconds": 27.87}
+{"name": "backup-boundary-compatible", "command": ["node", "/workspace/nightly-repair-evidence/docs/independent-qa/pr8-r3/backup_boundary_compatible.mjs"], "exit": 0, "seconds": 0.06}

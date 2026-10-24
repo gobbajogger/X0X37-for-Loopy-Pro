@@ -1,0 +1,39 @@
+{
+  "scope": "One user-approved unpublished GitHub draft connectivity test with tiny harmless text only; no tag/ref, firmware or publication",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "status": "PENDING \u2014 BLOCKED before any remote mutation",
+  "supported_route": "Existing gh2.46 CLI documented GitHub API route with existing environment authentication/proxy configuration",
+  "read_action": {
+    "command": "gh api --hostname github.com 'repos/gobbajogger/X0X37-for-Loopy-Pro/releases?per_page=3' --jq '[.[] | {id, tag_name, draft, published_at, assets: [.assets[] | {id,name,size,content_type}]}]'",
+    "target": "https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/releases?per_page=3",
+    "exit": 1,
+    "stderr": "Get \"https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/releases?per_page=3\": Forbidden",
+    "outcome": "FAILED \u2014 Forbidden; releases/tags/draft state could not be verified through this supported route"
+  },
+  "diagnostic_limit": "Forbidden may reflect existing route/proxy policy; it does not prove global GitHub authentication failure. No upstream-versus-proxy cause asserted.",
+  "connector_release_create_upload_action_available": false,
+  "remote_create_attempted": false,
+  "remote_upload_attempted": false,
+  "remote_publish_attempted": false,
+  "remote_release_id": null,
+  "remote_release_url": null,
+  "remote_asset_id": null,
+  "remote_asset_bytes_read_back": false,
+  "uncertain_write_outcome": false,
+  "remote_effect": "No mutation attempted by this helper; no new draft, asset, tag or ref created here. Existing remote state remains unread through the failed route.",
+  "local_fixture": {
+    "path": "/workspace/nightly-repair-evidence/r4/release-route-helper-fixture.txt",
+    "bytes": 70,
+    "sha256": "be70e12003aaa568da3f5d58dae51f89b533cb2c9dd139665271c2dae3ea7058",
+    "uploaded": false
+  },
+  "configuration_security": "Only gh version, token-presence booleans and sanitized proxy metadata were recorded. No credential values printed, credential borrowing, login, install, configuration or security-setting changes.",
+  "alternate_routes_attempted": false,
+  "remaining_dependency": "A supported existing release API route must successfully permit the harmless read before the once-approved draft test can proceed. No approval question is required merely because this technical route is blocked.",
+  "files": [
+    "release-route-helper-config.json",
+    "release-route-helper-releases-read.log",
+    "release-route-helper-fixture.txt"
+  ],
+  "log_sha256": "7642648c6b03aaa12c72d95d65646ced4fbf1c35bba1cae24f04985a871f36e6"
+}
