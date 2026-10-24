@@ -1,0 +1,54 @@
+{
+  "schema": "x0x37-installer-source-evidence/1",
+  "evidence_revision": "installer-nightly-postreboot-model-20261024-r1",
+  "role": "firmware-repository installer browser source UX/safety producer",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/installer-nightly-download-guard-20261024",
+    "commit": "5d130ebe40b6d893b0a779dcb376fd15f4ea2f29",
+    "full_root_tree": "ac7bab054afddc5b6defa86450da39a3b09c3781",
+    "firmware_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+    "source_blob": "8de8a7b90c480af023bcc8af24cc8c8b4303197e",
+    "regression_blob": "bccbf5acc0525d57cbdae95f1be9c8667ddb669d"
+  },
+  "finding": "After OTA write, Updater.install waited for the first non-OTA device, even an unrelated keyboard. In manual/stock mode the resulting mismatched identity error is treated as success; this could falsely report that the target rebooted.",
+  "repair": "Reboot scan filters by sameKeyboard before considering a device a return; independent identity-family check before interpreting version mismatch. Preserve legitimate same-family alias handling.",
+  "checks": [
+    {
+      "runner": "GitHub-connected V8 source replay (no OS process)",
+      "command": "Evaluate entire exact Updater.install() method with mocked Updater methods and the registered test logic; replace Node imports/fs/vm boundaries only",
+      "result": "PASS",
+      "cases": 18,
+      "source": "repaired candidate, complete method",
+      "native_process_exit": null
+    },
+    {
+      "runner": "GitHub-connected V8 source replay",
+      "command": "Run expanded registered test against consumed head 5d130ebe40b6d893b0a779dcb376fd15f4ea2f29",
+      "result": "EXPECTED_RED",
+      "scenario": "Pro ignores unrelated FM-1 after loader write; mismatch instead of target reappearance",
+      "native_process_exit": null
+    },
+    {
+      "runner": "Linux shell",
+      "command": "git ls-remote https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git refs/heads/nightly",
+      "exit_code": 128,
+      "result": "DNS failure: Could not resolve host github.com"
+    }
+  ],
+  "safety": {
+    "browser_only": true,
+    "firmware_subtree_unchanged_required": true,
+    "device_test": "UNKNOWN",
+    "native_full_node": "NOT_RUN",
+    "full_chromium": "NOT_RUN",
+    "firmware_build": "NOT_APPLICABLE_TO_BROWSER_EDIT",
+    "nightly_public_installability": "NO_GO"
+  },
+  "handoff": {
+    "source": "SOURCE-COMPLETE / PRODUCER-CHECKED SCOPED",
+    "next_owner": "Independent Firmware QA",
+    "next_action": "Run exact committed node web/test_install_nightly_ota_model.mjs and node web/test_install_slots.mjs, complete full source/OTA recovery/backup/Chromium tests; inspect stock false-success behavior with unrelated MIDI device",
+    "after_qa": "Sole Firmware Safe Merge; separate NIGHTLY website source owner ports same fix through its own reviewed PR; sole Publisher checks HTTP and per-model artifacts"
+  }
+}

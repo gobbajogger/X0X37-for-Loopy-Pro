@@ -111,7 +111,7 @@
     </details>
     <section id="ble" hidden>
       <p class="small" data-t="blewhy"></p>
-      <p class="small"><input type="file" id="ctlfile" accept=".img"></p>
+      <p class="small"><label for="ctlfile" data-t="ctlchoose">Controller image (.img):</label> <input type="file" id="ctlfile" accept=".img"> <button class="quiet" id="ctlclear" type="button" data-t="ctlclear" disabled>Remove controller</button></p>
     </section>
     <p><button id="go" disabled data-t="install">Install</button></p>
     <progress id="bar" max="100" value="0"></progress>
@@ -122,7 +122,7 @@
   <p class="small"><a href="../breaks/" data-t="breaks">Sample importer: your own break loops</a></p>
   <p class="small"><a href="../manual/" data-t="manual">The manual</a>
     · <a href="../new/" data-t="whatsnew">What's new</a>
-    · <a id="download" href="#" data-t="download">Download this package</a></p>
+    · <a id="download" hidden data-t="download">Download this package</a></p>
 
   <section id="stock">
     <h2 data-t="stockh"></h2>
@@ -139,7 +139,7 @@
       <span data-t="stockdrop"></span>
     </label>
     <p class="meta" id="dropmeta"></p>
-    <p class="small"><label><input type="checkbox" id="stockconfirm"> <span data-t="stockconfirm"></span></label></p>
+    <p class="small"><label><input type="checkbox" id="stockconfirm" disabled> <span data-t="stockconfirm"></span></label></p>
     <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
   </section>
 
@@ -165,7 +165,9 @@ const TEXT = {
     install: "インストール", other: "English", connect: "接続",
     connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
     connected: "接続済み", notconnected: "未接続", looking: "探しています…",
-    otahelp: "書き込みモードです。パッケージを選んでインストールを押すと続きから書けます。",
+    otahelp: "復旧用の書き込みモードです。この状態ではサンプルを自動保存できません。既存の .x0xslots バックアップがあるか、保存するサンプルがなかった場合にのみ続行してください。",
+    otaconfirm: "復旧モード：今はサンプルを読み出してバックアップできません。\n\n外部に保存済みの .x0xslots バックアップを自分で確認した、または保存すべきサンプルがなかったと確信している場合のみ［OK］を押してください。\n\nそうでない場合、続けるとサンプルが失われる可能性があります。［キャンセル］なら書き込みません。確認しましたか？",
+    otabackup: "何も書き込んでいません。復旧モードではサンプルを確認・保存できません。既存の .x0xslots バックアップかサンプルがなかったことを確認し、同じパッケージでもう一度実行してください。",
     flashother: "別の機種名で書き込む",
     modelwhy: "同じファームウェアを別の機種名で書き込みます。キーボード本来の機種（古い Elite は Pro と出ることがあります）を選ぶと、あとで M-VAVE の純正に戻せます。Starrykey 37 Play は SMK-37 Pro を使います。",
     manual: "マニュアル（英語）", whatsnew: "更新内容", download: "このパッケージをダウンロード",
@@ -177,20 +179,28 @@ const TEXT = {
     beta: "これはベータ版で、不安定な場合があります。自己責任でお使いください。",
     back: "公式や他のカスタムへ移すには、下に .fwsc を落とすか M-VAVE の M-UPGRADE を使います。",
     noversion: "まだ公開パッケージがありません。下に .fwsc を落として書き込めます（アップグレード・ダウングレード・純正・他カスタム）。",
+    nightlymodel: "DEV ファームウェア — 本体モデルの確認\n選択したパッケージ: ",
+    nightlymodelReported: "\n接続機器の表示名: ",
+    nightlymodelEnd: "\n\n本体に記載のモデル（Elite / Pro）を直接確認してください。古い Elite は Pro と表示されることがあり、USB 名だけでは機種は確定しません。実際の機種が選択したファームウェアと一致するときだけ OK を押してください。違う機種に書き込むと起動しなくなる場合があります。キャンセルでは書き込みません。",
+    modelcancel: "本体モデルを確認しなかったため、何も書き込んでいません。",
+    stockalias: "機種名が異なります。接続中: ",
+    stockaliasTo: "\n選択したパッケージ: ",
+    stockaliasEnd: "\n\nSMK-37 系列の機種名が一致しても、本体の正確なモデルは確認できません。古い Elite が Pro と表示されることがあります。本体の型番とファームウェアの対応情報を確認してください。誤った書き込みで使用できなくなるおそれがあります。この違いを理解して続行しますか？",
     stockh: "任意の .fwsc（純正・他カスタム・手元のビルド）",
     stockwhy: "アップグレード・ダウングレード、別のカスタム、純正への復帰は同じ手順です。キーボードの機種名は保たれ、キャリブレーションとペアリングは触りません。スロットが消える場合は先に .x0xslots へ保存します。",
     stock1: "純正が必要なら機種の公式 .fwsc を入手:",
     stock2: "任意の .fwsc を下にドロップ（または選択）。",
-    stock3: "USB で接続し、確認にチェックして書き込む。途中で止まったら挿し直して同じファイルでもう一度。",
+    stock3: "USB で接続して確認にチェックし、書き込みます。途中で止まったら同じファイルで再試行できますが、復旧モードでは以前のサンプルバックアップ（またはサンプルがないこと）の追加確認が必要です。",
     stockdrop: "ここに .fwsc をドロップ、またはクリックして選択",
     stockconfirm: "これはこのキーボード向けのファームウェアです（機種が合っている）",
     stockinstall: "このパッケージを書き込む",
     stockok: "パッケージを確認しました。ボタンを押してください。",
+    stockloading: "選択したファームウェアを読み込み、確認しています…", stockloadfail: "ファイルを読み込めませんでした。もう一度選択してください。",
     stockbad: "使える .fwsc ではありません。",
     stockdone: "完了。デバイスは新しいファームウェアで起動しました。",
     confirm: "書き込みますか？\n\n接続中: ",
     confirmto: "\n書き込む: ",
-    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。サンプル・スロットが消える場合は先にファイルへ保存します。USB を抜かないでください。",
+    confirmrisk: "\n\nキャリブレーションとペアリングは触りません。通常モードで読み出せるスロットは、必要なら書き込み前に保存します。復旧モードでは自動保存できないため、別途確認が必要です。USB を抜かないでください。",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
     reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
@@ -209,15 +219,21 @@ const TEXT = {
     slotsaved: "スロットを保存しました（ダウンロード）: ",
     slotback: "スロットを書き戻しています",
     slotsdone: "完了。スロットを書き戻して確認しました。",
+    slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
     slotskip: " 書き戻せなかったスロット（入りきらない）: ",
     slotstock: "完了。純正ファームウェアには X0X のスロットがありません。サンプルは次のファイルにあります（X0X を入れ直した後にブレークループのページの「Restore」で戻せます）: ",
     slots: "インストールは終わりましたが、スロットを書き戻せませんでした。ブレークループのページの「Restore」か tools/x0x_slots.py restore で、このファイルから戻してください: ",
     slotbackup: "スロットを保存できなかったため、何も書き込んでいません。先にブレークループのページでバックアップしてください。 ",
+    slotlayout: "既存のサンプルスロット情報を確認できません。ファームウェアは書き込まれていません。接続し直し、バックアップを確認してから再試行してください。",
     license: "GPL-3.0、無保証。ソース:",
-    blewhy: "Bluetooth MIDI を使うには、自分のコンピュータで ble/ctl/build_ctl.sh を実行して作った ctl.img をここで選んでください。選ばなければ Bluetooth なしでインストールします。",
-    ctlok: "ctl.img を確認しました。インストールに含めます。",
+    blewhy: "Bluetooth MIDI 用 ctl.img は、この DEV ファームウェアと機種で承認された SHA-256 と一致するものだけ選択できます。選ばなければ Bluetooth なしでインストールします。",
+    ctlchoose: "コントローラー画像 (.img):", ctlclear: "解除",
+    ctlcleared: "コントローラー画像を解除しました。",
+    ctlunapproved: "この機種向けに承認された ctl.img の SHA-256 と一致しません。対応するファイルを選ぶか、解除して Bluetooth なしでインストールしてください。",
+    ctlok: "ctl.img の形式を確認しました。書き込み前に機種別 SHA-256 と照合します。",
     ctlbad: "この ctl.img は使えません: ",
     noproduct: "このバージョンには選んだ機種のパッケージがありません。",
+    selectionstale: "書き込み前にファームウェアの選択または承認が変更されました。何も書き込んでいません。パッケージをもう一度確認してください。",
     releasehint: "GitHub の Releases からも同じファイルを取れます。",
   },
   en: {
@@ -227,7 +243,9 @@ const TEXT = {
     install: "Install", other: "日本語", connect: "Connect",
     connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
     connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
-    otahelp: "Update mode. Choose a package and press Install to finish (or resume) the write.",
+    otahelp: "Recovery/update loader. Automatic sample backup is unavailable in this mode. Resume only if you have an existing .x0xslots backup or know there were no samples to preserve.",
+    otaconfirm: "RECOVERY MODE: Sample slots cannot be read or backed up while the device is in the update loader.\n\nPress OK ONLY if you personally verified that a .x0xslots backup is already safely saved outside this browser, or know there were no samples to preserve.\n\nContinuing without that protection can permanently erase samples. Cancel stops without writing. Have you verified this?",
+    otabackup: "Nothing was written. Sample slots cannot be checked in update mode. Verify your previously saved .x0xslots backup or that there were no samples, then retry with the same package.",
     flashother: "Flash another keyboard version",
     modelwhy: "The same firmware under another model name. Pick your keyboard's own model (an Elite running an older build may report SMK-37 Pro), so M-VAVE's updater accepts its factory firmware again. Starrykey 37 Play: use SMK-37 Pro.",
     manual: "The manual", whatsnew: "What's new", download: "Download this package",
@@ -239,20 +257,28 @@ const TEXT = {
     beta: "This is a beta and may be unstable. The author accepts no responsibility if your device is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
     back: "To move to stock or another custom firmware, drop its .fwsc below, or use M-VAVE's M-UPGRADE.",
     noversion: "No published packages on this site yet. Drop any .fwsc below to upgrade, downgrade, restore stock, or switch to another custom build.",
+    nightlymodel: "DEV FIRMWARE — PHYSICAL MODEL CHECK\nSelected package: ",
+    nightlymodelReported: "\nConnected device reports: ",
+    nightlymodelEnd: "\n\nCheck the model printed on the actual keyboard (Elite or Pro), not just its USB name. Older Elite units can report Pro. Only press OK if the physical model matches this approved package. A wrong-model write can make the keyboard unusable. Cancel writes nothing.",
+    modelcancel: "Physical model not confirmed. Nothing was written.",
+    stockalias: "MODEL NAME DIFFERENCE\nConnected: ",
+    stockaliasTo: "\nSelected file: ",
+    stockaliasEnd: "\n\nA shared SMK family identity does not prove the physical model. An older Elite may report Pro; other variants also share identifiers. Verify the keyboard label and firmware compatibility. A wrong package can make the device unusable. Continue with these different model names?",
     stockh: "Any .fwsc (stock, other custom, or a local build)",
     stockwhy: "Upgrade, downgrade, switch to another custom firmware, or return to stock the same way. Packages keep the keyboard's model name; calibration and pairing are never touched. If sample slots would be lost, they are saved to a .x0xslots file first.",
     stock1: "For stock, get the official .fwsc for your model:",
     stock2: "Drop any .fwsc below (or click to choose it).",
-    stock3: "Connect by USB, tick the confirmation, and install. If a write stops halfway, replug and install the same file again to resume.",
+    stock3: "Connect by USB, confirm the model, and install. After an interrupted write, replug and choose the same file; recovery mode additionally requires verifying a previous sample backup or no samples.",
     stockdrop: "Drop the .fwsc file here, or click to choose it",
     stockconfirm: "This package is for this keyboard (matching model)",
     stockinstall: "Install this package",
     stockok: "Package checked. Press the button to install it.",
+    stockloading: "Reading and checking the selected firmware file…", stockloadfail: "Could not read that file. Choose it again.",
     stockbad: "That is not a usable .fwsc package.",
     stockdone: "Done. The device has restarted with the new firmware.",
     confirm: "Install this firmware?\n\nConnected: ",
     confirmto: "\nWill write: ",
-    confirmrisk: "\n\nCalibration and pairing are never touched. If sample slots would be lost, they are saved to a file first. Keep USB connected until Done.",
+    confirmrisk: "\n\nCalibration and pairing are never touched. The normal installer backs up at-risk readable slots before writing; update-loader recovery cannot do so and requires separate confirmation. Keep USB connected until Done.",
     nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
@@ -271,15 +297,21 @@ const TEXT = {
     slotsaved: "Slots saved (downloaded): ",
     slotback: "Writing the slots back",
     slotsdone: "Done. The slots were written back and checked.",
+    slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
     slotskip: " Not written back (no room): ",
     slotstock: "Done. The stock firmware has no X0X slots. Your samples are in this file (after you install X0X again, restore it with Restore on the break loops page): ",
     slots: "Installed, but the slots were not written back. Restore them from this file with Restore on the break loops page, or with tools/x0x_slots.py restore: ",
     slotbackup: "The slots could not be saved, so nothing was installed. Back them up on the break loops page first. ",
+    slotlayout: "Cannot verify existing sample-slot information. Nothing was installed. Reconnect, check your backup and retry before flashing.",
     license: "GPL-3.0, no warranty. Source:",
-    blewhy: "For Bluetooth MIDI, select the ctl.img that ble/ctl/build_ctl.sh made on your own computer. Without it, X0X installs without Bluetooth. Select it again for each update.",
-    ctlok: "ctl.img checked: the install includes it.",
+    blewhy: "For Bluetooth MIDI, select the ctl.img matching the approved SHA-256 for this DEV firmware and keyboard model. Without it, X0X installs without Bluetooth.",
+    ctlchoose: "Controller image (.img):", ctlclear: "Remove controller",
+    ctlcleared: "Controller image removed.",
+    ctlunapproved: "SHA-256 does not match the approved controller for this model. Select its matching ctl.img or remove the controller to install without Bluetooth.",
+    ctlok: "ctl.img format checked. SHA-256 will be checked against the model before installation.",
     ctlbad: "This ctl.img cannot be used: ",
     noproduct: "No package for that model in this version.",
+    selectionstale: "Firmware selection or approval changed before writing. Nothing was installed. Check the package and try again.",
     releasehint: "The same files are also on the GitHub Releases page.",
   },
 };
@@ -308,6 +340,29 @@ $("repolink").textContent = repo.replace(/^https:\/\/github.com\//, "");
 let midi = null, connected = false, lastId = null, writing = false;
 let image = null, selectedProduct = null, ctl = null, stock = null;
 let chosenModel = null;
+let loadSerial = 0;
+let verifiedDownload = null;
+function discardVerifiedDownload() {
+  if (verifiedDownload) URL.revokeObjectURL(verifiedDownload.href);
+  verifiedDownload = null;
+  const link = $("download");
+  link.removeAttribute("href");
+  link.removeAttribute("download");
+  link.hidden = true;
+}
+$("download").addEventListener("click", (event) => {
+  const v = currentVersion();
+  const p = v && chosenModel && v.models[chosenModel];
+  if (!isCatalogChecked(v, p) || !verifiedDownload ||
+      verifiedDownload.pkg !== p || verifiedDownload.model !== chosenModel ||
+      verifiedDownload.version !== v.version ||
+      typeof verifiedDownload.href !== "string" ||
+      !verifiedDownload.href.startsWith("blob:") ||
+      $("download").href !== verifiedDownload.href) {
+    event.preventDefault();
+    discardVerifiedDownload();
+  }
+});
 
 function led(state) {
   $("led").className = "led" + (state ? " " + state : "");
@@ -337,17 +392,23 @@ async function midiAccess() {
   return midi;
 }
 
-async function scan() {
-  if (writing) return;
+let scanSerial = 0;
+async function scan(allowPostWrite = false) {
+  if (writing && !allowPostWrite) return;
+  const requestId = ++scanSerial;
+  const isCurrent = () => requestId === scanSerial && (!writing || allowPostWrite);
   led("busy");
   $("conn").textContent = t("looking");
   try {
     const up = new Updater(await midiAccess(), () => {});
+    if (!isCurrent()) return;
     // Prefer a running app; if only the update loader is present, resume from there.
     let dev = await up.find((id) => !/^ota-/i.test(id.model));
+    if (!isCurrent()) { if (dev) dev.link.close(); return; }
     let inOta = false;
     if (!dev) {
       dev = await up.find((id) => /^ota-/i.test(id.model));
+      if (!isCurrent()) { if (dev) dev.link.close(); return; }
       inOta = !!dev;
     }
     if (!dev) {
@@ -362,9 +423,10 @@ async function scan() {
       : `${dev.id.text}${dev.name ? " · " + dev.name : ""}`;
     setConnected(true, detail);
     if (inOta) led("busy");
-    suggestModel(bare);
+    if (!allowPostWrite) suggestModel(bare);
     dev.link.close();
   } catch (e) {
+    if (!isCurrent()) return;
     lastId = null;
     setConnected(false, (e && e.message) || t("error"));
   }
@@ -372,12 +434,61 @@ async function scan() {
 
 $("connbtn").addEventListener("click", () => { scan(); });
 
+// Only publisher-reviewed, immutable, independently checked per-model artifacts
+// may be offered for download OR for installation. Never trust remote catalog or
+// GitHub Releases fields to grant publication. Keep empty until independent
+// source/QA/license/backup/controller and hosted-byte verification is recorded.
+// NIGHTLY device testing does NOT require a prior owner physical-device PASS.
+const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});
+const NIGHTLY_SHA256 = /^[0-9a-f]{64}$/;
+const NIGHTLY_SHA40 = /^[0-9a-f]{40}$/;
+const NIGHTLY_PRODUCTS = Object.freeze({ elite: /^SMK-37 Elite_900[0-9]*$/, pro: /^SMK-37 Pro_900[0-9]*$/ });
+function approvedNightlyModels(v, approvals = NIGHTLY_PUBLISHER_APPROVALS) {
+  if (!v || v.status !== "dev-checked" ||
+       (v.revoked !== undefined && v.revoked !== false) ||
+       (v.fromRelease !== undefined && v.fromRelease !== false) ||
+      !NIGHTLY_SHA40.test(v.source_commit || "") ||
+      !NIGHTLY_SHA40.test(v.firmware_tree_sha || "") ||
+      v.qa_pass !== true || v.source_licenses_approved !== true) return [];
+  return ["elite", "pro"].filter((model) => {
+    const p = v.models && v.models[model];
+    const a = approvals && approvals[`${v.version}/${model}`];
+    return !!p && !!a &&
+       (p.fromRelease === undefined || p.fromRelease === false) &&
+       (p.revoked === undefined || p.revoked === false) &&
+       (a.revoked === undefined || a.revoked === false) &&
+       (a.fromRelease === undefined || a.fromRelease === false) &&
+      NIGHTLY_PRODUCTS[model].test(p.product || "") &&
+      Number.isSafeInteger(p.size) && p.size > 0 &&
+      NIGHTLY_SHA256.test(p.sha256 || "") &&
+      NIGHTLY_SHA256.test(p.controller_sha256 || "") &&
+      typeof p.pkg === "string" &&
+      /^https:\/\/[a-zA-Z0-9][a-zA-Z0-9.-]*\/[a-zA-Z0-9_./%-]+\.fwsc$/.test(p.pkg) &&
+      !p.pkg.includes("..") &&
+      a.prehardware_qa_pass === true &&
+      a.license_and_source_ok === true &&
+      a.backup_integrity_pass === true &&
+      a.model_and_controller_pass === true &&
+      a.immutable_http_pass === true &&
+      a.model === model && a.product === p.product &&
+      a.source_root_sha === v.source_commit &&
+      a.firmware_tree_sha === v.firmware_tree_sha &&
+      a.package_url === p.pkg && a.package_size === p.size &&
+      a.package_sha256 === p.sha256 &&
+      a.controller_sha256 === p.controller_sha256 &&
+      a.host_sha256 === p.sha256;
+  });
+}
 function versions() {
-  return (catalogLive.versions || []).slice().sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
+  return (Array.isArray(catalogLive.versions) ? catalogLive.versions : [])
+    .filter((v) => approvedNightlyModels(v).length > 0)
+    .map((v) => ({ ...v,
+      models: Object.fromEntries(approvedNightlyModels(v).map((m) => [m, v.models[m]])) }))
+    .sort((a, b) => String(b.version).localeCompare(String(a.version), undefined, { numeric: true }));
 }
 function currentVersion() {
   const v = $("version").value;
-  return versions().find((x) => x.version === v) || versions()[0] || null;
+  return versions().find((x) => x.version === v) || null;
 }
 function modelKeyForProduct(product) {
   if (/^FM-1/i.test(product)) return "fm1";
@@ -387,8 +498,7 @@ function modelKeyForProduct(product) {
   return null;
 }
 function availableModels(ver) {
-  if (!ver || !ver.models) return [];
-  return MODEL_KEYS.filter((k) => ver.models[k]);
+  return approvedNightlyModels(ver);
 }
 function suggestModel(deviceModel) {
   const ver = currentVersion();
@@ -427,57 +537,153 @@ function refreshModelUi() {
   $("recovery").hidden = !avail.includes("fm1") || avail.some((k) => k !== "fm1");
   // Stock section always useful for SMK; for FM-1-only catalogs keep the SHA check path.
   $("stock").hidden = false;
-  const links = [];
-  if (avail.includes("pro")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`);
-  if (avail.includes("elite")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`);
-  if (avail.includes("fm1")) links.push(`<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`);
-  $("stocklinks").innerHTML = links.length ? " · " + links.join(" · ") : "";
+  // Vendor binary URLs are not catalog-reviewed or SHA-verified. Link to the
+  // official download page instead; the guarded local-file flow stays available.
+  $("stocklinks").textContent = "";
+}
+function isCatalogChecked(v, p) {
+  return !!v && !!p && approvedNightlyModels(v).includes(chosenModel) &&
+    v.models && v.models[chosenModel] === p;
+}
+// Cached bytes belong only to the exact approved package that was hashed and
+// parsed. Stale DOM selection or another package cannot authorize this image.
+function hasVerifiedNightlySelection(v, p) {
+  return isCatalogChecked(v, p) && !!image && selectedProduct === p.product &&
+    !!verifiedDownload && verifiedDownload.pkg === p &&
+    verifiedDownload.model === chosenModel &&
+    verifiedDownload.version === v.version &&
+    typeof verifiedDownload.href === "string" &&
+    verifiedDownload.href.startsWith("blob:");
+}
+// Bind approved selection across the asynchronous MIDI permission/scan.
+// Never write a replaced, revoked or different controller/package choice.
+function guardApprovedSelection() {
+  const v = currentVersion(), version = v && v.version, model = chosenModel;
+  const pkg = v && v.models && v.models[model];
+  const serial = loadSerial, bytes = image, product = selectedProduct;
+  const download = verifiedDownload, href = download && download.href;
+  const controller = ctl, hash = ctlHash;
+  return () => {
+    const current = currentVersion();
+    const candidate = current && current.models && current.models[chosenModel];
+    return !!version && serial === loadSerial && chosenModel === model &&
+      !!current && current.version === version && candidate === pkg &&
+      hasVerifiedNightlySelection(current, candidate) &&
+      image === bytes && selectedProduct === product &&
+      verifiedDownload === download && verifiedDownload?.href === href &&
+      ctl === controller && ctlHash === hash;
+  };
 }
 function refreshMeta() {
   const ver = currentVersion();
   const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { $("pkgmeta").textContent = ""; $("download").removeAttribute("href"); return; }
+  const link = $("download");
+  if (!isCatalogChecked(ver, pkg)) {
+    $("pkgmeta").textContent = "";
+    discardVerifiedDownload();
+    return;
+  }
   const size = pkg.size ? ` · ${(pkg.size / 1024).toFixed(0)} KB` : "";
   $("pkgmeta").textContent = `${pkg.product}${size}`;
-  $("download").href = pkg.pkg;
-  $("download").download = pkg.pkg.split("/").pop();
+  if (!verifiedDownload || verifiedDownload.pkg !== pkg ||
+      verifiedDownload.model !== chosenModel || verifiedDownload.version !== ver.version ||
+      typeof verifiedDownload.href !== "string" ||
+      !verifiedDownload.href.startsWith("blob:")) {
+    discardVerifiedDownload();
+    return;
+  }
+  link.href = verifiedDownload.href;
+  link.download = pkg.pkg.split("/").pop();
+  link.hidden = false;
 }
 async function sha256Hex(buf) {
   const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))]
     .map((b) => b.toString(16).padStart(2, "0")).join("");
   return hex;
 }
+// Stream modern Fetch responses within the catalog-approved byte budget.
+// A wrong/truncated/oversize response never reaches SHA/product parsing.
+async function readApprovedPackage(response, expectedSize, isLatest) {
+  if (!response.body || typeof response.body.getReader !== "function") {
+    // A non-streaming response cannot be bounded before allocation.
+    // Fail closed rather than buffering potentially unbounded remote bytes.
+    return null;
+  }
+  const reader = response.body.getReader();
+  const chunks = [];
+  let length = 0, reject = false;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (!isLatest()) { reject = true; break; }
+      if (done) break;
+      if (!(value instanceof Uint8Array) || value.byteLength > expectedSize - length) {
+        reject = true; break;
+      }
+      chunks.push(value);
+      length += value.byteLength;
+    }
+  } catch (error) {
+    reject = true;
+    throw error;
+  } finally {
+    if (reject) { try { await reader.cancel(); } catch (_) {} }
+    try { reader.releaseLock(); } catch (_) {}
+  }
+  if (reject || length !== expectedSize) return null;
+  const raw = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) { raw.set(chunk, offset); offset += chunk.byteLength; }
+  return raw;
+}
+
 async function loadSelectedPackage() {
+  const requestId = ++loadSerial;
+  discardVerifiedDownload();
   image = null; selectedProduct = null;
   $("go").disabled = true;
   refreshMeta();
   const ver = currentVersion();
-  const pkg = ver && chosenModel && ver.models[chosenModel];
-  if (!pkg) { sayK("noproduct"); return; }
+  const model = chosenModel;
+  const pkg = ver && model && ver.models[model];
+  if (!isCatalogChecked(ver, pkg)) { sayK("noproduct"); return; }
+  // A verified response is usable only while the SAME model/version/package
+  // remains selected and publisher-approved. An old request cannot re-enable Install.
+  const isLatest = () => {
+    if (requestId !== loadSerial || chosenModel !== model) return false;
+    const current = currentVersion();
+    return !!current && current.version === ver.version &&
+      current.models && current.models[model] === pkg && isCatalogChecked(current, pkg);
+  };
   try {
     const r = await fetch(pkg.pkg);
+    if (!isLatest()) return;
     if (!r.ok) throw new Error(`${pkg.pkg}: HTTP ${r.status}`);
-    const raw = new Uint8Array(await r.arrayBuffer());
-    if (pkg.sha256) {
-      const hex = await sha256Hex(raw.buffer);
-      if (hex !== pkg.sha256) { sayK("badpkg"); return; }
-    }
+    const raw = await readApprovedPackage(r, pkg.size, isLatest);
+    if (!isLatest()) return;
+    // Streaming enforces the approved byte budget before digest/product parsing.
+    if (!raw) { sayK("badpkg"); return; }
+    // Approved downloads require a SHA and the exact product/model identity.
+    const hex = await sha256Hex(raw.buffer);
+    if (!isLatest()) return;
+    if (hex !== pkg.sha256) { sayK("badpkg"); return; }
     const product = productOf(raw);
-    if (!pkg.fromRelease && product !== pkg.product) { sayK("badpkg"); return; }
-    if (pkg.fromRelease) {
-      const want = modelKeyForProduct(product);
-      if (want && want !== chosenModel) { sayK("badpkg"); return; }
-      pkg.product = product;
-    }
+    if (product !== pkg.product) { sayK("badpkg"); return; }
     image = logicalImage(raw);
     selectedProduct = product;
-    say(`X0X ${ver.version} · ${MODELS[chosenModel] || chosenModel}`);
-    $("go").disabled = writing;
+    // Never hand out the unverified remote URL: this Blob contains the bytes
+    // already checked against the immutable package digest and model identity.
+    verifiedDownload = { pkg, model, version: ver.version,
+      href: URL.createObjectURL(new Blob([raw], {type: "application/octet-stream"})) };
+    say(`X0X ${ver.version} · ${MODELS[model] || model}`);
+    $("go").disabled = writing || ctlNeedsResolution ||
+      !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
     refreshMeta();
-  } catch (e) { sayK("loadfail", e.message); }
+  } catch (e) { if (isLatest()) sayK("loadfail", e.message); }
 }
 
 function fillVersions() {
+  loadSerial++; // Also invalidate a pending download when the picker becomes empty.
   const sel = $("version");
   const cur = sel.value;
   sel.innerHTML = "";
@@ -490,13 +696,12 @@ function fillVersions() {
     image = null; selectedProduct = null;
     $("go").disabled = true;
     $("pkgmeta").textContent = "";
+    discardVerifiedDownload();
     say(t("noversion"));
-    // Still show SMK stock links when the catalog is empty.
+    // Do not reintroduce unverified vendor firmware binaries on empty catalogs.
+    // Keep the official manufacturer landing page and guarded local file picker.
     $("stock").hidden = false;
-    $("stocklinks").innerHTML = " · "
-      + `<a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Pro.fwsc" target="_blank" rel="noopener">SMK-37 Pro V016</a>`
-      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/SMK-37%20Elite.fwsc" target="_blank" rel="noopener">SMK-37 Elite V016</a>`
-      + ` · <a href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" target="_blank" rel="noopener">FM-1 V15</a>`;
+    $("stocklinks").textContent = "";
     return;
   }
   for (const v of list) {
@@ -506,7 +711,8 @@ function fillVersions() {
     sel.append(o);
   }
   const prefer = cur && list.some((v) => v.version === cur) ? cur
-    : (catalogLive.latest || (list[0] && list[0].version));
+    : (list.some((v) => v.version === catalogLive.latest)
+      ? catalogLive.latest : list[0].version);
   if (prefer) sel.value = prefer;
   refreshModelUi();
   loadSelectedPackage();
@@ -519,68 +725,61 @@ function confirmWrite(product) {
 $("version").addEventListener("change", () => { refreshModelUi(); loadSelectedPackage(); });
 
 async function mergeGitHubReleases() {
-  // Optional: add release assets not already in the catalog so any GitHub Release is installable.
-  const m = /github\.com\/([^/]+)\/([^/#?]+)/.exec(repo);
-  if (!m) return;
-  const api = `https://api.github.com/repos/${m[1]}/${m[2]}/releases?per_page=30`;
-  try {
-    const r = await fetch(api, { headers: { Accept: "application/vnd.github+json" } });
-    if (!r.ok) return;
-    const releases = await r.json();
-    const byVer = new Map((catalogLive.versions || []).map((v) => [v.version, { ...v, models: { ...v.models } }]));
-    for (const rel of releases) {
-      const version = String(rel.tag_name || "").replace(/^v/i, "");
-      if (!version) continue;
-      const entry = byVer.get(version) || { version, models: {} };
-      for (const asset of rel.assets || []) {
-        const name = asset.name || "";
-        let key = null;
-        if (/smk37-elite|-elite\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "elite";
-        else if (/smk37-mke|-mke\.fwsc$/i.test(name) && /\.fwsc$/i.test(name)) key = "mke";
-        else if (/x0x-smk37-|smk37/i.test(name) && /\.fwsc$/i.test(name)) key = "pro";
-        else if (/^x0x-[\w.-]+\.fwsc$/i.test(name) && !/smk/i.test(name)) key = "fm1";
-        if (!key || entry.models[key]) continue;
-        entry.models[key] = {
-          product: key === "fm1" ? "FM-1_9000000" : `${MODELS[key]}_9000000`,
-          pkg: asset.browser_download_url,
-          size: asset.size,
-          fromRelease: true,
-        };
-      }
-      if (Object.keys(entry.models).length) byVer.set(version, entry);
-    }
-    catalogLive = {
-      ...catalogLive,
-      versions: [...byVer.values()],
-      latest: catalogLive.latest
-        || (releases[0] && String(releases[0].tag_name || "").replace(/^v/i, "")),
-    };
-  } catch (_) { /* offline / rate limit: keep embedded catalog */ }
+  // Intentionally no-op: unreviewed GitHub Releases never change the picker.
+  // Only explicit per-model, source-checked and hosted-hash-approved catalog
+  // entries can be shown after review of NIGHTLY_PUBLISHER_APPROVALS.
 }
-
+let ctlLoadSerial = 0;
+let ctlHash = null;
+let ctlNeedsResolution = false;
 $("ctlfile").addEventListener("change", async (e) => {
-  ctl = null;
+  if (writing) { e.target.value = ""; return; }
   const f = e.target.files && e.target.files[0];
-  if (!f) return;
+  if (!f) return; // Canceling the chooser preserves the previous controller.
+  const requestId = ++ctlLoadSerial;
+  ctl = null; ctlHash = null;
+  ctlNeedsResolution = true;
+  $("ctlclear").disabled = false; // Allows explicit cancellation while reading.
+  $("go").disabled = true;
+  e.target.value = ""; // Allow choosing the same file again after a read failure.
   try {
     const raw = new Uint8Array(await f.arrayBuffer());
+    if (requestId !== ctlLoadSerial || writing) return;
     const p = ctlProblem(raw);
     if (p) { sayK("ctlbad", p); return; }
-    ctl = raw;
+    const hash = await sha256Hex(raw.buffer);
+    if (requestId !== ctlLoadSerial || writing) return;
+    ctl = raw; ctlHash = hash;
+    ctlNeedsResolution = false;
+    $("go").disabled = writing || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("ctlclear").disabled = false;
     sayK("ctlok");
-  } catch (err) { sayK("ctlbad", err && err.message); }
+  } catch (err) {
+    if (requestId === ctlLoadSerial && !writing) sayK("ctlbad", err && err.message);
+  }
+});
+
+$("ctlclear").addEventListener("click", () => {
+  if (writing) return;
+  ctlLoadSerial++;
+  ctl = null; ctlHash = null;
+  ctlNeedsResolution = false;
+  $("go").disabled = writing || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+  $("ctlfile").value = "";
+  $("ctlclear").disabled = true;
+  sayK("ctlcleared");
 });
 
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
 
-async function acceptStock(raw) {
-  stock = null;
-  $("stockgo").disabled = true;
-  $("dropmeta").textContent = "";
+let stockLoadSerial = 0;
+async function acceptStock(raw, requestId) {
+  if (requestId !== stockLoadSerial || writing) return;
   try {
     const product = productOf(raw);
     const model = product.split("_")[0];
     const hex = await sha256Hex(raw.buffer);
+    if (requestId !== stockLoadSerial || writing) return;
     const isFm1Stock = hex === STOCK_SHA256_FM1;
     // Accept SMK/FM-1 family packages (stock, X0X, Felucca, other ports). Refuse unrelated files.
     if (!isFm1Stock && !/^(FM-1|SMK-37|MKE-P37|STARRYKEY|ota-)/i.test(model)) {
@@ -593,14 +792,33 @@ async function acceptStock(raw) {
     }
     stock = { image: logicalImage(raw), product, foreign: true, fm1Stock: isFm1Stock };
     $("dropmeta").textContent = `${product} · ${(raw.length / 1024).toFixed(0)} KB`;
+    $("stockconfirm").disabled = false;
     $("stockgo").disabled = writing || !$("stockconfirm").checked;
     sayK("stockok");
-  } catch (err) { sayK("stockbad"); }
+  } catch (err) { if (requestId === stockLoadSerial && !writing) sayK("stockbad"); }
+}
+async function selectStockFile(f) {
+  if (!f || writing) return;
+  const requestId = ++stockLoadSerial;
+  stock = null;
+  $("stockconfirm").checked = false;
+  $("stockconfirm").disabled = true;
+  $("stockgo").disabled = true;
+  $("dropmeta").textContent = "";
+  sayK("stockloading");
+  try {
+    const raw = new Uint8Array(await f.arrayBuffer());
+    if (requestId !== stockLoadSerial || writing) return;
+    await acceptStock(raw, requestId);
+  } catch (err) {
+    if (requestId === stockLoadSerial && !writing) sayK("stockloadfail");
+  }
 }
 $("stockfile").addEventListener("change", async (e) => {
   const f = e.target.files && e.target.files[0];
   if (!f) return;
-  await acceptStock(new Uint8Array(await f.arrayBuffer()));
+  e.target.value = ""; // Selecting the same file after failure must retry.
+  await selectStockFile(f);
 });
 $("stockconfirm").addEventListener("change", () => {
   $("stockgo").disabled = writing || !stock || !$("stockconfirm").checked;
@@ -611,18 +829,34 @@ const drop = $("stockdrop");
 drop.addEventListener("drop", async (e) => {
   const f = e.dataTransfer.files && e.dataTransfer.files[0];
   if (!f) return;
-  await acceptStock(new Uint8Array(await f.arrayBuffer()));
+  await selectStockFile(f);
 });
 
 async function run(img, product, opts = {}) {
+  // Lock both install paths before an asynchronous MIDI permission request.
+  if (writing) return;
+  writing = true;
+  scanSerial++; // Invalidate any pre-write lookup before Web MIDI/OTA operations.
+  ctlLoadSerial++; // Ignore controller file reads pending before the write.
+  $("ctlclear").disabled = true;
+  $("go").disabled = $("stockgo").disabled = true;
   const foreign = !!opts.foreign;   // stock / other custom: identity text after reboot may differ
   let access;
   try { access = await midiAccess(); }
-  catch (e) { sayK(e.code || "denied"); return; }
-  writing = true;
-  $("go").disabled = $("stockgo").disabled = true;
+  catch (e) {
+    writing = false;
+    sayK(e.code || "denied");
+    $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
+    $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+    $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
+    return;
+  }
   led("busy");
   try {
+    // Permission and loader discovery may outlive the verified selection.
+    const selectionValid = () => foreign ||
+      (typeof opts.selectionGuard === "function" && opts.selectionGuard());
+    if (!selectionValid()) throw Object.assign(new Error(t("selectionstale")), { code: "selectionstale" });
     const up = new Updater(access, log);
     const total = 74 + 1167;
     const step = (k, a) => {
@@ -635,9 +869,20 @@ async function run(img, product, opts = {}) {
       if (k === "done") { $("bar").value = 100; sayK(foreign ? "stockdone" : "done"); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
+    if (!selectionValid()) {
+      if (ota) ota.link.close();
+      throw Object.assign(new Error(t("selectionstale")), { code: "selectionstale" });
+    }
     if (ota) {
       // Interrupted upgrade/downgrade/stock write: finish with this package (same keyboard family).
       ota.link.close();
+      // Already in the loader: SMP_INFO and prewrite slot backup are unavailable.
+      // This is a deliberate manual recovery override, never an inferred backup PASS.
+      if (!foreign && !confirmNightlyModel(ota.id.model, product))
+        throw Object.assign(new Error(t("modelcancel")), { code: "modelcancel" });
+      if (!window.confirm(t("otaconfirm"))) {
+        throw Object.assign(new Error(t("otabackup")), { code: "otabackup" });
+      }
       const ok = await up.resume(img, step, product);
       $("bar").value = ok ? 100 : $("bar").value;
       sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");
@@ -645,6 +890,7 @@ async function run(img, product, opts = {}) {
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
         step, sameKeyboard,
+        confirmModel: foreign ? null : (id, p) => confirmNightlyModel(id.model, p),
         say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
         progress: (f) => { $("bar").value = Math.min(100, f * 100); },
         save: (file, name) => {
@@ -661,10 +907,15 @@ async function run(img, product, opts = {}) {
       if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
       else if (r.move) {
         $("bar").value = 100;
-        sayK("slotsdone", r.move.skipped.length ? t("slotskip") + r.move.skipped.join("; ") + ` (${r.move.name})` : "");
+        if (r.move.skipped.length) {
+          // Firmware completed, but restoration did not. Never show a clean
+          // success: preserve the skipped-slot list and backup filename.
+          sayK("slotspartial", r.move.skipped.join("; ") + ` (${r.move.name})`);
+          log(t("slotspartial") + r.move.skipped.join("; ") + ` (${r.move.name})`);
+        } else sayK("slotsdone");
       }
     }
-    await scan();
+    await scan(true); // Re-detect after reboot without releasing the single-writer lock.
   } catch (e) {
     // Stock / other custom firmware often reports a different identity string than the package marker.
     if (foreign && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }
@@ -674,23 +925,53 @@ async function run(img, product, opts = {}) {
     led("err");
   }
   writing = false;
-  $("go").disabled = !image;
+  $("go").disabled = ctlNeedsResolution || !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel]);
   $("stockgo").disabled = !stock || !$("stockconfirm").checked;
+  $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
 }
 
 $("go").addEventListener("click", () => {
-  if (!image || !selectedProduct || writing) return;
+  if (writing || ctlNeedsResolution || $("go").disabled ||
+      !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
   if (!confirmWrite(selectedProduct)) return;
   let img = image;
   if (ctl) {
+    const v = currentVersion(), p = v && v.models && v.models[chosenModel];
+    // Valid format alone does not prove the controller matches the approved DEV build.
+    if (!isCatalogChecked(v, p) || ctlHash !== p.controller_sha256) {
+      sayK("ctlbad", t("ctlunapproved"));
+      return;
+    }
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
   }
   $("go").disabled = true;   // sync before the first await in run()
-  run(img, selectedProduct, { foreign: false });
+  run(img, selectedProduct, { foreign: false, selectionGuard: guardApprovedSelection() });
 });
+function confirmNightlyModel(deviceModel, product) {
+  const actual = String(deviceModel || "").replace(/^ota-/i, "");
+  if (!sameKeyboard(actual, product.split("_")[0]))
+    throw Object.assign(new Error(t("model")), { code: "model" });
+  return window.confirm(t("nightlymodel") + product + t("nightlymodelReported") + actual + t("nightlymodelEnd"));
+}
+function confirmStockModel(product) {
+  if (!lastId) return true; // Without a scan, Updater still checks the family; manual model confirmation stays mandatory.
+  const connectedModel = lastId.model.replace(/^ota-/i, "");
+  const packageModel = product.split("_")[0];
+  // The connected keyboard can change after selecting a local package.
+  if (!sameKeyboard(connectedModel, packageModel)) {
+    sayK("model", ` ${lastId.text} → ${product}`);
+    return false;
+  }
+  if (connectedModel.toLowerCase() !== packageModel.toLowerCase()) {
+    // A shared SMK-family identity never certifies the physical model.
+    return window.confirm(t("stockalias") + lastId.text + t("stockaliasTo") +
+      product + t("stockaliasEnd"));
+  }
+  return true;
+}
 $("stockgo").addEventListener("click", () => {
   if (!stock || !$("stockconfirm").checked || writing) return;
-  if (!confirmWrite(stock.product)) return;
+  if (!confirmStockModel(stock.product) || !confirmWrite(stock.product)) return;
   $("stockgo").disabled = true;
   run(stock.image, stock.product, { foreign: true });
 });
