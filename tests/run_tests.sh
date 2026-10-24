@@ -328,6 +328,7 @@ run ota-mid-session-identity python3 tests/host/ota_mid_session_identity_test.py
 run ota-unit-bounce python3 tests/host/ota_unit_bounce_test.py tools/fm1_install.py   # sticky fail-closed unit swap callback and B->A foreign SysEx reply
 run ota-send-rebind python3 tests/host/ota_send_rebind_test.py tools/fm1_install.py   # report observed mid-send unit loss, permanently taint transport; atomicity still required
 run ota-coremidi python3 tests/host/ota_coremidi_test.py   # read-only native pairing/provider boundaries; no persistent-ID or write capability
+run ota-identity-prototype sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror tests/host/ota_identity_v1_prototype_test.c -o $OUT/ota_identity_v1_prototype && $OUT/ota_identity_v1_prototype"   # future portable query/UID plan only; no firmware integration or hardware
 run installer-backup-snapshot python3 tests/fm1_install_backup_snapshot_test.py   # refresh migration plan after verified SMP_INFO backup
 run installer-ctl python3 tests/install_ctl_test.py       # fm1_install.py: the Bluetooth image read-back (CTL_READ) and its CRC32
 run ctl-read-framing python3 tests/ctl_read_framing_test.py  # reject corrupt/overlong Bluetooth controller readback before accepting CRC

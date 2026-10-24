@@ -1,5 +1,11 @@
 # Native macOS pairing provider — supplementary PR125 continuation
 
+**Later native validation:** the parent reports successful compilation and
+read-only validation of the exact helper at `632b3f21abdb4b8483e60b5a23fe87b90aea5584`.
+See the [sanitized native receipt and future identity prototype packet](future-unit-identity-prototype-20261024.md).
+The original cloud-only status and commands below remain historical evidence;
+native unplug/reboot and destructive transport qualification are still pending.
+
 **SOURCE IMPLEMENTED / HOST CHECKS ONLY / NATIVE SDK BUILD AND EXECUTION NOT RUN.**
 **PRODUCTION TRANSPORT INCOMPLETE / DEVICE NOT QUALIFIED / NIGHTLY NO-GO.**
 
