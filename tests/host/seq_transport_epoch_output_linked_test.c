@@ -135,6 +135,100 @@ static void remote_stop_then_continue_preserves_order(void)
     advance(&s, &t);
     CHECK(count(&t, 0x81, 64) == 1);
 }
+/* The host may deliver an incoming Loopy transport and a physical PLAY/STOP
+ * in one render block. midi_req then remains set even after PLAY supersedes
+ * that MIDI request. Output suppression must follow the winning request.
+ * In clip mode OFF, preserve legacy MIDI transport output (MID-07). */
+static void mixed_transport_origin_output(void)
+{
+    seq_t s; trace_t t;
+    init(&s, &t);
+    incoming(&s, 0xFA);
+    seq_start(&s);                     /* local PLAY wins over MIDI Start */
+    advance(&s, &t);
+    CHECK(s.playing && s.start_local);
+    CHECK(count(&t, 0xFA, 0) == 1);
+    CHECK(count(&t, 0x91, 60) == 1);
+
+    init(&s, &t);
+    incoming(&s, 0xFB);
+    seq_continue(&s);                  /* local Continue wins */
+    advance(&s, &t);
+    CHECK(s.playing && s.start_local);
+    CHECK(count(&t, 0xFB, 0) == 1);
+
+    init(&s, &t);
+    seq_start(&s);
+    advance(&s, &t);
+    t.used = 0;
+    incoming(&s, 0xFC);
+    seq_stop(&s);                      /* local STOP wins over MIDI Stop */
+    advance(&s, &t);
+    CHECK(!s.playing);
+    CHECK(count(&t, 0xFC, 0) == 1);
+    CHECK(count(&t, 0x81, 60) == 1);  /* held 303 NoteOff once */
+
+    init(&s, &t);
+    seq_start(&s);
+    advance(&s, &t);
+    t.used = 0;
+    incoming(&s, 0xFC);
+    seq_start(&s);                     /* remote Stop, then local restart */
+    advance(&s, &t);
+    CHECK(s.playing && s.start_local);
+    CHECK(count(&t, 0xFA, 0) == 1);
+    CHECK(count(&t, 0xFC, 0) == 0);
+    CHECK(count(&t, 0x81, 60) == 1);
+
+    init(&s, &t);
+    seq_start(&s);
+    advance(&s, &t);
+    t.used = 0;
+    seq_stop(&s);                      /* local Stop, then remote restart */
+    incoming(&s, 0xFA);
+    advance(&s, &t);
+    CHECK(s.playing && !s.start_local);
+    CHECK(count(&t, 0xFC, 0) == 1);
+    CHECK(count(&t, 0xFA, 0) == 0);
+    CHECK(count(&t, 0x81, 60) == 1);
+
+    init(&s, &t);
+    CHECK(seq_midi_rt(&s, 0xFA) == 1); /* clip mode OFF: no midi_req */
+    advance(&s, &t);
+    CHECK(s.playing && !s.start_local);
+    CHECK(count(&t, 0xFA, 0) == 1);    /* untouched legacy echo */
+
+    init(&s, &t);
+    incoming(&s, 0xFA);              /* clip mode ON: no remote echo */
+    advance(&s, &t);
+    CHECK(count(&t, 0xFA, 0) == 0);
+
+    init(&s, &t);
+    s.clk_src = SEQ_CLK_INT;
+    advance(&s, &t);
+    incoming(&s, 0xFA);              /* ignored remotely, still sets midi_req */
+    seq_start(&s);
+    advance(&s, &t);
+    CHECK(s.playing && !s.ext);
+    CHECK(count(&t, 0xFA, 0) == 1);
+
+    init(&s, &t);
+    s.send_clock = 0;
+    incoming(&s, 0xFA);
+    seq_start(&s);
+    advance(&s, &t);
+    CHECK(count(&t, 0xFA, 0) == 0);
+
+    init(&s, &t);
+    s.clk_src = SEQ_CLK_EXT;
+    advance(&s, &t);
+    incoming(&s, 0xFA);
+    seq_start(&s);
+    advance(&s, &t);
+    CHECK(s.playing && s.ext);
+    CHECK(count(&t, 0xFA, 0) == 0);
+}
+
 int main(void)
 {
     static const uint32_t blocks[] = {1u, 64u, 1024u};
@@ -144,6 +238,7 @@ int main(void)
         post_start_clock_keeps_new_epoch();
         local_play_echo_must_keep_phase();
         remote_stop_then_continue_preserves_order();
+        mixed_transport_origin_output();
     }
     fprintf(stderr, "seq epoch/output linked: %d/%d checks %s\n", checks - errors, checks,
             errors ? "FAILED" : "PASSED");
