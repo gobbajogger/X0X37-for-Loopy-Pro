@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHash, webcrypto } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { Script } from 'node:vm';
-import { validateCatalog, verifyDownloads, renderInstaller, installerFingerprint, requiredGates }
+import { validateCatalog, verifyDownloads, renderInstaller, prepareInstaller, installerFingerprint, requiredGates }
   from '../scripts/render-qualified-nightly.mjs';
 
 const hash = b => createHash('sha256').update(b).digest('hex');
@@ -13,14 +13,15 @@ for (let i = 0; i < product.length; i++) raw[i * 48 + 47] = (product.charCodeAt(
 const digest = hash(raw), ctl = new Uint8Array([1, 2, 3]);
 const evidence = 'https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103';
 const commit = '1'.repeat(40), tree = '2'.repeat(40);
+const firmwareTree = '3'.repeat(40);
 const pkg = { product, sha256: digest, size: raw.length,
   controller_sha256: hash(ctl), pkg: `https://example.org/${digest}/pro.fwsc` };
 const catalog = { schema: 1, latest: 'synthetic-test', history: [], versions: [{
   version: 'synthetic-test', label: 'DEV / HARDWARE TEST — DEVICE NOT TESTED',
   status: 'dev-checked', config: 'dev', hardware_tested: false,
-  source_commit: commit, source_tree: tree, models: { pro: pkg } }] };
+  source_commit: commit, source_tree: tree, firmware_tree_sha: firmwareTree, models: { pro: pkg } }] };
 const qualification = { schema: 1, installer_sha256: installerFingerprint(), packages: { [digest]: {
-  source_commit: commit, source_tree: tree, size: raw.length, product, url: pkg.pkg,
+  source_commit: commit, source_tree: tree, firmware_tree_sha: firmwareTree, size: raw.length, product, url: pkg.pkg,
   integration: { ref: 'nightly', commit, tree, evidence_url: evidence },
   controller: { strategy: 'owner-supplied', sha256: hash(ctl), size: 68 },
   budgets: { app_code_free: 5620, ram_free: 460, pool_free: 8324 },
@@ -36,6 +37,21 @@ const reject = mutate => {
   negatives++;
 };
 validateCatalog(catalog, qualification);
+for (const key of ['revoked', 'blocked', 'withdrawn', 'disabled', 'fromRelease']) {
+  reject(c => c.versions[0][key] = true);
+  reject(c => c.versions[0].models.pro[key] = true);
+  reject((c, q) => q[key] = true);
+  reject((c, q, r) => r[key] = true);
+}
+reject(c => c.versions[0].models.pro.status = 'failed');
+reject(c => delete c.versions[0].firmware_tree_sha);
+reject((c, q, r) => r.firmware_tree_sha = 'f'.repeat(40));
+for (const layer of ['version', 'model', 'qualification', 'receipt']) {
+  reject((c, q, r) => {
+    const target = { version: c.versions[0], model: c.versions[0].models.pro, qualification: q, receipt: r }[layer];
+    target.lifecycle = 'withdrawn';
+  });
+}
 for (const gate of requiredGates) {
   reject((c, q, r) => r.gates[gate].status = 'PENDING');
   reject((c, q, r) => delete r.gates[gate].evidence_url);
@@ -74,7 +90,15 @@ for (const response of [new Response('missing', { status: 404 }), new Response(r
   await assert.rejects(verifyDownloads(catalog, async () => response)); negatives++;
 }
 await assert.rejects(verifyDownloads(catalog, async () => { throw new Error('TLS/network failure'); }));
-const html = renderInstaller(catalog);
+const prepared = await prepareInstaller(catalog, qualification, async () => new Response(raw));
+const html = prepared.html;
+await assert.rejects(renderInstaller(catalog, qualification, async () => new Response('bad bytes')));
+const snapshot = structuredClone(catalog);
+const snapshotHtml = await renderInstaller(snapshot, qualification, async () => {
+  snapshot.versions[0].models.pro.product = 'SMK-37 Elite_900';
+  return new Response(raw);
+});
+assert.ok(snapshotHtml.includes('SMK-37 Pro_900'));
 assert.ok(html.includes(pkg.pkg) && html.includes(digest));
 assert.ok(html.includes('DEV / HARDWARE TEST — DEVICE NOT TESTED'));
 assert.doesNotMatch(html, /\/\*CATALOG\*\/|\/\*LIB\*\//);
@@ -87,12 +111,28 @@ const handler = source.slice(source.indexOf('$("go").addEventListener("click", a
   source.indexOf('$("stockgo").addEventListener'));
 let callback, runs, messages;
 const go = { disabled: false, addEventListener: (event, fn) => callback = fn };
-const context = { image: new Uint8Array([7]), selectedProduct: product, writing: false,
-  chosenModel: 'pro', ctl: null, loadSerial: 1, currentVersion: () => catalog.versions[0],
+const version = prepared.catalog.versions[0], selectedPackage = version.models.pro;
+const context = { URL, image: new Uint8Array([7]), selectedProduct: product, writing: false,
+  chosenModel: 'pro', ctl: null, ctlNeedsResolution: false, loadSerial: 1,
+  verifiedDownload: { pkg: selectedPackage, model: 'pro', version: version.version,
+    sha256: selectedPackage.sha256, size: selectedPackage.size,
+    product: selectedPackage.product, href: 'blob:checked' },
+  currentVersion: () => version,
   $: () => go, confirmWrite: () => true, sayK: (k, v) => messages.push([k, v]), t: k => k,
   updateInstallGate: () => { go.disabled = false; }, insertCtl: i => i,
   run: () => { runs++; }, sha256Hex: async b => hash(b) };
-new Script(handler).runInNewContext(context);
+const approvalFunctions = html.slice(html.indexOf('const NIGHTLY_PUBLISHER_APPROVALS ='),
+  html.indexOf('\nfunction versions()'));
+const selectionFunctions = source.slice(source.indexOf('function isCatalogChecked(v,p) {'),
+  source.indexOf('\nfunction updateInstallGate()'));
+new Script(approvalFunctions + '\n' + selectionFunctions + '\n' + handler).runInNewContext(context);
+// The actual generated approval map admits the validated renderer output; a
+// catalog's own QA flags cannot grant admission through the empty source map.
+const sourceAdmission = source.slice(source.indexOf('const NIGHTLY_PUBLISHER_APPROVALS ='),
+  source.indexOf('\nfunction versions()'));
+const unapproved = { URL, version };
+new Script(sourceAdmission + '\nglobalThis.models=approvedNightlyModels(version);').runInNewContext(unapproved);
+assert.equal(unapproved.models.length, 0);
 async function click(controller) { runs = 0; messages = []; go.disabled = false; context.ctl = controller; await callback(); }
 await click(null); assert.equal(runs, 0);
 await click(new Uint8Array([9])); assert.equal(runs, 0);
