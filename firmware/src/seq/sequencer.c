@@ -235,6 +235,12 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
             /* Output was disabled or its channel set OFF while a note sounded. */
             bass_midi_flush(s, b, o);
         }
+        if (!played) {                                  /* rejected chance: a real rest, not a held 303 */
+            tr->sounding = 0;
+            tr->held_note = 0;
+            tr->to_off = 0;
+            return;
+        }
         tr->sounding = 1;
     }
     nx = next_pos(s, TRK_BASS0 + b, p, 0);
