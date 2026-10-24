@@ -1,0 +1,349 @@
+{
+  "schema": "x0x37-hourly-source-producer-v1",
+  "evidence_revision": "smc-pr122-ble-midpoll-epoch-20261024-r4",
+  "utc": "2026-10-24T14:17:00Z",
+  "producer_role": "LoopyX0X37 SMC Transport",
+  "status": "SOURCE COMPLETE / PRODUCER NATIVE CHECKED / INDEPENDENT QA + NEW ELITE/PRO BUILD PENDING",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "producer_parent_commit": "88f1d6d78ea661b4ae3ae30e9fcc643e07c2a290",
+  "producer_parent_root_tree": "c93bbb4ef206a8107eb3d59a077d963f7d90237b",
+  "producer_parent_firmware_tree": "62f6e1c9bffc95e57c28d3d579261c2b1f4eab96",
+  "producer_parent_ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+  "baseline_smc_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+  "new_smc_blob_expected": "c435439a7e5af5b34ac2cd0ab7b7bcb73d06aa30",
+  "new_test_blob_expected": "e207c07a5098d85941a50d29a4d2bd5681339322",
+  "run_tests_original_blob": "ec6108a18404af8cd052c9700f2a6ab197003358",
+  "summary": "Real mid-poll TIMER5 link disconnect/reconnect could publish a new BLE packet that old-epoch smc_poll consumed before applying new link cutoff; resulting new-session Solo NoteOn then erased at next poll. Break queued BLE drain upon new published link generation, deferring packet until cutoff applied next poll. Same link/no edge consumes normally.",
+  "patch_paths": [
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_ble_midpoll_link_test.py",
+    "tests/run_tests.sh",
+    "docs/scheduler-handoffs/smc-ble-midpoll-link-epoch-20261024-r4.json"
+  ],
+  "checks": {
+    "native_runner": "python3 -B replay_run4.py",
+    "compiler_matrix": "gcc,clang x plain, UBSan, ASan+UBSan, ASAN_OPTIONS=detect_leaks=0",
+    "old_source_expected_failures": "6/6 native runtime RED, exit 1",
+    "new_source": "6/6 native compile+run GREEN, 16/16 assertions each, exit 0",
+    "unchanged_mmc_stop_control": "6/6 native compile+run GREEN, 64/64 assertions each, exit 0",
+    "python_syntax": "python3 -B -m py_compile tests/host/smc_ble_midpoll_link_test.py replay_run4.py exit 0",
+    "leak_sanitizer": "NOT RUN, disabled",
+    "full_root": "NOT RUN",
+    "elite_pro_native_new_firmware": "NOT RUN",
+    "device": "NOT TESTED",
+    "nightly_ota": "NO GO"
+  },
+  "cases": "Two old-session stale-input conditions x BLE ring cursor wraps 0,1,15,31,64,127,240,255; protect fresh reconnect note while clearing previous Solo; no duplicate third poll.",
+  "checks_detail": [
+    {
+      "input_source": "before",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "gcc",
+      "sanitizer": "plain",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "logs/before_smc_ble_midpoll_link_gcc_plain.log",
+      "log_sha256": "7c874e29497a3afa945839d3d96398e2a6d9a6cf63ec819f8ab04a6df039ba0b",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "gcc",
+      "sanitizer": "plain",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_ble_midpoll_link_gcc_plain.log",
+      "log_sha256": "ffd6c065bb00bfeeb75f2c8553bfeb2e11fd3b9e1d5121d2dd681421c64c940d",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "compiler": "gcc",
+      "sanitizer": "plain",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_mmc_stop_fifo_gcc_plain.log",
+      "log_sha256": "a799210d830f22b82813451c5b8193218779a6f9ed84a623057a08729ef8b3be",
+      "passed": true
+    },
+    {
+      "input_source": "before",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "gcc",
+      "sanitizer": "ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "logs/before_smc_ble_midpoll_link_gcc_ubsan.log",
+      "log_sha256": "abd5ba5bbc5c98428522d3da6f4b4376ffdcc8ba183a6528dc4696741621dfb8",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "gcc",
+      "sanitizer": "ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_ble_midpoll_link_gcc_ubsan.log",
+      "log_sha256": "79f63f3e561a78e46242455b03614ca1d5a1443191d42055463e65492cc95d1b",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "compiler": "gcc",
+      "sanitizer": "ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_mmc_stop_fifo_gcc_ubsan.log",
+      "log_sha256": "ae3bf42c3b47b394f39ed42fe34c31251e367c1686123cf24b9d9eae2bb8a48d",
+      "passed": true
+    },
+    {
+      "input_source": "before",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "gcc",
+      "sanitizer": "asan_ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "logs/before_smc_ble_midpoll_link_gcc_asan_ubsan.log",
+      "log_sha256": "fd774ee1aae3a20f0e1988d6462184cc1f2c96e04b7f314c95e4f8914974fc3b",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "gcc",
+      "sanitizer": "asan_ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_ble_midpoll_link_gcc_asan_ubsan.log",
+      "log_sha256": "7f03179e8d20dae95bfba322533867fea7c3825fd12796b3e3c30d9413dbddc5",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "compiler": "gcc",
+      "sanitizer": "asan_ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_mmc_stop_fifo_gcc_asan_ubsan.log",
+      "log_sha256": "716997faa3b04d2462c9eafaf6dc9df92baae293566ea4d7b1ab418ef651c646",
+      "passed": true
+    },
+    {
+      "input_source": "before",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "clang",
+      "sanitizer": "plain",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "logs/before_smc_ble_midpoll_link_clang_plain.log",
+      "log_sha256": "733d21bc491ef53cb6c5eb72bd4df8298173e82e52b2d57fb4dec76b77be9ddd",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "clang",
+      "sanitizer": "plain",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_ble_midpoll_link_clang_plain.log",
+      "log_sha256": "b0064bdd0d9c0577762b71a1c5a05c7bd99ae66aec5ecf87a56d944f05572150",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "compiler": "clang",
+      "sanitizer": "plain",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_mmc_stop_fifo_clang_plain.log",
+      "log_sha256": "1571ab850f2d0f3a0de3c1643cb4389a9ad7e50aa27b063b4f1a9940108604ad",
+      "passed": true
+    },
+    {
+      "input_source": "before",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "clang",
+      "sanitizer": "ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "logs/before_smc_ble_midpoll_link_clang_ubsan.log",
+      "log_sha256": "c0f2eb57fa7144cf68e0f29af5d177609257ed10346ae9b2f2570ecfef1bee48",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "clang",
+      "sanitizer": "ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_ble_midpoll_link_clang_ubsan.log",
+      "log_sha256": "252152c657b48a5fbe59145c40ae05a861f7da8859baa25bb3040433b7f946e4",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "compiler": "clang",
+      "sanitizer": "ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_mmc_stop_fifo_clang_ubsan.log",
+      "log_sha256": "677203d8774d69f12f2151e53586383a0ce77c64274903bb5c1c72476e7e50ae",
+      "passed": true
+    },
+    {
+      "input_source": "before",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "clang",
+      "sanitizer": "asan_ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "logs/before_smc_ble_midpoll_link_clang_asan_ubsan.log",
+      "log_sha256": "6c29a36ab03c17f741311ceaa21b67efda72388d34ef4cc1ca876474a9c74368",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_ble_midpoll_link_test.py",
+      "compiler": "clang",
+      "sanitizer": "asan_ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_ble_midpoll_link_clang_asan_ubsan.log",
+      "log_sha256": "f787c610bd61be40ce047f06fcda53cf532c6d8b5ac372f6c6c526b7289f089d",
+      "passed": true
+    },
+    {
+      "input_source": "after",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "compiler": "clang",
+      "sanitizer": "asan_ubsan",
+      "command": [
+        "python3",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "logs/after_smc_mmc_stop_fifo_clang_asan_ubsan.log",
+      "log_sha256": "0653b815134013a1f5c7927c216eafc71c2a1cf68906d3eecf042fb7580f27fa",
+      "passed": true
+    }
+  ],
+  "evidence_archive": {
+    "library_path": "/LoopyX0X37-SMC-BLE-Midpoll-Producer-20261024.zip",
+    "library_file_id": "libfile_e50348071d4c81919b88e687fd6c1718",
+    "size_bytes": 46420,
+    "sha256": "fc34562d7c54a11cdb1175b80e67f428d19da1f351162e338234f9a313e04c50",
+    "integrity": "uploaded and rematerialized bytes cmp and ZIP CRC PASS, no restricted binary"
+  },
+  "consumers": [
+    "Independent QA — independently review exact post-commit ROOT and rerun BLE ISR/phase/Solo regressions",
+    "Hourly Build — compile genuinely new firmware/ compiled input Elite and Pro DEV BUILD_ONLY plus matching ctl.img",
+    "sole firmware Safe Merge — optional source only after independent QA; first NIGHTLY PR #103 remains separate DRAFT NO GO"
+  ],
+  "privacy": "GPL-3.0-only source and test log metadata; NO firmware/ctl/SDK/DSP/samples published",
+  "not_claimed": [
+    "Independent QA PASS",
+    "full firmware target build for updated source",
+    "installable NIGHTLY",
+    "hardware verified",
+    "combined first NIGHTLY QA",
+    "Pages or immutable HTTPS"
+  ]
+}

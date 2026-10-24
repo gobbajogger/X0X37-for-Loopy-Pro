@@ -747,6 +747,11 @@ void smc_poll(void)
         r = smc_qr;
         __asm__ volatile("" ::: "memory");
         smc_event_t msg = smc_q[r % SMC_Q];
+        /* A TIMER5 link edge may arrive after this poll's epoch snapshot.
+         * Leave any post-edge packet for the next poll to apply that edge's
+         * cutoff and clear the old Solo without erasing a new-session press. */
+        __asm__ volatile("" ::: "memory");
+        if (smc_link_published != link) break;
         /* The ISR may reuse a full ring's slot as soon as the read index moves.
          * Keep a private event before releasing it. Release before dispatch so
          * a project action can still discard the remaining queued input. */
