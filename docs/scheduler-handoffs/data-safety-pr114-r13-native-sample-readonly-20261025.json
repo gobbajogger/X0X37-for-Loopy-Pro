@@ -1,6 +1,6 @@
 {
   "schema": "loopyx0x37-data-safety-handoff/v1",
-  "revision": "data-safety-pr114-r13-native-sample-readonly-20261025-r1",
+  "revision": "data-safety-pr114-r13-native-sample-readonly-20261025-r2-source-exact-provenance",
   "repository": "gobbajogger/X0X37-for-Loopy-Pro",
   "owned_branch": "lane/data-safety-ota-target-identity-20261024-1711",
   "base_commit": "fa05d6375d7517b22e0682de5bee6a1d4666befb",
@@ -104,7 +104,7 @@
     }
   ],
   "evidence_type": "Native Linux scoped AST-exact Link class, simulated device changes, not complete repo or physical hardware.",
-  "registered_test_source_sha256": "f82386f3c7a49dbd2f93a8136029379d1c2b8c2ffe01bcd47f3a4fd48b78612c",
+  "registered_test_source_sha256": "fd8a530fef28ab25ff58f7d83dd870cf6fdb4ae17c276e495fdab458be11c965",
   "checked_prior_link_ast": {
     "bytes_with_terminal_newlines": 2154,
     "fnv1a32": "9dd8d356",
@@ -122,5 +122,16 @@
   ],
   "next_owner": "sole Independent QA, then sole firmware Safe Merge only if independently qualifying a genuinely needed source integration",
   "no_public_binary": true,
-  "no_device_flash": true
+  "no_device_flash": true,
+  "registered_test_git_blob": "e36206d06f4d6d6854936457e9fc8b965b81b6c0",
+  "new_sample_source_git_blob": "702fd9960540997e7357cc5eaf84bda2a062fef7",
+  "registered_runner_git_blob": "cc9d455ceb0c415e75d1572ce72f3c9e216b60df",
+  "producer_source_commit": "1e11184bd30b2a2e2fb7b0ab010df1cb30463d1e",
+  "producer_root_tree": "3ae80e8e824e531ec8f023b39cf18704379e3a91",
+  "checked_after_link_ast": {
+    "bytes_with_terminal_newlines": 2929,
+    "fnv1a32": "0567dbcc",
+    "producer_blob": "702fd9960540997e7357cc5eaf84bda2a062fef7"
+  },
+  "registered_test_byte_note": "Source-matched tests re-executed with exact Git test bytes (4084 bytes without final newline). Outputs identical to prior 4085-byte Library authored fixture."
 }
