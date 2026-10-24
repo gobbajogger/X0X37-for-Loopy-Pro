@@ -54,7 +54,7 @@ PREFIX = r'''
 #define FS 44100u
 
 typedef struct {
-    uint8_t req_start, req_cont, req_stop, req_rt, midi_req;
+    uint8_t req_start, req_cont, req_stop, req_rt, req_stop_rt, midi_req;
     uint8_t clk_src, playing, start_local;
     uint32_t ext_pending, ext_now, start_at, req_prior_ticks;
     uint32_t starts, continues, stops;
