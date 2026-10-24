@@ -1,0 +1,107 @@
+{
+  "verdict": "NEEDS CHANGES \u2014 supplementary runtime history-response scope",
+  "candidate_head": "b0d3c2b88587948a428305210d8b76ebd4d40535",
+  "candidate_root": "5b5305ae79d109c87c5f5004fb81b2d3780f65cf",
+  "comparison_r26_head": "234cd59437137002565b22376b0d2a7a24e8053e",
+  "pr8_history_html_blob": "72f18fcbd4568ab45e70ac2d3beecee6af70ccad",
+  "r26_history_html_blob": "ecad15f48e897d0f0fe87b7df8b060f7067a35cc",
+  "history_inline_script_byte_identical": true,
+  "shared_inline_sha256": "a80994108b9928af9646c568e323693bc4109989bac4ae98062da4a021a5cdf1",
+  "command": "python3 history_response_negatives.py",
+  "exit": 1,
+  "original_named_cases": {
+    "positive_pass": 2,
+    "negative_fail": 5
+  },
+  "additional_actual_complete_response_schema_case": "FAIL: two build cards +117 histories accepted with schema999",
+  "summary": [
+    {
+      "case": "positive-375",
+      "pass": true,
+      "error": false,
+      "build_cards": 1,
+      "history_cards": 117,
+      "forged_DEVICE_VERIFIED_visible": false,
+      "firmware_links": []
+    },
+    {
+      "case": "positive-320",
+      "pass": true,
+      "error": false,
+      "build_cards": 1,
+      "history_cards": 117,
+      "forged_DEVICE_VERIFIED_visible": false,
+      "firmware_links": []
+    },
+    {
+      "case": "null-history-last",
+      "pass": false,
+      "error": true,
+      "build_cards": 1,
+      "history_cards": 117,
+      "forged_DEVICE_VERIFIED_visible": false,
+      "firmware_links": []
+    },
+    {
+      "case": "null-history-first",
+      "pass": false,
+      "error": true,
+      "build_cards": 1,
+      "history_cards": 1,
+      "forged_DEVICE_VERIFIED_visible": false,
+      "firmware_links": []
+    },
+    {
+      "case": "null-pro-model",
+      "pass": false,
+      "error": true,
+      "build_cards": 1,
+      "history_cards": 0,
+      "forged_DEVICE_VERIFIED_visible": false,
+      "firmware_links": []
+    },
+    {
+      "case": "schema-999",
+      "pass": false,
+      "error": false,
+      "build_cards": 1,
+      "history_cards": 117,
+      "forged_DEVICE_VERIFIED_visible": false,
+      "firmware_links": []
+    },
+    {
+      "case": "forged-device-verified",
+      "pass": false,
+      "error": false,
+      "build_cards": 1,
+      "history_cards": 117,
+      "forged_DEVICE_VERIFIED_visible": true,
+      "firmware_links": []
+    },
+    {
+      "case": "actual-two-builds-schema-999",
+      "pass": false,
+      "error": false,
+      "build_cards": 2,
+      "history_cards": 117,
+      "forged_DEVICE_VERIFIED_visible": false,
+      "firmware_links": []
+    }
+  ],
+  "source_changed": false,
+  "scope": "Network-response fixtures, no firmware link/download admission/device demonstrated; offline provenance validator is separate and not alleged to accept these inputs",
+  "logs": {
+    "history_response_negatives.py": {
+      "bytes": 3532,
+      "sha256": "a3581d5dc3909b8a17fc0f7cc3e0d4043efb4fc6a74a12320cb61cebd856c818"
+    },
+    "browser.log": {
+      "bytes": 15952,
+      "sha256": "59c9f081d8b0eb568a8c047ba48433974071639c1e9e92eebdd311f8a2777015"
+    },
+    "results.json": {
+      "bytes": 21642,
+      "sha256": "ea4f09e1781e5beb60613d627d54f65c6ee7fcb2bddab0579336155664793560"
+    }
+  }
+}
