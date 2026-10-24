@@ -25,8 +25,7 @@ assert.match(loader, /if \(product !== pkg\.product\)/, "exact model/product req
 assert.match(loader, /URL\.createObjectURL\(new Blob\(\[raw\]/, "download must serve verified package bytes");
 assert.doesNotMatch(meta, /link\.href\s*=\s*pkg\.pkg/, "unverified remote href must not be exposed");
 assert.match(meta, /link\.href = verifiedDownload\.href/, "only verified Blob may be linked");
-assert.match(chooser, /\$\("download"\)\.removeAttribute\("href"\)/, "stale href persists");
-assert.match(chooser, /\$\("download"\)\.hidden = true/, "empty picker must hide link");
+assert.match(chooser, /if \(!list\.length\) \{[\s\S]*discardVerifiedDownload\(\)/, "empty picker must revoke verified Blob URL");
 assert.match(html, /id="stockfile"[^>]*accept="\.fwsc"/, "local arbitrary .fwsc import lost");
 
 const product = "SMK-37 Elite_9001100";
@@ -178,21 +177,32 @@ function eligiblePickerResult(eligible, latest, current = "") {
     append(option) { this.options.push(option);
       if (this.options.length === 1) this._value = option.value; }
   };
+  const revoked = [];
   const dom = {version: select, noversion: {}, versionrow: {},
     modeldetails: {}, go: {}, pkgmeta: {}, stock: {}, stocklinks: {},
-    download: {removeAttribute(name) {this[name] = null;}}};
+    download: {hidden: true, href: null, addEventListener() {},
+      removeAttribute(name) {this[name] = null;}}};
   const context = createContext({dom, eligible, latest,
+    URL: {revokeObjectURL: (href) => revoked.push(href)},
     document: {createElement: () => ({value: "", textContent: ""})}});
-  new Script(`let loadSerial=0, image=null, selectedProduct=null, catalogLive={latest};
+  new Script(`let loadSerial=0, image=null, selectedProduct=null, catalogLive={latest}, chosenModel="elite";
     const $ = (id) => dom[id];
     const versions = () => eligible;
     const refreshModelUi = () => {};
     const loadSelectedPackage = () => {};
     const say = () => {}, t = () => "";
+    ${downloadGuard}
     ${chooser}
-    fillVersions();`).runInContext(context);
+    if (!eligible.length) {
+      verifiedDownload={href:"blob:stale-approved",pkg:{},model:"elite",version:"before"};
+      dom.download.href=verifiedDownload.href;
+      dom.download.hidden=false;
+    }
+    fillVersions();
+    globalThis.blobAlive=verifiedDownload!==null;`).runInContext(context);
   return {selected: select.value, options: select.options.map((o) => o.value),
-    hidden: dom.download.hidden};
+    hidden: dom.download.hidden, href: dom.download.href,
+    revoked, blobAlive: context.blobAlive};
 }
 const eligibleList = [{version: "dev-approved-1"}, {version: "dev-approved-0"}];
 test("unapproved newest catalog entry falls back to eligible version", () => {
@@ -214,6 +224,9 @@ test("empty eligible catalog keeps picker blank and direct link hidden", () => {
   assert.equal(r.selected, "");
   assert.equal(r.options.length, 0);
   assert.equal(r.hidden, true);
+  assert.equal(r.href, null);
+  assert.deepEqual(r.revoked, ["blob:stale-approved"]);
+  assert.equal(r.blobAlive, false);
 });
 // NIGHTLY_ELIGIBLE_LATEST_FALLBACK_END
 

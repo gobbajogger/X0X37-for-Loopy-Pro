@@ -622,9 +622,7 @@ function fillVersions() {
     image = null; selectedProduct = null;
     $("go").disabled = true;
     $("pkgmeta").textContent = "";
-    $("download").removeAttribute("href");
-    $("download").removeAttribute("download");
-    $("download").hidden = true;
+    discardVerifiedDownload();
     say(t("noversion"));
     // Still show SMK stock links when the catalog is empty.
     $("stock").hidden = false;
