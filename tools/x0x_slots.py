@@ -563,11 +563,30 @@ def main(argv):
             sys.exit(__doc__)
         meta, images = read_archive(path.read_bytes())
         out = Path(rest[0])
-        out.mkdir(parents=True, exist_ok=True)
+        if out.is_symlink():
+            raise SlotError("extract output directory is a symlink")
+        targets = []
         for k, img in enumerate(images):
             if img is not None:
-                (out / f"slot{k + 1}.hdr").write_bytes(img[:HDR_LEN])
-                (out / f"slot{k + 1}.bin").write_bytes(img[DATA_OFF:])
+                targets.extend(((out / f"slot{k + 1}.hdr", img[:HDR_LEN]),
+                                (out / f"slot{k + 1}.bin", img[DATA_OFF:])))
+        # Preflight every destination before touching any extracted sample data.
+        # The exclusive open also refuses concurrent creation and dangling links.
+        for dest, _ in targets:
+            if dest.exists() or dest.is_symlink():
+                raise SlotError(f"extract refuses to overwrite {dest}")
+        out.mkdir(parents=True, exist_ok=True)
+        created = []
+        try:
+            for dest, payload in targets:
+                with dest.open("xb") as file:
+                    created.append(dest)
+                    file.write(payload)
+        except BaseException:
+            # An interrupted/failed extraction must not leave partial slot files.
+            for dest in created:
+                dest.unlink(missing_ok=True)
+            raise
         print(f"{sum(i is not None for i in images)} slot image(s) in {out}")
         return
     import fm1_sample_upload as up                     # the MIDI link (mido)

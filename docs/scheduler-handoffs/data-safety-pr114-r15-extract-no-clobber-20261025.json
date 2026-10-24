@@ -1,0 +1,71 @@
+{
+  "schema": "loopyx0x37.data_safety.native_host.v1",
+  "evidence_revision": "data-safety-pr114-r15-extract-noclobber-20261025-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ota-target-identity-20261024-1711",
+  "parent_commit": "a64a16403a626109157e9269f636274bfb58d161",
+  "parent_root_tree": "397c0c7b06dfac55318a39fafbb803393ea511d0",
+  "previous_file_blob": "5f436793d5f79caa7ccb2984c82a8c275f016886",
+  "compiler_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "consumer_behavior": "Offline 'x0x_slots.py extract' into a new or existing empty folder preserves extracted .hdr/.bin byte-for-byte; a repeat, existing file, or symlink fails before overwriting the owner's recordings; interrupted writes remove this invocation's new files.",
+  "problem": "R14 extract used Path.write_bytes, silently clobbering pre-existing or symlink-targeted slot files; writing a later file could fail leaving earlier new partial output.",
+  "changes": [
+    "tools/x0x_slots.py main extract branch: refuse symlink output, preflight destination conflicts, exclusive xb creation, best-effort rollback on exceptions",
+    "tests/host/sample_extract_safety_test.py: source-main AST with actual temp filesystem and fault injection, seven behavioral cases",
+    "tests/run_tests.sh: registered source-scoped serial native regression"
+  ],
+  "source_projection": {
+    "R14_main_FNV1a32": "76496e5b",
+    "R15_main_FNV1a32": "70965a28",
+    "source_window": "def main(argv) through before __main__",
+    "verification": "original local R14 native evidence projection equals exact Git source window"
+  },
+  "host_environment": "Linux Python 3.13.5; no MIDI device, sample archive parser stubbed; tested actual Path operations; no full checkout or target compiler",
+  "checks": [
+    {
+      "command": "python3 -B tests/host/sample_extract_safety_test.py old_main.py",
+      "exit": 1,
+      "results": "2/7; five expected failures",
+      "log_sha256": "1e808b1618e41c08ab4ea988229eeb90baf1324a77c95343ab6a939448ab61e7"
+    },
+    {
+      "command": "python3 -O -B tests/host/sample_extract_safety_test.py old_main.py",
+      "exit": 1,
+      "results": "2/7; five expected failures",
+      "log_sha256": "1e808b1618e41c08ab4ea988229eeb90baf1324a77c95343ab6a939448ab61e7"
+    },
+    {
+      "command": "python3 -B tests/host/sample_extract_safety_test.py new_main.py",
+      "exit": 0,
+      "results": "7/7",
+      "log_sha256": "df6f377e30e80c92d133f1b43fa4a95ad143d7c042f01d693493ae0b39dbc2cd"
+    },
+    {
+      "command": "python3 -O -B tests/host/sample_extract_safety_test.py new_main.py",
+      "exit": 0,
+      "results": "7/7",
+      "log_sha256": "ac27347025048546c26eb8ae5122ba19b5680c38c7606e5fcab661cfa0944d77"
+    },
+    {
+      "command": "python3 -B tests/host/native_sample_cli_guard_test.py after/tools/fm1_sample_upload.py new_main.py",
+      "exit": 0,
+      "results": "18/18",
+      "log_sha256": "bb635ead9543e7860d17e444f05fb55a325a3d42ba7d19386cffacb400c7853f"
+    },
+    {
+      "command": "python3 -O -B tests/host/native_sample_cli_guard_test.py after/tools/fm1_sample_upload.py new_main.py",
+      "exit": 0,
+      "results": "18/18",
+      "log_sha256": "88698a3603552b4b761c11b28fb158f5c562b851ed9f15db39e3e35732b5563d"
+    }
+  ],
+  "exclusions": [
+    "Full current-root integration and native hardware test not run",
+    "Concurrent hostile filesystem actor can alter paths between checks; xb refuses overwrite but cleanup is best effort",
+    "No write to MIDI device; native OTA still cannot authenticate a physical keyboard",
+    "Browser Web MIDI installer not affected or judged"
+  ],
+  "status": "PRODUCER_SCOPED_PASS; INDEPENDENT_QA_REQUIRED; PR_DRAFT_NEEDS_CHANGES",
+  "next_owner": "sole Independent QA for full exact-root sample CLI/extract and source/route qualification; sole Safe Merge for independently accepted integration only",
+  "test_script_blob_sha": "429b3c293d3f152023a4b3c99e61b6ac95aef47f"
+}
