@@ -1,0 +1,159 @@
+{
+  "candidate": {
+    "compiled_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "consumed_head": "2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7",
+    "consumed_root_tree": "a44bcbda32e831609faab3fbf9b361a8dc45e24e",
+    "evidence_provenance": "fresh GitHub exact-head source read and extracted only exact AST source functions to native local test capsule",
+    "exact_ast_function_source_fnv1a32": {
+      "_slot_ack": "efcdf405",
+      "read_bytes": "8c28679b",
+      "read_ctl": "b4471471"
+    },
+    "per_file_git_blob": {
+      "tools/fm1_install.py": "7e383aed118ff2ee9791b7792a1774b09c3921eb",
+      "tools/x0x_slots.py": "f05a978ce01641bf75d44be6320eae494a1f994b"
+    },
+    "pr": 103,
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "source_branch": "lane/safe-merge-303-first-nightly-20261024-0138"
+  },
+  "disposition": "SCOPED PROTOCOL QA PASSED; PRIVATE R14 BUILD_BYTE_CHECK PASSED; COMBINED R15 FULL_ROOT QA PENDING; NO NIGHTLY INSTALLABLE",
+  "existing_native_build_not_recompiled_this_stage": {
+    "controller": {
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "size": 65492,
+      "status": "REUSED/NOT REBUILT"
+    },
+    "elite": {
+      "crc32": "8f8447bb",
+      "model": "SMK-37 Elite_900",
+      "sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+      "size": 651396,
+      "status": "PRIVATE BUILD_ONLY"
+    },
+    "pool_free_bytes": 8324,
+    "private_root_library_zip": "/LoopyX0X37-HourlyBuild-PR103-R14-32fc37f-ELITE-PRO-FRESH-NATIVE-PRIVATE-20261024.zip",
+    "pro": {
+      "crc32": "cfae5bf9",
+      "model": "SMK-37 Pro_900",
+      "sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c",
+      "size": 651392,
+      "status": "PRIVATE BUILD_ONLY"
+    },
+    "producer_commit": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+    "r15_reuse_gate": "needs full compiler inputs and exact root evidence; identical firmware subtree is not full build acceptance",
+    "required_minimum_pool_free_bytes": 8192,
+    "source_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "zip_sha256": "fd0c763b01d49496362dfb5e6cdef6dcaf0834e1ebfd2c04279c759a9208fcb6"
+  },
+  "files": {
+    "logs/baseline-expected-red.err": {
+      "sha256": "7fc9b5fcb63179320691fc8aabba7c220e35f665d49d5582a689e9fd145b61be",
+      "size": 86456
+    },
+    "logs/baseline-expected-red.out": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "logs/current-normal.err": {
+      "sha256": "212f05a8065760963f3914d23f9ad329fb223532dd3e92ff04a5bf63e6e44b75",
+      "size": 627
+    },
+    "logs/current-normal.out": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "logs/current-optimized.err": {
+      "sha256": "cbd1b21d52055611d3fb286458a1ccc4314d1cf1167031e5f9ec4ee388ac8143",
+      "size": 627
+    },
+    "logs/current-optimized.out": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "logs/exit-codes.txt": {
+      "sha256": "837c26dafff852b2b19302d53c25fea29ff7f54c6a9bdf3e4d77e12ad351533b",
+      "size": 122
+    },
+    "logs/r14-package-check.err": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "logs/r14-package-check.log": {
+      "sha256": "866b8de3e61cda3178a68c925ec79dbc1f396e0761e2fac6f787cb89962b5401",
+      "size": 442
+    },
+    "logs/r14-package-structural.json": {
+      "sha256": "afa316c1f0075976100a1033b45a8a55df404f1013c12b5936a989e9ebfff0d4",
+      "size": 5466
+    },
+    "matched-source-functions/after/fm1_install.py": {
+      "sha256": "9f0c08d5944bafa3ffaf9f2150f28b2a8fd9fb60db9b96e3420f7b658523e53f",
+      "size": 1139
+    },
+    "matched-source-functions/after/x0x_slots.py": {
+      "sha256": "f5f70f61b31d0b56424e02997484a754bbe89eb6ef8d03ef9319f17548e8641a",
+      "size": 2113
+    },
+    "semantic-prepatch-functions/baseline/fm1_install.py": {
+      "sha256": "5db7188592d26a10fda6a6c03fad53d05293cd1e59787b9c622622771bffea50",
+      "size": 1107
+    },
+    "semantic-prepatch-functions/baseline/x0x_slots.py": {
+      "sha256": "fe2b9465cccd1606568beeabe6b0e25cb2a525c88ab5d956e6ec17f1ec735b91",
+      "size": 2021
+    },
+    "test-runner/package_structural_R14_check.py": {
+      "sha256": "d84d4c7f1660930f94d5d44637a66c78541f40671875226c99b242eb14da1e09",
+      "size": 3684
+    },
+    "tests/host/ctl_slot_wire_exhaustive_test.py": {
+      "sha256": "300878fb4dd16486a0222d683a2909766b305119f1082a18d34513c097a91501",
+      "size": 5807
+    }
+  },
+  "next_consumer": "Independent QA full combined candidate, then Safe Merge and Hourly Build; do not merge solely based on this scoped receipt",
+  "not_run": [
+    "exact full Git root regression runner against R15 head",
+    "model recompile against R15 full input identity",
+    "controller recompile",
+    "live device",
+    "sample preservation end-to-end and OTA interruption",
+    "installer browser fail-closed",
+    "public legal artifact HTTP served bytes",
+    "public Pages deployment"
+  ],
+  "schema": "x0x37.classic-qa-scoped-handoff/v1",
+  "scope": "read-only independent protocol fault matrix + byte-exact archive structural safety recheck; no build, flash or full source validation",
+  "test_date": "2026-10-24",
+  "tests": [
+    {
+      "command": "python3 -B tests/host/ctl_slot_wire_exhaustive_test.py <Git-matched source-function root>",
+      "exact_full_checkout": false,
+      "exit": 0,
+      "summary": "5/5 unittest groups PASS; 3340 malformed/mutated read/ACK cases plus positive reads"
+    },
+    {
+      "command": "python3 -O -B tests/host/ctl_slot_wire_exhaustive_test.py <Git-matched source-function root>",
+      "exact_full_checkout": false,
+      "exit": 0,
+      "summary": "5/5 groups PASS optimized Python"
+    },
+    {
+      "command": "python3 -B tests/host/ctl_slot_wire_exhaustive_test.py <pre-patch semantic capsule>",
+      "exit": 1,
+      "expected_red": true,
+      "summary": "133 subcase failures; pre-fix behavior projection is NOT a verified original full-tree source checkout"
+    },
+    {
+      "command": "python3 -B check_package_bytes.py [archived R14 models + controller from private Library ZIP]",
+      "exact_full_checkout": false,
+      "exit": 0,
+      "summary": "2 original firmware package CRC/model/slotmap structural positive and controller ABI/CRC PASS; 26 negatives rejected"
+    },
+    {
+      "command": "python3 -B -m py_compile tests/host/ctl_slot_wire_exhaustive_test.py check_package_bytes.py",
+      "exit": 0
+    }
+  ]
+}
