@@ -115,6 +115,7 @@ typedef struct {                      /* one part's runtime */
     uint8_t ext_ticks;                /* external clock: ticks into this step */
     uint8_t rec_skip_step;            /* a live hit recorded on a step not played yet on this pass: */
     uint8_t rec_skip_pat;             /* that step, its pattern, and the voices (bit v; 303: bit 0) */
+    uint8_t random_steps;             /* elapsed transitions in a random-direction 303 cycle */
     uint16_t rec_skip;                /* that the step does not sound once (the key sounded) */
 } seq_track_t;
 
