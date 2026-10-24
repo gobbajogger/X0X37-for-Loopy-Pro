@@ -1,0 +1,4 @@
+PASS actual installKeepingSlots blocks install when required backup fails
+PASS actual installKeepingSlots blocks install when saved archive verification fails
+PASS actual restoreMapped rejects mismatched readback
+PASS actual restoreMapped accepts equal readback

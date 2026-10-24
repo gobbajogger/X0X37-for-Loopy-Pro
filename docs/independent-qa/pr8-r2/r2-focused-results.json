@@ -1,0 +1,220 @@
+[
+  {
+    "label": "real click denies and revokes c.versions[0].models=null",
+    "pass": true,
+    "data": {
+      "downloads": 0,
+      "errors": [],
+      "state": {
+        "writing": false,
+        "image": false,
+        "product": null,
+        "href": null,
+        "disabled": true
+      },
+      "revoked": true
+    }
+  },
+  {
+    "label": "valid retry restores install admission c.versions[0].models=null",
+    "pass": true,
+    "data": null
+  },
+  {
+    "label": "keyboard valid retry downloads exact bytes c.versions[0].models=null",
+    "pass": true,
+    "data": {
+      "bytes": 1056,
+      "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"
+    }
+  },
+  {
+    "label": "real click denies and revokes c.versions={}",
+    "pass": true,
+    "data": {
+      "downloads": 0,
+      "errors": [],
+      "state": {
+        "writing": false,
+        "image": false,
+        "product": null,
+        "href": null,
+        "disabled": true
+      },
+      "revoked": true
+    }
+  },
+  {
+    "label": "valid retry restores install admission c.versions={}",
+    "pass": true,
+    "data": null
+  },
+  {
+    "label": "keyboard valid retry downloads exact bytes c.versions={}",
+    "pass": true,
+    "data": {
+      "bytes": 1056,
+      "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"
+    }
+  },
+  {
+    "label": "real click denies and revokes c.versions[0]=null",
+    "pass": true,
+    "data": {
+      "downloads": 0,
+      "errors": [],
+      "state": {
+        "writing": false,
+        "image": false,
+        "product": null,
+        "href": null,
+        "disabled": true
+      },
+      "revoked": true
+    }
+  },
+  {
+    "label": "valid retry restores install admission c.versions[0]=null",
+    "pass": true,
+    "data": null
+  },
+  {
+    "label": "keyboard valid retry downloads exact bytes c.versions[0]=null",
+    "pass": true,
+    "data": {
+      "bytes": 1056,
+      "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"
+    }
+  },
+  {
+    "label": "real click denies and revokes c.versions.push(c.versions[0])",
+    "pass": true,
+    "data": {
+      "downloads": 0,
+      "errors": [],
+      "state": {
+        "writing": false,
+        "image": false,
+        "product": null,
+        "href": null,
+        "disabled": true
+      },
+      "revoked": true
+    }
+  },
+  {
+    "label": "valid retry restores install admission c.versions.push(c.versions[0])",
+    "pass": true,
+    "data": null
+  },
+  {
+    "label": "keyboard valid retry downloads exact bytes c.versions.push(c.versions[0])",
+    "pass": true,
+    "data": {
+      "bytes": 1056,
+      "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"
+    }
+  },
+  {
+    "label": "real click denies and revokes c.versions[0].models.pro={...c.versions[0].models.pro}",
+    "pass": true,
+    "data": {
+      "downloads": 0,
+      "errors": [],
+      "state": {
+        "writing": false,
+        "image": false,
+        "product": null,
+        "href": null,
+        "disabled": true
+      },
+      "revoked": true
+    }
+  },
+  {
+    "label": "valid retry restores install admission c.versions[0].models.pro={...c.versions[0].models.pro}",
+    "pass": true,
+    "data": null
+  },
+  {
+    "label": "keyboard valid retry downloads exact bytes c.versions[0].models.pro={...c.versions[0].models.pro}",
+    "pass": true,
+    "data": {
+      "bytes": 1056,
+      "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"
+    }
+  },
+  {
+    "label": "real click denies and revokes c.versions[0].self=c.versions[0]",
+    "pass": true,
+    "data": {
+      "downloads": 0,
+      "errors": [],
+      "state": {
+        "writing": false,
+        "image": false,
+        "product": null,
+        "href": null,
+        "disabled": true
+      },
+      "revoked": true
+    }
+  },
+  {
+    "label": "valid retry restores install admission c.versions[0].self=c.versions[0]",
+    "pass": true,
+    "data": null
+  },
+  {
+    "label": "keyboard valid retry downloads exact bytes c.versions[0].self=c.versions[0]",
+    "pass": true,
+    "data": {
+      "bytes": 1056,
+      "sha256": "060f2f9eaf36b4e740d5cc7dea9a1122101d80996d1fdf0de343a30f2adef790"
+    }
+  },
+  {
+    "label": "real history viewport and card contents 320",
+    "pass": true,
+    "data": {
+      "width": 320,
+      "scrollWidth": 320,
+      "history": 117,
+      "builds": 2,
+      "overflow": []
+    }
+  },
+  {
+    "label": "real history viewport and card contents 375",
+    "pass": true,
+    "data": {
+      "width": 375,
+      "scrollWidth": 375,
+      "history": 117,
+      "builds": 2,
+      "overflow": []
+    }
+  },
+  {
+    "label": "real history viewport and card contents 768",
+    "pass": true,
+    "data": {
+      "width": 768,
+      "scrollWidth": 768,
+      "history": 117,
+      "builds": 2,
+      "overflow": []
+    }
+  },
+  {
+    "label": "real history viewport and card contents 1280",
+    "pass": true,
+    "data": {
+      "width": 1280,
+      "scrollWidth": 1280,
+      "history": 117,
+      "builds": 2,
+      "overflow": []
+    }
+  }
+]

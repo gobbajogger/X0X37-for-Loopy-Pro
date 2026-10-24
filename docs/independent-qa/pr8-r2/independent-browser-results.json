@@ -1,0 +1,427 @@
+{
+  "checks": [
+    {
+      "label": "320/en/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/en/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/en/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/en/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/en/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/en/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/en no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/en keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320/ja keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/en keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375/ja keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/en keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768/ja keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/en keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja/pro pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja/pro UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja/pro exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja/elite pre-ack disabled",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja/elite UI qualified positive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja/elite exact network-fixture download",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280/ja keyboard focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "manual local recovery requires acknowledgement",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "manual local recovery accepted with empty catalog",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "invalid local file clears old authorization",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "actual local reader writer lock before permission",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "manual local exact parsed target retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "stale local file success ignored",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "stale local file rejection ignored",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "malformed selection fails closed: catalogLive.versions[0].models=null",
+      "pass": true,
+      "detail": {
+        "allowed": false,
+        "href": null,
+        "errors": []
+      }
+    },
+    {
+      "label": "malformed selection fails closed: catalogLive.versions={}",
+      "pass": true,
+      "detail": {
+        "allowed": false,
+        "href": null,
+        "errors": []
+      }
+    },
+    {
+      "label": "malformed selection fails closed: catalogLive.versions[0]=null",
+      "pass": true,
+      "detail": {
+        "allowed": false,
+        "href": null,
+        "errors": []
+      }
+    },
+    {
+      "label": "320 full source history retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "320 history no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375 full source history retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "375 history no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768 full source history retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "768 history no overflow",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280 full source history retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "label": "1280 history no overflow",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "failures": []
+}

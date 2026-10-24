@@ -1,0 +1,195 @@
+{
+  "evidence_revision": "pr8-r2-independent-full-root-qa-20261024-r2",
+  "verdict": "QA PASSED \u2014 browser source only",
+  "candidate_head": "b0d3c2b88587948a428305210d8b76ebd4d40535",
+  "candidate_root": "5b5305ae79d109c87c5f5004fb81b2d3780f65cf",
+  "base": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+  "pr": 8,
+  "source_changed_by_reviewer": false,
+  "prior_findings": {
+    "F1": "RESOLVED",
+    "F2": "RESOLVED"
+  },
+  "commands": [
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "exit": 0
+    },
+    {
+      "command": "PR8_QA_SOURCE=/workspace/pr8-independent-qa python3 independent_browser.py",
+      "exit": 0,
+      "checks": 82,
+      "failed": 0,
+      "script_sha256": "c14d79b78fb865111eee2ed4b5c6bf47a50e4d4755295f282f79d022f0785026"
+    },
+    {
+      "command": "PR8_QA_SOURCE=/workspace/pr8-independent-qa node backup_boundary_checks.mjs",
+      "exit": 0,
+      "checks": 4,
+      "script_sha256": "701bb08d4b1ca31c8d80ae73244d950580da1ffeb27a47921d12c19418bb417e"
+    },
+    {
+      "command": "PR8_QA_SOURCE=/workspace/pr8-independent-qa python3 r2_focused_checks.py",
+      "exit": 0,
+      "checks": 22,
+      "failed": 0
+    }
+  ],
+  "registered_browser": {
+    "checks": 208,
+    "failed": 0,
+    "browser": "Chromium 154.0.8037.57"
+  },
+  "runtime": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "playwright": "1.62.0"
+  },
+  "identity_checks": {
+    "current_tested_blobs": [
+      {
+        "path": "web/x0x_installer.html",
+        "blob": "ad8399392d3584dd2e84858e846cec336a4ff782"
+      },
+      {
+        "path": "docs/install/index.html",
+        "blob": "348e6313d5d5445f6fdd746d2bcd77cca4cb0fd8"
+      },
+      {
+        "path": "docs/builds/index.html",
+        "blob": "72f18fcbd4568ab45e70ac2d3beecee6af70ccad"
+      },
+      {
+        "path": "tests/browser-admission.py",
+        "blob": "d079684094cdbe96f6f452cae1e93a32103d575c"
+      },
+      {
+        "path": "tests/installer-download-admission.test.mjs",
+        "blob": "ad068df7f613563cb7695573b4e0091a14e08eda"
+      },
+      {
+        "path": "scripts/render-qualified-nightly.mjs",
+        "blob": "ee50117e0deed0aab40cf29b78edcef6805c8443"
+      },
+      {
+        "path": "package.json",
+        "blob": "04b10bd624cdc60cb6408f64b4f84166b7d60069"
+      },
+      {
+        "path": "build-status.json",
+        "blob": "326ce55e232a9366e34a7cb687505f558ef25022"
+      },
+      {
+        "path": "docs/build-status.json",
+        "blob": "326ce55e232a9366e34a7cb687505f558ef25022"
+      },
+      {
+        "path": "preview-catalog.json",
+        "blob": "01f9ec382878335ea9bb92d0bdf294483111de76"
+      },
+      {
+        "path": "docs/versions.json",
+        "blob": "01f9ec382878335ea9bb92d0bdf294483111de76"
+      }
+    ],
+    "producer_log_hashes_verified": 9,
+    "policy_license_status_catalog_libraries_renderer_registry_unchanged_files": 15,
+    "fresh_remote_clone_verified_head_and_root": true,
+    "clean_candidate_worktree_after_tests": true,
+    "test_hooks_absent_from_production_output": true
+  },
+  "scope": [
+    "Full source-only browser QA acceptance on exact head/root",
+    "Synthetic packages, mocked MIDI/install boundaries; no real firmware/controller/device certification",
+    "No public hosting, deployed HTTP or physical PASS",
+    "Real Elite/Pro catalog remains empty; NO INSTALLABLE YET"
+  ],
+  "ownership": {
+    "next": "existing sole NIGHTLY Website Main Merger after producer readiness",
+    "readiness": "request producer to mark own PR ready; reviewer did not change it",
+    "successor": "parent dispatches; none created here",
+    "publisher": "existing sole NIGHTLY Pages publisher only"
+  },
+  "logs": {
+    "independent_browser.py": {
+      "bytes": 8989,
+      "sha256": "c14d79b78fb865111eee2ed4b5c6bf47a50e4d4755295f282f79d022f0785026"
+    },
+    "backup_boundary_checks.mjs": {
+      "bytes": 2196,
+      "sha256": "701bb08d4b1ca31c8d80ae73244d950580da1ffeb27a47921d12c19418bb417e"
+    },
+    "r2_focused_checks.py": {
+      "bytes": 3232,
+      "sha256": "1c587567b8f0f46bc8b694eb9d708daee6d7d0105e6bda7fb761f3a308a659f9"
+    },
+    "npm-test-before.log": {
+      "bytes": 9945,
+      "sha256": "0f4f3708aeebe90c9bf513d2ad7a6ebf5994f73c5aef22ad85c0a79797e39dd7"
+    },
+    "npm-build.log": {
+      "bytes": 179,
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a"
+    },
+    "npm-test-after.log": {
+      "bytes": 9945,
+      "sha256": "0f4f3708aeebe90c9bf513d2ad7a6ebf5994f73c5aef22ad85c0a79797e39dd7"
+    },
+    "chromium.log": {
+      "bytes": 10946,
+      "sha256": "24099742456a23a93f6181899ad98542fa76295f7a84e694d02dc55de8652ec4"
+    },
+    "native-commands.json": {
+      "bytes": 329,
+      "sha256": "b9b1200bf7aa8f993ad1733fe2af6d01376ec035b39f5a2e434befd1b2469a65"
+    },
+    "expanded-browser.log": {
+      "bytes": 3380,
+      "sha256": "d409637f4d1e0861754d3a1925100555db91fc40fb72dfeed5095353ed0abf81"
+    },
+    "independent-browser-results.json": {
+      "bytes": 8926,
+      "sha256": "d33f02befa71b140539e108ff0832d44430985e1834b4e0d9e440ae9647dc505"
+    },
+    "backup-boundary.log": {
+      "bytes": 262,
+      "sha256": "a0feba612311a9eb91de042a65000671d57d552094e4d2f28f6bfea6b7a09b0b"
+    },
+    "r2-focused.log": {
+      "bytes": 3312,
+      "sha256": "4f99b0f6e8b454eaedfa57bcd0c32a30c31663ae03244a80795e41ca6aefb410"
+    },
+    "r2-focused-results.json": {
+      "bytes": 5083,
+      "sha256": "08d7a9e76565246b795af10458c931bf8312b021449318f7a4f094b24b4a1656"
+    }
+  }
+}

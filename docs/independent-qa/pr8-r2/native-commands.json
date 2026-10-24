@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "npm",
+      "test"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "npm",
+      "test"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "test:browser"
+    ],
+    "exit": 0
+  }
+]
