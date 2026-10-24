@@ -35,6 +35,7 @@ HOST = r'''
 #define PROJ_BT_SMC_USER 32u
 #define SMC_Q 32u
 static volatile uint8_t smc_host_w, smc_host_r;
+static volatile uint32_t smc_host_solo_release_lost;
 static uint8_t smc_host_q[SMC_Q][3];
 static struct { struct { uint8_t bt; } set; } proj;
 '''
@@ -78,7 +79,10 @@ int main(void)
 
 
 def main():
-    src = HOST + function(PROTOCOL.read_text(), 'smc_host_accept') + '\n' + function(SOURCE.read_text(), 'smc_midi_host') + '\n' + TEST
+    production = SOURCE.read_text()
+    src = (HOST + function(PROTOCOL.read_text(), 'smc_host_accept') + '\n'
+           + function(production, 'smc_is_solo_release') + '\n'
+           + function(production, 'smc_midi_host') + '\n' + TEST)
     with tempfile.TemporaryDirectory(prefix='smc-host-data7-') as td:
         srcfile, exe = Path(td) / 'test.c', Path(td) / 'test'
         srcfile.write_text(src)

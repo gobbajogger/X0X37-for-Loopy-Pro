@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "date": "2026-10-24",
+  "stage": "first-nightly-blocker-repair",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "commit": "dc4669083218f17f8cfb69069e7f32911a232b52",
+    "tree": "02cba17c78ab0e0334995f63363c4e8c407ae6a0",
+    "firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "build_tool_blob": "93b6070a8323f5cbf90f355f7432a6b634b175ba",
+    "controller_tree": "7d169a6b97cd3b48064d938c23ccb6d3fb197fbd"
+  },
+  "build_status": "BUILD_SUCCEEDED_UNREVIEWED",
+  "compiler_source_scope": "Compiled firmware, controller and build-tool inputs match source commit; host-only test harness repair does not change compiled inputs. Full candidate acceptance NOT asserted.",
+  "configuration": "DEV X0X_DEV_PADCAL=1",
+  "artifacts": {
+    "elite": {
+      "filename": "x0x-smk37-elite.fwsc",
+      "bytes": 651396,
+      "sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+      "crc32": "8f8447bb"
+    },
+    "pro": {
+      "filename": "x0x-smk37.fwsc",
+      "bytes": 651392,
+      "sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c",
+      "crc32": "cfae5bf9"
+    },
+    "controller": {
+      "filename": "ctl.img",
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "crc32": "9c07ae67"
+    }
+  },
+  "budgets": {
+    "app_code_free": 5620,
+    "ram_free": 460,
+    "pool_free": 8324,
+    "minimum_pool_free": 8192
+  },
+  "commands": {
+    "elite": "BOARD=smk37 MODEL=elite sh build.sh",
+    "pro": "BOARD=smk37 MODEL=pro sh build.sh",
+    "controller": "CTL_NATIVE=1 CTL_NO_CACHE=1 SDK_LOCAL=$AC79_SDK sh ble/ctl/build_ctl.sh"
+  },
+  "inputs": {
+    "toolchain_zip_sha256": "ed379c483468c44f10cf3be7db32356b9623e16320a021cf2a4e06ec96ab5f19",
+    "sdk_kit_sha256": "2570c8f9472968afb16ea94372a05edda2e1f9c72d22b2431688c87d906c4805",
+    "sdk_files": "all 11 pinned inputs verified; supplied V1.2.0 SDK boot/eq/controller DO NOT match required pins",
+    "zip_extraction": "44 internal toolchain symlinks restored before successful native execution"
+  },
+  "checks": {
+    "r18_selected_safety_suite": "one failure: smc-host-data7 stale harness; other selected executed tests passed; initial smk-package skipped without env",
+    "repaired_focused_suite": "7 selectors PASS including real smk-package using pinned SDK",
+    "smc_harness": "13/13 native PASS; ASan+UBSan PASS with ASAN_OPTIONS=detect_leaks=0; initial LeakSanitizer cannot enumerate /proc task in this sandbox",
+    "controller": "fresh native compile, header/CRC check PASS; private package insertion both models PASS",
+    "ota_r4_full_root": {
+      "commit": "1f8d5830c188600c754b8240be4ea52cfe952f4f",
+      "port_binding": "17/17 scoped PASS",
+      "install_test": "FAIL: 5 cases",
+      "install_slots_test": "FAIL: 13 cases",
+      "cause": "new exact-name port binding rejects modeled running -> loader -> firmware endpoint-name changes; cannot claim candidate installability from scoped test"
+    },
+    "website": "separate source-only candidate-preparation repair; existing preview empty; independent review not yet performed"
+  },
+  "open_gates": [
+    "Independent full combined-root safety QA and resolution of OTA handover/slot recovery failures",
+    "Reviewed integration by sole Safe Merge owner into firmware nightly",
+    "Browser OTA target/restore binding review: live browser libraries select first matching device and restore to first non-loader",
+    "Written distribution rights/evidence for included break-generator code: LICENSING.md records permission but retains TODO for written record",
+    "Approved immutable external package and notices/source hosting; no public controller redistribution",
+    "Independent website review and sole publisher deployment plus served HTTP hash verification"
+  ],
+  "production": "UNTOUCHED",
+  "pages": "NOT PUBLISHED",
+  "device": "NOT TESTED",
+  "logs": {
+    "r4-exact-install.log": {
+      "bytes": 2246,
+      "sha256": "d1f2bc19097a50ab01ad1c000bc3d9349a8aabc33092f31af194bee45636f5d7"
+    },
+    "nightly-build.log": {
+      "bytes": 278,
+      "sha256": "8739eb4a4672a3dbd7cef3a59cb878276cab90d4c48a6dd0cda88cdd9b3a7da7"
+    },
+    "r4-exact-port-binding.log": {
+      "bytes": 1052,
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    },
+    "pro-build.log": {
+      "bytes": 1399,
+      "sha256": "2d8b099222d73d280ccf98541169acba82cfb2a3eb0016d7580778b44bd5312f"
+    },
+    "controller-build.log": {
+      "bytes": 797,
+      "sha256": "81ad68f9b86b412e51f200a3f30c4c142f5c99026c3157a33681bb247694372b"
+    },
+    "r18-safety-suite.log": {
+      "bytes": 2154,
+      "sha256": "2c5172519363c9bef11e5245ab99b770b4beaa3f3fa6b096349302620fd9bac9"
+    },
+    "smc-host-data7-repaired.log": {
+      "bytes": 52,
+      "sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f"
+    },
+    "nightly-tests.log": {
+      "bytes": 908,
+      "sha256": "b38144ad3efb65f9d199d0ce6045fb9b6710e58281a17fbff32ada51d88084a4"
+    },
+    "r4-exact-slots.log": {
+      "bytes": 1506,
+      "sha256": "e2c3f09a97d368788e006cc81de1620a1782384f55da85ab6f292a9987ea1562"
+    },
+    "elite-build.log": {
+      "bytes": 1419,
+      "sha256": "246ee70ecb60bd4e110904f13abdc1d8f8ed15919906ca27d682e1a7bd3e19f8"
+    },
+    "identity.log": {
+      "bytes": 1222,
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+    },
+    "r18-install.log": {
+      "bytes": 2232,
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+    },
+    "repaired-safety-suite.log": {
+      "bytes": 175,
+      "sha256": "f8ea7bb293183da078e0c39fbab33d7764d49cd2c6066f5b2027932fb58a7276"
+    },
+    "smc-host-data7-sanitized.log": {
+      "bytes": 855,
+      "sha256": "cfd6423f9b0c8f1aa850e003d0d794f244b8d967c8510c6a8cdc9fa79c1c0df9"
+    },
+    "nightly-browser.log": {
+      "bytes": 1032,
+      "sha256": "a5c23cadd642d5dd82acf5b400e890a1fcf1ceb7dc50d27eb0d20e1af3a8a981"
+    },
+    "r18-install-slots.log": {
+      "bytes": 1475,
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    "bound-install.log": {
+      "bytes": 2246,
+      "sha256": "d1f2bc19097a50ab01ad1c000bc3d9349a8aabc33092f31af194bee45636f5d7"
+    },
+    "browser-setup.log": {
+      "bytes": 5225,
+      "sha256": "076be7ac326c36d331ee5fc47718b7ee22ec8a9f4c6f4cb4e6aee5216f2a0ed8"
+    },
+    "smc-host-data7-asan-ubsan.log": {
+      "bytes": 52,
+      "sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f"
+    },
+    "port-binding.log": {
+      "bytes": 1052,
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+    }
+  },
+  "next_owner": "Independent QA and Data Safety repair OTA first; Safe Merge consumes only qualifying repair. Hourly Build reuses fresh bytes only after all input equivalence checks; Catalog/sole publisher consume separate site repair."
+}
