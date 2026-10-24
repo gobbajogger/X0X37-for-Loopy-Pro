@@ -572,3 +572,19 @@ run('r26-forge-SMC-nondevice-QA-PASS',tamperR26(smcR26,x=>{x.status='dev-checked
 run('r26-forge-BF020-device-proof',tamperR26(bfR26,x=>{x.device_verified=true;}));
 run('r26-add-hidden-download-HREF',tamperR26(smcR26,x=>{x.download_url='https://evil.example/firmware';}));
 run('r26-false-exact-native-compile',tamperR26(bfR26,x=>{x.exact_remote_native_build=true;}));
+
+// R27: a FUTURE append may not forge a mutable or mismatched Git evidence commit.
+const appendEvidenceCommit=commit=>edit(j=>{
+  const next=structuredClone(j.history.at(-1));
+  next.id='future-synthetic-evidence-commit-append-test';
+  next.evidence_commit=commit;
+  next.installable=false;
+  next.device_verified=false;
+  j.history.push(next);
+  j.counts.source_or_historical_checkpoints=j.history.length;
+});
+run('future-evidence-commit-mutable-main-REJECTED',appendEvidenceCommit('main'));
+run('future-evidence-commit-40hex-mismatched-url-REJECTED',appendEvidenceCommit('f'.repeat(40)));
+run('future-evidence-commit-object-REJECTED',appendEvidenceCommit({ref:'main'}));
+run('future-evidence-commit-valid-pinned-append-PASS',appendEvidenceCommit(
+  JSON.parse(fs.readFileSync(join(root,'build-status.json'),'utf8')).history.at(-1).evidence_commit),true);
