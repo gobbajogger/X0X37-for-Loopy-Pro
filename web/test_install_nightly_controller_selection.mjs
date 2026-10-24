@@ -15,7 +15,7 @@ function defer() {
   const promise = new Promise((yes, no) => { resolve=yes; reject=no; });
   return {promise, resolve, reject};
 }
-const event = promise => ({target:{files:[{arrayBuffer:()=>promise}],value:"controller.img"}});
+const event = (promise, size=1) => ({target:{files:[{size,arrayBuffer:()=>promise}],value:"controller.img"}});
 function fixture() {
   const handlers={},notes=[],nodes={};
   const $=id=>nodes[id] ||= {value:"",disabled:false,addEventListener:(name,fn)=>{handlers[name]=fn}};
@@ -23,7 +23,7 @@ function fixture() {
     isCatalogChecked:()=>true,hasVerifiedNightlySelection:()=>true,currentVersion:()=>({models:{elite:{}}}),
     ctlProblem:raw=>raw[0]===0?"invalid CRC":null,
     sha256Hex:async buf=>"sha-"+new Uint8Array(buf)[0],
-    sayK:name=>notes.push(name)});
+    sayK:name=>notes.push(name),t:key=>key});
   new Script('let ctl=null,writing=false,image=new Uint8Array([1]),chosenModel="elite";\n'+selectedSource+'\n'+
     'globalThis.caseState={choose:e=>handlers.change(e),clear:()=>handlers.click(),ctl:()=>ctl&&ctl[0],hash:()=>ctlHash,clearDisabled:()=>$(\"ctlclear\").disabled,goDisabled:()=>$(\"go\").disabled,write:x=>writing=x,begin:()=>{writing=true;ctlLoadSerial++},notes:()=>notes};')
     .runInContext(ctx);
@@ -152,4 +152,18 @@ await check("pending controller blocks even if button was programmatically enabl
   const x=goCase({hash:null,withCtl:false,pending:true});
   assert.equal(x.writes,0);assert.equal(x.inserts,0);
 });
-console.log("PASS "+passed+"/22 exact-source controller selection/prewrite regression cases; no hardware");
+await check("oversized controller is rejected before buffer allocation and requires explicit Remove",async()=>{
+  const x=fixture();let reads=0;
+  await x.choose({target:{files:[{size:16*1024*1024+1,arrayBuffer:async()=>{reads++;return Uint8Array.of(2).buffer}}],value:"huge.img"}});
+  assert.equal(reads,0);assert.equal(x.ctl(),null);assert.equal(x.goDisabled(),true);
+  assert.equal(x.clearDisabled(),false);assert.equal(x.notes().at(-1),"ctlbad");
+  x.clear();assert.equal(x.goDisabled(),false);
+});
+await check("missing, zero, negative or nonfinite controller size is rejected before read",async()=>{
+  for(const size of [undefined,0,-1,NaN,Number.MAX_SAFE_INTEGER+1]){
+    const x=fixture();let reads=0;
+    await x.choose({target:{files:[{size,arrayBuffer:async()=>{reads++;return Uint8Array.of(2).buffer}}],value:"invalid.img"}});
+    assert.equal(reads,0);assert.equal(x.goDisabled(),true);assert.equal(x.notes().at(-1),"ctlbad");
+  }
+});
+console.log("PASS "+passed+"/24 exact-source controller selection/prewrite regression cases; no hardware");
