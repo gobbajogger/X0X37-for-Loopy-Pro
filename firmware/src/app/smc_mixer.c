@@ -38,6 +38,17 @@ static uint32_t smc_mmc_stop_seen[2];
 /* ISR publishes the overflowed STOP only after its FIFO cutoff. The consumer
  * must drain all commands before that cutoff before applying STOP. */
 static volatile uint8_t smc_mmc_stop_boundary[2];
+/* Separate single-writer generation counters: TIMER5 (central), audio ISR
+ * (host). Main-loop snapshots never clear a producer-owned flag. */
+static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
+static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
+static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
+{
+    uint8_t type = st & 0xF0u;
+    return !(note & 0x80u) && !(velocity & 0x80u) &&
+           note >= 8u && note < 16u &&
+           (type == 0x80u || (type == 0x90u && !velocity));
+}
 static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
@@ -91,6 +102,10 @@ X0X_COLD static void smc_project_drop(void)
     smc_mmc_r[1] = smc_mmc_w[1];
     smc_mmc_stop_seen[0] = smc_mmc_stop_published[0];
     smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
+    /* A reset has already cleared all held solos; do not carry stale
+     * overflow releases into the new project's queued presses. */
+    smc_ble_solo_release_seen = smc_ble_solo_release_lost;
+    smc_host_solo_release_seen = smc_host_solo_release_lost;
 }
 X0X_COLD void smc_project_reset(void)
 {
@@ -105,7 +120,15 @@ X0X_COLD void smc_project_reset(void)
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
     uint8_t w = smc_qw, i;
-    if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q) {
+    if (!msg || !len || len > 6u) {
+        smc_dropped++; return;
+    }
+    if ((uint8_t)(w - smc_qr) >= SMC_Q) {
+        /* Never leave a held Solo latched after its key-up was rejected.
+         * A later main-loop poll clears held solos after draining older keys. */
+        if (len == 3u && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
+            (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER)))
+            smc_ble_solo_release_lost++;
         smc_dropped++; return;
     }
     smc_q[w % SMC_Q].n = len;
@@ -143,6 +166,8 @@ int smc_midi_host(uint32_t pkt)
         smc_host_q[w % SMC_Q][2] = b;
         __asm__ volatile("" ::: "memory");
         smc_host_w = (uint8_t)(w + 1u);
+    } else if (smc_is_solo_release(st, a, b)) {
+        smc_host_solo_release_lost++;
     }
     return 1;
 }
@@ -696,6 +721,17 @@ void smc_poll(void)
         /* The generation stays pending if an earlier queued command remains
          * beyond this poll's budget, preserving STOP-before-next-PLAY order. */
         smc_mmc_drain_stop(src, allow);
+    }
+    /* A saturated ring can lose a Solo Note Off. Clear held solos only
+     * after processing older queued presses, and do not acknowledge an
+     * ISR write newer than our snapshot (it belongs to the next poll). */
+    uint32_t ble_lost = smc_ble_solo_release_lost;
+    uint32_t host_lost = smc_host_solo_release_lost;
+    if (ble_lost != smc_ble_solo_release_seen ||
+        host_lost != smc_host_solo_release_seen) {
+        smc_ble_solo_release_seen = ble_lost;
+        smc_host_solo_release_seen = host_lost;
+        if (smc_project_active()) smc_solo_clear();
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */

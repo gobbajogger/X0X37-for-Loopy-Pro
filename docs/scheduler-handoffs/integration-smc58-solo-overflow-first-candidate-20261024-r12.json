@@ -1,0 +1,107 @@
+{
+  "schema": "loopyx0x37-scheduler-handoff/1",
+  "evidence_revision": "safe-merge-pr103-smc58-solo-overflow-20261024-r12",
+  "date_utc": "2026-10-24",
+  "owner": "LoopyX0X37 Safe Merge (SOLE firmware NIGHTLY PR integrator)",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "source-only isolated PR integration, NOT independent QA or target build",
+  "consumed_integration": {
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "full_head_sha": "1cf9025a0aeff46b711eced465eedcfa4b10b970",
+    "full_root_tree": "532b1947fc260104a36a518ac630f672dcdb3e58",
+    "prior_evidence_revision": "safe-merge-pr103-slot109-20261024-r11",
+    "root_contains": "previous safe Data Safety PR #109 sample slot write ACK; retain all existing 303, BLE, MMC STOP, archive, installer and OTA safety"
+  },
+  "consumed_producer": {
+    "pr": 58,
+    "branch": "lane/smc-solo-release-overflow-20261023-run4",
+    "head_sha": "bad8e453b20e4f837a0d8a5f961d517b0b095816",
+    "full_root_tree": "bf84eae81700c08d8f8db2949da3edcd5212e724",
+    "source_blob": "cf0edf0b7a2bc4c36e6467b7b73dae9cd859c663",
+    "dependency": "SMC #40 malformed User MIDI guard already included in PR103"
+  },
+  "staged_changes": [
+    {
+      "path": "firmware/src/app/smc_mixer.c",
+      "old_blob": "703a271135bd6b7f7795bd075e10c06e57f4213c",
+      "new_blob": "91552e4d7a47b43d548cfd1e2df97f7add9b8837",
+      "mode": "100644",
+      "description": "Combine producer's dual ISR generation overflow release handling with current BLE reconnect and MMC STOP queue boundary logic"
+    },
+    {
+      "path": "tests/host/smc_solo_overflow_test.py",
+      "new_blob": "0c5c4d97c1f8f582a1fa95ea669de8d8ed6ac762",
+      "mode": "100644",
+      "description": "Repo-portable function-extraction/mocked native 19-scenario regression"
+    },
+    {
+      "path": "tests/run_tests.sh",
+      "old_blob": "ac43b5f5ba918b6ce62234f828929a27d7b47016",
+      "mode": "100755",
+      "description": "Register smc-solo-overflow selector without dropping any existing r11 registration"
+    }
+  ],
+  "actual_execution": {
+    "environment": "Classic container Linux x86_64, authenticated exact source blob; scoped GPL firmware source projection, NOT complete Git checkout",
+    "verification": "Old source Git SHA matches current PR #103 r11 smc source; five unique non-overlapping exact-string anchors applied; local new source/test git hash-object matched bytes uploaded to main Library root and GitHub Git blobs",
+    "positive": [
+      {
+        "cmd": "CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+        "exit": 0,
+        "cases": "19/19",
+        "log_sha256": "930ed3bbae02b0ebd371dbb542242ef5363ebd66645bff824e783d65eae306b9"
+      },
+      {
+        "cmd": "CC=clang SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' python3 -B tests/host/smc_solo_overflow_test.py",
+        "exit": 0,
+        "cases": "19/19",
+        "log_sha256": "635d200ac26d1ba020fe9963657f4a088ccca32c16b8ff38c5cc14ba7354c3f9"
+      },
+      {
+        "cmd": "python3 -B -m py_compile tests/host/smc_solo_overflow_test.py",
+        "exit": 0
+      }
+    ],
+    "negative_control": {
+      "cmd": "SMC_SOURCE=/mnt/data/x0x37-safe-merge/negative_release_loss.c CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "exit": 1,
+      "expected": true,
+      "detail": "remove only dropped-release counter increments: valid NoteOff loses held Solo on saturated host queue",
+      "log_sha256": "33fdcf8f4f218a9e1c4443ad5ab37dafa998d8fb6012f73e1d0679697e6867c6"
+    },
+    "unrun": [
+      "current complete-root GCC/Clang native suite",
+      "complete-root installer/backups/OTA/slot/samples/regressions",
+      "both Elite/Pro native firmware compilation and matching controller for changed firmware subtree",
+      "physical device testing",
+      "published immutable HTTP SHA-verified package"
+    ]
+  },
+  "git_delivery": {
+    "method": "new checked-source tree on sole PR103 branch, nonforce fast-forward with exact expected parent SHA, producer retained as second parent",
+    "new_commit": "to be read from pushed exact Git PR HEAD",
+    "new_root_tree": "git commit tree after staging manifest; read GitHub",
+    "new_firmware_subtree": "git commit tree firmware/; read GitHub"
+  },
+  "status": "SOURCE ONLY; scoped native positive/negative PASS; independent current combined-root QA PENDING; target Elite/Pro/controller BUILD_ONLY required; protected nightly unchanged; NOT INSTALLABLE; DEVICE UNKNOWN",
+  "next_consumers": [
+    {
+      "owner": "Independent QA",
+      "action": "Fetch new PR #103 HEAD exact full root and firmware subtree; test actual full checkout SMC dual queue and MMM STOP/reconnect, malformed MIDI, 303, Data Safety #109, backups/OTA/archive/model/controller/wrong image; submit exact-head independent QA review"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile changed firmware subtree Elite + Pro and matching private controller at exact new commit BUILD_ONLY NOW; emit byte SHA256/CRC/budgets/compiler exits in main Library and Git receipts independently of QA/merge"
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "Only merge protected firmware nightly with current full-root QA/review and effective Git protections, then verify actual nightly SHA"
+    },
+    {
+      "owner": "Catalog/sole NIGHTLY publisher",
+      "action": "No public installer URLs until independent safety/model/backup/controller/CRC/license/source/immutable HTTP gates pass; preserve safe existing builds; owner physical PASS not required for NIGHTLY"
+    }
+  ],
+  "prohibitions": "No production main, firmware protected nightly, website gh-pages, flash, forced ref, binary/vendor/sdk distribution, source producer branch change, or duplicate scheduler"
+}
