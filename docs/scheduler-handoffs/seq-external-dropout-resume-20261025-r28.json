@@ -1,0 +1,356 @@
+{
+  "asan_limit": "ASAN_OPTIONS=detect_leaks=0:halt_on_error=1; LSan NOT RUN",
+  "commands": {
+    "compiler": "gcc/clang -std=c11 -O1 -g -Wall -Wextra -Werror -I source/firmware/src/seq tests/host/seq_external_dropout_resume_test.c source/firmware/src/seq/{sequencer,pattern,tb3po}.c -lm with plain/UBSan/ASan+UBSan flags",
+    "reproduce": "bash reproduce-native-r28.sh"
+  },
+  "device": "NOT TESTED",
+  "failure_notes": "Earlier exploratory combined AUTO+EXTERNAL prototype failed 12/90 due to invalid AUTO assumptions; final test intentionally scopes EXTERNAL behavior per MID-13. Not submitted. No defect or failure disguised as PASS.",
+  "full_root_qa": "UNRUN/INDEPENDENT QA PENDING",
+  "input_firmware_compiler_tree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "input_remote_sha": "5d51a50a30352eed0a3f3244c23e359989790c33",
+  "input_root_tree": "9c0596935a0d78141b8204c1c0038fcfce69936f",
+  "native_results": {
+    "negative-late-step-clang-asan-ubsan": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_phase/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/tb3po.c -lm -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-late-step-clang-asan-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "2a37629dca9be2f3beb3b1456f38f0615c04ffbc560482887895e1d261511f9d",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=125: o.last_step == 1",
+        "FAIL block=1024 line=132: o.ons == 2 && o.offs == 2",
+        "seq external dropout/resume: 22536/22560 checks FAILED"
+      ]
+    },
+    "negative-late-step-clang-plain": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_phase/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/negative-late-step-clang-plain",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "2a37629dca9be2f3beb3b1456f38f0615c04ffbc560482887895e1d261511f9d",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=125: o.last_step == 1",
+        "FAIL block=1024 line=132: o.ons == 2 && o.offs == 2",
+        "seq external dropout/resume: 22536/22560 checks FAILED"
+      ]
+    },
+    "negative-late-step-clang-ubsan": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_phase/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/tb3po.c -lm -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-late-step-clang-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "2a37629dca9be2f3beb3b1456f38f0615c04ffbc560482887895e1d261511f9d",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=125: o.last_step == 1",
+        "FAIL block=1024 line=132: o.ons == 2 && o.offs == 2",
+        "seq external dropout/resume: 22536/22560 checks FAILED"
+      ]
+    },
+    "negative-late-step-gcc-asan-ubsan": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_phase/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/tb3po.c -lm -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-late-step-gcc-asan-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "2a37629dca9be2f3beb3b1456f38f0615c04ffbc560482887895e1d261511f9d",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=125: o.last_step == 1",
+        "FAIL block=1024 line=132: o.ons == 2 && o.offs == 2",
+        "seq external dropout/resume: 22536/22560 checks FAILED"
+      ]
+    },
+    "negative-late-step-gcc-plain": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_phase/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/negative-late-step-gcc-plain",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "2a37629dca9be2f3beb3b1456f38f0615c04ffbc560482887895e1d261511f9d",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=125: o.last_step == 1",
+        "FAIL block=1024 line=132: o.ons == 2 && o.offs == 2",
+        "seq external dropout/resume: 22536/22560 checks FAILED"
+      ]
+    },
+    "negative-late-step-gcc-ubsan": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_phase/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_phase/firmware/src/seq/tb3po.c -lm -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-late-step-gcc-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "2a37629dca9be2f3beb3b1456f38f0615c04ffbc560482887895e1d261511f9d",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=125: o.last_step == 1",
+        "FAIL block=1024 line=132: o.ons == 2 && o.offs == 2",
+        "seq external dropout/resume: 22536/22560 checks FAILED"
+      ]
+    },
+    "negative-no-pause-clang-asan-ubsan": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_pause/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/tb3po.c -lm -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-no-pause-clang-asan-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "42dba81660d959a38650b4362284516efaddaad7ae1fb348e7426e09824d9d25",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "seq external dropout/resume: 22548/22560 checks FAILED"
+      ]
+    },
+    "negative-no-pause-clang-plain": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_pause/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/negative-no-pause-clang-plain",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "42dba81660d959a38650b4362284516efaddaad7ae1fb348e7426e09824d9d25",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "seq external dropout/resume: 22548/22560 checks FAILED"
+      ]
+    },
+    "negative-no-pause-clang-ubsan": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_pause/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/tb3po.c -lm -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-no-pause-clang-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "42dba81660d959a38650b4362284516efaddaad7ae1fb348e7426e09824d9d25",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "seq external dropout/resume: 22548/22560 checks FAILED"
+      ]
+    },
+    "negative-no-pause-gcc-asan-ubsan": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_pause/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/tb3po.c -lm -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-no-pause-gcc-asan-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "42dba81660d959a38650b4362284516efaddaad7ae1fb348e7426e09824d9d25",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "seq external dropout/resume: 22548/22560 checks FAILED"
+      ]
+    },
+    "negative-no-pause-gcc-plain": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_pause/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/negative-no-pause-gcc-plain",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "42dba81660d959a38650b4362284516efaddaad7ae1fb348e7426e09824d9d25",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "seq external dropout/resume: 22548/22560 checks FAILED"
+      ]
+    },
+    "negative-no-pause-gcc-ubsan": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/mutant_pause/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/mutant_pause/firmware/src/seq/tb3po.c -lm -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/negative-no-pause-gcc-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 1,
+      "run_exit": 1,
+      "run_log_sha256": "42dba81660d959a38650b4362284516efaddaad7ae1fb348e7426e09824d9d25",
+      "run_output_tail": [
+        "FAIL block=1024 line=113: o.ons == 1 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "FAIL block=1024 line=124: o.steps == 2 && o.ons == 2 && o.offs == 1",
+        "FAIL block=1024 line=79: held == expected",
+        "seq external dropout/resume: 22548/22560 checks FAILED"
+      ]
+    },
+    "positive-clang-asan-ubsan": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/positive-clang-asan-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+      "run_output_tail": [
+        "seq external dropout/resume: 22560/22560 checks PASSED"
+      ]
+    },
+    "positive-clang-plain": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/positive-clang-plain",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+      "run_output_tail": [
+        "seq external dropout/resume: 22560/22560 checks PASSED"
+      ]
+    },
+    "positive-clang-ubsan": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/positive-clang-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+      "run_output_tail": [
+        "seq external dropout/resume: 22560/22560 checks PASSED"
+      ]
+    },
+    "positive-gcc-asan-ubsan": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/positive-gcc-asan-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+      "run_output_tail": [
+        "seq external dropout/resume: 22560/22560 checks PASSED"
+      ]
+    },
+    "positive-gcc-plain": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/positive-gcc-plain",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+      "run_output_tail": [
+        "seq external dropout/resume: 22560/22560 checks PASSED"
+      ]
+    },
+    "positive-gcc-ubsan": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_external_dropout_resume_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seqclock-r28/r28_logs/positive-gcc-ubsan",
+      "compile_exit": 0,
+      "compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_run_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "4f15681b7842f533f5b988af00f6cba0f4fdb155770d71dc199c2dbd5ac7f712",
+      "run_output_tail": [
+        "seq external dropout/resume: 22560/22560 checks PASSED"
+      ]
+    },
+    "previous-r27-clang": {
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_midi_lifetime_stress_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/previous-r27-clang",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_output_tail": [
+        "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios"
+      ]
+    },
+    "previous-r27-gcc": {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -I/mnt/data/seqclock-r28/source/firmware/src/seq /mnt/data/seqclock-r28/seq_midi_lifetime_stress_test.c /mnt/data/seqclock-r28/source/firmware/src/seq/sequencer.c /mnt/data/seqclock-r28/source/firmware/src/seq/pattern.c /mnt/data/seqclock-r28/source/firmware/src/seq/tb3po.c -lm -o /mnt/data/seqclock-r28/r28_logs/previous-r27-gcc",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "run_log_sha256": "3245d7375f08c5f0f354264fd7c8e1fbcb4fccbd9b8fb32d0871c4ddcbc4b198",
+      "run_output_tail": [
+        "seq MIDI lifetime stress: 387739/387739 assertions PASSED, 1467 note-ons, 1467 note-offs, 180 deterministic scenarios"
+      ]
+    }
+  },
+  "negative": {
+    "all_compile_exit": 0,
+    "all_expected_run_exit": 1,
+    "mutations": [
+      "skip pause_sound on EXTERNAL timeout: 22548/22560",
+      "replace ext tick < tps with <= tps: 22536/22560"
+    ],
+    "not_committed_to_firmware": true,
+    "runs": 12
+  },
+  "new_test": {
+    "bytes": 5531,
+    "git_blob": "a18bed727f21422555614d4541bf15e5f9b92117",
+    "sha256": "2edd97df6064ae25021bba4a9b3b7ed658f32ba7a127723031390ac7f47dd5cd"
+  },
+  "next_owner": "existing Independent QA for exact-root/source review; existing Hourly Build only when new compiler input becomes eligible; existing Sole Safe Merge only after independent acceptance",
+  "nightly_publication": "NOT ATTEMPTED",
+  "owned_ref": "lane/seq-transport-origin-20261023-run3-1317",
+  "parent_head": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+  "parent_pr": 86,
+  "positive": {
+    "all_compile_exit": 0,
+    "all_run_exit": 0,
+    "checks_per_run": "22560/22560",
+    "runs": 6,
+    "variants": "GCC/Clang \u00d7 plain/UBSan/ASan+UBSan"
+  },
+  "pr": 90,
+  "private_archive": {
+    "contains_controller_or_sdk": false,
+    "path": "/LoopyX0X37-SeqClock-PR90-ExternalDropout-R28-20261025.zip",
+    "sha256": "0677dce49bf11d25250e7295b50e038666ad4bbf6d04bc9570927bdd85adbb85",
+    "size": 38043
+  },
+  "purpose": "EXTERNAL clock timeout releases held 303 MIDI note, clock input handover after >0.5 sec, sixth tick resumes step 2 without phantom retrigger; Stop/NoteOff once; no EXTERNAL clock transport echo under audio buffer partitioning.",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "revision": "seqclock-pr90-external-dropout-resume-20261025-r28",
+  "rights": "public repository GPL-3.0-only seq/test source only; no SDK/DSP proprietary or firmware binaries",
+  "runner_selector": "transport-external-dropout",
+  "schema": "seqclock-host-evidence-v1",
+  "scope": "scoped host linked actual Git-matched production seq/pattern/tb3po source; output callbacks mocked; DOES NOT run entire exact root suite or target builds",
+  "source_files": {
+    "source/firmware/src/seq/pattern.c": {
+      "git_blob": "b6b667d023a912b13de8539168c61928182ffa23",
+      "sha256": "0d9b36c4ab979533df2974e0adc962d521c9bf587403eaecca4109042eaddf2a"
+    },
+    "source/firmware/src/seq/pattern.h": {
+      "git_blob": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+      "sha256": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba"
+    },
+    "source/firmware/src/seq/sequencer.c": {
+      "git_blob": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+      "sha256": "a7de20c255cc94aa50acf9fa4dcac89dc172b521702e83dc8ea103d309ae6892"
+    },
+    "source/firmware/src/seq/sequencer.h": {
+      "git_blob": "6ff366ed1b36faafab6676498483921d46e1b746",
+      "sha256": "767c9d36df0e7f30ed0bd87bb36588bd47cbe47e7764a070b2fe9ae9bc9e2f78"
+    },
+    "source/firmware/src/seq/tb3po.c": {
+      "git_blob": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+      "sha256": "7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b"
+    },
+    "source/firmware/src/seq/tb3po.h": {
+      "git_blob": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+      "sha256": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073"
+    }
+  },
+  "target_build": "NOT RUN; compiled firmware source subtree unchanged",
+  "test_path": "tests/host/seq_external_dropout_resume_test.c",
+  "test_stimulus": "local PLAY waits; USB F8 sounds sliding 303 note; simultaneous BLE clock rejected; time advances >0.5 s at 1/64/1024-frame blocks; timeout immediately releases NoteOff; BLE takes over; five BLE clocks no new note; sixth advances once; USB rejected; repeated STOP no extra NoteOff.",
+  "unchanged_r27_regression": {
+    "all_compile_exit": 0,
+    "all_run_exit": 0,
+    "checks_per_run": "387739/387739",
+    "runs": 2,
+    "variants": "GCC/Clang plain"
+  }
+}
