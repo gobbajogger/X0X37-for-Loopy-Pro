@@ -1,0 +1,97 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "ota_identity_reconnect_test.py",
+        "fm1_install_original_projection.py"
+      ],
+      "exit_code": 1,
+      "result": "12 of 15 negatives FAIL, deliberate fail-before"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "ota_identity_reconnect_test.py",
+        "fm1_install_patched_projection.py"
+      ],
+      "exit_code": 0,
+      "result": "15/15 pass"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "ota_identity_reconnect_test.py",
+        "fm1_install_patched_projection.py"
+      ],
+      "exit_code": 0,
+      "result": "15/15 pass"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "py_compile",
+        "ota_identity_reconnect_test.py",
+        "fm1_install_original_projection.py",
+        "fm1_install_patched_projection.py"
+      ],
+      "exit_code": 0,
+      "result": "syntax PASS"
+    }
+  ],
+  "consumed_compiler_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "consumed_installer_blob": "7e383aed118ff2ee9791b7792a1774b09c3921eb",
+  "consumed_pr": 103,
+  "consumed_root_tree": "a44bcbda32e831609faab3fbf9b361a8dc45e24e",
+  "consumed_sha": "2ac7bfe0f538275ad45a6d9f75e802dcbccd35c7",
+  "danger": "Wrong model/foreign first: Updater.check picks unrelated loader; Updater.verify picks unrelated running device; postinstall slot restore and controller readback can target other connected device because selectors only check not loader.",
+  "evidence_revision": "data-safety-ota-model-reconnect-20261024-r1",
+  "files": {
+    "after.log": {
+      "sha256": "2e520cd3519fb28f6810846b08dfeb19525eec9cfae7eeeb570431a2b592617d",
+      "size_bytes": 881
+    },
+    "after_optimized.log": {
+      "sha256": "2e520cd3519fb28f6810846b08dfeb19525eec9cfae7eeeb570431a2b592617d",
+      "size_bytes": 881
+    },
+    "before.log": {
+      "sha256": "de0c9ce9282de67aaf954bcab21103502ce6e824bfde5dc925807ee00c407e44",
+      "size_bytes": 881
+    },
+    "fm1_install_original_projection.py": {
+      "sha256": "5046fd9ceb89d9de29a3b385c7f451eb012892fea601f94328109b84e03629db",
+      "size_bytes": 2360
+    },
+    "fm1_install_patched_projection.py": {
+      "sha256": "1358e20c132431428f50bfc22dedc2b7adfc3166fea13c787a68ce8a7d292b4c",
+      "size_bytes": 2492
+    },
+    "ota_identity_reconnect_test.py": {
+      "sha256": "da2c9c306b1cde444e6fb6480ac266fea385b7499562d1177e6a01da275e6153",
+      "size_bytes": 6546
+    }
+  },
+  "proposed_behavior": "Select same exact model for transition and final verify; select exact installed version for destructive postinstall restore and controller check. Correct previous active device identity is not physically provable when two identical devices are simultaneously present.",
+  "reconstructed_methods_provenance": {
+    "check_git_fingerprint_fnv1a32": "06cb7672",
+    "source_projection_not_complete_root": true,
+    "verify_git_fingerprint_fnv1a32": "e34107e9"
+  },
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "schema": "x0x37-data-safety-source-window-host-evidence-v1",
+  "status": "SOURCE WINDOW PRODUCER TEST PASS ONLY / INDEPENDENT COMBINED ROOT QA PENDING / BUILD_ONLY PERMITTED / NIGHTLY NOT INSTALLABLE / DEVICE UNKNOWN",
+  "integrated_parent_pr103_r17_sha": "1087ede952f6c6f5f22d1b56b062628f07a6af10",
+  "integrated_parent_pr103_r17_evidence_revision": "safe-merge-pr103-r17-smp-info-fixture-source-handoff",
+  "compiler_subtree_changed": false,
+  "private_evidence_library": "/LoopyX0X37-DataSafety-OTA-Model-Reconnect-PR103-R16-20261024.zip",
+  "private_evidence_archive_sha256": "c710cc784cd9ad127e70a8f87a07b610762d73c27460c3d262ff2b495b0c8bb0",
+  "next_owner": "Independent QA -> sole Safe Merge -> Hourly Build BUILD_ONLY source-equivalent -> Publisher after independent prehardware/integrity/HTTP gates",
+  "host_positive_post_update": "SOURCE-FUNCTION PROJECTION ONLY. No complete-root/native target verification"
+}
