@@ -1,0 +1,95 @@
+{
+  "schema": "loopyx0x37/data-safety-source-handoff-v2",
+  "evidence_revision": "data-safety-smp-read-canonical-20261024-r2",
+  "date_utc": "2026-10-24T03:11:12Z",
+  "role": "LoopyX0X37 Data Safety (source producer only)",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-smp-read-bounds-20261024-1211",
+  "pr": 108,
+  "consumed": {
+    "independent_qa_pr": 108,
+    "independent_qa_source_commit": "16b2367ea69a83fffd5144afdddd02d2ff970ebd",
+    "independent_qa_source_full_root": "c521bbfa3be1ca5a41c14d25cf70677e758ee326",
+    "independent_qa_source_firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "independent_qa_evidence_revision": "20261024 PR108 noncanonical pack7 QA negative",
+    "independent_qa_comment": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/108#issuecomment-6378830670",
+    "independent_qa_disposition": "NEEDS_CHANGES: unused pack7 mask bits and orphan trailing mask accepted",
+    "previous_producer_revision": "data-safety-smp-read-framing-20261024-r1",
+    "previous_source_blob": "d00ad06b3c591a650ba7d5691dbf1e7b31a3601e",
+    "previous_test_blob": "0f62b19120ea241a50df7faac33468d4d7918d06",
+    "integration_pr": 103,
+    "integration_latest_checked_commit": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+    "integration_latest_checked_full_root": "9dc695fb9f4da4069362c24aa866f9b995b1b463",
+    "integration_latest_checked_firmware_subtree": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+    "warning": "Integration PR103 moved after this PR108 branch base. Do not equate PR108 firmware subtree with current PR103 firmware subtree."
+  },
+  "checked_code": {
+    "code_test_commit": "7795546045ba5530ab87080fdec025f41c5d95a3",
+    "full_root": "dcb2174e1912ff66f388b33c4f618d81d02861b4",
+    "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+    "compiled_firmware_inputs_changed": false,
+    "source_path": "tools/x0x_slots.py",
+    "source_blob": "d63774e7f2775c5359d3b24e549a900f8c75c685",
+    "test_path": "tests/x0x_slots_read_reply_test.py",
+    "test_blob": "589fda01acf668ed9396ca08b594cb2dd55f7485",
+    "runner_path": "tests/run_tests.sh",
+    "runner_unchanged": "f47c5cb8db1630716363370868c63255ede80709",
+    "existing_runner_registration": "slot-read-reply",
+    "repair": "Reject any SMP_READ reply whose wire pack7 differs from canonical repacking of the decoded payload. This fails closed on orphan masks, unused mask bits and bytes outside MIDI 7-bit range without altering global unpack7 behavior."
+  },
+  "native_host": {
+    "environment": "Linux x86_64, Python 3.13.5",
+    "limitation": "Exact Git-matched SMP_READ source-window fixture with actual Git-exact registered test content, not a complete repository checkout, target compilation or device execution. SHA and test bytes reconciled with remote Git after push.",
+    "before": {
+      "command": "cd /mnt/data/ds_pr108_canonical/before && python3 -B tests/x0x_slots_read_reply_test.py",
+      "exit": 1,
+      "tests": 15,
+      "failures": 3,
+      "log_sha256": "adef07591bc44c0f1bc82703523d508f5a73ce32afd305714b709cbeee8fd61c"
+    },
+    "after": {
+      "command": "cd /mnt/data/ds_pr108_canonical/after && python3 -B tests/x0x_slots_read_reply_test.py",
+      "exit": 0,
+      "tests": 15,
+      "failures": 0,
+      "log_sha256": "851db3075b70c88ebce10f56df1a7cd78e7bd0af4f302b2e463d4e103f66aecb"
+    },
+    "optimized": {
+      "command": "cd /mnt/data/ds_pr108_canonical/after && python3 -O -B tests/x0x_slots_read_reply_test.py",
+      "exit": 0,
+      "tests": 15,
+      "failures": 0,
+      "log_sha256": "851db3075b70c88ebce10f56df1a7cd78e7bd0af4f302b2e463d4e103f66aecb"
+    },
+    "syntax": {
+      "command": "cd /mnt/data/ds_pr108_canonical/after && python3 -B -m py_compile tools/x0x_slots.py tests/x0x_slots_read_reply_test.py",
+      "exit": 0
+    },
+    "new_negative_cases": [
+      "orphan trailing mask after 14 packed data bytes",
+      "nonzero unused mask bit for two bytes",
+      "non-7-bit raw packed wire data"
+    ],
+    "retained_positive_boundary_cases": [
+      "canonical multi-group and high-bit tail",
+      "odd rounded pair",
+      "valid fragmented replies",
+      "224-byte boundary",
+      "zero length no MIDI command"
+    ]
+  },
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_READY_FOR_INDEPENDENT_REVIEW",
+  "actual_missing_gates": [
+    "Independent QA must review new exact PR108 source and registered tests in full checkout; previously reported malformed-wire NEEDS_CHANGES cannot be marked resolved by producer alone.",
+    "Sole Safe Merge must combine reviewed PR108 repair with current PR103 source and independently retest exact resulting root/firmware subtree.",
+    "Hourly Build may compile Elite, Pro and ctl BUILD_ONLY immediately and separately, with source/model/controller SHA evidence; compilation not hardware PASS.",
+    "For NIGHTLY public install: full applicable backup/readback/restore/interruption/OTA negatives; Elite/Pro/controller model/integrity/build/budgets; source/license; immutable URL and HTTP verification.",
+    "Production promotion requires matching per-model owner physical PASS and separate explicit approval."
+  ],
+  "next_owner": "Independent QA: independently check changed PR108 exact source/test SHA, full checkout regressions and combined preservation; then Safe Merge for first-candidate integration; Hourly Build BUILD_ONLY parallel.",
+  "device": "UNKNOWN / DEVICE NOT TESTED",
+  "publication": "NO_GO: no new installable firmware from this source repair",
+  "no_protected_ref_write": true,
+  "no_public_firmware_publish": true,
+  "no_hardware_flash": true
+}
