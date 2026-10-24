@@ -1,0 +1,26 @@
+test_install_options_cannot_use_read_only_report_to_bypass_guards (__main__.InstallerIntegration.test_install_options_cannot_use_read_only_report_to_bypass_guards) ... ok
+test_live_pair_observation_does_not_enable_installer (__main__.InstallerIntegration.test_live_pair_observation_does_not_enable_installer) ... ok
+test_no_pair_or_no_capability_returns_refusal_without_mido (__main__.InstallerIntegration.test_no_pair_or_no_capability_returns_refusal_without_mido) ... ok
+test_report_never_opens_mido_or_runs_install_guards (__main__.InstallerIntegration.test_report_never_opens_mido_or_runs_install_guards) ... ok
+test_bad_native_output_exit_and_timeout_fail_closed (__main__.NativeBoundary.test_bad_native_output_exit_and_timeout_fail_closed) ... ok
+test_helper_source_and_binary_hashes_must_match (__main__.NativeBoundary.test_helper_source_and_binary_hashes_must_match) ... ok
+test_missing_helper_refuses_without_fallback (__main__.NativeBoundary.test_missing_helper_refuses_without_fallback) ... ok
+test_native_json_boundary_uses_fixed_helper_no_shell (__main__.NativeBoundary.test_native_json_boundary_uses_fixed_helper_no_shell) ... ok
+test_native_source_has_only_read_only_coremidi_calls (__main__.NativeBoundary.test_native_source_has_only_read_only_coremidi_calls) ... ok
+test_non_mac_platform_refuses_before_running_anything (__main__.NativeBoundary.test_non_mac_platform_refuses_before_running_anything) ... ok
+test_cached_devices_never_become_live_endpoints (__main__.Pairing.test_cached_devices_never_become_live_endpoints) ... ok
+test_collection_schema_and_bounds_refused (__main__.Pairing.test_collection_schema_and_bounds_refused) ... ok
+test_disappearance_and_replacement_do_not_reuse_previous_pairs (__main__.Pairing.test_disappearance_and_replacement_do_not_reuse_previous_pairs) ... ok
+test_duplicate_endpoint_refs_refused (__main__.Pairing.test_duplicate_endpoint_refs_refused) ... ok
+test_half_pairs_and_ambiguous_cables_have_no_sole_fallback (__main__.Pairing.test_half_pairs_and_ambiguous_cables_have_no_sole_fallback) ... ok
+test_inconsistent_parent_usb_metadata_refused (__main__.Pairing.test_inconsistent_parent_usb_metadata_refused) ... ok
+test_input_A_output_B_never_pair_by_usb_metadata_or_serial_presence (__main__.Pairing.test_input_A_output_B_never_pair_by_usb_metadata_or_serial_presence) ... ok
+test_offline_unknown_and_malformed_records_refused (__main__.Pairing.test_offline_unknown_and_malformed_records_refused) ... ok
+test_same_active_native_entity_and_device_pairs (__main__.Pairing.test_same_active_native_entity_and_device_pairs) ... ok
+test_serial_presence_and_location_never_create_physical_id (__main__.Pairing.test_serial_presence_and_location_never_create_physical_id) ... ok
+test_unknown_name_uniqueid_and_raw_serial_fields_are_rejected (__main__.Pairing.test_unknown_name_uniqueid_and_raw_serial_fields_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.013s
+
+OK

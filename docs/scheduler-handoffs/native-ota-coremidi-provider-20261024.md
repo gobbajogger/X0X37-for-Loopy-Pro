@@ -113,6 +113,41 @@ The currently attached old app's behavior is not proved by future firmware.
 Owner interaction must physically attribute the already-open live unit; a
 confirmation of a guessed name or USB location cannot supply that evidence.
 
+The concrete next protocol work item is a **session continuity chain**, distinct
+from both this inventory and manufacturer-authenticated identity:
+
+1. Establish the initial target on a proven same-unit native transport before
+   UPGRADE or package responses. A successful CoreMIDI send alone and a USB name
+   do not establish request/reply compatibility or the physical target.
+2. For upgraded firmware, arm a fresh unpredictable session only through that
+   bound running-app connection. Bind it to package hash, stage and monotonic
+   request sequence; do not allow an arbitrary loader to arm itself by receiving
+   a host nonce. An unrelated loader must reject missing/wrong/stale sessions.
+3. Transfer the authorization through a specified bounded app-to-loader record
+   with verified write/readback and explicit partial-write/power-loss behavior.
+   Require the session on every destructive request/response, with no legacy
+   fallback. Preserve all existing model, CRC, range and package guards.
+4. Carry the same proof into the installed app before any restoration. Current
+   `ota_boot_cleanup()` clears update staging/records, so record lifetime and
+   consumption need actual firmware design, not an assumed existing facility.
+   Tie any restoration to the exact verified backup hash captured in this
+   session; unbound imported archives and interrupted-session restoration refuse.
+5. Legacy installed firmware has no such arming/record contract. A nonce carried
+   in a newly personalized loader is only an investigation alternative after
+   proving that exact installed legacy implementation stages those bytes on A
+   through the initial bound transport. It changes package bytes and requires
+   full package validation, actual target builds/budgets and compatibility
+   proof. This provider does not implement or authorize it.
+
+This design targets accidental cross-device routing/replacement. An echoed
+nonce is not cryptographic authentication against malicious firmware/host
+software. Native transport must still prevent B receiving destructive traffic;
+rejection after delivery is insufficient. Independent tests must include wrong
+nonce, replayed stage/sequence, new-session/old-record mixing, interrupted record
+write, foreign loader, final-app proof loss and wrong backup hash, in addition
+to strict B-zero native open/send/disconnect tests. No protocol capability is
+claimed implemented by this source change.
+
 ## Receiving roles
 
 Data Safety consumes this source-only provider without treating pair observations
@@ -122,3 +157,36 @@ NO-GO for destructive native transport until those separate gates pass. Existing
 strict PR125 boundary tests remain red; no negative was weakened or converted to
 an expected-failure PASS. Target firmware input tree is unchanged; no firmware
 build, controller, SDK material, private sample or native executable is committed.
+
+## Executed host evidence
+
+Exact tested source: `3261f52764da874dee66839af99b60eba3fae1b8`, root
+`93750c4f2b931dcbfa664a3c8961d136742aa636`. Installer blob is now
+`41dd556d28112ae48e9c751aa139f0b459095a93`; firmware tree remains
+`5c209609b770fd13949230aeb80956594fd6b741`. Later edits to this packet and
+committed logs are evidence-only, not changes to tested code.
+
+The [receipt](../coremidi-provider-evidence-20261024/receipt.json) records exact
+argv, exits and SHA256/byte counts for all 29 logs:
+
+- `X0X_TEST_JOBS=1 bash tests/run_tests.sh` with 24 explicitly selected
+  installer/data-safety selectors including `ota-coremidi`: exit **0**.
+- All 24 corresponding Python suites directly with `python3 -O -B`: exit **0**
+  each. The new CoreMIDI suite is **21/21** in each mode; independent read-only
+  subagent review also reran its normal and optimized commands successfully.
+- Strict original transport diagnostic: **15 cases, 9 assertion failures**,
+  exit **1** in each mode. This remains unresolved production NO-GO.
+- Actual Linux `python3 -B tools/fm1_install.py --native-endpoints`: exit **3**,
+  structured unsupported-platform refusal, no Mido fallback.
+- Actual Linux `python3 -B tools/build_coremidi_inventory.py`: exit **2**,
+  native-platform refusal before compiler execution. **No Mac build is claimed.**
+- Staged diff checks: exit **0**. Native helper source SHA256:
+  `92d3090e1d85dc74b6a664505790b94e5f931f85f697d315b1cd3b5e91ee172f`.
+  Binary SHA is absent because native compilation was not run.
+
+The selected runner explicitly skips target package/JS parity because built
+SMK app/loader and pinned SDK inputs are absent. Firmware inputs did not change;
+no target firmware compilation is required to validate this read-only source
+increment. That fact does not satisfy native helper compilation or any hardware
+gate. This remains an incomplete transport repair with a concrete source/QA
+packet, not an accepted installable candidate.

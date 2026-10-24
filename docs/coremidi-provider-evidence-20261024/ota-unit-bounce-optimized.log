@@ -1,0 +1,10 @@
+PASS original unit receives own packet
+PASS foreign queued SysEx cannot survive physical B->A bounce
+PASS physical B->A bounce leaves original link irreversibly tainted
+PASS future destructive send refused on bounced link
+PASS B replacement detected
+PASS identity restored cannot reopen tainted session
+PASS fresh authenticated A loader rename works
+PASS unavailable physical identity lost
+PASS provider recovery cannot untaint previous link
+SUMMARY 9 / 9 passed
