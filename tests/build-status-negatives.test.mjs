@@ -328,6 +328,35 @@ for (const [label, mutation] of [
   ['picker-extra-nonbinary-url', p => p.metadata_url='https://untrusted.invalid/readme.txt'],
   ['picker-forged-repo-non-url', p => p.repo='gobbajogger/X0X37-for-Loopy-Pro'],
 ]) run(label, editPickerCopies(mutation));
+const r16id='integration-pr103-r10-native-elite-pro-20261024';
+const r16mutate=fn=>edit(j=>{const rec=j.history.find(h=>h.id===r16id);assert.ok(rec);fn(rec);});
+run('r16-valid-readonly-rehash-without-qa-or-host',edit(j=>{
+  const r=j.history.find(h=>h.id===r16id);assert.ok(r);
+  assert.equal(r.status,'build-succeeded-unreviewed');assert.equal(r.build_pipeline.qa,'QA_PENDING');
+  assert.equal(r.build_pipeline.live_http,'NOT_VERIFIED');assert.equal(r.installable,false);
+}),true);
+for(const [name,fn] of [
+  ['r16-elite-sha-forgery',r=>r.producer_reported_artifacts.elite.sha256='f'.repeat(64)],
+  ['r16-pro-model-forgery',r=>r.producer_reported_artifacts.pro.product='SMK-37 Elite_900'],
+  ['r16-source-root-forgery',r=>r.source_tree='f'.repeat(40)],
+  ['r16-firmware-subtree-forgery',r=>r.firmware_subtree='f'.repeat(40)],
+  ['r16-qa-forgery',r=>r.build_pipeline.qa='QA_PASSED'],
+  ['r16-http-forgery',r=>r.build_pipeline.live_http='LIVE_HTTP_VERIFIED'],
+  ['r16-controller-redistribution-forgery',r=>r.producer_reported_artifacts.private_controller.redistribution_permitted=true],
+  ['r16-hidden-artifact-url',r=>r.download_url='https://invalid.example/bin'],
+  ['r16-invented-test-failure',r=>r.build_pipeline.followup_native_checks_fail=[{name:'fake',exit_code:0}]],
+]) run(name,r16mutate(fn));
+for(const [name,fn] of [
+  ['r16-archive-receipt-forgery',x=>x.private_zip_sha256='f'.repeat(64)],
+  ['r16-controller-member-forgery',x=>x.controller.bytes_present_in_r10_zip=true],
+  ['r16-negative-test-count-forgery',x=>x.negative_checks_pass=0],
+]){
+  run(name,dir=>{
+    const p=join(dir,'docs/scheduler-handoffs/catalog-sync-20261024.json');
+    const j=JSON.parse(fs.readFileSync(p,'utf8'));fn(j.closed_loop_cycle_20261024_r16.catalog_private_zip);
+    fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');
+  });
+}
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');
 
 // Exact SMC79 real native private-byte receipt must remain QA_PENDING and non-installable.

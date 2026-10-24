@@ -1646,5 +1646,100 @@
       "producer_head": "b85758ed84ee56cf116e782e509753923d02c4df",
       "verification": "GitHub connector get_pr_info PR108 HEAD and head branch; no producer ref changed"
     }
+  },
+  "closed_loop_cycle_20261024_r16": {
+    "revision": "catalog-pr3-r16-pr103-r10-native-package-verified-pr109-source-only-20261024",
+    "website_parent": "dd06c3f6f27e6b93e6f8f8d52c839eb36484907a",
+    "firmware": {
+      "commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+      "root_tree": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+      "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+      "integrated_nightly": false
+    },
+    "producer_pr109": {
+      "head": "0ca385b947fb5317319461f15fe9b9a6f0184db2",
+      "root_tree": "18adb347c160e6a36a6cec98c5cc0b68b0bc1612",
+      "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+      "status": "SOURCE_ONLY_QA_PENDING"
+    },
+    "catalog_private_zip": {
+      "scope": "READ_ONLY_ELITE_PRO_PACKAGE_HASH_CRC_MODEL_SLOT_NEGATIVES; CONTROLLER_BYTES_NOT_RECEIVED; FULL_ROOT_QA_NOT_RUN",
+      "source_commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+      "source_root": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+      "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+      "private_zip_sha256": "0b88e2dce13560a94db06d79170d9ba3c4453b4258a1196e91120ea8a4345cdc",
+      "native_evidence_zip_sha256": "e50377effe0b95a9d54d63dbf0cc40e23313e115e297cc9035a4b5db07de6b3d",
+      "builder_manifest_sha256": "2954170dca3e2129458b0d5926a09007ddb8deb37d7664ea86a04a2159faaaa1",
+      "source_evidence_blob_sha": "4d49f8c6baef394f34e2d7688ce641ec7a1a701d",
+      "checker_sha256": "76947801c5516442d44f4f345884faa1b5e595f116a33086207f23ec67aa4ac9",
+      "log_sha256": "c62a5451d68161bca3a73bfc622dd6bfce62399578492589d7b49800160f0fe7",
+      "results_sha256": "51a46a8b7b45647cdd2f1d7c305feff6f52b4c07038e3b79fb629267859aaff9",
+      "native_exit_code": 0,
+      "checks_pass": 48,
+      "negative_checks_pass": 12,
+      "models": {
+        "elite": {
+          "sha256": "6abb8656379d84bfbee6f31f59f11ae80b04b2af7c0e61be9fa88c46772f6810",
+          "bytes": 651396,
+          "crc32": "96808fe7",
+          "slot_map_crc32": "0d69aa83",
+          "controller_blank": true
+        },
+        "pro": {
+          "sha256": "fbbc5cf92e303797bc7b361a4e510b8ac89e4710067f9b717c2d4bc17ee32ca0",
+          "bytes": 651392,
+          "crc32": "3cc9dfeb",
+          "slot_map_crc32": "0d69aa83",
+          "controller_blank": true
+        }
+      },
+      "controller": {
+        "reported_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "bytes_present_in_r10_zip": false,
+        "redistribution_cleared": false
+      },
+      "build": "BUILD_SUCCEEDED_UNREVIEWED",
+      "qa": "QA_PENDING",
+      "installability": "NOT_INSTALLABLE",
+      "live_http": "NOT_VERIFIED",
+      "device": "UNKNOWN"
+    },
+    "history_before": 105,
+    "history_after": 107,
+    "models": {
+      "elite": "NO_INSTALLABLE_YET",
+      "pro": "NO_INSTALLABLE_YET"
+    },
+    "checks": [
+      {
+        "command": "python3 -B /mnt/data/x0x37-catalog-private/verify_r16_private.py",
+        "exit_code": 0,
+        "checks_pass": 48,
+        "negatives_rejected": 12,
+        "log_sha256": "c62a5451d68161bca3a73bfc622dd6bfce62399578492589d7b49800160f0fe7"
+      },
+      {
+        "command": "Connected GitHub exact SHA+source/root+firmware subtree verification",
+        "exit_code": 0
+      },
+      {
+        "command": "Full exact-branch npm run build and npm test",
+        "state": "NOT_RUN",
+        "reason": "native exact checkout unavailable; shell GitHub DNS exit 128"
+      },
+      {
+        "command": "Chromium responsive browser and live served HTTP",
+        "state": "NOT_RUN"
+      },
+      {
+        "command": "Firmware native compilation by Catalog",
+        "state": "NOT_RUN; CONSUMED OTHER OWNER BUILD"
+      }
+    ],
+    "next_owner": "Independent NIGHTLY Website QA and sole Website Main Merger; parallel firmware Independent QA/Safe Merge/Pages publisher",
+    "publication": "NOT_PERFORMED",
+    "source_generated_equal": true,
+    "controller_not_retrieved": true,
+    "full_root_qa_pending": true
   }
 }

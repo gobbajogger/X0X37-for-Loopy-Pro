@@ -185,6 +185,35 @@ assert.match(catalog.source.commit,/^[a-f0-9]{40}$/,'source commit requires pinn
         }
         assert.equal(item.artifact_distribution_approved,false);
         assert.equal(item.build_target_tests_independently_reexecuted,false);
+      } else if(item.id==='integration-pr103-r10-native-elite-pro-20261024'){
+        const proof=JSON.parse(read('docs/scheduler-handoffs/catalog-sync-20261024.json')).closed_loop_cycle_20261024_r16?.catalog_private_zip;
+        assert.equal(item.status,'build-succeeded-unreviewed');
+        assert.equal(proof?.scope,'READ_ONLY_ELITE_PRO_PACKAGE_HASH_CRC_MODEL_SLOT_NEGATIVES; CONTROLLER_BYTES_NOT_RECEIVED; FULL_ROOT_QA_NOT_RUN');
+        assert.equal(item.source_commit,proof?.source_commit);
+        assert.equal(item.source_tree,proof?.source_root);
+        assert.equal(item.firmware_subtree,proof?.firmware_subtree);
+        assert.equal(proof?.private_zip_sha256,'0b88e2dce13560a94db06d79170d9ba3c4453b4258a1196e91120ea8a4345cdc');
+        assert.equal(proof?.native_evidence_zip_sha256,'e50377effe0b95a9d54d63dbf0cc40e23313e115e297cc9035a4b5db07de6b3d');
+        assert.equal(proof?.builder_manifest_sha256,'2954170dca3e2129458b0d5926a09007ddb8deb37d7664ea86a04a2159faaaa1');
+        assert.equal(proof?.source_evidence_blob_sha,item.build_pipeline?.evidence_manifest_blob_sha);
+        assert.equal(proof?.native_exit_code,0);
+        assert.equal(proof?.checks_pass,48);
+        assert.equal(proof?.negative_checks_pass,12);
+        assert.equal(proof?.controller?.bytes_present_in_r10_zip,false);
+        assert.equal(proof?.controller?.redistribution_cleared,false);
+        assert.equal(proof?.controller?.reported_sha256,item.producer_reported_artifacts?.private_controller?.sha256);
+        assert.equal(proof?.qa,'QA_PENDING');
+        assert.equal(proof?.installability,'NOT_INSTALLABLE');
+        assert.equal(proof?.live_http,'NOT_VERIFIED');
+        for(const model of ['elite','pro']){
+          assert.equal(item.producer_reported_artifacts?.[model]?.sha256,proof?.models?.[model]?.sha256,model+' private hash');
+          assert.equal(item.producer_reported_artifacts?.[model]?.bytes,proof?.models?.[model]?.bytes,model+' private size');
+          assert.equal(proof?.models?.[model]?.controller_blank,true,model+' controller blank');
+          assert.match(proof?.models?.[model]?.crc32,/^[a-f0-9]{8}$/);
+          assert.equal(proof?.models?.[model]?.slot_map_crc32,'0d69aa83');
+        }
+        assert.equal(item.artifact_distribution_approved,false);
+        assert.equal(item.build_target_tests_independently_reexecuted,false);
       } else assert.ok(false,'unattributed private-byte audit');
     }
 
@@ -332,7 +361,8 @@ for (const item of catalog.history) {
     assert.match(x.evidence_manifest_blob_sha, /^[a-f0-9]{40}$/);
     assert.ok(Number.isInteger(x.builder_selected_host_checks_pass) && x.builder_selected_host_checks_pass > 0);
     assert.ok(Number.isInteger(x.followup_native_checks_pass) && x.followup_native_checks_pass >= 0);
-    assert.ok(Array.isArray(x.followup_native_checks_fail) && x.followup_native_checks_fail.length > 0);
+    if(item.id==='integration-pr103-r10-native-elite-pro-20261024') assert.deepEqual(x.followup_native_checks_fail,[],'no new full-root test failure recorded');
+    else assert.ok(Array.isArray(x.followup_native_checks_fail) && x.followup_native_checks_fail.length > 0);
     if(item.id==='integration-pr103-smc79-native-build-20261024-r13') assert.deepEqual(x.followup_native_checks_fail.map(f=>f.name),["mixed-historical-seed:ble-midi-receive","mixed-historical-seed:smc-reachability","mixed-historical-seed:smc-mapping","mixed-historical-seed:smc-drum-mutes","mixed-historical-seed:smc-clip-visibility"]);
     for (const failure of x.followup_native_checks_fail) {
       assert.ok(typeof failure.name === 'string' && failure.name.length > 0);
@@ -340,7 +370,7 @@ for (const item of catalog.history) {
       else assert.ok(Number.isInteger(failure.exit_code) && failure.exit_code !== 0);
     }
     assert.equal(x.package_bytes_independently_received_and_rehashed,item.artifact_bytes_independently_verified===true,'private bytes proof status');
-    if(item.id!=='integration-pr103-smc79-native-build-20261024-r13') assert.equal(item.artifact_bytes_independently_verified,false,'old native build lacked independent byte readback');
+    if(!['integration-pr103-smc79-native-build-20261024-r13','integration-pr103-r10-native-elite-pro-20261024'].includes(item.id)) assert.equal(item.artifact_bytes_independently_verified,false,'old native build lacked independent byte readback');
     assert.match(item.firmware_subtree, /^[a-f0-9]{40}$/);
     for (const model of ['elite','pro']) {
       const pkg = item.producer_reported_artifacts?.[model];

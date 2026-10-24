@@ -2826,6 +2826,98 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e"
+    },
+    {
+      "id": "integration-pr103-r10-native-elite-pro-20261024",
+      "title": "PR103 R10 real Elite/Pro private DEV build, noninstallable",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+      "source_tree": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+      "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+      "date": "2026-10-24",
+      "status": "build-succeeded-unreviewed",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_bytes_independently_verified": true,
+      "artifact_distribution_approved": false,
+      "build_target_tests_independently_reexecuted": false,
+      "producer_reported_artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "6abb8656379d84bfbee6f31f59f11ae80b04b2af7c0e61be9fa88c46772f6810"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "fbbc5cf92e303797bc7b361a4e510b8ac89e4710067f9b717c2d4bc17ee32ca0"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "9c07ae67",
+          "redistribution_permitted": false
+        }
+      },
+      "build_pipeline": {
+        "build": "BUILD_SUCCEEDED_UNREVIEWED",
+        "qa": "QA_PENDING",
+        "installability": "NOT_INSTALLABLE",
+        "live_http": "NOT_VERIFIED",
+        "hardware": "DEVICE_NOT_TESTED",
+        "source_scope": "FIRMWARE_SUBTREE_MATCH_FULL_ROOT_NOT_ATTESTED",
+        "builder_selected_host_checks_pass": 15,
+        "followup_native_checks_pass": 48,
+        "followup_native_checks_fail": [],
+        "evidence_commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+        "evidence_manifest_blob_sha": "4d49f8c6baef394f34e2d7688ce641ec7a1a701d",
+        "package_bytes_independently_received_and_rehashed": true
+      },
+      "reported_checks": {
+        "origin": "Native current source PR103 producer actual Elite/Pro compile + private Library materialization and Catalog read-only package rehash; controller not included and not rehashed",
+        "command": "python3 -B /mnt/data/x0x37-catalog-private/verify_r16_private.py",
+        "result": "EXIT 0; 48 package integrity/model/CRC/slot assertions, including 12 deliberate invalid cases. NOT full-root QA."
+      },
+      "description": "Private Elite/Pro byte-verified BUILT_ONLY for matching firmware subtree. Packages have empty controller region and no public download. Full-root QA and lawful hosting unverified.",
+      "missing_gate": "Independent current-root QA, matching controller local injection and OTA/backup/readback/restore negative tests, corresponding-source licensing, lawful immutable external hosting, per-model HTTP SHA and publisher approval.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e/docs/scheduler-handoffs/integration-smc40-smc43-datasafety108-first-candidate-20261024-r10.json"
+    },
+    {
+      "id": "data-safety-pr109-slot-ack-integrity-20261024",
+      "title": "Data Safety PR109: strict sample-slot write ACK matching",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-slot-write-ack-20261024-1411",
+      "source_commit": "0ca385b947fb5317319461f15fe9b9a6f0184db2",
+      "source_tree": "18adb347c160e6a36a6cec98c5cc0b68b0bc1612",
+      "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Producer native scoped mock regression, independently checked live Git full root and unchanged firmware subtree; no Catalog rerun",
+        "command": null,
+        "result": "Producer reports repaired scoped 16/16 mock ACK checks PASS; complete root, independent QA and device NOT RUN"
+      },
+      "description": "Host-only destructive sample-write ACK slot/offset fail-closed guard, stacked on PR103; compiled firmware subtree unchanged but root changed.",
+      "missing_gate": "Independent full-root ACK, backup/readback/restore/OTA negatives, sole firmware Safe Merge integration and current-root QA.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/109",
+      "evidence_commit": "0ca385b947fb5317319461f15fe9b9a6f0184db2"
     }
   ],
   "policy": {
@@ -2836,7 +2928,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 105
+    "source_or_historical_checkpoints": 107
   },
   "versioning": {
     "firmware_product_version": {
