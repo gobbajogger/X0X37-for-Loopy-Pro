@@ -1,0 +1,75 @@
+[
+  {
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 0.27,
+    "log": "npm-build.log"
+  },
+  {
+    "command": [
+      "npm",
+      "test"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 16.35,
+    "log": "npm-test.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tests/browser-admission.py",
+      "--local-files-only"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 2.74,
+    "log": "registered-local-files.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tests/browser-admission.py",
+      "--source",
+      "/workspace/pr11-independent-qa/before.html",
+      "--local-files-only"
+    ],
+    "exit": 1,
+    "expected_exit": 1,
+    "seconds": 2.88,
+    "log": "baseline-red-local-files.log"
+  },
+  {
+    "command": [
+      "node",
+      "/workspace/pr11-independent-qa/preparer-reconstruct-exact.mjs",
+      "/workspace/pr11-independent-qa/preparer-replay-site"
+    ],
+    "exit": 0,
+    "purpose": "exact supplied5278byte reconstruction and full115file manifest check"
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/pr11-independent-qa/actual-candidate-local-files-adapter.py",
+      "--local-files-only"
+    ],
+    "exit": 0,
+    "checks": 34,
+    "purpose": "same registered local-file fixtures against exact real-catalog generated candidate; controlled real package byte reply"
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/pr11-independent-qa/real-page-focused.py"
+    ],
+    "exit": 0,
+    "checks": 42,
+    "purpose": "independent invalid metadata/format/race/cleanup extension and both-model real package smoke"
+  }
+]

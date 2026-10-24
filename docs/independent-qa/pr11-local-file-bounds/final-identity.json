@@ -1,0 +1,32 @@
+{
+  "head": "3ad5d846d850d5c4f6315b695a5079f65c382ef0",
+  "tree": "60a287591a756a67d3ea705f44c7e4ee3e63889b",
+  "source_blob": "e34761acfb6687a424269f132f89dedb4eb20875",
+  "source_clean": true,
+  "prior_candidate_changed_files": [
+    "install/index.html"
+  ],
+  "added_public_evidence_files": [
+    "repair-evidence/local-file-bounds/README.md",
+    "repair-evidence/local-file-bounds/browser-green.log",
+    "repair-evidence/local-file-bounds/browser-red.log",
+    "repair-evidence/local-file-bounds/focused-commands.json",
+    "repair-evidence/local-file-bounds/npm-build.log",
+    "repair-evidence/local-file-bounds/npm-test.log",
+    "repair-evidence/local-file-bounds/provenance-final.log",
+    "repair-evidence/local-file-bounds/receipt.json"
+  ],
+  "file_map": "ca290a85d8f613db5c39e9757bc8a922fca148362ec4374b4563cafcac8db24a",
+  "all_prepared_files_match_preparer_replay_after_testing": true,
+  "preparer_manifest_sha256": "7857e5b2784f03f7bdcc9c9f9be6d16b23b31f1d9b7ce1e28622e65ff8b81d7d",
+  "unchanged_git_blobs": {
+    "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
+    "web/fm1ota.js": "485a54187e78822847f5cb51088204983caffa71",
+    "web/x0x_breaks.js": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e",
+    "scripts/render-qualified-nightly.mjs": "75bd94eecd1ac8a098bf0238deeff198565552eb",
+    "build-status.json": "30dd86eb3d351267f61a90c3e2adb9ef22dfa4e3",
+    "docs/build-status.json": "30dd86eb3d351267f61a90c3e2adb9ef22dfa4e3",
+    "tests/fixtures/history-appendonly-baseline-20261024.json": "d71c42f243bc7556420d88698f4b59313cc75708"
+  },
+  "local_controller_known_real_size65492_within_new_bounds": true
+}

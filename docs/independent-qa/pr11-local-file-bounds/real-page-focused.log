@@ -1,0 +1,44 @@
+{"chromium": "154.0.8037.57", "html_sha256": "5c51f29146e137ceed2e104ea3787fbcd324ad5cbb30deffb30e812accdfb0d3", "page": "PR11 actual regenerated candidate", "transport": "Real public packages deliberately fulfilled from independently verified bytes; no browser HTTPS claim"}
+{"case": "elite real candidate selected model", "pass": true}
+{"case": "elite real candidate requires DEV consent", "pass": true}
+{"case": "elite hardware-untested label retained", "pass": true}
+{"case": "elite candidate responsive", "pass": true}
+{"case": "elite exact real package Blob download", "pass": true}
+{"case": "elite genuine local package manual recovery still admitted, confirmation required", "pass": true}
+{"case": "elite smoke no MIDI or page exception", "pass": true, "details": []}
+{"case": "pro real candidate selected model", "pass": true}
+{"case": "pro real candidate requires DEV consent", "pass": true}
+{"case": "pro hardware-untested label retained", "pass": true}
+{"case": "pro candidate responsive", "pass": true}
+{"case": "pro exact real package Blob download", "pass": true}
+{"case": "pro genuine local package manual recovery still admitted, confirmation required", "pass": true}
+{"case": "pro smoke no MIDI or page exception", "pass": true, "details": []}
+{"case": "ctl additional invalid metadata undefined no read", "pass": true}
+{"case": "ctl additional invalid metadata null no read", "pass": true}
+{"case": "ctl additional invalid metadata true no read", "pass": true}
+{"case": "ctl additional invalid metadata -Infinity no read", "pass": true}
+{"case": "ctl additional invalid metadata 1n no read", "pass": true}
+{"case": "ctl additional invalid metadata {} no read", "pass": true}
+{"case": "ctl actual minimum-size malformed body reaches read then FORMAT rejection", "pass": true}
+{"case": "ctl stale oldResolve cannot overwrite rejected new selection / cleanup", "pass": true}
+{"case": "ctl stale oldReject cannot overwrite rejected new selection / cleanup", "pass": true}
+{"case": "ctl valid real body retry after read rejection", "pass": true}
+{"case": "ctl writing guard prevents new local read", "pass": true}
+{"case": "stock additional invalid metadata undefined no read", "pass": true}
+{"case": "stock additional invalid metadata null no read", "pass": true}
+{"case": "stock additional invalid metadata true no read", "pass": true}
+{"case": "stock additional invalid metadata -Infinity no read", "pass": true}
+{"case": "stock additional invalid metadata 1n no read", "pass": true}
+{"case": "stock additional invalid metadata {} no read", "pass": true}
+{"case": "stock actual minimum-size malformed body reaches read then FORMAT rejection", "pass": true}
+{"case": "stock stale oldResolve cannot overwrite rejected new selection / cleanup", "pass": true}
+{"case": "stock stale oldReject cannot overwrite rejected new selection / cleanup", "pass": true}
+{"case": "stock valid real body retry after read rejection", "pass": true}
+{"case": "stock writing guard prevents new local read", "pass": true}
+{"case": "valid local stock requires and honors explicit manual confirmation", "pass": true}
+{"case": "invalid drop clears prior confirmed stock state without reading", "pass": true}
+{"case": "ctl Japanese bound message visible", "pass": true}
+{"case": "stock Japanese bound message visible", "pass": true}
+{"case": "focused actual-page local tests no uncaught exceptions", "pass": true, "details": []}
+{"case": "all affected local tests avoid MIDI and writing", "pass": true}
+{"checks": 42, "failed": 0}

@@ -1,0 +1,241 @@
+{
+  "verdict": "QA PASSED \u2014 PR11 affected local File bounds + exact regenerated candidate",
+  "head": "3ad5d846d850d5c4f6315b695a5079f65c382ef0",
+  "root": "60a287591a756a67d3ea705f44c7e4ee3e63889b",
+  "source_blob": "e34761acfb6687a424269f132f89dedb4eb20875",
+  "base": "5d1cf4db62f8700da7671b6b44a6c7dea989228c",
+  "R9": {
+    "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/10#issuecomment-6387122569",
+    "controller_1GiB_before_allocation": "ADDRESSED",
+    "stock_1GiB_picker_and_drop_before_allocation": "ADDRESSED",
+    "explicit_disposition": "Both original local File.arrayBuffer-before-size-check findings reproduce on old source and are prevented on final PR11. These are local allocation checks, distinct from network response bounds. Prior142 assertion result did not disposition R9 and is not relabeled as new execution."
+  },
+  "new_results": {
+    "native_build_exit": 0,
+    "native_npm_test_exit": 0,
+    "registered_local_file_checks": 34,
+    "registered_local_file_failures": 0,
+    "exact_baseline_red_failures": 23,
+    "baseline_red_expected_exit": 1,
+    "actual_candidate_registered_fixture_adapter_checks": 34,
+    "actual_candidate_adapter_failures": 0,
+    "independent_actual_page_extension_and_both_model_smoke_checks": 42,
+    "independent_extension_failures": 0
+  },
+  "commands": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "seconds": 0.27,
+      "log": "npm-build.log"
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "seconds": 16.35,
+      "log": "npm-test.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/browser-admission.py",
+        "--local-files-only"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "seconds": 2.74,
+      "log": "registered-local-files.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/browser-admission.py",
+        "--source",
+        "/workspace/pr11-independent-qa/before.html",
+        "--local-files-only"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "seconds": 2.88,
+      "log": "baseline-red-local-files.log"
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/pr11-independent-qa/preparer-reconstruct-exact.mjs",
+        "/workspace/pr11-independent-qa/preparer-replay-site"
+      ],
+      "exit": 0,
+      "purpose": "exact supplied5278byte reconstruction and full115file manifest check"
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr11-independent-qa/actual-candidate-local-files-adapter.py",
+        "--local-files-only"
+      ],
+      "exit": 0,
+      "checks": 34,
+      "purpose": "same registered local-file fixtures against exact real-catalog generated candidate; controlled real package byte reply"
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr11-independent-qa/real-page-focused.py"
+      ],
+      "exit": 0,
+      "checks": 42,
+      "purpose": "independent invalid metadata/format/race/cleanup extension and both-model real package smoke"
+    }
+  ],
+  "prepared_output": {
+    "file_count": 115,
+    "installer_fingerprint": "733add17e2b9df6f8dcdd69a1bed3ec672f99f9165367bc5c8c811c14b8ec2a4",
+    "installer": {
+      "size": 125546,
+      "sha256": "5c51f29146e137ceed2e104ea3787fbcd324ad5cbb30deffb30e812accdfb0d3"
+    },
+    "catalog": {
+      "size": 2108,
+      "sha256": "3fee246257f8298da135835d2e6e5ab4be3c4b5e0d84b403d343fdf76d0f1a49"
+    },
+    "file_map_digest": "ca290a85d8f613db5c39e9757bc8a922fca148362ec4374b4563cafcac8db24a",
+    "full_preparer_manifest_sha256": "7857e5b2784f03f7bdcc9c9f9be6d16b23b31f1d9b7ce1e28622e65ff8b81d7d",
+    "reconstruction_script_sha256": "f85a33088a306ce983076413efd32b256f42d5d2c604df8a4e7e523fc33a5be9",
+    "reconstruction_exit": 0,
+    "production_renderer_exit_code": null,
+    "note": "Byte reconstruction, not private qualification; preparer records fresh real verifyDownloads separately. Independent-qa gate can now cite this exact-head receipt."
+  },
+  "coverage": {
+    "bounds": "Controller safe integer68..65536 inclusive; stock safe integer960..16777216 inclusive. Invalid metadata invokes zero arrayBuffer calls. No giant allocation performed.",
+    "read_admission_vs_format": "Metadata minimum/maximum checks prove read admission only. Actual minimum-sized malformed bodies are read then rejected as invalid format; real valid controller fixtures, actual64KiB erased padding and actual651392/651396-byte stock controls separately pass.",
+    "state": "Chooser/drop clear prior stock/confirmation/meta and controller selection before rejection; stale read completion and stale read error cannot restore it or overwrite current errors. Interrupted-read valid retries pass; writing guard remains.",
+    "smoke": "Fresh unchanged generated page: actual Elite320/JA and Pro1280/EN admission, exact Blob download, labels/consent/responsive UI, real local manual recovery with confirmation.",
+    "instrumentation": "Registered harness uses diagnostic accessors and synthetic File metadata/read completion. Independent extension uses only appended module accessor, actual File handlers/format validators and counter fixtures. Unmodified page used for two-model smoke. Real package fetches deliberately fulfilled with independently downloaded exact public bytes. MIDI mocked; no safety function replacement or device write."
+  },
+  "reused_unchanged_evidence": {
+    "blobs": {
+      "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
+      "web/fm1ota.js": "485a54187e78822847f5cb51088204983caffa71",
+      "web/x0x_breaks.js": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e",
+      "scripts/render-qualified-nightly.mjs": "75bd94eecd1ac8a098bf0238deeff198565552eb",
+      "build-status.json": "30dd86eb3d351267f61a90c3e2adb9ef22dfa4e3",
+      "docs/build-status.json": "30dd86eb3d351267f61a90c3e2adb9ef22dfa4e3",
+      "tests/fixtures/history-appendonly-baseline-20261024.json": "d71c42f243bc7556420d88698f4b59313cc75708"
+    },
+    "source_review": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/10#pullrequestreview-5638858728",
+    "previous_real_candidate_receipt_library_id": "libfile_7e6112fe06288191a4d5c82259ea35a6",
+    "firmware_actual_private_join_review": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103#pullrequestreview-5638784846",
+    "controller": {
+      "size": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "within_new_bounds": true,
+      "fresh_private_controller_UI_positive": false
+    },
+    "prior142": "Not rerun. Only unaffected observations map; R9 is superseded by new focused tests.",
+    "native_shipping41": "Rerun inside current npm test; real-controller join/firmware-build/OTA source-independent evidence mapped, not firmware rebuild."
+  },
+  "limits": [
+    "Package request fulfilment is application evidence, not external browser TLS/CORS success. Prior normal-TLS native HTTP/size/SHA/CRC/model/CORS receipts remain scoped to pinned immutable URLs.",
+    "No fresh private-controller UI positive; exact parser/validator/join implementation and input hashes map existing independent real-byte evidence.",
+    "Original private qualification/gate map must use new733add... fingerprint and this exact independent receipt before normal production preparation/publication. Reconstruction null renderer_exit_code does not claim production qualification.",
+    "Existing sole merger/publisher handles normal integration and final live deployed byte verification. No publication, merge, firmware rebuild, device action or protected branch write by reviewer."
+  ],
+  "source_clean": true,
+  "blockers": [],
+  "evidence_files": {
+    "final-identity.json": {
+      "size": 1639,
+      "sha256": "2323ba4fdb3439b380d8203d1955b8ccf7724f482ab28686f29384d992fb236b"
+    },
+    "actual-candidate-local-files-adapter.py": {
+      "size": 28967,
+      "sha256": "aab77052e391b7c9ec1fb1ff068272d3e1dc2ad42399986db79de14f8c4f5a86"
+    },
+    "real-page-focused.log": {
+      "size": 3521,
+      "sha256": "0b8f3729e005935d6870ac80d63e0ca059a8e21dd9825de5fe1b6d4f3b18e91c"
+    },
+    "prepared-manifest.json": {
+      "size": 18667,
+      "sha256": "79272f401a09d198db2cd1c7158946485095f148ea3078d7304b5fa0119546b4"
+    },
+    "reconstruction.log": {
+      "size": 487,
+      "sha256": "4bf8dd733cb1b0d0e0fe53a65bd9a0be8dbc232e5976d9bcbecb7ca9dd5191bd"
+    },
+    "npm-test.log": {
+      "size": 13435,
+      "sha256": "b7777e379cd18e039dbce14ce343ca1bec9880a6e20334f6f186b172ec49ff81"
+    },
+    "README.md": {
+      "size": 3879,
+      "sha256": "4f0f029755eb23757b2c6192d382346020deaf511fb6d3cb447212bf373e1b8c"
+    },
+    "registered-local-files.log": {
+      "size": 2327,
+      "sha256": "37371819cdafafa941bdda414fc31def15008997a08332bf5243aff768c8588b"
+    },
+    "real-page-focused.py": {
+      "size": 8161,
+      "sha256": "ea25abc03df236526dac54c7e539dd0d3905e50ca10f15b8b60b14c4a105aa5a"
+    },
+    "baseline-red-local-files.log": {
+      "size": 5210,
+      "sha256": "7ca79c92adda9ed03adc107c8760d09b873fd74cf7a0863000f71dab7cf47071"
+    },
+    "preparer-reconstruction.log": {
+      "size": 118,
+      "sha256": "78cb99de827dbb5b0638e90dd1b4d916236b8b00c11574e4df7165c13388dca6"
+    },
+    "all-commands.json": {
+      "size": 1665,
+      "sha256": "07cd765de37949d64266a380ce335f53c35ac6143b65e8a2dd824e3ee5fd7292"
+    },
+    "R9-publisher-comment.json": {
+      "size": 4227,
+      "sha256": "cd63feb67bbc4c2b120feef5a1153dd8cb026c084eaf5fef7463db6689b93fff"
+    },
+    "commands.json": {
+      "size": 807,
+      "sha256": "fc6ebf689c3b569f99099bf284d03e816cee61d0f6ab866d0f2c9ddcf16dc123"
+    },
+    "preparer-reconstruct-exact.mjs": {
+      "size": 5278,
+      "sha256": "f85a33088a306ce983076413efd32b256f42d5d2c604df8a4e7e523fc33a5be9"
+    },
+    "actual-candidate-local-files.log": {
+      "size": 2327,
+      "sha256": "37371819cdafafa941bdda414fc31def15008997a08332bf5243aff768c8588b"
+    },
+    "reconstruct-pr11.mjs": {
+      "size": 2641,
+      "sha256": "374368c9e6d970efe28048a24dcde52848448ddcf86e2fc6727458cb8479da19"
+    },
+    "npm-build.log": {
+      "size": 179,
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a"
+    },
+    "preparer-output-manifest.json": {
+      "size": 18894,
+      "sha256": "7857e5b2784f03f7bdcc9c9f9be6d16b23b31f1d9b7ce1e28622e65ff8b81d7d"
+    },
+    "independent-live-https-receipt.json": {
+      "size": 6516,
+      "sha256": "a122fe05dedd851a546983ec8eb5a5d2b49359fb74d5f7a0d9438d7af55e27a0"
+    },
+    "browser-evidence/focused-results.json": {
+      "size": 6177,
+      "sha256": "b545d33d12b8044e3c3ab3d78418206f50084f100e6b1a8a7a94aa7312396704"
+    }
+  }
+}
