@@ -2,7 +2,7 @@
 // Synthetic evidence/bytes exercise preparation; none represents a real approval.
 import assert from 'node:assert/strict';
 import { createHash, webcrypto } from 'node:crypto';
-import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync, symlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync, symlinkSync, mkdirSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -137,6 +137,42 @@ try {
   assert.equal(existsSync(rejectedOut),false,'invalid input must produce no public folder');
   assert.doesNotMatch(renderInstaller(bad),/SYNTHETIC_PRIVATE_/,'renderer public projection strips unknown fields');
 } finally { rmSync(dir,{recursive:true,force:true}); }
+
+// Actual CLI regression for the publisher's async output-parent rebind.
+// Copy source to scratch so RED writes can never touch the real checkout.
+const raceDir = mkdtempSync(join(tmpdir(), 'nightly-output-rebind-'));
+try {
+  const replica=join(raceDir,'repo');mkdirSync(replica);
+  const root=fileURLToPath(new URL('../',import.meta.url));
+  for(const name of ['web','scripts','docs'])cpSync(join(root,name),join(replica,name),{recursive:true});
+  writeFileSync(join(replica,'package.json'),'{"type":"module"}');
+  const inside=join(replica,'review-preview');mkdirSync(inside);
+  writeFileSync(join(inside,'keep.txt'),'source sentinel');
+  const catPath=join(raceDir,'catalog.json'),qualPath=join(raceDir,'qualification.json');
+  writeFileSync(catPath,JSON.stringify(catalog));writeFileSync(qualPath,JSON.stringify(qualification));
+  for(const rebind of [false,true]){
+    const parent=join(raceDir,rebind?'rebound-parent':'stable-parent');mkdirSync(parent);
+    const output=join(parent,'candidate'),shim=join(raceDir,`fetch-${rebind}.mjs`);
+    writeFileSync(shim,`import{renameSync,symlinkSync,existsSync}from'node:fs';
+      globalThis.fetch=async()=>{await Promise.resolve();
+      if(existsSync(${JSON.stringify(output)}))throw Error('output visible before verification');
+      ${rebind?`renameSync(${JSON.stringify(parent)},${JSON.stringify(parent+'.moved')});symlinkSync(${JSON.stringify(inside)},${JSON.stringify(parent)},'dir');`:''}
+      return new Response(new Uint8Array(${JSON.stringify([...raw])}));};`);
+    const result=spawnSync(process.execPath,['--import',shim,join(replica,'scripts/render-qualified-nightly.mjs'),
+      '--catalog',catPath,'--qualification',qualPath,'--out',output],{encoding:'utf8',timeout:15000});
+    console.log(JSON.stringify({case:rebind?'async-parent-rebind':'stable-parent-control',exit:result.status,
+      wrote_inside:existsSync(join(inside,'candidate/versions.json')),stderr:result.stderr.trim()}));
+    if(rebind){
+      assert.notEqual(result.status,0,'parent rebound inside source during awaited fetch must reject');
+      assert.equal(existsSync(join(inside,'candidate')),false,'rebound destination must remain untouched');
+      assert.equal(readFileSync(join(inside,'keep.txt'),'utf8'),'source sentinel');
+    }else{
+      assert.equal(result.status,0,result.stderr);
+      assert.deepEqual(JSON.parse(readFileSync(join(output,'versions.json'),'utf8')),catalog);
+      assert.ok(readFileSync(join(output,'install/index.html'),'utf8').includes(digest));
+    }
+  }
+} finally {rmSync(raceDir,{recursive:true,force:true});}
 
 let calls = 0;
 await verifyDownloads(catalog, async (url, opts) => {

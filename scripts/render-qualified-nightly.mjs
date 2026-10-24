@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Local candidate preparation only. The sole publisher still owns review/deployment.
-import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync, rmSync, realpathSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync, rmSync, realpathSync, mkdtempSync, renameSync } from 'node:fs';
 import { join, resolve, relative, dirname, basename, sep, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -202,7 +202,7 @@ function checkedOutput(value) {
   const delta = relative(realpathSync(root), canonical);
   if (!(isAbsolute(delta) || delta === '..' || delta.startsWith('..' + sep)))
     throw new Error('output must be a new directory outside the repository');
-  return output;
+  return canonical;
 }
 
 async function main(argv) {
@@ -217,13 +217,26 @@ async function main(argv) {
   // Render before writing anything; retain complete existing site navigation.
   const published = publicCatalog(catalog);
   const html = renderInstaller(published);
+  // Downloads yield control: never reuse a destination approved before that await.
+  // Resolve aliases again, then keep generation/publish synchronous. This is a
+  // trusted local tool, not a sandbox against hostile same-user OS mutation.
+  const recheckOutput = () => {
+    if (checkedOutput(argv[5]) !== output) throw new Error('output parent changed during verification');
+  };
+  recheckOutput();
+  mkdirSync(dirname(output), { recursive: true });
+  // Stage beside the destination for a same-filesystem atomic directory rename.
+  // No destination/staging path is kept open across an asynchronous operation.
+  const staged = mkdtempSync(join(dirname(output), '.nightly-candidate-'));
   try {
-    cpSync(join(root, 'docs'), output, { recursive: true });
-    mkdirSync(join(output, 'install'), { recursive: true });
-    writeFileSync(join(output, 'install/index.html'), html);
-    writeFileSync(join(output, 'versions.json'), JSON.stringify(published, null, 2) + '\n');
+    cpSync(join(root, 'docs'), staged, { recursive: true });
+    mkdirSync(join(staged, 'install'), { recursive: true });
+    writeFileSync(join(staged, 'install/index.html'), html);
+    writeFileSync(join(staged, 'versions.json'), JSON.stringify(published, null, 2) + '\n');
     // Full qualification remains a private input; it is never copied to public output.
-  } catch (err) { rmSync(output, { recursive: true, force: true }); throw err; }
+    recheckOutput();
+    renameSync(staged, output);
+  } catch (err) { rmSync(staged, { recursive: true, force: true }); throw err; }
   console.log('PREPARED — HTTP bytes verified; local candidate only. Independent site review and sole publisher deployment/served-byte checks remain required.');
 }
 
