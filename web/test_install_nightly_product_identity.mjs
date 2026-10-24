@@ -31,7 +31,7 @@ function fixture(model, product) {
     backup_integrity_pass:true,model_and_controller_pass:true,
     immutable_http_pass:true,model,product,
     source_root_sha:v.source_commit,firmware_tree_sha:v.firmware_tree_sha,
-    package_url:p.pkg,package_sha256:p.sha256,
+    package_url:p.pkg,package_size:p.size,package_sha256:p.sha256,
     controller_sha256:p.controller_sha256,host_sha256:p.sha256};
   return {v,a,approvals:{[v.version+'/'+model]:a},p};
 }
@@ -39,6 +39,13 @@ for (const [model,name] of [['elite','SMK-37 Elite'],['pro','SMK-37 Pro']]) {
   for (const suffix of ['_900','_9001','_9001100']) {
     const x = fixture(model,name+suffix);
     check(model+' approved '+suffix,x.v,x.approvals,[model]);
+  }
+  {
+    const x=fixture(model,name+'_9001100');
+    x.p.size++;
+    check(model+' reject changed catalog package size',x.v,x.approvals,[]);
+    x.p.size--; x.a.package_size++;
+    check(model+' reject changed publisher package size',x.v,x.approvals,[]);
   }
   for (const suffix of ['_900x','_901','_900-foo','_9001a','_900 ','_900.']) {
     const x = fixture(model,name+suffix);

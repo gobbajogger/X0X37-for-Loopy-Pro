@@ -471,7 +471,8 @@ function approvedNightlyModels(v, approvals = NIGHTLY_PUBLISHER_APPROVALS) {
       a.model === model && a.product === p.product &&
       a.source_root_sha === v.source_commit &&
       a.firmware_tree_sha === v.firmware_tree_sha &&
-      a.package_url === p.pkg && a.package_sha256 === p.sha256 &&
+      a.package_url === p.pkg && a.package_size === p.size &&
+      a.package_sha256 === p.sha256 &&
       a.controller_sha256 === p.controller_sha256 &&
       a.host_sha256 === p.sha256;
   });

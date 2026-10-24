@@ -51,7 +51,7 @@ const approval = {
   backup_integrity_pass:true, model_and_controller_pass:true,
   immutable_http_pass:true, model:"elite", product,
   source_root_sha:good.source_commit, firmware_tree_sha:good.firmware_tree_sha,
-  package_url:pkg.pkg, package_sha256:pkg.sha256,
+  package_url:pkg.pkg, package_size:pkg.size, package_sha256:pkg.sha256,
   controller_sha256:pkg.controller_sha256, host_sha256:pkg.sha256
 };
 const key = `${good.version}/elite`;
@@ -166,6 +166,10 @@ reject("source root mismatch", v => v.source_commit="f".repeat(40));
 reject("firmware subtree mismatch", v => v.firmware_tree_sha="f".repeat(40));
 reject("model swap", v => v.models.elite.product="SMK-37 Pro_9001100");
 reject("package SHA mismatch", v => v.models.elite.sha256="c".repeat(64));
+reject("catalog package size changed without publisher approval", v => { v.models.elite.size++; });
+reject("catalog package size enlarged to unbounded budget", v => { v.models.elite.size=Number.MAX_SAFE_INTEGER; });
+reject("publisher package size mismatch", v => {}, {[key]:{...approval,package_size:pkg.size+1}});
+reject("publisher package size absent", v => {}, {[key]:{...approval,package_size:undefined}});
 reject("controller SHA mismatch", v => v.models.elite.controller_sha256="d".repeat(64));
 reject("unapproved HTTP origin", v => v.models.elite.pkg="https://other.test/a.fwsc");
 reject("relative Pages package without immutable approval", v => v.models.elite.pkg="../firmware/a.fwsc");

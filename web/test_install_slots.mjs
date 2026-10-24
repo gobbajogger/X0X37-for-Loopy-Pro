@@ -327,7 +327,7 @@ async function page(pkg, product, firmware, from, fill, opts = {}) {
     prehardware_qa_pass: true, license_and_source_ok: true, backup_integrity_pass: true,
     model_and_controller_pass: true, immutable_http_pass: true, model, product,
     source_root_sha: rootSha, firmware_tree_sha: treeSha,
-    package_url: pkgUrl, package_sha256: pkgSha, controller_sha256: ctlSha, host_sha256: pkgSha,
+    package_url: pkgUrl, package_size: entry.size, package_sha256: pkgSha, controller_sha256: ctlSha, host_sha256: pkgSha,
   };
   const source = html.replace("const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze({});",
     `const NIGHTLY_PUBLISHER_APPROVALS = Object.freeze(${JSON.stringify({ [`test/${model}`]: approval })});`);
