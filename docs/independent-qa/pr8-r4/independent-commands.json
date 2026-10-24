@@ -1,0 +1,44 @@
+[
+  {
+    "command": [
+      "python3",
+      "/workspace/pr8-r4-qa-evidence/independent_browser.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/pr8-r4-qa-evidence/r2_focused_checks.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/pr8-r4-qa-evidence/history_response_negatives.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/pr8-r4-qa-evidence/history_adversarial_extension.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/pr8-r4-qa-evidence/dependency_boundary_checks.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "node",
+      "/workspace/pr8-r4-qa-evidence/backup_boundary_bind_adapter.mjs"
+    ],
+    "exit": 0
+  }
+]

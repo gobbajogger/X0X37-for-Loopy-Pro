@@ -1,0 +1,38 @@
+[
+  {
+    "source": "R4",
+    "case": "matching",
+    "exit": 0,
+    "accepted": true,
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/1111111111111111111111111111111111111111/docs/1111111111111111111111111111111111111111/receipt.json",
+    "stdout": "PASS: 2 nightly builds + 118 history; no unapproved installer entries",
+    "stderr": ""
+  },
+  {
+    "source": "R4",
+    "case": "claimed-SHA-in-path",
+    "exit": 0,
+    "accepted": true,
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ffffffffffffffffffffffffffffffffffffffff/docs/1111111111111111111111111111111111111111/receipt.json",
+    "stdout": "PASS: 2 nightly builds + 118 history; no unapproved installer entries",
+    "stderr": ""
+  },
+  {
+    "source": "R28",
+    "case": "matching",
+    "exit": 0,
+    "accepted": true,
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/1111111111111111111111111111111111111111/docs/1111111111111111111111111111111111111111/receipt.json",
+    "stdout": "PASS: 2 nightly builds + 118 history; no unapproved installer entries",
+    "stderr": ""
+  },
+  {
+    "source": "R28",
+    "case": "claimed-SHA-in-path",
+    "exit": 1,
+    "accepted": false,
+    "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ffffffffffffffffffffffffffffffffffffffff/docs/1111111111111111111111111111111111111111/receipt.json",
+    "stdout": "",
+    "stderr": "tmp/pr8-r28-compare-8waskzmu/scripts/verify-build-status.mjs:198:16\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 'ffffffffffffffffffffffffffffffffffffffff',\n  expected: '1111111111111111111111111111111111111111',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n"
+  }
+]

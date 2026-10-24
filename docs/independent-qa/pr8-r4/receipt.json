@@ -1,0 +1,253 @@
+{
+  "verdict": "NEEDS CHANGES \u2014 F7 URL reference corner remains; F1\u2013F6 and browser paths verified",
+  "head": "02a5a05ee0aa9677884aadf1e0bb48e1b31d6cad",
+  "root": "eb903cc7a8ae658e99894b0e7b7b995eb9437c74",
+  "base": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+  "source_changed_by_qa": false,
+  "commands": [
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:browser"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r4-qa-evidence/independent_browser.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r4-qa-evidence/r2_focused_checks.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r4-qa-evidence/history_response_negatives.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r4-qa-evidence/history_adversarial_extension.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/workspace/pr8-r4-qa-evidence/dependency_boundary_checks.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "/workspace/pr8-r4-qa-evidence/backup_boundary_bind_adapter.mjs"
+      ],
+      "exit": 0
+    },
+    {
+      "command": "python3 final_matrix_extension.py",
+      "exit": 1,
+      "checks": 6,
+      "failed": 1,
+      "remaining": "F7 claimed SHA only later in URL path"
+    },
+    {
+      "command": "python3 r28_reference_comparison.py",
+      "exit": 0,
+      "observations": "R4 accepts matching and shadowed-ref; existing R28 accepts matching and rejects shadowed-ref"
+    }
+  ],
+  "results": {
+    "registered_browser": {
+      "installer": 215,
+      "history": 34,
+      "failed": 0
+    },
+    "shipping_JS_paths": {
+      "checks": 41,
+      "failed": 0
+    },
+    "independent_expanded": 82,
+    "focused": 22,
+    "history_replay": 8,
+    "history_extension": 31,
+    "dependency_replay": 8,
+    "backup_readback_adapter": 4,
+    "extra_actual_updater_checks": 3,
+    "equivalent_package_size_binding_checks": 4
+  },
+  "findings": {
+    "F1": "PASS",
+    "F2": "PASS",
+    "F3": "PASS",
+    "F4": "PASS",
+    "F5": "PASS \u2014 resolve individually after review",
+    "F6": "PASS \u2014 resolve individually after review",
+    "F7": "PARTIAL \u2014 original mutable/mismatched/object cases reject; existing R28 shadowed URL-ref case still accepts"
+  },
+  "counterexample": {
+    "evidence_commit": "1111111111111111111111111111111111111111",
+    "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/ffffffffffffffffffffffffffffffffffffffff/docs/1111111111111111111111111111111111111111/receipt.json",
+    "current_exact_validator_exit": 0,
+    "existing_R28_validator_exit": 1,
+    "matched_actual_ref_control_exit": 0,
+    "reference_commit": "9d03fe036220c02b224a91a90c0bb09b66fd29fe",
+    "reference_validator_blob": "9cd11cf06a1277238d5eafc470ab315177f99264"
+  },
+  "integrity": {
+    "fresh_remote_clone_head_root_matches": true,
+    "candidate_clean_after_tests": true,
+    "producer_tested_blob_pins": 18,
+    "producer_log_hashes_and_lengths": 20,
+    "retained_policy_data_history_package_library_files": 12
+  },
+  "limits": [
+    "Synthetic browser/IO fixtures; no Python physical_id failure imported as browser failure",
+    "No durable physical-unit or device/hardware PASS",
+    "No firmware qualification/publication/legal host/served-HTTP approval",
+    "No merger acceptance while F7 remains"
+  ],
+  "logs": {
+    "npm-test-before.log": {
+      "bytes": 12438,
+      "sha256": "1f0548e054c1597b2782201b9de90c12ac646c5dd01a395468c2d9e05a459d59"
+    },
+    "npm-build.log": {
+      "bytes": 179,
+      "sha256": "88bad3ecc31fc6bb86faef09e74cdd4f2f7e8c4a070ab60a55eba5bd6537483a"
+    },
+    "npm-test-after.log": {
+      "bytes": 12438,
+      "sha256": "1f0548e054c1597b2782201b9de90c12ac646c5dd01a395468c2d9e05a459d59"
+    },
+    "chromium.log": {
+      "bytes": 19772,
+      "sha256": "9f307c7e5bf3d320e4d714d44c61c69cfdc4f15b6d88776e413080a51b3e7141"
+    },
+    "native-commands.json": {
+      "bytes": 329,
+      "sha256": "b9b1200bf7aa8f993ad1733fe2af6d01376ec035b39f5a2e434befd1b2469a65"
+    },
+    "independent-commands.json": {
+      "bytes": 781,
+      "sha256": "c1e2d80b4413b874c08cf2dc83bb4f013eb1c9219795a8dd028c4641188ee2eb"
+    },
+    "independent_browser.py": {
+      "bytes": 8989,
+      "sha256": "c14d79b78fb865111eee2ed4b5c6bf47a50e4d4755295f282f79d022f0785026"
+    },
+    "backup_boundary_checks.mjs": {
+      "bytes": 2196,
+      "sha256": "701bb08d4b1ca31c8d80ae73244d950580da1ffeb27a47921d12c19418bb417e"
+    },
+    "backup_boundary_bind_adapter.mjs": {
+      "bytes": 2294,
+      "sha256": "430335fbc84b2c0fce1a4fe0ab157fcf179cd63064ab74063ed9722fcee5f6c0"
+    },
+    "r2_focused_checks.py": {
+      "bytes": 3232,
+      "sha256": "1c587567b8f0f46bc8b694eb9d708daee6d7d0105e6bda7fb761f3a308a659f9"
+    },
+    "history_response_negatives.py": {
+      "bytes": 3532,
+      "sha256": "a3581d5dc3909b8a17fc0f7cc3e0d4043efb4fc6a74a12320cb61cebd856c818"
+    },
+    "history_adversarial_extension.py": {
+      "bytes": 6105,
+      "sha256": "1db4cddf90601a4750b9f269075e1bb7159f631e885353bbc105c694d72db051"
+    },
+    "dependency_boundary_checks.py": {
+      "bytes": 6483,
+      "sha256": "914984baaf151ae32317d8d698adf76961eec73f1bc575b293971e72ca3da4c4"
+    },
+    "independent-expanded.log": {
+      "bytes": 3380,
+      "sha256": "d409637f4d1e0861754d3a1925100555db91fc40fb72dfeed5095353ed0abf81"
+    },
+    "r2-focused.log": {
+      "bytes": 3312,
+      "sha256": "4f99b0f6e8b454eaedfa57bcd0c32a30c31663ae03244a80795e41ca6aefb410"
+    },
+    "f3f4-replay.log": {
+      "bytes": 7574,
+      "sha256": "3f2ab1ca00caeceae5913ba5fc51712b1f68b3513230f83a1893c6e549402839"
+    },
+    "history-extension.log": {
+      "bytes": 5847,
+      "sha256": "bfb9e55bee979dcfa3f0c5807c26080612b0067a10d69ac7e1c6ba3f376c4b6f"
+    },
+    "dependency-boundary.log": {
+      "bytes": 3852,
+      "sha256": "8917c72b7ed6efa16f04cd52f204a91461f055b4a5266cc741fbb2f09124389c"
+    },
+    "backup-boundary-adapter.log": {
+      "bytes": 262,
+      "sha256": "a0feba612311a9eb91de042a65000671d57d552094e4d2f28f6bfea6b7a09b0b"
+    },
+    "final_matrix_extension.py": {
+      "bytes": 5918,
+      "sha256": "6ecb7e10ee9b0a8b3975fc54d4d9438c6b72c8148289f9d96c228fde8fa0b7ef"
+    },
+    "final-matrix-extension.log": {
+      "bytes": 3024,
+      "sha256": "d8a9b1ee43c57df696f9de984f5a3746c44b55fd1c04b127162506f710c38d3b"
+    },
+    "final-matrix-extension-results.json": {
+      "bytes": 3306,
+      "sha256": "581ac45196d6f853e42cc9fc8c414183427da7a0e16b8fc3185edad914073592"
+    },
+    "size_binding_check.mjs": {
+      "bytes": 3110,
+      "sha256": "ca7f90871e388cd33975b07ea1f5be78e3a2e75dc3305a7349432a9fb90b1594"
+    },
+    "additional_browser_write_guards.mjs": {
+      "bytes": 1448,
+      "sha256": "de8e78066e589288b1485a9cefc82d4c73145679f39fe96d7d500990f73d6dc6"
+    },
+    "r28_reference_comparison.py": {
+      "bytes": 2245,
+      "sha256": "b5b8906649ebcbb617d42f3d83e1a755b3e5ad8f3a3fb36171941fdef520e100"
+    },
+    "r28-reference.log": {
+      "bytes": 1785,
+      "sha256": "43c4e280025c63129682e9e8efa1ed48bcbf9f5e04c13d33e6f0fd259a70074e"
+    },
+    "r28-reference-results.json": {
+      "bytes": 1928,
+      "sha256": "38061ba7a4abf9f40b7b1ab858dd0f5e0f7b1e5975f2a7df4be9bc92203b9333"
+    }
+  }
+}
