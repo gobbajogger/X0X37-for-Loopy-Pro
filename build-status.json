@@ -2976,6 +2976,97 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "8e8338792ca20508163a2b42b17ae542825da10a",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/8e8338792ca20508163a2b42b17ae542825da10a/docs/scheduler-handoffs/integration-smc58-solo-overflow-first-candidate-20261024-r12.json"
+    },
+    {
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "id": "smc-pr58-early-solo-ack-snapshot-20261024-r18",
+      "title": "SMC #58 repaired early Solo ACK generation capture; scoped QA review, integration pending",
+      "source_ref": "lane/smc-solo-release-overflow-20261023-run4",
+      "source_commit": "e0c39288853ae3002caa153ad4a361e6c743755a",
+      "source_tree": "cc1b9ebfa0770905515f61f3e60d14f541fee132",
+      "firmware_subtree": "7ec199e8bd479e713cbda8f0a0ca147aa23d3ab4",
+      "reported_checks": {
+        "origin": "SMC producer smc-pr58-solo-early-snapshot-20261024-r1; Independent QA scoped differential 20261024-r2; Catalog verified immutable Git SHA, did not run firmware tests",
+        "command": null,
+        "result": "Producer and Independent QA report native scoped fail-before, pass-after 5/5 differential scenarios; full current root 22-case QA and Elite/Pro native builds for new repaired firmware subtree pending."
+      },
+      "description": "SMC source-owner repair snapshots lost-release generations BEFORE queue drains, unlike currently unsafe PR103. Ready for independent review, not QA approval, model build or flashable package. Device UNKNOWN.",
+      "missing_gate": "Sole firmware Safe Merge integrate this reviewed SMC repair and #40 into PR103, independent complete-root QA; Hourly Build fresh exact Elite/Pro/controller; backups, source/license, immutable lawful hosting, external HTTP SHA.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/58",
+      "evidence_commit": "e0c39288853ae3002caa153ad4a361e6c743755a",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/e0c39288853ae3002caa153ad4a361e6c743755a/docs/scheduler-handoffs/smc-pr58-solo-early-snapshot-20261024-r1.json"
+    },
+    {
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "id": "integration-pr103-r12-native-solo-no-go-20261024-r18",
+      "title": "PR103 R12 real Elite/Pro private BUILD_ONLY but four current-source Solo safety negatives FAIL",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "8e8338792ca20508163a2b42b17ae542825da10a",
+      "source_tree": "3609692ed833c5660028d2ed514e255877ca187a",
+      "firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+      "reported_package_sha256": {
+        "elite": "130aefad7e1ea0714fb936f5cafadb195133edb05ba976e77e7901e9faf820e1",
+        "pro": "2a8eccf5b7aec9d7c930e02add3e45184777e6eb49ed9d421ef2e475e875e15c"
+      },
+      "reported_checks": {
+        "origin": "Hourly Build Git evidence hourly-build-pr103-r12-main-library-fresh-native-20261024-r1; Safe Merge exact source failing race r13 and independent QA r6, NOT native checks by Catalog",
+        "command": "BOARD=smk37 MODEL=elite|pro X0X_DEV_PADCAL=1 bash build.sh --board smk37",
+        "result": "Builder reports actual native compiler EXIT 0 each: Elite 651396 bytes, CRC 98d430ce; Pro 651392 bytes, CRC c3b5092a; controller 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a was REUSED, not recompiled/accepted as joined. Safe Merge exact integrated current C source: four sanitizer executables EXIT 1, Solo remains latched after Timer5 refill. INDEPENDENT QA NO-GO; no installable bytes."
+      },
+      "description": "New distinct build and failing-QA evidence about exact r17 source, NOT a new firmware model generation or different bytes; immutable existing r17 source-only checkpoint retained. Scoped real build SUCCEEDED_UNREVIEWED, combined safety FAIL; no source/license/host/HTTP or physical validation.",
+      "missing_gate": "SMC PR58 repaired source integration in sole Safe Merge, independent complete-root Solo/303/backup/OTA/installer QA, rebuilt new subtree Elite/Pro and matching private controller, lawful immutable host and checked HTTP; hold unsafe R12 binaries.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "8e8338792ca20508163a2b42b17ae542825da10a",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/8e8338792ca20508163a2b42b17ae542825da10a/docs/scheduler-handoffs/integration-smc58-solo-overflow-first-candidate-20261024-r12.json"
+    },
+    {
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "date": "2026-10-24",
+      "status": "validation-evidence-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "id": "data-safety-pr110-ctl-echo-non7bit-no-go-20261024-r18",
+      "title": "Data Safety #110 slot echo repair but Independent QA finds controller 7-bit readback alias",
+      "source_ref": "lane/data-safety-ctl-read-framing-20261024-1456",
+      "source_commit": "9e412020739ded51e0bfba4cabe32cd0fcd91a88",
+      "source_tree": "1095c120dc67e68262c0bde05a059ee226ea321e",
+      "firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+      "reported_checks": {
+        "origin": "Data Safety producer data-safety-slot-echo-7bit-20261024-r1; Independent QA independent-qa-pr110-controller-header-7bit-alias-no-go-20261024-r1",
+        "command": null,
+        "result": "Producer source-window 11/11 slot echo negatives and positives PASS. Independent QA reproduced current tools/fm1_install.py ED_CTL_READ invalid high-bit echo 0xE0 at offset 224 incorrectly ACCEPTED by read_ctl and check_ctl for full 65536-byte controller CRC; diagnostic patch rejects but not committed. PR110 needs changes, NOT approved."
+      },
+      "description": "Host-only controller/slot readback safety changes; firmware subtree remains PR103 a32c68, not a new compiled binary; missing device results UNKNOWN.",
+      "missing_gate": "Data Safety producer repair canonical 7-bit ED_CTL_READ echo in own PR110 and register full-block fail-before/pass-after CRC/backup/OTA negatives, Independent QA re-review before Safe Merge acceptance.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/110",
+      "evidence_commit": "9e412020739ded51e0bfba4cabe32cd0fcd91a88",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/9e412020739ded51e0bfba4cabe32cd0fcd91a88/docs/scheduler-handoffs/data-safety-slot-echo-7bit-20261024-r1.json"
     }
   ],
   "policy": {
@@ -2986,7 +3077,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 109
+    "source_or_historical_checkpoints": 112
   },
   "versioning": {
     "firmware_product_version": {
