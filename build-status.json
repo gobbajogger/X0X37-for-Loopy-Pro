@@ -3504,6 +3504,37 @@
       "evidence_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/54f2ffbc3124f7449a69067dc8215a2d91a2e675",
       "source_identity_note": "Firmware source 54f2ffbc3124f7449a69067dc8215a2d91a2e675 reused without recompilation. Pages source Git b7af05f00a91056ca732b21cbe1dc719edbcb585 and versions blob 519d9500c57848d5ed103fbd88befb5f43f6d020 are separate, independently observed metadata identities, not requalified bytes."
+    },
+    {
+      "id": "data-safety-pr114-r18-native-extract-fdopen-needs-changes-20261025",
+      "title": "PR114 R18 offline sample extraction fixes metadata rollback; independent fdopen descriptor leak still NEEDS CHANGES",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-ota-target-identity-20261024-1711",
+      "source_commit": "8361f45a0becb26426d51a795a9505e675cafd2b",
+      "source_tree": "577e442f9d8a0a17062a845b8be8cd676a232e2e",
+      "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+      "source_time": "2026-10-24T21:12:53Z",
+      "date": "2026-10-25",
+      "status": "source-only",
+      "models": [],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_distribution_approved": false,
+      "exact_remote_native_build": false,
+      "artifact_bytes_independently_verified": false,
+      "build_target_tests_independently_reexecuted": false,
+      "reported_checks": {
+        "origin": "Sole independent firmware QA exact PR114 R18 review 5640131582; full root and Git source window verified by reviewer. Catalog did not run native firmware tests.",
+        "command": "Independent native Python3: python3 -B sample_extract_safety_test.py R18-main.py exit 0, 19/19; optimized same exit 0, 19/19. python3 -B independent_extraction_negatives.py R18-main.py exit 1, 5/6; optimized same exit 1, 5/6. Historical R17 negative test exit 1, 4/6.",
+        "result": "SCOPED REVIEWED post-create metadata rollback; NEEDS CHANGES inherited os.fdopen constructor failure leaves live output file descriptor. This is a FAILED independent negative, not full-root, firmware, browser or hardware acceptance."
+      },
+      "description": "Native offline sample backup/archive extraction only. The reviewed R18 path cleans post-create metadata failures without orphaning a new slot, but a separate independently injected os.fdopen failure still leaks the newly opened file descriptor. Source-only evidence, not a new build, qualified download or failed browser test.",
+      "missing_gate": "Existing Data Safety PR114 owner repairs descriptor-close failure and registers a regression. Independent QA rechecks changed source. Native physical-target OTA, full-root and device QA remain incomplete; separately scoped browser installer qualification is independent.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/114",
+      "evidence_commit": "8361f45a0becb26426d51a795a9505e675cafd2b",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/blob/8361f45a0becb26426d51a795a9505e675cafd2b/docs/scheduler-handoffs/data-safety-pr114-r18-postcreate-fstat-rollback-20261025.json"
     }
   ],
   "policy": {
@@ -3514,7 +3545,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 124
+    "source_or_historical_checkpoints": 125
   },
   "versioning": {
     "firmware_product_version": {

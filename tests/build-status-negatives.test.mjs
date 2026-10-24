@@ -677,3 +677,26 @@ run('r33-unapproved-firmware-link-REJECT',editR33(row=>{row.download_url='https:
 run('r33-fake-source-download-admission-REJECT',editR33(row=>{row.installable=true;}));
 run('r33-fake-device-PASS-REJECT',editR33(row=>{row.device_verified=true;}));
 run('r33-fake-distribution-approval-REJECT',editR33(row=>{row.artifact_distribution_approved=true;}));
+
+
+
+// R35: fail closed on native CLI failure disguised as firmware/browser eligibility.
+const r35Id='data-safety-pr114-r18-native-extract-fdopen-needs-changes-20261025';
+const editR35=fn=>edit(j=>{const row=j.history[124];assert.equal(row.id,r35Id);fn(row,j);});
+run('r35-native-independent-qa-failure-safely-recorded',editR35((row,j)=>{
+  assert.equal(j.counts.source_or_historical_checkpoints,125);
+  assert.equal(row.status,'source-only');
+  assert.equal(row.installable,false);
+  assert.equal(row.device_verified,false);
+  assert.equal(row.artifact_distribution_approved,false);
+  assert.equal(row.exact_remote_native_build,false);
+  assert.match(row.reported_checks.result,/NEEDS CHANGES/);
+  assert.match(row.reported_checks.command,/exit 1, 5\/6/);
+}),true);
+run('r35-failed-native-test-concealed-REJECT',editR35(row=>row.reported_checks.result='PASS'));
+run('r35-unqualified-download-REJECT',editR35(row=>row.installable=true));
+run('r35-false-device-approval-REJECT',editR35(row=>row.device_verified=true));
+run('r35-false-distribution-approval-REJECT',editR35(row=>row.artifact_distribution_approved=true));
+run('r35-artifact-link-smuggling-REJECT',editR35(row=>row.pkg='https://invalid.example/fw.fwsc'));
+run('r35-status-forged-success-REJECT',editR35(row=>row.status='dev-checked'));
+run('r35-history-tail-deleted-REJECT',editR35((row,j)=>{j.history.splice(124,1);j.counts.source_or_historical_checkpoints--;}));

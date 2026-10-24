@@ -95,4 +95,28 @@ mustReject('R33 download falsely granted',rows=>{rows[pagesIndex].installable=tr
 mustReject('R33 hardware PASS falsely granted',rows=>{rows[pagesIndex].device_verified=true;});
 mustReject('R33 distribution permission falsely granted',rows=>{rows[pagesIndex].artifact_distribution_approved=true;});
 
+
+
+// R35: independent native extraction failure is factual read-only history, never NIGHTLY qualification.
+const r35Id='data-safety-pr114-r18-native-extract-fdopen-needs-changes-20261025';
+assert.ok(lock.rows.length >= 125,'R35 native extraction QA receipt must remain pinned');
+const r35Index=original.findIndex(row=>row.id===r35Id);
+assert.equal(r35Index,124,'R35 must append without replacing 124 prior records');
+const r35Row=original[r35Index];
+assert.equal(r35Row.source_commit,'8361f45a0becb26426d51a795a9505e675cafd2b');
+assert.equal(r35Row.source_tree,'577e442f9d8a0a17062a845b8be8cd676a232e2e');
+assert.equal(r35Row.status,'source-only');
+assert.deepEqual(r35Row.models,[]);
+assert.equal(r35Row.installable,false);
+assert.equal(r35Row.device_verified,false);
+assert.equal(r35Row.artifact_distribution_approved,false);
+assert.equal(r35Row.exact_remote_native_build,false);
+assert.match(r35Row.reported_checks.result,/NEEDS CHANGES/);
+assert.match(r35Row.reported_checks.command,/exit 1, 5\/6/);
+mustReject('R35 independent failed QA deleted',rows=>rows.splice(r35Index,1));
+mustReject('R35 independent failure changed to PASS',rows=>rows[r35Index].reported_checks.result='PASS');
+mustReject('R35 source SHA forged',rows=>rows[r35Index].source_commit='f'.repeat(40));
+mustReject('R35 qualified-download fabricated',rows=>rows[r35Index].installable=true);
+mustReject('R35 device QA fabricated',rows=>rows[r35Index].device_verified=true);
+
 console.log('PASS: ' + lock.rows.length + ' SHA256-pinned historical records; 16 malicious continuity negatives; safe append');
