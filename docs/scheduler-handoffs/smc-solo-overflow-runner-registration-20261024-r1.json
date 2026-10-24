@@ -1,0 +1,87 @@
+{
+  "schema": "loopyx0x37-scheduler-handoff/1",
+  "evidence_revision": "smc-solo-overflow-runner-registration-20261024-r1",
+  "date_utc": "2026-10-24",
+  "producer": "LoopyX0X37 SMC Transport",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_lane": {
+    "branch": "lane/smc-solo-release-overflow-20261023-run4",
+    "consumed_prior_head": "2ec9996e5758df237b6fb1674a5751d0997c4676",
+    "first_checked_runner_registration_head": "9af4e5017bb3b9c077aa53aab2afbd361030a542",
+    "full_root_at_runner_registration": "361bf42814a73d7b946f196a923198f0c766c809",
+    "firmware_subtree_unchanged": "e42f1fbaa60e02a8d338a54b39c5a57c617813ee",
+    "smc_source_blob": "cf0edf0b7a2bc4c36e6467b7b73dae9cd859c663",
+    "preexisting_test_blob": "9140a6301ca2974e138b95cbbcae2337524edf7a",
+    "new_runner_blob": "87d635d557ac38e70cb6f6c58b657990941703e5",
+    "registration": "run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py"
+  },
+  "consumed_first_candidate": {
+    "pr": 103,
+    "head": "53c7d264c2b25d8f24dfe26a6ad5bbe9e527286e",
+    "full_root": "0ecdf6c2abdf2fbbe813781a62940805da4a28ae",
+    "firmware_subtree": "b3179883a83e9878b65a8a52385aa0210e866f05",
+    "smc_blob": "703a271135bd6b7f7795bd075e10c06e57f4213c",
+    "missing_feature": "source smc_mixer.c lacks the lost Solo key-up recovery generation counters from PR #58"
+  },
+  "test_evidence": {
+    "execution_environment": "local Linux x86_64 native GCC 14.2.0, Clang 17, UBSan and ASan/UBSan",
+    "runner": "python3 /mnt/data/smc_run/smc_solo_producer_negative.py",
+    "exit_code": 0,
+    "source_basis": "Replayed actual smc_is_solo_release, smc_ble_midi, and smc_midi_host function windows from Git-blob-verified, earlier combined PR #71 file 0aa000e7b605c0589314a14e0f09bfa491ec4f1c. This is NOT a new exact-PR58 checkout or a linked firmware check.",
+    "negative_control": "Simulated old release-loss behavior by removing only both producer counter increments; 14/93 expected assertions fail per invocation, execution exit 1",
+    "positive": "Current producer logic: 93/93 assertions pass, execution exit 0 per invocation",
+    "compilations": 8,
+    "compiler_results": [
+      {
+        "compiler": "gcc",
+        "sanitizers": "UBSan",
+        "negative_exit": 1,
+        "positive_exit": 0,
+        "positive_log_sha256": "39f61e32b2c867e2dbdf50f4ab8f78ed0a179a5f9964d60686e71cc12b2d669c"
+      },
+      {
+        "compiler": "gcc",
+        "sanitizers": "ASan+UBSan",
+        "negative_exit": 1,
+        "positive_exit": 0,
+        "positive_log_sha256": "34316ac66ddc9bfd30ca79a69417cae062a955bb91538dd52798f802ab5df79e"
+      },
+      {
+        "compiler": "clang",
+        "sanitizers": "UBSan",
+        "negative_exit": 1,
+        "positive_exit": 0,
+        "positive_log_sha256": "5b232a520fdc522335532d8b4da241beeade4be9a4039e68cabb0ea79d548646"
+      },
+      {
+        "compiler": "clang",
+        "sanitizers": "ASan+UBSan",
+        "negative_exit": 1,
+        "positive_exit": 0,
+        "positive_log_sha256": "1ae0ef502b3cce49d49e3b41f640ee4743cc903acdb7c0e3c24bb59ad7c15406"
+      }
+    ],
+    "coverage": "USB User-mode and direct BLE queue saturation, valid NoteOff and NoteOn velocity-zero, malformed data rejection, wrong-channel isolation, disabled User mode, nonfull ring, generation wrap; producer ingress only, not smc_poll integration or real MIDI hardware.",
+    "prior_producer_evidence": "PR #58 records 19/19 focused native scenarios on a different earlier source projection; not independently rerun against its present entire checkout."
+  },
+  "disposition": "SOURCE-READY FOR INDEPENDENT REVIEW; NOT QA APPROVED",
+  "build_only_permission": "Hourly Build may immediately compile exact PR source for Elite/Pro plus private controller, independent of QA/merge/hosting",
+  "qa_status": "PENDING exact present Git root/full affected negative tests",
+  "target_build_status": "PENDING new exact-source Elite/Pro/controller",
+  "nightly_install_status": "NO-GO until independent prehardware model/controller/backup/OTA/source/license/immutable HTTP qualification",
+  "device_status": "UNKNOWN / NOT TESTED",
+  "next_actions": [
+    {
+      "owner": "Independent QA",
+      "action": "Run newly registered smc-solo-overflow and host/central queue/epoch/MMC/NoteOff negatives against exact PR #58 or combined new candidate; record current SHA review."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Integrate PR #58 conditional on combined safety QA into isolated PR #103 head, preserve existing central reconnect/MMC/BLE protections, new exact-source QA."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile changed source BUILD_ONLY; do not wait for PR readiness/QA/merge; record immutable firmware-subtree vs full-root identity."
+    }
+  ]
+}
