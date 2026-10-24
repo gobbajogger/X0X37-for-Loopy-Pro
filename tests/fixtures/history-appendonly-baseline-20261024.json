@@ -371,6 +371,102 @@
     {
       "id": "integration-pr103-pr106-independent-ble-no-go-20261024",
       "sha256": "236717a9ad4602ee48bf672110121441ef85016723179c351f5065791ea9c7fd"
+    },
+    {
+      "id": "smc-pr50-sysex-mailbox-repair-source-20261024-r2",
+      "sha256": "d429d757ca535651c0a674f8b3b23bf886b0d1ab3284f63550093f986250af50"
+    },
+    {
+      "id": "data-safety-pr76-per-slot-readback-regression-20261024-r2",
+      "sha256": "52df3f492b4ef09ff79a76c3636657faaadff923c793340db0eb753b8f1e3cce"
+    },
+    {
+      "id": "integration-pr103-smc50-slot76-review-ready-20261024-r6",
+      "sha256": "d2155d76d6a5b9870b0630e6505ebaf95e23792f29092dec2ed1f64955cb7abf"
+    },
+    {
+      "id": "data-safety-pr75-archive-zone-20261024-r12",
+      "sha256": "c3c9bce18b4e72d9751e5b7c4b6f6c0e33dcbe46399f82d8638ccbdb18119015"
+    },
+    {
+      "id": "data-safety-pr49-atomic-controller-output-20261024-r12",
+      "sha256": "ccdc2a3b1f3442aeb18e54377d899e07a4d5ae5b1c37717d639f8fa92ae0ea47"
+    },
+    {
+      "id": "smc-pr79-ble-link-epoch-20261024-r12",
+      "sha256": "49e8fe7e379518e4bfb0ec2f5dd88d7d849f13aa1f935fd8d828458489462420"
+    },
+    {
+      "id": "integration-pr103-archive75-ctl49-smc79-20261024-r7",
+      "sha256": "a68259f3a85547553f7cb99b405cd27c3c4fd8512d5d82920ca631419d61af3b"
+    },
+    {
+      "id": "data-safety-pr107-backup-dirsync-20261024-r13",
+      "sha256": "ae9178227fca0f1179658377280d83ce918b236c975e7d0feaef2c432053b572"
+    },
+    {
+      "id": "integration-pr103-smc79-native-build-20261024-r13",
+      "sha256": "8e91a1d8c7e4c262e3610077519ddfd23bcea560f7001e26403cd9ceb5aa6e78"
+    },
+    {
+      "id": "smc-pr63-ble-payload-data7-20261024-r14",
+      "sha256": "db4568cb1d59d463b108e4ab69f9bf9a53f39a4a95c205e08be891d54fe0dc76"
+    },
+    {
+      "id": "smc-pr73-mmc-stop-overflow-20261024-r14",
+      "sha256": "45ebc74f44a8a9ad771317979c7727aead01e64d123a0ff3e7c34ddcfa5695bf"
+    },
+    {
+      "id": "integration-pr103-smc79-63-73-current-root-20261024-r14",
+      "sha256": "313e4a0c94990a6b92772f0344addf701067c9eb4b2cc0ec4896c23add453bd1"
+    },
+    {
+      "id": "data-safety-pr108-canonical-smp-read-20261024-r15",
+      "sha256": "7c7c76dd70c5618efd4b5298fea47e51ae5d492fcd4f5a7da10e645ed6775f13"
+    },
+    {
+      "id": "integration-pr103-smc40-43-datasafety108-20261024-r15",
+      "sha256": "54f04db6a185357c4491547684e7fc132ff368c802faf87f0ee55939a8a736a4"
+    },
+    {
+      "id": "integration-pr103-r10-native-elite-pro-20261024",
+      "sha256": "c4ea992df419a113a1403236a90632e3dbe6fd6e909c98d7177ac96efd2dd1c8"
+    },
+    {
+      "id": "data-safety-pr109-slot-ack-integrity-20261024",
+      "sha256": "9a72ee90677f5bb6440e9a6bf1c9715f23dd0bb9ac663d5833b82ee7d2955f5b"
+    },
+    {
+      "id": "smc-solo-overflow-pr58-runner-20261024-r17",
+      "sha256": "2572f883adc9255b156a7aa9f6662c74bbaeb27611ce1ef70377b1d7eabf740d"
+    },
+    {
+      "id": "integration-pr103-smc58-solo-current-root-20261024-r17",
+      "sha256": "48fec8010b3580a303fa402930284fddd15cfd6e7fc8cd7cc2c69b4761138320"
+    },
+    {
+      "id": "smc-pr58-early-solo-ack-snapshot-20261024-r18",
+      "sha256": "493aeeaed8d1f8166b678ce93a70dad6a6df68ac7c981071123dacfb8d43034b"
+    },
+    {
+      "id": "integration-pr103-r12-native-solo-no-go-20261024-r18",
+      "sha256": "d844c20f93d5a99a4acc1718d9968d3f48a6000bb4d97602ca2f903e6ba218c9"
+    },
+    {
+      "id": "data-safety-pr110-ctl-echo-non7bit-no-go-20261024-r18",
+      "sha256": "cf721fb8a84219082ceb9966b957681b408e8d5907282abe5bd87f0893010cb7"
+    },
+    {
+      "id": "integration-pr103-r14-native-elite-pro-20261024",
+      "sha256": "5dda9ce786a7838c8786baa475160a6acfa4806172739668f14d838df9a844cc"
+    },
+    {
+      "id": "data-safety-pr110-r2-scoped-qa-20261024",
+      "sha256": "9edfee86dda288ac254297c6bff8afc01b33ff258856415703c2f7e97cd50c9a"
+    },
+    {
+      "id": "integration-pr103-r16-pr110-integrated-current-20261024",
+      "sha256": "df7e90d50fd56951dc130c54bd29ce15f2e38e15d7005d31a85e57dd7a51382f"
     }
   ]
 }
