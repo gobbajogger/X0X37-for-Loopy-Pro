@@ -200,8 +200,11 @@ export class Updater {
     if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
     step("reboot");
     await sleep(3000);
-    const back = await this.waitFor((id) => !IS_OTA(id), 40000);
-    if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
+    // A different connected keyboard is not evidence that the target rebooted.
+    // In particular, stock/manual mode must not report false success on mismatch.
+    const back = await this.waitFor((id) => !IS_OTA(id) && sameKeyboard(id.model, model), 40000);
+    if (!back || !sameKeyboard(back.id.model, model))
+      throw fail("noreturn", "the target keyboard did not come back: power-cycle it");
     back.link.close();
     if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
     step("done", back.id.text);

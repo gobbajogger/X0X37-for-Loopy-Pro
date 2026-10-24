@@ -24,7 +24,7 @@ assert.equal(typeof install, "function");
 async function simulate(spec) {
   const model = spec.model || "SMK-37 Pro";
   const product = model + "_900";
-  const state = { writes: [], filters: [], closed: 0, upgradeCalls: 0 };
+  const state = { writes: [], filters: [], rebootFilters: [], closed: 0, upgradeCalls: 0 };
   const dev = (m) => ({
     id: { model: m, text: m + "_900" },
     link: { send() { state.upgradeCalls++; }, close() { state.closed++; } },
@@ -47,8 +47,14 @@ async function simulate(spec) {
         }
         return null;
       }
-      const back = dev(model);
-      return filter(back.id) ? back : null;
+      // Reboot discovery must skip another plugged-in keyboard's running app.
+      for (const name of (spec.reboots || [model])) {
+        const d = dev(name);
+        const eligible = filter(d.id);
+        state.rebootFilters.push([name, eligible]);
+        if (eligible || spec.ignoreRebootFilter) return d;
+      }
+      return null;
     },
     async write(d) {
       state.writes.push(d.id.model);
@@ -61,6 +67,11 @@ async function simulate(spec) {
 }
 
 const cases = [
+  { name: "Pro ignores unrelated FM-1 after loader write", loaders: ["ota-SMK-37 Pro"], reboots: ["FM-1", "SMK-37 Pro"], rebootAllowed: [false, true], write: "ota-SMK-37 Pro" },
+  { name: "Pro wrong-family-only reboot is not success", loaders: ["ota-SMK-37 Pro"], reboots: ["FM-1"], rebootAllowed: [false], wrote: "ota-SMK-37 Pro", error: "noreturn" },
+  { name: "FM-1 ignores unrelated Pro after loader write", model: "FM-1", loaders: ["ota-FM-1"], reboots: ["SMK-37 Pro", "FM-1"], rebootAllowed: [false, true], write: "ota-FM-1" },
+  { name: "wrong-family reboot discovery bypass still rejected", loaders: ["ota-SMK-37 Pro"], reboots: ["FM-1"], ignoreRebootFilter: true, rebootAllowed: [false], wrote: "ota-SMK-37 Pro", error: "noreturn" },
+  { name: "legitimate same-family Elite reboot keeps mismatch report", loaders: ["ota-SMK-37 Pro"], reboots: ["SMK-37 Elite"], rebootAllowed: [true], wrote: "ota-SMK-37 Pro", error: "mismatch" },
   { name: "Pro skips unrelated FM-1 loader", loaders: ["ota-FM-1", "ota-SMK-37 Pro"], write: "ota-SMK-37 Pro" },
   { name: "Pro never writes FM-1-only loader", loaders: ["ota-FM-1"], error: "noloader" },
   { name: "FM-1 never writes Pro-only loader", model: "FM-1", loaders: ["ota-SMK-37 Pro"], error: "noloader" },
@@ -84,8 +95,9 @@ for (const c of cases) {
     assert.equal(r.returned, (c.model || "SMK-37 Pro") + "_900", c.name + " final identity");
   } else {
     assert.equal(r.error, c.error, c.name + " expected error");
-    assert.deepEqual(r.writes, [], c.name + " must not write");
+    assert.deepEqual(r.writes, c.wrote ? [c.wrote] : [], c.name + " expected write disposition");
   }
+  if (c.rebootAllowed) assert.deepEqual(r.rebootFilters.map((x) => x[1]), c.rebootAllowed, c.name + " reboot family filter");
   passed++;
   console.log("PASS " + c.name);
 }
