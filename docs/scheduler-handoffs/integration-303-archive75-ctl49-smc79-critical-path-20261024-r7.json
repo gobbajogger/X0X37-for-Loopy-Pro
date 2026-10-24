@@ -1,0 +1,113 @@
+{
+  "schema": "loopyx0x37/safe-merge-exact-sha-handoff-v2",
+  "evidence_revision": "safe-merge-pr103-archive75-ctl49-smc79-critical-path-20261024-r7",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "consumed_source": {
+    "commit": "db64bef866e28d2297948a0368e26753833e714f",
+    "root": "897620b142285d41b3012d5e522ea0f1e7f1d82b",
+    "firmware_subtree": "3949ee05f4f7fd2e6c863766e2a7c2503bb5c5a5",
+    "prior_evidence": "safe-merge-pr103-smc50-slot76-safety-intake-20261024-r6"
+  },
+  "producers": [
+    {
+      "pr": 75,
+      "commit": "58e48d015dea7bb0fbb18712ac3ae82ef7f58775",
+      "depends_on": [
+        56,
+        66
+      ],
+      "asset": "archive metadata and sample zone fail-closed validation",
+      "qa": "independent scoped 18/18 read_archive source-window PASS, full combined QA still needed"
+    },
+    {
+      "pr": 49,
+      "commit": "1a1efce1df56c5fc48485e430f55d8bf8a03e0bf",
+      "depends_on": [
+        42
+      ],
+      "asset": "atomic BLE controller package output + post-replace durability warning",
+      "qa": "producer source-window 11/11, independent combined QA pending"
+    },
+    {
+      "pr": 79,
+      "commit": "3e430691dcfecb8dba8e9c6963ccb6ba4616e648",
+      "depends_on": [],
+      "asset": "SMC-central BLE link-epoch stale queue suppression",
+      "qa": "producer GCC/Clang sanitized source-window 48/48; combined QA pending"
+    }
+  ],
+  "merge_plan": "On integrator-owned PR only, retain source history as additional commit parents; archive read_archive() transplanted byte-for-byte from PR75 into latest backup/restore module, without overwriting newer restore functions. Pure-addition PR75 sample test replaces unchanged baseline test. Atomic ctl and SMC epoch modules match producer source blobs. Add negative host tests to serial test runner.",
+  "changed_paths": [
+    [
+      "tools/x0x_slots.py",
+      "09a7ff6d3b67cf3830ab3d2347de25f9b7e8cfbe",
+      "100755"
+    ],
+    [
+      "tests/x0x_slots_test.py",
+      "5e61fb8be0183fe7ecdd7fc5e838327b37776ab5",
+      "100755"
+    ],
+    [
+      "tests/x0x_slots_zone_guard_test.py",
+      "2eb8a3df8473290660511b0da89e41194acfc9e5",
+      "100644"
+    ],
+    [
+      "tools/add_ctl.py",
+      "75af866fd137ea5144bf2b0f3d1070c764ea72fa",
+      "100755"
+    ],
+    [
+      "tests/add_ctl_atomic_test.py",
+      "2d8df03b685f38d80852a9894c9ae32e4dccbb1d",
+      "100644"
+    ],
+    [
+      "firmware/src/app/smc_mixer.c",
+      "e662881c6b67ba660d52e7eb221805c1e8765d59",
+      "100644"
+    ],
+    [
+      "tests/host/smc_ble_reconnect_epoch_test.py",
+      "d36141afdaa47b620ac0049d1f81560e7e2844a7",
+      "100644"
+    ],
+    [
+      "tests/run_tests.sh",
+      "7aad694c1bd44d9211f3aba23059e23848086307",
+      "100755"
+    ]
+  ],
+  "validation": {
+    "method": "GitHub exact-blob source reconciliation via functions.exec JavaScript; not a Linux Python/GCC runtime",
+    "static_assertions": 26,
+    "result": "PASS",
+    "failed": 0,
+    "checked": [
+      "unique source function replacement preserving newest backup/restore",
+      "producer parser identical",
+      "sample archive structural+zone guard present",
+      "archive test producer-only additive",
+      "atomic output + warning code exact producer",
+      "SMC link-epoch cutoff exact producer",
+      "three tests once and serial category",
+      "existing 303/restore runner registrations retained"
+    ],
+    "native_combined_tests": "NOT_RUN",
+    "target_elite": "NOT_RUN",
+    "target_pro": "NOT_RUN",
+    "controller": "NOT_RUN",
+    "hardware": "UNKNOWN"
+  },
+  "disposition": "SOURCE_STAGE_READY_FOR_INDEPENDENT_REVIEW_NOT_MERGE_APPROVED",
+  "source_merge_gate": "Independent exact-new-root negative host checks and formal review, plus repository protection; no hardware/HTTP gate for source merge.",
+  "next": [
+    "Independent QA: exact-root archive malformed metadata, readback ordering, ctl atomic failures, SMC BLE stale/control queue, 303/OTA/installer negatives; Git ACK exact new SHA",
+    "Hourly Build: immediately build exact-new-firmware-subtree Elite/Pro and private controller BUILD_ONLY, log model/hash/budget/artifact inputs",
+    "Safe Merge: only reviewed protected PR merge after independent QA and checks",
+    "Sole Nightly Publisher: no public selectable candidate before full software/backup/model/license/immutable HTTP verification"
+  ],
+  "publication": "NO_GO; not installable; production main and firmware nightly remain unchanged until reviewed PR merge"
+}

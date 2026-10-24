@@ -15,7 +15,9 @@ typedef struct {
 static smc_event_t smc_q[SMC_Q];
 static volatile uint8_t smc_qw, smc_qr;
 /* TIMER5 owns publication; the main loop owns acknowledgment. A generation
- * keeps a reconnect visible even if its final state equals the previous one. */
+ * keeps a reconnect visible even if its final state equals the previous one.
+ * Bits 1..8 carry the queue write cursor at the last link edge: this lets the
+ * consumer discard only packets belonging to an old connection. */
 static volatile uint32_t smc_link_published;
 static uint32_t smc_link_seen;
 /* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
@@ -107,8 +109,8 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
 
 void smc_ble_link(int up)
 {
-    uint32_t next = (smc_link_published + 2u) & ~1u;
-    smc_link_published = next | (uint32_t)(up != 0);
+    uint32_t next = (smc_link_published + 0x200u) & ~0x1FFu;
+    smc_link_published = next | ((uint32_t)smc_qw << 1) | (uint32_t)(up != 0);
 }
 int smc_ble_role_get(void) { return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL); }
 int smc_connected(void) { return smc.up && smc_ble_role_get(); }
@@ -592,6 +594,11 @@ void smc_poll(void)
         /* Never clear the ISR's publication: it may already contain a newer
          * link edge than this snapshot. The next poll must still see it. */
         smc_link_seen = link;
+        /* Skip pre-edge central packets without losing packets queued on the
+         * newly connected link. Never rewind if another action already drained. */
+        uint8_t cutoff = (uint8_t)(link >> 1);
+        if ((uint8_t)(cutoff - smc_qr) <= (uint8_t)(smc_qw - smc_qr))
+            smc_qr = cutoff;
         smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
         smc.picked = smc.seen = 0;
