@@ -228,6 +228,92 @@ test("empty eligible catalog keeps picker blank and direct link hidden", () => {
   assert.deepEqual(r.revoked, ["blob:stale-approved"]);
   assert.equal(r.blobAlive, false);
 });
+
+// Cached verified bytes must remain bound to the selected, independently
+// approved version/model/package. A blank or programmatically replaced DOM
+// selection must never flash an old image under a new package's approval.
+const exactSelectedVersion = cut("function currentVersion()", "\nfunction modelKeyForProduct(");
+const exactGoHandler = cut('$("go").addEventListener("click", () => {', "\nfunction confirmNightlyModel(");
+const publisherAdmission = admission.replace("Object.freeze({})",
+  `Object.freeze(${JSON.stringify({[key]:approval})})`);
+function attemptedNightlyWrite({selection=good.version, cached=pkg,
+  cachedVersion=good.version, cachedProduct=product, cachedHref="blob:verified"}={}) {
+  const handlers={}, calls=[];
+  const dom = {version:{value:selection}, go:{disabled:false,
+    addEventListener(event,fn){handlers[event]=fn;}}};
+  const ctx=createContext({dom,good,pkg,cached,cachedVersion,cachedProduct,
+    cachedHref,calls,Uint8Array});
+  new Script(`const $=(id)=>dom[id];
+    let catalogLive={latest:good.version,versions:[good]},chosenModel="elite";
+    let image=new Uint8Array([17]),selectedProduct=cachedProduct;
+    let verifiedDownload=cached&&{pkg:cached,model:"elite",
+      version:cachedVersion,href:cachedHref};
+    let writing=false,ctlNeedsResolution=false,ctl=null,ctlHash=null;
+    const confirmWrite=()=>true;
+    const run=(raw,prod)=>{calls.push({product:prod,byte:raw[0]});};
+    const insertCtl=(raw)=>raw;
+    const sayK=()=>{},t=()=>"?";
+    ${publisherAdmission}
+    ${exactSelectedVersion}
+    ${meta}
+    ${exactGoHandler}
+  `).runInContext(ctx);
+  handlers.click();
+  return calls;
+}
+test("exact approved loaded Blob permits the normal install click", () => {
+  assert.equal(attemptedNightlyWrite().length,1);
+});
+test("removed/version-blank DOM selection refuses the previously loaded image", () => {
+  assert.equal(attemptedNightlyWrite({selection:""}).length,0);
+});
+test("another eligible selected version cannot authorize previously cached bytes", () => {
+  assert.equal(attemptedNightlyWrite({cachedVersion:"older-version"}).length,0);
+});
+test("different cached package cannot borrow the new version approval", () => {
+  assert.equal(attemptedNightlyWrite({cached:{...pkg,product:"SMK-37 Elite_9001000"}}).length,0);
+});
+test("mismatched cached product identity cannot be flashed", () => {
+  assert.equal(attemptedNightlyWrite({cachedProduct:"SMK-37 Pro_9001100"}).length,0);
+});
+test("no verified Blob never creates a usable install candidate", () => {
+  assert.equal(attemptedNightlyWrite({cached:null}).length,0);
+});
+test("remote non-Blob href never creates a usable install candidate", () => {
+  assert.equal(attemptedNightlyWrite({cachedHref:"https://release.test/unchecked.fwsc"}).length,0);
+});
+function manipulatedDownloadHref(visible) {
+  let vetoes=0;const revoked=[];
+  const dom={version:{value:good.version},
+    download:{hidden:false,href:visible,download:"x.fwsc",
+      removeAttribute(k){this[k]=null;},
+      addEventListener(_event,fn){this.clickHandler=fn;}}};
+  const ctx=createContext({dom,good,pkg,URL:{revokeObjectURL:(url)=>revoked.push(url)}});
+  new Script(`const $=(id)=>dom[id];
+    let catalogLive={latest:good.version,versions:[good]},chosenModel="elite";
+    ${publisherAdmission}
+    ${exactSelectedVersion}
+    ${downloadGuard}
+    ${meta}
+    verifiedDownload={pkg,model:"elite",version:good.version,href:"blob:verified"};
+  `).runInContext(ctx);
+  dom.download.clickHandler({preventDefault(){vetoes++;}});
+  return {vetoes,revoked,visible:dom.download.href,hidden:dom.download.hidden};
+}
+test("unaltered verified Blob download remains permitted", () => {
+  const r=manipulatedDownloadHref("blob:verified");
+  assert.equal(r.vetoes,0);
+  assert.equal(r.visible,"blob:verified");
+  assert.deepEqual(r.revoked,[]);
+});
+test("altered direct remote Download HREF is vetoed and verified URL revoked", () => {
+  const r=manipulatedDownloadHref("https://release.test/unapproved.fwsc");
+  assert.equal(r.vetoes,1);
+  assert.equal(r.visible,null);
+  assert.equal(r.hidden,true);
+  assert.deepEqual(r.revoked,["blob:verified"]);
+});
+
 // NIGHTLY_ELIGIBLE_LATEST_FALLBACK_END
 
 console.log(`PASS ${checks} NIGHTLY installer source-excerpt assertions; device/host HTTP not tested`);
