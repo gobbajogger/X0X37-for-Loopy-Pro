@@ -28,6 +28,17 @@ assert.match(meta, /link\.href = verifiedDownload\.href/, "only verified Blob ma
 assert.match(chooser, /if \(!list\.length\) \{[\s\S]*discardVerifiedDownload\(\)/, "empty picker must revoke verified Blob URL");
 assert.match(html, /id="stockfile"[^>]*accept="\.fwsc"/, "local arbitrary .fwsc import lost");
 
+
+assert.match(html, /id="stocklink" href="https:\/\/www\.m-vave\.com\/download"/,
+  "official manufacturer landing page lost");
+assert.ok(!html.includes("yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/"),
+  "unreviewed vendor firmware HREF exposed");
+const modelStockUi = cut("function refreshModelUi()", "\nfunction isCatalogChecked(");
+assert.ok(modelStockUi.includes('$("stocklinks").textContent = "";'),
+  "model picker must not inject unreviewed firmware links");
+assert.ok(chooser.includes('$("stocklinks").textContent = "";'),
+  "empty catalog must not inject unreviewed firmware links");
+
 const product = "SMK-37 Elite_9001100";
 const pkg = {product, size:651396, pkg:"https://nightly.example.test/sha256/elite-abc.fwsc",
   sha256:"a".repeat(64), controller_sha256:"b".repeat(64)};
