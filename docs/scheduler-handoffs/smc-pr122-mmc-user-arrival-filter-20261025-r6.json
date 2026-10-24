@@ -1,0 +1,38 @@
+{
+  "evidence_revision": "smc-pr122-mmc-user-arrival-filter-20261025-r6",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_owner": "LoopyX0X37 SMC Transport",
+  "pr": 122,
+  "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "source_parent_sha": "e16f872a8b19b1d3d68c9559d7a9a79697356853",
+  "root_parent_tree": "4e2d7c0b3a8e44efcbefdd9140149ea47fb9983a",
+  "compiler_parent_tree": "b10a698d3fa465f3413d8330138493ea36719b23",
+  "source_blobs_parent": {
+    "smc_mixer": "956136cb831ada9da1506b28696a680596be4654",
+    "stop_fifo_test": "00c8302a383ae2201c3245f00fdbe3705422b0fb"
+  },
+  "source_blobs_new_expected": {
+    "smc_mixer": "ddad3657ed5a0015bb64ed8446de69302a83d0bc",
+    "stop_fifo_test": "db18e73084f4436a0ec6b0a4733d9cc78fa8fa63"
+  },
+  "bug": "Disabled SMC User receives well-formed USB/peripheral BLE MMC SysEx. If User is enabled before the next smc_poll, stale PLAY/STOP executes; an overflowed STOP also queues while mode is disabled.",
+  "fix": "Drop valid MMC on ingress when PROJ_BT_SMC_USER is disabled. Existing per-source queue, dispatch, and Solo handling unchanged.",
+  "native_tests": {
+    "negative": "unpatched exact R5 source: 6/6 expected C runtime RED (80-case selector)",
+    "after_mmc": "80/80 PASS x 6",
+    "after_ble_midpoll": "16/16 PASS x 6",
+    "after_ble_frame": "24/24 PASS x 6",
+    "matrix": "GCC/Clang x plain, UBSan, ASan+UBSan",
+    "leak_detection": "disabled, not tested",
+    "python_syntax_exit": 0,
+    "logs_sha256_record": "5edf2c5d10a5e965f64177549cf54a4d8c40b55b7996350b3965dca333b150b4",
+    "private_log_capsule_sha256": "ed97f7a24e5f636cb0f5837246e8396517d04d73eb8331270a5527fd07d4d982"
+  },
+  "status": "SOURCE PRODUCER NATIVE CHECKED; independent QA pending; fresh Elite/Pro BUILD_ONLY pending; no owner device PASS; not installable",
+  "next_roles": {
+    "build": "Existing Hourly Build: build exact new compiled firmware tree for Elite and Pro DEV with controller and own artifact/toolchain/SDK input hashes. No hardware/Pages/QA prerequisite.",
+    "qa": "Existing Independent QA: exact source/root and SMC User ingress/phase/ISR/NoteOff/clock review.",
+    "safe_merge": "Sole firmware Safe Merge: optional after independent acceptance; first merged NIGHTLY remains separate."
+  },
+  "excluded": "No private SDK/controller images, raw binaries, sample data or public firmware included. No self-approval or merge."
+}

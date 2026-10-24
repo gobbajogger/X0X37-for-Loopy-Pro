@@ -195,7 +195,11 @@ int smc_midi_host(uint32_t pkt)
 void smc_mmc_host(uint8_t cmd, uint8_t src)
 {
     uint8_t w;
-    if (src > 1u || cmd < 1u || cmd > 43u)
+    /* USB/peripheral BLE can receive MMC regardless of the selected preset.
+     * Reject it on arrival when User mode is disabled: otherwise switching
+     * User back on before smc_poll replays stale PLAY/STOP controls. */
+    if (!(proj.set.bt & PROJ_BT_SMC_USER) ||
+        src > 1u || cmd < 1u || cmd > 43u)
         return;
     w = smc_mmc_w[src];
     if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {

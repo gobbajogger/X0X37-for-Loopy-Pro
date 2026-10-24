@@ -104,6 +104,33 @@ static void prep(unsigned src, uint8_t start)
 static int test(unsigned src, uint8_t start, int mode)
 {
  prep(src,start);
+ if (mode == 8 || mode == 9) {
+  /* The USB/peripheral BLE SysEx parser can receive MMC while User mode is
+   * disabled. Enqueue-time filtering must stop those old commands from
+   * executing if User mode is enabled before the next consumer poll. */
+  if (mode == 9)
+   for (unsigned i=0;i<16;i++) smc_mmc_host(33,(uint8_t)src);
+  proj.set.bt = 0;
+  if (mode == 8) smc_mmc_host(33,(uint8_t)src); /* disabled, free FIFO */
+  smc_mmc_host(34,(uint8_t)src); /* disabled STOP, free or saturated */
+  proj.set.bt = PROJ_BT_SMC_USER;
+  smc_poll(); smc_poll();
+  int expected = mode == 9 ? 16 : 0;
+  if (log_count != expected ||
+      smc_mmc_r[src] != smc_mmc_w[src] ||
+      smc_mmc_stop_r[src] != smc_mmc_stop_w[src]) {
+   fprintf(stderr,"FAIL disabled MMC replay mode=%d src=%u cursor=%u log=%d expected=%d\n",
+           mode,src,start,log_count,expected); return 0;
+  }
+  smc_mmc_host(34,(uint8_t)src); /* current enabled User must still work */
+  smc_poll();
+  if (log_count != expected+1 || log_notes[expected] != 0x5D ||
+      smc_mmc_r[src] != smc_mmc_w[src]) {
+   fprintf(stderr,"FAIL enabled User STOP after disabled frame mode=%d src=%u\n",mode,src);
+   return 0;
+  }
+  return 1;
+ }
  for(unsigned i=0;i<16;i++)smc_mmc_host(33,(uint8_t)src);
  smc_mmc_host(34,(uint8_t)src); /* FIRST STOP at cutoff start+16 */
  if(mode==0){
@@ -215,13 +242,13 @@ static int test(unsigned src, uint8_t start, int mode)
 int main(void)
 {
  int count=0;
- for(unsigned src=0;src<2;src++)for(unsigned i=0;i<4;i++)for(unsigned mode=0;mode<8;mode++){
+ for(unsigned src=0;src<2;src++)for(unsigned i=0;i<4;i++)for(unsigned mode=0;mode<10;mode++){
   uint8_t start=(const uint8_t[]){0,15,240,255}[i];
   if(!test(src,start,mode))return 1;
   count++;
  }
- assert(count==64);
- printf("SMC MMC STOP FIFO source-window: %d/64 PASS\n",count);
+ assert(count==80);
+ printf("SMC MMC STOP FIFO source-window: %d/80 PASS\n",count);
  return 0;
 }
 '''
