@@ -29,6 +29,17 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
+/* Separate single-writer generation counters: TIMER5 (central), audio ISR
+ * (host). Main-loop snapshots never clear a producer-owned flag. */
+static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
+static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
+static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
+{
+    uint8_t type = st & 0xF0u;
+    return !(note & 0x80u) && !(velocity & 0x80u) &&
+           note >= 8u && note < 16u &&
+           (type == 0x80u || (type == 0x90u && !velocity));
+}
 static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
@@ -80,6 +91,10 @@ X0X_COLD static void smc_project_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
+    /* A reset has already cleared all held solos; do not carry stale
+     * overflow releases into the new project's queued presses. */
+    smc_ble_solo_release_seen = smc_ble_solo_release_lost;
+    smc_host_solo_release_seen = smc_host_solo_release_lost;
 }
 X0X_COLD void smc_project_reset(void)
 {
@@ -94,7 +109,15 @@ X0X_COLD void smc_project_reset(void)
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
     uint8_t w = smc_qw, i;
-    if (!msg || !len || len > 6u || (uint8_t)(w - smc_qr) >= SMC_Q) {
+    if (!msg || !len || len > 6u) {
+        smc_dropped++; return;
+    }
+    if ((uint8_t)(w - smc_qr) >= SMC_Q) {
+        /* Never leave a held Solo latched after its key-up was rejected.
+         * A later main-loop poll clears held solos after draining older keys. */
+        if (len == 3u && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
+            (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER)))
+            smc_ble_solo_release_lost++;
         smc_dropped++; return;
     }
     smc_q[w % SMC_Q].n = len;
@@ -119,15 +142,21 @@ int smc_connected(void) { return smc.up && smc_ble_role_get(); }
 int smc_midi_host(uint32_t pkt)
 {
     uint8_t st = (uint8_t)(pkt >> 8), w = smc_host_w;
-    uint8_t a = (uint8_t)(pkt >> 16) & 0x7Fu;
+    uint8_t a = (uint8_t)(pkt >> 16), b = (uint8_t)(pkt >> 24);
+    /* A malformed data byte must never be masked into an SMC button or CC.
+     * In particular 0x88 must not turn into held Solo 1 (note 0x08). */
+    if ((a | b) & 0x80u)
+        return 0;
     if (!smc_host_accept(st, a, proj.set.bt & PROJ_BT_SMC_USER))
         return 0;
     if ((uint8_t)(w - smc_host_r) < SMC_Q) {
         smc_host_q[w % SMC_Q][0] = st;
-        smc_host_q[w % SMC_Q][1] = (uint8_t)(pkt >> 16);
-        smc_host_q[w % SMC_Q][2] = (uint8_t)(pkt >> 24);
+        smc_host_q[w % SMC_Q][1] = a;
+        smc_host_q[w % SMC_Q][2] = b;
         __asm__ volatile("" ::: "memory");
         smc_host_w = (uint8_t)(w + 1u);
+    } else if (smc_is_solo_release(st, a, b)) {
+        smc_host_solo_release_lost++;
     }
     return 1;
 }
@@ -583,6 +612,13 @@ void smc_poll(void)
     uint32_t link = smc_link_published;
     uint8_t r, count = 0;
     int allow = !perf_testing();
+    /* Capture overflow generations before draining either MIDI input ring.
+     * TIMER5/audio ISR can refill an already-drained ring during this poll;
+     * its new press must be processed before we acknowledge its lost release. */
+    uint32_t ble_lost = smc_ble_solo_release_lost;
+    uint32_t host_lost = smc_host_solo_release_lost;
+    uint32_t ble_seen = smc_ble_solo_release_seen;
+    uint32_t host_seen = smc_host_solo_release_seen;
     if (ui_project_busy()) {
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
@@ -649,6 +685,20 @@ void smc_poll(void)
                 smc_guarded_button(smc_mmc_note(cmd), 1, allow);
         }
     }
+    /* A dropped Solo release is effective only after all presses queued
+     * before the START-of-poll snapshot have been drained. Never consume a
+     * newer ISR generation: its preceding press may still be queued. A
+     * project drop may already have advanced a cursor; do not rewind it. */
+    uint8_t missed_solo = 0;
+    if (ble_lost != ble_seen && smc_ble_solo_release_seen == ble_seen) {
+        smc_ble_solo_release_seen = ble_lost;
+        missed_solo = 1;
+    }
+    if (host_lost != host_seen && smc_host_solo_release_seen == host_seen) {
+        smc_host_solo_release_seen = host_lost;
+        missed_solo = 1;
+    }
+    if (missed_solo && smc_project_active()) smc_solo_clear();
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
 }
