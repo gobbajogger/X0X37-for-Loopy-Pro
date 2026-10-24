@@ -37,6 +37,26 @@ const edit = fn => dir => {
   fs.writeFileSync(join(dir,'docs/build-status.json'),s);
 };
 run('baseline',()=>{},true);
+// R20 history integrity did NOT cover the 2 actual DEV-generation identities.
+run('historic-elite-firmware-hash-forged-64hex',edit(j=>j.builds[0].models.elite.sha256='a'.repeat(64)));
+run('historic-pro-firmware-hash-forged-64hex',edit(j=>j.builds[1].models.pro.sha256='b'.repeat(64)));
+run('historic-elite-size-forged-positive',edit(j=>j.builds[0].models.elite.size=42));
+run('historic-source-commit-forged-40hex',edit(j=>j.builds[0].source_commit='f'.repeat(40)));
+run('historic-generation-deleted-with-adjusted-count',edit(j=>{
+  j.builds.pop();j.counts.actual_build_generations=j.builds.length;
+}));
+run('historic-generations-reordered',edit(j=>j.builds.reverse()));
+run('legitimate-new-DEV-generation-prepended',edit(j=>{
+  const later=structuredClone(j.builds[0]);
+  later.id='dev-future-synthetic-test-only';
+  later.title='Synthetic future-only DEV identity';
+  later.built_at='2026-10-25T00:00:00Z';
+  later.source_commit='f'.repeat(40);
+  j.builds[0].lifecycle='superseded';
+  j.builds.unshift(later);
+  j.counts.actual_build_generations=j.builds.length;
+}),true);
+run('legitimate-existing-DEV-lifecycle-progression',edit(j=>j.builds[0].lifecycle='superseded'),true);
 // Simulated hashes and Git links are not verified device observations.
 const fictionalOwnerReport = () => ({
   report_sha256:'f'.repeat(64),

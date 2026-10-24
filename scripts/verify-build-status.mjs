@@ -2,6 +2,7 @@
 // Ensure NIGHTLY status history stays noninstallable and matches generated docs.
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 const read = (p) => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
 const text = read('build-status.json');
 assert.equal(read('docs/build-status.json'), text, 'source and docs build status mismatch');
@@ -419,6 +420,28 @@ for (const build of catalog.builds) {
   }
 }
 for (const id of publicProven) assert.ok(seen.has(id), 'unknown public build ' + id);
+// SHA256-lock the immutable identities of the TWO actual historical DEV builds.
+// Do not freeze mutable lifecycle or independently authenticated future hardware;
+// genuine newer generations can be prepended without rewriting either old model.
+const immutableBuildIdentities = [
+  ['dev-20261022-1638-e894804','1c4553362c36f725f50091fefb68416a3a95839b7b7806e9806e5cce2a0bf093'],
+  ['dev-20261022-1629-116d903','1d59cd6c55087036cf02012d75bdc5a2aa42624cbfc7e8a5a618beef5e495c63'],
+];
+let lastHistoricBuildIndex = -1;
+for (const [id, expected] of immutableBuildIdentities) {
+  const index = catalog.builds.findIndex(b => b.id === id);
+  assert.ok(index >= 0, 'historic DEV build generation deleted: ' + id);
+  assert.ok(index > lastHistoricBuildIndex, 'historic DEV build generation reordered: ' + id);
+  lastHistoricBuildIndex = index;
+  const b = catalog.builds[index];
+  const identity = {id:b.id,title:b.title,built_at:b.built_at,source_commit:b.source_commit,
+    models:Object.entries(b.models).sort(([a],[b])=>a.localeCompare(b))
+      .map(([model,pkg])=>({model,product:pkg.product,size:pkg.size,
+        sha256:pkg.sha256,validation_record:pkg.validation_record}))};
+  assert.equal(createHash('sha256').update(JSON.stringify(identity),'utf8').digest('hex'),
+    expected, 'historic DEV firmware identity modified: ' + id);
+}
+
 const ids = new Set();
 const historicalStatuses = new Set([
   'source-only', 'not-hosted', 'evidence-only', 'failed', 'reference',
