@@ -329,3 +329,19 @@ for (const [label, mutation] of [
   ['picker-forged-repo-non-url', p => p.repo='gobbajogger/X0X37-for-Loopy-Pro'],
 ]) run(label, editPickerCopies(mutation));
 console.log('PASS: status-history allowlist and malicious-nesting fixtures; no firmware artifacts');
+
+// Exact SMC79 real native private-byte receipt must remain QA_PENDING and non-installable.
+const checkedNativeId='integration-pr103-smc79-native-build-20261024-r13';
+const mutateNative=fn=>edit(j=>{const row=j.history.find(h=>h.id===checkedNativeId);assert.ok(row);fn(row);});
+run('smc79-genuine-native-build-record',()=>{},true);
+run('smc79-forged-elite-hash',mutateNative(r=>r.producer_reported_artifacts.elite.sha256='a'.repeat(64)));
+run('smc79-forged-pro-size',mutateNative(r=>r.producer_reported_artifacts.pro.bytes++));
+run('smc79-forged-ctl-hash',mutateNative(r=>r.producer_reported_artifacts.private_controller.sha256='b'.repeat(64)));
+run('smc79-forged-complete-root',mutateNative(r=>r.source_tree='f'.repeat(40)));
+run('smc79-forged-compiled-subtree',mutateNative(r=>r.firmware_subtree='e'.repeat(40)));
+run('smc79-forged-immutable-proof',mutateNative(r=>r.build_pipeline.evidence_manifest_blob_sha='f'.repeat(40)));
+run('smc79-fake-full-QA-PASS',mutateNative(r=>r.build_pipeline.qa='QA_PASS'));
+run('smc79-fake-HTTP-PASS',mutateNative(r=>r.build_pipeline.live_http='HTTP_VERIFIED'));
+run('smc79-false-audit-state',mutateNative(r=>r.artifact_bytes_independently_verified=false));
+run('smc79-invented-historical-test-exit',mutateNative(r=>r.build_pipeline.followup_native_checks_fail[0].exit_code=1));
+run('smc79-hidden-historical-test-failure',mutateNative(r=>r.build_pipeline.followup_native_checks_fail.pop()));

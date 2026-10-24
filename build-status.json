@@ -2567,6 +2567,120 @@
       "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
       "evidence_commit": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
       "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/56c5d971b6d1c1864cd0f6153f4399950c223c2d"
+    },
+    {
+      "id": "data-safety-pr107-backup-dirsync-20261024-r13",
+      "title": "Data Safety PR107 pre-OTA backup directory fsync, source-only integration",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/data-safety-backup-dir-fsync-20261024-1111",
+      "source_commit": "4760dec8d176ca9877413817c9cebcb8e7b4a571",
+      "source_tree": "0b0348ebf18a32c6b1dc794b4a715359d491b9d3",
+      "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "date": "2026-10-24",
+      "status": "source-only",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "reported_checks": {
+        "origin": "Git-verifiable PR107 and independent source-window QA; Catalog DID NOT run combined full root",
+        "command": null,
+        "result": "Producer baseline 4/6 safety failures; corrected 6/6 pass; independent scoped 7/7 pass; current full-root OTA backup/restore unrun."
+      },
+      "description": "Durably fsync backup parent directory before OTA; refuse OTA on uncertain directory sync, no sample-loss or hardware observation. Source integrated only to PR103 isolation branch.",
+      "missing_gate": "Independent full current PR103 root Data Safety backup/OTA/rollback, model and sample restore tests; licensable host. DEVICE UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/107",
+      "evidence_commit": "4760dec8d176ca9877413817c9cebcb8e7b4a571",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/4760dec8d176ca9877413817c9cebcb8e7b4a571"
+    },
+    {
+      "id": "integration-pr103-smc79-native-build-20261024-r13",
+      "title": "Actual PR103 SMC79 Elite/Pro/controller native bytes, Catalog 27/27 checked; QA pending",
+      "source_repo": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+      "source_ref": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "source_commit": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+      "source_tree": "2a2972589f360c064c7fd9ad51d420128ba56744",
+      "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "date": "2026-10-24",
+      "status": "build-succeeded-unreviewed",
+      "models": [
+        "elite",
+        "pro"
+      ],
+      "firmware_product_version": null,
+      "build_id": null,
+      "installable": false,
+      "device_verified": false,
+      "artifact_bytes_independently_verified": true,
+      "artifact_distribution_approved": false,
+      "build_target_tests_independently_reexecuted": false,
+      "producer_reported_artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "d44bf3f50a037c0eac966a46df8da6fee6f069f1eeeb45d2113e3f436aa83113"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "c5ce2d30801ac36b69179ac8a2cdd08d2956f57f379baf6885551902642e42e5"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "9c07ae67",
+          "redistribution_permitted": false
+        }
+      },
+      "reported_checks": {
+        "origin": "Hourly Build actual native N/firmware T compiler EXIT 0, exact changed full root S model/controller compiler input equivalence attested. Catalog separately independently rehashed actual private ZIP 27/27. No combined-root full safety QA.",
+        "command": "BOARD=smk37 MODEL=elite X0X_DEV_PADCAL=1 bash build.sh --board smk37 [BUILDER EXIT 0]; BOARD=smk37 MODEL=pro X0X_DEV_PADCAL=1 bash build.sh --board smk37 [BUILDER EXIT 0]; CTL_NATIVE=1 CTL_NO_CACHE=1 bash ble/ctl/build_ctl.sh [BUILDER EXIT 0]",
+        "result": "Genuine compiled Elite/Pro/controller BUILD_ONLY and 27/27 actual ZIP/model/CRC/SHA checks PASS, each producer compiler exit 0. Five historical mixed-source host tests failed/timed out with individual exit codes UNKNOWN. No independent current full root QA, distribution rights, HTTP or device PASS."
+      },
+      "description": "Exactly matched Elite, Pro and vendor-derived controller; compiled firmware/ same T after PR107 source update, but complete ROOT changed and no independent full-root QA. Pool 132 B above reserve and controller 44 B free; no selectable picker.",
+      "missing_gate": "Independent new full-root sample durability/OTA/restore, 303/SMC/BLE/CRC/model negatives and reviewed source integration; legal controller/source distribution, immutable external host and served HTTP package hash. DEVICE UNKNOWN.",
+      "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103",
+      "evidence_commit": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+      "evidence_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/commit/56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+      "build_pipeline": {
+        "build": "BUILD_SUCCEEDED_UNREVIEWED",
+        "qa": "QA_PENDING",
+        "installability": "NOT_INSTALLABLE",
+        "live_http": "NOT_VERIFIED",
+        "hardware": "DEVICE_NOT_TESTED",
+        "source_scope": "FIRMWARE_SUBTREE_MATCH_FULL_ROOT_NOT_ATTESTED",
+        "builder_selected_host_checks_pass": 5,
+        "followup_native_checks_pass": 26,
+        "followup_native_checks_fail": [
+          {
+            "name": "mixed-historical-seed:ble-midi-receive",
+            "exit_code": null
+          },
+          {
+            "name": "mixed-historical-seed:smc-reachability",
+            "exit_code": null
+          },
+          {
+            "name": "mixed-historical-seed:smc-mapping",
+            "exit_code": null
+          },
+          {
+            "name": "mixed-historical-seed:smc-drum-mutes",
+            "exit_code": null
+          },
+          {
+            "name": "mixed-historical-seed:smc-clip-visibility",
+            "exit_code": null
+          }
+        ],
+        "evidence_commit": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+        "evidence_manifest_blob_sha": "f4f865e770ace19af2d484ccc4a5b56699140ae4",
+        "package_bytes_independently_received_and_rehashed": true
+      }
     }
   ],
   "policy": {
@@ -2577,7 +2691,7 @@
   },
   "counts": {
     "actual_build_generations": 2,
-    "source_or_historical_checkpoints": 98
+    "source_or_historical_checkpoints": 100
   },
   "versioning": {
     "firmware_product_version": {

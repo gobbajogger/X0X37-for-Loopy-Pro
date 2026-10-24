@@ -1315,5 +1315,131 @@
       "sole Pages Publisher HTTP byte/readback"
     ],
     "device_flash": false
+  },
+  "closed_loop_cycle_20261024_r13": {
+    "revision": "catalog-smc79-native-bytes-pr107-dirsync-r13-20261024",
+    "website": {
+      "repo": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "branch": "lane/catalog-nightly-preview-history-reconcile-20261023-1541",
+      "consumed_head": "210d646762fafc97d8fc57809fa85a2466a07ea3",
+      "consumed_complete_root": "2447b470d40e61e987fd975b7cbef768964ebd09",
+      "production_main": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+      "gh_pages": "9c5d3b6b0846f89436492851fef89ed3829b7ad7"
+    },
+    "firmware": {
+      "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+      "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+      "compiled_source": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+      "compiled_original_root": "17d947417372bf48e8167cd9a3df970093afe3c1",
+      "new_integrated_source": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+      "new_complete_root": "2a2972589f360c064c7fd9ad51d420128ba56744",
+      "unchanged_compiled_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "integrator_revision": "safe-merge-pr103-durable-backup-pr107-20261024-r8",
+      "builder_revision": "hourly-build-pr103-smc79-postbuild-b7b472-20261024-r11",
+      "protected_nightly": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+      "compile_reexecuted_at_new_root": false
+    },
+    "history": {
+      "previous": 98,
+      "after": 100,
+      "added": [
+        "data-safety-pr107-backup-dirsync-20261024-r13",
+        "integration-pr103-smc79-native-build-20261024-r13"
+      ],
+      "prior98_intact": true,
+      "historical_dev_generations": 2,
+      "installable_entries_added": 0
+    },
+    "catalog_private_zip": {
+      "scoped": "CATALOG_PRIVATE_BYTE_REHASH_27_PASS__NO_FULL_ROOT_QA",
+      "exit": 0,
+      "checks_pass": 27,
+      "zip_sha256": "2b4ead6559dc003b0394edd99633ce2aa46b838dea9a2635c16261a9fe2913ee",
+      "results_sha256": "72aa5b6b115a8121aa4989a6f4f26c05679e7d8b6116a3ef5d99ad4b2d704acb",
+      "compiled_source": "56c5d971b6d1c1864cd0f6153f4399950c223c2d",
+      "current_source": "b7b472fd5cae89ca8af3473a19de8e6594692878",
+      "current_root": "2a2972589f360c064c7fd9ad51d420128ba56744",
+      "firmware_subtree": "e33e782b7cf24b3a99c9ac9ad6bf07cefee6a439",
+      "artifacts": {
+        "elite": {
+          "product": "SMK-37 Elite_900",
+          "bytes": 651396,
+          "sha256": "d44bf3f50a037c0eac966a46df8da6fee6f069f1eeeb45d2113e3f436aa83113"
+        },
+        "pro": {
+          "product": "SMK-37 Pro_900",
+          "bytes": 651392,
+          "sha256": "c5ce2d30801ac36b69179ac8a2cdd08d2956f57f379baf6885551902642e42e5"
+        },
+        "private_controller": {
+          "bytes": 65492,
+          "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+          "crc32": "9c07ae67",
+          "redistribution_permitted": false
+        }
+      },
+      "receipt_blob_sha": "f4f865e770ace19af2d484ccc4a5b56699140ae4",
+      "full_root_QA": false,
+      "controller_redistribution_cleared": false
+    },
+    "actual_checks": [
+      {
+        "command": "python3 -B /mnt/data/x0x37_catalog_run11/catalog_bytecheck.py",
+        "exit": 0,
+        "result": "27/27 private exact ZIP/CRC/SHA model checks pass"
+      },
+      {
+        "command": "git ls-remote https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly.git HEAD",
+        "exit": 128,
+        "reason": "Could not resolve github.com"
+      },
+      {
+        "command": "npm run build",
+        "status": "NOT_RUN_NO_COMPLETE_NATIVE_SITE"
+      },
+      {
+        "command": "npm test",
+        "status": "NOT_RUN_NO_COMPLETE_NATIVE_SITE"
+      },
+      {
+        "command": "responsive browser",
+        "status": "NOT_RUN"
+      },
+      {
+        "command": "lawful immutable firmware HTTP GET/hash",
+        "status": "NOT_RUN_NO_LICENSED_HOST"
+      }
+    ],
+    "mixed_source_test_failures": [
+      {
+        "name": "mixed-historical-seed:ble-midi-receive",
+        "exit_code": null
+      },
+      {
+        "name": "mixed-historical-seed:smc-reachability",
+        "exit_code": null
+      },
+      {
+        "name": "mixed-historical-seed:smc-mapping",
+        "exit_code": null
+      },
+      {
+        "name": "mixed-historical-seed:smc-drum-mutes",
+        "exit_code": null
+      },
+      {
+        "name": "mixed-historical-seed:smc-clip-visibility",
+        "exit_code": null
+      }
+    ],
+    "independent_full_root_firmware_QA": "PENDING",
+    "website_qa": "PENDING",
+    "hardware": "UNKNOWN",
+    "elite": "NO_INSTALLABLE_YET",
+    "pro": "NO_INSTALLABLE_YET",
+    "site_picker_empty": true,
+    "no_binary_in_public_repo": true,
+    "next_owner": "Independent NIGHTLY Website QA",
+    "next_action": "Complete independent exact PR3 website native npm build/test/malicious fixtures/Chromium, then hand to sole Website Main Merger; parallel firmware Independent QA current PR103 new complete root, then Safe Merge; sole Publisher immutable licensed HTTP after software gates."
   }
 }
