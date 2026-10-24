@@ -1,0 +1,129 @@
+{
+  "schema": "x0x37.scheduler-evidence.v1",
+  "evidence_revision": "seqclock-pr55-pr65-linked-native-20261024-r1",
+  "role": "LoopyX0X37 Sequencer Clock SOURCE PRODUCER",
+  "disposition": "PRODUCER_SCOPED_LINKED_NATIVE_PASS; SOURCE_REVIEW_READY; INDEPENDENT_QA_PENDING; TARGET_BUILD_NOT_RUN_IN_THIS_CHECK; NOT_INSTALLABLE",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owned": {
+    "pr": 55,
+    "branch": "lane/seq-rec-32nd-halfstep-20261023-1901",
+    "consumed_full_head": "181dac3296d247f6217f26c4e0cb2b7d1a6e5cbd",
+    "full_root_before": "938b4ccd1d25c42830368d9219a82c2c09d690f1",
+    "firmware_subtree": "7664697d7eb1a2802ff3198e313b4fb4aee08f81",
+    "sequencer_blob": "2899beddb576639721a38a71b54205a47f951880",
+    "seq_test_blob": "bfdadbe0c6058e7b498fa2f142dc67b095452492"
+  },
+  "other_source": {
+    "pr": 65,
+    "head": "61948df57dd38ee511067b78c3a59ef2f3e89939",
+    "full_root": "de1ee88bf8976ff7c496c28ee6f34c66fa0e7755",
+    "firmware_subtree": "d922d75261b1020f46f9c0da0d553ca6917f2689",
+    "sequencer_blob": "2085aa5bbaca6f8006bd85d6b59896159fa198ec",
+    "seq_test_blob": "0c9e7313d36b601a839007206001e773e66c87e7"
+  },
+  "consumed_first_candidate": {
+    "pr": 103,
+    "head": "ecd79cab02a5595cf4e910490720e92e986c95ac",
+    "full_root": "9dc695fb9f4da4069362c24aa866f9b995b1b463",
+    "firmware_subtree": "96709cae2835fc8680cfc81b54f01e95893a2b27",
+    "sequencer_blob": "09d9cea9936de02a6e410f80321d1c6c4b400f11",
+    "tb3po_blob": "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d",
+    "tested_candidate_full_root": false
+  },
+  "verified_linked_inputs": {
+    "nightly_sequencer_blob": "83b03f73139d8e679c94526c66b390b6e5bc2f39",
+    "sequencer_header_blob": "9bbddbf55438247469816625bd0b07a865aa0dcb",
+    "tb3po_blob": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "pattern_blob": "b6b667d023a912b13de8539168c61928182ffa23",
+    "joined_local_sequencer_blob": "6a45d1c844e145f53fa1ec249377e0def498e4ea",
+    "joined_local_seq_test_blob": "1412b36a0f4aaf7578db95076074efafdcca9e4b",
+    "joined_full_root": "NOT_COMMITTED_NO_REMOTE_FULL_ROOT",
+    "joined_firmware_subtree": "NOT_COMMITTED_NO_REMOTE_TREE"
+  },
+  "commands": {
+    "source_identity": "git hash-object firmware/src/seq/sequencer.c tests/host/seq_test.c firmware/src/seq/sequencer.h firmware/src/seq/tb3po.c firmware/src/seq/pattern.c",
+    "seq_gcc": "gcc -O2 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o seq_test tests/host/seq_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && ./seq_test",
+    "seq_clang": "clang -O2 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o seq_test tests/host/seq_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && ./seq_test",
+    "clock_gcc": "gcc -O2 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && ./clk_lock_test",
+    "clock_clang": "clang -O2 -ffp-contract=off -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && ./clk_lock_test"
+  },
+  "actual_native_linux_x86_64": {
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "sanitizer": "UBSan; -fno-sanitize-recover=all",
+    "seq_native_both_compilers": [
+      {
+        "variant": "original_nightly_source_plus_both_regressions",
+        "compile_exit": 0,
+        "run_exit": 1,
+        "failing_check_diagnostics": 21
+      },
+      {
+        "variant": "pr55_source_only_plus_both_regressions",
+        "compile_exit": 0,
+        "run_exit": 1,
+        "failing_check_diagnostics": 15
+      },
+      {
+        "variant": "pr65_source_only_plus_both_regressions",
+        "compile_exit": 0,
+        "run_exit": 1,
+        "failing_check_diagnostics": 6
+      },
+      {
+        "variant": "pr55_plus_pr65_local_reconciled_source_plus_both_regressions",
+        "compile_exit": 0,
+        "run_exit": 0,
+        "failing_check_diagnostics": 0
+      }
+    ],
+    "pr55_exact_source_and_exact_pr55_test_gcc_clang": {
+      "baseline_compile_exit": 0,
+      "baseline_run_exit": 1,
+      "baseline_failing_check_diagnostics": 6,
+      "patched_compile_exit": 0,
+      "patched_run_exit": 0,
+      "patched_failing_check_diagnostics": 0
+    },
+    "joined_clk_lock_both_compilers": {
+      "compile_exit": 0,
+      "run_exit": 0,
+      "output": "PASS clock lock (MID-15): 0 fail"
+    },
+    "log_sha256": {
+      "joined_seq_clang": "410bec8d48aa410bd28e8b8f5dbbb103d7816a5683c3a12047bef550b2f5c3b7",
+      "joined_clock_gcc": "0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34",
+      "joined_clock_clang": "0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34",
+      "original_gcc": "a06590604bd7ae9752db5124f155ee3ff4bcb7f247012d8f817441e9c736c161",
+      "pr55_only_gcc": "b806281f8f317c8d314a355dbc72fb9aa78ba81bc25f24d36b55ccd49ff853e5",
+      "pr65_only_gcc": "7391ad8fef060339149d0ca54e2be647d01679fad0fd1e4f5cad9608d00319e8"
+    }
+  },
+  "limitations": [
+    "Historical complete source snapshot supplies matched linked C inputs for #55 and #65, but it is not the current full Git root",
+    "The #103 tb3po.c blob differs from these source-linked replays; no exact current candidate combined-root native QA",
+    "No remote reconciled source tree committed; only sole Safe Merge may integrate firmware",
+    "No fresh Elite/Pro/controller target build in this producer run; Hourly Build owns BUILD_ONLY independently",
+    "No physical device or Pages/HTTP/firmware distribution validation"
+  ],
+  "next_owners": [
+    {
+      "owner": "Independent QA",
+      "action": "Re-run exact new source HEAD #55 and #65 and inspect intended behavior/negative controls; review actual Safe Merge combined source independently"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Reconcile existing #55 external and #65 internal recording midpoint changes into first NIGHTLY integration only if candidate-priority and safety allow; preserve current 303/SMC/data protections; expose combined full root and firmware subtree"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY is permitted immediately from any exact source/combined draft; do not await QA or merge; record actual build inputs and artifact identities"
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Retain previous verified safe build; this evidence does not qualify any new live download"
+    }
+  ]
+}
