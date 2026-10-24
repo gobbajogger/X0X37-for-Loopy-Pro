@@ -232,16 +232,29 @@ def _catalog(commit, verified, merge):
     return version, catalog, copies
 
 
-def _branch(branch):
-    if branch in FORBIDDEN or not re.fullmatch(r"[A-Za-z0-9._/-]{1,80}", branch):
+def _destination(branch):
+    """Fold a fully qualified ref to its short name, then apply the denylist.
+
+    `refs/heads/main` is the same destination as `main`. The check uses the short
+    name, and the push uses that name too, so a qualified form cannot slip past.
+    """
+    if not isinstance(branch, str):
+        raise NightlyPublishError("refusing to publish a nightly onto " + repr(branch))
+    name = branch.strip()
+    if name.startswith("+"):
+        name = name[1:]
+    while name.startswith("refs/heads/"):
+        name = name[len("refs/heads/"):]
+    parts = name.split("/")
+    if (not name or name.lower() in FORBIDDEN or name.startswith("-")
+            or any(part in {"", ".", ".."} for part in parts)
+            or not re.fullmatch(r"[A-Za-z0-9._/-]{1,80}", name)):
         raise NightlyPublishError(f"refusing to publish a nightly onto {branch}")
-    if branch.startswith("-") or branch.endswith("/") or ".." in branch.split("/"):
-        raise NightlyPublishError(f"refusing to publish a nightly onto {branch}")
-    return branch
+    return name
 
 
 def _push(site, remote, branch):
-    branch = _branch(branch)
+    branch = _destination(branch)
     if not remote:
         raise NightlyPublishError("nightly remote is not set; production pages are not a nightly destination")
     subprocess.run(["git", "init", "-q", "-b", branch], cwd=site, check=True)
@@ -251,7 +264,8 @@ def _push(site, remote, branch):
         ["git", "-c", "user.name=Nightly publish", "-c", "user.email=nightly@localhost",
          "commit", "-q", "-m", message],
         cwd=site, check=True)
-    subprocess.run(["git", "push", "-q", "-f", remote, f"HEAD:{branch}"], cwd=site, check=True)
+    # No --force. A refused or non-fast-forward update must not replace the remote ref.
+    subprocess.run(["git", "push", "-q", remote, f"HEAD:{branch}"], cwd=site, check=True)
     shutil.rmtree(site / ".git")
 
 
@@ -266,7 +280,7 @@ def publish_valid_nightly(repo, elite_record, pro_record, elite_fwsc, pro_fwsc, 
     """
     if push:
         remote = remote or os.environ.get("X0X_NIGHTLY_REMOTE")
-        _branch(branch)
+        _destination(branch)
         if not remote:
             raise NightlyPublishError("nightly remote is not set; production pages are not a nightly destination")
     commit, verified = _verify_records(

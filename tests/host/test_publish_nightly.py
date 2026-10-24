@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 os.environ.pop("X0X_NIGHTLY_REMOTE", None)
 
 import dev_validate  # noqa: E402
+import publish_nightly  # noqa: E402
 import validation_inputs  # noqa: E402
 from publish_nightly import LABEL, NightlyPublishError, publish_valid_nightly  # noqa: E402
 
@@ -182,6 +183,30 @@ def main():
         refused(branch, lambda branch=branch: publish_valid_nightly(
             repo, elite_record, pro_record, elite_fwsc, pro_fwsc, tmp / ("out-" + branch),
             remote=str(bare), push=True, branch=branch))
+    require(publish_nightly._destination("refs/heads/nightly-pages") == "nightly-pages",
+            "qualified nightly-pages ref")
+    calls = []
+    real_run = publish_nightly.subprocess.run
+
+    def spy(args, *a, **k):
+        argv = list(args)
+        calls.append(argv)
+        if "push" in argv:
+            raise AssertionError("git push reached: " + " ".join(map(str, argv)))
+        return real_run(args, *a, **k)
+
+    publish_nightly.subprocess.run = spy
+    try:
+        for branch in ("refs/heads/main", "refs/heads/gh-pages", "refs/heads/master", "refs/heads/nightly"):
+            out = tmp / ("qualified-" + branch.replace("/", "-"))
+            refused(branch.rsplit("/", 1)[-1], lambda branch=branch, out=out: publish_valid_nightly(
+                repo, elite_record, pro_record, elite_fwsc, pro_fwsc, out,
+                remote=str(bare), push=True, branch=branch))
+            require(not out.exists(), "qualified ref wrote a page: " + branch)
+    finally:
+        publish_nightly.subprocess.run = real_run
+    require(not any("push" in cmd for cmd in calls), "qualified ref reached git push: " + repr(calls))
+    require(git(bare, "rev-parse", "nightly-pages") == published, "qualified ref moved the nightly branch")
 
     previous = json.loads((page / "versions.json").read_text())
     older = json.loads(json.dumps(previous["versions"][0]))
