@@ -188,8 +188,14 @@ export class Updater {
     if (!s1.finished) throw fail(s1.lost ? "lost" : "stopped", `the device ${s1.lost ? "was disconnected" : "stopped"} after ${s1.served} requests: nothing was written`);
     step("loader");
     await sleep(3000);
-    const ota = await this.waitFor(IS_OTA, 30000);
+    const ota = await this.waitFor((id) =>
+      IS_OTA(id) && sameKeyboard(id.model.replace(/^ota-/i, ""), model), 30000);
     if (!ota) throw fail("noloader", "the update loader did not appear. Replug the USB cable and press Install again: the device stays in update mode until it is finished.");
+    // Reject a loader from another keyboard family, even if discovery changes.
+    if (!IS_OTA(ota.id) || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), model)) {
+      ota.link.close();
+      throw fail("model", `the loader is ${ota.id.text}, the package is for ${product}`, ota.id.text);
+    }
     const s2 = await this.write(ota, image, step);
     if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
     step("reboot");

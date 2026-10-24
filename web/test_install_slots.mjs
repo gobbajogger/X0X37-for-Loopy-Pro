@@ -10,6 +10,7 @@ import "./test_install_nightly_download_guard.mjs";
 import "./test_install_nightly_reconnect.mjs";
 import "./test_install_stock_model_preflight.mjs";
 import "./test_install_nightly_scan_order.mjs";
+import "./test_install_nightly_ota_model.mjs";
 import "./test_install_nightly_local_selection.mjs";
 import "./test_install_nightly_controller_selection.mjs";
 import "./test_install_nightly_slot_prewrite.mjs";
