@@ -911,7 +911,7 @@ void engine_render(int32_t *out_lr, uint32_t n)
     {
         PROF_T(pt);
         drain();
-        if (mot_on)
+        if (mot_on && seq.playing)
             motion_tick(&mot, n);
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
