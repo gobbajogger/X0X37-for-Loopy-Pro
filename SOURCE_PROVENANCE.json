@@ -3,7 +3,7 @@
   "upstreamCommit": "33c60ee9d3161de48b11ce890410384429983886",
   "upstreamPullRequest": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
   "publicSourceBlobs": {
-    "web/x0x_installer.html": "b4c31daabeaa0219960ef0628a1fd81bfda4e54d",
+    "web/x0x_installer.html": "ecc861643de8f9377dc1cb34f54d3db6a40aad63",
     "web/x0x_breaks.html": "b988c3270ed974639f702900e120297ad0602b60",
     "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
     "web/fm1ota.js": "014f5fa3490f476554a17b08e941bde04c7eff74",
@@ -18,6 +18,13 @@
       "sourcePullRequest": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/115",
       "sourceBlob": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
       "description": "Reject non-erased controller-image trailing bytes before browser package construction"
+    },
+    {
+      "path": "web/x0x_installer.html",
+      "sourceRepository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+      "sourceBaseCommit": "1a176e156b049f476074b77d7e6d54be03e8c9ad",
+      "sourceBlob": "ecc861643de8f9377dc1cb34f54d3db6a40aad63",
+      "description": "NIGHTLY catalog-only browser source: no GitHub Releases auto-import, no direct URL for unapproved, wrong-model or insecure packages, exact package product identity"
     }
   ]
 }
