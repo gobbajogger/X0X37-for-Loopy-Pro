@@ -475,6 +475,14 @@
     {
       "id": "producer-pr120-fresh-elite-pro-controller-20261024",
       "sha256": "badd8a9f9a9eb448fb201ed769ad3798b2da5bbc83e71260f290c128908a3afd"
+    },
+    {
+      "id": "smc-pr122-r2-mmc-stop-project-reset-source-20261024",
+      "sha256": "94650843a3c24a90755b52447953d319910ca12ed9200f94318255c81e60763b"
+    },
+    {
+      "id": "bugfinder-bf020-pr123-legacy-bd-pan-motion-20261024",
+      "sha256": "b11df151a6bd19773c9267a1ba596d61abaf2b0714a02fc778e29e9498282563"
     }
   ]
 }
