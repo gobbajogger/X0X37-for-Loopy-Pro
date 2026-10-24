@@ -3,7 +3,7 @@
   "upstreamCommit": "33c60ee9d3161de48b11ce890410384429983886",
   "upstreamPullRequest": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/32",
   "publicSourceBlobs": {
-    "web/x0x_installer.html": "380aba0d5b5e6bdbce92437126494f1060dd7686",
+    "web/x0x_installer.html": "e34761acfb6687a424269f132f89dedb4eb20875",
     "web/x0x_breaks.html": "b988c3270ed974639f702900e120297ad0602b60",
     "web/fm1pkg.js": "3f8c704e4ea8ea780d6deef67a4bb33249f80d3e",
     "web/fm1ota.js": "485a54187e78822847f5cb51088204983caffa71",
@@ -68,6 +68,14 @@
       "sourceCommit": "c2e63feb11385b91a9dbd3b29b20a368ed948a5a",
       "description": "Port existing bind-before-backup, stock FM1_015/SMK-family v16 no-answer exception and binding check before restore; unknown layout/read errors fail closed",
       "resultBlob": "cf00dbc1d2654fe3fa47bee40f99fc99472d0b4e"
+    },
+    {
+      "path": "web/x0x_installer.html",
+      "sourceRepository": "gobbajogger/X0X37-for-Loopy-Pro",
+      "sourceCommit": "e77cd4dfdf970bd1e47490ed304c4c22e8e58564",
+      "sourceBaseCommit": "5d1cf4db62f8700da7671b6b44a6c7dea989228c",
+      "description": "Adapt existing safe-integer/preallocation local File guard: controller68..65536 matches ctlProblem; stock960..16MiB matches product header/resource cap; retain serial invalidation, cleanup and format checks",
+      "resultBlob": "e34761acfb6687a424269f132f89dedb4eb20875"
     }
   ]
 }

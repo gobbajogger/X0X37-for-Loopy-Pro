@@ -8,7 +8,7 @@ from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from playwright.async_api import async_playwright
 ROOT=Path(__file__).resolve().parents[1]
-ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--red-only',action='store_true');ap.add_argument('--race-only',action='store_true');args=ap.parse_args()
+ap=argparse.ArgumentParser();ap.add_argument('--source');ap.add_argument('--red-only',action='store_true');ap.add_argument('--race-only',action='store_true');ap.add_argument('--local-files-only',action='store_true');args=ap.parse_args()
 def raw(product):
     b=bytearray([125]*1024)
     for i,c in enumerate(product): b[i*48+47]=(ord(c)+i+1)&255
@@ -87,10 +87,66 @@ async def ready(browser,width=390,language='en',model='pro'):
         await p.evaluate('(m)=>{qa.select(m)}',model);await reply(p,'pro',index=0)
     await reply(p,model)
     return p,e
+async def local_files(browser):
+ p,e=await ready(browser)
+ # Exercise the generated page's actual chooser handlers. Only File metadata and
+ # read completion are synthetic; no large buffer or external artifact is used.
+ await p.evaluate(r'''() => {
+  window.localReads=0;
+  window.controllerBytes=()=>{
+   const b=new Uint8Array(160);b.fill(0xa5);const v=new DataView(b.buffer);
+   for(const [o,n]of [[0,0x43423058],[8,0x20000],[12,160],[16,0],[20,2],[24,0x02087080],[28,0x02087090],[32,0x01c06e80],[36,0x01c07680],[40,0x01c01800],[44,0x01c07680],[48,0],[52,0]])v.setUint32(o,n,true);
+   v.setUint16(4,2,true);v.setUint16(6,68,true);
+   let crc=0xffffffff;for(const octet of b){crc^=octet;for(let i=0;i<8;i++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}v.setUint32(16,(crc^0xffffffff)>>>0,true);return b;
+  };
+  window.stockBytes=()=>{const b=new Uint8Array(1024).fill(125),name='SMK-37 Pro_900';for(let i=0;i<name.length;i++)b[i*48+47]=(name.charCodeAt(i)+i+1)&255;return b;};
+  window.chooseLocal=(kind,size,hold=false,reject=false)=>{
+   const input=document.getElementById(kind==='ctl'?'ctlfile':'stockfile');
+   const raw=kind==='ctl'?controllerBytes():stockBytes();
+   const file=new File([raw],kind==='ctl'?'synthetic-ctl.img':'synthetic-stock.fwsc');
+   Object.defineProperties(file,{size:{value:size},arrayBuffer:{value:()=>{localReads++;if(hold)return new Promise(r=>window.localRelease=()=>r(raw.buffer));if(reject)return Promise.reject(Error('synthetic read interruption'));return Promise.resolve(raw.buffer);}}});
+   Object.defineProperty(input,'files',{configurable:true,value:[file]});input.dispatchEvent(new Event('change'));
+  };
+ }''')
+ for kind,minimum,maximum in [('ctl',68,65536),('stock',960,16*1024*1024)]:
+  for expr in ['0','-1','NaN','Infinity','1.5',"'1024'",'Number.MAX_SAFE_INTEGER+1',str(minimum-1),str(maximum+1),'1073741824']:
+   before=await p.evaluate('localReads')
+   await p.evaluate(f"chooseLocal('{kind}',{expr})");await p.wait_for_timeout(15)
+   check(await p.evaluate('localReads')==before,kind+' invalid File.size '+expr+' rejects before arrayBuffer')
+  for size in [minimum,maximum]:
+   before=await p.evaluate('localReads');await p.evaluate('(a)=>chooseLocal(a.kind,a.size)',{'kind':kind,'size':size});await p.wait_for_timeout(25)
+   check(await p.evaluate('localReads')==before+1,kind+' inclusive size boundary '+str(size)+' reaches bounded read')
+  await p.evaluate('(kind)=>chooseLocal(kind,1024)',kind);await p.wait_for_timeout(25)
+  check(await p.evaluate("ctl?.length===160" if kind=='ctl' else "!$('stockconfirm').disabled && $('dropmeta').textContent.includes('SMK-37 Pro_900')"),kind+' valid format accepted')
+  await p.evaluate('(kind)=>chooseLocal(kind,1024,true)',kind);await p.wait_for_function("typeof localRelease==='function'")
+  await p.evaluate('(kind)=>chooseLocal(kind,1073741824)',kind);await p.wait_for_timeout(15)
+  before=await p.locator('#status').text_content();await p.evaluate('localRelease();delete window.localRelease');await p.wait_for_timeout(25)
+  cleared=await p.evaluate("ctl===null" if kind=='ctl' else "$('stockconfirm').disabled && $('stockgo').disabled && $('dropmeta').textContent===''")
+  check(cleared and await p.locator('#status').text_content()==before,kind+' invalid new selection clears prior state and defeats stale pending read')
+  await p.evaluate('(kind)=>chooseLocal(kind,1024,false,true)',kind);await p.wait_for_timeout(25)
+  await p.evaluate('(kind)=>chooseLocal(kind,1024)',kind);await p.wait_for_timeout(25)
+  check(await p.evaluate("ctl?.length===160" if kind=='ctl' else "!$('stockconfirm').disabled && $('dropmeta').textContent.includes('SMK-37 Pro_900')"),kind+' interrupted read can retry valid file')
+ # Drag/drop reaches the same bounded stock-file function.
+ for size in [1073741824,1024]:
+  before=await p.evaluate('localReads')
+  await p.evaluate("""size=>{const raw=stockBytes(),f=new File([raw],'synthetic-drop.fwsc');Object.defineProperties(f,{size:{value:size},arrayBuffer:{value:async()=>{localReads++;return raw.buffer;}}});const event=new Event('drop',{bubbles:true,cancelable:true});Object.defineProperty(event,'dataTransfer',{value:{files:[f]}});$('stockdrop').dispatchEvent(event);}""",size)
+  await p.wait_for_timeout(25)
+  check(await p.evaluate('localReads')==before+(0 if size>16777216 else 1),'stock drop preallocation guard '+str(size))
+ # Real erased padding, not metadata alone: retain the controller format's64KiB maximum.
+ await p.evaluate("""()=>{const input=$('ctlfile');const raw=new Uint8Array(65536).fill(255);raw.set(controllerBytes());Object.defineProperty(input,'files',{configurable:true,value:[{size:raw.length,arrayBuffer:async()=>raw.buffer}]});input.dispatchEvent(new Event('change'));}""")
+ await p.wait_for_timeout(25);check(await p.evaluate('ctl?.length===65536'),'valid erased controller padding remains accepted at64KiB')
+ check(not e,'local file paths have no uncaught page errors')
+ await p.close()
+
 async def main():
  async with async_playwright() as pw:
   browser=await pw.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
   print('Chromium',browser.version,flush=True)
+  if not args.race_only:
+   await local_files(browser)
+  if args.local_files_only:
+   print(json.dumps({'checks':checks,'failed':len(failures),'failures':failures,'scope':'actual generated local File handlers; synthetic size/read fixtures, no giant allocation or hardware'}),flush=True)
+   await browser.close();srv.shutdown();raise SystemExit(1 if failures else 0)
   if args.race_only:
    p,e=await ready(browser);await p.evaluate('qa.installMocks()');await p.locator('#devagree').check();await p.locator('#go').click();await p.wait_for_function('permissions===1')
    await p.evaluate("$('stockgo').dispatchEvent(new MouseEvent('click'))")
