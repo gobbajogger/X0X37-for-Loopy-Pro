@@ -168,8 +168,19 @@ def read_bytes(link, k, off, n, progress=None):
     while len(out) < n:
         want, adr = min(READ_MAX, n - len(out)), off + len(out)
         r = req(link, CMD_READ, [k, adr & 0x7F, (adr >> 7) & 0x7F, (adr >> 14) & 0x7F, (want + 1) >> 1])
+        # Every reply must have the four echoed address bytes and packed data.
+        # SMP_READ requests pairs, so only a final odd-byte request may be
+        # rounded up by one. Never silently consume surplus bytes from a
+        # malformed frame as if they belonged to a requested flash range.
+        if len(r) < 6:
+            raise SlotError(f"slot {k + 1}: short SMP_READ reply at {adr:#x}")
         got = unpack7(r[4:])
-        if r[0] != k or (r[1] | r[2] << 7 | r[3] << 14) != adr or not got:
+        # SMP_READ must use the canonical pack7 wire encoding. Unpack7 alone
+        # silently ignores orphan masks and unused high bits in a short group.
+        if pack7(got) != list(r[4:]):
+            raise SlotError(f"slot {k + 1}: noncanonical SMP_READ frame at {adr:#x}")
+        if (r[0] != k or (r[1] | r[2] << 7 | r[3] << 14) != adr
+                or not got or len(got) > want + (want & 1)):
             raise SlotError(f"slot {k + 1}: bad SMP_READ reply at {adr:#x}")
         out += got[:n - len(out)]
         if progress:
