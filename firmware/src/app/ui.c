@@ -265,9 +265,9 @@ static uint8_t bass_rec_step[NBASS];                 /* recorded source step + 1
 static uint8_t bass_rec_pat[NBASS], bass_rec_playing[NBASS];
 static uint8_t kbd_held_key[NBASS];                  /* physical key + 1; survives octave and part changes */
 /* Chicago arp freeplay: track every held key so chords arpeggiate (clip ARP is MIDI-only). */
-static uint8_t kbd_arp_key[NBASS][CHI_ARP_MAXN];     /* physical key + 1 */
-static uint8_t kbd_arp_note[NBASS][CHI_ARP_MAXN];
-static uint8_t kbd_arp_n[NBASS];
+static uint8_t kbd_arp_key[NBASS][CHI_ARP_MAXN] X0X_POOL;     /* physical key + 1 */
+static uint8_t kbd_arp_note[NBASS][CHI_ARP_MAXN] X0X_POOL;
+static uint8_t kbd_arp_n[NBASS] X0X_POOL;
 static int chi_arp_on_part(int b)
 {
     return b >= 0 && b < NBASS && proj.sound.v[T_303][b][CHI_ARP_SWITCH] != CHI_ARP_OFF;
@@ -1167,7 +1167,7 @@ static int track_page(void)
 /* A list is rows of refs. SEL on a page opens the list of every page's knobs (the deep view);
  * GLOBAL is a list of its own. SELECT moves, ALGORITHM changes, SEL runs an action. */
 #define LIST_MAX 64
-static pref_t list_rows[LIST_MAX];
+static pref_t list_rows[LIST_MAX] X0X_POOL;
 static char list_title[16];
 
 static void list_add(pref_t r)
