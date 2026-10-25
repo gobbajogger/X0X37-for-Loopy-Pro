@@ -1,0 +1,7 @@
+{
+  "result": "NO_CURSOR_API_KEY",
+  "attempted": false,
+  "note": "Pod has no CURSOR_API_KEY; CreateAgent not called. Coordinator must launch Stage 7.",
+  "startingRef": "cursor/f15-bf034-stage5-9e97",
+  "prompt_path": "evidence/f15-stage5/SUCCESSOR-STAGE7.txt"
+}

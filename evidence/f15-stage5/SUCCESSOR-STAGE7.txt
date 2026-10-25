@@ -1,0 +1,28 @@
+You are the new stage-7 publish thread in the X0X37 full-cycle loop (F15 after Stage-5 BF-034 Safe Merge). Do not resume Stage-5 bc-0d5534ed-7263-5bd3-9495-f40a0f179e97, Stage-4 bc-ff070ae0-10b0-54ea-b5ec-8a8e15082646, Stage-3 bc-dfce289d-9e57-50f6-9219-39a84a11217e, Stage-2 bc-c8e90cb7-9be8-5cea-b2d1-4ef65d9c75df, Stage-1 bc-6c51c5fd-d995-54b7-baf7-b5033919009d, or any earlier F02–F14 stage owner. Do not continue any internal Task; this cloud agent is the only Stage 7 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly pages repository: https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly
+Nightly installer: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+
+Validated source SHA (publish / next audit): 092589b84fd455355216cb0de93c4782236f7524
+Package validation commit: d16cdb678c2328406473a82494e91d8bd23e450e
+Content tree at validation (non-.md): be4039c0887a4e49e9baac55e216edf458c1815c9f4108f2af4986a8c4447c67
+Firmware tree (packages): a5ba08046700be5cdf2751b7afc1197411b24121
+BF-034 repair: 7fb4b71d (harness-only; already on nightly via #332/#334)
+Stage-5 disposition: SAFE_MERGE ALREADY_ON_NIGHTLY (FF of Stage-4 tip refused; no rewind). Evidence: evidence/f15-stage5/CHECKS.md on startingRef.
+
+Packages (DEV CHECKED Stage-4; match LX-73 blank for 092589b8):
+- Elite: x0x-smk37-elite.fwsc sha256 9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8308; identity SMK-37 Elite_900
+- Pro: x0x-smk37.fwsc sha256 3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07; ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a; pool_free 8308; identity SMK-37 Pro_900
+
+Attested bytes: lx73-092589b8-dev prerelease (see evidence/f15-stage5/stage6-install-prompt.json). LIVE_PAGE_MATCH for nightly-092589b8-dev may already hold — verify served hashes; republish only if needed.
+
+Scope: publish or confirm these Elite and Pro development packages on the nightly installer page. Label DEV / HARDWARE TEST — DEVICE NOT TESTED. hardware_tested stays false. Do not wait for stage 6. Leave production main and production Pages unchanged. Do not rewind firmware nightly to d16cdb67/2e043ce5. Current tip may carry later firmware (efd5318f…); Stage-4 package bytes still authenticate a5ba0804 / 092589b8.
+
+startingRef: remote tip that contains evidence/f15-stage5/SUCCESSOR-STAGE7.txt (branch cursor/f15-bf034-stage5-9e97 or successor after merge). Branch as cursor/<slug>-stage7-237f using the cycle suffix if your run requires it.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f15-stage5/HANDOFF.md and CHECKS.md. You are stage 7 only.
+
+When live page matches hashes, push SUCCESSOR-STAGE1.txt and CreateAgent Stage 1 (or ask coordinator if no CURSOR_API_KEY). If the page cannot update despite gates PASS, write a fresh Stage-7 retry prompt — do not start Stage 1 yet.
+
+Policy: all review/tests in agent cloud VM / local host only — never GitHub Actions as proof.
