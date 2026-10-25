@@ -1,0 +1,4 @@
+HEAD=e4b9b28578e0f1734dd5fe2d8c39f4c7d40a3a0d
+master.c=7f30fbc65374cdf5db0bbc8c0641aaab96dd776d
+master_test.c=df2f13b35a6fc7b858b019a1950982c23f6386e3
+PASS bf012 land tip blobs

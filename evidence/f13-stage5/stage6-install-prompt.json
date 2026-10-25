@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "stage": 6,
+  "kind": "local-install-prompt",
+  "cloud_thread": false,
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "validated_source_sha": "092589b84fd455355216cb0de93c4782236f7524",
+  "build_dev_checked_commit": "e4b9b28578e0f1734dd5fe2d8c39f4c7d40a3a0d",
+  "content_tree": "25ada1f02e2e289072fab8db464b715e09f9c0712bded561af008bc88d8c54af",
+  "firmware_tree": "a5ba08046700be5cdf2751b7afc1197411b24121",
+  "git_tree": "9382fb1276e320d9f9d290dbad187fa08cdd224c",
+  "nightly_base_before_land": "029c3c5f63849ba71196e43902ccdf531c169843",
+  "evidence_bearing_tip_note": "Do not pass stage-5 evidence-only tips as --commit; tree will REFUSE. Install validated_source_sha (nightly tip; same tree as build commit).",
+  "config": "dev",
+  "X0X_DEV_PADCAL": "1",
+  "bf012_land_commit": "092589b84fd455355216cb0de93c4782236f7524",
+  "bf012_master_c_blob": "7f30fbc65374cdf5db0bbc8c0641aaab96dd776d",
+  "bf012_master_test_blob": "df2f13b35a6fc7b858b019a1950982c23f6386e3",
+  "prior_b42_packages": "invalid_for_this_root",
+  "nightly_ff": {
+    "attempted_sha": "e4b9b28578e0f1734dd5fe2d8c39f4c7d40a3a0d",
+    "result": "MERGED_VIA_PR308_REBASE",
+    "nightly_sha": "092589b84fd455355216cb0de93c4782236f7524",
+    "force_push": false
+  },
+  "packages": {
+    "elite": {
+      "record": "evidence/f13-stage5/elite/record.json",
+      "package": "x0x-smk37-elite.fwsc",
+      "package_sha256": "9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5",
+      "package_size": 651396,
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8308,
+      "code_free": 292,
+      "identity": "SMK-37 Elite_900"
+    },
+    "pro": {
+      "record": "evidence/f13-stage5/pro/record.json",
+      "package": "x0x-smk37.fwsc",
+      "package_sha256": "3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07",
+      "package_size": 651392,
+      "controller": "ctl.img",
+      "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "pool_free": 8308,
+      "code_free": 292,
+      "identity": "SMK-37 Pro_900"
+    }
+  },
+  "gate": "tools/require_gate_pass.sh <validated_source_sha> --config dev --fwsc <package> --ctl <ctl.img> --dev-record <record>",
+  "merge_evidence": "evidence/f13-stage5/CHECKS.md",
+  "launchagent": "com.x0x37.unattended-install"
+}

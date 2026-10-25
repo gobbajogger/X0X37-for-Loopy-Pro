@@ -1,0 +1,18 @@
+{
+  "base": "029c3c5f63849ba71196e43902ccdf531c169843",
+  "scope": "F13 Stage 5 land: BF-012 cherry-picked onto nightly after XIP unlock (#310/#311/#312/#314). Build tip e4b9b285; nightly tip after PR #308 rebase-merge 092589b8 (identical trees). master.c 7f30fbc6…; master_test.c df2f13b3…. Elite/Pro DEV CHECKED.",
+  "checks": [
+    {
+      "reason": "BF-012 land tip blobs: master.c 7f30fbc6… with OFF→ON clear; master_test.c df2f13b3….",
+      "argv": ["bash", "evidence/f13-stage5/check-bf012-blobs.sh"]
+    },
+    {
+      "reason": "BF-012 host regressions: master suite must PASS with X0X_DEV_PADCAL=1.",
+      "argv": ["bash", "evidence/f13-stage5/check-bf012-host.sh"]
+    }
+  ],
+  "dependencies": [
+    "evidence/f13-stage5/check-bf012-blobs.sh",
+    "evidence/f13-stage5/check-bf012-host.sh"
+  ]
+}

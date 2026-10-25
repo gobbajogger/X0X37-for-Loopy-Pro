@@ -1,0 +1,10 @@
+remote: This repository moved. Please use the new location:        
+remote:   https://github.com/gobbajogger/X0X37-for-Loopy-Pro.git        
+remote: error: GH013: Repository rule violations found for refs/heads/nightly.        
+remote: Review all repository rules at https://github.com/gobbajogger/X0X37-for-Loopy-Pro/rules?ref=refs%2Fheads%2Fnightly        
+remote: 
+remote: - Changes must be made through a pull request.        
+remote: 
+To https://github.com/gobbajogger/x0x37-for-loopy-pro
+ ! [remote rejected]   e4b9b28578e0f1734dd5fe2d8c39f4c7d40a3a0d -> nightly (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/gobbajogger/x0x37-for-loopy-pro'

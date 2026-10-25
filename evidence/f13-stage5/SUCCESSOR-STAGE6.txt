@@ -1,0 +1,27 @@
+F13 Stage 6 — local install only (no cloud thread).
+
+Mac LaunchAgent `com.x0x37.unattended-install` may run this prompt for the validated development packages.
+
+Validated source SHA (install commit / nightly tip): 092589b84fd455355216cb0de93c4782236f7524
+Build DEV CHECKED commit (identical tree): e4b9b28578e0f1734dd5fe2d8c39f4c7d40a3a0d
+Content tree: 25ada1f02e2e289072fab8db464b715e09f9c0712bded561af008bc88d8c54af
+Firmware tree: a5ba08046700be5cdf2751b7afc1197411b24121
+Config: X0X_DEV_PADCAL=1 (dev)
+
+Elite:
+  package x0x-smk37-elite.fwsc sha256 9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5 size 651396
+  ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+  identity SMK-37 Elite_900; pool_free 8308; code_free 292
+  record evidence/f13-stage5/elite/record.json
+
+Pro:
+  package x0x-smk37.fwsc sha256 3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07 size 651392
+  ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+  identity SMK-37 Pro_900; pool_free 8308; code_free 292
+  record evidence/f13-stage5/pro/record.json
+
+Do not pass an evidence-only tip as --commit. Prior b42bcba4 packages are invalid for this root.
+Machine-readable twin: evidence/f13-stage5/stage6-install-prompt.json
+Merge evidence: evidence/f13-stage5/CHECKS.md
+A cloud agent with no device writes INSTALL BLOCKED and leaves Stage 6 pending.
+Stage 7 does not wait for this install.

@@ -1,0 +1,227 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "d91bb2e646d7cd7bc3e3cdcf06f49cc83d73e9f74f62183945d8f94a833ad1bf",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "25ada1f02e2e289072fab8db464b715e09f9c0712bded561af008bc88d8c54af",
+      "configuration": {
+        "model": "elite",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "029c3c5f63849ba71196e43902ccdf531c169843",
+          "scope": "F13 Stage 5 land: BF-012 cherry-picked onto nightly after XIP unlock including #314 UI cold. Tip e4b9b285 = 029c3c5f + BF-012. master.c 7f30fbc6\u2026; master_test.c df2f13b3\u2026. Rebuild Elite/Pro DEV CHECKED.",
+          "checks": [
+            {
+              "reason": "BF-012 land tip blobs",
+              "argv": [
+                "bash",
+                "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-blobs.sh"
+              ]
+            },
+            {
+              "reason": "BF-012 host master suite",
+              "argv": [
+                "bash",
+                "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-host.sh"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-blobs.sh",
+            "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-host.sh"
+          ]
+        },
+        "dependencies": [
+          "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-blobs.sh",
+          "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-host.sh"
+        ]
+      },
+      "environment": {
+        "CXX": "c++",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1",
+        "CC": "cc",
+        "MODEL": "elite",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.12.94+"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "0c618c6238d871609647467e8f4a1026a7d927cf57ce0ad118978edc09d24eca",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "executable": true
+        },
+        "python": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "1.26.4",
+          "sha256": "7dd34308cae1f97de5c2648c01086aa1e3d0b248880adf91a114d868237953f8"
+        },
+        "pillow": {
+          "version": "13.0.0",
+          "sha256": "232fc8e16099bee7e0e7755ccdd70edfff3869685d5aafcf305aa55274b168da"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-blobs.sh": {
+          "sha256": "0acf867ca8ea0b6cf639cacf558940640858120ff35a8923fa6e39d67724cfe4",
+          "executable": true
+        },
+        "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-host.sh": {
+          "sha256": "9ca689bca0ab9c6fa5e57dec3b69ed8fd2fe2ba540334276fee3b31e15490577",
+          "executable": true
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "elite",
+  "commit": "e4b9b28578e0f1734dd5fe2d8c39f4c7d40a3a0d",
+  "tree": "25ada1f02e2e289072fab8db464b715e09f9c0712bded561af008bc88d8c54af",
+  "plan": {
+    "base": "029c3c5f63849ba71196e43902ccdf531c169843",
+    "scope": "F13 Stage 5 land: BF-012 cherry-picked onto nightly after XIP unlock including #314 UI cold. Tip e4b9b285 = 029c3c5f + BF-012. master.c 7f30fbc6\u2026; master_test.c df2f13b3\u2026. Rebuild Elite/Pro DEV CHECKED.",
+    "checks": [
+      {
+        "reason": "BF-012 land tip blobs",
+        "argv": [
+          "bash",
+          "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-blobs.sh"
+        ]
+      },
+      {
+        "reason": "BF-012 host master suite",
+        "argv": [
+          "bash",
+          "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-host.sh"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-blobs.sh",
+      "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-host.sh"
+    ]
+  },
+  "changed_files": [
+    "firmware/src/dsp/master.c",
+    "tests/host/master_test.c"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 292,
+    "ram_free": 244,
+    "pool_free": 8308
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "bash",
+        "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-blobs.sh"
+      ],
+      "returncode": 0,
+      "sha256": "5d05d45c7f2dbb0a66c18c84223e42c492986c25417aa83284cdfcbb04d1e0b9"
+    },
+    "check-1": {
+      "argv": [
+        "bash",
+        "/home/ubuntu/x0x37-stage5-land/evidence/f13-stage5/check-bf012-host.sh"
+      ],
+      "returncode": 0,
+      "sha256": "e7d58bf2988062bdad1943c1a21b33719dc2777faa51afa3b6ee3cab65dae3ba"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "b199ed7c35cc00b7cd3d5d90e7087d6e3a3779d3368363389968d281d70bb4e5"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "a2168fabb437955e6bdf599e893a42d2f1dc352370f1433c391e509bef4d63b1"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37-elite.fwsc",
+      "sha256": "9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

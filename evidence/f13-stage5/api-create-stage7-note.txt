@@ -1,0 +1,6 @@
+CURSOR_API_KEY unset in this pod. CreateAgent Stage 7 not attempted from land worker.
+Coordinator must CreateAgent Stage 7 with:
+  repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+  startingRef: cursor/f13-bf012-stage5-land-f385
+  prompt: evidence/f13-stage5/SUCCESSOR-STAGE7.txt (full text)
+Do not treat a Task subagent as Stage 7.
