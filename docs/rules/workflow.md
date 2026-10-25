@@ -52,7 +52,7 @@ Stages 1–5 and stage 7 each start one cloud successor. Stage 5's successor is 
 
 Delegate the stage's real work to fresh subagents. Each helper is a new Task call with no `resume`. Use separate scopes: stage 3 uses one subagent for the test run and another for failure investigation. Other stages use a fresh subagent for the stage's checks or review.
 
-A subagent supports the stage. It does not replace the stage thread, and it does not launch the next stage. A Task subagent is internal to the current run. The owner cannot open it. Only the owner of stages 1–5 and stage 7 launches the successor, and that successor is an agent the owner can open.
+A helper supports the stage. It does not replace the stage thread, and it does not launch the next stage. A Task helper is internal to the current run. The owner cannot open it. The next stage must be an agent the owner can open — started by this stage when it has an API key, or by the Project coordinator when it does not.
 
 ## Successor handoff
 
