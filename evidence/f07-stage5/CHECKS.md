@@ -59,7 +59,15 @@ Production `main` and production GitHub Pages: **unchanged**. No device flash. D
 
 ## Successor create (API)
 
-Pending after successor prompt push. Pod has no `CURSOR_API_KEY` expected; attempts and coordinator CreateAgent recorded when complete.
+`POST https://api.cursor.com/v1/agents` attempted twice with no `CURSOR_API_KEY`.
+
+| Attempt | HTTP | Body |
+| --- | --- | --- |
+| 1 | 401 | Invalid User API Key |
+| 2 | 401 | Invalid User API Key |
+
+Logs: `api-create-stage7-attempt1.json`, `api-create-stage7-attempt2.json`.
+Coordinator CreateAgent required for owner-visible Stage 7. Handoff remains incomplete until that id is on the remote tip.
 
 ## Overall
 
