@@ -403,6 +403,8 @@ void bass303_init(bass303_t *b)
         bass303_set(b, i, params[i].def);
 
     b->osc_freq = b->slew_y = 440.0f;
+    b->bend_ratio = 1.0f;
+    b->bend_pot = 64;
     b->velocity_gain = b->velocity_cutoff = 1.0f;
     b->env_c = b->decay_c;
     env_tables(b);
@@ -442,7 +444,7 @@ __attribute__((noinline)) void bass303_note_on_velocity(bass303_t *b, int note, 
      * strikes close the filter and reduce level; higher strikes brighten and lift it. */
     b->velocity_gain = (float)velocity / 100.0f;
     b->velocity_cutoff = fm_exp2f((float)(velocity - 100) * (1.5f / 100.0f));
-    f = b->tuning * fm_exp2f((float)(note - 69) * (1.0f / 12.0f));
+    f = b->tuning * fm_exp2f((float)(note - 69) * (1.0f / 12.0f)) * b->bend_ratio;
     set_accent_state(b, accent);
     b->osc_freq = f;
     if (!(slide && b->gate)) {           /* triggerNote; else slideToNote (no retrigger) */
@@ -486,6 +488,30 @@ void bass303_note_off(bass303_t *b)
 }
 void bass303_set_lite(bass303_t *b, int on) { b->lite = on != 0; }
 void bass303_all_off(bass303_t *b) { bass303_note_off(b); }
+
+/* Chicago pitch bend: pot 64 = unity. Ends (±2 st) match common AU bend range.
+ * Live held notes rescale osc_freq/slew so the wheel-style overlay is real-time;
+ * TUNE pot is unchanged (honest bend, not a permanent detune write). */
+void bass303_set_bend(bass303_t *b, int pot)
+{
+    float semis, neu, old;
+    if (pot < 0)
+        pot = 0;
+    if (pot > 127)
+        pot = 127;
+    if (pot == (int)b->bend_pot)
+        return;
+    semis = ((float)(pot - 64) / 64.0f) * 2.0f;
+    neu = fm_exp2f(semis * (1.0f / 12.0f));
+    old = b->bend_ratio;
+    if (old > 1e-12f && (b->gate || !b->idle)) {
+        float r = neu / old;
+        b->osc_freq *= r;
+        b->slew_y *= r;
+    }
+    b->bend_ratio = neu;
+    b->bend_pot = (uint8_t)pot;
+}
 
 /* ---- render ---------------------------------------------------------------------------- */
 

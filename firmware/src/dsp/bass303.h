@@ -138,6 +138,8 @@ typedef struct bass303 {
     float env_pw[BASS303_CTRL + 1], g1[BASS303_CTRL + 1], g2[BASS303_CTRL + 1];
     float c_inc, c_b0, c_k, c_g2, c_a;
     float osc_freq, slew_y;
+    float bend_ratio;        /* Chicago pitch bend: 1 = centre; live rescale of osc_freq */
+    uint8_t bend_pot;        /* last CHI_PBEND 0..127 (64 = none) */
     float phase;             /* oscillator phase in turns, 0..1 */
     float env_c, env_y;      /* main (filter) decay envelope */
     float rc1_y, rc2_y;
@@ -171,6 +173,8 @@ void bass303_note_on(bass303_t *b, int note, int accent, int slide);
 void bass303_note_on_velocity(bass303_t *b, int note, int accent, int slide, int velocity);
 void bass303_note_off(bass303_t *b);
 void bass303_all_off(bass303_t *b);
+/* Chicago pitch bend pot 0..127 (64 = centre). ±2 semitones; live notes rescale. */
+void bass303_set_bend(bass303_t *b, int pot);
 void bass303_render(bass303_t *b, float *out, int n);
 /* the engine's overload guard: 1 = no oversampling from the next block (~12 % of the worst case
  * on the FM-1; some aliasing on bright, resonant notes), 0 = back to BASS303_OS */

@@ -22,7 +22,7 @@ enum {
     CHI_FX_TYPE = 27,
     CHI_FX_EDIT1,
     CHI_FX_EDIT2,
-    CHI_FX_END /* engine_nparams(T_303) == 30 */
+    CHI_FX_END /* SEND FX last index+1; Chicago aux (PBend/Damp) continues at 30..31 */
 };
 
 /* Canonical Chicago Type indices (AU Fx Type 0..11). */

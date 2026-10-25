@@ -13,6 +13,7 @@
 #include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
 #include "chicago_arp.h"
 #include "chicago_fx.h"
+#include "chicago_aux.h"
 
 #define POOL X0X_POOL
 
@@ -37,6 +38,9 @@ static bass303_t b303[NBASS] POOL;
 static uint8_t chi_arp_on[NBASS], chi_arp_mode[NBASS], chi_arp_range[NBASS], chi_arp_speed[NBASS];
 static uint8_t chi_arp_accent[NBASS], chi_arp_vel[NBASS];
 static chi_arp_run_t chi_arp_run[NBASS];
+/* Chicago damper: live/MIDI sustain. Pattern sink ignores it. */
+static uint8_t chi_damper[NBASS];
+static uint8_t chi_damp_latched[NBASS]; /* note-off deferred while damper on */
 #ifdef X0X_HOST
 static uint8_t bass_attacked[NBASS]; /* early: chi_arp_on_step marks attacks before MIDI block */
 #endif
@@ -174,7 +178,7 @@ int engine_nparams(int t, int v)
     switch (t) {
     case T_909: return drum909_nparams(v);
     case T_808: return drum808_nparams(v);
-    case T_303: return CHI_FX_END;                       /* arp 23..26 + SEND FX Type/Edit 27..29 */
+    case T_303: return CHI_AUX_END;                      /* … + SEND FX 27..29 + PBend/Damp 30..31 */
     case T_BRK: return 2;                                /* Level, Pitch (sends: the mixer's; the rest: the pattern's) */
     case T_FX: return fxbus_nparams();
     case T_MIX: return MX_NPARAMS;                       /* every part: Level, Rev send, Dly send */
@@ -193,6 +197,8 @@ const x0x_param_t *engine_param(int t, int v, int i)
             return &CHI_ARP_PARAMS[i - CHI_ARP_SWITCH];
         if (i >= CHI_FX_TYPE && i < CHI_FX_END)
             return &CHI_FX_PARAMS[i - CHI_FX_TYPE];
+        if (i >= CHI_PBEND && i < CHI_AUX_END)
+            return &CHI_AUX_PARAMS[i - CHI_PBEND];
         return bass303_param(i);
     case T_BRK: return breaks_param(BRK_NSET + i);
     case T_FX: return fxbus_param(i);
@@ -219,13 +225,48 @@ const char *engine_voice_name(int t, int v)
     }
 }
 
+/* Live/MIDI note-off: damper sustains the gate; pattern s_boff never calls this. */
+static void chi_live_note_off(int v)
+{
+    if ((unsigned)v >= NBASS)
+        return;
+    if (chi_damper_on(chi_damper[v])) {
+        chi_damp_latched[v] = 1;
+        return;
+    }
+    chi_damp_latched[v] = 0;
+    bass303_note_off(&b303[v]);
+}
+
 static void chi_arp_gate_off(int v)
 {
     if ((unsigned)v >= NBASS)
         return;
     if (chi_arp_run[v].cur >= 0) {
-        bass303_note_off(&b303[v]);
+        chi_live_note_off(v);
         chi_arp_run[v].cur = -1;
+    }
+}
+
+static void chi_aux_apply(int v, int i, int val)
+{
+    if ((unsigned)v >= NBASS)
+        return;
+    if (val < 0)
+        val = 0;
+    if (val > 127)
+        val = 127;
+    if (i == CHI_PBEND) {
+        bass303_set_bend(&b303[v], val);
+        return;
+    }
+    if (i == CHI_DAMPER) {
+        uint8_t was = chi_damper[v];
+        chi_damper[v] = (uint8_t)val;
+        if (chi_damper_on(was) && !chi_damper_on((uint8_t)val) && chi_damp_latched[v]) {
+            bass303_note_off(&b303[v]);
+            chi_damp_latched[v] = 0;
+        }
     }
 }
 
@@ -305,6 +346,8 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             chi_arp_apply_cfg(v, i, val);
         else if (i >= CHI_FX_TYPE && i < CHI_FX_END)
             break; /* sound_t only; live Mix/fxbus writes come from chicago_fx_apply (UI) */
+        else if (i >= CHI_PBEND && i < CHI_AUX_END)
+            chi_aux_apply(v, i, val);
         else
             bass303_set(&b303[v], i, val);
         break;
@@ -522,7 +565,13 @@ static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
     return 1;
 }
-static void s_boff(void *x, int p) { (void)x; bass303_note_off(&b303[p]); }
+static void s_boff(void *x, int p)
+{
+    (void)x;
+    if ((unsigned)p < NBASS)
+        chi_damp_latched[p] = 0; /* pattern gate wins over damper */
+    bass303_note_off(&b303[p]);
+}
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
 static void s_brk(void *x, int s16, int bar, float spb, int en)
 {
@@ -751,6 +800,7 @@ static void midi_in(uint32_t pkt)
                 bass_attacked[k] = (uint8_t)!slide;
 #endif
                 bass303_note_on_velocity(&b303[k], d1, d2 >= 100, slide, d2);
+                chi_damp_latched[k] = 0;
                 seq_rec_bass(&seq, k, d1, d2, 1, (int)src,
                              (d2 >= 100 ? BS_ACCENT : 0) | (slide ? SEQ_REC_LEGATO : 0));
                 if (bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == src) {
@@ -767,7 +817,7 @@ static void midi_in(uint32_t pkt)
             } else if (ty == 0x80 && bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == src) {
                 if (--bass_held_count[k]) continue;
                 seq_rec_bass(&seq, k, d1, 0, 0, (int)src, 0);
-                bass303_note_off(&b303[k]);
+                chi_live_note_off(k);
                 bass_held[k] = 0;
                 bass_held_count[k] = 0;
                 src_held[0] &= (uint16_t)~(1u << k);
@@ -845,6 +895,7 @@ static void drain(void)
             } else {
                 bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), slide, (int)(v >> 2));
             }
+            chi_damp_latched[a] = 0; /* new press owns the gate */
             bass_held[a] = (uint8_t)b; bass_held_count[a] = 1; bass_held_src[a] = 3;
             src_held[0] &= (uint16_t)~(1u << a); src_held[1] &= (uint16_t)~(1u << a);
             /* A following C_REC still has to see the previous owner. */
@@ -874,7 +925,7 @@ static void drain(void)
                 bass_held_count[a] = 0;
                 bass_held[a] = 0;
             } else {
-                bass303_note_off(&b303[a]);
+                chi_live_note_off((int)a);
                 bass_held_count[a] = 0;
                 bass_held[a] = 0;
             }
