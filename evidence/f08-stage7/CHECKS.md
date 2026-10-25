@@ -46,19 +46,19 @@ Immutable host: `artifacts/nightly-dev` @ `82622c1f9561bd23bbf785c165d66e11e6882
 
 | Field | Value |
 | --- | --- |
-| Cloud push | **403** (`cloud-gh-pages-403.log`) |
-| Mac attempt 1 | **FAIL** parent mismatch (`d6a237c4…` expected; tip became `9d287247…`) |
-| Parent `gh-pages` (retry) | `9d2872470f474b8d6b68ce8170692662199661e8` |
-| Prepared commit (retry) | `60cc264b2bfb2ce8a0c6004f048efef18e042415` |
-| Mac agent | retry requested on worker `83d16cde-07a3-5bce-81a3-2234761197a1` |
-| Live | **PENDING** |
+| Cloud push (cursor[bot]) | **403** (`cloud-gh-pages-403.log`) |
+| Mac attempt 1 | **FAIL** parent mismatch (`d6a237c4…` → tip `9d287247…`) |
+| Parent used for successful FF | `9d2872470f474b8d6b68ce8170692662199661e8` |
+| Live `gh-pages` tip | `e296e8834aff9f9f358fc6f63360abbff83334d4` (FF only; no force) |
+| Cloud pages worker | `bc-d61d2e86-f9d2-5c73-87cb-031d7bc2d1bd` — LIVE_PAGE_MATCH |
+| Live | **MATCH** `nightly-8a74ff52-dev` (`live-verify.log`) |
 
-Mac push instructions: Project store `internal/f08-stage7-mac-pages-push.md`. Artifacts: `artifacts/f08-stage7-publish/`.
+Cloud access check: Project store `internal/f08-cloud-pages-access-check.md`. Artifacts: `artifacts/f08-stage7-publish/`.
 
 ## Production / deferred
 
-Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f08-stage2/DEFERRED.md`. Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Next audit uses `8a74ff52…` after live MATCH.
+Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f08-stage2/DEFERRED.md`. Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Next audit uses `8a74ff52…`.
 
 ## Overall
 
-**QUALIFIED / PREPARED** for validated source `8a74ff52…`. Live page update blocked on Mac FF push after cloud 403. Stage 7 retains ownership; Stage 1 not started.
+**PUBLISHED LIVE** for validated source `8a74ff52…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 successor pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
