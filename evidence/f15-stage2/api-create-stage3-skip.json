@@ -1,0 +1,10 @@
+{
+  "stage": 3,
+  "attempted": false,
+  "reason": "CURSOR_API_KEY unset in Stage-2 pod",
+  "action": "ask Project coordinator CreateAgent Stage 3",
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "startingRef": "cursor/f15-bf034-slotprobe-stage2-237f",
+  "prompt_path": "evidence/f15-stage2/SUCCESSOR-STAGE3.txt",
+  "stage2_owner": "bc-c8e90cb7-9be8-5cea-b2d1-4ef65d9c75df"
+}
