@@ -1,0 +1,14 @@
+PASS acceleration identity follows actual pattern/song destination and retains locked binding
+PASS locked action captions survive keyboard menu/view/clip changes
+PASS dismissing confirmation retains nonzero locked bank, parameter refs and bank caption
+locked drum Up/Down after keyboard clip: bank=1 clip_page=1 lock_view=8
+locked list Down: overlay=1 selection=1 old=0 bank=0
+locked global Down: list_count=34 was=34 first_kind=37 was=37
+locked main bank label after keyboard menu: before='REV SEND' after='REV SEND'
+PASS held shortcut repeat suppressed; overflow-lost keyup rearms next physical press
+PASS project reset and reconnect clear shortcut press edges
+PASS same-target Pause and knob-bank change retain fader pickup
+locked canceled confirmation: target_kind=1 expected=1
+PASS confirmed project reset clears lock and held context
+PASS shortcut identity, distinct first MASTER/reverb/delay selection and keyboard-context reset
+review boundary failures=0 assertions=66

@@ -1,0 +1,7 @@
+In file included from tests/host/smc_pattern_navigation_test.c:4:
+In file included from tests/host/smc_ui_test.c:50:
+/Users/mac/Documents/Codex/2026-10-25/task-92/pattern-negative-source.c:1030:13: warning: unused variable 'pending' [-Wunused-variable]
+ 1030 |         int pending = seq_cue_of(&seq, part);
+      |             ^~~~~~~
+1 warning generated.
+FAIL tests/host/smc_pattern_navigation_test.c:34: seq_cue_of(&seq,PART_303A)==6

@@ -1,0 +1,67 @@
+{
+  "state": "SOURCE_REVIEWED_NATIVE_XIP_BLOCKED",
+  "source_commit": "c44eec02d41d240ae3a02b8a0c928f859608a959",
+  "base": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+  "root_tree": "1a948d62bec5014f657d60df7c38ceec9941a965",
+  "smc_sha256": "fae6820c235ab66f55ea41da9534b21b4a6ce39ab9ee8e6880b1b78e049242bc",
+  "draft_pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/200",
+  "checks": {
+    "production_ui_asan_ubsan": 5893,
+    "lock_asan_ubsan": 639,
+    "navigation_asan_ubsan": 165,
+    "independent_review": 66,
+    "pattern_asan_ubsan": 119,
+    "feedback_expectations": 1877,
+    "navigation_runtime_mutants": 6,
+    "pattern_runtime_mutants": 1
+  },
+  "native": {
+    "elite": {
+      "status": "FAIL_CODE_BUDGET",
+      "raw_image": 554284,
+      "code_max": 552672,
+      "code_overflow": 1612,
+      "ram_used": 98036,
+      "ram_free": 268,
+      "pool_used": 335740,
+      "pool_free": 8324,
+      "minimum_pool_free": 8192
+    },
+    "pro": {
+      "status": "MEASUREMENT_RUNNING"
+    },
+    "base_elite": {
+      "raw_image": 552588,
+      "code_free": 84,
+      "ram_used": 98004
+    },
+    "method": "Original native toolchain, immutable reviewed input snapshot, unchanged Elite DSP objects reused; padded XIP solely for raw measurement with original limit enforced by checker; no package/installability claim.",
+    "controller": "unchanged; no controller build"
+  },
+  "compatibility": [
+    "Only smc_mixer.c production changes",
+    "Fader state owner retains smc_notice/smc_fader; overlap review at lock_toggle only",
+    "Pattern dispatch uses existing seq.pcue, no sequencer source edits",
+    "Transport pattern cue independent of captured editor target; no-wrap endpoints preserved",
+    "No table capacity patch or speculative noinline patch included"
+  ],
+  "boundaries": [
+    "No GUI",
+    "No hardware",
+    "No flash",
+    "No merges",
+    "No public firmware binary publication"
+  ],
+  "next": "Capacity owner to combine validated savings >=1612B with this exact source; preserve feature behavior and repeat exact-head native/independent checks. Final Pro measurement pending.",
+  "evidence": {
+    "navigation-negative.log": "aacc62f407a0781d53a22f97b0f7d4cc7f3938fcd2bbb0fceeee790c98ac9267",
+    "pattern-negative.log": "4806a016ce740b428d05daa2771ac1500403a63512cfe4dad30df845d593668e",
+    "navigation.log": "e988f10a59a898db24c2b1613bb996adc4388f6b9dccf3b942fc18e5df3d44d4",
+    "navigation-asan.log": "e988f10a59a898db24c2b1613bb996adc4388f6b9dccf3b942fc18e5df3d44d4",
+    "independent-review.log": "cfe1f1224dab77df7a15a3f5704c76050d915d65089c022d5c236fc3ed1ef561",
+    "pattern-asan.log": "bab432e63700cd06f632b5975388d1861ff77f4f627a716ebce2d749a6c52695",
+    "ui-asan.log": "d4e75db182f2540a8839b2402dff37724b172297281f8b6a233b57a0b23c8cac",
+    "lock-asan.log": "0414f369493cca232e56b7962adbe12fd8af295891e7e677d0ef91003adaff38",
+    "elite-measurement.json": "4b067f9b7be4d0269957883f57918a4c93271c8aab4bd259d645c1ba5c570567"
+  }
+}

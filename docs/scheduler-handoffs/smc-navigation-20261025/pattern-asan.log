@@ -1,0 +1,6 @@
+PASS rapid queued movement accumulates; reverse-to-current cancels only its part
+PASS existing no-wrap endpoints preserved; stopped cues apply at next audio service
+PASS held edge suppression, opposite held keys, lost release, reconnect and project reset
+PASS host lost-release recovery; independent release-less MMC presses accumulate and reverse
+PASS actual quantized bar boundary, other parts, scene/song ownership and locked part
+smc_pattern_navigation: PASS (119 production-linked checks)

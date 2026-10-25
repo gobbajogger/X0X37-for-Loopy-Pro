@@ -1,0 +1,6 @@
+PASS runtime mutant detected: keyboard-redirects-locked-fader
+PASS runtime mutant detected: SMC-navigation-does-not-resume
+PASS runtime mutant detected: SMC-navigation-does-not-recapture
+PASS runtime mutant detected: wrong-send-bank
+PASS runtime mutant detected: held-mode-key-cycles
+PASS runtime mutant detected: page-does-not-wrap

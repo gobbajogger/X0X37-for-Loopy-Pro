@@ -1,0 +1,4 @@
+PASS keyboard isolation vs locked SMC bank/channel/REC/SELECT/navigation, held Solo and empty lanes
+PASS context bank forward/back wrap, exact sends, descriptor and MORE reachability, fixed faders
+PASS first-select/repeat-page, held suppression, page wrap, locked context, menu and clip ownership
+smc_navigation: PASS (165 production-linked checks)

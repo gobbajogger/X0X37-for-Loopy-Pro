@@ -1,0 +1,12 @@
+{
+  "model": "elite",
+  "size": 554284,
+  "errors": [
+    "image 554284 B exceeds the app code area (552672 B)"
+  ],
+  "notes": [
+    ".ram_text: 1082 insns, no calls",
+    "no soft-double routines (single-precision FPU only)",
+    "image 554284 B; RAM .data+.bss 98036 B of 98304; pool 335740 B of 344064"
+  ]
+}
