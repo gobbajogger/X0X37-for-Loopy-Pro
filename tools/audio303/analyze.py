@@ -89,7 +89,7 @@ for row in cal+expanded:
   for field in ['production_cutoff','production_wave','production_envmod','gain_db','holdout_gain_error_db']:
    if field in row:row[field]=None
  for field in ['train_db','holdout_db','baseline_train_db','baseline_holdout_db']:
-  if field in row and row[field]>=999:row[field]=None
+  if field in row and row[field] is not None and row[field]>=999:row[field]=None
 result=dict(sample_rate=sr,metrics=metrics,fresh_repeat_max_error=repeats,calibration=cal,history=history,history_phase=phase,expanded_calibration=expanded)
 (root/'evidence/measurements.json').write_text(json.dumps(result,indent=2))
 (root/'evidence/experimental-cutoff-lookup.json').write_text(json.dumps(dict(name='EXPERIMENTAL_HOST_ONLY_CHICAGO_SPECTRAL_LOOKUP',scope='note48 training, note60 held out; velocity100; Chicago waveform0 Gate; production constant filter-envelope diagnostic; reso0; 44.1kHz',acceptance="Exploratory post-analysis screen: >=3 reference partials above -40dB; <=3dB spectral RMSE on train and holdout; <=1dB holdout gain error. Not a fidelity target.",entries=expanded),indent=2))
