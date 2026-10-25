@@ -654,6 +654,11 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
     b = m[2] & 0x7Fu;
+    /* Direct BLE User feedback can use DAW channel 1 or the User channel
+     * 16; arbitrary musical channels 2..15 must never operate SMC keys,
+     * faders or performance-mode abort. Keep both maintained routes. */
+    if (user && ch != 0u && ch != 15u)
+        return 4;
     if (!allow || perf_testing()) {
         if (type == 0x90u && b && (!ch || user))
             smc_guarded_button(a, 0, 0);

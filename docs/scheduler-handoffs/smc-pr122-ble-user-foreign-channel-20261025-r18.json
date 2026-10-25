@@ -1,0 +1,99 @@
+{
+  "schema": "loopyx0x37-smc-source-producer-v1",
+  "date_utc": "2026-10-25",
+  "revision": "R18",
+  "owner": "LoopyX0X37 SMC Transport source specialist",
+  "intent": "In SMC direct BLE User mode, the maintained MIDI channels 1 and 16 control the surface. Unrelated instrument channels 2..15 cannot trigger SMC Solo, NoteOff, faders, knobs or performance-testing abort. DAW, legacy User routes, MMC, BLE epochs, feedback and held-Solo behavior remain unchanged.",
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 122,
+    "own_lane": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+    "base_commit": "16705272c818eb424702639f72b814c8dc567642",
+    "base_root_tree": "94f07c3d66bc7c6961437adbbee0f9737e9d6e8e",
+    "base_firmware_tree": "e252050c4490c73fb6e27000108a41596c33a4f3",
+    "new_firmware_tree": "2694c70c290b289e84a0721e09f2b3787dac3b02",
+    "production_c_blob_before": "20e481ebf6e802426758ae1d2eb1e12700f2cdcb",
+    "production_c_blob_after": "4833a57132112312ecabad4d49dab687780c4a87",
+    "regression_blob_before": "789594e8f399d94315d478dcb41dbb7accd4bfcc",
+    "regression_blob_after": "6afc30037532383b7ad3aa8de0e9db1ec7ba66f7",
+    "unchanged": {
+      "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+      "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+      "tools_tree": "fbaef8e1eead4ca36c3c971bfac8c6e0de74ab51",
+      "build_script_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+      "smc_protocol_blob": "03a642226aae01ffb9bc29888e0f5802d72ced26"
+    }
+  },
+  "behavior_observations": {
+    "observed_r17_defect": "In User mode, real production smc_message accepts NoteOn/NoteOff on unowned channel 2 and CC knobs/faders on arbitrary channel 2..15; foreign channel 2 NoteOn 8 dispatches SMC Solo. Its performance-mode path also accepted foreign note 0x5D, risking a spurious abort.",
+    "negative_control": "Original exact R17 smc_mixer.c blob 20e481ebf6e802426758ae1d2eb1e12700f2cdcb runs new registered frame regression: all 6 expected nonzero exits at `smc_message(foreign_press,3,1)==4`. This is intentional RED, not a passing functional test.",
+    "original_proposed_channel16_only": "Explicitly REJECTED after maintained smc_ble_preset_queue_test.py demonstrated direct BLE User channel-1 controls are also supported; final minimal guard allows both 1 and 16 and rejects only channels 2..15.",
+    "fixed_positive": "6/6 configurations of the changed real smc_message production-C decoder regression exit 0, 141/141 checked assertions each; tests foreign NoteOn, NoteOff, velocity-zero off, knob and fader CC, and pitch for all 14 foreign channels, plus perf abort, and both retained legitimate channels."
+  },
+  "execution": {
+    "kind": "producer-scoped production C source-extraction with mocks, not a full firmware/system test",
+    "compilers": [
+      {
+        "name": "gcc",
+        "version": "14.2.0"
+      },
+      {
+        "name": "clang",
+        "version": "17.0.0"
+      }
+    ],
+    "configurations": [
+      {
+        "name": "plain",
+        "flags": ""
+      },
+      {
+        "name": "ubsan",
+        "flags": "-fsanitize=undefined -fno-sanitize-recover=all"
+      },
+      {
+        "name": "asan_ubsan",
+        "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
+      }
+    ],
+    "shell": "CC=<gcc|clang> SAN_FLAGS=<flags> SMC_SOURCE=<exact-source> ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 python3 -B tests/host/<registered-test.py>",
+    "positive_tests": [
+      "smc_ble_frame_length_test.py",
+      "smc_ble_midpoll_link_test.py",
+      "smc_ble_preset_queue_test.py",
+      "smc_feedback_retry_test.py",
+      "smc_mmc_stop_fifo_test.py",
+      "smc_preset_solo_lifetime_test.py"
+    ],
+    "fixed_executions_exit_0": 36,
+    "baseline_executions_exit_1_at_expected_new_assertion": 6,
+    "total_observed_executions": 42,
+    "all_expected_observations": true,
+    "selected_observations": [
+      "SMC BLE exact-frame length: 141/141 PASS per config",
+      "SMC BLE preset queue/decoder source path: 84/84 PASS per config",
+      "SMC preset Solo lifetime: 210/210 scenarios PASS per config",
+      "SMC MMC STOP FIFO source-window: 96/96 PASS per config",
+      "SMC BLE midpoll link-epoch source-window: 16/16 PASS per config"
+    ],
+    "asan_leak_check": "disabled; no leak verification claimed",
+    "private_logs_archive_sha256": "ff13f5665ba0f0d976104008b0d8c74ba6dcb02f3fc7aa627ff96c37ad9f35e4",
+    "private_logs_archive_bytes": 64933,
+    "private_logs_contents": "42 individual stdout/stderr outputs with command, exit and SHA256 in r18_logs/r18_run.json; includes both corrected C, original C and registered host tests"
+  },
+  "invalidation": "New compiled firmware C blob and firmware subtree invalidate ALL R15/R16/R17 private Elite/Pro/controller BUILD_ONLY source-equivalence assertions, despite older build receipts.",
+  "next_owners": [
+    "Existing Hourly Build: run fresh exact-R18 Elite DEV, Pro DEV and matching-controller native BUILD_ONLY independent of downstream QA and hosting, recording full toolchain/SDK/config/budget and SHA256/CRC provenance",
+    "Existing Independent QA: independently evaluate exact R18 C and registered test, positive/negative routing, phase/ISR/clock/Solo boundaries and current-root safety; producer tests are NOT independent acceptance",
+    "Sole firmware Safe Merge: owns any reviewed integration to protected firmware nightly; website publisher alone owns lawful selectable NIGHTLY"
+  ],
+  "gates": {
+    "producer_source": "SOURCE TESTED, NOT INTEGRATED",
+    "independent_qa": "NOT OBSERVED",
+    "elite_pro_controller_build": "NEW R18 BUILD_ONLY NOT OBSERVED",
+    "selectable_nightly": "NO-GO pending prehardware, lawful package/source hosting, browser path and live bytes",
+    "physical_device": "DEVICE NOT TESTED",
+    "production": "NO-GO, requires same-byte model device PASS and separate owner promotion"
+  },
+  "prohibitions_observed": "No protected branch, hosted CI, force, firmware publication, website, device, vendor SDK/DSP, user sample or backup mutations; no new automation job."
+}
