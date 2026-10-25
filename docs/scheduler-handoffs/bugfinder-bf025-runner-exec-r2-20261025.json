@@ -1,0 +1,57 @@
+{
+  "schema": "x0x37-bugfinder-evidence-v1",
+  "evidence_revision": "bugfinder-bf025-runner-executable-permission-20261025-r2",
+  "producer_role": "existing Hourly Bugfinder; repair regression in OWN PR #132",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr_number": 132,
+  "branch": "lane/bugfinder-bf025-clip-key-note-ownership-20261025",
+  "parent_full_sha": "771c618d6e3de7875aa8aed66ccc3fb762a313b7",
+  "parent_root_tree": "be4d423635a6009f1ab91d248563a5a64751e5f0",
+  "base_nightly_sha": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "observed_failure": "PR #132 changes tests/run_tests.sh Git mode from executable 100755 to nonexecutable 100644 while registering smk-clip-key-overlap. Direct ./tests/run_tests.sh invocations fail with EACCES; documented runner entrypoint is broken by PR despite unchanged Bash contents being valid.",
+  "base_runner": {
+    "mode": "100755",
+    "blob": "8f91f9310482b6d246796ca0c0b549e778ee8816"
+  },
+  "regression_runner": {
+    "mode": "100644",
+    "blob": "383715c15d78389aece5dc07ca940da88622b194"
+  },
+  "repair_runner": {
+    "mode": "100755",
+    "blob": "383715c15d78389aece5dc07ca940da88622b194",
+    "content_change": false
+  },
+  "intended_user_behavior": "The documented direct tests/run_tests.sh entrypoint remains executable while the new clip-key overlap regression is registered, allowing maintainers to run checks instead of getting Permission denied.",
+  "native_host_check": {
+    "environment": "Linux x86_64 / GNU bash 5.2.37",
+    "stimulus": "Execute a shebang shell runner with actual POSIX permission 0644, then identical bytes with permission 0755; check file -x in both cases.",
+    "negative": {
+      "executable_mode": "0644",
+      "shell_exit": 126,
+      "test_x_exit": 1,
+      "stderr_contains": "Permission denied"
+    },
+    "positive": {
+      "executable_mode": "0755",
+      "shell_exit": 0,
+      "test_x_exit": 0,
+      "stdout": "executable-runner-ok"
+    },
+    "scope": "POSIX executable-bit semantics only; NOT full current repo runner execution, NOT project native GCC/Clang/ASan/UBSan replay"
+  },
+  "firmware_compiled_subtree_unchanged": "51a660e247904b8f8f495f1ae53e00a1f632e3f7",
+  "controller_sdk_config_inputs": "UNCHANGED_BY_THIS_MODE_ONLY_PATCH; previous build evidence is not independently requalified",
+  "outstanding": [
+    "Git remote new tree/ref readback",
+    "Independent QA review of current complete PR root and executable bit",
+    "Full-root host regression and Elite/Pro BUILD_ONLY on exact compiler subtree where not previously verified",
+    "Public hosting/OTA/backup/restore/hardware qualification remain separate"
+  ],
+  "next_owners": [
+    "Existing Hourly Build consumes unchanged compiler subtree and checks eligibility against actual producer/build input receipts",
+    "Existing Independent QA reviews PR132 full root and script mode change, not producer self-approval",
+    "Sole firmware Safe Merge integrates only after required independent acceptance"
+  ],
+  "restrictions": "No protected refs, public binaries, SDK/DSP, device flashing, CI substitution, or release approval"
+}

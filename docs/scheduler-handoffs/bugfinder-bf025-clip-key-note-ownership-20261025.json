@@ -1,0 +1,40 @@
+{
+  "schema": "x0x37-bugfinder-evidence-v1",
+  "evidence_revision": "bugfinder-bf025-clip-key-note-ownership-20261025-r1",
+  "producer_role": "existing hourly Bugfinder; independent firmware defect repair only",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base_branch": "nightly",
+  "base_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "base_root_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "base_firmware_file": "firmware/src/app/main_fm1.c",
+  "base_file_blob": "87c7177cf94a8e994e423f2e544190e9ac85f6d5",
+  "scope": "SMK-37 CLIP KEYS non-strum scale-snap and overlapping-chord NoteOn/NoteOff ownership; no BLE/SMC/OTA/storage/clock changes",
+  "intended_user_behavior": "When two physical keys snap to one MIDI pitch, or two chords share a pitch, the audible pitch gets one NoteOn until the final physical owner releases. Voice refresh sends each pitch once rather than duplicate MIDI events.",
+  "failure_before": "With C-major NEAR, key C and C# both generate MIDI C. A second key emits an additional NoteOn, but final release produces only one NoteOff; MIDI note balance remains +1. Voice refresh similarly emits duplicate off/on events.",
+  "fix": "For single-key presses/releases suppress pitches owned by any other held key; for whole-voice off/on refresh suppress pitches already covered by an earlier scanned held key. The existing release path's exclusion of still-held tones is preserved.",
+  "native_tests": {
+    "script": "tests/host/clip_key_overlap_test.py",
+    "script_sha256": "d605be0836294a5f22f7b9a181b254486460f6f6d1ec0d7cd7adb5f44091f96f",
+    "source_under_test": "C functions ck_key_send and ck_voice exact source-window excerpts, direct press operand recovered from ck_press; upstream ck_key_notes mocked to isolate MIDI ownership",
+    "critical_assertions": 12,
+    "old_failures_per_run": 10,
+    "new_failures_per_run": 0,
+    "configs": [
+      "gcc -O2 -Wall -Wextra -Werror",
+      "gcc -O1 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "gcc -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "clang -O2 -Wall -Wextra -Werror",
+      "clang -O1 -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "clang -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
+    ],
+    "all_old_exit": 1,
+    "all_new_exit": 0,
+    "old_fixture_sha256": "9e8911b05b6fb1996674680826c056e45182620b006dc172f6e0631669509aff",
+    "new_fixture_sha256": "86d249b511fd3f5471e6828eb90f3384e549db1e83f2890c710ebf0fe41f0b36",
+    "actual_full_firmware_root_test": "NOT_RUN",
+    "firmware_target_build": "NOT_RUN",
+    "device_test": "NOT_RUN"
+  },
+  "restrictions": "No firmware/controller/vendor SDK/DSP/binary/user samples included, no protected ref/Pages/main write, no flashing or self approval",
+  "next_owners": ["existing Hourly Build for source-SHA-matched Elite/Pro BUILD_ONLY", "Independent QA for independent regression review", "sole Safe Merge for any reviewed integration"]
+}

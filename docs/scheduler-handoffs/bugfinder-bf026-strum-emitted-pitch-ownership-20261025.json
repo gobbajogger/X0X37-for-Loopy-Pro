@@ -1,0 +1,44 @@
+{
+  "schema": "x0x37-bugfinder-evidence-v1",
+  "evidence_revision": "bugfinder-bf026-strum-emitted-pitch-ownership-20261025-r1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "role": "same existing hourly Bugfinder",
+  "scope": "BF025 owned PR132 new independently raised non-ARP short-strum dangling NoteOff",
+  "source_parent": "9252d83fb3c64d493e16eb81cfa3a43f4098a3e5",
+  "source_parent_root": "6ded394a307374bc811b153905833cd17ffdf929",
+  "source_parent_firmware": "8b5024f0623ad4f3024bf82283413a4378357ff5",
+  "finding": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/132#issuecomment-6388102362",
+  "user_outcome": "A quick chord STRUM key release, interrupted settings revoice or panic must not send NoteOff for unsounded pitches. Sounding pitches stay balanced and shared chord pitches play only once.",
+  "implementation": "16-byte pitch-active bitmap limited to non-ARP CLIP KEYS, guarded note-on/off, existing deferred HUMAN NoteOff drain preserved, all-off clears bitmap.",
+  "changed": [
+    "firmware/src/app/main_fm1.c",
+    "tests/host/clip_key_overlap_test.py",
+    "tests/host/clip_key_strum_overlap_test.py"
+  ],
+  "tests": {
+    "platform": "Linux x86-64 GCC/Clang native host source-function projection; note-output and scale mocked",
+    "matrix": [
+      "gcc O2",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang O2",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "prior_projection_failures_each": "13/31",
+    "patched_projection_passes_each": "31/31",
+    "updated_existing_overlap_passes_each": "12/12",
+    "unexpected_matrix_exits": 0,
+    "actual_complete_root_run": "NOT_RUN",
+    "actual_target_build": "NOT_RUN",
+    "device": "NOT_TESTED",
+    "projection_caveat": "Safe Merge R25 transcribed source windows, not complete Git byte-exact local checkout; producer shell test exercised same control flow but registered updated source tests require independent current-root execution."
+  },
+  "approval": "PRODUCER_SCOPED_ONLY",
+  "next_owners": [
+    "existing Hourly Build exact-source Elite/Pro BUILD_ONLY",
+    "existing Independent QA",
+    "sole Safe Merge reviewed integration"
+  ],
+  "safety": "No BLE/SMC/OTA/storage/clock/SDK/controller binary, no protected ref/direct page/production writes."
+}
