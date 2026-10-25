@@ -15,6 +15,7 @@ import "./test_install_nightly_ota_model.mjs";
 import "./test_install_nightly_local_selection.mjs";
 import "./test_install_nightly_controller_selection.mjs";
 import "./test_install_nightly_slot_prewrite.mjs";
+import "./test_installer_backup_contract.mjs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
