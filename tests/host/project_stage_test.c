@@ -542,6 +542,90 @@ static void test_interleaved_stage(void)
     check_protected_flash();
 }
 
+/* Bugbot/#278 follow-up: pre-rev-6 Wave square (1) must migrate in motion + MOT_SNAPSHOT. */
+static void test_wave_rev6_motion_migrate(void)
+{
+    settings_t set;
+    lane_t *wave_lane, *snap303, *snap_wbl;
+    int n, s;
+    fixture("Wave rev6 migrates motion lanes and MOT_SNAPSHOT");
+    musical_fixture();
+    proj.sound.v[T_303][0][BASS303_WAVE] = 1;
+    proj.sound.v[T_303][1][BASS303_WAVE] = 0;
+
+    wave_lane = &proj.arr.lane[0];
+    memset(wave_lane, 0, sizeof *wave_lane);
+    wave_lane->used = 1;
+    wave_lane->pat = 0;
+    wave_lane->part = PART_303A;
+    wave_lane->t = T_303;
+    wave_lane->v = 0;
+    wave_lane->i = BASS303_WAVE;
+    memset(wave_lane->val, MOT_NONE, NSTEPS);
+    wave_lane->val[0] = 1;
+    wave_lane->val[1] = 0;
+    wave_lane->val[2] = MOT_NONE;
+    wave_lane->val[3] = 1;
+
+    snap303 = &proj.arr.lane[1];
+    memset(snap303, 0, sizeof *snap303);
+    snap303->used = 1;
+    snap303->pat = 0;
+    snap303->part = PART_303A;
+    snap303->t = MOT_SNAPSHOT;
+    snap303->v = 0;
+    snap303->i = MOT_SNAPSHOT_SCHEMA;
+    memset(snap303->val, MOT_NONE, NSTEPS);
+    for (s = 0; s < MOT_SNAPSHOT_PARAMS; s++)
+        snap303->val[s] = 0;
+    snap303->val[BASS303_WAVE] = 1;
+    snap303->val[32] = 1;                               /* engine native303 */
+    snap303->val[NSTEPS - 1] = 0;                        /* active bank 0 */
+
+    snap_wbl = &proj.arr.lane[2];
+    memset(snap_wbl, 0, sizeof *snap_wbl);
+    snap_wbl->used = 1;
+    snap_wbl->pat = 0;
+    snap_wbl->part = PART_303B;
+    snap_wbl->t = MOT_SNAPSHOT;
+    snap_wbl->v = 1;
+    snap_wbl->i = MOT_SNAPSHOT_SCHEMA;
+    memset(snap_wbl->val, MOT_NONE, NSTEPS);
+    for (s = 0; s < MOT_SNAPSHOT_PARAMS; s++)
+        snap_wbl->val[MOT_SNAPSHOT_PARAMS + s] = 0;
+    snap_wbl->val[MOT_SNAPSHOT_PARAMS + BASS303_WAVE] = 1;
+    snap_wbl->val[33] = 2;                               /* engine WBL1 — must not remap */
+    snap_wbl->val[NSTEPS - 1] = MOT_SNAPSHOT_PARAMS;
+
+    REQUIRE(project_save() == 0);
+    /* OBJ_SET is PROJ_FORMAT-prefixed (save_obj); patch snd_rev inside that envelope. */
+    {
+        uint8_t buf[sizeof(settings_t) + 4u];
+        n = plat_store_load(OBJ_SET, buf, sizeof buf);
+        REQUIRE(n == (int)sizeof buf);
+        REQUIRE(get32(buf) == PROJ_FORMAT);
+        memcpy(&set, buf + 4, sizeof set);
+        set.snd_rev = 5;                                 /* pretend the save was pre-rev-6 */
+        put32(buf, PROJ_FORMAT);
+        memcpy(buf + 4, &set, sizeof set);
+        REQUIRE(plat_store_save(OBJ_SET, buf, sizeof buf) == 0);
+    }
+    memset(stored_known, 0, sizeof stored_known);
+
+    memset(&proj, 0, sizeof proj);
+    packed_len = 0;
+    REQUIRE(project_load() == 0);
+    CHECK(proj.set.snd_rev == PROJ_SND_REV);
+    CHECK(proj.sound.v[T_303][0][BASS303_WAVE] == 127);
+    CHECK(proj.sound.v[T_303][1][BASS303_WAVE] == 0);
+    CHECK(proj.arr.lane[0].val[0] == 127);
+    CHECK(proj.arr.lane[0].val[1] == 0);
+    CHECK(proj.arr.lane[0].val[2] == MOT_NONE);
+    CHECK(proj.arr.lane[0].val[3] == 127);
+    CHECK(proj.arr.lane[1].val[BASS303_WAVE] == 127);
+    CHECK(proj.arr.lane[2].val[MOT_SNAPSHOT_PARAMS + BASS303_WAVE] == 1);
+}
+
 int main(void)
 {
     test_defaults();
@@ -551,6 +635,7 @@ int main(void)
     test_storage_rejection();
     test_capacity_rejection();
     test_interleaved_stage();
+    test_wave_rev6_motion_migrate();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);
     return failures ? 1 : 0;
 }
