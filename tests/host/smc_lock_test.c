@@ -28,6 +28,13 @@ static int smc_lock_toggle(void) { return 1; }
 static int smc_lock_button(int pressed) { (void)pressed; return 0; }
 #endif
 
+static int hold_unlock(void)
+{
+    CHECK(!smc_lock_button(1));
+    now_ms += HELP_HOLD;
+    smc_poll();
+    return !smc.locked;
+}
 static void navigate(int view, int part)
 {
     ui.part = (uint8_t)part;
@@ -216,13 +223,14 @@ static void test_edges_and_global_scope(void)
     CHECK(!smc_lock_button(1)); CHECK(!smc_lock_button(1));
     CHECK(smc_same(frozen, smc_target(0)));
     CHECK(!smc_lock_button(0)); CHECK(!smc_lock_button(0));
-    CHECK(smc_lock_button(1)); CHECK(smc_same(smc_target(0), smc_home_target(0)));
+    CHECK(hold_unlock()); CHECK(smc_same(smc_target(0), smc_home_target(0)));
     CHECK(!smc_lock_button(1)); CHECK(!smc_lock_button(0));
     CHECK(smc_lock_button(1)); /* lock HOME targets while UI is on a sound page */
     navigate(V_SEQ, PART_808);
     smc_ble_link(0); smc_poll(); smc_ble_link(1); smc_poll();
     CHECK(smc_same(smc_target(0), smc_home_target(0)));
-    CHECK(smc_lock_button(1)); /* reconnect releases stale physical held edge */
+    CHECK(!smc_lock_button(1)); /* reconnect consumes held packets until a release */
+    CHECK(!smc_lock_button(0)); CHECK(hold_unlock());
     CHECK(smc_target(0).a == T_808);
 
     setup(V_SEQ, PART_909); seq.ppat[PART_909] = 1;
@@ -284,7 +292,7 @@ static void test_physical_pause_input_and_output(void)
     CHECK(smc.locked); CHECK(smc_same(r, smc_target(0))); CHECK(!seq.req_stop);
     message(0x90, 0x5D, 0); message(0x80, 0x5D, 0);
     CHECK(smc.locked && !smc.lock_down); CHECK(!smc_ui_active());
-    message(0x90, 0x5D, 127); CHECK(!smc.locked); CHECK(!seq.req_stop);
+    message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += HELP_HOLD; smc_poll(); CHECK(!smc.locked); CHECK(!seq.req_stop);
     message(0x80, 0x5D, 0); CHECK(!smc.locked);
 
     /* Unrelated controls and unselected DAW channels cannot capture a target. */
@@ -316,7 +324,8 @@ static void test_physical_pause_input_and_output(void)
     smc_ble_link(1); smc_poll(); CHECK(smc.locked);
     reset_output(); smc_frame(); CHECK(led_count == 43); CHECK(led_transport_count == 3);
     reset_output(); smc_frame(); CHECK(send_count == 0);
-    message(0x90, 0x5D, 127); CHECK(!smc.locked); CHECK(!smc_ui_active());
+    message(0x90, 0x5D, 0); /* explicit release after reconnect */
+    message(0x90, 0x5D, 127); CHECK(smc.locked); now_ms += HELP_HOLD; smc_poll(); CHECK(!smc.locked); CHECK(!smc_ui_active());
     message(0x90, 0x5D, 0);
     memset(&smc_beat, 0, sizeof smc_beat); seq.bpm = 120; seq.ext_now = 0;
     smc_frame(); seq.ext_now = FS / 4; smc_frame(); reset_output();
@@ -406,7 +415,7 @@ static void test_lost_edge_release(void)
         }
         smc_poll();
         CHECK(pause ? smc.lock_down == 0 : select ? smc.select_down == 0 : smc.play_down == 0);
-        if (pause) { int locked = smc.locked; press(note); CHECK(smc.locked != locked); }
+        if (pause) { CHECK(smc.locked); now_ms += HELP_HOLD; smc_poll(); CHECK(smc.locked); CHECK(hold_unlock()); smc_lock_button(0); }
         else if (select) { press(note); CHECK(cur_page() == 0); }
         else { seq.req_stop = 0; seq.playing = 1; press(note); CHECK(seq.req_stop); }
     }
@@ -433,9 +442,47 @@ static void test_dropped_pause_press(void)
     puts("PASS dropped Pause press: no phantom capture; following release is inert and next gesture captures");
 }
 
+static void test_unlock_hold(void)
+{
+    for (int wrap = 0; wrap < 2; wrap++) {
+        setup(V_SEQ, PART_909);
+        if (wrap) now_ms = UINT32_MAX - 500u;
+        seq.req_start = 1; seq.req_stop = 0;
+        message(0x90, 0x5D, 127); CHECK(smc.locked);
+        now_ms += HELP_HOLD * 2; smc_poll(); CHECK(smc.locked); /* locking press cannot unlock */
+        message(0x90, 0x5D, 127); CHECK(smc.locked);
+        message(0x80, 0x5D, 0);
+        message(0x90, 0x5D, 127);
+        now_ms += HELP_HOLD - 1; smc_poll(); CHECK(smc.locked); CHECK(smc_led(0x5D));
+        message(0x90, 0x5D, 0); now_ms++; smc_poll(); CHECK(smc.locked); /* early release cancels */
+        message(0x90, 0x5D, 127);
+        now_ms += HELP_HOLD / 2; message(0x90, 0x5D, 127); /* repeated packet cannot reset timer */
+        now_ms += HELP_HOLD / 2 - 1; smc_poll(); CHECK(smc.locked);
+        uint32_t phase = smc_beat.phase;
+        now_ms++; smc_poll(); CHECK(!smc.locked); CHECK(smc_beat.phase == phase);
+        now_ms += HELP_HOLD; message(0x90, 0x5D, 127); CHECK(!smc.locked); /* held unlock cannot relock */
+        message(0x80, 0x5D, 0); CHECK(seq.req_start && !seq.req_stop);
+        message(0x90, 0x5D, 127); message(0x80, 0x5D, 0); CHECK(smc.locked);
+        message(0x90, 0x5D, 127); now_ms += HELP_HOLD - 1;
+        smc_ble_link(0); smc_poll(); smc_ble_link(1); smc_poll();
+        now_ms += HELP_HOLD; message(0x90, 0x5D, 127); CHECK(smc.locked);
+        message(0x80, 0x5D, 0); CHECK(hold_unlock()); smc_lock_button(0);
+    }
+    setup(V_SEQ, PART_909); press(0x5D); CHECK(smc.locked);
+    message(0x90, 0x5D, 127); now_ms += HELP_HOLD - 1;
+    ui.overlay = O_ASK; smc_poll(); ui.overlay = O_NONE;
+    now_ms += HELP_HOLD; message(0x90, 0x5D, 127); CHECK(smc.locked);
+    message(0x80, 0x5D, 0); CHECK(hold_unlock()); smc_lock_button(0);
+    press(0x5D); message(0x90, 0x5D, 127); now_ms += HELP_HOLD - 1;
+    CHECK(ui_project_begin() == 0); smc_poll(); ui_project_end(0);
+    now_ms += HELP_HOLD; message(0x90, 0x5D, 127); CHECK(smc.locked);
+    message(0x80, 0x5D, 0); CHECK(hold_unlock()); smc_lock_button(0);
+    puts("PASS deliberate unlock: 900ms boundary, early release, duplicates, one transition per gesture, reconnect/modal/busy, wrap, no transport or beat reset");
+}
+
 int main(void)
 {
-    test_dropped_pause_press(); test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
+    test_unlock_hold(); test_dropped_pause_press(); test_lost_edge_release(); test_select_and_play(); test_drum_lock(); test_engine_lock_and_clip(); test_pattern_lock(); test_song_lock();
     test_solo_lock_boundaries(); test_edges_and_global_scope(); test_pickup_and_display();
     test_physical_pause_input_and_output(); test_guard_reset();
     printf("smc_lock: PASS (%u checks; captured Pause input route; physical LED identity unverified)\n", checks);

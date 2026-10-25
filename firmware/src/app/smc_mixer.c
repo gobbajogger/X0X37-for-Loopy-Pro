@@ -76,7 +76,7 @@ static struct {
     uint8_t knob_run, knob_i, play_down, select_down, pattern_down;
     /* Exact destinations, not a copy of the temporary display or live UI. */
     pref_t lock_fader[8], lock_knob[8];
-    uint32_t lock_song_revision;
+    uint32_t lock_song_revision, lock_t;
     uint16_t lock_song_len;
     uint8_t locked, lock_down, lock_kit, lock_bank, lock_part, lock_view, lock_page;
     uint8_t bank, mode_note, lock_sel[2], lock_mixsel, lock_song_sel, lock_overlay, lock_list_sel, lock_list_top;
@@ -453,13 +453,18 @@ int smc_lock_toggle(void)
     return 1;
 }
 
-/* The verified physical input route reports both press and release here.
- * Repeated positive messages while held cannot unlock the surface again. */
+/* A press locks immediately. Unlock requires a new, already-locked press held
+ * for the existing deliberate HELP_HOLD interval (900 ms). State 1 consumes
+ * the gesture; state 2 alone is eligible to unlock, once, in smc_poll. */
 int smc_lock_button(int pressed)
 {
-    uint8_t down = pressed != 0, edge = down && !smc.lock_down;
-    smc.lock_down = down;
-    return edge ? smc_lock_toggle() : 0;
+    if (!pressed) { smc.lock_down = 0; return 0; }
+    if (smc.lock_down) return 0;
+    smc.lock_down = 1;
+    if (!smc.locked) return smc_lock_toggle();
+    smc.lock_down = 2;
+    smc.lock_t = plat_ms();
+    return 0;
 }
 
 static uint8_t smc_scaled(pref_t r)
@@ -1256,7 +1261,7 @@ void smc_poll(void)
     }
     if (ui_project_busy()) {
         smc.nav_down = 0;
-        smc.lock_down = smc.play_down = smc.select_down = smc.pattern_down = 0;
+        smc.lock_down = smc.locked; smc.play_down = smc.select_down = smc.pattern_down = 0;
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
         return;
@@ -1273,7 +1278,7 @@ void smc_poll(void)
         smc.up = (uint8_t)(link & 1u);
         smc.fresh = smc.up;
         smc.nav_down = 0;
-        smc.lock_down = smc.play_down = smc.select_down = smc.pattern_down = 0; /* reconnect clears physical press edges */
+        smc.lock_down = smc.locked; smc.play_down = smc.select_down = smc.pattern_down = 0; /* locked reconnect consumes held Pause until release */
         smc.picked = smc.seen = smc.input_seen = 0;
         smc.knob_i = 0;
         smc.pending = 0xFFu;
@@ -1287,7 +1292,7 @@ void smc_poll(void)
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
         smc.nav_down = 0;
-        smc.lock_down = smc.play_down = smc.select_down = smc.pattern_down = 0;
+        smc.lock_down = smc.locked; smc.play_down = smc.select_down = smc.pattern_down = 0;
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
         if (smc_project_active()) smc_solo_clear();
@@ -1354,6 +1359,10 @@ void smc_poll(void)
     }
     if ((perf_testing() || ui.overlay == O_ASK) && smc_project_active())
         smc_solo_clear();              /* an earlier event in this batch may have transferred ownership */
+    if (allow && !perf_testing() && ui.overlay != O_ASK && smc.lock_down == 2 && plat_ms() - smc.lock_t >= HELP_HOLD) {
+        smc.lock_down = 1;             /* consume before transition; held repeats cannot relock */
+        if (smc.locked) smc_lock_toggle();
+    }
 }
 
 static int smc_led(int note)

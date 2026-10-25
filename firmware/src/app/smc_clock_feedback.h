@@ -17,7 +17,7 @@ static uint32_t smc_bpm_units(float bpm)
     if (!(bpm > 0.0f) || !(bpm < 16777216.0f)) return 0;
     return (uint32_t)(bpm * 256.0f + 0.5f);
 }
-static int smc_clock_feedback(const seq_t *s)
+static __attribute__((noinline)) int smc_clock_feedback(const seq_t *s)
 {
     const volatile seq_t *clock = s;
     uint32_t now = 0, since = 0, period = 0;
