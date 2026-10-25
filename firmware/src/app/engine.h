@@ -92,6 +92,7 @@ int engine_brk_outline(int which, uint8_t *peaks, int n);   /* the loop's peaks 
 /* motion (seq/motion.h): lanes play into the engine, never into the sound_t mirror */
 int engine_motion_part(int target, int voice);              /* the part a parameter's lane follows */
 int engine_motion_value(int lane);                          /* what the lane plays now, -1 none */
+void engine_motion_clear(int lane);                         /* discard a lane and stale knob requests */
 void engine_motion_rec(int lane);                           /* record a pass from the next step */
 void engine_motion_hold(int lane);                          /* the knob wins for a pass */
 float engine_gr_db(void);                                   /* master compressor gain reduction (UI meter) */

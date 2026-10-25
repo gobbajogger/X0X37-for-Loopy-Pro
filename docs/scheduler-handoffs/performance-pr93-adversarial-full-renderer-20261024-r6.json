@@ -1,0 +1,61 @@
+{
+  "evidence_revision": "performance-pr93-adversarial-full-renderer-20261024-r6",
+  "producer": "Performance Engineering",
+  "outcome": "SOURCE_ONLY_PRODUCER_CHECKED_QA_PENDING",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/performance-break-reverse-checkpoints-20261023-1342",
+  "pr": 93,
+  "consumed_head_sha": "24192d911b5e818fd96e4ec3039f5ecbbb372597",
+  "consumed_full_root_tree": "2e2d1c3cc70e776e9d5a504cdf759ab80b1414cd",
+  "compiled_firmware_subtree": "a87a83e15116422eed84528d95f52ddef5029927",
+  "compiler_input_changed": false,
+  "source_blobs": {
+    "firmware/src/dsp/breaks.c": "0fcdbe65b674dea3becb26fc265cb2514908f1a5",
+    "firmware/src/dsp/breaks.h": "6cb71d336c2c90fdc60a9594c2356f3a4379c264",
+    "firmware/src/dsp/ima_adpcm.h": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+    "firmware/src/dsp/fastmath.h": "7d2e41bf70590bafa8af0a7376bb912bf763b098",
+    "firmware/src/dsp/x0x_param.h": "f7c9bf22b0606946905790dc20497a2e4b2cb4a6",
+    "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd"
+  },
+  "changed_files": [
+    "tests/host/breaks_renderer_adversarial_test.c",
+    "tests/host/run_breaks_renderer_adversarial.sh",
+    "docs/audit/performance-pr93-adversarial-full-renderer-20261024.md",
+    "docs/scheduler-handoffs/performance-pr93-adversarial-full-renderer-20261024-r6.json"
+  ],
+  "checks": [
+    {
+      "command": "bash tests/host/run_breaks_renderer_adversarial.sh",
+      "exit_code": 0,
+      "compiler_configuration_exits": {"gcc_O2": 0, "gcc_ASan_UBSan": 0, "clang_O2": 0, "clang_ASan_UBSan": 0},
+      "scenario_count": 20,
+      "frames": 2334720,
+      "trace_bytes": 9338880,
+      "trace_sha256": "6a29c3d7296ed6c6fdc8ac573e9199d8c009befb2e1b5ced20d32de5dcb41de6",
+      "invalid_option_exits": [2,2,2,2],
+      "corrupted_pcm_negatives_rejected": 4,
+      "log_sha256": "e6053749519f1df2bdfc9b17bd6a64f9b7326829343f94ffe4e85b8eb5f04007"
+    },
+    {
+      "command": "python3 bench_adversarial.py",
+      "exit_code": 0,
+      "actual_host_trials_each_variant_compiler": 9,
+      "gcc_baseline_median_ms": 362.624,
+      "gcc_repaired_median_ms": 348.526,
+      "clang_baseline_median_ms": 410.932,
+      "clang_repaired_median_ms": 377.105,
+      "host_only": true,
+      "json_sha256": "2f316cb601d7a4429bc68977ad1e5f8cf33fce26075562eec100dfd05ea6d751"
+    }
+  ],
+  "old_build_reuse": {"elite_real_exit": 0, "pro_real_exit": 0, "pool_free_bytes": 8308, "pool_minimum_bytes": 8192, "static_ram_free_bytes": 492, "controller_free_bytes": 44,
+    "source": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/93#issuecomment-6372477760"},
+  "full_root_qa": "PENDING",
+  "MIDI_note_off": "NOT_TESTED: BREAK live-key release proxies only",
+  "device": "UNKNOWN_NOT_TESTED",
+  "publisher_http": "NOT_RUN",
+  "installable": false,
+  "first_nightly_pr103_changes": "NONE",
+  "next_owner": "Independent QA",
+  "next_action": "Verify new exact PR #93 Git root and source/test blob identities, rerun GCC/Clang sanitizer and negatives, complete independent phase/BREAK/NoteOff QA; Safe Merge only later after first candidate qualified."
+}

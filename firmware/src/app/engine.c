@@ -483,6 +483,7 @@ int engine_motion_part(int t, int v)
     }
 }
 int engine_motion_value(int k) { return motion_value(&mot, k); }
+void engine_motion_clear(int k) { motion_clear(&mot, k); }
 void engine_motion_rec(int k) { motion_req_rec(&mot, k); }
 void engine_motion_hold(int k) { motion_req_hold(&mot, k); }
 static const seq_sink_t SINK = {s_drum_seq, s_bon, s_boff, s_brk, s_brkstop, s_midi, s_step, 0};
@@ -994,10 +995,10 @@ void engine_render(int32_t *out_lr, uint32_t n)
     {
         PROF_T(pt);
         drain();
-        if (mot_on)
-            motion_tick(&mot, n);
         fxbus_set_bpm(&fx, seq_tempo(&seq));
         seq_advance(&seq, 0, &SINK);
+        if (mot_on && seq.playing && !seq_clock_waiting(&seq))
+            motion_tick(&mot, n);
         PROF_ADD(7, pt);
     }
     while (done < n) {

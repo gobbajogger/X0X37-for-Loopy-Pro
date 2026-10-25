@@ -31,7 +31,7 @@ static void to_base(motion_t *m, const lane_t *l, lane_rt_t *r)
 
 void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
 {
-    int k;
+    int k, phase;
     if (part < 0 || part >= MOT_PARTS || step < 0 || step >= NSTEPS)
         return;
     if (m->age[part])
@@ -40,7 +40,9 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
     m->last[part] = (uint8_t)step;
     if (next < 0 || next >= NSTEPS)
         next = 0;
-    for (k = 0; k < NLANE; k++) {
+    /* Restore departing patterns first; a later slot must never overwrite
+     * the active pattern for the same parameter with the base value. */
+    for (phase = 0; phase < 2; phase++) for (k = 0; k < NLANE; k++) {
         lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         int v, nv;
@@ -54,11 +56,18 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
             r->hold_left = 0;
         }
         if (l->pat != pat) {                           /* not this part's pattern now: the knob */
+            if (phase)
+                continue;
+            /* A queued knob event belongs to the departing pattern, not the next
+             * time this lane's pattern happens to come around. */
+            r->rec_req = r->hold_req = 0;
             to_base(m, l, r);
             r->rec_last = MOT_NONE;
             r->hold_left = 0;
             continue;
         }
+        if (!phase)
+            continue;
         if (r->hold_req) {
             r->hold_req = 0;
             r->hold_left = (uint8_t)pass;
@@ -132,6 +141,9 @@ void motion_release(motion_t *m)
             to_base(m, &m->lane[k], r);
         r->rec_last = MOT_NONE;
         r->hold_left = 0;
+        /* Stop/load boundary: discard requests queued by the preceding transport. */
+        r->rec_req = 0;
+        r->hold_req = 0;
     }
     for (p = 0; p < MOT_PARTS; p++)
         m->age[p] = m->len[p][0] = m->len[p][1] = 0;
@@ -174,10 +186,15 @@ int motion_alloc(lane_t *L, int pat, int part, int t, int v, int i)
     return k;
 }
 
-void motion_clear(lane_t *L, int k)
+void motion_clear(motion_t *m, int k)
 {
-    if (k >= 0 && k < NLANE)
-        L[k].used = 0;
+    if (k >= 0 && k < NLANE) {
+        /* This slot may be reused before the next audio step.  Drop knob
+         * intents from its former owner, not the fresh owner's first event. */
+        m->lane[k].used = 0;
+        m->rt[k].rec_req = 0;
+        m->rt[k].hold_req = 0;
+    }
 }
 
 int motion_count(const lane_t *L)

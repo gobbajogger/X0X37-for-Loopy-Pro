@@ -542,13 +542,94 @@ static void test_interleaved_stage(void)
     check_protected_flash();
 }
 
+/* BF-020: stored pre-BD-send pan motion must follow the sound pan's two-byte
+ * migration. Stream arrangement loads after sound; both must be in memory
+ * before the migration rewrites any motion-lane target indices. */
+static void test_legacy_bd_pan_motion(void)
+{
+    static const struct {uint8_t rev, pan_909, pan_808;} cases[] = {
+        {2, 8, 7}, /* no BD sends on either 909 or 808 */
+        {3, 10, 7}, /* 909 already migrated; 808 not yet migrated */
+        {4, 10, 9}, /* both already migrated: do not migrate twice */
+    };
+    for (size_t c = 0; c < sizeof cases / sizeof cases[0]; c++) {
+        const uint8_t pan909 = cases[c].pan_909, pan808 = cases[c].pan_808;
+        lane_t *lane;
+        fixture("legacy BD PAN motion migration");
+        proj.set.snd_rev = cases[c].rev;
+        proj.set.stereo = PROJ_STEREO;
+        proj.sound.v[T_909][0][pan909] = 31;
+        proj.sound.v[T_808][0][pan808] = 87;
+        lane = &proj.arr.lane[0];
+        lane->used = 1; lane->pat = 3; lane->part = PART_909;
+        lane->t = T_909; lane->v = 0; lane->i = pan909;
+        memset(lane->val, MOT_NONE, NSTEPS); lane->val[2] = 31;
+        lane = &proj.arr.lane[1];
+        lane->used = 1; lane->pat = 4; lane->part = PART_808;
+        lane->t = T_808; lane->v = 0; lane->i = pan808;
+        memset(lane->val, MOT_NONE, NSTEPS); lane->val[4] = 87;
+        lane = &proj.arr.lane[2];
+        lane->used = 1; lane->pat = 3; lane->part = PART_909;
+        lane->t = T_909; lane->v = 1; lane->i = 2; /* unaffected different voice */
+        memset(lane->val, MOT_NONE, NSTEPS); lane->val[2] = 33;
+        REQUIRE(project_save() == 0);
+        snapshot();
+        CHECK(project_load_stage() == 0);
+        CHECK(project_stage.set.snd_rev == PROJ_SND_REV);
+        CHECK(project_stage.arr.lane[0].i == 10);
+        CHECK(project_stage.arr.lane[1].i == 9);
+        CHECK(project_stage.arr.lane[2].i == 2);
+        CHECK(project_stage.arr.lane[0].val[2] == 31);
+        CHECK(project_stage.arr.lane[1].val[4] == 87);
+        CHECK(project_stage.arr.lane[2].val[2] == 33);
+        CHECK(project_stage.sound.v[T_909][0][10] == 31);
+        CHECK(project_stage.sound.v[T_808][0][9] == 87);
+        check_live_unchanged(); /* stage migration never mutates active playback or flash */
+    }
+}
+
+/* A revision-1 project may contain a valid master high-pass cutoff above 120.
+ * The compact FILTER macro only represents 0..120 on the HP side; migration
+ * must never manufacture a value outside its 0..127 parameter range. */
+static void test_legacy_master_hp_migration(void)
+{
+    static const unsigned cutoff[] = {0, 1, 7, 8, 32, 60, 119, 120, 121, 123, 124, 125, 126, 127};
+    unsigned mode, k;
+    for (mode = 0; mode < 4u; mode++) {
+        for (k = 0; k < sizeof cutoff / sizeof cutoff[0]; k++) {
+            unsigned c = cutoff[k], expected;
+            if (mode == 0u)
+                expected = 64u;
+            else if (mode == 3u)
+                expected = 69u + (c > 120u ? 120u : c) * 58u / 120u;
+            else
+                expected = c < 8u ? 0u : (c - 8u) * 59u / 119u;
+            fixture("legacy master filter valid after sound-revision migration");
+            proj.set.snd_rev = 1;       /* the one-knob FILTER did not exist */
+            proj.sound.v[T_MST][0][MST_MODE] = (uint8_t)mode;
+            proj.sound.v[T_MST][0][MST_CUTOFF] = (uint8_t)c;
+            REQUIRE(project_save() == 0);
+            snapshot();
+            CHECK(project_load_stage() == 0);
+            CHECK(project_stage.set.snd_rev == PROJ_SND_REV);
+            CHECK(project_stage.sound.v[T_MST][0][MST_MODE] == mode);
+            CHECK(project_stage.sound.v[T_MST][0][MST_CUTOFF] == c);
+            CHECK(project_stage.sound.v[T_MST][0][MST_DJF] <= 127u);
+            CHECK(project_stage.sound.v[T_MST][0][MST_DJF] == expected);
+            check_live_unchanged();
+        }
+    }
+}
+
 int main(void)
 {
     test_defaults();
+    test_legacy_bd_pan_motion();
     test_save_export_load();
     test_file_rejection();
     test_semantic_rejection();
     test_storage_rejection();
+    test_legacy_master_hp_migration();
     test_capacity_rejection();
     test_interleaved_stage();
     printf("project staging: %u checks, %u failures; real storage, defaults and sample metadata\n", checks, failures);

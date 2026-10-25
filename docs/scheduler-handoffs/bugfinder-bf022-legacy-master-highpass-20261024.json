@@ -1,0 +1,77 @@
+{
+  "schema": "x0x37-specialist-evidence-v1",
+  "producer": "LoopyX0X37 Hourly Bugfinder",
+  "repair_id": "BF-022",
+  "evidence_revision": "bugfinder-bf022-legacy-master-highpass-20261024-r1",
+  "scope": "Optional separate firmware/project migration correction; not OTA/SMC, not first NIGHTLY Safe Merge integration",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "base_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "base_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+    "source_file": "firmware/src/app/project.c",
+    "source_blob_before": "1000a0d88e04553295b82d724a63670434b67748",
+    "source_blob_after": "f5300dd3dfd258c614632669b1937838decbd263",
+    "regression_file": "tests/host/project_stage_test.c",
+    "regression_blob_before": "199f62a33669de901ca0f95b64ed835e272ce6f0",
+    "regression_blob_after": "d9eaa137f6c4c52bbdbbc2d3c80022e52aae3b15"
+  },
+  "defect": {
+    "cause": "For old snd_rev<2 project data the master high-pass mode=3 allows saved CUTOFF=0..127, but conversion 69+cut*58/120 produces DJF 128..130 for 123..127; stage semantic validation rejects otherwise valid projects",
+    "source_window_git_verified_against_first_candidate": "56c180450393f26859419ce13b479e45cb0c242d",
+    "repair": "When mode=3, clamp only the local conversion input to 120. Preserve stored detailed CUTOFF 0..127 and unchanged behavior for all other modes."
+  },
+  "tests": {
+    "runner": "CC=gcc|clang SAN_FLAGS=... ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 sh tests/host/run_project_stage.sh",
+    "host": "Linux x86_64 GCC 14.2.0, Clang 17.0.0; native historical full project-stage scaffold with project.c and project_stage_test.c baseline blobs exact-matched to current Git. Other sources historical and not claimed exact current root",
+    "source_support_archive_sha256": "ea173ec3afd6adea9219622652ed0dcafe48f8a6cba43395c4dab62895928319",
+    "differential": {
+      "matrix": [
+        "gcc/plain",
+        "gcc/ubsan",
+        "gcc/asan+ubsan",
+        "clang/plain",
+        "clang/ubsan"
+      ],
+      "before": {
+        "compile_exit": 0,
+        "run_exit": 1,
+        "assertions": 28422,
+        "failures": 15,
+        "log_sha256": "a3c1ef0984197bdc8b0b9713aaf18cbf34bdfaf707ed1e7125368c5b845b5c97"
+      },
+      "after": {
+        "compile_exit": 0,
+        "run_exit": 0,
+        "assertions": 28422,
+        "failures": 0,
+        "log_sha256": "dbe66c9f75821be73d849cd80a8e0536eaa3c75be2003ca2ca62794c1c179d90"
+      },
+      "highpass_and_other_mode_cases": "4 master FILTER modes × 14 cutoff boundaries; valid saved revision 1 project, real NOR simulated flash, read/stage, changed derived DJF and unchanged detail and flash/memory guards",
+      "asan_leak_detection": "DISABLED: not a leak PASS",
+      "clang_asan_ubsan": "ATTEMPTED BEFORE PATCH; TIMED OUT, NOT PASS"
+    },
+    "runtime": {
+      "command": "CC=gcc sh tests/host/project_runtime_test.sh",
+      "exit": 0,
+      "log_sha256": "0d660f36a432941e7f94df2e1fac4fbaf1aaa8f3e6e6159ab4f910792345ba23",
+      "scope": "native historical support scaffold; reset/load/SMC runtime only"
+    },
+    "full_current_root": "NOT RUN",
+    "elite_target_compiler": "NOT RUN",
+    "pro_target_compiler": "NOT RUN",
+    "device": "NOT TESTED",
+    "hosted_website": "NOT TESTED"
+  },
+  "disposition": "SOURCE COMPLETE, PRODUCER HOST CHECKED ONLY; QA REVIEW REQUIRED / FRESH ELITE+PRO BUILD_ONLY REQUIRED; NOT MERGED / NOT INSTALLABLE",
+  "receiving_roles": [
+    "Independent QA (full exact root project-stage regression, sanitizer and source review)",
+    "Hourly Build (fresh exact-compiler-input Elite and Pro DEV BUILD_ONLY plus private controller and budgets)",
+    "Sole firmware Safe Merge (reviewed integration decision, separate from first NIGHTLY candidate)"
+  ],
+  "excludes": [
+    "No protection bypass",
+    "No production/nightly/Pages direct changes",
+    "No firmware/controller/vendor SDK/DSP/samples published",
+    "No hardware flash or device PASS"
+  ]
+}

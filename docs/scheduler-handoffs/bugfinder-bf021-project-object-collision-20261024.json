@@ -1,0 +1,55 @@
+{
+  "schema": "loopyx0x37.bugfinder.handoff.v1",
+  "finding_id": "BF-021",
+  "date_utc": "2026-10-24",
+  "owner": "LoopyX0X37 Hourly Bugfinder",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/bugfinder-bf021-project-object-hash-collision-20261024",
+  "base_sha": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "base_root_tree": "71b759dd206d844cceed9e40ae68966142720e9c",
+  "first_nightly_pr": 103,
+  "first_nightly_head_checked": "56c180450393f26859419ce13b479e45cb0c242d",
+  "summary": "32-bit FNV cache collision silently drops distinct serialized project payload on save_buf. Strengthen RAM-only cached digest to 64-bit FNV-1a and add full-sized OBJ_SOUND storage write/readback regression.",
+  "affected_paths": [
+    "firmware/src/app/project.c",
+    "tests/host/project_save_preflight_test.c"
+  ],
+  "original_git_blobs": {
+    "firmware/src/app/project.c": "1000a0d88e04553295b82d724a63670434b67748",
+    "tests/host/project_save_preflight_test.c": "5ed46c6e2a5a2d38f564a76ea144d6d39621e4a7"
+  },
+  "changed_git_blobs": {
+    "firmware/src/app/project.c": "a7506404550c4e9b7c6c46feb9268723d75273be",
+    "tests/host/project_save_preflight_test.c": "1fd7b9dde0f4813ede87373ed073f5966d3033dc"
+  },
+  "test_scope": "GCC 14.2.0 + Clang 17.0.0 Linux x86_64, native source-function projection only, GCC/Clang each plain, UBSan, ASan+UBSan; 6 baseline expected RED compiles exit 0/runtime exit 1; 6 corrected compiles exit 0/runtime exit 0. Relevant code-window behavior only: full current-root registered project_save_preflight_test.c and firmware target builds NOT RUN. ASan leak check disabled; no leak PASS claimed.",
+  "native_commands": [
+    "gcc|clang -std=c11 -O1 -g -Wall -Wextra -Werror [ -fsanitize=undefined | -fsanitize=address,undefined ] [ -DBF021_FIXED ] /mnt/data/bf021_hash_storage.c -o /mnt/data/bf021-test && ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 /mnt/data/bf021-test"
+  ],
+  "original_fnv32_collision_payloads_hex": [
+    "010000000a3d7c1a7703",
+    "0100000031544943661a"
+  ],
+  "original_fnv32_hash": "c08c254d",
+  "red_log_sha256": "b6291724f07673172fc689f5aaa09e80ffed7db865362460edd1a9e4e8e783e0",
+  "green_log_sha256": "d79b679b7b0d3ae4cad74d41d3233481fa0e3e0521ef93f2ee727aff8aa5ce78",
+  "private_evidence_archive": {
+    "name": "LoopyX0X37-Bugfinder-BF021-StorageHash-20261024.zip",
+    "sha256": "0a64dcba6c391d215585cdbe79a5e83966f6b47fbe46ca56fc3ac8c41ca9c5d6",
+    "size_bytes": 4501,
+    "contains": "GPL-scoped test projection, 12 native logs, run manifest, no SDK/binary/sample"
+  },
+  "reviewed_prior_ownership": "Only current first-NIGHTLY blocker is physical OTA target identity and atomic transport, owned Data Safety PR114; no duplicate fix. No SMC historical work.",
+  "limitations": [
+    "64-bit FNV substantially reduces rather than eliminates collision possibility",
+    "Full current-root native tests pending",
+    "Independent QA pending",
+    "Native JieLi Elite and Pro pinned builds with exact changed firmware subtree pending",
+    "Device NOT TESTED; package and installer NOT INSTALLABLE; no protected refs or public firmware modified"
+  ],
+  "next_roles": {
+    "QA": "Run Git-exact new sound collision regression and project_storage/real flash negative matrix using entire source checkout; review this PR exact head",
+    "Build": "Compile fresh pinned Elite+Pro firmware and exact matched controller BUILD_ONLY at new firmware Git subtree; RAM/flash/pool budgets; disclose no binary",
+    "SafeMerge": "Retain sole integration approval, do not add to first NIGHTLY #103 until current OTA ownership and QA are qualified"
+  }
+}

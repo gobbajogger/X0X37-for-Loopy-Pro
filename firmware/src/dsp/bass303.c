@@ -175,6 +175,9 @@ void bass303_set(bass303_t *b, int i, int v)
         v = 0;
     if (v > params[i].max)
         v = params[i].max;
+    /* A repeated FEnv mode update must not restart a running filter sweep. */
+    if (i == BASS303_FENV && v == b->pot[i])
+        return;
     b->pot[i] = (uint8_t)v;
     n = (float)v * (1.0f / 127.0f);
     switch (i) {

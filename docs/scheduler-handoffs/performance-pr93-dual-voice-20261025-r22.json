@@ -1,0 +1,111 @@
+{
+  "schema": "loopyx0x37.performance.dual_voice_host.r22",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Performance Engineering",
+  "stage": "SOURCE_TEST_PRODUCER_ONLY",
+  "producer_parent_head": "847f3aea5d3cd0b71583b5a9920d35236e441d5d",
+  "producer_parent_root": "f26f68197e39d9057289cc2a6524b9299f66c40a",
+  "compiled_firmware_tree": "ee863f9cba6cbfb4e471d199ae408c7694acbac5",
+  "accepted_nightly": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "accepted_nightly_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "executable_runner": "tests/host/run_breaks_dual_voice_decoder_compare.py",
+  "runner_git_blob": "4a285e80482c266abc4ac818b4b0ff0910a4930c",
+  "original_fixture_git_blob": "5e77b152253422d36ab7218669187d02318d21cb",
+  "nightly_breaks_c_blob": "1d3d692b6788d9d1f13901cd7ab13df506cdb72f",
+  "pr93_breaks_c_blob": "9e1e607e2ddc3028383bfb6ebc85fbc7ac6864c5",
+  "shared_ima_header_blob": "9ba16e4fe9f0cb643c95a68d540042ab2581d4de",
+  "tools": [
+    "GCC 14.2 C11 -O2 -ffp-contract=off",
+    "Clang 17 C11 -O2 -ffp-contract=off"
+  ],
+  "scenarios_per_executable": 48,
+  "blocks_per_scenario": 80,
+  "frames_per_callback": 64,
+  "trace_bytes_per_executable": 983040,
+  "actual_compile_exits": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "actual_render_exits": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "invalid_binary_arg_exits": [
+    2,
+    2,
+    2,
+    2
+  ],
+  "runner_negative_exits": {
+    "missing_args": 2,
+    "existing_output": 2,
+    "altered_breaks_source": 1,
+    "altered_inherited_fixture": 1
+  },
+  "failure_side_effects": {
+    "sentinel_preserved": true,
+    "invalid_source_no_output": true,
+    "invalid_inherited_fixture_no_output": true
+  },
+  "pcm_sha256": "b176bc84b11fad61010d715bc30d0ec5235953e0bc916290ba49630e95497cf7",
+  "compiler_pcm_agreement": true,
+  "measured": {
+    "reverse_steady": {
+      "cases": 12,
+      "baseline_decodes": 2055168,
+      "candidate_decodes": 1323008,
+      "reduction_percent": 35.6253,
+      "baseline_max_block": 15872,
+      "candidate_max_block": 8704,
+      "overlap_blocks": 0
+    },
+    "reverse_live_crossfade": {
+      "cases": 12,
+      "baseline_decodes": 2085540,
+      "candidate_decodes": 1610916,
+      "reduction_percent": 22.7578,
+      "baseline_max_block": 28160,
+      "candidate_max_block": 20937,
+      "overlap_blocks": 192
+    },
+    "forward_steady": {
+      "cases": 12,
+      "baseline_decodes": 399360,
+      "candidate_decodes": 399360,
+      "reduction_percent": 0,
+      "baseline_max_block": 768,
+      "candidate_max_block": 768,
+      "overlap_blocks": 0
+    },
+    "forward_live": {
+      "cases": 12,
+      "baseline_decodes": 406248,
+      "candidate_decodes": 406248,
+      "reduction_percent": 0,
+      "baseline_max_block": 1538,
+      "candidate_max_block": 1538,
+      "overlap_blocks": 12
+    }
+  },
+  "scope_limit": "exact Git-blob checked production BREAK C and original C harness in source-only projections; not complete repo root, target firmware, real ISR or hardware",
+  "status": {
+    "producer_native_host": "PASS",
+    "firmware_compiler_inputs_changed": false,
+    "original_source_sanitizers": "NOT_RUN / inherited PR28 fastmath UBSan problem",
+    "current_Elite_Pro_controller_BUILD_ONLY": "NOT_RUN_OR_ATTESTED",
+    "independent_full_root_QA": "NOT_RUN",
+    "device": "NOT_RUN",
+    "public_installer": "NOT_RUN"
+  },
+  "handoff": {
+    "next_source_owner": "existing Independent QA",
+    "next_target_build_owner": "existing Hourly Build",
+    "sole_integrator": "Safe Merge",
+    "publication_not_authorized": true,
+    "optional_candidate_not_first_nightly": true
+  }
+}

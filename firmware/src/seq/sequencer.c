@@ -711,6 +711,7 @@ static void clock_source(seq_t *s, const seq_sink_t *o)
     s->clk_lost = 0;
     if (m == SEQ_CLK_INT) {                           /* the clock that came in is not used */
         s->ext_pending = 0;
+        s->clk_lock = 0;                              /* MID-13/MID-15: INTERNAL owns no external clock */
         if (s->ext)
             switch_internal(s);
     } else if (m == SEQ_CLK_EXT && !s->ext) {         /* wait for the clock (AUTO: the clock or the timeout does it) */
@@ -843,21 +844,34 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
     }
 }
 
-void seq_start(seq_t *s) { s->req_start = 1; }
+/* Publish the request type last: seq_advance must see its matching origin. */
+static void request_start(seq_t *s, int remote)
+{
+    s->req_cont = 0;
+    s->req_rt = (uint8_t)remote;
+    s->req_start = 1;
+}
+static void request_continue(seq_t *s, int remote)
+{
+    s->req_start = 0;
+    s->req_rt = (uint8_t)remote;
+    s->req_cont = 1;
+}
+void seq_start(seq_t *s) { request_start(s, 0); }
 void seq_stop(seq_t *s)                       /* a Stop cancels an earlier Start or Continue, not a later one */
 {
-    s->req_start = s->req_cont = 0;
+    s->req_start = s->req_cont = s->req_rt = 0;
     s->req_stop = 1;
 }
-void seq_continue(seq_t *s) { s->req_cont = 1; }
+void seq_continue(seq_t *s) { request_continue(s, 0); }
 void seq_ext_clock(seq_t *s) { s->ext_pending++; }
 int seq_midi_rt(seq_t *s, uint8_t st)
 {
     int internal = s->clk_src == SEQ_CLK_INT;
     switch (st) {
     case 0xF8: if (!internal) seq_ext_clock(s); return 1;
-    case 0xFA: if (!internal) { s->req_rt = 1; seq_start(s); } return 1;
-    case 0xFB: if (!internal) { s->req_rt = 1; seq_continue(s); } return 1;
+    case 0xFA: if (!internal) request_start(s, 1); return 1;
+    case 0xFB: if (!internal) request_continue(s, 1); return 1;
     case 0xFC: if (!internal) seq_stop(s); return 1;
     default: return 0;
     }
@@ -866,9 +880,14 @@ int seq_midi_rt(seq_t *s, uint8_t st)
  * as seq_advance. The order of the messages decides when two inputs send at the same time. */
 int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
 {
-    uint8_t me = (uint8_t)(src + 1u);
+    uint8_t me;
     if (st != 0xF8u && st != 0xF2u && (st < 0xFAu || st > 0xFCu))
         return 1;
+    /* Packet origins 0/1/2 are USB/Bluetooth/TRS. Origin 3 is reserved.
+     * Reject it before narrowing src+1 to uint8_t: wrapped values can alias a real owner. */
+    if (src > 2u)
+        return 0;
+    me = (uint8_t)(src + 1u);
     if (s->clk_src == SEQ_CLK_INT) {                  /* seq_midi_rt drops them */
         s->clk_lock = 0;
         return 1;
@@ -880,6 +899,7 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
         if (st == 0xFCu || st == 0xF2u)
             return 1;                                 /* no input has the clock: a Stop or a Song Position gets none */
         if (s->clk_last && s->clk_last != me) {      /* another input: the tempo measure starts again, */
+            s->ext_pending = 0;                       /* queued ticks belong to the previous input */
             s->ext_nb = s->ext_bi = s->ext_q = 0;     /* from the tempo now (no gap in the beat ring) */
             s->ext_skip = 1;                          /* (the first ticks give no period) */
         }
@@ -900,8 +920,10 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
 }
 void seq_clk_drop(seq_t *s, uint32_t src)
 {
-    if (s->clk_lock == src + 1u)
+    if (s->clk_lock == src + 1u) {
         s->clk_lock = 0;                              /* its link ended: any input can get the clock now */
+        s->ext_pending = 0;                           /* discard queued ticks from the disconnected owner */
+    }
 }
 int seq_clock_waiting(const seq_t *s)
 {
@@ -932,9 +954,16 @@ int seq_rec_step(seq_t *s, int t)
     if (!tr->started)
         return (is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_REV) ? seq_part_len(s, t) - 1 : 0;
     if (s->ext)
-        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= TICKS_PER_STEP[rate] / 2u);
-    else
-        late = tr->to_next != NEVER && tr->to_next < seq_step_q8(s, rate) / 2u;
+        late = tr->to_next != NEVER || (tr->ext_ticks != 0xFFu && tr->ext_ticks >= (TICKS_PER_STEP[rate] + 1u) / 2u);
+    else {
+        /* Record against the actual swung internal step duration, not an unswung half-step. */
+        uint32_t L = seq_step_q8(s, rate), sw = swing_q8(s, rate, L);
+        int np = next_pos(s, t, tr->pos, 0);
+        uint32_t span = (np & 1) ? L + sw : L - sw;
+        if (!(np & 1) && !(tr->pos & 1))   /* even -> even on an odd-length wrap: no swing */
+            span = L;
+        late = tr->to_next != NEVER && tr->to_next < span / 2u;
+    }
     return late ? next_pos(s, t, tr->pos, 0) : tr->pos;
 }
 /* a live hit (voice v; 303: 0) recorded on step p: if p did not play yet on this pass, p does not sound
@@ -952,6 +981,10 @@ void seq_rec_skip(seq_t *s, int t, int p, int v)
 }
 void seq_chain(seq_t *s, int a, int b)
 {
+    /* Reject invalid endpoints before narrowing to uint8_t: an out-of-range
+     * chain otherwise selects a non-existent pattern at the next bar. */
+    if (a < 0 || a >= NPAT || b < 0 || b >= NPAT)
+        return;
     s->chain_a = (uint8_t)a;
     s->chain_b = (uint8_t)b;
 }
