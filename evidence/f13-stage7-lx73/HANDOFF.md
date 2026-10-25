@@ -16,10 +16,10 @@ Blank Elite/Pro: `9c1168cf…` / `3a29723e…`.
 Label: `DEV / HARDWARE TEST — DEVICE NOT TESTED`; `hardware_tested` false.
 Evidence: `evidence/f13-stage7-lx73/CHECKS.md`, `live-verify.log`, `independent-qa-local-review.md`, `safety-gates-note.md`.
 Successor prompt: `evidence/f13-stage7-lx73/SUCCESSOR-STAGE1.txt`.
-Successor agent id: none.
-Successor URL: none.
-Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
-Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip.
+Successor agent id: `bc-6c51c5fd-d995-54b7-baf7-b5033919009d`.
+Successor URL: https://cursor.com/agents/bc-6c51c5fd-d995-54b7-baf7-b5033919009d
+Successor source: desktop (coordinator CreateAgent; owner-visible). Name: F15 Stage 1 audit.
+Handoff status: **complete** — owner-visible Stage 1 id recorded on this remote tip. Do not relaunch Stage 1.
 
 ## Scope for stage 1
 

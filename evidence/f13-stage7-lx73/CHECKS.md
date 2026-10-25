@@ -62,4 +62,4 @@ Production `main` / production Pages unchanged. No device flash from this thread
 
 ## Overall
 
-**PUBLISHED LIVE** for validated source `092589b8…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 (F15) successor pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
+**PUBLISHED LIVE** for validated source `092589b8…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 (F15) successor recorded: `bc-6c51c5fd-d995-54b7-baf7-b5033919009d` (https://cursor.com/agents/bc-6c51c5fd-d995-54b7-baf7-b5033919009d) via coordinator CreateAgent. Do not relaunch Stage 1.
