@@ -160,9 +160,11 @@ static void test_map(void)
                SMCFX_PART[SMCFX_303A] == 2 && SMCFX_PART[SMCFX_BRK] == 4,
            "buttons sit on 909, 808, 303A and BREAK");
     for (bus = 0; bus < SMCFX_N; bus++) {
-        expect(SMCFX_SUIT_N[bus] == 4, "each bus has four cyclable effects");
-        for (k = 0; k < 4; k++)
+        expect(SMCFX_SUIT_N[bus] >= 1 && SMCFX_SUIT_N[bus] <= 4, "each bus has a non-empty curated list");
+        for (k = 0; k < SMCFX_SUIT_N[bus]; k++)
             expect(SMCFX_SUIT[bus][k] < SMCFX_NFX, "suit entries are valid effects");
+        if (bus == SMCFX_909 || bus == SMCFX_808)
+            expect(SMCFX_SUIT_N[bus] == 3, "drum buses omit filter holds from the cycle list");
         if (bus == SMCFX_303A)
             expect(!suit_has_gate(bus), "303A never uses the break decay gate");
         if (bus == SMCFX_BRK)
@@ -179,16 +181,17 @@ static void test_map(void)
         if (page)
             expect(memcmp(SMCFX_PAGE[page], SMCFX_PAGE[0], SMCFX_N) != 0, "pages are not copies");
     }
-    expect(SMCFX_PAGE[1][SMCFX_909] == SMCFX_GATE && SMCFX_PAGE[1][SMCFX_303A] == SMCFX_HP,
+    expect(SMCFX_PAGE[1][SMCFX_909] == SMCFX_GATE && SMCFX_PAGE[1][SMCFX_808] == SMCFX_GATE,
            "TIGHT is not a global rotation of ROOM");
     prev = SMCFX_REV;
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
     expect(prev == SMCFX_DLY, "home cycles 909 to the next drum effect");
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
     prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
-    prev = smcfx_cycle(SMCFX_909, (uint8_t)prev);
-    expect(prev == SMCFX_REV, "909's four-effect list wraps");
-    expect(smcfx_cycle(SMCFX_303A, SMCFX_HP) == SMCFX_DLY, "303A cycles its own four");
+    expect(prev == SMCFX_REV, "909's three-effect list wraps");
+    expect(smcfx_cycle(SMCFX_303A, SMCFX_HP) == SMCFX_DLY, "303A cycles its curated list");
+    expect(!smcfx_suit_ok(SMCFX_909, SMCFX_HP), "909 omits high-pass from Home+cycle");
+    expect(!smcfx_suit_ok(SMCFX_303A, SMCFX_GATE), "303A omits the break decay gate");
     expect(smcfx_bus(24) == SMCFX_909 && smcfx_bus(28) == SMCFX_BRK && smcfx_bus(27) < 0,
            "303B select is not one of the four effect buttons");
 }
@@ -207,6 +210,6 @@ int main(void)
         fprintf(stderr, "%d failed\n", failures);
         return 1;
     }
-    puts("PASS smc fx: wire cutoff, smooth close, in-buffer gate, two buses, HP/LP return, sends, four-per-bus pages");
+    puts("PASS smc fx: wire cutoff, smooth close, in-buffer gate, two buses, HP/LP return, sends, curated bus pages");
     return 0;
 }
