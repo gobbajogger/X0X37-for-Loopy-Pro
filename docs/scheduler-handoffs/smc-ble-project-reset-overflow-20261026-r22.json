@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "role": "LoopyX0X37 SMC Transport",
+  "stage": "R22 (2026-10-26) BLE Solo/project-reset overflow real-path regression",
+  "status": "PRODUCER_TEST_DELIVERED__INDEPENDENT_QA_PENDING",
+  "musician_behavior": "Changing/loading projects after a saturated SMC BLE MIDI queue must not let the old project's lost Solo NoteOff clear a musician's new project's fresh Solo; matching fresh NoteOff still releases it. Unrelated channels 2–15 must not count as accepted lost releases.",
+  "reason": "PR122 R21 tested Solo lifetime across BLE link/preset overflow but not the project reset boundary against a pending producer lost-release generation. PR174 newly refactors the producer into one smc_ble_input_t; test current integrated source rather than presuming old R21 production bytes.",
+  "design": "Use actual extracted current production smc_ble_midi(), smc_ble_link(), smc_project_reset(), and smc_poll() in the existing registered Solo test; 6 FIFO cursors by 2 User/DAW by 2 link-edge by 2 legitimate-vs-foreign lost releases = 48 additional scenarios; add SMC_ONLY_RESET_OVERFLOW for focused replay. No production firmware changes.",
+  "expected_effect": "Catch future regressions in project-reset acknowledgment of old lost BLE Solo NoteOff without changing the musical behavior of existing firmware.",
+  "observed_effect": "GCC/Clang native source-extraction executions passed on the PR174-integrated C/header, and a targeted compiling source mutant fails at the fresh-project-held-Solo assertion. Not a measured device reliability improvement.",
+  "workflow": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pinned_trial_commit": "218dbf80cc61384947d6bb2b02e41fc1f3556048",
+    "contract_sha256": "c41776551668119ce561c9e03fe9eb55d4fa03e52e0eda198e32c43fde75a9df",
+    "state": "REVIEWED_TRIAL_NOT_MERGED_DEFAULT"
+  },
+  "source": {
+    "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+    "test_commit_pre_evidence": "e0760520975ca40af7efa3b5616888e05ccf38de",
+    "root_tree_pre_evidence": "6d7c9835f9d130f91c0858eba289dc1c56941eec",
+    "test_path": "tests/host/smc_preset_solo_lifetime_test.py",
+    "test_blob": "40478864cdc9e8ca093eae58918560c75f0a90c8",
+    "test_sha256": "a2ddffeee6742a087b63c8ef0bd8f5df1082db1f54e86aa01947dcb46ae2a070",
+    "production_c_path": "firmware/src/app/smc_mixer.c",
+    "production_c_blob": "d0175c59d7318cb9aaa7604399a9a4b26062ebca",
+    "production_header_path": "firmware/src/app/smc_ble_input.h",
+    "production_header_blob": "0084503f6a0c0e89450af93d92b2808e23dedae8",
+    "firmware_tree": "a9a1fb4c66d3c86d20bb2ec8ea8bff13bf25757e",
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "tools_tree": "fbaef8e1eead4ca36c3c971bfac8c6e0de74ab51",
+    "build_script_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+    "compiler_input_change_in_R22": false,
+    "upstream_compiler_change_since_R21": true
+  },
+  "native": {
+    "environment": "Linux x86_64, GCC 14.2 / Clang 17; production-C source-extraction with simulated callbacks",
+    "profiles": [
+      "gcc/plain",
+      "gcc/ubsan",
+      "gcc/asan_ubsan",
+      "clang/plain",
+      "clang/ubsan",
+      "clang/asan_ubsan"
+    ],
+    "positive_executions": {
+      "expected_pass": 6,
+      "actual_pass": 6,
+      "fail": 0
+    },
+    "positive_scenarios_per_profile": 1794,
+    "positive_assertions_per_profile": 16338,
+    "new_scenarios_per_profile": 48,
+    "focus_env": "SMC_ONLY_RESET_OVERFLOW=1",
+    "negative_control": {
+      "mutation": "remove smc_ble_solo_release_seen = smc_ble_solo_release_lost; within smc_project_drop; otherwise retain same source",
+      "expected_assertion": "old project's missing release cannot cancel new project's Solo",
+      "expected_failing_executions": 6,
+      "observed_failing_executions": 6,
+      "old_R21_regression_without_R22_cases_on_mutant": "1746 scenarios PASS, demonstrating missing old coverage"
+    },
+    "matrix_csv_sha256": "41408dd3c287ccd63b9a20f5c13aaf0d64dc11599529755faa6ba21bc0bd0ac7",
+    "execution_matrix": "12/12 matched expectations",
+    "status": "PRODUCER_SCOPED_ONLY",
+    "not_run": [
+      "complete target firmware build",
+      "controller target build",
+      "full-root host suite",
+      "separate independent QA",
+      "installer/OTA/hardware"
+    ]
+  },
+  "ownership": {
+    "source": "LoopyX0X37 SMC Transport own isolated branch",
+    "build": "existing LoopyX0X37 Hourly Build owner",
+    "independent_qa": "existing Independent QA owner",
+    "integrator": "existing sole firmware Safe Merge owner",
+    "publisher": "separate website/publisher owner",
+    "clock": "separate Sequencer Clock owner"
+  },
+  "next_actions": [
+    "Independent QA to run/inspect exact R22 combined source and test on its own authorized agent environment; inspect PR174 one-peer ingress and Solo project-reset contract.",
+    "Hourly Build to prepare fresh model-matched Elite/Pro/controller BUILD_ONLY on PR174-changed firmware subtree and complete separate SDK/toolchain/generated-input closures. R19 binaries are not evidence for this revised firmware.",
+    "Sole firmware integrator to assess merged PR122 and followup R22, current base/reviews/protections and combine only within explicit current action authorization.",
+    "Publisher to separately qualify installer/data/rights/live served bytes and get action approval prior to publication."
+  ],
+  "gates": {
+    "source_test": "PASS PRODUCER SCOPED",
+    "independent_qa": "PENDING",
+    "elite_pro_controller_build": "PENDING on PR174 revised firmware",
+    "nightly_package": "NOT QUALIFIED",
+    "owner_installable": false,
+    "device_tested": false,
+    "production_authorized": false
+  },
+  "safety": "No secrets, proprietary SDK/controller binaries/samples/backsups, flashing, protected branch merge, hosting, GitHub Actions testing, or publication. Existing scheduler identity/settings unchanged."
+}
