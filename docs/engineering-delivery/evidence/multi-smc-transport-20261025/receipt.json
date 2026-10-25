@@ -1,0 +1,22 @@
+{
+  "base": "272b80fbc38ac8be7e6adac96fe990394c1934f8",
+  "inputs": {
+    "firmware/src/ble.c": "b25f07386d06a9388860070ecf3a40001a2ce74a419cbf05abcfe938159a7fbd",
+    "firmware/src/ble/ble_midi_bus.c": "11bae202f1e05979f3661d9ad4b4c2c1753adea9fd33cb355baa0d6af6156b82",
+    "firmware/src/ble/ble_midi_bus.h": "41315805d5a76c6d244dece88ad7e47384ae7aaf0fe619d757aae6c20ba312b8",
+    "firmware/src/ble/ble_midi_central.c": "194983da800a36ef47409e1d5f5f15f46f56b7ceb076a893d7425c9b63513854",
+    "firmware/src/ble/ble_midi_central.h": "41e27190c9dfbae32dd1c155bf0716ca8baba33109d369e985a96c19bd409bdd",
+    "firmware/src/app/plat.h": "9eefda73f69089bee492506d295dcabba1a7b6bb8878f0c0cad6bd50ff5c9ec0",
+    "tests/host/ble_multi_peer_test.c": "c7e20d78cbfa93026dfdc1a8cefbc50af16f0255fd26c0e36874e25d02b24a40",
+    "ble/ctl/src/config.c": "3dbb2be4ae2dcb189f2099be0674ce66b144d4f96e567cfb750537077edbbff5",
+    "tools/locked_settings.json": "d971f441452f74dba926108ac90b7d84d0410b1927b8525745fbb6c491a8ffa7"
+  },
+  "host_tests": "PASS58; ASan+UBSan PASS58",
+  "controller": "LINK_FAIL CFLASH overflow1144",
+  "native_sizes": {
+    "central": 348,
+    "bus": 776,
+    "peripheral_host": 792
+  },
+  "hardware": "NOT_RUN"
+}

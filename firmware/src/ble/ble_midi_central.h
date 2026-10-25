@@ -15,7 +15,10 @@ typedef void (*blec_midi_fn)(const uint8_t *p, uint8_t n, void *ctx);
 typedef struct {
     blec_send_fn send;
     blec_midi_fn midi;
+    int (*target_ok)(const uint8_t *addr, uint8_t type, void *ctx);
     void *ctx;
+    uint8_t has_conn; /* Handle zero is valid; never use it as the sole validity flag. */
+    uint8_t retry_command; /* Transport backpressure: retry this stage without advancing it. */
     uint8_t state, step, waiting, att_waiting, credits, acl_total, addr_type, link_name[21];
     uint8_t addr[6], target[6], target_type, found, running, sx[8], sx_len, in_sysex, rx[64], rx_cid;
     uint16_t rx_have, rx_need; /* Oversized signaling is drained; only rx[] is stored. */
@@ -41,3 +44,8 @@ void blec_rx(blec_t *c, uint8_t h4, const uint8_t *p, uint16_t n, uint32_t now_m
 void blec_poll(blec_t *c, uint32_t now_ms);
 int blec_midi_send(blec_t *c, const uint8_t *p, uint8_t n);
 static inline int blec_connected(const blec_t *c) { return c->state == BLEC_CONNECTED; }
+
+/* Start another link after controller-global setup; never emits HCI Reset. */
+void blec_join(blec_t *c, uint32_t now_ms);
+
+static inline int blec_has_conn(const blec_t *c) { return c->has_conn || c->conn != 0u; }

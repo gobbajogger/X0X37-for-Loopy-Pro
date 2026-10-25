@@ -15,6 +15,7 @@
 #include "fm1_supply.h"
 #include "ble/ble_midi_host.c"
 #include "ble/ble_midi_central.c"
+#include "ble/ble_midi_bus.c"
 #include "ble/ble_glue.h"
 
 /* All of it in BLERAM (main RAM is full): not cleared at boot, so ble_start sets every field it
@@ -22,7 +23,7 @@
 #define BLE_OQ 64u                              /* MIDI out to mirror: USB-MIDI packets */
 typedef struct {
     xb_mbox_t mb;                               /* first: 64-byte aligned (the rings' cache lines) */
-    union { bleh_t h; blec_t c; } host;
+    union { bleh_t h; blec_bus_t bus; } host;
     xb_boot_t boot;
     uint8_t fr[XB_FRAME_MAX];                   /* one frame from the controller */
     volatile uint32_t ow, orr;
@@ -47,8 +48,8 @@ static uint32_t ble_sat(uint32_t v, uint32_t m) { return v > m ? m : v; }
 extern uint32_t smc_rx_diag(void);
 static uint32_t ble_h_link0(void)
 {
-    if (ble_central_role) return (uint32_t)ble_r.host.c.rx_acl | (uint32_t)ble_r.host.c.rx_notify << 8 |
-                                 (uint32_t)ble_r.host.c.rx_midi << 16 | (uint32_t)ble_r.host.c.rx_reject << 24;
+    if (ble_central_role) return (uint32_t)ble_r.host.bus.peer[0].rx_acl | (uint32_t)ble_r.host.bus.peer[0].rx_notify << 8 |
+                                 (uint32_t)ble_r.host.bus.peer[0].rx_midi << 16 | (uint32_t)ble_r.host.bus.peer[0].rx_reject << 24;
     return ble_r.host.h.conn_int | (uint32_t)ble_r.host.h.disc_reason << 16 | ble_sat(ble_r.host.h.smp_rejects, 255u) << 24;
 }
 static uint32_t ble_h_link1(void)
@@ -59,8 +60,8 @@ static uint32_t ble_h_link1(void)
 }
 static uint8_t ble_img = BLE_IMG_NONE, ble_boot_on, ble_up, ble_want, ble_host_on, ble_dead, ble_blocked;
 extern int smc_ble_role_get(void);
-extern void smc_ble_midi(const uint8_t *msg, uint8_t len);
-extern void smc_ble_link(int up);
+extern void smc_ble_midi_peer(uint8_t peer, const uint8_t *msg, uint8_t len);
+extern void smc_ble_link_peer(uint8_t peer, int up);
 extern void smc_mmc_host(uint8_t cmd, uint8_t src);
 static uint32_t ble_ok_at;                      /* fm1_ms when the controller became READY */
 /* the start guard (ble_glue.h): survives a reset, so a start that crashes or freezes the unit is not
@@ -202,22 +203,32 @@ static void ble_prepare(int on)
  * into every start (in the TX IQ trim), with its RAM code unchanged; core 1 then went on to READY.
  * ble_attach hands the controller to core 1 after plat_cpu2_set. */
 static uint8_t ble_c0_ready;
-static void ble_central_link_notify(int up);
-static void ble_central_midi(const uint8_t *p, uint8_t n, void *ctx)
+/* Optional second target is supplied explicitly in boot/config context. No
+ * historical device identity is persisted or inferred from an advertised name. */
+static uint8_t ble_second_target[6], ble_second_type, ble_second_allowed, ble_config_closed;
+int plat_ble_smc_peer_target(uint8_t peer, const uint8_t addr[6], uint8_t type)
+{
+    if (ble_config_closed || peer != 1u || !addr || type > 1u) return 0;
+    for (uint8_t i = 0; i < 6u; i++) ble_second_target[i] = addr[i];
+    ble_second_type = type; ble_second_allowed = 1;
+    return 1;
+}
+static void ble_central_link_notify(uint8_t peer, int up);
+static void ble_central_midi(uint8_t peer, const uint8_t *p, uint8_t n, void *ctx)
 {
     (void)ctx;
     /* Subscription completion and the first MIDI notification can arrive
      * within one TIMER5 receive batch. Publish the new connection boundary
      * BEFORE enqueueing that packet; the late service-level notification
      * would otherwise cut away genuine new-session controls. */
-    if (blec_connected(&ble_r.host.c))
-        ble_central_link_notify(1);
+    if (peer < BLEC_PEERS && blec_connected(&ble_r.host.bus.peer[peer]))
+        ble_central_link_notify(peer, 1);
     /* Reuse the bounded ISR-owned INLOG ring; MMC records command in d1. */
     if (n == 3u)
         smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 24);
     else if (n == 6u)
         smk_inlog(4u, (uint32_t)p[0] << 8 | (uint32_t)p[4] << 16);
-    smc_ble_midi(p, n);                       /* TIMER5: SMC queues for the UI main loop */
+    smc_ble_midi_peer(peer, p, n);                       /* TIMER5: SMC queues for the UI main loop */
 }
 static void ble_start(void)
 {
@@ -249,8 +260,12 @@ static void ble_start(void)
     xb_ring_init(&mb->h2c);
     xb_ring_init(&mb->c2h);
     fm1_ble_boot_fill(&ble_r.boot, mb);
-    if (ble_central_role)
-        blec_init(&ble_r.host.c, ble_send, ble_central_midi, 0, addr);
+    ble_config_closed = 1;
+    if (ble_central_role) {
+        blec_bus_init(&ble_r.host.bus, ble_send, ble_central_midi, 0, addr);
+        if (ble_second_allowed)
+            blec_bus_allow_peer(&ble_r.host.bus, 1u, ble_second_target, ble_second_type);
+    }
     else {
         bleh_init(&ble_r.host.h, ble_send, 0, ble_r.nm, addr);
         bleh_set_sysex(&ble_r.host.h, ble_sysex_in);
@@ -371,60 +386,50 @@ static void ble_fail(void)
  * queue. The engine then releases the notes that came from Bluetooth and the clock of Bluetooth. It goes after
  * the MIDI in of this tick, so no note of the old link comes after it. */
 static uint8_t ble_link_st;
-static uint8_t ble_central_link_seen;
-static void ble_central_link_notify(int up)
+static uint8_t ble_central_link_seen[BLEC_PEERS];
+static void ble_central_link_notify(uint8_t peer, int up)
 {
     uint8_t next = (uint8_t)(up != 0);
-    if (next != ble_central_link_seen) {
-        ble_central_link_seen = next;
-        smc_ble_link(next);
+    if (peer < BLEC_PEERS && next != ble_central_link_seen[peer]) {
+        ble_central_link_seen[peer] = next;
+        smc_ble_link_peer(peer, next);
     }
 }
 
 /* SMC central: HCI, ATT and MIDI run in TIMER5 beside the original peripheral host. */
 static void ble_central_service(void)
 {
-    blec_t *c = &ble_r.host.c;
+    blec_bus_t *b = &ble_r.host.bus;
     uint32_t k;
     uint8_t t;
-    if (!ble_up) { ble_central_link_notify(0); return; }
-    if (ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
-        ble_record(); ble_fail(); ble_central_link_notify(0); return;
+    if (!ble_up || ble_r.mb.state != XB_ST_READY || !fm1_c1_on) {
+        if (ble_up) { ble_record(); ble_fail(); }
+        for (k = 0; k < BLEC_PEERS; k++) ble_central_link_notify((uint8_t)k, 0);
+        return;
     }
     ble_alive[0] = fm1_ms;
     ble_alive[1] = ble_r.mb.polls;
-    if (ble_guard.trying && fm1_ms - ble_ok_at > BLE_GUARD_OK_MS)
-        ble_guard_ok(&ble_guard);
+    if (ble_guard.trying && fm1_ms - ble_ok_at > BLE_GUARD_OK_MS) ble_guard_ok(&ble_guard);
     if (!ble_host_on) {
         if (!ble_want) return;
         ble_host_on = 1;
     }
-    /* Stop can submit Disconnect before receive or poll supplies the current time. */
-    c->now_ms = fm1_ms;
-    if (!ble_want && c->state != BLEC_OFF && c->state != BLEC_STOPPING)
-        blec_stop(c);
+    if (!ble_want) blec_bus_stop(b, fm1_ms);
     for (k = 0; k < 8u; k++) {
         int n = xb_frame_get(&ble_r.mb.c2h, &t, ble_r.fr, sizeof ble_r.fr);
-        if (n == 0) break;
-        if (n > 0) blec_rx(c, t, ble_r.fr, (uint16_t)n, fm1_ms);
+        if (!n) break;
+        if (n > 0) {
+            blec_bus_rx(b, t, ble_r.fr, (uint16_t)n, fm1_ms);
+            /* Publish every edge, including down/up coalesced in this batch.
+             * The MIDI callback publishes a new up before its first ingress. */
+            for (uint8_t peer = 0; peer < BLEC_PEERS; peer++)
+                ble_central_link_notify(peer, ble_want && blec_connected(&b->peer[peer]));
+        }
     }
-    if (!ble_want) {
-        blec_poll(c, fm1_ms); /* finish disable/cancel/disconnect while radio is OFF */
-        ble_central_link_notify(0);
-        return;
-    }
-    if (c->state == BLEC_STOPPING) {
-        blec_poll(c, fm1_ms);
-        ble_central_link_notify(0);
-        return;
-    }
-    if (c->state == BLEC_OFF) {
-        /* Drain old HCI events before a fresh Reset starts a new command sequence. */
-        if (xb_ring_used(&ble_r.mb.c2h)) return;
-        blec_start(c, fm1_ms);
-    }
-    blec_poll(c, fm1_ms);
-    ble_central_link_notify(blec_connected(c));
+    if (ble_want && !xb_ring_used(&ble_r.mb.c2h)) blec_bus_start(b, fm1_ms);
+    blec_bus_poll(b, fm1_ms);
+    for (k = 0; k < BLEC_PEERS; k++)
+        ble_central_link_notify((uint8_t)k, ble_want && blec_connected(&b->peer[k]));
 }
 
 /* TIMER5, next to usb_poll (same context: the MIDI in queue has one writer) */
@@ -503,9 +508,9 @@ int plat_ble_state(void)
     if (!ble_want)
         return PLAT_BLE_OFF;
     if (ble_central_role) {
-        if (!ble_up || ble_r.host.c.state == BLEC_STARTING) return PLAT_BLE_STARTING;
-        if (ble_r.host.c.state == BLEC_FAILED) return PLAT_BLE_FAILED;
-        return blec_connected(&ble_r.host.c) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
+        if (!ble_up || ble_r.host.bus.peer[0].state == BLEC_STARTING) return PLAT_BLE_STARTING;
+        if (ble_r.host.bus.peer[0].state == BLEC_FAILED) return PLAT_BLE_FAILED;
+        return (blec_connected(&ble_r.host.bus.peer[0]) || blec_connected(&ble_r.host.bus.peer[1])) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
     }
     if (!ble_up || ble_r.host.h.state == BLEH_STARTING || ble_r.host.h.state == BLEH_IDLE)
         return PLAT_BLE_STARTING;
@@ -515,12 +520,16 @@ int plat_ble_state(void)
 }
 const char *plat_ble_name(void)
 {
-    return ble_central_role ? (ble_r.host.c.link_name[0] ? (const char *)ble_r.host.c.link_name : "SMC-Mixer") : ble_r.nm;
+    return ble_central_role ? (ble_r.host.bus.peer[0].link_name[0] ? (const char *)ble_r.host.bus.peer[0].link_name : "SMC-Mixer") : ble_r.nm;
+}
+int plat_ble_smc_send_peer(uint8_t peer, const uint8_t *msg, uint8_t len)
+{
+    return ble_central_role && ble_up && ble_host_on && ble_want &&
+           blec_bus_midi_send(&ble_r.host.bus, peer, msg, len);
 }
 int plat_ble_smc_send(const uint8_t *msg, uint8_t len)
 {
-    return ble_central_role && ble_up && ble_host_on && ble_want &&
-           blec_midi_send(&ble_r.host.c, msg, len);
+    return plat_ble_smc_send_peer(0, msg, len);
 }
 void plat_ble_set(int on)
 {
@@ -551,7 +560,7 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.err;
     w[n++] = ble_r.mb.polls;
     w[n++] = fm1_c1_mb.poll_max;
-    w[n++] = ble_central_role ? ble_r.host.c.state : ble_r.host.h.state;
+    w[n++] = ble_central_role ? ble_r.host.bus.peer[0].state : ble_r.host.h.state;
     w[n++] = fm1_c1_trace;
     w[n++] = fm1_boot.p3_rst | (fm1_boot.rst_src & 0xFFFFFFu) << 8;   /* this boot's reset */
     if (n + 6u > max)
@@ -559,9 +568,9 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
     w[n++] = ble_r.mb.h2c.head | ble_r.mb.h2c.tail << 16;   /* the HCI rings: written, read */
     w[n++] = ble_r.mb.c2h.head | ble_r.mb.c2h.tail << 16;
     w[n++] = ble_r.mb.c2h_drops;
-    w[n++] = ble_central_role ? (uint32_t)ble_r.host.c.step | (uint32_t)ble_r.host.c.waiting << 8 |
-                                 (uint32_t)ble_r.host.c.credits << 16 |
-                                 (uint32_t)ble_r.host.c.rx_reason << 24 | 0x80000000u :
+    w[n++] = ble_central_role ? (uint32_t)ble_r.host.bus.peer[0].step | (uint32_t)ble_r.host.bus.peer[0].waiting << 8 |
+                                 (uint32_t)ble_r.host.bus.peer[0].credits << 16 |
+                                 (uint32_t)ble_r.host.bus.peer[0].rx_reason << 24 | 0x80000000u :
                                  (uint32_t)ble_r.host.h.step | (uint32_t)ble_r.host.h.cmd_wait << 8 |
                                  (uint32_t)ble_r.host.h.credits << 16;
     w[n++] = ble_r.mb.dbg[XB_DBG_INIT_MS];     /* frames the controller took */
@@ -580,13 +589,13 @@ static uint32_t ble_diag(uint32_t *w, uint32_t max)
         return n;
     /* Versioned tail, present in both roles; central fields are valid only in central role. */
     w[n++] = 0x534D4301u;
-    w[n++] = ble_central_role ? ble_r.host.c.midi_handle | (uint32_t)ble_r.host.c.cccd_handle << 16 : 0;
-    w[n++] = ble_central_role ? blec_rd16(ble_r.host.c.reject_head) |
-                               (uint32_t)blec_rd16(ble_r.host.c.reject_head + 2) << 16 : 0;
-    w[n++] = ble_central_role ? blec_rd16(ble_r.host.c.reject_head + 4) |
-                               (uint32_t)blec_rd16(ble_r.host.c.reject_head + 6) << 16 : 0;
-    w[n++] = ble_central_role ? ble_r.host.c.reject_n | (uint32_t)ble_r.host.c.reject_reason << 16 |
-                               (uint32_t)ble_r.host.c.att_op << 24 : 0;
-    w[n++] = ble_central_role ? ble_r.host.c.att_handle | (uint32_t)ble_r.host.c.att_waiting << 16 : 0;
+    w[n++] = ble_central_role ? ble_r.host.bus.peer[0].midi_handle | (uint32_t)ble_r.host.bus.peer[0].cccd_handle << 16 : 0;
+    w[n++] = ble_central_role ? blec_rd16(ble_r.host.bus.peer[0].reject_head) |
+                               (uint32_t)blec_rd16(ble_r.host.bus.peer[0].reject_head + 2) << 16 : 0;
+    w[n++] = ble_central_role ? blec_rd16(ble_r.host.bus.peer[0].reject_head + 4) |
+                               (uint32_t)blec_rd16(ble_r.host.bus.peer[0].reject_head + 6) << 16 : 0;
+    w[n++] = ble_central_role ? ble_r.host.bus.peer[0].reject_n | (uint32_t)ble_r.host.bus.peer[0].reject_reason << 16 |
+                               (uint32_t)ble_r.host.bus.peer[0].att_op << 24 : 0;
+    w[n++] = ble_central_role ? ble_r.host.bus.peer[0].att_handle | (uint32_t)ble_r.host.bus.peer[0].att_waiting << 16 : 0;
     return n;
 }
