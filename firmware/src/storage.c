@@ -180,6 +180,53 @@ static int st_current(uint32_t obj, st_hdr_t *h)
     return -1;
 }
 
+/* Body CRC of one copy, through a stack window. Does not write st_buf: the
+ * project object buffer is that same array, and it already holds the bytes
+ * about to be saved. */
+static int st_body_ok(uint32_t obj, uint32_t copy, const st_hdr_t *h)
+{
+    uint8_t tmp[256];
+    uint32_t off = 0, c = 0xFFFFFFFFu;
+    while (off < h->len) {
+        uint32_t n = h->len - off, i;
+        if (n > sizeof tmp)
+            n = (uint32_t)sizeof tmp;
+        if (st_read(st_sector(obj, copy) + ST_PAYLOAD_OFF + off, tmp, n))
+            return 0;
+        for (i = 0; i < n; i++) {
+            c ^= tmp[i];
+            c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
+            c = (c >> 4) ^ X0X_CRC32_NIBBLE_T[c & 15u];
+        }
+        off += n;
+    }
+    return (~c) == h->crc;
+}
+
+/* The current copy (0 or 1), or -1. Same rule as st_current: the valid body
+ * with the highest seq, copy A on a tie. *seq is that copy's seq. */
+static int st_pick(uint32_t obj, uint32_t *seq)
+{
+    st_hdr_t a, b;
+    int va = st_head(obj, 0, &a) == 0, vb = st_head(obj, 1, &b) == 0;
+    if (vb && (!va || b.seq > a.seq)) {
+        if (st_body_ok(obj, 1, &b)) {
+            *seq = b.seq;
+            return 1;
+        }
+        vb = 0;
+    }
+    if (va && st_body_ok(obj, 0, &a)) {
+        *seq = a.seq;
+        return 0;
+    }
+    if (vb && st_body_ok(obj, 1, &b)) {
+        *seq = b.seq;
+        return 1;
+    }
+    return -1;
+}
+
 /* load object into dst (up to max bytes); returns the length, or -1 */
 static int st_load(uint32_t obj, void *dst, uint32_t max)
 {
@@ -198,18 +245,21 @@ static int st_load(uint32_t obj, void *dst, uint32_t max)
 
 static int st_save(uint32_t obj, const void *src, uint32_t len)
 {
-    uint32_t seq, base, off;
+    uint32_t seq = 0, base, off;
     int cur, rc;
     st_hdr_t h;
     if (st_stage_hold)                            /* refuse; the previous object stays on flash */
         return -8;
     if (len > ST_PAYLOAD_MAX)
         return -1;
-    cur = st_current(obj, &h);
-    seq = cur < 0 ? 0u : h.seq;
+    cur = st_pick(obj, &seq);                         /* leaves st_buf alone */
+    if (cur < 0)
+        seq = 0;
     base = st_sector(obj, cur == 0 ? 1u : 0u);       /* write the other copy */
-    for (off = 0; off < len; off++)
-        st_buf[off] = ((const uint8_t *)src)[off];    /* the driver wants RAM sources */
+    if ((const void *)src != (const void *)st_buf) {
+        for (off = 0; off < len; off++)
+            st_buf[off] = ((const uint8_t *)src)[off];    /* the driver wants RAM sources */
+    }
     if ((rc = st_erase(base)) != 0)
         return rc;
     for (off = 0; off < len; off += 256u) {

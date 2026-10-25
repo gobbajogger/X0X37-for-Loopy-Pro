@@ -359,7 +359,11 @@ static void ota_unstage(void)
 /* returns only when nothing was committed (refused, failed, or dry run) */
 static int ota_session(void)
 {
+#ifdef OTA_SCRATCH                              /* the app: the scratch tail, after ota_dec */
+    uint8_t *const parm = OTA_SCRATCH + OTA_PARM_OFF;
+#else
     static uint8_t parm[112];
+#endif
     uint8_t back[112];
     uint32_t i;
     int rc;
@@ -371,7 +375,7 @@ static int ota_session(void)
         return rc;
     }
     /* 5./7. UPDATA_PARM (update_mode_api_v2 layout), flash copy first */
-    for (i = 0; i < sizeof parm; i++)
+    for (i = 0; i < 112u; i++)
         parm[i] = 0;
     ota_wr16(parm + 2, 0x5A0Du);
     ota_wr16(parm + 4, 0x5A01u);
@@ -389,8 +393,8 @@ static int ota_session(void)
 #define FELUCCA_OTA_RAMONLY 0                       /* 1: RAM record only, no power-loss resume (a power
                                                      * cycle leaves a broken loader behind) */
 #endif
-    if (!FELUCCA_OTA_RAMONLY && (ota_prog(OTA_RES, parm, sizeof parm) || ota_fread(OTA_RES, back, sizeof back) ||
-        !ota_memeq(back, parm, sizeof parm))) {
+    if (!FELUCCA_OTA_RAMONLY && (ota_prog(OTA_RES, parm, 112u) || ota_fread(OTA_RES, back, sizeof back) ||
+        !ota_memeq(back, parm, 112u))) {
         ota_unstage();
         ota_show(9, -14);
         return -14;
