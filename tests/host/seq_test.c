@@ -1263,6 +1263,81 @@ static void test_chain_endpoint_bounds(void)
     printf("  chain endpoints: valid, reversed, disabled and eight invalid ranges checked\n");
 }
 
+/* REC-06: a swung internal step is long or short. Recording must use the midpoint
+ * of that ACTUAL interval (fire_step), not half an unswung step. */
+static void test_rec_swing_midpoint(void)
+{
+    static const int tracks[] = {TRK_DRUM, 1, TRK_BASS0, TRK_BASS0 + 1, TRK_BRK};
+    uint32_t L;
+    int i;
+    reset();
+    S.bpm = 120.0f;
+    P[0].swing = 100;                           /* maximum swing: long 1.5L, short 0.5L */
+    L = seq_step_q8(&S, RATE_16);
+    for (i = 0; i < (int)(sizeof tracks / sizeof tracks[0]); i++) {
+        seq_track_t *tr = &S.t[tracks[i]];
+        tr->started = 1;
+        tr->pos = 0;
+        tr->to_next = L * 3u / 5u;             /* 60% through long step: next */
+        CHECK(seq_rec_step(&S, tracks[i]) == 1, "swung long midpoint track %d", tracks[i]);
+        tr->pos = 1;
+        tr->to_next = L * 3u / 8u;             /* 25% through short step: current */
+        CHECK(seq_rec_step(&S, tracks[i]) == 1, "swung short first quarter track %d", tracks[i]);
+        tr->to_next = L / 8u;                  /* 75% through short step: next */
+        CHECK(seq_rec_step(&S, tracks[i]) == 2, "swung short last quarter track %d", tracks[i]);
+    }
+
+    P[0].drum[0].rate = RATE_32;
+    P[0].bass[0].rate = RATE_32;
+    L = seq_step_q8(&S, RATE_32);
+    S.t[TRK_DRUM].pos = 0;
+    S.t[TRK_DRUM].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 1, "1/32 swung long midpoint drum");
+    S.t[TRK_BASS0].pos = 1;
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 1, "1/32 swung short midpoint 303");
+
+    P[0].bass[0].rate = RATE_16;
+    P[0].bass[0].dir = DIR_REV;
+    P[0].bass[0].len = 16;
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_BASS0].pos = 4;                    /* reverse: 4 -> 3, long */
+    S.t[TRK_BASS0].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 3, "reverse 303 long step");
+    S.t[TRK_BASS0].pos = 5;                    /* reverse: 5 -> 4, short */
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 5, "reverse 303 short step");
+    P[0].bass[0].dir = DIR_PINGPONG;
+    S.t[TRK_BASS0].pos = 15;
+    S.t[TRK_BASS0].pp_dir = 1;                  /* endpoint reverses to even step 14 */
+    S.t[TRK_BASS0].to_next = L * 3u / 8u;
+    CHECK(seq_rec_step(&S, TRK_BASS0) == 15, "ping-pong short step at endpoint");
+
+    P[0].drum[0].rate = RATE_16;            /* restore rate after the RATE_32 cases */
+    P[0].drum[0].len = 3;                      /* even step 2 -> even step 0: no swing */
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_DRUM].pos = 2;
+    S.t[TRK_DRUM].to_next = L * 2u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "odd-length even-to-even wrap midpoint");
+
+    P[0].drum[0].len = 16;
+    P[0].drum[0].rate = RATE_16T;              /* triplets are not swung */
+    L = seq_step_q8(&S, RATE_16T);
+    S.t[TRK_DRUM].pos = 0;
+    S.t[TRK_DRUM].to_next = L * 3u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "triplet retains unswung midpoint");
+    P[0].swing = 0;
+    P[0].drum[0].rate = RATE_16;
+    L = seq_step_q8(&S, RATE_16);
+    S.t[TRK_DRUM].to_next = L * 2u / 5u;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 1, "straight rate retains nearest-step midpoint");
+    S.t[TRK_DRUM].to_next = 0xFFFFFFFFu;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "no next event stays on current step");
+    S.t[TRK_DRUM].started = 0;
+    CHECK(seq_rec_step(&S, TRK_DRUM) == 0, "before first step remains step 0");
+    printf("  recording midpoint follows swung internal step durations: checked\n");
+}
+
 int main(void)
 {
     test_chain_endpoint_bounds();
@@ -1280,6 +1355,7 @@ int main(void)
     test_ext_burst_steps();
     test_rec_nearest();
     test_rec_32nd_tick_midpoint();
+    test_rec_swing_midpoint();
     test_clksrc_internal();
     test_clksrc_external();
     test_clksrc_switch();
