@@ -1,0 +1,4 @@
+Stage-7 CreateAgent Stage 1 attempts: CURSOR_API_KEY unset in this pod.
+Attempt 1/2 recorded as NO_CURSOR_API_KEY (no POST to api.cursor.com/v1/agents).
+Do not send pod identity token. Do not use Task as Stage 1.
+Coordinator must CreateAgent Stage 1 with startingRef=cursor/f14-tip-stage7-237f and evidence/f14-stage7-tip/SUCCESSOR-STAGE1.txt.
