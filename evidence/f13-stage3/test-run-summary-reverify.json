@@ -1,0 +1,22 @@
+{
+  "command": "X0X_TESTS=master X0X_TEST_JOBS=8 X0X_DEV_PADCAL=1 sh tests/run_tests.sh",
+  "exit_code": 0,
+  "result": "PASS",
+  "ok_line": "ok   master",
+  "jobs": 8,
+  "padcal": 1,
+  "branch": "cursor/f13-bf012-stage3-237f",
+  "head_sha": "465071f2faac226b760626f7ae0fb1f59fa81327",
+  "master_c_blob": "f91a9473f0ae1cdd5e037e521f39fdfcc2022395",
+  "master_test_c_blob": "df2f13b35a6fc7b858b019a1950982c23f6386e3",
+  "timestamp_utc": "2026-10-25T18:52:00Z",
+  "stage2_red_witness": {
+    "path": "evidence/f13-stage2/bf012-red.log",
+    "exists": true,
+    "note": "tip blob b5557b6c\u2026 fails with stale peak 0.500000 (not re-broken)"
+  },
+  "blob_expected_match": {
+    "master.c": true,
+    "master_test.c": true
+  }
+}

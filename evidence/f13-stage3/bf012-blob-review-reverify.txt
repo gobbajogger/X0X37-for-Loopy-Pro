@@ -1,0 +1,24 @@
+=== blob identity ===
+HEAD=465071f2faac226b760626f7ae0fb1f59fa81327
+master.c=f91a9473f0ae1cdd5e037e521f39fdfcc2022395
+master_test.c=df2f13b35a6fc7b858b019a1950982c23f6386e3
+
+=== master_set LIMIT OFF->ON clear (master.c) ===
+    /* Bypass does not advance the look-ahead ring. Re-enabling the limiter must not
+     * replay audio left in that ring before it was switched off. */
+    if (i == MST_LIMIT && v > 0 && !m->pot[MST_LIMIT]) {
+        int j;
+        for (j = 0; j < MST_LA; ++j)
+            m->la[j] = m->la_r[j] = 0.0f;
+        m->la_pos = m->hold = 0;
+        m->env = m->inv_env = 0.0f;
+        m->gain = 1.0f;
+    }
+
+=== host cases present (master_test.c) ===
+76:        CHECK(fabsf(peak_db(buf, N) - peak_db(ref, N)) < 0.01f, "-36 dB in, under the threshold: unchanged");
+168:    /* 7. Bypassing the limiter must not replay stale look-ahead audio when re-enabled. */
+197:        CHECK(peak == 0.0f, "limiter OFF->ON (%s): stale look-ahead audio peak %.6f (want silence)",
+209:              "limiter OFF->ON (%s): fresh signal passes after look-ahead", stereo ? "stereo" : "mono");
+210:        master_set(&M, MST_LIMIT, 1);                 /* unchanged setting: do not reset */
+218:              "limiter unchanged (%s): live look-ahead remains intact", stereo ? "stereo" : "mono");
