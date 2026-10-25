@@ -1,5 +1,0 @@
-# BF-004: stale Note Off interrupts current MIDI owner
-
-Host-verified on 2026-10-23 against main-matching engine.c (blob 555480d9c81ca8b088842bfa6bac93e85865d49a), main c9718ae833eb64a5191c350922593df8a36017c9. File firmware/src/app/engine.c lines 607-630 switches owner on Note On, but releases same note or BREAK slice on a Note Off from the previous USB/Bluetooth source without checking ownership. Host scenarios reproduce 303A expected held 1 got 0; BREAK expected 256 got 0. Both probes exit 1 for failed expected values, twice. Different-note control and existing USB/Bluetooth scenarios exit 0. Source snapshot has matching host/MIDI C files but is not the full main tree. No firmware change, target build, device test, flash or Pages publish. Do not claim candidate PASS.
-
-This report is evidence for the sole firmware integrator. Protect valid owner Note Off and source 2 while adding tests; only integrate after validated Elite and Pro DEV checks. No new user-visible improvement this run.

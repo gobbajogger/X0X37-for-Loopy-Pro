@@ -1,7 +1,0 @@
-To https://github.com/gobbajogger/X0X37-for-Loopy-Pro
- ! [rejected]          d0d00da23c3ce2268f06f31f8c062716d5a37ad0 -> nightly (non-fast-forward)
-error: failed to push some refs to 'https://github.com/gobbajogger/X0X37-for-Loopy-Pro'
-hint: Updates were rejected because a pushed branch tip is behind its remote
-hint: counterpart. If you want to integrate the remote changes, use 'git pull'
-hint: before pushing again.
-hint: See the 'Note about fast-forwards' in 'git push --help' for details.

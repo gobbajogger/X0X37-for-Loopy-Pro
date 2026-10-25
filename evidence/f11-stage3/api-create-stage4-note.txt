@@ -1,7 +1,0 @@
-Pod has no CURSOR_API_KEY. Stage-3 owner will attempt POST /v1/agents twice; both expected 401.
-Coordinator CreateAgent Stage 4 is required with:
-  repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
-  startingRef: cursor/f11-bf007-stage3-fb90
-  prompt: full text of evidence/f11-stage3/SUCCESSOR-STAGE4.txt
-  name suggestion: F11 BF-007 validate
-Return owner-visible bc-id + https://cursor.com/agents/<id> for HANDOFF.md record.

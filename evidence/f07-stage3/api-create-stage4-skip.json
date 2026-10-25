@@ -1,8 +1,0 @@
-{
-  "attempts": 0,
-  "reason": "no CURSOR_API_KEY in pod environment; skip POST /v1/agents and use coordinator CreateAgent",
-  "checked_at": "2026-10-25T12:38:41Z",
-  "branch": "cursor/f07-fp-pin-stage3-fb90",
-  "successor_prompt": "evidence/f07-stage3/SUCCESSOR-STAGE4.txt",
-  "pr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/221"
-}

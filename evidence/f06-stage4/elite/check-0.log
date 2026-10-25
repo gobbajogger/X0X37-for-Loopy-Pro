@@ -1,9 +1,0 @@
-packages: skipped (run ./build.sh first)
-fm1ota.js: install: running firmware -> loader -> Felucca (11 reads) ok
-fm1ota.js: unplugged during the write -> stops at once           ok
-fm1ota.js: unplugged in step 1 -> error code 'lost'              ok
-fm1ota.js: no device -> error code 'notfound'                    ok
-fm1ota.js: an SMK-37 Pro in update mode is never given an FM-1 package ('model') ok
-fm1ota.js: resume without the package's identity writes nothing  ok
-fm1ota.js: resume: the SMK models are one keyboard, as for install() ok
-web tests passed

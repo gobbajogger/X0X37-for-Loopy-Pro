@@ -1,5 +1,0 @@
-{
-  "attempts": 0,
-  "reason": "no CURSOR_API_KEY in pod environment; skip POST /v1/agents and use coordinator CreateAgent",
-  "checked_at": "2026-10-25T12:32:00Z"
-}

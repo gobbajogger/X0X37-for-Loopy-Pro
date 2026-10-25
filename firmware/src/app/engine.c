@@ -615,22 +615,15 @@ static void midi_in(uint32_t pkt)
                 if (src < 2)
                     src_held[src] |= (uint16_t)v;
             } else if (ty == 0x80 && bass_held[k] == d1) {
-                /* BF-004: USB/Bluetooth Note Off releases only when that input owns the bit
-                 * (mirror link-drop). TRS (src >= 2) is not tracked in src_held and still releases. */
-                v = 1 << k;
-                if (src < 2 && !(src_held[src] & (uint16_t)v))
-                    continue;
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
-                src_held[0] &= (uint16_t)~v;
-                src_held[1] &= (uint16_t)~v;
+                src_held[0] &= (uint16_t)~(1u << k);
+                src_held[1] &= (uint16_t)~(1u << k);
             }
         }
     if (seq.ch[TRK_BRK] == ch && (ty == 0x90 || ty == 0x80) && d1 >= 36 && d1 <= 43) {   /* the break's slices */
-        v = 1 << (8 + d1 - 36);
-        if (ty == 0x80 && src < 2 && !(src_held[src] & (uint16_t)v))
-            return;                 /* BF-004: stale non-owner Note Off must not clear the live slice */
         breaks_live(&brk, d1 - 36, ty == 0x90);
+        v = 1 << (8 + d1 - 36);
         src_held[0] &= (uint16_t)~v;
         src_held[1] &= (uint16_t)~v;
         if (ty == 0x90 && src < 2)

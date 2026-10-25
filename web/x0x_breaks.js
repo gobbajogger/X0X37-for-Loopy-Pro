@@ -581,15 +581,8 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   if (dev && !h.sameKeyboard(dev.id.model, product.split("_")[0])) dev.link.close();   // install() refuses it
   else if (dev) {
     try {
-      // Fail closed: a probe timeout / parse error must not skip backup and continue the write.
-      // A successful empty / no-risk layout still installs without a backup.
-      let layout;
-      try {
-        layout = await readSlotLayout(dev.link, 1000, 2);
-      } catch (e) {
-        throw fail("slots", `the running firmware did not provide its slot layout (${e.message})`);
-      }
-      if (layout.slots.some((sl) => sl.nz)) {
+      const layout = await readSlotLayout(dev.link, 1000, 2).catch(() => null);
+      if (layout && layout.slots.some((sl) => sl.nz)) {
         const oldMap = flashMap(layout, board), newMap = packageSlotMap(image, board);
         const risk = atRisk(layout, oldMap, newMap);
         if (risk.length) {
@@ -609,8 +602,7 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   const ran = await up.install(image, product, h.step);
   if (!move || !move.newMap.length) return { product: ran, move };
   h.say("slotback");
-  // Same fail-closed rule as the post-write wait: reopen the port install just accepted, not another keyboard.
-  const back = await up.reconnectAfter((id) => !/^ota-/i.test(id.model), 20000);
+  const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
   if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
   try {
     const layout = await readSlotLayout(back.link);

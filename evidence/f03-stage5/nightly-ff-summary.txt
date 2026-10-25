@@ -1,8 +1,0 @@
-validated_source_sha: a03cfab3a423ab5c65a6546afd4993fe51754ee7
-content_tree: 1755a2dd6d8b79e7405ab58919cc4d60a69ca11a4ae6601030b0f5de963f170e
-nightly_before_after: 08d3164a265123cb4c84e5104642fd93257d63d7 (unchanged)
-merge-base: c1e83ab9df8b1e64fc69829394e92dbae24bc80f
-commits_on_validated_not_in_nightly: 2
-commits_on_nightly_not_in_validated: 160
-result: REFUSED non-fast-forward; no force-push
-attempted: git push origin a03cfab3a423ab5c65a6546afd4993fe51754ee7:refs/heads/nightly
