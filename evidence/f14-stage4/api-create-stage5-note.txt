@@ -1,6 +1,5 @@
-NO_CURSOR_API_KEY — Stage 4 did not call POST https://api.cursor.com/v1/agents.
-Ask the Project coordinator to CreateAgent Stage 5 with:
-  repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
-  startingRef: cursor/f14-bf013-stage4-237f
-  prompt: evidence/f14-stage4/SUCCESSOR-STAGE5.txt (full text on that tip)
-Do not treat a Task subagent as Stage 5. Stage 4 keeps ownership until an owner-visible Stage 5 id is recorded on the remote tip.
+Stage 4 CreateAgent for Stage 5: pod has no CURSOR_API_KEY.
+Both attempt JSON files record NO_CURSOR_API_KEY (no authenticated POST performed).
+Handoff remains incomplete until Project coordinator CreateAgent returns an owner-visible Stage 5 id.
+Do not treat an internal Task subagent as the Stage 5 successor.
+Do not claim Stage 5 started from this Stage 4 run.

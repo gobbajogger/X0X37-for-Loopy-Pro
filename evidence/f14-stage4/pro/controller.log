@@ -14,5 +14,5 @@ ld exit 0, undefined symbols: 0
   load 02094250  vma 02094250    6328 B
   load 02095b08  vma 01c01800    3512 B
   load 020968c0  vma 01c025b8    1812 B
-/home/ubuntu/x0x37-work/dev-check-yt1v093k/source/ble/ctl/out/ctl.img: 65492 B of 65536, crc32 77b7a496, RAM 0x1c01800..0x1c07ce0 (25824 B of 26368)
-Done: /home/ubuntu/x0x37-work/dev-check-yt1v093k/source/ble/ctl/out/ctl.img
+/Users/mac/Documents/x0x37/dev-check-yk28objf/source/ble/ctl/out/ctl.img: 65492 B of 65536, crc32 77b7a496, RAM 0x1c01800..0x1c07ce0 (25824 B of 26368)
+Done: /Users/mac/Documents/x0x37/dev-check-yk28objf/source/ble/ctl/out/ctl.img

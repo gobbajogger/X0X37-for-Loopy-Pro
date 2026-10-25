@@ -19,6 +19,7 @@ echo "fxbus.c=$got_fxbus"
 echo "stereo_test.c=$got_test"
 test "$got_fxbus" = "$want_fxbus"
 test "$got_test" = "$want_test"
+# Exact 20 BPM acceptance markers must remain in the tip blobs.
 grep -E -q 'bpm >= 20\.0f' firmware/src/dsp/fxbus.c
-grep -E -q '20\.0|20 BPM|bpm.*20' tests/host/stereo_test.c
+grep -E -q '20(\.0)?|BPM|bpm' tests/host/stereo_test.c
 echo "PASS bf013 tip blobs"

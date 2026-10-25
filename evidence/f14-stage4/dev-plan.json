@@ -6,19 +6,19 @@
       "reason": "BF-013 tip blobs must match Stage-2 repair (fxbus.c 49a89483\u2026, stereo_test.c c8bc1092\u2026).",
       "argv": [
         "bash",
-        "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
       ]
     },
     {
       "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
       "argv": [
         "bash",
-        "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
       ]
     }
   ],
   "dependencies": [
-    "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
-    "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+    "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+    "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
   ]
 }

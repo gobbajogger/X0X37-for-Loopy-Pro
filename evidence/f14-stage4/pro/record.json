@@ -2,7 +2,7 @@
   "schema": 2,
   "validation_inputs": {
     "schema": 1,
-    "sha256": "478832cb00ec9d44b49a913b83d1e8bd5c183dd37913ff6480a2ef9cd78fb34f",
+    "sha256": "e1d8274afa05b56e6982d846d2b9b9e31241d3de4ec66d96123e839bda74f371",
     "inputs": {
       "schema": 1,
       "mode": "dev",
@@ -19,40 +19,108 @@
               "reason": "BF-013 tip blobs must match Stage-2 repair (fxbus.c 49a89483\u2026, stereo_test.c c8bc1092\u2026).",
               "argv": [
                 "bash",
-                "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+                "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
               ]
             },
             {
               "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
               "argv": [
                 "bash",
-                "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+                "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
               ]
             }
           ],
           "dependencies": [
-            "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
-            "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
-          ]
+            "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+            "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+          ],
+          "worker": {
+            "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+            "platform": [
+              "Linux",
+              "x86_64",
+              "6.8.0-117-generic"
+            ],
+            "environment": {
+              "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+              "HOSTNAME": "ed0d04c43781",
+              "HOME": "/root",
+              "AC79_SDK": "/Users/mac/fw-AC79_AIoT_SDK",
+              "CC": "cc",
+              "CXX": "c++",
+              "EIGHTW8_DIR": "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+              "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+              "NINEW9_DIR": "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+              "SCHWUNG303": "/Users/mac/Documents/x0x37/validation_refs/schwung-303",
+              "TB3PO_REF": "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po/src/dsp/tb3po.c",
+              "X0X_REFS": "/Users/mac/Documents/x0x37/validation_refs",
+              "CPATH": "/usr/local/include",
+              "LIBRARY_PATH": "/usr/local/lib",
+              "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+              "MODEL": "pro",
+              "BOARD": "smk37",
+              "X0X_DEV_PADCAL": "1",
+              "CTL_NO_CACHE": "1",
+              "CTL_NATIVE": "1",
+              "PYTHONDONTWRITEBYTECODE": "1"
+            },
+            "mounts": {
+              "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro": true,
+              "/Users/mac/Documents/x0x37/dev-check-yk28objf": false,
+              "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/tools": true,
+              "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/.git": false,
+              "/Users/mac/.jieli/toolchain": true,
+              "/Users/mac/fw-AC79_AIoT_SDK": true,
+              "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh": true,
+              "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh": true,
+              "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9": true,
+              "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8": true,
+              "/Users/mac/Documents/x0x37/validation_refs/schwung-303": true,
+              "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po/src/dsp/tb3po.c": true,
+              "/Users/mac/Documents/x0x37/validation_refs": true,
+              "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1": true
+            },
+            "orchestrator_platform": [
+              "Darwin",
+              "arm64",
+              "27.2.0"
+            ],
+            "orchestrator_tools": {
+              "docker": {
+                "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+                "executable": true
+              },
+              "python": {
+                "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+                "executable": true
+              },
+              "git": {
+                "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+                "executable": true
+              }
+            }
+          }
         },
         "dependencies": [
-          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
-          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+          "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+          "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
         ]
       },
       "environment": {
-        "CXX": "c++",
-        "CTL_NO_CACHE": "1",
-        "CTL_NATIVE": "1",
-        "CC": "cc",
-        "MODEL": "pro",
         "BOARD": "smk37",
+        "CC": "cc",
+        "CPATH": "/usr/local/include",
+        "CTL_NATIVE": "1",
+        "CTL_NO_CACHE": "1",
+        "CXX": "c++",
+        "LIBRARY_PATH": "/usr/local/lib",
+        "MODEL": "pro",
         "X0X_DEV_PADCAL": "1"
       },
       "platform": [
         "Linux",
         "x86_64",
-        "6.12.94+"
+        "6.8.0-117-generic"
       ],
       "validator": {
         "validation_inputs.py": {
@@ -66,58 +134,55 @@
       },
       "tools": {
         "bash": {
-          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "sha256": "55b89ab22bee4792a210f493a53fb066accd5d30b69837c28d98be5ff863efcf",
           "executable": true
         },
         "sh": {
-          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "sha256": "f5adb8bf0100ed0f8c7782ca5f92814e9229525a4b4e0d401cf3bea09ac960a6",
           "executable": true
         },
         "git": {
-          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "sha256": "2540879925a6881e3877ff7e3330746ba3027b04edf16a3a12dccd1644c4f32d",
           "executable": true
         },
         "make": {
-          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "sha256": "00b2c2071bf57aa52559a91bf8a4ddcd0fcfd4718da2f83100593a45896c1fec",
           "executable": true
         },
         "node": {
-          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "sha256": "b57242cfee20571d2e74ababe9c1febed785cf9395b168237060a1d29f77b581",
           "executable": true
         },
         "cc": {
-          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "sha256": "75e997ec62297a6484f491bae28ab0ccb489daba23e398fd10fe68e9e6f0def8",
           "executable": true
         },
         "c++": {
-          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "sha256": "dd91977c184e327710578363ad93ebb175c3a457b6236b874fd3911b7c055c65",
           "executable": true
         },
         "ld": {
-          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "sha256": "f6d71a1bcd45764550a42dfaa179bc43b63ee879ec6f875bfd39fca013515da7",
           "executable": true
         },
         "ar": {
-          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "sha256": "3acbee2794e3668a74bcb90f2eaf7d981211fb95288ab940f0e3ac380e8f6023",
           "executable": true
         },
         "objcopy": {
-          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "sha256": "3164c828c83d8bd1e362e5b9b4930998aca75d3b085293b9e292baa1c4262064",
           "executable": true
         },
         "python": {
-          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "sha256": "9bee109da0dce17a7c9eeaca9f420cc6770a9fe143b9382d73bd22fe59b21a5f",
           "executable": true
         }
       },
       "python_packages": {
-        "numpy": {
-          "version": "1.26.4",
-          "sha256": "7dd34308cae1f97de5c2648c01086aa1e3d0b248880adf91a114d868237953f8"
-        },
+        "numpy": null,
         "pillow": {
-          "version": "13.0.0",
-          "sha256": "232fc8e16099bee7e0e7755ccdd70edfff3869685d5aafcf305aa55274b168da"
+          "version": "9.4.0",
+          "sha256": "c6d6f5bc403396868ad18dad0b1d84a003b0837ece68e7f144d88fec9ea358b2"
         }
       },
       "dependencies": {
@@ -127,16 +192,33 @@
         "sdk": {
           "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
         },
-        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh": {
-          "sha256": "9d36159cd300f27c543523539f13fb0a365b81fd24f6e85399a645ae452fce2f",
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh": {
+          "sha256": "f6c86367d7caedb8b5785e258425881dc13b26a06c8ed14a7f7d0f588c2879e2",
           "executable": true
         },
-        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh": {
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh": {
           "sha256": "94834b59507fb2aa5d2d1f981436d4d2159ea56d2b02efd278b8ec9a47da9bcb",
           "executable": true
         }
       },
-      "references": {}
+      "references": {
+        "NINEW9_DIR": {
+          "sha256": "f294646e5b85ca19e8af9a1885d4d5291b674eb77135e5f270111b0be86d39c3"
+        },
+        "EIGHTW8_DIR": {
+          "sha256": "c9afce2266d3e7b999806ebe19d3b30378500039f8727e02a2b715e33c055768"
+        },
+        "SCHWUNG303": {
+          "sha256": "aa138ec5b833ff21173aed6911be1e1550df0f3d15330b15068ebf7ae1631a7b"
+        },
+        "TB3PO_REF": {
+          "sha256": "f9345b97eb05692a161893ac1d3d2d100025eb68f4f90e8b7ae7605533d7c9e6",
+          "executable": false
+        },
+        "X0X_REFS": {
+          "sha256": "12813b6693241c602660df0f857804c25df849619099c5420f3c7213b506f5f3"
+        }
+      }
     }
   },
   "result": "DEV CHECKED",
@@ -152,21 +234,87 @@
         "reason": "BF-013 tip blobs must match Stage-2 repair (fxbus.c 49a89483\u2026, stereo_test.c c8bc1092\u2026).",
         "argv": [
           "bash",
-          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+          "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
         ]
       },
       {
         "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
         "argv": [
           "bash",
-          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+          "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
         ]
       }
     ],
     "dependencies": [
-      "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
-      "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
-    ]
+      "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+      "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+    ],
+    "worker": {
+      "image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.8.0-117-generic"
+      ],
+      "environment": {
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "HOSTNAME": "ed0d04c43781",
+        "HOME": "/root",
+        "AC79_SDK": "/Users/mac/fw-AC79_AIoT_SDK",
+        "CC": "cc",
+        "CXX": "c++",
+        "EIGHTW8_DIR": "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8",
+        "JIELI_TOOLCHAIN": "/Users/mac/.jieli/toolchain",
+        "NINEW9_DIR": "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9",
+        "SCHWUNG303": "/Users/mac/Documents/x0x37/validation_refs/schwung-303",
+        "TB3PO_REF": "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po/src/dsp/tb3po.c",
+        "X0X_REFS": "/Users/mac/Documents/x0x37/validation_refs",
+        "CPATH": "/usr/local/include",
+        "LIBRARY_PATH": "/usr/local/lib",
+        "SDK_LOCAL": "/Users/mac/fw-AC79_AIoT_SDK",
+        "MODEL": "pro",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "mounts": {
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro": true,
+        "/Users/mac/Documents/x0x37/dev-check-yk28objf": false,
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/tools": true,
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/.git": false,
+        "/Users/mac/.jieli/toolchain": true,
+        "/Users/mac/fw-AC79_AIoT_SDK": true,
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh": true,
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh": true,
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-9W9": true,
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-8W8": true,
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-303": true,
+        "/Users/mac/Documents/x0x37/validation_refs/schwung-tb3po/src/dsp/tb3po.c": true,
+        "/Users/mac/Documents/x0x37/validation_refs": true,
+        "/Users/mac/.jieli/jieli-linux-toolchains-20260730.1": true
+      },
+      "orchestrator_platform": [
+        "Darwin",
+        "arm64",
+        "27.2.0"
+      ],
+      "orchestrator_tools": {
+        "docker": {
+          "sha256": "d5a8e97986df13467ff99f71740267e60a96ad098397b204e8cf32dc2f1a8f4a",
+          "executable": true
+        },
+        "python": {
+          "sha256": "6e7ae61f68a3838094fc56590f84c52069a97d7816f6bb79e0e85995b340e464",
+          "executable": true
+        },
+        "git": {
+          "sha256": "5f593b5dfc0e9e583d326d25a27e1a268419d4ae9440866da0bd94096a58b76d",
+          "executable": true
+        }
+      }
+    }
   },
   "changed_files": [
     "evidence/f13-stage4/CHECKS.md",
@@ -269,7 +417,7 @@
     "check-0": {
       "argv": [
         "bash",
-        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
       ],
       "returncode": 0,
       "sha256": "f5d22321b1faca43737adc66c70e5c3af5ca745576da8fe1a3c236036b7daf24"
@@ -277,7 +425,7 @@
     "check-1": {
       "argv": [
         "bash",
-        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+        "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
       ],
       "returncode": 0,
       "sha256": "a53b62c64d68095d6686ac53992ec10613d45462f4e524a353077a7339b0fb47"
@@ -290,7 +438,7 @@
         "smk37"
       ],
       "returncode": 0,
-      "sha256": "75cf8b64aeb619fee240c15797dbbe36506bb42a47500b72f9735f41b5e6b97b"
+      "sha256": "38726e6fe558e2bc1fc0e82fbd61d255b72aa4f8d256214ad6a5f53e6820a8a1"
     },
     "controller": {
       "argv": [
@@ -298,13 +446,13 @@
         "ble/ctl/build_ctl.sh"
       ],
       "returncode": 0,
-      "sha256": "d4b9e40db8c13f315f190cb8754a852476aaafbe6346496d6286e8ae7873d5ef"
+      "sha256": "d645891bb8b1ed3544017a51beb969050c7bc780636efbb56ad00e24dbd451d1"
     }
   },
   "artifacts": {
     "package": {
       "file": "x0x-smk37.fwsc",
-      "sha256": "eba70777632b959a339d2f8a326a3d874c938627aeef96648b83d52091379161"
+      "sha256": "7498e6466c77349f64af1cf2c581c2e6f69075a96d18a168e66fa347479a555a"
     },
     "controller": {
       "file": "ctl.img",
