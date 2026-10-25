@@ -1,0 +1,101 @@
+{
+  "role": "bounded size optimizer",
+  "state": "DELIVERED_TRIAL_PASS_PENDING_FINAL_NATIVE_AND_INDEPENDENT_REVIEW",
+  "base_sha": "46d19d517b4ee6dc8fbb125be0250c3933477dea",
+  "variant_sha": "85432e8c1d7df519c5bd4998d579ca9017467982",
+  "first_variant_sha": "fd3b492d369a09800ec68228db750724680b088f",
+  "scope": [
+    "Only sequencer compiler dispatch lowering and provably side-effect-free duplicate lookahead/direction reads",
+    "No feature removed, no control or persistence change"
+  ],
+  "native_builder_observations": {
+    "baseline_overflow": 348,
+    "first_variant_overflow": 44,
+    "second_variant_code_free": 52,
+    "recovered": 400,
+    "ram_free": 300,
+    "pool_free": 8324,
+    "app_size": 552620,
+    "evidence": "native/second-trial/measurement.json",
+    "qualification": "scoped native trial; parent canonical final model builds pending"
+  },
+  "checks": {
+    "registered_selectors": "12PASS",
+    "matrix_optimized": "18336cases232256assertions0failures",
+    "matrix_apple_asan_ubsan": "18336cases232256assertions0failures",
+    "dispatcher_differential": {
+      "calls": 245760,
+      "hash": "57d99867f52ffdfc",
+      "same": "baseline46d19 andsecondvariant85432e8c",
+      "coverage": [
+        "directions0..7",
+        "length1..64",
+        "rate0..3",
+        "swing0..100",
+        "mutes",
+        "external/internal",
+        "callbackdirectionchanges",
+        "allseq_t bytes(pointer-normalized)",
+        "allpatternbytes",
+        "sinkeventorder/values"
+      ]
+    }
+  },
+  "limitations": [
+    "No final canonical model record from me",
+    "Not independent QA: producer self-checks",
+    "No native timing or physical hardware claim",
+    "No Linux sanitizer pass claimed",
+    "Initial custom differential harness compile failed due callback name collision; corrected totrace_midi withoutchanging production source"
+  ],
+  "files": {
+    "combined-size.patch": {
+      "sha256": "bd68ae35a5bc8142d5f8c753fff8259b09a433fac7afe245a1ad46d190fb12fa",
+      "size": 3171
+    },
+    "fire-step-size.patch": {
+      "sha256": "0cf29342a26d40b9fd90818cfb92b62af6000c4115deabc701dd603bdf8d3e5b",
+      "size": 663
+    },
+    "lookahead-dir.patch": {
+      "sha256": "b4160da98705256cdb7a3db2bdfa473fd7a7dd618c29f64b3036e139ef996659",
+      "size": 2683
+    },
+    "scoped-tests.log": {
+      "sha256": "c8036c9c7c4574598b8efb72a019d7c2f6f93ee85b65921c4d3bcea9fd5f4e19",
+      "size": 404
+    },
+    "scoped-tests-r2.log": {
+      "sha256": "c8036c9c7c4574598b8efb72a019d7c2f6f93ee85b65921c4d3bcea9fd5f4e19",
+      "size": 404
+    },
+    "matrix-opt.log": {
+      "sha256": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+      "size": 87
+    },
+    "matrix-san.log": {
+      "sha256": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+      "size": 87
+    },
+    "matrix-opt-r2.log": {
+      "sha256": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+      "size": 87
+    },
+    "matrix-san-r2.log": {
+      "sha256": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+      "size": 87
+    },
+    "step_dispatch_trace.c": {
+      "sha256": "65f7e011d6b701fbd1e7886edcad53e0c627ea83f624da14094311833f8d65ca",
+      "size": 2210
+    },
+    "trace-baseline.log": {
+      "sha256": "89d734d3d3950cdf3cc1e2fdff4a92086efa8cddc9c26b13cef4b12cf937c751",
+      "size": 40
+    },
+    "trace-candidate.log": {
+      "sha256": "89d734d3d3950cdf3cc1e2fdff4a92086efa8cddc9c26b13cef4b12cf937c751",
+      "size": 40
+    }
+  }
+}
