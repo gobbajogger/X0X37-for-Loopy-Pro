@@ -1,0 +1,28 @@
+You are a fresh Stage 3 TEST thread for X0X37 SMC mixer UI popup (seven-stage workflow).
+
+## Why
+Stage 2 REPAIR (bc-a9596c35-cd3d-534c-b570-4a5800957829) recovered Elite/Pro DEV XIP
+fit after Stage 4 FAIL on ad4f311 (overflow Elite 248 B / Pro 232 B). Repair tip is on
+`cursor/smc-mixer-ui-popup-stage2-repair-5686`. Host suite PASS and both DEV models
+linked with 56 B code free on the repair machine — Stage 3 must re-verify independently.
+
+## Read first
+- docs/audit/smc-mixer-ui-popup-2026-10-22.md
+- evidence/smc-mixer-ui-popup-stage4/DEFECT.txt
+- evidence/smc-mixer-ui-popup-stage2-repair/RESULT.txt
+- evidence/smc-mixer-ui-popup-stage2-repair/HANDOFF.md
+- tests/host/smc_ui_popup_test.c
+
+## Job
+1. Fetch and check out the tip of `cursor/smc-mixer-ui-popup-stage2-repair-5686`.
+2. Re-run focused SMC host suite: fader, buttons, mapping, filter, clip-visibility,
+   part-select, drum-mutes, performance-abort, reachability, smc_ui_popup.
+3. Confirm SMC-05: strips 1–5 MIX PARTS mixsel; 6 FX REVERB; 7 FX DELAY; 8 MIX MASTER;
+   1200 ms hold/refresh; peek on PICK/SMC; restore without set_view; no peek in
+   clip/help/overlay/perf_testing/drum-mix.
+4. Record results under evidence/smc-mixer-ui-popup-stage3/ (or stage2-repair-stage3/).
+5. On PASS, start exactly one fresh Stage 4 Validate thread with the candidate SHA.
+   On FAIL, start exactly one Stage 2 repair thread with a DEFECT.
+6. Do NOT install. Do NOT merge to main. Do NOT implement page-lock/multi-SMC.
+
+Toolchain may be used for optional size spot-checks; Stage 4 owns formal package validate.
