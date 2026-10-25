@@ -18,7 +18,7 @@ Deferred (unchanged): `evidence/f08-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f08-stage4/SUCCESSOR-STAGE5.txt`.
 Successor agent id: none.
 Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 5 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Handoff status: **incomplete** until an owner-visible Stage 5 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; CreateAgent attempts 1–2 recorded as `api-create-stage5-attempt{1,2}.json` (`NO_CURSOR_API_KEY`). Coordinator CreateAgent is required. Stage 4 retains ownership.
 
 ## Package summary
 
