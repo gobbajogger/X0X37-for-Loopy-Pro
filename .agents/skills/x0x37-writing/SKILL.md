@@ -13,8 +13,8 @@ Preserve facts, uncertainty, negation, exceptions, technical terms, and literal 
 Use "behavior" and "colour" in prose; keep code spelling.
 Consult [project terms](references/terms.md) when needed.
 
-Only when the owner explicitly requests a strict ASD-STE100 review, read [asd-ste100](../asd-ste100/SKILL.md), [strict notes](../asd-ste100/references/strict.md), and [official rules and dictionary](references/strict.md).
-Check only that requested review against those sources. Claim compliance only for text actually checked.
+Only when the owner explicitly requests a strict ASD-STE100 review, follow [strict review](references/strict.md).
+Check only that requested review against that file. Claim compliance only for text actually checked.
 Return to plain writing after the review.
 
 Use [caveman](../caveman/SKILL.md) when requested. Preserve grammar, facts, and conditions.
