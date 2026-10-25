@@ -21,7 +21,7 @@ Deferred younger / excluded items: withheld asset cache, unmerged data-safety id
 Successor prompt: `evidence/f08-stage1/SUCCESSOR-STAGE2.txt`.
 Successor agent id: none.
 Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required after the prompt is pushed.
+Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create ×2 → 401; logs `api-create-stage2-attempt{1,2}.json`); coordinator CreateAgent is required.
 
 Selected defect: **BF-004**. Stale Note Off from a previous USB/Bluetooth source releases the current owner’s 303 / BREAK hold because `midi_in` does not check `src_held` ownership on Note Off (`firmware/src/app/engine.c`, blob `555480d9…`). **Approved repair: ownership-gated Note Off / BREAK off + host regressions.** Do not reopen BF-001–BF-003 or FP-001.
 
