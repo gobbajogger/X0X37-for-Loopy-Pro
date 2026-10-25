@@ -436,6 +436,7 @@ run smk-clip-usb-clear sh tests/host/smk_clip_usb_clear_test.sh   # CLP-18: a li
 run smk-clip-isolation python3 tests/host/smk_clip_isolation_test.py
 run smk-clip-knob sh tests/host/smk_clip_knob_test.sh   # clip mode knobs 2-8 send CC 48-54 on USB and Bluetooth (real usb.c)
 run smk-fader-pickup sh tests/host/smk_fader_pickup_test.sh   # fader pickup and input draining across project holds
+run smk-wheel-mode sh tests/host/smk_wheel_mode_test.sh   # navigation preserves wheel ownership, DSP and rendered audio
 run smk-clip-wait sh tests/host/smk_clip_wait_test.sh   # CLP-80: the clip screen waits for Loopy Pro (no host: no grid)
 run smk-apc40-violet python3 tests/smk_apc40_violet_test.py   # a76: violet, purple and pink clips are not blue
 if [ -f build/smk37/x0x.bin ] && [ -f build/smk37/loader/ota.bin ] && [ -n "${AC79_SDK:-}" ]; then
