@@ -609,6 +609,23 @@ static void brk_midi_wrap(int src, int on, int note)
     src_held[src] |= (uint16_t)v;
     breaks_slice_on(&brk, slice);           /* retrigger; the voice that is playing crossfades */
 }
+/* 8 SLICES map change: legacy note numbers and wrap (note mod 8) disagree, so MIDI
+ * holds tracked in src_held / brk_down must not survive a mode toggle. */
+void engine_brk_slice_mode_reconcile(void)
+{
+    int src, s, g;
+    for (s = 0; s < 8; s++) {
+        uint16_t mask = (uint16_t)(1u << (8 + s));
+        if ((src_held[0] | src_held[1]) & mask)
+            breaks_live(&brk, s, 0);
+    }
+    for (src = 0; src < 2; src++) {
+        src_held[src] &= 0xFFu;
+        for (g = 0; g < 16; g++)
+            brk_down[src][g] = 0;
+    }
+}
+
 static void brk_link_end(int src, uint16_t owned)
 {
     int s, n;
