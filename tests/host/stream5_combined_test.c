@@ -86,35 +86,48 @@ static void rewrite_stream_word(uint32_t stream)
 
 static void test_migrate_frozen_stream4_rec(void)
 {
-    uint8_t h[PROJECT_FILE_HDR];
+    uint8_t h[PROJECT_FILE_HDR], data[PLAT_STORE_MAX];
+    uint8_t want = (uint8_t)(G_NOTE | BS_ACCENT | (12u << BS_END_SHIFT));
+    int k, n;
     fixture("frozen recorder stream4 endpoints migrate to stream5");
     musical_fixture();
-    proj.pat[2].bass[1].step[5].flags = (uint8_t)(G_NOTE | BS_ACCENT | (12u << BS_END_SHIFT));
+    proj.pat[2].bass[1].step[5].flags = want;
     REQUIRE(project_save() == 0);
     saved_project = proj;
     rewrite_stream_word(4); /* pretend an older recorder-only stream4 save */
     memset(&proj, 0x5A, sizeof proj);
     REQUIRE(project_load_stage() == 0);
+    CHECK(project_stage.pat[2].bass[1].step[5].flags == want);
+    CHECK(bstep_gate(&project_stage.pat[2].bass[1].step[5]) == G_NOTE);
     CHECK((project_stage.pat[2].bass[1].step[5].flags >> BS_END_SHIFT) == 12);
-    for (int k = 0; k < NLANE; k++)
+    for (k = 0; k < NLANE; k++)
         CHECK(!project_stage.arr.lane[k].used || project_stage.arr.lane[k].t != MOT_SNAPSHOT);
     project_file_header(h);
     put32(h + 20, 4);
     CHECK(project_file_validate(h) == 0); /* endpoint-only stream4 envelope still valid */
+    /* Production path: adopt staged music, then rewrite as stream5 from live. */
+    proj.set.bt = saved_project.set.bt; /* clobber proved load independence; keep device role */
+    project_commit_stage();
+    CHECK(proj.pat[2].bass[1].step[5].flags == want);
     REQUIRE(project_save() == 0);
-    {
-        uint8_t data[PLAT_STORE_MAX];
-        int n = st_load(OBJ_PAT0, data, sizeof data);
-        REQUIRE(n >= 4);
-        CHECK(get32(data) == 5); /* rewrite as combined */
-    }
+    n = st_load(OBJ_PAT0, data, sizeof data);
+    REQUIRE(n >= 4);
+    CHECK(get32(data) == 5);
+    memset(&proj, 0xA5, sizeof proj);
+    REQUIRE(project_load_stage() == 0);
+    project_commit_stage();
+    CHECK(proj.pat[2].bass[1].step[5].flags == want);
+    CHECK(bstep_gate(&proj.pat[2].bass[1].step[5]) == G_NOTE);
+    CHECK((proj.pat[2].bass[1].step[5].flags >> BS_END_SHIFT) == 12);
+    for (k = 0; k < NLANE; k++)
+        CHECK(!proj.arr.lane[k].used || proj.arr.lane[k].t != MOT_SNAPSHOT);
     check_protected_flash();
 }
 
 static void test_migrate_frozen_stream4_miami(void)
 {
-    uint8_t values[16], h[PROJECT_FILE_HDR];
-    int i, k;
+    uint8_t values[16], h[PROJECT_FILE_HDR], data[PLAT_STORE_MAX];
+    int i, k, s, n;
     fixture("frozen Miami stream4 snapshots migrate to stream5");
     for (i = 0; i < 16; i++)
         values[i] = engine_param(T_303, 0, i)->def;
@@ -128,18 +141,28 @@ static void test_migrate_frozen_stream4_miami(void)
     CHECK(motion_snapshot_engine(project_stage.arr.lane, 4, 2, 9) == 1);
     for (k = 0; k < NPAT; k++)
         for (i = 0; i < NBASS; i++)
-            for (int s = 0; s < NSTEPS; s++)
+            for (s = 0; s < NSTEPS; s++)
                 CHECK(!(project_stage.pat[k].bass[i].step[s].flags >> BS_END_SHIFT));
     project_file_header(h);
     put32(h + 20, 4);
     CHECK(project_file_validate(h) == 0);
+    proj.set.bt = saved_project.set.bt;
+    project_commit_stage();
+    CHECK(!memcmp(motion_snapshot_read(proj.arr.lane, 4, 2, 9), values, 16));
+    CHECK(motion_snapshot_engine(proj.arr.lane, 4, 2, 9) == 1);
     REQUIRE(project_save() == 0);
-    {
-        uint8_t data[PLAT_STORE_MAX];
-        int n = st_load(OBJ_PAT0, data, sizeof data);
-        REQUIRE(n >= 4);
-        CHECK(get32(data) == 5);
-    }
+    n = st_load(OBJ_PAT0, data, sizeof data);
+    REQUIRE(n >= 4);
+    CHECK(get32(data) == 5);
+    memset(&proj, 0xA5, sizeof proj);
+    REQUIRE(project_load_stage() == 0);
+    project_commit_stage();
+    CHECK(!memcmp(motion_snapshot_read(proj.arr.lane, 4, 2, 9), values, 16));
+    CHECK(motion_snapshot_engine(proj.arr.lane, 4, 2, 9) == 1);
+    for (k = 0; k < NPAT; k++)
+        for (i = 0; i < NBASS; i++)
+            for (s = 0; s < NSTEPS; s++)
+                CHECK(!(proj.pat[k].bass[i].step[s].flags >> BS_END_SHIFT));
     check_protected_flash();
 }
 
@@ -164,7 +187,7 @@ static void test_reject_mixed_frozen_stream4(void)
 
 static void test_stream3_rejects_new_features(void)
 {
-    uint8_t values[16], h[PROJECT_FILE_HDR];
+    uint8_t values[16], h[PROJECT_FILE_HDR], stale[PROJECT_FILE_HDR];
     int i, k;
     fixture("stream3 migration rejects snapshots and endpoints");
     musical_fixture();
@@ -178,13 +201,28 @@ static void test_stream3_rejects_new_features(void)
     project_file_header(h);
     put32(h + 20, 3);
     CHECK(project_file_validate(h) == 0);
+
+    /* CRC rejection is a distinct path from layout rejection. */
+    memcpy(stale, h, sizeof stale);
+    project_stage.pat[0].bass[0].step[1].velocity ^= 1;
+    CHECK(project_file_validate(stale) == -4);
+    project_stage = saved_project;
+    CHECK(project_file_validate(h) == 0);
+
+    /* CRC-valid stream3 envelope + snapshot payload: layout reject, not CRC. */
     for (i = 0; i < 16; i++)
         values[i] = 40;
     REQUIRE(motion_snapshot_capture(project_stage.arr.lane, 0, 2, 0, 1, values) >= 0);
-    CHECK(project_file_validate(h) < 0);
+    project_file_header(h);
+    put32(h + 20, 3);
+    CHECK(project_file_validate(h) == -1);
+
+    /* CRC-valid stream3 envelope + endpoint payload: layout reject, not CRC. */
     project_stage = saved_project;
     project_stage.pat[0].bass[0].step[0].flags = (uint8_t)(G_NOTE | (1u << BS_END_SHIFT));
-    CHECK(project_file_validate(h) < 0);
+    project_file_header(h);
+    put32(h + 20, 3);
+    CHECK(project_file_validate(h) == -1);
     check_protected_flash();
 }
 
