@@ -1,0 +1,29 @@
+You are the stage-1 audit thread in the X0X37 full-cycle loop (after F15 BF-034 Stage-7 CONFIRM_ONLY LIVE_PAGE_MATCH). You are already live as bc-deca3b7b-4de7-5203-b277-bd4f80284629 (https://cursor.com/agents/bc-deca3b7b-4de7-5203-b277-bd4f80284629). Do not resume Stage-7 bc-1c25d397-c632-5e69-bb7d-6f005be3c144, Stage-5 bc-0d5534ed-7263-5bd3-9495-f40a0f179e97, Stage-4 bc-ff070ae0-10b0-54ea-b5ec-8a8e15082646, or any earlier F02–F15 stage owner. Do not CreateAgent a second Stage 1 for this handoff.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly pages repository: https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly
+Nightly installer: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+
+Stage-7 disposition: CONFIRM_ONLY. Stage-4 BF-034 blank package hashes MATCH live catalog entry nightly-092589b8-dev (same as LX-73). No new gh-pages push. Pages tip unchanged a338960ca3eef0bf42f308ded09c02c9415e18e4. Latest remains nightly-b48cd800-dev (do not treat as rewind).
+
+Stage-4 authenticated SHA (packages): 092589b84fd455355216cb0de93c4782236f7524
+Blank Elite/Pro: 9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5 / 3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07
+Page Elite/Pro (bundled): 3d107710cde229d7faf3e007ae14e324d7ea5ce209a802642dacf40608b2895e / 60dc7fda13fdaa3ee456736588e18b2d9e7e50cc34a800504bde678e14ba12d3
+ctl: 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+Release tag: lx73-092589b8-dev
+
+Published tip to audit (latest; unchanged by Stage 7):
+- latest: nightly-b48cd800-dev
+- source: b48cd8002a6d4d509010e04b8a8f1cfcbbdee64a
+- Elite page: 81aaf361cb11717ad0bcee325453e361064506e4d6720781e8eb8ffcc1dadae2
+- Pro page: e0ac6b68e117ac42eac97944430d1a7ed2cacfba38336676096fa8a09f57319a
+- Blank Elite/Pro (f14-tip): 4dc49bad… / 3f3b5c00…
+- Label: DEV / HARDWARE TEST — DEVICE NOT TESTED; hardware_tested false
+
+WAIT_FOR_TIP is lifted for the BF-034 Stage 5/7 cycle. Proceed with Stage-1 audit of the live published tip above. BF-034 package confirm is closed — do not reopen Stage 2/3/4 for BF-034. Tip firmware after 092589b8 is not covered by Stage-4 package bytes without a fresh DEV CHECK. Select next defect per workflow Next cycle. Do not flash. Leave production main and production Pages unchanged.
+
+Evidence: evidence/f15-stage7/ (this Stage 7); evidence/f15-stage5/; evidence/f15-stage4/; evidence/f15-next-stage1/; evidence/f14-stage7-tip/.
+startingRef for any relaunch (coordinator only if this agent dies): cursor/f15-bf034-stage7-c144
+Read AGENTS.md and docs/rules/workflow.md. You are stage 1 only.
+
+Coordinator: do not CreateAgent a duplicate Stage 1 while bc-deca3b7b-4de7-5203-b277-bd4f80284629 is RUNNING for this handoff — wake/hand off that agent with this prompt.
