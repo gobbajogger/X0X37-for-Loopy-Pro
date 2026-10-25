@@ -8,7 +8,7 @@ Verify both refs at the start of any publication or integration task. Re-check t
 
 | Repository | Role |
 | --- | --- |
-| `gobbajogger/X0X37-for-Loopy-Pro` | Firmware and installer source. This checkout is that repository. `origin/nightly` was present when this skill was edited; read its tip before targeting it. Production promotion is a merge to `main` plus the production picker. A commit already on `main` is not a device pass for a new package. |
+| `gobbajogger/X0X37-for-Loopy-Pro` | Firmware and installer source. This checkout is that repository. `origin/nightly` was present when this skill was edited; read its tip before targeting it. A successful hardware validation fast-forwards firmware `main`. Production GitHub Pages and the release picker still follow their own publisher. A commit already on `main` is not a device pass for a new package. |
 | `gobbajogger/x0x37-for-Loopy-Pro_nightly` | Separate browser and status repository from the 2026-10-23 owner note. Confirm it still exists before writing it. It may record firmware SHAs and links. It receives no firmware source, `.fwsc`, `ctl.img`, SDK, toolchain, DSP blobs, samples, or credentials. It is not the publisher documented in this checkout. |
 
 The live installer documented in `README.md` and `BUILDING.md` is this repository's `gh-pages` branch: `https://gobbajogger.github.io/X0X37-for-Loopy-Pro/`.
@@ -27,9 +27,19 @@ The merge is a normal fast-forward of firmware `nightly` in `gobbajogger/X0X37-f
 
 This dated decision is the assignment for that `nightly` fast-forward only. It does not assign a release gate, a merge to production `main`, production GitHub Pages, or a device flash.
 
+## Owner decision, 2026-10-25 — hardware validation
+
+A successful hardware validation fast-forwards firmware `main` in `gobbajogger/X0X37-for-Loopy-Pro` without another promotion prompt.
+
+Success means an install record for the exact package and controller hashes, on the matching SMK-37 model, with backup, readback, and the running identity checked. `INSTALL BLOCKED` is not success. Elite evidence does not merge a Pro package, and Pro evidence does not merge an Elite package.
+
+The merge is a normal fast-forward. If the remote refuses, record the refusal and do not force-push. Production GitHub Pages and a release picker still follow their own publisher.
+
+This dated decision is the assignment for that firmware `main` fast-forward only. It does not flash a device, publish production GitHub Pages, or move a release picker. Recording this decision is not a hardware validation. A run with no successful hardware validation does not merge `main`.
+
 ## Dependency graph
 
-Source pushed, then source ready for review. Independent QA and `BUILD_ONLY` may proceed together on that immutable commit, in separate worktrees. Reviewed combined source can integrate to firmware `nightly` when the user assigns that merge. A release publication of this repository follows the section below and waits for the release gate. Live HTTP and hash verification comes after the `gh-pages` update. Owner hardware feedback starts once a candidate is actually downloadable. Production promotion stays a separate approval.
+Source pushed, then source ready for review. Independent QA and `BUILD_ONLY` may proceed together on that immutable commit, in separate worktrees. Reviewed combined source can integrate to firmware `nightly` when the user assigns that merge. A release publication of this repository follows the section below and waits for the release gate. Live HTTP and hash verification comes after the `gh-pages` update. Owner hardware feedback starts once a candidate is actually downloadable. Firmware `main` fast-forwards after a successful hardware validation for those exact bytes, without another promotion prompt. Production GitHub Pages and a release picker still follow their own publisher.
 
 Browser and history source do not wait for a firmware package. A public selectable package waits for the applicable prehardware, independent, integrity, data-safety, and distribution checks.
 
@@ -68,7 +78,7 @@ No Cursor agent flashes a keyboard. The owner tests a live candidate on the matc
 
 A reported failure becomes one regression on an owned branch, with a failing check before the repair and a passing check after, then returns through QA and build. The same hardware session does not certify a different model or different bytes. An unsafe candidate is removed from selection by the assigned publisher. Evidence and the previous safe version stay.
 
-Production `main` and the production picker move together only with that physical proof and a separate user promotion approval in this run. A nightly or development package does not become the production selection on its own.
+A successful hardware validation fast-forwards firmware `main` without another promotion prompt. Success is an install record for the exact package and controller hashes, on the matching SMK-37 model, with backup, readback, and the running identity checked. `INSTALL BLOCKED` is not success. Elite evidence does not merge a Pro package, and Pro evidence does not merge an Elite package. The merge is a normal fast-forward. If the remote refuses, record the refusal and do not force-push. Production GitHub Pages and a release picker still follow their own publisher. A run with no successful hardware validation does not merge `main`. A nightly or development package does not become the production selection on its own.
 
 ## Single-agent review limit
 
