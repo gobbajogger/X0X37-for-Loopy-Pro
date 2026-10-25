@@ -12,6 +12,20 @@ host executable name, not proof of the running device's version.
 
 Place the checkout at `WORK/repo`; tools resolve their private workspace as the
 checkout's parent. Create `WORK/audio` and `WORK/evidence`. Run commands from WORK.
+
+Importing `analyze.py`, `contour.py`, or `slide_experiment.py` does not read
+those private files. Running the file, or calling `main`, is the entrypoint for
+a private-reference workflow. `measure.py` holds the feature, distance, and
+contour math. Check it with original synthetic tones, without a Chicago plugin
+or a capture:
+
+```sh
+python3 repo/tools/audio303/test_synthetic_diagnostics.py
+```
+
+A passing synthetic run does not retune the instrument. Firmware DSP and the
+default sound stay as they are. The private scripts remain the only path that
+loads reference audio.
 Dependencies already present in this test: Apple clang/AudioToolbox, Python,
 NumPy/SciPy; Matplotlib only for plot.py. Do not install or alter permissions as
 part of this workflow. Audio and reference manifests remain outside Git.
