@@ -33,6 +33,7 @@ static int smk_clip_mode_on(void) { return 0; }
 #define is_drum() (ui.part < 2)
 static int drum_mix_page(void) { return -1; }
 static int cur_page(void) { return 0; }
+static uint32_t plat_ms(void) { return 0; } /* Fixed blink phase; this fixture checks master mute. */
 '''
 harness += "\n".join(functions)
 harness += r'''

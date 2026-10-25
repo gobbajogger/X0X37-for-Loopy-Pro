@@ -10,8 +10,9 @@ s = Path(os.environ.get('SMC_SOURCE', Path(os.environ.get('SMC_SOURCE_ROOT', roo
 # Mapping remains in apply(); the full UI regression exercises its presentation wrapper.
 f = re.search(r'^static void smc_button(?:_apply)?\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)[0]
 f = f.replace('smc_button_apply(', 'smc_button(', 1)
-helpers = []
-for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks'):
+helpers = [re.search(r'^static const (?:uint8_t|int8_t) '+name+r'\[4\]\[3\] = \{.*?^\};', s, re.M | re.S)[0]
+           for name in ('SMC_VIEW', 'SMC_PAGE')]
+for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks', 'smc_nav_key'):
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
     if match:
         helpers.append(match[0])

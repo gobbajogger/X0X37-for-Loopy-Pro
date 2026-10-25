@@ -40,13 +40,21 @@ static uint32_t smc_mmc_stop_seen[2];
 static volatile uint8_t smc_mmc_stop_boundary[2];
 /* Separate single-writer generation counters: TIMER5 (central), audio ISR
  * (host). Main-loop snapshots never clear a producer-owned flag. */
-static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
-static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
+/* Slots 0/2 belong to TIMER5; 1/3 belong to the host audio ISR. Each
+ * release class retains a separate full-width generation and acknowledgment. */
+static volatile uint32_t smc_release_lost[4];
+static uint32_t smc_release_seen[4];
+#define smc_ble_solo_release_lost smc_release_lost[0]
+#define smc_host_solo_release_lost smc_release_lost[1]
+#define smc_ble_solo_release_seen smc_release_seen[0]
+#define smc_host_solo_release_seen smc_release_seen[1]
+#define smc_pause_release_lost (smc_release_lost + 2)
+#define smc_pause_release_seen (smc_release_seen + 2)
 static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
     uint8_t type = st & 0xF0u;
     return !(note & 0x80u) && !(velocity & 0x80u) &&
-           ((note >= 8u && note < 16u) || (note >= 24u && note < 32u) || note == 0x5Eu) &&
+           ((note >= 8u && note < 16u) || (note >= 24u && note < 32u) || note == 0x5Du || note == 0x5Eu) &&
            (type == 0x80u || (type == 0x90u && !velocity));
 }
 static struct {
@@ -64,7 +72,7 @@ static struct {
     pref_t lock_fader[8], lock_knob[8];
     uint32_t lock_song_revision;
     uint16_t lock_song_len;
-    uint8_t locked, lock_down, lock_kit, lock_bank, lock_part, lock_view, lock_page, lock_song;
+    uint8_t locked, lock_down, lock_kit, lock_bank, lock_part, lock_view, lock_page;
 } smc;
 
 int smc_project_active(void) { return smc.solo || smc.drum_solo[0] || smc.drum_solo[1]; }
@@ -110,8 +118,7 @@ X0X_COLD static void smc_project_drop(void)
     smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
     /* A reset has already cleared all held solos; do not carry stale
      * overflow releases into the new project's queued presses. */
-    smc_ble_solo_release_seen = smc_ble_solo_release_lost;
-    smc_host_solo_release_seen = smc_host_solo_release_lost;
+    for (int i = 0; i < 4; i++) smc_release_seen[i] = smc_release_lost[i];
 }
 X0X_COLD void smc_project_reset(void)
 {
@@ -135,7 +142,10 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
          * A later main-loop poll clears held solos after draining older keys. */
         if (len == 3u && smc_is_solo_release(msg[0], msg[1], msg[2]) &&
             (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER)))
+        {
             smc_ble_solo_release_lost++;
+            if (msg[1] == 0x5Du) smc_pause_release_lost[0]++;
+        }
         smc_dropped++; return;
     }
     smc_q[w % SMC_Q].n = len;
@@ -175,6 +185,7 @@ int smc_midi_host(uint32_t pkt)
         smc_host_w = (uint8_t)(w + 1u);
     } else if (smc_is_solo_release(st, a, b)) {
         smc_host_solo_release_lost++;
+        if (a == 0x5Du) smc_pause_release_lost[1]++;
     }
     return 1;
 }
@@ -324,9 +335,8 @@ static pref_t smc_bind(pref_t r)
     return r;
 }
 
-/* Deliberately unbound until the physical Pause event and LED are proven.
- * The main-loop API lets host tests verify the production state machine without
- * stealing STOP or intercepting arbitrary MIDI channels/devices. */
+/* Captures destinations, without opening a page or retaining a display overlay.
+ * Physical Pause input is owner-captured Note 0x5D; MMC STOP stays separate. */
 int smc_lock_toggle(void)
 {
     if (!smc.locked) {
@@ -337,10 +347,10 @@ int smc_lock_toggle(void)
         smc.lock_kit = (uint8_t)(smc_drum_mix() + 1);
         smc.lock_bank = smc.lock_kit ? (uint8_t)(ui.sel[smc.lock_kit - 1u] / 8u * 8u) : 0;
         smc.lock_part = ui.part; smc.lock_view = ui.view;
-        smc.lock_page = (uint8_t)cur_page(); smc.lock_song = ui.song_sel;
+        smc.lock_page = (uint8_t)cur_page();
         smc.lock_song_revision = song_structure_revision; smc.lock_song_len = song()->len;
         for (int i = 0; i < 8; i++) {
-            smc.lock_fader[i] = smc_bind(smc_target(i));
+            smc.lock_fader[i] = smc_target(i); /* levels/returns/filter are engine refs, never pattern refs */
             smc.lock_knob[i] = smc_bind(smc_knob_target(i));
         }
     }
@@ -354,7 +364,7 @@ int smc_lock_toggle(void)
     return 1;
 }
 
-/* A future verified input route must report both press and release here.
+/* The verified physical input route reports both press and release here.
  * Repeated positive messages while held cannot unlock the surface again. */
 int smc_lock_button(int pressed)
 {
@@ -502,12 +512,24 @@ static const char *smc_button_caption(int note)
 }
 
 
+/* The encoder and fader use the same bounded native value rendering. Keeping
+ * one outline avoids duplicating formatting and width trimming in every grid. */
+static UI_DRAW void smc_ui_strip_value(pref_t r, int x, int y, uint16_t color)
+{
+    char value[32], unit[12];
+    if (r.kind == R_NONE) put_s(value, "--");
+    else pref_value_of(r, pref_get(r), value, unit);
+    char *end = value; while (*end) end++;
+    while (tw(&FONT_T, value) > 27 && end > value) *--end = 0;
+    text_c(x, y, &FONT_T, value, color);
+}
+
 /* Eight physical strips, left to right: encoder above, fader left of M/S/R.
  * Keep this geometry even when a target is inactive; position is the user's map. */
 static UI_DRAW void smc_ui_grid(void)
 {
-    static const char *const MAIN_N[8] = {"909", "808", "303A", "303B", "BRK", "RVB", "DLY", "FLT"};
     static const uint8_t NOTES[3] = {16, 8, 0};
+    static const char *const MAIN_N[8] = {"909", "808", "303A", "303B", "BRK", "RVB", "DLY", "FLT"};
     int kit = smc_drum_mix();
     /* Selection follows the keyboard UI, independently of the touched control.
      * A locked bank can differ: no lane is selected if it is outside this bank.
@@ -517,14 +539,17 @@ static UI_DRAW void smc_ui_grid(void)
         ui.view == V_MIX ? (cur_page() == 3 ? 7 : ui.mixsel) : ui.part;
     for (int n = 0; n < 8; n++) {
         pref_t f = smc_target(n), k = smc_knob_target(n);
-        char name[24], value[32], unit[12];
+        char name[24];
         int x = n * 30, active = smc_ui.kind < 2 && n == smc_ui.strip;
         uint16_t fc = active && smc_ui.kind == 0 ? C_HI : C_GRAY;
         uint16_t kc = active && smc_ui.kind == 1 ? C_HI : C_GRAY;
         if (n) cv_rect(x, 0, 1, 138, C_LINE);
         if (kit >= 0) {
             int track = smc_drum_track(kit, n);
-            if (track >= 0) put_i(name, track + 1); else put_s(name, "--");
+            if (track < 0) put_s(name, "--");
+            else if ((smc.locked ? smc.lock_view : ui.view) == V_SEQ)
+                put_s(name, engine_voice_name(kit ? T_808 : T_909, track));
+            else put_i(name, track + 1);
         } else put_s(name, MAIN_N[n]);
         if (n == selected) cv_rect(x + 1, 0, 28, 13, C_WHITE);
         text_c(x + 15, 1, &FONT_T, name, n == selected ? C_BLACK : C_WHITE);
@@ -546,11 +571,7 @@ static UI_DRAW void smc_ui_grid(void)
             if (bipolar) cv_rect(x + 14, 25, 2, 3, C_WHITE);
             arc(x + 15, 36, 8, (float)smc_scaled(k) / 127.0f, C_LINE, kc, bipolar);
         } else text_c(x + 15, 30, &FONT_T, "--", C_DIM);
-        if (k.kind == R_NONE) put_s(value, "--");
-        else pref_value_of(k, pref_get(k), value, unit);
-        { char *end = value; while (*end) end++;
-          while (tw(&FONT_T, value) > 27 && end > value) *--end = 0; }
-        text_c(x + 15, 46, &FONT_T, value, k.kind == R_NONE ? C_DIM : kc);
+        smc_ui_strip_value(k, x + 15, 46, k.kind == R_NONE ? C_DIM : kc);
         cv_rect(x + 3, 64, 2, 51, f.kind == R_NONE ? C_LINE : C_DIM);
         if (f.kind != R_NONE) {
             int target = 111 - smc_scaled(f) * 45 / 127;
@@ -567,11 +588,7 @@ static UI_DRAW void smc_ui_grid(void)
             cv_rect(x + 8, y, 22, 13, C_LINE);
             text_c(x + 19, y + 1, &FONT_T, caption, c);
         }
-        if (f.kind == R_NONE) put_s(value, "--");
-        else pref_value_of(f, pref_get(f), value, unit);
-        { char *end = value; while (*end) end++;
-          while (tw(&FONT_T, value) > 27 && end > value) *--end = 0; }
-        text_c(x + 15, 122, &FONT_T, value, fc);
+        smc_ui_strip_value(f, x + 15, 122, fc);
     }
 }
 
@@ -808,6 +825,7 @@ static int smc_lock_blocks(uint8_t note)
 
 /* All four drum SEQ/MIX rows follow the visible fader/knob bank. Outside those
  * pages the strips retain their whole-part, FX and navigation functions. */
+__attribute__((noinline))
 static void smc_button_apply(uint8_t note, int mmc)
 {
     int row, strip;
@@ -955,6 +973,10 @@ static void smc_button_apply(uint8_t note, int mmc)
 
 static void smc_button(uint8_t note, int mmc)
 {
+    if (!mmc && note == 0x5Du) {
+        smc_lock_button(1);
+        return;                         /* no transport action card for target lock */
+    }
     if (!mmc && note >= 24u && note < 32u) {
         uint8_t bit = (uint8_t)(1u << (note - 24u));
         if (smc.select_down & bit) return;
@@ -983,6 +1005,7 @@ static void smc_button(uint8_t note, int mmc)
 
 static void smc_release(uint8_t note)
 {
+    if (note == 0x5Du) smc_lock_button(0);
     if (note == 0x5Eu) smc.play_down = 0;
     if (note >= 24u && note < 32u)
         smc.select_down &= (uint8_t)~(1u << (note - 24u));
@@ -1058,15 +1081,16 @@ void smc_poll(void)
     uint32_t link = smc_link_published;
     uint8_t r, count = 0;
     int allow = !perf_testing();
-    /* Capture overflow generations before draining either MIDI input ring.
-     * TIMER5/audio ISR can refill an already-drained ring during this poll;
-     * its new press must be processed before we acknowledge its lost release. */
-    uint32_t ble_lost = smc_ble_solo_release_lost;
-    uint32_t host_lost = smc_host_solo_release_lost;
-    uint32_t ble_seen = smc_ble_solo_release_seen;
-    uint32_t host_seen = smc_host_solo_release_seen;
+    /* Snapshot producer generations before either input ring drains. An ISR
+     * can enqueue a press then lose its release while another ring drains;
+     * acknowledging that new loss in this poll would leave Solo latched. */
+    uint32_t release_lost[4], release_seen[4];
+    for (int i = 0; i < 4; i++) {
+        release_lost[i] = smc_release_lost[i];
+        release_seen[i] = smc_release_seen[i];
+    }
     if (ui_project_busy()) {
-        smc.play_down = smc.select_down = 0;
+        smc.lock_down = smc.play_down = smc.select_down = 0;
         if (smc_project_active()) smc_solo_clear();
         smc_project_drop();
         return;
@@ -1095,7 +1119,7 @@ void smc_poll(void)
     }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
-        smc.play_down = smc.select_down = 0;
+        smc.lock_down = smc.play_down = smc.select_down = 0;
         smc.picked = smc.seen = 0;
         smc.knob_i = 0;
         if (smc_project_active()) smc_solo_clear();
@@ -1148,14 +1172,12 @@ void smc_poll(void)
      * newer ISR generation: its preceding press may still be queued. A
      * project drop may already have advanced a cursor; do not rewind it. */
     uint8_t missed_solo = 0;
-    if (ble_lost != ble_seen && smc_ble_solo_release_seen == ble_seen) {
-        smc_ble_solo_release_seen = ble_lost;
-        missed_solo = 1;
-    }
-    if (host_lost != host_seen && smc_host_solo_release_seen == host_seen) {
-        smc_host_solo_release_seen = host_lost;
-        missed_solo = 1;
-    }
+    for (int i = 0; i < 4; i++)
+        if (release_lost[i] != release_seen[i] && smc_release_seen[i] == release_seen[i]) {
+            smc_release_seen[i] = release_lost[i];
+            if (i < 2) missed_solo = 1;
+            else smc.lock_down = 0;
+        }
     if (missed_solo) {
         if (smc_project_active()) smc_solo_clear();
         /* The shared release-loss epoch also rearms edge-sensitive buttons.
@@ -1203,7 +1225,9 @@ static int smc_led(int note)
                (strip == 6 && ui.view == V_FX && cur_page() == 1) ||
                (strip == 7 && ui.view == V_MIX && cur_page() == 3);
     }
-    if (note == 0x5D) return !seq.playing;
+    /* Existing Mackie NoteOn feedback route; physical LED identity still
+     * needs native owner verification for the captured preset. */
+    if (note == 0x5D) return smc.locked || ((plat_ms() >> 9) & 1u);
     if (note == 0x5E) return seq.playing;
     if (note == 0x5F) return ui.rec;
     return 0;

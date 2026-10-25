@@ -419,6 +419,48 @@ static void test_selected_lane(void)
 }
 
 
+/* Compare the actual native title pixels with independently specified sound
+ * names. MIX retains its numbered strips even when ui.part is another kit. */
+static void check_drum_titles(int kit, int bank, int names)
+{
+    static const char *const voices[2][11] = {
+        {"BD","SD","LT","MT","HT","RS","CP","CH","OH","CR","RD"},
+        {"BD","SD","LT","MT","HT","RS","CP","CB","CY","OH","CH"}
+    };
+    uint32_t old_hash = blit_hash[1];
+    memcpy(active_fb, fb, sizeof fb);
+    cv_begin(240, 13, C_BLACK); cv_band(0, 13);
+    for (int n = 0; n < 8; n++) {
+        char number[8]; int track = bank * 8 + n;
+        const char *label = track >= NDRUM ? "--" : names ? voices[kit][track] :
+            (put_i(number, track + 1), number);
+        int selected = ui.sel[kit] == track;
+        if (n) cv_rect(n * 30, 0, 1, 13, C_LINE);
+        if (selected) cv_rect(n * 30 + 1, 0, 28, 13, C_WHITE);
+        text_c(n * 30 + 15, 1, &FONT_T, label, selected ? C_BLACK : C_WHITE);
+        CHECK(tw(&FONT_T, label) <= 27);
+    }
+    cv_commit_rect(1, 0, MAIN_Y);
+    CHECK(!memcmp(active_fb + MAIN_Y * 240, fb + MAIN_Y * 240, 13 * 240 * sizeof *fb));
+    memcpy(fb, active_fb, sizeof fb);
+    blit_hash[1] = old_hash;
+}
+static void test_drum_titles(void)
+{
+    for (int kit = 0; kit < 2; kit++) for (int bank = 0; bank < 2; bank++) {
+        setup(V_SEQ, kit); ui.sel[kit] = bank * 8; build_pages();
+        knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 1);
+        shot(kit ? bank ? "25-808-seq-bank2-names" : "24-808-seq-bank1-names" :
+                   bank ? "23-909-seq-bank2-names" : "22-909-seq-bank1-names");
+        CHECK(smc_lock_toggle());
+        ui.part = 1 - kit; ui.sel[kit] = bank ? 0 : 8; set_view(V_HOME); build_pages();
+        knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 1);
+        setup(V_MIX, 1 - kit); *page_of(V_MIX) = kit + 1; ui.sel[kit] = bank * 8; build_pages();
+        knob(0, 1); ui_frame(); check_drum_titles(kit, bank, 0);
+    }
+    puts("PASS drum titles: 909/808 SEQ names in both banks, inactive lanes, captured kit/view/bank; MIX numbers unchanged");
+}
+
 static void test_action_captions_and_knobs(void)
 {
     setup(V_HOME, PART_303A);
@@ -482,7 +524,7 @@ static void test_action_captions_and_knobs(void)
 #endif
 int SMC_UI_MAIN(void)
 {
-    test_navigation_replay(); test_distinct_maps(); test_physical_geometry(); test_selected_lane(); test_action_captions_and_knobs();
+    test_navigation_replay(); test_distinct_maps(); test_physical_geometry(); test_selected_lane(); test_drum_titles(); test_action_captions_and_knobs();
     test_restore(); puts("PASS restore: eight views preserve complete navigation state and exact framebuffer");
     test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset();
     printf("smc_ui: PASS (%u checks)\n", checks);

@@ -1,0 +1,40 @@
+{
+  "status": "BUILD_BLOCKED_XIP",
+  "base": "b8794f9f10b0be68bf21579d43d4a6fef6cd4d72",
+  "source_file_sha256": "a7268c5df260d3671a98ebb31a9a822a486f3e4b50d6ba902bb89d2201152d51",
+  "compiled_inputs": 189,
+  "compiled_closure_sha256": "c4b1e5877b0e9bbff63d37af18e33828753a38990eb25b67787c046f8c54c146",
+  "native_image": "sha256:0cffe038efa0f50556de3fb444de6386729d495f63703c8c3b40fdfd0482d4b1",
+  "network": "none",
+  "config": "DEV X0X_DEV_PADCAL=1",
+  "models": {
+    "elite": {
+      "exit": 1,
+      "xip_overflow_bytes": 108,
+      "completed_utc": "2026-10-25T09:45:20Z"
+    },
+    "pro": {
+      "exit": 1,
+      "xip_overflow_bytes": 108,
+      "completed_utc": "2026-10-25T09:47:44Z"
+    }
+  },
+  "post_link_RAM_pool_checks": "NOT_REACHED_LINK_FAILED",
+  "app_package_emitted": false,
+  "controller": "unchanged; no new pairing/installability claim",
+  "host_checks": {
+    "independent_ui_asan_ubsan": 5893,
+    "independent_lock_asan_ubsan": 703,
+    "independent_pause_loss_asan_ubsan": 397,
+    "feedback": 1877,
+    "affected_host_suites": 18,
+    "interaction_runtime_mutants": 8,
+    "ui_runtime_mutants": 14
+  },
+  "independent_review": "PASS_SOURCE_AND_HOST_ONLY",
+  "next": "Recover remaining108B within scope, repeat affected checks and exact model budgets, then deliver exact candidate to separate native hardware owner; physical LED identity remains unproven",
+  "no_flash_merge_public_binaries_GUI_device_access_permission_changes": true,
+  "object_symbol_sizes": "object-symbol-sizes.json",
+  "linked_map": "NOT_EMITTED_LINK_FAILED",
+  "next_owner": "Parent assigns immediate dedicated size-recovery stage; current source writer releases ownership after verified draft push"
+}
