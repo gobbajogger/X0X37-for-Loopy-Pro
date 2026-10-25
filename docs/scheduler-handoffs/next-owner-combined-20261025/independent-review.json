@@ -1,0 +1,150 @@
+{
+  "candidate": "ac11dc7cc363d78214e355a05c3b63601a2729ed",
+  "root_tree": "11a379224f058f5330b9ec59ae0bad19f81686d3",
+  "firmware_tree": "679b553e337673ecac4374df77c654a565dac35c",
+  "reviewer": "task86/integration_review",
+  "state": "INDEPENDENT_SCOPED_SOURCE_AND_HOST_QA_PASS_WITH_KNOWN_OWNER_REPORT",
+  "input_inclusion": {
+    "firmware/src/app/smc_mixer.c": {
+      "blob": "5748a91151e2e3ddfe25830d34bf84e8c8f6be23",
+      "source": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+      "qualification": "input blob identical"
+    },
+    "firmware/src/app/ui.c": {
+      "blob": "79066a6fb5f15eb1311d16e882a18d234cc8e818",
+      "source": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+      "qualification": "input blob identical"
+    },
+    "firmware/src/app/engine.c": {
+      "blob": "9b3ba23cf5c1a772e582c09b287b400b9a6eacd7",
+      "source": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "qualification": "input blob identical"
+    },
+    "firmware/src/seq/sequencer.c": {
+      "blob": "d36924dfc7f1d2bf01f4d0d88ade93a906938160",
+      "source": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "qualification": "reviewed optimizer delta"
+    },
+    "firmware/src/seq/sequencer.h": {
+      "blob": "2a52bed60de8ca41911a129a24be556afc033045",
+      "source": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "qualification": "input blob identical"
+    },
+    "firmware/src/dsp/bass303.c": {
+      "blob": "d17aa407c0df944cd0b883f8d3b220b4fd3082a6",
+      "source": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "qualification": "input blob identical"
+    },
+    "firmware/src/app/main_fm1.c": {
+      "blob": "bdb5c95d2d16722be6b4e7637fd88e1f450ecde7",
+      "source": "662ce39e43096fea1be159247ad46465034a0b28",
+      "qualification": "input blob identical"
+    }
+  },
+  "source_review": {
+    "callback": "int-return acceptance callback ABI kept consistently; real engine rejects chance before MIDI emission",
+    "physical_mapping": "SMC0x5D captures/releases target lock; MMCSTOP separate;0x5E debounced Play toggle; SELECT emits actual tap in repaired fixture",
+    "cutoff": "navigation causes no engine parameter write; independent mod/pitch targets remain original303 until physical release; no restore on reentry",
+    "size_optimizer": "Only staticfire_step Clang minsize/noinline; avoid overwritten sideeffectfree commit0 lookahead; cache rawdir only beforecallbacks/auto_mutate decision. Postcallback swing lookup remains fresh; highbits raw equivalence preserved.",
+    "optimizer_differential": "2304scenarios; dir0..255, lengths1/3/64, normal+step/bass callback changes,128advances each. Full normalizedseq state/allpatternbytes and callback trace equal baseline; traceSHA256df4762b791fc3d1b2cb4b6f4fe3f44afeff479f420dcc07dce32f4798d75892e"
+  },
+  "current_tests": [
+    {
+      "log": "final-ac11dc7.log",
+      "selectors": 18,
+      "exit": 0
+    },
+    {
+      "log": "matrix-ac11dc7.log",
+      "cases": 18336,
+      "assertions": 232256,
+      "exit": 0
+    },
+    {
+      "log": "matrix-ac11dc7-san.log",
+      "environment": "AppleClang AddressSanitizer+UndefinedBehaviorSanitizer",
+      "cases": 18336,
+      "assertions": 232256,
+      "exit": 0
+    },
+    {
+      "log": "locked-wheel-ac11dc7.log",
+      "paired_nonzero_audio_cases": 96,
+      "exit": 0
+    },
+    {
+      "logs": [
+        "direction-reference.log",
+        "direction-candidate.log"
+      ],
+      "cases": 2304,
+      "equal": true
+    },
+    {
+      "receipt": "negative-controls-ac11dc7.json",
+      "mutants": 2,
+      "compile_exit": 0,
+      "runtime_exit": 1
+    },
+    {
+      "log": "negative-ui-ac11dc7.log",
+      "selectors": 3,
+      "interaction_runtime_mutants": 8,
+      "UI_runtime_mutants": 14,
+      "compile_failures_count_as_pass": false,
+      "corner_coverage": "PASS",
+      "exit": 0
+    }
+  ],
+  "known_unresolved": [
+    {
+      "issue": "owner reports SMC faders require two pickups(oldstate thenactual) on immutablee75 hardware flash",
+      "owner": "dedicated task88 per parent steering",
+      "disposition": "not investigated/fixed here; SMC/UI source preserved unchanged; no claim resolved or hardwarequalified"
+    }
+  ],
+  "limits": [
+    "Scoped automated source/host result; not full repository suite or device proof",
+    "No device/GUI/hardware/protectedref/merge/publication action",
+    "Native model compilation/package QA owned by separate builder; this receipt does not attest measured budgets",
+    "Apple sanitizer observations do not erase recorded Linux ASan runtime instability",
+    "No device timing claim from minsize/noinline optimization"
+  ],
+  "evidence_sha256": {
+    "direction_differential.c": "36062186a28e9a8f8d13f21e0f7fcb5b398d0ea3b2b39f5676a277a2735777da",
+    "negative-ui-ac11dc7.log": "8d72e015fe349f0f744f5e035b95074134acc987fb0274ab55e0cb4262139ad0",
+    "random-preview-mutant.log": "d975162f583a2a3cf61de353f873361c3091040d03dfe8f5f8571400ed5225ad",
+    "combined-46d19d5.log": "7a2d05501a59148cfb03b253b6d6a0cb03fe8206a6ed18770836f9d738f064c2",
+    "matrix-fd3b492-san.log": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+    "orphan-guard-mutant.log": "348c4ba978d1ef8ca244f4518b3e676a353e84580f9ac6536dc68baa0362edbe",
+    "locked-wheel-ac11dc7.log": "c3564907011be615bfef137092498174f2973125040e17c58d8087a20ad5970f",
+    "negative-controls-ac11dc7.json": "b96b89d537873ec1736cb234b4566315348fe235b0ebe26f31de4e74718b47e2",
+    "locked-wheel-46d19d5.log": "c3564907011be615bfef137092498174f2973125040e17c58d8087a20ad5970f",
+    "direction-reference-summary.log": "e44a7f8a8493659942028981d3671a88f8c4cbeb30675636468041040d93b286",
+    "sequencer-reference.c": "4c707dc8e9f0e96fcdff7f7eafee0da942412056f0e2f2cbefb0ffe2c6be5b3b",
+    "smc-64bad3.log": "bdec9dc11ac3449a91a402ea90cb3f777088402f28a33da9a4cdb3551bd22016",
+    "recording-ec589f2.log": "aab301d40ad148b1311696c609dc6ea506a06b2f826007b4f89cf8a4c51f7f1f",
+    "locked-wheel-fd3b492.log": "c3564907011be615bfef137092498174f2973125040e17c58d8087a20ad5970f",
+    "wheel_locked_test.c": "a843eb7f9be062c16827e9c299660148d578e3db25c7b9bb53ecd800ac9ce19f",
+    "wheel_locked_test.sh": "4650ade6e3612cb3d6e344992887c0935132a5b1b5f9631abbad2b5ca5c690bb",
+    "direction-candidate-summary.log": "e44a7f8a8493659942028981d3671a88f8c4cbeb30675636468041040d93b286",
+    "final-ac11dc7.log": "a0aff5fbd06543bf8bd2e9de3a72d9b862bebc26cba7fd00915a614e070a976b",
+    "direction-candidate.log": "df4762b791fc3d1b2cb4b6f4fe3f44afeff479f420dcc07dce32f4798d75892e",
+    "host.txt": "cbcae9e7e0d5d514ed4418cc711c21dcaafeb7f97710b131baa986653f2209c5",
+    "matrix-fd3b492.log": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+    "direction-reference.log": "df4762b791fc3d1b2cb4b6f4fe3f44afeff479f420dcc07dce32f4798d75892e",
+    "optimizer-fd3b492.log": "05550a2105242bdd65f8025fff5500a8f7bd5fa650342eafa84ffaa0de4be697",
+    "random-preview-mutant.c": "286ee636bf63962105e4cb2c70f6f2d75326f4e99a5ce549e25df569b26cbb42",
+    "runtime-inclusion.json": "a09fc6eaf7a27342ff47950d9bb32792b95260bdebef36d223248b1c644f4bb2",
+    "matrix-ac11dc7-san.log": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+    "compiler.txt": "aa1d62635f628590a863c0206a3272f3dc15690749a86b23b52ba2834138a8fd",
+    "orphan-guard-mutant.c": "d5d6775f98a8c9b1f879edb0fd3cba56d117f181a6306c7d14926612843ccd9b",
+    "matrix-ac11dc7.log": "e7f86f8be3b87592575ac39f6f3669ca8ce424fb262973d8c6380012397c710d",
+    "wheel-64bad3.log": "c5db342934aee854958bd2916cf06547851f41cfe480f1735d0a18dcb8cffd1a",
+    "sequencer-64bad3.log": "db79b9a311f4e2597a5d25b64c691b595fa15fe66ce3d3727dfe49285ce7752f"
+  },
+  "environment": {
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+    "host": "Darwin 27.2.0 arm64"
+  }
+}
