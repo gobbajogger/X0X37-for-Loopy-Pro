@@ -628,26 +628,28 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
           } catch (e) { throw fail("slotbackup", e.message); }
           const st = archiveStamp(), file = makeArchive(saved.layout, saved.images, st.created);
           readArchive(file);                                  // what was saved reads back
-          h.save(file, st.name);
+          // Do not begin OTA until the owner has successfully exported the backup.
+          // A synchronous legacy callback is permitted but not durability proof.
+          try {
+            const savedOut = await h.save(file, st.name);
+            if (savedOut === false) throw new Error("Backup export was not confirmed.");
+          } catch (e) {
+            throw fail("slotbackup", "Backup export failed: " + (e && e.message || e), st.name);
+          }
           move = { risk, oldMap, newMap, images: saved.images, name: st.name, todo: [], skipped: [] };
         }
       }
     } finally { dev.link.close(); }
   }
-  const ran = await up.install(image, product, h.step);
+  // Approval may change during device discovery or asynchronous backup export.
+  if (typeof h.prewriteGuard === "function" && !h.prewriteGuard())
+    throw fail("selectionstale", "Firmware selection or approval changed; nothing written.");
+  const ran = await up.install(image, product, h.step, h.prewriteGuard);
   if (!move || !move.newMap.length) return { product: ran, move };
-  h.say("slotback");
-  const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
-  if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
-  try {
-    const layout = await readSlotLayout(back.link);
-    const plan = planMigration(move.images, move.risk, move.oldMap, layout, flashMap(layout, board));
-    move.todo = plan.todo;
-    move.skipped = plan.skipped;
-    const total = plan.todo.length || 1;
-    await restoreMapped(back.link, plan.todo, move.images, (j, d, n) => h.progress(d / n / total));
-  } catch (e) {
-    throw fail("slots", e.message, move.name);
-  } finally { back.link.close(); }
+  // Web MIDI names cannot bind the pre-install keyboard to the post-reboot unit.
+  // Until attested identity is available, never auto-restore samples to another
+  // discovered keyboard. Preserve the backup for explicit manual restoration.
+  move.manualRestoreRequired = true;
+  move.skipped = move.risk.map((slot) => slot + 1);
   return { product: ran, move };
 }
