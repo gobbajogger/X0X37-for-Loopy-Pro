@@ -104,19 +104,12 @@ void plat_leds(uint32_t buttons, uint32_t keys)
 }
 #else
 /* LEDs: the picture is built off-line and copied one byte per column (Felucca: clearing
- * and relighting would let the 10 kHz scan catch the dark gap and flicker) */
-static uint8_t led_pos[FM1_NKEY];
-static void led_pos_init(void)
-{
-    uint32_t id, p, r;
-    for (id = 0; id < FM1_NKEY; id++) {
-        led_pos[id] = 0xFF;
-        for (p = 0; p < FM1_NCOL; p++)
-            for (r = 1; r < 5u; r++)
-                if (FM1_KEYMAP[r][p] == (int8_t)id)
-                    led_pos[id] = (uint8_t)((p << 3) | r);
-    }
-}
+ * and relighting would let the 10 kHz scan catch the dark gap and flicker).
+ * led_pos[id] = (col << 3) | row from FM1_KEYMAP (was rebuilt into BSS at boot). */
+static const uint8_t led_pos[FM1_NKEY] = {
+    4, 12, 49, 33, 17, 1, 74, 66, 57, 41, 25, 9, 82, 58, 28, 20, 44, 36, 60, 52, 68, 76, 84,
+    3, 11, 19, 27, 35, 43, 51, 59, 67, 75, 83, 2, 10, 18, 26, 34, 50, 42};
+static void led_pos_init(void) {}
 /* Glow: every button not lit is lit dim, on one scan frame in GLOW_DIV (the HAL's fm1_led_dim) */
 #define GLOW_DIV 4u
 static uint8_t glow_on = 1;

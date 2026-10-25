@@ -6,8 +6,8 @@ set -e
 cd "$(dirname "$0")/../.."
 mkdir -p build
 CFLAGS="-O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror"
-# the DSP file alone, strict C99
-cc $CFLAGS -std=c99 -pedantic -Ifirmware/src -c firmware/src/dsp/breaks.c -o build/breaks_host.o
+# the DSP file alone, strict C99 (define IMA tables: header is extern without it)
+cc $CFLAGS -std=c99 -pedantic -DX0X_IMA_TABLES_DEFINE -Ifirmware/src -c firmware/src/dsp/breaks.c -o build/breaks_host.o
 cc $CFLAGS tests/host/breaks_test.c -lm -o build/breaks_test
 ./build/breaks_test build/breaks_demo.wav
 # the same tests with a 44.1 kHz source loop (the default rate of the built-in and uploaded loops)
