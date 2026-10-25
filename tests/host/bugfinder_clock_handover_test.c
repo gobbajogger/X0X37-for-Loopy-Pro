@@ -61,15 +61,13 @@ static int non_owner_drop(void) {
     }
     seq_clk_drop(&seq, 1);                               /* unrelated Bluetooth disconnect */
     if (seq.clk_lock != 1u || seq.ext_pending != 3u) {
-        printf("FAIL nonowner changed USB lock or pending clocks: lock=%u pending=%u
-",
+        printf("FAIL nonowner changed USB lock or pending clocks: lock=%u pending=%u\n",
                seq.clk_lock, seq.ext_pending);
         return 1;
     }
     seq_clk_drop(&seq, 0);                               /* actual owner disconnect */
     if (seq.clk_lock != 0u || seq.ext_pending != 0u) {
-        printf("FAIL owner disconnect retained queued clocks: lock=%u pending=%u
-",
+        printf("FAIL owner disconnect retained queued clocks: lock=%u pending=%u\n",
                seq.clk_lock, seq.ext_pending);
         return 1;
     }
@@ -78,8 +76,7 @@ static int non_owner_drop(void) {
     unsigned before = seq.ext_pending;
     seq_clk_drop(&seq, 0);                               /* repeated old USB disconnection */
     if (seq.clk_lock != 2u || seq.ext_pending != before) {
-        printf("FAIL stale USB drop erased new owner clocks: lock=%u pending=%u
-",
+        printf("FAIL stale USB drop erased new owner clocks: lock=%u pending=%u\n",
                seq.clk_lock, seq.ext_pending);
         return 1;
     }
