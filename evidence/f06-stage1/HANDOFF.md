@@ -14,9 +14,9 @@ Checks: `evidence/f06-stage1/CHECKS.md`.
 Prior publish evidence: `evidence/f05-stage7/CHECKS.md`, `HANDOFF.md`, `live-verify.log`, `independent-qa-local-review.md`.
 Deferred younger items: withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume `find(IS_OTA)`, longer `SLOT_PROBE` budgets, Stage-7 installer FP pin mismatch (`evidence/f05-stage2/DEFERRED.md`).
 Successor prompt: `evidence/f06-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-764bccc6-54f9-58a3-bf70-6f95773c3460` (F06 BF-003 implement; desktop; startingRef `cursor/f06-bf003-stage1-fb90`).
+Successor URL: https://cursor.com/agents/bc-764bccc6-54f9-58a3-bf70-6f95773c3460
+Handoff status: **complete**. Owner-visible Stage 2 id is on this remote tip. Stage 1 stops here; does not start Stage 3.
 
 Selected defect: **BF-003**. Retained editor test / site-builder references missing `web/editor.html`. **Approved repair: retire** (do not restore). Strip editor-dependent paths in `web/test_web.mjs` and `web/make_site.py`; keep useful non-editor `fm1pkg`/`fm1ota` checks if they still apply; run local host/node checks. Decision closed by this audit from intentional X0X deletion `23775375` and unregistered suite status.
 
