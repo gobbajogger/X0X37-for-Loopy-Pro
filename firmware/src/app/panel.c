@@ -49,11 +49,23 @@ static const panel_t PANEL_DEFAULT = {
 
 static int panel_valid(const panel_t *p)
 {
-    uint32_t i, ok = p->magic == PANEL_MAGIC;
-    for (i = 0; ok && i < NB; i++)
-        ok = p->btn[i] < PANEL_NBTN;
-    for (i = 0; ok && i < NE; i++)
-        ok = p->enc[i] < PANEL_NENC && (p->dir[i] == 1 || p->dir[i] == -1);
+    uint32_t i, used_btn = 0, used_enc = 0, ok = p->magic == PANEL_MAGIC;
+#if BOARD_SMK37
+    used_enc = 1u << SMK_ENC_MASTER; /* K1 is a dedicated master pot, never a taught role. */
+#endif
+    for (i = 0; ok && i < NB; i++) {
+        uint32_t id = p->btn[i];
+        ok = id < PANEL_NBTN && !(used_btn & (1u << id));
+        if (ok)
+            used_btn |= 1u << id;
+    }
+    for (i = 0; ok && i < NE; i++) {
+        uint32_t id = p->enc[i];
+        ok = id < PANEL_NENC && !(used_enc & (1u << id)) &&
+             (p->dir[i] == 1 || p->dir[i] == -1);
+        if (ok)
+            used_enc |= 1u << id;
+    }
     return (int)ok;
 }
 

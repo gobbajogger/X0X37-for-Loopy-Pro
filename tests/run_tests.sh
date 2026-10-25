@@ -282,8 +282,10 @@ seq_test() {
 }
 run sequencer seq_test
 run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 live-length shrink never emits disabled steps
+run seq-pingpong-linked sh -c "$CC -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/seq_pingpong_linked_test tests/host/seq_pingpong_resize_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/pattern.c firmware/src/seq/tb3po.c -lm && $OUT/seq_pingpong_linked_test"   # production-linked 303 live resize / UI step
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
 run clock-handover sh -c "$CC $W -o $OUT/bugfinder_clock_handover_test tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bugfinder_clock_handover_test"   # BF-005: drop pending clocks with the lock
+run clk-source-owner sh -c "$CC $W -o $OUT/clk_source_owner_reset_test tests/host/clk_source_owner_reset_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_source_owner_reset_test"   # MID-13/MID-15: INTERNAL immediately releases MIDI clock owner
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
@@ -292,6 +294,7 @@ run undo sh -c "$CC -O2 -Wall -Wextra -Wno-unused-function -o $OUT/undo_test tes
 run undo-capacity sh tests/host/run_undo_capacity.sh
 run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
+run motion-pattern-pending sh -c "$CC $W -o $OUT/motion_pattern_pending_test tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_pending_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
