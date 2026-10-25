@@ -2,6 +2,7 @@
 /* X0X sequencer; see sequencer.h for the model. */
 #include "sequencer.h"
 #include "tb3po.h"
+#include "../x0x_cold.h"              /* X0X_COLD: boot/setup only — not seq_advance / ISR */
 
 #define NEVER 0xFFFFFFFFu
 #define RANDOM_PASS_STEPS 0x7Fu
@@ -14,7 +15,7 @@ static const uint8_t GM_DRUM[NKIT][NDRUM] = {
     {36, 38, 41, 45, 50, 37, 39, 56, 49, 46, 42},   /* 808: BD SD LT MT HT RS CP CB CY OH CH */
 };
 
-void seq_init(seq_t *s, pattern_t *patterns)
+X0X_COLD void seq_init(seq_t *s, pattern_t *patterns)
 {
     uint32_t i;
     uint8_t *p = (uint8_t *)s;

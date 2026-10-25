@@ -2,6 +2,7 @@
 /* X0X pattern defaults. */
 #include "pattern.h"
 #include "tb3po.h"
+#include "../x0x_cold.h"              /* X0X_COLD: project/setup defaults */
 
 static const uint8_t BRK_DEFAULTS[BRK_NSET] = {
     25, 60, 20, 50,                   /* complexity, anchor, roll, fill */
@@ -9,7 +10,7 @@ static const uint8_t BRK_DEFAULTS[BRK_NSET] = {
     2, 0, 2, 2,                       /* phrase 4 bars, B chance 0, A length 1 bar, B length 1 bar */
 };
 
-void pattern_init(pattern_t *p, uint32_t seed_a, uint32_t seed_b)
+X0X_COLD void pattern_init(pattern_t *p, uint32_t seed_a, uint32_t seed_b)
 {
     uint32_t i, b;
     uint8_t *z = (uint8_t *)p;
