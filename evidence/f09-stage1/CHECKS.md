@@ -67,7 +67,8 @@ Log: `evidence/f09-stage1/live-verify.log`.
 | Younger BF-006 / BF-007 | Open on PR #26 lane; not selected |
 
 Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/240
+API CreateAgent attempts: `api-create-stage2-attempt1.json` / `attempt2.json` — **401** (no key).
 
 ## Overall
 
-**AUDIT RECORDED.** Selected defect **BF-005** (queued old-source MIDI clocks accelerate a new source after disconnect). Ready for Stage 2.
+**AUDIT RECORDED.** Selected defect **BF-005** (queued old-source MIDI clocks accelerate a new source after disconnect). Ready for Stage 2. Handoff incomplete until coordinator returns owner-visible Stage 2 id.

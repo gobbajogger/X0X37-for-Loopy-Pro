@@ -15,6 +15,8 @@ Tip `sequencer.c` blob: `83b03f73139d8e679c94526c66b390b6e5bc2f39`.
 Live: **LIVE_PAGE_MATCH** `nightly-8a74ff52-dev` (Pages tip `e296e883…`); packages unchanged by this audit.
 Evidence: `evidence/f09-stage1/AUDIT.md`, `CHECKS.md`, `live-verify.log`, `bf005-witness.log`.
 Successor prompt: `evidence/f09-stage1/SUCCESSOR-STAGE2.txt`.
+Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/240
+API CreateAgent: attempt1/2 **401** (no `CURSOR_API_KEY`) — see `api-create-stage2-attempt{1,2}.json`.
 Successor agent id: none (pending coordinator CreateAgent — pod has no `CURSOR_API_KEY`).
 Successor URL: none.
 Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip.
