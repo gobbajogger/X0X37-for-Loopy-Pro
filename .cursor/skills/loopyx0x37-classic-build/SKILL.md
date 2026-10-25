@@ -27,6 +27,8 @@ When this run produces a commit, push the branch and open a pull request whose b
 - device install or flash
 - production promotion
 
+The hardware-validation decision dated 2026-10-25 assigns the firmware `main` fast-forward when that success record exists. It does not assign a flash, production GitHub Pages, or a release-picker change. A run with no successful hardware validation does not merge `main`.
+
 ## Owner decision, 2026-10-25
 
 Automatically validated firmware merges without another owner prompt.
@@ -38,6 +40,16 @@ The merge is a normal fast-forward of firmware `nightly` in `gobbajogger/X0X37-f
 This dated decision is the assignment for that `nightly` fast-forward only. It does not assign a release gate, a merge to production `main`, production GitHub Pages, or a device flash.
 
 A draft or failed producer check stays a draft pull request. A source-complete change with its producer checks recorded can be ready for review. Ready for review is not QA approval, merge eligibility, or installability.
+
+## Owner decision, 2026-10-25 — hardware validation
+
+A successful hardware validation fast-forwards firmware `main` in `gobbajogger/X0X37-for-Loopy-Pro` without another promotion prompt.
+
+Success means an install record for the exact package and controller hashes, on the matching SMK-37 model, with backup, readback, and the running identity checked. `INSTALL BLOCKED` is not success. Elite evidence does not merge a Pro package, and Pro evidence does not merge an Elite package.
+
+The merge is a normal fast-forward. If the remote refuses, record the refusal and do not force-push. Production GitHub Pages and a release picker still follow their own publisher.
+
+This dated decision is the assignment for that firmware `main` fast-forward only. It does not flash a device, publish production GitHub Pages, or move a release picker. Recording this decision is not a hardware validation. A run with no successful hardware validation does not merge `main`.
 
 ## Stage evidence
 
@@ -51,7 +63,7 @@ Call a stage done only with the evidence in its row. A failed required gate stay
 | Integration | The user assigned the merge. Fresh expected head and base, required reviews resolved, applicable combined-tree checks, resulting ref read back. An assigned firmware integration targets `nightly` after that ref is read. Release publication is a separate stage. |
 | Qualified NIGHTLY | Independent checks for source, host, model, controller, package, installer, backup, readback, restore, OTA, and interruption; notices and corresponding source; the user assigned publication. This checkout's `tools/make_pages.py` accepts release identities only, so a dev-identity package stays `PACKAGE_NOT_PUBLISHED` until a tested publisher path accepts it. A package that path actually serves is labeled `DEV / HARDWARE TEST — DEVICE NOT TESTED`. |
 | Served verification | After publication, fetched HTML, catalog, and model downloads match the qualified bytes. A Pages commit alone is not live delivery. |
-| Production | Same-byte, affected-model, owner-operated physical proof, plus a separate promotion approval. Elite proof does not certify Pro. |
+| Production | Successful hardware validation fast-forwards firmware `main` without another promotion prompt: an install record for the exact package and controller hashes, on the matching SMK-37 model, with backup, readback, and the running identity checked. `INSTALL BLOCKED` is not success. Elite evidence does not merge a Pro package, and Pro evidence does not merge an Elite package. Production GitHub Pages and a release picker still follow their own publisher. |
 
 Report each gate with the glossary in [handoff](references/handoff.md). A compile result, a `DEV CHECKED` record, QA, a `gh-pages` update, a fetched download, and a device session use different names.
 
