@@ -1,0 +1,4 @@
+CURSOR_API_KEY unset on this pod (bc-f2fdfb2b-9ef0-5dc0-b1b7-5f5d1da89c58).
+CreateAgent for SUCCESSOR-STAGE1 not attempted — ask Project coordinator.
+startingRef=cursor/next-after-tip-stage1-237f
+prompt=evidence/next-stage1-after-tip/SUCCESSOR-STAGE1.txt
