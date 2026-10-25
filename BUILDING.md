@@ -22,7 +22,7 @@ The build makes three files in `build/`:
 
 ## Prerequisites (macOS)
 
-- Python 3 with Pillow: `pip3 install Pillow`
+- Python 3 with Pillow: `pip3 install Pillow` (Cloud Agent / host bootstrap: `bash tools/agent_env_install.sh`, also the environment `install` in `.cursor/environment.json`)
 - Docker Desktop. The JieLi toolchain is Linux x86-64 only. The build runs each tool in a
   `linux/amd64` `debian:bookworm-slim` container (Rosetta on Apple silicon). Keep the source
   tree in a folder that Docker can share, for example under `/Users`.
@@ -50,6 +50,11 @@ Build and test on Linux x86-64 or in a local Linux container. Use the same pinne
 The full gate also needs Bash, Python with Pillow, Node, `flock`, `setsid`, `getent`,
 and Linux signal support. macOS can run docs checks and supported host checks.
 Run Linux-specific checks in the local container. Docker Desktop and Colima both work.
+
+Install Pillow in the agent environment when you can (`bash tools/agent_env_install.sh`).
+Missing optional host tooling (Pillow, ASan, missing reference repos) is not a cycle
+blocker and not a firmware failure: those checks stay not-run and the loop continues.
+A generation step that actually ran and failed still fails the suite.
 
 For docs and rules work, run the affected checks without a firmware build:
 
