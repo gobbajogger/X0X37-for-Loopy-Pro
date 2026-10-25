@@ -183,6 +183,7 @@ run smc-buttons python3 tests/host/smc_buttons_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
+run smc-host-overflow-data7 python3 tests/host/smc_host_overflow_data7_test.py
 run smc-sender-isolation python3 tests/host/smc_sender_isolation_test.py
 run smc-ble-payload python3 tests/host/smc_ble_payload_test.py
 run smc-link python3 tests/host/smc_link_test.py
