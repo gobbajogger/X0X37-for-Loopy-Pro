@@ -15,6 +15,10 @@ extern int smk_ck_smc_nav(uint8_t note);
  * Only the main loop changes the active application context. TIMER5 addresses
  * ingress by validated slot and never reads this context pointer. */
 static smc_ble_input_t smc_inputs[SMC_DIRECT_PEERS];
+/* Main-loop view of the selected direct peer. TIMER5 keeps indexing smc_inputs
+ * by its own peer argument and never reads this pointer. The hosted slot has
+ * no input object, so selecting it leaves the previous direct pointer alone. */
+static smc_ble_input_t *smc_input_current = &smc_inputs[0];
 static volatile uint32_t smc_link_seq[SMC_DIRECT_PEERS];
 static uint32_t smc_links_seen[SMC_DIRECT_PEERS];
 static uint32_t smc_losses_seen[SMC_DIRECT_PEERS];
@@ -24,7 +28,7 @@ static volatile uint32_t smc_pause_lost[SMC_DIRECT_PEERS + 1u];
 static uint32_t smc_pause_seen[SMC_DIRECT_PEERS + 1u];
 static volatile uint32_t smc_pause_link_boundary[SMC_DIRECT_PEERS];
 static uint8_t smc_peer;
-#define smc_ble_input (smc_inputs[smc_peer])
+#define smc_ble_input (*smc_input_current)
 #define smc_q (smc_ble_input.q)
 #define smc_qw (smc_ble_input.w)
 #define smc_qr (smc_ble_input.r)
@@ -98,6 +102,8 @@ static void smc_select(uint8_t peer)
 {
     smc_peer = peer;
     smc_current = &smc_states[peer];
+    if (peer < SMC_DIRECT_PEERS)
+        smc_input_current = &smc_inputs[peer];
 }
 #define smc (*smc_current)
 static uint8_t smc_solo_all;

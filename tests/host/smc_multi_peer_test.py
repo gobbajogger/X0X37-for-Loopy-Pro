@@ -8,19 +8,21 @@ import shlex
 import subprocess
 import tempfile
 root = Path(__file__).resolve().parents[2]
-s = (root / 'firmware/src/app/smc_mixer.c').read_text()
-def extract(name):
-    m = re.search(r'^[^\n]*\b' + name + r'\([^\n]*\)\s*\{', s, re.M)
+def source_text():
+    return Path(os.environ.get('SMC_SOURCE', root / 'firmware/src/app/smc_mixer.c')).read_text()
+def extract(source, name):
+    m = re.search(r'^[^\n]*\b' + name + r'\([^\n]*\)\s*\{', source, re.M)
     if not m:
         raise ValueError(name)
     i, depth = m.end(), 1
     while depth:
-        depth += (s[i] == '{') - (s[i] == '}')
+        depth += (source[i] == '{') - (source[i] == '}')
         i += 1
-    return s[m.start():i]
-prefix = s[s.index('#define SMC_Q'):s.index('int smc_project_active')]
-prefix = prefix.replace(extract('smc_clip_on'), '')
-code = r'''
+    return source[m.start():i]
+def make_code(s):
+    prefix = s[s.index('#define SMC_Q'):s.index('int smc_project_active')]
+    prefix = prefix.replace(extract(s, 'smc_clip_on'), '')
+    return r'''
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -53,7 +55,7 @@ static void smc_ui_cancel(void) { smc_ui.on=0; }
 static void smc_solo_publish(void);
 static int smc_lock_button(int pressed);
 static void smc_guarded_button(uint8_t,int,int);
-''' + prefix + '\n' + '\n'.join(extract(n) for n in (
+''' + prefix + '\n' + '\n'.join(extract(s, n) for n in (
     'smc_project_active','smc_solo_clear','smc_solo_publish','smc_solo_press',
     'smc_project_drop','smc_project_reset','smc_ble_midi_peer','smc_ble_midi',
     'smc_ble_link_peer','smc_ble_link','smc_ble_role_get','smc_connected',
@@ -82,7 +84,7 @@ static uint8_t smc_message(const uint8_t *m,uint8_t len,int allow)
 }
 static void smc_guarded_button(uint8_t note,int mmc,int allow)
 { (void)mmc;if(allow && note==0x5d && reset_at){reset_at=0;smc_project_reset();} }
-''' + '\n'.join(extract(n) for n in ('smc_mmc_drain_stop','smc_context_prepare','smc_poll_peer','smc_poll')) + r'''
+''' + '\n'.join(extract(s, n) for n in ('smc_mmc_drain_stop','smc_context_prepare','smc_poll_peer','smc_poll')) + r'''
 static void smc_notice(int n) {(void)n;}
 static int smc_led(int n) {(void)n;return 1;}
 int plat_ble_smc_send_peer(uint8_t peer,const uint8_t *msg,uint8_t n)
@@ -91,7 +93,7 @@ int plat_ble_smc_send_peer(uint8_t peer,const uint8_t *msg,uint8_t n)
     if(tx_edge_peer==peer){tx_edge_peer=-1;smc_ble_link_peer(peer,0);smc_ble_link_peer(peer,1);}
     return tx_fail_peer!=peer;
 }
-''' + '\n'.join(extract(n) for n in ('smc_frame_peer','smc_frame')) + r'''
+''' + '\n'.join(extract(s, n) for n in ('smc_frame_peer','smc_frame')) + r'''
 static void emit(int p,uint8_t st,uint8_t a,uint8_t b)
 {const uint8_t m[]={st,a,b};smc_ble_midi_peer((uint8_t)p,m,3);}
 static void press(int p) {emit(p,0x90,8,127);}
@@ -162,11 +164,28 @@ int main(void)
     tx_fail_peer=-1;smc_frame();assert(sent[0]==52&&sent[1]==51);
     reset(0);tx_edge_peer=0;smc_frame();assert(!smc_states[0].known[0]&&smc_states[1].known[0]);
     smc_poll();smc_frame();assert(smc_states[0].known[0]);
+    printf("END");
+    for (int p = 0; p < 2; p++)
+        printf(" p%d u=%u f=%u r=%u w=%u link=%u rel=%u known=%u solo=%u lock=%u",
+               p, smc_states[p].up, smc_states[p].fresh, smc_inputs[p].r, smc_inputs[p].w,
+               smc_inputs[p].link, smc_inputs[p].release_lost, smc_states[p].known[0],
+               smc_states[p].solo, smc_states[p].lock_down);
+    printf(" h=%u sent=%d,%d act=%d,%d pub=%u bytes=%u\n",
+           smc_states[2].up, sent[0], sent[1], actions[0], actions[1], published,
+           (unsigned)sizeof(smc_ble_input_t));
     puts("PASS: production multi-peer ingress/poll/Solo: all 256 cursors; feedback isolation/failure/session ack");
 }
 '''
-with tempfile.TemporaryDirectory(prefix='smc-multi-peer-') as tmp:
-    c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(code)
-    subprocess.run([os.environ.get('CC','cc'),'-std=c99','-O2','-g','-Wall','-Wextra','-Werror',
-                    *shlex.split(os.environ.get('SAN_FLAGS','')),'-I'+str(root/'firmware/src'),str(c),'-o',str(exe)],check=True)
-    subprocess.run([str(exe)],check=True)
+def compile_and_run(source):
+    code = make_code(source)
+    with tempfile.TemporaryDirectory(prefix='smc-multi-peer-') as tmp:
+        tmp = Path(tmp)
+        c = tmp / 'test.c'
+        exe = tmp / 'test'
+        c.write_text(code)
+        subprocess.run([os.environ.get('CC','cc'), '-std=c99', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
+                        *shlex.split(os.environ.get('SAN_FLAGS','')), '-I' + str(root / 'firmware/src'),
+                        str(c), '-o', str(exe)], check=True)
+        return subprocess.check_output([str(exe)], text=True)
+if __name__ == '__main__':
+    print(compile_and_run(source_text()), end='')
