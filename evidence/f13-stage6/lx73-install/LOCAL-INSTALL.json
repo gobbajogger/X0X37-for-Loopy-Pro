@@ -2,9 +2,8 @@
   "schema": 1,
   "role": "stage6-install",
   "config": "dev",
-  "branch": "cursor/f13-bf012-stage5-lx73-237f",
+  "branch": "cursor/f13-bf012-stage6-lx73-237f",
   "firmware_sha": "092589b84fd455355216cb0de93c4782236f7524",
-  "evidence_commit": "ffe99f47527245a674ebb69353bf034b4cac7620",
   "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
   "X0X_DEV_PADCAL": "1",
   "models": {
@@ -19,5 +18,6 @@
       "identity": "SMK-37 Pro_900"
     }
   },
-  "note": "LX-73 Stage6 pending: attested fwsc bytes not on Mac; device X0X FM-1 present; gate REFUSED without exact hashes"
+  "already_flashed_record": "4cd9e2e9a47b63b1",
+  "note": "LX-73 Elite PASS from prerelease lx73-092589b8-dev attested bytes"
 }
