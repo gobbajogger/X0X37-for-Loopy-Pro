@@ -1,0 +1,24 @@
+{
+  "base": "b42bcba46ee7255c18f18c10dd1f99b9fc9bb675",
+  "scope": "F14 BF-013 delay sync at exact 20 BPM only (firmware/src/dsp/fxbus.c blob 49a89483e1c777a46758ed370973afb85f15274d + tests/host/stereo_test.c blob c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; repair commit 13b831e8; implement tip 4c01165a on cursor/f14-bf013-stage2-237f PR #316; tested tip 656d70e9 on cursor/f14-bf013-stage3-237f PR #318). Audited source authenticates b42bcba4; this tip adds BF-013 only (tested). Firmware tree changed vs audited tip. Stage 3 ALL_PASS for required BF-013 host regressions (X0X_TESTS=stereo exit 0; tip blobs match Stage-2 repair; optional red witness FAIL_EXPECTED). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-013-affected host checks. A host pass is not a package pass. Evidence tip \u2260 package source until this Stage 4 rebuild. Do not reopen BF-001\u2013BF-008, BF-012, or FP-001. Do not implement deferred items. Do not steal Arp/Fx #279/#281 leftovers.",
+  "checks": [
+    {
+      "reason": "BF-013 tip blobs must match Stage-2 repair (fxbus.c 49a89483\u2026, stereo_test.c c8bc1092\u2026).",
+      "argv": [
+        "bash",
+        "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+      ]
+    },
+    {
+      "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
+      "argv": [
+        "bash",
+        "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+    "/agent/repos/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+  ]
+}

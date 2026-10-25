@@ -1,0 +1,314 @@
+{
+  "schema": 2,
+  "validation_inputs": {
+    "schema": 1,
+    "sha256": "478832cb00ec9d44b49a913b83d1e8bd5c183dd37913ff6480a2ef9cd78fb34f",
+    "inputs": {
+      "schema": 1,
+      "mode": "dev",
+      "source": "1ce1c2155db1e1e90d47284899db8726e1686b2aa86891f750e709503cbd1407",
+      "configuration": {
+        "model": "pro",
+        "config": "dev",
+        "controller": true,
+        "plan": {
+          "base": "b42bcba46ee7255c18f18c10dd1f99b9fc9bb675",
+          "scope": "F14 BF-013 delay sync at exact 20 BPM only (firmware/src/dsp/fxbus.c blob 49a89483e1c777a46758ed370973afb85f15274d + tests/host/stereo_test.c blob c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; repair commit 13b831e8; implement tip 4c01165a on cursor/f14-bf013-stage2-237f PR #316; tested tip 656d70e9 on cursor/f14-bf013-stage3-237f PR #318). Audited source authenticates b42bcba4; this tip adds BF-013 only (tested). Firmware tree changed vs audited tip. Stage 3 ALL_PASS for required BF-013 host regressions (X0X_TESTS=stereo exit 0; tip blobs match Stage-2 repair; optional red witness FAIL_EXPECTED). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-013-affected host checks. A host pass is not a package pass. Evidence tip \u2260 package source until this Stage 4 rebuild. Do not reopen BF-001\u2013BF-008, BF-012, or FP-001. Do not implement deferred items. Do not steal Arp/Fx #279/#281 leftovers.",
+          "checks": [
+            {
+              "reason": "BF-013 tip blobs must match Stage-2 repair (fxbus.c 49a89483\u2026, stereo_test.c c8bc1092\u2026).",
+              "argv": [
+                "bash",
+                "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+              ]
+            },
+            {
+              "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
+              "argv": [
+                "bash",
+                "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+              ]
+            }
+          ],
+          "dependencies": [
+            "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+            "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+          ]
+        },
+        "dependencies": [
+          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+        ]
+      },
+      "environment": {
+        "CXX": "c++",
+        "CTL_NO_CACHE": "1",
+        "CTL_NATIVE": "1",
+        "CC": "cc",
+        "MODEL": "pro",
+        "BOARD": "smk37",
+        "X0X_DEV_PADCAL": "1"
+      },
+      "platform": [
+        "Linux",
+        "x86_64",
+        "6.12.94+"
+      ],
+      "validator": {
+        "validation_inputs.py": {
+          "sha256": "88771086fc5daeae12b9fe56617eed458f83c3e5a12d3f3825361d5ddc493b9d",
+          "executable": false
+        },
+        "dev_validate.py": {
+          "sha256": "0c618c6238d871609647467e8f4a1026a7d927cf57ce0ad118978edc09d24eca",
+          "executable": false
+        }
+      },
+      "tools": {
+        "bash": {
+          "sha256": "bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1",
+          "executable": true
+        },
+        "sh": {
+          "sha256": "86d31f6fb799e91fa21bad341484564510ca287703a16e9e46c53338776f4f42",
+          "executable": true
+        },
+        "git": {
+          "sha256": "eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201",
+          "executable": true
+        },
+        "make": {
+          "sha256": "d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965",
+          "executable": true
+        },
+        "node": {
+          "sha256": "94efd062ed066c1a0b332e18249859c905e920eeada5df55d24c99b919629a90",
+          "executable": true
+        },
+        "cc": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "c++": {
+          "sha256": "8ef402d453d1ba4902e4ee0f0f847f6cfa01400c95aa43c24e97818b9c0e3f45",
+          "executable": true
+        },
+        "ld": {
+          "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b",
+          "executable": true
+        },
+        "ar": {
+          "sha256": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+          "executable": true
+        },
+        "objcopy": {
+          "sha256": "9276e918e3c26d3aa7ef9dd2232cd8ac692f03d3c1f270bfa5144a2b5492b713",
+          "executable": true
+        },
+        "python": {
+          "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "executable": true
+        }
+      },
+      "python_packages": {
+        "numpy": {
+          "version": "1.26.4",
+          "sha256": "7dd34308cae1f97de5c2648c01086aa1e3d0b248880adf91a114d868237953f8"
+        },
+        "pillow": {
+          "version": "13.0.0",
+          "sha256": "232fc8e16099bee7e0e7755ccdd70edfff3869685d5aafcf305aa55274b168da"
+        }
+      },
+      "dependencies": {
+        "toolchain": {
+          "sha256": "50a35938b8c15394e2a5d6bbd9284dcb3a9ccfc14796a15f820ff5f8b5308ba5"
+        },
+        "sdk": {
+          "sha256": "bd1889d33f308122de5a0779d054333ee921c17dea2cf61abd749a62864a02a3"
+        },
+        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh": {
+          "sha256": "9d36159cd300f27c543523539f13fb0a365b81fd24f6e85399a645ae452fce2f",
+          "executable": true
+        },
+        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh": {
+          "sha256": "94834b59507fb2aa5d2d1f981436d4d2159ea56d2b02efd278b8ec9a47da9bcb",
+          "executable": true
+        }
+      },
+      "references": {}
+    }
+  },
+  "result": "DEV CHECKED",
+  "config": "dev",
+  "model": "pro",
+  "commit": "656d70e9f0dbcffb346c59112d6ae582f2d93fe7",
+  "tree": "1ce1c2155db1e1e90d47284899db8726e1686b2aa86891f750e709503cbd1407",
+  "plan": {
+    "base": "b42bcba46ee7255c18f18c10dd1f99b9fc9bb675",
+    "scope": "F14 BF-013 delay sync at exact 20 BPM only (firmware/src/dsp/fxbus.c blob 49a89483e1c777a46758ed370973afb85f15274d + tests/host/stereo_test.c blob c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39; repair commit 13b831e8; implement tip 4c01165a on cursor/f14-bf013-stage2-237f PR #316; tested tip 656d70e9 on cursor/f14-bf013-stage3-237f PR #318). Audited source authenticates b42bcba4; this tip adds BF-013 only (tested). Firmware tree changed vs audited tip. Stage 3 ALL_PASS for required BF-013 host regressions (X0X_TESTS=stereo exit 0; tip blobs match Stage-2 repair; optional red witness FAIL_EXPECTED). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-013-affected host checks. A host pass is not a package pass. Evidence tip \u2260 package source until this Stage 4 rebuild. Do not reopen BF-001\u2013BF-008, BF-012, or FP-001. Do not implement deferred items. Do not steal Arp/Fx #279/#281 leftovers.",
+    "checks": [
+      {
+        "reason": "BF-013 tip blobs must match Stage-2 repair (fxbus.c 49a89483\u2026, stereo_test.c c8bc1092\u2026).",
+        "argv": [
+          "bash",
+          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+        ]
+      },
+      {
+        "reason": "BF-013 host regressions: stereo suite must PASS with X0X_DEV_PADCAL=1.",
+        "argv": [
+          "bash",
+          "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+        ]
+      }
+    ],
+    "dependencies": [
+      "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh",
+      "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+    ]
+  },
+  "changed_files": [
+    "evidence/f13-stage4/CHECKS.md",
+    "evidence/f13-stage4/HANDOFF.md",
+    "evidence/f13-stage4/SUCCESSOR-STAGE5.txt",
+    "evidence/f13-stage4/api-create-stage5-attempt1.json",
+    "evidence/f13-stage4/api-create-stage5-attempt2.json",
+    "evidence/f13-stage4/api-create-stage5-note.txt",
+    "evidence/f13-stage4/check-bf012-blobs.sh",
+    "evidence/f13-stage4/check-bf012-host.sh",
+    "evidence/f13-stage4/dev-plan.json",
+    "evidence/f13-stage4/elite/build.log",
+    "evidence/f13-stage4/elite/check-0.log",
+    "evidence/f13-stage4/elite/check-1.log",
+    "evidence/f13-stage4/elite/controller.log",
+    "evidence/f13-stage4/elite/record.json",
+    "evidence/f13-stage4/pro/build.log",
+    "evidence/f13-stage4/pro/check-0.log",
+    "evidence/f13-stage4/pro/check-1.log",
+    "evidence/f13-stage4/pro/controller.log",
+    "evidence/f13-stage4/pro/record.json",
+    "evidence/f13-stage5/CHECKS.md",
+    "evidence/f13-stage5/HANDOFF.md",
+    "evidence/f13-stage5/SUCCESSOR-STAGE6.txt",
+    "evidence/f13-stage5/SUCCESSOR-STAGE7.txt",
+    "evidence/f13-stage5/api-create-stage7-attempt1.json",
+    "evidence/f13-stage5/api-create-stage7-attempt2.json",
+    "evidence/f13-stage5/api-create-stage7-note.txt",
+    "evidence/f13-stage5/gate-tree-check.log",
+    "evidence/f13-stage5/nightly-ff-refusal.log",
+    "evidence/f13-stage5/nightly-ff-summary.txt",
+    "evidence/f13-stage5/stage6-install-prompt.json",
+    "evidence/f13-stage7/CHECKS.md",
+    "evidence/f13-stage7/HANDOFF.md",
+    "evidence/f13-stage7/SUCCESSOR-STAGE1.txt",
+    "evidence/f13-stage7/api-create-stage1-attempt1.json",
+    "evidence/f13-stage7/api-create-stage1-attempt2.json",
+    "evidence/f13-stage7/api-create-stage1-note.txt",
+    "evidence/f13-stage7/catalog.json",
+    "evidence/f13-stage7/check-safety-gates.py",
+    "evidence/f13-stage7/cloud-gh-pages-push.log",
+    "evidence/f13-stage7/gh-pages-parent.txt",
+    "evidence/f13-stage7/gh-pages-prepared-commit.txt",
+    "evidence/f13-stage7/independent-qa-local-review.md",
+    "evidence/f13-stage7/live-verify.log",
+    "evidence/f13-stage7/nightly-npm-test.log",
+    "evidence/f13-stage7/package-manifest.txt",
+    "evidence/f13-stage7/prepare-candidate.log",
+    "evidence/f13-stage7/qualification.json",
+    "evidence/f13-stage7/safety-gates-candidate.log",
+    "evidence/f13-stage7/safety-gates-note.md",
+    "evidence/f13-stage7/versions.prepared.json",
+    "evidence/f14-stage1/AUDIT.md",
+    "evidence/f14-stage1/CHECKS.md",
+    "evidence/f14-stage1/HANDOFF.md",
+    "evidence/f14-stage1/SUCCESSOR-STAGE2.txt",
+    "evidence/f14-stage1/api-create-stage2-attempt1.json",
+    "evidence/f14-stage1/api-create-stage2-attempt2.json",
+    "evidence/f14-stage1/api-create-stage2-note.txt",
+    "evidence/f14-stage1/bf013-definition.md",
+    "evidence/f14-stage1/bf013-scratch-clear.log",
+    "evidence/f14-stage1/bf013-witness.log",
+    "evidence/f14-stage1/host-build.log",
+    "evidence/f14-stage1/live-verify.log",
+    "evidence/f14-stage1/stereo-tip-baseline.log",
+    "evidence/f14-stage2/CHECKS.md",
+    "evidence/f14-stage2/DEFERRED.md",
+    "evidence/f14-stage2/HANDOFF.md",
+    "evidence/f14-stage2/SUCCESSOR-STAGE3.txt",
+    "evidence/f14-stage2/api-create-stage3-attempt1.json",
+    "evidence/f14-stage2/api-create-stage3-attempt2.json",
+    "evidence/f14-stage2/api-create-stage3-note.txt",
+    "evidence/f14-stage2/bf013-green.log",
+    "evidence/f14-stage2/bf013-red.log",
+    "evidence/f14-stage2/host-unit.log",
+    "evidence/f14-stage3/CHECKS.md",
+    "evidence/f14-stage3/DEFERRED.md",
+    "evidence/f14-stage3/HANDOFF.md",
+    "evidence/f14-stage3/SUCCESSOR-STAGE4.txt",
+    "evidence/f14-stage3/api-create-stage4-attempt1.json",
+    "evidence/f14-stage3/api-create-stage4-attempt2.json",
+    "evidence/f14-stage3/api-create-stage4-note.txt",
+    "evidence/f14-stage3/api-create-stage4-skip.json",
+    "evidence/f14-stage3/blob-confirm.txt",
+    "evidence/f14-stage3/stereo-green-reconfirm.log",
+    "evidence/f14-stage3/stereo-green.log",
+    "evidence/f14-stage3/stereo-red-detail.log",
+    "evidence/f14-stage3/stereo-red-witness.log",
+    "evidence/f14-stage3/test-run-summary.json",
+    "firmware/src/dsp/fxbus.c",
+    "tests/host/stereo_test.c"
+  ],
+  "controller": true,
+  "budgets": {
+    "code_free": 6564,
+    "ram_free": 492,
+    "pool_free": 8324
+  },
+  "logs": {
+    "check-0": {
+      "argv": [
+        "bash",
+        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-blobs.sh"
+      ],
+      "returncode": 0,
+      "sha256": "f5d22321b1faca43737adc66c70e5c3af5ca745576da8fe1a3c236036b7daf24"
+    },
+    "check-1": {
+      "argv": [
+        "bash",
+        "/home/ubuntu/x0x37-work/x0x37-for-loopy-pro/evidence/f14-stage4/check-bf013-host.sh"
+      ],
+      "returncode": 0,
+      "sha256": "a53b62c64d68095d6686ac53992ec10613d45462f4e524a353077a7339b0fb47"
+    },
+    "build": {
+      "argv": [
+        "sh",
+        "build.sh",
+        "--board",
+        "smk37"
+      ],
+      "returncode": 0,
+      "sha256": "75cf8b64aeb619fee240c15797dbbe36506bb42a47500b72f9735f41b5e6b97b"
+    },
+    "controller": {
+      "argv": [
+        "sh",
+        "ble/ctl/build_ctl.sh"
+      ],
+      "returncode": 0,
+      "sha256": "d4b9e40db8c13f315f190cb8754a852476aaafbe6346496d6286e8ae7873d5ef"
+    }
+  },
+  "artifacts": {
+    "package": {
+      "file": "x0x-smk37.fwsc",
+      "sha256": "eba70777632b959a339d2f8a326a3d874c938627aeef96648b83d52091379161"
+    },
+    "controller": {
+      "file": "ctl.img",
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a"
+    }
+  }
+}

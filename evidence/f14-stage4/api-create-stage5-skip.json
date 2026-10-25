@@ -1,0 +1,12 @@
+{
+  "stage": 5,
+  "attempt": "skip",
+  "reason": "NO_CURSOR_API_KEY",
+  "pod_has_cursor_api_key": false,
+  "action": "ask_coordinator_CreateAgent",
+  "startingRef": "cursor/f14-bf013-stage4-237f",
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "prompt_path": "evidence/f14-stage4/SUCCESSOR-STAGE5.txt",
+  "stage4_owner": "bc-3789dd85-75ee-53a1-9be7-ddf256b127a9",
+  "note": "Do not claim a Task subagent as Stage 5. Handoff incomplete until owner-visible Stage 5 id is pushed."
+}
