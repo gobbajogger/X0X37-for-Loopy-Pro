@@ -3,7 +3,7 @@
 Branch: `cursor/f03-slot-probe-stage7-fb90`
 Stage-7 owner: `bc-b413a138-39ce-508e-bee4-893900ed93d1` (desktop; CreateAgent by Project coordinator)
 Audited SHA: `4ee8f37714b0892f2c70d157fda9328da393e987`
-Validated **source** SHA (publish candidate): `a03cfab3a423ab5c65a6546afd4993fe51754ee7`
+Validated **source** SHA (published): `a03cfab3a423ab5c65a6546afd4993fe51754ee7`
 Content tree (Stage-4 records, non-`.md`): `1755a2dd6d8b79e7405ab58919cc4d60a69ca11a4ae6601030b0f5de963f170e`
 Catalog `source_tree` (git tree of validated commit): `85e159c5365b14c48e9f3df7d2089e8f2eb560d4`
 Repair commit: `4f18983a`
@@ -37,22 +37,25 @@ Inputs: `catalog.json`, `qualification.json` (private input; not on Pages). Stor
 
 | Field | Value |
 | --- | --- |
-| Cloud push | **403** (`cursor[bot]` denied) — log recorded |
-| Mac push | **PENDING** — instructions `internal/f03-stage7-mac-pages-push.md`; parent tip must be `364c5509…` |
-| Prepared site tip (local, not yet live) | `5016b31660721d963dd69d90dac1606b25c989aa` |
+| Cloud push | **403** (`cursor[bot]` denied) |
+| Mac push | **PASS** — agent `bc-3f7a599b-afeb-52c0-8f2a-84c20ba806e6` on worker `83d16cde…`; tip `4b3c5994eabd14aa1a1a575b2211800a478112b4` FF from `364c5509…` |
+| Evidence | Project store `internal/f03-stage7-mac-pages-push.md`; live-verify below |
 
-## Live confirmation
+## Live confirmation (this thread)
 
-**PENDING** until Mac FF of `gh-pages`. Target:
+URL: https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/ (HTTP 200)
 
-| Check | Expect |
+| Check | Result |
 | --- | --- |
 | `latest` | `nightly-a03cfab3-dev` |
 | `source_commit` | `a03cfab3a423ab5c65a6546afd4993fe51754ee7` |
 | label | `DEV / HARDWARE TEST — DEVICE NOT TESTED` |
 | `hardware_tested` | `false` |
-| Elite pkg re-fetch | size 651396, sha256 `8ba23a89…2278` |
-| Pro pkg re-fetch | size 651392, sha256 `d9093211…fecb` |
+| Elite pkg re-fetch | size 651396, sha256 `8ba23a89…2278` MATCH |
+| Pro pkg re-fetch | size 651392, sha256 `d9093211…fecb` MATCH |
+| `gh-pages` tip | `4b3c5994eabd14aa1a1a575b2211800a478112b4` |
+
+Log: `evidence/f03-stage7/live-verify.log`.
 
 ## Production / deferred
 
@@ -60,4 +63,4 @@ Production `main` and production GitHub Pages: **unchanged**. No device flash. D
 
 ## Overall
 
-**QUALIFIED / PREPARED**; live page update awaiting Mac `gh-pages` FF (same path as F02). Stage 1 handoff blocked until live match.
+**PUBLISHED LIVE** for validated source SHA `a03cfab3…`, labeled hardware test / device not tested. Ready for next-cycle Stage 1.
