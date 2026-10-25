@@ -6,6 +6,12 @@ Replaces: the SMC fader/encoder notice in the yellow header.
 Checked against decisions: the owner's request for a full control UI followed by
 the exact previous UI, and the maintained SMC mapping and pickup behavior.
 
+Prior work inspected: PR #13 at `d3f4269c19d5d3597a6185e414ed6c8dc9b30c05`
+and its menu/help/clip cancellation follow-up, PR #19 at
+`2b310479c73c1c7dad8feb64c94109fd757c6110`. Their inactivity and navigation
+cases informed this implementation. Those branches still emitted header notices
+and were not merged into this lane.
+
 ## UX and state plan
 
 The screen shows the destinations and current values of the controls the SMC
