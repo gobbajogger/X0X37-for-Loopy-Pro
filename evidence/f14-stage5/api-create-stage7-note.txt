@@ -1,0 +1,8 @@
+Stage 5 (F14 BF-013) could not create an owner-visible Stage 7 Cloud Agent.
+Reason: NO_CURSOR_API_KEY in this pod (two recorded attempts; no POST sent).
+Do not claim a Task subagent as Stage 7.
+Ask the Project coordinator to CreateAgent Stage 7 with:
+  repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+  startingRef: cursor/f14-bf013-stage5-237f
+  prompt: evidence/f14-stage5/SUCCESSOR-STAGE7.txt (full text)
+Stage 5 keeps ownership until that owner-visible id/URL is recorded on the remote tip.

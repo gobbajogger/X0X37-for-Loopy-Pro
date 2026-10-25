@@ -1,0 +1,9 @@
+{
+  "attempt": 2,
+  "endpoint": "https://api.cursor.com/v1/agents",
+  "result": "NO_CURSOR_API_KEY",
+  "created": false,
+  "agent_id": null,
+  "url": null,
+  "note": "Retry skipped: still no CURSOR_API_KEY. Stage 5 keeps ownership until coordinator CreateAgent records an owner-visible Stage 7 id."
+}
