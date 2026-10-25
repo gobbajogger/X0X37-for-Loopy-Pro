@@ -1,0 +1,2 @@
+PASS holdout missing/added partials, gain separation, training-window exclusion, lag bound
+PASS high-note pitch initialization avoids local harmonic-fit minima

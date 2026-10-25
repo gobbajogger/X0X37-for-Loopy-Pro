@@ -1,0 +1,9 @@
+PASS deterministic fresh/reset, active history, all block sizes 1..256
+pitch_hz=130.81236203 pitch_error_cents=-0.005567
+PASS pitch, exact tail silence, mono, last-note ownership, damper cleanup
+PASS mod-level0 control null, positive modulation, stereo and mono downmix
+PASS finite bounded extreme/swept controls at 8/44.1/48/192kHz, input validation
+PASS control sensitivity, zero output, monotonic glide and immediate no-glide
+PASS pulse strong even harmonics/DC and bounded short release across rates
+host_benchmark_frames=480000 cpu_seconds=0.023872 cpu_seconds_per_audio_second=0.002387 checksum=-334.301066065
+PASS all host tests; sizeof(wobble_t)=144 bytes

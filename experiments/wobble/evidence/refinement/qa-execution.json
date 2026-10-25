@@ -1,0 +1,45 @@
+{
+  "status": "ACCEPTED original-host refinement; fidelity remains FAIL",
+  "sourceSha256": "22b310a6e5a2b24015c8934ad4a85fbb2bde487f48a9d98a66e7a4283a9d59d8",
+  "objectSha256": "3a568e997295eee85f968cdb677b3227254903a9cfeca2e62a16ab42f729441d",
+  "commands": [
+    {
+      "command": "sh experiments/wobble/run.sh ../qa/build",
+      "exit": 0
+    },
+    {
+      "command": "clang -std=c99 -O1 -g -ffp-contract=off -fsanitize=address,undefined -fno-sanitize-recover=all experiments/wobble/wobble.c experiments/wobble/test_wobble.c -lm -o ../qa/test_sanitized; ../qa/test_sanitized",
+      "exit": 0
+    },
+    {
+      "command": "python3 -B experiments/wobble/test_compare.py",
+      "exit": 0
+    },
+    {
+      "command": "python3 -B experiments/wobble/test_refinement_analysis.py",
+      "exit": 0
+    },
+    {
+      "command": "evaluate_refinement.py REF ../before-eval ../../outputs/private-audio holdouts.json",
+      "exit": 0
+    },
+    {
+      "command": "evaluate_rate_convergence.py ../before-eval ../rate-after rate-convergence.json",
+      "exit": 0
+    }
+  ],
+  "evidenceSha256": {
+    "history-comparison.json": "b1fe2ebc119f931cebe33fb2c2bb65bb84932cbacb1357f9bf2467c90861095d",
+    "sanitizers.txt": "ca352ef7081c10aa273bb0c1a52f18b48edbde210fb0f3a77dddf42449c09ecf",
+    "host-tests-resources.txt": "7ae1604e04b98d76f755817602c4d11d4f50386d895be52d80b7fab79fcc1779",
+    "comparison.json": "0d8310cb6077cf40b2dd4faf185de416a0126202f6997e9abf408a8c6f8801ad",
+    "methodology-refinement.txt": "e2e5f4d57cbec89ab08031acbe550d813d661ae5d7bdc38f8168fabedb3dd9df",
+    "qa-environment.json": "6515eeda354864e62f0427de9d495e14e413f91c844615dc6d89b51d8f337493",
+    "compiler.txt": "aa1d62635f628590a863c0206a3272f3dc15690749a86b23b52ba2834138a8fd",
+    "independent-review-refinement.md": "89addfde7c3e4d3a1fb22ea1d87031ebeedf22b45afda67dcc6436407e777b2d",
+    "qa-source-hashes.json": "aa4733839fd055a82a6363ec2fee49b0da7bd976ae6212b90b185193a32ca759",
+    "methodology-baseline.txt": "b7c9759523b2879553fb0134a62f972f9496a3b4364c340da65a598e1a2f60f0",
+    "holdouts.json": "9a05b4958fbb8270011ad80f0e954863ad69cb7f3dadf382773f43663594aa8a",
+    "rate-convergence.json": "b3ac37e1c72b1efc5aa179f62e6eecff201ccf5b83a992b7e485cd556c84c690"
+  }
+}

@@ -25,6 +25,15 @@ static float waveform(float phase, float step, int square)
     return (phase < 0.5f ? 1.0f : -1.0f)
         + wobble_blep(phase, step) - wobble_blep(wrap(phase + 0.5f), step);
 }
+/* Original fixed 10% duty modulator: DC-corrected levels, with the same
+ * reviewed MIT PolyBLEP correction at both discontinuities. Carrier/LFO square
+ * retain symmetric duty. This is a general waveform, not a sample table. */
+static float mod_waveform(float phase, float step, int pulse)
+{
+    if (!pulse) return waveform(phase, step, 0);
+    return (phase < .1f ? 1.8f : -.2f)
+        + wobble_blep(phase, step) - wobble_blep(wrap(phase + .9f), step);
+}
 static void update_pitch(wobble_t *s)
 {
     float semitones = (float)s->note - 69.0f
@@ -61,7 +70,7 @@ void wobble_init(wobble_t *s, float sample_rate)
         ? fm_clampf(sample_rate, 8000.0f, 192000.0f) : 48000.0f;
     for (unsigned i = 0; i < W_PARAMETER_COUNT; ++i) s->p[i] = defaults[i];
     s->attack_step = 1.0f / (0.002f * s->sample_rate);
-    s->release_step = 1.0f / (0.030f * s->sample_rate);
+    s->release_step = 1.0f / (0.0048f * s->sample_rate);
     update_rates(s);
     wobble_reset(s);
 }
@@ -110,21 +119,21 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float step = fm_clampf(s->hz / s->sample_rate, 1e-6f, .12f);
         float mod_step = fm_clampf(step * .5f
             * exp2_bounded(10.0f * (s->p[W_XMOD_TUNE] - .5f) / 12.0f), 1e-6f, .24f);
-        float mod = waveform(s->mod_phase, mod_step, s->p[W_XMOD_WAVE] >= .5f);
+        float mod = mod_waveform(s->mod_phase, mod_step, s->p[W_XMOD_WAVE] >= .5f);
         /* Level0 gates both audible modulator and modulation. PM spectrum at high
          * depth is not fully bandlimited; aliasing remains a refinement target. */
         float pm = mod * s->p[W_XMOD_DEPTH] * s->p[W_XMOD_LEVEL] * .5f;
         float carrier = waveform(wrap(s->carrier_phase + pm), step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
         float sub = waveform(s->sub_phase, step * .5f, 0);
-        float mixed = .1f * (s->p[W_CARRIER_LEVEL] * carrier
+        float mixed = .07725f * (s->p[W_CARRIER_LEVEL] * carrier
             + s->p[W_SUB_LEVEL] * sub + s->p[W_XMOD_LEVEL] * mod);
         float crush = s->p[W_CRUSH];
         if (crush > 0) mixed = fm_tanhf(mixed * (1.0f + 31.0f * crush));
         float lfo = waveform(s->lfo_phase, s->lfo_step, s->p[W_WOBBLE_SHAPE] >= .5f);
         float cutoff_control = fm_clampf(s->p[W_CUTOFF]
             - .65f * s->p[W_WOBBLE_DEPTH] * (lfo + 1.0f) * .5f, 0, 1);
-        float cutoff_hz = fm_minf(40.0f * fm_exp2f(cutoff_control * 8.7f),
+        float cutoff_hz = fm_minf(12.0f * fm_exp2f(cutoff_control * 8.7f),
                                   s->sample_rate * .18f);
         /* Original two-pass Chamberlin SVF, fixed damping, frequency capped for
          * stable twofold update. Not copied from an unreviewed filter module. */

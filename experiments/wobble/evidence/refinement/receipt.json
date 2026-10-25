@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "stage": "original wobble bounded DSP refinement",
+  "state": "ACCEPTED_ORIGINAL_HOST_ONLY",
+  "baseLocalCommit": "9af8826cd31d76edb16d0e920ad0bc5a8f53ab6d",
+  "baseRemoteCommit": "2436c4ac7c41dbe1dd3f8ca21c7c8dd95fa0b963",
+  "baseTree": "efff32ed2849161e8edfcbb50a99a1c55a69c72f",
+  "canonicalContractRevision": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "contractSha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3",
+  "sourceSha256": {
+    "experiments/wobble/fit_refinement.py": "f466feb79557cc953835323617af404504500be2dd25e9303ca2ee2460531c18",
+    "experiments/wobble/wobble.c": "22b310a6e5a2b24015c8934ad4a85fbb2bde487f48a9d98a66e7a4283a9d59d8",
+    "experiments/wobble/blep.h": "b95e129e11b13b1b56b34ac8be253f6c2e0f04fba11b4874d78dfd483749f4a3",
+    "experiments/wobble/evaluate_rate_convergence.py": "9c789221d59cb17141f1350d6f7419487fdeceae4d7ff0a59cd9cadf3728fe0d",
+    "experiments/wobble/render.c": "8a181e72eba4bb2edd1a56e74cc8013fda7e3671cb8ecac5a59a5667394585e2",
+    "experiments/wobble/run.sh": "ee4b25a4a6a780157332434e402ea2fd198e8672414db73ee19fac7871d0383f",
+    "experiments/wobble/compare_history.py": "3aa1892547f5ac6312aaed9a53c9017d65c5c729b5bbc0c543b544883c0ac1a0",
+    "experiments/wobble/evaluate_refinement.py": "645b2255494eb0debd09192fd6364e8df0e89ddc9d44934c7fe7d5f0631c0dda",
+    "experiments/wobble/qa_render.c": "8c249f01441c04196a4e095bf26626c75f2aabf3c28a4a908474d75875a361f5",
+    "experiments/wobble/test_wobble.c": "852a311d4494033dfb88a0138fbc7ad6919e797bd55fb273e7ff03f77e19e779",
+    "experiments/wobble/wobble.h": "cdb22d828f029e02a7d8b58cc02426626d6dc3faaf725fabad4ab9c64b09f751",
+    "experiments/wobble/test_compare.py": "90b4101013e10d94a45bd5ebf5ad2cd85ab6c49f144a0856dd29079482950b3b",
+    "experiments/wobble/test_refinement_analysis.py": "42ccdce3b06ff2059a3500ad0312f52d7f0bdea379592cb7cae100ab6ea466e2",
+    "experiments/wobble/compare.py": "29913fc490bf2aaa176deb762a9d9d11ce3bb2d97457fe56291dffe23a7e4bfc",
+    "firmware/src/dsp/fastmath.h": "71d0fb4c242e6c03e435cebacc1e978f928ce2672d6b47a48b68372e72453349"
+  },
+  "evidenceSha256": {
+    "history-comparison.json": "b1fe2ebc119f931cebe33fb2c2bb65bb84932cbacb1357f9bf2467c90861095d",
+    "sanitizers.txt": "ca352ef7081c10aa273bb0c1a52f18b48edbde210fb0f3a77dddf42449c09ecf",
+    "host-tests-resources.txt": "7ae1604e04b98d76f755817602c4d11d4f50386d895be52d80b7fab79fcc1779",
+    "comparison.json": "0d8310cb6077cf40b2dd4faf185de416a0126202f6997e9abf408a8c6f8801ad",
+    "methodology-refinement.txt": "e2e5f4d57cbec89ab08031acbe550d813d661ae5d7bdc38f8168fabedb3dd9df",
+    "qa-environment.json": "6515eeda354864e62f0427de9d495e14e413f91c844615dc6d89b51d8f337493",
+    "compiler.txt": "aa1d62635f628590a863c0206a3272f3dc15690749a86b23b52ba2834138a8fd",
+    "independent-review-refinement.md": "89addfde7c3e4d3a1fb22ea1d87031ebeedf22b45afda67dcc6436407e777b2d",
+    "qa-source-hashes.json": "aa4733839fd055a82a6363ec2fee49b0da7bd976ae6212b90b185193a32ca759",
+    "methodology-baseline.txt": "b7c9759523b2879553fb0134a62f972f9496a3b4364c340da65a598e1a2f60f0",
+    "holdouts.json": "9a05b4958fbb8270011ad80f0e954863ad69cb7f3dadf382773f43663594aa8a",
+    "rate-convergence.json": "b3ac37e1c72b1efc5aa179f62e6eecff201ccf5b83a992b7e485cd556c84c690",
+    "qa-execution.json": "28b33d33b34f6585de1dc10f0a7504a281ee70cc7949d94a80d4f0d3ebe79233"
+  },
+  "compiledObjectSha256": "3a568e997295eee85f968cdb677b3227254903a9cfeca2e62a16ab42f729441d",
+  "baselineEvidenceSha256": {
+    "comparison.json": "540d16e4f7d6603f8bf46ae2435df800acfa6ba589a80d1c24c3374649d9c817",
+    "history-comparison.json": "129727eb6f46ec037b1bad4955afe5c309fd84fb37c5e7a13766de3a8faa9e7b",
+    "private-inputs.json": "dca5ad845f6c142dac4f1f04a61f1a9bf4d1541bc5e187a0b4c0d232003219e2"
+  },
+  "resources": {
+    "stateBytes": 144,
+    "arm64TextBytes": 3948,
+    "arm64TotalBytes": 4648,
+    "undefinedSymbols": [],
+    "hostBenchmarkFrames": 480000,
+    "hostCpuSeconds": 0.014764
+  },
+  "status": {
+    "hostBehavior": "PASS",
+    "sanitizers": "PASS",
+    "methodologyRegression": "PASS",
+    "freshPitch": "7/7 PASS",
+    "freshSteadyEnvelope": "6/7 PASS",
+    "freshSpectrum": "1/7 PASS",
+    "referenceHistory": "FAIL",
+    "aliasQualification": "NOT_ESTABLISHED",
+    "firmwareIntegration": "NOT_RUN",
+    "hardware": "NOT_RUN"
+  },
+  "additionalChecks": {
+    "gitDiffCheck": "PASS",
+    "prefsLint": "NOT_RUN: script absent in pinned baseline",
+    "quickcheck": "NOT_RUN: pinned planner treats experiment as target scope; host refuses Linux-only build; no firmware build was requested for this stage"
+  },
+  "license": "Unchanged MIT DaisySP helper pinned2c72eaf9eac5fc0dca1919d65d606da907832618; no new third-party code",
+  "nextOwner": {
+    "threadId": "01a172f9-aa11-79c2-bff3-06b6337bf916",
+    "scope": "separate combined integration/resource lane; consume frozen original host refinement only"
+  },
+  "remaining": "Mixed PM spectrum/gain, deterministic spectral history, isolated pulse alternate-note reference coverage, anti-alias design, target fit/device timing"
+}

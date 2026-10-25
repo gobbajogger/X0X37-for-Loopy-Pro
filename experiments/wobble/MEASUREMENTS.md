@@ -1,6 +1,8 @@
-# Measured host prototype results
+# Immutable baseline host prototype results
 
-2026-10-25. Experimental host prototype; no firmware integration or release qualification.
+2026-10-25. Baseline tree efff32ed2849161e8edfcbb50a99a1c55a69c72f.
+These retained results describe the original prototype. Current refinement results
+are in `REFINEMENT.md`; no firmware integration or release qualification.
 
 | Configuration | Pitch error cents | Note RMS error dB | H3/H5 relative error dB | Strong-spectrum maximum dB | Lag correlation |
 | --- | ---: | ---: | --- | ---: | ---: |
