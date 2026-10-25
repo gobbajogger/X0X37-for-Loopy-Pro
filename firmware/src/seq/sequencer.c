@@ -194,7 +194,8 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
     if (s->mute & (1u << (MUTE_BASS0 + b)))
         gate = G_REST;
-    if (gate == G_REST) {
+    /* A TIE continues an audible note; an orphan TIE is a rest, never an onset. */
+    if (gate == G_REST || (gate == G_TIE && !tr->sounding)) {
         bass_release(s, b, o);
         tr->held_note = 0;
         return;
