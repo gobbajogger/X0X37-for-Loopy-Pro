@@ -1,0 +1,1 @@
+merge_project_prs: gh pr list --repo gobbajogger/X0X37-for-Loopy-Pro --state open --limit 100 --json number,title,url,headRefName,baseRefName,headRefOid,isDraft,mergeable,mergeStateStatus,reviewDecision,autoMergeRequest,statusCheckRollup,files failed: unexpected end of JSON input

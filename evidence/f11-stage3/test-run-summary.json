@@ -1,0 +1,45 @@
+{
+  "overall": "ALL_PASS",
+  "head_sha": "4f96b0d9f5f11f700ea3fc935800b8714e11f35d",
+  "branch": "cursor/f11-bf007-stage3-fb90",
+  "project_c_blob": "240a4b1735166dfb990b52c26686c7ea5ad4317e",
+  "project_c_blob_expected": "240a4b1735166dfb990b52c26686c7ea5ad4317e",
+  "project_c_blob_match": true,
+  "pillow_status": "installed",
+  "pillow_note": "Pillow 13.0.0; project-runtime re-run PASS after install; full host-unit suite re-run and all ok",
+  "checks": [
+    {
+      "name": "bf007-legacy-bdpan-motion",
+      "command": "sh tests/host/run_bugfinder_legacy_bdpan_motion.sh",
+      "exit": 0,
+      "result": "PASS",
+      "detail": "171/171 checks, 0 failures",
+      "log": "evidence/f11-stage3/bf007-legacy-bdpan-motion.log"
+    },
+    {
+      "name": "host-unit",
+      "command": "X0X_TESTS=\"legacy-bdpan-motion project-stage project-protocol project-runtime\" sh tests/run_tests.sh",
+      "exit": 0,
+      "result": "PASS",
+      "detail": "ok project-protocol, project-stage, legacy-bdpan-motion, project-runtime (re-run after Pillow 13.0.0 install)",
+      "log": "evidence/f11-stage3/host-unit.log"
+    },
+    {
+      "name": "project-runtime",
+      "command": "X0X_TESTS=\"project-runtime\" sh tests/run_tests.sh",
+      "exit": 0,
+      "result": "PASS",
+      "detail": "ok project-runtime after Pillow 13.0.0",
+      "log": "evidence/f11-stage3/project-runtime.log"
+    },
+    {
+      "name": "bdpan-migration-review",
+      "command": "read-only review of firmware/src/app/project.c migration order + blob hash",
+      "exit": 0,
+      "result": "PASS",
+      "detail": "sound_bd_sends static PAN post-OBJ_SOUND; sound_bd_sends_lanes after stream/arrange; blob matches",
+      "log": "evidence/f11-stage3/bdpan-migration-review.txt"
+    }
+  ],
+  "failures": []
+}

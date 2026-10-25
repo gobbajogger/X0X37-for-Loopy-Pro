@@ -1,0 +1,25 @@
+{
+  "base": "0d79d63485dc6585800a71ef716d095445f5a1fc",
+  "scope": "F05 BF-002 scoped quickcheck project-suite routing repair only (tools/quickcheck_plan.py TEST_ROUTES for project JS/HTML and shared breaks, tests/host/test_quickcheck_plan.py). Firmware, controller, and package application bytes are unchanged versus the audited tip 0d79d634 / content tree 1b067cadd1… unless a package gate proves otherwise. Stage 3 ALL_PASS for required BF-002 planner host, projects-web/projects-page suites, and offline select() probe. Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-002-affected planner/project host checks. A host pass is not a package pass.",
+  "checks": [
+    {
+      "reason": "BF-002 planner host regressions must pass, including project-suite route selection.",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.host.test_quickcheck_plan",
+        "-v"
+      ]
+    },
+    {
+      "reason": "Scoped project web/page suites still pass after BF-002 planner routing fix.",
+      "argv": [
+        "env",
+        "X0X_TESTS=projects-web projects-page",
+        "bash",
+        "tests/run_tests.sh"
+      ]
+    }
+  ]
+}

@@ -799,8 +799,10 @@ int seq_clk_take(seq_t *s, uint8_t st, uint32_t src)
 }
 void seq_clk_drop(seq_t *s, uint32_t src)
 {
-    if (s->clk_lock == src + 1u)
+    if (s->clk_lock == src + 1u) {
         s->clk_lock = 0;                              /* its link ended: any input can get the clock now */
+        s->ext_pending = 0;                           /* BF-005: drop queued clocks of that input too */
+    }
 }
 int seq_clock_waiting(const seq_t *s)
 {

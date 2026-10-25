@@ -1,0 +1,23 @@
+BF-006 Stage-3 source form check (read-only)
+============================================
+branch: cursor/f10-bf006-stage3-fb90
+HEAD:   af4947846df7233c68a6be72c4d0c634052a2752
+blob:   git rev-parse HEAD:firmware/src/dsp/drum808.c
+        = 90f463295fb1a642bad81700d73fc22eb8ec7a38
+        EXPECTED: 90f463295fb1a642bad81700d73fc22eb8ec7a38
+        RESULT: MATCH
+
+d8_exp2_cr (firmware/src/dsp/drum808.c ~146-167):
+- Casted exponent bias shift present as required:
+    b.u += (uint32_t)(int32_t)n << 23;
+  (defined form; no bare signed left-shift of negative n)
+- Clamping intent unchanged:
+    if (x < -126.0f) return 0.0f;
+    if (x > 127.0f) x = 127.0f;
+- Fractional series / floor path still present:
+    n = fm_floorf(x + 0.5f);
+    f = x - n;
+    Taylor/ifact series loop for (k = 10; k >= 0; k--) still present
+- Open PR #28 fastmath.h NOT required for this check (per assignment)
+
+RESULT: PASS

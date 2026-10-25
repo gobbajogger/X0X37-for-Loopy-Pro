@@ -6,8 +6,10 @@
   index.html                  redirect to the installer
   firmware/felucca-VER.fwsc   the package
   webapp/installer/index.html index_pkg.html with fm1pkg.js, fm1ota.js and the metadata inlined
-  webapp/editor/index.html    editor.html (+ fukiai.ttf, FUKIAI-LICENSE.txt)
   src/                        not touched
+
+  The Felucca web editor (webapp/editor from editor.html) was retired with the X0X fork
+  (commit 23775375). This builder no longer copies or requires editor.html.
 
   web/make_site.py build/felucca-X.Y.fwsc X.Y OUT_DIR
 
@@ -51,22 +53,22 @@ def main(pkg, version, out):
         if html.count(mark) != 1:
             raise SystemExit(f"index_pkg.html must contain {mark} once; update make_site.py")
     html = html.replace("/*LIB*/", lib).replace("/*META*/", meta)
-    inst, ed, fw = out / "webapp" / "installer", out / "webapp" / "editor", out / "firmware"
-    for d in (inst, ed, fw):
+    inst, fw = out / "webapp" / "installer", out / "firmware"
+    for d in (inst, fw):
         d.mkdir(parents=True, exist_ok=True)
     for old in fw.glob("felucca-*.fwsc"):          # one package: the current one
         old.unlink()
     (inst / "index.html").write_text(html, encoding="utf-8")
     shutil.copy(pkg, fw / name)
-    shutil.copy(HERE / "editor.html", ed / "index.html")
-    for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt"):
-        if (HERE / f).exists():
-            shutil.copy(HERE / f, ed / f)
+    # Retire any previously published editor tree so a rebuild does not leave a stale page.
+    ed = out / "webapp" / "editor"
+    if ed.exists():
+        shutil.rmtree(ed)
     (out / "index.html").write_text(
         '<!doctype html><meta charset="utf-8"><title>Felucca</title>'
         '<meta http-equiv="refresh" content="0; url=webapp/installer/">'
         '<a href="webapp/installer/">Felucca installer</a>\n', encoding="utf-8")
-    print(f"site: {out}: webapp/installer ({len(html)} B), webapp/editor, firmware/{name} ({len(raw)} B, {product})")
+    print(f"site: {out}: webapp/installer ({len(html)} B), firmware/{name} ({len(raw)} B, {product})")
 
 
 if __name__ == "__main__":

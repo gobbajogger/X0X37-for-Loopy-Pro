@@ -1,0 +1,44 @@
+You are the new stage-3 test thread in the X0X37 full-cycle loop (F10 after stage-2 BF-006 implement). Do not resume the stage-2 thread bc-b0f3069d-5192-5bcd-a58d-cb6673598cd8, the stage-1 thread bc-6b7eb25f-60be-5d9e-8fa7-d8b9111b5e63, the stage-7 thread bc-bb6e5cd5-b939-53c7-a83d-6b012405e45c, the stage-5 thread bc-984a1ae4-5c90-5679-a709-70f06fef126a, the stage-4 thread bc-bb88a201-7b44-59ef-84e9-1f920f04e260, the stage-3 thread bc-ae6fbd79-7084-5960-9b7c-1f7fce57cc2b, the earlier stage-2 thread bc-42c7795e-c06a-577e-b9f6-2b9f2b368ed0, the earlier stage-1 thread bc-2ac9852a-4eac-553f-906c-d7ecf1a4d46e, the earlier stage-7 thread bc-bcce5c32-d708-521d-8a09-7d4547fb5ca5, the earlier stage-5 thread bc-1940db7e-48d9-5cd0-9460-96008b16579d, the earlier stage-4 thread bc-f37b5cb8-29ed-5ce4-b37a-e2398a39c492, the earlier stage-3 thread bc-85452fe2-cacc-5d1e-a23d-189f00c0f7c9, the earlier stage-2 thread bc-b8f70f77-86ea-5f4d-8f65-8b52329fee6e, the earlier stage-1 thread bc-78e96d95-98c8-5fe4-b4f0-287bc2ad068d, the earlier stage-7 thread bc-327a66e2-7dfc-58c2-af70-8bb1ea80452d, the earlier stage-5 thread bc-6fe39901-28af-5ef9-8590-1ba47e4031bd, the earlier stage-4 thread bc-9dff78f5-b689-5c94-838d-b660e1540353, the earlier stage-3 thread bc-43698d6f-ea60-5e58-9d62-84179d683504, the earlier stage-2 thread bc-d180cf42-3a0d-5bf5-b694-aa94e5cf04ef, the earlier stage-1 thread bc-b1215ac4-b3bd-5a72-a25e-e97bb3d629dd, the earlier stage-7 thread bc-f7783059-a0d9-5c29-a373-763ffd739822, the earlier stage-5 thread bc-79dd773c-ae89-569f-8782-477f0086ede5, the earlier stage-4 thread bc-497c8ca7-9e61-5bf9-aa11-010fe85a0374, the earlier stage-3 thread bc-fd451c4d-a054-5318-bad5-ee55cb5dbabe, the earlier stage-2 thread bc-764bccc6-54f9-58a3-bf70-6f95773c3460, the earlier stage-1 thread bc-a76a9628-9a50-5b04-a7a4-ba134f41d9e1, the earlier stage-7 thread bc-1db0b238-d8dd-5769-acf7-2a9237155a9f, the earlier stage-5 thread bc-97198e69-b677-5452-99d2-348253ba0224, the earlier stage-4 thread bc-beff5dde-a986-5a97-bde7-a992b937cc42, the earlier stage-3 thread bc-267d1e71-e911-5c7d-aecc-36f285bdf065, the earlier stage-2 thread bc-9490d387-26c4-58f1-a59e-84ccb8145ef7, the earlier stage-1 thread bc-bd9cb2ca-4784-5d48-968d-bee42f593ff1, the earlier stage-7 thread bc-0d4e5c60-b783-50bf-aade-b445b509603c, the earlier stage-5 thread bc-53d982c6-2d09-50b5-a24b-19a82e0ab4bc, the earlier stage-4 thread bc-5cbf81ce-9d35-5c9f-8919-36e1f7b2a870, the earlier stage-3 thread bc-ead74ca6-9020-58cf-9542-8b8091a1c878, the earlier stage-2 thread bc-d910ead2-0c33-5313-adea-956b263a6fae, the earlier stage-1 thread bc-b24569bd-4f94-5a38-abb3-ed5ce76d4012, the Mac gh-pages push agents bc-fd41cdd4-425d-5d0b-8321-04650975ae32, bc-36495868-6d21-55f1-9274-4c6b065bdc08, bc-3161dbe9-ac70-502b-9032-a3314f404283, bc-8bb9d6e5-bd6e-5f14-be5b-952d7c2f2dde, bc-c2a20c4f-164b-5375-b042-99a914c47c5f, bc-795342a0-d8f9-52d2-8485-20377d0a90f8 or bc-130fb82c-37a5-5211-adcc-10db676a56f3, the cloud pages worker bc-e4d74847-d6da-53e4-b413-96cb0e585799, the earlier Mac agent bc-3f7a599b-afeb-52c0-8f2a-84c20ba806e6, or any earlier F02/F03/F04/F05/F06/F07/F08/F09 thread. Do not continue any internal probe; this cloud agent is the only Stage 3 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage unless Stage 7 later republishes): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: d0d00da23c3ce2268f06f31f8c062716d5a37ad0
+Content tree (pre-repair package baseline): 62339630bc6e133da464eed7924645c0bfc09e4de66a8bccafdc60fd2d660c83
+Git tree (pre-repair): e06299abf0f35f24c771d011d07c2e74de613369
+Firmware tree (pre-repair): 32a36f68d1ce7a3c304b447475afe7e2bbb116cf
+Audited firmware content tree (pre-BF-005 package bytes baseline): b02108f768a1d6cea2bb78f534f224bbace3c9dfce9697e1dfd00fe69ddd5190
+Audited firmware reference SHA: 1325f5d34340ea877e65ab86f3663f5dea052c0d
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005)
+BF-006 implement tip: start from the remote tip of cursor/f10-bf006-stage2-fb90 that contains evidence/f10-stage2/SUCCESSOR-STAGE3.txt, HANDOFF.md, CHECKS.md, DEFERRED.md, bf006-red.log, bf006-green.log, and the d8_exp2_cr defined-shift repair in firmware/src/dsp/drum808.c (blob 90f463295fb1a642bad81700d73fc22eb8ec7a38) plus tests/host/bugfinder_drum808_exp2_test.c wired as drum808-exp2 in tests/run_tests.sh and docs/audit/bugfinder-drum808-exp2-20261023.md. The audited source authenticates d0d00da2; this tip adds BF-006 only. Do not substitute the diverged firmware nightly tip (still 08d3164a…).
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f10-stage2/HANDOFF.md and CHECKS.md. You are stage 3 only.
+
+Scope: test the BF-006 d8_exp2_cr defined exponent bias shift only. Required regressions (local host only; no GitHub Actions, no Codex-on-GitHub, no device write):
+- Prefer gcc -fsanitize=undefined -fno-sanitize-recover=all for the BF-006 harness (Clang UBSan runtime may be absent): confirm tests/host/bugfinder_drum808_exp2_test.c PASS with nine numeric exp2 controls and no "left shift of negative value -3"
+- X0X_TESTS="drum808-exp2 drum-pan" sh tests/run_tests.sh (must PASS; generate build/gen via tools/gen_drum_samples.py if needed for drum-pan)
+- Confirm firmware/src/dsp/drum808.c d8_exp2_cr uses b.u += (uint32_t)(int32_t)n << 23; (or equivalent defined form); fractional series / clamping intent unchanged; open PR #28 fastmath.h not required for this probe
+- Do not reopen BF-001–BF-005 or FP-001; do not take BF-007
+
+Give the test run and any failure investigation to separate subagents. A source repair found here returns to a new stage 2; do not patch the failure forward.
+
+Do not implement the withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, delete Felucca-era make_site.py entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite, or open PR #28 fastmath.h. Do not reopen BF-001, BF-002, BF-003, FP-001, BF-004, or BF-005. Do not take BF-007.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Use the development configuration X0X_DEV_PADCAL=1 if any firmware build is required. Branch from the pushed implement tip as cursor/<slug>-stage3-fb90 (required prefix cursor/ and suffix -fb90). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the checked test record is on the remote, hand off before you stop. Push SUCCESSOR-STAGE4.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-4 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 3. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 4 if the pod has no CURSOR_API_KEY.
+
+Completion condition: checked BF-006 test record on the remote stage-3 branch, each failure has a cause and disposition, and one owner-visible stage-4 successor id pushed on the handoff.
+
+Project store: /cursor/stores/bc-b05591bb-062b-4903-a604-51ad1dfc9f05/
+
+If CreateAgent fails (no CURSOR_API_KEY / 401), ask the Project coordinator to CreateAgent and return the id — do not stall on the owner. Merge proven PRs via tools/merge_project_prs.py into existing bases without retarget when gh pr edit --base hits "Resource not accessible by integration"; do not ask the owner for merge approval. After opening any PR, ask the Project coordinator to subscribe (local-env review only; no Codex-on-GitHub / Actions).
+
+Policy: all review/tests in agent cloud VM only — never GitHub Actions or @codex.
+
+Coordinator note: Prefer minimum local proof for evidence-only stage PRs (digest/record verify, not full package rebuild). Prefer cloud gh-pages via nightly repo_url placement.
+
+Full successor prompt also at evidence/f10-stage2/SUCCESSOR-STAGE3.txt on startingRef cursor/f10-bf006-stage2-fb90.

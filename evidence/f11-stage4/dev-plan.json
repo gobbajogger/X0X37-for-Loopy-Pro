@@ -1,0 +1,24 @@
+{
+  "base": "af4947846df7233c68a6be72c4d0c634052a2752",
+  "scope": "F11 BF-007 legacy BD PAN motion migration only (firmware/src/app/project.c blob 240a4b1735166dfb990b52c26686c7ea5ad4317e + tests/host/bugfinder_legacy_bdpan_motion_test.c + legacy-bdpan-motion in tests/run_tests.sh + docs/audit/bugfinder-legacy-bdpan-motion-20261023.md; implement commit 78a0452e; tested implement tip 4f96b0d9). Firmware tree changed vs audited tip af494784 / content tree 1da3bbfb\u2026 (firmware tree bcc21733\u2026 \u2192 5b1a21f0\u2026). Stage 3 ALL_PASS for required BF-007 host regressions (legacy-bdpan-motion 171/171; X0X_TESTS=\"legacy-bdpan-motion project-stage project-protocol project-runtime\" exit 0; sound_bd_sends static PAN post-OBJ_SOUND; sound_bd_sends_lanes after stream/arrange). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-007-affected host checks. A host pass is not a package pass. Do not reopen BF-001\u2013BF-006 or FP-001. Do not implement deferred items.",
+  "checks": [
+    {
+      "reason": "BF-007 host regressions: legacy-bdpan-motion, project-stage, project-protocol, project-runtime must PASS.",
+      "argv": [
+        "bash",
+        "/workspace/evidence/f11-stage4/check-bf007-host.sh"
+      ]
+    },
+    {
+      "reason": "BF-007 project.c must keep static vs lane BD PAN migration order (blob 240a4b17\u2026).",
+      "argv": [
+        "bash",
+        "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/workspace/evidence/f11-stage4/check-bf007-host.sh",
+    "/workspace/evidence/f11-stage4/check-bdpan-migration.sh"
+  ]
+}
