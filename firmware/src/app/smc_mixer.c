@@ -472,14 +472,20 @@ static void smc_ui_label(pref_t r, char *text)
 
 static int smc_led(int note);
 
-/* Eight physical strips, left to right: encoder above, fader left of M/S/R/SELECT.
+/* Eight physical strips, left to right: encoder above, fader left of M/S/R.
  * Keep this geometry even when a target is inactive; position is the user's map. */
 static UI_DRAW void smc_ui_grid(void)
 {
     static const char *const MAIN_N[8] = {"909", "808", "303A", "303B", "BRK", "RVB", "DLY", "FLT"};
-    static const char *const KEYS[4] = {"M", "S", "R", "[]"};
-    static const uint8_t NOTES[4] = {16, 8, 0, 24};
+    static const char *const KEYS[3] = {"M", "S", "R"};
+    static const uint8_t NOTES[3] = {16, 8, 0};
     int kit = smc_drum_mix();
+    /* Selection follows the keyboard UI, independently of the touched control.
+     * A locked bank can differ: no lane is selected if it is outside this bank.
+     * LOCK in the header describes captured targets, never the title highlight. */
+    int selected = kit >= 0 ? ui.sel[kit] - smc_drum_track(kit, 0) :
+        ui.view == V_FX ? 5 + cur_page() :
+        ui.view == V_MIX ? (cur_page() == 3 ? 7 : ui.mixsel) : ui.part;
     for (int n = 0; n < 8; n++) {
         pref_t f = smc_target(n), k = smc_knob_target(n);
         char name[24], value[32], unit[12];
@@ -491,7 +497,8 @@ static UI_DRAW void smc_ui_grid(void)
             int track = smc_drum_track(kit, n);
             if (track >= 0) put_i(name, track + 1); else put_s(name, "--");
         } else put_s(name, MAIN_N[n]);
-        text_c(x + 15, 1, &FONT_T, name, C_WHITE);
+        if (n == selected) cv_rect(x + 1, 0, 28, 13, C_WHITE);
+        text_c(x + 15, 1, &FONT_T, name, n == selected ? C_BLACK : C_WHITE);
         if (k.kind == R_NONE) put_s(name, "--");
         else {
             const char *label = pref_name(k);
@@ -526,7 +533,7 @@ static UI_DRAW void smc_ui_grid(void)
             if (!(smc.picked & (1u << n)))
                 cv_rect(x + 3, 111 - smc.last[n] * 45 / 127, 12, 1, C_WHITE);
         }
-        for (int row = 0; row < 4; row++) {
+        for (int row = 0; row < 3; row++) {
             int y = 64 + row * 14;
             uint16_t c = smc_led(NOTES[row] + n) ? C_HI : f.kind == R_NONE ? C_DIM : C_GRAY;
             cv_rect(x + 18, y, 10, 13, C_LINE);
