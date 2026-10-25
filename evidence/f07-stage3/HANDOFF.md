@@ -15,9 +15,9 @@ Test evidence: `evidence/f07-stage3/CHECKS.md`.
 Implement evidence: `evidence/f07-stage2/CHECKS.md`, `evidence/f07-stage2/DEFERRED.md`, `evidence/f07-stage2/digests.json`.
 Audit record: `evidence/f07-stage1/AUDIT.md`.
 Successor prompt: `evidence/f07-stage3/SUCCESSOR-STAGE4.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 4 id is recorded on this remote tip. Pod has no usable `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-9dff78f5-b689-5c94-838d-b660e1540353`.
+Successor URL: https://cursor.com/agents/bc-9dff78f5-b689-5c94-838d-b660e1540353
+Handoff status: **complete**. Owner-visible Stage 4 created by Project coordinator CreateAgent (pod had no `CURSOR_API_KEY`); name `F07 stage4 FP-001`; base `cursor/f07-fp-pin-stage3-fb90`. Local PR #221 review: `bc-405f3aea-dd26-5865-8f03-8a9d87ae93d9` → Project store `internal/pr-local-reviews/pr-221.md`.
 
 ## Test summary
 
