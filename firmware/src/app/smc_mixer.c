@@ -471,13 +471,42 @@ static void smc_ui_label(pref_t r, char *text)
 }
 
 static int smc_led(int note);
+static int smc_lock_blocks(uint8_t note);
+/* Shared navigation descriptors: input dispatch and screen captions read these. */
+static const uint8_t SMC_VIEW[4][3] = {
+    {V_FX, V_FX, V_HOME}, {V_MIX, V_MIX, V_PART},
+    {0, 0, 0}, {V_FX, V_FX, V_MIX}
+};
+static const int8_t SMC_PAGE[4][3] = {
+    {0, 1, 0}, {-1, -1, 0}, {0, 0, 0}, {0, 1, 3}
+};
+static int smc_nav_key(int note)
+{
+    return note == 5 ? (smk_clip_mode_on() && ui.overlay == O_NONE ? B_GLO : B_SEL) :
+           note == 6 ? B_HOME : note == 14 ? B_GLO : -1;
+}
+static const char *smc_button_caption(int note)
+{
+    int kit = smc_drum_mix(), strip = note & 7, row = note >> 3;
+    if (kit >= 0 && smc_drum_track(kit, strip) < 0) return "--";
+    if (smc_lock_blocks((uint8_t)note)) return "X";
+    if (row == 2) return "M";
+    if (kit >= 0 || strip < NPARTS) return row ? "S" : "R";
+    int key = smc_nav_key(note);
+    if (key == B_SEL) return ui.overlay == O_LIST ? "OK" : "LIST";
+    if (key == B_GLO) return ui.view == V_GLO ? "BACK" : "GLOB";
+    if (key == B_HOME) return smk_clip_mode_on() && ui.overlay == O_NONE ? "GRID" :
+        ui.overlay != O_NONE || ui.view == V_GLO ? "BACK" : ui.view == V_HOME ? "SONG" : "HOME";
+    int view = SMC_VIEW[row][strip - NPARTS];
+    return view == V_HOME ? "HOME" : view == V_MIX ? "MIX" : view == V_PART ? "PART" : "FX";
+}
+
 
 /* Eight physical strips, left to right: encoder above, fader left of M/S/R.
  * Keep this geometry even when a target is inactive; position is the user's map. */
 static UI_DRAW void smc_ui_grid(void)
 {
     static const char *const MAIN_N[8] = {"909", "808", "303A", "303B", "BRK", "RVB", "DLY", "FLT"};
-    static const char *const KEYS[3] = {"M", "S", "R"};
     static const uint8_t NOTES[3] = {16, 8, 0};
     int kit = smc_drum_mix();
     /* Selection follows the keyboard UI, independently of the touched control.
@@ -510,34 +539,33 @@ static UI_DRAW void smc_ui_grid(void)
             while (i && tw(&FONT_T, name) > 27) name[--i] = 0;
         }
         text_c(x + 15, 14, &FONT_T, caps_of(name), k.kind == R_NONE ? C_DIM : kc);
-        /* The encoder outline and its value remain directly over its strip. */
-        cv_line(x + 10, 29, x + 20, 29, kc);
-        cv_line(x + 6, 33, x + 10, 29, kc);
-        cv_line(x + 20, 29, x + 24, 33, kc);
-        cv_line(x + 6, 33, x + 6, 39, kc);
-        cv_line(x + 24, 33, x + 24, 39, kc);
-        cv_line(x + 6, 39, x + 10, 43, kc);
-        cv_line(x + 24, 39, x + 20, 43, kc);
-        cv_line(x + 10, 43, x + 20, 43, kc);
-        cv_rect(x + 14, 31, 2, 7, k.kind == R_NONE ? C_DIM : kc);
+        /* Same authoritative value/arc renderer as the keyboard knob strip. */
+        if (k.kind != R_NONE) {
+            int bipolar = k.kind == R_BTRANS || is_pan(k) ||
+                (k.kind == R_ENG && k.a == T_MST && k.c == MST_DJF);
+            if (bipolar) cv_rect(x + 14, 25, 2, 3, C_WHITE);
+            arc(x + 15, 36, 8, (float)smc_scaled(k) / 127.0f, C_LINE, kc, bipolar);
+        } else text_c(x + 15, 30, &FONT_T, "--", C_DIM);
         if (k.kind == R_NONE) put_s(value, "--");
         else pref_value_of(k, pref_get(k), value, unit);
         { char *end = value; while (*end) end++;
           while (tw(&FONT_T, value) > 27 && end > value) *--end = 0; }
         text_c(x + 15, 46, &FONT_T, value, k.kind == R_NONE ? C_DIM : kc);
-        cv_rect(x + 8, 64, 2, 51, f.kind == R_NONE ? C_LINE : C_DIM);
+        cv_rect(x + 3, 64, 2, 51, f.kind == R_NONE ? C_LINE : C_DIM);
         if (f.kind != R_NONE) {
             int target = 111 - smc_scaled(f) * 45 / 127;
-            cv_rect(x + 3, target, 12, 4, fc);
+            cv_rect(x + 1, target, 6, 4, fc);
             /* A fine white marker is physical position until pickup is acquired. */
             if (!(smc.picked & (1u << n)))
-                cv_rect(x + 3, 111 - smc.last[n] * 45 / 127, 12, 1, C_WHITE);
+                cv_rect(x + 1, 111 - smc.last[n] * 45 / 127, 6, 1, C_WHITE);
         }
         for (int row = 0; row < 3; row++) {
             int y = 64 + row * 14;
             uint16_t c = smc_led(NOTES[row] + n) ? C_HI : f.kind == R_NONE ? C_DIM : C_GRAY;
-            cv_rect(x + 18, y, 10, 13, C_LINE);
-            text_c(x + 23, y + 1, &FONT_T, KEYS[row], c);
+            const char *caption = smc_button_caption(NOTES[row] + n);
+            if (caption[0] == 'X' || caption[0] == '-') c = C_DIM;
+            cv_rect(x + 8, y, 22, 13, C_LINE);
+            text_c(x + 19, y + 1, &FONT_T, caption, c);
         }
         if (f.kind == R_NONE) put_s(value, "--");
         else pref_value_of(f, pref_get(f), value, unit);
@@ -564,10 +592,10 @@ void smc_ui_draw(void)
     else knob_tag(tag);
     { char *end = tag;
       while (*end) end++;
-      while (tw(&FONT_XS, tag) > 196) *--end = 0;
+      while (tw(&FONT_XS, tag) > 165) *--end = 0;
     }
     cv_text(5, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(tag), C_GRAY);
-    put_i(put_s(tag, smc_ui.kind == 3 ? "KEY " : smc_ui.kind == 1 || smc_ui.kind == 2 ? "K" : "F"), smc_ui.strip + 1);
+    put_i(put_s(tag, smc_ui.kind == 3 ? "KEY " : smc_ui.kind == 1 || smc_ui.kind == 2 ? "KNOB " : "FADER "), smc_ui.strip + 1);
     text_r(235, vc(&FONT_S, 0, HDR_H), &FONT_S, tag, C_HI);
     cv_commit(0, 0, 0);
     cv_begin(240, 2 * BAND_H, C_BLACK);
@@ -609,11 +637,6 @@ void smc_ui_draw(void)
       if (unit[0]) cv_text(x + 2, base_y(font, 22, &FONT_XS), &FONT_XS, unit, C_GRAY);
     }
     text_c(120, 49, &FONT_XS, status, C_HI);
-    /* Same global-key grouping as the hardware: play/pause/rec, pattern,
-     * bank and directional navigation. These are orientation, not touch keys. */
-    cv_rect(0, 65, 240, 1, C_LINE);
-    cv_text(5, 69, &FONT_T, ">     R   << >>   [< >]   ^ v < >", C_GRAY);
-    cv_rect(18, 71, 2, 6, C_GRAY); cv_rect(22, 71, 2, 6, C_GRAY);
     cv_commit(3, 0, KNOB_Y);
 }
 
@@ -837,9 +860,9 @@ static void smc_button_apply(uint8_t note, int mmc)
             return;
         }
     }
-    if (note == 5 || note == 6 || note == 14) {
-        button_tap(note == 5 ? (smk_clip_mode_on() && ui.overlay == O_NONE ? B_GLO : B_SEL) :
-                   note == 6 ? B_HOME : B_GLO);
+    int nav_key = smc_nav_key(note);
+    if (nav_key >= 0) {
+        button_tap(nav_key);
         return;
     }
     if ((note == 0x30 || note == 0x31 ||
@@ -875,14 +898,7 @@ static void smc_button_apply(uint8_t note, int mmc)
             if (row == 2)
                 smc_toggle_fx(which);
             else {
-                static const uint8_t view[4][3] = {
-                    {V_FX, V_FX, V_HOME}, {V_MIX, V_MIX, V_PART},
-                    {0, 0, 0}, {V_FX, V_FX, V_MIX}
-                };
-                static const int8_t page[4][3] = {
-                    {0, 1, 0}, {-1, -1, 0}, {0, 0, 0}, {0, 1, 3}
-                };
-                smc_view(view[row][which], page[row][which]);
+                smc_view(SMC_VIEW[row][which], SMC_PAGE[row][which]);
             }
         }
         return;

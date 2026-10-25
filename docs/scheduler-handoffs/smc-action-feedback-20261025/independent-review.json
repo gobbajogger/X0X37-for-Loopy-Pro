@@ -1,0 +1,76 @@
+{
+  "reviewer": "independent_caption_knob_review child agent",
+  "reviewed_utc": "2026-10-25T09:13:17.456883+00:00",
+  "disposition": "ACCEPT_SCOPED_UI_CAPTIONS_KNOB_RENDER",
+  "base": "6c3d40a0d2efe2b490a17a9cb5dbb3f0d5ecec67",
+  "inputs_sha256": {
+    "firmware/src/app/smc_mixer.c": "6c89b3012fa2f0aee6d05ff4293a8bcb12c00a77930675649341274f1e822998",
+    "firmware/src/app/ui.c": "1de1f375b08f3e26b3e11c59c9eef3a036664dbc79b91673b407e65753b76657",
+    "tests/host/smc_ui_test.c": "516c680baf6c8bd19fa0ed4cda668b6c17d95680616de7ca3d250ea9eb3cbfdd",
+    "tests/host/smc_lock_test.c": "c3b9f51224cc71173f5cea98b7b1910b4cd82a220973e4abbbcca250e12351f0"
+  },
+  "checks": [
+    {
+      "scope": "ASan UI",
+      "exit": 0,
+      "checks": 5780,
+      "log": "qa/caption-final-ui.log"
+    },
+    {
+      "scope": "ASan lock",
+      "exit": 0,
+      "checks": 527,
+      "log": "qa/caption-final-lock.log"
+    },
+    {
+      "scope": "Independent context captions + dispatch and every view caption width <=22px",
+      "exit": 0,
+      "log": "qa/caption-independent.log",
+      "test_source": "qa/caption-independent.c"
+    },
+    {
+      "scope": "Independent knob framebuffer crop differences L64/C/R63, center tick, fader pickup awaiting/acquired, inactive/locked bank",
+      "exit": 0,
+      "checks": 14,
+      "log": "qa/knob-final-independent.log",
+      "test_source": "qa/knob-independent.c"
+    },
+    {
+      "scope": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "findings_repaired": [
+    {
+      "problem": "R6 ordinary page opens list, R7 ordinary HOME opens song, S7 in Global closes it; initial labels OK/BACK/MENU incorrect",
+      "source_evidence": "button_tap cases B_HOME/B_SEL/B_GLO ui.c2693-2704,2733; runtime caption-edge.log",
+      "repair": "contextual LIST/OK, SONG/HOME/BACK/GRID, GLOB/BACK captions from shared key actions",
+      "verified": "independent context and dispatcher replay"
+    },
+    {
+      "problem": "MENU23px overflowed21px box; HOME22px also wider",
+      "repair": "GLOB and22px button width; all view captions checked",
+      "verified": "private actual FONT_T width checks <=22px"
+    }
+  ],
+  "render_inspected": [
+    "qa/caption-final-ui/17-filter-actual-actions.png",
+    "qa/caption-final-ui/18-locked-disabled-actions.png",
+    "qa/caption-final-ui/19-pan-left.png",
+    "qa/caption-final-ui/20-pan-center.png",
+    "qa/caption-final-ui/21-pan-right.png",
+    "qa/knob-final-independent/independent-pickup-awaiting.png",
+    "qa/knob-final-independent/independent-pickup-acquired.png"
+  ],
+  "render_observations": [
+    "Final footer absent; name/value/pickup band preserved",
+    "Solid selected title remains distinct from amber touched control and LOCK header",
+    "Native240x240 action captions fit columns; filter displays PART/HOME instead of S/R",
+    "Same production arc renderer follows actual parameter value; pan marker at L64,C,R63 and bipolar center tick",
+    "Inactive bank -- separate from blocked X; all eight strips remain visible"
+  ],
+  "intermediate_contact_sheet": "PR168-actions-knob-feedback-previews.png was stale footer/captions and must be regenerated before final delivery",
+  "native_size": "NOT_RUN; parent-owned",
+  "device_gui_flash_merge_publication": "NOT_RUN; excluded",
+  "integration_note": "Final contact sheet regenerated from the reviewed native frames and saved as Library version1; extra final UI assertion checks footer absence."
+}
