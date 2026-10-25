@@ -47,17 +47,17 @@ Immutable host: `artifacts/nightly-dev` @ `2363c07f334747208831923a4f9fa4332cbbe
 | Field | Value |
 | --- | --- |
 | Cloud push (this pod / cursor[bot]) | **403** (`cloud-gh-pages-403.log`) |
-| Parent required for FF | `e296e8834aff9f9f358fc6f63360abbff83334d4` |
-| Local prepared commit | `ea2a7ba2802306fea749edf0f93bb621d0a0a7e1` |
-| Live `gh-pages` tip | `e296e883…` (unchanged; still F08) |
-| Live | **PENDING** — awaiting CreateAgent nightly-repo placement or Mac `83d16cde…` FF push |
-| Mac/cloud prompt | Project store `internal/f09-stage7-mac-pages-push.md` |
+| Cloud pages worker | `bc-e4d74847-d6da-53e4-b413-96cb0e585799` on nightly `repo_url` |
+| Parent used for successful FF | `e296e8834aff9f9f358fc6f63360abbff83334d4` |
+| Live `gh-pages` tip | `4f468d16c2a8c67be8817db0637d909b2fd3db85` (FF only; no force) |
+| Live | **MATCH** `nightly-d0d00da2-dev` (`live-verify.log`) |
+| Result | Project store `internal/f09-cloud-pages-access-check.md` |
 | Artifacts | `artifacts/f09-stage7-publish/` |
 
 ## Production / deferred
 
-Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f09-stage2/DEFERRED.md`. Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Next audit uses `d0d00da2…` after live match. BF-006/BF-007 not taken.
+Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f09-stage2/DEFERRED.md`. Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Next audit uses `d0d00da2…`.
 
 ## Overall
 
-**PREPARED / NOT LIVE** for validated source `d0d00da2…` with matching package hashes in prepared candidate. Live page still serves F08 until gh-pages FF succeeds. Stage 7 retains ownership; Stage 1 not started.
+**PUBLISHED LIVE** for validated source `d0d00da2…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 successor pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
