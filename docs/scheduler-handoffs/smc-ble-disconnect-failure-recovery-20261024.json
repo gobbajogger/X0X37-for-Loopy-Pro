@@ -1,0 +1,108 @@
+{
+  "schema": "loopyx0x37.smc-transport-evidence-v1",
+  "revision": "smc-ble-disconnect-failure-recovery-20261024-r1",
+  "role": "LoopyX0X37 SMC Transport",
+  "date": "2026-10-24",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 50,
+    "branch": "lane/smc-ble-mailbox-backpressure-20261023-run3",
+    "full_commit": "b6966675df9e05b4fd6652c35bb4fd115e35c044",
+    "full_root_tree": "ec9b12682e1b6d9216fa22cf3df18a7cc0940aef",
+    "compiled_firmware_subtree": "1305ae9823d65a8952f2537be98bf11c6876cbfc",
+    "ble_source_blob": "c9144a0885cbc38c50584d8beab73da48ea9dc8b",
+    "test_runner_blob": "1466c6394a4de21a0c7e28e1813000e634d141cc",
+    "stacked_base": "#89 → #94 / 9083dc35a5e270930323b44dde7bdc5916f826f1"
+  },
+  "change": {
+    "defect": "A nonzero HCI Disconnect Command Status blocks subsequent radio-off retries; a failed Disconnection Complete tears down an actually live connection and discards queued Note Off/SysEx.",
+    "source_path": "firmware/src/ble/ble_midi_host.c",
+    "source_new_blob": "70dc093d1613d684f5a67be01acc118eded1a6f8",
+    "linked_regression_path": "tests/host/ble_disconnect_status_test.c",
+    "linked_regression_blob": "da7459dcc724ab823caad68a6c2ab647014bb433",
+    "registered_runner_new_blob": "09ff8e6c18a2c1464309cce44ad38c423c64d10a",
+    "policy": "HCI success retains existing behavior. Reject failed disconnect status without dropping a live queue; matching unsuccessful Disconnect can be retried on a later ordinary poll.",
+    "license": "MPL-2.0 BLE source + GPL-3.0-only test"
+  },
+  "checks": [
+    {
+      "command": "./replay.sh",
+      "scope": "Local manually lifted exact-branch HCI evt_in / radio_poll source windows; NOT complete ble_midi_host.c and NOT an independent QA or firmware test",
+      "exit": 0,
+      "configurations": [
+        "gcc plain",
+        "gcc UBSan",
+        "gcc ASan+UBSan",
+        "clang plain",
+        "clang UBSan",
+        "clang ASan+UBSan"
+      ],
+      "each": {
+        "before_compilation_exit": 0,
+        "before_run_exit": 1,
+        "before_assertions": "10/19 PASS, 9/19 FAIL",
+        "after_compilation_exit": 0,
+        "after_run_exit": 0,
+        "after_assertions": "19/19 PASS"
+      },
+      "log_sha256": {
+        "before": "e5a42e3b95232011d5392941e9a88a49f33e0ae92368822d2fc1006b29f9eb35",
+        "after": "107d7351b1e1db0e24798031b8d3acffd5fcda3422558a353c43951b1736954a"
+      }
+    },
+    {
+      "command": "gcc -std=c99 -O2 -Wall -Wextra -Werror -I. -fsyntax-only ble_disconnect_status_test.c",
+      "exit": 0,
+      "scope": "New full-source test C syntax against local declaration-only header; NOT full BLE host link."
+    },
+    {
+      "command": "clang -std=c99 -O2 -Wall -Wextra -Werror -I. -fsyntax-only ble_disconnect_status_test.c",
+      "exit": 0,
+      "scope": "Same limited syntax check."
+    },
+    {
+      "command": "GitHub connector source blob compare and single-instance source-window patch plus runner registration",
+      "exit": 0,
+      "scope": "Exact code bytes read from PR #50 HEAD c9144a0885cbc38c50584d8beab73da48ea9dc8b; modified blob uploaded after exact match."
+    }
+  ],
+  "local_replay_sha256": {
+    "before_fixture": "2dd5729eaf09adf5a7c231ce2d56196d11a5f71cc051cdf0b6353fa7f6b935bc",
+    "after_fixture": "56aceb6a9222977472bfe7f33160ec33d23b6ceeb33a24d9f56c259e58c3cb50",
+    "harness": "06ea464c829c39a2be866c0db8c8c93622ba0d162572f2484600f14396e7aa78",
+    "linked_test": "fc5bfafe5344f58740331b989fa62964e92fefa33517acb6efdb67572514e54b",
+    "replay_script": "d3c751e85ede375e3e516f7d44c920d525fb56ba0d6c80599f0bceca454a4cea",
+    "complete_evidence_zip_sha256": "d47f8b22340e9dc866c592322db324a1914bbdd75441ef2da16b2e2c2ac2b968"
+  },
+  "qualification": {
+    "own_source": "SOURCE_CHECKED_SCOPED_HOST",
+    "independent_qa": "PENDING",
+    "linked_full_root_host_tests": "NOT_RUN",
+    "elite_pro_ctl_build": "BUILD_ONLY_PENDING",
+    "owner_hardware_feedback": "UNKNOWN",
+    "device": "NOT_TESTED",
+    "public_installability": "NO_GO"
+  },
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Run exact new #50 HEAD ble-disconnect-status plus other BLE/HCI/ATT/malformed ACL/SysEx/reconnect/NoteOff negatives using full linked real source; review failure/status race, SMC route impact.",
+      "gate": "Independent linked exact-root QA not yet run."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile current changed full-root SHA Elite and Pro DEV plus matching local controller as BUILD_ONLY immediately, independently of PR readiness or QA.",
+      "gate": "Compiler-input and target-build evidence still pending."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "On its own isolated lane, reconcile #89→#94→#50 following independently checked combined source. #103 303+Data Safety first candidate may qualify independently; do not create a new artificial prerequisite.",
+      "gate": "SMC integration not performed."
+    },
+    {
+      "owner": "Catalog / Publisher",
+      "action": "Leave public NIGHTLY installs withheld unless combined model/controller, sample backup/OTA, hash/CRC, license/source and immutable HTTP gates pass.",
+      "gate": "No publication evidence."
+    }
+  ]
+}
