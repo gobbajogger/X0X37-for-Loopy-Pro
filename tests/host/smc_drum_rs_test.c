@@ -265,11 +265,12 @@ static void banks_and_owners(void)
         tap(0x2E);
         CHECK(ui.sel[kit] == 0 && smc_target(7).b == 7);
         ui.help = 1;
-        tap(0);
-        CHECK(!ui.rec && ui.sel[kit] == 0);
+        tap(0);                         /* help is a card: Record still arms this drum */
+        CHECK(ui.help && ui.rec && ui.sel[kit] == 0);
+        ui.rec = 0;
         ui.help = 0; ui.overlay = O_ASK;
-        tap(0);
-        CHECK(!ui.rec && ui.sel[kit] == 0);
+        tap(0);                         /* confirmation blocks every control except R6/R7 */
+        CHECK(ui.overlay == O_ASK && !ui.rec && ui.sel[kit] == 0);
     }
     strip_view = V_MIX;
     context = "303 SEQ retains the main mixer map";
@@ -356,7 +357,7 @@ static void cleanup(void)
             smc_project_reset();
         }
         poll();
-        CHECK(!smc_project_active());
+        CHECK(smc_project_active() == (kind == 2)); /* help keeps Solo; the other owners clear it */
         CHECK(kind == 4 || (seq.mute == 0x80u && seq.vmute == 0x400u));
         if (kind == 4) {
             button_tap(B_HOME);

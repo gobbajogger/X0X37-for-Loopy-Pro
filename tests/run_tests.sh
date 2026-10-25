@@ -16,8 +16,11 @@
 #     1000 ms or more take 1/20 of the time. The pre-install gate (tools/gate.sh) always uses 1.
 #     build/host/.results/*.time gives the time of each test.
 #   The tests in needs_gen (drum-pan, stereo, rec-live) include the headers in build/gen. host-build writes them.
-#     In parallel mode, such a test starts only after host-build ends (build/host/iso/.gen-done), and it does
-#     not hold a job slot while it waits. In serial mode, host-build runs before them.
+#     In parallel mode, such a test starts only after build/host/iso/.gen-done, and it does not hold a job slot
+#     while it waits. In serial mode, host-build runs before them. .gen-done is published only after generation
+#     succeeds. A generation failure fails the suite and does not publish .gen-done: a waiter stops on
+#     build/host/iso/.gen-fail, records FAIL, takes no job slot, and does not use a stale header.
+#     When host-build itself ran, it still publishes .gen-done after the test (also on FAIL) so waiters report.
 #   A missing optional input prints "  not-run <name> (<reason>)". It does not write a .fail file and does not set FAIL.
 #     Pillow: python3 cannot import PIL. ASan runtime: ${CC:-cc} -fsanitize=address,undefined does not link.
 #     Parallel tests use a private HOME. Python's user site follows HOME, so the Pillow check and those tests
@@ -25,7 +28,8 @@
 #     Reference trees: 9W9, 8W8, or schwung-303 is absent. breaks and drum909-adpcm stay in-tree and still run.
 #     The sequencer still runs when TB-3PO is absent (it prints its own skip sentence). The SMK package block stays a skip note.
 #   If this run admits host-build as not-run because Pillow is absent, drum samples and the break bank are still
-#     generated (they do not need Pillow), and a parallel run writes build/host/iso/.gen-done so needs_gen does not wait forever.
+#     generated (they do not need Pillow). A parallel run writes .gen-done only when that generation succeeds.
+#     The host-build line stays not-run. A failed gen_nonfont is a separate failure and does not publish .gen-done.
 #   The install-path tests (class S and W, but not rec-live: installers, mocked devices, packages, update loaders, BLE)
 #     take a shared lock on the gate lock (flock -s on X0X_GATE_LOCK, default /workspace/x0x37-refs/gate.lock) while
 #     they run. Thus they wait while a gate holds its exclusive lock, and a gate waits for them. Dev runs can share.
@@ -39,6 +43,7 @@ X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
+GEN_FAILED=0        # 1 after gen_nonfont actually ran and failed (host-build was not-run). Not a Pillow skip.
 # Captured before any test replaces HOME. See the Pillow note above.
 X0X_PYTHONUSERBASE="${PYTHONUSERBASE:-$HOME/.local}"
 export X0X_PYTHONUSERBASE
@@ -142,13 +147,28 @@ optional_ref() {
     [ -f "$f" ] && return 1
     printf '%s\n' "$f"
 }
+mark_gen_fail() {   # gen_nonfont ran and failed. Separate from the not-run line. Does not publish .gen-done.
+    GEN_FAILED=1
+    FAIL=1
+    mkdir -p "$OUT/iso"
+    rm -f "$OUT/iso/.gen-done"
+    : > "$OUT/iso/.gen-fail"   # needs_gen waiters stop on this, not on a stale header
+    if [ "$JOBS" -le 1 ]; then
+        echo "  FAIL gen-nonfont"
+        return
+    fi
+    echo "  FAIL gen-nonfont" > "$RES/$(printf '%04d' "$T_SEQ")-gen"
+    : > "$RES/$(printf '%04d' "$T_SEQ")-gen.fail"
+}
 not_run() {         # name reason: same T_SEQ and phase admission as run, but do not execute the test
     name=$1; reason=$2
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
     if [ "$JOBS" -le 1 ]; then
         echo "  not-run $name ($reason)"
-        if [ "$name" = host-build ] && [ "$reason" = Pillow ]; then gen_nonfont || true; fi
+        if [ "$name" = host-build ] && [ "$reason" = Pillow ]; then
+            if ! gen_nonfont; then mark_gen_fail; fi
+        fi
         return
     fi
     test_class "$name"
@@ -156,15 +176,34 @@ not_run() {         # name reason: same T_SEQ and phase admission as run, but do
     case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
     echo "  not-run $name ($reason)" > "$RES/$(printf '%04d' "$T_SEQ")"
     if [ "$name" = host-build ] && [ "$reason" = Pillow ]; then
-        gen_nonfont || true
-        mkdir -p "$OUT/iso"
-        : > "$OUT/iso/.gen-done"   # needs_gen must not wait for a host-build that did not run
+        if gen_nonfont; then
+            mkdir -p "$OUT/iso"
+            : > "$OUT/iso/.gen-done"   # generation succeeded: needs_gen may start
+        else
+            mark_gen_fail
+        fi
     fi
 }
 run() {
     name="$1"; shift
     T_SEQ=$((T_SEQ + 1))
     if [ -n "$X0X_TESTS" ]; then case " $X0X_TESTS " in *" $name "*) ;; *) return ;; esac; fi
+    if [ "$GEN_FAILED" = 1 ] && needs_gen "$name"; then
+        # Do not compile stale build/gen headers, and do not take a job slot.
+        if [ "$JOBS" -le 1 ]; then
+            echo "  FAIL $name (gen-nonfont failed)"
+            FAIL=1
+            return
+        fi
+        test_class "$name"
+        cls=$TEST_CLASS
+        case "$PHASE$cls" in WW|1P|1G|2S|3C) ;; *) return ;; esac
+        key=$(printf '%04d' "$T_SEQ")
+        echo "  FAIL $name (gen-nonfont failed)" > "$RES/$key"
+        : > "$RES/$key.fail"
+        echo "0 s $name" > "$RES/$key.time"
+        return
+    fi
     if [ "$JOBS" -le 1 ]; then
         if run_test "$name" "$@" > "$OUT/$name.log" 2>&1; then
             echo "  ok   $name"
@@ -185,12 +224,18 @@ run() {
     fi
     gw=0; gen_wait "$name" && gw=1
     [ "$cls" = W ] || [ $gw = 1 ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
-    (
+    (                                       # xtrace goes to the file on the next line so sh -x lines do not tear
         export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
         export PYTHONUSERBASE="$X0X_PYTHONUSERBASE"   # pip --user Pillow must survive the private HOME
         mkdir -p "$HOME" "$TMPDIR"
-        if [ $gw = 1 ]; then      # wait for the end of host-build without a job slot, then take a slot
-            until [ -e "$OUT/iso/.gen-done" ]; do sleep 0.1; done
+        if [ $gw = 1 ]; then      # wait for generation without a job slot, then take a slot
+            until [ -e "$OUT/iso/.gen-done" ] || [ -e "$OUT/iso/.gen-fail" ]; do sleep 0.1; done
+            if [ -e "$OUT/iso/.gen-fail" ]; then
+                echo "  FAIL $name (gen-nonfont failed)" > "$RES/$key"
+                : > "$RES/$key.fail"
+                echo "0 s $name" > "$RES/$key.time"
+                exit 0            # no job-slot read: the pool must not deadlock on a failed generation
+            fi
             [ "$cls" = W ] || read -r _ <&3
         fi
         [ "$cls" = G ] && gen_lock
@@ -198,7 +243,7 @@ run() {
         [ "$cls" = G ] && gen_unlock
         [ "$name" = host-build ] && : > "$OUT/iso/.gen-done"   # also after a FAIL: the waiting tests then start and report
         [ "$cls" = W ] || echo >&3
-    ) &
+    ) 2>>"$OUT/$name.xtrace" &
 }
 note() {                # a skip line, in the serial order
     T_SEQ=$((T_SEQ + 1))
@@ -287,7 +332,10 @@ run runner-admission python3 tests/host/test_runner_admission.py
 run update-names bash tests/host/test_update_names.sh   # tools/update.hook parts 1c, 1d (checks 9, 8): new branch names, integration needs -o by=merge-integrator
 run gate-reason python3 tests/host/test_gate_reason.py
 run validation-inputs python3 tests/host/test_validation_inputs.py
+run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
+run nightly-publish python3 tests/host/test_publish_nightly.py
+run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
 if [ "$PIL_SKIP" = 1 ]; then not_run gen-order Pillow; else run gen-order sh tests/host/test_gen_order.sh; fi   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
 run quickcheck-devbug bash tests/host/test_quickcheck_devbug.sh   # tools/quickcheck.sh device bug step (checks 16, 17): an INLOG replay test that fails on the parent
