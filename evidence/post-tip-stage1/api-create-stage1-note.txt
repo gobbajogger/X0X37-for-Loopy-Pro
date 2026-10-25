@@ -1,0 +1,5 @@
+CURSOR_API_KEY unset in this pod. Two create attempts will be recorded as skipped/unauthenticated.
+Coordinator CreateAgent required for owner-visible next Stage 1.
+startingRef=cursor/post-tip-stage1-237f
+prompt=evidence/post-tip-stage1/SUCCESSOR-STAGE1.txt
+Do not use Task as successor. Do not duplicate BF-034 Stage 2 (bc-c8e90cb7…).
