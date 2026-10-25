@@ -274,6 +274,19 @@ def key_split(roots):
 SLOT_SIZE, SLOT_DATA_OFF, SLOT_RATE, SLOT_ZONES = 0x14000, 512, 22050, 16
 SLOT_HDR_LEN = 32 + SLOT_ZONES * 28
 SLOT_MAX_DATA = SLOT_SIZE - SLOT_DATA_OFF
+OLDSCHOOL_FACTOR = 2
+MIN_LOOP_SAMPLES = 64
+OLDSCHOOL_GRIT = {"light": 1.5, "medium": 2, "heavy": 3, "max": 4.0}
+
+
+def parse_oldschool_grit(arg):
+    """--oldschool-grit name or numeric factor; invalid values raise ValueError."""
+    if arg in OLDSCHOOL_GRIT:
+        return OLDSCHOOL_GRIT[arg]
+    f = float(arg)
+    if f <= 1 or f > 8:
+        raise ValueError("oldschool grit factor must be > 1 and <= 8")
+    return f
 
 
 def note_from_name(name, default=60):
@@ -289,6 +302,19 @@ def to_int16(x):
     """mono float -> int16 list, peak normalised to 30000"""
     pk = peak(x)
     return [max(-32768, min(32767, int(v / pk * 30000))) for v in x]
+
+
+def apply_oldschool(samples, storage_rate, factor=OLDSCHOOL_FACTOR):
+    """Speed up by `factor`, return (samples, playback_rate) for the slot zone header."""
+    if factor <= 1:
+        return samples, storage_rate
+    x = [s / 32768.0 for s in samples]
+    y = resample(x, storage_rate, storage_rate / factor)
+    out = to_int16([v * 0.95 for v in y])
+    playback = int(round(storage_rate / factor))
+    if len(out) < MIN_LOOP_SAMPLES:
+        raise ValueError(f"too short after oldschool processing ({len(out)} samples)")
+    return out, playback
 
 
 def user_slot(name, zones, rate=SLOT_RATE, slot_size=SLOT_SIZE):
