@@ -22,14 +22,16 @@
 #define PROJ_MAGIC 0x50305830u           /* "0X0P" */
 #define PROJ_FORMAT 1u
 #define PROJ_STEREO 2u
-#define PROJ_SND_REV 8u                  /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
+#define PROJ_SND_REV 9u                  /* 1: the 909 SD has a DECAY pot (index 3; LEVEL.. moved up one);
                                           * 2: the master's one-knob COMP and FILTER, the delay's TAPE;
                                           * 3: the 909 BD has sends (REV, DLY at 8, 9; PAN moved to 10);
                                           * 4: the 808 BD too (REV, DLY at 7, 8; PAN moved to 9);
                                           * 5: sound cells widened 16→NPARAMS_MAX; 303 AmpMod (Env/Gate) at 16;
                                           * 6: 303 Wave continuous morph (old 1 → 127); Gnaw pot at 17;
                                           * 7: NPARAMS_MAX 20→24; 303 Bite at 18; amp Env A/D/S/R at 19..22;
-                                          * 8: NPARAMS_MAX 24→28; Chicago Arp Switch/Mode/Range/Speed at 23..26 */
+                                          * 8: NPARAMS_MAX 24→28; Chicago Arp Switch/Mode/Range/Speed at 23..26;
+                                          * 9: NPARAMS_MAX 28→32; Chicago SEND FX Type/Edit1/Edit2 at 27..29
+                                          *    (shared Mix/fxbus bridge — not insert FX; see chicago_fx.h) */
 /* settings_t.bt, bits 1-2: GLO > MIDI > CLOCK SOURCE (SEQ_CLK_*). Bit 3: bits 1-2 hold it (a75 and later). Without
  * bit 3 (a74 and older), project_load reads the a74 byte at offset 38 (padding then; ck_x1 in the clip keys). */
 #define PROJ_BT_CLK_MASK 6u

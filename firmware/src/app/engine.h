@@ -26,7 +26,7 @@ enum { PART_909, PART_808, PART_303A, PART_303B, PART_BRK, NPARTS };
 /* T_MIX, per part: level, reverb send, delay send, pan (64 = centre) */
 enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
-#define NPARAMS_MAX 28                 /* params per (target, voice); was 16..rev4, 20 AmpMod/Gnaw, 24 Bite/ADSR, 28 Chicago arp */
+#define NPARAMS_MAX 32                 /* params per (target, voice); 28 Chicago arp, 32 SEND FX Type/Edit */
 
 /* the sound of a project: every pot of every engine, mirrored here by the main loop */
 typedef struct {

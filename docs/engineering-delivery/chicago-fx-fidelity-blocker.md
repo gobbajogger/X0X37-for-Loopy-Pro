@@ -1,146 +1,64 @@
-# Chicago Fx Type / Edit 1 / Edit 2 — fidelity blocker (FCDC-205)
+# Chicago Fx Type / Edit 1 / Edit 2 — SEND FX bridge (FCDC-205)
 
 Reason: Chicago factory banks name a per-voice insert FX strip (Type + two
-edits), but the product has only a shared send bus. Shipping stub pots or a
-silent global rewrite would mislead players.
-Purpose: record why product FX fidelity cannot land in this PR without a large
-XIP / DSP program, and what must stay deferred.
-User effect: Chicago presets keep their Fx names in the bank tables; the
-device does not claim insert FX (Ring Mod, Cho/Flg, Ensemble, Phaser, Gate
-Reverb, true Decimator/EQ) that the firmware cannot run.
+edits), but the product has only a shared send bus. Silent stubs would mislead
+players; a labeled Mix/fxbus bridge is the largest honest behaviour that fits.
+Purpose: ship Off / Comp / Crush / Short·BPM Delay / Hall as a **SEND FX**
+surface with explicit NOT_YET for Ring / Cho / Ensemble / Phaser / EQ / Gate
+Reverb.
+User effect: the 303 PART page gains **SEND FX** (Type, Edit 1, Edit 2). Choosing
+Hall or Delay moves that part’s Mix sends and shared fxbus pots. Choosing Ring
+(etc.) shows **NO INSERT** and clears that part’s sends — it does not pretend
+to ring-modulate.
 
 ## Status
 
-**BLOCKED — no firmware change in this PR.** Docs/evidence only.
+**APPROXIMATION SHIPPED — not insert fidelity.**
 
 | Item | Value |
 | --- | --- |
 | Lane | FCDC-205 / LX-5 Chicago Fx chunk |
 | Branch | `cursor/chicago-fx-34c0` |
-| Base | `origin/cursor/stream4-combined-schema-53a1` @ `a692adfd` (includes #281 Bite + amp ADSR) |
-| Outcome | Honest blocker; parent opens PR from this tip |
+| Base | `origin/cursor/stream4-combined-schema-53a1` @ `a692adfd` |
+| Schema | `PROJ_SND_REV` 8; `NPARAMS_MAX` 28; pots `CHI_FX_*` at 23..25 |
+| Module | `firmware/src/app/chicago_fx.h` |
 
-## Chicago enum (canonical)
+## Honesty claims
 
-| i | Type |
-| ---: | --- |
-| 0 | Off |
-| 1 | EQ |
-| 2 | Compressor |
-| 3 | Decimator |
-| 4 | Ring Mod |
-| 5 | Cho/Flg |
-| 6 | Ensemble |
-| 7 | Phaser |
-| 8 | Short Delay |
-| 9 | BPM Delay |
-| 10 | Hall Reverb |
-| 11 | Gate Reverb |
+1. **Not Chicago insert.** Shared `T_FX` + per-part `T_MIX` only.
+2. **Page title is SEND FX**, not “Chicago Fx”.
+3. **Supported map (real behaviour):**
 
-Factory content already stores names and values as Chicago AU indices 17–19
-(`firmware/src/app/factory_banks.c`, `assets/factory_banks/chicago.json`).
-Those three slots are **bank metadata**, not `BASS303_*` pots and not wired
-into the insert path.
+| Type | Behaviour |
+| --- | --- |
+| Off | Inactive on load (keeps factory Mix). User Off clears that part’s MX_REV/MX_DLY |
+| Comp | Global `FX_COMP` ← Edit1; clears part sends |
+| Crush (Decimator) | Global `FX_DIST=Crush` + `FX_DRIVE` ← Edit1; clears part sends |
+| Short Delay | Part `MX_DLY` ← Edit1; `FX_DL_TIME=1/32`; return level from Edit2 |
+| BPM Delay | Part `MX_DLY` ← Edit1; `FX_DL_TIME` from Edit2 (0..12 divisions) |
+| Hall | Part `MX_REV` ← Edit1; `FX_RV_DECAY` ← Edit2 |
 
-## Architecture mismatch
+4. **NOT_YET (enum kept, labeled with —):** EQ, Ring Mod, Cho/Flg, Ensemble,
+   Phaser, Gate Reverb. Selecting them: UI `NO INSERT: <name>`, clear part
+   sends only — **no** fake DSP.
+5. **Global theft is labeled:** Comp / Crush / Delay time / Hall decay rewrite
+   the one shared bus (all parts hear it).
 
-Chicago: **per-voice insert** before the part leaves the voice.
+## Remaining FX gaps
 
-Product today:
+- True per-voice insert for all 12 types (XIP / DSP program).
+- Gate Reverb, Ring, Cho/Flg, Ensemble, Phaser, insert EQ, bit-depth Decimator.
+- Per-part Comp/Crush that does not steal the master stage.
+- Automatic factory-bank Fx → Mix apply on load (intentionally **not** done:
+  would silently rewrite global fxbus).
 
-- Shared `T_FX` voice 0 — `firmware/src/dsp/fxbus.{h,c}` (reverb, tempo delay,
-  master drive/comp/dist).
-- Per-part sends — `T_MIX` `MX_REV` / `MX_DLY` (`firmware/src/app/engine.h`).
-- UI — `V_FX` (REVERB + DELAY) and `V_MIX` (PARTS sends + MASTER).
+## Miami
 
-There is **no** per-303 insert chain.
+Unchanged: Miami wobble stays **WBL1 / XIP**; coordinate with optimizer sibling.
+Do **not** fake Miami FX onto Open303.
 
-### Honest map onto existing fxbus (approximation only)
+## Schema note vs arp sibling
 
-| Chicago | Nearest product | Honesty |
-| --- | --- | --- |
-| Off | Clear that part’s `MX_REV` / `MX_DLY` | Mute-sends OK |
-| Compressor | `FX_COMP` / master glue | Global, post-mix — not insert |
-| Short / BPM Delay | `FX_DL_*` + part `MX_DLY` | One shared delay line |
-| Hall Reverb | `FX_RV_*` + part `MX_REV` | Shared hall-ish; not gated |
-| Decimator | `FX_DIST` Crush + Drive | Master stage, all parts |
-| EQ | `MST_DJF` / master filter | Global tone, not insert EQ |
-
-### No product DSP (would be silent stubs if exposed as Type)
-
-Ring Mod, Cho/Flg, Ensemble, Phaser, Gate Reverb, true insert EQ, bit-depth
-Decimator, and short un-synced insert delay. Confirmed absent from
-`firmware/src/dsp` (no ring / chorus / flanger / ensemble / phaser / gate
-reverb modules).
-
-A Type enum that only drives Mix/fxbus for Delay/Hall/Comp and leaves the
-rest as Off would still **not** be Chicago insert fidelity. Loading a factory
-Type onto one part must not silently rewrite the global bus unless UX makes
-that theft explicit. This PR refuses both silent stubs and a half-mapped
-send bridge labeled as Chicago Fx.
-
-## Why fidelity needs a large XIP program
-
-Faithful strip ≈ 12 algorithms on the dry 303 path (ideally A and B), plus
-delay/reverb state for Short/BPM/Hall/Gate and LFOs for Cho/Flg/Ensemble/
-Phaser/Ring.
-
-Live WBL1 alone already **XIP FAIL** in the ~2.9–3.3 KB class (PR #267 /
-FCDC-182; Miami pin also recorded XIP FAIL ~1788 B). App code margin is
-routinely hundreds of bytes to low KB; controller flash margin has been
-measured near **44 B**. A new insert FX family does not fit as a param-wire
-PR.
-
-Verdict: product Chicago Fx fidelity is a **DSP + flash budget program**, not
-this FCDC-205 wiring lane.
-
-## Schema / NPARAMS headroom
-
-Assignment allowed stacking on amp ADSR only if Fx needs new 303 pots **and**
-that tip has `NPARAMS` headroom. Amp ADSR + Bite are now **on** stream5
-(`#281` / `PROJ_SND_REV` 7).
-
-| Tip | `BASS303_NPARAMS` | `NPARAMS_MAX` | Free indices | Need for Type+Edit1+Edit2 |
-| --- | ---: | ---: | --- | ---: |
-| stream5 @ `a692adfd` | 23 (0–22: …Bite, AAttack…ARelease) | 24 | **23 only (1)** | 3 → **short by 2** |
-
-No headroom for three new `BASS303_*` pots without another `NPARAMS_MAX` /
-`PROJ_SND_REV` bump. This lane does **not** widen schema for stubs.
-
-## Miami wobble — confirmed out of scope
-
-Miami sound params (Carrier / XMod / Wobble Shape·Depth·Rate / Filter Crush /
-Stereo / …) target **WBL1**, not native303 and not Chicago Fx.
-
-- Live WBL1 on product tip: **XIP FAIL**; ENGINE select toasts
-  `WBL1 NOT IN THIS BUILD` where that path exists.
-- Do **not** fake Miami pots onto Open303.
-- Miami 303 factory bank (#276) remains content-only.
-
-Unchanged disposition. See `docs/engineering-delivery/miami-engine-switching-ux.md`.
-
-## What this PR ships
-
-1. This blocker note under `docs/engineering-delivery/`.
-2. `evidence/chicago-fx-34c0/BLOCKER.md` with the same decision and proof plan
-   result for the parent PR body.
-
-## What this PR does not ship
-
-- `BASS303_FX*` pots or UI pages that imply insert DSP.
-- Send-bridge that remaps factory Type into global `T_FX` without operator
-  consent.
-- Any Miami / WBL1 param wiring.
-- Amp Env ADSR, Arp Switch/Mode/Range/Speed (other FCDC-205 chunks).
-
-## Resume conditions
-
-Resume only when one of these is an assigned program:
-
-1. **Flash/XIP program** that budgets a real per-voice (or pre-send) insert
-   family and proves Elite+Pro package margins, or
-2. **Product decision** for a labeled “send FX” approximation (subset Type,
-   Mix/fxbus only, explicit global-theft UX) with its own schema/UI lane after
-   amp ADSR lands and `NPARAMS` headroom exists.
-
-Until then: bank names stay; no fidelity claim.
+Arp lane may also want indices after 22. This tip owns **23..25** for SEND FX
+under `PROJ_SND_REV` 8. If arp lands first with 23..26, rebase FX to 27..29
+(or serialize merges). Do not double-claim the same cells.

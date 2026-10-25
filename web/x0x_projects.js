@@ -38,8 +38,9 @@ export async function sha256(b) {
 // 5 = combined stream5. Sound revision (offset 24): 4 = 16-wide cells; 5 = AmpMod; 6 = Wave morph + Gnaw;
 // 7 = Bite + amp Env Attack/Decay/Sustain/Release (NPARAMS_MAX 24).
 // 8 = Chicago Arp Switch/Mode/Range/Speed (NPARAMS_MAX 28).
+// 9 = Chicago SEND FX Type/Edit (NPARAMS_MAX 32).
 const PROJECT_STREAM_OK = new Set([3, 4, 5]);
-const PROJECT_SOUND_REV_OK = new Set([4, 5, 6, 7, 8]);
+const PROJECT_SOUND_REV_OK = new Set([4, 5, 6, 7, 8, 9]);
 
 // The inner file is firmware's canonical persistent project schema, not a sample archive.
 export function parseProject(b, expectedLength = null) {
