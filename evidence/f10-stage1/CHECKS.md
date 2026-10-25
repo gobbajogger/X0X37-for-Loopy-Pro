@@ -71,4 +71,4 @@ API CreateAgent attempts: `api-create-stage2-attempt1.json` / `attempt2.json` â€
 
 ## Overall
 
-**AUDIT RECORDED.** Selected defect **BF-006** (808 `d8_exp2_cr` signed left-shift UB). Ready for Stage 2. Handoff incomplete until coordinator returns owner-visible Stage 2 id.
+**AUDIT RECORDED.** Selected defect **BF-006** (808 `d8_exp2_cr` signed left-shift UB). Stage 2 successor `bc-b0f3069d-5192-5bcd-a58d-cb6673598cd8` recorded; handoff complete. PR #250 local-env review `bc-d839072c-97d8-5497-baac-934b94d80e9d` running.
