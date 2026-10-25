@@ -81,13 +81,17 @@ The first receipt treated native, reference, and hardware work as `BLOCKED_LOCAL
 
 No flash, merge, publication, promotion, schedule change, new observer, GUI, credential change, install, paid service, Actions run, or force-push is authorized by this acceptance.
 
-## Ready scope still awaiting a named acceptor
+## Independent review acceptance
 
-Independent review of pull request 239 result `2dfb2cb` needs a reviewer other than `bc-242aec06-97c7-4c2a-aee3-47a5799b0a96`. Native fit for that result waits on the local placement below. Host review does not establish it.
+Pull request 239 result `2dfb2cb16ee27070f5be1dec87fe83d202c754e3` was reviewed by `bc-9e091df3-7bfb-5235-9bfa-993c94b5c946` (https://cursor.com/agents/bc-9e091df3-7bfb-5235-9bfa-993c94b5c946), which is not implementer `bc-242aec06-97c7-4c2a-aee3-47a5799b0a96`.
 
-Review-only cloud worker created after the acceptance comment `6399120871`: `bc-9e091df3-7bfb-5235-9bfa-993c94b5c946` (https://cursor.com/agents/bc-9e091df3-7bfb-5235-9bfa-993c94b5c946). Base requested: `handoff/multi-smc-capacity-20261026`. This creation is not acceptance. The worker must post its own id and explicit review acceptance. Until that comment exists, the review scope has no accepted owner. No source ownership moves.
+The Task completion payload is the reviewer's own acceptance. It says: independent source review of that commit only; source ownership stays with the implementer; verdict source-review accept; worktree clean on `handoff/multi-smc-capacity-20261026`; nothing pushed. It did not re-run the host suite or Docker. Its native-fit words were `BLOCKED_LOCAL_EXECUTOR`. That host accept does not qualify Elite or Pro flash. Native fit still waits on the local placement revision below.
 
-Second read at 2026-10-25T14:59:28Z, without creating another reviewer: status `RUNNING`, `branchName` null, `privateWorkerId` null, `usePrivateWorker` false, dashboard events 0, diff metadata empty, no pull-request comment on 239 or 249. `createdAtMs` 1792939910476 (2026-10-25T14:51:50Z). `updatedAtMs` and `lastMessageActivityAtMs` are still 2026-10-25T14:51:55Z and 2026-10-25T14:51:50Z. Resume is refused while status stays `RUNNING`, so this run does not send a second prompt and does not create a replacement. Own acceptance remains unposted.
+Reviewer findings, not re-derived here: `smc_select` sets `smc_input_current` only for a direct peer; poll and frame read that pointer only after that select; timer ingress still indexes `smc_inputs` by its own peer argument; the hosted slot still moves only the state pointer; the host `-Oz` delta is harness object text. It named `smc_mixer.c` blob `5a4b24b9df41946bf63619c80e6dbb1acc824b8a`.
+
+Coordinator readback of the same pin: remote `handoff/multi-smc-capacity-20261026` is `2dfb2cb16ee27070f5be1dec87fe83d202c754e3`, tree `2ab9859b0c05ff3f35766db3689ab0de0d006cd4`, parent `61a38c274dbdf7aa98c9714e26263030952fea8d`.
+
+The reviewer could not post its comments. `origin pr comment` had no injected token, stored login was disabled, and GitHub issue comments and reviews returned 403 `Resource not accessible by integration`. This coordinator records the completion payload because that agent cannot. No second reviewer is created. Source ownership does not move.
 
 ## Local-route revision
 
