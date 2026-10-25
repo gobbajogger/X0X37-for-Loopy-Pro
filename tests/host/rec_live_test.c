@@ -859,10 +859,10 @@ static void test_timestamped_live_duration(void)
     seq_stop(&seq); capture_frames(1); ui.rec = 0;
     CHECK(project_save() == 0, "captured endpoint project saves");
     memset(bp->step, 0, sizeof bp->step);
-    CHECK(project_load() == 0 && !memcmp(bp, &recorded, sizeof recorded), "current stream4 save/load preserves exact capture bytes");
+    CHECK(project_load() == 0 && !memcmp(bp, &recorded, sizeof recorded), "current stream5 save/load preserves exact capture bytes");
 
 
-    CHECK(get32(store[OBJ_PAT0]) == 4, "new save names endpoint format4");
+    CHECK(get32(store[OBJ_PAT0]) == 5, "new save names combined format5");
     /* Valid format3 has the identical layout but no endpoint bits. Rewrite only
      * format words on a newly saved all-legacy line to exercise actual loader. */
     for (int p = 0; p < NPAT; p++) for (int b = 0; b < NBASS; b++)
