@@ -10,7 +10,7 @@
 #include "wobble.h"
 #define WOBBLE_EXPERIMENT_ENGINE 0x57424c31u /* WBL1; distinct from native303=1 */
 #define WOBBLE_EXPERIMENT_SCHEMA 1u
-#define WOBBLE_EXPERIMENT_NPARAMS 19u
+#define WOBBLE_EXPERIMENT_NPARAMS 22u
 static void wobble_foundation_init(void *p) { wobble_init(p, SYNTH_SAMPLE_RATE); }
 static void wobble_foundation_render(void *p, float *out, int n)
 {

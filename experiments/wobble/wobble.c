@@ -7,9 +7,6 @@
 #include "../../firmware/src/dsp/fastmath.h"
 
 static float wrap(float p) { return p - fm_floorf(p); }
-/* The existing helper shifts a signed exponent and UBSan flags negative n.
- * Keep its reviewed positive-domain approximation and use reciprocal here;
- * do not alter the production helper from this isolated experiment. */
 static float exp2_bounded(float x)
 {
     return x < 0 ? 1.0f / fm_exp2f(-x) : fm_exp2f(x);
@@ -35,7 +32,6 @@ static void update_pitch(wobble_t *s)
 }
 static void update_rates(wobble_t *s)
 {
-    /* Original fixed 120 BPM note-division mapping, no host clock dependency. */
     static const float rates[7] = {1, 2, 3, 4, 6, 8, 12};
     unsigned rate = (unsigned)(s->p[W_WOBBLE_RATE] * 6.0f + 0.5f);
     s->lfo_step = rates[rate] / s->sample_rate;
@@ -43,15 +39,22 @@ static void update_rates(wobble_t *s)
         : 1.0f - fm_expf(-1.0f / (s->sample_rate
                 * (0.002f + 0.998f * s->p[W_GLIDE] * s->p[W_GLIDE])));
 }
+/* Map 0..1 pot to seconds (square law). Attack/Release defaults match legacy AR. */
+static float env_seconds(float pot, float min_s, float max_s)
+{
+    float t = pot * pot;
+    return min_s + t * (max_s - min_s);
+}
 static void update_amp_env(wobble_t *s)
 {
-    float d = s->p[W_DECAY];
-    /* Default 0: sustain 1, instant decay — matches legacy AR (hold full level). */
-    s->sustain_level = 1.0f - 0.8f * d * d;
-    float decay_s = 0.00025f + d * d * 2.0f;
+    float atk_s = env_seconds(s->p[W_ATTACK], 0.002f, 2.0f);
+    float dec_s = env_seconds(s->p[W_DECAY], 0.0001f, 2.5f);
+    float rel_s = env_seconds(s->p[W_RELEASE], 0.030f, 3.0f);
+    s->sustain_level = fm_clampf(s->p[W_SUSTAIN], 0.0f, 1.0f);
+    s->attack_step = 1.0f / (atk_s * s->sample_rate);
     float span = 1.0f - s->sustain_level;
-    s->decay_step = span > 1e-6f
-        ? span / (decay_s * s->sample_rate) : 1.0f;
+    s->decay_step = span > 1e-6f ? span / (dec_s * s->sample_rate) : 1.0f;
+    s->release_step = 1.0f / (rel_s * s->sample_rate);
 }
 void wobble_reset(wobble_t *s)
 {
@@ -66,13 +69,12 @@ void wobble_reset(wobble_t *s)
 void wobble_init(wobble_t *s, float sample_rate)
 {
     static const float defaults[W_PARAMETER_COUNT] = {
-        0,.7f,0,.5f,0,0,0,.5f,0,.6f,0,0,0,0,.5f,0,.5f,0,0
+        0,.7f,0,.5f,0,0,0,.5f,0,.6f,0,0,0,0,.5f,0,.5f,0,
+        0,0,1,0 /* Attack Decay Sustain Release — AU-like at init */
     };
     s->sample_rate = finite_value(sample_rate)
         ? fm_clampf(sample_rate, 8000.0f, 192000.0f) : 48000.0f;
     for (unsigned i = 0; i < W_PARAMETER_COUNT; ++i) s->p[i] = defaults[i];
-    s->attack_step = 1.0f / (0.002f * s->sample_rate);
-    s->release_step = 1.0f / (0.030f * s->sample_rate);
     update_rates(s);
     update_amp_env(s);
     wobble_reset(s);
@@ -83,7 +85,7 @@ int wobble_set(wobble_t *s, unsigned parameter, float value)
     s->p[parameter] = fm_clampf(value, 0, 1);
     if (parameter == W_CARRIER_PITCH || parameter == W_PITCH_BEND) update_pitch(s);
     if (parameter == W_GLIDE || parameter == W_WOBBLE_RATE) update_rates(s);
-    if (parameter == W_DECAY) update_amp_env(s);
+    if (parameter >= W_ATTACK && parameter <= W_RELEASE) update_amp_env(s);
     if (parameter == W_DAMPER && value < .5f && s->deferred_off) {
         s->gate = s->deferred_off = 0;
     }
@@ -125,13 +127,12 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
                     s->env_stage = 2;
                 }
             }
-        } else {
+        } else if (s->env_stage != 3) {
             s->env_stage = 3;
-            s->envelope = fm_maxf(0.0f, s->envelope - s->release_step);
         }
+        if (s->env_stage == 3)
+            s->envelope = fm_maxf(0.0f, s->envelope - s->release_step);
         if (s->envelope == 0 && !s->gate) {
-            /* Exact silence; phase history is retained but filter memory cleared.
-             * This is an original policy, not a conclusion about reference internals. */
             s->active = 0;
             s->filter_low = s->filter_band = s->stereo_memory = 0;
             left[i] = right[i] = 0;
@@ -142,8 +143,6 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
         float mod_step = fm_clampf(step * .5f
             * exp2_bounded(10.0f * (s->p[W_XMOD_TUNE] - .5f) / 12.0f), 1e-6f, .24f);
         float mod = waveform(s->mod_phase, mod_step, s->p[W_XMOD_WAVE] >= .5f);
-        /* Level0 gates both audible modulator and modulation. PM spectrum at high
-         * depth is not fully bandlimited; aliasing remains a refinement target. */
         float pm = mod * s->p[W_XMOD_DEPTH] * s->p[W_XMOD_LEVEL] * .5f;
         float carrier = waveform(wrap(s->carrier_phase + pm), step,
                                  s->p[W_CARRIER_WAVE] >= .5f);
@@ -157,8 +156,6 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
             - .65f * s->p[W_WOBBLE_DEPTH] * (lfo + 1.0f) * .5f, 0, 1);
         float cutoff_hz = fm_minf(40.0f * fm_exp2f(cutoff_control * 8.7f),
                                   s->sample_rate * .18f);
-        /* Original two-pass Chamberlin SVF, fixed damping, frequency capped for
-         * stable twofold update. Not copied from an unreviewed filter module. */
         float f = 2.0f * fm_sinf(FM_PI * cutoff_hz / (2.0f * s->sample_rate));
         for (unsigned pass = 0; pass < 2; ++pass) {
             float high = mixed - s->filter_low - 1.41421356f * s->filter_band;
@@ -166,7 +163,6 @@ void wobble_render(wobble_t *s, float *left, float *right, size_t n)
             s->filter_low = fm_flush(s->filter_low + f * s->filter_band);
         }
         float out = s->filter_low * s->envelope * s->velocity * s->p[W_OUTPUT];
-        /* Fixed first-order allpass spread, not a claimed reference algorithm. */
         float shifted = -.5f * out + s->stereo_memory;
         s->stereo_memory = fm_flush(out + .5f * shifted);
         float spread = s->p[W_STEREO] * .5f * (shifted - out);

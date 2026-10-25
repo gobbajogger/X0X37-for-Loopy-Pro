@@ -73,6 +73,7 @@ Exact response curves below are **experimental choices**:
 
 | Control | Original implementation |
 | --- | --- |
+| **Attack / Decay / Sustain / Release** | **Owner extension** (not Miami AU 3.1.6). Defaults ≈ legacy2 ms attack, full sustain, ~30 ms release; decay at0 skips the decay stage.16-byte preset banks omit these four — init defaults apply. |
 | Carrier wave, level, pitch, sub | Analytic triangle or MIT PolyBLEP square; linear level; pitch ±12 semitones; triangle sub one octave below |
 | X-MOD wave, level, tune, depth | Triangle or symmetric PolyBLEP square, half carrier frequency at centered tuning; ±5 semitones; level-gated phase modulation |
 | Cutoff | Original two-pass SVF, fixed damping; exponential40Hz mapping capped at0.18×sample rate |

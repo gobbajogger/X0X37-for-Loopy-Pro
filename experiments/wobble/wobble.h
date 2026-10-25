@@ -9,7 +9,8 @@ enum wobble_parameter {
     W_GLIDE, W_XMOD_LEVEL, W_XMOD_WAVE, W_XMOD_TUNE, W_XMOD_DEPTH,
     W_CUTOFF, W_CRUSH, W_WOBBLE_SHAPE, W_WOBBLE_DEPTH, W_WOBBLE_RATE,
     W_OUTPUT, W_STEREO, W_PITCH_BEND, W_DAMPER,
-    W_DECAY, /* product extension; not in Miami AU 3.1.6 bank */
+    /* Owner amp ADSR (not in Miami AU 3.1.6); defaults ≈ legacy 2 ms / hold / 30 ms */
+    W_ATTACK, W_DECAY, W_SUSTAIN, W_RELEASE,
     W_PARAMETER_COUNT
 };
 typedef struct {

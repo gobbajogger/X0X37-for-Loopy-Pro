@@ -94,10 +94,13 @@ static void sweeps(void)
             assert(wobble_set(&s,p,step/32.0f));
             wobble_render(&s,a,b,256); finite_buffer(256);
         }
-        for(unsigned j=0;j<W_PARAMETER_COUNT;++j)wobble_set(&s,j,1);
+        for(unsigned j=0;j<W_PARAMETER_COUNT;++j) {
+            if(j>=W_ATTACK && j<=W_RELEASE) continue;
+            wobble_set(&s,j,1);
+        }
         wobble_render(&s,a,b,256); finite_buffer(256);
         wobble_all_notes_off(&s);
-        for(unsigned j=0;j<32;++j)wobble_render(&s,a,b,256);
+        for(unsigned j=0;j<4800;++j) wobble_render(&s,a,b,256);
         assert(!s.active);
     }
     wobble_init(&s,NAN); assert(s.sample_rate==48000);
@@ -141,31 +144,39 @@ static void control_sensitivity_and_glide(void)
     for(unsigned i=0;i<N;++i)assert(a[i]==0 && b[i]==0);
     puts("PASS control sensitivity, zero output, monotonic glide and immediate no-glide");
 }
-static void amp_decay_extension(void)
+static void amp_adsr_extension(void)
 {
     wobble_t s;
-    double rms0, rms1;
+    double tail0, tail1;
+    wobble_init(&s, 48000);
+    assert(s.sustain_level > 0.99f);
+    wobble_set(&s, W_SUSTAIN, 0.4f);
+    assert(s.sustain_level > 0.39f && s.sustain_level < 0.41f);
+    wobble_set(&s, W_RELEASE, 0.5f);
+    assert(s.release_step < 1.0f / (0.030f * 48000.0f));
     wobble_init(&s, 48000);
     wobble_set(&s, W_CUTOFF, 1);
     wobble_note_on(&s, 48, 100);
-    for (unsigned p = 0; p < 12000; p += 256)
+    for (unsigned p = 0; p < 48000; p += 256) {
+        if (p == 24000) wobble_note_off(&s, 48);
         wobble_render(&s, a, b, 256);
-    rms0 = 0;
-    for (unsigned i = 4800; i < 9600; ++i)
-        rms0 += (double)(a[i] * a[i]);
-    rms0 = sqrt(rms0 / 4800.0);
+    }
+    tail0 = 0;
+    for (unsigned i = 25000; i < 48000; ++i)
+        tail0 += (double)(fabsf(a[i]));
     wobble_init(&s, 48000);
     wobble_set(&s, W_CUTOFF, 1);
-    wobble_set(&s, W_DECAY, 1);
+    wobble_set(&s, W_RELEASE, 1);
     wobble_note_on(&s, 48, 100);
-    for (unsigned p = 0; p < 12000; p += 256)
-        wobble_render(&s, a, b, 256);
-    rms1 = 0;
-    for (unsigned i = 4800; i < 9600; ++i)
-        rms1 += (double)(a[i] * a[i]);
-    rms1 = sqrt(rms1 / 4800.0);
-    assert(rms1 < rms0 * 0.85);
-    puts("PASS W_DECAY default matches legacy level; high decay lowers held RMS");
+    for (unsigned p = 0; p < 48000; p += 256) {
+        if (p == 24000) wobble_note_off(&s, 48);
+        wobble_render(&s, c, d, 256);
+    }
+    tail1 = 0;
+    for (unsigned i = 25000; i < 48000; ++i)
+        tail1 += (double)(fabsf(c[i]));
+    assert(tail1 > tail0 * 1.2);
+    puts("PASS owner ADSR defaults AU-like render; decay/sustain and release shape level");
 }
 static void benchmark(void)
 {
@@ -188,7 +199,7 @@ int main(void)
 {
     deterministic_blocks(); pitch_tail_and_ownership();
     modulation_null_and_stereo(); sweeps(); control_sensitivity_and_glide();
-    amp_decay_extension(); benchmark();
+    amp_adsr_extension(); benchmark();
     printf("PASS all host tests; sizeof(wobble_t)=%zu bytes\n",sizeof(wobble_t));
     return 0;
 }

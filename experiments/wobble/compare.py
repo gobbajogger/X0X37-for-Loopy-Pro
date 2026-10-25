@@ -3,6 +3,9 @@
 
 Usage: python3 compare.py REFERENCE_DIRECTORY RENDER_DIRECTORY OUTPUT_JSON
 Requires numpy/scipy; renderer produces CONFIG.f32, stereo float32 at 48kHz.
+
+Miami AU 3.1.6 matrix params only — owner W_ATTACK/W_DECAY/W_SUSTAIN/W_RELEASE
+are not in the reference manifest; render.c leaves them at AU-like defaults.
 """
 import hashlib
 import json
