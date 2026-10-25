@@ -1,0 +1,72 @@
+{
+  "reviewer": "independent QA agent",
+  "reviewed_utc": "2026-10-25T08:51:47.617916+00:00",
+  "disposition": "ACCEPT_SCOPED_SOURCE_AND_NATIVE_RENDER_ONLY",
+  "base": "58e2c5205a02836df678083eaa8db9994b6192e8",
+  "inputs_sha256": {
+    "firmware/src/app/smc_mixer.c": "0f4c8f6fd4ec721d958d5627cd7a1c61d7eda3b07142d556997059acd7afdbef",
+    "firmware/src/app/ui.c": "1de1f375b08f3e26b3e11c59c9eef3a036664dbc79b91673b407e65753b76657",
+    "tests/host/smc_ui_test.c": "935e72c38d518051b32b4de60f1e0db576cd7bf13df9d0fd9cbd4b4b37c7146f",
+    "tests/host/smc_lock_test.c": "c3b9f51224cc71173f5cea98b7b1910b4cd82a220973e4abbbcca250e12351f0"
+  },
+  "checks": [
+    {
+      "command": "SMC_UI_OUT=qa/final-ui-asan SAN_FLAGS=\"-fsanitize=address -fno-omit-frame-pointer\" sh tests/host/smc_ui_test.sh",
+      "exit": 0,
+      "checks": 4866,
+      "log": "final-ui-asan.log"
+    },
+    {
+      "command": "SMC_LOCK_OUT=qa/final-lock-asan SAN_FLAGS=\"-fsanitize=address -fno-omit-frame-pointer\" sh tests/host/smc_lock_test.sh",
+      "exit": 0,
+      "checks": 527,
+      "log": "final-lock-asan.log"
+    },
+    {
+      "command": "shasum -a 256 -c qa/final-input-sha256.txt",
+      "exit": 0,
+      "log": "final-input-readback.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "runtime_mutants_detected": [
+    "play-no-toggle",
+    "select-no-toggle",
+    "lock-knob-retarget",
+    "lost-edge-stuck"
+  ],
+  "exploratory_nonbehavioral_mutant": {
+    "name": "lock-retarget",
+    "detected": false,
+    "reason": "Removing only lock_fader shortcut preserves fader semantics via already frozen smc_drum_mix kit/bank; not counted as a meaningful mutation or missing assertion."
+  },
+  "findings_repaired": [
+    {
+      "finding": "Dropped Play/Select release on full BLE/host queue stranded edge gates",
+      "repair": "Generalized release-loss epochs, clears edges after draining older events",
+      "verification": "Independent production queue test78 checks and final lock suite527 checks."
+    },
+    {
+      "finding": "Locked render header used live keyboard view/bank",
+      "repair": "Captured lock_view, lock_bank, lock_part, lock_page used before live UI cases",
+      "verification": "Actual locked-context 240x240 frame inspected and final UI/lock suites."
+    }
+  ],
+  "render_inspection": [
+    "build/host/smc-ui-final/01-main-pickup.png",
+    "build/host/smc-ui-final/09-part-pan.png",
+    "build/host/smc-ui-final/10-808-seq-bank2-pan.png",
+    "qa/final-lock-asan/locked-context.png"
+  ],
+  "render_conclusion": "All eight left-to-right encoder/fader/button strips remain visible, with encoder labels and values tied to strip; M/S/R/Select group alongside fader. Readable touched label/value and pickup footer. Bank2 retains inactive strips and correct original ordering. Captured context shown when locked. Host framebuffer evidence only.",
+  "product_policy": "First different part Select selects sound page, repeat selected909/808 part opens corresponding drum MIX, selected drum Select in drum MIX returns main MIX. Different drum selects it; drum SEQ preserves existing selection semantics. Locked Select parked; global Play and recording separate.",
+  "remaining_limits": [
+    "Physical Pause event and LED not proven; neutral lock API unbound. No LED blink/steady scheduler claimed, no guessed STOP/note53 binding.",
+    "No current replacement SMC hardware observation, radio/LCD timing, flashing or hardware validation.",
+    "Native firmware build/package qualification belongs to build owner; this review accepts source/host render only."
+  ],
+  "unresolved_source_findings": []
+}

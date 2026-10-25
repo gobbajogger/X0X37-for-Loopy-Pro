@@ -41,7 +41,9 @@ uint8_t smk_apc_transport_led_state(uint8_t n) { (void)n; return 0; }
 uint8_t smk_padcal_on(void) { return 0; }
 void smk_padcal_enter(void) {}
 uint8_t smk_padcal_draw(uint32_t w, uint32_t h) { (void)w; (void)h; return 0; }
+#ifndef SMC_UI_SEND_IMPLEMENTED
 int plat_ble_smc_send(const uint8_t *m, uint8_t n) { (void)m; (void)n; return 1; }
+#endif
 #ifndef SMC_SOURCE_FILE
 #define SMC_SOURCE_FILE "app/smc_mixer.c"
 #endif
@@ -356,9 +358,35 @@ static void test_distinct_maps(void)
     CHECK(smc_ui_active() && smc_ui.strip == 0); ui_frame(); shot("12-parked-knob");
     puts("PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking");
 }
-int main(void)
+
+/* Verify physical grouping in the real framebuffer, rather than accepting any
+ * nonempty screen: eight encoders over eight faders, with M/S/R/Select to right. */
+static void test_physical_geometry(void)
 {
-    test_navigation_replay(); test_distinct_maps();
+    setup(V_HOME, PART_909); fader(0, 0); ui_frame();
+    for (int n = 0; n < 8; n++) {
+        int x = n * 30;
+        CHECK(fb[(MAIN_Y + 29) * 240 + x + 12] != 0); /* encoder top */
+        CHECK(fb[(MAIN_Y + 90) * 240 + x + 8] != 0);  /* vertical fader */
+        for (int row = 0; row < 4; row++)
+            CHECK(fb[(MAIN_Y + 64 + row * 14) * 240 + x + 18] != 0);
+    }
+    /* An encoder interaction highlights its own physical position; it cannot
+     * replace the other seven strips with one large readout. */
+    knob(7, 1); ui_frame();
+    CHECK(fb[(MAIN_Y + 29) * 240 + 7 * 30 + 12] == swap16(C_HI));
+    for (int n = 0; n < 7; n++)
+        CHECK(fb[(MAIN_Y + 29) * 240 + n * 30 + 12] == swap16(C_GRAY));
+    shot("13-eight-strip-resonance");
+    puts("PASS physical layout: all eight knob/fader positions and right-side M/S/R/Select rows");
+}
+
+#ifndef SMC_UI_MAIN
+#define SMC_UI_MAIN main
+#endif
+int SMC_UI_MAIN(void)
+{
+    test_navigation_replay(); test_distinct_maps(); test_physical_geometry();
     test_restore(); puts("PASS restore: eight views preserve complete navigation state and exact framebuffer");
     test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset();
     printf("smc_ui: PASS (%u checks)\n", checks);

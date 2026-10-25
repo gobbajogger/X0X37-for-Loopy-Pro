@@ -11,17 +11,17 @@ s = Path(os.environ.get('SMC_SOURCE', Path(os.environ.get('SMC_SOURCE_ROOT', roo
 f = re.search(r'^static void smc_button(?:_apply)?\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)[0]
 f = f.replace('smc_button_apply(', 'smc_button(', 1)
 helpers = []
-for name in ('smc_drum_mix', 'smc_drum_track'):
+for name in ('smc_drum_mix', 'smc_drum_track', 'smc_lock_blocks'):
     match = re.search(r'^static [^\n]+ '+name+r'\([^\n]*\)\n\{.*?^\}', s, re.M | re.S)
     if match:
         helpers.append(match[0])
 harness = r'''
 #include <assert.h>
 #include <stdint.h>
-enum { NPARTS=5, NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
+enum { NKIT=2, NPARTS=5, NPAT=16, V_FX=20, V_HOME, V_MIX, V_PART, V_SEQ, V_GEN, V_SONG, V_GLO, O_NONE, O_LIST, O_ASK, B_SEL, B_HOME, B_GLO, NDRUM=11, T_909, T_808 };
 static struct { int part, overlay, view, song_sel, help, sel[2]; } ui;
-static struct { int solo; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
-static struct { int ppat[NPARTS], playing, song_start; } seq;
+static struct { int solo,locked,lock_kit,lock_bank,lock_part; uint16_t drum_solo[2]; uint8_t solo_target[8]; } smc;
+static struct { int ppat[NPARTS], playing, song_start, req_start, req_stop, req_cont; } seq;
 static struct { int len; } song_data;
 static struct { int n; } pg;
 static uint8_t page;
@@ -42,6 +42,7 @@ static void smc_record_toggle(void) {}
 #define smc_select_drum(k,t) ((void)(k),(void)(t),build_pages())
 #define engine_voice_name(k,t) ((void)(k),(void)(t),"drum")
 static void say(const char *a,const char *b) { (void)a;(void)b; }
+static void ui_say(const char *a,const char *b) { (void)a;(void)b; }
 static void mute_part(int p) { (void)p; }
 #define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }

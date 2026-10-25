@@ -384,6 +384,7 @@ static void pad_release_context(void)
     for (int mode = 0; mode < 3; mode++) {
         context = "held pad release cannot edit the newly selected drum";
         setup(0, 0);
+        ui.sel[0] = 1; build_pages(); /* select a different sound, not the new return-to-main gesture */
         tap(24);
         uint32_t *old = proj.pat[seq.ppat[0]].drum[0].hit[0];
         uint32_t *next = proj.pat[seq.ppat[0]].drum[0].hit[mode == 2 ? 8 : 1];
