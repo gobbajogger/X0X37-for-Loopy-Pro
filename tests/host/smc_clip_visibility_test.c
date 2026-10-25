@@ -45,6 +45,8 @@ static void engine_smc_solo(uint8_t solo) { (void)solo; }
 static void smc_button(uint8_t note, int mmc) { (void)note; (void)mmc; }
 static void smc_release(uint8_t note) { (void)note; }
 static void smc_fader(int n, uint8_t value) { (void)n; (void)value; }
+static pref_t smc_page_target(int n) { (void)n; return (pref_t){R_NONE}; }
+static int smc_fader_of(pref_t r) { (void)r; return 0; }
 static pref_t smc_knob_target(int n) { (void)n; return (pref_t){R_ENG}; }
 static void turn_ref(pref_t r, int delta, int enc)
 {

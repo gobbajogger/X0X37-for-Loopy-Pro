@@ -228,15 +228,17 @@ static void destination(int kit, int bank, int strip)
     CHECK(seq.mute == 0x80u && seq.vmute == 0x400u);
 
     if (strip_view == V_SEQ) {
-        /* SEQ now owns the same per-drum fader, knob and MUTE destinations. */
+        /* SEQ owns this drum: level fader, independent pan knob, and MUTE. */
         pref_t r = find_ref(kit ? T_808 : T_909, track, "Level");
-        CHECK(smc_same(r, smc_target(strip)) && smc_same(r, smc_knob_target(strip)));
+        CHECK(smc_same(r, smc_target(strip)));
+        pref_t pan = find_ref(kit ? T_808 : T_909, track, "Pan");
+        CHECK(smc_same(pan, smc_knob_target(strip)));
         const x0x_param_t *d = pref_desc(r);
         pref_set(r, d->max / 2);
         smc_frame();
-        int before = pref_get(r);
+        int level = pref_get(r), before = pref_get(pan);
         message(0xB0, 16 + strip, 1);
-        CHECK(pref_get(r) > before);
+        CHECK(pref_get(pan) > before && pref_get(r) == level);
         message(0xE0 + strip, 0, smc_scaled(r));
         message(0xE0 + strip, 0, 0);
         CHECK(pref_get(r) == 0);

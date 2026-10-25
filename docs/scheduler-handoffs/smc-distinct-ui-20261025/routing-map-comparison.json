@@ -1,0 +1,20 @@
+{
+  "93449136baae02c9715ba20edc5c43176786b635": {
+    "smc_same": "22fdee32925c189d99dddc045e9b6f1e1baef51dbbd40d92e55cdb61e227d8f8",
+    "smc_home_target": "21be1179187195c26eb6a0d75a98132f6e2c2f4b48532aed0c28f776f49cc5d2",
+    "smc_page_target": "d84dff4f49d2aff7d968e45ce16e0717fd0610ae6b30be821492fd56ace8fa29",
+    "smc_drum_mix": "aa849dcbb939edff275f6460019b2e7709f61e53b32ba427aea23c3ea3e10e31",
+    "smc_drum_track": "a6f186494e5be9acebf56085ce1c8b101d0bb3d25de1032b7c617abf9b1e239d",
+    "smc_target": "eab7d31a0fef14ddec5c41dd8df1560f5d0ca5e49e0c76a9fe998a62af46b9e4",
+    "smc_knob_target": "93741a0f6e4fd5e98ddd20e15a315614c2ee621b104bd3ab75e11284aae0b218"
+  },
+  "b037edac22f914bd14c6ca7aaa2988a530abd13d": {
+    "smc_same": "22fdee32925c189d99dddc045e9b6f1e1baef51dbbd40d92e55cdb61e227d8f8",
+    "smc_home_target": "21be1179187195c26eb6a0d75a98132f6e2c2f4b48532aed0c28f776f49cc5d2",
+    "smc_page_target": "d84dff4f49d2aff7d968e45ce16e0717fd0610ae6b30be821492fd56ace8fa29",
+    "smc_drum_mix": "aa849dcbb939edff275f6460019b2e7709f61e53b32ba427aea23c3ea3e10e31",
+    "smc_drum_track": "a6f186494e5be9acebf56085ce1c8b101d0bb3d25de1032b7c617abf9b1e239d",
+    "smc_target": "eab7d31a0fef14ddec5c41dd8df1560f5d0ca5e49e0c76a9fe998a62af46b9e4",
+    "smc_knob_target": "93741a0f6e4fd5e98ddd20e15a315614c2ee621b104bd3ab75e11284aae0b218"
+  }
+}
