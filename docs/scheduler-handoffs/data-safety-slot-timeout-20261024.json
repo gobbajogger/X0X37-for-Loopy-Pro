@@ -1,0 +1,72 @@
+{
+  "schema": "loopyx0x37.safety-producer.evidence.v1",
+  "observed_utc": "2026-10-23T18:14:00Z",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "owner": "Data Safety",
+  "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+  "consumed_producer_sha": "bce12276fdaa1fecd16b665b0151276ab2f6c4bd",
+  "consumed_full_repository_tree": "878a96694ba8532f9eb152316b1e5bbcc1936f5e",
+  "firmware_compiled_subtree": "19840d87388fb1f5734d9765bf8a2c0b7d3ebaaf",
+  "consumed_qa_evidence": [
+    {
+      "pr": 96,
+      "comment": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/96#issuecomment-6371153853"
+    },
+    {
+      "pr": 103,
+      "comment": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/103#issuecomment-6371162947"
+    }
+  ],
+  "changed": [
+    "tools/fm1_install.py",
+    "tests/x0x_slots_info_preflight_test.py"
+  ],
+  "problem": "SMP_INFO timeout/empty parse result was interpreted as a stock device; prewrite sample backup skipped.",
+  "repair": "Raise SlotError for indeterminate layout. Only explicit --no-slots remains an owner risk opt-out for a verified no-sample device. Never infer stock from identity strings alone.",
+  "tests_executed": [
+    {
+      "command": "X0X_TEST_FM1_SOURCE=/mnt/data/ds_run4/fm1_install_window_before.py python3 /mnt/data/ds_run4/fm1_install_slot_probe_failclosed_test.py -v",
+      "exit": 1,
+      "cases": 14,
+      "failed": 3,
+      "log_sha256": "0d67ade1e6e5935c0f37c42250c7b3e26e3cc5da16911e4661bd3520abd0c199"
+    },
+    {
+      "command": "X0X_TEST_FM1_SOURCE=/mnt/data/ds_run4/fm1_install_window_after.py python3 /mnt/data/ds_run4/fm1_install_slot_probe_failclosed_test.py -v",
+      "exit": 0,
+      "cases": 14,
+      "failed": 0,
+      "log_sha256": "62efd251717f8bbbaabda33344616b5ab60571f3b98256dc3416f9c0eb426aa1"
+    },
+    {
+      "command": "python3 -m py_compile fm1_install_slot_probe_failclosed_test.py fm1_install_window_after.py",
+      "exit": 0
+    }
+  ],
+  "test_scope": "Exact transcribed source function windows with mock hardware; NOT full checkout or physical validation.",
+  "regression_addition": "tests/x0x_slots_info_preflight_test.py updated with new positive/negative timeout/stock-identity cases; not run in full source checkout here.",
+  "statuses": {
+    "producer_scope": "PASS",
+    "full_root_qa": "PENDING",
+    "firmware_build": "NOT_RUN_THIS_COMMIT",
+    "device": "NOT_TESTED",
+    "public_install": "NO_GO"
+  },
+  "next_owners": [
+    {
+      "name": "Independent QA",
+      "action": "Run full source tests and backup/readback/restore/OTA/model negatives on this immutable PR96 commit."
+    },
+    {
+      "name": "Hourly Build",
+      "action": "Can compile this exact PR96 SHA Elite/Pro/controller BUILD_ONLY now; QA and merge not prerequisites."
+    },
+    {
+      "name": "Sole firmware Safe Merge",
+      "action": "Validate ordered #81 -> #91 -> #96 dependencies after independent QA; guarded NIGHTLY integration only."
+    }
+  ],
+  "immutable_http_or_licensing_proof": "NOT_CHECKED",
+  "publication_gate": "NO-GO until independent QA, per-model controller/package/source/license/immutable hosted HTTP verification.",
+  "production_main": "UNTOUCHED"
+}

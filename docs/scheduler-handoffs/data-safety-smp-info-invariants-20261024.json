@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "evidence_revision": "2026-10-24-r1",
+  "run_utc": "2026-10-23T15:12:55Z",
+  "role": "LoopyX0X37 Data Safety",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/data-safety-smp-info-preflight-20261023-run6-1421",
+    "consumed_commit": "3473d86ec88c079a6c69f133774104ba4ec8c4de",
+    "consumed_full_root_tree": "c42534d8540ec278d3c3f2c1753f37021abef2d8",
+    "consumed_file_blob": "5eacae1916e654b3f66b2a0497845ed63c12dc9f",
+    "tested_scope": "Exact checked affected source-window fixture (NOT whole repo checkout)"
+  },
+  "summary": "Reject contradictory SMP_INFO slot-used metadata and phantom empty-slot names before OTA backup; preserve valid 127KiB legacy clamp to 128KiB+ extension.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "tools/x0x_slots.py"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/x0x_slots_info_preflight_test.py",
+      "description": "Add per-frame prewrite refusal, 27-case boundary matrix and legitimate 7-bit saturation."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/data-safety-smp-info-invariants-20261024.md"
+    },
+    {
+      "kind": "manifest",
+      "location": "docs/scheduler-handoffs/data-safety-smp-info-invariants-20261024.json"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Original QA negatives reproduced",
+      "status": "FAIL",
+      "command": "cd /mnt/data/ds_qa96 && python3 -m unittest data_safety_sourcefix_native -v > qa_fail_before.log 2>&1",
+      "exit_code": 1,
+      "log_sha256": "533d39fedadf2111b567b558c79043b3607b7a9793deb7ad254f76ab3efd8996",
+      "coverage": "12 methods, 26 failing assertions/subcases; original function window."
+    },
+    {
+      "name": "Patched production parser window and independent QA negatives",
+      "status": "PASS",
+      "command": "cd /mnt/data/ds_qa96 && python3 -m unittest data_safety_sourcefix_native qa_smp_info_invariants -v > qa_pass_after.log 2>&1",
+      "exit_code": 0,
+      "log_sha256": "1156121680ef5628e4a8edbae7b652b944243d63821cbb04251bb2a0592363ce",
+      "coverage": "22 test methods including 27 matrix subcases, boundary/invalid/positive checks."
+    },
+    {
+      "name": "Python fixture compilation",
+      "status": "PASS",
+      "command": "cd /mnt/data/ds_qa96 && python3 -m py_compile smp_source_exact_function.py data_safety_sourcefix_native.py qa_smp_info_invariants.py",
+      "exit_code": 0,
+      "coverage": "Fixture syntax."
+    },
+    {
+      "name": "Exact full checked-out Git PR tree regression",
+      "status": "NOT_RUN",
+      "reason": "Native shell cannot clone from github.com (DNS failure, git ls-remote exit 128); full current root not mounted.",
+      "command": "python3 tests/x0x_slots_info_preflight_test.py"
+    },
+    {
+      "name": "Elite/Pro/controller BUILD_ONLY",
+      "status": "NOT_RUN",
+      "reason": "Separate Hourly Build role; no compiler attempt performed by this Data Safety worker."
+    },
+    {
+      "name": "Physical sample/OTA",
+      "status": "NOT_RUN",
+      "reason": "No keyboard attached, no owner report attributable to this candidate."
+    }
+  ],
+  "dependencies": [
+    {
+      "pr": 81,
+      "commit": "057009814e63dbb34b8f7f3de03aa9391bd00306"
+    },
+    {
+      "pr": 91,
+      "commit": "595fe8748c808d9f20671b6be35cfac6560a4a1f"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA; Hourly Build in parallel; sole firmware Safe Merge later",
+    "action": "QA rerun full Git source negative/installer/OTA cases; Builder compile actual Elite/Pro/controller BUILD_ONLY at newly published PR head; merger preserve #81 -> #91 -> #96 stack.",
+    "gate": "Independent full-root source QA; real pinned model builds/ctl, backup/restore/OTA negatives, legal source, immutable hosted exact SHA and HTTP before public NIGHTLY DEV."
+  },
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN_THIS_WORKER",
+      "device_status": "DEVICE_NOT_TESTED"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN_THIS_WORKER",
+      "device_status": "DEVICE_NOT_TESTED"
+    }
+  ],
+  "publication": "SOURCE_ONLY",
+  "owner_hardware_feedback": "UNKNOWN"
+}
