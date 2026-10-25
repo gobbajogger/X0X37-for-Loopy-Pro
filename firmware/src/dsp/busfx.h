@@ -2,17 +2,19 @@
 /* Per-bus momentary FX and channel cutoff. One-pole filters and a decay gate,
  * small enough to share with the mixer. Reverb and delay throws are send levels
  * (busfx_send); the existing fxbus keeps the tail. Effect ids match smc_fx_map.h:
- * 0 gate, 1 reverb, 2 high-pass, 3 delay. */
+ * 0 gate, 1 reverb, 2 high-pass, 3 delay, 4 low-pass hold. */
 #pragma once
 #include "fastmath.h"
 
-enum { BFX_GATE = 0, BFX_REV = 1, BFX_HP = 2, BFX_DLY = 3 };
+enum { BFX_GATE = 0, BFX_REV = 1, BFX_HP = 2, BFX_DLY = 3, BFX_LP = 4 };
 
 typedef struct {
     float a;
     float lp[4];
     float hp[4];
+    float tone_lp[4];
     float hp_mix;
+    float lp_mix;
     float gate;
     float follow;
 } busfx_t;
@@ -62,7 +64,7 @@ static inline void busfx_apply(busfx_t *s, float *c0, float *c1, float *c2, floa
     if (release_at < 0)
         release_at = n;
     for (i = 0; i < n; i++) {
-        float target, want_hp, peak = 0.0f;
+        float target, want_hp, want_lp, peak = 0.0f;
         if (i == press_at)
             held = 1;
         if (i == release_at)
@@ -82,6 +84,10 @@ static inline void busfx_apply(busfx_t *s, float *c0, float *c1, float *c2, floa
         s->hp_mix += (want_hp - s->hp_mix) * 0.01f;
         if (fm_fabsf(want_hp - s->hp_mix) < 1.0e-4f)
             s->hp_mix = want_hp;
+        want_lp = (held && effect == BFX_LP) ? 1.0f : 0.0f;
+        s->lp_mix += (want_lp - s->lp_mix) * 0.01f;
+        if (fm_fabsf(want_lp - s->lp_mix) < 1.0e-4f)
+            s->lp_mix = want_lp;
         if (!(held && effect == BFX_GATE)) {
             s->gate += (1.0f - s->gate) * 0.02f;
             if (s->gate > 0.999f)
@@ -97,9 +103,12 @@ static inline void busfx_apply(busfx_t *s, float *c0, float *c1, float *c2, floa
                 y = s->lp[k];
             }
             s->hp[k] += (y - s->hp[k]) * hp_c;
+            s->tone_lp[k] += (x - s->tone_lp[k]) * 0.008f;
             hp = y - s->hp[k];
             if (s->hp_mix > 0.0f)
                 y += (hp - y) * s->hp_mix;
+            if (s->lp_mix > 0.0f)
+                y += (s->tone_lp[k] - y) * s->lp_mix;
             ax = fm_fabsf(y);
             if (ax > peak)
                 peak = ax;
