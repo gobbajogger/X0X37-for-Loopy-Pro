@@ -727,19 +727,19 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/safety-gates-note.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/safety-gates-note.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/safety-gates-note.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/safety-gates-note.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/safety-gates-note.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/safety-gates-note.md"
         },
         "independent-qa": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/independent-qa-local-review.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/independent-qa-local-review.md"
         }
       }
     },
@@ -784,19 +784,19 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/safety-gates-note.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/safety-gates-note.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/safety-gates-note.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/safety-gates-note.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/safety-gates-note.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/safety-gates-note.md"
         },
         "independent-qa": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/PLACEHOLDER_STAGE7_TIP/evidence/f13-stage7-lx73/independent-qa-local-review.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/e5a382e556b0eaeff242258910174a92e37d2f13/evidence/f13-stage7-lx73/independent-qa-local-review.md"
         }
       }
     }
