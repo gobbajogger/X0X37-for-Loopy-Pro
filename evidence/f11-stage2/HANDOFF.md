@@ -16,9 +16,9 @@ BF-007 implement: split static vs lane BD PAN migration in `firmware/src/app/pro
 Implement evidence: `evidence/f11-stage2/CHECKS.md`, `DEFERRED.md`, `bf007-red.log`, `bf007-green.log`, `host-unit.log`, `project-runtime.log`.
 Audit record: `evidence/f11-stage1/AUDIT.md`.
 Successor prompt: `evidence/f11-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create expected ×2 → 401); coordinator CreateAgent is required.
+Successor agent id: `bc-2bc7a358-dad4-5b70-b3e3-d4a3e7b43fef` (Name: F11 BF-007 tests; coordinator CreateAgent — pod had no `CURSOR_API_KEY`).
+Successor URL: https://cursor.com/agents/bc-2bc7a358-dad4-5b70-b3e3-d4a3e7b43fef
+Handoff status: **complete** — owner-visible Stage 3 id recorded on this remote tip. Local-env review for PR #260: `bc-4cf0f622-19bf-5b1f-b19b-2732fc96f5a3` (subscribed).
 
 ## Repair summary
 
