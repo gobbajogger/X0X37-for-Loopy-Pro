@@ -53,7 +53,90 @@ void engine_project_release(void)
     project_midi_drop = 1;             /* no MIDI received during the transaction starts the new project */
     engine_project_hold(0);
 }
+static volatile uint32_t cq_w, cq_r;
 static motion_t mot;
+/* ISR-owned effective values and global baseline. A locked voice owns its
+ * copied values through note-off and the audible release, never just !gate. */
+static uint8_t snap_value[NBASS][16], snap_base[NBASS][16], snap_locked[NBASS];
+static volatile uint32_t snap_revision;
+static int snap_identity(int b)
+{
+    const synth_ops_t *o = bass_slot[b].active.ops;
+    return o->schema == 1 && o->nparams == 16 ?
+        (o->id == SYNTH_ENGINE_303 ? 1 : o->id == 0x57424c31u ? 2 : 0) : 0;
+}
+static void snap_set(int b, int i, int v)
+{
+    if (snap_identity(b) == 1) {
+        int max = bass303_param(i)->max;
+        if (v < 0) v = 0;
+        if (v > max) v = max;
+    }
+    if (snap_value[b][i] != v) {
+        synth_param_key_t key = {bass_slot[b].active.ops->id, bass_slot[b].active.ops->schema, (uint16_t)i};
+        ++snap_revision;
+        SYNTH_FENCE();
+        if (synth_set(&bass_slot[b], key, v)) snap_value[b][i] = (uint8_t)v;
+        SYNTH_FENCE();
+        ++snap_revision;
+    }
+}
+static void snap_note(int b, int pat, int step)
+{
+    const uint8_t *values = motion_snapshot_read(mot.lane, pat, PART_303A+b, step);
+    int identity = motion_snapshot_engine(mot.lane, pat, PART_303A+b, step);
+    int i, was_locked = snap_locked[b];
+    snap_locked[b] = (uint8_t)(values && identity == snap_identity(b));
+    /* Unlocked legacy notes retain motion's recording/hold precedence exactly. */
+    if (!was_locked && !snap_locked[b]) return;
+    for (i = 0; i < 16; ++i) {
+        int k = motion_find(mot.lane, pat, PART_303A+b, T_303, b, i);
+        int v = snap_locked[b] ? values[i] : snap_base[b][i];
+        /* Step locks overlay the captured base. Continuous motion ramps cannot
+         * rewrite a frozen note; their stored bytes remain independent. */
+        if (snap_identity(b) == 1 && k >= 0) {
+            if (snap_locked[b] && mot.lane[k].val[step] != MOT_NONE) v = mot.lane[k].val[step];
+            else if (!snap_locked[b]) {
+                int applied = motion_value(&mot,k);
+                if (applied >= 0) v = applied;
+            }
+        }
+        snap_set(b, i, v);
+    }
+}
+static void snap_restore(int b)
+{
+    snap_locked[b] = 0;
+    for (int i=0;i<16;++i) {
+        int v=snap_base[b][i];
+        if (snap_identity(b)==1) {
+            int k=motion_find(mot.lane,seq.ppat[PART_303A+b],PART_303A+b,T_303,b,i);
+            int applied=motion_value(&mot,k);
+            if (applied>=0) v=applied;
+        }
+        snap_set(b,i,v);
+    }
+}
+int engine_step_snapshot_values(int bass, uint8_t out[16], int *identity)
+{
+    if ((unsigned)bass >= NBASS || !out || !identity || cq_w != cq_r) return 0;
+    for (int tries = 0; tries < 8; ++tries) {
+        uint32_t before = snap_revision;
+        if (before & 1u) continue;
+        SYNTH_FENCE();
+        for (int i=0; i<16; ++i) out[i] = snap_value[bass][i];
+        *identity = snap_identity(bass);
+        SYNTH_FENCE();
+        if (before == snap_revision) return *identity != 0;
+    }
+    return 0;
+}
+int engine_step_snapshot_capture(int bass, int pat, int step)
+{
+    uint8_t values[16]; int identity;
+    if (!engine_step_snapshot_values(bass, values, &identity)) return 0;
+    return motion_snapshot_capture(mot.lane, pat, PART_303A+bass, step, identity, values) >= 0;
+}
 static const sound_t *mot_base_snd;    /* the knobs' own values (the project's mirror) */
 static uint8_t mot_playing;
 static volatile uint8_t mot_on = 1;
@@ -135,10 +218,9 @@ static float mix_pl[NPARTS] = {1, 1, 1, 1, 1}, mix_pr[NPARTS] = {1, 1, 1, 1, 1};
 /* ------------------------------------------------------- command queue --- */
 /* uint32 commands, single producer (main loop) / single consumer (audio ISR):
  * type:4 | a:8 | b:8 | c:12 */
-enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP };
+enum { C_PARAM_T0 = 0, C_DRUM = 8, C_BON, C_BOFF, C_BRK, C_NOP, C_SPARAM };
 #define CQ 1024u
 static uint32_t cq[CQ];
-static volatile uint32_t cq_w, cq_r;
 
 static void cq_put(uint32_t type, uint32_t a, uint32_t b, uint32_t c)
 {
@@ -212,7 +294,12 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
     switch (t) {
     case T_909: drum909_set(&d909, v, i, val); break;
     case T_808: drum808_set(&d808, v, i, val); break;
-    case T_303: if (v >= 0 && v < NBASS) synth_set(&bass_slot[v], synth303_key((unsigned)i), val); break;
+    case T_303:
+        if ((unsigned)v < NBASS && (unsigned)i < 16 && snap_identity(v) == 1) {
+            snap_base[v][i] = (uint8_t)val;
+            if (!snap_locked[v]) snap_set(v, i, val);
+        }
+        break;
     case T_BRK: breaks_set(&brk, BRK_NSET + i, val); break;
     case T_FX: fxbus_set(&fx, i, val); break;
     case T_MIX:
@@ -232,6 +319,14 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
     }
 }
 
+int engine_synth_param(int bass, int identity, int param, int value)
+{
+    if ((unsigned)bass >= NBASS || identity != snap_identity(bass) ||
+        (unsigned)param >= 16 || (unsigned)value > 127 || cq_w-cq_r >= CQ) return 0;
+    if (identity == 1 && value > bass303_param(param)->max) return 0;
+    cq_put(C_SPARAM, (uint32_t)bass, (uint32_t)param, (uint32_t)(value | identity<<8));
+    return 1;
+}
 void engine_set(int t, int v, int i, int val) { cq_put((uint32_t)t, (uint32_t)v, (uint32_t)i, (uint32_t)val); }
 
 /* the output's scale: Felucca's -6 dBFS ceiling of the 24-bit codec (2^22), or its full scale (LOUD); the
@@ -410,8 +505,10 @@ static void s_bon(void *x, int p, int note, int acc, int sl, int velocity)
     (void)x;
     if (prob_skip(PART_303A + p, 0))                  /* skipped: a rest */
         synth_off(&bass_slot[p]);
-    else
+    else {
+        snap_note(p, seq.ppat[PART_303A+p], eng_step[PART_303A+p]);
         synth_note(&bass_slot[p], note, acc, sl, velocity);
+    }
 }
 static void s_boff(void *x, int p) { (void)x; synth_off(&bass_slot[p]); }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
@@ -446,6 +543,9 @@ static void s_step(void *x, int t, int p)
     eng_step[t] = (uint8_t)p;
     if (mot_on)
         motion_step(&mot, t, seq.ppat[t], p, seq_next_step(&seq, t, p), seq_part_len(&seq, t));
+    if ((unsigned)(t-PART_303A) < NBASS && !seq_part_muted(&seq,t) &&
+        bstep_gate(&seq.pat[seq.ppat[t]].bass[t-PART_303A].step[p]) == G_TIE && seq.t[t].sounding && synth_active(&bass_slot[t-PART_303A]))
+        snap_note(t-PART_303A, seq.ppat[t], p);
 }
 
 /* --------------------------------------------------------------- motion --- */
@@ -462,6 +562,8 @@ static void mot_apply(void *x, int t, int v, int i, int val)
     if (t == T_PROB) {
         if ((v >> 4) < NPARTS && (v & 15) < NDRUM)
             prob[v >> 4][v & 15] = (uint8_t)val;
+    } else if (t == T_303 && (unsigned)v < NBASS && (unsigned)i < 16) {
+        if (snap_identity(v) == 1 && !snap_locked[v]) snap_set(v, i, val);
     } else if (t < NTARGETS)
         apply_param(t, v, i, val);
 }
@@ -613,6 +715,7 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
+                if (snap_locked[k]) snap_restore(k);
                 synth_note(&bass_slot[k], d1, d2 >= 100, bass_held[k] != 0, d2);
                 bass_held[k] = d1;
                 v = 1 << k;                     /* the input of the last note-on holds the note */
@@ -658,8 +761,13 @@ static void drain(void)
             apply_param((int)type, (int)a, (int)b, (int)v);
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
-        else if (type == C_BON && a < NBASS)
+        else if (type == C_SPARAM && a < NBASS && b < 16 && (int)(v>>8) == snap_identity((int)a)) {
+            snap_base[a][b] = (uint8_t)(v&127u);
+            if (!snap_locked[a]) snap_set((int)a,(int)b,(int)(v&127u));
+        } else if (type == C_BON && a < NBASS) {
+            if (snap_locked[a]) snap_restore((int)a);
             synth_note(&bass_slot[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+        }
         else if (type == C_BOFF && a < NBASS)
             synth_off(&bass_slot[a]);
         else if (type == C_BRK && !brk_hold)
@@ -941,6 +1049,15 @@ void engine_render(int32_t *out_lr, uint32_t n)
          * No alternate engine is registered/exposed in firmware yet. */
         for (p = 0; p < NBASS; ++p) {
             if (synth_boundary(&bass_slot[p])) {
+#if X0X_DEV_WOBBLE
+                if (snap_identity(p) == 2) {
+                    ++snap_revision; SYNTH_FENCE();
+                    wobble_bank_save(bass_slot[p].active.context, snap_value[p]);
+                    __builtin_memcpy(snap_base[p],snap_value[p],16);
+                    SYNTH_FENCE(); ++snap_revision;
+                }
+#endif
+                snap_locked[p] = 0;
                 bass_held[p] = 0;
                 src_held[0] &= (uint16_t)~(1u << p);
                 src_held[1] &= (uint16_t)~(1u << p);
@@ -950,6 +1067,10 @@ void engine_render(int32_t *out_lr, uint32_t n)
                 bass_slot[p].active.ops->transport(bass_slot[p].active.context, !!seq.playing);
             }
         }
+        for (p=0;p<NBASS;++p)
+            if (snap_locked[p] && synth_idle(&bass_slot[p])) {
+                snap_restore(p);
+            }
         if (mot_on)
             motion_tick(&mot, n);
         fxbus_set_bpm(&fx, seq_tempo(&seq));
@@ -1177,6 +1298,12 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     drum808_init(&d808);
     synth_init(&bass_slot[0], synth303_binding(&b303[0]));
     synth_init(&bass_slot[1], synth303_binding(&b303[1]));
+    snap_revision = 0;
+    for (p=0;p<NBASS;++p) {
+        snap_locked[p] = 0;
+        __builtin_memcpy(snap_value[p],b303[p].pot,16);
+        __builtin_memcpy(snap_base[p],b303[p].pot,16);
+    }
 #if X0X_DEV_WOBBLE
     /* Private integration fixture: prepare on main core; commit at audio boundary.
      * No UI, old lock reinterpretation, project serialization or public switch API. */

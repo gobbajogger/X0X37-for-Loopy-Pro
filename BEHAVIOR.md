@@ -559,3 +559,9 @@ Resolved open questions (do not use these IDs again):
 - OQ-08: see MID-10.
 - OQ-09: see CLP-21.
 - OQ-10: see CLP-34.
+
+### Experimental selected-note sound snapshots (bounded source proposal)
+
+SNAP-01. A snapshot owns sixteen effective parameter values and a qualified engine/schema identity. Later global edits do not change a locked note or its release tail. A matching explicit native303 step knob lock overlays the snapshot; continuous motion does not alter its frozen note base. Legacy303 lanes do not become Miami controls.
+SNAP-02. The existing note/tie/slide/off lifecycle remains authoritative. Snapshot changes do not reset voices or add retriggers. A subsequent unlocked accepted note restores its current global base; release restoration waits for actual backend idle.
+SNAP-03. Snapshot removal preserves separate knob locks. Snapshot edits publish a complete stored bank for the next note boundary. Fixed-pool exhaustion rejects a new snapshot before mutation. These low-level endpoints do not yet establish compressed-storage/whole-gesture undo admission or transactional UI copy; see docs/engineering-delivery/miami-step-snapshot.md. No UI or installation qualification is implied.

@@ -96,3 +96,11 @@ float engine_gr_db(void);                                   /* master compressor
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);
+
+/* Bounded snapshot endpoints, separate from the frozen UI proposal. Identity1
+ * is native303/schema1; identity2 is WBL1/schema1. Capture refuses pending
+ * commands and copies all sixteen effective values. Caller owns project/undo
+ * admission: this low-level endpoint checks fixed record capacity only. */
+int engine_step_snapshot_values(int bass, uint8_t out[16], int *identity);
+int engine_step_snapshot_capture(int bass, int pat, int step);
+int engine_synth_param(int bass, int identity, int param, int value);

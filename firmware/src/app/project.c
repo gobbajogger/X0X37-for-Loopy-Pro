@@ -21,7 +21,8 @@ project_t proj;
 /* Reuses the UI undo shadow while an exclusive project operation is active. */
 project_t project_stage X0X_POOL;
 
-#define PROJ_STREAM 3u                  /* 303 steps gained velocity; format 2 migrates below */
+#define PROJ_STREAM 4u                  /* sound snapshots use typed records in the unchanged lane pool */
+#define PROJ_STREAM_3 3u                /* same raw layout, without snapshot records */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
 #define NSTREAM ((int)sizeof STREAM_OBJ)
@@ -325,7 +326,16 @@ static void stream_from2(project_t *pr)
         __builtin_memcpy(dst->rsv, old.rsv, sizeof old.rsv);
     }
     for (p = 0; p < NSTREAM; p++)
-        stored_known[STREAM_OBJ[p]] = 0;             /* next save writes format 3 */
+        stored_known[STREAM_OBJ[p]] = 0;             /* next save writes the current stream format */
+}
+
+static int project_has_snapshot(const project_t *pr)
+{
+    int k;
+    for (k = 0; k < NLANE; k++)
+        if (pr->arr.lane[k].used && pr->arr.lane[k].t == MOT_SNAPSHOT)
+            return 1;
+    return 0;
 }
 
 static int load_stream(project_t *pr, int n, uint32_t format)
@@ -343,6 +353,8 @@ static int load_stream(project_t *pr, int n, uint32_t format)
         return -1;
     if (format == PROJ_STREAM_OLD)
         stream_from2(pr);
+    if (format != PROJ_STREAM && project_has_snapshot(pr))
+        return -1;                                  /* old formats never contained snapshots */
     packed_len = plen;
     return 0;
 }
@@ -557,7 +569,7 @@ static int read_project(project_t *pr)
         engine_sound_centre_drum_pans(&pr->sound);
     pr->set.stereo = PROJ_STEREO;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_OLD)) {
+    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_3 || get32(io_buf) == PROJ_STREAM_OLD)) {
         if (load_stream(pr, n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
             patterns_defaults(pr);
             arrange_defaults(pr);
@@ -658,6 +670,26 @@ int project_validate_stage(void)
             continue;
         if (l->used != 1 || l->pat >= NPAT || l->part >= NPARTS)
             return -1;
+        if (l->t == MOT_SNAPSHOT) {
+            unsigned bank = l->val[NSTEPS - 1];
+            if ((unsigned)(l->part - NKIT) >= NBASS || l->v >= NSTEPS ||
+                l->i != MOT_SNAPSHOT_SCHEMA || (bank != 0 && bank != MOT_SNAPSHOT_PARAMS) ||
+                (l->val[32 + bank / MOT_SNAPSHOT_PARAMS] != 1 && l->val[32 + bank / MOT_SNAPSHOT_PARAMS] != 2))
+                return -1;
+            for (i = 0; i < MOT_SNAPSHOT_PARAMS; i++)
+                if (l->val[bank + (unsigned)i] >
+                    (l->val[32 + bank / MOT_SNAPSHOT_PARAMS] == 1 ?
+                     engine_param(T_303, l->part-NKIT, i)->max : 127))
+                    return -1;
+            /* Duplicate keys would make lookup order define a different sound. */
+            for (i = 0; i < k; i++) {
+                const lane_t *a = &p->arr.lane[i];
+                if (a->used && a->t == MOT_SNAPSHOT && a->pat == l->pat &&
+                    a->part == l->part && a->v == l->v)
+                    return -1;
+            }
+            continue;
+        }
         if (l->t == T_PROB) {
             if ((l->v >> 4) != l->part || (l->v & 15) >= (l->part < NKIT ? NDRUM : 1) || l->i)
                 return -1;
@@ -708,11 +740,14 @@ void project_file_header(uint8_t *h)
 int project_file_validate(const uint8_t *h)
 {
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
-        get32(h + 16) != PROJ_FORMAT || get32(h + 20) != PROJ_STREAM ||
+        get32(h + 16) != PROJ_FORMAT ||
+        (get32(h + 20) != PROJ_STREAM && get32(h + 20) != PROJ_STREAM_3) ||
         get32(h + 24) != PROJ_SND_REV || get32(h + 28))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
+    if (get32(h + 20) != PROJ_STREAM && project_has_snapshot(&project_stage))
+        return -1;
     return project_validate_stage();
 }
 
