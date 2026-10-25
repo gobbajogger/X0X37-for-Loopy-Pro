@@ -1026,6 +1026,9 @@ X0X_COLD static void build_pages(void)
         more(PR(R_ENG, T_FX, 0, FX_DIST));
         more(PR(R_ENG, T_FX, 0, FX_COMP));
         more(PR(R_ENG, T_FX, 0, FX_VOLUME));
+        /* sibling of MASTER: same knobs, post-master eng_scope wave (Baud Girl ≤10 Hz redraw) */
+        add_page("WAVE", PR(R_ENG, T_FX, 0, FX_DRIVE), PR(R_ENG, T_MST, 0, MST_COMP1), PR(R_ENG, T_MST, 0, MST_PUMP),
+                 PR(R_ENG, T_MST, 0, MST_DJF));
         break;
     case V_PERF:
         add_page("PERF", PR(R_STALLS, 0, 0, 0), NONE, NONE, NONE);
@@ -1051,6 +1054,20 @@ static int drum_mix_page(void)
 {
     const char *t = pg.title[cur_page()];
     return ui.view == V_MIX && t[4] == 'M' && t[5] == 'I' && t[6] == 'X' ? (t[0] == '8') : -1;
+}
+
+/* MIX MASTER (peak hist + COMP knobs); not the WAVE sibling */
+static int master_mix_page(void)
+{
+    const char *t = pg.title[cur_page()];
+    return ui.view == V_MIX && t[0] == 'M' && t[1] == 'A' && t[2] == 'S' && t[3] == 'T';
+}
+
+/* MIX WAVE: live post-master mono scope from eng_scope[] */
+static int wave_mix_page(void)
+{
+    const char *t = pg.title[cur_page()];
+    return ui.view == V_MIX && t[0] == 'W' && t[1] == 'A' && t[2] == 'V' && t[3] == 'E';
 }
 
 /* a drum machine's page of the selected track's own sound (not the whole kit's: SENDS, PART, KIT) */
@@ -3894,14 +3911,56 @@ static UI_DRAW void draw_drum_mix(int band, int k)
     }
 }
 
+/* WAVE page: mid-line plot of eng_scope (post-master L+R). Latch ≤10 Hz; skip if shape/write
+ * index unchanged so SPI stays calm (Baud Girl FM-1+VA scope policy). No second audio tap. */
+static UI_DRAW void draw_master_wave(void)
+{
+    enum { X0 = 4, W = 196, MID = 34, AMP = 30 };
+    static int16_t latched[SCOPE_N];
+    static uint32_t last_ms, last_w, last_hash;
+    static uint8_t have;
+    uint32_t now = plat_ms(), w = eng_scope_w, h, base;
+    int i, x, y0, y1;
+    if (!have || (int32_t)(now - last_ms) >= 100) {
+        base = w;
+        h = 2166136261u;
+        for (i = 0; i < (int)SCOPE_N; i++)
+            h = (h ^ (uint32_t)(uint16_t)eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)]) * 16777619u;
+        if (!have || h != last_hash || w != last_w) {
+            for (i = 0; i < (int)SCOPE_N; i++)
+                latched[i] = eng_scope[(base + (uint32_t)i) & (SCOPE_N - 1u)];
+            last_hash = h;
+            last_w = w;
+            have = 1;
+        }
+        last_ms = now;
+    }
+    cv_rect(X0, MID, W, 1, C_LINE);
+    y0 = MID - (int)latched[0] * AMP / 32768;
+    if (y0 < 2)
+        y0 = 2;
+    if (y0 > BAND_H - 3)
+        y0 = BAND_H - 3;
+    for (x = 1; x < W; x++) {
+        int si = x * (int)SCOPE_N / W;
+        y1 = MID - (int)latched[si] * AMP / 32768;
+        if (y1 < 2)
+            y1 = 2;
+        if (y1 > BAND_H - 3)
+            y1 = BAND_H - 3;
+        cv_line(X0 + x - 1, y0, X0 + x, y1, part_col());
+        y0 = y1;
+    }
+}
+
 static UI_DRAW void draw_mix(int band)
 {
-    int p;
+    int p, master = master_mix_page(), wave = wave_mix_page();
     if (drum_mix_page() >= 0) {
         draw_drum_mix(band, drum_mix_page());
         return;
     }
-    if (band == 0 && cur_page() == pg.n - 1) {         /* MASTER: the level over the last moments, not */
+    if (band == 0 && master) {                         /* MASTER: the level over the last moments, not */
         static uint8_t hist[98];                       /* the parts (it shows the pump and the comp) */
         static uint8_t hw;
         int x, pk = 0;
@@ -3913,7 +3972,9 @@ static UI_DRAW void draw_mix(int band)
             cv_rect(4 + x * 2, 66 - h, 2, h + 1, part_col());
         }
     }
-    if (band == 0 && cur_page() != pg.n - 1) {         /* channel strips */
+    if (band == 0 && wave)
+        draw_master_wave();
+    if (band == 0 && !master && !wave) {               /* channel strips */
         for (p = 0; p < NPARTS; p++) {
             int x = 6 + p * 38, lvl = proj.sound.v[T_MIX][p][0], pk = eng_peak[p] * 64 / 32768;
             if (cur_page() == 0 && p == ui.mixsel)       /* PARTS: the part the knobs set */
@@ -3924,7 +3985,7 @@ static UI_DRAW void draw_mix(int band)
             rbox(x + 4, 67 - lvl * 64 / 127, 18, 3, 1, C_WHITE);
         }
     }
-    if (band == 0) {                                   /* the master's gain reduction */
+    if (band == 0) {                                   /* the master's gain reduction (MASTER and WAVE) */
         {
             int gr = (int)(engine_gr_db() * 64.0f / 24.0f);
             gr = gr > 64 ? 64 : gr;
@@ -3935,7 +3996,7 @@ static UI_DRAW void draw_mix(int band)
         }
     } else {
         char t[24], a[12], u[8], *q;
-        for (p = 0; p < NPARTS && cur_page() != pg.n - 1; p++)   /* the strips' names (not on MASTER) */
+        for (p = 0; p < NPARTS && !master && !wave; p++)   /* the strips' names (not on MASTER / WAVE) */
             text_c(6 + p * 38 + 13, 0, &FONT_XS, PART_N[p], part_muted(p) ? C_LINE : PART_COL[p]);
         if ((int)(engine_gr_db() + 0.5f))
             put_s(put_i(put_s(t, "COMP -"), (int)(engine_gr_db() + 0.5f)), "dB");

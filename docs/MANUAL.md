@@ -600,7 +600,7 @@ the echoes between left and right.
 
 ![MIX, with the compressor pumping](img/screen-mix.png)
 
-Press LFO to open the mixer; press it again (or turn SELECT) for its four pages. The red bar on
+Press LFO to open the mixer; press it again (or turn SELECT) for its five pages. The red bar on
 the right is the compressor's gain reduction.
 
 - **PARTS**: a level and a meter for each part. Press black keys 1-5 to pick the 909, 808,
@@ -609,6 +609,9 @@ the right is the compressor's gain reduction.
   the black keys pick a track, and the knobs set its LEVEL, PAN, REV and DLY.
 - **MASTER**: four knobs over the whole mix. The screen shows the output level over the last
   couple of seconds, so you can see the pump and the compressor working.
+- **WAVE**: the same four master knobs, with a live mid-line plot of the master output (after
+  the compressor, pump, filter and limiter). The compressor's gain-reduction bar stays on the
+  right. Press LFO again from MASTER to open it.
 
 On PARTS, 909 MIX and 808 MIX, hold HOME and press a black key to mute or unmute that channel (a
 part on PARTS, a track on the drum pages). The key lights show it: the channel the knobs set is
