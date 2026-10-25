@@ -72,3 +72,12 @@ Stage-4 DEV CHECKED hashes above authenticate firmware tree `a5ba0804` / validat
 ## Successor
 
 Stage-6 local install prompt saved. Stage-7 CreateAgent: pod has no `CURSOR_API_KEY` — coordinator must launch (see `api-create-stage7-note.txt`). Handoff incomplete until owner-visible Stage-7 id is on the remote tip.
+
+## Continuation after PR #336 merge
+
+Coordinator note: Stage-4 PR [#336](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/336) merged onto nightly @ `9c95c5b4` (head was `2e043ce5`). Tip then advanced via [#337](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/337) to `cb676e85`.
+
+Stage-5 branch rebased onto `origin/nightly` @ `cb676e85`. Stage-4 evidence now already present on tip (no re-transplant needed). FF of `2e043ce5` / `d16cdb67` still **REFUSED** (already ancestors; tip is ahead — not a rewind). Disposition remains **Safe Merge / ALREADY_ON_NIGHTLY** (evidence-only Stage-5 packet).
+
+Tip-wait Stage-1 already live (do not start another Stage-1 from this Stage-5): `bc-deca3b7b-4de7-5203-b277-bd4f80284629`. Stage-7 CreateAgent still required for publish/confirm of Stage-4 package hashes (`CURSOR_API_KEY` unset).
+

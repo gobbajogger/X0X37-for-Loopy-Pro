@@ -26,3 +26,6 @@ Read AGENTS.md and docs/rules/workflow.md, then evidence/f15-stage5/HANDOFF.md a
 When live page matches hashes, push SUCCESSOR-STAGE1.txt and CreateAgent Stage 1 (or ask coordinator if no CURSOR_API_KEY). If the page cannot update despite gates PASS, write a fresh Stage-7 retry prompt — do not start Stage 1 yet.
 
 Policy: all review/tests in agent cloud VM / local host only — never GitHub Actions as proof.
+
+Coordinator note: a tip-wait Stage-1 agent is already live: bc-deca3b7b-4de7-5203-b277-bd4f80284629 (https://cursor.com/agents/bc-deca3b7b-4de7-5203-b277-bd4f80284629). After LIVE_PAGE_MATCH, do not CreateAgent a second Stage-1 if that id is still the handoff successor or still running for this tip; record it on SUCCESSOR-STAGE1 / HANDOFF instead. Stage-7 publish/confirm of the Stage-4 package hashes is still this thread's job first.
+

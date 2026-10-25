@@ -2,7 +2,7 @@
 
 Receiving stage: **7 Publish nightly** (new cloud thread). Stage 6 is a local install prompt only (no cloud thread).
 Repository: `gobbajogger/X0X37-for-Loopy-Pro`.
-Branch that contains this prompt: `cursor/f15-bf034-stage5-9e97`.
+Branch that contains this prompt: `cursor/f15-bf034-stage5-9e97` (rebased onto post-#336/#337 tip `cb676e85`).
 Procedure: `AGENTS.md` and `docs/rules/workflow.md` on that branch.
 Parent / stage-5 owner: `bc-0d5534ed-7263-5bd3-9495-f40a0f179e97`.
 Audited / validated source SHA: `092589b84fd455355216cb0de93c4782236f7524`.
@@ -19,6 +19,7 @@ Successor prompt: `evidence/f15-stage5/SUCCESSOR-STAGE7.txt`.
 Successor agent id: none.
 Successor URL: none.
 Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
+Tip-wait Stage-1 already live (not this handoff's successor): `bc-deca3b7b-4de7-5203-b277-bd4f80284629` — do not CreateAgent another Stage-1 from Stage 5.
 Handoff status: **incomplete** until an owner-visible Stage 7 id is recorded on this remote tip.
 
 ## Nightly
