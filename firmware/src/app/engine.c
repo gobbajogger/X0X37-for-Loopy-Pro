@@ -5,7 +5,7 @@
 #include "../x0x_cold.h"
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
-#include "../dsp/bass303.h"
+#include "../dsp/synth_engine.h"
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
@@ -30,6 +30,7 @@ volatile uint32_t eng_scope_w;
 static drum909_t d909 POOL;
 static drum808_t d808 POOL;
 static bass303_t b303[NBASS] POOL;
+static synth_slot_t bass_slot[NBASS];
 static breaks_t brk POOL;
 static fxbus_t fx POOL;
 static master_t mst;
@@ -97,7 +98,7 @@ static void guard_apply(void)
         return;
     guard_applied = guard_on;
     for (k = 0; k < NBASS; k++)
-        bass303_set_lite(&b303[k], guard_on);
+        synth_lite(&bass_slot[k], guard_on);
     drum808_quiet = guard_on ? 3.2e-3f : 3.2e-5f;
 }
 
@@ -207,7 +208,7 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
     switch (t) {
     case T_909: drum909_set(&d909, v, i, val); break;
     case T_808: drum808_set(&d808, v, i, val); break;
-    case T_303: if (v >= 0 && v < NBASS) bass303_set(&b303[v], i, val); break;
+    case T_303: if (v >= 0 && v < NBASS) synth_set(&bass_slot[v], synth303_key((unsigned)i), val); break;
     case T_BRK: breaks_set(&brk, BRK_NSET + i, val); break;
     case T_FX: fxbus_set(&fx, i, val); break;
     case T_MIX:
@@ -404,11 +405,11 @@ static void s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     (void)x;
     if (prob_skip(PART_303A + p, 0))                  /* skipped: a rest */
-        bass303_note_off(&b303[p]);
+        synth_off(&bass_slot[p]);
     else
-        bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
+        synth_note(&bass_slot[p], note, acc, sl, velocity);
 }
-static void s_boff(void *x, int p) { (void)x; bass303_note_off(&b303[p]); }
+static void s_boff(void *x, int p) { (void)x; synth_off(&bass_slot[p]); }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */
 static void s_brk(void *x, int s16, int bar, float spb, int en)
 {
@@ -508,7 +509,7 @@ X0X_COLD int engine_project_notes(void)
     if (brk.keys || src_held[0] || src_held[1])
         return 1;
     for (k = 0; k < NBASS; k++)
-        if (b303[k].gate || bass_held[k])
+        if (synth_active(&bass_slot[k]) || bass_held[k])
             return 1;
     while (r != cq_w) {
         uint32_t c = cq[r++ % CQ], t = c >> 28;
@@ -541,7 +542,7 @@ static void midi_in(uint32_t pkt)
         v = src_held[src];
         for (k = 0; k < NBASS; k++)             /* BLE-16: release the notes from that input (USB or Bluetooth) */
             if ((v >> k) & 1) {
-                bass303_note_off(&b303[k]);
+                synth_off(&bass_slot[k]);
                 bass_held[k] = 0;
             }
         brk.keys = (uint16_t)(brk.keys & ~(v >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
@@ -608,7 +609,7 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
-                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
+                synth_note(&bass_slot[k], d1, d2 >= 100, bass_held[k] != 0, d2);
                 bass_held[k] = d1;
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
@@ -616,7 +617,7 @@ static void midi_in(uint32_t pkt)
                 if (src < 2)
                     src_held[src] |= (uint16_t)v;
             } else if (ty == 0x80 && bass_held[k] == d1) {
-                bass303_note_off(&b303[k]);
+                synth_off(&bass_slot[k]);
                 bass_held[k] = 0;
                 src_held[0] &= (uint16_t)~(1u << k);
                 src_held[1] &= (uint16_t)~(1u << k);
@@ -636,7 +637,7 @@ int engine_midi_held(void)   /* host test: bit k the 303 k gate, bit 8 + s the b
 {
     int k, r = brk.keys << 8 & 0xFF00;
     for (k = 0; k < NBASS; k++)
-        r |= b303[k].gate ? 1 << k : 0;
+        r |= synth_active(&bass_slot[k]) ? 1 << k : 0;
     return r;
 }
 #endif
@@ -654,9 +655,9 @@ static void drain(void)
         else if (type == C_DRUM)
             s_drum(0, (int)a, (int)b, (float)v / 4095.0f);
         else if (type == C_BON && a < NBASS)
-            bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
+            synth_note(&bass_slot[a], (int)b, (int)(v & 1u), (int)((v >> 1) & 1u), (int)(v >> 2));
         else if (type == C_BOFF && a < NBASS)
-            bass303_note_off(&b303[a]);
+            synth_off(&bass_slot[a]);
         else if (type == C_BRK && !brk_hold)
             breaks_live(&brk, (int)a, (int)b);
     }
@@ -829,8 +830,8 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
     }
     for (b = 0; b < NBASS; b++) {
         PROF_T(pb);
-        idle[b] = b303[b].idle;                           /* idle: the render writes zeros */
-        bass303_render(&b303[b], bb[b], (int)n);
+        idle[b] = synth_idle(&bass_slot[b]);                           /* idle: the render writes zeros */
+        synth_render(&bass_slot[b], bb[b], (int)n);
         PROF_ADD(2 + b, pb);
     }
     pt = plat_cycles();
@@ -910,6 +911,20 @@ void engine_render(int32_t *out_lr, uint32_t n)
     {
         PROF_T(pt);
         drain();
+        /* Drain old queued notes into their old engine before its cleanup. The
+         * main-loop producer cannot run concurrently with this same-core ISR.
+         * No alternate engine is registered/exposed in firmware yet. */
+        for (p = 0; p < NBASS; ++p) {
+            if (synth_boundary(&bass_slot[p])) {
+                bass_held[p] = 0;
+                src_held[0] &= (uint16_t)~(1u << p);
+                src_held[1] &= (uint16_t)~(1u << p);
+            }
+            if (bass_slot[p].running != !!seq.playing) {
+                bass_slot[p].running = !!seq.playing;
+                bass_slot[p].active.ops->transport(bass_slot[p].active.context, !!seq.playing);
+            }
+        }
         if (mot_on)
             motion_tick(&mot, n);
         fxbus_set_bpm(&fx, seq_tempo(&seq));
@@ -1135,8 +1150,8 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
         prob[p / NDRUM][p % NDRUM] = 100;             /* every step plays, until a lane says */
     drum909_init(&d909);
     drum808_init(&d808);
-    bass303_init(&b303[0]);
-    bass303_init(&b303[1]);
+    synth_init(&bass_slot[0], synth303_binding(&b303[0]));
+    synth_init(&bass_slot[1], synth303_binding(&b303[1]));
     breaks_init(&brk);
     fxbus_init(&fx, dly_buf, DLY_LEN);
     master_init(&mst);

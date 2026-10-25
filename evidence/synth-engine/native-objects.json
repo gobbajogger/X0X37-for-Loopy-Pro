@@ -1,0 +1,129 @@
+{
+  "status": "NATIVE_AFFECTED_OBJECT_ONLY_NOT_LINKED",
+  "baseline": "08d3164a265123cb4c84e5104642fd93257d63d7",
+  "compiler": "clang version 4.0.1 () ()\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /opt/jieli/pi32v2/bin\n",
+  "flags": [
+    "-target",
+    "pi32v2",
+    "-O2",
+    "-ffunction-sections",
+    "-fno-builtin",
+    "-Wall",
+    "-Wno-unused-function",
+    "-mcpu=r3",
+    "-mfprev1",
+    "-ffp-contract=off",
+    "-DBOARD_SMK37=1",
+    "-DX0X_DEV_PADCAL=1",
+    "-Ifirmware/hal",
+    "-Ifirmware/src",
+    "-Ifirmware/src/app",
+    "-Ibuild/gen"
+  ],
+  "models": {
+    "pro": {
+      "baseline": {
+        "sections": {
+          "text": 9356,
+          "rodata": 221072,
+          "bss": 19824,
+          "data": 304,
+          "pool": 213820
+        },
+        "object_sha256": "166ba3301ac59ebfe381b9dd8507606d5efccd98fddb7ed26e678e666945ef74",
+        "common_symbols": [
+          "00000004 g       *COM*\t\t 00000004 eng_guard_count",
+          "00000016 g       *COM*\t\t 00000001 eng_hit",
+          "0000000a g       *COM*\t\t 00000002 eng_peak",
+          "00000020 g       *COM*\t\t 00000004 eng_prof",
+          "00000004 g       *COM*\t\t 00000004 eng_prof_frames",
+          "00000200 g       *COM*\t\t 00000002 eng_scope",
+          "00000004 g       *COM*\t\t 00000004 eng_scope_w",
+          "00000005 g       *COM*\t\t 00000001 eng_step",
+          "00000138 g       *COM*\t\t 00000004 seq"
+        ]
+      },
+      "candidate": {
+        "sections": {
+          "text": 9820,
+          "rodata": 221120,
+          "bss": 19872,
+          "data": 304,
+          "pool": 213820
+        },
+        "object_sha256": "77c12c7c87b347fe9229502a3fc442c5669f320e7986013c5bf2381d6d194220",
+        "common_symbols": [
+          "00004a84 l       .bss\t\t 00000028 bass_slot",
+          "00000004 g       *COM*\t\t 00000004 eng_guard_count",
+          "00000016 g       *COM*\t\t 00000001 eng_hit",
+          "0000000a g       *COM*\t\t 00000002 eng_peak",
+          "00000020 g       *COM*\t\t 00000004 eng_prof",
+          "00000004 g       *COM*\t\t 00000004 eng_prof_frames",
+          "00000200 g       *COM*\t\t 00000002 eng_scope",
+          "00000004 g       *COM*\t\t 00000004 eng_scope_w",
+          "00000005 g       *COM*\t\t 00000001 eng_step",
+          "00000138 g       *COM*\t\t 00000004 seq"
+        ]
+      },
+      "delta": {
+        "text": 464,
+        "rodata": 48,
+        "bss": 48,
+        "data": 0,
+        "pool": 0
+      }
+    },
+    "elite": {
+      "baseline": {
+        "sections": {
+          "text": 9356,
+          "rodata": 221072,
+          "bss": 19824,
+          "data": 304,
+          "pool": 213820
+        },
+        "object_sha256": "166ba3301ac59ebfe381b9dd8507606d5efccd98fddb7ed26e678e666945ef74",
+        "common_symbols": [
+          "00000004 g       *COM*\t\t 00000004 eng_guard_count",
+          "00000016 g       *COM*\t\t 00000001 eng_hit",
+          "0000000a g       *COM*\t\t 00000002 eng_peak",
+          "00000020 g       *COM*\t\t 00000004 eng_prof",
+          "00000004 g       *COM*\t\t 00000004 eng_prof_frames",
+          "00000200 g       *COM*\t\t 00000002 eng_scope",
+          "00000004 g       *COM*\t\t 00000004 eng_scope_w",
+          "00000005 g       *COM*\t\t 00000001 eng_step",
+          "00000138 g       *COM*\t\t 00000004 seq"
+        ]
+      },
+      "candidate": {
+        "sections": {
+          "text": 9820,
+          "rodata": 221120,
+          "bss": 19872,
+          "data": 304,
+          "pool": 213820
+        },
+        "object_sha256": "77c12c7c87b347fe9229502a3fc442c5669f320e7986013c5bf2381d6d194220",
+        "common_symbols": [
+          "00004a84 l       .bss\t\t 00000028 bass_slot",
+          "00000004 g       *COM*\t\t 00000004 eng_guard_count",
+          "00000016 g       *COM*\t\t 00000001 eng_hit",
+          "0000000a g       *COM*\t\t 00000002 eng_peak",
+          "00000020 g       *COM*\t\t 00000004 eng_prof",
+          "00000004 g       *COM*\t\t 00000004 eng_prof_frames",
+          "00000200 g       *COM*\t\t 00000002 eng_scope",
+          "00000004 g       *COM*\t\t 00000004 eng_scope_w",
+          "00000005 g       *COM*\t\t 00000001 eng_step",
+          "00000138 g       *COM*\t\t 00000004 seq"
+        ]
+      },
+      "delta": {
+        "text": 464,
+        "rodata": 48,
+        "bss": 48,
+        "data": 0,
+        "pool": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+wait 300
+load 0
+wav adapter-equivalence.wav
+param 2 0 0 99
+param 2 0 1 84
+param 2 0 8 96
+param 2 0 9 2
+param 2 1 5 127
+param 2 1 0 110
+param 2 1 1 90
+turn ALGO 2
+key w2 down
+wait 160
+key w6 down
+wait 90
+key w2 up
+wait 90
+key w6 up
+wait 600
+tap PLAY
+wait 2000
+tap PLAY
+load 99
+key w4 down
+wait 400
+key w4 up
+wait 1200
+load 0
+param 2 0 12 100
+param 2 0 13 80
+param 2 0 14 110
+key w3 down
+wait 600
+key w3 up
+wait 1700
+wavstop

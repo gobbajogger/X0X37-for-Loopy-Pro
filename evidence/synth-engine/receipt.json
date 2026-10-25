@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "stage": "DELIVERED_EXPERIMENTAL_HOST_FOUNDATION",
+  "source_base": "08d3164a265123cb4c84e5104642fd93257d63d7",
+  "contract_pin": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "contract_sha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3",
+  "files_sha256": {
+    "firmware/src/app/engine.c": "92eb33f8e400bb77935bf662698ca52d624b1475572e7fceef6d118db8c774bb",
+    "firmware/src/dsp/synth_engine.h": "7542f676faf8c59a791b5bc7eb3f524ff0ca25a5a18233dfd96f0bfdf8347181",
+    "firmware/src/app/synth_state.h": "3359854aafc26278d65c54cd9a63f34a536f363a2f7a20e776bb647c0de6d9e6",
+    "tests/run_tests.sh": "3f553a5327f4781f8e28aaed464545500ef92f8a6e0e17d843dc74d1c653876f",
+    "tests/host/synth_state_native_probe.c": "4d2614d48b56ce68ad5cb412f17ee77a1903597260c94f76521553eec5718588"
+  },
+  "tests": {
+    "adapter": "PASS_526336_BIT_EXACT_SAMPLES",
+    "whole_app303": "PASS_1267756_IDENTICAL_WAV_BYTES",
+    "state": "PASS_70509_CHECKS",
+    "sanitizers": "PASS_ADAPTER_AND_STATE",
+    "legacy_format2": "PASS",
+    "project_stage": "PASS_24446_CHECKS",
+    "project_protocol": "PASS",
+    "project_runtime_smc": "PASS",
+    "native_affected_engine_objects": "PASS_BOTH_MODEL_FLAGS",
+    "native_state_codec": "PASS_COMPILE_ONLY",
+    "full_native_link_budgets": "NOT_RUN",
+    "target_cycles_stack": "NOT_RUN",
+    "real_alternate_engine": "NOT_IMPLEMENTED",
+    "live_envelope_import_export": "NOT_IMPLEMENTED",
+    "hardware_gui_flash": "NOT_RUN_AUTHORITY_EXCLUDED"
+  },
+  "next_owner": "parent_combined_integrator",
+  "successor": "NOT_OPENED_OWNERSHIP_UNRESOLVED",
+  "parent_message": "NOT_DELIVERED_THREAD_NOT_FOUND",
+  "no_budget_relaxation": true
+}

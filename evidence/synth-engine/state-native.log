@@ -1,0 +1,1 @@
+PASS native state codec compile: JieLi clang4.0.1 pi32v2 r3 DEV; hosted string.h unavailable, replaced with existing firmware compiler-builtin convention; no link or activation.
