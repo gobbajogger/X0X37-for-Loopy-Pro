@@ -1,0 +1,132 @@
+{
+  "schema": "seqclock-producer-native-r30-v1",
+  "evidence_revision": "seqclock-pr90-clock-owner-boundary-20261025-r30",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "existing_pull_request": 90,
+  "existing_parent_pull_request": 86,
+  "base_head": "3ac107d3505d54d14f022b0d395ea4551b0fbf15",
+  "base_root_tree": "5a1f955d1cf996c3c03fec7175f89d7da497c899",
+  "base_compiled_firmware_subtree": "978e4c3008f886d53d02767133b30b5637a3e8a0",
+  "behavior": "In EXTERNAL clock mode, a competing USB/BLE input must not steal the live 0.4-second clock lease, change 303 step timing or leave held MIDI notes. After the lease expires, a new clock source may take over without double-speed F8 input, missing note release, transport echo, or ghost playback. STOP holds the owner until its 0.4-second transfer window.",
+  "maintained_contract": [
+    "BEHAVIOR.md MID-06",
+    "BEHAVIOR.md MID-13",
+    "BEHAVIOR.md MID-14",
+    "BEHAVIOR.md MID-15"
+  ],
+  "exact_git_blob_inputs": {
+    "pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+    "sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "sequencer.c": "3eeb9f5af0270bbd7ba9eb33ddaf5b79c37f8697",
+    "tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2"
+  },
+  "exact_sha256_inputs": {
+    "pattern.c": "0d9b36c4ab979533df2974e0adc962d521c9bf587403eaecca4109042eaddf2a",
+    "tb3po.h": "7dd646a572129fc8df5628f6111f68fef6b54476446f75cc5f583b6f110f0073",
+    "sequencer.h": "767c9d36df0e7f30ed0bd87bb36588bd47cbe47e7764a070b2fe9ae9bc9e2f78",
+    "pattern.h": "8f3d4696cce39bbfcfa026a0fc44332d0a9437c952e10c522498c42eda21c5ba",
+    "sequencer.c": "a7de20c255cc94aa50acf9fa4dcac89dc172b521702e83dc8ea103d309ae6892",
+    "tb3po.c": "7c238132753aff9f16acd6af3235845f95e13a5e5ae51dca544e142ee77e166b"
+  },
+  "test_path": "tests/host/seq_clock_owner_handoff_linked_test.c",
+  "test_git_blob": "87f97849dab30d4c63f7c2708e4abfccdc8a8f62",
+  "test_sha256": "6163b9cdfcde40255c20780a0ffde643398335ef488e011294fe4764b0caf722",
+  "test_command": "gcc or clang -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -Ifirmware/src/seq tests/host/seq_clock_owner_handoff_linked_test.c firmware/src/seq/{sequencer,pattern,tb3po}.c -lm -o executable; execute binary. Repeat with -fsanitize=undefined and -fsanitize=address,undefined, both with -fno-sanitize-recover=all.",
+  "test_groups": {
+    "positive": {
+      "runs": 6,
+      "expected_exit": 0,
+      "compile_exit": [
+        0
+      ],
+      "run_exit": [
+        0
+      ],
+      "output_tails": [
+        "seq clock owner handoff: 36120/36120 checks PASSED"
+      ],
+      "failures_detected": null
+    },
+    "negative-owner-bypass": {
+      "runs": 6,
+      "expected_exit": 1,
+      "compile_exit": [
+        0
+      ],
+      "run_exit": [
+        1
+      ],
+      "output_tails": [
+        "seq clock owner handoff: 36090/36144 checks FAILED"
+      ],
+      "failures_detected": null
+    },
+    "negative-stop-off": {
+      "runs": 6,
+      "expected_exit": 1,
+      "compile_exit": [
+        0
+      ],
+      "run_exit": [
+        1
+      ],
+      "output_tails": [
+        "seq clock owner handoff: 36111/36120 checks FAILED"
+      ],
+      "failures_detected": null
+    },
+    "negative-lease-late": {
+      "runs": 6,
+      "expected_exit": 1,
+      "compile_exit": [
+        0
+      ],
+      "run_exit": [
+        1
+      ],
+      "output_tails": [
+        "seq clock owner handoff: 36063/36105 checks FAILED"
+      ],
+      "failures_detected": null
+    }
+  },
+  "negative_variant_notes": {
+    "negative-owner-bypass": "Mutated seq_clk_take origin rejection locally; expected evidence: rejected BLE F8/Start unexpectedly admitted, timing/lock assertions fail.",
+    "negative-stop-off": "Mutated do_stop bass_release only; expected evidence: held 303 NoteOff missing/orphan lifespan.",
+    "negative-lease-late": "Doubled clock lease timeout only in local throwaway copy; expected evidence: new owner still excluded after legitimate 0.4-second expiry."
+  },
+  "source_mutants_committed": false,
+  "leak_sanitizer": "disabled (ASAN_OPTIONS detect_leaks=0); no memory-leak PASS claimed",
+  "environment": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "compilers": {
+      "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+      "clang": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)"
+    }
+  },
+  "actual_logs": "private replay archive r30_logs/ includes all exact commands, exits, stdout/stderr and SHA-256",
+  "replay_command": "python3 run-r30.py",
+  "neighbor_R29": {
+    "gcc": {
+      "compile_exit": 0,
+      "run_exit": 0,
+      "actual_output": "seq stop/restart burst: 408/408 checks PASSED",
+      "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec"
+    },
+    "clang": {
+      "compile_exit": 0,
+      "run_exit": 0,
+      "actual_output": "seq stop/restart burst: 408/408 checks PASSED",
+      "log_sha256": "b80c2a026084871bef7d837efb44ce50099d7d071c8e8d6ad4e20791963680ec"
+    }
+  },
+  "disposition": "TEST-ONLY SOURCE; SCOPED LINKED HOST PASS; no compiled firmware change; full-root QA and Elite/Pro build are not claimed; no physical device tested; not installed.",
+  "consumer": {
+    "Independent QA": "Independently check out final exact PR #90 head/tree, rerun registered selector transport-clock-owner and transport-stop-restart along with appropriate complete-root sequencer/MIDI paths. Inspect original source and negative-control expectations; post exact-SHA review.",
+    "Safe Merge": "Do not integrate this stacked PR without independent root review and dependency reconciliation with PR #86 and other active sequencer changes.",
+    "Hourly Build": "For prior compiled sequencer.c changes on PR #90, qualified target build requires actual compiler inputs and exact model artifacts; this test-only update does not itself invalidate compiled inputs."
+  },
+  "prohibitions": "No protected direct writes, no hardware or installer publication, no vendor/SDK/controller binaries, no release or sample modifications."
+}

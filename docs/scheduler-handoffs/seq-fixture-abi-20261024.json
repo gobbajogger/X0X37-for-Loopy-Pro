@@ -1,0 +1,107 @@
+{
+  "schema": "x0x37.scheduler-evidence.v1",
+  "revision": "seqclock-pr90-fixture-abi-20261024-r1",
+  "role": "Sequencer Clock — owner producer, source-only test fixture repair",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "isolated_branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "consumed_head": "5be2e08f1a41bddb7ad11d32a4bb3dbd64e982e1",
+  "consumed_full_root_tree": "971347298bb050cff5c32e0430b5b714dcb9b099",
+  "consumed_firmware_compiler_subtree": "86e25cfe6a1563700c5d21951ef976776902edb7",
+  "stacked_dependency": {
+    "pr": 86,
+    "head": "191e9c11e3461dde51a8c0361e6e93be7a8db592",
+    "status": "READY_FOR_REVIEW; FULL_ROOT_QA_PENDING"
+  },
+  "first_candidate": {
+    "pr": 103,
+    "head": "dc4669083218f17f8cfb69069e7f32911a232b52",
+    "firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "state": "DRAFT; OTA PHYSICAL TARGET AND FULL ROOT QA UNRESOLVED"
+  },
+  "exact_compiled_source_git_blobs": {
+    "firmware/src/seq/sequencer.c": "97d8e456932e32b1b9503f01a7092f3ad555fc4e",
+    "firmware/src/seq/sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "firmware/src/seq/pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "firmware/src/seq/pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "firmware/src/seq/tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "firmware/src/seq/tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c"
+  },
+  "defect": "Two registered PR90 Python source-extraction regressions failed native GCC -Werror compilation against exact current sequencer.c: origin test fixture modeled neither req_prior_ticks nor req_stop_rt; clock-epoch fixture omitted req_stop_rt. These are stale mock structs, not a demonstrated new firmware defect.",
+  "updated_fixtures": {
+    "tests/host/seq_transport_origin_test.py": {
+      "before": "385b3b3d650c198567136973b79588b17f8a302d",
+      "after": "9f887837e023150a0e5b4730f849ef78592338cd",
+      "change": "modeled seq_t gains req_stop_rt and req_prior_ticks"
+    },
+    "tests/host/seq_clock_epoch_test.py": {
+      "before": "054bd4ed6c80393196dabe43413f11abc6d9d10b",
+      "after": "2bea7f49238f48c6bd04dd3856b16957ce412938",
+      "change": "modeled seq_t gains req_stop_rt"
+    }
+  },
+  "real_native_tests": {
+    "original_fixture_gcc_compile": {
+      "origin_exit": 1,
+      "epoch_exit": 1,
+      "expected_negative": true
+    },
+    "repaired_origin": {
+      "assertions": "16/16",
+      "compilers": [
+        "gcc -Werror",
+        "gcc -Werror -fsanitize=undefined",
+        "clang -Werror -fsanitize=undefined",
+        "clang -Werror -fsanitize=address,undefined"
+      ],
+      "compile_exit": 0,
+      "test_exit": 0,
+      "each_configuration": true
+    },
+    "repaired_clock_epoch": {
+      "assertions": "23/23",
+      "compilers": [
+        "gcc -Werror",
+        "gcc -Werror -fsanitize=undefined",
+        "clang -Werror -fsanitize=undefined",
+        "clang -Werror -fsanitize=address,undefined"
+      ],
+      "compile_exit": 0,
+      "test_exit": 0,
+      "each_configuration": true
+    },
+    "production_linked_MID13": {
+      "source_test_blob": "63b5464eb450ad485a1ff6ce22a62467d5d309e1",
+      "assertions": "183/183",
+      "compilers": [
+        "gcc",
+        "gcc -fsanitize=undefined",
+        "clang -fsanitize=address,undefined"
+      ],
+      "compile_exit": 0,
+      "test_exit": 0,
+      "each_configuration": true
+    },
+    "first_candidate_existing_clock_owner_defect": {
+      "pr": 41,
+      "head": "a716acd9be62f7cd471d397b92767f4c0e7f6c9f",
+      "actual_R18_source_6_compilers": "204/276, compile exit 0, test exit 1",
+      "local_diagnostic_PR41_hunk_6_compilers": "276/276, compile/test exit 0",
+      "not_integrated": true
+    }
+  },
+  "private_main_chatgpt_library_evidence": {
+    "path": "/LoopyX0X37-SeqClock-PR90-Fixture-ABI-R19-20261024.zip",
+    "file_id": "file_0000000002a081fabc118b73286247ac",
+    "library_file_id": "libfile_73a51ddc98208191a23170e8fc518f31",
+    "size": 38266,
+    "sha256": "be508b89785351512a347fb8da6a0545ebd77382fe433d706b366b0587f3655c",
+    "verified_upload_rematerialization_sha256": true,
+    "zip_crc_pass": true
+  },
+  "exact_full_PR90_root_aggregate_tests": "NOT RUN: local bootstrap has historical/mixed root; independent full exact root QA pending",
+  "model_target_build": "NOT RUN THIS TICK; no firmware/ compiler input changed and no new build SHA claimed",
+  "physical_device_test": "NOT RUN",
+  "firmware_nightly_integration": "NONE",
+  "release_or_publication": "NONE",
+  "next": "Independent QA: run registered transport-origin, clock-epoch, clock-internal-queued-linked, sequencer, clk-lock and NoteOff negative on exact PR90 root; verify existing PR41 MID-15 repair independently against exact R18 first candidate. Sole Safe Merge decides integrating existing reviewed source after first-candidate gate checks; no speculative additions."
+}

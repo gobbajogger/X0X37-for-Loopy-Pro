@@ -1,0 +1,146 @@
+{
+  "schema": "x0x37-sequencer-source-producer-evidence-v1",
+  "evidence_revision": "seqclock-pr90-coalesced-first-clock-20261025-r36",
+  "scope": "Existing Sequencer Clock source-only PR #90; test-only, no compiled firmware change",
+  "user_outcome": "Early USB/Bluetooth Loopy MIDI clock coalescing preserves correct phase, exclusive clock ownership, and initial 125 BPM; next independently timed 120-BPM clock measures ~120 BPM",
+  "source": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 90,
+    "stacked_parent_pr": 86,
+    "input_head": "eb2b62ab36a2002ce3f3ab285ff1562777097410",
+    "input_root_tree": "678b752bac5157f418f5d7e9c024e780ce0cd741",
+    "compiled_firmware_tree": "a8036fa68ba3a2ff82d79b47fe8d142de677385d",
+    "production_seq_blob": "4b3e07786390d12980e8fecb5c553051c0a056ef",
+    "previous_test_blob": "d023eb0419b447692d59ea251aa12c88ba0010f1",
+    "new_test_blob_expected": "5486e29ace1f94d5b48c6a3327391251452ca0a7"
+  },
+  "change": {
+    "path": "tests/host/seq_clock_auto_idle_wrap_test.c",
+    "tests": "Coalesced 2-5 first F8 from USB or BLE, AUTO/EXTERNAL, 1/64/1024 frame buffers; no early false tempo, 1 tick counted per accepted event, reject competing input, subsequent genuine tempo"
+  },
+  "native": {
+    "environment": "Linux x86_64; actual GPL sequencer.c/pattern.c/tb3po.c linked; producer scope only",
+    "command_argv_template": [
+      "gcc|clang",
+      "-std=c11",
+      "-O2",
+      "-ffp-contract=off",
+      "-Wall",
+      "-Wextra",
+      "-Wdouble-promotion",
+      "-Werror",
+      "-I<exact_source_dir>",
+      "seq_clock_auto_idle_wrap_test.c",
+      "<exact_source_dir>/sequencer.c",
+      "<exact_source_dir>/pattern.c",
+      "<exact_source_dir>/tb3po.c",
+      "-lm",
+      "<profile_flags>",
+      "-o",
+      "<test_executable>"
+    ],
+    "profiles": [
+      {
+        "name": "plain",
+        "flags": []
+      },
+      {
+        "name": "ubsan",
+        "flags": [
+          "-fsanitize=undefined",
+          "-fno-sanitize-recover=all"
+        ]
+      },
+      {
+        "name": "asan-ubsan",
+        "flags": [
+          "-fsanitize=address,undefined",
+          "-fno-sanitize-recover=all"
+        ]
+      }
+    ],
+    "toolchains": [
+      "gcc",
+      "clang"
+    ],
+    "result_groups": [
+      {
+        "name": "current R35 source",
+        "runs": 6,
+        "compile_exit": 0,
+        "run_exit": 0,
+        "result": "654616/654616 each",
+        "run_log_sha256": "6aee4568475cc206f3c3d74efc552012924d2d11bebb3bfc5e5e7c42c49e4d30"
+      },
+      {
+        "name": "historical R34 source negative",
+        "runs": 6,
+        "compile_exit": 0,
+        "expected_run_exit": 1,
+        "result": "654424/654616 each; 192 failures",
+        "run_log_sha256": "7d8d38814c7362adb5af2d8b9f8ba2c2774b7800885c09c0c2034750eefc5867"
+      },
+      {
+        "name": "deliberately dropped coalesced F8 local mutant",
+        "runs": 6,
+        "compile_exit": 0,
+        "expected_run_exit": 1,
+        "result": "654520/654616 each; 96 failures",
+        "run_log_sha256": "ad8171a7257e4dfd3ad7a3f61657b6ef42d93f40d9806aa9c91db7d8a9d23c01"
+      },
+      {
+        "name": "adjacent uptime wrap",
+        "runs": 2,
+        "compile_exit": 0,
+        "run_exit": 0,
+        "result": "36328/36328 each",
+        "run_log_sha256": "0a0a056a1211cd2b7700bfaf1d08be034d81f8566348c5cb1217add171adcfce"
+      },
+      {
+        "name": "adjacent USB/BLE disconnection",
+        "runs": 2,
+        "compile_exit": 0,
+        "run_exit": 0,
+        "result": "186/186 each",
+        "run_log_sha256": "eee002da62bae8dc6a5c65b58a95843a69b1f0775809e369685cb18390c4fdd4"
+      },
+      {
+        "name": "adjacent clock owner",
+        "runs": 2,
+        "compile_exit": 0,
+        "run_exit": 0,
+        "result": "36120/36120 each",
+        "run_log_sha256": "5093b950e0ec17fcf494e4b6f2c5ddb17ab7aeaf51b59382569a1317a37e3bb3"
+      },
+      {
+        "name": "adjacent MIDI NoteOff lifetime",
+        "runs": 2,
+        "compile_exit": 0,
+        "run_exit": 0,
+        "result": "388092/388092; 1472 NoteOn/1472 NoteOff each",
+        "run_log_sha256": "cfdb1ceee0c1648f184a201ce8aebb863dbdd6e403efebd143d85eef77a4ddf9"
+      }
+    ],
+    "total_expected": 26,
+    "total_observed": 26,
+    "mutant_scope": "Only private local negative-control C source, never committed",
+    "leak_sanitizer": "NOT RUN (ASAN_OPTIONS detect_leaks=0)",
+    "exact_command_and_exit_log_locator": "private replay ZIP R36-LOCAL-EVIDENCE.json/r36_logs/"
+  },
+  "private_evidence": {
+    "archive_filename": "LoopyX0X37-SeqClock-PR90-CoalescedFirstF8-R36-20261025.zip",
+    "bytes": 67244,
+    "sha256": "7a081323c493cc827e08edb4495ca7285616db5ebdbac294ae9bfd4b15047597",
+    "replayed": true
+  },
+  "gates": {
+    "source_producer": "SCOPED_TESTS_PASSED",
+    "independent_complete_root_qa": "NOT_RUN",
+    "target_build": "NOT_RUN_THIS_TEST_ONLY_UPDATE; R35 compiled inputs unchanged",
+    "hardware": "NOT_TESTED",
+    "installer": "NOT_QUALIFIED_OR_PUBLISHED",
+    "production": "NOT_APPROVED"
+  },
+  "handoff": "Existing Independent QA independently validate complete exact branch plus parent #86; existing Safe Merge exclusively reconciles integration. No new BUILD_ONLY if compiler inputs identical to R35.",
+  "restrictions": "No protected refs, firmware/ctl binaries, SDK, device flash, sample/backup, website or public publication"
+}

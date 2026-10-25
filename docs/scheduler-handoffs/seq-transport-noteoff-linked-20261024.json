@@ -1,0 +1,165 @@
+{
+  "schema": "x0x37-seqclock-test-v1",
+  "evidence_revision": "seqclock-pr90-noteoff-phase-linked-20261024-r20",
+  "recorded_utc": "2026-10-24",
+  "owner_role": "Sequencer Clock",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "source_parent_sha": "70924b68f1d400924b88b542d0664cf9559c9ad1",
+  "source_parent_tree": "623e7679f753fa222f6d4d4a09296a81a73c7694",
+  "owned_branch": "lane/seq-transport-origin-20261023-run3-1317",
+  "stacked_base_pr": 86,
+  "owned_pr": 90,
+  "first_candidate_pr": 103,
+  "first_candidate_observed_head": "56c180450393f26859419ce13b479e45cb0c242d",
+  "first_candidate_compiler_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "unchanged_sequencer_source_git_blobs": {
+    "pattern.c": "b6b667d023a912b13de8539168c61928182ffa23",
+    "pattern.h": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "sequencer.c": "97d8e456932e32b1b9503f01a7092f3ad555fc4e",
+    "sequencer.h": "6ff366ed1b36faafab6676498483921d46e1b746",
+    "tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2",
+    "tb3po.h": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c"
+  },
+  "new_test_path": "tests/host/seq_transport_noteoff_linked_test.c",
+  "new_test_git_blob": "67621375abf3bfb1462f416300f1051f0366decd",
+  "new_test_sha256": "c7e2a9b3efccd3942310ee8d38c6b66126e142a17be09728ef5b76bf68dea9ea",
+  "runner_path": "tests/run_tests.sh",
+  "new_selector": "transport-noteoff-linked",
+  "native_platform": "Linux x86_64",
+  "positive_run_compiler_matrix": [
+    "gcc plain",
+    "gcc UBSan",
+    "gcc ASan+UBSan",
+    "clang plain",
+    "clang UBSan",
+    "clang ASan+UBSan"
+  ],
+  "positive_native_checks": {
+    "compiles_exit_zero": 6,
+    "runs_exit_zero": 6,
+    "assertions_per_run": 195
+  },
+  "negative_control": {
+    "operation": "local ONLY mutation suppresses real bass_midi_flush active-note NoteOff in copied sequencer.c, not committed",
+    "gcc": {
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions_passed": 156,
+      "assertions_total": 195
+    },
+    "clang": {
+      "compile_exit": 0,
+      "run_exit": 1,
+      "assertions_passed": 156,
+      "assertions_total": 195
+    }
+  },
+  "regression_scope": [
+    "native linked actual sequencer.c+pattern.c+tb3po.c",
+    "1/64/1024-frame blocks",
+    "local Start/Stop NoteOff once",
+    "incoming unhandled NoteOff is not swallowed by transport",
+    "local PLAY echo does not retrigger and cancel NoteOff",
+    "queued MIDI Stop canceled by later INTERNAL selection but local Stop still releases",
+    "external MIDI clock Start and Stop with NoteOff and no transport echo",
+    "channel change flushes exactly once on original output channel",
+    "sliding notes both independently released on Stop"
+  ],
+  "native_logs": [
+    {
+      "compiler": "gcc",
+      "config": "plain",
+      "path": "logs/gcc-plain.log",
+      "sha256": "6a968a587f98e5af9cc8c6117a9786e6405e2d113975ff4d985a5037546434f4",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "assertions_passed": 195,
+      "assertions_total": 195,
+      "mutation_control": false
+    },
+    {
+      "compiler": "gcc",
+      "config": "ubsan",
+      "path": "logs/gcc-ubsan.log",
+      "sha256": "a13e3a42de1eabcc1e2fa538461b2b4c3ac4237def3f59ba699e5c8ed7cf252c",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "assertions_passed": 195,
+      "assertions_total": 195,
+      "mutation_control": false
+    },
+    {
+      "compiler": "gcc",
+      "config": "asan-ubsan",
+      "path": "logs/gcc-asan-ubsan.log",
+      "sha256": "9cce2c14bdf0ce57cf83c224e73c9776dfecbfc4648a2a148a9b61e928d15b14",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "assertions_passed": 195,
+      "assertions_total": 195,
+      "mutation_control": false
+    },
+    {
+      "compiler": "gcc",
+      "config": "negative",
+      "path": "logs/gcc-negative.log",
+      "sha256": "c47606e0e766d1b47ee12be73b2d4338d9a111341cf04a98b08640c372dbf1ad",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "assertions_passed": 156,
+      "assertions_total": 195,
+      "mutation_control": true
+    },
+    {
+      "compiler": "clang",
+      "config": "plain",
+      "path": "logs/clang-plain.log",
+      "sha256": "271f04656cf5f5239d388ec5df6e2b22ef19b0ca8a4ef6cac44f0ea27c865f8e",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "assertions_passed": 195,
+      "assertions_total": 195,
+      "mutation_control": false
+    },
+    {
+      "compiler": "clang",
+      "config": "ubsan",
+      "path": "logs/clang-ubsan.log",
+      "sha256": "1dac724f05b1ea5252c09f947ff15794329510304342adf1dbdf1aa3d641f633",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "assertions_passed": 195,
+      "assertions_total": 195,
+      "mutation_control": false
+    },
+    {
+      "compiler": "clang",
+      "config": "asan-ubsan",
+      "path": "logs/clang-asan-ubsan.log",
+      "sha256": "a56cdb4a90b0807203c60c5deb3e932cd56fafea0fbbed01ca6053d710355fe7",
+      "compile_exit": 0,
+      "test_exit": 0,
+      "assertions_passed": 195,
+      "assertions_total": 195,
+      "mutation_control": false
+    },
+    {
+      "compiler": "clang",
+      "config": "negative",
+      "path": "logs/clang-negative.log",
+      "sha256": "c47606e0e766d1b47ee12be73b2d4338d9a111341cf04a98b08640c372dbf1ad",
+      "compile_exit": 0,
+      "test_exit": 1,
+      "assertions_passed": 156,
+      "assertions_total": 195,
+      "mutation_control": true
+    }
+  ],
+  "stage_result": "SCOPED LINKED HOST PASS / MUTATION RED / INDEPENDENT ROOT QA PENDING",
+  "target_build": "NOT RUN: new test + runner + docs only; compiled firmware/ subtree unchanged",
+  "controller_build": "NOT RUN",
+  "device": "NOT TESTED",
+  "installer": "NOT INSTALLABLE / first NIGHTLY still OTA physical-identity NO-GO",
+  "next_consumer": "Independent QA exact own PR#90 head complete-root registered tests; sole Safe Merge decide existing clock repairs; Hourly Build only if compiled firmware source changes",
+  "forbidden_operations_executed": []
+}

@@ -49,9 +49,9 @@ PREFIX = r'''
 #define FS 44100u
 
 typedef struct {
-    uint8_t req_start, req_cont, req_stop, req_rt, midi_req;
+    uint8_t req_start, req_cont, req_stop, req_rt, req_stop_rt, midi_req;
     uint8_t clk_src, playing, start_local;
-    uint32_t ext_pending, ext_now, start_at;
+    uint32_t ext_pending, ext_now, start_at, req_prior_ticks;
     int count_start, count_continue, count_stop;
 } seq_t;
 typedef struct { int ignored; } seq_sink_t;
@@ -59,12 +59,10 @@ static uint32_t seq_step_q8(seq_t *s, int rate) {
     (void)s; (void)rate; return 11025u * 256u;
 }
 static int part_rate(seq_t *s, int t) { (void)s; (void)t; return 0; }
-static void do_start(seq_t *s, int top, const seq_sink_t *o) {
-    (void)o; s->playing = 1;
+static void do_start(seq_t *s, int top, const seq_sink_t *o, uint8_t remote) { (void)top; (void)o; (void)remote; (void)o; s->playing = 1;
     if (top) s->count_start++; else s->count_continue++;
 }
-static void do_stop(seq_t *s, const seq_sink_t *o) {
-    (void)o; s->playing = 0; s->count_stop++;
+static void do_stop(seq_t *s, const seq_sink_t *o, uint8_t remote) { (void)o; (void)remote; (void)o; s->playing = 0; s->count_stop++;
 }
 '''
 SUFFIX = r'''
