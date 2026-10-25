@@ -340,6 +340,7 @@ run validation-inputs python3 tests/host/test_validation_inputs.py
 run stage-handoff python3 tests/host/test_stage_handoff.py   # tools/stage_handoff.py: advance only after the next stage thread id is stored
 run dev-validate python3 tests/host/test_dev_validate.py DevelopmentValidation
 run nightly-publish python3 tests/host/test_publish_nightly.py
+run installer-digests python3 tests/host/test_check_installer_digests.py   # FP-001: source fingerprint ≠ served install HTML; dual fields required
 run gen-cache python3 tests/host/test_gen_cache.py
 run smk-update-contract python3 tests/host/test_smk_update_contract.py
 if [ "$PIL_SKIP" = 1 ]; then not_run gen-order Pillow; else run gen-order sh tests/host/test_gen_order.sh; fi   # this file: drum-pan and stereo start after host-build (build/gen), with 8 jobs and 1 job
