@@ -71,18 +71,56 @@ Supported creation route that this run can actually invoke: a Cursor Task subage
 
 Supported result reader: the Task completion payload for a worker this run spawned; `cursor-cloud` `batch-fetch-details` by `bcId` for transcript and events; GitHub issue comments on the relevant pull request. Historical agents are readable. They are not resumable from this run.
 
-Not exposed: a model-tier switch named STANDARD or MEDIUM. I do not request one. A `workerId` or CreateAgent placement parameter is also not exposed, so the connected machine below cannot be targeted.
+Not exposed on the creation tool: a model-tier switch named STANDARD or MEDIUM. I do not request one. The local-placement revision below replaces the earlier claim that no placement route exists anywhere in Cursor.
 
 ## Local executor
 
-A darwin self-hosted worker is connected and idle: worker `83d16cde-07a3-5bce-81a3-2234761197a1`, display machine Mac mini, approved, `eligibleForSubagent` true, shared assignment allowed. It is registered for `gobbajogger/x0x37-for-loopy-pro`. This run has no tool that places a job on that worker.
+A darwin self-hosted worker is connected and idle: worker `83d16cde-07a3-5bce-81a3-2234761197a1`, display machine Mac mini, approved, `eligibleForSubagent` true, shared assignment allowed. It is registered for `gobbajogger/x0x37-for-loopy-pro`. The exact argument gap is in the local-route revision below.
 
-`BLOCKED_LOCAL_EXECUTOR` covers licensed AU and reference renders, private SDK and toolchain builds, exact native qualification, hardware flash, and device links. I will not upload SDK, vendor binaries, or raw captures, and I will not treat host tests as those proofs. Connected hardware is not executed hardware. Action-time owner approval remains required for protected merges, firmware publication, and catalog publication.
+The first receipt treated native, reference, and hardware work as `BLOCKED_LOCAL_EXECUTOR` because this cloud placement cannot execute them. The owner clarification on 2026-10-25 revises the cause: licensed reference setup is already authorized, and prior local execution stands. This run does not add a licensing gate. The open limit is placement, recorded in the next section. Flash stays outside this transfer. Action-time owner approval remains required for protected merges, firmware publication, and catalog publication.
 
 No flash, merge, publication, promotion, schedule change, new observer, GUI, credential change, install, paid service, Actions run, or force-push is authorized by this acceptance.
 
 ## Ready scope still awaiting a named acceptor
 
-Independent review of pull request 239 result `2dfb2cb` needs a reviewer other than `bc-242aec06-97c7-4c2a-aee3-47a5799b0a96`. Native fit for that result stays `BLOCKED_LOCAL_EXECUTOR`.
+Independent review of pull request 239 result `2dfb2cb` needs a reviewer other than `bc-242aec06-97c7-4c2a-aee3-47a5799b0a96`. Native fit for that result waits on the local placement below. Host review does not establish it.
 
-Review-only cloud worker created after the acceptance comment `6399120871`: `bc-9e091df3-7bfb-5235-9bfa-993c94b5c946` (https://cursor.com/agents/bc-9e091df3-7bfb-5235-9bfa-993c94b5c946). Base branch `handoff/multi-smc-capacity-20261026`. This creation is not acceptance. The worker must post its own id and explicit review acceptance. Until that comment exists, the review scope has no accepted owner. No source ownership moves.
+Review-only cloud worker created after the acceptance comment `6399120871`: `bc-9e091df3-7bfb-5235-9bfa-993c94b5c946` (https://cursor.com/agents/bc-9e091df3-7bfb-5235-9bfa-993c94b5c946). Base requested: `handoff/multi-smc-capacity-20261026`. This creation is not acceptance. The worker must post its own id and explicit review acceptance. Until that comment exists, the review scope has no accepted owner. No source ownership moves.
+
+Second read at 2026-10-25T14:59:28Z, without creating another reviewer: status `RUNNING`, `branchName` null, `privateWorkerId` null, `usePrivateWorker` false, dashboard events 0, diff metadata empty, no pull-request comment on 239 or 249. `createdAtMs` 1792939910476 (2026-10-25T14:51:50Z). `updatedAtMs` and `lastMessageActivityAtMs` are still 2026-10-25T14:51:55Z and 2026-10-25T14:51:50Z. Resume is refused while status stays `RUNNING`, so this run does not send a second prompt and does not create a replacement. Own acceptance remains unposted.
+
+## Local-route revision
+
+Owner clarification: Cursor can start threads on the Mac. This section is the runtime inspection. It is not a claim that Cursor has no local route.
+
+Connected worker, read again after the clarification: `83d16cde-07a3-5bce-81a3-2234761197a1`. `displayName` `~/Documents/x0x37/x0x37-for-loopy-pro @ Mac mini`. `machineDisplayName` `Mac mini`. `machineId` `7b16732ea5caf92898d874ede03061e38a8d52c627e1eb6477ae88e556747c8d`. Label `name` is `cursor-agent-worker-442675cf18`. Label `repo` is `gobbajogger/x0x37-for-loopy-pro`. OS label `darwin`. `approved` true. `eligibleForSubagent` true. `sharedAssignmentAllowed` true. `isInUse` false. `activeBcId` null. `pools` empty. `connectedAtMs` 1792940133179. No self-hosted agent is listed for this environment (`list-cloud-agents` with `isSelfHostedWorker` true returned 0).
+
+Tools this run can invoke, and the arguments they publish:
+
+- `cursor` `Task` properties: `description`, `prompt`, `model`, `resume`, `subagent_type`, `file_attachments`, `environment`, `cloud_base_branch`, `cloud_requested_environment_build_id`, `run_in_background`. `environment` is only `local` or `cloud`. There is no `worker`, `machine`, `workerId`, or `privateWorkerId` argument. `environment=local` is an in-process subagent, not a placement onto worker `83d16cde-07a3-5bce-81a3-2234761197a1`. I did not start one.
+- `cursor-cloud` `list-self-hosted-workers` lists workers and pools. It does not start a thread. Its description names `CreateAgent` and `RequestAccess`. Neither name is a tool in this run's catalog. `approved` is already true, so an access request is not the missing step. The pool list is empty, so a pool placement does not apply.
+- No other catalog tool accepts a machine or worker target. `computerUse` is not a Mac placement control.
+
+`agent`, `cursor`, and `cursor-agent` are absent from this VM's `PATH`. That absence is not the conclusion. The conclusion is the published argument list above.
+
+No read-only local check was created. None was already running: the worker is idle and no self-hosted agent exists, so there was nothing to duplicate. Creating a cloud Task would not test the Mac.
+
+Missing action, for a surface that can place My Machines work: one bounded read-only capability check on this worker. The check may confirm placement, read back the agent id, and see whether the existing native and reference setup is present. It may not write the device, flash, bypass a hardware gate, install, open a GUI, or change credentials. Documented ways to start that thread are the My Machines choice in the cursor.com/agents environment menu, or a trusted trigger that sets `worker` or `machine` to the machine `--name`. This worker list does not return a separate `--name`; the observed label `name` is `cursor-agent-worker-442675cf18`. The trigger matches only when the Cursor user, that `--name`, and the registered repo all agree. The registered repo URL is `https://github.com/gobbajogger/x0x37-for-loopy-pro`. This receipt does not issue that trigger. Issuing it would create a second agent.
+
+Result readers once a placed run exists: Task completion for a worker this run spawned, `batch-fetch-details` by `bcId`, `list-cloud-agents`, and GitHub comments. A historical completed agent still cannot be resumed from here.
+
+License and flash, unchanged by this route gap: no new license confirmation is required. MIT may cover specific original source. GPL and controller notices stay. Proprietary KORG plugin restrictions stay. No proprietary binary, raw capture, or SDK upload. Flash remains outside this transfer and needs an exact authorized qualified candidate plus sole device ownership.
+
+## Next assignments
+
+Recorder and Miami stay one schema owner: `bc-919ca392-4052-45c0-80e5-88778518dfc7`. No second migration writer.
+
+Immediate source next unit, not started in this revision: on `fix/303-live-duration-20261026` at `b923b39711736b79a559a2bed3e835e2fdc75eab` (implementation `73114a8822307c8813fcb2332069970c6c26966c`, open pull request 247), stop `seq_rec_bass` from treating a reopened DSP gate as legato after context cancel. The recorder must consume the accepted note owner and generation. `SEQ_REC_LEGATO` and `BS_SLIDE` in `firmware/src/seq/sequencer.c` are the classification site. `tests/host/rec_live_test.c` is the host check. PINGPONG and RANDOM repeated-cell timing stay unmet and are not this edit. Newest REC-off and clear tests stay `NOT_RUN`. Host tests do not qualify native fit.
+
+Following schema unit, same owner, also not started: do not import either existing stream4. The frozen recorder layout is the endpoint nibble in `firmware/src/seq/pattern.h` (`flags` holds gate, accent, slide, and endpoint). The frozen Miami layout is `MOT_SNAPSHOT` `0xFE`, 16 parameters, `MOT_SNAPSHOT_SCHEMA` 1 in `firmware/src/seq/motion.h` on `experiment/miami-step-snapshot-20261026` at `d7f156eca43ccf9ede1d291bc71743b356883e03`. The combined change allocates a new revision and migrates both layouts, with atomic legacy rejection, load, copy, undo, and capacity tests, before either migration is integrated.
+
+Miami engine continuation, capacity recovery, and acoustic validation stay open and separate from that schema edit. Snapshot tests still do not prove them. Acoustic reference renders wait on the placed local thread. They are not blocked on a new license question.
+
+Clock next owner: none. The local clock writer is released and is not resumed. No cloud clock writer is created. Frozen source remains `7989a51edb62313e57afa16c68ae5bd2bd0497db`, tree `0736ca3e3afbc49a006bd865dcc2f7e524dd4e8e`. `clock-rejected.patch` SHA256 `ed2fd0cccdeed69544d056b913295ac49d4f5acb435fc3cd52ded21033c3354d` is not an accepted repair and is not applied. Approval provenance stays `UNKNOWN`. No pending command was observed. Final Elite and Pro measurement stays with the unplaced local route. Coordinator `bc-919ca392-4052-45c0-80e5-88778518dfc7` holds that freeze until a placed local thread accepts the clock measurement.
+
+Chicago correction source owner stays open. Completed agent `bc-3e82a453-3099-4fb6-9109-483c530fa726` still has no acceptance after comment `6398913054`. No successor is assigned.
