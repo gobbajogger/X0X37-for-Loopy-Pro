@@ -44,15 +44,16 @@ Checks: `python3 tests/workflow_checkpoint_test.py` passes 10 tests on this Mac;
 relative references, unnecessary gates and the final changed bytes. Firmware
 builds do not apply to this documentation-only change. No new helper/schema is
 needed: PR184 intake and PR205 priority adapters remain linked exact trial pins.
-Core text grows from 889 words/6,810 bytes to 1,274 words/9,890 bytes; packet from
+Core text grows from 889 words/6,810 bytes to 1,283 words/9,966 bytes; packet from
 263 words/2,119 bytes to 328 words/2,549 bytes (whitespace words/UTF-8 bytes).
 These are text sizes, not runtime/token or delivery improvement measurements.
 
 ## Small adapter delta for separate adoption
 
 > Use the reviewed canonical continuation contract at its accepted commit/hash.
-> Start new long jobs through local Codex; autonomously plan, delegate, test, fix
-> and create bounded local/cloud successors within scope. Check actual capabilities;
+> Start new long jobs through local Codex; assign implementation, verification and
+> bounded successors through the outcome. Root is no routine permission/stage-start
+> gate. Autonomously plan, delegate, test, fix and continue. Check actual capabilities;
 > use useful subagents, verify admission and pull results. If a child cannot create
 > the next task, its parent does. One coordinator/writer owns continuation through
 > verified final handback to root; escalate completion, real blockers/conflicts or

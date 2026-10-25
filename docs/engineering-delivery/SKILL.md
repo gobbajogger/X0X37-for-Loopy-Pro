@@ -29,8 +29,9 @@ use fresh local or cloud successors according to actual task needs and capabilit
 Local-file and hardware stages stay on the Mac; cloud stages receive self-contained,
 accessible inputs. Return verified final acceptance and remaining limits to the root
 assistant. Do not migrate or duplicate an already active job just to change route.
-Within assigned scope, the local coordinator independently plans, delegates, tests,
-fixes and creates bounded successor stages; routine progress needs no root reply.
+Assign implementation, verification and bounded successor stages through the
+requested outcome. Within that scope, the coordinator independently plans, delegates,
+tests, fixes and continues; root is no routine permission or stage-start gate.
 Escalate completion, genuine blockers, ownership/scope conflicts or required decisions.
 Carry this autonomy into successors, designating one creation coordinator to avoid
 parent/child duplicate launches. The root still pulls/verifies results; do not assume
