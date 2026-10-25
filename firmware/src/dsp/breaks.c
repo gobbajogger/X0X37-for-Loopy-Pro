@@ -346,6 +346,14 @@ void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
         b->pend_on[which] = 0;
         return;                                         /* already sounding this loop: leave the voice */
     }
+    idx = pick_slot(b, which);
+    if (idx >= 0) {
+        bank_fill(bank_slot(b, (unsigned)idx), loop);
+        brk_barrier();
+        b->pub[which] = (uint8_t)idx;                   /* triggers keep reading valid audio */
+        b->pend_on[which] = 0;
+        return;
+    }
     if (!bank_referenced(b, k)) {
         k->valid = 0;                                   /* voice_start will not take a half-built bank */
         brk_barrier();
@@ -356,15 +364,7 @@ void breaks_set_loop(breaks_t *b, int which, const brk_loop_t *loop)
         }
         k->valid = 1;                                   /* a voice claimed it; do not rewrite its samples */
     }
-    idx = pick_slot(b, which);
-    if (idx < 0) {
-        pend_store(b, which, loop);                     /* both spare snapshots are still sounding */
-        return;
-    }
-    bank_fill(bank_slot(b, (unsigned)idx), loop);
-    brk_barrier();
-    b->pub[which] = (uint8_t)idx;                       /* new triggers read this; the old voice does not */
-    b->pend_on[which] = 0;
+    pend_store(b, which, loop);                         /* every spare snapshot is still sounding */
 }
 
 void breaks_flush(breaks_t *b)

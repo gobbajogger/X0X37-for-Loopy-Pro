@@ -58,9 +58,9 @@ GEN-31. Bank A faders 1-4 set the levels of the 909, the 808, 303A and 303B. [SM
 GEN-32. Bank B faders 1-4 set the BREAK level, the reverb return, the delay return and the master FILTER. [SMK37] [CODE app/main_fm1.c:630-637]
 GEN-33. A fader takes over when it reaches or crosses the saved value, within two raw counts. This applies after a bank change and after a knob or loaded project changes the target. Until then, moving it shows the fader number and the direction toward the saved value. The hint leaves the pattern or song bar and tempo visible. [SMK37] [CODE app/main_fm1.c smk_faders; app/ui.c draw_header]
 GEN-34. A fader sets the same value as the related knob. The project keeps the value. With REC on, the fader records knob motion. [SMK37] [CODE app/main_fm1.c:641-642]
-GEN-35. The pitch wheel bends the 303 on the screen by up to ±2 semitones (Chicago pitch bend). It does not change TUNE. It goes back to the saved bend when you release it. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c smk_wheels]
-GEN-36. The mod wheel is the cutoff control for the 303 on the screen. It replaces the cutoff knob. Down closes the voice filter. Up opens it. That cutoff is applied before the master cutoff. The master cutoff is not changed. On other parts the mod wheel does nothing. [SMK37] [CODE app/main_fm1.c smk_wheels]
-GEN-36A. Changing the visible page or selected part sends no pitch-wheel or mod-wheel sound change. Each wheel gesture stays with its original 303 until the wheel returns to rest, including when that part is offscreen. A stationary wheel does not overwrite knob edits or sequencer motion. Returning the mod wheel down closes the voice filter. It does not restore the cutoff knob. [USER] [CODE app/main_fm1.c smk_wheels]
+GEN-35. The pitch wheel changes the TUNE of the 303 on the screen by about +-1.5 semitones. It goes back when you release it. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:708-712]
+GEN-36. The mod wheel opens the CUTOFF of the 303 on the screen from the saved value to the top. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:713-720]
+GEN-36A. Changing the visible page or selected part sends no pitch-wheel or mod-wheel sound change. Each wheel gesture stays with its original 303 until the wheel returns to rest, including when that part is offscreen. A stationary wheel does not overwrite knob edits or sequencer motion. [USER] [CODE app/main_fm1.c smk_wheels]
 GEN-37. The wheels change only the sound. They do not change saved values. [SMK37] [CODE app/main_fm1.c:698-705]
 GEN-38. The keys and the pads play without velocity. [SMK37]
 GEN-39. OCTAVE- and OCTAVE+ held at power-on start HARDWARE CALIBRATION. It teaches the buttons and K2 to K8 again. It does not teach K1. [SMK37] [CODE app/main_fm1.c:1039-1041] [CODE app/panel.c:100-101]
@@ -133,17 +133,17 @@ BRK-08. Black key 9 plays reverse, key 10 half speed, key 11 stutter, while held
 BRK-09. Hold a white key and press black key 1-8: that step always plays that slice of loop A. Press the same black key again to give the step back to the generator. [MANUAL §8] [CODE app/ui.c:2176-2188]
 BRK-10. A held live slice key has priority over the slice of a step. [CODE dsp/breaks.c:536-537]
 BRK-11. The loop follows the tempo by a change of playback speed. Thus the pitch follows the tempo. PITCH shifts the pitch on top. [MANUAL §8]
-BRK-12. On MIDI, notes 36-43 on the BREAK channel play slices 1-8. [MANUAL §16] [CODE app/engine.c:519-520]
-BRK-13. The pattern saves the generator settings (COMPLEXITY, ANCHOR, ROLL, FILL, RETRIG, PHRASE, A/B LENGTH, B CHANCE). It also saves the steps, slices and loop choice. [MANUAL §8]
+BRK-12. On MIDI, the break uses its own channel (default channel 4) for notes in. With 8 SLICES off, notes 36-43 play slices 1-8. With 8 SLICES on, every note plays a slice: the slice is the note number mod 8. A note on that channel does not also play the drums or a 303. The break does not send note messages. [MANUAL §16] [CODE app/engine.c brk_midi_legacy brk_midi_wrap]
+BRK-13. The pattern saves the generator settings (COMPLEXITY, ANCHOR, ROLL, FILL, RETRIG, PHRASE, A/B LENGTH, B CHANCE). It also saves the steps, slices, loop choice and 8 SLICES. [MANUAL §8]
 
 ### 6.2 Loops and imported samples
 
 BRK-20. Imported samples play only in BREAK mode. This is the intended behavior. [USER] [CODE app/engine.c:952-976]
-BRK-21. The LOOP list has the built-in loops first ("909 GR", "909 FL"), then the imported loops as BR1, BR2 and so on. [MANUAL §8] [CODE app/engine.c:859-882]
-BRK-22. The factory (built-in) breaks are 2 bars long, IMA ADPCM at 44.1 kHz, with no length cut. That is 2 x 220,500 samples and 220,500 B of flash. [USER] [CODE ../../tools/gen_builtin_break.c:14-15] [CODE ../../tools/gen_builtin_break.c:134]
+BRK-21. The LOOP list has installed built-in loops first, then the imported loops as BR1, BR2 and so on. The default firmware has no built-in loops. [MANUAL §8] [CODE app/engine.c]
+BRK-22. The factory loops are 909 GR and 909 FL. Each is 2 bars, IMA ADPCM at 44.1 kHz, with no length cut: 220,500 samples and 110,250 B. Together that is 220,500 B. They are not in the default image. They are an optional pack (`assets/factory-breaks/`). The installer can write that pack, or your own loops, into the free tail of the app code. The whole ADPCM is kept, so reverse still plays the loop. [USER] [CODE ../../tools/gen_builtin_break.c] [CODE ../../tools/break_pack.py]
 BRK-23. Do not halve the length of a factory break. [USER]
 BRK-24. An imported loop gets a length of 1, 2, 4 or 8 bars. The firmware selects the length that puts the loop tempo nearest to 120 BPM, inside 80-180 BPM. [CODE app/engine.c:821-833]
-BRK-25. If a pattern names an empty user slot, loop A plays the first built-in loop. [CODE app/engine.c:971-972]
+BRK-25. If a pattern names an empty user slot, that loop plays the first built-in loop when one is installed. With no built-in loop it is silent. [CODE app/engine.c]
 BRK-26. Loops are IMA ADPCM at 44.1 kHz. The built-in loops, tools/upload_breaks.py, tools/import_breaks.py and the break page all use 44.1 kHz by default. 22.05 kHz is an explicit opt-in only: `--rate 22050` in the tools, or the "22 kHz (more room)" box on the page. A loop that the page reads back from the device keeps its rate. (Was OQ-07. Resolved 2026-10-15.) [USER] [CODE ../../tools/gen_builtin_break.c:134] [CODE ../../tools/upload_breaks.py:87-90] [CODE ../../web/x0x_breaks.js:13] [CODE ../../web/x0x_breaks.html:77]
 BRK-27. The firmware reads the rate of each imported zone from the slot header. Thus it can play a 44.1 kHz zone. The bar guess (BRK-24) uses the zone rate. A host test checks both (tests/host/loop_bars_test.c, tests/scenarios/upload44.x0x). [CODE app/slots.c:10] [CODE app/plat_fm1.c:150]
 BRK-28. Trim silence (sampleio.trim_silence, trimSilence in web/x0x_breaks.js) removes the samples at or below -60 dBFS (0.001) at the two ends. It keeps 1 ms before the first louder sample. It applies a 5 ms linear fade at the end. A file that is all silence stays unchanged. The tool and the page give the same bytes. [CODE ../../tools/sampleio.py:202] [CODE ../../web/x0x_breaks.js:78]
@@ -200,8 +200,8 @@ FX-03. A delay longer than 2 s plays at half that length. [MANUAL §18]
 
 ## 12. Mix and master
 
-MIX-01. LFO opens the mixer: PARTS, 909 MIX, 808 MIX and MASTER. [MANUAL §14]
-MIX-02. MASTER has DRIVE, COMP, PUMP and FILTER. [MANUAL §14]
+MIX-01. LFO opens the mixer: PARTS, 909 MIX, 808 MIX, MASTER and WAVE. [MANUAL §14] (Changed 2026-10-25: WAVE sibling page.)
+MIX-02. MASTER has DRIVE, COMP, PUMP and FILTER. WAVE uses the same four knobs and shows the post-master output waveform beside the GR bar. [MANUAL §14] (Changed 2026-10-25: WAVE.)
 MIX-03. PUMP also works when COMP is 0 and when you mute the kick. [MANUAL §14]
 MIX-04. FILTER is off in the middle. Left is a low-pass. Right is a high-pass. [MANUAL §14]
 
@@ -472,16 +472,16 @@ CLP-80. In clip mode, the LCD main area shows "WAITING FOR LOOPY PRO" until a li
 FLS-01. SMK-37 flash map (layout 2):
   - App code 0x04120-0x8AFFF.
   - Bluetooth controller block 0x8B000-0x9AFFF (FLS-13).
-  - X0X store 0x9D000-0xAFFFF (spare 0xAB000-0xAEFFF, owner tag 0xAF000).
-  - User sample slot 3 0xB0000-0xBAFFF.
+  - X0X store 0x9D000-0xAFFFF (objects through 0xAAFFF, boot screen 0xAB000-0xACFFF, spare 0xAD000-0xAEFFF, owner tag 0xAF000).
+  - VM spare 0xB0000-0xBAFFF (not a sample slot).
   - Update staging 0xBB000-0xBFFFF.
   - User sample slots 1 and 2 0xC2000-0xF3FFF.
-  - 0xFE000-0xFEFFF stays unused (4 KiB is too small for a slot). [CODE ../hal/fm1_flash_map.h:25-68] (Changed 2026-10-15: the store ended at 0xBAFFF, the slots at 0xE9FFF.)
-FLS-02. The SMK-37 has 3 user sample slots: slot 1 80 KiB at 0xC2000, slot 2 120 KiB at 0xD6000, slot 3 44 KiB at 0xB0000. Slots 1 and 2 keep the flash offsets of the earlier 2 x 80 KiB layout. The FM-1 has 3 slots of 80 KiB. [CODE app/slots.c:15-34] (Changed 2026-10-15: was 2 x 80 KiB.)
-FLS-03. Keep the imported-sample flash. A space saving must not take flash from the sample storage. [USER]
-FLS-04. The store-owner check at first start clears only 0x9D000-0xAEFFF. It does not clear the sample slots. Slot 3 starts at 0xB0000, after the owner tag. [CODE storage.c:50-105]
+  - 0xAB000 and 0xAC000 hold the boot screen (two copies). 0xAD000-0xAEFFF stays spare. 0xFE000-0xFEFFF stays unused on the SMK-37 (4 KiB is too small for a slot). [CODE ../hal/fm1_flash_map.h:25-68] [CODE app/boot_screen.h]
+FLS-02. The SMK-37 has 2 user sample slots: slot 1 80 KiB at 0xC2000, slot 2 120 KiB at 0xD6000. They keep the flash offsets of the earlier layouts. The 44 KiB window at 0xB0000 is not a sample slot. The FM-1 has 2 slots of 80 KiB at 0xA0000 and 0xB4000. [CODE app/slots.c:15-39] (Changed 2026-10-26: the third slot was removed. 2026-10-15 had added it.)
+FLS-03. Keep the imported-sample flash of the two slots. A space saving must not shrink slot 1 or slot 2. [USER]
+FLS-04. The store-owner check at first start clears only 0x9D000-0xAEFFF. It does not clear the sample slots or the 44 KiB window at 0xB0000. [CODE storage.c:50-105]
 FLS-05. A slot holds a header, up to 16 zones and IMA ADPCM data at offset 512. X0X plays zone 0 of each loop as a loop. [CODE app/slots.c:1-8]
-FLS-06. The UI has PLAT_NSLOTS = 3 on the SMK-37 and on the FM-1. Each slot has its own size. The editor checks each write and each header against the size of its slot. [CODE app/slots.c:15-34] [CODE app/editor.c:180-250] (Changed 2026-10-15: slot 3 was always empty on the SMK-37.)
+FLS-06. The UI has PLAT_NSLOTS = 2 on the SMK-37 and on the FM-1. Each slot has its own size. The editor checks each write and each header against the size of its slot. [CODE app/slots.c:15-39] [CODE app/plat.h] (Changed 2026-10-26: was 3.)
 FLS-07. IMA ADPCM at 44.1 kHz is the sample storage format: the 909 cymbals (DRM-11), the built-in loops (BRK-22) and the uploaded loops (BRK-26). 22.05 kHz is an opt-in for uploads only. fm1_sample_upload.py one-shots stay at 22.05 kHz (FM-1 tool, not maintained). [USER]
 FLS-08. The SMK-37 store has 7 objects with A and B copies: settings, sound, two pattern objects, panel, song and motion. [CODE storage.c:50-60]
 FLS-09. The protected ranges are head, BTIF, USRTRIM, stock USR resources and key_mac. The flash map refuses them at compile time. The flash driver refuses them again. [SMK37] [CODE ../hal/fm1_flash_map.h:56-83]
@@ -500,8 +500,15 @@ FLS-16. An install can lose samples when a slot moves, becomes smaller or disapp
   - (3) They install.
   - (4) They connect to the new firmware again and write each slot at risk back. Old slot N goes to new slot N if it fits. Else it goes to the first other slot that is empty, not kept and large enough. Then they read the slots back to compare.
   - They report a slot that has no place. If the backup fails, they install nothing. If the write back fails, the archive stays (fm1_install.py exit 7). The message tells the end user to restore it with Restore on the break loops page or with tools/x0x_slots.py restore FILE. fm1_install.py --no-slots skips this. [USER] [CODE ../../tools/fm1_install.py] [CODE ../../web/x0x_breaks.js] [CODE ../../web/x0x_installer.html]
-FLS-17. A downgrade to an older X0X (2 x 80 KiB) cannot keep slot 3 or slot 2 data larger than 80 KiB in place. The install flow (FLS-16) saves them and writes slot 3 back into a free older slot when it fits. A stock firmware install can erase the VM (the store and slot 3). Slots 1 and 2 are in stock USRFLASH, which the stock firmware can also use. The install flow saves every slot before a stock install. It tells the end user to restore the archive after the next X0X install. [USER] [CODE ../../tools/fm1_install.py]
-FLS-18. The update loader drops a stale update record only where one matches (bytes +6 = 0x5441 and a nonzero CRC16). It looks only at a 4 KiB boundary − 256 in 0x9D000-0xBFFFF. Sample data in slot 3 can match by chance (about 2^-32 for each sector). The loader stays unchanged, because it must still drop the stock records. [CODE ../loader/ldr_core.c]
+FLS-17. Installing this 2-slot firmware over a 3-slot unit keeps slots 1 and 2 in place (same flash offsets) and treats slot 3 as at risk. The install flow (FLS-16) saves it and writes it into a free remaining slot when one is large enough. A downgrade to an older X0X (2 x 80 KiB) cannot keep a slot 2 image larger than 80 KiB in place. A stock firmware install can erase the VM (the store and the 44 KiB window). Slots 1 and 2 are in stock USRFLASH, which the stock firmware can also use. The install flow saves every slot before a stock install. It tells the end user to restore the archive after the next X0X install. [USER] [CODE ../../tools/fm1_install.py]
+FLS-18. The update loader drops a stale update record only where one matches (bytes +6 = 0x5441 and a nonzero CRC16). It looks only at a 4 KiB boundary − 256 in 0x9D000-0xBFFFF. Old bytes in the 44 KiB window at 0xB0000 can match by chance (about 2^-32 for each sector). The loader stays unchanged, because it must still drop the stock records. [CODE ../loader/ldr_core.c]
+FLS-19. The boot screen can be changed from the installer page while X0X is running.
+  - With nothing stored, the screen is the original words "X0X" and "909 808 303 303 BREAK" and no picture. The sound does not change.
+  - A custom record replaces those two lines and may add a black-and-amber picture, 240 by 96 pixels, in the rows above the words. A color photo does not fit: 240 by 240 in full color is 115200 bytes, and one copy has room for 2924.
+  - The top line is at most 12 characters. The second line is at most 21. Empty lines are refused. The previous record stays.
+  - The new copy is written beside the old one. The header is last. A picture that is too big, the wrong size, cut off, or failing its check is not shown. Pulling the cable before the keyboard confirms leaves the previous screen.
+  - If the keyboard cannot store it, the installer says so and does not claim the save. The previous screen stays.
+  - On the SMK-37 the copies are 0xAB000 and 0xAC000. Clearing a foreign firmware's store also clears them. The original words come back. On the FM-1 the copies are 0x9F000 and 0xFE000. Sample slots are not used. [CODE app/boot_screen.h] [CODE app/editor.c] [CODE app/main_fm1.c] [CODE ../../web/boot_screen.js]
 
 ## 17. Known limitations
 
@@ -512,8 +519,8 @@ LIM-04. Clip mode cannot show clips outside the Loopy APC 8x5 box. Change the Lo
 LIM-05. Old-page cells stay lit after a change to a page with fewer than 3 rows or 3 columns of clips. [APC 1.0-apc40]
 LIM-06. Loopy sends its MIDI clock to the port "X0X FM-1". The APC40 mkII port gets no clock. [APC 1.5-apc40]
 LIM-07. Nobody has verified the hardware LED colours and live clip launches end-to-end on the device. [APC "Verification performed"]
-LIM-08. User sample room at 44.1 kHz is (slot size − 512) × 2 / 44100 s. On the SMK-37, slot 1 holds 3.69 s (81,408 B of data) and slot 2 holds 5.55 s (122,368 B). Slot 3 holds 2.02 s (44,544 B). The total is about 11.26 s. The FM-1 has about 11 s (3 x 80 KiB).
-  - With the 22.05 kHz opt-in the room is double (about 22.5 s on the SMK-37). A loop is one piece: it must fit in one slot. [MANUAL §8] [CODE app/slots.c:15-34] (Was OQ-04. Resolved 2026-10-15. Values changed 2026-10-15 for 44.1 kHz and for the SMK-37 layout 2.)
+LIM-08. User sample room at 44.1 kHz is (slot size − 512) × 2 / 44100 s. On the SMK-37, slot 1 holds 3.69 s (81,408 B of data) and slot 2 holds 5.55 s (122,368 B). The total is 9.24 s (407,552 samples). The FM-1 has 7.38 s (2 x 80 KiB).
+  - With the 22.05 kHz opt-in the room is double (about 18.5 s on the SMK-37). A loop is one piece: it must fit in one slot. [MANUAL §8] [CODE app/slots.c:15-39] (Changed 2026-10-26: the third slot is gone. Was about 11.26 s on the SMK-37.)
 LIM-09. tools/build_smk_release.sh builds Pro and Elite packages only. It does not build MKE-P37. [CODE ../../tools/build_smk_release.sh:17-18]
 LIM-10. X0X tells the inputs USB, Bluetooth and TRS apart and follows the clock of one input (MID-15). On the SMK-37 the USB port has one cable. Thus the firmware cannot separate two sources on USB (for example Loopy and a DAW on the port "X0X FM-1"). Each tick of the two counts, the sequencer then runs at about double tempo, and a Start or Stop from either source acts.
   - Send clock to the port "X0X FM-1" from one source only. CLOCK SOURCE INTERNAL ignores all clock sources (MID-13). (Changed 2026-10-16: before, USB and Bluetooth together also counted twice.) [CODE app/engine.c midi_in] [CODE seq/sequencer.c seq_clk_take] [CODE usb.c ep1_rx]
@@ -541,12 +548,11 @@ SMC-06. On drum MIX and drum SEQ, the SMK pads edit the steps of the selected ki
 
 SMC-07. Accepted SMC fader, encoder and action feedback uses a temporary full control screen without a yellow SMC notice. After 1200 ms without activity, the underlying screen is redrawn. Presentation does not change its view, page, selection, menu or clip state. Repeated activity extends the interval. Panel input and intentional SMC navigation dismiss the screen immediately; no later restoration can overwrite that navigation. Help retains its card and confirmation retains its input lock. Clip-editor encoders show their actual field; clip-grid encoders remain inactive. [USER full SMC UI and return request, 2026-10-25] [CODE firmware/src/app/smc_mixer.c smc_ui_active smc_ui_draw]
 
-SMC-08. Mute keeps the intended level separate from audibility. A genuinely changed SMC fader sample for the same muted part or drum voice, reverb return or delay return can take over even before normal pickup. A first connection sample or parked repeat does not grant this exception. Accepted edits update the project level while the target stays muted; unmute preserves that intended level and acquired pickup. Untouched faders preserve the prior level. A different destination or external base-value edit revokes the exception until a new mute epoch; ordinary pickup still works. Target lock follows its captured destination. Reconnect seeds fresh physical history before another noncrossing muted gesture can claim it. Keyboard volume faders use the same moved-versus-untouched policy within their selected bank; switching banks requires normal pickup. Explicit rapid mute pairs remain distinct epochs even between scans. M6/M7 gate return output independently of saved or motion-played levels. M8 gates master volume, while fader 8 still edits FILTER. Mute buttons never write a substitute zero or restore a cached old level, and moving a fader never automatically unmutes. Deliberate edits keep the existing target-specific motion hold/REC behavior without erasing other lane data: active automation can resume after that hold expires. Existing part/drum mute trigger and tail behavior is unchanged. Runtime FX mute state clears on project reset and survives connection loss; it is not saved with the project. [CODE firmware/src/app/smc_mixer.c firmware/src/app/main_fm1.c firmware/src/app/ui.c firmware/src/dsp/fxbus.c]
-
-
 SMC-08. PLAY toggles sequencer playback, including a start queued before the audio loop runs. Holding a DAW Note button does not toggle repeatedly; release permits the next press. Outside drum MIX/SEQ, selecting another part retains ordinary sound-page selection. SELECT on the already-selected 909/808 opens its individual-sound mixer. In drum MIX, SELECT chooses another sound normally; pressing SELECT for the already-selected sound returns to main MIX. SELECT navigation does not open the temporary control screen or change transport. [CODE firmware/src/app/smc_mixer.c smc_button_apply]
 
 SMC-09. Physical Pause on the owner's captured NoteOn preset (90 5D 7F press, 90 5D 00 release) toggles captured SMC target-page lock once per press; release and held repeats do not retoggle. It captures full control targets, including drum bank and pattern/song identity, without opening a page or retaining an overlay. Locked SELECT and other target-changing SMC navigation are parked; keyboard navigation cannot redirect the captured controls. Unlock follows the current keyboard UI and resets pickup. Link loss/reconnect retains captured targets and rearms press edges; project reset clears the lock. Play remains play/pause; User MMC34 retains transport STOP because the capture established NoteOn input only. The existing Mackie NoteOn feedback route sends 90 5D 7F/00 at 512 ms phases while following and steady 7F while locked. Its physical Pause LED address remains unproven and requires native lamp observation on the exact candidate/preset before a hardware-pass claim. [USER retained Pause capture 2026-10-25] [CODE firmware/src/app/smc_mixer.c smc_lock_button smc_frame]
+
+SMC-10. An SMC knob's quick spin travels less far than the panel knob curve. A slow detent, and the first three detents of a spin, still move one value each. After that, detents closer than 45 ms move 2 values. Detents closer than 12 ms move 3 on a pot whose range is 100 or more, and 2 on a shorter pot. A wide pot is not doubled, so tempo does not jump by 16. A message that already bundles many detents multiplies only its first three; the rest count one each. A very fast 63-detent flick therefore moves 69 on a 0-127 pot, not 504. A turn that is not quick stays one value per detent. Named switches and short ranges (max under 24) stay one step. Values still stop at the ends; they do not wrap. Both directions use the same distance. The knob work stays in the main loop, so a spin while the sequencer plays does not take the audio render's silence path. Which parameter sits on which knob is unchanged. The device's own panel knobs keep the older curve. [USER 2026-10-26: quick SMC spins are too quick] [CODE firmware/src/app/ui.c accel firmware/src/app/smc_mixer.c smc_knob]
 
 ## 18. Open questions
 

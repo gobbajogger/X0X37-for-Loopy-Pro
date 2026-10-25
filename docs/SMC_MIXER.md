@@ -8,7 +8,7 @@ Fader, encoder and action feedback uses the full control screen instead of a yel
 
 | Screen | Faders | Encoders |
 | --- | --- | --- |
-| HOME | 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter | K1–5: corresponding part pan; K6: reverb decay; K7: delay feedback; K8: filter resonance |
+| HOME | 909, 808, 303A, 303B, BREAK, reverb, delay levels; master filter | K1–5: that part's own cutoff (127 is open); K6: reverb decay; K7: delay feedback; K8: filter resonance |
 | 909 MIX / 808 MIX; 909 SEQ / 808 SEQ | Track levels 1–8, or tracks 9–11 on faders 1–3 | Corresponding voice Pan in the active bank |
 | Other X0X pages | Main mixer, same as HOME | Four visible fields; knobs 5–8 inactive. Main MIX PARTS uses the HOME knob map. GLOBAL/PERFORM K3 and MIX/MASTER K4 control filter resonance |
 | Open menu | Main mixer, same as HOME | Six visible rows. Rows already on any active fader are parked and shown as ON FADER n; headings, actions and unused positions are inactive |
@@ -48,7 +48,8 @@ All required paths use buttons present in both the factory DAW and stock User pr
 
 | Control | Action |
 | --- | --- |
-| SELECT 1–5 outside drum MIX/SEQ | Select 909 / 808 / 303A / 303B / BREAK and open its sound pages; pressing the already-selected 909/808 opens that kit's individual-sound mixer |
+| SELECT 1, 2, 3 and 5 outside drum MIX/SEQ | Momentary effect on 909, 808, 303A and BREAK. Home + that button changes only its effect |
+| SELECT 4 outside drum MIX/SEQ | Select 303B and open its sound pages |
 | Up / Down, ordinary page | Cycle HOME, sound, sequence, generator (303 only), FX, MIX and song views |
 | Left / Right, ordinary page | Previous / next page within that view |
 | Bank Left / Right, drum sound page | Previous / next drum track, bounded at 1 and 11 |
@@ -68,7 +69,21 @@ All required paths use buttons present in both the factory DAW and stock User pr
 
 Channel Left/Right messages, if supplied by a custom mapping, also select drum tracks or clip fields. The stock 43-button preset does not require them. Returning from a Global menu restores the clip editor underneath it.
 
-Outside drum MIX and drum SEQ, strips 1–5 retain their part controls: **M** toggles the part's mute, **S** solos it while held, and **R** selects the part and toggles recording. Several held **S** buttons can solo several parts together. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY** toggles play/pause using the sequencer's existing start/stop operations, including a queued start; **STOP** stops and **REC** controls recording. Rewind and fast-forward move the selected part's pattern. Holding a DAW PLAY or SELECT Note does not repeat the action; release enables the next press. Stock User MMC has no release and retains one action per command. These actions do not send APC40 clip commands. Performance tests own the controls, clear temporary Solo and drain SMC input without editing.
+Outside drum MIX and drum SEQ, the SELECT buttons beside the 909, 808, 303A and BREAK faders are momentary effects. See the bus map below. **M** still toggles that part's mute, **S** still solos it while held, and **R** still selects the part and toggles recording. 303B's SELECT still opens that part. Drum MIX and drum SEQ keep SELECT on the drum.
+
+## Momentary effects on four buses
+
+The four buttons are the SELECT keys beside those faders. A press holds the effect. Releasing it returns the bus, without a click. A reverb or delay throw keeps ringing in the existing send after the finger comes up. Hold Home and press one of those buttons to change only that button's effect. Hold Home and press Left or Right to change the page. All four buttons are filled on every page.
+
+| Page | 909 | 808 | 303A | BREAK |
+| --- | --- | --- | --- | --- |
+| ROOM | short reverb throw | delay throw | high-pass | decay gate |
+| TIGHT | decay gate | short reverb throw | delay throw | high-pass |
+| ECHO | delay throw | decay gate | short reverb throw | delay throw |
+
+Each part's knob, including 303B, is that part's cutoff. It is applied on the bus. The master filter still comes after it. Hold Home and press Up to store the five cutoffs as the reset preset. Hold Home and press Down to snap back to that preset, or to fully open if none has been stored. The 303 mod wheel is unchanged.
+
+Several held **S** buttons can solo several parts together. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY** toggles play/pause using the sequencer's existing start/stop operations, including a queued start; **STOP** stops and **REC** controls recording. Rewind and fast-forward move the selected part's pattern. Holding a DAW PLAY or SELECT Note does not repeat the action; release enables the next press. Stock User MMC has no release and retains one action per command. These actions do not send APC40 clip commands. Performance tests own the controls, clear temporary Solo and drain SMC input without editing.
 
 ## Prepared target lock and physical identification limit
 

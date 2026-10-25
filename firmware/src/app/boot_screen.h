@@ -78,6 +78,7 @@ typedef struct boot_stage {
     uint8_t *buf;
     uint32_t cap, fill, t0;
     uint8_t armed;
+    uint8_t committed; /* END already committed; a lost reply may repeat END */
 } boot_stage_t;
 
 static uint32_t boot_u16(const uint8_t *p)
@@ -271,6 +272,7 @@ static int boot_begin(boot_stage_t *s, uint32_t now)
         s->buf[i] = 0;
     s->fill = 0;
     s->armed = 1;
+    s->committed = 0;
     s->t0 = now;
     return BOOT_OK;
 }
@@ -284,9 +286,24 @@ static int boot_write(boot_stage_t *s, uint32_t off, const uint8_t *p, uint32_t 
         s->armed = 0;
         return BOOT_LATE;
     }
-    if (!n || !p || n > 256u || off != s->fill) {
+    if (!n || !p || n > 256u) {
         s->armed = 0;
         return BOOT_BAD;
+    }
+    if (off != s->fill) {
+        uint32_t j;
+        if (off + n > s->fill) {
+            s->armed = 0;
+            return BOOT_BAD;
+        }
+        for (j = 0; j < n; j++) {
+            if (s->buf[off + j] != p[j]) {
+                s->armed = 0;
+                return BOOT_BAD;
+            }
+        }
+        s->t0 = now;
+        return BOOT_OK;
     }
     if (off + n > BOOT_REC_MAX || off + n > s->cap) {
         s->armed = 0;
@@ -302,8 +319,11 @@ static int boot_write(boot_stage_t *s, uint32_t off, const uint8_t *p, uint32_t 
 static int boot_end(boot_stage_t *s, boot_io_t *io, uint32_t sec0, uint32_t sec1, uint32_t now)
 {
     int rc;
-    if (!s->armed)
+    if (!s->armed) {
+        if (s->committed)
+            return BOOT_OK;
         return BOOT_BAD;
+    }
     if (now - s->t0 > BOOT_MS) {
         s->armed = 0;
         return BOOT_LATE;
@@ -314,6 +334,8 @@ static int boot_end(boot_stage_t *s, boot_io_t *io, uint32_t sec0, uint32_t sec1
     }
     rc = boot_commit(io, sec0, sec1, s->buf, s->fill);
     s->armed = 0;
+    if (rc == BOOT_OK)
+        s->committed = 1;
     return rc;
 }
 
@@ -321,6 +343,7 @@ static void boot_abort(boot_stage_t *s)
 {
     if (s) {
         s->armed = 0;
+        s->committed = 0;
         s->fill = 0;
     }
 }

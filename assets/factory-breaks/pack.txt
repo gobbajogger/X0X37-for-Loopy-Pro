@@ -1,0 +1,3 @@
+# file samples bars name — full loops, not a shared prefix
+909GR.adpcm 220500 2 909 GR
+909FL.adpcm 220500 2 909 FL

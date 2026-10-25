@@ -324,3 +324,5 @@ and `install.log`. This isolated ledger changes Markdown only. The integrated
 firmware lane remains clean and unchanged. All-input silence remains unresolved.
 New diagnostics are installed, but physical input delivery remains NOT TESTED.
 No external push or publication was performed.
+
+Slot map (owner, 2026-10-26, not a Bluetooth change, not installed): user sample slots go from 3 to 2. Locked settings `slot_offsets`, `slot_sizes` and `pkg_slotmap` move with the source. Slots 1 and 2 stay at 0xC2000 (80 KiB) and 0xD6000 (120 KiB). The 44 KiB window at 0xB0000 is no longer a sample slot. The store still stops before it.

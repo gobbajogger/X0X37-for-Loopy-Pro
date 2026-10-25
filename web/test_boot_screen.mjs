@@ -49,6 +49,11 @@ const saved = await bootTransfer(scripted([
 ]), factory.bytes);
 check("a confirmed save is the only success", saved.ok === true && saved.ended === true);
 
+const retriedEnd = await bootTransfer(scripted([
+  frame(43, [0]), okWrite(0), null, frame(46, [0]),
+]), factory.bytes);
+check("a lost end reply retried as success", retriedEnd.ok === true && retriedEnd.ended === true);
+
 const refused = await bootTransfer(scripted([
   frame(43, [0]), okWrite(0), frame(46, [1]),
 ]), factory.bytes);

@@ -47,6 +47,7 @@ static void ui_say(const char *a,const char *b) { (void)a;(void)b; }
 static void mute_part(int p) { (void)p; }
 #define mute_track(k,t) ((void)(k),(void)(t))
 static void smc_toggle_fx(int n) { fx=n; }
+static int smc_fx_try(uint8_t note, int mmc) { (void)note; (void)mmc; return 0; }
 static void smc_view(int v,int p) { last_view=v; last_page=p; }
 static int smc_bank(uint8_t n) { (void)n; return 0; } /* bank logic has its own routing test */
 #define seq_cue_part(s,p,n) ((s)->ppat[p]=(n))

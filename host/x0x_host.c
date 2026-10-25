@@ -16,7 +16,7 @@
  *   clipmode 0|1                 the clip mode flag for the arrow route only
  *   master N                     MASTER pot 0..4096
  *   param T V I VALUE            a sound pot (engine.h target, voice, index), as its knob would
- *   slot K NAME A.wav [B.wav..]  user sample slot K (0..2): one loop (zone) per WAV, encoded here
+ *   slot K NAME A.wav [B.wav..]  user sample slot K (0..1): one loop (zone) per WAV, encoded here
  *   slotimg K F.hdr F.bin       slot K from tools/upload_breaks.py --dry-run's image (the device format)
  *   midi B0 B1 B2                incoming USB MIDI message (hex bytes)
  *   wav FILE | wavstop           start / stop recording the output
@@ -158,8 +158,8 @@ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
  *  - slotimg: a slot image exactly as tools/upload_breaks.py writes it, read by the firmware's own
  *    slots.c (the device path: what the upload tool writes is what the firmware parses);
  *  - slot: WAVs encoded here, one zone each (quick, for scenarios that do not test the format). */
-static uint8_t slot_img[3][0x1E000];               /* the largest slot (SMK-37 slot 2: 120 KiB) */
-static int slot_is_img[3];
+static uint8_t slot_img[PLAT_NSLOTS][0x1E000];    /* the largest slot (SMK-37 slot 2: 120 KiB) */
+static int slot_is_img[PLAT_NSLOTS];
 #define SMP_USER_XIP(k) ((const uint8_t *)slot_img[k])
 static uint32_t st_crc32(const void *p, uint32_t n)
 {
@@ -932,6 +932,10 @@ int main(int argc, char **argv)
             int k, z = 0;
             strtok(rest, " \t\n");                          /* K */
             k = atoi(a);
+            if (k < 0 || k >= PLAT_NSLOTS) {
+                printf("line %d: no sample slot %d\n", lineno, k);
+                return 2;
+            }
             tok = strtok(0, " \t\n");                      /* NAME */
             snprintf(slot_name[k], sizeof slot_name[k], "%s", tok ? tok : "");
             slot_nz[k] = 0;
@@ -946,7 +950,7 @@ int main(int argc, char **argv)
             int k = atoi(a);
             FILE *fh = fopen(b, "rb"), *fd = fopen(c, "rb");
             size_t nh, nd;
-            if (!fh || !fd || k < 0 || k > 2) {
+            if (!fh || !fd || k < 0 || k >= PLAT_NSLOTS) {
                 printf("line %d: cannot read the slot image\n", lineno);
                 return 2;
             }
@@ -975,7 +979,12 @@ int main(int argc, char **argv)
             }
             seq.ch[part] = (uint8_t)(chn ? chn - 1 : SEQ_CH_OFF);
         } else if (!strcmp(cmd, "brkwrap")) {      /* brkwrap 0|1: 8 SLICES off or on, current break pattern */
-            proj.pat[seq.ppat[TRK_BRK]].brk.slice_mode = (uint8_t)(atoi(a) ? 1 : 0);
+            pattern_t *bp = &proj.pat[seq.ppat[TRK_BRK]];
+            uint8_t m = (uint8_t)(atoi(a) ? 1 : 0);
+            if (bp->brk.slice_mode != m) {
+                bp->brk.slice_mode = m;
+                engine_brk_slice_mode_reconcile();
+            }
         } else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4, src = (uint32_t)atoi(line_d) & 3u;   /* midi S D1 D2 [SRC] */

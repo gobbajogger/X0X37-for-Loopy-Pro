@@ -12,7 +12,7 @@ mutants = {
     'pause-no-drop-recovery': ('            else smc.lock_down = 0;', '            else /* negative: lost Pause release stays parked */;'),
     'pause-old-stop-led': ('return smc.locked || ((plat_ms() >> 9) & 1u);', 'return !seq.playing;'),
     'play-no-pause': ('if ((seq.playing || seq.req_start || seq.req_cont) && !seq.req_stop)', 'if (0)'),
-    'select-no-repeat': ('int repeat_drum = strip < NKIT && ui.part == strip && ui.overlay == O_NONE;', 'int repeat_drum = 0;'),
+    'fx-button-navigates': ('if (smc_fx_try(note, mmc))\n        return;', 'if (0 && smc_fx_try(note, mmc))\n        return;'),
     'lock-redirect-fader': ('if (smc.locked) return smc.lock_fader[n];', 'if (smc.locked) return smc_home_target(n);'),
     'lock-redirect-knob': ('r = smc.lock_knob[n];', 'r = NONE;'),
 }

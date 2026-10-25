@@ -114,6 +114,7 @@ int ui_project_busy(void);
 int ui_project_load(void);
 int ui_project_reset(void);
 int ui_project_save(void);
+int ui_boot_flash_busy(void);            /* transport or notes active: refuse boot-screen flash */
 void ui_say(const char *a, const char *b);
 #if BOARD_SMK37
 /* BLE TIMER5 producer; smc_poll and smc_frame consume from the main loop. */

@@ -30,7 +30,10 @@
  *     0x9B000-0x9CFFF  app slot end (0x9B520, APP_SLOT 0x97400 as stock), cfg_tool, region table, cfg
  *   0x9D000-0xAFFFF  VM: X0X store (storage.c: 7 objects, A/B, 0x9D000-0xAAFFF; boot screen
  *                    copies 0xAB000 and 0xAC000; spare 0xAD000-0xAEFFF; owner tag 0xAF000)  FL_DATA
- *   0xB0000-0xBAFFF  VM: user sample slot 3 (44 KiB; app/slots.c)                 FL_SMPV
+ *   0xB0000-0xBAFFF  VM spare, 44 KiB, not a sample slot and not linker code. The app
+ *                    code region ends at the Bluetooth block (0x8B000). The settings store,
+ *                    this spare, the update area and calibration sit after that. Moving
+ *                    calibration would not join this spare to the code the linker can use. FL_SMPV
  *   0xBB000-0xBFFFF  VM: M-UPGRADE loader staging + update record (ota.c)          FL_OTA
  *   0xC0000-0xC0FFF  BTIF (BT pairing)              NEVER
  *   0xC1000-0xC1FFF  USRTRIM (key/pad/wheel calibration, "trimdat")   NEVER
@@ -54,7 +57,7 @@
 #define FL_PLAIN_LO     0x0009D000u                /* plain XIP window from the VM start */
 #define FL_DATA_LO      0x0009D000u                /* X0X store */
 #define FL_DATA_HI      0x000B0000u
-#define FL_SMPV_LO      0x000B0000u                /* user sample slot 3 in the VM spare (app/slots.c) */
+#define FL_SMPV_LO      0x000B0000u                /* VM spare, not a sample slot (app/slots.c) */
 #define FL_SMPV_HI      0x000BB000u
 #define FL_OTA_LO       0x000BB000u                /* M-UPGRADE loader staging, ota.c */
 #define FL_OTA_HI       0x000C0000u

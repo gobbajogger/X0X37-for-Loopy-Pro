@@ -4,7 +4,7 @@
 /* X0X's subset of Felucca's editor protocol (web/EDITOR_PROTOCOL.md):
  *   F0 7D 46 4C cmd args.. F7
  * INFO (1), PING (25) and the sample-slot commands SMP_BEGIN .. SMP_INFO (11..15), so
- * tools/fm1_sample_upload.py loads break loops into the three slots unchanged. The
+ * tools/fm1_sample_upload.py loads break loops into the user slots unchanged. The
  * parameter / preset / track commands are Felucca's instrument and are not answered. */
 #define ED_HDR0 0x7D
 #define ED_HDR1 0x46
@@ -495,6 +495,10 @@ static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
             ed_b(BOOT_NOFLASH);
             return;
         }
+        if (ui_boot_flash_busy()) {
+            ed_b(BOOT_BUSY);
+            return;
+        }
         if (!store_stage_held()) {
             b = store_stage_lock(&cap);
             if (!b) {
@@ -529,6 +533,10 @@ static void ed_boot(uint32_t cmd, const uint8_t *a, uint32_t na)
         return;
     }
     if (cmd == ED_BOOT_END) {
+        if (ui_boot_flash_busy()) {
+            ed_b(BOOT_BUSY);
+            return;
+        }
         rc = boot_end(&bst, &bio, BOOT_SEC0, BOOT_SEC1, fm1_ms);
         boot_finish(rc);
         return;

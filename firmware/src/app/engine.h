@@ -10,7 +10,9 @@
  *   T_303           voice = 0 / 1 (303 A / B)
  *   T_BRK           voice 0: breaks.h params (the per-pattern ones live in the pattern)
  *   T_FX            voice 0: fxbus.h params (reverb, delay, master drive / comp)
- *   T_MIX           voice = part 0..4: Level, Rev send, Dly send (drums: on top of the per-voice sends)
+ *   T_MIX           voice = part 0..4: Level, Rev send, Dly send, Pan, channel cutoff
+ *                   (drums: sends on top of the per-voice sends; cutoff is on the bus,
+ *                   before the master filter)
  *   T_MST           voice 0: master filter + limiter
  */
 #pragma once
@@ -25,8 +27,9 @@ enum { T_909, T_808, T_303, T_BRK, T_FX, T_MIX, T_MST, NTARGETS };
 #define T_VEL (T_PROB + 1)             /* drum step velocity 1..127 (not in sound_t); same voice packing as T_PROB.
                                         * MOT_NONE / base 0 = legacy accent / accent_q7 law. 303s keep bstep.velocity. */
 enum { PART_909, PART_808, PART_303A, PART_303B, PART_BRK, NPARTS };
-/* T_MIX, per part: level, reverb send, delay send, pan (64 = centre) */
-enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_NPARAMS };
+/* T_MIX, per part: level, reverb send, delay send, pan (64 = centre),
+ * channel cutoff (127 = open, before the master filter). */
+enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
 #define NPARAMS_MAX 32                 /* params per (target, voice); fills at Chicago aux PBend/Damp 30..31 */
 
@@ -44,6 +47,7 @@ void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo 
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */
 void engine_fx_mute(uint8_t mask);                          /* runtime output gates, never edits intended pots or motion */
 uint8_t engine_fx_muted(void);
+void engine_smc_busfx(uint8_t down, const uint8_t effect[4]); /* four momentary bus effects; effect may be null */
 void engine_motion_reset(void);                             /* lanes replaced (undo): knobs to their own values */
 /* overload guard (engine.c): the platform reports each block's load after rendering it */
 void engine_load(uint32_t pct, uint32_t frames);           /* ISR, after engine_render */
@@ -88,6 +92,7 @@ void engine_bass_on_velocity(int part, int note, int accent, int slide, int velo
 void engine_bass_off(int part);
 void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
 void engine_brk_live(int key, int down);
+void engine_brk_slice_mode_reconcile(void);                 /* clear MIDI slice holds after 8 SLICES toggles */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes);
