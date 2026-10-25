@@ -323,10 +323,62 @@ static int midpoll_fresh_during_link(uint8_t cursor, int up, int old_release)
        "no stale re-latch after the fresh host release");
  return 1;
 }
+/* Saturating the BLE central's SPSC ring with unrelated instrument-channel
+ * traffic must not turn a rejected foreign NoteOff into a lost *SMC* Solo
+ * release. The decoder already rejects channels 2..15 in User mode, so its
+ * producer's overflow accounting must obey that exact same channel policy.
+ * Accepted channels must still fail safe if their legitimate release is lost.
+ */
+static int ble_foreign_overflow(uint8_t cursor, int user, unsigned ch, int zero_on)
+{
+ reset(cursor,user);
+ ble_note(user,1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],"initial valid Solo is held");
+ int old_presses=noteon;
+ uint32_t lost_before=smc_ble_solo_release_lost;
+ uint8_t dropped_before=smc_dropped;
+ const uint8_t filler[3]={0xB1u,40u,64u};
+ for(unsigned j=0;j<SMC_Q;j++) smc_ble_midi(filler,3u);
+ CHECK((uint8_t)(smc_qw-smc_qr)==SMC_Q,"foreign filler saturates real BLE FIFO");
+ const uint8_t release[3] = {(uint8_t)((zero_on ? 0x90u : 0x80u)|ch),8u,0u};
+ smc_ble_midi(release,3u);       /* rejected by full ring, not decoder */
+ int owned=(ch==0u || (user && ch==15u));
+ CHECK(smc_ble_solo_release_lost-lost_before==(uint32_t)owned,
+       "only an accepted SMC channel may register an overflowed Solo release");
+ CHECK((uint8_t)(smc_dropped-dropped_before)==1u,"overflow counts dropped event");
+ smc_poll();
+ CHECK(smc_qr==smc_qw && noteon==old_presses,
+       "foreign ring traffic drained without phantom Solo commands");
+ CHECK(!!solos_on==!owned && !!smc.solo_target[0]==!owned,
+       "foreign overflow cannot release Solo; owned lost NoteOff must clear it");
+ smc_poll();
+ CHECK(!!solos_on==!owned,"idle poll cannot replay lost-release accounting");
+ if(owned) { ble_note(user,1); smc_poll(); }
+ CHECK(solos_on,"fresh valid Solo remains available after overflow");
+ ble_note(user,0);
+ smc_poll();
+ CHECK(!solos_on && !smc_project_active(),
+       "genuine accepted Solo release still works after recovery");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
+ /* Focused overflow suite, used for negative controls and CI triage. */
+ if (getenv("SMC_ONLY_FOREIGN_OVERFLOW")) {
+  for(unsigned user=0;user<2;user++)
+   for(unsigned ch=0;ch<16;ch++)
+    for(int zero_on=0;zero_on<2;zero_on++)
+     for(unsigned i=0;i<sizeof cursors;i++) {
+      if(!ble_foreign_overflow(cursors[i],user,ch,zero_on)) return 1;
+      ++cases;
+     }
+  printf("SMC BLE foreign overflow: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
  /* Only the newly added interleaved-post-edge regression, suitable for
   * targeted fault injection; ordinary runs execute the complete suite. */
  if (getenv("SMC_ONLY_FRESH_CUTOFF")) {
@@ -340,6 +392,13 @@ int main(void)
          cases,cases,checks);
   return 0;
  }
+ for(unsigned user=0;user<2;user++)
+  for(unsigned ch=0;ch<16;ch++)
+   for(int zero_on=0;zero_on<2;zero_on++)
+    for(unsigned i=0;i<sizeof cursors;i++) {
+     if(!ble_foreign_overflow(cursors[i],user,ch,zero_on)) return 1;
+     ++cases;
+    }
  for (unsigned i=0;i<sizeof cursors;i++) {
   for(int up=0;up<2;up++)
    for(int fresh=0;fresh<3;fresh++) {

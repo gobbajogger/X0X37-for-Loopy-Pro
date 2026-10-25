@@ -151,7 +151,12 @@ void smc_ble_midi(const uint8_t *msg, uint8_t len)
         if (len == 3u && (proj.set.bt & PROJ_BT_SMC_CENTRAL) &&
             (smc_link_published & 1u) &&
             smc_is_solo_release(msg[0], msg[1], msg[2]) &&
-            (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER)))
+            /* Match smc_message's real User routing: channels 1 and 16,
+             * not arbitrary 2..15. A foreign dropped NoteOff must never
+             * cancel a legitimately held SMC Solo on the next poll. */
+            (!(msg[0] & 15u) ||
+             ((proj.set.bt & PROJ_BT_SMC_USER) &&
+              (msg[0] & 15u) == 15u)))
             smc_ble_solo_release_lost++;
         smc_dropped++; return;
     }

@@ -1,0 +1,71 @@
+{
+  "schema": "loopyx0x37.smc_source_handoff.v1",
+  "revision": "smc-pr122-ble-foreign-overflow-r19-20261025",
+  "producing_role": "LoopyX0X37 SMC Transport source specialist",
+  "intended_owner_behavior": "With BLE input queue saturated, dropping a NoteOff from unrelated instrument channels 2..15 must NOT cancel an SMC Solo held on channel 1/16; dropping a legitimate channel-1 NoteOff, or channel-16 NoteOff in User mode, must clear its held Solo for safety. Fresh presses/releases, preset routing, MMC, feedback and reconnect behavior remain valid.",
+  "real_defect": "R18 smc_message rejects BLE User channels 2..15, but smc_ble_midi's full-ring lost-Solo-release accounting admitted any channel whenever User mode was on; a rejected foreign NoteOff incremented smc_ble_solo_release_lost and the next smc_poll cleared a legitimate Solo.",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr_number": 122,
+    "isolated_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+    "verified_parent_commit": "3e442f19cb93a19b260ed6e8933b0caba9dd833f",
+    "parent_root_tree": "8b724d55f8ee976a9f95706d28cccb3bb49ae898",
+    "parent_firmware_compiler_tree": "2694c70c290b289e84a0721e09f2b3787dac3b02",
+    "new_firmware_compiler_tree": "9575dd6bcd05ff41996e9bc6592d8371a190fbbe",
+    "prior_production_blob": "4833a57132112312ecabad4d49dab687780c4a87",
+    "new_production_blob": "4e0c0ffad570a88848e8ab34f8ed38c303c6cc90",
+    "prior_solo_test_blob": "e29f0155718c7e91b75bd96a2b4f1a7ab17a0e09",
+    "new_solo_test_blob": "3988fae836f197e1f9cacabb9c389b25a98cffc8",
+    "changed_paths": [
+      "firmware/src/app/smc_mixer.c",
+      "tests/host/smc_preset_solo_lifetime_test.py",
+      "docs/scheduler-handoffs/smc-pr122-ble-foreign-overflow-20261025-r19.json"
+    ],
+    "unchanged_inherited_from_parent": [
+      "ble/",
+      "assets/",
+      "tools/",
+      "build.sh",
+      "firmware other than src/app/smc_mixer.c"
+    ]
+  },
+  "implementation": "Narrow the full-ring Solo release-loss filter to channel 1 or channel 16 while User mode is selected, matching the maintained smc_message direct BLE channel policy. No queue size, thread ownership, Solo NoteOff ISR, protocol, clock, or controller change.",
+  "producer_native_checks": {
+    "compiler_matrix": [
+      "gcc 14.2.0 plain",
+      "gcc 14.2.0 UBSan",
+      "gcc 14.2.0 ASan+UBSan",
+      "clang 17.0.0 plain",
+      "clang 17.0.0 UBSan",
+      "clang 17.0.0 ASan+UBSan"
+    ],
+    "status": "48/48 executed outcomes matched expected observations",
+    "baseline_negative": "6/6 R18 exact-production-C negative controls exit 1 at the new foreign-channel lost-release assertion",
+    "corrected_focused": "6/6 runs exit 0, 384/384 overflow scenarios per configuration",
+    "corrected_existing_suites": "36/36 production-C source-extraction suite runs exit 0, including modified Solo suite 594/594 scenarios per configuration; BLE length 141, preset 84, reconnect 16, MMC STOP 96 and feedback 27884 checks each profile",
+    "meaningful_stimuli": "Real smc_ble_midi producer, full 32-item FIFO, link-up status, malformed-free MIDI releases on channels 1..16, NoteOff and zero-velocity NoteOn, DAW/User presets, six FIFO wrap cursors, smc_poll consumer and subsequent fresh controls",
+    "observed_negative": "R18 increments smc_ble_solo_release_lost for foreign channel 2 when User is enabled, which triggers Solo clear; corrected source does not, but genuine owned dropped releases still clear Solo",
+    "test_surface": "Production-C function extraction with mocked ISR/UI/BLE callbacks, not complete firmware, device or browser testing",
+    "log_zip_name": "LoopyX0X37-SMC-Foreign-NoteOff-Overflow-R19-20261025.zip",
+    "log_zip_sha256": "cf7c6fba29b208e37aac893d4163f379cb89bee08a3d850321237756f2196a9e",
+    "log_zip_size_bytes": 68762,
+    "matrix_stdout_sha256": "163765d7e8e84c61a22fc68dd471918bd6b8445a49256fd90c9bb1f0596b72fe",
+    "run_json_sha256": "9db6a160ef46bd0a3e3399f312cf9884c5953c4f789524c4f12f5f6e73d0f748",
+    "caveat": "First checker report mislabeled six passing feedback runs because it expected literal ' PASS' rather than the test's '0 failed'; runner marker was corrected and all 48 executions rerun, all matching expectations. No unrun or failed check called PASS."
+  },
+  "receiving_existing_roles": {
+    "Hourly Build": "Fresh R19 firmware compiler-input tree differs from R18. Compile native Elite/Pro plus matching controller BUILD_ONLY on exact source and separately pin SDK/toolchain/config/model/CRC/SHA256/budget; do not await QA, hardware or hosting.",
+    "Independent QA": "Independently review full new source/root and execute real overflow, positive NoteOff, ISR/phase/preset/reconnect/performance/clock negatives; this producer evidence is not independent acceptance.",
+    "Sole Safe Merge": "Do not automatically graft R19 onto the already merged first-NIGHTLY candidate. Independently assess necessity and integrate only after the distinct candidate's separate QA/build gates.",
+    "Website Publisher": "No publication authority conveyed by this source handoff."
+  },
+  "install_status": "NOT INSTALLABLE / NOT PUBLISHED / DEVICE NOT TESTED",
+  "prohibited_actions_not_taken": [
+    "protected main/nightly/gh-pages writes",
+    "firmware publication",
+    "device flash",
+    "production promotion",
+    "proprietary controller/SDK/DSP/sample publication",
+    "new automation or duplicated worker"
+  ]
+}
