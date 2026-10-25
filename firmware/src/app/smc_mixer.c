@@ -305,11 +305,17 @@ static uint8_t smc_scaled(pref_t r)
 /* Temporary presentation only: the underlying ui/clip state is never replaced or
  * restored. A navigation edge cancels this owner rather than scheduling a write. */
 #define SMC_UI_MS 1200u
-static struct {
+struct smc_ui_state {
     uint32_t until, context;
     uint8_t on, kind, strip, action;
     char name[24], value[24];
-} smc_ui;
+};
+/* Byte buffer (not a naked struct): IPA-SRA must not split fields into
+ * separate BSS symbols — each split field costs a 6-byte abs load on pi32.
+ * Same XIP fit technique as the Stage-2 peek repair; applied to the current
+ * temporary full-control screen that replaced mapped-page peek on nightly. */
+static uint8_t smc_ui_raw[sizeof(struct smc_ui_state)];
+#define smc_ui (*((struct smc_ui_state *)(void *)smc_ui_raw))
 
 static uint32_t smc_ui_context(void)
 {

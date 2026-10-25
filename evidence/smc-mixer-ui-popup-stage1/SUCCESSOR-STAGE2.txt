@@ -1,0 +1,9 @@
+Stage 2 — Implement SMC mixer UI page popup/hold/restore.
+
+You are a fresh stage-2 implement thread in the seven-stage workflow.
+Read docs/audit/smc-mixer-ui-popup-2026-10-22.md and evidence/smc-mixer-ui-popup-stage1/HANDOFF.md.
+Base revision e00741e (or the stage-1 tip that contains that audit). Branch cursor/smc-mixer-ui-popup-stage2-5686.
+
+Implement: when SMC main-mixer faders/knobs move, temporarily show the mapped X0X page (MIX PARTS / FX REVERB|DELAY / MIX MASTER), hold ~1200 ms from last move, restore previous view/page/mixsel without set_view. Keep pickup notices. No peek in clip/help/ASK/perf. Host tests required. No firmware install (local stage 6 only). Do not touch page-lock work.
+
+When done: commit, push, PR, start exactly one fresh stage-3 test thread, then stop.

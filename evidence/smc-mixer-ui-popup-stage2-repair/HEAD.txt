@@ -1,0 +1,7 @@
+repair_branch cursor/smc-mixer-ui-popup-stage2-repair-5686
+tip_at_record 08055212d4fe7652b2f80f1bff3da19960b2fd0e
+stage3_must_use git fetch origin cursor/smc-mixer-ui-popup-stage2-repair-5686 && git rev-parse FETCH_HEAD
+parent_failed 5109ef613d212ce8a261ddf75ee1f0e844b0bbbc
+implementation_base ad4f311
+code_commit 0ad446e
+recorded_utc 2026-10-22T15:58:24Z
