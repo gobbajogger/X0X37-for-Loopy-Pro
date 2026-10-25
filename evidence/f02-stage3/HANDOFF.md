@@ -11,9 +11,10 @@ Repair commit: `765695f`.
 Test evidence: `evidence/f02-stage3/CHECKS.md`.
 Deferred (unchanged): `evidence/f02-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f02-stage3/SUCCESSOR-STAGE4.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 4 id is recorded on this remote tip.
+Successor agent id: `bc-e7569c05-bb32-5aee-afea-aa6c66592515`.
+Successor URL: https://cursor.com/agents/bc-e7569c05-bb32-5aee-afea-aa6c66592515
+Successor source: `desktop` (CreateAgent). Name: `F02 stage4 validate`. `startingRef`: `cursor/f02-stage3-fb90`.
+Handoff status: **complete**. Owner-visible Stage 4 is recorded on this remote tip. Stage 3 ownership ends.
 
 ## Test summary
 
