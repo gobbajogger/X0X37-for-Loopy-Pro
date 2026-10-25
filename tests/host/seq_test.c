@@ -147,7 +147,7 @@ static void test_303(void)
     b->step[2] = (bstep_t){41, G_NOTE | BS_ACCENT, 0};           /* reached by slide, accented */
     b->step[3] = (bstep_t){41, G_TIE, 0};                        /* tie: 2 held through 3 */
     b->step[4] = (bstep_t){0, G_REST, 0};
-    b->step[5] = (bstep_t){43, G_TIE, 0};                        /* tie after rest = a note */
+    b->step[5] = (bstep_t){43, G_TIE, 0};                        /* orphan tie after rest: silent (BAS-03) */
     b->transpose = 26;                                        /* +2 */
     seq_start(&S);
     run((uint32_t)(step * 8));
@@ -163,7 +163,7 @@ static void test_303(void)
     CHECK(off > i, "no gate off between a slide and its target");
     CHECK(off >= 0 && abs((int)evs[off].t - (int)(3.5 * step + 0.5)) <= 1, "tie holds step 3 into step 4, whose gate falls at its half (%u, want %.0f)", off >= 0 ? evs[off].t : 0, 3.5 * step);
     i = find(E_ON, 0, off);
-    CHECK(i >= 0 && evs[i].b == 45 && abs((int)evs[i].t - (int)(5 * step + 0.5)) <= 1, "tie after a rest plays as a note");
+    CHECK(i < 0 || abs((int)evs[i].t - (int)(5 * step + 0.5)) > 1, "orphan tie after a rest stays silent");
     printf("  303 gate / slide / tie / transpose: checked\n");
 }
 
