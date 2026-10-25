@@ -1,0 +1,9 @@
+  ok   sequencer
+  not-run host-build (Pillow)
+  ok   project-stage
+  ok   bass303-amp-adsr
+  ok   chicago-arp
+  ok   chicago-fx-bridge
+  ok   chicago-aux
+  skip SMK-37 Pro package tests (needs build/smk37 app/loader and AC79_SDK; run ./build.sh --board smk37)
+all tests passed
