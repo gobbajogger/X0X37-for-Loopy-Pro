@@ -134,6 +134,39 @@ async def catalog_approvals(browser):
     check(st['href'] is None and st['disabled'] and await p.evaluate('permissions===0 && entries.length===0'),f'{model}/{target}/{field} cached download/install denial precedes MIDI')
     check(not e,f'{model}/{target}/{field} no page errors')
     await p.close()
+async def catalog_hardware_facts(browser):
+ # These optional facts have the inverse semantics of approval hints: DEV may
+ # omit them or explicitly say false; true and malformed supplied values deny.
+ for model in ['pro','elite']:
+  for target in ['version','package']:
+   for field in ['device_verified','hardware_tested']:
+    p,e=await ready(browser,model=model)
+    selector={'target':target,'model':model,'field':field}
+    for present in [False,True]:
+     await p.evaluate('(a)=>{const v=qa.catalog().versions[0],r=a.target==="version"?v:v.models[a.model];if(a.present)r[a.field]=false;else delete r[a.field];qa.load();}',dict(selector,present=present))
+     await reply(p,model)
+     st=await state(p)
+     check(bool(st['href'] and st['href'].startswith('blob:')) and st['disabled'],f'{model}/{target}/{field} '+('false' if present else 'absent')+' preserves verified Blob and DEV acknowledgement gate')
+    await p.locator('#devagree').check()
+    check(not (await state(p))['disabled'],f'{model}/{target}/{field} DEV false permits acknowledged install')
+    for value in [None,0,1,'false','true',[],{},True]:
+     await p.evaluate('(a)=>{const v=qa.catalog().versions[0];(a.target==="version"?v:v.models[a.model])[a.field]=a.value;qa.load();}',dict(selector,value=value))
+     requests=await p.evaluate('pending.length')
+     if requests: await reply(p,model)
+     st=await state(p)
+     check(requests==0 and not st['image'] and st['href'] is None and st['disabled'],f'{model}/{target}/{field}={json.dumps(value)} denies before fetch')
+     await p.evaluate('(a)=>{const v=qa.catalog().versions[0];(a.target==="version"?v:v.models[a.model])[a.field]=false;qa.load();}',selector)
+     await reply(p,model)
+    await p.locator('#devagree').check()
+    check(not (await state(p))['disabled'],f'{model}/{target}/{field} false recovery enables acknowledged install before cached denial')
+    await p.evaluate('qa.installMocks()')
+    await p.evaluate('(a)=>{const v=qa.catalog().versions[0];(a.target==="version"?v:v.models[a.model])[a.field]="true";$("download").dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true}));$("go").dispatchEvent(new MouseEvent("click"));}',selector)
+    await p.wait_for_timeout(15)
+    st=await state(p)
+    check(st['href'] is None and st['disabled'] and await p.evaluate('permissions===0 && entries.length===0'),f'{model}/{target}/{field} cached malformed denial precedes MIDI')
+    check(not e,f'{model}/{target}/{field} no page errors')
+    await p.close()
+
 async def local_files(browser):
  p,e=await ready(browser)
  # Exercise the generated page's actual chooser handlers. Only File metadata and
@@ -191,6 +224,7 @@ async def main():
   print('Chromium',browser.version,flush=True)
   if args.approval_only or not (args.race_only or args.local_files_only):
    await catalog_approvals(browser)
+   await catalog_hardware_facts(browser)
   if args.approval_only:
    await browser.close();srv.shutdown()
    print(json.dumps({'checks':checks,'failed':len(failures),'failures':failures,'scope':'complete generated page catalog hints and existing public metadata; external fetch/MIDI mocked','source':args.source or 'current'}),flush=True)
