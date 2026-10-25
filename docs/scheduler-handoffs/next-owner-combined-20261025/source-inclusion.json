@@ -1,0 +1,83 @@
+{
+  "base": "08d3164a265123cb4c84e5104642fd93257d63d7",
+  "runtime_candidate": "ac11dc7cc363d78214e355a05c3b63601a2729ed",
+  "root_tree": "11a379224f058f5330b9ec59ae0bad19f81686d3",
+  "firmware_tree": "679b553e337673ecac4374df77c654a565dac35c",
+  "source_inclusion": [
+    {
+      "path": "firmware/src/app/smc_mixer.c",
+      "input": "PR168",
+      "head": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+      "blob": "5748a91151e2e3ddfe25830d34bf84e8c8f6be23",
+      "exact_match": true,
+      "candidate_blob": "5748a91151e2e3ddfe25830d34bf84e8c8f6be23"
+    },
+    {
+      "path": "firmware/src/app/ui.c",
+      "input": "PR168",
+      "head": "e75fb2a584aa22978f352697a5e36fc9f886c3c5",
+      "blob": "79066a6fb5f15eb1311d16e882a18d234cc8e818",
+      "exact_match": true,
+      "candidate_blob": "79066a6fb5f15eb1311d16e882a18d234cc8e818"
+    },
+    {
+      "path": "firmware/src/app/main_fm1.c",
+      "input": "PR189",
+      "head": "662ce39e43096fea1be159247ad46465034a0b28",
+      "blob": "bdb5c95d2d16722be6b4e7637fd88e1f450ecde7",
+      "exact_match": true,
+      "candidate_blob": "bdb5c95d2d16722be6b4e7637fd88e1f450ecde7"
+    },
+    {
+      "path": "firmware/src/app/engine.c",
+      "input": "PR188",
+      "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "blob": "9b3ba23cf5c1a772e582c09b287b400b9a6eacd7",
+      "exact_match": true,
+      "candidate_blob": "9b3ba23cf5c1a772e582c09b287b400b9a6eacd7"
+    },
+    {
+      "path": "firmware/src/seq/sequencer.c",
+      "input": "PR188",
+      "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "blob": "037a919c19404ecc397e99acf0189c91c4b65e7d",
+      "exact_match": false,
+      "candidate_blob": "d36924dfc7f1d2bf01f4d0d88ade93a906938160",
+      "integration_delta": "Clang minsize/noinline fire_step; skip overwritten noncommitting RANDOM lookahead; cache pre-callback direction with identical comparisons. Native400B recovery."
+    },
+    {
+      "path": "firmware/src/seq/sequencer.h",
+      "input": "PR188",
+      "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "blob": "2a52bed60de8ca41911a129a24be556afc033045",
+      "exact_match": true,
+      "candidate_blob": "2a52bed60de8ca41911a129a24be556afc033045"
+    },
+    {
+      "path": "firmware/src/dsp/bass303.c",
+      "input": "PR188",
+      "head": "4baf1160f69d8bbc55ec36ca2dae22c22856f3f4",
+      "blob": "d17aa407c0df944cd0b883f8d3b220b4fd3082a6",
+      "exact_match": true,
+      "candidate_blob": "d17aa407c0df944cd0b883f8d3b220b4fd3082a6"
+    }
+  ],
+  "preserved_newer_nightly": [
+    "tools",
+    "web",
+    ".agents",
+    "AGENTS.md",
+    "BUILDING.md",
+    "docs/rules",
+    "all existing acceptance tests"
+  ],
+  "excluded": [
+    "old PR168 historical tooling/installer removals",
+    "preset engine",
+    "dualSMC",
+    "unrelated persistence",
+    "hardware/GUI/flash",
+    "protected ref merges",
+    "public binaries"
+  ]
+}
