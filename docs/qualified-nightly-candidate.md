@@ -39,6 +39,15 @@ qualification either; that check existed only to satisfy a distribution license.
 A receipt may still include `corresponding_source` or `notices`. Those fields do
 not accept or reject a candidate. This tool does not write a PASS for a missing
 native-build receipt or for either retired gate.
+
+**Owner decision, 2026-10-25.** This gate removal is an owner decision and is not an accidental loss of protection.
+
+Distribution license: the project is MIT. There is no distribution license to qualify. Removing that gate is not a regression.
+
+Corresponding source and distribution notices: that check existed only to satisfy a distribution license. It does not block a nightly. Existing copyright notices stay. Removing the block is not a regression.
+
+Native-build receipt: a missing receipt is not a reason to stop work. An absent native-build gate does not reject a candidate. A present receipt that is not PASS still rejects. A hash mismatch or a failed package check still rejects. This does not waive an actual failed build. Waiving a missing receipt is not a regression.
+
 The tool validates receipts; it does not create independent reviews or prove
 that somebody's PASS claim is authentic. Existing owners must inspect those
 records before approving the site. Synthetic test receipts are never approvals.

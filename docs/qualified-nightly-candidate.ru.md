@@ -13,6 +13,17 @@ firmware nightly, модель, размер и SHA-256 пакета, измер
 совпадающий пользовательский контроллер и независимые проверки безопасности,
 резервного копирования, восстановления, прерывания OTA и выбора устройства.
 Лицензия на распространение и проверка соответствующих исходников не блокируют квалификацию. Отсутствующее подтверждение native-build не блокирует квалификацию. Присутствующее подтверждение native-build блокирует квалификацию, если статус не PASS или нет доказательства, в том числе при неуспешном статусе.
+
+**Решение владельца, 2026-10-25.**
+
+**Owner decision, 2026-10-25.** This gate removal is an owner decision and is not an accidental loss of protection.
+
+Distribution license: the project is MIT. There is no distribution license to qualify. Removing that gate is not a regression.
+
+Corresponding source and distribution notices: that check existed only to satisfy a distribution license. It does not block a nightly. Existing copyright notices stay. Removing the block is not a regression.
+
+Native-build receipt: a missing receipt is not a reason to stop work. An absent native-build gate does not reject a candidate. A present receipt that is not PASS still rejects. A hash mismatch or a failed package check still rejects. This does not waive an actual failed build. Waiving a missing receipt is not a regression.
+
 Минимум свободного пула — 8192 байта. Изменение кода установщика аннулирует
 подтверждение его проверки. Статусы PASS должны иметь ссылки на доказательства;
 эта программа проверяет их связи, но сама не является независимым рецензентом.

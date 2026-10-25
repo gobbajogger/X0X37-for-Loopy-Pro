@@ -2,6 +2,14 @@
 
 **Owner policy, 2026-10-23:** NIGHTLY is for rapid development, truthful build history, tested beta installers and owner-operated hardware-test candidates. Production firmware and installer behavior on `gobbajogger/X0X37-for-Loopy-Pro` `main` is for confidently working changes proven on matching real devices. NIGHTLY no longer requires a separate owner approval for every automated-check-passing DEV test candidate; model, integrity, backup and recovery gates are **not** waived. A distribution license is not required to qualify a nightly. Corresponding source does not block qualification when that check exists only to satisfy a distribution license. A missing native-build receipt does not reject a nightly candidate. A present native-build receipt which is not PASS with evidence still rejects.
 
+**Owner decision, 2026-10-25.** This gate removal is an owner decision and is not an accidental loss of protection.
+
+Distribution license: the project is MIT. There is no distribution license to qualify. Removing that gate is not a regression.
+
+Corresponding source and distribution notices: that check existed only to satisfy a distribution license. It does not block a nightly. Existing copyright notices stay. Removing the block is not a regression.
+
+Native-build receipt: a missing receipt is not a reason to stop work. An absent native-build gate does not reject a candidate. A present receipt that is not PASS still rejects. A hash mismatch or a failed package check still rejects. This does not waive an actual failed build. Waiving a missing receipt is not a regression.
+
 ## Channel gates
 
 | | NIGHTLY | PRODUCTION main / production Pages |
