@@ -615,7 +615,12 @@ static void switch_internal(seq_t *s)
         if (tr->to_next != NEVER)
             continue;
         left = (tr->ext_ticks == 0xFFu ? 1u : (uint32_t)(tps - tr->ext_ticks)) * per;   /* to the next step */
-        if ((tr->started ? next_pos(s, t, tr->pos, 0) : 0) & 1)
+        /* CLOCK SOURCE handoff uses the same next musical time slot as
+         * external clock scheduling. RANDOM note index is not timing parity. */
+        int odd = is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM
+            ? (tr->mut_steps & RANDOM_SWING_ODD) != 0
+            : ((tr->started ? next_pos(s, t, tr->pos, 0) : 0) & 1) != 0;
+        if (odd)
             left += swing_q8(s, rate, per * (uint32_t)tps);
         tr->to_next = left > since ? left - since : 0;
     }
