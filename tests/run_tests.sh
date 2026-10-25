@@ -174,6 +174,7 @@ run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/s
 run host-build sh host/build_host.sh   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
+run editor-ota-dispatch python3 -B tests/host/editor_ota_dispatch_test.py
 run project-stage sh tests/host/run_project_stage.sh
 run project-runtime sh tests/host/project_runtime_test.sh
 run font-pack python3 tests/font_pack_test.py

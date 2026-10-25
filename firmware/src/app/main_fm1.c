@@ -2072,6 +2072,7 @@ static void safe_main(void)
 static void fm1_main(void)
 {
     int32_t knob = 512 * 16;
+    int ota_pending;
     uint32_t last_frame = 0, k;
     uint8_t last_pat = 0xFF;
     {
@@ -2219,7 +2220,7 @@ static void fm1_main(void)
         }
         {   /* Project transfers cannot queue an update across COMMIT or ABORT. */
             int held = ui_project_busy();
-            ed_service();                           /* sample upload SysEx */
+            ota_pending = ed_service();             /* classify the shared pending frame once */
             if (held || ui_project_busy()) {
                 usb.ota_req = 0;
                 usb.uboot_req = 0;
@@ -2231,7 +2232,7 @@ static void fm1_main(void)
             fm1_delay_ms(30);
             fm1_reboot();
         }
-        if (!ui_project_busy())
+        if (ota_pending && !ui_project_busy())
             ota_service();                          /* M-UPGRADE uses the same main-loop scratch as project staging */
         if (!ui_project_busy() && usb.ota_req) {
             usb.ota_req = 0;
