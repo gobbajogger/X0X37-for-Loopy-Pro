@@ -93,6 +93,60 @@ static void internal_idle_mode_change_then_clock(unsigned target)
     CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
 }
 
+/* Early first Clock is not a tempo measurement: boot and INT->AUTO/EXT. */
+static void early_first_clock(unsigned target, int from_internal)
+{
+    seq_t s;
+    setup(&s, from_internal ? SEQ_CLK_INT : SEQ_CLK_AUTO);
+    advance(&s, FS / 20u); /* 50 ms of silence before changing CLOCK SOURCE */
+    s.clk_src = (uint8_t)target;
+    advance(&s, FS / 20u); /* 50 ms before first Loopy MIDI F8 */
+    CHECK(s.clk_cur == target);
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_q == 1u);
+    CHECK(s.ext_period == 0u); /* no previous tick to measure */
+    CHECK(s.ext_bpm == 125.0f);
+    advance(&s, FS / 48u); /* 120 BPM: 918.75 samples per MIDI clock */
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_period != 0u);
+    CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
+}
+/* The 0.5-second dropout also resets the beat ring. Reconnect must not
+ * average that missing-clock gap into the next tempo measurement. */
+static void first_clock_after_dropout(unsigned target)
+{
+    seq_t s;
+    setup(&s, SEQ_CLK_AUTO);
+    s.clk_src = (uint8_t)target;
+    advance(&s, FS); /* first clock occurs well after power-up */
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    advance(&s, FS / 48u);
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_period != 0u);
+    CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
+    advance(&s, FS / 2u + 64u); /* trigger AUTO fallback or EXTERNAL wait */
+    CHECK(s.ext_q == 0u && s.ext_nb == 0u);
+    float before = s.ext_bpm;
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_q == 1u);
+    CHECK(s.ext_bpm == before); /* first returning F8 measures no tempo */
+    advance(&s, FS / 48u);
+    CHECK(seq_clk_take(&s, 0xF8u, 0u) == 1);
+    CHECK(seq_midi_rt(&s, 0xF8u) == 1);
+    advance(&s, 1u);
+    CHECK(s.ext_bpm >= 119.0f && s.ext_bpm <= 121.0f);
+}
+
 int main(void)
 {
     const unsigned partitions[] = {1u, 64u, 1024u};
@@ -104,6 +158,12 @@ int main(void)
         idle_rollover_then_clock();
         internal_idle_mode_change_then_clock(SEQ_CLK_AUTO);
         internal_idle_mode_change_then_clock(SEQ_CLK_EXT);
+        early_first_clock(SEQ_CLK_AUTO, 0);
+        early_first_clock(SEQ_CLK_EXT, 0);
+        early_first_clock(SEQ_CLK_AUTO, 1);
+        early_first_clock(SEQ_CLK_EXT, 1);
+        first_clock_after_dropout(SEQ_CLK_AUTO);
+        first_clock_after_dropout(SEQ_CLK_EXT);
     }
     fprintf(stderr, "seq AUTO idle wrap: %u/%u checks %s\n", checks-failed, checks, failed?"FAILED":"PASSED");
     return failed ? 1 : 0;

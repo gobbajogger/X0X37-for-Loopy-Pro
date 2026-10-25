@@ -466,7 +466,7 @@ static void ext_ticks(seq_t *s)
     int t;
     uint32_t n = s->ext_pending, k = n;
     s->ext_pending = 0;
-    if (s->ext_skip) {                                /* the first ticks of a new input: no period */
+    if (s->ext_skip || (!s->ext_nb && !s->ext_q)) {   /* first tick after any beat-ring reset is no period */
         s->ext_skip = 0;
         s->ext_since = FS;
     }
