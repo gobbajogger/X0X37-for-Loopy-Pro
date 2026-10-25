@@ -1,18 +1,17 @@
-# Mac gh-pages push — retry requested (parent tip drift)
+# Mac / cloud gh-pages push — completed
 
-## Attempt 1
+## Attempt 1 (Mac)
 
 - Expected parent: `d6a237c43cb6830d8cf0cb51e567181821630a28`
-- Actual tip: `9d2872470f474b8d6b68ce8170692662199661e8` (compact installer presentation)
+- Actual tip: `9d2872470f474b8d6b68ce8170692662199661e8`
 - Result: **FAIL** parent mismatch; no force-push
 - Mac agent: `bc-fd41cdd4-425d-5d0b-8321-04650975ae32`
 
-## Attempt 2 (ready)
+## Successful publish
 
-- New parent: `9d2872470f474b8d6b68ce8170692662199661e8`
-- Prepared commit: `60cc264b2bfb2ce8a0c6004f048efef18e042415`
-- Installer fingerprint (nightly main after compact UX merge): `4d29566e14c3f252bf52047676e993367e3d155aa1a94a45157ec07d77e47dc8`
-- Cloud 403 log: `evidence/f08-stage7/cloud-gh-pages-403.log`
-- Brief: Project store `internal/f08-stage7-mac-pages-push.md`
-- Artifacts: `artifacts/f08-stage7-publish/candidate-site.tgz`, `gh-pages-f08.bundle`
-- Worker: `83d16cde-07a3-5bce-81a3-2234761197a1`
+- Parent: `9d2872470f474b8d6b68ce8170692662199661e8`
+- Live tip: `e296e8834aff9f9f358fc6f63360abbff83334d4` (FF only)
+- Cloud pages worker: `bc-d61d2e86-f9d2-5c73-87cb-031d7bc2d1bd` — **LIVE_PAGE_MATCH**
+- Report: Project store `internal/f08-cloud-pages-access-check.md`
+- Mac not needed after cloud LIVE_PAGE_MATCH
+- Cloud 403 log (earlier cursor[bot]): `evidence/f08-stage7/cloud-gh-pages-403.log`
