@@ -1,0 +1,179 @@
+{
+  "compiler_versions": {
+    "clang": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "evidence_revision": "smc-pr122-ble-feedback-tx-backpressure-r9-20261025-v1",
+  "input_firmware_tree": "8c915bd5072e3e1ffa93a92ac96cc66b3816f108",
+  "input_root_tree": "2ca57ce3b4d39ab6c87994056b86bb161b8ba60c",
+  "input_source_commit": "671691829932992556f5621bc9dd8e65696fc992",
+  "inputs_unchanged": {
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "build_tools_tree": "fbaef8e1eead4ca36c3c971bfac8c6e0de74ab51"
+  },
+  "intended_user_outcome": "SMC BLE LED/fader feedback converges after a temporarily full outgoing BLE queue; no lost update, stale value, premature acknowledgement or duplicate playback-control LED packet.",
+  "native_scope": "exact unmodified production C smc_frame() extracted and compiled in C99 with mocked radio/LED/UI; no ISR concurrency, complete application, firmware binary, OTA or physical target proof",
+  "native_target_build_reuse": "Prior R6 Elite/Pro/controller native BUILD_ONLY receipts can apply solely after Build independently verifies complete compiler/config/toolchain/SDK and actual private byte/hash identity; this manifest does not do so.",
+  "negative_control": {
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/smc_feedback_retry_test.py"
+    ],
+    "change": "acknowledge failing LED send incorrectly",
+    "exit_code": 1,
+    "log_sha256": "919701dceafec41481c152f703b9ffed7c800181edbf4d203a8a14fdf5a193e5",
+    "reason": "runtime FAIL smc.known[n] prematurely acknowledged before actual send",
+    "source": "mutant only, not committed"
+  },
+  "own_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "own_pr": 122,
+  "pass_criteria": "All 51 injected failures must preserve unsent state, recover with current desired values, not replay successful packets and never send while role off/disconnected/busy.",
+  "positive_matrix": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "compiler": "gcc",
+      "env": {
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "CC": "gcc",
+        "SAN_FLAGS": ""
+      },
+      "exit_code": 0,
+      "log_sha256": "3fcae4e253faf7627cb0614266864946a00a76e5ae69e422c13b28f9c03c9a6d",
+      "outcome": "51/51 temporary BLE TX failure positions recovered with exactly-once success and updated UI/fader values; 11666/11666 C checks pass",
+      "profile": "plain"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "compiler": "gcc",
+      "env": {
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all"
+      },
+      "exit_code": 0,
+      "log_sha256": "9722d036579302e11dc79a7eff4a6a324fdfc846cedda7493776d3d9433265e2",
+      "outcome": "51/51 temporary BLE TX failure positions recovered with exactly-once success and updated UI/fader values; 11666/11666 C checks pass",
+      "profile": "ubsan"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "compiler": "gcc",
+      "env": {
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all"
+      },
+      "exit_code": 0,
+      "log_sha256": "e75fad67667e979e26801e084fb3101e22aad294236bf22ebf1958b09e64828e",
+      "outcome": "51/51 temporary BLE TX failure positions recovered with exactly-once success and updated UI/fader values; 11666/11666 C checks pass",
+      "profile": "asan-ubsan"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "compiler": "clang",
+      "env": {
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "CC": "clang",
+        "SAN_FLAGS": ""
+      },
+      "exit_code": 0,
+      "log_sha256": "e86f29d1de0b8e28f723d6d8cc99d8bba0e66d1555ec0b300f06ac7ee0c50a2c",
+      "outcome": "51/51 temporary BLE TX failure positions recovered with exactly-once success and updated UI/fader values; 11666/11666 C checks pass",
+      "profile": "plain"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "compiler": "clang",
+      "env": {
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all"
+      },
+      "exit_code": 0,
+      "log_sha256": "0bb0a6cde1b956599700df2c0d6d4733c90ec6f7ce3d07992c5a4f27fec0bf42",
+      "outcome": "51/51 temporary BLE TX failure positions recovered with exactly-once success and updated UI/fader values; 11666/11666 C checks pass",
+      "profile": "ubsan"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "compiler": "clang",
+      "env": {
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all"
+      },
+      "exit_code": 0,
+      "log_sha256": "b97e26431909157fc88abb1faaf3729c0fef5e180d5b9978ff517d438eae6186",
+      "outcome": "51/51 temporary BLE TX failure positions recovered with exactly-once success and updated UI/fader values; 11666/11666 C checks pass",
+      "profile": "asan-ubsan"
+    }
+  ],
+  "produced_at_utc": "2026-10-24T19:17:05.692859+00:00",
+  "python_version": "3.13.5",
+  "receiving_roles": [
+    {
+      "requested_action": "Review actual test and production C, independently reproduce positive and deliberate negative checks at current head; inspect BLE TX backpressure and timer interactions in full-root as appropriate",
+      "role": "LoopyX0X37 Independent QA",
+      "status": "PENDING"
+    },
+    {
+      "requested_action": "Confirm compiler input closure unchanged from native R6 and original Elite/Pro/controller artifact hashes; acknowledge source-only reuse if complete",
+      "role": "LoopyX0X37 Hourly Build",
+      "status": "PENDING"
+    },
+    {
+      "requested_action": "After independent QA only, evaluate optional SMC PR #122 for integration; never auto-promote",
+      "role": "sole firmware Safe Merge",
+      "status": "PENDING"
+    }
+  ],
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "safety": "No SDK/DSP/controller binaries, firmware .fwsc, user samples or credentials in Git.",
+  "schema": "loopyx0x37-smc-feedback-retry-producer-v1",
+  "scope": "NEW registered native source-extraction regression only; NO production firmware source modifications; no new target builds claimed.",
+  "stimulus": "For each of 51 controller messages in a complete 43 LED + 8 fader frame, mock plat_ble_smc_send returning failure exactly at that position, then change the failed value and restore transmission. Verify acknowledgement only after success, LED and fader target values, exactly-once recovery, no idle duplicate; additionally test midstream changes in acknowledged state and disabled/busy/disconnected gates.",
+  "syntax_check": {
+    "command": "python3 -m py_compile tests/host/smc_feedback_retry_test.py",
+    "exit_code": 0
+  },
+  "test_git_blob_sha": "64c32f8b97dc312290fe28a97d716d89612405c6",
+  "test_path": "tests/host/smc_feedback_retry_test.py",
+  "test_sha256": "1c9c05882c69d955ab5a053b3483cae0251dd518b4cb7387272c042c9ec7367e",
+  "unchanged_compiled_source_blob": "ddad3657ed5a0015bb64ed8446de69302a83d0bc",
+  "unrun_or_unproven": [
+    "Independent QA",
+    "complete root host test suite",
+    "actual BLE hardware/drop/reconnection timing",
+    "new native target builds (unnecessary for test-only change)",
+    "installer/OTA backup-restore negative coverage",
+    "qualified NIGHTLY",
+    "device PASS",
+    "production promotion"
+  ]
+}

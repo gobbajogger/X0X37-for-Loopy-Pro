@@ -1,0 +1,701 @@
+{
+  "schema": "loopyx0x37-smc-producer-evidence-v1",
+  "evidence_revision": "smc-pr122-ble-preset-ingress-epoch-r11-20261025-v1",
+  "timestamp_utc": "2026-10-24T21:13:49.392423+00:00",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "pr": 122,
+  "parent_full_source_sha": "14b5cb9419130be912683740f47a25eae516e2fd",
+  "parent_full_root_git_tree": "6095b57eeb72ac84c566898ef5573a67e81bb93b",
+  "parent_compiled_firmware_git_tree": "cbdaf9ecfc8ac7d85c033b765ad20ac81e071369",
+  "parent_smc_c_blob": "ff2349f0c4b20da15896b4e0ac0ea734739b2d80",
+  "new_smc_c_blob": "2a3c460d4a453064e21f27d8b2e4e6327e619fba",
+  "new_test_blob": "c8c06f5637d279e32276e5186a4795206c2e0d5d",
+  "test_runner_new_blob": "fc3fc0b68dd953e8b0f46d73c8907394f8010f91",
+  "original_source_negative_blob": "ff2349f0c4b20da15896b4e0ac0ea734739b2d80",
+  "compiler_source_scope": "actual production smc_ble_midi/smc_poll/smc_message/smc_ble_link extracted into GCC/Clang host test; not full root and not firmware binaries",
+  "intended_user_behavior": "SMC DAW and User preset changes take effect immediately; MIDI queued under a previous preset must never operate controls under the newly selected preset. Current-preset controls, User MMC, host isolation and BLE feedback remain working.",
+  "fix": "Encode preset identity in unused high bit of BLE queue length, mask length on decode and discard old-mode queue entries on main-thread consumption; preserve queue size/ISR/link/offline/solo behavior.",
+  "stimulus": "Enqueue DAW or User BLE knob, button, fader or stock User MMC; toggle DAW/User before smc_poll; optionally enqueue valid new-mode input; force queue reader near 8-bit wraparound; compare actual handler call counts and queue emptiness.",
+  "expected_observation": "Old-mode controls produce zero calls after a mode change; new-mode controls still produce each intended call exactly once, no stale replay or queue jam; unchanged-mode messages and User MMC still work.",
+  "test_counts": {
+    "total_processes": 36,
+    "positive_expected_exit_zero": 30,
+    "negative_expected_exit_nonzero": 6,
+    "actual_expected_results": 36,
+    "matrix": {
+      "new_preset": 6,
+      "baseline_expected_failure": 6,
+      "ble_link_regressions": 6,
+      "ble_frame_regressions": 6,
+      "feedback_regressions": 6,
+      "mmc_stop_regressions": 6
+    },
+    "new_84_positive_scenarios_each_config": 84,
+    "ble_link_scenarios_each_config": 16,
+    "ble_frame_scenarios_each_config": 35,
+    "mmc_stop_scenarios_each_config": 96,
+    "feedback_cases_each_config": "27,884 checks in successful log, source-extraction test"
+  },
+  "host": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "python": "3.13.5",
+    "compiler_versions": {
+      "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+      "clang": "clang version 17.0.0 (https://github.com/swiftlang/llvm-project.git 10999b6d034fe318f3d56c83bddb6572593a8bb0)"
+    },
+    "sanitizers": [
+      "plain",
+      "-fsanitize=undefined -fno-sanitize-recover=all",
+      "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all"
+    ],
+    "leak_sanitizer_enabled": false
+  },
+  "executed_tests": [
+    {
+      "name": "gcc-plain-smc_ble_preset_queue_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "log_path": "evidence_logs/gcc-plain-smc_ble_preset_queue_test.log",
+      "elapsed_ms": 1219,
+      "observation": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-plain-smc_ble_midpoll_link_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "log_path": "evidence_logs/gcc-plain-smc_ble_midpoll_link_test.log",
+      "elapsed_ms": 1018,
+      "observation": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-plain-smc_ble_frame_length_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "log_path": "evidence_logs/gcc-plain-smc_ble_frame_length_test.log",
+      "elapsed_ms": 852,
+      "observation": "SMC BLE exact-frame length: 35/35 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-plain-smc_feedback_retry_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "76087a134fe347dc2830b5d5636fc00638c4ac749a9e8b942421a9c859bc868f",
+      "log_path": "evidence_logs/gcc-plain-smc_feedback_retry_test.log",
+      "elapsed_ms": 1089,
+      "observation": "COMPILE: gcc -std=c99 -O1 -g -Wall -Wextra -Werror /tmp/smc-feedback-retry-hlmq17ng/feedback_retry.c -o /tmp/smc-feedback-retry-hlmq17ng/feedback_retry",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-plain-smc_mmc_stop_fifo_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "log_path": "evidence_logs/gcc-plain-smc_mmc_stop_fifo_test.log",
+      "elapsed_ms": 1035,
+      "observation": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-plain-R10-original-negative",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "baseline_R10.c",
+      "cc": "gcc",
+      "san_flags": "",
+      "exit": 1,
+      "expected_met": true,
+      "log_sha256": "b62e6d7f8182357104cec1e6cb504b5ad926ee378e917c50f68f7d5e1294ee79",
+      "log_path": "evidence_logs/gcc-plain-R10-original-negative.log",
+      "elapsed_ms": 959,
+      "observation": "FAIL queue preset pre=0 post=1 fresh=0 cursor=0 calls=2 knob=1 buttons=1 faders=0 expected=0 q=3/3",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-ubsan-smc_ble_preset_queue_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "log_path": "evidence_logs/gcc-ubsan-smc_ble_preset_queue_test.log",
+      "elapsed_ms": 1017,
+      "observation": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-ubsan-smc_ble_midpoll_link_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "log_path": "evidence_logs/gcc-ubsan-smc_ble_midpoll_link_test.log",
+      "elapsed_ms": 976,
+      "observation": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-ubsan-smc_ble_frame_length_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "log_path": "evidence_logs/gcc-ubsan-smc_ble_frame_length_test.log",
+      "elapsed_ms": 841,
+      "observation": "SMC BLE exact-frame length: 35/35 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-ubsan-smc_feedback_retry_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "6af1db493eab08203051a7759aca6b9cd3a25c931a30edb4a20e6bb265ea3273",
+      "log_path": "evidence_logs/gcc-ubsan-smc_feedback_retry_test.log",
+      "elapsed_ms": 938,
+      "observation": "COMPILE: gcc -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all /tmp/smc-feedback-retry-ds0qv05e/feedback_retry.c -o /tmp/smc-feedback-retry-ds0qv05e/feedback_retry",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-ubsan-smc_mmc_stop_fifo_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "log_path": "evidence_logs/gcc-ubsan-smc_mmc_stop_fifo_test.log",
+      "elapsed_ms": 1102,
+      "observation": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-ubsan-R10-original-negative",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "baseline_R10.c",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 1,
+      "expected_met": true,
+      "log_sha256": "9175baf542468b6b244c40cb4cfad86231df92b2e11a5e9dff6b3293dd7aefbf",
+      "log_path": "evidence_logs/gcc-ubsan-R10-original-negative.log",
+      "elapsed_ms": 1266,
+      "observation": "FAIL queue preset pre=0 post=1 fresh=0 cursor=0 calls=2 knob=1 buttons=1 faders=0 expected=0 q=3/3",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-asan_ubsan-smc_ble_preset_queue_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "log_path": "evidence_logs/gcc-asan_ubsan-smc_ble_preset_queue_test.log",
+      "elapsed_ms": 1213,
+      "observation": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-asan_ubsan-smc_ble_midpoll_link_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "log_path": "evidence_logs/gcc-asan_ubsan-smc_ble_midpoll_link_test.log",
+      "elapsed_ms": 1098,
+      "observation": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-asan_ubsan-smc_ble_frame_length_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "log_path": "evidence_logs/gcc-asan_ubsan-smc_ble_frame_length_test.log",
+      "elapsed_ms": 875,
+      "observation": "SMC BLE exact-frame length: 35/35 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-asan_ubsan-smc_feedback_retry_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "d8688e26f7223b65bf0e5a1f45c1621bf1ed71b2058cac420b0d6d20bc6a1d51",
+      "log_path": "evidence_logs/gcc-asan_ubsan-smc_feedback_retry_test.log",
+      "elapsed_ms": 1109,
+      "observation": "COMPILE: gcc -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all /tmp/smc-feedback-retry-myd62mqv/feedback_retry.c -o /tmp/smc-feedback-retry-myd62mqv/feedback_retry",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-asan_ubsan-smc_mmc_stop_fifo_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "source": "candidate",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "log_path": "evidence_logs/gcc-asan_ubsan-smc_mmc_stop_fifo_test.log",
+      "elapsed_ms": 1224,
+      "observation": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "gcc-asan_ubsan-R10-original-negative",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "baseline_R10.c",
+      "cc": "gcc",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 1,
+      "expected_met": true,
+      "log_sha256": "344688a32248cd9ec618fd70f24f68f4514ef8f3429eddaf185802c0e181277c",
+      "log_path": "evidence_logs/gcc-asan_ubsan-R10-original-negative.log",
+      "elapsed_ms": 1014,
+      "observation": "FAIL queue preset pre=0 post=1 fresh=0 cursor=0 calls=2 knob=1 buttons=1 faders=0 expected=0 q=3/3",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-plain-smc_ble_preset_queue_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "log_path": "evidence_logs/clang-plain-smc_ble_preset_queue_test.log",
+      "elapsed_ms": 999,
+      "observation": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-plain-smc_ble_midpoll_link_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "log_path": "evidence_logs/clang-plain-smc_ble_midpoll_link_test.log",
+      "elapsed_ms": 823,
+      "observation": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-plain-smc_ble_frame_length_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "log_path": "evidence_logs/clang-plain-smc_ble_frame_length_test.log",
+      "elapsed_ms": 907,
+      "observation": "SMC BLE exact-frame length: 35/35 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-plain-smc_feedback_retry_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "1a6cc219d00fe4efef8d212780c782d39c61c8a3fbc547b6d6763aca0900d209",
+      "log_path": "evidence_logs/clang-plain-smc_feedback_retry_test.log",
+      "elapsed_ms": 939,
+      "observation": "COMPILE: clang -std=c99 -O1 -g -Wall -Wextra -Werror /tmp/smc-feedback-retry-0xop2s8u/feedback_retry.c -o /tmp/smc-feedback-retry-0xop2s8u/feedback_retry",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-plain-smc_mmc_stop_fifo_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "log_path": "evidence_logs/clang-plain-smc_mmc_stop_fifo_test.log",
+      "elapsed_ms": 1132,
+      "observation": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-plain-R10-original-negative",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "baseline_R10.c",
+      "cc": "clang",
+      "san_flags": "",
+      "exit": 1,
+      "expected_met": true,
+      "log_sha256": "2020db5ea8b9b56c45631eb72717de3ee6b34049eb1a97611805ad0fe3cf61ff",
+      "log_path": "evidence_logs/clang-plain-R10-original-negative.log",
+      "elapsed_ms": 894,
+      "observation": "FAIL queue preset pre=0 post=1 fresh=0 cursor=0 calls=2 knob=1 buttons=1 faders=0 expected=0 q=3/3",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-ubsan-smc_ble_preset_queue_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "log_path": "evidence_logs/clang-ubsan-smc_ble_preset_queue_test.log",
+      "elapsed_ms": 1073,
+      "observation": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-ubsan-smc_ble_midpoll_link_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "log_path": "evidence_logs/clang-ubsan-smc_ble_midpoll_link_test.log",
+      "elapsed_ms": 954,
+      "observation": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-ubsan-smc_ble_frame_length_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "log_path": "evidence_logs/clang-ubsan-smc_ble_frame_length_test.log",
+      "elapsed_ms": 926,
+      "observation": "SMC BLE exact-frame length: 35/35 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-ubsan-smc_feedback_retry_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "f0dd11d7f0f26fa14313647d4accd838c5bab9305e453acc3fa3d1206f92d533",
+      "log_path": "evidence_logs/clang-ubsan-smc_feedback_retry_test.log",
+      "elapsed_ms": 1157,
+      "observation": "COMPILE: clang -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all /tmp/smc-feedback-retry-mr_ksmt3/feedback_retry.c -o /tmp/smc-feedback-retry-mr_ksmt3/feedback_retry",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-ubsan-smc_mmc_stop_fifo_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "log_path": "evidence_logs/clang-ubsan-smc_mmc_stop_fifo_test.log",
+      "elapsed_ms": 1137,
+      "observation": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-ubsan-R10-original-negative",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "baseline_R10.c",
+      "cc": "clang",
+      "san_flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "exit": 1,
+      "expected_met": true,
+      "log_sha256": "5a37dc1cb9121da52b3306ffe182118b6107b430aa318b25e8b450411a684d29",
+      "log_path": "evidence_logs/clang-ubsan-R10-original-negative.log",
+      "elapsed_ms": 915,
+      "observation": "FAIL queue preset pre=0 post=1 fresh=0 cursor=0 calls=2 knob=1 buttons=1 faders=0 expected=0 q=3/3",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-asan_ubsan-smc_ble_preset_queue_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "log_path": "evidence_logs/clang-asan_ubsan-smc_ble_preset_queue_test.log",
+      "elapsed_ms": 1137,
+      "observation": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-asan_ubsan-smc_ble_midpoll_link_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "log_path": "evidence_logs/clang-asan_ubsan-smc_ble_midpoll_link_test.log",
+      "elapsed_ms": 1017,
+      "observation": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-asan_ubsan-smc_ble_frame_length_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "log_path": "evidence_logs/clang-asan_ubsan-smc_ble_frame_length_test.log",
+      "elapsed_ms": 1085,
+      "observation": "SMC BLE exact-frame length: 35/35 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-asan_ubsan-smc_feedback_retry_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "1a1f7e27835339dcf48ae46b16aa01759b112ce9924eeb58dd7296398675bcf1",
+      "log_path": "evidence_logs/clang-asan_ubsan-smc_feedback_retry_test.log",
+      "elapsed_ms": 1288,
+      "observation": "COMPILE: clang -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all /tmp/smc-feedback-retry-wmy_n2bc/feedback_retry.c -o /tmp/smc-feedback-retry-wmy_n2bc/feedback_retry",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-asan_ubsan-smc_mmc_stop_fifo_test",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "source": "candidate",
+      "cc": "clang",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 0,
+      "expected_met": true,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "log_path": "evidence_logs/clang-asan_ubsan-smc_mmc_stop_fifo_test.log",
+      "elapsed_ms": 1059,
+      "observation": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "log_sha256_verified": true
+    },
+    {
+      "name": "clang-asan_ubsan-R10-original-negative",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "source": "baseline_R10.c",
+      "cc": "clang",
+      "san_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "exit": 1,
+      "expected_met": true,
+      "log_sha256": "5f35809af208327ed93d6b1e54d5a8e107887f6c9058a340574b2dce1dc2aadc",
+      "log_path": "evidence_logs/clang-asan_ubsan-R10-original-negative.log",
+      "elapsed_ms": 1052,
+      "observation": "FAIL queue preset pre=0 post=1 fresh=0 cursor=0 calls=2 knob=1 buttons=1 faders=0 expected=0 q=3/3",
+      "log_sha256_verified": true
+    }
+  ],
+  "commands": {
+    "gcc": "python3 verify_matrix_group.py gcc",
+    "clang": "python3 verify_matrix_group.py clang",
+    "python_syntax": "python3 -m py_compile tests/host/smc_ble_preset_queue_test.py",
+    "test_matrix": "CC=<gcc|clang> SAN_FLAGS=<per case> ASAN_OPTIONS=detect_leaks=0:abort_on_error=1 UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 python3 tests/host/<test script>"
+  },
+  "privacy": {
+    "contains_firmware_or_controller_binaries": false,
+    "contains_private_sdk_or_toolchain": false,
+    "contains_user_samples": false,
+    "distribution_approved": false
+  },
+  "next_stage": {
+    "source_owner": "LoopyX0X37 SMC Transport",
+    "build_owner": "Existing LoopyX0X37 Hourly Build",
+    "build_action": "New native Elite DEV, Pro DEV and compatible BLE controller BUILD_ONLY for this new compiled firmware source SHA/tree and exact private SDK/toolchain/config; report model, CRC, SHA, sizes and budget; no QA/hardware/hosting prerequisite",
+    "independent_qa_owner": "Existing LoopyX0X37 Independent QA",
+    "qa_action": "Independently review exact full ROOT and C/test, preset transition/queue ISR/poll/MMC/host/NoteOff/reconnect regressions and affected full-root/OTA negative checks; record factual PASS/FAIL/UNRUN.",
+    "integrator": "Existing sole firmware Safe Merge; only after independent acceptance and current exact-state compatibility review"
+  },
+  "disposition": {
+    "producer_host": "PASS source-extraction 30 positive, 6 expected negative",
+    "target_build": "NOT_RUN_FOR_R11",
+    "independent_full_root_qa": "NOT_RUN",
+    "ota_installer_model_backup_restore": "NOT_RUN",
+    "hardware": "DEVICE_NOT_TESTED",
+    "qualified_nightly": "NO_APPROVAL",
+    "production": "NOT_APPROVED"
+  },
+  "source_rights": "GPL-3.0-only, repository firmware module SPDX and source-only test SPDX maintained.",
+  "existing_r10_build_receipt": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/122#issuecomment-6389433327",
+  "note": "Previous R10 binaries do not qualify because the firmware/src/app/smc_mixer.c compiled blob changed. Independent reviewer may reject or require correction. This manifest is not self-QA or target-build evidence."
+}

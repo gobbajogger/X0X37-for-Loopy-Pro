@@ -1,0 +1,1226 @@
+{
+  "schema": "loopyx0x37-source-specialist-evidence-v1",
+  "evidence_revision": "smc-pr122-host-midpoll-link-deferred-solo-r15-20261025-v1",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 122,
+  "own_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "parent_commit": "a9ea12e454739db8e0d8e4c1f737acaeb72e37e5",
+  "parent_root_tree": "66ae2b31c1d6feb37741d263c4e2cb27404b751d",
+  "parent_compiled_firmware_tree": "5afad7b4cd00161b3bd2d40ae0878597f1c36dc3",
+  "previous_production_c_blob": "89958e304022aad13354cfdd5c51030d911228a6",
+  "new_production_c_blob": "20e481ebf6e802426758ae1d2eb1e12700f2cdcb",
+  "previous_test_blob": "4294ebceff1d3c14f16fa5cd57851537f7b36264",
+  "new_test_blob": "ee4982d2dd0b31d2528a42fcbe377c7fcc280f9d",
+  "scope": "firmware/src/app/smc_mixer.c and tests/host/smc_preset_solo_lifetime_test.py (SMC BLE link generation during USB/User host ring drain)",
+  "user_visible_before": "An old queued host Solo NoteOn can execute after a Bluetooth disconnect/reconnect interrupts dispatch of a preceding USB/User fader, briefly soloing the wrong session before the next poll.",
+  "user_visible_after": "A changed BLE link epoch defers remaining queued host input until the next poll applies the real host Solo cutoff; old Solo is skipped, fresh host and BLE press/release still work.",
+  "invariants": [
+    "Do not drop unrelated host MIDI fader",
+    "Do not reorder MMC STOP/PLAY",
+    "Preserve current BLE preset isolation and LED feedback",
+    "Preserve valid new-session host/BLE Solo and matched release"
+  ],
+  "risk_stimulus": "Simulate TIMER5 smc_ble_link(0) then optionally smc_ble_link(1) inside the actual smc_fader() callback while smc_poll() drains a host CC ahead of an old queued Solo NoteOn. Sweep 6 host ring cursor offsets, 2 link outcomes and 3 fresh-input variants.",
+  "expected_observation": "The initial poll must NOT dispatch the pre-link Solo; it must defer that queue entry. The next poll skips only old Solo, processes fresh input and releases on matching keyup.",
+  "negative_control": {
+    "actual_source": "R14 smc_mixer.c Git blob 89958e304022aad13354cfdd5c51030d911228a6",
+    "expected": "6/6 GCC/Clang sanitizer profiles exit 1 with old queued host Solo must not execute after midpoll link reset",
+    "observed": "6/6 expected runtime assertion failures; no compile failures counted as correct"
+  },
+  "producer_positive": {
+    "profiles": [
+      "gcc plain",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang plain",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "expected": "36/36 executable tests exit 0; updated Solo suite 186/186 scenarios, 1158 checks/profile; 36 new midpoll variants",
+    "observed": "36/36 native positive command exits 0, 6/6 expected baseline failures"
+  },
+  "actual_commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "run_r15_matrix.py"
+      ],
+      "exit": 0,
+      "cwd": "private GPL regression workspace; source-trace in Library archive"
+    },
+    {
+      "argv": [
+        "git",
+        "hash-object",
+        "baseline_R14.c"
+      ],
+      "exit": 0,
+      "stdout": "89958e304022aad13354cfdd5c51030d911228a6"
+    }
+  ],
+  "per_command_test_results": [
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "baseline_R14_negative",
+      "negative_control": true,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "baseline_R14.c"
+      },
+      "exit": 1,
+      "expected": "R14 dispatches stale pre-link host Solo after midpoll ISR edge",
+      "observed": "FAIL old queued host Solo must not execute after midpoll link reset line 620: !solos_on && !smc.solo_target[0], mode=48 solo=1 counts=1/0 q=0/0 host=2/2",
+      "correct": true,
+      "log": "r15_results/clang-asan_ubsan-baseline_R14_negative.log",
+      "log_bytes": 665,
+      "log_sha256": "af2cc42eb6f2ea6589e24f6783bfcd7595a41c0a4215a91a65a1900c9170ebf5",
+      "duration_seconds": 1.384
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS",
+      "correct": true,
+      "log": "r15_results/clang-asan_ubsan-smc_ble_frame_length_test.py.log",
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "duration_seconds": 1.496
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "correct": true,
+      "log": "r15_results/clang-asan_ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "duration_seconds": 1.702
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "correct": true,
+      "log": "r15_results/clang-asan_ubsan-smc_ble_preset_queue_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "duration_seconds": 1.855
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "COMPILE: clang -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer /tmp/smc-feedback-retry-a2dbidy7/feedback_retry.c -o /tmp/smc-feedback-retry-a2dbidy7/feedback_retry",
+      "correct": true,
+      "log": "r15_results/clang-asan_ubsan-smc_feedback_retry_test.py.log",
+      "log_bytes": 377,
+      "log_sha256": "b2bc53f2d043e31a7512838023dac80e8856255385190000cb0dfcc46a0dcf74",
+      "duration_seconds": 1.628
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "correct": true,
+      "log": "r15_results/clang-asan_ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "duration_seconds": 1.686
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC preset Solo lifetime: 186/186 scenarios PASS, 1158 checks",
+      "correct": true,
+      "log": "r15_results/clang-asan_ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_bytes": 62,
+      "log_sha256": "cafd6efd7de8ab074612d060a51c3ba9985841841b9c2cdbfeaf81e3fdc5080e",
+      "duration_seconds": 2.515
+    },
+    {
+      "compiler": "clang",
+      "flags": "",
+      "mode": "plain",
+      "test": "baseline_R14_negative",
+      "negative_control": true,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "baseline_R14.c"
+      },
+      "exit": 1,
+      "expected": "R14 dispatches stale pre-link host Solo after midpoll ISR edge",
+      "observed": "FAIL old queued host Solo must not execute after midpoll link reset line 620: !solos_on && !smc.solo_target[0], mode=48 solo=1 counts=1/0 q=0/0 host=2/2",
+      "correct": true,
+      "log": "r15_results/clang-plain-baseline_R14_negative.log",
+      "log_bytes": 665,
+      "log_sha256": "b5a2977786c1615bf210a2b084c99c63c68408cd10464861af88e975e60c5410",
+      "duration_seconds": 2.131
+    },
+    {
+      "compiler": "clang",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_ble_frame_length_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS",
+      "correct": true,
+      "log": "r15_results/clang-plain-smc_ble_frame_length_test.py.log",
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "duration_seconds": 1.659
+    },
+    {
+      "compiler": "clang",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_ble_midpoll_link_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "correct": true,
+      "log": "r15_results/clang-plain-smc_ble_midpoll_link_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "duration_seconds": 1.128
+    },
+    {
+      "compiler": "clang",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_ble_preset_queue_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "correct": true,
+      "log": "r15_results/clang-plain-smc_ble_preset_queue_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "duration_seconds": 1.853
+    },
+    {
+      "compiler": "clang",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_feedback_retry_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "COMPILE: clang -std=c99 -O1 -g -Wall -Wextra -Werror /tmp/smc-feedback-retry-f1mnc5q2/feedback_retry.c -o /tmp/smc-feedback-retry-f1mnc5q2/feedback_retry",
+      "correct": true,
+      "log": "r15_results/clang-plain-smc_feedback_retry_test.py.log",
+      "log_bytes": 298,
+      "log_sha256": "1c90db3ccea49d17b55a3fca7513976d67eba3a8323a72d9166bfe0edcedde1b",
+      "duration_seconds": 1.957
+    },
+    {
+      "compiler": "clang",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "correct": true,
+      "log": "r15_results/clang-plain-smc_mmc_stop_fifo_test.py.log",
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "duration_seconds": 1.821
+    },
+    {
+      "compiler": "clang",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC preset Solo lifetime: 186/186 scenarios PASS, 1158 checks",
+      "correct": true,
+      "log": "r15_results/clang-plain-smc_preset_solo_lifetime_test.py.log",
+      "log_bytes": 62,
+      "log_sha256": "cafd6efd7de8ab074612d060a51c3ba9985841841b9c2cdbfeaf81e3fdc5080e",
+      "duration_seconds": 2.181
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "baseline_R14_negative",
+      "negative_control": true,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "baseline_R14.c"
+      },
+      "exit": 1,
+      "expected": "R14 dispatches stale pre-link host Solo after midpoll ISR edge",
+      "observed": "FAIL old queued host Solo must not execute after midpoll link reset line 620: !solos_on && !smc.solo_target[0], mode=48 solo=1 counts=1/0 q=0/0 host=2/2",
+      "correct": true,
+      "log": "r15_results/clang-ubsan-baseline_R14_negative.log",
+      "log_bytes": 665,
+      "log_sha256": "9172b3db38205af4806b9023c45dc8d982439ec6e1691856e08a3e96ade94af4",
+      "duration_seconds": 1.883
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS",
+      "correct": true,
+      "log": "r15_results/clang-ubsan-smc_ble_frame_length_test.py.log",
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "duration_seconds": 1.828
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "correct": true,
+      "log": "r15_results/clang-ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "duration_seconds": 1.738
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "correct": true,
+      "log": "r15_results/clang-ubsan-smc_ble_preset_queue_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "duration_seconds": 2.31
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "COMPILE: clang -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all /tmp/smc-feedback-retry-gjex05jd/feedback_retry.c -o /tmp/smc-feedback-retry-gjex05jd/feedback_retry",
+      "correct": true,
+      "log": "r15_results/clang-ubsan-smc_feedback_retry_test.py.log",
+      "log_bytes": 345,
+      "log_sha256": "623c2f58526f3ecf8e04677522912fbf0a94ffac4bfc4930149ca2f2445a3a76",
+      "duration_seconds": 1.473
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "correct": true,
+      "log": "r15_results/clang-ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "duration_seconds": 1.96
+    },
+    {
+      "compiler": "clang",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC preset Solo lifetime: 186/186 scenarios PASS, 1158 checks",
+      "correct": true,
+      "log": "r15_results/clang-ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_bytes": 62,
+      "log_sha256": "cafd6efd7de8ab074612d060a51c3ba9985841841b9c2cdbfeaf81e3fdc5080e",
+      "duration_seconds": 1.847
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "baseline_R14_negative",
+      "negative_control": true,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "baseline_R14.c"
+      },
+      "exit": 1,
+      "expected": "R14 dispatches stale pre-link host Solo after midpoll ISR edge",
+      "observed": "FAIL old queued host Solo must not execute after midpoll link reset line 619: !solos_on && !smc.solo_target[0], mode=48 solo=1 counts=1/0 q=0/0 host=2/2",
+      "correct": true,
+      "log": "r15_results/gcc-asan_ubsan-baseline_R14_negative.log",
+      "log_bytes": 665,
+      "log_sha256": "e53360c7ffa7836fbec8d858d1562424ed54fd4c6cee6dc179c1405f2cb9cf54",
+      "duration_seconds": 2.095
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-asan_ubsan-smc_ble_frame_length_test.py.log",
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "duration_seconds": 1.916
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-asan_ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "duration_seconds": 1.273
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-asan_ubsan-smc_ble_preset_queue_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "duration_seconds": 1.872
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "COMPILE: gcc -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer /tmp/smc-feedback-retry-8jwg8wzu/feedback_retry.c -o /tmp/smc-feedback-retry-8jwg8wzu/feedback_retry",
+      "correct": true,
+      "log": "r15_results/gcc-asan_ubsan-smc_feedback_retry_test.py.log",
+      "log_bytes": 375,
+      "log_sha256": "2e37b074342ef95fcda32516f9bddbc9d11f492478185e2bc4a6649504867776",
+      "duration_seconds": 1.757
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-asan_ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "duration_seconds": 2.46
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+      "mode": "asan_ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC preset Solo lifetime: 186/186 scenarios PASS, 1158 checks",
+      "correct": true,
+      "log": "r15_results/gcc-asan_ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_bytes": 62,
+      "log_sha256": "cafd6efd7de8ab074612d060a51c3ba9985841841b9c2cdbfeaf81e3fdc5080e",
+      "duration_seconds": 1.759
+    },
+    {
+      "compiler": "gcc",
+      "flags": "",
+      "mode": "plain",
+      "test": "baseline_R14_negative",
+      "negative_control": true,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "baseline_R14.c"
+      },
+      "exit": 1,
+      "expected": "R14 dispatches stale pre-link host Solo after midpoll ISR edge",
+      "observed": "FAIL old queued host Solo must not execute after midpoll link reset line 619: !solos_on && !smc.solo_target[0], mode=48 solo=1 counts=1/0 q=0/0 host=2/2",
+      "correct": true,
+      "log": "r15_results/gcc-plain-baseline_R14_negative.log",
+      "log_bytes": 665,
+      "log_sha256": "eb8ee01c18b722d65bc4b8285122fd34562c275f09221ec4d1379e73b4da1f70",
+      "duration_seconds": 1.658
+    },
+    {
+      "compiler": "gcc",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_ble_frame_length_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-plain-smc_ble_frame_length_test.py.log",
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "duration_seconds": 1.617
+    },
+    {
+      "compiler": "gcc",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_ble_midpoll_link_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-plain-smc_ble_midpoll_link_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "duration_seconds": 2.455
+    },
+    {
+      "compiler": "gcc",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_ble_preset_queue_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-plain-smc_ble_preset_queue_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "duration_seconds": 1.617
+    },
+    {
+      "compiler": "gcc",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_feedback_retry_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "COMPILE: gcc -std=c99 -O1 -g -Wall -Wextra -Werror /tmp/smc-feedback-retry-9sz1ejzu/feedback_retry.c -o /tmp/smc-feedback-retry-9sz1ejzu/feedback_retry",
+      "correct": true,
+      "log": "r15_results/gcc-plain-smc_feedback_retry_test.py.log",
+      "log_bytes": 296,
+      "log_sha256": "8f44298f9419d7a54c81a5efa47e03b7e83f641523779eaa96b8b4d32879031c",
+      "duration_seconds": 2.732
+    },
+    {
+      "compiler": "gcc",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-plain-smc_mmc_stop_fifo_test.py.log",
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "duration_seconds": 1.721
+    },
+    {
+      "compiler": "gcc",
+      "flags": "",
+      "mode": "plain",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC preset Solo lifetime: 186/186 scenarios PASS, 1158 checks",
+      "correct": true,
+      "log": "r15_results/gcc-plain-smc_preset_solo_lifetime_test.py.log",
+      "log_bytes": 62,
+      "log_sha256": "cafd6efd7de8ab074612d060a51c3ba9985841841b9c2cdbfeaf81e3fdc5080e",
+      "duration_seconds": 2.025
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "baseline_R14_negative",
+      "negative_control": true,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "baseline_R14.c"
+      },
+      "exit": 1,
+      "expected": "R14 dispatches stale pre-link host Solo after midpoll ISR edge",
+      "observed": "FAIL old queued host Solo must not execute after midpoll link reset line 619: !solos_on && !smc.solo_target[0], mode=48 solo=1 counts=1/0 q=0/0 host=2/2",
+      "correct": true,
+      "log": "r15_results/gcc-ubsan-baseline_R14_negative.log",
+      "log_bytes": 665,
+      "log_sha256": "4aa14c68665c73e81fcd7fdb1a18a45e2b2785a3dd50dfb2ef297a84f336c4eb",
+      "duration_seconds": 1.55
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_ble_frame_length_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE exact-frame length: 35/35 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-ubsan-smc_ble_frame_length_test.py.log",
+      "log_bytes": 39,
+      "log_sha256": "8c96f952b7e2da0fec17e917ed4cd9536678cf080aece0d77f2a0d31526ab0ec",
+      "duration_seconds": 1.471
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_ble_midpoll_link_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE midpoll link-epoch source-window: 16/16 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-ubsan-smc_ble_midpoll_link_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "duration_seconds": 1.348
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_ble_preset_queue_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC BLE preset queue/decoder source path: 84/84 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-ubsan-smc_ble_preset_queue_test.py.log",
+      "log_bytes": 53,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "duration_seconds": 1.763
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_feedback_retry_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "COMPILE: gcc -std=c99 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all /tmp/smc-feedback-retry-f9cfx2j9/feedback_retry.c -o /tmp/smc-feedback-retry-f9cfx2j9/feedback_retry",
+      "correct": true,
+      "log": "r15_results/gcc-ubsan-smc_feedback_retry_test.py.log",
+      "log_bytes": 343,
+      "log_sha256": "babf36be38524fafe4a411878ce3d99f5d08cdccd13a17bc2f0a537ea041cd3f",
+      "duration_seconds": 1.749
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_mmc_stop_fifo_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC MMC STOP FIFO source-window: 96/96 PASS",
+      "correct": true,
+      "log": "r15_results/gcc-ubsan-smc_mmc_stop_fifo_test.py.log",
+      "log_bytes": 44,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "duration_seconds": 1.971
+    },
+    {
+      "compiler": "gcc",
+      "flags": "-fsanitize=undefined -fno-sanitize-recover=all",
+      "mode": "ubsan",
+      "test": "smc_preset_solo_lifetime_test.py",
+      "negative_control": false,
+      "argv": [
+        "/opt/pyvenv/bin/python",
+        "-B",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "env": {
+        "CC": "gcc",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
+        "SMC_SOURCE": "firmware/src/app/smc_mixer.c"
+      },
+      "exit": 0,
+      "expected": "exit 0 and named assertions",
+      "observed": "SMC preset Solo lifetime: 186/186 scenarios PASS, 1158 checks",
+      "correct": true,
+      "log": "r15_results/gcc-ubsan-smc_preset_solo_lifetime_test.py.log",
+      "log_bytes": 62,
+      "log_sha256": "cafd6efd7de8ab074612d060a51c3ba9985841841b9c2cdbfeaf81e3fdc5080e",
+      "duration_seconds": 1.8
+    }
+  ],
+  "private_evidence": {
+    "library_path": "/LoopyX0X37-SMC-Host-Midpoll-Link-R15-20261025.zip",
+    "library_file_id": "libfile_743dfb084424819194648923a8744eb9",
+    "bytes": 63673,
+    "sha256": "aeaa6534b7c1a0a562065f7efeeb4dd1f85466944e5e9f5ff5a7ebe268ae54d3",
+    "entries": 56,
+    "zip_crc": "PASS",
+    "library_readback": "byte-for-byte MATCH after independent materialization"
+  },
+  "non_claims": {
+    "full_root_independent_qa": "NOT RUN",
+    "JieLi_elite_pro_controller_build_only": "NOT RUN for R15",
+    "browser_ota_backup_restore_interruption": "NOT RUN",
+    "installable_nightly": "NO",
+    "owner_hardware_pass": "NOT RUN",
+    "production_approval": "NO"
+  },
+  "receiving_roles": [
+    {
+      "role": "LoopyX0X37 Hourly Build",
+      "action": "Compile genuine fresh Elite DEV, Pro DEV and controller BUILD_ONLY against exact new committed R15 compiler inputs. Do not reuse R14 binaries."
+    },
+    {
+      "role": "LoopyX0X37 Independent QA",
+      "action": "Independently review R15 full ROOT and real host/ISR timing, no-stale Solo, positive/negative/phase/MMC/clock and model safety, with actual command exits."
+    }
+  ],
+  "protection": "OWNER SMC lane only. No protected nightly/main, Pages, device flash, public firmware/controller/SDK/DSP/samples, self-approval or publication."
+}

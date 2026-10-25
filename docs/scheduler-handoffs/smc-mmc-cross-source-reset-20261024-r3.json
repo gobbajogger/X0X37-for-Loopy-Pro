@@ -1,0 +1,52 @@
+{
+  "schema": "x0x37.scheduler.smc.transport.evidence.v1",
+  "evidence_revision": "smc-mmc-cross-source-project-reset-20261024-r3",
+  "role": "LoopyX0X37 SMC Transport",
+  "date_utc": "2026-10-24",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_pr": 122,
+  "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "exact_parent_commit": "34a265a60921957a32bec6ccc9ad38c9a765fae3",
+  "exact_parent_root_tree": "05a75c9775443eb2849c992d3d92ab7dc4042a39",
+  "unchanged_compiled_firmware_tree": "62f6e1c9bffc95e57c28d3d579261c2b1f4eab96",
+  "unchanged_compiled_C_blob": "f8e7580ad12369d3568f3bbebcddd41cb85dea12",
+  "old_test_blob": "58bfd5b17c4abc7f5c3e6c872ddfbe157cb684d2",
+  "new_test_blob": "00c8302a383ae2201c3245f00fdbe3705422b0fb",
+  "paths_changed": [
+    "tests/host/smc_mmc_stop_fifo_test.py",
+    "docs/scheduler-handoffs/smc-mmc-cross-source-reset-20261024-r3.json"
+  ],
+  "test_coverage": {
+    "previous": "48/48 across GCC/Clang plain, UBSan, ASan+UBSan",
+    "new": "64/64 per matrix across 6 configurations: GCC and Clang each plain, UBSan, ASan+UBSan; Python py_compile exit 0; ASAN_OPTIONS=detect_leaks=0, no leak claim",
+    "added": "16 cases: two source indexes times four uint8 ring cursor wraps times two modes: overflowing STOP callback project-reset with old cross-source ring and fresh post-reset PLAY; ordinary queued STOP same cross-source stale/fresh conditions",
+    "negative_mutation": "Remove other-source smc_mmc_r reset from disposable C copy; regression expected RED, Python exit 1, observed stale log_count=33 vs expected 18; NOT a production defect.",
+    "qualification": "Git-blob-exact production C source-extracted test with mock UI/ISR and no physical device; PRODUCER HOST-CHECKED only, independent current-root SMC/native matrix pending."
+  },
+  "private_evidence": {
+    "library_path": "/LoopyX0X37-SMC-MMC-CrossSource-Native-20261024.zip",
+    "library_file_id": "libfile_59287166ec2881919d8ce890c2989cc7",
+    "sha256": "aaa8388016cb27f5119786eb31214cc6a6c8e86d119f4ae90064451d25423106",
+    "bytes": 18688,
+    "uploaded_and_rematerialized_byte_match": true,
+    "archive_crc_pass": true,
+    "contents": "GPL source and test, JSON and logs; no SDK or firmware binaries."
+  },
+  "consumers": {
+    "independent_QA": "Fetch updated PR #122 source; run registered smc-mmc-stop-fifo 64-case selector in 6 matrix configs and independent cross-source reset/ISR realism; review exact combined root; no device PASS inference.",
+    "hourly_Build": "Exact compiled firmware tree 62f6e1c9bffc95e57c28d3d579261c2b1f4eab96 on prior parent was freshly built native Elite/Pro+CTL; verify compiler inputs remain unchanged, reuse same-source provenance only if independently confirmed; NO new firmware build claimed for tests-only commit.",
+    "safe_Merge": "First NIGHTLY PR #103 remains different compiled firmware tree 5c209609b770fd13949230aeb80956594fd6b741, DRAFT/NO-GO. Do not graft optional PR #122 unless independent necessity and review."
+  },
+  "statuses": [
+    "HOST CHECKED",
+    "NATIVE BUILD SOURCE UNCHANGED",
+    "INDEPENDENT FULL-ROOT QA PENDING",
+    "DEVICE NOT TESTED",
+    "NOT INSTALLABLE"
+  ],
+  "excluded": [
+    "no protected nightly/main/gh-pages writes",
+    "no release, flash, vendor DSP/SDK, firmware/controller publication",
+    "no QA self-approval"
+  ]
+}

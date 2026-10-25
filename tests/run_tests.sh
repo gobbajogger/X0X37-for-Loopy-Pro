@@ -180,7 +180,13 @@ run font-pack python3 tests/font_pack_test.py
 run smc-protocol sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -o $OUT/smc_protocol_test tests/host/smc_protocol_test.c && $OUT/smc_protocol_test"
 run smc-fader python3 tests/host/smc_fader_test.py
 run smc-buttons python3 tests/host/smc_buttons_test.py
+run smc-ble-input python3 tests/host/smc_ble_input_test.py
 run smc-queue python3 tests/host/smc_queue_test.py
+run smc-mmc-stop-fifo python3 tests/host/smc_mmc_stop_fifo_test.py
+run smc-ble-midpoll-link python3 tests/host/smc_ble_midpoll_link_test.py
+run smc-ble-frame-length python3 tests/host/smc_ble_frame_length_test.py
+run smc-ble-preset-queue python3 tests/host/smc_ble_preset_queue_test.py
+run smc-preset-solo-lifetime python3 tests/host/smc_preset_solo_lifetime_test.py
 run smc-solo-overflow python3 tests/host/smc_solo_overflow_test.py
 run smc-solo-reconnect-loss python3 tests/host/smc_ble_solo_reconnect_loss_test.py
 run smc-host-data7 python3 tests/host/smc_host_data7_test.py
@@ -203,6 +209,7 @@ run smc-drum-rs sh tests/host/smc_drum_rs_test.sh
 run smc-performance-abort sh tests/host/smc_performance_abort_test.sh
 run smc-filter python3 tests/host/smc_filter_test.py
 run smc-feedback python3 tests/host/smc_feedback_test.py
+run smc-feedback-retry python3 tests/host/smc_feedback_retry_test.py
 run smc-record-feedback sh tests/host/smc_record_feedback_test.sh
 run smc-part-select sh tests/host/smc_part_select_test.sh
 run smc-clip-visibility sh tests/host/smc_clip_visibility_test.sh

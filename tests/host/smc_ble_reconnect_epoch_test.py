@@ -34,7 +34,7 @@ def function(name):
 
 prefix = source[source.index("#define SMC_Q"):source.index("int smc_project_active")]
 functions = "\n".join(function(n) for n in (
-    "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link", "smc_poll"
+    "smc_project_active", "smc_solo_clear", "smc_project_drop", "smc_ble_midi", "smc_ble_link", "smc_mmc_drain_stop", "smc_poll"
 ))
 harness = r'''
 #include <stdint.h>
@@ -148,10 +148,11 @@ int main(int argc, char **argv)
         smc_ble_link(0); smc_ble_link(1); smc_ble_link(0);
         smc_ble_link(1); send_ble(9); send_ble(10); smc_poll();
         want[nw++] = 9; want[nw++] = 10; break;
-    case 9: /* A Bluetooth epoch reset must not purge independent USB MIDI. */
-        smc_ble_link(1); smc_poll(); send_ble(7); send_host(11);
+    case 9: /* Preserve unrelated USB MIDI. Note 11 is Solo and is correctly
+             * cut at this boundary; use SELECT 24 to test independent input. */
+        smc_ble_link(1); smc_poll(); send_ble(7); send_host(24);
         smc_ble_link(0); smc_ble_link(1); send_ble(9); smc_poll();
-        want[nw++] = 9; want[nw++] = 11; break;
+        want[nw++] = 9; want[nw++] = 24; break;
     case 10: /* Project busy drains prior and current inputs. */
         smc_ble_link(1); smc_poll(); send_ble(7);
         smc_ble_link(0); smc_ble_link(1); busy=1; smc_poll(); busy=0;
@@ -172,7 +173,7 @@ with tempfile.TemporaryDirectory(prefix="smc-link-epoch-") as tmp:
     path.write_text(harness, encoding="utf-8")
     args = [os.getenv("CC", "gcc"), "-std=c99", "-O1", "-g", "-Wall",
             "-Wextra", "-Werror", *shlex.split(os.getenv("SAN_FLAGS", "")),
-            str(path), "-o", str(exe)]
+            "-I" + str(ROOT / "firmware/src"), str(path), "-o", str(exe)]
     subprocess.run(args, check=True)
     total = failures = 0
     for start in (0, 240, 254, 255):

@@ -5,20 +5,23 @@
 #include "smc_protocol.h"
 
 #define SMC_Q 32u
+#include "app/smc_ble_input.h"
 extern int plat_ble_smc_send(const uint8_t *msg, uint8_t len);
 extern uint8_t smk_clip_mode_on(void);
 extern int smk_ck_smc_turn(int n, int delta);
 extern int smk_ck_smc_nav(uint8_t note);
-typedef struct {
-    uint8_t n, b[6];
-} smc_event_t;
-static smc_event_t smc_q[SMC_Q];
-static volatile uint8_t smc_qw, smc_qr;
-/* TIMER5 owns publication; the main loop owns acknowledgment. A generation
- * keeps a reconnect visible even if its final state equals the previous one.
- * Bits 1..8 carry the queue write cursor at the last link edge: this lets the
- * consumer discard only packets belonging to an old connection. */
-static volatile uint32_t smc_link_published;
+/* Current controller topology admits one direct peer. Keep its entire ingress
+ * identity in one object; a second peer requires a separate object AND mixer
+ * state/feedback plus controller arbitration (docs/SMC_MULTI_PEER.md). These
+ * names retain the existing consumer's proven ISR and host cutoff ordering. */
+static smc_ble_input_t smc_ble_input;
+#define smc_q (smc_ble_input.q)
+#define smc_qw (smc_ble_input.w)
+#define smc_qr (smc_ble_input.r)
+#define smc_link_published (smc_ble_input.link)
+#define smc_ble_solo_release_lost (smc_ble_input.release_lost)
+#define smc_link_ble_loss_boundary (smc_ble_input.link_release_boundary)
+_Static_assert(SMC_Q == SMC_BLE_INPUT_CAPACITY, "BLE consumer capacity");
 static uint32_t smc_link_seen;
 /* ISR owns enqueued/dropped; main loop owns dispatched/reason. Modulo 256. */
 static volatile uint8_t smc_enqueued, smc_dropped, smc_dispatched, smc_reason;
@@ -31,23 +34,29 @@ static uint8_t smc_host_q[SMC_Q][3];
 static volatile uint8_t smc_host_w, smc_host_r;
 static uint8_t smc_mmc_q[2][16];
 static volatile uint8_t smc_mmc_w[2], smc_mmc_r[2];
-/* MMC STOP must survive a saturated, per-source queue. The audio ISR only
- * publishes generations; the main loop acknowledges them after queued input. */
-static volatile uint32_t smc_mmc_stop_published[2];
-static uint32_t smc_mmc_stop_seen[2];
-/* ISR publishes the overflowed STOP only after its FIFO cutoff. The consumer
- * must drain all commands before that cutoff before applying STOP. */
-static volatile uint8_t smc_mmc_stop_boundary[2];
+/* A full MMC queue can reject several STOP commands at DIFFERENT cutoffs
+ * when TIMER/audio refills a freed slot between polls. One overwritten cutoff
+ * incorrectly reorders the first STOP after the next PLAY. Store distinct
+ * stop boundaries in a single-producer/single-consumer FIFO per source. The
+ * 16-command ring admits at most 17 distinct pending cutoffs at once; 32
+ * slots leave room for ISR/main-loop interleavings without overwrite. */
+#define SMC_STOP_Q 32u
+static volatile uint8_t smc_mmc_stop_q[2][SMC_STOP_Q];
+static volatile uint8_t smc_mmc_stop_w[2], smc_mmc_stop_r[2];
 /* Separate single-writer generation counters: TIMER5 (central), audio ISR
  * (host). Main-loop snapshots never clear a producer-owned flag. */
-static volatile uint32_t smc_ble_solo_release_lost, smc_host_solo_release_lost;
+static volatile uint32_t smc_host_solo_release_lost;
 static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
 /* TIMER5 snapshots both lost-release sources at each link boundary.
  * The link clears ALL held Solo keys, including User/host notes. Retiring
  * pre-edge host losses prevents those old releases from clearing new-link
  * presses. Publish both boundaries with the link under one seqlock. */
-static volatile uint32_t smc_link_loss_seq, smc_link_ble_loss_boundary,
-                         smc_link_host_loss_boundary;
+static volatile uint32_t smc_link_loss_seq, smc_link_host_loss_boundary;
+/* A BLE link boundary clears host-held Solo as well as BLE-held Solo.
+ * Old host Solo presses AND releases must not replay across that edge;
+ * otherwise a dropped old release lets its queued press re-latch forever.
+ * Other host commands and post-edge Solo input remain valid. */
+static volatile uint8_t smc_link_host_cutoff;
 static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
     uint8_t type = st & 0xF0u;
@@ -59,6 +68,7 @@ static struct {
     pref_t target[8];
     uint8_t value[8], last[8], seen, picked, pending;
     uint8_t up, fresh, solo, rec_part;
+    uint8_t preset_user_seen;            /* main-loop decoder epoch for held controls */
     uint8_t solo_target[8];            /* physical S key: 1..5 parts, then 909/808 tracks; 0 released */
     uint16_t drum_solo[NKIT];
     uint8_t lit[128], known[128];
@@ -106,8 +116,8 @@ X0X_COLD static void smc_project_drop(void)
     smc_host_r = smc_host_w;
     smc_mmc_r[0] = smc_mmc_w[0];
     smc_mmc_r[1] = smc_mmc_w[1];
-    smc_mmc_stop_seen[0] = smc_mmc_stop_published[0];
-    smc_mmc_stop_seen[1] = smc_mmc_stop_published[1];
+    smc_mmc_stop_r[0] = smc_mmc_stop_w[0];
+    smc_mmc_stop_r[1] = smc_mmc_stop_w[1];
     /* A reset has already cleared all held solos; do not carry stale
      * overflow releases into the new project's queued presses. */
     smc_ble_solo_release_seen = smc_ble_solo_release_lost;
@@ -125,28 +135,18 @@ X0X_COLD void smc_project_reset(void)
 
 void smc_ble_midi(const uint8_t *msg, uint8_t len)
 {
-    uint8_t w = smc_qw, i;
-    if (!msg || !len || len > 6u) {
-        smc_dropped++; return;
-    }
-    if ((uint8_t)(w - smc_qr) >= SMC_Q) {
-        /* Register only releases that this BLE central could dispatch.
-         * Disabled/disconnected BLE input must not release a USB/User Solo.
-         * Use ISR-published link-up, not main-loop smc.up: new-link notes
-         * may overflow before the consumer has processed that link edge. */
-        if (len == 3u && (proj.set.bt & PROJ_BT_SMC_CENTRAL) &&
-            (smc_link_published & 1u) &&
-            smc_is_solo_release(msg[0], msg[1], msg[2]) &&
-            (!(msg[0] & 15u) || (proj.set.bt & PROJ_BT_SMC_USER)))
-            smc_ble_solo_release_lost++;
-        smc_dropped++; return;
-    }
-    smc_q[w % SMC_Q].n = len;
-    for (i = 0; i < len; i++)
-        smc_q[w % SMC_Q].b[i] = msg[i];
-    __asm__ volatile("" ::: "memory");
-    smc_qw = (uint8_t)(w + 1u);
-    smc_enqueued++;
+    /* Match the real decoder's release policy. Foreign, disabled or
+     * disconnected input cannot clear a held host/User Solo on overflow. */
+    int release = msg && len == 3u &&
+        (proj.set.bt & PROJ_BT_SMC_CENTRAL) && (smc_link_published & 1u) &&
+        smc_is_solo_release(msg[0], msg[1], msg[2]) &&
+        (!(msg[0] & 15u) || ((proj.set.bt & PROJ_BT_SMC_USER) &&
+                              (msg[0] & 15u) == 15u));
+    if (smc_ble_input_push(&smc_ble_input, msg, len,
+                          proj.set.bt & PROJ_BT_SMC_USER, release))
+        smc_enqueued++;
+    else
+        smc_dropped++;
 }
 
 void smc_ble_link(int up)
@@ -155,10 +155,9 @@ void smc_ble_link(int up)
      * not release a new session's held Solo after a coalesced reconnect. */
     smc_link_loss_seq++;
     __asm__ volatile("" ::: "memory");
-    smc_link_ble_loss_boundary = smc_ble_solo_release_lost;
     smc_link_host_loss_boundary = smc_host_solo_release_lost;
-    uint32_t next = (smc_link_published + 0x200u) & ~0x1FFu;
-    smc_link_published = next | ((uint32_t)smc_qw << 1) | (uint32_t)(up != 0);
+    smc_link_host_cutoff = smc_host_w;
+    smc_ble_input_link(&smc_ble_input, up);
     __asm__ volatile("" ::: "memory");
     smc_link_loss_seq++;
 }
@@ -193,15 +192,24 @@ int smc_midi_host(uint32_t pkt)
 void smc_mmc_host(uint8_t cmd, uint8_t src)
 {
     uint8_t w;
-    if (src > 1u || cmd < 1u || cmd > 43u)
+    /* USB/peripheral BLE can receive MMC regardless of the selected preset.
+     * Reject it on arrival when User mode is disabled: otherwise switching
+     * User back on before smc_poll replays stale PLAY/STOP controls. */
+    if (!(proj.set.bt & PROJ_BT_SMC_USER) ||
+        src > 1u || cmd < 1u || cmd > 43u)
         return;
     w = smc_mmc_w[src];
     if ((uint8_t)(w - smc_mmc_r[src]) >= 16u) {
-        /* User-preset MMC command 34 is STOP. Never drop it on overload. */
+        /* Consecutive STOPs at one cutoff are equivalent; a newer cutoff
+         * after an intervening PLAY must remain ordered behind the first. */
         if (cmd == 34u) {
-            smc_mmc_stop_boundary[src] = w;
-            __asm__ volatile("" ::: "memory");
-            smc_mmc_stop_published[src]++;
+            uint8_t stop_w = smc_mmc_stop_w[src];
+            if (stop_w == smc_mmc_stop_r[src] ||
+                smc_mmc_stop_q[src][(uint8_t)(stop_w - 1u) & (SMC_STOP_Q - 1u)] != w) {
+                smc_mmc_stop_q[src][stop_w & (SMC_STOP_Q - 1u)] = w;
+                __asm__ volatile("" ::: "memory");
+                smc_mmc_stop_w[src] = (uint8_t)(stop_w + 1u);
+            }
         }
         return;
     }
@@ -618,7 +626,9 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
         smc_guarded_button(a, 1, allow);
         return !allow || perf_testing() ? 1 : 0;
     }
-    if (len < 3)
+    /* Channel controls are exactly three MIDI bytes. Reject truncated or
+     * extended frames rather than dispatching an otherwise valid prefix. */
+    if (len != 3u)
         return 4;
     /* Never alias malformed BLE MIDI data bytes into SMC notes/CCs. */
     if ((m[1] | m[2]) & 0x80u)
@@ -627,6 +637,11 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
     ch = m[0] & 0x0Fu;
     a = m[1] & 0x7Fu;
     b = m[2] & 0x7Fu;
+    /* Direct BLE User feedback can use DAW channel 1 or the User channel
+     * 16; arbitrary musical channels 2..15 must never operate SMC keys,
+     * faders or performance-mode abort. Keep both maintained routes. */
+    if (user && ch != 0u && ch != 15u)
+        return 4;
     if (!allow || perf_testing()) {
         if (type == 0x90u && b && (!ch || user))
             smc_guarded_button(a, 0, 0);
@@ -651,10 +666,17 @@ static uint8_t smc_message(const uint8_t *m, uint8_t len, int allow)
  * otherwise a preceding PLAY can execute on the next poll after STOP. */
 static void smc_mmc_drain_stop(int src, int allow)
 {
-    uint32_t lost_stop = smc_mmc_stop_published[src];
-    if (lost_stop != smc_mmc_stop_seen[src] &&
-        smc_mmc_r[src] == smc_mmc_stop_boundary[src]) {
-        smc_mmc_stop_seen[src] = lost_stop;
+    /* A STOP belongs immediately after all commands before its cutoff,
+     * even if a producer refilled the MMC ring while an older STOP waited.
+     * Copy the cutoff, retire this FIFO slot, then dispatch so an ISR may
+     * safely reuse the slot (or a project action may discard all input). */
+    while (smc_mmc_stop_r[src] != smc_mmc_stop_w[src]) {
+        uint8_t r = smc_mmc_stop_r[src];
+        __asm__ volatile("" ::: "memory");
+        uint8_t cutoff = smc_mmc_stop_q[src][r & (SMC_STOP_Q - 1u)];
+        if (smc_mmc_r[src] != cutoff) break;
+        __asm__ volatile("" ::: "memory");
+        smc_mmc_stop_r[src] = (uint8_t)(r + 1u);
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_guarded_button(0x5Du, 1, allow);
     }
@@ -663,6 +685,7 @@ static void smc_mmc_drain_stop(int src, int allow)
 void smc_poll(void)
 {
     uint32_t seq, link, ble_link_loss, host_link_loss;
+    uint8_t host_cutoff;
     /* The producer publishes link+release watermark together. Retry if an
      * interrupt changed either half while the main loop sampled them. */
     do {
@@ -672,6 +695,7 @@ void smc_poll(void)
         link = smc_link_published;
         ble_link_loss = smc_link_ble_loss_boundary;
         host_link_loss = smc_link_host_loss_boundary;
+        host_cutoff = smc_link_host_cutoff;
         __asm__ volatile("" ::: "memory");
     } while (seq != smc_link_loss_seq || (seq & 1u));
     uint8_t r, count = 0;
@@ -688,7 +712,8 @@ void smc_poll(void)
         smc_project_drop();
         return;
     }
-    if (link != smc_link_seen) {
+    int link_changed = link != smc_link_seen;
+    if (link_changed) {
         /* Never clear the ISR's publication: it may already contain a newer
          * link edge than this snapshot. The next poll must still see it. */
         smc_link_seen = link;
@@ -723,6 +748,18 @@ void smc_poll(void)
         } else
             ui_say("SMC CONNECTED", 0);
     }
+    /* A DAW/User preset change applies before the old key release can be
+     * decoded. Release held Solo from the previous map immediately,
+     * including host-routed User MIDI. Do not change ISR release handling. */
+    uint8_t preset_user = !!(proj.set.bt & PROJ_BT_SMC_USER);
+    if (smc.preset_user_seen != preset_user) {
+        smc.preset_user_seen = preset_user;
+        smc.picked = smc.seen = 0;
+        smc.knob_i = 0;
+        if (smc_project_active()) smc_solo_clear();
+        smc.pending = 0xFFu;
+        for (int i = 0; i < 128; i++) smc.known[i] = 0;
+    }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
         smc.picked = smc.seen = 0;
@@ -733,6 +770,11 @@ void smc_poll(void)
         r = smc_qr;
         __asm__ volatile("" ::: "memory");
         smc_event_t msg = smc_q[r % SMC_Q];
+        /* A TIMER5 link edge may arrive after this poll's epoch snapshot.
+         * Leave any post-edge packet for the next poll to apply that edge's
+         * cutoff and clear the old Solo without erasing a new-session press. */
+        __asm__ volatile("" ::: "memory");
+        if (smc_link_published != link) break;
         /* The ISR may reuse a full ring's slot as soon as the read index moves.
          * Keep a private event before releasing it. Release before dispatch so
          * a project action can still discard the remaining queued input. */
@@ -740,27 +782,53 @@ void smc_poll(void)
         smc_qr = (uint8_t)(r + 1u);   /* an action can replace the project and discard the remaining queue */
         if (!smc.up) smc_reason = 2;
         else if (!(proj.set.bt & PROJ_BT_SMC_CENTRAL)) smc_reason = 3;
-        else {
+        else if (!!(msg.n & SMC_EVENT_USER) !=
+                 !!(proj.set.bt & PROJ_BT_SMC_USER)) {
+            /* Stale frame from the previous preset, even if its bytes would
+             * also be valid in this one. Preserve the new preset's queue. */
+            smc_reason = 4;
+        } else {
             if (allow && !perf_testing()) smc_dispatched++;
-            smc_reason = smc_message(msg.b, msg.n, allow);
+            smc_reason = smc_message(msg.b,
+                                     (uint8_t)(msg.n & SMC_EVENT_LEN_MASK), allow);
         }
     }
     count = 0;
     while (smc_host_r != smc_host_w && count++ < SMC_Q) {
+        /* A TIMER5 link edge can occur while a preceding host control is
+         * dispatched. Leave the rest of this FIFO untouched until the next
+         * poll has applied that edge's host-Solo cutoff and release reset. */
+        if (smc_link_published != link) break;
         r = smc_host_r;
         uint8_t msg[3];
         __asm__ volatile("" ::: "memory");
         memcpy(msg, smc_host_q[r % SMC_Q], sizeof msg);
         __asm__ volatile("" ::: "memory");
+        if (smc_link_published != link) break;
         smc_host_r = (uint8_t)(r + 1u);
+        /* The BLE edge cleared all held Solo keys. Neither an old host
+         * NoteOff nor an old queued NoteOn may survive that reset: a full
+         * host FIFO can lose NoteOff, and replaying its earlier NoteOn after
+         * the edge would otherwise strand Solo. Preserve unrelated host
+         * controls and fresh post-edge Solo. The ring bounds this delta. */
+        if (link_changed && r != host_cutoff &&
+            (uint8_t)(host_cutoff - r) <= SMC_Q &&
+            (smc_is_solo_release(msg[0], msg[1], msg[2]) ||
+             ((msg[0] & 0xF0u) == 0x90u && msg[1] >= 8u &&
+              msg[1] < 16u && msg[2] != 0u)))
+            continue;
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_message(msg, sizeof msg, allow);
     }
     for (int src = 0; src < 2; src++) {
         count = 0;
         while (smc_mmc_r[src] != smc_mmc_w[src] && count++ < 16u) {
-            smc_mmc_drain_stop(src, allow);
+            /* A STOP callback can change projects and discard this ring.
+             * Do not read a stale slot or move the reset reader past its
+             * writer after smc_mmc_drain_stop() returns. */
             r = smc_mmc_r[src];
+            smc_mmc_drain_stop(src, allow);
+            if (smc_mmc_r[src] != r) break;
             __asm__ volatile("" ::: "memory");
             uint8_t cmd = smc_mmc_q[src][r % 16u];
             __asm__ volatile("" ::: "memory");
@@ -836,7 +904,12 @@ void smc_frame(void)
     static const uint8_t global[11] = {0x2E, 0x2F, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63};
     uint8_t msg[3];
     int i, n, want;
-    if (ui_project_busy() || !smc.up || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
+    /* TIMER5 can disconnect/reconnect while the BLE transmit queue accepts a
+     * frame. Only acknowledge feedback delivered during this same link epoch;
+     * otherwise a former session can consume a fresh session's LED/pitch state. */
+    uint32_t link = smc_link_published;
+    if (ui_project_busy() || !smc.up || !(link & 1u) ||
+        link != smc_link_seen || !(proj.set.bt & PROJ_BT_SMC_CENTRAL))
         return;
     for (i = 0; i < 8; i++) smc_notice(i);
     for (i = 0; i < 43; i++) {
@@ -846,7 +919,8 @@ void smc_frame(void)
         msg[0] = 0x90;
         msg[1] = (uint8_t)n;
         msg[2] = (uint8_t)(want ? 127 : 0);
-        if (!plat_ble_smc_send(msg, 3)) return;
+        if (smc_link_published != link || !plat_ble_smc_send(msg, 3)) return;
+        if (smc_link_published != link) return;
         smc.known[n] = 1;
         smc.lit[n] = (uint8_t)want;
     }
@@ -855,7 +929,8 @@ void smc_frame(void)
             msg[0] = (uint8_t)(0xE0u + i);
             msg[1] = smc.value[i];
             msg[2] = smc.value[i];
-            if (!plat_ble_smc_send(msg, 3)) return;
+            if (smc_link_published != link || !plat_ble_smc_send(msg, 3)) return;
+            if (smc_link_published != link) return;
             smc.pending &= (uint8_t)~(1u << i);
         }
 }

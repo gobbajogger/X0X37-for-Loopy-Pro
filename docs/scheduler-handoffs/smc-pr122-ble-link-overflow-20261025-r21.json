@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "evidence_revision": "smc-pr122-r21-link-overflow-lifetime-20261025-v1",
+  "role": "LoopyX0X37 SMC Transport source specialist",
+  "source_parent_commit": "b037edac22f914bd14c6ca7aaa2988a530abd13d",
+  "source_parent_root_tree": "201a044f40f15f08a8a0fa3c6905682f121cb784",
+  "new_test_blob": "2d795d60494cfb27a315d005c9514f48852df945",
+  "compiled_firmware_tree": "9575dd6bcd05ff41996e9bc6592d8371a190fbbe",
+  "production_smc_mixer_c_blob": "4e0c0ffad570a88848e8ab34f8ed38c303c6cc90",
+  "production_compiler_inputs_changed": false,
+  "purpose": "After Bluetooth reconnect, discarded old-link Solo releases must not affect new notes; genuinely lost new-link releases must fail-safe; unrelated MIDI must never cancel a musician's held Solo.",
+  "design": "Test actual production-C producer/ring/link publication/poll/decoder, with simulated TIMER5 callbacks, both pre/post link release overflow phases and checked accepted versus foreign channel routing; preserve source and existing behavior unchanged.",
+  "expected_user_effect": "No unintentional Solo interruption or stuck Solo across these exercised link and queue conditions; extra test coverage only, not measured hardware improvement.",
+  "observed_native": {
+    "profiles": [
+      "GCC 14.2.0 plain",
+      "GCC 14.2.0 UBSan",
+      "GCC 14.2.0 ASan+UBSan",
+      "Clang 17.0.0 plain",
+      "Clang 17.0.0 UBSan",
+      "Clang 17.0.0 ASan+UBSan"
+    ],
+    "negative_old_R18_exact_source_expected_assertion_failures": 6,
+    "new_link_overflow_focus_positive_executions": 6,
+    "new_link_overflow_cases_per_profile": 768,
+    "affected_previous_suite_positive_executions": 36,
+    "solo_total_cases_per_profile": 1746,
+    "all_individual_outcomes_match_expected": 48,
+    "source_mode": "production C source extraction, actual queue and poll functions with mocked ISR/UI callbacks",
+    "aggregated_first_attempt": "timeout after 37 individually completed and preserved exits; 11 remaining child runs executed individually; all 48 logged and reconciled; aggregate timeout never passed",
+    "observed_stage_elapsed_seconds": null,
+    "tokens": null
+  },
+  "private_evidence": {
+    "library_destination": "/LoopyX0X37/smc-transport-R21-link-overflow-evidence-20261025.zip",
+    "zip_sha256": "e5db1d4a4a1c15c6a2662259583f8d1e6269d0846d102f2a6436403c4eb7aed9",
+    "zip_bytes": 57785,
+    "r21_run_json_sha256": "bd9548ec0cd5f0038b22a705de515670609bca13fcc252b74c4aa0942185621d",
+    "r21_test_git_blob": "2d795d60494cfb27a315d005c9514f48852df945"
+  },
+  "gates": {
+    "producer_scoped_native": "PASS",
+    "full_root_and_target_build": "NOT_RUN",
+    "independent_QA": "PENDING",
+    "controller_complete_closure_reuse": "PENDING_BUILDER_RECONFIRMATION",
+    "firmware_nightly_merge": "NOT_AUTHORIZED_FOR_SOURCE_SPECIALIST",
+    "package_and_installer_qualification": "NOT_RUN",
+    "matching_model_hardware": "NOT_RUN",
+    "publication": "NOT_RUN"
+  },
+  "next_owner": "Existing Independent QA to review entire current R21 ROOT; existing Hourly Build to independently check unchanged complete native compiler/controller closure and private R19 bytes before reusing BUILD_ONLY; sole Safe Merge for integration after gates.",
+  "restrictions": "No firmware binary/controller SDK/DSP/sample/user data uploaded; no Actions execution, hardware, protected branch or hosted publication."
+}

@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "reviewer": "independent_qa agent (separate from implementation owner)",
+  "scope": "Source ingress foundation, fixture repairs and topology documentation",
+  "positive_runs": 54,
+  "profiles": [
+    "plain",
+    "UBSan",
+    "ASan+UBSan"
+  ],
+  "compiler": "Apple Clang 21.0.0, macOS arm64",
+  "mutations": [
+    {
+      "name": "lost_release_erased",
+      "exit": 1,
+      "log_sha256": "3afcc48210dba98a9d86fb12f94a1e8001253b31d1dc35c7b0d191b9eccb7cdd"
+    },
+    {
+      "name": "wrong_link_cutoff",
+      "exit": 1,
+      "log_sha256": "5d98a814fa20c27f1e2060e768a136bbf7483801d0ba702155ecc5a9513e56c2"
+    },
+    {
+      "name": "stale_loss_boundary",
+      "exit": 1,
+      "log_sha256": "93444da21875efe9a379123b9a0b0e576be46177fed566037e6861c2941b2036"
+    },
+    {
+      "name": "shared_queue",
+      "exit": 1,
+      "log_sha256": "874a96f634aa1f1d3428a06550b084f072af2c9c7ff23f194f308a5b00e9d256"
+    }
+  ],
+  "additional_input_sha256": {
+    "tests/host/smc_feedback_retry_test.py": "0a511047c41a9b7ebbf5e42c68c87530e00c111bacfa0ac83e570f3d21a7be55",
+    "tests/host/smc_host_data7_test.py": "cd64e8311452d4ba336e05d8a157f676e8780d8c2efde5991442f7e331d337c1",
+    "tests/host/smc_feedback_test.py": "733ae1db61ebdcab3de7e039424a7660348904475a0273f03da997b9a3bae659"
+  },
+  "test_c_sha256": "8fb435406510d9f9c352345e3f38bcf8a38be56c64f5ca1e2a46ef1d79bda3d5",
+  "verdict": "No blocking source-scope findings; frozen inputs stable before/after; final Git blob readback in delivery handoff",
+  "limits": "Independent host/source scope only; two physical peers, target builds and hardware remain unqualified",
+  "original_test_input_sha256": {
+    "firmware/src/app/smc_mixer.c": "0a5158e2f6de8cdcd333f55df623df0cb765c6bbef14b4cd2af2cd07fae73cb2",
+    "firmware/src/app/smc_ble_input.h": "c7ae298808284db26dc9082876d5e912297037957aa9996f5434a32c8a3b2ce0",
+    "tests/host/smc_ble_input_test.py": "c018b4f64de7101c0b136270ef0777630136c33345bf50b4abd2a9fbfc592e7c",
+    "tests/host/smc_queue_test.py": "68e370b32cdaeb034c01898797bf7f999092cba0862b4a15bd69393059f2a8d2",
+    "tests/host/smc_mmc_stop_fifo_test.py": "76d353f0bc5004e4e4fb5dc4f3738b3d576b56412d1f4195e4ee5b3cb6c03d08",
+    "tests/host/smc_ble_midpoll_link_test.py": "edd3d05d9c59bf3a5c33a4774a9aba4d6384eadb922d86038f865b8dc06b8606",
+    "tests/host/smc_ble_frame_length_test.py": "f7e4f11c9a45eaa0f9713e0d88c0429917dbe724725f61fc40d29fb16bfb68f2",
+    "tests/host/smc_ble_preset_queue_test.py": "b0c0fc5a4371321d057d265f26f9785bb44a392f998b4e0db1bb7c0a6fb2e7db",
+    "tests/host/smc_preset_solo_lifetime_test.py": "2fcdbe7a45e3331f272bb5e620ecc5b73f476f4dac22a9b157ed9e8ddf61db52",
+    "tests/host/smc_solo_overflow_test.py": "faf13d225eee8d84e4f3f7ad40e55e737885004f957ee53768384da4aac96330",
+    "tests/host/smc_ble_solo_reconnect_loss_test.py": "ee4bfa8ab454254d0c7dd6d027537611f8732659f0890892d127f81afdc2bb60",
+    "tests/host/smc_link_test.py": "cd881bec6483d95cbcadffa9c92385cc417fb9fed40af3b84d3b70c59be6af53",
+    "tests/host/smc_ble_reconnect_epoch_test.py": "79d74928e1eeb72c5e19210f3f81fc7dd2093e62a5199c382a3b9e6e70e8a177"
+  },
+  "input_sha256": {
+    "docs/SMC_MULTI_PEER.md": "e41d909527863b018c2ef5e5b923808954b39e9afdc355422a0c963e9480c527",
+    "firmware/src/app/smc_ble_input.h": "600adfa59688238aba8fac0e5d7e744326cbd9ac2c05d38c3b021b205fd8a557",
+    "firmware/src/app/smc_mixer.c": "0a5158e2f6de8cdcd333f55df623df0cb765c6bbef14b4cd2af2cd07fae73cb2",
+    "tests/host/smc_ble_input_test.c": "8fb435406510d9f9c352345e3f38bcf8a38be56c64f5ca1e2a46ef1d79bda3d5",
+    "tests/host/smc_ble_input_test.py": "c018b4f64de7101c0b136270ef0777630136c33345bf50b4abd2a9fbfc592e7c",
+    "tests/host/smc_feedback_retry_test.py": "0a511047c41a9b7ebbf5e42c68c87530e00c111bacfa0ac83e570f3d21a7be55",
+    "tests/host/smc_feedback_test.py": "733ae1db61ebdcab3de7e039424a7660348904475a0273f03da997b9a3bae659",
+    "tests/host/smc_host_data7_test.py": "cd64e8311452d4ba336e05d8a157f676e8780d8c2efde5991442f7e331d337c1",
+    "tests/run_tests.sh": "9de9f84d8754c7634640f74903040aec4ddfd0a2f17cbb80dd25cea7795d4263"
+  },
+  "frozen_recheck_runs": 12,
+  "code_commit": "88baa85fafd44676ea66a14392f8ac74e34dc758",
+  "reuse_note": "Earlier 33 core runs reused after independent comment/whitespace-stripped header equality; final 12 runs include all three changed fixtures and ingress across all profiles."
+}

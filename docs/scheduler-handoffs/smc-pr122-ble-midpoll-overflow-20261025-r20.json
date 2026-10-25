@@ -1,0 +1,61 @@
+{
+  "schema": "loopyx0x37.smc_source_handoff.v1",
+  "revision": "smc-pr122-ble-midpoll-overflow-r20-20261025",
+  "producing_role": "LoopyX0X37 SMC Transport source specialist",
+  "end_user_contract": "A valid held SMC Solo must not be cancelled by a dropped foreign-channel MIDI NoteOff while a BLE queue refills during fader dispatch. A truly lost accepted-channel Solo release still clears the hold on the following poll. Fresh press/release and faders still work.",
+  "reason": "R19 overflow channel isolation was verified on a full queue, but concurrent TIMER5 refill of the slot just freed by the main-loop consumer had not been exercised.",
+  "design": "Test-only addition: real production-C smc_ble_midi / smc_poll / smc_message / Solo extraction. Mock fader callback invokes producer to refill ring from 31 to 32 and drop either NoteOff or zero-velocity NoteOn. Checks producer loss count, next-poll phase, retained or cleared Solo, fresh release, and six FIFO cursor offsets. No firmware C, SDK, BLE, controller, or clock modifications.",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr_number": 122,
+    "isolated_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+    "parent_commit": "3f93f4cba7c7b5dfb65723851de2ddf48965acbb",
+    "parent_root_tree": "d9cb4ed4eeee802f0f46deb14f67fabf73b9c2f2",
+    "compiler_firmware_tree_unchanged": "9575dd6bcd05ff41996e9bc6592d8371a190fbbe",
+    "firmware_c_blob_unchanged": "4e0c0ffad570a88848e8ab34f8ed38c303c6cc90",
+    "old_test_blob": "3988fae836f197e1f9cacabb9c389b25a98cffc8",
+    "new_test_blob": "9f504f6dc653a6b85b6f4b6e831eb7447f9547d4",
+    "changed_paths": [
+      "tests/host/smc_preset_solo_lifetime_test.py",
+      "docs/scheduler-handoffs/smc-pr122-ble-midpoll-overflow-20261025-r20.json"
+    ]
+  },
+  "verified_native": {
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "profiles": [
+      "plain",
+      "UBSan",
+      "ASan+UBSan"
+    ],
+    "actual_outcomes": "48/48 matched expected exits and assertion/positive output markers",
+    "negative_control": "6/6 exact R18 production-C runs exit 1 on the added midpoll foreign lost-release assertion",
+    "focus": "6/6 R19 production-C runs exit 0; 384/384 new interleavings in each configuration",
+    "inherited": "36/36 six existing native regression runs exit 0; combined Solo lifetime 978/978 scenarios per configuration",
+    "timing": "Newly dropped release during a fader callback is not acknowledged prematurely within the same smc_poll; it is accounted for on the next poll",
+    "scope": "Scoped production-C source-extraction with mocked BLE/ISR/UI; not complete firmware, independent QA, installer, browser, device or physical PASS",
+    "sanitizer_limit": "ASan+UBSan run with LeakSanitizer disabled; leak PASS not claimed",
+    "private_log_zip": "LoopyX0X37-SMC-Midpoll-Foreign-Overflow-R20-20261025.zip",
+    "zip_sha256": "8dec01f48c6010d2ab1c57326781967e8608daeb9e38c362cb5226df220ae880",
+    "zip_bytes": 70170,
+    "r20_run_json_sha256": "e60e21545da593541c0319d519ca5da3716974b85a553dc0678d4d5d93058043",
+    "matrix_stdout_sha256": "499ecc39bb2677f09d12b31206deb87bd7a901e6a718b5bfe13a3317d95acb0f"
+  },
+  "receiving_roles": {
+    "Independent_QA": "Review exact current source and new realistic ISR phase/overflow controls independently, including negative and positive releases; do not count producer suite as independent approval.",
+    "Hourly_Build": "No compiler inputs changed from R19. Reuse existing genuine R19 Elite/Pro/controller BUILD_ONLY only after complete source/toolchain/SDK/config/controller closure and exact private artifact hashes reverified; no redundant compile solely for test update.",
+    "sole_firmware_Safe_Merge": "Decide integration after independent review and exact candidate checks. PR103 first NIGHTLY remains separate; do not graft speculative R20 changes.",
+    "website_publisher": "No installer publication authorization or firmware bytes transferred."
+  },
+  "status": "SOURCE REGRESSION VERIFIED, QA PENDING, DEVICE NOT TESTED, NOT INSTALLABLE",
+  "prohibited_actions_not_taken": [
+    "GitHub Actions tests/builds",
+    "protected branch writes",
+    "device flash",
+    "firmware publication",
+    "vendor binaries or samples in Git",
+    "duplicate schedulers"
+  ]
+}

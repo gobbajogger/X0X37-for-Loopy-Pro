@@ -132,10 +132,22 @@ int main(void)
  assert(!smc_midi_host(packet(0x8f,0x88,0)));
  assert(!smc_midi_host(packet(0x8f,8,0x80)));
  smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
+ /* Preset changes deliberately clear old-map Solo. Still reject disabled
+  * host/channel16 release without fabricating an overflow generation. */
  prepare();press(0);saturate(0);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- assert(!smc_midi_host(packet(0x8f,8,0)));smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
+ uint32_t lost=smc_host_solo_release_lost;
+ assert(!smc_midi_host(packet(0x8f,8,0)));
+ assert(smc_host_solo_release_lost==lost);
+ smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(1);saturate(1);proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;
- emit(1,0x8f,8,0);smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
+ lost=smc_ble_solo_release_lost;
+ emit(1,0x8f,8,0);assert(smc_ble_solo_release_lost==lost);
+ smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
+ /* Stable DAW mode: rejected ch16 release must leave a valid ch1 Solo held. */
+ prepare();proj.set.bt&=(uint8_t)~PROJ_BT_SMC_USER;smc_poll();
+ press(1);saturate(1);lost=smc_ble_solo_release_lost;
+ emit(1,0x8f,8,0);assert(smc_ble_solo_release_lost==lost);
+ smc_poll();assert(smc.solo_target[0]&&output_solo);cases++;
  prepare();press(0);saturate(0);saturate(1);
  emit(0,0x80,8,0);emit(1,0x80,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
  prepare();press(1);saturate(1);emit(1,0x80,8,0);smc_ble_link(0);smc_poll();
@@ -151,7 +163,7 @@ int main(void)
  assert(injection_count==1 && (uint8_t)(smc_qw-smc_qr)==SMC_Q);
  smc_poll();
  assert(!smc.solo_target[0] && !output_solo);cases++;
- assert(cases==20);printf("SMC combined source-window Solo overflow: %d/20 PASS\n",cases);
+ assert(cases==21);printf("SMC combined source-window Solo overflow: %d/21 PASS\n",cases);
  return 0;
 }
 '''

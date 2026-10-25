@@ -1,0 +1,65 @@
+{
+  "schema": "x0x37-source-producer-receipt-v1",
+  "evidence_revision": "smc-pr122-direct-ble-exact-frame-length-20261025-r5",
+  "stage": "SOURCE / PRODUCER NATIVE SCOPED CHECKED; INDEPENDENT ROOT QA PENDING; NEW BUILD_ONLY PENDING",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 122,
+  "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "parent_head": "5d70a878736e40f220e4ed96bd49ea75d271c655",
+  "parent_root_tree": "1874b637bc8dcb891dee4b43577095c2eafe1be8",
+  "parent_compiled_firmware_tree": "933a4a8417902fe250fc5f01db81fb7c4d63ff83",
+  "old_source_blob": "c435439a7e5af5b34ac2cd0ab7b7bcb73d06aa30",
+  "expected_new_source_blob": "956136cb831ada9da1506b28696a680596be4654",
+  "expected_new_test_blob": "216f0fc83061757a30b410e8bceb6e0416ed330c",
+  "bug": "smc_message accepted malformed extended BLE-MIDI channel frames length 4..7, dispatching their valid-looking three-byte prefix as NoteOn/NoteOff/CC or performance-guard; only exactly 3-byte channel controls and exactly 6-byte User MMC are allowed",
+  "patch": "Change len<3 to len!=3 for channel controls after the independently guarded six-byte MMC dispatch; no ISR queue or Solo logic modified.",
+  "producer_matrix": {
+    "compiler": [
+      "gcc",
+      "clang"
+    ],
+    "sanitizer": [
+      "plain",
+      "ubsan",
+      "asan+ubsan"
+    ],
+    "expected_old_code_runtime_red": "6/6 configurations exit 1, malformed 4..7-byte frame accepted",
+    "fixed_new_code_frame_length": "6/6 compile and runtime exit 0, 24/24 checks per configuration",
+    "unchanged_ble_midpoll": "6/6 runtime exit 0, 16/16 scenarios per configuration",
+    "unchanged_mmc_stop_fifo": "6/6 runtime exit 0, 64/64 scenarios per configuration",
+    "python_syntax_exit": 0,
+    "leak_sanitizer": "disabled, not run",
+    "limits": "Production-C source-extraction with mocked UI/ISR, not full compiled firmware, entire repo test root, independent QA, or hardware"
+  },
+  "private_evidence": {
+    "main_library_path": "/LoopyX0X37-SMC-BLE-FrameLength-Producer-20261025.zip",
+    "library_file_id": "libfile_7599ffdf16c881918072e0225ddc9229",
+    "file_id": "file_00000000778c81f69bb295904016faaf",
+    "size_bytes": 45302,
+    "archive_sha256": "6d4f7dc6cd5c9287f3ed8f1b18d94b4d617c969cd9cddca46fe9360f82179c4e",
+    "original_complete_logs_and_commands_manifest_sha256": "267d633434841fdca9d283d4ff3ca33273ae617d423bd378718f9209882ec323",
+    "library_upload_materialization_cmp": "PASS",
+    "zip_crc": "PASS",
+    "contains": "source, tests, 24 GCC/Clang native test logs and SHA256 manifest only; no firmware, controller, SDK, DSP or samples"
+  },
+  "changed_paths": [
+    "firmware/src/app/smc_mixer.c",
+    "tests/host/smc_ble_frame_length_test.py",
+    "tests/run_tests.sh",
+    "docs/scheduler-handoffs/smc-ble-exact-frame-length-20261025-r5.json"
+  ],
+  "prior_r4_builder": "Existing Hourly Build received and produced genuine scoped R4 Elite/Pro/ctl BUILD_ONLY (Git PR #122 issuecomment-6385482487); R4 compiled tree and binaries do not apply to this changed C input.",
+  "receiving_roles": {
+    "hourly_build": "Build genuine Elite and Pro DEV BUILD_ONLY plus matching ctl from NEW exact source/compiler-input SHA; verify true exits, SHA256/CRC/model/budgets and private bytes; do not wait for QA, hosting or device.",
+    "independent_qa": "Independent review/run changed exact-root source, BLE MIDI malformed 0/2/3/4..7 frame tests and existing link ISR/NoteOff/MMC/clock regressions; record SHA-specific status, no self approval.",
+    "safe_merge": "Only sole integrator decides later on independently qualified optional change; do not graft into first-nightly PR #103 while OTA physical identity and complete-root QA remain NO-GO."
+  },
+  "limits": {
+    "elite_pro_new_source_build": "UNRUN",
+    "whole_root_independent_qa": "UNRUN",
+    "physical_device": "UNRUN",
+    "installer_ota_backup_restore": "UNRUN",
+    "nightly_installable": "NO-GO",
+    "production": "NOT APPROVED"
+  }
+}

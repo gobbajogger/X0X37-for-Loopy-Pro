@@ -1,0 +1,67 @@
+{
+  "schema": "x0x37.smc-transport.source-producer-evidence.v1",
+  "evidence_revision": "smc-pr122-stale-host-keyup-link-20261025-r13-v1",
+  "intended_user_behavior": "A queued old USB/peripheral User-mode Solo NoteOff must never release a fresh direct BLE Solo pressed after SMC reconnect; valid fresh host/BLE NoteOns and matched NoteOffs still work.",
+  "failure": "BLE link epoch clears all held Solo, but the host ring retained a pre-epoch NoteOff that drained after a new direct BLE NoteOn on the same strip, clearing the new press.",
+  "correction": "TIMER5 publishes host queue cutoff in existing BLE-link seqlock. smc_poll filters only pre-edge host Solo NoteOff frames for that link transition, preserving other host MIDI and post-edge NoteOffs.",
+  "scope": "Single source path firmware/src/app/smc_mixer.c plus 3 existing owned host regression harnesses and this evidence JSON. Does not alter BLE SDK, firmware main/nightly, bootloader, installer, sample slots or hardware.",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pull_request": 122,
+  "owned_branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "producer_role": "LoopyX0X37 SMC Transport",
+  "parent_commit": "e7814db67f1077edccbd79f5b5bdfb485245ac2b",
+  "parent_root_tree": "4b16032ce2c92c125f2ccbb6258981dafccd16a7",
+  "parent_firmware_subtree": "5adb15376a0fa63c9f3b6a73e84b78bb994607cc",
+  "new_file_blobs": {
+    "firmware/src/app/smc_mixer.c": "f9cd654952a514edfa3c3122946e38b4b85380d6",
+    "tests/host/smc_preset_solo_lifetime_test.py": "71518526931b0bef502bd0bd0e745b5ace2fd71d",
+    "tests/host/smc_mmc_stop_fifo_test.py": "df3838b6717b2885dc2321aad007303639603dbc",
+    "tests/host/smc_feedback_retry_test.py": "aa63cf77c777e899759c1a289c3a8a22cc86ac18"
+  },
+  "native_test": {
+    "command": "CC={gcc|clang} SAN_FLAGS={plain|'-fsanitize=undefined -fno-sanitize-recover=all'|'-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'} ASAN_OPTIONS=detect_leaks=0 python3 -B tests/host/{smc_preset_solo_lifetime_test.py,smc_ble_preset_queue_test.py,smc_ble_midpoll_link_test.py,smc_mmc_stop_fifo_test.py,smc_ble_frame_length_test.py,smc_feedback_retry_test.py}",
+    "profiles": [
+      "gcc plain",
+      "gcc UBSan",
+      "gcc ASan+UBSan",
+      "clang plain",
+      "clang UBSan",
+      "clang ASan+UBSan"
+    ],
+    "new_solo_lifetime": "78/78 scenarios passed per configuration, 384 assertions. Compared with prior 66/66 scenarios.",
+    "companion_suites_per_profile": {
+      "preset-routing": "84/84",
+      "BLE-reconnect": "16/16",
+      "MMC-STOP-FIFO": "96/96",
+      "BLE-frame-routing": "35/35",
+      "feedback-retry": "27884 checks"
+    },
+    "positive_commands": 36,
+    "positive_compile_execute_exits_zero": 36,
+    "negative_baseline_source": "c982e2c2adcf7a0579bffb50beee100f1a1a9662",
+    "negative_test": "Old exact R12 C source must fail runtime assertion 'fresh Solo must survive stale pre-edge host NoteOff', not fail compilation.",
+    "negative_compiler_runs": 6,
+    "negative_expected_runtime_failures": 6,
+    "caveats": "Source-window mocked callbacks/ISR; not full-source-root QA, physical ISR timing, target compilation or hardware PASS. LeakSanitizer was not run."
+  },
+  "evidence_artifacts": {
+    "library_path": "/LoopyX0X37-SMC-HostKeyUp-LinkBoundary-R13-20261025.zip",
+    "library_file_id": "libfile_d8d04853fbf0819182cde1d735cb7642",
+    "archive_bytes": 58776,
+    "archive_sha256": "e86d5914ed1b05d57c0e4dcad7a99aaf929ac86e828f186f31905c0f13f71bfc",
+    "library_readback_cmp_exit": 0,
+    "matrix_json_sha256": "5b27e6c61015b44980fdd34a3b00abe3a5384f5893279579fab7d83564d4558b",
+    "runner_stdout_sha256": "d29e57bae440baa1a3793c450706d01772bbea0aa54a709c4469420473c3a425"
+  },
+  "gates": {
+    "producer_native": "PASS_SCOPE_ONLY",
+    "new_elite_pro_controller_build": "NOT_RUN_FOR_NEW_C",
+    "independent_qa": "NOT_OBSERVED",
+    "full_root": "NOT_RUN",
+    "same_byte_owner_hardware": "NOT_RUN",
+    "public_install": "NO_GO"
+  },
+  "next_owner_build": "Existing LoopyX0X37 Hourly Build, exact new HEAD and new compiled subtree, real native Elite+Pro DEV+controller BUILD_ONLY; no requirement to wait for QA/site/hardware.",
+  "next_owner_qa": "Existing independent QA, exact changed root, pre-edge host key-up vs fresh BLE Solo, ISR race, User/DAW mode, MMC/clock regression, independent tests/review.",
+  "later_owner": "Sole firmware Safe Merge only after independent acceptance, existing website Main Merger and Pages publisher remain separate."
+}
