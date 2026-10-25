@@ -11,8 +11,8 @@ static int failures;
 } while (0)
 static int drum(void *x, int k, int v, float vel)
 { (void)x; (void)k; (void)v; (void)vel; return 1; }
-static void bass_on(void *x, int p, int n, int acc, int slide, int vel)
-{ (void)x; (void)p; (void)n; (void)acc; (void)slide; (void)vel; }
+static int bass_on(void *x, int p, int n, int acc, int slide, int vel)
+{ (void)x; (void)p; (void)n; (void)acc; (void)slide; (void)vel; return 1; }
 static void bass_off(void *x, int p) { (void)x; (void)p; }
 static void brk(void *x, int s, int b, float f, int en)
 { (void)x; (void)s; (void)b; (void)f; (void)en; }

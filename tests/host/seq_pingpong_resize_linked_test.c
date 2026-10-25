@@ -24,10 +24,11 @@ static void on_step(void *context, int track, int step)
         observed_last_step = step;
     }
 }
-static void on_bass(void *context, int part, int pitch, int accent, int slide, int velocity)
+static int on_bass(void *context, int part, int pitch, int accent, int slide, int velocity)
 {
     (void)context; (void)part; (void)pitch; (void)accent; (void)slide; (void)velocity;
     note_on_count++;
+    return 1;
 }
 static void off_bass(void *context, int part)
 {
