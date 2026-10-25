@@ -13,9 +13,10 @@ FP-001 implement commit: see branch tip (`Reconcile FP-001 installer source vs s
 Implement evidence: `evidence/f07-stage2/CHECKS.md`, `evidence/f07-stage2/DEFERRED.md`, `evidence/f07-stage2/digests.json`.
 Audit record: `evidence/f07-stage1/AUDIT.md`.
 Successor prompt: `evidence/f07-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no usable `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-43698d6f-ea60-5e58-9d62-84179d683504`.
+Successor URL: https://cursor.com/agents/bc-43698d6f-ea60-5e58-9d62-84179d683504
+Successor name: `F07 stage3 FP-001` (coordinator CreateAgent; base `cursor/f07-fp-pin-stage2-fb90`).
+Handoff status: **complete** — owner-visible Stage 3 id recorded on this remote tip. PR #218 local-env review worker: `bc-21824534-1f6b-5aad-828b-bd15823d8a62` → `internal/pr-local-reviews/pr-218.md`.
 
 ## Repair summary
 
