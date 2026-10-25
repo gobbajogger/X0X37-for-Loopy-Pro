@@ -294,6 +294,47 @@ static void valid_start_continue_during_handoff(uint32_t old_input,uint8_t comma
     CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
 }
 
+
+/* A *local* STOP is independent of the remote clock source. If USB/BLE drops
+ * after its queued F8 but before audio applies local STOP, the replacement
+ * input must not cancel the gesture or leave the 303 note playing. This is
+ * deliberately different from a remote Stop accepted before disconnection. */
+static void pending_local_stop_handoff(uint32_t old_input)
+{
+    seq_t s; monitor_t m; seq_sink_t out;
+    uint32_t new_input=old_input ^ 1u;
+    init(&s,&m,&out);
+    CHECK(recv(&s,0xfau,old_input));
+    CHECK(recv(&s,0xf8u,old_input));
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==1u && m.on==1u && m.held==1u);
+    for(unsigned i=0;i<4u;i++) {
+        CHECK(recv(&s,0xf8u,old_input));
+        render(&s,&out,1u);
+    }
+    CHECK(s.t[TRK_BASS0].ext_ticks==4u);
+    CHECK(recv(&s,0xf8u,old_input)); /* old-source tick awaits audio */
+    CHECK(s.ext_pending==1u);
+    seq_stop(&s); /* user's STOP gesture, not incoming remote Stop */
+    CHECK(s.req_stop && !s.req_stop_rt);
+    seq_clk_drop(&s,old_input);
+    CHECK(recv(&s,0xf8u,new_input));
+    CHECK(s.req_stop && !s.req_stop_rt && s.ext_pending==1u);
+    CHECK(!recv(&s,0xfau,old_input)); /* stale remote Start cannot supersede */
+    render(&s,&out,1u);
+    CHECK(!s.playing && m.steps==1u && m.on==1u && m.off==1u);
+    CHECK(m.held==0u && !m.duplicate && !m.orphan);
+    CHECK(recv(&s,0xfau,new_input));
+    CHECK(recv(&s,0xf8u,new_input));
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==2u && m.last_step==0u);
+    CHECK(m.on==2u && m.off==1u && m.held==1u);
+    CHECK(recv(&s,0xfcu,new_input));
+    render(&s,&out,1u);
+    CHECK(!s.playing && m.held==0u && m.on==m.off);
+    CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
+}
+
 int main(void)
 {
     const unsigned blocks[]={1u,64u,1024u};
@@ -303,6 +344,8 @@ int main(void)
         scenario=7u+i;queued_clock_disconnect(1u);
         scenario=10u+i;pending_local_play_handoff(0u);
         scenario=13u+i;pending_local_play_handoff(1u);
+        scenario=70u+i*2u;pending_local_stop_handoff(0u);
+        scenario=71u+i*2u;pending_local_stop_handoff(1u);
         for(unsigned old_input=0u;old_input<2u;old_input++)
             for(unsigned command=0u;command<2u;command++) {
                 scenario=40u+i*4u+old_input*2u+command;
