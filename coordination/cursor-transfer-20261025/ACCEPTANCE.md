@@ -131,11 +131,17 @@ Verified here before the transfer: `fix/303-live-duration-20261026` is `b923b397
 
 I transfer sole recorder and Miami shared schema and lifecycle ownership to that worker. The transfer includes the bounded `seq_rec_bass` repair and the later combined revision. I do not keep a second migration writer, and I will not edit that scope. Both stream4 layouts stay frozen until that same worker migrates them together. Pull request 53, Performance, F07, the queue, Pages, and device ownership stay where they were. The rejected clock patch and the Chicago gain candidate stay unimported.
 
-The repair write starts only after this acceptance, by resuming that same worker.
+The repair write started only after this acceptance, by resuming that same worker.
+
+## Repair result
+
+`bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b` pushed `90397cf0965048665d431f35c8c287b0dc9ea3f5` onto `fix/303-live-duration-20261026`. Coordinator readback: tree `cf7c4f098b9e35a7e494d43599f1f828f4d927b7`, parent `b923b39711736b79a559a2bed3e835e2fdc75eab`, not a force-push. Pull request 247 advances. No second schema pull request. Miami remains `d7f156eca43ccf9ede1d291bc71743b356883e03`. `pattern.h` and `motion.h` are absent from the diff, so both stream4 layouts stay unimported.
+
+The commit adds `seq_rec_cancel`, which bumps `gen` and clears `own_ok`, and `seq_rec_bass` requires `own_ok`, `own_gen`, and `own_src` before `SEQ_REC_LEGATO` can slide. `engine.c` sets that ownership on an accepted press. The worker reports host `rec_live`, including the SMK build, passed. This coordinator did not re-run that test. The host result is not Elite or Pro native fit. PINGPONG and RANDOM repeated-cell timing stay unmet. The worker's comments on pull requests 247 and 249 returned 403. This file is the receipt.
 
 ## Next assignments
 
-Repair owner `bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b` implements one change on top of `b923b39711736b79a559a2bed3e835e2fdc75eab`: after context cancel, `seq_rec_bass` must not treat a reopened DSP gate as legato. `SEQ_REC_LEGATO` is set from `firmware/src/app/engine.c` and consumed at `firmware/src/seq/sequencer.c`. The overlap test is `flags & SEQ_REC_LEGATO` together with `r->active`. That is not ownership proof. Use the accepted note owner and generation. No preset timer and no independent voice reset. Host check is `tests/host/rec_live_test.c`. PINGPONG and RANDOM repeated-cell timing stay unmet and are outside this edit. A host pass is not native fit.
+Independent QA of `90397cf0965048665d431f35c8c287b0dc9ea3f5` is a different worker from `bc-3aecd4dc-e782-5e35-9eaf-e2662dd10e6b`. It reviews and may re-run the host test. It does not take schema ownership and does not migrate stream4.
 
 The same owner holds the next combined revision and does not start it inside the repair. Recorder layout remains the endpoint nibble in `firmware/src/seq/pattern.h`. Miami layout remains `MOT_SNAPSHOT` `0xFE`, schema 1, in `firmware/src/seq/motion.h` on `d7f156eca43ccf9ede1d291bc71743b356883e03`. Miami engine continuation, capacity recovery, and acoustic validation stay open. Acoustic reference renders still wait on a placed local thread. No new license gate.
 
