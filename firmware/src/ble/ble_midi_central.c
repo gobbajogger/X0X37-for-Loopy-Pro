@@ -2,6 +2,7 @@
 /* Direct HCI central. The controller image enables master/scan/init roles; this host never
  * advertises, so a central link and the X0X BLE peripheral link cannot coexist. */
 #include "ble_midi_central.h"
+#include "ble_midi_uuid.h"             /* one SVC/CHR UUID pair shared with ble_midi_host.c */
 
 enum { H4_CMD = 1, H4_ACL = 2, H4_EVT = 4 };
 enum { COP_RESET = 0x0c03, COP_EV_MASK = 0x0c01, COP_LE_MASK = 0x2001,
@@ -11,8 +12,8 @@ enum { COP_RESET = 0x0c03, COP_EV_MASK = 0x0c01, COP_LE_MASK = 0x2001,
 enum { S_RESET, S_EVENT, S_LE_EVENT, S_BUFFER, S_RANDOM, S_SCAN_PARAM,
        S_SCAN_ON, S_SCAN_OFF, S_CREATE, S_CANCEL, S_SERVICE, S_CHAR, S_CCCD, S_SUBSCRIBE, S_READY };
 enum { D_SENT = 1, D_STOP = 2, D_CONTROL = 4 };
-static const uint8_t blec_U_SVC[16] = {0x00,0xc7,0xc4,0x4e,0xe3,0x6c,0x51,0xa7,0x33,0x4b,0xe8,0xed,0x5a,0x0e,0xb8,0x03};
-static const uint8_t blec_U_CHAR[16] = {0xf3,0x6b,0x10,0x9d,0x66,0xf2,0xa9,0xa1,0x12,0x41,0x68,0x38,0xdb,0xe5,0x72,0x77};
+#define blec_U_SVC BLE_MIDI_UUID_SVC
+#define blec_U_CHAR BLE_MIDI_UUID_CHR
 static unsigned blec_rd16(const uint8_t *p) { return (unsigned)p[0] | (unsigned)p[1] << 8; }
 static void blec_wr16(uint8_t *p, unsigned v) { p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); }
 static int blec_eq(const uint8_t *a, const uint8_t *b, unsigned n)
