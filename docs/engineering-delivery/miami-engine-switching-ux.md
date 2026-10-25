@@ -25,6 +25,12 @@ WBL1 audio runtime is not on the product tip (no `synth_engine` / wobble XIP
 on this head). Selecting WBL1 is refused with an honest toast. Do not treat
 this as seamless PASS.
 
+Native measure (tip `93b4be3b`, Elite+Pro): product tip already **XIP
+overflow 620 B** before WBL1; thin WBL1 costs **~2928 B** (`fa26655c`
+on−off); Miami pin WBL1 costs **~3312 B**. See
+[miami-wbl1-live-xip-fit.md](miami-wbl1-live-xip-fit.md). Live-audio PASS
+criteria there are **not met**.
+
 ## Shipped here
 
 - `bass_engine_select` — session live-engine table (1=303, 2=WBL1); WBL1
