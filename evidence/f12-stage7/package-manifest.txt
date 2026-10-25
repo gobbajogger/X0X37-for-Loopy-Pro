@@ -1,0 +1,19 @@
+F12 Stage-7 packages (BF-008; blank MATCH stage-4; page serves bundled; same immutable host as F11)
+source_commit=de11b6d7e3ac3322d2db689675d9ed27ed667785
+content_tree=43e97f34ca00d32570c831ea4ec2bf56f697341cf8881018476cc67c9d76d5a9
+git_source_tree=c143a9f8f5b5d0f6804995829ccbe515c77c6103
+firmware_tree=9195dce5c4beb5fa8aa564504c8d1d114c8264cd
+blank_hashes_matched_stage4=yes
+blank_hashes_matched_f11=yes
+host=artifacts/nightly-dev@02f4f4f48408db96e01b143d5410b7fb00a5a70a
+stamp=dev-20261025-4f96b0d9 (content-addressed; same page digests as F11)
+
+file	size	sha256
+x0x-smk37-elite.fwsc (blank)	651396	829bb6da6eb0042af0731a236d6238e50cc13581ce059ebbe02882534a94b056
+x0x-smk37.fwsc (blank)	651392	d2186cb0f3fe74376651cb2804973c8255780532a8cd54c33d2bac09aeda60ec
+ctl.img	65492	956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+elite-bundled.fwsc	651396	4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a
+pro-bundled.fwsc	651392	b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720
+
+pkg elite: https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/02f4f4f48408db96e01b143d5410b7fb00a5a70a/artifacts/nightly/dev-20261025-4f96b0d9/4841110a274e2212d56abf9234cf0d921b45d915d1ff25fad0727e52edb7d18a/x0x37-elite-dev.fwsc
+pkg pro: https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/02f4f4f48408db96e01b143d5410b7fb00a5a70a/artifacts/nightly/dev-20261025-4f96b0d9/b35d587557d9f1d4c72b2c81bc944a1dd129bee625e98ae35f06fe7f653fc720/x0x37-pro-dev.fwsc
