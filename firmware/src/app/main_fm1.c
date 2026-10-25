@@ -876,11 +876,13 @@ static void smk_faders(void)
 
 /* The wheels (mux C address 4 = pitch, 5 = mod), self-calibrating as in the reference port: the pitch wheel's
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
- * has reached. On a 303 (the part on screen) they play its sound without changing what is saved: pitch wheel
- * = Chicago pitch bend (±2 st via CHI_PBEND, never TUNE), mod = its CUTOFF opened from the saved value up
- * to the top. Released (or wheel returned to rest), the saved values sound again. A gesture keeps its
- * original 303 until release, across screen/part changes; navigation never sends a sound parameter.
- * Chicago's mod wheel is not this cutoff opener — that mapping is still unknown. */
+ * has reached. On a 303 (the part on screen) they play its sound without changing what is saved.
+ * Pitch wheel = Chicago pitch bend (±2 st via CHI_PBEND, never TUNE). Release restores the saved bend.
+ * Mod wheel = Chicago cutoff. It replaces the cutoff knob. Down closes the voice filter (cutoff 0).
+ * Up opens it (cutoff 127). High ADC is down; that sense is not inverted. The write is BASS303_CUTOFF,
+ * which the voice filter uses before the master cutoff. It does not write MST_CUTOFF, the saved pot,
+ * or Miami wobble. A gesture keeps its original 303 until the wheel returns to rest, across screen/part
+ * changes. A stationary wheel does not send a sound parameter. */
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
@@ -942,9 +944,9 @@ static void smk_wheels(void)
         if (cut_part < 0 && mw && is_303())
             cut_part = (int8_t)bidx();
         if (cut_part >= 0) {
-            int32_t base = proj.sound.v[T_303][cut_part][BASS303_CUTOFF];
-            want = base + (127 - base) * mw / 127;
-            engine_set(T_303, cut_part, BASS303_CUTOFF, want);
+            /* mw 0 is down (closed). mw 127 is up (open). The wheel is the cutoff. */
+            want = mw;
+            engine_set(T_303, cut_part, BASS303_CUTOFF, (int)want);
             if (!mw)
                 cut_part = -1;
         }

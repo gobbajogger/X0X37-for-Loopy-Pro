@@ -85,7 +85,11 @@ int main(int argc,char **argv) {
     /* An intentional mod gesture; saved/displayed base remains 30/40. */
     fm1_in.wheel[1]=(gesture&1)?550:615;
     fm1_in.wheel[0]=(gesture&2)?580:550; smk_wheels(); render();
-    if(gesture&1) assert(observed_bass[part]->pot[BASS303_CUTOFF]>40);
+    /* 550 is up from the down end at 615: the wheel replaces the knob (57), it does not add. */
+    if(gesture&1) {
+        assert(last_target==T_303 && last_param==BASS303_CUTOFF && last_value==57);
+        assert(observed_bass[part]->pot[BASS303_CUTOFF]==57);
+    }
     if(locks) {
         int k=motion_alloc(proj.arr.lane,0,PART_303A+part,T_303,part,BASS303_CUTOFF);
         assert(k>=0);
@@ -129,7 +133,8 @@ int main(int argc,char **argv) {
     select_part(PART_909,smc_path);
     fm1_in.wheel[1]=615; fm1_in.wheel[0]=550; smk_wheels();
     assert(commands==before+((gesture&1)!=0)+((gesture&2)!=0)); render();
-    if((gesture&1) && !playing) assert(observed_bass[part]->pot[BASS303_CUTOFF]==30+part*10);
+    /* Down closes. The saved knob stays. The filter is not left open. */
+    if((gesture&1) && !playing) assert(observed_bass[part]->pot[BASS303_CUTOFF]==0);
     /* A knob edit is authoritative while a stationary wheel is still held. */
     seq_stop(&seq); render();
     select_part(PART_303A+part,smc_path);
@@ -150,7 +155,7 @@ int main(int argc,char **argv) {
     assert(observed_bass[1-part]->bend_pot==(uint8_t)last_value);
     before=commands;
     fm1_in.wheel[1]=615; smk_wheels();
-    assert(commands==before+1 && last_voice==part && last_param==BASS303_CUTOFF && last_value==51);
+    assert(commands==before+1 && last_voice==part && last_param==BASS303_CUTOFF && last_value==0);
     fm1_in.wheel[0]=550; smk_wheels();
     assert(commands==before+2 && last_voice==1-part && last_param==CHI_PBEND);
     assert(last_value==proj.sound.v[T_303][1-part][CHI_PBEND]);
