@@ -66,6 +66,8 @@ Log: `evidence/f09-stage1/live-verify.log`.
 | Oldest open bugfinder | **BF-005** (sequencer.c blob `83b03f73…` still matches finding baseline) |
 | Younger BF-006 / BF-007 | Open on PR #26 lane; not selected |
 
+Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/240
+
 ## Overall
 
 **AUDIT RECORDED.** Selected defect **BF-005** (queued old-source MIDI clocks accelerate a new source after disconnect). Ready for Stage 2.
