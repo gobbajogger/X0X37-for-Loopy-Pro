@@ -6,7 +6,7 @@ This packet is source and commands only. It does not include a toolchain, an SDK
 
 - Repository: `gobbajogger/X0X37-for-Loopy-Pro`
 - Branch: `lane/firmware-build-version-labels-20261023-1814`
-- Build the branch head that contains `tools/release_alloc.py` and `releases/openbeta/ledger.json`.
+- Build the branch head that contains `tools/release_alloc.py` and `releases/openbeta/ledger.json`. The head is the commit named in the latest pin on draft PR 53. `f6c4c23f6822535cae25625cf083ae4ebed10ae5` is an ancestor, not the candidate.
 - Do not build `253b5101a9e3ebcc1e8dcca48764322909820b26`. That commit is the input this lane started from, before the label work.
 - Do not build or rewrite `892bf60d912eca93597dcf03be25a9756540c949`. That source stays an unversioned installed artifact.
 - Do not merge this branch into `nightly` or `main`.
@@ -37,30 +37,26 @@ Repeat with `--model pro`. The products must be `SMK-37 Elite_9XXYYZZ` and `SMK-
 
 ## Firmware commands
 
-Use the pinned JieLi SDK and toolchain already qualified for this project. From a clean checkout of the branch head:
+Use the pinned JieLi SDK and toolchain already qualified for this project. From a clean checkout of the branch head, read the issued ledger without resetting the source checkout. The copy in this repository stays empty.
 
 ```
+git fetch origin release-records
+git show FETCH_HEAD:releases/openbeta/ledger.json > /tmp/openbeta-ledger.json
+
 python3 tools/dev_validate.py run \
   --commit <source SHA> --model elite \
   --firmware-version <X.Y.Z> \
+  --release-ledger /tmp/openbeta-ledger.json \
   --plan <plan.json> --output <new-elite-dir>
 
 python3 tools/dev_validate.py run \
   --commit <source SHA> --model pro \
   --firmware-version <X.Y.Z> \
+  --release-ledger /tmp/openbeta-ledger.json \
   --plan <plan.json> --output <new-pro-dir>
 ```
 
-`--firmware-version` stamps the numeric identity. It does not make the build a release and it does not test hardware. The on-device version string is `X.Y.Z`. The settings row shows `X.Y.Z_openbeta`.
-
-The in-repo ledger stays empty until a number is issued on `release-records`. Point the build at that record without resetting the source checkout:
-
-```
-git fetch origin release-records
-git show FETCH_HEAD:releases/openbeta/ledger.json > /tmp/openbeta-ledger.json
-```
-
-Pass `--release-ledger /tmp/openbeta-ledger.json` to `dev_validate.py`. A version that is not allocated to this commit and `commit^{tree}` is refused. Bind both models after the package and controller hashes exist, then publish. Publish refuses a missing receipt and refuses to replace an existing catalog version with different source, package, or controller bytes. The same bytes may be published again.
+`--firmware-version` stamps the numeric identity. It does not make the build a release and it does not test hardware. The on-device version string is `X.Y.Z`. The settings row shows `X.Y.Z_openbeta`. A version that is not allocated to this commit and `commit^{tree}` is refused. Bind both models after the package and controller hashes exist, then publish. Publish refuses a missing receipt and refuses to replace an existing catalog version with different source, package, or controller bytes. The same bytes may be published again.
 
 Check both packages with `tools/firmware_build_labels.py --model elite|pro --source-commit <SHA> --expected-version <X.Y.Z>`. Refuse the pair if the models disagree, the loader is missing, or the hash does not match the record.
 
