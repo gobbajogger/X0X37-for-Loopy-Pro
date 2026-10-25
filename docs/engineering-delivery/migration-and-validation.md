@@ -71,8 +71,13 @@ commit and file SHA-256 in future handoffs. A verified offline copy suffices.
 The separate browser/status repository needs only a thin AGENTS reference pinned to
 the accepted source commit. If unreachable, use a verified supplied copy; do not
 create another maintained policy body. Plugin/coordinator/scheduler entrypoints can
-be migrated in separately authorized prompt/document stages, preserving current
-versions/settings and technical procedures. This source proposal changes none of
+be migrated in separately authorized stages. Preserve settings outside the assigned
+change and retain useful technical procedures. Scheduler IDs, role splits and
+frequencies are not permanent requirements: an authorized value audit may support
+consolidation, rescheduling, pausing or retirement. Migrate ownership and checkpoint
+identity explicitly, retaining essential capabilities, independent QA and history
+without overlapping writers or silently carrying acceptance to a new role.
+This source proposal changes none of
 those services and does not make their old copies disappear.
 
 Observe a subsequent authorized stage before claiming operational improvement.
@@ -91,6 +96,17 @@ firmware `nightly` `93449136baae02c9715ba20edc5c43176786b635` and `main`
 explicitly, not represented as already merged ancestors. Native `ls-remote` failed
 DNS; the successful connector reads are the remote evidence. Refresh before any
 future integration because these observations are not a permanent current-head gate.
+
+PR #155's resolution stage refreshed the same exact heads and normally merges
+Cursor `fc5de6d388c12aa2d67b5187b9b32dbd8467eb55` into the owned proposal lane,
+whose first parent is `54f5290505b7023906821429f0619a968b53ec53`. This supersedes
+the preceding unmerged-ancestry description for that combined candidate. Cursor's
+branch remains untouched. The resolution retains its exact hardware-record
+glossary, explicit feature-base distinction and required license package content;
+canonical gates keep publication separate from source integration. Existing
+helper implementation/test bytes and compiled firmware inputs remain unchanged. Review
+and affected link/host checks cover the resolution; earlier accepted evidence
+remains scoped to unchanged inputs.
 
 The two newer Cursor commits clarify feature-PR base versus firmware integration,
 publication/download/picker versus `nightly`/`main`, LaunchAgent `--ctl`, and exact
@@ -115,7 +131,7 @@ completed firmware work and time to owner-installable NIGHTLY remain unmeasured.
 Scheduler definitions and proposals require their separate live baseline/review.
 
 The saved reconciliation's canonical core measured 1,101 whitespace-separated words
-and 8,374 bytes; the incremental core measures 843 words and 6,453 bytes, using
+and 8,374 bytes; task36's incremental core measured 843 words and 6,453 bytes, using
 `len(Path(path).read_bytes().split())` and `len(...)` on actual source. This reduces
 the core by 258 words (23.4%); technical checkpoint and safety references are loaded
 for their relevant stages. This is source size, not token telemetry or an estimate

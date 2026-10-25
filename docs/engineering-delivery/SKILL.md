@@ -24,11 +24,17 @@ Missing referenced rules do not authorize inventing them. See
 ## Own the next bounded stage
 
 The root coordinates integration/progress; specialists implement and a different
-reviewer supplies required independent QA. Preserve assigned integrator/publisher
-roles. Each stage has one owner, exact inputs, allowed action, acceptance evidence,
+reviewer supplies required independent QA. Respect assigned integrator/publisher
+ownership until an authorized migration. Each stage has one owner, exact inputs,
+allowed action, acceptance evidence,
 next owner and stop. Pull existing progress; resolve known overlaps and verify
 handoff before reassignment. Silence is not proof. Isolate mutable outputs or
 serialize conflicts; run independent ready work in parallel.
+
+Scheduler task IDs, role splits and frequencies may be optimized, consolidated,
+rescheduled, paused or retired when authorized. Preserve essential capabilities,
+independent QA, history and single-writer safety through an explicit ownership and
+checkpoint migration; a new identity does not silently inherit old acceptance.
 
 Start each new task/stage in a fresh execution thread; steering an active stage
 is allowed. Completed threads supply evidence, not execution destinations. Carry

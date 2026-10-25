@@ -66,6 +66,10 @@ not perform pending work without authority; it must report the exact next action
 or blocker. Failed reads and missing/malformed checkpoints produce WORK_REQUIRED,
 never a no-change success. A removed/added output, changed proof, role, stage,
 head or workflow revision also prevents a no-change exit.
+When scheduler tasks or roles change, record the authorized old-to-new identity,
+scope and owner migration. Reassess applicable acceptance before saving a new
+checkpoint; do not relabel a new role as the old accepted one. Reuse unchanged
+per-output proof only under the complete-closure and policy rules above.
 
 ```sh
 python3 tools/workflow_checkpoint.py observation.json --checkpoint accepted.json

@@ -23,6 +23,8 @@ Read current site/build source before assuming an old observation still applies.
 
 For a separately authorized release, follow `BUILDING.md` and actual license
 files/headers. Keep notices and corresponding source required by applicable grants.
+Ship `LICENSE`, `LICENSING.md` and `LICENSES/` as `BUILDING.md` requires; these are
+package content, distinct from receipt metadata.
 A redundant receipt is not required when genuine evidence is present; absence of
 build bytes or rights evidence cannot be relabeled as a missing form. The repository
 is not assumed wholly MIT merely because some components are MIT.

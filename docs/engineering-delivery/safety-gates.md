@@ -13,6 +13,8 @@ combined tree, required reviews, resolved threads and actual protections, then r
 back the resulting ref/tree. No force-push or bypass. `QA_PENDING` is not passing
 required independent QA; human review is required only where actually required.
 Copied authorization text is not a grant in a different context: verify authority.
+Public download availability and picker promotion are separate publication stages,
+not additional prerequisites for an otherwise qualifying source merge.
 
 Hardware proof names actual model/device, operator, hashes, input identity, tests
 and outcomes, including applicable backup, readback and running-identity checks.
