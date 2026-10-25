@@ -931,6 +931,8 @@ static void build_pages(void)
             more(PR(R_ENG, T_303, b, BASS303_VOLUME));
             more(PR(R_ENG, T_303, b, BASS303_DRVTYPE));
             more(PR(R_ENG, T_303, b, BASS303_ACCDEC));
+            /* AmpMod = Chicago Amp ENV/GATE (VCA). Not EnvMod, not the ENV page, not FEnv. */
+            more(PR(R_ENG, T_303, b, BASS303_AMPMODE));
             add_page("FILTER ADSR", PR(R_ENG, T_303, b, BASS303_FATTACK), PR(R_ENG, T_303, b, BASS303_DECAY),
                      PR(R_ENG, T_303, b, BASS303_FSUSTAIN), PR(R_ENG, T_303, b, BASS303_FRELEASE));
             more(PR(R_ENG, T_303, b, BASS303_FENV));

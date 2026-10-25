@@ -15,6 +15,7 @@
 #include "x0x.h"
 #include "../dsp/drum909.h"            /* DR_SD (the sound's revisions) */
 #include "../dsp/master.h"             /* MST_* (the sound's revisions) */
+#include "../dsp/bass303.h"            /* BASS303_AMPMODE (sound rev 5) */
 #include "lz.c"
 
 project_t proj;
@@ -175,6 +176,36 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
+/* Through PROJ_SND_REV 4 every sound cell was 16 pots wide. Rev 5 widens to NPARAMS_MAX. */
+#define SOUND_CELL_V4 16u
+#define SOUND_BYTES_V4 (NTARGETS * NVOICES_MAX * SOUND_CELL_V4)
+
+/* OBJ_SOUND may be the old 16-wide layout or the current sizeof(sound_t). An old payload is
+ * expanded cell-by-cell so index 0..15 keep their meaning; new slots keep the defaults already
+ * in dst (AmpMod = Env for 303). */
+static int load_sound(sound_t *dst)
+{
+    int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
+    uint32_t i, t, v, p, body;
+    if (n < 4 || get32(io_buf) != PROJ_FORMAT)
+        return -1;
+    body = (uint32_t)n - 4u;
+    if (body == sizeof *dst) {
+        for (i = 0; i < body; i++)
+            ((uint8_t *)dst)[i] = io_buf[4u + i];
+        stored_known[OBJ_SOUND] = 1;
+        stored_hash[OBJ_SOUND] = hash_of(io_buf, (uint32_t)n);
+        return 0;
+    }
+    if (body != SOUND_BYTES_V4)
+        return -1;
+    for (t = 0; t < NTARGETS; t++)
+        for (v = 0; v < NVOICES_MAX; v++)
+            for (p = 0; p < SOUND_CELL_V4; p++)
+                dst->v[t][v][p] = io_buf[4u + (t * NVOICES_MAX + v) * SOUND_CELL_V4 + p];
+    stored_known[OBJ_SOUND] = 0;                     /* next save writes the widened layout */
+    return 0;
+}
 
 static void arrange_defaults(project_t *pr)
 {
@@ -543,13 +574,17 @@ static int read_project(project_t *pr)
         bad = 1;
     project_clk_check(pr);                              /* (first: it can clear the a74 byte 38) */
     project_ck_check(pr, 0);                              /* (main_fm1.c trusts the clip keys settings) */
-    sound_ok = load_obj(OBJ_SOUND, &pr->sound, sizeof pr->sound) == 0;
+    sound_ok = load_sound(&pr->sound) == 0;
     if (!sound_ok)
         bad = 1;
     if (sound_ok && pr->set.snd_rev < 3)             /* before the 909 BD's sends: its pan moves up two */
         sound_bd_sends(pr, T_909, 8);                     /* (first: the pans' own fixes below see the new place) */
     if (sound_ok && pr->set.snd_rev < 4)             /* the 808 BD's, the same */
         sound_bd_sends(pr, T_808, 7);
+    if (sound_ok && pr->set.snd_rev < 5) {           /* before AmpMod: keep Env (Open303) on both 303s */
+        for (i = 0; i < NBASS; i++)
+            pr->sound.v[T_303][i][BASS303_AMPMODE] = bass303_param(BASS303_AMPMODE)->def;
+    }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
         for (i = 0; i < NPARTS; i++)
             pr->sound.v[T_MIX][i][MX_PAN] = 64;
