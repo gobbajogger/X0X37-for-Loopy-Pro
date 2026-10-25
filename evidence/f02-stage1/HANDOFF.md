@@ -8,9 +8,10 @@ Parent / stage-1 owner: `bc-93d068c9-df43-525d-b826-6e57a67efb90`.
 Audited SHA: `13d32e1dee37b6fb5a1e339aff499a75eecb97b5`.
 Audit record: `evidence/f02-stage1/AUDIT.md`.
 Successor prompt: `evidence/f02-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete**. `POST https://api.cursor.com/v1/agents` returned HTTP 401 (`Invalid User API Key`) with no `CURSOR_API_KEY` / `CURSOR_SERVICE_ACCOUNT_KEY` in this pod. Retried once; same result. Stage 1 still owns the loop. A Task subagent was not substituted.
+Successor agent id: `bc-37feb056-46e1-5377-8388-5fe9e46d3ca6`.
+Successor URL: https://cursor.com/agents/bc-37feb056-46e1-5377-8388-5fe9e46d3ca6
+Successor source: `desktop` (CreateAgent). Name: `F02 stage2 implement`. `startingRef`: `cursor/f02-stage1-fb90`.
+Handoff status: **complete**. Owner-visible Stage 2 is recorded on this remote tip. Stage 1 ownership ends. Ignore internal probe `bc-3afa217a-8ab0-53d0-a0bb-8f745a71c2b2` (`source=internal`); it is not the successor.
 
 Selected defect: **F02**. After the installer sends the selected keyboard into its update loader, the next search can attach to a different keyboard and write the package there. The approved repair is fail-closed: snapshot the loader ports, accept exactly one new loader, and do not write otherwise.
 
