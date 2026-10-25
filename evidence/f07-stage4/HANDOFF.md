@@ -13,9 +13,10 @@ Package evidence: `evidence/f07-stage4/CHECKS.md`, `elite/record.json`, `pro/rec
 Host test evidence: `evidence/f07-stage3/CHECKS.md` (ALL_PASS).
 Deferred (unchanged): `evidence/f07-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f07-stage4/SUCCESSOR-STAGE5.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 5 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-6fe39901-28af-5ef9-8590-1ba47e4031bd`.
+Successor URL: https://cursor.com/agents/bc-6fe39901-28af-5ef9-8590-1ba47e4031bd.
+Successor name: F07 stage5 FP-001 (owner-visible; base `cursor/f07-fp-pin-stage4-fb90`).
+Handoff status: **complete** — owner-visible Stage 5 id recorded on this remote tip via coordinator CreateAgent.
 
 ## Package summary
 
