@@ -73,7 +73,7 @@ RES="$OUT/.results"
 test_class() {
     case "$1" in
     install-slots-web) TEST_CLASS=W ;;
-    installer|installer-targets|installer-slots|slot-backup|upload-tools|\
+    installer|installer-f02-bind|installer-f02-bind-web|installer-targets|installer-slots|slot-backup|upload-tools|\
     breaks-page|projects-page|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
@@ -349,6 +349,8 @@ run status-isolation bash tests/host/test_status_isolation.sh   # tools/status.s
 run loop-bars sh tests/host/run_loop_bars.sh            # engine.c loop_bars: the bar guess uses the loop's rate
 # Shared installer protocol and model guards use synthetic devices; package parity uses SMK builds.
 run installer python3 tests/install_test.py
+run installer-f02-bind python3 tests/install_f02_loader_bind_test.py   # F02: loader/restart wait accepts only one newly appeared port
+command -v node >/dev/null 2>&1 && run installer-f02-bind-web node web/test_f02_loader_bind.mjs   # F02 web waitFor: same fail-closed newly-appeared rule
 # SMK-37 update fixtures use the Pro app/loader. Elite and MKE identities exercise the same layout.
 run locked-settings python3 tools/check_locked_settings.py   # hardware-relevant settings
 run smk-flash sh -c "$CC -O2 -Wall -Wno-unused-function -DBOARD_SMK37=1 -Ifirmware/hal -o $OUT/smk_flash_test \
