@@ -58,6 +58,8 @@ static int st_prog(uint32_t off, const void *src, uint32_t n)
 #include "../../firmware/src/storage.c"
 #define SMP_USER_XIP(k) (nor + SMP_USER_OFF(k))
 #include "../../firmware/src/app/slots.c"
+/* Device alias: project objects are built in the store buffer (x0x.c). */
+#define PROJECT_IO_BUFFER st_buf
 #include "../../firmware/src/app/project.c"
 
 int plat_store_load(uint32_t obj, void *dst, uint32_t max)

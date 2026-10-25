@@ -116,6 +116,10 @@ extern struct bootguard_s bootguard;
  *                before ota_service; an editor frame is consumed before ota_take can write
  *                ota_dec. SAVE/LOAD paths that call lz_compress do not use ed_smp_buf. An
  *                update session does not call ed_service (blocked in ota_session / ota_idle).
+ *   0xF80-0xFEF  the update parameter block (ota.c, 112 B). It is filled only after ota_stage
+ *                returns, and ota_commit resets before the main loop can save. A save's LZ table
+ *                uses this tail at every other time. ota_dec stops at 0xF7F, so a frame cannot
+ *                reach it. The audio interrupt does not use this scratch.
  * A save does not run while the PERF TEST plays its patterns (seq.playing blocks it), and the test
  * makes its patterns after the last possible save (ui.c perf_test_tick, phase 0). An update session
  * stops the sequencer first, and the test then stops and puts the project back. */
@@ -127,6 +131,10 @@ static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
 #define LZ_SCRATCH x0x_main_scratch
 #define PERF_SCRATCH x0x_main_scratch
 #define ED_SMP_SCRATCH (OTA_SCRATCH + OTA_DEC_OFF)   /* 512 B; call-scoped like ota_dec */
+#define OTA_PARM_OFF 0xF80u
+#define OTA_PARM_N 112u
+_Static_assert(OTA_DEC_OFF + 640u <= OTA_PARM_OFF, "update parm overlaps the decoded frame");
+_Static_assert(OTA_PARM_OFF + OTA_PARM_N <= sizeof x0x_main_scratch, "update parm fits the scratch");
 #include "ota.c"
 static uint32_t ota_now_ms(void) { return fm1_ms; }
 static void ota_idle(void) { fm1_wdt_feed(); }
@@ -182,6 +190,12 @@ static void ota_commit(const uint8_t *parm)
 #include "app/x0x.h"
 #include "app/panel.c"
 #include "app/plat_fm1.c"
+/* Project objects are built in the store buffer. st_save reads the old copy's
+ * sequence without loading its payload, so those new bytes stay. A boot upload
+ * holds the buffer; project_save returns before it writes. Panel save passes
+ * its own struct and copies in. The audio interrupt does not use this buffer. */
+#define PROJECT_IO_BUFFER st_buf
+_Static_assert(sizeof st_buf >= PLAT_STORE_MAX, "project object fits the store buffer");
 #include "app/project.c"
 #include "app/ui.c"
 #if BOARD_SMK37

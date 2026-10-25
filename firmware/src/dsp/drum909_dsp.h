@@ -26,9 +26,15 @@
 #if defined(__GNUC__) || defined(__clang__)
 #define D9_INLINE static inline __attribute__((always_inline))
 #define D9_NOINLINE static __attribute__((noinline, unused))   /* not every includer uses every helper */
+/* One link-wide body. The text stays here so a call can still be inlined.
+ * Each unit may emit a weak copy; the link keeps a single one. */
+#define D9_ONE extern inline __attribute__((gnu_inline, weak, unused))
+#define D9_ONE_OUT __attribute__((weak, noinline, unused))
 #else
 #define D9_INLINE static inline
 #define D9_NOINLINE static
+#define D9_ONE static inline
+#define D9_ONE_OUT static
 #endif
 
 #define D9_SR 44100.0f
@@ -189,7 +195,7 @@ static inline float d9_tri(uint32_t ph)
 /* ===================================================================== */
 /* tanh from the table                                                    */
 /* ===================================================================== */
-static inline float d9_tanh(float u)
+D9_ONE float d9_tanh(float u)
 {
     const float a = fm_fabsf(u) * X0X_TANH_SCALE;
     float t;
@@ -241,7 +247,7 @@ static inline void d9_shape_prep(d9_shape_t *s, float drive, int type)
 }
 
 /* types 1..6, out of line (the switch is big; the default type is inline below) */
-D9_NOINLINE float d9_shape_other(const d9_shape_t *s, float x, float *st)
+D9_ONE_OUT float d9_shape_other(const d9_shape_t *s, float x, float *st)
 {
     const float k = s->k;
     switch (s->type) {
