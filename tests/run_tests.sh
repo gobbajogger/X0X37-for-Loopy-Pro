@@ -24,7 +24,8 @@
 #   A missing optional input prints "  not-run <name> (<reason>)". It does not write a .fail file and does not set FAIL.
 #     Pillow: python3 cannot import PIL. ASan runtime: ${CC:-cc} -fsanitize=address,undefined does not link.
 #     Parallel tests use a private HOME. Python's user site follows HOME, so the Pillow check and those tests
-#     keep the invoker's user base (PYTHONUSERBASE, or ~/.local when that is unset). A pip --user Pillow stays visible.
+#     keep the invoker's user base (PYTHONUSERBASE if set, otherwise this python3's site.getuserbase()).
+#     A pip --user Pillow stays visible. The default is not hard-coded: macOS uses ~/Library/Python, not ~/.local.
 #     Reference trees: 9W9, 8W8, or schwung-303 is absent. breaks and drum909-adpcm stay in-tree and still run.
 #     The sequencer still runs when TB-3PO is absent (it prints its own skip sentence). The SMK package block stays a skip note.
 #   If this run admits host-build as not-run because Pillow is absent, drum samples and the break bank are still
@@ -45,7 +46,11 @@ CC="${CC:-cc}"
 FAIL=0
 GEN_FAILED=0        # 1 after gen_nonfont actually ran and failed (host-build was not-run). Not a Pillow skip.
 # Captured before any test replaces HOME. See the Pillow note above.
-X0X_PYTHONUSERBASE="${PYTHONUSERBASE:-$HOME/.local}"
+if [ -n "${PYTHONUSERBASE:-}" ]; then
+    X0X_PYTHONUSERBASE=$PYTHONUSERBASE
+else
+    X0X_PYTHONUSERBASE=$(python3 -c 'import site; print(site.getuserbase())')
+fi
 export X0X_PYTHONUSERBASE
 PIL_SKIP=0          # tests_body sets 1 when python3 cannot import PIL
 ASAN_SKIP=0         # tests_body sets 1 when the ASan runtime does not link
