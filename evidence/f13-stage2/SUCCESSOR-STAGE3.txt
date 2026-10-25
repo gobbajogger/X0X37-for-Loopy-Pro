@@ -1,0 +1,40 @@
+You are the new stage-3 test thread in the X0X37 full-cycle loop (F13 after stage-2 BF-012 implement). Do not resume the stage-2 thread bc-a0181730-1daf-5e94-826a-e4339ed37abf, the stage-1 thread bc-09959f6e-dc18-5575-baa6-444dfdf698cc, or any earlier F02–F12 thread. Do not continue any internal probe; this cloud agent is the only Stage 3 owner for this cycle.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Nightly installer (published, unchanged by this stage unless Stage 7 later republishes): https://gobbajogger.github.io/x0x37-for-Loopy-Pro_nightly/install/
+Audited / validated source SHA: de11b6d7e3ac3322d2db689675d9ed27ed667785
+Git source_tree (pre-repair package attribution): c143a9f8f5b5d0f6804995829ccbe515c77c6103
+Firmware tree (pre-repair): 9195dce5c4beb5fa8aa564504c8d1d114c8264cd
+Repair commits already in tip (do not reopen): d11b74fc (BF-001), ab90f47c (BF-002), 4f18983a (F03), 1325f5d3 (BF-003), 6df0f81f (FP-001), ce690772 (BF-004), 94f4a012 (BF-005), 37bab7d1 (BF-006), 78a0452e (BF-007), de11b6d7 (BF-008)
+BF-012 implement tip: start from the remote tip of cursor/f13-bf012-stage2-237f that contains evidence/f13-stage2/SUCCESSOR-STAGE3.txt, HANDOFF.md, CHECKS.md, DEFERRED.md, bf012-red.log, bf012-green.log, host-unit.log, and the LIMIT OFF→ON look-ahead clear in firmware/src/dsp/master.c (blob f91a9473f0ae1cdd5e037e521f39fdfcc2022395) plus tests/host/master_test.c (blob df2f13b35a6fc7b858b019a1950982c23f6386e3). The audited source authenticates de11b6d7; this tip adds BF-012 only. Do not substitute an older unrepaired tip. Evidence tip ≠ package source until Stage 4 rebuilds.
+
+Read AGENTS.md and docs/rules/workflow.md, then evidence/f13-stage2/HANDOFF.md and CHECKS.md. You are stage 3 only.
+
+Scope: test the BF-012 master limiter OFF→ON look-ahead clear only. Required regressions (local host only; no GitHub Actions, no Codex-on-GitHub, no device write):
+- X0X_TESTS=master X0X_TEST_JOBS≥8 X0X_DEV_PADCAL=1 sh tests/run_tests.sh → PASS (ok master)
+- Confirm firmware/src/dsp/master.c blob f91a9473… clears la/la_r on LIMIT off→on in master_set
+- Confirm tests/host/master_test.c blob df2f13b3… includes mono/stereo OFF→ON silence + live-ring-preserve cases
+- Optional red witness: tip blob b5557b6c… with the same regression cases FAILS with stale peak 0.500000 (stage-2 bf012-red.log / stage-1 bf012-witness.log)
+- Do not reopen BF-001–BF-008 or FP-001
+
+Give the test run and any failure investigation to separate subagents. A source repair found here returns to a new stage 2; do not patch the failure forward.
+
+Do not implement the withheld asset cache, unmerged data-safety identity lanes, HTML initial-loader resume find(IS_OTA), longer SLOT_PROBE budgets, delete Felucca-era make_site.py entirely, nightly-repo second qualification field, historical F06 Stage-7 “Installer FP” wording rewrite, or open PR #68 unrelated base-lane history. Do not steal #279/#281 sole-owner leftover Arp/Fx work (sole owner bc-8efb2f94…). Do not reopen BF-001 through BF-008 or FP-001.
+
+State Reason / Purpose / End user on every commit and PR.
+
+Use the development configuration X0X_DEV_PADCAL=1 if any firmware build is required. Branch from the pushed implement tip as cursor/<slug>-stage3-237f (required prefix cursor/ and suffix -237f). No force-push of firmware main or firmware nightly. No GitHub Actions as tests. Leave production main and production GitHub Pages unchanged. Do not flash a device. Stage 6 install stays off this thread. Do not use a local helper as the successor.
+
+When the checked test record is on the remote, hand off before you stop. Push SUCCESSOR-STAGE4.txt first. Prefer coordinator CreateAgent / owner-visible desktop launch if the pod has no CURSOR_API_KEY; otherwise create exactly one owner-visible stage-4 Cloud Agent with POST https://api.cursor.com/v1/agents using the owner's user or service-account API key. Send this repository, startingRef set to your pushed branch, and the full successor prompt. Read the agent back. Record its id and https://cursor.com/agents/<id> URL only when its source is owner-visible, then commit and push that record. Keep ownership until that URL is on the remote. Then stop. Do not wait for the next agent to finish.
+
+If the create call is unauthenticated, rejected, or returns an internal subagent, you still own stage 3. Do not claim the next thread started. Do not send the pod token. Do not use a Task subagent as the successor. Retry once; a second failure still belongs to you. Ask the Project coordinator to CreateAgent Stage 4 if the pod has no CURSOR_API_KEY.
+
+Completion condition: checked BF-012 test record on the remote stage-3 branch, each failure has a cause and disposition, and one owner-visible stage-4 successor id pushed on the handoff.
+
+Policy: all review/tests in agent cloud VM / local host only — never GitHub Actions or @codex as proof. Actions/billing ≠ proof.
+
+Coordinator note: Stage 2 recorded SUCCESSOR-STAGE3.txt and stopped without an owner-visible Stage 3 id when CURSOR_API_KEY was unset. Coordinator CreateAgent should launch Stage 3 with startingRef=cursor/f13-bf012-stage2-237f and this prompt.
+
+LIVE_PAGE_MATCH reference (unchanged by Stage 3): nightly-de11b6d7-dev; Elite 4841110a…; Pro b35d5875…; ctl 956e3e21….
+
+Full successor prompt also at evidence/f13-stage2/SUCCESSOR-STAGE3.txt on startingRef cursor/f13-bf012-stage2-237f.
