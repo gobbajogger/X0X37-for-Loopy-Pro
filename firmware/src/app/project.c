@@ -636,6 +636,13 @@ static int read_project(project_t *pr)
         for (i = 0; i < NBASS; i++)
             pr->sound.v[T_303][i][BASS303_AMPMODE] = bass303_param(BASS303_AMPMODE)->def;
     }
+    if (sound_ok && pr->set.snd_rev < 6) {           /* Wave was Saw/Sqr switch: old 1 (square) → 127 */
+        for (i = 0; i < NBASS; i++) {
+            if (pr->sound.v[T_303][i][BASS303_WAVE] == 1)
+                pr->sound.v[T_303][i][BASS303_WAVE] = 127;
+            /* Gnaw default 0: load_sound already left new cells at engine defaults */
+        }
+    }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
         for (i = 0; i < NPARTS; i++)
             pr->sound.v[T_MIX][i][MX_PAN] = 64;
