@@ -18,10 +18,10 @@ Repair commits already in tip (not re-opened): `d11b74fc` (BF-001), `ab90f47c` (
 | --- | --- |
 | `installer_sha256` / source fingerprint | `4d29566e14c3f252bf52047676e993367e3d155aa1a94a45157ec07d77e47dc8` |
 | Note | Dual-digest fields kept distinct (FP-001). Fingerprint matches current nightly main (`4f787bf`); historical second qualification field / “Installer FP” wording rewrite remains deferred; not reopened. |
-| Nightly `npm test` (clean main) | **PASS** (`nightly-npm-test.log`) |
+| Nightly `npm test` (clean main) | **PASS** (`nightly-npm-test.log`) — synthetic suites are **not** candidate QA for safety gates |
 | `prepare:candidate` | **PASS** (HTTP package bytes re-fetched; size + SHA-256 match) |
 
-GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate (cite `internal/pr-local-reviews/pr-253.md`).
+GitHub Actions / Codex-on-GitHub not used as merge gate. Local-env review is the review gate (cite `internal/pr-local-reviews/pr-253.md`). Codex P1 on PR #256 addressed via `safety-gates-byte-identity.md`.
 
 ## Independent QA (package digests)
 
@@ -32,6 +32,16 @@ GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate (
 | Bytes | Stage-4 blank MATCH F09; page serves same immutable bundled digests; HTTP re-fetch MATCH |
 | Not used alone | `evidence/f10-stage3/CHECKS.md` (BF-006 host only) |
 
+## Safety gates (Codex P1 fix)
+
+| Gate | Status | Evidence |
+| --- | --- | --- |
+| `backup-restore-readback` | PASS (carried) | `safety-gates-byte-identity.md` — F09 qualified same page digests |
+| `interruption-recovery` | PASS (carried) | same |
+| `ota-target-binding` | PASS (carried) | same |
+
+F10 stage-3/4 are **not** used alone for those three gates. Byte-identity: blank `de0bb077…`/`25bebb26…`, ctl `956e3e21…`, page `9cba1f3d…`/`5dda4eec…` MATCH F09.
+
 ## Packages (DEV CHECKED blank; page serves bundled)
 
 | Model | Blank sha256 (stage-4) | Page sha256 (bundled) | Size | Re-fetch |
@@ -40,7 +50,7 @@ GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate (
 | pro | `25bebb261432e56b20f24b2100e05c369b9d3e8c277811ac300bae1050bd5e40` | `5dda4eecd74d96237a3d457a026d7bc04eb3ed570705179ab8e6c15a198fa739` | 651392 | MATCH |
 | ctl | `956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a` | embedded | 65492 | embedded |
 
-Immutable host: `artifacts/nightly-dev` @ `2363c07f334747208831923a4f9fa4332cbbe472` path `artifacts/nightly/dev-20261025-d0d00da2/<sha256>/…` (content-addressed; same bytes as F10). Manifest: `package-manifest.txt`.
+Immutable host: `artifacts/nightly-dev` @ `2363c07f334747208831923a4f9fa4332cbbe472` path `artifacts/nightly/dev-20261025-d0d00da2/<sha256>/…`. Manifest: `package-manifest.txt`.
 
 `nightly-d0d00da2-dev` superseded in flashable picker (digest collision with af494784 identical object code). Older non-colliding versions retained.
 
@@ -49,12 +59,12 @@ Immutable host: `artifacts/nightly-dev` @ `2363c07f334747208831923a4f9fa4332cbbe
 | Field | Value |
 | --- | --- |
 | Cloud push (this pod / cursor[bot]) | **403** (`cloud-gh-pages-403.log`) |
-| Cloud pages worker | pending coordinator CreateAgent with nightly `repo_url` |
-| Parent required for FF | `4f468d16c2a8c67be8817db0637d909b2fd3db85` |
-| Prepared candidate | Project store `artifacts/f10-stage7-publish/candidate-site.tgz` |
-| Optional bundle | `artifacts/f10-stage7-publish/gh-pages-f10.bundle` |
-| Push instructions | Project store `internal/f10-stage7-mac-pages-push.md` |
-| Live | pending LIVE_PAGE_MATCH |
+| Cloud pages worker | `bc-a406db64-0b70-5d18-8d34-c81abbfe051d` on nightly `repo_url` |
+| Parent used for successful FF | `4f468d16c2a8c67be8817db0637d909b2fd3db85` |
+| Live `gh-pages` tip | `f45cae0956fba10218ed54d9b95ba5a8c7a4b63e` (FF only; no force) |
+| Live | **MATCH** `nightly-af494784-dev` (`live-verify.log`) |
+| Result | Project store `internal/f10-stage7-mac-pages-result.md` |
+| Artifacts | `artifacts/f10-stage7-publish/` |
 
 ## Production / deferred
 
@@ -62,4 +72,4 @@ Production `main` / production Pages unchanged. No device flash. Deferred: `evid
 
 ## Overall
 
-**PREPARED** for validated source `af494784…` with matching package hashes, labeled hardware test / device not tested. Live page update blocked on cloud/Mac gh-pages write (403 here). Stage 1 not started.
+**PUBLISHED LIVE** for validated source `af494784…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 successor pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).

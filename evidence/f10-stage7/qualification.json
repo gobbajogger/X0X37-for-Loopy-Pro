@@ -385,15 +385,15 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ed28c4da67dfec2e5496c0bcdcb0376703b34e74/evidence/f10-stage7/safety-gates-byte-identity.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ed28c4da67dfec2e5496c0bcdcb0376703b34e74/evidence/f10-stage7/safety-gates-byte-identity.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ed28c4da67dfec2e5496c0bcdcb0376703b34e74/evidence/f10-stage7/safety-gates-byte-identity.md"
         },
         "independent-qa": {
           "status": "PASS",
@@ -442,15 +442,15 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ed28c4da67dfec2e5496c0bcdcb0376703b34e74/evidence/f10-stage7/safety-gates-byte-identity.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ed28c4da67dfec2e5496c0bcdcb0376703b34e74/evidence/f10-stage7/safety-gates-byte-identity.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ed28c4da67dfec2e5496c0bcdcb0376703b34e74/evidence/f10-stage7/safety-gates-byte-identity.md"
         },
         "independent-qa": {
           "status": "PASS",

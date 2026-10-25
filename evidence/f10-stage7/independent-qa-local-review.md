@@ -18,6 +18,8 @@ Stage-3 `CHECKS.md` covers required BF-006 host regressions only and is **not** 
 
 **Catalog note:** `nightly-d0d00da2-dev` is superseded in the flashable picker because the same package digests cannot carry two `source_commit` values in qualification. Older non-colliding versions are retained.
 
+**Safety gates (Codex P1):** `backup-restore-readback`, `interruption-recovery`, and `ota-target-binding` are **not** attributed to F10 stage-3/4 BF-006-only receipts. They carry forward F09 qualification of these exact page digests via `evidence/f10-stage7/safety-gates-byte-identity.md`. Nightly synthetic `npm test` suites are not candidate QA for those gates.
+
 Policy: local-env review only — not GitHub Actions, not Codex-on-GitHub.
 
 ---

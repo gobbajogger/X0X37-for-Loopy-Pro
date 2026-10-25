@@ -10,16 +10,17 @@ Content tree: `1da3bbfbbf0df52256acceecbca2e064a1ef821478a33d78591e01813229643d`
 Git source_tree: `c12a7e747b79aa4619466764ecccc88285d4c10d`.
 Firmware tree: `bcc21733ea77097a787cfa6cc617fbdf1dca5da1`.
 BF-006 repair commit: `37bab7d1`.
-Live: pending LIVE_PAGE_MATCH.
+Live: **LIVE_PAGE_MATCH** `nightly-af494784-dev` (Pages tip `f45cae09…`).
 Elite page sha256: `9cba1f3d0bebc2113d59b9bbb3f1ca1a67bb396183be279b74486319ddae8e11`.
 Pro page sha256: `5dda4eecd74d96237a3d457a026d7bc04eb3ed570705179ab8e6c15a198fa739`.
 Blank Elite/Pro: `de0bb077…` / `25bebb26…`.
 Label: `DEV / HARDWARE TEST — DEVICE NOT TESTED`; `hardware_tested` false.
-Evidence: `evidence/f10-stage7/CHECKS.md`, `live-verify.log`, `independent-qa-local-review.md`.
-Successor prompt: `evidence/f10-stage7/SUCCESSOR-STAGE1.txt` (written after LIVE_PAGE_MATCH).
-Successor agent id: none.
+Evidence: `evidence/f10-stage7/CHECKS.md`, `live-verify.log`, `independent-qa-local-review.md`, `safety-gates-byte-identity.md`.
+Cloud pages worker: `bc-a406db64-0b70-5d18-8d34-c81abbfe051d`.
+Successor prompt: `evidence/f10-stage7/SUCCESSOR-STAGE1.txt`.
+Successor agent id: none (pending coordinator CreateAgent — pod has no `CURSOR_API_KEY`).
 Successor URL: none.
-Handoff status: **incomplete** until LIVE_PAGE_MATCH and an owner-visible Stage 1 id is recorded on this remote tip.
+Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip.
 
 ## Scope for stage 1
 
