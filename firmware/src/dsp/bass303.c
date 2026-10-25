@@ -500,12 +500,14 @@ __attribute__((noinline)) static float filter_adsr(bass303_t *b, int n)
             b->fenv_stage = 2;
             b->fenv_samples = 0;
         }
-    } else {
-        if (b->fenv_stage == 2)
-            b->fenv_samples += (uint32_t)n;
+    } else if (b->fenv_stage == 2) {
+        b->fenv_samples += (uint32_t)n;
         b->fenv_y = fm_maxf(b->fsustain, 1.0f - (float)b->fenv_samples * b->fdecay_step * (1.0f - b->fsustain));
         if (b->fenv_y <= b->fsustain)
             b->fenv_stage = 3;
+    } else {
+        /* A completed decay stays at sustain when its time pot changes. */
+        b->fenv_y = b->fsustain;
     }
     return b->fenv_y;
 }

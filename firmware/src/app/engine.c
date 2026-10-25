@@ -400,13 +400,15 @@ static void s_drum(void *x, int kit, int v, float vel)
     else                                 /* the 808's unaccented hit sits at D8_VEL_NORMAL, not at our 909 level */
         drum808_trigger(&d808, v, vel >= 0.999f ? 1.0f : vel * (D8_VEL_NORMAL / (88.0f / 127.0f)));
 }
-static void s_bon(void *x, int p, int note, int acc, int sl, int velocity)
+static int s_bon(void *x, int p, int note, int acc, int sl, int velocity)
 {
     (void)x;
-    if (prob_skip(PART_303A + p, 0))                  /* skipped: a rest */
+    if (prob_skip(PART_303A + p, 0)) {                /* skipped: a rest for audio AND MIDI */
         bass303_note_off(&b303[p]);
-    else
-        bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
+        return 0;
+    }
+    bass303_note_on_velocity(&b303[p], note, acc, sl, velocity);
+    return 1;
 }
 static void s_boff(void *x, int p) { (void)x; bass303_note_off(&b303[p]); }
 static uint8_t brk_applied[BRK_NSET];  /* the pattern settings the break was last given */

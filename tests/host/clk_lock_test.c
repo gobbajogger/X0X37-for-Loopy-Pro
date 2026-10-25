@@ -10,7 +10,8 @@ static int fails;
 enum { USB = 0, BLE = 1, TRS = 2 };
 
 static int s_drum(void *x, int k, int v, float vel) { (void)x; (void)k; (void)v; (void)vel; return 1; }
-static void s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; (void)p; (void)n; (void)acc; (void)sl; (void)velocity; }
+static int s_on(void *x, int p, int n, int acc, int sl, int velocity) { (void)x; (void)p; (void)n; (void)acc; (void)sl; (void)velocity;     return 1; /* This fixture accepts the note under the seq_sink_t contract. */
+}
 static void s_off(void *x, int p) { (void)x; (void)p; }
 static void s_brk(void *x, int s16, int bar, float spb, int en) { (void)x; (void)s16; (void)bar; (void)spb; (void)en; }
 static void s_brkstop(void *x) { (void)x; }

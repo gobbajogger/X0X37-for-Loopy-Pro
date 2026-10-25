@@ -78,7 +78,7 @@ typedef struct {
 
 typedef struct {
     int (*drum)(void *ctx, int kit, int voice, float vel);      /* 0: the hit did not play (its chance) */
-    void (*bass_on)(void *ctx, int part, int note, int accent, int slide, int velocity);
+    int (*bass_on)(void *ctx, int part, int note, int accent, int slide, int velocity); /* 0: chance skipped; do not echo MIDI */
     void (*bass_off)(void *ctx, int part);
     void (*brk)(void *ctx, int step16, int bar, float samples_per_16th, int enabled);
     void (*brk_stop)(void *ctx);
@@ -115,6 +115,7 @@ typedef struct {                      /* one part's runtime */
     uint8_t ext_ticks;                /* external clock: ticks into this step */
     uint8_t rec_skip_step;            /* a live hit recorded on a step not played yet on this pass: */
     uint8_t rec_skip_pat;             /* that step, its pattern, and the voices (bit v; 303: bit 0) */
+    uint8_t mut_steps;                /* random 303: low 7 pass count, high bit time-slot swing parity */
     uint16_t rec_skip;                /* that the step does not sound once (the key sounded) */
 } seq_track_t;
 

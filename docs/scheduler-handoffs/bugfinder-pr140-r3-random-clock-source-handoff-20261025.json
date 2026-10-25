@@ -1,0 +1,76 @@
+{
+  "schema": "x0x37-bugfinder-evidence-v1",
+  "evidence_revision": "bugfinder-pr140-r3-random-clock-source-handoff-20261025-v1",
+  "role": "LoopyX0X37 Hourly Bugfinder",
+  "date_utc": "2026-10-25",
+  "scope": "303 RANDOM SWING clock source EXTERNAL -> INTERNAL handoff only",
+  "owner_observable_outcome": "Swung 303 RANDOM playback continues at the next musical time slot when CLOCK SOURCE changes from EXTERNAL to INTERNAL. Randomly selected pitch index does not alter timing. Preserve R1 logical-bar counting, R2 regular RANDOM swing, normal FORWARD behavior and saved project structure.",
+  "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+  "own_branch": "lane/bugfinder-bf031-tb3po-direction-bars-20261025",
+  "own_pr": 140,
+  "prior_remote_head": "a4bb338f0e456381675409fef75709155916e265",
+  "prior_full_git_root": "a5ffdb29d990c8d093cf691baa481d727f5c290e",
+  "prior_compiled_firmware_tree": "f83d9e624ea54618dada87427c8f7954fca28aa6",
+  "changed_compiled_firmware_tree": "7165ed8e7a5d4297c19123037cc70c9a4f7a293e",
+  "verified_changes": {
+    "firmware/src/seq/sequencer.c": {
+      "mode": "100644",
+      "previous_blob": "2f4d8a32853ff2869524274011544e7d9f4bd210",
+      "new_blob": "4310d489a01d8503eb07f2d8ce05380c4e4b1f10"
+    },
+    "tests/host/seq_random_clock_handoff_test.c": {
+      "mode": "100644",
+      "new_blob": "4121182749f532eb596560c61f66e2f57319ce22"
+    },
+    "tests/run_tests.sh": {
+      "mode": "100755",
+      "previous_blob": "f4058e74eba0cb0e448d3eaaae213bd2a35db574",
+      "new_blob": "bee67a1715671aa9f1aab2f30aadd421fbf34876"
+    }
+  },
+  "reproduction": {
+    "mechanism": "switch_internal previously looked at next randomly selected pattern-position parity instead of R2 temporal swing parity in seq_track_t.mut_steps high bit.",
+    "test_risk": "Unwanted early or late 303 event at live external MIDI clock to internal clock transition.",
+    "actual_stimulus": "Linked genuine production sequencer.c, pattern.c, tb3po.c with mock hardware sink: seq_init/start, 24ppqn incoming seq_ext_clock and seq_advance for 0-7 musical steps, switch clk_src to INTERNAL, then actual seq_advance before/at next due step.",
+    "parameters": "303 FORWARD/RANDOM, length 1..4, swing 0/100, 8 switch phases. Check elapsed next-slot Q8 timing, preserved musical state, no early step callback and exactly one callback at expected next time.",
+    "linux_command": "cd bugfinder_r3 && bash run_matrix.sh",
+    "compilers": [
+      "GCC 14.2",
+      "Clang 17"
+    ],
+    "profiles": [
+      "O2",
+      "UBSan",
+      "ASan+UBSan"
+    ],
+    "actual_results": {
+      "original_R2": "6/6 compiles exit 0; 6/6 executions intentionally exit 1, each 1437/1472 matched with 13 Q8 phase mismatches plus actual early/late notes.",
+      "corrected_R3": "6/6 compiles exit 0; 6/6 executions exit 0, each 1472/1472 matched, zero Q8 phase mismatches.",
+      "prior_R2_random_swing": "6/6 compile+run exit 0, each 1222/1222 matched.",
+      "prior_R1_logical_bar": "6/6 compile+run exit 0, each 878/878 matched.",
+      "sanitizers": "No observed ASan/UBSan diagnostics. LeakSanitizer explicitly disabled (detect_leaks=0), NOT a leak-PASS."
+    },
+    "runner_sha256": "9b212fc2bb4c00da3a2fd8158c8986a07ac85289b4ea961edf57f70753a360e5",
+    "log_matrix_stdout_sha256": "df658589c9c80b15552a1b8e55f925fe4231905b4a01828f2076f6a9d2a013f6",
+    "test_source_blob": "4121182749f532eb596560c61f66e2f57319ce22",
+    "correction_source_blob": "4310d489a01d8503eb07f2d8ce05380c4e4b1f10",
+    "complete_checkout_tests": "NOT RUN; three registered test functions were independently compiled with exact production Git-matched source files.",
+    "new_Elite_Pro_controller_BUILD_ONLY": "NOT RUN; prior R2 artifacts do not qualify changed R3 compiler-input tree.",
+    "independent_QA": "NOT RUN; separate QA specialist owns",
+    "browser_OTA_sample_restore": "NOT RUN on this source; independent separate installer/Data Safety roles.",
+    "hardware": "DEVICE NOT TESTED; no flashing."
+  },
+  "private_source_replay_archive": {
+    "name": "LoopyX0X37-Bugfinder-BF031-R3-RandomClockHandoff-20261025.zip",
+    "sha256": "1bd23529636816a922ee576fcc16c74a4ee4e2237efbe2e7d3e523a364f797f2",
+    "size_bytes": 53134,
+    "contents": "GPL C/H, script, 24 test compile/run logs, English/Russian README. No binary firmware, controller, SDK, DSP, secrets or user samples."
+  },
+  "next_owners": {
+    "Hourly Build": "Build NEW pinned private Elite/Pro DEV firmware and matching controller for compiler input 7165ed8e7a5d4297c19123037cc70c9a4f7a293e with actual validated compiler/SDK config, hashes, CRC/model IDs, memory/code/flash budgets. Do not wait for downstream QA to start BUILD_ONLY.",
+    "Independent QA": "Independently inspect exact source and callsite, full relevant real-path positive/negative clock switch/phase tests, external/AUTO interactions and R1/R2 coverage; producer cannot self approve.",
+    "Sole Safe Merge": "Only sole integrator may reconcile into protected firmware NIGHTLY after independent approval and exact merged-tree checks. Pages/production separately gated."
+  },
+  "stage": "SOURCE_COMPLETE / PRODUCER_HOST_CHECKED / NEW_BUILD_ONLY_PENDING / INDEPENDENT_QA_PENDING / NOT_INSTALLABLE / DEVICE_NOT_TESTED",
+  "restrictions": "Existing own isolated PR only. No proprietary SDK/DSP, ctl.img/.fwsc public bytes, hardware flash, direct protected nightly/main/Pages commits, or false build/device PASS."
+}
