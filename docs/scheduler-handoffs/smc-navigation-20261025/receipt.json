@@ -25,18 +25,29 @@
       "ram_free": 268,
       "pool_used": 335740,
       "pool_free": 8324,
-      "minimum_pool_free": 8192
+      "minimum_pool_free": 8192,
+      "raw_app_sha256": "44d01dfa8d08d70e9fe3652376ea14421816b12ceea91ba951b7616b5aedeb2f"
     },
     "pro": {
-      "status": "MEASUREMENT_RUNNING"
+      "status": "FAIL_CODE_BUDGET",
+      "raw_image": 554284,
+      "code_max": 552672,
+      "code_overflow": 1612,
+      "ram_used": 98036,
+      "ram_free": 268,
+      "pool_used": 335740,
+      "pool_free": 8324,
+      "minimum_pool_free": 8192,
+      "raw_app_sha256": "84bb1763b9648122cdde7a33b2847880b515683807ccc8de32e4f48cfbc6ca9a"
     },
     "base_elite": {
       "raw_image": 552588,
       "code_free": 84,
       "ram_used": 98004
     },
-    "method": "Original native toolchain, immutable reviewed input snapshot, unchanged Elite DSP objects reused; padded XIP solely for raw measurement with original limit enforced by checker; no package/installability claim.",
-    "controller": "unchanged; no controller build"
+    "method": "Native pi32v2 DEV builds from immutable reviewed source; Elite unchanged DSP objects reused, Pro all native units compiled. Padded XIP solely for raw measurement; checker enforces original 552672B limit. No package/installability claim.",
+    "controller": "unchanged; no controller build",
+    "input_snapshot_sha256": "5e8e96c5819958bf398635ad398fe5928492bdf872a58e8aa4eb833a59e7a62c"
   },
   "compatibility": [
     "Only smc_mixer.c production changes",
@@ -52,7 +63,7 @@
     "No merges",
     "No public firmware binary publication"
   ],
-  "next": "Capacity owner to combine validated savings >=1612B with this exact source; preserve feature behavior and repeat exact-head native/independent checks. Final Pro measurement pending.",
+  "next": "Capacity owner to combine validated savings >=1612B with this exact source; preserve behavior and repeat affected exact-head native/independent checks. Both native models currently fail code budget.",
   "evidence": {
     "navigation-negative.log": "aacc62f407a0781d53a22f97b0f7d4cc7f3938fcd2bbb0fceeee790c98ac9267",
     "pattern-negative.log": "4806a016ce740b428d05daa2771ac1500403a63512cfe4dad30df845d593668e",
@@ -62,6 +73,7 @@
     "pattern-asan.log": "bab432e63700cd06f632b5975388d1861ff77f4f627a716ebce2d749a6c52695",
     "ui-asan.log": "d4e75db182f2540a8839b2402dff37724b172297281f8b6a233b57a0b23c8cac",
     "lock-asan.log": "0414f369493cca232e56b7962adbe12fd8af295891e7e677d0ef91003adaff38",
-    "elite-measurement.json": "4b067f9b7be4d0269957883f57918a4c93271c8aab4bd259d645c1ba5c570567"
+    "elite-measurement.json": "4b067f9b7be4d0269957883f57918a4c93271c8aab4bd259d645c1ba5c570567",
+    "pro-measurement.json": "5f3b56721f13b1f9a7cbe115fe1ffdeb24492f01aed20fdafb1a9c03f0102eb6"
   }
 }
