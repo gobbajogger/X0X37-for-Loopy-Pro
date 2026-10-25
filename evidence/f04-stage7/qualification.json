@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "installer_sha256": "2240be8702176544945a4b66171269e958b47259fb275654d2f6ff7125f637ee",
+  "packages": {
+    "8ba23a89f50c70b631927077ec4cfe7c98593870035455261842f1b245b82278": {
+      "source_commit": "0d79d63485dc6585800a71ef716d095445f5a1fc",
+      "source_tree": "603e2a2b1442a8214cd97b03d32bf57fc158feac",
+      "size": 651396,
+      "product": "SMK-37 Elite_900",
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/f917b636ba00d7dbef18fd00d1f0af15299a0a24/artifacts/nightly/dev-20261025-4ee8f377/8ba23a89f50c70b631927077ec4cfe7c98593870035455261842f1b245b82278/x0x37-elite-dev.fwsc",
+      "integration": {
+        "ref": "nightly",
+        "commit": "0d79d63485dc6585800a71ef716d095445f5a1fc",
+        "tree": "603e2a2b1442a8214cd97b03d32bf57fc158feac",
+        "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/f9c90665416a510f7fb74a3b917060e29273244b/evidence/f04-stage5/CHECKS.md"
+      },
+      "controller": {
+        "strategy": "bundled",
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "size": 65492
+      },
+      "budgets": {
+        "app_code_free": 6676,
+        "ram_free": 492,
+        "pool_free": 8324
+      },
+      "gates": {
+        "package-integrity": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "model-controller": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "memory-flash": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "host-regressions": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/950b964fc2c04d2d057b8b80714fb0771abad12f/evidence/f04-stage3/CHECKS.md"
+        },
+        "backup-restore-readback": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "interruption-recovery": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "ota-target-binding": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/950b964fc2c04d2d057b8b80714fb0771abad12f/evidence/f04-stage3/CHECKS.md"
+        },
+        "independent-qa": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/issues/comments/6396413846"
+        }
+      }
+    },
+    "d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb": {
+      "source_commit": "0d79d63485dc6585800a71ef716d095445f5a1fc",
+      "source_tree": "603e2a2b1442a8214cd97b03d32bf57fc158feac",
+      "size": 651392,
+      "product": "SMK-37 Pro_900",
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/f917b636ba00d7dbef18fd00d1f0af15299a0a24/artifacts/nightly/dev-20261025-4ee8f377/d90932115ff47cf421b0ef5caab3b93e730da5810e5b26d4c3ecd2c61c58fecb/x0x37-pro-dev.fwsc",
+      "integration": {
+        "ref": "nightly",
+        "commit": "0d79d63485dc6585800a71ef716d095445f5a1fc",
+        "tree": "603e2a2b1442a8214cd97b03d32bf57fc158feac",
+        "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/f9c90665416a510f7fb74a3b917060e29273244b/evidence/f04-stage5/CHECKS.md"
+      },
+      "controller": {
+        "strategy": "bundled",
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "size": 65492
+      },
+      "budgets": {
+        "app_code_free": 6676,
+        "ram_free": 492,
+        "pool_free": 8324
+      },
+      "gates": {
+        "package-integrity": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "model-controller": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "memory-flash": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "host-regressions": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/950b964fc2c04d2d057b8b80714fb0771abad12f/evidence/f04-stage3/CHECKS.md"
+        },
+        "backup-restore-readback": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "interruption-recovery": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/5cc360a722ece38eaf5c01bd86816780c858253f/evidence/f04-stage4/CHECKS.md"
+        },
+        "ota-target-binding": {
+          "status": "PASS",
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/950b964fc2c04d2d057b8b80714fb0771abad12f/evidence/f04-stage3/CHECKS.md"
+        },
+        "independent-qa": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/X0X37-for-Loopy-Pro/issues/comments/6396413846"
+        }
+      }
+    },
+    "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c": {
+      "source_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "source_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+      "size": 651396,
+      "product": "SMK-37 Elite_900",
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/172d99d6d417d72bbd8f473ec1c66d5994c3d0c3/artifacts/nightly/dev-20261024-dc466908/d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c/x0x37-elite-dev.fwsc",
+      "integration": {
+        "ref": "nightly",
+        "commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+        "tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+        "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+      },
+      "controller": {
+        "strategy": "owner-supplied",
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "size": 65492
+      },
+      "budgets": {
+        "app_code_free": 6676,
+        "ram_free": 492,
+        "pool_free": 8324
+      },
+      "gates": {
+        "package-integrity": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "model-controller": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "memory-flash": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "host-regressions": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "backup-restore-readback": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "interruption-recovery": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "ota-target-binding": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "independent-qa": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        }
+      }
+    },
+    "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c": {
+      "source_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+      "source_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+      "size": 651392,
+      "product": "SMK-37 Pro_900",
+      "url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/172d99d6d417d72bbd8f473ec1c66d5994c3d0c3/artifacts/nightly/dev-20261024-dc466908/cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c/x0x37-pro-dev.fwsc",
+      "integration": {
+        "ref": "nightly",
+        "commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+        "tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+        "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+      },
+      "controller": {
+        "strategy": "owner-supplied",
+        "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+        "size": 65492
+      },
+      "budgets": {
+        "app_code_free": 6676,
+        "ram_free": 492,
+        "pool_free": 8324
+      },
+      "gates": {
+        "package-integrity": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "model-controller": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "memory-flash": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "host-regressions": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "backup-restore-readback": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "interruption-recovery": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "ota-target-binding": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        },
+        "independent-qa": {
+          "status": "PASS",
+          "evidence_url": "https://api.github.com/repos/gobbajogger/x0x37-for-Loopy-Pro_nightly/pulls/10/reviews/5638858728"
+        }
+      }
+    }
+  }
+}
