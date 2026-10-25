@@ -28,3 +28,10 @@ Records: `elite/record.json`, `pro/record.json`. Pool floor ≥8192 PASS. XIP fr
 ## Overall
 
 **DEV CHECKED** Elite + Pro for nightly tip `092589b8`. Ready for Stage-6 local install (Mac/rtmidi) and Stage-7 nightly page publish of **these** hashes.
+
+## Companion logs (Bugbot/#319)
+
+Recovered original `check-0.log` and `controller.log` beside each `record.json` from the LX-73 validate output dirs (sha256 match recorded digests; no re-prove). Local proof after restore:
+
+- `dev_validate.py verify` elite + pro → DEV CHECKED
+- `require_gate_pass.sh … --dev-record …` elite + pro → **DEV OK**
