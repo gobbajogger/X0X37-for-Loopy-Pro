@@ -121,7 +121,7 @@ typedef struct {                      /* one part's runtime */
 
 typedef struct {
     uint32_t at, slot;
-    uint8_t active, pat, first, last, prev, note, src, count, entered;
+    uint8_t active, pat, first, last, prev, note, src, entered;
 } seq_bass_rec_t;
 
 typedef struct {
@@ -157,6 +157,7 @@ typedef struct {
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
+    volatile uint8_t rec_epoch;       /* invalidates queued keyboard recorder edges on bulk edits */
     volatile uint8_t rec_dirty;       /* audio-side recording edit, consumed by UI */
     volatile uint8_t rec_mask;        /* UI arms selected live-record destination */
     seq_bass_rec_t rec_bass[NBASS];

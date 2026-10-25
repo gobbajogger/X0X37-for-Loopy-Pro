@@ -228,8 +228,9 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
             r->slot = bass_slot_q8(s, b, p);
             r->at = s->ext_now;
         }
-        tr->to_off = 0;
-        return; /* the live input owns this voice until its real release */
+        if (!r->entered) { tr->to_off = 0; return; }
+        skip = 1; /* live input owns audio; reuse real MIDI echo/gate bookkeeping */
+        gate = bstep_gate(st);
     }
     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
     if (s->mute & (1u << (MUTE_BASS0 + b)))
@@ -296,7 +297,7 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
     tr->held_note = (uint8_t)((note & 0x7F) | ((st->flags & BS_SLIDE) ? 0x80 : 0));
     /* Explicit captured endpoints override legacy look-ahead/half-step gates. */
     unsigned end = st->flags >> BS_END_SHIFT;
-    tr->to_off = end ? carry + (bass_slot_q8(s, b, p) / 15u) * end : hold ? 0 : carry + step_q8 / 2u;
+    tr->to_off = r->active ? 0 : end ? carry + (bass_slot_q8(s, b, p) / 15u) * end : hold ? 0 : carry + step_q8 / 2u;
 }
 
 int seq_part_muted(const seq_t *s, int p)
@@ -984,20 +985,17 @@ void seq_rec_bass_end(seq_t *s, int b)
     st->flags = (uint8_t)((st->flags & 15u) | (end << BS_END_SHIFT));
     r->active = 0;
     s->rec_dirty = 1;
-    tr->to_off = 0;
+    tr->to_off = 1; /* flush sequencer MIDI output at the actual live release */
 }
 void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags)
 {
     seq_bass_rec_t *r = &s->rec_bass[b];
     if (!down) {
-        if (r->active && r->note == note && r->src == src) {
-            if (r->count > 1) r->count--;
-            else seq_rec_bass_end(s, b);
-        }
+        if (r->active && r->note == note && r->src == src)
+            seq_rec_bass_end(s, b);
         return;
     }
     if (!s->playing || !(s->rec_mask & (1u << b))) return;
-    unsigned count = r->active && r->note == note && r->src == src ? r->count : 0;
     int overlap = r->active && r->src == src && r->note != note;
     int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
     int old = r->last == p ? r->prev : r->last, oldpat = r->pat;
@@ -1009,7 +1007,7 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     bp->step[p].velocity = (uint8_t)velocity;
     bp->step[p].flags = (uint8_t)(G_NOTE | flags | 0xF0u);
     r->active = 1; r->pat = s->ppat[t]; r->first = r->last = r->prev = (uint8_t)p;
-    r->note = (uint8_t)note; r->src = (uint8_t)src; r->count = (uint8_t)(count < 255 ? count + 1 : 255);
+    r->note = (uint8_t)note; r->src = (uint8_t)src;
     s->rec_dirty = 1;
     r->entered = s->t[t].started && p == s->t[t].pos;
     r->at = s->ext_now; r->slot = bass_slot_q8(s, b, p);
@@ -1024,4 +1022,6 @@ void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, in
     }
     seq_rec_skip(s, t, p, 0);
     s->t[t].to_off = 0;
+    s->t[t].sounding = 1; /* tie/stop bookkeeping follows the live authoritative gate */
+    s->t[t].held_note = (uint8_t)(note | ((flags & BS_SLIDE) ? 0x80u : 0));
 }

@@ -1493,6 +1493,7 @@ static void record_finish(void)
 {
     seq.rec_mask = 0;
     engine_project_hold(1);
+    seq.rec_epoch++;
     for (int b = 0; b < NBASS; b++) seq_rec_bass_end(&seq, b);
     engine_project_hold(0);
 }
