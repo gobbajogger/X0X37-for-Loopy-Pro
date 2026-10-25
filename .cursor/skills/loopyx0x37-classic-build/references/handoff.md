@@ -34,7 +34,7 @@ Use a glossary name only for the observation it names. A negative result stays v
 | `SITE BRANCH ONLY` | `gh-pages` moved. The live bytes have not been fetched. |
 | `DOWNLOAD_HTTP_VERIFIED` | The fetched installer bytes match the qualified package. |
 | `DEVICE NOT TESTED` | There is no attributable hardware session for these bytes. |
-| `DEVICE VERIFIED` | Same-byte, matching-model hardware evidence exists for those exact bytes. `INSTALL BLOCKED` is not this label. Elite evidence does not move a Pro package. |
+| `DEVICE VERIFIED` | Same-byte, matching-model hardware evidence exists for those exact bytes. `INSTALL BLOCKED` is not success. Elite evidence does not move a Pro package, and Pro evidence does not move an Elite package. This label is not a weaker firmware main fast-forward. |
 | `GIT DELIVERY PENDING` | The commit is only local, or the push was refused. |
 | `NO_NEW_DELIVERABLE` | No eligible change. No empty commit and no empty pull request. |
 | `DELIVERY_BLOCKED` | The required write was refused. |
