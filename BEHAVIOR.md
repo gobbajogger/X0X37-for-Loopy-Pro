@@ -60,6 +60,7 @@ GEN-33. A fader takes over when it reaches or crosses the saved value, within tw
 GEN-34. A fader sets the same value as the related knob. The project keeps the value. With REC on, the fader records knob motion. [SMK37] [CODE app/main_fm1.c:641-642]
 GEN-35. The pitch wheel changes the TUNE of the 303 on the screen by about +-1.5 semitones. It goes back when you release it. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:708-712]
 GEN-36. The mod wheel opens the CUTOFF of the 303 on the screen from the saved value to the top. On other parts it does nothing. [SMK37] [CODE app/main_fm1.c:713-720]
+GEN-36A. Changing the visible page or selected part sends no pitch-wheel or mod-wheel sound change. Each wheel gesture stays with its original 303 until the wheel returns to rest, including when that part is offscreen. A stationary wheel does not overwrite knob edits or sequencer motion. [USER] [CODE app/main_fm1.c smk_wheels]
 GEN-37. The wheels change only the sound. They do not change saved values. [SMK37] [CODE app/main_fm1.c:698-705]
 GEN-38. The keys and the pads play without velocity. [SMK37]
 GEN-39. OCTAVE- and OCTAVE+ held at power-on start HARDWARE CALIBRATION. It teaches the buttons and K2 to K8 again. It does not teach K1. [SMK37] [CODE app/main_fm1.c:1039-1041] [CODE app/panel.c:100-101]
