@@ -90,6 +90,25 @@ int main(void)
     nor[st_sector(OBJ_PROJECT0 + 2, 0) + 8] ^= 0x01;    /* both headers broken */
     nor[st_sector(OBJ_PROJECT0 + 2, 1) + 8] ^= 0x01;
     bad += check("both headers broken -> nothing", st_load(OBJ_PROJECT0 + 2, got, sizeof got) < 0);
+    {   /* the device builds project objects in this buffer: the new bytes must survive the seq check */
+        char own[600];
+        memset(own, 'C', sizeof own);
+        memcpy(st_buf, a, sizeof a);
+        bad += check("save from the store buffer", st_save(OBJ_PROJECT0 + 1, st_buf, sizeof a) == 0);
+        n = st_load(OBJ_PROJECT0 + 1, got, sizeof got);
+        bad += check("store-buffer save loads back", n == (int)sizeof a && !memcmp(got, a, sizeof a));
+        bad += check("second copy from a separate buffer", st_save(OBJ_PROJECT0 + 1, b, sizeof b) == 0);
+        {
+            st_hdr_t h;
+            int cur = st_current(OBJ_PROJECT0 + 1, &h);
+            nor[st_sector(OBJ_PROJECT0 + 1, (uint32_t)cur) + ST_PAYLOAD_OFF + 20] ^= 0x01;
+        }
+        memcpy(st_buf, own, sizeof own);
+        bad += check("rotten newer copy does not replace the store-buffer bytes",
+                     st_save(OBJ_PROJECT0 + 1, st_buf, sizeof own) == 0);
+        n = st_load(OBJ_PROJECT0 + 1, got, sizeof got);
+        bad += check("store-buffer bytes load back", n == (int)sizeof own && !memcmp(got, own, sizeof own));
+    }
     {   /* a boot upload holds the one store buffer: refuse load and save, keep the bytes */
         uint32_t cap = 0;
         uint8_t *b = store_stage_lock(&cap);
