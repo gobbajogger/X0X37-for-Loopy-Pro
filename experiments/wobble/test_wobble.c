@@ -141,6 +141,46 @@ static void control_sensitivity_and_glide(void)
     for(unsigned i=0;i<N;++i)assert(a[i]==0 && b[i]==0);
     puts("PASS control sensitivity, zero output, monotonic glide and immediate no-glide");
 }
+/* A pulse regression must detect the even harmonics lost by a symmetric
+ * square. Use an integer-period MIDI69/2 window to avoid spectral leakage. */
+static void pulse_and_short_release(void)
+{
+    wobble_t s;
+    wobble_init(&s,48000); wobble_set(&s,W_CARRIER_LEVEL,0);
+    wobble_set(&s,W_XMOD_LEVEL,.7f); wobble_set(&s,W_XMOD_WAVE,1);
+    wobble_set(&s,W_CUTOFF,1); wobble_note_on(&s,69,80);
+    for(unsigned p=0;p<4800;p+=240) wobble_render(&s,a,b,240);
+    /* 110 whole periods at 220 Hz; every call respects the block contract. */
+    for(unsigned p=0;p<24000;p+=240) wobble_render(&s,a+p,b+p,240);
+    double re[3]={0},im[3]={0},mean=0;
+    for(unsigned i=0;i<24000;++i) {
+        mean+=a[i];
+        for(unsigned h=1;h<=3;++h) {
+            double phase=2*3.141592653589793*220*h*i/48000;
+            re[h-1]+=a[i]*cos(phase); im[h-1]+=a[i]*sin(phase);
+        }
+    }
+    double h1=hypot(re[0],im[0]);
+    assert(hypot(re[1],im[1])/h1>.85);
+    assert(hypot(re[2],im[2])/h1>.7);
+    assert(fabs(mean/24000)<1e-5);
+    static const unsigned rates[]={8000,16000,32000,44100,48000,96000,192000};
+    for(unsigned ri=0;ri<sizeof rates/sizeof rates[0];++ri) {
+        unsigned rate=rates[ri];
+        wobble_init(&s,(float)rate); wobble_note_on(&s,48,80);
+        for(unsigned p=0;p<rate/100;) {
+            unsigned n=rate/100-p<256?rate/100-p:256;
+            wobble_render(&s,a,b,n); p+=n;
+        }
+        wobble_note_off(&s,48);
+        unsigned count=0;
+        while(s.active && count<2000) {wobble_render(&s,a,b,1);++count;}
+        assert(count>=(unsigned)(rate*.0048f)-1);
+        assert(count<=(unsigned)(rate*.0048f)+2);
+        assert(!s.active && a[0]==0 && b[0]==0);
+    }
+    puts("PASS pulse strong even harmonics/DC and bounded short release across rates");
+}
 static void benchmark(void)
 {
     wobble_t s; const unsigned frames=480000;
@@ -161,7 +201,7 @@ static void benchmark(void)
 int main(void)
 {
     deterministic_blocks(); pitch_tail_and_ownership();
-    modulation_null_and_stereo(); sweeps(); control_sensitivity_and_glide(); benchmark();
+    modulation_null_and_stereo(); sweeps(); control_sensitivity_and_glide(); pulse_and_short_release(); benchmark();
     printf("PASS all host tests; sizeof(wobble_t)=%zu bytes\n",sizeof(wobble_t));
     return 0;
 }
