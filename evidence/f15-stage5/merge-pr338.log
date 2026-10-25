@@ -1,0 +1,10 @@
+merged=yes
+pr=338
+url=https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/338
+merge_commit=1e7ba4c1839c592a01ef1617a01799269708b380
+head=cc0b95a68412f170f37a8bbdca6926b3ff8ab7e1
+nightly_before=cb676e857047f3968f355711eae243d4000a2b40
+nightly_after=1e7ba4c1839c592a01ef1617a01799269708b380
+method=gh_pr_merge_--merge_--admin
+stage4_pr336_merge=9c95c5b4
+disposition=SAFE_MERGE_ALREADY_ON_NIGHTLY
