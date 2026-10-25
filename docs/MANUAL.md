@@ -396,9 +396,9 @@ and sends are on the mixer's PARTS page (LFO, black key 5).
 
 Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
 Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-Loops are sent at full quality, 44.1 kHz. The SMK-37 has three slots of different sizes: slot 1
-holds about 3.7 seconds, slot 2 about 5.5 seconds and slot 3 about 2 seconds, about 11.3 seconds
-in all. The FM-1 has three slots of about 3.7 seconds, about 11 seconds in all. A one-bar loop
+Loops are sent at full quality, 44.1 kHz. The SMK-37 has two slots: slot 1
+holds about 3.7 seconds and slot 2 about 5.5 seconds, about 9.2 seconds
+in all. The FM-1 has two slots of about 3.7 seconds, about 7.4 seconds in all. A one-bar loop
 at 120 BPM takes 2 seconds. A loop must fit in one slot, so the longest loop on the SMK-37 is
 about 5.5 seconds. The page fills the slots in order and puts a loop that is too long for one
 slot into the next slot that can take it.

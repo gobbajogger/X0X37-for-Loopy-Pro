@@ -16,7 +16,7 @@
  *   clipmode 0|1                 the clip mode flag for the arrow route only
  *   master N                     MASTER pot 0..4096
  *   param T V I VALUE            a sound pot (engine.h target, voice, index), as its knob would
- *   slot K NAME A.wav [B.wav..]  user sample slot K (0..2): one loop (zone) per WAV, encoded here
+ *   slot K NAME A.wav [B.wav..]  user sample slot K (0..1): one loop (zone) per WAV, encoded here
  *   slotimg K F.hdr F.bin       slot K from tools/upload_breaks.py --dry-run's image (the device format)
  *   midi B0 B1 B2                incoming USB MIDI message (hex bytes)
  *   wav FILE | wavstop           start / stop recording the output
@@ -158,8 +158,8 @@ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
  *  - slotimg: a slot image exactly as tools/upload_breaks.py writes it, read by the firmware's own
  *    slots.c (the device path: what the upload tool writes is what the firmware parses);
  *  - slot: WAVs encoded here, one zone each (quick, for scenarios that do not test the format). */
-static uint8_t slot_img[3][0x1E000];               /* the largest slot (SMK-37 slot 2: 120 KiB) */
-static int slot_is_img[3];
+static uint8_t slot_img[PLAT_NSLOTS][0x1E000];    /* the largest slot (SMK-37 slot 2: 120 KiB) */
+static int slot_is_img[PLAT_NSLOTS];
 #define SMP_USER_XIP(k) ((const uint8_t *)slot_img[k])
 static uint32_t st_crc32(const void *p, uint32_t n)
 {
@@ -931,6 +931,10 @@ int main(int argc, char **argv)
             int k, z = 0;
             strtok(rest, " \t\n");                          /* K */
             k = atoi(a);
+            if (k < 0 || k >= PLAT_NSLOTS) {
+                printf("line %d: no sample slot %d\n", lineno, k);
+                return 2;
+            }
             tok = strtok(0, " \t\n");                      /* NAME */
             snprintf(slot_name[k], sizeof slot_name[k], "%s", tok ? tok : "");
             slot_nz[k] = 0;
@@ -945,7 +949,7 @@ int main(int argc, char **argv)
             int k = atoi(a);
             FILE *fh = fopen(b, "rb"), *fd = fopen(c, "rb");
             size_t nh, nd;
-            if (!fh || !fd || k < 0 || k > 2) {
+            if (!fh || !fd || k < 0 || k >= PLAT_NSLOTS) {
                 printf("line %d: cannot read the slot image\n", lineno);
                 return 2;
             }
