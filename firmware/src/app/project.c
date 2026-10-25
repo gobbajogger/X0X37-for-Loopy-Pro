@@ -433,9 +433,20 @@ static int load_patterns1(project_t *pr)
 static int load_arrange1(project_t *pr)
 {
     uint8_t *a = (uint8_t *)&pr->arr;
-    int k, i;
-    if (load_obj(OBJ_SONG, a, ARR1_A) || load_obj(OBJ_MOTION, a + ARR1_A, ARR1_LEN - ARR1_A))
+    int k, i, song_n, motion_n, bad;
+    /* Older projects may predate both arrangement objects. Inspect both: a
+     * readable malformed object or a partial pair is not an absent arrangement.
+     * The storage API cannot distinguish absent from unreadable/corrupt objects. */
+    song_n = plat_store_load(OBJ_SONG, io_buf, sizeof io_buf);
+    bad = song_n != (int)(ARR1_A + 4u) || get32(io_buf) != PROJ_FORMAT;
+    if (!bad)
+        __builtin_memcpy(a, io_buf + 4, ARR1_A);
+    motion_n = plat_store_load(OBJ_MOTION, io_buf, sizeof io_buf);
+    if (song_n < 0 && motion_n < 0)
+        return 1;                                  /* pre-arrangement compatibility */
+    if (bad || motion_n != (int)(ARR1_LEN - ARR1_A + 4u) || get32(io_buf) != PROJ_FORMAT)
         return -1;
+    __builtin_memcpy(a + ARR1_A, io_buf + 4, ARR1_LEN - ARR1_A);
     for (k = NLANE - 1; k >= 0; k--) {
         lane1_t o;
         lane_t *l = &pr->arr.lane[k];
@@ -565,9 +576,14 @@ static int read_project(project_t *pr)
             patterns_defaults(pr);
             bad = 1;
         }
-        /* the song and the lanes: absent in a project saved before they existed, which is no fault */
-        if (load_arrange1(pr))
+        /* Both unavailable can predate arrangements; a partial/malformed pair
+         * must reject explicit Load rather than silently discard song/motion. */
+        i = load_arrange1(pr);
+        if (i) {
             arrange_defaults(pr);
+            if (i < 0)
+                bad = 1;
+        }
         stored_known[OBJ_PAT0] = stored_known[OBJ_PAT1] = 0;
     }
     if (pr->arr.song.len > NSONG) {
