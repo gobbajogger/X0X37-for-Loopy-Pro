@@ -174,12 +174,17 @@ export class Updater {
   }
 
   // full install: running firmware -> loader -> new firmware
-  async install(image, product, onStep) {
+  async install(image, product, onStep, prewriteGuard = null) {
     const step = onStep || (() => {});
     const dev = await this.find((id) => !IS_OTA(id));
     if (!dev) throw fail("notfound", "FM-1 not found (USB cable, and no other app using it?)");
     const [model] = product.split("_");
     if (!sameKeyboard(dev.id.model, model)) { dev.link.close(); throw fail("model", `the device is ${dev.id.text}, the package is for ${product}`); }
+    // MIDI discovery may outlive the publisher's approved selection.
+    if (prewriteGuard && !prewriteGuard()) {
+      dev.link.close();
+      throw fail("selectionstale", "Firmware approval changed before writing; nothing written.");
+    }
     step("start", dev.id.text);
     dev.link.send(UPGRADE);
     await sleep(2000);
@@ -195,6 +200,11 @@ export class Updater {
     if (!IS_OTA(ota.id) || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), model)) {
       ota.link.close();
       throw fail("model", `the loader is ${ota.id.text}, the package is for ${product}`, ota.id.text);
+    }
+    // Revalidate after the loader's asynchronous re-enumeration as well.
+    if (prewriteGuard && !prewriteGuard()) {
+      ota.link.close();
+      throw fail("selectionstale", "Firmware approval changed before loader writing; nothing written.");
     }
     const s2 = await this.write(ota, image, step);
     if (!s2.finished) throw fail(s2.lost ? "lost" : "stopped", `the loader ${s2.lost ? "was disconnected" : "stopped"} after ${s2.served} requests. Replug and press Install again to resume.`);
@@ -223,12 +233,16 @@ export class Updater {
   // resume: the device is already in update mode (loader) -> true when the write finished. product: the
   // package's identity; the loader's model must match it by install()'s rule (sameKeyboard): an SMK's loader
   // never gets an FM-1 image, and without the identity nothing is written
-  async resume(image, onStep, product = "") {
+  async resume(image, onStep, product = "", prewriteGuard = null) {
     const ota = await this.find(IS_OTA);
     if (!ota) return false;
     if (!product || !sameKeyboard(ota.id.model.replace(/^ota-/i, ""), product.split("_")[0])) {
       ota.link.close();
       throw fail("model", `the device is in the update mode of ${ota.id.text}, the package is for ${product || "an unknown model"}`, ota.id.text);
+    }
+    if (prewriteGuard && !prewriteGuard()) {
+      ota.link.close();
+      throw fail("selectionstale", "Firmware approval changed before recovery write; nothing written.");
     }
     return (await this.write(ota, image, onStep || (() => {}))).finished;
   }
