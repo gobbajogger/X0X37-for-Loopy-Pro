@@ -508,9 +508,14 @@ int plat_ble_state(void)
     if (!ble_want)
         return PLAT_BLE_OFF;
     if (ble_central_role) {
-        if (!ble_up || ble_r.host.bus.peer[0].state == BLEC_STARTING) return PLAT_BLE_STARTING;
-        if (ble_r.host.bus.peer[0].state == BLEC_FAILED) return PLAT_BLE_FAILED;
-        return (blec_connected(&ble_r.host.bus.peer[0]) || blec_connected(&ble_r.host.bus.peer[1])) ? PLAT_BLE_CONNECTED : PLAT_BLE_READY;
+        if (!ble_up) return PLAT_BLE_STARTING;
+        if (blec_connected(&ble_r.host.bus.peer[0]) || blec_connected(&ble_r.host.bus.peer[1]))
+            return PLAT_BLE_CONNECTED;
+        if (ble_r.host.bus.peer[0].state == BLEC_STARTING) return PLAT_BLE_STARTING;
+        if (ble_r.host.bus.peer[0].state == BLEC_FAILED &&
+            (!ble_r.host.bus.allowed[1] || ble_r.host.bus.peer[1].state == BLEC_FAILED ||
+             ble_r.host.bus.peer[1].state == BLEC_OFF)) return PLAT_BLE_FAILED;
+        return PLAT_BLE_READY;
     }
     if (!ble_up || ble_r.host.h.state == BLEH_STARTING || ble_r.host.h.state == BLEH_IDLE)
         return PLAT_BLE_STARTING;

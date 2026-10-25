@@ -164,9 +164,21 @@ static void test_zero_handle_and_lengths(void)
     CHECK(blec_bus_allow_peer(&b,1,addr,1)); CHECK(blecb_target(addr,1,&b.peer_ctx[1]));
     addr[0]++; CHECK(!blecb_target(addr,1,&b.peer_ctx[1]));
 }
+static void test_credit_only_command_event(void)
+{
+    blec_bus_t b; live(&b);
+    b.command_credit=0;
+    CHECK(!blec_conn_update(&b.peer[0],24,40,0,400));
+    uint8_t p[]={0x0e,3,1,0,0}; blec_bus_rx(&b,4,p,sizeof p,1);
+    CHECK(b.command_credit==1 && !b.command);
+    CHECK(blec_conn_update(&b.peer[0],24,40,0,400));
+    p[2]=2; blec_bus_rx(&b,4,p,sizeof p,2);
+    CHECK(b.command==COP_UPDATE && b.command_owner==0 && b.command_credit==2);
+    status(&b,COP_UPDATE,0); CHECK(!b.command && b.command_credit==1);
+}
 int main(void)
 {
-    test_zero_handle_and_lengths(); test_command_fault(); test_bootstrap(); test_credits(); test_command_owner(); test_notification_and_targets();
+    test_credit_only_command_event(); test_zero_handle_and_lengths(); test_command_fault(); test_bootstrap(); test_credits(); test_command_owner(); test_notification_and_targets();
     printf("multi-peer HCI: %u checks, %u failures; sizeof central=%zu bus=%zu\n",checks,failures,sizeof(blec_t),sizeof(blec_bus_t));
     return failures?1:0;
 }
