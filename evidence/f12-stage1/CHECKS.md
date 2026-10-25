@@ -72,8 +72,8 @@ Log: `evidence/f12-stage1/live-verify.log`.
 | Recorded non-Actions package FAIL | **None** |
 | Oldest open tip FAIL / finding | **BF-008** (`fastmath.h` blob `7d2e41bf…` still unfixed) |
 
-Evidence PR: pending (this tip).
-API CreateAgent Stage 2: pending coordinator (pod has no `CURSOR_API_KEY`).
+Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/269
+API CreateAgent Stage 2: `api-create-stage2-attempt1.json` / `attempt2.json` — **NO_CURSOR_API_KEY**; awaiting coordinator CreateAgent.
 
 ## Overall
 
