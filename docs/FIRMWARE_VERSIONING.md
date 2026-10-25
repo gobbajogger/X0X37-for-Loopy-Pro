@@ -20,7 +20,8 @@ changes; MINOR for compatible features; PATCH for fixes. The open-beta line
 starts at 0.1.0. `tools/release_alloc.py` stores the next number in
 `releases/openbeta/ledger.json`. The tree id is the 40-character Git id of
 `commit^{tree}`. Issuance checks that the commit exists and that id matches,
-then commits the ledger in an isolated `release-records` checkout. It does not
+then commits the ledger in an isolated `release-records` checkout. A remote
+name such as `origin` is resolved from the source repository first. It does not
 reset the source checkout. A numeric build requires that allocation for the
 same commit and Git tree, and it does not require package receipts yet. Catalog
 publication requires the bound Elite and Pro receipts. The same version with a
@@ -91,7 +92,8 @@ MAJOR обозначает несовместимые изменения; MINOR 
 PATCH — исправления. Следующий номер open-beta берётся из
 releases/openbeta/ledger.json, начиная с 0.1.0. Дерево — это 40-символьный
 Git-идентификатор `commit^{tree}`. Запись номера идёт в отдельную ветку
-release-records и не сбрасывает исходный checkout. После 0.1.99 идёт 0.2.0.
+release-records и не сбрасывает исходный checkout. Имя remote, например
+`origin`, читается из исходного репозитория. После 0.1.99 идёт 0.2.0.
 Суффикс `_openbeta` только для показа рядом с ABOUT X0X и не входит в
 идентификатор пакета. Тот же коммит и то же дерево сохраняют номер. То же
 дерево у другого коммита отклоняется. Другие

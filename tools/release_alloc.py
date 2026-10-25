@@ -9,8 +9,10 @@ keep separate model, package, and controller receipts.
 
 source_tree is the 40-character Git id of commit^{tree}. Issuance checks that
 the commit exists and that this id matches. The ledger commit is created in an
-isolated checkout of the release-record branch. The source checkout is not
-reset and its dirty state is left as it was.
+isolated checkout of the release-record branch. A remote name such as
+origin is resolved with git remote get-url in the source repository; the
+isolated checkout receives that URL. The source checkout is not reset and
+its dirty state is left as it was.
 
 This tool does not build firmware, publish a site, or talk to a device.
 """
@@ -315,15 +317,42 @@ def _check_branch(branch):
     return branch
 
 
-def _remote_has_branch(remote, branch):
-    result = subprocess.run(["git", "ls-remote", "--heads", str(remote), branch],
-                            capture_output=True, text=True)
+def _is_transport(url):
+    if "://" in url:
+        return True
+    head, sep, _tail = url.partition(":")
+    return bool(sep) and "/" not in head
+
+
+def _resolve_remote(repo, remote):
+    """URL behind a source-repo remote name. A path is left as a location."""
+    text = str(remote).strip()
+    if not text:
+        raise ReleaseError("serialized allocation needs a release-record remote")
+    probed = _git(repo, "remote", "get-url", text, check=False)
+    if probed.returncode == 0 and probed.stdout.strip():
+        url = probed.stdout.strip()
+    elif _is_transport(text) or text.startswith(("/", ".")) or "/" in text:
+        url = text
+    else:
+        raise ReleaseError("remote " + text + " is not configured on the source repository")
+    if _is_transport(url):
+        return url
+    path = Path(url)
+    if not path.is_absolute():
+        path = Path(repo) / path
+    return str(path.resolve())
+
+
+def _remote_has_branch(repo, remote, branch):
+    """Read the record branch from the source repository, not the process cwd."""
+    result = _git(repo, "ls-remote", "--heads", str(remote), branch, check=False)
     if result.returncode:
         raise ReleaseError(result.stderr.strip() or "cannot read the release record remote")
     return bool(result.stdout.strip())
 
 
-def _prepare_record(record, remote, branch):
+def _prepare_record(repo, record, remote, branch):
     """Isolated checkout. It never checks out or resets the candidate source."""
     record.mkdir(parents=True)
     init = subprocess.run(["git", "init", "-q", "-b", branch, str(record)],
@@ -331,7 +360,7 @@ def _prepare_record(record, remote, branch):
     if init.returncode:
         raise ReleaseError(init.stderr.strip() or "cannot create the release record checkout")
     _git(record, "remote", "add", "origin", str(remote))
-    if not _remote_has_branch(remote, branch):
+    if not _remote_has_branch(repo, remote, branch):
         return
     fetched = _git(record, "fetch", "origin", branch, check=False)
     if fetched.returncode:
@@ -339,17 +368,18 @@ def _prepare_record(record, remote, branch):
     _git(record, "checkout", "-q", "-B", branch, "FETCH_HEAD")
 
 
-def _push_record(remote, branch, apply, retries):
+def _push_record(repo, remote, branch, apply, retries):
     """Compare-and-swap the ledger. A rejected push fetches the record again."""
     if not remote:
         raise ReleaseError("serialized allocation needs a release-record remote")
+    url = _resolve_remote(repo, remote)
     branch = _check_branch(branch)
     last = ""
     for _attempt in range(retries):
         tmp = Path(tempfile.mkdtemp(prefix="x0x-release-record-"))
         try:
             record = tmp / "repo"
-            _prepare_record(record, remote, branch)
+            _prepare_record(repo, record, url, branch)
             item, message = apply(record)
             if not _commit_ledger(record, message):
                 return item
@@ -374,7 +404,7 @@ def allocate_committed(repo, source_commit, source_tree, remote=None, branch="re
         item = allocate_file(record / LEDGER, source_commit, source_tree)
         return item, "Allocate open-beta " + item["version"]
 
-    item = _push_record(remote, branch, apply, retries)
+    item = _push_record(repo, remote, branch, apply, retries)
     if _stamp(repo) != before:
         raise ReleaseError("source checkout changed during allocation")
     return item
@@ -390,7 +420,7 @@ def bind_committed(repo, version, model, package_sha256, controller_sha256, cont
         item = bind_file(record / LEDGER, version, model, package_sha256, controller_sha256, controller_size)
         return item, "Bind open-beta " + version + " " + model
 
-    item = _push_record(remote, branch, apply, retries)
+    item = _push_record(repo, remote, branch, apply, retries)
     if _stamp(repo) != before:
         raise ReleaseError("source checkout changed during allocation")
     return item

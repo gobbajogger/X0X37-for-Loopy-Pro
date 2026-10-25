@@ -22,7 +22,7 @@ python3 tools/release_alloc.py --repo . allocate \
   --source-tree <40-char git tree id>
 ```
 
-The command reads the commit in `--repo` and refuses a missing commit or a tree that is not that commit's `^{tree}`. It commits only `releases/openbeta/ledger.json` in a temporary checkout of `release-records` and pushes `refs/heads/release-records`. It does not reset `--repo`, does not require a clean source tree, and does not push `nightly` or `main`. A rejected push fetches the record branch and retries. A later source commit allocates the next number from that record; the record does not have to match the firmware tree. The same commit and tree print the same number. The same tree with a different commit is refused.
+The command reads the commit in `--repo` and refuses a missing commit or a tree that is not that commit's `^{tree}`. `--remote origin` is the source repository's remote: `git -C <repo> remote get-url origin` supplies the URL used by the temporary checkout. The name is not a path inside that checkout. It commits only `releases/openbeta/ledger.json` in a temporary checkout of `release-records` and pushes `refs/heads/release-records`. It does not reset `--repo`, does not require a clean source tree, and does not push `nightly` or `main`. A rejected push fetches the record branch and retries. A later source commit allocates the next number from that record; the record does not have to match the firmware tree. The same commit and tree print the same number. The same tree with a different commit is refused.
 
 Bind each model after the package and controller hashes are known. Bind uses the same isolated record checkout:
 

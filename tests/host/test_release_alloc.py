@@ -235,6 +235,75 @@ class ReleaseAllocationTest(unittest.TestCase):
         self.assertEqual((source / "firmware.c").read_text(), "real\n")
         self.assertEqual(git_out(source, "rev-parse", "HEAD"), commit)
 
+    def test_symbolic_origin_resolves_from_the_source_repo(self):
+        root = Path(self.tmp.name)
+        bare = (root / "bare.git").resolve()
+        source = root / "source"
+        elsewhere = root / "elsewhere"
+        elsewhere.mkdir()
+        subprocess.check_call(["git", "init", "-q", "--bare", "-b", "main", str(bare)], stdout=subprocess.DEVNULL)
+        commit, tree = make_source(source, "int build;\n")
+        git(source, "remote", "add", "origin", str(bare))
+        (source / "notes.txt").write_text("dirty\n")
+        tool = [sys.executable, str(ROOT / "tools" / "release_alloc.py")]
+        missing = subprocess.run(
+            tool + ["--repo", str(source), "allocate", "--remote", "missing",
+                    "--source-commit", commit, "--source-tree", tree],
+            cwd=elsewhere, capture_output=True, text=True)
+        self.assertEqual(missing.returncode, 3, missing.stderr)
+        self.assertIn("not configured", missing.stderr)
+        self.assertFalse((source / "releases" / "openbeta" / "ledger.json").exists())
+        self.assertNotIn("release-records", git_out(bare, "branch", "--list"))
+        before = stamp(source)
+        issued = allocate_committed(source, commit, tree, remote="origin", retries=1)
+        self.assertEqual(issued["version"], "0.1.0")
+        self.assertEqual(issued["source_tree"], tree)
+        self.assertEqual(stamp(source), before)
+        self.assertEqual((source / "notes.txt").read_text(), "dirty\n")
+        self.assertFalse((source / "releases" / "openbeta" / "ledger.json").exists())
+        files = git_out(bare, "ls-tree", "-r", "--name-only", "release-records").splitlines()
+        self.assertEqual(files, ["releases/openbeta/ledger.json"])
+        (source / "firmware.c").write_text("int build_two;\n")
+        git(source, "add", "firmware.c")
+        git(source, "commit", "-qm", "second source")
+        second_commit = git_out(source, "rev-parse", "HEAD")
+        second_tree = git_out(source, "rev-parse", "HEAD^{tree}")
+        held = stamp(source)
+        from_cwd = subprocess.run(
+            tool + ["allocate", "--remote", "origin", "--branch", "release-records",
+                    "--source-commit", second_commit, "--source-tree", second_tree],
+            cwd=source, capture_output=True, text=True)
+        self.assertEqual(from_cwd.returncode, 0, from_cwd.stderr)
+        self.assertEqual(json.loads(from_cwd.stdout)["version"], "0.1.1")
+        self.assertEqual(stamp(source), held)
+        bound = subprocess.run(
+            tool + ["--repo", str(source), "bind", "--remote", "origin", "--branch", "release-records",
+                    "--version", "0.1.1", "--model", "elite",
+                    "--package-sha256", "ab" * 32, "--controller-sha256", "cd" * 32,
+                    "--controller-size", "64"],
+            cwd=elsewhere, capture_output=True, text=True)
+        self.assertEqual(bound.returncode, 0, bound.stderr)
+        self.assertEqual(json.loads(bound.stdout)["models"]["elite"]["product"], "SMK-37 Elite_9000101")
+        self.assertEqual(stamp(source), held)
+        rel_bare = (root / "rel-bare.git").resolve()
+        rel = root / "rel"
+        subprocess.check_call(["git", "init", "-q", "--bare", "-b", "main", str(rel_bare)], stdout=subprocess.DEVNULL)
+        rel_commit, rel_tree = make_source(rel, "relative\n")
+        git(rel, "remote", "add", "origin", "../rel-bare.git")
+        relative = allocate_committed(rel, rel_commit, rel_tree, remote="origin", retries=1)
+        self.assertEqual(relative["version"], "0.1.0")
+        (rel / "firmware.c").write_text("relative-two\n")
+        git(rel, "add", "firmware.c")
+        git(rel, "commit", "-qm", "second relative")
+        later = subprocess.run(
+            tool + ["--repo", str(rel), "allocate", "--remote", "origin",
+                    "--source-commit", git_out(rel, "rev-parse", "HEAD"),
+                    "--source-tree", git_out(rel, "rev-parse", "HEAD^{tree}")],
+            cwd=elsewhere, capture_output=True, text=True)
+        self.assertEqual(later.returncode, 0, later.stderr)
+        self.assertEqual(json.loads(later.stdout)["version"], "0.1.1")
+        self.assertFalse((rel / "releases" / "openbeta" / "ledger.json").exists())
+
     def test_git_push_collision_retries_and_rebuild_reuses(self):
         root = Path(self.tmp.name)
         bare = root / "bare.git"
