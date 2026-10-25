@@ -14,9 +14,11 @@ Implement evidence: `evidence/f05-stage2/CHECKS.md`, `evidence/f05-stage2/DEFERR
 Audit record: `evidence/f05-stage1/AUDIT.md`.
 Stage-2 PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/195
 Successor prompt: `evidence/f05-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-267d1e71-e911-5c7d-aecc-36f285bdf065`.
+Successor URL: https://cursor.com/agents/bc-267d1e71-e911-5c7d-aecc-36f285bdf065
+Successor name: F05 BF-002 tests
+startingRef: `cursor/f05-bf002-stage2-fb90`
+Handoff status: **complete** — owner-visible Stage 3 id recorded on this remote tip (coordinator CreateAgent; pod had no `CURSOR_API_KEY`).
 
 ## Repair summary
 
