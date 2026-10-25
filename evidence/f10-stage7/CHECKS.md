@@ -19,7 +19,7 @@ Repair commits already in tip (not re-opened): `d11b74fc` (BF-001), `ab90f47c` (
 | `installer_sha256` / source fingerprint | `4d29566e14c3f252bf52047676e993367e3d155aa1a94a45157ec07d77e47dc8` |
 | Note | Dual-digest fields kept distinct (FP-001). Fingerprint matches current nightly main (`4f787bf`); historical second qualification field / “Installer FP” wording rewrite remains deferred; not reopened. |
 | Nightly `npm test` (clean main) | **PASS** (`nightly-npm-test.log`) |
-| `prepare:candidate` | pending |
+| `prepare:candidate` | **PASS** (HTTP package bytes re-fetched; size + SHA-256 match) |
 
 GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate (cite `internal/pr-local-reviews/pr-253.md`).
 
@@ -48,8 +48,13 @@ Immutable host: `artifacts/nightly-dev` @ `2363c07f334747208831923a4f9fa4332cbbe
 
 | Field | Value |
 | --- | --- |
-| Cloud push | pending |
-| Live | pending |
+| Cloud push (this pod / cursor[bot]) | **403** (`cloud-gh-pages-403.log`) |
+| Cloud pages worker | pending coordinator CreateAgent with nightly `repo_url` |
+| Parent required for FF | `4f468d16c2a8c67be8817db0637d909b2fd3db85` |
+| Prepared candidate | Project store `artifacts/f10-stage7-publish/candidate-site.tgz` |
+| Optional bundle | `artifacts/f10-stage7-publish/gh-pages-f10.bundle` |
+| Push instructions | Project store `internal/f10-stage7-mac-pages-push.md` |
+| Live | pending LIVE_PAGE_MATCH |
 
 ## Production / deferred
 
@@ -57,4 +62,4 @@ Production `main` / production Pages unchanged. No device flash. Deferred: `evid
 
 ## Overall
 
-Prepare/publish in progress for validated source `af494784…`.
+**PREPARED** for validated source `af494784…` with matching package hashes, labeled hardware test / device not tested. Live page update blocked on cloud/Mac gh-pages write (403 here). Stage 1 not started.
