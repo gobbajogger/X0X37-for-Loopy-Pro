@@ -1,0 +1,5 @@
+
+> x0x37-nightly-installer-preview@0.0.0-dev prepare:candidate
+> node scripts/render-qualified-nightly.mjs --catalog /Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f13-stage7/catalog.json --qualification /Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f13-stage7/qualification.json --out /tmp/f13-stage7-candidate-site
+
+PREPARED — HTTP bytes verified; local candidate only. Independent site review and sole publisher deployment/served-byte checks remain required.
