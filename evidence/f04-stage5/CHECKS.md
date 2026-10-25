@@ -57,6 +57,19 @@ Stage 7 and the next audit still use validated source SHA `0d79d634…`, not the
 
 Production `main` and production GitHub Pages: **unchanged**. No device flash. Deferred items in `evidence/f04-stage2/DEFERRED.md`: not implemented.
 
+
+## Successor create (API)
+
+`POST https://api.cursor.com/v1/agents` attempted twice with no `CURSOR_API_KEY`.
+
+| Attempt | HTTP | Body |
+| --- | --- | --- |
+| 1 | 401 | Invalid User API Key |
+| 2 | 401 | Invalid User API Key |
+
+Logs: `api-create-stage7-attempt1.json`, `api-create-stage7-attempt2.json`.
+Coordinator CreateAgent required for owner-visible Stage 7. Handoff incomplete until that id is on the remote.
+
 ## Overall
 
 Merge gate complete for this stage: nightly refusal recorded without force-push; validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA.
