@@ -40,6 +40,14 @@ Git tree: `c63af7972f3ca6e5d4e8ac3aac5e70abc8178265`
 | Firmware `nightly` | not force-pushed; audit uses `4ee8f377`, not diverged tip |
 | Device flash | not performed |
 
+## Successor
+
+| Field | Value |
+| --- | --- |
+| Stage 2 id | `bc-94c505d8-1ca0-5d88-b61f-049933c106b9` |
+| URL | https://cursor.com/agents/bc-94c505d8-1ca0-5d88-b61f-049933c106b9 |
+| Source | desktop (coordinator CreateAgent) |
+
 ## Overall
 
-**AUDIT RECORDED.** Defect F03 selected. Ready for Stage 2 after owner-visible successor is on this branch tip.
+**AUDIT RECORDED.** Defect F03 selected. Owner-visible Stage 2 successor is on this branch tip. Stage 1 complete.

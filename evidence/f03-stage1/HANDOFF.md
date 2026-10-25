@@ -13,9 +13,10 @@ Checks: `evidence/f03-stage1/CHECKS.md`.
 Prior publish evidence: `evidence/f02-stage7/CHECKS.md`, `HANDOFF.md`.
 Deferred younger items: `evidence/f02-stage2/DEFERRED.md` (BF-001–003 and others remain).
 Successor prompt: `evidence/f03-stage1/SUCCESSOR-STAGE2.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-94c505d8-1ca0-5d88-b61f-049933c106b9`.
+Successor URL: https://cursor.com/agents/bc-94c505d8-1ca0-5d88-b61f-049933c106b9
+Successor source: `desktop` (coordinator CreateAgent; pod had no `CURSOR_API_KEY`). Name: `F03 stage2 implement`. `startingRef`: `cursor/f03-stage1-fb90`.
+Handoff status: **complete**. Owner-visible Stage 2 is recorded on this remote tip. Stage 1 ownership ends. Do not start Stage 3 from this thread.
 
 Selected defect: **F03**. On the same-keyboard install path, a failed sample-slot layout probe currently skips the prewrite backup and continues the write. Approved repair: fail closed before write when the probe fails; keep `--no-slots` and successful empty/no-risk parses.
 
