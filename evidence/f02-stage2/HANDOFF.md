@@ -8,9 +8,10 @@ Parent / stage-2 owner: `bc-37feb056-46e1-5377-8388-5fe9e46d3ca6`.
 Audited SHA: `13d32e1dee37b6fb5a1e339aff499a75eecb97b5`.
 Implement evidence: `evidence/f02-stage2/CHECKS.md`, `evidence/f02-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f02-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip.
+Successor agent id: `bc-0d6b70b5-59b9-5d51-b9e2-c97ea486934b`.
+Successor URL: https://cursor.com/agents/bc-0d6b70b5-59b9-5d51-b9e2-c97ea486934b
+Successor source: `desktop` (CreateAgent). Name: `F02 stage3 test`. `startingRef`: `cursor/f02-stage2-fb90`.
+Handoff status: **complete**. Owner-visible Stage 3 is recorded on this remote tip. Stage 2 ownership ends.
 
 ## Repair summary
 
