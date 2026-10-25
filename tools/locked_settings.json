@@ -188,7 +188,7 @@
   {
    "name": "pkg_slotmap",
    "file": "tools/fm1pkg_make.py",
-   "regex": "^SLOTMAP = \\{\"smk37\": \\[(.*)\\]\\}",
+   "regex": "SLOTMAP = \\{\"smk37\": \\[(.*?)\\]",
    "why": "slot map in the package (installer backup/restore)",
    "value": "(0xC2000, 0x14000), (0xD6000, 0x1E000)"
   },
