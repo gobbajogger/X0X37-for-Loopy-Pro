@@ -745,7 +745,11 @@ static void smc_knob(int n, int delta)
         ui.enc_t[EN_K1] = smc.knob_t;
         ui.enc_run[EN_K1] = smc.knob_run;
     }
+    /* The panel curve (up to x8, x16 on a wide range) is too far once the
+     * relative byte has already counted the detents. A slow click stays one. */
+    accel_smc = 1;
     turn_ref(r, delta, EN_K1);
+    accel_smc = 0;
     smc.knob_t = ui.enc_t[EN_K1];
     smc.knob_run = ui.enc_run[EN_K1];
     ui.enc_t[EN_K1] = saved_t;
