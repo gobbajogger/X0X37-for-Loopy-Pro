@@ -1,0 +1,24 @@
+Local stage-6 install prompt for F13 BF-012 after #308 land (no cloud thread). LaunchAgent com.x0x37.unattended-install may run this. Cloud agents do not flash.
+
+Repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Validated / install commit (--commit): 092589b84fd455355216cb0de93c4782236f7524
+Content tree: 25ada1f02e2e289072fab8db464b715e09f9c0712bded561af008bc88d8c54af
+Config: X0X_DEV_PADCAL=1 (development only).
+
+Elite:
+- record: evidence/f13-stage5/lx73-devcheck/elite/record.json
+- package: x0x-smk37-elite.fwsc sha256 9c1168cf83d298e02863441df63f09a0508c00e8a908f04dbae79d532dfdd1e5
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8308; identity SMK-37 Elite_900
+
+Pro:
+- record: evidence/f13-stage5/lx73-devcheck/pro/record.json
+- package: x0x-smk37.fwsc sha256 3a29723eb62024eccd7b010d97912e21eabad4ec1a933b90b428ad8f63e87a07
+- controller: ctl.img sha256 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+- pool_free: 8308; identity SMK-37 Pro_900
+
+Gate: tools/require_gate_pass.sh 092589b84fd455355216cb0de93c4782236f7524 --config dev --fwsc <package> --ctl <ctl.img> --dev-record <record> must print DEV OK before write.
+Installer: tools/fm1_install.py --commit 092589b84fd455355216cb0de93c4782236f7524 … only after DEV OK.
+Missing device: INSTALL BLOCKED; leave pending. Do not publish from Stage 6.
+Merge evidence: evidence/f13-stage5/lx73-devcheck/CHECKS.md
+JSON twin: evidence/f13-stage5/lx73-devcheck/stage6-install-prompt.json
