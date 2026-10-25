@@ -101,6 +101,7 @@ run host-build sh host/probe.c
             '.cursor/skills/loopyx0x37-classic-build/references/builds.md',
             '.agents/skills/x0x37-workflow/SKILL.md',
             'skills/x0x37-check/references/validation.md',
+            'loopyx0x37-classic-build-skill.zip',
         ):
             self.assertEqual(PLAN.route(path), 'docs', path)
         self.assertEqual(PLAN.route('unknown.json'), 'target')

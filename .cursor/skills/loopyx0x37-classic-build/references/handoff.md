@@ -15,7 +15,30 @@ Every source delivery includes:
 
 The evidence commit cannot contain its own future hash. Report that hash after the push, in the pull-request body.
 
-Use these labels literally when they match the observation: `SOURCE ONLY`, `HOST CHECKED`, `DEV CHECKED`, `DEVICE NOT TESTED`, `DEVICE VERIFIED`, `NO-GO`, `GIT DELIVERY PENDING`, `SITE BRANCH ONLY`, `LIVE VERIFIED`. `DEVICE VERIFIED` requires attributable same-byte hardware evidence. A negative result stays visible.
+Use a glossary name only for the observation it names. A negative result stays visible.
+
+| Label | Observation |
+| --- | --- |
+| `SOURCE ONLY` | Source is pushed. Host checks have not run. |
+| `HOST CHECKED` | The applicable host checks exited 0 on this commit. |
+| `BUILD_NOT_RUN` | The compiler was not started. |
+| `BUILD_FAILED` | The compiler exited non-zero, or a budget check failed. |
+| `BUILD_SUCCEEDED_UNREVIEWED` | The compiler exited 0. Independent QA has not accepted this commit. |
+| `UNCHANGED_VALID_SCOPED` | Compiled inputs match an attested build. The old package hashes are reused. |
+| `SCOPED FIRMWARE-SUBTREE BUILD` | A subtree was built. Full-root QA is still pending. |
+| `DEV CHECKED` | `tools/dev_validate.py` wrote a record whose result is `DEV CHECKED` for these exact artifacts. |
+| `QA_PENDING` | This run authored the change, so it cannot supply independent QA. |
+| `QA_PASSED` | A reviewer who did not author the change accepted this exact commit. |
+| `NO-GO` | A required check failed. |
+| `PACKAGE_NOT_PUBLISHED` | The package is not on the live installer. |
+| `SITE BRANCH ONLY` | `gh-pages` moved. The live bytes have not been fetched. |
+| `DOWNLOAD_HTTP_VERIFIED` | The fetched installer bytes match the qualified package. |
+| `DEVICE NOT TESTED` | There is no attributable hardware session for these bytes. |
+| `DEVICE VERIFIED` | Same-byte, matching-model owner hardware evidence exists. |
+| `GIT DELIVERY PENDING` | The commit is only local, or the push was refused. |
+| `NO_NEW_DELIVERABLE` | No eligible change. No empty commit and no empty pull request. |
+| `DELIVERY_BLOCKED` | The required write was refused. |
+| `EXACT-SOURCE VALIDATION PENDING` | The exact tree could not be reconstructed. |
 
 Optional commit trailers, one line each, when they help the next reader:
 

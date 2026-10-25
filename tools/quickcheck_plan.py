@@ -46,6 +46,7 @@ def route(path):
     # Project skills are procedure text. Cursor loads `.cursor/skills/` and
     # `.agents/skills/`; `skills/` is the older project copy. See QUICKCHECK-SCOPE.md.
     if (path.startswith(('docs/', '.cursor/skills/', '.agents/skills/', 'skills/')) or
+            path == 'loopyx0x37-classic-build-skill.zip' or
             ('/' not in path and path.endswith('.md'))):
         return 'docs'
     return 'target'

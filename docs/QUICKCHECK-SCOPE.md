@@ -2,7 +2,8 @@
 
 Quickcheck records its changed paths, target decision and selected tests in
 `build/qc/plan.json` before it starts a target build. Proven documentation,
-project skills (`.cursor/skills/`, `.agents/skills/`, and `skills/`), rule
+project skills (`.cursor/skills/`, `.agents/skills/`, `skills/`, and
+`loopyx0x37-classic-build-skill.zip`), rule
 entries, web, host and test changes do not need an Elite
 build. Firmware, assets, build or package tools, unknown paths, mixed changes
 and empty scope retain target coverage. An unreadable base, diff or test index
