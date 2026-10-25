@@ -1,0 +1,10 @@
+{
+  "attempt": 2,
+  "stage": 3,
+  "result": "NO_CURSOR_API_KEY",
+  "endpoint": "POST https://api.cursor.com/v1/agents",
+  "startingRef": "cursor/f14-bf013-stage2-237f",
+  "repository": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro",
+  "prompt_path": "evidence/f14-stage2/SUCCESSOR-STAGE3.txt",
+  "note": "Retry; CURSOR_API_KEY still unset. Do not claim Task as Stage 3. Coordinator CreateAgent required."
+}
