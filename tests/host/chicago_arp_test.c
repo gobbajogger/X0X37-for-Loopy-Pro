@@ -64,9 +64,9 @@ static void test_surface(void)
           "Mode def Up");
     CHECK(CHI_ARP_PARAMS[2].def == CHI_ARP_OCT1, "Range def 1 Oct");
     CHECK(CHI_ARP_PARAMS[3].def == CHI_ARP_SPD_1_16, "Speed def 1/16");
-    CHECK(CHI_ARP_TICKS[CHI_ARP_SPD_1_2] == 48 && CHI_ARP_TICKS[CHI_ARP_SPD_1_16] == 6 &&
-              CHI_ARP_TICKS[CHI_ARP_SPD_1_32] == 3,
-          "speed tick table");
+    CHECK(chi_arp_ticks(CHI_ARP_SPD_1_2) == 48 && chi_arp_ticks(CHI_ARP_SPD_1_16) == 6 &&
+              chi_arp_ticks(CHI_ARP_SPD_1_32) == 3,
+          "speed tick table via shared CK_RATE_T");
     CHECK(BASS303_AMPMODE == 16 && BASS303_GNAW == 17 && BASS303_BITE == 18 && BASS303_AATTACK == 19,
           "do not retarget AmpMod/Gnaw/Bite/ADSR");
 }
@@ -117,6 +117,15 @@ static void test_pick_modes(void)
     CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT1, 2) == 55, "chord Up 2");
     CHECK(chi_arp_pick(chord, 3, CHI_ARP_DOWN, CHI_ARP_OCT1, 0) == 55, "chord Down 0");
     CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT2, 3) == 60, "chord Up oct2");
+    /* Adapter identity: Chicago pick == shared clip ck_arp_pick for Mode/Range. */
+    for (i = 0; i < 12; i++) {
+        int chi = chi_arp_pick(chord, 3, CHI_ARP_UPDN, CHI_ARP_OCT2, (uint32_t)i);
+        int ck = ck_arp_pick(chord, 3, CK_ORD_UPDN, 2u, (uint32_t)i, 0);
+        CHECK(chi == ck, "chi==ck UpDn step %d (%d vs %d)", i, chi, ck);
+    }
+    CHECK(chi_arp_order(CHI_ARP_UP) == CK_ORD_UP && chi_arp_order(CHI_ARP_DOWN) == CK_ORD_DOWN &&
+              chi_arp_order(CHI_ARP_UPDN) == CK_ORD_UPDN,
+          "Chicago Mode maps to CK_ORD_*");
 }
 
 static void test_runtime_clock(void)

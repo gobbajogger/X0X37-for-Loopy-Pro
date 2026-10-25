@@ -4,10 +4,7 @@
  * All settings are 0-based and in range (project_load checks them): no modulo on a setting. */
 #pragma once
 #include <stdint.h>
-
-#ifndef CK_FN
-#define CK_FN __attribute__((minsize, noinline, unused))   /* small code: the app area is almost full */
-#endif
+#include "arp_pick.h" /* CK_ORD_*, CK_RATE_*, ck_arp_pick — shared with Chicago part arp */
 
 #define CK_NKEY 37u           /* keybed keys; key 0 = C3 = MIDI note 48 */
 #define CK_BASE_NOTE 48
@@ -16,10 +13,7 @@
 #define CK_NSCALE 24u
 #define CK_NCHORD 30u
 #define CK_NRHY 16u
-#define CK_NORD 6u
-#define CK_NRATE 13u
 enum { CK_M_SCALE = 1u, CK_M_CHORD = 2u, CK_M_ARP = 4u };
-enum { CK_ORD_UP, CK_ORD_DOWN, CK_ORD_UPDN, CK_ORD_DNUP, CK_ORD_PLAYED, CK_ORD_RANDOM };
 
 /* 12-bit pitch masks, bit 0 = the root */
 static const uint16_t CK_SCALE_MASK[CK_NSCALE] = {0xAB5, 0x5AD, 0x6AD, 0x5AB, 0xAD5, 0x6B5, 0x56B, 0x9AD,
@@ -43,11 +37,6 @@ static const uint8_t CK_RHY_T[CK_NRHY] = {0x00, 0x22, 0x33, 0x24, 0x34, 0x36, 0x
                                          0x37, 0x57, 0x77, 0x48, 0x58, 0x5B, 0x7B, 0x5F};
 static const char CK_RHY_N[] = "OFF\0" "2/3\0" "3/4\0" "2/5\0" "3/5\0" "3/7\0" "4/7\0" "5/7\0" "3/8\0" "5/8\0" "7/8\0"
                                "4/9\0" "5/9\0" "5/12\0" "7/12\0" "5/16";
-static const char CK_ORD_N[] = "UP\0DOWN\0UP/DN\0DN/UP\0PLAYED\0RANDOM";
-/* arp rates in MIDI clock ticks (24 for each quarter note) */
-static const uint8_t CK_RATE_T[CK_NRATE] = {48, 36, 32, 24, 18, 16, 12, 9, 8, 6, 4, 3, 2};
-static const char CK_RATE_N[] = "1/2\0" "1/4D\0" "1/2T\0" "1/4\0" "1/8D\0" "1/4T\0" "1/8\0" "1/16D\0" "1/8T\0" "1/16\0"
-                                "1/16T\0" "1/32\0" "1/32T";
 static const char CK_ROOT_N[] = "C\0C#\0D\0D#\0E\0F\0F#\0G\0G#\0A\0A#\0B";
 
 /* The name number n in a list of names, each one ends with a 0 byte */
@@ -107,24 +96,6 @@ CK_FN static uint32_t ck_notes(uint32_t note, uint32_t m, uint32_t snap, int32_t
     for (i = 0; i < inv && i + 1u < n; i++)          /* inversion: the lowest notes go up one octave */
         out[i] = (uint8_t)(out[i] + 12u);
     return n;
-}
-
-/* The arp note for a step. s: the cycle notes (sorted low to high, or in press order for PLAYED), n >= 1.
- * oct: 1..4. rnd: a random number (RANDOM only). Return -1 for a note above 127. */
-CK_FN static int ck_arp_pick(const uint8_t *s, uint32_t n, uint32_t order, uint32_t oct, uint32_t step,
-                                  uint32_t rnd)
-{
-    uint32_t len = n * oct, i = step % len, j;
-    if (order == CK_ORD_UPDN || order == CK_ORD_DNUP) {
-        j = len > 1u ? step % (2u * len - 2u) : 0u;
-        i = j < len ? j : 2u * len - 2u - j;
-    }
-    if (order == CK_ORD_DOWN || order == CK_ORD_DNUP)
-        i = len - 1u - i;
-    if (order == CK_ORD_RANDOM)
-        i = rnd % len;
-    i = s[i % n] + 12u * (i / n);
-    return i <= 127u ? (int)i : -1;
 }
 
 /* 1 if the arp step s plays in rhythm r (CK_RHY_T index). 0 = OFF: every step plays. */

@@ -4,11 +4,14 @@
  * Stored in sound_t after the bass303 DSP pots (CHI_ARP_*). Not consumed by
  * bass303_set: the live keyboard path owns note generation when Switch is On.
  * Pattern playback (seq sink) is unchanged. Factory pots are 0..255; UI pots
- * are discrete 0..n-1 with the Chicago labels. Clip ARP (ck_arp*) is MIDI-to-
- * Loopy only — this is the product 303 freeplay path. */
+ * are discrete 0..n-1 with the Chicago labels. Note pick + rate ticks come from
+ * arp_pick.h (same engine as clip ARP); this header only adapts Chicago enums
+ * and owns the native303 freeplay runtime. Clip MIDI→Loopy sink stays in
+ * main_fm1.c. */
 #pragma once
 #include <stdint.h>
 #include "../dsp/x0x_param.h"
+#include "arp_pick.h"
 
 /* Indices sit after last bass303 pot (ARELEASE=22); BASS303_NPARAMS is 23.
  * Do not retarget AmpMod/Gnaw/Bite/ADSR. */
@@ -39,8 +42,8 @@ enum {
 
 #define CHI_ARP_MAXN 8u /* held notes in one live chord (product path) */
 
-/* MIDI ticks at 24 ppqn (same subset as clip CK_RATE_T for these Chicago rates). */
-static const uint8_t CHI_ARP_TICKS[CHI_ARP_NSPEED] = {48, 36, 32, 24, 18, 16, 12, 8, 6, 3};
+/* Chicago Speed → CK_RATE_T index (skip clip-only dotted/triplet rates). */
+static const uint8_t CHI_ARP_RATE_IX[CHI_ARP_NSPEED] = {0, 1, 2, 3, 4, 5, 6, 8, 9, 11};
 
 static const char *const CHI_ARP_SWITCH_N[] = {"Off", "On"};
 static const char *const CHI_ARP_MODE_N[] = {"Down", "Up", "Up/Dn"};
@@ -67,17 +70,17 @@ static inline uint32_t chi_arp_ticks(uint32_t speed)
 {
     if (speed >= CHI_ARP_NSPEED)
         speed = CHI_ARP_SPD_1_16;
-    return CHI_ARP_TICKS[speed];
+    return CK_RATE_T[CHI_ARP_RATE_IX[speed]];
 }
 
-/* Map Chicago Down/Up/UpDown → clip-style order Down/Up/UpDown (1/0/2). */
+/* Map Chicago Down/Up/UpDown → CK_ORD_DOWN / CK_ORD_UP / CK_ORD_UPDN. */
 static inline uint32_t chi_arp_order(uint32_t mode)
 {
     if (mode == CHI_ARP_DOWN)
-        return 1u;
+        return CK_ORD_DOWN;
     if (mode == CHI_ARP_UPDN)
-        return 2u;
-    return 0u;
+        return CK_ORD_UPDN;
+    return CK_ORD_UP;
 }
 
 /* Factory / AU 0..255 → discrete index 0..n-1 (round). */
@@ -108,24 +111,13 @@ static inline void chi_arp_apply_factory_voice(uint8_t *voice_pots, const uint8_
 }
 
 /* Pick the MIDI note for arp step. s[0..n) sorted low→high.
- * Returns -1 if the note would exceed 127. */
+ * Adapter onto shared ck_arp_pick (clip engine). Returns -1 if empty or >127. */
 static inline int chi_arp_pick(const uint8_t *s, uint32_t n, uint32_t mode, uint32_t range,
                                uint32_t step)
 {
-    uint32_t oct = chi_arp_octaves(range), len, i, j, order;
     if (!s || n == 0)
         return -1;
-    len = n * oct;
-    order = chi_arp_order(mode);
-    i = step % len;
-    if (order == 2u) { /* Up/Down */
-        j = len > 1u ? step % (2u * len - 2u) : 0u;
-        i = j < len ? j : 2u * len - 2u - j;
-    }
-    if (order == 1u) /* Down */
-        i = len - 1u - i;
-    i = s[i % n] + 12u * (i / n);
-    return i <= 127u ? (int)i : -1;
+    return ck_arp_pick(s, n, chi_arp_order(mode), chi_arp_octaves(range), step, 0);
 }
 
 /* Samples per arp step at 24 ppqn and sample rate sr (Q0). */
