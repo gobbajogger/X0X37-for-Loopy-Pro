@@ -1,8 +1,8 @@
 
 > x0x37-nightly-installer-preview@0.0.0-dev test
-> node scripts/build-preview.mjs --check && node tests/nightly-preview.test.mjs && node tests/controller-padding.test.mjs && node tests/bundled-controller.test.mjs && node tests/installer-download-admission.test.mjs && node tests/qualified-catalog.test.mjs && npm run catalog:check && node tests/build-status-negatives.test.mjs && node tests/build-history-continuity.test.mjs && node tests/installer-write-boundaries.test.mjs
+> node scripts/build-preview.mjs --check && node tests/nightly-preview.test.mjs && node tests/controller-padding.test.mjs && node tests/bundled-controller.test.mjs && node tests/installer-download-admission.test.mjs && node tests/qualified-catalog.test.mjs && npm run catalog:check && node tests/build-status-negatives.test.mjs && node tests/build-history-continuity.test.mjs && node tests/installer-write-boundaries.test.mjs && node web/test_projects.mjs && node web/test_projects_page.mjs
 
-CHECK PASS — self-contained nightly installer, samples and empty catalog; no firmware files
+CHECK PASS — self-contained nightly installer, samples, projects and empty catalog; no firmware files
 PASS: upstream public-blob identity, generated scripts, accessibility, safeguards, empty firmware catalog, site links
 PASS: Nightly versus production gates, history read-only and renderer syntax
 PASS: controller-image non-erased tail rejected, erased bytes retained, CRC/bounds guarded
@@ -328,8 +328,275 @@ PASS post-install restore binding extra-port
 PASS post-install restore binding archive-error
 PASS post-install restore binding readback-mismatch
 {"cases":41,"failed":0,"scope":"actual browser shipping bodies; synthetic discovery/serve/MIDI boundaries, no hardware"}
-npm notice
-npm notice New major version of npm available! 10.9.9 -> 12.2.1
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
-npm notice To update run: npm install -g npm@12.2.1
-npm notice
+TAP version 13
+# Subtest: portable and project-only containers preserve raw project, all slots and full header bytes
+ok 1 - portable and project-only containers preserve raw project, all slots and full header bytes
+  ---
+  duration_ms: 9.094269
+  type: 'test'
+  ...
+# Subtest: inner project rejects corrupt, truncated, oversized and incompatible schemas
+ok 2 - inner project rejects corrupt, truncated, oversized and incompatible schemas
+  ---
+  duration_ms: 0.808134
+  type: 'test'
+  ...
+# Subtest: outer CRC, version, flags, metadata size and raw unmanifested files are rejected
+ok 3 - outer CRC, version, flags, metadata size and raw unmanifested files are rejected
+  ---
+  duration_ms: 1.767355
+  type: 'test'
+  ...
+# Subtest: strict metadata rejects duplicated entries, overlapping ranges and unreferenced bytes
+ok 4 - strict metadata rejects duplicated entries, overlapping ranges and unreferenced bytes
+  ---
+  duration_ms: 3.405632
+  type: 'test'
+  ...
+# Subtest: sample metadata must match the original header even when both JSON copies and CRCs agree
+ok 5 - sample metadata must match the original header even when both JSON copies and CRCs agree
+  ---
+  duration_ms: 1.444542
+  type: 'test'
+  ...
+# Subtest: sample image rejects data CRC, impossible zone boundaries and rate corruption
+ok 6 - sample image rejects data CRC, impossible zone boundaries and rate corruption
+  ---
+  duration_ms: 0.245922
+  type: 'test'
+  ...
+# Subtest: project-only matching checks every occupied and empty slot and never remaps
+ok 7 - project-only matching checks every occupied and empty slot and never remaps
+  ---
+  duration_ms: 1.964882
+  type: 'test'
+  ...
+# Subtest: portable plans fills, identical skips and backed-up clear/replacement collisions
+ok 8 - portable plans fills, identical skips and backed-up clear/replacement collisions
+  ---
+  duration_ms: 2.73222
+  type: 'test'
+  ...
+# Subtest: non-X0X identity is rejected before any project command
+ok 9 - non-X0X identity is rejected before any project command
+  ---
+  duration_ms: 1.033172
+  type: 'test'
+  ...
+# Subtest: unsupported or malformed query replies are explained clearly
+ok 10 - unsupported or malformed query replies are explained clearly
+  ---
+  duration_ms: 0.809417
+  type: 'test'
+  ...
+# Subtest: export snapshots project plus every original sample and always aborts; no sample writes
+ok 11 - export snapshots project plus every original sample and always aborts; no sample writes
+  ---
+  duration_ms: 4.584949
+  type: 'test'
+  ...
+# Subtest: export aborts interrupted reads and uncertain BEGIN without blind BEGIN retry
+ok 12 - export aborts interrupted reads and uncertain BEGIN without blind BEGIN retry
+  ---
+  duration_ms: 0.504441
+  type: 'test'
+  ...
+# Subtest: READ/WRITE replies correlate operation and offset and validate exact byte lengths
+ok 13 - READ/WRITE replies correlate operation and offset and validate exact byte lengths
+  ---
+  duration_ms: 2.44541
+  type: 'test'
+  ...
+# Subtest: sample reads correlate slot and offset and reject a short reply
+ok 14 - sample reads correlate slot and offset and reject a short reply
+  ---
+  duration_ms: 2.122751
+  type: 'test'
+  ...
+# Subtest: project chunk replay recovers a lost WRITE acknowledgement exactly once
+ok 15 - project chunk replay recovers a lost WRITE acknowledgement exactly once
+  ---
+  duration_ms: 0.704154
+  type: 'test'
+  ...
+# Subtest: complete project-only import preserves every sample byte with zero sample write commands
+ok 16 - complete project-only import preserves every sample byte with zero sample write commands
+  ---
+  duration_ms: 8.897292
+  type: 'test'
+  ...
+# Subtest: confirmation or missing verified recovery acknowledgement refuses all sample mutations
+ok 17 - confirmation or missing verified recovery acknowledgement refuses all sample mutations
+  ---
+  duration_ms: 2.855499
+  type: 'test'
+  ...
+# Subtest: firmware semantic validation fails before sample writes and keeps the previous live project
+ok 18 - firmware semantic validation fails before sample writes and keeps the previous live project
+  ---
+  duration_ms: 3.980519
+  type: 'test'
+  ...
+# Subtest: portable import fills and clears exact positions, skips identical images and preserves 512-byte headers
+ok 19 - portable import fills and clears exact positions, skips identical images and preserves 512-byte headers
+  ---
+  duration_ms: 5.12675
+  type: 'test'
+  ...
+# Subtest: a changed keyboard invalidates the preview before any sample writes
+ok 20 - a changed keyboard invalidates the preview before any sample writes
+  ---
+  duration_ms: 5.496924
+  type: 'test'
+  ...
+# Subtest: sample readback mismatch rolls back exact original bytes before aborting adoption
+ok 21 - sample readback mismatch rolls back exact original bytes before aborting adoption
+  ---
+  duration_ms: 5.44417
+  type: 'test'
+  ...
+# Subtest: lost sample-write acknowledgement is not blindly retried and rollback uses its backup
+ok 22 - lost sample-write acknowledgement is not blindly retried and rollback uses its backup
+  ---
+  duration_ms: 4.64384
+  type: 'test'
+  ...
+# Subtest: failed rollback reports recovery failure concretely and does not claim restoration
+ok 23 - failed rollback reports recovery failure concretely and does not claim restoration
+  ---
+  duration_ms: 4.378791
+  type: 'test'
+  ...
+# Subtest: lost COMMIT reply restores the previous project as well as samples without repeating adoption
+ok 24 - lost COMMIT reply restores the previous project as well as samples without repeating adoption
+  ---
+  duration_ms: 5.867822
+  type: 'test'
+  ...
+# Subtest: QUERY detects retained recovery mode after expiry and rollback restages without releasing its hold
+ok 25 - QUERY detects retained recovery mode after expiry and rollback restages without releasing its hold
+  ---
+  duration_ms: 5.58651
+  type: 'test'
+  ...
+# Subtest: failed recovery retains mode3; reconnect restores a portable backup without reading partial sample images
+ok 26 - failed recovery retains mode3; reconnect restores a portable backup without reading partial sample images
+  ---
+  duration_ms: 8.440634
+  type: 'test'
+  ...
+# Subtest: mode3 refuses project-only recovery and keeps the hold on a failed portable recovery
+ok 27 - mode3 refuses project-only recovery and keeps the hold on a failed portable recovery
+  ---
+  duration_ms: 1.692947
+  type: 'test'
+  ...
+# Subtest: save/load/reset use confirmation tokens, do not touch samples and never retry SAVE blindly
+ok 28 - save/load/reset use confirmation tokens, do not touch samples and never retry SAVE blindly
+  ---
+  duration_ms: 0.312426
+  type: 'test'
+  ...
+# Subtest: MIDI adapter ignores normal playing traffic and bounds idle SysEx buffering
+ok 29 - MIDI adapter ignores normal playing traffic and bounds idle SysEx buffering
+  ---
+  duration_ms: 0.496356
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 101.783496
+TAP version 13
+# Subtest: page checks a file before connecting and keeps keyboard actions disabled
+ok 1 - page checks a file before connecting and keeps keyboard actions disabled
+  ---
+  duration_ms: 5.565321
+  type: 'test'
+  ...
+# Subtest: wrong identity and damaged file leave mutation controls unavailable
+ok 2 - wrong identity and damaged file leave mutation controls unavailable
+  ---
+  duration_ms: 2.140327
+  type: 'test'
+  ...
+# Subtest: export defaults portable and project-only option is explicit
+ok 3 - export defaults portable and project-only option is explicit
+  ---
+  duration_ms: 1.19637
+  type: 'test'
+  ...
+# Subtest: collision import requires downloaded recovery, saved acknowledgement and explicit import consent
+ok 4 - collision import requires downloaded recovery, saved acknowledgement and explicit import consent
+  ---
+  duration_ms: 2.23558
+  type: 'test'
+  ...
+# Subtest: failed import retains recovery download and requires a new preview before retry
+ok 5 - failed import retains recovery download and requires a new preview before retry
+  ---
+  duration_ms: 1.052503
+  type: 'test'
+  ...
+# Subtest: load/reset decline sends no action; accepted action invalidates the import preview
+ok 6 - load/reset decline sends no action; accepted action invalidates the import preview
+  ---
+  duration_ms: 1.115406
+  type: 'test'
+  ...
+# Subtest: mode3 recovery explains the hold, disables normal actions and confirms the portable recovery source
+ok 7 - mode3 recovery explains the hold, disables normal actions and confirms the portable recovery source
+  ---
+  duration_ms: 0.981861
+  type: 'test'
+  ...
+# Subtest: workspace switch detaches MIDI, retains dirty form and file, and invalidates device preview
+ok 8 - workspace switch detaches MIDI, retains dirty form and file, and invalidates device preview
+  ---
+  duration_ms: 0.771376
+  type: 'test'
+  ...
+# Subtest: disconnect disables mutation and invalidates preview while preserving recovery download
+ok 9 - disconnect disables mutation and invalidates preview while preserving recovery download
+  ---
+  duration_ms: 1.804202
+  type: 'test'
+  ...
+# Subtest: busy export refuses repeat clicks and task switching without discarding draft state
+ok 10 - busy export refuses repeat clicks and task switching without discarding draft state
+  ---
+  duration_ms: 0.938888
+  type: 'test'
+  ...
+# Subtest: unsupported firmware has an honest unavailable state and no reset fallback
+ok 11 - unsupported firmware has an honest unavailable state and no reset fallback
+  ---
+  duration_ms: 0.540976
+  type: 'test'
+  ...
+# Subtest: reset wording distinguishes whole project, samples and autosave from arrangement clear
+ok 12 - reset wording distinguishes whole project, samples and autosave from arrangement clear
+  ---
+  duration_ms: 0.095524
+  type: 'test'
+  ...
+# Subtest: empty chooser cancellation keeps checked file, preview and saved-backup consent
+ok 13 - empty chooser cancellation keeps checked file, preview and saved-backup consent
+  ---
+  duration_ms: 0.673293
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23.811567

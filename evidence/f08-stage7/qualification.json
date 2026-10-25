@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "installer_sha256": "8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157",
+  "installer_sha256": "4d29566e14c3f252bf52047676e993367e3d155aa1a94a45157ec07d77e47dc8",
   "packages": {
     "d7767bebf1413b5d6fb918ba3893335a7b9fae86078ce895aa3b72df48bedb93": {
       "source_commit": "8a74ff52cba842c3f2d8365600286f94e6bccdf0",

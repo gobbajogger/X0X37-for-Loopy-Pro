@@ -16,10 +16,10 @@ Repair commits already in tip (not re-opened): `d11b74fc` (BF-001), `ab90f47c` (
 
 | Field | Value |
 | --- | --- |
-| `installer_sha256` / source fingerprint | `8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157` |
-| Note | Dual-digest fields kept distinct (FP-001). Historical second qualification field / “Installer FP” wording rewrite remains deferred; not reopened. |
+| `installer_sha256` / source fingerprint | `4d29566e14c3f252bf52047676e993367e3d155aa1a94a45157ec07d77e47dc8` |
+| Note | Dual-digest fields kept distinct (FP-001). Fingerprint refreshed after nightly main compact-UX merge (`4f787bf`); historical second qualification field / “Installer FP” wording rewrite remains deferred; not reopened. |
 | Nightly `npm test` (clean main) | **PASS** (`nightly-npm-test.log`) |
-| `prepare:candidate` | **PASS** (HTTP package bytes re-fetched; size + SHA-256 match) |
+| `prepare:candidate` | **PASS** (HTTP package bytes re-fetched; size + SHA-256 match); re-run on updated main after tip drift |
 
 GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate (cite `internal/pr-local-reviews/pr-232.md`).
 
@@ -47,9 +47,10 @@ Immutable host: `artifacts/nightly-dev` @ `82622c1f9561bd23bbf785c165d66e11e6882
 | Field | Value |
 | --- | --- |
 | Cloud push | **403** (`cloud-gh-pages-403.log`) |
-| Parent `gh-pages` | `d6a237c43cb6830d8cf0cb51e567181821630a28` |
-| Prepared commit | `62b7123c703b3ba536e24bf611ba7aa96b06c3c3` |
-| Mac agent | pending coordinator launch of worker `83d16cde-07a3-5bce-81a3-2234761197a1` |
+| Mac attempt 1 | **FAIL** parent mismatch (`d6a237c4…` expected; tip became `9d287247…`) |
+| Parent `gh-pages` (retry) | `9d2872470f474b8d6b68ce8170692662199661e8` |
+| Prepared commit (retry) | `60cc264b2bfb2ce8a0c6004f048efef18e042415` |
+| Mac agent | retry requested on worker `83d16cde-07a3-5bce-81a3-2234761197a1` |
 | Live | **PENDING** |
 
 Mac push instructions: Project store `internal/f08-stage7-mac-pages-push.md`. Artifacts: `artifacts/f08-stage7-publish/`.
