@@ -4,6 +4,8 @@
 #include "tb3po.h"
 
 #define NEVER 0xFFFFFFFFu
+#define RANDOM_PASS_STEPS 0x7Fu
+#define RANDOM_SWING_ODD  0x80u
 #define BASS_SLIDE_OVERLAP_Q8 (FS / 50u * 256u) /* 20 ms after the next note-on */
 
 static const uint8_t TICKS_PER_STEP[NRATES] = {6, 4, 3, 8};     /* 24 ppqn: 1/16, 1/16T, 1/32, 1/8T */
@@ -360,15 +362,35 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         wrapped = 0;
     } else {
         p = next_pos(s, t, tr->pos, 1);
-        wrapped = !bass ? p == 0 : p == 0 || (bpart(s, t - TRK_BASS0)->dir == DIR_REV && p == seq_part_len(s, t) - 1);
+        /* The reverse pass wraps only at its last step, not also at zero.
+         * Random steps have no positional wrap: count a logical pass below. */
+        wrapped = !bass ? p == 0 :
+            (bpart(s, t - TRK_BASS0)->dir == DIR_REV ? p == seq_part_len(s, t) - 1 :
+             bpart(s, t - TRK_BASS0)->dir != DIR_RANDOM && p == 0);
     }
     if (wrapped && t == TRK_DRUM && (changed = bar_end(s, 0)) != 0) {
         rate = part_rate(s, t);                       /* the 909's new pattern */
         L = seq_step_q8(s, rate);
         p = 0;
     }
-    if (wrapped && bass)
-        auto_mutate(s, t - TRK_BASS0);
+    if (bass) {
+        if (bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
+            /* Visiting step zero at random is not a bar boundary. Count
+             * LEN actual played steps for both TB-3PO and probability. */
+            uint8_t count = (uint8_t)(tr->mut_steps & RANDOM_PASS_STEPS);
+            if (count >= seq_part_len(s, t)) {
+                count = 0;
+                auto_mutate(s, t - TRK_BASS0);
+            }
+            /* A random pick is a note choice, not a timing slot. Preserve the
+             * alternating swing slot across odd-length passes and live edits. */
+            tr->mut_steps = (uint8_t)(((tr->mut_steps ^ RANDOM_SWING_ODD) & RANDOM_SWING_ODD) | (count + 1u));
+        } else {
+            tr->mut_steps = 0;
+            if (wrapped)
+                auto_mutate(s, t - TRK_BASS0);
+        }
+    }
     if (wrapped && (t == TRK_BRK || is_drum(t)))   /* (the 303s count theirs in auto_mutate) */
         tr->bars++;
     if (changed & 1u)                                /* the 909's new pattern: its passes from 1 again, as */
@@ -394,9 +416,15 @@ static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
         /* the step that follows p: swung if it is an odd one */
         int np = next_pos(s, t, p, 0);
         uint32_t sw = swing_q8(s, rate, L);
-        tr->to_next = carry + ((np & 1) ? L + sw : L - sw);
-        if (!(np & 1) && (p & 1) == 0)               /* even -> even (odd lengths, wraps): no swing */
-            tr->to_next = carry + L;
+        if (bass && bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM) {
+            /* Swing belongs to successive musical time slots, not to the
+             * parity of the randomly selected source-step position. */
+            tr->to_next = carry + ((tr->mut_steps & RANDOM_SWING_ODD) ? L + sw : L - sw);
+        } else {
+            tr->to_next = carry + ((np & 1) ? L + sw : L - sw);
+            if (!(np & 1) && (p & 1) == 0)           /* even -> even (odd lengths, wraps): no swing */
+                tr->to_next = carry + L;
+        }
     }
     return changed;
 }
@@ -414,6 +442,7 @@ static void restart(seq_t *s, uint32_t parts)  /* parts whose pattern switched: 
         s->t[t].ext_ticks = (uint8_t)(TICKS_PER_STEP[part_rate(s, t)] - 1);
         s->t[t].bars = 0;
         s->t[t].pp_dir = 1;
+        s->t[t].mut_steps = 0;
     }
 }
 
@@ -430,6 +459,7 @@ static void do_start(seq_t *s, int from_top, const seq_sink_t *o)
             tr->started = 0;
             tr->bars = 0;
             tr->pp_dir = 1;
+            tr->mut_steps = 0;
         }
         tr->to_off = 0;
         tr->ext_due = 0;
@@ -514,8 +544,10 @@ static void ext_ticks(seq_t *s)
             }
             {
                 int np = tr->started ? next_pos(s, t, tr->pos, 0) : 0;
+                int odd = is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM
+                    ? (tr->mut_steps & RANDOM_SWING_ODD) != 0 : (np & 1) != 0;
                 uint32_t L = s->ext_period ? s->ext_period * (uint32_t)tps : seq_step_q8(s, rate);
-                tr->to_next = (np & 1) ? swing_q8(s, rate, L) : 0;
+                tr->to_next = odd ? swing_q8(s, rate, L) : 0;
             }
         }
     }
@@ -575,7 +607,12 @@ static void switch_internal(seq_t *s)
         if (tr->to_next != NEVER)
             continue;
         left = (tr->ext_ticks == 0xFFu ? 1u : (uint32_t)(tps - tr->ext_ticks)) * per;   /* to the next step */
-        if ((tr->started ? next_pos(s, t, tr->pos, 0) : 0) & 1)
+        /* CLOCK SOURCE handoff uses the same next musical time slot as
+         * external clock scheduling. RANDOM note index is not timing parity. */
+        int odd = is_bass(t) && bpart(s, t - TRK_BASS0)->dir == DIR_RANDOM
+            ? (tr->mut_steps & RANDOM_SWING_ODD) != 0
+            : ((tr->started ? next_pos(s, t, tr->pos, 0) : 0) & 1) != 0;
+        if (odd)
             left += swing_q8(s, rate, per * (uint32_t)tps);
         tr->to_next = left > since ? left - since : 0;
     }

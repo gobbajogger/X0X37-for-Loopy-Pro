@@ -36,7 +36,8 @@ hdr=r'''
 typedef struct { uint8_t kind,a,b,c; } pref_t;
 static struct { struct { uint8_t bt; } set; } proj;
 static struct { int overlay; } ui;
-static int is_busy, is_testing, clear_calls, output_solo, inject_on_host, injection_count;
+static int is_busy, is_testing, clear_calls, output_solo;
+static int refill_armed, refill_route, refill_cross, refill_calls;
 static int perf_testing(void) { return is_testing; }
 static int ui_project_busy(void) { return is_busy; }
 static void engine_smc_solo(int parts) { output_solo=parts; clear_calls++; }
@@ -44,22 +45,30 @@ static void engine_smc_solo_targets(uint8_t parts,uint16_t a,uint16_t b)
 { output_solo=(int)parts | (int)(a!=0)<<8 | (int)(b!=0)<<9; }
 static void ui_say(const char *a,const char *b){(void)a;(void)b;}
 static void smc_guarded_button(uint8_t note,int mmc,int allow);
+#define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
 '''
 stubs=r'''
 static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow)
 {
- /* Simulate TIMER5 central ISR refill while the main loop drains host MIDI.
-  * BLE NoteOn is queued AFTER BLE drain and its NoteOff dropped by full ring. */
- if (inject_on_host && n==3 && m[0]==0xBF && m[1]==40) {
-  inject_on_host=0; injection_count++;
-  const uint8_t note_on[]={0x90,8,127};
-  smc_ble_midi(note_on,3);
-  for (unsigned j=1;j<SMC_Q;j++) {
-   const uint8_t cc[]={0xB0,16,(uint8_t)j};
-   smc_ble_midi(cc,3);
+ /* Simulated producer ISR runs AFTER the BLE drain, while a host event
+  * is dispatched (or after the first CC on its own ring). */
+ if (refill_armed && n==3 && (m[0]&0xF0u)==0xB0u) {
+  refill_armed=0; refill_calls++;
+  if (refill_route==0) {
+   assert(smc_midi_host(9u|(uint32_t)0x9Fu<<8|(uint32_t)8u<<16|(uint32_t)127u<<24));
+   assert(smc_midi_host(9u|(uint32_t)0x8Fu<<8|(uint32_t)8u<<16));
+  } else {
+   const uint8_t press[3]={0x90u,8u,127u};
+   smc_ble_midi(press,3);
+   if (refill_cross) {
+    for (unsigned i=1u;i<SMC_Q;i++) {
+     const uint8_t cc[3]={0xB0u,16u,(uint8_t)i};
+     smc_ble_midi(cc,3);
+    }
+   }
+   const uint8_t release[3]={0x80u,8u,0u};
+   smc_ble_midi(release,3);
   }
-  const uint8_t note_off[]={0x80,8,0};
-  smc_ble_midi(note_off,3);
  }
  if (!allow || n!=3) return 0;
  uint8_t type=m[0]&0xf0u,note=m[1],vel=m[2];
@@ -78,9 +87,10 @@ static void prepare(void)
 {
  smc_project_reset(); smc_link_published=smc_link_seen=0; smc.up=1;
  proj.set.bt=PROJ_BT_SMC_CENTRAL|PROJ_BT_SMC_USER;
- is_busy=is_testing=inject_on_host=injection_count=0; ui.overlay=O_NONE; output_solo=clear_calls=0;
+ is_busy=is_testing=0; ui.overlay=O_NONE; output_solo=clear_calls=0;
  smc_qr=smc_qw=smc_host_r=smc_host_w=0;
  smc_mmc_r[0]=smc_mmc_w[0]=smc_mmc_r[1]=smc_mmc_w[1]=0;
+ refill_armed=refill_route=refill_cross=refill_calls=0;
 }
 static void emit(int route,uint8_t st,uint8_t note,uint8_t vel)
 {
@@ -97,6 +107,22 @@ static void saturate(int route)
  for(unsigned i=0;i<SMC_Q;i++){
   if(route==0) assert(smc_midi_host(packet(0xBF,40,(uint8_t)i)));
   else {const uint8_t m[3]={0xB0,16,(uint8_t)i};smc_ble_midi(m,3);}
+ }
+}
+static void delayed_overflow_release(int route,int cross)
+{
+ prepare();
+ if(cross){ assert(route==1); assert(smc_midi_host(packet(0xBFu,40u,25u))); }
+ else saturate(route);
+ uint32_t before=route==0?smc_host_solo_release_lost:smc_ble_solo_release_lost;
+ refill_route=route; refill_cross=cross; refill_armed=1;
+ smc_poll(); /* ISR refills just-freed slot; Note Off overflows */
+ assert(refill_calls==1);
+ assert((route==0?smc_host_solo_release_lost:smc_ble_solo_release_lost)!=before);
+ smc_poll(); /* queued Note On then deferred release must not latch */
+ if(smc.solo_target[0]||output_solo){
+  fprintf(stderr,"FAIL deferred Solo release route=%d cross=%d\n",route,cross);
+  exit(1);
  }
 }
 static void one(int route,int use_noteon_zero,int full,int with_held)
@@ -144,13 +170,12 @@ int main(void)
  prepare();press(0);
  smc_host_solo_release_lost=UINT32_MAX;smc_host_solo_release_seen=UINT32_MAX;
  saturate(0);emit(0,0x80,8,0);smc_poll();assert(!smc.solo_target[0]&&!output_solo);cases++;
- /* Late ISR refill: this must remain queued for the NEXT poll and then
-  * release Solo, rather than ACKing loss before its press has been drained. */
- prepare();emit(0,0xB0,40,25);inject_on_host=1;smc_poll();
- assert(injection_count==1 && (uint8_t)(smc_qw-smc_qr)==SMC_Q);
- smc_poll();
- assert(!smc.solo_target[0] && !output_solo);cases++;
- assert(cases==20);printf("SMC combined source-window Solo overflow: %d/20 PASS\n",cases);
+ /* Mid-poll ISR refill: host self, BLE self, and BLE-during-host must
+  * defer Solo-loss ACK until the press drains on the next poll. */
+ delayed_overflow_release(0,0); cases++;
+ delayed_overflow_release(1,0); cases++;
+ delayed_overflow_release(1,1); cases++;
+ assert(cases==22);printf("SMC combined source-window Solo overflow: %d/22 PASS\n",cases);
  return 0;
 }
 '''
