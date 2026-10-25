@@ -1,0 +1,28 @@
+Stage 2 REPAIR: PASS (Elite + Pro DEV link; SMC host suite green)
+
+Repair branch: cursor/smc-mixer-ui-popup-stage2-repair-5686
+Base (failed candidate): 5109ef613d212ce8a261ddf75ee1f0e844b0bbbc (implementation ad4f311)
+Recorded UTC: 2026-10-22T15:57:13Z
+Stage-2 repair owner: bc-a9596c35-cd3d-534c-b570-4a5800957829
+
+Defect (stage 4): Elite XIP overflow 248 B / Pro 232 B on ad4f311.
+Baseline main e00741e: Elite 488 B free, Pro 504 B free.
+
+Repair summary
+- Compact peek map with fixed MIX MASTER page (1+NKIT).
+- Drop redundant begin guards already enforced by callers.
+- Tick only from smc_frame; overlay/help cancel stays in smc_poll.
+- Keep peek state in a byte buffer so IPA-SRA cannot split fields into
+  separate BSS symbols (each split field cost a 6-byte abs load on pi32).
+
+DEV package link (X0X_DEV_PADCAL=1, MODEL=elite|pro, ./build.sh --board smk37):
+- Elite: PASS, 56 B code free, pool_free 8364 (>= 8192), identity SMK-37 Elite_900
+- Pro:   PASS, 56 B code free, pool_free 8364 (>= 8192), identity SMK-37 Pro_900
+Logs: size-elite-repair.log, size-pro-repair.log
+
+Host suite: PASS (host-suite.log) — fader, buttons, mapping, filter,
+clip-visibility, part-select, drum-mutes, performance-abort, reachability,
+smc_ui_popup.
+
+Disposition: advance to one fresh Stage 3 test thread on this repair tip.
+Do not install. Do not merge to main. Do not implement page-lock/multi-SMC.
