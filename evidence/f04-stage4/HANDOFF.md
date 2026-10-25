@@ -13,9 +13,10 @@ Package evidence: `evidence/f04-stage4/CHECKS.md`, `elite/record.json`, `pro/rec
 Host test evidence: `evidence/f04-stage3/CHECKS.md` (ALL_PASS).
 Deferred (unchanged): `evidence/f04-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f04-stage4/SUCCESSOR-STAGE5.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 5 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-53d982c6-2d09-50b5-a24b-19a82e0ab4bc`.
+Successor URL: https://cursor.com/agents/bc-53d982c6-2d09-50b5-a24b-19a82e0ab4bc
+Successor source: owner-visible (CreateAgent by Project coordinator; pod had no `CURSOR_API_KEY`). Name: Stage 5 merge. `startingRef`: `cursor/f04-bf001-stage4-fb90` @ `193fdf631ec38343ac73550555201c9279fd5f44`.
+Handoff status: **complete**. Owner-visible Stage 5 is recorded on this remote tip. Stage 4 ownership ends.
 
 ## Package summary
 
