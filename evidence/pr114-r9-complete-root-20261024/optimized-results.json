@@ -1,0 +1,123 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_identity_reconnect_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/ota_identity_reconnect_test-optimized.log",
+    "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_port_binding_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/ota_port_binding_test-optimized.log",
+    "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_physical_handover_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/ota_physical_handover_test-optimized.log",
+    "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_raw_midi_names_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/ota_raw_midi_names_test-optimized.log",
+    "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_mid_session_identity_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/ota_mid_session_identity_test-optimized.log",
+    "sha256": "38b136eb550805ec9d1bb02c0bd98800a125ccc5ba6e39d5a38cd90cd0019e64"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_unit_bounce_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/ota_unit_bounce_test-optimized.log",
+    "sha256": "f9294c1d49e52ef28a79dbb67f8dba8b3e4618d636b99bb0a3fedf35d75eaf4b"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/host/ota_send_rebind_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/ota_send_rebind_test-optimized.log",
+    "sha256": "3d55a164e0b34d4d99b95bbec853ce3ba451f669ce063a05a2eb25b410f519b0"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/install_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/install_test-optimized.log",
+    "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/install_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/install_slots_test-optimized.log",
+    "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/install_ctl_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/install_ctl_test-optimized.log",
+    "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+  },
+  {
+    "argv": [
+      "python3",
+      "-O",
+      "-B",
+      "tests/x0x_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "evidence/pr114-r9-complete-root-20261024/x0x_slots_test-optimized.log",
+    "sha256": "0054d977c176c3fd2810c63fe16552c7fc33c52eca9d11467f1cec6a55236f13"
+  }
+]

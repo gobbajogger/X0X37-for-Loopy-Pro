@@ -40,7 +40,8 @@ class FakeBT(T.FakeSMK):
 
     def __init__(self, image, block, **kw):
         self.block, self.reads = block, []
-        super().__init__(image, identity=ELITE, name="SMK-37 Elite", after_write=ELITE, **kw)
+        super().__init__(image, identity=ELITE, name="SMK-37 Elite", after_write=ELITE,
+                         loader_identity="ota-" + ELITE, **kw)
 
     def rx(self, d):
         if d[:4] == I.ED_HDR and d[-1] == 0xF7:

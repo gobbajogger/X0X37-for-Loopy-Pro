@@ -1,0 +1,93 @@
+[
+  {
+    "name": "raw-midi",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_raw_midi_names_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "raw-midi.log",
+    "tail": "PASS unique input/output permits one endpoint: result=found, opens=1\nPASS two distinct matching keyboards rejected: result=model, opens=2\nPASS duplicate raw input refused before opening any MIDI endpoint: result=model, opens=0\nPASS duplicate raw output refused before opening any MIDI endpoint: result=model, opens=0\nPASS duplicate loader input refused before opening any MIDI endpoint: result=model, opens=0\nPASS duplicate loader output refused before opening any MIDI endpoint: result=model, opens=0\nPASS explicit --port cannot override raw duplicate inputs: result=model, opens=0\nPASS unrelated duplicate names fail closed without pretending device identity: result=model, opens=0\nSUMMARY 8/8 PASS\n"
+  },
+  {
+    "name": "physical",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_physical_handover_test.py"
+    ],
+    "exit": 0,
+    "log": "physical.log",
+    "tail": "PASS stable: result='SMK-37 Pro_900' error=None writes=['unit-A'] verified=['unit-A']\nPASS rename-same-unit: result='SMK-37 Pro_900' error=None writes=['unit-A'] verified=['unit-A']\nPASS swap-before-start: result=None error='model' writes=[] verified=[]\nPASS swap-before-write: result=None error='noloader' writes=[] verified=[]\nPASS swap-before-verify: result=None error='noreturn' writes=['unit-A'] verified=[]\nPASS no-hardware-id: result=None error='model' writes=[] verified=[]\nSUMMARY 6/6 safe; 0 failing physical-continuity regressions\n"
+  },
+  {
+    "name": "binding",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_port_binding_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 0,
+    "log": "binding.log",
+    "tail": "PASS SMK-37 Elite_016 -> SMK-37 Pro_900 keeps SAME physical MIDI port\nPASS SMK-37 Pro_016 -> SMK-37 Elite_900 keeps SAME physical MIDI port\nPASS two same-model initial keyboards: refuse before UPGRADE\nPASS --port with two matching devices refuses selection\nPASS never flash foreign Pro loader at another MIDI port\nPASS unverifiable changed MIDI port at handover must fail closed\nPASS verify cannot count an identical foreign running unit after target remains loader\nPASS verify skips stale same-model sibling before correct unit\nPASS stale firmware on originating port retains mismatch diagnostic\nPASS sample restore binds original physical port\nPASS sample restore refuses wrong sole unit\nPASS controller CRC readback binds original physical port\nPASS controller CRC readback refuses wrong sole unit\nPASS unbound verification fails closed\nPASS already-in-loader wrong-model resume refused\nPASS correct-model interrupted resume stays on selected physical port\nPASS failed write does not verify or run destructive restore\nSUMMARY 17/17 PASS; 0 failures\n"
+  },
+  {
+    "name": "identity",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/host/ota_identity_reconnect_test.py",
+      "tools/fm1_install.py"
+    ],
+    "exit": 1,
+    "log": "identity.log",
+    "tail": "ver selects exactly the originating model\nPASS initial OTA handover refuses foreign family loader\nPASS initial OTA handover refuses different SMK model loader\nPASS final verify ignores foreign and different-model devices\nPASS restore: select exact installed model and version\nPASS restore: do not run on foreign-only device\nPASS restore: do not run on different SMK model\nPASS restore: do not run on stale firmware version\nPASS controller readback: select exact installed model and version\nPASS controller readback: do not run on foreign-only device\nPASS controller readback: do not run on different SMK model\nPASS controller readback: do not run on stale firmware version\nPASS retain normal model-matched loader recovery\nPASS retain meaningful same-model wrong-version diagnostic\nPASS retain successful exact-version OTA verification\nFAIL Elite to Pro migration selects package Pro loader and verifies installed Pro\nFAIL Elite to Pro refuses stale Elite loader before firmware write\nPASS foreign-family install refused before handover/write\nPASS already in update mode: reject other-model loader before write\nFAIL already in update mode: permit matching package-model loader\nCHECKS=17/20 FAILURES=3\n"
+  },
+  {
+    "name": "installer",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/install_test.py"
+    ],
+    "exit": 0,
+    "log": "installer.log",
+    "tail": "matches nothing -> exit 3                            ok\n--port picks a port the default match skips                      ok\nunplugged in step 1 -> exit 4 'lost', nothing written            ok\nunplugged during the write -> exit 4 at once                     ok\nloader stops answering -> exit 4 after the idle time             ok\nread past the package -> exit 4                                  ok\nanother identity after the restart -> exit 6                     ok\nanother model -> exit 6, nothing sent                            ok\nSMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent ok\nno loader after step 1 -> exit 5                                 ok\npackage without the loader marker -> exit 2, no MIDI             ok\n... installs with --force                                        ok\nnot a package -> exit 2                                          ok\nmissing file -> exit 2                                           ok\nlogical image vs fm1pkg.js: skipped (needs node and build/x0x-smk37.fwsc)\nmodels: SMK-37 Pro / Elite / MKE-P37 / Starrykey are one keyboard, FM-1 is another ok\nport names: every SMK model and every port firmware probed       ok\ninstall tests passed\n"
+  },
+  {
+    "name": "ctl",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/install_ctl_test.py"
+    ],
+    "exit": 1,
+    "log": "ctl.log",
+    "tail": "mock CTL_READ: offset 0x10000 (outside the block): no reply      ok\nmock CTL_READ: the count stops at the block end                  ok\nread-back: full 65536 B block in 293 reads, unit CRC32 = expected CRC32 9da9720b ok\nread-back: every request stays inside the Bluetooth block        ok\none changed bit: error, unit CRC32 e8e23747 printed, expected 9da9720b ok\nchanged erased padding byte is detected                          ok\nno CTL_READ on the unit: error, no CRC claimed                   ok\ninstall with a ctl.img: installed, read back, CRC32 ok, exit 0   FAIL\ninstall, the unit block differs: exit 8, error                   FAIL\ninstall, the unit has no CTL_READ: exit 8                        FAIL\ninstall without a ctl.img: no read-back                          FAIL\nINSTALL CTL TESTS FAILED (4)\n"
+  },
+  {
+    "name": "slots",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/install_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "slots.log",
+    "tail": "ds finish before the first update command  ok\ndowngrade: every slot saved before install; incomplete restoration returns exit 7 ok\ndowngrade: the backup sends SMP_INFO / SMP_READ only, and before the install ok\ndowngrade: the warning names the slots at risk                   ok\ndowngrade: slot 1 kept, slot 3 restored, oversized slot 2 reported ok\ndowngrade: exit 7 exposes retained archive recovery instructions ok\nmoved slot: default backup file, slot 2 written back at its new offset, slot 1 kept ok\nfailure mid-restore: exit 7, the backup file stays and reads back ok\nfailure mid-restore: the message gives the Restore button and the x0x_slots.py command ok\nfailure mid-restore: the firmware install itself completed       ok\nfailure mid-restore: a later restore from the backup completes   ok\nbackup fails: exit 7, nothing installed                          ok\nstock package: archived samples retained, no slot destination, incomplete exit 7 with restore steps ok\n--no-slots: no slot command, no backup                           ok\nanswer no: warning shown, nothing saved or sent                  ok\nold package transport: no controller is selected implicitly      ok\ninstall slot tests passed\n"
+  },
+  {
+    "name": "archive",
+    "argv": [
+      "python3",
+      "-B",
+      "tests/x0x_slots_test.py"
+    ],
+    "exit": 0,
+    "log": "archive.log",
+    "tail": "y even with a valid outer CRC\n  ok   archive refuses inconsistent slot count even with a valid outer CRC\n  ok   CRC-valid archive refuses string false silently erases a populated slot\n  ok   CRC-valid archive refuses numeric empty flag erases a populated slot\n  ok   CRC-valid archive refuses empty entry carrying hidden image pointers\n  ok   CRC-valid archive refuses aliased image regions copy slot one's bytes into slot two\n  ok   CRC-valid archive refuses orphan payload bytes after referenced images\n  ok   false-string empty flag cannot erase samples or send flash-write commands\n  ok   a damaged archive is refused\n  ok   restore: slot 1 rewritten, slot 2 erased\n  ok   restore: SMP_INFO after restore lists the archive's zones\n  ok   restore uses SMP_ERASE / SMP_BEGIN, SMP_WRITE, SMP_END\n  ok   restore --slots 2 only\n  ok   3 x 120 KiB layout: backup, 100 KB in one slot, lost frames retried\n  ok   3 x 120 KiB layout: restore, verified\n  ok   3-slot archive on 2 slots: slot 3 skipped\n  ok   an image larger than the slot is skipped\n1 slot image(s) in /workspace/x0x-ota-qa/build/host/x0x_slots_extract\n  ok   extract: slot1.hdr / .bin equal the uploaded header and data\nx0x slots: all ok\n"
+  }
+]
