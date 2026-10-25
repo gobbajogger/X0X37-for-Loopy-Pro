@@ -141,11 +141,11 @@ a { color: var(--accent); }
 A 909, an 808, two 303s with TB-3PO, and a breakbeat player — with an APC40-style clip launcher
 for Loopy Pro on the SMK-37.</p>
 <div class="status">Install any published version from Chrome or Edge over USB. The sample importer
-puts your own loops into the BREAK slots. Installing is at your own risk; packages keep the
-keyboard's model name so M-UPGRADE still works.</div>
+puts your own loops into the BREAK slots (optional oldschool grit, with preview before you write).
+Installing is at your own risk; packages keep the keyboard's model name so M-UPGRADE still works.</div>
 <nav class="ways" aria-label="Get X0X">
   <div class="card"><strong><a href="install/">Install__VERSION_LABEL__</a> <a class="new" href="new/">What's new?</a></strong><span>Upgrade, downgrade, or switch: pick a published version and model, or drop any .fwsc (stock / other custom). Nothing to install on the computer.</span></div>
-  <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part from Chrome or Edge.</span></a>
+  <a href="breaks/"><strong>Sample importer</strong><span>Drop in loops and send them to the BREAK part. Off by default: optional oldschool grit (light to max) and listen-before-send preview. Chrome or Edge.</span></a>
   <a href="projects/"><strong>Projects</strong><span>Save, load and reset on the keyboard, or export a project with its original samples.</span></a>
   <a href="manual/"><strong>Manual</strong><span>Getting started, then everything else — including the SMK-37 map.</span></a>
   <a href="__REPO__/releases"><strong>All releases</strong><span>Firmware files for the command line: <code>python3 tools/fm1_install.py …</code></span></a>
