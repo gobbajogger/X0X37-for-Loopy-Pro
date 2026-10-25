@@ -1,0 +1,4 @@
+CURSOR_API_KEY unset on this pod. Two CreateAgent attempts recorded as NO_CURSOR_API_KEY.
+Ask Project coordinator to CreateAgent Stage 7 with startingRef=cursor/f13-bf012-stage5-237f and evidence/f13-stage5/SUCCESSOR-STAGE7.txt.
+Stage 6 is Mac/rtmidi LaunchAgent only — CreateAgent Stage 6 separately on Mac; cloud does not flash.
+Do not use Task as Stage 7.

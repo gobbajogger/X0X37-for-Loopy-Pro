@@ -1,0 +1,19 @@
+Project PR merge (dry-run=5)
+Owner policy: automatic merge of properly tested work is pre-approved.
+Only --pr / --head proven heads are merged. Never ask for a per-PR APPROVE.
+
+#298 dry-run: would retarget base cursor/f13-bf012-stage2-237f → main after parent merge :: pr edit 298 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  Stage 3: prove LIMIT off→on no longer replays stale audio
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/298
+#298 dry-run: pre-approved after local proof (stack base cursor/f13-bf012-stage2-237f); would try: gh pr merge 298 --repo gobbajogger/X0X37-for-Loopy-Pro --merge then gh pr merge 298 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --admin then gh pr merge 298 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --auto :: pr merge 298 --repo gobbajogger/X0X37-for-Loopy-Pro --merge
+  Stage 3: prove LIMIT off→on no longer replays stale audio
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/298
+#302 dry-run: would retarget base cursor/f13-bf012-stage3-237f → cursor/f13-bf012-stage2-237f after parent merge :: pr edit 302 --repo gobbajogger/X0X37-for-Loopy-Pro --base cursor/f13-bf012-stage2-237f
+  Stage 4: validate Elite and Pro builds after limiter OFF→ON clear
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/302
+#302 dry-run: would retarget base cursor/f13-bf012-stage2-237f → main after parent merge :: pr edit 302 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  Stage 4: validate Elite and Pro builds after limiter OFF→ON clear
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/302
+#302 dry-run: pre-approved after local proof (stack base cursor/f13-bf012-stage2-237f); would try: gh pr merge 302 --repo gobbajogger/X0X37-for-Loopy-Pro --merge then gh pr merge 302 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --admin then gh pr merge 302 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --auto :: pr merge 302 --repo gobbajogger/X0X37-for-Loopy-Pro --merge
+  Stage 4: validate Elite and Pro builds after limiter OFF→ON clear
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/302

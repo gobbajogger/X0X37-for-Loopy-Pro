@@ -1,0 +1,19 @@
+Cloning into '/home/ubuntu/sdk/fw-AC79_AIoT_SDK'...
+Note: switching to 'd179b4484759423312073f5fbb232501aa491047'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+Updating files:  45% (6952/15258)Updating files:  46% (7019/15258)Updating files:  47% (7172/15258)Updating files:  48% (7324/15258)Updating files:  49% (7477/15258)Updating files:  50% (7629/15258)Updating files:  51% (7782/15258)Updating files:  52% (7935/15258)Updating files:  53% (8087/15258)Updating files:  54% (8240/15258)Updating files:  55% (8392/15258)Updating files:  56% (8545/15258)Updating files:  57% (8698/15258)Updating files:  58% (8850/15258)Updating files:  59% (9003/15258)Updating files:  60% (9155/15258)Updating files:  60% (9252/15258)Updating files:  61% (9308/15258)Updating files:  61% (9402/15258)Updating files:  62% (9460/15258)Updating files:  63% (9613/15258)Updating files:  64% (9766/15258)Updating files:  65% (9918/15258)Updating files:  66% (10071/15258)Updating files:  67% (10223/15258)Updating files:  68% (10376/15258)Updating files:  69% (10529/15258)Updating files:  70% (10681/15258)Updating files:  71% (10834/15258)Updating files:  72% (10986/15258)Updating files:  73% (11139/15258)Updating files:  74% (11291/15258)Updating files:  75% (11444/15258)Updating files:  76% (11597/15258)Updating files:  77% (11749/15258)Updating files:  78% (11902/15258)Updating files:  79% (12054/15258)Updating files:  80% (12207/15258)Updating files:  81% (12359/15258)Updating files:  82% (12512/15258)Updating files:  83% (12665/15258)Updating files:  84% (12817/15258)Updating files:  85% (12970/15258)Updating files:  86% (13122/15258)Updating files:  87% (13275/15258)Updating files:  88% (13428/15258)Updating files:  89% (13580/15258)Updating files:  90% (13733/15258)Updating files:  91% (13885/15258)Updating files:  92% (14038/15258)Updating files:  93% (14190/15258)Updating files:  94% (14343/15258)Updating files:  95% (14496/15258)Updating files:  96% (14648/15258)Updating files:  97% (14801/15258)Updating files:  98% (14953/15258)Updating files:  99% (15106/15258)Updating files: 100% (15258/15258)Updating files: 100% (15258/15258), done.

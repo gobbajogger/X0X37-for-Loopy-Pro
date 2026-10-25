@@ -1,0 +1,18 @@
+Nightly fast-forward summary (F13 BF-012 stage 5)
+validated_source_sha=b42bcba46ee7255c18f18c10dd1f99b9fc9bb675
+content_tree=519ccdf21b46db9198993587cb9334960e67ce483641c744c5caf71b1c769141
+firmware_tree=5facb3b4405d119a269a05224b9268adfa1baa13
+audited_pre_bf012_sha=de11b6d7e3ac3322d2db689675d9ed27ed667785
+bf012_repair_commit=6636cca1
+attempted_sha=b42bcba46ee7255c18f18c10dd1f99b9fc9bb675
+merge_base=de11b6d7e3ac3322d2db689675d9ed27ed667785
+validated_not_in_nightly=5
+nightly_not_in_validated=393
+nightly_sha_before=bd2d99332e1f7abc3db3c8dd5839132d99e21e8f
+push_exit=1
+result=REFUSED_non_fast_forward
+force_push=false
+nightly_sha_after=bd2d99332e1f7abc3db3c8dd5839132d99e21e8f
+evidence_tip_not_used=28aed5c7f0c59976228af01e92a2523e4921c9e2
+stage4_clarification=28aed5c7
+note=Attempted FF of package/install SHA b42bcba4 only; Stage-4 evidence tip (incl. clarification 28aed5c7) was not pushed to nightly.

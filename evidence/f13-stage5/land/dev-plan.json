@@ -1,0 +1,24 @@
+{
+  "base": "bd2d99332e1f7abc3db3c8dd5839132d99e21e8f",
+  "scope": "F13 Stage-5 land: BF-012 master limiter OFF\u2192ON look-ahead clear cherry-picked onto origin/nightly. Land tip f4284ab8 (cherry-pick -x of 6636cca1 onto bd2d9933). Blobs master.c f91a9473\u2026 / master_test.c df2f13b3\u2026. Host X0X_TESTS=master PASS on this tip. Mini Stage-4 Elite+Pro DEV CHECK required before nightly merge because tip \u2260 b42bcba4.",
+  "checks": [
+    {
+      "reason": "BF-012 tip blobs must match Stage-2 repair (master.c f91a9473\u2026, master_test.c df2f13b3\u2026).",
+      "argv": [
+        "bash",
+        "evidence/f13-stage5/land/check-bf012-blobs.sh"
+      ]
+    },
+    {
+      "reason": "BF-012 host regressions: master suite must PASS with X0X_DEV_PADCAL=1.",
+      "argv": [
+        "bash",
+        "evidence/f13-stage5/land/check-bf012-host.sh"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f13-stage4/check-bf012-blobs.sh",
+    "/Users/mac/Documents/x0x37/x0x37-for-loopy-pro/evidence/f13-stage4/check-bf012-host.sh"
+  ]
+}

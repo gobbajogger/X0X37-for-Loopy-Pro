@@ -1,0 +1,7 @@
+=== merge 298 into existing base (no retarget) ===
+EXIT298:0
+=== merge 302 into existing base (no retarget) ===
+EXIT302:0
+{"mergeCommit":{"oid":"a57b3626d9a3c144a9e6bb844dbbfd3d32099cdc"},"mergedAt":"2026-10-25T19:09:16Z","state":"MERGED"}
+{"mergeCommit":{"oid":"257fab878e8fd8b615dc7f075b57b23e01744d4a"},"mergedAt":"2026-10-25T19:09:19Z","state":"MERGED"}
+294 base nightly — not merged by Stage 5 merge tool; nightly FF is separate

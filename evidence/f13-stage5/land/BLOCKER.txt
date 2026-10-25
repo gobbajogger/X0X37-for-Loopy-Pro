@@ -1,0 +1,11 @@
+land_attempt=f4284ab8b622aa9d41ca26c3af9b79b38aeb4fca
+nightly_parent=bd2d99332e1f7abc3db3c8dd5839132d99e21e8f
+cherry_of=6636cca1
+host_master=PASS
+blobs=PASS f91a9473 / df2f13b3
+nightly_alone_elite_build=FAIL XIP_overflow_972
+land_tip_elite_build=FAIL XIP_overflow_1036
+b42bcba4_elite_build=PASS code_free_6564 package_651396
+merge_to_nightly=BLOCKED_no_DEV_CHECKED
+force_push=false
+blocker=origin/nightly tip bd2d9933 already overflows XIP by 972 B (#295/#296 landed after BF-012 validate tip); cannot mini Stage-4 DEV CHECK or merge BF-012 until size headroom restored

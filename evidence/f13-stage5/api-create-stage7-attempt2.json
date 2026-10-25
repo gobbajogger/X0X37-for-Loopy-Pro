@@ -1,0 +1,7 @@
+{
+  "attempt": 2,
+  "result": "NO_CURSOR_API_KEY",
+  "CURSOR_API_KEY_present": false,
+  "would_post": "https://api.cursor.com/v1/agents",
+  "startingRef": "cursor/f13-bf012-stage5-237f"
+}

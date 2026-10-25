@@ -1,0 +1,3 @@
+Preparing worktree (detached HEAD f4284ab8)
+HEAD is now at f4284ab8 F13 Stage 2: clear master limiter look-ahead on LIMIT OFF→ON (BF-012)
+REFUSED: build failed; see /tmp/f13-land-elite/build.log

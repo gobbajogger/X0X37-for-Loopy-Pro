@@ -1,0 +1,10 @@
+Project PR merge (failed=2)
+Owner policy: automatic merge of properly tested work is pre-approved.
+Only --pr / --head proven heads are merged. Never ask for a per-PR APPROVE.
+
+#298 failed: retarget to main failed: GraphQL: Resource not accessible by integration (updatePullRequest) :: pr edit 298 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  Stage 3: prove LIMIT off→on no longer replays stale audio
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/298
+#302 failed: retarget to main failed: GraphQL: Resource not accessible by integration (updatePullRequest) :: pr edit 302 --repo gobbajogger/X0X37-for-Loopy-Pro --base main
+  Stage 4: validate Elite and Pro builds after limiter OFF→ON clear
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/302
