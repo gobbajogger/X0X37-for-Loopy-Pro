@@ -424,10 +424,78 @@ static int ble_midpoll_foreign_overflow(uint8_t cursor, int user,
  CHECK(!solos_on && !smc_project_active(),"ordinary release still works");
  return 1;
 }
+/* Pair the R19 channel-aware overflow producer with R15 reconnect epochs.
+ * A queued old-link release must be retired at the link cutoff, while a
+ * genuinely lost NEW-link release must still fail-safe after the new Solo
+ * press. Unrelated instruments' channels must never clear either lifetime.
+ * Use the actual producer, ring and poll/decoder with TIMER5 link callbacks. */
+static int ble_link_overflow_lifetime(uint8_t cursor, int user,
+                                      unsigned channel, int zero_on, int new_link)
+{
+ reset(cursor,user);
+ int owned=(channel==0u || (user && channel==15u));
+ uint32_t lost_before=smc_ble_solo_release_lost;
+ uint8_t dropped_before=smc_dropped;
+ const uint8_t filler[3]={0xB1u,40u,64u};
+ const uint8_t release[3]={
+  (uint8_t)((zero_on ? 0x90u : 0x80u)|channel),8u,0u};
+ if(new_link) {
+  smc_ble_link(0);
+  smc_ble_link(1); /* both TIMER5 transitions precede consumer's poll */
+  ble_note(user,1); /* fresh Solo strictly AFTER the published cutoff */
+ } else {
+  ble_note(user,1); /* old Solo acquired before the link change */
+  smc_poll();
+  CHECK(solos_on && smc.solo_target[0],"pre-edge Solo initially held");
+ }
+ for(unsigned j=(unsigned)new_link;j<SMC_Q;j++) smc_ble_midi(filler,3u);
+ CHECK((uint8_t)(smc_qw-smc_qr)==SMC_Q,
+       "real BLE ring full at both link/producer phases");
+ smc_ble_midi(release,3u);
+ CHECK(smc_ble_solo_release_lost-lost_before==(uint32_t)owned,
+       "only accepted channel may publish lost release across link boundary");
+ CHECK((uint8_t)(smc_dropped-dropped_before)==1u,
+       "only overflowing NoteOff drops at link boundary");
+ if(!new_link) {
+  smc_ble_link(0);
+  smc_ble_link(1);
+ }
+ smc_poll();
+ CHECK(smc_qr==smc_qw,"old and new BLE queued events retired without replay");
+ CHECK(smc_ble_solo_release_seen==smc_ble_solo_release_lost,
+       "consumer retires the exact pre/post link lost-release generation");
+ CHECK(!!solos_on==(unsigned)(new_link && !owned),
+       "pre-edge Solo clears; post-edge valid release clears, foreign one does not");
+ smc_poll();
+ CHECK(!!solos_on==(unsigned)(new_link && !owned),
+       "idle poll cannot reapply obsolete link loss or duplicate Solo");
+ if(!solos_on) {
+  ble_note(user,1); smc_poll();
+  CHECK(solos_on && smc.solo_target[0],"fresh post-recovery Solo still works");
+ }
+ ble_note(user,0); smc_poll();
+ CHECK(!solos_on && !smc_project_active(),
+       "matching legitimate Solo release still ends held state");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
+ /* Focused paired BLE link/overflow phase regression; not a hardware test. */
+ if (getenv("SMC_ONLY_LINK_OVERFLOW")) {
+  for(unsigned user=0;user<2;user++)
+   for(unsigned ch=0;ch<16;ch++)
+    for(int zero_on=0;zero_on<2;zero_on++)
+     for(int new_link=0;new_link<2;new_link++)
+      for(unsigned i=0;i<sizeof cursors;i++) {
+       if(!ble_link_overflow_lifetime(cursors[i],user,ch,zero_on,new_link)) return 1;
+       ++cases;
+      }
+  printf("SMC BLE link overflow lifetime: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
  /* Focused overflow suite, used for negative controls and CI triage. */
  if (getenv("SMC_ONLY_FOREIGN_OVERFLOW")) {
   for(unsigned user=0;user<2;user++)
@@ -468,6 +536,14 @@ int main(void)
          cases,cases,checks);
   return 0;
  }
+ for(unsigned user=0;user<2;user++)
+  for(unsigned ch=0;ch<16;ch++)
+   for(int zero_on=0;zero_on<2;zero_on++)
+    for(int new_link=0;new_link<2;new_link++)
+     for(unsigned i=0;i<sizeof cursors;i++) {
+      if(!ble_link_overflow_lifetime(cursors[i],user,ch,zero_on,new_link)) return 1;
+      ++cases;
+     }
  for(unsigned user=0;user<2;user++)
   for(unsigned ch=0;ch<16;ch++)
    for(int zero_on=0;zero_on<2;zero_on++)
