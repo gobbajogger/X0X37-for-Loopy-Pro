@@ -20,5 +20,5 @@ SOURCE=${SMC_UI_SOURCE_FILE:-$PWD/firmware/src/app/smc_mixer.c}
 ${CC:-cc} -O1 -g -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter \
     -DX0X_HOST $DARWIN ${X0X_HOST_DEFS:-} ${SAN_FLAGS:-} \
     -DSMC_SOURCE_FILE=\"$SOURCE\" -Ifirmware/src -Ifirmware/src/app -Ifirmware/src/dsp -Ibuild/gen -I"$OUT" \
-    tests/host/smc_ui_test.c $U -lm -o "$OUT/test"
+    ${SMC_UI_TEST_FILE:-tests/host/smc_ui_test.c} $U -lm -o "$OUT/test"
 SMC_UI_SHOTS="$OUT" "$OUT/test"

@@ -19,7 +19,7 @@ Fader, encoder and action feedback uses the full control screen instead of a yel
 
 The three mixer modes are the keyboard-equivalent main mix, 909 tracks and 808 tracks. Drum SEQ and drum MIX use the same drum-strip mapping. Each kit keeps its selected drum and bank across these views. Faders keep their existing levels, returns and DJ filter. Knobs provide pan, reverb decay, delay feedback and filter resonance as listed above. This gives the musician a separate dimension of control on every populated mixer strip. Other sound pages, menus and clip editors retain their visible-field controls, with any ordinary row already on an active fader parked. No unrelated parameter is substituted. Duplicate fields within the visible knob bank use the first position only.
 
-The touched destination and formatted value occupy the main display. Its heading identifies the real page, kit and drum bank; the overview is smaller. Pickup shows direction toward the displayed target and separate target/physical-position markers; ACTIVE means the control can edit. The screen is still a temporary presentation over the underlying UI.
+The screen keeps all eight physical strips visible in left-to-right order. Each encoder sits above its fader, with the three button positions beside the fader in physical M/S/R order. Their captions name actual actions: PART/HOME on the filter strip, MIX and GLOB (Global) shortcuts, context-dependent LIST/OK and SONG/HOME/BACK, or GRID in the clip editor. Drum buttons remain M/S/R; X means locked and -- means unmapped. Shared shortcut descriptors and key resolution drive both input and captions. Knob arcs use the keyboard renderer and mapped runtime value; bipolar controls have a center mark. The exact lower value/unit and fader pickup message remain. The cryptic static footer legend is removed. The selected lane has a solid title highlight instead of an on-screen SELECT button. The touched control keeps its separate colored outline and value readout; LOCK in the header identifies captured control targets. Selection follows the current part or the main MIX channel editor selection, or the displayed kit’s selected drum; if it lies outside the displayed locked bank, no lane title is highlighted. Physical SELECT behavior is unchanged. The lower readout names the touched destination and formatted value. Its heading identifies the real page, kit and drum bank. Pickup shows direction toward the displayed target and separate target/physical-position markers; ACTIVE means the control can edit. The screen remains a temporary presentation over the underlying UI. The geometry is adapted to the 240 by 240 display; it is not a physical-scale drawing.
 
 Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not another drum. Earlier SMC documentation and a test fixture incorrectly claimed twelve tracks. Two banks remain: **Bank Left** selects tracks **1–8** and **Bank Right** selects **9–11** in drum MIX and drum SEQ. Faders and knobs on strips 4–8 are inactive in the second bank; all four button rows on those strips are inactive and unlit. Keyboard selection also sets the bank. Each kit keeps its selection.
 
@@ -34,7 +34,7 @@ On **909 MIX**, **808 MIX**, **909 SEQ** and **808 SEQ**, all four button rows f
 | Record | Select that kit and drum, then toggle the existing recording mode | Recording is on and this drum is selected for that kit |
 | Solo | Isolate that drum while held; release restores the ordinary mix | This drum has an active Solo target |
 | Mute | Toggle that drum's mute | That drum is muted |
-| SELECT | Select that kit and drum without changing recording | This drum is selected |
+| SELECT | Select that kit and drum without changing recording; in drum MIX, pressing the already-selected drum returns to main MIX | This drum is selected |
 
 The **SMK pads sequence the selected drum in either drum SEQ or drum MIX**, and the current view stays open. The pad step lights follow that drum. Record and SELECT focus the visible kit as well as its drum, even if a different part was previously selected. Record uses the existing recording mode; it does not create separate record-arm states for individual drums.
 
@@ -48,7 +48,7 @@ All required paths use buttons present in both the factory DAW and stock User pr
 
 | Control | Action |
 | --- | --- |
-| SELECT 1–5 outside drum MIX/SEQ | Select 909 / 808 / 303A / 303B / BREAK and open its sound pages |
+| SELECT 1–5 outside drum MIX/SEQ | Select 909 / 808 / 303A / 303B / BREAK and open its sound pages; pressing the already-selected 909/808 opens that kit's individual-sound mixer |
 | Up / Down, ordinary page | Cycle HOME, sound, sequence, generator (303 only), FX, MIX and song views |
 | Left / Right, ordinary page | Previous / next page within that view |
 | Bank Left / Right, drum sound page | Previous / next drum track, bounded at 1 and 11 |
@@ -68,7 +68,13 @@ All required paths use buttons present in both the factory DAW and stock User pr
 
 Channel Left/Right messages, if supplied by a custom mapping, also select drum tracks or clip fields. The stock 43-button preset does not require them. Returning from a Global menu restores the clip editor underneath it.
 
-Outside drum MIX and drum SEQ, strips 1–5 retain their part controls: **M** toggles the part's mute, **S** solos it while held, and **R** selects the part and toggles recording. Several held **S** buttons can solo several parts together. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY**, **STOP** and **REC** control X0X transport and recording; rewind and fast-forward move the selected part's pattern. These actions do not send APC40 clip commands. Performance tests own the controls, clear temporary Solo and drain SMC input without editing.
+Outside drum MIX and drum SEQ, strips 1–5 retain their part controls: **M** toggles the part's mute, **S** solos it while held, and **R** selects the part and toggles recording. Several held **S** buttons can solo several parts together. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY** toggles play/pause using the sequencer's existing start/stop operations, including a queued start; **STOP** stops and **REC** controls recording. Rewind and fast-forward move the selected part's pattern. Holding a DAW PLAY or SELECT Note does not repeat the action; release enables the next press. Stock User MMC has no release and retains one action per command. These actions do not send APC40 clip commands. Performance tests own the controls, clear temporary Solo and drain SMC input without editing.
+
+## Prepared target lock and physical identification limit
+
+The reviewed PR150 target-capture mechanism is adapted to the distinct current knob mappings. Its neutral press/release API captures fader, knob, drum-bank, pattern and song-bar targets; keyboard navigation then leaves those targets stable. The control screen still expires normally. SELECT, row Record and SMC target navigation are parked while locked, so a repeated SELECT cannot silently redirect controls. Unlock follows the current UI and resets pickup. Clip mode refuses lock entry; a lock acquired outside clip mode survives subsequent keyboard clip navigation. Song structural edits invalidate captured song-bar knobs until unlock.
+
+This source API has no physical Pause binding. The current replacement SMC's Pause event and light have not been identified by labelled project evidence. Historical note53/CC53 remains unconfirmed. Existing STOP `0x5D` is preserved. No Pause LED address or blink command is guessed; the requested blinking-follow/steady-lock indication remains pending that evidence. Host API tests and native rendering do not establish physical availability or hardware validation.
 
 Fader 8's main-mixer master filter matches the keyboard's bank-B filter: low-pass below the middle, neutral in the middle, and high-pass above it. Strip 8's M button toggles master output, and its light reflects that output mute. Drum MIX and drum SEQ assign fader 8 to track 8 in the first bank and leave it inactive in the second bank.
 
