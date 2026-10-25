@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T12:50:00Z",
+  "role": "Sequencer Clock",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/seq-transport-coalesce-20261023-1250",
+    "tested_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "tested_tree": "71b759dd206d844cceed9e40ae68966142720e9c"
+  },
+  "summary": "Last pending Start/Continue wins within one audio block; regression reproduced double MIDI transport and phase reset at exact nightly sequencer blob and verifies corrected behavior. NIGHTLY advanced by docs-only PR #60; changed paths did not include any tested source/test blobs.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/sequencer.c",
+      "description": "Coalesce pending Start/Continue without losing Stop ordering."
+    },
+    {
+      "kind": "source",
+      "location": "tests/run_tests.sh",
+      "description": "Register transport-coalesce regression in host test selection."
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/seq_transport_coalesce_test.c",
+      "description": "27 positive, phase, burst, negative, MIDI and Note-Off assertions."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-transport-coalesce-20261023.md",
+      "description": "Before/after, exact source blobs, native exit evidence and next QA gate."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-before.log",
+      "description": "Raw failing baseline: ten confirmed failures."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-after.log",
+      "description": "Raw patched native GCC/Clang/UBSan output."
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-suite.log",
+      "description": "Raw three-test registered selector result."
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline GCC repro",
+      "status": "FAIL",
+      "exit_code": 1,
+      "command": "cc -std=c99 -O2 -Wall -Wextra -Werror -o /mnt/data/seq_clock_run5/transport-before tests/host/seq_transport_coalesce_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run5/transport-before",
+      "evidence": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-before.log",
+      "log_sha256": "95dd0246237c897ac935054c0965c4559e1cfcd7c2752f2373e7fda19b60cd8f",
+      "coverage": "Expected source defect: ten failures of 27, double Start+Continue/phase."
+    },
+    {
+      "name": "patched GCC",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "cc -std=c99 -O2 -Wall -Wextra -Werror -o /mnt/data/seq_clock_run5/transport-after-gcc tests/host/seq_transport_coalesce_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run5/transport-after-gcc",
+      "evidence": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-after.log",
+      "log_sha256": "a56ff5790972d19146bd06a163c968ad75f8656ee1c13eb0c619b330cef3f158",
+      "coverage": "27/27 cases; gestures, clock owner, Stop ordering, MIDI Note Off."
+    },
+    {
+      "name": "patched Clang ASan UBSan",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "clang -std=c99 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -Wall -Wextra -Werror -o /mnt/data/seq_clock_run5/transport-after-clang tests/host/seq_transport_coalesce_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && ASAN_OPTIONS=detect_leaks=1 /mnt/data/seq_clock_run5/transport-after-clang",
+      "evidence": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-after.log",
+      "log_sha256": "a56ff5790972d19146bd06a163c968ad75f8656ee1c13eb0c619b330cef3f158",
+      "coverage": "27/27 checks, memory/undefined sanitizer enabled."
+    },
+    {
+      "name": "patched GCC UBSan",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "gcc -std=c99 -O1 -g -fno-omit-frame-pointer -fsanitize=undefined -Wall -Wextra -Werror -o /mnt/data/seq_clock_run5/transport-after-ubsan tests/host/seq_transport_coalesce_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run5/transport-after-ubsan",
+      "evidence": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-after.log",
+      "log_sha256": "a56ff5790972d19146bd06a163c968ad75f8656ee1c13eb0c619b330cef3f158",
+      "coverage": "27/27 checks."
+    },
+    {
+      "name": "standalone sequencer",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "cc -std=c99 -O2 -ffp-contract=off -Wall -Wextra -o /mnt/data/seq_clock_run5/seq_test tests/host/seq_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run5/seq_test",
+      "evidence": "local /mnt/data/seq_clock_run5/seq-test.log SHA256 632a3a6b86e8b54c739cbcef86ee9fcf9cf37230e638e5f108a3def776155ff1",
+      "log_sha256": "632a3a6b86e8b54c739cbcef86ee9fcf9cf37230e638e5f108a3def776155ff1",
+      "coverage": "Existing source-matched sequencer host suite; no reference TB3PO source claimed."
+    },
+    {
+      "name": "standalone clock lock",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "cc -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Wdouble-promotion -Werror -o /mnt/data/seq_clock_run5/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run5/clk_lock_test",
+      "evidence": "local /mnt/data/seq_clock_run5/clk-lock.log SHA256 0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34",
+      "log_sha256": "0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34",
+      "coverage": "Existing MID-15 one-source clock lock checks."
+    },
+    {
+      "name": "registered host selector",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh transport-coalesce sequencer clk-lock",
+      "evidence": "docs/scheduler-handoffs/seq-transport-coalesce-20261023-suite.log",
+      "log_sha256": "f93de843b238e8a2d5c912a9ea5306ac5f6c575139ab1fa408268f1c271f9faa",
+      "coverage": "3 named cases pass on locally materialized historical runner with remote-exact checked engine/test blobs; current runner diff unexecuted."
+    },
+    {
+      "name": "complete exact PR tree QA",
+      "status": "NOT_RUN",
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh transport-coalesce sequencer clk-lock",
+      "evidence": "Current whole NIGHTLY Git tree not present natively; tested scoped sequencer/helpers blobs individually match current remote; independent QA exact PR checkout required.",
+      "coverage": "No full PR tree execution claimed."
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-role native regressions only; Hourly Build owns pinned actual target build/controller/integrity."
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Source-role native regressions only; Hourly Build owns pinned actual target build/controller/integrity."
+    }
+  ],
+  "next": {
+    "owner": "Independent QA",
+    "action": "Fetch exact draft PR SHA, run full-tree sequencer/clock and transport-coalesce suites, review conflict with other clock PRs, then send factual disposition to sole Safe Merge.",
+    "gate": "Exact-tree QA / nightly integration / pinned Elite+Pro build"
+  },
+  "dependencies": [
+    "#35",
+    "#41",
+    "#48",
+    "#55",
+    "#65",
+    "#72",
+    "#80",
+    "#70",
+    "#60 merged docs-only at 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e"
+  ],
+  "publication": "SOURCE_ONLY"
+}

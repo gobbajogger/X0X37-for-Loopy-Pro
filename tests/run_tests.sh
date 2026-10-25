@@ -288,6 +288,8 @@ run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firm
 run clock-handover sh -c "$CC $W -o $OUT/bugfinder_clock_handover_test tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/bugfinder_clock_handover_test"   # BF-005: drop pending clocks with the lock
 run clk-source-owner sh -c "$CC $W -o $OUT/clk_source_owner_reset_test tests/host/clk_source_owner_reset_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_source_owner_reset_test"   # MID-13/MID-15: INTERNAL immediately releases MIDI clock owner
 run clk-src-tag sh -c "$CC $W -o $OUT/clk_source_tag_test tests/host/clk_source_tag_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_source_tag_test"   # MID-15: reject reserved MIDI source tags
+run transport-coalesce sh -c "$CC $W -o $OUT/seq_transport_coalesce_test tests/host/seq_transport_coalesce_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/seq_transport_coalesce_test"
+run transport-origin python3 tests/host/seq_transport_origin_test.py --source firmware/src/seq/sequencer.c
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run bass303_lite sh -c "$CC -std=c99 -O2 -ffp-contract=off -w -Ifirmware/src/dsp -Ifirmware/src -o $OUT/bass303_lite_test tests/host/bass303_lite_test.c firmware/src/dsp/bass303.c -lm && $OUT/bass303_lite_test"
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
@@ -298,6 +300,9 @@ run lz sh -c "$CC $W -o $OUT/lz_test tests/host/lz_test.c && $OUT/lz_test"
 run motion sh -c "$CC $W -o $OUT/motion_test tests/host/motion_test.c firmware/src/seq/motion.c && $OUT/motion_test"
 run motion-pattern-pending sh -c "$CC $W -o $OUT/motion_pattern_pending_test tests/host/motion_pattern_pending_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_pending_test"
 run motion-pattern-handoff sh -c "$CC $W -Ifirmware/src/seq -o $OUT/motion_pattern_handoff_test tests/host/motion_pattern_handoff_test.c firmware/src/seq/motion.c && $OUT/motion_pattern_handoff_test"
+run motion-idle-transport python3 -B tests/host/motion_idle_transport_test.py
+run motion-transport-transition python3 -B tests/host/motion_transport_transition_test.py
+run motion-external-clock-wait python3 -B tests/host/motion_external_clock_wait_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run host-build Pillow; else run host-build sh host/build_host.sh; fi   # it writes build/gen: the tests in needs_gen wait for it (see the top)
 run project-303-stream sh tests/host/run_project_303_stream.sh
 run project-protocol sh tests/host/run_project_protocol.sh
