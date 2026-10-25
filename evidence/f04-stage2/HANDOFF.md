@@ -12,9 +12,10 @@ Repair commit already in tip: `4f18983a` (F03 — not re-opened).
 Implement evidence: `evidence/f04-stage2/CHECKS.md`, `evidence/f04-stage2/DEFERRED.md`.
 Audit record: `evidence/f04-stage1/AUDIT.md`.
 Successor prompt: `evidence/f04-stage2/SUCCESSOR-STAGE3.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-ead74ca6-9020-58cf-9542-8b8091a1c878`.
+Successor URL: https://cursor.com/agents/bc-ead74ca6-9020-58cf-9542-8b8091a1c878
+Successor source: `desktop` (coordinator CreateAgent; pod had no `CURSOR_API_KEY`).
+Handoff status: **complete**. Stage 2 ownership ended. Do not start Stage 4 from this thread.
 
 ## Repair summary
 
