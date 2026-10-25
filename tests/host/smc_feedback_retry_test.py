@@ -31,9 +31,14 @@ harness = r'''
 #include <string.h>
 #define PROJ_BT_SMC_CENTRAL 16u
 /* Actual published-link/ISR state consumed by production link + frame paths. */
-static volatile uint32_t smc_link_loss_seq, smc_link_ble_loss_boundary, smc_link_host_loss_boundary;
-static volatile uint32_t smc_link_published, smc_ble_solo_release_lost, smc_host_solo_release_lost;
-static volatile uint8_t smc_qw, smc_host_w, smc_link_host_cutoff;
+#include "app/smc_ble_input.h"
+static smc_ble_input_t smc_ble_input;
+#define smc_link_published (smc_ble_input.link)
+#define smc_ble_solo_release_lost (smc_ble_input.release_lost)
+#define smc_link_ble_loss_boundary (smc_ble_input.link_release_boundary)
+#define smc_qw (smc_ble_input.w)
+static volatile uint32_t smc_link_loss_seq, smc_link_host_loss_boundary, smc_host_solo_release_lost;
+static volatile uint8_t smc_host_w, smc_link_host_cutoff;
 static uint32_t smc_link_seen;
 void smc_ble_link(int up);
 #define CHECK(x) do { ++checked; if (!(x)) { ++failed; \
@@ -234,7 +239,7 @@ with tempfile.TemporaryDirectory(prefix='smc-feedback-retry-') as folder:
     cfile.write_text(harness + link_match[0] + match[0] + checks, encoding='utf-8')
     cmd = [*shlex.split(os.environ.get('CC', 'gcc')), '-std=c99', '-O1', '-g',
            '-Wall', '-Wextra', '-Werror', *shlex.split(os.environ.get('SAN_FLAGS', '')),
-           str(cfile), '-o', str(binary)]
+           '-I' + str(ROOT / 'firmware/src'), str(cfile), '-o', str(binary)]
     print('COMPILE:', shlex.join(cmd), flush=True)
     subprocess.run(cmd, check=True)
     subprocess.run([str(binary)], check=True)

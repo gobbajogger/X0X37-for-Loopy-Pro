@@ -1,0 +1,1139 @@
+{
+  "schema": 1,
+  "stage": "source-ingress-foundation",
+  "recorded_at": "2026-10-25T09:31:04.920089+00:00",
+  "base": "b037edac22f914bd14c6ca7aaa2988a530abd13d",
+  "tracker": "ce8bfd4a40179590485ecf35e6bb0be2d652e602",
+  "contract": {
+    "revision": "e2482a5039527195e346925c751ac3e3a333ada9",
+    "sha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3"
+  },
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.2.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "input_sha256": {
+    "docs/SMC_MULTI_PEER.md": "e41d909527863b018c2ef5e5b923808954b39e9afdc355422a0c963e9480c527",
+    "firmware/src/app/smc_ble_input.h": "600adfa59688238aba8fac0e5d7e744326cbd9ac2c05d38c3b021b205fd8a557",
+    "firmware/src/app/smc_mixer.c": "0a5158e2f6de8cdcd333f55df623df0cb765c6bbef14b4cd2af2cd07fae73cb2",
+    "tests/host/smc_ble_input_test.c": "8fb435406510d9f9c352345e3f38bcf8a38be56c64f5ca1e2a46ef1d79bda3d5",
+    "tests/host/smc_ble_input_test.py": "c018b4f64de7101c0b136270ef0777630136c33345bf50b4abd2a9fbfc592e7c",
+    "tests/host/smc_ble_reconnect_epoch_test.py": "79d74928e1eeb72c5e19210f3f81fc7dd2093e62a5199c382a3b9e6e70e8a177",
+    "tests/host/smc_ble_solo_reconnect_loss_test.py": "ee4bfa8ab454254d0c7dd6d027537611f8732659f0890892d127f81afdc2bb60",
+    "tests/host/smc_feedback_retry_test.py": "0a511047c41a9b7ebbf5e42c68c87530e00c111bacfa0ac83e570f3d21a7be55",
+    "tests/host/smc_feedback_test.py": "733ae1db61ebdcab3de7e039424a7660348904475a0273f03da997b9a3bae659",
+    "tests/host/smc_host_data7_test.py": "cd64e8311452d4ba336e05d8a157f676e8780d8c2efde5991442f7e331d337c1",
+    "tests/host/smc_link_test.py": "cd881bec6483d95cbcadffa9c92385cc417fb9fed40af3b84d3b70c59be6af53",
+    "tests/host/smc_solo_overflow_test.py": "faf13d225eee8d84e4f3f7ad40e55e737885004f957ee53768384da4aac96330",
+    "tests/run_tests.sh": "9de9f84d8754c7634640f74903040aec4ddfd0a2f17cbb80dd25cea7795d4263"
+  },
+  "results": [
+    {
+      "test": "ble_input",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_input_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.52,
+      "log_sha256": "a4a90f4adf1eb95b573829ec610fe9cc48e41617990f06b994414b24d7045ba5",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_input",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_input_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.524,
+      "log_sha256": "a4a90f4adf1eb95b573829ec610fe9cc48e41617990f06b994414b24d7045ba5",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "ble_input",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_input_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.584,
+      "log_sha256": "a4a90f4adf1eb95b573829ec610fe9cc48e41617990f06b994414b24d7045ba5",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "queue",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.699,
+      "log_sha256": "da6b4dac8ef71a42c86a5719f3c42555d17693de206db28ec95344beabbd26cb",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "queue",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.805,
+      "log_sha256": "da6b4dac8ef71a42c86a5719f3c42555d17693de206db28ec95344beabbd26cb",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "queue",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 1.092,
+      "log_sha256": "da6b4dac8ef71a42c86a5719f3c42555d17693de206db28ec95344beabbd26cb",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "mmc_stop_fifo",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.529,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "mmc_stop_fifo",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.524,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "mmc_stop_fifo",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_mmc_stop_fifo_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.543,
+      "log_sha256": "d54052a0a43652c48cc72004a2d7fc1916570f795995194908c369cfd6ecc31b",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "ble_midpoll_link",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.47,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_midpoll_link",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.475,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "ble_midpoll_link",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_midpoll_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.486,
+      "log_sha256": "0de8cb04fb24e14d96bed494e6930c8d7d2b5e3fcae887194300a032cb186b17",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "ble_frame_length",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.445,
+      "log_sha256": "f0feca35d1da3899275f532bb8dcab0ad5f95311d41449040b8b1669e8ba5e7e",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_frame_length",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.452,
+      "log_sha256": "f0feca35d1da3899275f532bb8dcab0ad5f95311d41449040b8b1669e8ba5e7e",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "ble_frame_length",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_frame_length_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.466,
+      "log_sha256": "f0feca35d1da3899275f532bb8dcab0ad5f95311d41449040b8b1669e8ba5e7e",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "ble_preset_queue",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.509,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_preset_queue",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.501,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "ble_preset_queue",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_preset_queue_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.504,
+      "log_sha256": "f16b5752d65fea5e9880296f022e865f1272a8a8ac7e26f717243fe37ed465e3",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "preset_solo_lifetime",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.558,
+      "log_sha256": "aeb2f3da4b87e98d0459845a6a2a68f5d71d0dfa8da4aeada009f02ae63a9a9b",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "preset_solo_lifetime",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.571,
+      "log_sha256": "aeb2f3da4b87e98d0459845a6a2a68f5d71d0dfa8da4aeada009f02ae63a9a9b",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "preset_solo_lifetime",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_preset_solo_lifetime_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.589,
+      "log_sha256": "aeb2f3da4b87e98d0459845a6a2a68f5d71d0dfa8da4aeada009f02ae63a9a9b",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "solo_overflow",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_solo_overflow_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.505,
+      "log_sha256": "595618ccc8d409e3ce6d306607ac565b05dd4d9cf7710d1ff0a2572a6db7c487",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "solo_overflow",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_solo_overflow_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.499,
+      "log_sha256": "368531106be2f2fef884c66440a7cc1ff51fd0add552ef8dd8113e917a54b8c9",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "solo_overflow",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_solo_overflow_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.529,
+      "log_sha256": "11836e433dfba8c89008cbf683f74ac3d06f5dce9e6d562b016f34cc3749cbf5",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "ble_solo_reconnect_loss",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_solo_reconnect_loss_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.555,
+      "log_sha256": "8c040722951e0bc132a3b275533e002d8387896f57ececce3f140fa5510cc932",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_solo_reconnect_loss",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_solo_reconnect_loss_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.54,
+      "log_sha256": "a09b5beebac16fba778861c6f4917092b403f0a5ed0e70dca5000da8aa1b843f",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "ble_solo_reconnect_loss",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_solo_reconnect_loss_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.552,
+      "log_sha256": "f4919759518c88d19f3de08f187bea4eccc18d7691d56cc59a53763574619643",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "ble_reconnect_epoch",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_reconnect_epoch_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.583,
+      "log_sha256": "e8e65a1de5908fbab938a6be6ece9c12514d7f0026b9781c21e366d3aa614bfc",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_reconnect_epoch",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_reconnect_epoch_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.776,
+      "log_sha256": "e8e65a1de5908fbab938a6be6ece9c12514d7f0026b9781c21e366d3aa614bfc",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "ble_reconnect_epoch",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_reconnect_epoch_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 1.125,
+      "log_sha256": "e8e65a1de5908fbab938a6be6ece9c12514d7f0026b9781c21e366d3aa614bfc",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "link",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.512,
+      "log_sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "link",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.568,
+      "log_sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "link",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_link_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.681,
+      "log_sha256": "2267283443edeee352a891f132e99bc2212453cb5c7477b982406651354448fc",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "feedback",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.371,
+      "log_sha256": "e955f5d8e434484ca245da46d3336212b16b7bd7023aab5fc1a2300e896d0018",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "feedback",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.482,
+      "log_sha256": "e955f5d8e434484ca245da46d3336212b16b7bd7023aab5fc1a2300e896d0018",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "feedback",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.485,
+      "log_sha256": "e955f5d8e434484ca245da46d3336212b16b7bd7023aab5fc1a2300e896d0018",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "feedback_retry",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.515,
+      "log_sha256": "9dcf21aa398742b5d4f9122ea5d2266c1559f9d1a1c8b3d1202a6b12c4fc4134",
+      "retry_reason": "Source-extraction fixture dependencies corrected; initial compile failures retained privately",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "feedback_retry",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.526,
+      "log_sha256": "b1c064b31cb9f82223ee0d33dd7171175db3f207cec17ee61ce46cc4adf4dded",
+      "retry_reason": "Source-extraction fixture dependencies corrected; initial compile failures retained privately",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "feedback_retry",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_feedback_retry_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.56,
+      "log_sha256": "8ed43b1d59c07cc53c8d2dbf4ad053e0ea1930a1ceee07bbbcac9071b88d7dac",
+      "retry_reason": "Source-extraction fixture dependencies corrected; initial compile failures retained privately",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "sender_isolation",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_sender_isolation_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.457,
+      "log_sha256": "15fe5ddaad57091be40b1d9d3e98e8ca71d9f668bdddf0e0e30f36a8e108b3e2",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "sender_isolation",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_sender_isolation_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.449,
+      "log_sha256": "15fe5ddaad57091be40b1d9d3e98e8ca71d9f668bdddf0e0e30f36a8e108b3e2",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "sender_isolation",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_sender_isolation_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.491,
+      "log_sha256": "15fe5ddaad57091be40b1d9d3e98e8ca71d9f668bdddf0e0e30f36a8e108b3e2",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "fader",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_fader_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.369,
+      "log_sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "fader",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_fader_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.361,
+      "log_sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "fader",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_fader_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.38,
+      "log_sha256": "d0188c0936de6698d2ac4c58c843bd746bd27d0e986df3f9e104494a708a8fe2",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "buttons",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_buttons_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.366,
+      "log_sha256": "1df751729edccc07a92318958edd074cf7027b7b9635e4717f9de5520630439d",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "buttons",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_buttons_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.376,
+      "log_sha256": "1df751729edccc07a92318958edd074cf7027b7b9635e4717f9de5520630439d",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "buttons",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_buttons_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.363,
+      "log_sha256": "1df751729edccc07a92318958edd074cf7027b7b9635e4717f9de5520630439d",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "mapping",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_mapping_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.417,
+      "log_sha256": "1d0965c197dbedb144b294c81dac5bae105fadae6704dd6d74ac1aeb4d4c3938",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "mapping",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_mapping_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.363,
+      "log_sha256": "1d0965c197dbedb144b294c81dac5bae105fadae6704dd6d74ac1aeb4d4c3938",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "mapping",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_mapping_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.384,
+      "log_sha256": "1d0965c197dbedb144b294c81dac5bae105fadae6704dd6d74ac1aeb4d4c3938",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "filter",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_filter_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.416,
+      "log_sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "filter",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_filter_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.362,
+      "log_sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "filter",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_filter_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.414,
+      "log_sha256": "4a8e1afdd584ebbb3bc29c9892cedfaa2b2ec76b3c27e45c3b44cc7c5c9c5f92",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "host_data7",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_host_data7_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.455,
+      "log_sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f",
+      "retry_reason": "Source-extraction fixture dependencies corrected; initial compile failures retained privately",
+      "san_flags_supported": true,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "host_data7",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_host_data7_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.468,
+      "log_sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f",
+      "retry_reason": "Source-extraction fixture dependencies corrected; initial compile failures retained privately",
+      "san_flags_supported": true,
+      "effective_profile": "ubsan"
+    },
+    {
+      "test": "host_data7",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_host_data7_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.486,
+      "log_sha256": "a046ad952b0f503a327f63344e8d9c4774d3e42669bc75535a429de17d10b59f",
+      "retry_reason": "Source-extraction fixture dependencies corrected; initial compile failures retained privately",
+      "san_flags_supported": true,
+      "effective_profile": "asan-ubsan"
+    },
+    {
+      "test": "ble_payload",
+      "profile": "plain",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_payload_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.502,
+      "log_sha256": "2548fd46304fd3731ae60630a0c701a7a8a093780a1b2237f48e3d8f784ff1cb",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_payload",
+      "profile": "ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_payload_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.494,
+      "log_sha256": "ff8cf2421b76c001e939463c2eaf3d2f444e70ee97d2a1123cdb8ddbc00aa4ea",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    },
+    {
+      "test": "ble_payload",
+      "profile": "asan-ubsan",
+      "argv": [
+        "python3",
+        "tests/host/smc_ble_payload_test.py"
+      ],
+      "environment": {
+        "CC": "clang",
+        "SAN_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=0"
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.487,
+      "log_sha256": "50a2b29b55a2cdc8fd05bf0240520be59d4436068fea056731a65c90490bd59d",
+      "san_flags_supported": false,
+      "effective_profile": "plain"
+    }
+  ],
+  "summary": {
+    "program_runs": 60,
+    "exit_zero": 60,
+    "sanitizer_instrumented_runs": 30,
+    "plain_runs_including_repeat_environments": 30,
+    "production_peers": 1,
+    "two_object_scenarios": 512
+  },
+  "initial_failures": {
+    "count": 6,
+    "scope": [
+      "feedback_retry source-extraction declarations",
+      "host_data7 source-extraction declarations"
+    ],
+    "resolution": "Corrected dependency declarations; reran only affected six programs; all exit zero. Initial failed logs retained locally; not passes."
+  },
+  "limits": [
+    "No target firmware/controller build or memory budget",
+    "No end-to-end two-peer mixer/HCI test",
+    "No hardware/flash/merge/binary publication",
+    "Five suites ignore SAN_FLAGS; those executions are plain repeats, not instrumented evidence"
+  ],
+  "next_owner": "Application transport + PR168 UI owner, then BLE/controller owner, Build, independent QA and sole integrator"
+}
