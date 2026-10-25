@@ -9,7 +9,7 @@ import tempfile
 root = Path(__file__).resolve().parents[2]
 source = Path(os.environ.get("SMC_SOURCE", root / "firmware/src/app/smc_mixer.c")).read_text()
 functions = []
-for name in ("smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_led"):
+for name in ("smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led"):
     match = re.search(r"^static [^\n]+ " + name + r"\([^\n]*\)\n\{.*?^\}", source, re.M | re.S)
     if name in ("smc_drum_mix", "smc_drum_track") and not match:
         continue
@@ -23,7 +23,7 @@ enum { R_ENG, T_MIX, T_FX, T_MST, MX_LEVEL, FX_RV_LEVEL, FX_DL_LEVEL,
 typedef struct { int kind, a, b, c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 static struct { int rec, part, view, overlay, help, sel[2]; } ui;
-static struct { int rec_part, solo; uint16_t drum_solo[2]; } smc;
+static struct { int rec_part, solo,locked,lock_kit,lock_bank; uint16_t drum_solo[2]; } smc;
 static struct { int playing; } seq;
 static int volume, filter;
 static int pref_get(pref_t r) { return r.a == T_MST ? filter : volume; }

@@ -105,6 +105,7 @@ static void mark_dirty(void) { ui.dirty = 1; }
 
 static uint8_t save_wait;
 static uint8_t project_busy, project_revision;
+static uint32_t song_structure_revision; /* runtime identity epoch for frozen song-bar controls */
 int ui_project_busy(void) { return project_busy != 0; }
 X0X_COLD static void project_input_sync(void)
 {
@@ -320,6 +321,7 @@ static int pref_read_only(pref_t r)
 static void song_fill(int k)
 {
     song_t *sg = song();
+    if (sg->len <= k && sg->len < NSONG) song_structure_revision++;
     while (sg->len <= k && sg->len < NSONG) {
         song_bar_t *b = &sg->bar[sg->len];
         int p;
@@ -396,18 +398,28 @@ static const x0x_param_t *pref_desc(pref_t r)
     }
 }
 
+/* SMC snapshots use the otherwise-unused b byte on pattern refs to bind an
+ * exact pattern (index + 1). Ordinary panel refs keep b=0 and follow playback. */
+static pattern_t *pref_pattern(pref_t r)
+{
+    if (r.kind < R_SWING || r.kind > R_BRKSLOT) return cur_pat();
+    if (r.b) return &proj.pat[r.b - 1u];
+    if (r.kind >= R_GEN) return cur_pat();
+    return pat_of(r.kind == R_SWING ? PART_909 : r.kind == R_DLEN || r.kind == R_DRATE ? r.a : NKIT + r.a);
+}
+
 static int pref_get(pref_t r)
 {
-    pattern_t *p = cur_pat();
+    pattern_t *p = pref_pattern(r);
     switch (r.kind) {
     case R_ENG: return proj.sound.v[r.a][r.b][r.c];
-    case R_SWING: return pat_of(PART_909)->swing;
-    case R_DLEN: return pat_of(r.a)->drum[r.a].len - 1;
-    case R_DRATE: return pat_of(r.a)->drum[r.a].rate;
-    case R_BLEN: return pat_of(NKIT + r.a)->bass[r.a].len - 1;
-    case R_BRATE: return pat_of(NKIT + r.a)->bass[r.a].rate;
-    case R_BDIR: return pat_of(NKIT + r.a)->bass[r.a].dir;
-    case R_BTRANS: return pat_of(NKIT + r.a)->bass[r.a].transpose;
+    case R_SWING: return p->swing;
+    case R_DLEN: return p->drum[r.a].len - 1;
+    case R_DRATE: return p->drum[r.a].rate;
+    case R_BLEN: return p->bass[r.a].len - 1;
+    case R_BRATE: return p->bass[r.a].rate;
+    case R_BDIR: return p->bass[r.a].dir;
+    case R_BTRANS: return p->bass[r.a].transpose;
     case R_GEN: {
         const tb3po_cfg_t *g = &p->bass[r.a].gen;
         switch (r.c) {
@@ -434,14 +446,18 @@ static int pref_get(pref_t r)
     case R_SBAR: return ui.song_sel;
     case R_SPAT: {
         const song_t *sg = song();
-        int k = ui.song_sel < sg->len ? ui.song_sel : sg->len - 1;
+        int bar = r.b ? r.b - 1u : ui.song_sel;
+        int k = bar < sg->len ? bar : r.b ? -1 : sg->len - 1;
         return k >= 0 ? sg->bar[k].pat[r.a] : seq.ppat[r.a];
     }
     case R_MIDICH: return seq.ch[r.a % NPARTS] == SEQ_CH_OFF ? 0 : seq.ch[r.a % NPARTS] + 1;
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
     case R_FREEPLAY: return ui.freeplay[r.a];
-    case R_SREP: return ui.song_sel < song()->len ? song()->bar[ui.song_sel].mute >> 5 : 0;
+    case R_SREP: {
+        unsigned bar = r.b ? r.b - 1u : ui.song_sel;
+        return bar < song()->len ? song()->bar[bar].mute >> 5 : 0;
+    }
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
     case R_SMC_ROLE: return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL);
@@ -458,7 +474,7 @@ static int pref_get(pref_t r)
 
 X0X_COLD static void pref_set(pref_t r, int v)
 {
-    pattern_t *p = cur_pat();
+    pattern_t *p = pref_pattern(r);
     const x0x_param_t *d = pref_desc(r);
     if (!d || r.kind == R_ACT || pref_read_only(r))
         return;
@@ -474,13 +490,13 @@ X0X_COLD static void pref_set(pref_t r, int v)
         else if (r.a == T_MST && r.c == MST_DJF)
             master_djf_pots(v, &proj.sound.v[T_MST][0][MST_MODE], &proj.sound.v[T_MST][0][MST_CUTOFF]);
         break;
-    case R_SWING: pat_of(PART_909)->swing = (uint8_t)v; break;
-    case R_DLEN: pat_of(r.a)->drum[r.a].len = (uint8_t)(v + 1); break;
-    case R_DRATE: pat_of(r.a)->drum[r.a].rate = (uint8_t)v; break;
-    case R_BLEN: pat_of(NKIT + r.a)->bass[r.a].len = (uint8_t)(v + 1); break;
-    case R_BRATE: pat_of(NKIT + r.a)->bass[r.a].rate = (uint8_t)v; break;
-    case R_BDIR: pat_of(NKIT + r.a)->bass[r.a].dir = (uint8_t)v; break;
-    case R_BTRANS: pat_of(NKIT + r.a)->bass[r.a].transpose = (uint8_t)v; break;
+    case R_SWING: p->swing = (uint8_t)v; break;
+    case R_DLEN: p->drum[r.a].len = (uint8_t)(v + 1); break;
+    case R_DRATE: p->drum[r.a].rate = (uint8_t)v; break;
+    case R_BLEN: p->bass[r.a].len = (uint8_t)(v + 1); break;
+    case R_BRATE: p->bass[r.a].rate = (uint8_t)v; break;
+    case R_BDIR: p->bass[r.a].dir = (uint8_t)v; break;
+    case R_BTRANS: p->bass[r.a].transpose = (uint8_t)v; break;
     case R_GEN: {
         tb3po_cfg_t *g = &p->bass[r.a].gen;
         switch (r.c) {
@@ -503,7 +519,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
             p->brk.slot_b = (uint8_t)v;
         else
             p->brk.slot_a = (uint8_t)v;
-        engine_brk_loops();
+        if (!r.b || p == pat_of(PART_BRK)) engine_brk_loops();
         ui.outline_ok = 0;
         break;
     case R_TEMPO: seq.bpm = (float)(v + 20); break;
@@ -515,10 +531,13 @@ X0X_COLD static void pref_set(pref_t r, int v)
     case R_KEYSOUND: proj.set.keysound = (uint8_t)v; break;
     case R_AUTOSAVE: proj.set.autosave_off = (uint8_t)!v; ui.last_autosave = (uint8_t)!v; break;
     case R_SBAR: ui.song_sel = (uint8_t)v; break;
-    case R_SPAT:
-        song_fill(ui.song_sel);
-        song()->bar[ui.song_sel].pat[r.a] = (uint8_t)v;
+    case R_SPAT: {
+        unsigned bar = r.b ? r.b - 1u : ui.song_sel;
+        if (r.b && bar >= song()->len) break; /* a deleted locked bar stays deleted */
+        song_fill((int)bar);
+        song()->bar[bar].pat[r.a] = (uint8_t)v;
         break;
+    }
     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
@@ -550,14 +569,15 @@ X0X_COLD static void pref_set(pref_t r, int v)
             kbd_held_key[r.a] = 0;
         }
         break;
-    case R_SREP:
-        if (ui.song_sel < NSONG) {
-            song_bar_t *b;
-            song_fill(ui.song_sel);
-            b = &song()->bar[ui.song_sel];
+    case R_SREP: {
+        unsigned bar = r.b ? r.b - 1u : ui.song_sel;
+        if (bar < NSONG && (!r.b || bar < song()->len)) {
+            song_fill((int)bar);
+            song_bar_t *b = &song()->bar[bar];
             b->mute = (uint8_t)((b->mute & 0x1Fu) | v << 5);
         }
         break;
+    }
     case R_TAPE: {                                    /* 0..15 the clean digital delay; above, tape, wearing */
         uint8_t ty = (uint8_t)(v >= 16), we = (uint8_t)(ty ? (v - 16) * 127 / 111 : proj.sound.v[T_FX][0][FX_DL_WEAR]);
         proj.sound.v[T_FX][1][0] = (uint8_t)v;
@@ -573,6 +593,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         perf.have = 0;                                /* the next window starts the counts again */
         break;
     case R_SLEN:
+        if (v != song()->len) song_structure_revision++;
         if (v > song()->len)
             song_fill(v - 1);
         else
@@ -1452,6 +1473,7 @@ static void do_undo(int redo)
         say(redo ? "NOTHING TO REDO" : "NOTHING TO UNDO", 0);
         return;
     }
+    song_structure_revision++;                     /* undo may restore/reorder song bars */
     if (undo_lanes)
         engine_motion_reset();
     engine_brk_loops();
@@ -1793,11 +1815,13 @@ X0X_COLD static void run_action(int act, int arg)
                 sg->bar[i] = sg->bar[i + 1];
             sg->len--;
         }
+        song_structure_revision++;
         mark_dirty();
         say(act == ACT_SONG_INS ? "BAR INSERTED" : "BAR DELETED", 0);
         break;
     }
     case ACT_SONG_CLR:
+        song_structure_revision++;
         song()->len = 0;
         ui.song_sel = 0;
         mark_dirty();

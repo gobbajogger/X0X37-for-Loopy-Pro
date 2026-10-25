@@ -45,7 +45,7 @@ typedef struct { int kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 seq_t seq;
 static struct { int rec,part,view,overlay,help,sel[NKIT]; } ui;
-static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8]; uint16_t drum_solo[NKIT]; } smc;
+static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank; uint16_t drum_solo[NKIT]; } smc;
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
@@ -72,7 +72,7 @@ int plat_ble_smc_send(const uint8_t *msg,uint8_t len) {
 }
 '''
 harness += "\n".join(function(name) for name in (
-    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_led", "smc_frame"))
+    "smc_home_target", "smc_drum_mix", "smc_drum_track", "smc_lock_blocks", "smc_led", "smc_frame"))
 harness += r'''
 static void expect(const char *label,int note,int expected) {
     int got=smc_led(note)!=0;checks++;
