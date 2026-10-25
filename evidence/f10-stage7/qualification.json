@@ -385,15 +385,15 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/b3356e96d70a31f531359d4ce8229540423cefa1/evidence/f10-stage4/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/b3356e96d70a31f531359d4ce8229540423cefa1/evidence/f10-stage4/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/8d70b801f34071e02f9863d429e221923800c159/evidence/f10-stage3/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
         },
         "independent-qa": {
           "status": "PASS",
@@ -442,15 +442,15 @@
         },
         "backup-restore-readback": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/b3356e96d70a31f531359d4ce8229540423cefa1/evidence/f10-stage4/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
         },
         "interruption-recovery": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/b3356e96d70a31f531359d4ce8229540423cefa1/evidence/f10-stage4/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
         },
         "ota-target-binding": {
           "status": "PASS",
-          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/8d70b801f34071e02f9863d429e221923800c159/evidence/f10-stage3/CHECKS.md"
+          "evidence_url": "https://raw.githubusercontent.com/gobbajogger/X0X37-for-Loopy-Pro/ee57b5e71da90fff1a3ff7decea472f7ea7fe8de/evidence/f09-stage7/CHECKS.md"
         },
         "independent-qa": {
           "status": "PASS",
