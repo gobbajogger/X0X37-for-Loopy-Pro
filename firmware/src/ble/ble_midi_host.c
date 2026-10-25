@@ -2,6 +2,7 @@
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
  * X0X changes: Copyright (C) 2026 M. Geisler (genkigenki/makkuro) */
 #include "ble_midi_host.h"
+#include "ble_midi_uuid.h"             /* one SVC/CHR UUID pair shared with ble_midi_central.c */
 
 enum { OP_DISC = 0x0406, OP_EVMASK = 0x0C01, OP_RESET = 0x0C03, OP_LE_EVMASK = 0x2001, OP_LE_BUF = 0x2002, OP_RAND = 0x2005, OP_ADV_PARAM = 0x2006,
        OP_ADV_DATA = 0x2008, OP_SCAN_RSP = 0x2009, OP_ADV_EN = 0x200A };
@@ -13,9 +14,8 @@ enum { A_ERR = 1, A_MTU = 2, A_MTU_R = 3, A_INFO = 4, A_INFO_R = 5, A_FVAL = 6, 
 enum { E_HANDLE = 1, E_READ = 2, E_WRITE = 3, E_PDU = 4, E_UNSUPP = 6, E_NOTFOUND = 10, E_GROUP = 16 };
 enum { CID_ATT = 4, CID_SIG = 5, CID_SMP = 6 };
 
-/* BLE-MIDI service 03B80E5A-EDE8-4B33-A751-6CE34EC4C700, characteristic 7772E5DB-3868-4112-A1A9-F2669D106BF3 (little endian) */
-static const uint8_t U_SVC[16] = {0x00, 0xC7, 0xC4, 0x4E, 0xE3, 0x6C, 0x51, 0xA7, 0x33, 0x4B, 0xE8, 0xED, 0x5A, 0x0E, 0xB8, 0x03};
-static const uint8_t U_CHR[16] = {0xF3, 0x6B, 0x10, 0x9D, 0x66, 0xF2, 0xA9, 0xA1, 0x12, 0x41, 0x68, 0x38, 0xDB, 0xE5, 0x72, 0x77};
+#define U_SVC BLE_MIDI_UUID_SVC
+#define U_CHR BLE_MIDI_UUID_CHR
 static const uint8_t T_PRIM[2] = {0x00, 0x28}, T_DECL[2] = {0x03, 0x28}, T_NAME[2] = {0x00, 0x2A}, T_CCCD[2] = {0x02, 0x29};
 static const uint8_t V_GAP[2] = {0x00, 0x18};
 static const uint8_t D_NAME[5] = {0x02, H_NAME, 0x00, 0x00, 0x2A};                      /* read; value handle 3; 0x2A00 */
