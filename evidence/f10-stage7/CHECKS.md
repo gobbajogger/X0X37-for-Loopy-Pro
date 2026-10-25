@@ -72,4 +72,4 @@ Production `main` / production Pages unchanged. No device flash. Deferred: `evid
 
 ## Overall
 
-**PUBLISHED LIVE** for validated source `af494784…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 successor pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
+**PUBLISHED LIVE** for validated source `af494784…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 successor `bc-1751adc0-5254-5401-a54e-48e433f242b9` recorded on HANDOFF (coordinator CreateAgent; pod had no `CURSOR_API_KEY`).
