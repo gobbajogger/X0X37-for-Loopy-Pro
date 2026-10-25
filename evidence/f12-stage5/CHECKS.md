@@ -62,7 +62,7 @@ Stage 7 and the next audit still use validated source SHA `de11b6d7…`, not the
 
 Proven stage-4 PR [#272](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/272): local-env review **PASS**. Tip landed on stage-3 branch `cursor/f12-stage3-bf008-1207` (merge `403ae0a8…` includes stage-4 tip `f99d5601…` and validated source `de11b6d7…`).
 A brief mistaken merge of #272 into production `main` (`11604ab7…`) was **reverted** via [#273](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/273); production `main` tip is `4e12d022…`. Stage 5 continues on **stage bases only** — no production `main`. Prefer `tools/merge_project_prs.py` / direct stage-branch merge when `gh pr edit --base` fails. Logs: `merge-pr272-dry-run.log`, `merge-pr272-result.json`.
-Stage-5 PR opens on base `cursor/f12-stage4-bf008-1207` (subscribe for local-env review).
+Stage-5 PR [#274](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/274) on base `cursor/f12-stage4-bf008-1207`; subscribed; local-env review `bc-936118da-9d30-5f96-9e5e-56433edb6ae7`.
 
 ## Production
 
@@ -70,8 +70,8 @@ Production `main` tip `4e12d022…` (post-#273 revert) and production GitHub Pag
 
 ## Successor create (API)
 
-`POST https://api.cursor.com/v1/agents` not callable: pod has no `CURSOR_API_KEY` (see `api-create-stage7-attempt{1,2}.json`, `api-create-stage7-note.txt`). Ask Project coordinator to CreateAgent Stage 7. Do not claim Stage 7 started until an owner-visible id is on the remote tip.
+`POST https://api.cursor.com/v1/agents` not callable: pod has no `CURSOR_API_KEY` (see `api-create-stage7-attempt{1,2}.json`, `api-create-stage7-note.txt`). Coordinator CreateAgent launched owner-visible Stage 7 `bc-45a62e39-2e34-5bca-b974-4df019080a51` (https://cursor.com/agents/bc-45a62e39-2e34-5bca-b974-4df019080a51; name `F12 nightly publish`; startingRef `cursor/f12-stage5-bf008-1207`). Do not create another Stage 7. PR #274 subscribed; local-env review `bc-936118da-9d30-5f96-9e5e-56433edb6ae7`.
 
 ## Overall
 
-Merge gate complete for nightly refusal + stage-6 prompt save. Validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA. Handoff incomplete until owner-visible Stage 7 successor id is pushed.
+Merge gate complete for nightly refusal + stage-6 prompt save. Owner-visible Stage 7 successor id recorded on the handoff. Validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA.

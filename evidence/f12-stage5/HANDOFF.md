@@ -21,11 +21,11 @@ Host test evidence: `evidence/f12-stage3/CHECKS.md` (ALL_PASS).
 Deferred (unchanged): `evidence/f12-stage2/DEFERRED.md`.
 Stage-6 local prompt: `evidence/f12-stage5/SUCCESSOR-STAGE6.txt` (also `stage6-install-prompt.json`).
 Successor prompt: `evidence/f12-stage5/SUCCESSOR-STAGE7.txt`.
-Successor agent id: none.
-Successor URL: none.
-Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
-Stage-5 PR: [#274](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/274) (base `cursor/f12-stage4-bf008-1207`; stage bases only).
-Handoff status: **incomplete** until an owner-visible Stage 7 id is recorded on this remote tip.
+Successor agent id: `bc-45a62e39-2e34-5bca-b974-4df019080a51`.
+Successor URL: https://cursor.com/agents/bc-45a62e39-2e34-5bca-b974-4df019080a51.
+Successor source: desktop (owner-visible; name `F12 nightly publish`; startingRef `cursor/f12-stage5-bf008-1207`).
+Stage-5 PR: [#274](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/274) (base `cursor/f12-stage4-bf008-1207`; stage bases only). PR #274 subscribed; local-env review `bc-936118da-9d30-5f96-9e5e-56433edb6ae7`.
+Handoff status: **complete**. Pod had no `CURSOR_API_KEY`; CreateAgent attempts recorded as `api-create-stage7-attempt{1,2}.json` (`NO_CURSOR_API_KEY`). Coordinator CreateAgent launched Stage 7. Do not create another Stage 7. Stage 5 ownership ends after this record is on the remote tip.
 
 ## Nightly
 
