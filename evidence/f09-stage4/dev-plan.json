@@ -1,0 +1,24 @@
+{
+  "base": "8a74ff52cba842c3f2d8365600286f94e6bccdf0",
+  "scope": "F09 BF-005 owner-matching seq_clk_drop clears ext_pending only (firmware/src/seq/sequencer.c blob fd3f65306df166494d10facf8ddae058287cc17b + tests/host/bugfinder_clock_handover_test.c + clock-handover in tests/run_tests.sh; implement commit 94f4a012). Firmware tree changed vs audited tip 8a74ff52 / content tree 1a1e7a22\u2026 (firmware tree 581d1cb2\u2026 \u2192 32a36f68\u2026). Stage 3 ALL_PASS for required BF-005 host regressions (X0X_TESTS=\"sequencer clk-lock clock-handover\" sh tests/run_tests.sh; old_pending=0 and old_pending=3 both PASS; owner-matching drop clears ext_pending; non-owning leaves pending). Stage 4 builds Elite and Pro development packages (X0X_DEV_PADCAL=1) with controllers, records identities and budgets (pool free >= 8192 B), and re-runs the BF-005-affected host checks. A host pass is not a package pass. Do not reopen BF-001\u2013BF-004 or FP-001. Do not implement deferred items. Do not take BF-006\u2013BF-007.",
+  "checks": [
+    {
+      "reason": "BF-005 host regressions: sequencer, clk-lock, and clock-handover must PASS.",
+      "argv": [
+        "bash",
+        "/workspace/evidence/f09-stage4/check-bf005-host.sh"
+      ]
+    },
+    {
+      "reason": "BF-005 seq_clk_drop must clear ext_pending on owner-matching drop (blob fd3f6530\u2026).",
+      "argv": [
+        "bash",
+        "/workspace/evidence/f09-stage4/check-seq-clk-drop.sh"
+      ]
+    }
+  ],
+  "dependencies": [
+    "/workspace/evidence/f09-stage4/check-bf005-host.sh",
+    "/workspace/evidence/f09-stage4/check-seq-clk-drop.sh"
+  ]
+}
