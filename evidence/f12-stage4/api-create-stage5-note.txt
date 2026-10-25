@@ -1,0 +1,2 @@
+Pod has no CURSOR_API_KEY. Two CreateAgent attempts not sent to api.cursor.com.
+Stage 5 handoff requires coordinator CreateAgent with startingRef cursor/f12-stage4-bf008-1207 and SUCCESSOR-STAGE5.txt.
