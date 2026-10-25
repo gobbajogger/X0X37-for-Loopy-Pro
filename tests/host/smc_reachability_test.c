@@ -214,6 +214,7 @@ static void scenario(void) {
     if(getenv("SMC_PICKUP_ONLY")) goto pickup;
     /* Starting at HOME, SELECT must expose each part's sound. */
     for(int part=0;part<NPARTS;part++) {
+        smc_select_part((part + 1) % NPARTS);
         smc_view(V_HOME,0); press(24+part); assert(ui.part==part && ui.view==V_PART);
         for(int p=0;p<pg.n;p++) {
             assert(cur_page()==p);
@@ -243,7 +244,7 @@ static void scenario(void) {
     }
     /* Both kits: all eleven tracks, sound pages then mix pan and sends. */
     for(int kit=0;kit<2;kit++) {
-        view(V_HOME); press(24+kit);
+        smc_select_part(PART_303A); view(V_HOME); press(24+kit);
         for(int t=0;t<NDRUM;t++) {
             assert(ui.sel[kit]==t); assert(pg.r[0][0].b==t);
             if(t+1<NDRUM) press(0x2F);
@@ -255,7 +256,9 @@ static void scenario(void) {
         press(0x2E); assert(ui.sel[kit]==0);
         for(int t=0;t<NDRUM;t++) {
             if(t==8) press(0x2F);
-            press(24+t%8); assert(ui.sel[kit]==t);
+            /* Already-selected SELECT now intentionally returns to main MIX. */
+            if (ui.sel[kit] != t) press(24+t%8);
+            assert(ui.sel[kit]==t);
             pref_t k=smc_knob_target(t%8); assert(k.b==t);
             edit(k,t%8);                  /* every strip in both drum knob banks */
             for(int n=0;n<8;n++) assert(smc_knob_target(n).kind == R_NONE || !smc_same(smc_knob_target(n),smc_target(n)));
@@ -275,12 +278,15 @@ pickup: ;
     /* Real notice/frame: feedback must not rearm pickup after our own write. */
     smc_view(V_HOME,0);
     for(int n=0;n<8;n++) { assert(smc_knob_target(n).kind == R_NONE || !smc_same(smc_knob_target(n),smc_target(n))); edit(smc_knob_target(n),n); }
+    /* Establish a physical sample below the new target; routing must no
+     * longer discard a valid crossing from the previous visible page. */
+    fader(0,0);
     pref_t r=smc_target(0); pref_set(r,64); smc_frame();
-    fader(0,0); assert(!(smc.picked&1) && smc_ui_active());
+    fader(0,1); assert(!(smc.picked&1) && smc_ui_active());
     int old=pref_get(r); smc_frame(); assert(pref_get(r)==old);
     fader(0,127); assert((smc.picked&1) && smc_ui_active());
     fader(0,100); assert(smc.picked&1);
-    pref_set(r,20); smc_frame(); assert(!(smc.picked&1) && !(smc.seen&1));
+    pref_set(r,20); smc_frame(); assert(!(smc.picked&1) && (smc.seen&1));
     fader(0,110); assert(!(smc.picked&1));
     fader(0,0); assert(smc.picked&1);
     /* Waiting must not allocate motion; crossing must record through production motion_touch. */

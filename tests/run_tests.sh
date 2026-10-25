@@ -77,7 +77,7 @@ test_class() {
     breaks-page|projects-page|ble-acl-start-flags|ble-hci-completed|ble-acl-zero-credit|ble-link-epoch-reset|smc-reconnect-epoch|smc-ble-payload|ble-central-first-notification|ble-disconnect-status|ble-sysex-bounds|ble|ble-package|smk-package|smk-ota-entry*|smk-update-loader|smk-build-package*|\
     smk-clip-ble-clear|smk-clip-ble-notify|installer-ctl|ctl-read-framing|installer-backup-snapshot) TEST_CLASS=S ;;
     rec-live|rec-live-smk) TEST_CLASS=S ;;   # these read build/gen from host-build (phase 1)
-    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback) TEST_CLASS=G ;;
+    drum-pan|stereo|drum909-adpcm|drum909|copy-semantics|song-actions|ui-feedback|host-build|project-runtime|smc-reachability|smc-ui|smc-ui-negative|smc-drum-mutes|smc-drum-rs|smc-performance-abort|smc-record-feedback|smc-lock|smc-pause-loss|smc-interaction-negative|smc-pickup-acceptance|corner-coverage) TEST_CLASS=G ;;
     scenario-*|perf-scratch) TEST_CLASS=C ;;   # perf-scratch compares with scenario perfsave: it runs after the scenarios
     *) TEST_CLASS=P ;;
     esac
@@ -339,8 +339,12 @@ run ble-acl-zero-credit sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware
 run ble-link-epoch-reset sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_link_epoch_reset_test tests/host/ble_link_epoch_reset_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_link_epoch_reset_test"
 run ble-disconnect-status sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_disconnect_status_test tests/host/ble_disconnect_status_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_disconnect_status_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-reachability Pillow; else run smc-reachability sh tests/host/smc_reachability_test.sh; fi
+run smc-pickup-acceptance sh tests/host/smc_pickup_acceptance_test.sh
 run smc-ui sh tests/host/smc_ui_test.sh
 run smc-ui-negative python3 tests/host/smc_ui_negative_test.py
+run smc-lock sh tests/host/smc_lock_test.sh
+run smc-pause-loss sh tests/host/smc_pause_loss_test.sh
+run smc-interaction-negative python3 tests/host/smc_interaction_negative_test.py
 run smc-mapping python3 tests/host/smc_mapping_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-mutes Pillow; else run smc-drum-mutes sh tests/host/smc_drum_mutes_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run smc-drum-rs Pillow; else run smc-drum-rs sh tests/host/smc_drum_rs_test.sh; fi
@@ -503,6 +507,7 @@ run rec-live-smk sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD
 fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
+run corner-coverage python3 tests/host/corner_coverage_test.py
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
 for s in tests/scenarios/*.x0x; do
     n=${s##*/}; n=${n%.x0x}

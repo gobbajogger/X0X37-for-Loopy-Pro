@@ -22,7 +22,7 @@ harness = r'''
 #include <stdint.h>
 #include <string.h>
 #include "seq/pattern.h"
-enum { R_NONE, R_ENG, R_HDR, R_ACT, T_909, T_808, T_MIX, T_FX, T_MST,
+enum { R_NONE, R_ENG, R_HDR, R_ACT, R_SPAT, R_SREP, T_909, T_808, T_MIX, T_FX, T_MST,
        MX_LEVEL, MX_PAN, FX_RV_DECAY, FX_DL_FDBK, MST_RESO, V_GLO, FX_RV_LEVEL, FX_DL_LEVEL, MST_DJF, V_HOME, V_MIX, V_PART, V_SEQ,
        O_NONE, O_LIST, O_ASK, NPARTS=5 };
 typedef struct { uint8_t kind,a,b,c; } pref_t;
@@ -32,7 +32,12 @@ static struct { int help,overlay,list_top,list_n,view,part,sel[2]; } ui;
 static struct { pref_t r[1][4]; } pg;
 static pref_t list_rows[12];
 static int kit=-1, clip, stage;
-static struct { pref_t target[8]; uint8_t value[8],picked,pending,seen; } smc;
+static struct { pref_t target[8],lock_fader[8],lock_knob[8];
+    uint8_t value[8],picked,pending,seen,locked,lock_kit,lock_bank;
+    uint32_t lock_song_revision; uint16_t lock_song_len; } smc;
+static uint32_t song_structure_revision;
+static struct song_fixture { unsigned len; } song_data;
+static const struct song_fixture *song(void) { return &song_data; }
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
 static int cur_page(void) { return 0; }
 static int drum_mix_page(void) { return ui.view==V_MIX ? kit : -1; }

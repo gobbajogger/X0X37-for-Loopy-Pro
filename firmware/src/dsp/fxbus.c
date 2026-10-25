@@ -119,7 +119,7 @@ void fxbus_set(fxbus_t *f, int i, int value)
     f->pots[i] = (uint8_t)value;
     float v;
     if (s->curve == CV_EXP)
-        v = x0x_pot_exp[s->exp][value];
+        v = x0x_pot_exp_value(s->exp, value);
     else if (s->curve == CV_SW)
         v = (float)value;
     else
