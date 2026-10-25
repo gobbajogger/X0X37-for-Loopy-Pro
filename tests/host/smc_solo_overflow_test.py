@@ -76,7 +76,8 @@ static uint32_t packet(uint8_t st,uint8_t a,uint8_t b)
 { return 9u | (uint32_t)st<<8 | (uint32_t)a<<16 | (uint32_t)b<<24; }
 static void prepare(void)
 {
- smc_project_reset(); smc_link_published=smc_link_seen=0; smc.up=1;
+ /* Model TIMER5 ISR-published link-up; smc.up alone is only polled state. */
+ smc_project_reset(); smc_link_published=smc_link_seen=1; smc.up=1;
  proj.set.bt=PROJ_BT_SMC_CENTRAL|PROJ_BT_SMC_USER;
  is_busy=is_testing=inject_on_host=injection_count=0; ui.overlay=O_NONE; output_solo=clear_calls=0;
  smc_qr=smc_qw=smc_host_r=smc_host_w=0;

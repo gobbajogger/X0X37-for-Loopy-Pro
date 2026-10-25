@@ -96,7 +96,7 @@ static uint32_t packet(uint8_t st,uint8_t a,uint8_t b)
 { return 9u | (uint32_t)st<<8 | (uint32_t)a<<16 | (uint32_t)b<<24; }
 static void prepare(void)
 {
- smc_project_reset(); smc_link_published=smc_link_seen=0; smc.up=1;
+ smc_project_reset(); smc_link_published=smc_link_seen=1; smc.up=1;
  proj.set.bt=PROJ_BT_SMC_CENTRAL|PROJ_BT_SMC_USER;
  is_busy=is_testing=inject_on_host=injection_count=inject_route=inject_cross=0;
  inject_new_ble_on_link=injected_ble=inject_burst=0; ui.overlay=O_NONE; output_solo=clear_calls=0;
@@ -240,7 +240,43 @@ int main(void)
  smc_ble_link(1);smc_host_solo_release_lost++;
  smc_project_drop();
  smc_poll();assert(smc_host_solo_release_seen==smc_host_solo_release_lost);cases++;
- assert(cases==29);printf("SMC combined source-window Solo+reconnect: %d/29 PASS\n",cases);
+ /* Disabled central-mode BLE traffic must NEVER release a valid host-held Solo.
+  * The first failing frame is untrusted/ignored in smc_poll (reason 3). */
+ prepare();press(0);
+ proj.set.bt &= (uint8_t)~PROJ_BT_SMC_CENTRAL;
+ saturate(1);emit(1,0x80,8,0);smc_poll();
+ if (!(smc.solo_target[0]==1 && output_solo)) {
+  fprintf(stderr,"FAIL: disabled BLE CENTRAL dropped NoteOff erased HOST Solo\n");return 1;
+ }
+ cases++;
+ /* Even when User mode accepts channel 16, an inactive BLE central must
+  * never fabricate a release on an unrelated host-held Solo. */
+ prepare();press(0);
+ proj.set.bt &= (uint8_t)~PROJ_BT_SMC_CENTRAL;
+ saturate(1);emit(1,0x8F,8,0);smc_poll();
+ if (!(smc.solo_target[0]==1 && output_solo)) {
+  fprintf(stderr,"FAIL: disabled BLE CENTRAL ch16 release erased HOST Solo\n");return 1;
+ }
+ cases++;
+ /* A down BLE link also must not affect the held host solo. */
+ prepare();press(0);smc.up=0;smc_link_published=smc_link_seen=0;
+ saturate(1);emit(1,0x80,8,0);smc_poll();
+ if (!(smc.solo_target[0]==1 && output_solo)) {
+  fprintf(stderr,"FAIL: DOWN BLE CENTRAL dropped NoteOff erased HOST Solo\n");return 1;
+ }
+ cases++;
+ /* Control: with an active BLE central, an overflowed release must
+  * still clear the Solo held through the central route. */
+ prepare();press(1);saturate(1);emit(1,0x80,8,0);smc_poll();
+ assert(!smc.solo_target[0]&&!output_solo);cases++;
+ /* ISR link-up can arrive before the main loop advances smc.up. The
+  * authoritative link publication must still register an overflowed release. */
+ prepare();smc.up=0;smc_link_published=smc_link_seen=0;
+ smc_ble_link(1);emit(1,0x90,8,127);
+ for(unsigned i=1;i<SMC_Q;i++) {const uint8_t cc[]={0xB0,16,(uint8_t)i};smc_ble_midi(cc,3);}
+ emit(1,0x80,8,0);smc_poll();
+ assert(!smc.solo_target[0]&&!output_solo);cases++;
+ assert(cases==34);printf("SMC combined source-window Solo+reconnect: %d/34 PASS\n",cases);
  return 0;
 }
 '''
