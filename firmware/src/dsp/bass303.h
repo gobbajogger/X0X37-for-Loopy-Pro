@@ -65,13 +65,19 @@
 
 /* parameter indices (pages of four: the UI shows KNOB 1-4) */
 enum {
-    BASS303_CUTOFF, BASS303_RESO, BASS303_ENVMOD, BASS303_DECAY,     /* page 1 */
+    BASS303_CUTOFF, BASS303_RESO, BASS303_ENVMOD, BASS303_DECAY,     /* page 1; Decay = filter EG */
     BASS303_ACCENT, BASS303_WAVE, BASS303_TUNE, BASS303_VOLUME,      /* page 2 */
-    BASS303_DRIVE, BASS303_DRVTYPE, BASS303_SLIDE, BASS303_ACCDEC,   /* page 3 */
+    BASS303_DRIVE, BASS303_DRVTYPE, BASS303_SLIDE, BASS303_ACCDEC,   /* page 3; Drive = Soft/RAT */
     BASS303_FATTACK, BASS303_FSUSTAIN, BASS303_FRELEASE, BASS303_FENV,
+    BASS303_AMPMODE,                                                 /* Chicago Amp ENV/GATE (#277) */
+    BASS303_GNAW,                                                    /* Chicago VCF Gnaw (filter-input grit) */
+    BASS303_BITE,                                                    /* Chicago VCF Bite (drive into TeeBee) */
+    BASS303_AATTACK, BASS303_ADECAY, BASS303_ASUSTAIN, BASS303_ARELEASE, /* Chicago amp Env ADSR */
     BASS303_NPARAMS
 };
 enum { BASS303_DRV_OFF, BASS303_DRV_SOFT, BASS303_DRV_RAT };
+enum { BASS303_AMP_ENV, BASS303_AMP_GATE };                          /* AmpMod: Open303 env vs Gate hold */
+enum { BASS303_AMP_REL, BASS303_AMP_ATK, BASS303_AMP_DEC, BASS303_AMP_SUS }; /* amp_stage */
 
 typedef struct { float b0, b1, b2, a1, a2, z1, z2; } bass303_bq_t;     /* TDF-II biquad */
 typedef struct { float x1, x2, y1, y2; } bass303_df1_t;                /* DF-I state */
@@ -94,7 +100,13 @@ typedef struct bass303 {
     int fenv_stage;          /* 0 release, 1 attack, 2 decay, 3 sustain */
     float decay_c, accdec_c; /* main-envelope multipliers for normal / accented notes */
     float slew_c;            /* pitch slew-limiter coefficient */
-    int wave;                /* 0 saw, 1 square */
+    float wave_mix;          /* 0 saw .. 1 square (Chicago OSC Waveform continuous morph) */
+    float gnaw;              /* 0..1 Chicago VCF Gnaw: pre-filter input grit */
+    float bite;              /* 0..1 Chicago VCF Bite: hotter drive into TeeBee */
+    float asustain;          /* 0..1 Chicago amp Env Sustain (Open303 default 0) */
+    float aattack_step;      /* attack rise per sample; 1 = instant */
+    float adecay_c;          /* amp decay RC toward sustain (def pot 64 = Open303 1230 ms) */
+    float arelease_c;        /* amp release RC when ARel pot > 0 */
     int drv_type;
     float drv_amt;
 
@@ -122,16 +134,20 @@ typedef struct bass303 {
      * closed-form gains, and the interpolated values the samples use */
     float rc1_pw[BASS303_CTRL + 1], rc2_pw[BASS303_CTRL + 1], slew_pw[BASS303_CTRL + 1];
     float ampd_pw[BASS303_CTRL + 1], ampn_pw[BASS303_CTRL + 1], ampa_pw[BASS303_CTRL + 1];
+    float adecay_pw[BASS303_CTRL + 1], arelease_pw[BASS303_CTRL + 1];
     float env_pw[BASS303_CTRL + 1], g1[BASS303_CTRL + 1], g2[BASS303_CTRL + 1];
     float c_inc, c_b0, c_k, c_g2, c_a;
     float osc_freq, slew_y;
+    float bend_ratio;        /* Chicago pitch bend: 1 = centre; live rescale of osc_freq */
+    uint8_t bend_pot;        /* last CHI_PBEND 0..127 (64 = none) */
     float phase;             /* oscillator phase in turns, 0..1 */
     float env_c, env_y;      /* main (filter) decay envelope */
     float rc1_y, rc2_y;
     float accent_gain;
     float amp_y;             /* amp envelope */
     int amp_acc;             /* the release is the accented one */
-    int amp_trig;            /* next sample is the attack */
+    int amp_trig;            /* Attack pot 0: first control chunk uses stock Open303 jump */
+    int amp_stage;           /* BASS303_AMP_*: release / attack / decay / sustain */
     bass303_df1_t dc;
     float hp1_x1, hp1_y1;
     float f_y1, f_y2, f_y3, f_y4, fb_x1, fb_y1;   /* TeeBeeFilter */
@@ -157,6 +173,8 @@ void bass303_note_on(bass303_t *b, int note, int accent, int slide);
 void bass303_note_on_velocity(bass303_t *b, int note, int accent, int slide, int velocity);
 void bass303_note_off(bass303_t *b);
 void bass303_all_off(bass303_t *b);
+/* Chicago pitch bend pot 0..127 (64 = centre). ±2 semitones; live notes rescale. */
+void bass303_set_bend(bass303_t *b, int pot);
 void bass303_render(bass303_t *b, float *out, int n);
 /* the engine's overload guard: 1 = no oversampling from the next block (~12 % of the worst case
  * on the FM-1; some aliasing on bright, resonant notes), 0 = back to BASS303_OS */
@@ -166,5 +184,5 @@ const x0x_param_t *bass303_param(int i);
 void bass303_set(bass303_t *b, int i, int value);
 int bass303_get(const bass303_t *b, int i);
 
-/* Envelope time for a clamped 0..127 Decay, FAttack or FRelease pot, in milliseconds. */
+/* Envelope time for a clamped 0..127 Decay, FAttack/FRelease or amp AAttack/ADecay/ARelease, in ms. */
 float bass303_env_time_ms(int param, int value);

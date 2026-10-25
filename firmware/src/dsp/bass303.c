@@ -13,9 +13,11 @@
 
 /* ---- parameters ------------------------------------------------------------------------ */
 
-static const char *const wave_names[] = { "Saw", "Sqr" };
 static const char *const fenv_names[] = { "303", "ADSR" };
 static const char *const drv_names[] = { "Off", "Soft", "RAT" };
+/* Chicago Amp ENV/GATE: Env keeps Open303's amp path; Gate holds VCA while the note is down.
+ * Not EnvMod, not the ENV page, not velocity→cutoff. Owned by #277. */
+static const char *const ampmode_names[] = { "Env", "Gate" };
 
 /* defaults are schwung-303's (every knob at 0.5, Devilfish values stock), except Volume,
  * lowered from 0.8 so the nominal peak is ~0.5 */
@@ -25,10 +27,10 @@ static const x0x_param_t params[BASS303_NPARAMS] = {
     { "EnvMod", 127, 64, 0 },        /* 0 .. 100 % */
     { "Decay", 127, 64, 0 },         /* 200 .. 2000 ms, exponential (stock 303 range) */
     { "Accent", 127, 64, 0 },        /* 0 .. 100 % */
-    { "Wave", 1, 0, wave_names },
+    { "Wave", 127, 0, 0 },           /* Chicago OSC Waveform: 0 saw .. 127 square */
     { "Tune", 127, 64, 0 },          /* A4 = 440 + (pot - 64) * 0.625 Hz: 400 .. 479.4 */
     { "Volume", 127, 96, 0 },        /* -60 .. 0 dB; 96 = -14.6 dB: peaks ~0.5 (schwung-303: 102) */
-    { "Drive", 127, 0, 0 },          /* 0 = bypass */
+    { "Drive", 127, 0, 0 },          /* Soft/RAT amount; 0 = bypass (not Chicago Bite) */
     { "DrvTyp", 2, 1, drv_names },
     { "Slide", 127, 21, 0 },         /* 2 .. 360 ms (Devilfish); 21 = 61 ms, stock is 60 */
     { "AccDec", 127, 7, 0 },         /* 30 .. 3000 ms (Devilfish); 7 = 194 ms, stock is 200 */
@@ -36,6 +38,13 @@ static const x0x_param_t params[BASS303_NPARAMS] = {
     { "FSustain", 127, 0, 0 },       /* 0 .. 100 % */
     { "FRelease", 127, 0, 0 },       /* 0 .. 4000 ms, quadratic */
     { "FEnv", 1, 0, fenv_names },    /* old sounds use the original 303 envelope */
+    { "AmpMod", 1, BASS303_AMP_ENV, ampmode_names }, /* Chicago amp Env/Gate; #277 */
+    { "Gnaw", 127, 0, 0 },           /* Chicago VCF Gnaw: pre-filter input grit */
+    { "Bite", 127, 0, 0 },           /* Chicago VCF Bite: drive into TeeBee ladder */
+    { "AAtt", 127, 0, 0 },           /* Chicago Env Attack; 0 = Open303 instant */
+    { "ADec", 127, 64, 0 },          /* Chicago Env Decay (amp); 64 = Open303 1230 ms */
+    { "ASus", 127, 0, 0 },           /* Chicago Env Sustain; 0 = Open303 decay-to-zero */
+    { "ARel", 127, 0, 0 },           /* Chicago Env Release; 0 = stock 1 ms / accent 50 ms */
 };
 
 int bass303_nparams(void) { return BASS303_NPARAMS; }
@@ -48,14 +57,6 @@ const x0x_param_t *bass303_param(int i)
 int bass303_get(const bass303_t *b, int i)
 {
     return (i >= 0 && i < BASS303_NPARAMS) ? b->pot[i] : 0;
-}
-
-/* Shared by the sound engine and the time readouts; value is a clamped 0..127 pot. */
-__attribute__((noinline)) float bass303_env_time_ms(int param, int value)
-{
-    float n = (float)value * (1.0f / 127.0f);
-    return param == BASS303_DECAY ? 200.0f * fm_exp2f(n * 3.321928095f)
-        : (param == BASS303_FATTACK ? 2000.0f : 4000.0f) * n * n;
 }
 
 /* exp(-1/(tau_ms * fs / 1000)): one-pole / RC coefficient */
@@ -71,6 +72,37 @@ __attribute__((noinline)) static void powers(float *pw, float c)
     pw[0] = 1.0f;
     for (m = 1; m <= BASS303_CTRL; m++)
         pw[m] = pw[m - 1] * c;
+}
+
+/* Shared by the sound engine and the time readouts; value is a clamped 0..127 pot.
+ * Filter Decay (BASS303_DECAY) stays the TeeBee main-env range; amp ADec is separate
+ * (Chicago Env Decay → amp ADSR; pot 64 = Open303's fixed 1230 ms amp decay). */
+__attribute__((noinline)) float bass303_env_time_ms(int param, int value)
+{
+    float n = (float)value * (1.0f / 127.0f);
+    if (param == BASS303_DECAY)
+        return 200.0f * fm_exp2f(n * 3.321928095f);
+    if (param == BASS303_ADECAY)
+        return fm_maxf(1.0f, 1230.0f * (float)value / 64.0f);
+    if (param == BASS303_AATTACK || param == BASS303_FATTACK)
+        return 2000.0f * n * n;
+    if (param == BASS303_ARELEASE)
+        return 1.0f + 3999.0f * n * n;                 /* pot 0 uses stock path, not this */
+    return 4000.0f * n * n;                            /* FRelease */
+}
+
+/* Amp decay + release power tables. ARel 0 keeps Open303 1 ms / accent 50 ms. */
+static void amp_env_tables(bass303_t *b)
+{
+    int i;
+    powers(b->adecay_pw, b->adecay_c);
+    if (b->pot[BASS303_ARELEASE] == 0) {
+        const float *src = b->amp_acc ? b->ampa_pw : b->ampn_pw;
+        for (i = 0; i <= BASS303_CTRL; i++)
+            b->arelease_pw[i] = src[i];
+    } else {
+        powers(b->arelease_pw, b->arelease_c);
+    }
 }
 
 /* the main envelope's multiplier changed: its powers, and the closed-form gains of the two RC
@@ -171,9 +203,6 @@ void bass303_set(bass303_t *b, int i, int v)
         v = 0;
     if (v > params[i].max)
         v = params[i].max;
-    /* A repeated FEnv mode update must not restart a running filter sweep. */
-    if (i == BASS303_FENV && v == b->pot[i])
-        return;
     b->pot[i] = (uint8_t)v;
     n = (float)v * (1.0f / 127.0f);
     switch (i) {
@@ -215,7 +244,27 @@ void bass303_set(bass303_t *b, int i, int v)
         b->accent = n;
         break;
     case BASS303_WAVE:
-        b->wave = v;
+        b->wave_mix = n;                                   /* 0 saw .. 1 square */
+        break;
+    case BASS303_GNAW:
+        b->gnaw = n;                                       /* Chicago VCF Gnaw */
+        break;
+    case BASS303_BITE:
+        b->bite = n;                                       /* Chicago VCF Bite */
+        break;
+    case BASS303_AATTACK:
+        b->aattack_step = v ? 1000.0f / (BASS303_SR * bass303_env_time_ms(i, v)) : 1.0f;
+        break;
+    case BASS303_ADECAY:
+        b->adecay_c = rc_coeff(bass303_env_time_ms(i, v), BASS303_SR);
+        amp_env_tables(b);
+        break;
+    case BASS303_ASUSTAIN:
+        b->asustain = n;
+        break;
+    case BASS303_ARELEASE:
+        b->arelease_c = rc_coeff(bass303_env_time_ms(i, v), BASS303_SR);
+        amp_env_tables(b);
         break;
     case BASS303_TUNE:
         b->tuning = 440.0f + (float)(v - 64) * 0.625f;
@@ -354,6 +403,8 @@ void bass303_init(bass303_t *b)
         bass303_set(b, i, params[i].def);
 
     b->osc_freq = b->slew_y = 440.0f;
+    b->bend_ratio = 1.0f;
+    b->bend_pot = 64;
     b->velocity_gain = b->velocity_cutoff = 1.0f;
     b->env_c = b->decay_c;
     env_tables(b);
@@ -375,6 +426,7 @@ static void set_accent_state(bass303_t *b, int accent)
     }
     b->amp_acc = accent != 0;            /* release: accentAmpRelease 50 ms, normal 1 ms */
     env_tables(b);
+    amp_env_tables(b);                   /* stock ARel 0 follows accented vs normal release */
 }
 
 __attribute__((noinline)) void bass303_note_on_velocity(bass303_t *b, int note, int accent, int slide, int velocity)
@@ -392,7 +444,7 @@ __attribute__((noinline)) void bass303_note_on_velocity(bass303_t *b, int note, 
      * strikes close the filter and reduce level; higher strikes brighten and lift it. */
     b->velocity_gain = (float)velocity / 100.0f;
     b->velocity_cutoff = fm_exp2f((float)(velocity - 100) * (1.5f / 100.0f));
-    f = b->tuning * fm_exp2f((float)(note - 69) * (1.0f / 12.0f));
+    f = b->tuning * fm_exp2f((float)(note - 69) * (1.0f / 12.0f)) * b->bend_ratio;
     set_accent_state(b, accent);
     b->osc_freq = f;
     if (!(slide && b->gate)) {           /* triggerNote; else slideToNote (no retrigger) */
@@ -401,7 +453,15 @@ __attribute__((noinline)) void bass303_note_on_velocity(bass303_t *b, int note, 
         b->fenv_y = b->pot[BASS303_FATTACK] ? 0.0f : 1.0f;
         b->fenv_samples = 0;
         b->fenv_stage = b->pot[BASS303_FATTACK] ? 1 : 2;
-        b->amp_trig = 1;                 /* ampEnv.noteOn: attack time 0 */
+        if (b->pot[BASS303_AATTACK] == 0) {
+            /* Open303 Attack 0: stock amp_trig jump into decay (bit-exact with #277). */
+            b->amp_stage = BASS303_AMP_DEC;
+            b->amp_trig = 1;
+        } else {
+            b->amp_y = 0.0f;
+            b->amp_stage = BASS303_AMP_ATK;
+            b->amp_trig = 0;
+        }
         b->trig = 1;
     }
     if (b->idle)
@@ -422,11 +482,36 @@ void bass303_note_off(bass303_t *b)
     if (b->gate) {
         b->fenv_stage = 0;
         b->frelease_step = b->fenv_y * b->frelease_rate;
+        b->amp_stage = BASS303_AMP_REL;
     }
     b->gate = 0;
 }
 void bass303_set_lite(bass303_t *b, int on) { b->lite = on != 0; }
 void bass303_all_off(bass303_t *b) { bass303_note_off(b); }
+
+/* Chicago pitch bend: pot 64 = unity. Ends (±2 st) match common AU bend range.
+ * Live held notes rescale osc_freq/slew so the wheel-style overlay is real-time;
+ * TUNE pot is unchanged (honest bend, not a permanent detune write). */
+void bass303_set_bend(bass303_t *b, int pot)
+{
+    float semis, neu, old;
+    if (pot < 0)
+        pot = 0;
+    if (pot > 127)
+        pot = 127;
+    if (pot == (int)b->bend_pot)
+        return;
+    semis = ((float)(pot - 64) / 64.0f) * 2.0f;
+    neu = fm_exp2f(semis * (1.0f / 12.0f));
+    old = b->bend_ratio;
+    if (old > 1e-12f && (b->gate || !b->idle)) {
+        float r = neu / old;
+        b->osc_freq *= r;
+        b->slew_y *= r;
+    }
+    b->bend_ratio = neu;
+    b->bend_pot = (uint8_t)pot;
+}
 
 /* ---- render ---------------------------------------------------------------------------- */
 
@@ -605,8 +690,10 @@ static void run(bass303_t *b, float *out, int n)
     float y1 = b->f_y1, y2 = b->f_y2, y3 = b->f_y3, y4 = b->f_y4, fbx = b->fb_x1, fby = b->fb_y1;
     const float osc_freq = b->osc_freq, acc = b->accent_gain;
     const float scaler = b->env_scaler, offset = b->env_offset, cutoff = b->cutoff, r = b->reso;
-    const float *amp_pw = b->gate ? b->ampd_pw : b->amp_acc ? b->ampa_pw : b->ampn_pw;
-    const float amp_boost = b->gate ? 0.45f + 4.0f * acc : 0.0f;
+    /* AmpMod Gate: VCA stays open while the note is held (Chicago Gate); Env uses amp ADSR. */
+    const int amp_gate = b->pot[BASS303_AMPMODE] == BASS303_AMP_GATE;
+    const float amp_boost = (!amp_gate && b->gate) ? 0.45f + 4.0f * acc : 0.0f;
+    const float asustain = b->asustain;
     /* the overload guard's lite mode: no oversampling; a change of rate jumps to the new rate's
      * coefficients (snap) rather than gliding between the two rates' values */
     const int lite = b->lite;
@@ -616,7 +703,11 @@ static void run(bass303_t *b, float *out, int n)
     const float fb_b0 = lite ? b->fbhpl_b0 : b->fbhp_b0, fb_a1 = lite ? b->fbhpl_a1 : b->fbhp_a1;
     const float sq_dc = b->sq_dc, sq_h2 = 0.5f * b->sq_h;
     const float out_gain = b->amp_scaler * b->velocity_gain;
-    const int square = b->wave;
+    const float wmix = b->wave_mix;                        /* Chicago continuous OSC Waveform */
+    const float gnaw = b->gnaw;                            /* Chicago VCF Gnaw */
+    const float bite = b->bite;                            /* Chicago VCF Bite */
+    const int wave_saw = wmix <= 0.0f;
+    const int wave_sqr = wmix >= 1.0f;
     float os[BASS303_OS];
 
     for (i = 0; i < n; i += m) {
@@ -631,11 +722,32 @@ static void run(bass303_t *b, float *out, int n)
             ? (1.0f - b->rc1_pw[m]) * filter_adsr(b, m) : b->g1[m] * e0);    /* RC followers of it */
         b->rc2_y = b->rc2_pw[m] * b->rc2_y + (acc > 0.0f ? b->g2[m] * e0 : 0.0f);
         b->slew_y = osc_freq + b->slew_pw[m] * (b->slew_y - osc_freq);
-        if (b->amp_trig) {                                     /* attack 0: 1, then decay */
-            b->amp_y = amp_pw[m - 1];
+        if (amp_gate && b->gate) {                             /* Chicago Gate: hold VCA open */
+            b->amp_y = 1.0f;
             b->amp_trig = 0;
-        } else {
-            b->amp_y *= amp_pw[m];
+            b->amp_stage = BASS303_AMP_SUS;
+        } else if (b->amp_trig) {                              /* Attack 0: stock Open303 jump */
+            b->amp_y = b->adecay_pw[m - 1];
+            b->amp_trig = 0;
+            b->amp_stage = BASS303_AMP_DEC;
+        } else if (b->gate && b->amp_stage == BASS303_AMP_ATK) {
+            b->amp_y += b->aattack_step * (float)m;
+            if (b->amp_y >= 1.0f) {
+                b->amp_y = 1.0f;
+                b->amp_stage = BASS303_AMP_DEC;
+            }
+        } else if (b->gate && b->amp_stage == BASS303_AMP_DEC) {
+            /* RC toward sustain; sustain 0 + ADec 64 matches Open303 ampd multiply. */
+            b->amp_y = asustain + (b->amp_y - asustain) * b->adecay_pw[m];
+            if (b->amp_y <= asustain + 1e-5f) {
+                b->amp_y = asustain;
+                b->amp_stage = BASS303_AMP_SUS;
+            }
+        } else if (b->gate && b->amp_stage == BASS303_AMP_SUS) {
+            b->amp_y = asustain;
+        } else {                                               /* release (gate off) */
+            b->amp_y *= b->arelease_pw[m];
+            b->amp_stage = BASS303_AMP_REL;
         }
         if (lite != b->lite_cur) {
             b->lite_cur = lite;
@@ -691,16 +803,19 @@ static void run(bass303_t *b, float *out, int n)
             {
                 int q;
                 for (q = 0; q < nos; q++) {
-                    if (!square) {
-                        t = phase + 0.5f;                       /* Saw303: rises -1..1, jump at p = .5 */
-                        if (t >= 1.0f)
-                            t -= 1.0f;
-                        s = -(t + t - 1.0f - blep(t, inc));     /* Open303 inverts the osc */
+                    float saw, sqr;
+                    t = phase + 0.5f;                           /* Saw303: rises -1..1, jump at p = .5 */
+                    if (t >= 1.0f)
+                        t -= 1.0f;
+                    saw = -(t + t - 1.0f - blep(t, inc));       /* Open303 inverts the osc */
+                    if (wave_saw) {
+                        s = saw;
                     } else {
                         /* Square303 (shaped saw, minus its mean, polyBLEP on the hard rising edge
                          * at p = 0), times 0.5 as BlendOscillator scales it, inverted */
-                        s = 0.5f * (fm_tanhf(69.98419960f * (phase + phase - 1.0f) + 4.37f)
-                                    + sq_dc - sq_h2 * blep(phase, inc));
+                        sqr = 0.5f * (fm_tanhf(69.98419960f * (phase + phase - 1.0f) + 4.37f)
+                                      + sq_dc - sq_h2 * blep(phase, inc));
+                        s = wave_sqr ? sqr : saw + wmix * (sqr - saw);
                     }
                     phase += inc;
                     if (phase >= 1.0f)
@@ -709,6 +824,13 @@ static void run(bass303_t *b, float *out, int n)
                     ym = hp1_b0 * (s - hp1x) + hp1_a1 * hp1y;
                     hp1x = s;
                     hp1y = ym;
+                    /* Chicago VCF Gnaw: grit on the filter input (pre TeeBee), not post Drive. */
+                    if (gnaw > 0.0f)
+                        ym = fm_tanhf(ym * (1.0f + 5.0f * gnaw));
+                    /* Chicago VCF Bite: hotter drive into the TeeBee ladder (filter character).
+                     * Distinct from Gnaw grit and from Soft/RAT Drive after the filter. */
+                    if (bite > 0.0f)
+                        ym = fm_tanhf(ym * (1.0f + 8.0f * bite));
 
                     t = k * y4;                                 /* feedback through the highpass */
                     fby = fb_b0 * (t - fbx) + fb_a1 * fby;

@@ -31,7 +31,7 @@ enum { PART_909, PART_808, PART_303A, PART_303B, PART_BRK, NPARTS };
  * channel cutoff (127 = open, before the master filter). */
 enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_CUT, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
-#define NPARAMS_MAX 16                 /* params per (target, voice) */
+#define NPARAMS_MAX 32                 /* params per (target, voice); fills at Chicago aux PBend/Damp 30..31 */
 
 /* the sound of a project: every pot of every engine, mirrored here by the main loop */
 typedef struct {
@@ -45,6 +45,8 @@ extern volatile uint32_t eng_prof[ENG_PROF_N], eng_prof_frames;
 void engine_motion_enable(int on);                          /* off: lanes do not play (the PERF test) */
 void engine_smc_solo(uint8_t mask);                         /* runtime SMC solo mask; 0 = all parts audible */
 void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808); /* union of parts and drum tracks */
+void engine_fx_mute(uint8_t mask);                          /* runtime output gates, never edits intended pots or motion */
+uint8_t engine_fx_muted(void);
 void engine_smc_busfx(uint8_t down, const uint8_t effect[4]); /* four momentary bus effects; effect may be null */
 void engine_motion_reset(void);                             /* lanes replaced (undo): knobs to their own values */
 /* overload guard (engine.c): the platform reports each block's load after rendering it */
@@ -88,21 +90,25 @@ void engine_drum(int kit, int voice, float vel);            /* play now (keys) *
 void engine_bass_on(int part, int note, int accent, int slide);
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity);
 void engine_bass_off(int part);
+void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
 void engine_brk_live(int key, int down);
 void engine_brk_slice_mode_reconcile(void);                 /* clear MIDI slice holds after 8 SLICES toggles */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
-void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes); /* stop voices reading bytes that are about to be erased */
+void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes);
 int engine_brk_slice(void);                                 /* slice sounding now, -1 none (UI) */
 void engine_brk_state(int *slice, int *bank, int *div, int *running);
 int engine_brk_outline(int which, uint8_t *peaks, int n);   /* the loop's peaks for the screen (main loop) */
 /* motion (seq/motion.h): lanes play into the engine, never into the sound_t mirror */
 int engine_motion_part(int target, int voice);              /* the part a parameter's lane follows */
 int engine_motion_value(int lane);                          /* what the lane plays now, -1 none */
-void engine_motion_clear(int lane);                         /* discard a lane and stale knob requests */
 void engine_motion_rec(int lane);                           /* record a pass from the next step */
 void engine_motion_hold(int lane);                          /* the knob wins for a pass */
+void engine_motion_clear(int lane);                         /* free a motion lane (undo / bulk edit) */
 float engine_gr_db(void);                                   /* master compressor gain reduction (UI meter) */
 void engine_master_format(int i, char *buf);                /* a master pot in its unit */
 int engine_brk_nslots(void);                                /* built-in loops + user slots */
 const char *const *engine_brk_slot_names(void);
+
+/* Physical recording edges use the existing audio command queue. */
+void engine_bass_record(int part, int note, int velocity, int down, int flags);
