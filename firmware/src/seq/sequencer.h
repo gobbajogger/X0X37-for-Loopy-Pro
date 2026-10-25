@@ -120,6 +120,11 @@ typedef struct {                      /* one part's runtime */
 } seq_track_t;
 
 typedef struct {
+    uint32_t at;
+    uint8_t active, pat, first, last, note, src, count, entered;
+} seq_bass_rec_t;
+
+typedef struct {
     pattern_t *pat;                   /* NPAT patterns (the project's) */
     song_t *song;                     /* the project's song (may be 0) */
     volatile uint8_t playing;         /* 1 = running */
@@ -152,6 +157,9 @@ typedef struct {
     volatile uint8_t req_start, req_stop, req_cont; /* transport requests from the UI / MIDI */
     volatile uint8_t midi_req;        /* 1 = the pending request came from MIDI in clip mode: no echo */
     uint32_t mut_rng[NBASS];          /* auto-mutate random streams */
+    volatile uint8_t rec_dirty;       /* audio-side recording edit, consumed by UI */
+    volatile uint8_t rec_mask;        /* UI arms selected live-record destination */
+    seq_bass_rec_t rec_bass[NBASS];
     uint8_t bass_notes_out[NBASS];    /* note echoed on MIDI, for the note off */
     uint8_t bass_out_valid[NBASS], bass_out_ch[NBASS]; /* note zero is valid; release on its original channel */
     uint8_t bass_slide_old[NBASS];    /* previous pitch whose MIDI gate overlaps a slide */
@@ -198,3 +206,8 @@ int seq_part_len(const seq_t *s, int t);         /* steps in part t's pattern */
 int seq_next_step(seq_t *s, int t, int p);       /* the step after p (direction; no commit) */
 int seq_rec_step(seq_t *s, int t);               /* the step a live hit now records on: the nearest */
 void seq_rec_skip(seq_t *s, int t, int step, int voice);   /* that hit: its step does not sound it once */
+
+/* Live MIDI/keyboard edges, at the current audio clock. Last press owns the line;
+ * older/different-route releases do not end it. Repeated identical presses count. */
+void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags);
+void seq_rec_bass_end(seq_t *s, int b);

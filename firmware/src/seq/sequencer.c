@@ -187,12 +187,43 @@ static void fire_drum(seq_t *s, int k, int p, uint32_t skip, const seq_sink_t *o
     }
 }
 
+/* Actual slot length; legacy authored half-gates continue to use unswung L. */
+static uint32_t bass_slot_q8(const seq_t *s, int b, int p)
+{
+    int t = TRK_BASS0 + b;
+    uint32_t L = seq_step_q8(s, bpart(s, b)->rate);
+    uint32_t sw = swing_q8(s, bpart(s, b)->rate, L);
+    if (bpart(s, b)->dir == DIR_RANDOM)
+        return (s->t[t].mut_steps & RANDOM_SWING_ODD) ? L + sw : L - sw;
+    int np = next_pos((seq_t *)s, t, p, 0);
+    return !(np & 1) && !(p & 1) ? L : (np & 1) ? L + sw : L - sw;
+}
+
 static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, uint32_t skip, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[TRK_BASS0 + b];
     bpart_t *bp = bpart(s, b);
     const bstep_t *st = &bp->step[p];
     int gate = bstep_gate(st), note, hold, nx;
+    seq_bass_rec_t *r = &s->rec_bass[b];
+    if (r->active && r->pat != s->ppat[TRK_BASS0 + b])
+        seq_rec_bass_end(s, b);
+    if (r->active) {
+        if (p == r->first && !r->entered) { r->entered = 1; r->at = s->ext_now; }
+        else if (r->entered) {
+            /* Across the loop, keep the onset but suppress its live retrigger. */
+            bp->step[r->last].flags &= 15u; /* continuation, not an endpoint */
+            if (p != r->first) {
+                bp->step[p].note = r->note;
+                bp->step[p].velocity = bp->step[r->first].velocity;
+                bp->step[p].flags = G_TIE | 0xF0u;
+            }
+            r->last = (uint8_t)p;
+            r->at = s->ext_now;
+        }
+        tr->to_off = 0;
+        return; /* the live input owns this voice until its real release */
+    }
     uint8_t prev_slide = tr->held_note & 0x80u;     /* bit 7: the step that sounded slides on */
     if (s->mute & (1u << (MUTE_BASS0 + b)))
         gate = G_REST;
@@ -256,7 +287,9 @@ static void fire_bass(seq_t *s, int b, int p, uint32_t step_q8, uint32_t carry, 
         nx = next_pos(s, TRK_BASS0 + b, p, 0);
     hold = (st->flags & BS_SLIDE) || bstep_gate(&bp->step[nx]) == G_TIE;
     tr->held_note = (uint8_t)((note & 0x7F) | ((st->flags & BS_SLIDE) ? 0x80 : 0));
-    tr->to_off = hold ? 0 : carry + step_q8 / 2u;
+    /* Explicit captured endpoints override legacy look-ahead/half-step gates. */
+    unsigned end = st->flags >> BS_END_SHIFT;
+    tr->to_off = end ? carry + (bass_slot_q8(s, b, p) / 15u) * end : hold ? 0 : carry + step_q8 / 2u;
 }
 
 int seq_part_muted(const seq_t *s, int p)
@@ -715,6 +748,10 @@ void seq_advance(seq_t *s, uint32_t k, const seq_sink_t *o)
             pause_sound(s, o);
         }
     }
+    for (t = 0; t < NBASS; t++)
+        if (s->rec_bass[t].active && (s->req_stop || s->req_start ||
+            !(s->rec_mask & (1u << t))))
+            seq_rec_bass_end(s, t);
     if (s->req_stop) {                                /* (a Start after the Stop stays: seq_stop) */
         s->req_stop = 0;
         if (s->playing)
@@ -909,4 +946,66 @@ void seq_chain(seq_t *s, int a, int b)
 {
     s->chain_a = (uint8_t)a;
     s->chain_b = (uint8_t)b;
+}
+
+/* The onset uses the established nearest-step recorder. Endpoint is the nearest
+ * 1/15 of the currently sounding step (same transport clock, including swing).
+ * This intentionally preserves release position rather than applying the old
+ * implicit half gate. If a short press ends before its snapped onset, retain a
+ * minimum 1/15-step event instead of deleting it. */
+void seq_rec_bass_end(seq_t *s, int b)
+{
+    seq_bass_rec_t *r = &s->rec_bass[b];
+    if (!r->active) return;
+    bpart_t *bp = &s->pat[r->pat].bass[b];
+    seq_track_t *tr = &s->t[TRK_BASS0 + b];
+    uint32_t L = bass_slot_q8(s, b, r->last);
+    uint32_t elapsed = (s->ext_now - r->at) << 8;
+    unsigned end = r->entered ? (unsigned)(((uint64_t)elapsed * 15u + L / 2u) / L) : 1;
+    if (end < 1) end = 1;
+    if (end > 15) end = 15;
+    bstep_t *st = &bp->step[r->last];
+    st->flags = (uint8_t)((st->flags & 7u) | (end << BS_END_SHIFT));
+    r->active = 0;
+    s->rec_dirty = 1;
+    tr->to_off = 0;
+}
+void seq_rec_bass(seq_t *s, int b, int note, int velocity, int down, int src, int flags)
+{
+    seq_bass_rec_t *r = &s->rec_bass[b];
+    if (!down) {
+        if (r->active && r->note == note && r->src == src) {
+            if (r->count > 1) r->count--;
+            else seq_rec_bass_end(s, b);
+        }
+        return;
+    }
+    if (!s->playing || !(s->rec_mask & (1u << b))) return;
+    unsigned count = r->active && r->note == note && r->src == src ? r->count : 0;
+    int overlap = r->active && r->src == src && r->note != note;
+    int old = r->last, oldpat = r->pat;
+    seq_rec_bass_end(s, b);
+    int t = TRK_BASS0 + b, p = seq_rec_step(s, t);
+    bpart_t *bp = bpart(s, b);
+    if (overlap && oldpat == s->ppat[t] && old != p)
+        bp->step[old].flags = (uint8_t)((bp->step[old].flags & 15u) | BS_SLIDE);
+    bp->step[p].note = (uint8_t)note;
+    bp->step[p].velocity = (uint8_t)velocity;
+    bp->step[p].flags = (uint8_t)(G_NOTE | flags | 0xF0u);
+    r->active = 1; r->pat = s->ppat[t]; r->first = r->last = (uint8_t)p;
+    r->note = (uint8_t)note; r->src = (uint8_t)src; r->count = (uint8_t)(count < 255 ? count + 1 : 255);
+    s->rec_dirty = 1;
+    r->entered = s->t[t].started && p == s->t[t].pos;
+    r->at = s->ext_now;
+    if (r->entered) {
+        uint32_t L = bass_slot_q8(s, b, p), elapsed;
+        if (s->ext) {
+            elapsed = (uint32_t)s->t[t].ext_ticks * s->ext_period + (s->ext_since << 8);
+            uint32_t sw = (p & 1) ? swing_q8(s, bp->rate, seq_step_q8(s, bp->rate)) : 0;
+            elapsed = elapsed > sw ? elapsed - sw : 0;
+        } else elapsed = s->t[t].to_next <= L ? L - s->t[t].to_next : 0;
+        r->at -= elapsed >> 8;
+    }
+    seq_rec_skip(s, t, p, 0);
+    s->t[t].to_off = 0;
 }

@@ -493,6 +493,7 @@ void engine_clip_midi_flush(void)
 
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
+static uint8_t bass_held_count[NBASS], bass_held_src[NBASS];
 static uint16_t src_held[2];           /* BLE-16: notes from USB [0] and Bluetooth [1]: bit k the 303 k, bit 8 + s the slice s */
 #if BOARD_SMK37
 #include "app/smk_apc40.h"
@@ -547,6 +548,7 @@ static void midi_in(uint32_t pkt)
             if ((v >> k) & 1) {
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
+                bass_held_count[k] = 0;
             }
         brk.keys = (uint16_t)(brk.keys & ~(v >> 8));   /* as breaks_live(&brk, s, 0) for each slice s */
         src_held[src] = 0;
@@ -612,16 +614,24 @@ static void midi_in(uint32_t pkt)
     for (k = 0; k < NBASS; k++)                         /* the 303s: overlapping notes slide */
         if (seq.ch[TRK_BASS0 + k] == ch) {
             if (ty == 0x90) {
-                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held[k] != 0, d2);
+                bass303_note_on_velocity(&b303[k], d1, d2 >= 100, bass_held_count[k] && bass_held_src[k] == src, d2);
+                seq_rec_bass(&seq, k, d1, d2, 1, (int)src, d2 >= 100 ? BS_ACCENT : 0);
+                if (bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == src) {
+                    if (bass_held_count[k] < 255) bass_held_count[k]++;
+                } else bass_held_count[k] = 1;
+                bass_held_src[k] = (uint8_t)src;
                 bass_held[k] = d1;
                 v = 1 << k;                     /* the input of the last note-on holds the note */
                 src_held[0] &= (uint16_t)~v;
                 src_held[1] &= (uint16_t)~v;
                 if (src < 2)
                     src_held[src] |= (uint16_t)v;
-            } else if (ty == 0x80 && bass_held[k] == d1) {
+            } else if (ty == 0x80 && bass_held_count[k] && bass_held[k] == d1 && bass_held_src[k] == src) {
+                seq_rec_bass(&seq, k, d1, 0, 0, (int)src, 0);
+                if (--bass_held_count[k]) continue;
                 bass303_note_off(&b303[k]);
                 bass_held[k] = 0;
+                bass_held_count[k] = 0;
                 src_held[0] &= (uint16_t)~(1u << k);
                 src_held[1] &= (uint16_t)~(1u << k);
             }
@@ -1120,8 +1130,10 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     int p, g;
     cq_w = cq_r = 0;
     src_held[0] = src_held[1] = 0;
-    for (p = 0; p < NBASS; p++)
+    for (p = 0; p < NBASS; p++) {
         bass_held[p] = 0;
+        bass_held_count[p] = 0;
+    }
     for (p = 0; p < BRK_NSET; p++)
         brk_applied[p] = 0xFFu;
     brk_hold = mot_playing = mot_release_req = 0;

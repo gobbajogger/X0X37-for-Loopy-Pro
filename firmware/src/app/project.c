@@ -640,7 +640,7 @@ int project_validate_stage(void)
                 return -1;
             for (i = 0; i < NSTEPS; i++)
                 if (bp->step[i].note > 127 || bp->step[i].velocity > 127 ||
-                    (bp->step[i].flags & ~15u) || bstep_gate(&bp->step[i]) > G_TIE)
+                    bstep_gate(&bp->step[i]) > G_TIE)
                     return -1;
         }
         for (i = 0; i < BRK_NSET; i++)

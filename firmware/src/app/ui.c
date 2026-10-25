@@ -1489,6 +1489,8 @@ static void undo_name(uint32_t lo, uint32_t hi, char *t)
 
 static void do_undo(int redo)
 {
+    for (int b = 0; b < NBASS; b++) seq_rec_bass_end(&seq, b);
+    seq.rec_mask = 0;
     uint32_t lo, hi;
     char t[24];
     undo_commit(&undo);                              /* what was just done is a step too */
@@ -2285,22 +2287,11 @@ static void bass_kbd(int key)
     if (ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
     } else if (ui.rec && seq.playing) {
-        bpart_t *bp = &cur_pat()->bass[b];
-        int s = rec_step(TRK_BASS0 + b);
-        uint8_t f = G_NOTE;
-        bass_rec_link(b, s);
-        if (ui.btn & (1u << B_ENV)) {              /* as step input: ENV accent, LFO slide */
-            f |= BS_ACCENT;
-            ui.btn_used |= 1u << B_ENV;
-        }
-        if (ui.btn & (1u << B_LFO)) {              /* (used: its release does not open MIX) */
-            f |= BS_SLIDE;
-            ui.btn_used |= 1u << B_LFO;
-        }
-        bp->step[s].note = (uint8_t)n;
-        bp->step[s].flags = f;
-        bp->step[s].velocity = BASS_VELOCITY_DEFAULT;
-        seq_rec_skip(&seq, TRK_BASS0 + b, s, 0);   /* (the key sounds it) */
+        int f = ((ui.btn & (1u << B_ENV)) ? BS_ACCENT : 0) |
+                ((ui.btn & (1u << B_LFO)) ? BS_SLIDE : 0);
+        ui.btn_used |= ui.btn & ((1u << B_ENV) | (1u << B_LFO));
+        seq.rec_mask = (uint8_t)(1u << b);
+        seq_rec_bass(&seq, b, n, BASS_VELOCITY_DEFAULT, 1, 3, f);
         mark_dirty();
     } else
         bass_rec_step[b] = 0;
@@ -2369,7 +2360,7 @@ static void held_note_by(int by)
     int n = held_note_of(bp, ui.held_step) + by;
     st->note = (uint8_t)(n < 12 ? 12 : n > 108 ? 108 : n);
     if (bstep_gate(st) != G_NOTE)
-        st->flags = (uint8_t)((st->flags & ~BS_GATE_MASK) | G_NOTE);
+        st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | G_NOTE);
     ui.step_edited = 1;
     mark_dirty();
     if (key_sounds()) {                                /* as the drum keys: playing, the line is heard */
@@ -2449,6 +2440,7 @@ static void key_event(int k, int down)
     if (!down) {
         for (int b = 0; b < NBASS; b++)
             if (kbd_held_key[b] == k + 1) {
+                seq_rec_bass(&seq, b, kbd_held_note[b], 0, 0, 3, 0);
                 engine_bass_off(b);
                 kbd_held_note[b] = 0;
                 kbd_held_key[b] = 0;
@@ -2869,6 +2861,12 @@ X0X_COLD static void input(void)
 #endif
         return;
     }
+    if (seq.rec_dirty) { seq.rec_dirty = 0; mark_dirty(); ui.act_t = plat_ms(); }
+    seq.rec_mask = ui.rec && is_303() ? (uint8_t)(1u << bidx()) : 0;
+    for (i = 0; i < NBASS; i++)
+        if (seq.rec_bass[i].active && (!(seq.rec_mask & (1u << i)) ||
+            seq.rec_bass[i].pat != seq.ppat[PART_303A + i]))
+            seq_rec_bass_end(&seq, (int)i);
     for (i = 0; i < NBASS; i++)
         if (!ui.rec || !kbd_held_note[i] || ui.part != PART_303A + i ||
             bass_rec_pat[i] != seq.ppat[PART_303A + i] || bass_rec_playing[i] != seq.playing)
@@ -3029,7 +3027,7 @@ X0X_COLD static void input(void)
             if (i == 0) {
                 held_note_by(e);
             } else if (i == 1) {
-                st->flags = (uint8_t)((st->flags & ~BS_GATE_MASK) | (bstep_gate(st) + (e > 0 ? 1 : 2)) % 3);
+                st->flags = (uint8_t)((st->flags & (BS_ACCENT | BS_SLIDE)) | (bstep_gate(st) + (e > 0 ? 1 : 2)) % 3);
             } else if (i == 2) {
                 st->flags ^= BS_ACCENT;
             } else {
