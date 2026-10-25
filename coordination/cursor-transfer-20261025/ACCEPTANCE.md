@@ -83,4 +83,6 @@ No flash, merge, publication, promotion, schedule change, new observer, GUI, cre
 
 ## Ready scope still awaiting a named acceptor
 
-Independent review of pull request 239 result `2dfb2cb` is the ready scope that needs a different reviewer from `bc-242aec06-97c7-4c2a-aee3-47a5799b0a96`. This receipt does not name that reviewer. Creation of that review-only cloud worker follows this acceptance. Native fit for that result stays `BLOCKED_LOCAL_EXECUTOR`.
+Independent review of pull request 239 result `2dfb2cb` needs a reviewer other than `bc-242aec06-97c7-4c2a-aee3-47a5799b0a96`. Native fit for that result stays `BLOCKED_LOCAL_EXECUTOR`.
+
+Review-only cloud worker created after the acceptance comment `6399120871`: `bc-9e091df3-7bfb-5235-9bfa-993c94b5c946` (https://cursor.com/agents/bc-9e091df3-7bfb-5235-9bfa-993c94b5c946). Base branch `handoff/multi-smc-capacity-20261026`. This creation is not acceptance. The worker must post its own id and explicit review acceptance. Until that comment exists, the review scope has no accepted owner. No source ownership moves.
