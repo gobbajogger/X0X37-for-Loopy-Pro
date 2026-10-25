@@ -60,7 +60,7 @@ int main(void)
           FL_GUARD(0xBA000u, 0x1000u) && FL_GUARD(0xBF000u, 0x1000u) && FL_GUARD(0xC2000u, 0x1000u) &&
           FL_GUARD(0xF3000u, 0x1000u) && !FL_GUARD(0xF4000u, 0x1000u) && !FL_GUARD(0x9C000u, 0x1000u) &&
           FL_DATA_HI == 0xB0000u && allowed == (0xC0000u - 0x9D000u + 0xF4000u - 0xC2000u) / 0x1000u);
-    check("FL_DATA (the store) and FL_SMPV (slot 3) do not overlap: no store sector in 0xB0000-0xBAFFF",
+    check("FL_DATA (the store) and FL_SMPV (VM spare) do not overlap: no store sector in 0xB0000-0xBAFFF",
           FL_IN(0xAF000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) && !FL_IN(0xB0000u, 0x1000u, FL_DATA_LO, FL_DATA_HI) &&
           FL_IN(0xB0000u, 0xB000u, FL_SMPV_LO, FL_SMPV_HI));
     check("Bluetooth block 0x8B000-0x9AFFF: 64 KiB, one piece, sector aligned, in FL_APP below the app slot end",
@@ -102,14 +102,13 @@ int main(void)
             slots_ok &= k == k2 || SMP_USER_OFF(k) + SMP_USER_SIZE(k) <= SMP_USER_OFF(k2) ||
                         SMP_USER_OFF(k2) + SMP_USER_SIZE(k2) <= SMP_USER_OFF(k);
     }
-    check("slots.c: 3 slots, 0xC2000 80 KiB, 0xD6000 120 KiB, 0xB0000 44 KiB: allowed, apart, outside the store",
-          SMP_USER_SLOTS == 3 && SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_SIZE(0u) == 0x14000u &&
-          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u && SMP_USER_OFF(2u) == 0xB0000u &&
-          SMP_USER_SIZE(2u) == 0xB000u && slots_ok);
+    check("slots.c: 2 slots, 0xC2000 80 KiB, 0xD6000 120 KiB: allowed, apart, outside the store",
+          SMP_USER_SLOTS == 2 && SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_SIZE(0u) == 0x14000u &&
+          SMP_USER_OFF(1u) == 0xD6000u && SMP_USER_SIZE(1u) == 0x1E000u && slots_ok);
     check("slots 1 and 2 keep the offsets of the 2 x 80 KiB layout (their data stays valid)",
           SMP_USER_OFF(0u) == 0xC2000u && SMP_USER_OFF(1u) == 0xC2000u + 0x14000u);
-    check("no slot in the install range [0x4000, 0x9D000); slot 3 ends below the OTA area 0xBB000",
-          SMP_USER_OFF(0u) >= 0x9D000u && SMP_USER_OFF(2u) >= 0x9D000u && SMP_USER_OFF(2u) + SMP_USER_SIZE(2u) <= 0xBB000u);
+    check("no slot in the install range [0x4000, 0x9D000) or in the VM spare 0xB0000-0xBAFFF",
+          SMP_USER_OFF(0u) >= 0x9D000u && SMP_USER_OFF(0u) >= 0xBB000u && SMP_USER_OFF(1u) >= 0xBB000u);
     check("FL_PLAIN_LO = the VM start 0x9D000", FL_PLAIN_LO == 0x9D000u);
     check("FL_JEDEC_OK: the SMK part 0xEB6014 and 0x856014 only", FL_JEDEC_OK(0xEB6014u) && FL_JEDEC_OK(0x856014u) &&
           !FL_JEDEC_OK(0u) && !FL_JEDEC_OK(0xFFFFFFu) && !FL_JEDEC_OK(0xEB6015u));

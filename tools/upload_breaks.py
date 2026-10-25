@@ -19,7 +19,7 @@ BR2, ... (the firmware numbers the loops of every slot straight through, in orde
   --slots    which slots to fill (default: all the device has, from SMP_INFO)
   --bbgen    use tools/import_breaks.py's selection from BB Gen's sample folder (implies --bars)
   --dry-run  build the slot images (OUTDIR/slotN.hdr / .bin) and print the plan; no device. The
-             layout is --slot-kb, one size per slot (default 80,120,44: the SMK-37's), or --nslots
+             layout is --slot-kb, one size per slot (default 80,120: the SMK-37's), or --nslots
              slots of one --slot-kb size (80 if not given)
 
 The slot count and the size of each slot come from the device (SMP_INFO). Files are packed in the order given,
@@ -38,7 +38,7 @@ ROOT_BASE = 36                                  # zone i gets root 36 + i: sampl
 
 
 RATES = (44100, 22050)
-DRY_SLOT_KB = [80, 120, 44]                     # --dry-run's default layout: the SMK-37's slots (KiB)
+DRY_SLOT_KB = [80, 120]                         # --dry-run's default layout: the SMK-37's slots (KiB)
 
 
 def cut(path, bars, rate=44100, trim=False, grit_factor=1.0):

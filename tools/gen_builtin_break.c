@@ -4,7 +4,9 @@
  * fill. No recording ships: the loops are this code's output. Written as the break bank
  * header (the same format tools/gen_break_bank.py writes for an opt-in bank of WAVs):
  * IMA ADPCM, mono, 44100 Hz (no downsampling, no length cut), the format of the user sample slots.
- *   gen_builtin_break OUT.h */
+ *   gen_builtin_break OUT.h [EXPORT_DIR]
+ * EXPORT_DIR receives the same loops as WAV and ADPCM, so they can be installed
+ * without living in the firmware image. The ADPCM is the header's bytes, uncut. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -110,6 +112,38 @@ static uint8_t *adpcm(const int16_t *x, uint32_t n, uint32_t *ns)
     return o;
 }
 
+static void write_raw(const char *path, const uint8_t *d, uint32_t n)
+{
+    FILE *f = fopen(path, "wb");
+    if (!f)
+        return;
+    fwrite(d, 1, n, f);
+    fclose(f);
+}
+
+static void write_wav(const char *path, const int16_t *x, uint32_t n)
+{
+    FILE *f = fopen(path, "wb");
+    uint32_t data = n * 2u, riff = 36u + data, sixteen = 16u, rate = RATE, bps = RATE * 2u;
+    uint16_t pcm = 1, ch = 1, bits = 16, block = 2;
+    if (!f)
+        return;
+    fwrite("RIFF", 1, 4, f);
+    fwrite(&riff, 4, 1, f);
+    fwrite("WAVEfmt ", 1, 8, f);
+    fwrite(&sixteen, 4, 1, f);
+    fwrite(&pcm, 2, 1, f);
+    fwrite(&ch, 2, 1, f);
+    fwrite(&rate, 4, 1, f);
+    fwrite(&bps, 4, 1, f);
+    fwrite(&block, 2, 1, f);
+    fwrite(&bits, 2, 1, f);
+    fwrite("data", 1, 4, f);
+    fwrite(&data, 4, 1, f);
+    fwrite(x, 2, n, f);
+    fclose(f);
+}
+
 static void emit(FILE *f, const char *name, const uint8_t *d, uint32_t ns)
 {
     uint32_t i, nb = (ns + 1) / 2;
@@ -140,5 +174,30 @@ int main(int argc, char **argv)
             BARS, BARS);
     fclose(f);
     printf("builtin break: A %u + B %u samples, %u bytes of flash\n", na, nb, (na + 1) / 2 + (nb + 1) / 2);
+    if (argc > 2) {
+        char path[512];
+        FILE *m;
+        if (snprintf(path, sizeof path, "%s/909GR.wav", argv[2]) >= (int)sizeof path)
+            return 1;
+        write_wav(path, a, na);
+        snprintf(path, sizeof path, "%s/909FL.wav", argv[2]);
+        write_wav(path, b, nb);
+        snprintf(path, sizeof path, "%s/909GR.adpcm", argv[2]);
+        write_raw(path, ea, (na + 1) / 2);
+        snprintf(path, sizeof path, "%s/909FL.adpcm", argv[2]);
+        write_raw(path, eb, (nb + 1) / 2);
+        snprintf(path, sizeof path, "%s/pack.txt", argv[2]);
+        m = fopen(path, "w");
+        if (!m)
+            return 1;
+        fprintf(m, "# file samples bars name — full loops, not a shared prefix\n");
+        fprintf(m, "909GR.adpcm %u %d 909 GR\n", na, BARS);
+        fprintf(m, "909FL.adpcm %u %d 909 FL\n", nb, BARS);
+        fclose(m);
+    }
+    free(a);
+    free(b);
+    free(ea);
+    free(eb);
     return 0;
 }

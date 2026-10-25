@@ -382,12 +382,14 @@ To get the calibration mode again, build with `X0X_DEV_PADCAL=1` (or with no val
 marks the complete calibration mode (CLP-79, orientation page, reopen fix, ok dot).
 
 The build also generates `build/gen/`. It contains the font and the 909's cymbal samples (IMA ADPCM,
-44.1 kHz) and tables (`tools/gen_drum_samples.py`). It also contains the built-in break loops (two 2-bar
-loops, IMA ADPCM at 44.1 kHz, 220,500 B). The 909 port renders them on the host
-(`tools/gen_builtin_break.sh`, needs a host `cc`). Opt-in: `X0X_BREAK_BANK=DIR` builds the break bank
-from one-bar WAVs instead. `tools/import_breaks.py` makes such a folder from BB Gen's samples, in
-`build/breaks/` (README.md, Breaks). The build fails if it links a soft-double routine (a `double` crept
-in). It also checks the image, RAM and pool sizes.
+44.1 kHz) and tables (`tools/gen_drum_samples.py`). The default image does not contain the two factory
+break loops. Those loops are 2 bars each, IMA ADPCM at 44.1 kHz, 220,500 B together, and they stay in
+`assets/factory-breaks/` (`tools/export_factory_breaks.sh`). The installer can write that pack, or your
+own loops, into the free tail of the app code. `X0X_FACTORY_BREAKS=1` compiles the factory loops back
+into the image. `X0X_BREAK_BANK=DIR` uses another bank instead (`tools/gen_break_bank.py`).
+`tools/import_breaks.py` makes such a folder from BB Gen's samples, in `build/breaks/` (README.md, Breaks).
+The build fails if it links a soft-double routine (a `double` crept in). It also checks the image, RAM
+and pool sizes.
 
 ### M-Vave SMK-37 Pro
 
@@ -415,8 +417,8 @@ The SMK build differs from the FM-1 build in these items:
   calibration), the stock resources (0xF4000-0xFDFFF) or key_mac (0xFF000-). The RAM flash driver has a
   second guard.
 - The store (`storage.c`): seven objects A/B at 0x9D000-0xAAFFF, boot screen copies at 0xAB000 and 0xAC000, spare 0xAD000-0xAEFFF, the store owner tag at
-  0xAF000. The update staging at 0xBB000 (`ota.c`). Three user sample slots (`app/slots.c`): slot 1 80 KiB at
-  0xC2000 and slot 2 120 KiB at 0xD6000 (to 0xF3FFF). Slot 3 44 KiB at 0xB0000 (to 0xBAFFF).
+  0xAF000. The update staging at 0xBB000 (`ota.c`). Two user sample slots (`app/slots.c`): slot 1 80 KiB at
+  0xC2000 and slot 2 120 KiB at 0xD6000 (to 0xF3FFF). The 44 KiB window at 0xB0000 is not a sample slot.
 - The Bluetooth controller block: 64 KiB at flash 0x8B000-0x9AFFF (XIP 0x02087000), at the top of the
   encrypted app slot. The app code ends below it: `APP_CODE_MAX` 0x86EE0 (552,672 B). `build.py` links the
   app to that length and stops when the image is larger.

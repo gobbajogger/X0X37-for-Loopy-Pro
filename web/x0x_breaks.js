@@ -21,7 +21,7 @@ export const OLDSCHOOL_GRIT = [
   { key: "heavy", label: "Heavy", factor: 3 },
   { key: "max", label: "Max", factor: 4 },
 ];
-export const DRY_SLOT_KB = [80, 120, 44]; // upload_breaks.py --dry-run's default layout: the SMK-37's slots (KiB)
+export const DRY_SLOT_KB = [80, 120]; // upload_breaks.py --dry-run's default layout: the SMK-37's two slots (KiB)
 
 const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
   97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658,
@@ -704,4 +704,59 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
     throw fail("slots", e.message, move.name);
   } finally { back.link.close(); }
   return { product: ran, move };
+}
+
+// A break pack: whole IMA ADPCM of each loop, from the first sample. tools/break_pack.py writes the same bytes.
+function packCrc32(bytes) {
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) {
+    crc ^= bytes[i];
+    for (let b = 0; b < 8; b++) crc = (crc >>> 1) ^ (0xEDB88320 & -(crc & 1));
+  }
+  return (~crc) >>> 0;
+}
+
+export function encodeBreakPack(loops, rate = RATE) {
+  if (!loops.length || loops.length > 8) throw new Error("a pack holds 1 to 8 loops");
+  if (rate !== RATE && rate !== RATE_HALF) throw new Error("rate must be 44100 or 22050");
+  const parts = [];
+  for (const loop of loops) {
+    const samples = loop.samples;
+    const adpcm = loop.adpcm || imaEncode(samples);
+    const ns = loop.nsamples || samples.length;
+    const bars = loop.bars;
+    if (ns < 64 || ((ns + 1) >> 1) !== adpcm.length) throw new Error(`${loop.name}: ADPCM length is not the whole loop`);
+    if (![1, 2, 4, 8].includes(bars)) throw new Error(`${loop.name}: bars must be 1, 2, 4 or 8`);
+    const rec = new Uint8Array(20 + adpcm.length);
+    const name = String(loop.name || "LOOP").slice(0, 7);
+    for (let i = 0; i < name.length; i++) rec[i] = name.charCodeAt(i) & 0x7F;
+    const dv = new DataView(rec.buffer);
+    dv.setUint32(8, ns, true);
+    dv.setUint8(12, bars);
+    dv.setUint32(16, adpcm.length, true);
+    rec.set(adpcm, 20);
+    parts.push(rec);
+  }
+  const body = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let o = 0;
+  for (const p of parts) { body.set(p, o); o += p.length; }
+  const out = new Uint8Array(20 + body.length);
+  for (let i = 0; i < 8; i++) out[i] = "X0XBRKPK".charCodeAt(i);
+  const hv = new DataView(out.buffer);
+  hv.setUint16(8, 1, true);
+  hv.setUint16(10, loops.length, true);
+  hv.setUint32(12, rate, true);
+  hv.setUint32(16, packCrc32(body), true);
+  out.set(body, 20);
+  return out;
+}
+
+// Full WAV, no silence cut and no bar cut. Resampled to 44100. The bar count is the same rule as the firmware.
+export function loopFromWav(buf, name) {
+  const { rate, x } = readWav(buf);
+  const samples = cut(x, rate, false, RATE, false);
+  if (samples.length < 64) throw new Error(`${name} is too short`);
+  const bars = barsOf(samples.length / RATE)[0];
+  const clean = String(name || "LOOP").replace(/\.[^.]+$/, "").replace(/[^\x20-\x7e]/g, "").slice(0, 7) || "LOOP";
+  return { name: clean, samples, bars, rate: RATE };
 }

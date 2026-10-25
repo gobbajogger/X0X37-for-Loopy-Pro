@@ -1083,36 +1083,92 @@ X0X_COLD static uint8_t loop_bars(uint32_t ns, uint32_t rate)
     return bars;
 }
 
-#include "x0x_break_bank.h"              /* tools/gen_break_bank.py: the built-in loops */
+#include "x0x_break_bank.h"              /* empty by default; factory or X0X_BREAK_BANK fills it */
+#include "app/brk_pack.h"                 /* optional pack in the free tail of the app image */
+
+#if X0X_NBREAKS == 0 && !defined(X0X_HOST)
+extern const uint8_t _start[];            /* crt0: app.bin offset 0, the XIP image */
+static brk_pack_loop_t pack_loops[BRK_PACK_MAX];
+static int pack_n = -1;
+
+static int load_pack(void)
+{
+#if defined(BOARD_SMK37) && BOARD_SMK37
+    const uint32_t limit = 0x86EE0u;      /* FL_APP_CODE_MAX: code ends where Bluetooth begins */
+#else
+    const uint32_t limit = 0x8DFBCu;
+#endif
+    pack_n = brk_pack_parse(_start, limit, pack_loops, BRK_PACK_MAX);
+    return pack_n;
+}
+#endif
+
+static int builtin_count(void)
+{
+#if X0X_NBREAKS > 0
+    return X0X_NBREAKS;                   /* compiled into the image */
+#else
+#ifndef X0X_HOST
+    if (pack_n < 0)
+        load_pack();
+    return pack_n > 0 ? pack_n : 0;
+#else
+    return 0;
+#endif
+#endif
+}
 
 X0X_COLD static const brk_loop_t *brk_builtin(int k)
 {
     static brk_loop_t L[2];
     static int which;
     brk_loop_t *l = &L[which ^= 1];      /* two: A and B are set one after the other */
-    if (k < 0 || k >= X0X_NBREAKS)
+    int n = builtin_count();
+    if (k < 0 || k >= n)
         return 0;
+#if X0X_NBREAKS > 0
     l->adpcm = X0X_BREAKS[k].adpcm;
     l->nsamples = X0X_BREAKS[k].n;
     l->rate = X0X_BREAK_RATE;
     l->bars = X0X_BREAKS[k].bars;
+#else
+#ifndef X0X_HOST
+    l->adpcm = pack_loops[k].adpcm;
+    l->nsamples = pack_loops[k].n;
+    l->rate = pack_loops[k].rate;
+    l->bars = pack_loops[k].bars;
+#else
+    (void)l;
+    return 0;
+#endif
+#endif
     return l;
 }
 
 /* the LOOP choices: the built-in bank, then every loop (zone) of the user slots, in order.
- * The list follows uploads: engine_brk_loops() rescans it. */
-#define NLOOPS_MAX (X0X_NBREAKS + PLAT_NSLOTS * PLAT_SLOT_ZONES)
+ * The list follows uploads: engine_brk_loops() rescans it. Room for a pack of 8 when the
+ * image itself has fewer built-in loops. */
+#define NLOOPS_MAX ((X0X_NBREAKS > BRK_PACK_MAX ? X0X_NBREAKS : BRK_PACK_MAX) + PLAT_NSLOTS * PLAT_SLOT_ZONES)
 static const char *loop_names[NLOOPS_MAX];
 static char user_names[PLAT_NSLOTS * PLAT_SLOT_ZONES][8];
 static uint8_t loop_slot[NLOOPS_MAX], loop_zone[NLOOPS_MAX];
-static int nloops;
+static int nloops, loops_ready;
 
 X0X_COLD static void scan_loops(void)
 {
-    int i, k, z, u = 0;
+    int i, k, z, u = 0, nb = builtin_count();
     nloops = 0;
-    for (i = 0; i < X0X_NBREAKS; i++)
+    for (i = 0; i < nb; i++) {
+#if X0X_NBREAKS > 0
         loop_names[nloops++] = X0X_BREAKS[i].name;
+#else
+#ifndef X0X_HOST
+        loop_names[nloops++] = pack_loops[i].name;
+#else
+        break;
+#endif
+#endif
+    }
     for (k = 0; k < PLAT_NSLOTS; k++) {                 /* yours: BR1, BR2 ... in order, whatever slot */
         int nz = plat_slot_zones(k);                    /* holds them (the break page packs the list) */
         for (z = 0; z < nz && z < PLAT_SLOT_ZONES; z++) {
@@ -1130,17 +1186,18 @@ X0X_COLD static void scan_loops(void)
             loop_names[nloops++] = n;
         }
     }
+    loops_ready = 1;
 }
 
 int engine_brk_nslots(void)
 {
-    if (!nloops)
+    if (!loops_ready)
         scan_loops();
     return nloops;
 }
 const char *const *engine_brk_slot_names(void)
 {
-    if (!nloops)
+    if (!loops_ready)
         scan_loops();
     return loop_names;
 }
@@ -1199,7 +1256,8 @@ X0X_COLD void engine_brk_loops(void)
         int slot = w ? bp->slot_b : bp->slot_a;
         uint32_t ns = 0, rate = 0;
         char name[9];
-        const uint8_t *d = (slot >= X0X_NBREAKS && slot < nloops)
+        int nb = builtin_count();
+        const uint8_t *d = (slot >= nb && slot < nloops)
                                ? plat_slot(loop_slot[slot], loop_zone[slot], &ns, &rate, name) : 0;
         if (d) {
             L[w].adpcm = d;
@@ -1208,7 +1266,7 @@ X0X_COLD void engine_brk_loops(void)
             L[w].bars = loop_bars(ns, rate);
             breaks_set_loop(&brk, w, &L[w]);
         } else {
-            breaks_set_loop(&brk, w, brk_builtin(slot < X0X_NBREAKS ? slot : 0));   /* built-in (or an empty user slot: the first) */
+            breaks_set_loop(&brk, w, brk_builtin(slot < nb ? slot : 0));   /* built-in, or the first if the slot is empty */
         }
     }
 }

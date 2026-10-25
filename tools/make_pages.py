@@ -214,7 +214,7 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     # Installer: inline libraries + catalog (paths relative to install/)
     page = (SRC / "web" / "x0x_installer.html").read_text(encoding="utf-8")
     lib = "\n".join(strip_module((SRC / "web" / f).read_text(encoding="utf-8"))
-                    for f in ("fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "boot_screen.js"))
+                    for f in ("fm1pkg.js", "fm1ota.js", "x0x_breaks.js", "factory_break_pack.js", "boot_screen.js"))
     cat_json = json.dumps(catalog, separators=(",", ":"))
     for mark, repl in (("/*LIB*/", lib), ("/*CATALOG*/", cat_json)):
         if page.count(mark) != 1:

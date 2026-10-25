@@ -122,6 +122,14 @@
       <p class="small" data-t="blewhy"></p>
       <p class="small"><label for="ctlfile" data-t="ctlchoose">Controller image (.img):</label> <input type="file" id="ctlfile" accept=".img"> <button class="quiet" id="ctlclear" type="button" data-t="ctlclear" disabled>Remove controller</button></p>
     </section>
+    <fieldset id="loops">
+      <legend data-t="loops">Built-in loops</legend>
+      <p class="small" data-t="loopswhy"></p>
+      <label class="small"><input type="radio" name="brkpack" value="none" checked> <span data-t="loopsnone"></span></label><br>
+      <label class="small"><input type="radio" name="brkpack" value="factory"> <span data-t="loopsfactory"></span></label><br>
+      <label class="small"><input type="radio" name="brkpack" value="mine"> <span data-t="loopsmine"></span></label>
+      <p class="small"><input type="file" id="loopfiles" accept=".wav,audio/wav" multiple></p>
+    </fieldset>
     <p><button id="go" disabled data-t="install">Install</button></p>
     <progress id="bar" max="100" value="0"></progress>
     <p id="status"></p>
@@ -195,6 +203,13 @@ const TEXT = {
     intro: "USB で機器を接続し、バージョンと機種を選んでください。（Chrome か Edge）",
     warn: "書き込み中は USB を抜かないでください。",
     install: "インストール", other: "English", connect: "接続",
+    loops: "内蔵ループ",
+    loopswhy: "初期の書き込みには 909 のループを入れません。空いた場所は音源のプログラム用です。工場の 2 ループか、自分の WAV を、その場所に戻せます。読み込み用のスロット 1 と 2 はそのままです。",
+    loopsnone: "入れない（初期状態）。",
+    loopsfactory: "工場の 2 ループ（909 GR と 909 FL）を入れる",
+    loopsmine: "自分のループを、その代わりに入れる",
+    loopsfit: "このファームウェアの空きにループが入りません。",
+    loopsneed: "先に WAV を選んでください。",
     connhelp: "Chrome か Edge で開き、USB でつないでから接続を押してください。",
     connected: "接続済み", notconnected: "未接続", looking: "探しています…",
     otahelp: "復旧用の書き込みモードです。この状態ではサンプルを自動保存できません。既存の .x0xslots バックアップがあるか、保存するサンプルがなかった場合にのみ続行してください。",
@@ -316,6 +331,13 @@ const TEXT = {
     intro: "Connect the keyboard or FM-1 by USB, pick a version and model, then install. (Chrome or Edge.)",
     warn: "Do not unplug the USB cable while writing.",
     install: "Install", other: "日本語", connect: "Connect",
+    loops: "Built-in loops",
+    loopswhy: "The default install leaves the factory loops out, so that flash can hold more of the synth. You can put the two factory loops back, or your own WAV files in their place. Import slots 1 and 2 stay as they are.",
+    loopsnone: "Leave them out (default).",
+    loopsfactory: "Install the two factory loops (909 GR and 909 FL)",
+    loopsmine: "Install my own loops instead",
+    loopsfit: "These loops do not fit in the free space of this firmware.",
+    loopsneed: "Choose WAV files first.",
     connhelp: "Use Chrome or Edge. Plug the device into this computer, then press Connect.",
     connected: "Connected", notconnected: "Not connected", looking: "Looking for the device…",
     otahelp: "Recovery/update loader. Automatic sample backup is unavailable in this mode. Resume only if you have an existing .x0xslots backup or know there were no samples to preserve.",
@@ -1136,10 +1158,12 @@ async function run(img, product, opts = {}) {
   $("ctlclear").disabled = !ctl && !ctlNeedsResolution;
 }
 
-$("go").addEventListener("click", () => {
+$("go").addEventListener("click", async () => {
   if (writing || ctlNeedsResolution || $("go").disabled ||
       !hasVerifiedNightlySelection(currentVersion(), currentVersion()?.models?.[chosenModel])) return;
   if (!confirmWrite(selectedProduct)) return;
+  const product = selectedProduct;
+  const guard = guardApprovedSelection();
   let img = image;
   if (ctl) {
     const v = currentVersion(), p = v && v.models && v.models[chosenModel];
@@ -1150,8 +1174,33 @@ $("go").addEventListener("click", () => {
     }
     try { img = insertCtl(image, ctl); } catch (e) { sayK("ctlbad", e.message); return; }
   }
+  const choice = (document.querySelector('input[name="brkpack"]:checked') || {}).value || "none";
+  if (choice !== "none") {
+    try {
+      let pack = FACTORY_BREAK_PACK;
+      if (choice === "mine") {
+        const files = $("loopfiles").files;
+        if (!files || !files.length) { sayK("loopsneed"); return; }
+        const loops = [];
+        for (const f of files) loops.push(loopFromWav(new Uint8Array(await f.arrayBuffer()), f.name));
+        if (selectedProduct !== product) {
+          sayK("selectionstale");
+          return;
+        }
+        pack = encodeBreakPack(loops);
+      }
+      img = insertBreakPack(img, pack);
+    } catch (e) {
+      say(t("loopsfit") + " " + (e && e.message ? e.message : ""));
+      return;
+    }
+  }
+  if (selectedProduct !== product) {
+    sayK("selectionstale");
+    return;
+  }
   $("go").disabled = true;   // sync before the first await in run()
-  run(img, selectedProduct, { foreign: false, selectionGuard: guardApprovedSelection() });
+  run(img, product, { foreign: false, selectionGuard: guard });
 });
 function confirmNightlyModel(deviceModel, product) {
   const actual = String(deviceModel || "").replace(/^ota-/i, "");

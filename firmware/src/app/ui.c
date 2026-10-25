@@ -366,8 +366,10 @@ static const x0x_param_t *pref_desc(pref_t r)
     case R_BRKSLICE: return &BRKSLICE_P;
     case R_BRKSLOT: {
         static x0x_param_t d = {"LOOP", 0, 0, 0};
-        d.max = (uint8_t)(engine_brk_nslots() - 1);
-        d.names = engine_brk_slot_names();
+        static const char *none[] = {"none"};
+        int n = engine_brk_nslots();
+        d.max = n ? (uint8_t)(n - 1) : 0;
+        d.names = n ? engine_brk_slot_names() : none;
         return &d;
     }
     case R_TEMPO: return &SEQ_P[SQ_TEMPO];
@@ -3800,8 +3802,13 @@ static UI_DRAW void draw_break(int band)
         cv_text(3, 1, &FONT_XS, "ON", C_GRAY);
         {
             char ta[16], tb[16];
-            put_s(put_s(ta, "A  "), sn[bp->slot_a % ns]);
-            put_s(put_s(tb, "B  "), sn[bp->slot_b % ns]);
+            if (!ns) {
+                put_s(ta, "A  none");
+                put_s(tb, "B  none");
+            } else {
+                put_s(put_s(ta, "A  "), sn[bp->slot_a % ns]);
+                put_s(put_s(tb, "B  "), sn[bp->slot_b % ns]);
+            }
             segs(4, 18, &FONT_S, C_HI, 18, ta, tb, 0, 0);
             (void)q;
         }

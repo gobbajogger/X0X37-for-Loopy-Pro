@@ -43,7 +43,7 @@ const files = [
 ];
 for (const f of files) wav(...f);
 
-// the defaults (44.1 kHz, no trim, the SMK-37's 80 / 120 / 44 KB), 22.05 kHz on request, trim on request,
+// the defaults (44.1 kHz, no trim, the SMK-37's 80 / 120 KB), 22.05 kHz on request, trim on request,
 // other layouts (equal slots; the older 2 x 80 KB)
 const D = DRY_SLOT_KB;
 const cases = [

@@ -389,8 +389,9 @@ bar of a phrase; with PHRASE off, in any bar) and PITCH; LEVEL and 8 SLICES are 
 eight slices. On, every MIDI note on that channel plays a slice (the note number divided by 8,
 the remainder picks the slice), so higher and lower notes replay the same eight slices. Loops follow the
 tempo by playing faster or slower, so their pitch follows it too, as on a sampler; PITCH shifts it
-on top. X0X comes with two loops of its own, 909 GR and 909 FL, played by its 909; loops you
-upload come after them.
+on top. The default firmware does not carry built-in loops, so that room can hold more of the
+synth. The installer can put the two factory loops back, 909 GR and 909 FL, or your own WAV files
+in their place. Loops you upload into the sample slots come after those, when they are installed.
 
 All of these, the steps, slices and loops, are saved with the pattern. The break's level, pan
 and sends are on the mixer's PARTS page (LFO, black key 5).
@@ -399,9 +400,9 @@ and sends are on the mixer's PARTS page (LFO, black key 5).
 
 Load your own loops with the [break loops page](https://charlesvestal.github.io/fm1-x0x/breaks/), in
 Chrome or Edge with the FM-1 connected. They appear after X0X's own loops as BR1, BR2 and so on.
-Loops are sent at full quality, 44.1 kHz. The SMK-37 has three slots of different sizes: slot 1
-holds about 3.7 seconds, slot 2 about 5.5 seconds and slot 3 about 2 seconds, about 11.3 seconds
-in all. The FM-1 has three slots of about 3.7 seconds, about 11 seconds in all. A one-bar loop
+Loops are sent at full quality, 44.1 kHz. The SMK-37 has two slots: slot 1
+holds about 3.7 seconds and slot 2 about 5.5 seconds, about 9.2 seconds
+in all. The FM-1 has two slots of about 3.7 seconds, about 7.4 seconds in all. A one-bar loop
 at 120 BPM takes 2 seconds. A loop must fit in one slot, so the longest loop on the SMK-37 is
 about 5.5 seconds. The page fills the slots in order and puts a loop that is too long for one
 slot into the next slot that can take it.

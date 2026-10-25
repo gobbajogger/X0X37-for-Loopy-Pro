@@ -141,8 +141,8 @@ const $ = (id) => document.getElementById(id);
 const HDR = [0x7D, 0x46, 0x4C];
 const KB = (b) => `${(b / 1024).toFixed(0)} KB`;
 let link = null, busy = false, readOk = false;
-// the device's slots (SMP_INFO): their count and sizes (one size each with X0X's extension, e.g. 80, 120 and
-// 44 KB on the SMK-37); nothing here assumes 2 or 3 slots of 80 KB
+// the device's slots (SMP_INFO): their count and sizes (one size each with X0X's extension, e.g. 80 and
+// 120 KB on the SMK-37); nothing here assumes a fixed slot count or size
 let lay = { count: 0, size: SLOT_SIZE, slots: [] };
 const nslot = () => lay.count, slotMax = (k) => slotSize(lay, k) - SLOT_DATA_OFF;
 const cap = () => Array.from({ length: nslot() }, (_, k) => slotMax(k)).reduce((a, b) => a + b, 0);
