@@ -359,6 +359,79 @@ static void test_distinct_maps(void)
     puts("PASS maps: exact separate dimensions, both kits/banks, all production pages and cross-strip list parking");
 }
 
+/* Sound-page knobs: matching names keep the same relative slots across drums. */
+static int track_slot_of(int t, int v, const char *name)
+{
+    int page, k, slot = 0;
+    setup(V_PART, t == T_909 ? PART_909 : PART_808);
+    ui.sel[t == T_909 ? 0 : 1] = (uint8_t)v;
+    build_pages();
+    for (page = 0; page < pg.n; page++) {
+        if (pg.group[page] != GR_TRACK) continue;
+        for (k = 0; k < 4; k++) {
+            pref_t r = pg.r[page][k];
+            if (r.kind == R_NONE) continue;
+            if (name_is(engine_param(r.a, r.b, r.c), name)) return slot;
+            slot++;
+        }
+    }
+    return -1;
+}
+static void test_track_knob_align(void)
+{
+    static const char *const names[] = {
+        "Tune", "Tone", "Attack", "Sound", "Decay", "Snappy", "Tail", "P.Dpth", "Pitch",
+    };
+    int kit, v, i, j;
+    for (kit = 0; kit < 2; kit++) {
+        int t = kit ? T_808 : T_909;
+        for (v = 0; v < NDRUM; v++) {
+            int prev = -1, page, k;
+            setup(V_PART, kit ? PART_808 : PART_909);
+            ui.sel[kit] = (uint8_t)v;
+            build_pages();
+            for (page = 0; page < pg.n; page++) {
+                int hole = 0;
+                if (pg.group[page] != GR_TRACK) continue;
+                for (k = 0; k < 4; k++) {
+                    pref_t r = pg.r[page][k];
+                    int rank = 100, n;
+                    if (r.kind == R_NONE) { hole = 1; continue; }
+                    CHECK(!hole);                     /* no empty knob between filled ones */
+                    for (n = 0; n < (int)(sizeof names / sizeof *names); n++)
+                        if (name_is(engine_param(r.a, r.b, r.c), names[n])) {
+                            rank = n;
+                            break;
+                        }
+                    CHECK(rank >= prev);
+                    prev = rank;
+                }
+            }
+            for (i = 0; i < (int)(sizeof names / sizeof *names); i++) {
+                int a = track_slot_of(t, v, names[i]);
+                if (a < 0) continue;
+                for (j = i + 1; j < (int)(sizeof names / sizeof *names); j++) {
+                    int b = track_slot_of(t, v, names[j]);
+                    if (b >= 0) CHECK(a < b);
+                }
+            }
+        }
+    }
+    /* Hats previously put Decay on K1; Tune must lead when both exist. */
+    CHECK(track_slot_of(T_909, 8, "Tune") == 0);
+    CHECK(track_slot_of(T_909, 8, "Decay") == 1);
+    CHECK(track_slot_of(T_909, 9, "Tune") == 0);
+    CHECK(track_slot_of(T_808, 10, "Tune") == 0);
+    CHECK(track_slot_of(T_808, 10, "Decay") == 1);
+    /* 303 TONE stays Cutoff / Reso / EnvMod / Decay. */
+    setup(V_PART, PART_303A);
+    CHECK(smc_same(pg.r[0][0], PR(R_ENG, T_303, 0, BASS303_CUTOFF)));
+    CHECK(smc_same(pg.r[0][1], PR(R_ENG, T_303, 0, BASS303_RESO)));
+    CHECK(smc_same(pg.r[0][2], PR(R_ENG, T_303, 0, BASS303_ENVMOD)));
+    CHECK(smc_same(pg.r[0][3], PR(R_ENG, T_303, 0, BASS303_DECAY)));
+    puts("PASS align: drum sound knobs share Tune/Decay ranks; 303 TONE unchanged");
+}
+
 /* Verify physical grouping in the real framebuffer, rather than accepting any
  * nonempty screen: eight encoders over eight faders, with M/S/R to right and selection on the title. */
 static void test_physical_geometry(void)
@@ -524,7 +597,7 @@ static void test_action_captions_and_knobs(void)
 #endif
 int SMC_UI_MAIN(void)
 {
-    test_navigation_replay(); test_distinct_maps(); test_physical_geometry(); test_selected_lane(); test_drum_titles(); test_action_captions_and_knobs();
+    test_navigation_replay(); test_distinct_maps(); test_track_knob_align(); test_physical_geometry(); test_selected_lane(); test_drum_titles(); test_action_captions_and_knobs();
     test_restore(); puts("PASS restore: eight views preserve complete navigation state and exact framebuffer");
     test_activity(); test_existing_feedback(); test_navigation(); test_overlays(); test_clip(); test_actions_and_reset();
     printf("smc_ui: PASS (%u checks)\n", checks);

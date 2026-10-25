@@ -881,7 +881,10 @@ Drum settings range from 0 to 127. DIST, the distortion type, can be DIODE, CLIP
 PDIST, FOLD or CRUSH. PAN goes from L64 through C (the middle) to R63.
 
 Each track's Level, Pan, Rev and Dly are on the mixer (909 MIX, 808 MIX); its Drive and Dist are
-in SEL's list; the rest are its sound pages.
+in SEL's list; the rest are its sound pages. Sound-page knobs follow a fixed order across tracks —
+Tune, Tone, Attack, Sound, Decay, then Snappy / Tail / pitch envelope — so the same kind of
+control stays on the same physical knob when you change drum or kit. Tables below list each
+track's settings (including mixer and SEL fields), not the knobs' left-to-right order.
 
 <details><summary>909 tracks</summary>
 
