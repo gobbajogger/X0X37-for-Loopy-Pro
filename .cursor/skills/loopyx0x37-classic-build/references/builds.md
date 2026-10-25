@@ -74,7 +74,7 @@ python3 tools/dev_validate.py run --commit <commit> --model elite \
 
 Repeat with `--model pro`. Elite writes `x0x-smk37-elite.fwsc`. Pro writes `x0x-smk37.fwsc`. The runner builds that model in development configuration, checks budgets, builds the controller, and records hashes. Failed checks issue no record.
 
-A cloud agent does not flash the keyboard. The Mac LaunchAgent `com.x0x37.unattended-install` may install a validated development package. Current SMK packages rewrite the controller block. That install uses `--ctl` pointing at that artifact. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. `BUILDING.md` also contains a later paragraph that says to pass `--no-controller` whenever an install needs no controller. Follow this paragraph and `tools/dev_validate.py` for current SMK packages. The later paragraph describes the older exception.
+A cloud agent does not flash the keyboard. The Mac LaunchAgent `com.x0x37.unattended-install` may install a validated development package. Current SMK packages rewrite the controller block. That LaunchAgent install uses `--ctl` pointing at that artifact. An empty controller is refused. `--no-controller` and `--no-ctl` apply to a package that already embeds a valid controller, or to an old package whose application owns that flash range. `BUILDING.md` also contains a later paragraph that says to pass `--no-controller` whenever an install needs no controller. Follow this paragraph and `tools/dev_validate.py` for current SMK packages. The later paragraph describes the older exception.
 
 Release gate, only after an explicit release request:
 
