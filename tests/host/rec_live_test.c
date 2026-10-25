@@ -6,6 +6,9 @@
  *    step 1, not to the step of the last run (a73).
  *  - 909: a live hit records on the nearest step; just before the loop start: step 1 (a73).
  * Build: see tests/run_tests.sh (needs build/gen from host/build_host.sh). */
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE
+#endif
 #define main x0x_host_main
 #include "../../host/x0x_host.c"
 #undef main
