@@ -2345,6 +2345,7 @@ static void fm1_main(void)
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }
+        engine_brk_flush();                            /* a loop change that waited out a crossfade */
 #if BOARD_SMK37
         smk_clip_mode_poll();
 #endif

@@ -496,6 +496,7 @@ static void run_ms(uint32_t ms)
             last_pat = seq.ppat[TRK_BRK];
             engine_brk_loops();
         }
+        engine_brk_flush();
         if (now_ms >= ui_due) {
             ui_due = now_ms + 16;
             ui_frame();
