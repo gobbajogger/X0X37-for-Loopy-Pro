@@ -27,6 +27,16 @@ When this run produces a commit, push the branch and open a pull request whose b
 - device install or flash
 - production promotion
 
+## Owner decision, 2026-10-25
+
+Automatically validated firmware merges without another owner prompt.
+
+Automatic validation means the applicable host checks exited 0 and `tools/dev_validate.py` recorded `DEV CHECKED` for the affected SMK-37 Elite and Pro development packages on that exact commit. A missing distribution-license receipt, corresponding-source receipt, or native-build receipt does not block this, because owner policy waives those receipts as loop stops (follow LICENSE and LICENSING.md; do not invent an MIT claim for the tree). A hash mismatch, a failed package check, or a compiler failure still blocks.
+
+The merge is a normal fast-forward of firmware `nightly` in `gobbajogger/X0X37-for-Loopy-Pro`. If the remote refuses, record the refusal and do not force-push. Production `main`, production GitHub Pages, and a device flash are not this merge. Independent human QA stays `QA_PENDING` when the author cannot supply it. Same-account approval is not that review.
+
+This dated decision is the assignment for that `nightly` fast-forward only. It does not assign a release gate, a merge to production `main`, production GitHub Pages, or a device flash.
+
 A draft or failed producer check stays a draft pull request. A source-complete change with its producer checks recorded can be ready for review. Ready for review is not QA approval, merge eligibility, or installability.
 
 ## Stage evidence
