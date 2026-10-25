@@ -80,6 +80,10 @@ def _manifest_paths(dist):
 
     importlib.metadata.Distribution.files drops missing paths. A package that
     lost a declared file would then fingerprint as a smaller package.
+    installed-files.txt is relative to the egg-info directory. A console script
+    often lives in the env bin directory, outside site-packages. Keep that as an
+    upward-relative path from the distribution root so locate_file can still
+    open it. Do not require every declared file to reside below that root.
     """
     text = dist.read_text('RECORD')
     if text:
@@ -91,7 +95,8 @@ def _manifest_paths(dist):
         paths = []
         for name in text.splitlines():
             if name:
-                paths.append((Path(subdir) / name).resolve().relative_to(root).as_posix())
+                located = (Path(subdir) / name).resolve()
+                paths.append(located.relative_to(root, walk_up=True).as_posix())
         return paths
     text = dist.read_text('SOURCES.txt')
     if text:
