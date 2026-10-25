@@ -69,9 +69,12 @@ enum {
     BASS303_ACCENT, BASS303_WAVE, BASS303_TUNE, BASS303_VOLUME,      /* page 2 */
     BASS303_DRIVE, BASS303_DRVTYPE, BASS303_SLIDE, BASS303_ACCDEC,   /* page 3 */
     BASS303_FATTACK, BASS303_FSUSTAIN, BASS303_FRELEASE, BASS303_FENV,
+    BASS303_AMPMODE,                                                 /* Chicago Amp ENV/GATE (#277) */
+    BASS303_GNAW,                                                    /* Chicago VCF Gnaw (filter-input grit) */
     BASS303_NPARAMS
 };
 enum { BASS303_DRV_OFF, BASS303_DRV_SOFT, BASS303_DRV_RAT };
+enum { BASS303_AMP_ENV, BASS303_AMP_GATE };                          /* AmpMod: Open303 env vs Gate hold */
 
 typedef struct { float b0, b1, b2, a1, a2, z1, z2; } bass303_bq_t;     /* TDF-II biquad */
 typedef struct { float x1, x2, y1, y2; } bass303_df1_t;                /* DF-I state */
@@ -94,7 +97,8 @@ typedef struct bass303 {
     int fenv_stage;          /* 0 release, 1 attack, 2 decay, 3 sustain */
     float decay_c, accdec_c; /* main-envelope multipliers for normal / accented notes */
     float slew_c;            /* pitch slew-limiter coefficient */
-    int wave;                /* 0 saw, 1 square */
+    float wave_mix;          /* 0 saw .. 1 square (Chicago OSC Waveform continuous morph) */
+    float gnaw;              /* 0..1 Chicago VCF Gnaw: pre-filter input grit */
     int drv_type;
     float drv_amt;
 

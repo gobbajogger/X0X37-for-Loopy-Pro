@@ -25,6 +25,9 @@
 #define NLANE 160
 #define MOT_NONE 0xFFu
 #define MOT_PARTS 5
+#define MOT_SNAPSHOT 0xFEu             /* one immutable sixteen-value sound on a bass step */
+#define MOT_SNAPSHOT_PARAMS 16
+#define MOT_SNAPSHOT_SCHEMA 1u
 #define MOT_GAP 4                     /* steps: a longer pause ends a recording gesture */
 
 typedef struct {
@@ -70,3 +73,24 @@ void motion_clear(lane_t *L, int k);
 int motion_count(const lane_t *L);
 void motion_req_rec(motion_t *m, int k);
 void motion_req_hold(motion_t *m, int k);
+
+/* Snapshot records share the existing fixed lane pool. They do not replace or
+ * remove a knob lane. Capture copies values, never a preset identifier. Return
+ * slot index, or -1 on invalid input/full capacity, before any mutation. Replacing
+ * a snapshot and editing one knob use its inactive 16-byte bank, then publish one
+ * selector byte. Caller is the sole main-loop writer; ISR copies the selected bank
+ * while main cannot run. A returned pointer is borrowed until the next main write.
+ * Every val byte, including the selector at 63, is copied by existing part-copy,
+ * undo and project storage, without increasing their fixed memory allocations. */
+int motion_snapshot_find(const lane_t *L, int pat, int part, int step);
+const uint8_t *motion_snapshot_read(const lane_t *L, int pat, int part, int step);
+int motion_snapshot_engine(const lane_t *L, int pat, int part, int step); /* 1=303, 2=WBL1; 0=absent */
+/* Operator-facing engine short name for identity 1/2; empty string if absent/unknown.
+ * Keeps part labels (303A/303B) distinct from the sound-engine identity on a step. */
+static inline const char *motion_snapshot_engine_label(int engine)
+{
+    return engine == 1 ? "303" : engine == 2 ? "WBL1" : "";
+}
+int motion_snapshot_capture(lane_t *L, int pat, int part, int step, int engine, const uint8_t values[MOT_SNAPSHOT_PARAMS]);
+int motion_snapshot_edit(lane_t *L, int pat, int part, int step, int param, int value);
+void motion_snapshot_remove(lane_t *L, int pat, int part, int step);

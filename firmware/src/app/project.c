@@ -15,14 +15,19 @@
 #include "x0x.h"
 #include "../dsp/drum909.h"            /* DR_SD (the sound's revisions) */
 #include "../dsp/master.h"             /* MST_* (the sound's revisions) */
+#include "../dsp/bass303.h"            /* BASS303_AMPMODE (sound rev 5) */
 #include "lz.c"
 
 project_t proj;
 /* Reuses the UI undo shadow while an exclusive project operation is active. */
 project_t project_stage X0X_POOL;
 
-#define PROJ_STREAM 4u                  /* endpoint flags; unchanged 3-byte step layout */
-#define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates */
+/* Combined stream5: recorder endpoint flags + Miami MOT_SNAPSHOT lanes.
+ * Frozen incompatible stream4 layouts (recorder-only vs Miami-only) load and
+ * rewrite as 5; they must not be mixed in one format-4 payload. */
+#define PROJ_STREAM 5u                  /* combined endpoints + sound snapshots */
+#define PROJ_STREAM_4 4u                /* frozen: endpoint-only OR snapshot-only */
+#define PROJ_STREAM_PREV 3u             /* velocity steps, legacy gates; no snapshots/endpoints */
 #define PROJ_STREAM_OLD 2u
 static const uint8_t STREAM_OBJ[] = {OBJ_PAT0, OBJ_PAT1, OBJ_SONG, OBJ_MOTION};
 #define NSTREAM ((int)sizeof STREAM_OBJ)
@@ -181,6 +186,36 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
+/* Through PROJ_SND_REV 4 every sound cell was 16 pots wide. Rev 5 widens to NPARAMS_MAX. */
+#define SOUND_CELL_V4 16u
+#define SOUND_BYTES_V4 (NTARGETS * NVOICES_MAX * SOUND_CELL_V4)
+
+/* OBJ_SOUND may be the old 16-wide layout or the current sizeof(sound_t). An old payload is
+ * expanded cell-by-cell so index 0..15 keep their meaning; new slots keep the defaults already
+ * in dst (AmpMod = Env for 303). */
+static int load_sound(sound_t *dst)
+{
+    int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
+    uint32_t i, t, v, p, body;
+    if (n < 4 || get32(io_buf) != PROJ_FORMAT)
+        return -1;
+    body = (uint32_t)n - 4u;
+    if (body == sizeof *dst) {
+        for (i = 0; i < body; i++)
+            ((uint8_t *)dst)[i] = io_buf[4u + i];
+        stored_known[OBJ_SOUND] = 1;
+        stored_hash[OBJ_SOUND] = hash_of(io_buf, (uint32_t)n);
+        return 0;
+    }
+    if (body != SOUND_BYTES_V4)
+        return -1;
+    for (t = 0; t < NTARGETS; t++)
+        for (v = 0; v < NVOICES_MAX; v++)
+            for (p = 0; p < SOUND_CELL_V4; p++)
+                dst->v[t][v][p] = io_buf[4u + (t * NVOICES_MAX + v) * SOUND_CELL_V4 + p];
+    stored_known[OBJ_SOUND] = 0;                     /* next save writes the widened layout */
+    return 0;
+}
 
 static void arrange_defaults(project_t *pr)
 {
@@ -334,6 +369,40 @@ static void stream_from2(project_t *pr)
         stored_known[STREAM_OBJ[p]] = 0;             /* next save writes current format */
 }
 
+static int project_has_snapshot(const project_t *pr)
+{
+    int k;
+    for (k = 0; k < NLANE; k++)
+        if (pr->arr.lane[k].used && pr->arr.lane[k].t == MOT_SNAPSHOT)
+            return 1;
+    return 0;
+}
+
+static int project_has_endpoint(const project_t *pr)
+{
+    int p, b, s;
+    for (p = 0; p < NPAT; p++)
+        for (b = 0; b < NBASS; b++)
+            for (s = 0; s < NSTEPS; s++)
+                if (pr->pat[p].bass[b].step[s].flags >> BS_END_SHIFT)
+                    return 1;
+    return 0;
+}
+
+/* Reject payloads that mix the two frozen stream4 semantics, or that place
+ * snapshots/endpoints on streams that never carried them. */
+static int stream_layout_ok(const project_t *pr, uint32_t format)
+{
+    int snap = project_has_snapshot(pr), endp = project_has_endpoint(pr);
+    if (format == PROJ_STREAM)
+        return 1;
+    if (format == PROJ_STREAM_4)
+        return !(snap && endp);                      /* each frozen 4 is one feature only */
+    if (snap || endp)
+        return 0;                                    /* stream3/2 never had either feature */
+    return 1;
+}
+
 static int load_stream(project_t *pr, int n, uint32_t format)
 {
     uint8_t *raw = (uint8_t *)pr + RAW_OFF;
@@ -341,6 +410,7 @@ static int load_stream(project_t *pr, int n, uint32_t format)
     uint32_t raw_len = format == PROJ_STREAM_OLD ? RAW_LEN_2 : RAW_LEN;
     st_in_t s = {0, n, STREAM_HDR, plen, format};
     lz_src_t src = {st_get, &s};
+    int p;
     if (n < (int)STREAM_HDR || get32(io_buf + 4) != raw_len || plen > STREAM_CAP)
         return -1;
     stored_known[STREAM_OBJ[0]] = 1;
@@ -349,6 +419,12 @@ static int load_stream(project_t *pr, int n, uint32_t format)
         return -1;
     if (format == PROJ_STREAM_OLD)
         stream_from2(pr);
+    if (!stream_layout_ok(pr, format))
+        return -1;
+    if (format == PROJ_STREAM_4 || format == PROJ_STREAM_OLD) {
+        for (p = 0; p < NSTREAM; p++)
+            stored_known[STREAM_OBJ[p]] = 0;         /* next save writes combined stream5 */
+    }
     packed_len = plen;
     return 0;
 }
@@ -549,13 +625,24 @@ static int read_project(project_t *pr)
         bad = 1;
     project_clk_check(pr);                              /* (first: it can clear the a74 byte 38) */
     project_ck_check(pr, 0);                              /* (main_fm1.c trusts the clip keys settings) */
-    sound_ok = load_obj(OBJ_SOUND, &pr->sound, sizeof pr->sound) == 0;
+    sound_ok = load_sound(&pr->sound) == 0;
     if (!sound_ok)
         bad = 1;
     if (sound_ok && pr->set.snd_rev < 3)             /* before the 909 BD's sends: its pan moves up two */
         sound_bd_sends(pr, T_909, 8);                     /* (first: the pans' own fixes below see the new place) */
     if (sound_ok && pr->set.snd_rev < 4)             /* the 808 BD's, the same */
         sound_bd_sends(pr, T_808, 7);
+    if (sound_ok && pr->set.snd_rev < 5) {           /* before AmpMod: keep Env (Open303) on both 303s */
+        for (i = 0; i < NBASS; i++)
+            pr->sound.v[T_303][i][BASS303_AMPMODE] = bass303_param(BASS303_AMPMODE)->def;
+    }
+    if (sound_ok && pr->set.snd_rev < 6) {           /* Wave was Saw/Sqr switch: old 1 (square) → 127 */
+        for (i = 0; i < NBASS; i++) {
+            if (pr->sound.v[T_303][i][BASS303_WAVE] == 1)
+                pr->sound.v[T_303][i][BASS303_WAVE] = 127;
+            /* Gnaw default 0: load_sound already left new cells at engine defaults */
+        }
+    }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
         for (i = 0; i < NPARTS; i++)
             pr->sound.v[T_MIX][i][MX_PAN] = 64;
@@ -563,7 +650,8 @@ static int read_project(project_t *pr)
         engine_sound_centre_drum_pans(&pr->sound);
     pr->set.stereo = PROJ_STEREO;
     n = plat_store_load(OBJ_PAT0, io_buf, sizeof io_buf);
-    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_PREV || get32(io_buf) == PROJ_STREAM_OLD)) {
+    if (n >= 4 && (get32(io_buf) == PROJ_STREAM || get32(io_buf) == PROJ_STREAM_4 ||
+                   get32(io_buf) == PROJ_STREAM_PREV || get32(io_buf) == PROJ_STREAM_OLD)) {
         if (load_stream(pr, n, get32(io_buf))) {          /* torn or broken: the defaults, not garbage */
             patterns_defaults(pr);
             arrange_defaults(pr);
@@ -664,6 +752,26 @@ int project_validate_stage(void)
             continue;
         if (l->used != 1 || l->pat >= NPAT || l->part >= NPARTS)
             return -1;
+        if (l->t == MOT_SNAPSHOT) {
+            unsigned bank = l->val[NSTEPS - 1];
+            if ((unsigned)(l->part - NKIT) >= NBASS || l->v >= NSTEPS ||
+                l->i != MOT_SNAPSHOT_SCHEMA || (bank != 0 && bank != MOT_SNAPSHOT_PARAMS) ||
+                (l->val[32 + bank / MOT_SNAPSHOT_PARAMS] != 1 && l->val[32 + bank / MOT_SNAPSHOT_PARAMS] != 2))
+                return -1;
+            for (i = 0; i < MOT_SNAPSHOT_PARAMS; i++)
+                if (l->val[bank + (unsigned)i] >
+                    (l->val[32 + bank / MOT_SNAPSHOT_PARAMS] == 1 ?
+                     engine_param(T_303, l->part - NKIT, i)->max : 127))
+                    return -1;
+            /* Duplicate keys would make lookup order define a different sound. */
+            for (i = 0; i < k; i++) {
+                const lane_t *a = &p->arr.lane[i];
+                if (a->used && a->t == MOT_SNAPSHOT && a->pat == l->pat &&
+                    a->part == l->part && a->v == l->v)
+                    return -1;
+            }
+            continue;
+        }
         if (l->t == T_PROB) {
             if ((l->v >> 4) != l->part || (l->v & 15) >= (l->part < NKIT ? NDRUM : 1) || l->i)
                 return -1;
@@ -713,12 +821,16 @@ void project_file_header(uint8_t *h)
 
 int project_file_validate(const uint8_t *h)
 {
+    uint32_t stream = get32(h + 20);
     if (get32(h) != 0x50583058u || get32(h + 4) != 1 || get32(h + 8) != sizeof project_stage ||
-        get32(h + 16) != PROJ_FORMAT || (get32(h + 20) != PROJ_STREAM && get32(h + 20) != PROJ_STREAM_PREV) ||
+        get32(h + 16) != PROJ_FORMAT ||
+        (stream != PROJ_STREAM && stream != PROJ_STREAM_4 && stream != PROJ_STREAM_PREV) ||
         get32(h + 24) != PROJ_SND_REV || get32(h + 28))
         return -1;
     if (get32(h + 12) != crc32_of((const uint8_t *)&project_stage, sizeof project_stage))
         return -4;
+    if (!stream_layout_ok(&project_stage, stream))
+        return -1;
     return project_validate_stage();
 }
 

@@ -993,8 +993,9 @@ static void build_pages(void)
             add_page_refs("TONE", refs, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_ACCENT), PR(R_ENG, T_303, 0, BASS303_WAVE), PR(R_ENG, T_303, 0, BASS303_DRIVE), PR(R_ENG, T_303, 0, BASS303_SLIDE)};
             add_page_refs("VOICE", refs, 2, b); } while (0);
-            do { static const pref_t refs[] = {PR(R_ENG, T_303, 0, BASS303_TUNE), PR(R_ENG, T_303, 0, BASS303_VOLUME), PR(R_ENG, T_303, 0, BASS303_DRVTYPE), PR(R_ENG, T_303, 0, BASS303_ACCDEC)};
-                more_refs(refs, 4, 2, b); } while (0);
+            /* AmpMod = Chicago Amp ENV/GATE; Gnaw = Chicago VCF Gnaw (not Drive/Bite). */
+            do { static const pref_t refs[] = {PR(R_ENG, T_303, 0, BASS303_TUNE), PR(R_ENG, T_303, 0, BASS303_VOLUME), PR(R_ENG, T_303, 0, BASS303_DRVTYPE), PR(R_ENG, T_303, 0, BASS303_ACCDEC), PR(R_ENG, T_303, 0, BASS303_AMPMODE), PR(R_ENG, T_303, 0, BASS303_GNAW)};
+                more_refs(refs, 6, 2, b); } while (0);
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_FATTACK), PR(R_ENG, T_303, 0, BASS303_DECAY), PR(R_ENG, T_303, 0, BASS303_FSUSTAIN), PR(R_ENG, T_303, 0, BASS303_FRELEASE)};
             add_page_refs("FILTER ADSR", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
@@ -4442,6 +4443,9 @@ static uint32_t knobs_sig(void)
     if (ui.held_step >= 0) {
         const bstep_t *st = &cur_pat()->bass[bidx()].step[ui.held_step];
         MIXIN(st->note | st->flags << 8 | st->velocity << 16);
+        /* Snapshot engine identity is part of the knob tag; redraw when it changes. */
+        if (is_303())
+            MIXIN(motion_snapshot_engine(proj.arr.lane, seq.ppat[ui.part], ui.part, ui.held_step));
     }
 #undef MIXIN
     return h;
@@ -4456,17 +4460,39 @@ static int strcmp_s(const char *a, const char *b)
     return *a != *b;
 }
 
-/* the knob row's tag: whose knobs these are (BD, 909 KIT, P3 PATTERN, 909 MIX: BD, 303A STEP 5) */
+/* Append " · 303" / " · WBL1" when the held bass step owns a sound snapshot.
+ * Part names stay 303A/303B; the engine identity is a separate, visible field. */
+static void knob_tag_append_snapshot_engine(char *t, int step)
+{
+    const char *eng;
+    char *q;
+    int id;
+    if (step < 0 || !is_303())
+        return;
+    id = motion_snapshot_engine(proj.arr.lane, seq.ppat[ui.part], ui.part, step);
+    eng = motion_snapshot_engine_label(id);
+    if (!eng[0])
+        return;
+    q = t;
+    while (*q)
+        q++;
+    put_s(put_s(q, " · "), eng);
+}
+
+/* the knob row's tag: whose knobs these are (BD, 909 KIT, P3 PATTERN, 909 MIX: BD, 303A STEP 5)
+ * With a step-sound snapshot: "303A STEP 5 · 303" or "303A STEP 5 · WBL1". */
 static void knob_tag(char *t)
 {
     int g = pg.group[cur_page()], dm = drum_mix_page();
     const char *ti = pg.title[cur_page()];
-    if (lock_step() >= 0)
+    if (lock_step() >= 0) {
         put_i(put_s(put_s(t, is_drum() ? engine_voice_name(ui.part == PART_909 ? T_909 : T_808, ui.sel[ui.part])
                                         : PART_N[ui.part]), " P-LOCK STEP "), lock_step() + 1);
-    else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0)
+        knob_tag_append_snapshot_engine(t, lock_step());
+    } else if (ui.view == V_SEQ && is_303() && ui.held_step >= 0) {
         put_i(put_s(put_s(t, PART_N[ui.part]), " STEP "), ui.held_step + 1);
-    else if (dm >= 0)
+        knob_tag_append_snapshot_engine(t, ui.held_step);
+    } else if (dm >= 0)
         put_s(put_s(put_s(t, ti), ": "), engine_voice_name(dm ? T_808 : T_909, ui.sel[dm]));
     else if (ui.view == V_MIX && cur_page() == 0)
         put_s(put_s(t, "PARTS: "), PART_N[ui.mixsel]);
@@ -4515,7 +4541,7 @@ static UI_DRAW void draw_knobs(void)
     last_sig = sig;
     cv_begin(240, KNOB_H, C_BLACK);
     {   /* the rule; at its right end, where you are: the tag, then the page dots */
-        char t[28];
+        char t[36];                    /* room for "303A P-LOCK STEP 16 · WBL1 (1/2)" */
         int dots = pg.n > 1 && ui.view != V_GLO;
         int32_t xd = 237 - (dots ? pg.n * 5 : 0), xt;
         knob_tag(t);

@@ -44,7 +44,7 @@ void motion_step(motion_t *m, int part, int pat, int step, int next, int pass)
         lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         int v, nv;
-        if (!l->used || l->part != part)
+        if (!l->used || l->t == MOT_SNAPSHOT || l->part != part)
             continue;
         if (r->gen != l->gen) {                        /* a reused slot: a fresh runtime */
             r->gen = l->gen;
@@ -111,7 +111,7 @@ void motion_tick(motion_t *m, uint32_t n)
         const lane_t *l = &m->lane[k];
         lane_rt_t *r = &m->rt[k];
         uint32_t L, a;
-        if (!r->ramp || !l->used || r->gen != l->gen || l->part >= MOT_PARTS)
+        if (!r->ramp || !l->used || l->t == MOT_SNAPSHOT || r->gen != l->gen || l->part >= MOT_PARTS)
             continue;
         L = m->len[l->part][r->part_parity];
         if (!L)
@@ -128,7 +128,7 @@ void motion_release(motion_t *m)
     int k, p;
     for (k = 0; k < NLANE; k++) {
         lane_rt_t *r = &m->rt[k];
-        if (m->lane[k].used && r->gen == m->lane[k].gen)
+        if (m->lane[k].used && m->lane[k].t != MOT_SNAPSHOT && r->gen == m->lane[k].gen)
             to_base(m, &m->lane[k], r);
         r->rec_last = MOT_NONE;
         r->hold_left = 0;
@@ -139,7 +139,7 @@ void motion_release(motion_t *m)
 
 int motion_value(const motion_t *m, int k)
 {
-    if (k < 0 || k >= NLANE || !m->lane[k].used || m->rt[k].gen != m->lane[k].gen)
+    if (k < 0 || k >= NLANE || !m->lane[k].used || m->lane[k].t == MOT_SNAPSHOT || m->rt[k].gen != m->lane[k].gen)
         return -1;
     return m->rt[k].applied == MOT_NONE ? -1 : m->rt[k].applied;
 }
@@ -198,4 +198,86 @@ void motion_req_hold(motion_t *m, int k)
 {
     if (k >= 0 && k < NLANE)
         m->rt[k].hold_req = 1;
+}
+
+static int snapshot_key(int pat, int part, int step)
+{
+    return (unsigned)pat < NPAT && (unsigned)(part - NKIT) < NBASS && (unsigned)step < NSTEPS;
+}
+
+int motion_snapshot_find(const lane_t *L, int pat, int part, int step)
+{
+    return L && snapshot_key(pat, part, step) ?
+        motion_find(L, pat, part, MOT_SNAPSHOT, step, MOT_SNAPSHOT_SCHEMA) : -1;
+}
+
+const uint8_t *motion_snapshot_read(const lane_t *L, int pat, int part, int step)
+{
+    int k = motion_snapshot_find(L, pat, part, step);
+    unsigned bank;
+    if (k < 0) return 0;
+    bank = *(const volatile uint8_t *)&L[k].val[NSTEPS - 1];
+    __asm__ volatile("" ::: "memory");
+    return bank == 0 || bank == MOT_SNAPSHOT_PARAMS ? L[k].val + bank : 0;
+}
+
+int motion_snapshot_engine(const lane_t *L, int pat, int part, int step)
+{
+    int k = motion_snapshot_find(L, pat, part, step);
+    const uint8_t *v = motion_snapshot_read(L, pat, part, step);
+    return v ? L[k].val[32 + (unsigned)(v - L[k].val) / MOT_SNAPSHOT_PARAMS] : 0;
+}
+
+int motion_snapshot_capture(lane_t *L, int pat, int part, int step, int engine, const uint8_t values[MOT_SNAPSHOT_PARAMS])
+{
+    int k, j, fresh = 0;
+    unsigned bank;
+    /* A local value copy also makes capture safe when values aliases this lane. */
+    uint8_t copy[MOT_SNAPSHOT_PARAMS];
+    if (!L || !values || !snapshot_key(pat, part, step) || (engine != 1 && engine != 2)) return -1;
+    for (j = 0; j < MOT_SNAPSHOT_PARAMS; j++) {
+        if (values[j] > 127) return -1;
+        copy[j] = values[j];
+    }
+    k = motion_snapshot_find(L, pat, part, step);
+    if (k < 0) {
+        for (k = 0; k < NLANE && L[k].used; k++) { }
+        if (k == NLANE) return -1;
+        fresh = 1;
+        L[k].pat = (uint8_t)pat; L[k].part = (uint8_t)part;
+        L[k].t = MOT_SNAPSHOT; L[k].v = (uint8_t)step; L[k].i = MOT_SNAPSHOT_SCHEMA;
+        L[k].rsv = 0;
+        for (j = 0; j < NSTEPS; j++) L[k].val[j] = MOT_NONE;
+        L[k].gen++;
+        bank = 0;
+    } else {
+        bank = L[k].val[NSTEPS - 1];
+        if (bank != 0 && bank != MOT_SNAPSHOT_PARAMS) return -1;
+        bank ^= MOT_SNAPSHOT_PARAMS;
+    }
+    for (j = 0; j < MOT_SNAPSHOT_PARAMS; j++) L[k].val[bank + j] = copy[j];
+    L[k].val[32 + bank / MOT_SNAPSHOT_PARAMS] = (uint8_t)engine;
+    __asm__ volatile("" ::: "memory");
+    *(volatile uint8_t *)&L[k].val[NSTEPS - 1] = (uint8_t)bank;
+    __asm__ volatile("" ::: "memory");
+    if (fresh) L[k].used = 1;
+    return k;
+}
+
+int motion_snapshot_edit(lane_t *L, int pat, int part, int step, int param, int value)
+{
+    const uint8_t *old;
+    uint8_t values[MOT_SNAPSHOT_PARAMS];
+    int j;
+    if ((unsigned)param >= MOT_SNAPSHOT_PARAMS || (unsigned)value > 127) return -1;
+    old = motion_snapshot_read(L, pat, part, step);
+    if (!old) return -1;
+    for (j = 0; j < MOT_SNAPSHOT_PARAMS; j++) values[j] = old[j];
+    values[param] = (uint8_t)value;
+    return motion_snapshot_capture(L, pat, part, step, motion_snapshot_engine(L, pat, part, step), values);
+}
+
+void motion_snapshot_remove(lane_t *L, int pat, int part, int step)
+{
+    motion_clear(L, motion_snapshot_find(L, pat, part, step));
 }
