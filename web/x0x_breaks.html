@@ -75,6 +75,8 @@
       <input type="checkbox" id="trim"> Trim silence</label>
     <label title="Stores new loops at 22 kHz instead of 44.1 kHz: twice as many fit, but they sound duller">
       <input type="checkbox" id="half"> 22 kHz (more room)</label>
+    <label title="Speeds loops up when you add them, then the device stretches them back so timing matches but the crunch stays (off by default)">
+      <input type="checkbox" id="oldschool"> Oldschool crunch</label>
   </div>
   <div class="full"><div id="fill"></div></div>
   <p id="room"></p>
@@ -131,7 +133,9 @@ function render() {
   loops.forEach((l, i) => {
     const r = document.createElement("div");
     r.className = l.isNew ? "loop new" : "loop";
-    r.innerHTML = `<div class="name">BR${i + 1}<small>${(l.n / l.rate).toFixed(1)} s${l.rate === RATE ? "" : " · 22k"}${l.isNew ? " · new" : ""}</small></div>
+    const rateTag = l.rate === RATE ? "" : l.rate === RATE_HALF ? " · 22k" : ` · ${(l.rate / 1000).toFixed(1)}k`;
+    const crunch = l.isNew && l.oldschool ? " · crunch" : "";
+    r.innerHTML = `<div class="name">BR${i + 1}<small>${(l.n / l.rate).toFixed(1)} s${rateTag}${crunch}${l.isNew ? " · new" : ""}</small></div>
       <canvas width="900" height="80"></canvas>
       <div class="acts"><button class="link rep">Replace</button><button class="link del">Remove</button></div>`;
     if (l.file) r.title = l.file;
@@ -236,8 +240,8 @@ async function addFiles(list, at = -1) {
     try {
       const { rate: srcRate, x } = await decode(f);
       if (!x.length) throw new Error("no audio");
-      const rate = newRate(), s = cut(x, srcRate, $("bars").checked, rate, $("trim").checked);
-      got.push({ adpcm: null, n: s.length, s, rate, file: f.name, isNew: true, srcRate, x });
+      const storageRate = newRate(), { s, rate } = cutLoop(x, srcRate, $("bars").checked, storageRate, $("trim").checked, $("oldschool").checked);
+      got.push({ adpcm: null, n: s.length, s, rate, file: f.name, isNew: true, srcRate, x, oldschool: $("oldschool").checked });
     } catch (_) { bad.push(f.name); }
   }
   say(bad.length ? `Couldn't read ${bad.join(", ")}.` : "");
@@ -469,16 +473,22 @@ $("files").onchange = (ev) => { addFiles([...ev.target.files], replaceAt); ev.ta
 document.body.ondragover = (ev) => { if (readOk) { ev.preventDefault(); $("list").classList.add("over"); } };
 document.body.ondragleave = (ev) => { if (!ev.relatedTarget) $("list").classList.remove("over"); };
 document.body.ondrop = (ev) => { ev.preventDefault(); $("list").classList.remove("over"); addFiles([...ev.dataTransfer.files]); };
-$("bars").onchange = $("trim").onchange = $("half").onchange = () => {   // the new loops, cut again
+function recutNewLoops() {
   for (const l of loops)
     if (l.isNew) {
-      l.rate = newRate();
-      l.s = cut(l.x, l.srcRate, $("bars").checked, l.rate, $("trim").checked);
-      l.n = l.s.length;
-      l.adpcm = null;
+      const storageRate = newRate();
+      try {
+        ({ s: l.s, rate: l.rate } = cutLoop(l.x, l.srcRate, $("bars").checked, storageRate, $("trim").checked, $("oldschool").checked));
+        l.oldschool = $("oldschool").checked;
+        l.n = l.s.length;
+        l.adpcm = null;
+      } catch (e) {
+        say(e.message || String(e));
+      }
     }
   render();
-};
+}
+$("bars").onchange = $("trim").onchange = $("half").onchange = $("oldschool").onchange = recutNewLoops;
 render();
 </script>
 </body>

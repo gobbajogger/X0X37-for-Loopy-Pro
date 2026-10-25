@@ -81,10 +81,17 @@ def main():
     h_n, _ = up.build("SHOT", [str(shot)], trim=False)
     nt, nn = struct.unpack_from("<I", h_t, 36)[0], struct.unpack_from("<I", h_n, 36)[0]
     check(nt < nn * 0.4 and abs(nt - (0.3 + 0.006) * sio.SLOT_RATE) < 30, f"one-shot: trimmed by default ({nn} -> {nt} samples)")
-    full = ub.cut(shot, False)
-    trimmed = ub.cut(shot, False, 44100, True)
+    full, _ = ub.cut(shot, False)
+    trimmed, __ = ub.cut(shot, False, 44100, True)
     check(len(full) == len(sio.resample(sio.read_any_wav(shot)[1], 44100, 44100)) and len(trimmed) < len(full),
           f"loops: not trimmed by default ({len(full)} samples), --trim cuts ({len(trimmed)})")
+    crunchy, pr = ub.cut(shot, False, 44100, False, True)
+    check(pr == 22050 and len(crunchy) < len(full) * 0.6 and len(crunchy) >= sio.MIN_LOOP_SAMPLES,
+          f"--oldschool: playback {pr} Hz, fewer samples ({len(full)} -> {len(crunchy)})")
+    dev = MockDevice(2, 80 * 1024)
+    run_upload(dev, ["--oldschool", str(loops[0])])
+    z = xs.parse_header(bytes(dev.flash[0][:xs.HDR_LEN]))["zones"][0]
+    check(z["rate"] == 22050 and z["n"] < 88200, "--oldschool upload: zone rate 22050, sped-up sample count")
     print("upload tools: all ok" if not FAILS else "UPLOAD TOOLS FAILED")
     return 1 if FAILS else 0
 
