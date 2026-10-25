@@ -14,7 +14,7 @@ Agents run every applicable test in their own environment with the tools that ma
 
 When Project PRs are mergeable after local proof, merge them. Do not leave them parked in For Review. Automatic merge of properly tested work is pre-approved by the owner — no per-PR human APPROVE, and never ask the owner to approve a merge.
 
-Use `tools/merge_project_prs.py` (prefer `--dry-run` first). It walks open `cursor/` Project PRs bottom-up, uses a normal merge commit (no force-push), skips real conflicts and records the skip, and treats GitHub Actions / billing failures as non-blocking. Prefer GitHub auto-merge when the API allows it; otherwise merge directly (including `--admin` when a bypass actor exists).
+Use `tools/merge_project_prs.py --pr N` (and/or `--head SHA`) after local proof of those exact heads (prefer `--dry-run` first). Standing pre-approval does not merge unrelated untested `cursor/` PRs. The tool walks the proven set bottom-up, uses a normal merge commit (no force-push), skips real conflicts and records the skip, and treats GitHub Actions / billing failures as non-blocking. Prefer GitHub auto-merge when the API allows it; if auto-merge is armed but required Actions failed (billing), fall through to direct/`--admin` merge. After a stack parent merges, retarget remaining children to the parent's base (usually `main`) before merging them so the tip reaches trunk.
 
 This path does not race stage 5. Stage 5 remains the only integrator that fast-forwards firmware `nightly`. Do not merge into `nightly` here. Do not merge production `main` from unvalidated firmware bytes; firmware `main` moves only after a successful hardware validation of those exact bytes.
 
