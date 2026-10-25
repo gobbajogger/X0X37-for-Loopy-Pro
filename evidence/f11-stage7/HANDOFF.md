@@ -18,10 +18,12 @@ Label: `DEV / HARDWARE TEST — DEVICE NOT TESTED`; `hardware_tested` false.
 Evidence: `evidence/f11-stage7/CHECKS.md`, `live-verify.log`, `independent-qa-local-review.md`, `safety-gates-note.md`.
 Cloud pages worker: `bc-1b875c0d-27fd-5a1e-91ec-eb99da1303c9`.
 Successor prompt: `evidence/f11-stage7/SUCCESSOR-STAGE1.txt`.
-Successor agent id: none.
-Successor URL: none.
-Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
-Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip.
+Successor agent id: `bc-3fbb0761-3307-572f-a879-07db26c01207`.
+Successor URL: https://cursor.com/agents/bc-3fbb0761-3307-572f-a879-07db26c01207
+Successor name: F12 defect audit.
+Successor startingRef: `cursor/f11-bf007-stage7-179d` @ `96bf3d2e`.
+Successor source: coordinator CreateAgent (pod had no `CURSOR_API_KEY`).
+Handoff status: **complete** — owner-visible Stage 1 recorded.
 
 ## Scope for stage 1
 

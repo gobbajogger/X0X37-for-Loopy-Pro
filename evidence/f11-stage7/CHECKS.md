@@ -70,4 +70,4 @@ Production `main` / production Pages unchanged. No device flash. Deferred: `evid
 
 ## Overall
 
-**PUBLISHED LIVE** for validated source `4f96b0d9…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 successor pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
+**PUBLISHED LIVE** for validated source `4f96b0d9…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 successor: `bc-3fbb0761-3307-572f-a879-07db26c01207` (F12 defect audit; startingRef tip `96bf3d2e`).
