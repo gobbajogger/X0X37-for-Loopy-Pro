@@ -12,6 +12,7 @@ Cross-check `origin/nightly` (post-reunify): `5e6d7e4ea387c42722d2704bdb43ef04f7
 BF-008 already in tip: `de11b6d7` (`fastmath.h` defined unsigned shift) — do not reopen.
 Selected defect: **BF-012** — MASTER LIMIT OFF→ON stale look-ahead in `firmware/src/dsp/master.c` blob `b5557b6c…`.
 Evidence: `evidence/f13-stage1/AUDIT.md`, `CHECKS.md`, `live-verify.log`, `bf012-definition.md`, `bf012-witness.log`, `bf012-scratch-clear.log`, `master-tip-baseline.log`.
+Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/291
 Successor prompt: `evidence/f13-stage1/SUCCESSOR-STAGE2.txt`.
 Successor agent id: none.
 Successor URL: none.
