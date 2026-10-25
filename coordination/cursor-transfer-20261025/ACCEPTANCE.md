@@ -115,6 +115,12 @@ Result readers once a placed run exists: Task completion for a worker this run s
 
 License and flash, unchanged by this route gap: no new license confirmation is required. MIT may cover specific original source. GPL and controller notices stay. Proprietary KORG plugin restrictions stay. No proprietary binary, raw capture, or SDK upload. Flash remains outside this transfer and needs an exact authorized qualified candidate plus sole device ownership.
 
+## Local placement check, fail closed
+
+Owner trigger comment `6399253761` asked for one read-only check on worker label `cursor-agent-worker-442675cf18` / worker `83d16cde-07a3-5bce-81a3-2234761197a1`. The instruction was to fail closed when the target name does not match, and not to fall back to cloud.
+
+This run is still `bc-919ca392-4052-45c0-80e5-88778518dfc7`. `run-info` after that comment: `privateWorkerId` null, `usePrivateWorker` false, source `scm`. The follow-up marker on that comment links this same agent. The named worker is still idle: `isInUse` false, `activeBcId` null. `list-cloud-agents` created after `2026-10-25T15:03:00Z` returned 0, including self-hosted. No placed check exists to reconcile, and this coordinator does not accept the check. No OS, toolchain, or reference-setup probe was run here. No competing local request was issued. Schema, source, device, and Pages ownership are unchanged. Flash is not approved.
+
 ## Next assignments
 
 Recorder and Miami stay one schema owner: `bc-919ca392-4052-45c0-80e5-88778518dfc7`. No second migration writer.
