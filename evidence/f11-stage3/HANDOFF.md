@@ -18,9 +18,10 @@ Test evidence: `evidence/f11-stage3/CHECKS.md`.
 Implement evidence: `evidence/f11-stage2/CHECKS.md`, `evidence/f11-stage2/DEFERRED.md`.
 Audit record: `evidence/f11-stage1/AUDIT.md`.
 Successor prompt: `evidence/f11-stage3/SUCCESSOR-STAGE4.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 4 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create expected → 401); coordinator CreateAgent is required.
+Successor agent id: `bc-283a6d11-1c65-5746-9fd3-3d5878784dfc`.
+Successor URL: `https://cursor.com/agents/bc-283a6d11-1c65-5746-9fd3-3d5878784dfc`.
+Successor name: F11 package validate.
+Handoff status: **complete** — owner-visible Stage 4 recorded via coordinator CreateAgent (`startingRef` `cursor/f11-bf007-stage3-fb90` @ `19b47b639e7767a322310e49accb14fbc3feaa15`). Pod had no `CURSOR_API_KEY`; no second Stage 4 created. PR #261 local-env review subscribed (`sub_dcd7741b…`); review worker `bc-3045e841-2573-5be4-b6bc-f9b5ed262f58`.
 
 ## Test summary
 
