@@ -1,0 +1,6 @@
+PASS: original303/adapter exhaustive pot sweep, note/slide/velocity, variable blocks, lite transitions, identity rejection, boundary acknowledgement, cleanup, retained settings, ticket wrap
+host: 7486 ms simulated, 55 blits, render 0.3% of real time (host CPU)
+host: playing, 966 instructions / sample (mean), 1189 in the worst block
+host: 7486 ms simulated, 55 blits, render 0.3% of real time (host CPU)
+host: playing, 964 instructions / sample (mean), 1205 in the worst block
+PASS integrated whole-app original/adapter WAV identical: 1267756 bytes sha256=a75af3fc060631d1140b3970ae7a7a492e9937a60f88f852e4e4f85f8d7f7030 base=08d3164a265123cb4c84e5104642fd93257d63d7

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "stage": "original host DSP prototype",
+  "baseCommit": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "contractSha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3",
+  "inputs": {
+    "miami-feasibility.txt": "4df9c3aff26474a214360561293f5575e39e5170def2de3e5be7e798e8ddb9e8",
+    "reuse-assessment.txt": "e8a707129b99eb3fdeccefed075de21aa5a332ba7a7aef781af112fdb826daa7",
+    "Miami-parameters.json": "1fef42c33489c27069f7cb91e0b81ecdca4a05c9e013ef19d4e19e8211391021",
+    "REPORT.md": "70636cf8b6fc3045761f3af4499738303a174147ecbf9d61e5e7598c9b9168cd"
+  },
+  "compiledObjectSha256": "7ca4a6e9bfd950995fc50c72a0d51d4a286b8b2f724eb7a0d2860594bc3b6a4f",
+  "sourceSha256": {
+    "wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43",
+    "blep.h": "b95e129e11b13b1b56b34ac8be253f6c2e0f04fba11b4874d78dfd483749f4a3",
+    "render.c": "8a181e72eba4bb2edd1a56e74cc8013fda7e3671cb8ecac5a59a5667394585e2",
+    "run.sh": "ee4b25a4a6a780157332434e402ea2fd198e8672414db73ee19fac7871d0383f",
+    "compare_history.py": "3aa1892547f5ac6312aaed9a53c9017d65c5c729b5bbc0c543b544883c0ac1a0",
+    "test_wobble.c": "77328a30dae77ec1372cee07a650dbd2da8d4c0b634e84f5ef105c502391b2ee",
+    "wobble.h": "cdb22d828f029e02a7d8b58cc02426626d6dc3faaf725fabad4ab9c64b09f751",
+    "test_compare.py": "90b4101013e10d94a45bd5ebf5ad2cd85ab6c49f144a0856dd29079482950b3b",
+    "compare.py": "29913fc490bf2aaa176deb762a9d9d11ce3bb2d97457fe56291dffe23a7e4bfc",
+    "foundation_adapter.h": "c3ab5f64ccfae2a6db644c96722dcb21ec3e2f87981040d5ddf22aaf3fcc263a",
+    "test_foundation.c": "f7c416521fe792287b9670985bb4aae5356e3c6908ce37e24f6b6ed519d7941b"
+  },
+  "status": {
+    "hostBehavior": "PASS",
+    "sanitizers": "PASS",
+    "methodology": "PASS",
+    "freshPitch": "PASS",
+    "freshEnvelope": "FAIL",
+    "freshSpectrum": "FAIL",
+    "referenceSpectralHistory": "FAIL",
+    "firmwareIntegration": "NOT_RUN",
+    "nativeFit": "NOT_RUN",
+    "hardware": "NOT_RUN"
+  },
+  "licenseSelection": "MIT DaisySP Polyblep only; project GPL helpers; no Plaits copied",
+  "foundationCompatibility": {
+    "sourceCommit": "6f717e216390ffca0d20be9e2204ab401ad09792",
+    "synthEngineHeaderBlob": "2ce3c273bfb48bd5e3b5b2719b4df8255555352b",
+    "bass303HeaderBlob": "085b8521f7410ef03bd53aa82961ace51eaf5b60",
+    "sampleRate": 44100,
+    "stateBytes": 144,
+    "temporaryStackArrayBytes": 1024,
+    "normalTest": "PASS",
+    "addressUndefinedSanitizers": "PASS",
+    "firmwareRegistration": "NOT_RUN"
+  }
+}

@@ -1,0 +1,18 @@
+check_locked_settings: 20 settings ok
+/opt/jieli/pi32v2/bin/ld: build/smk37-elite/x0x.elf section `.ram_text' will not fit in region `XIP'
+/opt/jieli/pi32v2/bin/ld: build/smk37-elite/x0x.elf section `.bss' will not fit in region `RAM'
+/opt/jieli/pi32v2/bin/ld: section .pool VMA [0000000001c20000,0000000001c71f7b] overlaps section .bss VMA [0000000001c08180,0000000001c20723]
+/opt/jieli/pi32v2/bin/ld: region `XIP' overflowed by 1836 bytes
+/opt/jieli/pi32v2/bin/ld: region `RAM' overflowed by 1828 bytes
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 2316 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 3254 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 4229 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 4323 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 4863 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 3585 B
+font set barlow: 23042 B (approx)
+gen_drum_samples: 110549 frames (55275 bytes of ADPCM, 221098 as int16) -> x0x_drum_samples.h; tanh 1026 + 19 pot curves -> x0x_drum_tables.h
+loader: image 8588 B at 0x1c0a800, bss end 0x1c0f690
+loader: ota.bin 7280 B
+builtin break: A 220500 + B 220500 samples, 220500 bytes of flash
+build: pi32v2/bin/ld failed

@@ -6,6 +6,10 @@
 #include "../dsp/drum909.h"
 #include "../dsp/drum808.h"
 #include "../dsp/synth_engine.h"
+#if X0X_DEV_WOBBLE
+#include "../dsp/wobble_backend.h"
+static wobble_t dev_wobble;
+#endif
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
@@ -828,12 +832,14 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
         }
         PROF_ADD(PR_909, p9);
     }
+#if !X0X_DEV_WOBBLE
     for (b = 0; b < NBASS; b++) {
         PROF_T(pb);
         idle[b] = synth_idle(&bass_slot[b]);                           /* idle: the render writes zeros */
         synth_render(&bass_slot[b], bb[b], (int)n);
         PROF_ADD(2 + b, pb);
     }
+#endif
     pt = plat_cycles();
 #if X0X_DEBUG
     eng_dbg_nsub++;
@@ -863,11 +869,29 @@ static void render_sub(float *out_l, float *out_r, uint32_t n)
     }
     for (b = 0; b < NBASS; b++) {
         int p = PART_303A + b;
+#if X0X_DEV_WOBBLE
+        /* Render/mix one part at a time after core2 has finished. Existing output
+         * buffers become planar scratch; no extra stereo BSS or stack arrays. */
+        PROF_T(pb);
+        idle[b] = synth_idle(&bass_slot[b]);
+        if (!wobble_backend_stereo(&bass_slot[b], bb[b], bb[1-b], (int)n))
+            synth_render(&bass_slot[b], bb[b], (int)n);
+        PROF_ADD(2 + b, pb);
+#endif
         if (idle[b])
             continue;
         mix_targets(p, mix_level[p], solo_parts);
+#if X0X_DEV_WOBBLE
+        if (bass_slot[b].active.ops == &wobble_foundation_ops) {
+            add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
+            add_glide(dry_r, bb[1-b], &mix_glide[p][GL_R], n);
+            for (i=0; i<n; ++i) bb[b][i] = .5f * (bb[b][i] + bb[1-b][i]);
+        } else
+#endif
+        {
         add_glide(dry_l, bb[b], &mix_glide[p][GL_L], n);
         add_glide(dry_r, bb[b], &mix_glide[p][GL_R], n);
+        }
         add_glide(rev, bb[b], &mix_glide[p][GL_REV], n);
         add_glide(dly, bb[b], &mix_glide[p][GL_DLY], n);
         meter(p, bb[b], mix_level[p], n);
@@ -1152,6 +1176,12 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     drum808_init(&d808);
     synth_init(&bass_slot[0], synth303_binding(&b303[0]));
     synth_init(&bass_slot[1], synth303_binding(&b303[1]));
+#if X0X_DEV_WOBBLE
+    /* Private integration fixture: prepare on main core; commit at audio boundary.
+     * No UI, old lock reinterpretation, project serialization or public switch API. */
+    wobble_foundation_init(&dev_wobble);
+    synth_request(&bass_slot[0], wobble_foundation_binding(&dev_wobble), 0);
+#endif
     breaks_init(&brk);
     fxbus_init(&fx, dly_buf, DLY_LEN);
     master_init(&mst);

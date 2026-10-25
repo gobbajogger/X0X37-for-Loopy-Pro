@@ -1,0 +1,7 @@
+check_locked_settings: 20 settings ok
+/opt/jieli/pi32v2/bin/ld: build/smk37/x0x.elf section `.c1_text' will not fit in region `XIP'
+/opt/jieli/pi32v2/bin/ld: region `XIP' overflowed by 716 bytes
+generate: cached font, drums, and break bank
+loader: image 8584 B at 0x1c0a800, bss end 0x1c0f690
+loader: ota.bin 7276 B
+build: pi32v2/bin/ld failed
