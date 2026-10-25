@@ -44,11 +44,14 @@ static void engine_smc_solo(int parts) { output_solo=parts; clear_calls++; }
 static void engine_smc_solo_targets(uint8_t parts,uint16_t a,uint16_t b)
 { output_solo=(int)parts | (int)(a!=0)<<8 | (int)(b!=0)<<9; }
 static void ui_say(const char *a,const char *b){(void)a;(void)b;}
-#define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
+static void smc_ui_cancel(void) {}
 static void smc_guarded_button(uint8_t note,int mmc,int allow);
-#define smc_ui_cancel() ((void)0) /* Presentation is exercised by smc_ui_test.c. */
+static int smc_lock_button(int pressed);
 '''
 stubs=r'''
+/* Release-only API in this isolated Solo queue fixture; full lock coverage is separate. */
+static int smc_lock_button(int pressed)
+{ assert(!pressed); smc.lock_down=0; return 0; }
 static uint8_t smc_message(const uint8_t *m,uint8_t n,int allow)
 {
  /* Simulated producer ISR runs AFTER the BLE drain, while a host event

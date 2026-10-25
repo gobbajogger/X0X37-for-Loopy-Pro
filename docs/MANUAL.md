@@ -288,10 +288,22 @@ A **tie** holds the note before it through the step, so it doesn't play again. O
 tied note joins the note it holds in one long bar. Turning KNOB 1 on a tie makes it a note of
 its own.
 
+For a longer bass note, enter a NOTE, then set each following step to TIE with
+KNOB 2. For example, `NOTE C2 | TIE | TIE | REST` sounds one C2 across three
+step positions, with no new attack on the ties. The final tie releases halfway
+through its step, as a normal note does. To glide into a new pitch instead, use
+SLIDE on the step before that NOTE. The part's RATE sets the time between steps;
+adding ties extends a note without changing that rate.
+
 **Keyboard.** Press REC and all 27 keys become a keyboard (KEYS shows on the top line). The
 notes you play are written: step by step while the pattern is stopped, live while it plays.
 OCT- and OCT+ change the octave. Play a key while still holding another and the 303 slides
 between them. Press REC again to go back to steps.
+
+While stopped with REC on, enter the note, then hold LFO and press OCT- or OCT+
+once for each continuation TIE. Hold ENV and press OCT- or OCT+ to insert a REST.
+Live recording currently writes a NOTE when you press a key; holding that key
+does not automatically write ties. Add the ties in SEQ after recording.
 
 **Free play.** To play the 303 without writing anything, press SEQ, turn SELECT to the KEYS page
 and set FREE PLAY to ON. The keys then play the 303 on every 303 screen, stopped or playing, so

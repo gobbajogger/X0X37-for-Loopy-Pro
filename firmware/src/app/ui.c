@@ -105,6 +105,7 @@ static void mark_dirty(void) { ui.dirty = 1; }
 
 static uint8_t save_wait;
 static uint8_t project_busy, project_revision;
+static uint32_t song_structure_revision; /* runtime identity epoch for frozen song-bar controls */
 int ui_project_busy(void) { return project_busy != 0; }
 X0X_COLD static void project_input_sync(void)
 {
@@ -320,6 +321,7 @@ static int pref_read_only(pref_t r)
 static void song_fill(int k)
 {
     song_t *sg = song();
+    if (sg->len <= k && sg->len < NSONG) song_structure_revision++;
     while (sg->len <= k && sg->len < NSONG) {
         song_bar_t *b = &sg->bar[sg->len];
         int p;
@@ -396,18 +398,28 @@ static const x0x_param_t *pref_desc(pref_t r)
     }
 }
 
+/* SMC snapshots use the otherwise-unused b byte on pattern refs to bind an
+ * exact pattern (index + 1). Ordinary panel refs keep b=0 and follow playback. */
+static pattern_t *pref_pattern(pref_t r)
+{
+    if (r.kind < R_SWING || r.kind > R_BRKSLOT) return cur_pat();
+    if (r.b) return &proj.pat[r.b - 1u];
+    if (r.kind >= R_GEN) return cur_pat();
+    return pat_of(r.kind == R_SWING ? PART_909 : r.kind == R_DLEN || r.kind == R_DRATE ? r.a : NKIT + r.a);
+}
+
 static int pref_get(pref_t r)
 {
-    pattern_t *p = cur_pat();
+    pattern_t *p = pref_pattern(r);
     switch (r.kind) {
     case R_ENG: return proj.sound.v[r.a][r.b][r.c];
-    case R_SWING: return pat_of(PART_909)->swing;
-    case R_DLEN: return pat_of(r.a)->drum[r.a].len - 1;
-    case R_DRATE: return pat_of(r.a)->drum[r.a].rate;
-    case R_BLEN: return pat_of(NKIT + r.a)->bass[r.a].len - 1;
-    case R_BRATE: return pat_of(NKIT + r.a)->bass[r.a].rate;
-    case R_BDIR: return pat_of(NKIT + r.a)->bass[r.a].dir;
-    case R_BTRANS: return pat_of(NKIT + r.a)->bass[r.a].transpose;
+    case R_SWING: return p->swing;
+    case R_DLEN: return p->drum[r.a].len - 1;
+    case R_DRATE: return p->drum[r.a].rate;
+    case R_BLEN: return p->bass[r.a].len - 1;
+    case R_BRATE: return p->bass[r.a].rate;
+    case R_BDIR: return p->bass[r.a].dir;
+    case R_BTRANS: return p->bass[r.a].transpose;
     case R_GEN: {
         const tb3po_cfg_t *g = &p->bass[r.a].gen;
         switch (r.c) {
@@ -434,14 +446,18 @@ static int pref_get(pref_t r)
     case R_SBAR: return ui.song_sel;
     case R_SPAT: {
         const song_t *sg = song();
-        int k = ui.song_sel < sg->len ? ui.song_sel : sg->len - 1;
+        int bar = r.b ? r.b - 1u : ui.song_sel;
+        int k = bar < sg->len ? bar : r.b ? -1 : sg->len - 1;
         return k >= 0 ? sg->bar[k].pat[r.a] : seq.ppat[r.a];
     }
     case R_MIDICH: return seq.ch[r.a % NPARTS] == SEQ_CH_OFF ? 0 : seq.ch[r.a % NPARTS] + 1;
     case R_OUTLOUD: return proj.set.out_loud;
     case R_USBFULL: return proj.set.usb_full;
     case R_FREEPLAY: return ui.freeplay[r.a];
-    case R_SREP: return ui.song_sel < song()->len ? song()->bar[ui.song_sel].mute >> 5 : 0;
+    case R_SREP: {
+        unsigned bar = r.b ? r.b - 1u : ui.song_sel;
+        return bar < song()->len ? song()->bar[bar].mute >> 5 : 0;
+    }
     case R_BATT: return plat_battery() < 0 ? 5 : plat_battery();
     case R_BT: return proj.set.bt & 1u;
     case R_SMC_ROLE: return !!(proj.set.bt & PROJ_BT_SMC_CENTRAL);
@@ -458,7 +474,7 @@ static int pref_get(pref_t r)
 
 X0X_COLD static void pref_set(pref_t r, int v)
 {
-    pattern_t *p = cur_pat();
+    pattern_t *p = pref_pattern(r);
     const x0x_param_t *d = pref_desc(r);
     if (!d || r.kind == R_ACT || pref_read_only(r))
         return;
@@ -474,13 +490,13 @@ X0X_COLD static void pref_set(pref_t r, int v)
         else if (r.a == T_MST && r.c == MST_DJF)
             master_djf_pots(v, &proj.sound.v[T_MST][0][MST_MODE], &proj.sound.v[T_MST][0][MST_CUTOFF]);
         break;
-    case R_SWING: pat_of(PART_909)->swing = (uint8_t)v; break;
-    case R_DLEN: pat_of(r.a)->drum[r.a].len = (uint8_t)(v + 1); break;
-    case R_DRATE: pat_of(r.a)->drum[r.a].rate = (uint8_t)v; break;
-    case R_BLEN: pat_of(NKIT + r.a)->bass[r.a].len = (uint8_t)(v + 1); break;
-    case R_BRATE: pat_of(NKIT + r.a)->bass[r.a].rate = (uint8_t)v; break;
-    case R_BDIR: pat_of(NKIT + r.a)->bass[r.a].dir = (uint8_t)v; break;
-    case R_BTRANS: pat_of(NKIT + r.a)->bass[r.a].transpose = (uint8_t)v; break;
+    case R_SWING: p->swing = (uint8_t)v; break;
+    case R_DLEN: p->drum[r.a].len = (uint8_t)(v + 1); break;
+    case R_DRATE: p->drum[r.a].rate = (uint8_t)v; break;
+    case R_BLEN: p->bass[r.a].len = (uint8_t)(v + 1); break;
+    case R_BRATE: p->bass[r.a].rate = (uint8_t)v; break;
+    case R_BDIR: p->bass[r.a].dir = (uint8_t)v; break;
+    case R_BTRANS: p->bass[r.a].transpose = (uint8_t)v; break;
     case R_GEN: {
         tb3po_cfg_t *g = &p->bass[r.a].gen;
         switch (r.c) {
@@ -503,7 +519,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
             p->brk.slot_b = (uint8_t)v;
         else
             p->brk.slot_a = (uint8_t)v;
-        engine_brk_loops();
+        if (!r.b || p == pat_of(PART_BRK)) engine_brk_loops();
         ui.outline_ok = 0;
         break;
     case R_TEMPO: seq.bpm = (float)(v + 20); break;
@@ -515,10 +531,13 @@ X0X_COLD static void pref_set(pref_t r, int v)
     case R_KEYSOUND: proj.set.keysound = (uint8_t)v; break;
     case R_AUTOSAVE: proj.set.autosave_off = (uint8_t)!v; ui.last_autosave = (uint8_t)!v; break;
     case R_SBAR: ui.song_sel = (uint8_t)v; break;
-    case R_SPAT:
-        song_fill(ui.song_sel);
-        song()->bar[ui.song_sel].pat[r.a] = (uint8_t)v;
+    case R_SPAT: {
+        unsigned bar = r.b ? r.b - 1u : ui.song_sel;
+        if (r.b && bar >= song()->len) break; /* a deleted locked bar stays deleted */
+        song_fill((int)bar);
+        song()->bar[bar].pat[r.a] = (uint8_t)v;
         break;
+    }
     case R_MIDICH: seq.ch[r.a % NPARTS] = (uint8_t)(v ? v - 1 : SEQ_CH_OFF); break;
     case R_OUTLOUD: proj.set.out_loud = (uint8_t)v; engine_out_loud(v); break;
     case R_USBFULL: proj.set.usb_full = (uint8_t)v; engine_usb_full(v); break;
@@ -550,14 +569,15 @@ X0X_COLD static void pref_set(pref_t r, int v)
             kbd_held_key[r.a] = 0;
         }
         break;
-    case R_SREP:
-        if (ui.song_sel < NSONG) {
-            song_bar_t *b;
-            song_fill(ui.song_sel);
-            b = &song()->bar[ui.song_sel];
+    case R_SREP: {
+        unsigned bar = r.b ? r.b - 1u : ui.song_sel;
+        if (bar < NSONG && (!r.b || bar < song()->len)) {
+            song_fill((int)bar);
+            song_bar_t *b = &song()->bar[bar];
             b->mute = (uint8_t)((b->mute & 0x1Fu) | v << 5);
         }
         break;
+    }
     case R_TAPE: {                                    /* 0..15 the clean digital delay; above, tape, wearing */
         uint8_t ty = (uint8_t)(v >= 16), we = (uint8_t)(ty ? (v - 16) * 127 / 111 : proj.sound.v[T_FX][0][FX_DL_WEAR]);
         proj.sound.v[T_FX][1][0] = (uint8_t)v;
@@ -573,6 +593,7 @@ X0X_COLD static void pref_set(pref_t r, int v)
         perf.have = 0;                                /* the next window starts the counts again */
         break;
     case R_SLEN:
+        if (v != song()->len) song_structure_revision++;
         if (v > song()->len)
             song_fill(v - 1);
         else
@@ -1452,6 +1473,7 @@ static void do_undo(int redo)
         say(redo ? "NOTHING TO REDO" : "NOTHING TO UNDO", 0);
         return;
     }
+    song_structure_revision++;                     /* undo may restore/reorder song bars */
     if (undo_lanes)
         engine_motion_reset();
     engine_brk_loops();
@@ -1793,11 +1815,13 @@ X0X_COLD static void run_action(int act, int arg)
                 sg->bar[i] = sg->bar[i + 1];
             sg->len--;
         }
+        song_structure_revision++;
         mark_dirty();
         say(act == ACT_SONG_INS ? "BAR INSERTED" : "BAR DELETED", 0);
         break;
     }
     case ACT_SONG_CLR:
+        song_structure_revision++;
         song()->len = 0;
         ui.song_sel = 0;
         mark_dirty();
@@ -3158,28 +3182,31 @@ static void px_blend(int32_t x, int32_t y, uint16_t c, uint32_t a)
  * loop (corners_init) calculated, to the byte. */
 #define RMAX 8
 static const uint8_t CORNER_OFF[RMAX + 1] = {0, 0, 1, 5, 14, 30, 55, 91, 140};
-static const uint8_t CORNER_FILL[204] = {
-    13,   /* r 1 */
-    6, 15, 15, 16,   /* r 2 */
-    0, 9, 15, 9, 16, 16, 15, 16, 16,   /* r 3 */
-    0, 3, 11, 16, 3, 15, 16, 16, 11, 16, 16, 16, 16, 16, 16, 16,   /* r 4 */
-    0, 0, 5, 12, 16, 0, 10, 16, 16, 16, 5, 16, 16, 16, 16, 12, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 5 */
-    0, 0, 0, 7, 13, 16, 0, 1, 13, 16, 16, 16, 0, 13, 16, 16, 16, 16, 7, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 6 */
-    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 16, 16, 16, 0, 6, 16, 16, 16, 16, 16, 2, 15, 16, 16, 16, 16, 16, 9, 16, 16, 16, 16, 16, 16, 13, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 7 */
-    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 16, 16, 16, 16, 0, 1, 13, 16, 16, 16, 16, 16, 0, 9, 16, 16, 16, 16, 16, 16, 3, 16, 16, 16, 16, 16, 16, 16, 10, 16, 16, 16, 16, 16, 16, 16, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,   /* r 8 */
+/* Lossless nibble encoding: coverage 8 is absent, so nibble 8 encodes 16.
+ * FILL's 204 values precede RING's 204 values. Every other coverage is literal. */
+static const uint8_t CORNER_PACKED[204] = {
+    0x6d, 0xff, 0x08, 0xf9, 0x89, 0xf8, 0x88, 0x30, 0x8b, 0xf3, 0x88, 0x8b, 0x88, 0x88, 0x88, 0x00,
+    0xc5, 0x08, 0x8a, 0x88, 0x85, 0x88, 0xc8, 0x88, 0x88, 0x88, 0x88, 0x08, 0x00, 0xd7, 0x08, 0xd1,
+    0x88, 0x08, 0x8d, 0x88, 0x78, 0x88, 0x88, 0xd8, 0x88, 0x88, 0x88, 0x88, 0x88, 0x08, 0x00, 0x92,
+    0x8d, 0x00, 0xf6, 0x88, 0x08, 0x86, 0x88, 0x88, 0xf2, 0x88, 0x88, 0x98, 0x88, 0x88, 0x88, 0x8d,
+    0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x00, 0x00, 0xa3, 0x8e, 0x00, 0x91, 0x88, 0x88, 0x10, 0x8d,
+    0x88, 0x88, 0x90, 0x88, 0x88, 0x88, 0x83, 0x88, 0x88, 0x88, 0x8a, 0x88, 0x88, 0x88, 0x8e, 0x88,
+    0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x6d, 0xff, 0x03, 0xf9, 0xa9, 0xf1, 0x01, 0x30, 0x8b, 0xf3,
+    0x17, 0x7b, 0x00, 0x18, 0x00, 0x00, 0xc5, 0x08, 0xda, 0x05, 0xd5, 0x01, 0xc0, 0x05, 0x00, 0x08,
+    0x00, 0x00, 0x00, 0xd7, 0x08, 0xd1, 0x4b, 0x00, 0x6d, 0x00, 0x70, 0x0b, 0x00, 0xd0, 0x04, 0x00,
+    0x80, 0x00, 0x00, 0x00, 0x00, 0x92, 0x8d, 0x00, 0xf6, 0x39, 0x00, 0xf6, 0x03, 0x00, 0xf2, 0x03,
+    0x00, 0x90, 0x09, 0x00, 0x00, 0x3d, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa3, 0x8e,
+    0x00, 0x91, 0x7e, 0x03, 0x10, 0xad, 0x01, 0x00, 0x90, 0x0a, 0x00, 0x00, 0xe3, 0x01, 0x00, 0x00,
+    0x7a, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
 };
-static const uint8_t CORNER_RING[204] = {
-    13,   /* r 1 */
-    6, 15, 15, 3,   /* r 2 */
-    0, 9, 15, 9, 10, 1, 15, 1, 0,   /* r 3 */
-    0, 3, 11, 16, 3, 15, 7, 1, 11, 7, 0, 0, 16, 1, 0, 0,   /* r 4 */
-    0, 0, 5, 12, 16, 0, 10, 13, 5, 0, 5, 13, 1, 0, 0, 12, 5, 0, 0, 0, 16, 0, 0, 0, 0,   /* r 5 */
-    0, 0, 0, 7, 13, 16, 0, 1, 13, 11, 4, 0, 0, 13, 6, 0, 0, 0, 7, 11, 0, 0, 0, 0, 13, 4, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0,   /* r 6 */
-    0, 0, 0, 2, 9, 13, 16, 0, 0, 6, 15, 9, 3, 0, 0, 6, 15, 3, 0, 0, 0, 2, 15, 3, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 13, 3, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0,   /* r 7 */
-    0, 0, 0, 0, 3, 10, 14, 16, 0, 0, 1, 9, 14, 7, 3, 0, 0, 1, 13, 10, 1, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 3, 14, 1, 0, 0, 0, 0, 0, 10, 7, 0, 0, 0, 0, 0, 0, 14, 3, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0,   /* r 8 */
-};
-#define corner_fill_at(r, j, i) CORNER_FILL[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
-#define corner_ring_at(r, j, i) CORNER_RING[CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i)]
+_Static_assert(sizeof CORNER_PACKED * 2u == 408u, "complete corner coverage table");
+static __attribute__((noinline)) uint32_t corner_coverage(uint32_t index)
+{
+    uint32_t a = (CORNER_PACKED[index >> 1] >> ((index & 1u) * 4u)) & 15u;
+    return a == 8u ? 16u : a;
+}
+#define corner_fill_at(r, j, i) corner_coverage(CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i))
+#define corner_ring_at(r, j, i) corner_coverage(204u + CORNER_OFF[r] + (uint32_t)(j) * (uint32_t)(r) + (uint32_t)(i))
 
 /* a filled rounded rectangle; r is clamped to fit */
 static void rbox(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t c)

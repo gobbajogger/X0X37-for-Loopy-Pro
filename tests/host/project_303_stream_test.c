@@ -22,6 +22,10 @@ int main(void)
         old.drum[0].hit[0][0] = (uint32_t)p + 1u;
         old.bass[0].step[0].note = (uint8_t)(36 + p);
         old.bass[0].step[0].flags = G_NOTE | BS_SLIDE;
+        old.bass[0].step[1].note = 99; /* A TIE's stored pitch must survive migration too. */
+        old.bass[0].step[1].flags = G_TIE;
+        old.bass[0].step[15].note = 12;
+        old.bass[0].step[15].flags = G_TIE | BS_SLIDE | BS_ACCENT;
         old.bass[0].len = 16;
         old.bass[0].gen.seed = (uint32_t)(9000 + p);
         old.swing = (uint8_t)p;
@@ -33,6 +37,10 @@ int main(void)
         if (proj.pat[p].drum[0].hit[0][0] != (uint32_t)p + 1u ||
             proj.pat[p].bass[0].step[0].note != 36 + p ||
             proj.pat[p].bass[0].step[0].flags != (G_NOTE | BS_SLIDE) ||
+            proj.pat[p].bass[0].step[1].note != 99 ||
+            proj.pat[p].bass[0].step[1].flags != G_TIE ||
+            proj.pat[p].bass[0].step[15].note != 12 ||
+            proj.pat[p].bass[0].step[15].flags != (G_TIE | BS_SLIDE | BS_ACCENT) ||
             bstep_velocity(&proj.pat[p].bass[0].step[0]) != BASS_VELOCITY_DEFAULT ||
             proj.pat[p].bass[0].gen.seed != (uint32_t)(9000 + p) ||
             proj.pat[p].swing != p) {

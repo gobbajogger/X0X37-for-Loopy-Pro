@@ -860,13 +860,14 @@ static void smk_faders(void)
  * rest is its centre (taken at power-on, followed slowly while it rests), each wheel's range grows to what it
  * has reached. On a 303 (the part on screen) they play its sound without changing what is saved: pitch = its
  * TUNE (about +-1.5 semitones), mod = its CUTOFF opened from the saved value up to the top. Released (or
- * another part chosen), the saved values sound again. Other parts: the wheels do nothing. */
+ * wheel returned to rest), the saved values sound again. A gesture keeps its original 303
+ * until release, across screen/part changes; navigation never sends a sound parameter. */
 static void smk_wheels(void)
 {
     enum { DEAD = 12, SPAN0 = 80, MOD_LO = 485, MOD_HI = 615 };
     static int32_t pc, plo, phi, mlo, mhi, rest;
-    static int8_t part = -1;
-    static int16_t tune_now = -1, cut_now = -1;
+    static int8_t tune_part = -1, cut_part = -1;
+    static int16_t bend_now, mw_now;
     int32_t p = fm1_in.wheel[0], m = fm1_in.wheel[1], d, bend, mw, want;
     if (ui_project_busy())
         return;
@@ -902,28 +903,31 @@ static void smk_wheels(void)
     }
     mw = mhi - m <= DEAD ? 0 : (mhi - m - DEAD) * 127 / (mhi - mlo - DEAD > 1 ? mhi - mlo - DEAD : 1);
     mw = clamp(mw, 0, 127);
-    if (part != (is_303() ? bidx() : -1)) {          /* another part: the last 303 sounds as saved again */
-        if (part >= 0 && tune_now >= 0)
-            engine_set(T_303, part, BASS303_TUNE, proj.sound.v[T_303][part][BASS303_TUNE]);
-        if (part >= 0 && cut_now >= 0)
-            engine_set(T_303, part, BASS303_CUTOFF, proj.sound.v[T_303][part][BASS303_CUTOFF]);
-        part = (int8_t)(is_303() ? bidx() : -1);
-        tune_now = cut_now = -1;
+    /* Only physical wheel changes own sound writes. Keep each gesture's target until
+     * release, so changing the visible part neither restores nor retargets a held wheel.
+     * In particular, a stationary wheel must not overwrite a knob or sequencer lock. */
+    if (bend != bend_now) {
+        if (tune_part < 0 && bend && is_303())
+            tune_part = (int8_t)bidx();
+        if (tune_part >= 0) {
+            want = clamp(proj.sound.v[T_303][tune_part][BASS303_TUNE] + bend, 0, 127);
+            engine_set(T_303, tune_part, BASS303_TUNE, want);
+            if (!bend)
+                tune_part = -1;
+        }
+        bend_now = (int16_t)bend;
     }
-    if (part < 0)
-        return;
-    want = bend ? clamp(proj.sound.v[T_303][part][BASS303_TUNE] + bend, 0, 127) : -1;
-    if (want != tune_now) {
-        engine_set(T_303, part, BASS303_TUNE, want >= 0 ? want : proj.sound.v[T_303][part][BASS303_TUNE]);
-        tune_now = (int16_t)want;
-    }
-    {
-        int32_t base = proj.sound.v[T_303][part][BASS303_CUTOFF];
-        want = mw ? base + (127 - base) * mw / 127 : -1;
-    }
-    if (want != cut_now) {
-        engine_set(T_303, part, BASS303_CUTOFF, want >= 0 ? want : proj.sound.v[T_303][part][BASS303_CUTOFF]);
-        cut_now = (int16_t)want;
+    if (mw != mw_now) {
+        if (cut_part < 0 && mw && is_303())
+            cut_part = (int8_t)bidx();
+        if (cut_part >= 0) {
+            int32_t base = proj.sound.v[T_303][cut_part][BASS303_CUTOFF];
+            want = base + (127 - base) * mw / 127;
+            engine_set(T_303, cut_part, BASS303_CUTOFF, want);
+            if (!mw)
+                cut_part = -1;
+        }
+        mw_now = (int16_t)mw;
     }
 }
 
