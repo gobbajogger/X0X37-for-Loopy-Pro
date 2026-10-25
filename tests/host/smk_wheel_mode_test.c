@@ -65,6 +65,9 @@ static void select_part(int part,int smc_path) {
     if(smc_path) {
         const uint8_t msg[3]={0x90,(uint8_t)(24+part),127};
         smc_ble_midi(msg,3); smc_poll(); smc_frame();
+        /* A physical SELECT tap includes release; PR168 debounces held presses. */
+        const uint8_t release[3]={0x90,(uint8_t)(24+part),0};
+        smc_ble_midi(release,3); smc_poll(); smc_frame();
         assert(ui.part==part);
     } else { bass_step_cancel(); drum_step_cancel(); ui.part=(uint8_t)part; build_pages(); }
 }
