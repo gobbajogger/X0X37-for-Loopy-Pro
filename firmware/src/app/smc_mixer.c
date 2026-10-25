@@ -355,9 +355,9 @@ int smc_lock_toggle(void)
         }
     }
     smc.locked ^= 1u;
-    /* Even equal numeric values need fresh pickup: old crossings belong to the
-     * previous routing epoch. Acceleration must also start on the new target. */
-    smc.picked = smc.seen = 0;
+    /* Rearm acceptance for this routing epoch, keeping the last physical
+     * sample so the next move can cross the real target in either direction. */
+    smc.picked = 0;
     smc.knob_i = 0; smc.pending = 0xFFu;
     smc_ui_cancel();
     ui_say(smc.locked ? "SMC TARGETS LOCKED" : "SMC FOLLOWS PAGE", 0);
@@ -666,7 +666,6 @@ static void smc_notice(int n)
         smc.target[n] = r;
         smc.value[n] = v;
         smc.picked &= (uint8_t)~bit;
-        smc.seen &= (uint8_t)~bit;
         smc.pending |= bit;
     }
 }
@@ -681,7 +680,7 @@ static void smc_fader(int n, uint8_t v)
         return;
     bit = (uint8_t)(1u << n);
     /* A repeated absolute sample is not a new gesture. Keep this history
-     * separate from pickup: navigation/external edits deliberately reset seen. */
+     * separate from acceptance: target edits must retain crossing history. */
     moved = !(smc.input_seen & bit) || smc.last[n] != v;
     smc.input_seen |= bit;
     smc_notice(n);
@@ -689,6 +688,7 @@ static void smc_fader(int n, uint8_t v)
     d = pref_desc(r);
     if (!d || !d->max || r.kind == R_ACT || r.kind == R_HDR || r.kind == R_NONE) {
         smc.last[n] = v;
+        smc.seen |= bit;
         return;
     }
     old = smc.value[n];
@@ -696,12 +696,12 @@ static void smc_fader(int n, uint8_t v)
     smc.last[n] = v;
     smc.seen |= bit;
     if (!(smc.picked & bit)) {
-        if (!crossed)
+        if (!moved || !crossed)
             goto show;
         smc.picked |= bit;
-    }
+    } else crossed = 0;                /* acquisition must publish even an equal saved value */
     nv = (v * d->max + 63) / 127;
-    if (nv != pref_get(r)) {
+    if (crossed || nv != pref_get(r)) {
         pref_set(r, nv);
         motion_touch(r);
         smc.value[n] = smc_scaled(r);
