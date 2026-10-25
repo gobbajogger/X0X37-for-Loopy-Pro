@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "base": "46ca0451b6054b346eb3bdc47094bc8dcf6146f5",
+  "head": "HEAD",
+  "branch": "cursor/chicago-arp-34c0",
+  "stage": null,
+  "kind": "implement",
+  "changed": [
+    "assets/factory_banks/README.md",
+    "evidence/chicago-arp-34c0/PROOF.md",
+    "evidence/chicago-arp-34c0/host_proof.log",
+    "evidence/chicago-arp-34c0/local_proof_plan.json",
+    "firmware/src/app/chicago_arp.h",
+    "firmware/src/app/engine.c",
+    "firmware/src/app/engine.h",
+    "firmware/src/app/project.c",
+    "firmware/src/app/ui.c",
+    "firmware/src/app/x0x.h",
+    "tests/host/chicago_arp_test.c",
+    "tests/host/run_chicago_arp.sh",
+    "tests/run_tests.sh",
+    "web/test_projects.mjs",
+    "web/x0x_projects.js"
+  ],
+  "buckets": [
+    "evidence",
+    "firmware",
+    "other",
+    "tests",
+    "web"
+  ],
+  "x0x_tests": [
+    "host-build",
+    "sequencer",
+    "projects-page",
+    "projects-web",
+    "stage-handoff"
+  ],
+  "commands": [
+    "X0X_TEST_JOBS=1 X0X_TESTS='host-build sequencer projects-page projects-web stage-handoff' bash tests/run_tests.sh",
+    "node web/test_web.mjs"
+  ],
+  "verify": [
+    "git diff --name-only and --check vs base (scope + whitespace)",
+    "Read tip CHECKS / HANDOFF claims against listed SHAs and digests"
+  ],
+  "skip": [
+    {
+      "what": "Elite+Pro package rebuild",
+      "why": "Stage 4 owns DEV CHECKED packages; implement/test keep host BF regressions"
+    },
+    {
+      "what": "Unrelated publish/web selectors",
+      "why": "Only run publish selectors when tools/web paths in the diff require them"
+    }
+  ],
+  "rebuild_packages": false,
+  "must_keep": [
+    "dev_validate record result == DEV CHECKED when claiming package pass",
+    "pool_free >= 8192 on affected development packages",
+    "publish / install hash MATCH of package and controller bytes",
+    "Required BF host regressions when firmware or matching host tests change"
+  ],
+  "policy": {
+    "runners": "agent cloud VM or Mac only \u2014 never GitHub Actions or @codex",
+    "prefer": "stage-scoped selectors; verify digests/records over rebuild when evidence-only"
+  }
+}

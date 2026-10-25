@@ -26,7 +26,7 @@ enum { PART_909, PART_808, PART_303A, PART_303B, PART_BRK, NPARTS };
 /* T_MIX, per part: level, reverb send, delay send, pan (64 = centre) */
 enum { MX_LEVEL, MX_REV, MX_DLY, MX_PAN, MX_NPARAMS };
 #define NVOICES_MAX 12                 /* a drum machine: 11 tracks + the kit */
-#define NPARAMS_MAX 24                 /* params per (target, voice); was 16 through rev 4, 20 through AmpMod/Gnaw */
+#define NPARAMS_MAX 28                 /* params per (target, voice); was 16..rev4, 20 AmpMod/Gnaw, 24 Bite/ADSR, 28 Chicago arp */
 
 /* the sound of a project: every pot of every engine, mirrored here by the main loop */
 typedef struct {
@@ -84,6 +84,7 @@ void engine_drum(int kit, int voice, float vel);            /* play now (keys) *
 void engine_bass_on(int part, int note, int accent, int slide);
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity);
 void engine_bass_off(int part);
+void engine_bass_off_note(int part, int note); /* Chicago arp: release one held pitch; 0 note = all */
 void engine_brk_live(int key, int down);
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 int engine_brk_slice(void);                                 /* slice sounding now, -1 none (UI) */
