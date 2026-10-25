@@ -17,6 +17,16 @@ Producer firmware work in Cursor opens a pull request. Target `nightly` when the
 
 This run is not the standing Safe Merge owner or the sole Pages publisher. Those writes happen only when the user assigns that stage in this run and the evidence below is present. An assigned merge to `nightly` or `main` updates the expected head without force. An assigned `gh-pages` publication uses the force-push inside `tools/publish_pages.sh` and no other force-push.
 
+## Owner decision, 2026-10-25
+
+Automatically validated firmware merges without another owner prompt.
+
+Automatic validation means the applicable host checks exited 0 and `tools/dev_validate.py` recorded `DEV CHECKED` for the affected SMK-37 Elite and Pro development packages on that exact commit. A missing distribution-license receipt, corresponding-source receipt, or native-build receipt does not block this, because the owner said the project is MIT and those are not stops. A hash mismatch, a failed package check, or a compiler failure still blocks.
+
+The merge is a normal fast-forward of firmware `nightly` in `gobbajogger/X0X37-for-Loopy-Pro`. If the remote refuses, record the refusal and do not force-push. Production `main`, production GitHub Pages, and a device flash are not this merge. Independent human QA stays `QA_PENDING` when the author cannot supply it. Same-account approval is not that review.
+
+This dated decision is the assignment for that `nightly` fast-forward only. It does not assign a release gate, a merge to production `main`, production GitHub Pages, or a device flash.
+
 ## Dependency graph
 
 Source pushed, then source ready for review. Independent QA and `BUILD_ONLY` may proceed together on that immutable commit, in separate worktrees. Reviewed combined source can integrate to firmware `nightly` when the user assigns that merge. A release publication of this repository follows the section below and waits for the release gate. Live HTTP and hash verification comes after the `gh-pages` update. Owner hardware feedback starts once a candidate is actually downloadable. Production promotion stays a separate approval.
