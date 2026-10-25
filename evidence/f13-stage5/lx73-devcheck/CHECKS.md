@@ -35,3 +35,15 @@ Recovered original `check-0.log` and `controller.log` beside each `record.json` 
 
 - `dev_validate.py verify` elite + pro → DEV CHECKED
 - `require_gate_pass.sh … --dev-record …` elite + pro → **DEV OK**
+
+## Attested package bytes (Stage 6 Mac fetch)
+
+Prerelease tag `lx73-092589b8-dev` (target `092589b8…`): https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/lx73-092589b8-dev
+
+| Asset | Download | SHA-256 |
+| --- | --- | --- |
+| Elite | https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37-elite.fwsc | `9c1168cf…` (full digests in table above) |
+| Pro | https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37.fwsc | `3a29723e…` |
+| ctl | https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/ctl.img | `956e3e21…` |
+
+HTTP re-fetch sha256 matched records. Not Stage-7 Pages publish. Do not flash a local Mac rebuild.

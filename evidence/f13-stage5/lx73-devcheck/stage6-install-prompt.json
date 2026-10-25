@@ -32,5 +32,15 @@
       "identity": "SMK-37 Pro_900"
     }
   },
-  "merge_evidence": "evidence/f13-stage5/lx73-devcheck/CHECKS.md"
+  "merge_evidence": "evidence/f13-stage5/lx73-devcheck/CHECKS.md",
+  "attested_bytes": {
+    "release_tag": "lx73-092589b8-dev",
+    "release_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/tag/lx73-092589b8-dev",
+    "note": "Fetch these exact bytes on Mac; do not flash a local rebuild.",
+    "elite_fwsc_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37-elite.fwsc",
+    "pro_fwsc_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/x0x-smk37.fwsc",
+    "ctl_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/ctl.img",
+    "sha256sums_url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/releases/download/lx73-092589b8-dev/SHA256SUMS.txt"
+  }
 }
+
