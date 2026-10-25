@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "run_utc": "2026-10-23T15:09:59Z",
+  "role": "LoopyX0X37 Sequencer Clock producer",
+  "outcome": "DELIVERED",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "branch": "lane/safe-merge-clock-handover-20261023",
+    "tested_commit": "32364a9524dd1ac6857d46b409af66029805d4ce",
+    "tested_tree": "26277feee8efeb0acabe2836b1e6b53b35f69a33",
+    "pr": 35
+  },
+  "summary": "Closed oldest owned BF-005 clock handover source regression: verified actual affected production blobs, extended negative/owner test, reproduced baseline tick leak, and confirmed six sanitizer/compiler configurations plus four standard host runs.",
+  "outputs": [
+    {
+      "kind": "source",
+      "location": "firmware/src/seq/sequencer.c",
+      "description": "Existing exact checked BF-005 source correction, unchanged this evidence revision"
+    },
+    {
+      "kind": "regression",
+      "location": "tests/host/bugfinder_clock_handover_test.c",
+      "description": "Strengthened owner/drop negative and seven-fresh-tick boundary regression"
+    },
+    {
+      "kind": "findings",
+      "location": "docs/scheduler-handoffs/seq-clock-handover-20261024.md",
+      "description": "Producer closure, source identity and explicit full-root QA/build/publication gates"
+    },
+    {
+      "kind": "review",
+      "location": "docs/scheduler-handoffs/seq-clock-handover-20261024-native.log",
+      "description": "Executed native log index and source identity"
+    }
+  ],
+  "checks": [
+    {
+      "name": "GCC before repair: queued owner tick leak reproduced",
+      "status": "FAIL",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -o /mnt/data/seq_clock_run_20261024/gcc-baseline-extended tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/gcc-baseline-extended",
+      "exit_code": 1,
+      "evidence": "gcc-baseline-extended-run.log (local exact source projection); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "250e1ae03e4bf1ea4beeaf4574b4c5489803b29b536241d543d4cebc1c4f3002",
+      "coverage": "Expected original defect: 3 stale USB ticks advance fresh Bluetooth owner, plus pending tick not cleared"
+    },
+    {
+      "name": "gcc plain patched BLE clock handover",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -o /mnt/data/seq_clock_run_20261024/gcc-plain-extended tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/gcc-plain-extended",
+      "exit_code": 0,
+      "evidence": "gcc-plain-extended-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0de99c50679c2999d179165c5587d2ed664ca7cd60a34432e965b60a12baa9cb",
+      "coverage": "0 and 3 stale USB ticks, 7 fresh BLE ticks, unrelated disconnect and repeated prior-owner drop"
+    },
+    {
+      "name": "gcc ubsan patched BLE clock handover",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seq_clock_run_20261024/gcc-ubsan-extended tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/gcc-ubsan-extended",
+      "exit_code": 0,
+      "evidence": "gcc-ubsan-extended-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0de99c50679c2999d179165c5587d2ed664ca7cd60a34432e965b60a12baa9cb",
+      "coverage": "0 and 3 stale USB ticks, 7 fresh BLE ticks, unrelated disconnect and repeated prior-owner drop"
+    },
+    {
+      "name": "gcc asanubsan patched BLE clock handover",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seq_clock_run_20261024/gcc-asanubsan-extended tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/gcc-asanubsan-extended",
+      "exit_code": 0,
+      "evidence": "gcc-asanubsan-extended-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0de99c50679c2999d179165c5587d2ed664ca7cd60a34432e965b60a12baa9cb",
+      "coverage": "0 and 3 stale USB ticks, 7 fresh BLE ticks, unrelated disconnect and repeated prior-owner drop"
+    },
+    {
+      "name": "clang plain patched BLE clock handover",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -o /mnt/data/seq_clock_run_20261024/clang-plain-extended tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/clang-plain-extended",
+      "exit_code": 0,
+      "evidence": "clang-plain-extended-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0de99c50679c2999d179165c5587d2ed664ca7cd60a34432e965b60a12baa9cb",
+      "coverage": "0 and 3 stale USB ticks, 7 fresh BLE ticks, unrelated disconnect and repeated prior-owner drop"
+    },
+    {
+      "name": "clang ubsan patched BLE clock handover",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seq_clock_run_20261024/clang-ubsan-extended tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/clang-ubsan-extended",
+      "exit_code": 0,
+      "evidence": "clang-ubsan-extended-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0de99c50679c2999d179165c5587d2ed664ca7cd60a34432e965b60a12baa9cb",
+      "coverage": "0 and 3 stale USB ticks, 7 fresh BLE ticks, unrelated disconnect and repeated prior-owner drop"
+    },
+    {
+      "name": "clang asanubsan patched BLE clock handover",
+      "status": "PASS",
+      "command": "clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -o /mnt/data/seq_clock_run_20261024/clang-asanubsan-extended tests/host/bugfinder_clock_handover_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/clang-asanubsan-extended",
+      "exit_code": 0,
+      "evidence": "clang-asanubsan-extended-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0de99c50679c2999d179165c5587d2ed664ca7cd60a34432e965b60a12baa9cb",
+      "coverage": "0 and 3 stale USB ticks, 7 fresh BLE ticks, unrelated disconnect and repeated prior-owner drop"
+    },
+    {
+      "name": "gcc existing seq_test",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O2 -ffp-contract=off -Wall -Wextra -o /mnt/data/seq_clock_run_20261024/gcc-seq_test tests/host/seq_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/gcc-seq_test",
+      "exit_code": 0,
+      "evidence": "gcc-seq_test-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "632a3a6b86e8b54c739cbcef86ee9fcf9cf37230e638e5f108a3def776155ff1",
+      "coverage": "Source-matched standard host sequencer/clock-lock; no full root target proof"
+    },
+    {
+      "name": "gcc existing clk_lock_test",
+      "status": "PASS",
+      "command": "gcc -std=c11 -O2 -ffp-contract=off -Wall -Wextra -o /mnt/data/seq_clock_run_20261024/gcc-clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/gcc-clk_lock_test",
+      "exit_code": 0,
+      "evidence": "gcc-clk_lock_test-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34",
+      "coverage": "Source-matched standard host sequencer/clock-lock; no full root target proof"
+    },
+    {
+      "name": "clang existing seq_test",
+      "status": "PASS",
+      "command": "clang -std=c11 -O2 -ffp-contract=off -Wall -Wextra -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seq_clock_run_20261024/clang-seq_test tests/host/seq_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/clang-seq_test",
+      "exit_code": 0,
+      "evidence": "clang-seq_test-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "632a3a6b86e8b54c739cbcef86ee9fcf9cf37230e638e5f108a3def776155ff1",
+      "coverage": "Source-matched standard host sequencer/clock-lock; no full root target proof"
+    },
+    {
+      "name": "clang existing clk_lock_test",
+      "status": "PASS",
+      "command": "clang -std=c11 -O2 -ffp-contract=off -Wall -Wextra -fsanitize=undefined -fno-sanitize-recover=all -o /mnt/data/seq_clock_run_20261024/clang-clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && /mnt/data/seq_clock_run_20261024/clang-clk_lock_test",
+      "exit_code": 0,
+      "evidence": "clang-clk_lock_test-run.log (local); summary in seq-clock-handover-20261024-native.log",
+      "log_sha256": "0f5b892adc95fc5a3e3a957f0142dd684e4c8b1624378ebd0bb3130ae68b4a34",
+      "coverage": "Source-matched standard host sequencer/clock-lock; no full root target proof"
+    },
+    {
+      "name": "Complete current Git root host suite",
+      "status": "NOT_RUN",
+      "command": "X0X_TEST_JOBS=1 sh tests/run_tests.sh sequencer clk-lock",
+      "evidence": "Historical bootstrap source and current PR root have different trees; native Git HTTPS ls-remote exit 128 DNS failure",
+      "coverage": "Pending independent exact-root QA"
+    },
+    {
+      "name": "Actual Elite/Pro/controller target compilation",
+      "status": "NOT_RUN",
+      "command": "python3 tools/dev_validate.py run --commit 32364a9524dd1ac6857d46b409af66029805d4ce --model elite --plan dev-plan.json --output build/dev-clock-handover",
+      "evidence": "Build role owns pinned exact commit development compilation; no compiler launched here",
+      "coverage": "BUILD_ONLY stage parallel to independent QA"
+    }
+  ],
+  "models": [
+    {
+      "model": "elite",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Hourly Build can build exact producer SHA immediately without waiting for QA"
+    },
+    {
+      "model": "pro",
+      "build_status": "NOT_RUN",
+      "device_status": "DEVICE_NOT_TESTED",
+      "notes": "Hourly Build can build exact producer SHA immediately without waiting for QA"
+    }
+  ],
+  "next": {
+    "owner": "Independent QA (in parallel: Hourly Build; then sole firmware Safe Merge)",
+    "action": "Re-fetch exact PR #35 HEAD and verify full-root clock handover, sequencer, clock-lock and Note Off tests before exact-SHA QA disposition; Hourly Build immediately attempts BUILD_ONLY Elite/Pro/controller; Safe Merge alone integrates.",
+    "gate": "Independent full-root QA and separate source-pinned target build/model/controller/backup/OTA/license/hosting gates before public NIGHTLY hardware-test selection"
+  },
+  "dependencies": [
+    "Firm NIGHTLY 58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+    "Historical bootstrap root is not current complete Git root",
+    "QA and BUILD_ONLY remain independent parallel consumers",
+    "Owned #41/#48/#80/#86/#90 sequencer clock PRs unmerged: assess interactions before sole Safe Merge",
+    "Public NIGHTLY repo main 1a176e156b049f476074b77d7e6d54be03e8c9ad gh-pages 9c5d3b6b0846f89436492851fef89ed3829b7ad7 read-only"
+  ],
+  "publication": "SOURCE_ONLY"
+}
