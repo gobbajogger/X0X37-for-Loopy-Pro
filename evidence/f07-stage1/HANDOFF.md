@@ -18,7 +18,7 @@ Deferred younger / excluded items: withheld asset cache, unmerged data-safety id
 Successor prompt: `evidence/f07-stage1/SUCCESSOR-STAGE2.txt`.
 Successor agent id: none.
 Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip. Pod has no usable `CURSOR_API_KEY` (API create ×2 → 401; logs `api-create-stage2-attempt{1,2}.json`); coordinator CreateAgent is required.
 
 Selected defect: **FP-001**. Stage-7 qualification `installer_sha256` (`8caf8724…`, nightly `installerFingerprint()` source composite) does not equal served `install/index.html` sha256 (`66b56ba5…`). **Approved repair: dual-digest reconciliation** — record source fingerprint and served HTML digest separately; add a local host check that prevents conflating them; keep prepare:candidate source-fingerprint semantics. Do not change package/controller/firmware bytes.
 
