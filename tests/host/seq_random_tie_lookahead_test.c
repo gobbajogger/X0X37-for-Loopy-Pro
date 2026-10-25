@@ -13,19 +13,12 @@ static int note_on, note_off, m_on, m_off, errors, total;
 #define EXPECT(c,why) do { total++; if (!(c)) { errors++; fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__,__LINE__,why); } } while (0)
 
 static int drum(void *ctx,int k,int v,float vel) { (void)ctx; (void)k; (void)v; (void)vel; return 1; }
-/* Support both the legacy void sink and BF-028's chance-aware int sink.
- * The fixture accepts every note, so the int callback must return 1. */
-static void bass_on_legacy(void *ctx,int b,int note,int accent,int slide,int vel) {
+/* BF-028 on nightly: bass_on is int (*)(...); return 1 = accept. */
+static int bass_on(void *ctx,int b,int note,int accent,int slide,int vel) {
     (void)ctx; (void)note; (void)accent; (void)slide; (void)vel;
     if (b == 0) note_on++;
-}
-static int bass_on_chance(void *ctx,int b,int note,int accent,int slide,int vel) {
-    bass_on_legacy(ctx,b,note,accent,slide,vel);
     return 1;
 }
-#define BASS_ON_FOR_CURRENT_SINK _Generic(((seq_sink_t *)0)->bass_on, \
-    void (*)(void *,int,int,int,int,int): bass_on_legacy, \
-    int (*)(void *,int,int,int,int,int): bass_on_chance)
 static void bass_off(void *ctx,int b) { (void)ctx; if (b == 0) note_off++; }
 static void brk(void *ctx,int p,int bar,float len,int enable) {
     (void)ctx; (void)p; (void)bar; (void)len; (void)enable;
@@ -37,7 +30,7 @@ static void midi(void *ctx, uint8_t st,uint8_t n,uint8_t v) {
     if ((st & 0xF0u)==0x80u && (st & 0x0Fu)==1u) m_off++;
 }
 static const seq_sink_t sink = {
-    .drum=drum, .bass_on=BASS_ON_FOR_CURRENT_SINK, .bass_off=bass_off,
+    .drum=drum, .bass_on=bass_on, .bass_off=bass_off,
     .brk=brk, .brk_stop=brk_stop, .midi=midi
 };
 
