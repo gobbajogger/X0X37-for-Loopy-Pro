@@ -1,0 +1,7 @@
+Project PR merge (dry-run=1)
+Owner policy: automatic merge of properly tested work is pre-approved.
+Only --pr / --head proven heads are merged. Never ask for a per-PR APPROVE.
+
+#272 dry-run: pre-approved after local proof (main); GHA/billing failures are non-blocking; would try: gh pr merge 272 --repo gobbajogger/X0X37-for-Loopy-Pro --merge then gh pr merge 272 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --admin then gh pr merge 272 --repo gobbajogger/X0X37-for-Loopy-Pro --merge --auto :: pr merge 272 --repo gobbajogger/X0X37-for-Loopy-Pro --merge
+  F12 Stage 4: BF-008 Elite/Pro DEV CHECKED
+  https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/272

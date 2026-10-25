@@ -1,0 +1,5 @@
+Pod has no CURSOR_API_KEY. POST https://api.cursor.com/v1/agents not attempted with a pod token.
+Coordinator CreateAgent launched owner-visible Stage 7 bc-45a62e39-2e34-5bca-b974-4df019080a51
+(https://cursor.com/agents/bc-45a62e39-2e34-5bca-b974-4df019080a51; desktop; name F12 nightly publish;
+startingRef cursor/f12-stage5-bf008-1207). Do not create another Stage 7.
+PR #274 subscribed; local-env review bc-936118da-9d30-5f96-9e5e-56433edb6ae7.

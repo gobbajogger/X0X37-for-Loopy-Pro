@@ -1,0 +1,21 @@
+{
+  "pr": 272,
+  "title": "F12 Stage 4: BF-008 Elite/Pro DEV CHECKED",
+  "local_env_review": "PASS",
+  "intended_landing": "cursor/f12-stage3-bf008-1207",
+  "stage3_tip_after_merge": "403ae0a8",
+  "stage4_tip_included": "f99d5601",
+  "validated_source_sha": "de11b6d7e3ac3322d2db689675d9ed27ed667785",
+  "mistaken_main_merge": {
+    "mergeCommit": "11604ab75c379c1fa18477677824b5904d6d6912",
+    "mergedAt": "2026-10-25T17:09:43Z",
+    "disposition": "reverted"
+  },
+  "revert_pr": {
+    "number": 273,
+    "title": "Revert mistaken PR #272 merge into production main",
+    "mergeCommit": "4e12d022283cda456c97e9dfb7c9250e891fd2ba",
+    "main_tip": "4e12d022283cda456c97e9dfb7c9250e891fd2ba"
+  },
+  "policy": "Stage 5 continues on stage bases only; no production main. Prefer merge_project_prs / direct stage-branch merge when gh pr edit --base fails."
+}
