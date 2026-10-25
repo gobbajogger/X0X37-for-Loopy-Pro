@@ -59,10 +59,10 @@ static void test_wave_endpoints_differ(void)
     CHECK(fabsf(saw.wave_mix) < 1e-6f, "Wave 0 → wave_mix 0 (got %g)", (double)saw.wave_mix);
     render_wave(&sqr, 127, buf, 4096);
     rq = rms(buf + 512, 3072);
-    CHECK(fabs(sqr.wave_mix - 1.0f) < 1e-5, "Wave 127 → wave_mix 1 (got %g)", (double)sqr.wave_mix);
+    CHECK(fabsf(sqr.wave_mix - 1.0f) < 1e-5f, "Wave 127 → wave_mix 1 (got %g)", (double)sqr.wave_mix);
     render_wave(&mid, 64, buf, 4096);
     rm = rms(buf + 512, 3072);
-    CHECK(fabs(mid.wave_mix - (64.0f / 127.0f)) < 1e-5, "Wave 64 morph fraction");
+    CHECK(fabsf(mid.wave_mix - (64.0f / 127.0f)) < 1e-5f, "Wave 64 morph fraction");
     CHECK(rs > 1e-5 && rq > 1e-5 && rm > 1e-5, "saw/square/mid produce audio");
     /* Morph mid should not collapse to silence relative to endpoints. */
     CHECK(rm > 0.25 * (rs < rq ? rs : rq), "mid morph has usable level (mid %g ends %g/%g)", rm, rs, rq);
@@ -104,7 +104,7 @@ static void test_gnaw_changes_level(void)
         pos += m;
     }
     rd = rms(buf + 512, 3072);
-    CHECK(fabs(dirty.gnaw - (100.0f / 127.0f)) < 1e-5, "Gnaw 100 stores fraction");
+    CHECK(fabsf(dirty.gnaw - (100.0f / 127.0f)) < 1e-5f, "Gnaw 100 stores fraction");
     CHECK(rc > 1e-5 && rd > 1e-5, "clean and gnaw produce audio");
     /* Pre-filter tanh grit changes spectrum/level vs clean; must not match bit-exact. */
     CHECK(fabs(rd - rc) / rc > 0.01, "Gnaw changes output vs clean (clean %g gnaw %g)", rc, rd);
