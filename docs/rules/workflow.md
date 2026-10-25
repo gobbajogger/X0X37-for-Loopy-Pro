@@ -10,6 +10,16 @@ Every change states a reason, a purpose, and the effect on the person using the 
 
 Agents run every applicable test in their own environment with the tools that machine has. Optional host tooling gaps (Pillow, ASan, missing reference repos) are not cycle blockers. Install when possible (environment `install` / `bash tools/agent_env_install.sh`); otherwise mark those checks not-run and continue the loop. A generator that actually runs and fails still fails. GitHub is not a test runner. GitHub Actions and billing locks are never test results. A missing optional input does not stop other work. Do not wait on another agent, on GitHub, or on the owner for a missing optional library. Do the next independent step.
 
+## Project PR merge
+
+When Project PRs are mergeable after local proof, merge them. Do not leave them parked in For Review. Automatic merge of properly tested work is pre-approved by the owner — no per-PR human APPROVE, and never ask the owner to approve a merge.
+
+Use `tools/merge_project_prs.py --pr N` (and/or `--head SHA`) after local proof of those exact heads (prefer `--dry-run` first). Standing pre-approval does not merge unrelated untested `cursor/` PRs. The tool walks the proven set bottom-up, uses a normal merge commit (no force-push), skips real conflicts and records the skip, and treats GitHub Actions / billing failures as non-blocking. Prefer GitHub auto-merge when the API allows it; if auto-merge is armed but required Actions failed (billing), fall through to direct/`--admin` merge. After a stack parent merges, retarget remaining children to the parent's base (usually `main`) before merging them so the tip reaches trunk.
+
+This path does not race stage 5. Stage 5 remains the only integrator that fast-forwards firmware `nightly`. Do not merge into `nightly` here. Do not merge production `main` from unvalidated firmware bytes; firmware `main` moves only after a successful hardware validation of those exact bytes.
+
+Ruleset `LoopyX0X37 PRODUCTION main - reviewed PR only` is unlocked for agent merges: required approvals are 0 and last-pusher approval is off. Force-push and delete protections stay. Do not ask the owner to unlock or approve again. `tools/merge_project_prs.py --print-onetime-setup` only records that the unlock is done.
+
 ## One fresh thread per stage
 
 The cloud stages are a loop: stage 1, then 2, then 3, then 4, then 5, then 7, then stage 1 again. The current stage creates the next thread only after its own checks pass, and only the next thread. It does not create the rest of the loop in advance. Stage 6 is the local install prompt saved by stage 5. It is not a cloud thread between stage 5 and stage 7, and stage 7 does not wait for it. The thread assigned to a stage does that stage. It does not create a second copy of itself.
