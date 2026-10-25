@@ -16,6 +16,7 @@
 #include "../dsp/drum909.h"            /* DR_SD (the sound's revisions) */
 #include "../dsp/master.h"             /* MST_* (the sound's revisions) */
 #include "../dsp/bass303.h"            /* BASS303_AMPMODE / BASS303_WAVE (snd rev 5–6) */
+#include "chicago_arp.h"               /* CHI_ARP_* (snd rev 8) */
 #include "lz.c"
 
 project_t proj;
@@ -677,6 +678,13 @@ static int read_project(project_t *pr)
             pr->sound.v[T_303][i][BASS303_ADECAY] = bass303_param(BASS303_ADECAY)->def;
             pr->sound.v[T_303][i][BASS303_ASUSTAIN] = bass303_param(BASS303_ASUSTAIN)->def;
             pr->sound.v[T_303][i][BASS303_ARELEASE] = bass303_param(BASS303_ARELEASE)->def;
+        }
+    }
+    if (sound_ok && pr->set.snd_rev < 8) {           /* Chicago Arp: Off / Up / 1 Oct / 1/16 */
+        for (i = 0; i < NBASS; i++) {
+            int k;
+            for (k = 0; k < 4; k++)
+                pr->sound.v[T_303][i][CHI_ARP_SWITCH + k] = CHI_ARP_PARAMS[k].def;
         }
     }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */

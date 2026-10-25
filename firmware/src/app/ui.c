@@ -15,6 +15,7 @@
 #include "../dsp/fastmath.h"
 #include "../dsp/master.h"
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
+#include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "undo.c"
 
 /* ================================================================ model === */
@@ -989,6 +990,9 @@ static void build_pages(void)
             /* Amp Env: Chicago Attack/Decay/Sustain/Release (filter Decay stays on FILTER ADSR). */
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_AATTACK), PR(R_ENG, T_303, 0, BASS303_ADECAY), PR(R_ENG, T_303, 0, BASS303_ASUSTAIN), PR(R_ENG, T_303, 0, BASS303_ARELEASE)};
             add_page_refs("AMP ADSR", refs, 2, b); } while (0);
+            /* Chicago Arp (live held-note); B_ARP still opens TB-3PO generate. */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_ARP_SWITCH), PR(R_ENG, T_303, 0, CHI_ARP_MODE), PR(R_ENG, T_303, 0, CHI_ARP_RANGE), PR(R_ENG, T_303, 0, CHI_ARP_SPEED)};
+            add_page_refs("CHI ARP", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */
