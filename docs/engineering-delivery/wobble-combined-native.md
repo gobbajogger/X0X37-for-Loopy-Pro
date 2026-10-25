@@ -120,3 +120,30 @@ cost change, rerun meaningful host/independent QA and actual Elite/Pro links.
 Then define the explicit versioned selection/parameter/generation and persistence
 route before public controls. Hardware, publication and protected merges remain
 outside this stage. A separate sound owner retains fidelity refinement.
+
+## Release of this stage
+
+Reviewed source commit `fdd465a8dc4aa5125b7fe3939c12fb1b29fcfc18`, tree
+`a14d385b0dea09f9be03d7aa5eca495f296dcf25`; draft PR219 targets the frozen
+foundation branch. Later commits contain evidence/handoff metadata only. Source
+writer ownership is released at final receipt to the authorized outcome coordinator
+`01a17306-999c-73b2-8e07-f1ecab31c028`. No successor was created here: the
+coordinator's latest instruction owns the single creation after release.
+
+The separate frozen-foundation full-link attempt was interrupted before compilation
+was confirmed; no compiler exit/result exists for it and it was not retried. The
+object delta above uses the foundation's retained actual affected-object evidence;
+no full-link baseline delta is claimed. The experimental candidate's actual model
+compile/link failures remain complete and independent of that missing baseline.
+
+A newly reported refined DSP snapshot `ad206210f4909f31f992475c58d0696fb2a115fb`
+(tree `ffd67d7fdc1a18aa5bfbfb084796a89201128ae5`) was not imported. Its future
+consumer must independently verify the explicit receipt and source closure, update
+fidelity limits, measure actual native costs, and rerun affected independent QA.
+Do not infer native fit from its reported host sizes.
+
+The isolated303 preset owner requested future engine.c hooks. No hook scope or
+engine.c writer lease was released to that owner in this stage. Route that proposed
+patch through the next combined integrator; do not create concurrent engine.c
+writers or silently consume a moving preset branch. Additional sidecar state cannot
+be assumed to fit the observed220-byte RAM margin.

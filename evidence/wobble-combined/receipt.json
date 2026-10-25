@@ -56,5 +56,17 @@
     "firmware/src/dsp/wobble_config.h": "fa7bc6659e60a8b221af9029f094f5f0cc68c3598360eb4ef0b717d3d4098b48",
     "tools/build.py": "1bebd5267efcd130a1519bfad3a60e0be57a843ab91ad125b92d3c60fe1482ac",
     "experiments/wobble/wobble.c": "19dac9935a9524407418bb8bd7cc662d7acf36ff2fad31d1f85e5e69d3529e43"
+  },
+  "testedSourceCommit": "fdd465a8dc4aa5125b7fe3939c12fb1b29fcfc18",
+  "testedSourceTree": "a14d385b0dea09f9be03d7aa5eca495f296dcf25",
+  "draftPr": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/219",
+  "baselineFullLink": {
+    "status": "NOT_ESTABLISHED",
+    "cause": "Separate baseline docker build call interrupted before process/start confirmed; no compiler result or subsequent retry. Historical verified foundation affected-object sections only used for object deltas."
+  },
+  "successor": {
+    "status": "NOT_CREATED_BY_THIS_STAGE",
+    "nextOwner": "authorized outcome coordinator01a17306-999c-73b2-8e07-f1ecab31c028",
+    "reason": "Latest coordinator direction retains one successor creation after source ownership release."
   }
 }
