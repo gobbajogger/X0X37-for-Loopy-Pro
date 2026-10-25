@@ -58,20 +58,16 @@ typedef struct {
 } fm1_c1_mb_t;
 static fm1_c1_mb_t fm1_c1_mb __attribute__((aligned(64)));
 volatile uint32_t fm1_c1_trace;                 /* breadcrumbs (fm1_cpu1.S, fm1_c1_main) */
-/* the end of the last fm1_cpu1_run_wait_ram, written from RAM code before it returns (core 0 may
- * not reach flash code after it): FM1_C1_WAIT_MARK | TIMER4 time in 100 ms (bits 16-23) | stalls << 8
- * | (rc & 0xFF), 0xEE = still waiting. Survives a reset. */
-#define FM1_C1_WAIT_MARK 0xC1000000u
-#define FM1_C1_WAIT_END(t, st, rc) (FM1_C1_WAIT_MARK | ((t) / 2400000u > 255u ? 255u : (t) / 2400000u) << 16 | \
-                                    (st) << 8 | ((uint32_t)(rc) & 0xFFu))
+/* Words the BLE guard still copies after a failed start. Nothing in this firmware writes them.
+ * They survive a reset, so a previous image can leave a value: 0xC1000000 | TIMER4 time in 100 ms
+ * (bits 16-23) | stalls << 8 | (rc & 0xFF), 0xEE = still waiting. */
 static volatile uint32_t fm1_c1_wait_end __attribute__((section(".noinit")));
-/* core 0 in that wait: TIMER4 ms since its start at its last look (every 100 us). Survives a reset:
- * how long core 0 lived when the unit stops in the wait. */
+/* TIMER4 ms of that old wait, at its last look. Survives a reset. */
 static volatile uint32_t fm1_c1_wait_ms __attribute__((section(".noinit")));
-/* optional checks of that wait, set by the caller (0: none), results in .noinit:
- * - fm1_c1_watch: 4 words core 0 copies to fm1_c1_wait_seen at each look (the other core's record)
- * - fm1_c1_sum_lo..hi: words core 0 adds up at each look; fm1_c1_sum_ref the sum before the start.
- *   fm1_c1_sum_bad = ms of the first look with another sum | 0xBAD00000, fm1_c1_sum_got that sum. */
+/* Optional checks nothing calls. Results stay in .noinit for the guard:
+ * - fm1_c1_watch: 4 words copied to fm1_c1_wait_seen
+ * - fm1_c1_sum_lo..hi: words added up; fm1_c1_sum_ref the sum before a start.
+ *   fm1_c1_sum_bad = ms of the first different sum | 0xBAD00000, fm1_c1_sum_got that sum. */
 static const volatile uint32_t *fm1_c1_watch;
 static const volatile uint32_t *fm1_c1_sum_lo, *fm1_c1_sum_hi;
 static uint32_t fm1_c1_sum_ref;
@@ -79,7 +75,7 @@ static volatile uint32_t fm1_c1_wait_seen[4] __attribute__((section(".noinit")))
 static volatile uint32_t fm1_c1_sum_bad, fm1_c1_sum_got __attribute__((section(".noinit")));
 /* the sum of fm1_c1_sum_lo..hi (inline: the RAM code makes no calls) */
 static inline __attribute__((always_inline)) uint32_t fm1_c1_sum(void);
-/* set the checks of the next fm1_cpu1_run_wait_ram: watch (4 words) and the words lo..hi */
+/* watch (4 words) and the words lo..hi. Nothing calls this. */
 __attribute__((unused)) static void fm1_cpu1_wait_checks(const void *watch, const void *lo, const void *hi)
 {
     fm1_c1_sum_lo = (const volatile uint32_t *)lo;
@@ -356,75 +352,6 @@ static inline int fm1_cpu1_wait(void)
             return -1;
         }
     }
-}
-
-/* the Bluetooth init's wait looks at the mailbox every 100 us only (24 MHz TIMER4): core 0 makes
- * no RAM traffic and no csync storm while core 1 runs the RF trim (its high current) */
-#define FM1_C1_POLL_TICKS 2400u
-/* One job with core 0 in RAM until it ends (the Bluetooth controller's start: its RF trim turns
- * the flash off). Core 0's interrupts off; call through a pointer (FL_FAR). No calls in here (RAM
- * code: tools/build.py checks). 0 = done, -1 = not in time, -2 = a wrong job, -3 = TIMER4 stopped. */
-#define FM1_C1_RAMFN __attribute__((section(".ram_text"), noinline, used))
-static FM1_C1_RAMFN int fm1_cpu1_run_wait_ram(void (*fn)(uint32_t), uint32_t arg, uint32_t ticks)
-{
-    uint32_t job = fm1_c1_mb.job + 1u, t0, last, prev, same = 0, stalls = 0;
-    fm1_c1_mb.fn = fn;
-    fm1_c1_mb.arg = arg;
-    fm1_c1_mb.check = FM1_C1_CHECK(fn, arg, job);
-    FM1_C1_SYNC();
-    fm1_c1_mb.job = job;
-    FM1_C1_SYNC();
-    fm1_c1_wait_end = FM1_C1_WAIT_MARK | 0xEEu;   /* still waiting */
-    fm1_c1_wait_ms = 0;
-    fm1_c1_sum_bad = fm1_c1_sum_got = 0;
-    fm1_c1_wait_seen[0] = fm1_c1_wait_seen[1] = fm1_c1_wait_seen[2] = fm1_c1_wait_seen[3] = 0;
-    t0 = last = prev = FM1_C1_T4;
-    for (;;) {
-        uint32_t t = FM1_C1_T4;
-        if (t != prev) {
-            prev = t;
-            same = 0;
-        } else if (++same > 1000000u) {         /* TIMER4 stands still: look now, give up after 64 */
-            same = 0;
-            if (++stalls > 64u)
-                goto out3;
-            goto look;
-        }
-        if (t - last < FM1_C1_POLL_TICKS)       /* between looks only the timer: no RAM, no csync */
-            continue;
-        last = t;
-    look:
-        fm1_c1_wait_ms = (t - t0) / 24000u;
-        FM1_C1_SYNC();
-        if (fm1_c1_watch) {
-            fm1_c1_wait_seen[0] = fm1_c1_watch[0];
-            fm1_c1_wait_seen[1] = fm1_c1_watch[1];
-            fm1_c1_wait_seen[2] = fm1_c1_watch[2];
-            fm1_c1_wait_seen[3] = fm1_c1_watch[3];
-        }
-        if (fm1_c1_sum_lo && !fm1_c1_sum_bad) {
-            uint32_t s = fm1_c1_sum();
-            if (s != fm1_c1_sum_ref) {
-                fm1_c1_sum_got = s;
-                fm1_c1_sum_bad = 0xBAD00000u | (fm1_c1_wait_ms & 0xFFFFFu);
-            }
-        }
-        if (fm1_c1_mb.done == job) {
-            fm1_c1_wait_end = FM1_C1_WAIT_END(t - t0, stalls, 0);
-            return 0;
-        }
-        if (fm1_c1_mb.bad) {
-            fm1_c1_wait_end = FM1_C1_WAIT_END(t - t0, stalls, -2);
-            return -2;
-        }
-        if (t - t0 > ticks) {
-            fm1_c1_wait_end = FM1_C1_WAIT_END(t - t0, stalls, -1);
-            return -1;
-        }
-    }
-out3:
-    fm1_c1_wait_end = FM1_C1_WAIT_END(prev - t0, 65u, -3);
-    return -3;
 }
 
 /* Park core 1 before the flash goes off (main loop only, core 0's interrupts still on): 1 = parked,
