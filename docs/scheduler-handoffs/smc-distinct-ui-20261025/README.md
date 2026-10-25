@@ -141,3 +141,14 @@ accepted task17 model package/controller pair for rollback. If a new physical pa
 sequence still opens the overlay unexpectedly, identify that sequence in a separately
 authorized native investigation; generic echo suppression is not proven here.
 PR150 follow-on integration and physical Pause/LED proof remain separate above.
+
+## Later base observation
+
+During final PR readback, NIGHTLY advanced to `fbc23a4a7f0c9486a84f013ec54cf0aec4d22dfe`
+(PR138 workflow docs/tests and PR111 read-only wire test/evidence). The exact
+firmware/assets/ble/tools/host/build.sh comparison against the reviewed base
+exited zero; a read-only merge-tree check found no conflicts. No application
+rebuild follows from those unchanged compiler inputs. This branch remains based
+on accepted 93449136 to preserve the exact reviewed/built candidate. The normal
+integrator still owns fresh combined-tree/protection checks; no protected merge
+is performed here. See late-base-observation.json.

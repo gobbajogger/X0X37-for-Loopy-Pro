@@ -6,7 +6,7 @@
     "tracked_diff": ""
   },
   "evidence_sha256": {
-    "README.md": "e354e1319a62f8418493a3cc3fc0d0500dedbd53d3df135e37036d2ca2127477",
+    "README.md": "fb03515e57cfceca4cfc32ae3b8ae60bd74731ab200e8fbc175837bfa7d6ab6d",
     "artifact-review.json": "83b04ed41c11e2e3448e95b519329b69ed7b81451f9e6f37993a6125b191fa60",
     "baseline-repro.log": "a920fb69d07d9ee5fd52d0bc2362966e8307d8111886a20ba96f3ca6bee251b3",
     "elite-build.log": "7e453e088d62c8fad57f9b9c9f8fe7791b1eae90a05cb47c8d9609c32d9b1fb7",
@@ -24,6 +24,7 @@
     "frames/11-list-on-fader.png": "02ea896c37b4a506b9b440a03b5ce3cd64f8f1941fc268a324dc7e6e4b5b156b",
     "frames/12-parked-knob.png": "239690e3134d19376d46ca9d50a42fcf4f579233049822143543982a23cf6c8d",
     "input-reuse.json": "dbab71416a8cb516777ceb0b68ce85027b8dd4d7bc4c61b604fd7e0fb0ec2e5b",
+    "late-base-observation.json": "3ee9da14362f1ce486cfadabd5253f9e9e1981c69fc55a8b682b2dc63b12cf0f",
     "pro-build.log": "70cf089dd733a8ed92d2991774a7fc246450031b9f90463a498d1c8b3581dad2",
     "pro-package-receipt.json": "73c552f2bfbe1ebd25afef6e067e50b450a2209a2f8eaddffd52f223d2a7a716",
     "repro.log": "da9a0fe34bd29c1a27e23d526f0337d47288c5ff1fff560b50bcc9a2549d5a49",
@@ -32,5 +33,5 @@
     "source-review.json": "f03ed95ec74a49d0a479dbe6048e54532fd2e4b1952d21dd4f304b1f3e0f2416",
     "source-review.md": "facb5473d2923912bac021af52435b1da3ddf7948f507e2cb593ec174f9d3182"
   },
-  "recorded_utc": "2026-10-25T07:42:52.869741+00:00"
+  "recorded_utc": "2026-10-25T07:45:13.130801+00:00"
 }
