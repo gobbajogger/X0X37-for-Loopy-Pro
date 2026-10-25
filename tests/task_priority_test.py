@@ -94,6 +94,7 @@ class PriorityTests(unittest.TestCase):
 
     def test_no_capacity_or_independence_no_new_lane(self):
         self.assertEqual(self.plan(record(1), capacity=0)['lanes'], {'quick': None, 'complex': None})
+        self.assertEqual(p.plan({'records': [record(1)]}, NOW)['lanes'], {'quick': None, 'complex': None})
         self.assertIsNone(self.plan(record(1), busy_areas=['1'])['lanes']['quick'])
         shared = record(2, 'feature_research', 'complex')
         shared['priority_assessment']['work_areas'] = ['1']

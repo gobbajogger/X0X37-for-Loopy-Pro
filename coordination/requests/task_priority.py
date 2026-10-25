@@ -58,7 +58,7 @@ def first_seen(r):
     return min(parsed) if parsed else None
 
 
-def plan(ledger, as_of, capacity=2, busy_areas=()):
+def plan(ledger, as_of, capacity=0, busy_areas=()):
     """No writes/claims/delegation; caller authenticates readiness, evidence and liveness."""
     now = timestamp(as_of)
     if capacity < 0:
