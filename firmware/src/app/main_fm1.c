@@ -2051,6 +2051,7 @@ X0X_COLD static void boot_splash(void)
     draw_text_box(0, 96, 240, &FONT_M, l0, C_HI, 1);
     draw_text_box(0, 134, 240, &FONT_S, l1, C_GRAY, 1);
 }
+_Static_assert(BOOT_PIC_H <= CV_ROWS, "boot picture taller than the one screen strip");
 
 /* ------------------------------------------------------------- boot --- */
 #define BOOTGUARD_MAGIC 0x42475244u
