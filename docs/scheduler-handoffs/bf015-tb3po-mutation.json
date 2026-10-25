@@ -1,0 +1,75 @@
+{
+  "schema": "loopyx0x37.bugfinder.source-evidence.v1",
+  "finding": "BF-015",
+  "severity": "medium",
+  "created_utc": "2026-10-23",
+  "source_repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "base_branch": "nightly",
+  "base_commit": "58b5b45a2dd90581de7a674c331ca5cbe8a67c7e",
+  "affected_baseline_blob": {
+    "firmware/src/seq/tb3po.c": "63018311bf3bb86d6a3638f4935ae9cc9dec0cb2"
+  },
+  "scope": [
+    "firmware/src/seq/tb3po.c",
+    "tests/host/tb3po_mutate_anchor_test.c"
+  ],
+  "baseline": {
+    "compilers": [
+      "gcc-14.2",
+      "clang-17.0"
+    ],
+    "optimization": [
+      "O0",
+      "O2"
+    ],
+    "executions": 4,
+    "failed_as_expected": 4,
+    "exit_code": 1,
+    "case": "len=1, density=0, seed=1, first mutate removes last note"
+  },
+  "after": {
+    "compilers": [
+      "gcc-14.2",
+      "clang-17.0"
+    ],
+    "optimization": [
+      "O0",
+      "O2"
+    ],
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "executions": 4,
+    "passed": 4,
+    "exit_code": 0,
+    "test_battery": [
+      "generated len=1,16,64 x 4096 mutations",
+      "manual all-rest x 512",
+      "dense len=64 x 512"
+    ]
+  },
+  "integrations": {
+    "seq_test": {
+      "gcc_exit": 0,
+      "clang_exit": 0,
+      "matched_nightly_inputs": true
+    },
+    "project_303_stream": {
+      "exit": 0
+    }
+  },
+  "status": "HOST_CHECKED_SOURCE_ONLY",
+  "device": "NOT_TESTED",
+  "elite_pro_build": "NOT_RUN",
+  "controller": "NOT_RUN",
+  "independent_qa": "PENDING",
+  "candidate": "NONINSTALLABLE",
+  "full_current_tree_validation": "NOT_RUN",
+  "next_consumers": [
+    "Independent QA",
+    "Build-first Hourly Build",
+    "Sole Safe Merge"
+  ],
+  "no_public_binary_distribution": true
+}
