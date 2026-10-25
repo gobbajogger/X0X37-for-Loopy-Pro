@@ -1,0 +1,58 @@
+[
+  {
+    "controller": {
+      "abi": 2,
+      "block_crc32": "4a400899",
+      "block_size": 65536,
+      "bundled": true,
+      "crc32": "77b7a496",
+      "flash_offset": 569344,
+      "header_version": 2,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "size": 65492,
+      "strategy": "bundled"
+    },
+    "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "controller_size": 65492,
+    "controller_strategy": "bundled",
+    "model": "elite",
+    "product": "SMK-37 Elite_900",
+    "schema": "x0x37-bundled-controller-v1",
+    "sha256": "735094f847ba236aa6e95b14bb32ce7af9948dc2929840ccad23caca2f96be3f",
+    "size": 651396,
+    "input_sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c",
+    "source_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "source_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+    "status": "OWNER-LOCAL COMPOSITION ONLY; NOT QUALIFIED OR PUBLISHED",
+    "browser_parser": "PASS",
+    "legacy_blank_refusal": "PASS"
+  },
+  {
+    "controller": {
+      "abi": 2,
+      "block_crc32": "4a400899",
+      "block_size": 65536,
+      "bundled": true,
+      "crc32": "77b7a496",
+      "flash_offset": 569344,
+      "header_version": 2,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "size": 65492,
+      "strategy": "bundled"
+    },
+    "controller_sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+    "controller_size": 65492,
+    "controller_strategy": "bundled",
+    "model": "pro",
+    "product": "SMK-37 Pro_900",
+    "schema": "x0x37-bundled-controller-v1",
+    "sha256": "928dd896e1753d122919e750556528354184534ca5585a2b76f439b15d47bf97",
+    "size": 651392,
+    "input_sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c",
+    "source_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+    "source_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+    "status": "OWNER-LOCAL COMPOSITION ONLY; NOT QUALIFIED OR PUBLISHED",
+    "browser_parser": "PASS",
+    "legacy_blank_refusal": "PASS"
+  }
+]

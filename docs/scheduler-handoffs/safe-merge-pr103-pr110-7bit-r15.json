@@ -1,0 +1,162 @@
+{
+  "schema": "x0x37.integration-handoff/1",
+  "evidence_revision": "safe-merge-pr103-pr110-7bit-host-safety-20261024-r15",
+  "date_utc": "2026-10-24",
+  "role": "LoopyX0X37 Safe Merge — sole firmware nightly PR integrator",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "target_branch": "nightly",
+  "own_branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+  "stage": "REVIEWED_DEPENDENCY_STAGED_OWN_DRAFT__COMBINED_QA_PENDING__NO_PUBLIC",
+  "consumed": {
+    "integration_pr": 103,
+    "previous_integration_head": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+    "previous_integration_root_tree": "89027dddcc55680d5a218b83e04f0e392ed01283",
+    "previous_compiled_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "producer_pr": 110,
+    "producer_branch": "lane/data-safety-ctl-read-framing-20261024-1456",
+    "producer_head": "b5008faa87c2bb897a48f8a37df10b445bb26b77",
+    "producer_root_tree": "457e75b7e711f978f100dc99995e90fdd59a628f",
+    "producer_firmware_subtree": "a32c68ba72eb21f77bfeccb1f86954db8823b244",
+    "producer_evidence_revision": "data-safety-pr110-controller-address-echo-7bit-20261024-r2",
+    "independent_qa_review": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/110#pullrequestreview-5637207825",
+    "independent_qa_status": "14/14 PASS under normal and optimized Python for source-window 7-bit/controller/slot fixes; full-root acceptance INCOMPLETE",
+    "common_pr_parent": "8e8338792ca20508163a2b42b17ae542825da10a"
+  },
+  "compatibility": {
+    "comparison": "GitHub compare 8e8338792ca20508163a2b42b17ae542825da10a..b5008faa87c2bb897a48f8a37df10b445bb26b77 vs ..32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+    "pr110_changed_files": 8,
+    "pr103_r14_changed_files": 3,
+    "overlap": [],
+    "source_integration": "PR110 exact 8 blob/mode files transplanted onto existing Safe Merge PR103 R14 root; preserve R14 SMC changes and all other root entries; two-parent merge commit",
+    "expected_unchanged_compiled_firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "do_not_misidentify": "full ROOT tree changes; compiled firmware/ subtree remains independently identified. Compiler input parity and full-root source acceptance still require consumer verification."
+  },
+  "integrated_files": {
+    "docs/scheduler-handoffs/data-safety-ctl-readback-framing-20261024-r1.json": "7b515a9c7006465c4ba26ae73f1db0665fd6ae96",
+    "docs/scheduler-handoffs/data-safety-pr110-controller-address-echo-7bit-20261024-r2.json": "53aceccf20c8f3e5b8ed5660e38284c5d76bdc54",
+    "docs/scheduler-handoffs/data-safety-slot-echo-7bit-20261024-r1.json": "9d08d34b24d65767ec46828e5302d04dee654161",
+    "tests/ctl_read_framing_test.py": "831472f9a017f47456ef2d05a7d44420bc424875",
+    "tests/run_tests.sh": "41f28b3d23b28d69e039586a6a16f0ff328969ed",
+    "tests/x0x_slots_echo_7bit_test.py": "f24b6bc79f6e5affa246c562388df321ab4d8843",
+    "tools/fm1_install.py": "7e383aed118ff2ee9791b7792a1774b09c3921eb",
+    "tools/x0x_slots.py": "f05a978ce01641bf75d44be6320eae494a1f994b"
+  },
+  "actual_safemerge_scoped_tests": [
+    {
+      "command": "CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "exit": 0,
+      "coverage": "20/20 PASS",
+      "log_sha256": "45a8150009e37b4d2800398220380d3db82b9f8c713787169a4011b4a6779c0c"
+    },
+    {
+      "command": "CC=gcc SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' python3 -B tests/host/smc_solo_overflow_test.py",
+      "exit": 0,
+      "coverage": "20/20 PASS",
+      "log_sha256": "2503c3cab92eac6251f4b46af61e431dfd8b6fc5fab7521b91ce965f8d5979b6"
+    },
+    {
+      "command": "CC=clang SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "exit": 0,
+      "coverage": "20/20 PASS",
+      "log_sha256": "02151366a6a6b770a9b0d66440aa5b8e818b5767e681f3ff02d3c1995e574ca0"
+    },
+    {
+      "command": "CC=clang SAN_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer' python3 -B tests/host/smc_solo_overflow_test.py",
+      "exit": 0,
+      "coverage": "20/20 PASS",
+      "log_sha256": "468a12e656399fd75e8a8d17a7bb5c1de86b652cdc1dd0a0b3f50484e2aa78e2"
+    },
+    {
+      "command": "SMC_SOURCE=$PWD/negative/smc_mixer_r12.c CC=gcc SAN_FLAGS='-fsanitize=undefined -fno-sanitize-recover=all' python3 -B tests/host/smc_solo_overflow_test.py",
+      "exit": 1,
+      "coverage": "EXPECTED RED old ISR-race test; native assertion SIGABRT",
+      "log_sha256": "00b03b6bc5369fc72f3c36a37bb786ecae686220f6c45deb446426367e50a8ee"
+    },
+    {
+      "command": "python3 -B pr110_policy_gate.py before",
+      "exit": 1,
+      "coverage": "EXPECTED RED original high-bit controller readback echo; 3/5 fails",
+      "log_sha256": "3c70c7dabf40219322a6e40b528cab37f3631518c8cb2dd5e954466d52762d11"
+    },
+    {
+      "command": "python3 -B pr110_policy_gate.py after",
+      "exit": 0,
+      "coverage": "5/5 PASS repaired controller alias safety",
+      "log_sha256": "40b0e613fea23bcb6c102684fe02c52d95a3ef8c923f82c7c877ece2370c79f0"
+    },
+    {
+      "command": "python3 -O -B pr110_policy_gate.py after",
+      "exit": 0,
+      "coverage": "5/5 PASS optimized",
+      "log_sha256": "ec42c96de926de573dd6d20dc90de92aebe607eea48f7f93f8f6cca39bb2b5e5"
+    },
+    {
+      "command": "python3 -B pr110_controller_echo_negative.py",
+      "exit": 0,
+      "coverage": "11/11 PASS source-window controller echo suite",
+      "log_sha256": "cf0b65f28dcf17365e61450a5acebc072f5f083379d38651ba9668403e"
+    },
+    {
+      "command": "python3 -O -B pr110_controller_echo_negative.py",
+      "exit": 0,
+      "coverage": "11/11 PASS source-window controller optimized",
+      "log_sha256": "3127e85cb20a9001d83bbf3d0c245e9d95e379c0784471bd5d3672bc29ef41ca"
+    }
+  ],
+  "native_scope": "SMC C Git blobs byte matched exactly (smc_mixer.c deb1fd13416bbbdb6e73ac05d382ef5880664903; regression fd973599147d9d591476a7131e0cecf6c6f7d1e2), 20-case source-function mocked host; controller Python pre-change Git read_ctl function window 1089 B FNV1a32 5263d7fd and patched FNV1a32 46e53da1 verified by Independent QA, surrounding fixture historical. These checks DO NOT constitute new full-root or model QA.",
+  "private_artifact": {
+    "main_library_path": "/LoopyX0X37-SafeMerge-PR103-R15-PR110-Reviewed-Combined-Scoped-20261024.zip",
+    "library_file_id": "libfile_ae8acdcf6a4c8191b916e512fb4b7bf9",
+    "bytes": 33809,
+    "sha256": "9a2c4997c6ad0d09deae21b9609d051bbbcf2214ce70de4a87a192d8ac16f9db",
+    "upload_and_rematerialization_byte_cmp_exit": 0,
+    "note": "contains reproducible source windows, all 10 local test logs and machine-readable test manifest; no firmware/controller/vendor files"
+  },
+  "preexisting_r14_actual_build_only": {
+    "source_commit": "32fc37fdaacbdd2e9791723ee0da9a22193cd947",
+    "source_firmware_subtree": "5c209609b770fd13949230aeb80956594fd6b741",
+    "artifact_archive_sha256": "fd0c763b01d49496362dfb5e6cdef6dcaf0834e1ebfd2c04279c759a9208fcb6",
+    "elite": {
+      "bytes": 651396,
+      "sha256": "d14877d6592e6dc158460e960ac5aefd1b2b775588b9f896d3c83f672d61c86c"
+    },
+    "pro": {
+      "bytes": 651392,
+      "sha256": "cde289d422b61ee8b1f0a9f04ca92d244f07856667c85d757b9563e0479d3f3c"
+    },
+    "controller": {
+      "bytes": 65492,
+      "sha256": "956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a",
+      "freshly_compiled": false
+    },
+    "disposition": "HISTORICAL R14 BUILD_ONLY; no assertion of current combined root build/QA, controller acceptance, flashing or safe immutable hosting."
+  },
+  "required_remaining": [
+    {
+      "owner": "Independent QA",
+      "action": "Independently inspect NEW exact combined PR103 head and perform complete-root BLE/SMC/303/controller readback/slot backup and restore/OTA/wrong-model/protocol regressions; explicit source/critical safety disposition."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Consume new exact root and unchanged firmware subtree. Independently prove every compiler input/config/SDK/controller pin is unchanged before reusing R14 Elite/Pro bytes, otherwise build Elite/Pro DEV; verify controller build, full package/model/budget/checksum and Git/Library evidence. BUILD_ONLY may proceed immediately."
+    },
+    {
+      "owner": "Safe Merge",
+      "action": "Keep PR103 DRAFT pending fresh combined QA and required checks; only protected reviewed PR merge into firmware nightly when acceptance passes; verify actual remote firmware nightly SHA."
+    },
+    {
+      "owner": "Catalog Sync / NIGHTLY website publisher",
+      "action": "No public selectable downloads until full safety/backup/model/controller/source/license and immutable URL HTTPS byte/hash verification; prior hardware PASS not required. Retain previous safe versions."
+    }
+  ],
+  "qualification": {
+    "new_combined_full_root_qa": "NOT RUN",
+    "firmware_nightly_merged": false,
+    "hardware_owner_feedback": "UNKNOWN",
+    "elite_public_installability": "NO INSTALLABLE VERIFIED",
+    "pro_public_installability": "NO INSTALLABLE VERIFIED",
+    "production_main": "UNCHANGED",
+    "device_flash": false,
+    "public_binary_written": false
+  }
+}

@@ -192,7 +192,7 @@ def merge_version(catalog: dict, version: str, models: dict) -> dict:
     return catalog
 
 
-def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from: Path | None):
+def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from: Path | None, banner=None):
     """Build OUT from catalog; copy_pkgs maps firmware filename -> source path for this publish."""
     if out.exists():
         shutil.rmtree(out)
@@ -253,6 +253,9 @@ def write_site(out: Path, catalog: dict, copy_pkgs: dict[str, Path], merge_from:
     ver_label = f" v{html.escape(str(latest))}" if latest else ""
     landing = (LANDING.replace("__VERSION_LABEL__", ver_label)
                       .replace("__REPO__", REPO))
+    if banner:
+        landing = landing.replace("<div class=\"status\">",
+                                  "<div class=\"status\">" + html.escape(banner) + " ", 1)
     (out / "index.html").write_text(landing, encoding="utf-8")
     (out / ".nojekyll").write_text("")
     models = ", ".join(sorted({k for v in catalog["versions"] for k in v.get("models", {})}))

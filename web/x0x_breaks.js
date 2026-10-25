@@ -602,7 +602,8 @@ export async function installKeepingSlots(up, image, product, board, hooks) {
   const ran = await up.install(image, product, h.step);
   if (!move || !move.newMap.length) return { product: ran, move };
   h.say("slotback");
-  const back = await up.waitFor((id) => !/^ota-/i.test(id.model), 20000);
+  // Same fail-closed rule as the post-write wait: reopen the port install just accepted, not another keyboard.
+  const back = await up.reconnectAfter((id) => !/^ota-/i.test(id.model), 20000);
   if (!back) throw fail("slots", "the keyboard did not answer after the install", move.name);
   try {
     const layout = await readSlotLayout(back.link);

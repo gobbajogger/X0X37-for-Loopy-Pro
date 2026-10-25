@@ -5,6 +5,7 @@
  * Hardware I/O and unused clip handlers are substitutes. No audio claim is made.
  */
 #define main simulator_main
+void smc_ui_cancel(void);
 #include "../../host/x0x_host.c"
 #undef main
 #include <assert.h>
@@ -56,7 +57,8 @@ static void continuous_probe(int mode, int bank, int strip)
 {
     setup(mode, bank);
     pref_t r = smc_target(strip);
-    assert(smc_same(r, smc_knob_target(strip)));
+    pref_t k = smc_knob_target(strip);
+    assert(r.kind == R_NONE ? k.kind == R_NONE : !smc_same(r, k));
     if (r.kind == R_NONE) return;
     if (mode) {
         pref_t expected = find_ref(mode == 1 ? T_909 : T_808, bank * 8 + strip, "Level");
@@ -67,11 +69,11 @@ static void continuous_probe(int mode, int bank, int strip)
     const x0x_param_t *d = pref_desc(r);
     pref_set(r, d->max / 2);
     smc_frame();
-    int before = pref_get(r);
+    int level = pref_get(r), before = pref_get(k);
     /* DAW K1 = b0 10 01. */
     message(0xB0, 16 + strip, 1);
-    int after_knob = pref_get(r);
-    assert(after_knob > before);
+    int after_knob = pref_get(k);
+    assert(after_knob > before && pref_get(r) == level);
     /* First acquire the current target, then move the pitch-bend fader to 0. */
     message(0xE0 + strip, 0, smc_scaled(r));
     assert(smc.picked & (1u << strip));

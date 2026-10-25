@@ -12,8 +12,10 @@ the FM-1 restarts and the installed identity is checked.
   fm1_install.py PACKAGE.fwsc [--port NAME] [--yes] [--force] [--backup FILE] [--no-slots] [--ctl FILE | --no-ctl]
   fm1_install.py --info [--port NAME]
 
-If the FM-1 is still in update mode (an earlier install was cut off), the
-install finishes the write. Needs mido with python-rtmidi.
+If the FM-1 is still in update mode (an earlier install was cut off), sample slots
+cannot be inspected or backed up there. Resume requires explicit --no-slots, only
+after verifying a prior slot backup or confirming no samples require preservation.
+Restore any saved slots manually afterward. Needs mido with python-rtmidi.
 
 Sample slots: before the install, the running X0X lists its slots (SMP_INFO). If a slot holds samples
 that the package's firmware will not keep (no slot at the same flash offset with room for them: the
@@ -28,7 +30,7 @@ tools/x0x_slots.py. --no-slots skips the check. The other slots stay on the flas
 Exit codes: 0 done, 1 cancelled or other error, 2 bad arguments or package,
 3 FM-1 not found, 4 connection lost or the device stopped, 5 timeout (no
 loader / no restart), 6 wrong model, or another identity after the install,
-7 installed, but the slots were not written back (the backup file stays),
+7 sample protection refused before writing, or installed but slots were not restored,
 8 installed, but the Bluetooth controller block read-back failed or its CRC32 is not the expected full-block CRC32,
 9 refused by the gate guard (no install was started),
 10 refused by the foreground guard or the hardware lock (no device was opened),
@@ -376,6 +378,10 @@ class Updater:
     def __init__(self, backend, port=None):
         self.backend = backend
         self.port = port
+        # Port accepted by the last fail-closed transition wait (loader or restart).
+        self.returned_port = None
+        # Running ports observed while the selected unit is still in the loader (before reboot).
+        self._before_running = None
 
     def candidates(self, only_port):
         names = self.backend.input_names()
@@ -403,14 +409,80 @@ class Updater:
             link.close()
         return None
 
-    def wait_for(self, want, secs):
+    def matching_ports(self, want, only_port=False, skip=None):
+        """Port names that answer the handshake and match want (every link closed).
+
+        skip: a port name already held open by the caller; do not reopen it (would
+        steal the MIDI callback / collide with the in-flight update link).
+        """
+        names = []
+        outs = self.backend.output_names()
+        for name in self.candidates(only_port):
+            if skip is not None and name == skip:
+                continue
+            out = pair_output(name, outs)
+            if not out:
+                continue
+            try:
+                link = self.backend.open(name, out)
+            except Exception:
+                continue
+            try:
+                ident = handshake(link, 2)
+                if ident and (want is None or want(ident)):
+                    names.append(name)
+            finally:
+                link.close()
+        return names
+
+    def open_port(self, name, want=None):
+        """Open one named port when it still answers and matches want."""
+        outs = self.backend.output_names()
+        out = pair_output(name, outs)
+        if not out:
+            return None
+        try:
+            link = self.backend.open(name, out)
+        except Exception:
+            return None
+        ident = handshake(link, 2)
+        if ident and (want is None or want(ident)):
+            return Device(link, ident, name)
+        link.close()
+        return None
+
+    def wait_for(self, want, secs, before):
+        """Wait for exactly one newly appeared port matching want.
+
+        before: port names that already matched want before the transition.
+        Returns that device, or None when none appear before the timeout.
+        Raises InstallError when more than one new matching port appears.
+        Never returns a port that was already in before (fail closed).
+        """
         end = time.monotonic() + secs
+        prior = set(before)
         while time.monotonic() < end:
-            dev = self.find(want, only_port=False)
-            if dev:
-                return dev
+            names = self.matching_ports(want, only_port=False)
+            new = [n for n in names if n not in prior]
+            if len(new) > 1:
+                raise InstallError(
+                    "model",
+                    "more than one new device appeared after the update transition; "
+                    "disconnect other keyboards and try again. Nothing was written",
+                )
+            if len(new) == 1:
+                dev = self.open_port(new[0], want)
+                if dev:
+                    self.returned_port = new[0]
+                    return dev
             time.sleep(DELAY["retry"])
         return None
+
+    def reconnect_after(self, want, secs):
+        """Reconnect after a verified transition: same newly-appeared rule vs other ports."""
+        known = self.returned_port
+        before = [n for n in self.matching_ports(want, only_port=False) if n != known]
+        return self.wait_for(want, secs, before)
 
     def serve(self, link, image, finish, idle, progress):
         """answer read requests until the device asks for `finish`; -> (served, finished, lost)"""
@@ -429,7 +501,8 @@ class Updater:
             fl, addr, n = r
             last = time.monotonic()
             if addr in (FINISH_CHECK, FINISH_WRITE):
-                link.send(response(addr, b"success\0"))
+                if not link.send(response(addr, b"success\0")):
+                    return served, False, True
                 if addr == finish:
                     return served, True, False
                 continue
@@ -443,6 +516,7 @@ class Updater:
 
     def check(self, dev, image, step):
         """step 1: the running firmware checks the package and starts the loader"""
+        before_loaders = self.matching_ports(lambda i: i.loader, only_port=False, skip=dev.name)
         step("start", dev.id.text)
         dev.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -455,7 +529,7 @@ class Updater:
                                f"{served} requests; nothing was written")
         step("loader")
         time.sleep(DELAY["loader"])
-        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"])
+        ota = self.wait_for(lambda i: i.loader, DELAY["wait_loader"], before_loaders)
         if not ota:
             raise InstallError("noloader", "the update loader did not appear. Replug the USB cable and "
                                            "run the install again: the FM-1 stays in update mode until it is done")
@@ -463,6 +537,9 @@ class Updater:
 
     def write(self, ota, image, step):
         """step 2: the loader reads and writes the whole package, then restarts"""
+        # Snapshot other running keyboards while this unit is still in the loader, so a fast
+        # reboot cannot put the selected port into the "before" set used by verify().
+        self._before_running = self.matching_ports(lambda i: not i.loader, only_port=False, skip=ota.name)
         step("write", 0)
         ota.link.send(UPGRADE)
         time.sleep(DELAY["start"])
@@ -472,13 +549,15 @@ class Updater:
         if not finished:
             raise InstallError("lost" if lost else "stopped",
                                f"the loader {'was disconnected' if lost else 'stopped answering'} after "
-                               f"{served} requests. Replug the USB cable and run the install again to finish")
+                               f"{served} requests. Replug the USB cable and run the install again to finish; "
+                               "if already in update mode, use --no-slots only with a verified backup or no X0X samples")
         step("write", 100)
 
     def verify(self, product, step):
+        before_running = self._before_running if self._before_running is not None else []
         step("reboot")
         time.sleep(DELAY["reboot"])
-        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = self.wait_for(lambda i: not i.loader, DELAY["wait_reboot"], before_running)
         if not back:
             raise InstallError("noreturn", "the FM-1 did not come back: power-cycle it")
         back.link.close()
@@ -541,11 +620,14 @@ def package_slot_map(image, product):
 
 
 def slot_probe(link):
-    """the running firmware's slot layout (SMP_INFO), or None if it does not answer (not X0X)"""
+    """Verified SMP_INFO or an error; silence is NOT proof of factory-stock firmware."""
     try:
         return xs.parse_info(xs.req(EditorLink(link), xs.CMD_INFO, [], SLOT_PROBE["timeout"], SLOT_PROBE["tries"]))
-    except (TimeoutError, xs.SlotError, ValueError, IndexError):
-        return None
+    except TimeoutError as e:
+        raise xs.SlotError("SMP_INFO timed out: sample layout UNKNOWN. Nothing was written. "
+                           "Use --no-slots only after independently confirming no X0X samples need preservation") from e
+    except (ValueError, IndexError) as e:
+        raise xs.SlotError(f"malformed SMP_INFO reply: {e}") from e
 
 
 class SlotMove:
@@ -562,9 +644,13 @@ class SlotMove:
     def backup(self, link, path, out):
         lay, self.images = xs.backup(EditorLink(link))
         self.lay = lay
+        # SMP_INFO may have changed since the preflight probe. Plan restoration
+        # from the same verified snapshot whose slot bytes are archived.
+        self.old_map = xs.flash_map(lay, self.board)
+        self.risk = xs.at_risk(lay, self.old_map, self.new_map)
         arch = xs.make_archive(lay, self.images)
         self.path = Path(path)
-        self.path.write_bytes(arch)
+        xs.save_backup_archive(self.path, arch)
         if xs.read_archive(self.path.read_bytes())[1] != self.images:
             raise xs.SlotError(f"{self.path}: the saved backup does not read back")
         print(f"slots saved: {self.path} ({len(arch)} B)", file=out)
@@ -591,9 +677,7 @@ def plan_slots(dev, image, product, require_backup=False):
     """-> SlotMove for at-risk data, or for an explicitly requested full prewrite backup."""
     lay = slot_probe(dev.link)
     if not lay:
-        if require_backup:
-            raise xs.SlotError("the running firmware did not provide its slot layout")
-        return None
+        raise xs.SlotError("the running firmware did not provide a verified sample layout")
     if not require_backup and not any(sl["nz"] for sl in lay["slots"]):
         return None
     old_map = xs.flash_map(lay, board_of(dev.id.text))
@@ -766,11 +850,18 @@ def read_ctl(ed, size):
         off, n = len(got), min(CTL_READ_N, size - len(got))
         r = xs.req(ed, ED_CTL_READ, [off & 0x7F, (off >> 7) & 0x7F, (off >> 14) & 0x7F, (n + 1) // 2],
                    CTL_READ["timeout"], CTL_READ["tries"])
-        if len(r) < 3 or r[0] | r[1] << 7 | r[2] << 14 != off:
+        if (len(r) < 3 or any(b & 0x80 for b in r[:3])
+                or r[0] | r[1] << 7 | r[2] << 14 != off):
             raise TimeoutError(f"bad ED_CTL_READ reply at {off:#x}")
-        d = xs.unpack7(r[3:])
-        if len(d) < n:
-            raise TimeoutError(f"short ED_CTL_READ reply at {off:#x} ({len(d)} of {n} B)")
+        wire = r[3:]
+        d = xs.unpack7(wire)
+        # The reply is a canonical pack7 frame for exactly the requested byte
+        # count; a final odd-byte request may be rounded up by one byte.
+        # Truncating surplus or accepting orphan masks could falsely certify
+        # controller readback after OTA, even if the supplied bytes match.
+        if (len(d) < n or len(d) > n + (n & 1)
+                or xs.pack7(d) != list(wire)):
+            raise TimeoutError(f"malformed ED_CTL_READ payload at {off:#x} ({len(d)} of {n} B)")
         got += d[:n]
     return bytes(got)
 
@@ -814,6 +905,13 @@ def run(a, backend, out, ask):
         dev.link.close()
         raise InstallError("slots", "--backup needs the running firmware; the device is already in update mode. "
                                     "Nothing was written")
+    if dev.id.loader and not a.no_slots:
+        dev.link.close()
+        raise InstallError("slots", "the device is already in update mode, where sample layout and backup "
+                                    "cannot be checked. No update was started by this attempt. "
+                                    "Resume with --no-slots only after verifying an existing slot backup "
+                                    "or confirming that no X0X samples need preservation; restore "
+                                    "any saved slots after the firmware update")
     if not dev.id.loader and not a.no_slots and same_keyboard(dev.id.text, product):
         try:
             move = plan_slots(dev, image, product, require_backup=bool(a.backup))
@@ -843,21 +941,24 @@ def run(a, backend, out, ask):
     finally:
         prog.end()
     if move and move.risk and move.new_map:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.reconnect_after(lambda i: not i.loader, DELAY["wait_reboot"])
         try:
             if not back:
                 raise TimeoutError("the device did not answer after the install")
             try:
-                move.restore(back.link, out)
+                _, skipped = move.restore(back.link, out)
+                if skipped:
+                    raise xs.SlotError(f"{len(skipped)} backed-up sample slot(s) could not be restored")
             finally:
                 back.link.close()
         except (xs.SlotError, TimeoutError, KeyError, IndexError) as e:
             raise InstallError("slots", f"installed, but the slots were not written back ({e}). {move.help()}")
     elif move and move.risk:
-        print(move.help(), file=out)
+        raise InstallError("slots", f"installed, but this firmware has no X0X sample slots for restoration. "
+                                    f"The backed-up slots were not written back. {move.help()}")
     ctl = getattr(a, "ctl_bytes", None)
     if ctl:
-        back = up.wait_for(lambda i: not i.loader, DELAY["wait_reboot"])
+        back = up.reconnect_after(lambda i: not i.loader, DELAY["wait_reboot"])
         if not back:
             raise InstallError("ctlcrc", "installed, but the device did not answer for the Bluetooth image read-back")
         try:
@@ -950,7 +1051,7 @@ def main(argv=None, backend=None, out=sys.stdout, ask=ask_tty):
     ap.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     ap.add_argument("--force", action="store_true", help="install a package without the Felucca loader marker")
     ap.add_argument("--backup", metavar="FILE", help="save and verify every slot here before writing, even if none is at risk")
-    ap.add_argument("--no-slots", action="store_true", help="do not check, save or write back the sample slots")
+    ap.add_argument("--no-slots", action="store_true", help="explicit risk opt-out: skip sample checking and backup only after confirming no X0X samples need saving")
     ap.add_argument("--ctl", metavar="FILE", help="SMK-37: add this Bluetooth controller image (ble/ctl/out/ctl.img)")
     ap.add_argument("--no-ctl", action="store_true",
                     help="SMK-37: use only a valid controller already embedded in the package (never preserves the unit block)")

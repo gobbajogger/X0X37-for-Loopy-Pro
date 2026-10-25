@@ -1,0 +1,27 @@
+{
+  "source": "4e9d06f542058413a34472ff0e84d88c1360af6c",
+  "firmware_tree": "3ea8fd24d5d65cfdc119cb3f3083a92f2e6bc60d",
+  "producer": "sh tests/host/smc_ui_test.sh; actual production ui.c/framebuffer/engine/smc_mixer.c",
+  "pixels": [
+    240,
+    240
+  ],
+  "hardware": false,
+  "sha256": {
+    "frames/01-main-pickup.png": "665d79a9b567cfcadb00c7074420c8c2325bd9e177686138a6c2d5abead7d7c7",
+    "frames/03-picked-fader.png": "cc7b2a794b8fabaf3b9d31f714fcc67aefa46d3ffbe34fefa3381b5eb5fd6d68",
+    "frames/04-delay-knob.png": "1378129c0f92a8c75b22e7e1f9a33ed8100920c9a01177d9f64d31a4b51c52de",
+    "frames/07-clip-field.png": "c0ad2f156e4502cf61860874da04c22b48fda651442b45be88adf8453700051b",
+    "frames/08-mute-action.png": "2b0521a017df09ecb831045fe6b944dfbbde5b1ae7889957bea397a0defc8f3e",
+    "frames/09-part-pan.png": "4f4ee567511c7b9a1382450fe5e3d786e729ed09f5c7de3b5f619cc689083a68",
+    "frames/10-808-seq-bank2-pan.png": "de61a2b0c15c2e3055468288f1bfdfde1b900d505b5fad02ac7174a0c74f04b1",
+    "frames/11-list-on-fader.png": "02ea896c37b4a506b9b440a03b5ce3cd64f8f1941fc268a324dc7e6e4b5b156b",
+    "frames/12-parked-knob.png": "239690e3134d19376d46ca9d50a42fcf4f579233049822143543982a23cf6c8d"
+  },
+  "prior_frame": {
+    "path": "frames/00-prior-pickup.png",
+    "sha256": "dba686ffcd4b586927ee07497fe72058cfb0ddd18cdabbfc79288e43b878e98f",
+    "origin": "task17 independent production render; reused baseline UI smc_mixer.c SHA256 a9bca0915cf8160b9c5913c05f4bc7b1d670d2cf48138d56b96c14d7ef1f993c",
+    "source_for_new_frames": false
+  }
+}

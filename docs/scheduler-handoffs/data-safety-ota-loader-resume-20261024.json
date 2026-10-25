@@ -1,0 +1,145 @@
+{
+  "schema": "loopyx0x37.data-safety.loader-resume.v1",
+  "run_utc": "2026-10-23T20:27:11Z",
+  "owner": "LoopyX0X37 Data Safety",
+  "outcome": "SOURCE_HOST_CHECKED_READY_FOR_INDEPENDENT_REVIEW",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "branch": "lane/data-safety-ota-loader-resume-20261024-0614",
+  "candidate": "NIGHTLY first 303 + safety candidate, currently #103",
+  "consumed_producer": {
+    "pr": 103,
+    "head": "bc9bebc7b505a936c16134cf1be112e05fcb6fb3",
+    "full_root": "5807287b882bf2d58e8221ccb898c50b3078642d",
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "installer_blob": "e73b230a6e51366f9ee93c6830690c83027b7566",
+    "evidence_revision": "docs/scheduler-handoffs/integration-303-data-safety-replay-20261024-r2.json @ 645702651163892ad212b9229057b93a0c7dcb60"
+  },
+  "tested_source_head_before_manifest": "70ead9ec8f7f2f54ff8bb95cb0b511c866632d01",
+  "tested_full_root_before_manifest": "96d8d1e15ea7cbaf2a0ccc638ba9178a75b0c850",
+  "tested_firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+  "installer_tested_git_blob": "5b60164f056352f763b53053fa5635fb036821fc",
+  "regression_test_git_blob": "e4705dd52623b43614ed34e910890cae589abed6",
+  "integration_test_git_blob": "f67b5923e4f676b3221c89ed994b2c613565a22c",
+  "changed_paths": [
+    "tools/fm1_install.py",
+    "tests/fm1_install_restore_status_test.py",
+    "tests/install_test.py",
+    "docs/scheduler-handoffs/data-safety-ota-loader-resume-20261024.json"
+  ],
+  "finding": "OTA update-loader mode bypasses SMP_INFO and prewrite slot backup; an implicit restart could write even with unknown samples, and previously restored no at-risk slots. An actual device loss was not observed.",
+  "repair": "Refuse loader-mode installation with code slots (exit 7) unless explicit --no-slots. A verified previous archive or positively known no user samples is required before intentionally opting out; manual restore may be needed. Preserve current --backup loader refusal, normal running-firmware prewrite backup, cancellation, model/checkctl paths. No automatic flash or bypass.",
+  "source_match": {
+    "original_source_blob": "e73b230a6e51366f9ee93c6830690c83027b7566",
+    "original_run": {
+      "chars": 3786,
+      "fnv1a64": "603b1cd70009b0fa"
+    },
+    "repaired_run": {
+      "chars": 4345,
+      "fnv1a64": "77b6ada401b555dd"
+    },
+    "local_regression_sha256": "c0f30d2dec3ad10b35cdbfb2649902bb2b1376b54cd1e24f1136707326721e2d",
+    "git_test_blob": "e4705dd52623b43614ed34e910890cae589abed6",
+    "note": "Tests execute exact AST run() source from verified Git function windows, with virtual updater; no full repo checkout or real USB."
+  },
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "fm1_install_restore_status_test_updated.py",
+        "-v"
+      ],
+      "env": "X0X_FM1_INSTALL_SOURCE=fm1_install_before.py X0X_X0X_SLOTS_SOURCE=qa_exact_plan_migration.py",
+      "exit": 1,
+      "status": "EXPECTED_FAIL_BEFORE",
+      "passed": 13,
+      "total": 15,
+      "log_sha256": "33fe4437cd6f135b4538ed005f181d098cea1891b90ea3eeae5c22083486ed2a"
+    },
+    {
+      "argv": [
+        "python3",
+        "fm1_install_restore_status_test_updated.py",
+        "-v"
+      ],
+      "env": "X0X_FM1_INSTALL_SOURCE=fm1_install_after.py X0X_X0X_SLOTS_SOURCE=qa_exact_plan_migration.py",
+      "exit": 0,
+      "status": "PRODUCER_SCOPED_PASS",
+      "passed": 15,
+      "total": 15,
+      "log_sha256": "288dfa953d60baf1f91c95a745de03503ea2cc56f0f0691dde436093a195e2b9"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "fm1_install_restore_status_test_updated.py",
+        "-v"
+      ],
+      "env": "X0X_FM1_INSTALL_SOURCE=fm1_install_after.py X0X_X0X_SLOTS_SOURCE=qa_exact_plan_migration.py",
+      "exit": 0,
+      "status": "PRODUCER_SCOPED_PASS",
+      "passed": 15,
+      "total": 15,
+      "log_sha256": "288dfa953d60baf1f91c95a745de03503ea2cc56f0f0691dde436093a195e2b9"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "fm1_install_before.py",
+        "fm1_install_after.py",
+        "fm1_install_restore_status_test_updated.py"
+      ],
+      "exit": 0,
+      "status": "PASS",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "coverage": [
+    "default loader mode refuses write despite --yes",
+    "explicit --no-slots permits interrupted-loader recovery",
+    "--backup in loader mode still refuses",
+    "cancel with explicit opt-out prevents flash",
+    "running-mode prewrite backup and restoration tests unchanged",
+    "partial and completely skipped sample restore still return slots error"
+  ],
+  "not_run": [
+    "complete exact-root native test dispatcher incl tests/install_test.py",
+    "independent full-root QA and backup/OTA/CRC/mismatched model/controller negatives",
+    "Elite/Pro/controller compiled artifact build for this exact new full root",
+    "USB or physical keyboard",
+    "lawful hosted firmware and live HTTP hash"
+  ],
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Fetch exact final PR head; run entire installer_slots/install_test/controller/OTA host suite and affected negatives; independently review explicit loader-mode risk gating."
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "BUILD_ONLY may start for exact full root; compare unchanged firmware subtree and all compiler inputs; prove reuse of prior model/controller bytes or execute Elite+Pro+ctl build."
+    },
+    {
+      "owner": "Sole firmware Safe Merge",
+      "action": "Review and reconcile stacked Data Safety change on PR #103 first-candidate lane through protected nightly review path; do not write protected ref directly."
+    },
+    {
+      "owner": "Catalog / Publisher",
+      "action": "Maintain NO_INSTALLABLE until independent source/model/backup/integrity/controller/license/immutable HTTP gates all complete."
+    }
+  ],
+  "disposition": {
+    "source": "SOURCE_REVIEW_READY",
+    "independent_qa": "PENDING",
+    "build": "PENDING_OR_EXACT_INPUT_REUSE_UNVERIFIED",
+    "http": "NOT_VERIFIED",
+    "hardware": "DEVICE_NOT_TESTED",
+    "nightly_per_model": {
+      "Elite": "NO_NEW_INSTALLABLE",
+      "Pro": "NO_NEW_INSTALLABLE"
+    },
+    "production": "UNCHANGED"
+  }
+}

@@ -1,0 +1,7 @@
+Linux-6.8.0-117-generic-x86_64-with-glibc2.36
+3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]
+Pillow 9.4.0
+clang version 4.0.1 () ()
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /toolchain/pi32v2/bin

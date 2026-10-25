@@ -323,6 +323,8 @@ def run(a):
         unchanged()
         stem = 'x0x-smk37-elite' if a.model == 'elite' else 'x0x-smk37'
         package = work / 'build' / (stem + ('-' + firmware_version if firmware_version else '') + '.fwsc')
+        if not package.is_file() or package.stat().st_size == 0:
+            raise ValueError('build produced no development package')
         artifacts = {}
         for kind, path in [('package', package)] + ([] if a.no_controller else [('controller', work/'ble/ctl/out/ctl.img')]):
             dest = output / path.name

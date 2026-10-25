@@ -76,9 +76,10 @@ class FakeSMK:
     """a MIDI backend with one SMK-37 Pro on it"""
 
     def __init__(self, image, identity="SMK-37 Pro_016", name="SMK-37 Pro", unplug_after=None, after_write="SMK-37 Pro_900",
-                 stall_after=None, bad_addr=None):
+                 stall_after=None, bad_addr=None, slot_info=(2, 80, 0, 0, 0, 0, 0, 0)):
         self.image, self.unplug_after, self.after_write = image, unplug_after, after_write
         self.stall_after, self.bad_addr = stall_after, bad_addr
+        self.slot_info = slot_info
         self.served = self.bad = self.upgrades = 0
         self.sent, self.links, self.gen, self.lock = [], [], 0, threading.Lock()
         self.boot(identity, name)
@@ -110,6 +111,9 @@ class FakeSMK:
         if d == I.HS_QUERY:
             t = self.identity.encode()
             self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + t + bytes(28 - len(t))) + b"\xF7")
+        elif d == I.ED_HDR + bytes([I.xs.CMD_INFO, 0xF7]):
+            if self.slot_info is not None:
+                self.tx(I.ED_HDR + bytes([I.xs.CMD_INFO]) + bytes(self.slot_info) + b"\xF7")
         elif d == I.UPGRADE:
             self.upgrades += 1
             first = self.bad_addr if self.bad_addr is not None else 0
@@ -201,6 +205,16 @@ def installs():
     ok(rc == 0 and dev.bad == 0 and dev.upgrades == 2 and dev.served == 11 and "runs SMK-37 Pro_900" in out
        and "100%" in out, f"install: running -> loader -> Felucca ({dev.served} reads)")
 
+    # A silent or malformed sample-layout response must never permit an OTA write.
+    dev = FakeSMK(image, slot_info=None)
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == I.EXIT["slots"] and dev.upgrades == 0 and "SMP_INFO timed out" in err,
+       "install: missing SMP_INFO -> fail closed before write")
+    dev = FakeSMK(image, slot_info=(2, 80, 0, 0))
+    rc, out, err = cli([p, "--yes"], dev)
+    ok(rc == I.EXIT["slots"] and dev.upgrades == 0 and "truncated SMP_INFO" in err,
+       "install: malformed SMP_INFO -> fail closed before write")
+
     raw10 = package("SMK-37 Pro_9001000")
     dev = FakeSMK(I.logical_image(raw10), identity="SMK-37 Pro_909", after_write="SMK-37 Pro_9001000")
     rc, out, err = cli([pkgfile("x10.fwsc", raw10), "--yes"], dev)
@@ -209,7 +223,12 @@ def installs():
 
     dev = FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update")
     rc, out, err = cli([p, "--yes"], dev)
-    ok(rc == 0 and dev.bad == 0 and dev.upgrades == 1 and "update mode" in out, "install: device already in update mode -> finishes the write")
+    ok(rc == I.EXIT["slots"] == 7 and dev.upgrades == 0 and "--no-slots" in err,
+       "install: update loader without explicit sample-preservation decision -> fail before write")
+    dev = FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update")
+    rc, out, err = cli([p, "--yes", "--no-slots"], dev)
+    ok(rc == 0 and dev.bad == 0 and dev.upgrades == 1 and "update mode" in out,
+       "install: already in loader -> explicit --no-slots recovery finishes the write")
 
     dev = FakeSMK(image)
     rc, out, err = cli([p], dev, answer=False)
@@ -243,11 +262,11 @@ def errors():
     ok(rc == 4 and "disconnected" in err and "nothing was written" in err and time.monotonic() - t0 < 3,
        "unplugged in step 1 -> exit 4 'lost', nothing written")
     t0 = time.monotonic()
-    rc, out, err = cli([p, "--yes"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", unplug_after=3))
+    rc, out, err = cli([p, "--yes", "--no-slots"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", unplug_after=3))
     ok(rc == 4 and "run the install again" in err and time.monotonic() - t0 < 3, "unplugged during the write -> exit 4 at once")
-    rc, out, err = cli([p, "--yes"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", stall_after=3))
+    rc, out, err = cli([p, "--yes", "--no-slots"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", stall_after=3))
     ok(rc == 4 and "stopped answering" in err, "loader stops answering -> exit 4 after the idle time")
-    rc, out, err = cli([p, "--yes"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", bad_addr=len(image)))
+    rc, out, err = cli([p, "--yes", "--no-slots"], FakeSMK(image, identity="ota-SMK-37 Pro_900", name="Felucca Update", bad_addr=len(image)))
     ok(rc == 4 and "outside the package" in err, "read past the package -> exit 4")
 
     rc, out, err = cli([p, "--yes"], FakeSMK(image, after_write="SMK-37 Pro_016"))
@@ -256,7 +275,7 @@ def errors():
     rc, out, err = cli([p, "--yes"], dev)
     ok(rc == 6 and dev.upgrades == 0, "another model -> exit 6, nothing sent")
     dev = FakeSMK(image, identity="ota-FM-1_900", name="Felucca Update")
-    rc, out, err = cli([p, "--yes"], dev)
+    rc, out, err = cli([p, "--yes", "--no-slots"], dev)
     ok(rc == 6 and dev.upgrades == 0, "SMK package on an FM-1 in update mode -> exit 6 (wrong model), nothing sent")
 
     class Stuck(FakeSMK):          # the loader never shows up

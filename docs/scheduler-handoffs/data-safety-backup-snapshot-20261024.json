@@ -1,0 +1,103 @@
+{
+  "schema": "loopyx0x37.data-safety.backup-snapshot.v1",
+  "evidence_revision": "data-safety-prewrite-backup-snapshot-20261024-0819-v1",
+  "owner": "LoopyX0X37 Data Safety",
+  "disposition": "SOURCE_COMPLETE_PRODUCER_SCOPED_PASS_REVIEW_PENDING",
+  "consumed": {
+    "repo": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 103,
+    "branch": "lane/safe-merge-303-first-nightly-20261024-0138",
+    "head": "5493044eb663b931fddd13f847c370b6971df623",
+    "root_tree": "1ca400ea04a7369c5e056ec80d35dc42c4a42855",
+    "firmware_subtree": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "installer_blob": "5498084bed95985f091f9525a936e4c4bef154af"
+  },
+  "produced": {
+    "branch": "lane/data-safety-prewrite-snapshot-reconcile-20261024-0819",
+    "paths": [
+      "tools/fm1_install.py",
+      "tests/fm1_install_backup_snapshot_test.py",
+      "tests/run_tests.sh",
+      "docs/scheduler-handoffs/data-safety-backup-snapshot-20261024.json",
+      "docs/scheduler-handoffs/data-safety-backup-snapshot-20261024.md"
+    ],
+    "firmware_subtree_expected_unchanged": "d3b67bf127121acdbb2d056890b8c6987ffb363e",
+    "test_script_sha256": "3f783c3725ee5526ec7f92cbbaa876d540bfb43f32ebac5b348769465995d943"
+  },
+  "finding": "Cached preflight self.old_map/self.risk survived actual post-probe backup layout refresh; potential silent skipped restore of newly at-risk sample images. No physical loss observed.",
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "/mnt/data/x0x37-data-safety-snapshot/tests/fm1_install_backup_snapshot_test.py"
+      ],
+      "input": "EXACT ORIGINAL SOURCE-MATCHED AST WINDOW",
+      "exit": 1,
+      "expected": "FAIL_BEFORE",
+      "tests": 7,
+      "failed": 4,
+      "log_sha256": "253a983c8f11cb65839446ce382b93c240ea9608e5b235b8d546f8ec2cf28531"
+    },
+    {
+      "argv": [
+        "python3",
+        "/mnt/data/x0x37-data-safety-snapshot/tests/fm1_install_backup_snapshot_test.py"
+      ],
+      "input": "PATCHED SOURCE-MATCHED AST WINDOW",
+      "exit": 0,
+      "tests": 7,
+      "passed": 7,
+      "log_sha256": "a324a31b7dce1460baeef4fbec4a60f47cb891938d280152deb264d3c6a43cea"
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "/mnt/data/x0x37-data-safety-snapshot/tests/fm1_install_backup_snapshot_test.py"
+      ],
+      "input": "PATCHED SOURCE-MATCHED AST WINDOW",
+      "exit": 0,
+      "tests": 7,
+      "passed": 7,
+      "log_sha256": "2e7542c0ce5c053879460e4b6cec8d02bc1e4bef9e4cbce3d9f2a48cc554774f"
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "/mnt/data/x0x37-data-safety-snapshot/tests/fm1_install_backup_snapshot_test.py"
+      ],
+      "exit": 0,
+      "status": "SYNTAX_PASS"
+    }
+  ],
+  "not_run": [
+    "full exact combined-root regression suite",
+    "device reads/flash/hardware",
+    "Elite/Pro/controller target compiler build",
+    "independent QA approval",
+    "lawful immutable HTTP publication"
+  ],
+  "hardware": "DEVICE_NOT_TESTED",
+  "public_nightly": "NO_NEW_VERIFIED_INSTALLABLE",
+  "protected_refs": "UNCHANGED",
+  "next": [
+    {
+      "owner": "Independent QA",
+      "action": "Independently validate changed source and full backup/restore OTA negative suite against exact new full root"
+    },
+    {
+      "owner": "Hourly Build",
+      "action": "Compile or prove matching full compiler input Elite/Pro/controller BUILD_ONLY without waiting for QA/merge"
+    },
+    {
+      "owner": "Sole Safe Merge",
+      "action": "Reconcile reviewed data-safety source into candidate #103 via authorized own integration branch"
+    },
+    {
+      "owner": "Catalog/Publisher",
+      "action": "Retain prior live candidate; no public selection without all prehardware model/data/controller/license/http checks"
+    }
+  ]
+}

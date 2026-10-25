@@ -6,17 +6,22 @@
   tools/add_ctl.py X0X.fwsc --remove -o X0X-plain.fwsc   an empty Bluetooth block again
   tools/add_ctl.py ctl.img --check                       check an image only
 
-The image is built on your own computer by ble/ctl/build_ctl.sh from JieLi's files; X0X never
-ships it. It goes into the package's Bluetooth block (flash 0x8B000..0x9AFFF, inside the app area,
+The image is built by ble/ctl/build_ctl.sh from the reviewed JieLi inputs. Qualified NIGHTLY
+packages include their matching controller; tools/package_nightly.py checks and composes that
+package without making a distribution-rights decision. It goes into the package's Bluetooth
+block (flash 0x8B000..0x9AFFF, inside the app area,
 encrypted like the rest of it); the app.bin and app area checksums and the package's own CRCs are
 written again. Everything else in the package stays byte for byte. Every X0X update writes this
-block too, so add the image to each new package (tools/fm1_install.py does it with --ctl; the web
-installer has a file field for it). web/fm1pkg.js insertCtl does the same in the browser
+block too, so include the image in each new NIGHTLY package. Legacy unbundled packages still
+need an explicit matching image (tools/fm1_install.py --ctl or the web installer file field).
+web/fm1pkg.js insertCtl does the same composition in the browser
 (tests/ble_pkg_test.py checks that both give the same bytes).
 """
 import argparse
+import os
 import struct
 import sys
+import tempfile
 import zlib
 from pathlib import Path
 
@@ -51,6 +56,8 @@ def ctl_problem(img):
         return f"header version {ver}, size {hsize}, ABI {abi}: this X0X takes version {HDR_VERSION}, ABI {ABI}"
     if not HDR_SIZE <= size <= len(img):
         return f"image size {size} does not fit the file ({len(img)} B)"
+    if any(byte != 0xFF for byte in img[size:]):
+        return "non-erased bytes after the controller image declared size"
     if zlib.crc32(img[:16] + b"\0\0\0\0" + img[20:size]) != crc:
         return "CRC mismatch (a damaged file)"
     for name, a in (("init", init), ("poll", poll)):
@@ -224,6 +231,42 @@ def add(raw, ctl):
     return fwsc_of(insert(logical, ctl), product)
 
 
+def write_package(path, data):
+    """Durably publish a checked package without partially replacing an existing one.
+
+    The output can intentionally equal the input path.  No existing package is
+    truncated until the full new bytes have been written, synced and read back.
+    """
+    path = Path(path)
+    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            fd = -1
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        if Path(tmp).read_bytes() != data:
+            raise OSError("temporary controller package did not read back")
+        os.replace(tmp, path)  # same directory / filesystem: atomic replacement
+        try:
+            dirfd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(dirfd)
+            finally:
+                os.close(dirfd)
+        except OSError as exc:
+            raise OSError(
+                f"{path}: replacement completed, but directory finalization failed; "
+                "durability is uncertain. Inspect the output before retrying: "
+                f"{exc}"
+            ) from exc
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("package", type=Path, help="X0X package for the SMK-37 (.fwsc), or ctl.img with --check")
@@ -240,7 +283,7 @@ def main(argv=None):
         if bool(a.ctl) == bool(a.remove) or not a.out:
             ap.error("give PACKAGE CTL -o OUT, or PACKAGE --remove -o OUT")
         out = add(a.package.read_bytes(), None if a.remove else a.ctl.read_bytes())
-        a.out.write_bytes(out)
+        write_package(a.out, out)
         print(f"{a.out}: {'empty Bluetooth block' if a.remove else 'with ' + str(a.ctl)}")
         return 0
     except (OSError, PkgError) as e:

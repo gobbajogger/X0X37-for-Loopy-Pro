@@ -150,7 +150,8 @@ def downgrade():
     rc, out, err = T.cli([pkgfile("old.fwsc", raw), "--yes", "--backup", "before.x0xslots"], dev)
     f = TMP / "before.x0xslots"
     meta, imgs = xs.read_archive(f.read_bytes()) if f.exists() else (None, None)
-    ok(rc == 0 and imgs == [a, b, c], "downgrade: every slot saved to --backup FILE before the install")
+    ok(rc == I.EXIT["slots"] == 7 and imgs == [a, b, c],
+       "downgrade: every slot saved before install; incomplete restoration returns exit 7")
     first_install = next(i for i, p in enumerate(dev.sent) if p == I.UPGRADE)
     reads_before = [c for idn, c in dev.slot_cmds if idn == NEW_PKG]
     ok(set(reads_before) <= {xs.CMD_INFO, xs.CMD_READ} and dev.sent[first_install - 1][:4] == I.ED_HDR,
@@ -158,7 +159,9 @@ def downgrade():
     ok("slot 2 (BIG, 98 KiB), slot 3 (BR3, 30 KiB)" in out, "downgrade: the warning names the slots at risk")
     now = read(fl, SMK_OLD_MAP, ext=False)
     ok(now == [a, c] and "slot 3 written back to slot 2 and read back: ok" in out and "not written back: slot 2" in out,
-       "downgrade: slot 1 kept, slot 3 written back to the free slot 2, slot 2 (too large) reported")
+       "downgrade: slot 1 kept, slot 3 restored, oversized slot 2 reported")
+    ok("x0x_slots.py restore before.x0xslots" in err and "not written back" in err,
+       "downgrade: exit 7 exposes retained archive recovery instructions")
 
 
 def moved():
@@ -220,9 +223,9 @@ def stock():
     dev = FakeX0X(I.logical_image(raw), NEW_PKG, "SMK-37 Pro_016", {NEW_PKG: NEW}, fl, stock_erases=[(0x9D000, 0xC0000)])
     rc, out, err = T.cli([pkgfile("stock.fwsc", raw), "--yes", "--force", "--backup", "stock.x0xslots"], dev)
     f = TMP / "stock.x0xslots"
-    ok(rc == 0 and f.exists() and xs.read_archive(f.read_bytes())[1] == [a, None, c]
-       and "x0x_slots.py restore stock.x0xslots" in out and "no X0X slots" in out,
-       "stock package: all slots saved, no write back, the restore steps printed")
+    ok(rc == I.EXIT["slots"] == 7 and f.exists() and xs.read_archive(f.read_bytes())[1] == [a, None, c]
+       and "x0x_slots.py restore stock.x0xslots" in err and "no X0X sample slots" in err,
+       "stock package: archived samples retained, no slot destination, incomplete exit 7 with restore steps")
     clear()
 
 

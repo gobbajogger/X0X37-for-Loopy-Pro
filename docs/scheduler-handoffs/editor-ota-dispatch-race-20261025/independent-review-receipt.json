@@ -1,0 +1,34 @@
+{
+  "reviewer": "/root/dispatch_review (independent of source/test author /root)",
+  "reviewed_commit": "a8113c2a0036be76069fb6431454650ee84f6e73",
+  "reviewed_root": "3c09d2698059657b3a0005bac944284970b56a1e",
+  "reviewed_firmware": "b7a004e4d37b95b4efc8def3842c9f41589cda06",
+  "baseline": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "reviewed_blobs": {
+    "firmware/src/app/editor.c": "9530298bd98da7eea712d7527324964e616d74c5",
+    "firmware/src/app/main_fm1.c": "311f8c59ca6c9b7bd3f3a31f657514bed164bc90",
+    "firmware/src/ota.c": "735e6791540b7586ed78ebe73b720fcd62310162",
+    "firmware/src/usb.c": "90bbde452668c2b28967bdd16f08e89626ef8a11",
+    "tests/ota_test.c": "16fce983d4833aa5c5122fc0a2a9bb47b7feddc0",
+    "tests/host/editor_ota_dispatch_test.c": "fbe63f6ca4b517f65e3f798af25a8ea3feae04ee",
+    "tests/host/editor_ota_dispatch_test.py": "e118affa4ffa4f8ff3fbe286bbe84ceeeede591b",
+    "tests/host/project_update_guard_test.c": "cfb431928fdb6dafe42f8f94adb65af7a8841d60",
+    "tests/run_tests.sh": "79a69a048737655788b2a1dff19d5f3a920bd031"
+  },
+  "baseline_unchanged_blobs": {
+    "firmware/src/ota.c": "735e6791540b7586ed78ebe73b720fcd62310162",
+    "firmware/src/usb.c": "90bbde452668c2b28967bdd16f08e89626ef8a11",
+    "tests/ota_test.c": "16fce983d4833aa5c5122fc0a2a9bb47b7feddc0"
+  },
+  "scope_disposition": "ACCEPT scoped source/host regression; no findings requiring fix",
+  "broader_sanitizer_disposition": "Pre-existing project runtime fastmath negative-shift UBSan failure reproduced unchanged on baseline; not scoped dispatch regression.",
+  "logs": {
+    "project-protocol-sanitized.log": "1a9773fc5a168928c7a4fecbd6111a80335e6b6ba03ff75e1fc1d143142b779e",
+    "candidate-regression.log": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb",
+    "candidate-sanitized.log": "f0c85d62ced49a72fb641ef5f62020b63ddc62d877c9f54e1cd62356db95b5cb",
+    "project-runtime-sanitized.log": "75f93babebd979022cedbe335d38b18f401c5e347f2d6e949e5074b4c3bec11d",
+    "aggregate-normal.log": "622795a2b80a4ae7004e944e4de3563d31587b0d0e0cc58bcdfb5c6c3be2456d",
+    "baseline-regression.log": "1cc982e5c9a2fa31618faafed6d9d4bdb0faa047428b4dca3a899a698870178a",
+    "baseline-project-runtime-sanitized.log": "c2f3590330a919d9c80f4eda9f2e5f277e77a4c142b081d2755b733c996090f4"
+  }
+}

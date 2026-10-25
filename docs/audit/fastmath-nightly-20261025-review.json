@@ -1,0 +1,29 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "base": "fbc23a4a7f0c9486a84f013ec54cf0aec4d22dfe",
+  "workflow_revision": "e2482a5039527195e346925c751ac3e3a333ada9",
+  "workflow_sha256": "2dd8889e0843b4bbd9686cb42d3936921d7e23a4dde688bfea9107e1b8a556b3",
+  "scope_sha256": {
+    "firmware/src/dsp/fastmath.h": "30763cfdecd73d92a94e872ac2731d2dfadb5d9f2537a9f0712ed895d435bd46",
+    "tests/host/fastmath_test.c": "e3bf517bc5a6cf7ba00ac461d3e58f1b70876cc4c36503ad33f6cba34017dcc9",
+    "tests/host/run_fastmath_ubsan.sh": "b7a1d1ca9a8a3fdcec21e3ab0b800b0dad4f38cd3ad5b2a38282ee39f933e121",
+    "tests/host/fastmath_exponent_test.c": "ebd7b1a11a911c2877ec85c74eefbb15cd0eea8072f2ab2d2d1d530f56bafd86",
+    "tests/run_tests.sh": "f21be57735df5a8af72623756aa45b81194cb02abf695efeb9ba98fe7a32ec7b"
+  },
+  "environment": "Apple clang 21.0.0 arm64-apple-darwin27.2.0",
+  "observed_checks": {
+    "patched_ubsan_runner": "PASS fastmath and exponent",
+    "exponent_ubsan": "PASS 9146 checks, digest e91ee9c4210cd668",
+    "legacy_exponent_O2": "PASS 9146 checks, same digest",
+    "legacy_exponent_ubsan": "EXPECTED FAIL exit 134: left shift of negative value -126",
+    "git_diff_check": "PASS"
+  },
+  "limits": [
+    "No firmware builds, device tests, Git writes, remote actions or GUI performed.",
+    "Legacy parity is observed compiler behavior of undefined source, not a portable semantic guarantee.",
+    "Coverage is bounded; ldexpf oracle excludes overflow and below-normal helper combinations unused by public wrappers.",
+    "Review accepts only these scoped bytes; other working-tree evidence files are out of scope."
+  ],
+  "source_commit": "6eddf7f7233eb7bd18133e312e16fa41dc4b41ed",
+  "reviewer": "Independent medium subagent fastmath_review"
+}

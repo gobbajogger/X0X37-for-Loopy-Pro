@@ -274,6 +274,18 @@ echo 'RAM .data+.bss 40 B of 100; pool 100 B of 10000'
         self.assertEqual(self.run_validation().returncode, 3)
         self.assertFalse((self.out/'record.json').exists())
 
+    def test_missing_package_issues_no_record(self):
+        path = self.repo/'build.sh'
+        path.write_text(path.read_text().replace(
+            "printf 'development package' > build/x0x-smk37-elite.fwsc\n", ""))
+        self.git('add', '.')
+        self.git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'no package')
+        self.commit = self.git('rev-parse', 'HEAD')
+        result = self.run_validation()
+        self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
+        self.assertIn('no development package', result.stderr)
+        self.assertFalse((self.out/'record.json').exists())
+
     def test_missing_plan_and_budget_evidence_refused(self):
         self.plan.write_text(json.dumps({'base': self.commit, 'scope': 'fixture', 'checks': []}))
         self.assertEqual(self.run_validation().returncode, 3)

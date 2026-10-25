@@ -99,11 +99,14 @@ static void enqueue(unsigned i)
 }
 static void interleave(int queue)
 {
-    if (!inject || queue != route) return;
+    if (!inject || queue != (route == 4 ? 2 : route)) return;
     inject = 0;
-    enqueue(route == 2 ? 16 : SMC_Q);
+    if (route == 4) {
+        smc_mmc_host(33, (uint8_t)mmc_src); /* ISR refills the released slot */
+        smc_mmc_host(34, (uint8_t)mmc_src); /* STOP overflows after PLAY */
+    } else enqueue(route == 2 ? 16 : SMC_Q);
 }
-''' + poll + r'''
+''' + function("smc_mmc_drain_stop") + "\n" + poll + r'''
 
 int main(int argc, char **argv)
 {
@@ -111,11 +114,67 @@ int main(int argc, char **argv)
     route = atoi(argv[1]); mmc_src = atoi(argv[2]);
     unsigned start = (unsigned)atoi(argv[3]);
     reset_on_first = atoi(argv[4]);
-    assert(route >= 0 && route <= 2 && mmc_src >= 0 && mmc_src < 2);
+    assert(route >= 0 && route <= 4 && mmc_src >= 0 && mmc_src < 2);
     smc_qr = smc_qw = smc_host_r = smc_host_w = (uint8_t)start;
     for (int i = 0; i < 2; i++) smc_mmc_r[i] = smc_mmc_w[i] = (uint8_t)start;
     smc.up = 1;
     proj.set.bt = PROJ_BT_SMC_CENTRAL | PROJ_BT_SMC_USER;
+    if (route == 4) {
+        /* ISR fills a freed slot with PLAY, then STOP overflows. The extra
+         * PLAY predates STOP and must not be replayed after it next poll. */
+        for (unsigned i = 0; i < 16; ++i) smc_mmc_host(33, (uint8_t)mmc_src);
+        inject = 1;
+        smc_poll();
+        assert(!inject && count == 16u);
+        for (unsigned i = 0; i < 16; ++i)
+            assert(observed[i][0] == 1 && observed[i][1] == 0x5Eu);
+        smc_mmc_host(33, (uint8_t)mmc_src); /* later PLAY belongs after STOP */
+        smc_poll();
+        assert(count == 19u);
+        assert(observed[16][0] == 1 && observed[16][1] == 0x5Eu);
+        assert(observed[17][0] == 1 && observed[17][1] == 0x5Du);
+        assert(observed[18][0] == 1 && observed[18][1] == 0x5Eu);
+        smc_poll();
+        assert(count == 19u); /* STOP acknowledged only once */
+        return 0;
+    }
+    if (route == 3) {
+        /* First sixteen queued PLAY commands occupy the whole source ring.
+         * The seventeenth STOP must run last, never be silently lost. */
+        for (unsigned i = 0; i < 16; ++i) smc_mmc_host(33, (uint8_t)mmc_src);
+        smc_mmc_host(34, (uint8_t)mmc_src);
+        if (reset_on_first) {
+            smc_project_drop(); /* a discarded project must not inherit STOP */
+            smc_poll();
+            assert(count == 0);
+            return 0;
+        }
+        smc_poll();
+        assert(count == 17);
+        for (unsigned i = 0; i < 16; ++i)
+            assert(observed[i][0] == 1 && observed[i][1] == 0x5E);
+        assert(observed[16][0] == 1 && observed[16][1] == 0x5D);
+        smc_poll();
+        assert(count == 17); /* the lost STOP is acknowledged only once */
+        return 0;
+    }
+    /* Only legitimate seven-bit payload bytes may become SMC controls.
+     * Before this guard an invalid data1 0x88 was silently decoded as
+     * Solo 1 (0x08), and invalid CC values were still accepted. */
+    if (route == 1) {
+        const uint32_t base = 0x0Bu | (0xBFu << 8);
+        const uint32_t note = 0x09u | (0x9Fu << 8);
+        uint8_t before = smc_host_w;
+        assert(!smc_midi_host(base | (0x90u << 16) | (1u << 24)));
+        assert(!smc_midi_host(base | (16u << 16) | (0x81u << 24)));
+        assert(!smc_midi_host(note | (0x88u << 16) | (127u << 24)));
+        assert(!smc_midi_host(note | (8u << 16) | (0xFFu << 24)));
+        assert(smc_host_w == before);
+        proj.set.bt &= (uint8_t)~PROJ_BT_SMC_USER;
+        assert(!smc_midi_host(base | (16u << 16) | (1u << 24)));
+        assert(smc_host_w == before);
+        proj.set.bt |= PROJ_BT_SMC_USER;
+    }
     unsigned capacity = route == 2 ? 16 : SMC_Q;
     for (unsigned i = 0; i < capacity; i++) enqueue(i);
     inject = 1;
@@ -158,9 +217,10 @@ with tempfile.TemporaryDirectory(prefix="smc-queue-") as tmp:
                     "-I" + str(ROOT / "firmware/src"), str(c), "-o", str(executable)], check=True)
     failures = []
     cases = 0
-    for route, src in ((0, 0), (1, 0), (2, 0), (2, 1)):
+    for route, src in ((0, 0), (1, 0), (2, 0), (2, 1), (3, 0), (3, 1), (4, 0), (4, 1)):
         for start in (0, 240, 255):
             for reset in (0, 1):
+                if route == 4 and reset: continue
                 args = [str(route), str(src), str(start), str(reset)]
                 result = subprocess.run([str(executable), *args], check=False)
                 cases += 1
@@ -168,4 +228,4 @@ with tempfile.TemporaryDirectory(prefix="smc-queue-") as tmp:
                     failures.append((args, result.returncode))
     if failures:
         raise SystemExit(f"FAIL: {len(failures)}/{cases} SMC queue interleavings: {failures}")
-print(f"PASS: {cases} full-queue ISR interleavings preserve BLE/USB/MMC events, wrap and reset discard")
+print(f"PASS: {cases} full-queue ISR interleavings, MMC STOP priority, wrap and reset discard")

@@ -1,0 +1,106 @@
+{
+  "base_commit": "54f2ffbc3124f7449a69067dc8215a2d91a2e675",
+  "base_tree": "3b5cadafba33f4c1b116660bc9d19a27a892337c",
+  "patch_sha256": "584ea440bc642b5e741d12f69c135a0049056f71cb620b900535930e6d4ea01a",
+  "replayed_updater_sha256": "7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa",
+  "checks": [
+    {
+      "check": "transport_boundaries",
+      "exit": 0,
+      "output_sha256": "2d10bbd90230988db0c5132c39852d98ba9a08b794afb331473c1eefefe45b87"
+    },
+    {
+      "check": "tests/install_test.py",
+      "exit": 0,
+      "output_sha256": "08a9ac3cd1e23ae5f34900b1a3dc11d5248c3c59e1256a74b86b0f74e510a1e0"
+    },
+    {
+      "check": "tests/install_ctl_test.py",
+      "exit": 0,
+      "output_sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914"
+    },
+    {
+      "check": "tests/install_slots_test.py",
+      "exit": 0,
+      "output_sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3"
+    },
+    {
+      "check": "tests/x0x_slots_test.py",
+      "exit": 0,
+      "output_sha256": "bf6cfee098eaa0bf660378b1b2377dcd440c04f536f37dbb07d9c32c674e9e8e"
+    },
+    {
+      "check": "tests/host/test_dev_validate.py",
+      "exit": 0,
+      "output_sha256": "e1dea9c84942358bb8fed180c9012b85fee4e8b7f434d128577e774f2771cbfe"
+    },
+    {
+      "check": "tests/host/test_validation_inputs.py",
+      "exit": 0,
+      "output_sha256": "1d9672115a578fca977cda91cac62531268cdc574e18c62b7611c9666eb2ebac"
+    },
+    {
+      "check": "tests/host/test_install_head.sh",
+      "exit": 0,
+      "output_sha256": "6e133a987b54bbf730c142e7c6367799915dc6645d17d6a65da0368117449f90"
+    },
+    {
+      "check": "tests/host/test_install_gate_guard.sh",
+      "exit": 0,
+      "output_sha256": "51c71b84db430006e77302390b5c171f634fe3e6e032391f5ebd7f09b76458ba"
+    },
+    {
+      "check": "tests/host/test_queue_guard.sh",
+      "exit": 0,
+      "output_sha256": "34158a824152a52dfc887865364e69d995ba7378268d9cf4e4e3367a38dac93a"
+    },
+    {
+      "check": "private_head_boundaries",
+      "exit": 0,
+      "output_sha256": "09e6b65f1d0f314d38f157f688aaab9098d6e012570364ff3231c700c9ccd56a"
+    },
+    {
+      "check": "private_build_mapping",
+      "exit": 0,
+      "output_sha256": "604a26ca0ac0bb14d69aab461f5b8f405dfadb84ac0525501bf9a1b2152275e6"
+    }
+  ],
+  "private_fixture_checks": "RUN",
+  "hardware_io": false,
+  "firmware_build": false,
+  "limitations": [
+    "install_test package/Node parity may skip without a built fixture",
+    "Darwin skips Linux-only dev_validate runner cases",
+    "host simulations do not establish physical-device continuity"
+  ],
+  "runtime": {
+    "platform": "Darwin",
+    "machine": "arm64",
+    "python": "3.9.6"
+  },
+  "boundary_counts": {
+    "transport": 17,
+    "head": 27,
+    "original_build_mapping": 31
+  },
+  "counts_basis": "All three exact parameterized scripts completed with exit0; each exits nonzero on failed case/assertion.",
+  "reviewed_implementation_sha256": {
+    "tools/fm1_install.py": "7e5056036aeae47cf2ce2175de4eef7c255b897349eff8153ef7753c8f775dfa",
+    "tools/dev_validate.py": "c4ad9f53b697b0999f15d20e9ee08f4b6dfaee4c1d7da8afa6222863f93b5e45",
+    "tools/accepted_build_mapping.py": "172fc656d59bfb5da42abd7e88ee807fee3ddb63ad5790ddfdf95faea5cc9e61",
+    "flash-handoff.py": "9289ca850ba71448d89f34c7878bd03b15bf2982c20396d4973759ec49643179"
+  },
+  "test_script_sha256": {
+    "head_boundary_test.py": "bd29b92b6f12bfba5082d3cd754f7abb892a0feb580d05ceff0fddf2c8484179",
+    "build_mapping_test.py": "1fe863c4e51652f5dddf7d1e74bfbbcd984e6673a74ec21a3ae37c7d2e86701a",
+    "transport_test.py": "75c5ebbb110f94aa5040c1ade19ce7a7bc683850c728953be870753cb694eb02"
+  },
+  "ownership_reconciliation": {
+    "pr": 114,
+    "head": "757c6e5b168c8c737e758346eb26e23134a5bcbd",
+    "tree": "9aa0d0d32a657c3b7a8a6e4150f290954fa19cf6",
+    "full_patch_apply_check_exit": 1,
+    "conflicting_path": "tools/fm1_install.py",
+    "action": "Preservation-only handoff; active owner code unchanged"
+  }
+}
