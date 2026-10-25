@@ -55,6 +55,10 @@ static struct { int overlay; } ui;
 static unsigned solos_on, solos_off, solos_published;
 static int busy, testing, noteon, noteoff, faders, knobs, buttons;
 static int host_link_inject, host_link_reconnect, host_link_injected, host_link_fresh_inside;
+/* In the fader callback, emulate a TIMER5 producer refilling the just-freed
+ * BLE slot, then trying to enqueue a Solo release into the full SPSC ring. */
+static int ble_overflow_inject, ble_overflow_injected, ble_overflow_zero;
+static unsigned ble_overflow_channel;
 static int perf_testing(void) { return testing; }
 static int ui_project_busy(void) { return busy; }
 static void ui_say(const char *a, const char *b) { (void)a; (void)b; }
@@ -80,6 +84,16 @@ static void smc_fader(int n, uint8_t v)
                   (uint32_t)127u << 24;
    assert(smc_midi_host(pkt) == 1);
   }
+ }
+ if (ble_overflow_inject && !ble_overflow_injected) {
+  const uint8_t filler[3]={0xB1u,40u,64u};
+  const uint8_t release[3]={
+   (uint8_t)((ble_overflow_zero ? 0x90u : 0x80u)|ble_overflow_channel),8u,0u};
+  ble_overflow_injected=1;
+  assert((uint8_t)(smc_qw-smc_qr)==SMC_Q-1u);
+  smc_ble_midi(filler,3u); /* ISR refills the slot freed before dispatch */
+  assert((uint8_t)(smc_qw-smc_qr)==SMC_Q);
+  smc_ble_midi(release,3u); /* this release must be overflow-accounted */
  }
 }
 static void smc_knob(int n, int delta) { (void)n; (void)delta; ++knobs; }
@@ -138,6 +152,8 @@ static void reset(uint8_t cursor, int user)
  solos_on=solos_off=solos_published=0;
  busy=testing=noteon=noteoff=faders=knobs=buttons=0;
  host_link_inject=host_link_reconnect=host_link_injected=host_link_fresh_inside=0;
+ ble_overflow_inject=ble_overflow_injected=ble_overflow_zero=0;
+ ble_overflow_channel=0;
  set_mode(user);
  smc_ble_link(1);
  smc_poll();
@@ -362,6 +378,52 @@ static int ble_foreign_overflow(uint8_t cursor, int user, unsigned ch, int zero_
        "genuine accepted Solo release still works after recovery");
  return 1;
 }
+/* TIMER5 can refill the BLE FIFO after smc_poll releases one slot but
+ * before that fader callback finishes. A concurrently dropped foreign NoteOff
+ * must not clear an unrelated held Solo at the next poll; an accepted lost
+ * release must still clear it. Repeat at six wraparound cursor positions. */
+static int ble_midpoll_foreign_overflow(uint8_t cursor, int user,
+                                        unsigned channel, int zero_on)
+{
+ reset(cursor,user);
+ ble_note(user,1);
+ smc_poll();
+ CHECK(solos_on && smc.solo_target[0],"valid first Solo is held");
+ uint32_t lost_before=smc_ble_solo_release_lost;
+ uint8_t dropped_before=smc_dropped;
+ const uint8_t fader[3]={ (uint8_t)(user ? 0xBFu : 0xE0u),
+                          (uint8_t)(user ? 40u : 0u),64u };
+ const uint8_t filler[3]={0xB1u,40u,64u};
+ smc_ble_midi(fader,3u);
+ for(unsigned j=1;j<SMC_Q;j++) smc_ble_midi(filler,3u);
+ CHECK((uint8_t)(smc_qw-smc_qr)==SMC_Q,"BLE FIFO starts full");
+ ble_overflow_channel=channel;
+ ble_overflow_zero=zero_on;
+ ble_overflow_inject=1;
+ smc_poll();
+ int owned=(channel==0u || (user && channel==15u));
+ CHECK(ble_overflow_injected && faders==1,
+       "fader dispatch actually interleaves with a full-queue BLE producer");
+ CHECK(smc_ble_solo_release_lost-lost_before==(uint32_t)owned,
+       "midpoll overflow ignores a foreign NoteOff, counts valid releases");
+ CHECK((uint8_t)(smc_dropped-dropped_before)==1u,
+       "only the overflowing release was dropped");
+ CHECK(solos_on && smc.solo_target[0],
+       "release lost after poll's watermark cannot clear Solo prematurely");
+ CHECK((uint8_t)(smc_qw-smc_qr)==1u,
+       "ISR refill remains in ring until next bounded poll");
+ smc_poll();
+ CHECK(smc_qr==smc_qw && !!solos_on==!owned && !!smc.solo_target[0]==!owned,
+       "next poll keeps foreign Solo held but fails safe for owned release");
+ smc_poll();
+ CHECK(!!solos_on==!owned,"idle poll never replays overflow release");
+ if (owned) { ble_note(user,1); smc_poll(); }
+ CHECK(solos_on,"ordinary fresh Solo works after concurrent overflow");
+ ble_note(user,0);
+ smc_poll();
+ CHECK(!solos_on && !smc_project_active(),"ordinary release still works");
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
@@ -376,6 +438,20 @@ int main(void)
       ++cases;
      }
   printf("SMC BLE foreign overflow: %u/%u scenarios PASS, %u checks\n",
+         cases,cases,checks);
+  return 0;
+ }
+ /* Focused midpoll ISR refill regression, including a deliberately broken
+  * prior-source negative control in the native regression runner. */
+ if (getenv("SMC_ONLY_MIDPOLL_FOREIGN_OVERFLOW")) {
+  for(unsigned user=0;user<2;user++)
+   for(unsigned ch=0;ch<16;ch++)
+    for(int zero_on=0;zero_on<2;zero_on++)
+     for(unsigned i=0;i<sizeof cursors;i++) {
+      if(!ble_midpoll_foreign_overflow(cursors[i],user,ch,zero_on)) return 1;
+      ++cases;
+     }
+  printf("SMC BLE midpoll foreign overflow: %u/%u scenarios PASS, %u checks\n",
          cases,cases,checks);
   return 0;
  }
@@ -397,6 +473,13 @@ int main(void)
    for(int zero_on=0;zero_on<2;zero_on++)
     for(unsigned i=0;i<sizeof cursors;i++) {
      if(!ble_foreign_overflow(cursors[i],user,ch,zero_on)) return 1;
+     ++cases;
+    }
+ for(unsigned user=0;user<2;user++)
+  for(unsigned ch=0;ch<16;ch++)
+   for(int zero_on=0;zero_on<2;zero_on++)
+    for(unsigned i=0;i<sizeof cursors;i++) {
+     if(!ble_midpoll_foreign_overflow(cursors[i],user,ch,zero_on)) return 1;
      ++cases;
     }
  for (unsigned i=0;i<sizeof cursors;i++) {
