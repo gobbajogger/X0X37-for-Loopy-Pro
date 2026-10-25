@@ -1,0 +1,23 @@
+HTTP 200 bytes 475731
+sha256_html 0b8bf63355feebb115c3c6ba072fa9645237f109a87d4f161b5b9086a908f8a1
+versions.json sha 58643b0339e516d4a784d8b8c963e3a4f476890d6692d8b4413af09fe3716b33 len 13230
+latest nightly-b42bcba4-dev
+{
+  "version": "nightly-b42bcba4-dev",
+  "label": "DEV / HARDWARE TEST \u2014 DEVICE NOT TESTED",
+  "status": "dev-checked",
+  "hardware_tested": false,
+  "source_commit": "b42bcba46ee7255c18f18c10dd1f99b9fc9bb675",
+  "source_tree": "a15afc439fc8b7bccd62d50403b925add45ae9e5"
+}
+catalog elite 82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14 651396
+catalog pro bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34 651392
+ctl 956e3e214658aeaa06a8c122809399ef3e430c7192291f4d918b7b1181ec2d0a
+elite re-fetch size 651396 sha 82ee29d3ede1c17427f2689fbcdd2ab7e2eca7c72df73dcd7694078c9e313b14 MATCH
+pro re-fetch size 651392 sha bc6c04229840c6342f6b8a696939bab7763a934b41d90a95f201250a42bfad34 MATCH
+present nightly-b42bcba4-dev
+present b42bcba4
+present BF-012
+present 82ee29d3
+present bc6c0422
+LIVE_PAGE_MATCH
