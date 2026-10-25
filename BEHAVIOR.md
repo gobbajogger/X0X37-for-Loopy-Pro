@@ -200,8 +200,8 @@ FX-03. A delay longer than 2 s plays at half that length. [MANUAL §18]
 
 ## 12. Mix and master
 
-MIX-01. LFO opens the mixer: PARTS, 909 MIX, 808 MIX and MASTER. [MANUAL §14]
-MIX-02. MASTER has DRIVE, COMP, PUMP and FILTER. [MANUAL §14]
+MIX-01. LFO opens the mixer: PARTS, 909 MIX, 808 MIX, MASTER and WAVE. [MANUAL §14] (Changed 2026-10-25: WAVE sibling page.)
+MIX-02. MASTER has DRIVE, COMP, PUMP and FILTER. WAVE uses the same four knobs and shows the post-master output waveform beside the GR bar. [MANUAL §14] (Changed 2026-10-25: WAVE.)
 MIX-03. PUMP also works when COMP is 0 and when you mute the kick. [MANUAL §14]
 MIX-04. FILTER is off in the middle. Left is a low-pass. Right is a high-pass. [MANUAL §14]
 

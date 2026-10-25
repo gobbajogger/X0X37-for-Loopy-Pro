@@ -67,12 +67,54 @@ static void read_only_rows_do_not_edit(void)
     }
 }
 
+/* MIX WAVE sibling: silent eng_scope is flat; a latched shape changes the main hash; MASTER
+ * page index stays 3; WAVE is page 4 with the same master knobs. */
+static void mix_wave_sibling_scope(void)
+{
+    uint32_t silent, moving, master_hash;
+    unsigned i;
+
+    memset(&ui, 0, sizeof ui);
+    boot();
+    set_view(V_MIX);
+    assert(pg.n == 5);
+    assert(!strcmp(pg.title[3], "MASTER"));
+    assert(!strcmp(pg.title[4], "WAVE"));
+    assert(pg.r[3][1].c == MST_COMP1 && pg.r[4][1].c == MST_COMP1);
+
+    *page_of(V_MIX) = 4;
+    build_pages();
+    for (i = 0; i < SCOPE_N; i++)
+        eng_scope[i] = 0;
+    eng_scope_w = 0;
+    now_ms = 1000;
+    silent = main_hash();
+
+    for (i = 0; i < SCOPE_N; i++)
+        eng_scope[i] = (int16_t)((i & 1u) ? 22000 : -22000);
+    eng_scope_w = SCOPE_N;
+    now_ms += 100;
+    moving = main_hash();
+    assert(moving != silent);
+
+    *page_of(V_MIX) = 3;
+    build_pages();
+    now_ms += 100;
+    master_hash = main_hash();
+    *page_of(V_MIX) = 4;
+    build_pages();
+    now_ms += 100;
+    assert(main_hash() != master_hash);
+}
+
 int main(int argc, char **argv)
 {
     if (argc == 1 || !strcmp(argv[1], "readout"))
         readout_does_not_cover_help();
     if (argc == 1 || !strcmp(argv[1], "read-only"))
         read_only_rows_do_not_edit();
-    puts("PASS: help hides pending readout and read-only rows reject edits");
+    if (argc == 1 || !strcmp(argv[1], "wave"))
+        mix_wave_sibling_scope();
+    puts("PASS: help hides pending readout, read-only rows reject edits, MIX WAVE scope draws");
     return 0;
 }

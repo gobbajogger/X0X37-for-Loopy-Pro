@@ -25,7 +25,7 @@ Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not anothe
 
 ## Drum buttons and SMK pads
 
-For live switching, open MIX and use **Left/Right** to move through **PARTS → 909 MIX → 808 MIX → MASTER**, without opening a menu. PARTS uses the X0X main strip layout; the two drum pages use their individual sounds. Bank Left/Right changes the eight-strip drum bank. Drum SEQ follows its selected kit. This is a page-following map: other sound and effect pages retain the main faders and visible-field knobs.
+For live switching, open MIX and use **Left/Right** to move through **PARTS → 909 MIX → 808 MIX → MASTER → WAVE**, without opening a menu. PARTS uses the X0X main strip layout; the two drum pages use their individual sounds. MASTER keeps its peak-history / COMP view; WAVE is the sibling post-master scope (same knobs, GR bar kept). Bank Left/Right changes the eight-strip drum bank. Drum SEQ follows its selected kit. This is a page-following map: other sound and effect pages retain the main faders and visible-field knobs. SMC SELECT strip 8 still lands on MASTER (page index 3).
 
 On **909 MIX**, **808 MIX**, **909 SEQ** and **808 SEQ**, all four button rows follow the same kit and bank as the faders and knobs. MIX uses the kit shown by its page; SEQ uses the selected drum part.
 
