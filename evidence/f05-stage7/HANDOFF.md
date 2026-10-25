@@ -17,9 +17,11 @@ Host tests: `evidence/f05-stage3/CHECKS.md` (ALL_PASS; not used alone for indepe
 Independent QA: local-env `internal/pr-local-reviews/pr-198.md` (PASS; unchanged package bytes) — copy on tip.
 Deferred (next defect = oldest): `evidence/f05-stage2/DEFERRED.md`.
 Successor prompt: `evidence/f05-stage7/SUCCESSOR-STAGE1.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-a76a9628-9a50-5b04-a7a4-ba134f41d9e1`.
+Successor URL: https://cursor.com/agents/bc-a76a9628-9a50-5b04-a7a4-ba134f41d9e1
+Successor name: `F06 stage1 audit`.
+Successor source: `desktop` (owner-visible; visibility `user`).
+Handoff status: **complete**. Stage 7 ownership ends. Pod had no `CURSOR_API_KEY`; Project coordinator CreateAgent launched Stage 1 (`startingRef` `cursor/f05-bf002-stage7-fb90`).
 
 ## Live nightly page (confirmed)
 
