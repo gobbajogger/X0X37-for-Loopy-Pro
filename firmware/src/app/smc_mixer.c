@@ -430,7 +430,10 @@ void smc_ui_draw(void)
     else if (ui.overlay == O_LIST) put_s(tag, list_title);
     else if (ui.view == V_HOME) put_s(tag, "HOME / PARTS");
     else knob_tag(tag);
-    while (tw(&FONT_XS, tag) > 196) tag[strlen(tag) - 1] = 0;
+    { char *end = tag;
+      while (*end) end++;
+      while (tw(&FONT_XS, tag) > 196) *--end = 0;
+    }
     cv_text(5, vc(&FONT_XS, 0, HDR_H), &FONT_XS, caps_of(tag), C_GRAY);
     put_i(put_s(tag, smc_ui.kind == 3 ? "KEY " : smc_ui.kind == 1 || smc_ui.kind == 2 ? "K" : "F"), smc_ui.strip + 1);
     text_r(235, vc(&FONT_S, 0, HDR_H), &FONT_S, tag, C_HI);
@@ -900,7 +903,7 @@ void smc_poll(void)
     }
     /* Confirmation parks pickup and solos. Help does not. */
     if (!allow || ui.overlay == O_ASK) {
-        smc.picked = smc.seen = smc.input_seen = 0;
+        smc.picked = smc.seen = 0;
         smc.knob_i = 0;
         if (smc_project_active()) smc_solo_clear();
     }

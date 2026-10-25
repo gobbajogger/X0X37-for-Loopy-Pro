@@ -295,6 +295,11 @@ static void test_navigation_replay(void)
     smc_frame(); CHECK(!smc_ui_active());
     fader(0, 0); CHECK(!smc_ui_active()); CHECK(!(smc.picked & 1));
     fader(0, 1); CHECK(smc_ui_active());
+    setup(V_HOME, PART_303A); fader(0, 0); CHECK(smc_ui_active());
+    ask(ACT_SONG_CLR, 0, "TEST", 0); smc_poll(); CHECK(!smc_ui_active());
+    message(0x90, 6, 127); CHECK(ui.overlay == O_NONE);
+    fader(0, 0); CHECK(!smc_ui_active());
+    fader(0, 1); CHECK(smc_ui_active());
     puts("PASS provenance: rapid/idle navigation, duplicate/no-change/zero-delta silence, real movement and pickup");
 }
 static void check_distinct(void)
@@ -341,7 +346,7 @@ static void test_distinct_maps(void)
     setup(V_MIX, PART_303A); *page_of(V_MIX) = 3; build_pages();
     CHECK(smc_same(smc_knob_target(3), PR(R_ENG,T_MST,0,MST_RESO)));
     /* Cross-strip duplicates must park, without substituting an unrelated field. */
-    ui.overlay = O_LIST; ui.list_top = 0; ui.list_n = 6;
+    ui.overlay = O_LIST; ui.list_top = 0; ui.list_n = 6; put_s(list_title, "MASTER");
     for (int n = 0; n < 6; n++) list_rows[n] = smc_home_target((n + 3) % 8);
     check_distinct();
     for (int n = 0; n < 6; n++) CHECK(smc_knob_target(n).kind == R_NONE);
