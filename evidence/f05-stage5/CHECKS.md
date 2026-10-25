@@ -67,8 +67,8 @@ Production `main` and production GitHub Pages: **unchanged**. No device flash. D
 | 2 | 401 | Invalid User API Key |
 
 Logs: `api-create-stage7-attempt1.json`, `api-create-stage7-attempt2.json`.
-Coordinator CreateAgent required for owner-visible Stage 7. Handoff incomplete until that id is on the remote.
+Coordinator CreateAgent launched owner-visible Stage 7: `bc-1db0b238-d8dd-5769-acf7-2a9237155a9f` (desktop; https://cursor.com/agents/bc-1db0b238-d8dd-5769-acf7-2a9237155a9f). Handoff complete on the remote tip.
 
 ## Overall
 
-Merge gate complete for this stage: nightly refusal recorded without force-push; validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA.
+Merge gate complete for this stage: nightly refusal recorded without force-push; validated source SHA and package/controller hashes recorded for stage 6; evidence tip kept distinct from the install/merge SHA; owner-visible Stage 7 successor id on the remote.

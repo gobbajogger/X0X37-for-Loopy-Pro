@@ -17,9 +17,10 @@ Host test evidence: `evidence/f05-stage3/CHECKS.md` (ALL_PASS).
 Deferred (unchanged): `evidence/f05-stage2/DEFERRED.md`.
 Stage-6 local prompt: `evidence/f05-stage5/SUCCESSOR-STAGE6.txt` (also `stage6-install-prompt.json`).
 Successor prompt: `evidence/f05-stage5/SUCCESSOR-STAGE7.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 7 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY`; coordinator CreateAgent is required.
+Successor agent id: `bc-1db0b238-d8dd-5769-acf7-2a9237155a9f`.
+Successor URL: https://cursor.com/agents/bc-1db0b238-d8dd-5769-acf7-2a9237155a9f
+Successor source: `desktop` (owner-visible; visibility `user`).
+Handoff status: **complete**. Stage 5 ownership ends. Pod had no `CURSOR_API_KEY` (API create ×2 → 401); Project coordinator CreateAgent launched Stage 7 (`F05 BF-002 publish`, startingRef `cursor/f05-bf002-stage5-fb90`).
 
 ## Nightly
 
