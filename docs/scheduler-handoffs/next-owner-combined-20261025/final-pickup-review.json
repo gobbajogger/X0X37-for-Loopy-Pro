@@ -1,0 +1,132 @@
+{
+  "candidate": "b4f43dcbcc14f5ef059cda5c7650b5996c77160a",
+  "root_tree": "fb945c4fe0dee5efce439fab5b473ed42b97698a",
+  "firmware_tree": "b66e5a310ba9c42fb03c2fbcff93d2be4318a799",
+  "reviewer": "task86/integration_review",
+  "state": "INDEPENDENT_SCOPED_SOURCE_AND_HOST_QA_PASS_PR196_CONFIRMED_DEFECTS",
+  "source_scope": {
+    "candidate": "b4f43dcbcc14f5ef059cda5c7650b5996c77160a",
+    "root_tree": "fb945c4fe0dee5efce439fab5b473ed42b97698a",
+    "firmware_tree": "b66e5a310ba9c42fb03c2fbcff93d2be4318a799",
+    "pr196": "f98a17adee107d5047de7c34c57b5abf22133b7d",
+    "runtime_change": {
+      "path": "firmware/src/app/smc_mixer.c",
+      "blob": "e5c856ed91fd20b02e8e877e2d565318d3f5232c",
+      "sha256": "d1212dc0f817ca4961b503f74269af3c145014c592bb9fda781e07ae922d6b4a",
+      "exact_PR196": true
+    },
+    "all_other_firmware_entries_and_modes_identical_to_ac11": true,
+    "PR196_tests_exact_including_modes": true,
+    "unchanged_other_input_subtrees": {
+      "ble": {
+        "old": "6336915688f7b9178d17f8975703c108aa464ec0",
+        "new": "6336915688f7b9178d17f8975703c108aa464ec0"
+      },
+      "assets": {
+        "old": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+        "new": "0e721b227239d885a77a12ef24d9f001604e3eb3"
+      },
+      "host": {
+        "old": "70d16e6a0fc3d605782af29289d57bd33c27e75f",
+        "new": "70d16e6a0fc3d605782af29289d57bd33c27e75f"
+      },
+      "tools": {
+        "old": "95b3fb4756004e7d32f8e66e199f96276732c0ff",
+        "new": "95b3fb4756004e7d32f8e66e199f96276732c0ff"
+      },
+      "build.sh": {
+        "old": "f78db0774f42d02208a496f32bbbcaa042b485e5",
+        "new": "f78db0774f42d02208a496f32bbbcaa042b485e5"
+      }
+    },
+    "reused_exact_source_scopes": {
+      "firmware/src/seq": "1097d09477a4d7eac53b4d01c5efc273f0f5302b",
+      "firmware/src/dsp": "91f5fa0d656140a86ed7a2d076298a23221de29d",
+      "firmware/src/app/engine.c": "9b3ba23cf5c1a772e582c09b287b400b9a6eacd7",
+      "firmware/src/app/ui.c": "79066a6fb5f15eb1311d16e882a18d234cc8e818",
+      "firmware/src/app/main_fm1.c": "bdb5c95d2d16722be6b4e7637fd88e1f450ecde7"
+    },
+    "run_tests_conflict_resolution": "Current Pillow reachability guard and existing selectors retained; newpickup selector added; newselector classG serializes generated assets",
+    "runtime_semantic_review": "Physical seen/last history survives target edits and lock/unlock while picked acceptance rearms. Meaningful changed sample required for new acceptance; first acquisition publishes once even if saved equal. Existing pickup threshold/crossing, reset boundaries, queue routes, relativeknobs, interface mappings and project structures unchanged."
+  },
+  "fresh_current_tests": [
+    {
+      "log": "FINAL-b4f43dc-functional.log",
+      "selectors": 16,
+      "exit": 0,
+      "coverage": [
+        "new production pickup acceptance",
+        "actual UI/SMC queues/engine/motion/framebuffer",
+        "SMC lock/reachability/filter/feedback/record-feedback/Pause",
+        "96cutoff navigation/control audio pairs",
+        "live recording andSMK live recording",
+        "buttons/mapping/Solo/data7/overflowdata7"
+      ]
+    },
+    {
+      "fixture_log": "repo/build/host/smc-pickup-acceptance.log",
+      "assertions": 835361,
+      "raw_pitch_bend_packets": 262144,
+      "real_engine_writes": 2048,
+      "stateful_events": 4096,
+      "DAW_User_crossings": 192,
+      "exit": 0
+    },
+    {
+      "log": "FINAL-b4-negative-ui.log",
+      "selectors": 3,
+      "interaction_runtime_mutants": 8,
+      "UI_runtime_mutants": 14,
+      "corner_geometry": "PASS",
+      "compile_failures_count_as_pass": false,
+      "exit": 0
+    },
+    {
+      "receipt": "FINAL-b4-baseline-negatives.json",
+      "baseline": "ac11dc7cc363d78214e355a05c3b63601a2729ed",
+      "compile_success": true,
+      "crossing_runtime_exit": 1,
+      "equal_motion_runtime_exit": 1,
+      "candidate_both_pass": true
+    }
+  ],
+  "scoped_reuse": [
+    {
+      "accepted_runtime": "ac11dc7cc363d78214e355a05c3b63601a2729ed",
+      "evidence": "final-review.json",
+      "scopes": [
+        "sequencer RANDOM/chance/TIE/SLIDE matrices and2negative controls",
+        "fullnormalized state/callback differential includingrawdir0..255",
+        "longnotes/duration",
+        "DSP DecayafterSustain andmigration"
+      ],
+      "reason": "seq/DSP/engine/header/migration inputs exactlyunchanged; blob/tree identities in source_scope. No fresh native byte reuse claimed."
+    }
+  ],
+  "confirmed_source_fixes": [
+    "Retain physical crossing history while target edits/lock transitions rearm acceptance",
+    "Meaningful changed sample required after rearm; parked duplicate cannot acquire",
+    "Equal saved-value acquisition emits one real write andrequests motion hold withoutsecondphysicalmovement"
+  ],
+  "qualification_limits": [
+    "Motion hold follows existing engine step boundary; tests render blocks afterward, notsample-immediate guarantee",
+    "Owner intermittent delayed first-overlay/jumping/controllerfeedback/physical behavior remains unqualified; these two source reproductions do not prove every reported symptom resolved",
+    "No hardware,ADC,radio/acoustic or device qualification",
+    "NativeElite/Pro budgets andpackage/controller proof are separatebuilder receipts; this QA receipt doesnot attest them",
+    "PriorLinuxASan environmentinstability remains; no universal sanitizerpass",
+    "Priorac11docs/knownissue/sourcepins are historical andmustbe superseded byfinalb4handoff",
+    "NoGUI/device/flash/merge/protectedref/main/publicbinary action"
+  ],
+  "optional_checks": "Additional sanitizer/lockedcutoff observations mayfollow as addendum; not acceptancegates or pendingblockers",
+  "evidence_sha256": {
+    "FINAL-b4f43dc-functional.log": "0c2899c527800a6ebe3ef9cfb2b7b3e979148807723cfd98e7037e2915fde602",
+    "FINAL-b4f43dc-functional.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "FINAL-b4-negative-ui.log": "8d72e015fe349f0f744f5e035b95074134acc987fb0274ab55e0cb4262139ad0",
+    "FINAL-b4-negative-ui.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "FINAL-b4-baseline-negatives.json": "db350ced584be4cba60d55988946ead43939f7000b6999a83d74aecc5ee2e516",
+    "FINAL-b4-before-fix-crossing.log": "cf0e9f685fdec43736666b8deb3d275da1cffa5370c161f4e22391de2bb936e4",
+    "FINAL-b4-before-fix-motion.log": "4267d8dd4745b5d2b8433882dbf5e25d7225be6d67eef276866856e596426785",
+    "FINAL-b4-source-scope.json": "e460cb3c3e15c9cc0cc6678bfed5ab7c7470b81c95e109eea9ef2c269a5e4ac5",
+    "final-review.json": "37a37b787d4f0f054aa0addfd665b140a7f36eaf3777e3d8a4b6955699c31936"
+  }
+}
