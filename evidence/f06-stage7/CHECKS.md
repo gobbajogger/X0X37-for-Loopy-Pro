@@ -3,7 +3,7 @@
 Branch: `cursor/f06-bf003-stage7-fb90`
 Stage-7 owner: `bc-f7783059-a0d9-5c29-a373-763ffd739822`
 Audited SHA: `ab90f47ccad0f213114d6a98c1bc6179be2ebb35`
-Validated **source** SHA (publish candidate): `1325f5d34340ea877e65ab86f3663f5dea052c0d`
+Validated **source** SHA (published): `1325f5d34340ea877e65ab86f3663f5dea052c0d`
 Content tree (DEV CHECKED): `b02108f768a1d6cea2bb78f534f224bbace3c9dfce9697e1dfd00fe69ddd5190`
 Catalog `source_tree` (git): `6b6401f5c57ed4142bce1adbc3ceab2f99a80b6e`
 BF-003 repair commit: `1325f5d3`
@@ -19,7 +19,7 @@ Repair commits already in tip (not re-opened): `d11b74fc` (BF-001), `ab90f47c` (
 | Nightly `npm test` (clean main) | **PASS** (`nightly-npm-test.log`) |
 | `prepare:candidate` | **PASS** (HTTP package bytes re-fetched; size + SHA-256 match) |
 
-GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate.
+GitHub Actions / Codex-on-GitHub not used. Local-env review is the review gate (PR #215 review agent `bc-a9d70dca-6f2d-56f2-b700-dafbb7afbdc0` — cite `internal/pr-local-reviews/pr-215.md` when present).
 
 ## Independent QA (package digests)
 
@@ -46,14 +46,14 @@ HTTPS evidence_url in `qualification.json` for Elite/Pro `independent-qa` points
 | --- | --- |
 | Cloud push | **403** (`cloud-gh-pages-403.log`) |
 | Parent `gh-pages` | `e10823e38ec9e56f5ec381822b1597f7364a95d9` |
-| Prepared local commit | `a6f3f7eb8c3eee2646c9b6d5c509883140d858c9` |
-| Mac agent | pending Project coordinator CreateAgent on worker `83d16cde-07a3-5bce-81a3-2234761197a1` |
-| Live | **PENDING** until Mac FF + served-byte verify |
+| Mac agent | `bc-3161dbe9-ac70-502b-9032-a3314f404283` |
+| Mac tip | `cff694f3792d196267c2dc8ce2d86c6aef7d5e9e` (FF only) |
+| Live | **MATCH** `nightly-1325f5d3-dev` (`live-verify.log`) |
 
 ## Production / deferred
 
-Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f06-stage2/DEFERRED.md` (installer FP pin reconciliation not done). Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Publish / next audit uses `1325f5d3…`.
+Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f06-stage2/DEFERRED.md`. Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Next audit uses `1325f5d3…`.
 
 ## Overall
 
-Candidate prepared and qualified for validated source `1325f5d3…`. Live page update blocked on Mac gh-pages push after cloud 403. Stage 7 keeps ownership until `LIVE_PAGE_MATCH`.
+**PUBLISHED LIVE** for validated source `1325f5d3…` with matching package hashes, labeled hardware test / device not tested. Independent-qa cites local-env PR #210 review for unchanged package bytes. Ready for Stage 1 after owner-visible successor id is on the remote.
