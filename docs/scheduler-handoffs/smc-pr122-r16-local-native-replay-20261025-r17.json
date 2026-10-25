@@ -1,0 +1,141 @@
+{
+  "schema": "loopyx0x37-smc-producer-replay-v1",
+  "date_utc": "2026-10-25",
+  "revision": "R17-scoped-native-replay-only",
+  "intent": "A current SMC Bluetooth reconnect cannot execute an old host Solo press, discard a legitimate fresh post-link Solo press, or strand its matching release. This revision improves repeatable evidence only; production firmware and regression bytes remain unchanged.",
+  "owner": "LoopyX0X37 SMC Transport source specialist",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "pr": 122,
+    "pinned_parent_commit": "74b66a61290cf340acb9a0a1d8b0154d606ebeb4",
+    "pinned_full_root_tree": "725957ac79beb3b1de6911b62ca3e04056b4dfde",
+    "firmware_compiler_tree": "e252050c4490c73fb6e27000108a41596c33a4f3",
+    "smc_production_git_blob": "20e481ebf6e802426758ae1d2eb1e12700f2cdcb",
+    "solo_regression_git_blob": "e29f0155718c7e91b75bd96a2b4f1a7ab17a0e09",
+    "ble_tree": "d0479e103e206e0e9649a7c734af8f1f11a718ca",
+    "assets_tree": "0e721b227239d885a77a12ef24d9f001604e3eb3",
+    "tools_tree": "fbaef8e1eead4ca36c3c971bfac8c6e0de74ab51",
+    "build_script_blob": "f78db0774f42d02208a496f32bbbcaa042b485e5"
+  },
+  "execution": {
+    "commands": "CC={gcc,clang} SAN_FLAGS={plain:'',ubsan:'-fsanitize=undefined -fno-sanitize-recover=all',asan_ubsan:'-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'} ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 SMC_SOURCE=<Git-matched-smc_mixer.c> python3 -B tests/host/<test_script>; mutation changes only pre-edge cutoff guard and uses SMC_ONLY_FRESH_CUTOFF=1, must exit 1 with fresh post-edge host Solo must survive cutoff",
+    "test_scripts_in_order": [
+      "smc_preset_solo_lifetime_test.py",
+      "smc_ble_frame_length_test.py",
+      "smc_ble_midpoll_link_test.py",
+      "smc_ble_preset_queue_test.py",
+      "smc_mmc_stop_fifo_test.py",
+      "smc_feedback_retry_test.py"
+    ],
+    "profiles": [
+      {
+        "compiler": "gcc",
+        "sanitizer": "plain",
+        "positive_test_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "negative_mutation_exit": 1
+      },
+      {
+        "compiler": "gcc",
+        "sanitizer": "ubsan",
+        "positive_test_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "negative_mutation_exit": 1
+      },
+      {
+        "compiler": "gcc",
+        "sanitizer": "asan_ubsan",
+        "positive_test_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "negative_mutation_exit": 1
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "plain",
+        "positive_test_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "negative_mutation_exit": 1
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "ubsan",
+        "positive_test_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "negative_mutation_exit": 1
+      },
+      {
+        "compiler": "clang",
+        "sanitizer": "asan_ubsan",
+        "positive_test_exits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "negative_mutation_exit": 1
+      }
+    ],
+    "positive_program_executions_exit_zero": 36,
+    "deliberate_negative_executions_exit_one_expected": 6,
+    "real_source_extraction": true,
+    "stimulation": "Six FIFO cursor offsets including modulo-256 wrap, direct BLE/user host input, preset/route changes, old queued and overflowed Solo NoteOff, Timer5 link edges inside fader callbacks, new post-edge Solo and matching key-up, MMC FIFO, rejected foreign BLE messages and feedback failures.",
+    "observations": "All six groups of six positive programs exited 0 with their test-specific PASS/zero-failed text. All six deliberately mutated cutoff programs exited 1 on the expected fresh-post-edge Solo assertion; these deliberate failures are not recorded as successful production checks.",
+    "interruption": "Initial all-in-one Python runner exceeded this host's command timeout after producing 28 individually completed command/exit observations. Its aggregate exit was not called PASS. Remaining 14 Clang UBSan/ASan+UBSan commands were resumed and individually completed; all 42 per-command result lines and logs were verified.",
+    "scope": "Native GCC/Clang production-C source extraction with mocked interrupt, BLE and UI callbacks. Not full-root independent QA, not target JieLi build, hardware, OTA, browser or installer validation."
+  },
+  "private_evidence": {
+    "archive_library_file_id": "libfile_01ec2429e3b881919dfd07965aa708e4",
+    "archive_library_path": "/LoopyX0X37-SMC-R16-Local-Replay-20261025.zip",
+    "archive_sha256": "0ce2396e1a9665a874d5fc6bc0fb5a7eec14ba6569309f178e63f94ea2087799",
+    "bytes": 40692,
+    "independently_rematerialized_and_byte_matched": true,
+    "archive_zip_crc": true,
+    "manifest_json_sha256": "df42652b01ad7018af68047827fc144de7e68c9298acfcd71acb6ddcd353eaec",
+    "contents": "GPL production source/protocol/test and command logs, no binaries, vendor SDK, controller, DSP, user samples, credentials or secrets."
+  },
+  "disposition": {
+    "source_retested": "SCOPED_PRODUCER_VERIFIED",
+    "new_firmware_code": false,
+    "new_toolchain_sdk_controller_input": false,
+    "build_only": "Existing R15 builder receipt applies to unchanged compiler inputs only after Build independently rechecks complete input closure and original private bytes/hashes.",
+    "independent_qa": "NOT OBSERVED on this exact new ROOT",
+    "firmware_integration": "SOLE SAFE MERGE OWNER; no integration by producer",
+    "nightly_installation": "NOT APPROVED",
+    "physical": "DEVICE NOT TESTED",
+    "publication": "NO",
+    "next_owner": "LoopyX0X37 Independent QA; Hourly Build for exact compiler-input private-byte reconfirmation",
+    "stop_condition": "Independent QA source/ISR/NoteOff/phase negative review or an evidenced new blocker; no gratuitous compiled-source churn."
+  }
+}
