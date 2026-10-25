@@ -17,7 +17,7 @@ Audit record: `evidence/f08-stage1/AUDIT.md`.
 Successor prompt: `evidence/f08-stage2/SUCCESSOR-STAGE3.txt`.
 Successor agent id: none.
 Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Prefer coordinator CreateAgent when the pod has no `CURSOR_API_KEY`.
+Handoff status: **incomplete** until an owner-visible Stage 3 id is recorded on this remote tip. Pod has no `CURSOR_API_KEY` (API create ×2 → 401; logs `api-create-stage3-attempt{1,2}.json`); coordinator CreateAgent is required.
 
 ## Repair summary
 
