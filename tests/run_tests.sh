@@ -312,7 +312,7 @@ command -v node >/dev/null 2>&1 && run install-slots-web node web/test_install_s
 run sample-link-target python3 -B tests/host/sample_link_target_test.py tools/fm1_sample_upload.py  # fail closed before selecting sample erase/restore MIDI endpoints
 run sample-link-readonly python3 -B tests/host/sample_link_readonly_test.py tools/fm1_sample_upload.py  # native RtMidi read-only allowlist; no unsafe sample erase/write
 run sample-cli-denial python3 -B tests/host/native_sample_cli_guard_test.py tools/fm1_sample_upload.py tools/x0x_slots.py  # no destructive native CLI port open; read-only/offline remains
-run sample-slot-build-safe python3 -B tests/host/sample_slot_build_safety_test.py tools/fm1_sample_upload.py  # offline pair must not clobber recordings or leave an incomplete pair
+run sample-slot-build-safe python3 -B tests/host/sample_slot_build_safety_test.py tools/fm1_sample_upload.py  # no-clobber pair; unknown inode requires explicit manual recovery, never foreign unlink
 run sample-extract-safe python3 -B tests/host/sample_extract_safety_test.py tools/x0x_slots.py  # no silent offline .hdr/.bin overwrite, symlink escapes or partial extraction
 run native-ota-preflight python3 -B tests/host/native_ota_cli_early_refusal_test.py tools/fm1_install.py  # fail before real RtMidi package/port/backup; retain read-only and simulated entry paths
 run slot-backup python3 tests/x0x_slots_test.py            # tools/x0x_slots.py against a mocked device

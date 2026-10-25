@@ -109,7 +109,9 @@ def write_slot_pair(prefix, hdr, data):
 
     Bind all operations to one no-follow destination directory. Any partial
     pair is removed only while its exact newly-created inode remains at the
-    original name. Like extraction, use a private destination directory when
+    original name. If both descriptor identity queries fail after creation,
+    the unidentified output is left for owner inspection rather than blindly
+    deleted. Like extraction, use a private destination directory when
     another local process might change its contents concurrently.
     """
     import os
@@ -142,8 +144,14 @@ def write_slot_pair(prefix, hdr, data):
                         try:
                             identity = os.stat(fd)
                         except BaseException:
-                            raise OSError(f"new slot file {name} cannot be identified; "
-                                          "inspect the private destination before retrying")
+                            raise OSError(
+                                f"slot output identity unavailable after creating "
+                                f"{dest.parent / name}. Manual recovery required: "
+                                "automatic deletion is unsafe without inode proof. "
+                                "Inspect this file in the private output directory, "
+                                "remove it only if verified as this attempt's partial "
+                                "output, and retry. Existing files were not overwritten."
+                            )
                     created.append((name, identity.st_dev, identity.st_ino))
                     file = os.fdopen(fd, "wb")
                     fd = None  # fdopen owns it from here

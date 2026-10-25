@@ -151,6 +151,65 @@ class OfflineSlotBuilder(unittest.TestCase):
         self.assertEqual(self.hdr.read_bytes(), b'HEADER')
         self.assertEqual(self.data.read_bytes(), b'ADPCM')
 
+
+    def test_unidentified_first_new_file_requires_explicit_manual_recovery(self):
+        # The kernel/filesystem declines *both* descriptor identity queries.
+        # A pathname deletion here could remove a swapped-in owner's file.
+        original_fstat, original_stat = os.fstat, os.stat
+        created=[]
+        def fail_regular_fd(fd):
+            st=original_fstat(fd)
+            if not (st.st_mode & 0o40000):
+                created.append(fd)
+                raise OSError(5, 'injected file-fstat failure')
+            return st
+        def fail_stat_fd(path, *args, **kwargs):
+            if isinstance(path, int):
+                raise OSError(5, 'injected fd-stat fallback failure')
+            return original_stat(path, *args, **kwargs)
+        with patch('os.fstat', side_effect=fail_regular_fd), patch('os.stat', side_effect=fail_stat_fd):
+            with self.assertRaisesRegex(OSError, 'Manual recovery required') as cm:
+                write_slot_pair(self.prefix, b'HEADER', b'ADPCM')
+        self.assertIn(str(self.hdr), str(cm.exception))
+        self.assertTrue(self.hdr.exists(), 'unknown inode must not be unlinked')
+        self.assertEqual(self.hdr.read_bytes(), b'')
+        self.assertFalse(self.data.exists())
+        # An owner must be able to verify and clear this exact empty file.
+        self.hdr.unlink()
+        write_slot_pair(self.prefix, b'HEADER', b'ADPCM')
+        self.assertEqual(self.hdr.read_bytes(), b'HEADER')
+        self.assertEqual(self.data.read_bytes(), b'ADPCM')
+
+    def test_unidentified_second_new_file_keeps_foreign_safe_and_explains_recovery(self):
+        original_fstat, original_stat = os.fstat, os.stat
+        regular=0
+        def fail_second_file(fd):
+            nonlocal regular
+            st=original_fstat(fd)
+            if not (st.st_mode & 0o40000):
+                regular+=1
+                if regular==2:
+                    raise OSError(5, 'injected second output fstat failure')
+            return st
+        def fail_stat_fd(path,*args,**kwargs):
+            if isinstance(path,int):
+                raise OSError(5, 'injected fd fallback failure')
+            return original_stat(path,*args,**kwargs)
+        with patch('os.fstat',side_effect=fail_second_file), patch('os.stat',side_effect=fail_stat_fd):
+            with self.assertRaisesRegex(OSError, 'Manual recovery required') as cm:
+                write_slot_pair(self.prefix,b'HEADER',b'ADPCM')
+        self.assertIn(str(self.data),str(cm.exception))
+        self.assertFalse(self.hdr.exists(), 'identified first output should roll back')
+        self.assertTrue(self.data.exists(), 'unidentified second inode must be left for inspection')
+        self.assertEqual(self.data.read_bytes(), b'')
+        with self.assertRaises(FileExistsError):
+            write_slot_pair(self.prefix,b'NEW',b'NEW')
+        self.assertEqual(self.data.read_bytes(), b'')
+        self.data.unlink()
+        write_slot_pair(self.prefix,b'HEADER',b'ADPCM')
+        self.assertEqual(self.hdr.read_bytes(),b'HEADER')
+        self.assertEqual(self.data.read_bytes(),b'ADPCM')
+
 if __name__=='__main__':
     sys.argv = sys.argv[:1]
     unittest.main(verbosity=2)
