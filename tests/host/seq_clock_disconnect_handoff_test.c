@@ -246,6 +246,54 @@ static void valid_stop_during_handoff(uint32_t old_input,unsigned restart)
     CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
 }
 
+
+/* Preserve an accepted MIDI Start/Continue when the originating USB/BLE link
+ * ends before audio applies it. Clock ticks from that old link are different:
+ * they must not accumulate with the replacement source's downbeat. */
+static void valid_start_continue_during_handoff(uint32_t old_input,uint8_t command)
+{
+    seq_t s; monitor_t m; seq_sink_t out;
+    uint32_t new_input=old_input ^ 1u;
+    init(&s,&m,&out);
+    CHECK(recv(&s,0xfau,old_input));
+    CHECK(recv(&s,0xf8u,old_input));
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==1u && m.held==1u);
+    for (unsigned i=0;i<6u;i++) {
+        CHECK(recv(&s,0xf8u,old_input));
+        render(&s,&out,1u);
+    }
+    CHECK(m.steps==2u && m.last_step==1u);
+    CHECK(recv(&s,0xf8u,old_input)); /* orphaned F8 from previous source */
+    CHECK(recv(&s,command,old_input)); /* accepted remote transport */
+    CHECK(s.req_rt && (command==0xfau?s.req_start:s.req_cont));
+    seq_clk_drop(&s,old_input);
+    CHECK(recv(&s,0xf8u,new_input));
+    CHECK(s.ext_pending==1u && s.req_prior_ticks==0u);
+    CHECK(s.req_rt && (command==0xfau?s.req_start:s.req_cont));
+    unsigned was=m.steps,off=m.off;
+    render(&s,&out,1u);
+    CHECK(s.playing && m.steps==was+1u);
+    CHECK(m.off>off && m.on==m.off+1u); /* prior notes ended, one remains held */
+    CHECK(s.t[TRK_BASS0].ext_ticks==0u);
+    CHECK(m.last_step==(command==0xfau?0u:2u));
+    CHECK(m.held==1u && m.on==m.off+1u);
+    CHECK(!m.duplicate && !m.orphan);
+    for (unsigned i=0;i<5u;i++) {
+        CHECK(recv(&s,0xf8u,new_input));
+        render(&s,&out,1u);
+        CHECK(m.steps==was+1u); /* no premature next step */
+    }
+    CHECK(recv(&s,0xf8u,new_input));
+    render(&s,&out,1u);
+    CHECK(m.steps==was+2u); /* one six-clock step */
+    CHECK(!recv(&s,0xfcu,old_input));
+    CHECK(recv(&s,0xfcu,new_input));
+    render(&s,&out,1u);
+    CHECK(!s.playing && m.held==0u && m.on==m.off);
+    CHECK(!m.duplicate && !m.orphan && !m.clock_echo && !m.transport_echo);
+}
+
 int main(void)
 {
     const unsigned blocks[]={1u,64u,1024u};
@@ -255,6 +303,11 @@ int main(void)
         scenario=7u+i;queued_clock_disconnect(1u);
         scenario=10u+i;pending_local_play_handoff(0u);
         scenario=13u+i;pending_local_play_handoff(1u);
+        for(unsigned old_input=0u;old_input<2u;old_input++)
+            for(unsigned command=0u;command<2u;command++) {
+                scenario=40u+i*4u+old_input*2u+command;
+                valid_start_continue_during_handoff(old_input,command?0xfbu:0xfau);
+            }
         for(unsigned old_input=0u;old_input<2u;old_input++)
             for(unsigned restart=0u;restart<3u;restart++) {
                 scenario=16u+i*6u+old_input*3u+restart;
