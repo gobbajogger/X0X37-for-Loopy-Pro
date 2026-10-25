@@ -69,7 +69,7 @@ Log: `evidence/f11-stage1/live-verify.log`.
 | Recorded non-Actions package FAIL | **None** |
 | Oldest open bugfinder | **BF-007** (`project.c` blob `1000a0d8…` still matches finding baseline) |
 
-Evidence PR: (opened this stage)
+Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/257
 API CreateAgent attempts: `api-create-stage2-attempt1.json` / `attempt2.json` — **NO_CURSOR_API_KEY**
 
 ## Overall
