@@ -173,6 +173,7 @@ static void ota_commit(const uint8_t *parm)
 
 #include "app/slots.c"
 #include "app/x0x.h"
+#include "app/factory_banks.c"       /* built-in Chicago/Miami factory banks + user import bank */
 #include "app/panel.c"
 #include "app/plat_fm1.c"
 #define PROJECT_IO_BUFFER st_buf  /* synchronous main-loop codec borrows storage staging */

@@ -11,6 +11,7 @@
 #include "../seq/motion.h"
 #include "../dsp/breaks.h"
 #include "../dsp/fxbus.h"            /* FX_* param indices (the send pages) */
+#include "factory_banks.h"           /* Chicago / Miami faithful-303 factory + user banks */
 
 #ifndef X0X_VERSION                     /* a release build passes its own (tools/build.py --release) */
 #define X0X_VERSION "DEV"
