@@ -11,6 +11,76 @@ static uint32_t main_hash(void)
     return cv_hash();
 }
 
+/* Tallest MASTER hist column (band 0, left of GR). Screen y = MAIN_Y + canvas y. */
+static int hist_tallest_col(void)
+{
+    int best = -1, best_n = -1, col;
+    for (col = 0; col < 98; col++) {
+        int sx = 4 + col * 2, n = 0, y;
+        for (y = MAIN_Y; y < MAIN_Y + 69; y++) {
+            if (sx < 200 && fb[y * 240 + (unsigned)sx] != 0)
+                n++;
+        }
+        if (n > best_n) {
+            best_n = n;
+            best = col;
+        }
+    }
+    return best;
+}
+
+/* Scrolling hist moved a spike left every sample and dirtied the full main blit (tear + knob lag).
+ * Write-head must keep the spike's column fixed across later quiet samples. */
+static void master_hist_write_head_stable(void)
+{
+    int i, col0, col1, lit;
+
+    memset(&ui, 0, sizeof ui);
+    boot();
+    set_view(V_MIX);
+    assert(pg.n >= 2);
+    assert(!strcmp(pg.title[pg.n - 2], "MASTER"));     /* WAVE is last; MASTER is its sibling */
+    assert(!strcmp(pg.title[pg.n - 1], "WAVE"));
+    *page_of(V_MIX) = (uint8_t)(pg.n - 2);
+    build_pages();
+    now_ms = 1000;
+    for (i = 0; i < NPARTS; i++)
+        eng_peak[i] = 0;
+    for (i = 0; i < 100; i++) {
+        now_ms += 20;
+        (void)main_hash();
+    }
+    eng_peak[0] = 30000;
+    now_ms += 20;
+    (void)main_hash();
+    col0 = hist_tallest_col();
+    assert(col0 >= 0 && col0 < 98);
+    eng_peak[0] = 0;
+    for (i = 0; i < 10; i++) {
+        now_ms += 20;
+        (void)main_hash();
+    }
+    col1 = hist_tallest_col();
+    assert(col1 == col0);
+
+    /* Past the old uint8_t write wrap: still a full-width hist (not a collapsed strip). */
+    for (i = 0; i < 300; i++) {
+        eng_peak[0] = (i & 1) ? 22000 : 4000;
+        now_ms += 20;
+        (void)main_hash();
+    }
+    lit = 0;
+    for (i = 0; i < 98; i++) {
+        int sx = 4 + i * 2, y, n = 0;
+        for (y = MAIN_Y + 4; y < MAIN_Y + 66; y++)
+            if (fb[y * 240 + (unsigned)sx] != 0)
+                n++;
+        if (n > 2)
+            lit++;
+    }
+    assert(lit >= 90);
+}
+
 static void readout_does_not_cover_help(void)
 {
     uint32_t help_only, help_with_pending_readout, normal, readout;
@@ -115,6 +185,8 @@ int main(int argc, char **argv)
         read_only_rows_do_not_edit();
     if (argc == 1 || !strcmp(argv[1], "wave"))
         mix_wave_sibling_scope();
-    puts("PASS: help hides pending readout, read-only rows reject edits, MIX WAVE scope draws");
+    if (argc == 1 || !strcmp(argv[1], "master-hist"))
+        master_hist_write_head_stable();
+    puts("PASS: help hides pending readout, read-only rows reject edits, MIX WAVE scope draws, MASTER hist write-head stable");
     return 0;
 }

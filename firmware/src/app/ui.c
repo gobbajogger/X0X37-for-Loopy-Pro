@@ -3960,15 +3960,29 @@ static UI_DRAW void draw_mix(int band)
         draw_drum_mix(band, drum_mix_page());
         return;
     }
-    if (band == 0 && master) {                         /* MASTER: the level over the last moments, not */
-        static uint8_t hist[98];                       /* the parts (it shows the pump and the comp) */
-        static uint8_t hw;
+    /* MASTER peak history: fixed 98 columns. A scrolling ring rewrote every column each
+     * frame, so cv_commit_rect sent nearly the whole main band (~18 ms SPI) — panel tear
+     * ("broken" hist) and knob-strip lag (draw_knobs waits on that blit). Write-head
+     * overwrite + wall-clock sample keeps geometry stable and dirties ~one column. */
+    if (band == 0 && master) {
+        enum { HIST_N = 98, HIST_MS = 20 };             /* ~2 s window; never shrink width */
+        static uint8_t hist[HIST_N];
+        static uint32_t hw, hist_ms;                    /* hw was uint8_t: ring broke every 256 */
+        static uint16_t peak_hold;
         int x, pk = 0;
+        uint32_t now = plat_ms();
         for (p = 0; p < NPARTS; p++)
             pk = eng_peak[p] > pk ? eng_peak[p] : pk;
-        hist[hw++ % 98u] = (uint8_t)(pk * 62 / 32768);
-        for (x = 0; x < 98; x++) {
-            int h = hist[(hw + (unsigned)x) % 98u];
+        if ((uint16_t)pk > peak_hold)
+            peak_hold = (uint16_t)pk;
+        if (!hist_ms || (int32_t)(now - hist_ms) >= HIST_MS) {
+            hist[hw % (uint32_t)HIST_N] = (uint8_t)(peak_hold * 62 / 32768);
+            hw++;
+            peak_hold = 0;
+            hist_ms = now;                             /* one column per paint when overdue */
+        }
+        for (x = 0; x < HIST_N; x++) {
+            int h = hist[x];
             cv_rect(4 + x * 2, 66 - h, 2, h + 1, part_col());
         }
     }
