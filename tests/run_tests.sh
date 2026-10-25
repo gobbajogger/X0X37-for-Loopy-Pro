@@ -320,6 +320,8 @@ run smc-reconnect-epoch python3 tests/host/smc_ble_reconnect_epoch_test.py   # p
 run ble-central-first-notification python3 tests/host/ble_central_first_notification_test.py
 run ble-multi-peer sh -c "$CC -std=c99 -O1 -g -Wall -Wextra -Werror tests/host/ble_multi_peer_test.c -o $OUT/ble_multi_peer_test && $OUT/ble_multi_peer_test"
 run ble-multi-state python3 tests/host/ble_multi_state_test.py
+run ble-multi-admission python3 tests/host/ble_multi_admission_test.py
+run ble-async-create sh -c "$CC -std=c99 -O1 -g -Wall -Wextra -Werror -Ifirmware/src/ble tests/host/ble_async_create_test.c -o $OUT/ble_async_create_test && $OUT/ble_async_create_test"
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-midi-receive "ASan runtime"; else run ble-midi-receive sh tests/host/ble_midi_receive_test.sh; fi
 if [ "$ASAN_SKIP" = 1 ]; then not_run ble-capture-replay "ASan runtime"; else run ble-capture-replay python3 tests/host/ble_capture_replay_test.py; fi
 run ble-acl-start-flags sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src/ble -o $OUT/ble_acl_start_flags_test tests/host/ble_acl_start_flags_test.c firmware/src/ble/ble_midi_host.c && $OUT/ble_acl_start_flags_test"
