@@ -161,6 +161,7 @@ seq_test() {
     $OUT/seq_test
 }
 run sequencer seq_test
+run tb3po-mutate-accent sh -c "$CC $W -Ifirmware/src/seq -o $OUT/tb3po_mutate_accent_test tests/host/tb3po_mutate_accent_test.c firmware/src/seq/tb3po.c && $OUT/tb3po_mutate_accent_test"   # BF-032: ACCENT survives orphan SLIDE cleanup
 run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 live-length shrink never emits disabled steps
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"

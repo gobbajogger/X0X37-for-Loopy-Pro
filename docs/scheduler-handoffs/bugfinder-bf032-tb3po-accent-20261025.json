@@ -1,0 +1,65 @@
+{
+  "schema": "x0x37-bugfinder-evidence-v1",
+  "id": "BF-032",
+  "observed_utc_date": "2026-10-25",
+  "role": "existing Hourly Bugfinder",
+  "intent": "Mutating an accented 303 NOTE whose SLIDE target becomes REST must clear only SLIDE, not the separately programmed ACCENT. A valid slide into a NOTE stays intact.",
+  "reason": "tb3po_mutate previously assigned G_NOTE when cleaning an orphan slide, silently deleting an independent BS_ACCENT bit.",
+  "design": "In tb3po_mutate cleanup only, clear BS_SLIDE bit. Do not change generation, RNG draws, pattern serialization, structure layout, clock, MIDI or installer logic.",
+  "source": {
+    "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+    "base_commit": "93449136baae02c9715ba20edc5c43176786b635",
+    "base_root_tree": "87819bd7af981f8a7315875233f69ff720bc13ce",
+    "base_firmware_tree": "5326e3c214cbe8d133b748685a2259d759e72c97",
+    "pre_tb3po_blob": "8578c9cfc144b7e74dfdd8f36d4d8f1c6cfd635d",
+    "post_tb3po_blob": "fa5b0809e272a8565391764001bad67c9f22ba85",
+    "production_pattern_blob": "b6b667d023a912b13de8539168c61928182ffa23",
+    "header_pattern_blob": "9a0703418aae95b14f1b70905cfac916da38d7dd",
+    "header_tb3po_blob": "299225dfe4cb0fa847dc0fd2aa1958d5b93f2f1c",
+    "native_test_blob": "530bc243fe70f08355a8228f4ec7e05e09c4342c",
+    "registered_runner_blob": "f1f63f6d6949af8e14ab75dabaed27e1027295cc"
+  },
+  "method": {
+    "source": "actual Git-SHA-matched production C, with real tb3po_mutate called through linked host executable; no synthetic reimplementation of target",
+    "toolchains": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "profiles": [
+      "optimized -O2",
+      "UBSan",
+      "ASan+UBSan"
+    ],
+    "configurations": 6,
+    "before": {
+      "expected_exit": 1,
+      "actual_exit_all": 1,
+      "behavioral_failures_each": 2537,
+      "assertions_each": 8711
+    },
+    "after": {
+      "expected_exit": 0,
+      "actual_exit_all": 0,
+      "passed_each": 8711,
+      "total_each": 8711,
+      "sanitizer_reports_observed": 0
+    },
+    "stimulus": "4096 reproducible mutation seeds; 3072 cases where the source note was not re-rolled; 2536 orphan-slide outcomes; 2543 legitimate slide outcomes; manually programmed accent/velocity, no-accent controls, anchored RNG stream, 64 seeded generator deterministic controls.",
+    "run_matrix_local_sha256": "54ad2d8f95bd62ed1b9577f24389ec14ff69719eb889721c8124e627b4d0a1ec",
+    "runner_registration": "tests/run_tests.sh selector tb3po-mutate-accent"
+  },
+  "coverage_limitations": [
+    "The full current Git checkout tests/run_tests.sh runner was not executed by the producer; a command with the same GCC warning/profile flags was independently executed against matched production C.",
+    "No complete-root QA or Independent QA approval.",
+    "No new Elite/Pro target firmware/controller build or package verification.",
+    "No hardware, browser installer, sample backup, OTA or publication verification."
+  ],
+  "ownership": {
+    "source_owner": "Hourly Bugfinder, this isolated lane only",
+    "next_builder": "existing Hourly Build, fresh Elite/Pro/controller BUILD_ONLY for changed compiler tree; no downstream gate prerequisite",
+    "next_qa": "existing Independent QA, independent review and actual complete-root path",
+    "integration": "existing sole firmware Safe Merge only; no source merge authority transferred"
+  },
+  "separation": "Unrelated active owner fixes PR #58 and Data Safety #114/#116 are untouched. PR #139/#140 sequencer changes remain independent, not incorporated.",
+  "disposition": "SOURCE_COMPLETE_PRODUCER_NATIVE_RED_GREEN; BUILD_ONLY_PENDING; INDEPENDENT_QA_PENDING; DEVICE_NOT_TESTED; NOT_INSTALLABLE"
+}
