@@ -1,16 +1,18 @@
 # Request progress
 
-This index preserves **all 30 initial requests and 6 appended requests** alongside the existing [139-row PR queue](../merge-queue/README.md). A new request never silently replaces an earlier one. The [ledger](requests.json) is authoritative; this compact view reflects the bounded 2026-10-25 10:29 UTC coordinator handoff and fresh linked-PR metadata, not live execution.
+This index preserves **all 30 initial requests and 8 appended requests** alongside the existing [139-row PR queue](../merge-queue/README.md). A new request never silently replaces an earlier one. The [ledger](requests.json) is authoritative; this compact view retains the bounded 2026-10-25 10:29 UTC progress snapshot, supplemented by the song-workflow clarification below. Neither establishes live execution.
 
 **Source-ready is not delivered.** Source, tests, builds, deployed bytes and hardware proof have separate fields. Role ownership does not establish active execution. `unassigned` is an explicit ownership gap.
 
 Current focus: PR168 physical Pause and UI source is implemented, with size recovery/package pending and latest-head delta unqualified. Website PR19 is reviewed but awaits the owner publication decision. PR188 combined sequencer/synth builds and tests are reported; PR189 cutoff fix awaits native/hardware checks. Feature intake is wired but live dispatch remains unverified. Presets and alternative engine work remain planning/research; no new engine or held-duration recording is implemented.
 
+Song workflow clarification: **LX-REQ-037 is active** installer import/export reuse; **LX-REQ-001 remains active** sample-preserving reset with arrangement/project scope distinguished. **LX-REQ-038 is owner-deferred idea only, not eligible for automatic intake or implementation.** [Source-stage reuse/gap handoff](song-workflows-handoff-20261025.md). Earlier status observations below retain their original evidence scope.
+
 ## Requests
 
 | ID | Request | State | Owner / next step |
 |---|---|---|---|
-| [LX-REQ-001](requests.json) | Reset project without touching imported samples | EXISTING FEATURES RECONCILED COMBINED VALIDATION PENDING | Project lifecycle coordinator. Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root. |
+| [LX-REQ-001](requests.json) | Reset project without touching imported samples | EXISTING FEATURES RECONCILED COMBINED VALIDATION PENDING | Project lifecycle coordinator. Parent assigns scope verification for existing CLEAR SONG versus RESET PROJECT; retain sample preservation and combined lifecycle validation. |
 | [LX-REQ-002](requests.json) | Reliable explicit Save Project | EXISTING FEATURES RECONCILED COMBINED VALIDATION PENDING | Project lifecycle coordinator. Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root. |
 | [LX-REQ-003](requests.json) | Explicit Load Project and safe imported-project loading | EXISTING FEATURES RECONCILED COMBINED VALIDATION PENDING | Project lifecycle coordinator. Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root. |
 | [LX-REQ-004](requests.json) | Portable full-project export and import | EXISTING FEATURES RECONCILED COMBINED VALIDATION PENDING | Project lifecycle coordinator. Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root. |
@@ -46,6 +48,8 @@ Current focus: PR168 physical Pause and UI source is implemented, with size reco
 | [LX-REQ-034](requests.json) | Longer notes and held-duration live recording | EXISTING NOTE TIE AUDITED DURATION CAPTURE PROPOSED | Sequencer UX planning coordinator. Sequencer UX coordinator to review held-duration capture design and compatibility while retaining existing NOTE/TIE behavior. |
 | [LX-REQ-035](requests.json) | Preserve active cutoff locks and gesture ownership across mode switches | SOURCE AND 96 CASES PASS NATIVE HARDWARE PENDING | Mode-switch fix coordinator. Build/QA coordinator to qualify PR189 exact head with native builds and hardware checks; retain physical-release ownership without restore-on-reentry workaround. |
 | [LX-REQ-036](requests.json) | Assess Cursor contribution and review coverage | SCOPED IMPACT AUDIT COMPLETE ACCOUNT UNCHANGED | Engineering audit coordinator. Coordinator to use scoped findings for coverage planning; do not infer account-wide statistics or change Cursor account settings. |
+| [LX-REQ-037](requests.json) | Song import/export through the installer page | ACTIVE REUSE EXISTING PROJECT WORKFLOW SOURCE STAGE PENDING | Parent coordinator assigns installer source owner; reuse Projects page/protocol and safety checks. |
+| [LX-REQ-038](requests.json) | Community song library, sharing and import idea | OWNER DEFERRED IDEA NOT INTAKE READY | Wait for explicit owner reopening; no automatic implementation intake. |
 
 ## Preservation and updates
 

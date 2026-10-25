@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-25T10:29:45Z",
+  "generated_at": "2026-10-25T10:42:55Z",
   "purpose": "Durable public-safe request continuity. Unknown is not done; source-ready is not delivered.",
-  "snapshot_note": "Bounded coordinator-supplied technical progress delta; linked PR metadata freshly checked at generated_at. No broad audit or fresh firmware qualification. Earlier observations and history retained.",
+  "snapshot_note": "Bounded song-intent ledger update after read-only firmware/website inspection. Existing histories and unrelated evidence retained; no source implementation, owner-project operation or delivery qualification.",
   "scope": {
     "repositories": [
       "gobbajogger/X0X37-for-Loopy-Pro",
@@ -44,13 +44,14 @@
       "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
       "status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
       "priority": "P1",
-      "next_action": "Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root.",
+      "next_action": "Parent coordinator to assign a bounded source-stage owner: reuse confirmed CLEAR SONG and sample-preserving RESET PROJECT; verify intended reset scope and cancellation/save lifecycle before any additional UI or protocol work. See song-workflows-handoff-20261025.md; preserve issue #2 and existing combined-validation gates.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-002",
         "LX-REQ-003",
         "LX-REQ-008",
-        "LX-REQ-028"
+        "LX-REQ-028",
+        "LX-REQ-037"
       ],
       "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
       "completion_criterion": "Reset/cancel safe stopped, playing, recording and external-clock; live/save/reboot agree; sample hashes unchanged.",
@@ -122,9 +123,9 @@
       ],
       "evidence": {
         "source": {
-          "state": "SCOPED_PROGRESS_REPORTED",
-          "summary": "PR171 57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3 reconciles existing reset/save/load/export features and fixes malformed legacy arrangement load rejection. Scoped fix reviewed; combined validation remains pending.",
-          "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+          "state": "EXISTING_BEHAVIOR_INSPECTED_GAPS_BOUNDED",
+          "summary": "Read-only inspection at firmware nightly 08d3164a265123cb4c84e5104642fd93257d63d7: ACT_SONG_CLR clears song length and selection, marks dirty, and confirms CLEAR THE SONG?; ui_project_reset resets full project through staging while preserving samples. Projects page RESET op 73 invokes full project reset, not arrangement-only clear. PR171 is a legacy Load repair, not complete song UI evidence.",
+          "provenance": "Current source and maintained BEHAVIOR inspected; no owner project or device operated."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -140,9 +141,9 @@
           "state": "NOT_ESTABLISHED_FOR_REQUEST"
         }
       },
-      "updated_at": "2026-10-25T10:29:45Z",
+      "updated_at": "2026-10-25T10:42:55Z",
       "request_origin": "Public-safe technical summary from reviewed continuity handoff",
-      "user_intent": "Reset sequencers and musical parameters while preserving imported sample bytes/metadata.",
+      "user_intent": "Active: reset a song without removing samples. Distinguish arrangement-only CLEAR SONG from RESET PROJECT (all project sequencers, sounds and settings); neither authorizes a destructive factory/sample erase.",
       "history": [
         {
           "observed_at": "2026-10-25T10:29:45Z",
@@ -239,6 +240,117 @@
               }
             },
             "updated_at": "2026-10-25T09:02:53Z",
+            "request_origin": "Public-safe technical summary from reviewed continuity handoff",
+            "user_intent": "Reset sequencers and musical parameters while preserving imported sample bytes/metadata."
+          }
+        },
+        {
+          "observed_at": "2026-10-25T10:42:55Z",
+          "change_reason": "Clarify active song reset intent after read-only source inspection; preserve broader project-reset reconciliation and issue linkage.",
+          "previous": {
+            "request_id": "LX-REQ-001",
+            "title": "Reset project without touching imported samples",
+            "owner": "Project lifecycle coordinator",
+            "owner_execution_state": "ROLE_ASSIGNED_EXECUTION_NOT_ESTABLISHED",
+            "status": "EXISTING_FEATURES_RECONCILED_COMBINED_VALIDATION_PENDING",
+            "priority": "P1",
+            "next_action": "Project lifecycle coordinator to validate existing reset/save/load/export together with sample preservation, legacy-load rejection and rollback on a pinned combined root.",
+            "dependencies": [],
+            "related_requests": [
+              "LX-REQ-002",
+              "LX-REQ-003",
+              "LX-REQ-008",
+              "LX-REQ-028"
+            ],
+            "dependency_note": "Related requests are nonblocking coordination links; only explicit dependencies block completion. Independent preparation may continue.",
+            "completion_criterion": "Reset/cancel safe stopped, playing, recording and external-clock; live/save/reboot agree; sample hashes unchanged.",
+            "known_source_references": [
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 101,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/101",
+                "head": "08aef212e064b0db89312a9fd30fcd0d1c6454fc",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 120,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/120",
+                "head": "2d5742ee7c271168b6e78fc24100f9bae79e334d",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 130,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/130",
+                "head": "722c795278f3f3c6549b32187e90421a9243aadf",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 131,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/131",
+                "head": "65c4a5612a27425c02442f0f829affaf7b80b0a5",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 135,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/135",
+                "head": "e1ba9d6802c8229c5c96cdaa74c85f3e2c53ff07",
+                "observed_at": "2026-10-25T08:17:29Z",
+                "snapshot_note": "Historical handoff reference; refresh before integration."
+              },
+              {
+                "type": "issue",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 2,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/issues/2",
+                "state": "open",
+                "observed_at": "2026-10-25T08:53:19Z"
+              },
+              {
+                "type": "pull_request",
+                "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+                "number": 171,
+                "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/171",
+                "head": "57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3",
+                "observed_at": "2026-10-25T10:29:45Z",
+                "current_state": "open",
+                "draft": true,
+                "snapshot_note": "Fresh PR metadata; supplied review/build claims remain scoped to their evidence identity."
+              }
+            ],
+            "evidence": {
+              "source": {
+                "state": "SCOPED_PROGRESS_REPORTED",
+                "summary": "PR171 57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3 reconciles existing reset/save/load/export features and fixes malformed legacy arrangement load rejection. Scoped fix reviewed; combined validation remains pending.",
+                "provenance": "Coordinator supplied technical evidence; tracker checked current PR metadata only."
+              },
+              "test": {
+                "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
+                "summary": "Any scoped or historical test observations are described in the source summary and linked queue; they are not fresh combined-root qualification."
+              },
+              "build": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "deployed": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              },
+              "hardware": {
+                "state": "NOT_ESTABLISHED_FOR_REQUEST"
+              }
+            },
+            "updated_at": "2026-10-25T10:29:45Z",
             "request_origin": "Public-safe technical summary from reviewed continuity handoff",
             "user_intent": "Reset sequencers and musical parameters while preserving imported sample bytes/metadata."
           }
@@ -1656,7 +1768,7 @@
       "evidence": {
         "source": {
           "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-          "summary": "R22–R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
+          "summary": "R22\u2013R26 and Installer R44 undelivered/uncommitted after source-write refusals. PR114 normal/optimized each 2 PASS/2 FAIL; PR116 eleven safety failures. No bypass."
         },
         "test": {
           "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -2395,7 +2507,7 @@
       "owner_execution_state": "ROLE_OWNER_NOT_ACTIVE_EXECUTION_PROOF",
       "status": "FIX_AND_QA_REQUIRED",
       "priority": "P1",
-      "next_action": "Retain unique PR37/51 safeguards; reconcile PR156–158 stack; serial/parallel failure and manifest/compatibility negatives.",
+      "next_action": "Retain unique PR37/51 safeguards; reconcile PR156\u2013158 stack; serial/parallel failure and manifest/compatibility negatives.",
       "dependencies": [],
       "related_requests": [
         "LX-REQ-016"
@@ -2718,7 +2830,7 @@
             "evidence": {
               "source": {
                 "state": "REFERENCED_NOT_FULL_ACCEPTANCE",
-                "summary": "Twelve definitions audited 07:14–08:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
+                "summary": "Twelve definitions audited 07:14\u201308:51; latest-only telemetry cannot quantify repeat-idle frequency. Later prompt repair underway; completion/readback not established."
               },
               "test": {
                 "state": "NOT_ESTABLISHED_FOR_FULL_CURRENT_REQUEST",
@@ -3763,6 +3875,107 @@
       "updated_at": "2026-10-25T10:29:45Z",
       "request_origin": "Public-safe technical summary from bounded coordinator handoff",
       "user_intent": "Assess Cursor contribution and review coverage",
+      "history": []
+    },
+    {
+      "request_id": "LX-REQ-037",
+      "title": "Song import/export through the installer page",
+      "owner": "Parent coordination owner",
+      "owner_execution_state": "SOURCE_STAGE_ASSIGNMENT_PENDING",
+      "status": "ACTIVE_REUSE_EXISTING_PROJECT_WORKFLOW_SOURCE_STAGE_PENDING",
+      "priority": "P1",
+      "next_action": "Parent coordinator to assign installer source-stage owner; reuse Projects companion and protocol ops 64-74, preserve sample identity/recovery safeguards and distinguish full project from arrangement-only scope. See song-workflows-handoff-20261025.md.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-004",
+        "LX-REQ-012",
+        "LX-REQ-001"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Installer provides discoverable song/project import/export using existing versioned protocol and safety UI; explicit scope labels, synthetic round trips and failure/recovery tests; no duplicate format or transfer engine.",
+      "known_source_references": [
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/x0x37-for-Loopy-Pro_nightly",
+          "number": 19,
+          "url": "https://github.com/gobbajogger/x0x37-for-Loopy-Pro_nightly/pull/19",
+          "head": "570253d35c84748bba82ddd616b9c17af8d7da58",
+          "observed_at": "2026-10-25T10:42:55Z",
+          "snapshot_note": "Open draft; read-only metadata inspection, no merge/publication."
+        },
+        {
+          "type": "pull_request",
+          "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+          "number": 171,
+          "url": "https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/171",
+          "head": "57beefa7aae0a90e8e2fb57d2410f0bd2b85e8e3",
+          "observed_at": "2026-10-25T10:42:55Z",
+          "snapshot_note": "Open draft; read-only metadata inspection, no merge/publication."
+        }
+      ],
+      "evidence": {
+        "source": {
+          "state": "REUSE_AND_GAPS_INSPECTED",
+          "summary": "Firmware Projects companion implements .x0xproject portable/project-only transfer. Reviewed website PR19 lacks Projects assets/route and installer navigation; current workspace exposes firmware and samples only. Full-project transfer includes song, patterns, sounds, motion and settings; no arrangement-only transfer operation established."
+        },
+        "test": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "build": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "deployed": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        },
+        "hardware": {
+          "state": "NOT_ESTABLISHED_FOR_REQUEST"
+        }
+      },
+      "updated_at": "2026-10-25T10:42:55Z",
+      "request_origin": "Public-safe technical intent summary; later owner clarification controls.",
+      "user_intent": "Make song import/export accessible through the installer page, reusing existing project protocol and UI where applicable.",
+      "intake_eligible": true,
+      "implementation_authorized": true,
+      "history": []
+    },
+    {
+      "request_id": "LX-REQ-038",
+      "title": "Community song library, sharing and import idea",
+      "owner": "Parent coordination owner",
+      "owner_execution_state": "OWNER_DEFERRED_NO_IMPLEMENTATION_AUTHORIZATION",
+      "status": "OWNER_DEFERRED_IDEA_NOT_INTAKE_READY",
+      "priority": "DEFERRED",
+      "next_action": "Retain as owner-deferred idea. Wait for explicit owner reopening and scope approval; do not auto-dispatch, create backend/accounts/upload/moderation flows, or implement community features.",
+      "dependencies": [],
+      "related_requests": [
+        "LX-REQ-037"
+      ],
+      "dependency_note": "Related requests are coordination links, not blocking prerequisites.",
+      "completion_criterion": "Idea remains durably visible and excluded from automatic implementation intake until owner explicitly reopens it.",
+      "known_source_references": [],
+      "evidence": {
+        "source": {
+          "state": "IDEA_ONLY_OWNER_DEFERRED",
+          "summary": "No implementation authorized or claimed. Remembering the idea does not make it an active or auto-intake-ready request."
+        },
+        "test": {
+          "state": "NOT_AUTHORIZED_IDEA_ONLY"
+        },
+        "build": {
+          "state": "NOT_AUTHORIZED_IDEA_ONLY"
+        },
+        "deployed": {
+          "state": "NOT_AUTHORIZED_IDEA_ONLY"
+        },
+        "hardware": {
+          "state": "NOT_AUTHORIZED_IDEA_ONLY"
+        }
+      },
+      "updated_at": "2026-10-25T10:42:55Z",
+      "request_origin": "Public-safe technical intent summary; later owner clarification controls.",
+      "user_intent": "Remember possible future community song library/sharing/import. Owner wants to think further; later clarification defers community scope only.",
+      "intake_eligible": false,
+      "implementation_authorized": false,
       "history": []
     }
   ],
