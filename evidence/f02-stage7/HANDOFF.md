@@ -15,9 +15,9 @@ Merge evidence: `evidence/f02-stage5/CHECKS.md` (nightly FF REFUSED; no force-pu
 Host tests: `evidence/f02-stage3/CHECKS.md` (ALL_PASS).
 Deferred (next defect = oldest): `evidence/f02-stage2/DEFERRED.md` → **F03**.
 Successor prompt: `evidence/f02-stage7/SUCCESSOR-STAGE1.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 1 id is recorded on this remote tip.
+Successor agent id: `bc-2e0f6b6e-50b2-506d-92f4-e19a81d6cfac` (desktop, owner-visible).
+Successor URL: https://cursor.com/agents/bc-2e0f6b6e-50b2-506d-92f4-e19a81d6cfac
+Handoff status: **complete** — Stage 1 id is on this remote tip.
 
 ## Live nightly page (confirmed)
 
