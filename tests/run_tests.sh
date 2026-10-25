@@ -23,6 +23,9 @@
 #     When host-build itself ran, it still publishes .gen-done after the test (also on FAIL) so waiters report.
 #   A missing optional input prints "  not-run <name> (<reason>)". It does not write a .fail file and does not set FAIL.
 #     Pillow: python3 cannot import PIL. ASan runtime: ${CC:-cc} -fsanitize=address,undefined does not link.
+#     Parallel tests use a private HOME. Python's user site follows HOME, so the Pillow check and those tests
+#     keep the invoker's user base (PYTHONUSERBASE if set, otherwise this python3's site.getuserbase()).
+#     A pip --user Pillow stays visible. The default is not hard-coded: macOS uses ~/Library/Python, not ~/.local.
 #     Reference trees: 9W9, 8W8, or schwung-303 is absent. breaks and drum909-adpcm stay in-tree and still run.
 #     The sequencer still runs when TB-3PO is absent (it prints its own skip sentence). The SMK package block stays a skip note.
 #   If this run admits host-build as not-run because Pillow is absent, drum samples and the break bank are still
@@ -42,6 +45,13 @@ cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
 GEN_FAILED=0        # 1 after gen_nonfont actually ran and failed (host-build was not-run). Not a Pillow skip.
+# Captured before any test replaces HOME. See the Pillow note above.
+if [ -n "${PYTHONUSERBASE:-}" ]; then
+    X0X_PYTHONUSERBASE=$PYTHONUSERBASE
+else
+    X0X_PYTHONUSERBASE=$(python3 -c 'import site; print(site.getuserbase())')
+fi
+export X0X_PYTHONUSERBASE
 PIL_SKIP=0          # tests_body sets 1 when python3 cannot import PIL
 ASAN_SKIP=0         # tests_body sets 1 when the ASan runtime does not link
 ASAN_CHECKED=0
@@ -221,6 +231,7 @@ run() {
     [ "$cls" = W ] || [ $gw = 1 ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
     (                                       # xtrace goes to the file on the next line so sh -x lines do not tear
         export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
+        export PYTHONUSERBASE="$X0X_PYTHONUSERBASE"   # pip --user Pillow must survive the private HOME
         mkdir -p "$HOME" "$TMPDIR"
         if [ $gw = 1 ]; then      # wait for generation without a job slot, then take a slot
             until [ -e "$OUT/iso/.gen-done" ] || [ -e "$OUT/iso/.gen-fail" ]; do sleep 0.1; done
@@ -247,7 +258,7 @@ note() {                # a skip line, in the serial order
 }
 tests_body() {
 PIL_SKIP=0
-python3 -c 'import PIL' >/dev/null 2>&1 || PIL_SKIP=1
+PYTHONUSERBASE="$X0X_PYTHONUSERBASE" python3 -c 'import PIL' >/dev/null 2>&1 || PIL_SKIP=1
 if [ "$ASAN_CHECKED" != 1 ]; then
     ASAN_CHECKED=1
     ASAN_SKIP=0
