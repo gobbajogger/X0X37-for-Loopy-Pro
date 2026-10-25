@@ -59,17 +59,22 @@ static const d9_pspec_t d9_sd_p[] = {
     LIN("Snappy", F_SNAPPY, 64, 0.0f, 1.0f), LIN("Decay", F_DECAY, 41, 120.0f, 800.0f),   /* X0X: 9W9's fixed 340 ms */
     LEVEL(58), DRIVE(36), DIST, SENDS, PAN,
 };
+/* The low, mid, and high toms use one copy of these seven pots. The records
+ * match, so a second and third copy were only flash. Tune and decay stay on
+ * the tom. A caller asks for one pot, and that pot is one record. */
+static const d9_pspec_t d9_tom_tail[] = {
+    LEVEL(52), LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41), DIST, SENDS, PAN,
+};
+#define D9_TOM_HEAD 2
+#define D9_TOM_N (D9_TOM_HEAD + NP(d9_tom_tail))
 static const d9_pspec_t d9_lt_p[] = {
-    EXP("Tune", F_TUNE, 66, LT_TUNE), EXP("Decay", F_DECAY, 111, LT_DECAY), LEVEL(52),
-    LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41), DIST, SENDS, PAN,
+    EXP("Tune", F_TUNE, 66, LT_TUNE), EXP("Decay", F_DECAY, 111, LT_DECAY),
 };
 static const d9_pspec_t d9_mt_p[] = {
-    EXP("Tune", F_TUNE, 69, MT_TUNE), EXP("Decay", F_DECAY, 100, MT_DECAY), LEVEL(52),
-    LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41), DIST, SENDS, PAN,
+    EXP("Tune", F_TUNE, 69, MT_TUNE), EXP("Decay", F_DECAY, 100, MT_DECAY),
 };
 static const d9_pspec_t d9_ht_p[] = {
-    EXP("Tune", F_TUNE, 53, HT_TUNE), EXP("Decay", F_DECAY, 105, HT_DECAY), LEVEL(52),
-    LIN("Attack", F_ATTACK, 23, 0.0f, 1.0f), DRIVE(41), DIST, SENDS, PAN,
+    EXP("Tune", F_TUNE, 53, HT_TUNE), EXP("Decay", F_DECAY, 105, HT_DECAY),
 };
 static const d9_pspec_t d9_rs_p[] = {
     LEVEL(103), EXP("Tune", F_TUNE, 62, RS_TUNE), DRIVE(24), DIST, SENDS, PAN,
@@ -100,11 +105,21 @@ static const d9_pspec_t *const d9_specs[DR_NUM + 1] = {
 /* every list must fit pots[][DR_MAX_PARAMS]: a longer one writes into the next voice's pots */
 #define FITS(a) _Static_assert(NP(a) <= DR_MAX_PARAMS, #a " has more params than DR_MAX_PARAMS")
 FITS(d9_bd_p); FITS(d9_sd_p); FITS(d9_lt_p); FITS(d9_mt_p); FITS(d9_ht_p); FITS(d9_rs_p); FITS(d9_cp_p);
-FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p);
+FITS(d9_ch_p); FITS(d9_oh_p); FITS(d9_cr_p); FITS(d9_rd_p); FITS(d9_kit_p); FITS(d9_tom_tail);
+_Static_assert(NP(d9_lt_p) == D9_TOM_HEAD && NP(d9_mt_p) == D9_TOM_HEAD && NP(d9_ht_p) == D9_TOM_HEAD,
+               "tom heads are tune and decay only");
+_Static_assert(D9_TOM_N <= DR_MAX_PARAMS, "tom pot count");
 static const uint8_t d9_nspec[DR_NUM + 1] = {
-    NP(d9_bd_p), NP(d9_sd_p), NP(d9_lt_p), NP(d9_mt_p), NP(d9_ht_p), NP(d9_rs_p), NP(d9_cp_p),
+    NP(d9_bd_p), NP(d9_sd_p), D9_TOM_N, D9_TOM_N, D9_TOM_N, NP(d9_rs_p), NP(d9_cp_p),
     NP(d9_ch_p), NP(d9_oh_p), NP(d9_cr_p), NP(d9_rd_p), NP(d9_kit_p),
 };
+
+static const d9_pspec_t *d9_spec(int voice, int i)
+{
+    if (i >= D9_TOM_HEAD && (voice == DR_LT || voice == DR_MT || voice == DR_HT))
+        return &d9_tom_tail[i - D9_TOM_HEAD];
+    return &d9_specs[voice][i];
+}
 
 int drum909_nparams(int voice)
 {
@@ -115,7 +130,7 @@ const x0x_param_t *drum909_param(int voice, int i)
 {
     if (voice < 0 || voice > DR_KIT || i < 0 || i >= d9_nspec[voice])
         return 0;
-    return &d9_specs[voice][i].ui;
+    return &d9_spec(voice, i)->ui;
 }
 
 int drum909_get(const drum909_t *d, int voice, int i)
@@ -233,7 +248,7 @@ void drum909_set(drum909_t *d, int voice, int i, int value)
 {
     if (voice < 0 || voice > DR_KIT || i < 0 || i >= d9_nspec[voice])
         return;
-    const d9_pspec_t *s = &d9_specs[voice][i];
+    const d9_pspec_t *s = d9_spec(voice, i);
     if (value < 0) value = 0;
     if (value > s->ui.max) value = s->ui.max;
     d->pots[voice][i] = (uint8_t)value;
@@ -357,7 +372,7 @@ void drum909_init(drum909_t *d)
 
     for (int v = 0; v <= DR_KIT; ++v)
         for (int i = 0; i < d9_nspec[v]; ++i)
-            d->pots[v][i] = d9_specs[v][i].ui.def;
+            d->pots[v][i] = d9_spec(v, i)->ui.def;
 }
 
 /* ===================================================================== */
