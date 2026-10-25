@@ -17,9 +17,11 @@ Evidence: `evidence/f09-stage1/AUDIT.md`, `CHECKS.md`, `live-verify.log`, `bf005
 Successor prompt: `evidence/f09-stage1/SUCCESSOR-STAGE2.txt`.
 Evidence PR: https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/240
 API CreateAgent: attempt1/2 **401** (no `CURSOR_API_KEY`) — see `api-create-stage2-attempt{1,2}.json`.
-Successor agent id: none (pending coordinator CreateAgent — pod has no `CURSOR_API_KEY`).
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 2 id is recorded on this remote tip.
+Coordinator CreateAgent: **succeeded** (owner-visible).
+Successor agent id: `bc-42c7795e-c06a-577e-b9f6-2b9f2b368ed0`
+Successor URL: https://cursor.com/agents/bc-42c7795e-c06a-577e-b9f6-2b9f2b368ed0
+startingRef: `cursor/f09-bf005-stage1-fb90`
+Handoff status: **complete** — owner-visible Stage 2 id is on this remote tip. Stage 1 releases ownership.
 
 ## Scope for stage 2
 

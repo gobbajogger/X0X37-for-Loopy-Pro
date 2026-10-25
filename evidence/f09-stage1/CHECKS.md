@@ -71,4 +71,4 @@ API CreateAgent attempts: `api-create-stage2-attempt1.json` / `attempt2.json` â€
 
 ## Overall
 
-**AUDIT RECORDED.** Selected defect **BF-005** (queued old-source MIDI clocks accelerate a new source after disconnect). Ready for Stage 2. Handoff incomplete until coordinator returns owner-visible Stage 2 id.
+**AUDIT RECORDED.** Selected defect **BF-005** (queued old-source MIDI clocks accelerate a new source after disconnect). Handoff **complete** â€” Stage 2 `bc-42c7795e-c06a-577e-b9f6-2b9f2b368ed0` (https://cursor.com/agents/bc-42c7795e-c06a-577e-b9f6-2b9f2b368ed0).
