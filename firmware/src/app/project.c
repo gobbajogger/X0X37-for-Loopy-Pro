@@ -690,6 +690,11 @@ int project_validate_stage(void)
             if ((l->v >> 4) != l->part || (l->v & 15) >= (l->part < NKIT ? NDRUM : 1) || l->i)
                 return -1;
             max = PROB_COND + PROB_NCOND - 1;
+        } else if (l->t == T_VEL) {
+            /* Drum black-key strike velocity only; 303 steps keep bstep.velocity. */
+            if (l->part >= NKIT || (l->v >> 4) != l->part || (l->v & 15) >= NDRUM || l->i)
+                return -1;
+            max = 127;
         } else {
             if (l->t >= NTARGETS || l->v >= engine_nvoices(l->t) || l->i >= engine_nparams(l->t, l->v))
                 return -1;

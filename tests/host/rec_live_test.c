@@ -527,6 +527,51 @@ static void test_start_ext_running(void)
     printf("  Start with the clock running, a hit before the first tick: step 1: checked\n");
 }
 
+/* Black-key REC stores strike velocity in a T_VEL lane (same packing as T_PROB). */
+static void test_drum_record_velocity(void)
+{
+    int s, lane, voice = 0 << 4 | 2; /* 909 tom / black key 3 */
+    ui.part = PART_909;
+    set_view(V_PART);
+    build_pages();
+    clear_909();
+    tick(700);
+    seq.bpm = 120.0f;
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    btn(B_PLAY, 1);
+    btn(B_PLAY, 0);
+    tick(20);
+    CHECK(ui.rec && seq.playing, "REC on and playing");
+    at_step(TRK_DRUM, 0, 20);
+    key_velocity[BLACK_K[2]] = 37;
+    tap_key(BLACK_K[2], 10);
+    key_velocity[BLACK_K[2]] = 0;
+    tick(50);
+    for (s = 0; s < 64 && !sm_get(proj.pat[seq.ppat[0]].drum[0].hit[2], s); s++)
+        ;
+    CHECK(s < 64 && sm_get(proj.pat[seq.ppat[0]].drum[0].hit[2], s), "soft hit recorded a step");
+    lane = motion_find(proj.arr.lane, seq.ppat[0], PART_909, T_VEL, voice, 0);
+    CHECK(lane >= 0, "T_VEL lane allocated for the recorded voice");
+    CHECK(lane >= 0 && proj.arr.lane[lane].val[s] == 37,
+          "recorded velocity %d, want 37", lane >= 0 ? proj.arr.lane[lane].val[s] : -1);
+    at_step(TRK_DRUM, 4, 20);
+    key_velocity[BLACK_K[2]] = 110;
+    tap_key(BLACK_K[2], 10);
+    key_velocity[BLACK_K[2]] = 0;
+    tick(50);
+    for (s = 0; s < 64; s++)
+        if (sm_get(proj.pat[seq.ppat[0]].drum[0].hit[2], s) && proj.arr.lane[lane].val[s] == 110)
+            break;
+    CHECK(s < 64, "hard hit stored velocity 110 on its step");
+    btn(B_REC, 1);
+    btn(B_REC, 0);
+    btn(B_PLAY, 1);
+    btn(B_PLAY, 0);
+    tick(300);
+    printf("  909 live record: black-key strike velocity in T_VEL lane: checked\n");
+}
+
 /* a73 (owner OK 2026-10-16 20:11): a live drum hit records on the nearest step */
 static void test_drum_nearest(void)
 {
@@ -606,6 +651,7 @@ int main(void)
     test_303_auto_slide();
     test_303_live();
     test_start_ext_running();
+    test_drum_record_velocity();
     test_drum_nearest();
 #if BOARD_SMK37
     seq_stop(&seq);

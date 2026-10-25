@@ -449,8 +449,12 @@ static void s_step(void *x, int t, int p)
 static int mot_base(void *x, int t, int v, int i)
 {
     (void)x;
+    if (t == T_PROB)
+        return 100;                                   /* always */
+    if (t == T_VEL)
+        return 0;                                     /* legacy accent / accent_q7 */
     if (t >= NTARGETS)
-        return 100;                                   /* T_PROB: always */
+        return 100;
     return mot_base_snd ? mot_base_snd->v[t][v][i] : 0;
 }
 static void mot_apply(void *x, int t, int v, int i, int val)
@@ -459,6 +463,10 @@ static void mot_apply(void *x, int t, int v, int i, int val)
     if (t == T_PROB) {
         if ((v >> 4) < NPARTS && (v & 15) < NDRUM)
             prob[v >> 4][v & 15] = (uint8_t)val;
+    } else if (t == T_VEL) {
+        int kit = v >> 4, voice = v & 15;
+        if ((unsigned)kit < NKIT && (unsigned)voice < NDRUM)
+            seq.drum_vel[kit][voice] = (uint8_t)(val < 0 ? 0 : val > 127 ? 127 : val);
     } else if (t < NTARGETS)
         apply_param(t, v, i, val);
 }
@@ -471,7 +479,8 @@ int engine_motion_part(int t, int v)
     case T_303: return PART_303A + (v & 1);
     case T_BRK: return PART_BRK;
     case T_MIX: return v < NPARTS ? v : PART_909;
-    case T_PROB: return (v >> 4) < NPARTS ? v >> 4 : PART_909;
+    case T_PROB:
+    case T_VEL: return (v >> 4) < NPARTS ? v >> 4 : PART_909;
     default: return PART_909;                     /* FX, master: the bar */
     }
 }

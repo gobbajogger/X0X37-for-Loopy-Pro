@@ -103,6 +103,28 @@ static void test_drum_timing(void)
     printf("  drum timing: %d BD, %d CH on the sample\n", n, k);
 }
 
+/* T_VEL / seq.drum_vel: a recorded strike velocity overrides accent_q7 for that voice. */
+static void test_drum_step_velocity(void)
+{
+    int i;
+    reset();
+    S.bpm = 120.0f;
+    S.accent_q7 = 88;
+    P[0].drum[0].hit[0][0] = 1u;                           /* BD on step 1 only */
+    S.drum_vel[0][0] = 40;
+    seq_start(&S);
+    run(5513);
+    i = find(E_DRUM, 0, 0);
+    CHECK(i >= 0 && evs[i].b == 40, "recorded drum velocity reaches the sink (%d)", i >= 0 ? evs[i].b : -1);
+    nev = 0;
+    S.drum_vel[0][0] = 0;                                  /* legacy: accent row / accent_q7 */
+    seq_start(&S);
+    run(5513);
+    i = find(E_DRUM, 0, 0);
+    CHECK(i >= 0 && evs[i].b == 88, "zero drum_vel keeps accent_q7 (%d)", i >= 0 ? evs[i].b : -1);
+    printf("  drum step velocity: recorded 40, legacy 88\n");
+}
+
 static void test_swing_and_rates(void)
 {
     int i, k;
@@ -1343,6 +1365,7 @@ int main(void)
 {
     test_chain_endpoint_bounds();
     test_drum_timing();
+    test_drum_step_velocity();
     test_swing_and_rates();
     test_303();
     test_303_velocity_slide_overlap();
