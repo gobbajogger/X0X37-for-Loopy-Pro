@@ -110,16 +110,23 @@ extern struct bootguard_s bootguard;
  *   0x000-0xFFF  the LZ hash table of a project save (lz.c);
  *   0x000-0x7FF  the read buffers of an update session (ota.c);
  *   0x000-0xCEF  the PERF TEST patterns and sound (ui.c, PERF_SCRATCH);
- *   0xD00-0xF7F  the decoded host message of ota.c (OTA_FRAME_MAX), read only in the call that decoded it.
+ *   0xD00-0xF7F  the decoded host message of ota.c (OTA_FRAME_MAX), read only in the call that decoded it;
+ *   0xD00-0xEFF  editor sample/project chunk staging (editor.c, ED_SMP_SCRATCH), 512 B — same
+ *                ownership class as ota_dec: live only inside one ed_handle. ed_service runs
+ *                before ota_service; an editor frame is consumed before ota_take can write
+ *                ota_dec. SAVE/LOAD paths that call lz_compress do not use ed_smp_buf. An
+ *                update session does not call ed_service (blocked in ota_session / ota_idle).
  * A save does not run while the PERF TEST plays its patterns (seq.playing blocks it), and the test
  * makes its patterns after the last possible save (ui.c perf_test_tick, phase 0). An update session
  * stops the sequencer first, and the test then stops and puts the project back. */
 _Static_assert(0xD00 + 640 <= 4096, "scratch");
+_Static_assert(512u <= 640u, "ed_smp_buf fits the ota_dec region");
 static uint16_t x0x_main_scratch[2048] __attribute__((aligned(4)));
 #define OTA_SCRATCH ((uint8_t *)x0x_main_scratch)
 #define OTA_DEC_OFF 0xD00u
 #define LZ_SCRATCH x0x_main_scratch
 #define PERF_SCRATCH x0x_main_scratch
+#define ED_SMP_SCRATCH (OTA_SCRATCH + OTA_DEC_OFF)   /* 512 B; call-scoped like ota_dec */
 #include "ota.c"
 static uint32_t ota_now_ms(void) { return fm1_ms; }
 static void ota_idle(void) { fm1_wdt_feed(); }

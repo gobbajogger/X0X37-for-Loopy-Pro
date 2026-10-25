@@ -84,7 +84,17 @@ static void ed_put7(const uint8_t *src, uint32_t n)
             ed_b(src[k + j]);
     }
 }
-static uint8_t ed_smp_buf[512] __attribute__((aligned(4)));
+/* Sample/project chunk staging: 512 B, live only for the duration of one ed_handle
+ * (fill then consume; no cross-message retention). On the device this aliases the
+ * main-loop scratch at OTA_DEC_OFF (x0x.c ED_SMP_SCRATCH), the same call-scoped
+ * ownership class as ota_dec / PROJECT_IO_BUFFER. Host builds keep a private buffer. */
+#define ED_SMP_BUF_SIZE 512u
+#ifdef ED_SMP_SCRATCH
+_Static_assert(ED_SMP_BUF_SIZE <= 640u, "ed_smp_buf fits the ota_dec region");
+#define ed_smp_buf ED_SMP_SCRATCH
+#else
+static uint8_t ed_smp_buf[ED_SMP_BUF_SIZE] __attribute__((aligned(4)));
+#endif
 
 /* Unlike the legacy decoder, reject truncated groups, excess bytes and noncanonical
  * high-bit masks. A malformed frame must never be accepted as a shorter write. */
@@ -301,7 +311,7 @@ static int ed_smp_erase(uint32_t k, uint32_t all)
 static int ed_smp_end(uint32_t k, const uint8_t *a, uint32_t na)
 {
     const smp_user_hdr_t *h = (const smp_user_hdr_t *)ed_smp_buf;
-    uint32_t n = ed_unpack_exact(a, na, ed_smp_buf, sizeof ed_smp_buf);
+    uint32_t n = ed_unpack_exact(a, na, ed_smp_buf, ED_SMP_BUF_SIZE);
     if (n != sizeof(smp_user_hdr_t) && n != SMP_USER_DATA)
         return 1;
     if (h->magic != SMP_USER_MAGIC || h->version != 1 || !h->nz || h->nz > 16u ||
