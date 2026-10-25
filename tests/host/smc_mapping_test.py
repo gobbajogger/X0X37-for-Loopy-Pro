@@ -31,7 +31,6 @@ typedef struct { uint8_t kind,a,b,c; } pref_t;
 static struct { int help,overlay,list_top,list_n,view,part,sel[2]; } ui;
 static struct { pref_t r[1][4]; } pg;
 static pref_t list_rows[12];
-static const char *const PART_N[] = {"909","808"};
 static int kit=-1, clip, stage;
 static struct { pref_t target[8]; uint8_t value[8],picked,pending,seen; } smc;
 static uint8_t smc_scaled(pref_t r) { return r.kind==R_NONE ? 0 : 64; }
@@ -47,7 +46,6 @@ static void build_pages(void) {
     for(int n=0;n<4;n++) pg.r[0][n]=PR(R_ENG,kit ? T_808 : T_909,ui.sel[kit],n);
 }
 #define smc_select_drum(k,t) (ui.sel[k]=(t),build_pages())
-static void say(const char *a,const char *b) { (void)a;(void)b; }
 '''
 harness += '\n'.join(functions)
 harness += r'''
