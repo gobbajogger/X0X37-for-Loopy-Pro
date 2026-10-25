@@ -363,6 +363,11 @@ static void auto_mutate(seq_t *s, int b)
 }
 
 /* fire track t's next step now; returns the parts whose pattern changed (the 909 wrapping) */
+/* Keep the complete step dispatcher shared instead of expanding it into the
+ * sample scheduler. The state transitions and call order stay unchanged. */
+#if defined(__clang__)
+__attribute__((minsize, noinline))
+#endif
 static uint32_t fire_step(seq_t *s, int t, const seq_sink_t *o)
 {
     seq_track_t *tr = &s->t[t];
