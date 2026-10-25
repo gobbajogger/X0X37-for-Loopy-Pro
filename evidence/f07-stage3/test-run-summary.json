@@ -1,0 +1,46 @@
+{
+  "overall": "ALL_PASS",
+  "checks": [
+    {
+      "id": "host-unit",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f07-stage3/host-unit.log"
+    },
+    {
+      "id": "live-fetch-check",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f07-stage3/live-fetch-check.log",
+      "json": "evidence/f07-stage3/live-fetch-check-result.json"
+    },
+    {
+      "id": "conflation-fail",
+      "exit": 1,
+      "result": "PASS",
+      "log": "evidence/f07-stage3/conflation-fail.log",
+      "note": "expected NON-ZERO; installer_sha256-alone rejected"
+    },
+    {
+      "id": "planner-host",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f07-stage3/planner-host.log",
+      "note": "11 tests OK; installer-digests route present in tools/quickcheck_plan.py PATH_RULES"
+    },
+    {
+      "id": "product-paths-unchanged",
+      "exit": 0,
+      "result": "PASS",
+      "log": "evidence/f07-stage3/product-paths-unchanged.log",
+      "note": "firmware/ and packaging scripts unchanged vs 1325f5d34340ea877e65ab86f3663f5dea052c0d; .fwsc/.img not claimed in repo"
+    },
+    {
+      "id": "digests-semantics",
+      "exit": 0,
+      "result": "PASS",
+      "note": "installer_source_fingerprint != served_install_html_sha256; installer_sha256 == source fingerprint; live fetch matched served"
+    }
+  ],
+  "notes": "FP-001 dual-digest Stage-3 host checks only. No GHA, no device write, no firmware build. source=8caf87247afb79dda2107f3074d73da7f2512f5d14e55db32b9285baadc38157 served=fetched=66b56ba5accd1309664320c91db52c28438080a97b2bdb3fa31f6b830f3ca554. Product tracked paths vs 1325f5d3 unchanged."
+}
