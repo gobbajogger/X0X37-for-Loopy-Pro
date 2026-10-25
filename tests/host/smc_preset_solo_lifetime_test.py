@@ -598,7 +598,7 @@ int main(void)
  for(unsigned user=0;user<2;user++)
   for(unsigned ch=0;ch<16;ch++)
    for(int zero_on=0;zero_on<2;zero_on++)
-    for(int new_link=0;new_link<2;new_link++
+    for(int new_link=0;new_link<2;new_link++)
      for(unsigned i=0;i<sizeof cursors;i++) {
       if(!ble_link_overflow_lifetime(cursors[i],user,ch,zero_on,new_link)) return 1;
       ++cases;
