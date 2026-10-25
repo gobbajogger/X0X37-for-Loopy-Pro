@@ -1,0 +1,25 @@
+{
+  "repository": "daisyaudio/DaisySP",
+  "revision": "2c72eaf9eac5fc0dca1919d65d606da907832618",
+  "compiled_subset": "Polyblep helper adapted into ../blep.h only",
+  "files": {
+    "LICENSE": "ae36576d7394109775a8cc86c31c94f016de256526e86d11ee554ef25d429570",
+    "Source/Filters/svf.cpp": "27ff7d834b9c6d705570bec43079c752028c15d4bfb00c97140a42508ec87ce0",
+    "Source/Filters/svf.h": "97356a57d038421c5df461d22de2c2ad02b27e92067c65275791da4831620bca",
+    "Source/Synthesis/fm2.cpp": "dbacd00ce490de57b83296407190e161ad841287b291cec98ad712936401e6aa",
+    "Source/Synthesis/fm2.h": "e5853e3731306bf16109afce4e288fbd130b841262caaf8fbd50d27d8eb664b0",
+    "Source/Synthesis/oscillator.cpp": "6c0ed4e7db0e155b27847ff6319d5a9ec3234a5e90c535da4fb430aaa73a8a6f",
+    "Source/Synthesis/oscillator.h": "334385ef766a8d1e10e292ab58457f8306e55e22517e9eec9888a07044938b4c",
+    "Source/Utility/dsp.h": "534f0f76b7794939a5fff9b128b8fddb23ae0e63ad3354f663445d417924099a"
+  },
+  "gitBlobs": {
+    "LICENSE": "3b4906d065588b76428767ee806cea9b00dbe160",
+    "Source/Filters/svf.cpp": "9a1d86ae8eb2abf0800bec59546e32a24da19f3b",
+    "Source/Filters/svf.h": "e41eef539e12e2364f25ecdf6c40f5fa1eba209c",
+    "Source/Synthesis/fm2.cpp": "4560013e0e3fa362f171595bffcce13cfa37f36b",
+    "Source/Synthesis/fm2.h": "7c31ccc83bb1630c3be3eae29c24cd4cd4d8a513",
+    "Source/Synthesis/oscillator.cpp": "42c098e2feb63406c062f187fe8195df5c0196bc",
+    "Source/Synthesis/oscillator.h": "469d09a077090aa35011cca4df971fd82dc5a71b",
+    "Source/Utility/dsp.h": "619abdb5014b3b167f27457ab635608a0bd2a6a9"
+  }
+}
