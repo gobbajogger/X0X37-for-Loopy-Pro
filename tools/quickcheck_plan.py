@@ -27,6 +27,9 @@ TEST_ROUTES = [
     ('tools/fm1_install.py', 'installer installer-slots installer-ctl installer-targets'),
     ('tools/fm1pkg_make.py', 'smk-package'),
     ('tools/upload_breaks.py', 'upload-images upload-tools breaks-web'),
+    # FP-001 dual-digest host check (source fingerprint ≠ served install HTML).
+    ('tools/check_installer_digests.py', 'installer-digests'),
+    ('tests/host/test_check_installer_digests.py', 'installer-digests'),
     # Project companion modules and their shared breaks helper need the project
     # suites; the generic web/ route never names projects-web / projects-page.
     ('web/x0x_projects.js', 'projects-web projects-page'),
