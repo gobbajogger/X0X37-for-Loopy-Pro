@@ -8,14 +8,7 @@
 #include "bass303.h"
 
 static int fails;
-#define CHECK(c, ...)                                                                              \
-    do {                                                                                           \
-        if (!(c)) {                                                                                \
-            printf("FAIL " __VA_ARGS__);                                                           \
-            printf("\n");                                                                          \
-            fails++;                                                                               \
-        }                                                                                          \
-    } while (0)
+#define CHECK(c, ...) do { if (!(c)) { printf("FAIL " __VA_ARGS__); printf("\n"); fails++; } } while (0)
 
 static float buf[44100];
 
@@ -30,6 +23,7 @@ static double rms_range(const float *x, int a, int b)
     return sqrt(s / (double)n);
 }
 
+/* Zero-crossing period estimate over a window (saw-friendly). */
 static double period_est(const float *x, int a, int b)
 {
     int i, z = 0, first = -1, last = -1;
@@ -61,8 +55,9 @@ static void capture_step(int note, void *ctx)
 static void test_surface(void)
 {
     CHECK(CHI_ARP_SWITCH == 23 && CHI_ARP_MODE == 24 && CHI_ARP_RANGE == 25 && CHI_ARP_SPEED == 26,
-          "arp indices 23..26 (after amp ADSR 19..22)");
+          "arp indices 23..26 (after ARELEASE=22)");
     CHECK(CHI_ARP_NPARAMS_END == 27, "engine nparams end 27");
+    CHECK(BASS303_NPARAMS == 23 && BASS303_ARELEASE == 22, "bass303 pots 0..22");
     CHECK(CHI_ARP_PARAMS[0].def == CHI_ARP_OFF && !strcmp(CHI_ARP_PARAMS[0].name, "ArpSw"),
           "Switch def Off");
     CHECK(CHI_ARP_PARAMS[1].def == CHI_ARP_UP && !strcmp(CHI_ARP_MODE_N[CHI_ARP_UP], "Up"),
@@ -72,10 +67,8 @@ static void test_surface(void)
     CHECK(CHI_ARP_TICKS[CHI_ARP_SPD_1_2] == 48 && CHI_ARP_TICKS[CHI_ARP_SPD_1_16] == 6 &&
               CHI_ARP_TICKS[CHI_ARP_SPD_1_32] == 3,
           "speed tick table");
-    CHECK(BASS303_AMPMODE == 16 && BASS303_GNAW == 17 && BASS303_BITE == 18 && BASS303_AATTACK == 19 &&
-              BASS303_ARELEASE == 22,
+    CHECK(BASS303_AMPMODE == 16 && BASS303_GNAW == 17 && BASS303_BITE == 18 && BASS303_AATTACK == 19,
           "do not retarget AmpMod/Gnaw/Bite/ADSR");
-    CHECK(BASS303_NPARAMS == 23, "bass303 still ends at 23 pots");
 }
 
 static void test_factory_decode(void)
@@ -93,14 +86,21 @@ static void test_factory_decode(void)
         chi_arp_decode_factory(downer, out);
         CHECK(out[0] == CHI_ARP_ON && out[1] == CHI_ARP_DOWN && out[2] == CHI_ARP_FULL,
               "Downer Switch/Mode/Range");
-        CHECK(out[3] == CHI_ARP_SPD_1_8 || out[3] == CHI_ARP_SPD_1_12,
-              "Downer Speed near 1/8 (got %u)", out[3]);
+        CHECK(out[3] == CHI_ARP_SPD_1_8, "Downer Speed 1/8 (got %u)", out[3]);
+    }
+    {
+        const uint8_t hi[4] = {255, 255, 255, 227};
+        chi_arp_decode_factory(hi, out);
+        CHECK(out[0] == CHI_ARP_ON && out[1] == CHI_ARP_UPDN && out[2] == CHI_ARP_FULL &&
+                  out[3] == CHI_ARP_SPD_1_16,
+              "Hi-Arp On/UpDn/Full/1/16 (got %u %u %u %u)", out[0], out[1], out[2], out[3]);
     }
 }
 
 static void test_pick_modes(void)
 {
     const uint8_t one[1] = {48};
+    const uint8_t chord[3] = {48, 52, 55};
     int i;
     CHECK(chi_arp_pick(one, 1, CHI_ARP_UP, CHI_ARP_OCT2, 0) == 48, "Up step0");
     CHECK(chi_arp_pick(one, 1, CHI_ARP_UP, CHI_ARP_OCT2, 1) == 60, "Up step1");
@@ -112,6 +112,11 @@ static void test_pick_modes(void)
         CHECK(chi_arp_pick(one, 1, CHI_ARP_UPDN, CHI_ARP_OCT2, (uint32_t)i) == expect,
               "Up/Dn step %d", i);
     }
+    CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT1, 0) == 48, "chord Up 0");
+    CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT1, 1) == 52, "chord Up 1");
+    CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT1, 2) == 55, "chord Up 2");
+    CHECK(chi_arp_pick(chord, 3, CHI_ARP_DOWN, CHI_ARP_OCT1, 0) == 55, "chord Down 0");
+    CHECK(chi_arp_pick(chord, 3, CHI_ARP_UP, CHI_ARP_OCT2, 3) == 60, "chord Up oct2");
 }
 
 static void test_runtime_clock(void)
@@ -127,26 +132,26 @@ static void test_runtime_clock(void)
     chi_arp_run_process(&r, period - 1, 120.0f, 44100.0f, capture_step, &cap);
     CHECK(cap.n == 1, "quiet until next period");
     chi_arp_run_process(&r, 1, 120.0f, 44100.0f, capture_step, &cap);
-    CHECK(cap.n == 2 && cap.notes[1] == 60, "second note octave up");
+    CHECK(cap.n == 2 && cap.notes[1] == 60, "second note 60 (octave)");
 }
 
 typedef struct {
     bass303_t *b;
     int fired;
-} dsp_ctx_t;
+} arp_dsp_ctx_t;
 
-static void dsp_on_step(int note, void *ctx)
+static void arp_dsp_on_step(int note, void *ctx)
 {
-    dsp_ctx_t *d = ctx;
-    bass303_note_on_velocity(d->b, note, 0, 0, 100);
-    d->fired++;
+    arp_dsp_ctx_t *c = (arp_dsp_ctx_t *)ctx;
+    bass303_note_on_velocity(c->b, note, 0, 0, 100);
+    c->fired++;
 }
 
 static void test_dsp_pitch_changes(void)
 {
     bass303_t b;
     chi_arp_run_t r;
-    dsp_ctx_t d;
+    arp_dsp_ctx_t ctx;
     int pos;
     double p_lo, p_hi;
     bass303_init(&b);
@@ -156,17 +161,17 @@ static void test_dsp_pitch_changes(void)
     bass303_set(&b, BASS303_WAVE, 0);
     bass303_set(&b, BASS303_ASUSTAIN, 127);
     bass303_set(&b, BASS303_ADECAY, 10);
+    ctx.b = &b;
+    ctx.fired = 0;
     chi_arp_run_hold(&r, 36, CHI_ARP_UP, CHI_ARP_OCT2, CHI_ARP_SPD_1_8);
-    d.b = &b;
-    d.fired = 0;
     pos = 0;
     while (pos < 22050) {
         int m = 128;
-        chi_arp_run_process(&r, (uint32_t)m, 120.0f, 44100.0f, dsp_on_step, &d);
+        chi_arp_run_process(&r, (uint32_t)m, 120.0f, 44100.0f, arp_dsp_on_step, &ctx);
         bass303_render(&b, buf + pos, m);
         pos += m;
     }
-    CHECK(d.fired >= 2, "arp fired multiple steps (got %d)", d.fired);
+    CHECK(ctx.fired >= 2, "arp fired multiple steps (got %d)", ctx.fired);
     p_lo = period_est(buf, 1000, 4000);
     p_hi = period_est(buf, 12000, 16000);
     CHECK(p_lo > 0 && p_hi > 0, "both windows have pitch");

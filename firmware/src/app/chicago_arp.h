@@ -44,7 +44,7 @@ static const uint8_t CHI_ARP_TICKS[CHI_ARP_NSPEED] = {48, 36, 32, 24, 18, 16, 12
 
 static const char *const CHI_ARP_SWITCH_N[] = {"Off", "On"};
 static const char *const CHI_ARP_MODE_N[] = {"Down", "Up", "Up/Dn"};
-static const char *const CHI_ARP_RANGE_N[] = {"1 Oct", "2 Oct", "Full"};
+static const char *const CHI_ARP_RANGE_N[] = {"1 Oct", "2Octs", "Full"};
 static const char *const CHI_ARP_SPEED_N[] = {"1/2", "3/8", "1/3", "1/4", "3/16", "1/6", "1/8", "1/12",
                                                "1/16", "1/32"};
 
