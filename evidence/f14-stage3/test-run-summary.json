@@ -1,0 +1,45 @@
+{
+  "stage": 3,
+  "cycle": "F14",
+  "defect": "BF-013",
+  "owner": "bc-ffda0814-f56c-5ba4-bf4c-d31ecf7a4cf1",
+  "branch": "cursor/f14-bf013-stage3-237f",
+  "implement_tip": "4c01165a8391d12a2ca2842bb139671e89b1fc8b",
+  "repair_commit": "13b831e8a018137a64fa3d0c03cb5d520d8be8fd",
+  "audited_sha": "b42bcba46ee7255c18f18c10dd1f99b9fc9bb675",
+  "blobs": {
+    "fxbus.c": "49a89483e1c777a46758ed370973afb85f15274d",
+    "stereo_test.c": "c8bc1092319f38a46d4f8d41ab5b2a4ef560ff39",
+    "unrepaired_fxbus_witness": "4c7485391d3a462ebe9f4907abfaf4867ce80b54"
+  },
+  "env": {
+    "X0X_TESTS": "stereo",
+    "X0X_TEST_JOBS": 8,
+    "X0X_DEV_PADCAL": "1"
+  },
+  "required": {
+    "blob_confirm": "PASS",
+    "stereo_green": {
+      "exit": 0,
+      "result": "ok stereo",
+      "log": "evidence/f14-stage3/stereo-green.log"
+    },
+    "stereo_green_reconfirm": {
+      "exit": 0,
+      "result": "ok stereo",
+      "log": "evidence/f14-stage3/stereo-green-reconfirm.log"
+    }
+  },
+  "optional_red_witness": {
+    "exit": 1,
+    "result": "FAIL_EXPECTED",
+    "failed_assertions": 4,
+    "log": "evidence/f14-stage3/stereo-red-witness.log",
+    "detail": "evidence/f14-stage3/stereo-red-detail.log"
+  },
+  "ALL_PASS": true,
+  "source_repair_found": false,
+  "failure_investigation_subagent": "not started (no failing required check)",
+  "task_helpers": "unavailable in this runtime; Stage-3 owner ran tests directly",
+  "ts": "2026-10-25T19:29:03Z"
+}

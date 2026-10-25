@@ -1,0 +1,7 @@
+NO_CURSOR_API_KEY — Stage 3 did not POST /v1/agents for Stage 4.
+Do not claim a Task subagent as Stage 4.
+Coordinator CreateAgent should launch Stage 4 with:
+  startingRef=cursor/f14-bf013-stage3-237f
+  prompt=evidence/f14-stage3/SUCCESSOR-STAGE4.txt
+  repository=https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+Stage-3 owner bc-ffda0814-f56c-5ba4-bf4c-d31ecf7a4cf1 retains handoff ownership until an owner-visible Stage 4 URL is on the remote tip.
