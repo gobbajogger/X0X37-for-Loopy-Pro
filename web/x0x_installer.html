@@ -217,6 +217,12 @@ const TEXT = {
     slotsave: "新しいファームウェアではスロットのサンプルが消えます（スロット ",
     slotsave2: "）。先に全スロットをファイルに保存します。",
     slotsaved: "スロットを保存しました（ダウンロード）: ",
+    backupverify: "書き込み前にサンプルのバックアップを保存してください:",
+    backupdownload: "バックアップをダウンロード",
+    backupreopen: "保存したファイルを選択して書き込み前に検証してください。保存を確認できるまでファームウェアは書き込みません。",
+    backupchoose: "保存済みバックアップを選択", backupcancelbutton: "インストールを中止",
+    backupcancelled: "バックアップを確認できないため何も書き込みません。",
+    backupbad: "このファイルはバックアップと一致しません。正しいファイルを選んでください。",
     slotback: "スロットを書き戻しています",
     slotsdone: "完了。スロットを書き戻して確認しました。",
     slotspartial: "インストールは完了しましたが、復元できなかったサンプルがあります。ダウンロードした .x0xslots バックアップを確認し、容量を空けてブレークループの「Restore」で復元してください。未復元: ",
@@ -295,6 +301,12 @@ const TEXT = {
     slotsave: "The new firmware does not keep the samples in slot ",
     slotsave2: ". Saving every slot to a file first.",
     slotsaved: "Slots saved (downloaded): ",
+    backupverify: "Save this sample backup before installing:",
+    backupdownload: "Download backup",
+    backupreopen: "Select the saved file to verify it before firmware writing. Firmware will not be written until that file is checked.",
+    backupchoose: "Select saved backup", backupcancelbutton: "Cancel installation",
+    backupcancelled: "Backup was not confirmed; nothing written.",
+    backupbad: "The selected file does not match this backup. Choose the correct saved file.",
     slotback: "Writing the slots back",
     slotsdone: "Done. The slots were written back and checked.",
     slotspartial: "Installed, but some samples were NOT restored. Check the downloaded .x0xslots backup and use Restore on the break loops page after making room. Not restored: ",
@@ -842,6 +854,75 @@ drop.addEventListener("drop", async (e) => {
   await selectStockFile(f);
 });
 
+function verifyDownloadedSlotBackup(file, name) {
+  const expected = file instanceof Uint8Array ? file : new Uint8Array(file);
+  if (!expected.length || !Number.isSafeInteger(expected.length))
+    return Promise.reject(new Error(t("backupbad")));
+  const url = URL.createObjectURL(new Blob([expected], { type: "application/octet-stream" }));
+  return new Promise((resolve, reject) => {
+    let finished = false;
+    let choiceSerial = 0;
+    const panel = document.createElement("section");
+    panel.id = "backupverify";
+    panel.className = "panel";
+    panel.setAttribute("role", "group");
+    panel.setAttribute("aria-label", t("backupverify"));
+    const message = document.createElement("p");
+    message.textContent = t("backupverify") + " " + name;
+    const download = document.createElement("a");
+    download.href = url;
+    download.download = name;
+    download.textContent = t("backupdownload");
+    const instruction = document.createElement("p");
+    instruction.className = "small";
+    instruction.textContent = t("backupreopen");
+    const chooser = document.createElement("input");
+    chooser.type = "file";
+    chooser.accept = ".x0xslots";
+    chooser.setAttribute("aria-label", t("backupchoose"));
+    const feedback = document.createElement("p");
+    feedback.setAttribute("role", "status");
+    feedback.className = "small";
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "quiet";
+    cancel.textContent = t("backupcancelbutton");
+    const finish = (error) => {
+      if (finished) return;
+      finished = true;
+      URL.revokeObjectURL(url);
+      panel.remove();
+      if (error) reject(error);
+      else resolve(true);
+    };
+    chooser.addEventListener("change", async () => {
+      const selected = chooser.files && chooser.files[0];
+      chooser.value = ""; // Allow retrying the same file after a mismatch.
+      if (!selected || finished) return;
+      const request = ++choiceSerial;
+      chooser.disabled = true;
+      try {
+        if (selected.size !== expected.length) throw new Error("size mismatch");
+        const actual = new Uint8Array(await selected.arrayBuffer());
+        if (finished || request !== choiceSerial) return;
+        if (actual.length !== expected.length || !actual.every((v, i) => v === expected[i]))
+          throw new Error("byte mismatch");
+        finish();
+      } catch (error) {
+        if (!finished && request === choiceSerial) {
+          feedback.textContent = t("backupbad");
+          chooser.disabled = false;
+          chooser.focus();
+        }
+      }
+    });
+    cancel.addEventListener("click", () => finish(new Error(t("backupcancelled"))));
+    panel.append(message, download, instruction, chooser, feedback, cancel);
+    $("status").after(panel);
+    download.focus();
+  });
+}
+
 async function run(img, product, opts = {}) {
   // Lock both install paths before an asynchronous MIDI permission request.
   if (writing) return;
@@ -893,25 +974,21 @@ async function run(img, product, opts = {}) {
       if (!window.confirm(t("otaconfirm"))) {
         throw Object.assign(new Error(t("otabackup")), { code: "otabackup" });
       }
-      const ok = await up.resume(img, step, product);
+      const ok = await up.resume(img, step, product, foreign ? null : selectionValid);
       $("bar").value = ok ? 100 : $("bar").value;
       sayK(ok ? (foreign ? "stockdone" : "done") : "stopped");
     } else {
       const board = /^(SMK|MKE|STARRY)/i.test(product) ? "smk" : "fm1";
       const r = await installKeepingSlots(up, img, product, board, {
         step, sameKeyboard,
+        prewriteGuard: foreign ? null : selectionValid,
         confirmModel: foreign ? null : (id, p) => confirmNightlyModel(id.model, p),
         say: (k, a) => { if (k === "slotsave") sayK("slotsave", a + t("slotsave2")); else sayK(k); log(`${k} ${a ?? ""}`); },
         progress: (f) => { $("bar").value = Math.min(100, f * 100); },
-        save: (file, name) => {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(new Blob([file], { type: "application/octet-stream" }));
-          a.download = name;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+        save: async (file, name) => {
+          await verifyDownloadedSlotBackup(file, name);
           log(t("slotsaved") + name);
+          return true;
         },
       });
       if (r.move && !r.move.newMap.length) sayK("slotstock", r.move.name);
