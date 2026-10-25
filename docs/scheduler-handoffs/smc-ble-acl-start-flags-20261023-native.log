@@ -1,0 +1,95 @@
+LoopyX0X37 SMC Transport: real native host ACL packet framing checks
+UTC 2026-10-23 14:06
+STACKED BASE: PR #89 ca777a056e7de0075aac30927a4f6b158d55c465
+BASE TREE: 83bfff30c28ce641884c5d1d9b13330ced3aaa79
+Original C Git blob: 692c213e950f2d119cb8f42105f695cef658a68b
+Original header Git blob: 488977fab5e6300e8e2f7ad96cb834fe62c490f1
+Existing SysEx test Git blob: 23d06e1c40e28ad6eb5bf653b4f511e23ecfa9d6
+Proposed patched C Git blob: 74bfdaafd3a1329b996258d3a1314618c8b07fd0
+New regression Git blob: 56f9091bfccb805c3ca15017130574f76f0ac148
+
+=== baseline ===
+compile=0
+run=1
+FAIL tests/host/ble_acl_start_flags_test.c:49: found == 1
+FAIL tests/host/ble_acl_start_flags_test.c:49: found == 1
+FAIL tests/host/ble_acl_start_flags_test.c:74: h.rx_on == 1u
+FAIL tests/host/ble_acl_start_flags_test.c:75: h.rx_have == 6u && h.rx_need == 12u
+FAIL tests/host/ble_acl_start_flags_test.c:49: found == 1
+FAIL tests/host/ble_acl_start_flags_test.c:98: h.rx_on == 1u
+FAIL tests/host/ble_acl_start_flags_test.c:107: h.rx_on == 1u
+FAIL tests/host/ble_acl_start_flags_test.c:49: found == 1
+BLE ACL start PB flags: 60 checks, 8 failures, controller frames=0
+raw execution log SHA256 e8f93b5d4d60ca37ed0888653625ae7178eacd9afe5e1aace1f068ffe8756934
+
+=== gcc-plain-acl ===
+compile=0
+run=0
+BLE ACL start PB flags: 80 checks, 0 failures, controller frames=0
+raw execution log SHA256 6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47
+
+=== gcc-plain-sysex ===
+compile=0
+run=0
+PASS: oversized/null/busy/invalid/max BLE SysEx and preserved Note Off
+raw execution log SHA256 a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2
+
+=== gcc-ubsan-acl ===
+compile=0
+run=0
+BLE ACL start PB flags: 80 checks, 0 failures, controller frames=0
+raw execution log SHA256 6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47
+
+=== gcc-ubsan-sysex ===
+compile=0
+run=0
+PASS: oversized/null/busy/invalid/max BLE SysEx and preserved Note Off
+raw execution log SHA256 a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2
+
+=== gcc-asan-ubsan-acl ===
+compile=0
+run=0
+BLE ACL start PB flags: 80 checks, 0 failures, controller frames=0
+raw execution log SHA256 6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47
+
+=== gcc-asan-ubsan-sysex ===
+compile=0
+run=0
+PASS: oversized/null/busy/invalid/max BLE SysEx and preserved Note Off
+raw execution log SHA256 a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2
+
+=== clang-plain-acl ===
+compile=0
+run=0
+BLE ACL start PB flags: 80 checks, 0 failures, controller frames=0
+raw execution log SHA256 6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47
+
+=== clang-plain-sysex ===
+compile=0
+run=0
+PASS: oversized/null/busy/invalid/max BLE SysEx and preserved Note Off
+raw execution log SHA256 a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2
+
+=== clang-ubsan-acl ===
+compile=0
+run=0
+BLE ACL start PB flags: 80 checks, 0 failures, controller frames=0
+raw execution log SHA256 6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47
+
+=== clang-ubsan-sysex ===
+compile=0
+run=0
+PASS: oversized/null/busy/invalid/max BLE SysEx and preserved Note Off
+raw execution log SHA256 a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2
+
+=== clang-asan-ubsan-acl ===
+compile=0
+run=0
+BLE ACL start PB flags: 80 checks, 0 failures, controller frames=0
+raw execution log SHA256 6f4d6d07f5d982faece7a525193b6f454acba53735ebbb7772a1424b3e868e47
+
+=== clang-asan-ubsan-sysex ===
+compile=0
+run=0
+PASS: oversized/null/busy/invalid/max BLE SysEx and preserved Note Off
+raw execution log SHA256 a1e62256b4d1c47e15549d13686b94042c2e928a0ef1cf9579f2b5f604f0b5f2
