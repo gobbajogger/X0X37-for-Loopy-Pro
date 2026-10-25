@@ -16,6 +16,24 @@ The eight faders use pickup. A fader starts changing a value when it reaches the
 
 The three mixer modes are the keyboard-equivalent main mix, 909 tracks and 808 tracks. In these modes, knobs 1–8 trim the same destinations as faders 1–8. Each control type has unique destinations; a paired fader and knob may share one. Turning a knob resets pickup for its paired fader when the value changes. Other sound pages, menus and clip editors retain their visible-field controls. Duplicate fields within the visible knob bank use the first position only.
 
+## Page lock
+
+Pause on an SMC toggles a lock for that SMC only. In this firmware Pause is note 0x5D. The stock button map calls that note STOP. One press does not stop the sequencer. PLAY stays note 0x5E and still starts playback. The keyboard's own stop control is unchanged.
+
+The first press turns the lock on and stores the mix that SMC is already using. A visible 909 MIX page stores 909 MIX. A visible 808 MIX page stores 808 MIX. Any other screen stores the main mix, because that is the fader mode already in use. While the lock is on, that SMC's faders and knobs stay on the stored mix. Changing the keyboard screen does not move them. A 909 or 808 lock keeps Bank Left and Bank Right on that kit's two banks after the screen leaves the drum MIX page. The Pause light is on while the lock is on.
+
+Another press turns the lock off. That SMC follows the screen again. A changed fader target still clears pickup for that fader.
+
+Help and a confirmation still block the faders and the knobs. Navigation, mute, solo, record, and transport other than this Pause key keep their current actions. During a performance test, Pause, PLAY and back still abort the test. The lock toggle applies only when a performance test is not running.
+
+## Two mixers
+
+The keyboard can hold two SMC connections at the same time. Each SMC has its own lock, its own mix mode, its own pickup and its own solo hold. Button lights and fader positions go back out on the connection that owns them. After the first SMC connects, scanning accepts a second device whose name starts with SMC. Disconnect clears that SMC's lock, pickup and solo bits, then applies whatever solo the other SMC still holds.
+
+Two SMCs locked to the same kit share that kit's one track selection. USB and the peripheral User stream have no sender identity. Those bytes stay on the first mixer. They are not a second mixer.
+
+The second central connection uses spare room in the existing Bluetooth RAM object. It does not add a second object past the 4096-byte Bluetooth RAM. The controller configuration allows two links. The controller image already on a unit stays one link until that image is rebuilt and installed. This change does not install it.
+
 Each kit has **11 drum tracks**. Engine slot 12 is kit-wide controls, not another drum. Earlier SMC documentation and a test fixture incorrectly claimed twelve tracks. Two banks remain: **Bank Left** selects tracks **1–8** and **Bank Right** selects **9–11** on drum MIX pages. Faders, knobs and SELECT buttons 4–8 are inactive in the second bank. SELECT 1–8 chooses the track within the current bank, so the page and deep menu can edit each track's pan and sends. The SELECT lights show the chosen track. Keyboard selection also sets the bank. Each kit keeps its selection.
 
 ## Navigation
@@ -28,7 +46,7 @@ All required paths use buttons present in both the factory DAW and stock User pr
 | Up / Down, ordinary page | Cycle HOME, sound, sequence, generator (303 only), FX, MIX and song views |
 | Left / Right, ordinary page | Previous / next page within that view |
 | Bank Left / Right, drum sound page | Previous / next drum track, bounded at 1 and 11 |
-| Bank Left / Right, drum MIX | First / second bank; SELECT then chooses the track |
+| Bank Left / Right, drum MIX | First / second bank; SELECT then chooses the track. A 909 or 808 page lock keeps these two banks after the screen leaves that MIX page |
 | Bank Left / Right, other ordinary pages | Previous / next part |
 | R6 | Open the current view's deep menu; activate its selected action. In clip mode, open Global |
 | R7 | Back / close menu, cancel confirmation, dismiss help; close a clip editor to the grid |
@@ -44,7 +62,7 @@ All required paths use buttons present in both the factory DAW and stock User pr
 
 Channel Left/Right messages, if supplied by a custom mapping, also select drum tracks or clip fields. The stock 43-button preset does not require them. Returning from a Global menu restores the clip editor underneath it.
 
-For strips 1–5, **M** toggles the part's mute, **S** solos it while held, and **R** selects the part and toggles recording. Several held **S** buttons can solo several parts together. Solo clears on disconnect and while help or confirmation blocks input. Stock User MMC has no release event, so **S** latches there. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY**, **STOP** and **REC** control X0X transport and recording; rewind and fast-forward move the selected part's pattern. These actions do not send APC40 clip commands. Performance tests own the controls and drain SMC input without editing.
+For strips 1–5, **M** toggles the part's mute, **S** solos it while held, and **R** selects the part and toggles recording. Several held **S** buttons can solo several parts together. Solo clears on disconnect and while help or confirmation blocks input. With two SMCs, each SMC has its own held solo bits, and the engine hears both. Stock User MMC has no release event, so **S** latches there. On strips 6–8, **M** toggles reverb, delay or master output. **PLAY** starts playback and **REC** toggles recording. **Pause** (the stock STOP note) toggles that SMC's page lock and does not stop playback. Rewind and fast-forward move the selected part's pattern. These actions do not send APC40 clip commands. Performance tests own the controls and drain SMC input without editing. During a performance test, Pause, PLAY and back still abort the test.
 
 Fader 8's main-mixer master filter matches the keyboard's bank-B filter: low-pass below the middle, neutral in the middle, and high-pass above it. Strip 8's M button toggles master output, and its light reflects that output mute. Drum MIX temporarily assigns fader 8 to track 8 in the first bank and leaves it inactive in the second bank.
 
