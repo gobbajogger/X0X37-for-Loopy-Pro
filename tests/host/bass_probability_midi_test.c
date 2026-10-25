@@ -154,11 +154,72 @@ static void test_tie_after_rejection_is_silent(void)
     patterns[0].bass[0].step[0] = (bstep_t){40, G_NOTE, 80};
     patterns[0].bass[0].step[1] = (bstep_t){45, G_TIE, 90};
     allow[40] = 0;
+    allow[45] = 1;  /* acceptance of TIE must not revive a rejected NOTE */
     seq_start(&seq);
     advance_samples(6003);
     CHECK(midi_on[40] == 0 && midi_on[45] == 0,
           "a tie after a skipped 303 note cannot resurrect a MIDI voice");
+    CHECK(on_count == 1, "orphan TIE never invokes a second onset callback");
+    CHECK(!seq.t[TRK_BASS0].sounding, "orphan TIE preserves silent internal bass state");
     CHECK(!seq.bass_out_valid[0], "rejected note + tie leaves no stranded voice");
+}
+
+
+static void test_initial_tie_remains_silent(void)
+{
+    reset();
+    patterns[0].bass[0].step[0] = (bstep_t){45, G_TIE, 100};
+    allow[45] = 1;
+    seq_start(&seq);
+    advance_samples(3);
+    CHECK(on_count == 0, "initial orphan TIE cannot create a bass onset");
+    CHECK(midi_on[45] == 0, "initial orphan TIE cannot send MIDI NoteOn");
+    CHECK(!seq.t[TRK_BASS0].sounding, "initial orphan TIE stays silent internally");
+}
+static void test_rest_tie_remains_silent(void)
+{
+    reset();
+    patterns[0].bass[0].step[0] = (bstep_t){40, G_REST, 0};
+    patterns[0].bass[0].step[1] = (bstep_t){45, G_TIE, 100};
+    allow[45] = 1;
+    seq_start(&seq);
+    advance_samples(6003);
+    CHECK(on_count == 0, "REST then TIE must not trigger any bass onset");
+    CHECK(midi_on[45] == 0 && !seq.bass_out_valid[0],
+          "REST then TIE must not claim a MIDI note");
+}
+static void test_valid_tie_sustains_only_previous_note(void)
+{
+    reset();
+    patterns[0].bass[0].step[0] = (bstep_t){40, G_NOTE, 100};
+    patterns[0].bass[0].step[1] = (bstep_t){45, G_TIE, 100};
+    patterns[0].bass[0].step[2] = (bstep_t){42, G_REST, 0};
+    allow[40] = allow[45] = 1;
+    seq_start(&seq);
+    advance_samples(6003);
+    CHECK(on_count == 1, "valid NOTE-TIE has exactly one onset");
+    CHECK(midi_on[40] == 1 && midi_on[45] == 0,
+          "valid TIE sustains original MIDI pitch without retrigger");
+    CHECK(seq.t[TRK_BASS0].sounding, "valid TIE keeps original 303 sounding");
+    advance_samples(6000);
+    CHECK(midi_off[40] == 1 && !seq.bass_out_valid[0],
+          "REST after TIE releases held external note exactly once");
+}
+static void test_rejected_tie_then_ordinary_note(void)
+{
+    reset();
+    patterns[0].bass[0].step[0] = (bstep_t){40, G_NOTE, 100};
+    patterns[0].bass[0].step[1] = (bstep_t){45, G_TIE, 100};
+    patterns[0].bass[0].step[2] = (bstep_t){42, G_NOTE, 100};
+    allow[40] = 0;
+    allow[45] = allow[42] = 1;
+    seq_start(&seq);
+    advance_samples(11500);
+    CHECK(on_count == 2, "orphan TIE never invokes callback before later proper NOTE");
+    CHECK(midi_on[45] == 0 && midi_on[42] == 1,
+          "later accepted NOTE plays without resurrecting rejected TIE");
+    CHECK(received_slide[42] == 0, "later accepted NOTE is a clean attack");
+    CHECK(seq.t[TRK_BASS0].sounding, "later accepted NOTE remains audible");
 }
 
 int main(void)
@@ -169,6 +230,10 @@ int main(void)
     test_reject_then_clean_attack();
     test_live_rec_echo_survives();
     test_tie_after_rejection_is_silent();
+    test_initial_tie_remains_silent();
+    test_rest_tie_remains_silent();
+    test_valid_tie_sustains_only_previous_note();
+    test_rejected_tie_then_ordinary_note();
     if (fails) { printf("BF028: %d failed assertions\n", fails); return 1; }
     puts("BF028: 303 chance matches MIDI and local audio; good notes stay audible");
     return 0;
