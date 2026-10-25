@@ -1,0 +1,5 @@
+INSTALL BLOCKED
+reason: attested Elite/Pro fwsc bytes (9c1168cf… / 3a29723e…) not on Mac
+device: X0X FM-1 present
+gate: REFUSED against Stage-5 records when tested with local rebuilds (hash mismatch); no bypass
+flash: not run
