@@ -10,6 +10,7 @@
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
 #include "../dsp/fastmath.h"
+#include "bass_engine_select.c"   /* session live-engine table; keep with engine for host link unity */
 
 #define POOL X0X_POOL
 
@@ -365,6 +366,17 @@ void engine_bass_record(int part, int note, int velocity, int down, int flags)
            (uint32_t)((down ? 1 : 0) | (flags << 1) | (velocity << 5)));
 }
 void engine_bass_off(int part) { cq_put(C_BOFF, (uint32_t)part, 0, 0); }
+
+int engine_bass_engine(int part) { return bass_engine_active(part); }
+int engine_bass_engine_available(int engine) { return bass_engine_available(engine); }
+int engine_bass_engine_select(int part, int engine)
+{
+    int rc = bass_engine_select(part, engine);
+    /* Product tip: only native303 is linked. A future WBL1 runtime swaps the
+     * slot at the audio boundary here after select succeeds; until then the
+     * select API refuses WBL1 so UI never claims a silent live switch. */
+    return rc;
+}
 void engine_brk_live(int key, int down) { cq_put(C_BRK, (uint32_t)key, (uint32_t)(down != 0), 0); }
 
 /* ------------------------------------------------------- sequencer sink --- */
@@ -1223,6 +1235,7 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     drum808_init(&d808);
     bass303_init(&b303[0]);
     bass303_init(&b303[1]);
+    bass_engine_select_reset();          /* both parts live as native303; no silent WBL1 fixture */
     breaks_init(&brk);
     fxbus_init(&fx, dly_buf, DLY_LEN);
     master_init(&mst);
