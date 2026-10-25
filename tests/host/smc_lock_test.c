@@ -243,6 +243,9 @@ static void test_pickup_and_display(void)
     CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u));
     navigate(V_SEQ, PART_808); ui.sel[1] = 8; build_pages();
     pref_t next = find_ref(T_808, 8, "Level"); pref_set(next, 40);
+    /* Move the target above the last physical sample: the next downward
+     * movement genuinely does not cross it, even with retained history. */
+    pref_set(r, 96); smc_frame();
     int original = pref_get(r), nextval = pref_get(next);
     screen_state_t ui_before = screen_state();
     fader(0, 0); CHECK(pref_get(r) == original); CHECK(!(smc.picked & 1u));
@@ -252,7 +255,7 @@ static void test_pickup_and_display(void)
     fader(0, smc_scaled(r)); CHECK(smc.picked & 1u);
     fader(0, 127); CHECK(pref_get(r) >= original); CHECK(pref_get(next) == nextval);
     pref_set(r, 25); smc_frame(); CHECK(!(smc.picked & 1u));
-    CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u)); CHECK(!(smc.seen & 1u));
+    CHECK(smc_lock_toggle()); CHECK(!(smc.picked & 1u)); CHECK(smc.seen & 1u);
     CHECK(smc_same(next, smc_target(0)));
     fader(0, 127); CHECK(pref_get(next) == nextval); CHECK(!(smc.picked & 1u));
     fader(0, smc_scaled(next)); CHECK(smc.picked & 1u);
