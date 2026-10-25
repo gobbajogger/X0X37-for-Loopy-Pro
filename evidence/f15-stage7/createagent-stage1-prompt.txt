@@ -1,0 +1,12 @@
+ASK_COORDINATOR CreateAgent / wake — F15 Stage 7 → Stage 1
+
+Prefer wake existing RUNNING agent (do not duplicate):
+  bc-deca3b7b-4de7-5203-b277-bd4f80284629
+  https://cursor.com/agents/bc-deca3b7b-4de7-5203-b277-bd4f80284629
+
+If CreateAgent is required (agent gone):
+  repository: https://github.com/gobbajogger/X0X37-for-Loopy-Pro
+  startingRef: cursor/f15-bf034-stage7-c144
+  prompt: full text of evidence/f15-stage7/SUCCESSOR-STAGE1.txt on that tip
+
+LIVE_PAGE_MATCH yes (CONFIRM_ONLY nightly-092589b8-dev Stage-4 hashes). Latest remains nightly-b48cd800-dev.
