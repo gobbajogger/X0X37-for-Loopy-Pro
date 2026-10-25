@@ -13,10 +13,11 @@ const u21 = (n) => [n & 127, n >> 7 & 127, n >> 14 & 127];
 const n21 = (a, p = 0) => a[p] | a[p + 1] << 7 | a[p + 2] << 14;
 const frame = (cmd, payload) => [0xF0, 0x7D, 0x46, 0x4C, cmd, ...payload, 0xF7];
 const clone = (b) => b === null ? null : b.slice();
-function rawProject(seed = 1, length = 1337) {
+function rawProject(seed = 1, length = 1337, { stream = 3, soundRev = 4 } = {}) {
   const b = new Uint8Array(length), v = new DataView(b.buffer);
   for (let i = 32; i < b.length; i++) b[i] = (seed * 17 + i * 13) & 255;
-  [0x50583058, 1, length - 32, crc32(b.subarray(32)), 1, 3, 4, 0].forEach((n, k) => v.setUint32(k * 4, n, true));
+  [0x50583058, 1, length - 32, crc32(b.subarray(32)), 1, stream, soundRev, 0]
+    .forEach((n, k) => v.setUint32(k * 4, n, true));
   return b;
 }
 function sample(name = "ORIGINAL", seed = 1, length = 593, rate = 44100) {
@@ -193,6 +194,19 @@ test("inner project rejects corrupt, truncated, oversized and incompatible schem
   assert.throws(() => parseProject(rawProject().subarray(0, 100)), /length/);
   assert.throws(() => parseProject(new Uint8Array(0x200000)), /size/);
   assert.throws(() => parseProject(rawProject(), 100), /firmware/);
+});
+
+test("inner project accepts stream 3–5 and sound revision 4–5 (AmpMod / stream5)", () => {
+  for (const stream of [3, 4, 5]) {
+    for (const soundRev of [4, 5]) {
+      const info = parseProject(rawProject(1, 1337, { stream, soundRev }));
+      assert.equal(info.patternVersion, stream);
+      assert.equal(info.soundRevision, soundRev);
+    }
+  }
+  assert.throws(() => parseProject(rawProject(1, 1337, { stream: 2 })), /incompatible/);
+  assert.throws(() => parseProject(rawProject(1, 1337, { soundRev: 3 })), /incompatible/);
+  assert.throws(() => parseProject(rawProject(1, 1337, { soundRev: 6 })), /incompatible/);
 });
 
 test("outer CRC, version, flags, metadata size and raw unmanifested files are rejected", async () => {

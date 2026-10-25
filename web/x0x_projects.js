@@ -34,20 +34,27 @@ export async function sha256(b) {
   return Array.from(digest, (v) => v.toString(16).padStart(2, "0")).join("");
 }
 
+// Inner project stream (offset 20): 3 = velocity steps; 4 = frozen endpoint-only or snapshot-only;
+// 5 = combined stream5. Sound revision (offset 24): 4 = 16-wide cells; 5 = NPARAMS_MAX + AmpMod.
+const PROJECT_STREAM_OK = new Set([3, 4, 5]);
+const PROJECT_SOUND_REV_OK = new Set([4, 5]);
+
 // The inner file is firmware's canonical persistent project schema, not a sample archive.
 export function parseProject(b, expectedLength = null) {
   b = bytes(b);
   if (b.length < PROJECT_HEADER || b.length > 0x1FFFFF) throw fail("Invalid project file size.");
   const v = view(b);
+  const patternVersion = v.getUint32(20, true), soundRevision = v.getUint32(24, true);
   if (v.getUint32(0, true) !== 0x50583058) throw fail("The project header is missing.");
-  if (v.getUint32(4, true) !== 1 || v.getUint32(16, true) !== 1 || v.getUint32(20, true) !== 3 ||
-      v.getUint32(24, true) !== 4 || v.getUint32(28, true) !== 0)
+  if (v.getUint32(4, true) !== 1 || v.getUint32(16, true) !== 1 ||
+      !PROJECT_STREAM_OK.has(patternVersion) || !PROJECT_SOUND_REV_OK.has(soundRevision) ||
+      v.getUint32(28, true) !== 0)
     throw fail("This project uses an incompatible file, project, pattern or sound version.", "version");
   if (v.getUint32(8, true) !== b.length - PROJECT_HEADER) throw fail("The project payload length is incorrect.");
   if (expectedLength !== null && b.length !== expectedLength) throw fail("The project size does not match this firmware.", "version");
   if (v.getUint32(12, true) !== crc32(b.subarray(PROJECT_HEADER))) throw fail("The project payload is damaged (CRC).");
   return { length: b.length, payloadLength: b.length - PROJECT_HEADER, fileVersion: 1, projectVersion: 1,
-    patternVersion: 3, soundRevision: 4 };
+    patternVersion, soundRevision };
 }
 
 export function validateSlotImage(img, capacity) {
