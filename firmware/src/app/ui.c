@@ -3821,6 +3821,43 @@ static UI_DRAW void draw_break(int band)
     }
 }
 
+/* first 16 steps of one part in a pattern (drums: any voice; 303: gates; break: steps) */
+static uint32_t pat_part_bits16(const pattern_t *pt, int part)
+{
+    int s, len;
+    uint32_t bits = 0;
+    if (part < NKIT) {
+        const dpart_t *d = &pt->drum[part];
+        len = d->len < 16 ? d->len : 16;
+        for (s = 0; s < len; s++) {
+            int v;
+            for (v = 0; v < NDRUM; v++)
+                if (sm_get(d->hit[v], s))
+                    bits |= 1u << (unsigned)s;
+        }
+        return bits;
+    }
+    if (part == PART_BRK)
+        return pt->brk.steps & 0xFFFFu;
+    {
+        const bpart_t *bp = &pt->bass[part - NKIT];
+        len = bp->len < 16 ? bp->len : 16;
+        for (s = 0; s < len; s++)
+            if (bstep_gate(&bp->step[s]) != G_REST)
+                bits |= 1u << (unsigned)s;
+    }
+    return bits;
+}
+
+/* 8 px wide row in a pattern glyph: each column is on when either of two 16th steps hits */
+static void pat_glyph_row(int32_t x, int32_t y, uint32_t bits16, uint16_t c)
+{
+    int i;
+    for (i = 0; i < 8; i++)
+        if ((bits16 >> (i * 2) & 3u) != 0u)
+            cv_rect(x + i, y, 1, 2, c);
+}
+
 /* a part's lane on HOME: the 16 steps of the page its playhead is on (bits: those 16, from base) */
 static UI_DRAW void lane(int y, int p, uint32_t bits, int ph, int len, int base)
 {
@@ -3844,12 +3881,19 @@ static UI_DRAW void draw_home(int band)
             int in_chain = seq.chain_a != seq.chain_b &&
                            c >= (seq.chain_a < seq.chain_b ? seq.chain_a : seq.chain_b) &&
                            c <= (seq.chain_a < seq.chain_b ? seq.chain_b : seq.chain_a);
-            box(x, 3, 12, 18, pattern_used(&proj.pat[c]) ? C_DIM : C_LINE);
-            for (p = 0; p < NPARTS; p++) {               /* a line per part with notes here: bright where it */
-                int used = part_used(&proj.pat[c], p);   /* plays now; a part playing it empty, a faint one */
-                if (used || seq.ppat[p] == c)
-                    rbox(x + 2, 5 + p * 3, 8, 2, 1, seq.ppat[p] == c ? (used ? PART_COL[p] : dim(PART_COL[p], 4))
-                                                                     : dim(PART_COL[p], 7));
+            frame(x, 3, 12, 18, C_LINE);
+            for (p = 0; p < NPARTS; p++) {               /* a line per part: its first 16 steps, bright where */
+                int used = part_used(&proj.pat[c], p);   /* it plays now; empty assignment, a faint bar */
+                uint32_t pb;
+                uint16_t fc;
+                if (!used && seq.ppat[p] != c)
+                    continue;
+                pb = pat_part_bits16(&proj.pat[c], p);
+                fc = seq.ppat[p] == c ? (used ? PART_COL[p] : dim(PART_COL[p], 4)) : dim(PART_COL[p], 7);
+                if (pb)
+                    pat_glyph_row(x + 2, 5 + p * 3, pb, fc);
+                else
+                    rbox(x + 2, 5 + p * 3, 8, 2, 1, fc);
             }
             if (c == cue && c != seq.ppat[PART_909] && (ui.frame & 16u))
                 frame(x - 1, 2, 14, 20, C_WHITE);
