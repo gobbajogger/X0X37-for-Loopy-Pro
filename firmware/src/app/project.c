@@ -15,7 +15,7 @@
 #include "x0x.h"
 #include "../dsp/drum909.h"            /* DR_SD (the sound's revisions) */
 #include "../dsp/master.h"             /* MST_* (the sound's revisions) */
-#include "../dsp/bass303.h"            /* BASS303_AMPMODE / BASS303_WAVE (snd rev 5–6) */
+#include "../dsp/bass303.h"            /* BASS303_AMPMODE / WAVE / amp ADSR (snd rev 5–7) */
 #include "lz.c"
 
 project_t proj;
@@ -186,17 +186,29 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
-/* Through PROJ_SND_REV 4 every sound cell was 16 pots wide. Rev 5 widens to NPARAMS_MAX. */
+/* Through PROJ_SND_REV 4 every sound cell was 16 pots wide. Rev 5 widens to 20; rev 7 to 24. */
 #define SOUND_CELL_V4 16u
+#define SOUND_CELL_V6 20u                /* AmpMod/Gnaw era (PROJ_SND_REV 5–6) */
 #define SOUND_BYTES_V4 (NTARGETS * NVOICES_MAX * SOUND_CELL_V4)
+#define SOUND_BYTES_V6 (NTARGETS * NVOICES_MAX * SOUND_CELL_V6)
 
-/* OBJ_SOUND may be the old 16-wide layout or the current sizeof(sound_t). An old payload is
- * expanded cell-by-cell so index 0..15 keep their meaning; new slots keep the defaults already
- * in dst (AmpMod = Env for 303). */
+/* Expand a packed cell-width payload into the current sound_t; new slots keep dst defaults. */
+static void expand_sound_cells(sound_t *dst, uint32_t cell)
+{
+    uint32_t t, v, p;
+    for (t = 0; t < NTARGETS; t++)
+        for (v = 0; v < NVOICES_MAX; v++)
+            for (p = 0; p < cell; p++)
+                dst->v[t][v][p] = io_buf[4u + (t * NVOICES_MAX + v) * cell + p];
+}
+
+/* OBJ_SOUND may be the old 16-wide, the AmpMod/Gnaw 20-wide, or the current sizeof(sound_t).
+ * An old payload is expanded cell-by-cell so prior indices keep their meaning; new slots keep
+ * the defaults already in dst (amp ADSR Open303 defaults for 303). */
 static int load_sound(sound_t *dst)
 {
     int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
-    uint32_t i, t, v, p, body;
+    uint32_t i, body;
     if (n < 4 || get32(io_buf) != PROJ_FORMAT)
         return -1;
     body = (uint32_t)n - 4u;
@@ -207,12 +219,12 @@ static int load_sound(sound_t *dst)
         stored_hash[OBJ_SOUND] = hash_of(io_buf, (uint32_t)n);
         return 0;
     }
-    if (body != SOUND_BYTES_V4)
+    if (body == SOUND_BYTES_V6)
+        expand_sound_cells(dst, SOUND_CELL_V6);
+    else if (body == SOUND_BYTES_V4)
+        expand_sound_cells(dst, SOUND_CELL_V4);
+    else
         return -1;
-    for (t = 0; t < NTARGETS; t++)
-        for (v = 0; v < NVOICES_MAX; v++)
-            for (p = 0; p < SOUND_CELL_V4; p++)
-                dst->v[t][v][p] = io_buf[4u + (t * NVOICES_MAX + v) * SOUND_CELL_V4 + p];
     stored_known[OBJ_SOUND] = 0;                     /* next save writes the widened layout */
     return 0;
 }
@@ -668,6 +680,14 @@ static int read_project(project_t *pr)
             if (pr->sound.v[T_303][i][BASS303_WAVE] == 1)
                 pr->sound.v[T_303][i][BASS303_WAVE] = 127;
             /* Gnaw default 0: load_sound already left new cells at engine defaults */
+        }
+    }
+    if (sound_ok && pr->set.snd_rev < 7) {           /* amp Env ADSR: Open303-matching defaults */
+        for (i = 0; i < NBASS; i++) {
+            pr->sound.v[T_303][i][BASS303_AATTACK] = bass303_param(BASS303_AATTACK)->def;
+            pr->sound.v[T_303][i][BASS303_ADECAY] = bass303_param(BASS303_ADECAY)->def;
+            pr->sound.v[T_303][i][BASS303_ASUSTAIN] = bass303_param(BASS303_ASUSTAIN)->def;
+            pr->sound.v[T_303][i][BASS303_ARELEASE] = bass303_param(BASS303_ARELEASE)->def;
         }
     }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */

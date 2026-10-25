@@ -999,6 +999,9 @@ static void build_pages(void)
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_FATTACK), PR(R_ENG, T_303, 0, BASS303_DECAY), PR(R_ENG, T_303, 0, BASS303_FSUSTAIN), PR(R_ENG, T_303, 0, BASS303_FRELEASE)};
             add_page_refs("FILTER ADSR", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
+            /* Chicago amp Env Attack/Decay/Sustain/Release (distinct from filter Decay / F*). */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, BASS303_AATTACK), PR(R_ENG, T_303, 0, BASS303_ADECAY), PR(R_ENG, T_303, 0, BASS303_ASUSTAIN), PR(R_ENG, T_303, 0, BASS303_ARELEASE)};
+            add_page_refs("AMP ADSR", refs, 2, b); } while (0);
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */
             do { static const pref_t refs[4] = {PR(R_BRKSLOT, 0, 0, 0), PR(R_BRKSLOT, 1, 0, 0), PR(R_BRKSET, 0, 0, BRK_BCHANCE), PR(R_ENG, T_BRK, 0, 1)};
