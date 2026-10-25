@@ -666,6 +666,33 @@ static void test_live(void)
     CHECK(!b.v[0].on && !b.v[1].on, "loop removed: voices dropped");
 }
 
+static void arm(breaks_t *b);
+/* Changing slice while one is already sounding crossfades. The buffer stays loud, and reverse stays on. */
+static void test_slice_retrigger(void)
+{
+    breaks_t b;
+    float buf[256];
+    int i, quiet = 0;
+    arm(&b);
+    breaks_live(&b, 0, 1);
+    breaks_render(&b, buf, 256);
+    breaks_live(&b, 8, 1);                 /* reverse, still holding slice 0 */
+    breaks_render(&b, buf, 256);
+    breaks_slice_on(&b, 3);                /* another note of a different slice, reverse still held */
+    breaks_render(&b, buf, 256);
+    for (i = 0; i < 256; i += 32) {
+        int k, any = 0;
+        for (k = 0; k < 32; k++)
+            if (buf[i + k] != 0.0f)
+                any = 1;
+        if (!any)
+            quiet++;
+    }
+    CHECK(quiet == 0 && b.v[b.cur].on && b.v[b.cur].rev, "slice change keeps the voice and reverse");
+    CHECK(identify(buf + 120, 120, 1.0, 0, 0) == 6 || identify(buf + 120, 120, 1.0, 0, 0) == 7,
+          "retrigger plays slice 3");
+}
+
 /* A loop change must not mute the voice that is already sounding, not even for one buffer.
  * The new loop is what the next trigger plays. The sounding loop stays as it was. */
 static int pcm_same(const float *a, const float *b, int n)
@@ -806,7 +833,7 @@ int main(int argc, char **argv)
            (unsigned)sizeof(brk_bank_t), (unsigned)sizeof(brk_voice_t));
 #ifdef BRK_CLICK_CONTROL
     (void)test_slice_select; (void)test_perf; (void)test_generator; (void)test_gate; (void)test_live;
-    (void)test_loop_switch; (void)demo;
+    (void)test_slice_retrigger; (void)test_loop_switch; (void)demo;
     printf("positive control: BRK_FADE = %d (crossfade off)\n", BRK_FADE);
     test_audio(90.0f);
     test_audio(170.0f);
@@ -820,6 +847,7 @@ int main(int argc, char **argv)
     test_audio(170.0f);
     test_gate();
     test_live();
+    test_slice_retrigger();
     test_loop_switch();
     if (argc > 1) demo(argv[1]);
     printf("%d passed, %d failed\n", g_pass, g_fail);

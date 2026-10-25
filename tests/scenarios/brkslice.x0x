@@ -1,0 +1,96 @@
+# Break MIDI. Default: notes 36-43 on channel 4 (status 0x93) are slices 1-8.
+# 8 SLICES (brkwrap 1): slice = note mod 8, every note, same channel.
+# A note on the break channel must not also open a 303. midiheld bit 0 is the 303A gate.
+wait 300
+expect midiheld 0
+expect noteons 0
+
+# note 36 (C2 in this firmware's names) holds slice 0. Note 12 (C0) and note 44 do not.
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+midi 93 0C 64 0
+wait 20
+expect midiheld 0x100
+midi 83 0C 00 0
+midi 93 2C 64 0
+wait 20
+expect midiheld 0x100
+midi 83 2C 00 0
+midi 83 24 00 0
+wait 20
+expect midiheld 0
+
+# 303A moved onto channel 4. Break notes are consumed there and do not open the 303.
+partch 2 4
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+midi 83 24 00 0
+wait 20
+expect midiheld 0
+midi 93 30 64 0
+wait 20
+expect midiheld 0
+midi 83 30 00 0
+partch 2 2
+
+# 303A on its own channel still plays. A drum-channel note 36 is not a break slice.
+midi 91 30 64 0
+wait 20
+expect midiheld 1
+midi 81 30 00 0
+wait 20
+expect midiheld 0
+midi 99 24 64 0
+wait 20
+expect midiheld 0
+
+# 8 slices: note 0 and note 8 are slice 0. Releasing one leaves the other holding it.
+brkwrap 1
+midi 93 00 64 0
+wait 20
+expect midiheld 0x100
+midi 93 08 64 0
+wait 20
+expect midiheld 0x100
+midi 83 00 00 0
+wait 20
+expect midiheld 0x100
+midi 83 08 00 0
+wait 20
+expect midiheld 0
+
+# note 12 (C0) and note 36 are slice 4 (12 % 8 and 36 % 8). Neither opens the 303.
+midi 93 0C 64 0
+wait 20
+expect midiheld 0x1000
+midi 83 0C 00 0
+wait 20
+expect midiheld 0
+midi 93 24 64 0
+wait 20
+expect midiheld 0x1000
+midi 83 24 00 0
+wait 20
+expect midiheld 0
+midi 93 2C 64 0
+wait 20
+expect midiheld 0x1000
+midi 83 2C 00 0
+wait 20
+expect midiheld 0
+
+# Back to the default map.
+brkwrap 0
+midi 93 00 64 0
+wait 20
+expect midiheld 0
+midi 83 00 00 0
+midi 93 24 64 0
+wait 20
+expect midiheld 0x100
+midi 83 24 00 0
+wait 20
+expect midiheld 0
+expect noteons 0

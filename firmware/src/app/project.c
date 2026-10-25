@@ -675,6 +675,8 @@ int project_validate_stage(void)
         for (i = 0; i < 16; i++)
             if (pat->brk.slice[i] > 8)
                 return -1;
+        if (pat->brk.slice_mode > 1)
+            return -1;
     }
     if (p->arr.song.len > NSONG)
         return -1;
