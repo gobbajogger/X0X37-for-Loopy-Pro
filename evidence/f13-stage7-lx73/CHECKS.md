@@ -7,6 +7,7 @@ Content tree (DEV CHECKED, non-`.md`): `25ada1f02e2e289072fab8db464b715e09f9c071
 Catalog `source_tree` (git): `9382fb1276e320d9f9d290dbad187fa08cdd224c`
 Firmware tree: `a5ba08046700be5cdf2751b7afc1197411b24121`
 Land: PR #308 MERGED (BF-012 on nightly). Package evidence: `evidence/f13-stage5/lx73-devcheck/`.
+Stage-6 Elite Mac install PASS: `evidence/f13-stage6/lx73-install/` (does not flip page `hardware_tested`).
 Do not reopen BF-012 source. Do not resume Stage 5/6 owners.
 
 ## Installer digest (local host checks only)
@@ -15,7 +16,7 @@ Do not reopen BF-012 source. Do not resume Stage 5/6 owners.
 | --- | --- |
 | `installer_sha256` / source fingerprint | `c039e6563a704d550428b7b1bc066c0e400b8b5ac97a7596a84e3bddd55b224a` |
 | Nightly `npm test` (clean main) | **PASS** (`nightly-npm-test.log`) |
-| `prepare:candidate` | pending |
+| `prepare:candidate` | **PASS** (`prepare-candidate.log`) — HTTP package bytes re-fetched; size + SHA-256 match |
 
 ## Independent QA (package digests)
 
@@ -29,9 +30,11 @@ Do not reopen BF-012 source. Do not resume Stage 5/6 owners.
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| `backup-restore-readback` | PASS | `safety-gates-note.md` + runner log |
+| `backup-restore-readback` | PASS | `safety-gates-note.md` + `check-safety-gates.py` / `safety-gates-candidate.log` |
 | `interruption-recovery` | PASS | same |
 | `ota-target-binding` | PASS | same |
+
+Supporting `install_f03_slot_probe_test` SUPPORTING_FAIL on empty FakeSMK (`SlotError`) — recorded for Stage-1 audit; not used alone as candidate QA.
 
 ## Packages (DEV CHECKED blank; page serves bundled)
 
@@ -45,8 +48,18 @@ Immutable host: `artifacts/nightly-dev` @ `bb8543371761e75b7a89a422f00f9fe501bb3
 
 ## Pages deploy
 
-pending LIVE_PAGE_MATCH
+| Field | Value |
+| --- | --- |
+| Push path | nightly `gh-pages` FF from this pod (`0bfcbdf8…` → `2fd5541f…`; no force) |
+| Parent | `0bfcbdf8fe3b204b3f6206ee634007ef814e32c1` |
+| Live `gh-pages` tip | `2fd5541f079839aa6ae9a6036791964525a37bfc` |
+| Live | **MATCH** `nightly-092589b8-dev` (`live-verify.log`) |
+| Label | `DEV / HARDWARE TEST — DEVICE NOT TESTED`; `hardware_tested` false |
 
-## Production
+## Production / deferred
 
-Production `main` / production Pages unchanged. No force-push. `hardware_tested` false. Label `DEV / HARDWARE TEST — DEVICE NOT TESTED`.
+Production `main` / production Pages unchanged. No device flash from this thread. Next audit uses `092589b8…`. Supporting f03 FakeSMK `SlotError` deferred to Stage 1.
+
+## Overall
+
+**PUBLISHED LIVE** for validated source `092589b8…` with matching package hashes, labeled hardware test / device not tested. Owner-visible Stage 1 (F15) successor pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
