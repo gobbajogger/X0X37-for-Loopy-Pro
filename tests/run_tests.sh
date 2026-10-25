@@ -502,10 +502,17 @@ run rec-live-smk sh -c "$CC -O2 -ffp-contract=off -std=c99 -w -DX0X_HOST -DBOARD
     firmware/src/dsp/bass303.c firmware/src/dsp/breaks.c firmware/src/dsp/fxbus.c firmware/src/dsp/master.c \
     firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c firmware/src/seq/motion.c \
     firmware/src/app/engine.c -lm && $OUT/rec_live_smk_test"
+<<<<<<< HEAD
 fi
 if [ "$PIL_SKIP" = 1 ]; then not_run copy-semantics Pillow; else run copy-semantics sh tests/host/copy_semantics_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run song-actions Pillow; else run song-actions sh tests/host/song_actions_test.sh; fi
 if [ "$PIL_SKIP" = 1 ]; then not_run ui-feedback Pillow; else run ui-feedback sh tests/host/ui_feedback_test.sh; fi
+=======
+run copy-semantics sh tests/host/copy_semantics_test.sh
+run song-actions sh tests/host/song_actions_test.sh
+run corner-coverage python3 tests/host/corner_coverage_test.py
+run ui-feedback sh tests/host/ui_feedback_test.sh
+>>>>>>> e75fb2a5 (Pack corner coverage losslessly to recover SMC development build size)
 for s in tests/scenarios/*.x0x; do
     n=${s##*/}; n=${n%.x0x}
     if [ "$PIL_SKIP" = 1 ]; then not_run "scenario-$n" Pillow
