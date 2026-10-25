@@ -153,6 +153,48 @@ static void test_gate_unchanged(void)
     CHECK(fabsf(b.amp_y - 1.0f) < 1e-6f, "Gate still holds at 1 despite amp ADSR pots");
 }
 
+static void test_bite_changes_output(void)
+{
+    bass303_t clean, bitten;
+    double rc, rb;
+    int pos;
+    bass303_init(&clean);
+    bass303_set(&clean, BASS303_CUTOFF, 100);
+    bass303_set(&clean, BASS303_RESO, 40);
+    bass303_set(&clean, BASS303_GNAW, 0);
+    bass303_set(&clean, BASS303_BITE, 0);
+    bass303_set(&clean, BASS303_DRIVE, 0);
+    bass303_set(&clean, BASS303_AMPMODE, BASS303_AMP_GATE);
+    bass303_set(&clean, BASS303_VOLUME, 96);
+    bass303_note_on_velocity(&clean, 36, 0, 0, 100);
+    for (pos = 0; pos < 4096; ) {
+        int m = 4096 - pos > 128 ? 128 : 4096 - pos;
+        bass303_render(&clean, buf + pos, m);
+        pos += m;
+    }
+    rc = rms_range(buf, 512, 3584);
+
+    bass303_init(&bitten);
+    bass303_set(&bitten, BASS303_CUTOFF, 100);
+    bass303_set(&bitten, BASS303_RESO, 40);
+    bass303_set(&bitten, BASS303_GNAW, 0);
+    bass303_set(&bitten, BASS303_BITE, 100);
+    bass303_set(&bitten, BASS303_DRIVE, 0);
+    bass303_set(&bitten, BASS303_AMPMODE, BASS303_AMP_GATE);
+    bass303_set(&bitten, BASS303_VOLUME, 96);
+    bass303_note_on_velocity(&bitten, 36, 0, 0, 100);
+    for (pos = 0; pos < 4096; ) {
+        int m = 4096 - pos > 128 ? 128 : 4096 - pos;
+        bass303_render(&bitten, buf + pos, m);
+        pos += m;
+    }
+    rb = rms_range(buf, 512, 3584);
+    CHECK(bass303_param(BASS303_BITE) && bass303_param(BASS303_BITE)->def == 0, "Bite default 0");
+    CHECK(fabsf(bitten.bite - (100.0f / 127.0f)) < 1e-5f, "Bite 100 stores fraction");
+    CHECK(rc > 1e-5 && rb > 1e-5, "clean and Bite produce audio");
+    CHECK(fabs(rb - rc) / rc > 0.01, "Bite changes output vs clean (clean %g bite %g)", rc, rb);
+}
+
 int main(void)
 {
     test_surface();
@@ -160,6 +202,7 @@ int main(void)
     test_sustain_holds();
     test_attack_delays_peak();
     test_gate_unchanged();
+    test_bite_changes_output();
     if (fails) {
         printf("%d FAIL(s)\n", fails);
         return 1;
