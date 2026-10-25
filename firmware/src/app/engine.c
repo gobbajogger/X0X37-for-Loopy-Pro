@@ -10,6 +10,8 @@
 #include "../dsp/fxbus.h"
 #include "../dsp/master.h"
 #include "../dsp/fastmath.h"
+#include "../dsp/busfx.h"
+#include "smc_fx_map.h"
 #include "../dsp/ima_adpcm.h"              /* shared IMA tables + ima_decode (outline) */
 
 #define POOL X0X_POOL
@@ -103,9 +105,14 @@ static void guard_apply(void)
 
 /* mixer: per part Level, Rev send, Dly send (a drum machine's add to its voices' own sends) */
 static const x0x_param_t MIX_P[MX_NPARAMS] = {{"LEVEL", 127, 100, 0}, {"REV", 127, 0, 0}, {"DLY", 127, 0, 0},
-                                               {"PAN", 127, 64, 0}};
+                                               {"PAN", 127, 64, 0}, {"CUT", 127, 127, 0}};
 static const char *const PART_NAMES[NPARTS] = {"909", "808", "303 A", "303 B", "BREAK"};
-static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS];
+static float mix_level[NPARTS], mix_rev[NPARTS], mix_dly[NPARTS], mix_cut[NPARTS];
+/* Momentary bus FX, snapshotted once per stretch so both cores see the same hold. */
+static volatile uint8_t bfx_down_pub;
+static volatile uint8_t bfx_fx_pub[SMCFX_N];
+static uint8_t bfx_hold[NPARTS], bfx_eff[NPARTS];
+static busfx_t bfx_st[NPARTS];
 /* Main-loop publication is one aligned word; each render stretch snapshots it
  * once for both audio cores. This never changes the sequencer's saved mutes. */
 static volatile uint32_t smc_solo_state;
@@ -115,6 +122,15 @@ void engine_smc_solo_targets(uint8_t parts, uint16_t kit909, uint16_t kit808)
                      (uint32_t)(kit808 & 0x7FFu) << 16;
 }
 void engine_smc_solo(uint8_t mask) { engine_smc_solo_targets(mask, 0, 0); }
+void engine_smc_busfx(uint8_t down, const uint8_t effect[4])
+{
+    int i;
+    bfx_down_pub = down;
+    if (!effect)
+        return;
+    for (i = 0; i < SMCFX_N; i++)
+        bfx_fx_pub[i] = effect[i];
+}
 
 static uint16_t smc_audible_drums(uint32_t solo, int kit)
 {
@@ -221,6 +237,8 @@ static void apply_param(int t, int v, int i, int val)    /* ISR */
             mix_dly[v] = (float)val / 127.0f;
         else if (i == MX_PAN)
             x0x_pan_gains(val, &mix_pl[v], &mix_pr[v]);
+        else if (i == MX_CUT)
+            mix_cut[v] = (float)val;
         break;
     case T_MST: master_set(&mst, i, val); break;
     default: break;
@@ -840,8 +858,9 @@ __attribute__((noinline)) static void mix_targets(int p, float g, uint8_t solo) 
         g = 0.0f;
     glide_set(&mix_glide[p][GL_L], g * mix_pl[p]);
     glide_set(&mix_glide[p][GL_R], g * mix_pr[p]);
-    glide_set(&mix_glide[p][GL_REV], g * mix_rev[p]);
-    glide_set(&mix_glide[p][GL_DLY], g * mix_dly[p]);
+    /* A throw opens the existing send. Release glides back; the fxbus tail stays. */
+    glide_set(&mix_glide[p][GL_REV], g * busfx_send(mix_rev[p], bfx_hold[p], bfx_eff[p], BFX_REV));
+    glide_set(&mix_glide[p][GL_DLY], g * busfx_send(mix_dly[p], bfx_hold[p], bfx_eff[p], BFX_DLY));
     glide_set(&mix_glide[p][GL_VREV], g);
     glide_set(&mix_glide[p][GL_VDLY], g);
 }
@@ -875,6 +894,29 @@ __attribute__((noinline)) static void scale_glide(float *buf, glide_t *g, uint32
     g->cur = c;
 }
 
+static void bfx_snapshot(void)
+{
+    uint8_t down = bfx_down_pub;
+    int i, p;
+    for (p = 0; p < NPARTS; p++) {
+        bfx_hold[p] = 0;
+        bfx_eff[p] = 0;
+    }
+    for (i = 0; i < SMCFX_N; i++) {
+        if (down & (uint8_t)(1u << i)) {
+            p = SMCFX_PART[i];
+            bfx_hold[p] = 1;
+            bfx_eff[p] = bfx_fx_pub[i];
+        }
+    }
+}
+
+static void bfx_shape(int part, float *a, float *b, float *c, float *d, int nch, int n)
+{
+    busfx_apply(&bfx_st[part], a, b, c, d, nch, (int)n, mix_cut[part], bfx_hold[part], bfx_eff[part],
+                (int)n, (int)n);
+}
+
 /* the second core's job (or the first's, after its own part, with one core): the 808 into t0..tr
  * and the break into kbuf; arg bit 8: not timed (the cycle counter is the first core's). Nothing
  * here is mixed: the first core does that afterwards, in one core's order.
@@ -889,6 +931,7 @@ static void core2_job(uint32_t arg)
         for (i = 0; i < n; i++)
             t0[i] = t1[i] = t2[i] = tr[i] = 0.0f;
         drum808_render_st_masked(&d808, t0, tr, t1, t2, (int)n, (uint16_t)(arg >> 9 & 0x7FFu));
+        bfx_shape(PART_808, t0, tr, t1, t2, 4, (int)n);
     } else
         drum808_pan_settle(&d808);
     if (timed) {
@@ -897,6 +940,8 @@ static void core2_job(uint32_t arg)
     }
     brk_silent_now = breaks_silent(&brk);                 /* the render writes zeros: nothing to mix */
     breaks_render(&brk, kbuf, (int)n);
+    if (!brk_silent_now)
+        bfx_shape(PART_BRK, kbuf, 0, 0, 0, 1, (int)n);
     if (timed)
         PROF_ADD(PR_BRK, pt);
 }
@@ -921,6 +966,7 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
     uint8_t solo_parts = (uint8_t)(solo & 0x1Fu);
     if (solo & (0x7FFu << 5)) solo_parts |= 1u << PART_909;
     if (solo & (0x7FFu << 16)) solo_parts |= 1u << PART_808;
+    bfx_snapshot();                                   /* before the second core reads the holds */
     int on2 = plat_cpu2_run(core2_job, arg | 0x100u);
     for (i = 0; i < n; i++)
         dry_l[i] = dry_r[i] = rev[i] = dly[i] = 0.0f;
@@ -932,8 +978,9 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         } else {
             drum909_render_st_masked(&d909, dry_l, dry_r, rev, dly, (int)n, smc_audible_drums(solo, PART_909));
             mix_targets(PART_909, mix_level[PART_909], solo_parts);
-            for (i = 0; i < n; i++)                       /* the kit send: the whole machine, both sides */
-                mono[i] = (dry_l[i] + dry_r[i]) * 0.5f;   /* (centred: L exactly) */
+            bfx_shape(PART_909, dry_l, dry_r, rev, dly, 4, (int)n);
+            for (i = 0; i < n; i++)                       /* kit send: filtered sides, still centred */
+                mono[i] = (dry_l[i] + dry_r[i]) * 0.5f;
             scale_glide(dry_l, &mix_glide[PART_909][GL_L], n);   /* then the part's PAN over the kit */
             scale_glide(dry_r, &mix_glide[PART_909][GL_R], n);
             scale_glide(rev, &mix_glide[PART_909][GL_VREV], n);
@@ -946,6 +993,8 @@ __attribute__((noinline)) static void render_sub(float *out_l, float *out_r, uin
         PROF_T(pb);
         idle[b] = b303[b].idle;                           /* idle: the render writes zeros */
         bass303_render(&b303[b], bb[b], (int)n);
+        if (!idle[b])
+            bfx_shape(PART_303A + b, bb[b], 0, 0, 0, 1, (int)n);
         PROF_ADD(2 + b, pb);
     }
     pt = plat_cycles();
@@ -1297,6 +1346,15 @@ X0X_COLD void engine_init(pattern_t *patterns, song_t *song, lane_t *lanes, cons
     guard_avg_q8 = guard_calm = 0;
     drum808_quiet = 3.2e-5f;
     smc_solo_state = 0;
+    bfx_down_pub = 0;
+    for (p = 0; p < SMCFX_N; p++)
+        bfx_fx_pub[p] = 0;
+    for (p = 0; p < NPARTS; p++) {
+        mix_cut[p] = 127.0f;
+        busfx_init(&bfx_st[p]);
+        bfx_hold[p] = 0;
+        bfx_eff[p] = 0;
+    }
     prob_rng = 0x2545F491u;
     brk_silent_now = 1;
     d808_was_active = 0;

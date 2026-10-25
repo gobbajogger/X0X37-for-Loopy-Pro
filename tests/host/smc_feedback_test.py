@@ -45,7 +45,7 @@ typedef struct { int kind,a,b,c; } pref_t;
 #define PR(k,a,b,c) ((pref_t){k,a,b,c})
 seq_t seq;
 static struct { int rec,part,view,overlay,help,sel[NKIT]; } ui;
-static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank; uint16_t drum_solo[NKIT]; } smc;
+static struct { uint8_t up,rec_part,solo,known[128],lit[128],pending,value[8],locked,lock_kit,lock_bank,fx_down; uint16_t drum_solo[NKIT]; } smc;
 static struct { struct { uint8_t bt; } set; } proj;
 static int page,clip,locked,part_mutes,fx[3]={100,100,100},filter=64;
 static uint16_t drum_mutes[NKIT];
@@ -115,13 +115,16 @@ static void main_strips(void) {
             expect("main REC",strip,strip==selected);
             expect("main SOLO",8+strip,strip==selected);
             expect("main MUTE",16+strip,strip==selected);
-            expect("main SELECT",24+strip,strip==selected);
+            expect("main SELECT",24+strip,strip==3 && strip==selected);
         }
     }
     ui.rec=smc.solo=part_mutes=0;
     for(int strip=0;strip<NPARTS;strip++) {
         expect("main REC off",strip,0);expect("main SOLO off",8+strip,0);expect("main MUTE off",16+strip,0);
     }
+    smc.fx_down=1u<<0; expect("909 effect held",24,1);
+    smc.fx_down=1u<<3; expect("break effect held",28,1); expect("909 effect released",24,0);
+    smc.fx_down=0;
     for(int which=0;which<3;which++) {
         fx[which]=0;expect("FX/master muted",21+which,1);
         fx[which]=100;expect("FX/master audible",21+which,0);

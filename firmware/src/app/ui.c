@@ -659,14 +659,14 @@ static int in_pattern(pref_t r)
 /* a knob's label: mixer refs name their part */
 static const char *pref_name(pref_t r)
 {
-    static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN"},
-                                                         {"808", "808 RV", "808 DL", "808 PAN"},
-                                                         {"303 A", "A REV", "A DLY", "A PAN"},
-                                                         {"303 B", "B REV", "B DLY", "B PAN"},
-                                                         {"BREAK", "BRK RV", "BRK DL", "BRK PAN"}};
+    static const char *const MIXN[NPARTS][MX_NPARAMS] = {{"909", "909 RV", "909 DL", "909 PAN", "909 CUT"},
+                                                         {"808", "808 RV", "808 DL", "808 PAN", "808 CUT"},
+                                                         {"303 A", "A REV", "A DLY", "A PAN", "A CUT"},
+                                                         {"303 B", "B REV", "B DLY", "B PAN", "B CUT"},
+                                                         {"BREAK", "BRK RV", "BRK DL", "BRK PAN", "BRK CUT"}};
     static const char *const PATN[6][2] = {{"909 LEN", "808 LEN"}, {"909 RATE", "808 RATE"}, {"A LEN", "B LEN"},
                                            {"A RATE", "B RATE"}, {"A DIR", "B DIR"}, {"A TRANSP", "B TRANSP"}};
-    static const char *const CHN[MX_NPARAMS] = {"LEVEL", "REV", "DLY", "PAN"};
+    static const char *const CHN[MX_NPARAMS] = {"LEVEL", "REV", "DLY", "PAN", "CUT"};
     const x0x_param_t *d = pref_desc(r);
     static const char *const SEQN[6] = {"LENGTH", "RATE", "LENGTH", "RATE", "DIRECTION", "TRANSP"};
     if (r.kind >= R_DLEN && r.kind <= R_BTRANS)       /* SEQ: the part's own; a list elsewhere: whose */
