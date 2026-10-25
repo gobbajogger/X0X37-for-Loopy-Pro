@@ -24,6 +24,7 @@ Successor prompt: `evidence/f12-stage5/SUCCESSOR-STAGE7.txt`.
 Successor agent id: none.
 Successor URL: none.
 Successor source: pending coordinator CreateAgent (pod has no `CURSOR_API_KEY`).
+Stage-5 PR: [#274](https://github.com/gobbajogger/X0X37-for-Loopy-Pro/pull/274) (base `cursor/f12-stage4-bf008-1207`; stage bases only).
 Handoff status: **incomplete** until an owner-visible Stage 7 id is recorded on this remote tip.
 
 ## Nightly
