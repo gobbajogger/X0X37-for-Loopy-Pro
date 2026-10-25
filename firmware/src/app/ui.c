@@ -194,6 +194,14 @@ static uint8_t kbd_held_note[NBASS];
 static uint8_t bass_rec_step[NBASS];                 /* recorded source step + 1; zero means none */
 static uint8_t bass_rec_pat[NBASS], bass_rec_playing[NBASS];
 static uint8_t kbd_held_key[NBASS];                  /* physical key + 1; survives octave and part changes */
+/* Chicago arp freeplay: track every held key so chords arpeggiate (clip ARP is MIDI-only). */
+static uint8_t kbd_arp_key[NBASS][CHI_ARP_MAXN];     /* physical key + 1 */
+static uint8_t kbd_arp_note[NBASS][CHI_ARP_MAXN];
+static uint8_t kbd_arp_n[NBASS];
+static int chi_arp_on_part(int b)
+{
+    return b >= 0 && b < NBASS && proj.sound.v[T_303][b][CHI_ARP_SWITCH] != CHI_ARP_OFF;
+}
 static int held_note_of(const bpart_t *bp, int s);
 static void bass_step_cancel(void);
 static void drum_step_cancel(void);
@@ -566,10 +574,11 @@ X0X_COLD static void pref_set(pref_t r, int v)
         if (v && ui.part == PART_303A + r.a)
             bass_step_cancel();                       /* the held step must not become a held keyboard note */
         ui.freeplay[r.a] = (uint8_t)v;
-        if (!v && kbd_held_note[r.a]) {                /* a key still down: let it go */
+        if (!v && (kbd_held_note[r.a] || kbd_arp_n[r.a])) { /* a key still down: let it go */
             engine_bass_off(r.a);
             kbd_held_note[r.a] = 0;
             kbd_held_key[r.a] = 0;
+            kbd_arp_n[r.a] = 0;
         }
         break;
     case R_SREP: {
@@ -2288,7 +2297,19 @@ static void bass_write(int b, int note, int gate)
 static void bass_kbd(int key)
 {
     int b = bidx(), n = kbd_note(key);
-    engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0, kbd_held_note[b] != 0,
+    if (chi_arp_on_part(b) && kbd_arp_n[b] < CHI_ARP_MAXN) {
+        uint32_t i, have = 0;
+        for (i = 0; i < kbd_arp_n[b]; i++)
+            if (kbd_arp_key[b][i] == (uint8_t)(key + 1))
+                have = 1;
+        if (!have) {
+            kbd_arp_key[b][kbd_arp_n[b]] = (uint8_t)(key + 1);
+            kbd_arp_note[b][kbd_arp_n[b]] = (uint8_t)n;
+            kbd_arp_n[b]++;
+        }
+    }
+    engine_bass_on_velocity(b, n, (ui.btn & (1u << B_ENV)) != 0,
+                            !chi_arp_on_part(b) && kbd_held_note[b] != 0,
                             ui.freeplay[b] && !ui.rec ? plat_key_velocity(key) : BASS_VELOCITY_DEFAULT);
     if (ui.rec && !seq.playing) {
         bass_write(b, n, G_NOTE);
@@ -2432,10 +2453,11 @@ void smk_clip_enter_cleanup(void)
     ui.hold_step = -1;
     ui.brk_held = -1;
     for (int b = 0; b < NBASS; b++)                   /* a 303 key note that still sounds: let it go */
-        if (kbd_held_note[b]) {
+        if (kbd_held_note[b] || kbd_arp_n[b]) {
             engine_bass_off(b);
             kbd_held_note[b] = 0;
             kbd_held_key[b] = 0;
+            kbd_arp_n[b] = 0;
             bass_rec_step[b] = 0;
         }
 }
@@ -2444,15 +2466,37 @@ void smk_clip_enter_cleanup(void)
 static void key_event(int k, int down)
 {
     if (!down) {
-        for (int b = 0; b < NBASS; b++)
-            if (kbd_held_key[b] == k + 1) {
-                engine_bass_record(b, kbd_held_note[b], 0, 0, 0);
-                engine_bass_off(b);
-                kbd_held_note[b] = 0;
-                kbd_held_key[b] = 0;
+        for (int b = 0; b < NBASS; b++) {
+            uint32_t i, j, hit = 0;
+            int note = -1;
+            for (i = 0; i < kbd_arp_n[b]; i++)
+                if (kbd_arp_key[b][i] == (uint8_t)(k + 1)) {
+                    note = kbd_arp_note[b][i];
+                    for (j = i + 1; j < kbd_arp_n[b]; j++) {
+                        kbd_arp_key[b][j - 1] = kbd_arp_key[b][j];
+                        kbd_arp_note[b][j - 1] = kbd_arp_note[b][j];
+                    }
+                    kbd_arp_n[b]--;
+                    hit = 1;
+                    break;
+                }
+            if (kbd_held_key[b] == k + 1 || hit) {
+                engine_bass_record(b, note >= 0 ? note : kbd_held_note[b], 0, 0, 0);
+                if (chi_arp_on_part(b) && note >= 0)
+                    engine_bass_off_note(b, note);
+                else
+                    engine_bass_off(b);
+                if (!kbd_arp_n[b]) {
+                    kbd_held_note[b] = 0;
+                    kbd_held_key[b] = 0;
+                } else {
+                    kbd_held_note[b] = kbd_arp_note[b][kbd_arp_n[b] - 1u];
+                    kbd_held_key[b] = kbd_arp_key[b][kbd_arp_n[b] - 1u];
+                }
                 bass_rec_step[b] = 0;
                 return;
             }
+        }
     }
 #if BOARD_SMK37
     extern uint8_t smk_clip_mode_on(void);
@@ -4756,6 +4800,7 @@ X0X_COLD void ui_init(void)
     memset(&ui, 0, sizeof ui);
     memset(kbd_held_note, 0, sizeof kbd_held_note);
     memset(kbd_held_key, 0, sizeof kbd_held_key);
+    memset(kbd_arp_n, 0, sizeof kbd_arp_n);
     memset(bass_rec_step, 0, sizeof bass_rec_step);
     memset(bass_rec_pat, 0, sizeof bass_rec_pat);
     memset(bass_rec_playing, 0, sizeof bass_rec_playing);

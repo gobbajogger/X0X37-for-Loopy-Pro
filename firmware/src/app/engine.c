@@ -39,6 +39,9 @@ static bass303_t b303[NBASS] POOL;
 static uint8_t chi_arp_on[NBASS], chi_arp_mode[NBASS], chi_arp_range[NBASS], chi_arp_speed[NBASS];
 static uint8_t chi_arp_accent[NBASS], chi_arp_vel[NBASS];
 static chi_arp_run_t chi_arp_run[NBASS];
+#ifdef X0X_HOST
+static uint8_t bass_attacked[NBASS]; /* early: chi_arp_on_step marks attacks before MIDI block */
+#endif
 static breaks_t brk POOL;
 static fxbus_t fx POOL;
 void engine_fx_mute(uint8_t mask) { fx.muted = mask & 7u; }
@@ -599,9 +602,6 @@ void engine_clip_midi_flush(void)
 /* ---------------------------------------------------------------- MIDI in --- */
 static uint8_t bass_held[NBASS];       /* note held from MIDI, for legato = slide */
 static uint8_t bass_held_count[NBASS], bass_held_src[NBASS], bass_live_slide[NBASS];
-#ifdef X0X_HOST
-static uint8_t bass_attacked[NBASS];
-#endif
 /* Slide needs the accepted live note, not whichever gate the sequencer has open. */
 static int live_legato(int part, int src, int note)
 {
@@ -824,11 +824,22 @@ static void drain(void)
             chi_arp_accent[a] = (uint8_t)(v & 1u);
             chi_arp_vel[a] = (uint8_t)(v >> 2);
             if (chi_arp_on[a]) {
-                /* Live arp owns the gate: held pitch cycles Mode/Range/Speed (octaves).
-                 * Multi-key chords: each new C_BON replaces the list (panel is last-key-wins);
-                 * Range still arpeggiates across octaves for freeplay. */
-                chi_arp_run_hold(&chi_arp_run[a], (uint8_t)b, chi_arp_mode[a], chi_arp_range[a],
-                                 chi_arp_speed[a]);
+                /* Live arp owns the gate. Additional C_BONs add pitches (chord); Range
+                 * still stacks octaves. Pattern sink never reads chi_arp_run. */
+                uint8_t tmp[CHI_ARP_MAXN];
+                uint32_t n = chi_arp_run[a].n, i, have = 0;
+                for (i = 0; i < n; i++) {
+                    tmp[i] = chi_arp_run[a].notes[i];
+                    if (tmp[i] == (uint8_t)b)
+                        have = 1;
+                }
+                if (!have && n < CHI_ARP_MAXN) {
+                    tmp[n++] = (uint8_t)b;
+                    chi_arp_run_set(&chi_arp_run[a], tmp, n, chi_arp_mode[a], chi_arp_range[a],
+                                    chi_arp_speed[a]);
+                } else if (!n)
+                    chi_arp_run_hold(&chi_arp_run[a], (uint8_t)b, chi_arp_mode[a], chi_arp_range[a],
+                                     chi_arp_speed[a]);
             } else {
                 bass303_note_on_velocity(&b303[a], (int)b, (int)(v & 1u), slide, (int)(v >> 2));
             }
@@ -838,13 +849,33 @@ static void drain(void)
             if (!(seq.playing && (seq.rec_mask & (1u << a))))
                 live_accept((int)a, 3, (int)b);
         } else if (type == C_BOFF && a < NBASS && bass_held_src[a] == 3) {
-            if (chi_arp_on[a]) {
+            if (chi_arp_on[a] && v) {
+                /* Note-specific release: drop one pitch; keep arpeggiating the rest. */
+                uint8_t tmp[CHI_ARP_MAXN];
+                uint32_t n = 0, i;
+                for (i = 0; i < chi_arp_run[a].n; i++)
+                    if (chi_arp_run[a].notes[i] != (uint8_t)b)
+                        tmp[n++] = chi_arp_run[a].notes[i];
+                if (n) {
+                    chi_arp_run_set(&chi_arp_run[a], tmp, n, chi_arp_mode[a], chi_arp_range[a],
+                                    chi_arp_speed[a]);
+                    bass_held[a] = tmp[0];
+                } else {
+                    chi_arp_gate_off((int)a);
+                    chi_arp_run_clear(&chi_arp_run[a]);
+                    bass_held_count[a] = 0;
+                    bass_held[a] = 0;
+                }
+            } else if (chi_arp_on[a]) {
                 chi_arp_gate_off((int)a);
                 chi_arp_run_clear(&chi_arp_run[a]);
-            } else
+                bass_held_count[a] = 0;
+                bass_held[a] = 0;
+            } else {
                 bass303_note_off(&b303[a]);
-            bass_held_count[a] = 0;
-            bass_held[a] = 0;
+                bass_held_count[a] = 0;
+                bass_held[a] = 0;
+            }
         }
         else if (type == C_REC && (a >> 1) == (seq.rec_epoch & 127u)) {
             int part = (int)(a & 1u), down = (int)(v & 1u);

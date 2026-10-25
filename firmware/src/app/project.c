@@ -187,17 +187,19 @@ static int save_obj(uint32_t obj, const void *src, uint32_t len)
 }
 
 typedef char sound_fits[(sizeof(sound_t) + 4u <= PLAT_STORE_MAX) ? 1 : -1];
-/* Through PROJ_SND_REV 4 every sound cell was 16 pots wide. Rev 5 widens to NPARAMS_MAX. */
+/* Through PROJ_SND_REV 4 every sound cell was 16 pots wide. Rev 5–7 used 24; rev 8 uses NPARAMS_MAX. */
 #define SOUND_CELL_V4 16u
 #define SOUND_BYTES_V4 (NTARGETS * NVOICES_MAX * SOUND_CELL_V4)
+#define SOUND_CELL_V7 24u
+#define SOUND_BYTES_V7 (NTARGETS * NVOICES_MAX * SOUND_CELL_V7)
 
-/* OBJ_SOUND may be the old 16-wide layout or the current sizeof(sound_t). An old payload is
- * expanded cell-by-cell so index 0..15 keep their meaning; new slots keep the defaults already
- * in dst (AmpMod = Env for 303). */
+/* OBJ_SOUND may be the old 16-wide, rev7 24-wide, or the current sizeof(sound_t). An old
+ * payload is expanded cell-by-cell so earlier indices keep their meaning; new slots keep
+ * the defaults already in dst (AmpMod = Env; Chicago Arp = Off/Up/1Oct/1/16). */
 static int load_sound(sound_t *dst)
 {
     int n = plat_store_load(OBJ_SOUND, io_buf, sizeof io_buf);
-    uint32_t i, t, v, p, body;
+    uint32_t i, t, v, p, body, cell;
     if (n < 4 || get32(io_buf) != PROJ_FORMAT)
         return -1;
     body = (uint32_t)n - 4u;
@@ -208,12 +210,16 @@ static int load_sound(sound_t *dst)
         stored_hash[OBJ_SOUND] = hash_of(io_buf, (uint32_t)n);
         return 0;
     }
-    if (body != SOUND_BYTES_V4)
+    if (body == SOUND_BYTES_V4)
+        cell = SOUND_CELL_V4;
+    else if (body == SOUND_BYTES_V7)
+        cell = SOUND_CELL_V7;
+    else
         return -1;
     for (t = 0; t < NTARGETS; t++)
         for (v = 0; v < NVOICES_MAX; v++)
-            for (p = 0; p < SOUND_CELL_V4; p++)
-                dst->v[t][v][p] = io_buf[4u + (t * NVOICES_MAX + v) * SOUND_CELL_V4 + p];
+            for (p = 0; p < cell; p++)
+                dst->v[t][v][p] = io_buf[4u + (t * NVOICES_MAX + v) * cell + p];
     stored_known[OBJ_SOUND] = 0;                     /* next save writes the widened layout */
     return 0;
 }

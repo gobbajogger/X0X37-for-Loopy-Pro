@@ -23,6 +23,13 @@ alternate backend; the Miami factory bank is its own brand bank.
 - `manifest.json` — counts and framing
 - Regenerator: `tools/import_chicago_miami_factory_banks.py` (reads the Mac Gadget packs)
 
+## Chicago Arp pots (ids 13–16)
+
+Factory bytes decode with `chi_arp_decode_factory` / `chi_arp_apply_factory_voice`
+(`firmware/src/app/chicago_arp.h`). Product path: PART → CHI ARP page drives live
+freeplay/REC held-note arpeggiation on native303. Clip-key ARP (`ck_arp*`) stays
+MIDI-to-Loopy only. Pattern step playback is unchanged when Switch is Off (default).
+
 ## Tip
 
-Preferred product lineage: stream5 / #259 tip `6cf9be8c…`.
+Preferred product lineage: stream5 after #281 (Bite/amp ADSR).
