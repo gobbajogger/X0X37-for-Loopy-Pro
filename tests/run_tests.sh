@@ -20,6 +20,8 @@
 #     not hold a job slot while it waits. In serial mode, host-build runs before them.
 #   A missing optional input prints "  not-run <name> (<reason>)". It does not write a .fail file and does not set FAIL.
 #     Pillow: python3 cannot import PIL. ASan runtime: ${CC:-cc} -fsanitize=address,undefined does not link.
+#     Parallel tests use a private HOME. Python's user site follows HOME, so the Pillow check and those tests
+#     keep the invoker's user base (PYTHONUSERBASE, or ~/.local when that is unset). A pip --user Pillow stays visible.
 #     Reference trees: 9W9, 8W8, or schwung-303 is absent. breaks and drum909-adpcm stay in-tree and still run.
 #     The sequencer still runs when TB-3PO is absent (it prints its own skip sentence). The SMK package block stays a skip note.
 #   If this run admits host-build as not-run because Pillow is absent, drum samples and the break bank are still
@@ -37,6 +39,9 @@ X0X_TESTS="${X0X_TESTS:-}"
 cd "$(dirname "$0")/.."
 CC="${CC:-cc}"
 FAIL=0
+# Captured before any test replaces HOME. See the Pillow note above.
+X0X_PYTHONUSERBASE="${PYTHONUSERBASE:-$HOME/.local}"
+export X0X_PYTHONUSERBASE
 PIL_SKIP=0          # tests_body sets 1 when python3 cannot import PIL
 ASAN_SKIP=0         # tests_body sets 1 when the ASan runtime does not link
 ASAN_CHECKED=0
@@ -182,6 +187,7 @@ run() {
     [ "$cls" = W ] || [ $gw = 1 ] || read -r _ <&3       # wait for a free job slot (class W does not use one)
     (
         export HOME="$PWD/$OUT/iso/$name/home" TMPDIR="$PWD/$OUT/iso/$name/tmp"
+        export PYTHONUSERBASE="$X0X_PYTHONUSERBASE"   # pip --user Pillow must survive the private HOME
         mkdir -p "$HOME" "$TMPDIR"
         if [ $gw = 1 ]; then      # wait for the end of host-build without a job slot, then take a slot
             until [ -e "$OUT/iso/.gen-done" ]; do sleep 0.1; done
@@ -202,7 +208,7 @@ note() {                # a skip line, in the serial order
 }
 tests_body() {
 PIL_SKIP=0
-python3 -c 'import PIL' >/dev/null 2>&1 || PIL_SKIP=1
+PYTHONUSERBASE="$X0X_PYTHONUSERBASE" python3 -c 'import PIL' >/dev/null 2>&1 || PIL_SKIP=1
 if [ "$ASAN_CHECKED" != 1 ]; then
     ASAN_CHECKED=1
     ASAN_SKIP=0
