@@ -281,6 +281,7 @@ seq_test() {
     $OUT/seq_test
 }
 run sequencer seq_test
+run tb3po-mutate-accent sh -c "$CC $W -Ifirmware/src/seq -o $OUT/tb3po_mutate_accent_test tests/host/tb3po_mutate_accent_test.c firmware/src/seq/tb3po.c && $OUT/tb3po_mutate_accent_test"   # BF-032: ACCENT survives orphan SLIDE cleanup
 run seq-pingpong-resize python3 tests/host/seq_pingpong_resize_test.py   # 303 live-length shrink never emits disabled steps
 run seq-pingpong-linked sh -c "$CC -std=c11 -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/seq_pingpong_linked_test tests/host/seq_pingpong_resize_linked_test.c firmware/src/seq/sequencer.c firmware/src/seq/pattern.c firmware/src/seq/tb3po.c -lm && $OUT/seq_pingpong_linked_test"   # production-linked 303 live resize / UI step
 run clk-lock sh -c "$CC $W -o $OUT/clk_lock_test tests/host/clk_lock_test.c firmware/src/seq/sequencer.c firmware/src/seq/tb3po.c firmware/src/seq/pattern.c && $OUT/clk_lock_test"   # MID-15: one clock input
@@ -391,6 +392,9 @@ run smk-apc40-map sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -
 run smk-apc40 python3 tests/smk_apc40_test.py
 run smk-clip-ble-clear sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -Ifirmware/src/ble -o $OUT/smk_clip_ble_clear_test tests/smk_clip_ble_clear_test.c && $OUT/smk_clip_ble_clear_test"
 run smk-clip-keys sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_clip_keys_test tests/smk_clip_keys_test.c && $OUT/smk_clip_keys_test"
+run smk-clip-key-overlap python3 tests/host/clip_key_overlap_test.py   # SMK CLIP KEYS shared MIDI pitch ownership
+run smk-clip-strum-overlap python3 tests/host/clip_key_strum_overlap_test.py   # delayed shared-chord note ownership
+run smk-clip-project-reset python3 tests/host/clip_key_project_reset_test.py   # discard unsent HUMAN notes without spurious NoteOff
 run smk-chord-recognize sh -c "$CC -std=c99 -O2 -Wall -Wextra -Werror -Ifirmware/src -o $OUT/smk_chord_recognize_test tests/smk_chord_recognize_test.c && $OUT/smk_chord_recognize_test"
 if [ "$PIL_SKIP" = 1 ]; then not_run smk-clip-chord-display Pillow; else run smk-clip-chord-display sh tests/host/smk_clip_chord_display_test.sh; fi
 run smk-ck-page-layout python3 tests/smk_ck_page_layout_test.py   # CLP-75: no top bar on the stage page, help line at the bottom
