@@ -1,0 +1,434 @@
+{
+  "schema": "x0x37-coremidi-provider-host-evidence-v1",
+  "tested_source_commit": "3261f52764da874dee66839af99b60eba3fae1b8",
+  "tested_root_tree": "93750c4f2b931dcbfa664a3c8961d136742aa636",
+  "firmware_tree": "5c209609b770fd13949230aeb80956594fd6b741",
+  "installer_blob": "41dd556d28112ae48e9c751aa139f0b459095a93",
+  "native_helper_source_blob": "b03f5b0adaa0488692875478571190bd1b46ff61",
+  "commands": [
+    {
+      "argv": [
+        "bash",
+        "tests/run_tests.sh",
+        "ota-identity-reconnect",
+        "ota-port-binding",
+        "ota-physical-handover",
+        "ota-raw-midi-names",
+        "ota-mid-session-identity",
+        "ota-unit-bounce",
+        "ota-send-rebind",
+        "ota-coremidi",
+        "installer",
+        "installer-targets",
+        "installer-slots",
+        "installer-ctl",
+        "installer-restore-status",
+        "installer-ota-finish-ack",
+        "slot-backup",
+        "slot-backup-durable",
+        "slot-archive-zone",
+        "slot-verify-order",
+        "slot-read-reply",
+        "slot-ack-integrity",
+        "slot-echo-7bit",
+        "ctl-publish-atomic",
+        "ctl-read-framing",
+        "installer-backup-snapshot"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/normal-runner.log",
+      "sha256": "3d99fab8e1891c94342a09298fbb9f0e75548aa1dc2c1cf8dae015b2b91cb1a0",
+      "bytes": 730,
+      "environment": {
+        "X0X_TEST_JOBS": "1"
+      }
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_identity_reconnect_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-identity-reconnect-optimized.log",
+      "sha256": "9cf46f64ae4954ede472c0c6431d83310b78999677ed11880c94826470f73815",
+      "bytes": 1222
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_port_binding_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-port-binding-optimized.log",
+      "sha256": "caf0e0124fb572fd6d1a22c174f3db4126c33cb696bfa6935e186266fc27091a",
+      "bytes": 1052
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_physical_handover_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-physical-handover-optimized.log",
+      "sha256": "cfb8a6e49b11184a97e81082ea8ab5f2b477cfcac953d90b713884544261c696",
+      "bytes": 542
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_raw_midi_names_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-raw-midi-names-optimized.log",
+      "sha256": "2de88cf652b9a8a8658013bc61e1c02ee3db6f79e2eea471b5d2a5b3899616a8",
+      "bytes": 701
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_mid_session_identity_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-mid-session-identity-optimized.log",
+      "sha256": "38b136eb550805ec9d1bb02c0bd98800a125ccc5ba6e39d5a38cd90cd0019e64",
+      "bytes": 816
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_unit_bounce_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-unit-bounce-optimized.log",
+      "sha256": "f9294c1d49e52ef28a79dbb67f8dba8b3e4618d636b99bb0a3fedf35d75eaf4b",
+      "bytes": 463
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_send_rebind_test.py",
+        "tools/fm1_install.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-send-rebind-optimized.log",
+      "sha256": "3d55a164e0b34d4d99b95bbec853ce3ba451f669ce063a05a2eb25b410f519b0",
+      "bytes": 612
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_coremidi_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ota-coremidi-optimized.log",
+      "sha256": "d2be771fdbaabb32e0cb4c2f7459472377df0fae395965b5f7c804d6d71a4fdd",
+      "bytes": 2975
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/installer-optimized.log",
+      "sha256": "2fdf9c36a39911d48603346b14cb4375293a48e5e3d1c08e84417089cdba975b",
+      "bytes": 2232
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/make_pages_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/installer-targets-optimized.log",
+      "sha256": "e01e1bbd78ce5ba7cf3dfce29bdd33bd0d3f9c49466d1297cd597ada6c5c1b41",
+      "bytes": 415
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_slots_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/installer-slots-optimized.log",
+      "sha256": "aca6de302f5eb4d5790f3075aed441016c7c76f0118dd277f397df8770449db3",
+      "bytes": 1475
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/install_ctl_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/installer-ctl-optimized.log",
+      "sha256": "9b2e60be04b6311e25993c2717697cdac25e47d379e77ee89084089b7342e914",
+      "bytes": 795
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/fm1_install_restore_status_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/installer-restore-status-optimized.log",
+      "sha256": "0c882dec4eeb807cf6eff3cf2b794936121152b82c0b3f7424e23f0f26316b3f",
+      "bytes": 1869
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/fm1_install_finish_ack_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/installer-ota-finish-ack-optimized.log",
+      "sha256": "e595472ccbd8c6daeb4d3b68487c10aeac9860add93189393bc17d31ee7faac4",
+      "bytes": 1198
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/slot-backup-optimized.log",
+      "sha256": "f2afb51116e8d35767500b6a57f35d1ae07d2976a1cd059a3f338d5e5e4a4f0d",
+      "bytes": 1677
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_durable_backup_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/slot-backup-durable-optimized.log",
+      "sha256": "63cb39672370a685595fa6b2d86bf1cd15c0cf8f869d68493791a83074c8222f",
+      "bytes": 876
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_zone_guard_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/slot-archive-zone-optimized.log",
+      "sha256": "8ef22e86f92eae70cba0c41d45e22ee4d041279e9b011bcba35892ffb7307bf0",
+      "bytes": 310
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_verify_order_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/slot-verify-order-optimized.log",
+      "sha256": "2bf9411d25983664e883c761f3ff9891944ee8891e7dbec21d9ffd4487bbe4cf",
+      "bytes": 730
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_read_reply_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/slot-read-reply-optimized.log",
+      "sha256": "851db3075b70c88ebce10f56df1a7cd78e7bd0af4f302b2e463d4e103f66aecb",
+      "bytes": 1535
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_ack_integrity_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/slot-ack-integrity-optimized.log",
+      "sha256": "1cd30b52c00e2cb2671f6ed5a019bc37f423955cca6c5f345c728f7a72de0689",
+      "bytes": 1755
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/x0x_slots_echo_7bit_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/slot-echo-7bit-optimized.log",
+      "sha256": "009ebb48843c0126779d10d608c5c33a1e939cbcb4aba8a4125ae0e37cc13e97",
+      "bytes": 1500
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/add_ctl_atomic_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ctl-publish-atomic-optimized.log",
+      "sha256": "aeea3e0a18060a244c732e0a51969651b85d5611bc6b3cab6823713c77670e82",
+      "bytes": 910
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/ctl_read_framing_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/ctl-read-framing-optimized.log",
+      "sha256": "1b28aee22efb806c7e1ff01282aaf69c75c853933925c6e46ebd95027a372335",
+      "bytes": 2315
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/fm1_install_backup_snapshot_test.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "log": "docs/coremidi-provider-evidence-20261024/installer-backup-snapshot-optimized.log",
+      "sha256": "a324a31b7dce1460baeef4fbec4a60f47cb891938d280152deb264d3c6a43cea",
+      "bytes": 1141
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tests/host/ota_transport_boundary_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "docs/coremidi-provider-evidence-20261024/strict-boundary-normal.log",
+      "sha256": "44439df2eccf20a338f2fa8932608854e855eed294d8cc8baa740257fea6f052",
+      "bytes": 9852
+    },
+    {
+      "argv": [
+        "python3",
+        "-O",
+        "-B",
+        "tests/host/ota_transport_boundary_test.py"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "log": "docs/coremidi-provider-evidence-20261024/strict-boundary-optimized.log",
+      "sha256": "44439df2eccf20a338f2fa8932608854e855eed294d8cc8baa740257fea6f052",
+      "bytes": 9852
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tools/fm1_install.py",
+        "--native-endpoints"
+      ],
+      "exit": 3,
+      "expected_exit": 3,
+      "log": "docs/coremidi-provider-evidence-20261024/linux-native-report.json",
+      "sha256": "54093c036d54c3fe2d2986ee81805dcb23eac994e4ed5b411bdc7685ec84ae76",
+      "bytes": 119
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "tools/build_coremidi_inventory.py"
+      ],
+      "exit": 2,
+      "expected_exit": 2,
+      "log": "docs/coremidi-provider-evidence-20261024/linux-native-build-refusal.log",
+      "sha256": "fb7458ac9c0d234772bb6607d0b420c774bdd9c5a4d48be68292c93d0e87e4f2",
+      "bytes": 66
+    }
+  ],
+  "status": "HOST CHECKED / NATIVE SDK BUILD AND RUNTIME NOT RUN / TRANSPORT INCOMPLETE / NOT INSTALLABLE",
+  "normal_selected_suites": 24,
+  "optimized_direct_suites": 24,
+  "coremidi_host_tests": 21,
+  "strict_boundary": "15 cases, 9 genuine assertion failures in both modes; simulated transport NO-GO",
+  "expected_results_reproduced": true,
+  "native_macos_build": "NOT RUN: Linux platform; wrapper refuses before compiler/device actions",
+  "native_macos_execution": "NOT RUN in cloud; parent-coordinated actual Mac observations are not execution of this new helper",
+  "target_builds": "NOT RUN: firmware tree unchanged; selected SMK package/JS parity explicitly SKIPPED because built targets and SDK absent",
+  "private_artifacts": [],
+  "native_helper_source_sha256": "92d3090e1d85dc74b6a664505790b94e5f931f85f697d315b1cd3b5e91ee172f",
+  "native_helper_binary_sha256": null,
+  "environment": {
+    "os": "Linux x86_64",
+    "python": "3.12.14",
+    "node": "24.19.0"
+  },
+  "independent_read_only_review": "No blocking findings for discovery-only source delivery; 21/21 normal and -O independently rerun. Native SDK compile/runtime pending; not sole QA transport acceptance."
+}

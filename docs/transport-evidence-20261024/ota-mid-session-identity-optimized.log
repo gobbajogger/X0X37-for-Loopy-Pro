@@ -1,0 +1,15 @@
+PASS authenticated unchanged unit accepts MIDI send
+PASS unchanged physical unit accepts MIDI receive
+PASS both transport handles close
+PASS sequential identical-name physical replacement is lost
+PASS replacement cannot receive destructive outgoing MIDI
+PASS queued foreign/stale packet is not accepted after replacement
+PASS initial authenticated send succeeds
+PASS replacement between consecutive OTA request replies is rejected
+PASS physical identity disappearing midtransfer fails closed
+PASS physical identity provider OSError fails closed
+PASS genuine unit loader rename works on freshly bound port
+PASS a foreign unit at the loader name is rejected
+PASS present physical-ID provider with unavailable ID fails closed
+PASS unverified name-only backend retains read-only discovery
+SUMMARY 14/14 PASS; 0 failures

@@ -1,0 +1,9 @@
+{
+  "cross_reboot_identity": "UNESTABLISHED",
+  "destructive_messages": 0,
+  "devices": [],
+  "phase_label": "unspecified",
+  "schema": "x0x37-ota-usb-observation-v1",
+  "serial_values_read": false,
+  "status": "OBSERVATION ONLY / NOT PHYSICAL CONTINUITY PROOF"
+}
