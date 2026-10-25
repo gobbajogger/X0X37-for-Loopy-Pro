@@ -1,6 +1,8 @@
-CURSOR_API_KEY unset on this pod (bc-81498ba3-dd15-5d08-89cd-4bbec88134df).
-CreateAgent for SUCCESSOR-STAGE1 was not attempted.
-Coordinator owns launching the next Stage 1 with:
-  startingRef=cursor/f15-next-stage1-34df
-  prompt=evidence/f15-next-stage1/SUCCESSOR-STAGE1.txt
-Do not treat a Task subagent as the successor.
+CURSOR_API_KEY unset on Stage-1 pod (bc-81498ba3-dd15-5d08-89cd-4bbec88134df).
+CreateAgent for SUCCESSOR-STAGE1 not attempted on that pod.
+Coordinator launched owner-visible next Stage 1:
+  id=bc-deca3b7b-4de7-5203-b277-bd4f80284629
+  url=https://cursor.com/agents/bc-deca3b7b-4de7-5203-b277-bd4f80284629
+startingRef=cursor/f15-next-stage1-34df
+prompt=evidence/f15-next-stage1/SUCCESSOR-STAGE1.txt
+Gate: WAIT_FOR_TIP until published tip leaves b48cd800 after F15 Stage 5/7.
