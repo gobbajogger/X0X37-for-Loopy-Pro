@@ -56,7 +56,13 @@ static int blecb_target(const uint8_t *addr, uint8_t type, void *ctx)
     } else if (pc->slot != 0u) return 0;
     for (unsigned i = 0; i < BLEC_PEERS; i++) {
         blec_t *c = &b->peer[i];
-        if (i == pc->slot || !blec_has_conn(c) || c->target_type != type) continue;
+        if (i == pc->slot) continue;
+        if (b->allowed[i] && b->allowed_type[i] == type) {
+            unsigned j;
+            for (j = 0; j < 6u && b->allowed_addr[i][j] == addr[j]; j++) {}
+            if (j == 6u) return 0;
+        }
+        if (!blec_has_conn(c) || c->target_type != type) continue;
         unsigned j;
         for (j = 0; j < 6u && c->target[j] == addr[j]; j++) {}
         if (j == 6u) return 0;
@@ -84,6 +90,11 @@ void blec_bus_init(blec_bus_t *b, blec_send_fn send, blec_bus_midi_fn midi, void
 int blec_bus_allow_peer(blec_bus_t *b, uint8_t peer, const uint8_t addr[6], uint8_t type)
 {
     if (b->started || peer >= BLEC_PEERS || !addr || type > 1u) return 0;
+    for (unsigned i = 0; i < BLEC_PEERS; i++) if (i != peer && b->allowed[i] && b->allowed_type[i] == type) {
+        unsigned j;
+        for (j = 0; j < 6u && b->allowed_addr[i][j] == addr[j]; j++) {}
+        if (j == 6u) return 0;
+    }
     for (unsigned j = 0; j < 6u; j++) b->allowed_addr[peer][j] = addr[j];
     b->allowed_type[peer] = type; b->allowed[peer] = 1;
     return 1;
@@ -95,6 +106,9 @@ void blec_bus_start(blec_bus_t *b, uint32_t now)
             b->peer[0].state == BLEC_OFF && b->peer[1].state == BLEC_OFF) b->stopping = 0;
         return;
     }
+    /* Two physical slots require explicit identities for both; never let
+     * name-only peer0 claim the configured second controller first. */
+    if (b->allowed[1] && !b->allowed[0]) { b->peer[0].state = BLEC_FAILED; return; }
     b->started = 1; b->stopping = 0;
     blec_start(&b->peer[0], now);
 }
@@ -201,9 +215,18 @@ void blec_bus_poll(blec_bus_t *b, uint32_t now)
     if (b->command && (int32_t)(now - b->command_deadline) >= 0) b->command_fault = 1;
     if (b->scan_owner < BLEC_PEERS) {
         blec_t *c = &b->peer[b->scan_owner];
+        /* Rotate an absent pinned target only after confirmed scan disable.
+         * Single-peer discovery and unresolved initiation retain their rules. */
+        if (!b->stopping && b->allowed[0] && b->allowed[1] && !b->create_pending &&
+            c->state == BLEC_SCANNING && (int32_t)(now - c->deadline) >= 0) {
+            c->now_ms = now; blec_stop(c);
+        }
         if (!b->create_pending && !b->scan_active && !blec_has_conn(c) &&
             (c->state == BLEC_OFF || c->state == BLEC_FAILED) &&
-            b->command_owner != b->scan_owner) b->scan_owner = BLEC_NO_OWNER;
+            b->command_owner != b->scan_owner) {
+            b->turn = (uint8_t)((b->scan_owner + 1u) % BLEC_PEERS);
+            b->scan_owner = BLEC_NO_OWNER;
+        }
     }
     for (unsigned k = 0; k < BLEC_PEERS; k++) {
         unsigned i = (b->turn + k) % BLEC_PEERS;
