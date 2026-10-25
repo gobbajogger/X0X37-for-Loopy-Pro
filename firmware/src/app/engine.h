@@ -85,6 +85,7 @@ void engine_bass_on(int part, int note, int accent, int slide);
 void engine_bass_on_velocity(int part, int note, int accent, int slide, int velocity);
 void engine_bass_off(int part);
 void engine_brk_live(int key, int down);
+void engine_brk_slice_mode_reconcile(void);                 /* clear MIDI slice holds after 8 SLICES toggles */
 void engine_brk_loops(void);                                /* (re)read the A / B loops of the current pattern */
 void engine_brk_flush(void);                                /* publish a loop change that waited for the sounding voice */
 void engine_brk_drop_range(const uint8_t *base, uint32_t nbytes); /* stop voices reading bytes that are about to be erased */
