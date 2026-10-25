@@ -27,6 +27,13 @@ TEST_ROUTES = [
     ('tools/fm1_install.py', 'installer installer-slots installer-ctl installer-targets'),
     ('tools/fm1pkg_make.py', 'smk-package'),
     ('tools/upload_breaks.py', 'upload-images upload-tools breaks-web'),
+    # Project companion modules and their shared breaks helper need the project
+    # suites; the generic web/ route never names projects-web / projects-page.
+    ('web/x0x_projects.js', 'projects-web projects-page'),
+    ('web/x0x_projects.html', 'projects-web projects-page'),
+    ('web/x0x_breaks.js', 'projects-web projects-page'),
+    ('web/test_projects.mjs', 'projects-web'),
+    ('web/test_projects_page.mjs', 'projects-page'),
     ('web/', 'breaks-web breaks-page install-slots-web'),
     ('tools/locked_settings.json', 'locked-settings'),
 ]
