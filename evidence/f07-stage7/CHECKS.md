@@ -50,15 +50,16 @@ HTTPS evidence_url in `qualification.json` for Elite/Pro `independent-qa` points
 | Cloud push | **403** (`cloud-gh-pages-403.log`) |
 | Parent `gh-pages` | `cff694f3792d196267c2dc8ce2d86c6aef7d5e9e` |
 | Prepared commit | `aaa576d6c954c809b0acfdf683517c72a533d40b` |
-| Mac agent | pending coordinator CreateAgent on worker `83d16cde-07a3-5bce-81a3-2234761197a1` |
-| Live | pending (`LIVE_PAGE_MATCH` after Mac FF) |
+| Mac agent | `bc-36495868-6d21-55f1-9274-4c6b065bdc08` on worker `83d16cde-07a3-5bce-81a3-2234761197a1` |
+| Mac tip | `d6a237c43cb6830d8cf0cb51e567181821630a28` (FF only) |
+| Live | **MATCH** `nightly-6df0f81f-dev` (`live-verify.log`) |
 
-Mac push instructions: Project store `internal/f07-stage7-mac-pages-push.md`. Artifacts: `artifacts/f07-stage7-publish/`.
+Mac push instructions / result: Project store `internal/f07-stage7-mac-pages-push.md`, `internal/f07-stage7-mac-pages-result.md`. Artifacts: `artifacts/f07-stage7-publish/`.
 
 ## Production / deferred
 
-Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f07-stage2/DEFERRED.md`. Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Next audit uses `6df0f81f…` after live page matches.
+Production `main` / production Pages unchanged. No device flash. Deferred: `evidence/f07-stage2/DEFERRED.md`. Firmware `nightly` remains `08d3164a…` (FF refused at stage 5; no force-push). Next audit uses `6df0f81f…`.
 
 ## Overall
 
-Candidate **qualified and prepared** for validated source `6df0f81f…` with matching package hashes, labeled hardware test / device not tested. Live page update pending Mac `gh-pages` FF. Stage 1 successor not started until `LIVE_PAGE_MATCH`.
+**PUBLISHED LIVE** for validated source `6df0f81f…` with matching package hashes, labeled hardware test / device not tested. Independent-qa cites local-env PR #222 review for unchanged package bytes. Owner-visible Stage 1 successor pending coordinator CreateAgent (pod API has no `CURSOR_API_KEY`).
