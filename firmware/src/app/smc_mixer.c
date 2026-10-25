@@ -56,9 +56,10 @@ static uint32_t smc_ble_solo_release_seen, smc_host_solo_release_seen;
  * presses. Publish both boundaries with the link under one seqlock. */
 static volatile uint32_t smc_link_loss_seq, smc_link_ble_loss_boundary,
                          smc_link_host_loss_boundary;
-/* At a BLE link boundary, pre-edge host Solo key-ups must not cancel a new
- * direct-BLE press on the same physical strip. Other host commands remain
- * queued and valid; the main loop discards only obsolete key-up messages. */
+/* A BLE link boundary clears host-held Solo as well as BLE-held Solo.
+ * Old host Solo presses AND releases must not replay across that edge;
+ * otherwise a dropped old release lets its queued press re-latch forever.
+ * Other host commands and post-edge Solo input remain valid. */
 static volatile uint8_t smc_link_host_cutoff;
 static int smc_is_solo_release(uint8_t st, uint8_t note, uint8_t velocity)
 {
@@ -812,13 +813,16 @@ void smc_poll(void)
         memcpy(msg, smc_host_q[r % SMC_Q], sizeof msg);
         __asm__ volatile("" ::: "memory");
         smc_host_r = (uint8_t)(r + 1u);
-        /* A BLE edge already cleared every held Solo, including host-held
-         * keys. A queued pre-edge host NoteOff must not release a new BLE
-         * press dispatched earlier in this poll. Keep non-Solo host events
-         * and all post-edge releases; the 32-slot ring bounds this delta. */
+        /* The BLE edge cleared all held Solo keys. Neither an old host
+         * NoteOff nor an old queued NoteOn may survive that reset: a full
+         * host FIFO can lose NoteOff, and replaying its earlier NoteOn after
+         * the edge would otherwise strand Solo. Preserve unrelated host
+         * controls and fresh post-edge Solo. The ring bounds this delta. */
         if (link_changed && r != host_cutoff &&
             (uint8_t)(host_cutoff - r) <= SMC_Q &&
-            smc_is_solo_release(msg[0], msg[1], msg[2]))
+            (smc_is_solo_release(msg[0], msg[1], msg[2]) ||
+             ((msg[0] & 0xF0u) == 0x90u && msg[1] >= 8u &&
+              msg[1] < 16u && msg[2] != 0u)))
             continue;
         if (proj.set.bt & PROJ_BT_SMC_USER)
             smc_message(msg, sizeof msg, allow);

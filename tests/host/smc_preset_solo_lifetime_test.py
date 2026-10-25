@@ -89,12 +89,13 @@ static void ble_note(int user, int on)
                        8u, (uint8_t)(on ? 127u : 0u)};
  smc_ble_midi(m, sizeof m);
 }
-static void host_note(int on)
+static void host_note_at(uint8_t note, int on)
 {
- uint32_t p = (uint32_t)(on ? 0x9Fu : 0x8Fu) << 8 | 8u << 16 |
+ uint32_t p = (uint32_t)(on ? 0x9Fu : 0x8Fu) << 8 | (uint32_t)note << 16 |
               (uint32_t)(on ? 127u : 0u) << 24;
  (void)smc_midi_host(p);
 }
+static void host_note(int on) { host_note_at(8u,on); }
 static void reset(uint8_t cursor, int user)
 {
  memset(&smc,0,sizeof smc);
@@ -192,11 +193,52 @@ static int ordinary_release(uint8_t cursor, int user, int route)
  CHECK(!solos_on && !smc.solo_target[0],"ordinary release unchanged");
  return 1;
 }
+/* An old queued host Solo NoteOn must not resurrect Solo after a BLE link
+ * reset, particularly when the last old NoteOff overflowed its 32-slot FIFO.
+ * Non-Solo host notes (e.g. MUTE) and new-link Solo messages must still work. */
+static int pre_edge_host_cutoff(uint8_t cursor, int overflow, int up, int fresh)
+{
+ reset(cursor,1);
+ host_note_at(24u,1);        /* unrelated User-mode host control, preserved */
+ unsigned pre_edge_solos = overflow ? 31u : 1u;
+ for(unsigned j=0;j<pre_edge_solos;j++) host_note(1);
+ host_note(0);               /* overflows only in saturated scenario */
+ CHECK(smc_host_solo_release_lost == (unsigned)overflow,
+       "producer records precisely the overflowed old release");
+ smc_ble_link(0);
+ if(up) smc_ble_link(1);     /* also test a coalesced disconnect/reconnect */
+ smc_poll();
+ CHECK(!solos_on && !smc.solo_target[0] && !smc_project_active(),
+       "pre-edge host Solo presses must not re-latch after BLE link reset");
+ CHECK(buttons == 1, "pre-edge non-Solo host control survives the link edge");
+ CHECK(smc_host_r == smc_host_w, "old host ring drains at cursor wrap");
+ CHECK(smc_host_solo_release_seen == smc_host_solo_release_lost,
+       "old overflow release generation retired exactly once");
+ smc_poll();
+ CHECK(!solos_on && buttons==1, "no stale Solo or duplicate host control on idle poll");
+ if(fresh) {
+  if(fresh==1) host_note(1);
+  else if(up) ble_note(1,1);
+  else return 1;             /* direct BLE is disconnected in this case */
+  smc_poll();
+  CHECK(solos_on && smc.solo_target[0], "fresh host or BLE Solo still works");
+  if(fresh==1) host_note(0); else ble_note(1,0);
+  smc_poll();
+  CHECK(!solos_on && !smc.solo_target[0], "fresh matched Solo key-up works");
+ }
+ return 1;
+}
 int main(void)
 {
  unsigned cases=0;
  const uint8_t cursors[] = {0u,1u,31u,127u,240u,255u};
  for (unsigned i=0;i<sizeof cursors;i++) {
+  for(int overflow=0;overflow<2;overflow++)
+   for(int up=0;up<2;up++)
+    for(int fresh=0;fresh<3;fresh++) {
+     if(!pre_edge_host_cutoff(cursors[i],overflow,up,fresh)) return 1;
+     ++cases;
+    }
   for (int from=0;from<2;from++) {
    for(int fresh=0;fresh<2;fresh++) {
     if(!scenario(cursors[i],from,0,fresh)) return 1;

@@ -1,0 +1,76 @@
+{
+  "schema": "loopyx0x37.smc.producer.native.r14.v1",
+  "date_utc": "2026-10-25",
+  "purpose": "Prevent a queued pre-link host Solo NoteOn from relatching held Solo after BLE reconnect, including an overflow-dropped NoteOff, without consuming unrelated host controls or post-edge Solo.",
+  "repository": "gobbajogger/X0X37-for-Loopy-Pro",
+  "pr": 122,
+  "branch": "lane/smc-mmc-multi-stop-boundary-fifo-20261024-run6",
+  "parent_commit": "9c7b54dc6e6a04bf2e603b647dfd3c0c0ed64336",
+  "parent_full_root_tree": "9f0d77978980436a34c94d3dfe4013ea76c0dd8d",
+  "parent_compiled_firmware_tree": "acde1d17b0a40e3ef084df417dd88116461e2fc2",
+  "previous_c_blob": "f9cd654952a514edfa3c3122946e38b4b85380d6",
+  "changed_blobs": {
+    "firmware/src/app/smc_mixer.c": "89958e304022aad13354cfdd5c51030d911228a6",
+    "tests/host/smc_preset_solo_lifetime_test.py": "4294ebceff1d3c14f16fa5cd57851537f7b36264"
+  },
+  "source_changes": "Filter only prior-link host User-mode Solo presses (NoteOn ch16 note8..15 velocity>0) in addition to already-filtered releases; preserve unrelated host controls, new-link controls, and the existing Solo-release helper for other test callers.",
+  "checks": {
+    "matrix_command": "python3 -B run_r14_matrix.py",
+    "actual_matrix_exit": 0,
+    "profile_count": 6,
+    "profiles": [
+      "gcc plain",
+      "gcc UBSan",
+      "gcc ASan+UBSan (LeakSanitizer disabled)",
+      "clang plain",
+      "clang UBSan",
+      "clang ASan+UBSan (LeakSanitizer disabled)"
+    ],
+    "actual_executions": 42,
+    "positive_exit_zero": 36,
+    "negative_baseline_expected_runtime_failures": 6,
+    "old_source_negative_observation": "R13 production-C extraction reproduces re-latched Solo when NoteOff overflows old 32-slot host ring and BLE disconnect/reconnect occurs before dequeue; all six baseline profiles exit 1 at intended regression assertion.",
+    "corrected_observations": [
+      "150/150 held-Solo lifetime scenarios, 888 checks per profile (72 added)",
+      "84/84 BLE preset routing cases per profile",
+      "16/16 BLE reconnect cases per profile",
+      "96/96 MMC STOP FIFO cases per profile",
+      "35/35 BLE exact-frame/routing cases per profile",
+      "27,884 BLE feedback assertions per profile"
+    ],
+    "python_syntax_command": "python3 -m py_compile tests/host/smc_preset_solo_lifetime_test.py run_r14_matrix.py",
+    "python_syntax_exit": 0,
+    "raw_matrix_log_sha256": "759944d9026273049a1cbbe8b85d166d162d65630a1ea09834d049a27354cc5e",
+    "native_runner_sha256": "56185324cb52c3a164419eeee8ede5881900d2047398c8c4b144bb5eac7fe5ef",
+    "source_extraction": true,
+    "full_root_qa_run": false,
+    "firmware_compilation_run": false,
+    "hardware_or_browser_run": false
+  },
+  "private_evidence": {
+    "location": "Main ChatGPT Library",
+    "path": "/LoopyX0X37-SMC-Host-Solo-Link-Cutoff-R14-20261025.zip",
+    "library_file_id": "libfile_bae7bd03bf7081918927b9b9dbcf85bf",
+    "bytes": 67332,
+    "zip_sha256": "ec86fb13d158a72a578ce7e31c33b91f1a47fff53f30742288e2b5cdc4c52313",
+    "zip_integrity": "PASS 57 entries",
+    "contains": "GPL source, runner, exact commands/exits, raw logs, JSON, README EN/RU; no firmware/SDK/controller/user samples"
+  },
+  "stages": {
+    "producer": "SOURCE_HOST_CHECKED; Git delivery pending at manifest creation",
+    "build": "BUILD_NOT_RUN_FOR_R14: new compiled firmware input requires fresh native Elite DEV/Pro DEV/matching controller; previous R13 authentic artifacts do not qualify",
+    "qa": "INDEPENDENT_QA_NOT_RUN_FOR_R14",
+    "integration": "SOLE SAFE MERGE ONLY, NOT REQUESTED",
+    "nightly": "NOT_INSTALLABLE",
+    "physical": "DEVICE_NOT_TESTED"
+  },
+  "handoff": {
+    "build_owner": "Existing LoopyX0X37 Hourly Build",
+    "qa_owner": "Existing LoopyX0X37 Independent QA",
+    "integrator": "Existing sole firmware Safe Merge",
+    "publisher": "Separate website/Pages owners",
+    "scope": "PR122 R14 host queue Solo presses and releases versus BLE link/reset/overflow boundaries",
+    "dedupe": "repo+exact-new-commit-SHA+evidence_revision+receiving-role+scope; SHA provided in subsequent verified PR comment"
+  },
+  "guards": "No release build, protected main/nightly/gh-pages, package publication, device flash, proprietary materials, no fabricated independent acceptance or liveness."
+}
