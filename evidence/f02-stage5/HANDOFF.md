@@ -16,9 +16,10 @@ Host test evidence: `evidence/f02-stage3/CHECKS.md` (ALL_PASS).
 Deferred (unchanged): `evidence/f02-stage2/DEFERRED.md`.
 Stage-6 local prompt: `evidence/f02-stage5/SUCCESSOR-STAGE6.txt` (also `stage6-install-prompt.json`).
 Successor prompt: `evidence/f02-stage5/SUCCESSOR-STAGE7.txt`.
-Successor agent id: none.
-Successor URL: none.
-Handoff status: **incomplete** until an owner-visible Stage 7 id is recorded on this remote tip.
+Successor agent id: `bc-aaf1fbac-fbdf-50d7-8f6f-a71e7bc55c3b`.
+Successor URL: https://cursor.com/agents/bc-aaf1fbac-fbdf-50d7-8f6f-a71e7bc55c3b
+Successor source: `desktop` (CreateAgent). Name: `F02 stage7 publish`. `startingRef`: `cursor/f02-stage5-fb90`.
+Handoff status: **complete**. Owner-visible Stage 7 is recorded on this remote tip. Stage 5 ownership ends.
 
 ## Nightly
 
