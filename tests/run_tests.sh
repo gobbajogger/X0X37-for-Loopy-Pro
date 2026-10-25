@@ -364,6 +364,7 @@ run bass303-wave-gnaw sh tests/host/run_bass303_wave_gnaw.sh   # Chicago Wave mo
 run bass303-amp-adsr sh tests/host/run_bass303_amp_adsr.sh   # Chicago Bite + amp Env A/D/S/R on native303
 run chicago-arp sh tests/host/run_chicago_arp.sh   # Chicago Arp Switch/Mode/Range/Speed (live held-note)
 run chicago-fx-bridge sh tests/host/run_chicago_fx_bridge.sh   # Chicago SEND FX Type/Edit Mix/fxbus bridge (not insert)
+run chicago-aux sh tests/host/run_chicago_aux.sh   # Chicago pitch bend + damper (live ±2 st; no TUNE rewrite)
 run install-gate-guard sh tests/host/test_install_gate_guard.sh   # tools/require_gate_pass.sh: the install needs the gate PASS of the exact tree
 run queue-guard sh tests/host/test_queue_guard.sh   # tools/require_gate_pass.sh check 6: each open QUEUE.md line is in the install commit
 run install-guards sh tests/host/test_install_guards.sh   # tools/fm1_install.py (checks 3, 14): foreground or screen session, one hardware job at a time

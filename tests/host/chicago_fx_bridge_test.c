@@ -19,10 +19,10 @@ static int fails;
 static void test_indices(void)
 {
     CHECK(CHI_FX_TYPE == 27 && CHI_FX_EDIT1 == 28 && CHI_FX_EDIT2 == 29, "FX pots at 27..29 after arp");
-    CHECK(CHI_FX_END == 30, "CHI_FX_END");
+    CHECK(CHI_FX_END == 30, "CHI_FX_END (aux continues at 30..31)");
     CHECK(CHI_FX_NTYPES == 12, "12 Chicago types");
     CHECK(BASS303_NPARAMS == 23, "bass303 DSP pots stay 0..22");
-    CHECK(32 >= CHI_FX_END, "NPARAMS_MAX 32 fits SEND FX (engine.h)");
+    CHECK(32 >= CHI_FX_END, "NPARAMS_MAX 32 fits SEND FX + aux");
 }
 
 static void test_supported_flags(void)

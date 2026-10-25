@@ -17,6 +17,7 @@
 #include "../dsp/bass303.h"                    /* BASS303_* (the 303's pages) */
 #include "chicago_arp.h"                       /* CHI_ARP_* (Chicago live arp page) */
 #include "chicago_fx.h"                        /* CHI_FX_* SEND FX bridge (not insert) */
+#include "chicago_aux.h"                       /* CHI_PBEND / CHI_DAMPER */
 #include "../dsp/fxbus.h"                      /* FX_* indices for SEND FX commit */
 #include "undo.c"
 
@@ -581,7 +582,8 @@ X0X_COLD static void pref_set(pref_t r, int v)
                 chi_fx_apply_ui(r.b, ty, e1, e2, 1);
             } else if (chi_fx_supported(ty) && ty != CHI_FX_OFF)
                 chi_fx_apply_ui(r.b, ty, e1, e2, 0);
-        }
+        } else if (r.a == T_303 && r.c == CHI_DAMPER && r.b < NBASS)
+            say(chi_damper_on((uint8_t)v) ? "DAMP ON" : "DAMP OFF", "");
         break;
     case R_SWING: p->swing = (uint8_t)v; break;
     case R_DLEN: p->drum[r.a].len = (uint8_t)(v + 1); break;
@@ -1087,6 +1089,9 @@ static void build_pages(void)
             /* SEND FX: labeled Mix/fxbus bridge — not Chicago insert (see chicago_fx.h). */
             do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_FX_TYPE), PR(R_ENG, T_303, 0, CHI_FX_EDIT1), PR(R_ENG, T_303, 0, CHI_FX_EDIT2), NONE};
             add_page_refs("SEND FX", refs, 2, b); } while (0);
+            /* Chicago pitch bend (±2 st) + damper (live/MIDI sustain). */
+            do { static const pref_t refs[4] = {PR(R_ENG, T_303, 0, CHI_PBEND), PR(R_ENG, T_303, 0, CHI_DAMPER), NONE, NONE};
+            add_page_refs("CHI AUX", refs, 2, b); } while (0);
             more(PR(R_ENG, T_303, b, BASS303_FENV));
         } else {
             pg_grp = GR_PAT;                           /* (its groove and retrigs: SEQ) */

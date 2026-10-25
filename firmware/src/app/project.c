@@ -18,6 +18,7 @@
 #include "../dsp/bass303.h"            /* BASS303_AMPMODE / BASS303_WAVE (snd rev 5–6) */
 #include "chicago_arp.h"               /* CHI_ARP_* (snd rev 8) */
 #include "chicago_fx.h"                /* CHI_FX_* SEND FX bridge (snd rev 9) */
+#include "chicago_aux.h"               /* CHI_PBEND / CHI_DAMPER (snd rev 10) */
 #include "lz.c"
 #include "../crc32_nibble.h"           /* one nibble table shared with storage.c */
 
@@ -702,6 +703,12 @@ static int read_project(project_t *pr)
             pr->sound.v[T_303][i][CHI_FX_TYPE] = CHI_FX_OFF;
             pr->sound.v[T_303][i][CHI_FX_EDIT1] = CHI_FX_PARAMS[1].def;
             pr->sound.v[T_303][i][CHI_FX_EDIT2] = CHI_FX_PARAMS[2].def;
+        }
+    }
+    if (sound_ok && pr->set.snd_rev < 10) {          /* Chicago pitch bend centre + damper Off */
+        for (i = 0; i < NBASS; i++) {
+            pr->sound.v[T_303][i][CHI_PBEND] = CHI_AUX_PARAMS[0].def;
+            pr->sound.v[T_303][i][CHI_DAMPER] = CHI_AUX_PARAMS[1].def;
         }
     }
     if (pr->set.stereo < 1)                          /* saved mono: no pans there (zeros = hard left) */
